@@ -2,7 +2,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
-#include "parallel.h"
+#include "../c/parallel.h"
 typedef struct {
     _Atomic int active,peak,calls,repair_hint,stop_after,stopped;
     int score_offset;
