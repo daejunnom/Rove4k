@@ -35,11 +35,27 @@ The manifest is either a JSON array or an object containing `engines`:
 }
 ```
 
+Build manifests may also provide `artifacts`. Successful `native-elf` entries
+with `source_form: "original"` or `"compact"` are checked against their actual
+on-disk SHA-256. Every distinct executable is run; a compact form with different
+bytes gets an additional `ID-compact` engine entry. Only exactly identical
+executable bytes reuse an execution, with the reason and hash recorded in
+`identical_artifact_reuse`. Equal size, matching source semantics, package hashes
+or successful handshake alone do not justify execution reuse.
+
 `command` is an argument array, never shell text. `cwd`, `workers`, and
 `max_threads` are optional. `max_threads` is the actual total process-thread
 budget, including control threads. Linux `/proc` sampling observes peak threads
 but cannot prove an unobserved transient did not occur. Configured worker count
 and observed peak count are reported separately.
+
+For build manifests with `configuration.ROVE_WORKERS`, the checker requires the
+configured search workers plus one stdin thread to exist **before the first UCI
+input**. Their `/proc` task IDs must remain unchanged after searches and during
+the active stop/quit/EOF checks. Direct entries can request the same check with
+`--startup-threads N`, or a manifest entry can provide `startup_threads`.
+This checks a real persistent pool at the declared local size; it is separate
+from peak sampling and does not establish scaling or memory use on target 512.
 
 The default checks cover:
 
@@ -56,8 +72,11 @@ The default checks cover:
 - Fixed depth, node limit, movetime, legal principal variations, mate distance,
   checkmate and stalemate.
 - Repeated infinite/stop cycles, queued stop/position/new-go epoch boundaries,
-  exactly one bestmove, EOF and quit during a search, actual process termination,
-  and cleanup of child processes observed during that test.
+  direct active position and new-game resets, exactly one bestmove, EOF and quit
+  during a search, actual process termination, and cleanup of child processes
+  observed during that test. Development tests first verify no bestmove was
+  published before cancellation. Each cancelled epoch must publish its own one
+  legal bestmove before a subsequent root's result is accepted.
 - A bounded legal-move selfplay smoke. It supports no Elo or strength claim.
 
 `--profile shipping` applies to direct `--engine` entries. Manifest entries with
@@ -125,3 +144,41 @@ versus SIMD equivalence, MTD bounds or PALS compatibility. Those require the
 implementations' additional semantic diagnostics. Nor do small local worker
 profiles prove 512-hardware-thread scaling, 4 KiB eligibility, artifact
 reproducibility, learning quality or competition strength.
+
+## C search semantic contracts
+
+The separate `search_contract.c` exercises the real C search implementation,
+compiled without its UCI main. Run its bounded build/test recipe on Linux:
+
+```sh
+python3 engines/tests/run_search_contract.py \
+  --out /tmp/rove4k/search-contract --variants BCF --workers 1
+```
+
+The runner records exact source hashes, compiler arguments, executable hashes,
+exit statuses and stdout/stderr. It fails a frozen-source claim if inputs change
+during the run. Every compile has a 60-second bound; every test has a 45-second
+bound. `--workers` permits 1–8 for local checks.
+
+- **B:** exact legal-exchange values for pins, legal versus protected king
+  recaptures, EP, promotions, underpromotions and optional recapture; rejection
+  of initially illegal pin/EP moves; incomplete cancellation. A real completed
+  depth-3 search produces the TT entry qualifying a depth-6 singular search.
+  Excluded low/full-window searches with frozen learning must preserve the
+  ordinary root TT entry, history, continuation, correction, killers, board and
+  path depth. Ordinary learning positive controls first prove that the selected
+  positions/windows actually qualify for each relevant update.
+- **C:** 400 actual AVX2 evaluations equal a scalar score recomputed from board
+  contents during deterministic legal walks. The production SIMD counter must
+  advance. Execution requires an AVX2-capable CPU.
+- **F:** actual MTD root iterations on three separated king/pawn positions agree
+  with a plain independent full minimax oracle, and the returned legal move
+  attains that value. The oracle has no TT, ordering, PVS or pruning; it checks
+  its quiet-frontier precondition explicitly. Actual convergence counters and
+  conflict counters are checked, repeated searches retain TT data across
+  horizon changes, and a 100-node cancellation preserves the last completed
+  score and attaining move.
+
+These semantic fixtures add evidence for those specific contracts. They do not
+replace the subprocess protocol/rules checks or prove the other algorithm and
+parallel-policy requirements.

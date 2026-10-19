@@ -96,3 +96,54 @@ For a concrete overflow regression, 62 White queens plus two kings in
 `QQQQQQQQ/QQQQQQQQ/QQQQQQQQ/QQQQQQQQ/QQQkQQQQ/QQQQQQQQ/QQQQQQQQ/KQQQQQQQ w`
 produce raw White score 56,014. Product tests must observe the engine's ordinary
 score clamp, rather than allowing this raw value to become a mate score.
+
+## C SIMD plus E cross candidate
+
+The separate `C+E` build uses candidate C's fixed AVX2 requirement with the same
+16 canonical E evaluation features and 21 decoded parameters. It changes both
+the actual evaluation and the move-ordering model while preserving the baseline
+C build. Select it through the build tool's `--model` flag, which defines
+`ROVE_MODEL=1` for C or sets that compile-time environment variable for Rust.
+It is an additional cross candidate, not a replacement for either baseline C or E.
+
+C calls `rove_e_dot_avx2` from `simd.h` after extracting the canonical features.
+Rust reuses its AVX2 dot product with 16 canonical model lanes instead of the 32
+HCE lanes. Both use signed 16-bit products widened to exact signed 32-bit sums;
+there is no saturating arithmetic. The engines retain a development scalar
+polynomial for comparison. The fixed shipping profile requires AVX2, so it does
+not select a different evaluation by inspecting the CPU at runtime.
+
+`test_simd.c.in` compares the actual C scalar and vector model paths on 10,000
+synthetic boards, both sides to move, and a dense promoted-material clamp case.
+It returns status 77 when the development CPU has no AVX2; that is an unperformed
+comparison rather than a pass. Run its compiled executable outside the checkout:
+
+```sh
+gcc -x c -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+    engines/model/test_simd.c.in -o /tmp/rove4k-model-simd-check
+/tmp/rove4k-model-simd-check
+```
+
+Rust's `eval::tests` compares scalar and SIMD model inference on played positions
+and dense inputs, in both baseline and cross-model builds. Representation and
+inference parity alone do not establish that this cross candidate is smaller,
+faster or stronger. Those claims require same-profile final-file and search
+measurements recorded separately.
+
+The development fixture uses `.c.in` so the build tool's shipping-source collector
+does not link its test-only `main` into the engine.
+
+After building complete baseline and `--model` campaigns with `--variant C` and
+the same shipping profile, record a bounded comparison outside the checkout:
+
+```sh
+python3 engines/model/compare_c.py --baseline /absolute/baseline/build.json \
+    --model /absolute/cross/build.json --out /absolute/evidence/cross-comparison.json
+```
+
+The comparison rejects changed source bytes or fixed settings other than the
+model flag. It retains complete-file size records and runs three samples of three
+opening positions with equal UCI clocks, each in a fresh native process. It checks
+startup, one `bestmove` response, bounded completion and clean exit. These native
+response timings do not measure packed-file startup, nodes per second, move
+legality or strength; packaging smoke and engine-validation results remain separate.

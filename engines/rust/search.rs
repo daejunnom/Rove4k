@@ -14,8 +14,9 @@ pub struct Limits { pub depth: u8, pub nodes: u64, pub movetime: Option<Duration
 pub struct Control {
     pub stop: AtomicBool,
     pub nodes: AtomicU64,
-    pub deadline: Option<Instant>,
-    pub node_limit: u64,
+    origin: Instant,
+    deadline_ns: AtomicU64,
+    pub node_limit: AtomicU64,
     pub conflicts: AtomicU64,
     pub probes: AtomicU64,
     pub singular: AtomicU64,
@@ -81,6 +82,24 @@ mod tests {
         let e=s.table.get(77,0).unwrap();assert_eq!((e.lower,e.upper),(120,120));assert_eq!(e.mv,good);
     }
     #[test]
+    fn b_normal_search_executes_eligible_same_ply_singular_probe() {
+        let b=Board::from_fen("4k3/8/8/3q4/8/8/4K3/3Q4 w - - 0 1").unwrap();
+        let mut s=session(b'B',12000);let _=s.iteration(&b,3,0).unwrap();
+        let key=s.key(&b);assert!(s.table.get(key,0).is_some());
+        // Keep the exact same frozen evaluation as the completed TT result.
+        // This is the normal recursive search, not the exclusion test helper.
+        let _=s.negamax(&b,6,-INF,INF,0,Move::default(),None,false);
+        assert!(s.control.singular.load(Ordering::Relaxed)>0);
+        assert!(s.control.see_calls.load(Ordering::Relaxed)>0);
+    }
+    #[test]
+    fn b_cancelled_ordering_cannot_publish_a_normal_tt_bound(){
+        let b=Board::from_fen("4k3/8/8/3q4/8/8/4K3/3Q4 w - - 0 1").unwrap();let mut s=session(b'B',1);s.begin_depth();
+        assert!(s.negamax(&b,1,-INF,INF,0,Move::default(),None,false).is_err());
+        assert!(s.table.get(s.key(&b),0).is_none());assert_eq!(s.control.nodes.load(Ordering::Relaxed),1);
+        assert!(s.control.stop.load(Ordering::Relaxed));
+    }
+    #[test]
     fn converged_root_move_witness_achieves_the_completed_score() {
         let b=Board::from_fen("4k3/8/2r5/3p4/4P3/8/4K3/3R4 w - - 0 1").unwrap();
         let mut s=session(b'F',0);let result=s.iteration(&b,3,900).unwrap();
@@ -89,15 +108,51 @@ mod tests {
         assert_eq!(result.score,*scores.iter().max().unwrap());
         assert_eq!(result.score,scores[moves.iter().position(|&m|m==result.best).unwrap()]);
     }
+    #[test]
+    fn control_reset_reuses_storage_and_handles_large_clock_values() {
+        let c=Control::new(&Limits{depth:2,nodes:1,movetime:Some(Duration::ZERO)});
+        assert!(c.cancelled());c.probes.store(9,Ordering::Relaxed);c.nodes.store(1,Ordering::Relaxed);
+        c.reset(&Limits{depth:3,nodes:100,movetime:None});
+        assert!(!c.cancelled());assert!(c.deadline().is_none());assert_eq!(c.probes.load(Ordering::Relaxed),0);assert_eq!(c.nodes.load(Ordering::Relaxed),0);
+        c.reset(&Limits{depth:3,nodes:0,movetime:Some(Duration::from_millis(u64::MAX))});
+        assert!(c.deadline().is_some());assert!(!c.cancelled());
+    }
+    #[test]
+    fn terminal_reuse_cannot_publish_a_previous_root_move() {
+        let mut s=session(b'A',0);let first=s.iteration(&Board::start(),1,0).unwrap();assert_ne!(first.best,Move::default());
+        for(fen,score)in [
+            ("7k/6Q1/6K1/8/8/8/8/8 b - - 0 1",-MATE),
+            ("7k/5Q2/6K1/8/8/8/8/8 b - - 0 1",0),
+            ("4k3/8/8/8/8/8/4K3/R7 w - - 100 1",0),
+        ]{let terminal=Board::from_fen(fen).unwrap();let r=s.iteration(&terminal,1,0).unwrap();assert_eq!(r.score,score);assert_eq!(r.best,Move::default());assert!(r.reply.is_none());}
+    }
 }
 impl Control {
     pub fn new(limits: &Limits) -> Self {
-        Self { stop: AtomicBool::new(false), nodes: AtomicU64::new(0), deadline: limits.movetime.map(|d| Instant::now() + d), node_limit: limits.nodes, conflicts: AtomicU64::new(0), probes:AtomicU64::new(0), singular:AtomicU64::new(0), see_calls:AtomicU64::new(0), tt_hits:AtomicU64::new(0), #[cfg(test)] trace:std::sync::Mutex::new(Vec::new()) }
+        let result = Self { stop: AtomicBool::new(false), nodes: AtomicU64::new(0), origin: Instant::now(), deadline_ns: AtomicU64::new(0), node_limit: AtomicU64::new(0), conflicts: AtomicU64::new(0), probes:AtomicU64::new(0), singular:AtomicU64::new(0), see_calls:AtomicU64::new(0), tt_hits:AtomicU64::new(0), #[cfg(test)] trace:std::sync::Mutex::new(Vec::new()) };
+        result.reset(limits);
+        result
+    }
+    /// The caller has physically stopped every worker before resetting a search.
+    /// One allocation and monotonic clock origin serve the whole process lifetime.
+    pub fn reset(&self, limits: &Limits) {
+        self.stop.store(false, Ordering::Relaxed);
+        self.nodes.store(0, Ordering::Relaxed);
+        self.node_limit.store(limits.nodes, Ordering::Relaxed);
+        let deadline = limits.movetime.map_or(0, |d| (self.origin.elapsed().saturating_add(d).as_nanos().min(u64::MAX as u128) as u64).max(1));
+        self.deadline_ns.store(deadline, Ordering::Relaxed);
+        for value in [&self.conflicts, &self.probes, &self.singular, &self.see_calls, &self.tt_hits] { value.store(0, Ordering::Relaxed); }
+        #[cfg(test)] self.trace.lock().unwrap().clear();
+    }
+    pub fn deadline(&self) -> Option<Instant> {
+        let ns = self.deadline_ns.load(Ordering::Relaxed);
+        if ns == 0 { None } else { self.origin.checked_add(Duration::from_nanos(ns)) }
     }
     pub fn cancelled(&self) -> bool {
         if self.stop.load(Ordering::Relaxed) { return true; }
-        let cancelled = (self.node_limit != 0 && self.nodes.load(Ordering::Relaxed) >= self.node_limit)
-            || self.deadline.is_some_and(|d| Instant::now() >= d);
+        let limit = self.node_limit.load(Ordering::Relaxed);
+        let cancelled = (limit != 0 && self.nodes.load(Ordering::Relaxed) >= limit)
+            || self.deadline().is_some_and(|d| Instant::now() >= d);
         if cancelled { self.stop.store(true, Ordering::Relaxed); }
         cancelled
     }
@@ -118,8 +173,17 @@ fn store_score(v: i32, ply: usize) -> i32 { if v > MATE - 128 { v + ply as i32 }
 fn load_score(v: i32, ply: usize) -> i32 { if v > MATE - 128 { v - ply as i32 } else if v < -MATE + 128 { v + ply as i32 } else { v } }
 impl Table {
     pub fn new(bits: usize) -> Self {
-        let size = 1usize << bits.clamp(8, 24);
+        assert!((8..=26).contains(&bits), "TT allocation exponent must be 8..26");
+        let size = 1usize << bits;
         Self { slots: (0..size).map(|_| Slot { sequence: AtomicU64::new(0), key: AtomicU64::new(0), data: AtomicU64::new(0) }).collect(), mask: size - 1 }
+    }
+    pub fn clear(&self) {
+        // Session reset is called after physical worker completion. The same
+        // sequence protocol also keeps an accidental concurrent reader safe.
+        for s in &self.slots {
+            let seq=s.sequence.load(Ordering::Relaxed);
+            if seq&1==0&&s.sequence.compare_exchange(seq,seq.wrapping_add(1),Ordering::Acquire,Ordering::Relaxed).is_ok(){s.data.store(0,Ordering::Relaxed);s.sequence.store(seq.wrapping_add(2),Ordering::Release);}
+        }
     }
     fn get(&self, key: u64, ply: usize) -> Option<Entry> {
         let s = &self.slots[key as usize & self.mask];
@@ -163,7 +227,7 @@ fn move_index(m: Move) -> usize { m.from as usize * 128 + m.to as usize }
 fn history_update(value: &mut i16, bonus: i32) { let v = *value as i32; *value = (v + bonus - v * bonus.abs() / 16384).clamp(-16384, 16384) as i16; }
 
 pub struct Searcher {
-    table: Arc<Table>, control: Arc<Control>, variant: u8, worker: usize,
+    table: Arc<Table>, control: Arc<Control>, #[cfg(test)] variant: u8, worker: usize,
     history: Vec<i16>, continuation: Vec<i16>, capture_history: Vec<i16>,
     correction: [Vec<i16>; 3], frozen: [Vec<i16>; 3], epoch: u64,
     pv: Vec<Vec<Move>>, reply_hint: Option<Move>, hint_ply: usize,
@@ -171,14 +235,28 @@ pub struct Searcher {
 }
 impl Searcher {
     pub fn new(table: Arc<Table>, control: Arc<Control>, variant: u8, worker: usize) -> Self {
-        Self { table, control, variant, worker, history: vec![0;32768], continuation: vec![0;4096], capture_history: vec![0;7*7*128],
+        let _=variant;
+        Self { table, control, #[cfg(test)] variant, worker, history: vec![0;32768], continuation: vec![0;4096], capture_history: vec![0;7*7*128],
             correction: std::array::from_fn(|_| vec![0;2048]), frozen: std::array::from_fn(|_| vec![0;2048]), epoch: 0,
-            pv: (0..=PLY_LIMIT).map(|_| Vec::new()).collect(), reply_hint: None, hint_ply: 1, root_choice: Move::default() }
+            pv: (0..=PLY_LIMIT).map(|_| Vec::with_capacity(PLY_LIMIT)).collect(), reply_hint: None, hint_ply: 1, root_choice: Move::default() }
     }
+    #[inline(always)]
+    fn variant(&self)->u8{
+        #[cfg(test)] {self.variant}
+        #[cfg(not(test))] {crate::VARIANT}
+    }
+    pub fn reset_learning(&mut self){
+        self.history.fill(0);self.continuation.fill(0);self.capture_history.fill(0);
+        for c in &mut self.correction{c.fill(0);}for c in &mut self.frozen{c.fill(0);}
+        for line in &mut self.pv{line.clear();}self.epoch=0;self.reply_hint=None;self.root_choice=Move::default();
+    }
+    fn set_pv(&mut self,ply:usize,m:Move){let(parent,child)=self.pv.split_at_mut(ply+1);let line=&mut parent[ply];line.clear();line.push(m);line.extend_from_slice(&child[0]);}
     pub fn eval_epoch(&self) -> u64 { self.epoch }
     pub fn share_evaluation(&mut self, source:&Self) { self.frozen.clone_from(&source.frozen);self.epoch=source.epoch; }
+    pub fn freeze_to(&self,output:&mut [[i16;2048];3])->u64{for(i,c)in output.iter_mut().enumerate(){c.copy_from_slice(&self.frozen[i]);}self.epoch}
+    pub fn use_frozen(&mut self,input:&[[i16;2048];3],epoch:u64){for(i,c)in input.iter().enumerate(){self.frozen[i].copy_from_slice(c);}self.epoch=epoch;}
     pub fn begin_depth(&mut self) {
-        if self.variant == b'F' { self.epoch = 0; return; }
+        if self.variant() == b'F' { self.epoch = 0; return; }
         self.frozen.clone_from(&self.correction);
         self.epoch = self.frozen.iter().flatten().fold(0, |h, &v| mix(h ^ v as u16 as u64));
     }
@@ -193,8 +271,8 @@ impl Searcher {
         keys.map(|k| k as usize & 2047)
     }
     fn evaluation(&self, b: &Board) -> i32 {
-        let correction = if self.variant == b'F' { 0 } else { Self::correction_indices(b).iter().enumerate().map(|(i,&k)| self.frozen[i][k] as i32).sum::<i32>() / 128 };
-        (eval::evaluate(b, self.variant) + correction).clamp(-MATE + 256, MATE - 256)
+        let correction = if self.variant() == b'F' { 0 } else { Self::correction_indices(b).iter().enumerate().map(|(i,&k)| self.frozen[i][k] as i32).sum::<i32>() / 128 };
+        (eval::evaluate(b, self.variant()) + correction).clamp(-MATE + 256, MATE - 256)
     }
     fn key(&self, b: &Board) -> u64 {
         // Draw history is part of the search context. Position-only keys are not
@@ -206,8 +284,9 @@ impl Searcher {
     }
     fn tick(&self) -> Result<(), ()> {
         if self.control.cancelled() { return Err(()); }
-        if self.control.node_limit==0 {self.control.nodes.fetch_add(1, Ordering::Relaxed);}
-        else if self.control.nodes.fetch_update(Ordering::Relaxed,Ordering::Relaxed,|n|if n<self.control.node_limit{Some(n+1)}else{None}).is_err(){self.control.stop.store(true,Ordering::Relaxed);return Err(());}
+        let limit = self.control.node_limit.load(Ordering::Relaxed);
+        if limit==0 {self.control.nodes.fetch_add(1, Ordering::Relaxed);}
+        else if self.control.nodes.fetch_update(Ordering::Relaxed,Ordering::Relaxed,|n|if n<limit{Some(n+1)}else{None}).is_err(){self.control.stop.store(true,Ordering::Relaxed);return Err(());}
         Ok(())
     }
     fn draw(b: &Board) -> bool { b.halfmove >= 100 || b.repeated() || b.insufficient() }
@@ -218,14 +297,16 @@ impl Searcher {
         let mut v = if capture {
             let victim = b.captured(m).unsigned_abs() as usize;
             let piece = b.cells[m.from as usize].unsigned_abs() as usize;
-            let see = if self.variant == b'B' { self.control.see_calls.fetch_add(1,Ordering::Relaxed); b.see(m) } else { [0,100,320,330,500,900,20000][victim] - piece as i32 };
+            // On cancellation this key is immaterial: both sorting callers
+            // propagate Err before searching a move or publishing any bound.
+            let see = if self.variant() == b'B' { self.control.see_calls.fetch_add(1,Ordering::Relaxed); b.see_with_abort(m,&||self.control.cancelled()).unwrap_or(0) } else { [0,100,320,330,500,900,20000][victim] - piece as i32 };
             1_000_000 + see * 64 + self.capture_history[(piece*7+victim)*128+m.to as usize] as i32
         } else {
             self.history[(b.side < 0) as usize*16384+move_index(m)] as i32
                 + self.continuation[(move_index(previous).wrapping_mul(13)^move_index(m)) & 4095] as i32
         };
         if m.promo != 0 { v += 800_000 + m.promo as i32 * 100; }
-        if self.variant == b'E' { v += eval::order(b,m); }
+        if self.variant() == b'E'||self.variant()==b'C'&&eval::CROSS_MODEL { v += eval::order(b,m); }
         // Search diversity changes equal-score ordering only.
         v * 8 + ((mix(encode_move(m) ^ self.worker as u64) & 7) as i32)
     }
@@ -246,11 +327,12 @@ impl Searcher {
             moves.retain(|&m| b.is_capture(m) || m.promo != 0);
         }
         moves.sort_unstable_by_key(|&m| std::cmp::Reverse(self.order(b,m,Move::default(),previous,ply)));
+        if self.control.cancelled(){return Err(());}
         for m in moves {
             // Legal evasions are never filtered by SEE.
-            if !check && self.variant == b'B' && m.promo == 0 && b.see(m) < 0 { continue; }
+            if !check && self.variant() == b'B' && m.promo == 0 && b.see_with_abort(m,&||self.control.cancelled()).ok_or(())? < 0 { continue; }
             let score = -self.qsearch(&b.play(m),-beta,-alpha,ply+1,m,isolated)?;
-            if score > best { best = score; self.pv[ply] = std::iter::once(m).chain(self.pv[ply+1].iter().copied()).collect(); }
+            if score > best { best = score; self.set_pv(ply,m); }
             alpha = alpha.max(score);
             if alpha >= beta { break; }
         }
@@ -270,12 +352,13 @@ impl Searcher {
         let key = self.key(b);
         let entry = if isolated { None } else { self.table.get(key,ply) };
         let tt_move = entry.map_or(Move::default(),|e| e.mv);
-        if let Some(e) = entry { if (e.depth >= depth && (self.variant != b'F' || e.depth == depth)) && moves.contains(&e.mv) {
+        if let Some(e) = entry { if (e.depth >= depth && (self.variant() != b'F' || e.depth == depth)) && moves.contains(&e.mv) {
             let score = if e.lower == e.upper { Some(e.lower) } else if e.lower >= beta { Some(e.lower) } else if e.upper <= alpha {Some(e.upper)} else {None};
             if let Some(score) = score { self.control.tt_hits.fetch_add(1,Ordering::Relaxed); self.pv[ply].push(e.mv); if ply == 0 {self.root_choice=e.mv;} return Ok(score); }
         }}
         let static_eval = self.evaluation(b);
         moves.sort_unstable_by_key(|&m| std::cmp::Reverse(self.order(b,m,tt_move,previous,ply)));
+        if self.control.cancelled(){return Err(());}
         let mut best = -INF;
         let mut best_move = Move::default();
         let mut searched = 0usize;
@@ -284,7 +367,7 @@ impl Searcher {
             if excluded == Some(m) { continue; }
             let quiet = !b.is_capture(m) && m.promo == 0;
             let mut extension = 0;
-            if self.variant == b'B' && !isolated && excluded.is_none() && depth >= 6 && m == tt_move {
+            if self.variant() == b'B' && !isolated && excluded.is_none() && depth >= 6 && m == tt_move {
                 if let Some(e) = entry { if e.depth >= depth.saturating_sub(3) && e.lower > -MATE+128 && e.lower < MATE-128 && e.lower > -INF {
                     let threshold = e.lower - 2*depth as i32;
                     self.control.singular.fetch_add(1,Ordering::Relaxed);
@@ -303,13 +386,13 @@ impl Searcher {
             } else {
                 // MTD(f) uses full-depth alpha-beta at every probe. Ordering may
                 // evolve, while the searched value and evaluation stay fixed.
-                let reduction = if self.variant != b'F' && !check && quiet && depth >= 3 && searched >= 4 && !child.in_check() { 1 + (depth >= 8 && searched >= 12) as u8 } else {0};
+                let reduction = if self.variant() != b'F' && !check && quiet && depth >= 3 && searched >= 4 && !child.in_check() { 1 + (depth >= 8 && searched >= 12) as u8 } else {0};
                 score = -self.negamax(&child,full_depth.saturating_sub(reduction),-alpha-1,-alpha,ply+1,m,None,isolated)?;
                 if reduction > 0 && score > alpha { score = -self.negamax(&child,full_depth,-alpha-1,-alpha,ply+1,m,None,isolated)?; }
                 if score > alpha && score < beta { score = -self.negamax(&child,full_depth,-beta,-alpha,ply+1,m,None,isolated)?; }
             }
             searched += 1;
-            if score > best { best=score; best_move=m; self.pv[ply]=std::iter::once(m).chain(self.pv[ply+1].iter().copied()).collect(); if ply==0 {self.root_choice=m;} }
+            if score > best { best=score; best_move=m; self.set_pv(ply,m); if ply==0 {self.root_choice=m;} }
             alpha=alpha.max(score);
             if alpha >= beta {
                 if !isolated {
@@ -332,8 +415,8 @@ impl Searcher {
         if !isolated {
             let lower=if best>original_alpha {best} else {-INF};
             let upper=if best<beta {best} else {INF};
-            if !self.table.put(Entry {key,mv:best_move,depth,lower,upper},ply,&self.control) && self.variant==b'F' {return Err(());}
-            if self.variant!=b'F' && !check && depth>=2 && !b.is_capture(best_move) && best_move.promo==0 && best.abs()<MATE-128
+            if !self.table.put(Entry {key,mv:best_move,depth,lower,upper},ply,&self.control) && self.variant()==b'F' {self.control.stop.store(true,Ordering::Relaxed);return Err(());}
+            if self.variant()!=b'F' && !check && depth>=2 && !b.is_capture(best_move) && best_move.promo==0 && best.abs()<MATE-128
                 && ((best>original_alpha && best<beta) || (best>=beta && best>static_eval) || (best<=original_alpha && best<static_eval)) {
                 let target=((best-static_eval)*32).clamp(-2048,2048);
                 for (i,k) in Self::correction_indices(b).into_iter().enumerate() {history_update(&mut self.correction[i][k],target*depth as i32/8);}
@@ -347,8 +430,9 @@ impl Searcher {
     }
     /// One immutable evaluation meaning is shared by all workers for a depth.
     pub fn iteration_frozen(&mut self,b:&Board,depth:u8,guess:i32)->Option<SearchResult>{
+        self.root_choice=Move::default();self.reply_hint=None;
         let mut lower_witness=None;
-        let score = if self.variant == b'F' {
+        let score = if self.variant() == b'F' {
             let(mut lower,mut upper,mut value)=(-INF,INF,guess.clamp(-INF+1,INF-1));
             while lower<upper {
                 self.control.probes.fetch_add(1,Ordering::Relaxed);
@@ -356,12 +440,12 @@ impl Searcher {
                 value=self.negamax(b,depth,beta-1,beta,0,Move::default(),None,false).ok()?;
                 if value<beta {upper=value;} else {lower=value;lower_witness=self.pv[0].first().copied().or(lower_witness);}
                 #[cfg(test)] self.control.trace.lock().unwrap().push((depth,lower,upper,self.epoch as i32));
-                if lower>upper {self.control.conflicts.fetch_add(1,Ordering::Relaxed);return None;}
+                if lower>upper {self.control.conflicts.fetch_add(1,Ordering::Relaxed);self.control.stop.store(true,Ordering::Relaxed);return None;}
             }
             value
         } else {self.negamax(b,depth,-INF,INF,0,Move::default(),None,false).ok()?};
         let last_move=self.pv[0].first().copied().unwrap_or(self.root_choice);
-        let best=if self.variant==b'F'{lower_witness.unwrap_or(last_move)}else{last_move};
+        let best=if self.variant()==b'F'{lower_witness.unwrap_or(last_move)}else{last_move};
         Some(SearchResult {score,best,reply:if best==last_move{self.pv[0].get(1).copied()}else{None},depth,nodes:self.control.nodes.load(Ordering::Relaxed),completed:true})
     }
     pub fn search_move(&mut self,b:&Board,m:Move,depth:u8,alpha:i32,beta:i32)->Option<SearchResult> {

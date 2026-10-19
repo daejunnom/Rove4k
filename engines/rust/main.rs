@@ -4,11 +4,11 @@ mod board;
 mod eval;
 mod search;
 mod parallel;
+mod pool;
 use board::{Board,Move};
 use search::{Control,Limits};
 use std::io::{self,BufRead};
 use std::sync::{Arc,atomic::Ordering};
-use std::thread::{self,JoinHandle};
 use std::time::Duration;
 
 const fn number(v:Option<&str>,default:usize)->usize {
@@ -21,8 +21,6 @@ const WORKERS:usize=number(option_env!("ROVE_WORKERS"),2);
 const TT_BITS:usize=number(option_env!("ROVE_TT_BITS"),16);
 const PARALLEL:u8=number(option_env!("ROVE_PARALLEL"),0)as u8;
 
-struct Active {control:Arc<Control>,handle:JoinHandle<()>}
-fn finish(active:&mut Option<Active>){if let Some(a)=active.take(){a.control.stop.store(true,Ordering::Relaxed);let _=a.handle.join();}}
 fn diagnostic(s:impl std::fmt::Display){if DEV{println!("info string {s}");}}
 fn read_command<R:BufRead>(input:&mut R)->io::Result<Option<Result<String,()>>>{
     let mut bytes=Vec::new();let mut oversized=false;
@@ -70,9 +68,9 @@ fn main(){
     assert!((b'A'..=b'F').contains(&VARIANT),"ROVE_VARIANT must be A..F");
     assert!((1..=512).contains(&WORKERS),"ROVE_WORKERS must be 1..512");
     assert!(PARALLEL<=4,"ROVE_PARALLEL must be 0..4");
-    eval::init_model();
+    if VARIANT==b'E'||VARIANT==b'C'&&eval::CROSS_MODEL{eval::init_model();}
     let mut board=Board::start();
-    let mut active:Option<Active>=None;
+    let mut runtime=pool::Runtime::new(VARIANT,WORKERS,TT_BITS,PARALLEL).expect("fixed worker/TT startup failed");
     let mut last_control:Option<Arc<Control>>=None;
     let stdin=io::stdin();let mut input=stdin.lock();
     loop{
@@ -82,38 +80,30 @@ fn main(){
         match cmd{
             "uci"=>{println!("id name Rove4k {} Rust",VARIANT as char);println!("id author Rove4k");println!("uciok");},
             "isready"=>println!("readyok"),
-            "position"=>{finish(&mut active);match set_position(&board,&w){Ok(b)=>board=b,Err(e)=>diagnostic(e)}},
-            "ucinewgame"=>{finish(&mut active);last_control=None;},
-            "stop"=>finish(&mut active),
-            "quit"=>{finish(&mut active);break;},
+            "position"=>{runtime.finish();match set_position(&board,&w){Ok(b)=>board=b,Err(e)=>diagnostic(e)}},
+            "ucinewgame"=>{runtime.reset();last_control=None;},
+            "stop"=>runtime.finish(),
+            "quit"=>{runtime.finish();break;},
             "go"=>{
-                finish(&mut active);
                 let limits=go_limits(&board,&w);
-                let control=Arc::new(Control::new(&limits));
-                last_control=Some(control.clone());
-                let(c,b)=(control.clone(),board.clone());
-                let fallback=b.legal().first().copied();
-                let handle=thread::spawn(move||{
-                    let result=parallel::run(b,VARIANT,WORKERS,TT_BITS,limits,c,PARALLEL);
-                    let chosen=result.filter(|r|r.completed).map(|r|r.best).filter(|m|*m!=Move::default()).or(fallback);
-                    println!("bestmove {}",chosen.map_or_else(||"0000".into(),Move::uci));
-                });
-                active=Some(Active{control,handle});
+                runtime.start(&board,limits);
+                last_control=Some(runtime.control());
             },
-            "perft" if DEV=>{finish(&mut active);if let Some(d)=w.get(1).and_then(|s|s.parse::<u32>().ok()){if d<=7{println!("perft {d} {}",board.perft(d));}}},
+            "perft" if DEV=>{runtime.finish();if let Some(d)=w.get(1).and_then(|s|s.parse::<u32>().ok()){if d<=7{println!("perft {d} {}",board.perft(d));}}},
             "legal" if DEV=>println!("legal {}",board.legal().into_iter().map(Move::uci).collect::<Vec<_>>().join(" ")),
             "fen"|"d"|"board" if DEV=>println!("fen {}",board.fen()),
             "hash" if DEV=>println!("hash {}",board.hash),
             "eval" if DEV=>println!("eval {}",eval::evaluate(&board,VARIANT)),
             "see" if DEV=>{if let Some(m)=w.get(1).and_then(|s|board.parse_move(s)){println!("see {}",board.see(m));}},
-            "simd" if DEV=>{let scalar=eval::scalar(&board);if eval::simd_available(){println!("simd scalar {scalar} vector {}",eval::evaluate(&board,b'C'));}else{println!("simd unavailable scalar {scalar}");}},
+            "simd" if DEV=>{let scalar=if eval::CROSS_MODEL{eval::model(&board)}else{eval::scalar(&board)};if eval::simd_available(){println!("simd scalar {scalar} vector {}",eval::evaluate(&board,b'C'));}else{println!("simd unavailable scalar {scalar}");}},
             "state" if DEV=>{
                 let mut rebuilt=board.clone();rebuilt.rebuild();
-                println!("{{\"hash\":{},\"halfmove\":{},\"eval\":{},\"draw\":{},\"invariant\":{},\"fen\":\"{}\"}}",board.hash,board.halfmove,eval::evaluate(&board,VARIANT),board.halfmove>=100||board.repeated()||board.insufficient(),board.hash==rebuilt.hash&&board.bb==rebuilt.bb&&board.evalwhite()==rebuilt.evalwhite(),board.fen());
+                let legal=board.legal();let draw=if legal.is_empty(){!board.in_check()}else{board.halfmove>=100||board.repeated()||board.insufficient()};
+                println!("{{\"hash\":{},\"halfmove\":{},\"eval\":{},\"draw\":{},\"invariant\":{},\"fen\":\"{}\"}}",board.hash,board.halfmove,eval::evaluate(&board,VARIANT),draw,board.hash==rebuilt.hash&&board.bb==rebuilt.bb&&board.evalwhite()==rebuilt.evalwhite(),board.fen());
             },
             "stats" if DEV=>{if let Some(c)=&last_control{println!("{{\"nodes\":{},\"f_probes\":{},\"singular\":{},\"see_calls\":{},\"tt_hits\":{},\"bound_conflicts\":{},\"search_workers\":{},\"total_threads\":{}}}",c.nodes.load(Ordering::Relaxed),c.probes.load(Ordering::Relaxed),c.singular.load(Ordering::Relaxed),c.see_calls.load(Ordering::Relaxed),c.tt_hits.load(Ordering::Relaxed),c.conflicts.load(Ordering::Relaxed),WORKERS,WORKERS+1);}},
             _=>{}
         }
     }
-    finish(&mut active);
+    runtime.finish();
 }

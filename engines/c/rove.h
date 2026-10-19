@@ -34,6 +34,7 @@
 #define MAXHISTORY 4096
 #define INF 32000
 #define MATE 30000
+#define SEE_INCOMPLETE (-32001)
 #define FROM(m) ((int)((m)&127))
 #define TO(m) ((int)(((m)>>7)&127))
 #define PROM(m) ((int)(((m)>>14)&7))
@@ -43,7 +44,12 @@ typedef struct {
     uint64_t key, pawnkey, bb[2][7], occ[2];
 } Board;
 typedef struct { unsigned m; int score; } Move;
-typedef struct { _Atomic uint64_t key, data; } TTEntry;
+typedef struct {
+    _Atomic uint64_t key,data;
+#if ROVE_VARIANT == 6
+    _Atomic uint64_t upper_key,upper_data;
+#endif
+} TTEntry;
 typedef struct Worker Worker;
 typedef struct {
     Board board;
@@ -53,6 +59,9 @@ typedef struct {
     _Atomic int stop;
     _Atomic uint64_t nodes;
     pthread_mutex_t mutex;
+    pthread_mutex_t control;
+    pthread_cond_t command,finished;
+    int pending,active,quitting;
     unsigned best;
     int score, completed_depth;
     uint64_t generation, assigned, reassigned, reused, shared_bounds, clauses, repairs;
@@ -76,6 +85,7 @@ struct Worker {
 extern TTEntry *rove_tt;
 extern const int rove_value[7];
 extern _Atomic uint64_t rove_see_calls, rove_singular_calls, rove_simd_calls, rove_model_calls, rove_mtd_probes;
+extern _Atomic uint64_t rove_mtd_conflicts,rove_mtd_converged;
 void board_init(void);
 int board_fen(Board *,const char *);
 void board_start(Board *);
@@ -99,7 +109,6 @@ int see(const Board *,unsigned);
 int drawn(const Board *,const uint64_t *,int);
 uint64_t now_ms(void);
 int search(Worker *,const Board *,int,int,int,int,unsigned,int);
-void *worker_run(void *);
 void *session_run(void *);
 void tt_clear(void);
 int parallel_init(void);

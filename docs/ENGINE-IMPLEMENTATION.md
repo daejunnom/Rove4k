@@ -100,3 +100,73 @@ this checkpoint were 30,768 bytes, and no size eligibility was established.
 Completed model work was reassigned to the planned SIMD plus E cross-candidate.
 Parallel scheduler protocol tests are supporting evidence; they do not establish
 that the full engine uses the scheduler correctly.
+
+## Fixed-pool and semantic checkpoint: 2026-10-20
+
+Both languages now contain their own A–F search cores. A uses incremental HCE
+at the actual leaf; B uses legal SEE and a qualified same-ply excluded singular
+search; C consumes AVX2; D consumes HQ sliding attacks; E consumes the frozen
+evaluation and ordering model; F runs MTD(f) with matching-depth TT intervals
+and preserves the lower-bound move witness. These are implementation facts,
+with the focused evidence below, rather than final portfolio acceptance.
+
+The startup lifetime includes every search thread, TT, worker history, correction,
+PV and scheduler workspace. In both languages the coordinator is worker zero;
+the input thread makes the total `search workers + 1`. Repeated searches retain
+the same Linux task IDs. The five policies have actual engine integration and
+small-profile runtime evidence. Rust still allocates `Vec` objects in board move
+generation and play, so startup preparation does not establish allocation-free
+search or a fixed total RSS. Target256/509/512 profiles remain compile-only.
+
+The frozen `pool-matrix` snapshot built all 12 candidates from original and
+lexically compacted sources. Every form was independently compiled again with
+identical resulting bytes for that form. C original/compact files also matched
+one another; Rust original/compact files differed and require separate runtime
+checks. The external process matrix passed 83 of 96 groups. Its 13 failures were
+terminal score/stale root result handling and F's repeated-search horizon
+contract. Newer sources fix those causes; that older run remains a failed
+snapshot. The first exact-head CI also failed on a model fixture admitted as a
+second C main and the terminal Rust cases. Production model input admission and
+the fixture suffix have been corrected. Fresh matrix and CI evidence is required
+for the new combined source.
+
+Focused current-source evidence includes:
+
+- C A/D: 4,158 legal states per family, 532,224 independent attack queries per
+  run, incremental state/evaluation parity and 45 special moves; optimized and
+  ASan/UBSan signatures match.
+- C B: ten SEE fixtures, cancellation, a real depth-3 TT qualification followed
+  by depth-6 singular execution, and excluded-search preservation of TT, board,
+  path and learning. Positive controls demonstrate normal continuation, killer
+  and correction updates before checking their absence under exclusion.
+- C C: 400 actual SIMD evaluations match an independent scalar recomputation.
+- C F: three low-branch positions match independent full minimax, including an
+  attaining move, TT-retained repeats and cancellation preserving the last
+  completed result. Five repeated `go infinite` searches no longer terminate
+  early from contradictory mixed-horizon bounds.
+- C actual A/PALS, B/loose and F/loose: four-worker lifecycle runs pass ASan/UBSan
+  with stable startup task IDs and bounded node consumption.
+- Rust: 28 optimized integrated unit tests pass in WSL. D HQ matches independent
+  scalar rays over 786,432 occupancy cases; B SEE observes original cancellation
+  inside recursion. Terminal reuse and F bound/move witnesses have regressions.
+
+Source work is independent of NVCompact. Conditional specialization, source
+reachability pruning, a fixed-policy scheduler and a smaller shipping UCI path
+reduced an A complete source ZIP from 12,734 to 9,513 bytes in the first structural
+snapshot. Later representations and native forms need their own records. This
+remains above 4,096 bytes. The own-ELF decoder executes real restored C/Rust
+payloads without an external unpacker, but no complete A–F ELF is size eligible.
+
+The C+E comparison uses identical frozen sources and profile, changing only the
+explicit model flag. Runtime-verified minimum complete files are C baseline
+12,931 / C+E 13,873 bytes and Rust baseline 20,586 / C+E 20,588 bytes. These
+minima can select different packaging forms; matched-form deltas are retained
+in the external comparison. Thirty-six shipping searches establish bounded
+responses, one final move and clean exit; they do not establish NPS or strength.
+
+Remaining work is the fresh final-source matrix/CI, shipping/restored chess
+validation, further candidate-specific source and runtime reduction, at least
+one actual complete file at or below 4,096 bytes for every family, D's eligible
+own-ELF path, and bounded comparable games/performance. Full target resource
+execution and scaling have no evidence on this eight-logical-CPU WSL host.
+Training and AWS remain excluded. The full A–F goal stays active.

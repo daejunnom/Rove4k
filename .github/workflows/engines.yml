@@ -38,9 +38,42 @@ jobs:
           python3 -m unittest discover -s engines/model -p 'test*.py'
       - name: Check source compaction and real restoration lifetimes
         run: python3 -m unittest discover -s engines/scripts -p 'test*.py'
+      - name: Check C scheduling contracts independently of engine integration
+        if: matrix.language == 'c'
+        run: |
+          mkdir -p "$ROVE_TEST_OUT"
+          cc -std=c11 -O1 -g -pthread -fsanitize=address,undefined engines/tests/parallel_contract.c -o "$ROVE_TEST_OUT/parallel-contract"
+          timeout 60 "$ROVE_TEST_OUT/parallel-contract"
+      - name: Check C SEE, singular exclusion, SIMD and MTD semantics
+        if: matrix.language == 'c'
+        run: python3 engines/tests/run_search_contract.py --out "$ROVE_TEST_OUT/search-contract" --variants BCF --workers 1
+      - name: Check independent Rust rule and search contracts
+        if: matrix.language == 'rust'
+        env:
+          RUSTUP_TOOLCHAIN: 1.97.0
+          ROVE_DEV: '1'
+          ROVE_VARIANT: D
+          ROVE_WORKERS: '2'
+          ROVE_TT_BITS: '16'
+        run: |
+          mkdir -p "$ROVE_TEST_OUT"
+          rustc --edition=2024 --test -O engines/rust/main.rs -o "$ROVE_TEST_OUT/rust-contracts"
+          timeout 120 "$ROVE_TEST_OUT/rust-contracts"
       - name: Build all six real candidate paths
         env:
           RUSTUP_TOOLCHAIN: 1.97.0
         run: python3 engines/scripts/build.py --out "$ROVE_TEST_OUT/build" --profile local-dev --languages '${{ matrix.language }}' --variants ABCDEF --no-pack
       - name: Verify the engines through their actual process interfaces
         run: python3 engines/tests/verify.py --manifest "$ROVE_TEST_OUT/build/build.json" --out "$ROVE_TEST_OUT/verification"
+      - name: Preserve bounded build and behavior evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: rove4k-${{ matrix.language }}-${{ github.sha }}
+          path: |
+            ${{ env.ROVE_TEST_OUT }}/build/build.json
+            ${{ env.ROVE_TEST_OUT }}/verification/*.json
+            ${{ env.ROVE_TEST_OUT }}/verification/*.jsonl
+            ${{ env.ROVE_TEST_OUT }}/search-contract/results.json
+          if-no-files-found: ignore
+          retention-days: 7

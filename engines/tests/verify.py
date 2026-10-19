@@ -48,13 +48,18 @@ class Engine:
         self.start = time.monotonic()
         self.exhausted, self.output_bytes, self.peak_threads = False, 0, 0
         self.descendants = {}
+        self.startup_task_ids = None
         self.sampling = True
         self.record("launch", spec["command"])
-        self.process = subprocess.Popen(spec["command"], cwd=spec.get("cwd"),
-                                        stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                        stderr=subprocess.PIPE, text=True, encoding="utf-8",
-                                        errors="replace", bufsize=1,
-                                        start_new_session=os.name == "posix")
+        try:
+            self.process = subprocess.Popen(spec["command"], cwd=spec.get("cwd"),
+                                            stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                            stderr=subprocess.PIPE, text=True, encoding="utf-8",
+                                            errors="replace", bufsize=1,
+                                            start_new_session=os.name == "posix")
+        except Exception:
+            self.log.close()
+            raise
         self.readers = []
         for stream, target in ((self.process.stdout, "stdout"), (self.process.stderr, "stderr")):
             reader = threading.Thread(target=self.read_stream, args=(stream, target), daemon=True)
@@ -71,7 +76,13 @@ class Engine:
 
     def read_stream(self, stream, direction):
         try:
-            for line in stream:
+            while True:
+                line = stream.readline(65537)
+                if not line:
+                    break
+                if len(line) > 65536:
+                    self.lines.put(RuntimeError("engine output line exceeded 64 KiB limit"))
+                    break
                 line = line.rstrip("\r\n")
                 self.output_bytes += len(line.encode("utf-8"))
                 if self.output_bytes > 8 * 1024 * 1024:
@@ -132,16 +143,53 @@ class Engine:
             lines.append(line)
         return lines
 
+    def drain(self):
+        lines = []
+        while True:
+            try:
+                item = self.lines.get_nowait()
+            except queue.Empty:
+                return lines
+            if isinstance(item, str):
+                lines.append(item)
+
     def ready(self):
         self.send("isready")
         return self.until(lambda line: line == "readyok")
 
     def initialize(self):
+        configuration = self.spec.get("configuration", {})
+        expected = self.spec.get("startup_threads")
+        if expected is None and "ROVE_WORKERS" in configuration:
+            expected = int(configuration["ROVE_WORKERS"]) + 1
+        if expected is not None and sys.platform == "linux":
+            deadline = time.monotonic() + self.timeout
+            while time.monotonic() < deadline:
+                tasks = self.task_ids()
+                if len(tasks) == expected:
+                    self.startup_task_ids = tasks
+                    break
+                require(len(tasks) <= expected, f"startup thread count {len(tasks)} exceeds fixed total {expected}")
+                time.sleep(0.01)
+            require(self.startup_task_ids is not None,
+                    f"fixed total {expected} threads were not created before first UCI input")
+            self.record("startup_threads", sorted(self.startup_task_ids))
         self.send("uci")
         lines = self.until(lambda line: line == "uciok")
         require(lines.count("uciok") == 1, "uci emitted duplicate uciok")
         self.ready()
+        self.assert_threads_stable()
         return lines
+
+    def task_ids(self):
+        try:
+            return {int(path.name) for path in (Path("/proc") / str(self.process.pid) / "task").iterdir()}
+        except OSError:
+            return set()
+
+    def assert_threads_stable(self):
+        if self.startup_task_ids is not None:
+            require(self.task_ids() == self.startup_task_ids, "startup thread IDs changed across search lifecycle")
 
     def dev(self, command, prefix):
         self.send(command)
@@ -254,6 +302,7 @@ def search(engine, board, command, timeout=None, require_info=True):
         require(all(item["pv"] for item in info if item["depth"] > 0), "completed search omitted legal PV")
     require(not any(line.startswith("bestmove ") for line in engine.quiet()),
             "duplicate or stale bestmove arrived after search completion")
+    engine.assert_threads_stable()
     return {"bestmove": best, "elapsed_seconds": elapsed, "info": info}
 
 
@@ -371,6 +420,17 @@ def state(engine, options):
             "threefold root search did not return draw score")
     engine.position(START)
     require(not engine.state()["draw"], "FEN reset retained repetition history")
+    ep_cycle = ["e2e4", "g8f6", "g1f3", "f6g8", "f3g1", "g8f6", "g1f3", "f6g8", "f3g1"]
+    engine.position(moves=ep_cycle[:5])
+    require(not engine.state()["draw"], "uncapturable EP cycle was adjudicated before threefold")
+    engine.position(moves=ep_cycle)
+    require(bool(engine.state()["draw"]), "irrelevant EP target split otherwise identical repetition positions")
+    castle_start = "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1"
+    castle_cycle = ["e1f1", "e8f8", "f1e1", "f8e8"]
+    engine.position(castle_start, castle_cycle * 2)
+    require(not engine.state()["draw"], "lost castling rights were ignored in repetition identity")
+    engine.position(castle_start, castle_cycle * 3)
+    require(bool(engine.state()["draw"]), "threefold after castling-right loss was not recognized")
     fifty = "7k/8/8/8/8/8/8/R3K3 w - - 100 80"
     engine.position(fifty.replace(" 100 80", " 99 80"))
     require(not engine.state()["draw"], "49.5 moves incorrectly adjudicated as a 50-move draw")
@@ -453,6 +513,7 @@ def lifecycle(engine, options):
         engine.position()
         engine.send("go infinite")
         time.sleep(0.04)
+        engine.assert_threads_stable()
         before_stop = engine.quiet(0.001)
         prematurely_completed = [line for line in before_stop if line.startswith("bestmove ")]
         if engine.spec.get("profile", "dev") != "shipping":
@@ -481,7 +542,31 @@ def lifecycle(engine, options):
     new_board.play(new[-1].split()[1])
     parse_info(new, new_board)
     require(not any(line.startswith("bestmove ") for line in engine.quiet()), "queued search emitted duplicate/stale bestmove")
-    return {"stop_rounds": rounds, "queued_new_root_bestmove": new[-1].split()[1],
+    direct = []
+    for reset in ("position", "ucinewgame"):
+        engine.position()
+        engine.send("go infinite")
+        time.sleep(0.04)
+        before_reset = engine.quiet(0.001)
+        if engine.spec.get("profile", "dev") != "shipping":
+            require(not any(line.startswith("bestmove ") for line in before_reset),
+                    f"development search completed before active {reset}")
+        if reset == "ucinewgame":
+            engine.send("ucinewgame")
+        engine.position(moves=["e2e4"])
+        engine.send("go wtime 1000 btime 1000 winc 0 binc 0")
+        prior_best = [line for line in before_reset if line.startswith("bestmove ")]
+        old_lines = before_reset if prior_best else before_reset + engine.until(lambda line: line.startswith("bestmove "), timeout=2)
+        old_move = [line for line in old_lines if line.startswith("bestmove ")][-1].split()[1]
+        board.play(old_move)
+        new_lines = engine.until(lambda line: line.startswith("bestmove "), timeout=3)
+        new_move = new_lines[-1].split()[1]
+        new_board.play(new_move)
+        parse_info(new_lines, new_board)
+        require(not any(line.startswith("bestmove ") for line in engine.quiet()),
+                f"stale result survived direct {reset} epoch reset")
+        direct.append({"command": reset, "old_bestmove": old_move, "new_bestmove": new_move})
+    return {"stop_rounds": rounds, "queued_new_root_bestmove": new[-1].split()[1], "direct_resets": direct,
             "observed_peak_threads": engine.peak_threads, "configured_workers": engine.spec.get("workers")}
 
 
@@ -507,11 +592,16 @@ def shutdown(engine, _):
     engine.position()
     engine.send("go infinite")
     time.sleep(0.04)
+    engine.assert_threads_stable()
     before_eof = engine.quiet(0.001)
     if engine.spec.get("profile", "dev") != "shipping":
         require(not any(line.startswith("bestmove ") for line in before_eof), "development search completed before EOF; active termination unproven")
     engine.close(eof=True)
-    return {"input_eof_while_searching": "process_exited", "peak_threads": engine.peak_threads}
+    final = before_eof + engine.drain()
+    best = [line.split()[1] for line in final if line.startswith("bestmove ")]
+    require(len(best) == 1, f"EOF epoch produced {len(best)} bestmoves")
+    Board.from_fen().play(best[0])
+    return {"input_eof_while_searching": "process_exited", "bestmove": best[0], "peak_threads": engine.peak_threads}
 
 
 def quit_searching(engine, _):
@@ -519,11 +609,16 @@ def quit_searching(engine, _):
     engine.position()
     engine.send("go infinite")
     time.sleep(0.04)
+    engine.assert_threads_stable()
     before_quit = engine.quiet(0.001)
     if engine.spec.get("profile", "dev") != "shipping":
         require(not any(line.startswith("bestmove ") for line in before_quit), "development search completed before quit; active termination unproven")
     engine.close()
-    return {"quit_while_searching": "process_exited", "peak_threads": engine.peak_threads}
+    final = before_quit + engine.drain()
+    best = [line.split()[1] for line in final if line.startswith("bestmove ")]
+    require(len(best) == 1, f"quit epoch produced {len(best)} bestmoves")
+    Board.from_fen().play(best[0])
+    return {"quit_while_searching": "process_exited", "bestmove": best[0], "peak_threads": engine.peak_threads}
 
 
 CHECKS = (("protocol", protocol, False), ("rules", rules, True), ("state", state, True),
@@ -542,10 +637,38 @@ def load_specs(args):
     for spec in specs:
         require(isinstance(spec.get("id"), str) and isinstance(spec.get("command"), list)
                 and all(isinstance(item, str) for item in spec["command"]), "invalid engine manifest entry")
+        if args.startup_threads is not None:
+            require(1 <= args.startup_threads <= 513, "startup thread total must be within 1..513")
+            spec["startup_threads"] = args.startup_threads
     require(len({spec["id"] for spec in specs}) == len(specs), "duplicate engine identifiers")
     if args.select:
         specs = [spec for spec in specs if spec["id"] in args.select]
-    return specs
+    expanded, args.artifact_reuse = [], []
+    for spec in specs:
+        expanded.append(spec)
+        program = Path(spec["command"][0])
+        actual_hash = hashlib.sha256(program.read_bytes()).hexdigest() if program.is_file() else None
+        seen = {actual_hash: spec["id"]} if actual_hash else {}
+        for artifact in spec.get("artifacts", []):
+            form = artifact.get("source_form")
+            if form not in ("original", "compact") or artifact.get("format") != "native-elf" or artifact.get("returncode") != 0:
+                continue
+            path = Path(artifact["path"])
+            digest = hashlib.sha256(path.read_bytes()).hexdigest()
+            require(digest == artifact["sha256"], f"artifact bytes changed since build evidence: {path}")
+            if str(path) == spec["command"][0]:
+                continue
+            if digest in seen:
+                args.artifact_reuse.append({"engine": spec["id"], "source_form": form, "path": str(path),
+                                           "program_sha256": digest, "verified_as": seen[digest],
+                                           "reason": "actual executable bytes identical; reuse is limited to these exact bytes"})
+                continue
+            identifier = spec["id"] + "-" + form
+            require(not any(item["id"] == identifier for item in expanded), f"duplicate expanded engine id {identifier}")
+            expanded.append({**spec, "id": identifier, "command": [str(path)], "cwd": str(path.parent),
+                             "source_form": form, "artifacts": []})
+            seen[digest] = identifier
+    return expanded
 
 
 def play_match(left, right, options, output):
@@ -596,6 +719,7 @@ def main():
     parser.add_argument("--match", action="append", default=[], metavar="LEFT,RIGHT",
                         help="also run two colour-exchanged bounded games for selected engine ids")
     parser.add_argument("--profile", choices=("dev", "shipping"), default="dev")
+    parser.add_argument("--startup-threads", type=int, help="require this total to exist before first input and preserve its task IDs")
     parser.add_argument("--suite", choices=("all", "dev", "shipping"), default="all")
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--timeout", type=float, default=8.0)
@@ -614,7 +738,8 @@ def main():
               "excluded": ["Elo/strength ranking", "512-hardware-thread scalability", "training", "AWS",
                            "algorithm-specific SEE/singular/SIMD/PALS/MTD contracts without separate diagnostic evidence"],
               "host": {"platform": sys.platform, "python": sys.version.split()[0]},
-              "oracle": self_check(args.oracle_deep), "engines": [], "matches": [], "passed": True}
+              "oracle": self_check(args.oracle_deep), "engines": [], "matches": [],
+              "identical_artifact_reuse": args.artifact_reuse, "passed": True}
     atomic_json(output / "results.json", report)
     for spec in specs:
         entry = {"id": spec["id"], "command": spec["command"], "profile": spec.get("profile", "dev"), "checks": []}
@@ -635,6 +760,8 @@ def main():
                 if not process.log.closed:
                     process.close()
                 result["peak_threads"] = process.peak_threads
+                if process.startup_task_ids is not None:
+                    result["startup_thread_ids"] = sorted(process.startup_task_ids)
                 maximum = spec.get("max_threads")
                 if maximum is not None:
                     require(process.peak_threads <= maximum, f"observed {process.peak_threads} threads exceeds profile total {maximum}")

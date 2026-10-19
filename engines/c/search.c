@@ -13,6 +13,7 @@
 
 TTEntry *rove_tt;
 _Atomic uint64_t rove_see_calls,rove_singular_calls,rove_simd_calls,rove_model_calls,rove_mtd_probes;
+_Atomic uint64_t rove_mtd_conflicts,rove_mtd_converged;
 int parallel_init(void){return rove_parallel_init(ROVE_WORKERS);}
 void parallel_shutdown(void){rove_parallel_shutdown();}
 void evaluate_init(void){
@@ -21,8 +22,13 @@ void evaluate_init(void){
 #endif
 }
 uint64_t now_ms(void){struct timespec t;clock_gettime(CLOCK_MONOTONIC,&t);return (uint64_t)t.tv_sec*1000+(uint64_t)t.tv_nsec/1000000;}
-void tt_clear(void){if(rove_tt)for(size_t i=0;i<((size_t)1<<ROVE_TT_BITS);i++){atomic_store_explicit(&rove_tt[i].key,0,memory_order_relaxed);atomic_store_explicit(&rove_tt[i].data,0,memory_order_relaxed);}}
-int evaluate_scalar(const Board *p){int s=0;for(int q=0;q<128;q++){if(q&0x88){q+=7;continue;}if(p->b[q])s+=hce_piece(p->b[q],q);}return p->side*s;}
+void tt_clear(void){if(rove_tt)for(size_t i=0;i<((size_t)1<<ROVE_TT_BITS);i++){atomic_store_explicit(&rove_tt[i].key,0,memory_order_relaxed);atomic_store_explicit(&rove_tt[i].data,0,memory_order_relaxed);
+#if ROVE_VARIANT == 6
+    atomic_store_explicit(&rove_tt[i].upper_key,0,memory_order_relaxed);atomic_store_explicit(&rove_tt[i].upper_data,0,memory_order_relaxed);
+#endif
+}}
+static int static_score(int score){return score>20000?20000:score< -20000?-20000:score;}
+int evaluate_scalar(const Board *p){int s=0;for(int q=0;q<128;q++){if(q&0x88){q+=7;continue;}if(p->b[q])s+=hce_piece(p->b[q],q);}return static_score(p->side*s);}
 int evaluate_reference(const Board *p){
 #if ROVE_VARIANT == 5 || ROVE_MODEL
     return rove_model_eval_scalar(p->b,p->side);
@@ -34,7 +40,7 @@ int evaluate_reference(const Board *p){
 __attribute__((target("avx2"))) static int evaluate_simd(const Board *p){
     int32_t terms[64];for(int q=0;q<64;q++){int sq=(q/8)*16+q%8;terms[q]=p->b[sq]?hce_piece(p->b[sq],sq):0;}
     __m256i sum=_mm256_setzero_si256();for(int q=0;q<64;q+=8)sum=_mm256_add_epi32(sum,_mm256_loadu_si256((const __m256i *)(terms+q)));
-    int32_t lanes[8];_mm256_storeu_si256((__m256i *)lanes,sum);int s=0;for(int i=0;i<8;i++)s+=lanes[i];return p->side*s;
+    int32_t lanes[8];_mm256_storeu_si256((__m256i *)lanes,sum);int s=0;for(int i=0;i<8;i++)s+=lanes[i];return static_score(p->side*s);
 }
 #endif
 int evaluate(const Board *p){
@@ -47,28 +53,43 @@ int evaluate(const Board *p){
 #endif
     return rove_model_eval(p->b,p->side);
 #else
-    return p->side*p->hce;
+    return static_score(p->side*p->hce);
 #endif
 }
-static int exchange(const Board *p,int target,int ply){
-    if(ply>=32)return 0;Move moves[MAXMOVES];int n=generate(p,moves,1),best=0;
+typedef struct {Worker *worker;uint64_t deadline;unsigned visits;int complete;} ExchangeContext;
+static int exchange(ExchangeContext *c,const Board *p,int target,int ply){
+    c->visits++;if(c->visits>1000000||now_ms()>=c->deadline||(c->worker&&atomic_load_explicit(&c->worker->session->stop,memory_order_relaxed))){c->complete=0;if(c->worker&&c->worker->session->deadline&&now_ms()>=c->worker->session->deadline)atomic_store_explicit(&c->worker->session->stop,1,memory_order_relaxed);return 0;}
+    if(ply>=64)return 0;Move moves[MAXMOVES];int n=generate(p,moves,1),best=0;
     uint64_t candidates=attackers(p,target,p->side);
-    for(int i=0;i<n;i++){unsigned m=moves[i].m;int from=FROM(m);if(TO(m)!=target||!(candidates&(UINT64_C(1)<<((from>>4)*8+(from&7)))))continue;Board t;if(!make_move(p,m,&t))continue;int gain=rove_value[abs(p->b[target])];if(PROM(m))gain+=rove_value[PROM(m)]-rove_value[1];gain-=exchange(&t,target,ply+1);if(gain>best)best=gain;}
+    for(int i=0;i<n;i++){unsigned m=moves[i].m;int from=FROM(m);if(TO(m)!=target||!(candidates&(UINT64_C(1)<<((from>>4)*8+(from&7)))))continue;Board t;if(!make_move(p,m,&t))continue;int gain=rove_value[abs(p->b[target])];if(PROM(m))gain+=rove_value[PROM(m)]-rove_value[1];gain-=exchange(c,&t,target,ply+1);if(!c->complete)return 0;if(gain>best)best=gain;}
     return best;
 }
-int see(const Board *p,unsigned m){atomic_fetch_add_explicit(&rove_see_calls,1,memory_order_relaxed);Board t;if(!make_move(p,m,&t))return -INF;int gain=rove_value[abs(p->b[TO(m)])];if(abs(p->b[FROM(m)])==1&&TO(m)==p->ep&&!p->b[TO(m)])gain=100;if(PROM(m))gain+=rove_value[PROM(m)]-100;return gain-exchange(&t,TO(m),0);}
+static int see_for(Worker *w,const Board *p,unsigned m){atomic_fetch_add_explicit(&rove_see_calls,1,memory_order_relaxed);Board t;if(!make_move(p,m,&t))return -INF;uint64_t deadline=now_ms()+5000;if(w&&w->session->deadline&&w->session->deadline<deadline)deadline=w->session->deadline;ExchangeContext context={w,deadline,0,1};int gain=rove_value[abs(p->b[TO(m)])];if(abs(p->b[FROM(m)])==1&&TO(m)==p->ep&&!p->b[TO(m)])gain=100;if(PROM(m))gain+=rove_value[PROM(m)]-100;gain-=exchange(&context,&t,TO(m),0);return context.complete?gain:SEE_INCOMPLETE;}
+int see(const Board *p,unsigned m){return see_for(NULL,p,m);}
 static int stopped(Worker *w){
     if(atomic_load_explicit(&w->session->stop,memory_order_relaxed)||w->aborted)return 1;
-    uint64_t n=atomic_fetch_add_explicit(&w->session->nodes,1,memory_order_relaxed)+1;w->nodes++;
-    if((w->session->node_limit&&n>=w->session->node_limit)||((n&255)==0&&w->session->deadline&&now_ms()>=w->session->deadline)){atomic_store_explicit(&w->session->stop,1,memory_order_relaxed);return 1;}return 0;
+    uint64_t n=atomic_load_explicit(&w->session->nodes,memory_order_relaxed);
+    do{if(w->session->node_limit&&n>=w->session->node_limit){atomic_store_explicit(&w->session->stop,1,memory_order_relaxed);return 1;}}while(!atomic_compare_exchange_weak_explicit(&w->session->nodes,&n,n+1,memory_order_relaxed,memory_order_relaxed));w->nodes++;
+    if((n&255)==0&&w->session->deadline&&now_ms()>=w->session->deadline){atomic_store_explicit(&w->session->stop,1,memory_order_relaxed);return 1;}return 0;
 }
 static int score_to_tt(int s,int ply){return s>MATE-MAXPLY?s+ply:s<-MATE+MAXPLY?s-ply:s;}
 static int score_from_tt(int s,int ply){return s>MATE-MAXPLY?s-ply:s<-MATE+MAXPLY?s+ply:s;}
 /* Bounds depend on both the halfmove clock and reversible position history. */
 static uint64_t context_key(const Worker *w,const Board *p){uint64_t k=p->key^((uint64_t)p->half*UINT64_C(0xd6e8feb86659fd93));int start=w->path_len-p->half-1;if(start<0)start=0;for(int i=start;i<w->path_len;i++){k=(k<<17)|(k>>47);k^=w->path[i];}return k;}
-static int tt_read(Worker *w,uint64_t key,uint64_t *data){TTEntry *e=&w->table[key&w->table_mask];uint64_t d=atomic_load_explicit(&e->data,memory_order_relaxed),k=atomic_load_explicit(&e->key,memory_order_relaxed);if((k^d)!=key||!d||d!=atomic_load_explicit(&e->data,memory_order_relaxed))return 0;*data=d;return 1;}
+static int tt_slot(_Atomic uint64_t *key_slot,_Atomic uint64_t *data_slot,uint64_t key,uint64_t *out){uint64_t d=atomic_load_explicit(data_slot,memory_order_relaxed),k=atomic_load_explicit(key_slot,memory_order_relaxed);if((k^d)!=key||!d||d!=atomic_load_explicit(data_slot,memory_order_relaxed))return 0;*out=d;return 1;}
+static int tt_read(Worker *w,uint64_t key,uint64_t *data,int depth,int alpha,int ply){TTEntry *e=&w->table[key&w->table_mask];int found=tt_slot(&e->key,&e->data,key,data);
+#if ROVE_VARIANT == 6
+    uint64_t upper;if(tt_slot(&e->upper_key,&e->upper_data,key,&upper)&&(!found||(((upper>>33)&127)==(unsigned)depth&&score_from_tt((int16_t)(upper>>17),ply)<=alpha))){*data=upper;return 1;}
+#else
+    (void)depth;(void)alpha;(void)ply;
+#endif
+    return found;
+}
 static void tt_write(Worker *w,uint64_t key,unsigned move,int depth,int score,int bound,int ply){
     TTEntry *e=&w->table[key&w->table_mask];uint64_t d=(uint64_t)move|((uint64_t)(uint16_t)(int16_t)score_to_tt(score,ply)<<17)|((uint64_t)(depth<0?0:depth)<<33)|((uint64_t)bound<<40);
+#if ROVE_VARIANT == 6
+    if(bound==1||bound==3){atomic_store_explicit(&e->upper_data,d,memory_order_relaxed);atomic_store_explicit(&e->upper_key,key^d,memory_order_relaxed);}if(bound==3)return;
+#endif
     atomic_store_explicit(&e->data,d,memory_order_relaxed);atomic_store_explicit(&e->key,key^d,memory_order_relaxed);
 }
 static int victim(const Board *p,unsigned m){int v=abs(p->b[TO(m)]);return !v&&abs(p->b[FROM(m)])==1&&TO(m)==p->ep?1:v;}
@@ -78,12 +99,13 @@ static int move_score(Worker *w,const Board *p,unsigned m,unsigned tt,int ply){
     if(m==tt)return 2000000000;if(ply==w->hint_ply&&m==w->hint)return 1900000000;int v=victim(p,m),a=abs(p->b[FROM(m)]),s=0;
     if(v||PROM(m)){s=1000000+rove_value[v]*32-rove_value[a]+(PROM(m)?rove_value[PROM(m)]:0);
 #if ROVE_VARIANT == 2
-        s+=see(p,m)*32;
+        int exchange_score=see_for(w,p,m);if(exchange_score!=SEE_INCOMPLETE)s+=exchange_score*32;
 #endif
     }else{s=w->history[p->side<0][FROM(m)][TO(m)];if(ply&&w->previous[ply-1]){int prior=piece_index(-p->b[TO(w->previous[ply-1])]);if(prior<13)s+=w->continuation[prior][piece_index(p->b[FROM(m)])];}if(m==w->killers[ply][0])s+=500000;else if(m==w->killers[ply][1])s+=400000;}
 #if ROVE_VARIANT == 5 || ROVE_MODEL
     s+=rove_model_order(p->b[FROM(m)],v,FROM(m),TO(m),PROM(m));
 #endif
+    if(w->id)s+=(int)((m*(unsigned)(w->id*17+13))&31);
     return s;
 }
 static int legal_witness(const Board *p,const Move *moves,int n){for(int i=0;i<n;i++){Board t;if(make_move(p,moves[i].m,&t))return 1;}return 0;}
@@ -96,7 +118,7 @@ static int qsearch(Worker *w,const Board *p,int alpha,int beta,int ply){
     for(int i=0;i<n;i++)moves[i].score=move_score(w,p,moves[i].m,0,ply);
     for(int i=0;i<n;i++){int at=i;for(int j=i+1;j<n;j++)if(moves[j].score>moves[at].score)at=j;Move tmp=moves[i];moves[i]=moves[at];moves[at]=tmp;unsigned m=moves[i].m;if(!check&&!is_capture(p,m))continue;
 #if ROVE_VARIANT == 2
-        if(!check&&!PROM(m)&&see(p,m)<0)continue;
+        if(!check&&!PROM(m)){int exchange_score=see_for(w,p,m);if(exchange_score!=SEE_INCOMPLETE&&exchange_score<0)continue;}
 #endif
         Board t;if(!make_move(p,m,&t))continue;w->path[w->path_len++]=t.key;w->previous[ply]=m;int s=-qsearch(w,&t,-beta,-alpha,ply+1);w->path_len--;if(w->aborted||atomic_load_explicit(&w->session->stop,memory_order_relaxed))return 0;if(s>best)best=s;if(s>alpha){alpha=s;w->pv[ply][0]=m;int len=w->pvlen[ply+1];memcpy(w->pv[ply]+1,w->pv[ply+1],(size_t)len*sizeof(unsigned));w->pvlen[ply]=len+1;if(alpha>=beta)break;}}
     return best;
@@ -109,7 +131,18 @@ int search(Worker *w,const Board *p,int depth,int alpha,int beta,int ply,unsigne
     if(alpha<-MATE+ply)alpha=-MATE+ply;if(beta>MATE-ply-1)beta=MATE-ply-1;if(alpha>=beta)return alpha;
     int oldalpha=alpha,best=-INF,count=0,ttdepth=-1,ttscore=0,ttbound=0;unsigned ttmove=0,bestmove=0;uint64_t data=0;
     uint64_t key=context_key(w,p);
-    if(!excluded&&tt_read(w,key,&data)){ttmove=(unsigned)(data&131071);ttdepth=(int)((data>>33)&127);ttscore=score_from_tt((int16_t)(data>>17),ply);ttbound=(int)((data>>40)&3);if(ply&&ttdepth>=depth&&(ttbound==1||(ttbound==2&&ttscore>=beta)||(ttbound==3&&ttscore<=alpha)))return ttscore;}
+#if ROVE_VARIANT == 6
+    /* Different horizon depths have different minimax scores. A later go
+     * must not merge last search's deeper bounds into a fresh shallow probe. */
+    key^=(uint64_t)depth*UINT64_C(0xa0761d6478bd642f);
+#endif
+    if(!excluded&&tt_read(w,key,&data,depth,alpha,ply)){ttmove=(unsigned)(data&131071);ttdepth=(int)((data>>33)&127);ttscore=score_from_tt((int16_t)(data>>17),ply);ttbound=(int)((data>>40)&3);
+#if ROVE_VARIANT == 6
+        int eligible=ttdepth==depth;
+#else
+        int eligible=ttdepth>=depth;
+#endif
+        if(ply&&eligible&&(ttbound==1||(ttbound==2&&ttscore>=beta)||(ttbound==3&&ttscore<=alpha)))return ttscore;}
     int singular=0;
 #if ROVE_VARIANT == 2
     if(!excluded&&ply&&depth>=6&&ttmove&&ttdepth>=depth-3&&(ttbound==1||ttbound==2)&&abs(ttscore)<MATE-MAXPLY){int threshold=ttscore-depth*2;atomic_fetch_add_explicit(&rove_singular_calls,1,memory_order_relaxed);int s=search(w,p,(depth-1)/2,threshold-1,threshold,ply,ttmove,0);if(w->aborted||atomic_load_explicit(&w->session->stop,memory_order_relaxed))return 0;singular=s<threshold;w->pvlen[ply]=0;}
@@ -149,8 +182,8 @@ static int parallel_stopped(void *arg){ParallelContext *c=arg;Session *s=c->sess
 static RoveResult parallel_task(void *arg,const RoveTask *task,unsigned worker){
     ParallelContext *c=arg;Session *s=c->session;RoveResult r={0};r.first=task->first;
     if(task->generation!=c->generation||worker>=ROVE_WORKERS||parallel_stopped(arg))return r;
-    Worker *w=&c->workers[worker];w->aborted=0;w->seldepth=0;w->hint=0;w->hint_ply=-1;memcpy(w->path,s->history,(size_t)s->history_len*sizeof(uint64_t));w->path_len=s->history_len;
-    size_t total=(size_t)1<<ROVE_TT_BITS,part=total;while(part*(size_t)c->groups>total)part>>=1;w->table=rove_tt+(size_t)task->group*part;w->table_mask=part-1;
+    Worker *w=&c->workers[worker];w->aborted=0;w->hint=0;w->hint_ply=-1;memcpy(w->path,s->history,(size_t)s->history_len*sizeof(uint64_t));w->path_len=s->history_len;
+    size_t total=(size_t)1<<ROVE_TT_BITS,part=total;while(part*(size_t)task->groups>total)part>>=1;w->table=rove_tt+(size_t)task->group*part;w->table_mask=part-1;
     uint64_t before=w->nodes;int score;
     if(!task->first){score=search(w,&s->board,task->depth,task->alpha,task->beta,0,0,1);if(w->pvlen[0])r.first=w->pv[0][0];if(w->pvlen[0]>1)r.reply=w->pv[0][1];}
     else if(drawn(&s->board,w->path,w->path_len))score=0;
@@ -163,43 +196,31 @@ static RoveResult parallel_task(void *arg,const RoveTask *task,unsigned worker){
 }
 static void run_parallel(Session *s,Worker *workers){
     Move generated[MAXMOVES];uint32_t moves[MAXMOVES];int n=generate(&s->board,generated,0),count=0;for(int i=0;i<n;i++){Board t;if(make_move(&s->board,generated[i].m,&t))moves[count++]=generated[i].m;}
-    if(!count){s->score=in_check(&s->board)?-MATE:0;s->completed_depth=1;return;}
+    if(!count){s->score=in_check(&s->board)?-MATE:0;s->completed_depth=1;workers[0].seldepth=0;workers[0].pvlen[0]=0;info(&workers[0],1,s->score);return;}
     RoveParallelHistory history={0};unsigned priorfirst=s->best,priorreply=0;int guess=0;
     for(int depth=1;depth<=s->depth;depth++){
+        for(int i=0;i<ROVE_WORKERS;i++)workers[i].seldepth=0;
         ParallelContext context={s,workers,s->generation*MAXPLY+(unsigned)depth,(ROVE_PARALLEL==2||ROVE_PARALLEL==4)?(ROVE_WORKERS+3)/4:1};
         /* Correction only steers LMR; scores remain on the same fixed evaluator. */
         for(int i=1;i<ROVE_WORKERS;i++)memcpy(workers[i].correction,workers[0].correction,sizeof workers[0].correction);
         RoveParallelResult result={0};
 #if ROVE_VARIANT == 6
         int lower=-INF,upper=INF;unsigned converged_move=priorfirst,converged_reply=priorreply;int score=guess;
-        while(lower<upper){int beta=score==lower?score+1:score;atomic_fetch_add_explicit(&rove_mtd_probes,1,memory_order_relaxed);result=rove_parallel_search(parallel_task,&context,moves,count,depth,beta-1,beta,priorfirst,priorreply,parallel_stopped,ROVE_WORKERS,ROVE_PARALLEL,context.generation,&history);if(!result.completedall||!result.best.complete||parallel_stopped(&context))break;score=result.best.score;if(score<beta)upper=score;else{lower=score;converged_move=result.best.first;converged_reply=result.best.reply;}}
-        if(lower!=upper||!result.best.complete||parallel_stopped(&context))break;result.best.score=score;result.best.first=converged_move;result.best.reply=converged_reply;
+        while(lower<upper){int beta=score==lower?score+1:score;atomic_fetch_add_explicit(&rove_mtd_probes,1,memory_order_relaxed);result=rove_parallel_search(parallel_task,&context,moves,count,depth,beta-1,beta,priorfirst,priorreply,parallel_stopped,ROVE_WORKERS,ROVE_PARALLEL,context.generation,&history);s->assigned+=result.assigned;s->reassigned+=result.reassigned;s->reused+=result.reused;s->shared_bounds+=result.shared_bounds;s->clauses+=result.clauses;s->repairs+=result.repairs;if(!result.completedall||!result.best.complete||parallel_stopped(&context))break;score=result.best.score;if(score<lower||score>upper){atomic_fetch_add_explicit(&rove_mtd_conflicts,1,memory_order_relaxed);atomic_store_explicit(&s->stop,1,memory_order_relaxed);break;}if(score<beta)upper=score;else{lower=score;converged_move=result.best.first;converged_reply=result.best.reply;}}
+        if(lower!=upper||!result.best.complete||parallel_stopped(&context))break;atomic_fetch_add_explicit(&rove_mtd_converged,1,memory_order_relaxed);result.best.score=score;result.best.first=converged_move;result.best.reply=converged_reply;
 #else
         result=rove_parallel_search(parallel_task,&context,moves,count,depth,-INF,INF,priorfirst,priorreply,parallel_stopped,ROVE_WORKERS,ROVE_PARALLEL,context.generation,&history);
         if(!result.completedall||!result.best.complete||parallel_stopped(&context))break;
 #endif
-        s->assigned+=result.assigned;s->reassigned+=result.reassigned;s->reused+=result.reused;s->shared_bounds+=result.shared_bounds;s->clauses+=result.clauses;s->repairs+=result.repairs;s->parallel_mode=result.mode;s->groups=result.groups;
+#if ROVE_VARIANT != 6
+        s->assigned+=result.assigned;s->reassigned+=result.reassigned;s->reused+=result.reused;s->shared_bounds+=result.shared_bounds;s->clauses+=result.clauses;s->repairs+=result.repairs;
+#endif
+        s->parallel_mode=result.mode;s->groups=result.groups;
         s->score=result.best.score;s->completed_depth=depth;if(result.best.first)s->best=result.best.first;priorfirst=s->best;priorreply=result.best.reply;guess=s->score;
+        for(int i=1;i<ROVE_WORKERS;i++)if(workers[i].seldepth>workers[0].seldepth)workers[0].seldepth=workers[i].seldepth;
         workers[0].pv[0][0]=s->best;workers[0].pvlen[0]=s->best?1:0;if(priorreply){workers[0].pv[0][1]=priorreply;workers[0].pvlen[0]=2;}info(&workers[0],depth,s->score);
         if(abs(s->score)>MATE-MAXPLY)break;
     }
-}
-void *worker_run(void *arg){
-    Worker *w=arg;Session *s=w->session;memcpy(w->path,s->history,(size_t)s->history_len*sizeof(uint64_t));w->path_len=s->history_len;int guess=0;
-    for(int depth=1;depth<=s->depth;depth++){
-        int score=0;w->aborted=0;w->seldepth=0;
-#if ROVE_VARIANT == 6
-        int lower=-INF,upper=INF;score=guess;unsigned completed_move=0;unsigned savedpv[MAXPLY];int savedlen=0;
-        while(lower<upper){int beta=score==lower?score+1:score;atomic_fetch_add_explicit(&rove_mtd_probes,1,memory_order_relaxed);score=search(w,&s->board,depth,beta-1,beta,0,0,0);if(w->aborted||atomic_load_explicit(&s->stop,memory_order_relaxed))break;if(score<beta)upper=score;else{lower=score;if(w->pvlen[0]){completed_move=w->pv[0][0];savedlen=w->pvlen[0];memcpy(savedpv,w->pv[0],(size_t)savedlen*sizeof(unsigned));}}}
-        if(lower!=upper||w->aborted||atomic_load_explicit(&s->stop,memory_order_relaxed))break;if(savedlen){memcpy(w->pv[0],savedpv,(size_t)savedlen*sizeof(unsigned));w->pvlen[0]=savedlen;}else if(completed_move){w->pv[0][0]=completed_move;w->pvlen[0]=1;}
-#else
-        score=search(w,&s->board,depth,-INF,INF,0,0,1);
-        if(w->aborted||atomic_load_explicit(&s->stop,memory_order_relaxed))break;
-#endif
-        guess=score;pthread_mutex_lock(&s->mutex);if(depth>s->completed_depth||(depth==s->completed_depth&&w->id==0)){s->completed_depth=depth;s->score=score;if(w->pvlen[0])s->best=w->pv[0][0];}pthread_mutex_unlock(&s->mutex);if(w->id==0)info(w,depth,score);
-        if(abs(score)>MATE-MAXPLY||s->deadline&&now_ms()>=s->deadline)break;
-    }
-    return NULL;
 }
 void *session_run(void *arg){
     Session *s=arg;Worker *workers=s->workers;

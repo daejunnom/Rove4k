@@ -31,7 +31,7 @@ static RoveResult search(void *arg,const RoveTask *t,unsigned id) {
 }
 int main(void) {
     uint32_t moves[32];for(unsigned i=0;i<32;i++)moves[i]=i+1;
-    RoveTask t={1,0,4,-1000,1000,ROVE_NORMAL,0,7};
+    RoveTask t={1,0,4,-1000,1000,ROVE_NORMAL,0,7,1};
     RoveCompleted c={t,{100,ROVE_EXACT,1,1,2,100}};
     assert(rove_parallel_reusable(&c,&t));
     t.generation++;assert(!rove_parallel_reusable(&c,&t));t.generation--;

@@ -35,12 +35,12 @@ def archive_files(files):
 
 def make_launcher(files, *, command, binary="x", environment=None, codec="zlib", transport="base85"):
     raw = archive_files(files)
-    codecs = {"zlib": ("zlib", zlib.compress(raw, 9)),
-              "bz2": ("bz2", bz2.compress(raw, 9)),
-              "lzma": ("lzma", lzma.compress(raw, preset=9, format=lzma.FORMAT_XZ))}
+    codecs = {"zlib": lambda: zlib.compress(raw, 9),
+              "bz2": lambda: bz2.compress(raw, 9),
+              "lzma": lambda: lzma.compress(raw, preset=9, format=lzma.FORMAT_XZ)}
     if codec not in codecs:
         raise ValueError("unsupported launcher codec")
-    module, compressed = codecs[codec]
+    module, compressed = codec, codecs[codec]() if transport == "base85" else b""
     blob = base64.b85encode(compressed)
     # The compiler gets a private process group. Interruption forwards to the
     # entire compiler group and waits before TemporaryDirectory removes inputs.
@@ -72,12 +72,12 @@ def make_launcher(files, *, command, binary="x", environment=None, codec="zlib",
         "signal.signal(2,stop);signal.signal(15,stop)\n"
         "b=" + module + ".decompress(base64.b85decode(" + repr(blob) + "))\n"
         "with tempfile.TemporaryDirectory(prefix='r4-') as d:\n"
-        " p=4\n"
+        " a=4\n"
         " for _ in range(struct.unpack_from('<I',b)[0]):\n"
-        "  n,s=struct.unpack_from('<HI',b,p);p+=6;f=d+'/'+b[p:p+n].decode();p+=n\n"
+        "  n,s=struct.unpack_from('<HI',b,a);a+=6;f=d+'/'+b[a:a+n].decode();a+=n\n"
         "  os.makedirs(os.path.dirname(f),exist_ok=True)\n"
-        "  with open(f,'wb') as o:o.write(b[p:p+s])\n"
-        "  p+=s\n"
+        "  with open(f,'wb') as o:o.write(b[a:a+s])\n"
+        "  a+=s\n"
         + compile_line +
         " f=d+'/" + binary + "';os.chmod(f,448)\n"
         " fd=os.open(f,os.O_RDONLY)\n"
@@ -113,7 +113,7 @@ def make_launcher(files, *, command, binary="x", environment=None, codec="zlib",
     elif transport != "base85":
         raise ValueError("unknown launcher transport")
     return output, {"format": format_name,
-                    "codec": codec, "payload_bytes": len(compressed),
+                    "codec": codec, "payload_bytes": payload_bytes,
                     "launcher_bytes": len(output) - encoded_bytes,
                     "encoded_payload_bytes": encoded_bytes, "bytes": len(output),
                     "transport": transport, "stored_payload_bytes": payload_bytes,

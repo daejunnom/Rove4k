@@ -42,7 +42,8 @@ int main(void) { int a = 7; int b = a + + 1; // ignored
     def test_rust_nested_comment_raw_string_and_lifetime(self):
         source = b'''/* outer /* nested */ ignored */
 fn use_ref<'a>(s: &'a str) -> &'a str { s }
-fn main() { let n = '0' as usize; let p = if n < -1i32 as usize { 1 } else { 0 };
+fn r#type() -> usize { '0' as usize }
+fn main() { let n = r#type(); let p = if n < -1i32 as usize { 1 } else { 0 };
   match "depth" { "depth" if p == 0 => (), _ => () }
   println!("{} {}", use_ref(r##"a/*b*/c"##), b'x'); }
 '''
@@ -75,8 +76,9 @@ int main(int n,char**v){char s[80];fgets(s,sizeof s,stdin);printf("%s:%s:%s",v[1
             subprocess.run(["cc", str(source_path), "-o", str(native)], check=True)
             for command, files in ((None, {"x": native.read_bytes()}),
                                    (["cc", "c/a.c", "-o", "x"], {"c/a.c": source})):
-                for codec in ("zlib", "bz2", "lzma"):
-                    script, record = make_launcher(files, command=command, codec=codec)
+                for codec, transport in ((codec, transport) for codec in ("zlib", "bz2", "lzma")
+                                          for transport in ("base85", "zip")):
+                    script, record = make_launcher(files, command=command, codec=codec, transport=transport)
                     self.assertEqual(len(script), record["bytes"])
                     path = directory / "x"
                     path.write_bytes(script)
@@ -137,6 +139,25 @@ int main(int n,char**v){char s[80];fgets(s,sizeof s,stdin);printf("%s:%s:%s",v[1
                     process.wait()
                 process.stdout.close()
                 process.stderr.close()
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux launcher required")
+    def test_missing_compiler_retains_primary_error_and_cleans_sources(self):
+        with tempfile.TemporaryDirectory(prefix="r4-missing-test-") as temporary:
+            directory = Path(temporary)
+            data, _ = make_launcher({"c/a.c": b"int main(void){return 0;}"},
+                                    command=["/unavailable-compiler/cc", "c/a.c", "-o", "x"])
+            path = directory / "x"
+            path.write_bytes(data)
+            path.chmod(0o755)
+            scratch = directory / "scratch"
+            scratch.mkdir()
+            environment = os.environ.copy()
+            environment["TMPDIR"] = str(scratch)
+            process = subprocess.run([str(path)], env=environment, capture_output=True, timeout=5)
+            self.assertNotEqual(process.returncode, 0)
+            self.assertIn(b"FileNotFoundError", process.stderr)
+            self.assertNotIn(b"AttributeError", process.stderr)
+            self.assertEqual(list(scratch.iterdir()), [])
 
 
 if __name__ == "__main__":

@@ -10,6 +10,7 @@
 #include <pthread.h>
 #include <time.h>
 #include <stdio.h>
+#include <string.h>
 
 enum { ROVE_EXACT, ROVE_LOWER, ROVE_UPPER };
 enum { ROVE_NORMAL, ROVE_COUNTERREPLY, ROVE_REPAIR };
@@ -17,6 +18,7 @@ typedef struct {
     uint32_t first, reply;
     int depth, alpha, beta, kind, group;
     uint64_t generation;
+    int groups;
 } RoveTask;
 typedef struct {
     int score, bound, complete;
@@ -94,6 +96,7 @@ static void *rove_parallel_worker(void *arg) {
     if(p->phase==1) {
         if(atomic_load(&p->resource_failed) || p->stopped(p->context))return 0;
         RoveTask task=p->clause;
+        task.groups=p->groups;
         RoveResult r=p->search(p->context,&task,id);
         pthread_mutex_lock(&p->mutex);
         p->result.clauses++;
@@ -106,7 +109,7 @@ static void *rove_parallel_worker(void *arg) {
     }
     if(p->mode==0) {
         if(atomic_load(&p->resource_failed) || p->stopped(p->context))return 0;
-        RoveTask task={0,0,p->depth,p->alpha,p->beta,ROVE_NORMAL,0,p->generation};
+        RoveTask task={0,0,p->depth,p->alpha,p->beta,ROVE_NORMAL,0,p->generation,p->groups};
         RoveResult r=p->search(p->context,&task,id);
         pthread_mutex_lock(&p->mutex);
         p->result.assigned++;
@@ -125,7 +128,7 @@ static void *rove_parallel_worker(void *arg) {
         unsigned index=atomic_fetch_add(&p->next,1);
         if(index>=(unsigned)p->n)break;
         RoveTask task={p->moves[index],0,p->depth,p->alpha,p->beta,
-                      ROVE_NORMAL,p->groups>1?(int)id/4:0,p->generation};
+                      ROVE_NORMAL,p->groups>1?(int)id/4:0,p->generation,p->groups};
         pthread_mutex_lock(&p->mutex);
         if(p->bestalpha>=p->beta) {
             pthread_mutex_unlock(&p->mutex);
@@ -153,8 +156,9 @@ typedef struct {
     pthread_t threads[511];
     unsigned ids[511],workers,finished;
     uint64_t epoch;
-    int initialized,quit;
+    int initialized,quit,root_busy;
     RoveParallel *job;
+    RoveCompleted completed[256];
 } RoveParallelPool;
 static RoveParallelPool rove_parallel_threads;
 static void *rove_parallel_helper(void *arg) {
@@ -199,7 +203,7 @@ static int rove_parallel_init(int workers) {
     if(error)goto failed_ready;
     error=pthread_cond_init(&pool->done,0);
     if(error)goto failed_done;
-    pool->workers=(unsigned)workers;pool->epoch=0;pool->quit=0;pool->job=0;
+    pool->workers=(unsigned)workers;pool->epoch=0;pool->quit=0;pool->job=0;pool->root_busy=0;
     unsigned started=0;
     for(int i=1;i<workers;i++) {
         pool->ids[i-1]=(unsigned)i;
@@ -229,7 +233,7 @@ static void rove_parallel_shutdown(void) {
     RoveParallelPool *pool=&rove_parallel_threads;
     if(!pool->initialized)return;
     pthread_mutex_lock(&pool->mutex);
-    while(pool->job)pthread_cond_wait(&pool->done,&pool->mutex);
+    while(pool->root_busy)pthread_cond_wait(&pool->done,&pool->mutex);
     pool->quit=1;
     pthread_cond_broadcast(&pool->ready);
     pthread_mutex_unlock(&pool->mutex);
@@ -276,30 +280,42 @@ static RoveParallelResult rove_parallel_search(RoveSearch search,void *context,
         uint32_t priorfirst,uint32_t priorreply,RoveStopped stopped,
         int workers,int mode,uint64_t generation,RoveParallelHistory *history) {
     RoveParallel p={0};
+    int leased=0;
     p.search=search;p.stopped=stopped;p.context=context;p.moves=moves;
     p.n=n;p.depth=depth;p.alpha=alpha;p.beta=beta;p.workers=workers;
     p.mode=mode;p.generation=generation;p.bestalpha=alpha;p.bestgroup=0;
     p.groups=mode==2?(workers+3)/4:1;
     p.result.mode=mode;p.result.groups=p.groups;
     if(workers<1 || workers>512 || n<1 || alpha>=beta || stopped(context))return p.result;
+    if(n>256) {
+        fprintf(stderr,"Rove4k: root move workspace exceeds fixed capacity\n");
+        return p.result;
+    }
     uint64_t start=rove_parallel_clock(),proposal_ns=0;
     int mutex_error=pthread_mutex_init(&p.mutex,0);
     if(mutex_error) {
         fprintf(stderr,"Rove4k: root result mutex allocation failed (%d)\n",mutex_error);
         return p.result;
     }
+    if(!rove_parallel_init(workers))goto done;
+    RoveParallelPool *pool=&rove_parallel_threads;
+    pthread_mutex_lock(&pool->mutex);
+    if(pool->root_busy) {
+        fprintf(stderr,"Rove4k: overlapping root sessions\n");
+        pthread_mutex_unlock(&pool->mutex);
+        goto done;
+    }
+    pool->root_busy=1;leased=1;
+    p.completed=pool->completed;
+    memset(p.completed,0,(size_t)n*sizeof(*p.completed));
+    pthread_mutex_unlock(&pool->mutex);
     if(mode==0) {
         rove_parallel_pool(&p);
         goto done;
     }
-    p.completed=calloc((size_t)n,sizeof(*p.completed));
-    if(!p.completed) {
-        fprintf(stderr,"Rove4k: root result workspace allocation failed\n");
-        goto done;
-    }
     int first=0;
     for(int i=0;i<n;i++)if(moves[i]==priorfirst)first=i;
-    RoveTask proposal={moves[first],priorreply,depth,alpha,beta,ROVE_NORMAL,0,generation};
+    RoveTask proposal={moves[first],priorreply,depth,alpha,beta,ROVE_NORMAL,0,generation,p.groups};
     RoveResult r=search(context,&proposal,0);
     proposal_ns=rove_parallel_clock()-start;
     p.result.assigned++;
@@ -320,12 +336,12 @@ static RoveParallelResult rove_parallel_search(RoveSearch search,void *context,
     if(p.mode==3 && depth>1 && !stopped(context)) {
         p.phase=1;
         p.clause=(RoveTask){moves[first],r.reply,depth,alpha,beta,
-                           ROVE_COUNTERREPLY,0,generation};
+                           ROVE_COUNTERREPLY,0,generation,p.groups};
         rove_parallel_pool(&p);
         p.phase=0;
         if(p.counter.complete && !stopped(context)) {
             RoveTask repair={moves[first],p.counter.reply,depth,alpha,beta,
-                             ROVE_REPAIR,0,generation};
+                             ROVE_REPAIR,0,generation,p.groups};
             RoveResult repaired=search(context,&repair,0);
             p.result.repairs++;
             rove_parallel_accept(&p,first,repair,repaired);
@@ -360,7 +376,12 @@ done:
         history->total_ns=rove_parallel_clock()-start;
         history->nodes=p.result.best.nodes;
     }
-    free(p.completed);
+    if(leased) {
+        pthread_mutex_lock(&rove_parallel_threads.mutex);
+        rove_parallel_threads.root_busy=0;
+        pthread_cond_broadcast(&rove_parallel_threads.done);
+        pthread_mutex_unlock(&rove_parallel_threads.mutex);
+    }
     pthread_mutex_destroy(&p.mutex);
     return p.result;
 }

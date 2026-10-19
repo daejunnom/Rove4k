@@ -1,0 +1,169 @@
+# Rove4k engine portfolio
+
+The readable engine sources are in `c/` and `rust/`. Each language compiles A–F
+independently. A build selects one family, one parallel policy, one resource
+profile and any explicit cross feature. The executable has no runtime family,
+worker-count or hash-size selector. Development protocol commands are selected
+at compilation.
+
+The A–F implementation plan remains the scope. Building a variant does not prove
+that its named algorithm, complete chess behavior, parallel semantics, playing
+strength or final 4,096-byte submission requirement has passed acceptance. The
+build report records measured files and individual runtime checks without
+turning missing evidence into completion. Frozen E inference is included; model
+training and AWS execution are outside the current implementation task.
+
+## Build on Linux, including WSL Ubuntu
+
+The build tool uses Python 3 standard library, a C11 compiler and Rust 2024
+compiler. C SIMD candidates require AVX2. Linux x86-64, glibc and pthreads are the
+current target. On WSL, use Linux `cc` and Linux `rustc`, rather than Windows
+executables found through the inherited PATH. A normal Linux checkout gives Git
+revision metadata; a Windows managed worktree can still build through `/mnt/c`,
+but Git's Windows absolute worktree pointer may be unavailable to Linux Git.
+That lookup is recorded as unavailable and actual source hashes remain present.
+
+Every output directory must be absolute, outside the checkout and new or empty.
+Existing artifacts and failure records are preserved. For example:
+
+```sh
+python3 engines/scripts/build.py \
+  --out /tmp/rove4k-dev-build \
+  --profile local-dev --languages c,rust --variants ABCDEF \
+  --no-pack --reproduce
+
+python3 engines/tests/verify.py \
+  --manifest /tmp/rove4k-dev-build/build.json \
+  --out /tmp/rove4k-dev-verification --quick
+
+python3 engines/scripts/build.py \
+  --out /tmp/rove4k-shipping-build \
+  --profile local-ship --languages c,rust --variants ABCDEF \
+  --self-elf --reproduce
+
+python3 engines/tests/verify.py \
+  --manifest /tmp/rove4k-shipping-build/build.json \
+  --out /tmp/rove4k-shipping-verification --suite shipping
+```
+
+`--language` and `--variant` are aliases for their plural forms. `--cc` and
+`--rustc` select build compilers, including an explicit Linux Rust installation
+path. Source launchers resolve `cc` or `rustc` from the target's PATH. The exact
+flags, fixed environment, source byte hashes, compaction hashes, compiler
+versions, Python/glibc/OS, profile and tooling hashes are written to `build.json`.
+`--optimize size` uses C `-Os` / Rust `z`; `--optimize speed` uses `-O2` / Rust `2`.
+Neither choice is reported as the strongest playing engine.
+
+`--source-root /absolute/snapshot` reuses a tree containing `c/`, `rust/` and
+`model/`. Each campaign copies its exact admitted inputs to `sources/`; another
+campaign can use that directory to compare feature flags on identical source
+bytes. Source snapshots are taken before the first compilation. Development
+model scripts, JSON, documentation and standalone model C fixtures are excluded
+from production source archives.
+
+`--parallel loose|root|groups|pals|hybrid` sets `ROVE_PARALLEL=0..4`; the default
+is `loose`. `--model` sets `ROVE_MODEL=1` for explicit SIMD/frozen-model cross
+candidates, which receive separate `-model` report identities. The baseline does
+not silently acquire that feature. Verify each combined implementation before
+treating a cross candidate as functional.
+The cross flag requires `--variant C` explicitly. `--structural-compact` adds a
+separately named C form generated from `compact/c/generate.py`, followed by the
+real preprocessor, reachability pruning and lexical compaction. Structural
+changes receive their own source/recipe hashes and final-file comparisons;
+ordinary byte identity is measured and never assumed for that form.
+
+## Fixed resource profiles
+
+The profiles in `profiles/fixed.json` count the engine's input/control thread
+alongside its search workers. Search worker 0 coordinates the other workers.
+TT bits state the compile-time entry count exponent, rather than a claimed byte
+budget: actual TT entry layout and additional worker/history/model memory also
+count. Allocation and thread startup belong to engine startup.
+
+| Profile | Search workers | Expected total engine threads | TT bits | Development |
+| --- | ---: | ---: | ---: | --- |
+| local-dev | 1 | 2 | 16 | yes |
+| local-smp | 2 | 3 | 18 | yes |
+| local-ship | 2 | 3 | 18 | no |
+| target256 | 255 | 256 | 26 | no |
+| target509 | 508 | 509 | 26 | no |
+| target512 | 511 | 512 | 26 | no |
+
+The build tool executes only small local profiles, bounded by eight available
+logical CPUs. The target profiles are compile-only in this tool even on a large
+host. Their successful compilation does not prove resource availability,
+thread-start success, memory consumption or many-core scaling. No training,
+cloud connection or paid instance is started by these recipes.
+
+## Source compaction and complete-file packaging
+
+The script preserves readable originals. It compiles original and lexically
+compacted forms. The lexical pass removes comments and redundant whitespace,
+retains C preprocessor line boundaries, and handles Rust raw strings, nested
+comments, lifetimes and reserved token adjacency. It does not rename arbitrary
+identifiers or claim AST equivalence. Compilation and actual native hashes expose
+differences; protocol and engine checks cover behavior beyond successful parsing.
+
+For C packaging there is an additional compiler-context specialization. The
+selected compiler processes the actual headers and conditional directives using
+`-E -fdirectives-only`. The tool retains engine-origin source, flattens local
+headers, restores system include directives, and removes inactive family and
+development branches. It does not expand every libc header into the submission
+or guess the values of conditional expressions. Each translation unit remains
+independent. `byte_identical_to_original_native` reports whether the generated
+native file actually matches the original build, including all executable bytes.
+
+General 4K candidates use Python 3 with three standard codecs: DEFLATE/zlib,
+bzip2 and LZMA. Both plain Python/base85 and executable ZIP transports are
+measured. ZIP transport stores compressed binary directly, with deterministic
+archive metadata and the compressed bootstrap included in the measured size.
+Source candidates contain all required own source/model bytes and fixed compiler
+arguments; native candidates contain the complete native ELF. Nothing is fetched
+at runtime.
+
+The Python bootstrap restores to an owned temporary directory. Source candidates
+compile in a private process group; SIGINT/SIGTERM forward to that group and wait
+before cleanup. The finished ELF is opened as a file descriptor, every restored
+file is removed, and descriptor execution replaces Python. The searching engine
+has no extra Python parent process and leaves no restored executable behind.
+SIGKILL cannot run Python cleanup if it interrupts the restoration/compile phase;
+ordinary engine execution begins only after that cleanup has finished. Actual
+startup must still meet the event's 60-second limit. Compiler version differences
+on the final target remain a deployment consideration.
+
+The own-ELF path is implemented by
+[`scripts/elf_loader.py`](scripts/elf_loader.py) and its
+[`elf-loader` sources](scripts/elf-loader/README.md). It embeds a handwritten
+decoder, restores the exact complete ELF to an anonymous memfd, and invokes
+`execveat`. It has no interpreter or external compiler/decoder program at runtime.
+The original payload may retain the allowed system dynamic linker/libraries.
+Linux policy must permit executable memfd use. Self-file identity, privileged
+file semantics and `AT_EXECFN` identity are outside this packaging contract.
+
+Each final candidate is named `x` within its own report directory. Reported bytes
+include its executable header, restoration/bootstrap, payload, encoding, archive
+metadata and fixed configuration. `under_4096_bytes` is a measurement, not
+tournament approval. `rules_eligibility` stays unproven until the final file,
+startup, allowed dependencies and complete engine requirements have been checked
+against the [specific TCEC 4K rules](https://wiki.chessdom.org/index.php?title=TCEC_4k_Rules&oldid=7853).
+Own-ELF candidates never receive an external-decoder exemption.
+
+`--reproduce` actually compiles second original/compacted/specialized copies in
+different directories and compares SHA-256. It does not infer reproducibility
+from a cache hit. `build.json` remains `complete: false` if generation fails, and
+all earlier measured candidates remain available. Its minimum-size field means
+the smallest measured complete file in that campaign, with each runtime result
+shown separately; it is not an adopted or fully accepted tournament file.
+
+Focused packaging checks are reproducible without large engines:
+
+```sh
+RUSTC=rustc python3 -m unittest discover -s engines/scripts -p 'test*.py'
+RUSTC=rustc python3 engines/scripts/elf-loader/test_loader.py
+```
+
+The first suite compiles small C/Rust lexical fixtures and exercises both
+transports/codecs, descriptor execution, argv/environment/stdio/status,
+pre-execution cleanup and interrupted compiler lifetime. The own-ELF suite also
+checks corruption rejection, threaded C/Rust payloads and byte reproduction.
+These narrow fixtures do not replace final A–F chess and concurrency validation.

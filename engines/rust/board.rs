@@ -2,6 +2,10 @@
 pub const VALUE: [i32; 7] = [0, 100, 320, 330, 500, 900, 20000];
 const KNIGHT: [i16; 8] = [33, 31, 18, 14, -14, -18, -31, -33];
 const KING: [i16; 8] = [1, -1, 16, -16, 17, 15, -15, -17];
+const HQ:bool=match option_env!("ROVE_HQ"){
+    Some(v)if v.as_bytes().len()==1=>v.as_bytes()[0]==b'1',
+    _=>match option_env!("ROVE_VARIANT"){Some(v)=>v.as_bytes().len()==1&&v.as_bytes()[0]==b'D',None=>false},
+};
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
 pub struct Move { pub from: u8, pub to: u8, pub promo: i8 }
@@ -31,6 +35,22 @@ pub struct Board {
 fn color(p: i8) -> usize { (p < 0) as usize }
 fn valid(s: i16) -> bool { s >= 0 && s < 128 && s & 0x88 == 0 }
 fn bit(s: u8) -> u64 { 1 << ((s >> 4) * 8 + (s & 7)) }
+fn hq_line(piece:u64,occupancy:u64,mask:u64)->u64{
+    let line=(occupancy|piece)&mask;
+    (line.wrapping_sub(piece.wrapping_mul(2))
+        ^ line.reverse_bits().wrapping_sub(piece.reverse_bits().wrapping_mul(2)).reverse_bits())&mask
+}
+/// Hyperbola Quintessence returns reachable squares through the first blocker.
+/// Occupancy need not contain the source square (castling attack queries don't).
+pub fn hq_attacks(square:u8,occupancy:u64,diagonal:bool)->u64{
+    let rank=(square>>4)as i32;let file=(square&7)as i32;let piece=bit(square);
+    let (a,b)=if diagonal{
+        let d=rank-file;let e=rank+file-7;
+        (if d>=0{0x8040201008040201u64.wrapping_shl((d*8)as u32)}else{0x8040201008040201u64.wrapping_shr((-d*8)as u32)},
+         if e>=0{0x0102040810204080u64.wrapping_shl((e*8)as u32)}else{0x0102040810204080u64.wrapping_shr((-e*8)as u32)})
+    }else{(0xffu64<<(rank*8),0x0101010101010101u64<<file)};
+    hq_line(piece,occupancy,a)|hq_line(piece,occupancy,b)
+}
 fn mix(mut x: u64) -> u64 {
     x = x.wrapping_add(0x9e3779b97f4a7c15);
     x = (x ^ (x >> 30)).wrapping_mul(0xbf58476d1ce4e5b9);
@@ -59,6 +79,12 @@ pub fn square(s: &str) -> Option<u8> {
 }
 
 impl Board {
+    /// Copies into startup-reserved session storage without replacing its history allocation.
+    pub fn reuse_from(&mut self,source:&Self){
+        self.cells=source.cells;self.side=source.side;self.castle=source.castle;self.ep=source.ep;
+        self.halfmove=source.halfmove;self.fullmove=source.fullmove;self.hash=source.hash;
+        self.hist.clone_from(&source.hist);self.bb=source.bb;self.king=source.king;self.score=source.score;
+    }
     pub fn start() -> Self { Self::from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1").unwrap() }
     pub fn from_fen(fen: &str) -> Result<Self, String> {
         let f: Vec<_> = fen.split_whitespace().collect();
@@ -154,8 +180,7 @@ impl Board {
         }
         false
     }
-    // Returns a bitboard of all attackers, including pinned geometric attackers.
-    pub fn attackers(&self, sq: u8, by: i8) -> u64 {
+    fn leapers(&self,sq:u8,by:i8)->u64{
         let side = color(by); let mut result = 0; let mut mask = 0;
         for d in [15, 17] {
             let s = sq as i16 - by as i16 * d;
@@ -166,6 +191,20 @@ impl Board {
         result |= mask & self.bb[side][2]; mask = 0;
         for d in KING { let s = sq as i16 + d; if valid(s) { mask |= bit(s as u8); } }
         result |= mask & self.bb[side][6];
+        result
+    }
+    // Returns geometric attackers, including pinned pieces (FIDE king safety).
+    pub fn attackers(&self,sq:u8,by:i8)->u64{
+        if HQ{self.attackers_hq(sq,by)}else{self.attackers_scalar(sq,by)}
+    }
+    pub fn attackers_hq(&self,sq:u8,by:i8)->u64{
+        let side=color(by);let occupancy=self.bb.iter().flatten().fold(0,|all,&pieces|all|pieces);
+        self.leapers(sq,by)
+            |hq_attacks(sq,occupancy,true)&(self.bb[side][3]|self.bb[side][5])
+            |hq_attacks(sq,occupancy,false)&(self.bb[side][4]|self.bb[side][5])
+    }
+    pub fn attackers_scalar(&self,sq:u8,by:i8)->u64{
+        let side=color(by);let mut result=self.leapers(sq,by);
         for d in KING {
             let mut s = sq as i16 + d;
             while valid(s) {
@@ -203,6 +242,7 @@ impl Board {
         for s in [m.from, m.to] { b.castle &= match s { 0 => !2, 7 => !1, 112 => !8, 119 => !4, _ => 255 }; }
         b.ep = if p.abs() == 1 && (m.to as i16 - m.from as i16).abs() == 32 { (m.to as i16 + m.from as i16) / 2 } else { -1 };
         b.halfmove = if p.abs() == 1 || captured != 0 { 0 } else { b.halfmove.saturating_add(1) };
+        if b.halfmove == 0 { b.hist.clear(); }
         if self.side < 0 { b.fullmove = b.fullmove.saturating_add(1); }
         b.side = -b.side; b.hash ^= b.meta_hash(); b.hist.push(b.hash); b
     }
@@ -284,26 +324,32 @@ impl Board {
     // Exact optional-capture minimax on one square. Legal move filtering handles
     // pinned recapturers, king captures, promotions and EP occupancy correctly.
     pub fn see(&self, m: Move) -> i32 {
+        self.see_with_abort(m,&||false).unwrap()
+    }
+    pub fn see_with_abort(&self,m:Move,abort:&impl Fn()->bool)->Option<i32>{
+        if abort(){return None;}
         let gain = VALUE[self.captured(m).abs() as usize]
             + if m.promo != 0 { VALUE[m.promo as usize] - VALUE[1] } else { 0 };
-        gain - self.play(m).exchange(m.to)
+        Some(gain-self.play(m).exchange(m.to,abort)?)
     }
-    fn exchange(&self, target: u8) -> i32 {
+    fn exchange(&self, target: u8,abort:&impl Fn()->bool) -> Option<i32> {
+        if abort(){return None;}
         let mut attackers = self.attackers(target, self.side); let mut best = 0;
         while attackers != 0 {
             let n = attackers.trailing_zeros() as u8; attackers &= attackers - 1;
             let from = (n >> 3) * 16 + (n & 7);
             let promote = self.cells[from as usize].abs() == 1 && (target >> 4 == 0 || target >> 4 == 7);
             for promo in if promote { &[5, 4, 3, 2][..] } else { &[0][..] } {
+                if abort(){return None;}
                 let m = Move { from, to: target, promo: *promo }; let b = self.play(m);
                 if !b.attacked(b.king[color(self.side)], -self.side) {
                     let gain = VALUE[self.cells[target as usize].abs() as usize]
                         + if *promo != 0 { VALUE[*promo as usize] - VALUE[1] } else { 0 };
-                    best = best.max(gain - b.exchange(target));
+                    best = best.max(gain - b.exchange(target,abort)?);
                 }
             }
         }
-        best
+        Some(best)
     }
     pub fn fen(&self) -> String {
         let mut s = String::new();
@@ -329,6 +375,34 @@ impl Board {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn exchange_abort_is_not_a_zero_exchange_result(){
+        let b=Board::from_fen("4k3/8/8/3q4/8/8/4K3/3Q4 w - - 0 1").unwrap();let m=b.parse_move("d1d5").unwrap();
+        let visits=std::cell::Cell::new(0);
+        let abort=||{visits.set(visits.get()+1);visits.get()>=2};
+        assert_eq!(b.see_with_abort(m,&abort),None);assert_eq!(visits.get(),2);
+        assert!(b.see(m)>0);assert_eq!(b.fen(),"4k3/8/8/3q4/8/8/4K3/3Q4 w - - 0 1");
+    }
+    #[test]
+    fn hyperbola_matches_independent_rays_on_random_occupancies(){
+        fn ray(square:u8,occupancy:u64,diagonal:bool)->u64{
+            let mut attacks=0;
+            for &d in if diagonal{&[15,17,-15,-17][..]}else{&[1,-1,16,-16][..]}{
+                let mut next=square as i16+d;
+                while valid(next){let target=bit(next as u8);attacks|=target;if occupancy&target!=0{break;}next+=d;}
+            }
+            attacks
+        }
+        let mut seed=0x397bace871d2046f;
+        for _ in 0..2048{seed=mix(seed);for n in 0..64{let square=(n/8)*16+n%8;
+            for diagonal in [false,true]{for occupancy in [seed,seed&!bit(square),seed|bit(square)]{
+                assert_eq!(hq_attacks(square,occupancy,diagonal),ray(square,occupancy,diagonal),"sq {square} occ {occupancy:x}");
+            }}
+        }}
+        for fen in ["r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1","4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 1"]{
+            let b=Board::from_fen(fen).unwrap();for n in 0..64{let square=(n/8)*16+n%8;for side in [-1,1]{assert_eq!(b.attackers_hq(square,side),b.attackers_scalar(square,side));}}
+        }
+    }
     use super::*;
     fn b(s: &str) -> Board { Board::from_fen(s).unwrap() }
     #[test] fn initial_and_kiwipete_perft() {

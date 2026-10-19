@@ -8,7 +8,6 @@ use std::sync::OnceLock;
 #[path = "../model/frozen.rs"]
 mod frozen;
 
-const VALUE: [i32; 7] = [0, 100, 320, 330, 500, 900, 20000];
 const HCE: [i16; 32] = [
     100, 320, 335, 505, 950, 1, 8, 5, 1, 1, -5, 4, -12, -10, 24, 12,
     9, 2, 15, 8, 3, 6, 10, 12, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -227,6 +226,7 @@ pub fn order(b: &Board, m: Move) -> i32 {
     values.iter().zip(&w[16..]).map(|(&a, &k)| a * k as i32).sum()
 }
 
+#[inline(always)]
 pub fn evaluate(b: &Board, variant: u8) -> i32 {
     match variant {
         b'E' => model(b),

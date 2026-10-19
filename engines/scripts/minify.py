@@ -11,7 +11,7 @@ import re
 
 _word = re.compile(r"[A-Za-z_$][A-Za-z_0-9$]*")
 _number = re.compile(r"(?:[0-9]|\.[0-9])(?:[A-Za-z_0-9.]|[eEpP][+-])*")
-_punct = sorted(("<<=", ">>=", "...", "..=", "->", "++", "--", "<<", ">>",
+_punct = sorted(("%:%:", "<:", ":>", "<%", "%>", "%:", "<<=", ">>=", "...", "..=", "->", "++", "--", "<<", ">>",
                  "<=", ">=", "==", "!=", "&&", "||", "*=", "/=", "%=", "+=",
                  "-=", "&=", "^=", "|=", "##", "::", "=>", ".."), key=len, reverse=True)
 
@@ -61,7 +61,12 @@ def _tokens(text, language):
                 raise ValueError("unterminated raw string")
             end += len(delimiter)
         else:
+            raw_identifier = re.match(r'r#[A-Za-z_][A-Za-z_0-9]*', text[pos:]) if language == "rust" else None
             prefix = re.match(r'(?:u8|[uULbc])?(["\'])', text[pos:])
+            if raw_identifier:
+                yield raw_identifier.group()
+                pos += raw_identifier.end()
+                continue
             if prefix:
                 literal_start = pos + prefix.end() - 1
                 # Rust 'name and 'static are lifetimes, rather than character literals.
@@ -95,7 +100,8 @@ def _compact_chunk(text, language):
         # Rust rejects '<-' as a legacy token even though its characters have
         # separate meanings in comparisons with a negative operand.
         reserved_joint = previous == "<" and token == "-"
-        if previous and (joined != [previous, token] or literal_suffix or reserved_joint):
+        raw_prefix_joint = language == "rust" and previous in ("r", "br", "cr") and token == "#"
+        if previous and (joined != [previous, token] or literal_suffix or reserved_joint or raw_prefix_joint):
             result.append(" ")
         result.append(token)
         previous = token
