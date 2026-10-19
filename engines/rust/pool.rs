@@ -106,8 +106,7 @@ impl Runtime {
         // TT, history, PV storage and every helper are ready before the stdin
         // command loop. A spawn/allocation failure fails startup explicitly.
         let mut engine = Engine::new(variant, workers, tt_bits, control.clone(), mode)?;
-        let mut board = Board::start();
-        board.hist.reserve(4096 + 96);
+        let board = Board::start();
         let shared = Arc::new(Shared { state: Mutex::new(State { request: None, active: false, ready: false, shutdown: false }),
             wake: Condvar::new(), done: Condvar::new(), board: RwLock::new(board) });
         let worker_shared = shared.clone();

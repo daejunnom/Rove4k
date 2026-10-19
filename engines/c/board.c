@@ -16,13 +16,15 @@ static uint64_t bit(int q){return UINT64_C(1)<<((q>>4)*8+(q&7));}
 static void put(Board *,int,int);
 static uint64_t random64(uint64_t *s){uint64_t z=(*s+=UINT64_C(0x9e3779b97f4a7c15));z=(z^(z>>30))*UINT64_C(0xbf58476d1ce4e5b9);z=(z^(z>>27))*UINT64_C(0x94d049bb133111eb);return z^(z>>31);}
 void board_init(void){uint64_t s=UINT64_C(0x726f7665346b);for(int p=0;p<12;p++)for(int q=0;q<128;q++)pieces[p][q]=random64(&s);for(int i=0;i<16;i++)rights[i]=random64(&s);for(int i=0;i<8;i++)eps[i]=random64(&s);turn=random64(&s);}
+#if ROVE_VARIANT == 4 && ROVE_HQ
 static uint64_t reverse64(uint64_t x){x=((x>>1)&UINT64_C(0x5555555555555555))|((x&UINT64_C(0x5555555555555555))<<1);x=((x>>2)&UINT64_C(0x3333333333333333))|((x&UINT64_C(0x3333333333333333))<<2);x=((x>>4)&UINT64_C(0x0f0f0f0f0f0f0f0f))|((x&UINT64_C(0x0f0f0f0f0f0f0f0f))<<4);x=__builtin_bswap64(x);return x;}
 static uint64_t hq(const Board *p,int sq,int direction){uint64_t mask=0,b=bit(sq),occ=p->occ[0]|p->occ[1];for(int s=-1;s<=1;s+=2)for(int q=sq+s*direction;!(q&0x88);q+=s*direction)mask|=bit(q);uint64_t line=occ&mask;return ((line-2*b)^reverse64(reverse64(line)-2*reverse64(b)))&mask;}
+#endif
 uint64_t attackers(const Board *p,int sq,int side){
     int c=side<0,d=side*16;uint64_t result=0;
     for(int a=-1;a<=1;a+=2){int q=sq-d+a;if(!(q&0x88))result|=p->bb[c][1]&bit(q);}
     for(int i=0;i<8;i++){int q=sq+knight[i];if(!(q&0x88))result|=p->bb[c][2]&bit(q);q=sq+rays[i];if(!(q&0x88))result|=p->bb[c][6]&bit(q);}
-#if ROVE_VARIANT == 4
+#if ROVE_VARIANT == 4 && ROVE_HQ
     uint64_t orth=hq(p,sq,1)|hq(p,sq,16),diag=hq(p,sq,15)|hq(p,sq,17);result|=orth&(p->bb[c][4]|p->bb[c][5]);result|=diag&(p->bb[c][3]|p->bb[c][5]);
 #else
     uint64_t occ=p->occ[0]|p->occ[1];for(int i=0;i<8;i++)for(int q=sq+rays[i];!(q&0x88);q+=rays[i]){uint64_t b=bit(q);if(occ&b){result|=b&(p->bb[c][5]|p->bb[c][i<4?4:3]);break;}}

@@ -22,9 +22,17 @@ void evaluate_init(void){
 #endif
 }
 uint64_t now_ms(void){struct timespec t;clock_gettime(CLOCK_MONOTONIC,&t);return (uint64_t)t.tv_sec*1000+(uint64_t)t.tv_nsec/1000000;}
-void tt_clear(void){if(rove_tt)for(size_t i=0;i<((size_t)1<<ROVE_TT_BITS);i++){atomic_store_explicit(&rove_tt[i].key,0,memory_order_relaxed);atomic_store_explicit(&rove_tt[i].data,0,memory_order_relaxed);
-#if ROVE_VARIANT == 6
-    atomic_store_explicit(&rove_tt[i].upper_key,0,memory_order_relaxed);atomic_store_explicit(&rove_tt[i].upper_data,0,memory_order_relaxed);
+/* Every record access holds the same byte lock. Busy slots are misses/skipped
+ * writes, so there is no optimistic sequence wrap or mixed-key/data read. */
+static int tt_lock(TTEntry *e){unsigned char expected=0;return atomic_compare_exchange_strong_explicit(&e->lock,&expected,1,memory_order_acquire,memory_order_relaxed);}
+#if ROVE_VARIANT != 6 || ROVE_F_SINGLE
+static uint64_t tt_unpack(const TTEntry *e){uint64_t d=0;for(int i=0;i<7;i++)d|=(uint64_t)e->data[i]<<(i*8);return d;}
+#endif
+void tt_clear(void){if(rove_tt)for(size_t i=0;i<((size_t)1<<ROVE_TT_BITS);i++){
+#if ROVE_VARIANT != 6 || ROVE_F_SINGLE
+    TTEntry *e=&rove_tt[i];if(tt_lock(e)){memset(e->data,0,sizeof e->data);atomic_store_explicit(&e->lock,0,memory_order_release);}
+#else
+    TTEntry *e=&rove_tt[i];if(tt_lock(e)){e->data=e->upper_data=0;atomic_store_explicit(&e->lock,0,memory_order_release);}
 #endif
 }}
 static int static_score(int score){return score>20000?20000:score< -20000?-20000:score;}
@@ -76,21 +84,27 @@ static int score_to_tt(int s,int ply){return s>MATE-MAXPLY?s+ply:s<-MATE+MAXPLY?
 static int score_from_tt(int s,int ply){return s>MATE-MAXPLY?s-ply:s<-MATE+MAXPLY?s+ply:s;}
 /* Bounds depend on both the halfmove clock and reversible position history. */
 static uint64_t context_key(const Worker *w,const Board *p){uint64_t k=p->key^((uint64_t)p->half*UINT64_C(0xd6e8feb86659fd93));int start=w->path_len-p->half-1;if(start<0)start=0;for(int i=start;i<w->path_len;i++){k=(k<<17)|(k>>47);k^=w->path[i];}return k;}
-static int tt_slot(_Atomic uint64_t *key_slot,_Atomic uint64_t *data_slot,uint64_t key,uint64_t *out){uint64_t d=atomic_load_explicit(data_slot,memory_order_relaxed),k=atomic_load_explicit(key_slot,memory_order_relaxed);if((k^d)!=key||!d||d!=atomic_load_explicit(data_slot,memory_order_relaxed))return 0;*out=d;return 1;}
-static int tt_read(Worker *w,uint64_t key,uint64_t *data,int depth,int alpha,int ply){TTEntry *e=&w->table[key&w->table_mask];int found=tt_slot(&e->key,&e->data,key,data);
-#if ROVE_VARIANT == 6
-    uint64_t upper;if(tt_slot(&e->upper_key,&e->upper_data,key,&upper)&&(!found||(((upper>>33)&127)==(unsigned)depth&&score_from_tt((int16_t)(upper>>17),ply)<=alpha))){*data=upper;return 1;}
-#else
-    (void)depth;(void)alpha;(void)ply;
-#endif
-    return found;
+#if ROVE_VARIANT != 6 || ROVE_F_SINGLE
+static int tt_read(Worker *w,uint64_t key,uint64_t *data,int depth,int alpha,int ply){
+    (void)depth;(void)alpha;(void)ply;TTEntry *e=&w->table[key&w->table_mask];if(!tt_lock(e))return 0;
+    uint64_t k=e->key,d=tt_unpack(e);atomic_store_explicit(&e->lock,0,memory_order_release);
+    if(k!=key||!d)return 0;*data=d;return 1;
 }
+#else
+static int tt_read(Worker *w,uint64_t key,uint64_t *data,int depth,int alpha,int ply){
+    TTEntry *e=&w->table[key&w->table_mask];if(!tt_lock(e))return 0;
+    uint64_t k=e->key,d=e->data,upper=e->upper_data;atomic_store_explicit(&e->lock,0,memory_order_release);
+    if(k!=key)return 0;if(upper&&(!d||(((upper>>33)&127)==(unsigned)depth&&score_from_tt((int16_t)(upper>>17),ply)<=alpha)))d=upper;
+    if(!d)return 0;*data=d;return 1;
+}
+#endif
 static void tt_write(Worker *w,uint64_t key,unsigned move,int depth,int score,int bound,int ply){
     TTEntry *e=&w->table[key&w->table_mask];uint64_t d=(uint64_t)move|((uint64_t)(uint16_t)(int16_t)score_to_tt(score,ply)<<17)|((uint64_t)(depth<0?0:depth)<<33)|((uint64_t)bound<<40);
-#if ROVE_VARIANT == 6
-    if(bound==1||bound==3){atomic_store_explicit(&e->upper_data,d,memory_order_relaxed);atomic_store_explicit(&e->upper_key,key^d,memory_order_relaxed);}if(bound==3)return;
+#if ROVE_VARIANT != 6 || ROVE_F_SINGLE
+    if(!tt_lock(e))return;e->key=key;for(int i=0;i<7;i++)e->data[i]=(unsigned char)(d>>(i*8));atomic_store_explicit(&e->lock,0,memory_order_release);
+#else
+    if(!tt_lock(e))return;if(e->key!=key){e->key=key;e->data=e->upper_data=0;}if(bound==1||bound==3)e->upper_data=d;if(bound!=3)e->data=d;atomic_store_explicit(&e->lock,0,memory_order_release);
 #endif
-    atomic_store_explicit(&e->data,d,memory_order_relaxed);atomic_store_explicit(&e->key,key^d,memory_order_relaxed);
 }
 static int victim(const Board *p,unsigned m){int v=abs(p->b[TO(m)]);return !v&&abs(p->b[FROM(m)])==1&&TO(m)==p->ep?1:v;}
 static int piece_index(int p){return p>0?p:6-p;}
@@ -198,6 +212,9 @@ static void run_parallel(Session *s,Worker *workers){
     Move generated[MAXMOVES];uint32_t moves[MAXMOVES];int n=generate(&s->board,generated,0),count=0;for(int i=0;i<n;i++){Board t;if(make_move(&s->board,generated[i].m,&t))moves[count++]=generated[i].m;}
     if(!count){s->score=in_check(&s->board)?-MATE:0;s->completed_depth=1;workers[0].seldepth=0;workers[0].pvlen[0]=0;info(&workers[0],1,s->score);return;}
     RoveParallelHistory history={0};unsigned priorfirst=s->best,priorreply=0;int guess=0;
+#if ROVE_VARIANT == 6 && ROVE_F_PARITY
+    int parity_guess[2]={0};
+#endif
     for(int depth=1;depth<=s->depth;depth++){
         for(int i=0;i<ROVE_WORKERS;i++)workers[i].seldepth=0;
         ParallelContext context={s,workers,s->generation*MAXPLY+(unsigned)depth,(ROVE_PARALLEL==2||ROVE_PARALLEL==4)?(ROVE_WORKERS+3)/4:1};
@@ -205,6 +222,12 @@ static void run_parallel(Session *s,Worker *workers){
         for(int i=1;i<ROVE_WORKERS;i++)memcpy(workers[i].correction,workers[0].correction,sizeof workers[0].correction);
         RoveParallelResult result={0};
 #if ROVE_VARIANT == 6
+#if ROVE_F_PARITY
+        if(depth>2)guess=parity_guess[depth&1];
+#endif
+#if ROVE_DEV
+        printf("info string f seed depth %d guess %d\n",depth,guess);
+#endif
         int lower=-INF,upper=INF;unsigned converged_move=priorfirst,converged_reply=priorreply;int score=guess;
         while(lower<upper){int beta=score==lower?score+1:score;atomic_fetch_add_explicit(&rove_mtd_probes,1,memory_order_relaxed);result=rove_parallel_search(parallel_task,&context,moves,count,depth,beta-1,beta,priorfirst,priorreply,parallel_stopped,ROVE_WORKERS,ROVE_PARALLEL,context.generation,&history);s->assigned+=result.assigned;s->reassigned+=result.reassigned;s->reused+=result.reused;s->shared_bounds+=result.shared_bounds;s->clauses+=result.clauses;s->repairs+=result.repairs;if(!result.completedall||!result.best.complete||parallel_stopped(&context))break;score=result.best.score;if(score<lower||score>upper){atomic_fetch_add_explicit(&rove_mtd_conflicts,1,memory_order_relaxed);atomic_store_explicit(&s->stop,1,memory_order_relaxed);break;}if(score<beta)upper=score;else{lower=score;converged_move=result.best.first;converged_reply=result.best.reply;}}
         if(lower!=upper||!result.best.complete||parallel_stopped(&context))break;atomic_fetch_add_explicit(&rove_mtd_converged,1,memory_order_relaxed);result.best.score=score;result.best.first=converged_move;result.best.reply=converged_reply;
@@ -217,6 +240,9 @@ static void run_parallel(Session *s,Worker *workers){
 #endif
         s->parallel_mode=result.mode;s->groups=result.groups;
         s->score=result.best.score;s->completed_depth=depth;if(result.best.first)s->best=result.best.first;priorfirst=s->best;priorreply=result.best.reply;guess=s->score;
+#if ROVE_VARIANT == 6 && ROVE_F_PARITY
+        parity_guess[depth&1]=s->score;
+#endif
         for(int i=1;i<ROVE_WORKERS;i++)if(workers[i].seldepth>workers[0].seldepth)workers[0].seldepth=workers[i].seldepth;
         workers[0].pv[0][0]=s->best;workers[0].pvlen[0]=s->best?1:0;if(priorreply){workers[0].pv[0][1]=priorreply;workers[0].pvlen[0]=2;}info(&workers[0],depth,s->score);
         if(abs(s->score)>MATE-MAXPLY)break;

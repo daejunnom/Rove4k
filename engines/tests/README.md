@@ -56,6 +56,10 @@ the active stop/quit/EOF checks. Direct entries can request the same check with
 `--startup-threads N`, or a manifest entry can provide `startup_threads`.
 This checks a real persistent pool at the declared local size; it is separate
 from peak sampling and does not establish scaling or memory use on target 512.
+`--startup-timeout 60` allows source-wrapper compilation and fixed pool creation
+within a separate startup budget, while retaining the normal response and
+search timeouts. A manifest's `expected_program_sha256` pins selected packaging
+artifacts before execution.
 
 The default checks cover:
 
@@ -167,7 +171,10 @@ bound. `--workers` permits 1–8 for local checks.
   Excluded low/full-window searches with frozen learning must preserve the
   ordinary root TT entry, history, continuation, correction, killers, board and
   path depth. Ordinary learning positive controls first prove that the selected
-  positions/windows actually qualify for each relevant update.
+  positions/windows actually qualify for each relevant update. A second
+  unique-capture position proves the singular extension is taken: excluded
+  alternatives fail below its threshold and the real depth-6 search completes
+  the selected child at depth 6 instead of the ordinary depth 5.
 - **C:** 400 actual AVX2 evaluations equal a scalar score recomputed from board
   contents during deterministic legal walks. The production SIMD counter must
   advance. Execution requires an AVX2-capable CPU.
@@ -176,7 +183,8 @@ bound. `--workers` permits 1–8 for local checks.
   attains that value. The oracle has no TT, ordering, PVS or pruning; it checks
   its quiet-frontier precondition explicitly. Actual convergence counters and
   conflict counters are checked, repeated searches retain TT data across
-  horizon changes, and a 100-node cancellation preserves the last completed
+  horizon changes, explicitly requested shallow depths 1 and 2 still equal
+  their own minimax values after a deeper search, and a 100-node cancellation preserves the last completed
   score and attaining move.
 
 These semantic fixtures add evidence for those specific contracts. They do not

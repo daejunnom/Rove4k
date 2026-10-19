@@ -25,6 +25,16 @@ static void prepare(const Board *p,uint64_t limit){
 static void release(void){assert(!pthread_mutex_destroy(&session.mutex));}
 
 #if ROVE_VARIANT == 2
+typedef struct {uint64_t key,data;} TTImage;
+static TTImage tt_image(TTEntry *slot){
+    /* The unit's helpers are idle here. Use the production record lock for
+     * every byte read, just as a concurrent reader must. */
+    assert(tt_lock(slot));TTImage image={slot->key,tt_unpack(slot)};
+    atomic_store_explicit(&slot->lock,0,memory_order_release);return image;
+}
+static void assert_tt_image(TTEntry *slot,TTImage expected){
+    TTImage actual=tt_image(slot);assert(actual.key==expected.key&&actual.data==expected.data);
+}
 static void test_see(void){
     static const struct {const char *label,*fen,*move;int score;} cases[]={
         {"free-pawn","7k/8/8/8/8/8/p7/R3K3 w - - 0 1","a1a2",100},
@@ -91,7 +101,8 @@ static void test_singular_exclusion(void){
     printf("ordinary learning positive controls: history/continuation/killers changed; correction 64 -> %d\n",
            control->correction[correction_side][correction_index]);
     free(fresh);free(control);
-    TTEntry *slot=&rove_tt[key&w->table_mask];uint64_t prior_key=atomic_load(&slot->key),prior_data=atomic_load(&slot->data);
+    TTEntry *slot=&rove_tt[key&w->table_mask];TTImage prior_entry=tt_image(slot);
+    assert(prior_entry.key==key&&prior_entry.data==data);
     uint64_t saved_board_key=p.key;int saved_path=w->path_len;
     /* A low window makes a quiet alternative cut off. Learning suppression is
      * therefore exercised, rather than passing because no update qualified. */
@@ -104,15 +115,36 @@ static void test_singular_exclusion(void){
     assert(w->path_len==saved_path&&p.key==saved_board_key&&board_invariant(&p));
     /* Descendant TT entries are valid normal searches; this specifically checks
      * that the excluded node did not publish its constrained score at this key. */
-    assert(atomic_load(&slot->key)==prior_key&&atomic_load(&slot->data)==prior_data);
+    assert_tt_image(slot,prior_entry);
     (void)search(w,&p,2,-INF,INF,1,ttmove,0);
     assert(!atomic_load(&session.stop)&&!w->aborted);
     assert(!memcmp(w->history,saved->history,sizeof w->history));
     assert(!memcmp(w->continuation,saved->continuation,sizeof w->continuation));
     assert(!memcmp(w->correction,saved->correction,sizeof w->correction));
     assert(!memcmp(w->killers,saved->killers,sizeof w->killers));
-    assert(atomic_load(&slot->key)==prior_key&&atomic_load(&slot->data)==prior_data);
+    assert_tt_image(slot,prior_entry);
     free(saved);release();puts("qualified real-TT singular search and excluded-state isolation: pass");
+}
+
+static void test_taken_singular_extension(void){
+    Board p;load(&p,"6k1/1q6/8/8/8/8/1Q6/K7 w - - 0 1");tt_clear();prepare(&p,0);Worker *w=&workers[0];
+    int prime=search(w,&p,3,-INF,INF,1,0,1);assert(!w->aborted&&!atomic_load(&session.stop));
+    uint64_t data,key=context_key(w,&p);assert(tt_read(w,key,&data,6,-INF,1));
+    unsigned candidate=(unsigned)(data&131071);assert(candidate==move(&p,"b2b7"));
+    assert(((data>>33)&127)>=3&&((data>>40)&3)==1&&abs(prime)<MATE-MAXPLY);
+    int threshold=prime-12,alternatives=search(w,&p,2,threshold-1,threshold,1,candidate,0);
+    assert(alternatives<threshold&&!w->aborted&&!atomic_load(&session.stop));
+    uint64_t before=atomic_load(&rove_singular_calls);(void)search(w,&p,6,-INF,INF,1,0,1);
+    assert(atomic_load(&rove_singular_calls)>before&&!w->aborted&&!atomic_load(&session.stop));
+    assert(w->pvlen[1]>0&&w->pv[1][0]==candidate);
+    Board child;assert(make_move(&p,candidate,&child));w->path[w->path_len++]=child.key;
+    uint64_t child_data;assert(tt_read(w,context_key(w,&child),&child_data,6,-INF,2));w->path_len--;
+    int child_depth=(int)((child_data>>33)&127);
+    /* A normal depth-6 parent requests depth 5 at its child. The completed
+     * child entry at depth 6 is evidence that the actual extension was taken. */
+    assert(child_depth>=6);
+    printf("taken singular extension: real TT score %d alternatives %d threshold %d child depth %d (normal 5): pass\n",
+           prime,alternatives,threshold,child_depth);release();
 }
 #endif
 
@@ -147,7 +179,10 @@ static int minimax(const Board *p,int depth,int ply){
     if(!legal)return in_check(p)?-MATE+ply:0;
     return depth?best:evaluate_reference(p);
 }
-static int chosen_score(const Board *p,unsigned m,int depth){Board next;assert(make_move(p,m,&next));return -minimax(&next,depth-1,1);}
+static int chosen_score(const Board *p,unsigned m,int depth){
+    char text[8];assert(m);move_string(m,text);assert(parse_move(p,text)==m);
+    Board next;assert(make_move(p,m,&next));return -minimax(&next,depth-1,1);
+}
 static void test_mtd(void){
     static const char *positions[]={
         "8/6pk/8/8/8/8/PK6/8 w - - 0 1",
@@ -167,6 +202,12 @@ static void test_mtd(void){
         prepare(&p,0);run_parallel(&session,workers);
         assert(session.completed_depth==3&&!atomic_load(&session.stop)&&session.score==expected);
         assert(session.best&&chosen_score(&p,session.best,3)==expected);release();
+        for(int shallow=1;shallow<=2;shallow++){
+            prepare(&p,0);session.depth=shallow;run_parallel(&session,workers);
+            assert(session.completed_depth==shallow&&!atomic_load(&session.stop));
+            assert(session.score==minimax(&p,shallow,0));
+            assert(session.best&&chosen_score(&p,session.best,shallow)==session.score);release();
+        }
         printf("MTD exact minimax, legal attaining witness, repeated horizon case %zu: pass\n",i);
     }
     Board p;load(&p,positions[0]);tt_clear();prepare(&p,100);session.depth=8;
@@ -183,7 +224,7 @@ int main(void){
     board_init();evaluate_init();rove_tt=calloc((size_t)1<<ROVE_TT_BITS,sizeof *rove_tt);assert(rove_tt);
     workers=calloc(ROVE_WORKERS,sizeof *workers);assert(workers);assert(parallel_init());tt_clear();
 #if ROVE_VARIANT == 2
-    test_see();test_singular_exclusion();
+    test_see();test_singular_exclusion();test_taken_singular_extension();
 #elif ROVE_VARIANT == 3
     test_simd();
 #elif ROVE_VARIANT == 6

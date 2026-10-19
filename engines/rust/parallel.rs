@@ -1,6 +1,6 @@
 //! Search policies share only completed normal results. A constrained PALS
 //! clause is diagnostic; Repair searches the same first move unrestricted.
-use crate::board::{Board, Move};
+use crate::board::{Board, Move, MoveList};
 use crate::search::{Control, Limits, SearchResult, Searcher, Table, INF, MATE};
 use crate::pool::{Helpers, Task};
 use std::io;
@@ -35,7 +35,7 @@ fn report(r: SearchResult) {
 #[derive(Clone, Copy)]
 enum Kind { Reset, Loose, Split }
 struct Depth {
-    kind: Kind, board: Board, moves: Vec<Move>, depth: u8, guess: i32,
+    kind: Kind, board: Board, moves: MoveList, depth: u8, guess: i32,
     frozen: [[i16; 2048]; 3], epoch: u64, workers: usize, groups: usize, first_job: usize,
     queue: AtomicUsize, alpha: AtomicU64,
     // The cache contains exact normal results for this board, depth and frozen
@@ -124,9 +124,9 @@ impl Engine {
         let leader = Searcher::new(tables[0].clone(), control.clone(), variant, 0);
         let searchers = (1..workers).map(|i| Searcher::new(tables[i * groups / workers].clone(), control.clone(), variant, i)).collect();
         let counters = Arc::new(Counters::default());
-        let mut board = Board::start(); board.hist.reserve(4096 + 96);
+        let board = Board::start();
         let empty = SearchResult { score: -INF, best: Move::default(), reply: None, depth: 0, nodes: 0, completed: false };
-        let helpers = Helpers::new(Depth { kind: Kind::Reset, board, moves: Vec::with_capacity(256), depth: 0, guess: 0,
+        let helpers = Helpers::new(Depth { kind: Kind::Reset, board, moves: MoveList::new(), depth: 0, guess: 0,
             frozen: [[0; 2048]; 3], epoch: 0, workers, groups, first_job: 0,
             queue: AtomicUsize::new(0), alpha: AtomicU64::new(0), cache: None,
             best: Mutex::new((empty, 0)), finished: AtomicUsize::new(0), control: control.clone(), counters: counters.clone() }, searchers)?;
@@ -207,6 +207,7 @@ impl Engine {
         return result;
     }
     let (mut best, mut older, mut last_cost, mut last_policy) = (None, None, Duration::ZERO, 255);
+    let mut parity_guess=[0;2];
     for depth in 1..=limits.depth.max(1) {
         if self.control.cancelled() { break; }
         #[cfg(test)] let selected=policy(self.effective,best,older,last_cost,&self.control);
@@ -215,10 +216,14 @@ impl Engine {
         self.counters.policies.fetch_or(1 << selected, Ordering::Relaxed);
         last_policy = selected;
         let start = Instant::now();
-        let r = if selected == 0 { self.loose_depth(board, depth, best.map_or(0, |r: SearchResult| r.score)) }
+        let previous=best.map_or(0,|r:SearchResult|r.score);
+        let guess=if crate::VARIANT==b'F'&&crate::number(option_env!("ROVE_F_PARITY"),0)==1&&depth>2 {parity_guess[(depth&1)as usize]}else{previous};
+        if crate::DEV&&crate::VARIANT==b'F'{println!("info string f seed depth {depth} guess {guess}");}
+        let r = if selected == 0 { self.loose_depth(board, depth, guess) }
             else { self.split_depth(board, depth, best, selected == 3) };
         last_cost = start.elapsed();
         let Some(r) = r else { break; };
+        parity_guess[(depth&1)as usize]=r.score;
         older = best;
         best = Some(r);
         report(r);
@@ -235,75 +240,5 @@ impl Engine {
 }
 
 #[cfg(test)]
-fn execute(board: Board, variant: u8, workers: usize, tt_bits: usize,
-           limits: Limits, control: Arc<Control>, mode: u8, counters: &Counters) -> Option<SearchResult> {
-    let mut engine = Engine::new(variant, workers, tt_bits, control, mode).unwrap();
-    let result = engine.execute(&board, &limits);
-    for (to, from) in [&counters.jobs, &counters.cached, &counters.proposals, &counters.clauses, &counters.repairs, &counters.switches, &counters.policies, &counters.cross_group_alpha]
-        .into_iter().zip([&engine.counters.jobs, &engine.counters.cached, &engine.counters.proposals, &engine.counters.clauses, &engine.counters.repairs, &engine.counters.switches, &engine.counters.policies, &engine.counters.cross_group_alpha]) { to.store(from.load(Ordering::Relaxed), Ordering::Relaxed); }
-    result
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    fn limits(depth: u8) -> Limits { Limits { depth, nodes: 0, movetime: Some(Duration::from_secs(10)) } }
-    #[test]
-    fn split_modes_complete_and_pals_reuses_normal_repair() {
-        // A unique mate avoids equal-score ordering differences among workers.
-        let b = Board::from_fen("7k/8/5KQ1/8/8/8/8/8 w - - 0 1").unwrap();
-        let winning = b.parse_move("g6g7").unwrap();
-        for mode in 0..=4 {
-            let l = limits(3); let ctrl = Arc::new(Control::new(&l)); let c = Counters::default();
-            let r = execute(b.clone(), b'A', 4, 12, l, ctrl, mode, &c).unwrap();
-            assert!(r.completed); assert_eq!(r.depth, 3); assert_eq!(r.best, winning, "mode {mode}");
-            if mode == 3 { assert!(c.cached.load(Ordering::Relaxed) > 0); }
-            if mode == 4 { assert!(c.switches.load(Ordering::Relaxed) > 0); }
-        }
-        // A mate proposal has no legal opponent reply. Use a nonterminal root
-        // separately to exercise an actual counterreply and normal Repair.
-        let l = limits(3); let ctrl = Arc::new(Control::new(&l)); let c = Counters::default();
-        let r = execute(Board::start(), b'A', 4, 12, l, ctrl, 3, &c).unwrap();
-        assert_eq!(r.depth, 3); assert!(c.clauses.load(Ordering::Relaxed) > 0);
-        assert_eq!(c.repairs.load(Ordering::Relaxed), c.clauses.load(Ordering::Relaxed));
-        assert!(c.cached.load(Ordering::Relaxed) > 0);
-    }
-    #[test]
-    fn original_node_budget_and_completed_depth_survive_cancellation() {
-        for mode in 0..=4 {
-            let l = Limits { depth: 40, nodes: 300, movetime: Some(Duration::from_secs(5)) };
-            let ctrl = Arc::new(Control::new(&l)); let c = Counters::default();
-            let r = execute(Board::start(), b'A', 4, 12, l, ctrl.clone(), mode, &c);
-            assert!(ctrl.cancelled()); assert!(ctrl.nodes.load(Ordering::Relaxed) <= 300);
-            if let Some(r) = r { assert!(r.completed); assert!(Board::start().legal().contains(&r.best)); }
-            let after = ctrl.nodes.load(Ordering::Relaxed);
-            thread::sleep(Duration::from_millis(5));
-            assert_eq!(after, ctrl.nodes.load(Ordering::Relaxed), "helper outlived run");
-        }
-    }
-    #[test]
-    fn group_policy_has_cross_group_completed_bounds() {
-        let l = limits(2); let ctrl = Arc::new(Control::new(&l)); let c = Counters::default();
-        let r = execute(Board::start(), b'A', 8, 12, l, ctrl, 2, &c).unwrap();
-        assert_eq!(r.depth, 2); assert!(c.jobs.load(Ordering::Relaxed) >= 40);
-        assert!(c.cross_group_alpha.load(Ordering::Relaxed) > 0);
-        assert_eq!(group_count(b'A', 2, 512, 8), 1);
-    }
-    #[test]
-    fn hybrid_uses_observed_instability_and_time_cost() {
-        let mut a = SearchResult { score: 0, best: Move { from: 1, to: 2, promo: 0 }, reply: None, depth: 2, nodes: 1, completed: true };
-        let b = a; a.score = 100;
-        let ctrl = Control::new(&limits(3));
-        assert_eq!(policy(4, Some(a), Some(b), Duration::from_millis(1), &ctrl), 3);
-        assert_eq!(policy(4, Some(b), Some(b), Duration::from_millis(1), &ctrl), 2);
-        let tight = Control::new(&Limits { depth: 3, nodes: 0, movetime: Some(Duration::from_millis(1)) });
-        assert_eq!(policy(4, Some(a), Some(b), Duration::from_millis(2), &tight), 0);
-    }
-    #[test]
-    fn f_retains_whole_root_mtd_convergence() {
-        let l = limits(2); let ctrl = Arc::new(Control::new(&l)); let c = Counters::default();
-        let r = execute(Board::start(), b'F', 2, 12, l, ctrl.clone(), 3, &c).unwrap();
-        assert_eq!(r.depth, 2); assert_eq!(c.policies.load(Ordering::Relaxed), 1);
-        assert_eq!(ctrl.conflicts.load(Ordering::Relaxed), 0);
-    }
-}
+#[path = "../tests/rust/parallel.rs"]
+mod tests;

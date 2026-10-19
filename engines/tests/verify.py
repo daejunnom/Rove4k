@@ -163,7 +163,7 @@ class Engine:
         if expected is None and "ROVE_WORKERS" in configuration:
             expected = int(configuration["ROVE_WORKERS"]) + 1
         if expected is not None and sys.platform == "linux":
-            deadline = time.monotonic() + self.timeout
+            deadline = self.start + self.spec.get("startup_timeout", self.timeout)
             while time.monotonic() < deadline:
                 tasks = self.task_ids()
                 if len(tasks) == expected:
@@ -640,6 +640,18 @@ def load_specs(args):
         if args.startup_threads is not None:
             require(1 <= args.startup_threads <= 513, "startup thread total must be within 1..513")
             spec["startup_threads"] = args.startup_threads
+        if args.startup_timeout is not None:
+            require(0 < args.startup_timeout <= 60, "startup timeout must be within 0..60 seconds")
+            spec["startup_timeout"] = args.startup_timeout
+        if "startup_timeout" in spec:
+            require(isinstance(spec["startup_timeout"], (int, float)) and 0 < spec["startup_timeout"] <= 60,
+                    "manifest startup timeout must be within 0..60 seconds")
+        if "startup_threads" in spec:
+            require(isinstance(spec["startup_threads"], int) and 1 <= spec["startup_threads"] <= 513,
+                    "manifest startup thread total must be within 1..513")
+        if "expected_program_sha256" in spec:
+            require(hashlib.sha256(Path(spec["command"][0]).read_bytes()).hexdigest() == spec["expected_program_sha256"],
+                    f"program bytes do not match selected artifact evidence: {spec['id']}")
     require(len({spec["id"] for spec in specs}) == len(specs), "duplicate engine identifiers")
     if args.select:
         specs = [spec for spec in specs if spec["id"] in args.select]
@@ -720,6 +732,7 @@ def main():
                         help="also run two colour-exchanged bounded games for selected engine ids")
     parser.add_argument("--profile", choices=("dev", "shipping"), default="dev")
     parser.add_argument("--startup-threads", type=int, help="require this total to exist before first input and preserve its task IDs")
+    parser.add_argument("--startup-timeout", type=float, help="separate startup budget, at most 60s; command/search timeouts stay unchanged")
     parser.add_argument("--suite", choices=("all", "dev", "shipping"), default="all")
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--timeout", type=float, default=8.0)

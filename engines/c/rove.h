@@ -23,6 +23,15 @@
 #ifndef ROVE_MODEL
 #define ROVE_MODEL 0
 #endif
+#ifndef ROVE_HQ
+#define ROVE_HQ 1
+#endif
+#ifndef ROVE_F_SINGLE
+#define ROVE_F_SINGLE 0
+#endif
+#ifndef ROVE_F_PARITY
+#define ROVE_F_PARITY 0
+#endif
 #if ROVE_WORKERS < 1 || ROVE_WORKERS > 512
 #error ROVE_WORKERS must be between 1 and 512
 #endif
@@ -45,11 +54,20 @@ typedef struct {
 } Board;
 typedef struct { unsigned m; int score; } Move;
 typedef struct {
-    _Atomic uint64_t key,data;
-#if ROVE_VARIANT == 6
-    _Atomic uint64_t upper_key,upper_data;
+#if ROVE_VARIANT == 6 && !ROVE_F_SINGLE
+    uint64_t key,data,upper_data;
+    _Atomic unsigned char lock;
+#else
+    uint64_t key;
+    unsigned char data[7];
+    _Atomic unsigned char lock;
 #endif
 } TTEntry;
+#if ROVE_VARIANT == 6 && !ROVE_F_SINGLE
+_Static_assert(sizeof(TTEntry)==32,"paired-bound TT must occupy 32 bytes");
+#else
+_Static_assert(sizeof(TTEntry)==16,"single-bound TT must occupy 16 bytes");
+#endif
 typedef struct Worker Worker;
 typedef struct {
     Board board;

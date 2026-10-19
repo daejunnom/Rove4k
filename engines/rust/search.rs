@@ -1,9 +1,11 @@
 //! Independent Rust search. Completed bounds are published only after an entire
 //! node returns; cancellation and excluded searches never publish normal bounds.
-use crate::board::{Board, Move};
+use crate::board::{Board, Move, MoveList};
 use crate::eval;
 use std::sync::{Arc, atomic::{AtomicBool, AtomicU64, Ordering, fence}};
 use std::time::{Duration, Instant};
+#[cfg(rove_f_single)]
+use std::{cell::UnsafeCell, sync::atomic::AtomicU8};
 
 pub const INF: i32 = 31000;
 pub const MATE: i32 = 30000;
@@ -23,113 +25,18 @@ pub struct Control {
     pub see_calls: AtomicU64,
     pub tt_hits: AtomicU64,
     #[cfg(test)] trace: std::sync::Mutex<Vec<(u8,i32,i32,i32)>>,
+    #[cfg(test)] deepest:AtomicU64,
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-    fn session(variant:u8,nodes:u64)->Searcher {
-        let limits=Limits{depth:6,nodes,movetime:None};
-        Searcher::new(Arc::new(Table::new(10)),Arc::new(Control::new(&limits)),variant,0)
-    }
-    #[test]
-    fn isolated_exclusion_does_not_touch_normal_bounds_or_learning() {
-        let b=Board::start();let first=b.parse_move("e2e4").unwrap();
-        let mut s=session(b'B',0);s.begin_depth();let key=s.key(&b);
-        assert!(s.table.put(Entry{key,mv:first,depth:50,lower:12345,upper:12345},0,&s.control));
-        let history=s.history.clone();let continuation=s.continuation.clone();let correction=s.correction.clone();
-        let before=b.fen();
-        let score=s.negamax(&b,1,-INF,INF,0,Move::default(),Some(first),true).unwrap();
-        assert!(score.abs()<1000,"excluded probe must not consume normal exact TT value");
-        assert_eq!(s.table.get(key,0).unwrap().lower,12345);
-        assert_eq!(s.history,history);assert_eq!(s.continuation,continuation);assert_eq!(s.correction,correction);assert_eq!(b.fen(),before);
-    }
-    #[test]
-    fn mtd_converges_with_stable_evaluation_and_monotone_bounds() {
-        let b=Board::from_fen("4k3/8/8/3p4/4P3/8/4K3/8 w - - 0 1").unwrap();
-        for depth in 1..=3 {
-            let mut f=session(b'F',0);let mut p=session(b'A',0);
-            let expected=p.iteration(&b,depth,0).unwrap();let actual=f.iteration(&b,depth,157).unwrap();
-            assert_eq!(actual.score,expected.score);
-            let trace=f.control.trace.lock().unwrap();assert!(!trace.is_empty());
-            let(mut low,mut high)=(-INF,INF);
-            for &(d,l,h,epoch) in trace.iter(){assert_eq!(d,depth);assert!(l>=low&&h<=high&&l<=h);assert_eq!(epoch,0);low=l;high=h;}
-            assert_eq!(low,high);assert_eq!(low,actual.score);assert_eq!(f.control.conflicts.load(Ordering::Relaxed),0);
-        }
-    }
-    #[test]
-    fn unfinished_depth_has_no_completed_result() {
-        let b=Board::start();let mut s=session(b'F',160);
-        let completed=s.iteration(&b,1,0).unwrap();assert!(completed.completed);
-        let unfinished=s.iteration(&b,8,completed.score);assert!(unfinished.is_none());
-        assert!(b.legal().contains(&completed.best));assert!(s.control.nodes.load(Ordering::Relaxed)<=160);
-    }
-    #[test]
-    fn concurrent_tt_reads_never_accept_mixed_record() {
-        let table=Arc::new(Table::new(8));let c=session(b'F',0).control;
-        std::thread::scope(|scope|{for worker in 0..4 {let table=table.clone();let c=c.clone();scope.spawn(move||{
-            for i in 0..2000u64 {let key=(i*17+worker)%512;let v=(key as i32)%1500;let mv=Move{from:(key&7)as u8,to:16+(key&7)as u8,promo:0};
-                assert!(table.put(Entry{key,mv,depth:3,lower:v,upper:v},0,&c));
-                if let Some(e)=table.get(key,0){assert_eq!(e.key,key);assert_eq!(e.lower,v);assert_eq!(e.upper,v);assert_eq!(e.mv,mv);}
-            }
-        });}});
-    }
-    #[test]
-    fn interval_merge_retains_its_lower_bound_move_witness() {
-        let s=session(b'F',0);let good=Move{from:4,to:20,promo:0};let upper_hint=Move{from:3,to:19,promo:0};
-        assert!(s.table.put(Entry{key:77,mv:good,depth:4,lower:120,upper:INF},0,&s.control));
-        assert!(s.table.put(Entry{key:77,mv:upper_hint,depth:4,lower:-INF,upper:120},0,&s.control));
-        let e=s.table.get(77,0).unwrap();assert_eq!((e.lower,e.upper),(120,120));assert_eq!(e.mv,good);
-    }
-    #[test]
-    fn b_normal_search_executes_eligible_same_ply_singular_probe() {
-        let b=Board::from_fen("4k3/8/8/3q4/8/8/4K3/3Q4 w - - 0 1").unwrap();
-        let mut s=session(b'B',12000);let _=s.iteration(&b,3,0).unwrap();
-        let key=s.key(&b);assert!(s.table.get(key,0).is_some());
-        // Keep the exact same frozen evaluation as the completed TT result.
-        // This is the normal recursive search, not the exclusion test helper.
-        let _=s.negamax(&b,6,-INF,INF,0,Move::default(),None,false);
-        assert!(s.control.singular.load(Ordering::Relaxed)>0);
-        assert!(s.control.see_calls.load(Ordering::Relaxed)>0);
-    }
-    #[test]
-    fn b_cancelled_ordering_cannot_publish_a_normal_tt_bound(){
-        let b=Board::from_fen("4k3/8/8/3q4/8/8/4K3/3Q4 w - - 0 1").unwrap();let mut s=session(b'B',1);s.begin_depth();
-        assert!(s.negamax(&b,1,-INF,INF,0,Move::default(),None,false).is_err());
-        assert!(s.table.get(s.key(&b),0).is_none());assert_eq!(s.control.nodes.load(Ordering::Relaxed),1);
-        assert!(s.control.stop.load(Ordering::Relaxed));
-    }
-    #[test]
-    fn converged_root_move_witness_achieves_the_completed_score() {
-        let b=Board::from_fen("4k3/8/2r5/3p4/4P3/8/4K3/3R4 w - - 0 1").unwrap();
-        let mut s=session(b'F',0);let result=s.iteration(&b,3,900).unwrap();
-        let mut exact=session(b'F',0);exact.begin_depth();
-        let moves=b.legal();let scores:Vec<_>=moves.iter().map(|&m|exact.search_move(&b,m,3,-INF,INF).unwrap().score).collect();
-        assert_eq!(result.score,*scores.iter().max().unwrap());
-        assert_eq!(result.score,scores[moves.iter().position(|&m|m==result.best).unwrap()]);
-    }
-    #[test]
-    fn control_reset_reuses_storage_and_handles_large_clock_values() {
-        let c=Control::new(&Limits{depth:2,nodes:1,movetime:Some(Duration::ZERO)});
-        assert!(c.cancelled());c.probes.store(9,Ordering::Relaxed);c.nodes.store(1,Ordering::Relaxed);
-        c.reset(&Limits{depth:3,nodes:100,movetime:None});
-        assert!(!c.cancelled());assert!(c.deadline().is_none());assert_eq!(c.probes.load(Ordering::Relaxed),0);assert_eq!(c.nodes.load(Ordering::Relaxed),0);
-        c.reset(&Limits{depth:3,nodes:0,movetime:Some(Duration::from_millis(u64::MAX))});
-        assert!(c.deadline().is_some());assert!(!c.cancelled());
-    }
-    #[test]
-    fn terminal_reuse_cannot_publish_a_previous_root_move() {
-        let mut s=session(b'A',0);let first=s.iteration(&Board::start(),1,0).unwrap();assert_ne!(first.best,Move::default());
-        for(fen,score)in [
-            ("7k/6Q1/6K1/8/8/8/8/8 b - - 0 1",-MATE),
-            ("7k/5Q2/6K1/8/8/8/8/8 b - - 0 1",0),
-            ("4k3/8/8/8/8/8/4K3/R7 w - - 100 1",0),
-        ]{let terminal=Board::from_fen(fen).unwrap();let r=s.iteration(&terminal,1,0).unwrap();assert_eq!(r.score,score);assert_eq!(r.best,Move::default());assert!(r.reply.is_none());}
-    }
-}
+#[path = "../tests/rust/search.rs"]
+mod tests;
+#[cfg(test)]
+#[path = "../tests/rust/f_tt.rs"]
+mod f_tt_tests;
 impl Control {
     pub fn new(limits: &Limits) -> Self {
-        let result = Self { stop: AtomicBool::new(false), nodes: AtomicU64::new(0), origin: Instant::now(), deadline_ns: AtomicU64::new(0), node_limit: AtomicU64::new(0), conflicts: AtomicU64::new(0), probes:AtomicU64::new(0), singular:AtomicU64::new(0), see_calls:AtomicU64::new(0), tt_hits:AtomicU64::new(0), #[cfg(test)] trace:std::sync::Mutex::new(Vec::new()) };
+        let result = Self { stop: AtomicBool::new(false), nodes: AtomicU64::new(0), origin: Instant::now(), deadline_ns: AtomicU64::new(0), node_limit: AtomicU64::new(0), conflicts: AtomicU64::new(0), probes:AtomicU64::new(0), singular:AtomicU64::new(0), see_calls:AtomicU64::new(0), tt_hits:AtomicU64::new(0), #[cfg(test)] trace:std::sync::Mutex::new(Vec::new()),#[cfg(test)] deepest:AtomicU64::new(0) };
         result.reset(limits);
         result
     }
@@ -143,6 +50,7 @@ impl Control {
         self.deadline_ns.store(deadline, Ordering::Relaxed);
         for value in [&self.conflicts, &self.probes, &self.singular, &self.see_calls, &self.tt_hits] { value.store(0, Ordering::Relaxed); }
         #[cfg(test)] self.trace.lock().unwrap().clear();
+        #[cfg(test)] self.deepest.store(0,Ordering::Relaxed);
     }
     pub fn deadline(&self) -> Option<Instant> {
         let ns = self.deadline_ns.load(Ordering::Relaxed);
@@ -165,12 +73,24 @@ pub struct SearchResult {
 }
 #[derive(Clone, Copy)]
 struct Entry { key: u64, mv: Move, depth: u8, lower: i32, upper: i32 }
+#[cfg(not(rove_f_single))]
 struct Slot { sequence: AtomicU64, key: AtomicU64, data: AtomicU64 }
+#[cfg(rove_f_single)]
+#[repr(C)]
+struct Slot { key: UnsafeCell<u64>, data: UnsafeCell<[u8;7]>, lock: AtomicU8 }
+// Every access to either UnsafeCell is inside the same exclusive byte lock.
+// Readers never inspect payload before acquiring it, so lock reuse has no ABA
+// or sequence-wrap condition. Contention is a miss or a skipped replacement.
+#[cfg(rove_f_single)]
+unsafe impl Sync for Slot {}
+#[cfg(rove_f_single)]
+const _: () = assert!(std::mem::size_of::<Slot>() == 16);
 pub struct Table { slots: Vec<Slot>, mask: usize }
 fn encode_move(m: Move) -> u64 { m.from as u64 | ((m.to as u64) << 7) | ((m.promo.unsigned_abs() as u64) << 14) }
 fn decode_move(m: u64) -> Move { Move { from: (m & 127) as u8, to: ((m >> 7) & 127) as u8, promo: ((m >> 14) & 7) as i8 } }
 fn store_score(v: i32, ply: usize) -> i32 { if v > MATE - 128 { v + ply as i32 } else if v < -MATE + 128 { v - ply as i32 } else { v } }
 fn load_score(v: i32, ply: usize) -> i32 { if v > MATE - 128 { v - ply as i32 } else if v < -MATE + 128 { v + ply as i32 } else { v } }
+#[cfg(not(rove_f_single))]
 impl Table {
     pub fn new(bits: usize) -> Self {
         assert!((8..=26).contains(&bits), "TT allocation exponent must be 8..26");
@@ -222,6 +142,40 @@ impl Table {
     }
 }
 
+#[cfg(rove_f_single)]
+impl Slot {
+    fn acquire(&self)->bool { self.lock.compare_exchange(0,1,Ordering::Acquire,Ordering::Relaxed).is_ok() }
+    fn release(&self) { self.lock.store(0,Ordering::Release); }
+}
+#[cfg(rove_f_single)]
+impl Table {
+    pub fn new(bits:usize)->Self {
+        assert!((8..=26).contains(&bits),"TT allocation exponent must be 8..26");
+        let size=1usize<<bits;
+        Self{slots:(0..size).map(|_|Slot{key:UnsafeCell::new(0),data:UnsafeCell::new([0;7]),lock:AtomicU8::new(0)}).collect(),mask:size-1}
+    }
+    pub fn clear(&self) {
+        for s in &self.slots {if s.acquire(){unsafe{*s.data.get()=[0;7];}s.release();}}
+    }
+    fn get(&self,key:u64,ply:usize)->Option<Entry> {
+        let s=&self.slots[key as usize&self.mask];if !s.acquire(){return None;}
+        let (k,bytes)=unsafe{(*s.key.get(),*s.data.get())};s.release();
+        let mut d=0u64;for(i,b)in bytes.into_iter().enumerate(){d|=(b as u64)<<(i*8);}
+        if k!=key||d&(1<<42)==0{return None;}
+        let bound=(d>>40)&3;let score=load_score(((d>>24)as u16 as i16)as i32,ply);
+        Some(Entry{key:k,mv:decode_move(d),depth:((d>>17)&127)as u8,
+            lower:if bound==1||bound==2{score}else{-INF},upper:if bound==1||bound==3{score}else{INF}})
+    }
+    fn put(&self,e:Entry,ply:usize,control:&Control)->bool {
+        if e.lower>e.upper{control.conflicts.fetch_add(1,Ordering::Relaxed);return false;}
+        let (bound,score)=if e.lower==e.upper{(1,e.lower)}else if e.lower>-INF{(2,e.lower)}else if e.upper<INF{(3,e.upper)}else{(0,0)};
+        let d=(1u64<<42)|encode_move(e.mv)|((e.depth as u64)<<17)|((store_score(score,ply)as i16 as u16 as u64)<<24)|(bound<<40);
+        let s=&self.slots[e.key as usize&self.mask];if !s.acquire(){return true;}
+        unsafe{*s.key.get()=e.key;for(i,b)in(&mut*s.data.get()).iter_mut().enumerate(){*b=(d>>(i*8))as u8;}}
+        s.release();true
+    }
+}
+
 fn mix(mut x: u64) -> u64 { x ^= x >> 30; x = x.wrapping_mul(0xbf58476d1ce4e5b9); x ^= x >> 27; x = x.wrapping_mul(0x94d049bb133111eb); x ^ (x >> 31) }
 fn move_index(m: Move) -> usize { m.from as usize * 128 + m.to as usize }
 fn history_update(value: &mut i16, bonus: i32) { let v = *value as i32; *value = (v + bonus - v * bonus.abs() / 16384).clamp(-16384, 16384) as i16; }
@@ -251,8 +205,6 @@ impl Searcher {
         for line in &mut self.pv{line.clear();}self.epoch=0;self.reply_hint=None;self.root_choice=Move::default();
     }
     fn set_pv(&mut self,ply:usize,m:Move){let(parent,child)=self.pv.split_at_mut(ply+1);let line=&mut parent[ply];line.clear();line.push(m);line.extend_from_slice(&child[0]);}
-    pub fn eval_epoch(&self) -> u64 { self.epoch }
-    pub fn share_evaluation(&mut self, source:&Self) { self.frozen.clone_from(&source.frozen);self.epoch=source.epoch; }
     pub fn freeze_to(&self,output:&mut [[i16;2048];3])->u64{for(i,c)in output.iter_mut().enumerate(){c.copy_from_slice(&self.frozen[i]);}self.epoch}
     pub fn use_frozen(&mut self,input:&[[i16;2048];3],epoch:u64){for(i,c)in input.iter().enumerate(){self.frozen[i].copy_from_slice(c);}self.epoch=epoch;}
     pub fn begin_depth(&mut self) {
@@ -311,6 +263,7 @@ impl Searcher {
         v * 8 + ((mix(encode_move(m) ^ self.worker as u64) & 7) as i32)
     }
     fn qsearch(&mut self, b: &Board, mut alpha: i32, beta: i32, ply: usize, previous: Move, isolated: bool) -> Result<i32, ()> {
+        #[cfg(test)] self.control.deepest.fetch_max(ply as u64,Ordering::Relaxed);
         self.tick()?;
         if ply >= PLY_LIMIT { return Err(()); }
         self.pv[ply].clear();
@@ -339,6 +292,7 @@ impl Searcher {
         Ok(best)
     }
     fn negamax(&mut self, b: &Board, depth: u8, mut alpha: i32, mut beta: i32, ply: usize, previous: Move, excluded: Option<Move>, isolated: bool) -> Result<i32, ()> {
+        #[cfg(test)] self.control.deepest.fetch_max(ply as u64,Ordering::Relaxed);
         if depth == 0 { return self.qsearch(b,alpha,beta,ply,previous,isolated); }
         self.tick()?;
         if ply >= PLY_LIMIT { return Err(()); }
@@ -362,7 +316,7 @@ impl Searcher {
         let mut best = -INF;
         let mut best_move = Move::default();
         let mut searched = 0usize;
-        let mut quiets = Vec::new();
+        let mut quiets = MoveList::new();
         for m in moves {
             if excluded == Some(m) { continue; }
             let quiet = !b.is_capture(m) && m.promo == 0;
