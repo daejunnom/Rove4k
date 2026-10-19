@@ -21,10 +21,12 @@ jobs:
     env:
       RUSTUP_TOOLCHAIN: 1.99.1
       CARGO_BUILD_JOBS: 2
-      CARGO_TARGET_DIR: ${{ runner.temp }}/rove4k-target
-      NVCOMPACT_ARTIFACT_DIR: ${{ runner.temp }}/nvcompact-artifacts
       NVCOMPACT_CLANG: clang
     steps:
+      - name: Configure external build directories
+        run: |
+          printf 'CARGO_TARGET_DIR=%s/rove4k-target\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+          printf 'NVCOMPACT_ARTIFACT_DIR=%s/nvcompact-artifacts\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
