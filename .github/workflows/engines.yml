@@ -1,0 +1,46 @@
+name: Rove4k engines
+
+on:
+  push:
+    branches: [main, develop]
+    paths: ['engines/**', '.github/workflows/engines.yml']
+  pull_request:
+    paths: ['engines/**', '.github/workflows/engines.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: engines-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  candidates:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [c, rust]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Configure external artifacts
+        run: printf 'ROVE_TEST_OUT=%s/rove4k-engines-%s\n' "$RUNNER_TEMP" '${{ matrix.language }}' >> "$GITHUB_ENV"
+      - name: Install the independent Rust compiler
+        if: matrix.language == 'rust'
+        run: rustup toolchain install 1.97.0 --profile minimal
+      - name: Check the frozen model source and exact integer representation
+        run: |
+          python3 engines/model/codec.py check
+          python3 -m unittest discover -s engines/model -p 'test*.py'
+      - name: Check source compaction and real restoration lifetimes
+        run: python3 -m unittest discover -s engines/scripts -p 'test*.py'
+      - name: Build all six real candidate paths
+        env:
+          RUSTUP_TOOLCHAIN: 1.97.0
+        run: python3 engines/scripts/build.py --out "$ROVE_TEST_OUT/build" --profile local-dev --languages '${{ matrix.language }}' --variants ABCDEF --no-pack
+      - name: Verify the engines through their actual process interfaces
+        run: python3 engines/tests/verify.py --manifest "$ROVE_TEST_OUT/build/build.json" --out "$ROVE_TEST_OUT/verification"
