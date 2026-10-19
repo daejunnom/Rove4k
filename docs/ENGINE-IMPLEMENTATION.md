@@ -170,3 +170,35 @@ one actual complete file at or below 4,096 bytes for every family, D's eligible
 own-ELF path, and bounded comparable games/performance. Full target resource
 execution and scaling have no evidence on this eight-logical-CPU WSL host.
 Training and AWS remain excluded. The full A–F goal stays active.
+
+## Whole-matrix checkpoint: `d31056a`
+
+An immutable Git archive of `d31056a459942369f219bf98e91111af8b6154dd` was built
+in a separate Linux directory. All 24 original/compact native forms compiled;
+each form's independent second compilation produced identical bytes. The six C
+compact files match their original executable hashes and reuse only that exact
+runtime evidence. The twelve Rust executable hashes are checked independently.
+
+The final process matrix passed **144/144 groups across 18 distinct executables**:
+six C and twelve Rust original/compact forms. Every group checks its actual fixed
+startup total of two tasks before UCI input, with stable task IDs through search
+and cancellation. Two C/Rust pairs (A and F), each with colors exchanged, also
+passed four bounded games. These remain short legality/lifecycle games, not a
+playing-strength comparison. The final reports and transcripts are retained
+outside Git under `final-d31056a` and `final-d31056a-verification`.
+
+The corresponding [CI run](https://github.com/daejunnom/Rove4k/actions/runs/39335785952)
+passed the full Rust job. C stopped before engine compilation because the newly
+added standalone scheduler fixture relied on an include-directory flag absent
+from CI. The fixture now includes its header relative to its own source, and
+the exact CI compile/run command passes locally. Commit `491415d` contains only
+that fixture correction. Its [fresh CI run](https://github.com/daejunnom/Rove4k/actions/runs/39336276080)
+completed successfully for both C and Rust. The repository lifecycle workflow
+also passed for that SHA. This does not cover subsequent uncommitted source work.
+
+Further source reduction is assigned by actual cost: the optional A shipping
+board removes unconsumed bitboard/fullmove/material fields while retaining
+incremental HCE/hash and exact legal replay; compact search work preserves the
+family-specific algorithms; Rust work replaces per-node heap collections with
+bounded storage; E compares lossless coefficient representations including their
+decoder and consumer cost. None changes the full portfolio completion criteria.
