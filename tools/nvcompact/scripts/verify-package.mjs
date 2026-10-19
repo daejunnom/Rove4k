@@ -24,7 +24,7 @@ const invoke = async (command, args, options = {}) => {
 };
 try {
 await invoke(process.env.NVCOMPACT_NPM ?? 'npm', ['install', '--offline', '--ignore-scripts', '--no-audit', '--no-fund', '--package-lock=false', packaged.path]);
-const installed = path.join(work, 'node_modules/@rove4k/nvcompact');
+const installed = path.join(work, 'node_modules', packaged.name);
 assert(!(await lstat(installed)).isSymbolicLink(), 'installation must contain a package, not a workspace link');
 async function inventory(directory, base = directory) {
   const result = {};

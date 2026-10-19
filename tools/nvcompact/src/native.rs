@@ -498,12 +498,16 @@ impl<'a> Campaign<'a> {
             "native --max-bytes must be positive"
         );
         for link in links.values() {
-            if let Some(value) = link.get("allow_section_header_removal") {
-                ensure!(
-                    value.is_boolean(),
-                    "allow_section_header_removal must be a JSON boolean"
-                );
+            for key in ["allow_section_header_removal", "allow_load_zero_tail"] {
+                if let Some(value) = link.get(key) {
+                    ensure!(value.is_boolean(), "{key} must be a JSON boolean");
+                }
             }
+            ensure!(
+                link["allow_load_zero_tail"] != true
+                    || link["allow_section_header_removal"] == true,
+                "allow_load_zero_tail also requires allow_section_header_removal"
+            );
             if let Some(common) = link.get("common") {
                 ensure!(common.is_array(), "common units must be an array");
             }
@@ -1077,7 +1081,11 @@ impl<'a> Campaign<'a> {
                 } else {
                     Some(strings(&self.manifest["codecs"])?)
                 };
-                for deployment in elf::deployment_variants(&native, allow)? {
+                let zero_tail = self.links[&selection.link]["allow_load_zero_tail"]
+                    .as_bool()
+                    .unwrap_or(false);
+                for deployment in elf::deployment_variants_with_options(&native, allow, zero_tail)?
+                {
                     for packed in pack::pack_variants(
                         &deployment.data,
                         self.manifest["target"].as_str().unwrap(),
@@ -1188,7 +1196,10 @@ fn rebuild(
         let allow = campaign.links[&selection.link]["allow_section_header_removal"]
             .as_bool()
             .unwrap_or(false);
-        let deployment = elf::deployment_variants(&native, allow)?
+        let zero_tail = campaign.links[&selection.link]["allow_load_zero_tail"]
+            .as_bool()
+            .unwrap_or(false);
+        let deployment = elf::deployment_variants_with_options(&native, allow, zero_tail)?
             .into_iter()
             .find(|d| Some(d.id.as_str()) == recipe["deployment"].as_str())
             .context("selected ELF deployment unavailable")?;

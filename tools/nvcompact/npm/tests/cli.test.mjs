@@ -76,11 +76,15 @@ test('termination reaches the owned child and its exit is awaited', async () => 
   assert.equal(result.stdout, 'ready\nterminated\n');
 });
 
-test('npm package remains private and contains no Python backend', async () => {
+test('npm installation advertises its real executable and supported native platform', async () => {
   const metadata = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
-  assert.equal(metadata.private, true);
-  assert.equal(metadata.name, '@rove4k/nvcompact');
+  assert.notEqual(metadata.private, true);
+  assert.equal(metadata.name, 'nvcompact');
   assert.deepEqual(metadata.bin, { nvcompact: 'bin/nvcompact.mjs' });
+  assert.deepEqual(metadata.os, ['linux']);
+  assert.deepEqual(metadata.cpu, ['x64']);
+  assert.deepEqual(metadata.libc, ['glibc']);
+  assert.equal(metadata.publishConfig.access, 'public');
   assert(!metadata.files.some(name => /python|reference|vendor|inputs/.test(name)));
 });
 

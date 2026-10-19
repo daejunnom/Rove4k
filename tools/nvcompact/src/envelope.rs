@@ -813,7 +813,11 @@ pub fn run(manifest_path: &Path, output: &Path, options: &EnvelopeOptions) -> Re
             .get("allow_section_header_removal")
             .and_then(Value::as_bool)
             .unwrap_or(false);
-        for deployed in crate::elf::deployment_variants(&original, allow)? {
+        let zero_tail = manifest
+            .get("allow_load_zero_tail")
+            .and_then(Value::as_bool)
+            .unwrap_or(false);
+        for deployed in crate::elf::deployment_variants_with_options(&original, allow, zero_tail)? {
             let choices = if category == "4k-elf" {
                 vec!["raw".to_string()]
             } else {
@@ -828,7 +832,7 @@ pub fn run(manifest_path: &Path, output: &Path, options: &EnvelopeOptions) -> Re
                 let record = json!({"id":format!("{}-{pack_id}",deployed.id),"variant":"raw","bytes":packed.data.len(),
                     "sha256":sha256(&packed.data),"recipe":{"format":"native_pack","pack_id":pack_id,"deployment":deployed.id},
                     "equivalence":if deployed.id=="original"{"original native ELF restored byte-for-byte under loader contract"}
-                        else{"explicit section-removal deployment contract; native file roundtrip only"},
+                        else{"explicit ELF deployment contract; native file roundtrip only"},
                     "deployment_preconditions":deployed.preconditions,"packing":packed});
                 if packed.data.len() < best_data.len() {
                     best = record.clone();
@@ -880,15 +884,15 @@ fn regenerate_native(original: &[u8], record: &Value, manifest: &Value) -> Resul
         .get("deployment")
         .and_then(Value::as_str)
         .unwrap_or("original");
-    let native = if deployment == "original" {
-        original.to_vec()
-    } else {
-        ensure!(
-            deployment == "no-section-headers" && manifest["allow_section_header_removal"] == true,
-            "section removal replay lacks declaration"
-        );
-        crate::elf::sectionless(original)?
-    };
+    let allow = manifest["allow_section_header_removal"]
+        .as_bool()
+        .unwrap_or(false);
+    let zero_tail = manifest["allow_load_zero_tail"].as_bool().unwrap_or(false);
+    let native = crate::elf::deployment_variants_with_options(original, allow, zero_tail)?
+        .into_iter()
+        .find(|candidate| candidate.id == deployment)
+        .context("recorded ELF deployment lacks its declaration or is unavailable")?
+        .data;
     let id = text(&record["recipe"], "pack_id")?;
     ensure!(
         manifest["category"] != "4k-elf" || id == "raw",
