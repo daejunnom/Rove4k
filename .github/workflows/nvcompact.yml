@@ -2,9 +2,9 @@ name: NVCompact
 on:
   push:
     branches: [main, develop]
-    paths: ['tools/nvcompact/**', 'Cargo.toml', 'Cargo.lock', 'package.json', 'package-lock.json', '.github/workflows/nvcompact.yml', '.github/workflows/nvcompact-publish.yml']
+    paths: ['tools/nvcompact/**', 'Cargo.toml', 'Cargo.lock', 'package.json', 'package-lock.json', '.github/workflows/nvcompact.yml', '.github/workflows/nvcompact-publish.yml', '.github/workflows/nvcompact-github-packages.yml']
   pull_request:
-    paths: ['tools/nvcompact/**', 'Cargo.toml', 'Cargo.lock', 'package.json', 'package-lock.json', '.github/workflows/nvcompact.yml', '.github/workflows/nvcompact-publish.yml']
+    paths: ['tools/nvcompact/**', 'Cargo.toml', 'Cargo.lock', 'package.json', 'package-lock.json', '.github/workflows/nvcompact.yml', '.github/workflows/nvcompact-publish.yml', '.github/workflows/nvcompact-github-packages.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -50,6 +50,8 @@ jobs:
         run: npm test
       - name: Verify release boundaries without publishing
         run: npm run test:release
+      - name: Verify GitHub Packages mirror boundaries without publishing
+        run: npm run test:github-packages
       - name: Test Rust implementation and owned fixtures
         run: npm run test:core
       - name: Build native internal tool

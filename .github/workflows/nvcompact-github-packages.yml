@@ -1,0 +1,90 @@
+name: NVCompact GitHub Packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Exact already-published npm version to mirror
+        required: true
+        type: string
+      commit:
+        description: Exact reviewed main commit containing this publication workflow
+        required: true
+        type: string
+      npm_tarball_sha256:
+        description: SHA-256 of the reviewed public npm tarball
+        required: true
+        type: string
+      operation:
+        description: Prepare the scoped mirror or publish and verify its registry installation
+        required: true
+        type: choice
+        default: prepare
+        options: [prepare, publish]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nvcompact-github-packages
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment: github-packages-release
+    permissions:
+      contents: read
+      packages: write
+    env:
+      NVC_RELEASE_VERSION: ${{ inputs.version }}
+      NVC_RELEASE_COMMIT: ${{ inputs.commit }}
+      NVC_RELEASE_OPERATION: ${{ inputs.operation }}
+      NVC_NPM_TARBALL_SHA256: ${{ inputs.npm_tarball_sha256 }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Bind request to the reviewed main checkout
+        run: node tools/nvcompact/scripts/github-packages.mjs check-ci
+      - name: Configure external package directories
+        run: printf 'NVCOMPACT_ARTIFACT_DIR=%s/nvcompact-github-packages\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+      - name: Install the reviewed npm CLI
+        run: |
+          NVC_NPM_CLI=$(node -p "require('./tools/nvcompact/scripts/release-config.json').npm_cli_version")
+          npm install --global "npm@$NVC_NPM_CLI" --ignore-scripts --registry=https://registry.npmjs.org/
+      - name: Verify mirror boundaries without publishing
+        run: npm run test:github-packages
+      - name: Scope the verified npm tarball and check an actual offline installation
+        id: prepare
+        run: npm run github:prepare
+      - name: Configure GitHub Packages authentication
+        if: inputs.operation == 'publish'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+          registry-url: https://npm.pkg.github.com/
+          scope: '@daejunnom'
+      - name: Publish and verify an actual GitHub Packages installation
+        if: inputs.operation == 'publish'
+        env:
+          NODE_AUTH_TOKEN: ${{ github.token }}
+        run: npm run github:publish -- --start
+      - name: Retain only package archives and non-secret publication evidence
+        if: always() && steps.prepare.outcome == 'success'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: nvcompact-github-${{ inputs.version }}-${{ github.sha }}
+          path: |
+            ${{ steps.prepare.outputs.bundle }}/*.tgz
+            ${{ steps.prepare.outputs.bundle }}/mirror.json
+            ${{ steps.prepare.outputs.bundle }}/publication.json
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30

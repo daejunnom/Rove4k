@@ -19,6 +19,9 @@
     "release:prepare": "node tools/nvcompact/scripts/release.mjs prepare",
     "publish:nvcompact": "node tools/nvcompact/scripts/release.mjs publish",
     "test:release": "node tools/nvcompact/scripts/release.test.mjs",
+    "github:prepare": "node tools/nvcompact/scripts/github-packages.mjs prepare",
+    "github:publish": "node tools/nvcompact/scripts/github-packages.mjs publish",
+    "test:github-packages": "node --test tools/nvcompact/scripts/github-packages.test.mjs",
     "repo": "node scripts/repository.mjs",
     "test:repo": "node --test scripts/repository.test.mjs"
   }
