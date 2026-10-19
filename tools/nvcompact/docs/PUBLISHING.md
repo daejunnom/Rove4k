@@ -1,13 +1,55 @@
-# nvcompact npm 배포
+# nvcompact npm 및 GitHub Packages 배포
+
+## GitHub Packages
+
+npm의 `nvcompact`와 GitHub Packages의 `@daejunnom/nvcompact`는 같은 CLI를
+서로 다른 registry에서 제공한다. GitHub Packages는 계정/조직 scope를 요구한다.
+기존 npm 패키지 이름·버전·OIDC 배포 경로는 유지한다.
+
+`nvcompact-github-packages.yml`은 검토한 main SHA, 이미 npm에 게시된 버전,
+그 npm tarball의 SHA-256을 명시한 `workflow_dispatch`로만 실행한다.
+`prepare`는 공개 npm 파일의 SHA-256·SHA-512, native source 식별과 실행 파일을
+검사한 다음 package.json의 name과 registry만 바꾸어 다시 포장한다.
+다른 모든 파일의 bytes·Linux mode를 대조하고 실제 오프라인 설치를 검사한다.
+
+`publish`는 `github-packages-release` environment와 해당 job의
+`packages: write` GITHUB_TOKEN을 사용한다. 장기 PAT나 npm OIDC를 사용하지 않는다.
+동일 버전이 이미 있으면 덮어쓰지 않고 실제 registry 파일과 설치를 대조한다.
+게시 후 registry에서 내려받은 모든 파일과 native executable이 검토한 mirror와
+같아야 하며 새 consumer에서 `--version`과 Rust `doctor`를 실행한다.
+복사된 native runtime의 원래 source 식별과 mirror를 게시하는 workflow SHA는 구별한다.
+
+일반 PR의 `npm run test:github-packages`는 게시 권한 없이 입력 경계를 검사한다.
+로컬 준비는 `NVC_NPM_TARBALL_SHA256`을 지정하고 `npm run github:prepare`로
+실행한다. Linux x64 외의 준비 결과는 native 설치 검증 미수행으로 기록하며 게시할 수 없다.
+
+GitHub Packages는 최초 게시 시 private일 수 있으므로 Package settings의 visibility를
+별도로 확인한다. 공개 패키지 설치도 GitHub 인증을 요구한다. 인증을 완료한 환경에서:
+
+```sh
+npm install --global @daejunnom/nvcompact@0.4.1 --registry=https://npm.pkg.github.com/
+nvcompact --version
+```
+
+GITHUB_TOKEN으로 게시한 사실을 npm Trusted Publishing/OIDC 또는 npm provenance로
+표현하지 않는다. GitHub Packages 재포장 파일의 hash는 npm 원본 tarball과 다르며,
+native executable과 package.json 외 파일의 동일성은 별도로 확인한다.
+
+참고: [GitHub npm registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry),
+[패키지 visibility](https://docs.github.com/en/packages/learn-github-packages/configuring-a-packages-access-control-and-visibility).
+
+## npm 배포
 
 공개 패키지 이름과 실행 명령은 모두 **`nvcompact`**다. 소스는 Rove4k의 내부
 도구로 관리하며, npm 공개 단위만 별도로 둔다. 루트 workspace는 계속 private다.
 
-2026-10-19 공개 registry의 `GET https://registry.npmjs.org/nvcompact`는 HTTP 404,
-`{"error":"Not found"}`를 반환했다. 당시 등록된 패키지는 없었다. 조회로 이름을
-예약하지는 못하며 실제 최초 게시가 최종 이름 확보 단계다. npm 계정 소유권이나
-인증 상태는 공개 조회로 확정하지 않는다. 이 변경은 이름 설정과 배포 경로 준비이며,
-실제 npm 게시·로그인·trusted publisher 설정은 수행하지 않았다.
+2026-10-19 최초 게시 후 `nvcompact@0.4.1`을 npm에 공개했다.
+0.4.1은 GitHub OIDC로 staged 게시하고 별도 npm 2FA 승인 후 공개했으며,
+공개 registry에서 tarball과 native runtime 식별을 확인했다.
+원본 source는 main `3d0385e9646a5bc5e8dd1b39977873d2288ffa72`,
+원본 tarball SHA-256은 `9d0e7b5c66b5e561656af9822d43e0d956581a74c4767616fcab6caf41c2964f`다.
+[npm 패키지](https://www.npmjs.com/package/nvcompact/v/0.4.1)와
+[실제 OIDC release 실행](https://github.com/daejunnom/Rove4k/actions/runs/39257278483)을 구분해 확인한다.
 
 관측 근거는 [이름 조회](../evidence/0.5/npm-name.json)와
 [로컬 포장·실제 설치 검증](../evidence/0.5/release-preparation.json)에 둔다.
@@ -36,6 +78,20 @@ package.json의 registry/repository와 실제 npm 소유권·trusted publisher �
 glibc 2.39 이상, zlib와 GCC 런타임이다. 설치 시 Rust를 다운로드하거나 컴파일하지
 않는다. Windows/macOS/ARM/musl 지원을 선언하지 않는다. 외부 엔진·개발 source·과거
 Python은 npm tarball에 넣지 않는다.
+
+## WSL2 Ubuntu에서 로컬 검증
+
+WSL2 Ubuntu도 Linux x64/glibc 실행 조건을 충족하면 설치·실행 검증에 사용할 수 있다.
+Ubuntu 24.04 x86-64/glibc 2.39와 **Linux용 Node 22 이상**을 사용한다.
+Windows의 node.exe/npm.cmd 또는 Ubuntu 기본 Node 20을 혼용하지 않는다.
+2026-10-20 Ubuntu 24.04.4/WSL2와 Node 24.22.0에서 공개 `nvcompact@0.4.1`의
+원본·native hash, 실제 오프라인 설치, version/doctor/notation과 CLI·배포 경계 검사
+15개를 확인했다. 이 확인에는 Rust 재빌드를 포함하지 않았다.
+
+소스 빌드·Git 기반 패키징은 WSL 내부 파일시스템에 별도 checkout을 만들고 실행한다.
+Windows Git worktree의 gitdir 경로와 checkout 줄바꿈을 Linux 작업본으로 취급하지 않는다.
+빌드에는 별도로 Rust toolchain과 문서화된 native 개발 의존성이 필요하다.
+WSL 검사 결과와 정확한 main SHA로 실행한 GitHub 게시 workflow 결과를 각각 기록한다.
 
 ## 최초 게시: 개인 계정으로 한 번 업로드
 
