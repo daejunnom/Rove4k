@@ -1,0 +1,301 @@
+{
+  "format": 1,
+  "project_root": "../..",
+  "target": "x86_64-unknown-linux-gnu",
+  "contract": "examples/zero-tail/README.md: initialized writable data, binary I/O, no file/header/AT_PHDR observation",
+  "inputs": [
+    "examples/zero-tail/kernel.c",
+    "examples/zero-tail/kernel.rs",
+    "examples/zero-tail/driver.c",
+    "examples/zero-tail/verify.mjs",
+    "examples/zero-tail/README.md",
+    "examples/mixed/start_linux_x86_64.S",
+    "linker/linux-x86_64-zero-tail.ld"
+  ],
+  "tools": {
+    "cc": {
+      "executable": "cc",
+      "requires_tools": [
+        "ld"
+      ]
+    },
+    "ld": {
+      "executable": "ld"
+    },
+    "rustc": {
+      "executable": "rustc",
+      "version_args": [
+        "--version",
+        "--verbose"
+      ]
+    },
+    "node": {
+      "executable": "node"
+    }
+  },
+  "components": [
+    {
+      "id": "state",
+      "contract": "uint32_t nv_probe(uint32_t,uint32_t); index<8192; returns old byte and stores low 8 bits; no concurrent access",
+      "variants": [
+        {
+          "id": "c",
+          "language": "c",
+          "sources": [
+            "examples/zero-tail/kernel.c"
+          ],
+          "commands": [
+            [
+              "{cc}",
+              "-std=c11",
+              "{c_opt}",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-fno-ident",
+              "-fno-stack-protector",
+              "-fno-asynchronous-unwind-tables",
+              "-fno-unwind-tables",
+              "-ffreestanding",
+              "-fno-pie",
+              "-c",
+              "{source}",
+              "-o",
+              "{object}"
+            ]
+          ]
+        },
+        {
+          "id": "rust",
+          "language": "rust",
+          "sources": [
+            "examples/zero-tail/kernel.rs"
+          ],
+          "commands": [
+            [
+              "{rustc}",
+              "--edition=2021",
+              "--crate-type=lib",
+              "--emit=obj",
+              "-C",
+              "panic=abort",
+              "-C",
+              "opt-level={rust_opt}",
+              "-C",
+              "lto={rust_lto}",
+              "-C",
+              "relocation-model=static",
+              "-C",
+              "force-unwind-tables=no",
+              "-C",
+              "codegen-units=1",
+              "--remap-path-prefix={root}=.",
+              "{source}",
+              "-o",
+              "{object}"
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "build_profiles": [
+    {
+      "id": "size-z-off",
+      "variables": {
+        "c_opt": "-Oz",
+        "rust_opt": "z",
+        "rust_lto": "off"
+      }
+    },
+    {
+      "id": "size-z-thin",
+      "variables": {
+        "c_opt": "-Oz",
+        "rust_opt": "z",
+        "rust_lto": "thin"
+      }
+    },
+    {
+      "id": "size-z-fat",
+      "variables": {
+        "c_opt": "-Oz",
+        "rust_opt": "z",
+        "rust_lto": "fat"
+      }
+    },
+    {
+      "id": "size-s-off",
+      "variables": {
+        "c_opt": "-Os",
+        "rust_opt": "s",
+        "rust_lto": "off"
+      }
+    },
+    {
+      "id": "size-s-thin",
+      "variables": {
+        "c_opt": "-Os",
+        "rust_opt": "s",
+        "rust_lto": "thin"
+      }
+    },
+    {
+      "id": "size-s-fat",
+      "variables": {
+        "c_opt": "-Os",
+        "rust_opt": "s",
+        "rust_lto": "fat"
+      }
+    },
+    {
+      "id": "speed2-off",
+      "variables": {
+        "c_opt": "-O2",
+        "rust_opt": "2",
+        "rust_lto": "off"
+      }
+    },
+    {
+      "id": "speed2-thin",
+      "variables": {
+        "c_opt": "-O2",
+        "rust_opt": "2",
+        "rust_lto": "thin"
+      }
+    },
+    {
+      "id": "speed2-fat",
+      "variables": {
+        "c_opt": "-O2",
+        "rust_opt": "2",
+        "rust_lto": "fat"
+      }
+    },
+    {
+      "id": "speed3-off",
+      "variables": {
+        "c_opt": "-O3",
+        "rust_opt": "3",
+        "rust_lto": "off"
+      }
+    },
+    {
+      "id": "speed3-thin",
+      "variables": {
+        "c_opt": "-O3",
+        "rust_opt": "3",
+        "rust_lto": "thin"
+      }
+    },
+    {
+      "id": "speed3-fat",
+      "variables": {
+        "c_opt": "-O3",
+        "rust_opt": "3",
+        "rust_lto": "fat"
+      }
+    }
+  ],
+  "link_profiles": [
+    {
+      "id": "compact",
+      "contract": "static ET_EXEC, separate RX/RW pages, no interpreter/TLS/notes, no self-file/mapped metadata/AT_PHDR observer",
+      "allow_section_header_removal": true,
+      "allow_load_zero_tail": true,
+      "common": [
+        {
+          "id": "start",
+          "sources": [
+            "examples/mixed/start_linux_x86_64.S"
+          ],
+          "commands": [
+            [
+              "{cc}",
+              "-c",
+              "{source}",
+              "-o",
+              "{object}"
+            ]
+          ]
+        },
+        {
+          "id": "driver",
+          "language": "c",
+          "sources": [
+            "examples/zero-tail/driver.c"
+          ],
+          "commands": [
+            [
+              "{cc}",
+              "-std=c11",
+              "{c_opt}",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-fno-ident",
+              "-fno-stack-protector",
+              "-fno-asynchronous-unwind-tables",
+              "-fno-unwind-tables",
+              "-ffreestanding",
+              "-fno-pie",
+              "-c",
+              "{source}",
+              "-o",
+              "{object}"
+            ]
+          ]
+        }
+      ],
+      "argv": [
+        "{ld}",
+        "-m",
+        "elf_x86_64",
+        "-static",
+        "{objects}",
+        "--gc-sections",
+        "--build-id=none",
+        "--orphan-handling=error",
+        "-s",
+        "-T",
+        "{root}/linker/linux-x86_64-zero-tail.ld",
+        "-o",
+        "{binary}"
+      ]
+    }
+  ],
+  "orders": [
+    {
+      "id": "declared",
+      "components": [
+        "state"
+      ]
+    }
+  ],
+  "verify": [
+    "{node}",
+    "{root}/examples/zero-tail/verify.mjs",
+    "{binary}"
+  ],
+  "verify_final": [
+    "{node}",
+    "{root}/examples/zero-tail/verify.mjs",
+    "{binary}"
+  ],
+  "codecs": [
+    "raw",
+    "gzip-9",
+    "xz-6",
+    "xz-bcj-6",
+    "lzma-6"
+  ],
+  "baseline": {
+    "build": "size-s-off",
+    "link": "compact",
+    "order": [
+      "state"
+    ],
+    "variants": {
+      "state": "c"
+    }
+  },
+  "max_native_bytes": 1048576
+}

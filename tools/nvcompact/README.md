@@ -4,7 +4,7 @@ NVCompact means **N-version compaction**: preserve the original, construct
 explicit alternatives, verify their applicable contracts, and compare the
 complete deliverable. It is an internal Rust tool in the Rove4k monorepo.
 
-The current version is 0.4.0. Node supplies the private npm command boundary;
+The current version is 0.4.0. Node supplies the `nvcompact` npm command boundary;
 Rust performs the active compilation orchestration, spelling transformations,
 packing, reproduction, resource checks and UCI probes. The archived Python 0.3
 implementation is reference material for past results.
@@ -38,18 +38,24 @@ npm run pack:nvcompact -- --no-build
 npm run verify:package
 ```
 
-The local package is `@rove4k/nvcompact`, with the `nvcompact` command. It remains
-private and unpublished. `pack:nvcompact` prints the actual tarball location and
+The public package name and executable are both `nvcompact`. The monorepo stays
+private to npm, while its package metadata allows public publication.
+`pack:nvcompact` prints the actual tarball location and
 hash, includes the matching Rust executable, and stages its files outside the
 repository. Omitting `--no-build` first builds current source. The explicit
 `--no-build` path checks recorded source, host and executable fingerprints.
 
 Install the resulting tarball with
-`npm install --offline --ignore-scripts /absolute/path/rove4k-nvcompact-0.4.0.tgz`.
-Its native executable targets the
-building environment's Linux architecture and runtime ABI. This local package
-does not claim universal binary compatibility. `NVCOMPACT_BIN` selects another
+`npm install --offline --ignore-scripts /absolute/path/nvcompact-0.4.0.tgz`.
+The npm target is Linux x64/glibc, with release CI on Ubuntu 24.04. It does not
+claim universal binary compatibility. `NVCOMPACT_BIN` selects another
 explicit Rust executable without triggering a build or another backend.
+
+The [publishing guide](docs/PUBLISHING.md) documents a verified tarball's manual
+first upload from the configured personal npm account and the separate OIDC
+workflow. `npm run release:prepare` builds, packs and actually installs the
+tarball. `npm run publish:nvcompact` only prints its local plan; adding `-- --start`
+requests the registry write. Preparation does not publish or configure npm accounts.
 
 The installed-package test uses a separate consumer directory with spaces and
 Korean characters. It installs the actual tarball offline, exercises command
@@ -115,6 +121,13 @@ script interpreters and decoder wrappers are excluded. Section-header removal
 requires a declared deployment contract; engines that execute header bytes are
 preserved without that edit. Equality is an honest result for an already tightly
 packed upstream submission. Identity selection is not a new compression gain.
+
+An opt-in `allow_load_zero_tail` profile additionally represents trailing zero
+bytes in the final writable segment using ELF zero-fill. Its limited deployment
+contract, owned C/Rust example, GNU/LLD comparisons and unchanged external-engine
+results are recorded in [ELF/Rust compaction](docs/ELF-RUST-COMPACTION.md).
+[Further Rust size options](docs/RUST-SIZE-OPTIONS.md) separates implemented
+transformations from research candidates and their observable behavior.
 
 `envelope` reports a measured minimum and decoder reproduction. Add `--uci` for
 the finite actual protocol and legal-move probes, with resource settings suitable

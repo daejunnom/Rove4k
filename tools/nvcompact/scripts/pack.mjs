@@ -29,10 +29,13 @@ await copyOwnFile(path.join(repositoryRoot, 'LICENSE'), path.join(stage, 'LICENS
 const nativeDirectory = path.join(stage, 'native', platformKey()); await mkdir(nativeDirectory, { recursive: true });
 await writeFile(path.join(nativeDirectory, 'nvcompact'), bytes);
 const packageMetadata = await json(path.join(stage, 'package.json'));
-if (packageMetadata.version !== prepared.version || packageMetadata.private !== true) {
-  throw new Error('The private npm package version must match the prepared Rust runtime. Rebuild after synchronizing package versions.');
+if (packageMetadata.version !== prepared.version) {
+  throw new Error('The npm package version must match the prepared Rust runtime. Rebuild after synchronizing package versions.');
 }
-packageMetadata.cpu = [process.arch];
+if (!packageMetadata.os.includes(process.platform) || !packageMetadata.cpu.includes(process.arch)
+    || (packageMetadata.libc?.includes('glibc') && !process.report.getReport().header.glibcVersionRuntime)) {
+  throw new Error('The npm package targets Linux x64 with glibc; this host requires a separately declared target package.');
+}
 await writeJson(path.join(stage, 'package.json'), packageMetadata);
 const runtime = { format: 'nvcompact.npm-native.v1', version: prepared.version, platform_key: prepared.platform_key,
   rust_host: prepared.rust_host, rustc: prepared.rustc, source_sha256: current.sha256,
@@ -49,7 +52,7 @@ if (!files.includes(`native/${platformKey()}/nvcompact`) || files.some(file => /
 }
 const tarball = path.join(dist, info.filename);
 const report = { format: 'nvcompact.npm-pack.v1', status: 'packed', name: info.name, version: info.version,
-  private: true, published: false, platform_key: platformKey(), path: tarball, bytes: (await readFile(tarball)).length,
+  private: packageMetadata.private === true, published: false, platform_key: platformKey(), path: tarball, bytes: (await readFile(tarball)).length,
   sha256: hash(await readFile(tarball)), runtime, files: info.files };
 await writeJson(path.join(artifacts, 'package.json'), report);
 process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);

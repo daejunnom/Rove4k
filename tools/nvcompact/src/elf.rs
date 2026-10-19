@@ -152,6 +152,104 @@ pub fn deployment_variants(
     data: &[u8],
     allow_section_header_removal: bool,
 ) -> Result<Vec<Deployment>> {
+    deployment_variants_with_options(data, allow_section_header_removal, false)
+}
+
+/// Replace a final writable segment's stored zero suffix with ELF zero-fill.
+/// This deliberately supports only ordinary static x86-64 ET_EXEC layouts.
+/// The caller must exclude observation of the file and its mapped ELF headers.
+pub fn load_zero_tail(data: &[u8]) -> Result<Option<Vec<u8>>> {
+    let mut result = sectionless(data)?;
+    ensure!(u16le(&result, 16) == 2, "zero-tail requires static ET_EXEC");
+    let phoff = u64le(&result, 32) as usize;
+    let phnum = u16le(&result, 56) as usize;
+    let floor = 64.max(phoff + phnum * 56);
+    let mut last_load = None;
+    let mut previous_page_end = 0u64;
+    for index in 0..phnum {
+        let base = phoff + index * 56;
+        let kind = u32le(&result, base);
+        let offset = u64le(&result, base + 8);
+        let vaddr = u64le(&result, base + 16);
+        let filesz = u64le(&result, base + 32);
+        let memsz = u64le(&result, base + 40);
+        ensure!(
+            matches!(kind, 0 | 1 | 6 | 0x6474e551),
+            "zero-tail requires no interpreter, dynamic linking, TLS, notes or other program segments"
+        );
+        if kind == 1 {
+            ensure!(
+                offset % 4096 == vaddr % 4096,
+                "zero-tail requires Linux x86-64 page-congruent mappings"
+            );
+            let page_end = vaddr
+                .checked_add(memsz)
+                .and_then(|n| n.checked_add(4095))
+                .context("zero-tail page extent overflow")?
+                & !4095;
+            ensure!(
+                vaddr & !4095 >= previous_page_end,
+                "zero-tail requires ordered PT_LOAD mappings without shared virtual pages"
+            );
+            previous_page_end = page_end;
+            last_load = Some(base);
+        } else if matches!(kind, 0 | 0x6474e551) {
+            ensure!(
+                filesz == 0,
+                "zero-tail requires empty NULL/STACK file extents"
+            );
+        }
+    }
+    let base = last_load.context("zero-tail has no PT_LOAD")?;
+    ensure!(
+        u32le(&result, base + 4) == 6,
+        "zero-tail requires a readable/writable, non-executable final PT_LOAD"
+    );
+    let offset = u64le(&result, base + 8) as usize;
+    let filesz = u64le(&result, base + 32) as usize;
+    ensure!(
+        offset + filesz == result.len() && filesz > 0,
+        "zero-tail requires the last PT_LOAD to end at the retained file end"
+    );
+    // Keep a nonempty initialized prefix and every header. Linux's zero-filesz
+    // path has different mapping behavior, so it is intentionally not used.
+    let earliest = floor.max(offset + 1);
+    let mut keep = result.len();
+    while keep > earliest && result[keep - 1] == 0 {
+        keep -= 1;
+    }
+    if keep == result.len() {
+        return Ok(None);
+    }
+    for index in 0..phnum {
+        let other = phoff + index * 56;
+        if other != base {
+            ensure!(
+                u64le(&result, other + 8) + u64le(&result, other + 32) <= keep as u64,
+                "zero-tail suffix is also covered by another program segment"
+            );
+        }
+    }
+    result[base + 32..base + 40].copy_from_slice(&((keep - offset) as u64).to_le_bytes());
+    result.truncate(keep);
+    // Re-run the ordinary ELF extent checks on the emitted file. This validates
+    // the representation, not the caller's runtime observation contract.
+    ensure!(
+        sectionless(&result)? == result,
+        "zero-tail emitted inconsistent ELF"
+    );
+    Ok(Some(result))
+}
+
+pub fn deployment_variants_with_options(
+    data: &[u8],
+    allow_section_header_removal: bool,
+    allow_load_zero_tail: bool,
+) -> Result<Vec<Deployment>> {
+    ensure!(
+        !allow_load_zero_tail || allow_section_header_removal,
+        "allow_load_zero_tail also requires allow_section_header_removal"
+    );
     let mut output = vec![Deployment {
         id: "original".into(),
         data: data.to_vec(),
@@ -169,6 +267,23 @@ pub fn deployment_variants(
                 "complete final artifact still requires actual execution verification".into(),
             ],
         });
+    }
+    if allow_load_zero_tail {
+        if let Some(compact) = load_zero_tail(data)? {
+            output.push(Deployment {
+                id: "no-section-headers-zero-tail".into(),
+                data: compact,
+                preconditions: vec![
+                    "explicit ordinary static Linux ELF64LE x86-64 ET_EXEC deployment".into(),
+                    "final RW/non-X PT_LOAD; ordered 4096-byte pages without virtual overlap".into(),
+                    "only trailing zero file bytes removed; p_memsz, addresses and permissions retained".into(),
+                    "self-file, section/program headers and AT_PHDR contents are unobserved".into(),
+                    "edited metadata is not repurposed as executable code or data".into(),
+                    "no interpreter, dynamic linking, TLS, notes or unsupported program segments".into(),
+                    "complete final artifact still requires actual execution verification".into(),
+                ],
+            });
+        }
     }
     Ok(output)
 }

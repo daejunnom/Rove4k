@@ -15,6 +15,11 @@
     "test:nvcompact": "npm test && npm run test:core",
     "pack:nvcompact": "node tools/nvcompact/scripts/pack.mjs",
     "pack:cli": "npm run pack:nvcompact",
-    "verify:package": "node tools/nvcompact/scripts/verify-package.mjs"
+    "verify:package": "node tools/nvcompact/scripts/verify-package.mjs",
+    "release:prepare": "node tools/nvcompact/scripts/release.mjs prepare",
+    "publish:nvcompact": "node tools/nvcompact/scripts/release.mjs publish",
+    "test:release": "node tools/nvcompact/scripts/release.test.mjs",
+    "repo": "node scripts/repository.mjs",
+    "test:repo": "node --test scripts/repository.test.mjs"
   }
 }

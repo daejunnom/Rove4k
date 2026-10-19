@@ -1,0 +1,116 @@
+name: NVCompact release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Exact package version from the reviewed main commit
+        required: true
+        type: string
+      commit:
+        description: Exact 40-character main commit SHA to release
+        required: true
+        type: string
+      operation:
+        description: Prepare a downloadable tarball, stage for npm 2FA approval, or publish directly
+        required: true
+        type: choice
+        default: prepare
+        options: [prepare, stage, publish]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nvcompact-release
+  cancel-in-progress: false
+
+env:
+  NVC_RELEASE_VERSION: ${{ inputs.version }}
+  NVC_RELEASE_COMMIT: ${{ inputs.commit }}
+  NVC_RELEASE_OPERATION: ${{ inputs.operation }}
+
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    outputs:
+      environment: ${{ steps.config.outputs.environment }}
+      npm_cli: ${{ steps.config.outputs.npm_cli }}
+      artifact_name: ${{ steps.config.outputs.artifact_name }}
+    env:
+      RUSTUP_TOOLCHAIN: 1.99.1
+      CARGO_BUILD_JOBS: 2
+      NVCOMPACT_CLANG: clang
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Configure external build directories
+        run: |
+          printf 'CARGO_TARGET_DIR=%s/rove4k-target\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+          printf 'NVCOMPACT_ARTIFACT_DIR=%s/nvcompact-artifacts\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+      - name: Bind explicit request to this main checkout
+        id: config
+        run: node tools/nvcompact/scripts/release.mjs check-ci
+      - name: Install the reviewed npm CLI
+        env:
+          NVC_NPM_CLI: ${{ steps.config.outputs.npm_cli }}
+        run: npm install --global "npm@$NVC_NPM_CLI" --ignore-scripts --registry=https://registry.npmjs.org/
+      - name: Prepare native build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang build-essential pkg-config liblzma-dev libbz2-dev zlib1g-dev xz-utils bzip2
+          rustup toolchain install 1.99.1 --profile minimal
+      - run: npm ci --ignore-scripts
+      - run: npm test
+      - run: npm run test:release
+      - run: npm run test:core
+      - name: Build, pack and independently install the exact release tarball
+        id: prepare
+        run: npm run release:prepare
+      - name: Keep the reviewed tarball and its release identity
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ${{ steps.config.outputs.artifact_name }}
+          path: ${{ steps.prepare.outputs.bundle }}
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+
+  publish:
+    needs: package
+    if: inputs.operation == 'stage' || inputs.operation == 'publish'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment:
+      name: ${{ needs.package.outputs.environment }}
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Configure external release directories
+        run: |
+          printf 'NVCOMPACT_ARTIFACT_DIR=%s/nvcompact-publication\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+          printf 'NVC_RELEASE_BUNDLE=%s/nvcompact-release\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+      - name: Install the reviewed npm CLI
+        env:
+          NVC_NPM_CLI: ${{ needs.package.outputs.npm_cli }}
+        run: npm install --global "npm@$NVC_NPM_CLI" --ignore-scripts --registry=https://registry.npmjs.org/
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: ${{ needs.package.outputs.artifact_name }}
+          path: ${{ runner.temp }}/nvcompact-release
+      - name: Publish the verified tarball with the explicitly selected OIDC operation
+        run: node tools/nvcompact/scripts/release.mjs publish-ci --start

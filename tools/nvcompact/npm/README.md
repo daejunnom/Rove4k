@@ -1,12 +1,30 @@
-# @rove4k/nvcompact
+# nvcompact
 
-Private npm entry point for the Rust NVCompact tool in
+**N-version compaction:** compare native implementations, source representations
+and compression portfolios, then retain the smallest complete artifact that
+satisfies the selected contract. The Rust implementation is maintained inside
 [Rove4k](https://github.com/daejunnom/Rove4k/tree/main/tools/nvcompact).
-The executable command is `nvcompact`. No npm registry publication is configured.
+The npm package and executable are both named `nvcompact`.
 
-## Prepare a usable local package
+## Install and use
 
-From the Rove4k repository, with Node 22 or later and a Linux Rust toolchain:
+```sh
+npm install --global nvcompact
+nvcompact --version
+nvcompact doctor --json
+nvcompact --help
+```
+
+The published native target is **Linux x64 with glibc**. Release CI uses Ubuntu
+24.04; glibc 2.39 or newer, zlib and the GCC runtime must be available. Node 22
+or newer launches the bundled Rust executable. Windows, macOS, ARM and musl
+packages are not currently provided. C/C++ builds require their declared
+compiler, typed C rewrites require Clang, and decoder/interpreter requirements
+belong to each explicitly selected deployment or verifier.
+
+## Build a package from source
+
+From Rove4k with a Linux x64 Rust toolchain and native codec development libraries:
 
 ```sh
 npm ci --ignore-scripts
@@ -23,14 +41,13 @@ chess engine files or archived Python implementation.
 Install that tarball into another project:
 
 ```sh
-npm install --offline --ignore-scripts /absolute/path/rove4k-nvcompact-0.4.0.tgz
+npm install --offline --ignore-scripts /absolute/path/nvcompact-0.4.0.tgz
 npm exec -- nvcompact --version
 npm exec -- nvcompact doctor --json
 ```
 
-This is a package for the Linux architecture and runtime ABI on which it was
-built. Rebuild locally for another environment. C/C++ compilers, Clang for typed
-C rewrites, and declared deployment decoders remain explicit external tools.
+The native binary is specific to its target and runtime ABI; an npm tarball is
+not a TCEC submission. Other targets require an explicit build and packaging contract.
 
 ## Executable selection
 
@@ -44,3 +61,6 @@ The active builder runs in Rust. A submitted general 4k loader or a user-declare
 verifier can explicitly require an interpreter; those are separate deployment
 and verification dependencies. ELF-only submission candidates do not use script
 loaders. `nvcompact --help` lists the current command surface.
+
+See the [maintainer publishing guide](https://github.com/daejunnom/Rove4k/blob/main/tools/nvcompact/docs/PUBLISHING.md)
+for the personal-account bootstrap, OIDC configuration and release workflow.
