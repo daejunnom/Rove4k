@@ -1,0 +1,49 @@
+{
+  "format": "nvcompact.resource-spec.v1",
+  "name": "c4ke-original-short-clock",
+  "artifact": "../inputs/c4ke",
+  "artifact_key": "c4ke",
+  "sha256": "b5ecbcd8a189cf3296bc5ea874dd0ed612949d02744252041f2d2914776769ea",
+  "command": [
+    "{artifact}"
+  ],
+  "tools": [
+    "/bin/sh",
+    "mktemp",
+    "tail",
+    "xz",
+    "g++",
+    "sleep",
+    "rm"
+  ],
+  "budget": {
+    "required_memory_bytes": 274877906944,
+    "reserve_memory_bytes": 8589934592,
+    "address_space_bytes": 309237645312,
+    "cpu_seconds_per_process": 7200,
+    "wall_seconds": 240,
+    "file_bytes": 268435456,
+    "output_bytes_per_session": 2097152
+  },
+  "preconditions": {},
+  "uci": {
+    "profile": "tcec4k",
+    "preserve_engine_options": true,
+    "startup_seconds": 60,
+    "ready_seconds": 5,
+    "search_seconds": 5,
+    "quit_seconds": 2,
+    "cleanup_seconds": 5,
+    "extensions": false,
+    "quick": false,
+    "case_ids": [],
+    "clock_ms": 2000,
+    "clock_grace_ms": 1000,
+    "increment_ms": 0
+  },
+  "notes": [
+    "Original payload requests256 GiB and256 workers; -march=native and source constants remain unchanged.",
+    "Copy this template outside the repository and bind artifact to the actual external file before resource plan. Only paths are hydration parameters; the original SHA and settings remain pinned.",
+    "Planning is read-only. Explicit --start rechecks inputs, tools and current resources; insufficient resources remain blocked. No allocation probe, Hash/Threads change, CPU restriction or parent limit increase is used."
+  ]
+}

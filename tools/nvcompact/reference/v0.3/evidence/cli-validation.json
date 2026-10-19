@@ -1,0 +1,42 @@
+{
+  "format": "nvcompact.cli-validation.v1",
+  "command": "NVUCI_ORACLE_PATH=/tmp/nvcompact-uci-deps npm test",
+  "status": "pass",
+  "tests": 11,
+  "passed": 11,
+  "failed": 0,
+  "cancelled": 0,
+  "skipped": 0,
+  "duration_ms": 9557.228295,
+  "node": "24.19.0",
+  "npm": "11.9.0",
+  "python": "3.12.14",
+  "checks": [
+    "Help and version without Python; all command help.",
+    "Actual codec doctor with executable path containing spaces.",
+    "Preserved argv, cwd, stdin/stdout/stderr and real nonzero child status.",
+    "Explicit Python override failure; no shell parsing or fallback.",
+    "Preserved core failure without a success artifact.",
+    "Early rejection of missing, nonexistent, empty and unknown engine selections.",
+    "SIGTERM stops real UCI engine and grandchild.",
+    "SIGINT stops real UCI engine and grandchild.",
+    "SIGTERM through nested core helper stops real UCI engine and grandchild.",
+    "Active native portfolio cancellation releases workers and cancels queued tasks.",
+    "Actual npm tarball has standalone CLI and complete linked examples."
+  ],
+  "lifecycle_oracle": "Owned fixture lifetime locks are held while children run and independently observed released after cancellation, before fixture cleanup.",
+  "source_sha256": {
+    "tests/cli.test.mjs": "b12053783d9154e2f68614b4899dfea8f30162a9920d3718e910eef05b58a910",
+    "tests/package-contract.test.mjs": "365b62863844d9a2a1d9024f09feb58077ba7b0b6c329df2e5f42a3617ca1736",
+    "packages/nvcompact/bin/nvcompact.mjs": "ce4a1511baa73f88dd79bb55e39636a9b99e822337fff473c64e6d8337fbed8d",
+    "packages/nvcompact/lib/cli.mjs": "85c3883c4d0195b8d03465940d082973e25c6eb07f35405aa727a9958590e952",
+    "packages/nvcompact/python/nvlaunch.py": "0fe4fd0aeb21abaceba94587ab69e8625c73d7d3d3026c373b4abc1387001b08"
+  },
+  "earlier_without_oracle": {
+    "tests": 11,
+    "passed": 8,
+    "skipped": 3,
+    "failed": 0,
+    "reason": "NVUCI_ORACLE_PATH was not set; final run above supplied the oracle and executed all checks."
+  }
+}

@@ -1,0 +1,14 @@
+test_artifact_mutation_is_a_failure_without_automatic_restore (test_resource.ResourceExecutionTests.test_artifact_mutation_is_a_failure_without_automatic_restore) ... ok
+test_interruption_before_verifier_returns_does_not_claim_no_engine_started (test_resource.ResourceExecutionTests.test_interruption_before_verifier_returns_does_not_claim_no_engine_started) ... ok
+test_invocation_argv_zero_is_preserved_and_retargeted_symlink_is_blocked (test_resource.ResourceExecutionTests.test_invocation_argv_zero_is_preserved_and_retargeted_symlink_is_blocked) ... ok
+test_small_uci_fixture_preserves_options_inputs_parent_environment_and_limits (test_resource.ResourceExecutionTests.test_small_uci_fixture_preserves_options_inputs_parent_environment_and_limits) ... ok
+test_timeout_releases_owned_child_and_grandchild_locks (test_resource.ResourceExecutionTests.test_timeout_releases_owned_child_and_grandchild_locks) ... ok
+test_cgroup_ancestry_is_combined_with_physical_available_memory (test_resource.ResourcePlanningTests.test_cgroup_ancestry_is_combined_with_physical_available_memory) ... ok
+test_changed_budget_and_existing_output_are_rejected (test_resource.ResourcePlanningTests.test_changed_budget_and_existing_output_are_rejected) ... ok
+test_memory_shortfall_and_changed_inputs_block_before_process_creation (test_resource.ResourcePlanningTests.test_memory_shortfall_and_changed_inputs_block_before_process_creation) ... ok
+test_plan_and_missing_opt_in_cannot_launch_target (test_resource.ResourcePlanningTests.test_plan_and_missing_opt_in_cannot_launch_target) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 7.860s
+
+OK

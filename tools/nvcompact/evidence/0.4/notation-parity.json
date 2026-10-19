@@ -1,0 +1,393 @@
+{
+  "format": "nvcompact.notation-parity.v1",
+  "observed_date_utc": "2026-10-19",
+  "scope": "Source-byte portfolios only; this evidence does not measure final submission compression, execute an engine, establish chess strength, or prove TCEC admission.",
+  "rust": {
+    "version": "0.4.0",
+    "profile": "debug",
+    "binary_sha256": "cba53aaa567fd647ca3e3bb0de807d5831424c850fc4a59656cb2cd9167bf8ad",
+    "code_scope": [
+      "src/notation.rs"
+    ],
+    "frontend": "RustPython parser/AST 0.4 in the Rust process; no Python compression backend"
+  },
+  "python_reference": {
+    "repository": "https://github.com/daejunnom/NVCompact",
+    "git_revision": "4f238d1e56faca3a8c926098c6d5be2c98728cb8",
+    "original_path": "packages/nvcompact/python/nvnotation.py",
+    "preserved_path": "reference/v0.3/packages/nvcompact/python/nvnotation.py",
+    "source_sha256": "a7f5d403caaf382091ea3fb43833701f5adfe7aeaa5ef9ec9e3e82833ad44592",
+    "module_version": "0.2.0",
+    "interpreter": "3.12.14",
+    "execution_role": "Independent migration comparison oracle only; not invoked by the Rust CLI"
+  },
+  "options": {
+    "compact": true,
+    "token_contract": "no-token-observation",
+    "max_variants": 16
+  },
+  "command_template": [
+    "nvcompact",
+    "notation",
+    "EXTERNAL_SOURCE",
+    "--language",
+    "LANGUAGE",
+    "--compact",
+    "--token-contract",
+    "no-token-observation",
+    "--portfolio",
+    "EXTERNAL_FRESH_OUTPUT"
+  ],
+  "all_39_byte_identical": true,
+  "engines": [
+    {
+      "engine": "sunfish",
+      "external_input_name": "sunfish_uci_packed.sh.payload.py",
+      "source_bytes": 5837,
+      "source_sha256": "f1a676e55763635a4ba517e7439249e2f1b15da818e83369b50f6b705178f78f",
+      "language": "python",
+      "target_model": "python3",
+      "variant_count": 13,
+      "all_byte_identical": true,
+      "variants": [
+        {
+          "id": "raw",
+          "python_bytes": 5837,
+          "rust_bytes": 5837,
+          "python_sha256": "f1a676e55763635a4ba517e7439249e2f1b15da818e83369b50f6b705178f78f",
+          "rust_sha256": "f1a676e55763635a4ba517e7439249e2f1b15da818e83369b50f6b705178f78f",
+          "byte_identical": true
+        },
+        {
+          "id": "shortest",
+          "python_bytes": 5836,
+          "rust_bytes": 5836,
+          "python_sha256": "759d520a7d2259a4cf6e810500ff963ff9b8246283faf9862bd0c99f26ed7617",
+          "rust_sha256": "759d520a7d2259a4cf6e810500ff963ff9b8246283faf9862bd0c99f26ed7617",
+          "byte_identical": true
+        },
+        {
+          "id": "shortest-compact",
+          "python_bytes": 5825,
+          "rust_bytes": 5825,
+          "python_sha256": "98d1f82bf81e9919272e28d788bc72d0963ba636292d3a61040658c3db0cdf87",
+          "rust_sha256": "98d1f82bf81e9919272e28d788bc72d0963ba636292d3a61040658c3db0cdf87",
+          "byte_identical": true
+        },
+        {
+          "id": "hex",
+          "python_bytes": 6749,
+          "rust_bytes": 6749,
+          "python_sha256": "3530576e0d39618e5289a5545ccd42ad573527c30ecfdf3f4fb7056c2bfd1543",
+          "rust_sha256": "3530576e0d39618e5289a5545ccd42ad573527c30ecfdf3f4fb7056c2bfd1543",
+          "byte_identical": true
+        },
+        {
+          "id": "decimal",
+          "python_bytes": 5836,
+          "rust_bytes": 5836,
+          "python_sha256": "759d520a7d2259a4cf6e810500ff963ff9b8246283faf9862bd0c99f26ed7617",
+          "rust_sha256": "759d520a7d2259a4cf6e810500ff963ff9b8246283faf9862bd0c99f26ed7617",
+          "byte_identical": true
+        },
+        {
+          "id": "scientific",
+          "python_bytes": 5838,
+          "rust_bytes": 5838,
+          "python_sha256": "a5c6648944b4344f544408de6f3ae9bc8b687dfc7dd058b2a0295f6c376ccc02",
+          "rust_sha256": "a5c6648944b4344f544408de6f3ae9bc8b687dfc7dd058b2a0295f6c376ccc02",
+          "byte_identical": true
+        },
+        {
+          "id": "octal",
+          "python_bytes": 6878,
+          "rust_bytes": 6878,
+          "python_sha256": "bf031b981b4d27b1716aa823d61b4bf654a09d3a8a84ce4420c4139b29838ca2",
+          "rust_sha256": "bf031b981b4d27b1716aa823d61b4bf654a09d3a8a84ce4420c4139b29838ca2",
+          "byte_identical": true
+        },
+        {
+          "id": "binary",
+          "python_bytes": 8098,
+          "rust_bytes": 8098,
+          "python_sha256": "d68e4324bf77dfdaf3a2162ffc2290c1ed0016f9397af8eeb6efc9f2842c18b1",
+          "rust_sha256": "d68e4324bf77dfdaf3a2162ffc2290c1ed0016f9397af8eeb6efc9f2842c18b1",
+          "byte_identical": true
+        },
+        {
+          "id": "hex-compact",
+          "python_bytes": 6738,
+          "rust_bytes": 6738,
+          "python_sha256": "b16d2a5578c49169eeaa5e7b50803c82a7bdd194b3933d4e129d3b43d2edb467",
+          "rust_sha256": "b16d2a5578c49169eeaa5e7b50803c82a7bdd194b3933d4e129d3b43d2edb467",
+          "byte_identical": true
+        },
+        {
+          "id": "decimal-compact",
+          "python_bytes": 5825,
+          "rust_bytes": 5825,
+          "python_sha256": "98d1f82bf81e9919272e28d788bc72d0963ba636292d3a61040658c3db0cdf87",
+          "rust_sha256": "98d1f82bf81e9919272e28d788bc72d0963ba636292d3a61040658c3db0cdf87",
+          "byte_identical": true
+        },
+        {
+          "id": "scientific-compact",
+          "python_bytes": 5827,
+          "rust_bytes": 5827,
+          "python_sha256": "f3684d8493abb49709513145e34525b1e6b69089539828bb7087cc5e52642f45",
+          "rust_sha256": "f3684d8493abb49709513145e34525b1e6b69089539828bb7087cc5e52642f45",
+          "byte_identical": true
+        },
+        {
+          "id": "octal-compact",
+          "python_bytes": 6867,
+          "rust_bytes": 6867,
+          "python_sha256": "49e4721b2fd37dd0dc60e4bb2266c8a1526dbb1adbf1513cc5589824180efbce",
+          "rust_sha256": "49e4721b2fd37dd0dc60e4bb2266c8a1526dbb1adbf1513cc5589824180efbce",
+          "byte_identical": true
+        },
+        {
+          "id": "binary-compact",
+          "python_bytes": 8087,
+          "rust_bytes": 8087,
+          "python_sha256": "47c168df40cb0b0e1148b6f6b0d6e4cebbdd9fdeaf51966e7a5000361d1d3cad",
+          "rust_sha256": "47c168df40cb0b0e1148b6f6b0d6e4cebbdd9fdeaf51966e7a5000361d1d3cad",
+          "byte_identical": true
+        }
+      ]
+    },
+    {
+      "engine": "moonfish",
+      "external_input_name": "moonfish.sh.payload.c",
+      "source_bytes": 10608,
+      "source_sha256": "35ebc2c360277d1a22e674db52e612f52eac14a85b6dc6b94484824fafb4436c",
+      "language": "c",
+      "target_model": "c11-lp64",
+      "variant_count": 13,
+      "all_byte_identical": true,
+      "variants": [
+        {
+          "id": "raw",
+          "python_bytes": 10608,
+          "rust_bytes": 10608,
+          "python_sha256": "35ebc2c360277d1a22e674db52e612f52eac14a85b6dc6b94484824fafb4436c",
+          "rust_sha256": "35ebc2c360277d1a22e674db52e612f52eac14a85b6dc6b94484824fafb4436c",
+          "byte_identical": true
+        },
+        {
+          "id": "shortest",
+          "python_bytes": 10592,
+          "rust_bytes": 10592,
+          "python_sha256": "dd26cb74fa53dba6d46f3a92657d487c3f9bd081264b353cfb28dfcaee663c88",
+          "rust_sha256": "dd26cb74fa53dba6d46f3a92657d487c3f9bd081264b353cfb28dfcaee663c88",
+          "byte_identical": true
+        },
+        {
+          "id": "shortest-compact",
+          "python_bytes": 10591,
+          "rust_bytes": 10591,
+          "python_sha256": "425417818cc86ddc74fc2fb8a651f2cdad3982e5599f7fe70e202a7ca03505c1",
+          "rust_sha256": "425417818cc86ddc74fc2fb8a651f2cdad3982e5599f7fe70e202a7ca03505c1",
+          "byte_identical": true
+        },
+        {
+          "id": "hex",
+          "python_bytes": 11919,
+          "rust_bytes": 11919,
+          "python_sha256": "aaa1616503e69fda18fa7edd62bec37974610628917f950752aa227c2162b033",
+          "rust_sha256": "aaa1616503e69fda18fa7edd62bec37974610628917f950752aa227c2162b033",
+          "byte_identical": true
+        },
+        {
+          "id": "decimal",
+          "python_bytes": 10600,
+          "rust_bytes": 10600,
+          "python_sha256": "38eeca0139d140d12b3eeb2cc6acfe4e3d12a78fe526b3c8f619f69a21f41e07",
+          "rust_sha256": "38eeca0139d140d12b3eeb2cc6acfe4e3d12a78fe526b3c8f619f69a21f41e07",
+          "byte_identical": true
+        },
+        {
+          "id": "scientific",
+          "python_bytes": 10594,
+          "rust_bytes": 10594,
+          "python_sha256": "9d78db7a0f67ca0c335b93b4492b9bbe263a291bab536f437221397f4890f9ed",
+          "rust_sha256": "9d78db7a0f67ca0c335b93b4492b9bbe263a291bab536f437221397f4890f9ed",
+          "byte_identical": true
+        },
+        {
+          "id": "octal",
+          "python_bytes": 11281,
+          "rust_bytes": 11281,
+          "python_sha256": "f305e1213ffdec225d0b3f5bc4c05fef9f89830ecd15bf5630a2c09df1ac58a9",
+          "rust_sha256": "f305e1213ffdec225d0b3f5bc4c05fef9f89830ecd15bf5630a2c09df1ac58a9",
+          "byte_identical": true
+        },
+        {
+          "id": "binary",
+          "python_bytes": 10592,
+          "rust_bytes": 10592,
+          "python_sha256": "dd26cb74fa53dba6d46f3a92657d487c3f9bd081264b353cfb28dfcaee663c88",
+          "rust_sha256": "dd26cb74fa53dba6d46f3a92657d487c3f9bd081264b353cfb28dfcaee663c88",
+          "byte_identical": true
+        },
+        {
+          "id": "hex-compact",
+          "python_bytes": 11918,
+          "rust_bytes": 11918,
+          "python_sha256": "9c94f8be9ef16279881264e688f4874632ff2857e25dd2e84248aa203d46b013",
+          "rust_sha256": "9c94f8be9ef16279881264e688f4874632ff2857e25dd2e84248aa203d46b013",
+          "byte_identical": true
+        },
+        {
+          "id": "decimal-compact",
+          "python_bytes": 10599,
+          "rust_bytes": 10599,
+          "python_sha256": "57ea771f1945c02fd24d64adda9106d1c6eec82036fa727ac5c307ca984ba0fa",
+          "rust_sha256": "57ea771f1945c02fd24d64adda9106d1c6eec82036fa727ac5c307ca984ba0fa",
+          "byte_identical": true
+        },
+        {
+          "id": "scientific-compact",
+          "python_bytes": 10593,
+          "rust_bytes": 10593,
+          "python_sha256": "630151e0c690e7dd8b3d1f73ce0f594668897de66fcd6d7cea8b15bb199912e7",
+          "rust_sha256": "630151e0c690e7dd8b3d1f73ce0f594668897de66fcd6d7cea8b15bb199912e7",
+          "byte_identical": true
+        },
+        {
+          "id": "octal-compact",
+          "python_bytes": 11280,
+          "rust_bytes": 11280,
+          "python_sha256": "ae86bb4e133c16811d04c9a5e3e8077f4d399423cbd2d22c564dca3483ad1b47",
+          "rust_sha256": "ae86bb4e133c16811d04c9a5e3e8077f4d399423cbd2d22c564dca3483ad1b47",
+          "byte_identical": true
+        },
+        {
+          "id": "binary-compact",
+          "python_bytes": 10591,
+          "rust_bytes": 10591,
+          "python_sha256": "425417818cc86ddc74fc2fb8a651f2cdad3982e5599f7fe70e202a7ca03505c1",
+          "rust_sha256": "425417818cc86ddc74fc2fb8a651f2cdad3982e5599f7fe70e202a7ca03505c1",
+          "byte_identical": true
+        }
+      ]
+    },
+    {
+      "engine": "ice4",
+      "external_input_name": "ice4-tcec.payload.cpp",
+      "source_bytes": 8750,
+      "source_sha256": "0980ed274f09d24069160427cba3885e8324076b39ca42e087c4e5ed6fa1dbf0",
+      "language": "cpp",
+      "target_model": "cpp17-lp64",
+      "variant_count": 13,
+      "all_byte_identical": true,
+      "variants": [
+        {
+          "id": "raw",
+          "python_bytes": 8750,
+          "rust_bytes": 8750,
+          "python_sha256": "0980ed274f09d24069160427cba3885e8324076b39ca42e087c4e5ed6fa1dbf0",
+          "rust_sha256": "0980ed274f09d24069160427cba3885e8324076b39ca42e087c4e5ed6fa1dbf0",
+          "byte_identical": true
+        },
+        {
+          "id": "shortest",
+          "python_bytes": 8741,
+          "rust_bytes": 8741,
+          "python_sha256": "322b038f558cb5de2eb6d79fa280fee29c5fe0d06c224fc33ea3de14bf7f80f0",
+          "rust_sha256": "322b038f558cb5de2eb6d79fa280fee29c5fe0d06c224fc33ea3de14bf7f80f0",
+          "byte_identical": true
+        },
+        {
+          "id": "shortest-compact",
+          "python_bytes": 8741,
+          "rust_bytes": 8741,
+          "python_sha256": "322b038f558cb5de2eb6d79fa280fee29c5fe0d06c224fc33ea3de14bf7f80f0",
+          "rust_sha256": "322b038f558cb5de2eb6d79fa280fee29c5fe0d06c224fc33ea3de14bf7f80f0",
+          "byte_identical": true
+        },
+        {
+          "id": "hex",
+          "python_bytes": 9697,
+          "rust_bytes": 9697,
+          "python_sha256": "4727771cc4d6a6422b48308763d3802d38fc3e584e39163a5cc67475069e9f25",
+          "rust_sha256": "4727771cc4d6a6422b48308763d3802d38fc3e584e39163a5cc67475069e9f25",
+          "byte_identical": true
+        },
+        {
+          "id": "decimal",
+          "python_bytes": 8766,
+          "rust_bytes": 8766,
+          "python_sha256": "7ee59d6ecdc9aaaf1e25485b2b9a252527a45f34f4ee9a56fa83483d96223981",
+          "rust_sha256": "7ee59d6ecdc9aaaf1e25485b2b9a252527a45f34f4ee9a56fa83483d96223981",
+          "byte_identical": true
+        },
+        {
+          "id": "scientific",
+          "python_bytes": 8752,
+          "rust_bytes": 8752,
+          "python_sha256": "d8fb5b35b89cdb534ff682e8cd71914077d2186fcaa9c54872b38c2cab15f942",
+          "rust_sha256": "d8fb5b35b89cdb534ff682e8cd71914077d2186fcaa9c54872b38c2cab15f942",
+          "byte_identical": true
+        },
+        {
+          "id": "octal",
+          "python_bytes": 9260,
+          "rust_bytes": 9260,
+          "python_sha256": "8cb3cf93aaf0a646e36996f4df14e78220427fe05e335d1ebfd2324fc9355089",
+          "rust_sha256": "8cb3cf93aaf0a646e36996f4df14e78220427fe05e335d1ebfd2324fc9355089",
+          "byte_identical": true
+        },
+        {
+          "id": "binary",
+          "python_bytes": 11161,
+          "rust_bytes": 11161,
+          "python_sha256": "fe1f641ca5f6ad657f5293c8494d11c61366ca5f8b39decba7f182ecc140544c",
+          "rust_sha256": "fe1f641ca5f6ad657f5293c8494d11c61366ca5f8b39decba7f182ecc140544c",
+          "byte_identical": true
+        },
+        {
+          "id": "hex-compact",
+          "python_bytes": 9697,
+          "rust_bytes": 9697,
+          "python_sha256": "4727771cc4d6a6422b48308763d3802d38fc3e584e39163a5cc67475069e9f25",
+          "rust_sha256": "4727771cc4d6a6422b48308763d3802d38fc3e584e39163a5cc67475069e9f25",
+          "byte_identical": true
+        },
+        {
+          "id": "decimal-compact",
+          "python_bytes": 8766,
+          "rust_bytes": 8766,
+          "python_sha256": "7ee59d6ecdc9aaaf1e25485b2b9a252527a45f34f4ee9a56fa83483d96223981",
+          "rust_sha256": "7ee59d6ecdc9aaaf1e25485b2b9a252527a45f34f4ee9a56fa83483d96223981",
+          "byte_identical": true
+        },
+        {
+          "id": "scientific-compact",
+          "python_bytes": 8752,
+          "rust_bytes": 8752,
+          "python_sha256": "d8fb5b35b89cdb534ff682e8cd71914077d2186fcaa9c54872b38c2cab15f942",
+          "rust_sha256": "d8fb5b35b89cdb534ff682e8cd71914077d2186fcaa9c54872b38c2cab15f942",
+          "byte_identical": true
+        },
+        {
+          "id": "octal-compact",
+          "python_bytes": 9260,
+          "rust_bytes": 9260,
+          "python_sha256": "8cb3cf93aaf0a646e36996f4df14e78220427fe05e335d1ebfd2324fc9355089",
+          "rust_sha256": "8cb3cf93aaf0a646e36996f4df14e78220427fe05e335d1ebfd2324fc9355089",
+          "byte_identical": true
+        },
+        {
+          "id": "binary-compact",
+          "python_bytes": 11161,
+          "rust_bytes": 11161,
+          "python_sha256": "fe1f641ca5f6ad657f5293c8494d11c61366ca5f8b39decba7f182ecc140544c",
+          "rust_sha256": "fe1f641ca5f6ad657f5293c8494d11c61366ca5f8b39decba7f182ecc140544c",
+          "byte_identical": true
+        }
+      ]
+    }
+  ],
+  "regression_fixed": "The RustPython pair lexer now supplies inert opening context before checking adjacent closing delimiters and keywords; complete token and typed-AST checks are unchanged. No engine-specific exception."
+}

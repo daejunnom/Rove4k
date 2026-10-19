@@ -1,0 +1,1570 @@
+{
+  "format": "nvcompact.launcher-rule-review.v1",
+  "date": "2026-10-19",
+  "scope": "Manual static inspection of exact external original and measured-smallest outer launchers; for PyGone also the decoded script shebang. No target process was launched for this review. Not a generic whole-program process, dynamic-library, compiler-child, signal, or global-filesystem audit.",
+  "rules": {
+    "url": "https://wiki.chessdom.org/TCEC_4k_Rules",
+    "revision_url": "https://wiki.chessdom.org/index.php?title=TCEC_4k_Rules&oldid=7853",
+    "observed_revision": 7853,
+    "general_explicit_external_commands": [
+      "bzip2",
+      "bash",
+      "c++",
+      "cargo",
+      "cc",
+      "clang",
+      "chmod",
+      "gzip",
+      "lzma",
+      "mktemp",
+      "perl",
+      "python",
+      "python3",
+      "pypy3",
+      "rustc",
+      "sh",
+      "sleep",
+      "tail",
+      "xz"
+    ],
+    "unlisted_policy": "The rules leave additions to the organizers. Listed upstream examples or functional aliases do not establish permission for this run.",
+    "cleanup_ambiguity": "rm is absent from the explicit external-command list but appears in both official cleanup examples; record this discrepancy instead of inventing organizer approval or automatically declaring an accepted entry illegal.",
+    "elf_scope": "ELF entries cannot rely on external programs. The two public ELF representatives and bounded process-exec checks are reported in elf-comparison.json."
+  },
+  "entries": [
+    {
+      "artifact_key": "4k.c",
+      "category": "4k",
+      "manifest": "../../comparisons/general/4k.c.json",
+      "artifact_provenance_url": "https://github.com/GediminasMasaitis/4k-dot-c/releases/download/v9.0/4kc-mini",
+      "original": {
+        "bytes": 3932,
+        "sha256": "04e8f61d6ed6ad5feaaea7c62c578b647b9cdbc0e2313c4437645aff63a54af6",
+        "review_role": "original",
+        "launcher_kind": "ELF",
+        "header": null,
+        "command_tokens": [],
+        "shell_builtins": [],
+        "submission_owned_payload_execution": true,
+        "explicit_list_gaps": [],
+        "launcher_rule_status": "no_shell_launcher_present; not a whole-program external-process audit",
+        "temporary_file_strategy": {
+          "launcher_created_files": "no shell launcher to create files",
+          "whole_program_file_effects_audited": false
+        }
+      },
+      "smallest": {
+        "bytes": 3932,
+        "sha256": "04e8f61d6ed6ad5feaaea7c62c578b647b9cdbc0e2313c4437645aff63a54af6",
+        "review_role": "smallest",
+        "launcher_kind": "ELF",
+        "header": null,
+        "command_tokens": [],
+        "shell_builtins": [],
+        "submission_owned_payload_execution": true,
+        "explicit_list_gaps": [],
+        "launcher_rule_status": "no_shell_launcher_present; not a whole-program external-process audit",
+        "temporary_file_strategy": {
+          "launcher_created_files": "no shell launcher to create files",
+          "whole_program_file_effects_audited": false
+        }
+      },
+      "runtime_observation_reference": "resource-plans/4k.c-original.json",
+      "runtime_scope": "See the linked result for actual startup/cleanup observation; static launch review does not turn a blocked or failed run into a pass.",
+      "runtime_latest_observations": {
+        "index": "resource-plans/index.json",
+        "artifact_key": "4k.c",
+        "field": "latest_observations"
+      }
+    },
+    {
+      "artifact_key": "4ku",
+      "category": "4k",
+      "manifest": "../../comparisons/general/4ku.json",
+      "artifact_provenance_url": "https://github.com/kz04px/4ku/releases/download/v5.1/4ku-5.1-mini",
+      "original": {
+        "bytes": 4093,
+        "sha256": "be51d7aae0f36f493aa5cdbf1b847425c61fb1f89e93b7969222e662e43ced22",
+        "review_role": "original",
+        "launcher_kind": "shell",
+        "header": {
+          "bytes": 149,
+          "sha256": "a110155834a0bab179be1d73e86cac44b73f77005fc0b9b92c0425c933ed09b1"
+        },
+        "command_tokens": [
+          {
+            "token": "sh",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "mktemp",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "tail",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "lzma",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "g++",
+            "scope": "outer_launcher",
+            "explicit_list_status": "unlisted_organizer_decision_unconfirmed"
+          },
+          {
+            "token": "chmod",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "sleep",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "rm",
+            "scope": "outer_launcher",
+            "explicit_list_status": "unlisted_but_used_by_official_cleanup_example"
+          }
+        ],
+        "shell_builtins": [
+          "exec"
+        ],
+        "submission_owned_payload_execution": true,
+        "explicit_list_gaps": [
+          "g++",
+          "rm"
+        ],
+        "launcher_rule_status": "organizer_clarification_required; upstream usage is not authorization",
+        "temporary_file_strategy": {
+          "creation_command": "mktemp",
+          "creation_location": "mktemp default temp selection including inherited TMPDIR; no literal host-specific directory in inspected launcher",
+          "cleanup_command": "rm",
+          "cleanup_style": "background delayed unlink after decode/compile step",
+          "cleanup_delay_seconds": 3,
+          "recursive_rm_flag": false,
+          "signal_trap_present": false,
+          "static_scope": "Observed launcher strategy only. Successful paths may clean; this is not proof of every failure, signal, descendant, or filesystem path."
+        }
+      },
+      "smallest": {
+        "bytes": 4088,
+        "sha256": "f2aced2d9f84e6166d07f880a1864092b7b043b6d817beb7cec9e4b38f173270",
+        "review_role": "smallest",
+        "launcher_kind": "shell",
+        "header": {
+          "bytes": 144,
+          "sha256": "529b410e5b8461aec6b48fc164c1da3b719dfda705ed35be443d3f32d1b0ee8a"
+        },
+        "command_tokens": [
+          {
+            "token": "sh",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "mktemp",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "tail",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "xz",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "g++",
+            "scope": "outer_launcher",
+            "explicit_list_status": "unlisted_organizer_decision_unconfirmed"
+          },
+          {
+            "token": "chmod",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "sleep",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "rm",
+            "scope": "outer_launcher",
+            "explicit_list_status": "unlisted_but_used_by_official_cleanup_example"
+          }
+        ],
+        "shell_builtins": [
+          "exec"
+        ],
+        "submission_owned_payload_execution": true,
+        "explicit_list_gaps": [
+          "g++",
+          "rm"
+        ],
+        "launcher_rule_status": "organizer_clarification_required; upstream usage is not authorization",
+        "temporary_file_strategy": {
+          "creation_command": "mktemp",
+          "creation_location": "mktemp default temp selection including inherited TMPDIR; no literal host-specific directory in inspected launcher",
+          "cleanup_command": "rm",
+          "cleanup_style": "background delayed unlink after decode/compile step",
+          "cleanup_delay_seconds": 3,
+          "recursive_rm_flag": false,
+          "signal_trap_present": false,
+          "static_scope": "Observed launcher strategy only. Successful paths may clean; this is not proof of every failure, signal, descendant, or filesystem path."
+        }
+      },
+      "runtime_observation_reference": "general-comparison.json (ordinary original/winner/replay UCI, maintained separately)",
+      "runtime_scope": "See the linked result for actual startup/cleanup observation; static launch review does not turn a blocked or failed run into a pass."
+    },
+    {
+      "artifact_key": "M4sseur",
+      "category": "4k",
+      "manifest": "../../comparisons/general/M4sseur.json",
+      "artifact_provenance_url": null,
+      "original": {
+        "bytes": 4095,
+        "sha256": "50585513f84e39b72fd4855efc8afc0b2f9db22be33fbe6ade2f856983fc5876",
+        "review_role": "original",
+        "launcher_kind": "shell",
+        "header": {
+          "bytes": 133,
+          "sha256": "e793d37c9e0bb6cc642ed090b648a8a8fe4b31812cf4608a33aaffbc70fa2c4c"
+        },
+        "command_tokens": [
+          {
+            "token": "sh",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "mktemp",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "tail",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "xz",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "c++",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "sleep",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "rm",
+            "scope": "outer_launcher",
+            "explicit_list_status": "unlisted_but_used_by_official_cleanup_example"
+          }
+        ],
+        "shell_builtins": [
+          "exec"
+        ],
+        "submission_owned_payload_execution": true,
+        "explicit_list_gaps": [
+          "rm"
+        ],
+        "launcher_rule_status": "organizer_clarification_required; upstream usage is not authorization",
+        "temporary_file_strategy": {
+          "creation_command": "mktemp",
+          "creation_location": "mktemp default temp selection including inherited TMPDIR; no literal host-specific directory in inspected launcher",
+          "cleanup_command": "rm",
+          "cleanup_style": "background delayed unlink after decode/compile step",
+          "cleanup_delay_seconds": 3,
+          "recursive_rm_flag": false,
+          "signal_trap_present": false,
+          "static_scope": "Observed launcher strategy only. Successful paths may clean; this is not proof of every failure, signal, descendant, or filesystem path."
+        }
+      },
+      "smallest": {
+        "bytes": 4092,
+        "sha256": "cdb8d5fe6cad839b4682cc0db48722b06f0fff7f46f7ab67b2453319a759c4a3",
+        "review_role": "smallest",
+        "launcher_kind": "shell",
+        "header": {
+          "bytes": 130,
+          "sha256": "3066c8b4d1e64f81d40c0040d2eb441107d5927955e833d6d4515e22d3c49cc7"
+        },
+        "command_tokens": [
+          {
+            "token": "sh",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "mktemp",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "tail",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "xz",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "c++",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "sleep",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "rm",
+            "scope": "outer_launcher",
+            "explicit_list_status": "unlisted_but_used_by_official_cleanup_example"
+          }
+        ],
+        "shell_builtins": [
+          "exec"
+        ],
+        "submission_owned_payload_execution": true,
+        "explicit_list_gaps": [
+          "rm"
+        ],
+        "launcher_rule_status": "organizer_clarification_required; upstream usage is not authorization",
+        "temporary_file_strategy": {
+          "creation_command": "mktemp",
+          "creation_location": "mktemp default temp selection including inherited TMPDIR; no literal host-specific directory in inspected launcher",
+          "cleanup_command": "rm",
+          "cleanup_style": "background delayed unlink after decode/compile step",
+          "cleanup_delay_seconds": 3,
+          "recursive_rm_flag": false,
+          "signal_trap_present": false,
+          "static_scope": "Observed launcher strategy only. Successful paths may clean; this is not proof of every failure, signal, descendant, or filesystem path."
+        }
+      },
+      "runtime_observation_reference": "resource-plans/M4sseur-original.json",
+      "runtime_scope": "See the linked result for actual startup/cleanup observation; static launch review does not turn a blocked or failed run into a pass.",
+      "runtime_latest_observations": {
+        "index": "resource-plans/index.json",
+        "artifact_key": "M4sseur",
+        "field": "latest_observations"
+      }
+    },
+    {
+      "artifact_key": "STRO4K",
+      "category": "4k",
+      "manifest": "../../comparisons/general/STRO4K.json",
+      "artifact_provenance_url": "https://github.com/ONE-RANDOM-HUMAN/STRO4K/releases/download/v5.0/STRO4K-tcec",
+      "original": {
+        "bytes": 4096,
+        "sha256": "c4b3a7d3ca808418dd014be9527b81057c4db5de8d24ab0c4ee14a360f17ae98",
+        "review_role": "original",
+        "launcher_kind": "shell",
+        "header": {
+          "bytes": 102,
+          "sha256": "de7a692dd2b30abd934cccbb13260f09b0c64752d8127cc3be4dccfb7e377ea3"
+        },
+        "command_tokens": [
+          {
+            "token": "sh",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "mktemp",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "tail",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "xz",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "chmod",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "sleep",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "rm",
+            "scope": "outer_launcher",
+            "explicit_list_status": "unlisted_but_used_by_official_cleanup_example"
+          }
+        ],
+        "shell_builtins": [
+          "exec"
+        ],
+        "submission_owned_payload_execution": true,
+        "explicit_list_gaps": [
+          "rm"
+        ],
+        "launcher_rule_status": "organizer_clarification_required; upstream usage is not authorization",
+        "temporary_file_strategy": {
+          "creation_command": "mktemp",
+          "creation_location": "mktemp default temp selection including inherited TMPDIR; no literal host-specific directory in inspected launcher",
+          "cleanup_command": "rm",
+          "cleanup_style": "background delayed unlink after decode/compile step",
+          "cleanup_delay_seconds": 3,
+          "recursive_rm_flag": false,
+          "signal_trap_present": false,
+          "static_scope": "Observed launcher strategy only. Successful paths may clean; this is not proof of every failure, signal, descendant, or filesystem path."
+        }
+      },
+      "smallest": {
+        "bytes": 4078,
+        "sha256": "bec5025be231f88508565b4dfc24b7dad8f26c5eb9f15aabac1f62ef31fd948e",
+        "review_role": "smallest",
+        "launcher_kind": "shell",
+        "header": {
+          "bytes": 100,
+          "sha256": "12d56076d3c982c70c44a94114ed9b37261144bd3c7f87322aa204c243e41abd"
+        },
+        "command_tokens": [
+          {
+            "token": "sh",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "mktemp",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "tail",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "xz",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "chmod",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "sleep",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "rm",
+            "scope": "outer_launcher",
+            "explicit_list_status": "unlisted_but_used_by_official_cleanup_example"
+          }
+        ],
+        "shell_builtins": [
+          "exec"
+        ],
+        "submission_owned_payload_execution": true,
+        "explicit_list_gaps": [
+          "rm"
+        ],
+        "launcher_rule_status": "organizer_clarification_required; upstream usage is not authorization",
+        "temporary_file_strategy": {
+          "creation_command": "mktemp",
+          "creation_location": "mktemp default temp selection including inherited TMPDIR; no literal host-specific directory in inspected launcher",
+          "cleanup_command": "rm",
+          "cleanup_style": "background delayed unlink after decode/compile step",
+          "cleanup_delay_seconds": 3,
+          "recursive_rm_flag": false,
+          "signal_trap_present": false,
+          "static_scope": "Observed launcher strategy only. Successful paths may clean; this is not proof of every failure, signal, descendant, or filesystem path."
+        }
+      },
+      "runtime_observation_reference": "resource-plans/STRO4K-original.json",
+      "runtime_scope": "See the linked result for actual startup/cleanup observation; static launch review does not turn a blocked or failed run into a pass.",
+      "runtime_latest_observations": {
+        "index": "resource-plans/index.json",
+        "artifact_key": "STRO4K",
+        "field": "latest_observations"
+      }
+    },
+    {
+      "artifact_key": "c4ke",
+      "category": "4k",
+      "manifest": "../../comparisons/general/c4ke.json",
+      "artifact_provenance_url": "https://github.com/citrus610/c4ke/releases/download/v3.0/c4ke-tcec",
+      "original": {
+        "bytes": 4093,
+        "sha256": "b5ecbcd8a189cf3296bc5ea874dd0ed612949d02744252041f2d2914776769ea",
+        "review_role": "original",
+        "launcher_kind": "shell",
+        "header": {
+          "bytes": 122,
+          "sha256": "28b51c30fef7d83dd27e611624984486a752dac6d377adc080f3d1128eb281f1"
+        },
+        "command_tokens": [
+          {
+            "token": "sh",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "mktemp",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "tail",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "xz",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "g++",
+            "scope": "outer_launcher",
+            "explicit_list_status": "unlisted_organizer_decision_unconfirmed"
+          },
+          {
+            "token": "sleep",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "rm",
+            "scope": "outer_launcher",
+            "explicit_list_status": "unlisted_but_used_by_official_cleanup_example"
+          }
+        ],
+        "shell_builtins": [
+          "exec"
+        ],
+        "submission_owned_payload_execution": true,
+        "explicit_list_gaps": [
+          "g++",
+          "rm"
+        ],
+        "launcher_rule_status": "organizer_clarification_required; upstream usage is not authorization",
+        "temporary_file_strategy": {
+          "creation_command": "mktemp",
+          "creation_location": "mktemp default temp selection including inherited TMPDIR; no literal host-specific directory in inspected launcher",
+          "cleanup_command": "rm",
+          "cleanup_style": "background delayed unlink after decode/compile step",
+          "cleanup_delay_seconds": 1,
+          "recursive_rm_flag": false,
+          "signal_trap_present": false,
+          "static_scope": "Observed launcher strategy only. Successful paths may clean; this is not proof of every failure, signal, descendant, or filesystem path."
+        }
+      },
+      "smallest": {
+        "bytes": 4092,
+        "sha256": "65565271a6dc5a9f2fbf2ae6582a73023433f5a161d475097d2c1cfc71454be4",
+        "review_role": "smallest",
+        "launcher_kind": "shell",
+        "header": {
+          "bytes": 121,
+          "sha256": "171aca4b2ab8bba5cac5254f64be6c47c23ea0980fa83052cbd51d07f0f28195"
+        },
+        "command_tokens": [
+          {
+            "token": "sh",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "mktemp",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "tail",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "xz",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "g++",
+            "scope": "outer_launcher",
+            "explicit_list_status": "unlisted_organizer_decision_unconfirmed"
+          },
+          {
+            "token": "sleep",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "rm",
+            "scope": "outer_launcher",
+            "explicit_list_status": "unlisted_but_used_by_official_cleanup_example"
+          }
+        ],
+        "shell_builtins": [
+          "exec"
+        ],
+        "submission_owned_payload_execution": true,
+        "explicit_list_gaps": [
+          "g++",
+          "rm"
+        ],
+        "launcher_rule_status": "organizer_clarification_required; upstream usage is not authorization",
+        "temporary_file_strategy": {
+          "creation_command": "mktemp",
+          "creation_location": "mktemp default temp selection including inherited TMPDIR; no literal host-specific directory in inspected launcher",
+          "cleanup_command": "rm",
+          "cleanup_style": "background delayed unlink after decode/compile step",
+          "cleanup_delay_seconds": 1,
+          "recursive_rm_flag": false,
+          "signal_trap_present": false,
+          "static_scope": "Observed launcher strategy only. Successful paths may clean; this is not proof of every failure, signal, descendant, or filesystem path."
+        }
+      },
+      "runtime_observation_reference": "resource-plans/c4ke-original.json",
+      "runtime_scope": "See the linked result for actual startup/cleanup observation; static launch review does not turn a blocked or failed run into a pass.",
+      "runtime_latest_observations": {
+        "index": "resource-plans/index.json",
+        "artifact_key": "c4ke",
+        "field": "latest_observations"
+      }
+    },
+    {
+      "artifact_key": "ice4",
+      "category": "4k",
+      "manifest": "../../comparisons/general/ice4.json",
+      "artifact_provenance_url": "https://github.com/MinusKelvin/ice4/releases/download/v6.1/ice4-tcec",
+      "original": {
+        "bytes": 4087,
+        "sha256": "707d994e0515473f53052998ee85d03041f17f8c23b3793d497f64b8e41b252b",
+        "review_role": "original",
+        "launcher_kind": "shell",
+        "header": {
+          "bytes": 97,
+          "sha256": "49b9f274ced3c9880347b4813348816e7aa8718436369728191ea8e1dbb4d27f"
+        },
+        "command_tokens": [
+          {
+            "token": "sh",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "mktemp",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "tail",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "xz",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "c++",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "sleep",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "rm",
+            "scope": "outer_launcher",
+            "explicit_list_status": "unlisted_but_used_by_official_cleanup_example"
+          }
+        ],
+        "shell_builtins": [
+          "exec"
+        ],
+        "submission_owned_payload_execution": true,
+        "explicit_list_gaps": [
+          "rm"
+        ],
+        "launcher_rule_status": "organizer_clarification_required; upstream usage is not authorization",
+        "temporary_file_strategy": {
+          "creation_command": "mktemp",
+          "creation_location": "mktemp default temp selection including inherited TMPDIR; no literal host-specific directory in inspected launcher",
+          "cleanup_command": "rm",
+          "cleanup_style": "background delayed unlink after decode/compile step",
+          "cleanup_delay_seconds": 1,
+          "recursive_rm_flag": false,
+          "signal_trap_present": false,
+          "static_scope": "Observed launcher strategy only. Successful paths may clean; this is not proof of every failure, signal, descendant, or filesystem path."
+        }
+      },
+      "smallest": {
+        "bytes": 4082,
+        "sha256": "375bc59140135faeed14574af38cafcacc0b4608c24b91a06ff67cdcf81feb1a",
+        "review_role": "smallest",
+        "launcher_kind": "shell",
+        "header": {
+          "bytes": 96,
+          "sha256": "63e4dab1a1dc086944edd740ab641cab18fde4232e8f197f8e0a1de7038c4e04"
+        },
+        "command_tokens": [
+          {
+            "token": "sh",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "mktemp",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "tail",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "xz",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "c++",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "sleep",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "rm",
+            "scope": "outer_launcher",
+            "explicit_list_status": "unlisted_but_used_by_official_cleanup_example"
+          }
+        ],
+        "shell_builtins": [
+          "exec"
+        ],
+        "submission_owned_payload_execution": true,
+        "explicit_list_gaps": [
+          "rm"
+        ],
+        "launcher_rule_status": "organizer_clarification_required; upstream usage is not authorization",
+        "temporary_file_strategy": {
+          "creation_command": "mktemp",
+          "creation_location": "mktemp default temp selection including inherited TMPDIR; no literal host-specific directory in inspected launcher",
+          "cleanup_command": "rm",
+          "cleanup_style": "background delayed unlink after decode/compile step",
+          "cleanup_delay_seconds": 1,
+          "recursive_rm_flag": false,
+          "signal_trap_present": false,
+          "static_scope": "Observed launcher strategy only. Successful paths may clean; this is not proof of every failure, signal, descendant, or filesystem path."
+        }
+      },
+      "runtime_observation_reference": "resource-plans/ice4-original.json",
+      "runtime_scope": "See the linked result for actual startup/cleanup observation; static launch review does not turn a blocked or failed run into a pass.",
+      "runtime_latest_observations": {
+        "index": "resource-plans/index.json",
+        "artifact_key": "ice4",
+        "field": "latest_observations"
+      }
+    },
+    {
+      "artifact_key": "molly",
+      "category": "4k",
+      "manifest": "../../comparisons/general/molly.json",
+      "artifact_provenance_url": null,
+      "original": {
+        "bytes": 4096,
+        "sha256": "98c8d9863a7837677a3c2b8f62c3afdbcf6fa44c659555db0e8168f613e47f02",
+        "review_role": "original",
+        "launcher_kind": "shell",
+        "header": {
+          "bytes": 105,
+          "sha256": "7a562d826d55e4414a05fb45dd7f77e6f2c1abc713c7152dea29a46b22095b7d"
+        },
+        "command_tokens": [
+          {
+            "token": "sh",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "mktemp",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "tail",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "xz",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "rustc",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "sleep",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "rm",
+            "scope": "outer_launcher",
+            "explicit_list_status": "unlisted_but_used_by_official_cleanup_example"
+          }
+        ],
+        "shell_builtins": [
+          "exec"
+        ],
+        "submission_owned_payload_execution": true,
+        "explicit_list_gaps": [
+          "rm"
+        ],
+        "launcher_rule_status": "organizer_clarification_required; upstream usage is not authorization",
+        "temporary_file_strategy": {
+          "creation_command": "mktemp",
+          "creation_location": "mktemp default temp selection including inherited TMPDIR; no literal host-specific directory in inspected launcher",
+          "cleanup_command": "rm",
+          "cleanup_style": "background delayed unlink after decode/compile step",
+          "cleanup_delay_seconds": 9,
+          "recursive_rm_flag": true,
+          "signal_trap_present": false,
+          "static_scope": "Observed launcher strategy only. Successful paths may clean; this is not proof of every failure, signal, descendant, or filesystem path."
+        }
+      },
+      "smallest": {
+        "bytes": 4095,
+        "sha256": "511e3816c0706570e01143aca466134d65c464352271e98bffae96919518a22a",
+        "review_role": "smallest",
+        "launcher_kind": "shell",
+        "header": {
+          "bytes": 104,
+          "sha256": "9e45b3d022bdb1eaf916c8efb68bfd4d1a13a4db190749681efe8c420e43a809"
+        },
+        "command_tokens": [
+          {
+            "token": "sh",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "mktemp",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "tail",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "xz",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "rustc",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "sleep",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "rm",
+            "scope": "outer_launcher",
+            "explicit_list_status": "unlisted_but_used_by_official_cleanup_example"
+          }
+        ],
+        "shell_builtins": [
+          "exec"
+        ],
+        "submission_owned_payload_execution": true,
+        "explicit_list_gaps": [
+          "rm"
+        ],
+        "launcher_rule_status": "organizer_clarification_required; upstream usage is not authorization",
+        "temporary_file_strategy": {
+          "creation_command": "mktemp",
+          "creation_location": "mktemp default temp selection including inherited TMPDIR; no literal host-specific directory in inspected launcher",
+          "cleanup_command": "rm",
+          "cleanup_style": "background delayed unlink after decode/compile step",
+          "cleanup_delay_seconds": 9,
+          "recursive_rm_flag": true,
+          "signal_trap_present": false,
+          "static_scope": "Observed launcher strategy only. Successful paths may clean; this is not proof of every failure, signal, descendant, or filesystem path."
+        }
+      },
+      "runtime_observation_reference": "resource-plans/molly-original.json",
+      "runtime_scope": "See the linked result for actual startup/cleanup observation; static launch review does not turn a blocked or failed run into a pass.",
+      "runtime_latest_observations": {
+        "index": "resource-plans/index.json",
+        "artifact_key": "molly",
+        "field": "latest_observations"
+      }
+    },
+    {
+      "artifact_key": "moonfish",
+      "category": "4k",
+      "manifest": "../../comparisons/general/moonfish.json",
+      "artifact_provenance_url": "https://moonfish.neocities.org/moonfish.sh",
+      "original": {
+        "bytes": 3941,
+        "sha256": "665eb7be5fd47b531f0849f4ae8f92be6e068fff40f55cf7e5f9e2b4cdad8c42",
+        "review_role": "original",
+        "launcher_kind": "shell",
+        "header": {
+          "bytes": 126,
+          "sha256": "3078f7a2db5123a6002b424f8dcd19c0ee9991e1da2585f12376d5da9161df55"
+        },
+        "command_tokens": [
+          {
+            "token": "sh",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "mktemp",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "tail",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "unxz",
+            "scope": "outer_launcher",
+            "explicit_list_status": "unlisted_organizer_decision_unconfirmed"
+          },
+          {
+            "token": "cc",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "sleep",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "rm",
+            "scope": "outer_launcher",
+            "explicit_list_status": "unlisted_but_used_by_official_cleanup_example"
+          }
+        ],
+        "shell_builtins": [
+          "exec"
+        ],
+        "submission_owned_payload_execution": true,
+        "explicit_list_gaps": [
+          "unxz",
+          "rm"
+        ],
+        "launcher_rule_status": "organizer_clarification_required; upstream usage is not authorization",
+        "temporary_file_strategy": {
+          "creation_command": "mktemp",
+          "creation_location": "mktemp default temp selection including inherited TMPDIR; no literal host-specific directory in inspected launcher",
+          "cleanup_command": "rm",
+          "cleanup_style": "background delayed unlink after decode/compile step",
+          "cleanup_delay_seconds": 3,
+          "recursive_rm_flag": false,
+          "signal_trap_present": false,
+          "static_scope": "Observed launcher strategy only. Successful paths may clean; this is not proof of every failure, signal, descendant, or filesystem path."
+        }
+      },
+      "smallest": {
+        "bytes": 3889,
+        "sha256": "2eb530ec1c4c62a3d1b95b4129314c14b3aa5df433ec3eaf813903922beb4805",
+        "review_role": "smallest",
+        "launcher_kind": "shell",
+        "header": {
+          "bytes": 121,
+          "sha256": "5ed1c5d38297f54e5dce068011d8724c32635e146ad19e33bc872ffbccd46a2c"
+        },
+        "command_tokens": [
+          {
+            "token": "sh",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "mktemp",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "tail",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "xz",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "cc",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "sleep",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "rm",
+            "scope": "outer_launcher",
+            "explicit_list_status": "unlisted_but_used_by_official_cleanup_example"
+          }
+        ],
+        "shell_builtins": [
+          "exec"
+        ],
+        "submission_owned_payload_execution": true,
+        "explicit_list_gaps": [
+          "rm"
+        ],
+        "launcher_rule_status": "organizer_clarification_required; upstream usage is not authorization",
+        "temporary_file_strategy": {
+          "creation_command": "mktemp",
+          "creation_location": "mktemp default temp selection including inherited TMPDIR; no literal host-specific directory in inspected launcher",
+          "cleanup_command": "rm",
+          "cleanup_style": "background delayed unlink after decode/compile step",
+          "cleanup_delay_seconds": 3,
+          "recursive_rm_flag": false,
+          "signal_trap_present": false,
+          "static_scope": "Observed launcher strategy only. Successful paths may clean; this is not proof of every failure, signal, descendant, or filesystem path."
+        }
+      },
+      "runtime_observation_reference": "resource-plans/moonfish-original.json",
+      "runtime_scope": "See the linked result for actual startup/cleanup observation; static launch review does not turn a blocked or failed run into a pass.",
+      "runtime_latest_observations": {
+        "index": "resource-plans/index.json",
+        "artifact_key": "moonfish",
+        "field": "latest_observations"
+      }
+    },
+    {
+      "artifact_key": "pygone",
+      "category": "4k",
+      "manifest": "../../comparisons/general/pygone.json",
+      "artifact_provenance_url": "https://raw.githubusercontent.com/scs-ben/pygone/cbaebeeaaa5aab9c9ff2eaa153a65ec960a071b5/historical/pygone2-11b142",
+      "original": {
+        "bytes": 4093,
+        "sha256": "f44c111d821c5bffb9117154dcffbfb0e83ab41b35e174b084a9bb5000ee1768",
+        "review_role": "original",
+        "launcher_kind": "shell",
+        "header": {
+          "bytes": 85,
+          "sha256": "f14d4189ba8a5c151accab78fda49005fe49384fc7583b7682ef1fda5ddecb1e"
+        },
+        "command_tokens": [
+          {
+            "token": "sh",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "mktemp",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "tail",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "xz",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "chmod",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "sleep",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "rm",
+            "scope": "outer_launcher",
+            "explicit_list_status": "unlisted_but_used_by_official_cleanup_example"
+          },
+          {
+            "token": "env",
+            "scope": "decoded_script_shebang",
+            "explicit_list_status": "unlisted_organizer_decision_unconfirmed"
+          },
+          {
+            "token": "pypy3",
+            "scope": "decoded_script_shebang",
+            "explicit_list_status": "listed"
+          }
+        ],
+        "shell_builtins": [
+          "exec"
+        ],
+        "submission_owned_payload_execution": true,
+        "explicit_list_gaps": [
+          "rm",
+          "env"
+        ],
+        "launcher_rule_status": "organizer_clarification_required; upstream usage is not authorization",
+        "temporary_file_strategy": {
+          "creation_command": "mktemp",
+          "creation_location": "mktemp default temp selection including inherited TMPDIR; no literal host-specific directory in inspected launcher",
+          "cleanup_command": "rm",
+          "cleanup_style": "background delayed unlink after decode/compile step",
+          "cleanup_delay_seconds": 3,
+          "recursive_rm_flag": false,
+          "signal_trap_present": false,
+          "static_scope": "Observed launcher strategy only. Successful paths may clean; this is not proof of every failure, signal, descendant, or filesystem path."
+        },
+        "decoded_script_shebang": {
+          "bytes": 21,
+          "sha256": "f0c32c94cd4159c6c2c359d61dadc354763556397c4fab648eebe9987ea136e7",
+          "interpreter_token": "env",
+          "requested_program_token": "pypy3",
+          "payload_bytes": 11032,
+          "payload_sha256": "3785c3ea8373a6bc3ae297b35671771e4f0bfd0e252c6a2acead03e48ee886d2"
+        }
+      },
+      "smallest": {
+        "bytes": 4020,
+        "sha256": "290e27a9d9f72770d34a94a19f22749bc2f109469ca19880853f9d1c23e258d6",
+        "review_role": "smallest",
+        "launcher_kind": "shell",
+        "header": {
+          "bytes": 85,
+          "sha256": "f14d4189ba8a5c151accab78fda49005fe49384fc7583b7682ef1fda5ddecb1e"
+        },
+        "command_tokens": [
+          {
+            "token": "sh",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "mktemp",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "tail",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "xz",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "chmod",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "sleep",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "rm",
+            "scope": "outer_launcher",
+            "explicit_list_status": "unlisted_but_used_by_official_cleanup_example"
+          },
+          {
+            "token": "env",
+            "scope": "decoded_script_shebang",
+            "explicit_list_status": "unlisted_organizer_decision_unconfirmed"
+          },
+          {
+            "token": "pypy3",
+            "scope": "decoded_script_shebang",
+            "explicit_list_status": "listed"
+          }
+        ],
+        "shell_builtins": [
+          "exec"
+        ],
+        "submission_owned_payload_execution": true,
+        "explicit_list_gaps": [
+          "rm",
+          "env"
+        ],
+        "launcher_rule_status": "organizer_clarification_required; upstream usage is not authorization",
+        "temporary_file_strategy": {
+          "creation_command": "mktemp",
+          "creation_location": "mktemp default temp selection including inherited TMPDIR; no literal host-specific directory in inspected launcher",
+          "cleanup_command": "rm",
+          "cleanup_style": "background delayed unlink after decode/compile step",
+          "cleanup_delay_seconds": 3,
+          "recursive_rm_flag": false,
+          "signal_trap_present": false,
+          "static_scope": "Observed launcher strategy only. Successful paths may clean; this is not proof of every failure, signal, descendant, or filesystem path."
+        },
+        "decoded_script_shebang": {
+          "bytes": 21,
+          "sha256": "f0c32c94cd4159c6c2c359d61dadc354763556397c4fab648eebe9987ea136e7",
+          "interpreter_token": "env",
+          "requested_program_token": "pypy3",
+          "payload_bytes": 11032,
+          "payload_sha256": "3785c3ea8373a6bc3ae297b35671771e4f0bfd0e252c6a2acead03e48ee886d2"
+        }
+      },
+      "runtime_observation_reference": "resource-plans/pygone-original.json",
+      "runtime_scope": "See the linked result for actual startup/cleanup observation; static launch review does not turn a blocked or failed run into a pass.",
+      "runtime_latest_observations": {
+        "index": "resource-plans/index.json",
+        "artifact_key": "pygone",
+        "field": "latest_observations"
+      }
+    },
+    {
+      "artifact_key": "sunfish",
+      "category": "4k",
+      "manifest": "../../comparisons/general/sunfish.json",
+      "artifact_provenance_url": "https://raw.githubusercontent.com/thomasahle/sunfish/ccecec26626b858a60d48cf715ebbdd603ee6f85/sunfish_uci_packed.sh",
+      "original": {
+        "bytes": 2844,
+        "sha256": "3066c961174281678f2e15edd118fa45231b4d6e1dcc1f77ea11a62309318261",
+        "review_role": "original",
+        "launcher_kind": "shell",
+        "header": {
+          "bytes": 72,
+          "sha256": "f0d83f9305eb675aa0f6f5ab23e982191ffd4b0c67a1bc8e7f73478a359cd1c1"
+        },
+        "command_tokens": [
+          {
+            "token": "sh",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "mktemp",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "tail",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "xz",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "python3",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "rm",
+            "scope": "outer_launcher",
+            "explicit_list_status": "unlisted_but_used_by_official_cleanup_example"
+          }
+        ],
+        "shell_builtins": [
+          "exit"
+        ],
+        "submission_owned_payload_execution": true,
+        "explicit_list_gaps": [
+          "rm"
+        ],
+        "launcher_rule_status": "organizer_clarification_required; upstream usage is not authorization",
+        "temporary_file_strategy": {
+          "creation_command": "mktemp",
+          "creation_location": "mktemp default temp selection including inherited TMPDIR; no literal host-specific directory in inspected launcher",
+          "cleanup_command": "rm",
+          "cleanup_style": "after interpreter returns",
+          "cleanup_delay_seconds": null,
+          "recursive_rm_flag": false,
+          "signal_trap_present": false,
+          "static_scope": "Observed launcher strategy only. Successful paths may clean; this is not proof of every failure, signal, descendant, or filesystem path."
+        }
+      },
+      "smallest": {
+        "bytes": 2776,
+        "sha256": "2d148a3523bef4d4bdc95341cdb81405e2b96d42a5135881172ab199357d8b9a",
+        "review_role": "smallest",
+        "launcher_kind": "shell",
+        "header": {
+          "bytes": 70,
+          "sha256": "3c2c1dfb099316e23813cbc75e7a355319525935859fbc18b86fe30cf8e233b6"
+        },
+        "command_tokens": [
+          {
+            "token": "sh",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "mktemp",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "tail",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "xz",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "python3",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "rm",
+            "scope": "outer_launcher",
+            "explicit_list_status": "unlisted_but_used_by_official_cleanup_example"
+          }
+        ],
+        "shell_builtins": [
+          "exit"
+        ],
+        "submission_owned_payload_execution": true,
+        "explicit_list_gaps": [
+          "rm"
+        ],
+        "launcher_rule_status": "organizer_clarification_required; upstream usage is not authorization",
+        "temporary_file_strategy": {
+          "creation_command": "mktemp",
+          "creation_location": "mktemp default temp selection including inherited TMPDIR; no literal host-specific directory in inspected launcher",
+          "cleanup_command": "rm",
+          "cleanup_style": "after interpreter returns",
+          "cleanup_delay_seconds": null,
+          "recursive_rm_flag": false,
+          "signal_trap_present": false,
+          "static_scope": "Observed launcher strategy only. Successful paths may clean; this is not proof of every failure, signal, descendant, or filesystem path."
+        }
+      },
+      "runtime_observation_reference": "general-comparison.json (ordinary original/winner/replay UCI, maintained separately)",
+      "runtime_scope": "See the linked result for actual startup/cleanup observation; static launch review does not turn a blocked or failed run into a pass."
+    },
+    {
+      "artifact_key": "we4k",
+      "category": "4k",
+      "manifest": "../../comparisons/general/we4k.json",
+      "artifact_provenance_url": null,
+      "original": {
+        "bytes": 4079,
+        "sha256": "8540b397425582d86d73d54d1ba7a44927c6207812123065749bf14cacf8354e",
+        "review_role": "original",
+        "launcher_kind": "shell",
+        "header": {
+          "bytes": 83,
+          "sha256": "4bac421a36689d0255856032bb8989bff1b70a472e8d8b71eef55c166ea92555"
+        },
+        "command_tokens": [
+          {
+            "token": "sh",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "mktemp",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "tail",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "xz",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "chmod",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "sleep",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "rm",
+            "scope": "outer_launcher",
+            "explicit_list_status": "unlisted_but_used_by_official_cleanup_example"
+          }
+        ],
+        "shell_builtins": [
+          "exec"
+        ],
+        "submission_owned_payload_execution": true,
+        "explicit_list_gaps": [
+          "rm"
+        ],
+        "launcher_rule_status": "organizer_clarification_required; upstream usage is not authorization",
+        "temporary_file_strategy": {
+          "creation_command": "mktemp",
+          "creation_location": "mktemp default temp selection including inherited TMPDIR; no literal host-specific directory in inspected launcher",
+          "cleanup_command": "rm",
+          "cleanup_style": "background delayed unlink after decode/compile step",
+          "cleanup_delay_seconds": 3,
+          "recursive_rm_flag": false,
+          "signal_trap_present": false,
+          "static_scope": "Observed launcher strategy only. Successful paths may clean; this is not proof of every failure, signal, descendant, or filesystem path."
+        }
+      },
+      "smallest": {
+        "bytes": 4011,
+        "sha256": "cb741bb7970981232f140bcecbbffe2ae8c77632740f3df2c2417add9da37ae7",
+        "review_role": "smallest",
+        "launcher_kind": "shell",
+        "header": {
+          "bytes": 100,
+          "sha256": "12d56076d3c982c70c44a94114ed9b37261144bd3c7f87322aa204c243e41abd"
+        },
+        "command_tokens": [
+          {
+            "token": "sh",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "mktemp",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "tail",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "xz",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "chmod",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "sleep",
+            "scope": "outer_launcher",
+            "explicit_list_status": "listed"
+          },
+          {
+            "token": "rm",
+            "scope": "outer_launcher",
+            "explicit_list_status": "unlisted_but_used_by_official_cleanup_example"
+          }
+        ],
+        "shell_builtins": [
+          "exec"
+        ],
+        "submission_owned_payload_execution": true,
+        "explicit_list_gaps": [
+          "rm"
+        ],
+        "launcher_rule_status": "organizer_clarification_required; upstream usage is not authorization",
+        "temporary_file_strategy": {
+          "creation_command": "mktemp",
+          "creation_location": "mktemp default temp selection including inherited TMPDIR; no literal host-specific directory in inspected launcher",
+          "cleanup_command": "rm",
+          "cleanup_style": "background delayed unlink after decode/compile step",
+          "cleanup_delay_seconds": 3,
+          "recursive_rm_flag": false,
+          "signal_trap_present": false,
+          "static_scope": "Observed launcher strategy only. Successful paths may clean; this is not proof of every failure, signal, descendant, or filesystem path."
+        }
+      },
+      "runtime_observation_reference": "general-comparison.json (ordinary original/winner/replay UCI, maintained separately)",
+      "runtime_scope": "See the linked result for actual startup/cleanup observation; static launch review does not turn a blocked or failed run into a pass."
+    }
+  ],
+  "source_and_artifact_vendoring": false,
+  "header_source_stored": false,
+  "gaps_summary": {
+    "all_ten_shell_originals_and_smallest_use_rm": true,
+    "additional_original_unlisted_tokens": {
+      "4ku": [
+        "g++"
+      ],
+      "c4ke": [
+        "g++"
+      ],
+      "moonfish": [
+        "unxz"
+      ],
+      "pygone": [
+        "env"
+      ]
+    },
+    "additional_smallest_unlisted_tokens": {
+      "4ku": [
+        "g++"
+      ],
+      "c4ke": [
+        "g++"
+      ],
+      "pygone": [
+        "env"
+      ]
+    },
+    "organizer_approval_obtained": false
+  }
+}

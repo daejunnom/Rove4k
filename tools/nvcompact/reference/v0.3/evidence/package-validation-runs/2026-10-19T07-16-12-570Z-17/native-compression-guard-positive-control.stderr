@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/tmp/nvcompact package 한글 YeOkV3/consumer with spaces/native boundary audit/sitecustomize.py", line 10, in _forbidden_compression
+    raise RuntimeError("NVCOMPACT_NATIVE_COMPRESSION_FORBIDDEN")
+RuntimeError: NVCOMPACT_NATIVE_COMPRESSION_FORBIDDEN

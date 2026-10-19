@@ -1,0 +1,10 @@
+test_candidate_limit_does_not_materialize_the_full_cross_product (test_runner.RunnerTests.test_candidate_limit_does_not_materialize_the_full_cross_product) ... ok
+test_complete_file_selection_reproduction_and_input_integrity (test_runner.RunnerTests.test_complete_file_selection_reproduction_and_input_integrity) ... ok
+test_distinct_component_variant_pairs_do_not_alias_cache_entries (test_runner.RunnerTests.test_distinct_component_variant_pairs_do_not_alias_cache_entries) ... ok
+test_notation_overlay_locks_only_complete_identical_objects (test_runner.RunnerTests.test_notation_overlay_locks_only_complete_identical_objects) ... ok
+test_timeout_and_excess_output_are_failures (test_runner.RunnerTests.test_timeout_and_excess_output_are_failures) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 4.612s
+
+OK

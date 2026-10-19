@@ -1,0 +1,70 @@
+TAP version 13
+# Subtest: help and version work without Python; every command exposes help
+ok 1 - help and version work without Python; every command exposes help
+  ---
+  duration_ms: 1820.458204
+  type: 'test'
+  ...
+# Subtest: doctor exercises installed codec APIs through an executable path containing spaces
+ok 2 - doctor exercises installed codec APIs through an executable path containing spaces
+  ---
+  duration_ms: 208.989137
+  type: 'test'
+  ...
+# Subtest: argv, cwd, stdin/stdout/stderr and a real nonzero child status survive the Node launch boundary
+ok 3 - argv, cwd, stdin/stdout/stderr and a real nonzero child status survive the Node launch boundary
+  ---
+  duration_ms: 140.684471
+  type: 'test'
+  ...
+# Subtest: Python override errors are explicit and never trigger fallback or shell parsing
+ok 4 - Python override errors are explicit and never trigger fallback or shell parsing
+  ---
+  duration_ms: 154.699685
+  type: 'test'
+  ...
+# Subtest: a real core error is preserved and does not create a success artifact
+ok 5 - a real core error is preserved and does not create a success artifact
+  ---
+  duration_ms: 208.107878
+  type: 'test'
+  ...
+# Subtest: engines rejects missing, nonexistent, empty and unknown selections before creating output
+ok 6 - engines rejects missing, nonexistent, empty and unknown selections before creating output
+  ---
+  duration_ms: 718.338684
+  type: 'test'
+  ...
+# Subtest: real UCI cancellation SIGTERM stops engine and grandchild
+ok 7 - real UCI cancellation SIGTERM stops engine and grandchild
+  ---
+  duration_ms: 565.41498
+  type: 'test'
+  ...
+# Subtest: real UCI cancellation SIGINT stops engine and grandchild
+ok 8 - real UCI cancellation SIGINT stops engine and grandchild
+  ---
+  duration_ms: 594.835533
+  type: 'test'
+  ...
+# Subtest: real UCI cancellation SIGTERM through a nested core helper stops engine and grandchild
+ok 9 - real UCI cancellation SIGTERM through a nested core helper stops engine and grandchild
+  ---
+  duration_ms: 748.415755
+  type: 'test'
+  ...
+# Subtest: cancelling an active native portfolio stops worker groups and cancels queued work
+ok 10 - cancelling an active native portfolio stops worker groups and cancels queued work
+  ---
+  duration_ms: 946.255692
+  type: 'test'
+  ...
+1..10
+# tests 10
+# suites 0
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 9019.684799

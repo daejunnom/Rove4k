@@ -1,0 +1,7 @@
+Checking the explicit baseline with the final checker...
+c00000 completed: 2 screened complete files
+c00001 completed: 2 screened complete files
+c00003 completed: 2 screened complete files
+c00002 completed: 2 screened complete files
+Rebuilding and checking the selected recipe in a fresh directory...
+Accepted 520 bytes: c00001 / no-section-headers__raw

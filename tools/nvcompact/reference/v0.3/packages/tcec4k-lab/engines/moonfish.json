@@ -1,0 +1,53 @@
+{
+  "name": "moonfish",
+  "artifact": "../inputs/moonfish",
+  "sha256": "665eb7be5fd47b531f0849f4ae8f92be6e068fff40f55cf7e5f9e2b4cdad8c42",
+  "category": "4k",
+  "provenance": {
+    "version_relationship": "Correct author zamfofex site is linked by official TCEC Engines and authors. Download contains all minified C source, but no version identifier; cannot prove correspondence to 4aa32a0c. The former git.sr.ht source repository now returns 404.",
+    "source_archive": "../vendor/moonfish/source.tar.gz",
+    "license_path": "../vendor/moonfish/LICENSE.0BSD.txt",
+    "path_base": "manifest-directory",
+    "source_manifest": "../vendor/source-manifest.json",
+    "source_archive_sha256": "9bce4b0085f3567272359d355fbdef5c06d1ba2cc689b47ff06a7a8f725c0f6f",
+    "license_paths": [
+      "../vendor/moonfish/LICENSE.0BSD.txt",
+      "../vendor/moonfish/LICENSE-SOURCE.html"
+    ],
+    "source_commit": null,
+    "source_url": "https://moonfish.neocities.org/",
+    "artifact_url": "https://moonfish.neocities.org/moonfish.sh",
+    "representative_version": "unversioned current public script",
+    "source_correspondence_status": "source-inclusive-unversioned-author-download",
+    "editable_source_correspondence": "all C source is decoded from the exact author download; only minified source remains available",
+    "source_correspondence_proofs": [],
+    "unresolved_source_correspondence_gap": "unversioned minified author source only"
+  },
+  "envelope": {
+    "decoder": "unxz -Fraw",
+    "payload_codec": {
+      "format": "raw"
+    },
+    "header_bytes": 126,
+    "header_sha256": "3078f7a2db5123a6002b424f8dcd19c0ee9991e1da2585f12376d5da9161df55"
+  },
+  "payload_sha256": "35ebc2c360277d1a22e674db52e612f52eac14a85b6dc6b94484824fafb4436c",
+  "language": "c",
+  "notation": {
+    "target": "c11-lp64",
+    "token_contract": "no-token-observation",
+    "compact": true
+  },
+  "compile_argv": [
+    "cc",
+    "-O3",
+    "-march=native",
+    "-o",
+    "{output}",
+    "-xc",
+    "-",
+    "-lm",
+    "-pthread",
+    "-latomic"
+  ]
+}

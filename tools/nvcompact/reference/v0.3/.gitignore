@@ -1,0 +1,10 @@
+node_modules/
+.deps/
+__pycache__/
+*.py[cod]
+coverage/
+runs/
+dist/
+*.tgz
+*.log
+!evidence/**/*.log

@@ -1,0 +1,29 @@
+usage: nvcompact.py build [-h] [--jobs JOBS] [--max-candidates MAX_CANDIDATES]
+                          [--profile PROFILE] [--link-profile LINK_PROFILE]
+                          [--verify] [--max-bytes MAX_BYTES] --out OUT
+                          [--tool NAME=EXECUTABLE] [--max-seconds MAX_SECONDS]
+                          [--command-seconds COMMAND_SECONDS]
+                          [--max-log-bytes MAX_LOG_BYTES]
+                          manifest
+
+positional arguments:
+  manifest
+
+options:
+  -h, --help            show this help message and exit
+  --jobs JOBS
+  --max-candidates MAX_CANDIDATES
+  --profile PROFILE
+  --link-profile LINK_PROFILE
+  --verify              explicitly run the declared baseline and artifact
+                        checkers
+  --max-bytes MAX_BYTES
+                        optional raw linked-file size limit;
+                        manifest.max_bytes is for run
+  --out OUT
+  --tool NAME=EXECUTABLE
+  --max-seconds MAX_SECONDS
+                        wall-time budget for search and, separately, fresh
+                        reproduction
+  --command-seconds COMMAND_SECONDS
+  --max-log-bytes MAX_LOG_BYTES

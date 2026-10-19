@@ -1,0 +1,40 @@
+{
+  "format": "nvcompact.resource-analysis.v1",
+  "checked_at": "2026-10-19",
+  "scope": "Source-derived workload facts and explicitly declared finite-probe budgets; no exact peak-RSS guarantee",
+  "pygone": {
+    "source_url": "https://github.com/scs-ben/pygone/blob/11bf1426bc491753b66e945692c5ee4a8d510e45/search.py",
+    "payload_sha256": "3785c3ea8373a6bc3ae297b35671771e4f0bfd0e252c6a2acead03e48ee886d2",
+    "pointer_slots": 134217728,
+    "pointer_bytes_on_test_target": 8,
+    "base_table_bytes": 1073741824,
+    "working_overhead_allowance_bytes": 536870912,
+    "separate_reserve_bytes": 536870912,
+    "clock_policy": "remaining whole seconds floor-divided by50, plus3 seconds; a2-second probe would conflict with its original time manager"
+  },
+  "moonfish": {
+    "artifact_url": "https://moonfish.neocities.org/moonfish.sh",
+    "artifact_sha256": "665eb7be5fd47b531f0849f4ae8f92be6e068fff40f55cf7e5f9e2b4cdad8c42",
+    "payload_sha256": "35ebc2c360277d1a22e674db52e612f52eac14a85b6dc6b94484824fafb4436c",
+    "workers": "sysconf(_SC_NPROCESSORS_ONLN), at least1",
+    "batch_expansions_per_worker": 1024,
+    "tree_storage": "shared dynamic realloc children with subtree pruning; no fixed total-memory limit in source",
+    "node_layout_lp64_bytes": 32,
+    "working_set_budget_bytes": 1073741824,
+    "separate_reserve_bytes": 536870912,
+    "template_preconditions": {
+      "max_online_cpu_count": 32,
+      "max_inherited_stack_bytes": 8388608
+    },
+    "budget_basis": "Short-clock engineering allowance for compiler, dynamic tree, runtime, and up to32 unchanged workers; preconditions prevent applying this envelope to many more workers automatically."
+  },
+  "4k.c-v8.0": {
+    "source_url": "https://github.com/GediminasMasaitis/4k-dot-c/blob/7807995933db2c03cefd1e76569d88ef9e912e8c/4k.c",
+    "hard_budget_nanoseconds_per_clock_millisecond": 524288,
+    "soft_budget_divisor": 16,
+    "official_clock_ms": 1800000,
+    "source_hard_budget_seconds": 943.7184,
+    "source_soft_budget_seconds": 58.9824,
+    "old75second_probe": "Verifier observation budget ended; not evidence of an engine time loss. Original raw report preserved separately."
+  }
+}

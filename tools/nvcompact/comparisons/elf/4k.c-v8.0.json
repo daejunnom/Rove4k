@@ -1,0 +1,30 @@
+{
+  "format": "nvcompact.external-engine.v1",
+  "name": "4k.c-v8.0",
+  "artifact": "4k.c-v8.0",
+  "artifact_key": "4k.c-v8.0",
+  "category": "4k-elf",
+  "original_bytes": 4042,
+  "sha256": "6eb03195b277f42ece9488c42c1e459791ffcbf0dc197bdfa700dd9574715ace",
+  "checked_at": "2026-10-19",
+  "allow_section_header_removal": false,
+  "provenance": {
+    "source_url": "https://github.com/GediminasMasaitis/4k-dot-c",
+    "source_commit": "7807995933db2c03cefd1e76569d88ef9e912e8c",
+    "artifact_url": "https://github.com/GediminasMasaitis/4k-dot-c/releases/download/v8.0/4kc-mini",
+    "release_api_url": "https://api.github.com/repos/GediminasMasaitis/4k-dot-c/releases/tags/v8.0",
+    "release_id": 297041913,
+    "asset_id": 373866687,
+    "representative_version": "8.0",
+    "artifact_provenance": "upstream-release",
+    "source_pipeline_rebuilt": false,
+    "public_input_not_confirmed_exact_private_tcec_upload": true,
+    "not_a_substitute_for_version": "9.15.1",
+    "comparison_role": "Additional historical official public ELF representative, not an exact latest tournament upload"
+  },
+  "runtime_profile": {
+    "load_memory_bytes": 268435456,
+    "kind": "256 MiB virtual LOAD; source pipeline not independently rebuilt; finite runtime evidence is separate"
+  },
+  "historical_python_v02": null
+}

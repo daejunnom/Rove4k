@@ -1,0 +1,331 @@
+{
+  "format": "nvcompact.general-time-management.v1",
+  "date_utc": "2026-10-19",
+  "scope": "Inspection of pinned public representative sources and same-clock single-case observations; not a complete match, exact private-upload confirmation or organizer certification. Formulae explain selected observer budgets, not guaranteed per-move timing on every position. External engine source and binary files remain outside the repository.",
+  "common_clock": {
+    "wtime_ms": 1800000,
+    "btime_ms": 1800000,
+    "winc_ms": 3000,
+    "binc_ms": 3000,
+    "case_ids": [
+      "startpos_white"
+    ],
+    "preserve_engine_options": true
+  },
+  "records": [
+    {
+      "engine": "4ku",
+      "source": {
+        "path_in_upstream": "src/main.cpp",
+        "commit": "203ddd4bf9b331851c796d8b5d57eac08f6e6c18",
+        "url": "https://github.com/kz04px/4ku/blob/203ddd4bf9b331851c796d8b5d57eac08f6e6c18/src/main.cpp",
+        "bytes": 48522,
+        "sha256": "4ebfad8c699cf30196cb595f24fa78ef96cadb23d90607b2ebe04cc860869bf7"
+      },
+      "relevant_source_lines": [
+        [
+          824,
+          835
+        ],
+        [
+          938,
+          949
+        ],
+        [
+          976,
+          978
+        ],
+        [
+          1014,
+          1019
+        ],
+        [
+          1234,
+          1251
+        ],
+        [
+          1283,
+          1290
+        ]
+      ],
+      "decoded_original_payload_sha256": "a5d32dc962ebf717faccbff2a2b3644b61c2f4e7d7304cf6a3cd9810936950e7",
+      "payload_time_manager_correspondence": "The original minified payload retains the side-to-move clock divided by three and the same research-dependent soft-limit expression.",
+      "time_manager": {
+        "allocated_milliseconds_formula": "floor(time_left_ms / 3)",
+        "allocated_seconds_at_this_clock": 600,
+        "soft_threshold_seconds_for_research_count": {
+          "1": 60,
+          "2": 180,
+          "3": 300
+        },
+        "soft_check_scope": "Checked after a completed depth when research count is below four. Higher research counts bypass that soft check.",
+        "hard_check_scope": "The root checks elapsed allocated time after a search call; recursive checks occur above depth four. This is not a strict bound on every individual instruction or node.",
+        "increment_used_by_mini_time_manager": false
+      },
+      "observation": {
+        "evidence": "general-comparison.json",
+        "raw_evidence_id": "4ku-smallest-official-clock",
+        "raw_report_sha256": "0bcd56263b40afb551ee5bf7830c6634ea990b98bbc0bef1f748d57ca434ce56",
+        "verdict": "incomplete",
+        "configuration": {
+          "case_ids": [
+            "startpos_white"
+          ],
+          "cleanup_seconds": 5.0,
+          "clock_grace_ms": 1000,
+          "clock_ms": 1800000,
+          "cpu_seconds": 200,
+          "depth": 3,
+          "extensions": false,
+          "file_bytes": 67108864,
+          "hash_mb": 16,
+          "increment_ms": 3000,
+          "invocation_argv0": null,
+          "max_line_bytes": 65536,
+          "max_output_bytes": 2097152,
+          "max_seconds": 200.0,
+          "max_transcript_bytes": 262144,
+          "memory_bytes": 1073741824,
+          "movetime_ms": 100,
+          "nodes": 1000,
+          "preserve_engine_options": true,
+          "profile": "tcec4k",
+          "quick": false,
+          "quit_seconds": 2.0,
+          "ready_seconds": 5.0,
+          "search_seconds": 120.0,
+          "startup_seconds": 60.0,
+          "stop_seconds": 2.0,
+          "threads": 1
+        },
+        "artifact_sha256": "f2aced2d9f84e6166d07f880a1864092b7b043b6d817beb7cec9e4b38f173270",
+        "elapsed_ms": 123304.286416,
+        "case": {
+          "elapsed_ms": 120003.091958,
+          "error": "verifier search observation budget (120s) ended before any applicable engine clock deadline (Some(1801.0)); no engine time-forfeit conclusion",
+          "id": "startpos_white",
+          "kind": "probe_budget",
+          "requirement": "tcec4k",
+          "status": "incomplete"
+        },
+        "cleanup_forced": true
+      },
+      "interpretation": "The unchanged 120-second verifier search observation ended before either the 600-second engine allocation or the 1801-second remaining-clock deadline with grace. Preserve this as incomplete; it establishes neither a protocol failure nor an engine time forfeit. No longer retry was run in this observation series."
+    },
+    {
+      "engine": "sunfish",
+      "source": {
+        "path_in_upstream": "sunfish_uci.py",
+        "commit": "ccecec26626b858a60d48cf715ebbdd603ee6f85",
+        "url": "https://github.com/thomasahle/sunfish/blob/ccecec26626b858a60d48cf715ebbdd603ee6f85/sunfish_uci.py",
+        "bytes": 17355,
+        "sha256": "520a00c631219c511f1be33a9681215a893678352cc006109749119cc4046fb5"
+      },
+      "relevant_source_lines": [
+        [
+          338,
+          362
+        ],
+        [
+          404,
+          416
+        ]
+      ],
+      "decoded_original_payload_sha256": "f1a676e55763635a4ba517e7439249e2f1b15da818e83369b50f6b705178f78f",
+      "payload_time_manager_correspondence": "The original minified payload retains the same division by 1000 and 40, increment term and 0.8 multiplier.",
+      "time_manager": {
+        "think_seconds_formula": "wtime_ms / 1000 / 40 + winc_ms / 1000",
+        "think_seconds_at_this_clock": 48,
+        "soft_threshold_seconds_formula": "think_seconds * 0.8",
+        "soft_threshold_seconds_at_this_clock": 38.4,
+        "time_check_scope": "The outer UCI loop checks elapsed time after the search generator yields a bound result. A single bound call can overrun the threshold."
+      },
+      "observation": {
+        "evidence": "general-comparison.json",
+        "raw_evidence_id": "sunfish-smallest-official-clock",
+        "raw_report_sha256": "7db5d018fee0c1641bbe6fc4cdb31a76419beff1cb43b3083f6dc756cae98ad8",
+        "verdict": "fail",
+        "configuration": {
+          "case_ids": [
+            "startpos_white"
+          ],
+          "cleanup_seconds": 5.0,
+          "clock_grace_ms": 1000,
+          "clock_ms": 1800000,
+          "cpu_seconds": 200,
+          "depth": 3,
+          "extensions": false,
+          "file_bytes": 67108864,
+          "hash_mb": 16,
+          "increment_ms": 3000,
+          "invocation_argv0": null,
+          "max_line_bytes": 65536,
+          "max_output_bytes": 2097152,
+          "max_seconds": 200.0,
+          "max_transcript_bytes": 262144,
+          "memory_bytes": 1073741824,
+          "movetime_ms": 100,
+          "nodes": 1000,
+          "preserve_engine_options": true,
+          "profile": "tcec4k",
+          "quick": false,
+          "quit_seconds": 2.0,
+          "ready_seconds": 5.0,
+          "search_seconds": 120.0,
+          "startup_seconds": 60.0,
+          "stop_seconds": 2.0,
+          "threads": 1
+        },
+        "artifact_sha256": "2d148a3523bef4d4bdc95341cdb81405e2b96d42a5135881172ab199357d8b9a",
+        "elapsed_ms": 21721.012678000003,
+        "case": {
+          "elapsed_ms": 21489.955518,
+          "error": "engine leader exited awaiting response: exit status: 0",
+          "id": "startpos_white",
+          "kind": "exit",
+          "requirement": "tcec4k",
+          "status": "fail"
+        },
+        "cleanup_forced": false
+      },
+      "failure_diagnostic": {
+        "stderr_contains": "MemoryError",
+        "observed_operation": "insertion into the move transposition table",
+        "observer_address_space_bytes": 1073741824,
+        "error_tail_sha256": "6f0361d1ffc5d22aa3402a2117627519a9f7f0e6a9e67334bf3c317f527552d6"
+      },
+      "interpretation": "This 1 GiB address-space-limited observation ended with a Python MemoryError before bestmove. Preserve the failed observation and the separate short-clock passes. This is not a timeout result or evidence of a compression-size regression. A separately admitted higher-resource observation must retain its own configuration and report.",
+      "python_runtime": {
+        "invoked_command": "python3",
+        "resolved_implementation": "PyPy 7.3.23",
+        "language_version": "Python 3.11.15",
+        "runtime_revision": "194f9f44b505",
+        "executable_sha256": "e81be690a7d945bd026dd7f4767a32e9779605de77a8a64f14e42eedb181d742",
+        "is_cpython_observation": false
+      },
+      "additional_observations": [
+        {
+          "profile": "same PyPy with separately admitted higher resource budget",
+          "evidence": "resource-plans/sunfish-smallest-official-clock.json",
+          "status": "pass",
+          "prior_1gib_failure_preserved": true
+        },
+        {
+          "profile": "canonical inherited CPython 3.12.14, 1 GiB address-space limit",
+          "evidence": "general-canonical-runtime.json",
+          "ordinary_original_smallest_replay_status": "pass",
+          "official_clock_winner_status": "pass",
+          "prior_pypy_results_preserved": true
+        }
+      ]
+    },
+    {
+      "engine": "we4k",
+      "source": {
+        "path_in_upstream": "src/asm/search.asm",
+        "commit": "93dde6ad4aef461bdf4c8dd9d413f92090fc16eb",
+        "url": "https://github.com/ONE-RANDOM-HUMAN/we4k/blob/93dde6ad4aef461bdf4c8dd9d413f92090fc16eb/src/asm/search.asm",
+        "bytes": 8292,
+        "sha256": "39ef88c1456f854439224fd114667dac7b0dce362046d6444d16001900a62376"
+      },
+      "supporting_sources": [
+        {
+          "path_in_upstream": "src/search.zig",
+          "commit": "93dde6ad4aef461bdf4c8dd9d413f92090fc16eb",
+          "url": "https://github.com/ONE-RANDOM-HUMAN/we4k/blob/93dde6ad4aef461bdf4c8dd9d413f92090fc16eb/src/search.zig",
+          "bytes": 10353,
+          "sha256": "a812d50b92b32b34aaca0d7268b09213ccf949f4ee64237daf97b89950b1bd52"
+        },
+        {
+          "path_in_upstream": "src/tt.zig",
+          "commit": "93dde6ad4aef461bdf4c8dd9d413f92090fc16eb",
+          "url": "https://github.com/ONE-RANDOM-HUMAN/we4k/blob/93dde6ad4aef461bdf4c8dd9d413f92090fc16eb/src/tt.zig",
+          "bytes": 2489,
+          "sha256": "a66b8e4d63146fa260327a9077d305b4f33afcaeb824da831ac60bd8873588bb"
+        }
+      ],
+      "relevant_source_lines": [
+        [
+          81,
+          99
+        ],
+        [
+          330,
+          363
+        ]
+      ],
+      "decoded_original_payload_sha256": "8983826a5096e5a3f135498f1921d61b798967a1c9166593137d09fcaba171c4",
+      "time_manager": {
+        "normal_nanoseconds_formula": "min(time_ms * (1000000 // 2), (time_ms + increment_ms) * (1000000 // 30))",
+        "normal_seconds_at_this_clock": 60.099399,
+        "panic_nanoseconds_formula": "min(time_ms * ((2 * 1000000) // 3), (time_ms + increment_ms) * (1000000 // 10))",
+        "panic_seconds_at_this_clock": 180.3,
+        "time_check_scope": "Recursive search checks stopping every 4096 nodes. Current panic state selects the normal or panic elapsed-time limit. Integer division in the assembly constants is included in the displayed thresholds."
+      },
+      "preserved_public_default": {
+        "workers": 4,
+        "transposition_table_bytes": 33554432,
+        "historical_private_tcec_profile_claimed_identical": false
+      },
+      "observation": {
+        "evidence": "general-comparison.json",
+        "raw_evidence_id": "we4k-smallest-official-clock",
+        "raw_report_sha256": "b3170e03bec49ca0b0de9c1747007c7b5f1b88ff04bd7abb87a524f2256ab2d9",
+        "verdict": "pass",
+        "configuration": {
+          "case_ids": [
+            "startpos_white"
+          ],
+          "cleanup_seconds": 5.0,
+          "clock_grace_ms": 1000,
+          "clock_ms": 1800000,
+          "cpu_seconds": 280,
+          "depth": 3,
+          "extensions": false,
+          "file_bytes": 67108864,
+          "hash_mb": 16,
+          "increment_ms": 3000,
+          "invocation_argv0": null,
+          "max_line_bytes": 65536,
+          "max_output_bytes": 2097152,
+          "max_seconds": 280.0,
+          "max_transcript_bytes": 262144,
+          "memory_bytes": 1073741824,
+          "movetime_ms": 100,
+          "nodes": 1000,
+          "preserve_engine_options": true,
+          "profile": "tcec4k",
+          "quick": false,
+          "quit_seconds": 2.0,
+          "ready_seconds": 5.0,
+          "search_seconds": 195.0,
+          "startup_seconds": 60.0,
+          "stop_seconds": 2.0,
+          "threads": 1
+        },
+        "artifact_sha256": "cb741bb7970981232f140bcecbbffe2ae8c77632740f3df2c2417add9da37ae7",
+        "elapsed_ms": 60166.687762,
+        "case": {
+          "detail": {
+            "bestmove": "e2e4",
+            "engine_clock_with_grace_seconds": 1801.0,
+            "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+            "go": "go wtime 1800000 btime 1800000 winc 3000 binc 3000",
+            "last_info": null,
+            "legal": true,
+            "position": "position startpos",
+            "response_budget_seconds": 195.0,
+            "search_elapsed_ms": 60105.829831,
+            "terminal": false
+          },
+          "elapsed_ms": 60108.042825,
+          "id": "startpos_white",
+          "requirement": "tcec4k",
+          "status": "pass"
+        },
+        "cleanup_forced": false
+      },
+      "interpretation": "The public default representative returned legal e2e4 after 60.105829831 seconds of search and exited naturally. This establishes one official-clock case under the recorded finite wall, CPU and address-space limits; it does not cover the panic path, the six-position corpus or a complete tournament match."
+    }
+  ]
+}

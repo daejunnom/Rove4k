@@ -1,0 +1,65 @@
+{
+  "format": "nvcompact.external-engine.v1",
+  "name": "4ku",
+  "artifact": "4ku",
+  "artifact_key": "4ku",
+  "category": "4k",
+  "original_bytes": 4093,
+  "sha256": "be51d7aae0f36f493aa5cdbf1b847425c61fb1f89e93b7969222e662e43ced22",
+  "checked_at": "2026-10-19",
+  "provenance": {
+    "source_url": "https://github.com/kz04px/4ku",
+    "source_commit": "203ddd4bf9b331851c796d8b5d57eac08f6e6c18",
+    "artifact_url": "https://github.com/kz04px/4ku/releases/download/v5.1/4ku-5.1-mini",
+    "representative_version": "5.1",
+    "last_tournament_version": "5.1",
+    "license": "MIT",
+    "artifact_provenance": "upstream-release",
+    "version_relationship": "Latest TCEC version and public release label agree; public mini release is used.",
+    "source_correspondence_status": "same-release-tag-source-and-artifact",
+    "editable_source_correspondence": "matching upstream release tag source and original release asset; independent full source-to-release-binary reproduction not performed",
+    "unresolved_source_correspondence_gap": "release-source relationship known; native reproduction not separately performed",
+    "public_input_not_confirmed_exact_private_tcec_upload": true
+  },
+  "runtime_profile": {
+    "major_allocation_bytes": 67108864,
+    "engine_workers": 1,
+    "kind": "inspected public mini default, not confirmed server profile"
+  },
+  "historical_python_v02": {
+    "original_bytes": "4093",
+    "smallest_bytes": "4088",
+    "accepted_bytes": "4088",
+    "uci": "pass",
+    "original_uci": "pass",
+    "byte_replay": "pass",
+    "winner_sha256": "f2aced2d9f84e6166d07f880a1864092b7b043b6d817beb7cec9e4b38f173270",
+    "original_deployment_equivalent": "True"
+  },
+  "envelope": {
+    "decoder": "lzma -d",
+    "payload_codec": {
+      "format": "alone"
+    },
+    "header_bytes": 149,
+    "header_sha256": "a110155834a0bab179be1d73e86cac44b73f77005fc0b9b92c0425c933ed09b1"
+  },
+  "payload_sha256": "a5d32dc962ebf717faccbff2a2b3644b61c2f4e7d7304cf6a3cd9810936950e7",
+  "language": "cpp",
+  "notation": {
+    "target": "cpp17-lp64",
+    "token_contract": "no-token-observation",
+    "compact": true
+  },
+  "compile_argv": [
+    "g++",
+    "-xc++",
+    "-O3",
+    "-march=native",
+    "-pthread",
+    "-std=c++20",
+    "-",
+    "-o",
+    "{output}"
+  ]
+}

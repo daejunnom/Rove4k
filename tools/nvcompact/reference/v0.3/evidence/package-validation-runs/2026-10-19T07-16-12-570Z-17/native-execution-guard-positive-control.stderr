@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 1823, in _execute_child
+    sys.audit("subprocess.Popen", executable, args, cwd, env)
+  File "/tmp/nvcompact package 한글 YeOkV3/consumer with spaces/native boundary audit/sitecustomize.py", line 24, in _audit
+    raise RuntimeError("NVCOMPACT_NATIVE_EXECUTION_FORBIDDEN")
+RuntimeError: NVCOMPACT_NATIVE_EXECUTION_FORBIDDEN

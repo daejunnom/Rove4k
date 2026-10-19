@@ -1,0 +1,409 @@
+{
+  "format": 1,
+  "snapshot": "snapshot",
+  "inputs": {
+    "examples/mixed/kernels.h": "0eb747fb4ca4175e1854a53094f81ff04ed49bb752b40e963ff5709a471fab53",
+    "examples/mixed/popcount_kernighan.c": "8cc40c80b0902e41cce16ca603c47c4af37da6dade6349fe61d60ffc414ac67b",
+    "examples/mixed/popcount_swar.c": "462cc5c6f42736752ec981654999bffd340998ddca8fbde788f03a645bedeaca",
+    "examples/mixed/square_arithmetic.c": "9c495da1cfefac4fde77467be5e1c560cea442c28fedfb366e8607cad5ac728c",
+    "examples/mixed/square_table.c": "a3f4652acec943d5b73744223ae0be18ad8264ceb8970499621479b3bb6c95e6",
+    "examples/mixed/driver_hosted.c": "c74c33db27d9ebfad4c9a82b885c1a2a4270bcc7e11d1a7d18f8c24d0dd0e288",
+    "examples/mixed/driver_linux_x86_64.c": "dff6c97f7f1af93c6394ba9ccce2876451fd02a67251cb06bb2cabcb07fda0d7",
+    "examples/mixed/start_linux_x86_64.S": "274b24fd266cc57462ee0f49591c3357a5147eb825588bd485a7b1fb659efbdb",
+    "examples/mixed/verifier.py": "af7cfa4781964c08af42b83f2c6dd7c31bb2751c57d1f088b14cdd7e4e6caaa1",
+    "examples/mixed/README.md": "674c28d67ee2e9e625bbde777a43f87afd73c5934ce01d855a7c8c725616d38a",
+    "linker/hosted.ld": "177f6612aadb094ee4524ae731a96991289918e7cc78d2f811dab4a9bc9fa482",
+    "linker/linux-x86_64-compact.ld": "b777f989ac801a1b04363a30bc8bbb8abd139f5f7f3d7a070212bb22a1c631f3"
+  },
+  "project": {
+    "format": 1,
+    "project_root": ".",
+    "target": "x86_64-unknown-linux-gnu",
+    "contract": "examples/mixed/README.md: fixed binary I/O, scalar C ABI, no path-dependent behavior; finite oracle evidence, no engine strength claim; optional source notation audit requires complete object identity before locking",
+    "inputs": [
+      "examples/mixed/kernels.h",
+      "examples/mixed/popcount_kernighan.c",
+      "examples/mixed/popcount_swar.c",
+      "examples/mixed/square_arithmetic.c",
+      "examples/mixed/square_table.c",
+      "examples/mixed/driver_hosted.c",
+      "examples/mixed/driver_linux_x86_64.c",
+      "examples/mixed/start_linux_x86_64.S",
+      "examples/mixed/verifier.py",
+      "examples/mixed/README.md",
+      "linker/hosted.ld",
+      "linker/linux-x86_64-compact.ld"
+    ],
+    "tools": {
+      "cc": {
+        "executable": "cc",
+        "requires_tools": [
+          "ld"
+        ]
+      },
+      "ld": {
+        "executable": "ld"
+      },
+      "python": {
+        "executable": "python3"
+      }
+    },
+    "components": [
+      {
+        "id": "popcount",
+        "contract": "uint32_t nv_popcount64(uint64_t): count all64bits; no state or side effects",
+        "variants": [
+          {
+            "id": "c_kernighan",
+            "language": "c",
+            "sources": [
+              "examples/mixed/popcount_kernighan.c"
+            ],
+            "commands": [
+              [
+                "{cc}",
+                "-std=c11",
+                "{c_opt}",
+                "{c_lto}",
+                "-frandom-seed={unit_id}",
+                "-ffunction-sections",
+                "-fdata-sections",
+                "-fno-ident",
+                "-fno-stack-protector",
+                "-fno-asynchronous-unwind-tables",
+                "-fno-unwind-tables",
+                "-ffile-prefix-map={root}=.",
+                "-fdebug-prefix-map={root}=.",
+                "-c",
+                "{source}",
+                "-o",
+                "{object}"
+              ]
+            ],
+            "notation": {
+              "language": "c",
+              "target": "c11-lp64",
+              "token_contract": "no-token-observation",
+              "compact": true,
+              "max_variants": 3
+            }
+          },
+          {
+            "id": "c_swar",
+            "language": "c",
+            "sources": [
+              "examples/mixed/popcount_swar.c"
+            ],
+            "commands": [
+              [
+                "{cc}",
+                "-std=c11",
+                "{c_opt}",
+                "{c_lto}",
+                "-frandom-seed={unit_id}",
+                "-ffunction-sections",
+                "-fdata-sections",
+                "-fno-ident",
+                "-fno-stack-protector",
+                "-fno-asynchronous-unwind-tables",
+                "-fno-unwind-tables",
+                "-ffile-prefix-map={root}=.",
+                "-fdebug-prefix-map={root}=.",
+                "-c",
+                "{source}",
+                "-o",
+                "{object}"
+              ]
+            ],
+            "notation": {
+              "language": "c",
+              "target": "c11-lp64",
+              "token_contract": "no-token-observation",
+              "compact": true,
+              "max_variants": 3
+            }
+          }
+        ]
+      },
+      {
+        "id": "square",
+        "contract": "int32_t nv_square_bonus(uint32_t): declared value on square0..63; driver rejects other inputs",
+        "variants": [
+          {
+            "id": "c_arithmetic",
+            "language": "c",
+            "sources": [
+              "examples/mixed/square_arithmetic.c"
+            ],
+            "commands": [
+              [
+                "{cc}",
+                "-std=c11",
+                "{c_opt}",
+                "{c_lto}",
+                "-frandom-seed={unit_id}",
+                "-ffunction-sections",
+                "-fdata-sections",
+                "-fno-ident",
+                "-fno-stack-protector",
+                "-fno-asynchronous-unwind-tables",
+                "-fno-unwind-tables",
+                "-ffile-prefix-map={root}=.",
+                "-fdebug-prefix-map={root}=.",
+                "-c",
+                "{source}",
+                "-o",
+                "{object}"
+              ]
+            ],
+            "notation": {
+              "language": "c",
+              "target": "c11-lp64",
+              "token_contract": "no-token-observation",
+              "compact": true,
+              "max_variants": 3
+            }
+          },
+          {
+            "id": "c_table",
+            "language": "c",
+            "sources": [
+              "examples/mixed/square_table.c"
+            ],
+            "commands": [
+              [
+                "{cc}",
+                "-std=c11",
+                "{c_opt}",
+                "{c_lto}",
+                "-frandom-seed={unit_id}",
+                "-ffunction-sections",
+                "-fdata-sections",
+                "-fno-ident",
+                "-fno-stack-protector",
+                "-fno-asynchronous-unwind-tables",
+                "-fno-unwind-tables",
+                "-ffile-prefix-map={root}=.",
+                "-fdebug-prefix-map={root}=.",
+                "-c",
+                "{source}",
+                "-o",
+                "{object}"
+              ]
+            ],
+            "notation": {
+              "language": "c",
+              "target": "c11-lp64",
+              "token_contract": "no-token-observation",
+              "compact": true,
+              "max_variants": 3
+            }
+          }
+        ]
+      }
+    ],
+    "build_profiles": [
+      {
+        "id": "size",
+        "variables": {
+          "c_opt": "-Os",
+          "rust_opt": "z",
+          "c_lto": []
+        }
+      }
+    ],
+    "link_profiles": [
+      {
+        "id": "compact",
+        "contract": "Linux x86-64 freestanding, no global writable data/TLS/unwind/constructors/dynamic linking; no section-header or self-file readers",
+        "allow_section_header_removal": true,
+        "common": [
+          {
+            "id": "start",
+            "sources": [
+              "examples/mixed/start_linux_x86_64.S"
+            ],
+            "commands": [
+              [
+                "{cc}",
+                "-c",
+                "{source}",
+                "-o",
+                "{object}"
+              ]
+            ]
+          },
+          {
+            "id": "driver",
+            "language": "c",
+            "sources": [
+              "examples/mixed/driver_linux_x86_64.c"
+            ],
+            "commands": [
+              [
+                "{cc}",
+                "-std=c11",
+                "{c_opt}",
+                "{c_lto}",
+                "-frandom-seed={unit_id}",
+                "-ffunction-sections",
+                "-fdata-sections",
+                "-fno-ident",
+                "-fno-stack-protector",
+                "-fno-asynchronous-unwind-tables",
+                "-fno-unwind-tables",
+                "-ffile-prefix-map={root}=.",
+                "-fdebug-prefix-map={root}=.",
+                "-ffreestanding",
+                "-fno-pie",
+                "-c",
+                "{source}",
+                "-o",
+                "{object}"
+              ]
+            ]
+          }
+        ],
+        "argv": [
+          "{cc}",
+          "{c_opt}",
+          "{c_lto}",
+          "-nostdlib",
+          "-static",
+          "-no-pie",
+          "{objects}",
+          "-Wl,--gc-sections,--build-id=none,--orphan-handling=error,-s",
+          "-Wl,-T,{root}/linker/linux-x86_64-compact.ld",
+          "-o",
+          "{binary}"
+        ]
+      }
+    ],
+    "orders": [
+      {
+        "id": "declared",
+        "components": [
+          "popcount",
+          "square"
+        ]
+      }
+    ],
+    "verify": [
+      "{python}",
+      "{root}/examples/mixed/verifier.py",
+      "--binary",
+      "{binary}",
+      "--quick"
+    ],
+    "verify_final": [
+      "{python}",
+      "{root}/examples/mixed/verifier.py",
+      "--binary",
+      "{binary}"
+    ],
+    "codecs": [],
+    "max_bytes": 4096,
+    "baseline": {
+      "build": "size",
+      "link": "compact",
+      "order": [
+        "popcount",
+        "square"
+      ],
+      "variants": {
+        "popcount": "c_kernighan",
+        "square": "c_arithmetic"
+      }
+    },
+    "max_native_bytes": 2097152
+  },
+  "packing": "portfolio",
+  "verification": "passed",
+  "runtime": {
+    "version": "0.3.0",
+    "python": "3.12.14",
+    "platform": "Linux-6.18.55-x86_64",
+    "packing": "portfolio",
+    "zlib": "1.3.2",
+    "source_sha256": {
+      "nvcompact.py": "61d71ba3bf720842f952aedd3812836ff88aad16bcafe651d555c43920c1d8b4",
+      "nvpack.py": "efb34d316de2cfc4b0d467200e9cfff8c7487fcc250bdd3a0af76b64a3fd9dc2",
+      "nvelf.py": "c33672cd1a3c102c6376eaa3b382f84b7fbadbfa8653629e28a62dfa8992b711",
+      "nvnotation.py": "a7f5d403caaf382091ea3fb43833701f5adfe7aeaa5ef9ec9e3e82833ad44592"
+    }
+  },
+  "tools": {
+    "cc": {
+      "executable": "/usr/bin/cc",
+      "sha256": "6117c52522997d2aaccb2b52b3c6bf42c0a6c5edb1d718431fed6b2fc5fec234",
+      "version": "cc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+    },
+    "ld": {
+      "executable": "/usr/bin/ld",
+      "sha256": "5b674ea1d7017c2929f3c52c43487478bb240ecdd7197a25cce3813a70329a5c",
+      "version": "GNU ld (GNU Binutils for Ubuntu) 2.42\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis program is free software; you may redistribute it under the terms of\nthe GNU General Public License version 3 or (at your option) a later version.\nThis program has absolutely no warranty."
+    },
+    "python": {
+      "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+      "version": "Python 3.12.14"
+    }
+  },
+  "selection": {
+    "build": "size",
+    "link": "compact",
+    "order_id": "declared",
+    "order": [
+      "popcount",
+      "square"
+    ],
+    "variants": {
+      "popcount": "c_kernighan",
+      "square": "c_table"
+    }
+  },
+  "deployment": "no-section-headers",
+  "pack": "raw",
+  "native_sha256": "496310ec87ee2c3a8b0a85d7103c2492c85842d5898f5245d9127612591fa68e",
+  "artifact_sha256": "ad772ca3724d250668c7dbfad8b24e67f780dc8cae3a6221c8643b4d164c23dd",
+  "artifact_bytes": 520,
+  "requirements": [
+    "declared Linux ELF ABI"
+  ],
+  "notation": [
+    {
+      "unit_id": "variant/popcount/c_kernighan",
+      "linked_object": "original",
+      "selected": {
+        "id": "shortest-compact",
+        "eligible": true,
+        "source_bytes": 137,
+        "source_sha256": {
+          "examples/mixed/popcount_kernighan.c": "485c5bf0f33d4f65ccfc9d926f95d82eec97a45b9e24e74a986f3b6af6e8d410"
+        },
+        "overlay": "objects/size/variant/popcount/c_kernighan/notation/shortest-compact/root",
+        "object_bytes": 968,
+        "object_sha256": "15cfcc097b4e82ca95ea829cfad2259fcff48f5d0e73e0f7110dd4f76fb80726",
+        "status": "object_byte_identical"
+      },
+      "search_complete": true
+    },
+    {
+      "unit_id": "variant/square/c_table",
+      "linked_object": "original",
+      "selected": {
+        "id": "shortest-compact",
+        "eligible": true,
+        "source_bytes": 175,
+        "source_sha256": {
+          "examples/mixed/square_table.c": "eb9541e9d58191b7496fea972be7dd423cfe2739c28898151f7d9f6141da1a7f"
+        },
+        "overlay": "objects/size/variant/square/c_table/notation/shortest-compact/root",
+        "object_bytes": 1216,
+        "object_sha256": "513478576bc89e18a4c2e2db7d02bc9dcc622d40703132a01ac40d5d5b63b226",
+        "status": "object_byte_identical"
+      },
+      "search_complete": true
+    }
+  ]
+}

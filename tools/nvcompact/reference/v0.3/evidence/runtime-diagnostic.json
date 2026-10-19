@@ -1,0 +1,18 @@
+{
+  "python": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+  "implementation": "CPython",
+  "version": "3.12.14",
+  "platform": "linux",
+  "adapter_sha256": "0fe4fd0aeb21abaceba94587ab69e8625c73d7d3d3026c373b4abc1387001b08",
+  "checks": {
+    "bz2": "pass",
+    "gzip": "pass",
+    "lzma_alone": "pass",
+    "xz": "pass",
+    "raw_lzma2_x86": "pass",
+    "match_finder_api": "pass"
+  },
+  "scope": "local launcher runtime; not compilers, optional chess oracle, tournament eligibility or engine performance",
+  "core_version": "0.2.0",
+  "status": "pass"
+}

@@ -1,0 +1,43 @@
+{
+  "status": "byte_identical",
+  "sha256": "5cd79509d1574bed3813183101ed4b0a1d9fbfa87c7df3c5d3698f61d92db98a",
+  "bytes": 16056,
+  "verification": {
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "/tmp/nvcompact package 한글 YeOkV3/consumer with spaces/plain explicitly verified replay/snapshot/verify.py",
+      "/tmp/nvcompact package 한글 YeOkV3/consumer with spaces/plain explicitly verified replay/selected/native"
+    ],
+    "returncode": 0,
+    "seconds": 0.05152,
+    "stdout": "/tmp/nvcompact package 한글 YeOkV3/consumer with spaces/plain explicitly verified replay/selected/verify-final.stdout",
+    "stderr": "/tmp/nvcompact package 한글 YeOkV3/consumer with spaces/plain explicitly verified replay/selected/verify-final.stderr",
+    "checker_output": {
+      "status": "passed",
+      "integer_inputs": 256,
+      "invalid_inputs": 2
+    },
+    "observed_tools": {
+      "cc": {
+        "executable": "/usr/bin/cc",
+        "sha256": "6117c52522997d2aaccb2b52b3c6bf42c0a6c5edb1d718431fed6b2fc5fec234",
+        "version": "cc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+      },
+      "python": {
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+        "version": "Python 3.12.14"
+      }
+    }
+  },
+  "packing": "none",
+  "observed_runtime": {
+    "version": "0.3.0",
+    "python": "3.12.14",
+    "platform": "Linux-6.18.55-x86_64",
+    "packing": "none",
+    "source_sha256": {
+      "nvcompact.py": "61d71ba3bf720842f952aedd3812836ff88aad16bcafe651d555c43920c1d8b4"
+    }
+  }
+}

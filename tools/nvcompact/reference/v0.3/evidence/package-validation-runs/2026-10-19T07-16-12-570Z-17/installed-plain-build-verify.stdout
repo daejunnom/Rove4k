@@ -1,0 +1,7 @@
+Checking the explicit baseline with the final checker...
+c00000 completed: 1 screened complete files
+c00001 completed: 1 screened complete files
+c00002 completed: 1 screened complete files
+c00003 completed: 1 screened complete files
+Rebuilding the selected recipe in a fresh directory and running its final checker...
+Accepted 16056 bytes: c00000 / linked

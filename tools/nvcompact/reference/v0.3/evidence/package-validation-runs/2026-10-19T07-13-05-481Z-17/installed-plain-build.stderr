@@ -1,0 +1,54 @@
+Traceback (most recent call last):
+  File "/tmp/nvcompact package 한글 3gOjAV/consumer with spaces/node_modules/nvcompact/python/nvlaunch.py", line 351, in <module>
+    status = main()
+             ^^^^^^
+  File "/tmp/nvcompact package 한글 3gOjAV/consumer with spaces/node_modules/nvcompact/python/nvlaunch.py", line 327, in main
+    runpy.run_path(str(script), run_name="__main__", init_globals={"_NVCOMPACT_MANAGED": True})
+  File "<frozen runpy>", line 287, in run_path
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "/tmp/nvcompact package 한글 3gOjAV/consumer with spaces/node_modules/nvcompact/python/nvcompact.py", line 930, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/tmp/nvcompact package 한글 3gOjAV/consumer with spaces/node_modules/nvcompact/python/nvcompact.py", line 923, in main
+    return reproduce(args) if args.command == "reproduce" else run(args)
+                                                               ^^^^^^^^^
+  File "/tmp/nvcompact package 한글 3gOjAV/consumer with spaces/node_modules/nvcompact/python/nvcompact.py", line 773, in run
+    "runtime": runtime_fingerprint(packing), "candidates": []}
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/nvcompact package 한글 3gOjAV/consumer with spaces/node_modules/nvcompact/python/nvcompact.py", line 682, in runtime_fingerprint
+    "platform": platform.platform(), "packing": packing}
+                ^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/platform.py", line 1245, in platform
+    system, node, release, version, machine, processor = uname()
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/platform.py", line 865, in __iter__
+    (self.processor,)
+     ^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/functools.py", line 998, in __get__
+    val = self.func(instance)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/platform.py", line 860, in processor
+    return _unknown_as_blank(_Processor.get())
+                             ^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/platform.py", line 800, in get
+    return func() or ''
+           ^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/platform.py", line 828, in from_subprocess
+    return subprocess.check_output(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 466, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/nvcompact package 한글 3gOjAV/consumer with spaces/node_modules/nvcompact/python/nvlaunch.py", line 221, in __init__
+    super().__init__(args, *positional, **options)
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 1823, in _execute_child
+    sys.audit("subprocess.Popen", executable, args, cwd, env)
+  File "/tmp/nvcompact package 한글 3gOjAV/consumer with spaces/native boundary audit/sitecustomize.py", line 24, in _audit
+    raise RuntimeError("NVCOMPACT_NATIVE_EXECUTION_FORBIDDEN")
+RuntimeError: NVCOMPACT_NATIVE_EXECUTION_FORBIDDEN

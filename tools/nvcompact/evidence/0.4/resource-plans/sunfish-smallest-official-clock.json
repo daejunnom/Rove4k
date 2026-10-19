@@ -1,0 +1,501 @@
+{
+  "format": "nvcompact.portable-resource-evidence.v1",
+  "date": "2026-10-19",
+  "artifact_key": "sunfish",
+  "artifact": {
+    "bytes": 2776,
+    "sha256": "2d148a3523bef4d4bdc95341cdb81405e2b96d42a5135881172ab199357d8b9a",
+    "mode": 493
+  },
+  "status": "pass",
+  "target_artifact_process_started": true,
+  "requested_budget": {
+    "address_space_bytes": 4294967296,
+    "cpu_seconds_per_process": 190,
+    "file_bytes": 67108864,
+    "output_bytes_per_session": 2097152,
+    "required_memory_bytes": 3221225472,
+    "reserve_memory_bytes": 268435456,
+    "wall_seconds": 200
+  },
+  "preconditions": {},
+  "configuration": {
+    "case_ids": [
+      "startpos_white"
+    ],
+    "cleanup_seconds": 5.0,
+    "clock_grace_ms": 1000,
+    "clock_ms": 1800000,
+    "cpu_seconds": 190,
+    "depth": 3,
+    "extensions": false,
+    "file_bytes": 67108864,
+    "hash_mb": 16,
+    "increment_ms": 3000,
+    "max_line_bytes": 65536,
+    "max_output_bytes": 2097152,
+    "max_seconds": 200.0,
+    "max_transcript_bytes": 262144,
+    "memory_bytes": 4294967296,
+    "movetime_ms": 100,
+    "nodes": 1000,
+    "preserve_engine_options": true,
+    "profile": "tcec4k",
+    "quick": false,
+    "quit_seconds": 2.0,
+    "ready_seconds": 5.0,
+    "search_seconds": 120.0,
+    "startup_seconds": 60.0,
+    "stop_seconds": 2.0,
+    "threads": 1
+  },
+  "tool_fingerprints": [
+    {
+      "role": "command_executable",
+      "bytes": 2776,
+      "sha256": "2d148a3523bef4d4bdc95341cdb81405e2b96d42a5135881172ab199357d8b9a",
+      "mode": 493
+    },
+    {
+      "role": "nvcompact_executable",
+      "bytes": 10162344,
+      "sha256": "08a4b493b19382a6e8de46cdb50465053e5b6c850a304bb9c2fed034cc21357e",
+      "mode": 493
+    },
+    {
+      "role": "sh",
+      "bytes": 129784,
+      "sha256": "86d31f6fb799e91fa21bad341484564510ca287703a16e9e46c53338776f4f42",
+      "mode": 493
+    },
+    {
+      "role": "mktemp",
+      "bytes": 35336,
+      "sha256": "7258721fb887f4cef21e7013b0f6d970ed4ca58390ac5116d426679d13a80806",
+      "mode": 493
+    },
+    {
+      "role": "tail",
+      "bytes": 64032,
+      "sha256": "8ea2a713eba8a4140fad5e453c9d8129fb5d4d30d79de384639c306f626eca90",
+      "mode": 493
+    },
+    {
+      "role": "xz",
+      "bytes": 89008,
+      "sha256": "3f8a1d624a18a194af196db18e3964577a52c372155ea5d229ecc87de13c8d65",
+      "mode": 493
+    },
+    {
+      "role": "python3",
+      "bytes": 14504,
+      "sha256": "e81be690a7d945bd026dd7f4767a32e9779605de77a8a64f14e42eedb181d742",
+      "mode": 493
+    },
+    {
+      "role": "rm",
+      "bytes": 59912,
+      "sha256": "42d99e8ead91f30586a0f689178e8bd3db5fadb1e995681aaf4b418cbeffab99",
+      "mode": 493
+    }
+  ],
+  "plan_sha256": "f83af3a7ce1dba2f24e3a0dfc6a50a94e3593d42ff2703c71a047af388ea732c",
+  "preflight_at_plan": {
+    "declared_required_plus_reserve_bytes": 3489660928,
+    "estimated_available_memory_bytes": 4073594880,
+    "reasons": [],
+    "scope": "read-only prerequisites; ready is neither execution nor protocol success",
+    "status": "ready"
+  },
+  "preflight_at_run": {
+    "declared_required_plus_reserve_bytes": 3489660928,
+    "estimated_available_memory_bytes": 4078702592,
+    "reasons": [],
+    "scope": "read-only prerequisites; ready is neither execution nor protocol success",
+    "status": "ready"
+  },
+  "resources_at_plan": {
+    "platform": "linux",
+    "physical_memory": {
+      "physical_available_bytes": 9664741376,
+      "physical_total_bytes": 10451435520
+    },
+    "estimated_available_memory_bytes": 4073594880,
+    "affinity_cpu_count": 9,
+    "online_cpu_count": 9,
+    "rlimits": {
+      "RLIMIT_AS": [
+        null,
+        null
+      ],
+      "RLIMIT_CORE": [
+        0,
+        null
+      ],
+      "RLIMIT_CPU": [
+        null,
+        null
+      ],
+      "RLIMIT_FSIZE": [
+        null,
+        null
+      ],
+      "RLIMIT_STACK": [
+        8388608,
+        null
+      ]
+    },
+    "cgroup_v2": [
+      {
+        "cpu_max": "800000 100000",
+        "estimated_available_bytes": 4073594880,
+        "inactive_file_bytes": 1743736832,
+        "memory_current_bytes": 6260076544,
+        "memory_max_bytes": 8589934592,
+        "raw_headroom_bytes": 2329858048
+      }
+    ],
+    "observation_errors": [],
+    "estimate_scope": "min(physical MemAvailable, every visible cgroup max-current+inactive_file); transient reclaim estimate, not reservation or allocation success"
+  },
+  "resources_before": {
+    "platform": "linux",
+    "physical_memory": {
+      "physical_available_bytes": 9671122944,
+      "physical_total_bytes": 10451435520
+    },
+    "estimated_available_memory_bytes": 4078702592,
+    "affinity_cpu_count": 9,
+    "online_cpu_count": 9,
+    "rlimits": {
+      "RLIMIT_AS": [
+        null,
+        null
+      ],
+      "RLIMIT_CORE": [
+        0,
+        null
+      ],
+      "RLIMIT_CPU": [
+        null,
+        null
+      ],
+      "RLIMIT_FSIZE": [
+        null,
+        null
+      ],
+      "RLIMIT_STACK": [
+        8388608,
+        null
+      ]
+    },
+    "cgroup_v2": [
+      {
+        "cpu_max": "800000 100000",
+        "estimated_available_bytes": 4078702592,
+        "inactive_file_bytes": 1743454208,
+        "memory_current_bytes": 6254686208,
+        "memory_max_bytes": 8589934592,
+        "raw_headroom_bytes": 2335248384
+      }
+    ],
+    "observation_errors": [],
+    "estimate_scope": "min(physical MemAvailable, every visible cgroup max-current+inactive_file); transient reclaim estimate, not reservation or allocation success"
+  },
+  "resources_after": {
+    "platform": "linux",
+    "physical_memory": {
+      "physical_available_bytes": 9547927552,
+      "physical_total_bytes": 10451435520
+    },
+    "estimated_available_memory_bytes": 4080578560,
+    "affinity_cpu_count": 9,
+    "online_cpu_count": 9,
+    "rlimits": {
+      "RLIMIT_AS": [
+        null,
+        null
+      ],
+      "RLIMIT_CORE": [
+        0,
+        null
+      ],
+      "RLIMIT_CPU": [
+        null,
+        null
+      ],
+      "RLIMIT_FSIZE": [
+        null,
+        null
+      ],
+      "RLIMIT_STACK": [
+        8388608,
+        null
+      ]
+    },
+    "cgroup_v2": [
+      {
+        "cpu_max": "800000 100000",
+        "estimated_available_bytes": 4080578560,
+        "inactive_file_bytes": 1743470592,
+        "memory_current_bytes": 6252826624,
+        "memory_max_bytes": 8589934592,
+        "raw_headroom_bytes": 2337107968
+      }
+    ],
+    "observation_errors": [],
+    "estimate_scope": "min(physical MemAvailable, every visible cgroup max-current+inactive_file); transient reclaim estimate, not reservation or allocation success"
+  },
+  "changed_inputs_before": [],
+  "changed_inputs_after": [],
+  "environment_unchanged": true,
+  "parent_rlimits_unchanged": true,
+  "elapsed_seconds": 52.290435545,
+  "uci": {
+    "format": "nvcompact.uci.v2",
+    "verdict": "pass",
+    "required_tcec4k_verdict": "pass",
+    "extended_uci_verdict": "not_run",
+    "target_artifact_process_started": true,
+    "configuration": {
+      "case_ids": [
+        "startpos_white"
+      ],
+      "cleanup_seconds": 5.0,
+      "clock_grace_ms": 1000,
+      "clock_ms": 1800000,
+      "cpu_seconds": 190,
+      "depth": 3,
+      "extensions": false,
+      "file_bytes": 67108864,
+      "hash_mb": 16,
+      "increment_ms": 3000,
+      "max_line_bytes": 65536,
+      "max_output_bytes": 2097152,
+      "max_seconds": 200.0,
+      "max_transcript_bytes": 262144,
+      "memory_bytes": 4294967296,
+      "movetime_ms": 100,
+      "nodes": 1000,
+      "preserve_engine_options": true,
+      "profile": "tcec4k",
+      "quick": false,
+      "quit_seconds": 2.0,
+      "ready_seconds": 5.0,
+      "search_seconds": 120.0,
+      "startup_seconds": 60.0,
+      "stop_seconds": 2.0,
+      "threads": 1
+    },
+    "core_case_coverage": {
+      "completed": [
+        "startpos_white"
+      ],
+      "corpus_cases": 6,
+      "full_corpus_completed": false,
+      "full_corpus_requested": false,
+      "requested": [
+        "startpos_white"
+      ]
+    },
+    "cases": [
+      {
+        "detail": {
+          "configured_options": [],
+          "identity": {},
+          "option_errors": [],
+          "options": [],
+          "ready_after_launch_ms": 78.976486
+        },
+        "elapsed_ms": 75.683395,
+        "id": "handshake",
+        "requirement": "tcec4k",
+        "status": "pass"
+      },
+      {
+        "detail": {
+          "ready": true
+        },
+        "elapsed_ms": 2.1166790000000004,
+        "id": "newgame_tolerance",
+        "requirement": "tcec4k",
+        "status": "pass"
+      },
+      {
+        "detail": {
+          "ready": true
+        },
+        "elapsed_ms": 2.15259,
+        "id": "idle_stop_tolerance",
+        "requirement": "tcec4k",
+        "status": "pass"
+      },
+      {
+        "detail": {
+          "ready": true
+        },
+        "elapsed_ms": 2.095319,
+        "id": "unknown_command_tolerance",
+        "requirement": "tcec4k",
+        "status": "pass"
+      },
+      {
+        "detail": {
+          "bestmove": "d2d4",
+          "engine_clock_with_grace_seconds": 1801.0,
+          "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+          "go": "go wtime 1800000 btime 1800000 winc 3000 binc 3000",
+          "last_info": "info depth 10 score cp -4",
+          "legal": true,
+          "position": "position startpos",
+          "response_budget_seconds": 120.0,
+          "search_elapsed_ms": 51967.05007,
+          "terminal": false
+        },
+        "elapsed_ms": 51971.332668999996,
+        "id": "startpos_white",
+        "requirement": "tcec4k",
+        "status": "pass"
+      },
+      {
+        "detail": {
+          "cleanup_grace_seconds": 5.0,
+          "cleanup_wait_ms": 0.021615,
+          "process_group_exists_after_quit": false,
+          "process_group_exists_immediately_after_quit": false,
+          "quit_returncode": 0,
+          "quit_signal": null,
+          "scope": "owned original process group; detached sessions and global filesystem not audited"
+        },
+        "elapsed_ms": 127.916154,
+        "id": "quit_idle",
+        "requirement": "tcec4k",
+        "status": "pass"
+      }
+    ],
+    "observations": [
+      {
+        "bestmove": "d2d4",
+        "budget": 1800000,
+        "case": "startpos_white",
+        "engine_clock_with_grace_seconds": 1801.0,
+        "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "go": "go wtime 1800000 btime 1800000 winc 3000 binc 3000",
+        "last_info": "info depth 10 score cp -4",
+        "legal": true,
+        "mode": "clock",
+        "position": "position startpos",
+        "response_budget_seconds": 120.0,
+        "search_elapsed_ms": 51967.05007,
+        "terminal": false
+      }
+    ],
+    "handshakes": [
+      {
+        "configured_options": [],
+        "identity": {},
+        "option_errors": [],
+        "options": [],
+        "ready_after_launch_ms": 78.976486
+      }
+    ],
+    "sessions": [
+      {
+        "phase": "core",
+        "output_bytes": {
+          "stderr": 0,
+          "stdout": 1285
+        },
+        "stderr_tail": "",
+        "cleanup": {
+          "cleanup_grace_seconds": 5.0,
+          "cleanup_wait_ms": 0.021615,
+          "forced_cleanup": false,
+          "process_group_exists_after_quit": false,
+          "process_group_exists_immediately_after_quit": false,
+          "quit_returncode": 0,
+          "quit_signal": null,
+          "returncode": 0,
+          "scope": "owned original process group; detached sessions and global filesystem not audited",
+          "signal": null
+        },
+        "working_directory_leftovers": {
+          "paths": [],
+          "scope": "owned working directory, symlinks not followed",
+          "truncated": false
+        }
+      }
+    ],
+    "elapsed_ms": 52185.541229,
+    "oracle": {
+      "development_only": true,
+      "module": "cozy-chess",
+      "standard_castling_translation": true,
+      "version_source": "Cargo.lock"
+    },
+    "sources": [
+      "https://wiki.chessdom.org/index.php?title=TCEC_4k_Rules&oldid=7853",
+      "https://backscattering.de/chess/uci/"
+    ],
+    "scope": {
+      "cleanup": "owned cwd and original process group; no global filesystem or detached-session audit",
+      "evidence": "finite protocol and independent legal-move observations; not complete semantic equivalence, Elo, or organizer certification",
+      "limits": "per-process AS/CPU/file limits, whole-verifier wall bound and per-session output bound; no aggregate memory cgroup",
+      "options": "original defaults and embedded constants preserved",
+      "time_control": "configured short clock probes, not a 30min+3sec tournament unless separately run"
+    }
+  },
+  "scope": "Portable metadata only. Original source/artifact/decoded payload and raw host-path transcripts remain outside the repository. A started artifact wrapper need not have reached engine initialization or search.",
+  "comparison_role": "smallest",
+  "observation_kind": "official_clock_single_case_higher_checker_budget",
+  "raw_evidence_id": "sunfish-smallest-official-clock-resource/run",
+  "prior_limited_probe": {
+    "raw_report_sha256": "7db5d018fee0c1641bbe6fc4cdb31a76419beff1cb43b3083f6dc756cae98ad8",
+    "raw_report_bytes": 14191,
+    "verdict": "fail",
+    "clock_ms": 1800000,
+    "increment_ms": 3000,
+    "case_ids": [
+      "startpos_white"
+    ],
+    "address_space_bytes": 1073741824,
+    "elapsed_ms": 21721.012678000003,
+    "memory_error_observed": true,
+    "operation": "inserting a position into the move transposition table",
+    "stderr_sha256": "6f0361d1ffc5d22aa3402a2117627519a9f7f0e6a9e67334bf3c317f527552d6",
+    "stderr_bytes": 2525,
+    "raw_traceback_and_source_lines_retained_outside_repository": true,
+    "raw_evidence_id": "tcec-v04-general-uci/sunfish-smallest-official-clock.json"
+  },
+  "interpreter": {
+    "launcher_command_token": "python3",
+    "implementation": "PyPy",
+    "pypy_version": "7.3.23",
+    "python_version": "3.11.15",
+    "executable_sha256": "e81be690a7d945bd026dd7f4767a32e9779605de77a8a64f14e42eedb181d742",
+    "same_as_prior_limited_probe": true,
+    "path_resolution_note": "The PyPy distribution bin directory preceded the inherited PATH, so its python3 symlink shadowed canonical CPython. This is a separately labeled PyPy profile, not a CPython observation."
+  },
+  "comparison_scope": "Resource comparison within the same PyPy profile: exact submitted file, original search/table logic, selected startpos_white case and supplied 1800000+3000ms clock preserved. Checker AS increased from 1GiB to 4GiB after the observed MemoryError; this does not establish a universal memory requirement or full-match success.",
+  "engine_workload_constants_changed": false,
+  "source_code_changed": false,
+  "checker_budget_changes": {
+    "address_space_bytes": {
+      "earlier": 1073741824,
+      "followup": 4294967296
+    },
+    "cpu_seconds_per_process": {
+      "earlier": 200,
+      "followup": 190
+    },
+    "wall_seconds": {
+      "earlier": 200,
+      "followup": 200
+    },
+    "search_seconds": {
+      "earlier": 120,
+      "followup": 120
+    }
+  },
+  "canonical_cpython_profile": "Separate comparison profile; do not merge interpreter identities into this resource comparison."
+}

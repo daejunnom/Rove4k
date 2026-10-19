@@ -1,0 +1,476 @@
+{
+  "format": "nvcompact.npm-delivery-checks.v1",
+  "created_utc": "2026-10-19T03:10:02.222025+00:00",
+  "status": "pass",
+  "package": {
+    "name": "nvcompact",
+    "version": "0.2.0",
+    "tarball": "dist/nvcompact-0.2.0.tgz",
+    "bytes": 73802,
+    "sha256": "3a15d37f5cb37bcc7118e4a5401e172aeb67c531909514d927d2b8f6dcc9aaef",
+    "files": 32,
+    "scope": "actual tar member inspection; research inputs excluded"
+  },
+  "unpacked_bytes": 263837,
+  "core_validation": {
+    "format": "nvcompact.core-validation.v1",
+    "command": "npm run test:core",
+    "tests": 55,
+    "passed": 55,
+    "failed": 0,
+    "skipped": 0,
+    "reported_seconds": 13.258,
+    "python": "3.12.14",
+    "node": "24.19.0",
+    "npm": "11.9.0",
+    "eight_core_module_hashes_match_original": true,
+    "scope": "Existing suite rerun after relocation; the historical 11-engine campaign was not repeated."
+  },
+  "cli_validation": {
+    "format": "nvcompact.cli-validation.v1",
+    "command": "NVUCI_ORACLE_PATH=/tmp/nvcompact-uci-deps npm test",
+    "status": "pass",
+    "tests": 11,
+    "passed": 11,
+    "failed": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "duration_ms": 9557.228295,
+    "node": "24.19.0",
+    "npm": "11.9.0",
+    "python": "3.12.14",
+    "checks": [
+      "Help and version without Python; all command help.",
+      "Actual codec doctor with executable path containing spaces.",
+      "Preserved argv, cwd, stdin/stdout/stderr and real nonzero child status.",
+      "Explicit Python override failure; no shell parsing or fallback.",
+      "Preserved core failure without a success artifact.",
+      "Early rejection of missing, nonexistent, empty and unknown engine selections.",
+      "SIGTERM stops real UCI engine and grandchild.",
+      "SIGINT stops real UCI engine and grandchild.",
+      "SIGTERM through nested core helper stops real UCI engine and grandchild.",
+      "Active native portfolio cancellation releases workers and cancels queued tasks.",
+      "Actual npm tarball has standalone CLI and complete linked examples."
+    ],
+    "lifecycle_oracle": "Owned fixture lifetime locks are held while children run and independently observed released after cancellation, before fixture cleanup.",
+    "source_sha256": {
+      "tests/cli.test.mjs": "b12053783d9154e2f68614b4899dfea8f30162a9920d3718e910eef05b58a910",
+      "tests/package-contract.test.mjs": "365b62863844d9a2a1d9024f09feb58077ba7b0b6c329df2e5f42a3617ca1736",
+      "packages/nvcompact/bin/nvcompact.mjs": "ce4a1511baa73f88dd79bb55e39636a9b99e822337fff473c64e6d8337fbed8d",
+      "packages/nvcompact/lib/cli.mjs": "85c3883c4d0195b8d03465940d082973e25c6eb07f35405aa727a9958590e952",
+      "packages/nvcompact/python/nvlaunch.py": "0fe4fd0aeb21abaceba94587ab69e8625c73d7d3d3026c373b4abc1387001b08"
+    },
+    "earlier_without_oracle": {
+      "tests": 11,
+      "passed": 8,
+      "skipped": 3,
+      "failed": 0,
+      "reason": "NVUCI_ORACLE_PATH was not set; final run above supplied the oracle and executed all checks."
+    }
+  },
+  "installed_package_validation": {
+    "format": "nvcompact.package-validation.v1",
+    "status": "pass",
+    "package": {
+      "name": "nvcompact",
+      "version": "0.2.0",
+      "tarball": "dist/nvcompact-0.2.0.tgz",
+      "bytes": 73802,
+      "sha256": "3a15d37f5cb37bcc7118e4a5401e172aeb67c531909514d927d2b8f6dcc9aaef",
+      "files": 32,
+      "scope": "actual tar member inspection; research inputs excluded"
+    },
+    "environment": {
+      "node": "v24.19.0",
+      "platform": "linux",
+      "architecture": "x64"
+    },
+    "commands": [
+      {
+        "name": "npm-version",
+        "argv": [
+          "npm",
+          "--version"
+        ],
+        "exit_code": 0,
+        "signal": null,
+        "seconds": 0.121,
+        "stdout": "evidence/package-validation-runs/2026-10-19T03-05-12-983Z-17/npm-version.stdout",
+        "stderr": "evidence/package-validation-runs/2026-10-19T03-05-12-983Z-17/npm-version.stderr"
+      },
+      {
+        "name": "offline-install",
+        "argv": [
+          "npm",
+          "install",
+          "--offline",
+          "--ignore-scripts",
+          "--no-audit",
+          "--no-fund",
+          "--package-lock=false",
+          "--save=false",
+          "/workspace/scratch/d70af21bae00/nvcompact-monorepo/dist/nvcompact-0.2.0.tgz"
+        ],
+        "exit_code": 0,
+        "signal": null,
+        "seconds": 0.575,
+        "stdout": "evidence/package-validation-runs/2026-10-19T03-05-12-983Z-17/offline-install.stdout",
+        "stderr": "evidence/package-validation-runs/2026-10-19T03-05-12-983Z-17/offline-install.stderr"
+      },
+      {
+        "name": "installed-help",
+        "argv": [
+          "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/node_modules/.bin/nvcompact",
+          "--help"
+        ],
+        "exit_code": 0,
+        "signal": null,
+        "seconds": 0.051,
+        "stdout": "evidence/package-validation-runs/2026-10-19T03-05-12-983Z-17/installed-help.stdout",
+        "stderr": "evidence/package-validation-runs/2026-10-19T03-05-12-983Z-17/installed-help.stderr"
+      },
+      {
+        "name": "installed-version",
+        "argv": [
+          "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/node_modules/.bin/nvcompact",
+          "--version"
+        ],
+        "exit_code": 0,
+        "signal": null,
+        "seconds": 0.066,
+        "stdout": "evidence/package-validation-runs/2026-10-19T03-05-12-983Z-17/installed-version.stdout",
+        "stderr": "evidence/package-validation-runs/2026-10-19T03-05-12-983Z-17/installed-version.stderr"
+      },
+      {
+        "name": "installed-notation",
+        "argv": [
+          "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/node_modules/.bin/nvcompact",
+          "notation",
+          "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/number $(touch NVCOMPACT_SHELL_SENTINEL) ; 한글 ' .py",
+          "--language",
+          "python",
+          "--token-contract",
+          "no-token-observation",
+          "--compact",
+          "--variant",
+          "shortest-compact",
+          "--output",
+          "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/compressed [한글] ; ' .py",
+          "--audit",
+          "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/notation.audit.json"
+        ],
+        "exit_code": 0,
+        "signal": null,
+        "seconds": 0.216,
+        "stdout": "evidence/package-validation-runs/2026-10-19T03-05-12-983Z-17/installed-notation.stdout",
+        "stderr": "evidence/package-validation-runs/2026-10-19T03-05-12-983Z-17/installed-notation.stderr"
+      },
+      {
+        "name": "python-executable",
+        "argv": [
+          "python3",
+          "-c",
+          "import sys; print(sys.executable)"
+        ],
+        "exit_code": 0,
+        "signal": null,
+        "seconds": 0.019,
+        "stdout": "evidence/package-validation-runs/2026-10-19T03-05-12-983Z-17/python-executable.stdout",
+        "stderr": "evidence/package-validation-runs/2026-10-19T03-05-12-983Z-17/python-executable.stderr"
+      },
+      {
+        "name": "notation-original-execution",
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "-B",
+          "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/number $(touch NVCOMPACT_SHELL_SENTINEL) ; 한글 ' .py"
+        ],
+        "exit_code": 0,
+        "signal": null,
+        "seconds": 0.017,
+        "stdout": "evidence/package-validation-runs/2026-10-19T03-05-12-983Z-17/notation-original-execution.stdout",
+        "stderr": "evidence/package-validation-runs/2026-10-19T03-05-12-983Z-17/notation-original-execution.stderr"
+      },
+      {
+        "name": "notation-compacted-execution",
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "-B",
+          "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/compressed [한글] ; ' .py"
+        ],
+        "exit_code": 0,
+        "signal": null,
+        "seconds": 0.027,
+        "stdout": "evidence/package-validation-runs/2026-10-19T03-05-12-983Z-17/notation-compacted-execution.stdout",
+        "stderr": "evidence/package-validation-runs/2026-10-19T03-05-12-983Z-17/notation-compacted-execution.stderr"
+      },
+      {
+        "name": "missing-python",
+        "argv": [
+          "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/node_modules/.bin/nvcompact",
+          "notation",
+          "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/number $(touch NVCOMPACT_SHELL_SENTINEL) ; 한글 ' .py",
+          "--language",
+          "python",
+          "--list-variants"
+        ],
+        "exit_code": 127,
+        "signal": null,
+        "seconds": 0.062,
+        "stdout": "evidence/package-validation-runs/2026-10-19T03-05-12-983Z-17/missing-python.stdout",
+        "stderr": "evidence/package-validation-runs/2026-10-19T03-05-12-983Z-17/missing-python.stderr"
+      },
+      {
+        "name": "core-failure",
+        "argv": [
+          "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/node_modules/.bin/nvcompact",
+          "notation",
+          "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/missing input.py",
+          "--language",
+          "python",
+          "--list-variants"
+        ],
+        "exit_code": 2,
+        "signal": null,
+        "seconds": 0.191,
+        "stdout": "evidence/package-validation-runs/2026-10-19T03-05-12-983Z-17/core-failure.stdout",
+        "stderr": "evidence/package-validation-runs/2026-10-19T03-05-12-983Z-17/core-failure.stderr"
+      },
+      {
+        "name": "cc-version",
+        "argv": [
+          "cc",
+          "--version"
+        ],
+        "exit_code": 0,
+        "signal": null,
+        "seconds": 0.005,
+        "stdout": "evidence/package-validation-runs/2026-10-19T03-05-12-983Z-17/cc-version.stdout",
+        "stderr": "evidence/package-validation-runs/2026-10-19T03-05-12-983Z-17/cc-version.stderr"
+      },
+      {
+        "name": "ld-version",
+        "argv": [
+          "ld",
+          "--version"
+        ],
+        "exit_code": 0,
+        "signal": null,
+        "seconds": 0.004,
+        "stdout": "evidence/package-validation-runs/2026-10-19T03-05-12-983Z-17/ld-version.stdout",
+        "stderr": "evidence/package-validation-runs/2026-10-19T03-05-12-983Z-17/ld-version.stderr"
+      },
+      {
+        "name": "installed-native-build",
+        "argv": [
+          "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/node_modules/.bin/nvcompact",
+          "run",
+          "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/C-only example copied from installed tarball/examples/mixed/manifest-c-only.integration.json",
+          "--out",
+          "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build",
+          "--jobs",
+          "2",
+          "--max-seconds",
+          "90",
+          "--command-seconds",
+          "25",
+          "--tool",
+          "python=/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        ],
+        "exit_code": 0,
+        "signal": null,
+        "seconds": 3.483,
+        "stdout": "evidence/package-validation-runs/2026-10-19T03-05-12-983Z-17/installed-native-build.stdout",
+        "stderr": "evidence/package-validation-runs/2026-10-19T03-05-12-983Z-17/installed-native-build.stderr"
+      },
+      {
+        "name": "installed-native-reproduce",
+        "argv": [
+          "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/node_modules/.bin/nvcompact",
+          "reproduce",
+          "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/winner.recipe.json",
+          "--out",
+          "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native replay",
+          "--max-seconds",
+          "90",
+          "--command-seconds",
+          "25",
+          "--tool",
+          "python=/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        ],
+        "exit_code": 0,
+        "signal": null,
+        "seconds": 1.222,
+        "stdout": "evidence/package-validation-runs/2026-10-19T03-05-12-983Z-17/installed-native-reproduce.stdout",
+        "stderr": "evidence/package-validation-runs/2026-10-19T03-05-12-983Z-17/installed-native-reproduce.stderr"
+      }
+    ],
+    "checks": [
+      {
+        "name": "offline-local-tarball-install",
+        "status": "pass",
+        "hooks": "disabled",
+        "independent_working_directory": true
+      },
+      {
+        "name": "installed-bin-help-and-version",
+        "status": "pass"
+      },
+      {
+        "name": "notation-value-and-argv-preservation",
+        "status": "pass",
+        "original_bytes": 64,
+        "compacted_bytes": 35,
+        "output": "(100000.0, 0.8, 255)"
+      },
+      {
+        "name": "missing-runtime-and-core-failure-remain-failures",
+        "status": "pass"
+      },
+      {
+        "name": "installed-c-only-build-and-fresh-reproduction",
+        "status": "pass",
+        "scenario": "Derived from shipped mixed notation manifest; only Rust variants/tool/inputs removed.",
+        "selected_link_candidates": 4,
+        "screened_complete_files": 8,
+        "artifact_bytes": 520,
+        "artifact_sha256": "ad772ca3724d250668c7dbfad8b24e67f780dc8cae3a6221c8643b4d164c23dd",
+        "final_oracle": {
+          "cases": 22,
+          "corpus_sha256": "fee2cdd9dc7959ec3ee432100dce45558cbf98391f9569b041074865c0b1e91b",
+          "elapsed_seconds": 0.567129,
+          "mode": "full",
+          "ok": true,
+          "oracle_sha256": "a2088e902cfba6111c700c9eded933d373b8d61c65e66b9e83d4f8c1dbf611f6",
+          "valid_records": 199360
+        },
+        "replay_oracle": {
+          "cases": 22,
+          "corpus_sha256": "fee2cdd9dc7959ec3ee432100dce45558cbf98391f9569b041074865c0b1e91b",
+          "elapsed_seconds": 0.580997,
+          "mode": "full",
+          "ok": true,
+          "oracle_sha256": "a2088e902cfba6111c700c9eded933d373b8d61c65e66b9e83d4f8c1dbf611f6",
+          "valid_records": 199360
+        },
+        "evidence": "evidence/package-validation-runs/2026-10-19T03-05-12-983Z-17"
+      },
+      {
+        "name": "installed-package-unchanged",
+        "status": "pass",
+        "files": 32,
+        "scope": "all regular file bytes and modes before/after commands; no added caches or outputs"
+      }
+    ],
+    "limits": [
+      "Linux host integration; no Windows/macOS execution claim.",
+      "C-only derivative of the mixed example; no new Rust or TCEC engine campaign.",
+      "Lifecycle cancellation fixtures are tested separately by the CLI test suite."
+    ],
+    "temporary_workspace_removed": true
+  },
+  "runtime_diagnostic": {
+    "python": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "implementation": "CPython",
+    "version": "3.12.14",
+    "platform": "linux",
+    "adapter_sha256": "0fe4fd0aeb21abaceba94587ab69e8625c73d7d3d3026c373b4abc1387001b08",
+    "checks": {
+      "bz2": "pass",
+      "gzip": "pass",
+      "lzma_alone": "pass",
+      "xz": "pass",
+      "raw_lzma2_x86": "pass",
+      "match_finder_api": "pass"
+    },
+    "scope": "local launcher runtime; not compilers, optional chess oracle, tournament eligibility or engine performance",
+    "core_version": "0.2.0",
+    "status": "pass"
+  },
+  "pack_reproduction": {
+    "format": "nvcompact.pack-reproduction.v1",
+    "status": "pass",
+    "runs": 2,
+    "command": "npm run pack:cli",
+    "sha256": "3a15d37f5cb37bcc7118e4a5401e172aeb67c531909514d927d2b8f6dcc9aaef",
+    "bytes": 73802,
+    "scope": "Two successive local npm pack runs from the same final package contents and toolchain produced identical bytes. The same bytes passed separate installation verification."
+  },
+  "core_migration": {
+    "format": "nvcompact.core-migration.v1",
+    "source_release": "NVCompact 0.2.0",
+    "source_archive_sha256": "1b336f2bf8dc1acb9b4ca2787769c9e786ec6c1e91aa96e6ffc7eb0e277af97d",
+    "scope": "Python algorithm modules unchanged; package launcher has separate validation",
+    "files": [
+      {
+        "source": "nvcompact-v02/nvcompact.py",
+        "destination": "packages/nvcompact/python/nvcompact.py",
+        "sha256": "7dcf1ef17d38e7f1140346789d96563b955b0a2a3ebbefd7c69d1b2e1bdcfdf0",
+        "bytes": 42851
+      },
+      {
+        "source": "nvcompact-v02/nvpack.py",
+        "destination": "packages/nvcompact/python/nvpack.py",
+        "sha256": "efb34d316de2cfc4b0d467200e9cfff8c7487fcc250bdd3a0af76b64a3fd9dc2",
+        "bytes": 13073
+      },
+      {
+        "source": "nvcompact-v02/nvelf.py",
+        "destination": "packages/nvcompact/python/nvelf.py",
+        "sha256": "c33672cd1a3c102c6376eaa3b382f84b7fbadbfa8653629e28a62dfa8992b711",
+        "bytes": 6495
+      },
+      {
+        "source": "nvcompact-v02/nvnotation.py",
+        "destination": "packages/nvcompact/python/nvnotation.py",
+        "sha256": "a7f5d403caaf382091ea3fb43833701f5adfe7aeaa5ef9ec9e3e82833ad44592",
+        "bytes": 42140
+      },
+      {
+        "source": "nvcompact-v02/nvenvelope.py",
+        "destination": "packages/nvcompact/python/nvenvelope.py",
+        "sha256": "7c1c0e49181b20537458e1b1f2779ed7c69aa47c988135627868f3c14b8ff294",
+        "bytes": 31405
+      },
+      {
+        "source": "nvcompact-v02/nvuci.py",
+        "destination": "packages/nvcompact/python/nvuci.py",
+        "sha256": "7d7016ee973052c8a2ce0baaa004f68c75471e372548a8baed647bf4d79c315a",
+        "bytes": 40801
+      },
+      {
+        "source": "nvcompact-v02/nvreproduce.py",
+        "destination": "packages/nvcompact/python/nvreproduce.py",
+        "sha256": "45c35eacc817a96669aabe519235f89a48f586b93ae2b84b283477db25867816",
+        "bytes": 5805
+      },
+      {
+        "source": "nvcompact-v02/run_engines.py",
+        "destination": "packages/nvcompact/python/run_engines.py",
+        "sha256": "ae2f2376be59123d6c234142e149e1a3f05b47ab8221cda41e369cf267a77dc0",
+        "bytes": 8010
+      }
+    ]
+  },
+  "publication": {
+    "github_repository_created": false,
+    "npm_registry_published": false,
+    "local_installable_tarball": true,
+    "license": "UNLICENSED",
+    "cli_private": true,
+    "proposed_license": "MIT"
+  },
+  "engine_name_recommendation": {
+    "primary": "Rook4k",
+    "alternative": "Rove4k",
+    "user_selection": "not yet selected"
+  },
+  "scope_limits": [
+    "Linux host integration; no Windows/macOS execution claim.",
+    "C-only derivative of the mixed example; no new Rust or TCEC engine campaign.",
+    "Lifecycle cancellation fixtures are tested separately by the CLI test suite.",
+    "No new execution of the historical 11-engine campaign.",
+    "Remote CI prepared but not executed; local validation used Node 24.19.0.",
+    "No engine many-core scalability or playing-strength result claimed."
+  ]
+}

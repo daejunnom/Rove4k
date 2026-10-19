@@ -1,0 +1,35 @@
+{
+  "project_root": ".",
+  "target": "x86_64-linux-gnu",
+  "inputs": ["main.c", "square_mul.c", "square_sum.c", "verify.py"],
+  "tools": {
+    "cc": {"executable": "cc"},
+    "python": {"executable": "python3"}
+  },
+  "components": [{
+    "id": "square",
+    "contract": "uint32_t square(uint32_t x), x in 0..255; return the exact square without side effects, C ABI",
+    "variants": [
+      {"id": "multiply", "language": "c", "sources": ["square_mul.c"],
+       "commands": [["{cc}", "-std=c11", "{opt}", "-frandom-seed={unit_id}", "-c", "{source}", "-o", "{object}"]]},
+      {"id": "sum", "language": "c", "sources": ["square_sum.c"],
+       "commands": [["{cc}", "-std=c11", "{opt}", "-frandom-seed={unit_id}", "-c", "{source}", "-o", "{object}"]]}
+    ]
+  }],
+  "build_profiles": [
+    {"id": "size", "variables": {"opt": "-Os"}},
+    {"id": "speed", "variables": {"opt": "-O2"}}
+  ],
+  "link_profiles": [{
+    "id": "hosted",
+    "allow_section_header_removal": true,
+    "common": [{"id": "main", "sources": ["main.c"],
+      "commands": [["{cc}", "-std=c11", "{opt}", "-frandom-seed={unit_id}", "-c", "{source}", "-o", "{object}"]]}],
+    "argv": ["{cc}", "{objects}", "-Wl,--build-id=none", "-o", "{binary}"]
+  }],
+  "verify": ["{python}", "{root}/verify.py", "{binary}", "--quick"],
+  "verify_final": ["{python}", "{root}/verify.py", "{binary}"],
+  "baseline": {"build": "size", "link": "hosted", "order": ["square"], "variants": {"square": "multiply"}},
+  "codecs": ["xz-9"],
+  "max_native_bytes": 1048576
+}

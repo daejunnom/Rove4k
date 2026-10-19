@@ -1,0 +1,339 @@
+{
+  "source_repository": "https://github.com/daejunnom/NVCompact",
+  "source_commit": "4f238d1e56faca3a8c926098c6d5be2c98728cb8",
+  "method": "filtered tracked-file snapshot, no git history import",
+  "kept_files": 309,
+  "excluded_external_files": [
+    {
+      "path": "packages/tcec4k-lab/inputs/4k.c",
+      "bytes": 3932,
+      "sha256": "04e8f61d6ed6ad5feaaea7c62c578b647b9cdbc0e2313c4437645aff63a54af6"
+    },
+    {
+      "path": "packages/tcec4k-lab/inputs/4ku",
+      "bytes": 4093,
+      "sha256": "be51d7aae0f36f493aa5cdbf1b847425c61fb1f89e93b7969222e662e43ced22"
+    },
+    {
+      "path": "packages/tcec4k-lab/inputs/M4sseur",
+      "bytes": 4095,
+      "sha256": "50585513f84e39b72fd4855efc8afc0b2f9db22be33fbe6ade2f856983fc5876"
+    },
+    {
+      "path": "packages/tcec4k-lab/inputs/STRO4K",
+      "bytes": 4096,
+      "sha256": "c4b3a7d3ca808418dd014be9527b81057c4db5de8d24ab0c4ee14a360f17ae98"
+    },
+    {
+      "path": "packages/tcec4k-lab/inputs/c4ke",
+      "bytes": 4093,
+      "sha256": "b5ecbcd8a189cf3296bc5ea874dd0ed612949d02744252041f2d2914776769ea"
+    },
+    {
+      "path": "packages/tcec4k-lab/inputs/ice4",
+      "bytes": 4087,
+      "sha256": "707d994e0515473f53052998ee85d03041f17f8c23b3793d497f64b8e41b252b"
+    },
+    {
+      "path": "packages/tcec4k-lab/inputs/molly",
+      "bytes": 4096,
+      "sha256": "98c8d9863a7837677a3c2b8f62c3afdbcf6fa44c659555db0e8168f613e47f02"
+    },
+    {
+      "path": "packages/tcec4k-lab/inputs/moonfish",
+      "bytes": 3941,
+      "sha256": "665eb7be5fd47b531f0849f4ae8f92be6e068fff40f55cf7e5f9e2b4cdad8c42"
+    },
+    {
+      "path": "packages/tcec4k-lab/inputs/pygone",
+      "bytes": 4093,
+      "sha256": "f44c111d821c5bffb9117154dcffbfb0e83ab41b35e174b084a9bb5000ee1768"
+    },
+    {
+      "path": "packages/tcec4k-lab/inputs/sunfish",
+      "bytes": 2844,
+      "sha256": "3066c961174281678f2e15edd118fa45231b4d6e1dcc1f77ea11a62309318261"
+    },
+    {
+      "path": "packages/tcec4k-lab/inputs/we4k",
+      "bytes": 4079,
+      "sha256": "8540b397425582d86d73d54d1ba7a44927c6207812123065749bf14cacf8354e"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/4k-dot-c/LICENSE",
+      "bytes": 1075,
+      "sha256": "70310ed8da44166c2e1b921c7df94c549a4da67f179605dc333d33faa476fa38"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/4k-dot-c/PROVENANCE.json",
+      "bytes": 2275,
+      "sha256": "a64e00c6e80dbea13aa6db281ceabe30adea0d59aaca448335bab9c1013ab9dc"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/4k-dot-c/THIRD_PARTY_LICENSES",
+      "bytes": 1171,
+      "sha256": "4b9d929c4397fa6e79598647b2039545bf768eaed74dac8dcdcb28d78aa19459"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/4k-dot-c/source.tar.gz",
+      "bytes": 121502,
+      "sha256": "879af4c9e943f8f5b159a0a5a19f2eda41a41c690fbd73468bbcc3a9c940e3df"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/4ku/LICENSE",
+      "bytes": 1063,
+      "sha256": "f315076b5a0495a0095d86b45366d84d7b277a39998b74f3af67261045123c7b"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/4ku/PROVENANCE.json",
+      "bytes": 1617,
+      "sha256": "1ba4d5c3224c01af0256fdf69081983949238ced5705972fcabc759410a36ba4"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/4ku/source.tar.gz",
+      "bytes": 20209,
+      "sha256": "1749e8937505660764c1173fa4129f9c444ef446f0713748a83dbbf22d67a329"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/c4ke/LICENSE",
+      "bytes": 1066,
+      "sha256": "9c74336f43dc9a6361d1391b2d5637ed91e8765d4a291650e52f7308e4096f8e"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/c4ke/PROVENANCE.json",
+      "bytes": 1743,
+      "sha256": "53da2dc918c9d1685755988b8e72efd96c9a1c077d75737df62181f42a0944db"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/c4ke/source.tar.gz",
+      "bytes": 36870,
+      "sha256": "fbc7363ebe6f49c3d765ddda8a59dd194ebcd3a7a675ce474d3e2624b103b087"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/ice4/LICENSE",
+      "bytes": 35149,
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/ice4/PROVENANCE.json",
+      "bytes": 2098,
+      "sha256": "ef961d1cc340faff24b2cdd271f6df4d1a6d2095982c6371f4ae290c68687692"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/ice4/source.tar.gz",
+      "bytes": 60851,
+      "sha256": "47242612d931b4fb138b83bcff0e469ea83929d0c2993237db4b02f39440511b"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/m4sseur/LICENSE",
+      "bytes": 1072,
+      "sha256": "bcfd25bccdc5102655982d6321847d612ad17417a6ae10a7b95498c6674bdcfc"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/m4sseur/PROVENANCE.json",
+      "bytes": 1891,
+      "sha256": "eecc7c93bc32222d89345458da3c7258dc607c5f938c4462f9fcefa463d1b7ba"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/m4sseur/source.tar.gz",
+      "bytes": 51716,
+      "sha256": "7c8a3cd00d3f5644e9c8fe9be6ec12856557b5b48543caf844d1ee43855371bc"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/molly/LICENSE",
+      "bytes": 1067,
+      "sha256": "60f9fde03ebc1b6ceb2547469fb43d32fcebf2c1b4941b0f20957040fd95c8e7"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/molly/PROVENANCE.json",
+      "bytes": 1723,
+      "sha256": "49d67642791be389251a0012f49bf13cb7a7ec06c17334fd17b6eaca45f1bec6"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/molly/native-build.json",
+      "bytes": 479,
+      "sha256": "3fc50896ee15c23dc991d2db8263b6ed02dc68145e9f9fe6beba37a03c99c78f"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/molly/source.tar.gz",
+      "bytes": 18547,
+      "sha256": "5674d841284c9662bf69cf27ab30e45df621ae35190dbccd1c42b370bd39cb60"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/moonfish/LICENSE-SOURCE.html",
+      "bytes": 10979,
+      "sha256": "7dfff1f6b810dbb9be624eb301ff965a7f921437299818f19e62210be9f46aaa"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/moonfish/LICENSE.0BSD.txt",
+      "bytes": 696,
+      "sha256": "9a9a3187c9df0cf2e90d567224da9f67ae2ecf7a6f6d6a3189853b17f3f5ad01"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/moonfish/PROVENANCE.json",
+      "bytes": 2207,
+      "sha256": "d5589783f4ec0dad1d566fdda0f55f05f25137ef34f1861a6ce7046ab6e72eeb"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/moonfish/source.tar.gz",
+      "bytes": 4935,
+      "sha256": "9bce4b0085f3567272359d355fbdef5c06d1ba2cc689b47ff06a7a8f725c0f6f"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/pygone/LICENSE.md",
+      "bytes": 34901,
+      "sha256": "1800343554ad3a2b2bb2936d4dff0dfe85a3f153dfdb3022f63ebbccc3b07931"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/pygone/PROVENANCE.json",
+      "bytes": 5294,
+      "sha256": "518dbb8499ed4ca91f42ab12decd311bee00e0228935e91f0fb1ab850a61cb84"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/pygone/source-correspondence.json",
+      "bytes": 477,
+      "sha256": "dc9d456fcf3c29ca74d77dee01414a74a0e9af3f736d9daeae36585386b284bc"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/pygone/source.tar.gz",
+      "bytes": 37064,
+      "sha256": "b4ffd06dec1be7b77bd2f4f0f2ddc944d34ff89027503493b5b3ce94cba85fe3"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/source-manifest.json",
+      "bytes": 87774,
+      "sha256": "1bb5629660a12424644df0381423be6e277e396b228cf1dbe5911431ce50a96f"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/stro4k/LICENSE",
+      "bytes": 35149,
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/stro4k/PROVENANCE.json",
+      "bytes": 1979,
+      "sha256": "d773de6a9d02a8f531c507b368bdbdb29880bdbe7403525d245720c6941a7cd2"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/stro4k/source.tar.gz",
+      "bytes": 58886,
+      "sha256": "33dd8d8fbb77a81325dd5392cb4fba6248ffbbfa7771869172819a467ee61a5a"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/sunfish/LICENSE.md",
+      "bytes": 35179,
+      "sha256": "4052be61f35ad6a156dcee919b8f99058b24b0417a152ecef746f702c7f34c5c"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/sunfish/PROVENANCE.json",
+      "bytes": 4976,
+      "sha256": "805279de333bdafcca74709ff8fc4641bf7ad18c1006bf5e9152db4c27a7cb8b"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/sunfish/source-correspondence.json",
+      "bytes": 640,
+      "sha256": "329e55558798f4c2853ea327a03dbd4f629d099d87c2e2c6c3d31d4933e23c01"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/sunfish/source.tar.gz",
+      "bytes": 1264050,
+      "sha256": "c5ca0cd44715ac4854236ae7fc868c87647142138fde5c68f012db2fa64e53dd"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/we4k/LICENSE",
+      "bytes": 35149,
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/we4k/PROVENANCE.json",
+      "bytes": 1843,
+      "sha256": "d1e7218856d623e290dd6116add8ed28c022f1fa485097f8ac3be7b402e1ee42"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/we4k/native-build.json",
+      "bytes": 1235,
+      "sha256": "3b6830e3e4b153edb8d4ebdc78899a21d1cfd6bece40628ebd88ca4e73069562"
+    },
+    {
+      "path": "packages/tcec4k-lab/vendor/we4k/source.tar.gz",
+      "bytes": 32015,
+      "sha256": "eed5fdd29d5048159a40297bdcabc6f5130a1c3c4ed3d03a449ba9b6cdbb3e88"
+    }
+  ],
+  "external_examples_vendored": false,
+  "metadata_redactions": [
+    {
+      "path": "packages/tcec4k-lab/engines/4ku.json",
+      "original_sha256": "8c3c80462691b0e5fdc1f71686abda39ff421ed2fc51a0b81ab761decce144fa",
+      "sanitized_sha256": "8b77a21c16ec2f4df3e936e97f7bf7b019351f3f8d320bb247d7a5b4647a01d0",
+      "engine_headers_replaced_with_hashes": 1
+    },
+    {
+      "path": "packages/tcec4k-lab/engines/M4sseur.json",
+      "original_sha256": "40d6fe5046e13a2d031ec134b027c9527eefbad72c8ddc15447d2380acb033ee",
+      "sanitized_sha256": "4cca12498e451f9d6495fdda064c75790e099f401e69b4be53a9c019ba51008b",
+      "engine_headers_replaced_with_hashes": 1
+    },
+    {
+      "path": "packages/tcec4k-lab/engines/STRO4K.json",
+      "original_sha256": "6a1ee07b5e3b0cbe4de51ffacc17a4054f980778691b0302c9cb779758497569",
+      "sanitized_sha256": "8a923fe487d3e29173614d69f9882eec5c5d4ddf2bac61e9dffbb99de2ebb1f6",
+      "engine_headers_replaced_with_hashes": 1
+    },
+    {
+      "path": "packages/tcec4k-lab/engines/c4ke.json",
+      "original_sha256": "78cbc2f967dea988d7abca4ee98f148b8737d3079131cd68c60b7d614f83d31e",
+      "sanitized_sha256": "d0ee30bdc3bd320708d56f9b32d4f55dcd84e247ce3f062a9894ff8aa949fa27",
+      "engine_headers_replaced_with_hashes": 1
+    },
+    {
+      "path": "packages/tcec4k-lab/engines/ice4.json",
+      "original_sha256": "2f861aeaea09ab34adfee6ee9c7927cba65985074ec55a78b959fe498c1b4d05",
+      "sanitized_sha256": "ade90095d4a11978a0eff1243dc6664281f5521362fa8a0bd0d2ac9c7a144771",
+      "engine_headers_replaced_with_hashes": 1
+    },
+    {
+      "path": "packages/tcec4k-lab/engines/molly.json",
+      "original_sha256": "316b4107b3fd1124740c848b89c500e801781c89a561fc66469b26492bb80553",
+      "sanitized_sha256": "d89ac6eb25d48445db250dcdb395b756369e43584b949cc776210b9864306bdd",
+      "engine_headers_replaced_with_hashes": 1
+    },
+    {
+      "path": "packages/tcec4k-lab/engines/moonfish.json",
+      "original_sha256": "1460eba5a9824068bf4171f0363889a51efeefdab5cbbdbefd5e04b5d626c3da",
+      "sanitized_sha256": "25812b136fafe99f50271c53178bbdbdf50ae1071344737ae8a964115ba6cc00",
+      "engine_headers_replaced_with_hashes": 1
+    },
+    {
+      "path": "packages/tcec4k-lab/engines/pygone.json",
+      "original_sha256": "85c63c809df1cdaa0c8cbef6eb37c2486425a8ca495717acbffab33ba5ab1cc5",
+      "sanitized_sha256": "0cec9ad102969580dc803d7963bba7f45db3f28bf6354fae28b9faa0dcfb5b55",
+      "engine_headers_replaced_with_hashes": 1
+    },
+    {
+      "path": "packages/tcec4k-lab/engines/sunfish.json",
+      "original_sha256": "9f593d30911b8e4a2d2a7d8bcf1712185f9aecb4c7fd406c37028a17e2ccb69c",
+      "sanitized_sha256": "a1a1db7ce987599e4b5ebd23329322c49ebd4a9e1c4f13b52c118c48f5026fe5",
+      "engine_headers_replaced_with_hashes": 1
+    },
+    {
+      "path": "packages/tcec4k-lab/engines/we4k.json",
+      "original_sha256": "86259998ac0959d43b5466c81efe6335c38b4749499c48e13d4458202509b722",
+      "sanitized_sha256": "5ea95a9bb6a8cfe47b8e4ddb10828d3eb7b820d64eb493bbedb42c43239f5371",
+      "engine_headers_replaced_with_hashes": 1
+    },
+    {
+      "path": "packages/tcec4k-lab/research/ENGINE-ROSTER.json",
+      "original_sha256": "ae572aad6f7aa9471134092a045fba2cd8e38d89f8ed891441fc4cb1d35b9a22",
+      "sanitized_sha256": "2d6a635cd6033f6e61beb49135bde22f6f37fd605de0c6814bb5fa8f8dd746cd",
+      "engine_headers_replaced_with_hashes": 10
+    },
+    {
+      "path": "packages/tcec4k-lab/research/available-artifacts.json",
+      "original_sha256": "04183bef50018364ee3324fa2b61c7fba06dddc00056d5f476ca1bde6fbe8f00",
+      "sanitized_sha256": "08d1b45533759fc7a7e26b1375469782f02f74ff5ae3d5f6601567b6d22d3742",
+      "engine_headers_replaced_with_hashes": 10
+    }
+  ],
+  "snapshot_scope": "filtered source snapshot; external engine assets excluded and engine shell headers replaced by length/hash metadata"
+}

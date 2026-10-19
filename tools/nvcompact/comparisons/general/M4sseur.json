@@ -1,0 +1,66 @@
+{
+  "format": "nvcompact.external-engine.v1",
+  "name": "M4sseur",
+  "artifact": "M4sseur",
+  "artifact_key": "M4sseur",
+  "category": "4k",
+  "original_bytes": 4095,
+  "sha256": "50585513f84e39b72fd4855efc8afc0b2f9db22be33fbe6ade2f856983fc5876",
+  "checked_at": "2026-10-19",
+  "provenance": {
+    "source_url": "https://github.com/Diazepawn/M4sseur",
+    "source_commit": "470fa53925c1cafeaaf84db3612abb5eb0ae9e9f",
+    "artifact_url": null,
+    "representative_version": "1.0 source rebuild",
+    "last_tournament_version": "1.0",
+    "license": "MIT",
+    "artifact_provenance": "upstream-source-build",
+    "version_relationship": "No public release asset. Rebuilt unchanged upstream nanonizer with GCC, ran upstream compress.sh portfolio, concatenated launcher.sh + phase2.cpp.lzma. Its final compress_info command returns 1 because the already-produced file exists; selected payload is valid and 4095-byte assembled baseline is preserved.",
+    "source_correspondence_status": "pinned-source-upstream-build",
+    "editable_source_correspondence": "all pinned source files match the pinned tree used for the unchanged upstream baseline build",
+    "unresolved_source_correspondence_gap": false,
+    "public_input_not_confirmed_exact_private_tcec_upload": true
+  },
+  "runtime_profile": {
+    "major_allocation_bytes": 68719476736,
+    "engine_workers": 103,
+    "kind": "eager original TT initialization"
+  },
+  "historical_python_v02": {
+    "original_bytes": "4095",
+    "smallest_bytes": "4092",
+    "accepted_bytes": "",
+    "uci": "blocked",
+    "original_uci": "",
+    "byte_replay": "pass",
+    "winner_sha256": "cdb8d5fe6cad839b4682cc0db48722b06f0fff7f46f7ab67b2453319a759c4a3",
+    "original_deployment_equivalent": "True"
+  },
+  "envelope": {
+    "decoder": "xz -d",
+    "payload_codec": {
+      "format": "alone"
+    },
+    "header_bytes": 133,
+    "header_sha256": "e793d37c9e0bb6cc642ed090b648a8a8fe4b31812cf4608a33aaffbc70fa2c4c"
+  },
+  "payload_sha256": "ef45e658ae25e8d4377a23c29c5ffc39d839a4d4ca3b3ef8e5e4715975d7e4a9",
+  "language": "cpp",
+  "notation": {
+    "target": "cpp17-lp64",
+    "token_contract": "no-token-observation",
+    "compact": true
+  },
+  "compile_argv": [
+    "c++",
+    "-xc++",
+    "-march=native",
+    "-std=c++20",
+    "-pthread",
+    "-O3",
+    "-DNDEBUG",
+    "-o{output}",
+    "-"
+  ],
+  "runtime_blocked": "Explicit resource plan required: eager 64 GiB initialization and 103 workers."
+}

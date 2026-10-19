@@ -1,0 +1,51 @@
+{
+  "name": "molly",
+  "artifact": "../inputs/molly",
+  "sha256": "98c8d9863a7837677a3c2b8f62c3afdbcf6fa44c659555db0e8168f613e47f02",
+  "category": "4k",
+  "provenance": {
+    "version_relationship": "Exact named tournament commit is public. Rebuilt upstream build.sh with Cargo.lock-preserved minifier dependencies using Rust/Cargo 1.99.1. No prebuilt release found. Native compile succeeds; engine was not run because startup initializes 96 GiB.",
+    "source_archive": "../vendor/molly/source.tar.gz",
+    "license_path": "../vendor/molly/LICENSE",
+    "path_base": "manifest-directory",
+    "source_manifest": "../vendor/source-manifest.json",
+    "source_archive_sha256": "5674d841284c9662bf69cf27ab30e45df621ae35190dbccd1c42b370bd39cb60",
+    "license_paths": [
+      "../vendor/molly/LICENSE"
+    ],
+    "source_commit": "e317a0c7b823832a87239027f536582cf0576111",
+    "source_url": "https://codeberg.org/latuernich/molly",
+    "artifact_url": null,
+    "representative_version": "e317a0c7b8 source rebuild",
+    "source_correspondence_status": "exact-tournament-commit-upstream-build",
+    "editable_source_correspondence": "exact named tournament commit; original upstream minifier/build pipeline reproduced the baseline source and submitted-size wrapper",
+    "source_correspondence_proofs": [
+      "../vendor/molly/native-build.json"
+    ],
+    "unresolved_source_correspondence_gap": false
+  },
+  "envelope": {
+    "decoder": "xz -d",
+    "payload_codec": {
+      "format": "alone"
+    },
+    "header_bytes": 105,
+    "header_sha256": "7a562d826d55e4414a05fb45dd7f77e6f2c1abc713c7152dea29a46b22095b7d"
+  },
+  "payload_sha256": "9411457e5b9f17ce3bc5dde00c6e198aafa2a3cd5a4f074bc944be58bd78cb0a",
+  "language": "rust",
+  "notation": {
+    "target": "rust2021",
+    "token_contract": "no-token-observation",
+    "compact": true
+  },
+  "compile_argv": [
+    "rustc",
+    "-Ctarget-cpu=native",
+    "-O",
+    "-o",
+    "{output}",
+    "-"
+  ],
+  "runtime_blocked": "Exact TCEC source initializes 0x100000000 TT entries, 96 GiB allocation verified in compiled output; current memory.max is 8 GiB. No resource constant was changed."
+}

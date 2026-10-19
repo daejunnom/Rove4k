@@ -4,3 +4,7 @@ runs/
 node_modules/
 __pycache__/
 *.py[cod]
+target/
+external/
+vendor/
+*.tgz

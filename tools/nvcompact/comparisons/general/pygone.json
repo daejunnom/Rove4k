@@ -1,0 +1,56 @@
+{
+  "format": "nvcompact.external-engine.v1",
+  "name": "pygone",
+  "artifact": "pygone",
+  "artifact_key": "pygone",
+  "category": "4k",
+  "original_bytes": 4093,
+  "sha256": "f44c111d821c5bffb9117154dcffbfb0e83ab41b35e174b084a9bb5000ee1768",
+  "checked_at": "2026-10-19",
+  "provenance": {
+    "source_url": "https://github.com/scs-ben/pygone",
+    "source_commit": "11bf1426bc491753b66e945692c5ee4a8d510e45",
+    "artifact_url": "https://raw.githubusercontent.com/scs-ben/pygone/cbaebeeaaa5aab9c9ff2eaa153a65ec960a071b5/historical/pygone2-11b142",
+    "representative_version": "2-11b142",
+    "last_tournament_version": "2-11b142",
+    "license": "GPL-3.0-or-later",
+    "artifact_provenance": "upstream-tracked-historical-submission",
+    "version_relationship": "The TCEC/historical label 2-11b142 omits the f found in the actual development commit 11bf1426bc491753b66e945692c5ee4a8d510e45. That commit dist/pygone is byte-identical to historical/pygone2-11b142 (4093 bytes, sha256 f44c111d821c5bffb9117154dcffbfb0e83ab41b35e174b084a9bb5000ee1768). The exact editable source and build/minification scripts are identified externally and are not included in this repository.",
+    "source_correspondence_status": "exact-same-commit-original-artifact",
+    "editable_source_correspondence": "exact commit contains byte-identical original submitted artifact",
+    "unresolved_source_correspondence_gap": false,
+    "public_input_not_confirmed_exact_private_tcec_upload": true
+  },
+  "runtime_profile": {
+    "minimum_pointer_table_bytes": 1073741824,
+    "engine_workers": 1,
+    "interpreter": "pypy3",
+    "kind": "2**27 slots before interpreter/search overhead"
+  },
+  "historical_python_v02": {
+    "original_bytes": "4093",
+    "smallest_bytes": "4020",
+    "accepted_bytes": "4020",
+    "uci": "pass",
+    "original_uci": "pass",
+    "byte_replay": "pass",
+    "winner_sha256": "290e27a9d9f72770d34a94a19f22749bc2f109469ca19880853f9d1c23e258d6",
+    "original_deployment_equivalent": "True"
+  },
+  "envelope": {
+    "decoder": "xz -d",
+    "payload_codec": {
+      "format": "xz"
+    },
+    "header_bytes": 85,
+    "header_sha256": "f14d4189ba8a5c151accab78fda49005fe49384fc7583b7682ef1fda5ddecb1e"
+  },
+  "payload_sha256": "3785c3ea8373a6bc3ae297b35671771e4f0bfd0e252c6a2acead03e48ee886d2",
+  "language": "python",
+  "notation": {
+    "target": "python3",
+    "token_contract": "no-token-observation",
+    "compact": true
+  },
+  "runtime_blocked": "Explicit resource plan required: PyPy pointer table alone is at least 1 GiB, before interpreter and search overhead. The ordinary default 1 GiB AS verifier cap cannot represent this original configuration."
+}

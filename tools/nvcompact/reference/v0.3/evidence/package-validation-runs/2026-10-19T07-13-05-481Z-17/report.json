@@ -1,0 +1,325 @@
+{
+  "format": "nvcompact.package-validation.v1",
+  "status": "fail",
+  "package": {
+    "name": "nvcompact",
+    "version": "0.3.0",
+    "tarball": "dist/nvcompact-0.3.0.tgz",
+    "bytes": 97549,
+    "sha256": "cdc1bda23c4ee57ab0e499e7a426453898443e2bbaa55e1959fbaaa28ca42de4",
+    "files": 42,
+    "scope": "actual tar member inspection; research inputs excluded"
+  },
+  "environment": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "architecture": "x64"
+  },
+  "commands": [
+    {
+      "name": "npm-version",
+      "argv": [
+        "npm",
+        "--version"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "seconds": 0.176,
+      "stdout": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/npm-version.stdout",
+      "stderr": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/npm-version.stderr"
+    },
+    {
+      "name": "offline-install",
+      "argv": [
+        "npm",
+        "install",
+        "--offline",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund",
+        "--package-lock=false",
+        "--save=false",
+        "/workspace/scratch/d70af21bae00/repos/NVCompact/dist/nvcompact-0.3.0.tgz"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "seconds": 0.507,
+      "stdout": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/offline-install.stdout",
+      "stderr": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/offline-install.stderr"
+    },
+    {
+      "name": "installed-help",
+      "argv": [
+        "/tmp/nvcompact package 한글 3gOjAV/consumer with spaces/node_modules/.bin/nvcompact",
+        "--help"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "seconds": 0.046,
+      "stdout": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/installed-help.stdout",
+      "stderr": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/installed-help.stderr"
+    },
+    {
+      "name": "installed-version",
+      "argv": [
+        "/tmp/nvcompact package 한글 3gOjAV/consumer with spaces/node_modules/.bin/nvcompact",
+        "--version"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "seconds": 0.052,
+      "stdout": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/installed-version.stdout",
+      "stderr": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/installed-version.stderr"
+    },
+    {
+      "name": "installed-build-help",
+      "argv": [
+        "/tmp/nvcompact package 한글 3gOjAV/consumer with spaces/node_modules/.bin/nvcompact",
+        "build",
+        "--help"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "seconds": 0.179,
+      "stdout": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/installed-build-help.stdout",
+      "stderr": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/installed-build-help.stderr"
+    },
+    {
+      "name": "installed-resource-help",
+      "argv": [
+        "/tmp/nvcompact package 한글 3gOjAV/consumer with spaces/node_modules/.bin/nvcompact",
+        "resource",
+        "--help"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "seconds": 0.256,
+      "stdout": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/installed-resource-help.stdout",
+      "stderr": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/installed-resource-help.stderr"
+    },
+    {
+      "name": "installed-rewrite-c-help",
+      "argv": [
+        "/tmp/nvcompact package 한글 3gOjAV/consumer with spaces/node_modules/.bin/nvcompact",
+        "rewrite-c",
+        "--help"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "seconds": 0.227,
+      "stdout": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/installed-rewrite-c-help.stdout",
+      "stderr": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/installed-rewrite-c-help.stderr"
+    },
+    {
+      "name": "installed-notation",
+      "argv": [
+        "/tmp/nvcompact package 한글 3gOjAV/consumer with spaces/node_modules/.bin/nvcompact",
+        "notation",
+        "/tmp/nvcompact package 한글 3gOjAV/consumer with spaces/number $(touch NVCOMPACT_SHELL_SENTINEL) ; 한글 ' .py",
+        "--language",
+        "python",
+        "--token-contract",
+        "no-token-observation",
+        "--compact",
+        "--variant",
+        "shortest-compact",
+        "--output",
+        "/tmp/nvcompact package 한글 3gOjAV/consumer with spaces/compressed [한글] ; ' .py",
+        "--audit",
+        "/tmp/nvcompact package 한글 3gOjAV/consumer with spaces/notation.audit.json"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "seconds": 0.218,
+      "stdout": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/installed-notation.stdout",
+      "stderr": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/installed-notation.stderr"
+    },
+    {
+      "name": "python-executable",
+      "argv": [
+        "python3",
+        "-c",
+        "import sys; print(sys.executable)"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "seconds": 0.018,
+      "stdout": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/python-executable.stdout",
+      "stderr": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/python-executable.stderr"
+    },
+    {
+      "name": "notation-original-execution",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/tmp/nvcompact package 한글 3gOjAV/consumer with spaces/number $(touch NVCOMPACT_SHELL_SENTINEL) ; 한글 ' .py"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "seconds": 0.016,
+      "stdout": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/notation-original-execution.stdout",
+      "stderr": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/notation-original-execution.stderr"
+    },
+    {
+      "name": "notation-compacted-execution",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/tmp/nvcompact package 한글 3gOjAV/consumer with spaces/compressed [한글] ; ' .py"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "seconds": 0.017,
+      "stdout": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/notation-compacted-execution.stdout",
+      "stderr": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/notation-compacted-execution.stderr"
+    },
+    {
+      "name": "missing-python",
+      "argv": [
+        "/tmp/nvcompact package 한글 3gOjAV/consumer with spaces/node_modules/.bin/nvcompact",
+        "notation",
+        "/tmp/nvcompact package 한글 3gOjAV/consumer with spaces/number $(touch NVCOMPACT_SHELL_SENTINEL) ; 한글 ' .py",
+        "--language",
+        "python",
+        "--list-variants"
+      ],
+      "exit_code": 127,
+      "signal": null,
+      "seconds": 0.053,
+      "stdout": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/missing-python.stdout",
+      "stderr": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/missing-python.stderr"
+    },
+    {
+      "name": "core-failure",
+      "argv": [
+        "/tmp/nvcompact package 한글 3gOjAV/consumer with spaces/node_modules/.bin/nvcompact",
+        "notation",
+        "/tmp/nvcompact package 한글 3gOjAV/consumer with spaces/missing input.py",
+        "--language",
+        "python",
+        "--list-variants"
+      ],
+      "exit_code": 2,
+      "signal": null,
+      "seconds": 0.182,
+      "stdout": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/core-failure.stdout",
+      "stderr": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/core-failure.stderr"
+    },
+    {
+      "name": "cc-version",
+      "argv": [
+        "cc",
+        "--version"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "seconds": 0.004,
+      "stdout": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/cc-version.stdout",
+      "stderr": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/cc-version.stderr"
+    },
+    {
+      "name": "ld-version",
+      "argv": [
+        "ld",
+        "--version"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "seconds": 0.004,
+      "stdout": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/ld-version.stdout",
+      "stderr": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/ld-version.stderr"
+    },
+    {
+      "name": "native-compression-guard-positive-control",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-c",
+        "import gzip; gzip.compress(b\"probe\")"
+      ],
+      "exit_code": 1,
+      "signal": null,
+      "seconds": 0.036,
+      "stdout": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/native-compression-guard-positive-control.stdout",
+      "stderr": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/native-compression-guard-positive-control.stderr"
+    },
+    {
+      "name": "native-execution-guard-positive-control",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-c",
+        "import subprocess, sys; subprocess.run([sys.executable, \"-c\", \"raise SystemExit(93)\"], check=True)"
+      ],
+      "exit_code": 1,
+      "signal": null,
+      "seconds": 0.041,
+      "stdout": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/native-execution-guard-positive-control.stdout",
+      "stderr": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/native-execution-guard-positive-control.stderr"
+    },
+    {
+      "name": "installed-plain-build",
+      "argv": [
+        "/tmp/nvcompact package 한글 3gOjAV/consumer with spaces/node_modules/.bin/nvcompact",
+        "build",
+        "/tmp/nvcompact package 한글 3gOjAV/consumer with spaces/plain example from installed tarball/manifest.json",
+        "--out",
+        "/tmp/nvcompact package 한글 3gOjAV/consumer with spaces/plain linked build",
+        "--jobs",
+        "2",
+        "--max-seconds",
+        "45",
+        "--command-seconds",
+        "10"
+      ],
+      "exit_code": 1,
+      "signal": null,
+      "seconds": 0.183,
+      "stdout": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/installed-plain-build.stdout",
+      "stderr": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/installed-plain-build.stderr"
+    }
+  ],
+  "checks": [
+    {
+      "name": "offline-local-tarball-install",
+      "status": "pass",
+      "hooks": "disabled",
+      "independent_working_directory": true
+    },
+    {
+      "name": "installed-bin-help-and-version",
+      "status": "pass"
+    },
+    {
+      "name": "installed-new-command-modules-load",
+      "status": "pass"
+    },
+    {
+      "name": "notation-value-and-argv-preservation",
+      "status": "pass",
+      "original_bytes": 64,
+      "compacted_bytes": 35,
+      "output": "(100000.0, 0.8, 255)"
+    },
+    {
+      "name": "missing-runtime-and-core-failure-remain-failures",
+      "status": "pass"
+    },
+    {
+      "name": "native-boundary-audit-positive-controls",
+      "status": "pass",
+      "compression_audit": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/native-compression-guard-positive-control.audit.jsonl",
+      "execution_audit": "evidence/package-validation-runs/2026-10-19T07-13-05-481Z-17/native-execution-guard-positive-control.audit.jsonl"
+    }
+  ],
+  "limits": [
+    "Linux host integration; no Windows/macOS execution claim.",
+    "C-only installed examples; no new Rust or TCEC engine campaign.",
+    "Lifecycle cancellation fixtures are tested separately by the CLI test suite."
+  ],
+  "error": {
+    "name": "AssertionError",
+    "message": "installed-plain-build: latform.platform(), \"packing\": packing}\n                ^^^^^^^^^^^^^^^^^^^\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/platform.py\", line 1245, in platform\n    system, node, release, version, machine, processor = uname()\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/platform.py\", line 865, in __iter__\n    (self.processor,)\n     ^^^^^^^^^^^^^^\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/functools.py\", line 998, in __get__\n    val = self.func(instance)\n          ^^^^^^^^^^^^^^^^^^^\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/platform.py\", line 860, in processor\n    return _unknown_as_blank(_Processor.get())\n                             ^^^^^^^^^^^^^^^^\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/platform.py\", line 800, in get\n    return func() or ''\n           ^^^^^^\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/platform.py\", line 828, in from_subprocess\n    return subprocess.check_output(\n           ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py\", line 466, in check_output\n    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py\", line 548, in run\n    with Popen(*popenargs, **kwargs) as process:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/nvcompact package 한글 3gOjAV/consumer with spaces/node_modules/nvcompact/python/nvlaunch.py\", line 221, in __init__\n    super().__init__(args, *positional, **options)\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py\", line 1026, in __init__\n    self._execute_child(args, executable, preexec_fn, close_fds,\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py\", line 1823, in _execute_child\n    sys.audit(\"subprocess.Popen\", executable, args, cwd, env)\n  File \"/tmp/nvcompact package 한글 3gOjAV/consumer with spaces/native boundary audit/sitecustomize.py\", line 24, in _audit\n    raise RuntimeError(\"NVCOMPACT_NATIVE_EXECUTION_FORBIDDEN\")\nRuntimeError: NVCOMPACT_NATIVE_EXECUTION_FORBIDDEN\n\n\n1 !== 0\n"
+  },
+  "temporary_workspace_removed": true
+}

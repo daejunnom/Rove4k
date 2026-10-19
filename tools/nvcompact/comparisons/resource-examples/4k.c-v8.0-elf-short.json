@@ -1,0 +1,40 @@
+{
+  "format": "nvcompact.resource-spec.v1",
+  "name": "4k.c-v8.0-elf-short-clock",
+  "artifact": "../inputs/4k.c-v8.0",
+  "artifact_key": "4k.c-v8.0",
+  "sha256": "6eb03195b277f42ece9488c42c1e459791ffcbf0dc197bdfa700dd9574715ace",
+  "command": [
+    "{artifact}"
+  ],
+  "tools": [],
+  "budget": {
+    "required_memory_bytes": 268435456,
+    "reserve_memory_bytes": 268435456,
+    "address_space_bytes": 536870912,
+    "cpu_seconds_per_process": 180,
+    "wall_seconds": 180,
+    "file_bytes": 67108864,
+    "output_bytes_per_session": 2097152
+  },
+  "preconditions": {},
+  "uci": {
+    "profile": "tcec4k",
+    "preserve_engine_options": true,
+    "startup_seconds": 60,
+    "ready_seconds": 5,
+    "search_seconds": 5,
+    "quit_seconds": 2,
+    "cleanup_seconds": 5,
+    "extensions": false,
+    "quick": false,
+    "case_ids": [],
+    "clock_ms": 2000,
+    "clock_grace_ms": 1000,
+    "increment_ms": 0
+  },
+  "notes": [
+    "Historical original ELF with256 MiB LOAD extent and512 MiB AS budget. All six short-clock histories are requested; original settings remain unchanged.",
+    "Copy outside the repository and bind artifact to the external input. This is not the latest private TCEC upload."
+  ]
+}

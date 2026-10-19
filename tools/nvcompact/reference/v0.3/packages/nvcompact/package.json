@@ -1,0 +1,42 @@
+{
+  "name": "nvcompact",
+  "version": "0.3.0",
+  "private": true,
+  "license": "MIT",
+  "description": "N-versions compaction with verified builds, packing, and reproducible results.",
+  "type": "module",
+  "bin": {
+    "nvcompact": "bin/nvcompact.mjs"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "python/*.py",
+    "examples/",
+    "linker/",
+    "profiles/",
+    "README.md",
+    "NOTICE.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "os": [
+    "linux"
+  ],
+  "keywords": [
+    "n-versions",
+    "compression",
+    "code-size",
+    "linker",
+    "tcec",
+    "uci"
+  ],
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/daejunnom/NVCompact.git",
+    "directory": "packages/nvcompact"
+  }
+}

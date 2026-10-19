@@ -1,0 +1,376 @@
+{
+  "format": "nvcompact.external-artifact-catalog.v1",
+  "checked_at": "2026-10-19",
+  "scope": "11 general public examples plus two separately named public ELF examples; external bytes and sources are not vendored",
+  "entries": [
+    {
+      "name": "ice4",
+      "artifact_key": "ice4",
+      "manifest": "../general/ice4.json",
+      "category": "4k",
+      "original_bytes": 4087,
+      "sha256": "707d994e0515473f53052998ee85d03041f17f8c23b3793d497f64b8e41b252b",
+      "provenance": {
+        "source_url": "https://github.com/MinusKelvin/ice4",
+        "source_commit": "2bd7a54f9bb47a61a7cd97f3db9f52eadd4e2c19",
+        "artifact_url": "https://github.com/MinusKelvin/ice4/releases/download/v6.1/ice4-tcec",
+        "representative_version": "6.1",
+        "last_tournament_version": "6.1.1",
+        "license": "GPL-3.0",
+        "artifact_provenance": "upstream-release",
+        "version_relationship": "Public v6.1 release; latest completed/announced TCEC label is 6.1.1. No public 6.1.1 tag or release was found. HEAD fabe3b1a contains a later one-line crash fix, but is not silently substituted.",
+        "source_correspondence_status": "same-release-tag-source-and-artifact",
+        "editable_source_correspondence": "matching upstream release tag source and original release asset; independent full source-to-release-binary reproduction not performed",
+        "unresolved_source_correspondence_gap": "release-source relationship known; native reproduction not separately performed",
+        "public_input_not_confirmed_exact_private_tcec_upload": true
+      },
+      "runtime_profile": {
+        "major_allocation_bytes": 274877906944,
+        "engine_workers": 256,
+        "kind": "source-derived allocation, not measured RSS"
+      }
+    },
+    {
+      "name": "4ku",
+      "artifact_key": "4ku",
+      "manifest": "../general/4ku.json",
+      "category": "4k",
+      "original_bytes": 4093,
+      "sha256": "be51d7aae0f36f493aa5cdbf1b847425c61fb1f89e93b7969222e662e43ced22",
+      "provenance": {
+        "source_url": "https://github.com/kz04px/4ku",
+        "source_commit": "203ddd4bf9b331851c796d8b5d57eac08f6e6c18",
+        "artifact_url": "https://github.com/kz04px/4ku/releases/download/v5.1/4ku-5.1-mini",
+        "representative_version": "5.1",
+        "last_tournament_version": "5.1",
+        "license": "MIT",
+        "artifact_provenance": "upstream-release",
+        "version_relationship": "Latest TCEC version and public release label agree; public mini release is used.",
+        "source_correspondence_status": "same-release-tag-source-and-artifact",
+        "editable_source_correspondence": "matching upstream release tag source and original release asset; independent full source-to-release-binary reproduction not performed",
+        "unresolved_source_correspondence_gap": "release-source relationship known; native reproduction not separately performed",
+        "public_input_not_confirmed_exact_private_tcec_upload": true
+      },
+      "runtime_profile": {
+        "major_allocation_bytes": 67108864,
+        "engine_workers": 1,
+        "kind": "inspected public mini default, not confirmed server profile"
+      }
+    },
+    {
+      "name": "STRO4K",
+      "artifact_key": "STRO4K",
+      "manifest": "../general/STRO4K.json",
+      "category": "4k",
+      "original_bytes": 4096,
+      "sha256": "c4b3a7d3ca808418dd014be9527b81057c4db5de8d24ab0c4ee14a360f17ae98",
+      "provenance": {
+        "source_url": "https://github.com/ONE-RANDOM-HUMAN/STRO4K",
+        "source_commit": "d06d36c4655f99bf1d925ae7a2c22d6657d46e7b",
+        "artifact_url": "https://github.com/ONE-RANDOM-HUMAN/STRO4K/releases/download/v5.0/STRO4K-tcec",
+        "representative_version": "5.0",
+        "last_tournament_version": "5.0.1 (general VII); 6.0 (ELF III and announced VIII)",
+        "license": "GPL-3.0",
+        "artifact_provenance": "upstream-release",
+        "version_relationship": "Latest public release is 5.0. Bare ELF LESS_STRO4K 5.0 and STRO4K 6.0 tournament files and matching version tags were not found. This shell-packed 5.0 file must not be represented as those ELF entries.",
+        "source_correspondence_status": "same-release-tag-source-and-artifact",
+        "editable_source_correspondence": "matching upstream release tag source and original release asset; independent full source-to-release-binary reproduction not performed",
+        "unresolved_source_correspondence_gap": "release-source relationship known; native reproduction not separately performed",
+        "public_input_not_confirmed_exact_private_tcec_upload": true
+      },
+      "runtime_profile": {
+        "major_allocation_bytes": 274877906944,
+        "engine_workers": 509,
+        "load_memory_bytes": 285552422912,
+        "required_cpu_feature": "AVX-512 VAES",
+        "kind": "inspected public TCEC profile, no memory downscaling"
+      }
+    },
+    {
+      "name": "4k.c",
+      "artifact_key": "4k.c",
+      "manifest": "../general/4k.c.json",
+      "category": "4k",
+      "original_bytes": 3932,
+      "sha256": "04e8f61d6ed6ad5feaaea7c62c578b647b9cdbc0e2313c4437645aff63a54af6",
+      "provenance": {
+        "source_url": "https://github.com/GediminasMasaitis/4k-dot-c",
+        "source_commit": "880a877d6af2046cc5ce7deb85ea5ad2855b41a1",
+        "artifact_url": "https://github.com/GediminasMasaitis/4k-dot-c/releases/download/v9.0/4kc-mini",
+        "representative_version": "9.0",
+        "last_tournament_version": "9.15.1 (ELF III and announced VIII)",
+        "license": "MIT + zlib for Crinkler-derived compressor/loader",
+        "artifact_provenance": "upstream-release",
+        "version_relationship": "v9.0 is the latest public release and the exact general VII version label. 9.15 source is commit 44072f4af03499ea5d8fa5c7dfd1ee51c8bb6782, but no 9.15.1 version entry/tag/release was found. This original is already a self-contained 4K-eligible ELF.",
+        "source_correspondence_status": "same-release-tag-source-and-artifact",
+        "editable_source_correspondence": "matching upstream release tag source and original release asset; independent full source-to-release-binary reproduction not performed",
+        "unresolved_source_correspondence_gap": "release-source relationship known; native reproduction not separately performed",
+        "public_input_not_confirmed_exact_private_tcec_upload": true
+      },
+      "runtime_profile": {
+        "load_memory_bytes": 23622320128,
+        "physical_memory_requirement_confirmed": false,
+        "kind": "22 GiB virtual LOAD; smaller source defaults do not establish release residency"
+      }
+    },
+    {
+      "name": "c4ke",
+      "artifact_key": "c4ke",
+      "manifest": "../general/c4ke.json",
+      "category": "4k",
+      "original_bytes": 4093,
+      "sha256": "b5ecbcd8a189cf3296bc5ea874dd0ed612949d02744252041f2d2914776769ea",
+      "provenance": {
+        "source_url": "https://github.com/citrus610/c4ke",
+        "source_commit": "22e318f59b3a9eed1d2b8161da832222d4a51033",
+        "artifact_url": "https://github.com/citrus610/c4ke/releases/download/v3.0/c4ke-tcec",
+        "representative_version": "3.0",
+        "last_tournament_version": "3.0",
+        "license": "MIT",
+        "artifact_provenance": "upstream-release",
+        "version_relationship": "Latest TCEC version and public release label agree; public TCEC asset is used.",
+        "source_correspondence_status": "same-release-tag-source-and-artifact",
+        "editable_source_correspondence": "matching upstream release tag source and original release asset; independent full source-to-release-binary reproduction not performed",
+        "unresolved_source_correspondence_gap": "release-source relationship known; native reproduction not separately performed",
+        "public_input_not_confirmed_exact_private_tcec_upload": true
+      },
+      "runtime_profile": {
+        "major_allocation_bytes": 274877906944,
+        "engine_workers": 256,
+        "kind": "source-derived allocation, not measured RSS"
+      }
+    },
+    {
+      "name": "pygone",
+      "artifact_key": "pygone",
+      "manifest": "../general/pygone.json",
+      "category": "4k",
+      "original_bytes": 4093,
+      "sha256": "f44c111d821c5bffb9117154dcffbfb0e83ab41b35e174b084a9bb5000ee1768",
+      "provenance": {
+        "source_url": "https://github.com/scs-ben/pygone",
+        "source_commit": "11bf1426bc491753b66e945692c5ee4a8d510e45",
+        "artifact_url": "https://raw.githubusercontent.com/scs-ben/pygone/cbaebeeaaa5aab9c9ff2eaa153a65ec960a071b5/historical/pygone2-11b142",
+        "representative_version": "2-11b142",
+        "last_tournament_version": "2-11b142",
+        "license": "GPL-3.0-or-later",
+        "artifact_provenance": "upstream-tracked-historical-submission",
+        "version_relationship": "The TCEC/historical label 2-11b142 omits the f found in the actual development commit 11bf1426bc491753b66e945692c5ee4a8d510e45. That commit dist/pygone is byte-identical to historical/pygone2-11b142 (4093 bytes, sha256 f44c111d821c5bffb9117154dcffbfb0e83ab41b35e174b084a9bb5000ee1768). The exact editable source and build/minification scripts are identified externally and are not included in this repository.",
+        "source_correspondence_status": "exact-same-commit-original-artifact",
+        "editable_source_correspondence": "exact commit contains byte-identical original submitted artifact",
+        "unresolved_source_correspondence_gap": false,
+        "public_input_not_confirmed_exact_private_tcec_upload": true
+      },
+      "runtime_profile": {
+        "minimum_pointer_table_bytes": 1073741824,
+        "engine_workers": 1,
+        "interpreter": "pypy3",
+        "kind": "2**27 slots before interpreter/search overhead"
+      }
+    },
+    {
+      "name": "sunfish",
+      "artifact_key": "sunfish",
+      "manifest": "../general/sunfish.json",
+      "category": "4k",
+      "original_bytes": 2844,
+      "sha256": "3066c961174281678f2e15edd118fa45231b4d6e1dcc1f77ea11a62309318261",
+      "provenance": {
+        "source_url": "https://github.com/thomasahle/sunfish",
+        "source_commit": "ccecec26626b858a60d48cf715ebbdd603ee6f85",
+        "artifact_url": "https://raw.githubusercontent.com/thomasahle/sunfish/ccecec26626b858a60d48cf715ebbdd603ee6f85/sunfish_uci_packed.sh",
+        "representative_version": "2022-12-24 classic",
+        "last_tournament_version": "2022-12-24_classic",
+        "license": "GPL-3.0",
+        "artifact_provenance": "upstream-tracked-historical-file",
+        "version_relationship": "The Dec 24 2022 classic commit includes this packed script and editable sunfish_uci.py. python-minifier 2.7.0 on CPython 3.11.17 reproduces its embedded 5837-byte source exactly (SHA256 f1a676e55763635a4ba517e7439249e2f1b15da818e83369b50f6b705178f78f). Equality to the private TCEC upload remains independently unconfirmed.",
+        "source_correspondence_status": "editable-source-reproduces-original-payload",
+        "editable_source_correspondence": "editable sunfish_uci.py minified with python-minifier 2.7.0 reproduces the original packed payload byte-for-byte",
+        "unresolved_source_correspondence_gap": false,
+        "public_input_not_confirmed_exact_private_tcec_upload": true
+      },
+      "runtime_profile": {
+        "interpreter": "python3",
+        "engine_workers": 1,
+        "kind": "original historical classic source"
+      }
+    },
+    {
+      "name": "moonfish",
+      "artifact_key": "moonfish",
+      "manifest": "../general/moonfish.json",
+      "category": "4k",
+      "original_bytes": 3941,
+      "sha256": "665eb7be5fd47b531f0849f4ae8f92be6e068fff40f55cf7e5f9e2b4cdad8c42",
+      "provenance": {
+        "source_url": "https://moonfish.neocities.org/",
+        "source_commit": null,
+        "artifact_url": "https://moonfish.neocities.org/moonfish.sh",
+        "representative_version": "unversioned current public script",
+        "last_tournament_version": "4aa32a0c",
+        "license": "0BSD",
+        "artifact_provenance": "upstream-unversioned-source-inclusive-file",
+        "version_relationship": "Correct author zamfofex site is linked by official TCEC Engines and authors. Download contains all minified C source, but no version identifier; cannot prove correspondence to 4aa32a0c. The former git.sr.ht source repository now returns 404.",
+        "source_correspondence_status": "source-inclusive-unversioned-author-download",
+        "editable_source_correspondence": "all C source is decoded from the exact author download; only minified source remains available",
+        "unresolved_source_correspondence_gap": "unversioned minified author source only",
+        "public_input_not_confirmed_exact_private_tcec_upload": true
+      },
+      "runtime_profile": {
+        "engine_workers": "sysconf(_SC_NPROCESSORS_ONLN)",
+        "physical_memory_requirement_confirmed": false,
+        "kind": "unversioned source, host-dependent worker count; original decoder needs separate check"
+      }
+    },
+    {
+      "name": "M4sseur",
+      "artifact_key": "M4sseur",
+      "manifest": "../general/M4sseur.json",
+      "category": "4k",
+      "original_bytes": 4095,
+      "sha256": "50585513f84e39b72fd4855efc8afc0b2f9db22be33fbe6ade2f856983fc5876",
+      "provenance": {
+        "source_url": "https://github.com/Diazepawn/M4sseur",
+        "source_commit": "470fa53925c1cafeaaf84db3612abb5eb0ae9e9f",
+        "artifact_url": null,
+        "representative_version": "1.0 source rebuild",
+        "last_tournament_version": "1.0",
+        "license": "MIT",
+        "artifact_provenance": "upstream-source-build",
+        "version_relationship": "No public release asset. Rebuilt unchanged upstream nanonizer with GCC, ran upstream compress.sh portfolio, concatenated launcher.sh + phase2.cpp.lzma. Its final compress_info command returns 1 because the already-produced file exists; selected payload is valid and 4095-byte assembled baseline is preserved.",
+        "source_correspondence_status": "pinned-source-upstream-build",
+        "editable_source_correspondence": "all pinned source files match the pinned tree used for the unchanged upstream baseline build",
+        "unresolved_source_correspondence_gap": false,
+        "public_input_not_confirmed_exact_private_tcec_upload": true
+      },
+      "runtime_profile": {
+        "major_allocation_bytes": 68719476736,
+        "engine_workers": 103,
+        "kind": "eager original TT initialization"
+      }
+    },
+    {
+      "name": "molly",
+      "artifact_key": "molly",
+      "manifest": "../general/molly.json",
+      "category": "4k",
+      "original_bytes": 4096,
+      "sha256": "98c8d9863a7837677a3c2b8f62c3afdbcf6fa44c659555db0e8168f613e47f02",
+      "provenance": {
+        "source_url": "https://codeberg.org/latuernich/molly",
+        "source_commit": "e317a0c7b823832a87239027f536582cf0576111",
+        "artifact_url": null,
+        "representative_version": "e317a0c7b8 source rebuild",
+        "last_tournament_version": "e317a0c7b8",
+        "license": "MIT",
+        "artifact_provenance": "exact-tournament-commit-source-build",
+        "version_relationship": "Exact named tournament commit is public. Rebuilt upstream build.sh with Cargo.lock-preserved minifier dependencies using Rust/Cargo 1.99.1. No prebuilt release found. Native compile succeeds; engine was not run because startup initializes 96 GiB.",
+        "source_correspondence_status": "exact-tournament-commit-upstream-build",
+        "editable_source_correspondence": "exact named tournament commit; original upstream minifier/build pipeline reproduced the baseline source and submitted-size wrapper",
+        "unresolved_source_correspondence_gap": false,
+        "public_input_not_confirmed_exact_private_tcec_upload": true
+      },
+      "runtime_profile": {
+        "major_allocation_bytes": 103079215104,
+        "engine_workers": 101,
+        "cleanup_helper_seconds": 9,
+        "kind": "eager original TT initialization"
+      }
+    },
+    {
+      "name": "we4k",
+      "artifact_key": "we4k",
+      "manifest": "../general/we4k.json",
+      "category": "4k",
+      "original_bytes": 4079,
+      "sha256": "8540b397425582d86d73d54d1ba7a44927c6207812123065749bf14cacf8354e",
+      "provenance": {
+        "source_url": "https://github.com/ONE-RANDOM-HUMAN/we4k",
+        "source_commit": "93dde6ad4aef461bdf4c8dd9d413f92090fc16eb",
+        "artifact_url": null,
+        "representative_version": "93dde6ad default source rebuild",
+        "last_tournament_version": "104th-64G",
+        "license": "GPL-3.0",
+        "artifact_provenance": "historical-public-default-source-build",
+        "version_relationship": "No public releases exist. Built unchanged Dec 21 2022 source using Zig 0.10.1 + NASM 3.01, then upstream sstrip and autovndh xz portfolio. Public default is 4 threads/32 MiB, while actual tournament entry is 104th-64G. This is an explicitly distinct public-profile representative, not claimed identical tournament bytes.",
+        "source_correspondence_status": "editable-source-reproduces-public-default-payload",
+        "editable_source_correspondence": "unchanged historical public default source; second native build reproduces the original baseline payload byte-for-byte; not the 104-thread tournament profile",
+        "unresolved_source_correspondence_gap": false,
+        "public_input_not_confirmed_exact_private_tcec_upload": true
+      },
+      "runtime_profile": {
+        "major_allocation_bytes": 33554432,
+        "engine_workers": 4,
+        "kind": "public default; historical TCEC used 104 workers and 64 GiB"
+      }
+    },
+    {
+      "name": "4k.c-v9.0",
+      "artifact_key": "4k.c-v9.0",
+      "category": "4k-elf",
+      "original_bytes": 3932,
+      "sha256": "04e8f61d6ed6ad5feaaea7c62c578b647b9cdbc0e2313c4437645aff63a54af6",
+      "provenance": {
+        "source_url": "https://github.com/GediminasMasaitis/4k-dot-c",
+        "source_commit": "880a877d6af2046cc5ce7deb85ea5ad2855b41a1",
+        "artifact_url": "https://github.com/GediminasMasaitis/4k-dot-c/releases/download/v9.0/4kc-mini",
+        "representative_version": "9.0",
+        "last_tournament_version": "9.15.1 (ELF III and announced VIII)",
+        "license": "MIT + zlib for Crinkler-derived compressor/loader",
+        "artifact_provenance": "upstream-release",
+        "version_relationship": "v9.0 is the latest public release and the exact general VII version label. 9.15 source is commit 44072f4af03499ea5d8fa5c7dfd1ee51c8bb6782, but no 9.15.1 version entry/tag/release was found. This original is already a self-contained 4K-eligible ELF.",
+        "source_correspondence_status": "same-release-tag-source-and-artifact",
+        "editable_source_correspondence": "matching upstream release tag source and original release asset; independent full source-to-release-binary reproduction not performed",
+        "unresolved_source_correspondence_gap": "release-source relationship known; native reproduction not separately performed",
+        "public_input_not_confirmed_exact_private_tcec_upload": true,
+        "comparison_role": "Available public ELF representative; not latest ELF 9.15.1 submission"
+      },
+      "runtime_profile": {
+        "load_memory_bytes": 23622320128,
+        "physical_memory_requirement_confirmed": false,
+        "kind": "22 GiB virtual LOAD; smaller source defaults do not establish release residency"
+      },
+      "manifest": "../elf/4k.c-v9.0.json"
+    },
+    {
+      "name": "4k.c-v8.0",
+      "artifact_key": "4k.c-v8.0",
+      "category": "4k-elf",
+      "original_bytes": 4042,
+      "sha256": "6eb03195b277f42ece9488c42c1e459791ffcbf0dc197bdfa700dd9574715ace",
+      "provenance": {
+        "source_url": "https://github.com/GediminasMasaitis/4k-dot-c",
+        "source_commit": "7807995933db2c03cefd1e76569d88ef9e912e8c",
+        "artifact_url": "https://github.com/GediminasMasaitis/4k-dot-c/releases/download/v8.0/4kc-mini",
+        "release_api_url": "https://api.github.com/repos/GediminasMasaitis/4k-dot-c/releases/tags/v8.0",
+        "release_id": 297041913,
+        "asset_id": 373866687,
+        "representative_version": "8.0",
+        "artifact_provenance": "upstream-release",
+        "source_pipeline_rebuilt": false,
+        "public_input_not_confirmed_exact_private_tcec_upload": true,
+        "not_a_substitute_for_version": "9.15.1",
+        "comparison_role": "Additional historical official public ELF representative, not an exact latest tournament upload"
+      },
+      "runtime_profile": {
+        "load_memory_bytes": 268435456,
+        "kind": "256 MiB virtual LOAD; source pipeline not independently rebuilt; finite runtime evidence is separate"
+      },
+      "manifest": "../elf/4k.c-v8.0.json"
+    }
+  ],
+  "missing_elf_inputs": [
+    {
+      "engine": "4k.c",
+      "version": "9.15.1",
+      "status": "missing_exact_submission_artifact",
+      "available_elf_example": "4k.c9.0"
+    },
+    {
+      "engine": "STRO4K",
+      "version": "6.0",
+      "status": "missing_exact_submission_artifact",
+      "general_shell_is_not_elf": true
+    }
+  ]
+}

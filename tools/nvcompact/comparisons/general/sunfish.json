@@ -1,0 +1,54 @@
+{
+  "format": "nvcompact.external-engine.v1",
+  "name": "sunfish",
+  "artifact": "sunfish",
+  "artifact_key": "sunfish",
+  "category": "4k",
+  "original_bytes": 2844,
+  "sha256": "3066c961174281678f2e15edd118fa45231b4d6e1dcc1f77ea11a62309318261",
+  "checked_at": "2026-10-19",
+  "provenance": {
+    "source_url": "https://github.com/thomasahle/sunfish",
+    "source_commit": "ccecec26626b858a60d48cf715ebbdd603ee6f85",
+    "artifact_url": "https://raw.githubusercontent.com/thomasahle/sunfish/ccecec26626b858a60d48cf715ebbdd603ee6f85/sunfish_uci_packed.sh",
+    "representative_version": "2022-12-24 classic",
+    "last_tournament_version": "2022-12-24_classic",
+    "license": "GPL-3.0",
+    "artifact_provenance": "upstream-tracked-historical-file",
+    "version_relationship": "The Dec 24 2022 classic commit includes this packed script and editable sunfish_uci.py. python-minifier 2.7.0 on CPython 3.11.17 reproduces its embedded 5837-byte source exactly (SHA256 f1a676e55763635a4ba517e7439249e2f1b15da818e83369b50f6b705178f78f). Equality to the private TCEC upload remains independently unconfirmed.",
+    "source_correspondence_status": "editable-source-reproduces-original-payload",
+    "editable_source_correspondence": "editable sunfish_uci.py minified with python-minifier 2.7.0 reproduces the original packed payload byte-for-byte",
+    "unresolved_source_correspondence_gap": false,
+    "public_input_not_confirmed_exact_private_tcec_upload": true
+  },
+  "runtime_profile": {
+    "interpreter": "python3",
+    "engine_workers": 1,
+    "kind": "original historical classic source"
+  },
+  "historical_python_v02": {
+    "original_bytes": "2844",
+    "smallest_bytes": "2776",
+    "accepted_bytes": "2776",
+    "uci": "pass",
+    "original_uci": "pass",
+    "byte_replay": "pass",
+    "winner_sha256": "2d148a3523bef4d4bdc95341cdb81405e2b96d42a5135881172ab199357d8b9a",
+    "original_deployment_equivalent": "True"
+  },
+  "envelope": {
+    "decoder": "xz -d",
+    "payload_codec": {
+      "format": "xz"
+    },
+    "header_bytes": 72,
+    "header_sha256": "f0d83f9305eb675aa0f6f5ab23e982191ffd4b0c67a1bc8e7f73478a359cd1c1"
+  },
+  "payload_sha256": "f1a676e55763635a4ba517e7439249e2f1b15da818e83369b50f6b705178f78f",
+  "language": "python",
+  "notation": {
+    "target": "python3",
+    "token_contract": "no-token-observation",
+    "compact": true
+  }
+}

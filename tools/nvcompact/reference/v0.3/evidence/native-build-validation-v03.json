@@ -1,0 +1,93 @@
+{
+  "recorded_at_utc": "2026-10-19 05:36:04 UTC",
+  "scope": "Native core implementation applied to the final NVCompact checkout, then tested there. Evidence refers to the listed source snapshot; later package/version integration is separate.",
+  "python_version": "3.12.14",
+  "prepared_patch_sha256": "86a17acf2bf46d90f56319ebf07921b6c0b7b82e1e3d1aa02a1da330e6df1722",
+  "tested_files": [
+    {
+      "path": "packages/nvcompact/python/nvcompact.py",
+      "sha256": "2f9ddb77ea097cbce0714edcb138cdabb025b44ed5bde7a2fb25aa4c42cf8b88"
+    },
+    {
+      "path": "packages/nvcompact/python/tests/test_native_build.py",
+      "sha256": "00817ddb0da02d22678157572346369999461e68195020d67f150ce1a8c8e80f"
+    },
+    {
+      "path": "docs/NATIVE-BUILD.md",
+      "sha256": "de36c7935597934425c5183d6869db8f21a7f03b3b160eef10e771f36a76a00b"
+    },
+    {
+      "path": "packages/nvcompact/examples/native-build/main.c",
+      "sha256": "a754987e7d0a2380f9b41513e80aeb2f8e4e917fdc66b47c68ad9b7bd7c38567"
+    },
+    {
+      "path": "packages/nvcompact/examples/native-build/manifest.json",
+      "sha256": "a8446da9d52597a87162293953ccc279b0384b89833d7828f6a9106246076a2a"
+    },
+    {
+      "path": "packages/nvcompact/examples/native-build/square_mul.c",
+      "sha256": "c39f30e690af0498c48590d76142a3e9275d572afe1ce48f980da4839d0a1c07"
+    },
+    {
+      "path": "packages/nvcompact/examples/native-build/square_sum.c",
+      "sha256": "5e51f6f97aa8902dfd9eb42e816c52095cac23c5c3853c0c7e406a813d81b360"
+    },
+    {
+      "path": "packages/nvcompact/examples/native-build/verify.py",
+      "sha256": "8012fe6100ac6fa896e3e2f7e38d54879e8cddcc594091ed98bb9c22b296b286"
+    }
+  ],
+  "executed_checks": [
+    {
+      "id": "native_integration",
+      "command": "python3 -B -m unittest discover -s packages/nvcompact/python/tests -p test_native_build.py -v",
+      "exit_code": 0,
+      "passed": 3,
+      "skipped": 0,
+      "seconds": 3.907,
+      "output": "test_compile_only_preserves_linked_bytes_and_skips_compressors_and_execution (test_native_build.NativeBuildTests.test_compile_only_preserves_linked_bytes_and_skips_compressors_and_execution) ... ok\ntest_minimal_manifest_and_later_verification_do_not_change_replay_defaults (test_native_build.NativeBuildTests.test_minimal_manifest_and_later_verification_do_not_change_replay_defaults) ... ok\ntest_verified_build_and_unverified_wrong_candidate_have_distinct_outcomes (test_native_build.NativeBuildTests.test_verified_build_and_unverified_wrong_candidate_have_distinct_outcomes) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 3.907s\n\nOK\n"
+    },
+    {
+      "id": "existing_runner",
+      "command": "python3 -B -m unittest discover -s packages/nvcompact/python/tests -p test_runner.py -v",
+      "exit_code": 0,
+      "passed": 5,
+      "skipped": 0,
+      "seconds": 4.402,
+      "output": "test_candidate_limit_does_not_materialize_the_full_cross_product (test_runner.RunnerTests.test_candidate_limit_does_not_materialize_the_full_cross_product) ... ok\ntest_complete_file_selection_reproduction_and_input_integrity (test_runner.RunnerTests.test_complete_file_selection_reproduction_and_input_integrity) ... ok\ntest_distinct_component_variant_pairs_do_not_alias_cache_entries (test_runner.RunnerTests.test_distinct_component_variant_pairs_do_not_alias_cache_entries) ... ok\ntest_notation_overlay_locks_only_complete_identical_objects (test_runner.RunnerTests.test_notation_overlay_locks_only_complete_identical_objects) ... ok\ntest_timeout_and_excess_output_are_failures (test_runner.RunnerTests.test_timeout_and_excess_output_are_failures) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 4.402s\n\nOK\n"
+    }
+  ],
+  "observed_contracts": [
+    "Default native build, its automatic independent fresh rebuild, and default native reproduce do not execute the fixture program or the declared semantic checkers.",
+    "Actual C compile/link outputs retain their ELF section metadata and are compared directly as raw files; linked winner and independent replay bytes match.",
+    "Compression, deployment and notation entry points are instrumented to fail if used; the same fixture also checks actual ELF bytes, execution logs and executable I/O independently.",
+    "Minimal manifests may omit verification; --verify requires the declared checker, and unused checker tools are absent from the default build dependency closure.",
+    "Unverified candidates have built/not_run status. Explicit verification rejects a deliberately smaller incorrect candidate and never promotes that failure to accepted.",
+    "A previously verified native recipe remains execution opt-in when reproduced without --verify.",
+    "Original packed runner regression checks passed."
+  ],
+  "large_chess_engines_executed": 0,
+  "reused_example_evidence": {
+    "scope": "Previously executed in an isolated copy of this same source snapshot, not repeated during final-path application. The final-path integration tests above were actually rerun.",
+    "status": "accepted",
+    "packing": "none",
+    "link_candidates": 4,
+    "bytes": 16056,
+    "sha256": "5cd79509d1574bed3813183101ed4b0a1d9fbfa87c7df3c5d3698f61d92db98a",
+    "reproduction": "byte_identical_fresh_build",
+    "final_checker": {
+      "status": "passed",
+      "integer_inputs": 256,
+      "invalid_inputs": 2
+    }
+  },
+  "remaining_integration": [
+    "Root-owned npm CLI must map build to the core build subcommand.",
+    "Root-owned launcher must omit codec runtime probes for plain build/native reproduce. These executed checks cover the Python core, not that adapter.",
+    "Core VERSION was 0.2.0 during these checks; root owns coordinated 0.3 version integration."
+  ],
+  "ownership": {
+    "git_index_modified_by_this_task": false,
+    "commit_or_remote_write_by_this_task": false
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "name": "we4k",
+  "artifact": "../inputs/we4k",
+  "sha256": "8540b397425582d86d73d54d1ba7a44927c6207812123065749bf14cacf8354e",
+  "category": "4k",
+  "provenance": {
+    "version_relationship": "No public releases exist. Built unchanged Dec 21 2022 source using Zig 0.10.1 + NASM 3.01, then upstream sstrip and autovndh xz portfolio. Public default is 4 threads/32 MiB, while actual tournament entry is 104th-64G. This is an explicitly distinct public-profile representative, not claimed identical tournament bytes.",
+    "source_archive": "../vendor/we4k/source.tar.gz",
+    "license_path": "../vendor/we4k/LICENSE",
+    "path_base": "manifest-directory",
+    "source_manifest": "../vendor/source-manifest.json",
+    "source_archive_sha256": "eed5fdd29d5048159a40297bdcabc6f5130a1c3c4ed3d03a449ba9b6cdbb3e88",
+    "license_paths": [
+      "../vendor/we4k/LICENSE"
+    ],
+    "source_commit": "93dde6ad4aef461bdf4c8dd9d413f92090fc16eb",
+    "source_url": "https://github.com/ONE-RANDOM-HUMAN/we4k",
+    "artifact_url": null,
+    "representative_version": "93dde6ad default source rebuild",
+    "source_correspondence_status": "editable-source-reproduces-public-default-payload",
+    "editable_source_correspondence": "unchanged historical public default source; second native build reproduces the original baseline payload byte-for-byte; not the 104-thread tournament profile",
+    "source_correspondence_proofs": [
+      "../vendor/we4k/native-build.json"
+    ],
+    "unresolved_source_correspondence_gap": false
+  },
+  "envelope": {
+    "decoder": "xz -d",
+    "payload_codec": {
+      "format": "xz"
+    },
+    "header_bytes": 83,
+    "header_sha256": "4bac421a36689d0255856032bb8989bff1b70a472e8d8b71eef55c166ea92555"
+  },
+  "payload_sha256": "8983826a5096e5a3f135498f1921d61b798967a1c9166593137d09fcaba171c4"
+}

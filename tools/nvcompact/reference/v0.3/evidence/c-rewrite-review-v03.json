@@ -1,0 +1,113 @@
+{
+  "scope": "Independent acceptance of the identified C rewrite risks; small owned programs only",
+  "observation_date_utc": "2026-10-19",
+  "reviewed_source": "packages/nvcompact/python/nvcflow.py",
+  "source_sha256_before": "5bea96817323b6eb24fbeca814688c3255ee2660bcd9b815665505e41c87670d",
+  "source_sha256_after": "5bea96817323b6eb24fbeca814688c3255ee2660bcd9b815665505e41c87670d",
+  "source_unchanged_during_acceptance": true,
+  "execution": {
+    "compiler": "/workspace/scratch/d70af21bae00/tools/clang20/usr/bin/clang-20",
+    "compiler_version": "Clang 20.1.8",
+    "compile_argv_template": ["{compiler}", "-std=c11", "-O0", "{source}", "-o", "{binary}"],
+    "compile_timeout_seconds": 20,
+    "run_argv_template": ["{binary}"],
+    "run_timeout_seconds": 5,
+    "generation": {
+      "api": "nvcflow.generate_variants",
+      "token_contract": "no-token-observation",
+      "other_options": "defaults; explicit Clang path"
+    },
+    "cases": 6,
+    "distinct_programs_compiled_and_executed": 7,
+    "deduplication": "Candidate source SHA256 within each case; every distinct generated source was compiled and executed",
+    "all_compilations_succeeded": true,
+    "all_observed_stdout_and_stderr_empty": true
+  },
+  "cases": [
+    {
+      "id": "ucn-else-splice",
+      "source": "int \\u03b1,else\\u03b1;void f(int c){if(c){\\u03b1=2;}else{\\u03b1=3;}} int main(void){f(0);return \\u03b1;}",
+      "variants": 1,
+      "distinct_programs": 1,
+      "changed_variants": 0,
+      "expected_exit_code": 3,
+      "observed_exit_codes": [3],
+      "result": "identity retained; unsupported identifier spelling cannot merge with else"
+    },
+    {
+      "id": "direct-pragma",
+      "source": "int x;void f(int c){if(c){_Pragma(\"pack(1)\")x=2;}} struct S{char a;int b;}; int main(void){return sizeof(struct S);}",
+      "variants": 15,
+      "distinct_programs": 1,
+      "changed_variants": 0,
+      "expected_exit_code": 5,
+      "observed_exit_codes": [5],
+      "result": "AST-invisible pragma preserved; later structure layout unchanged"
+    },
+    {
+      "id": "macro-pragma",
+      "source": "#define P _Pragma(\"pack(1)\")\nint x;void f(int c){if(c){P x=2;}} struct S{char a;int b;}; int main(void){return sizeof(struct S);}",
+      "variants": 15,
+      "distinct_programs": 1,
+      "changed_variants": 0,
+      "expected_exit_code": 5,
+      "observed_exit_codes": [5],
+      "result": "macro invocation with no statement AST preserved"
+    },
+    {
+      "id": "unicode-macro-pragma",
+      "source": "#define π _Pragma(\"pack(1)\")\nint x;void f(int c){if(c){π x=2;}} struct S{char a;int b;}; int main(void){return sizeof(struct S);}",
+      "source_encoding": "UTF-8",
+      "variants": 1,
+      "distinct_programs": 1,
+      "changed_variants": 0,
+      "expected_exit_code": 5,
+      "observed_exit_codes": [5],
+      "result": "identity retained under the declared ASCII identifier splice contract"
+    },
+    {
+      "id": "indirect-returns-twice",
+      "source": "int twice(int n)__attribute__((returns_twice)); int twice(int n){return n;} int call(int(*p)(int),int c){if(p(c))return 1;else return 2;} int main(void){return call(twice,0);}",
+      "variants": 15,
+      "distinct_programs": 1,
+      "changed_variants": 0,
+      "expected_exit_code": 2,
+      "observed_exit_codes": [2],
+      "result": "no audit entry rewrote function call; indirect target attributes were not assumed"
+    },
+    {
+      "id": "ordinary-string-escape",
+      "source": "const char *s=\"\\u03b1\";int f(int c){if(c)return 1;else return 2;} int main(void){return f(0);}",
+      "variants": 15,
+      "distinct_programs": 2,
+      "changed_variants": 2,
+      "expected_exit_code": 2,
+      "observed_exit_codes": [2, 2],
+      "result": "quoted escape remains supported; original and changed source both preserve behavior"
+    }
+  ],
+  "observed_pre_fix_defects": [
+    {
+      "cause": "The byte lexer did not establish identifier boundaries for C universal character names; removing braces could merge else with an escaped identifier while still producing valid C",
+      "case": "ucn-else-splice",
+      "original_exit_code": 3,
+      "faulty_candidate_exit_code": 0,
+      "general_fix": "Only apply structural splices where the lexer establishes supported C token and ASCII identifier boundaries; retain identity with an explicit reason for other identifier spellings, while allowing escapes inside quoted tokens"
+    },
+    {
+      "cause": "Pragma operators and macro invocations can affect preprocessing state without leaving a statement AST; replacing their enclosing source range could remove their effects on later declarations",
+      "cases": ["direct-pragma", "macro-pragma", "unicode-macro-pragma"],
+      "original_structure_size_and_exit_code": 5,
+      "faulty_candidate_structure_size_and_exit_code": 8,
+      "general_fix": "Protect lexical macro occurrences, pragma operators and directives in function bodies in addition to AST expansion locations; enforce the identifier spelling contract when macro-name correspondence is not established"
+    }
+  ],
+  "additional_contract_fix": "Protect indirect calls because the local AST does not establish the target's returns-twice or context-observation attributes; this was a missing contract fact, not a demonstrated runtime miscompilation",
+  "verification_limits": {
+    "high_memory_engine_executions": 0,
+    "engine_campaign_rerun": false,
+    "whole_program_equivalence_proved": false,
+    "performance_or_packed_size_measured_here": false,
+    "scope_note": "This records already completed independent checks of the identified risks. Integrated tests, release packaging and candidate packing have separate evidence. No additional execution was performed to create this record."
+  }
+}

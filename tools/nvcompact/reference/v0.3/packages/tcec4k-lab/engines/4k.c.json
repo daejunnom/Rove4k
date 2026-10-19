@@ -1,0 +1,26 @@
+{
+  "name": "4k.c",
+  "artifact": "../inputs/4k.c",
+  "sha256": "04e8f61d6ed6ad5feaaea7c62c578b647b9cdbc0e2313c4437645aff63a54af6",
+  "category": "4k",
+  "provenance": {
+    "version_relationship": "v9.0 is the latest public release and the exact general VII version label. 9.15 source is commit 44072f4af03499ea5d8fa5c7dfd1ee51c8bb6782, but no 9.15.1 version entry/tag/release was found. This original is already a self-contained 4K-eligible ELF.",
+    "source_archive": "../vendor/4k-dot-c/source.tar.gz",
+    "license_path": "../vendor/4k-dot-c/LICENSE",
+    "path_base": "manifest-directory",
+    "source_manifest": "../vendor/source-manifest.json",
+    "source_archive_sha256": "879af4c9e943f8f5b159a0a5a19f2eda41a41c690fbd73468bbcc3a9c940e3df",
+    "license_paths": [
+      "../vendor/4k-dot-c/LICENSE",
+      "../vendor/4k-dot-c/THIRD_PARTY_LICENSES"
+    ],
+    "source_commit": "880a877d6af2046cc5ce7deb85ea5ad2855b41a1",
+    "source_url": "https://github.com/GediminasMasaitis/4k-dot-c",
+    "artifact_url": "https://github.com/GediminasMasaitis/4k-dot-c/releases/download/v9.0/4kc-mini",
+    "representative_version": "9.0",
+    "source_correspondence_status": "same-release-tag-source-and-artifact",
+    "editable_source_correspondence": "matching upstream release tag source and original release asset; independent full source-to-release-binary reproduction not performed",
+    "source_correspondence_proofs": [],
+    "unresolved_source_correspondence_gap": "release-source relationship known; native reproduction not separately performed"
+  }
+}

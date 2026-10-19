@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "engine_sources": 11,
+  "source_members_checked": 274,
+  "archive_hashes_checked": 11,
+  "license_hashes_checked": 13,
+  "private_input_files": 0,
+  "note": "One complete archive/member/license hash pass; no engine execution and no optional engine tests performed."
+}

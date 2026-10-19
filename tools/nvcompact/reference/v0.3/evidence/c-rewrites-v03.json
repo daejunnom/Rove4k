@@ -1,0 +1,733 @@
+{
+  "format": 1,
+  "version": "0.3.0",
+  "recorded_utc": "2026-10-19T07:15:44.707951+00:00",
+  "status": "pass",
+  "scope": "Small standalone C fixture; typed rewrite regressions, actual whole-file portfolio, fresh build, and explicit reproduction. No chess engine strength or high-memory execution claim.",
+  "source_sha256": {
+    "packages/nvcompact/python/nvcflow.py": "5bea96817323b6eb24fbeca814688c3255ee2660bcd9b815665505e41c87670d",
+    "packages/nvcompact/python/tests/test_cflow.py": "837e03aac7abb532007c593a9c85cc046dba017b7c42fa12842f836faa5160f6",
+    "packages/nvcompact/examples/c-rewrites/program.c": "34b37bcf53a7579e8d4ea739527047ba182e8d9521b376d94269cb25bc9c2715",
+    "packages/nvcompact/examples/c-rewrites/verify.py": "84da9c5f40d501e6ac0cb17b984ddac1d33fb26f26e2acae4e10cf56502ebaef"
+  },
+  "tests": {
+    "command": "NVCOMPACT_CLANG=<Clang 20 executable> python3 -m unittest discover -s packages/nvcompact/python/tests -p test_cflow.py -v",
+    "passed": 10,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "unittest_seconds": 20.536,
+    "native_compilers": [
+      "GCC 13.3.0",
+      "Clang 20.1.8"
+    ],
+    "coverage": [
+      "signed/unsigned source return types before contextual cast",
+      "evaluation count and side-effect order",
+      "int 0/1 normalization and De Morgan short circuit",
+      "NaN exclusion from relational inversion",
+      "volatile and atomic protection",
+      "_Generic and sizeof protection",
+      "setjmp, returns_twice and indirect-call protection",
+      "dangling else and splice token boundaries",
+      "UCN, UTF-8 and extended identifier identity-only",
+      "ordinary string escapes remain eligible",
+      "new for keyword macro including later undef",
+      "direct and header-alias AST-invisible pragma",
+      "UTF-8 pragma macro identity-only",
+      "opaque --output and explicit unavailable variant",
+      "generated standalone manifest retains raw and copies independent verifier"
+    ]
+  },
+  "independent_review": {
+    "status": "pass",
+    "source_sha256": "5bea96817323b6eb24fbeca814688c3255ee2660bcd9b815665505e41c87670d",
+    "cases": 6,
+    "unique_compiled_programs": 7,
+    "scope": "Peer compiled and executed UCN boundary, direct pragma, ASCII macro pragma, UTF-8 macro pragma, indirect callback, and ordinary string-escape cases at Clang -O0; no source change during acceptance."
+  },
+  "frontend": {
+    "version": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
+    "sha256": "b1ca2b35b07cb5cb7db47247f329151ed22692a19de2763859b0867e6323e2fe",
+    "standard": "c11",
+    "compiler_args": [],
+    "seconds_per_parse": 30,
+    "address_space_bytes": 1073741824,
+    "ast_output_bytes": 33554432
+  },
+  "commands": [
+    [
+      "nvcompact",
+      "rewrite-c",
+      "packages/nvcompact/examples/c-rewrites/program.c",
+      "--clang",
+      "<Clang 20 executable>",
+      "--token-contract",
+      "no-token-observation",
+      "--portfolio",
+      "<new portfolio>",
+      "--run-manifest",
+      "--verifier",
+      "packages/nvcompact/examples/c-rewrites/verify.py",
+      "--run-target",
+      "x86_64-unknown-linux-gnu",
+      "--run-contract",
+      "16 independently computed integer rows, zero exit, empty stderr; no self-file/path observation",
+      "--codec",
+      "gzip-9",
+      "--codec",
+      "xz-6"
+    ],
+    [
+      "nvcompact",
+      "run",
+      "<new portfolio>/manifest.json",
+      "--out",
+      "<new run>",
+      "--jobs",
+      "2",
+      "--max-candidates",
+      "64",
+      "--max-seconds",
+      "120",
+      "--command-seconds",
+      "15"
+    ],
+    [
+      "nvcompact",
+      "reproduce",
+      "<new run>/winner.recipe.json",
+      "--out",
+      "<new reproduction>",
+      "--max-seconds",
+      "120",
+      "--command-seconds",
+      "15"
+    ]
+  ],
+  "measurement": {
+    "baseline": "raw",
+    "source_recipes": 15,
+    "distinct_source_files": 10,
+    "link_candidates": 15,
+    "search_complete": true,
+    "screened_complete_files": 45,
+    "distinct_native_files": 1,
+    "comparison": [
+      {
+        "id": "raw",
+        "source_bytes": 661,
+        "source_sha256": "34b37bcf53a7579e8d4ea739527047ba182e8d9521b376d94269cb25bc9c2715",
+        "rewrite_count": 0,
+        "object_bytes": 1384,
+        "object_sha256": "af72e4e013305dc09e76def67f71c20602817a4dd34ef5ffc3c2c979c20ca003",
+        "native_bytes": 14480,
+        "native_sha256": "aa139e93c04650458110ff9f87a2b8aefd1d6c5d489736fc54fe0d10add90983",
+        "artifacts": [
+          {
+            "pack": "raw",
+            "bytes": 14480,
+            "payload_bytes": 14480,
+            "sha256": "aa139e93c04650458110ff9f87a2b8aefd1d6c5d489736fc54fe0d10add90983",
+            "status": "screened"
+          },
+          {
+            "pack": "gzip-9",
+            "bytes": 2368,
+            "payload_bytes": 1771,
+            "sha256": "333d584d7cfac4bbdb3034af880dc721a9b58dcd69959423984adaf25e97f046",
+            "status": "screened"
+          },
+          {
+            "pack": "xz-6",
+            "bytes": 2197,
+            "payload_bytes": 1600,
+            "sha256": "7b17b8a3e98434b9a2b22138e5579464032803875a73fe983fbedac81a74c490",
+            "status": "screened"
+          }
+        ],
+        "native_verifier_exit": 0
+      },
+      {
+        "id": "c-all",
+        "source_bytes": 597,
+        "source_sha256": "682f771b2717d6fa9ff7b80f4904a56e0ec66463ea40036a7176456f20a95c4f",
+        "rewrite_count": 9,
+        "object_bytes": 1384,
+        "object_sha256": "781ab8988ce947a237ae8c4adb9d5cac41d7a2e8f9da54dec029a454c11efc6c",
+        "native_bytes": 14480,
+        "native_sha256": "aa139e93c04650458110ff9f87a2b8aefd1d6c5d489736fc54fe0d10add90983",
+        "artifacts": [
+          {
+            "pack": "raw",
+            "bytes": 14480,
+            "payload_bytes": 14480,
+            "sha256": "aa139e93c04650458110ff9f87a2b8aefd1d6c5d489736fc54fe0d10add90983",
+            "status": "screened"
+          },
+          {
+            "pack": "gzip-9",
+            "bytes": 2368,
+            "payload_bytes": 1771,
+            "sha256": "333d584d7cfac4bbdb3034af880dc721a9b58dcd69959423984adaf25e97f046",
+            "status": "screened"
+          },
+          {
+            "pack": "xz-6",
+            "bytes": 2197,
+            "payload_bytes": 1600,
+            "sha256": "7b17b8a3e98434b9a2b22138e5579464032803875a73fe983fbedac81a74c490",
+            "status": "screened"
+          }
+        ],
+        "native_verifier_exit": 0
+      },
+      {
+        "id": "c-if-return",
+        "source_bytes": 635,
+        "source_sha256": "63206f0c23ceb4bc8dac9a2aaac9599c8564871f4b76d2f0eaf0f405c285f46f",
+        "rewrite_count": 1,
+        "object_bytes": 1392,
+        "object_sha256": "c37439e11cf75e206f44e36ebedf8ac04cbcf935690afae027928e15a6aaafd0",
+        "native_bytes": 14480,
+        "native_sha256": "aa139e93c04650458110ff9f87a2b8aefd1d6c5d489736fc54fe0d10add90983",
+        "artifacts": [
+          {
+            "pack": "raw",
+            "bytes": 14480,
+            "payload_bytes": 14480,
+            "sha256": "aa139e93c04650458110ff9f87a2b8aefd1d6c5d489736fc54fe0d10add90983",
+            "status": "screened"
+          },
+          {
+            "pack": "gzip-9",
+            "bytes": 2368,
+            "payload_bytes": 1771,
+            "sha256": "333d584d7cfac4bbdb3034af880dc721a9b58dcd69959423984adaf25e97f046",
+            "status": "screened"
+          },
+          {
+            "pack": "xz-6",
+            "bytes": 2197,
+            "payload_bytes": 1600,
+            "sha256": "7b17b8a3e98434b9a2b22138e5579464032803875a73fe983fbedac81a74c490",
+            "status": "screened"
+          }
+        ],
+        "native_verifier_exit": 0
+      },
+      {
+        "id": "c-return-tail",
+        "source_bytes": 661,
+        "source_sha256": "34b37bcf53a7579e8d4ea739527047ba182e8d9521b376d94269cb25bc9c2715",
+        "rewrite_count": 0,
+        "object_bytes": 1392,
+        "object_sha256": "e4a95bab0bf2bd692a7a11e1c0aee72b7f70ab6b9113a32a712966a6feba132e",
+        "native_bytes": 14480,
+        "native_sha256": "aa139e93c04650458110ff9f87a2b8aefd1d6c5d489736fc54fe0d10add90983",
+        "artifacts": [
+          {
+            "pack": "raw",
+            "bytes": 14480,
+            "payload_bytes": 14480,
+            "sha256": "aa139e93c04650458110ff9f87a2b8aefd1d6c5d489736fc54fe0d10add90983",
+            "status": "screened"
+          },
+          {
+            "pack": "gzip-9",
+            "bytes": 2368,
+            "payload_bytes": 1771,
+            "sha256": "333d584d7cfac4bbdb3034af880dc721a9b58dcd69959423984adaf25e97f046",
+            "status": "screened"
+          },
+          {
+            "pack": "xz-6",
+            "bytes": 2197,
+            "payload_bytes": 1600,
+            "sha256": "7b17b8a3e98434b9a2b22138e5579464032803875a73fe983fbedac81a74c490",
+            "status": "screened"
+          }
+        ],
+        "native_verifier_exit": 0
+      },
+      {
+        "id": "c-if-assignment",
+        "source_bytes": 661,
+        "source_sha256": "34b37bcf53a7579e8d4ea739527047ba182e8d9521b376d94269cb25bc9c2715",
+        "rewrite_count": 0,
+        "object_bytes": 1392,
+        "object_sha256": "6627422e0ff24c1d004c734ed972919b15282dcd8fbd835853e603598df01782",
+        "native_bytes": 14480,
+        "native_sha256": "aa139e93c04650458110ff9f87a2b8aefd1d6c5d489736fc54fe0d10add90983",
+        "artifacts": [
+          {
+            "pack": "raw",
+            "bytes": 14480,
+            "payload_bytes": 14480,
+            "sha256": "aa139e93c04650458110ff9f87a2b8aefd1d6c5d489736fc54fe0d10add90983",
+            "status": "screened"
+          },
+          {
+            "pack": "gzip-9",
+            "bytes": 2368,
+            "payload_bytes": 1771,
+            "sha256": "333d584d7cfac4bbdb3034af880dc721a9b58dcd69959423984adaf25e97f046",
+            "status": "screened"
+          },
+          {
+            "pack": "xz-6",
+            "bytes": 2197,
+            "payload_bytes": 1600,
+            "sha256": "7b17b8a3e98434b9a2b22138e5579464032803875a73fe983fbedac81a74c490",
+            "status": "screened"
+          }
+        ],
+        "native_verifier_exit": 0
+      },
+      {
+        "id": "c-if-effect",
+        "source_bytes": 661,
+        "source_sha256": "34b37bcf53a7579e8d4ea739527047ba182e8d9521b376d94269cb25bc9c2715",
+        "rewrite_count": 0,
+        "object_bytes": 1392,
+        "object_sha256": "2810503e53d237c6e32746dcadfd1887d3ab91b1b8e344b61825c1b0bef5675e",
+        "native_bytes": 14480,
+        "native_sha256": "aa139e93c04650458110ff9f87a2b8aefd1d6c5d489736fc54fe0d10add90983",
+        "artifacts": [
+          {
+            "pack": "raw",
+            "bytes": 14480,
+            "payload_bytes": 14480,
+            "sha256": "aa139e93c04650458110ff9f87a2b8aefd1d6c5d489736fc54fe0d10add90983",
+            "status": "screened"
+          },
+          {
+            "pack": "gzip-9",
+            "bytes": 2368,
+            "payload_bytes": 1771,
+            "sha256": "333d584d7cfac4bbdb3034af880dc721a9b58dcd69959423984adaf25e97f046",
+            "status": "screened"
+          },
+          {
+            "pack": "xz-6",
+            "bytes": 2197,
+            "payload_bytes": 1600,
+            "sha256": "7b17b8a3e98434b9a2b22138e5579464032803875a73fe983fbedac81a74c490",
+            "status": "screened"
+          }
+        ],
+        "native_verifier_exit": 0
+      },
+      {
+        "id": "c-guard",
+        "source_bytes": 655,
+        "source_sha256": "534044df1cfeeddb93647d4db5ff3e53c5a54887be26b2da255fc878b4e7c5bf",
+        "rewrite_count": 1,
+        "object_bytes": 1384,
+        "object_sha256": "ebaac1b23692ee7b00f2528325f3369238ef5da90642f8a5b498083280066fef",
+        "native_bytes": 14480,
+        "native_sha256": "aa139e93c04650458110ff9f87a2b8aefd1d6c5d489736fc54fe0d10add90983",
+        "artifacts": [
+          {
+            "pack": "raw",
+            "bytes": 14480,
+            "payload_bytes": 14480,
+            "sha256": "aa139e93c04650458110ff9f87a2b8aefd1d6c5d489736fc54fe0d10add90983",
+            "status": "screened"
+          },
+          {
+            "pack": "gzip-9",
+            "bytes": 2368,
+            "payload_bytes": 1771,
+            "sha256": "333d584d7cfac4bbdb3034af880dc721a9b58dcd69959423984adaf25e97f046",
+            "status": "screened"
+          },
+          {
+            "pack": "xz-6",
+            "bytes": 2197,
+            "payload_bytes": 1600,
+            "sha256": "7b17b8a3e98434b9a2b22138e5579464032803875a73fe983fbedac81a74c490",
+            "status": "screened"
+          }
+        ],
+        "native_verifier_exit": 0
+      },
+      {
+        "id": "c-boolean",
+        "source_bytes": 655,
+        "source_sha256": "43992f7017392ff74dd529fd666d7f6f3fa311a034e254cf556fac467349eec0",
+        "rewrite_count": 1,
+        "object_bytes": 1384,
+        "object_sha256": "fe51b351a464a77f9cb244e4c257d3758557dae0f235b19d69583aa49b2e964d",
+        "native_bytes": 14480,
+        "native_sha256": "aa139e93c04650458110ff9f87a2b8aefd1d6c5d489736fc54fe0d10add90983",
+        "artifacts": [
+          {
+            "pack": "raw",
+            "bytes": 14480,
+            "payload_bytes": 14480,
+            "sha256": "aa139e93c04650458110ff9f87a2b8aefd1d6c5d489736fc54fe0d10add90983",
+            "status": "screened"
+          },
+          {
+            "pack": "gzip-9",
+            "bytes": 2368,
+            "payload_bytes": 1771,
+            "sha256": "333d584d7cfac4bbdb3034af880dc721a9b58dcd69959423984adaf25e97f046",
+            "status": "screened"
+          },
+          {
+            "pack": "xz-6",
+            "bytes": 2197,
+            "payload_bytes": 1600,
+            "sha256": "7b17b8a3e98434b9a2b22138e5579464032803875a73fe983fbedac81a74c490",
+            "status": "screened"
+          }
+        ],
+        "native_verifier_exit": 0
+      },
+      {
+        "id": "c-zero-test",
+        "source_bytes": 657,
+        "source_sha256": "3221d287e353e4375b24f5ae9c04083ac6f7871db294fffe347ce6d20bdf1e59",
+        "rewrite_count": 1,
+        "object_bytes": 1392,
+        "object_sha256": "02ce8b58993b74eff86bf7d166a725a2d39a30784c82901e0b0da35b07396985",
+        "native_bytes": 14480,
+        "native_sha256": "aa139e93c04650458110ff9f87a2b8aefd1d6c5d489736fc54fe0d10add90983",
+        "artifacts": [
+          {
+            "pack": "raw",
+            "bytes": 14480,
+            "payload_bytes": 14480,
+            "sha256": "aa139e93c04650458110ff9f87a2b8aefd1d6c5d489736fc54fe0d10add90983",
+            "status": "screened"
+          },
+          {
+            "pack": "gzip-9",
+            "bytes": 2368,
+            "payload_bytes": 1771,
+            "sha256": "333d584d7cfac4bbdb3034af880dc721a9b58dcd69959423984adaf25e97f046",
+            "status": "screened"
+          },
+          {
+            "pack": "xz-6",
+            "bytes": 2197,
+            "payload_bytes": 1600,
+            "sha256": "7b17b8a3e98434b9a2b22138e5579464032803875a73fe983fbedac81a74c490",
+            "status": "screened"
+          }
+        ],
+        "native_verifier_exit": 0
+      },
+      {
+        "id": "c-truth",
+        "source_bytes": 661,
+        "source_sha256": "34b37bcf53a7579e8d4ea739527047ba182e8d9521b376d94269cb25bc9c2715",
+        "rewrite_count": 0,
+        "object_bytes": 1384,
+        "object_sha256": "511bd15ea36e1e4cb4dc737ba51d7415b3c40ac719af53e160b5863b9543203b",
+        "native_bytes": 14480,
+        "native_sha256": "aa139e93c04650458110ff9f87a2b8aefd1d6c5d489736fc54fe0d10add90983",
+        "artifacts": [
+          {
+            "pack": "raw",
+            "bytes": 14480,
+            "payload_bytes": 14480,
+            "sha256": "aa139e93c04650458110ff9f87a2b8aefd1d6c5d489736fc54fe0d10add90983",
+            "status": "screened"
+          },
+          {
+            "pack": "gzip-9",
+            "bytes": 2368,
+            "payload_bytes": 1771,
+            "sha256": "333d584d7cfac4bbdb3034af880dc721a9b58dcd69959423984adaf25e97f046",
+            "status": "screened"
+          },
+          {
+            "pack": "xz-6",
+            "bytes": 2197,
+            "payload_bytes": 1600,
+            "sha256": "7b17b8a3e98434b9a2b22138e5579464032803875a73fe983fbedac81a74c490",
+            "status": "screened"
+          }
+        ],
+        "native_verifier_exit": 0
+      },
+      {
+        "id": "c-negation",
+        "source_bytes": 661,
+        "source_sha256": "34b37bcf53a7579e8d4ea739527047ba182e8d9521b376d94269cb25bc9c2715",
+        "rewrite_count": 0,
+        "object_bytes": 1392,
+        "object_sha256": "1cb03bc7d45cae4896e40377d45d1b963fdad6f26fc19f8fb1f30bc8f250e39a",
+        "native_bytes": 14480,
+        "native_sha256": "aa139e93c04650458110ff9f87a2b8aefd1d6c5d489736fc54fe0d10add90983",
+        "artifacts": [
+          {
+            "pack": "raw",
+            "bytes": 14480,
+            "payload_bytes": 14480,
+            "sha256": "aa139e93c04650458110ff9f87a2b8aefd1d6c5d489736fc54fe0d10add90983",
+            "status": "screened"
+          },
+          {
+            "pack": "gzip-9",
+            "bytes": 2368,
+            "payload_bytes": 1771,
+            "sha256": "333d584d7cfac4bbdb3034af880dc721a9b58dcd69959423984adaf25e97f046",
+            "status": "screened"
+          },
+          {
+            "pack": "xz-6",
+            "bytes": 2197,
+            "payload_bytes": 1600,
+            "sha256": "7b17b8a3e98434b9a2b22138e5579464032803875a73fe983fbedac81a74c490",
+            "status": "screened"
+          }
+        ],
+        "native_verifier_exit": 0
+      },
+      {
+        "id": "c-compound",
+        "source_bytes": 649,
+        "source_sha256": "64a7ebe434912f704e04d3793616b4f51bb448a636a198037f319db27e731ef4",
+        "rewrite_count": 2,
+        "object_bytes": 1392,
+        "object_sha256": "126933ed34049e5919761244e9e476c3772ab91a69cdb9d5eeb708b4c9c52ee4",
+        "native_bytes": 14480,
+        "native_sha256": "aa139e93c04650458110ff9f87a2b8aefd1d6c5d489736fc54fe0d10add90983",
+        "artifacts": [
+          {
+            "pack": "raw",
+            "bytes": 14480,
+            "payload_bytes": 14480,
+            "sha256": "aa139e93c04650458110ff9f87a2b8aefd1d6c5d489736fc54fe0d10add90983",
+            "status": "screened"
+          },
+          {
+            "pack": "gzip-9",
+            "bytes": 2368,
+            "payload_bytes": 1771,
+            "sha256": "333d584d7cfac4bbdb3034af880dc721a9b58dcd69959423984adaf25e97f046",
+            "status": "screened"
+          },
+          {
+            "pack": "xz-6",
+            "bytes": 2197,
+            "payload_bytes": 1600,
+            "sha256": "7b17b8a3e98434b9a2b22138e5579464032803875a73fe983fbedac81a74c490",
+            "status": "screened"
+          }
+        ],
+        "native_verifier_exit": 0
+      },
+      {
+        "id": "c-increment",
+        "source_bytes": 658,
+        "source_sha256": "e478fdf6f5f5ef2fd224122beceef78497cf94cdded1312f49d0bd7d59c56c28",
+        "rewrite_count": 1,
+        "object_bytes": 1392,
+        "object_sha256": "35c960fd7d01d4385b4c70566038d92b7bcf522c7d887e6febff581f23be2d65",
+        "native_bytes": 14480,
+        "native_sha256": "aa139e93c04650458110ff9f87a2b8aefd1d6c5d489736fc54fe0d10add90983",
+        "artifacts": [
+          {
+            "pack": "raw",
+            "bytes": 14480,
+            "payload_bytes": 14480,
+            "sha256": "aa139e93c04650458110ff9f87a2b8aefd1d6c5d489736fc54fe0d10add90983",
+            "status": "screened"
+          },
+          {
+            "pack": "gzip-9",
+            "bytes": 2368,
+            "payload_bytes": 1771,
+            "sha256": "333d584d7cfac4bbdb3034af880dc721a9b58dcd69959423984adaf25e97f046",
+            "status": "screened"
+          },
+          {
+            "pack": "xz-6",
+            "bytes": 2197,
+            "payload_bytes": 1600,
+            "sha256": "7b17b8a3e98434b9a2b22138e5579464032803875a73fe983fbedac81a74c490",
+            "status": "screened"
+          }
+        ],
+        "native_verifier_exit": 0
+      },
+      {
+        "id": "c-leaf-braces",
+        "source_bytes": 645,
+        "source_sha256": "462a7a2c74ab6d19d6705bdaa11b63ab18b477efe637eee8a29c2646b6573f92",
+        "rewrite_count": 4,
+        "object_bytes": 1392,
+        "object_sha256": "245e4a2ab501d6d4f91284e325a90ee6140bdcbbd560137d1e7c99208673ac67",
+        "native_bytes": 14480,
+        "native_sha256": "aa139e93c04650458110ff9f87a2b8aefd1d6c5d489736fc54fe0d10add90983",
+        "artifacts": [
+          {
+            "pack": "raw",
+            "bytes": 14480,
+            "payload_bytes": 14480,
+            "sha256": "aa139e93c04650458110ff9f87a2b8aefd1d6c5d489736fc54fe0d10add90983",
+            "status": "screened"
+          },
+          {
+            "pack": "gzip-9",
+            "bytes": 2368,
+            "payload_bytes": 1771,
+            "sha256": "333d584d7cfac4bbdb3034af880dc721a9b58dcd69959423984adaf25e97f046",
+            "status": "screened"
+          },
+          {
+            "pack": "xz-6",
+            "bytes": 2197,
+            "payload_bytes": 1600,
+            "sha256": "7b17b8a3e98434b9a2b22138e5579464032803875a73fe983fbedac81a74c490",
+            "status": "screened"
+          }
+        ],
+        "native_verifier_exit": 0
+      },
+      {
+        "id": "c-forever",
+        "source_bytes": 658,
+        "source_sha256": "bf2fc0e1d330c627a33363f2c5ea52d9a1fd4ce11235fa2458c0eeedebb3f74e",
+        "rewrite_count": 1,
+        "object_bytes": 1384,
+        "object_sha256": "efe5db3b9ae67a61fecbadf7302c1d81c817c03f2bcc85da3a20625d257165bb",
+        "native_bytes": 14480,
+        "native_sha256": "aa139e93c04650458110ff9f87a2b8aefd1d6c5d489736fc54fe0d10add90983",
+        "artifacts": [
+          {
+            "pack": "raw",
+            "bytes": 14480,
+            "payload_bytes": 14480,
+            "sha256": "aa139e93c04650458110ff9f87a2b8aefd1d6c5d489736fc54fe0d10add90983",
+            "status": "screened"
+          },
+          {
+            "pack": "gzip-9",
+            "bytes": 2368,
+            "payload_bytes": 1771,
+            "sha256": "333d584d7cfac4bbdb3034af880dc721a9b58dcd69959423984adaf25e97f046",
+            "status": "screened"
+          },
+          {
+            "pack": "xz-6",
+            "bytes": 2197,
+            "payload_bytes": 1600,
+            "sha256": "7b17b8a3e98434b9a2b22138e5579464032803875a73fe983fbedac81a74c490",
+            "status": "screened"
+          }
+        ],
+        "native_verifier_exit": 0
+      }
+    ],
+    "selected": {
+      "source_variant": "raw",
+      "pack": "xz-6",
+      "bytes": 2197,
+      "payload_bytes": 1600,
+      "loader_bytes": 597,
+      "sha256": "7b17b8a3e98434b9a2b22138e5579464032803875a73fe983fbedac81a74c490"
+    },
+    "final_verifier": {
+      "returncode": 0,
+      "checker_output": "passed: 16 independently computed rows, zero exit, empty stderr\n"
+    },
+    "fresh_build": "byte_identical_fresh_build",
+    "explicit_reproduction": {
+      "status": "byte_identical",
+      "bytes": 2197,
+      "sha256": "7b17b8a3e98434b9a2b22138e5579464032803875a73fe983fbedac81a74c490",
+      "verifier_exit": 0
+    },
+    "interpretation": "Source shrank from 661 to 597 bytes (64 bytes, about 9.68%). Every linked ELF was byte-identical at 14480 bytes. Every xz-6 complete file was byte-identical at 2197 bytes; raw source won the stable tie. This fixture demonstrates successful normalization/verification, not an extra compiled-file saving from structural rewrites."
+  },
+  "runtime": {
+    "version": "0.3.0",
+    "python": "3.12.14",
+    "platform": "Linux-6.18.55-x86_64",
+    "packing": "portfolio",
+    "zlib": "1.3.2",
+    "source_sha256": {
+      "nvcompact.py": "61d71ba3bf720842f952aedd3812836ff88aad16bcafe651d555c43920c1d8b4",
+      "nvpack.py": "efb34d316de2cfc4b0d467200e9cfff8c7487fcc250bdd3a0af76b64a3fd9dc2",
+      "nvelf.py": "c33672cd1a3c102c6376eaa3b382f84b7fbadbfa8653629e28a62dfa8992b711",
+      "nvnotation.py": "a7f5d403caaf382091ea3fb43833701f5adfe7aeaa5ef9ec9e3e82833ad44592"
+    }
+  },
+  "tool_fingerprints": {
+    "cc": {
+      "version": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
+      "sha256": "b1ca2b35b07cb5cb7db47247f329151ed22692a19de2763859b0867e6323e2fe"
+    },
+    "ld": {
+      "version": "GNU ld (GNU Binutils for Ubuntu) 2.42",
+      "sha256": "5b674ea1d7017c2929f3c52c43487478bb240ecdd7197a25cce3813a70329a5c"
+    },
+    "python": {
+      "version": "Python 3.12.14",
+      "sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7"
+    }
+  },
+  "raw_report_sha256": {
+    "portfolio-audit.json": "e0caa69352a1fcd0ab6584707865dd3b57c9dd8ae6cd20f908d7b9555f3c2f98",
+    "run-report.json": "9764a30a88305c29b092ec4ba97ba167bd65967985aab0e5cc4bae47ccd8c67d",
+    "winner.recipe.json": "a1962da03254e56adbe2270f7c848d288ea93c9d085ca0f50916bcc31760c796",
+    "reproduction.json": "e39f3b448ec67c6f0c66737584a249f0483d71165849500e596c29b20ae157f2"
+  },
+  "high_memory_engine_executions": 0,
+  "historical_failures_fixed": [
+    "new keyword macro collision",
+    "system include directive parser whitespace backtracking",
+    "UCN/extension identifier token merge",
+    "AST-invisible direct or macro-generated pragma",
+    "UTF-8 macro name outside supported identifier model",
+    "opaque implicit output candidate selection"
+  ],
+  "limitations": [
+    "Clang AST and guarded local rules are not a whole-program equivalence proof.",
+    "Only the shipped finite C example was measured in this campaign.",
+    "Compiler ABI/header changes require regeneration and actual verification.",
+    "The portfolio is bounded; it does not prove a global compressed-size optimum."
+  ],
+  "prior_finalization_run": {
+    "recorded_utc": "2026-10-19T07:13:31.951374+00:00",
+    "status": "pass",
+    "record_sha256": "e150ddd68af3a35c85a52b9a4186afd6a6c39245ca65d42117c96e03b7e99016",
+    "runtime": {
+      "version": "0.3.0",
+      "python": "3.12.14",
+      "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+      "packing": "portfolio",
+      "zlib": "1.3.2",
+      "source_sha256": {
+        "nvcompact.py": "45742c611af8cb804582f3ed81e666f9edaabe6f7fee5d1ad9350ebb40fda569",
+        "nvpack.py": "efb34d316de2cfc4b0d467200e9cfff8c7487fcc250bdd3a0af76b64a3fd9dc2",
+        "nvelf.py": "c33672cd1a3c102c6376eaa3b382f84b7fbadbfa8653629e28a62dfa8992b711",
+        "nvnotation.py": "a7f5d403caaf382091ea3fb43833701f5adfe7aeaa5ef9ec9e3e82833ad44592"
+      }
+    },
+    "raw_report_sha256": {
+      "portfolio-audit.json": "e0caa69352a1fcd0ab6584707865dd3b57c9dd8ae6cd20f908d7b9555f3c2f98",
+      "run-report.json": "82b6e3fd02fc7f7e0236a79958df8ccc20ea27ae3a6b6c9f43c7c48e690d01ac",
+      "winner.recipe.json": "4df874f5455cc0932dd69c5e0bdd4da22f37788b6a759d2c11fc7234d40fea8c",
+      "reproduction.json": "5e06448f95679efc5b453088ddc4b926fdabf119eff32f662e71d2facd62f793"
+    },
+    "selected": {
+      "source_variant": "raw",
+      "pack": "xz-6",
+      "bytes": 2197,
+      "payload_bytes": 1600,
+      "loader_bytes": 597,
+      "sha256": "7b17b8a3e98434b9a2b22138e5579464032803875a73fe983fbedac81a74c490"
+    },
+    "link_candidates": 15,
+    "screened_complete_files": 45,
+    "explicit_reproduction": "byte_identical",
+    "why_repeated": "The core descriptive platform fingerprint was changed from platform.platform() to os.uname() to eliminate an implicit unbudgeted uname subprocess; the same fixed portfolio was executed anew on the changed core."
+  }
+}

@@ -1,0 +1,284 @@
+{
+  "format": "nvcompact.resource-plan.v1",
+  "status": "planned",
+  "engine_started": false,
+  "created_at": "2026-10-19T05:45:01.121283+00:00",
+  "name": "ice4-v6.1-original",
+  "command": [
+    "/workspace/scratch/d70af21bae00/repos/NVCompact/packages/tcec4k-lab/engines/../inputs/ice4"
+  ],
+  "executable_path": "/workspace/scratch/d70af21bae00/repos/NVCompact/packages/tcec4k-lab/engines/../inputs/ice4",
+  "artifact_path": "/workspace/scratch/d70af21bae00/repos/NVCompact/packages/tcec4k-lab/engines/../inputs/ice4",
+  "artifact": {
+    "role": "artifact",
+    "path": "/workspace/scratch/d70af21bae00/repos/NVCompact/packages/tcec4k-lab/inputs/ice4",
+    "bytes": 4087,
+    "mode": 493,
+    "sha256": "707d994e0515473f53052998ee85d03041f17f8c23b3793d497f64b8e41b252b"
+  },
+  "inputs": [
+    {
+      "role": "specification",
+      "path": "/workspace/scratch/d70af21bae00/repos/NVCompact/packages/tcec4k-lab/resource-profiles/ice4-v6.1-original.json",
+      "bytes": 1328,
+      "mode": 420,
+      "sha256": "6748766c1d69a55b82a1a9c6b7ddf3036aebc2835ad8d2ae63b34c39dba83ead"
+    },
+    {
+      "role": "engine_manifest",
+      "path": "/workspace/scratch/d70af21bae00/repos/NVCompact/packages/tcec4k-lab/engines/ice4.json",
+      "bytes": 2230,
+      "mode": 420,
+      "sha256": "2f861aeaea09ab34adfee6ee9c7927cba65985074ec55a78b959fe498c1b4d05"
+    },
+    {
+      "role": "artifact",
+      "path": "/workspace/scratch/d70af21bae00/repos/NVCompact/packages/tcec4k-lab/inputs/ice4",
+      "bytes": 4087,
+      "mode": 493,
+      "sha256": "707d994e0515473f53052998ee85d03041f17f8c23b3793d497f64b8e41b252b"
+    },
+    {
+      "role": "command_executable",
+      "path": "/workspace/scratch/d70af21bae00/repos/NVCompact/packages/tcec4k-lab/inputs/ice4",
+      "bytes": 4087,
+      "mode": 493,
+      "sha256": "707d994e0515473f53052998ee85d03041f17f8c23b3793d497f64b8e41b252b"
+    },
+    {
+      "role": "python_executable",
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+      "bytes": 30894944,
+      "mode": 493,
+      "sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7"
+    },
+    {
+      "role": "resource_runner",
+      "path": "/workspace/scratch/d70af21bae00/repos/NVCompact/packages/nvcompact/python/nvresource.py",
+      "bytes": 22805,
+      "mode": 493,
+      "sha256": "1ef22f664cc5e8e7ac76b7bca4891ac8891f659e36779c18932250a1381c8088"
+    },
+    {
+      "role": "uci_verifier",
+      "path": "/workspace/scratch/d70af21bae00/repos/NVCompact/packages/nvcompact/python/nvuci.py",
+      "bytes": 41276,
+      "mode": 420,
+      "sha256": "5f5ed8f89cebe1360f63c9618cd28aa0f6b31d6f94f90363074090efff7a340e"
+    },
+    {
+      "role": "declared_tool:/bin/sh",
+      "path": "/usr/bin/dash",
+      "bytes": 129784,
+      "mode": 493,
+      "sha256": "86d31f6fb799e91fa21bad341484564510ca287703a16e9e46c53338776f4f42"
+    },
+    {
+      "role": "declared_tool:mktemp",
+      "path": "/usr/bin/mktemp",
+      "bytes": 35336,
+      "mode": 493,
+      "sha256": "7258721fb887f4cef21e7013b0f6d970ed4ca58390ac5116d426679d13a80806"
+    },
+    {
+      "role": "declared_tool:tail",
+      "path": "/usr/bin/tail",
+      "bytes": 64032,
+      "mode": 493,
+      "sha256": "8ea2a713eba8a4140fad5e453c9d8129fb5d4d30d79de384639c306f626eca90"
+    },
+    {
+      "role": "declared_tool:xz",
+      "path": "/usr/bin/xz",
+      "bytes": 89008,
+      "mode": 493,
+      "sha256": "3f8a1d624a18a194af196db18e3964577a52c372155ea5d229ecc87de13c8d65"
+    },
+    {
+      "role": "declared_tool:c++",
+      "path": "/usr/bin/x86_64-linux-gnu-g++-13",
+      "bytes": 1027128,
+      "mode": 493,
+      "sha256": "52f1ddb33fe78b9441e0f42e9cd22c571f1101938e046c8a26582494e041cc73"
+    },
+    {
+      "role": "declared_tool:sleep",
+      "path": "/usr/bin/sleep",
+      "bytes": 35336,
+      "mode": 493,
+      "sha256": "06d3927480c7554337818dbf5d91d78689bc8321237280e3d452028d5d1c3f43"
+    },
+    {
+      "role": "declared_tool:rm",
+      "path": "/usr/bin/rm",
+      "bytes": 59912,
+      "mode": 493,
+      "sha256": "42d99e8ead91f30586a0f689178e8bd3db5fadb1e995681aaf4b418cbeffab99"
+    }
+  ],
+  "tools": [
+    {
+      "name": "/bin/sh",
+      "path": "/usr/bin/dash"
+    },
+    {
+      "name": "mktemp",
+      "path": "/usr/bin/mktemp"
+    },
+    {
+      "name": "tail",
+      "path": "/usr/bin/tail"
+    },
+    {
+      "name": "xz",
+      "path": "/usr/bin/xz"
+    },
+    {
+      "name": "c++",
+      "path": "/usr/bin/x86_64-linux-gnu-g++-13"
+    },
+    {
+      "name": "sleep",
+      "path": "/usr/bin/sleep"
+    },
+    {
+      "name": "rm",
+      "path": "/usr/bin/rm"
+    }
+  ],
+  "budget": {
+    "required_memory_bytes": 274877906944,
+    "reserve_memory_bytes": 8589934592,
+    "address_space_bytes": 309237645312,
+    "cpu_seconds_per_process": 7200,
+    "wall_seconds": 240,
+    "file_bytes": 268435456,
+    "output_bytes_per_session": 2097152
+  },
+  "uci_configuration": {
+    "profile": "tcec4k",
+    "extensions": false,
+    "quick": false,
+    "oracle_path": null,
+    "artifact_path": "/workspace/scratch/d70af21bae00/repos/NVCompact/packages/tcec4k-lab/inputs/ice4",
+    "startup_seconds": 60,
+    "ready_seconds": 5,
+    "search_seconds": 5,
+    "stop_seconds": 2.0,
+    "quit_seconds": 2,
+    "cleanup_seconds": 5,
+    "max_seconds": 240,
+    "clock_ms": 2000,
+    "clock_grace_ms": 1000,
+    "movetime_ms": 100,
+    "depth": 3,
+    "nodes": 1000,
+    "threads": 1,
+    "hash_mb": 16,
+    "preserve_engine_options": true,
+    "max_output_bytes": 2097152,
+    "max_line_bytes": 65536,
+    "max_transcript_bytes": 262144
+  },
+  "specification": {
+    "format": "nvcompact.resource-spec.v1",
+    "name": "ice4-v6.1-original",
+    "manifest": "../engines/ice4.json",
+    "command": [
+      "{artifact}"
+    ],
+    "tools": [
+      "/bin/sh",
+      "mktemp",
+      "tail",
+      "xz",
+      "c++",
+      "sleep",
+      "rm"
+    ],
+    "budget": {
+      "required_memory_bytes": 274877906944,
+      "reserve_memory_bytes": 8589934592,
+      "address_space_bytes": 309237645312,
+      "cpu_seconds_per_process": 7200,
+      "wall_seconds": 240,
+      "file_bytes": 268435456,
+      "output_bytes_per_session": 2097152
+    },
+    "uci": {
+      "profile": "tcec4k",
+      "preserve_engine_options": true,
+      "startup_seconds": 60,
+      "ready_seconds": 5,
+      "search_seconds": 5,
+      "quit_seconds": 2,
+      "cleanup_seconds": 5,
+      "extensions": false,
+      "quick": false
+    },
+    "notes": [
+      "The exact public v6.1 payload contains calloc(1ull<<35,8), requesting 256 GiB, and thread c[256]. This declared reserve is additional and is not a measured peak.",
+      "Planning never launches the artifact. Running needs a new output directory and an explicit --start. No allocation, worker, search, compiler or launcher constant is rewritten.",
+      "Memory availability is a transient estimate; this profile does not reserve RAM or create a dedicated cgroup. Many-core performance and tournament acceptance are separate checks."
+    ]
+  },
+  "previous_runtime_blocked": "Exact payload requests calloc(1ull<<35,8) = 256 GiB without checking failure. Same-allocation probe in this environment returned NULL/ENOMEM; ice4 original and candidate both segfaulted on first search. No resource constant was changed.",
+  "resources_at_plan": {
+    "platform": "linux",
+    "memory": {
+      "physical_total_bytes": 10451435520,
+      "physical_available_bytes": 9658327040
+    },
+    "cgroup_v2": [
+      {
+        "path": "/sys/fs/cgroup",
+        "memory_max_bytes": 8589934592,
+        "memory_current_bytes": 8475795456,
+        "inactive_file_bytes": 850477056,
+        "raw_headroom_bytes": 114139136,
+        "estimated_available_bytes": 964616192,
+        "cpu_max": "800000 100000"
+      }
+    ],
+    "errors": [],
+    "affinity_cpu_count": 9,
+    "proc_pid_namespace_matches": false,
+    "rlimits": {
+      "RLIMIT_AS": [
+        -1,
+        -1
+      ],
+      "RLIMIT_CPU": [
+        -1,
+        -1
+      ],
+      "RLIMIT_FSIZE": [
+        -1,
+        -1
+      ],
+      "RLIMIT_CORE": [
+        0,
+        -1
+      ]
+    },
+    "estimated_available_memory_bytes": 964616192,
+    "memory_estimate_scope": "min(physical MemAvailable, each cgroup max-current+inactive_file); transient reclaim estimate, not allocation success or a reservation"
+  },
+  "engine_option_policy": "preserve advertised defaults and embedded constants",
+  "scope": {
+    "execution": "target was not executed; no allocation probe or compiler/version command ran",
+    "limits": "inherited per-process AS/CPU/file limits; verifier wall/output budgets; no per-job hard resident-memory or aggregate CPU cgroup is created",
+    "cleanup": "original engine process group; escaped independent sessions are outside the harness scope",
+    "memory": "declared requirement and reserve are explicit assumptions; available memory is not reserved"
+  },
+  "preflight_at_plan": {
+    "status": "blocked",
+    "reasons": [
+      "declared memory plus reserve exceeds the observed available estimate"
+    ],
+    "declared_required_plus_reserve_bytes": 283467841536,
+    "estimated_available_memory_bytes": 964616192,
+    "scope": "read-only prerequisites; ready does not mean the engine has run or passed"
+  },
+  "plan_sha256": "91465e103d45012d5d77c31231568f5582538bf9c4c0f40f0deccb7b4c9e0770"
+}

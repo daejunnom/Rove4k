@@ -1,0 +1,37 @@
+name: Verify package
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+    env:
+      NVUCI_ORACLE_PATH: ${{ github.workspace }}/.deps
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: npm ci --ignore-scripts --offline --no-audit --no-fund
+      - run: python3 -m pip install --target .deps chess==1.11.2
+      - name: Require the C rewrite frontend
+        run: |
+          clang_path=$(command -v clang)
+          "$clang_path" --version
+          echo "NVCOMPACT_CLANG=$clang_path" >> "$GITHUB_ENV"
+      - run: npm run check
+      - run: npm test
+      - run: npm run test:core
+      - run: npm run pack:cli
+      - run: npm run verify:package

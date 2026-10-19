@@ -1,0 +1,51 @@
+name: NVCompact
+on:
+  push:
+    paths: ['tools/nvcompact/**', 'Cargo.toml', 'Cargo.lock', 'package.json', 'package-lock.json', '.github/workflows/nvcompact.yml']
+  pull_request:
+    paths: ['tools/nvcompact/**', 'Cargo.toml', 'Cargo.lock', 'package.json', 'package-lock.json', '.github/workflows/nvcompact.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: nvcompact-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  rust-and-npm:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+    env:
+      RUSTUP_TOOLCHAIN: 1.99.1
+      CARGO_BUILD_JOBS: 2
+      CARGO_TARGET_DIR: ${{ runner.temp }}/rove4k-target
+      NVCOMPACT_ARTIFACT_DIR: ${{ runner.temp }}/nvcompact-artifacts
+      NVCOMPACT_CLANG: clang
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - name: Prepare native build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang build-essential pkg-config liblzma-dev libbz2-dev zlib1g-dev xz-utils bzip2
+          rustup toolchain install 1.99.1 --profile minimal
+      - name: Install private workspace launcher
+        run: npm ci --ignore-scripts
+      - name: Verify launcher ownership and argv
+        run: npm test
+      - name: Test Rust implementation and owned fixtures
+        run: npm run test:core
+      - name: Build native internal tool
+        run: npm run build:nvcompact
+      - name: Prepare complete local npm tarball
+        run: npm run pack:nvcompact -- --no-build
+      - name: Verify actual offline-installed tarball
+        run: npm run verify:package

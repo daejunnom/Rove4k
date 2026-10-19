@@ -1,0 +1,40 @@
+{
+  "meaning": "Read-only public endpoint observations; 404 is not reservation or proof of publish rights. GitHub private repositories may return 404.",
+  "checks": [
+    {
+      "url": "https://registry.npmjs.org/nvcompact",
+      "status": 404,
+      "checked_at": "2026-10-19T02:45:17.648829+00:00"
+    },
+    {
+      "url": "https://registry.npmjs.org/ctk3",
+      "status": 200,
+      "name": "ctk3",
+      "dist-tags": {
+        "latest": "0.1.1"
+      },
+      "license": "MIT",
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/daejunnom/Clearra.git",
+        "directory": "packages/ctk3"
+      },
+      "checked_at": "2026-10-19T02:45:17.830008+00:00"
+    },
+    {
+      "url": "https://api.github.com/repos/daejunnom/Rook4k",
+      "status": 404,
+      "checked_at": "2026-10-19T02:45:18.726160+00:00"
+    },
+    {
+      "url": "https://api.github.com/repos/daejunnom/Rove4k",
+      "status": 404,
+      "checked_at": "2026-10-19T02:45:19.009786+00:00"
+    },
+    {
+      "url": "https://api.github.com/repos/daejunnom/NVCompact",
+      "status": 404,
+      "checked_at": "2026-10-19T02:45:19.902267+00:00"
+    }
+  ]
+}

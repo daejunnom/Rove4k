@@ -1,0 +1,42 @@
+{
+  "name": "pygone",
+  "artifact": "../inputs/pygone",
+  "sha256": "f44c111d821c5bffb9117154dcffbfb0e83ab41b35e174b084a9bb5000ee1768",
+  "category": "4k",
+  "provenance": {
+    "version_relationship": "The TCEC/historical label 2-11b142 omits the f found in the actual development commit 11bf1426bc491753b66e945692c5ee4a8d510e45. That commit dist/pygone is byte-identical to historical/pygone2-11b142 (4093 bytes, sha256 f44c111d821c5bffb9117154dcffbfb0e83ab41b35e174b084a9bb5000ee1768). The exact editable source and build/minification scripts from this commit are packaged.",
+    "source_archive": "../vendor/pygone/source.tar.gz",
+    "license_path": "../vendor/pygone/LICENSE.md",
+    "path_base": "manifest-directory",
+    "source_manifest": "../vendor/source-manifest.json",
+    "source_archive_sha256": "b4ffd06dec1be7b77bd2f4f0f2ddc944d34ff89027503493b5b3ce94cba85fe3",
+    "license_paths": [
+      "../vendor/pygone/LICENSE.md"
+    ],
+    "source_commit": "11bf1426bc491753b66e945692c5ee4a8d510e45",
+    "source_url": "https://github.com/scs-ben/pygone",
+    "artifact_url": "https://raw.githubusercontent.com/scs-ben/pygone/cbaebeeaaa5aab9c9ff2eaa153a65ec960a071b5/historical/pygone2-11b142",
+    "representative_version": "2-11b142",
+    "source_correspondence_status": "exact-same-commit-original-artifact",
+    "editable_source_correspondence": "exact commit contains byte-identical original submitted artifact",
+    "source_correspondence_proofs": [
+      "../vendor/pygone/source-correspondence.json"
+    ],
+    "unresolved_source_correspondence_gap": false
+  },
+  "envelope": {
+    "decoder": "xz -d",
+    "payload_codec": {
+      "format": "xz"
+    },
+    "header_bytes": 85,
+    "header_sha256": "f14d4189ba8a5c151accab78fda49005fe49384fc7583b7682ef1fda5ddecb1e"
+  },
+  "payload_sha256": "3785c3ea8373a6bc3ae297b35671771e4f0bfd0e252c6a2acead03e48ee886d2",
+  "language": "python",
+  "notation": {
+    "target": "python3",
+    "token_contract": "no-token-observation",
+    "compact": true
+  }
+}

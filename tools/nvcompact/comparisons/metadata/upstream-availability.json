@@ -1,0 +1,133 @@
+{
+  "checked_at": "2026-10-19",
+  "release_checks": [
+    {
+      "repo": "GediminasMasaitis/4k-dot-c",
+      "checked_at": "2026-10-19",
+      "api_url": "https://api.github.com/repos/GediminasMasaitis/4k-dot-c/releases?per_page=100",
+      "public_release_count": 12,
+      "latest_release": {
+        "tag": "v9.0",
+        "published_at": "2026-06-13T16:28:28Z",
+        "url": "https://github.com/GediminasMasaitis/4k-dot-c/releases/tag/v9.0",
+        "assets": [
+          {
+            "name": "4kc",
+            "bytes": 1146568,
+            "url": "https://github.com/GediminasMasaitis/4k-dot-c/releases/download/v9.0/4kc",
+            "digest": "sha256:3d7cc50d1482f518220f495146efb655dbd6465412d86c8a451d248d5b7eaaec"
+          },
+          {
+            "name": "4kc-mini",
+            "bytes": 3932,
+            "url": "https://github.com/GediminasMasaitis/4k-dot-c/releases/download/v9.0/4kc-mini",
+            "digest": "sha256:04e8f61d6ed6ad5feaaea7c62c578b647b9cdbc0e2313c4437645aff63a54af6"
+          },
+          {
+            "name": "4kc.exe",
+            "bytes": 356420,
+            "url": "https://github.com/GediminasMasaitis/4k-dot-c/releases/download/v9.0/4kc.exe",
+            "digest": "sha256:0f54a2253dcd13aeeaccbfc17fbe80b063b400c11211a9a37af7ed0149892a77"
+          }
+        ]
+      },
+      "relevant_historical_releases": [
+        {
+          "tag": "v8.0",
+          "published_at": "2026-03-14T18:10:21Z",
+          "url": "https://github.com/GediminasMasaitis/4k-dot-c/releases/tag/v8.0",
+          "assets": [
+            {
+              "name": "4kc",
+              "bytes": 1146448,
+              "url": "https://github.com/GediminasMasaitis/4k-dot-c/releases/download/v8.0/4kc",
+              "digest": "sha256:6c573a6f7a6a4dd7aed0640629fc02c211e99239cc6a896af44710060e4b5cde"
+            },
+            {
+              "name": "4kc-mini",
+              "bytes": 4042,
+              "url": "https://github.com/GediminasMasaitis/4k-dot-c/releases/download/v8.0/4kc-mini",
+              "digest": "sha256:6eb03195b277f42ece9488c42c1e459791ffcbf0dc197bdfa700dd9574715ace"
+            },
+            {
+              "name": "4kc.exe",
+              "bytes": 356346,
+              "url": "https://github.com/GediminasMasaitis/4k-dot-c/releases/download/v8.0/4kc.exe",
+              "digest": "sha256:3c3f8f0ba2bcc3999d49bbd4f1d9a99aedd4bed8c7d1ab1b7f25c125cd5417d7"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "repo": "ONE-RANDOM-HUMAN/STRO4K",
+      "checked_at": "2026-10-19",
+      "api_url": "https://api.github.com/repos/ONE-RANDOM-HUMAN/STRO4K/releases?per_page=100",
+      "public_release_count": 6,
+      "latest_release": {
+        "tag": "v5.0",
+        "published_at": "2025-11-02T11:26:50Z",
+        "url": "https://github.com/ONE-RANDOM-HUMAN/STRO4K/releases/tag/v5.0",
+        "assets": [
+          {
+            "name": "stro",
+            "bytes": 553096,
+            "url": "https://github.com/ONE-RANDOM-HUMAN/STRO4K/releases/download/v5.0/stro",
+            "digest": "sha256:8d0519627000cc72687ac60c5db355552d88749753ff92946977b6004ea6de0e"
+          },
+          {
+            "name": "stro.exe",
+            "bytes": 400896,
+            "url": "https://github.com/ONE-RANDOM-HUMAN/STRO4K/releases/download/v5.0/stro.exe",
+            "digest": "sha256:472cf2083e43e8b69894aa9c8b8f21469c78e44872ab34c63139efd53b351cd5"
+          },
+          {
+            "name": "STRO4K",
+            "bytes": 4094,
+            "url": "https://github.com/ONE-RANDOM-HUMAN/STRO4K/releases/download/v5.0/STRO4K",
+            "digest": "sha256:75735ade5c14881ee85c28c7758ca825f2b766671d255f6d1ad6031a32d55389"
+          },
+          {
+            "name": "STRO4K-avx2",
+            "bytes": 4149,
+            "url": "https://github.com/ONE-RANDOM-HUMAN/STRO4K/releases/download/v5.0/STRO4K-avx2",
+            "digest": "sha256:3d851ab8513e1de276b8a04af6a4a0874b40a7d92f47a08a1944db4c209bfacb"
+          },
+          {
+            "name": "STRO4K-tcec",
+            "bytes": 4096,
+            "url": "https://github.com/ONE-RANDOM-HUMAN/STRO4K/releases/download/v5.0/STRO4K-tcec",
+            "digest": "sha256:c4b3a7d3ca808418dd014be9527b81057c4db5de8d24ab0c4ee14a360f17ae98"
+          }
+        ]
+      },
+      "relevant_historical_releases": []
+    }
+  ],
+  "STRO4K_branch_check": {
+    "repo": "ONE-RANDOM-HUMAN/STRO4K",
+    "api_url": "https://api.github.com/repos/ONE-RANDOM-HUMAN/STRO4K/branches?per_page=100",
+    "page_counts": [
+      100,
+      100,
+      100,
+      100,
+      69,
+      0
+    ],
+    "branch_count": 469,
+    "version_branches": [
+      "version_1.0",
+      "version_2.0",
+      "version_2.1",
+      "version_3.0",
+      "version_4.0",
+      "version_5.0"
+    ],
+    "matching_6_0_or_named_elf_branch_found": false,
+    "scope": "Names in the checked public repository, not proof against every external mirror"
+  },
+  "current_status_url": "https://wiki.chessdom.org/Current_Engine_Status",
+  "current_status_revision": 9511,
+  "rules_url": "https://wiki.chessdom.org/index.php?title=TCEC_4k_Rules&oldid=7853"
+}

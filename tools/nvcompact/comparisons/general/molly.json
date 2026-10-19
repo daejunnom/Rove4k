@@ -1,0 +1,64 @@
+{
+  "format": "nvcompact.external-engine.v1",
+  "name": "molly",
+  "artifact": "molly",
+  "artifact_key": "molly",
+  "category": "4k",
+  "original_bytes": 4096,
+  "sha256": "98c8d9863a7837677a3c2b8f62c3afdbcf6fa44c659555db0e8168f613e47f02",
+  "checked_at": "2026-10-19",
+  "provenance": {
+    "source_url": "https://codeberg.org/latuernich/molly",
+    "source_commit": "e317a0c7b823832a87239027f536582cf0576111",
+    "artifact_url": null,
+    "representative_version": "e317a0c7b8 source rebuild",
+    "last_tournament_version": "e317a0c7b8",
+    "license": "MIT",
+    "artifact_provenance": "exact-tournament-commit-source-build",
+    "version_relationship": "Exact named tournament commit is public. Rebuilt upstream build.sh with Cargo.lock-preserved minifier dependencies using Rust/Cargo 1.99.1. No prebuilt release found. Native compile succeeds; engine was not run because startup initializes 96 GiB.",
+    "source_correspondence_status": "exact-tournament-commit-upstream-build",
+    "editable_source_correspondence": "exact named tournament commit; original upstream minifier/build pipeline reproduced the baseline source and submitted-size wrapper",
+    "unresolved_source_correspondence_gap": false,
+    "public_input_not_confirmed_exact_private_tcec_upload": true
+  },
+  "runtime_profile": {
+    "major_allocation_bytes": 103079215104,
+    "engine_workers": 101,
+    "cleanup_helper_seconds": 9,
+    "kind": "eager original TT initialization"
+  },
+  "historical_python_v02": {
+    "original_bytes": "4096",
+    "smallest_bytes": "4095",
+    "accepted_bytes": "",
+    "uci": "blocked",
+    "original_uci": "",
+    "byte_replay": "pass",
+    "winner_sha256": "511e3816c0706570e01143aca466134d65c464352271e98bffae96919518a22a",
+    "original_deployment_equivalent": "True"
+  },
+  "envelope": {
+    "decoder": "xz -d",
+    "payload_codec": {
+      "format": "alone"
+    },
+    "header_bytes": 105,
+    "header_sha256": "7a562d826d55e4414a05fb45dd7f77e6f2c1abc713c7152dea29a46b22095b7d"
+  },
+  "payload_sha256": "9411457e5b9f17ce3bc5dde00c6e198aafa2a3cd5a4f074bc944be58bd78cb0a",
+  "language": "rust",
+  "notation": {
+    "target": "rust2021",
+    "token_contract": "no-token-observation",
+    "compact": true
+  },
+  "compile_argv": [
+    "rustc",
+    "-Ctarget-cpu=native",
+    "-O",
+    "-o",
+    "{output}",
+    "-"
+  ],
+  "runtime_blocked": "Explicit resource plan required: eager 96 GiB initialization and 101 workers; original helper cleanup can need more than nine seconds."
+}

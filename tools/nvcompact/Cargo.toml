@@ -1,0 +1,31 @@
+[package]
+name = "nvcompact"
+version = "0.4.0"
+edition = "2021"
+license = "MIT"
+description = "N-version compression and submission testing for Rove4k"
+repository = "https://github.com/daejunnom/Rove4k"
+publish = false
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+hex = "0.4"
+tempfile = "3"
+libc = "0.2"
+regex = "1"
+flate2 = { version = "1", default-features = false, features = ["zlib"] }
+xz2 = "0.1"
+lzma-sys = "0.1"
+bzip2 = "0.5"
+cozy-chess = "0.3"
+signal-hook = "0.3"
+num-bigint = "0.4"
+num-rational = "0.4"
+num-traits = "0.2"
+rustpython-parser = { version = "0.4", features = ["full-lexer"] }
+rustpython-ast = { version = "0.4", features = ["fold"] }
+

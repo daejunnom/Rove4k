@@ -1,0 +1,259 @@
+{
+  "format": "nvcompact.resource-evidence-index.v1",
+  "date": "2026-10-19",
+  "entries": [
+    {
+      "artifact_key": "4k.c",
+      "artifact_sha256": "04e8f61d6ed6ad5feaaea7c62c578b647b9cdbc0e2313c4437645aff63a54af6",
+      "status": "blocked",
+      "target_artifact_process_started": false,
+      "preflight_reasons": [
+        "declared memory plus reserve exceeds observed available estimate"
+      ],
+      "evidence": "4k.c-original.json",
+      "role": "original",
+      "attempt": 1
+    },
+    {
+      "artifact_key": "M4sseur",
+      "artifact_sha256": "50585513f84e39b72fd4855efc8afc0b2f9db22be33fbe6ade2f856983fc5876",
+      "status": "blocked",
+      "target_artifact_process_started": false,
+      "preflight_reasons": [
+        "declared memory plus reserve exceeds observed available estimate"
+      ],
+      "evidence": "M4sseur-original.json",
+      "role": "original",
+      "attempt": 1
+    },
+    {
+      "artifact_key": "STRO4K",
+      "artifact_sha256": "c4b3a7d3ca808418dd014be9527b81057c4db5de8d24ab0c4ee14a360f17ae98",
+      "status": "blocked",
+      "target_artifact_process_started": false,
+      "preflight_reasons": [
+        "declared memory plus reserve exceeds observed available estimate"
+      ],
+      "evidence": "STRO4K-original.json",
+      "role": "original",
+      "attempt": 1
+    },
+    {
+      "artifact_key": "c4ke",
+      "artifact_sha256": "b5ecbcd8a189cf3296bc5ea874dd0ed612949d02744252041f2d2914776769ea",
+      "status": "blocked",
+      "target_artifact_process_started": false,
+      "preflight_reasons": [
+        "declared memory plus reserve exceeds observed available estimate"
+      ],
+      "evidence": "c4ke-original.json",
+      "role": "original",
+      "attempt": 1
+    },
+    {
+      "artifact_key": "ice4",
+      "artifact_sha256": "707d994e0515473f53052998ee85d03041f17f8c23b3793d497f64b8e41b252b",
+      "status": "blocked",
+      "target_artifact_process_started": false,
+      "preflight_reasons": [
+        "declared memory plus reserve exceeds observed available estimate"
+      ],
+      "evidence": "ice4-original.json",
+      "role": "original",
+      "attempt": 1
+    },
+    {
+      "artifact_key": "molly",
+      "artifact_sha256": "98c8d9863a7837677a3c2b8f62c3afdbcf6fa44c659555db0e8168f613e47f02",
+      "status": "blocked",
+      "target_artifact_process_started": false,
+      "preflight_reasons": [
+        "declared memory plus reserve exceeds observed available estimate"
+      ],
+      "evidence": "molly-original.json",
+      "role": "original",
+      "attempt": 1
+    },
+    {
+      "artifact_key": "moonfish",
+      "artifact_sha256": "665eb7be5fd47b531f0849f4ae8f92be6e068fff40f55cf7e5f9e2b4cdad8c42",
+      "status": "fail",
+      "target_artifact_process_started": true,
+      "preflight_reasons": [],
+      "evidence": "moonfish-original.json",
+      "role": "original",
+      "attempt": 1
+    },
+    {
+      "artifact_key": "pygone",
+      "artifact_sha256": "f44c111d821c5bffb9117154dcffbfb0e83ab41b35e174b084a9bb5000ee1768",
+      "status": "blocked",
+      "target_artifact_process_started": false,
+      "preflight_reasons": [
+        "declared memory plus reserve exceeds observed available estimate"
+      ],
+      "evidence": "pygone-original.json",
+      "role": "original",
+      "attempt": 1
+    },
+    {
+      "artifact_key": "moonfish",
+      "artifact_sha256": "2eb530ec1c4c62a3d1b95b4129314c14b3aa5df433ec3eaf813903922beb4805",
+      "role": "smallest",
+      "attempt": 1,
+      "status": "pass",
+      "target_artifact_process_started": true,
+      "preflight_reasons": [],
+      "evidence": "moonfish-smallest.json"
+    },
+    {
+      "artifact_key": "moonfish",
+      "artifact_sha256": "2eb530ec1c4c62a3d1b95b4129314c14b3aa5df433ec3eaf813903922beb4805",
+      "role": "replay",
+      "attempt": 1,
+      "status": "pass",
+      "target_artifact_process_started": true,
+      "preflight_reasons": [],
+      "evidence": "moonfish-replay.json"
+    },
+    {
+      "artifact_key": "pygone",
+      "artifact_sha256": "f44c111d821c5bffb9117154dcffbfb0e83ab41b35e174b084a9bb5000ee1768",
+      "role": "original",
+      "attempt": 2,
+      "status": "pass",
+      "target_artifact_process_started": true,
+      "preflight_reasons": [],
+      "evidence": "pygone-original-after-replay.json"
+    },
+    {
+      "artifact_key": "pygone",
+      "artifact_sha256": "290e27a9d9f72770d34a94a19f22749bc2f109469ca19880853f9d1c23e258d6",
+      "role": "smallest",
+      "attempt": 1,
+      "status": "pass",
+      "target_artifact_process_started": true,
+      "preflight_reasons": [],
+      "evidence": "pygone-smallest.json"
+    },
+    {
+      "artifact_key": "pygone",
+      "artifact_sha256": "290e27a9d9f72770d34a94a19f22749bc2f109469ca19880853f9d1c23e258d6",
+      "role": "replay",
+      "attempt": 1,
+      "status": "pass",
+      "target_artifact_process_started": true,
+      "preflight_reasons": [],
+      "evidence": "pygone-replay.json"
+    }
+  ],
+  "engine_workload_constants_changed": false,
+  "cache_policy": "Conservative inactive-file allowance retained; no forced cache flush or VM setting change.",
+  "latest_observations": {
+    "4k.c": {
+      "original": {
+        "status": "blocked",
+        "evidence": "4k.c-original.json",
+        "artifact_sha256": "04e8f61d6ed6ad5feaaea7c62c578b647b9cdbc0e2313c4437645aff63a54af6",
+        "attempt": 1
+      }
+    },
+    "M4sseur": {
+      "original": {
+        "status": "blocked",
+        "evidence": "M4sseur-original.json",
+        "artifact_sha256": "50585513f84e39b72fd4855efc8afc0b2f9db22be33fbe6ade2f856983fc5876",
+        "attempt": 1
+      }
+    },
+    "STRO4K": {
+      "original": {
+        "status": "blocked",
+        "evidence": "STRO4K-original.json",
+        "artifact_sha256": "c4b3a7d3ca808418dd014be9527b81057c4db5de8d24ab0c4ee14a360f17ae98",
+        "attempt": 1
+      }
+    },
+    "c4ke": {
+      "original": {
+        "status": "blocked",
+        "evidence": "c4ke-original.json",
+        "artifact_sha256": "b5ecbcd8a189cf3296bc5ea874dd0ed612949d02744252041f2d2914776769ea",
+        "attempt": 1
+      }
+    },
+    "ice4": {
+      "original": {
+        "status": "blocked",
+        "evidence": "ice4-original.json",
+        "artifact_sha256": "707d994e0515473f53052998ee85d03041f17f8c23b3793d497f64b8e41b252b",
+        "attempt": 1
+      }
+    },
+    "molly": {
+      "original": {
+        "status": "blocked",
+        "evidence": "molly-original.json",
+        "artifact_sha256": "98c8d9863a7837677a3c2b8f62c3afdbcf6fa44c659555db0e8168f613e47f02",
+        "attempt": 1
+      }
+    },
+    "moonfish": {
+      "original": {
+        "status": "fail",
+        "evidence": "moonfish-original.json",
+        "artifact_sha256": "665eb7be5fd47b531f0849f4ae8f92be6e068fff40f55cf7e5f9e2b4cdad8c42",
+        "attempt": 1
+      },
+      "smallest": {
+        "status": "pass",
+        "evidence": "moonfish-smallest.json",
+        "artifact_sha256": "2eb530ec1c4c62a3d1b95b4129314c14b3aa5df433ec3eaf813903922beb4805",
+        "attempt": 1
+      },
+      "replay": {
+        "status": "pass",
+        "evidence": "moonfish-replay.json",
+        "artifact_sha256": "2eb530ec1c4c62a3d1b95b4129314c14b3aa5df433ec3eaf813903922beb4805",
+        "attempt": 1
+      }
+    },
+    "pygone": {
+      "original": {
+        "status": "pass",
+        "evidence": "pygone-original-after-replay.json",
+        "artifact_sha256": "f44c111d821c5bffb9117154dcffbfb0e83ab41b35e174b084a9bb5000ee1768",
+        "attempt": 2
+      },
+      "smallest": {
+        "status": "pass",
+        "evidence": "pygone-smallest.json",
+        "artifact_sha256": "290e27a9d9f72770d34a94a19f22749bc2f109469ca19880853f9d1c23e258d6",
+        "attempt": 1
+      },
+      "replay": {
+        "status": "pass",
+        "evidence": "pygone-replay.json",
+        "artifact_sha256": "290e27a9d9f72770d34a94a19f22749bc2f109469ca19880853f9d1c23e258d6",
+        "attempt": 1
+      }
+    }
+  },
+  "first_blocked_observations_preserved": true,
+  "official_clock_resource_observations": [
+    {
+      "artifact_key": "sunfish",
+      "role": "smallest",
+      "profile": "PyPy 7.3.23 via python3 PATH resolution",
+      "status": "pass",
+      "clock_ms": 1800000,
+      "increment_ms": 3000,
+      "requested_cases": [
+        "startpos_white"
+      ],
+      "complete_corpus": false,
+      "evidence": "sunfish-smallest-official-clock.json",
+      "prior_limited_probe_preserved": true
+    }
+  ]
+}

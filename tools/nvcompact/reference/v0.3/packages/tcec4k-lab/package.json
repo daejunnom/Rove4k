@@ -1,0 +1,18 @@
+{
+  "name": "nvcompact-tcec4k-lab",
+  "version": "0.3.0",
+  "private": true,
+  "license": "MIT",
+  "description": "Private workspace of pinned TCEC 4K benchmark inputs, source provenance and licenses.",
+  "scripts": {
+    "campaign": "nvcompact engines --manifests engines"
+  },
+  "dependencies": {
+    "nvcompact": "0.3.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/daejunnom/NVCompact.git",
+    "directory": "packages/tcec4k-lab"
+  }
+}

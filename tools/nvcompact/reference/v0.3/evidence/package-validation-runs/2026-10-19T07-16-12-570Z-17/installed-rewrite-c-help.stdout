@@ -1,0 +1,50 @@
+usage: nvcflow.py [-h] [--clang CLANG] [--standard {c11,c17,gnu11,gnu17}]
+                  [--compiler-arg COMPILER_ARG]
+                  [--token-contract {opaque,no-token-observation,preprocessed}]
+                  [--max-variants MAX_VARIANTS] [--max-passes MAX_PASSES]
+                  [--frontend-seconds FRONTEND_SECONDS]
+                  [--frontend-memory-mib FRONTEND_MEMORY_MIB]
+                  [--ast-mib AST_MIB] [--variant VARIANT] [--output OUTPUT]
+                  [--audit AUDIT] [--portfolio PORTFOLIO] [--list-variants]
+                  [--run-manifest] [--verifier VERIFIER]
+                  [--run-target RUN_TARGET] [--run-contract RUN_CONTRACT]
+                  [--codec CODEC] [--max-bytes MAX_BYTES]
+                  input
+
+Generate audited, type-checked C expression portfolios with an optional Clang.
+This is a deliberately bounded set of local C rewrites, not a general theorem
+prover. Identity is always retained. A run manifest can compare every
+candidate after compilation, whole-file packing, and the user's execution
+verifier.
+
+positional arguments:
+  input
+
+options:
+  -h, --help            show this help message and exit
+  --clang CLANG
+  --standard {c11,c17,gnu11,gnu17}
+  --compiler-arg COMPILER_ARG
+  --token-contract {opaque,no-token-observation,preprocessed}
+  --max-variants MAX_VARIANTS
+  --max-passes MAX_PASSES
+  --frontend-seconds FRONTEND_SECONDS
+  --frontend-memory-mib FRONTEND_MEMORY_MIB
+  --ast-mib AST_MIB
+  --variant VARIANT     explicit candidate ID; defaults to c-all when
+                        available, otherwise raw
+  --output OUTPUT
+  --audit AUDIT
+  --portfolio PORTFOLIO
+  --list-variants
+  --run-manifest        write a standalone C run manifest inside --portfolio;
+                        generation does not execute it
+  --verifier VERIFIER   self-contained Python checker accepting one candidate
+                        binary path
+  --run-target RUN_TARGET
+                        explicit target triple for native packing
+  --run-contract RUN_CONTRACT
+                        application domain/observable contract and packing
+                        non-observation assertion
+  --codec CODEC         manifest codec ID; defaults to gzip-9 and xz-6
+  --max-bytes MAX_BYTES

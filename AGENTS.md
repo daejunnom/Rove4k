@@ -17,6 +17,8 @@
 
 - 작업 시작·재개, 공동 변경, WIP와 완료: [CONTRIBUTING.md](CONTRIBUTING.md)
 - 성능·의미·재현·실패 수정·수명·검증의 공통 계약: [ENGINEERING-CONTRACT.md](docs/ENGINEERING-CONTRACT.md)
+- 내부 압축·빌드 도구의 별도 기준: [NVCompact 작업 규약](tools/nvcompact/AGENTS.md).
+  제출 엔진의 크기·핫패스 제약을 개발 도구 자체에 기계적으로 적용하지 않는다.
 
 기존 조사와 구체 설계는 이 저장소용 폴더 밖의 외부 핸드오프 `nvcompact-monorepo-handoff/HANDOFF.md`에 보존한다. 외부 핸드오프와 과거 규약 초안은 비규범적 참고 자료이며 이 문서의 상위 명령이 아니다. 그 안의 권고·예제·당시 작업 상태를 현재 구현의 의무나 영구 금지로 자동 상속하지 않는다.
 

@@ -1,0 +1,75 @@
+{
+  "scope": "planning only; no target or compiler process started",
+  "plans": [
+    {
+      "specification": "packages/tcec4k-lab/resource-profiles/M4sseur-1.0-original.json",
+      "status": "planned",
+      "engine_started": false,
+      "preflight": {
+        "status": "blocked",
+        "reasons": [
+          "declared memory plus reserve exceeds the observed available estimate"
+        ],
+        "declared_required_plus_reserve_bytes": 77309411328,
+        "estimated_available_memory_bytes": 963080192,
+        "scope": "read-only prerequisites; ready does not mean the engine has run or passed"
+      },
+      "artifact_sha256": "50585513f84e39b72fd4855efc8afc0b2f9db22be33fbe6ade2f856983fc5876",
+      "plan_sha256": "8c28f12f66e159fc46783359c43182013044403f9108424f3537271c0ff8f8b9",
+      "report": "resource-plans-v03/M4sseur-1.0-original.plan.json"
+    },
+    {
+      "specification": "packages/tcec4k-lab/resource-profiles/c4ke-v3.0-original.json",
+      "status": "planned",
+      "engine_started": false,
+      "preflight": {
+        "status": "blocked",
+        "reasons": [
+          "declared memory plus reserve exceeds the observed available estimate"
+        ],
+        "declared_required_plus_reserve_bytes": 283467841536,
+        "estimated_available_memory_bytes": 964591616,
+        "scope": "read-only prerequisites; ready does not mean the engine has run or passed"
+      },
+      "artifact_sha256": "b5ecbcd8a189cf3296bc5ea874dd0ed612949d02744252041f2d2914776769ea",
+      "plan_sha256": "3db9e2ae2bf8a2e7966281a7269eb5748ccb626edfe56b3699a6faeb753f1475",
+      "report": "resource-plans-v03/c4ke-v3.0-original.plan.json"
+    },
+    {
+      "specification": "packages/tcec4k-lab/resource-profiles/ice4-v6.1-original.json",
+      "status": "planned",
+      "engine_started": false,
+      "preflight": {
+        "status": "blocked",
+        "reasons": [
+          "declared memory plus reserve exceeds the observed available estimate"
+        ],
+        "declared_required_plus_reserve_bytes": 283467841536,
+        "estimated_available_memory_bytes": 964616192,
+        "scope": "read-only prerequisites; ready does not mean the engine has run or passed"
+      },
+      "artifact_sha256": "707d994e0515473f53052998ee85d03041f17f8c23b3793d497f64b8e41b252b",
+      "plan_sha256": "91465e103d45012d5d77c31231568f5582538bf9c4c0f40f0deccb7b4c9e0770",
+      "report": "resource-plans-v03/ice4-v6.1-original.plan.json"
+    },
+    {
+      "specification": "packages/tcec4k-lab/resource-profiles/molly-e317a0c7b8-original.json",
+      "status": "planned",
+      "engine_started": false,
+      "preflight": {
+        "status": "blocked",
+        "reasons": [
+          "declared memory plus reserve exceeds the observed available estimate",
+          "declared tool is missing: rustc"
+        ],
+        "declared_required_plus_reserve_bytes": 111669149696,
+        "estimated_available_memory_bytes": 964800512,
+        "scope": "read-only prerequisites; ready does not mean the engine has run or passed"
+      },
+      "artifact_sha256": "98c8d9863a7837677a3c2b8f62c3afdbcf6fa44c659555db0e8168f613e47f02",
+      "plan_sha256": "72e9269c34afab49c574349089e2b01c7666636035e93f799d1399c3c9686ae9",
+      "report": "resource-plans-v03/molly-e317a0c7b8-original.plan.json"
+    }
+  ],
+  "high_memory_engine_executions": 0
+}

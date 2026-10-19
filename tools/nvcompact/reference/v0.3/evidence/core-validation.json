@@ -1,0 +1,14 @@
+{
+  "format": "nvcompact.core-validation.v1",
+  "command": "npm run test:core",
+  "tests": 55,
+  "passed": 55,
+  "failed": 0,
+  "skipped": 0,
+  "reported_seconds": 13.258,
+  "python": "3.12.14",
+  "node": "24.19.0",
+  "npm": "11.9.0",
+  "eight_core_module_hashes_match_original": true,
+  "scope": "Existing suite rerun after relocation; the historical 11-engine campaign was not repeated."
+}

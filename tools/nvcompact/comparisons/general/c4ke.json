@@ -1,0 +1,65 @@
+{
+  "format": "nvcompact.external-engine.v1",
+  "name": "c4ke",
+  "artifact": "c4ke",
+  "artifact_key": "c4ke",
+  "category": "4k",
+  "original_bytes": 4093,
+  "sha256": "b5ecbcd8a189cf3296bc5ea874dd0ed612949d02744252041f2d2914776769ea",
+  "checked_at": "2026-10-19",
+  "provenance": {
+    "source_url": "https://github.com/citrus610/c4ke",
+    "source_commit": "22e318f59b3a9eed1d2b8161da832222d4a51033",
+    "artifact_url": "https://github.com/citrus610/c4ke/releases/download/v3.0/c4ke-tcec",
+    "representative_version": "3.0",
+    "last_tournament_version": "3.0",
+    "license": "MIT",
+    "artifact_provenance": "upstream-release",
+    "version_relationship": "Latest TCEC version and public release label agree; public TCEC asset is used.",
+    "source_correspondence_status": "same-release-tag-source-and-artifact",
+    "editable_source_correspondence": "matching upstream release tag source and original release asset; independent full source-to-release-binary reproduction not performed",
+    "unresolved_source_correspondence_gap": "release-source relationship known; native reproduction not separately performed",
+    "public_input_not_confirmed_exact_private_tcec_upload": true
+  },
+  "runtime_profile": {
+    "major_allocation_bytes": 274877906944,
+    "engine_workers": 256,
+    "kind": "source-derived allocation, not measured RSS"
+  },
+  "historical_python_v02": {
+    "original_bytes": "4093",
+    "smallest_bytes": "4092",
+    "accepted_bytes": "",
+    "uci": "blocked",
+    "original_uci": "",
+    "byte_replay": "pass",
+    "winner_sha256": "65565271a6dc5a9f2fbf2ae6582a73023433f5a161d475097d2c1cfc71454be4",
+    "original_deployment_equivalent": "True"
+  },
+  "envelope": {
+    "decoder": "xz -d",
+    "payload_codec": {
+      "format": "alone"
+    },
+    "header_bytes": 122,
+    "header_sha256": "28b51c30fef7d83dd27e611624984486a752dac6d377adc080f3d1128eb281f1"
+  },
+  "payload_sha256": "1399c9cfb09b2f4b202ded54be066efd686b338626cb7befec867a1466ae001f",
+  "language": "cpp",
+  "notation": {
+    "target": "cpp17-lp64",
+    "token_contract": "no-token-observation",
+    "compact": true
+  },
+  "compile_argv": [
+    "g++",
+    "-O3",
+    "-std=c++23",
+    "-pthread",
+    "-march=native",
+    "-xc++",
+    "-o{output}",
+    "-"
+  ],
+  "runtime_blocked": "Explicit resource plan required: original 256 GiB allocation and 256 workers. No silent low-memory profile."
+}

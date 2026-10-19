@@ -1,0 +1,223 @@
+{
+  "format": "nvcompact.portable-resource-evidence.v1",
+  "date": "2026-10-19",
+  "artifact_key": "4k.c",
+  "artifact": {
+    "bytes": 3932,
+    "sha256": "04e8f61d6ed6ad5feaaea7c62c578b647b9cdbc0e2313c4437645aff63a54af6",
+    "mode": 493
+  },
+  "status": "blocked",
+  "target_artifact_process_started": false,
+  "requested_budget": {
+    "address_space_bytes": 30064771072,
+    "cpu_seconds_per_process": 7200,
+    "file_bytes": 268435456,
+    "output_bytes_per_session": 2097152,
+    "required_memory_bytes": 23622320128,
+    "reserve_memory_bytes": 2147483648,
+    "wall_seconds": 240
+  },
+  "preconditions": {},
+  "configuration": {
+    "case_ids": [],
+    "cleanup_seconds": 5.0,
+    "clock_grace_ms": 1000,
+    "clock_ms": 2000,
+    "cpu_seconds": 7200,
+    "depth": 3,
+    "extensions": false,
+    "file_bytes": 268435456,
+    "hash_mb": 16,
+    "increment_ms": 0,
+    "max_line_bytes": 65536,
+    "max_output_bytes": 2097152,
+    "max_seconds": 240.0,
+    "max_transcript_bytes": 262144,
+    "memory_bytes": 30064771072,
+    "movetime_ms": 100,
+    "nodes": 1000,
+    "preserve_engine_options": true,
+    "profile": "tcec4k",
+    "quick": false,
+    "quit_seconds": 2.0,
+    "ready_seconds": 5.0,
+    "search_seconds": 5.0,
+    "startup_seconds": 60.0,
+    "stop_seconds": 2.0,
+    "threads": 1
+  },
+  "tool_fingerprints": [
+    {
+      "role": "command_executable",
+      "bytes": 3932,
+      "sha256": "04e8f61d6ed6ad5feaaea7c62c578b647b9cdbc0e2313c4437645aff63a54af6",
+      "mode": 493
+    },
+    {
+      "role": "nvcompact_executable",
+      "bytes": 10162344,
+      "sha256": "08a4b493b19382a6e8de46cdb50465053e5b6c850a304bb9c2fed034cc21357e",
+      "mode": 493
+    }
+  ],
+  "plan_sha256": "c76d7ef9d35f2bed141550e5baca7471f244bd51fd797908e4989923ab01b02f",
+  "preflight_at_plan": {
+    "declared_required_plus_reserve_bytes": 25769803776,
+    "estimated_available_memory_bytes": 2061873152,
+    "reasons": [
+      "declared memory plus reserve exceeds observed available estimate"
+    ],
+    "scope": "read-only prerequisites; ready is neither execution nor protocol success",
+    "status": "blocked"
+  },
+  "preflight_at_run": {
+    "declared_required_plus_reserve_bytes": 25769803776,
+    "estimated_available_memory_bytes": 2061795328,
+    "reasons": [
+      "declared memory plus reserve exceeds observed available estimate"
+    ],
+    "scope": "read-only prerequisites; ready is neither execution nor protocol success",
+    "status": "blocked"
+  },
+  "resources_at_plan": {
+    "platform": "linux",
+    "physical_memory": {
+      "physical_available_bytes": 9344790528,
+      "physical_total_bytes": 10451435520
+    },
+    "estimated_available_memory_bytes": 2061873152,
+    "affinity_cpu_count": 9,
+    "online_cpu_count": 9,
+    "rlimits": {
+      "RLIMIT_AS": [
+        null,
+        null
+      ],
+      "RLIMIT_CORE": [
+        0,
+        null
+      ],
+      "RLIMIT_CPU": [
+        null,
+        null
+      ],
+      "RLIMIT_FSIZE": [
+        null,
+        null
+      ],
+      "RLIMIT_STACK": [
+        8388608,
+        null
+      ]
+    },
+    "cgroup_v2": [
+      {
+        "cpu_max": "800000 100000",
+        "estimated_available_bytes": 2061873152,
+        "inactive_file_bytes": 1619816448,
+        "memory_current_bytes": 8147877888,
+        "memory_max_bytes": 8589934592,
+        "raw_headroom_bytes": 442056704
+      }
+    ],
+    "observation_errors": [],
+    "estimate_scope": "min(physical MemAvailable, every visible cgroup max-current+inactive_file); transient reclaim estimate, not reservation or allocation success"
+  },
+  "resources_before": {
+    "platform": "linux",
+    "physical_memory": {
+      "physical_available_bytes": 9344790528,
+      "physical_total_bytes": 10451435520
+    },
+    "estimated_available_memory_bytes": 2061795328,
+    "affinity_cpu_count": 9,
+    "online_cpu_count": 9,
+    "rlimits": {
+      "RLIMIT_AS": [
+        null,
+        null
+      ],
+      "RLIMIT_CORE": [
+        0,
+        null
+      ],
+      "RLIMIT_CPU": [
+        null,
+        null
+      ],
+      "RLIMIT_FSIZE": [
+        null,
+        null
+      ],
+      "RLIMIT_STACK": [
+        8388608,
+        null
+      ]
+    },
+    "cgroup_v2": [
+      {
+        "cpu_max": "800000 100000",
+        "estimated_available_bytes": 2061795328,
+        "inactive_file_bytes": 1619816448,
+        "memory_current_bytes": 8147955712,
+        "memory_max_bytes": 8589934592,
+        "raw_headroom_bytes": 441978880
+      }
+    ],
+    "observation_errors": [],
+    "estimate_scope": "min(physical MemAvailable, every visible cgroup max-current+inactive_file); transient reclaim estimate, not reservation or allocation success"
+  },
+  "resources_after": {
+    "platform": "linux",
+    "physical_memory": {
+      "physical_available_bytes": 9344811008,
+      "physical_total_bytes": 10451435520
+    },
+    "estimated_available_memory_bytes": 2061537280,
+    "affinity_cpu_count": 9,
+    "online_cpu_count": 9,
+    "rlimits": {
+      "RLIMIT_AS": [
+        null,
+        null
+      ],
+      "RLIMIT_CORE": [
+        0,
+        null
+      ],
+      "RLIMIT_CPU": [
+        null,
+        null
+      ],
+      "RLIMIT_FSIZE": [
+        null,
+        null
+      ],
+      "RLIMIT_STACK": [
+        8388608,
+        null
+      ]
+    },
+    "cgroup_v2": [
+      {
+        "cpu_max": "800000 100000",
+        "estimated_available_bytes": 2061537280,
+        "inactive_file_bytes": 1619816448,
+        "memory_current_bytes": 8148213760,
+        "memory_max_bytes": 8589934592,
+        "raw_headroom_bytes": 441720832
+      }
+    ],
+    "observation_errors": [],
+    "estimate_scope": "min(physical MemAvailable, every visible cgroup max-current+inactive_file); transient reclaim estimate, not reservation or allocation success"
+  },
+  "changed_inputs_before": [],
+  "changed_inputs_after": null,
+  "environment_unchanged": true,
+  "parent_rlimits_unchanged": true,
+  "elapsed_seconds": 0.021071399,
+  "uci": null,
+  "scope": "Portable metadata only. Original source/artifact/decoded payload and raw host-path transcripts remain outside the repository. A started artifact wrapper need not have reached engine initialization or search.",
+  "raw_evidence_id": "original-resource-runs/4k.c/run"
+}

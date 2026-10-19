@@ -1,0 +1,52 @@
+{
+  "name": "M4sseur",
+  "artifact": "../inputs/M4sseur",
+  "sha256": "50585513f84e39b72fd4855efc8afc0b2f9db22be33fbe6ade2f856983fc5876",
+  "category": "4k",
+  "provenance": {
+    "version_relationship": "No public release asset. Rebuilt unchanged upstream nanonizer with GCC, ran upstream compress.sh portfolio, concatenated launcher.sh + phase2.cpp.lzma. Its final compress_info command returns 1 because the already-produced file exists; selected payload is valid and 4095-byte assembled baseline is preserved.",
+    "source_archive": "../vendor/m4sseur/source.tar.gz",
+    "license_path": "../vendor/m4sseur/LICENSE",
+    "path_base": "manifest-directory",
+    "source_manifest": "../vendor/source-manifest.json",
+    "source_archive_sha256": "7c8a3cd00d3f5644e9c8fe9be6ec12856557b5b48543caf844d1ee43855371bc",
+    "license_paths": [
+      "../vendor/m4sseur/LICENSE"
+    ],
+    "source_commit": "470fa53925c1cafeaaf84db3612abb5eb0ae9e9f",
+    "source_url": "https://github.com/Diazepawn/M4sseur",
+    "artifact_url": null,
+    "representative_version": "1.0 source rebuild",
+    "source_correspondence_status": "pinned-source-upstream-build",
+    "editable_source_correspondence": "all pinned source files match the archive used for the unchanged upstream baseline build",
+    "source_correspondence_proofs": [],
+    "unresolved_source_correspondence_gap": false
+  },
+  "envelope": {
+    "decoder": "xz -d",
+    "payload_codec": {
+      "format": "alone"
+    },
+    "header_bytes": 133,
+    "header_sha256": "e793d37c9e0bb6cc642ed090b648a8a8fe4b31812cf4608a33aaffbc70fa2c4c"
+  },
+  "payload_sha256": "ef45e658ae25e8d4377a23c29c5ffc39d839a4d4ca3b3ef8e5e4715975d7e4a9",
+  "language": "cpp",
+  "notation": {
+    "target": "cpp17-lp64",
+    "token_contract": "no-token-observation",
+    "compact": true
+  },
+  "compile_argv": [
+    "c++",
+    "-xc++",
+    "-march=native",
+    "-std=c++20",
+    "-pthread",
+    "-O3",
+    "-DNDEBUG",
+    "-o{output}",
+    "-"
+  ],
+  "runtime_blocked": "Exact TCEC profile eagerly initializes 64 GiB TT and uses 103 threads; current memory.max is 8 GiB. No resource constant was changed."
+}

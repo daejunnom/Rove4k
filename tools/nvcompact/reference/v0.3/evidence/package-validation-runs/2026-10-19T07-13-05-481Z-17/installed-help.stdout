@@ -1,0 +1,24 @@
+NVCompact 0.3.0 — build, rewrite and compaction portfolio tools
+
+Usage: nvcompact <command> [arguments]
+
+  build        Compile and link without packing; execution checks need --verify
+  run          Build and compare verified implementation/link/packing portfolios
+  reproduce    Rebuild a selected native-link recipe
+  notation     Generate value/type-preserving source spelling candidates
+  rewrite-c    Generate typed C rewrite candidates and an optional run manifest
+  envelope     Compare complete self-extracting file candidates
+  uci          Validate an actual artifact with the TCEC 4K UCI subset
+  replay       Independently replay a selected envelope recipe
+  engines      Run local manifests (explicit --manifests DIR is required)
+  resource     Plan resource-heavy UCI tests; run requires explicit --start
+  doctor       Check the local Python/stdlib runtime; add --json for JSON
+
+  nvcompact <command> --help   Show that command's Python CLI options
+  nvcompact --version         Show this npm package's version
+
+Requires Linux, Node.js >=22 and CPython >=3.11. Compilers, engine runtimes,
+and the optional chess oracle are separate prerequisites. No installation or
+download is performed. NVCOMPACT_PYTHON selects one Python executable path;
+spaces are accepted literally, and command strings are never shell-evaluated.
+Input/output paths are relative to your current working directory.

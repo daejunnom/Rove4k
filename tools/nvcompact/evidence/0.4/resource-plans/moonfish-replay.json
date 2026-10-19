@@ -1,0 +1,633 @@
+{
+  "format": "nvcompact.portable-resource-evidence.v1",
+  "date": "2026-10-19",
+  "artifact_key": "moonfish",
+  "artifact": {
+    "bytes": 3889,
+    "sha256": "2eb530ec1c4c62a3d1b95b4129314c14b3aa5df433ec3eaf813903922beb4805",
+    "mode": 493
+  },
+  "status": "pass",
+  "target_artifact_process_started": true,
+  "requested_budget": {
+    "address_space_bytes": 4294967296,
+    "cpu_seconds_per_process": 180,
+    "file_bytes": 268435456,
+    "output_bytes_per_session": 2097152,
+    "required_memory_bytes": 1073741824,
+    "reserve_memory_bytes": 536870912,
+    "wall_seconds": 180
+  },
+  "preconditions": {
+    "max_inherited_stack_bytes": 8388608,
+    "max_online_cpu_count": 32
+  },
+  "configuration": {
+    "case_ids": [],
+    "cleanup_seconds": 5.0,
+    "clock_grace_ms": 1000,
+    "clock_ms": 10000,
+    "cpu_seconds": 180,
+    "depth": 3,
+    "extensions": false,
+    "file_bytes": 268435456,
+    "hash_mb": 16,
+    "increment_ms": 0,
+    "max_line_bytes": 65536,
+    "max_output_bytes": 2097152,
+    "max_seconds": 180.0,
+    "max_transcript_bytes": 262144,
+    "memory_bytes": 4294967296,
+    "movetime_ms": 100,
+    "nodes": 1000,
+    "preserve_engine_options": true,
+    "profile": "tcec4k",
+    "quick": false,
+    "quit_seconds": 2.0,
+    "ready_seconds": 5.0,
+    "search_seconds": 12.0,
+    "startup_seconds": 60.0,
+    "stop_seconds": 2.0,
+    "threads": 1
+  },
+  "tool_fingerprints": [
+    {
+      "role": "command_executable",
+      "bytes": 3889,
+      "sha256": "2eb530ec1c4c62a3d1b95b4129314c14b3aa5df433ec3eaf813903922beb4805",
+      "mode": 493
+    },
+    {
+      "role": "nvcompact_executable",
+      "bytes": 10162344,
+      "sha256": "08a4b493b19382a6e8de46cdb50465053e5b6c850a304bb9c2fed034cc21357e",
+      "mode": 493
+    },
+    {
+      "role": "sh",
+      "bytes": 129784,
+      "sha256": "86d31f6fb799e91fa21bad341484564510ca287703a16e9e46c53338776f4f42",
+      "mode": 493
+    },
+    {
+      "role": "mktemp",
+      "bytes": 35336,
+      "sha256": "7258721fb887f4cef21e7013b0f6d970ed4ca58390ac5116d426679d13a80806",
+      "mode": 493
+    },
+    {
+      "role": "tail",
+      "bytes": 64032,
+      "sha256": "8ea2a713eba8a4140fad5e453c9d8129fb5d4d30d79de384639c306f626eca90",
+      "mode": 493
+    },
+    {
+      "role": "xz",
+      "bytes": 89008,
+      "sha256": "3f8a1d624a18a194af196db18e3964577a52c372155ea5d229ecc87de13c8d65",
+      "mode": 493
+    },
+    {
+      "role": "cc",
+      "bytes": 1023032,
+      "sha256": "6117c52522997d2aaccb2b52b3c6bf42c0a6c5edb1d718431fed6b2fc5fec234",
+      "mode": 493
+    },
+    {
+      "role": "sleep",
+      "bytes": 35336,
+      "sha256": "06d3927480c7554337818dbf5d91d78689bc8321237280e3d452028d5d1c3f43",
+      "mode": 493
+    },
+    {
+      "role": "rm",
+      "bytes": 59912,
+      "sha256": "42d99e8ead91f30586a0f689178e8bd3db5fadb1e995681aaf4b418cbeffab99",
+      "mode": 493
+    }
+  ],
+  "plan_sha256": "57739a5328147abba09341d64c4db9f18d5b601d2bed26b3176cd3ff27fa941a",
+  "preflight_at_plan": {
+    "declared_required_plus_reserve_bytes": 1610612736,
+    "estimated_available_memory_bytes": 2053038080,
+    "reasons": [],
+    "scope": "read-only prerequisites; ready is neither execution nor protocol success",
+    "status": "ready"
+  },
+  "preflight_at_run": {
+    "declared_required_plus_reserve_bytes": 1610612736,
+    "estimated_available_memory_bytes": 2183684096,
+    "reasons": [],
+    "scope": "read-only prerequisites; ready is neither execution nor protocol success",
+    "status": "ready"
+  },
+  "resources_at_plan": {
+    "platform": "linux",
+    "physical_memory": {
+      "physical_available_bytes": 9370963968,
+      "physical_total_bytes": 10451435520
+    },
+    "estimated_available_memory_bytes": 2053038080,
+    "affinity_cpu_count": 9,
+    "online_cpu_count": 9,
+    "rlimits": {
+      "RLIMIT_AS": [
+        null,
+        null
+      ],
+      "RLIMIT_CORE": [
+        0,
+        null
+      ],
+      "RLIMIT_CPU": [
+        null,
+        null
+      ],
+      "RLIMIT_FSIZE": [
+        null,
+        null
+      ],
+      "RLIMIT_STACK": [
+        8388608,
+        null
+      ]
+    },
+    "cgroup_v2": [
+      {
+        "cpu_max": "800000 100000",
+        "estimated_available_bytes": 2053038080,
+        "inactive_file_bytes": 1706999808,
+        "memory_current_bytes": 8243896320,
+        "memory_max_bytes": 8589934592,
+        "raw_headroom_bytes": 346038272
+      }
+    ],
+    "observation_errors": [],
+    "estimate_scope": "min(physical MemAvailable, every visible cgroup max-current+inactive_file); transient reclaim estimate, not reservation or allocation success"
+  },
+  "resources_before": {
+    "platform": "linux",
+    "physical_memory": {
+      "physical_available_bytes": 9654775808,
+      "physical_total_bytes": 10451435520
+    },
+    "estimated_available_memory_bytes": 2183684096,
+    "affinity_cpu_count": 9,
+    "online_cpu_count": 9,
+    "rlimits": {
+      "RLIMIT_AS": [
+        null,
+        null
+      ],
+      "RLIMIT_CORE": [
+        0,
+        null
+      ],
+      "RLIMIT_CPU": [
+        null,
+        null
+      ],
+      "RLIMIT_FSIZE": [
+        null,
+        null
+      ],
+      "RLIMIT_STACK": [
+        8388608,
+        null
+      ]
+    },
+    "cgroup_v2": [
+      {
+        "cpu_max": "800000 100000",
+        "estimated_available_bytes": 2183684096,
+        "inactive_file_bytes": 1702989824,
+        "memory_current_bytes": 8109240320,
+        "memory_max_bytes": 8589934592,
+        "raw_headroom_bytes": 480694272
+      }
+    ],
+    "observation_errors": [],
+    "estimate_scope": "min(physical MemAvailable, every visible cgroup max-current+inactive_file); transient reclaim estimate, not reservation or allocation success"
+  },
+  "resources_after": {
+    "platform": "linux",
+    "physical_memory": {
+      "physical_available_bytes": 9653841920,
+      "physical_total_bytes": 10451435520
+    },
+    "estimated_available_memory_bytes": 2179854336,
+    "affinity_cpu_count": 9,
+    "online_cpu_count": 9,
+    "rlimits": {
+      "RLIMIT_AS": [
+        null,
+        null
+      ],
+      "RLIMIT_CORE": [
+        0,
+        null
+      ],
+      "RLIMIT_CPU": [
+        null,
+        null
+      ],
+      "RLIMIT_FSIZE": [
+        null,
+        null
+      ],
+      "RLIMIT_STACK": [
+        8388608,
+        null
+      ]
+    },
+    "cgroup_v2": [
+      {
+        "cpu_max": "800000 100000",
+        "estimated_available_bytes": 2179854336,
+        "inactive_file_bytes": 1703153664,
+        "memory_current_bytes": 8113233920,
+        "memory_max_bytes": 8589934592,
+        "raw_headroom_bytes": 476700672
+      }
+    ],
+    "observation_errors": [],
+    "estimate_scope": "min(physical MemAvailable, every visible cgroup max-current+inactive_file); transient reclaim estimate, not reservation or allocation success"
+  },
+  "changed_inputs_before": [],
+  "changed_inputs_after": [],
+  "environment_unchanged": true,
+  "parent_rlimits_unchanged": true,
+  "elapsed_seconds": 5.763414968,
+  "uci": {
+    "format": "nvcompact.uci.v2",
+    "verdict": "pass",
+    "required_tcec4k_verdict": "pass",
+    "extended_uci_verdict": "not_run",
+    "target_artifact_process_started": true,
+    "configuration": {
+      "case_ids": [],
+      "cleanup_seconds": 5.0,
+      "clock_grace_ms": 1000,
+      "clock_ms": 10000,
+      "cpu_seconds": 180,
+      "depth": 3,
+      "extensions": false,
+      "file_bytes": 268435456,
+      "hash_mb": 16,
+      "increment_ms": 0,
+      "max_line_bytes": 65536,
+      "max_output_bytes": 2097152,
+      "max_seconds": 180.0,
+      "max_transcript_bytes": 262144,
+      "memory_bytes": 4294967296,
+      "movetime_ms": 100,
+      "nodes": 1000,
+      "preserve_engine_options": true,
+      "profile": "tcec4k",
+      "quick": false,
+      "quit_seconds": 2.0,
+      "ready_seconds": 5.0,
+      "search_seconds": 12.0,
+      "startup_seconds": 60.0,
+      "stop_seconds": 2.0,
+      "threads": 1
+    },
+    "core_case_coverage": {
+      "completed": [
+        "startpos_white",
+        "startpos_black",
+        "castling_history",
+        "en_passant_history",
+        "middlegame_history",
+        "promotion_history"
+      ],
+      "corpus_cases": 6,
+      "full_corpus_completed": true,
+      "full_corpus_requested": true,
+      "requested": [
+        "startpos_white",
+        "startpos_black",
+        "castling_history",
+        "en_passant_history",
+        "middlegame_history",
+        "promotion_history"
+      ]
+    },
+    "cases": [
+      {
+        "detail": {
+          "configured_options": [],
+          "identity": {},
+          "option_errors": [],
+          "options": [],
+          "ready_after_launch_ms": 668.496687
+        },
+        "elapsed_ms": 667.616731,
+        "id": "handshake",
+        "requirement": "tcec4k",
+        "status": "pass"
+      },
+      {
+        "detail": {
+          "ready": true
+        },
+        "elapsed_ms": 2.109638,
+        "id": "newgame_tolerance",
+        "requirement": "tcec4k",
+        "status": "pass"
+      },
+      {
+        "detail": {
+          "ready": true
+        },
+        "elapsed_ms": 2.120654,
+        "id": "idle_stop_tolerance",
+        "requirement": "tcec4k",
+        "status": "pass"
+      },
+      {
+        "detail": {
+          "ready": true
+        },
+        "elapsed_ms": 2.111519,
+        "id": "unknown_command_tolerance",
+        "requirement": "tcec4k",
+        "status": "pass"
+      },
+      {
+        "detail": {
+          "bestmove": "d2d3",
+          "engine_clock_with_grace_seconds": 11.0,
+          "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+          "go": "go wtime 10000 btime 10000 winc 0 binc 0",
+          "last_info": "info depth 1 score cp -15 nodes 64512",
+          "legal": true,
+          "position": "position startpos",
+          "response_budget_seconds": 11.0,
+          "search_elapsed_ms": 499.51002500000004,
+          "terminal": false
+        },
+        "elapsed_ms": 503.780958,
+        "id": "startpos_white",
+        "requirement": "tcec4k",
+        "status": "pass"
+      },
+      {
+        "detail": {
+          "bestmove": "b8c6",
+          "engine_clock_with_grace_seconds": 11.0,
+          "fen": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+          "go": "go wtime 10000 btime 10000 winc 0 binc 0",
+          "last_info": "info depth 1 score cp -41 nodes 52584",
+          "legal": true,
+          "position": "position startpos moves e2e4",
+          "response_budget_seconds": 11.0,
+          "search_elapsed_ms": 559.233122,
+          "terminal": false
+        },
+        "elapsed_ms": 573.97789,
+        "id": "startpos_black",
+        "requirement": "tcec4k",
+        "status": "pass"
+      },
+      {
+        "detail": {
+          "bestmove": "b7b5",
+          "engine_clock_with_grace_seconds": 11.0,
+          "fen": "r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 3 5",
+          "go": "go wtime 10000 btime 10000 winc 0 binc 0",
+          "last_info": "info depth 1 score cp 52 nodes 27648",
+          "legal": true,
+          "position": "position startpos moves e2e4 e7e5 g1f3 b8c6 f1b5 a7a6 b5a4 g8f6 e1g1",
+          "response_budget_seconds": 11.0,
+          "search_elapsed_ms": 1811.4371789999998,
+          "terminal": false
+        },
+        "elapsed_ms": 1829.6652629999999,
+        "id": "castling_history",
+        "requirement": "tcec4k",
+        "status": "pass"
+      },
+      {
+        "detail": {
+          "bestmove": "d8d6",
+          "engine_clock_with_grace_seconds": 11.0,
+          "fen": "rnbqkbnr/1pp1pppp/p2P4/8/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 3",
+          "go": "go wtime 10000 btime 10000 winc 0 binc 0",
+          "last_info": "info depth 1 score cp -60 nodes 46080",
+          "legal": true,
+          "position": "position startpos moves e2e4 a7a6 e4e5 d7d5 e5d6",
+          "response_budget_seconds": 11.0,
+          "search_elapsed_ms": 494.161301,
+          "terminal": false
+        },
+        "elapsed_ms": 504.80231,
+        "id": "en_passant_history",
+        "requirement": "tcec4k",
+        "status": "pass"
+      },
+      {
+        "detail": {
+          "bestmove": "e1g1",
+          "engine_clock_with_grace_seconds": 11.0,
+          "fen": "r1bq1rk1/ppp2ppp/2np1n2/2b1p1B1/2B1P3/2NP1N2/PPP2PPP/R2QK2R w KQ - 2 7",
+          "go": "go wtime 10000 btime 10000 winc 0 binc 0",
+          "last_info": "info depth 1 score cp 8 nodes 27648",
+          "legal": true,
+          "position": "position startpos moves e2e4 e7e5 g1f3 b8c6 f1c4 g8f6 d2d3 f8c5 c1g5 d7d6 b1c3 e8g8",
+          "response_budget_seconds": 11.0,
+          "search_elapsed_ms": 742.611464,
+          "terminal": false
+        },
+        "elapsed_ms": 763.119951,
+        "id": "middlegame_history",
+        "requirement": "tcec4k",
+        "status": "pass"
+      },
+      {
+        "detail": {
+          "bestmove": "a8h1",
+          "engine_clock_with_grace_seconds": 11.0,
+          "fen": "Qnbqkbnr/p1ppppp1/8/8/8/8/1PPPPP1P/RNBQKBNq w Qk - 0 6",
+          "go": "go wtime 10000 btime 10000 winc 0 binc 0",
+          "last_info": "info depth 1 score cp 1055 nodes 18432",
+          "legal": true,
+          "position": "position startpos moves a2a4 h7h5 a4a5 h5h4 a5a6 h4h3 a6b7 h3g2 b7a8q g2h1q",
+          "response_budget_seconds": 11.0,
+          "search_elapsed_ms": 841.9356799999999,
+          "terminal": false
+        },
+        "elapsed_ms": 854.886135,
+        "id": "promotion_history",
+        "requirement": "tcec4k",
+        "status": "pass"
+      },
+      {
+        "detail": {
+          "cleanup_grace_seconds": 5.0,
+          "cleanup_wait_ms": 0.008732,
+          "process_group_exists_after_quit": false,
+          "process_group_exists_immediately_after_quit": false,
+          "quit_returncode": 0,
+          "quit_signal": null,
+          "scope": "owned original process group; detached sessions and global filesystem not audited"
+        },
+        "elapsed_ms": 4.269924,
+        "id": "quit_idle",
+        "requirement": "tcec4k",
+        "status": "pass"
+      }
+    ],
+    "observations": [
+      {
+        "bestmove": "d2d3",
+        "budget": 10000,
+        "case": "startpos_white",
+        "engine_clock_with_grace_seconds": 11.0,
+        "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "go": "go wtime 10000 btime 10000 winc 0 binc 0",
+        "last_info": "info depth 1 score cp -15 nodes 64512",
+        "legal": true,
+        "mode": "clock",
+        "position": "position startpos",
+        "response_budget_seconds": 11.0,
+        "search_elapsed_ms": 499.51002500000004,
+        "terminal": false
+      },
+      {
+        "bestmove": "b8c6",
+        "budget": 10000,
+        "case": "startpos_black",
+        "engine_clock_with_grace_seconds": 11.0,
+        "fen": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+        "go": "go wtime 10000 btime 10000 winc 0 binc 0",
+        "last_info": "info depth 1 score cp -41 nodes 52584",
+        "legal": true,
+        "mode": "clock",
+        "position": "position startpos moves e2e4",
+        "response_budget_seconds": 11.0,
+        "search_elapsed_ms": 559.233122,
+        "terminal": false
+      },
+      {
+        "bestmove": "b7b5",
+        "budget": 10000,
+        "case": "castling_history",
+        "engine_clock_with_grace_seconds": 11.0,
+        "fen": "r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 3 5",
+        "go": "go wtime 10000 btime 10000 winc 0 binc 0",
+        "last_info": "info depth 1 score cp 52 nodes 27648",
+        "legal": true,
+        "mode": "clock",
+        "position": "position startpos moves e2e4 e7e5 g1f3 b8c6 f1b5 a7a6 b5a4 g8f6 e1g1",
+        "response_budget_seconds": 11.0,
+        "search_elapsed_ms": 1811.4371789999998,
+        "terminal": false
+      },
+      {
+        "bestmove": "d8d6",
+        "budget": 10000,
+        "case": "en_passant_history",
+        "engine_clock_with_grace_seconds": 11.0,
+        "fen": "rnbqkbnr/1pp1pppp/p2P4/8/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 3",
+        "go": "go wtime 10000 btime 10000 winc 0 binc 0",
+        "last_info": "info depth 1 score cp -60 nodes 46080",
+        "legal": true,
+        "mode": "clock",
+        "position": "position startpos moves e2e4 a7a6 e4e5 d7d5 e5d6",
+        "response_budget_seconds": 11.0,
+        "search_elapsed_ms": 494.161301,
+        "terminal": false
+      },
+      {
+        "bestmove": "e1g1",
+        "budget": 10000,
+        "case": "middlegame_history",
+        "engine_clock_with_grace_seconds": 11.0,
+        "fen": "r1bq1rk1/ppp2ppp/2np1n2/2b1p1B1/2B1P3/2NP1N2/PPP2PPP/R2QK2R w KQ - 2 7",
+        "go": "go wtime 10000 btime 10000 winc 0 binc 0",
+        "last_info": "info depth 1 score cp 8 nodes 27648",
+        "legal": true,
+        "mode": "clock",
+        "position": "position startpos moves e2e4 e7e5 g1f3 b8c6 f1c4 g8f6 d2d3 f8c5 c1g5 d7d6 b1c3 e8g8",
+        "response_budget_seconds": 11.0,
+        "search_elapsed_ms": 742.611464,
+        "terminal": false
+      },
+      {
+        "bestmove": "a8h1",
+        "budget": 10000,
+        "case": "promotion_history",
+        "engine_clock_with_grace_seconds": 11.0,
+        "fen": "Qnbqkbnr/p1ppppp1/8/8/8/8/1PPPPP1P/RNBQKBNq w Qk - 0 6",
+        "go": "go wtime 10000 btime 10000 winc 0 binc 0",
+        "last_info": "info depth 1 score cp 1055 nodes 18432",
+        "legal": true,
+        "mode": "clock",
+        "position": "position startpos moves a2a4 h7h5 a4a5 h5h4 a5a6 h4h3 a6b7 h3g2 b7a8q g2h1q",
+        "response_budget_seconds": 11.0,
+        "search_elapsed_ms": 841.9356799999999,
+        "terminal": false
+      }
+    ],
+    "handshakes": [
+      {
+        "configured_options": [],
+        "identity": {},
+        "option_errors": [],
+        "options": [],
+        "ready_after_launch_ms": 668.496687
+      }
+    ],
+    "sessions": [
+      {
+        "phase": "core",
+        "output_bytes": {
+          "stderr": 158,
+          "stdout": 444
+        },
+        "stderr_tail": "<stdin>: In function ‘main’:\n<stdin>:10: warning: ignoring return value of ‘fgets’ declared with attribute ‘warn_unused_result’ [-Wunused-result]\n",
+        "cleanup": {
+          "cleanup_grace_seconds": 5.0,
+          "cleanup_wait_ms": 0.008732,
+          "forced_cleanup": false,
+          "process_group_exists_after_quit": false,
+          "process_group_exists_immediately_after_quit": false,
+          "quit_returncode": 0,
+          "quit_signal": null,
+          "returncode": 0,
+          "scope": "owned original process group; detached sessions and global filesystem not audited",
+          "signal": null
+        },
+        "working_directory_leftovers": {
+          "paths": [],
+          "scope": "owned working directory, symlinks not followed",
+          "truncated": false
+        }
+      }
+    ],
+    "elapsed_ms": 5711.057615,
+    "oracle": {
+      "development_only": true,
+      "module": "cozy-chess",
+      "standard_castling_translation": true,
+      "version_source": "Cargo.lock"
+    },
+    "sources": [
+      "https://wiki.chessdom.org/index.php?title=TCEC_4k_Rules&oldid=7853",
+      "https://backscattering.de/chess/uci/"
+    ],
+    "scope": {
+      "cleanup": "owned cwd and original process group; no global filesystem or detached-session audit",
+      "evidence": "finite protocol and independent legal-move observations; not complete semantic equivalence, Elo, or organizer certification",
+      "limits": "per-process AS/CPU/file limits, whole-verifier wall bound and per-session output bound; no aggregate memory cgroup",
+      "options": "original defaults and embedded constants preserved",
+      "time_control": "configured short clock probes, not a 30min+3sec tournament unless separately run"
+    }
+  },
+  "scope": "Portable metadata only. Original source/artifact/decoded payload and raw host-path transcripts remain outside the repository. A started artifact wrapper need not have reached engine initialization or search.",
+  "comparison_role": "replay",
+  "attempt": 1,
+  "raw_evidence_id": "moonfish-replay-resource/run",
+  "deployment_relation": "The failing original raw-unxz deployment remains fail. This working candidate/replay uses xz with reencoded source; complete compiled native bytes matched under the fixed compile recipe, but strict original deployment equivalence is not established."
+}

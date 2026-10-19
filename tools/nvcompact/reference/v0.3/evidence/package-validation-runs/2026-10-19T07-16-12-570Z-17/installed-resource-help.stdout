@@ -1,0 +1,14 @@
+usage: nvresource.py [-h] {plan,run} ...
+
+Plan large-resource UCI checks without launching an engine; run only with
+--start. This is a bounded execution aid, not a sandbox or a memory
+reservation service. The input artifact and embedded resource constants are
+never rewritten.
+
+positional arguments:
+  {plan,run}
+    plan      read files/resources and save a plan; never run the target
+    run       execute a previously saved plan only after --start
+
+options:
+  -h, --help  show this help message and exit

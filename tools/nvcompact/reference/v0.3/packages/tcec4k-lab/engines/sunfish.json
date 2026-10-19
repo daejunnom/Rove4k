@@ -1,0 +1,42 @@
+{
+  "name": "sunfish",
+  "artifact": "../inputs/sunfish",
+  "sha256": "3066c961174281678f2e15edd118fa45231b4d6e1dcc1f77ea11a62309318261",
+  "category": "4k",
+  "provenance": {
+    "version_relationship": "The Dec 24 2022 classic commit includes this packed script and editable sunfish_uci.py. python-minifier 2.7.0 on CPython 3.11.17 reproduces its embedded 5837-byte source exactly (SHA256 f1a676e55763635a4ba517e7439249e2f1b15da818e83369b50f6b705178f78f). Equality to the private TCEC upload remains independently unconfirmed.",
+    "source_archive": "../vendor/sunfish/source.tar.gz",
+    "license_path": "../vendor/sunfish/LICENSE.md",
+    "path_base": "manifest-directory",
+    "source_manifest": "../vendor/source-manifest.json",
+    "source_archive_sha256": "c5ca0cd44715ac4854236ae7fc868c87647142138fde5c68f012db2fa64e53dd",
+    "license_paths": [
+      "../vendor/sunfish/LICENSE.md"
+    ],
+    "source_commit": "ccecec26626b858a60d48cf715ebbdd603ee6f85",
+    "source_url": "https://github.com/thomasahle/sunfish",
+    "artifact_url": "https://raw.githubusercontent.com/thomasahle/sunfish/ccecec26626b858a60d48cf715ebbdd603ee6f85/sunfish_uci_packed.sh",
+    "representative_version": "2022-12-24 classic",
+    "source_correspondence_status": "editable-source-reproduces-original-payload",
+    "editable_source_correspondence": "editable sunfish_uci.py minified with python-minifier 2.7.0 reproduces the original packed payload byte-for-byte",
+    "source_correspondence_proofs": [
+      "../vendor/sunfish/source-correspondence.json"
+    ],
+    "unresolved_source_correspondence_gap": false
+  },
+  "envelope": {
+    "decoder": "xz -d",
+    "payload_codec": {
+      "format": "xz"
+    },
+    "header_bytes": 72,
+    "header_sha256": "f0d83f9305eb675aa0f6f5ab23e982191ffd4b0c67a1bc8e7f73478a359cd1c1"
+  },
+  "payload_sha256": "f1a676e55763635a4ba517e7439249e2f1b15da818e83369b50f6b705178f78f",
+  "language": "python",
+  "notation": {
+    "target": "python3",
+    "token_contract": "no-token-observation",
+    "compact": true
+  }
+}

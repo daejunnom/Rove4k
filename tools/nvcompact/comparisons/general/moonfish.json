@@ -1,0 +1,67 @@
+{
+  "format": "nvcompact.external-engine.v1",
+  "name": "moonfish",
+  "artifact": "moonfish",
+  "artifact_key": "moonfish",
+  "category": "4k",
+  "original_bytes": 3941,
+  "sha256": "665eb7be5fd47b531f0849f4ae8f92be6e068fff40f55cf7e5f9e2b4cdad8c42",
+  "checked_at": "2026-10-19",
+  "provenance": {
+    "source_url": "https://moonfish.neocities.org/",
+    "source_commit": null,
+    "artifact_url": "https://moonfish.neocities.org/moonfish.sh",
+    "representative_version": "unversioned current public script",
+    "last_tournament_version": "4aa32a0c",
+    "license": "0BSD",
+    "artifact_provenance": "upstream-unversioned-source-inclusive-file",
+    "version_relationship": "Correct author zamfofex site is linked by official TCEC Engines and authors. Download contains all minified C source, but no version identifier; cannot prove correspondence to 4aa32a0c. The former git.sr.ht source repository now returns 404.",
+    "source_correspondence_status": "source-inclusive-unversioned-author-download",
+    "editable_source_correspondence": "all C source is decoded from the exact author download; only minified source remains available",
+    "unresolved_source_correspondence_gap": "unversioned minified author source only",
+    "public_input_not_confirmed_exact_private_tcec_upload": true
+  },
+  "runtime_profile": {
+    "engine_workers": "sysconf(_SC_NPROCESSORS_ONLN)",
+    "physical_memory_requirement_confirmed": false,
+    "kind": "unversioned source, host-dependent worker count; original decoder needs separate check"
+  },
+  "historical_python_v02": {
+    "original_bytes": "3941",
+    "smallest_bytes": "3889",
+    "accepted_bytes": "3889",
+    "uci": "pass",
+    "original_uci": "fail",
+    "byte_replay": "pass",
+    "winner_sha256": "2eb530ec1c4c62a3d1b95b4129314c14b3aa5df433ec3eaf813903922beb4805",
+    "original_deployment_equivalent": "False"
+  },
+  "envelope": {
+    "decoder": "unxz -Fraw",
+    "payload_codec": {
+      "format": "raw"
+    },
+    "header_bytes": 126,
+    "header_sha256": "3078f7a2db5123a6002b424f8dcd19c0ee9991e1da2585f12376d5da9161df55"
+  },
+  "payload_sha256": "35ebc2c360277d1a22e674db52e612f52eac14a85b6dc6b94484824fafb4436c",
+  "language": "c",
+  "notation": {
+    "target": "c11-lp64",
+    "token_contract": "no-token-observation",
+    "compact": true
+  },
+  "compile_argv": [
+    "cc",
+    "-O3",
+    "-march=native",
+    "-o",
+    "{output}",
+    "-xc",
+    "-",
+    "-lm",
+    "-pthread",
+    "-latomic"
+  ],
+  "runtime_blocked": "Explicit resource plan required: original worker count follows host online CPUs, and the public script has an unconfirmed physical memory profile. Original decoder failure must be recorded separately from candidate execution."
+}

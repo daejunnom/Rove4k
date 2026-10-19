@@ -1,0 +1,52 @@
+{
+  "name": "4ku",
+  "artifact": "../inputs/4ku",
+  "sha256": "be51d7aae0f36f493aa5cdbf1b847425c61fb1f89e93b7969222e662e43ced22",
+  "category": "4k",
+  "provenance": {
+    "version_relationship": "Latest TCEC version and public release label agree; public mini release is used.",
+    "source_archive": "../vendor/4ku/source.tar.gz",
+    "license_path": "../vendor/4ku/LICENSE",
+    "runtime_profile": "Inspected public mini payload hardcodes D=1 and E=64ull<<16 (64 MiB TT). Same release label does not establish byte-identical TCEC hardware profile.",
+    "path_base": "manifest-directory",
+    "source_manifest": "../vendor/source-manifest.json",
+    "source_archive_sha256": "1749e8937505660764c1173fa4129f9c444ef446f0713748a83dbbf22d67a329",
+    "license_paths": [
+      "../vendor/4ku/LICENSE"
+    ],
+    "source_commit": "203ddd4bf9b331851c796d8b5d57eac08f6e6c18",
+    "source_url": "https://github.com/kz04px/4ku",
+    "artifact_url": "https://github.com/kz04px/4ku/releases/download/v5.1/4ku-5.1-mini",
+    "representative_version": "5.1",
+    "source_correspondence_status": "same-release-tag-source-and-artifact",
+    "editable_source_correspondence": "matching upstream release tag source and original release asset; independent full source-to-release-binary reproduction not performed",
+    "source_correspondence_proofs": [],
+    "unresolved_source_correspondence_gap": "release-source relationship known; native reproduction not separately performed"
+  },
+  "envelope": {
+    "decoder": "lzma -d",
+    "payload_codec": {
+      "format": "alone"
+    },
+    "header_bytes": 149,
+    "header_sha256": "a110155834a0bab179be1d73e86cac44b73f77005fc0b9b92c0425c933ed09b1"
+  },
+  "payload_sha256": "a5d32dc962ebf717faccbff2a2b3644b61c2f4e7d7304cf6a3cd9810936950e7",
+  "language": "cpp",
+  "notation": {
+    "target": "cpp17-lp64",
+    "token_contract": "no-token-observation",
+    "compact": true
+  },
+  "compile_argv": [
+    "g++",
+    "-xc++",
+    "-O3",
+    "-march=native",
+    "-pthread",
+    "-std=c++20",
+    "-",
+    "-o",
+    "{output}"
+  ]
+}

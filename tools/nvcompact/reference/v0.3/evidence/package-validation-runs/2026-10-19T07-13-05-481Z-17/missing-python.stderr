@@ -1,0 +1,2 @@
+nvcompact: could not launch "/tmp/nvcompact package 한글 3gOjAV/python does not exist": spawn /tmp/nvcompact package 한글 3gOjAV/python does not exist ENOENT
+Set NVCOMPACT_PYTHON to one installed CPython >=3.11 executable path.

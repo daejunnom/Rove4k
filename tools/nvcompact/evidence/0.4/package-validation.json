@@ -1,0 +1,351 @@
+{
+  "format": "nvcompact.package-validation.v1",
+  "status": "pass",
+  "date_utc": "2026-10-19",
+  "package": {
+    "name": "@rove4k/nvcompact",
+    "version": "0.4.0",
+    "filename": "rove4k-nvcompact-0.4.0.tgz",
+    "private": true,
+    "published": false,
+    "bytes": 3366986,
+    "sha256": "dc1c220514e86a71c2ea9f7d96d2a2997ee5c107e01b549dd045d6f71795f260",
+    "files": [
+      {
+        "path": "LICENSE",
+        "size": 1066,
+        "mode": 420
+      },
+      {
+        "path": "README.md",
+        "size": 1896,
+        "mode": 420
+      },
+      {
+        "path": "bin/nvcompact.mjs",
+        "size": 118,
+        "mode": 493
+      },
+      {
+        "path": "lib/cli.mjs",
+        "size": 3379,
+        "mode": 420
+      },
+      {
+        "path": "lib/ensure-native.mjs",
+        "size": 620,
+        "mode": 420
+      },
+      {
+        "path": "lib/paths.mjs",
+        "size": 661,
+        "mode": 420
+      },
+      {
+        "path": "native/linux-x64/nvcompact",
+        "size": 10162344,
+        "mode": 493
+      },
+      {
+        "path": "native/runtime.json",
+        "size": 633,
+        "mode": 420
+      },
+      {
+        "path": "package.json",
+        "size": 639,
+        "mode": 420
+      }
+    ]
+  },
+  "runtime": {
+    "format": "nvcompact.npm-native.v1",
+    "version": "0.4.0",
+    "platform_key": "linux-x64",
+    "rust_host": "x86_64-unknown-linux-gnu",
+    "rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1",
+    "source_sha256": "11c8c9ecc0b31061326ce4d68aa22e836573db11e0d313495c190a74d9636b8e",
+    "cargo_lock_sha256": "bf2b85482b67d18804cd4fd176218da193ec28b028e4ecf517bb66a627033918",
+    "bytes": 10162344,
+    "sha256": "08a4b493b19382a6e8de46cdb50465053e5b6c850a304bb9c2fed034cc21357e",
+    "sha256_rechecked_after_workspace_tests": true
+  },
+  "environment": {
+    "platform_key": "linux-x64",
+    "node": "v24.19.0",
+    "rust": "1.99.1",
+    "clang": "20.1.8",
+    "local_node_versions_tested": [
+      "24.19.0"
+    ],
+    "ci_node_matrix": [
+      22,
+      24
+    ],
+    "ci_execution": "configured; remote run not observed in this local verification"
+  },
+  "preparation": {
+    "commands": [
+      "npm ci --ignore-scripts --offline",
+      "npm run build:nvcompact",
+      "npm run pack:nvcompact -- --no-build",
+      "npm run verify:package",
+      "npm exec -- nvcompact --version"
+    ],
+    "cargo_locked": true,
+    "cargo_offline": true,
+    "source_fingerprint_checked": true,
+    "external_output_policy": true
+  },
+  "launcher": {
+    "status": "pass",
+    "passed": 5,
+    "failed": 0,
+    "ignored": 0,
+    "checks": [
+      "literal argv, Korean characters, spaces and caller cwd",
+      "exact stdout and stderr",
+      "child exit status",
+      "explicit missing executable produces no fallback",
+      "SIGTERM forwarded; owned child is awaited"
+    ],
+    "capture": "owned process group and file descriptors"
+  },
+  "installed_tarball": {
+    "status": "pass",
+    "offline": true,
+    "workspace_link": false,
+    "explicit_binary_override": false,
+    "checks": [
+      "offline actual tarball installation",
+      "native --version and command discovery",
+      "Rust doctor without targets",
+      "raw ELF build with no verifier execution",
+      "independent exact native replay",
+      "explicit verification of 256 integer cases and 2 invalid cases",
+      "verified recipe still requires --verify for new execution",
+      "typed source notation",
+      "installed package bytes and modes unchanged; no external engine sources"
+    ],
+    "commands": [
+      {
+        "command": "npm",
+        "args": [
+          "install",
+          "--offline",
+          "--ignore-scripts",
+          "--no-audit",
+          "--no-fund",
+          "--package-lock=false",
+          "{TARBALL}"
+        ],
+        "code": 0,
+        "seconds": 0.858,
+        "stdout_sha256": "537c87a10d77b330597976dbf8aed6546ed5b1ee6d98458b8abe35f923072f2b",
+        "stderr_sha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+        "stdout_path": "logs/1792400889602-17-0.stdout",
+        "stderr_path": "logs/1792400889602-17-0.stderr"
+      },
+      {
+        "command": "{CONSUMER}/node_modules/.bin/nvcompact",
+        "args": [
+          "--version"
+        ],
+        "code": 0,
+        "seconds": 0.065,
+        "stdout_sha256": "efbc14b4e85f85b548f17a35dd34c803e68bcc54b2150c31ca4063d62ac7b4c6",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_path": "logs/1792400890496-17-1.stdout",
+        "stderr_path": "logs/1792400890496-17-1.stderr"
+      },
+      {
+        "command": "{CONSUMER}/node_modules/.bin/nvcompact",
+        "args": [
+          "--help"
+        ],
+        "code": 0,
+        "seconds": 0.08,
+        "stdout_sha256": "4e2e0f7f938d55a6a855b006c4d1941c6c889efc94bf1eefaf386449eb9b7af8",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_path": "logs/1792400890561-17-2.stdout",
+        "stderr_path": "logs/1792400890561-17-2.stderr"
+      },
+      {
+        "command": "{CONSUMER}/node_modules/.bin/nvcompact",
+        "args": [
+          "doctor",
+          "--json"
+        ],
+        "code": 0,
+        "seconds": 0.067,
+        "stdout_sha256": "2d424b880700a99df6eb2849586a31338cf575cbab9cc444d466b0c514abfd2a",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_path": "logs/1792400890642-17-3.stdout",
+        "stderr_path": "logs/1792400890642-17-3.stderr"
+      },
+      {
+        "command": "{CONSUMER}/node_modules/.bin/nvcompact",
+        "args": [
+          "build",
+          "{CONSUMER}/owned native fixture/manifest.json",
+          "--out",
+          "{CONSUMER}/plain",
+          "--jobs",
+          "1"
+        ],
+        "code": 0,
+        "seconds": 0.242,
+        "stdout_sha256": "feb2c2b0d79acc0ad8c44f512aa74f3cc81182520d49577c849d594ac804fae3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_path": "logs/1792400890712-17-4.stdout",
+        "stderr_path": "logs/1792400890712-17-4.stderr"
+      },
+      {
+        "command": "{CONSUMER}/node_modules/.bin/nvcompact",
+        "args": [
+          "reproduce",
+          "{CONSUMER}/plain/winner.recipe.json",
+          "--out",
+          "{CONSUMER}/plain-replay"
+        ],
+        "code": 0,
+        "seconds": 0.145,
+        "stdout_sha256": "003116dc5ccb5fd37aea4424b65e75a71634a3f38af83b9a7d00081fde79eb67",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_path": "logs/1792400890957-17-5.stdout",
+        "stderr_path": "logs/1792400890957-17-5.stderr"
+      },
+      {
+        "command": "{CONSUMER}/node_modules/.bin/nvcompact",
+        "args": [
+          "build",
+          "{CONSUMER}/owned native fixture/manifest.json",
+          "--out",
+          "{CONSUMER}/verified",
+          "--verify",
+          "--jobs",
+          "1"
+        ],
+        "code": 0,
+        "seconds": 1.166,
+        "stdout_sha256": "2f0b202b0a7bdca51538400bc10841a89f6463beb58c577b30d2234a37d38679",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_path": "logs/1792400891103-17-6.stdout",
+        "stderr_path": "logs/1792400891103-17-6.stderr"
+      },
+      {
+        "command": "{CONSUMER}/node_modules/.bin/nvcompact",
+        "args": [
+          "reproduce",
+          "{CONSUMER}/verified/winner.recipe.json",
+          "--out",
+          "{CONSUMER}/verified-replay-default"
+        ],
+        "code": 0,
+        "seconds": 0.152,
+        "stdout_sha256": "003116dc5ccb5fd37aea4424b65e75a71634a3f38af83b9a7d00081fde79eb67",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_path": "logs/1792400892271-17-7.stdout",
+        "stderr_path": "logs/1792400892271-17-7.stderr"
+      },
+      {
+        "command": "{CONSUMER}/node_modules/.bin/nvcompact",
+        "args": [
+          "reproduce",
+          "{CONSUMER}/verified/winner.recipe.json",
+          "--out",
+          "{CONSUMER}/verified-replay-explicit",
+          "--verify"
+        ],
+        "code": 0,
+        "seconds": 0.437,
+        "stdout_sha256": "d0ca10c9c225aac20f5d66e79b248e4acb56ed54c2448046f5f9f1353bf93293",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_path": "logs/1792400892429-17-8.stdout",
+        "stderr_path": "logs/1792400892429-17-8.stderr"
+      },
+      {
+        "command": "{CONSUMER}/node_modules/.bin/nvcompact",
+        "args": [
+          "notation",
+          "{CONSUMER}/spelling 한글.c",
+          "--language",
+          "c",
+          "--target",
+          "c11-lp64",
+          "--token-contract",
+          "no-token-observation",
+          "--compact",
+          "--output",
+          "{CONSUMER}/short.c"
+        ],
+        "code": 0,
+        "seconds": 0.073,
+        "stdout_sha256": "8d7ceb5f959726fb824dfc08d4f8f0111a62faf0a2c002fb894b54af8c1e5d20",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_path": "logs/1792400892868-17-9.stdout",
+        "stderr_path": "logs/1792400892868-17-9.stderr"
+      }
+    ],
+    "fixture_input_count": 256,
+    "fixture_invalid_count": 2,
+    "package_bytes_and_modes_unchanged": true
+  },
+  "rust_workspace_tests": {
+    "status": "pass",
+    "command": "cargo test --workspace --locked --offline",
+    "passed": 41,
+    "failed": 0,
+    "ignored": 0,
+    "filtered": 0,
+    "suites": [
+      {
+        "passed": 33,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 0,
+        "seconds": 17.82
+      },
+      {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 0,
+        "seconds": 0
+      },
+      {
+        "passed": 8,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 0,
+        "seconds": 7.85
+      },
+      {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 0,
+        "seconds": 0
+      }
+    ],
+    "stdout_sha256": "0299b8c36c69cad3ae49a1d69e6ae465a84a91101e8d79857fdb37a82276c8aa",
+    "stderr_sha256": "34f5fe5ea4a83fa74da3a7604f569b2e3b3e649b5e371551c827b48bad3e9765"
+  },
+  "scope": {
+    "runtime_backend": "Rust",
+    "python_backend": false,
+    "external_engine_assets_in_package": false,
+    "engine_tests": "none; owned tiny fixture only",
+    "registry_publication": false
+  },
+  "corrected_preconditions": [
+    "Repository path derivation was corrected to the actual tools/nvcompact/npm location and checked against all active Rust/Cargo inputs before packaging.",
+    "The owned C11 notation probe now requests the supported c11-lp64 target. Its earlier unsupported c17-lp64 invocation failed explicitly; the same package passed after correcting the harness target.",
+    "The launcher harness now owns and reaps its process group and captures exact stdio using files. Test expectations and runtime behavior were unchanged."
+  ],
+  "raw_evidence": "Retained outside the repository. Host-specific paths are replaced by {CONSUMER} and {TARBALL}; digests identify the original logs and artifacts."
+}

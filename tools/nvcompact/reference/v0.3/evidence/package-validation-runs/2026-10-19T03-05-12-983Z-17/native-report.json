@@ -1,0 +1,1601 @@
+{
+  "format": 1,
+  "status": "accepted",
+  "runtime": {
+    "version": "0.2.0",
+    "python": "3.12.14",
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+    "zlib": "1.3.2",
+    "source_sha256": {
+      "nvcompact.py": "7dcf1ef17d38e7f1140346789d96563b955b0a2a3ebbefd7c69d1b2e1bdcfdf0",
+      "nvpack.py": "efb34d316de2cfc4b0d467200e9cfff8c7487fcc250bdd3a0af76b64a3fd9dc2",
+      "nvelf.py": "c33672cd1a3c102c6376eaa3b382f84b7fbadbfa8653629e28a62dfa8992b711",
+      "nvnotation.py": "a7f5d403caaf382091ea3fb43833701f5adfe7aeaa5ef9ec9e3e82833ad44592"
+    }
+  },
+  "candidates": [
+    {
+      "id": "c00000",
+      "recipe": {
+        "build": "size",
+        "link": "compact",
+        "order_id": "declared",
+        "order": [
+          "popcount",
+          "square"
+        ],
+        "variants": {
+          "popcount": "c_kernighan",
+          "square": "c_arithmetic"
+        }
+      },
+      "artifacts": [
+        {
+          "id": "original__raw",
+          "deployment": "original",
+          "pack": "raw",
+          "bytes": 736,
+          "sha256": "eba10ac2091dcd951fc83f203843aa8b609690483dce51b5fcaeb19f827fcfdc",
+          "payload_bytes": 736,
+          "requirements": [
+            "declared Linux ELF ABI"
+          ],
+          "codec_roundtrip": true,
+          "artifact": "candidates/c00000/original__raw/artifact",
+          "reproduction": "not_run",
+          "verification": {
+            "argv": [
+              "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+              "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/snapshot/examples/mixed/verifier.py",
+              "--binary",
+              "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00000/original__raw/artifact",
+              "--quick"
+            ],
+            "returncode": 0,
+            "seconds": 0.234956,
+            "stdout": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00000/original__raw/verify.stdout",
+            "stderr": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00000/original__raw/verify.stderr",
+            "checker_output": {
+              "cases": 9,
+              "corpus_sha256": "b054bbbae3dc2db124c3f45f3ab6e02dceba8f50f34753f85138cc99f28080fd",
+              "elapsed_seconds": 0.029964,
+              "mode": "quick",
+              "ok": true,
+              "oracle_sha256": "355d5fbde1f7cd7616de23a2616d6b0f45b39e0dba858747e1e3756ca6975376",
+              "valid_records": 1216
+            }
+          },
+          "status": "screened"
+        },
+        {
+          "id": "no-section-headers__raw",
+          "deployment": "no-section-headers",
+          "pack": "raw",
+          "bytes": 523,
+          "sha256": "1a27e71d20b47a5d647b91be1a08a49df271143ff6a50836ad1e1ce87ec26ce7",
+          "payload_bytes": 523,
+          "requirements": [
+            "declared Linux ELF ABI"
+          ],
+          "codec_roundtrip": true,
+          "artifact": "candidates/c00000/no-section-headers__raw/artifact",
+          "reproduction": "not_run",
+          "verification": {
+            "argv": [
+              "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+              "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/snapshot/examples/mixed/verifier.py",
+              "--binary",
+              "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00000/no-section-headers__raw/artifact",
+              "--quick"
+            ],
+            "returncode": 0,
+            "seconds": 0.144108,
+            "stdout": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00000/no-section-headers__raw/verify.stdout",
+            "stderr": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00000/no-section-headers__raw/verify.stderr",
+            "checker_output": {
+              "cases": 9,
+              "corpus_sha256": "b054bbbae3dc2db124c3f45f3ab6e02dceba8f50f34753f85138cc99f28080fd",
+              "elapsed_seconds": 0.027688,
+              "mode": "quick",
+              "ok": true,
+              "oracle_sha256": "355d5fbde1f7cd7616de23a2616d6b0f45b39e0dba858747e1e3756ca6975376",
+              "valid_records": 1216
+            }
+          },
+          "status": "screened"
+        }
+      ],
+      "native_bytes": 736,
+      "native_sha256": "eba10ac2091dcd951fc83f203843aa8b609690483dce51b5fcaeb19f827fcfdc",
+      "objects": [
+        {
+          "unit_id": "common/compact/start",
+          "sha256": "9b27b28624df458163a4cc389d326ae8b6fb33d9ee0953bc3c9346e114abb9ce",
+          "bytes": 920
+        },
+        {
+          "unit_id": "common/compact/driver",
+          "sha256": "191a8e535371436bbeae70a1944d29944046187a974f570eabeeb0b365b8f008",
+          "bytes": 1624
+        },
+        {
+          "unit_id": "variant/popcount/c_kernighan",
+          "sha256": "15cfcc097b4e82ca95ea829cfad2259fcff48f5d0e73e0f7110dd4f76fb80726",
+          "bytes": 968,
+          "notation": {
+            "status": "completed",
+            "search_complete": true,
+            "linked_object": "original",
+            "contract": {
+              "language": "c",
+              "target": "c11-lp64",
+              "token_contract": "no-token-observation",
+              "compact": true,
+              "max_variants": 3
+            },
+            "selection_basis": "minimum source bytes among complete byte-identical objects",
+            "original_source_bytes": 189,
+            "original_object_sha256": "15cfcc097b4e82ca95ea829cfad2259fcff48f5d0e73e0f7110dd4f76fb80726",
+            "source_bytes_saved": 52,
+            "candidates": [
+              {
+                "id": "raw",
+                "status": "baseline",
+                "eligible": true,
+                "source_bytes": 189,
+                "source_sha256": {
+                  "examples/mixed/popcount_kernighan.c": "8cc40c80b0902e41cce16ca603c47c4af37da6dade6349fe61d60ffc414ac67b"
+                },
+                "object_sha256": "15cfcc097b4e82ca95ea829cfad2259fcff48f5d0e73e0f7110dd4f76fb80726",
+                "object_bytes": 968
+              },
+              {
+                "id": "shortest",
+                "eligible": false,
+                "source_bytes": 189,
+                "source_sha256": {
+                  "examples/mixed/popcount_kernighan.c": "8cc40c80b0902e41cce16ca603c47c4af37da6dade6349fe61d60ffc414ac67b"
+                },
+                "rewrites": {
+                  "examples/mixed/popcount_kernighan.c": []
+                },
+                "notes": {
+                  "examples/mixed/popcount_kernighan.c": []
+                },
+                "status": "source_identical",
+                "reason": "same source bytes as raw; no source reduction to lock"
+              },
+              {
+                "id": "shortest-compact",
+                "eligible": true,
+                "source_bytes": 137,
+                "source_sha256": {
+                  "examples/mixed/popcount_kernighan.c": "485c5bf0f33d4f65ccfc9d926f95d82eec97a45b9e24e74a986f3b6af6e8d410"
+                },
+                "rewrites": {
+                  "examples/mixed/popcount_kernighan.c": [
+                    {
+                      "operation": "comments and whitespace",
+                      "proof": {
+                        "same_token_sequence": true,
+                        "contract": "source/token spelling and locations unobserved"
+                      }
+                    }
+                  ]
+                },
+                "notes": {
+                  "examples/mixed/popcount_kernighan.c": []
+                },
+                "overlay": "objects/size/variant/popcount/c_kernighan/notation/shortest-compact/root",
+                "commands": [
+                  {
+                    "argv": [
+                      "/usr/bin/cc",
+                      "-std=c11",
+                      "-Os",
+                      "-frandom-seed=variant/popcount/c_kernighan",
+                      "-ffunction-sections",
+                      "-fdata-sections",
+                      "-fno-ident",
+                      "-fno-stack-protector",
+                      "-fno-asynchronous-unwind-tables",
+                      "-fno-unwind-tables",
+                      "-ffile-prefix-map=/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/popcount/c_kernighan/notation/shortest-compact/root=.",
+                      "-fdebug-prefix-map=/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/popcount/c_kernighan/notation/shortest-compact/root=.",
+                      "-c",
+                      "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/popcount/c_kernighan/notation/shortest-compact/root/examples/mixed/popcount_kernighan.c",
+                      "-o",
+                      "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/popcount/c_kernighan/notation/shortest-compact/build/unit.o"
+                    ],
+                    "returncode": 0,
+                    "seconds": 0.03129,
+                    "stdout": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/popcount/c_kernighan/notation/shortest-compact/build/compile-0.stdout",
+                    "stderr": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/popcount/c_kernighan/notation/shortest-compact/build/compile-0.stderr"
+                  }
+                ],
+                "object_bytes": 968,
+                "object_sha256": "15cfcc097b4e82ca95ea829cfad2259fcff48f5d0e73e0f7110dd4f76fb80726",
+                "status": "object_byte_identical"
+              }
+            ],
+            "selected": {
+              "id": "shortest-compact",
+              "eligible": true,
+              "source_bytes": 137,
+              "source_sha256": {
+                "examples/mixed/popcount_kernighan.c": "485c5bf0f33d4f65ccfc9d926f95d82eec97a45b9e24e74a986f3b6af6e8d410"
+              },
+              "overlay": "objects/size/variant/popcount/c_kernighan/notation/shortest-compact/root",
+              "object_bytes": 968,
+              "object_sha256": "15cfcc097b4e82ca95ea829cfad2259fcff48f5d0e73e0f7110dd4f76fb80726",
+              "status": "object_byte_identical"
+            },
+            "planned_source_recipes": 3
+          }
+        },
+        {
+          "unit_id": "variant/square/c_arithmetic",
+          "sha256": "62ad36528cb8df9c8c0d348267268f3df558824a900912d60bd907ab2673fcfd",
+          "bytes": 1008,
+          "notation": {
+            "status": "completed",
+            "search_complete": true,
+            "linked_object": "original",
+            "contract": {
+              "language": "c",
+              "target": "c11-lp64",
+              "token_contract": "no-token-observation",
+              "compact": true,
+              "max_variants": 3
+            },
+            "selection_basis": "minimum source bytes among complete byte-identical objects",
+            "original_source_bytes": 311,
+            "original_object_sha256": "62ad36528cb8df9c8c0d348267268f3df558824a900912d60bd907ab2673fcfd",
+            "source_bytes_saved": 63,
+            "candidates": [
+              {
+                "id": "raw",
+                "status": "baseline",
+                "eligible": true,
+                "source_bytes": 311,
+                "source_sha256": {
+                  "examples/mixed/square_arithmetic.c": "9c495da1cfefac4fde77467be5e1c560cea442c28fedfb366e8607cad5ac728c"
+                },
+                "object_sha256": "62ad36528cb8df9c8c0d348267268f3df558824a900912d60bd907ab2673fcfd",
+                "object_bytes": 1008
+              },
+              {
+                "id": "shortest",
+                "eligible": false,
+                "source_bytes": 311,
+                "source_sha256": {
+                  "examples/mixed/square_arithmetic.c": "9c495da1cfefac4fde77467be5e1c560cea442c28fedfb366e8607cad5ac728c"
+                },
+                "rewrites": {
+                  "examples/mixed/square_arithmetic.c": []
+                },
+                "notes": {
+                  "examples/mixed/square_arithmetic.c": []
+                },
+                "status": "source_identical",
+                "reason": "same source bytes as raw; no source reduction to lock"
+              },
+              {
+                "id": "shortest-compact",
+                "eligible": true,
+                "source_bytes": 248,
+                "source_sha256": {
+                  "examples/mixed/square_arithmetic.c": "c967276612e55d2bfc4a337bbe053cce3d5b57ced0c7e14a866c628bda7f52e6"
+                },
+                "rewrites": {
+                  "examples/mixed/square_arithmetic.c": [
+                    {
+                      "operation": "comments and whitespace",
+                      "proof": {
+                        "same_token_sequence": true,
+                        "contract": "source/token spelling and locations unobserved"
+                      }
+                    }
+                  ]
+                },
+                "notes": {
+                  "examples/mixed/square_arithmetic.c": []
+                },
+                "overlay": "objects/size/variant/square/c_arithmetic/notation/shortest-compact/root",
+                "commands": [
+                  {
+                    "argv": [
+                      "/usr/bin/cc",
+                      "-std=c11",
+                      "-Os",
+                      "-frandom-seed=variant/square/c_arithmetic",
+                      "-ffunction-sections",
+                      "-fdata-sections",
+                      "-fno-ident",
+                      "-fno-stack-protector",
+                      "-fno-asynchronous-unwind-tables",
+                      "-fno-unwind-tables",
+                      "-ffile-prefix-map=/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/square/c_arithmetic/notation/shortest-compact/root=.",
+                      "-fdebug-prefix-map=/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/square/c_arithmetic/notation/shortest-compact/root=.",
+                      "-c",
+                      "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/square/c_arithmetic/notation/shortest-compact/root/examples/mixed/square_arithmetic.c",
+                      "-o",
+                      "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/square/c_arithmetic/notation/shortest-compact/build/unit.o"
+                    ],
+                    "returncode": 0,
+                    "seconds": 0.031244,
+                    "stdout": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/square/c_arithmetic/notation/shortest-compact/build/compile-0.stdout",
+                    "stderr": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/square/c_arithmetic/notation/shortest-compact/build/compile-0.stderr"
+                  }
+                ],
+                "object_bytes": 1008,
+                "object_sha256": "62ad36528cb8df9c8c0d348267268f3df558824a900912d60bd907ab2673fcfd",
+                "status": "object_byte_identical"
+              }
+            ],
+            "selected": {
+              "id": "shortest-compact",
+              "eligible": true,
+              "source_bytes": 248,
+              "source_sha256": {
+                "examples/mixed/square_arithmetic.c": "c967276612e55d2bfc4a337bbe053cce3d5b57ced0c7e14a866c628bda7f52e6"
+              },
+              "overlay": "objects/size/variant/square/c_arithmetic/notation/shortest-compact/root",
+              "object_bytes": 1008,
+              "object_sha256": "62ad36528cb8df9c8c0d348267268f3df558824a900912d60bd907ab2673fcfd",
+              "status": "object_byte_identical"
+            },
+            "planned_source_recipes": 3
+          }
+        }
+      ],
+      "native_verification": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/snapshot/examples/mixed/verifier.py",
+          "--binary",
+          "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00000/native",
+          "--quick"
+        ],
+        "returncode": 0,
+        "seconds": 0.15578,
+        "stdout": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00000/verify.stdout",
+        "stderr": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00000/verify.stderr",
+        "checker_output": {
+          "cases": 9,
+          "corpus_sha256": "b054bbbae3dc2db124c3f45f3ab6e02dceba8f50f34753f85138cc99f28080fd",
+          "elapsed_seconds": 0.027949,
+          "mode": "quick",
+          "ok": true,
+          "oracle_sha256": "355d5fbde1f7cd7616de23a2616d6b0f45b39e0dba858747e1e3756ca6975376",
+          "valid_records": 1216
+        }
+      },
+      "status": "completed"
+    },
+    {
+      "id": "c00001",
+      "recipe": {
+        "build": "size",
+        "link": "compact",
+        "order_id": "declared",
+        "order": [
+          "popcount",
+          "square"
+        ],
+        "variants": {
+          "popcount": "c_kernighan",
+          "square": "c_table"
+        }
+      },
+      "artifacts": [
+        {
+          "id": "original__raw",
+          "deployment": "original",
+          "pack": "raw",
+          "bytes": 808,
+          "sha256": "496310ec87ee2c3a8b0a85d7103c2492c85842d5898f5245d9127612591fa68e",
+          "payload_bytes": 808,
+          "requirements": [
+            "declared Linux ELF ABI"
+          ],
+          "codec_roundtrip": true,
+          "artifact": "candidates/c00001/original__raw/artifact",
+          "reproduction": "not_run",
+          "verification": {
+            "argv": [
+              "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+              "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/snapshot/examples/mixed/verifier.py",
+              "--binary",
+              "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00001/original__raw/artifact",
+              "--quick"
+            ],
+            "returncode": 0,
+            "seconds": 0.153412,
+            "stdout": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00001/original__raw/verify.stdout",
+            "stderr": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00001/original__raw/verify.stderr",
+            "checker_output": {
+              "cases": 9,
+              "corpus_sha256": "b054bbbae3dc2db124c3f45f3ab6e02dceba8f50f34753f85138cc99f28080fd",
+              "elapsed_seconds": 0.028986,
+              "mode": "quick",
+              "ok": true,
+              "oracle_sha256": "355d5fbde1f7cd7616de23a2616d6b0f45b39e0dba858747e1e3756ca6975376",
+              "valid_records": 1216
+            }
+          },
+          "status": "screened"
+        },
+        {
+          "id": "no-section-headers__raw",
+          "deployment": "no-section-headers",
+          "pack": "raw",
+          "bytes": 520,
+          "sha256": "ad772ca3724d250668c7dbfad8b24e67f780dc8cae3a6221c8643b4d164c23dd",
+          "payload_bytes": 520,
+          "requirements": [
+            "declared Linux ELF ABI"
+          ],
+          "codec_roundtrip": true,
+          "artifact": "candidates/c00001/no-section-headers__raw/artifact",
+          "reproduction": "byte_identical_fresh_build",
+          "verification": {
+            "argv": [
+              "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+              "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/snapshot/examples/mixed/verifier.py",
+              "--binary",
+              "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00001/no-section-headers__raw/artifact",
+              "--quick"
+            ],
+            "returncode": 0,
+            "seconds": 0.163559,
+            "stdout": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00001/no-section-headers__raw/verify.stdout",
+            "stderr": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00001/no-section-headers__raw/verify.stderr",
+            "checker_output": {
+              "cases": 9,
+              "corpus_sha256": "b054bbbae3dc2db124c3f45f3ab6e02dceba8f50f34753f85138cc99f28080fd",
+              "elapsed_seconds": 0.032158,
+              "mode": "quick",
+              "ok": true,
+              "oracle_sha256": "355d5fbde1f7cd7616de23a2616d6b0f45b39e0dba858747e1e3756ca6975376",
+              "valid_records": 1216
+            }
+          },
+          "status": "screened"
+        }
+      ],
+      "native_bytes": 808,
+      "native_sha256": "496310ec87ee2c3a8b0a85d7103c2492c85842d5898f5245d9127612591fa68e",
+      "objects": [
+        {
+          "unit_id": "common/compact/start",
+          "sha256": "9b27b28624df458163a4cc389d326ae8b6fb33d9ee0953bc3c9346e114abb9ce",
+          "bytes": 920
+        },
+        {
+          "unit_id": "common/compact/driver",
+          "sha256": "191a8e535371436bbeae70a1944d29944046187a974f570eabeeb0b365b8f008",
+          "bytes": 1624
+        },
+        {
+          "unit_id": "variant/popcount/c_kernighan",
+          "sha256": "15cfcc097b4e82ca95ea829cfad2259fcff48f5d0e73e0f7110dd4f76fb80726",
+          "bytes": 968,
+          "notation": {
+            "status": "completed",
+            "search_complete": true,
+            "linked_object": "original",
+            "contract": {
+              "language": "c",
+              "target": "c11-lp64",
+              "token_contract": "no-token-observation",
+              "compact": true,
+              "max_variants": 3
+            },
+            "selection_basis": "minimum source bytes among complete byte-identical objects",
+            "original_source_bytes": 189,
+            "original_object_sha256": "15cfcc097b4e82ca95ea829cfad2259fcff48f5d0e73e0f7110dd4f76fb80726",
+            "source_bytes_saved": 52,
+            "candidates": [
+              {
+                "id": "raw",
+                "status": "baseline",
+                "eligible": true,
+                "source_bytes": 189,
+                "source_sha256": {
+                  "examples/mixed/popcount_kernighan.c": "8cc40c80b0902e41cce16ca603c47c4af37da6dade6349fe61d60ffc414ac67b"
+                },
+                "object_sha256": "15cfcc097b4e82ca95ea829cfad2259fcff48f5d0e73e0f7110dd4f76fb80726",
+                "object_bytes": 968
+              },
+              {
+                "id": "shortest",
+                "eligible": false,
+                "source_bytes": 189,
+                "source_sha256": {
+                  "examples/mixed/popcount_kernighan.c": "8cc40c80b0902e41cce16ca603c47c4af37da6dade6349fe61d60ffc414ac67b"
+                },
+                "rewrites": {
+                  "examples/mixed/popcount_kernighan.c": []
+                },
+                "notes": {
+                  "examples/mixed/popcount_kernighan.c": []
+                },
+                "status": "source_identical",
+                "reason": "same source bytes as raw; no source reduction to lock"
+              },
+              {
+                "id": "shortest-compact",
+                "eligible": true,
+                "source_bytes": 137,
+                "source_sha256": {
+                  "examples/mixed/popcount_kernighan.c": "485c5bf0f33d4f65ccfc9d926f95d82eec97a45b9e24e74a986f3b6af6e8d410"
+                },
+                "rewrites": {
+                  "examples/mixed/popcount_kernighan.c": [
+                    {
+                      "operation": "comments and whitespace",
+                      "proof": {
+                        "same_token_sequence": true,
+                        "contract": "source/token spelling and locations unobserved"
+                      }
+                    }
+                  ]
+                },
+                "notes": {
+                  "examples/mixed/popcount_kernighan.c": []
+                },
+                "overlay": "objects/size/variant/popcount/c_kernighan/notation/shortest-compact/root",
+                "commands": [
+                  {
+                    "argv": [
+                      "/usr/bin/cc",
+                      "-std=c11",
+                      "-Os",
+                      "-frandom-seed=variant/popcount/c_kernighan",
+                      "-ffunction-sections",
+                      "-fdata-sections",
+                      "-fno-ident",
+                      "-fno-stack-protector",
+                      "-fno-asynchronous-unwind-tables",
+                      "-fno-unwind-tables",
+                      "-ffile-prefix-map=/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/popcount/c_kernighan/notation/shortest-compact/root=.",
+                      "-fdebug-prefix-map=/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/popcount/c_kernighan/notation/shortest-compact/root=.",
+                      "-c",
+                      "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/popcount/c_kernighan/notation/shortest-compact/root/examples/mixed/popcount_kernighan.c",
+                      "-o",
+                      "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/popcount/c_kernighan/notation/shortest-compact/build/unit.o"
+                    ],
+                    "returncode": 0,
+                    "seconds": 0.03129,
+                    "stdout": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/popcount/c_kernighan/notation/shortest-compact/build/compile-0.stdout",
+                    "stderr": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/popcount/c_kernighan/notation/shortest-compact/build/compile-0.stderr"
+                  }
+                ],
+                "object_bytes": 968,
+                "object_sha256": "15cfcc097b4e82ca95ea829cfad2259fcff48f5d0e73e0f7110dd4f76fb80726",
+                "status": "object_byte_identical"
+              }
+            ],
+            "selected": {
+              "id": "shortest-compact",
+              "eligible": true,
+              "source_bytes": 137,
+              "source_sha256": {
+                "examples/mixed/popcount_kernighan.c": "485c5bf0f33d4f65ccfc9d926f95d82eec97a45b9e24e74a986f3b6af6e8d410"
+              },
+              "overlay": "objects/size/variant/popcount/c_kernighan/notation/shortest-compact/root",
+              "object_bytes": 968,
+              "object_sha256": "15cfcc097b4e82ca95ea829cfad2259fcff48f5d0e73e0f7110dd4f76fb80726",
+              "status": "object_byte_identical"
+            },
+            "planned_source_recipes": 3
+          }
+        },
+        {
+          "unit_id": "variant/square/c_table",
+          "sha256": "513478576bc89e18a4c2e2db7d02bc9dcc622d40703132a01ac40d5d5b63b226",
+          "bytes": 1216,
+          "notation": {
+            "status": "completed",
+            "search_complete": true,
+            "linked_object": "original",
+            "contract": {
+              "language": "c",
+              "target": "c11-lp64",
+              "token_contract": "no-token-observation",
+              "compact": true,
+              "max_variants": 3
+            },
+            "selection_basis": "minimum source bytes among complete byte-identical objects",
+            "original_source_bytes": 206,
+            "original_object_sha256": "513478576bc89e18a4c2e2db7d02bc9dcc622d40703132a01ac40d5d5b63b226",
+            "source_bytes_saved": 31,
+            "candidates": [
+              {
+                "id": "raw",
+                "status": "baseline",
+                "eligible": true,
+                "source_bytes": 206,
+                "source_sha256": {
+                  "examples/mixed/square_table.c": "a3f4652acec943d5b73744223ae0be18ad8264ceb8970499621479b3bb6c95e6"
+                },
+                "object_sha256": "513478576bc89e18a4c2e2db7d02bc9dcc622d40703132a01ac40d5d5b63b226",
+                "object_bytes": 1216
+              },
+              {
+                "id": "shortest",
+                "eligible": false,
+                "source_bytes": 206,
+                "source_sha256": {
+                  "examples/mixed/square_table.c": "a3f4652acec943d5b73744223ae0be18ad8264ceb8970499621479b3bb6c95e6"
+                },
+                "rewrites": {
+                  "examples/mixed/square_table.c": []
+                },
+                "notes": {
+                  "examples/mixed/square_table.c": []
+                },
+                "status": "source_identical",
+                "reason": "same source bytes as raw; no source reduction to lock"
+              },
+              {
+                "id": "shortest-compact",
+                "eligible": true,
+                "source_bytes": 175,
+                "source_sha256": {
+                  "examples/mixed/square_table.c": "eb9541e9d58191b7496fea972be7dd423cfe2739c28898151f7d9f6141da1a7f"
+                },
+                "rewrites": {
+                  "examples/mixed/square_table.c": [
+                    {
+                      "operation": "comments and whitespace",
+                      "proof": {
+                        "same_token_sequence": true,
+                        "contract": "source/token spelling and locations unobserved"
+                      }
+                    }
+                  ]
+                },
+                "notes": {
+                  "examples/mixed/square_table.c": []
+                },
+                "overlay": "objects/size/variant/square/c_table/notation/shortest-compact/root",
+                "commands": [
+                  {
+                    "argv": [
+                      "/usr/bin/cc",
+                      "-std=c11",
+                      "-Os",
+                      "-frandom-seed=variant/square/c_table",
+                      "-ffunction-sections",
+                      "-fdata-sections",
+                      "-fno-ident",
+                      "-fno-stack-protector",
+                      "-fno-asynchronous-unwind-tables",
+                      "-fno-unwind-tables",
+                      "-ffile-prefix-map=/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/square/c_table/notation/shortest-compact/root=.",
+                      "-fdebug-prefix-map=/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/square/c_table/notation/shortest-compact/root=.",
+                      "-c",
+                      "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/square/c_table/notation/shortest-compact/root/examples/mixed/square_table.c",
+                      "-o",
+                      "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/square/c_table/notation/shortest-compact/build/unit.o"
+                    ],
+                    "returncode": 0,
+                    "seconds": 0.041175,
+                    "stdout": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/square/c_table/notation/shortest-compact/build/compile-0.stdout",
+                    "stderr": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/square/c_table/notation/shortest-compact/build/compile-0.stderr"
+                  }
+                ],
+                "object_bytes": 1216,
+                "object_sha256": "513478576bc89e18a4c2e2db7d02bc9dcc622d40703132a01ac40d5d5b63b226",
+                "status": "object_byte_identical"
+              }
+            ],
+            "selected": {
+              "id": "shortest-compact",
+              "eligible": true,
+              "source_bytes": 175,
+              "source_sha256": {
+                "examples/mixed/square_table.c": "eb9541e9d58191b7496fea972be7dd423cfe2739c28898151f7d9f6141da1a7f"
+              },
+              "overlay": "objects/size/variant/square/c_table/notation/shortest-compact/root",
+              "object_bytes": 1216,
+              "object_sha256": "513478576bc89e18a4c2e2db7d02bc9dcc622d40703132a01ac40d5d5b63b226",
+              "status": "object_byte_identical"
+            },
+            "planned_source_recipes": 3
+          }
+        }
+      ],
+      "native_verification": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/snapshot/examples/mixed/verifier.py",
+          "--binary",
+          "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00001/native",
+          "--quick"
+        ],
+        "returncode": 0,
+        "seconds": 0.194555,
+        "stdout": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00001/verify.stdout",
+        "stderr": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00001/verify.stderr",
+        "checker_output": {
+          "cases": 9,
+          "corpus_sha256": "b054bbbae3dc2db124c3f45f3ab6e02dceba8f50f34753f85138cc99f28080fd",
+          "elapsed_seconds": 0.045247,
+          "mode": "quick",
+          "ok": true,
+          "oracle_sha256": "355d5fbde1f7cd7616de23a2616d6b0f45b39e0dba858747e1e3756ca6975376",
+          "valid_records": 1216
+        }
+      },
+      "status": "completed"
+    },
+    {
+      "id": "c00002",
+      "recipe": {
+        "build": "size",
+        "link": "compact",
+        "order_id": "declared",
+        "order": [
+          "popcount",
+          "square"
+        ],
+        "variants": {
+          "popcount": "c_swar",
+          "square": "c_arithmetic"
+        }
+      },
+      "artifacts": [
+        {
+          "id": "original__raw",
+          "deployment": "original",
+          "pack": "raw",
+          "bytes": 808,
+          "sha256": "d8fff41556a7e64e96f1fbfb57e1d0a242b6e7432e36500c30c407608e5497a6",
+          "payload_bytes": 808,
+          "requirements": [
+            "declared Linux ELF ABI"
+          ],
+          "codec_roundtrip": true,
+          "artifact": "candidates/c00002/original__raw/artifact",
+          "reproduction": "not_run",
+          "verification": {
+            "argv": [
+              "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+              "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/snapshot/examples/mixed/verifier.py",
+              "--binary",
+              "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00002/original__raw/artifact",
+              "--quick"
+            ],
+            "returncode": 0,
+            "seconds": 0.224292,
+            "stdout": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00002/original__raw/verify.stdout",
+            "stderr": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00002/original__raw/verify.stderr",
+            "checker_output": {
+              "cases": 9,
+              "corpus_sha256": "b054bbbae3dc2db124c3f45f3ab6e02dceba8f50f34753f85138cc99f28080fd",
+              "elapsed_seconds": 0.025828,
+              "mode": "quick",
+              "ok": true,
+              "oracle_sha256": "355d5fbde1f7cd7616de23a2616d6b0f45b39e0dba858747e1e3756ca6975376",
+              "valid_records": 1216
+            }
+          },
+          "status": "screened"
+        },
+        {
+          "id": "no-section-headers__raw",
+          "deployment": "no-section-headers",
+          "pack": "raw",
+          "bytes": 594,
+          "sha256": "360cbeb9a3375516a3c69fa39302cdcfdd5ed0f215025f434483e74c20431fac",
+          "payload_bytes": 594,
+          "requirements": [
+            "declared Linux ELF ABI"
+          ],
+          "codec_roundtrip": true,
+          "artifact": "candidates/c00002/no-section-headers__raw/artifact",
+          "reproduction": "not_run",
+          "verification": {
+            "argv": [
+              "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+              "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/snapshot/examples/mixed/verifier.py",
+              "--binary",
+              "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00002/no-section-headers__raw/artifact",
+              "--quick"
+            ],
+            "returncode": 0,
+            "seconds": 0.224097,
+            "stdout": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00002/no-section-headers__raw/verify.stdout",
+            "stderr": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00002/no-section-headers__raw/verify.stderr",
+            "checker_output": {
+              "cases": 9,
+              "corpus_sha256": "b054bbbae3dc2db124c3f45f3ab6e02dceba8f50f34753f85138cc99f28080fd",
+              "elapsed_seconds": 0.030316,
+              "mode": "quick",
+              "ok": true,
+              "oracle_sha256": "355d5fbde1f7cd7616de23a2616d6b0f45b39e0dba858747e1e3756ca6975376",
+              "valid_records": 1216
+            }
+          },
+          "status": "screened"
+        }
+      ],
+      "native_bytes": 808,
+      "native_sha256": "d8fff41556a7e64e96f1fbfb57e1d0a242b6e7432e36500c30c407608e5497a6",
+      "objects": [
+        {
+          "unit_id": "common/compact/start",
+          "sha256": "9b27b28624df458163a4cc389d326ae8b6fb33d9ee0953bc3c9346e114abb9ce",
+          "bytes": 920
+        },
+        {
+          "unit_id": "common/compact/driver",
+          "sha256": "191a8e535371436bbeae70a1944d29944046187a974f570eabeeb0b365b8f008",
+          "bytes": 1624
+        },
+        {
+          "unit_id": "variant/popcount/c_swar",
+          "sha256": "311fe1c948627e443f93da04fe0bb22bdd478f4a4fed12d3ed474f1895dd9bf4",
+          "bytes": 1040,
+          "notation": {
+            "status": "completed",
+            "search_complete": true,
+            "linked_object": "original",
+            "contract": {
+              "language": "c",
+              "target": "c11-lp64",
+              "token_contract": "no-token-observation",
+              "compact": true,
+              "max_variants": 3
+            },
+            "selection_basis": "minimum source bytes among complete byte-identical objects",
+            "original_source_bytes": 424,
+            "original_object_sha256": "311fe1c948627e443f93da04fe0bb22bdd478f4a4fed12d3ed474f1895dd9bf4",
+            "source_bytes_saved": 128,
+            "candidates": [
+              {
+                "id": "raw",
+                "status": "baseline",
+                "eligible": true,
+                "source_bytes": 424,
+                "source_sha256": {
+                  "examples/mixed/popcount_swar.c": "462cc5c6f42736752ec981654999bffd340998ddca8fbde788f03a645bedeaca"
+                },
+                "object_sha256": "311fe1c948627e443f93da04fe0bb22bdd478f4a4fed12d3ed474f1895dd9bf4",
+                "object_bytes": 1040
+              },
+              {
+                "id": "shortest",
+                "eligible": false,
+                "source_bytes": 424,
+                "source_sha256": {
+                  "examples/mixed/popcount_swar.c": "462cc5c6f42736752ec981654999bffd340998ddca8fbde788f03a645bedeaca"
+                },
+                "rewrites": {
+                  "examples/mixed/popcount_swar.c": []
+                },
+                "notes": {
+                  "examples/mixed/popcount_swar.c": []
+                },
+                "status": "source_identical",
+                "reason": "same source bytes as raw; no source reduction to lock"
+              },
+              {
+                "id": "shortest-compact",
+                "eligible": true,
+                "source_bytes": 296,
+                "source_sha256": {
+                  "examples/mixed/popcount_swar.c": "29ed6a305ff3ae7b480ca1b4f2c46bdcc45b756be4f2781846665174f29a2009"
+                },
+                "rewrites": {
+                  "examples/mixed/popcount_swar.c": [
+                    {
+                      "operation": "comments and whitespace",
+                      "proof": {
+                        "same_token_sequence": true,
+                        "contract": "source/token spelling and locations unobserved"
+                      }
+                    }
+                  ]
+                },
+                "notes": {
+                  "examples/mixed/popcount_swar.c": []
+                },
+                "overlay": "objects/size/variant/popcount/c_swar/notation/shortest-compact/root",
+                "commands": [
+                  {
+                    "argv": [
+                      "/usr/bin/cc",
+                      "-std=c11",
+                      "-Os",
+                      "-frandom-seed=variant/popcount/c_swar",
+                      "-ffunction-sections",
+                      "-fdata-sections",
+                      "-fno-ident",
+                      "-fno-stack-protector",
+                      "-fno-asynchronous-unwind-tables",
+                      "-fno-unwind-tables",
+                      "-ffile-prefix-map=/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/popcount/c_swar/notation/shortest-compact/root=.",
+                      "-fdebug-prefix-map=/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/popcount/c_swar/notation/shortest-compact/root=.",
+                      "-c",
+                      "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/popcount/c_swar/notation/shortest-compact/root/examples/mixed/popcount_swar.c",
+                      "-o",
+                      "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/popcount/c_swar/notation/shortest-compact/build/unit.o"
+                    ],
+                    "returncode": 0,
+                    "seconds": 0.030962,
+                    "stdout": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/popcount/c_swar/notation/shortest-compact/build/compile-0.stdout",
+                    "stderr": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/popcount/c_swar/notation/shortest-compact/build/compile-0.stderr"
+                  }
+                ],
+                "object_bytes": 1040,
+                "object_sha256": "311fe1c948627e443f93da04fe0bb22bdd478f4a4fed12d3ed474f1895dd9bf4",
+                "status": "object_byte_identical"
+              }
+            ],
+            "selected": {
+              "id": "shortest-compact",
+              "eligible": true,
+              "source_bytes": 296,
+              "source_sha256": {
+                "examples/mixed/popcount_swar.c": "29ed6a305ff3ae7b480ca1b4f2c46bdcc45b756be4f2781846665174f29a2009"
+              },
+              "overlay": "objects/size/variant/popcount/c_swar/notation/shortest-compact/root",
+              "object_bytes": 1040,
+              "object_sha256": "311fe1c948627e443f93da04fe0bb22bdd478f4a4fed12d3ed474f1895dd9bf4",
+              "status": "object_byte_identical"
+            },
+            "planned_source_recipes": 3
+          }
+        },
+        {
+          "unit_id": "variant/square/c_arithmetic",
+          "sha256": "62ad36528cb8df9c8c0d348267268f3df558824a900912d60bd907ab2673fcfd",
+          "bytes": 1008,
+          "notation": {
+            "status": "completed",
+            "search_complete": true,
+            "linked_object": "original",
+            "contract": {
+              "language": "c",
+              "target": "c11-lp64",
+              "token_contract": "no-token-observation",
+              "compact": true,
+              "max_variants": 3
+            },
+            "selection_basis": "minimum source bytes among complete byte-identical objects",
+            "original_source_bytes": 311,
+            "original_object_sha256": "62ad36528cb8df9c8c0d348267268f3df558824a900912d60bd907ab2673fcfd",
+            "source_bytes_saved": 63,
+            "candidates": [
+              {
+                "id": "raw",
+                "status": "baseline",
+                "eligible": true,
+                "source_bytes": 311,
+                "source_sha256": {
+                  "examples/mixed/square_arithmetic.c": "9c495da1cfefac4fde77467be5e1c560cea442c28fedfb366e8607cad5ac728c"
+                },
+                "object_sha256": "62ad36528cb8df9c8c0d348267268f3df558824a900912d60bd907ab2673fcfd",
+                "object_bytes": 1008
+              },
+              {
+                "id": "shortest",
+                "eligible": false,
+                "source_bytes": 311,
+                "source_sha256": {
+                  "examples/mixed/square_arithmetic.c": "9c495da1cfefac4fde77467be5e1c560cea442c28fedfb366e8607cad5ac728c"
+                },
+                "rewrites": {
+                  "examples/mixed/square_arithmetic.c": []
+                },
+                "notes": {
+                  "examples/mixed/square_arithmetic.c": []
+                },
+                "status": "source_identical",
+                "reason": "same source bytes as raw; no source reduction to lock"
+              },
+              {
+                "id": "shortest-compact",
+                "eligible": true,
+                "source_bytes": 248,
+                "source_sha256": {
+                  "examples/mixed/square_arithmetic.c": "c967276612e55d2bfc4a337bbe053cce3d5b57ced0c7e14a866c628bda7f52e6"
+                },
+                "rewrites": {
+                  "examples/mixed/square_arithmetic.c": [
+                    {
+                      "operation": "comments and whitespace",
+                      "proof": {
+                        "same_token_sequence": true,
+                        "contract": "source/token spelling and locations unobserved"
+                      }
+                    }
+                  ]
+                },
+                "notes": {
+                  "examples/mixed/square_arithmetic.c": []
+                },
+                "overlay": "objects/size/variant/square/c_arithmetic/notation/shortest-compact/root",
+                "commands": [
+                  {
+                    "argv": [
+                      "/usr/bin/cc",
+                      "-std=c11",
+                      "-Os",
+                      "-frandom-seed=variant/square/c_arithmetic",
+                      "-ffunction-sections",
+                      "-fdata-sections",
+                      "-fno-ident",
+                      "-fno-stack-protector",
+                      "-fno-asynchronous-unwind-tables",
+                      "-fno-unwind-tables",
+                      "-ffile-prefix-map=/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/square/c_arithmetic/notation/shortest-compact/root=.",
+                      "-fdebug-prefix-map=/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/square/c_arithmetic/notation/shortest-compact/root=.",
+                      "-c",
+                      "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/square/c_arithmetic/notation/shortest-compact/root/examples/mixed/square_arithmetic.c",
+                      "-o",
+                      "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/square/c_arithmetic/notation/shortest-compact/build/unit.o"
+                    ],
+                    "returncode": 0,
+                    "seconds": 0.031244,
+                    "stdout": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/square/c_arithmetic/notation/shortest-compact/build/compile-0.stdout",
+                    "stderr": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/square/c_arithmetic/notation/shortest-compact/build/compile-0.stderr"
+                  }
+                ],
+                "object_bytes": 1008,
+                "object_sha256": "62ad36528cb8df9c8c0d348267268f3df558824a900912d60bd907ab2673fcfd",
+                "status": "object_byte_identical"
+              }
+            ],
+            "selected": {
+              "id": "shortest-compact",
+              "eligible": true,
+              "source_bytes": 248,
+              "source_sha256": {
+                "examples/mixed/square_arithmetic.c": "c967276612e55d2bfc4a337bbe053cce3d5b57ced0c7e14a866c628bda7f52e6"
+              },
+              "overlay": "objects/size/variant/square/c_arithmetic/notation/shortest-compact/root",
+              "object_bytes": 1008,
+              "object_sha256": "62ad36528cb8df9c8c0d348267268f3df558824a900912d60bd907ab2673fcfd",
+              "status": "object_byte_identical"
+            },
+            "planned_source_recipes": 3
+          }
+        }
+      ],
+      "native_verification": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/snapshot/examples/mixed/verifier.py",
+          "--binary",
+          "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00002/native",
+          "--quick"
+        ],
+        "returncode": 0,
+        "seconds": 0.143013,
+        "stdout": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00002/verify.stdout",
+        "stderr": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00002/verify.stderr",
+        "checker_output": {
+          "cases": 9,
+          "corpus_sha256": "b054bbbae3dc2db124c3f45f3ab6e02dceba8f50f34753f85138cc99f28080fd",
+          "elapsed_seconds": 0.030823,
+          "mode": "quick",
+          "ok": true,
+          "oracle_sha256": "355d5fbde1f7cd7616de23a2616d6b0f45b39e0dba858747e1e3756ca6975376",
+          "valid_records": 1216
+        }
+      },
+      "status": "completed"
+    },
+    {
+      "id": "c00003",
+      "recipe": {
+        "build": "size",
+        "link": "compact",
+        "order_id": "declared",
+        "order": [
+          "popcount",
+          "square"
+        ],
+        "variants": {
+          "popcount": "c_swar",
+          "square": "c_table"
+        }
+      },
+      "artifacts": [
+        {
+          "id": "original__raw",
+          "deployment": "original",
+          "pack": "raw",
+          "bytes": 880,
+          "sha256": "3e2a3b5e155f37e385a947e36ce0c4097f3ca459854d7c12d0a6ff0e3ffece40",
+          "payload_bytes": 880,
+          "requirements": [
+            "declared Linux ELF ABI"
+          ],
+          "codec_roundtrip": true,
+          "artifact": "candidates/c00003/original__raw/artifact",
+          "reproduction": "not_run",
+          "verification": {
+            "argv": [
+              "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+              "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/snapshot/examples/mixed/verifier.py",
+              "--binary",
+              "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00003/original__raw/artifact",
+              "--quick"
+            ],
+            "returncode": 0,
+            "seconds": 0.143008,
+            "stdout": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00003/original__raw/verify.stdout",
+            "stderr": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00003/original__raw/verify.stderr",
+            "checker_output": {
+              "cases": 9,
+              "corpus_sha256": "b054bbbae3dc2db124c3f45f3ab6e02dceba8f50f34753f85138cc99f28080fd",
+              "elapsed_seconds": 0.025076,
+              "mode": "quick",
+              "ok": true,
+              "oracle_sha256": "355d5fbde1f7cd7616de23a2616d6b0f45b39e0dba858747e1e3756ca6975376",
+              "valid_records": 1216
+            }
+          },
+          "status": "screened"
+        },
+        {
+          "id": "no-section-headers__raw",
+          "deployment": "no-section-headers",
+          "pack": "raw",
+          "bytes": 592,
+          "sha256": "1d6e034ce4a1e12f56baaa958a23399a9606c61e01d982fd55e728361c4f12c1",
+          "payload_bytes": 592,
+          "requirements": [
+            "declared Linux ELF ABI"
+          ],
+          "codec_roundtrip": true,
+          "artifact": "candidates/c00003/no-section-headers__raw/artifact",
+          "reproduction": "not_run",
+          "verification": {
+            "argv": [
+              "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+              "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/snapshot/examples/mixed/verifier.py",
+              "--binary",
+              "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00003/no-section-headers__raw/artifact",
+              "--quick"
+            ],
+            "returncode": 0,
+            "seconds": 0.143227,
+            "stdout": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00003/no-section-headers__raw/verify.stdout",
+            "stderr": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00003/no-section-headers__raw/verify.stderr",
+            "checker_output": {
+              "cases": 9,
+              "corpus_sha256": "b054bbbae3dc2db124c3f45f3ab6e02dceba8f50f34753f85138cc99f28080fd",
+              "elapsed_seconds": 0.029848,
+              "mode": "quick",
+              "ok": true,
+              "oracle_sha256": "355d5fbde1f7cd7616de23a2616d6b0f45b39e0dba858747e1e3756ca6975376",
+              "valid_records": 1216
+            }
+          },
+          "status": "screened"
+        }
+      ],
+      "native_bytes": 880,
+      "native_sha256": "3e2a3b5e155f37e385a947e36ce0c4097f3ca459854d7c12d0a6ff0e3ffece40",
+      "objects": [
+        {
+          "unit_id": "common/compact/start",
+          "sha256": "9b27b28624df458163a4cc389d326ae8b6fb33d9ee0953bc3c9346e114abb9ce",
+          "bytes": 920
+        },
+        {
+          "unit_id": "common/compact/driver",
+          "sha256": "191a8e535371436bbeae70a1944d29944046187a974f570eabeeb0b365b8f008",
+          "bytes": 1624
+        },
+        {
+          "unit_id": "variant/popcount/c_swar",
+          "sha256": "311fe1c948627e443f93da04fe0bb22bdd478f4a4fed12d3ed474f1895dd9bf4",
+          "bytes": 1040,
+          "notation": {
+            "status": "completed",
+            "search_complete": true,
+            "linked_object": "original",
+            "contract": {
+              "language": "c",
+              "target": "c11-lp64",
+              "token_contract": "no-token-observation",
+              "compact": true,
+              "max_variants": 3
+            },
+            "selection_basis": "minimum source bytes among complete byte-identical objects",
+            "original_source_bytes": 424,
+            "original_object_sha256": "311fe1c948627e443f93da04fe0bb22bdd478f4a4fed12d3ed474f1895dd9bf4",
+            "source_bytes_saved": 128,
+            "candidates": [
+              {
+                "id": "raw",
+                "status": "baseline",
+                "eligible": true,
+                "source_bytes": 424,
+                "source_sha256": {
+                  "examples/mixed/popcount_swar.c": "462cc5c6f42736752ec981654999bffd340998ddca8fbde788f03a645bedeaca"
+                },
+                "object_sha256": "311fe1c948627e443f93da04fe0bb22bdd478f4a4fed12d3ed474f1895dd9bf4",
+                "object_bytes": 1040
+              },
+              {
+                "id": "shortest",
+                "eligible": false,
+                "source_bytes": 424,
+                "source_sha256": {
+                  "examples/mixed/popcount_swar.c": "462cc5c6f42736752ec981654999bffd340998ddca8fbde788f03a645bedeaca"
+                },
+                "rewrites": {
+                  "examples/mixed/popcount_swar.c": []
+                },
+                "notes": {
+                  "examples/mixed/popcount_swar.c": []
+                },
+                "status": "source_identical",
+                "reason": "same source bytes as raw; no source reduction to lock"
+              },
+              {
+                "id": "shortest-compact",
+                "eligible": true,
+                "source_bytes": 296,
+                "source_sha256": {
+                  "examples/mixed/popcount_swar.c": "29ed6a305ff3ae7b480ca1b4f2c46bdcc45b756be4f2781846665174f29a2009"
+                },
+                "rewrites": {
+                  "examples/mixed/popcount_swar.c": [
+                    {
+                      "operation": "comments and whitespace",
+                      "proof": {
+                        "same_token_sequence": true,
+                        "contract": "source/token spelling and locations unobserved"
+                      }
+                    }
+                  ]
+                },
+                "notes": {
+                  "examples/mixed/popcount_swar.c": []
+                },
+                "overlay": "objects/size/variant/popcount/c_swar/notation/shortest-compact/root",
+                "commands": [
+                  {
+                    "argv": [
+                      "/usr/bin/cc",
+                      "-std=c11",
+                      "-Os",
+                      "-frandom-seed=variant/popcount/c_swar",
+                      "-ffunction-sections",
+                      "-fdata-sections",
+                      "-fno-ident",
+                      "-fno-stack-protector",
+                      "-fno-asynchronous-unwind-tables",
+                      "-fno-unwind-tables",
+                      "-ffile-prefix-map=/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/popcount/c_swar/notation/shortest-compact/root=.",
+                      "-fdebug-prefix-map=/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/popcount/c_swar/notation/shortest-compact/root=.",
+                      "-c",
+                      "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/popcount/c_swar/notation/shortest-compact/root/examples/mixed/popcount_swar.c",
+                      "-o",
+                      "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/popcount/c_swar/notation/shortest-compact/build/unit.o"
+                    ],
+                    "returncode": 0,
+                    "seconds": 0.030962,
+                    "stdout": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/popcount/c_swar/notation/shortest-compact/build/compile-0.stdout",
+                    "stderr": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/popcount/c_swar/notation/shortest-compact/build/compile-0.stderr"
+                  }
+                ],
+                "object_bytes": 1040,
+                "object_sha256": "311fe1c948627e443f93da04fe0bb22bdd478f4a4fed12d3ed474f1895dd9bf4",
+                "status": "object_byte_identical"
+              }
+            ],
+            "selected": {
+              "id": "shortest-compact",
+              "eligible": true,
+              "source_bytes": 296,
+              "source_sha256": {
+                "examples/mixed/popcount_swar.c": "29ed6a305ff3ae7b480ca1b4f2c46bdcc45b756be4f2781846665174f29a2009"
+              },
+              "overlay": "objects/size/variant/popcount/c_swar/notation/shortest-compact/root",
+              "object_bytes": 1040,
+              "object_sha256": "311fe1c948627e443f93da04fe0bb22bdd478f4a4fed12d3ed474f1895dd9bf4",
+              "status": "object_byte_identical"
+            },
+            "planned_source_recipes": 3
+          }
+        },
+        {
+          "unit_id": "variant/square/c_table",
+          "sha256": "513478576bc89e18a4c2e2db7d02bc9dcc622d40703132a01ac40d5d5b63b226",
+          "bytes": 1216,
+          "notation": {
+            "status": "completed",
+            "search_complete": true,
+            "linked_object": "original",
+            "contract": {
+              "language": "c",
+              "target": "c11-lp64",
+              "token_contract": "no-token-observation",
+              "compact": true,
+              "max_variants": 3
+            },
+            "selection_basis": "minimum source bytes among complete byte-identical objects",
+            "original_source_bytes": 206,
+            "original_object_sha256": "513478576bc89e18a4c2e2db7d02bc9dcc622d40703132a01ac40d5d5b63b226",
+            "source_bytes_saved": 31,
+            "candidates": [
+              {
+                "id": "raw",
+                "status": "baseline",
+                "eligible": true,
+                "source_bytes": 206,
+                "source_sha256": {
+                  "examples/mixed/square_table.c": "a3f4652acec943d5b73744223ae0be18ad8264ceb8970499621479b3bb6c95e6"
+                },
+                "object_sha256": "513478576bc89e18a4c2e2db7d02bc9dcc622d40703132a01ac40d5d5b63b226",
+                "object_bytes": 1216
+              },
+              {
+                "id": "shortest",
+                "eligible": false,
+                "source_bytes": 206,
+                "source_sha256": {
+                  "examples/mixed/square_table.c": "a3f4652acec943d5b73744223ae0be18ad8264ceb8970499621479b3bb6c95e6"
+                },
+                "rewrites": {
+                  "examples/mixed/square_table.c": []
+                },
+                "notes": {
+                  "examples/mixed/square_table.c": []
+                },
+                "status": "source_identical",
+                "reason": "same source bytes as raw; no source reduction to lock"
+              },
+              {
+                "id": "shortest-compact",
+                "eligible": true,
+                "source_bytes": 175,
+                "source_sha256": {
+                  "examples/mixed/square_table.c": "eb9541e9d58191b7496fea972be7dd423cfe2739c28898151f7d9f6141da1a7f"
+                },
+                "rewrites": {
+                  "examples/mixed/square_table.c": [
+                    {
+                      "operation": "comments and whitespace",
+                      "proof": {
+                        "same_token_sequence": true,
+                        "contract": "source/token spelling and locations unobserved"
+                      }
+                    }
+                  ]
+                },
+                "notes": {
+                  "examples/mixed/square_table.c": []
+                },
+                "overlay": "objects/size/variant/square/c_table/notation/shortest-compact/root",
+                "commands": [
+                  {
+                    "argv": [
+                      "/usr/bin/cc",
+                      "-std=c11",
+                      "-Os",
+                      "-frandom-seed=variant/square/c_table",
+                      "-ffunction-sections",
+                      "-fdata-sections",
+                      "-fno-ident",
+                      "-fno-stack-protector",
+                      "-fno-asynchronous-unwind-tables",
+                      "-fno-unwind-tables",
+                      "-ffile-prefix-map=/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/square/c_table/notation/shortest-compact/root=.",
+                      "-fdebug-prefix-map=/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/square/c_table/notation/shortest-compact/root=.",
+                      "-c",
+                      "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/square/c_table/notation/shortest-compact/root/examples/mixed/square_table.c",
+                      "-o",
+                      "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/square/c_table/notation/shortest-compact/build/unit.o"
+                    ],
+                    "returncode": 0,
+                    "seconds": 0.041175,
+                    "stdout": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/square/c_table/notation/shortest-compact/build/compile-0.stdout",
+                    "stderr": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/objects/size/variant/square/c_table/notation/shortest-compact/build/compile-0.stderr"
+                  }
+                ],
+                "object_bytes": 1216,
+                "object_sha256": "513478576bc89e18a4c2e2db7d02bc9dcc622d40703132a01ac40d5d5b63b226",
+                "status": "object_byte_identical"
+              }
+            ],
+            "selected": {
+              "id": "shortest-compact",
+              "eligible": true,
+              "source_bytes": 175,
+              "source_sha256": {
+                "examples/mixed/square_table.c": "eb9541e9d58191b7496fea972be7dd423cfe2739c28898151f7d9f6141da1a7f"
+              },
+              "overlay": "objects/size/variant/square/c_table/notation/shortest-compact/root",
+              "object_bytes": 1216,
+              "object_sha256": "513478576bc89e18a4c2e2db7d02bc9dcc622d40703132a01ac40d5d5b63b226",
+              "status": "object_byte_identical"
+            },
+            "planned_source_recipes": 3
+          }
+        }
+      ],
+      "native_verification": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/snapshot/examples/mixed/verifier.py",
+          "--binary",
+          "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00003/native",
+          "--quick"
+        ],
+        "returncode": 0,
+        "seconds": 0.164111,
+        "stdout": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00003/verify.stdout",
+        "stderr": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00003/verify.stderr",
+        "checker_output": {
+          "cases": 9,
+          "corpus_sha256": "b054bbbae3dc2db124c3f45f3ab6e02dceba8f50f34753f85138cc99f28080fd",
+          "elapsed_seconds": 0.02836,
+          "mode": "quick",
+          "ok": true,
+          "oracle_sha256": "355d5fbde1f7cd7616de23a2616d6b0f45b39e0dba858747e1e3756ca6975376",
+          "valid_records": 1216
+        }
+      },
+      "status": "completed"
+    }
+  ],
+  "target": "x86_64-unknown-linux-gnu",
+  "input_sha256": {
+    "examples/mixed/kernels.h": "0eb747fb4ca4175e1854a53094f81ff04ed49bb752b40e963ff5709a471fab53",
+    "examples/mixed/popcount_kernighan.c": "8cc40c80b0902e41cce16ca603c47c4af37da6dade6349fe61d60ffc414ac67b",
+    "examples/mixed/popcount_swar.c": "462cc5c6f42736752ec981654999bffd340998ddca8fbde788f03a645bedeaca",
+    "examples/mixed/square_arithmetic.c": "9c495da1cfefac4fde77467be5e1c560cea442c28fedfb366e8607cad5ac728c",
+    "examples/mixed/square_table.c": "a3f4652acec943d5b73744223ae0be18ad8264ceb8970499621479b3bb6c95e6",
+    "examples/mixed/driver_hosted.c": "c74c33db27d9ebfad4c9a82b885c1a2a4270bcc7e11d1a7d18f8c24d0dd0e288",
+    "examples/mixed/driver_linux_x86_64.c": "dff6c97f7f1af93c6394ba9ccce2876451fd02a67251cb06bb2cabcb07fda0d7",
+    "examples/mixed/start_linux_x86_64.S": "274b24fd266cc57462ee0f49591c3357a5147eb825588bd485a7b1fb659efbdb",
+    "examples/mixed/verifier.py": "af7cfa4781964c08af42b83f2c6dd7c31bb2751c57d1f088b14cdd7e4e6caaa1",
+    "examples/mixed/README.md": "674c28d67ee2e9e625bbde777a43f87afd73c5934ce01d855a7c8c725616d38a",
+    "linker/hosted.ld": "177f6612aadb094ee4524ae731a96991289918e7cc78d2f811dab4a9bc9fa482",
+    "linker/linux-x86_64-compact.ld": "b777f989ac801a1b04363a30bc8bbb8abd139f5f7f3d7a070212bb22a1c631f3"
+  },
+  "tools": {
+    "cc": {
+      "executable": "/usr/bin/cc",
+      "sha256": "6117c52522997d2aaccb2b52b3c6bf42c0a6c5edb1d718431fed6b2fc5fec234",
+      "version": "cc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+    },
+    "ld": {
+      "executable": "/usr/bin/ld",
+      "sha256": "5b674ea1d7017c2929f3c52c43487478bb240ecdd7197a25cce3813a70329a5c",
+      "version": "GNU ld (GNU Binutils for Ubuntu) 2.42\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis program is free software; you may redistribute it under the terms of\nthe GNU General Public License version 3 or (at your option) a later version.\nThis program has absolutely no warranty."
+    },
+    "python": {
+      "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+      "version": "Python 3.12.14"
+    }
+  },
+  "environment": {
+    "PATH": "/usr/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/usr/bin:/bin",
+    "LANG": "C",
+    "LC_ALL": "C",
+    "TZ": "UTC",
+    "SOURCE_DATE_EPOCH": "0",
+    "PYTHONHASHSEED": "0",
+    "PYTHONCOERCECLOCALE": "0"
+  },
+  "limits": {
+    "jobs": 2,
+    "command_seconds": 25.0,
+    "max_seconds": 90.0,
+    "max_candidates": 128
+  },
+  "baseline": {
+    "recipe": {
+      "build": "size",
+      "link": "compact",
+      "order": [
+        "popcount",
+        "square"
+      ],
+      "variants": {
+        "popcount": "c_kernighan",
+        "square": "c_arithmetic"
+      }
+    },
+    "sha256": "eba10ac2091dcd951fc83f203843aa8b609690483dce51b5fcaeb19f827fcfdc",
+    "bytes": 736,
+    "verification": {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/snapshot/examples/mixed/verifier.py",
+        "--binary",
+        "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/baseline/native"
+      ],
+      "returncode": 0,
+      "seconds": 0.661782,
+      "stdout": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/baseline/verify-final.stdout",
+      "stderr": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/baseline/verify-final.stderr",
+      "checker_output": {
+        "cases": 22,
+        "corpus_sha256": "fee2cdd9dc7959ec3ee432100dce45558cbf98391f9569b041074865c0b1e91b",
+        "elapsed_seconds": 0.543689,
+        "mode": "full",
+        "ok": true,
+        "oracle_sha256": "a2088e902cfba6111c700c9eded933d373b8d61c65e66b9e83d4f8c1dbf611f6",
+        "valid_records": 199360
+      }
+    }
+  },
+  "planned_link_candidates": 4,
+  "selected_link_candidates": 4,
+  "search_complete": true,
+  "screened_complete_files": 8,
+  "winner": {
+    "candidate": "c00001",
+    "id": "no-section-headers__raw",
+    "deployment": "no-section-headers",
+    "pack": "raw",
+    "bytes": 520,
+    "sha256": "ad772ca3724d250668c7dbfad8b24e67f780dc8cae3a6221c8643b4d164c23dd",
+    "payload_bytes": 520,
+    "requirements": [
+      "declared Linux ELF ABI"
+    ],
+    "codec_roundtrip": true,
+    "artifact": "candidates/c00001/no-section-headers__raw/artifact",
+    "reproduction": "byte_identical_fresh_build",
+    "verification": {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/snapshot/examples/mixed/verifier.py",
+        "--binary",
+        "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00001/no-section-headers__raw/artifact",
+        "--quick"
+      ],
+      "returncode": 0,
+      "seconds": 0.163559,
+      "stdout": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00001/no-section-headers__raw/verify.stdout",
+      "stderr": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/candidates/c00001/no-section-headers__raw/verify.stderr",
+      "checker_output": {
+        "cases": 9,
+        "corpus_sha256": "b054bbbae3dc2db124c3f45f3ab6e02dceba8f50f34753f85138cc99f28080fd",
+        "elapsed_seconds": 0.032158,
+        "mode": "quick",
+        "ok": true,
+        "oracle_sha256": "355d5fbde1f7cd7616de23a2616d6b0f45b39e0dba858747e1e3756ca6975376",
+        "valid_records": 1216
+      }
+    },
+    "status": "screened"
+  },
+  "final_verification": {
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/reproduction/snapshot/examples/mixed/verifier.py",
+      "--binary",
+      "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/reproduction/selected/artifact"
+    ],
+    "returncode": 0,
+    "seconds": 0.737772,
+    "stdout": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/reproduction/selected/verify-final.stdout",
+    "stderr": "/tmp/nvcompact package 한글 wEaG8v/consumer with spaces/native build/reproduction/selected/verify-final.stderr",
+    "checker_output": {
+      "cases": 22,
+      "corpus_sha256": "fee2cdd9dc7959ec3ee432100dce45558cbf98391f9569b041074865c0b1e91b",
+      "elapsed_seconds": 0.567129,
+      "mode": "full",
+      "ok": true,
+      "oracle_sha256": "a2088e902cfba6111c700c9eded933d373b8d61c65e66b9e83d4f8c1dbf611f6",
+      "valid_records": 199360
+    }
+  }
+}

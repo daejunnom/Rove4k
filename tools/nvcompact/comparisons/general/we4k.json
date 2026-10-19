@@ -1,0 +1,48 @@
+{
+  "format": "nvcompact.external-engine.v1",
+  "name": "we4k",
+  "artifact": "we4k",
+  "artifact_key": "we4k",
+  "category": "4k",
+  "original_bytes": 4079,
+  "sha256": "8540b397425582d86d73d54d1ba7a44927c6207812123065749bf14cacf8354e",
+  "checked_at": "2026-10-19",
+  "provenance": {
+    "source_url": "https://github.com/ONE-RANDOM-HUMAN/we4k",
+    "source_commit": "93dde6ad4aef461bdf4c8dd9d413f92090fc16eb",
+    "artifact_url": null,
+    "representative_version": "93dde6ad default source rebuild",
+    "last_tournament_version": "104th-64G",
+    "license": "GPL-3.0",
+    "artifact_provenance": "historical-public-default-source-build",
+    "version_relationship": "No public releases exist. Built unchanged Dec 21 2022 source using Zig 0.10.1 + NASM 3.01, then upstream sstrip and autovndh xz portfolio. Public default is 4 threads/32 MiB, while actual tournament entry is 104th-64G. This is an explicitly distinct public-profile representative, not claimed identical tournament bytes.",
+    "source_correspondence_status": "editable-source-reproduces-public-default-payload",
+    "editable_source_correspondence": "unchanged historical public default source; second native build reproduces the original baseline payload byte-for-byte; not the 104-thread tournament profile",
+    "unresolved_source_correspondence_gap": false,
+    "public_input_not_confirmed_exact_private_tcec_upload": true
+  },
+  "runtime_profile": {
+    "major_allocation_bytes": 33554432,
+    "engine_workers": 4,
+    "kind": "public default; historical TCEC used 104 workers and 64 GiB"
+  },
+  "historical_python_v02": {
+    "original_bytes": "4079",
+    "smallest_bytes": "4011",
+    "accepted_bytes": "4011",
+    "uci": "pass",
+    "original_uci": "pass",
+    "byte_replay": "pass",
+    "winner_sha256": "cb741bb7970981232f140bcecbbffe2ae8c77632740f3df2c2417add9da37ae7",
+    "original_deployment_equivalent": "True"
+  },
+  "envelope": {
+    "decoder": "xz -d",
+    "payload_codec": {
+      "format": "xz"
+    },
+    "header_bytes": 83,
+    "header_sha256": "4bac421a36689d0255856032bb8989bff1b70a472e8d8b71eef55c166ea92555"
+  },
+  "payload_sha256": "8983826a5096e5a3f135498f1921d61b798967a1c9166593137d09fcaba171c4"
+}

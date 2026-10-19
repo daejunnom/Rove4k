@@ -1,0 +1,383 @@
+{
+  "format": 1,
+  "project_root": "../..",
+  "target": "x86_64-unknown-linux-gnu",
+  "contract": "examples/mixed/README.md: fixed binary I/O, scalar C ABI, no path-dependent behavior; finite oracle evidence, no engine strength claim; optional source notation audit requires complete object identity before locking",
+  "inputs": [
+    "examples/mixed/kernels.h",
+    "examples/mixed/popcount_kernighan.c",
+    "examples/mixed/popcount_swar.c",
+    "examples/mixed/popcount_rust.rs",
+    "examples/mixed/square_arithmetic.c",
+    "examples/mixed/square_table.c",
+    "examples/mixed/square_rust.rs",
+    "examples/mixed/driver_hosted.c",
+    "examples/mixed/driver_linux_x86_64.c",
+    "examples/mixed/start_linux_x86_64.S",
+    "examples/mixed/verifier.py",
+    "examples/mixed/README.md",
+    "linker/hosted.ld",
+    "linker/linux-x86_64-compact.ld"
+  ],
+  "tools": {
+    "cc": {
+      "executable": "cc",
+      "requires_tools": [
+        "ld"
+      ]
+    },
+    "ld": {
+      "executable": "ld"
+    },
+    "rustc": {
+      "executable": "rustc",
+      "version_args": [
+        "--version",
+        "--verbose"
+      ]
+    },
+    "python": {
+      "executable": "python3"
+    }
+  },
+  "components": [
+    {
+      "id": "popcount",
+      "contract": "uint32_t nv_popcount64(uint64_t): count all64bits; no state or side effects",
+      "variants": [
+        {
+          "id": "c_kernighan",
+          "language": "c",
+          "sources": [
+            "examples/mixed/popcount_kernighan.c"
+          ],
+          "commands": [
+            [
+              "{cc}",
+              "-std=c11",
+              "{c_opt}",
+              "{c_lto}",
+              "-frandom-seed={unit_id}",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-fno-ident",
+              "-fno-stack-protector",
+              "-fno-asynchronous-unwind-tables",
+              "-fno-unwind-tables",
+              "-ffile-prefix-map={root}=.",
+              "-fdebug-prefix-map={root}=.",
+              "-c",
+              "{source}",
+              "-o",
+              "{object}"
+            ]
+          ],
+          "notation": {
+            "language": "c",
+            "target": "c11-lp64",
+            "token_contract": "no-token-observation",
+            "compact": true,
+            "max_variants": 3
+          }
+        },
+        {
+          "id": "c_swar",
+          "language": "c",
+          "sources": [
+            "examples/mixed/popcount_swar.c"
+          ],
+          "commands": [
+            [
+              "{cc}",
+              "-std=c11",
+              "{c_opt}",
+              "{c_lto}",
+              "-frandom-seed={unit_id}",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-fno-ident",
+              "-fno-stack-protector",
+              "-fno-asynchronous-unwind-tables",
+              "-fno-unwind-tables",
+              "-ffile-prefix-map={root}=.",
+              "-fdebug-prefix-map={root}=.",
+              "-c",
+              "{source}",
+              "-o",
+              "{object}"
+            ]
+          ],
+          "notation": {
+            "language": "c",
+            "target": "c11-lp64",
+            "token_contract": "no-token-observation",
+            "compact": true,
+            "max_variants": 3
+          }
+        },
+        {
+          "id": "rust",
+          "language": "rust",
+          "sources": [
+            "examples/mixed/popcount_rust.rs"
+          ],
+          "commands": [
+            [
+              "{rustc}",
+              "--edition=2021",
+              "--crate-type=lib",
+              "--emit=obj",
+              "-C",
+              "panic=abort",
+              "-C",
+              "opt-level={rust_opt}",
+              "-C",
+              "relocation-model=static",
+              "-C",
+              "force-unwind-tables=no",
+              "-C",
+              "codegen-units=1",
+              "--remap-path-prefix={root}=.",
+              "{source}",
+              "-o",
+              "{object}"
+            ]
+          ],
+          "notation": {
+            "language": "rust",
+            "target": "rust2021",
+            "token_contract": "no-token-observation",
+            "compact": true,
+            "max_variants": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "square",
+      "contract": "int32_t nv_square_bonus(uint32_t): declared value on square0..63; driver rejects other inputs",
+      "variants": [
+        {
+          "id": "c_arithmetic",
+          "language": "c",
+          "sources": [
+            "examples/mixed/square_arithmetic.c"
+          ],
+          "commands": [
+            [
+              "{cc}",
+              "-std=c11",
+              "{c_opt}",
+              "{c_lto}",
+              "-frandom-seed={unit_id}",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-fno-ident",
+              "-fno-stack-protector",
+              "-fno-asynchronous-unwind-tables",
+              "-fno-unwind-tables",
+              "-ffile-prefix-map={root}=.",
+              "-fdebug-prefix-map={root}=.",
+              "-c",
+              "{source}",
+              "-o",
+              "{object}"
+            ]
+          ],
+          "notation": {
+            "language": "c",
+            "target": "c11-lp64",
+            "token_contract": "no-token-observation",
+            "compact": true,
+            "max_variants": 3
+          }
+        },
+        {
+          "id": "c_table",
+          "language": "c",
+          "sources": [
+            "examples/mixed/square_table.c"
+          ],
+          "commands": [
+            [
+              "{cc}",
+              "-std=c11",
+              "{c_opt}",
+              "{c_lto}",
+              "-frandom-seed={unit_id}",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-fno-ident",
+              "-fno-stack-protector",
+              "-fno-asynchronous-unwind-tables",
+              "-fno-unwind-tables",
+              "-ffile-prefix-map={root}=.",
+              "-fdebug-prefix-map={root}=.",
+              "-c",
+              "{source}",
+              "-o",
+              "{object}"
+            ]
+          ],
+          "notation": {
+            "language": "c",
+            "target": "c11-lp64",
+            "token_contract": "no-token-observation",
+            "compact": true,
+            "max_variants": 3
+          }
+        },
+        {
+          "id": "rust",
+          "language": "rust",
+          "sources": [
+            "examples/mixed/square_rust.rs"
+          ],
+          "commands": [
+            [
+              "{rustc}",
+              "--edition=2021",
+              "--crate-type=lib",
+              "--emit=obj",
+              "-C",
+              "panic=abort",
+              "-C",
+              "opt-level={rust_opt}",
+              "-C",
+              "relocation-model=static",
+              "-C",
+              "force-unwind-tables=no",
+              "-C",
+              "codegen-units=1",
+              "--remap-path-prefix={root}=.",
+              "{source}",
+              "-o",
+              "{object}"
+            ]
+          ],
+          "notation": {
+            "language": "rust",
+            "target": "rust2021",
+            "token_contract": "no-token-observation",
+            "compact": true,
+            "max_variants": 3
+          }
+        }
+      ]
+    }
+  ],
+  "build_profiles": [
+    {
+      "id": "size",
+      "variables": {
+        "c_opt": "-Os",
+        "rust_opt": "z",
+        "c_lto": []
+      }
+    }
+  ],
+  "link_profiles": [
+    {
+      "id": "compact",
+      "contract": "Linux x86-64 freestanding, no global writable data/TLS/unwind/constructors/dynamic linking; no section-header or self-file readers",
+      "allow_section_header_removal": true,
+      "common": [
+        {
+          "id": "start",
+          "sources": [
+            "examples/mixed/start_linux_x86_64.S"
+          ],
+          "commands": [
+            [
+              "{cc}",
+              "-c",
+              "{source}",
+              "-o",
+              "{object}"
+            ]
+          ]
+        },
+        {
+          "id": "driver",
+          "language": "c",
+          "sources": [
+            "examples/mixed/driver_linux_x86_64.c"
+          ],
+          "commands": [
+            [
+              "{cc}",
+              "-std=c11",
+              "{c_opt}",
+              "{c_lto}",
+              "-frandom-seed={unit_id}",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-fno-ident",
+              "-fno-stack-protector",
+              "-fno-asynchronous-unwind-tables",
+              "-fno-unwind-tables",
+              "-ffile-prefix-map={root}=.",
+              "-fdebug-prefix-map={root}=.",
+              "-ffreestanding",
+              "-fno-pie",
+              "-c",
+              "{source}",
+              "-o",
+              "{object}"
+            ]
+          ]
+        }
+      ],
+      "argv": [
+        "{cc}",
+        "{c_opt}",
+        "{c_lto}",
+        "-nostdlib",
+        "-static",
+        "-no-pie",
+        "{objects}",
+        "-Wl,--gc-sections,--build-id=none,--orphan-handling=error,-s",
+        "-Wl,-T,{root}/linker/linux-x86_64-compact.ld",
+        "-o",
+        "{binary}"
+      ]
+    }
+  ],
+  "orders": [
+    {
+      "id": "declared",
+      "components": [
+        "popcount",
+        "square"
+      ]
+    }
+  ],
+  "verify": [
+    "{python}",
+    "{root}/examples/mixed/verifier.py",
+    "--binary",
+    "{binary}",
+    "--quick"
+  ],
+  "verify_final": [
+    "{python}",
+    "{root}/examples/mixed/verifier.py",
+    "--binary",
+    "{binary}"
+  ],
+  "codecs": [],
+  "max_bytes": 4096,
+  "baseline": {
+    "build": "size",
+    "link": "compact",
+    "order": [
+      "popcount",
+      "square"
+    ],
+    "variants": {
+      "popcount": "c_kernighan",
+      "square": "c_arithmetic"
+    }
+  },
+  "max_native_bytes": 2097152
+}

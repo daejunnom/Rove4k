@@ -1,0 +1,3 @@
+{"event": "hook_loaded", "argv": ["/tmp/nvcompact package \ud55c\uae00 3gOjAV/consumer with spaces/node_modules/nvcompact/python/nvlaunch.py", "build", "/tmp/nvcompact package \ud55c\uae00 3gOjAV/consumer with spaces/plain example from installed tarball/manifest.json", "--out", "/tmp/nvcompact package \ud55c\uae00 3gOjAV/consumer with spaces/plain linked build", "--jobs", "2", "--max-seconds", "45", "--command-seconds", "10"]}
+{"event": "subprocess.Popen", "executable": "uname", "argv": ["uname", "-p"]}
+{"event": "blocked_execution"}

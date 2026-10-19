@@ -1,0 +1,27 @@
+{
+  "name": "nvcompact-monorepo",
+  "version": "0.3.0",
+  "private": true,
+  "license": "MIT",
+  "description": "Development workspace for NVCompact and its TCEC 4K experiments.",
+  "workspaces": [
+    "packages/nvcompact",
+    "packages/tcec4k-lab"
+  ],
+  "engines": {
+    "node": ">=22",
+    "npm": ">=10"
+  },
+  "packageManager": "npm@11.9.0",
+  "scripts": {
+    "test": "node scripts/test-cli.mjs",
+    "test:core": "node scripts/test-core.mjs",
+    "check": "node scripts/check.mjs",
+    "pack:cli": "node scripts/pack.mjs",
+    "verify:package": "node scripts/verify-package.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/daejunnom/NVCompact.git"
+  }
+}

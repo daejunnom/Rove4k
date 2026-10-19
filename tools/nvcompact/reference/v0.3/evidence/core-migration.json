@@ -1,0 +1,56 @@
+{
+  "format": "nvcompact.core-migration.v1",
+  "source_release": "NVCompact 0.2.0",
+  "source_archive_sha256": "1b336f2bf8dc1acb9b4ca2787769c9e786ec6c1e91aa96e6ffc7eb0e277af97d",
+  "scope": "Python algorithm modules unchanged; package launcher has separate validation",
+  "files": [
+    {
+      "source": "nvcompact-v02/nvcompact.py",
+      "destination": "packages/nvcompact/python/nvcompact.py",
+      "sha256": "7dcf1ef17d38e7f1140346789d96563b955b0a2a3ebbefd7c69d1b2e1bdcfdf0",
+      "bytes": 42851
+    },
+    {
+      "source": "nvcompact-v02/nvpack.py",
+      "destination": "packages/nvcompact/python/nvpack.py",
+      "sha256": "efb34d316de2cfc4b0d467200e9cfff8c7487fcc250bdd3a0af76b64a3fd9dc2",
+      "bytes": 13073
+    },
+    {
+      "source": "nvcompact-v02/nvelf.py",
+      "destination": "packages/nvcompact/python/nvelf.py",
+      "sha256": "c33672cd1a3c102c6376eaa3b382f84b7fbadbfa8653629e28a62dfa8992b711",
+      "bytes": 6495
+    },
+    {
+      "source": "nvcompact-v02/nvnotation.py",
+      "destination": "packages/nvcompact/python/nvnotation.py",
+      "sha256": "a7f5d403caaf382091ea3fb43833701f5adfe7aeaa5ef9ec9e3e82833ad44592",
+      "bytes": 42140
+    },
+    {
+      "source": "nvcompact-v02/nvenvelope.py",
+      "destination": "packages/nvcompact/python/nvenvelope.py",
+      "sha256": "7c1c0e49181b20537458e1b1f2779ed7c69aa47c988135627868f3c14b8ff294",
+      "bytes": 31405
+    },
+    {
+      "source": "nvcompact-v02/nvuci.py",
+      "destination": "packages/nvcompact/python/nvuci.py",
+      "sha256": "7d7016ee973052c8a2ce0baaa004f68c75471e372548a8baed647bf4d79c315a",
+      "bytes": 40801
+    },
+    {
+      "source": "nvcompact-v02/nvreproduce.py",
+      "destination": "packages/nvcompact/python/nvreproduce.py",
+      "sha256": "45c35eacc817a96669aabe519235f89a48f586b93ae2b84b283477db25867816",
+      "bytes": 5805
+    },
+    {
+      "source": "nvcompact-v02/run_engines.py",
+      "destination": "packages/nvcompact/python/run_engines.py",
+      "sha256": "ae2f2376be59123d6c234142e149e1a3f05b47ab8221cda41e369cf267a77dc0",
+      "bytes": 8010
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "format": "nvcompact.external-engine.v1",
+  "name": "4k.c",
+  "artifact": "4k.c",
+  "artifact_key": "4k.c",
+  "category": "4k",
+  "original_bytes": 3932,
+  "sha256": "04e8f61d6ed6ad5feaaea7c62c578b647b9cdbc0e2313c4437645aff63a54af6",
+  "checked_at": "2026-10-19",
+  "provenance": {
+    "source_url": "https://github.com/GediminasMasaitis/4k-dot-c",
+    "source_commit": "880a877d6af2046cc5ce7deb85ea5ad2855b41a1",
+    "artifact_url": "https://github.com/GediminasMasaitis/4k-dot-c/releases/download/v9.0/4kc-mini",
+    "representative_version": "9.0",
+    "last_tournament_version": "9.15.1 (ELF III and announced VIII)",
+    "license": "MIT + zlib for Crinkler-derived compressor/loader",
+    "artifact_provenance": "upstream-release",
+    "version_relationship": "v9.0 is the latest public release and the exact general VII version label. 9.15 source is commit 44072f4af03499ea5d8fa5c7dfd1ee51c8bb6782, but no 9.15.1 version entry/tag/release was found. This original is already a self-contained 4K-eligible ELF.",
+    "source_correspondence_status": "same-release-tag-source-and-artifact",
+    "editable_source_correspondence": "matching upstream release tag source and original release asset; independent full source-to-release-binary reproduction not performed",
+    "unresolved_source_correspondence_gap": "release-source relationship known; native reproduction not separately performed",
+    "public_input_not_confirmed_exact_private_tcec_upload": true
+  },
+  "runtime_profile": {
+    "load_memory_bytes": 23622320128,
+    "physical_memory_requirement_confirmed": false,
+    "kind": "22 GiB virtual LOAD; smaller source defaults do not establish release residency"
+  },
+  "historical_python_v02": {
+    "original_bytes": "3932",
+    "smallest_bytes": "3932",
+    "accepted_bytes": "",
+    "uci": "fail",
+    "original_uci": "fail",
+    "byte_replay": "pass",
+    "winner_sha256": "04e8f61d6ed6ad5feaaea7c62c578b647b9cdbc0e2313c4437645aff63a54af6",
+    "original_deployment_equivalent": ""
+  },
+  "runtime_blocked": "Explicit resource plan required: release LOAD reserves 22 GiB virtually. A bounded fresh startup failed at execve with ENOMEM before engine entry even under a 28 GiB AS cap; current host memory admission policy blocked startup.",
+  "allow_section_header_removal": false
+}

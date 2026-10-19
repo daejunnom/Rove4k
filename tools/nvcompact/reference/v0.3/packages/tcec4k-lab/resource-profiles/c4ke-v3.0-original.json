@@ -1,0 +1,42 @@
+{
+  "format": "nvcompact.resource-spec.v1",
+  "name": "c4ke-v3.0-original",
+  "manifest": "../engines/c4ke.json",
+  "command": [
+    "{artifact}"
+  ],
+  "tools": [
+    "/bin/sh",
+    "mktemp",
+    "tail",
+    "xz",
+    "g++",
+    "sleep",
+    "rm"
+  ],
+  "budget": {
+    "required_memory_bytes": 274877906944,
+    "reserve_memory_bytes": 8589934592,
+    "address_space_bytes": 309237645312,
+    "cpu_seconds_per_process": 7200,
+    "wall_seconds": 240,
+    "file_bytes": 268435456,
+    "output_bytes_per_session": 2097152
+  },
+  "uci": {
+    "profile": "tcec4k",
+    "preserve_engine_options": true,
+    "startup_seconds": 60,
+    "ready_seconds": 5,
+    "search_seconds": 5,
+    "quit_seconds": 2,
+    "cleanup_seconds": 5,
+    "extensions": false,
+    "quick": false
+  },
+  "notes": [
+    "The exact public v3.0 payload contains calloc(1ull<<35,8), requesting 256 GiB, and jthread i[256]. The original -march=native launcher is kept.",
+    "Planning never launches the artifact. Running needs a new output directory and an explicit --start. No allocation, worker, search, compiler or launcher constant is rewritten.",
+    "Memory availability is a transient estimate; this profile does not reserve RAM or create a dedicated cgroup. Many-core performance and tournament acceptance are separate checks."
+  ]
+}

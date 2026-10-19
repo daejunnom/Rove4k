@@ -1,0 +1,308 @@
+{
+  "format": 1,
+  "status": "built",
+  "packing": "none",
+  "verification_requested": false,
+  "runtime": {
+    "version": "0.3.0",
+    "python": "3.12.14",
+    "platform": "Linux-6.18.55-x86_64",
+    "packing": "none",
+    "source_sha256": {
+      "nvcompact.py": "61d71ba3bf720842f952aedd3812836ff88aad16bcafe651d555c43920c1d8b4"
+    }
+  },
+  "candidates": [
+    {
+      "id": "c00000",
+      "recipe": {
+        "build": "size",
+        "link": "hosted",
+        "order_id": "declared",
+        "order": [
+          "square"
+        ],
+        "variants": {
+          "square": "multiply"
+        }
+      },
+      "artifacts": [
+        {
+          "id": "linked",
+          "artifact_kind": "linked",
+          "deployment": "linked",
+          "pack": "none",
+          "bytes": 16056,
+          "sha256": "5cd79509d1574bed3813183101ed4b0a1d9fbfa87c7df3c5d3698f61d92db98a",
+          "requirements": {
+            "profile": "declared-native-build",
+            "target": "x86_64-linux-gnu"
+          },
+          "codec_roundtrip": null,
+          "artifact": "candidates/c00000/native",
+          "verification": {
+            "status": "not_run",
+            "reason": "native execution verification requires --verify"
+          },
+          "status": "built",
+          "reproduction": "byte_identical_fresh_build"
+        }
+      ],
+      "native_bytes": 16056,
+      "native_sha256": "5cd79509d1574bed3813183101ed4b0a1d9fbfa87c7df3c5d3698f61d92db98a",
+      "objects": [
+        {
+          "unit_id": "common/hosted/main",
+          "sha256": "a31d201e241561073833a395364e4e1b1ed11cde61c75925f2cfff60e67deb72",
+          "bytes": 1936
+        },
+        {
+          "unit_id": "variant/square/multiply",
+          "sha256": "d0552500e130d2e364e6f35e79078fd53b423c237dff4866e14d44834be73e5d",
+          "bytes": 1216
+        }
+      ],
+      "native_verification": {
+        "status": "not_run",
+        "reason": "native execution verification requires --verify"
+      },
+      "status": "completed"
+    },
+    {
+      "id": "c00001",
+      "recipe": {
+        "build": "size",
+        "link": "hosted",
+        "order_id": "declared",
+        "order": [
+          "square"
+        ],
+        "variants": {
+          "square": "sum"
+        }
+      },
+      "artifacts": [
+        {
+          "id": "linked",
+          "artifact_kind": "linked",
+          "deployment": "linked",
+          "pack": "none",
+          "bytes": 16056,
+          "sha256": "0b4a0a13e86c34edb4a300eef8fb173610114360197a6fce8069ff95096051f1",
+          "requirements": {
+            "profile": "declared-native-build",
+            "target": "x86_64-linux-gnu"
+          },
+          "codec_roundtrip": null,
+          "artifact": "candidates/c00001/native",
+          "verification": {
+            "status": "not_run",
+            "reason": "native execution verification requires --verify"
+          },
+          "status": "built",
+          "reproduction": "not_run"
+        }
+      ],
+      "native_bytes": 16056,
+      "native_sha256": "0b4a0a13e86c34edb4a300eef8fb173610114360197a6fce8069ff95096051f1",
+      "objects": [
+        {
+          "unit_id": "common/hosted/main",
+          "sha256": "a31d201e241561073833a395364e4e1b1ed11cde61c75925f2cfff60e67deb72",
+          "bytes": 1936
+        },
+        {
+          "unit_id": "variant/square/sum",
+          "sha256": "30ff68f8370f13fd603612f93acccb4c61f586a4174e29914d8a3e664b773872",
+          "bytes": 1216
+        }
+      ],
+      "native_verification": {
+        "status": "not_run",
+        "reason": "native execution verification requires --verify"
+      },
+      "status": "completed"
+    },
+    {
+      "id": "c00002",
+      "recipe": {
+        "build": "speed",
+        "link": "hosted",
+        "order_id": "declared",
+        "order": [
+          "square"
+        ],
+        "variants": {
+          "square": "multiply"
+        }
+      },
+      "artifacts": [
+        {
+          "id": "linked",
+          "artifact_kind": "linked",
+          "deployment": "linked",
+          "pack": "none",
+          "bytes": 16056,
+          "sha256": "fdf3c1b0320d998942189652eda97f5625fc900c0c28d5cb7aa316f27e4aee67",
+          "requirements": {
+            "profile": "declared-native-build",
+            "target": "x86_64-linux-gnu"
+          },
+          "codec_roundtrip": null,
+          "artifact": "candidates/c00002/native",
+          "verification": {
+            "status": "not_run",
+            "reason": "native execution verification requires --verify"
+          },
+          "status": "built",
+          "reproduction": "not_run"
+        }
+      ],
+      "native_bytes": 16056,
+      "native_sha256": "fdf3c1b0320d998942189652eda97f5625fc900c0c28d5cb7aa316f27e4aee67",
+      "objects": [
+        {
+          "unit_id": "common/hosted/main",
+          "sha256": "a3e2f0d0dbfc35ec2f461e2b06afe6e2e6c0331b563360a9a2e748f27d3ca74d",
+          "bytes": 1992
+        },
+        {
+          "unit_id": "variant/square/multiply",
+          "sha256": "3a1fb4818ee3e4f4344f18bae141bdde40e542b8d045e91c72cdb3a6d8e1473c",
+          "bytes": 1216
+        }
+      ],
+      "native_verification": {
+        "status": "not_run",
+        "reason": "native execution verification requires --verify"
+      },
+      "status": "completed"
+    },
+    {
+      "id": "c00003",
+      "recipe": {
+        "build": "speed",
+        "link": "hosted",
+        "order_id": "declared",
+        "order": [
+          "square"
+        ],
+        "variants": {
+          "square": "sum"
+        }
+      },
+      "artifacts": [
+        {
+          "id": "linked",
+          "artifact_kind": "linked",
+          "deployment": "linked",
+          "pack": "none",
+          "bytes": 16056,
+          "sha256": "65ead3acbcdf6f03a00e77e16f16d98f3f8dffe17aea495d5ba3dea7aa18df8c",
+          "requirements": {
+            "profile": "declared-native-build",
+            "target": "x86_64-linux-gnu"
+          },
+          "codec_roundtrip": null,
+          "artifact": "candidates/c00003/native",
+          "verification": {
+            "status": "not_run",
+            "reason": "native execution verification requires --verify"
+          },
+          "status": "built",
+          "reproduction": "not_run"
+        }
+      ],
+      "native_bytes": 16056,
+      "native_sha256": "65ead3acbcdf6f03a00e77e16f16d98f3f8dffe17aea495d5ba3dea7aa18df8c",
+      "objects": [
+        {
+          "unit_id": "common/hosted/main",
+          "sha256": "a3e2f0d0dbfc35ec2f461e2b06afe6e2e6c0331b563360a9a2e748f27d3ca74d",
+          "bytes": 1992
+        },
+        {
+          "unit_id": "variant/square/sum",
+          "sha256": "66585d1f68fb059e7d161ff3986318c957ba1b5902897a2d6c9f41d4698c773b",
+          "bytes": 1216
+        }
+      ],
+      "native_verification": {
+        "status": "not_run",
+        "reason": "native execution verification requires --verify"
+      },
+      "status": "completed"
+    }
+  ],
+  "target": "x86_64-linux-gnu",
+  "input_sha256": {
+    "main.c": "a754987e7d0a2380f9b41513e80aeb2f8e4e917fdc66b47c68ad9b7bd7c38567",
+    "square_mul.c": "c39f30e690af0498c48590d76142a3e9275d572afe1ce48f980da4839d0a1c07",
+    "square_sum.c": "5e51f6f97aa8902dfd9eb42e816c52095cac23c5c3853c0c7e406a813d81b360",
+    "verify.py": "8012fe6100ac6fa896e3e2f7e38d54879e8cddcc594091ed98bb9c22b296b286"
+  },
+  "tools": {
+    "cc": {
+      "executable": "/usr/bin/cc",
+      "sha256": "6117c52522997d2aaccb2b52b3c6bf42c0a6c5edb1d718431fed6b2fc5fec234",
+      "version": "cc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+    }
+  },
+  "environment": {
+    "PATH": "/usr/bin:/usr/bin:/bin",
+    "LANG": "C",
+    "LC_ALL": "C",
+    "TZ": "UTC",
+    "SOURCE_DATE_EPOCH": "0",
+    "PYTHONHASHSEED": "0",
+    "PYTHONCOERCECLOCALE": "0"
+  },
+  "limits": {
+    "jobs": 2,
+    "command_seconds": 10.0,
+    "max_seconds": 45.0,
+    "max_candidates": 128,
+    "max_bytes": null
+  },
+  "baseline": {
+    "status": "not_run",
+    "reason": "compile/link-only build"
+  },
+  "planned_link_candidates": 4,
+  "selected_link_candidates": 4,
+  "search_complete": true,
+  "screened_complete_files": 0,
+  "eligible_complete_files": 4,
+  "winner": {
+    "candidate": "c00000",
+    "id": "linked",
+    "artifact_kind": "linked",
+    "deployment": "linked",
+    "pack": "none",
+    "bytes": 16056,
+    "sha256": "5cd79509d1574bed3813183101ed4b0a1d9fbfa87c7df3c5d3698f61d92db98a",
+    "requirements": {
+      "profile": "declared-native-build",
+      "target": "x86_64-linux-gnu"
+    },
+    "codec_roundtrip": null,
+    "artifact": "candidates/c00000/native",
+    "verification": {
+      "status": "not_run",
+      "reason": "native execution verification requires --verify"
+    },
+    "status": "built",
+    "reproduction": "byte_identical_fresh_build"
+  },
+  "final_verification": {
+    "status": "not_run",
+    "reason": "native execution verification requires --verify",
+    "observed_tools": {
+      "cc": {
+        "executable": "/usr/bin/cc",
+        "sha256": "6117c52522997d2aaccb2b52b3c6bf42c0a6c5edb1d718431fed6b2fc5fec234",
+        "version": "cc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+      }
+    }
+  }
+}

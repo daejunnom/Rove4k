@@ -1,0 +1,52 @@
+{
+  "format": "nvcompact.external-engine.v1",
+  "name": "STRO4K",
+  "artifact": "STRO4K",
+  "artifact_key": "STRO4K",
+  "category": "4k",
+  "original_bytes": 4096,
+  "sha256": "c4b3a7d3ca808418dd014be9527b81057c4db5de8d24ab0c4ee14a360f17ae98",
+  "checked_at": "2026-10-19",
+  "provenance": {
+    "source_url": "https://github.com/ONE-RANDOM-HUMAN/STRO4K",
+    "source_commit": "d06d36c4655f99bf1d925ae7a2c22d6657d46e7b",
+    "artifact_url": "https://github.com/ONE-RANDOM-HUMAN/STRO4K/releases/download/v5.0/STRO4K-tcec",
+    "representative_version": "5.0",
+    "last_tournament_version": "5.0.1 (general VII); 6.0 (ELF III and announced VIII)",
+    "license": "GPL-3.0",
+    "artifact_provenance": "upstream-release",
+    "version_relationship": "Latest public release is 5.0. Bare ELF LESS_STRO4K 5.0 and STRO4K 6.0 tournament files and matching version tags were not found. This shell-packed 5.0 file must not be represented as those ELF entries.",
+    "source_correspondence_status": "same-release-tag-source-and-artifact",
+    "editable_source_correspondence": "matching upstream release tag source and original release asset; independent full source-to-release-binary reproduction not performed",
+    "unresolved_source_correspondence_gap": "release-source relationship known; native reproduction not separately performed",
+    "public_input_not_confirmed_exact_private_tcec_upload": true
+  },
+  "runtime_profile": {
+    "major_allocation_bytes": 274877906944,
+    "engine_workers": 509,
+    "load_memory_bytes": 285552422912,
+    "required_cpu_feature": "AVX-512 VAES",
+    "kind": "inspected public TCEC profile, no memory downscaling"
+  },
+  "historical_python_v02": {
+    "original_bytes": "4096",
+    "smallest_bytes": "4078",
+    "accepted_bytes": "",
+    "uci": "blocked",
+    "original_uci": "",
+    "byte_replay": "pass",
+    "winner_sha256": "bec5025be231f88508565b4dfc24b7dad8f26c5eb9f15aabac1f62ef31fd948e",
+    "original_deployment_equivalent": "True"
+  },
+  "envelope": {
+    "decoder": "xz -dcF raw --x86 --lzma2",
+    "payload_codec": {
+      "format": "raw",
+      "x86": true
+    },
+    "header_bytes": 102,
+    "header_sha256": "de7a692dd2b30abd934cccbb13260f09b0c64752d8127cc3be4dccfb7e377ea3"
+  },
+  "payload_sha256": "4e0ea32f2c49edfbb8efafdfe57f96ae9abca126337923c2123cf68fa6054bc1",
+  "runtime_blocked": "Explicit resource plan required: original 256 GiB allocation, 509 workers, approximately 266 GiB virtual LOAD and AVX-512 VAES requirement."
+}

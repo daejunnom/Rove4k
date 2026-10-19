@@ -1,0 +1,49 @@
+{
+  "name": "ice4",
+  "artifact": "../inputs/ice4",
+  "sha256": "707d994e0515473f53052998ee85d03041f17f8c23b3793d497f64b8e41b252b",
+  "category": "4k",
+  "provenance": {
+    "version_relationship": "Public v6.1 release; latest completed/announced TCEC label is 6.1.1. No public 6.1.1 tag or release was found. HEAD fabe3b1a contains a later one-line crash fix, but is not silently substituted.",
+    "source_archive": "../vendor/ice4/source.tar.gz",
+    "license_path": "../vendor/ice4/LICENSE",
+    "path_base": "manifest-directory",
+    "source_manifest": "../vendor/source-manifest.json",
+    "source_archive_sha256": "47242612d931b4fb138b83bcff0e469ea83929d0c2993237db4b02f39440511b",
+    "license_paths": [
+      "../vendor/ice4/LICENSE"
+    ],
+    "source_commit": "2bd7a54f9bb47a61a7cd97f3db9f52eadd4e2c19",
+    "source_url": "https://github.com/MinusKelvin/ice4",
+    "artifact_url": "https://github.com/MinusKelvin/ice4/releases/download/v6.1/ice4-tcec",
+    "representative_version": "6.1",
+    "source_correspondence_status": "same-release-tag-source-and-artifact",
+    "editable_source_correspondence": "matching upstream release tag source and original release asset; independent full source-to-release-binary reproduction not performed",
+    "source_correspondence_proofs": [],
+    "unresolved_source_correspondence_gap": "release-source relationship known; native reproduction not separately performed"
+  },
+  "envelope": {
+    "decoder": "xz -d",
+    "payload_codec": {
+      "format": "alone"
+    },
+    "header_bytes": 97,
+    "header_sha256": "49b9f274ced3c9880347b4813348816e7aa8718436369728191ea8e1dbb4d27f"
+  },
+  "payload_sha256": "0980ed274f09d24069160427cba3885e8324076b39ca42e087c4e5ed6fa1dbf0",
+  "language": "cpp",
+  "notation": {
+    "target": "cpp17-lp64",
+    "token_contract": "no-token-observation",
+    "compact": true
+  },
+  "compile_argv": [
+    "c++",
+    "-O3",
+    "-pthread",
+    "-xc++",
+    "-o{output}",
+    "-"
+  ],
+  "runtime_blocked": "Exact payload requests calloc(1ull<<35,8) = 256 GiB without checking failure. Same-allocation probe in this environment returned NULL/ENOMEM; ice4 original and candidate both segfaulted on first search. No resource constant was changed."
+}

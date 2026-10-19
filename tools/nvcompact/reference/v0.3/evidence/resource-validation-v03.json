@@ -1,0 +1,39 @@
+{
+  "scope": "final repository path; small owned fixtures only",
+  "observed_at": "2026-10-19T05:44:02.854133+00:00",
+  "resource_tests": {
+    "run": 9,
+    "passed": 9,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 8.198777,
+    "log": "resource-validation-v03.log"
+  },
+  "files": {
+    "packages/nvcompact/python/nvresource.py": "1ef22f664cc5e8e7ac76b7bca4891ac8891f659e36779c18932250a1381c8088",
+    "packages/nvcompact/python/nvuci.py": "5f5ed8f89cebe1360f63c9618cd28aa0f6b31d6f94f90363074090efff7a340e",
+    "packages/nvcompact/python/tests/test_resource.py": "7cfa663c0d36bd77be798e8e7a3530a6a755941005fcee08c502762cf18112a1",
+    "docs/RESOURCE-TESTING.md": "b40b72218109252c94e63c83dcdbd7cc608c9eea6b08a46914a47645fb74365f",
+    "packages/nvcompact/python/nvlaunch.py": "1d36ac2aed82dd55cd68e5d740b8869abdc49f1b9f790efdaf3ab164be5749ae"
+  },
+  "source_hashes_unchanged_during_tests": true,
+  "high_memory_engine_executions": 0,
+  "resource_profile_plans": {
+    "count": 4,
+    "engine_executions": 0,
+    "planned": 4,
+    "blocked_preflights": 4,
+    "summary": "resource-plans-v03/summary.json",
+    "subprocess_creation_during_api_planning": "patched to fail; no process creation observed"
+  },
+  "direct_entrypoint_planning": {
+    "entrypoint": "python3 -B packages/nvcompact/python/nvresource.py plan <ice4-original-spec> --output <new-plan>",
+    "exit_code": 0,
+    "status": "planned",
+    "preflight_status": "blocked",
+    "engine_started": false,
+    "resource_runner_sha256": "1ef22f664cc5e8e7ac76b7bca4891ac8891f659e36779c18932250a1381c8088"
+  },
+  "files_still_match": true
+}

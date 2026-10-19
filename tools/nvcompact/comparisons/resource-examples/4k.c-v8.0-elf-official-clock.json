@@ -1,0 +1,43 @@
+{
+  "format": "nvcompact.resource-spec.v1",
+  "name": "4k.c-v8.0-elf-official-clock-single-case",
+  "artifact": "../inputs/4k.c-v8.0",
+  "artifact_key": "4k.c-v8.0",
+  "sha256": "6eb03195b277f42ece9488c42c1e459791ffcbf0dc197bdfa700dd9574715ace",
+  "command": [
+    "{artifact}"
+  ],
+  "tools": [],
+  "budget": {
+    "required_memory_bytes": 268435456,
+    "reserve_memory_bytes": 268435456,
+    "address_space_bytes": 536870912,
+    "cpu_seconds_per_process": 1050,
+    "wall_seconds": 1080,
+    "file_bytes": 67108864,
+    "output_bytes_per_session": 2097152
+  },
+  "preconditions": {},
+  "uci": {
+    "profile": "tcec4k",
+    "preserve_engine_options": true,
+    "startup_seconds": 60,
+    "ready_seconds": 5,
+    "search_seconds": 1000,
+    "quit_seconds": 5,
+    "cleanup_seconds": 10,
+    "extensions": false,
+    "quick": false,
+    "case_ids": [
+      "startpos_white"
+    ],
+    "clock_ms": 1800000,
+    "clock_grace_ms": 1000,
+    "increment_ms": 3000
+  },
+  "notes": [
+    "One explicit startpos_white case with official30min+3sec clock values; not six-case or full-game coverage.",
+    "Pinned v8 source uses clock_ms*2**19 nanoseconds as hard search budget, with an iteration-boundary soft check at1/16. For1800000ms these are943.7184s and58.9824s. The1000s observation cap covers that source formula, but remains below the supplied1800s clock; if the observation cap is reached, classification is incomplete. Source timing does not certify private-release build equivalence.",
+    "Original options/constants remain unchanged. Run asynchronously with bounded monitoring; use a new output directory and explicit --start."
+  ]
+}

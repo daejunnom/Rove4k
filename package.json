@@ -1,0 +1,20 @@
+{
+  "name": "rove4k-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "description": "Rove4k engine workspace and internal Rust NVCompact tooling",
+  "type": "module",
+  "workspaces": ["tools/nvcompact/npm"],
+  "engines": {"node": ">=22"},
+  "scripts": {
+    "build": "npm run build:nvcompact",
+    "build:nvcompact": "node tools/nvcompact/scripts/build.mjs",
+    "test": "node tools/nvcompact/scripts/test-cli.mjs",
+    "test:core": "node tools/nvcompact/scripts/cargo.mjs test --workspace --locked",
+    "test:nvcompact": "npm test && npm run test:core",
+    "pack:nvcompact": "node tools/nvcompact/scripts/pack.mjs",
+    "pack:cli": "npm run pack:nvcompact",
+    "verify:package": "node tools/nvcompact/scripts/verify-package.mjs"
+  }
+}

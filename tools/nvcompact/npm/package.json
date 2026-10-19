@@ -1,0 +1,18 @@
+{
+  "name": "@rove4k/nvcompact",
+  "version": "0.4.0",
+  "private": true,
+  "license": "MIT",
+  "description": "Rove4k internal Rust N-version compressor and TCEC submission tools",
+  "type": "module",
+  "bin": {"nvcompact": "bin/nvcompact.mjs"},
+  "files": ["bin/", "lib/", "native/", "README.md", "LICENSE"],
+  "engines": {"node": ">=22"},
+  "os": ["linux"],
+  "scripts": {"prepack": "node lib/ensure-native.mjs"},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/daejunnom/Rove4k.git",
+    "directory": "tools/nvcompact/npm"
+  }
+}

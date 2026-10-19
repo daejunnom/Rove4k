@@ -1,0 +1,12 @@
+﻿engine,version,original_bytes,smallest_bytes,saved_bytes,accepted_bytes,uci,original_uci,byte_replay,header_saved_bytes,packed_saved_bytes,source_variant,original_source_bytes,selected_source_bytes,source_portfolio_gain_bytes,original_deployment_equivalent,winner_sha256,candidates
+ice4,공개 6.1 TCEC,4087,4082,5,,blocked,,pass,1,4,shortest,8750,8741,4,True,375bc59140135faeed14574af38cafcacc0b4608c24b91a06ff67cdcf81feb1a,23130
+4ku,공개 5.1 mini,4093,4088,5,4088,pass,pass,pass,5,0,raw,10308,10308,0,True,f2aced2d9f84e6166d07f880a1864092b7b043b6d817beb7cec9e4b38f173270,36346
+STRO4K,공개 5.0 TCEC,4096,4078,18,,blocked,,pass,2,16,raw,6400,6400,0,True,bec5025be231f88508565b4dfc24b7dad8f26c5eb9f15aabac1f62ef31fd948e,3306
+4k.c,공개 9.0 mini,3932,3932,0,,fail,fail,pass,0,0,raw,,,0,,04e8f61d6ed6ad5feaaea7c62c578b647b9cdbc0e2313c4437645aff63a54af6,16
+c4ke,공개 3.0 TCEC,4093,4092,1,,blocked,,pass,1,0,raw,8624,8624,0,True,65565271a6dc5a9f2fbf2ae6582a73023433f5a161d475097d2c1cfc71454be4,19826
+pygone,2-11b142 보존 파일,4093,4020,73,4020,pass,pass,pass,0,73,raw,11032,11032,0,True,290e27a9d9f72770d34a94a19f22749bc2f109469ca19880853f9d1c23e258d6,16522
+sunfish,2022-12-24 classic,2844,2776,68,2776,pass,pass,pass,2,66,shortest-compact,5837,5825,6,True,2d148a3523bef4d4bdc95341cdb81405e2b96d42a5135881172ab199357d8b9a,36346
+moonfish,저자 공개본·버전 미표기,3941,3889,52,3889,pass,fail,pass,5,47,shortest-compact,10608,10591,9,False,2eb530ec1c4c62a3d1b95b4129314c14b3aa5df433ec3eaf813903922beb4805,36346
+M4sseur,1.0 upstream 재빌드,4095,4092,3,,blocked,,pass,3,0,raw,8870,8870,0,True,cdb8d5fe6cad839b4682cc0db48722b06f0fff7f46f7ab67b2453319a759c4a3,36346
+molly,e317a0c7b8 upstream 재빌드,4096,4095,1,,blocked,,pass,1,0,raw,13486,13486,0,True,511e3816c0706570e01143aca466134d65c464352271e98bffae96919518a22a,3306
+we4k,공개 기본 4T/32MiB 재빌드,4079,4011,68,4011,pass,pass,pass,-17,85,raw,5579,5579,0,True,cb741bb7970981232f140bcecbbffe2ae8c77632740f3df2c2417add9da37ae7,3306

@@ -1,0 +1,8 @@
+test_compile_only_preserves_linked_bytes_and_skips_compressors_and_execution (test_native_build.NativeBuildTests.test_compile_only_preserves_linked_bytes_and_skips_compressors_and_execution) ... ok
+test_minimal_manifest_and_later_verification_do_not_change_replay_defaults (test_native_build.NativeBuildTests.test_minimal_manifest_and_later_verification_do_not_change_replay_defaults) ... ok
+test_verified_build_and_unverified_wrong_candidate_have_distinct_outcomes (test_native_build.NativeBuildTests.test_verified_build_and_unverified_wrong_candidate_have_distinct_outcomes) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 5.723s
+
+OK

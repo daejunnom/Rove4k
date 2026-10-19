@@ -1,0 +1,19 @@
+{
+  "profile": "tcec4k",
+  "preserve_engine_options": true,
+  "startup_seconds": 60,
+  "ready_seconds": 5,
+  "search_seconds": 5,
+  "quit_seconds": 2,
+  "cleanup_seconds": 5,
+  "extensions": false,
+  "quick": false,
+  "case_ids": [],
+  "clock_ms": 2000,
+  "clock_grace_ms": 1000,
+  "increment_ms": 0,
+  "max_seconds": 180,
+  "memory_bytes": 1073741824,
+  "cpu_seconds": 180,
+  "file_bytes": 67108864
+}

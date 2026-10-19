@@ -1,0 +1,6 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> nvcompact-monorepo@0.3.0 check
+> node scripts/check.mjs
+
+{"status":"pass","package":"nvcompact","version":"0.3.0","fixture_manifests":11}

@@ -1,0 +1,1377 @@
+{
+  "format": "nvcompact.canonical-runtime-observation.v1",
+  "date_utc": "2026-10-19",
+  "scope": "Additional Sunfish observations with the inherited default python3 command preserved. The initial PyPy profile and its 1 GiB failure remain distinct evidence; no previous report was overwritten.",
+  "runtime_profile": {
+    "profile_id": "inherited-default-python-with-pypy3-alias",
+    "path_strategy": "Provision pypy3 only; preserve the inherited default resolution of python3 and all other command names.",
+    "raw_profile_sha256": "bca6a8f76f100b19dce349957ea69960dd006a7a1ab5b81fbc098a26bbcc0c94",
+    "provisioned_command_names": [
+      "pypy3"
+    ],
+    "python3": {
+      "command": "python3",
+      "implementation": "CPython",
+      "version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+      "executable_filename": "python3.12",
+      "executable_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+      "inherited_default_resolution_preserved": true
+    },
+    "pypy3": {
+      "command": "pypy3",
+      "implementation": "PyPy 7.3.23",
+      "language_version": "Python 3.11.15",
+      "executable_sha256": "e81be690a7d945bd026dd7f4767a32e9779605de77a8a64f14e42eedb181d742",
+      "same_executable_as_prior_pygone_observations": true
+    },
+    "command_resolution_checks": {
+      "python": {
+        "unchanged": true,
+        "present": true
+      },
+      "python3": {
+        "unchanged": true,
+        "present": true
+      },
+      "python3.11": {
+        "unchanged": true,
+        "present": false
+      },
+      "cc": {
+        "unchanged": true,
+        "present": true
+      },
+      "gcc": {
+        "unchanged": true,
+        "present": true
+      },
+      "xz": {
+        "unchanged": true,
+        "present": true
+      },
+      "gzip": {
+        "unchanged": true,
+        "present": true
+      },
+      "bash": {
+        "unchanged": true,
+        "present": true
+      }
+    },
+    "absolute_host_locations_scope": "Exact paths are retained only in the external runtime profile identified by its hash."
+  },
+  "observer_executable_sha256": "08a4b493b19382a6e8de46cdb50465053e5b6c850a304bb9c2fed034cc21357e",
+  "ordinary_observations": {
+    "original": {
+      "raw_evidence_id": "sunfish-original-canonical-python",
+      "raw_report_sha256": "c80f496a77682fc0a9f4a87a1a30cfc21060ca228adf8c6f8bf088e141837890",
+      "verdict": "pass",
+      "artifact_wrapper_started": true,
+      "artifact": {
+        "bytes": 2844,
+        "sha256": "3066c961174281678f2e15edd118fa45231b4d6e1dcc1f77ea11a62309318261",
+        "within_4096_bytes": true
+      },
+      "configuration": {
+        "case_ids": [],
+        "cleanup_seconds": 5.0,
+        "clock_grace_ms": 1000,
+        "clock_ms": 2000,
+        "cpu_seconds": 180,
+        "depth": 3,
+        "extensions": false,
+        "file_bytes": 67108864,
+        "hash_mb": 16,
+        "increment_ms": 0,
+        "invocation_argv0": null,
+        "max_line_bytes": 65536,
+        "max_output_bytes": 2097152,
+        "max_seconds": 180.0,
+        "max_transcript_bytes": 262144,
+        "memory_bytes": 1073741824,
+        "movetime_ms": 100,
+        "nodes": 1000,
+        "preserve_engine_options": true,
+        "profile": "tcec4k",
+        "quick": false,
+        "quit_seconds": 2.0,
+        "ready_seconds": 5.0,
+        "search_seconds": 5.0,
+        "startup_seconds": 60.0,
+        "stop_seconds": 2.0,
+        "threads": 1
+      },
+      "core_case_coverage": {
+        "completed": [
+          "startpos_white",
+          "startpos_black",
+          "castling_history",
+          "en_passant_history",
+          "middlegame_history",
+          "promotion_history"
+        ],
+        "corpus_cases": 6,
+        "full_corpus_completed": true,
+        "full_corpus_requested": true,
+        "requested": [
+          "startpos_white",
+          "startpos_black",
+          "castling_history",
+          "en_passant_history",
+          "middlegame_history",
+          "promotion_history"
+        ]
+      },
+      "required_tcec4k_verdict": "pass",
+      "extended_uci_verdict": "not_run",
+      "elapsed_ms": 378.79586,
+      "case_status_counts": {
+        "pass": 11
+      },
+      "cases": [
+        {
+          "detail": {
+            "configured_options": [],
+            "identity": {},
+            "option_errors": [],
+            "options": [],
+            "ready_after_launch_ms": 41.103527
+          },
+          "elapsed_ms": 39.827283,
+          "id": "handshake",
+          "requirement": "tcec4k",
+          "status": "pass"
+        },
+        {
+          "detail": {
+            "command": "ucinewgame",
+            "ready": true
+          },
+          "elapsed_ms": 2.11002,
+          "id": "newgame_tolerance",
+          "requirement": "tcec4k",
+          "status": "pass"
+        },
+        {
+          "detail": {
+            "command": "stop",
+            "ready": true
+          },
+          "elapsed_ms": 2.127318,
+          "id": "idle_stop_tolerance",
+          "requirement": "tcec4k",
+          "status": "pass"
+        },
+        {
+          "detail": {
+            "command": "nvcompact_unknown_command",
+            "ready": true
+          },
+          "elapsed_ms": 2.09324,
+          "id": "unknown_command_tolerance",
+          "requirement": "tcec4k",
+          "status": "pass"
+        },
+        {
+          "detail": {
+            "bestmove": "d2d4",
+            "engine_clock_with_grace_seconds": 3.0,
+            "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+            "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+            "last_info": "info depth 4 score cp 17",
+            "legal": true,
+            "position": "position startpos",
+            "response_budget_seconds": 3.0,
+            "search_elapsed_ms": 52.511553,
+            "terminal": false
+          },
+          "elapsed_ms": 56.710625,
+          "id": "startpos_white",
+          "requirement": "tcec4k",
+          "status": "pass"
+        },
+        {
+          "detail": {
+            "bestmove": "e7e5",
+            "engine_clock_with_grace_seconds": 3.0,
+            "fen": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+            "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+            "last_info": "info depth 4 score cp -66",
+            "legal": true,
+            "position": "position startpos moves e2e4",
+            "response_budget_seconds": 3.0,
+            "search_elapsed_ms": 52.944843,
+            "terminal": false
+          },
+          "elapsed_ms": 57.170217,
+          "id": "startpos_black",
+          "requirement": "tcec4k",
+          "status": "pass"
+        },
+        {
+          "detail": {
+            "bestmove": "f6e4",
+            "engine_clock_with_grace_seconds": 3.0,
+            "fen": "r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 3 5",
+            "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+            "last_info": "info depth 4 score cp 84",
+            "legal": true,
+            "position": "position startpos moves e2e4 e7e5 g1f3 b8c6 f1b5 a7a6 b5a4 g8f6 e1g1",
+            "response_budget_seconds": 3.0,
+            "search_elapsed_ms": 43.956715,
+            "terminal": false
+          },
+          "elapsed_ms": 48.164624,
+          "id": "castling_history",
+          "requirement": "tcec4k",
+          "status": "pass"
+        },
+        {
+          "detail": {
+            "bestmove": "e7d6",
+            "engine_clock_with_grace_seconds": 3.0,
+            "fen": "rnbqkbnr/1pp1pppp/p2P4/8/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 3",
+            "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+            "last_info": "info depth 4 score cp -106",
+            "legal": true,
+            "position": "position startpos moves e2e4 a7a6 e4e5 d7d5 e5d6",
+            "response_budget_seconds": 3.0,
+            "search_elapsed_ms": 46.594785,
+            "terminal": false
+          },
+          "elapsed_ms": 51.132008,
+          "id": "en_passant_history",
+          "requirement": "tcec4k",
+          "status": "pass"
+        },
+        {
+          "detail": {
+            "bestmove": "e1g1",
+            "engine_clock_with_grace_seconds": 3.0,
+            "fen": "r1bq1rk1/ppp2ppp/2np1n2/2b1p1B1/2B1P3/2NP1N2/PPP2PPP/R2QK2R w KQ - 2 7",
+            "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+            "last_info": "info depth 2 score cp -13",
+            "legal": true,
+            "position": "position startpos moves e2e4 e7e5 g1f3 b8c6 f1c4 g8f6 d2d3 f8c5 c1g5 d7d6 b1c3 e8g8",
+            "response_budget_seconds": 3.0,
+            "search_elapsed_ms": 43.838097,
+            "terminal": false
+          },
+          "elapsed_ms": 48.031593,
+          "id": "middlegame_history",
+          "requirement": "tcec4k",
+          "status": "pass"
+        },
+        {
+          "detail": {
+            "bestmove": "a8h1",
+            "engine_clock_with_grace_seconds": 3.0,
+            "fen": "Qnbqkbnr/p1ppppp1/8/8/8/8/1PPPPP1P/RNBQKBNq w Qk - 0 6",
+            "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+            "last_info": "info depth 4 score cp 904",
+            "legal": true,
+            "position": "position startpos moves a2a4 h7h5 a4a5 h5h4 a5a6 h4h3 a6b7 h3g2 b7a8q g2h1q",
+            "response_budget_seconds": 3.0,
+            "search_elapsed_ms": 54.654808,
+            "terminal": false
+          },
+          "elapsed_ms": 58.852272,
+          "id": "promotion_history",
+          "requirement": "tcec4k",
+          "status": "pass"
+        },
+        {
+          "detail": {
+            "cleanup_grace_seconds": 5.0,
+            "cleanup_wait_ms": 0.002885,
+            "process_group_exists_after_quit": false,
+            "process_group_exists_immediately_after_quit": false,
+            "quit_returncode": 0,
+            "quit_signal": null,
+            "scope": "owned original process group; detached sessions and global filesystem not audited"
+          },
+          "elapsed_ms": 10.416361,
+          "id": "quit_idle",
+          "requirement": "tcec4k",
+          "status": "pass"
+        }
+      ],
+      "observations": [
+        {
+          "bestmove": "d2d4",
+          "budget": 2000,
+          "case": "startpos_white",
+          "engine_clock_with_grace_seconds": 3.0,
+          "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+          "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+          "last_info": "info depth 4 score cp 17",
+          "legal": true,
+          "mode": "clock",
+          "position": "position startpos",
+          "response_budget_seconds": 3.0,
+          "search_elapsed_ms": 52.511553,
+          "terminal": false
+        },
+        {
+          "bestmove": "e7e5",
+          "budget": 2000,
+          "case": "startpos_black",
+          "engine_clock_with_grace_seconds": 3.0,
+          "fen": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+          "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+          "last_info": "info depth 4 score cp -66",
+          "legal": true,
+          "mode": "clock",
+          "position": "position startpos moves e2e4",
+          "response_budget_seconds": 3.0,
+          "search_elapsed_ms": 52.944843,
+          "terminal": false
+        },
+        {
+          "bestmove": "f6e4",
+          "budget": 2000,
+          "case": "castling_history",
+          "engine_clock_with_grace_seconds": 3.0,
+          "fen": "r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 3 5",
+          "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+          "last_info": "info depth 4 score cp 84",
+          "legal": true,
+          "mode": "clock",
+          "position": "position startpos moves e2e4 e7e5 g1f3 b8c6 f1b5 a7a6 b5a4 g8f6 e1g1",
+          "response_budget_seconds": 3.0,
+          "search_elapsed_ms": 43.956715,
+          "terminal": false
+        },
+        {
+          "bestmove": "e7d6",
+          "budget": 2000,
+          "case": "en_passant_history",
+          "engine_clock_with_grace_seconds": 3.0,
+          "fen": "rnbqkbnr/1pp1pppp/p2P4/8/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 3",
+          "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+          "last_info": "info depth 4 score cp -106",
+          "legal": true,
+          "mode": "clock",
+          "position": "position startpos moves e2e4 a7a6 e4e5 d7d5 e5d6",
+          "response_budget_seconds": 3.0,
+          "search_elapsed_ms": 46.594785,
+          "terminal": false
+        },
+        {
+          "bestmove": "e1g1",
+          "budget": 2000,
+          "case": "middlegame_history",
+          "engine_clock_with_grace_seconds": 3.0,
+          "fen": "r1bq1rk1/ppp2ppp/2np1n2/2b1p1B1/2B1P3/2NP1N2/PPP2PPP/R2QK2R w KQ - 2 7",
+          "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+          "last_info": "info depth 2 score cp -13",
+          "legal": true,
+          "mode": "clock",
+          "position": "position startpos moves e2e4 e7e5 g1f3 b8c6 f1c4 g8f6 d2d3 f8c5 c1g5 d7d6 b1c3 e8g8",
+          "response_budget_seconds": 3.0,
+          "search_elapsed_ms": 43.838097,
+          "terminal": false
+        },
+        {
+          "bestmove": "a8h1",
+          "budget": 2000,
+          "case": "promotion_history",
+          "engine_clock_with_grace_seconds": 3.0,
+          "fen": "Qnbqkbnr/p1ppppp1/8/8/8/8/1PPPPP1P/RNBQKBNq w Qk - 0 6",
+          "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+          "last_info": "info depth 4 score cp 904",
+          "legal": true,
+          "mode": "clock",
+          "position": "position startpos moves a2a4 h7h5 a4a5 h5h4 a5a6 h4h3 a6b7 h3g2 b7a8q g2h1q",
+          "response_budget_seconds": 3.0,
+          "search_elapsed_ms": 54.654808,
+          "terminal": false
+        }
+      ],
+      "sessions": [
+        {
+          "phase": "core",
+          "cleanup": {
+            "cleanup_grace_seconds": 5.0,
+            "cleanup_wait_ms": 0.002885,
+            "forced_cleanup": false,
+            "process_group_exists_after_quit": false,
+            "process_group_exists_immediately_after_quit": false,
+            "quit_returncode": 0,
+            "quit_signal": null,
+            "returncode": 0,
+            "scope": "owned original process group; detached sessions and global filesystem not audited",
+            "signal": null
+          },
+          "working_directory_leftovers": {
+            "paths": [],
+            "scope": "owned working directory, symlinks not followed",
+            "truncated": false
+          },
+          "output_bytes": {
+            "stderr": 0,
+            "stdout": 1637
+          },
+          "stderr_contains_memory_error": false,
+          "stderr_tail_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "scope": {
+        "cleanup": "owned cwd and original process group; no global filesystem or detached-session audit",
+        "evidence": "finite protocol and independent legal-move observations; not complete semantic equivalence, Elo, or organizer certification",
+        "limits": "per-process AS/CPU/file limits, whole-verifier wall bound and per-session output bound; no aggregate memory cgroup",
+        "options": "original defaults and embedded constants preserved",
+        "time_control": "configured short clock probes, not a 30min+3sec tournament unless separately run"
+      },
+      "oracle": {
+        "development_only": true,
+        "module": "cozy-chess",
+        "standard_castling_translation": true,
+        "version_source": "Cargo.lock"
+      }
+    },
+    "smallest": {
+      "raw_evidence_id": "sunfish-smallest-canonical-python",
+      "raw_report_sha256": "ce2545be10ab0ac32d558255b914c62a82db8790087f1d5a30a62512c0b7fcc6",
+      "verdict": "pass",
+      "artifact_wrapper_started": true,
+      "artifact": {
+        "bytes": 2776,
+        "sha256": "2d148a3523bef4d4bdc95341cdb81405e2b96d42a5135881172ab199357d8b9a",
+        "within_4096_bytes": true
+      },
+      "configuration": {
+        "case_ids": [],
+        "cleanup_seconds": 5.0,
+        "clock_grace_ms": 1000,
+        "clock_ms": 2000,
+        "cpu_seconds": 180,
+        "depth": 3,
+        "extensions": false,
+        "file_bytes": 67108864,
+        "hash_mb": 16,
+        "increment_ms": 0,
+        "invocation_argv0": null,
+        "max_line_bytes": 65536,
+        "max_output_bytes": 2097152,
+        "max_seconds": 180.0,
+        "max_transcript_bytes": 262144,
+        "memory_bytes": 1073741824,
+        "movetime_ms": 100,
+        "nodes": 1000,
+        "preserve_engine_options": true,
+        "profile": "tcec4k",
+        "quick": false,
+        "quit_seconds": 2.0,
+        "ready_seconds": 5.0,
+        "search_seconds": 5.0,
+        "startup_seconds": 60.0,
+        "stop_seconds": 2.0,
+        "threads": 1
+      },
+      "core_case_coverage": {
+        "completed": [
+          "startpos_white",
+          "startpos_black",
+          "castling_history",
+          "en_passant_history",
+          "middlegame_history",
+          "promotion_history"
+        ],
+        "corpus_cases": 6,
+        "full_corpus_completed": true,
+        "full_corpus_requested": true,
+        "requested": [
+          "startpos_white",
+          "startpos_black",
+          "castling_history",
+          "en_passant_history",
+          "middlegame_history",
+          "promotion_history"
+        ]
+      },
+      "required_tcec4k_verdict": "pass",
+      "extended_uci_verdict": "not_run",
+      "elapsed_ms": 424.216499,
+      "case_status_counts": {
+        "pass": 11
+      },
+      "cases": [
+        {
+          "detail": {
+            "configured_options": [],
+            "identity": {},
+            "option_errors": [],
+            "options": [],
+            "ready_after_launch_ms": 41.738481
+          },
+          "elapsed_ms": 40.318151,
+          "id": "handshake",
+          "requirement": "tcec4k",
+          "status": "pass"
+        },
+        {
+          "detail": {
+            "command": "ucinewgame",
+            "ready": true
+          },
+          "elapsed_ms": 2.10032,
+          "id": "newgame_tolerance",
+          "requirement": "tcec4k",
+          "status": "pass"
+        },
+        {
+          "detail": {
+            "command": "stop",
+            "ready": true
+          },
+          "elapsed_ms": 2.115065,
+          "id": "idle_stop_tolerance",
+          "requirement": "tcec4k",
+          "status": "pass"
+        },
+        {
+          "detail": {
+            "command": "nvcompact_unknown_command",
+            "ready": true
+          },
+          "elapsed_ms": 2.341807,
+          "id": "unknown_command_tolerance",
+          "requirement": "tcec4k",
+          "status": "pass"
+        },
+        {
+          "detail": {
+            "bestmove": "d2d4",
+            "engine_clock_with_grace_seconds": 3.0,
+            "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+            "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+            "last_info": "info depth 4 score cp 17",
+            "legal": true,
+            "position": "position startpos",
+            "response_budget_seconds": 3.0,
+            "search_elapsed_ms": 46.66801,
+            "terminal": false
+          },
+          "elapsed_ms": 50.86405,
+          "id": "startpos_white",
+          "requirement": "tcec4k",
+          "status": "pass"
+        },
+        {
+          "detail": {
+            "bestmove": "e7e5",
+            "engine_clock_with_grace_seconds": 3.0,
+            "fen": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+            "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+            "last_info": "info depth 4 score cp -33",
+            "legal": true,
+            "position": "position startpos moves e2e4",
+            "response_budget_seconds": 3.0,
+            "search_elapsed_ms": 76.146331,
+            "terminal": false
+          },
+          "elapsed_ms": 80.352344,
+          "id": "startpos_black",
+          "requirement": "tcec4k",
+          "status": "pass"
+        },
+        {
+          "detail": {
+            "bestmove": "f6e4",
+            "engine_clock_with_grace_seconds": 3.0,
+            "fen": "r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 3 5",
+            "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+            "last_info": "info depth 4 score cp 84",
+            "legal": true,
+            "position": "position startpos moves e2e4 e7e5 g1f3 b8c6 f1b5 a7a6 b5a4 g8f6 e1g1",
+            "response_budget_seconds": 3.0,
+            "search_elapsed_ms": 46.276614,
+            "terminal": false
+          },
+          "elapsed_ms": 50.481563,
+          "id": "castling_history",
+          "requirement": "tcec4k",
+          "status": "pass"
+        },
+        {
+          "detail": {
+            "bestmove": "e7d6",
+            "engine_clock_with_grace_seconds": 3.0,
+            "fen": "rnbqkbnr/1pp1pppp/p2P4/8/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 3",
+            "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+            "last_info": "info depth 4 score cp -106",
+            "legal": true,
+            "position": "position startpos moves e2e4 a7a6 e4e5 d7d5 e5d6",
+            "response_budget_seconds": 3.0,
+            "search_elapsed_ms": 48.509249,
+            "terminal": false
+          },
+          "elapsed_ms": 52.72379,
+          "id": "en_passant_history",
+          "requirement": "tcec4k",
+          "status": "pass"
+        },
+        {
+          "detail": {
+            "bestmove": "e1g1",
+            "engine_clock_with_grace_seconds": 3.0,
+            "fen": "r1bq1rk1/ppp2ppp/2np1n2/2b1p1B1/2B1P3/2NP1N2/PPP2PPP/R2QK2R w KQ - 2 7",
+            "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+            "last_info": "info depth 3 score cp -9",
+            "legal": true,
+            "position": "position startpos moves e2e4 e7e5 g1f3 b8c6 f1c4 g8f6 d2d3 f8c5 c1g5 d7d6 b1c3 e8g8",
+            "response_budget_seconds": 3.0,
+            "search_elapsed_ms": 71.31659,
+            "terminal": false
+          },
+          "elapsed_ms": 75.543886,
+          "id": "middlegame_history",
+          "requirement": "tcec4k",
+          "status": "pass"
+        },
+        {
+          "detail": {
+            "bestmove": "a8h1",
+            "engine_clock_with_grace_seconds": 3.0,
+            "fen": "Qnbqkbnr/p1ppppp1/8/8/8/8/1PPPPP1P/RNBQKBNq w Qk - 0 6",
+            "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+            "last_info": "info depth 4 score cp 904",
+            "legal": true,
+            "position": "position startpos moves a2a4 h7h5 a4a5 h5h4 a5a6 h4h3 a6b7 h3g2 b7a8q g2h1q",
+            "response_budget_seconds": 3.0,
+            "search_elapsed_ms": 50.274955000000006,
+            "terminal": false
+          },
+          "elapsed_ms": 54.507163999999996,
+          "id": "promotion_history",
+          "requirement": "tcec4k",
+          "status": "pass"
+        },
+        {
+          "detail": {
+            "cleanup_grace_seconds": 5.0,
+            "cleanup_wait_ms": 0.004489,
+            "process_group_exists_after_quit": false,
+            "process_group_exists_immediately_after_quit": false,
+            "quit_returncode": 0,
+            "quit_signal": null,
+            "scope": "owned original process group; detached sessions and global filesystem not audited"
+          },
+          "elapsed_ms": 10.772644,
+          "id": "quit_idle",
+          "requirement": "tcec4k",
+          "status": "pass"
+        }
+      ],
+      "observations": [
+        {
+          "bestmove": "d2d4",
+          "budget": 2000,
+          "case": "startpos_white",
+          "engine_clock_with_grace_seconds": 3.0,
+          "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+          "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+          "last_info": "info depth 4 score cp 17",
+          "legal": true,
+          "mode": "clock",
+          "position": "position startpos",
+          "response_budget_seconds": 3.0,
+          "search_elapsed_ms": 46.66801,
+          "terminal": false
+        },
+        {
+          "bestmove": "e7e5",
+          "budget": 2000,
+          "case": "startpos_black",
+          "engine_clock_with_grace_seconds": 3.0,
+          "fen": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+          "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+          "last_info": "info depth 4 score cp -33",
+          "legal": true,
+          "mode": "clock",
+          "position": "position startpos moves e2e4",
+          "response_budget_seconds": 3.0,
+          "search_elapsed_ms": 76.146331,
+          "terminal": false
+        },
+        {
+          "bestmove": "f6e4",
+          "budget": 2000,
+          "case": "castling_history",
+          "engine_clock_with_grace_seconds": 3.0,
+          "fen": "r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 3 5",
+          "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+          "last_info": "info depth 4 score cp 84",
+          "legal": true,
+          "mode": "clock",
+          "position": "position startpos moves e2e4 e7e5 g1f3 b8c6 f1b5 a7a6 b5a4 g8f6 e1g1",
+          "response_budget_seconds": 3.0,
+          "search_elapsed_ms": 46.276614,
+          "terminal": false
+        },
+        {
+          "bestmove": "e7d6",
+          "budget": 2000,
+          "case": "en_passant_history",
+          "engine_clock_with_grace_seconds": 3.0,
+          "fen": "rnbqkbnr/1pp1pppp/p2P4/8/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 3",
+          "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+          "last_info": "info depth 4 score cp -106",
+          "legal": true,
+          "mode": "clock",
+          "position": "position startpos moves e2e4 a7a6 e4e5 d7d5 e5d6",
+          "response_budget_seconds": 3.0,
+          "search_elapsed_ms": 48.509249,
+          "terminal": false
+        },
+        {
+          "bestmove": "e1g1",
+          "budget": 2000,
+          "case": "middlegame_history",
+          "engine_clock_with_grace_seconds": 3.0,
+          "fen": "r1bq1rk1/ppp2ppp/2np1n2/2b1p1B1/2B1P3/2NP1N2/PPP2PPP/R2QK2R w KQ - 2 7",
+          "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+          "last_info": "info depth 3 score cp -9",
+          "legal": true,
+          "mode": "clock",
+          "position": "position startpos moves e2e4 e7e5 g1f3 b8c6 f1c4 g8f6 d2d3 f8c5 c1g5 d7d6 b1c3 e8g8",
+          "response_budget_seconds": 3.0,
+          "search_elapsed_ms": 71.31659,
+          "terminal": false
+        },
+        {
+          "bestmove": "a8h1",
+          "budget": 2000,
+          "case": "promotion_history",
+          "engine_clock_with_grace_seconds": 3.0,
+          "fen": "Qnbqkbnr/p1ppppp1/8/8/8/8/1PPPPP1P/RNBQKBNq w Qk - 0 6",
+          "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+          "last_info": "info depth 4 score cp 904",
+          "legal": true,
+          "mode": "clock",
+          "position": "position startpos moves a2a4 h7h5 a4a5 h5h4 a5a6 h4h3 a6b7 h3g2 b7a8q g2h1q",
+          "response_budget_seconds": 3.0,
+          "search_elapsed_ms": 50.274955000000006,
+          "terminal": false
+        }
+      ],
+      "sessions": [
+        {
+          "phase": "core",
+          "cleanup": {
+            "cleanup_grace_seconds": 5.0,
+            "cleanup_wait_ms": 0.004489,
+            "forced_cleanup": false,
+            "process_group_exists_after_quit": false,
+            "process_group_exists_immediately_after_quit": false,
+            "quit_returncode": 0,
+            "quit_signal": null,
+            "returncode": 0,
+            "scope": "owned original process group; detached sessions and global filesystem not audited",
+            "signal": null
+          },
+          "working_directory_leftovers": {
+            "paths": [],
+            "scope": "owned working directory, symlinks not followed",
+            "truncated": false
+          },
+          "output_bytes": {
+            "stderr": 0,
+            "stdout": 1714
+          },
+          "stderr_contains_memory_error": false,
+          "stderr_tail_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "scope": {
+        "cleanup": "owned cwd and original process group; no global filesystem or detached-session audit",
+        "evidence": "finite protocol and independent legal-move observations; not complete semantic equivalence, Elo, or organizer certification",
+        "limits": "per-process AS/CPU/file limits, whole-verifier wall bound and per-session output bound; no aggregate memory cgroup",
+        "options": "original defaults and embedded constants preserved",
+        "time_control": "configured short clock probes, not a 30min+3sec tournament unless separately run"
+      },
+      "oracle": {
+        "development_only": true,
+        "module": "cozy-chess",
+        "standard_castling_translation": true,
+        "version_source": "Cargo.lock"
+      }
+    },
+    "replay": {
+      "raw_evidence_id": "sunfish-replay-canonical-python",
+      "raw_report_sha256": "1cce0a932ab17a56a1d9ba93f69530d997c730273c0cc51619de1c7377d2f96e",
+      "verdict": "pass",
+      "artifact_wrapper_started": true,
+      "artifact": {
+        "bytes": 2776,
+        "sha256": "2d148a3523bef4d4bdc95341cdb81405e2b96d42a5135881172ab199357d8b9a",
+        "within_4096_bytes": true
+      },
+      "configuration": {
+        "case_ids": [],
+        "cleanup_seconds": 5.0,
+        "clock_grace_ms": 1000,
+        "clock_ms": 2000,
+        "cpu_seconds": 180,
+        "depth": 3,
+        "extensions": false,
+        "file_bytes": 67108864,
+        "hash_mb": 16,
+        "increment_ms": 0,
+        "invocation_argv0": null,
+        "max_line_bytes": 65536,
+        "max_output_bytes": 2097152,
+        "max_seconds": 180.0,
+        "max_transcript_bytes": 262144,
+        "memory_bytes": 1073741824,
+        "movetime_ms": 100,
+        "nodes": 1000,
+        "preserve_engine_options": true,
+        "profile": "tcec4k",
+        "quick": false,
+        "quit_seconds": 2.0,
+        "ready_seconds": 5.0,
+        "search_seconds": 5.0,
+        "startup_seconds": 60.0,
+        "stop_seconds": 2.0,
+        "threads": 1
+      },
+      "core_case_coverage": {
+        "completed": [
+          "startpos_white",
+          "startpos_black",
+          "castling_history",
+          "en_passant_history",
+          "middlegame_history",
+          "promotion_history"
+        ],
+        "corpus_cases": 6,
+        "full_corpus_completed": true,
+        "full_corpus_requested": true,
+        "requested": [
+          "startpos_white",
+          "startpos_black",
+          "castling_history",
+          "en_passant_history",
+          "middlegame_history",
+          "promotion_history"
+        ]
+      },
+      "required_tcec4k_verdict": "pass",
+      "extended_uci_verdict": "not_run",
+      "elapsed_ms": 407.434332,
+      "case_status_counts": {
+        "pass": 11
+      },
+      "cases": [
+        {
+          "detail": {
+            "configured_options": [],
+            "identity": {},
+            "option_errors": [],
+            "options": [],
+            "ready_after_launch_ms": 38.42773
+          },
+          "elapsed_ms": 37.557983,
+          "id": "handshake",
+          "requirement": "tcec4k",
+          "status": "pass"
+        },
+        {
+          "detail": {
+            "command": "ucinewgame",
+            "ready": true
+          },
+          "elapsed_ms": 2.100778,
+          "id": "newgame_tolerance",
+          "requirement": "tcec4k",
+          "status": "pass"
+        },
+        {
+          "detail": {
+            "command": "stop",
+            "ready": true
+          },
+          "elapsed_ms": 2.2479169999999997,
+          "id": "idle_stop_tolerance",
+          "requirement": "tcec4k",
+          "status": "pass"
+        },
+        {
+          "detail": {
+            "command": "nvcompact_unknown_command",
+            "ready": true
+          },
+          "elapsed_ms": 2.089337,
+          "id": "unknown_command_tolerance",
+          "requirement": "tcec4k",
+          "status": "pass"
+        },
+        {
+          "detail": {
+            "bestmove": "d2d4",
+            "engine_clock_with_grace_seconds": 3.0,
+            "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+            "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+            "last_info": "info depth 4 score cp 17",
+            "legal": true,
+            "position": "position startpos",
+            "response_budget_seconds": 3.0,
+            "search_elapsed_ms": 48.694702,
+            "terminal": false
+          },
+          "elapsed_ms": 52.880365999999995,
+          "id": "startpos_white",
+          "requirement": "tcec4k",
+          "status": "pass"
+        },
+        {
+          "detail": {
+            "bestmove": "e7e5",
+            "engine_clock_with_grace_seconds": 3.0,
+            "fen": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+            "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+            "last_info": "info depth 4 score cp -33",
+            "legal": true,
+            "position": "position startpos moves e2e4",
+            "response_budget_seconds": 3.0,
+            "search_elapsed_ms": 71.283369,
+            "terminal": false
+          },
+          "elapsed_ms": 75.48279400000001,
+          "id": "startpos_black",
+          "requirement": "tcec4k",
+          "status": "pass"
+        },
+        {
+          "detail": {
+            "bestmove": "f6e4",
+            "engine_clock_with_grace_seconds": 3.0,
+            "fen": "r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 3 5",
+            "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+            "last_info": "info depth 4 score cp -18",
+            "legal": true,
+            "position": "position startpos moves e2e4 e7e5 g1f3 b8c6 f1b5 a7a6 b5a4 g8f6 e1g1",
+            "response_budget_seconds": 3.0,
+            "search_elapsed_ms": 48.24679,
+            "terminal": false
+          },
+          "elapsed_ms": 52.440935,
+          "id": "castling_history",
+          "requirement": "tcec4k",
+          "status": "pass"
+        },
+        {
+          "detail": {
+            "bestmove": "e7d6",
+            "engine_clock_with_grace_seconds": 3.0,
+            "fen": "rnbqkbnr/1pp1pppp/p2P4/8/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 3",
+            "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+            "last_info": "info depth 4 score cp -106",
+            "legal": true,
+            "position": "position startpos moves e2e4 a7a6 e4e5 d7d5 e5d6",
+            "response_budget_seconds": 3.0,
+            "search_elapsed_ms": 48.501623,
+            "terminal": false
+          },
+          "elapsed_ms": 52.697654,
+          "id": "en_passant_history",
+          "requirement": "tcec4k",
+          "status": "pass"
+        },
+        {
+          "detail": {
+            "bestmove": "e1g1",
+            "engine_clock_with_grace_seconds": 3.0,
+            "fen": "r1bq1rk1/ppp2ppp/2np1n2/2b1p1B1/2B1P3/2NP1N2/PPP2PPP/R2QK2R w KQ - 2 7",
+            "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+            "last_info": "info depth 2 score cp -13",
+            "legal": true,
+            "position": "position startpos moves e2e4 e7e5 g1f3 b8c6 f1c4 g8f6 d2d3 f8c5 c1g5 d7d6 b1c3 e8g8",
+            "response_budget_seconds": 3.0,
+            "search_elapsed_ms": 54.828384,
+            "terminal": false
+          },
+          "elapsed_ms": 59.164633,
+          "id": "middlegame_history",
+          "requirement": "tcec4k",
+          "status": "pass"
+        },
+        {
+          "detail": {
+            "bestmove": "a8h1",
+            "engine_clock_with_grace_seconds": 3.0,
+            "fen": "Qnbqkbnr/p1ppppp1/8/8/8/8/1PPPPP1P/RNBQKBNq w Qk - 0 6",
+            "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+            "last_info": "info depth 4 score cp 904",
+            "legal": true,
+            "position": "position startpos moves a2a4 h7h5 a4a5 h5h4 a5a6 h4h3 a6b7 h3g2 b7a8q g2h1q",
+            "response_budget_seconds": 3.0,
+            "search_elapsed_ms": 56.446777,
+            "terminal": false
+          },
+          "elapsed_ms": 60.670061999999994,
+          "id": "promotion_history",
+          "requirement": "tcec4k",
+          "status": "pass"
+        },
+        {
+          "detail": {
+            "cleanup_grace_seconds": 5.0,
+            "cleanup_wait_ms": 0.003692,
+            "process_group_exists_after_quit": false,
+            "process_group_exists_immediately_after_quit": false,
+            "quit_returncode": 0,
+            "quit_signal": null,
+            "scope": "owned original process group; detached sessions and global filesystem not audited"
+          },
+          "elapsed_ms": 8.487685,
+          "id": "quit_idle",
+          "requirement": "tcec4k",
+          "status": "pass"
+        }
+      ],
+      "observations": [
+        {
+          "bestmove": "d2d4",
+          "budget": 2000,
+          "case": "startpos_white",
+          "engine_clock_with_grace_seconds": 3.0,
+          "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+          "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+          "last_info": "info depth 4 score cp 17",
+          "legal": true,
+          "mode": "clock",
+          "position": "position startpos",
+          "response_budget_seconds": 3.0,
+          "search_elapsed_ms": 48.694702,
+          "terminal": false
+        },
+        {
+          "bestmove": "e7e5",
+          "budget": 2000,
+          "case": "startpos_black",
+          "engine_clock_with_grace_seconds": 3.0,
+          "fen": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+          "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+          "last_info": "info depth 4 score cp -33",
+          "legal": true,
+          "mode": "clock",
+          "position": "position startpos moves e2e4",
+          "response_budget_seconds": 3.0,
+          "search_elapsed_ms": 71.283369,
+          "terminal": false
+        },
+        {
+          "bestmove": "f6e4",
+          "budget": 2000,
+          "case": "castling_history",
+          "engine_clock_with_grace_seconds": 3.0,
+          "fen": "r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 3 5",
+          "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+          "last_info": "info depth 4 score cp -18",
+          "legal": true,
+          "mode": "clock",
+          "position": "position startpos moves e2e4 e7e5 g1f3 b8c6 f1b5 a7a6 b5a4 g8f6 e1g1",
+          "response_budget_seconds": 3.0,
+          "search_elapsed_ms": 48.24679,
+          "terminal": false
+        },
+        {
+          "bestmove": "e7d6",
+          "budget": 2000,
+          "case": "en_passant_history",
+          "engine_clock_with_grace_seconds": 3.0,
+          "fen": "rnbqkbnr/1pp1pppp/p2P4/8/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 3",
+          "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+          "last_info": "info depth 4 score cp -106",
+          "legal": true,
+          "mode": "clock",
+          "position": "position startpos moves e2e4 a7a6 e4e5 d7d5 e5d6",
+          "response_budget_seconds": 3.0,
+          "search_elapsed_ms": 48.501623,
+          "terminal": false
+        },
+        {
+          "bestmove": "e1g1",
+          "budget": 2000,
+          "case": "middlegame_history",
+          "engine_clock_with_grace_seconds": 3.0,
+          "fen": "r1bq1rk1/ppp2ppp/2np1n2/2b1p1B1/2B1P3/2NP1N2/PPP2PPP/R2QK2R w KQ - 2 7",
+          "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+          "last_info": "info depth 2 score cp -13",
+          "legal": true,
+          "mode": "clock",
+          "position": "position startpos moves e2e4 e7e5 g1f3 b8c6 f1c4 g8f6 d2d3 f8c5 c1g5 d7d6 b1c3 e8g8",
+          "response_budget_seconds": 3.0,
+          "search_elapsed_ms": 54.828384,
+          "terminal": false
+        },
+        {
+          "bestmove": "a8h1",
+          "budget": 2000,
+          "case": "promotion_history",
+          "engine_clock_with_grace_seconds": 3.0,
+          "fen": "Qnbqkbnr/p1ppppp1/8/8/8/8/1PPPPP1P/RNBQKBNq w Qk - 0 6",
+          "go": "go wtime 2000 btime 2000 winc 0 binc 0",
+          "last_info": "info depth 4 score cp 904",
+          "legal": true,
+          "mode": "clock",
+          "position": "position startpos moves a2a4 h7h5 a4a5 h5h4 a5a6 h4h3 a6b7 h3g2 b7a8q g2h1q",
+          "response_budget_seconds": 3.0,
+          "search_elapsed_ms": 56.446777,
+          "terminal": false
+        }
+      ],
+      "sessions": [
+        {
+          "phase": "core",
+          "cleanup": {
+            "cleanup_grace_seconds": 5.0,
+            "cleanup_wait_ms": 0.003692,
+            "forced_cleanup": false,
+            "process_group_exists_after_quit": false,
+            "process_group_exists_immediately_after_quit": false,
+            "quit_returncode": 0,
+            "quit_signal": null,
+            "returncode": 0,
+            "scope": "owned original process group; detached sessions and global filesystem not audited",
+            "signal": null
+          },
+          "working_directory_leftovers": {
+            "paths": [],
+            "scope": "owned working directory, symlinks not followed",
+            "truncated": false
+          },
+          "output_bytes": {
+            "stderr": 0,
+            "stdout": 1689
+          },
+          "stderr_contains_memory_error": false,
+          "stderr_tail_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "scope": {
+        "cleanup": "owned cwd and original process group; no global filesystem or detached-session audit",
+        "evidence": "finite protocol and independent legal-move observations; not complete semantic equivalence, Elo, or organizer certification",
+        "limits": "per-process AS/CPU/file limits, whole-verifier wall bound and per-session output bound; no aggregate memory cgroup",
+        "options": "original defaults and embedded constants preserved",
+        "time_control": "configured short clock probes, not a 30min+3sec tournament unless separately run"
+      },
+      "oracle": {
+        "development_only": true,
+        "module": "cozy-chess",
+        "standard_castling_translation": true,
+        "version_source": "Cargo.lock"
+      }
+    }
+  },
+  "official_clock_winner_observation": {
+    "raw_evidence_id": "sunfish-smallest-official-clock-canonical-python",
+    "raw_report_sha256": "4376b0b7420ebd7415ba62ffdf1855a7ee812f6a064205ef4ab0579af3e5e1b0",
+    "verdict": "pass",
+    "artifact_wrapper_started": true,
+    "artifact": {
+      "bytes": 2776,
+      "sha256": "2d148a3523bef4d4bdc95341cdb81405e2b96d42a5135881172ab199357d8b9a",
+      "within_4096_bytes": true
+    },
+    "configuration": {
+      "case_ids": [
+        "startpos_white"
+      ],
+      "cleanup_seconds": 5.0,
+      "clock_grace_ms": 1000,
+      "clock_ms": 1800000,
+      "cpu_seconds": 200,
+      "depth": 3,
+      "extensions": false,
+      "file_bytes": 67108864,
+      "hash_mb": 16,
+      "increment_ms": 3000,
+      "invocation_argv0": null,
+      "max_line_bytes": 65536,
+      "max_output_bytes": 2097152,
+      "max_seconds": 200.0,
+      "max_transcript_bytes": 262144,
+      "memory_bytes": 1073741824,
+      "movetime_ms": 100,
+      "nodes": 1000,
+      "preserve_engine_options": true,
+      "profile": "tcec4k",
+      "quick": false,
+      "quit_seconds": 2.0,
+      "ready_seconds": 5.0,
+      "search_seconds": 120.0,
+      "startup_seconds": 60.0,
+      "stop_seconds": 2.0,
+      "threads": 1
+    },
+    "core_case_coverage": {
+      "completed": [
+        "startpos_white"
+      ],
+      "corpus_cases": 6,
+      "full_corpus_completed": false,
+      "full_corpus_requested": false,
+      "requested": [
+        "startpos_white"
+      ]
+    },
+    "required_tcec4k_verdict": "pass",
+    "extended_uci_verdict": "not_run",
+    "elapsed_ms": 43817.562203,
+    "case_status_counts": {
+      "pass": 6
+    },
+    "cases": [
+      {
+        "detail": {
+          "configured_options": [],
+          "identity": {},
+          "option_errors": [],
+          "options": [],
+          "ready_after_launch_ms": 40.799261
+        },
+        "elapsed_ms": 39.896129,
+        "id": "handshake",
+        "requirement": "tcec4k",
+        "status": "pass"
+      },
+      {
+        "detail": {
+          "command": "ucinewgame",
+          "ready": true
+        },
+        "elapsed_ms": 2.105331,
+        "id": "newgame_tolerance",
+        "requirement": "tcec4k",
+        "status": "pass"
+      },
+      {
+        "detail": {
+          "command": "stop",
+          "ready": true
+        },
+        "elapsed_ms": 2.115385,
+        "id": "idle_stop_tolerance",
+        "requirement": "tcec4k",
+        "status": "pass"
+      },
+      {
+        "detail": {
+          "command": "nvcompact_unknown_command",
+          "ready": true
+        },
+        "elapsed_ms": 2.104431,
+        "id": "unknown_command_tolerance",
+        "requirement": "tcec4k",
+        "status": "pass"
+      },
+      {
+        "detail": {
+          "bestmove": "d2d4",
+          "engine_clock_with_grace_seconds": 1801.0,
+          "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+          "go": "go wtime 1800000 btime 1800000 winc 3000 binc 3000",
+          "last_info": "info depth 10 score cp 46",
+          "legal": true,
+          "position": "position startpos",
+          "response_budget_seconds": 120.0,
+          "search_elapsed_ms": 43753.120051000005,
+          "terminal": false
+        },
+        "elapsed_ms": 43757.332506,
+        "id": "startpos_white",
+        "requirement": "tcec4k",
+        "status": "pass"
+      },
+      {
+        "detail": {
+          "cleanup_grace_seconds": 5.0,
+          "cleanup_wait_ms": 0.0045839999999999995,
+          "process_group_exists_after_quit": false,
+          "process_group_exists_immediately_after_quit": false,
+          "quit_returncode": 0,
+          "quit_signal": null,
+          "scope": "owned original process group; detached sessions and global filesystem not audited"
+        },
+        "elapsed_ms": 12.51697,
+        "id": "quit_idle",
+        "requirement": "tcec4k",
+        "status": "pass"
+      }
+    ],
+    "observations": [
+      {
+        "bestmove": "d2d4",
+        "budget": 1800000,
+        "case": "startpos_white",
+        "engine_clock_with_grace_seconds": 1801.0,
+        "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "go": "go wtime 1800000 btime 1800000 winc 3000 binc 3000",
+        "last_info": "info depth 10 score cp 46",
+        "legal": true,
+        "mode": "clock",
+        "position": "position startpos",
+        "response_budget_seconds": 120.0,
+        "search_elapsed_ms": 43753.120051000005,
+        "terminal": false
+      }
+    ],
+    "sessions": [
+      {
+        "phase": "core",
+        "cleanup": {
+          "cleanup_grace_seconds": 5.0,
+          "cleanup_wait_ms": 0.0045839999999999995,
+          "forced_cleanup": false,
+          "process_group_exists_after_quit": false,
+          "process_group_exists_immediately_after_quit": false,
+          "quit_returncode": 0,
+          "quit_signal": null,
+          "returncode": 0,
+          "scope": "owned original process group; detached sessions and global filesystem not audited",
+          "signal": null
+        },
+        "working_directory_leftovers": {
+          "paths": [],
+          "scope": "owned working directory, symlinks not followed",
+          "truncated": false
+        },
+        "output_bytes": {
+          "stderr": 0,
+          "stdout": 1176
+        },
+        "stderr_contains_memory_error": false,
+        "stderr_tail_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "scope": {
+      "cleanup": "owned cwd and original process group; no global filesystem or detached-session audit",
+      "evidence": "finite protocol and independent legal-move observations; not complete semantic equivalence, Elo, or organizer certification",
+      "limits": "per-process AS/CPU/file limits, whole-verifier wall bound and per-session output bound; no aggregate memory cgroup",
+      "options": "original defaults and embedded constants preserved",
+      "time_control": "configured short clock probes, not a 30min+3sec tournament unless separately run"
+    },
+    "oracle": {
+      "development_only": true,
+      "module": "cozy-chess",
+      "standard_castling_translation": true,
+      "version_source": "Cargo.lock"
+    }
+  },
+  "previous_runtime_profile_evidence": "general-comparison.json",
+  "previous_official_failure_evidence": "general-time-management.json",
+  "higher_budget_pypy_official_evidence": "resource-plans/sunfish-smallest-official-clock.json",
+  "pygone_evidence_reuse": {
+    "evidence": "resource-plans/index.json",
+    "basis": "PyGone requests pypy3, whose executable fingerprint is unchanged. Its original, smallest and replay observations retain their exact prior environment and reports. They are not represented as fresh runs under the canonical profile.",
+    "fresh_pygone_run_claimed": false
+  },
+  "engine_source_modified": false,
+  "engine_options_modified": false,
+  "previous_results_overwritten": false,
+  "raw_results_sha256": "32b47ae123e6286846c3ca46c6cd5cc482bbf05b93614fc863e240e3e4bb3e94"
+}

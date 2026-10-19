@@ -1,0 +1,51 @@
+{
+  "name": "c4ke",
+  "artifact": "../inputs/c4ke",
+  "sha256": "b5ecbcd8a189cf3296bc5ea874dd0ed612949d02744252041f2d2914776769ea",
+  "category": "4k",
+  "provenance": {
+    "version_relationship": "Latest TCEC version and public release label agree; public TCEC asset is used.",
+    "source_archive": "../vendor/c4ke/source.tar.gz",
+    "license_path": "../vendor/c4ke/LICENSE",
+    "path_base": "manifest-directory",
+    "source_manifest": "../vendor/source-manifest.json",
+    "source_archive_sha256": "fbc7363ebe6f49c3d765ddda8a59dd194ebcd3a7a675ce474d3e2624b103b087",
+    "license_paths": [
+      "../vendor/c4ke/LICENSE"
+    ],
+    "source_commit": "22e318f59b3a9eed1d2b8161da832222d4a51033",
+    "source_url": "https://github.com/citrus610/c4ke",
+    "artifact_url": "https://github.com/citrus610/c4ke/releases/download/v3.0/c4ke-tcec",
+    "representative_version": "3.0",
+    "source_correspondence_status": "same-release-tag-source-and-artifact",
+    "editable_source_correspondence": "matching upstream release tag source and original release asset; independent full source-to-release-binary reproduction not performed",
+    "source_correspondence_proofs": [],
+    "unresolved_source_correspondence_gap": "release-source relationship known; native reproduction not separately performed"
+  },
+  "envelope": {
+    "decoder": "xz -d",
+    "payload_codec": {
+      "format": "alone"
+    },
+    "header_bytes": 122,
+    "header_sha256": "28b51c30fef7d83dd27e611624984486a752dac6d377adc080f3d1128eb281f1"
+  },
+  "payload_sha256": "1399c9cfb09b2f4b202ded54be066efd686b338626cb7befec867a1466ae001f",
+  "language": "cpp",
+  "notation": {
+    "target": "cpp17-lp64",
+    "token_contract": "no-token-observation",
+    "compact": true
+  },
+  "compile_argv": [
+    "g++",
+    "-O3",
+    "-std=c++23",
+    "-pthread",
+    "-march=native",
+    "-xc++",
+    "-o{output}",
+    "-"
+  ],
+  "runtime_blocked": "Exact payload requests calloc(1ull<<35,8) = 256 GiB without checking failure. Same-allocation probe in this environment returned NULL/ENOMEM; ice4 original and candidate both segfaulted on first search. No resource constant was changed."
+}

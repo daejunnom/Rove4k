@@ -1,0 +1,9 @@
+{
+  "format": "nvcompact.pack-reproduction.v1",
+  "status": "pass",
+  "runs": 2,
+  "command": "npm run pack:cli",
+  "sha256": "3a15d37f5cb37bcc7118e4a5401e172aeb67c531909514d927d2b8f6dcc9aaef",
+  "bytes": 73802,
+  "scope": "Two successive local npm pack runs from the same final package contents and toolchain produced identical bytes. The same bytes passed separate installation verification."
+}

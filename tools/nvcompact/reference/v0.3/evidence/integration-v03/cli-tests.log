@@ -1,0 +1,24 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> nvcompact-monorepo@0.3.0 test
+> node scripts/test-cli.mjs
+
+✔ help and version work without Python; every command exposes help (1805.249654ms)
+✔ doctor exercises installed codec APIs through an executable path containing spaces (207.727666ms)
+✔ argv, cwd, stdin/stdout/stderr and a real nonzero child status survive the Node launch boundary (149.568699ms)
+✔ Python override errors are explicit and never trigger fallback or shell parsing (141.9032ms)
+✔ a real core error is preserved and does not create a success artifact (221.623517ms)
+✔ engines rejects missing, nonexistent, empty and unknown selections before creating output (624.216089ms)
+✔ real UCI cancellation SIGTERM stops engine and grandchild (537.774297ms)
+✔ real UCI cancellation SIGINT stops engine and grandchild (469.883786ms)
+✔ real UCI cancellation SIGTERM through a nested core helper stops engine and grandchild (703.978447ms)
+✔ cancelling an active native portfolio stops worker groups and cancels queued work (771.763759ms)
+✔ actual npm tarball contains the standalone CLI and complete linked examples (515.341887ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8549.115528

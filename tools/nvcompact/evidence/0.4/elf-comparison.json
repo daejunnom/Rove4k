@@ -1,0 +1,809 @@
+{
+  "format": "nvcompact.actual-elf-comparison.v1",
+  "date": "2026-10-19",
+  "runtime": "Rust 0.4.0",
+  "measurement": "entire submitted ELF file; no external decoder or shell wrapper candidates",
+  "scope": "Two unmodified historical public release representatives, not exact latest tournament uploads or a full TCEC-server match. Identity preserves the baseline size and is not novel compression. Generic section-header edits are excluded because these ELF headers overlap executable instructions.",
+  "entries": [
+    {
+      "name": "4k.c-v8.0",
+      "original_bytes": 4042,
+      "original_sha256": "6eb03195b277f42ece9488c42c1e459791ffcbf0dc197bdfa700dd9574715ace",
+      "winner": {
+        "bytes": 4042,
+        "equivalence": "complete submitted file byte identity",
+        "id": "identity",
+        "sha256": "6eb03195b277f42ece9488c42c1e459791ffcbf0dc197bdfa700dd9574715ace",
+        "variant": "raw"
+      },
+      "accepted": {
+        "bytes": 4042,
+        "equivalence": "complete submitted file byte identity",
+        "id": "identity",
+        "protocol_verdict": "pass",
+        "sha256": "6eb03195b277f42ece9488c42c1e459791ffcbf0dc197bdfa700dd9574715ace",
+        "variant": "raw"
+      },
+      "saved_bytes": 0,
+      "no_size_regression": true,
+      "candidates": 1,
+      "tool": {
+        "codecs": {
+          "gzip_mtime": 0,
+          "gzip_os": 255,
+          "implementation": "Rust with liblzma, zlib and libbz2; Cargo.lock pins bindings",
+          "lzma": "5.2.5"
+        },
+        "executable_sha256": "08a4b493b19382a6e8de46cdb50465053e5b6c850a304bb9c2fed034cc21357e",
+        "runtime": "Rust",
+        "version": "0.4.0"
+      },
+      "category": "4k-elf",
+      "manifest": "../../comparisons/elf/4k.c-v8.0.json",
+      "provenance": {
+        "artifact_provenance": "upstream-release",
+        "artifact_url": "https://github.com/GediminasMasaitis/4k-dot-c/releases/download/v8.0/4kc-mini",
+        "asset_id": 373866687,
+        "comparison_role": "Additional historical official public ELF representative, not an exact latest tournament upload",
+        "not_a_substitute_for_version": "9.15.1",
+        "public_input_not_confirmed_exact_private_tcec_upload": true,
+        "release_api_url": "https://api.github.com/repos/GediminasMasaitis/4k-dot-c/releases/tags/v8.0",
+        "release_id": 297041913,
+        "representative_version": "8.0",
+        "source_commit": "7807995933db2c03cefd1e76569d88ef9e912e8c",
+        "source_pipeline_rebuilt": false,
+        "source_url": "https://github.com/GediminasMasaitis/4k-dot-c"
+      },
+      "historical_python_minimum_bytes": null,
+      "independent_replay": {
+        "byte_replay": "pass",
+        "bytes": 4042,
+        "sha256": "6eb03195b277f42ece9488c42c1e459791ffcbf0dc197bdfa700dd9574715ace",
+        "selection": "smallest",
+        "semantic_scope": "complete submitted file byte identity",
+        "tool": {
+          "codecs": {
+            "gzip_mtime": 0,
+            "gzip_os": 255,
+            "implementation": "Rust with liblzma, zlib and libbz2; Cargo.lock pins bindings",
+            "lzma": "5.2.5"
+          },
+          "executable_sha256": "08a4b493b19382a6e8de46cdb50465053e5b6c850a304bb9c2fed034cc21357e",
+          "runtime": "Rust",
+          "version": "0.4.0"
+        }
+      },
+      "raw_summary_sha256": "6c0cdd2ee987142150832833d4e8dcbe6738728c78a7c81aa2a548b4aa0be02b",
+      "raw_replay_sha256": "4d484d5e16310e4540a094bec4a811739493047ae346f1a688cbe4b99b98a085",
+      "source_to_release_pipeline_rebuilt": false,
+      "short_clock_uci": {
+        "original": {
+          "verdict": "pass",
+          "required_tcec4k_verdict": "pass",
+          "core_case_coverage": {
+            "completed": [
+              "startpos_white",
+              "startpos_black",
+              "castling_history",
+              "en_passant_history",
+              "middlegame_history",
+              "promotion_history"
+            ],
+            "corpus_cases": 6,
+            "full_corpus_completed": true,
+            "full_corpus_requested": true,
+            "requested": [
+              "startpos_white",
+              "startpos_black",
+              "castling_history",
+              "en_passant_history",
+              "middlegame_history",
+              "promotion_history"
+            ]
+          },
+          "clock_ms": 10000,
+          "increment_ms": 0,
+          "preserve_engine_options": true,
+          "configured_options": [
+            []
+          ],
+          "elapsed_ms": 3166.09016,
+          "checks": [
+            {
+              "id": "handshake",
+              "status": "pass",
+              "elapsed_ms": 55.025147000000004
+            },
+            {
+              "id": "newgame_tolerance",
+              "status": "pass",
+              "elapsed_ms": 2.0976950000000003
+            },
+            {
+              "id": "idle_stop_tolerance",
+              "status": "pass",
+              "elapsed_ms": 2.094385
+            },
+            {
+              "id": "unknown_command_tolerance",
+              "status": "pass",
+              "elapsed_ms": 2.1316859999999997
+            },
+            {
+              "id": "startpos_white",
+              "status": "pass",
+              "elapsed_ms": 360.661888
+            },
+            {
+              "id": "startpos_black",
+              "status": "pass",
+              "elapsed_ms": 407.337214
+            },
+            {
+              "id": "castling_history",
+              "status": "pass",
+              "elapsed_ms": 434.19931299999996
+            },
+            {
+              "id": "en_passant_history",
+              "status": "pass",
+              "elapsed_ms": 395.46698499999997
+            },
+            {
+              "id": "middlegame_history",
+              "status": "pass",
+              "elapsed_ms": 937.416673
+            },
+            {
+              "id": "promotion_history",
+              "status": "pass",
+              "elapsed_ms": 561.079294
+            },
+            {
+              "id": "quit_idle",
+              "status": "pass",
+              "elapsed_ms": 7.061322
+            }
+          ],
+          "observations": [
+            {
+              "bestmove": "d2d4",
+              "budget": 10000,
+              "case": "startpos_white",
+              "engine_clock_with_grace_seconds": 11.0,
+              "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+              "go": "go wtime 10000 btime 10000 winc 0 binc 0",
+              "last_info": null,
+              "legal": true,
+              "mode": "clock",
+              "position": "position startpos",
+              "response_budget_seconds": 11.0,
+              "search_elapsed_ms": 356.42874800000004,
+              "terminal": false
+            },
+            {
+              "bestmove": "c7c5",
+              "budget": 10000,
+              "case": "startpos_black",
+              "engine_clock_with_grace_seconds": 11.0,
+              "fen": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+              "go": "go wtime 10000 btime 10000 winc 0 binc 0",
+              "last_info": null,
+              "legal": true,
+              "mode": "clock",
+              "position": "position startpos moves e2e4",
+              "response_budget_seconds": 11.0,
+              "search_elapsed_ms": 403.126376,
+              "terminal": false
+            },
+            {
+              "bestmove": "b7b5",
+              "budget": 10000,
+              "case": "castling_history",
+              "engine_clock_with_grace_seconds": 11.0,
+              "fen": "r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 3 5",
+              "go": "go wtime 10000 btime 10000 winc 0 binc 0",
+              "last_info": null,
+              "legal": true,
+              "mode": "clock",
+              "position": "position startpos moves e2e4 e7e5 g1f3 b8c6 f1b5 a7a6 b5a4 g8f6 e1g1",
+              "response_budget_seconds": 11.0,
+              "search_elapsed_ms": 429.99856600000004,
+              "terminal": false
+            },
+            {
+              "bestmove": "d8d6",
+              "budget": 10000,
+              "case": "en_passant_history",
+              "engine_clock_with_grace_seconds": 11.0,
+              "fen": "rnbqkbnr/1pp1pppp/p2P4/8/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 3",
+              "go": "go wtime 10000 btime 10000 winc 0 binc 0",
+              "last_info": null,
+              "legal": true,
+              "mode": "clock",
+              "position": "position startpos moves e2e4 a7a6 e4e5 d7d5 e5d6",
+              "response_budget_seconds": 11.0,
+              "search_elapsed_ms": 391.26171,
+              "terminal": false
+            },
+            {
+              "bestmove": "c3d5",
+              "budget": 10000,
+              "case": "middlegame_history",
+              "engine_clock_with_grace_seconds": 11.0,
+              "fen": "r1bq1rk1/ppp2ppp/2np1n2/2b1p1B1/2B1P3/2NP1N2/PPP2PPP/R2QK2R w KQ - 2 7",
+              "go": "go wtime 10000 btime 10000 winc 0 binc 0",
+              "last_info": null,
+              "legal": true,
+              "mode": "clock",
+              "position": "position startpos moves e2e4 e7e5 g1f3 b8c6 f1c4 g8f6 d2d3 f8c5 c1g5 d7d6 b1c3 e8g8",
+              "response_budget_seconds": 11.0,
+              "search_elapsed_ms": 933.149106,
+              "terminal": false
+            },
+            {
+              "bestmove": "a8h1",
+              "budget": 10000,
+              "case": "promotion_history",
+              "engine_clock_with_grace_seconds": 11.0,
+              "fen": "Qnbqkbnr/p1ppppp1/8/8/8/8/1PPPPP1P/RNBQKBNq w Qk - 0 6",
+              "go": "go wtime 10000 btime 10000 winc 0 binc 0",
+              "last_info": null,
+              "legal": true,
+              "mode": "clock",
+              "position": "position startpos moves a2a4 h7h5 a4a5 h5h4 a5a6 h4h3 a6b7 h3g2 b7a8q g2h1q",
+              "response_budget_seconds": 11.0,
+              "search_elapsed_ms": 556.7836179999999,
+              "terminal": false
+            }
+          ],
+          "cleanup": [
+            {
+              "cleanup_grace_seconds": 5.0,
+              "cleanup_wait_ms": 0.009287,
+              "forced_cleanup": false,
+              "process_group_exists_after_quit": false,
+              "process_group_exists_immediately_after_quit": false,
+              "quit_returncode": 0,
+              "quit_signal": null,
+              "returncode": 0,
+              "scope": "owned original process group; detached sessions and global filesystem not audited",
+              "signal": null
+            }
+          ],
+          "owned_working_directory_leftovers": [
+            {
+              "paths": [],
+              "scope": "owned working directory, symlinks not followed",
+              "truncated": false
+            }
+          ],
+          "raw_report_sha256": "40431b6616daca48d944fcfe4df892595d17ada575ff87805ae926b8d516abab"
+        },
+        "smallest": {
+          "verdict": "pass",
+          "required_tcec4k_verdict": "pass",
+          "core_case_coverage": {
+            "completed": [
+              "startpos_white",
+              "startpos_black",
+              "castling_history",
+              "en_passant_history",
+              "middlegame_history",
+              "promotion_history"
+            ],
+            "corpus_cases": 6,
+            "full_corpus_completed": true,
+            "full_corpus_requested": true,
+            "requested": [
+              "startpos_white",
+              "startpos_black",
+              "castling_history",
+              "en_passant_history",
+              "middlegame_history",
+              "promotion_history"
+            ]
+          },
+          "clock_ms": 10000,
+          "increment_ms": 0,
+          "preserve_engine_options": true,
+          "configured_options": [
+            []
+          ],
+          "elapsed_ms": 2955.435376,
+          "checks": [
+            {
+              "id": "handshake",
+              "status": "pass",
+              "elapsed_ms": 61.171781
+            },
+            {
+              "id": "newgame_tolerance",
+              "status": "pass",
+              "elapsed_ms": 2.127576
+            },
+            {
+              "id": "idle_stop_tolerance",
+              "status": "pass",
+              "elapsed_ms": 2.2247339999999998
+            },
+            {
+              "id": "unknown_command_tolerance",
+              "status": "pass",
+              "elapsed_ms": 2.1028309999999997
+            },
+            {
+              "id": "startpos_white",
+              "status": "pass",
+              "elapsed_ms": 402.860663
+            },
+            {
+              "id": "startpos_black",
+              "status": "pass",
+              "elapsed_ms": 505.79421599999995
+            },
+            {
+              "id": "castling_history",
+              "status": "pass",
+              "elapsed_ms": 369.514451
+            },
+            {
+              "id": "en_passant_history",
+              "status": "pass",
+              "elapsed_ms": 404.538215
+            },
+            {
+              "id": "middlegame_history",
+              "status": "pass",
+              "elapsed_ms": 400.50881
+            },
+            {
+              "id": "promotion_history",
+              "status": "pass",
+              "elapsed_ms": 794.740867
+            },
+            {
+              "id": "quit_idle",
+              "status": "pass",
+              "elapsed_ms": 8.466448999999999
+            }
+          ],
+          "observations": [
+            {
+              "bestmove": "d2d4",
+              "budget": 10000,
+              "case": "startpos_white",
+              "engine_clock_with_grace_seconds": 11.0,
+              "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+              "go": "go wtime 10000 btime 10000 winc 0 binc 0",
+              "last_info": null,
+              "legal": true,
+              "mode": "clock",
+              "position": "position startpos",
+              "response_budget_seconds": 11.0,
+              "search_elapsed_ms": 398.556837,
+              "terminal": false
+            },
+            {
+              "bestmove": "c7c5",
+              "budget": 10000,
+              "case": "startpos_black",
+              "engine_clock_with_grace_seconds": 11.0,
+              "fen": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+              "go": "go wtime 10000 btime 10000 winc 0 binc 0",
+              "last_info": null,
+              "legal": true,
+              "mode": "clock",
+              "position": "position startpos moves e2e4",
+              "response_budget_seconds": 11.0,
+              "search_elapsed_ms": 501.410798,
+              "terminal": false
+            },
+            {
+              "bestmove": "b7b5",
+              "budget": 10000,
+              "case": "castling_history",
+              "engine_clock_with_grace_seconds": 11.0,
+              "fen": "r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 3 5",
+              "go": "go wtime 10000 btime 10000 winc 0 binc 0",
+              "last_info": null,
+              "legal": true,
+              "mode": "clock",
+              "position": "position startpos moves e2e4 e7e5 g1f3 b8c6 f1b5 a7a6 b5a4 g8f6 e1g1",
+              "response_budget_seconds": 11.0,
+              "search_elapsed_ms": 362.43487600000003,
+              "terminal": false
+            },
+            {
+              "bestmove": "d8d6",
+              "budget": 10000,
+              "case": "en_passant_history",
+              "engine_clock_with_grace_seconds": 11.0,
+              "fen": "rnbqkbnr/1pp1pppp/p2P4/8/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 3",
+              "go": "go wtime 10000 btime 10000 winc 0 binc 0",
+              "last_info": null,
+              "legal": true,
+              "mode": "clock",
+              "position": "position startpos moves e2e4 a7a6 e4e5 d7d5 e5d6",
+              "response_budget_seconds": 11.0,
+              "search_elapsed_ms": 400.341277,
+              "terminal": false
+            },
+            {
+              "bestmove": "c3d5",
+              "budget": 10000,
+              "case": "middlegame_history",
+              "engine_clock_with_grace_seconds": 11.0,
+              "fen": "r1bq1rk1/ppp2ppp/2np1n2/2b1p1B1/2B1P3/2NP1N2/PPP2PPP/R2QK2R w KQ - 2 7",
+              "go": "go wtime 10000 btime 10000 winc 0 binc 0",
+              "last_info": null,
+              "legal": true,
+              "mode": "clock",
+              "position": "position startpos moves e2e4 e7e5 g1f3 b8c6 f1c4 g8f6 d2d3 f8c5 c1g5 d7d6 b1c3 e8g8",
+              "response_budget_seconds": 11.0,
+              "search_elapsed_ms": 396.31816399999997,
+              "terminal": false
+            },
+            {
+              "bestmove": "a8h1",
+              "budget": 10000,
+              "case": "promotion_history",
+              "engine_clock_with_grace_seconds": 11.0,
+              "fen": "Qnbqkbnr/p1ppppp1/8/8/8/8/1PPPPP1P/RNBQKBNq w Qk - 0 6",
+              "go": "go wtime 10000 btime 10000 winc 0 binc 0",
+              "last_info": null,
+              "legal": true,
+              "mode": "clock",
+              "position": "position startpos moves a2a4 h7h5 a4a5 h5h4 a5a6 h4h3 a6b7 h3g2 b7a8q g2h1q",
+              "response_budget_seconds": 11.0,
+              "search_elapsed_ms": 790.534293,
+              "terminal": false
+            }
+          ],
+          "cleanup": [
+            {
+              "cleanup_grace_seconds": 5.0,
+              "cleanup_wait_ms": 0.008165,
+              "forced_cleanup": false,
+              "process_group_exists_after_quit": false,
+              "process_group_exists_immediately_after_quit": false,
+              "quit_returncode": 0,
+              "quit_signal": null,
+              "returncode": 0,
+              "scope": "owned original process group; detached sessions and global filesystem not audited",
+              "signal": null
+            }
+          ],
+          "owned_working_directory_leftovers": [
+            {
+              "paths": [],
+              "scope": "owned working directory, symlinks not followed",
+              "truncated": false
+            }
+          ],
+          "raw_report_sha256": "6a55a0148f5ee4057137a829817297d7a7b75701db3d72f543da3e8c0bb84d51"
+        },
+        "independent_replay": {
+          "verdict": "pass",
+          "required_tcec4k_verdict": "pass",
+          "core_case_coverage": {
+            "completed": [
+              "startpos_white",
+              "startpos_black",
+              "castling_history",
+              "en_passant_history",
+              "middlegame_history",
+              "promotion_history"
+            ],
+            "corpus_cases": 6,
+            "full_corpus_completed": true,
+            "full_corpus_requested": true,
+            "requested": [
+              "startpos_white",
+              "startpos_black",
+              "castling_history",
+              "en_passant_history",
+              "middlegame_history",
+              "promotion_history"
+            ]
+          },
+          "clock_ms": 10000,
+          "increment_ms": 0,
+          "preserve_engine_options": true,
+          "configured_options": [
+            []
+          ],
+          "elapsed_ms": 2977.9552259999996,
+          "checks": [
+            {
+              "id": "handshake",
+              "status": "pass",
+              "elapsed_ms": 92.665616
+            },
+            {
+              "id": "newgame_tolerance",
+              "status": "pass",
+              "elapsed_ms": 2.1745940000000004
+            },
+            {
+              "id": "idle_stop_tolerance",
+              "status": "pass",
+              "elapsed_ms": 2.797866
+            },
+            {
+              "id": "unknown_command_tolerance",
+              "status": "pass",
+              "elapsed_ms": 2.1083410000000002
+            },
+            {
+              "id": "startpos_white",
+              "status": "pass",
+              "elapsed_ms": 520.8688129999999
+            },
+            {
+              "id": "startpos_black",
+              "status": "pass",
+              "elapsed_ms": 477.539137
+            },
+            {
+              "id": "castling_history",
+              "status": "pass",
+              "elapsed_ms": 343.358895
+            },
+            {
+              "id": "en_passant_history",
+              "status": "pass",
+              "elapsed_ms": 444.187794
+            },
+            {
+              "id": "middlegame_history",
+              "status": "pass",
+              "elapsed_ms": 386.585614
+            },
+            {
+              "id": "promotion_history",
+              "status": "pass",
+              "elapsed_ms": 696.6529529999999
+            },
+            {
+              "id": "quit_idle",
+              "status": "pass",
+              "elapsed_ms": 6.514800999999999
+            }
+          ],
+          "observations": [
+            {
+              "bestmove": "d2d4",
+              "budget": 10000,
+              "case": "startpos_white",
+              "engine_clock_with_grace_seconds": 11.0,
+              "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+              "go": "go wtime 10000 btime 10000 winc 0 binc 0",
+              "last_info": null,
+              "legal": true,
+              "mode": "clock",
+              "position": "position startpos",
+              "response_budget_seconds": 11.0,
+              "search_elapsed_ms": 516.6425489999999,
+              "terminal": false
+            },
+            {
+              "bestmove": "c7c5",
+              "budget": 10000,
+              "case": "startpos_black",
+              "engine_clock_with_grace_seconds": 11.0,
+              "fen": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+              "go": "go wtime 10000 btime 10000 winc 0 binc 0",
+              "last_info": null,
+              "legal": true,
+              "mode": "clock",
+              "position": "position startpos moves e2e4",
+              "response_budget_seconds": 11.0,
+              "search_elapsed_ms": 473.340908,
+              "terminal": false
+            },
+            {
+              "bestmove": "b7b5",
+              "budget": 10000,
+              "case": "castling_history",
+              "engine_clock_with_grace_seconds": 11.0,
+              "fen": "r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 3 5",
+              "go": "go wtime 10000 btime 10000 winc 0 binc 0",
+              "last_info": null,
+              "legal": true,
+              "mode": "clock",
+              "position": "position startpos moves e2e4 e7e5 g1f3 b8c6 f1b5 a7a6 b5a4 g8f6 e1g1",
+              "response_budget_seconds": 11.0,
+              "search_elapsed_ms": 339.150567,
+              "terminal": false
+            },
+            {
+              "bestmove": "d8d6",
+              "budget": 10000,
+              "case": "en_passant_history",
+              "engine_clock_with_grace_seconds": 11.0,
+              "fen": "rnbqkbnr/1pp1pppp/p2P4/8/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 3",
+              "go": "go wtime 10000 btime 10000 winc 0 binc 0",
+              "last_info": null,
+              "legal": true,
+              "mode": "clock",
+              "position": "position startpos moves e2e4 a7a6 e4e5 d7d5 e5d6",
+              "response_budget_seconds": 11.0,
+              "search_elapsed_ms": 439.924252,
+              "terminal": false
+            },
+            {
+              "bestmove": "c3d5",
+              "budget": 10000,
+              "case": "middlegame_history",
+              "engine_clock_with_grace_seconds": 11.0,
+              "fen": "r1bq1rk1/ppp2ppp/2np1n2/2b1p1B1/2B1P3/2NP1N2/PPP2PPP/R2QK2R w KQ - 2 7",
+              "go": "go wtime 10000 btime 10000 winc 0 binc 0",
+              "last_info": null,
+              "legal": true,
+              "mode": "clock",
+              "position": "position startpos moves e2e4 e7e5 g1f3 b8c6 f1c4 g8f6 d2d3 f8c5 c1g5 d7d6 b1c3 e8g8",
+              "response_budget_seconds": 11.0,
+              "search_elapsed_ms": 382.390661,
+              "terminal": false
+            },
+            {
+              "bestmove": "a8h1",
+              "budget": 10000,
+              "case": "promotion_history",
+              "engine_clock_with_grace_seconds": 11.0,
+              "fen": "Qnbqkbnr/p1ppppp1/8/8/8/8/1PPPPP1P/RNBQKBNq w Qk - 0 6",
+              "go": "go wtime 10000 btime 10000 winc 0 binc 0",
+              "last_info": null,
+              "legal": true,
+              "mode": "clock",
+              "position": "position startpos moves a2a4 h7h5 a4a5 h5h4 a5a6 h4h3 a6b7 h3g2 b7a8q g2h1q",
+              "response_budget_seconds": 11.0,
+              "search_elapsed_ms": 692.475698,
+              "terminal": false
+            }
+          ],
+          "cleanup": [
+            {
+              "cleanup_grace_seconds": 5.0,
+              "cleanup_wait_ms": 0.009323999999999999,
+              "forced_cleanup": false,
+              "process_group_exists_after_quit": false,
+              "process_group_exists_immediately_after_quit": false,
+              "quit_returncode": 0,
+              "quit_signal": null,
+              "returncode": 0,
+              "scope": "owned original process group; detached sessions and global filesystem not audited",
+              "signal": null
+            }
+          ],
+          "owned_working_directory_leftovers": [
+            {
+              "paths": [],
+              "scope": "owned working directory, symlinks not followed",
+              "truncated": false
+            }
+          ],
+          "raw_report_sha256": "7c06c473ad8cfeb2d9bcfbc940b7e75516a1baa862253608797cd5cfbadf1fd6"
+        }
+      },
+      "official_clock_evidence": "elf-uci/4k.c-v8.0-official-clock-one-case.json"
+    },
+    {
+      "name": "4k.c-v9.0",
+      "original_bytes": 3932,
+      "original_sha256": "04e8f61d6ed6ad5feaaea7c62c578b647b9cdbc0e2313c4437645aff63a54af6",
+      "winner": {
+        "bytes": 3932,
+        "equivalence": "complete submitted file byte identity",
+        "id": "identity",
+        "sha256": "04e8f61d6ed6ad5feaaea7c62c578b647b9cdbc0e2313c4437645aff63a54af6",
+        "variant": "raw"
+      },
+      "accepted": null,
+      "saved_bytes": 0,
+      "no_size_regression": true,
+      "candidates": 1,
+      "tool": {
+        "codecs": {
+          "gzip_mtime": 0,
+          "gzip_os": 255,
+          "implementation": "Rust with liblzma, zlib and libbz2; Cargo.lock pins bindings",
+          "lzma": "5.2.5"
+        },
+        "executable_sha256": "08a4b493b19382a6e8de46cdb50465053e5b6c850a304bb9c2fed034cc21357e",
+        "runtime": "Rust",
+        "version": "0.4.0"
+      },
+      "category": "4k-elf",
+      "manifest": "../../comparisons/elf/4k.c-v9.0.json",
+      "provenance": {
+        "artifact_provenance": "upstream-release",
+        "artifact_url": "https://github.com/GediminasMasaitis/4k-dot-c/releases/download/v9.0/4kc-mini",
+        "comparison_role": "Available public ELF representative; not latest ELF 9.15.1 submission",
+        "editable_source_correspondence": "matching upstream release tag source and original release asset; independent full source-to-release-binary reproduction not performed",
+        "last_tournament_version": "9.15.1 (ELF III and announced VIII)",
+        "license": "MIT + zlib for Crinkler-derived compressor/loader",
+        "public_input_not_confirmed_exact_private_tcec_upload": true,
+        "representative_version": "9.0",
+        "source_commit": "880a877d6af2046cc5ce7deb85ea5ad2855b41a1",
+        "source_correspondence_status": "same-release-tag-source-and-artifact",
+        "source_url": "https://github.com/GediminasMasaitis/4k-dot-c",
+        "unresolved_source_correspondence_gap": "release-source relationship known; native reproduction not separately performed",
+        "version_relationship": "v9.0 is the latest public release and the exact general VII version label. 9.15 source is commit 44072f4af03499ea5d8fa5c7dfd1ee51c8bb6782, but no 9.15.1 version entry/tag/release was found. This original is already a self-contained 4K-eligible ELF."
+      },
+      "historical_python_minimum_bytes": 3932,
+      "independent_replay": {
+        "byte_replay": "pass",
+        "bytes": 3932,
+        "sha256": "04e8f61d6ed6ad5feaaea7c62c578b647b9cdbc0e2313c4437645aff63a54af6",
+        "selection": "smallest",
+        "semantic_scope": "complete submitted file byte identity",
+        "tool": {
+          "codecs": {
+            "gzip_mtime": 0,
+            "gzip_os": 255,
+            "implementation": "Rust with liblzma, zlib and libbz2; Cargo.lock pins bindings",
+            "lzma": "5.2.5"
+          },
+          "executable_sha256": "08a4b493b19382a6e8de46cdb50465053e5b6c850a304bb9c2fed034cc21357e",
+          "runtime": "Rust",
+          "version": "0.4.0"
+        }
+      },
+      "raw_summary_sha256": "1894eb91b0537338b38f1245062768066a174fb155264b2155ba243b370495da",
+      "raw_replay_sha256": "4ca70c6cb7eba09514e7ebe3dc58bc2d2ff488e7830f257bb6edf658a6e4f830",
+      "source_to_release_pipeline_rebuilt": false,
+      "startup_diagnosis": {
+        "load_file_bytes": 3932,
+        "load_memory_bytes": 23622320128,
+        "resource_meaning": "PT_LOAD address-space reservation, not measured physical RAM use; tag source defaults to 80 MiB TT",
+        "header_contract": "Executable instructions occupy ordinary unused ELF fields; program header overlaps final ELF-header fields; generic section-header removal is inapplicable",
+        "startup_trace": {
+          "wall_limit_seconds": 5,
+          "cpu_limit_seconds": 3,
+          "address_space_limit_bytes": 30064771072,
+          "file_limit_bytes": 1048576,
+          "core_limit_bytes": 0,
+          "input": [
+            "uci",
+            "isready",
+            "quit"
+          ],
+          "execve_return": -1,
+          "execve_errno": "ENOMEM",
+          "following_signal": "SIGSEGV",
+          "engine_syscalls_observed": 0,
+          "engine_search_started": false,
+          "classification": "blocked before engine entry by kernel executable mapping allocation",
+          "trace_file": "strace.txt",
+          "trace_permission": "Initial sandbox ptrace denied; authorized escalation permitted tracing the owned child",
+          "parent_limits_or_sysctl_changed": false
+        },
+        "host_observation": {
+          "overcommit_memory": 0,
+          "commit_limit_kib": 5103240,
+          "committed_as_kib_after_trace": 489448,
+          "mem_available_kib_after_trace": 9417228,
+          "interpretation": "Observed execve ENOMEM before engine entry under the current host policy. A 22 GiB virtual mapping is not measured resident memory. CommitLimit is not asserted to be a hard threshold in overcommit mode 0."
+        },
+        "original_sha256_after_trace": "04e8f61d6ed6ad5feaaea7c62c578b647b9cdbc0e2313c4437645aff63a54af6"
+      },
+      "resource_evidence": "resource-plans/4k.c-original.json",
+      "uci_status": "blocked before engine entry; no search or legal-move acceptance claim"
+    }
+  ],
+  "public_latest_inputs_not_obtained": [
+    {
+      "engine": "4k.c",
+      "version": "9.15.1",
+      "status": "exact public submitted artifact not obtained; v9.0 and v8.0 are explicitly different representatives"
+    },
+    {
+      "engine": "STRO4K",
+      "version": "6.0",
+      "status": "exact public ELF artifact not obtained; public v5.0 shell wrapper is not relabeled as ELF"
+    }
+  ],
+  "source_and_artifact_vendoring": false
+}

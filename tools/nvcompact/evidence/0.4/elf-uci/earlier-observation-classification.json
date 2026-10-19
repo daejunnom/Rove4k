@@ -1,0 +1,10 @@
+{
+  "format": "nvcompact.observation-correction.v1",
+  "artifact_sha256": "6eb03195b277f42ece9488c42c1e459791ffcbf0dc197bdfa700dd9574715ace",
+  "raw_checker_verdict": "fail",
+  "correct_interpretation": "incomplete:75s verifier observation budget ended before supplied1800s clock; not an engine time loss or demonstrated TCEC protocol defect",
+  "source_correction": "Generic clock-aware probe_budget classification and explicit case coverage, exercised by real-process UCI regression tests. No engine-specific exception.",
+  "raw_report_preserved_unchanged": true,
+  "raw_evidence_id": "elf-v8-official-clock/run",
+  "successful_followup": "4k.c-v8.0-official-clock-one-case.json"
+}

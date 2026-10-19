@@ -1,0 +1,355 @@
+[
+  {
+    "file": "TCEC_Season_23_-_4k.pgn",
+    "url": "https://raw.githubusercontent.com/TCEC-Chess/tcecgames/3dd69a40b3cf6ccc74144df7411ef4e8e2140286/master-archive/TCEC_Season_23_-_4k.pgn",
+    "engines": [
+      "4ku 1.0",
+      "ice4 9e94b82",
+      "pygone 1.5.2",
+      "sunfish 2022-12-24_classic",
+      "we4k 104th-64G"
+    ],
+    "dates": [
+      "2022.12.28",
+      "2022.12.29",
+      "2022.12.30",
+      "2022.12.31",
+      "2023.01.01"
+    ],
+    "bytes": 1637188,
+    "sha256": "311868dde8c0bf04b5fc3d3aa55118d18d43be4ecd848d23c033e4b62a55d916",
+    "pgn_rehashed_at": "2026-10-19",
+    "source_fetch_scope": "downloaded earlier in session, local bytes rehashed now"
+  },
+  {
+    "file": "TCEC_Season_24_-_4k_2.pgn",
+    "url": "https://raw.githubusercontent.com/TCEC-Chess/tcecgames/3dd69a40b3cf6ccc74144df7411ef4e8e2140286/master-archive/TCEC_Season_24_-_4k_2.pgn",
+    "engines": [
+      "4ku 3.0",
+      "M4sseur 1.0",
+      "STRO4K 1.0",
+      "ice4 v3",
+      "pygone 1.5.4",
+      "sunfish 2022-12-24_classic"
+    ],
+    "dates": [
+      "2023.05.08",
+      "2023.05.09",
+      "2023.05.10",
+      "2023.05.11",
+      "2023.05.12",
+      "2023.05.13",
+      "2023.05.14"
+    ],
+    "bytes": 2574828,
+    "sha256": "bbe6b98bc8775627b3b3909dad139084f8cd4e94e6feb61b96f22d1f0d46e8f1",
+    "pgn_rehashed_at": "2026-10-19",
+    "source_fetch_scope": "downloaded earlier in session, local bytes rehashed now"
+  },
+  {
+    "file": "TCEC_Season_26_-_4k_Iii.pgn",
+    "url": "https://raw.githubusercontent.com/TCEC-Chess/tcecgames/3dd69a40b3cf6ccc74144df7411ef4e8e2140286/master-archive/TCEC_Season_26_-_4k_Iii.pgn",
+    "engines": [
+      "4ku 4.0",
+      "M4sseur 1.0",
+      "STRO4K 2.0",
+      "ice4 4",
+      "moonfish d7b5af5c",
+      "pygone 1.5.5"
+    ],
+    "dates": [
+      "2023.12.31",
+      "2024.01.01",
+      "2024.01.02",
+      "2024.01.03",
+      "2024.01.04"
+    ],
+    "bytes": 1710991,
+    "sha256": "2974a1e7cb2fc213a799b353c0bc975a1e14812347807d5802da9a3436dada9b",
+    "pgn_rehashed_at": "2026-10-19",
+    "source_fetch_scope": "downloaded earlier in session, local bytes rehashed now"
+  },
+  {
+    "file": "TCEC_Season_27_-_4k_Iv.pgn",
+    "url": "https://raw.githubusercontent.com/TCEC-Chess/tcecgames/3dd69a40b3cf6ccc74144df7411ef4e8e2140286/master-archive/TCEC_Season_27_-_4k_Iv.pgn",
+    "engines": [
+      "4ku 5.0",
+      "M4sseur 1.0",
+      "STRO4K 3.0",
+      "ice4 5",
+      "molly e317a0c7b8",
+      "moonfish 4aa32a0c",
+      "pygone 1.5.5"
+    ],
+    "dates": [
+      "2024.08.13",
+      "2024.08.14",
+      "2024.08.15",
+      "2024.08.16",
+      "2024.08.17",
+      "2024.08.18",
+      "2024.08.19",
+      "2024.08.20"
+    ],
+    "bytes": 2496790,
+    "sha256": "18a52c060c88a27a5cfbef972f65938d2ce5e8abddcf94df4fa2e577e6aa4718",
+    "pgn_rehashed_at": "2026-10-19",
+    "source_fetch_scope": "downloaded earlier in session, local bytes rehashed now"
+  },
+  {
+    "file": "TCEC_Season_28_-_4k_V.pgn",
+    "url": "https://raw.githubusercontent.com/TCEC-Chess/tcecgames/3dd69a40b3cf6ccc74144df7411ef4e8e2140286/master-archive/TCEC_Season_28_-_4k_V.pgn",
+    "engines": [
+      "4k.c 1.0",
+      "4ku 5.1",
+      "M4sseur 1.0",
+      "STRO4K 4.0",
+      "ice4 6",
+      "molly e317a0c7b8",
+      "pygone 1.5.6"
+    ],
+    "dates": [
+      "2025.03.31",
+      "2025.04.01",
+      "2025.04.02",
+      "2025.04.03",
+      "2025.04.04",
+      "2025.04.05",
+      "2025.04.06",
+      "2025.04.07"
+    ],
+    "bytes": 2407213,
+    "sha256": "6e74c129fcd786f5db36df0dbe290849eca0abceec95136f33172f4c983b1345",
+    "pgn_rehashed_at": "2026-10-19",
+    "source_fetch_scope": "downloaded earlier in session, local bytes rehashed now"
+  },
+  {
+    "file": "TCEC_Season_29_-_4k_Elf_Ii.pgn",
+    "url": "https://raw.githubusercontent.com/TCEC-Chess/tcecgames/3dd69a40b3cf6ccc74144df7411ef4e8e2140286/master-archive/TCEC_Season_29_-_4k_Elf_Ii.pgn",
+    "engines": [
+      "4k.c 5.8",
+      "LESS_STRO4K 5.0"
+    ],
+    "dates": [
+      "2025.11.11",
+      "2025.11.12",
+      "2025.11.13"
+    ],
+    "bytes": 980677,
+    "sha256": "f9809489218f9823d0a93fd0b44270020bb4c7eb3ae21ebc9090269d6462dfbd",
+    "pgn_rehashed_at": "2026-10-19",
+    "source_fetch_scope": "downloaded earlier in session, local bytes rehashed now"
+  },
+  {
+    "file": "TCEC_Season_29_-_4k_Vi.pgn",
+    "url": "https://raw.githubusercontent.com/TCEC-Chess/tcecgames/3dd69a40b3cf6ccc74144df7411ef4e8e2140286/master-archive/TCEC_Season_29_-_4k_Vi.pgn",
+    "engines": [
+      "4k.c 5.0",
+      "4ku 5.1",
+      "STRO4K 5.0",
+      "c4ke 1.0",
+      "ice4 6.1",
+      "molly e317a0c7b8",
+      "pygone 1.6.5"
+    ],
+    "dates": [
+      "2025.10.31",
+      "2025.11.01",
+      "2025.11.02",
+      "2025.11.03",
+      "2025.11.04",
+      "2025.11.05",
+      "2025.11.06",
+      "2025.11.07"
+    ],
+    "bytes": 2651649,
+    "sha256": "d429e5659a2ff9eaa83e0f6c0c7b7329782ef6fbff9183a8db953a913a5b4c98",
+    "pgn_rehashed_at": "2026-10-19",
+    "source_fetch_scope": "downloaded earlier in session, local bytes rehashed now"
+  },
+  {
+    "file": "TCEC_Season_28_-_4k_V_Elf_Executable_Bonus.pgn",
+    "url": "https://raw.githubusercontent.com/TCEC-Chess/tcecgames/3dd69a40b3cf6ccc74144df7411ef4e8e2140286/master-archive/TCEC_Season_28_-_4k_V_Elf_Executable_Bonus.pgn",
+    "engines": [
+      "4k.c 1.10",
+      "LESS_STRO4K 4.0"
+    ],
+    "dates": [
+      "2025.04.09",
+      "2025.04.10"
+    ],
+    "bytes": 352464,
+    "sha256": "8a00bfd0fd38755a71ac149c8e69f07349ccbae9ee94c72da30fa4300ed54780",
+    "pgn_rehashed_at": "2026-10-19",
+    "source_fetch_scope": "downloaded earlier in session, local bytes rehashed now"
+  },
+  {
+    "file": "TCEC_Season_30_-_4k_Vii.pgn",
+    "url": "https://tcec-chess.com/archive/json/TCEC_Season_30_-_4k_Vii.pgn",
+    "engines": [
+      "4k.c 9.0",
+      "4ku 5.1",
+      "STRO4K 5.0.1",
+      "c4ke 3.0",
+      "ice4 6.1.1",
+      "molly e317a0c7b8",
+      "pygone 2-11b142"
+    ],
+    "dates": [
+      "2026.06.06",
+      "2026.06.07",
+      "2026.06.08",
+      "2026.06.09",
+      "2026.06.10",
+      "2026.06.11",
+      "2026.06.12",
+      "2026.06.13"
+    ],
+    "bytes": 2582522,
+    "sha256": "f934fe275d662fb56452dbfaed6b09cec2d436ed5055bc281e1494a0920db89a",
+    "pgn_rehashed_at": "2026-10-19",
+    "source_fetch_scope": "downloaded earlier in session, local bytes rehashed now"
+  },
+  {
+    "file": "TCEC_Season_30_-_4k_Elf_Iii.pgn",
+    "url": "https://tcec-chess.com/archive/json/TCEC_Season_30_-_4k_Elf_Iii.pgn",
+    "engines": [
+      "4k.c 9.15.1",
+      "STRO4K 6.0"
+    ],
+    "dates": [
+      "2026.06.18",
+      "2026.06.19",
+      "2026.06.20"
+    ],
+    "bytes": 1083028,
+    "sha256": "f7e034ec05dae46d2e7125fe1a8b5991b3f7a2918d6cd5e399e306607e280516",
+    "pgn_rehashed_at": "2026-10-19",
+    "source_fetch_scope": "downloaded earlier in session, local bytes rehashed now"
+  },
+  {
+    "file": "TCEC_Season_24_-_4k_2_Final.pgn",
+    "url": "https://raw.githubusercontent.com/TCEC-Chess/tcecgames/3dd69a40b3cf6ccc74144df7411ef4e8e2140286/master-archive/TCEC_Season_24_-_4k_2_Final.pgn",
+    "engines": [
+      "4ku 3.0",
+      "ice4 v3"
+    ],
+    "dates": [
+      "2023.05.14",
+      "2023.05.15"
+    ],
+    "bytes": 463475,
+    "sha256": "da25e2abcb3d8cd93bf96f589abfd89afc69fedd04de89890249bd205c63f765",
+    "stage": "final-or-bonus",
+    "pgn_rehashed_at": "2026-10-19",
+    "source_fetch_scope": "downloaded earlier in session, local bytes rehashed now"
+  },
+  {
+    "file": "TCEC_Season_26_-_4k_Iii_Minifinal.pgn",
+    "url": "https://raw.githubusercontent.com/TCEC-Chess/tcecgames/3dd69a40b3cf6ccc74144df7411ef4e8e2140286/master-archive/TCEC_Season_26_-_4k_Iii_Minifinal.pgn",
+    "engines": [
+      "4ku 4.0",
+      "ice4 4"
+    ],
+    "dates": [
+      "2024.01.04",
+      "2024.01.05",
+      "2024.01.06"
+    ],
+    "bytes": 1088009,
+    "sha256": "fccea6c7c939645d7db8bcdbe16816be81e56ce168f62d95f4c24640805ffbdd",
+    "stage": "final-or-bonus",
+    "pgn_rehashed_at": "2026-10-19",
+    "source_fetch_scope": "downloaded earlier in session, local bytes rehashed now"
+  },
+  {
+    "file": "TCEC_Season_27_-_4k_Iv_Minifinal.pgn",
+    "url": "https://raw.githubusercontent.com/TCEC-Chess/tcecgames/3dd69a40b3cf6ccc74144df7411ef4e8e2140286/master-archive/TCEC_Season_27_-_4k_Iv_Minifinal.pgn",
+    "engines": [
+      "4ku 5.0",
+      "ice4 5"
+    ],
+    "dates": [
+      "2024.08.20",
+      "2024.08.21",
+      "2024.08.22"
+    ],
+    "bytes": 881921,
+    "sha256": "983c7adb9b7fe8a09f86004f585d439a9df1a72549cf681d2a64084456889c4d",
+    "stage": "final-or-bonus",
+    "pgn_rehashed_at": "2026-10-19",
+    "source_fetch_scope": "downloaded earlier in session, local bytes rehashed now"
+  },
+  {
+    "file": "TCEC_Season_28_-_4k_V_Minifinal.pgn",
+    "url": "https://raw.githubusercontent.com/TCEC-Chess/tcecgames/3dd69a40b3cf6ccc74144df7411ef4e8e2140286/master-archive/TCEC_Season_28_-_4k_V_Minifinal.pgn",
+    "engines": [
+      "4ku 5.1",
+      "ice4 6"
+    ],
+    "dates": [
+      "2025.04.07",
+      "2025.04.08",
+      "2025.04.09"
+    ],
+    "bytes": 976633,
+    "sha256": "dc664d9da2cb79d11cd2fedbf7a11c5a6d303233d3e012aed5f4552d475c4593",
+    "stage": "final-or-bonus",
+    "pgn_rehashed_at": "2026-10-19",
+    "source_fetch_scope": "downloaded earlier in session, local bytes rehashed now"
+  },
+  {
+    "file": "TCEC_Season_29_-_4k_Vi_Minifinal.pgn",
+    "url": "https://raw.githubusercontent.com/TCEC-Chess/tcecgames/3dd69a40b3cf6ccc74144df7411ef4e8e2140286/master-archive/TCEC_Season_29_-_4k_Vi_Minifinal.pgn",
+    "engines": [
+      "c4ke 1.1",
+      "ice4 6.1"
+    ],
+    "dates": [
+      "2025.11.07",
+      "2025.11.08",
+      "2025.11.09"
+    ],
+    "bytes": 971886,
+    "sha256": "69b8c7c20b4caeba82ba16a3ebb4d35e515ef758b79a4bbe4f0704b7461de768",
+    "stage": "final-or-bonus",
+    "pgn_rehashed_at": "2026-10-19",
+    "source_fetch_scope": "downloaded earlier in session, local bytes rehashed now"
+  },
+  {
+    "file": "TCEC_Season_30_-_4k_Vii_Minifinal.pgn",
+    "url": "https://tcec-chess.com/archive/json/TCEC_Season_30_-_4k_Vii_Minifinal.pgn",
+    "engines": [
+      "c4ke 3.0",
+      "ice4 6.1.1"
+    ],
+    "dates": [
+      "2026.06.13",
+      "2026.06.14",
+      "2026.06.15"
+    ],
+    "bytes": 1164610,
+    "sha256": "60871234e3952373337068412c6f417551615ca52479255857f148d26c07b3dc",
+    "stage": "final-or-bonus",
+    "pgn_rehashed_at": "2026-10-19",
+    "source_fetch_scope": "downloaded earlier in session, local bytes rehashed now"
+  },
+  {
+    "file": "TCEC_Season_30_-_4k_Vii_Alt_Minifinal_Bonus.pgn",
+    "url": "https://tcec-chess.com/archive/json/TCEC_Season_30_-_4k_Vii_Alt_Minifinal_Bonus.pgn",
+    "engines": [
+      "4k.c 9.15",
+      "4ku 5.1"
+    ],
+    "dates": [
+      "2026.06.15",
+      "2026.06.16",
+      "2026.06.17"
+    ],
+    "bytes": 958735,
+    "sha256": "8fcf214e5986adb45d9f2e5bdb01f15fe31d2dd05db3f1125bf2b9281e1917a6",
+    "stage": "final-or-bonus",
+    "pgn_rehashed_at": "2026-10-19",
+    "source_fetch_scope": "downloaded earlier in session, local bytes rehashed now"
+  }
+]

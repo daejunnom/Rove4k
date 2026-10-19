@@ -1,0 +1,36 @@
+{
+  "name": "STRO4K",
+  "artifact": "../inputs/STRO4K",
+  "sha256": "c4b3a7d3ca808418dd014be9527b81057c4db5de8d24ab0c4ee14a360f17ae98",
+  "category": "4k",
+  "provenance": {
+    "version_relationship": "Latest public release is 5.0. Bare ELF LESS_STRO4K 5.0 and STRO4K 6.0 tournament files and matching version tags were not found. This shell-packed 5.0 file must not be represented as those ELF entries.",
+    "source_archive": "../vendor/stro4k/source.tar.gz",
+    "license_path": "../vendor/stro4k/LICENSE",
+    "path_base": "manifest-directory",
+    "source_manifest": "../vendor/source-manifest.json",
+    "source_archive_sha256": "33dd8d8fbb77a81325dd5392cb4fba6248ffbbfa7771869172819a467ee61a5a",
+    "license_paths": [
+      "../vendor/stro4k/LICENSE"
+    ],
+    "source_commit": "d06d36c4655f99bf1d925ae7a2c22d6657d46e7b",
+    "source_url": "https://github.com/ONE-RANDOM-HUMAN/STRO4K",
+    "artifact_url": "https://github.com/ONE-RANDOM-HUMAN/STRO4K/releases/download/v5.0/STRO4K-tcec",
+    "representative_version": "5.0",
+    "source_correspondence_status": "same-release-tag-source-and-artifact",
+    "editable_source_correspondence": "matching upstream release tag source and original release asset; independent full source-to-release-binary reproduction not performed",
+    "source_correspondence_proofs": [],
+    "unresolved_source_correspondence_gap": "release-source relationship known; native reproduction not separately performed"
+  },
+  "envelope": {
+    "decoder": "xz -dcF raw --x86 --lzma2",
+    "payload_codec": {
+      "format": "raw",
+      "x86": true
+    },
+    "header_bytes": 102,
+    "header_sha256": "de7a692dd2b30abd934cccbb13260f09b0c64752d8127cc3be4dccfb7e377ea3"
+  },
+  "payload_sha256": "4e0ea32f2c49edfbb8efafdfe57f96ae9abca126337923c2123cf68fa6054bc1",
+  "runtime_blocked": "Original and byte-identical-payload candidate both SIGSEGV during startup on this host; exact root cause not established. ELF LOAD p_memsz=0x427c403000 needs approximately266GiB virtual segment; resource/loader compatibility is unverified. Recorded original failures are preserved in evidence/engines/STRO4K-round2."
+}
