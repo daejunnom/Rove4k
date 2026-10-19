@@ -1,11 +1,27 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { checkBundle, checkCiRequest, checkPackage, checkRegistryState, checkRuntime, publicationArgs } from './release.mjs';
-import { hash, json, packageRoot } from './common.mjs';
+import { hash, json, packageRoot, packedPackage } from './common.mjs';
 import path from 'node:path';
 
 const config = await json(new URL('./release-config.json', import.meta.url));
 const metadata = await json(path.join(packageRoot, 'package.json'));
+
+test('packing accepts legacy and npm 12 reports for the same exact package', () => {
+  const info = { name: metadata.name, version: metadata.version,
+    filename: `${metadata.name}-${metadata.version}.tgz`, files: [{ path: 'package.json' }] };
+  for (const report of [[info], { [metadata.name]: info }]) {
+    assert.deepEqual(packedPackage(JSON.stringify(report), metadata), info);
+  }
+  for (const report of [[], [info, info], {}, { unrelated: info },
+    { [metadata.name]: info, unrelated: info },
+    [{ ...info, name: 'another-package' }], [{ ...info, version: '999.0.0' }],
+    [{ ...info, filename: '../another.tgz' }], [{ ...info, files: undefined }]]) {
+    assert.throws(() => packedPackage(JSON.stringify(report), metadata), /npm pack/);
+  }
+  assert.throws(() => packedPackage('not JSON', metadata), SyntaxError);
+});
+
 const commit = '1234567890abcdef1234567890abcdef12345678';
 const env = { GITHUB_ACTIONS: 'true', GITHUB_EVENT_NAME: 'workflow_dispatch',
   GITHUB_REPOSITORY: config.repository, GITHUB_REF: `refs/heads/${config.release_branch}`,

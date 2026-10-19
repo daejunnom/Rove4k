@@ -10,6 +10,22 @@ export const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 export async function json(file) { return JSON.parse(await readFile(file, 'utf8')); }
 export async function writeJson(file, value) { await mkdir(path.dirname(file), { recursive: true }); await writeFile(file, `${JSON.stringify(value, null, 2)}\n`); }
 
+export function packedPackage(output, expected) {
+  const value = JSON.parse(output);
+  // npm 10/11 return an array; npm 12 keys results by package name.
+  const records = Array.isArray(value) ? value
+    : value && typeof value === 'object' && Object.keys(value).length === 1 && Object.hasOwn(value, expected.name)
+      ? [value[expected.name]] : [];
+  if (records.length !== 1) throw new Error('npm pack must report exactly one expected package.');
+  const info = records[0];
+  const filename = `${expected.name.replace(/^@/, '').replaceAll('/', '-')}-${expected.version}.tgz`;
+  if (info?.name !== expected.name || info.version !== expected.version || info.filename !== filename) {
+    throw new Error(`npm pack did not report ${expected.name}@${expected.version} as ${filename}.`);
+  }
+  if (!Array.isArray(info.files)) throw new Error('npm pack did not provide a file inventory.');
+  return info;
+}
+
 export async function externalDirectory(directory) {
   const resolved = path.resolve(directory);
   let parent = resolved;
