@@ -66,6 +66,14 @@ function within(parent, child) {
   return relative === '' || (relative !== '..' && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative));
 }
 
+function entryExists(filename) {
+  try { fs.lstatSync(filename); return true; }
+  catch (error) {
+    if (error.code === 'ENOENT') return false;
+    throw error;
+  }
+}
+
 function realDirectory(directory) {
   const absolute = path.resolve(directory);
   const root = path.parse(absolute).root;
@@ -154,7 +162,7 @@ function ownerPath(ctx, branch) {
 
 function readOwner(ctx, branch) {
   const filename = ownerPath(ctx, branch);
-  if (!fs.existsSync(path.dirname(filename))) return null;
+  if (!entryExists(path.dirname(filename))) return null;
   realDirectory(path.dirname(filename));
   let fd;
   try {
@@ -197,7 +205,7 @@ function start(ctx, options) {
   if (!owner || !/^[a-zA-Z0-9][a-zA-Z0-9._/-]{0,127}$/.test(owner)) fail('invalid-owner', 'Specify a stable task owner with --owner');
   if (!options.worktree || !path.isAbsolute(options.worktree)) fail('unsafe-path', '--worktree must be an absolute new path');
   const target = path.join(realDirectory(path.dirname(options.worktree)), path.basename(options.worktree));
-  if (fs.existsSync(target)) fail('path-exists', 'The worktree target already exists; it will not be adopted or emptied');
+  if (entryExists(target)) fail('path-exists', 'The worktree target already exists; it will not be adopted or emptied');
   if (ctx.worktrees.some(w => within(path.resolve(w.path), target) || within(target, path.resolve(w.path)))) {
     fail('unsafe-path', 'The new worktree must be outside all existing worktrees');
   }
@@ -213,7 +221,7 @@ function start(ctx, options) {
   if (options['expected-base'] !== base) fail('base-changed', 'Use --expected-base with the exact SHA from the reviewed start plan');
 
   const filename = ownerPath(ctx, branch);
-  if (!fs.existsSync(path.dirname(filename))) fs.mkdirSync(path.dirname(filename), { mode: 0o700 });
+  if (!entryExists(path.dirname(filename))) fs.mkdirSync(path.dirname(filename), { mode: 0o700 });
   realDirectory(path.dirname(filename));
   const value = { version: 1, state: 'reserved', common: ctx.common, branch, worktree: target, owner, base, created: new Date().toISOString() };
   const fd = fs.openSync(filename, 'wx', 0o600);

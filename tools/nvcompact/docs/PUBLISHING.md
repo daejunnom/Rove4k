@@ -9,6 +9,10 @@
 인증 상태는 공개 조회로 확정하지 않는다. 이 변경은 이름 설정과 배포 경로 준비이며,
 실제 npm 게시·로그인·trusted publisher 설정은 수행하지 않았다.
 
+관측 근거는 [이름 조회](../evidence/0.5/npm-name.json)와
+[로컬 포장·실제 설치 검증](../evidence/0.5/release-preparation.json)에 둔다.
+작업 중 생성한 검증용 bundle과 검토한 clean main에서 게시할 bundle은 구분한다.
+
 ## 설정과 지원 대상
 
 [`release-config.json`](../scripts/release-config.json)이 게시자와 배포 대상을 둔다.
@@ -37,6 +41,9 @@ Python은 npm tarball에 넣지 않는다.
 
 검토한 변경이 `main`에 통합된 clean checkout에서 준비한다. 준비와 업로드는
 분리되어 있으며 `publish:nvcompact`는 포장이나 재빌드를 하지 않는다.
+이 저장소의 준비·게시 스크립트는 **Linux에서 실행**한다. Linux x64 환경이 없는
+로컬에서는 아래 GitHub `prepare` 작업으로 tarball을 만들고 플랫폼 중립 수동 업로드
+경로를 사용한다. Windows에서 Linux native 바이너리를 실행하도록 요구하지 않는다.
 
 ```sh
 npm run release:prepare
@@ -55,6 +62,10 @@ npm run publish:nvcompact
 npm run publish:nvcompact -- --start
 ```
 
+`--start`는 실제 registry 쓰기 요청이다. 이 경로는 npm의 `dry-run=false`와
+`force=false`를 명시해, 전역 dry-run 설정을 실제 게시 성공으로 잘못 보고하지 않는다.
+실제 업로드를 원하지 않으면 `--start`를 붙이지 않는다.
+
 계정이 선택되어 있지 않은 경우에만 먼저 `npm login --registry=https://registry.npmjs.org/`로
 `daejunnom`에 로그인한다. 업로드 경로는 `npm whoami`가 설정한 개인 계정과 같은지,
 이름의 기존 관리자가 같은지, 버전이 미게시인지 확인한다. npm의 2FA prompt는 그대로
@@ -71,6 +82,27 @@ bundle의 source commit과 현재 clean main, 현재 source fingerprint, 검증�
 해시가 일치해야 한다. 실패한 요청의 재시도 전에 npm registry에서 실제 게시 여부를
 확인한다. 게시된 동일 버전 덮어쓰기나 실패를 숨기는 다른 이름·인증 방식으로의
 전환은 하지 않는다. 이후 버전은 Cargo crate와 npm package의 버전을 함께 올린다.
+
+### Windows/macOS 등에서 준비된 tarball만 업로드
+
+GitHub의 `prepare` 작업이 생성한 release bundle을 내려받으면 Linux 엔진을 로컬에서
+실행하거나 Rust를 빌드할 필요가 없다. 다음 표준 npm 경로는 운영체제와 무관하다.
+`release.json`의 commit이 요청한 main SHA와 같고, 다음 계산의 bytes/sha256이 그
+기록과 같은지 먼저 확인한다. `npm whoami` 결과는 `daejunnom`, pack 정보의 name/version은
+`nvcompact`/검토한 버전이어야 한다.
+
+```sh
+npm whoami --registry=https://registry.npmjs.org/
+node -e "const f=require('node:fs'),c=require('node:crypto'),b=f.readFileSync(process.argv[1]);console.log(JSON.stringify({bytes:b.length,sha256:c.createHash('sha256').update(b).digest('hex')}))" ./nvcompact-0.4.0.tgz
+npm pack ./nvcompact-0.4.0.tgz --dry-run --offline --ignore-scripts --json
+```
+
+확인한 파일의 **실제 업로드 명령**은 다음과 같다. 이 표준 npm 경로에서는 위 계정,
+commit과 파일 확인을 사용자가 수행하며 저장소의 Linux 게시 스크립트를 호출하지 않는다.
+
+```sh
+npm publish ./nvcompact-0.4.0.tgz --access=public --registry=https://registry.npmjs.org/ --tag=latest --ignore-scripts --dry-run=false --force=false
+```
 
 ## OIDC 연결: 최초 게시 이후
 
@@ -131,7 +163,7 @@ repository/public package의 GitHub OIDC 게시에는 provenance가 생성된다
 동일한 빌드 산출물을 확인할 수 있다.
 
 ```sh
-gh workflow run nvcompact-publish.yml --ref main -f version=0.4.1 -f commit=<MAIN_SHA> -f operation=stage
+gh workflow run nvcompact-publish.yml --ref main -f version=0.4.1 -f commit='<MAIN_SHA>' -f operation=stage
 ```
 
 stage 결과는 npm package 페이지 또는 `npm stage list nvcompact`로 검토하고,

@@ -12,7 +12,7 @@
 | 자료 | 확인한 기준 | 적용한 내용 |
 |---|---|---|
 | Rovent develop | `609819ded605795c9ff0653adad391e875b1c4b2` | feature PR, 작은 WIP 공유, 소유권·종료·보존 구분, 공통 검증·CI 격리 |
-| Rovent 최신 구현 PR #27 | `a41bc05ffa886d6f67b3289e71e027aa718c58a3`, open Draft | 관련 규약의 최신성 대조. AGENTS·CONTRIBUTING·ENGINEERING·TESTING·PR template의 blob이 위 develop과 모두 동일 |
+| Rovent 최신 구현 PR #27 | `7e47980342aad4a32a058eb0ac1d0f73d9e41a32`, open Draft, 10:36:43 UTC 갱신 확인 | 관련 규약의 최신성 대조. AGENTS·CONTRIBUTING·ENGINEERING·TESTING·PR template의 blob이 위 develop과 모두 동일 |
 | MMMM 최신 구현 PR #1 | `79448abf8b8eaa7c86cb3840d6397d7410bff5b3`, open Draft | 최신 AGENTS·기여 절차·실제 빌드 관리 코드와 수명 문서. develop에 병합된 것으로 간주하지 않음 |
 | MMMM 규약 보완 PR #2 | `8720d0724a34a27db746d6ed131a9966c0579aac`, open·미병합 | 구현 PR에 없는 최신 검증·테스트 판정 보완. 관련 원칙을 이 저장소에 명시적으로 채택 |
 
@@ -20,6 +20,9 @@ Rovent의 검증 보완 PR #26은 develop에 통합돼 있다. MMMM의 PR #2는 
 구현 규약을 그대로 두고 테스트 보완 문서와 PR template 참조를 추가한 별도 제안이다.
 MMMM의 main/develop `e9fb5616673fc214d7c242a068e68a7f5d9397b8`만 기준으로 삼으면
 진행 중인 관리 구현과 별도 보완을 놓치므로 둘을 나누어 읽었다.
+최신 Rovent 구현의 `run_managed.py`는 고정 목적 식별자와 실행 중 출력 예산 관측,
+초기화 오류 보존을 보완했다. 아래 고정 목적·소유 범위·유한 관측 원칙에 맞는지 확인하고,
+해당 프로젝트의 supervisor와 수치 제한은 복제하지 않았다.
 
 고정 원문:
 
@@ -27,7 +30,7 @@ MMMM의 main/develop `e9fb5616673fc214d7c242a068e68a7f5d9397b8`만 기준으로 
   [CONTRIBUTING](https://github.com/daejunnom/Rovent/blob/609819ded605795c9ff0653adad391e875b1c4b2/CONTRIBUTING.md),
   [ENGINEERING-STANDARDS](https://github.com/daejunnom/Rovent/blob/609819ded605795c9ff0653adad391e875b1c4b2/docs/ENGINEERING-STANDARDS.md),
   [TESTING-STANDARDS](https://github.com/daejunnom/Rovent/blob/609819ded605795c9ff0653adad391e875b1c4b2/docs/TESTING-STANDARDS.md),
-  [관리 실행 접점](https://github.com/daejunnom/Rovent/blob/609819ded605795c9ff0653adad391e875b1c4b2/scripts/run_managed.py),
+  [최신 PR의 관리 실행 접점](https://github.com/daejunnom/Rovent/blob/7e47980342aad4a32a058eb0ac1d0f73d9e41a32/scripts/run_managed.py),
   [PR #27](https://github.com/daejunnom/Rovent/pull/27).
 - MMMM [AGENTS](https://github.com/daejunnom/MMMM/blob/79448abf8b8eaa7c86cb3840d6397d7410bff5b3/AGENTS.md),
   [CONTRIBUTING](https://github.com/daejunnom/MMMM/blob/79448abf8b8eaa7c86cb3840d6397d7410bff5b3/CONTRIBUTING.md),

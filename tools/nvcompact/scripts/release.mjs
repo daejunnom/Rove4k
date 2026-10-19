@@ -63,6 +63,23 @@ export function checkBundle(record, bytes, config, metadata) {
   }
 }
 
+export function checkRuntime(record, runtime, bytes) {
+  if (runtime.format !== 'nvcompact.npm-native.v1' || runtime.version !== record.version
+      || runtime.platform_key !== record.platform_key || runtime.rust_host !== record.rust_target
+      || runtime.source_sha256 !== record.source_sha256 || runtime.sha256 !== record.runtime_sha256
+      || record.validation?.runtime_sha256 !== runtime.sha256 || runtime.bytes !== bytes.length
+      || runtime.sha256 !== hash(bytes)) {
+    throw new Error('The tarball runtime, its actual executable and the recorded source/target identity disagree.');
+  }
+}
+
+export function publicationArgs(operation, tarball, config, ci) {
+  if (!['stage', 'publish'].includes(operation)) throw new Error('Publication requires stage or publish.');
+  return [...(operation === 'stage' ? ['stage', 'publish'] : ['publish']), tarball,
+    '--access', 'public', '--registry', config.registry, '--tag', config.dist_tag,
+    '--ignore-scripts', '--dry-run=false', '--force=false', ...(ci ? ['--provenance'] : [])];
+}
+
 async function gitState() {
   const commit = (await execute('git', ['rev-parse', 'HEAD'], { seconds: 15 })).stdout.toString('utf8').trim();
   const branch = (await execute('git', ['branch', '--show-current'], { seconds: 15 })).stdout.toString('utf8').trim();
@@ -89,6 +106,10 @@ async function prepare(config, metadata, noBuild) {
   const artifacts = await externalDirectory(artifactRoot());
   const packed = await json(path.join(artifacts, 'package.json'));
   const validated = await json(path.join(artifacts, 'package-validation.json'));
+  if (packed.name !== metadata.name || packed.version !== metadata.version || packed.private
+      || validated.runtime_sha256 !== packed.runtime.sha256) {
+    throw new Error('Prepared package identity or verified native runtime does not match the release.');
+  }
   const state = await gitState();
   if (before.commit !== state.commit) throw new Error('The checkout changed commits while preparing the release.');
   const releases = path.join(artifacts, 'releases'); await mkdir(releases, { recursive: true });
@@ -151,11 +172,19 @@ async function publish(config, metadata, bundleOption, start, ci) {
   if (record.tarball !== `${metadata.name}-${metadata.version}.tgz`) throw new Error('Unexpected tarball name in release bundle.');
   const tarball = path.join(bundle, record.tarball);
   checkBundle(record, await readFile(tarball), config, metadata);
+  const manifest = await execute('tar', ['-xOf', tarball, 'package/package.json'], { seconds: 30, outputBytes: 1 << 20 });
+  const packedMetadata = JSON.parse(manifest.stdout.toString('utf8'));
+  checkPackage(packedMetadata, config);
+  if (packedMetadata.version !== metadata.version) throw new Error('The tarball manifest version does not match the release.');
+  const runtimeManifest = await execute('tar', ['-xOf', tarball, 'package/native/runtime.json'], { seconds: 30, outputBytes: 1 << 20 });
+  const runtimeBytes = await execute('tar', ['-xOf', tarball, `package/native/${config.platform_key}/nvcompact`],
+    { seconds: 30, outputBytes: 64 << 20 });
+  checkRuntime(record, JSON.parse(runtimeManifest.stdout.toString('utf8')), runtimeBytes.stdout);
   const operation = ci ? checkCiRequest(process.env, config, metadata.version) : 'publish';
   if (operation === 'prepare') throw new Error('The prepare operation cannot invoke the publication job.');
   const plan = { operation, package: record.package, version: record.version, npm_owner: config.npm_owner,
     registry: config.registry, commit: record.commit, tarball, bytes: record.bytes, sha256: record.sha256,
-    authentication: ci ? 'GitHub OIDC' : 'interactive npm account', published: false };
+    authentication: ci ? 'GitHub OIDC' : 'interactive npm account', npm_dry_run_on_start: false, published: false };
   if (!start) {
     process.stdout.write(`${JSON.stringify({ status: 'planned', ...plan, start_option: '--start' }, null, 2)}\n`);
     return;
@@ -174,6 +203,9 @@ async function publish(config, metadata, bundleOption, start, ci) {
     }
     const auth = await mkdtemp(path.join(await externalDirectory(artifactRoot()), 'oidc-config-'));
     for (const name of ['user.npmrc', 'global.npmrc']) await writeFile(path.join(auth, name), '', { mode: 0o600 });
+    for (const key of Object.keys(env)) {
+      if (['npm_config_userconfig', 'npm_config_globalconfig'].includes(key.toLowerCase())) delete env[key];
+    }
     env.NPM_CONFIG_USERCONFIG = path.join(auth, 'user.npmrc');
     env.NPM_CONFIG_GLOBALCONFIG = path.join(auth, 'global.npmrc');
   } else {
@@ -185,9 +217,7 @@ async function publish(config, metadata, bundleOption, start, ci) {
   checkRegistryState(await registryPackage(config), config, metadata.version, ci);
   // Recheck the exact file after network/account checks; never repack during publication.
   checkBundle(record, await readFile(tarball), config, metadata);
-  const args = [...(operation === 'stage' ? ['stage', 'publish'] : ['publish']), tarball,
-    '--access', 'public', '--registry', config.registry, '--tag', config.dist_tag, '--ignore-scripts'];
-  if (ci) args.push('--provenance');
+  const args = publicationArgs(operation, tarball, config, ci);
   await interactive(npm, args, env);
   process.stdout.write(`${JSON.stringify({ ...plan, status: operation === 'stage' ? 'staged' : 'published',
     published: operation === 'publish' }, null, 2)}\n`);

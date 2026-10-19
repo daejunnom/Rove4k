@@ -1,0 +1,10 @@
+{
+  "observed_at_utc": "2026-10-19T10:53:21.095734+00:00",
+  "url": "https://registry.npmjs.org/nvcompact",
+  "http_status": 404,
+  "response": {
+    "error": "Not found"
+  },
+  "interpretation": "Unregistered at observation time; lookup does not reserve the name or verify account ownership.",
+  "publication_performed": false
+}

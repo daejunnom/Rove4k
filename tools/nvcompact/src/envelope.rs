@@ -668,6 +668,16 @@ pub fn run(manifest_path: &Path, output: &Path, options: &EnvelopeOptions) -> Re
         matches!(category, "4k" | "4k-elf"),
         "category must be 4k or 4k-elf"
     );
+    for key in ["allow_section_header_removal", "allow_load_zero_tail"] {
+        if let Some(value) = manifest.get(key) {
+            ensure!(value.is_boolean(), "{key} must be a JSON boolean");
+        }
+    }
+    ensure!(
+        manifest["allow_load_zero_tail"] != true
+            || manifest["allow_section_header_removal"] == true,
+        "allow_load_zero_tail also requires allow_section_header_removal"
+    );
     let source = match &options.artifact {
         Some(path) => path.canonicalize()?,
         None => manifest_path

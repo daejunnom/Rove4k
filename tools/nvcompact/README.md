@@ -122,6 +122,13 @@ requires a declared deployment contract; engines that execute header bytes are
 preserved without that edit. Equality is an honest result for an already tightly
 packed upstream submission. Identity selection is not a new compression gain.
 
+An opt-in `allow_load_zero_tail` profile additionally represents trailing zero
+bytes in the final writable segment using ELF zero-fill. Its limited deployment
+contract, owned C/Rust example, GNU/LLD comparisons and unchanged external-engine
+results are recorded in [ELF/Rust compaction](docs/ELF-RUST-COMPACTION.md).
+[Further Rust size options](docs/RUST-SIZE-OPTIONS.md) separates implemented
+transformations from research candidates and their observable behavior.
+
 `envelope` reports a measured minimum and decoder reproduction. Add `--uci` for
 the finite actual protocol and legal-move probes, with resource settings suitable
 for that exact engine. Protocol verification, upstream source correspondence,

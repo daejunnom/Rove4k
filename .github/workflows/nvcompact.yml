@@ -1,6 +1,7 @@
 name: NVCompact
 on:
   push:
+    branches: [main, develop]
     paths: ['tools/nvcompact/**', 'Cargo.toml', 'Cargo.lock', 'package.json', 'package-lock.json', '.github/workflows/nvcompact.yml', '.github/workflows/nvcompact-publish.yml']
   pull_request:
     paths: ['tools/nvcompact/**', 'Cargo.toml', 'Cargo.lock', 'package.json', 'package-lock.json', '.github/workflows/nvcompact.yml', '.github/workflows/nvcompact-publish.yml']

@@ -165,6 +165,12 @@ test('worktree creation rejects symlink parents and never adopts an existing dir
   const args = ['start', '--branch', 'feature/path', '--owner', 'fixture-task', '--worktree'];
   assert.throws(() => run([...args, path.join(link, 'child')], f.repo), { code: 'unsafe-path' });
   assert.throws(() => run([...args, existing], f.repo), { code: 'path-exists' });
+  const dangling = path.join(f.root, 'dangling');
+  fs.symlinkSync(path.join(f.root, 'absent-target'), dangling, process.platform === 'win32' ? 'junction' : 'dir');
+  assert.throws(() => run([...args, dangling], f.repo), { code: 'path-exists' });
+  assert.throws(() => run([...args, dangling, '--execute', '--expected-base', f.base], f.repo), { code: 'path-exists' });
+  assert.equal(fs.lstatSync(dangling).isSymbolicLink(), true);
+  assert.equal(fs.existsSync(path.join(f.repo, '.git', 'rove4k-worktrees')), false);
   assert.equal(fs.readFileSync(path.join(existing, 'valuable.txt'), 'utf8'), 'preserve');
   assert.equal(fs.existsSync(path.join(existing, 'child')), false);
 });

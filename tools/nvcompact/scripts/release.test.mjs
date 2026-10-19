@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { checkBundle, checkCiRequest, checkPackage, checkRegistryState } from './release.mjs';
+import { checkBundle, checkCiRequest, checkPackage, checkRegistryState, checkRuntime, publicationArgs } from './release.mjs';
 import { hash, json, packageRoot } from './common.mjs';
 import path from 'node:path';
 
@@ -17,6 +17,10 @@ test('a release request cannot switch its source, workflow or operation implicit
   assert.equal(checkCiRequest(env, config, metadata.version), 'prepare');
   for (const operation of ['stage', 'publish']) {
     assert.equal(checkCiRequest({ ...env, NVC_RELEASE_OPERATION: operation }, config, metadata.version), operation);
+    const args = publicationArgs(operation, '/owned path/nvcompact.tgz', config, true);
+    assert(args.includes('--dry-run=false'), 'an inherited npm dry-run must not become a false published result');
+    assert(args.includes('--force=false'));
+    assert(args.includes('--provenance'));
   }
   for (const changed of [{ GITHUB_EVENT_NAME: 'pull_request' }, { GITHUB_REF: 'refs/heads/develop' },
     { GITHUB_REPOSITORY: 'someone/fork' }, { NVC_RELEASE_COMMIT: '0'.repeat(40) },
@@ -46,6 +50,16 @@ test('a changed or unverified tarball cannot reuse a prepared release identity',
   assert.throws(() => checkBundle(record, Buffer.from('changed artifact'), config, metadata));
   assert.throws(() => checkBundle({ ...record, validation: { status: 'not_run' } }, bytes, config, metadata));
   assert.throws(() => checkBundle({ ...record, tarball: '../another.tgz' }, bytes, config, metadata));
+  const native = Buffer.from('owned executable bytes');
+  const nativeRecord = { ...record, source_sha256: 'source identity', runtime_sha256: hash(native),
+    validation: { ...record.validation, runtime_sha256: hash(native) } };
+  const runtime = { format: 'nvcompact.npm-native.v1', version: metadata.version,
+    platform_key: config.platform_key, rust_host: config.rust_target, source_sha256: 'source identity',
+    bytes: native.length, sha256: hash(native) };
+  assert.doesNotThrow(() => checkRuntime(nativeRecord, runtime, native));
+  assert.throws(() => checkRuntime({ ...nativeRecord, source_sha256: 'another source' }, runtime, native));
+  assert.throws(() => checkRuntime({ ...nativeRecord, runtime_sha256: 'another executable' }, runtime, native));
+  assert.throws(() => checkRuntime(nativeRecord, runtime, Buffer.from('changed executable')));
 });
 
 test('publication metadata cannot silently select another registry or repository', () => {
