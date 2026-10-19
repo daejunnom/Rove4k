@@ -36,6 +36,7 @@ jobs:
         run: |
           python3 engines/model/codec.py check
           python3 -m unittest discover -s engines/model -p 'test*.py'
+          python3 -m unittest discover -s engines/model/representations -p 'test_*.py'
       - name: Check source compaction and real restoration lifetimes
         run: python3 -m unittest discover -s engines/scripts -p 'test*.py'
       - name: Check C scheduling contracts independently of engine integration
@@ -47,6 +48,16 @@ jobs:
       - name: Check C SEE, singular exclusion, SIMD and MTD semantics
         if: matrix.language == 'c'
         run: python3 engines/tests/run_search_contract.py --out "$ROVE_TEST_OUT/search-contract" --variants BCF --workers 1
+      - name: Check structural source admission and bounded worker representations
+        if: matrix.language == 'c'
+        run: python3 -m unittest discover -s engines/compact/c -p 'test_*.py'
+      - name: Check coherent full-key TT publication and directional replacement
+        if: matrix.language == 'c'
+        run: |
+          for single in 0 1; do
+            cc -std=c11 -O2 -pthread -DROVE_VARIANT=6 -DROVE_F_SINGLE="$single" -DROVE_TT_BITS=8 -DROVE_WORKERS=1 -DROVE_DEV=0 engines/experiments/f/tt_contract.c engines/c/board.c -o "$ROVE_TEST_OUT/tt-contract-$single"
+            timeout 60 "$ROVE_TEST_OUT/tt-contract-$single"
+          done
       - name: Check independent Rust rule and search contracts
         if: matrix.language == 'rust'
         env:

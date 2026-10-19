@@ -4,6 +4,21 @@ The full implementation scope is recorded in [the accepted plan](ENGINE-PLAN.ko.
 The current user request excludes training and AWS connections. Frozen model
 inference and lossless model storage remain in scope; trained strength is not claimed.
 
+## Current acceptance state
+
+The latest fully verified core is `de5676dcbc498d77477c66064aca926633c851ff`.
+Its [Linux CI](https://github.com/daejunnom/Rove4k/actions/runs/39339036826)
+passed both C and Rust jobs. The immutable local rebuild passed 144/144 behavior
+groups, independent byte reproduction of all 24 native forms, and four bounded
+A/F C-versus-Rust games. The sections below preserve earlier checkpoint results
+as history; they do not override this newer evidence.
+
+**No family has a verified complete file at or below 4,096 bytes.** All twelve
+cores have functional evidence, but portfolio completion still requires source
+reduction, D's eligible own-ELF artifact, feature-aligned structural comparisons,
+target-profile search/resource checks and final candidate games. Startup-only
+evidence and small-profile games have the narrower scopes recorded below.
+
 ## Starting checkpoint: 2026-10-20
 
 Base: develop `56bfb5f45bff59a570d3f04f8eba06332d53c052`.
@@ -202,3 +217,141 @@ incremental HCE/hash and exact legal replay; compact search work preserves the
 family-specific algorithms; Rust work replaces per-node heap collections with
 bounded storage; E compares lossless coefficient representations including their
 decoder and consumer cost. None changes the full portfolio completion criteria.
+
+## Coherent TT and bounded Rust storage: `de5676d`
+
+A deterministic mixed-publication example exposed a false hit in the old C
+XOR key/payload protocol. A–E now use a full 64-bit key and seven payload bytes
+under one exclusive atomic-byte CAS, retaining a 16-byte slot. F's paired
+32-byte slot protects both directions under the same lock; key replacement
+invalidates both payloads. A busy reader misses and a busy writer skips the
+slot. No concurrent plain payload access occurs outside the lock. Optimized
+and sanitizer fixtures exercise actual engine publication and replacement,
+including eight-thread collision runs. This is a correctness change, not a
+notation-only optimization.
+
+Rust now uses a checked 512-entry move list with an initialized prefix and a
+101-key reversible history. Admitted positions contain at most sixteen pieces
+and eight pawns per side; the conservative pseudo-move bound fits the list.
+History older than the retained suffix cannot change the halfmove-100 result;
+checkmate still takes precedence. Actual A–F depth-three searches perform zero
+allocations after startup. The larger fixed Board is 1,080 bytes, versus the
+previous 288-byte heap-backed value, so this is not reported as a Board-size
+reduction. A normal B search reaches ply 96 on a 1 MiB worker stack in both
+optimized compiler profiles and returns an unfinished result at its limit.
+
+Direct start-position construction removes the shipping FEN dependency. Rust
+test bodies now live under `engines/tests/rust`, with unchanged `rustc --test`
+entry points, and are absent from production source archives. In a matched A
+shipping recipe the complete minimum source file decreases from 21,732 to
+18,427 bytes. Frozen input, compiler and actual file hashes accompany each
+phase; this remains oversized.
+
+The new immutable native matrix again passes **144/144 groups across eighteen
+distinct executable byte streams**, plus four bounded A/F games. Every process
+has two startup tasks with stable task IDs. All twenty-four native forms match
+their own independent second compilation. The actual archive inputs use CRLF;
+their LF-normalized contents match the named Git commit. Reports hash the
+actual input bytes and do not assert raw Git-blob byte identity. External
+records are `final-de5676d/build.json` and
+`final-de5676d-verification/results.json`.
+
+## Controlled structures and complete-file costs
+
+The optional [A mailbox experiment](../engines/experiments/mailbox/README.md)
+implements all four real engine combinations, with one frozen source basis,
+evaluation, search features and fixed resources:
+
+| A representation | Minimum complete source | Minimum complete native wrapper | Board | Worker |
+| --- | ---: | ---: | ---: | ---: |
+| 0x88 / copy-make | 13,035 B | 16,000 B | 696 B | 211,936 B |
+| 0x88 / make-unmake | 13,378 B | 16,406 B | 696 B | 211,936 B |
+| 10x12 / copy-make | 13,053 B | 16,416 B | 664 B | 196,064 B |
+| 10x12 / make-unmake | 13,396 B | 16,792 B | 664 B | 196,064 B |
+
+All four agree on the score, PV, completed depth and node count of six
+single-worker searches. Eight optimized/sanitizer oracle runs, 72 native
+behavior groups, 40 selected whole-wrapper groups and 32 two-worker groups pass.
+This records the declared frozen experiment, not automatic acceptance of those
+older artifacts as the latest coherent-TT submission.
+
+The [F experiment](../engines/experiments/f/README.md) compares actual C/Rust
+paired/single TT storage and previous-depth/same-parity first guesses. The
+default remains paired/previous. All four configurations retain full keys,
+matching-depth intervals, the attaining lower-bound move, completion-only guess
+updates and cancellation. Selected complete files reproduce and pass actual
+shipping checks. At 262,144 slots the paired/single TT allocations are C 8/4 MiB
+and Rust 6/4 MiB. The measured source files are C 13,167–13,207 bytes and Rust
+18,980–18,996 bytes: a smaller TT does not automatically make a smaller file.
+Observed C coordinated root rounds and Rust summed worker probes are distinct
+metrics and are not compared across languages.
+
+The D scalar/HQ comparison uses exactly the same frozen producer, source,
+toolchain, profile and flags except for the attack implementation. All 140
+complete artifacts pass startup and independent reproduction. The selected
+whole-file costs are:
+
+| D language | Scalar source / HQ source | Scalar native wrapper / HQ wrapper | Scalar own ELF / HQ ELF |
+| --- | ---: | ---: | ---: |
+| C | 12,995 / 13,152 B | 13,528 / 13,726 B | 20,205 / 20,476 B |
+| Rust | 18,960 / 18,962 B | 155,757 / 156,082 B | 248,162 / 248,948 B |
+
+Full shipping behavior of the twelve selected D files is a separate acceptance
+step. These startup observations occurred under concurrent work and are not
+used to rank performance. All forms exceed the size limit.
+
+Additional optional C source work shares PVS/QS control, specializes fixed
+Loose SMP, removes unreachable production code and narrows proved worker state.
+The qualified coherent-TT source minima for A–F are respectively 9,356, 9,953,
+9,659, 9,668, 10,176 and 9,546 bytes. Corresponding source/native launchers pass
+sixty shipping groups; their final lexical forms execute the same hashed ELF
+bytes. This source work does not depend on NVCompact. The new central
+`--shipping-operations` integration is separately awaiting its full pipeline
+check. Its deadline sampling is explicitly per-worker rather than aggregate.
+
+E storage work retains every coefficient of the untrained model. Six exact
+representations have complete-file cost evidence; a 42-byte immutable table
+outperforms the 17-byte encoded payload in that frozen recipe once decoder and
+consumer costs are counted. The central `--model-format varint|static16` path
+freezes its pure source transform and canonical model. Fresh `de5676d` consumer
+and whole-wrapper acceptance is pending; older representation evidence is not
+relabeled as that newer result.
+
+## Fixed-resource runtime and bounded policy study
+
+An opt-in [target startup harness](../engines/tests/target_startup.py) admits
+memory and PID headroom before launching a single process. On the eight-CPU
+WSL host, A/F in both languages pass **24/24 startup cases**: totals 256, 509
+and 512, each with quit and EOF. Exact task sets remain unchanged before input,
+after UCI and after two readiness barriers. All processes exit normally without
+forced cleanup. Startup readiness is 0.531–2.179 seconds including the stability
+sampling period; maximum sampled RSS is 2,153,512,960 bytes and maximum virtual
+memory is 6,547,410,944 bytes. Resource limits, admission facts and actual native
+hashes are retained. No search is sent in this campaign. It proves software
+startup/lifecycle under oversubscription, not target-profile search memory or
+512-hardware-thread scalability. All A–F C/Rust now also compile under all three
+target profiles: thirty-six configurations, seventy-two original/compact native
+files and seventy-two independently rebuilt files have matching reproduction
+hashes. Their central manifests explicitly retain unexecuted runtime fields;
+the separate startup evidence applies only to the A/F originals just described.
+
+The five-policy A study uses four search workers plus stdin, TT bits 18, CPU
+affinity 0–4 and one immutable `de5676d` source basis. **180/180 fresh-process
+workloads and 26/26 bounded games pass**. Node-budget workloads finish at exactly
+12,000 nodes. Every process has the same five startup tasks throughout. Games
+contain 1,973 timed plies; six end in checkmate and twenty reach the declared
+80-ply limit with result `*`, not a draw. Independent legal replay, clock
+accounting, SAN and PGN checks agree. The study does not show that the additional
+policy costs repay themselves on these small workloads. Four workers provide
+only one TT group, so this is not a cross-group scaling test.
+
+C/Rust policy runs use their actual implementations. Their HCE coefficients,
+search heuristics and TT bytes per slot differ; these results therefore do not
+isolate a language effect. A feature-aligned structural comparison remains open.
+No Elo, strength ranking or many-core recommendation follows from these games.
+
+The next work is candidate-specific source reduction, fresh acceptance of the
+new optional pipeline stages, feature-aligned comparisons, bounded search and
+memory at target profiles, and eligible complete files for every family. A
+separate compact A architecture is still under active reduction and must keep
+its own source and whole-file validation. Training and AWS remain excluded.

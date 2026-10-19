@@ -48,7 +48,7 @@ def make_launcher(files, *, command, binary="x", environment=None, codec="zlib",
     # Python. The running engine therefore has no wrapper parent or temp files.
     compile_line = ""
     if command:
-        compile_line = " e=os.environ.copy();e.update(" + repr(environment or {}) + ")\n"
+        compile_line = " e=os.environ.copy();e.update(" + repr(environment or {}) + ");e['TMPDIR']=d\n"
         compile_line += " try:\n"
         compile_line += "  m=signal.pthread_sigmask(signal.SIG_BLOCK,{2,15})\n"
         compile_line += "  try:p=subprocess.Popen(" + repr(command) + ",cwd=d,env=e,start_new_session=True,preexec_fn=lambda:signal.pthread_sigmask(signal.SIG_SETMASK,m))\n"

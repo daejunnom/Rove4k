@@ -20,6 +20,23 @@ _spec.loader.exec_module(loader)
 
 
 class Compression(unittest.TestCase):
+    def test_bcj_scan_boundaries_and_random_roundtrips(self):
+        for original, encoded in [(bytes.fromhex("e8fbffffff"), bytes.fromhex("e800000000")),
+                                  (bytes.fromhex("e9ffffffff"), bytes.fromhex("e904000000")),
+                                  (bytes.fromhex("90e8faffffff"), bytes.fromhex("90e800000000")),
+                                  (bytes.fromhex("e8000000"), bytes.fromhex("e8000000")),
+                                  (bytes.fromhex("e8e8e9e8e9"), bytes.fromhex("e8ede9e8e9"))]:
+            self.assertEqual(loader._bcj(original), encoded)
+            self.assertEqual(loader._bcj(encoded, inverse=True), original)
+        rng = random.Random(20261020)
+        cases = [b"", b"\xe8", b"\xe9"*131,
+                 b"\xe8\xe9\xe8\xe9\xe8\xe9\0\0\0\0",
+                 b"\x90"*65533+b"\xe8\xfb\xff\xff\xff",
+                 bytes(range(256))*300]
+        cases.extend(rng.randbytes(length) for length in range(520))
+        for original in cases:
+            self.assertEqual(loader._bcj(loader._bcj(original), inverse=True), original)
+
     def test_boundary_streams(self):
         # Hand-written expected streams exercise forward overlap and both
         # literal/match length bounds independently of compressor choices.
@@ -54,6 +71,9 @@ int main(int n,char**a){char b[128];int x=0;pthread_t t;
 if(!fgets(b,sizeof b,stdin))return 4;
 if(pthread_create(&t,0,worker,&x)||pthread_join(t,0))return 5;
 printf("%d:%s:%s:%d:%s",n,a[1],getenv("ROVE_TEST"),x,b);
+FILE*s=fopen("/proc/self/exe","rb");if(!s)return 6;
+while((x=fread(b,1,sizeof b,s))>0)if(fwrite(b,1,x,stdout)!=(size_t)x)return 7;
+if(ferror(s)||fclose(s))return 8;
 fputs("stderr-preserved\\n",stderr);return 17;}
 ''', encoding="utf-8")
             subprocess.run(["cc", "-Os", "-s", "-pthread", str(c), "-o", str(work / "c")], check=True)
@@ -62,10 +82,11 @@ fputs("stderr-preserved\\n",stderr);return 17;}
             if not rustc:
                 self.fail("Rust compiler required: set RUSTC to its Linux path")
             rust = work / "driver.rs"
-            rust.write_text('''use std::{io::{self,BufRead},thread,env};
+            rust.write_text('''use std::{io::{self,BufRead,Write},thread,env,fs::File};
 fn main(){let mut b=String::new();io::stdin().lock().read_line(&mut b).unwrap();
 let a:Vec<String>=env::args().collect();let n=thread::spawn(||73).join().unwrap();
 print!("{}:{}:{}:{}:{}",a.len(),a[1],env::var("ROVE_TEST").unwrap(),n,b);
+io::stdout().flush().unwrap();io::copy(&mut File::open("/proc/self/exe").unwrap(),&mut io::stdout()).unwrap();
 eprintln!("stderr-preserved");std::process::exit(17);}
 ''', encoding="utf-8")
             subprocess.run([rustc, "-C", "opt-level=z", "-C", "strip=symbols", str(rust),
@@ -73,19 +94,30 @@ eprintln!("stderr-preserved");std::process::exit(17);}
             programs.append(work / "rust")
             records = []
             for source in programs:
-                target = source.with_suffix(".packed")
-                record = loader.pack_elf(source, target)
                 env = {"ROVE_TEST": "env-value", "PATH": ""}
                 expected = subprocess.run([str(source), "argv-value"], input=b"stdin-value\n",
                                           capture_output=True, env=env, timeout=5)
-                actual = subprocess.run([str(target), "argv-value"], input=b"stdin-value\n",
-                                        capture_output=True, env=env, timeout=5)
-                self.assertEqual(actual.returncode, 17)
-                self.assertEqual(actual.stdout, b"2:argv-value:env-value:73:stdin-value\n")
-                self.assertEqual(actual.stderr, b"stderr-preserved\n")
-                self.assertEqual((actual.stdout, actual.stderr, actual.returncode),
-                                 (expected.stdout, expected.stderr, expected.returncode))
-                self.assertIsNone(loader._elf(target.read_bytes())["interpreter"])
+                for filter_mode in ("none", "bcj", "auto"):
+                    target = source.with_suffix("."+filter_mode)
+                    record = loader.pack_elf(source, target, filter=filter_mode)
+                    actual = subprocess.run([str(target), "argv-value"], input=b"stdin-value\n",
+                                            capture_output=True, env=env, timeout=5)
+                    self.assertEqual(actual.returncode, 17)
+                    self.assertEqual(actual.stdout, b"2:argv-value:env-value:73:stdin-value\n"+source.read_bytes())
+                    self.assertEqual(actual.stderr, b"stderr-preserved\n")
+                    self.assertEqual((actual.stdout, actual.stderr, actual.returncode),
+                                     (expected.stdout, expected.stderr, expected.returncode))
+                    self.assertIsNone(loader._elf(target.read_bytes())["interpreter"])
+                    sizes = {candidate["filter"]: candidate["output_bytes"] for candidate in record["filter_candidates"]}
+                    if filter_mode == "auto":
+                        self.assertEqual(record["output_bytes"], min(sizes.values()))
+                    else:
+                        self.assertEqual(record["filter"], filter_mode)
+                        self.assertEqual(record["output_bytes"], sizes[filter_mode])
+                    self.assertEqual(record["within_size_limit"], record["output_bytes"] <= 4096)
+                    record["runtime_validation"] = "exact_self_bytes_argv_env_stdio_threads_exit_pass"
+                    records.append(record)
+                # The auto-selected image must reproduce across temp build dirs.
                 repeat = source.with_suffix(".repeat")
                 repeat_record = loader.pack_elf(source, repeat)
                 self.assertEqual(target.read_bytes(), repeat.read_bytes())
@@ -100,9 +132,11 @@ eprintln!("stderr-preserved");std::process::exit(17);}
                 rejected = subprocess.run([str(invalid)], capture_output=True, env=env, timeout=5)
                 self.assertEqual(rejected.returncode, 126)
                 self.assertEqual(rejected.stderr, b"Rove4k ELF restore failed\n")
-                record["runtime_validation"] = "argv_env_stdio_threads_exit_and_repeat_pass"
-                records.append(record)
-            print(json.dumps({"native_checks": records}, indent=2))
+            print(json.dumps({"native_checks": [
+                {key: record[key] for key in ("input_bytes", "input_sha256", "output_bytes", "output_sha256",
+                                              "payload_bytes", "loader_and_headers_bytes", "filter", "requested_filter",
+                                              "within_size_limit", "runtime_validation", "filter_candidates")}
+                for record in records]}, indent=2))
 
 
 if __name__ == "__main__":

@@ -6,6 +6,7 @@ These are explicit domain specializations, not general C optimizer claims.
 """
 from pathlib import Path
 import hashlib
+import importlib.util
 import re
 
 
@@ -88,7 +89,8 @@ def replace_function(text, name, replacement):
     return text[:begin] + replacement + text[end:]
 
 
-def prepare_sources(files, *, variant, parallel=0, development=False, model=False):
+def prepare_sources(files, *, variant, parallel=0, development=False, model=False,
+                    compact_search=False,small_worker=False,shipping_operations=False):
     """Return transformed sources and source/provenance observations.
 
     Only fixed Loose SMP (mode 0) is supported.  Other policies retain canonical
@@ -96,10 +98,21 @@ def prepare_sources(files, *, variant, parallel=0, development=False, model=Fals
     """
     if variant not in 'ABCDEF' or len(variant) != 1:
         raise ValueError('one A-F candidate is required')
+    if small_worker and (development or parallel or not compact_search):
+        raise ValueError('small worker state requires shipping fixed Loose SMP and compact search')
+    if compact_search and parallel:
+        raise ValueError('this compact search recipe currently selects fixed Loose SMP only')
+    if shipping_operations and (development or parallel or not compact_search or not small_worker):
+        raise ValueError('shipping operations require fixed Loose shipping, compact search and small worker')
     result = dict(files)
     changes = []
     if parallel != 0:
         return result, [{'applied': False, 'reason': 'fixed-loose specialization requires parallel=0'}]
+    normalized = {name:data.replace(b'\r\n',b'\n') for name,data in result.items()}
+    if normalized != result:
+        changes.append({'applied': True, 'operation': 'physical-C-newline-normalization',
+                        'contract': 'CRLF to LF as in C translation phase 1; logical lines and literal escape spelling retained'})
+        result = normalized
     if variant in 'ADF' and not model:
         # Every admitted/produced mailbox cell is in -6..6. Explicit signed
         # eight-bit cells preserve integer promotion at consumers, while copy-
@@ -117,6 +130,16 @@ def prepare_sources(files, *, variant, parallel=0, development=False, model=Fals
     result['c/parallel.h'] = header.read_bytes()
     changes.append({'applied': True, 'operation': 'fixed-loose-persistent-pool',
                     'template': str(header), 'sha256': hashlib.sha256(header.read_bytes()).hexdigest()})
+    move_template = HERE / 'board_moves.c.in'
+    move_source = move_template.read_text()
+    if [item[0] for item in functions(move_source)] != ['generate']:
+        raise ValueError('move template must define only the generate operation')
+    result['c/board.c'] = replace_function(result['c/board.c'].decode(),
+                                          'generate',move_source).encode()
+    changes.append({'applied': True, 'operation': 'shared-leaper-ray-move-emission',
+                    'template': str(move_template),
+                    'sha256': hashlib.sha256(move_template.read_bytes()).hexdigest(),
+                    'contract': 'same encoded moves, scores and ordering for both capture modes; pawn/castling handling retained'})
     if not development:
         main_template = HERE / 'uci.c.in'
         main = main_template.read_text()
@@ -140,6 +163,62 @@ def prepare_sources(files, *, variant, parallel=0, development=False, model=Fals
         result['c/board.c'] = text.encode()
         changes.append({'applied': True, 'operation': 'direct-startpos-initialization',
                         'contract': 'same Board fields and generated initial position; no FEN parser at shipping runtime'})
+        if variant == 'A' and not model:
+            # A's selected attack and evaluation paths consume the mailbox,
+            # incremental HCE and keys. Unreachable FEN/format/debug routines
+            # are removed after preprocessing, before semantic compilation.
+            # No bitboard or material-only accumulator is needed at runtime.
+            header_text = result['c/rove.h'].decode()
+            history = re.search(r'(?m)^#define MAXHISTORY ([0-9]+)\s*$',header_text)
+            ply = re.search(r'(?m)^#define MAXPLY ([0-9]+)\s*$',header_text)
+            if not history or not ply or int(history.group(1))-1+int(ply.group(1))>65535:
+                raise ValueError('A uint16 halfmove state requires bounded replay plus search below 65536')
+            old = '''typedef struct {
+    int8_t b[128];int side, castle, ep, half, full, king[2], material, hce;
+    uint64_t key, pawnkey, bb[2][7], occ[2];
+} Board;'''
+            new = '''typedef struct {
+    int8_t b[128],side,castle,ep,king[2];
+    uint16_t half;
+    int hce;
+    uint64_t key,pawnkey;
+} Board;'''
+            if header_text.count(old) != 1:
+                raise ValueError('A mailbox-only specialization requires the canonical Board layout')
+            result['c/rove.h'] = header_text.replace(old,new).encode()
+            text = result['c/board.c'].decode()
+            text = replace_function(text,'put', '''static void put(Board *p,int q,int v){
+    int values[2]={p->b[q],v};p->b[q]=v;
+    for(int i=0;i<2;i++){
+        int a=values[i];if(!a)continue;
+        uint64_t k=pieces[a>0?a-1:5-a][q];
+        p->key^=k;p->hce+=(i?1:-1)*hce_piece(a,q);
+        if(abs(a)==1)p->pawnkey^=k;
+        if(i&&abs(a)==6)p->king[color(a)]=q;
+    }
+}''')
+            text = replace_function(text,'drawn', '''int drawn(const Board *p,const uint64_t *history,int n){
+    if(p->half>=100)return 1;
+    int count=0,start=n-1-p->half;if(start<0)start=0;
+    for(int i=n-1;i>=start;i-=2)if(history[i]==p->key&&++count>=3)return 1;
+    int minors=0,knights=0,bishop_color=-1;
+    for(int q=0;q<128;q++){
+        if(q&0x88){q+=7;continue;}
+        int a=abs(p->b[q]);
+        if(a==1||a==4||a==5)return 0;
+        if(a==2){minors++;knights++;}
+        if(a==3){minors++;int c=((q>>4)+(q&7))&1;
+            if(bishop_color==-1)bishop_color=c;else if(bishop_color!=c)bishop_color=2;}
+    }
+    return minors<=1||(!knights&&bishop_color<2);
+}''')
+            if text.count('p->full=1;') != 1 or text.count('if(side<0)t->full++;') != 1:
+                raise ValueError('A shipping fullmove-counter consumers changed')
+            text = text.replace('p->full=1;','').replace('if(side<0)t->full++;','')
+            result['c/board.c'] = text.encode()
+            changes.append({'applied': True, 'operation': 'A-mailbox-only-board-state',
+                            'contract': 'shipping A without model only; same keys/HCE/rules; omitted bitboards and unobserved material/fullmove fields',
+                            'maximum_halfmove': int(history.group(1))-1+int(ply.group(1))})
     # The fixed scheduler only emits complete-root tasks (first=0, group=0,
     # groups=1), so eliminate the alternate root-move/counterreply callback.
     text = result['c/search.c'].decode()
@@ -182,6 +261,10 @@ def prepare_sources(files, *, variant, parallel=0, development=False, model=Fals
                 parallel_stopped,ROVE_WORKERS,0,context.generation,0);
             if(!result.completedall||!result.best.complete||parallel_stopped(&context))break;
             score=result.best.score;
+            if(score<lower||score>upper){
+                atomic_fetch_add_explicit(&rove_mtd_conflicts,1,memory_order_relaxed);
+                atomic_store_explicit(&s->stop,1,memory_order_relaxed);break;
+            }
             if(score<beta)upper=score;else{lower=score;best=result.best.first;}
         }
         if(lower!=upper||!result.best.complete||parallel_stopped(&context))break;
@@ -200,7 +283,82 @@ def prepare_sources(files, *, variant, parallel=0, development=False, model=Fals
         result['c/search.c'] = text.encode()
         changes.append({'applied': True, 'operation': 'shipping-loose-iteration-controller',
                         'contract': 'same root search and completed result; removes unused split-root moves, diagnostic PV copy and shipping counters'})
+    if compact_search:
+        template = HERE / 'search.c.in'
+        code = template.read_text()
+        if [item[0] for item in functions(code)] != ['compact_bonus','compact_pv','search']:
+            raise ValueError('unified search template helpers or signature changed')
+        result['c/search.c'] = replace_function(result['c/search.c'].decode(),
+                                               'search',code).encode()
+        changes.append({'applied': True, 'operation': 'shared-PVS-quiescence-operations',
+                        'template': str(template),
+                        'sha256': hashlib.sha256(template.read_bytes()).hexdigest(),
+                        'contract': 'same search policy with shared node entry, selection, cancellation and PV operations; shipping Loose stores first move only'})
+    if small_worker:
+        module_path = HERE / 'worker_state.py'
+        if not module_path.is_file():
+            raise ValueError('small worker state module is unavailable')
+        spec = importlib.util.spec_from_file_location('rove4k_compact_worker_state',module_path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        result,observations = module.compact_worker_state(result)
+        changes += observations
+        changes.append({'applied': True, 'operation': 'small-worker-recipe-input',
+                        'module': str(module_path),
+                        'sha256': hashlib.sha256(module_path.read_bytes()).hexdigest()})
+    if shipping_operations:
+        template = HERE / 'search_stop.c.in'
+        code = template.read_text()
+        if [item[0] for item in functions(code)] != ['stopped']:
+            raise ValueError('shipping node accounting template must define only stopped')
+        result['c/search.c'] = replace_function(result['c/search.c'].decode(),
+                                               'stopped',code).encode()
+        changes.append({'applied': True, 'operation': 'shipping-private-node-accounting',
+                        'template': str(template),
+                        'sha256': hashlib.sha256(template.read_bytes()).hexdigest(),
+                        'contract': 'fixed Loose shipping has no node-limit/statistics command; shared cancellation and exact private worker counts retained',
+                        'policy_change': 'deadline sampling changes from aggregate 256 nodes to each worker every 256 nodes; root/controller deadline checks retained'})
     return result, changes
+
+
+def specialize_shipping_operations(files, *, variant, development, parallel=0):
+    """Apply optional operations to actual compiler-specialized owned C.
+
+    Call only for the shipping-operations form, after ``specialize_c`` and before
+    reachability pruning and final lexical compaction.  Development and other
+    policies retain their diagnostics and aggregate node-limit accounting.
+    """
+    if variant not in 'ABCDEF' or len(variant) != 1 or development or parallel:
+        raise ValueError('shipping post-operations require one fixed Loose shipping A-F candidate')
+    if not files or any(not name.endswith('.c') for name in files):
+        raise ValueError('shipping post-operations require compiler-specialized C translation units')
+    for name,data in files.items():
+        if re.search(r'(?m)^\s*#\s*(?:if|ifdef|ifndef|elif|else|endif)\b',data.decode()):
+            raise ValueError(name+': shipping post-operations require compiler-resolved conditionals')
+    result,changes = dict(files),[]
+    for filename,entry in (('search_observe.py','strip_shipping_diagnostics'),
+                           ('search_args.py','compact_search_arguments')):
+        module_path = HERE / filename
+        if not module_path.is_file():
+            raise ValueError('shipping operation module unavailable: '+filename)
+        spec = importlib.util.spec_from_file_location('rove4k_'+module_path.stem,module_path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        if filename == 'search_args.py' and variant == 'B':
+            changes.append({'applied': False,'operation': 'shipping-private-search-arguments',
+                            'reason': 'B retains excluded-search and frozen-learning arguments'})
+        else:
+            arguments = {'development':False}
+            if filename == 'search_args.py':
+                arguments.update(variant=variant,parallel=0)
+            result,observations = getattr(module,entry)(result,**arguments)
+            changes.append({'applied': True,'operation': 'shipping-private-search-arguments'
+                            if filename == 'search_args.py' else 'shipping-unobserved-diagnostics',
+                            'observations': observations})
+        changes.append({'applied': True,'operation': 'shipping-post-operation-recipe-input',
+                        'module': str(module_path),
+                        'sha256': hashlib.sha256(module_path.read_bytes()).hexdigest()})
+    return result,changes
 
 
 def prune_sources(files):

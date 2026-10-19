@@ -1,0 +1,15 @@
+/* Shipping fixed-Loose only: no node-limit command or global node diagnostic.
+ * Every entry still observes shared cancellation. The private worker counter
+ * remains exact for callback accounting. Clock sampling changes intentionally
+ * from one global 256-node quantum to a 256-node quantum for each worker;
+ * root/controller deadline checks and physical completion barriers stay intact.
+ * Development keeps canonical strict aggregate node-limit accounting.
+ */
+static int stopped(Worker *w){
+    if(atomic_load_explicit(&w->session->stop,memory_order_relaxed)||w->aborted)return 1;
+    uint64_t n=w->nodes++;
+    if((n&255)==0&&w->session->deadline&&now_ms()>=w->session->deadline){
+        atomic_store_explicit(&w->session->stop,1,memory_order_relaxed);return 1;
+    }
+    return 0;
+}

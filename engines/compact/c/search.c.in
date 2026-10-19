@@ -1,0 +1,124 @@
+/* PVS and quiescence share entry, move selection, cancellation and PV code.
+ * The score/search policy is unchanged: quiescence has no TT or learning;
+ * checked quiescence has neither stand-pat nor SEE pruning. */
+static int compact_bonus(int value,int bonus){return value+bonus-value*bonus/16384;}
+static void compact_pv(Worker *w,int ply,unsigned move){
+    w->pv[ply][0]=move;
+#if ROVE_DEV || ROVE_PARALLEL != 0
+    int len=w->pvlen[ply+1];
+    memcpy(w->pv[ply]+1,w->pv[ply+1],(size_t)len*sizeof(unsigned));
+    w->pvlen[ply]=len+1;
+#else
+    /* Fixed loose shipping publishes only the root first move. */
+    w->pvlen[ply]=1;
+#endif
+}
+int search(Worker *w,const Board *p,int depth,int alpha,int beta,int ply,unsigned excluded,int learning){
+    int q=depth<=0;
+    if(stopped(w))return 0;
+    if(ply>=MAXPLY-1){w->aborted=1;return 0;}
+    if(ply>w->seldepth)w->seldepth=ply;
+    w->pvlen[ply]=0;
+    int check=in_check(p);
+    Move moves[MAXMOVES];int n=generate(p,moves,0);
+    if(!legal_witness(p,moves,n))return check?-MATE+ply:0;
+    if(drawn(p,w->path,w->path_len))return 0;
+    int best=-INF,count=0,static_eval=0,corr=0;
+    if(q){
+        static_eval=evaluate(p);
+        if(!check){best=static_eval;if(best>=beta)return best;if(best>alpha)alpha=best;}
+    }else{
+        if(alpha<-MATE+ply)alpha=-MATE+ply;
+        if(beta>MATE-ply-1)beta=MATE-ply-1;
+        if(alpha>=beta)return alpha;
+    }
+    int oldalpha=alpha,ttdepth=-1,ttscore=0,ttbound=0,singular=0;
+    unsigned ttmove=0,bestmove=0;uint64_t data=0,key=0;
+    if(!q){
+        key=context_key(w,p);
+#if ROVE_VARIANT == 6
+        key^=(uint64_t)depth*UINT64_C(0xa0761d6478bd642f);
+#endif
+        if(!excluded&&tt_read(w,key,&data,depth,alpha,ply)){
+            ttmove=(unsigned)(data&131071);ttdepth=(int)((data>>33)&127);
+            ttscore=score_from_tt((int16_t)(data>>17),ply);ttbound=(int)((data>>40)&3);
+#if ROVE_VARIANT == 6
+            int eligible=ttdepth==depth;
+#else
+            int eligible=ttdepth>=depth;
+#endif
+            if(ply&&eligible&&(ttbound==1||(ttbound==2&&ttscore>=beta)||(ttbound==3&&ttscore<=alpha)))return ttscore;
+        }
+#if ROVE_VARIANT == 2
+        if(!excluded&&ply&&depth>=6&&ttmove&&ttdepth>=depth-3&&(ttbound==1||ttbound==2)&&abs(ttscore)<MATE-MAXPLY){
+            int threshold=ttscore-depth*2;
+            atomic_fetch_add_explicit(&rove_singular_calls,1,memory_order_relaxed);
+            int score=search(w,p,(depth-1)/2,threshold-1,threshold,ply,ttmove,0);
+            if(w->aborted||atomic_load_explicit(&w->session->stop,memory_order_relaxed))return 0;
+            singular=score<threshold;w->pvlen[ply]=0;
+        }
+#endif
+    }
+    for(int i=0;i<n;i++)moves[i].score=move_score(w,p,moves[i].m,ttmove,ply);
+    if(!q){static_eval=evaluate(p);corr=w->correction[p->side<0][p->pawnkey&1023]/64;}
+    for(int i=0;i<n;i++){
+        int at=i;
+        for(int j=i+1;j<n;j++)if(moves[j].score>moves[at].score)at=j;
+        Move swap=moves[i];moves[i]=moves[at];moves[at]=swap;
+        unsigned move=moves[i].m;
+        if(q){
+            if(!check&&!is_capture(p,move))continue;
+#if ROVE_VARIANT == 2
+            if(!check&&!PROM(move)){int value=see_for(w,p,move);if(value!=SEE_INCOMPLETE&&value<0)continue;}
+#endif
+        }else if(move==excluded)continue;
+        Board next;if(!make_move(p,move,&next))continue;
+        int quiet=!is_capture(p,move),score;
+        w->previous[ply]=move;w->path[w->path_len++]=next.key;
+        if(q)score=-search(w,&next,0,-beta,-alpha,ply+1,0,learning);
+        else{
+            int child_depth=depth-1+(singular&&move==ttmove);
+            if(!count)score=-search(w,&next,child_depth,-beta,-alpha,ply+1,0,learning);
+            else{
+                int reduction=depth>=4&&count>=4&&quiet&&!check&&!in_check(&next)&&(static_eval+corr<alpha+100);
+#if ROVE_VARIANT == 6
+                reduction=0;
+#endif
+                score=-search(w,&next,child_depth-reduction,-alpha-1,-alpha,ply+1,0,learning);
+                if(score>alpha&&reduction)score=-search(w,&next,child_depth,-alpha-1,-alpha,ply+1,0,learning);
+                if(score>alpha&&score<beta)score=-search(w,&next,child_depth,-beta,-alpha,ply+1,0,learning);
+            }
+        }
+        w->path_len--;
+        if(w->aborted||atomic_load_explicit(&w->session->stop,memory_order_relaxed))return 0;
+        count++;
+        if(score>best){best=score;bestmove=move;}
+        if(score>alpha){alpha=score;compact_pv(w,ply,move);}
+        if(alpha>=beta){
+            if(!q&&learning&&quiet){
+                int bonus=depth*depth;
+                w->history[p->side<0][FROM(move)][TO(move)]=compact_bonus(w->history[p->side<0][FROM(move)][TO(move)],bonus);
+                if(w->killers[ply][0]!=move){w->killers[ply][1]=w->killers[ply][0];w->killers[ply][0]=move;}
+                if(ply){
+                    int previous=piece_index(-p->b[TO(w->previous[ply-1])]),current=piece_index(p->b[FROM(move)]);
+                    if(previous<13)w->continuation[previous][current]=compact_bonus(w->continuation[previous][current],bonus);
+                }
+            }
+            break;
+        }
+    }
+    if(q)return best;
+    if(!count)return excluded?alpha:(check?-MATE+ply:0);
+    if(!excluded){
+        int bound=best>=beta?2:best<=oldalpha?3:1;
+        tt_write(w,key,bestmove,depth,best,bound,ply);
+#if ROVE_VARIANT != 6
+        if(learning&&!check&&bestmove&&!is_capture(p,bestmove)&&bound==1&&abs(best)<MATE-MAXPLY){
+            int error=best-static_eval;if(error>256)error=256;if(error< -256)error=-256;
+            int correction=w->correction[p->side<0][p->pawnkey&1023];
+            w->correction[p->side<0][p->pawnkey&1023]=correction+error-correction/64;
+        }
+#endif
+    }
+    return best;
+}

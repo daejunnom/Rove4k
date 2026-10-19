@@ -25,6 +25,18 @@ the optional model use explicit signed eight-bit mailbox cells; all produced and
 admitted pieces are in -6..6 and consumers retain C integer promotion. E/model's
 `int[128]` interface and C's SIMD packing retain their canonical representation.
 
+Shipping A further uses a mailbox-only state. Attack detection reads that mailbox,
+so its unused bitboard/occupancy mirrors and material-only accumulator are omitted.
+The fullmove counter has no shipping observer. Side, castling, en passant and king
+squares have explicit signed-byte ranges. The halfmove clock uses `uint16_t` only
+when the declared maximum root replay plus search path fits; changing that bound
+outside the supported range fails generation. Incremental HCE and position/pawn
+keys remain, and the insufficient-material scan checks pawns/majors together with
+its existing minor-piece scan. The generated Board is 160 bytes on the checked
+Linux x86-64 ABI, compared with the canonical 696 bytes. Actual move application,
+all legal moves, keys, HCE and perft were compared with canonical C and the
+independent rules oracle, including castling, EP and all promotion choices.
+
 The shipping Loose iteration controller omits split-root move arrays, diagnostic
 PV copying and counters that no shipping command observes. It retains the same
 PVS or MTD root calls, completed-depth acceptance, last completed best move,
@@ -39,6 +51,48 @@ Address-taking and function-pointer arguments count as references. Ambiguous nam
 retain every definition with that name. This is a recipe for these owned sources,
 not a general C optimizer. Unsupported declarators fail rather than being guessed.
 The generated source must compile, reproduce and pass runtime validation.
+
+`compact_search=True` selects `search.c.in` as an additional source candidate;
+the baseline remains independently buildable. PVS and QS share node entry,
+selection, cancellation and result operations. Their TT, terminal, pruning,
+singular, learning and F convergence policies remain distinct where required.
+Full PV diagnostics remain in development; Loose shipping needs the root first
+move. Source and native sizes must be compared independently: a shared operation
+can shrink native code while increasing the compressed source by a few bytes.
+
+`small_worker=True` additionally requires shipping mode 0 and that unified search.
+`worker_state.py` maps valid 0x88 history coordinates to 64-square indices, stores
+history/continuation in `uint16_t`, correction in `int16_t`, and one PV move per
+ply. The source guard checks `MAXPLY<=130`, the actual wide-integer update helper,
+all three history accesses and the unused callback reply removal. From zero, the
+history recurrence stays in 0..16384 and correction in -16384..16384; arithmetic
+continues in `int` before storage. Changing those assumptions fails generation.
+The checked x86-64 Worker storage is 56336 bytes, versus 211936 bytes before this
+transformation. This is allocated storage size, not an RSS or speed measurement.
+
+`shipping_operations=True` is a separate opt-in candidate requiring unified search,
+small worker state and fixed Loose shipping. Its raw-source stage installs
+`search_stop.c.in`: every search entry still observes shared cancellation, while
+private worker node accounting replaces an unobserved central atomic increment.
+This deliberately changes deadline sampling from one aggregate 256-node quantum
+to a 256-node quantum per worker. Root/controller deadline checks remain. The
+development aggregate node limit and statistics path is preserved.
+
+After actual compiler specialization, call `specialize_shipping_operations()`
+before pruning and final lexical compaction. It removes only seven allowlisted,
+unread shipping diagnostic counters using `search_observe.py`. It then applies
+`search_args.py` to non-B candidates: the actual chess-search prototype, definition
+and eight-argument calls lose constant exclusion/learning arguments, while the
+three-argument scheduler callback remains unchanged. B keeps exclusion and frozen
+learning for singular searches. Unresolved conditional input, other policies,
+development readers and unfamiliar counter/argument uses are rejected. The default
+baseline is independent; compare complete source and native files for each form.
+
+F's shipping controller always stops on a score outside the current lower/upper
+interval before updating either bound. Optional diagnostic removal preserves this
+control operation and the last completed best move. TT representation and its
+coherent publication/read helpers always come from the current canonical source;
+an older result using a different TT is not acceptance evidence for a new build.
 
 `test_generate.py` checks reachability safety boundaries. `test_loose.c` executes
 four simultaneous workers, complete-result precedence, rejection of an invalid

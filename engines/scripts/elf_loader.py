@@ -32,6 +32,29 @@ def _sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def _bcj(data: bytes, *, inverse: bool = False, deadline: float | None = None) -> bytes:
+    """Reversible whole-file E8/E9 operand transform, not an x86 disassembler.
+
+    Add the file position following each complete five-byte E8/E9 sequence to
+    its unsigned LE32 operand (subtract for inverse), modulo 2^32. Both scans
+    leave the opcode unchanged and skip all four operands, so opcode-looking
+    bytes in an operand cannot change the later scan's position.
+    """
+    transformed = bytearray(data)
+    at = 0
+    while at+4 < len(transformed):
+        if deadline is not None and at % 4096 < 5 and time.monotonic() >= deadline:
+            raise TimeoutError("ELF branch filtering exceeded time bound")
+        if transformed[at] in (0xE8, 0xE9):
+            value = int.from_bytes(transformed[at+1:at+5], "little")
+            value = (value-(at+5) if inverse else value+(at+5)) & 0xFFFFFFFF
+            transformed[at+1:at+5] = value.to_bytes(4, "little")
+            at += 5
+        else:
+            at += 1
+    return bytes(transformed)
+
+
 def _elf(data: bytes) -> dict:
     if len(data) < 64 or data[:7] != b"\x7fELF\x02\x01\x01":
         raise ValueError("input must be ELF64 little-endian")
@@ -167,18 +190,22 @@ def _decompress(data: bytes, expected: int) -> bytes:
     return bytes(result)
 
 
-def pack_elf(input_path, output_path, *, cc="cc", timeout=120) -> dict:
+def pack_elf(input_path, output_path, *, cc="cc", timeout=120, filter="auto") -> dict:
     """Pack an ELF to an absolute path outside the repository; return metadata.
 
     Run on Linux x86-64 with a GCC/Clang compatible cc and GNU-compatible linker.
     The caller owns source runtime/protocol verification. Output is never silently
-    replaced; use a new artifact directory for each build.
+    replaced; use a new artifact directory for each build. Both unfiltered and
+    BCJ candidates are built and measured including their actual native inverse
+    code. Auto chooses the smaller complete ELF, preferring none on a tie.
     """
     started = time.monotonic()
     if platform.system() != "Linux" or platform.machine() not in ("x86_64", "amd64"):
         raise ValueError("ELF loader builds require Linux x86-64 (WSL Ubuntu is supported)")
     if timeout <= 0:
         raise ValueError("timeout must be positive")
+    if filter not in ("none", "bcj", "auto"):
+        raise ValueError("filter must be none, bcj or auto")
     source = Path(input_path).resolve(strict=True)
     target = Path(output_path)
     if not target.is_absolute():
@@ -194,9 +221,6 @@ def pack_elf(input_path, output_path, *, cc="cc", timeout=120) -> dict:
         raise ValueError("ELF input exceeds 256 MiB build bound")
     data = source.read_bytes()
     input_elf = _elf(data)
-    packed = _compress(data, deadline=started+timeout)
-    if _decompress(packed, len(data)) != data:
-        raise RuntimeError("internal compression roundtrip mismatch")
     source_files = [_SOURCES / "loader.c", _SOURCES / "loader.ld", Path(__file__).resolve()]
     source_hashes = {str(path.relative_to(_HERE)): _sha(path.read_bytes()) for path in source_files}
 
@@ -218,29 +242,48 @@ def pack_elf(input_path, output_path, *, cc="cc", timeout=120) -> dict:
                "-fno-unwind-tables", "-fno-ident", "-fcf-protection=none",
                "-Wl,--build-id=none", "-Wl,-z,noexecstack", "-Wl,-s",
                f"-DOUTPUT_SIZE={len(data)}"]
+    candidates = []
+    artifacts = {}
     with tempfile.TemporaryDirectory(prefix="rove4k-elf-loader-") as directory:
         work = Path(directory)
         payload = work / "payload.bin"
-        payload.write_bytes(packed)
         assembly = work / "payload.S"
         quoted = str(payload).replace("\\", "\\\\").replace('"', '\\"')
         assembly.write_text('.section .payload,"a",@progbits\n.balign 1\n'
                             '.global packed_payload,packed_payload_end\npacked_payload:\n'
                             f'.incbin "{quoted}"\npacked_payload_end:\n'
                             '.section .note.GNU-stack,"",@progbits\n', encoding="utf-8")
-        linked = work / "loader"
-        run([compiler_path, *options, str(_SOURCES / "loader.c"), str(assembly),
-             "-Wl,-T,"+str(_SOURCES / "loader.ld"), "-o", str(linked)])
-        built = bytearray(linked.read_bytes())
-        load_end = _elf(built)["load_file_end"]
-        # Only this freshly linked loader is section-stripped. The payload is
-        # the exact full original ELF, including its own section metadata.
-        built = built[:load_end]
-        struct.pack_into("<Q", built, 40, 0)
-        struct.pack_into("<HHH", built, 58, 0, 0, 0)
-        output_elf = _elf(built)
-        if output_elf["interpreter"] is not None:
-            raise RuntimeError("self-restoring loader unexpectedly needs an interpreter")
+        for candidate_filter in ("none", "bcj"):
+            filtered = data if candidate_filter == "none" else _bcj(data, deadline=started+timeout)
+            packed = _compress(filtered, deadline=started+timeout)
+            decoded = _decompress(packed, len(data))
+            restored = decoded if candidate_filter == "none" else _bcj(decoded, inverse=True, deadline=started+timeout)
+            if restored != data:
+                raise RuntimeError("internal filter/compression roundtrip mismatch")
+            payload.write_bytes(packed)
+            linked = work / "loader"
+            candidate_options = [*options, f"-DBRANCH_FILTER={int(candidate_filter == 'bcj')}"]
+            run([compiler_path, *candidate_options, str(_SOURCES / "loader.c"), str(assembly),
+                 "-Wl,-T,"+str(_SOURCES / "loader.ld"), "-o", str(linked)])
+            built = bytearray(linked.read_bytes())
+            load_end = _elf(built)["load_file_end"]
+            # Only this freshly linked loader is section-stripped. The payload
+            # restores the exact original ELF, including section metadata.
+            built = built[:load_end]
+            struct.pack_into("<Q", built, 40, 0)
+            struct.pack_into("<HHH", built, 58, 0, 0, 0)
+            output_elf = _elf(built)
+            if output_elf["interpreter"] is not None:
+                raise RuntimeError("self-restoring loader unexpectedly needs an interpreter")
+            artifacts[candidate_filter] = built
+            candidates.append({"filter": candidate_filter, "output_bytes": len(built),
+                               "output_sha256": _sha(built), "payload_bytes": len(packed),
+                               "loader_and_headers_bytes": len(built)-len(packed),
+                               "within_size_limit": len(built) <= 4096,
+                               "compiler_options": candidate_options})
+        selected = (min(candidates, key=lambda candidate: candidate["output_bytes"])
+                    if filter == "auto" else next(candidate for candidate in candidates if candidate["filter"] == filter))
+        built = artifacts[selected["filter"]]
         target.parent.mkdir(parents=True, exist_ok=True)
         with target.open("xb") as stream:
             stream.write(built)
@@ -248,10 +291,14 @@ def pack_elf(input_path, output_path, *, cc="cc", timeout=120) -> dict:
     return {"format": "elf64-x86_64-self-restoring", "codec": "rove4k-lz-runs-v1",
             "input": str(source), "input_bytes": len(data), "input_sha256": _sha(data),
             "output": str(target), "output_bytes": len(built), "output_sha256": _sha(built),
-            "payload_bytes": len(packed), "loader_and_headers_bytes": len(built)-len(packed),
+            "payload_bytes": selected["payload_bytes"],
+            "loader_and_headers_bytes": selected["loader_and_headers_bytes"],
+            "filter": selected["filter"], "requested_filter": filter,
+            "filter_algorithm": "e8-e9-whole-file-add-next-offset-le32-v1" if selected["filter"] == "bcj" else None,
+            "filter_candidates": candidates,
             "size_limit_bytes": 4096, "within_size_limit": len(built) <= 4096,
             "compiler": compiler, "compiler_path": compiler_path, "linker": linker,
-            "python": platform.python_version(), "compiler_options": options,
+            "python": platform.python_version(), "compiler_options": selected["compiler_options"],
             "source_sha256": source_hashes, "input_elf": input_elf,
             "runtime": "Linux x86-64; memfd_create + execveat; original interpreter/libraries if any",
             "runtime_external_tools": [], "runtime_validation": "caller_required",
@@ -265,9 +312,10 @@ def main() -> None:
     parser.add_argument("output", type=Path)
     parser.add_argument("--cc", default="cc")
     parser.add_argument("--timeout", type=float, default=120)
+    parser.add_argument("--filter", choices=("none", "bcj", "auto"), default="auto")
     options = parser.parse_args()
     print(json.dumps(pack_elf(options.input, options.output, cc=options.cc,
-                              timeout=options.timeout), indent=2))
+                              timeout=options.timeout, filter=options.filter), indent=2))
 
 
 if __name__ == "__main__":

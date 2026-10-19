@@ -60,17 +60,77 @@ campaign can use that directory to compare feature flags on identical source
 bytes. Source snapshots are taken before the first compilation. Development
 model scripts, JSON, documentation and standalone model C fixtures are excluded
 from production source archives.
+The exact scripts, loader sources, profiles and structural templates are also
+preserved in `recipe/`. Transformations execute those preserved bytes, so a later
+agent edit cannot change an ongoing campaign. To repeat the complete recipe,
+invoke `recipe/engines/scripts/build.py` with `--source-root` pointing at the old
+`sources/`, a new external output directory and the same flags. Each engine has
+its explicit `generation_config` and SHA-256, in addition to source hashes.
+
+`--c-lto on` adds C cross-translation-unit optimization as an explicit compiler
+experiment. The default is `off`; Rust's independently declared LTO recipe is
+unchanged. Compare final complete files and runtime behavior before choosing a
+compiler experiment.
 
 `--parallel loose|root|groups|pals|hybrid` sets `ROVE_PARALLEL=0..4`; the default
 is `loose`. `--model` sets `ROVE_MODEL=1` for explicit SIMD/frozen-model cross
 candidates, which receive separate `-model` report identities. The baseline does
 not silently acquire that feature. Verify each combined implementation before
 treating a cross candidate as functional.
+F currently requires `loose` to preserve complete-root MTD(f) semantics; an
+unsupported F/policy combination is rejected explicitly. `--hq auto` selects HQ
+sliding attacks only for D. For an explicit D scalar/HQ comparison, select
+`--variant D --hq scalar` or `--variant D --hq hq`; the effective compile-time
+`ROVE_HQ` value is recorded for both languages.
+F also exposes compile-time `--f-tt paired|single` and
+`--f-guess previous|parity` experiments. Defaults retain paired bounds and the
+previous-depth guess. Nondefault choices require `--variant F`; structural
+overlays are rejected until those combinations are qualified. C receives
+`ROVE_F_SINGLE`/`ROVE_F_PARITY` macros; Rust receives the corresponding fixed
+environment and `--cfg rove_f_single` for single-bound storage. The manifest
+records these as search/storage experiments rather than lossless notation
+changes.
 The cross flag requires `--variant C` explicitly. `--structural-compact` adds a
 separately named C form generated from `compact/c/generate.py`, followed by the
 real preprocessor, reachability pruning and lexical compaction. Structural
 changes receive their own source/recipe hashes and final-file comparisons;
 ordinary byte identity is measured and never assumed for that form.
+`--structural-search` appends an additional generated search layout while keeping
+the previous structural form. `--small-worker` appends another worker-storage
+form and requires structural search, a shipping profile and the loose policy.
+These are separately measured candidates; a source or native saving is not
+automatically an improvement to every complete-file format.
+`--shipping-operations` adds another separate C form and requires the loose
+shipping profile, structural search and small-worker storage. It specializes
+the shipping stop/diagnostic paths, with the non-B arity transformation applied
+only after the real compiler has selected conditional branches, before pruning
+and lexical compaction. B retains its learning-related argument behavior. The
+manifest records both preparation and post-specialization operations; all
+earlier source forms remain available for cost and behavior comparisons.
+
+`--model-format varint|static16` selects the frozen model's production
+representation. The default `varint` preserves admitted source bytes exactly.
+`static16` requires E, or the explicit C `--model` cross candidate, and receives
+a separate `-static16` identity. Its pure producer changes only the selected
+language's frozen coefficient header and inference consumer; canonical input
+sources remain in `sources/`, while the engine's `sources` and
+`generated_sources.original` hashes identify the actual transformed compilation
+inputs. `model_representation` records the coefficient hash and changed source
+hashes, and `--reproduce` repeats the transformation independently. The model
+producer and its canonical JSON are frozen under `recipe/`; development fixtures
+and producer scripts remain outside the final runtime archive. Compare complete
+files and validate both inference and search before selecting a representation:
+a smaller coefficient payload alone does not establish a smaller engine.
+
+`--identifier-compact --identifier-trials 64` adds bounded identifier-spelling
+trials to the latest requested C form. Every accepted transformation must compile
+to the exact same full native SHA-256 as its baseline with the same toolchain and
+configuration. Compile failures and byte mismatches reject the candidate and
+retain trial sources and diagnostics. The lexical candidate heuristic is not a
+proof of C scope or ABI equivalence. The actual native byte gate is required,
+and the separately measured compressed result may still be larger. With
+`--reproduce`, the search runs independently again and accepted source bytes must
+also match before native and complete-file reproduction checks.
 
 ## Fixed resource profiles
 
@@ -84,6 +144,7 @@ count. Allocation and thread startup belong to engine startup.
 | --- | ---: | ---: | ---: | --- |
 | local-dev | 1 | 2 | 16 | yes |
 | local-smp | 2 | 3 | 18 | yes |
+| local-study | 4 | 5 | 18 | yes |
 | local-ship | 2 | 3 | 18 | no |
 | target256 | 255 | 256 | 26 | no |
 | target509 | 508 | 509 | 26 | no |
@@ -130,6 +191,9 @@ SIGKILL cannot run Python cleanup if it interrupts the restoration/compile phase
 ordinary engine execution begins only after that cleanup has finished. Actual
 startup must still meet the event's 60-second limit. Compiler version differences
 on the final target remain a deployment consideration.
+The compiler's `TMPDIR` also points inside the owned directory, including its
+assembler/linker intermediates. A missing compiler retains its original error
+and still removes the restored source tree.
 
 The own-ELF path is implemented by
 [`scripts/elf_loader.py`](scripts/elf_loader.py) and its
@@ -139,6 +203,11 @@ decoder, restores the exact complete ELF to an anonymous memfd, and invokes
 The original payload may retain the allowed system dynamic linker/libraries.
 Linux policy must permit executable memfd use. Self-file identity, privileged
 file semantics and `AT_EXECFN` identity are outside this packaging contract.
+The loader measures both an unfiltered payload and a reversible E8/E9 operand
+filter. Its automatic choice compares the two complete ELF files, including
+the filter's inverse code, and prefers the unfiltered file on a tie. Both
+candidate sizes, hashes and exact compiler arguments remain in the report;
+a smaller compressed payload cannot hide a larger decoder.
 
 Each final candidate is named `x` within its own report directory. Reported bytes
 include its executable header, restoration/bootstrap, payload, encoding, archive

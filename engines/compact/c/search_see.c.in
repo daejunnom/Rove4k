@@ -1,0 +1,13 @@
+/* see_for and recursive exchange call only after a successful make_move;
+ * target is occupied. LSB order and every promotion preserve legal branches. */
+static int exchange(ExchangeContext *c,const Board *p,int target,int ply){
+    c->visits++;if(c->visits>1000000||now_ms()>=c->deadline||(c->worker&&atomic_load_explicit(&c->worker->session->stop,memory_order_relaxed))){c->complete=0;if(c->worker&&c->worker->session->deadline&&now_ms()>=c->worker->session->deadline)atomic_store_explicit(&c->worker->session->stop,1,memory_order_relaxed);return 0;}
+    if(ply>=64)return 0;int best=0;
+    uint64_t candidates=attackers(p,target,p->side);
+    while(candidates){int from=__builtin_ctzll(candidates);candidates&=candidates-1;from+=from&~7;
+        int prom=p->b[from]==p->side&&(target<8||target>111)?2:0;
+        do{Board t;if(!make_move(p,MOVE(from,target,prom),&t))continue;int gain=rove_value[abs(p->b[target])];if(prom)gain+=rove_value[prom]-rove_value[1];gain-=exchange(c,&t,target,ply+1);if(!c->complete)return 0;if(gain>best)best=gain;
+        }while(prom&&++prom<6);
+    }
+    return best;
+}

@@ -31,6 +31,14 @@ def digest(data):
     return hashlib.sha256(data).hexdigest()
 
 
+def load_module(name, path):
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
 def run(command, *, cwd=None, env=None, timeout=180, input=None):
     started = time.monotonic()
     process = subprocess.Popen(command, cwd=cwd, env=env, stdin=subprocess.PIPE,
@@ -88,23 +96,34 @@ def write_files(files, directory):
         path.write_bytes(data)
 
 
-def compiler_recipe(language, variant, profile, optimize, *, compiler, files, parallel=0, model=False):
+def compiler_recipe(language, variant, profile, optimize, *, compiler, files, parallel=0, model=False, hq=None, c_lto=False,
+                    f_tt="paired", f_guess="previous"):
+    if hq is None:
+        hq = variant == "D"
     development = int(profile["development"])
     workers, bits = profile["search_workers"], profile["tt_bits"]
     environment = {"ROVE_VARIANT": variant, "ROVE_WORKERS": str(workers),
                    "ROVE_TT_BITS": str(bits), "ROVE_DEV": str(development),
                    "ROVE_PARALLEL": str(parallel), "ROVE_MODEL": str(int(model)),
+                   "ROVE_HQ": str(int(hq)),
                    "SOURCE_DATE_EPOCH": "0", "LC_ALL": "C", "TZ": "UTC"}
+    if variant == "F":
+        environment.update({"ROVE_F_SINGLE": str(int(f_tt == "single")), "ROVE_F_PARITY": str(int(f_guess == "parity"))})
     if language == "c":
         flags = ["-std=c11", "-Os" if optimize == "size" else "-O2", "-pthread",
                  f"-DROVE_VARIANT={ord(variant) - ord('A') + 1}",
                  f"-DROVE_WORKERS={workers}", f"-DROVE_TT_BITS={bits}", f"-DROVE_DEV={development}",
                  f"-DROVE_PARALLEL={parallel}", f"-DROVE_MODEL={int(model)}",
+                 f"-DROVE_HQ={int(hq)}",
                  "-ffunction-sections", "-fdata-sections", "-fno-ident",
                  "-fno-asynchronous-unwind-tables", "-fno-unwind-tables",
                  "-Wl,--gc-sections,--build-id=none", "-s"]
         if variant == "C":
             flags.append("-mavx2")
+        if c_lto:
+            flags.append("-flto")
+        if variant == "F":
+            flags += ["-DROVE_F_SINGLE=" + environment["ROVE_F_SINGLE"], "-DROVE_F_PARITY=" + environment["ROVE_F_PARITY"]]
         names = sorted(name for name in files if name.endswith(".c"))
         return [compiler] + flags + names + ["-o", "x"], environment
     flags = ["--edition=2024", "-C", "opt-level=" + ("z" if optimize == "size" else "2"),
@@ -112,6 +131,8 @@ def compiler_recipe(language, variant, profile, optimize, *, compiler, files, pa
              "-C", "strip=symbols", "-C", "debuginfo=0", "-C", "link-arg=-Wl,--build-id=none"]
     if variant == "C":
         flags += ["-C", "target-feature=+avx2"]
+    if variant == "F" and f_tt == "single":
+        flags += ["--cfg", "rove_f_single"]
     return [compiler] + flags + ["rust/main.rs", "-o", "x"], environment
 
 
@@ -150,6 +171,7 @@ def smoke(path, environment=None):
 
 
 def main():
+    global compact_source, write_launchers, specialize_c
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", required=True, type=Path)
     parser.add_argument("--profile", default="local-dev")
@@ -160,11 +182,21 @@ def main():
     parser.add_argument("--rustc", default="rustc")
     parser.add_argument("--parallel", choices=("loose", "root", "groups", "pals", "hybrid"), default="loose")
     parser.add_argument("--model", action="store_true", help="explicit SIMD plus frozen-model cross candidate")
+    parser.add_argument("--model-format", choices=("varint", "static16"), default="varint", help="explicit exact E-model representation candidate")
     parser.add_argument("--source-root", type=Path, help="reuse an explicit c/rust/model source snapshot; hashes remain authoritative")
     parser.add_argument("--structural-compact", action="store_true", help="also generate the separately identified C source-structure candidate")
+    parser.add_argument("--structural-search", action="store_true", help="also compare the separately generated C search layout; requires loose policy")
+    parser.add_argument("--small-worker", action="store_true", help="also compare compact C worker storage; requires structural-search and shipping")
+    parser.add_argument("--shipping-operations", action="store_true", help="also compare specialized C shipping operations; requires small-worker, shipping and loose policy")
+    parser.add_argument("--identifier-compact", action="store_true", help="also compare C identifier spelling accepted only by full-native byte identity")
+    parser.add_argument("--identifier-trials", type=int, default=64, help="finite compile-gated C identifier trials (1..256)")
+    parser.add_argument("--hq", choices=("auto", "scalar", "hq"), default="auto", help="D sliding attacks: auto selects HQ only for D; scalar/HQ require --variant D")
+    parser.add_argument("--c-lto", choices=("off", "on"), default="off", help="explicit C cross-translation-unit optimization comparison")
+    parser.add_argument("--f-tt", choices=("paired", "single"), default="paired", help="explicit F TT bound-storage experiment")
+    parser.add_argument("--f-guess", choices=("previous", "parity"), default="previous", help="explicit F initial-guess experiment")
     parser.add_argument("--reproduce", action="store_true", help="compile independent second copies and compare actual bytes")
     parser.add_argument("--self-elf", action="store_true", help="also build the syscall-only self-restoring ELF candidates")
-    parser.add_argument("--no-pack", action="store_true", help="only build original and compact source engines")
+    parser.add_argument("--no-pack", action="store_true", help="omit complete-file wrappers; still build every explicitly requested source form")
     parser.add_argument("--no-smoke", action="store_true", help="skip all execution, recorded as unverified")
     args = parser.parse_args()
     if sys.platform != "linux" or platform.machine() not in ("x86_64", "amd64"):
@@ -177,7 +209,8 @@ def main():
         parser.error("--out must be outside the source checkout")
     if out.exists() and any(out.iterdir()):
         parser.error("--out must be new or empty; preserve earlier evidence")
-    profiles = json.loads(PROFILES.read_text())
+    profile_bytes = PROFILES.read_bytes()
+    profiles = json.loads(profile_bytes)
     if args.profile not in profiles:
         parser.error("unknown fixed profile: " + args.profile)
     profile = profiles[args.profile]
@@ -190,8 +223,29 @@ def main():
         parser.error("--variants must contain distinct letters from A-F")
     if args.model and variants != ["C"]:
         parser.error("--model is the explicit C plus E cross candidate; select --variant C")
+    if args.model_format != "varint" and not (variants == ["E"] or (args.model and variants == ["C"])):
+        parser.error("--model-format static16 requires --variant E or --variant C --model")
     if "F" in variants and args.parallel != "loose":
         parser.error("F currently requires --parallel loose to preserve whole-root MTD(f); select another variant for other parallel policies")
+    if args.hq != "auto" and variants != ["D"]:
+        parser.error("explicit --hq scalar|hq is the D comparison; select --variant D")
+    if args.structural_search:
+        args.structural_compact = True
+        if args.parallel != "loose" or "c" not in languages:
+            parser.error("--structural-search currently requires C and --parallel loose")
+    if args.c_lto == "on" and "c" not in languages:
+        parser.error("--c-lto on requires the C implementation")
+    if args.small_worker and (not args.structural_search or profile["development"]):
+        parser.error("--small-worker requires --structural-search and a shipping profile")
+    if args.shipping_operations and (not args.small_worker or "c" not in languages or profile["development"] or args.parallel != "loose"):
+        parser.error("--shipping-operations requires C, --structural-search --small-worker, a shipping profile and --parallel loose")
+    if args.identifier_compact and ("c" not in languages or not 1 <= args.identifier_trials <= 256):
+        parser.error("--identifier-compact requires C and --identifier-trials within 1..256")
+    if args.f_tt != "paired" or args.f_guess != "previous":
+        if variants != ["F"]:
+            parser.error("nondefault --f-tt/--f-guess experiments require --variant F")
+        if args.structural_compact or args.structural_search or args.small_worker:
+            parser.error("nondefault F experiments are not yet qualified with structural overlays")
     out.mkdir(parents=True, exist_ok=True)
     # A local script must never accidentally start a 255/508/511-worker profile.
     execute = not args.no_smoke and profile["expected_total_threads"] <= min(8, os.cpu_count() or 1)
@@ -203,15 +257,49 @@ def main():
                "profile": profile, "optimize": args.optimize,
                "engine_source_root": str(source_root), "runtime_compiler_path_prefixes": compiler_prefixes,
                "parallel": args.parallel, "model_cross_candidate": args.model,
+               "model_format": args.model_format,
+               "structural_compact": args.structural_compact, "structural_search": args.structural_search,
+               "small_worker": args.small_worker, "identifier_compact": args.identifier_compact,
+               "shipping_operations": args.shipping_operations,
+               "d_sliding_attacks": args.hq,
+               "c_lto": args.c_lto,
+               "f_tt": args.f_tt, "f_guess": args.f_guess,
                "platform": platform.platform(), "machine": platform.machine(),
                "python": sys.version, "rules": "https://wiki.chessdom.org/index.php?title=TCEC_4k_Rules&oldid=7853",
                "tools": {}, "engines": [], "complete": False,
                "execution_policy": "local profiles only; target profiles remain compile-only",
                "eligibility": "no tournament approval or playing-strength claim"}
-    summary["tooling_inputs"] = [{"path": str(path.relative_to(ROOT)), "sha256": digest(path.read_bytes())}
-                                 for path in sorted((ROOT / "engines/scripts").rglob("*"))
-                                 if path.is_file() and path.suffix in (".py", ".c", ".ld")]
-    summary["profile_input_sha256"] = digest(PROFILES.read_bytes())
+    tooling_paths = [path for path in (ROOT / "engines/scripts").rglob("*")
+                     if path.is_file() and path.suffix in (".py", ".c", ".ld")]
+    compact_directory = ROOT / "engines/compact"
+    if compact_directory.exists():
+        tooling_paths += [path for path in compact_directory.rglob("*")
+                          if path.is_file() and path.suffix in (".py", ".h", ".in")]
+    tooling_paths.append(PROFILES)
+    model_directory = ROOT / "engines/model"
+    if model_directory.exists():
+        tooling_paths += [path for path in (model_directory / "representations").rglob("*")
+                          if path.is_file() and path.suffix == ".py"]
+        tooling_paths += [model_directory / "codec.py", model_directory / "frozen.json"]
+    tooling = {str(path.relative_to(ROOT)): path.read_bytes() for path in sorted(tooling_paths)}
+    tooling["engines/profiles/fixed.json"] = profile_bytes
+    summary["tooling_inputs"] = [{"path": name, "sha256": digest(data)} for name, data in tooling.items()]
+    recipe_root = out / "recipe"
+    write_files(tooling, recipe_root)
+    # Execute the preserved transformation/template bytes, so another worker's
+    # later edit cannot silently change a long campaign halfway through.
+    compact_source = load_module("rove_frozen_minify", recipe_root / "engines/scripts/minify.py").compact_source
+    write_launchers = load_module("rove_frozen_pack", recipe_root / "engines/scripts/pack.py").write_launchers
+    specialize_c = load_module("rove_frozen_specialize", recipe_root / "engines/scripts/specialize.py").specialize_c
+    if args.self_elf:
+        pack_elf = load_module("rove_frozen_elf", recipe_root / "engines/scripts/elf_loader.py").pack_elf
+    if "E" in variants or args.model:
+        frozen_model_directory = recipe_root / "engines/model"
+        codec = load_module("codec", frozen_model_directory / "codec.py")
+        load_module("generate", frozen_model_directory / "representations/generate.py")
+        model_transform = load_module("rove_frozen_model_prepare", frozen_model_directory / "representations/prepare.py").transform_sources
+        frozen_model = codec.load_model(frozen_model_directory / "frozen.json")
+    summary["profile_input_sha256"] = digest(profile_bytes)
     summary["glibc"] = os.confstr("CS_GNU_LIBC_VERSION")
     try:
         try:
@@ -229,13 +317,24 @@ def main():
         for language in languages:
             compiler = args.cc if language == "c" else args.rustc
             summary["tools"][language] = {"compiler": compiler, "version": tool_version(compiler)}
-            files = frozen_sources[language]
-            compact = {name: compact_source(data, language) for name, data in files.items()}
+            canonical_files = frozen_sources[language]
             for variant in variants:
-                identifier = variant + "-" + language + ("-model" if args.model else "")
+                files, model_record = canonical_files, None
+                if variant == "E" or args.model:
+                    files, model_record = model_transform(canonical_files, representation=args.model_format,
+                                                         language=language, model=frozen_model)
+                    if args.reproduce:
+                        again, _ = model_transform(canonical_files, representation=args.model_format,
+                                                   language=language, model=frozen_model)
+                        model_record["source_reproduction_identical"] = files == again
+                        if not model_record["source_reproduction_identical"]:
+                            raise RuntimeError("model source representation did not reproduce")
+                compact = {name: compact_source(data, language) for name, data in files.items()}
+                identifier = variant + "-" + language + ("-model" if args.model else "") + ("-static16" if model_record and args.model_format == "static16" else "")
                 base = out / identifier
+                use_hq = args.hq == "hq" or (args.hq == "auto" and variant == "D")
                 command, fixed_env = compiler_recipe(language, variant, profile, args.optimize, compiler=compiler,
-                                                       files=files, parallel=("loose", "root", "groups", "pals", "hybrid").index(args.parallel), model=args.model)
+                                                       files=files, parallel=("loose", "root", "groups", "pals", "hybrid").index(args.parallel), model=args.model, hq=use_hq, c_lto=args.c_lto == "on", f_tt=args.f_tt, f_guess=args.f_guess)
                 record = {"id": identifier, "profile": "dev" if profile["development"] else "shipping",
                           "workers": profile["search_workers"], "configuration": fixed_env,
                           "sources": [{"path": "engines/" + name,
@@ -243,9 +342,26 @@ def main():
                                        "compact_bytes": len(compact[name]), "compact_sha256": digest(compact[name])}
                                       for name, data in files.items()], "artifacts": []}
                 summary["engines"].append(record)
+                if model_record is not None:
+                    record["model_representation"] = model_record
+                    record["canonical_sources"] = [{"path": "engines/" + name, "bytes": len(data), "sha256": digest(data)}
+                                                    for name, data in canonical_files.items()]
+                generation_config = {"language": language, "variant": variant, "profile": profile,
+                                     "parallel": args.parallel, "model": args.model, "hq": "hq" if use_hq else "scalar", "requested_hq": args.hq,
+                                     "model_format": args.model_format if model_record else None,
+                                     "optimize": args.optimize, "command": command, "fixed_environment": fixed_env,
+                                     "structural_compact": args.structural_compact, "structural_search": args.structural_search,
+                                     "small_worker": args.small_worker, "identifier_compact": args.identifier_compact,
+                                     "shipping_operations": args.shipping_operations,
+                                     "identifier_trials": args.identifier_trials if args.identifier_compact else None,
+                                     "c_lto": args.c_lto,
+                                     "f_tt": args.f_tt if variant == "F" else None, "f_guess": args.f_guess if variant == "F" else None,
+                                     "compiler_version": summary["tools"][language]["version"]}
+                record["generation_config"] = generation_config
+                record["generation_config_sha256"] = digest(json.dumps(generation_config, sort_keys=True, separators=(",", ":")).encode())
                 forms = [("original", files), ("compact", compact)]
                 repeated_forms = {"original": files, "compact": {name: compact_source(data, language) for name, data in files.items()}}
-                if language == "c" and not args.no_pack:
+                if language == "c" and (not args.no_pack or args.identifier_compact):
                     environment = os.environ.copy()
                     environment.update(fixed_env)
                     specialized, observations = specialize_c(files, base / "preprocessor", command, environment)
@@ -256,31 +372,63 @@ def main():
                         again, _ = specialize_c(files, base / "preprocessor-repeat", command, environment)
                         repeated_forms["specialized"] = {name: compact_source(data, "c") for name, data in again.items()}
                 if language == "c" and args.structural_compact:
-                    generator_path = ROOT / "engines/compact/c/generate.py"
-                    spec = importlib.util.spec_from_file_location("rove_structural_compact", generator_path)
-                    generator = importlib.util.module_from_spec(spec)
-                    spec.loader.exec_module(generator)
-                    structured, changes = generator.prepare_sources(files, variant=variant,
-                                          parallel=("loose", "root", "groups", "pals", "hybrid").index(args.parallel),
-                                          development=profile["development"], model=args.model)
+                    generator_path = recipe_root / "engines/compact/c/generate.py"
+                    generator = load_module("rove_structural_compact", generator_path)
                     environment = os.environ.copy()
                     environment.update(fixed_env)
-                    structured, observations = specialize_c(structured, base / "structural-preprocessor", command, environment)
-                    structured, pruning = generator.prune_sources(structured)
-                    record["structural_compaction"] = {"preparation": changes, "specialization": observations,
-                                                       "pruning": pruning,
-                                                       "generator_inputs": [{"path": str(path.relative_to(ROOT)),
-                                                                              "sha256": digest(path.read_bytes())}
-                                                                            for path in sorted(generator_path.parent.rglob("*"))
-                                                                            if path.is_file() and path.suffix in (".py", ".h", ".in")]}
-                    forms.append(("structural-specialized", {name: compact_source(data, "c") for name, data in structured.items()}))
-                    if args.reproduce:
-                        again, _ = generator.prepare_sources(files, variant=variant,
+                    structural_forms = [("structural-specialized", "structural_compaction", {})]
+                    if args.structural_search:
+                        structural_forms.append(("structural-search-specialized", "structural_search_compaction", {"compact_search": True}))
+                    if args.small_worker:
+                        structural_forms.append(("structural-small-worker-specialized", "small_worker_compaction", {"compact_search": True, "small_worker": True}))
+                    if args.shipping_operations:
+                        structural_forms.append(("structural-shipping-operations-specialized", "shipping_operations_compaction", {"compact_search": True, "small_worker": True, "shipping_operations": True}))
+                    for label, record_key, options in structural_forms:
+                        def generate_structural(destination):
+                            prepared, changes = generator.prepare_sources(files, variant=variant,
                                                 parallel=("loose", "root", "groups", "pals", "hybrid").index(args.parallel),
-                                                development=profile["development"], model=args.model)
-                        again, _ = specialize_c(again, base / "structural-preprocessor-repeat", command, environment)
-                        again, _ = generator.prune_sources(again)
-                        repeated_forms["structural-specialized"] = {name: compact_source(data, "c") for name, data in again.items()}
+                                                development=profile["development"], model=args.model, **options)
+                            prepared, observations = specialize_c(prepared, destination, command, environment)
+                            post_changes = []
+                            if options.get("shipping_operations"):
+                                prepared, post_changes = generator.specialize_shipping_operations(prepared, variant=variant,
+                                                    development=profile["development"], parallel=0)
+                            prepared, pruning = generator.prune_sources(prepared)
+                            return {name: compact_source(data, "c") for name, data in prepared.items()}, changes, observations, pruning, post_changes
+                        structured, changes, observations, pruning, post_changes = generate_structural(base / (label + "-preprocessor"))
+                        record[record_key] = {"preparation": changes, "specialization": observations, "pruning": pruning,
+                                             "post_specialization_operations": post_changes,
+                                             "generator_inputs": [{"path": str(path.relative_to(recipe_root)), "sha256": digest(path.read_bytes())}
+                                                                  for path in sorted(generator_path.parent.rglob("*"))
+                                                                  if path.is_file() and path.suffix in (".py", ".h", ".in")]}
+                        forms.append((label, structured))
+                        if args.reproduce:
+                            repeated_forms[label], _, _, _, _ = generate_structural(base / (label + "-preprocessor-repeat"))
+                if language == "c" and args.identifier_compact:
+                    renamer = load_module("rove_frozen_rename", recipe_root / "engines/scripts/rename_c.py")
+                    input_label, identifier_inputs = forms[-1]
+                    def identity_callback(destination):
+                        def compile_identity(candidate_files, trial):
+                            trial_path = destination / str(trial)
+                            try:
+                                result = compile_files(candidate_files, trial_path, command, fixed_env)
+                                (trial_path / "compile.json").write_text(json.dumps(result, indent=2) + "\n")
+                                return result["sha256"]
+                            except Exception as error:
+                                trial_path.mkdir(parents=True, exist_ok=True)
+                                failure = trial_path / "failure.json"
+                                failure.write_text(str(error) + "\n")
+                                raise RuntimeError("native compilation rejected; preserved diagnostic: " + str(failure)) from error
+                        return compile_identity
+                    renamed, rename_record = renamer.compact_identifiers(identifier_inputs,
+                                                identity_callback(base / "identifier-trials"), max_trials=args.identifier_trials)
+                    rename_record["input_form"] = input_label
+                    record["identifier_compaction"] = rename_record
+                    forms.append(("identifier-specialized", renamed))
+                    if args.reproduce:
+                        again, _ = renamer.compact_identifiers(identifier_inputs,
+                                                identity_callback(base / "identifier-trials-repeat"), max_trials=args.identifier_trials)
+                        repeated_forms["identifier-specialized"] = again
                 original_hash = None
                 for form, inputs in forms:
                     record.setdefault("generated_sources", {})[form] = [{"path": name, "bytes": len(data), "sha256": digest(data)}
@@ -318,7 +466,6 @@ def main():
                         packages += write_launchers({"x": Path(native["path"]).read_bytes()},
                                                     base / (form + "-native"))
                         if args.self_elf:
-                            from elf_loader import pack_elf
                             elf_output = base / (form + "-self-elf") / "x"
                             elf_output.parent.mkdir(parents=True, exist_ok=True)
                             packed = pack_elf(Path(native["path"]), elf_output, cc=args.cc)

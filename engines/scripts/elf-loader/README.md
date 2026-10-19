@@ -28,10 +28,11 @@ Existing output files are never overwritten. For example:
 
 ```sh
 python3 engines/scripts/elf_loader.py \
-  /tmp/rove4k-build/engine /tmp/rove4k-build/engine-packed > /tmp/rove4k-build/pack.json
+  /tmp/rove4k-build/engine /tmp/rove4k-build/engine-packed --filter auto > /tmp/rove4k-build/pack.json
 ```
 
-Build scripts can import `pack_elf(input_path, output_path, *, cc='cc', timeout=120)`.
+Build scripts can import
+`pack_elf(input_path, output_path, *, cc='cc', timeout=120, filter='auto')`.
 It returns input/output hashes, complete artifact and compressed payload sizes,
 source hashes, compiler/linker versions and the original ELF interpreter. The
 timeout covers compression and compiler invocation. It verifies a build-time
@@ -39,6 +40,24 @@ byte roundtrip; callers must also run the resulting engine's actual protocol and
 chess checks. `runtime_validation: caller_required` makes that distinction
 explicit. Changing temporary build directories does not change artifact bytes
 with the same inputs, sources and toolchain.
+
+The optional branch-offset filter scans the entire original file. At each
+complete `E8` or `E9` five-byte sequence it adds the following file offset to the
+little-endian 32-bit operand modulo 2^32, then skips all four operand bytes. The
+native inverse subtracts the same offset after LZ decompression and before
+writing the memfd. Opcode-looking bytes inside operands are skipped by both
+passes. This is a reversible byte transform, including non-code ELF contents;
+it does not identify instruction boundaries or change the restored program.
+
+Every call builds and measures both `none` and `bcj` complete ELF candidates.
+`--filter auto` chooses the smaller complete artifact, including the actual
+inverse code, and prefers `none` on a tie. `--filter none` and `--filter bcj`
+explicitly choose that candidate while retaining both measured sizes/hashes in
+`filter_candidates`. The metadata records the selected `filter` and algorithm
+version separately from the LZ codec. This avoids choosing a smaller compressed
+payload when its added decoder would make the submitted file larger. For
+example, one C fixture's payload shrank by 26 bytes but its complete ELF grew by
+102 bytes; auto retained the unfiltered candidate.
 
 The complete ELF size, including all headers and the loader, determines the
 4096-byte size gate. A successful packed program can remain too large. Standard
@@ -54,9 +73,12 @@ Run the focused checks on Linux with both C and Rust available:
 RUSTC="$HOME/.cargo/bin/rustc" python3 engines/scripts/elf-loader/test_loader.py
 ```
 
-The checks cover hand-authored codec boundaries, malformed streams, long-window
-and incompressible data, then compile C and standard Rust programs with threads.
-They compare the original and final ELF's argument/environment/stdio/exit
-behavior with an empty executable search path, verify byte-identical rebuilds,
+The checks cover hand-authored codec/filter boundaries, malformed streams,
+operand opcodes, wraparound, random binary buffers, long-window and
+incompressible data, then compile C and standard Rust programs with threads.
+They execute all three filter modes with an empty executable search path and
+compare the original and final ELF's argument/environment/stdio/exit behavior.
+The programs also stream their own executable bytes, verifying that the native
+inverse restores every original byte. The checks verify byte-identical rebuilds
 and execute a deliberately corrupted payload to check native rejection. These
 fixtures establish loader behavior and do not replace engine validation.

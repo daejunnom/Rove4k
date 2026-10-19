@@ -61,6 +61,12 @@ within a separate startup budget, while retaining the normal response and
 search timeouts. A manifest's `expected_program_sha256` pins selected packaging
 artifacts before execution.
 
+[target_startup.py](target_startup.py) separately checks larger fixed worker
+profiles with explicit available-memory admission and process resource limits.
+It verifies startup task counts/identity and physical termination for quit and
+EOF without searching. Those startup-only results do not replace the chess
+behavior checks here or establish target-hardware scalability.
+
 The default checks cover:
 
 - Minimal UCI handshake, unsupported-command consumption, clocked search

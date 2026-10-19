@@ -1,5 +1,6 @@
 /* Linux x86-64 only. No libc, interpreter, temporary pathname or external tool. */
 typedef unsigned long usize;
+_Static_assert(sizeof(unsigned) == 4, "branch filter requires 32-bit unsigned");
 extern const unsigned char packed_payload[], packed_payload_end[];
 
 static long call6(long number, long a, long b, long c, long d, long e, long f) {
@@ -43,6 +44,24 @@ __attribute__((noreturn, used)) void restore(usize *stack) {
         }
     }
     if (n != OUTPUT_SIZE) failed();
+#if BRANCH_FILTER
+    /* Inverse of the whole-file E8/E9 transform. The scan skips all four
+       operand bytes, including any E8/E9 bytes inside an operand. Unsigned
+       arithmetic deliberately wraps modulo 2^32; bytewise loads avoid alignment
+       and pointer-aliasing assumptions. */
+    for (usize i = 0; i+4 < OUTPUT_SIZE;) {
+        if ((out[i] & 254) == 232) {
+            unsigned value = (unsigned)out[i+1] | (unsigned)out[i+2] << 8 |
+                             (unsigned)out[i+3] << 16 | (unsigned)out[i+4] << 24;
+            value -= (unsigned)(i+5);
+            out[i+1] = value;
+            out[i+2] = value >> 8;
+            out[i+3] = value >> 16;
+            out[i+4] = value >> 24;
+            i += 5;
+        } else i++;
+    }
+#endif
     /* MFD_EXEC is required by newer memfd policies, absent on older kernels. */
     long fd = call6(319, (long)"rove4k", 17, 0, 0, 0, 0);
     if (fd == -22) fd = call6(319, (long)"rove4k", 1, 0, 0, 0, 0);
