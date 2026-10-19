@@ -41,7 +41,7 @@ chess engine files or archived Python implementation.
 Install that tarball into another project:
 
 ```sh
-npm install --offline --ignore-scripts /absolute/path/nvcompact-0.4.0.tgz
+npm install --offline --ignore-scripts /absolute/path/nvcompact-0.4.1.tgz
 npm exec -- nvcompact --version
 npm exec -- nvcompact doctor --json
 ```

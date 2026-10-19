@@ -4,7 +4,7 @@ NVCompact means **N-version compaction**: preserve the original, construct
 explicit alternatives, verify their applicable contracts, and compare the
 complete deliverable. It is an internal Rust tool in the Rove4k monorepo.
 
-The current version is 0.4.0. Node supplies the `nvcompact` npm command boundary;
+The current version is 0.4.1. Node supplies the `nvcompact` npm command boundary;
 Rust performs the active compilation orchestration, spelling transformations,
 packing, reproduction, resource checks and UCI probes. The archived Python 0.3
 implementation is reference material for past results.
@@ -46,7 +46,7 @@ repository. Omitting `--no-build` first builds current source. The explicit
 `--no-build` path checks recorded source, host and executable fingerprints.
 
 Install the resulting tarball with
-`npm install --offline --ignore-scripts /absolute/path/nvcompact-0.4.0.tgz`.
+`npm install --offline --ignore-scripts /absolute/path/nvcompact-0.4.1.tgz`.
 The npm target is Linux x64/glibc, with release CI on Ubuntu 24.04. It does not
 claim universal binary compatibility. `NVCOMPACT_BIN` selects another
 explicit Rust executable without triggering a build or another backend.
