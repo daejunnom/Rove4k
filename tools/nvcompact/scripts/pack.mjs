@@ -1,7 +1,7 @@
 import { chmod, mkdir, mkdtemp, readFile, readdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { artifactRoot, copyOwnFile, execute, externalDirectory, hash, json, packageRoot, platformKey, repositoryRoot, sourceFingerprint, writeJson } from './common.mjs';
+import { artifactRoot, copyOwnFile, execute, externalDirectory, hash, json, packageRoot, packedPackage, platformKey, repositoryRoot, sourceFingerprint, writeJson } from './common.mjs';
 
 const args = process.argv.slice(2);
 if (args.some(arg => arg !== '--no-build')) throw new Error('Supported option: --no-build (requires a matching prepared Rust build).');
@@ -45,7 +45,7 @@ await chmod(path.join(nativeDirectory, 'nvcompact'), 0o755);
 const dist = path.join(artifacts, 'packages'); await mkdir(dist, { recursive: true });
 const result = await execute(process.env.NVCOMPACT_NPM ?? 'npm', ['pack', '--offline', '--ignore-scripts', '--json', '--pack-destination', dist],
   { cwd: stage, env: { ...process.env, npm_config_cache: path.join(artifacts, 'npm-cache') } });
-const [info] = JSON.parse(result.stdout.toString('utf8'));
+const info = packedPackage(result.stdout.toString('utf8'), packageMetadata);
 const files = info.files.map(file => file.path);
 if (!files.includes(`native/${platformKey()}/nvcompact`) || files.some(file => /(?:^|\/)(?:vendor|inputs|reference)(?:\/|$)|\.py$|\.rs$|\.c$/.test(file))) {
   throw new Error('Package file inventory violates the native-tool-only packaging contract.');
