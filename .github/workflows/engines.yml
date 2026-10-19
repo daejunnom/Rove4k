@@ -58,6 +58,14 @@ jobs:
             cc -std=c11 -O2 -pthread -DROVE_VARIANT=6 -DROVE_F_SINGLE="$single" -DROVE_TT_BITS=8 -DROVE_WORKERS=1 -DROVE_DEV=0 engines/experiments/f/tt_contract.c engines/c/board.c -o "$ROVE_TEST_OUT/tt-contract-$single"
             timeout 60 "$ROVE_TEST_OUT/tt-contract-$single"
           done
+      - name: Check the smaller A source architecture and actual complete launcher
+        if: matrix.language == 'c'
+        run: |
+          python3 -B -m unittest discover -s engines/compact/tiny-a -p 'test_*.py'
+          python3 -I -B engines/compact/tiny-a/build.py --out "$ROVE_TEST_OUT/tiny-a" --board generated --single-unit --strip-dev-counters
+          python3 engines/tests/verify.py --manifest "$ROVE_TEST_OUT/tiny-a/validation-manifest.json" --out "$ROVE_TEST_OUT/tiny-a-verification" --startup-threads 3
+          cc -std=c11 -O2 -pthread -DWORKERS=2 -DTT_BITS=18 -DDEV=1 -DPLY=4 "$ROVE_TEST_OUT/tiny-a/dev/main.c" -o "$ROVE_TEST_OUT/tiny-a-cap"
+          python3 engines/compact/tiny-a/check.py --engine "$ROVE_TEST_OUT/tiny-a/dev/x" --cap-engine "$ROVE_TEST_OUT/tiny-a-cap" --out "$ROVE_TEST_OUT/tiny-a-algorithms.json"
       - name: Check independent Rust rule and search contracts
         if: matrix.language == 'rust'
         env:
@@ -86,5 +94,9 @@ jobs:
             ${{ env.ROVE_TEST_OUT }}/verification/*.json
             ${{ env.ROVE_TEST_OUT }}/verification/*.jsonl
             ${{ env.ROVE_TEST_OUT }}/search-contract/results.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-a/build.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-a/validation-manifest.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-a-verification/*.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-a-algorithms.json
           if-no-files-found: ignore
           retention-days: 7

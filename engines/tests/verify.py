@@ -45,8 +45,10 @@ class Engine:
         self.log = self.path.open("w", encoding="utf-8")
         self.lock = threading.Lock()
         self.lines, self.stderr = queue.Queue(), []
+        self.stdout_events, self.sent_times = [], {}
         self.start = time.monotonic()
         self.exhausted, self.output_bytes, self.peak_threads = False, 0, 0
+        self.output_error = None
         self.descendants = {}
         self.startup_task_ids = None
         self.sampling = True
@@ -80,17 +82,21 @@ class Engine:
                 line = stream.readline(65537)
                 if not line:
                     break
+                received_at = time.monotonic() - self.start
                 if len(line) > 65536:
-                    self.lines.put(RuntimeError("engine output line exceeded 64 KiB limit"))
+                    self.output_error = RuntimeError("engine output line exceeded 64 KiB limit")
+                    self.lines.put(self.output_error)
                     break
                 line = line.rstrip("\r\n")
                 self.output_bytes += len(line.encode("utf-8"))
                 if self.output_bytes > 8 * 1024 * 1024:
                     self.exhausted = True
-                    self.lines.put(RuntimeError("engine output exceeded 8 MiB limit"))
+                    self.output_error = RuntimeError("engine output exceeded 8 MiB limit")
+                    self.lines.put(self.output_error)
                     break
                 self.record(direction, line)
                 if direction == "stdout":
+                    self.stdout_events.append((received_at, line))
                     self.lines.put(line)
                 else:
                     self.stderr.append(line)
@@ -113,6 +119,7 @@ class Engine:
 
     def send(self, command):
         require(self.process.poll() is None, f"engine exited before {command!r}")
+        self.sent_times[command.split()[0]] = time.monotonic() - self.start
         self.record("stdin", command)
         self.process.stdin.write(command + "\n")
         self.process.stdin.flush()
@@ -152,6 +159,8 @@ class Engine:
                 return lines
             if isinstance(item, str):
                 lines.append(item)
+            elif not isinstance(item, EOFError):
+                raise item
 
     def ready(self):
         self.send("isready")
@@ -217,6 +226,7 @@ class Engine:
     def close(self, eof=False):
         if self.process.poll() is None:
             if eof:
+                self.sent_times["EOF"] = time.monotonic() - self.start
                 self.record("stdin", "<EOF>")
                 self.process.stdin.close()
             else:
@@ -228,6 +238,8 @@ class Engine:
                 raise AssertionError("engine failed to terminate after quit/EOF")
         require(self.process.returncode == 0, f"engine exited {self.process.returncode}; stderr={self.stderr[-5:]}")
         self.finish()
+        if self.output_error is not None:
+            raise self.output_error
         survivors = []
         for pid, start_time in self.descendants.items():
             try:
@@ -503,6 +515,88 @@ def searching(engine, _):
             "mate_at_fifty_move_boundary": precedence, "timed": timed}
 
 
+def development_lifecycle(engine, options):
+    return engine.spec.get("profile", "dev") != "shipping" and getattr(options, "suite", "all") != "shipping"
+
+
+def process_cpu_ticks(engine):
+    if sys.platform != "linux":
+        return None
+    try:
+        # Split after comm, which may itself contain spaces or parentheses.
+        fields = (Path("/proc") / str(engine.process.pid) / "stat").read_text().rpartition(") ")[2].split()
+        return int(fields[11]) + int(fields[12])
+    except (OSError, IndexError, ValueError):
+        return None
+
+
+def begin_lifecycle_search(engine, options, delay=0.04):
+    development = development_lifecycle(engine, options)
+    command = "go infinite" if development else "go wtime 300000 btime 300000 winc 0 binc 0"
+    started, cpu_before = time.monotonic(), process_cpu_ticks(engine)
+    engine.send(command)
+    time.sleep(delay)
+    engine.assert_threads_stable()
+    lines = engine.quiet(0.001)
+
+    def observation():
+        completed = any(line.startswith("bestmove ") for line in lines)
+        cpu_after = process_cpu_ticks(engine)
+        ticks = None if cpu_before is None or cpu_after is None else cpu_after - cpu_before
+        progress = any(line.startswith("info ") and re.search(r"\b(?:depth|nodes) [1-9][0-9]*\b", line) for line in lines)
+        active = not completed and (progress or ticks is not None and ticks > 0)
+        return completed, ticks, progress, active
+
+    completed, ticks, progress, active = observation()
+    if not development and not completed and not active:
+        # Give an otherwise idle worker one more short scheduling window. This
+        # is still far below the declared clock and cancellation timeout.
+        lines += engine.quiet(0.06)
+        completed, ticks, progress, active = observation()
+    if development:
+        require(not completed, "development infinite search completed before signal; active cancellation unproven")
+    else:
+        require(completed or active, "clocked shipping search showed no active work before signal")
+    phase = "completed_before_signal" if completed else "unfinished_with_observed_work" if active else "awaiting_result"
+    evidence = {"command": command, "development_infinite": development,
+                "phase_before_signal": phase,
+                "go_posted_seconds": started - engine.start,
+                "observed_seconds": time.monotonic() - started,
+                "cpu_ticks_delta": ticks, "search_info_observed": bool(progress),
+                "active_before_signal": active,
+                "work_evidence_scope": "whole-process CPU or engine progress; search completion and cancellation causality are unproven",
+                "cancellation_coverage": "not_exercised_already_completed" if completed else "pending_signal"}
+    return lines, evidence
+
+
+def finish_signalled_search(engine, before, timeout=2):
+    lines = before if any(line.startswith("bestmove ") for line in before) else before + engine.until(lambda line: line.startswith("bestmove "), timeout)
+    best = [line.split()[1] for line in lines if line.startswith("bestmove ")]
+    require(len(best) == 1, f"search epoch produced {len(best)} bestmoves")
+    return lines, best[0]
+
+
+def record_completed_signal(engine, activity, signal_name):
+    signal_time = engine.sent_times[signal_name]
+    receipts = [(stamp, line) for stamp, line in list(engine.stdout_events)
+                if stamp >= activity["go_posted_seconds"] and line.startswith("bestmove ")]
+    require(receipts, "completed search has no stdout receipt timestamp")
+    received_time = receipts[0][0]
+    activity.update(signal=signal_name, signal_posted_seconds=signal_time,
+                    bestmove_received_seconds=received_time, cancellation_causality="unproven")
+    if activity["development_infinite"]:
+        require(received_time > signal_time,
+                "development infinite search completed before signal; active cancellation unproven")
+    if received_time <= signal_time:
+        activity["phase_before_signal"] = "completed_before_signal"
+        activity["active_before_signal"] = False
+        activity["cancellation_coverage"] = "not_exercised_already_completed"
+    elif activity["active_before_signal"]:
+        activity["cancellation_coverage"] = "work_observed_before_signal_result_received_after_signal"
+    else:
+        activity["cancellation_coverage"] = "result_received_after_signal_activity_unmeasured"
+
+
 def lifecycle(engine, options):
     engine.initialize()
     board = Board.from_fen()
@@ -511,32 +605,25 @@ def lifecycle(engine, options):
     # second scenario below queues position/go behind stop to detect stale work.
     for index in range(3):
         engine.position()
-        engine.send("go infinite")
-        time.sleep(0.04)
-        engine.assert_threads_stable()
-        before_stop = engine.quiet(0.001)
-        prematurely_completed = [line for line in before_stop if line.startswith("bestmove ")]
-        if engine.spec.get("profile", "dev") != "shipping":
-            require(not prematurely_completed, "development infinite search completed before stop; active cancellation unproven")
+        before_stop, activity = begin_lifecycle_search(engine, options)
         engine.send("stop")
-        lines = before_stop if prematurely_completed else before_stop + engine.until(lambda line: line.startswith("bestmove "), timeout=2)
-        require(sum(line.startswith("bestmove ") for line in lines) == 1, "stop emitted duplicate bestmove")
-        move = lines[-1].split()[1]
+        lines, move = finish_signalled_search(engine, before_stop)
+        record_completed_signal(engine, activity, "stop")
         board.play(move)
         parse_info(lines, board)
         require(not any(line.startswith("bestmove ") for line in engine.ready()), "old epoch bestmove followed readyok")
         require(not any(line.startswith("bestmove ") for line in engine.quiet()), "old epoch bestmove leaked after stop")
-        rounds.append({"round": index, "bestmove": move, "active_before_stop": not bool(prematurely_completed)})
+        rounds.append({"round": index, "bestmove": move, "activity": activity})
     engine.position()
-    engine.send("go infinite")
-    time.sleep(0.03)
+    before_stop, queued_activity = begin_lifecycle_search(engine, options, delay=0.03)
     engine.send("stop")
     # All black replies at the new root are black moves. A stale white result
     # appearing after the old bestmove is consumed cannot pass this assertion.
     engine.position(moves=["e2e4"])
     engine.send("go wtime 1000 btime 1000 winc 0 binc 0")
-    old = engine.until(lambda line: line.startswith("bestmove "), timeout=2)
-    board.play(old[-1].split()[1])
+    old, old_move = finish_signalled_search(engine, before_stop)
+    record_completed_signal(engine, queued_activity, "stop")
+    board.play(old_move)
     new_board = board.play("e2e4")
     new = engine.until(lambda line: line.startswith("bestmove "), timeout=3)
     new_board.play(new[-1].split()[1])
@@ -545,19 +632,13 @@ def lifecycle(engine, options):
     direct = []
     for reset in ("position", "ucinewgame"):
         engine.position()
-        engine.send("go infinite")
-        time.sleep(0.04)
-        before_reset = engine.quiet(0.001)
-        if engine.spec.get("profile", "dev") != "shipping":
-            require(not any(line.startswith("bestmove ") for line in before_reset),
-                    f"development search completed before active {reset}")
+        before_reset, activity = begin_lifecycle_search(engine, options)
         if reset == "ucinewgame":
             engine.send("ucinewgame")
         engine.position(moves=["e2e4"])
         engine.send("go wtime 1000 btime 1000 winc 0 binc 0")
-        prior_best = [line for line in before_reset if line.startswith("bestmove ")]
-        old_lines = before_reset if prior_best else before_reset + engine.until(lambda line: line.startswith("bestmove "), timeout=2)
-        old_move = [line for line in old_lines if line.startswith("bestmove ")][-1].split()[1]
+        old_lines, old_move = finish_signalled_search(engine, before_reset)
+        record_completed_signal(engine, activity, reset)
         board.play(old_move)
         new_lines = engine.until(lambda line: line.startswith("bestmove "), timeout=3)
         new_move = new_lines[-1].split()[1]
@@ -565,8 +646,9 @@ def lifecycle(engine, options):
         parse_info(new_lines, new_board)
         require(not any(line.startswith("bestmove ") for line in engine.quiet()),
                 f"stale result survived direct {reset} epoch reset")
-        direct.append({"command": reset, "old_bestmove": old_move, "new_bestmove": new_move})
+        direct.append({"command": reset, "old_bestmove": old_move, "new_bestmove": new_move, "activity": activity})
     return {"stop_rounds": rounds, "queued_new_root_bestmove": new[-1].split()[1], "direct_resets": direct,
+            "queued_activity": queued_activity,
             "observed_peak_threads": engine.peak_threads, "configured_workers": engine.spec.get("workers")}
 
 
@@ -587,38 +669,32 @@ def selfplay(engine, options):
             "scope": "bounded protocol/legal-move smoke; no Elo or strength claim"}
 
 
-def shutdown(engine, _):
+def shutdown(engine, options):
     engine.initialize()
     engine.position()
-    engine.send("go infinite")
-    time.sleep(0.04)
-    engine.assert_threads_stable()
-    before_eof = engine.quiet(0.001)
-    if engine.spec.get("profile", "dev") != "shipping":
-        require(not any(line.startswith("bestmove ") for line in before_eof), "development search completed before EOF; active termination unproven")
+    before_eof, activity = begin_lifecycle_search(engine, options)
     engine.close(eof=True)
     final = before_eof + engine.drain()
     best = [line.split()[1] for line in final if line.startswith("bestmove ")]
     require(len(best) == 1, f"EOF epoch produced {len(best)} bestmoves")
     Board.from_fen().play(best[0])
-    return {"input_eof_while_searching": "process_exited", "bestmove": best[0], "peak_threads": engine.peak_threads}
+    record_completed_signal(engine, activity, "EOF")
+    return {"input_eof_while_searching": "process_exited", "bestmove": best[0], "peak_threads": engine.peak_threads,
+            "activity": activity}
 
 
-def quit_searching(engine, _):
+def quit_searching(engine, options):
     engine.initialize()
     engine.position()
-    engine.send("go infinite")
-    time.sleep(0.04)
-    engine.assert_threads_stable()
-    before_quit = engine.quiet(0.001)
-    if engine.spec.get("profile", "dev") != "shipping":
-        require(not any(line.startswith("bestmove ") for line in before_quit), "development search completed before quit; active termination unproven")
+    before_quit, activity = begin_lifecycle_search(engine, options)
     engine.close()
     final = before_quit + engine.drain()
     best = [line.split()[1] for line in final if line.startswith("bestmove ")]
     require(len(best) == 1, f"quit epoch produced {len(best)} bestmoves")
     Board.from_fen().play(best[0])
-    return {"quit_while_searching": "process_exited", "bestmove": best[0], "peak_threads": engine.peak_threads}
+    record_completed_signal(engine, activity, "quit")
+    return {"quit_while_searching": "process_exited", "bestmove": best[0], "peak_threads": engine.peak_threads,
+            "activity": activity}
 
 
 CHECKS = (("protocol", protocol, False), ("rules", rules, True), ("state", state, True),

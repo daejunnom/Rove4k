@@ -121,13 +121,13 @@ in these small profiles, so this is not evidence of an RSS or speed advantage.
 Elapsed search samples are preserved, but the host was shared with other work;
 no fair NPS, strength, rating or many-core scalability claim is made.
 
-External records on the WSL host:
+External record directories, retained outside the checkout:
 
-- `/home/stemxstudio/rove4k-mailbox-20261020-v1/build.json`
-- `/home/stemxstudio/rove4k-mailbox-20261020-check-v2/results.json`
-- `/home/stemxstudio/rove4k-mailbox-20261020-pack-v1/measurements.json`
-- `/home/stemxstudio/rove4k-mailbox-20261020-study-v1/results.json`
-- `/home/stemxstudio/rove4k-mailbox-20261020-study-smp-v1/results.json`
+- `rove4k-mailbox-20261020-v1/build.json`
+- `rove4k-mailbox-20261020-check-v2/results.json`
+- `rove4k-mailbox-20261020-pack-v1/measurements.json`
+- `rove4k-mailbox-20261020-study-v1/results.json`
+- `rove4k-mailbox-20261020-study-smp-v1/results.json`
 
 Generated readable source copies, frozen inputs, binaries, package candidates
 and transcripts remain outside Git. Training, external engines and AWS were

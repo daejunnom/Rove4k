@@ -67,6 +67,12 @@ It verifies startup task counts/identity and physical termination for quit and
 EOF without searching. Those startup-only results do not replace the chess
 behavior checks here or establish target-hardware scalability.
 
+[target_search.py](target_search.py) is a separate opt-in search and memory gate
+for admitted larger fixed profiles. It bounds wall time, CPU and memory while
+checking clocked search, active stop/quit, legal results and persistent task
+identity. Its bounded search evidence remains separate from startup-only
+checks, throughput measurements and target-hardware scaling.
+
 The default checks cover:
 
 - Minimal UCI handshake, unsupported-command consumption, clocked search
@@ -81,20 +87,33 @@ The default checks cover:
   halfmove 99 versus 100, and 50-move root draw scores.
 - Fixed depth, node limit, movetime, legal principal variations, mate distance,
   checkmate and stalemate.
-- Repeated infinite/stop cycles, queued stop/position/new-go epoch boundaries,
+- Repeated search/stop cycles, queued stop/position/new-go epoch boundaries,
   direct active position and new-game resets, exactly one bestmove, EOF and quit
   during a search, actual process termination, and cleanup of child processes
-  observed during that test. Development tests first verify no bestmove was
-  published before cancellation. Each cancelled epoch must publish its own one
+  observed during that test. Development uses `go infinite` and first verifies
+  no bestmove was published before cancellation. Shipping uses a long clocked
+  go and observes process CPU or search progress before cancelling unfinished
+  work. Each cancelled epoch must publish its own one
   legal bestmove before a subsequent root's result is accepted.
 - A bounded legal-move selfplay smoke. It supports no Elo or strength claim.
 
 `--profile shipping` applies to direct `--engine` entries. Manifest entries with
 `profile: "shipping"`, or `--suite shipping`, run only the public protocol,
 lifecycle, selfplay, EOF and quit checks. They do not require FEN, perft, state,
-depth/nodes options, resource options or detailed search output. The lifecycle
-smoke sends `go infinite` and `stop`; a shipping engine may safely interpret an
-unsupported go mode as its default bounded clock policy.
+depth/nodes options, resource options or detailed search output. Shipping
+lifecycle sends `go wtime 300000 btime 300000 winc 0 binc 0`, then checks stop,
+position/new-game replacement, quit and EOF. The command uses only the approved
+clocked-go interface; shipping is not required to support `go infinite`.
+On Linux, unfinished shipping work must show process CPU progress or search
+output before the signal. This is activity evidence for the process or its
+reported search, rather than an independent measurement of search completion.
+Stdout receipt and signal-posting times are retained. They distinguish a result
+already received before the signal from one received afterward; cancellation
+causality remains explicitly `unproven`. An already completed legal result is recorded as
+`completed_before_signal` with `not_exercised_already_completed` cancellation
+coverage. It checks normal completion and later command handling, and does not
+claim an active cancellation occurred. Dev infinite and node-budget checks
+retain their separate requirements.
 
 `--suite dev` runs only development diagnostics. `--select ID` filters manifest
 entries and may be repeated. `--quick` limits reference perft to depth 3 and
@@ -105,6 +124,8 @@ independent oracle validates every played move; this is an opponent smoke, not
 a strength comparison or rating estimate.
 Every response has a finite timeout; stdout/stderr have a combined 8 MiB bound.
 Failures preserve transcripts and terminate the owned process group.
+Output-limit errors during EOF/quit or other final cleanup remain failures;
+only the expected stdout EOF marker is ignored when draining a closed process.
 
 The development interface is:
 

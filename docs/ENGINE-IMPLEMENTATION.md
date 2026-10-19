@@ -12,6 +12,8 @@ passed both C and Rust jobs. The immutable local rebuild passed 144/144 behavior
 groups, independent byte reproduction of all 24 native forms, and four bounded
 A/F C-versus-Rust games. The sections below preserve earlier checkpoint results
 as history; they do not override this newer evidence.
+The later source/tooling checkpoint `5e24f2a` also passes both language jobs in
+its [exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39340690254).
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
@@ -296,9 +298,12 @@ whole-file costs are:
 | C | 12,995 / 13,152 B | 13,528 / 13,726 B | 20,205 / 20,476 B |
 | Rust | 18,960 / 18,962 B | 155,757 / 156,082 B | 248,162 / 248,948 B |
 
-Full shipping behavior of the twelve selected D files is a separate acceptance
-step. These startup observations occurred under concurrent work and are not
-used to rank performance. All forms exceed the size limit.
+All twelve selected D files now also pass sixty full shipping behavior groups
+using clocked go: actual source/native/self-ELF execution, legal results,
+replacement, stop, quit and EOF. The producer startup observations occurred
+under concurrent work and are not used to rank performance. All forms exceed
+the size limit. The preserved first clocked validator records output ordering;
+it does not prove that the signal caused the search to finish.
 
 Additional optional C source work shares PVS/QS control, specializes fixed
 Loose SMP, removes unreachable production code and narrows proved worker state.
@@ -306,16 +311,33 @@ The qualified coherent-TT source minima for A–F are respectively 9,356, 9,953,
 9,659, 9,668, 10,176 and 9,546 bytes. Corresponding source/native launchers pass
 sixty shipping groups; their final lexical forms execute the same hashed ELF
 bytes. This source work does not depend on NVCompact. The new central
-`--shipping-operations` integration is separately awaiting its full pipeline
-check. Its deadline sampling is explicitly per-worker rather than aggregate.
+`--shipping-operations` integration passes its separate full generation pipeline:
+all thirty-six native forms start and reproduce, including independent source
+regeneration. The six new operations natives also pass thirty shipping groups
+with exact three-task startup and stable task IDs. This integration run does
+not create complete wrappers. Its deadline sampling is explicitly per-worker
+rather than aggregate.
 
 E storage work retains every coefficient of the untrained model. Six exact
 representations have complete-file cost evidence; a 42-byte immutable table
 outperforms the 17-byte encoded payload in that frozen recipe once decoder and
 consumer costs are counted. The central `--model-format varint|static16` path
-freezes its pure source transform and canonical model. Fresh `de5676d` consumer
-and whole-wrapper acceptance is pending; older representation evidence is not
-relabeled as that newer result.
+freezes its pure source transform and canonical model. Fresh `de5676d` varint
+and static16 producers now pass 140/140 artifact startups and reproductions.
+Actual C consumers pass coefficient/evaluation/ordering/clamp checks under
+ASan/UBSan; both Rust consumers pass sixteen tests using separately hashed
+validation fixtures. Selected complete-file costs change as follows:
+
+| E language | Varint / static16 source | Varint / static16 native wrapper | Varint / static16 own ELF |
+| --- | ---: | ---: | ---: |
+| C | 13,771 / 13,689 B | 14,049 / 13,929 B | 20,928 / 20,764 B |
+| Rust | 18,960 / 18,801 B | 156,879 / 156,605 B | 249,903 / 249,367 B |
+
+The twelve selected complete files also pass sixty shipping behavior groups,
+with actual hash admission and exact stable startup task sets. Default varint
+is retained; static16 is explicit. No coefficient or inference-scale change
+occurs. Output/signal ordering is recorded without claiming cancellation
+causality.
 
 ## Fixed-resource runtime and bounded policy study
 
@@ -335,6 +357,21 @@ files and seventy-two independently rebuilt files have matching reproduction
 hashes. Their central manifests explicitly retain unexecuted runtime fields;
 the separate startup evidence applies only to the A/F originals just described.
 
+A separate opt-in `target_search.py` campaign now executes all twelve A–F
+C/Rust **originals at target512**, one process at a time. Each completes a short
+clocked start-position search and a second search after e2e4 with work observed
+before stop or quit. The independent oracle accepts exactly one legal result
+per epoch. All 512 startup task IDs remain stable; every process exits normally
+with no surviving owned group or forced cleanup. Maximum sampled RSS is
+2,179,072,000 bytes; maximum virtual memory is 6,547,410,944 bytes. Admission and
+8 GiB AS/DATA, 3 GiB sampled RSS, 60 CPU-second and 45 wall-second limits are
+recorded. The initial A/F four cases and later B–E eight cases keep separate
+reports, hashes and an explicit combined index. AVX2/AVX/XSAVE were verified
+before C's execution. This proves those exact short searches, not arbitrary
+depth memory, lower-profile search execution, distinct Rust compact forms or
+hardware scalability. A byte-identical C compact may reuse its original's
+execution evidence.
+
 The five-policy A study uses four search workers plus stdin, TT bits 18, CPU
 affinity 0–4 and one immutable `de5676d` source basis. **180/180 fresh-process
 workloads and 26/26 bounded games pass**. Node-budget workloads finish at exactly
@@ -351,7 +388,59 @@ isolate a language effect. A feature-aligned structural comparison remains open.
 No Elo, strength ranking or many-core recommendation follows from these games.
 
 The next work is candidate-specific source reduction, fresh acceptance of the
-new optional pipeline stages, feature-aligned comparisons, bounded search and
-memory at target profiles, and eligible complete files for every family. A
+new optional pipeline stages, feature-aligned comparisons, further selected
+profile workload evidence, and eligible complete files for every family. A
 separate compact A architecture is still under active reduction and must keep
 its own source and whole-file validation. Training and AWS remain excluded.
+
+## Smaller A architecture and shipping command boundary
+
+The optional [smaller A core](../engines/compact/tiny-a/README.md) is now recorded
+as readable source plus a separate producer. It shares a forward piece walker
+for attacks and generation, relies on the explicitly proved generated-move
+precondition inside make, orders definitions before callers and removes only
+known no-op shipping diagnostics under complete native-byte identity. The
+512-move capacity has a conservative admitted-position proof and checked
+overflow; it never silently truncates moves.
+
+PVS/QS, incremental HCE/hash, coherent full-key TT, history, continuation,
+correction-controlled reduction and startup SMP remain actual search paths.
+Correction does not alter the shared TT's fixed leaf scale. Dead material,
+legal EP context, repetition, mate precedence and unfinished ply-limit handling
+have dedicated tests. This architecture is A only; it does not claim B–F's
+distinct algorithms.
+
+Its measured complete stream is **5,671 bytes**, still 1,575 bytes over budget.
+The 75-byte shell prefix and 5,596-byte compressed stream are both counted.
+Python bootstrap and C share that stream, so 75 bytes is not the complete
+restoration cost. All twenty-seven native/wrapper artifacts reproduce. The
+three native forms plus actual selected whole wrapper pass twenty-three
+black-box groups; nine packer groups separately exercise byte preservation,
+real compiler/argv/environment/I/O/status, compiler-child signal forwarding,
+physical exit and cleanup. The producer now emits a hash-pinned
+`validation-manifest.json` for those same four executable entries.
+The single-translation-unit producer explicitly normalizes CRLF to LF while
+retaining original input hashes. Twelve producer tests include LF/CRLF byte
+equivalence and guarded declaration failures; the normalization leaves the
+already qualified assembled C and complete artifact unchanged.
+
+The separate [tiny-search experiment](../engines/experiments/tiny-search/README.md)
+reduces this complete file from 5,671 to **5,419 bytes**, still 1,323 bytes over
+budget. It removes a proved unreachable HCE clamp, unconsumed selection-prefix
+stores and constant/private argument work, then accepts spelling transformations
+only when actual compiled native bytes match. Its guard pins the value and
+piece-admission contracts; all 768 piece-square values have absolute value at
+most 910, and 32 admitted pieces cannot reach the mate-score band. An unsupported
+ply limit fails preprocessing. Six structures across twelve deterministic
+positions match score, best move, nodes, complete TT state and learning/path
+state; baseline/winner sanitizer runs and the actual selected whole-file
+shipping checks pass. Both native and whole-file independent reproduction pass.
+These optional tools preserve the unmodified readable smaller A baseline.
+
+Shipping lifecycle tests now send long **clocked go**, matching the approved
+minimum interface. DEV retains infinite-search and strict node checks. Reports
+distinguish work observed before a signal, output observed after it and searches
+already completed before it; immediate legal completion does not establish
+active cancellation. These harness changes have clock-only and immediate-result
+fixtures plus a current A DEV regression. Broader D/E/operations shipping runs
+use their own preserved validator inputs and remain separately tracked.
