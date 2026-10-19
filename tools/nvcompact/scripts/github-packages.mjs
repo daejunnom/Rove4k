@@ -51,6 +51,17 @@ export function checkRequest(env, config, version) {
   return checkCiRequest(env, { ...config, workflow }, version);
 }
 
+export function registryMetadata(output, expected) {
+  const value = JSON.parse(output);
+  const records = Array.isArray(value) ? value : [value];
+  assert.equal(records.length, 1, 'registry view must report exactly one version');
+  const record = records[0];
+  assert.equal(record?.name, expected.name, 'unexpected registry package');
+  assert.equal(record.version, expected.version, 'unexpected registry version');
+  assert.equal(record.repository?.url, 'git+https://github.com/' + expected.repository + '.git', 'unexpected registry repository');
+  return record;
+}
+
 async function committedSourceFingerprint() {
   const names = Object.keys((await sourceFingerprint()).files);
   await run('git', ['diff', '--quiet', 'HEAD', '--', ...names]);
@@ -196,7 +207,7 @@ async function publish(config, version, start) {
   const spec = record.name + '@' + version;
   const before = await npm(['view', spec, '--json', '--registry', registry], bundle, true);
   let alreadyExists = false;
-  if (before.code === 0) alreadyExists = true;
+  if (before.code === 0) { registryMetadata(before.stdout, record); alreadyExists = true; }
   else {
     const failure = JSON.parse(before.stdout);
     assert.equal(failure.error?.code, 'E404', 'only a confirmed missing version can be published');
@@ -206,9 +217,7 @@ async function publish(config, version, start) {
       '--ignore-scripts', '--dry-run=false', '--force=false', '--provenance=false'], bundle);
     process.stdout.write(result.stdout);
   }
-  const remote = JSON.parse((await npm(['view', spec, '--json', '--registry', registry], bundle)).stdout);
-  assert.equal(remote.name, record.name); assert.equal(remote.version, version);
-  assert.equal(remote.repository?.url, 'git+https://github.com/' + config.repository + '.git');
+  const remote = registryMetadata((await npm(['view', spec, '--json', '--registry', registry], bundle)).stdout, record);
   const downloaded = path.join(bundle, 'registry-download'); await mkdir(downloaded);
   const packed = packedPackage((await npm(['pack', spec, '--registry', registry, '--ignore-scripts',
     '--json', '--pack-destination', downloaded], bundle)).stdout, record);

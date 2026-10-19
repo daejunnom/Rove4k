@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import test from 'node:test';
-import { checkArchivePaths, checkInventory, checkRequest, checkSourceBytes, mirrorMetadata, scopedName, workflow } from './github-packages.mjs';
+import { checkArchivePaths, checkInventory, checkRequest, checkSourceBytes, mirrorMetadata, registryMetadata, scopedName, workflow } from './github-packages.mjs';
 import { hash, json } from './common.mjs';
 
 const config = await json(new URL('./release-config.json', import.meta.url));
@@ -11,6 +11,17 @@ const env = { GITHUB_ACTIONS: 'true', GITHUB_EVENT_NAME: 'workflow_dispatch',
   GITHUB_REPOSITORY: config.repository, GITHUB_REF: 'refs/heads/main', GITHUB_SHA: commit,
   GITHUB_WORKFLOW_REF: config.repository + '/.github/workflows/' + workflow + '@refs/heads/main',
   NVC_RELEASE_VERSION: metadata.version, NVC_RELEASE_COMMIT: commit, NVC_RELEASE_OPERATION: 'publish' };
+
+test('registry verification accepts npm 12 single-version arrays without relaxing package identity', () => {
+  const expected = { name: scopedName(config), version: metadata.version, repository: config.repository };
+  const record = { name: expected.name, version: expected.version, repository: metadata.repository };
+  assert.deepEqual(registryMetadata(JSON.stringify(record), expected), record);
+  assert.deepEqual(registryMetadata(JSON.stringify([record]), expected), record);
+  for (const value of [[], [record, record], null, {}, { ...record, name: 'other' },
+    [{ ...record, version: '999.0.0' }], [{ ...record, repository: { url: 'git+https://github.com/other/repo.git' } }]]) {
+    assert.throws(() => registryMetadata(JSON.stringify(value), expected));
+  }
+});
 
 test('the GitHub mirror changes only package name and destination registry', () => {
   const original = structuredClone(metadata);
