@@ -1,0 +1,149 @@
+{
+  "format": "nvcompact.release-preparation-evidence.v1",
+  "recorded_at_utc": "2026-10-19T10:54:37.999925+00:00",
+  "scope": "Local release preparation and offline installation; no npm publication, authentication, or OIDC registration performed.",
+  "package": {
+    "name": "nvcompact",
+    "version": "0.4.0",
+    "private": false,
+    "published": false,
+    "platform_key": "linux-x64",
+    "bytes": 3372917,
+    "sha256": "48a2580f5f78f4f9acbe9784cdc30bcbde83aba44f43744c1f5df6bfe6b8cf0f",
+    "runtime": {
+      "format": "nvcompact.npm-native.v1",
+      "version": "0.4.0",
+      "platform_key": "linux-x64",
+      "rust_host": "x86_64-unknown-linux-gnu",
+      "rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1",
+      "source_sha256": "e9373b5ccb85e5808c817286a133bb40a9333f0ae3a14c0128144189178ac0b4",
+      "cargo_lock_sha256": "bf2b85482b67d18804cd4fd176218da193ec28b028e4ecf517bb66a627033918",
+      "bytes": 10171504,
+      "sha256": "f7e80975dc1fffabd0b3c93dd99e41c2e876292f752ed23cde82e46075ed270d"
+    },
+    "files": [
+      {
+        "path": "LICENSE",
+        "size": 1066,
+        "mode": 420
+      },
+      {
+        "path": "README.md",
+        "size": 2741,
+        "mode": 420
+      },
+      {
+        "path": "bin/nvcompact.mjs",
+        "size": 118,
+        "mode": 493
+      },
+      {
+        "path": "lib/cli.mjs",
+        "size": 3379,
+        "mode": 420
+      },
+      {
+        "path": "lib/ensure-native.mjs",
+        "size": 620,
+        "mode": 420
+      },
+      {
+        "path": "lib/paths.mjs",
+        "size": 661,
+        "mode": 420
+      },
+      {
+        "path": "native/linux-x64/nvcompact",
+        "size": 10171504,
+        "mode": 493
+      },
+      {
+        "path": "native/runtime.json",
+        "size": 633,
+        "mode": 420
+      },
+      {
+        "path": "package.json",
+        "size": 990,
+        "mode": 420
+      }
+    ]
+  },
+  "installation": {
+    "status": "pass",
+    "package_sha256": "48a2580f5f78f4f9acbe9784cdc30bcbde83aba44f43744c1f5df6bfe6b8cf0f",
+    "runtime_sha256": "f7e80975dc1fffabd0b3c93dd99e41c2e876292f752ed23cde82e46075ed270d",
+    "node": "v24.19.0",
+    "platform_key": "linux-x64",
+    "checks": [
+      "offline actual tarball installation",
+      "native --version and command discovery",
+      "Rust doctor without targets",
+      "raw ELF build with no verifier execution",
+      "independent exact native replay",
+      "explicit verification of 256 integer cases and 2 invalid cases",
+      "verified recipe still requires --verify for new execution",
+      "typed source notation",
+      "installed package bytes and modes unchanged; no external engine sources"
+    ]
+  },
+  "publication_plan": {
+    "status": "planned",
+    "npm_owner": "daejunnom",
+    "registry": "https://registry.npmjs.org/",
+    "published": false,
+    "start_option_used": false,
+    "tarball_and_embedded_runtime_verified": true
+  },
+  "preparation_context": "Prepared on the feature worktree while final release-script changes were uncommitted; bundle marks release_inputs_clean=false. It is a validation candidate, not an eligible main release. Prepare again from reviewed clean main before real publication.",
+  "installed_new_feature": {
+    "fixture": "tools/nvcompact/examples/zero-tail/manifest.json",
+    "restrictions": {
+      "category": "4k-elf",
+      "codecs": [
+        "raw"
+      ],
+      "build_profiles": [
+        "size-z-off"
+      ],
+      "components": [
+        "C",
+        "Rust"
+      ],
+      "jobs": 2
+    },
+    "selected_link_candidates": 2,
+    "status": "accepted",
+    "search_complete": true,
+    "runtime": {
+      "backend": "rust",
+      "binary_sha256": "f7e80975dc1fffabd0b3c93dd99e41c2e876292f752ed23cde82e46075ed270d",
+      "version": "0.4.0"
+    },
+    "input_sha256": {
+      "examples/mixed/start_linux_x86_64.S": "274b24fd266cc57462ee0f49591c3357a5147eb825588bd485a7b1fb659efbdb",
+      "examples/zero-tail/README.md": "3d85a642b7d5fc7eecaa7eabadd5376b42a6434b5c3bd344ec1458d0992460ad",
+      "examples/zero-tail/driver.c": "443aaff43252a878a2451d66645c062b2d22b7a964683efa96759ba48dfbfe1e",
+      "examples/zero-tail/kernel.c": "e631f5d8c4835c6223a030c56c88d679ddc93bd9ad4021c07997bcaa5a50a0b8",
+      "examples/zero-tail/kernel.rs": "fdf26e948015a9f59dd7dddb1db78caf9f62eb9ded5a0ff7ec0a76631e343a98",
+      "examples/zero-tail/verify.mjs": "3c5cb51bcf0599abae7855c8350917c858934a70558eb2bc0d8031d596f7fbec",
+      "linker/linux-x86_64-zero-tail.ld": "ea21c817eb21d38eb361a1a7ab5dc6ace0b33597eb3706313a9817beaa9b9aa5"
+    },
+    "winner": {
+      "bytes": 441,
+      "sha256": "f0f8ffe01305587b35e52c0984cfcb103b60d476a2750d104032819f620a5ce7",
+      "deployment": "no-section-headers-zero-tail",
+      "pack": "raw",
+      "loader_bytes": 0,
+      "payload_bytes": 441
+    },
+    "actual_verification": "pass",
+    "independent_replay": {
+      "status": "byte_identical",
+      "bytes": 441,
+      "sha256": "f0f8ffe01305587b35e52c0984cfcb103b60d476a2750d104032819f620a5ce7",
+      "verification": "pass"
+    }
+  },
+  "comparison_note": "npm tool tarball size is not the TCEC submission size. Existing 0.4 external-engine evidence is retained separately."
+}

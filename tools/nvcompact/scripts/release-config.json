@@ -1,0 +1,13 @@
+{
+  "package": "nvcompact",
+  "npm_owner": "daejunnom",
+  "registry": "https://registry.npmjs.org/",
+  "dist_tag": "latest",
+  "repository": "daejunnom/Rove4k",
+  "release_branch": "main",
+  "workflow": "nvcompact-publish.yml",
+  "environment": "npm-release",
+  "npm_cli_version": "12.2.0",
+  "platform_key": "linux-x64",
+  "rust_target": "x86_64-unknown-linux-gnu"
+}

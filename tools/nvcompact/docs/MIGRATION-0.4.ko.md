@@ -1,5 +1,10 @@
 # NVCompact 0.4 — Rove4k 내부 Rust 도구로 이관
 
+이 문서는 최초 Rust 이관 시점의 기록이다. 아래의 private
+`@rove4k/nvcompact` 명칭과 당시 tarball 검증 값은 그 시점의 결과로 보존한다.
+후속 작업에서 공개 패키지 이름은 `nvcompact`로 변경했다. 현재 게시자·지원 대상·
+업로드 명령과 OIDC 경로는 [PUBLISHING.md](PUBLISHING.md)를 따른다.
+
 ## 저장소와 책임
 
 독립 `daejunnom/NVCompact`의 기준 커밋은

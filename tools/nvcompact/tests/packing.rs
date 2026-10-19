@@ -192,6 +192,80 @@ fn elf_identity_is_default_and_explicit_section_removal_retains_segments() {
     }
 }
 
+fn zero_tail_elf() -> Vec<u8> {
+    let mut data = vec![0u8; 256 + 4096];
+    data[..7].copy_from_slice(b"\x7fELF\x02\x01\x01");
+    data[16..18].copy_from_slice(&2u16.to_le_bytes());
+    data[18..20].copy_from_slice(&62u16.to_le_bytes());
+    data[20..24].copy_from_slice(&1u32.to_le_bytes());
+    data[24..32].copy_from_slice(&0x4000e8u64.to_le_bytes());
+    data[32..40].copy_from_slice(&64u64.to_le_bytes());
+    for (offset, value) in [(52, 64u16), (54, 56), (56, 3)] {
+        data[offset..offset + 2].copy_from_slice(&value.to_le_bytes());
+    }
+    for (base, flags, offset, address, filesz, memsz) in [
+        (64, 5u32, 0u64, 0x400000u64, 256u64, 256u64),
+        (120, 6, 256, 0x401100, 4096, 8192),
+    ] {
+        data[base..base + 4].copy_from_slice(&1u32.to_le_bytes());
+        data[base + 4..base + 8].copy_from_slice(&flags.to_le_bytes());
+        for (field, value) in [
+            (8, offset),
+            (16, address),
+            (32, filesz),
+            (40, memsz),
+            (48, 4096),
+        ] {
+            data[base + field..base + field + 8].copy_from_slice(&value.to_le_bytes());
+        }
+    }
+    data[232..256].fill(0x90);
+    data[256] = 17;
+    data
+}
+
+#[test]
+fn elf_zero_tail_preserves_loaded_data_and_rejects_unsafe_layouts() {
+    let original = zero_tail_elf();
+    let variants = elf::deployment_variants_with_options(&original, true, true).unwrap();
+    let trimmed = &variants.last().unwrap().data;
+    assert_eq!(trimmed.len(), 257);
+    assert_eq!(elf::load_zero_tail(trimmed).unwrap(), None);
+    // Independent loader model for the RW segment: initialized prefix followed
+    // by zero-fill. Program-header bytes themselves are explicitly unobserved.
+    let image = |data: &[u8]| {
+        let size = u64::from_le_bytes(data[152..160].try_into().unwrap()) as usize;
+        let memory = u64::from_le_bytes(data[160..168].try_into().unwrap()) as usize;
+        let mut image = vec![0u8; memory];
+        image[..size].copy_from_slice(&data[256..256 + size]);
+        image
+    };
+    assert_eq!(image(&original), image(trimmed));
+    assert_eq!(&original[232..257], &trimmed[232..257]);
+    assert_eq!(&original[120..152], &trimmed[120..152]);
+    assert_eq!(&original[160..176], &trimmed[160..176]);
+    assert!(elf::deployment_variants_with_options(&original, false, true).is_err());
+    for flags in [4u32, 7] {
+        let mut bad = original.clone();
+        bad[124..128].copy_from_slice(&flags.to_le_bytes());
+        assert!(elf::load_zero_tail(&bad).is_err());
+    }
+    let mut shared_page = original.clone();
+    shared_page[136..144].copy_from_slice(&0x400100u64.to_le_bytes());
+    assert!(elf::load_zero_tail(&shared_page).is_err());
+    let mut dynamic = original.clone();
+    dynamic[176..180].copy_from_slice(&2u32.to_le_bytes());
+    assert!(elf::load_zero_tail(&dynamic).is_err());
+    let mut covered = original.clone();
+    covered[176..180].copy_from_slice(&6u32.to_le_bytes());
+    covered[208..216].copy_from_slice(&258u64.to_le_bytes());
+    assert!(elf::load_zero_tail(&covered).is_err());
+    let mut overflow = original.clone();
+    overflow[160..168].copy_from_slice(&u64::MAX.to_le_bytes());
+    assert!(elf::load_zero_tail(&overflow).is_err());
+    assert!(elf::load_zero_tail(&original[..original.len() - 1]).is_err());
+}
+
 #[test]
 fn actual_tcec_decoder_commands_restore_every_supported_envelope_family() {
     let sample = input();

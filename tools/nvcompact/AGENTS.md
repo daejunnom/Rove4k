@@ -53,6 +53,10 @@
 
 ## 협업과 완료
 
+- branch·PR·WIP·원격 보호·worktree·배포의 공통 절차는 루트
+  [CONTRIBUTING](../../CONTRIBUTING.md)과 [저장소 수명주기](../../docs/REPOSITORY-LIFECYCLE.md)를
+  그대로 따른다. 일반 변경은 최신 develop의 feature 브랜치에서 develop 대상 PR로 공유한다.
+  도구에 별도 코드 규약이 있다는 이유로 직접 main push나 별도 저장소 흐름을 만들지 않는다.
 - 원격 반영이 요청된 작업에서는 의미 있는 진행 단위를 공유한다. WIP와 통합 인수를
   구분하며 공유 이력을 강제로 덮어쓰지 않는다. 일상적인 선택마다 승인 절차를 추가하지 않는다.
 - 에이전트가 위험과 주장에 필요한 실제 검증을 수행한다. 기존 유효한 검사를 활용하며
@@ -63,13 +67,13 @@
 
 ## 참고 규약
 
-2026-10-19에 Rovent와 MMMM의 공개 기본 브랜치를 읽고 위 기준으로 재해석했다.
-다른 프로젝트의 고정 역할·crate 배치·브랜치 정책·게임 프로토콜·예산 수치는 옮기지 않았다.
-이전 구체 설계는 비규범적 외부 핸드오프로 유지한다.
+2026-10-19에 최신 develop과 최근 PR을 대조해 운영 규약을 보완했다.
+Rovent는 develop `609819ded605795c9ff0653adad391e875b1c4b2`의 관련 규약이 최신 구현
+PR #27의 문서와 같은 blob임을 확인했다. MMMM는 진행 중인 구현 PR #1
+`79448abf8b8eaa7c86cb3840d6397d7410bff5b3`와 별도의 미병합 검증 보완 PR #2
+`8720d0724a34a27db746d6ed131a9966c0579aac`를 나누어 참고했다.
 
-- [Rovent AGENTS](https://github.com/daejunnom/Rovent/blob/9f0bc598f6b2d8f863fd46af6a4fd73bfef1f0b8/AGENTS.md),
-  [기여 절차](https://github.com/daejunnom/Rovent/blob/9f0bc598f6b2d8f863fd46af6a4fd73bfef1f0b8/CONTRIBUTING.md),
-  [개발·검증 기준](https://github.com/daejunnom/Rovent/blob/9f0bc598f6b2d8f863fd46af6a4fd73bfef1f0b8/docs/ENGINEERING-STANDARDS.md).
-- [MMMM AGENTS](https://github.com/daejunnom/MMMM/blob/e9fb5616673fc214d7c242a068e68a7f5d9397b8/AGENTS.md),
-  [기여 절차](https://github.com/daejunnom/MMMM/blob/e9fb5616673fc214d7c242a068e68a7f5d9397b8/CONTRIBUTING.md),
-  [구현 기준](https://github.com/daejunnom/MMMM/blob/e9fb5616673fc214d7c242a068e68a7f5d9397b8/docs/ENGINEERING-STANDARDS.md).
+기여·수명·관리 원칙은 공통으로 채택하며, 다른 프로젝트의 고정 역할·crate 배치·게임
+프로토콜·예산 수치는 상속하지 않는다. 실제 관리 코드는 Rove4k의 접점으로 제공한다.
+고정 원문 링크와 통합/미병합 구분은 [출처 기준](../../docs/REPOSITORY-LIFECYCLE.md#1-최신-기준을-선택한-근거)에 둔다.
+이전 구체 설계는 비규범적 외부 핸드오프로 유지한다.

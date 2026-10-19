@@ -1,9 +1,10 @@
 name: NVCompact
 on:
   push:
-    paths: ['tools/nvcompact/**', 'Cargo.toml', 'Cargo.lock', 'package.json', 'package-lock.json', '.github/workflows/nvcompact.yml']
+    branches: [main, develop]
+    paths: ['tools/nvcompact/**', 'Cargo.toml', 'Cargo.lock', 'package.json', 'package-lock.json', '.github/workflows/nvcompact.yml', '.github/workflows/nvcompact-publish.yml']
   pull_request:
-    paths: ['tools/nvcompact/**', 'Cargo.toml', 'Cargo.lock', 'package.json', 'package-lock.json', '.github/workflows/nvcompact.yml']
+    paths: ['tools/nvcompact/**', 'Cargo.toml', 'Cargo.lock', 'package.json', 'package-lock.json', '.github/workflows/nvcompact.yml', '.github/workflows/nvcompact-publish.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -39,10 +40,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y clang build-essential pkg-config liblzma-dev libbz2-dev zlib1g-dev xz-utils bzip2
           rustup toolchain install 1.99.1 --profile minimal
-      - name: Install private workspace launcher
+      - name: Install workspace launcher
         run: npm ci --ignore-scripts
       - name: Verify launcher ownership and argv
         run: npm test
+      - name: Verify release boundaries without publishing
+        run: npm run test:release
       - name: Test Rust implementation and owned fixtures
         run: npm run test:core
       - name: Build native internal tool

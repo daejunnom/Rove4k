@@ -14,9 +14,12 @@ its own executable and development dependencies are not the 4 KiB engine entry.
 
 ## Internal tool
 
-The Cargo workspace member is `tools/nvcompact`; its private npm entry point is
-`@rove4k/nvcompact`. The operational backend is Rust. The previous Python
+The Cargo workspace member is `tools/nvcompact`; its npm package and executable
+are named `nvcompact`. The operational backend is Rust. The previous Python
 implementation is a filtered historical reference, never an implicit backend.
+
+The [npm publishing guide](tools/nvcompact/docs/PUBLISHING.md) separates local
+package preparation, the personal-account first upload and GitHub OIDC releases.
 
 ```sh
 # Choose an output directory outside the checkout.
