@@ -79,6 +79,20 @@ glibc 2.39 이상, zlib와 GCC 런타임이다. 설치 시 Rust를 다운로드�
 않는다. Windows/macOS/ARM/musl 지원을 선언하지 않는다. 외부 엔진·개발 source·과거
 Python은 npm tarball에 넣지 않는다.
 
+## WSL2 Ubuntu에서 로컬 검증
+
+WSL2 Ubuntu도 Linux x64/glibc 실행 조건을 충족하면 설치·실행 검증에 사용할 수 있다.
+Ubuntu 24.04 x86-64/glibc 2.39와 **Linux용 Node 22 이상**을 사용한다.
+Windows의 node.exe/npm.cmd 또는 Ubuntu 기본 Node 20을 혼용하지 않는다.
+2026-10-20 Ubuntu 24.04.4/WSL2와 Node 24.22.0에서 공개 `nvcompact@0.4.1`의
+원본·native hash, 실제 오프라인 설치, version/doctor/notation과 CLI·배포 경계 검사
+15개를 확인했다. 이 확인에는 Rust 재빌드를 포함하지 않았다.
+
+소스 빌드·Git 기반 패키징은 WSL 내부 파일시스템에 별도 checkout을 만들고 실행한다.
+Windows Git worktree의 gitdir 경로와 checkout 줄바꿈을 Linux 작업본으로 취급하지 않는다.
+빌드에는 별도로 Rust toolchain과 문서화된 native 개발 의존성이 필요하다.
+WSL 검사 결과와 정확한 main SHA로 실행한 GitHub 게시 workflow 결과를 각각 기록한다.
+
 ## 최초 게시: 개인 계정으로 한 번 업로드
 
 검토한 변경이 `main`에 통합된 clean checkout에서 준비한다. 준비와 업로드는
