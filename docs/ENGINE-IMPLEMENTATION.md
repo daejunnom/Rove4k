@@ -3156,3 +3156,60 @@ Post-run README/qualification metadata is distinguished from producing inputs.
 These normal local results are separate from the next exact-head CI, final
 resource/profile, strength and 4 KiB acceptance conditions. No family is yet
 size-eligible, and all twelve independent cores remain in scope.
+
+## Further source compression after the EP/BCJ promotion
+
+The next isolated candidates start from committed `9e2a152`, rather than the
+attachment's older `a3546f1` baseline. Their measured savings are not added to
+earlier standalone experiments. Normal selected recipes remain unchanged
+until source generation and focused functional validation are complete.
+
+| Candidate | Maintained whole | Actual candidate whole | Difference | Current evidence |
+| --- | ---: | ---: | ---: | --- |
+| F shipping text profile | 4,808 | 4,735 | -73 | One native compile and one fixed ALONE compression; functional qualification pending |
+| B incoming-move SEE | 5,558 | 5,546 | -12 | One native compile and one fixed ALONE compression; exact-SEE qualification pending |
+| C structural composition | 5,395 | 5,344 | -51 | One native compile and one fixed ALONE compression; functional qualification pending |
+| E structural composition | 5,400 | 5,366 | -34 | Same bounded first-cost scope; functional qualification pending |
+| D scalar residual leapers | 6,313 | 6,272 | -41 | One native and one loader compile, one fixed context encode; runtime qualification pending |
+| D HQ residual leapers | 6,506 | 6,452 | -54 | Same bounded first-cost scope; runtime qualification pending |
+
+The F candidate shares the own-side clock classifier, uses bounded `strtoull`
+admission and replaces the byte reader with a bounded text-line loop. Clock
+fields remain order independent; absence and an explicit zero retain different
+budget meanings. It explicitly selects NUL-free text and exact first command
+tokens, so malformed extras and leading whitespace are a changed input policy,
+not universal parser equivalence. Search, TT, MTD bounds, worker publication
+and physical output ownership are outside the changed source regions. The
+compiled 9,728-byte shipping source and 18,576-byte native have new identities.
+The initial readable DEV wrapper has a missing directive newline; that separate
+uncompiled representation is preserved as a failed preparation and cannot be
+used as normal-generation evidence. A boundary-only producer correction now
+creates readable `fe1309f3...` and exactly the same compiled shipping source;
+it adds no compiler or codec run and does not yet establish DEV generation.
+
+The D candidate preserves slider handling and specializes only its residual
+pawn/knight/king path. The old inner ray always stopped after its first square
+on this admitted piece domain. Attack-before-friendly filtering, direction and
+promotion order, EP and castle paths remain explicit proof obligations. Native
+size falls 96 bytes in each form; BSS, guards, NX and the existing two/three-page
+RX layout classes pass static checks. The actual first-cost receipt is
+`96e7eda66d500b312e93f47b42fe55896f8f0f10bbf14ebfd8da6b84b14bc443`.
+
+C/E sentinel, consumed-prefix, inactive-clamp and C zero-order changes have
+now been measured with the current names and codec. The actual 5,344/5,366-byte
+files save 51/34 bytes, rather than the sum of old standalone measurements.
+Native images each grow 24 bytes and have new code identities; no metadata
+exception is used. C still contains actual AVX2 gather and horizontal-add
+instructions, and E retains all 21 coefficients and its inner clamp. The cost
+receipt is `69b2553811f983744e9a0a33e5e9590076a983c472ffa5c4db4358844879d689`.
+Focused fixtures and selected wrapper checks remain separate from this cost.
+A separate B proposal shares initial and recursive SEE move/gain
+ownership while preserving full legal minimax and incomplete-result fences;
+its initial 84-byte code projection was not a shipping or whole-size result.
+The sole actual candidate now saves 72 bytes of final C, 32 bytes of native and
+12 bytes of whole, yielding 5,546 bytes with SHA
+`70e5ea64a97efaa84385a429bca84bad2924a5256c478973cc2798a4b070ad2f`.
+It changes the recursive helper's internal return meaning to incoming move net
+gain; the full legal recapture tree, all promotion choices, incomplete fence,
+singular policy and excluded-root learning/TT rules remain explicit obligations.
+No LVA approximation or playing-strength claim is substituted for them.
