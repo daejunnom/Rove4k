@@ -52,7 +52,8 @@
     "engines/compact/tiny-entry-f/shipping_scope.py": "40c88f75ca959f3b55c3a9d038d6ac9944f73d8de4d11e029b05cd4969d91e94",
     "engines/compact/tiny-entry-f/shipping_semantics.py": "48c17a5b4998727189b4f5279ca0e526f6f6cef0fe5ff14e5b0bd13ea2b5112d",
     "engines/compact/tiny-entry-f/shipping_input.py": "4a466b06c7f2578eea532da5cea0fba4c3b56ccb944e49677134242138247b4a",
-    "engines/compact/tiny-entry-f/shipping_declarations.py": "8a4d8426ce4d3e86d3d0cab9d6ad937194c868d8ac74a12013b6329d3f24ce3a"
+    "engines/compact/tiny-entry-f/shipping_declarations.py": "8a4d8426ce4d3e86d3d0cab9d6ad937194c868d8ac74a12013b6329d3f24ce3a",
+    "engines/compact/tiny-entry-f/shipping_hce.py": "f1d182a52ad83d93468ac92804ae4d28785aa4cb87a516afbf1920b01cf72a29"
   },
   "resource_literals": [
     [
@@ -226,15 +227,15 @@
   },
   "expected": {
     "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
-    "source_bytes": 9702,
-    "source_sha256": "60a74d16a6b3fbd7c1fc2d05207cfe4b860a52746caca137f7d34418762eab99",
+    "source_bytes": 9690,
+    "source_sha256": "e0aa8dd94f6dbfa1a3da172cde28492083d259b780344f49e7f5eb906523f9f6",
     "native_bytes": 18576,
-    "native_sha256": "a0b1f736b25467957aa991775877a62639818c7464bfa984efc6240577fe66d1",
-    "whole_bytes": 4730,
-    "whole_sha256": "39179c21c19eb9404883d5f285d3ea21d7c4838abf0c8becaaebe0de6bb6b6b9",
+    "native_sha256": "62acc5347f30e036820cd7fb2c96a065692368e44e53366460ef7b5c8c32c444",
+    "whole_bytes": 4728,
+    "whole_sha256": "83aa628e327891c78ec666083f63e8884437bd170db35c361806a692333bd8d5",
     "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
     "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
-    "bootstrap_sha256": "f52495953a2af43afeb94a9fb7bdb8cd616629ec1bbf85499dbe5b369eec7ac9",
+    "bootstrap_sha256": "faa44b70c4d36748bcec015f6fae6c6b858ac8c222ee271c4331e188f4a300d1",
     "semantic_readable_bytes": 25720,
     "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
     "dev_source_bytes": 19488,
@@ -248,7 +249,7 @@
     "launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
   },
   "qualified_receipt": {
-    "scope": "fixed shipping declarations/completion expression; full-native-identical predecessor evidence reused; new complete wrapper verification separate",
+    "scope": "current F shipping packed HCE coefficient representation after declarations; exact value/put fixture and new native selected restoration; older full-native identities below are ancestry",
     "first_cost_sha256": "705e9b97c99b294260f1fa146363ab6a32dc00d648fa935a3931e75a533ef9b2",
     "source_policy_sha256": "9b0c6f1515584937059678623f33fb948a1d8b96b31b8c79df2a1bc9884a5f8a",
     "predecessor_F4735": {
@@ -699,6 +700,58 @@
       "fresh_extractions": 0,
       "core_fixtures": 0,
       "games_benchmarks": 0
+    },
+    "pre_packed_HCE_scope": "fixed shipping declarations/completion expression; full-native-identical predecessor evidence reused; new complete wrapper verification separate",
+    "packed_HCE": {
+      "pre_packed_HCE_expected": {
+        "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+        "source_bytes": 9702,
+        "source_sha256": "60a74d16a6b3fbd7c1fc2d05207cfe4b860a52746caca137f7d34418762eab99",
+        "native_bytes": 18576,
+        "native_sha256": "a0b1f736b25467957aa991775877a62639818c7464bfa984efc6240577fe66d1",
+        "whole_bytes": 4730,
+        "whole_sha256": "39179c21c19eb9404883d5f285d3ea21d7c4838abf0c8becaaebe0de6bb6b6b9",
+        "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
+        "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
+        "bootstrap_sha256": "f52495953a2af43afeb94a9fb7bdb8cd616629ec1bbf85499dbe5b369eec7ac9",
+        "semantic_readable_bytes": 25720,
+        "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
+        "dev_source_bytes": 19488,
+        "dev_native_bytes": 26984,
+        "input_profile_readable_bytes": 28587,
+        "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530"
+      },
+      "source_delta": -12,
+      "whole_delta": -2,
+      "cost_receipt_sha256": "bf0b16f8cab825e879568e2ea57344d6950765abf33647ed2c11d9c60f8b973a",
+      "focused_proof_sha256": "0d033f6d5df1b1b868b6d1d17436fd88f6a3ecd83364ad306c55189662ddfa22",
+      "focused_fixture_sha256": "9accd29ea563d305787f3eba9c67b5eb13f21b3e218f628b5fd7ec0c0bcf9cfd",
+      "actual_value_checks": 832,
+      "explicit_zero_checks": 64,
+      "actual_put_prefix_steps": 384,
+      "at_most_32_piece_HCE_abs_bound": 29120,
+      "clamp_threshold": 29871,
+      "scope": "actual candidate value and unchanged put vs old function and independent scalar; no search/main/worker fixture execution",
+      "new_native_identity": true,
+      "canonical_DEV_other_stages_compiler_profile_codec_unchanged": true,
+      "normal_validation": {
+        "scope": "direct ordinary generation and unchanged selected quit/EOF, not fresh extractions or broad core matrix",
+        "producing_recipe_sha256": "f97d48e0bfc3426e44049d532e18673c2bec9dacdf2230c94200a126f24e0347",
+        "normal_build_sha256": "abdb1f451ccc2dfcf238c95ccac7067c58a0bb8b6cacdc1736bb63dee12cff21",
+        "normal_runtime_sha256": "38cb0364889da52b690e1152c1832e4f51486c89a07f2544bc26dac246774a9b",
+        "shipping_attempts": 2,
+        "DEV_attempts": 2,
+        "old_DEV_source_and_native_exact": true,
+        "selected_quit_EOF_sessions": 2,
+        "legal_GO_epochs": 8,
+        "restored_new_native_exact": true,
+        "startup_TIDs_each": 3,
+        "private_path_helpers_FD012_exit_and_readers_observed": true,
+        "observed_TIDs_now_absent": true,
+        "cancellation_causality": "unproven",
+        "fresh_extractions_DEV_engine_games_benchmarks": 0,
+        "metadata_only_after_execution": true
+      }
     }
   },
   "provenance": {

@@ -187,10 +187,10 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | --- | ---: | ---: | --- |
 | A | 4,762 B | 666 B | Order-independent text profile, shared startup/query, adjacent declarations/completion sequence and original ALONE |
 | B | 5,371 B | 1,275 B | Shared forward geometry, bounded text/query profile, declared legal-LVA ordering, hybrid attackers/singular and ALONE |
-| C | 5,159 B | 1,063 B | Shared material/SIMD vector, bounded text profile, real AVX2 residual dot, fixed TT/sort/clamp specialization and ALONE |
+| C | 5,152 B | 1,056 B | Private incremental SIMD features, shared coefficients, bounded text profile, real AVX2 residual dot and fixed ALONE |
 | D scalar / HQ | 6,108 / 6,288 B | 2,012 / 2,192 B | Own fixed21 context ELF with explicit SSE4.2 CRC32C, residual leapers, worker reset and guarded BCJ restoration |
 | E | 5,281 B | 1,185 B | Shared bounded text/query profile, all 21 untrained coefficients, fixed TT/sort/clamp specialization and ALONE |
-| F | 4,730 B | 634 B | Full-depth MTD(f), shared EP legality, adjacent declarations/completion sequence, bounded text profile and fixed ALONE |
+| F | 4,728 B | 632 B | Full-depth MTD(f), exact packed HCE coefficients, shared EP legality, bounded text profile and fixed ALONE |
 
 The separate Rust D native images are 16,816 bytes each. Their independent
 packed experiment retains its own qualification state and does not silently
@@ -3987,3 +3987,100 @@ startup; a source-byte reduction alone does not justify accepting that cost.
 The exact proposal stays outside Git. No training, AWS, paid execution, game
 or strength/performance benchmark is part of this follow-up. The six-family
 4KiB objective remains incomplete.
+
+## Further fixed source representations: incremental state and coefficient packing
+
+Actual pinned ice4 board/evaluation and 4ku source were compared again with the
+new Rove drafts outside Git. ice4's `Board::edit` owns incremental evaluation,
+phase and piece counts; this supports concentrating derived-state maintenance
+in the existing square writer. 4ku's side flip, feature rescan and packed MG/EG
+evaluation have different board/hash/evaluation data flow. Rove's candidates
+retain their own HCE, SIMD and dead-material meanings; no tuned coefficients
+or implementation were copied. The minifier description is specifically
+occurrence-weighted lexical-scope conflict coloring/grouping, not CFG liveness
+coloring. The external comparison report SHA is
+`f02d7dc79d470614dc37206c72706e1c5ffa5f9a9e67fbc6c9dfaaded1a40fd9`.
+A narrow tracked-path check finds 62 external-engine-named JSON descriptors
+and zero implementation-extension paths with those names. This is not a full
+provenance proof for arbitrarily renamed files. All new source in this lane is
+project-owned; upstream source remains outside the checkout.
+
+Each first cost uses the actual current family control and unchanged compiler,
+resource, launcher and codec decisions. Individual reductions are not added.
+
+| One fixed candidate | Raw source change | Actual whole before / after | Decision |
+| --- | ---: | ---: | --- |
+| A incremental dead-material summary | -57 B | 4,762 / 4,776 B | Reject, +14 B |
+| F incremental dead-material summary | -57 B | 4,730 / 4,738 B | Reject, +8 B |
+| A packed HCE coefficients | -12 B | 4,762 / 4,766 B | Reject, +4 B |
+| F packed HCE coefficients | -12 B | 4,730 / 4,728 B | Normal promotion qualified |
+| C incremental 16-lane residual vector | -28 B | 5,159 / 5,152 B | Normal promotion qualified |
+| Rust D fixed castling bounds, scalar / HQ | +18 B | 11,403 / 11,383 B; 11,762 / 11,741 B | Cost gain only, runtime unqualified |
+
+The material summary uses six-bit counts for two bishop square colors,
+knights and pawn/rook/queen material. Its O(1) dead predicate is statically
+equivalent through the bounded 32-piece construction prefix. Despite the
+shorter source, both complete files grow. Exactly one candidate compile and
+ALONE package per family and four total strict decodes finish normally.
+No engine, DEV, layout probe or functional qualification follows these losses;
+normal A/F material state stays unchanged. Their cost receipt SHAs are
+`5b8f96148db40738cc0b4114a47316d4d72aca147ddb87c3d89d4ee8cba794ed` and
+`418f3324fce4a817f7818f29a6a59948d4461ef9a54e014b9263097d968e57a4`.
+
+F's selected coefficient stage packs the original material/advance/center
+triple into a signed int, retaining the zero value, king center -3 and both
+colors. The actual candidate fixture passes 832 unique values, explicit zero
+checks and 384 unchanged-put updates against the old function and independent
+integer arithmetic. The conservative at-most-32-piece HCE bound remains
+29,120 below the existing 29,871 threshold. One ordinary normal builder then
+reproduces shipping twice and the unchanged DEV twice. Its unchanged selected
+verifier passes quit/EOF two sessions and eight GO with the exact new native,
+three stable TIDs, path/helper/FD cleanup, reader EOF and physical exit0.
+Observed TIDs are subsequently absent. Build/runtime receipt SHAs are
+`abdb1f451ccc2dfcf238c95ccac7067c58a0bb8b6cacdc1736bb63dee12cff21` /
+`38cb0364889da52b690e1152c1832e4f51486c89a07f2544bc26dac246774a9b`.
+The new ordinary closing helper follows declarations, has exact inverse and
+complement guards, and has no experiment/report/artifact regeneration input.
+No fresh archive or DEV engine execution is inferred from this direct run.
+
+C's candidate keeps the original sixteen signed16 lanes in private Board state
+and updates them in the existing nonzero square/hash helper. The leaf uses the
+same AVX2 madd and both reduction halves. The actual candidate and fixed DEV
+reference each compile and run once with ASan/UBSan. Start, captures, both EP
+colors and pinned EP, both castles, all four capture/noncapture promotions and
+154 legal children agree. The actual shipping SIMD body is preserved inside
+a test-only observation wrapper; all 1,464 consumed vectors match independent
+mailbox reconstruction, scalar HCE and hash checks. Capture ordering agrees
+in 10,816 cases, four poisoned EP scratch checks pass, and two actual depth2
+searches agree with DEV on score, best and node count. The focused receipt SHA
+is `2b52cd2d9ec912d3a74b90c61622eb886c616258c2bd0f9595e9ee5e78cb1046`.
+Actual sizeof changes 168 to 200 B; the production P stack allocation changes
+4,384 to 4,416 B. These observations replace the earlier analytic layout
+estimate, but do not prove many-core stack scaling or performance. Normal
+promotion then runs once through the ordinary builder, reproducing shipping
+twice and the old DEV twice. The unchanged selected verifier passes two
+quit/EOF sessions and eight legal GO with the exact new restored native,
+three startup TIDs per session, path/helper/FD cleanup, one closing bestmove,
+physical exit0 and reader EOF. Build/runtime receipt SHAs are
+`5b5f831b89629e605e725316f9d0bed316c186ce12cba1f64a7c535f8f2cb57e` /
+`bed3061a619a0ab7f97fe1fee99ea2a4f61e33a66d7cffe06e780e151ff91648`.
+The exact four-region ordinary closing helper follows the material stage;
+canonical/DEV and previous source guards remain unchanged. Direct generation
+does not imply a new fresh/archive run.
+
+Rust D's three masks expose the fixed castling-tuple bounds to the compiler
+without changing any original coordinate, adding unsafe access or changing
+condition/move order. Two actual candidate native links reduce each .text by
+64 B while page alignment keeps each whole native at 16,816 B. The three
+targeted checks/tails disappear; the separate double-pawn bound remains.
+The unchanged own data8 BCJ/Deflate/loader has two candidate encodes/links and
+four strict complete decode/inverse checks against original/candidate spans.
+Headers plus loader remain 1,115 B. Actual complete experiments shrink by
+20/21 B, with packing receipt SHA
+`3fa7e0f5953aa772c9958279a04ccffb666a0eb31ac6a1f3b0dc324dd00926af`.
+No generated ELF, loader or negative runtime test executes. Maintained Rust D
+and the selected C D pair are not replaced by these unqualified experiments.
+
+The remaining six size gaps, final resource/ISA profile and performance,
+scaling and strength evidence remain open. This lane performs no training,
+AWS/paid execution, games, benchmark, main promotion or release.

@@ -1,5 +1,54 @@
 # Maintained minimal F entry
 
+The selected complete file is **4,728 bytes**, 2 below F4730 and **632 bytes above
+4,096**. One ordinary `shipping_hce.py` closing stage runs after declarations.
+It replaces only the exact value function: signed int material/advance/center
+coefficients share one seven-entry packed table. Source decreases 12 bytes;
+new full-native identity is explicit, with no metadata equality exception.
+
+| Current artifact | Bytes | SHA-256 |
+|---|---:|---|
+| Shipping C | 9690 | `e0aa8dd94f6dbfa1a3da172cde28492083d259b780344f49e7f5eb906523f9f6` |
+| Full native | 18576 | `62acc5347f30e036820cd7fb2c96a065692368e44e53366460ef7b5c8c32c444` |
+| Decoded bootstrap | 10689 | `faa44b70c4d36748bcec015f6fae6c6b858ac8c222ee271c4331e188f4a300d1` |
+| Complete launcher | 4728 | `83aa628e327891c78ec666083f63e8884437bd170db35c361806a692333bd8d5` |
+
+The helper owns literal old/new function bytes, whole source pins, unique
+replacement, inverse and protected complement. The packed signed int values
+{24576,48228,98624,65866,27124,41860,0} restore low10 material, next3 advance and
+high(center+3). Empty stays zero, king keeps center -3, and all piece/square/color
+values stay exact. It does not change the evaluation model/scale. No names or
+callers change. Canonical engine.c, DEV, prior stage guards, MTD full-depth bounds,
+stable-leaf/witness/interruption responsibilities, board, TT, SMP, UCI, clocks,
+compiler/bootstrap/profile/codec remain unchanged source responsibilities.
+
+The actual candidate fixture passed 832 values including explicit zero64 and
+384 direct unchanged-put prefix/removal checks against the old function and
+independent arithmetic. Actual values span -910..910, giving the conservative
+at-most-32-piece aggregate bound 29120 below 29871. Synthetic cardinality-limited
+placements are not legal full-board/search or SMP tests. No broad core matrix,
+game, benchmark, combined material-summary candidate or D execution was added.
+A's same coefficient policy increased whole size4 B and was closed.
+
+Normal source closure is 22 files (LOCAL9 + helpers11 + tests2), discovered by
+unchanged fresh.py. This stage has no experiment/report/artifact/Clang input.
+Old normal21 and controls were preserved externally before edits. Cost and
+focused evidence stay outside Git. Direct normal generation reproduced shipping
+twice and DEV twice with the old DEV source/full-native tuple actually equal.
+The unchanged selected verifier passed quit/EOF two sessions and eight legal GO,
+new restored native, three stable startup TIDs, removed private paths, absent
+helpers, FD012, readers EOF and physical exit0. All observed TIDs are now absent.
+No fresh extraction or DEV engine ran; cancellation causality remains unproven.
+
+Normal build receipt: `abdb1f451ccc2dfcf238c95ccac7067c58a0bb8b6cacdc1736bb63dee12cff21`.
+Normal runtime receipt: `38cb0364889da52b690e1152c1832e4f51486c89a07f2544bc26dac246774a9b`.
+The producing recipe `f97d48e0bfc3426e44049d532e18673c2bec9dacdf2230c94200a126f24e0347`
+is preserved in the external normal build inputs. Final recipe/README completion
+is metadata only and is not reattributed as the producing revision. Git/CI are
+separate parent work; this is not 4 KiB acceptance or a speed/strength result.
+
+# Historical F4730 adjacent declarations
+
 The selected complete file is **4,730 bytes**, 5 below F4735 and **634 bytes above 4,096**. The single new ordinary `shipping_declarations.py` stage runs after the existing shipping input profile. Its five adjacent-int regions remove six redundant type prefixes and its one completion comma expression removes one brace pair: source −26 B, complete file -5 B. The actual first-cost full native is byte-identical to the prior image; no metadata exception is used.
 
 The helper embeds the exact readable/shipping source pins and six fixed literal pairs, unique source order, full inverse and protected complement checks. It has no experiment, report, old artifact, AST allocator or upstream-source input. Existing canonical/alpha/storage/scope/input/semantic guards remain before this last stage; DEV bypasses it. Registered in `recipe.helper_sha256`, it is frozen before import and included by unchanged fresh.py: LOCAL9 + helpers10 + tests2 = 21 unique ordinary source files. Compiler/profile/77-byte prefix/bootstrap/ALONE settings are unchanged. No source/alias/codec search runs.

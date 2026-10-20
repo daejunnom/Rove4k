@@ -91,6 +91,7 @@ def main():
         lexer=module('entry_fixed_identifier_lexer',frozen/'rename_c.py')
         input_profile=module('entry_fixed_BCE_input_profile',frozen/'fixed_input_profile_bce.py')
         material=module('entry_fixed_C_material_vector',frozen/'shipping_material.py').transform_source
+        incremental=module('entry_fixed_C_incremental_vector',frozen/'shipping_incremental.py').transform_source
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
         if template.count(marker)!=1 or len(prefix)!=77:raise ValueError('bootstrap recipe changed')
@@ -105,7 +106,7 @@ def main():
             if dev:preprocess_source,input_metadata=input_profile.transform_readable(canonical,family='C')
             active,observations=specialize({'main.c':preprocess_source},directory,recipe['preprocessor']+['-DDEV='+str(int(dev))],os.environ.copy())
             data=compact(active['main.c'],'c')
-            alpha_metadata=None;scope_metadata=None;core_metadata=None;simd_metadata=None;material_metadata=None
+            alpha_metadata=None;scope_metadata=None;core_metadata=None;simd_metadata=None;material_metadata=None;incremental_metadata=None
             if not dev:
                 data,_=strip(data)
                 data,alpha_metadata=alpha(data,family='C',lexer=lexer,reference=reference,readable=canonical)
@@ -114,7 +115,8 @@ def main():
                 data,simd_metadata=simd(data,readable=canonical,profile=recipe['profile'],tokens=minifier._tokens,keywords=lexer._KEYWORDS)
                 data,input_metadata=input_profile.transform_source(data,readable=canonical,family='C')
                 data,material_metadata=material(data)
-            return data,observations,alpha_metadata,scope_metadata,core_metadata,simd_metadata,input_metadata,material_metadata
+                data,incremental_metadata=incremental(data)
+            return data,observations,alpha_metadata,scope_metadata,core_metadata,simd_metadata,input_metadata,material_metadata,incremental_metadata
         def package(source):
             expression,_=literal(source);script=template.replace(marker,expression.encode())
             ast.parse(script)
@@ -126,7 +128,7 @@ def main():
         first=None;first_dev=None
         for index in (1,2):
             directory=out/('attempt-'+str(index));directory.mkdir()
-            source,observations,alpha_metadata,scope_metadata,core_metadata,simd_metadata,input_metadata,material_metadata=generate(directory/'preprocess')
+            source,observations,alpha_metadata,scope_metadata,core_metadata,simd_metadata,input_metadata,material_metadata,incremental_metadata=generate(directory/'preprocess')
             if len(source)!=expected['source_bytes'] or sha(source)!=expected['source_sha256']:raise ValueError('compact C identity mismatch')
             (directory/'main.c').write_bytes(source)
             native=compile_c(recipe['compiler'],source,directory/'native')
@@ -140,10 +142,10 @@ def main():
             elif current!=first:raise ValueError('independent generation did not reproduce bytes')
             row={'attempt':index,'source_bytes':len(source),'source_sha256':sha(source),'native_bytes':len(native),'native_sha256':sha(native),
                  'whole_bytes':len(whole),'whole_sha256':sha(whole),'bootstrap_sha256':sha(script),'preprocessor':observations,
-                 'shipping_alpha':alpha_metadata,'shipping_scope':scope_metadata,'shipping_core':core_metadata,'shipping_simd':simd_metadata,'shipping_input':input_metadata,'shipping_material':material_metadata}
+                 'shipping_alpha':alpha_metadata,'shipping_scope':scope_metadata,'shipping_core':core_metadata,'shipping_simd':simd_metadata,'shipping_input':input_metadata,'shipping_material':material_metadata,'shipping_incremental':incremental_metadata}
             if args.dev:
-                dev,dev_observations,dev_alpha,dev_scope,dev_core,dev_simd,dev_input,dev_material=generate(directory/'preprocess-dev',True)
-                if dev_alpha is not None or dev_scope is not None or dev_core is not None or dev_simd is not None or dev_material is not None:raise ValueError('diagnostic source entered a shipping-only stage')
+                dev,dev_observations,dev_alpha,dev_scope,dev_core,dev_simd,dev_input,dev_material,dev_incremental=generate(directory/'preprocess-dev',True)
+                if dev_alpha is not None or dev_scope is not None or dev_core is not None or dev_simd is not None or dev_material is not None or dev_incremental is not None:raise ValueError('diagnostic source entered a shipping-only stage')
                 if sha(dev)!=expected['dev_source_sha256']:raise ValueError('diagnostic C differs from qualified control')
                 dev_command=recipe['dev_compiler']
                 dev_native=compile_c(dev_command,dev,directory/'dev');(directory/'dev/main.c').write_bytes(dev)

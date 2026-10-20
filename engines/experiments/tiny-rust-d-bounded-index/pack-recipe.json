@@ -1,0 +1,110 @@
+{
+  "scope": "two fixed bounded-index candidate whole costs; old controls read-only full decode; no generated ELF execution",
+  "native_cost_path": "/home/stemxstudio/rove4k-tiny-rust-d-bounded-index-native-20261021/native-cost.json",
+  "native_cost_sha256": "1924293b30e972791ae6efd48838bc0d7c01914c3dd3de492b3997274ecb1eb1",
+  "class": "rust-d-bounded-index-data8-v1",
+  "native_expected": {
+    "control-scalar": {
+      "bytes": 16816,
+      "sha256": "bd0e3bd1567ae906d4ab9704603204d22302895df1f05679f6221d6445aef878",
+      "rx_filesz": 14240,
+      "load_sha256": "8498ceeabf31a8c688b2344585f126dad086193c2ffe5dc07fb7a994887b5b37"
+    },
+    "control-hq": {
+      "bytes": 16816,
+      "sha256": "f8581a68f09d4d9cdc3e1413aa45ffb385bafd8240f1432403629ec2a0e544f8",
+      "rx_filesz": 14688,
+      "load_sha256": "995e9464eb61e2a5894263f49da545767315f6616c405d9e01540a71b4fc8da0"
+    },
+    "candidate-scalar": {
+      "bytes": 16816,
+      "sha256": "9707192f0792196f7c6591bdfe3efe043d14e5a00830c7b34ea0afe8ad194294",
+      "rx_filesz": 14176,
+      "load_sha256": "6490afdb6e4869f8b2158dd045464887ed1f6057d4b21e321b20a3697a00da2c"
+    },
+    "candidate-hq": {
+      "bytes": 16816,
+      "sha256": "60665e0e0f32f163a601151952225f50dfc3f21c2080a798ffc50fa37671ccc8",
+      "rx_filesz": 14624,
+      "load_sha256": "bdb6f68fb4dfbc137833f623a153326045854114bfaf3b622c18c17d5c112b0b"
+    }
+  },
+  "controls": {
+    "scalar": {
+      "whole_path": "/home/stemxstudio/rove4k-tiny-rust-d-shared-query-whole-20261021/control-scalar/whole/x",
+      "bytes": 11403,
+      "sha256": "c485ddc7cca0bbfa31605d6488113075879164802c89ccda48d29d49c7756bc6",
+      "loader_and_headers_bytes": 1115,
+      "payload_bytes": 10288,
+      "payload_sha256": "b825fb3c0fde5222b48f52847d8dfa79d00657b2d44c822f37ee817a27810bd5",
+      "native_path": "/home/stemxstudio/rove4k-tiny-rust-d-shared-query-native-20261021/control-scalar/x"
+    },
+    "hq": {
+      "whole_path": "/home/stemxstudio/rove4k-tiny-rust-d-shared-query-whole-20261021/control-hq/whole/x",
+      "bytes": 11762,
+      "sha256": "da6f203d2304311856509d5d8d803cb647e4bb7f3444caa3a2fb1710304607e5",
+      "loader_and_headers_bytes": 1115,
+      "payload_bytes": 10647,
+      "payload_sha256": "2ba60776de53d6663775b6199e9f307b24e93a246c4e0f55db4fbb36a75e1977",
+      "native_path": "/home/stemxstudio/rove4k-tiny-rust-d-shared-query-native-20261021/control-hq/x"
+    }
+  },
+  "candidate_paths": {
+    "scalar": "/home/stemxstudio/rove4k-tiny-rust-d-bounded-index-native-20261021/candidate-scalar/x",
+    "hq": "/home/stemxstudio/rove4k-tiny-rust-d-bounded-index-native-20261021/candidate-hq/x"
+  },
+  "packing_layout": {
+    "image_base": 4194304,
+    "image_size": 16392,
+    "image_pages": 20480,
+    "final_rx_pages": 16384,
+    "entry": 4194544,
+    "bss_base": 4210688,
+    "bss_pages": 4096,
+    "rw_filesz": 8,
+    "rw_memsz": 12,
+    "actual_bss_base": 4210696,
+    "actual_bss_size": 4,
+    "guard_base": 4190208,
+    "upper_guard": 4214784,
+    "reserve_size": 28672,
+    "loader_base": 268435456
+  },
+  "loader_flags": [
+    "-Oz",
+    "-flto",
+    "-nostdlib",
+    "-static",
+    "-no-pie",
+    "-fno-pie",
+    "-fno-pic",
+    "-fno-builtin",
+    "-fno-stack-protector",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-fno-ident",
+    "-fcf-protection=none",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-Wl,--gc-sections,--build-id=none,-s,-z,noexecstack"
+  ],
+  "codec": {
+    "bcj_version": "e8-e9-whole-image-add-next-offset-le32-v1",
+    "fixed_version": "rfc1951-one-final-fixed-zero-padding-v1"
+  },
+  "unchanged_source_sha256": {
+    "packaging/packer.py": "bde43a9bb1a7ec21f93f21071461d79570cf9ae4af8a7733c33e294ecac5291b",
+    "packaging/loader/loader.c": "8a6a9cb93ae484400056852c5bc406be1cc15dc7b8df6b0a57e6d6330a2e4094",
+    "packaging/loader/image.ld": "93934099212b944b20c2f7840ee87e4817311c4f87fddbb2b3f91db28776cf99",
+    "packaging/loader/codec.py": "17165d1cb16eaba8916833741bfa229d196c3ad07ca391c14b94288a3cdc0866"
+  },
+  "original_admit_source_sha256": "4294e70b205b9617cd81671ae99f893d01136322bfebd9bb322dc1ac0c411239",
+  "unchanged_admit_body_sha256": "2d2ad5957f6ac2747f4588e3ac5e0f1599a2c5768ef34be95aba9ae7d0887e45",
+  "new_admit_sha256": "f564d621c180b23849753f3c70c8658ac2aa0956cda579b0c0d371d67eeb5c18",
+  "runtime_execution_authorized": false,
+  "approved_candidate_encodes": 2,
+  "approved_loader_links": 2,
+  "approved_full_strict_decodes": 4,
+  "control_encodes": 0,
+  "native_recompiles": 0
+}
