@@ -1,0 +1,16 @@
+    pub fn parse(&self, text: &str) -> Option<Move> {
+        self.parse_bytes(text.as_bytes())
+    }
+    pub fn parse_bytes(&self, b: &[u8]) -> Option<Move> {
+        if b.len() != 4 && b.len() != 5 { return None; }
+        for i in [0, 2] {
+            if !(b'a'..=b'h').contains(&b[i]) || !(b'1'..=b'8').contains(&b[i + 1]) { return None; }
+        }
+        let p = if b.len() == 4 { 0 } else {
+            match b[4] { b'n' => 2, b'b' => 3, b'r' => 4, b'q' => 5, _ => return None }
+        };
+        let m = mv((b[1] - b'1') as usize * 16 + (b[0] - b'a') as usize,
+            (b[3] - b'1') as usize * 16 + (b[2] - b'a') as usize, p);
+        let moves = self.pseudo();
+        (moves.a[..moves.n].contains(&m) && self.play(m).is_some()).then_some(m)
+    }

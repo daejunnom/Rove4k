@@ -142,13 +142,18 @@ def main():
             row['build_command'] = run([sys.executable, '-I', '-B', str(entry/'build.py'), '--out', str(build_out)], checkout, f'build-{attempt}')
             build_bytes = (build_out/'build.json').read_bytes()
             build = json.loads(build_bytes)
-            require(build['complete'], 'extracted build incomplete')
+            require(build['complete'] and not build.get('failure'), 'extracted build incomplete/failed')
+            require(len(build['engines']) == 2 and {e['id'] for e in build['engines']} == {'scalar-shipping', 'hq-shipping'}, 'extracted build must contain both selected forms')
             identities = {}
             for engine in build['engines']:
+                require(len(engine['native_rebuilds']) == 2 and engine['native_reproduced'] and engine['whole_reproduced'], 'exact independent native/whole repeats required')
+                require(len(engine['candidates']) == 1, 'exactly one selected codec required')
                 selected = engine['candidates'][0]
                 native = Path(engine['native']).read_bytes()
                 whole = Path(selected['path']).read_bytes()
                 audit = Path(selected['audit']['path']).read_bytes()
+                require(all(Path(n['path']).read_bytes() == native for n in engine['native_rebuilds']), 'actual native repeat bytes differ')
+                require(Path(selected['reproduction']['path']).read_bytes() == whole, 'actual whole repeat bytes differ')
                 identities[engine['id']] = (native, whole, audit)
                 row['engines'].append({'id': engine['id'], 'native_bytes': len(native), 'native_sha256': sha(native),
                                       'whole_bytes': len(whole), 'whole_sha256': sha(whole), 'audit_sha256': sha(audit)})
@@ -160,13 +165,19 @@ def main():
             row['verify_command'] = run([sys.executable, '-I', '-B', str(entry/'verify.py'), '--build', str(build_out/'build.json'), '--out', str(verify_out)], checkout, f'verify-{attempt}')
             receipt = (verify_out/'results.json').read_bytes()
             verified = json.loads(receipt)
-            require(verified.get('complete') is True, 'physical narrow verification incomplete')
+            require(verified.get('complete') is True and not verified['failures'] and not verified['interrupted_constructors_cleanup'], 'physical narrow verification incomplete/failed')
+            require(len(verified['results']) == 2 and {e['engine'] for e in verified['results']} == {'scalar-shipping', 'hq-shipping'}, 'physical proof must contain both forms')
+            for result in verified['results']:
+                require(len(result['production']) == 2 and {s['shutdown'] for s in result['production']} == {'quit', 'EOF'}, 'physical quit/EOF matrix differs')
+                require(all(s['passed'] and s['settled']['returncode'] == 0 and not s['cleanup']['forced_cleanup'] and not s['cleanup']['errors'] for s in result['production']), 'physical session did not settle')
+                require(result['pre_entry']['pre_entry_bss_padding_zero'] and result['pre_entry']['rx_matches_native'] and result['pre_entry']['resumed_original_entry'] and result['pre_entry']['settled']['returncode'] == 0, 'pre-entry checkpoint incomplete')
             row['verification_sha256'] = sha(receipt)
             row['native_whole_audit_repeat_match'] = True
             save()
         report['independent_extractions_bytes_equal'] = True
         report['complete'] = True
-    except Exception as error:
+    except BaseException as error:
+        report['complete'] = False
         report['failure'] = {'type': type(error).__name__, 'message': str(error)}
         raise
     finally:

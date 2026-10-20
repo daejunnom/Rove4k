@@ -51,7 +51,7 @@ def admit(data, expected, digest):
     layout = expected['layout']
     if any(parsed[name] != layout[name] for name in parsed):
         raise ValueError('selected TinyD layout differs')
-    # These are the same two already admitted compose images, with exact
+    # These are the two explicitly qualified finite-policy images, with exact
     # constants; this maintained entry does not broaden the loader ABI.
     if (layout['image_base'], layout['image_pages'], layout['bss_base'], layout['bss_size'],
         layout['bss_pages'], layout['guard_base'], layout['reserve_size'], layout['upper_guard']) != (

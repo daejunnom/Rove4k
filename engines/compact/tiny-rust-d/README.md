@@ -6,14 +6,13 @@ external crate, libc, pthread, TLS, interpreter or C engine backend. Existing
 Tiny Rust A, its source-stream experiment and the canonical engines are kept
 unchanged.
 
-Both fixed 2/18 production profiles have passed bounded actual Linux execution,
-independent source/board/search checks and physical thread-lifetime checks. Each
-complete ELF is **16,824 bytes** and independently reproduces its complete bytes:
+The maintained input path is the qualified ASCII streaming implementation.
+Both fixed 2/18 production profiles produce a **16,816 byte complete ELF**:
 
 | Actual production path | Complete ELF SHA-256 |
 | --- | --- |
-| HQ | `2c84c684d840ad7e7f0567b2b76d9c28693a00f6f95779675fb45ff84c06d3b3` |
-| Scalar | `0c364208165b79d95f146650ec8ae144f1e4cb6427197b80f37f0e97a90a4eb3` |
+| HQ | `f8581a68f09d4d9cdc3e1413aa45ffb385bafd8240f1432403629ec2a0e544f8` |
+| Scalar | `bd0e3bd1567ae906d4ab9704603204d22302895df1f05679f6221d6445aef878` |
 
 These files exceed 4,096 bytes. Neither was compressed or admitted to an existing
 image loader. The original static-only milestone and subsequent execution
@@ -41,7 +40,7 @@ receipts are separate records; a successful link was not used as runtime proof.
   output message under the output gate, then publishes finished. Shutdown
   changes the wake generation, waits kernel clear-TID and only then unmaps each
   stack.
-- `main.rs` owns bounded UTF-8 input, transactional startpos replay and the
+- `main.rs` owns bounded ASCII input, transactional startpos replay and the
   minimal shipping UCI interface. It supports fixed compile-time resources,
   not runtime resource options. The initial profile is two search workers plus
   the main thread, TT bits 18 and two guarded 1 MiB worker stacks.
@@ -86,6 +85,48 @@ assembly runtime primitives. The linker script is a selected layout, not a
 claim that all possible link recipes have been minimized.
 
 ## Bounded qualification and evidence classes
+
+ASCII promotion changes `main.rs` and adds a safe byte parser behind the existing
+`Board::parse(&str)` compatibility wrapper. Board geometry, move generation,
+play, evaluation and history bodies are identical to the preserved control;
+search, runtime, OS, linker script, compiler flags and resource profile are
+unchanged. The old control ELFs are 16,824 B: HQ `2c84c684…c06d3b3` and scalar
+`0c364208…a90a4eb3`. Their sources, complete files and original build/runtime/
+production-trace receipts are retained outside Git before promotion.
+
+The input policy deliberately rejects an entire line containing NUL or any
+non-ASCII byte before dispatch. Previously accepted Unicode whitespace or
+arguments are now rejected. Accepted token whitespace is exactly bytes
+9 through 13 and 32; LF still terminates a line. The 32,768 byte line buffer,
+overlong-line drain, EOF behavior and transactional startpos replay are retained.
+Borrowed byte tokens replace the materialized 16,384-element string-slice array.
+A line of at most 32,768 bytes can have at most 16,384 nonempty tokens because
+`2*T-1 <= N`. Numeric input retains a single optional leading `+`, checked `u64`
+overflow rejection and the original successful-lookahead consumption rule.
+Failed numeric lookahead leaves the next token available; invalid replay keeps
+the prior position. No unchecked UTF-8 conversion or new unsafe access is used.
+
+The ASCII candidate already passed 126 actual admitted GO/result pairs across
+both exact production images, plus separate exact-source helper diagnostics.
+Maintained-source reproduction, actual runtime and production ptrace reruns are
+separate promotion receipts. `verify_runtime.py` embeds the ASCII rejection,
+six-whitespace, numeric/clock, replay, stop/reset and quit/EOF fixtures and admits
+only the exact fixed-profile source and ELF pins before starting either lane.
+It needs no experiment folder or mutable historical helper.
+
+Relative to the old input path, the five readable Rust files and the same inline
+module measurement both **grow by 836 B**. `.text` shrinks by 848 B and `.rodata`
+by 555 B, a combined **1,403 B** reduction. Alignment absorbs this reduction;
+`.data` and the complete file each shrink by only **8 B**, while the data segment
+still begins at file offset `0x4000`. These are separate size measurements.
+The observed main prologue frame estimate falls from 431,952 B to 169,824 B
+(262,128 B), principally from removal of the 262,144 B token array. This is a
+compiler frame estimate for that function, excluding callees and asynchronous
+paths; it is not a universal stack bound or a recursive-search measurement.
+
+The following board/search/deep/fault results describe the preserved control
+qualification. Exact unchanged core bodies permit narrowly scoped proof reuse;
+old diagnostic executions are not relabeled as executions of the new ELF.
 
 Independent source review covered actual clone register order and stack
 alignment, parent callee-saved registers, TID handling, atomic publication,
@@ -132,7 +173,7 @@ results. None of the test tools or std adapters is included in the native ELF.
   Expected exit/signal and disappearance checks precede emergency cleanup.
   These are explicit fault diagnostic classes, not unchanged production ELFs.
 
-The raw HQ shipping frame audit uses auxiliary unwind assembly but discards its
+The old raw HQ shipping frame audit uses auxiliary unwind assembly but discards its
 unwind sections at link. Its entire resulting ELF matches the selected native
 bytes: search CFA 4,880 B, worker entry 73,200 B, pseudo move generation 2,224 B
 and main 431,952 B. Board is 272 B and Worker is 71,032 B. The observed deep path
@@ -140,7 +181,7 @@ and these frames are not a theorem about every asynchronous/system call path.
 
 First-attempt harness failures and subsequent strict verifier fixes are retained
 outside Git; they are not engine-source fixes. Production Rust/assembly/linker
-bytes remained unchanged through these qualifications. Final strict runtime and
+bytes remained unchanged through those control qualifications. Final strict runtime and
 production-trace reruns retain the earlier fault/deep verifier versions with the
 receipts those versions actually produced.
 

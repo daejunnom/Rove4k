@@ -290,7 +290,9 @@ impl Board {
         moves.n = n; moves
     }
     pub fn parse(&self, text: &str) -> Option<Move> {
-        let b = text.as_bytes();
+        self.parse_bytes(text.as_bytes())
+    }
+    pub fn parse_bytes(&self, b: &[u8]) -> Option<Move> {
         if b.len() != 4 && b.len() != 5 { return None; }
         for i in [0, 2] {
             if !(b'a'..=b'h').contains(&b[i]) || !(b'1'..=b'8').contains(&b[i + 1]) { return None; }

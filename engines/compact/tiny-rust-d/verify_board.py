@@ -20,7 +20,7 @@ import time
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
-EXPECTED_BOARD = "f27472ea055b67e61cdd82a3d7747feced50c899bef72365ffdc940043dedef3"
+EXPECTED_BOARD = "1a1ff1a0693a1b3f53ade2435d2996684a1bcd7b7eee333f28fe669645340b82"
 MASK = (1 << 64) - 1
 
 

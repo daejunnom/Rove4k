@@ -2,7 +2,7 @@
 """Build the maintained minimal F entry from Git source and fixed decisions.
 
 There are no experiment-directory, old build.json or executable inputs. The
-single shipping profile is fixed; --dev adds the unchanged diagnostic form.
+single shipping profile is fixed; --dev adds the pinned beta-only diagnostic form.
 """
 import argparse
 import ast
@@ -13,6 +13,7 @@ import lzma
 import os
 from pathlib import Path
 import platform
+import re
 import subprocess
 import sys
 
@@ -35,6 +36,27 @@ def module(name,path):
     result=importlib.util.module_from_spec(spec);spec.loader.exec_module(result);return result
 
 
+COUNTER_SCHEMA={'noop_definitions':1,'conditional_calls':{'hits':1,'qs':1,'corr_uses':1},
+                'unconditional_calls':['ply_aborts','hist_updates','cont_updates','corr_updates','f_probes',
+                                       'f_lower','f_upper','f_converged','f_conflicts'],
+                'shipping_pvs_calls':0,'total_calls_removed':12}
+
+
+def strip_counters(source):
+    """Admit exactly the qualified beta-only DEV=0 no-op counter schema."""
+    text=source.decode()
+    text,definitions=re.subn(r'(?m)^#define COUNT\(w,f\) \(\(void\)0\)\n','',text)
+    for statement in ('if(bound)COUNT(w,hits);','if(depth<=0)COUNT(w,qs);','if(correction)COUNT(w,corr_uses);'):
+        if text.count(statement)!=1:raise ValueError('beta-only conditional counter schema changed: '+statement)
+        text=text.replace(statement,'')
+    allowed=set(COUNTER_SCHEMA['unconditional_calls']);found=re.findall(r'COUNT\(w,(\w+)\);',text)
+    if set(found)!=allowed or len(found)!=len(allowed) or definitions!=1:
+        raise ValueError('beta-only shipping diagnostic schema changed')
+    text=re.sub(r'COUNT\(w,\w+\);','',text)
+    if 'COUNT(' in text:raise ValueError('unexpected diagnostic call remains')
+    return text.encode(),{'removed_noop_counter_calls':len(found)+3,'shipping_pvs_calls':0}
+
+
 def compile_c(command,source,directory):
     directory.mkdir()
     result=subprocess.run(command,input=source,cwd=directory,capture_output=True,timeout=90)
@@ -46,7 +68,7 @@ def compile_c(command,source,directory):
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out',type=Path,required=True)
-    parser.add_argument('--dev',action='store_true',help='also reproduce the qualified diagnostic C and ELF')
+    parser.add_argument('--dev',action='store_true',help='also reproduce the pinned beta-only diagnostic C and ELF')
     args=parser.parse_args();out=args.out.resolve()
     if not args.out.is_absolute() or out.exists() or out==REPO or REPO in out.parents or any((p/'.git').exists() for p in (out,*out.parents)):
         parser.error('a new absolute output outside any Git checkout is required')
@@ -55,6 +77,7 @@ def main():
     recipe=json.loads((HERE/'recipe.json').read_text())
     if recipe['format']!=1 or recipe['family']!='F' or recipe['profile']!={'workers':2,'tt_bits':18,'ply':128,'dev_default':False}:
         raise ValueError('unsupported entry recipe/profile')
+    if recipe['counter_schema']!=COUNTER_SCHEMA:raise ValueError('unsupported beta-only counter schema')
     out.mkdir(parents=True);frozen=out/'inputs';frozen.mkdir()
     report={'complete':False,'family':'F','scope':'canonical minimal F regeneration; fixed historical qualified bytes, not 4KiB acceptance',
             'resources':recipe['profile'],'inputs':{},'attempts':[],
@@ -78,7 +101,6 @@ def main():
             report['inputs'][relative]={'bytes':len(data),'sha256':sha(data),'working_bytes_sha256':sha(raw),'LF_normalization':raw!=data}
         specialize=module('entry_specialize',frozen/'specialize.py').specialize_c
         compact=module('entry_minify',frozen/'minify.py').compact_source
-        strip=module('entry_counter_strip',frozen/'overlay.py').strip_counters
         lexer=module('entry_fixed_tokens',frozen/'rename_c.py')
         literal=module('entry_literal',frozen/'pack_stream.py').source_literal
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
@@ -88,8 +110,9 @@ def main():
         def generate(directory,dev=False):
             active,observations=specialize({'main.c':canonical},directory,recipe['preprocessor']+['-DDEV='+str(int(dev))],os.environ.copy())
             data=compact(active['main.c'],'c')
+            counters=None
             if not dev:
-                data,_=strip(data);files={'main.c':data}
+                data,counters=strip_counters(data);files={'main.c':data}
                 for old,new in recipe['resource_literals']:
                     count=sum(token==old for _,_,token in lexer._identifier_spans(files['main.c'].decode()))
                     if count!=recipe['resource_token_counts'][old]:raise ValueError('fixed resource token count changed: '+old)
@@ -97,7 +120,7 @@ def main():
                 for old,new in recipe['function_spellings']:
                     files=lexer._replace(files,old,new)
                 data=files['main.c']
-            return data,observations
+            return data,observations,counters
         def package(source):
             expression,_=literal(source);script=template.replace(marker,expression.encode())
             ast.parse(script)
@@ -107,7 +130,7 @@ def main():
         first=None;first_dev=None
         for index in (1,2):
             directory=out/('attempt-'+str(index));directory.mkdir()
-            source,observations=generate(directory/'preprocess')
+            source,observations,counters=generate(directory/'preprocess')
             if len(source)!=expected['source_bytes'] or sha(source)!=expected['source_sha256']:raise ValueError('compact C identity mismatch')
             (directory/'main.c').write_bytes(source)
             native=compile_c(recipe['compiler'],source,directory/'native')
@@ -120,9 +143,10 @@ def main():
             if first is None:first=current
             elif current!=first:raise ValueError('independent generation did not reproduce bytes')
             row={'attempt':index,'source_bytes':len(source),'source_sha256':sha(source),'native_bytes':len(native),'native_sha256':sha(native),
-                 'whole_bytes':len(whole),'whole_sha256':sha(whole),'bootstrap_sha256':sha(script),'preprocessor':observations}
+                 'whole_bytes':len(whole),'whole_sha256':sha(whole),'bootstrap_sha256':sha(script),'preprocessor':observations,
+                 'counter_removal':counters}
             if args.dev:
-                dev,dev_observations=generate(directory/'preprocess-dev',True)
+                dev,dev_observations,_=generate(directory/'preprocess-dev',True)
                 if sha(dev)!=expected['dev_source_sha256']:raise ValueError('diagnostic C differs from qualified control')
                 dev_command=recipe['dev_compiler']
                 dev_native=compile_c(dev_command,dev,directory/'dev');(directory/'dev/main.c').write_bytes(dev)

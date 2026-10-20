@@ -1,162 +1,167 @@
 # Maintained minimal F entry
 
-`engine.c` is the readable canonical program for the selected minimal F entry.
-It contains the diagnostic and shipping forms together. Edit this source when
-changing F; the compact C and complete launcher are generated outputs. This
-promotion preserves the qualified full-depth MTD(f) core, exact-horizon coherent
-TT, retained-depth interruption behavior, real legal move witness, source
-structure, runtime, minimal UCI policy, resources and compiler settings.
+`engine.c` is the readable canonical source for the selected minimal F entry.
+It contains the shipping and diagnostic forms together. This version promotes
+the qualified production integer-unit-window beta-only specialization of the
+previous 5,479-byte entry. The complete selected file is **5,407 bytes**, a
+72-byte reduction and still **1,311 bytes above 4,096**. This folder does not
+claim 4 KiB eligibility, strength, fair NPS or general target portability.
 
-The complete selected file remains **5,479 bytes**, 1,383 bytes above 4,096. This
-folder does not claim 4 KiB eligibility, strength, fair NPS or general target
-portability. The fixed qualified target is Linux x86-64 with GCC 13.3.0,
-binutils 2.42, Python 3.12.3 and xz 5.4.5. Python's LZMA encoder also affects
-exact compressed bytes. Different outputs fail the expected identity gates.
+The selected program keeps full-depth MTD(f), stable leaves, exact-horizon and
+context-compatible coherent full-key **single-bound TT entries**, the driver's
+retained lower/upper interval and attaining root move witness. Board, learning,
+interruption, last completed iteration, startup pool, parser and resources are
+preserved. Canonical paired-TT experiments remain separate historical results;
+this promotion does not change the maintained entry's TT primitive.
+
+The fixed target is Linux x86-64 with GCC 13.3.0, binutils 2.42, Python 3.12.3
+and xz 5.4.5, including the recorded WSL Ubuntu environment. Python's LZMA
+encoder affects compressed bytes. Different outputs fail the literal identity
+gates. Expected pins are reviewed constants and are never refreshed by a build.
 
 ## Fixed source recipe
 
-From the repository root in the recorded Linux environment, including WSL
-Ubuntu on Windows:
+From the repository root in that environment:
 
 ```sh
 python3 -B engines/compact/tiny-entry-f/build.py --out /absolute/new/external-output --dev
 ```
 
-The output must be new and outside any Git checkout. `--dev` adds the unchanged
-diagnostic form; it does not select another shipping profile. Workers are fixed
-at 2, TT_BITS at 18 and PLY at 128. Both search workers and the input thread exist
-at startup. Shipping exposes no resource options.
+The output must be new and outside any Git checkout. Workers are fixed at 2,
+TT_BITS at 18 and PLY at 128. Both search workers and the input thread exist at
+startup. Shipping exposes no resource options. `--dev` also reproduces the
+separately pinned beta-only diagnostic C and ELF; it does not select another
+shipping profile.
 
-This is F's actual recipe, independently preserved from A. Its canonical
-26,318-byte readable source already contains the selected structural co-design
-and minimal shipping UCI policy. The builder does not replay an overlay, a
-stitch operation or structural source transformations. It performs these fixed
-steps twice:
+The 26,100-byte readable source already includes the selected structural,
+minimal-UCI and beta-only decisions. The builder performs no structural
+transformation and reads no experiment source or old executable. Each of its
+two independent attempts performs these fixed steps:
 
-1. Specialize the actual source with the selected compiler preprocessor and
-   fixed `-std=c11 -Os -pthread -DWORKERS=2 -DTT_BITS=18 -DPLY=128` flags.
-2. Lexically compact the specialized source. DEV ends here, before shipping
-   counter removal, resource substitution or function spelling changes.
-3. Remove F's admitted no-op diagnostic schema with the exact tracked
-   `tiny-f/overlay.py:strip_counters` function.
-4. Require exactly 7 `WORKERS`, 3 `TT_BITS` and 8 `PLY` identifier occurrences,
-   then substitute their fixed values in stored order.
-5. Apply F's 34 already selected function spellings in their stored order.
-   There is no additional identifier renaming or spelling search.
-6. Compile through stdin with exactly
-   `cc -Os -pthread -x c - -o x -s`, then package the exact selected bootstrap.
+1. Preprocess with `-std=c11 -Os -pthread -DWORKERS=2 -DTT_BITS=18 -DPLY=128`
+   and the explicit DEV define, then lexically compact the specialized C.
+2. DEV stops source processing here. Shipping uses the strict local
+   `build.py:strip_counters` schema described below.
+3. Require exactly 7 `WORKERS`, 3 `TT_BITS` and 8 `PLY` identifier occurrences,
+   then substitute the fixed resource values in stored order.
+4. Apply the same 34 stored function spellings without an identifier search.
+5. Compile through stdin with `cc -Os -pthread -x c - -o x -s`, then package
+   the selected bootstrap without changing its behavior.
 
-`recipe.json` embeds the fixed decisions, expected hashes and historical receipt
-identities. Five tracked helpers are required: `engines/scripts/specialize.py`,
-`minify.py`, `rename_c.py`, `engines/compact/tiny-f/overlay.py` and
-`engines/compact/tiny-a/pack_stream.py`. Their LF-normalized SHA-256 values are
-pinned. The builder copies and checks them before importing the external
-copies. Only `strip_counters` is consumed from the F overlay; its dormant
-`transform` and `co_design` functions are not called. These helpers import only
-Python standard libraries.
+Four tracked helpers are required: `engines/scripts/specialize.py`, `minify.py`,
+`rename_c.py` and `engines/compact/tiny-a/pack_stream.py`. Their LF-normalized
+SHA-256 values are pinned. They are copied and checked before import and use
+only the Python standard library. The previous shared `tiny-f/overlay.py`
+stripper is not consumed; its older schema still correctly requires a PVS
+counter for its own source and has not been relaxed.
 
-No old experiment source, `/home` report, previous executable, dependency tree
-or network resource is read during regeneration. Historical paths in the
-recipe are receipt metadata only. CRLF inputs normalize explicitly to LF;
-lone CR fails. This folder's `.gitattributes` keeps owned text LF in Git.
+The local shipping schema requires one `COUNT` no-op definition, exactly one
+each of the three fixed conditional statements for `hits`, `qs` and
+`corr_uses`, then exactly one each of `ply_aborts`, `hist_updates`,
+`cont_updates`, `corr_updates`, `f_probes`, `f_lower`, `f_upper`, `f_converged`
+and `f_conflicts`. It removes exactly 12 no-op calls and rejects any residual
+`COUNT(`. Shipping requires zero PVS calls. The nonfirst normal probe counter
+exists only inside `#if DEV`, so shipping contains no diagnostic branch for it.
+`recipe.json` repeats this fixed schema and the builder admits only that schema.
 
-The complete file is its exact 75-byte shell prefix and an XZ LZMA2 stream,
-preset 9 extreme, lc=2/lp=0/pb=0, CRC64. `bootstrap.py.in` is the selected Python
-bootstrap with only its source literal replaced by one marker. F's `-pthread`
-compiler argument is retained. Signal masking, compiler process-group cleanup,
-private-directory removal and file-descriptor execution are preserved byte for
-byte. The package restores, compiles and executes an unlinked native image.
-
-Each attempt independently preprocesses, compacts, compiles and packages. The
-builder checks expected identities and compares complete C/native/launcher/
-bootstrap byte tuples across two attempts. `--dev` likewise regenerates and
-compares diagnostic C and ELF twice. Inputs, compiler stderr, intermediate
-source, native, bootstrap, complete file and incomplete/final `build.json` stay
-in the external output.
+The complete file uses the unchanged 75-byte shell prefix and an XZ LZMA2
+stream: preset 9 extreme, lc=2/lp=0/pb=0, CRC64. `bootstrap.py.in` substitutes
+only its source-literal marker. Its `-pthread` compilation, signal masking,
+compiler process-group cleanup, private-directory removal and file-descriptor
+execution remain unchanged. The package restores, compiles and executes an
+unlinked native image.
 
 | Output | Bytes | SHA-256 |
 | --- | ---: | --- |
-| Readable engine.c | 26,318 | `49dd54bbbb1ecd6acd2374ebe5431dd7c188636ebbbd15ff78a643d92f2210b2` |
-| Compact shipping C | 12,982 | `3c0f8bafe78499cb679cd42b82e7634286f8d1437bd1e98a04c7fc87bcaa9e85` |
-| Restored stdin native ELF | 22,664 | `d740f3c0c2a53aa3aeae7c484012d4a7532303e66819363d3d5222f7b7fd32f1` |
-| Complete launcher | 5,479 | `485a5aab79761541d8f1ad2a08ad49a7fd4c6d787883992c2fa0cd21cb12adce` |
-| Decoded bootstrap | — | `a34e4a406580b92b3edafc823c619550ea75a733163cc018b4d933033d95f135` |
+| Readable engine.c | 26,100 | `dc065b98d99a147f862bd2d4cb0a1349ff79a2da7c1be873d906dff71cc9cd89` |
+| Compact shipping C | 12,722 | `69885c0fd3096c8782a96c4f11b8d3a3b322858fe513b7420330d8e07e16baf8` |
+| Restored stdin native ELF | 22,664 | `ef10962ff16e5158e0cb18cbf96b944404bd1c4db301bfbb47a0faed33466c22` |
+| Complete launcher | 5,407 | `e562a49a06257d46bbbb9e0481023f3716926e4cf2a8086dcd5307b3e8a96078` |
+| Decoded bootstrap | 13,721 | `d439a9fe3f069c2e34099f6e5ef0e9b42fd0c4a7181c0e4fc8576d3039ff53fd` |
+| DEV C | 19,852 | `9528b0e97f71d2d07d60a63956fc19a9156f778b30088b34f62e4eb445260ece` |
+| DEV native ELF | 31,120 | `bd71ff07625fa9891a4b4ef79c50b5215fa4169f18d83f15d9378fe833872a2d` |
 
-DEV C must equal
-`1d23fca74fe385982bafc25cf0dee9ee93ce4af396859554e1897eaa27b27aac`,
-and its native must equal
-`18fd24c64d5733b69c77cb1e0a4532b92282be0bb494d5dab3a9aa8c718ffc3f`.
-The diagnostic command retains the original `-std=c11`, resource defines,
-`-DDEV=1` and unstripped output; it is separate from the restored shipping ELF
-identity class.
+The DEV identities were independently generated and compiled twice from the
+literal-pinned qualified readable source before promotion. Its original
+`-std=c11`, fixed resource defines, `-DDEV=1` and unstripped compiler command
+are unchanged. The consumer field `diagnostic_exact_control` means equality to
+these explicit beta-only diagnostic pins. It does not mean equality to the old
+alpha/beta diagnostic source or to the restored shipping ELF.
 
 ## Fresh source archive and physical run
 
 ```sh
 python3 -B engines/compact/tiny-entry-f/fresh.py --out /absolute/new/archive-proof
 python3 -B /absolute/new/archive-proof/checkout-1/engines/compact/tiny-entry-f/verify.py \
-  --build /absolute/new/archive-proof/build-1 --out /absolute/new/runtime-proof
+  --build /absolute/new/archive-proof/build-1 --out /absolute/new/runtime-proof-1
+python3 -B /absolute/new/archive-proof/checkout-2/engines/compact/tiny-entry-f/verify.py \
+  --build /absolute/new/archive-proof/build-2 --out /absolute/new/runtime-proof-2
 ```
 
-`fresh.py` explicitly names the complete closure: this folder's nine files, the
-five pinned build helpers and two pinned independent test helpers. It preserves
-raw bytes separately, creates the LF-normalized payload in an isolated local
-Git repository with no remote or commits, writes a tree and archives it. The
-project checkout's index is never touched. Archive file paths and types and all
-extracted LF hashes are checked before use.
+`fresh.py` names this folder's nine files, the four pinned build helpers and
+two independent verifier helpers: 15 source files. It preserves raw bytes and
+an LF-normalized payload in an isolated local Git repository without remote or
+commits, then writes a tree and archive. The project checkout's index is never
+touched. Archive paths, types and extracted LF hashes are checked before use.
 
-Two independent extracted source directories invoke their own archived
-`build.py`, each with two attempts and DEV enabled. The shipping C, native,
-complete file, bootstrap, DEV C and DEV ELF are compared as complete byte
-tuples. `fresh.json`, the archive hash, source tree and raw/LF input identities
-bind the proof. Before integration this is an uncommitted isolated Git source
-tree, not a claim about project HEAD.
+Two independent extractions invoke their own archived builder, each making two
+shipping and DEV attempts. Compact C, native ELF, whole file, bootstrap, DEV C
+and DEV ELF are compared as complete byte tuples. Build/fresh reports, archive,
+source tree, raw/LF identities and intermediate artifacts stay outside Git.
+CRLF input normalization is explicit; lone CR fails. The local `.gitattributes`
+keeps text LF in Git. An isolated source tree does not claim a project commit.
 
-`verify.py` copies two SHA-pinned tracked black-box helpers. It verifies the
-selected whole/source/native identities and launches the actual complete file
-in two sessions. It observes exactly three stable startup TIDs before UCI,
-reads `/proc/PID/exe` to match the restored native, checks the deleted private
-path and absence of live compiler helpers, and requires legal white/black
-zero-clock moves and finite bare `go`. Active-search quit and EOF must each
-produce exactly one legal closing result, complete process wait, remove the
-process and finish output readers. CPU progress is bounded lifecycle evidence;
-cancellation causality remains `unproven`. This selected check does not rerun a
-generic infinite/stop contract that the minimal shipping interface omits.
+Each `verify.py` invocation copies two SHA-pinned independent helpers and starts
+the actual selected wrapper twice, for quit and EOF. It checks exactly three
+stable startup TIDs, the restored `/proc/PID/exe` image, the removed private
+path and absence of live compiler children. White/black zero-clock and finite
+bare-go results must each be one legal move. Active-search quit and EOF each
+must produce one legal closing result, finish process wait and output readers,
+and leave no main process. CPU activity is bounded lifecycle evidence;
+cancellation causality remains `unproven`. The minimal shipping interface has
+no generic infinite/stop contract.
 
-## Program and historical proof boundary
+## Private API and proof boundary
 
-The core preserves full-depth MTD(f) with exact-horizon/coherent full-key TT,
-quiescence, history/continuation/correction learning, the selected structural
-source decisions and fixed startup workers. Board behavior retains four
-promotions, castling, canonical EP, own-king legality, transactional replay,
-third repetition, halfmove/dead-position handling and ordered path context.
+Production MTD supplies integer unit windows. A raised alpha in the old core
+already reached beta, so normal nodes cut immediately and QS skips recursion
+after validating a legal move. Each actual child window therefore remained a
+unit window. The new private search API takes beta alone, passes `1-beta` to
+children and stores lower bound 2 iff `best>=beta`, otherwise upper bound 3.
+It removes first/later PVS dispatch, unreachable interior re-search and oldalpha
+state. This API is not a general wide-window alpha/beta entry point.
 
-The minimal shipping interface intentionally returns only `uciok` to `uci`,
-`readyok` to `isready`, accepts `position startpos [moves ...]`, uses finite
-clocked/bare `go`, and physically joins on quit/EOF. `stop`, `ucinewgame`,
-`infinite` and unsupported words add no public controls. Next go and position
-still cancel and wait for the preceding epoch before shared state reuse. DEV
-keeps its richer parser, F identification and diagnostics.
+The exact candidate proof is separately pinned in `recipe.json`: cost receipt
+`b951f2e1e1696967a767a3dcee9fd7ae12e1d56cfb6af18f2bff655a456c572a`
+and proof receipt
+`96678ed411e4fea4fcd0b176fe5cd707f073d49166e541dd9112b3d1bfa49e12`.
+It compares the old control queried only with unit windows against the actual
+new beta-only API, including actual compact DEV=0 shipping source. It covers
+51 finite threshold/special-state cases; shipping O2/SAN pairs each have 56
+rows, DEV O2/SAN pairs each 70 rows and PLY4 O2 has one row. Twelve actual
+retained-depth MTD minimax/witness cases, depth/context/learning controls,
+interruption and the selected whole wrapper's physical quit/EOF sessions are
+bound separately. These recorded checks are reused by exact identity rather
+than rerun or inferred by the maintained builder. The former seven wide-window
+fixtures are not reused as proof for the new private API.
 
-The readable, compact, restored native and whole-file identities are exactly
-the qualified F minimal-policy result. Precise historical receipts are stored
-as metadata in the recipe:
+Earlier board/rule and runtime evidence is retained only under explicit body
+identity: board and coherent TT primitive, stable leaf helpers, MTD driver
+except its root API argument, pool and parser. The source keeps promotions,
+castling, canonical EP, own-king legality, transactional replay, repetition,
+halfmove/dead-position handling and ordered path context. History,
+continuation and correction remain active; fixed full depth avoids changing
+probe values with ordering. The full-depth policy is distinct from selective
+canonical F variants.
 
-- F producer build: `e38e0bcfc3a2ee5acba0cfd36e4f06520528aa359564604b952c4fda17a08c87`.
-- Portfolio cost: `f4833f5922dcdddad9abcdbd82f588d1d1e51a5a0e6c63f46b7693fdcbae6455`.
-- Portfolio actual runtime: `6f26a3c46bff4d9b3dfe531eaac9a43b9a02eff52d5bda1c1bc2ca9624a84b09`.
-- F separate core/policy proof: `6fe9500aa943baab38c119926c696e911d590f952f4d4b8deb694f808e51592f`.
-- Final portfolio freeze: `71d1a8f86d09364fbe9f1f0a2138b5c87a8361a86b46e6756a182f754c9b9f9d`.
+Shipping returns `uciok` to `uci`, `readyok` to `isready`, accepts
+`position startpos [moves ...]`, runs finite clocked/bare `go`, and joins on
+quit/EOF. Next go and position cancel and wait before shared epoch reuse. DEV
+retains its richer parser and diagnostics. Unsupported words add no controls.
 
-That frozen qualification binds the actual unchanged core and separate
-diagnostic/harness identities to optimized, sanitized and PLY4 full-depth
-MTD(f), exact-horizon TT, retained-depth interruption and real legal witness
-checks. Its fifteen modeled policy cases run real shipping dispatcher/go/wait/
-clear with synthetic completion and explicitly do not prove physical
-completion. The historical actual whole-file runtime is separate evidence for
-minimum UCI, clocks, epoch fences, process image, startup and shutdown. Identity
-permits this narrow receipt reuse; the canonical builder does not rerun or
-infer those historical groups. Fresh archive and selected physical receipts
-record the new checks independently. Old stronger UCI behavior is not relabeled
-as this minimal-policy result. No strength match, fair NPS, broad portfolio
-campaign, CI success or 4 KiB acceptance follows from this promotion.
+Before replacement, the old nine maintained source files were verified against
+the old isolated archive and preserved externally with that archive and its
+shipping/DEV controls. New promotion receipts and regeneration/runtime evidence
+also stay outside Git. Historical paths in the recipe are metadata only.
+No strength match, fair NPS, broad campaign, CI success or 4 KiB acceptance
+follows from this source promotion.

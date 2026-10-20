@@ -190,11 +190,19 @@ static int read_line(char *s){
     s[n]=0;return !bad;
 }
 static void go(char *s){
+#if DEV
     wait();deadline=UINT64_MAX;
+#else
+    wait();
+#endif
 #if DEV
     limit=0;max_depth=PLY-2;atomic_store(&searched,0);
 #endif
+#if DEV
     uint64_t clock=0,inc=0,budget=0;int present=0,infinite=0;
+#else
+    uint64_t clock=0,inc=0,budget=0;int present=0;
+#endif
     const char *cursor=s;
     for(Span token;(token=scan(&cursor)).n;){
         if(word(token,"wtime")||word(token,"btime")){
@@ -205,14 +213,19 @@ static void go(char *s){
             int side=*token.p=='w'?1:-1;uint64_t n=amount(&cursor);
             if(side==position.s)inc=n;
         }
-        else if(word(token,"infinite"))infinite=1;
 #if DEV
+        else if(word(token,"infinite"))infinite=1;
         else if(word(token,"depth")){uint64_t n=amount(&cursor);if(n&&n<PLY-1)max_depth=(int)n;}
         else if(word(token,"nodes"))limit=amount(&cursor);
         else if(word(token,"movetime")){budget=amount(&cursor);if(!budget)budget=1;}
 #endif
     }
+#if DEV
     if(!infinite){if(!budget&&present){budget=clock/30+(inc>86400000?86400000:inc)*3/4;if(budget>clock/5)budget=clock/5;if(!budget)budget=1;}if(budget)deadline=now()+(budget>86400000?86400000:budget);}
+#else
+    if(present){budget=clock/30+(inc>86400000?86400000:inc)*3/4;if(budget>clock/5)budget=clock/5;if(!budget)budget=1;}else budget=1000;
+    deadline=now()+(budget>86400000?86400000:budget);
+#endif
     fallback=first(&position);atomic_store_explicit(&stopped,0,memory_order_relaxed);
     for(int i=0;i<WORKERS;i++){workers[i].depth=workers[i].score=0;workers[i].best=0;workers[i].nodes=0;}
     atomic_store_explicit(&pending,WORKERS,memory_order_relaxed);atomic_fetch_add_explicit(&epoch,1,memory_order_release);wake(&epoch);
@@ -250,11 +263,9 @@ int main(void){
         if(word(command,"position")){wait();set_position((char *)cursor);}
         else if(word(command,"go"))go((char *)cursor);
         else if(scan(&cursor).n)continue;
-        else if(word(command,"uci")){output("id name Rove4k D syscall\nuciok\n");}
+        else if(word(command,"uci")){output("uciok\n");}
         else if(word(command,"isready")){output("readyok\n");}
         else if(word(command,"quit"))break;
-        else if(word(command,"stop"))wait();
-        else if(word(command,"ucinewgame")){wait();clear();}
 #else
         size_t n=strlen(line);while(n&&(line[n-1]=='\r'||line[n-1]==' '||line[n-1]=='\t'))line[--n]=0;
         if(!strcmp(line,"uci"))output("id name Rove4k D syscall\nuciok\n");

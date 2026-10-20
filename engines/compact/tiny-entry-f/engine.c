@@ -316,7 +316,7 @@ static int quiet_score(Worker *w,const Board *p,Move m,int prior){
     return w->history[from][to]+w->continuation[prior][piece_index(p->b[from])]+
         correction+(int)((m*37u+w->id*19u)%17);
 }
-static int search(Worker *w,const Board *p,int depth,int alpha,int beta,int ply,int prior,Move *root){
+static int search(Worker *w,const Board *p,int depth,int beta,int ply,int prior,Move *root){
     if(!claim(w))return 0;
     int check=attacked(p,p->k[p->s<0],-p->s),draw=p->half>=100;
     int repetitions=0,end=w->length-1-p->half;
@@ -324,7 +324,7 @@ static int search(Worker *w,const Board *p,int depth,int alpha,int beta,int ply,
     for(int i=w->length-3;i>=end;i-=2)repetitions+=w->keys[i]==p->h;
     draw|=repetitions>=2||dead(p);
     Move moves[MOVES],bestmove=0;
-    int scores[MOVES],count=gen(p,moves),legal=0,old=alpha,best=-MATE;
+    int scores[MOVES],count=gen(p,moves),legal=0,best=-MATE;
     /* Correction/history affect ordering only. Every completed bound refers
      * to full-depth PVS plus this fixed raw-HCE quiescence leaf contract. */
     int evaluation=p->s*p->v;
@@ -346,10 +346,10 @@ static int search(Worker *w,const Board *p,int depth,int alpha,int beta,int ply,
      * Neither deeper normal bounds nor normal bounds in QS are admissible.
      * Root cutoffs remain disabled, so fail-high returns a searched witness. */
     if(ply&&bound&&ttdepth==(depth>0?depth:0)&&
-       (bound==1||(bound==2&&score>=beta)||(bound==3&&score<=alpha)))return score;
+       (bound==1||(bound==2&&score>=beta)||(bound==3&&score<beta)))return score;
     if(depth<=0)COUNT(w,qs);
     int quiet=depth<=0&&!check;
-    if(quiet){best=evaluation;if(best>alpha)alpha=best;}
+    if(quiet)best=evaluation;
     for(int i=0;i<count;i++){
         Move m=moves[i];int from=FROM(m),to=TO(m);
         scores[i]=m==tt?1000000:capture(p,m)?500000+abs(value(p->b[to],to))*16-abs(value(p->b[from],from)):
@@ -362,19 +362,17 @@ static int search(Worker *w,const Board *p,int depth,int alpha,int beta,int ply,
         Board q;if(!make(p,m,&q))continue;
         ++legal;
         int from=FROM(m),to=TO(m),tactical=capture(p,m)||PROMO(m),next=piece_index(q.b[to]);
-        if(quiet&&(!tactical||alpha>=beta))continue;
+        if(quiet&&(!tactical||best>=beta))continue;
         w->keys[w->length++]=q.h;
-        if(legal==1||depth<=0)score=-search(w,&q,depth-1,-beta,-alpha,ply+1,next,0);
-        else{
-            COUNT(w,pvs);
-            score=-search(w,&q,depth-1,-alpha-1,-alpha,ply+1,next,0);
-            if(score>alpha&&score<beta)score=-search(w,&q,depth-1,-beta,-alpha,ply+1,next,0);
-        }
+#if DEV
+        /* Retain the nonfirst-normal-probe observation in DEV only. */
+        if(legal>1&&depth>0)COUNT(w,pvs);
+#endif
+        score=-search(w,&q,depth-1,1-beta,ply+1,next,0);
         --w->length;
         if(atomic_load_explicit(&stopped,memory_order_relaxed))return 0;
         if(score>best){best=score;bestmove=m;if(root)*root=m;}
-        if(score>alpha)alpha=score;
-        if(alpha>=beta){
+        if(score>=beta){
             if(depth>0&&!tactical){
                 int bonus=depth*depth;
                 learn(&w->history[from][to],bonus);
@@ -385,7 +383,7 @@ static int search(Worker *w,const Board *p,int depth,int alpha,int beta,int ply,
         }
     }
     if(!legal)return check?-MATE+ply:0;
-    bound=best<=old?3:best>=beta?2:1;
+    bound=best>=beta?2:3;
     score=best;
     if(score>MATE-PLY)score+=ply;
     if(score< -MATE+PLY)score-=ply;
@@ -408,7 +406,7 @@ void think(Worker *w,const Board *p){
         while(lower<upper){
             int beta=score==lower?score+1:score;
             Move move=0;COUNT(w,f_probes);
-            score=search(w,p,depth,beta-1,beta,0,6,&move);
+            score=search(w,p,depth,beta,0,6,&move);
             if(atomic_load_explicit(&stopped,memory_order_relaxed))break;
             if(score<lower||score>upper){COUNT(w,f_conflicts);atomic_store(&stopped,1);break;}
             if(score<beta){upper=score;COUNT(w,f_upper);

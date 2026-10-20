@@ -20,6 +20,13 @@ import zlib
 
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
+SHIPPING_PROTOCOL = {
+    'id': 'finite-minimum-v1', 'identification': False,
+    'stop': 'consume', 'ucinewgame': 'consume', 'infinite': 'consume',
+    'default_budget_ms': 1000, 'own_clock_formula': 'unchanged',
+    'hard_wall_cap': False,
+    'completion_fences': 'next go, position, quit, EOF wait for result-before-completed epoch',
+}
 
 
 def sha(data):
@@ -55,12 +62,15 @@ def main():
         raise ValueError('unsupported selected profile')
     if list(recipe['expected']) != ['scalar-shipping', 'hq-shipping']:
         raise ValueError('exactly the selected scalar/HQ images are required')
+    if recipe['shipping_protocol'] != SHIPPING_PROTOCOL:
+        raise ValueError('unsupported selected shipping protocol')
     out.mkdir(parents=True)
     frozen = out/'inputs'
     frozen.mkdir()
     started, deadline = time.monotonic(), time.monotonic()+180
-    report = {'complete': False, 'scope': 'maintained source regeneration of exact qualified C D own-ELFs; no algorithm/layout/loader change',
+    report = {'complete': False, 'scope': 'maintained source regeneration of exact qualified finite C D own-ELFs; no algorithm/mapping-class/loader change',
               'resources': recipe['profile'], 'inputs': {}, 'engines': [], 'negative_decoder_controls': [],
+              'shipping_protocol': recipe['shipping_protocol'],
               'qualified_receipt_reuse_metadata_only': recipe['qualified_receipts_metadata_only'],
               'runtime_validation': 'separate verify.py receipt required', 'under4096': False}
 
@@ -167,7 +177,8 @@ def main():
             save()
             print(json.dumps({'form': form, 'native': len(native), 'whole': complete[0]['bytes'], 'sha256': complete[0]['sha256']}), flush=True)
         report['complete'] = True
-    except Exception as error:
+    except BaseException as error:
+        report['complete'] = False
         report['failure'] = {'type': type(error).__name__, 'message': str(error)}
         raise
     finally:

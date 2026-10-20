@@ -1,0 +1,277 @@
+#[cfg(test)]
+mod focused_tests {
+    use super::*;
+
+    macro_rules! state {
+        ($board:expr) => {{
+            let b = $board;
+            (b.cells, b.side, b.castle, b.ep, b.king, b.halfmove,
+             b.hash, b.context, b.score, b.bb)
+        }};
+    }
+
+    fn compare_unsigned(bytes: &[u8]) {
+        let expected = std::str::from_utf8(bytes).unwrap().parse::<u64>().ok();
+        assert_eq!(unsigned(bytes), expected, "unsigned bytes={bytes:?}");
+    }
+
+    #[test]
+    fn unsigned_all_ascii_one_and_two_byte_inputs() {
+        let mut pairs = 0;
+        for a in 0u8..128 {
+            compare_unsigned(&[a]); pairs += 1;
+            for b in 0u8..128 {
+                compare_unsigned(&[a, b]); pairs += 1;
+            }
+        }
+        let mut cases: Vec<Vec<u8>> = [
+            "", "+", "++1", "+-1", "-0", "-1", "0", "+0", "0000", "+0001",
+            "18446744073709551615", "+18446744073709551615",
+            "18446744073709551616", "+18446744073709551616",
+            "9999999999999999999999999999999999999999", "1_0", "0x10",
+            "1 ", " 1", "1\t", "1\0", "\x7f1", "\x0b1",
+        ].iter().map(|s| s.as_bytes().to_vec()).collect();
+        cases.push(vec![b'0'; 32768]);
+        cases.push([vec![b'0'; 256], b"18446744073709551615".to_vec()].concat());
+        cases.push([b"+".to_vec(), vec![b'0'; 256], b"18446744073709551616".to_vec()].concat());
+        for bytes in &cases { compare_unsigned(bytes); }
+        assert_eq!(pairs, 16512);
+        println!("QUAL_METRIC unsigned_ascii_pairs={pairs}");
+        println!("QUAL_METRIC unsigned_boundary_cases={}", cases.len());
+    }
+
+    fn compare_words(bytes: &[u8]) {
+        let expected: Vec<_> = std::str::from_utf8(bytes).unwrap()
+            .split_whitespace().map(|s| s.as_bytes().to_vec()).collect();
+        let actual: Vec<_> = Words { bytes }.map(|s| s.to_vec()).collect();
+        assert_eq!(actual, expected, "words bytes={bytes:?}");
+    }
+
+    #[test]
+    fn words_ascii_domain_clone_fused_and_maximum_line() {
+        let mut pairs = 0;
+        for a in 0u8..128 {
+            assert_eq!(whitespace(a), (a as char).is_whitespace(), "whitespace {a}");
+            compare_words(&[a]); pairs += 1;
+            for b in 0u8..128 { compare_words(&[a, b]); pairs += 1; }
+        }
+        compare_words(&(0u8..128).collect::<Vec<_>>());
+        compare_words(b" \t\n\x0b\x0c\r alpha\x0bbeta\x0cgamma\r\n ");
+        let mut words = Words { bytes: b" \ta\x0bb\rc " };
+        assert_eq!(words.next(), Some(b"a".as_slice()));
+        let mut lookahead = words.clone();
+        assert_eq!(lookahead.next(), Some(b"b".as_slice()));
+        assert_eq!(words.next(), Some(b"b".as_slice()));
+        assert_eq!(words.next(), Some(b"c".as_slice()));
+        for _ in 0..3 { assert_eq!(words.next(), None); }
+        let maximum = b"x ".repeat(16384);
+        assert_eq!(maximum.len(), 32768);
+        assert_eq!(Words { bytes: &maximum }.count(), 16384);
+        compare_words(&maximum);
+        compare_words(&maximum[..32767]);
+        compare_words(&vec![b' '; 32768]);
+        println!("QUAL_METRIC token_ascii_pairs={pairs}");
+        println!("QUAL_METRIC maximum_line_bytes=32768");
+        println!("QUAL_METRIC maximum_line_tokens=16384");
+    }
+
+    fn compare_limits(side: i8, arguments: &str) -> Limits {
+        let mut board = Board::start(); board.side = side;
+        let mut original = original_board::Board::start(); original.side = side;
+        let command = format!("go {arguments}");
+        let old_words: Vec<_> = command.split_whitespace().collect();
+        let expected = old::limits_reference(&original, &old_words);
+        let actual = limits(&board, Words { bytes: arguments.as_bytes() });
+        assert_eq!(actual, expected, "limits side={side}, arguments={arguments:?}");
+        actual
+    }
+
+    #[test]
+    fn limits_ascii_numeric_success_lookahead_both_sides() {
+        let keys = ["wtime", "btime", "winc", "binc", "infinite", "unknown", "123"];
+        let values = ["0", "+0", "1", "+1", "29", "3000", "00003000",
+            "18446744073709551615", "18446744073709551616", "+", "++1", "-1",
+            "wtime", "btime", "infinite", "unknown", "1_0"];
+        let tails = ["", " infinite", " wtime 3000", " btime 900", " winc 40",
+            " binc 7", " unknown 10 infinite", " wtime", " wtime -2 btime +12"];
+        let mut cases = 0;
+        for side in [1, -1] {
+            compare_limits(side, ""); cases += 1;
+            for key in keys { for value in values { for tail in tails {
+                compare_limits(side, &format!("{key} {value}{tail}")); cases += 1;
+            }}}
+            for arguments in ["wtime\x0b3000\x0cwinc\t40", "wtime 900 wtime 3000",
+                "btime 900 btime 3000", "unknown infinite wtime 3000", "unknown 1 infinite +2 wtime 3000",
+                "infinite 3000 wtime 3000", "wtime bogus 123 winc 40", "btime", "wtime",
+                "wtime +18446744073709551615 winc 18446744073709551615"] {
+                compare_limits(side, arguments); cases += 1;
+            }
+        }
+        assert_eq!(compare_limits(1, "wtime 3000 winc 40").millis, Some(130));
+        assert_eq!(compare_limits(-1, "btime 3000 binc 40").millis, Some(130));
+        for arguments in ["wtime", "wtime -1", "wtime 0", "wtime 18446744073709551616"] {
+            assert_eq!(compare_limits(1, arguments).millis, Some(1));
+        }
+        assert_eq!(compare_limits(1, "unknown infinite wtime 3000").millis, None);
+        assert_eq!(compare_limits(1, "infinite 3000 wtime 3000").millis, None);
+        cases += 8;
+        println!("QUAL_METRIC limits_differential_cases={cases}");
+    }
+
+    fn compare_position(arguments: &str) -> bool {
+        let command = format!("position {arguments}");
+        let old_words: Vec<_> = command.split_whitespace().collect();
+        let expected = old::position_reference(&old_words);
+        let actual = position(Words { bytes: arguments.as_bytes() });
+        let admitted = actual.is_some();
+        match (actual, expected) {
+            (Some((a, keys_a, n_a)), Some((b, keys_b, n_b))) => {
+                assert_eq!(state!(&a), state!(&b), "position board {arguments:?}");
+                assert_eq!(n_a, n_b);
+                assert_eq!(keys_a, keys_b, "position complete key array differs");
+            }
+            (None, None) => (),
+            _ => panic!("position admission differs for {arguments:?}"),
+        }
+        admitted
+    }
+
+    #[test]
+    fn position_ascii_replay_and_failed_result_differential() {
+        let good = ["startpos", "startpos moves", "startpos\x0bmoves\te2e4\ne7e5",
+            "startpos moves e2e4 e7e5 g1f3 b8c6 f1b5 a7a6",
+            "startpos moves e2e4 a7a6 e4e5 d7d5 e5d6",
+            "startpos moves e2e4 e7e5 g1f3 b8c6 f1c4 g8f6 e1g1"];
+        let bad = ["", "moves", "fen", "startpos e2e4", "startpos unknown", "startpos moves moves",
+            "startpos moves e2e5", "startpos moves e2e4 e7e5 e4e5",
+            "startpos moves e2e4 E7E5", "startpos moves e2e4 e7e5 g1f3 invalid",
+            "startpos moves e2e4q", "startpos moves e2e4\0", "STARTPOS"];
+        for arguments in good { assert!(compare_position(arguments), "{arguments}"); }
+        for arguments in bad { assert!(!compare_position(arguments), "{arguments}"); }
+        let mut maintained = Board::start(); let before = state!(&maintained);
+        if let Some((board, _, _)) = position(Words { bytes: b"startpos moves e2e4 e7e5 e4e5" }) {
+            maintained = board;
+        }
+        assert_eq!(state!(&maintained), before);
+        println!("QUAL_METRIC position_differential_cases={}", good.len() + bad.len());
+    }
+
+    #[test]
+    fn position_exact_4095_vs_4096_move_history_bound() {
+        let cycle = ["g1f3", "g8f6", "f3g1", "f6g8"];
+        for count in [4095usize, 4096] {
+            let mut arguments = String::from("startpos moves");
+            for i in 0..count { arguments.push(' '); arguments.push_str(cycle[i % 4]); }
+            assert!(arguments.len() < 32768);
+            assert_eq!(compare_position(&arguments), count == 4095);
+        }
+        println!("QUAL_METRIC position_history_boundary_cases=2");
+    }
+
+    fn fixture(text: &str) -> (Board, original_board::Board) {
+        let fields: Vec<_> = text.split_whitespace().collect(); assert_eq!(fields.len(), 6);
+        let mut a = Board::empty(); let mut b = original_board::Board::empty();
+        let rows: Vec<_> = fields[0].split('/').collect(); assert_eq!(rows.len(), 8);
+        for (row, data) in rows.iter().enumerate() {
+            let mut file = 0;
+            for c in data.bytes() {
+                if (b'1'..=b'8').contains(&c) { file += (c - b'0') as usize; }
+                else {
+                    let p = match c.to_ascii_lowercase() {
+                        b'p' => 1, b'n' => 2, b'b' => 3, b'r' => 4, b'q' => 5, b'k' => 6,
+                        _ => panic!("fixture piece"),
+                    };
+                    assert!(file < 8);
+                    let p = if c.is_ascii_uppercase() { p } else { -p };
+                    a.cells[(7 - row) * 16 + file] = p; b.cells[(7 - row) * 16 + file] = p;
+                    file += 1;
+                }
+            }
+            assert_eq!(file, 8);
+        }
+        a.side = if fields[1] == "w" { 1 } else { -1 }; b.side = a.side;
+        for c in fields[2].bytes() {
+            a.castle |= match c { b'K' => 1, b'Q' => 2, b'k' => 4, b'q' => 8, b'-' => 0, _ => panic!("fixture castle") };
+        }
+        b.castle = a.castle;
+        if fields[3] != "-" {
+            let square = fields[3].as_bytes();
+            a.ep = (square[1] - b'1') as i16 * 16 + (square[0] - b'a') as i16; b.ep = a.ep;
+        }
+        a.halfmove = fields[4].parse().unwrap(); b.halfmove = a.halfmove;
+        a.rebuild(); b.rebuild(); assert_eq!(state!(&a), state!(&b)); (a, b)
+    }
+
+    fn compare_parse(a: &Board, b: &original_board::Board, text: &[u8]) -> Option<u32> {
+        let expected = std::str::from_utf8(text).ok().and_then(|s| b.parse(s));
+        let actual = a.parse_bytes(text);
+        assert_eq!(actual, expected, "move bytes={text:?}");
+        if let Ok(s) = std::str::from_utf8(text) { assert_eq!(a.parse(s), expected); }
+        if let Some(m) = actual { assert_eq!(state!(&a.play(m).unwrap()), state!(&b.play(m).unwrap())); }
+        actual
+    }
+
+    fn move_text(m: u32) -> Vec<u8> {
+        let (f, t) = (board::from(m), board::to(m));
+        let mut text = vec![b'a' + (f & 7) as u8, b'1' + (f >> 4) as u8,
+                            b'a' + (t & 7) as u8, b'1' + (t >> 4) as u8];
+        let p = board::promo(m) as usize;
+        if p != 0 { text.push(b"  nbrq"[p]); }
+        text
+    }
+
+    const FIXTURES: [&str; 8] = [
+        "7k/P7/8/8/8/8/8/7K w - - 0 1",
+        "7k/8/8/8/8/8/p7/7K b - - 0 1",
+        "1r5k/P7/8/8/8/8/8/7K w - - 0 1",
+        "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1",
+        "r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 0 1",
+        "7k/8/8/3pP3/8/8/8/7K w - d6 0 1",
+        "4r2k/8/8/3pP3/8/8/8/4K3 w - d6 0 1",
+        "8/8/8/8/8/4k3/4Q3/4K3 w - - 0 1",
+    ];
+
+    #[test]
+    fn byte_parser_focused_special_move_expectations() {
+        let mut cases = 0;
+        for (index, stem) in [(0, "a7a8"), (1, "a2a1"), (2, "a7b8")] {
+            let (a, b) = fixture(FIXTURES[index]);
+            for p in ['n', 'b', 'r', 'q'] {
+                assert!(compare_parse(&a, &b, format!("{stem}{p}").as_bytes()).is_some()); cases += 1;
+            }
+        }
+        for (index, moves) in [(3, ["e1g1", "e1c1"]), (4, ["e8g8", "e8c8"])] {
+            let (a, b) = fixture(FIXTURES[index]);
+            for text in moves { assert!(compare_parse(&a, &b, text.as_bytes()).is_some()); cases += 1; }
+        }
+        let (a, b) = fixture(FIXTURES[5]); assert!(compare_parse(&a, &b, b"e5d6").is_some()); cases += 1;
+        let (a, b) = fixture(FIXTURES[6]); assert!(compare_parse(&a, &b, b"e5d6").is_none()); cases += 1;
+        let (a, b) = fixture(FIXTURES[7]); assert!(compare_parse(&a, &b, b"e2e3").is_none()); cases += 1;
+        println!("QUAL_METRIC special_move_expectations={cases}");
+    }
+
+    #[test]
+    fn byte_parser_pseudo_strings_lengths_and_bounded_all_byte_mutations() {
+        let mut boards = vec![(Board::start(), original_board::Board::start())];
+        boards.extend(FIXTURES.iter().map(|text| fixture(text)));
+        let mut pseudo_cases = 0; let mut mutation_cases = 0;
+        for (a, b) in &boards {
+            let moves = a.pseudo();
+            for &m in &moves.a[..moves.n] { compare_parse(a, b, &move_text(m)); pseudo_cases += 1; }
+            for length in 0..=8 {
+                compare_parse(a, b, &vec![0; length]); compare_parse(a, b, &vec![b'z'; length]); mutation_cases += 2;
+            }
+            for text in [b"e2e4\0".as_slice(), b"\xff2e4", b"e2e\xff", b"e7e8k", b"e7e8Q", b"e9e1", b"i2e4", b"e2e4q"] {
+                compare_parse(a, b, text); mutation_cases += 1;
+            }
+            let seed = if moves.n == 0 { b"e2e4".to_vec() } else { move_text(moves.a[0]) };
+            for at in 0..seed.len() { for byte in 0..=255u16 {
+                let mut text = seed.clone(); text[at] = byte as u8;
+                compare_parse(a, b, &text); mutation_cases += 1;
+            }}
+        }
+        println!("QUAL_METRIC byte_parser_fixture_boards={}", boards.len());
+        println!("QUAL_METRIC byte_parser_pseudo_strings={pseudo_cases}");
+        println!("QUAL_METRIC byte_parser_mutation_cases={mutation_cases}");
+    }
+}

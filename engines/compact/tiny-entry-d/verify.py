@@ -24,11 +24,20 @@ import time
 
 HERE = Path(__file__).resolve().parent
 ORACLE_LF_SHA = "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8"
+SHIPPING_PROTOCOL = {
+    'id': 'finite-minimum-v1', 'identification': False,
+    'stop': 'consume', 'ucinewgame': 'consume', 'infinite': 'consume',
+    'default_budget_ms': 1000, 'own_clock_formula': 'unchanged',
+    'hard_wall_cap': False,
+    'completion_fences': 'next go, position, quit, EOF wait for result-before-completed epoch',
+}
 EXPECTED = {
-    "scalar-shipping": {"bytes": 7640, "sha256": "2147bd4e56915196ade254c05b587cffd2cbc5c5355ad1f9f1daeda3df4d575f",
-                        "native_bytes": 8476, "native_sha256": "ba2d42473ca25a944b85da18f74f32eae18e68112010948a0e7c2dc0c69a7c5c"},
-    "hq-shipping": {"bytes": 7881, "sha256": "051ec52baaac55fd1fd8f80af6bea0d74a1e852f8672ef52237bb06a7d994c0a",
-                    "native_bytes": 8864, "native_sha256": "09917666d5862c4f17ed77e33453000f608a7d83aa47f16f8726a063ec5f31ce"},
+    "scalar-shipping": {"bytes": 7540, "sha256": "26eaedc2560776a226a8e17886e209501346524e97fc2b47483f13335fbde013",
+                        "native_bytes": 8348, "native_sha256": "0e21d39f5f294f496f2224595462661864b4a274f4c2238a38f47024f0c93bbf",
+                        "audit_bytes": 7563, "audit_sha256": "02a6400574c166d89bc0e8c0b22b9b68097e50ff4524b182683b8e83856ba6c9", "entry": 4202279},
+    "hq-shipping": {"bytes": 7800, "sha256": "3c863ceba32bf9173bf53d72f575c9e28e2ce2eb1cc43fde38bf03d6c9eff3ca",
+                    "native_bytes": 8736, "native_sha256": "6b987cc4f616ce9d835679c61d9aff8c0c16b59ec9a74db055c8ce826e14581f",
+                    "audit_bytes": 7823, "audit_sha256": "828d858a00cf03460a006b9162dfa6f8f2e3fc6aedab2bd3aa098ec75bb063fb", "entry": 4202596},
 }
 OWNED = set()
 
@@ -382,6 +391,7 @@ def production(candidate, layout, native_sha, directory, budget, oracle, shutdow
         lines = stdout.splitlines()
         results = [s for s in lines if s.startswith(b"bestmove")]
         require(len(results) == 3 and lines.count(b"uciok") == 1 and lines.count(b"readyok") == 3, "settled command/result counts differ")
+        require(not any(s.startswith(b"id ") or s.startswith(b"option ") for s in lines), "finite shipping emitted optional interface")
         for line, legal in zip(results, expected_legal):
             match = re.fullmatch(rb"bestmove ([a-h][1-8][a-h][1-8][nbrq]?)", line)
             require(match and match.group(1).decode() in legal, "settled result is malformed/illegal")
@@ -425,6 +435,9 @@ def main():
         require(sha(oracle_bytes.replace(b"\r\n", b"\n")) == ORACLE_LF_SHA, "independent oracle LF-normalized source differs")
         build = json.loads(build_bytes)
         require(build.get("complete") is True, "build is incomplete")
+        require(not build.get("failure") and build["shipping_protocol"] == SHIPPING_PROTOCOL, "build protocol declaration differs or build failed")
+        report["shipping_protocol"] = SHIPPING_PROTOCOL
+        report["policy_scope"] = "declaration/exact-image binding; this run checks clocked play and quit/EOF, not ignored controls or default-budget arithmetic"
         require(len(build["engines"]) == 2 and {e["id"] for e in build["engines"]} == set(EXPECTED), "expected exactly the scalar/HQ admitted images")
         recipe = out / "recipe"
         recipe.mkdir()
@@ -448,6 +461,7 @@ def main():
             native_path = resolve(native, build_path.parent)
             require(sha(native_path.read_bytes()) == expected["native_sha256"] and native_path.stat().st_size == expected["native_bytes"], "actual native file differs")
             require(layout["image_size"] == expected["native_bytes"] and layout["image_base"] == 0x400000, "native mapping layout differs")
+            require(layout["entry"] == expected["entry"] and layout["image_pages"] == 12288 and layout["bss_size"] == 175092, "selected finite entry/RX/BSS class differs")
             require(layout["image_pages"] == (layout["image_size"] + 4095) // 4096 * 4096 and layout["bss_pages"] == 176128, "native page sizing differs")
             require(layout["guard_base"] == layout["image_base"] - 4096 and layout["bss_base"] == layout["image_base"] + layout["image_pages"] and layout["upper_guard"] == layout["bss_base"] + layout["bss_pages"], "native guard/BSS layout differs")
             require(len(engine["candidates"]) == 1, "expected exactly one selected fixed-codec own ELF")
@@ -459,6 +473,8 @@ def main():
             if candidate.get("audit"):
                 candidate["audit"] = dict(candidate["audit"])
                 candidate["audit"]["path"] = str(resolve(candidate["audit"]["path"], build_path.parent))
+            require(candidate.get("audit") and candidate["audit"]["bytes"] == expected["audit_bytes"]
+                    and candidate["audit"]["sha256"] == expected["audit_sha256"], "selected finite CHECKPOINT identity differs")
             frozen = recipe / engine["id"]
             frozen.mkdir()
             (frozen / "native.elf").write_bytes(native_path.read_bytes())
@@ -477,6 +493,7 @@ def main():
                 production(candidate, layout, expected["native_sha256"], out / engine["id"] / shutdown, budget, oracle, shutdown, case)
         report["complete"] = True
     except BaseException as exc:
+        report["complete"] = False
         report["failures"].append({"phase": phase, "type": type(exc).__name__, "detail": str(exc)})
     finally:
         # A TERM received during constructor unmasking can arrive before the

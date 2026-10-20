@@ -147,13 +147,13 @@ jobs:
           from pathlib import Path
           root = Path(os.environ['ROVE_TEST_OUT']) / 'tiny-rust-d'
           expected = {
-              'hq': '2c84c684d840ad7e7f0567b2b76d9c28693a00f6f95779675fb45ff84c06d3b3',
-              'scalar': '0c364208165b79d95f146650ec8ae144f1e4cb6427197b80f37f0e97a90a4eb3',
+              'hq': 'f8581a68f09d4d9cdc3e1413aa45ffb385bafd8240f1432403629ec2a0e544f8',
+              'scalar': 'bd0e3bd1567ae906d4ab9704603204d22302895df1f05679f6221d6445aef878',
           }
           for lane, pin in expected.items():
               report = json.loads((root / lane / 'build.json').read_text())
               image = (root / lane / 'first/x').read_bytes()
-              assert len(image) == report['complete_native_bytes'] == 16824
+              assert len(image) == report['complete_native_bytes'] == 16816
               assert hashlib.sha256(image).hexdigest() == report['complete_native_sha256'] == pin, lane
               assert report['reproduced'] and all(report['artifact_gates'].values())
               assert (report['workers'], report['tt_bits'], report['startup_threads'], report['hq']) == (2, 18, 3, lane)

@@ -1,0 +1,273 @@
+{
+  "format": 1,
+  "family": "F",
+  "profile": {
+    "workers": 2,
+    "tt_bits": 18,
+    "ply": 128,
+    "dev_default": false
+  },
+  "compiler": [
+    "cc",
+    "-Os",
+    "-pthread",
+    "-x",
+    "c",
+    "-",
+    "-o",
+    "x",
+    "-s"
+  ],
+  "dev_compiler": [
+    "cc",
+    "-std=c11",
+    "-Os",
+    "-pthread",
+    "-DWORKERS=2",
+    "-DTT_BITS=18",
+    "-DPLY=128",
+    "-DDEV=1",
+    "-x",
+    "c",
+    "-",
+    "-o",
+    "x"
+  ],
+  "preprocessor": [
+    "cc",
+    "-std=c11",
+    "-Os",
+    "-pthread",
+    "-DWORKERS=2",
+    "-DTT_BITS=18",
+    "-DPLY=128"
+  ],
+  "helper_sha256": {
+    "engines/scripts/specialize.py": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d",
+    "engines/scripts/minify.py": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b",
+    "engines/scripts/rename_c.py": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
+    "engines/compact/tiny-f/overlay.py": "3e7dca38adba4d5a079f72727c85c08fe8a95397f1a7cbf06c4a279c41f6c500",
+    "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e"
+  },
+  "resource_literals": [
+    [
+      "WORKERS",
+      "2"
+    ],
+    [
+      "TT_BITS",
+      "18"
+    ],
+    [
+      "PLY",
+      "128"
+    ]
+  ],
+  "resource_token_counts": {
+    "WORKERS": 7,
+    "TT_BITS": 3,
+    "PLY": 8
+  },
+  "function_spellings": [
+    [
+      "attacked",
+      "aa"
+    ],
+    [
+      "make",
+      "ab"
+    ],
+    [
+      "think",
+      "ac"
+    ],
+    [
+      "value",
+      "ad"
+    ],
+    [
+      "start",
+      "ae"
+    ],
+    [
+      "dead",
+      "af"
+    ],
+    [
+      "mix",
+      "ag"
+    ],
+    [
+      "gen",
+      "ah"
+    ],
+    [
+      "now",
+      "ai"
+    ],
+    [
+      "search",
+      "aj"
+    ],
+    [
+      "probe",
+      "ak"
+    ],
+    [
+      "capture",
+      "al"
+    ],
+    [
+      "claim",
+      "am"
+    ],
+    [
+      "learn",
+      "an"
+    ],
+    [
+      "piece_index",
+      "ao"
+    ],
+    [
+      "quiet_score",
+      "ap"
+    ],
+    [
+      "first",
+      "aq"
+    ],
+    [
+      "parse",
+      "ar"
+    ],
+    [
+      "go",
+      "as"
+    ],
+    [
+      "result",
+      "at"
+    ],
+    [
+      "read_line",
+      "au"
+    ],
+    [
+      "set_position",
+      "av"
+    ],
+    [
+      "number",
+      "aw"
+    ],
+    [
+      "work",
+      "ax"
+    ],
+    [
+      "wait",
+      "ay"
+    ],
+    [
+      "clear",
+      "az"
+    ],
+    [
+      "text",
+      "aA"
+    ],
+    [
+      "rights",
+      "aB"
+    ],
+    [
+      "piece",
+      "aC"
+    ],
+    [
+      "state",
+      "aD"
+    ],
+    [
+      "ep",
+      "aE"
+    ],
+    [
+      "put",
+      "aF"
+    ],
+    [
+      "walk",
+      "aG"
+    ],
+    [
+      "add",
+      "aH"
+    ]
+  ],
+  "compression": {
+    "format": "xz",
+    "filter": "LZMA2",
+    "preset": 9,
+    "extreme": true,
+    "lc": 2,
+    "lp": 0,
+    "pb": 0,
+    "check": "CRC64"
+  },
+  "expected": {
+    "readable_sha256": "49dd54bbbb1ecd6acd2374ebe5431dd7c188636ebbbd15ff78a643d92f2210b2",
+    "source_bytes": 12982,
+    "source_sha256": "3c0f8bafe78499cb679cd42b82e7634286f8d1437bd1e98a04c7fc87bcaa9e85",
+    "native_bytes": 22664,
+    "native_sha256": "d740f3c0c2a53aa3aeae7c484012d4a7532303e66819363d3d5222f7b7fd32f1",
+    "whole_bytes": 5479,
+    "whole_sha256": "485a5aab79761541d8f1ad2a08ad49a7fd4c6d787883992c2fa0cd21cb12adce",
+    "dev_source_sha256": "1d23fca74fe385982bafc25cf0dee9ee93ce4af396859554e1897eaa27b27aac",
+    "dev_native_sha256": "18fd24c64d5733b69c77cb1e0a4532b92282be0bb494d5dab3a9aa8c718ffc3f",
+    "bootstrap_sha256": "a34e4a406580b92b3edafc823c619550ea75a733163cc018b4d933033d95f135"
+  },
+  "local_input_sha256": {
+    "engine.c": "49dd54bbbb1ecd6acd2374ebe5431dd7c188636ebbbd15ff78a643d92f2210b2",
+    "bootstrap.py.in": "84608782831299a6f7b1010dea89501eb10e6e34ee1cdc8f3804d448354cf4c6",
+    "launcher.sh": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a"
+  },
+  "qualified_receipt": {
+    "producer_build_sha256": "e38e0bcfc3a2ee5acba0cfd36e4f06520528aa359564604b952c4fda17a08c87",
+    "runtime_and_core": {
+      "minimal_policy_runtime": {
+        "historical_path": "/home/stemxstudio/rove4k-tiny-uci-portfolio-runtime-20261020/results.json",
+        "sha256": "6f26a3c46bff4d9b3dfe531eaac9a43b9a02eff52d5bda1c1bc2ca9624a84b09"
+      },
+      "minimal_family_core": {
+        "historical_path": "/home/stemxstudio/rove4k-tiny-uci-bf-proof-20261020/F/results.json",
+        "sha256": "6fe9500aa943baab38c119926c696e911d590f952f4d4b8deb694f808e51592f"
+      }
+    },
+    "predecessor_reports": {
+      "build": {
+        "path": "/home/stemxstudio/rove4k-tiny-f-structural-20261020/build.json",
+        "sha256": "efd7f328b8839a9d2a1025268c349224f3269bba83f2f11b42afbde3d33518fa"
+      },
+      "encoding": {
+        "path": "/home/stemxstudio/rove4k-tiny-f-encoding-v2-20261020/results.json",
+        "sha256": "6dcc89d8d11303181e5fad38e7a5d9187d7c3ca2b6e05e7a57ba7676e2b5cc7d"
+      },
+      "qualification": {
+        "path": "/home/stemxstudio/rove4k-tiny-f-final-proof-v3-20261020/results.json",
+        "sha256": "62b04e0c5eddaf6d1adcf25b18315dfad43437d20efb6fd0d06b37cde600e173"
+      }
+    },
+    "scope": "historical exact-hash receipts only; not executed or inferred by this builder",
+    "final_portfolio_freeze_sha256": "71d1a8f86d09364fbe9f1f0a2138b5c87a8361a86b46e6756a182f754c9b9f9d",
+    "portfolio_cost_sha256": "f4833f5922dcdddad9abcdbd82f588d1d1e51a5a0e6c63f46b7693fdcbae6455"
+  },
+  "provenance": {
+    "origin": "maintained Tiny F readable full-depth MTD(f) source with selected structural co-design already applied, then qualified minimal shipping UCI policy",
+    "readable_has_structural_decisions": true,
+    "no_structural_transform_at_build": true,
+    "counter_removal": "exact tracked Tiny F overlay.strip_counters only",
+    "encoding": "fixed resources with admitted occurrence counts, then34 selected function spellings; no token or codec search"
+  }
+}

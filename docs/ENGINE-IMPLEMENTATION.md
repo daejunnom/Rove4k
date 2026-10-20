@@ -60,6 +60,12 @@ The maintained-C-cache checkpoint `829f27d` passes both language jobs in its
 [exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39360106393)
 and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39360106274).
 This run regenerates the promoted C5947 and executes that exact selected file.
+The maintained-A-startup checkpoint `39cab5e` passes both language jobs in its
+[exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39362161257)
+and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39362161296).
+It regenerates the 5,129-byte A and exercises the maintained entries. The newer
+F/D and Rust parser promotions below have separate local qualification until
+their own head completes CI.
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
@@ -68,6 +74,23 @@ and selected profile/resource and target-hardware evidence. The first matched
 C/Rust structural comparison and the twelve original target512 short searches
 now have their own bounded evidence; these do not accept future smaller cores.
 Startup-only evidence and small-profile games have the narrower scopes below.
+
+The current maintained local entries are listed here; older tables below record
+their historical checkpoints. The fixed local profile has two search workers
+plus the controller and TT_BITS=18. These are not final target profiles.
+
+| Family | Complete file | Remaining above 4,096 B | Current source decision |
+| --- | ---: | ---: | --- |
+| A | 5,129 B | 1,033 B | Shared startup/search phase counter, owned move query, ALONE stream |
+| B | 6,219 B | 2,123 B | Hybrid bitboards, shared attackers, legal SEE and singular exclusion |
+| C | 5,947 B | 1,851 B | Real AVX2 evaluation; unused shipping HCE cache removed |
+| D scalar / HQ | 7,540 / 7,800 B | 3,444 / 3,704 B | Own ELF restoration with finite minimum shipping protocol |
+| E | 5,899 B | 1,803 B | All 21 untrained coefficients in evaluation and ordering |
+| F | 5,407 B | 1,311 B | Full-depth MTD(f) with beta-only integer unit-window search |
+
+The separate Rust D native images are 16,816 bytes each. Their independent
+packed experiment and the smaller B/C/E spelling candidates retain their own
+qualification state; they do not silently replace this maintained table.
 
 ## Starting checkpoint: 2026-10-20
 
@@ -1384,3 +1407,129 @@ source tree `162cef5a32f3b58308b1623a237d985f5448fbc4` and archive
 Earlier experiments use preserved controls and do not acquire a dependency on
 this new mutable canonical source. This remains a local source promotion until
 the later exact-head CI runs; eligible size and final target acceptance are open.
+
+## F integer-unit-window source specialization
+
+The [F beta-only candidate](../engines/experiments/tiny-f-zero/README.md)
+specializes the private recursive search API to the integer unit windows that
+the production full-depth MTD driver actually supplies. Children receive
+`1-beta`; a completed score stores a lower bound iff it reaches beta, otherwise
+an upper bound. This removes first/later PVS dispatch and an unreachable interior
+re-search. The coherent full-key single-bound TT and the driver's lower/upper
+interval remain distinct. It is not a general wide-window search API.
+
+Readable C falls 26,360 to 26,100 bytes, compact shipping C becomes 12,722 bytes,
+and the actual complete wrapper falls **5,479 to 5,407 bytes**. Native remains
+22,664 bytes with new exact contents. The focused proof compares the real old
+unit-window search and new beta API in optimized and sanitizer forms, including
+compact DEV=0 source, 51 finite thresholds/special states, retained MTD minimax
+and attaining witnesses, interruption and PLY/context/learning controls. The
+former seven wide-window fixtures are not reused for this changed API.
+The proof receipt is
+`96678ed411e4fea4fcd0b176fe5cd707f073d49166e541dd9112b3d1bfa49e12`.
+
+The [maintained F entry](../engines/compact/tiny-entry-f/README.md) now contains
+that exact readable program. Its builder removes counters using an owned strict
+beta-only schema rather than the former shared overlay's PVS assumption.
+Compiler, profile, codec and launcher stay fixed. Two fresh source extractions
+each reproduce shipping/DEV outputs and run the selected wrapper for quit/EOF,
+four new physical sessions in total. The selected whole-file SHA is
+`e562a49a06257d46bbbb9e0481023f3716926e4cf2a8086dcd5307b3e8a96078`;
+promotion receipt is
+`a60b7d60b40d45863a1de2b3e0b378bd0764f1d980f9a67faab4eca109e1e23f`.
+No broad campaign, strength or target stack/profile acceptance is inferred.
+
+## D finite minimum shipping protocol
+
+The [finite-D candidate](../engines/experiments/tiny-d-finite/README.md)
+omits optional identification and consumes unsupported `stop`, `ucinewgame`
+and `infinite` without adding controls. Clock allocation for the moving side
+stays unchanged; absent that clock, a GO receives a finite 1,000 ms budget.
+This is a search budget, not a hard wall-time cap. Next GO, position, quit and
+EOF still wait for result publication and physical completion before reuse.
+DEV retains the previous stronger controls.
+
+The exact scalar/HQ natives shrink 8,476/8,864 to 8,348/8,736 bytes. Complete
+own ELFs shrink **7,640/7,881 to 7,540/7,800 bytes**. Core, clone/futex pool,
+fixed codec and loader stay unchanged; the admitted image class retains three
+RX pages, 43 BSS pages and its guards. The original focused command/clock/TT
+sentinel proof and broader physical sessions retain their original receipts.
+The common strong-stop lifecycle harness is unchanged and is not claimed as
+proof for the new consume-only shipping policy.
+
+The [maintained D entry](../engines/compact/tiny-entry-d/README.md) promotes this
+exact runtime and literal native/whole/checkpoint pins. Two independent source
+extractions each reproduce both forms, their repeats and pre-entry audits.
+Eight new production sessions and four pre-entry checkpoints pass image/RX/BSS,
+permissions, legal results, persistent startup TIDs and quit/EOF settlement,
+with no forced cleanup. The promotion index SHA is
+`bbfdaa3f012f400b2ca575dae8ce91dbf0687379065f746a96e689bf5facf1d6`;
+the fresh results SHA is
+`80860d7be1d1b0ed5ba7e7d16a82653ae85a4ab3abd3b4347a1893daabac39ad`.
+
+## Rust D borrowed ASCII ingress
+
+The [ASCII ingress candidate](../engines/experiments/tiny-rust-d-ascii/README.md)
+replaces the stored 16,384-token array with a borrowed byte stream. It rejects
+a complete NUL/non-ASCII line before command dispatch and accepts ASCII space
+and bytes 9 through 13 as whitespace. Unsigned parsing, successful-only numeric
+lookahead consumption, transactional replay and the safe `parse(&str)` wrapper
+remain explicit. Unicode whitespace admission is intentionally removed.
+
+This change increases readable Rust by 836 bytes. Actual text plus rodata falls
+1,403 bytes, absorbed by the unchanged linker alignment. Removing the unused
+comparison GOT slot reduces data from 16 to 8 bytes, so both complete native
+images fall only **16,824 to 16,816 bytes**. Main's measured prologue allocation
+falls 431,952 to 169,824 bytes; this is not a universal stack bound or a source
+minification result. No new unsafe indexing, search, OS, runtime, compiler or
+linker policy is introduced.
+
+The [maintained Rust D](../engines/compact/tiny-rust-d/README.md) promotes the
+exact main/board sources and an owned strict verifier with ASCII negative and
+whitespace/numeric/replay checks. Two fresh source extractions each reproduce
+both native profiles twice. Actual new production ELFs pass 126/126 admitted
+GOs across sixteen sessions. Both new production ptraces observe output before
+completion publication and shared clear-TID join before stack unmap; the tracer
+source is unchanged. Older deep/fault/board/search runs retain their original
+scope and are not relabeled as new executions. The promotion receipt SHA is
+`ff7bc32bbb4d00139848cb349180441b3c2cdc064cab9258ffc068244e173a80`.
+CI pins the two new 16,816-byte identities literally. The root LF rule for this
+subtree is repository metadata added separately from the qualified seventeen
+source inputs; it does not change their bytes or their source archive.
+
+These promotions are still oversized. All six eligible artifacts, selected
+final resources, candidate-specific strength comparisons and target-hardware
+scaling remain outstanding. Training and AWS connections remain excluded.
+
+## Fixed B/C/E source spelling portfolio
+
+The [alpha portfolio](../engines/experiments/tiny-alpha-portfolio/README.md)
+shortens admitted automatic locals/parameters, private members and owned type
+names, plus the already fixed WORKERS/TT_BITS literals. Protected functions,
+global/static storage, directive consumers, external APIs, strings and compiler
+arguments remain unchanged. Alias freshness/injectivity and exact occurrence
+counts are explicit. Reversing aliases in the full preprocessed translation
+unit reproduces the original bytes, and each full native ELF remains exact.
+
+| Family | Compact C before / after | Whole file before / after | Whole saving |
+| --- | ---: | ---: | ---: |
+| B | 15,566 / 13,606 B | 6,219 / 5,955 B | 264 B |
+| C | 14,206 / 12,526 B | 5,947 / 5,723 B | 224 B |
+| E | 14,352 / 12,641 B | 5,899 / 5,679 B | 220 B |
+
+Two independent candidate generations/builds per family reproduce those exact
+source/native/bootstrap/whole identities. Six new selected-wrapper sessions,
+quit and EOF for each family, pass exact restored native bytes, persistent
+three-TID startup, legal white/black zero-clock and bare-GO output, active closing
+output, reader EOF, process absence and temporary restoration cleanup. Compiler,
+profile, codec and DEV are unchanged; historical core proof is reused by exact
+native identity. There is no new game, benchmark or cancellation-causality proof.
+
+The first-cost receipt SHA is
+`e0527b2c9c566150791f6095346694961b81dc007fb9f89e1c135755ab81a1d8`;
+actual new wrapper results SHA is
+`5fbd18434187219b571dfb962058298616d560c671485c32d320a368607df427`;
+the frozen forty-four-source aggregate is
+`436d7cbdc6ad7fa52b73d5b1e9075971b9249f64d8225b775585a4dbd5b0ad80`.
+This experimental closure has its own immutable historical control inputs.
+Maintained B/C/E promotion is a separate next step, and none fits 4,096 bytes.
