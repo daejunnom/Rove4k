@@ -13,14 +13,76 @@ struct Counters {
     jobs: AtomicU64, cached: AtomicU64, proposals: AtomicU64,
     clauses: AtomicU64, repairs: AtomicU64, switches: AtomicU64,
     policies: AtomicU64, cross_group_alpha: AtomicU64,
+    refutations: AtomicU64, rechecks: AtomicU64,
 }
 impl Counters {
     fn reset(&self) {
-        for counter in [&self.jobs, &self.cached, &self.proposals, &self.clauses, &self.repairs, &self.switches, &self.policies, &self.cross_group_alpha] { counter.store(0, Ordering::Relaxed); }
+        for counter in [&self.jobs, &self.cached, &self.proposals, &self.clauses, &self.repairs, &self.switches, &self.policies, &self.cross_group_alpha, &self.refutations, &self.rechecks] { counter.store(0, Ordering::Relaxed); }
     }
 }
 
 fn completed(r: Option<SearchResult>) -> Option<SearchResult> { r.filter(|r| r.completed) }
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum Bound { Exact, Lower, Upper }
+#[derive(Clone, Copy)]
+struct PalsContext<'a> { root: &'a Board, depth: u8, evaluation: u64 }
+impl PalsContext<'_> {
+    fn matches(self, other: Self) -> bool {
+        std::ptr::eq(self.root, other.root) && self.depth == other.depth && self.evaluation == other.evaluation
+    }
+}
+#[derive(Clone, Copy)]
+struct PalsRequest<'a> {
+    context: PalsContext<'a>, first: Move, reply: Move, repair: bool, alpha: i32, beta: i32,
+}
+#[derive(Clone, Copy)]
+struct PalsResult<'a> { context: PalsContext<'a>, result: SearchResult, bound: Bound }
+impl<'a> PalsResult<'a> {
+    fn from_search(request: PalsRequest<'a>, result: SearchResult) -> Self {
+        let bound = if result.score <= request.alpha { Bound::Upper }
+            else if result.score >= request.beta { Bound::Lower } else { Bound::Exact };
+        Self { context: request.context, result, bound }
+    }
+    fn matches(self, request: PalsRequest<'a>) -> bool {
+        self.context.matches(request.context) && self.result.completed && self.result.depth == request.context.depth
+            && self.result.best == request.first && (request.repair || self.result.reply == Some(request.reply))
+    }
+}
+
+// A restricted reply can refute a fixed proposal claim, but is never a normal
+// root result. Only the full-window same-first Repair can replace the proposal.
+// The second review uses the repaired claim and the very same refuting reply.
+// Persistent contradiction, incomplete work or cancellation rejects this depth.
+fn review_pals<'a>(mut proposal: SearchResult, reply: Move, context: PalsContext<'a>,
+                   control: &Control, counters: &Counters,
+                   mut run: impl FnMut(PalsRequest<'a>) -> Option<PalsResult<'a>>) -> Option<SearchResult> {
+    if !proposal.completed || proposal.depth != context.depth || !(-INF+1..INF).contains(&proposal.score) || control.cancelled() { return None; }
+    let first = proposal.best;
+    for review in 0..2 {
+        if control.cancelled() { return None; }
+        let claim = proposal.score;
+        let request = PalsRequest { context, first, reply, repair: false, alpha: claim - 1, beta: claim };
+        counters.jobs.fetch_add(1, Ordering::Relaxed);
+        counters.clauses.fetch_add(1, Ordering::Relaxed);
+        if review != 0 { counters.rechecks.fetch_add(1, Ordering::Relaxed); }
+        let clause = run(request)?;
+        if control.cancelled() || !clause.matches(request) { return None; }
+        let refutes = matches!(clause.bound, Bound::Exact | Bound::Upper) && clause.result.score < claim;
+        if !refutes { return Some(proposal); }
+        counters.refutations.fetch_add(1, Ordering::Relaxed);
+        if review != 0 { return None; }
+        let request = PalsRequest { context, first, reply, repair: true, alpha: -INF, beta: INF };
+        counters.jobs.fetch_add(1, Ordering::Relaxed);
+        counters.repairs.fetch_add(1, Ordering::Relaxed);
+        let repair = run(request)?;
+        if control.cancelled() || !repair.matches(request) || repair.bound != Bound::Exact
+            || !(-INF+1..INF).contains(&repair.result.score) { return None; }
+        proposal = repair.result;
+    }
+    unreachable!()
+}
+
 fn report(r: SearchResult) {
     if crate::DEV {
         let score = if r.score.abs() >= MATE - 128 { format!("mate {}", r.score.signum() * ((MATE - r.score.abs() + 1) / 2)) }
@@ -173,13 +235,19 @@ impl Engine {
             let replies = board.play(first).legal();
             let reply = replies.iter().copied().find(|m| Some(*m) != proposal.reply).or_else(|| replies.first().copied());
             if let Some(reply) = reply {
-                completed(self.leader.search_clause(board, first, reply, depth, -INF, INF))?;
-                self.counters.clauses.fetch_add(1, Ordering::Relaxed);
-                self.counters.jobs.fetch_add(1, Ordering::Relaxed);
-                proposal = completed(self.leader.search_move_hint(board, first, Some(reply), depth, -INF, INF))?;
-                self.counters.repairs.fetch_add(1, Ordering::Relaxed);
+                let evaluation = self.helpers.task(|task| task.epoch);
+                let context = PalsContext { root: board, depth, evaluation };
+                proposal = review_pals(proposal, reply, context, &self.control, &self.counters, |request| {
+                    let result = if request.repair {
+                        self.leader.search_move_hint(board, request.first, Some(request.reply), depth, request.alpha, request.beta)
+                    } else {
+                        self.leader.search_clause(board, request.first, request.reply, depth, request.alpha, request.beta)
+                    }?;
+                    Some(PalsResult::from_search(request, result))
+                })?;
             }
-            // Only the unrestricted same-first Repair is eligible for the queue.
+            // The queue may reuse the normal proposal or a feedback-accepted
+            // unrestricted Repair, never a restricted diagnostic result.
             cache = Some(proposal);
         }
         self.helpers.prepare(|task| {
@@ -193,7 +261,7 @@ impl Engine {
         self.helpers.task(|task| task.work(&mut self.leader, 0, task.first_job));
         self.helpers.wait();
         self.helpers.task(|task| {
-            if task.finished.load(Ordering::Relaxed) != task.moves.len() + usize::from(task.cache.is_some()) { return None; }
+            if task.control.cancelled() || task.finished.load(Ordering::Relaxed) != task.moves.len() + usize::from(task.cache.is_some()) { return None; }
             let mut result = task.best.lock().unwrap().0;
             result.nodes = self.control.nodes.load(Ordering::Relaxed);
             Some(result)
@@ -229,12 +297,13 @@ impl Engine {
         report(r);
     }
         let counters = &self.counters;
-    if crate::DEV { println!("info string parallel mode {} effective {} workers {} groups {} root_jobs {} cache_hits {} proposals {} clauses {} repairs {} policy_switches {} policies {} cross_group_alpha {}",
+    if crate::DEV { println!("info string parallel mode {} effective {} workers {} groups {} root_jobs {} cache_hits {} proposals {} clauses {} repairs {} policy_switches {} policies {} cross_group_alpha {} refutations {} rechecks {}",
         self.mode, self.effective, self.workers, self.groups,
         counters.jobs.load(Ordering::Relaxed), counters.cached.load(Ordering::Relaxed),
         counters.proposals.load(Ordering::Relaxed), counters.clauses.load(Ordering::Relaxed),
         counters.repairs.load(Ordering::Relaxed), counters.switches.load(Ordering::Relaxed),
-        counters.policies.load(Ordering::Relaxed), counters.cross_group_alpha.load(Ordering::Relaxed)); }
+        counters.policies.load(Ordering::Relaxed), counters.cross_group_alpha.load(Ordering::Relaxed),
+        counters.refutations.load(Ordering::Relaxed), counters.rechecks.load(Ordering::Relaxed)); }
         best
     }
 }

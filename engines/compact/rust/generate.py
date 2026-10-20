@@ -1,6 +1,6 @@
 """Guarded Rust A shipping-source specialization.
 
-The accepted input is the independent canonical engine at de5676d. This optional
+The accepted input descends from canonical de5676d with reviewed PALS feedback. This optional
 producer removes inactive source before packing; it does not call a C backend,
 change the canonical files, add crates, or claim 4 KiB eligibility. The pure API
 accepts and returns byte dictionaries. Templates are loaded once at module import.
@@ -16,7 +16,7 @@ _syntax = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_syntax)
 tokenize, render, matching = _syntax.tokenize, _syntax.render, _syntax.matching
 _TEMPLATES = {name: (_HERE / (name + ".in")).read_text(encoding="utf-8") for name in ("main", "parallel")}
-_SOURCE_BINDINGS = {'rust/board.rs': '1e48a2780dac8d401045528e6e942bb616a68c330ae283b24ab789234e4df59d', 'rust/eval.rs': 'd68e4f7c74792282436a1916b6c4d2ec9ccdcce2324a909b178b8bf79c36e1de', 'rust/main.rs': '8755390bf5444064614c31206393af9027adfed4983035b5cbbbb707650e1719', 'rust/parallel.rs': '8e19f060e5f3d0a6e55e53278ff61b624b3c6a2a1d83be15c67140ee62ea6d78', 'rust/pool.rs': '0b2584e9953cb14ff3b9a658af5b674351791ca05518dc047b9361a38a877c84', 'rust/search.rs': '184656142e92bb41aafb24daa25e43e95b65fd5eae027b032036b3509fdd8ca3'}
+_SOURCE_BINDINGS = {'rust/board.rs': '1e48a2780dac8d401045528e6e942bb616a68c330ae283b24ab789234e4df59d', 'rust/eval.rs': 'd68e4f7c74792282436a1916b6c4d2ec9ccdcce2324a909b178b8bf79c36e1de', 'rust/main.rs': '8755390bf5444064614c31206393af9027adfed4983035b5cbbbb707650e1719', 'rust/parallel.rs': 'f7d7b2fec50f000a6b65884fa0a1da2392cb612226cd43059b479dd74b4fce54', 'rust/pool.rs': '0b2584e9953cb14ff3b9a658af5b674351791ca05518dc047b9361a38a877c84', 'rust/search.rs': '5107c61b93cd827e2e3f11efab89def94244b8da138474838ea9d52d83ce5e4b'}
 _UNKNOWN = object()
 
 
@@ -315,5 +315,5 @@ def specialize_rust(files, *, configuration):
         "rust/pool.rs": render(_drop_functions(tokens["rust/pool.rs"],("control","task"))).encode(),
     }
     changes = ["DEV UCI arms and diagnostics excluded from runtime source", "A incremental HCE retained; inactive B/C/E model/SIMD source excluded", "A scalar sliding attacks retained; inactive HQ/SEE and FEN/perft display excluded", "paired TT writes retained including eager F-abort condition publication", "F MTD/singular/PALS branches excluded only for fixed A loose profile", "loose SMP startup/barriers, frozen correction epoch and first completed worker priority preserved", "test modules excluded before packing"]
-    metadata = {"producer":"rust-A-structural-v1", "configuration":dict(cfg),"input_sha256":{n:hashlib.sha256(d).hexdigest() for n,d in sorted(files.items())},"binding_normalized_sha256":{n:hashlib.sha256(files[n].replace(b"\r\n",b"\n")).hexdigest() for n in sorted(_SOURCE_BINDINGS)},"input_crlf_counts":{n:d.count(b"\r\n") for n,d in sorted(files.items())},"output_sha256":{n:hashlib.sha256(d).hexdigest() for n,d in sorted(output.items())},"input_bytes":sum(map(len,files.values())),"output_bytes":sum(map(len,output.values())),"changes":changes,"guards":{"source_binding":"canonical-de5676d","binding_normalization":"Rust CRLF to LF; raw input hashes retained","variant":"A","development":False,"parallel":"loose","hq":False,"model":False,"external_crates":False,"canonical_unchanged":True}}
+    metadata = {"producer":"rust-A-structural-v1", "configuration":dict(cfg),"input_sha256":{n:hashlib.sha256(d).hexdigest() for n,d in sorted(files.items())},"binding_normalized_sha256":{n:hashlib.sha256(files[n].replace(b"\r\n",b"\n")).hexdigest() for n in sorted(_SOURCE_BINDINGS)},"input_crlf_counts":{n:d.count(b"\r\n") for n,d in sorted(files.items())},"output_sha256":{n:hashlib.sha256(d).hexdigest() for n,d in sorted(output.items())},"input_bytes":sum(map(len,files.values())),"output_bytes":sum(map(len,output.values())),"changes":changes,"guards":{"source_binding":"canonical-de5676d+reviewed-PALS-feedback","source_binding_review":"finite proposal/refutation/same-first repair/same-reply followup; hint-node TT cutoff gate and priority; terminal draw boundary in pruned helper methods","binding_normalization":"Rust CRLF to LF; raw input hashes retained","variant":"A","development":False,"parallel":"loose","hq":False,"model":False,"external_crates":False,"canonical_unchanged":True}}
     return output, metadata

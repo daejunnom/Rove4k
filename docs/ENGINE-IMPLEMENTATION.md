@@ -6,12 +6,13 @@ inference and lossless model storage remain in scope; trained strength is not cl
 
 ## Current acceptance state
 
-The latest fully verified core is `de5676dcbc498d77477c66064aca926633c851ff`.
+The original full twelve-core comparison used `de5676dcbc498d77477c66064aca926633c851ff`.
 Its [Linux CI](https://github.com/daejunnom/Rove4k/actions/runs/39339036826)
 passed both C and Rust jobs. The immutable local rebuild passed 144/144 behavior
 groups, independent byte reproduction of all 24 native forms, and four bounded
-A/F C-versus-Rust games. The sections below preserve earlier checkpoint results
-as history; they do not override this newer evidence.
+A/F C-versus-Rust games. The sections below preserve checkpoint results as
+history. That full comparison does not qualify the source or artifacts of a
+later changed head.
 The later source/tooling checkpoints `5e24f2a` and `a681ff8` also pass both
 language jobs in their respective exact-head CI runs
 ([5e24f2a](https://github.com/daejunnom/Rove4k/actions/runs/39340690254),
@@ -163,6 +164,12 @@ in its [exact-head engine CI](https://github.com/daejunnom/Rove4k/actions/runs/3
 and [repository lifecycle CI](https://github.com/daejunnom/Rove4k/actions/runs/39420784662).
 It still exercises D6401/6614 and F4814; the subsequent normal-source promotion
 requires its own exact-head result.
+The shared traversal/storage checkpoint `4a4cf62` passes both language jobs in
+its [exact-head engine CI](https://github.com/daejunnom/Rove4k/actions/runs/39455386213)
+and [repository lifecycle CI](https://github.com/daejunnom/Rove4k/actions/runs/39455386245).
+It regenerates and exercises A4762/B5371/C5159/D6165/6345/E5281/F4730.
+The later PALS and hardware-CRC work below retains its own source and runtime
+boundaries; those earlier CI runs are not relabeled as results for new bytes.
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
@@ -3815,3 +3822,127 @@ Target resource/ISA selection, integrated policy comparisons, scaling and
 strength remain open. No training, AWS/paid execution or game/strength
 benchmark is performed during this additional compression work. All generated
 source/native/whole files, fixtures, reports and archives remain outside Git.
+
+## PALS feedback and further source-cost follow-up
+
+Canonical C and Rust now implement a finite selected-challenger PALS exchange.
+A completed normal proposal supplies the claim; a requested legal reply is
+searched in the fixed root-perspective window `[claim-1, claim]`. Only a
+compatible completed EXACT/UPPER result below the claim is a diagnostic
+refutation. C accepts an EXACT/LOWER proposal for this purpose; Rust's proposal
+uses its full normal window. A nonrefuting diagnostic skips Repair. A refuting
+diagnostic triggers one unrestricted same-first Repair followed by one
+mandatory review of the same reply against the repaired claim. Persistent
+contradiction, incomplete work, mismatched context or cancellation rejects the
+depth and preserves the previously completed depth. Restricted scores and
+reply selection never enter the normal root/cache aggregate. Original
+deadline and node budgets remain in force. This selected-reply diagnostic is
+not exhaustive certification of every opponent response.
+
+Actual retained-TT testing found that ordinary hinted Repair could return the
+old claim immediately without investigating its challenger. Both search cores
+now order the hint before the TT move and bypass TT score cutoff only at the
+hinted response ply. Descendant TT reuse and normal TT publication remain.
+C also resets the old root alpha when a repaired proposal becomes lower.
+The persistent C search contract proves an ordinary optimistic TT value of
+700 is returned in one node, then actual hinted Repair searches 81 nodes and
+recovers the unpoisoned baseline 22; the subsequent normal lookup uses 22.
+The existing B/C/F runner registers this regression without a workflow change.
+Its final run also passes SEE/singular, 400 actual SIMD/reference positions
+and MTD/minimax/retained-horizon/cancellation tests. Final receipt SHA is
+`1bbdfd5c89a9083001c76a3abd6adb1551b83d957e95dadf2fd8a3b40b9796dd`.
+
+An independent review found another real boundary: forcing a reply after a
+first move that already reaches a draw could reset the halfmove/repetition
+state. Diagnostic search now honors the root and first-child draw before
+continuing, while still validating and echoing the requested reply. Actual
+clock-99/quiet-first/pawn-reply and seven-ply knight-cycle/third-repetition/
+pawn-reply fixtures prove the discarded continuation has nonzero evaluation
+and resets the draw context, while the constrained diagnostic and normal
+first-move search remain zero. These are source/search fixes, not expression
+compression. The earlier C A/PALS four-worker run, two sessions/ten GO and
+five stable startup TIDs, belongs to the version before this final draw fix;
+it is not relabeled as an execution of the final callback. Current C callback
+branches are exercised directly by the new B/C/F contract.
+
+Rust's final source passes all 44 unit tests. The new draw regression first
+fails against the old actual method with diagnostic 505 versus normal 0;
+that failure is preserved. After the fix, actual cfg(not(test)) A/PALS at
+clock99 completes depth1/2/3 with scores0/0/0 and two clauses/no Repair.
+A retained-TT repeat still produces one real refutation/Repair/recheck.
+Final DEV and shipping focused sessions both exit0. The final receipt SHA is
+`960f7fe459f36c99ae79060ef55f877dfde5d2e91a3c5cf69ba312fa9eadcda2`;
+the earlier 43-unit/three-session receipt is preserved separately.
+
+The Rust fixed-loose source producer explicitly admits the reviewed canonical
+source hashes. Its first comparison preserved five of six outputs exactly;
+generated search grew 67 B from the hint priority/cutoff gate and a trailing
+comma after stripping the test-only observer. All hint producers in this
+fixed-loose output are None. A test-only observer spelling initially exposed
+an existing cfg-strip boundary that consumed the following `let quiet`;
+the canonical observer was wrapped in the already supported block form,
+without loosening the parser or source guard. Old output equality is false;
+the new output was reviewed as a distinct source identity.
+The subsequent terminal-draw fix changes only methods that this fixed-loose
+producer already removes. A fresh six-file dictionary comparison is exactly
+equal to the reviewed new output, and the final normalized source binding
+explicitly admits search `5107c61b...` / parallel `f7d7b2fe...`. ProducerGuards
+passes five tests at each reviewed admission; compiler fixtures are deferred
+to the existing CI path rather than inferred from those guard tests.
+
+A separate canonical A policy cost compares exactly four native builds at
+workers2/TT18/DEV0, using each language's unchanged compiler recipe and only
+common lexical compaction. It freezes C search `6fd8196e...` and Rust search
+`db3918e2...`, before the later terminal-draw fix. These remain valid historical
+measurements of those exact sources, not costs for the newer final source.
+
+| Frozen canonical profile | Native bytes | Fixed native-wrapper whole |
+| --- | ---: | ---: |
+| C loose | 30,768 B | 16,829 B |
+| C PALS | 30,768 B | 17,799 B |
+| Rust loose | 372,376 B | 194,654 B |
+| Rust PALS | 377,808 B | 198,069 B |
+
+Within these controls PALS changes the fixed wrapped native by +970 B in C
+and +3,415 B in Rust. Unspecialized canonical source wrappers still contain
+all policies and measure 21,150 B for C / 24,926 B for Rust. None of these
+rows is a specialized tiny entry, its policy delta, or a strength/scaling
+result. Four native compiles, four native wrappers and four trivial source
+wrappers were made; no produced engine was run. The cost receipt SHA is
+`d49b689c6ed5bd4d44b6a30317f2715e1de01e13a56ef91e9486f46e4ecd6ef2`.
+
+The E generation/leaf-feature fusion is rejected after one first cost.
+It accumulates the same leaf terms during move generation and preserves all
+21 coefficients/order expressions, but raw source 11,378 to 11,349 B (-29)
+produces a new same-length native and whole 5,281 to 5,300 B (+19). The new
+92-byte recursive Features scratch has no inherited frame/stack proof.
+One compile/ALONE package and two strict decodes pass; functional/model/stack
+qualification and engine execution stop at the measured loss. Maintained E
+is unchanged. The summary SHA is
+`7155eeba3327110e21fafa57841a39debb3493696b5d7a1f291d67d27ddd0e51`.
+The ordinary experiment contains project-owned transform/cost/configuration,
+not generated native, source outputs or reports.
+
+D's independently authored hardware CRC32C byte candidate changes only
+`cx_crc`: the instruction consumes the original 32-bit seed and byte, without
+the old software pre-XOR. It requires an explicit Linux x86-64 SSE4.2 profile.
+CRC-only checks pass 5,673 comparisons, including seed/byte basis inputs,
+all byte values across six fixed seeds and deterministic random inputs.
+Both actual fixed21 packets decode to the complete exact BCJ image and inverse
+native, with owned-buffer canaries and context-table release checked.
+Unchanged packets/native and two new shipping-loader compiles give scalar
+6,108 B / HQ 6,288 B, both -57 B; overhead is 176 B header/PHDR plus 961 B
+text instead of 1,018 B text. Static disassembly confirms the byte-input,
+32-bit-output CRC instructions. The first-cost result SHA is
+`b645ec13306c0f40ea7cd19be045fe140354482fa37f13434d0a2f6a7cd4b2c1`.
+Five compiles, three isolated diagnostics and two static disassemblies all
+settle normally; this first-cost stage executes no produced shipping ELF.
+These data diagnostics are separate from production restoration/entry proof.
+
+The A/F single-condition proposal removes 28 raw bytes each but remains
+uncompiled and unselected. Sharing startup notification with epoch waiters
+can cause quadratically many redundant wake attempts during many-worker
+startup; a source-byte reduction alone does not justify accepting that cost.
+The exact proposal stays outside Git. No training, AWS, paid execution, game
+or strength/performance benchmark is part of this follow-up. The six-family
+4KiB objective remains incomplete.

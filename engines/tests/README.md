@@ -195,6 +195,14 @@ exit statuses and stdout/stderr. It fails a frozen-source claim if inputs change
 during the run. Every compile has a 60-second bound; every test has a 45-second
 bound. `--workers` permits 1–8 for local checks.
 
+- **Common B/C/F callback regression:** fixed requested replies are checked in
+  white and black root perspective, with generation and drawn-root boundaries.
+  An injected optimistic child TT entry first proves an ordinary one-node cutoff;
+  same-first hinted Repair must investigate more than one node, recover the prior
+  unpoisoned value and publish a normal TT result. F uses its matching depth-2
+  horizon key; this callback test does not enable a PALS production profile for F.
+  Halfmove-99/quiet-first and a legally replayed threefold child must return zero
+  before a legal pawn reply can reset the terminal child's clock or path.
 - **B:** exact legal-exchange values for pins, legal versus protected king
   recaptures, EP, promotions, underpromotions and optional recapture; rejection
   of initially illegal pin/EP moves; incomplete cancellation. A real completed

@@ -186,13 +186,15 @@ pub struct Searcher {
     correction: [Vec<i16>; 3], frozen: [Vec<i16>; 3], epoch: u64,
     pv: Vec<Vec<Move>>, reply_hint: Option<Move>, hint_ply: usize,
     pub root_choice: Move,
+    #[cfg(test)] pub repair_first: Option<Move>,
 }
 impl Searcher {
     pub fn new(table: Arc<Table>, control: Arc<Control>, variant: u8, worker: usize) -> Self {
         let _=variant;
         Self { table, control, #[cfg(test)] variant, worker, history: vec![0;32768], continuation: vec![0;4096], capture_history: vec![0;7*7*128],
             correction: std::array::from_fn(|_| vec![0;2048]), frozen: std::array::from_fn(|_| vec![0;2048]), epoch: 0,
-            pv: (0..=PLY_LIMIT).map(|_| Vec::with_capacity(PLY_LIMIT)).collect(), reply_hint: None, hint_ply: 1, root_choice: Move::default() }
+            pv: (0..=PLY_LIMIT).map(|_| Vec::with_capacity(PLY_LIMIT)).collect(), reply_hint: None, hint_ply: 1, root_choice: Move::default(),
+            #[cfg(test)] repair_first: None }
     }
     #[inline(always)]
     fn variant(&self)->u8{
@@ -243,8 +245,8 @@ impl Searcher {
     }
     fn draw(b: &Board) -> bool { b.halfmove >= 100 || b.repeated() || b.insufficient() }
     fn order(&self, b: &Board, m: Move, tt: Move, previous: Move, ply: usize) -> i32 {
+        if self.reply_hint == Some(m) && ply == self.hint_ply { return 21_000_000; }
         if m == tt { return 20_000_000; }
-        if self.reply_hint == Some(m) && ply == self.hint_ply { return 19_000_000; }
         let capture = b.is_capture(m);
         let mut v = if capture {
             let victim = b.captured(m).unsigned_abs() as usize;
@@ -306,7 +308,10 @@ impl Searcher {
         let key = self.key(b);
         let entry = if isolated { None } else { self.table.get(key,ply) };
         let tt_move = entry.map_or(Move::default(),|e| e.mv);
-        if let Some(e) = entry { if (e.depth >= depth && (self.variant() != b'F' || e.depth == depth)) && moves.contains(&e.mv) {
+        // Repair must investigate its challenger rather than return the normal
+        // proposal's cached bound. Its descendants retain ordinary TT reuse.
+        let repair = self.reply_hint.is_some() && ply == self.hint_ply;
+        if let Some(e) = entry { if !repair && (e.depth >= depth && (self.variant() != b'F' || e.depth == depth)) && moves.contains(&e.mv) {
             let score = if e.lower == e.upper { Some(e.lower) } else if e.lower >= beta { Some(e.lower) } else if e.upper <= alpha {Some(e.upper)} else {None};
             if let Some(score) = score { self.control.tt_hits.fetch_add(1,Ordering::Relaxed); self.pv[ply].push(e.mv); if ply == 0 {self.root_choice=e.mv;} return Ok(score); }
         }}
@@ -319,6 +324,7 @@ impl Searcher {
         let mut quiets = MoveList::new();
         for m in moves {
             if excluded == Some(m) { continue; }
+            #[cfg(test)] { if repair && searched == 0 { self.repair_first = Some(m); } }
             let quiet = !b.is_capture(m) && m.promo == 0;
             let mut extension = 0;
             if self.variant() == b'B' && !isolated && excluded.is_none() && depth >= 6 && m == tt_move {
@@ -407,9 +413,13 @@ impl Searcher {
     }
     pub fn search_move_hint(&mut self,b:&Board,m:Move,hint:Option<Move>,depth:u8,alpha:i32,beta:i32)->Option<SearchResult> {
         if !b.legal().contains(&m) {return None;}
+        #[cfg(test)] { self.repair_first = None; }
         self.reply_hint=hint;
         self.hint_ply=1;
-        let score=self.negamax(&b.play(m),depth.saturating_sub(1),-beta,-alpha,1,m,None,false).map(|v|-v);
+        let score=if Self::draw(b) {
+            self.pv[1].clear();
+            self.tick().map(|()|0)
+        } else {self.negamax(&b.play(m),depth.saturating_sub(1),-beta,-alpha,1,m,None,false).map(|v|-v)};
         self.reply_hint=None;
         Some(SearchResult {score:score.ok()?,best:m,reply:self.pv[1].first().copied(),depth,nodes:self.control.nodes.load(Ordering::Relaxed),completed:true})
     }
@@ -419,7 +429,11 @@ impl Searcher {
         if !child.legal().contains(&reply) {return None;}
         // This is a constrained diagnostic. No bound for the unrestricted first
         // move is stored, nor may this score be accepted as its complete result.
-        let score=self.negamax(&child.play(reply),depth.saturating_sub(2),alpha,beta,2,reply,None,true).ok()?;
+        // A game already drawn at the root or after first cannot be resumed by
+        // a forced pawn move/capture resetting its clock or repetition suffix.
+        // Requested moves are still checked and echoed, including on draws.
+        let score=if Self::draw(b)||Self::draw(&child) {self.tick().ok()?;0}
+            else {self.negamax(&child.play(reply),depth.saturating_sub(2),alpha,beta,2,reply,None,true).ok()?};
         Some(SearchResult {score,best:first,reply:Some(reply),depth,nodes:self.control.nodes.load(Ordering::Relaxed),completed:true})
     }
 }

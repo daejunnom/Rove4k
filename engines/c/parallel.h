@@ -13,7 +13,7 @@
 #include <string.h>
 
 enum { ROVE_EXACT, ROVE_LOWER, ROVE_UPPER };
-enum { ROVE_NORMAL, ROVE_COUNTERREPLY, ROVE_REPAIR };
+enum { ROVE_NORMAL, ROVE_COUNTERREPLY, ROVE_REPAIR, ROVE_SELECT_REPLY };
 typedef struct {
     uint32_t first, reply;
     int depth, alpha, beta, kind, group;
@@ -24,6 +24,8 @@ typedef struct {
     int score, bound, complete;
     uint32_t first, reply;
     uint64_t nodes;
+    uint64_t generation;
+    int depth;
 } RoveResult;
 typedef RoveResult (*RoveSearch)(void *,const RoveTask *,unsigned);
 typedef int (*RoveStopped)(void *);
@@ -49,9 +51,6 @@ typedef struct {
     pthread_mutex_t mutex;
     RoveCompleted *completed;
     RoveParallelResult result;
-    RoveTask clause;
-    RoveResult counter;
-    int phase;
     _Atomic int resource_failed;
 } RoveParallel;
 typedef struct { RoveParallel *p; unsigned id; } RoveParallelWorker;
@@ -64,22 +63,32 @@ static uint64_t rove_parallel_clock(void) {
 static int rove_parallel_reusable(const RoveCompleted *c,const RoveTask *t) {
     const RoveTask *s=&c->task;
     const RoveResult *r=&c->result;
-    return r->complete && s->kind!=ROVE_COUNTERREPLY &&
+    return r->complete && (s->kind==ROVE_NORMAL || s->kind==ROVE_REPAIR) &&
         s->generation==t->generation && s->first==t->first &&
-        s->depth==t->depth &&
+        s->depth==t->depth && r->generation==t->generation &&
+        r->depth==t->depth && r->first==t->first &&
         (r->bound==ROVE_EXACT ||
          (r->bound==ROVE_LOWER && r->score>=t->beta) ||
          (r->bound==ROVE_UPPER && r->score<=t->alpha));
 }
 static int rove_parallel_valid(const RoveTask *t,const RoveResult *r) {
-    return r->complete && (!t->first || r->first==t->first) &&
+    return r->complete && r->generation==t->generation && r->depth==t->depth &&
+        (!t->first || r->first==t->first) &&
         (r->bound==ROVE_EXACT ||
          (r->bound==ROVE_LOWER && r->score>=t->beta) ||
          (r->bound==ROVE_UPPER && r->score<=t->alpha));
 }
+static int rove_parallel_refutes(const RoveTask *t,const RoveResult *r,int claim) {
+    /* A fixed reply challenges only the claimed score for this first move.
+     * Its upper/exact bound is never a normal root bound or cached result. */
+    return t->kind==ROVE_COUNTERREPLY && t->reply &&
+        r->reply==t->reply && rove_parallel_valid(t,r) &&
+        (r->bound==ROVE_EXACT || r->bound==ROVE_UPPER) && r->score<claim;
+}
 static void rove_parallel_accept(RoveParallel *p,int index,
                                   RoveTask task,RoveResult r) {
-    if(task.kind==ROVE_COUNTERREPLY || !rove_parallel_valid(&task,&r))return;
+    if((task.kind!=ROVE_NORMAL && task.kind!=ROVE_REPAIR) ||
+       !rove_parallel_valid(&task,&r))return;
     pthread_mutex_lock(&p->mutex);
     p->completed[index]=(RoveCompleted){task,r};
     if(r.bound!=ROVE_UPPER && r.score>p->bestalpha) {
@@ -93,20 +102,6 @@ static void *rove_parallel_worker(void *arg) {
     RoveParallel *p=worker->p;
     unsigned id=worker->id;
     unsigned jobs=0;
-    if(p->phase==1) {
-        if(atomic_load(&p->resource_failed) || p->stopped(p->context))return 0;
-        RoveTask task=p->clause;
-        task.groups=p->groups;
-        RoveResult r=p->search(p->context,&task,id);
-        pthread_mutex_lock(&p->mutex);
-        p->result.clauses++;
-        /* A restricted continuation is only a reply-ordering hint, even when
-         * its window failed low. Repair searches the same first move afresh. */
-        if(r.complete && r.reply && (!p->counter.complete || r.score<p->counter.score))
-            p->counter=r;
-        pthread_mutex_unlock(&p->mutex);
-        return 0;
-    }
     if(p->mode==0) {
         if(atomic_load(&p->resource_failed) || p->stopped(p->context))return 0;
         RoveTask task={0,0,p->depth,p->alpha,p->beta,ROVE_NORMAL,0,p->generation,p->groups};
@@ -320,7 +315,7 @@ static RoveParallelResult rove_parallel_search(RoveSearch search,void *context,
     proposal_ns=rove_parallel_clock()-start;
     p.result.assigned++;
     rove_parallel_accept(&p,first,proposal,r);
-    if(!r.complete)goto done;
+    if(!rove_parallel_valid(&proposal,&r))goto done;
     if(mode==4) {
         /* Instability is measured between completed iterations. Probe cost
          * and available parallel work determine whether extra PALS work is
@@ -333,18 +328,38 @@ static RoveParallelResult rove_parallel_search(RoveSearch search,void *context,
         p.groups=p.mode==2?(workers+3)/4:1;
         p.result.mode=p.mode;p.result.groups=p.groups;
     }
-    if(p.mode==3 && depth>1 && !stopped(context)) {
-        p.phase=1;
-        p.clause=(RoveTask){moves[first],r.reply,depth,alpha,beta,
-                           ROVE_COUNTERREPLY,0,generation,p.groups};
-        rove_parallel_pool(&p);
-        p.phase=0;
-        if(p.counter.complete && !stopped(context)) {
-            RoveTask repair={moves[first],p.counter.reply,depth,alpha,beta,
-                             ROVE_REPAIR,0,generation,p.groups};
-            RoveResult repaired=search(context,&repair,0);
-            p.result.repairs++;
-            rove_parallel_accept(&p,first,repair,repaired);
+    if(p.mode==3 && depth>1 && r.bound!=ROVE_UPPER) {
+        if(stopped(context))goto done;
+        RoveTask select=proposal;select.kind=ROVE_SELECT_REPLY;select.reply=r.reply;
+        RoveResult selected=search(context,&select,0);
+        if(stopped(context) || !rove_parallel_valid(&select,&selected))goto done;
+        uint32_t challenged=selected.reply;
+        if(challenged) {
+            RoveTask clause={moves[first],challenged,depth,r.score-1,r.score,
+                             ROVE_COUNTERREPLY,0,generation,p.groups};
+            RoveResult counter=search(context,&clause,0);
+            p.result.clauses++;
+            if(stopped(context) || !rove_parallel_valid(&clause,&counter) ||
+               counter.reply!=challenged)goto done;
+            if(rove_parallel_refutes(&clause,&counter,r.score)) {
+                RoveTask repair={moves[first],challenged,depth,alpha,beta,
+                                 ROVE_REPAIR,0,generation,p.groups};
+                RoveResult repaired=search(context,&repair,0);
+                p.result.repairs++;
+                if(stopped(context) || !rove_parallel_valid(&repair,&repaired))goto done;
+                /* A lower repaired score must replace the old alpha too. No
+                 * other root work has started, so only this slot is incumbent. */
+                p.bestalpha=alpha;p.bestgroup=0;
+                memset(&p.completed[first],0,sizeof p.completed[first]);
+                rove_parallel_accept(&p,first,repair,repaired);
+                if(repaired.bound==ROVE_UPPER)goto done;
+                clause.alpha=repaired.score-1;clause.beta=repaired.score;
+                counter=search(context,&clause,0);
+                p.result.clauses++;
+                if(stopped(context) || !rove_parallel_valid(&clause,&counter) ||
+                   counter.reply!=challenged ||
+                   rove_parallel_refutes(&clause,&counter,repaired.score))goto done;
+            }
         }
     }
     rove_parallel_pool(&p);

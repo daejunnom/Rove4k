@@ -110,7 +110,7 @@ static int victim(const Board *p,unsigned m){int v=abs(p->b[TO(m)]);return !v&&a
 static int piece_index(int p){return p>0?p:6-p;}
 static int is_capture(const Board *p,unsigned m){return victim(p,m)||PROM(m);}
 static int move_score(Worker *w,const Board *p,unsigned m,unsigned tt,int ply){
-    if(m==tt)return 2000000000;if(ply==w->hint_ply&&m==w->hint)return 1900000000;int v=victim(p,m),a=abs(p->b[FROM(m)]),s=0;
+    if(ply==w->hint_ply&&m==w->hint)return 2100000000;if(m==tt)return 2000000000;int v=victim(p,m),a=abs(p->b[FROM(m)]),s=0;
     if(v||PROM(m)){s=1000000+rove_value[v]*32-rove_value[a]+(PROM(m)?rove_value[PROM(m)]:0);
 #if ROVE_VARIANT == 2
         int exchange_score=see_for(w,p,m);if(exchange_score!=SEE_INCOMPLETE)s+=exchange_score*32;
@@ -156,7 +156,9 @@ int search(Worker *w,const Board *p,int depth,int alpha,int beta,int ply,unsigne
 #else
         int eligible=ttdepth>=depth;
 #endif
-        if(ply&&eligible&&(ttbound==1||(ttbound==2&&ttscore>=beta)||(ttbound==3&&ttscore<=alpha)))return ttscore;}
+        /* Repair must investigate its challenged reply instead of returning the
+         * old claim immediately. Descendant TT reuse and normal writes stay. */
+        if(ply&&eligible&&!(w->hint&&ply==w->hint_ply)&&(ttbound==1||(ttbound==2&&ttscore>=beta)||(ttbound==3&&ttscore<=alpha)))return ttscore;}
     int singular=0;
 #if ROVE_VARIANT == 2
     if(!excluded&&ply&&depth>=6&&ttmove&&ttdepth>=depth-3&&(ttbound==1||ttbound==2)&&abs(ttscore)<MATE-MAXPLY){int threshold=ttscore-depth*2;atomic_fetch_add_explicit(&rove_singular_calls,1,memory_order_relaxed);int s=search(w,p,(depth-1)/2,threshold-1,threshold,ply,ttmove,0);if(w->aborted||atomic_load_explicit(&w->session->stop,memory_order_relaxed))return 0;singular=s<threshold;w->pvlen[ply]=0;}
@@ -193,16 +195,33 @@ static void info(Worker *w,int depth,int score){
 }
 typedef struct {Session *session;Worker *workers;uint64_t generation;int groups;} ParallelContext;
 static int parallel_stopped(void *arg){ParallelContext *c=arg;Session *s=c->session;if(s->deadline&&now_ms()>=s->deadline)atomic_store_explicit(&s->stop,1,memory_order_relaxed);return atomic_load_explicit(&s->stop,memory_order_relaxed);}
+static uint32_t parallel_reply(void *arg,uint32_t first,uint32_t excluded){
+    ParallelContext *c=arg;Board child;if(parallel_stopped(arg)||!make_move(&c->session->board,first,&child))return 0;
+    Move moves[MAXMOVES];int n=generate(&child,moves,0);unsigned fallback=0;
+    for(int i=0;i<n;i++){Board next;if(make_move(&child,moves[i].m,&next)){if(moves[i].m!=excluded)return moves[i].m;fallback=moves[i].m;}}
+    return fallback;
+}
 static RoveResult parallel_task(void *arg,const RoveTask *task,unsigned worker){
-    ParallelContext *c=arg;Session *s=c->session;RoveResult r={0};r.first=task->first;
+    ParallelContext *c=arg;Session *s=c->session;RoveResult r={0};r.first=task->first;r.generation=task->generation;r.depth=task->depth;
     if(task->generation!=c->generation||worker>=ROVE_WORKERS||parallel_stopped(arg))return r;
+    if(task->kind==ROVE_SELECT_REPLY){r.reply=parallel_reply(arg,task->first,task->reply);r.complete=!parallel_stopped(arg);r.bound=ROVE_EXACT;return r;}
     Worker *w=&c->workers[worker];w->aborted=0;w->hint=0;w->hint_ply=-1;memcpy(w->path,s->history,(size_t)s->history_len*sizeof(uint64_t));w->path_len=s->history_len;
     size_t total=(size_t)1<<ROVE_TT_BITS,part=total;while(part*(size_t)task->groups>total)part>>=1;w->table=rove_tt+(size_t)task->group*part;w->table_mask=part-1;
     uint64_t before=w->nodes;int score;
     if(!task->first){score=search(w,&s->board,task->depth,task->alpha,task->beta,0,0,1);if(w->pvlen[0])r.first=w->pv[0][0];if(w->pvlen[0]>1)r.reply=w->pv[0][1];}
-    else if(drawn(&s->board,w->path,w->path_len))score=0;
+    else if(task->kind!=ROVE_COUNTERREPLY&&drawn(&s->board,w->path,w->path_len))score=0;
     else{Board child;if(!make_move(&s->board,task->first,&child))return r;w->path[w->path_len++]=child.key;w->previous[0]=task->first;
-        if(task->kind==ROVE_COUNTERREPLY){Move moves[MAXMOVES];unsigned replies[MAXMOVES];int n=generate(&child,moves,0),count=0;for(int i=0;i<n;i++){Board t;if(moves[i].m!=task->reply&&make_move(&child,moves[i].m,&t))replies[count++]=moves[i].m;}if(!count)return r;unsigned reply=replies[worker%(unsigned)count];Board next;if(!make_move(&child,reply,&next))return r;w->path[w->path_len++]=next.key;w->previous[1]=reply;score=search(w,&next,task->depth-2,task->alpha,task->beta,2,0,0);r.reply=reply;}
+        if(task->kind==ROVE_COUNTERREPLY){
+            int terminal=drawn(&s->board,w->path,s->history_len)||drawn(&child,w->path,w->path_len);
+            Board next;int legal=0;Move moves[MAXMOVES];int n=generate(&child,moves,0);
+            for(int i=0;i<n;i++)if(moves[i].m==task->reply){legal=make_move(&child,task->reply,&next);break;}
+            if(!legal){w->path_len=s->history_len;return r;}
+            /* Validate and echo the requested reply, but never cross a draw
+             * at the child merely because that reply resets its clock/path. */
+            if(terminal)score=0;
+            else{w->path[w->path_len++]=next.key;w->previous[1]=task->reply;score=search(w,&next,task->depth-2,task->alpha,task->beta,2,0,0);}
+            r.reply=task->reply;
+        }
         else{if(task->kind==ROVE_REPAIR){w->hint=task->reply;w->hint_ply=1;}score=-search(w,&child,task->depth-1,-task->beta,-task->alpha,1,0,1);if(w->pvlen[1])r.reply=w->pv[1][0];}
         w->path_len=s->history_len;
     }

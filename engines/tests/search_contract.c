@@ -24,6 +24,94 @@ static void prepare(const Board *p,uint64_t limit){
 }
 static void release(void){assert(!pthread_mutex_destroy(&session.mutex));}
 
+static void test_pals_repair(void){
+    /* These callbacks are common search mechanics, not a claim that F's
+     * production profile enables a split/PALS MTD scheduler. */
+    Board root;board_start(&root);
+    for(int black=0;black<2;black++){
+        if(black){Board next;assert(make_move(&root,move(&root,"e2e4"),&next));root=next;}
+        tt_clear();prepare(&root,0);
+        ParallelContext context={&session,workers,session.generation*MAXPLY+2,1};
+        unsigned first=move(&root,black?"a7a6":"e2e4");Board child,next;
+        assert(make_move(&root,first,&child));unsigned reply=move(&child,black?"c2c4":"a7a6");
+        assert(make_move(&child,reply,&next));
+        RoveTask task={first,reply,2,-INF,INF,ROVE_COUNTERREPLY,0,context.generation,1};
+        RoveResult r=parallel_task(&context,&task,0);
+        assert(r.complete&&r.first==first&&r.reply==reply&&r.generation==task.generation&&r.depth==2);
+        /* These two quiet frontiers have no capture continuation. Two plies
+         * restore the root side, so the direct leaf value has root perspective. */
+        assert(r.bound==ROVE_EXACT&&r.score==evaluate_reference(&next)&&r.score!=0);
+        task.kind=ROVE_SELECT_REPLY;r=parallel_task(&context,&task,0);
+        assert(r.complete&&r.reply&&r.reply!=reply&&make_move(&child,r.reply,&next));
+        task.kind=ROVE_COUNTERREPLY;task.generation++;r=parallel_task(&context,&task,0);assert(!r.complete);
+        assert(!memcmp(&session.board,&root,sizeof root));release();
+    }
+    board_start(&root);tt_clear();prepare(&root,0);Worker *w=&workers[0];
+    ParallelContext context={&session,workers,session.generation*MAXPLY+3,1};
+    unsigned first=move(&root,"e2e4");Board child;assert(make_move(&root,first,&child));
+    unsigned challenged=move(&child,"a7a6"),other=move(&child,"e7e5");
+    RoveTask normal={first,0,3,-INF,INF,ROVE_NORMAL,0,context.generation,1};
+    RoveResult baseline=parallel_task(&context,&normal,0);assert(baseline.complete);
+    w->path[0]=root.key;w->path[1]=child.key;w->path_len=2;
+    uint64_t key=context_key(w,&child);
+#if ROVE_VARIANT == 6
+    /* Match F's actual child horizon: this is a depth-2 entry, not an entry
+     * from a deeper MTD interval that would correctly be ineligible. */
+    key^=UINT64_C(2)*UINT64_C(0xa0761d6478bd642f);
+#endif
+    tt_write(w,key,other,2,-700,1,1);
+    RoveResult stale=parallel_task(&context,&normal,0);
+    assert(stale.complete&&stale.score==700&&stale.nodes==1);
+    w->hint=challenged;w->hint_ply=1;
+    assert(move_score(w,&child,challenged,other,1)>move_score(w,&child,other,other,1));
+    w->hint=0;w->hint_ply=-1;
+    RoveTask repair={first,challenged,3,-INF,INF,ROVE_REPAIR,0,context.generation,1};
+    RoveResult repaired=parallel_task(&context,&repair,0);
+    assert(repaired.complete&&repaired.first==first&&repaired.nodes>1);
+    assert(repaired.score==baseline.score&&repaired.score!=stale.score);
+    RoveResult retained=parallel_task(&context,&normal,0);
+    assert(retained.complete&&retained.score==baseline.score&&retained.nodes==1);
+    assert(!w->hint&&w->hint_ply==-1&&!memcmp(&session.board,&root,sizeof root));release();
+    root.half=100;prepare(&root,0);
+    RoveTask draw_review={first,challenged,3,-1,0,ROVE_COUNTERREPLY,0,context.generation,1};
+    RoveResult r=parallel_task(&context,&draw_review,0);
+    assert(r.complete&&r.first==first&&r.reply==challenged&&r.score==0);
+    assert(!rove_parallel_refutes(&draw_review,&r,0));
+    draw_review.reply=1;r=parallel_task(&context,&draw_review,0);
+    assert(!r.complete&&workers[0].path_len==session.history_len);release();
+    printf("actual PALS callback: white/black reply context; ordinary TT claim %d in one node -> hinted Repair %d baseline %d nodes=%" PRIu64 "; normal TT write and drawn-root reply: pass\n",
+           stale.score,repaired.score,baseline.score,repaired.nodes);
+}
+
+static void test_pals_draw_children(void){
+    static const char *cycle[]={"g1f3","g8f6","f3g1","f6g8","g1f3","g8f6","f3g1"};
+    for(int repetition=0;repetition<2;repetition++){
+        Board root;board_start(&root);uint64_t history[10]={root.key};int len=1;
+        if(repetition){
+            for(size_t i=0;i<sizeof cycle/sizeof *cycle;i++){Board next;assert(make_move(&root,move(&root,cycle[i]),&next));root=next;history[len++]=root.key;}
+        }else root.half=99;
+        tt_clear();prepare(&root,0);memcpy(session.history,history,(size_t)len*sizeof(uint64_t));session.history_len=len;
+        assert(!drawn(&root,history,len));
+        unsigned first=move(&root,repetition?"f6g8":"g1f3");Board child,next;assert(make_move(&root,first,&child));
+        history[len]=child.key;assert(drawn(&child,history,len+1));
+        if(repetition)assert(child.half==8);else assert(child.half==100);
+        unsigned reply=move(&child,repetition?"e2e4":"a7a6");assert(make_move(&child,reply,&next));
+        history[len+1]=next.key;
+        /* Playing this legal pawn reply would erase the already-terminal
+         * child boundary and produce a nonzero quiet-frontier value. */
+        assert(next.half==0&&!drawn(&next,history,len+2)&&evaluate_reference(&next)!=0);
+        ParallelContext context={&session,workers,session.generation*MAXPLY+2,1};
+        RoveTask task={first,reply,2,-INF,INF,ROVE_COUNTERREPLY,0,context.generation,1};
+        RoveResult r=parallel_task(&context,&task,0);
+        assert(r.complete&&r.first==first&&r.reply==reply&&r.generation==task.generation&&r.depth==2);
+        assert(r.bound==ROVE_EXACT&&r.score==0&&r.nodes==0&&workers[0].path_len==len);
+        task.kind=ROVE_NORMAL;r=parallel_task(&context,&task,0);
+        assert(r.complete&&r.score==0);
+        assert(!memcmp(&session.board,&root,sizeof root));release();
+    }
+    puts("actual PALS child draw before resetting pawn reply: halfmove-100 and legal-history threefold pass");
+}
+
 #if ROVE_VARIANT == 2
 typedef struct {uint64_t key,data;} TTImage;
 static TTImage tt_image(TTEntry *slot){
@@ -223,6 +311,7 @@ static void test_mtd(void){
 int main(void){
     board_init();evaluate_init();rove_tt=calloc((size_t)1<<ROVE_TT_BITS,sizeof *rove_tt);assert(rove_tt);
     workers=calloc(ROVE_WORKERS,sizeof *workers);assert(workers);assert(parallel_init());tt_clear();
+    test_pals_repair();test_pals_draw_children();
 #if ROVE_VARIANT == 2
     test_see();test_singular_exclusion();test_taken_singular_extension();
 #elif ROVE_VARIANT == 3
