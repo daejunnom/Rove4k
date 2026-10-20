@@ -55,7 +55,8 @@
     "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
     "engines/compact/tiny-entry-c/shipping_alpha.py": "d220d7001a0e4119380d6bad466d39d10ba5d5c047a75e5fdb231b3bd8bd25c3",
     "engines/compact/tiny-entry-c/shipping_scope.py": "a3f845c870cb5b8d935254172f1f5a78afa34281ea15396278a78ed165fc3a03",
-    "engines/compact/tiny-entry-c/shipping_core.py": "8a654816bb4d4019218e5a1c1d9b8fe7a7cfde20ad0cdf7d2e7ec414247ede2e"
+    "engines/compact/tiny-entry-c/shipping_core.py": "8a654816bb4d4019218e5a1c1d9b8fe7a7cfde20ad0cdf7d2e7ec414247ede2e",
+    "engines/compact/tiny-entry-c/shipping_simd.py": "402bbeccc92c82053d1dcb85b20c200cc1303752945ee32b7b03b22f313eaf13"
   },
   "compression": {
     "format": "lzma-alone",
@@ -72,13 +73,13 @@
   },
   "expected": {
     "readable_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
-    "source_bytes": 11284,
-    "source_sha256": "68ad43dec85adcfff6e65bba0f457738e33ff545d786d43c3c3a7b53e618f02c",
-    "native_bytes": 26408,
-    "native_sha256": "05e1ffa928e488ed1cbfef7679634e465415326c1ba60e739d3842bb4fc0f766",
-    "whole_bytes": 5344,
-    "whole_sha256": "fd8dd108aceddf70e7adfa5ea02fc1b0ddc713e75bd3d6bb8efed8c6d41ba100",
-    "bootstrap_sha256": "e15844b22df8e83a6920356e0710cfad677633f753034024bddfd5ed662ddef0",
+    "source_bytes": 11086,
+    "source_sha256": "90a566c5e814cf87dd38f92f40ce8fe7115c4d4d07f75d9ff0981ffaae1fbc28",
+    "native_bytes": 26376,
+    "native_sha256": "c32772b3d1bb9ce985bfdecbd31dc4cc5fd06721f03aa6259a4021a4fbb0c788",
+    "whole_bytes": 5245,
+    "whole_sha256": "de57a0a21e8ecb2f958207c3e71bcc7d791448340acc103faaea5f1010433933",
+    "bootstrap_sha256": "275e40359feee02e321f4619f313a6a31f0a9b8f4d3362bfe705472b89055cda",
     "dev_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
     "dev_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c"
   },
@@ -88,128 +89,172 @@
     "launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
   },
   "qualified_receipt": {
-    "scope": "current fixed-profile shipping structural composition: focused source diagnostics and selected restoration only; older qualification below is ancestry, not equality to the new full native or a new broad core result",
-    "pre_core_historical_qualification": {
-      "C_composition_final_index_sha256": "f3278861a28f37adfb2aead6f7ce2f8558caf261ff77f8f68c70380d996e0641",
-      "producer_build_sha256": "88e1dc9273c7231e33ff2783323b55353937c9a6c795b6727fc3fb31ba208932",
-      "query_receipt_sha256": "3e61db1688d7fa13a737c305a8426f507cc04c716aca6eef5ff7db5137f852b0",
-      "startup_receipt_sha256": "b9d0b24ee27aecdd0b9d60f1d1a7340e515972961284c31114b5ddb5994f8f7e",
-      "epoch_receipt_sha256": "e9a72614de8366ddc398d244ffc144f6a506a66a4225159bd151fb3b7096240b",
-      "selected_runtime_receipt_sha256": "a01bbfcdd0e3beb676984cbfb3aeac7071bf742e3774ecc8ad016e809b3788a2",
-      "shipping_policy_sha256": "9ac6fdd907a114d6748268c5777e5ee3fa54a53ce56ae07bd1d7fae37d1202c5",
-      "diagnostic_identity": {
-        "scope": "new DEV source/native generated twice from the exact qualified readable; old DEV identity not reused; no new DEV runtime claim",
-        "source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
-        "native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c"
-      },
-      "predecessor_C5723_ancestry": {
-        "final_evidence_index_sha256": "67d7dce0b1852f7227f62f87c9b9568c9ebbc365274d182a4515e707200f2d11",
-        "producer_build_sha256": "ab45382eaae131897e9cb113f11d984cd7205d2040696941fb019d29f3dcac68",
-        "focused_DEV0_state_core_receipt_sha256": "ec77e71a259b9017ef8bd893e5b77e26388ebc396cea55e98144db7546573765",
-        "selected_runtime_receipt_sha256": "9885005c404b06b5403b6f7ea71839446687d99f5458b2fbc425c99246c80cf6",
-        "predecessor_5955": {
-          "maintained_source_receipt_sha256": "6bf1a0b9a8c967618409a763f0531bdbe69f5a225c9d380c805245cba1f9a44c",
-          "portfolio_index_sha256": "71d1a8f86d09364fbe9f1f0a2138b5c87a8361a86b46e6756a182f754c9b9f9d",
-          "producer_build_sha256": "552db533349aa3f33fadeb7bfb3fe41ce6a02f91549788ceef1095ab038e63a1",
-          "core_SIMD_context_receipt_sha256": "2d1efcd44b98062f09d564d8ebbac828d25b9250a441cbfe25c67f053c9bebd3"
+    "scope": "current fixed shipping residual-vector representation; focused v2 and selected restoration only; earlier full-native identities and SIMD forms below are ancestry",
+    "pre_feature_dot_historical_qualification": {
+      "scope": "current fixed-profile shipping structural composition: focused source diagnostics and selected restoration only; older qualification below is ancestry, not equality to the new full native or a new broad core result",
+      "pre_core_historical_qualification": {
+        "C_composition_final_index_sha256": "f3278861a28f37adfb2aead6f7ce2f8558caf261ff77f8f68c70380d996e0641",
+        "producer_build_sha256": "88e1dc9273c7231e33ff2783323b55353937c9a6c795b6727fc3fb31ba208932",
+        "query_receipt_sha256": "3e61db1688d7fa13a737c305a8426f507cc04c716aca6eef5ff7db5137f852b0",
+        "startup_receipt_sha256": "b9d0b24ee27aecdd0b9d60f1d1a7340e515972961284c31114b5ddb5994f8f7e",
+        "epoch_receipt_sha256": "e9a72614de8366ddc398d244ffc144f6a506a66a4225159bd151fb3b7096240b",
+        "selected_runtime_receipt_sha256": "a01bbfcdd0e3beb676984cbfb3aeac7071bf742e3774ecc8ad016e809b3788a2",
+        "shipping_policy_sha256": "9ac6fdd907a114d6748268c5777e5ee3fa54a53ce56ae07bd1d7fae37d1202c5",
+        "diagnostic_identity": {
+          "scope": "new DEV source/native generated twice from the exact qualified readable; old DEV identity not reused; no new DEV runtime claim",
+          "source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
+          "native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c"
         },
-        "shipping_alpha": {
-          "policy_sha256": "b3f08ba26b38dbce1e4b63d3eb98ab37f438295cfacff6037b1cfacbf7d5e5a0",
-          "fixed_mappings": 89,
-          "first_cost_sha256": "e0527b2c9c566150791f6095346694961b81dc007fb9f89e1c135755ab81a1d8",
-          "selected_runtime_sha256": "5fbd18434187219b571dfb962058298616d560c671485c32d320a368607df427",
-          "source_freeze_sha256": "436d7cbdc6ad7fa52b73d5b1e9075971b9249f64d8225b775585a4dbd5b0ad80"
+        "predecessor_C5723_ancestry": {
+          "final_evidence_index_sha256": "67d7dce0b1852f7227f62f87c9b9568c9ebbc365274d182a4515e707200f2d11",
+          "producer_build_sha256": "ab45382eaae131897e9cb113f11d984cd7205d2040696941fb019d29f3dcac68",
+          "focused_DEV0_state_core_receipt_sha256": "ec77e71a259b9017ef8bd893e5b77e26388ebc396cea55e98144db7546573765",
+          "selected_runtime_receipt_sha256": "9885005c404b06b5403b6f7ea71839446687d99f5458b2fbc425c99246c80cf6",
+          "predecessor_5955": {
+            "maintained_source_receipt_sha256": "6bf1a0b9a8c967618409a763f0531bdbe69f5a225c9d380c805245cba1f9a44c",
+            "portfolio_index_sha256": "71d1a8f86d09364fbe9f1f0a2138b5c87a8361a86b46e6756a182f754c9b9f9d",
+            "producer_build_sha256": "552db533349aa3f33fadeb7bfb3fe41ce6a02f91549788ceef1095ab038e63a1",
+            "core_SIMD_context_receipt_sha256": "2d1efcd44b98062f09d564d8ebbac828d25b9250a441cbfe25c67f053c9bebd3"
+          },
+          "shipping_alpha": {
+            "policy_sha256": "b3f08ba26b38dbce1e4b63d3eb98ab37f438295cfacff6037b1cfacbf7d5e5a0",
+            "fixed_mappings": 89,
+            "first_cost_sha256": "e0527b2c9c566150791f6095346694961b81dc007fb9f89e1c135755ab81a1d8",
+            "selected_runtime_sha256": "5fbd18434187219b571dfb962058298616d560c671485c32d320a368607df427",
+            "source_freeze_sha256": "436d7cbdc6ad7fa52b73d5b1e9075971b9249f64d8225b775585a4dbd5b0ad80"
+          },
+          "scope": "qualified5947 predecessor core/state and SIMD/math proof reused through exact readable/DEV/full-native identity; fixed shipping alpha policy, header-expansion inverse and selected wrapper receipts are separate hash metadata, never regeneration inputs"
         },
-        "scope": "qualified5947 predecessor core/state and SIMD/math proof reused through exact readable/DEV/full-native identity; fixed shipping alpha policy, header-expansion inverse and selected wrapper receipts are separate hash metadata, never regeneration inputs"
+        "scope": "C-specific bounded query/startup/epoch/SIMD and selected-wrapper proof; receipt hashes are metadata, never regeneration inputs; old full-native and DEV identity are not claimed",
+        "private_static_locals_and_codec": {
+          "scope": "historical qualification metadata only; no report, experiment or AST runtime dependency; no previous full-native identity claim",
+          "source_freeze_sha256": "a5aafc2537b38319da1a0f829d9b3ec1fe994dc64713ff798bcc8e0cfbfd380f",
+          "summary_sha256": "f2282baf0f54f7c98c517fd9b7c67e3643ceb2ba1a006448e8fd89de30dbf730",
+          "static_native_observation_sha256": "56a5159fa430e8e19a5ba024ccf8e4bf4de51d59cb904b4edeb63fb79208aaaa",
+          "combined_native_gate_sha256": "6347ebba4845b73d28155ac7b8d0df447d37c21ece9a8d1b87feede5189336f6",
+          "combined_strict_bootstrap_sha256": "b1f02215d0eb381e7d30602c279348bda29b725ee1f092daa4d5e17ea8ded26d",
+          "combined_codec_sha256": "2024bcef7ddef6dc24a5f67a5cf8260c12d9600e2f595ecb8ecb89a4fe22f4d0",
+          "previous_maintained_expected": {
+            "readable_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
+            "source_bytes": 12224,
+            "source_sha256": "20f06b6ed9ada03db6f8719f05ecdf9cb52802ab0a1acc8999627999db899046",
+            "native_bytes": 26424,
+            "native_sha256": "cc67f03a58f350a1bd0ab1f07e774c13cf8f6b628b469107834da6f505f7cf00",
+            "whole_bytes": 5687,
+            "whole_sha256": "0fc91619c63cd0fe163abc4825cc7badff3e8b19e4e88ad67cfec165223ab575",
+            "bootstrap_sha256": "f3f9ab2ce26f317d4c6e9d6c2ba7527fea88671297341a3cda008e613ca78047",
+            "dev_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
+            "dev_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c"
+          },
+          "full_native_equal_to_previous_maintained": false,
+          "image_class": {
+            "all_program_headers_equal": true,
+            "all_allocated_sections_equal_except_GNU_build_ID_descriptor": true,
+            "other_changed_loaded_bytes": "ELF header e_shoff low byte at offset 40",
+            "nonallocated_changes": "symtab/strtab and section table/offset/padding metadata; symbol fields other than mapped names unchanged",
+            "dynamic_symbols_strings_relocations_equal": true,
+            "locals_full_native_equal_to_static_only": true
+          }
+        }
       },
-      "scope": "C-specific bounded query/startup/epoch/SIMD and selected-wrapper proof; receipt hashes are metadata, never regeneration inputs; old full-native and DEV identity are not claimed",
-      "private_static_locals_and_codec": {
-        "scope": "historical qualification metadata only; no report, experiment or AST runtime dependency; no previous full-native identity claim",
-        "source_freeze_sha256": "a5aafc2537b38319da1a0f829d9b3ec1fe994dc64713ff798bcc8e0cfbfd380f",
-        "summary_sha256": "f2282baf0f54f7c98c517fd9b7c67e3643ceb2ba1a006448e8fd89de30dbf730",
-        "static_native_observation_sha256": "56a5159fa430e8e19a5ba024ccf8e4bf4de51d59cb904b4edeb63fb79208aaaa",
-        "combined_native_gate_sha256": "6347ebba4845b73d28155ac7b8d0df447d37c21ece9a8d1b87feede5189336f6",
-        "combined_strict_bootstrap_sha256": "b1f02215d0eb381e7d30602c279348bda29b725ee1f092daa4d5e17ea8ded26d",
-        "combined_codec_sha256": "2024bcef7ddef6dc24a5f67a5cf8260c12d9600e2f595ecb8ecb89a4fe22f4d0",
+      "shipping_core_composition": {
+        "scope": "exact current-profile shipping-only structural change; focused fixtures and separate selected restoration; no old full-native equality or generic core acceptance",
+        "FINAL5_source_index_sha256": "b4652773ff0cee6c6e1160d42cabaade80c58866b28203a71c8b182651a8e88d",
+        "cost_receipt_sha256": "69b2553811f983744e9a0a33e5e9590076a983c472ffa5c4db4358844879d689",
+        "focused_fixture_summary_sha256": "9f5097a92aa42b320eaedf935cbce83ca93f69a08b76ed37a14b2a59f1a8a27d",
+        "focused_fixture_result_sha256": "b5023892b060fb569c9d10f81d9d6a580433a563206865fbd918ef628a3f0587",
+        "selected_wrapper_index_sha256": "745de7947f5ff7cbb25ac6df7fbd38d23adff481e687dec39daa58425fc4fb29",
+        "focused_qualification_index_sha256": "fb155e0c5f1709c0f2806524e3e33cf2790e83b99265ad09ab33926bea59fe2c",
         "previous_maintained_expected": {
           "readable_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
-          "source_bytes": 12224,
-          "source_sha256": "20f06b6ed9ada03db6f8719f05ecdf9cb52802ab0a1acc8999627999db899046",
-          "native_bytes": 26424,
-          "native_sha256": "cc67f03a58f350a1bd0ab1f07e774c13cf8f6b628b469107834da6f505f7cf00",
-          "whole_bytes": 5687,
-          "whole_sha256": "0fc91619c63cd0fe163abc4825cc7badff3e8b19e4e88ad67cfec165223ab575",
-          "bootstrap_sha256": "f3f9ab2ce26f317d4c6e9d6c2ba7527fea88671297341a3cda008e613ca78047",
+          "source_bytes": 11455,
+          "source_sha256": "f70cd11e8cdd1a3d2503255189e80ca9070cf310777d2ff8a89ec9beff732f82",
+          "native_bytes": 26384,
+          "native_sha256": "6c1f83b9921561d605eff90032d4ebb300cde46bc9166e361d6b55c22dc1af09",
+          "whole_bytes": 5395,
+          "whole_sha256": "206a9f1cb116040eb322397a15713defc094f3e567008983ea68101f433feaf4",
+          "bootstrap_sha256": "a02f4b0e2441217d3591e5ee5a80ad7c53275c72311bdf6398bd80dc740703e9",
           "dev_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
           "dev_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c"
         },
         "full_native_equal_to_previous_maintained": false,
-        "image_class": {
-          "all_program_headers_equal": true,
-          "all_allocated_sections_equal_except_GNU_build_ID_descriptor": true,
-          "other_changed_loaded_bytes": "ELF header e_shoff low byte at offset 40",
-          "nonallocated_changes": "symtab/strtab and section table/offset/padding metadata; symbol fields other than mapped names unchanged",
-          "dynamic_symbols_strings_relocations_equal": true,
-          "locals_full_native_equal_to_static_only": true
-        }
+        "metadata_difference_exception": false,
+        "domain": {
+          "workers": 2,
+          "tt_bits": 18,
+          "PLY": 128,
+          "MATE": 30000,
+          "outer_threshold": 29871,
+          "raw_abs_upper": 29120,
+          "normal_side": [
+            -1,
+            1
+          ],
+          "production_TT_store_bound": [
+            1,
+            2,
+            3
+          ],
+          "bound_shift": 41,
+          "TT_depth_comparison": "at least requested",
+          "C_actual_AVX2_preserved": true,
+          "E_inner_clamp_and_21_coefficients_preserved": false,
+          "query_startup_reset_changes_added": false,
+          "DEV_generated": false
+        },
+        "DEV": "actual normal DEV source and full native reproduced twice, exactly equal to previous pins; no DEV runtime claim"
+      },
+      "normal_promotion": {
+        "scope": "direct maintained ordinary builder shipping2+DEV2, unchanged verifier quit+EOF two sessions/eight legal GO; no fresh execution or broad core replay",
+        "producer_build_sha256": "386206b7272d6e7777733cce58c8ea30deb08bc3b1567e6e3d1e070d2dfcac78",
+        "selected_runtime_sha256": "54e774b6c4fd67c07b97f09200493f2b265c9bb39e0d908ef3087525831a6e30",
+        "producing_recipe_sha256": "378112744fe325257b7dd8239e82d980fec03fa75f95a8d614bd985620f0b856",
+        "source_native_whole_bootstrap_repeated": true,
+        "DEV_source_and_full_native_equal_to_previous": true,
+        "fresh_runs": 0,
+        "selected_sessions": 2,
+        "legal_GO_results": 8,
+        "cancellation_causality": "unproven"
       }
     },
-    "shipping_core_composition": {
-      "scope": "exact current-profile shipping-only structural change; focused fixtures and separate selected restoration; no old full-native equality or generic core acceptance",
-      "FINAL5_source_index_sha256": "b4652773ff0cee6c6e1160d42cabaade80c58866b28203a71c8b182651a8e88d",
-      "cost_receipt_sha256": "69b2553811f983744e9a0a33e5e9590076a983c472ffa5c4db4358844879d689",
-      "focused_fixture_summary_sha256": "9f5097a92aa42b320eaedf935cbce83ca93f69a08b76ed37a14b2a59f1a8a27d",
-      "focused_fixture_result_sha256": "b5023892b060fb569c9d10f81d9d6a580433a563206865fbd918ef628a3f0587",
-      "selected_wrapper_index_sha256": "745de7947f5ff7cbb25ac6df7fbd38d23adff481e687dec39daa58425fc4fb29",
-      "focused_qualification_index_sha256": "fb155e0c5f1709c0f2806524e3e33cf2790e83b99265ad09ab33926bea59fe2c",
+    "feature_dot": {
+      "scope": "same scalar HCE with actual YMM signed madd; no speed/strength claim or old full-native equality",
+      "cost_sha256": "e7feb08bd534149794d594b28b6f93d783afa2432a16930d3e25f8251e58baeb",
+      "source_FINAL4_sha256": "a000e3e71bf245520336244e06a8495c757564e00b16bd635999d2940bee0244",
+      "source5_overlay_sha256": "181e42e5e5cdff06e043147bad93664a0d7b7cbc82115ef2e7f7300d09b77c12",
+      "focused_proof_index_sha256": "c23d10677dfea9ea2d0578d9b746724fa3282c78867dd7c4b4a3abff5d2a8962",
+      "fixture_v2_result_sha256": "47567e88e61d660b4f015778c54d47093271e784ba66534a3c85b0ed422a69a9",
+      "selected_wrapper_sha256": "ad108b597a8263a3f860c6054f2764dc5daa47ba5e6b8b63ec06da1bc5dd05d0",
+      "disassembly_sha256": "f12b203c36d4b772c993686494787aa3bcbfffd5570b47f3d95f10f9e80693ad",
       "previous_maintained_expected": {
         "readable_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
-        "source_bytes": 11455,
-        "source_sha256": "f70cd11e8cdd1a3d2503255189e80ca9070cf310777d2ff8a89ec9beff732f82",
-        "native_bytes": 26384,
-        "native_sha256": "6c1f83b9921561d605eff90032d4ebb300cde46bc9166e361d6b55c22dc1af09",
-        "whole_bytes": 5395,
-        "whole_sha256": "206a9f1cb116040eb322397a15713defc094f3e567008983ea68101f433feaf4",
-        "bootstrap_sha256": "a02f4b0e2441217d3591e5ee5a80ad7c53275c72311bdf6398bd80dc740703e9",
+        "source_bytes": 11284,
+        "source_sha256": "68ad43dec85adcfff6e65bba0f457738e33ff545d786d43c3c3a7b53e618f02c",
+        "native_bytes": 26408,
+        "native_sha256": "05e1ffa928e488ed1cbfef7679634e465415326c1ba60e739d3842bb4fc0f766",
+        "whole_bytes": 5344,
+        "whole_sha256": "fd8dd108aceddf70e7adfa5ea02fc1b0ddc713e75bd3d6bb8efed8c6d41ba100",
+        "bootstrap_sha256": "e15844b22df8e83a6920356e0710cfad677633f753034024bddfd5ed662ddef0",
         "dev_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
         "dev_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c"
       },
-      "full_native_equal_to_previous_maintained": false,
-      "metadata_difference_exception": false,
-      "domain": {
-        "workers": 2,
-        "tt_bits": 18,
-        "PLY": 128,
-        "MATE": 30000,
-        "outer_threshold": 29871,
-        "raw_abs_upper": 29120,
-        "normal_side": [
-          -1,
-          1
-        ],
-        "production_TT_store_bound": [
-          1,
-          2,
-          3
-        ],
-        "bound_shift": 41,
-        "TT_depth_comparison": "at least requested",
-        "C_actual_AVX2_preserved": true,
-        "E_inner_clamp_and_21_coefficients_preserved": false,
-        "query_startup_reset_changes_added": false,
-        "DEV_generated": false
+      "metadata_exception": false,
+      "v1_harness_failure": {
+        "scope": "first fixture used canonical half instead of shipping zL, compile rc1, diagnostic0; separate explicit v2 GO changed only3tokens, original failure preserved",
+        "result_sha256": "a8db8af5857f66e59e5ea36f30e4dff4b29c6849c4e32fefe13037b09c0f1688",
+        "v2_fixture_sha256": "88a9ebbac57f3b7ed2387369ba7b42d64d75f238b825f6d45c2abc87ef5b853d"
       },
-      "DEV": "actual normal DEV source and full native reproduced twice, exactly equal to previous pins; no DEV runtime claim"
+      "normal_generation": "actual direct normal shipping2+DEV2 reproduced; existing DEV source and full native matched exactly, DEV runtime not run"
     },
     "normal_promotion": {
-      "scope": "direct maintained ordinary builder shipping2+DEV2, unchanged verifier quit+EOF two sessions/eight legal GO; no fresh execution or broad core replay",
-      "producer_build_sha256": "386206b7272d6e7777733cce58c8ea30deb08bc3b1567e6e3d1e070d2dfcac78",
-      "selected_runtime_sha256": "54e774b6c4fd67c07b97f09200493f2b265c9bb39e0d908ef3087525831a6e30",
-      "producing_recipe_sha256": "378112744fe325257b7dd8239e82d980fec03fa75f95a8d614bd985620f0b856",
-      "source_native_whole_bootstrap_repeated": true,
-      "DEV_source_and_full_native_equal_to_previous": true,
+      "scope": "direct ordinary C21 builder shipping2+DEV2 and unchanged verifier quit+EOF2/eight legal GO; no fresh/archive execution, broad core or performance claim",
+      "producer_build_sha256": "c07ff5af9bceeed62ecaaf3f2fb36d20ca6ec76f4ce5f76ad511ccdfc82124ad",
+      "selected_runtime_sha256": "11d28534dda26349dadeff13a2d606cdd1f7127aada4e5e9bdb3a43d5e187361",
+      "producing_recipe_sha256": "d0f8247dbc2582e2a5b034cd658a742e44c32ffc225ba976d63efe9efd7330d3",
+      "shipping_source_native_whole_bootstrap_repeated": true,
+      "DEV_source_full_native_equal_to_previous": true,
       "fresh_runs": 0,
-      "selected_sessions": 2,
+      "sessions": 2,
       "legal_GO_results": 8,
       "cancellation_causality": "unproven"
     }
@@ -218,9 +263,10 @@
     "origin": "maintained readable C with qualified nullable query/made-child replay, think-owned best reset and pending startup arrival",
     "representation_decisions": "unchanged shared89 mapping and resource literals through one new local exact C source/count domain; B/E shared admissions remain unchanged",
     "stitch_helper": "only fixed strip_dev_counters consumed; actual expected bytes gate every result",
-    "unchanged": "readable canonical/DEV, Board/rules/actual AVX2, compiler/profile/bootstrap template/launcher/codec and all spelling helpers; shipping TT/sort/evaluation source changes are the explicit new local core stage",
+    "unchanged": "readable canonical and DEV gather source/native, Board/rules/put/make/TT/search complement, compiler/profile/bootstrap template/launcher/codec, existing alpha/scope/core helpers; current shipping SIMD representation is the explicit new local stage",
     "static_and_scope_replay": "Two exact physical declaration/reference maps after the existing shipping spelling stages; no runtime AST/name allocation; DEV bypasses all shipping stages.",
     "shipping_codec": "Fixed LZMA1 ALONE 9 extreme/lc2/lp0/pb0/BT4/64MiB dictionary/nice 64 and 77-byte launcher; no container checksum or codec sweep.",
-    "shipping_core": "One fixed family-local post-scope source stage: nonzero production TT data sentinel, consumed selection-prefix omission, inactive outer evaluation clamp; C only side-effect-free zero order omission. Exact 2worker/TT18/PLY128 domain, paired readable/source inverse and complement; canonical/DEV/shared guards unchanged."
+    "shipping_core": "One fixed family-local post-scope source stage: nonzero production TT data sentinel, consumed selection-prefix omission, inactive outer evaluation clamp; C only side-effect-free zero order omission. Exact 2worker/TT18/PLY128 domain, paired readable/source inverse and complement; canonical/DEV/shared guards unchanged.",
+    "shipping_SIMD": "One exact post-core shipping stage: local color-separated six counts+residual+zero per half; actual YMM signed16 madd/i32 reduction returns white HCE. Existing value/capture, Board/put/search and DEV gather path remain unchanged. No external experiment/receipt/AST generation inputs."
   }
 }

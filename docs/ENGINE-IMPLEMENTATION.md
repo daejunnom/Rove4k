@@ -180,7 +180,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | --- | ---: | ---: | --- |
 | A | 4,766 B | 670 B | Order-independent text profile, shared startup/query, bound names and original ALONE |
 | B | 5,546 B | 1,450 B | Incoming-move legal SEE, hybrid attackers/singular, bound names and ALONE |
-| C | 5,344 B | 1,248 B | Real AVX2 evaluation, fixed TT/sort/clamp specialization, bound names and ALONE |
+| C | 5,245 B | 1,149 B | Real AVX2 residual-feature dot, fixed TT/sort/clamp specialization, bound names and ALONE |
 | D scalar / HQ | 6,272 / 6,452 B | 2,176 / 2,356 B | Own context ELF, single-step residual leapers, worker reset and guarded BCJ restoration |
 | E | 5,366 B | 1,270 B | All 21 untrained coefficients, fixed TT/sort/clamp specialization, bound names and ALONE |
 | F | 4,735 B | 639 B | Full-depth MTD(f), shared EP legality, order-independent text profile and fixed ALONE |
@@ -3321,3 +3321,82 @@ That run exercises the preceding selected recipes. CI of the later normal
 promotion is reported separately for its committed SHA in the draft PR. Final resources,
 target hardware/scaling, remaining size gaps and strength validation remain
 open across the complete independent C/Rust portfolio.
+
+## Maintained C residual-vector evaluator
+
+The following C-only checkpoint changes the maintained complete file from
+5,344 to **5,245 bytes**, a measured 99-byte reduction at the same compiler,
+profile, bootstrap and ALONE settings. Shipping C falls from 11,284 to 11,086
+bytes and native ELF from 26,408 to 26,376 bytes. The other five maintained
+families remain at the preceding table values. C is still 1,149 bytes over
+4,096; all six family size gates remain open.
+
+The shipping evaluator replaces the 13x64 table, its constructor and gather
+leaf with sixteen local signed-16 features. Each color contributes six piece
+counts, its own-perspective positional residual and one zero lane. Weights
+are the original material values plus residual weight one, with opposite
+signs for black. Residual is sign(piece)*value(piece,square)-material(kind),
+including the negative king-center coefficient. It is not abs(value).
+Within the admitted sixteen-pieces-per-color domain, residual prefixes are
+bounded by 1,008, counts by 16, and the signed dot/reduction uses 32-bit sums.
+The conservative raw HCE bound remains 29,120.
+
+An actual YMM `vpmaddwd`, extraction and horizontal reduction feed the side
+multiply, search evaluation and QS comparison in the new native. Both vector
+halves carry evaluation data. This is a new full native identity, not a dummy
+SIMD operation or a metadata-only exception. Board/put/make/hash/context,
+capture ordering, TT and search remain outside the changed source fragment.
+Speed, strength and target-stack effects are not measured by this checkpoint.
+
+The fixed new ordinary `shipping_simd.py` runs after the unchanged core stage.
+It owns its readable/shipping literals, exact canonical and post-core inputs,
+paired token roles, positional inverse, untouched complement and final source
+identity. It imports only hashlib/re and consumes no experiment, external
+report, executable or Clang installation. DEV bypasses all shipping stages;
+the original readable source and existing guards remain unchanged.
+
+Focused diagnostic v1 failed compilation because its fixture used canonical
+field `half` on shipping struct `za`. That failure is preserved. Explicit v2
+changes only those three fixture field tokens to the actual `zL`, with exact
+inverse/complement, leaving the candidate and v1 records unchanged. One v2
+compile/run passes 3,399 assertions: 832 piece/square components (not legal
+full-board claims), 39 admitted-shape boards, ten special children and 98
+side/padding probes each. Actual raw SIMD scores match an independent scalar
+formula. Its result is
+`47567e88e61d660b4f015778c54d47093271e784ba66534a3c85b0ed422a69a9`.
+The actual candidate wrapper passes two quit/EOF sessions and eight legal GO;
+receipt `ad108b597a8263a3f860c6054f2764dc5daa47ba5e6b8b63ec06da1bc5dd05d0`.
+
+The normal builder then independently reproduces shipping twice and DEV
+twice. Source/native/whole/bootstrap match the measured candidate, while both
+DEV source/native tuples actually match their preceding full identities.
+The unchanged normal verifier passes two additional actual quit/EOF sessions
+and eight legal GO, observing the new process image, stable startup TIDs,
+unlinked private paths, readers and natural physical exit. No fresh archive
+extraction, extra candidate, game or benchmark is run. Cancellation causality
+remains unproven. The ordinary C closure is now 21 files.
+
+Normal build/runtime receipts are
+`c07ff5af9bceeed62ecaaf3f2fb36d20ca6ec76f4ce5f76ad511ccdfc82124ad` /
+`11d28534dda26349dadeff13a2d606cdd1f7127aada4e5e9bdb3a43d5e187361`;
+combined normal receipt is
+`d36cf1eea2697d24af6bcd33c3c24bd08faf9171028e8f0ee23863dfe1bc8436`.
+New source is
+`90a566c5e814cf87dd38f92f40ce8fe7115c4d4d07f75d9ff0981ffaae1fbc28`,
+native `c32772b3d1bb9ce985bfdecbd31dc4cc5fd06721f03aa6259a4021a4fbb0c788`,
+whole `de57a0a21e8ecb2f958207c3e71bcc7d791448340acc103faaea5f1010433933`.
+Producing sources/recipe and later completion metadata remain separately
+preserved. The frozen experiment records its first-cost stage only.
+
+The preceding normal head `d982717` passes both jobs in
+[C/Rust engine CI](https://github.com/daejunnom/Rove4k/actions/runs/39431496618)
+and [repository lifecycle](https://github.com/daejunnom/Rove4k/actions/runs/39431496637).
+CI for the later C promotion is reported separately against its actual head
+in the draft PR. Those earlier successes do not accept a future source.
+
+A separate source-only A/F review finds that nullable parse can share the
+terminal branch's first-legal-move scan. Its estimated 20-35 compact C bytes
+per family are unmeasured, with no candidate or whole-size saving included.
+The next structural work is prioritized against the complete family gaps;
+the twelve independent cores, final resource profiles, parallel comparisons,
+target hardware/scaling and strength validation remain open.
