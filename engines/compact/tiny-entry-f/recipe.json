@@ -49,7 +49,8 @@
     "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
     "engines/compact/tiny-entry-f/shipping_alpha.py": "74abadbd79735e9f6b30c513b422245bae737f81d4e3bd04a7b8e597e61937e8",
     "engines/compact/tiny-entry-f/shipping_storage.py": "b8d1984c8585b3052f22b4f3713a7fb0a7107a5ad91a2951d91f9a852a36c3df",
-    "engines/compact/tiny-entry-f/shipping_scope.py": "40c88f75ca959f3b55c3a9d038d6ac9944f73d8de4d11e029b05cd4969d91e94"
+    "engines/compact/tiny-entry-f/shipping_scope.py": "40c88f75ca959f3b55c3a9d038d6ac9944f73d8de4d11e029b05cd4969d91e94",
+    "engines/compact/tiny-entry-f/shipping_semantics.py": "48c17a5b4998727189b4f5279ca0e526f6f6cef0fe5ff14e5b0bd13ea2b5112d"
   },
   "resource_literals": [
     [
@@ -223,15 +224,19 @@
   },
   "expected": {
     "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
-    "source_bytes": 9954,
-    "source_sha256": "00239e23500d41c45801cdb19c4e7c8cc8b22cf29bebd7e4fbc8fdd1e08c7916",
+    "source_bytes": 9925,
+    "source_sha256": "3549063cbdca22c83536e0879b5e7baff8c7cbef3b5911f4152850732c86300c",
     "native_bytes": 22672,
-    "native_sha256": "757b9a14cd5174dad55754196cce098fd89018a8b0d7adcf08bcddb2e1fc092b",
-    "whole_bytes": 4814,
-    "whole_sha256": "30240a27c0682519b1d2539c58d153ebaf7dcf4b9d9dde631f985f3c27261285",
-    "dev_source_sha256": "84fbc9b3651494ce0ebabdc25b9a1fa7b3a334fa7394eee2631581682a804b58",
-    "dev_native_sha256": "6eb28892842bef969edff9295aae74b7edd71d61eb39ac01236f2adcd4785340",
-    "bootstrap_sha256": "b43f24051ac613826e630ed211c3fd1528ee2f85638372c62c679254b55c8e32"
+    "native_sha256": "9b4ca00fd54b67c33c01e92389c4f9130751233633faa828b6eb46e3b20890db",
+    "whole_bytes": 4808,
+    "whole_sha256": "93377e104d934d5bde1e8c7a491b54b72d0a7a6e9d40b845f94f86bc0c2f6956",
+    "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
+    "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
+    "bootstrap_sha256": "886ede212e35c83c5f030c18aa662c58fe54a0e62e64ce17fc6f79260dd07f6e",
+    "semantic_readable_bytes": 25720,
+    "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
+    "dev_source_bytes": 19488,
+    "dev_native_bytes": 26984
   },
   "local_input_sha256": {
     "engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
@@ -239,271 +244,340 @@
     "launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
   },
   "qualified_receipt": {
-    "scope": "same qualified F native; exact AST-bound source replay plus measured LZMA1 transport",
-    "source_composition": {
-      "FINAL61_summary_sha256": "eed7014b750abfdd19381be83091ecf7ede32e60973228dc6b548ed87153a4f0",
-      "source_freeze": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-f-source-composition-proof-20261020-evidence/source-freeze.json",
-        "bytes": 10913,
-        "sha256": "01c5f65fc92b03f44025aa0aa44f497333eb202911b9561bc13d7ccc5f39bf1d"
-      },
-      "source_archive": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-f-source-composition-proof-20261020-evidence/source-final.tar",
-        "bytes": 624640,
-        "sha256": "6e1f4614a6bfc13e44acecd2e47332f170fd018f119546c3d473b57dd92c0f88"
-      },
-      "receipts": {
-        "cost": {
-          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-f-source-composition-next-20261020-evidence/first-cost/cost.json",
-          "bytes": 27094,
-          "sha256": "c9b2cbb83662610965b9ccd1ebc3935f73db605ec5853775836d5abd3c219313"
-        },
-        "query": {
-          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-f-source-composition-query-20261020-evidence/executed/results.json",
-          "bytes": 17863,
-          "sha256": "5667f5ff42288da513bdf27b6cfc7a35846ccc1b8871a5d62af886bf23c67d16"
-        },
-        "startup": {
-          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-f-source-composition-harness-20261020-evidence/phase/results.json",
-          "bytes": 39349,
-          "sha256": "7cfdd6489ea3771502cef8ffab72acae5b857494cfd1e647548681c06690a719"
-        },
-        "epoch": {
-          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-f-source-composition-harness-20261020-evidence/epoch/results.json",
-          "bytes": 14203,
-          "sha256": "026a8dc2cff7dea559df06e8e5e43b656c6d49d52468430d665011073bad421c"
-        },
-        "mtd": {
-          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-f-source-composition-proof-20261020-evidence/mtd/results.json",
-          "bytes": 15369,
-          "sha256": "89b904412a091b7c26d793a460e3a7f3e4c52e66b69800b33e181bbf0a237302"
-        },
-        "runtime_outer": {
-          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-f-source-composition-proof-20261020-evidence/runtime/runtime.json",
-          "bytes": 4781,
-          "sha256": "e88aa70a80b473801e5fe2e62e4b73d1fdf83afa0b2a0fa72fd29b4b267b16b3"
-        },
-        "runtime_original_verifier": {
-          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-f-source-composition-proof-20261020-evidence/runtime/fresh/runtime.json",
-          "bytes": 5287,
-          "sha256": "e595137d5aaa03394dd1f1618eb36896fb40167e4cd9b6bd2ec48843e8b4dc49"
-        }
-      },
-      "source_reuse": {
-        "search_prefix_bytes": 15340,
-        "search_prefix_sha256": "c3be7fdf0085a74173525f84d9cbb730304c27c70b20a66c853e4d2b72dd9ce2",
-        "MTD_driver_bytes": 1354,
-        "full_search_prefix_and_driver_after_entry_reset_exact": true,
-        "prior_A_C_fixture_source_only": true,
-        "prior_F_minimax_source_only_fresh_evaluation": true,
-        "prior_runtime_execution_inherited": false,
-        "old_fullnative_identity_claimed": false
-      },
-      "private_differences": [
-        "startup stopped1 before firstGO",
-        "direct think clears caller-preseeded best",
-        "failed parse child output invalid",
-        "nullable fallback performs bounded local text conversion"
-      ],
-      "old_full_native_identity_claimed": false,
-      "spelling_policy_sha256": "749133a23382dbaaf74fdd46e80d3b3c963688430502e14e84d0d63832870a04",
-      "same_alpha_pairs": 73,
-      "same_storage_pairs": 18,
-      "storage_used": 17,
-      "unused_storage_name": "ready",
-      "scope": "fresh F candidate proof executions reused only through exact new readable/source/native/whole identities; PP inverse and raw macro-multiplicity are exact new spelling-stage evidence; no A/C execution reuse"
-    },
-    "new_DEV_binding": {
-      "sha256": "c05ff227901dbb01baa7c7527bd02ab123a4fc312539bc644a9c3da4c7dea04d",
-      "source_bytes": 19513,
-      "source_sha256": "84fbc9b3651494ce0ebabdc25b9a1fa7b3a334fa7394eee2631581682a804b58",
-      "native_bytes": 26984,
-      "native_sha256": "6eb28892842bef969edff9295aae74b7edd71d61eb39ac01236f2adcd4785340",
-      "independent_source_and_compiler_attempts": 2,
-      "old_DEV_identity_claimed": false,
-      "DEV_engine_runs": 0,
-      "scope": "deliberate new exact candidate DEV generation/compilation; separate from shipping source proof and from any DEV engine execution"
-    },
-    "predecessor_F5083": {
+    "scope": "current exact EP semantic pipeline; predecessor records are historical, not executions of this native",
+    "predecessor_F4814": {
       "expected": {
-        "readable_sha256": "dc065b98d99a147f862bd2d4cb0a1349ff79a2da7c1be873d906dff71cc9cd89",
-        "source_bytes": 10745,
-        "source_sha256": "fa03bfe65508b5fd72097940cea869c79744a8d3d2fa3bd09f8cd60b90173dc2",
-        "native_bytes": 22664,
-        "native_sha256": "ef10962ff16e5158e0cb18cbf96b944404bd1c4db301bfbb47a0faed33466c22",
-        "whole_bytes": 5083,
-        "whole_sha256": "c4308bd1173d93a5ae83055ae0dd535264d4fec0c938dc4a78ccc2536e25ff02",
-        "dev_source_sha256": "9528b0e97f71d2d07d60a63956fc19a9156f778b30088b34f62e4eb445260ece",
-        "dev_native_sha256": "bd71ff07625fa9891a4b4ef79c50b5215fa4169f18d83f15d9378fe833872a2d",
-        "bootstrap_sha256": "27140179b5d628d1458cc79936f5c541512ecf6a191b1754a5ce760d3245484d"
+        "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+        "source_bytes": 9954,
+        "source_sha256": "00239e23500d41c45801cdb19c4e7c8cc8b22cf29bebd7e4fbc8fdd1e08c7916",
+        "native_bytes": 22672,
+        "native_sha256": "757b9a14cd5174dad55754196cce098fd89018a8b0d7adcf08bcddb2e1fc092b",
+        "whole_bytes": 4814,
+        "whole_sha256": "30240a27c0682519b1d2539c58d153ebaf7dcf4b9d9dde631f985f3c27261285",
+        "dev_source_sha256": "84fbc9b3651494ce0ebabdc25b9a1fa7b3a334fa7394eee2631581682a804b58",
+        "dev_native_sha256": "6eb28892842bef969edff9295aae74b7edd71d61eb39ac01236f2adcd4785340",
+        "bootstrap_sha256": "b43f24051ac613826e630ed211c3fd1528ee2f85638372c62c679254b55c8e32"
       },
       "qualified_receipt": {
-        "scope": "historical exact-hash beta-only proof and artifact identity reuse; not executed or inferred by this builder",
-        "beta_only_cost": {
-          "historical_path": "/home/stemxstudio/rove4k-tiny-f-zero-first-v2-20261020/cost.json",
-          "sha256": "b951f2e1e1696967a767a3dcee9fd7ae12e1d56cfb6af18f2bff655a456c572a"
-        },
-        "beta_only_core_runtime": {
-          "historical_path": "/home/stemxstudio/rove4k-tiny-f-zero-proof-v2-20261020/proof.json",
-          "sha256": "96678ed411e4fea4fcd0b176fe5cd707f073d49166e541dd9112b3d1bfa49e12",
-          "shipping_window_cases": 51,
-          "comparison_pairs": 5,
-          "actual_mtd_minimax_witness_cases": 12,
-          "original_widewindow_fixtures_reused": false
-        },
-        "candidate_receipt_sha256": "5a2b74d7f7a6408e4d10a8a610f968ac9b42364f70cd684742a2d10c99f40880",
-        "dev_identity_binding": {
-          "historical_path": "/home/stemxstudio/rove4k-tiny-entry-f-zero-promotion-20261020/new-dev/binding.json",
-          "sha256": "f4aec8e5a4d138b74590bc846e1161395046b2f88662bd5eca991e716a9943d7",
-          "scope": "two independent DEV generations/compilations from literal-pinned qualified readable; not a new core proof"
-        },
-        "unchanged_body_identity": {
-          "prefix_sha256": "bf2987fbb88959945d6ab827a0f685bdba6128be377128cbadaf341b16beda3d",
-          "driver_runtime_except_api_call_sha256": "5b4b3a38584391fd345cd80cd34e8cd4369b476d7e920212fd04830e70bdb017",
-          "scope": "board, TT primitive, leaf helpers and runtime body identity only; new beta API uses its own proof"
-        },
-        "predecessor_5479": {
-          "producer_build_sha256": "e38e0bcfc3a2ee5acba0cfd36e4f06520528aa359564604b952c4fda17a08c87",
-          "runtime_and_core": {
-            "minimal_policy_runtime": {
-              "historical_path": "/home/stemxstudio/rove4k-tiny-uci-portfolio-runtime-20261020/results.json",
-              "sha256": "6f26a3c46bff4d9b3dfe531eaac9a43b9a02eff52d5bda1c1bc2ca9624a84b09"
+        "scope": "same qualified F native; exact AST-bound source replay plus measured LZMA1 transport",
+        "source_composition": {
+          "FINAL61_summary_sha256": "eed7014b750abfdd19381be83091ecf7ede32e60973228dc6b548ed87153a4f0",
+          "source_freeze": {
+            "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-f-source-composition-proof-20261020-evidence/source-freeze.json",
+            "bytes": 10913,
+            "sha256": "01c5f65fc92b03f44025aa0aa44f497333eb202911b9561bc13d7ccc5f39bf1d"
+          },
+          "source_archive": {
+            "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-f-source-composition-proof-20261020-evidence/source-final.tar",
+            "bytes": 624640,
+            "sha256": "6e1f4614a6bfc13e44acecd2e47332f170fd018f119546c3d473b57dd92c0f88"
+          },
+          "receipts": {
+            "cost": {
+              "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-f-source-composition-next-20261020-evidence/first-cost/cost.json",
+              "bytes": 27094,
+              "sha256": "c9b2cbb83662610965b9ccd1ebc3935f73db605ec5853775836d5abd3c219313"
             },
-            "minimal_family_core": {
-              "historical_path": "/home/stemxstudio/rove4k-tiny-uci-bf-proof-20261020/F/results.json",
-              "sha256": "6fe9500aa943baab38c119926c696e911d590f952f4d4b8deb694f808e51592f"
+            "query": {
+              "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-f-source-composition-query-20261020-evidence/executed/results.json",
+              "bytes": 17863,
+              "sha256": "5667f5ff42288da513bdf27b6cfc7a35846ccc1b8871a5d62af886bf23c67d16"
+            },
+            "startup": {
+              "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-f-source-composition-harness-20261020-evidence/phase/results.json",
+              "bytes": 39349,
+              "sha256": "7cfdd6489ea3771502cef8ffab72acae5b857494cfd1e647548681c06690a719"
+            },
+            "epoch": {
+              "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-f-source-composition-harness-20261020-evidence/epoch/results.json",
+              "bytes": 14203,
+              "sha256": "026a8dc2cff7dea559df06e8e5e43b656c6d49d52468430d665011073bad421c"
+            },
+            "mtd": {
+              "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-f-source-composition-proof-20261020-evidence/mtd/results.json",
+              "bytes": 15369,
+              "sha256": "89b904412a091b7c26d793a460e3a7f3e4c52e66b69800b33e181bbf0a237302"
+            },
+            "runtime_outer": {
+              "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-f-source-composition-proof-20261020-evidence/runtime/runtime.json",
+              "bytes": 4781,
+              "sha256": "e88aa70a80b473801e5fe2e62e4b73d1fdf83afa0b2a0fa72fd29b4b267b16b3"
+            },
+            "runtime_original_verifier": {
+              "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-f-source-composition-proof-20261020-evidence/runtime/fresh/runtime.json",
+              "bytes": 5287,
+              "sha256": "e595137d5aaa03394dd1f1618eb36896fb40167e4cd9b6bd2ec48843e8b4dc49"
             }
           },
-          "predecessor_reports": {
-            "build": {
-              "path": "/home/stemxstudio/rove4k-tiny-f-structural-20261020/build.json",
-              "sha256": "efd7f328b8839a9d2a1025268c349224f3269bba83f2f11b42afbde3d33518fa"
+          "source_reuse": {
+            "search_prefix_bytes": 15340,
+            "search_prefix_sha256": "c3be7fdf0085a74173525f84d9cbb730304c27c70b20a66c853e4d2b72dd9ce2",
+            "MTD_driver_bytes": 1354,
+            "full_search_prefix_and_driver_after_entry_reset_exact": true,
+            "prior_A_C_fixture_source_only": true,
+            "prior_F_minimax_source_only_fresh_evaluation": true,
+            "prior_runtime_execution_inherited": false,
+            "old_fullnative_identity_claimed": false
+          },
+          "private_differences": [
+            "startup stopped1 before firstGO",
+            "direct think clears caller-preseeded best",
+            "failed parse child output invalid",
+            "nullable fallback performs bounded local text conversion"
+          ],
+          "old_full_native_identity_claimed": false,
+          "spelling_policy_sha256": "749133a23382dbaaf74fdd46e80d3b3c963688430502e14e84d0d63832870a04",
+          "same_alpha_pairs": 73,
+          "same_storage_pairs": 18,
+          "storage_used": 17,
+          "unused_storage_name": "ready",
+          "scope": "fresh F candidate proof executions reused only through exact new readable/source/native/whole identities; PP inverse and raw macro-multiplicity are exact new spelling-stage evidence; no A/C execution reuse"
+        },
+        "new_DEV_binding": {
+          "sha256": "c05ff227901dbb01baa7c7527bd02ab123a4fc312539bc644a9c3da4c7dea04d",
+          "source_bytes": 19513,
+          "source_sha256": "84fbc9b3651494ce0ebabdc25b9a1fa7b3a334fa7394eee2631581682a804b58",
+          "native_bytes": 26984,
+          "native_sha256": "6eb28892842bef969edff9295aae74b7edd71d61eb39ac01236f2adcd4785340",
+          "independent_source_and_compiler_attempts": 2,
+          "old_DEV_identity_claimed": false,
+          "DEV_engine_runs": 0,
+          "scope": "deliberate new exact candidate DEV generation/compilation; separate from shipping source proof and from any DEV engine execution"
+        },
+        "predecessor_F5083": {
+          "expected": {
+            "readable_sha256": "dc065b98d99a147f862bd2d4cb0a1349ff79a2da7c1be873d906dff71cc9cd89",
+            "source_bytes": 10745,
+            "source_sha256": "fa03bfe65508b5fd72097940cea869c79744a8d3d2fa3bd09f8cd60b90173dc2",
+            "native_bytes": 22664,
+            "native_sha256": "ef10962ff16e5158e0cb18cbf96b944404bd1c4db301bfbb47a0faed33466c22",
+            "whole_bytes": 5083,
+            "whole_sha256": "c4308bd1173d93a5ae83055ae0dd535264d4fec0c938dc4a78ccc2536e25ff02",
+            "dev_source_sha256": "9528b0e97f71d2d07d60a63956fc19a9156f778b30088b34f62e4eb445260ece",
+            "dev_native_sha256": "bd71ff07625fa9891a4b4ef79c50b5215fa4169f18d83f15d9378fe833872a2d",
+            "bootstrap_sha256": "27140179b5d628d1458cc79936f5c541512ecf6a191b1754a5ce760d3245484d"
+          },
+          "qualified_receipt": {
+            "scope": "historical exact-hash beta-only proof and artifact identity reuse; not executed or inferred by this builder",
+            "beta_only_cost": {
+              "historical_path": "/home/stemxstudio/rove4k-tiny-f-zero-first-v2-20261020/cost.json",
+              "sha256": "b951f2e1e1696967a767a3dcee9fd7ae12e1d56cfb6af18f2bff655a456c572a"
             },
-            "encoding": {
-              "path": "/home/stemxstudio/rove4k-tiny-f-encoding-v2-20261020/results.json",
-              "sha256": "6dcc89d8d11303181e5fad38e7a5d9187d7c3ca2b6e05e7a57ba7676e2b5cc7d"
+            "beta_only_core_runtime": {
+              "historical_path": "/home/stemxstudio/rove4k-tiny-f-zero-proof-v2-20261020/proof.json",
+              "sha256": "96678ed411e4fea4fcd0b176fe5cd707f073d49166e541dd9112b3d1bfa49e12",
+              "shipping_window_cases": 51,
+              "comparison_pairs": 5,
+              "actual_mtd_minimax_witness_cases": 12,
+              "original_widewindow_fixtures_reused": false
             },
-            "qualification": {
-              "path": "/home/stemxstudio/rove4k-tiny-f-final-proof-v3-20261020/results.json",
-              "sha256": "62b04e0c5eddaf6d1adcf25b18315dfad43437d20efb6fd0d06b37cde600e173"
+            "candidate_receipt_sha256": "5a2b74d7f7a6408e4d10a8a610f968ac9b42364f70cd684742a2d10c99f40880",
+            "dev_identity_binding": {
+              "historical_path": "/home/stemxstudio/rove4k-tiny-entry-f-zero-promotion-20261020/new-dev/binding.json",
+              "sha256": "f4aec8e5a4d138b74590bc846e1161395046b2f88662bd5eca991e716a9943d7",
+              "scope": "two independent DEV generations/compilations from literal-pinned qualified readable; not a new core proof"
+            },
+            "unchanged_body_identity": {
+              "prefix_sha256": "bf2987fbb88959945d6ab827a0f685bdba6128be377128cbadaf341b16beda3d",
+              "driver_runtime_except_api_call_sha256": "5b4b3a38584391fd345cd80cd34e8cd4369b476d7e920212fd04830e70bdb017",
+              "scope": "board, TT primitive, leaf helpers and runtime body identity only; new beta API uses its own proof"
+            },
+            "predecessor_5479": {
+              "producer_build_sha256": "e38e0bcfc3a2ee5acba0cfd36e4f06520528aa359564604b952c4fda17a08c87",
+              "runtime_and_core": {
+                "minimal_policy_runtime": {
+                  "historical_path": "/home/stemxstudio/rove4k-tiny-uci-portfolio-runtime-20261020/results.json",
+                  "sha256": "6f26a3c46bff4d9b3dfe531eaac9a43b9a02eff52d5bda1c1bc2ca9624a84b09"
+                },
+                "minimal_family_core": {
+                  "historical_path": "/home/stemxstudio/rove4k-tiny-uci-bf-proof-20261020/F/results.json",
+                  "sha256": "6fe9500aa943baab38c119926c696e911d590f952f4d4b8deb694f808e51592f"
+                }
+              },
+              "predecessor_reports": {
+                "build": {
+                  "path": "/home/stemxstudio/rove4k-tiny-f-structural-20261020/build.json",
+                  "sha256": "efd7f328b8839a9d2a1025268c349224f3269bba83f2f11b42afbde3d33518fa"
+                },
+                "encoding": {
+                  "path": "/home/stemxstudio/rove4k-tiny-f-encoding-v2-20261020/results.json",
+                  "sha256": "6dcc89d8d11303181e5fad38e7a5d9187d7c3ca2b6e05e7a57ba7676e2b5cc7d"
+                },
+                "qualification": {
+                  "path": "/home/stemxstudio/rove4k-tiny-f-final-proof-v3-20261020/results.json",
+                  "sha256": "62b04e0c5eddaf6d1adcf25b18315dfad43437d20efb6fd0d06b37cde600e173"
+                }
+              },
+              "scope": "historical exact-hash receipts only; not executed or inferred by this builder",
+              "final_portfolio_freeze_sha256": "71d1a8f86d09364fbe9f1f0a2138b5c87a8361a86b46e6756a182f754c9b9f9d",
+              "portfolio_cost_sha256": "f4833f5922dcdddad9abcdbd82f588d1d1e51a5a0e6c63f46b7693fdcbae6455"
+            },
+            "shipping_alpha": {
+              "original_AF_policy_sha256": "4bf1b189e9073aa994c29c07f64bcf05b1b3e749a0a172150cac68c1971d7d92",
+              "fixed_mappings": 73,
+              "mapping_used": 73,
+              "source_edits": 517,
+              "source_saved_bytes": 1506,
+              "resource_edits": 0,
+              "cost_sha256": "c474362b40ad2dba9e4039a7b3505821bb9b896cb40674e495b852db7d4ba6fc",
+              "selected_runtime_sha256": "35035034d8ff8eaff387a57863a9c2ce4e6f7f4178b1ebb75a3c63e388419a9e",
+              "selected_runtime_verifier_sha256": "8c42b1c55df191ed80aa99a1354592a86afc699c304e9b8f0e2a3037e2960647",
+              "scope": "historical F actual2-session runtime, full native identity, original raw header-expansion alias-only inverse and final macro-state equality; metadata only; original A strict-PP failure remains outside admitted F-only policy",
+              "final_AF_index_sha256": "6a955eae59e558c67ca4902ef1e75f18ee3d13a8372ef039105ff9887688e837",
+              "final_AF_source_inventory_sha256": "5c229b58af6104f8b0995648d5da425b86f08604a4d0f534703fba95fde17228"
+            },
+            "shipping_storage": {
+              "scope": "historical exact input/candidate PP inverse, final macro and actual-header freshness; unchanged whole-native/core identity; fresh maintained generation/runtime are separate external receipts, not normal build inputs",
+              "policy_sha256": "e89afbf078f902a4cfc3c0ee8c1fba525966be76e4df14b18f50746c2d40cff3",
+              "fixed_mappings": 18,
+              "input_source_bytes": 11216,
+              "input_source_sha256": "5c4008afe4a0708558eb829c815a7a095c436df92a3a7685e8553e24efedb991",
+              "source_edits": 99,
+              "mapping_used": 18,
+              "source_saved_bytes": 471,
+              "whole_saved_bytes": 96,
+              "storage_FINAL44_index_sha256": "2824e102ceb29316a522982fb8c249c0f8fd8588a2cfa0e4b6b4d5fb9649074c",
+              "cost_sha256": "505932407b3b306c8a9122cf7da11f1200a75a4f39cb821101afffbca095106d",
+              "selected_runtime_sha256": "304b37c55065752cb1c723ad73e9d713f6681c32fc8ad91616a2ac340afc7ea1",
+              "family_selected_runtime_sha256": "9e13940ecbe5a89c6978e535ea69f95aa633c2005ffd42a3f897397bd528510d",
+              "full_native_identity": true,
+              "DEV_not_transformed": true,
+              "other_family_runtime_source_input": false
             }
           },
-          "scope": "historical exact-hash receipts only; not executed or inferred by this builder",
-          "final_portfolio_freeze_sha256": "71d1a8f86d09364fbe9f1f0a2138b5c87a8361a86b46e6756a182f754c9b9f9d",
-          "portfolio_cost_sha256": "f4833f5922dcdddad9abcdbd82f588d1d1e51a5a0e6c63f46b7693fdcbae6455"
+          "old_preserved_raw_source_receipt_sha256": "8aeb99d5c5f4adfcb4194ee3ec2b91882c29d3e312c81a9e19fd460dbfa38893",
+          "old_full_native_identity_with_current_candidate_claimed": false
         },
-        "shipping_alpha": {
-          "original_AF_policy_sha256": "4bf1b189e9073aa994c29c07f64bcf05b1b3e749a0a172150cac68c1971d7d92",
-          "fixed_mappings": 73,
-          "mapping_used": 73,
-          "source_edits": 517,
-          "source_saved_bytes": 1506,
-          "resource_edits": 0,
-          "cost_sha256": "c474362b40ad2dba9e4039a7b3505821bb9b896cb40674e495b852db7d4ba6fc",
-          "selected_runtime_sha256": "35035034d8ff8eaff387a57863a9c2ce4e6f7f4178b1ebb75a3c63e388419a9e",
-          "selected_runtime_verifier_sha256": "8c42b1c55df191ed80aa99a1354592a86afc699c304e9b8f0e2a3037e2960647",
-          "scope": "historical F actual2-session runtime, full native identity, original raw header-expansion alias-only inverse and final macro-state equality; metadata only; original A strict-PP failure remains outside admitted F-only policy",
-          "final_AF_index_sha256": "6a955eae59e558c67ca4902ef1e75f18ee3d13a8372ef039105ff9887688e837",
-          "final_AF_source_inventory_sha256": "5c229b58af6104f8b0995648d5da425b86f08604a4d0f534703fba95fde17228"
+        "scope_names_and_codec": {
+          "previous_F5051_expected": {
+            "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+            "source_bytes": 10477,
+            "source_sha256": "c63a450245ff4ca703a5abe2dc75d840c7c7e936bb2a30a726c30014e3a92e90",
+            "native_bytes": 22672,
+            "native_sha256": "757b9a14cd5174dad55754196cce098fd89018a8b0d7adcf08bcddb2e1fc092b",
+            "whole_bytes": 5051,
+            "whole_sha256": "ad4030ad32af47469ca067e4f10c4b60103eddcc6afdfefd22dedea1269052ce",
+            "dev_source_sha256": "84fbc9b3651494ce0ebabdc25b9a1fa7b3a334fa7394eee2631581682a804b58",
+            "dev_native_sha256": "6eb28892842bef969edff9295aae74b7edd71d61eb39ac01236f2adcd4785340",
+            "bootstrap_sha256": "3a6dc4c7c77c77b48f4b020cda1a4397af22eb2cdea97447bf97d7bae8a29162"
+          },
+          "AST_map_sha256": "bac3ae02d4890b78d33a7e4cfca85b0bd01440e039c192f43a27c84304dfc153",
+          "names_native_receipt_sha256": "c858ab3fb39d3515064b383d3fa93049ef05a145600a97ecc6d741263e3e3f81",
+          "combined_codec_receipt_sha256": "83a25431528e48b503afa4f146b90d1fde9f3fb36c9d2d1dd790926fb0784694",
+          "complete_native_bytes_equal": true,
+          "native_sha256": "757b9a14cd5174dad55754196cce098fd89018a8b0d7adcf08bcddb2e1fc092b",
+          "same_readable_and_DEV": true,
+          "CRC64_removed": true,
+          "normal_producer_and_launcher_validation": {
+            "shipping_and_DEV_repeated": true,
+            "wrapper_sessions": 2,
+            "legal_GO_epochs": 8,
+            "build_sha256": "3802290d2aa8beb3ce464b98ccedea93efeda9afbe430528f4792ff8b3e72ea6",
+            "runtime_sha256": "bd4803e0d6c16cf52086d65ac38b0e72fcf26dfca52ead045832b9bd0a407080",
+            "cancellation_causality": "unproven",
+            "FD012_observed": false
+          }
         },
-        "shipping_storage": {
-          "scope": "historical exact input/candidate PP inverse, final macro and actual-header freshness; unchanged whole-native/core identity; fresh maintained generation/runtime are separate external receipts, not normal build inputs",
-          "policy_sha256": "e89afbf078f902a4cfc3c0ee8c1fba525966be76e4df14b18f50746c2d40cff3",
-          "fixed_mappings": 18,
-          "input_source_bytes": 11216,
-          "input_source_sha256": "5c4008afe4a0708558eb829c815a7a095c436df92a3a7685e8553e24efedb991",
-          "source_edits": 99,
-          "mapping_used": 18,
-          "source_saved_bytes": 471,
-          "whole_saved_bytes": 96,
-          "storage_FINAL44_index_sha256": "2824e102ceb29316a522982fb8c249c0f8fd8588a2cfa0e4b6b4d5fb9649074c",
-          "cost_sha256": "505932407b3b306c8a9122cf7da11f1200a75a4f39cb821101afffbca095106d",
-          "selected_runtime_sha256": "304b37c55065752cb1c723ad73e9d713f6681c32fc8ad91616a2ac340afc7ea1",
-          "family_selected_runtime_sha256": "9e13940ecbe5a89c6978e535ea69f95aa633c2005ffd42a3f897397bd528510d",
-          "full_native_identity": true,
-          "DEV_not_transformed": true,
-          "other_family_runtime_source_input": false
+        "owned_member_names": {
+          "previous_F4839_expected": {
+            "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+            "source_bytes": 10011,
+            "source_sha256": "4e7a2a76ea753ebc3ccbcb4371ea76810c06b193e45b2f6ca70e66bd79112e9a",
+            "native_bytes": 22672,
+            "native_sha256": "757b9a14cd5174dad55754196cce098fd89018a8b0d7adcf08bcddb2e1fc092b",
+            "whole_bytes": 4839,
+            "whole_sha256": "fd77b62b532e4a2272e4c29351cb0ba2ef57c5bab99282177b949e0b8152158a",
+            "dev_source_sha256": "84fbc9b3651494ce0ebabdc25b9a1fa7b3a334fa7394eee2631581682a804b58",
+            "dev_native_sha256": "6eb28892842bef969edff9295aae74b7edd71d61eb39ac01236f2adcd4785340",
+            "bootstrap_sha256": "661d404fa9388b07820de6b24ae4a55a8087fd739ab4e8082c04ccf73aa4ee02"
+          },
+          "source_proof_sha256": "cf87b30109b2ce58fe461f3c4ed22e42b67851dc52f5e132b9f733e9f6c37317",
+          "source_index_sha256": "3fcd170ac629e0d0bad87e2d93cdf430f2a1c67b0ada331be6fddb54cdf32949",
+          "input_policy_sha256": "98c38def96bd2b505922b22d26b9dacef30def36cb73d0fd1b63051a34a8afed",
+          "independent_source_review_sha256": "e3abf589fde49e643db41695928030ebd8a3c9f59d56d4570cc32e56c8a168d5",
+          "cost_receipt_sha256": "2b2eb28b291d10f913e00d78d9eff398608f80fa66785ae6ee3eec08ce43873a",
+          "owned_fields": 13,
+          "physical_edits": 57,
+          "source_saved_bytes": 57,
+          "whole_saved_bytes": 25,
+          "full_native_bytes_equal": true,
+          "native_metadata_exception": false,
+          "same_readable_DEV_bootstrap_flags_resources_launcher_codec": true,
+          "original_98_declaration_451_position_scope_map_unchanged": true,
+          "normal_build_requires_AST_experiment_or_external_receipt": false,
+          "normal_producer_and_launcher_validation": {
+            "shipping_and_DEV_repeated": true,
+            "wrapper_sessions": 2,
+            "legal_GO_epochs": 8,
+            "build_sha256": "522f9c565914bf1fda1cd74cbb7e5133c6e74bdf90198fa4f26d1dbff222e26f",
+            "runtime_sha256": "acbde1bf6f0438cb0f16502d1b4a9cc28951d9309333e4e28845841c4eea1e12",
+            "cancellation_causality": "unproven",
+            "FD012_observed": false
+          }
         }
-      },
-      "old_preserved_raw_source_receipt_sha256": "8aeb99d5c5f4adfcb4194ee3ec2b91882c29d3e312c81a9e19fd460dbfa38893",
-      "old_full_native_identity_with_current_candidate_claimed": false
-    },
-    "scope_names_and_codec": {
-      "previous_F5051_expected": {
-        "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
-        "source_bytes": 10477,
-        "source_sha256": "c63a450245ff4ca703a5abe2dc75d840c7c7e936bb2a30a726c30014e3a92e90",
-        "native_bytes": 22672,
-        "native_sha256": "757b9a14cd5174dad55754196cce098fd89018a8b0d7adcf08bcddb2e1fc092b",
-        "whole_bytes": 5051,
-        "whole_sha256": "ad4030ad32af47469ca067e4f10c4b60103eddcc6afdfefd22dedea1269052ce",
-        "dev_source_sha256": "84fbc9b3651494ce0ebabdc25b9a1fa7b3a334fa7394eee2631581682a804b58",
-        "dev_native_sha256": "6eb28892842bef969edff9295aae74b7edd71d61eb39ac01236f2adcd4785340",
-        "bootstrap_sha256": "3a6dc4c7c77c77b48f4b020cda1a4397af22eb2cdea97447bf97d7bae8a29162"
-      },
-      "AST_map_sha256": "bac3ae02d4890b78d33a7e4cfca85b0bd01440e039c192f43a27c84304dfc153",
-      "names_native_receipt_sha256": "c858ab3fb39d3515064b383d3fa93049ef05a145600a97ecc6d741263e3e3f81",
-      "combined_codec_receipt_sha256": "83a25431528e48b503afa4f146b90d1fde9f3fb36c9d2d1dd790926fb0784694",
-      "complete_native_bytes_equal": true,
-      "native_sha256": "757b9a14cd5174dad55754196cce098fd89018a8b0d7adcf08bcddb2e1fc092b",
-      "same_readable_and_DEV": true,
-      "CRC64_removed": true,
-      "normal_producer_and_launcher_validation": {
-        "shipping_and_DEV_repeated": true,
-        "wrapper_sessions": 2,
-        "legal_GO_epochs": 8,
-        "build_sha256": "3802290d2aa8beb3ce464b98ccedea93efeda9afbe430528f4792ff8b3e72ea6",
-        "runtime_sha256": "bd4803e0d6c16cf52086d65ac38b0e72fcf26dfca52ead045832b9bd0a407080",
-        "cancellation_causality": "unproven",
-        "FD012_observed": false
       }
     },
-    "owned_member_names": {
-      "previous_F4839_expected": {
-        "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
-        "source_bytes": 10011,
-        "source_sha256": "4e7a2a76ea753ebc3ccbcb4371ea76810c06b193e45b2f6ca70e66bd79112e9a",
-        "native_bytes": 22672,
-        "native_sha256": "757b9a14cd5174dad55754196cce098fd89018a8b0d7adcf08bcddb2e1fc092b",
-        "whole_bytes": 4839,
-        "whole_sha256": "fd77b62b532e4a2272e4c29351cb0ba2ef57c5bab99282177b949e0b8152158a",
-        "dev_source_sha256": "84fbc9b3651494ce0ebabdc25b9a1fa7b3a334fa7394eee2631581682a804b58",
-        "dev_native_sha256": "6eb28892842bef969edff9295aae74b7edd71d61eb39ac01236f2adcd4785340",
-        "bootstrap_sha256": "661d404fa9388b07820de6b24ae4a55a8087fd739ab4e8082c04ccf73aa4ee02"
-      },
-      "source_proof_sha256": "cf87b30109b2ce58fe461f3c4ed22e42b67851dc52f5e132b9f733e9f6c37317",
-      "source_index_sha256": "3fcd170ac629e0d0bad87e2d93cdf430f2a1c67b0ada331be6fddb54cdf32949",
-      "input_policy_sha256": "98c38def96bd2b505922b22d26b9dacef30def36cb73d0fd1b63051a34a8afed",
-      "independent_source_review_sha256": "e3abf589fde49e643db41695928030ebd8a3c9f59d56d4570cc32e56c8a168d5",
-      "cost_receipt_sha256": "2b2eb28b291d10f913e00d78d9eff398608f80fa66785ae6ee3eec08ce43873a",
-      "owned_fields": 13,
-      "physical_edits": 57,
-      "source_saved_bytes": 57,
-      "whole_saved_bytes": 25,
-      "full_native_bytes_equal": true,
-      "native_metadata_exception": false,
-      "same_readable_DEV_bootstrap_flags_resources_launcher_codec": true,
-      "original_98_declaration_451_position_scope_map_unchanged": true,
-      "normal_build_requires_AST_experiment_or_external_receipt": false,
-      "normal_producer_and_launcher_validation": {
-        "shipping_and_DEV_repeated": true,
-        "wrapper_sessions": 2,
+    "ep_semantics": {
+      "canonical_base_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+      "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
+      "shipping_input_sha256": "00239e23500d41c45801cdb19c4e7c8cc8b22cf29bebd7e4fbc8fdd1e08c7916",
+      "shipping_output_sha256": "3549063cbdca22c83536e0879b5e7baff8c7cbef3b5911f4152850732c86300c",
+      "fixed_alias_role_projection": true,
+      "exact_raw_inverse_and_complement": true,
+      "original_engine_and_spelling_guards_unchanged": true,
+      "old_full_native_identity": false,
+      "cost_FINAL5_summary_sha256": "0141dd51552da3e3e2ba534c375feb21071ddca534635e17f1d9f665e3201b0b",
+      "actual_cost_sha256": "c59a93ae67cce82b0accac9d743099d663b264d4c1af49402f01afc7a5d816cb",
+      "focused_summary_sha256": "da0795a44ab18a89104d188dd9b4ca877b7dc5239334da9bb0640f154b81799f",
+      "focused_proof_sha256": "d55a0bd657ce15caec370b68738b341168bfef8004972bea273e47b571437cda",
+      "focused_functional_sha256": "91800649818aa1523a89848c35de165be69fc0b207c48ff5a7dc51a4a3edb623",
+      "focused_actual_runtime_sha256": "53f620c73bec830835374c5662373b4492dabb695497782ad80aeaff0695b745",
+      "focused_scope": "one DEV1/O2 fixture; 16 EP roots, 106 full child states, 3 replays; exact measured wrapper quit/EOF two sessions",
+      "recursion_and_nonpublication": "static admitted EP15/17 leaves trial e=-1; extra make only; trial h/r discarded",
+      "stack_review_sha256": "a398acb593e7b2f855b1a901b7519b748257e1a3e0b5a4e9869870e2f1bdeaa9",
+      "local_EP_CFA_delta_bytes": 256,
+      "whole_stack_acceptance_claim": false,
+      "normal_validation": {
+        "build_sha256": "0fc04401edd284fe072f2ff43d1c2489713944b1b44a06345f3e91d77e676777",
+        "runtime_sha256": "49e6a6ed062667ca94fdc338ab6a73a2f3fb71a14cd71cb46328eda6c5c2a18d",
+        "producing_recipe_sha256": "17e115ff58f47744f98050dfb9488d50912d5c9e1457139c7bb9233735109cbf",
+        "shipping_attempts": 2,
+        "DEV_attempts": 2,
+        "selected_wrapper_sessions": 2,
         "legal_GO_epochs": 8,
-        "build_sha256": "522f9c565914bf1fda1cd74cbb7e5133c6e74bdf90198fa4f26d1dbff222e26f",
-        "runtime_sha256": "acbde1bf6f0438cb0f16502d1b4a9cc28951d9309333e4e28845841c4eea1e12",
+        "normal_ordinary_source_count": 19,
+        "scope": "two normal shipping and DEV generations/compilations; actual selected quit/EOF restoration and physical exit verification",
+        "new_DEV_engine_executions": 0,
+        "fresh_archive_extractions": 0,
         "cancellation_causality": "unproven",
-        "FD012_observed": false
+        "terminal_outer_commands": 3,
+        "all_outer_returncodes_zero_and_groups_absent": true,
+        "metadata_only_after_execution": true
+      },
+      "normal_generation_reads_evidence_or_experiments": false,
+      "DEV_preparation": {
+        "binding_sha256": "cf0b6542080770680d049dcb59e6f87d2c3e05ff4e3cd0806bd3d9705a7222d4",
+        "scope": "one deliberate new semantic readable preprocess/compact/DEV stdin compile; no engine execution",
+        "source_bytes": 19488,
+        "source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
+        "native_bytes": 26984,
+        "native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
+        "previous_DEV_identity_reused": false
       }
     }
   },
   "provenance": {
-    "origin": "maintained readable sole F query/reset/startup composition after F5083; original full-depth beta-only MTD core prefix and driver after entry reset preserved",
+    "origin": "unchanged readable canonical base plus ordinary shipping_semantics.py define the F EP pipeline",
     "readable_has_structural_decisions": true,
-    "no_structural_transform_at_build": true,
+    "no_structural_transform_at_build": false,
     "counter_removal": "owned build.py strict beta-only schema: definition1, conditional3, unconditional9, shipping pvs0; no shared overlay consumed",
-    "encoding": "same fixed resources2/18/128 with occurrence admission6/3/8, same34functionspellings, local same73alpha andlocal same18storage in separate exactnewdomain; no structural transform at normal build, no spelling/compiler/codec search",
+    "encoding": "same fixed resources/functions/alpha/storage/scope/member guards and codec; separate exact EP semantic stage, no search",
     "expected_pin_policy": "literal reviewed identities only; mismatch fails, no automatic refresh",
-    "shipping_storage": "F-only ordinary local shipping_storage.py copies exact generic lexer/opaque/rewrite functions and original592wordreservationunion; replaces unchanged sharedstorage helper input, new exact749domain; no otherfamily/report/experiment/generated inputs"
+    "shipping_storage": "F-only ordinary local shipping_storage.py copies exact generic lexer/opaque/rewrite functions and original592wordreservationunion; replaces unchanged sharedstorage helper input, new exact749domain; no otherfamily/report/experiment/generated inputs",
+    "structural_transform_at_build": "one exact EP boolean trial reuse; DEV before specialize, shipping after unchanged members",
+    "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
+    "current_DEV_identity_status": "explicit new semantic DEV source/native prepared once, then reproduced in both normal attempts; literal pins never auto-refresh; no DEV engine execution",
+    "normal_experiment_or_external_input": false
   },
   "counter_schema": {
     "noop_definitions": 1,

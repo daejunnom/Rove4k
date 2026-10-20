@@ -1,231 +1,152 @@
 # Maintained selected C D context own-ELF entry
 
-The readable native program is in `native/`. The project-owned restoring
-loader, independent integer decoder and build-time encoder are in `loader/`.
-`recipe.json` pins their source, compiler/linker order, resources, finite public
-policy, exact native mapping classes and full native/whole/audit identities.
-Generated images, packets and reports belong outside this source folder.
+`native/` contains the readable raw-syscall chess engine. `loader/` contains
+the project-owned guarded restorer, independent integer context decoder and
+standard-library Python encoder. `recipe.json` pins ordinary source bytes,
+compiler/linker order, resources, finite public policy and exact
+native/payload/whole/audit identities. Generated files belong outside Git.
 
-This integration replaces the previous fixed-Huffman codec with one fixed
-H24/base10 context format. All eight native files, both linker scripts,
-resources and compiler/linker flags retain their exact bytes. The normal
-producer reads only maintained ordinary source and the installed compiler and
-Python standard library. Upstream source/programs, historical packets, images,
-experiments and report paths are not normal inputs. The root MIT license applies.
+The selected integration moves each job's best reset into its worker and
+replaces inverse-BCJ four-byte gather/scatter with fixed-size builtin copies.
+All seven other native sources, the encoder/decoder/model, both linker scripts,
+resources and compiler/linker flags are unchanged. The normal producer reads
+only maintained ordinary source, the installed compiler and Python standard
+library; experiments, reports, historical native files and packets are not
+normal build dependencies. The root MIT license applies.
 
 | Fixed form | Native ELF | Complete own-ELF | Complete SHA-256 |
 | --- | ---: | ---: | --- |
-| Scalar | 8,092 B | **6,401 B** | `7e8f405c40ae5a64f3420f23d77a179d4154e5b9bd9e9c67aea1c83a18d238da` |
-| HQ | 8,480 B | **6,614 B** | `be6a45a21895b204550cc0ae7a9a73928d6f4df1313757bad68db4dd97c4f358` |
+| Scalar | 8,060 B | **6,313 B** | `66f70074da2270f1d6aa33beb50c1f34038b4bc36e4272d748c1720935fb4a9a` |
+| HQ | 8,448 B | **6,506 B** | `7ba4858dcf40c837d107f865e14b82d19ede40570059dcff1ca4bd3012ff7234` |
 
-Both exceed 4,096 bytes by 2,305/2,518 bytes. Native identities and costs remain
-unchanged. The complete files save 1,056/1,093 B against the preserved
-7,457/7,707 B controls; these are measured whole-file differences. This folder
-makes no event eligibility, playing-strength, throughput or scaling claim.
-The old maintained18, archive and all six native/whole/audit controls were
-verified against their external preservation before integration.
+Both exceed 4,096 bytes by 2,217/2,410 bytes. The complete files save88/108B
+against the preserved6,401/6,614B context controls. This is an actual combined
+whole-file comparison, not a sum of predicted source or text savings. No
+event eligibility, playing-strength, throughput or scaling result is claimed.
 
-## Qualified source reproduction
+## Two bounded source changes
 
-The initial normal-source discovery reproduced both full shipping SHA values
-and measured the two new CHECKPOINT identities without target execution. After
-independent frozen-source review and explicit literal admission, **one unchanged
-fresh invocation completed with two independent closed source extractions**.
-Actual source/archive, repeated native/whole/audit files, eight shipping sessions
-and four positive pre-entry audits passed. All compiler commands and target
-sessions returned zero; no forced cleanup or retry was needed.
+Runtime source15027B SHA
+`51902e800066562f7dbc5d240db57a6635b20c74ed8fede3a4cd71329fc62a38`
+differs in exactly two fragments: remove go's all-worker reset loop, then set
+`w->best=0` after accepted epoch/seen checks immediately before unchanged
+think. Think already resets nodes/depth/score. Direct think callers retain
+their seeded-best API because think itself is unchanged.
 
-The producing source21 set is
-`f32b345cdc1f5b031130dcfe8ca52a5778f310a132af772e7d2208e6390be5e0`,
-recipe SHA `76af9740e012235c48d4abd6880ef91c2a49c101a6300d9df5611bcae5dbb341`,
-and ordinary source23 archive SHA
-`4a05643884df255f56e16e50da70c10cb9536b3af1ff7b316a7bf30be924e09f`.
-The actual fresh receipt is
-`3e8ab7c220c5ed26da56dde77fa5b086d4f5f8165518181a10b7676f7611e35b`,
-readback `26ced4a9aa2bdec75f1f16c7018401eec289d0b44b33eda95d59b86c2a098776`,
-and independent source/literal review
-`a8acbd25821eb5552671b4f02a3d4dc2be0720601446b4b5c4e9ee6ce7d8e19d`.
+Each worker initializes before its completion decrement. The last worker's
+acq_rel pending transition2→1 acquires the earlier worker's field publication;
+pending1 reserves output. Only output completion then release0/main acquire0
+allows another position or GO to reuse storage. Shutdown/quitting, partial
+startup failure bypass, guarded stacks and kernel-CLEARTID joins are unchanged.
+The runtime is new code, not an object-identical spelling substitution.
 
-Only this README and recipe qualification metadata were updated after that
-producing closure. The actual producing recipe/source/archive remain separately
-frozen; these final explanatory bytes were not the inputs of a second fresh run.
-Native, loader, encoder/model, scripts, flags and expected identities are exact
-between the producing closure and final metadata snapshot. The normal producer
-has no dependency on frozen experiments or receipts. Old decoder audits remain
-historical ancestry; the new context path has its own actual pre-entry results.
+Loader source2997B SHA
+`ea574f09aefc0f910a64c683c7052482d3b2e0c52a10f09450233b155674a85c`
+changes only little-endian u32 gather/scatter to `__builtin_memcpy` of
+`sizeof value`. Fixed x86-64 codegen review observed exact four-byte inline
+memory access, no helper, the same modulo32 correction/opcode/skip/bounds,
+and unchanged surrounding syscall/error boundaries. Compiler output and
+full-file SHA gates retain that fixed-target contract.
 
-## Fixed finite shipping policy and native core
+The worker-reset actual receipt
+`bb01f2daf8960b73a2cb81b51776249d0ac25b5aca98c1d1f2754953d4894476`
+and independent readback
+`3c41877ef872e84fa03c30ccfd05866f5904ac190ce2058eeef6a7733a8e79b8`
+cover six shipping sessions/16 GO of this native with the previous loader.
+Four production sessions covered repeated roots and active quit/EOF. Two
+publication sessions observed actual pending1/main futex/blocked worker write,
+then ordered legal results and pending0/natural exit. Three zero-clock GO and
+one bare GO were used; bare GO was followed by a position fence. These do not
+observe private zero-iteration state, first-node deadline causality, natural
+default-budget expiry or general race freedom. They qualify new-native
+post-entry ownership, not this new BCJ loader's restoration.
 
-Shipping implements `uci`, `isready`, startpos move histories, clocked `go`,
-`quit` and EOF. `uci` emits `uciok` without optional identification or options.
-`stop` and `ucinewgame` are consumed without cancellation or TT clear.
-`infinite` is consumed as an unsupported token; every GO is finite. Without an
-own-side clock, its search budget is 1,000 ms. A present zero/invalid own clock
-uses at least 1 ms under the unchanged formula. Opposite clock alone uses the
-default. Checked numbers, overflow and missing-value reprocessing are unchanged.
-These choices follow the project's minimum TCEC 4k policy, not general TCEC UCI.
+## Closed reproduction and current qualification stage
 
-The default is a search budget, **not a hard wall-time cap**. Periodic deadline
-checks, fallback preparation, scheduling and output add time. Next `go`,
-`position`, `quit` and EOF still request cancellation and acquire `pending==0`
-after result output before reusing job storage. Pending 1 reserves publication.
-Ignoring stop and retaining TT can affect choices under time limits even when
-search source is unchanged.
+Old ordinary21/archive and20 actual native/whole/audit outputs were preserved
+before integration. New CHECKPOINT1 images were built externally for literal
+identity discovery only, with no audit/engine execution. Their fixed identities
+are scalar6336B/93df62352f49aee0d01e4022c6a7acc773593255dfa252c28a200d3e521df905 and
+HQ6529B/9bf7165d3840488c9cdd674caa2e7cb2379c6d6eed917005cd8ce2d48129a8fd. They are separate from shipping images and
+from all historical old-decoder/context audit identities.
 
-Resources are fixed at WORKERS=2, TT_BITS=18, PLY=128 and DEV=0. Two search
-workers and the input thread persist from startup. Board legality, legal EP,
-all promotions and castles, repetition/halfmove context, incremental HCE,
-PVS/QS, history/continuation/correction and full-key coherent TT remain exact.
-HQ is an actual search backend. No core feature or legality boundary is removed.
-DEV source paths remain present but this closure builds DEV=0 only; it does
-not establish a new DEV identity, equality or general race qualification.
+One unchanged normal fresh invocation completed with two independent closed
+source extractions. Local21 plus oracle/LICENSE make23 ordinary archive members.
+Both extractions reproduced actual native/payload/whole/audit bytes exactly:
+8 native,8 shipping-loader and4 audit-loader compiler commands plus4 metadata
+commands succeeded. The unchanged verifier passed8 shipping sessions/24GO and
+4 positive pre-entry sessions, including exact restored native RX/padding,
+initial BSS/padding zero, guards, NX, resume and natural reader/process cleanup.
+There was no target forced cleanup or retry. Compiler commands returned zero;
+compiler descendant/group absence was not separately observed by the unchanged
+builder. Exact input native and restored RX identities remain distinct from
+`/proc/PID/exe`, which names the own-loader ELF.
 
-Before clone, main runtime-stores WORKERS into zero-initialized pending. Worker
-arrivals release-decrement it; successful startup waits for zero. GO stores
-WORKERS+1 before epoch release. Each finished worker acq_rel-decrements once;
-old==2 selects the final worker. It writes the result while pending is 1, then
-release-stores zero. Main's acquire-zero condition gates replacement and normal
-shutdown. The exact runtime complement retains epoch/quitting, partial-clone
-failure bypass before the startup wait and created-only kernel CLEARTID joins.
-Main returns after joins and start.S calls exit_group; there is no explicit
-stack/TT munmap claim. These unchanged source contracts retain their separately
-scoped ancestry, not a new startup-fault or universal concurrency proof.
-
-## Fixed context format and restore boundary
-
-`loader/codec.py` is the independent encoder, with its exact sibling
-`range_bits.py` and `models.json`. The builder validates and copies every
-loader source/model hash before importing the codec and its helper. Each
-fixed scalar/HQ model has 21 ordered masks/weights. There is no model search,
-training, alternative codec or external build dependency. The encoder applies
-whole-file E8/E9 BCJ internally, including the ELF header, using file offset+5
-and modulo-2^32 operands; callers do not apply a second BCJ.
-
-The packet contains a little-endian u32 coded length `8*N+1`, a u32 weightmask,
-21 mask bytes, integer arithmetic-coded body and **four actual zero tail
-bytes**. H24 selects a 32 MiB pair-counter table; base probability is 10.
-Software reflected CRC32C uses raw state without initial/final XOR. Local byte
-history, prefix, ordered alias updates and unsigned-byte wrap match the decoder.
-The fixed u32 length supports both native inputs; it does not inherit the
-reference loader's 16-bit HQ length limitation.
-
-| Form | Packet | Header | Arithmetic body | Real zero tail | Other whole bytes |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| Scalar | 5,034 B | 29 B | 5,001 B | 4 B | 1,367 B |
-| HQ | 5,247 B | 29 B | 5,214 B | 4 B | 1,367 B |
-
-The complete file includes actual ELF/PHDR headers, entry, decoder, inverse
-BCJ and packet. Its 1,367 nonpacket bytes are measured, not an old-loader
-estimate. There is no libc, external decoder, compiler, interpreter or helper
-at engine runtime. Encoder build-time RAM is distinct from engine TT resources.
-
-The loader first rejects READ_IMPLIES_EXEC and reserves the exact guard range
-with MAP_FIXED_NOREPLACE. Native output pages become RW for bounded decode.
-A separate kernel-zero anonymous 32 MiB RW context table lives only through
-decode; checked munmap precedes inverse BCJ and native entry. The native pages
-then become RX and separate untouched BSS pages RW. No RWX mapping is requested.
-`decoder.h` is independently written project source; upstream code is not vendored.
-
-| Form | Native entry | RX at `0x400000` | BSS | Upper guard | Reservation |
-| --- | --- | --- | --- | --- | --- |
-| Scalar | `0x401e28` | 2 pages | `0x402000` | `0x42d000` | `0x2f000` |
-| HQ | `0x401f5a` | 3 pages | `0x403000` | `0x42e000` | `0x30000` |
-
-Both have 175,092 B BSS within 43 pages, lower guard `0x3ff000`, NX stack and
-outer loader at `0x10000000`. `packer.admit` retains the exact per-form native
-SHA, header/PHDR, entry and geometry literals. This is no general two/three-page
-or unknown-image permission. Historical experiment guards remain unchanged.
-
-The audit's only conditional branch is immediately before `enter`, after
-successful context-table unmap, inverse BCJ and final RX/BSS protection. It
-sends self SIGSTOP before native initialization or worker creation. CHECKPOINT=0
-removes the branch entirely and must reproduce both selected full shipping SHAs.
-CHECKPOINT=1 is a separately pinned image, not a production entry size. The fresh
-positive observer read restored RX/padding and initial zero BSS, then resumed
-original entry. The separate earlier production receipt does not prove that
-initial state; the four new positive audits do.
-
-| New audit form | Complete bytes | Full SHA-256 |
-| --- | ---: | --- |
-| Scalar CHECKPOINT=1 | 6,424 B | `07f0a624c85bec6a716cf40a738d6a455c555d6ea230528a4c531ae9d084b59f` |
-| HQ CHECKPOINT=1 | 6,637 B | `854595138f823be31da5d189161ed7e7e802ee8f5dc836c7c534949f9dea3a6f` |
-
-Discovery performed two independent own encodes and four loader compiler
-commands: two shipping images plus two audits, each once. Both shipping full
-SHA values remained unchanged. Audits contain 176 B ELF/PHDR headers, 1,214 B
-text and the same exact 5,034/5,247 B packets, without other allocated data or
-padding. Each has one RX segment at `0x10000000`, entry `0x100000b0`, matching
-file/memory size and a separate NX-stack header. The discovery stage itself had
-zero target executions; the subsequent fresh invocation and four positive
-audits are separately bound above. The discovery receipt is `393353335e870d9ef6580e82f1231cf71da0fe4d6c7f1c21586fa8b6d8b2a4b0`.
-
-## Normal source producer and closed verification
-
-On qualified Linux x86-64, including WSL Ubuntu:
+The actual producing source21 set is
+`222aaaf8a893e6c0fbec63039d0958357c780fc8b6d567337aed3eecedf31b11`,
+recipe SHA`74d179d61c96b33777054f5928384c4e30dfbbdf638fef17358aa11fe6450d54`,
+and closed source23 archive
+`f8a86aca8e0632d34f10d9a99d53b9ad6382e76420264853158b1b899ae010c6`.
+Fresh receipt is
+`e4838c7aeed82688983244a1fb91f85c570e35a51433570015f20d4d2aa20c0c`,
+actual readback
+`af3dc55b006c4bc1ad7bd3a09a63b2aeaf6c0f53a58d01edfcb6c2603607194a`,
+and independent frozen source/literal/audit review
+`e602fc2760fb38385db008142e647e6cfd35ad41fa9c012a28ae7a57e097ca52`.
+Only README and recipe qualification metadata changed afterward. The actual
+producing closure remains frozen separately; this final explanatory overlay
+was not run as a second fresh. All producing code, expected image identities,
+flags, profile and source pins remain exact.
 
 ```sh
-python3 -B engines/compact/tiny-entry-d/build.py --out /absolute/new/external-build
-python3 -B engines/compact/tiny-entry-d/fresh.py --out /absolute/new/source-proof
-python3 -B engines/compact/tiny-entry-d/verify.py \
-  --build /absolute/new/external-build/build.json --out /absolute/new/physical-proof
+python3 -I -B engines/compact/tiny-entry-d/build.py --out /absolute/new/build
+python3 -I -B engines/compact/tiny-entry-d/fresh.py --out /absolute/new/fresh
 ```
 
-Only the new external output directory is configurable for the build. Native
-GCC -Oz/-flto flags, five-unit order, linkers and section-metadata stripping
-are fixed. Qualified tools are GCC 13.3.0, binutils 2.42 and Python 3.12.3;
-actual versions are recorded and any environment must reproduce the literal
-bytes. CRLF input is explicitly normalized to LF and lone CR rejected.
-`.gitattributes` retains LF. No zlib or third-party Python package is required.
+Build expects literal source/native/packet/whole/audit hashes and fails on a
+mismatch. It never discovers or accepts a new expected hash automatically.
+Normal admission binds each of two exact native identities to its own exact
+per-form entry/PHDR/RX/BSS/guard/reserve geometry. Historical experiment guards
+remain unchanged; this is not permission for arbitrary two/three-page images.
 
-Each build compiles each native twice, encodes and compiles each shipping whole
-twice, and compiles one separate audit per form. Full native, packet, whole,
-nonpacket and audit identities must match literal recipe values. Fresh enumerates
-**21 local sources plus oracle/LICENSE: 23 ordinary archive members**. It checks
-raw/normalized hashes, member set and safe regular paths, then uses two closed
-extractions with separate isolated Python processes. Actual native/whole/audit
-bytes matched across extractions. Actual full fresh cost was eight native
-builds, eight shipping loader builds, four audit loader builds, four compiler
-metadata commands, eight production sessions and four pre-entry audits.
-Failures preserve incomplete reports and clean only owned process groups.
+## Fixed policy, resources and restoration boundary
 
-The unchanged physical observer distinguishes `/proc/PID/exe` as complete own
-ELF from the restored anonymous native RX. It checks full RX/hash/padding,
-guards/NX/W^X, exact native/layout, startup TIDs, stdio/no children, independently
-legal clocked results and output/reader/process settlement. Its separate
-CHECKPOINT consumer requires initial BSS/padding zero. The metadata policy check
-does not rerun ignored-control/default-budget arithmetic, games or performance.
-No RIE/ptrace mutations or negative decoder fixtures are part of this integration.
+Shipping implements uci/isready, startpos legal move histories, clocked GO,
+quit and EOF. uci emits only uciok; no optional ID/options are shipped. stop and
+ucinewgame are consumed without cancellation/TT clear, and infinite is an
+unsupported consumed token. GO is finite: absent own clock uses1000ms; present
+zero/invalid own clock uses at least1ms under the fixed formula. This is a
+search budget, not a hard wall-time cap. Position/nextGO/quit/EOF request stop
+and wait for pending0 after output before storage reuse. Input replay remains
+transactional. This is the project's minimum TCEC4k policy, not general TCEC UCI.
 
-## Evidence boundaries
+WORKERS2/TT_BITS18/PLY128/DEV0 remain fixed. Two persistent startup workers,
+coherent nonwaiting full-key TT, legal all-four promotions, HCE/PVS/QS,
+history/continuation/correction, draw/halfmove/legal-EP context and PLY abort
+remain in the unchanged board/search/HQ complement. No new DEV equality,
+fault matrix or broad core/game/strength result is claimed for this integration.
 
-The context first-cost index SHA is
-`199e5df9b91cce82ae81f19ab0fa4726bfe92bb5c8525e2c11177974cb44aa49`.
-Its separate production runtime index is
-`d2e7d4802ffbbca2d9f3f49bdcd8da3732732bce4b733c6492b3f9393d38b269`,
-actual report `dad61bc39bc3ee777fcbef79081a78a786f7fdeb8e27990c3cd510ccd1d3bc82`.
-Four exact whole sessions (scalar/HQ x quit/EOF), twelve legal results, native
-RX/permissions/guard observations, persistent three TIDs and natural cleanup
-passed. At eight local snapshots no extra writable interval of at least 32 MiB
-was observed; that is not a causal context-address/unmap observation. No initial
-BSS, CHECKPOINT, new startup fault or RIE/ptrace result is claimed by that report.
+Scalar native is8060B/SHA381fd1f478b090372365371d39337920c11fee4ab04ed59ab8616d0286b125d1,
+entry401dfe/RX2/BSS402000/upper42d000/reserve2f000. HQ is8448B/SHA
+215ee72678b41032e7f3283bf40fda752f385833df46d2b430bfc2d5c5f89008,
+entry401f30/RX3/BSS403000/upper42e000/reserve30000. Both retain175092B
+zero-file-byte BSS rounded43pages, lower guard3ff000 and NX stacks.
 
-Independent encoder summary SHA is
-`22b968d719c56e7cb92da79a178263f627c0fed866567d276631dc27b666d4b8`.
-It produced both exact packets from the native inputs and the independent C
-diagnostic restored exact BCJ bytes with canary/protection/lifetime checks.
-That bounded decoder diagnostic is separate from full own-ELF runtime proof.
+The context stream is fixed H24/base10 with21 models, u32 coded length,
+software CRC/local history/seed update and a real four-byte zero tail.
+Packets5020/5213B SHA4aecde84c170d0be88d3110d9854494d453c9773235f18cb008b54eb40dfd919 /
+2a47024e48caec8065c593f42b3026731faf0131c85cea664c402fe04d55f019
+include29B header and4B tail. Encoder applies BCJ once over the native file.
+Actual ELF/header+loader overhead is1293B. Loader allocates a private32MiB
+kernel-zero RW context table, checks decode and munmap, then reverses BCJ,
+applies native RW→RX and separate BSS RW protections, and enters native code.
+CHECKPOINT stops after these steps and before native BSS initialization or
+worker creation. The fixed guarded policy never requests RWX and rejects the
+existing READ_IMPLIES_EXEC condition. No RIE/ptrace/register/personality
+negative or new fault campaign is part of this promotion.
 
-The unchanged Board/search pair remains
-`e19749eb3315253e04171b89b8188df7e0db6b39ec4eb495187a6e158836823f` /
-`48e0f21fee8091f1e5c5d08d606740f6ff8c56778a550af2bcfc282d655d974c`.
-Their normalized search and independent board receipts remain
-`e06e27d4c8c42e4db819afe3b8ab702a4fe61f0d9636e102efd05a4ea5ab2539` /
-`c123692a26644738f31e0d3710161b44a37aaefb40517b5ec6843a88606110bb`.
-They are exact-source ancestry, not newly executed here. Prior completion-latch
-publication, finite arithmetic and runtime complements are likewise separately
-scoped under recipe metadata. **Old fixed-Huffman audit/decoder-fault receipts
-remain old-decoder ancestry and do not qualify this context decoder.** No broad
-fault, game, strength, scaling or universal race claim is added.
-
-All generated files, archives, packets, transcripts and receipts stay outside
-Git. Only the 21 maintained source/data files form this local source closure.
+Recipe qualification hashes are metadata only. Old core, raw-kernel and
+old-decoder receipts remain explicitly scoped ancestry. Final README/recipe
+qualification metadata is a separate explanatory overlay after the one
+successful fresh run; the actual producing recipe/source/archive remains
+frozen and that overlay is not a second fresh execution.

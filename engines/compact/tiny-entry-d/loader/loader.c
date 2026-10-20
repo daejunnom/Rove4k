@@ -42,11 +42,10 @@ __attribute__((used, noreturn)) void restore(usize *stack) {
     if (sys(11, context, CONTEXT_BYTES, 0, 0, 0, 0)) bad();
     for (usize i = 0; i+4 < IMAGE_SIZE;) {
         if ((out[i]&254) == 232) {
-            u32 value = (u32)out[i+1] | (u32)out[i+2] << 8 |
-                        (u32)out[i+3] << 16 | (u32)out[i+4] << 24;
+            u32 value;
+            __builtin_memcpy(&value, out+i+1, sizeof value);
             value -= (u32)(i+5);
-            out[i+1] = value; out[i+2] = value >> 8;
-            out[i+3] = value >> 16; out[i+4] = value >> 24;
+            __builtin_memcpy(out+i+1, &value, sizeof value);
             i += 5;
         } else i++;
     }

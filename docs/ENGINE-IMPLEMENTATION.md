@@ -158,6 +158,11 @@ in its [exact-head engine CI](https://github.com/daejunnom/Rove4k/actions/runs/3
 and the [NVCompact checks](https://github.com/daejunnom/Rove4k/actions/runs/39419480680).
 Those jobs still regenerate the preceding maintained entries, not the later
 EP-only F or reset/BCJ D candidates under local qualification below.
+The BCJ-cost/ownership checkpoint `b8bb037` also passes both language jobs
+in its [exact-head engine CI](https://github.com/daejunnom/Rove4k/actions/runs/39420784684)
+and [repository lifecycle CI](https://github.com/daejunnom/Rove4k/actions/runs/39420784662).
+It still exercises D6401/6614 and F4814; the subsequent normal-source promotion
+requires its own exact-head result.
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
@@ -176,9 +181,9 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | A | 4,846 B | 750 B | Shared startup/query, exact-native automatic names and original ALONE |
 | B | 5,558 B | 1,462 B | Hybrid bitboards, legal SEE/singular, bound private names and fixed ALONE |
 | C | 5,395 B | 1,299 B | Real AVX2 evaluation, shared query/startup, bound private names and ALONE |
-| D scalar / HQ | 6,401 / 6,614 B | 2,305 / 2,518 B | Own context-decoding ELF, exact native, guarded restoration and completion latch |
+| D scalar / HQ | 6,313 / 6,506 B | 2,217 / 2,410 B | Own context ELF, worker-owned reset, fixed-width BCJ and guarded restoration |
 | E | 5,400 B | 1,304 B | All 21 untrained coefficients in evaluation/ordering; bound names and ALONE |
-| F | 4,814 B | 718 B | Full-depth MTD(f), owned query, bound automatic/member names and fixed LZMA1 |
+| F | 4,808 B | 712 B | Full-depth MTD(f), shared EP legality, bound names and fixed LZMA1 |
 
 The separate Rust D native images are 16,816 bytes each. Their independent
 packed experiment retains its own qualification state and does not silently
@@ -3086,3 +3091,68 @@ source shrinks 58 bytes but whole only two, to 4,812; native identity changes.
 It is not combined with EP and receives no parser-runtime or normal-promotion
 claim. Cost receipt:
 `cc40b3ba82fe6961328c52e2a01750954a99acc550ae753735bc8117dad907f5`.
+
+## Maintained EP-only F and worker-reset/BCJ D
+
+The selected normal F pipeline now applies EP source sharing from ordinary
+`shipping_semantics.py`. Its readable body is the semantic source for both
+DEV-before-specialization and shipping-after-members. The old engine base and
+all alpha/storage/scope/member guards stay byte-identical. The fixed helper
+checks each exact source identity, readable/shipping role relation, literal
+occurrence, protected complement and inverse. Normal generation imports no
+experiment or historical artifact. Its fresh archive closure includes the
+helper through the existing recipe helper list.
+
+Normal shipping source/native/whole/bootstrap reproduce twice at
+9,925/22,672/4,808/10,924 bytes. The newly identified DEV source/native also
+reproduce twice at 19,488/26,984 bytes; they are not labeled equal to old DEV.
+The unchanged selected-wrapper verifier passes two actual quit/EOF sessions
+and eight legal results on the normal 4,808-byte file. Source/native/whole
+hashes are
+`3549063cbdca22c83536e0879b5e7baff8c7cbef3b5911f4152850732c86300c` /
+`9b4ca00fd54b67c33c01e92389c4f9130751233633faa828b6eb46e3b20890db` /
+`93377e104d934d5bde1e8c7a491b54b72d0a7a6e9d40b845f94f86bc0c2f6956`.
+The actual normal build/runtime receipts are
+`0fc04401edd284fe072f2ff43d1c2489713944b1b44a06345f3e91d77e676777` /
+`49e6a6ed062667ca94fdc338ab6a73a2f3fb71a14cd71cb46328eda6c5c2a18d`.
+This selects EP alone: the bound-expression combination ties in whole cost,
+and the GO-field experiment is not silently composed with it.
+
+Normal D now owns both the worker-reset runtime and the fixed-width BCJ loader.
+Only those two runtime bodies change. Exact native admission is updated to the
+new 8,060/8,448-byte pair, with its literal entry and private mapping geometry.
+Encoder, range math, fixed models, decoder, linker, flags, profile and other
+seven native sources remain unchanged. Packets and shipping whole identities
+match the actual independently measured reset/BCJ composition. No external
+program or experiment is required by normal generation or runtime restoration.
+
+The new audit files are discovered without target execution, then statically
+reviewed and explicitly admitted: scalar 6,336 bytes with SHA
+`93df62352f49aee0d01e4022c6a7acc773593255dfa252c28a200d3e521df905`;
+HQ 6,529 bytes with SHA
+`9bf7165d3840488c9cdd674caa2e7cb2379c6d6eed917005cd8ce2d48129a8fd`.
+The source CHECKPOINT still follows checked context unmap, inverse BCJ and
+RX/BSS protection, immediately before native entry. Old audit identities are
+not reused and the physical verifier helper bodies stay unchanged.
+
+The existing fresh contract passes once on two independent extractions of the
+same 23-member ordinary archive. It actually runs eight native, eight shipping
+loader and four audit loader compilations; eight shipping sessions with 24 GO
+epochs and four positive pre-entry audits pass. Exact native RX, zero mapping
+padding and rounded initial BSS, guards, NX permissions, original entry resume,
+readers and natural group exit are observed. No forced cleanup, target writes,
+new fault campaign or retry occurs. A readback-only tool-schema mistake is
+preserved separately; correcting that observer does not rerun or relabel the
+completed fresh execution.
+
+The producing source archive is
+`f8a86aca8e0632d34f10d9a99d53b9ad6382e76420264853158b1b899ae010c6`;
+the actual fresh receipt is
+`e4838c7aeed82688983244a1fb91f85c570e35a51433570015f20d4d2aa20c0c`.
+The complete shipping files are 6,313/6,506 bytes with SHA
+`66f70074da2270f1d6aa33beb50c1f34038b4bc36e4272d748c1720935fb4a9a` /
+`7ba4858dcf40c837d107f865e14b82d19ede40570059dcff1ca4bd3012ff7234`.
+Post-run README/qualification metadata is distinguished from producing inputs.
+These normal local results are separate from the next exact-head CI, final
+resource/profile, strength and 4 KiB acceptance conditions. No family is yet
+size-eligible, and all twelve independent cores remain in scope.

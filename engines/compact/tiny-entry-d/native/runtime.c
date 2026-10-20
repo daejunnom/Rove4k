@@ -135,7 +135,7 @@ static void work(void *p){
         int current=atomic_load_explicit(&epoch,memory_order_acquire);
         if(atomic_load_explicit(&quitting,memory_order_relaxed))return;
         if(current==seen){futex_wait(&epoch,seen,1);continue;}
-        seen=current;think(w,&position);
+        seen=current;w->best=0;think(w,&position);
         if(atomic_fetch_sub_explicit(&pending,1,memory_order_acq_rel)==2){
             result();atomic_store_explicit(&pending,0,memory_order_release);wake(&pending);
         }
@@ -226,7 +226,6 @@ static void go(char *s){
     deadline=now()+(budget>86400000?86400000:budget);
 #endif
     fallback=first(&position);atomic_store_explicit(&stopped,0,memory_order_relaxed);
-    for(int i=0;i<WORKERS;i++){workers[i].depth=workers[i].score=0;workers[i].best=0;workers[i].nodes=0;}
     atomic_store_explicit(&pending,WORKERS+1,memory_order_relaxed);atomic_fetch_add_explicit(&epoch,1,memory_order_release);wake(&epoch);
 }
 #if DEV

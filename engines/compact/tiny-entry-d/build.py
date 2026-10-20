@@ -72,7 +72,7 @@ def main():
     frozen = out/'inputs'
     frozen.mkdir()
     started, deadline = time.monotonic(), time.monotonic()+180
-    report = {'complete': False, 'scope': 'maintained source regeneration of exact C D context own-ELFs; fixed independent encoder/decoder and literal native mapping classes; unchanged native/profile/flags',
+    report = {'complete': False, 'scope': 'maintained source regeneration of exact C D context own-ELFs; fixed independent encoder/decoder and literal native mapping classes; worker-owned reset and four-byte BCJ copy; fixed profile/flags',
               'resources': recipe['profile'], 'inputs': {}, 'engines': [], 'negative_decoder_controls': [],
               'shipping_protocol': recipe['shipping_protocol'],
               'qualified_receipt_reuse_metadata_only': recipe['qualified_receipts_metadata_only'],
