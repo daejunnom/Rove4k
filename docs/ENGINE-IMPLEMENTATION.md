@@ -128,6 +128,10 @@ jobs in its [exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/394
 and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39404347797).
 The C job regenerates and executes the maintained 5,051-byte F file. Other
 source-cost experiments retain their local execution scopes.
+The fixed-codec/source-comparison checkpoint `647f04a` also passes both jobs in
+its [exact-head engine CI](https://github.com/daejunnom/Rove4k/actions/runs/39405755104)
+and [repository lifecycle CI](https://github.com/daejunnom/Rove4k/actions/runs/39405755067).
+Its source-only codec experiment is not an additional runtime CI execution.
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
@@ -148,7 +152,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | C | 5,687 B | 1,591 B | Real AVX2 evaluation, shared query/startup and fixed private spelling |
 | D scalar / HQ | 7,457 / 7,707 B | 3,361 / 3,611 B | Own ELF restoration, metadata-first Board, shared PVS retries and completion latch |
 | E | 5,679 B | 1,583 B | All 21 untrained coefficients in evaluation/ordering; fixed spelling |
-| F | 5,051 B | 955 B | Full-depth MTD(f), owned move query, per-think reset and shared startup pending |
+| F | 4,839 B | 743 B | Full-depth MTD(f), owned query, AST-bound automatic names and fixed LZMA1 |
 
 The separate Rust D native images are 16,816 bytes each. Their independent
 packed experiment retains its own qualification state and does not silently
@@ -2694,3 +2698,85 @@ same slot count; this is not runtime RAM measurement. The original exact-image
 packer rejects the new identities. No candidate whole, loader/codec, engine or
 DEV qualification runs, and the candidate stays unselected. Final index:
 `2c65f9c96e35a767156f7547fa0f3cce25fe25a64469476099cc594ddca079a3`.
+
+## Declaration-bound names and maintained F4839
+
+The [independent AST experiment](../engines/experiments/tiny-scope-names/README.md)
+implements function-wide automatic-local/parameter names, restarting the alias
+pool between functions. Physical declaration/reference offsets, main-file
+declaration and macro ordinals, exact macro-body token signatures, opaque/macro
+exclusions, inverse source recovery and reparse binding graphs form its source
+checks. It uses external libclang and real resource headers, not copied ice4
+implementation. Ten focused fixtures cover capture, initializer shadowing,
+macro targets/body changes, static/member/string preservation and asm exclusion.
+
+| Original-codec source | New source | Actual whole | Saved whole | Complete old native |
+| --- | ---: | ---: | ---: | --- |
+| A4980 | 9,910 | 4,846 | 134 | exact |
+| B5851 | 12,485 | 5,659 | 192 | exact |
+| C5687 | 11,704 | 5,507 | 180 | exact |
+| E5679 | 12,093 | 5,515 | 164 | exact |
+| F5051 | 10,011 | 4,891 | 160 | exact, twice |
+
+Two B preparations stop before native compilation: moved macro source offsets
+first break external-USR identity; the ordinal retry exposes undefined libclang
+declaration attributes queried on a preprocessing cursor. The final producer
+uses stable macro ordinal/body/use identities and preserves every edge. It does
+not ignore the mismatches. F/A/C/E executed snapshots and both B failures remain
+outside Git. The final ordinary experiment has seven source files; final summary
+is `f185a2c2fcff2dab9c8607a7b2776bf0d75e8f66137c6e292b6bbe127b976785`.
+This v2 index corrects one historical fixture path; source and artifact bytes
+are unchanged and the original inventory remains preserved.
+There are six actual native compiles and no engine executions in this experiment.
+
+F's actual name-plus-codec composition is **4,839 B**, down 212 from F5051.
+It is 77 B launcher plus 4,762 B ALONE stream. Two independent whole files and
+strict source/argv recovery match. The 160-B name saving plus standalone 48-B
+codec saving is not added; actual combined saving is 212 B. Composition receipt:
+`83a25431528e48b503afa4f146b90d1fde9f3fb36c9d2d1dd790926fb0784694`.
+
+The normal F source producer now replays that exact declaration-bound map in
+`shipping_scope.py`, admitted only for the complete post-storage input hash and
+each physical occurrence, with exact inverse/output checks. No libclang or
+external reference source is needed by the maintained 18-file closure. Canonical
+engine, compiler, DEV and full native bytes stay fixed; transport changes from
+XZ/CRC64 to fixed ALONE/no checksum. Normal shipping and DEV tuples reproduce
+twice, and the unchanged verifier runs the new file in two quit/EOF sessions,
+producing eight legal results with exact restored native, three startup TIDs,
+private-path cleanup, reader EOF and physical exit. Normal build/runtime receipts:
+`3802290d2aa8beb3ce464b98ccedea93efeda9afbe430528f4792ff8b3e72ea6` /
+`bd4803e0d6c16cf52086d65ac38b0e72fcf26dfca52ead045832b9bd0a407080`.
+Producing recipe is preserved before a qualification-metadata-only update.
+FD012 is not newly observed by F's verifier; cancellation causality is unproven.
+
+The [C/E core composition](../engines/experiments/tiny-ce-core-size/README.md)
+removes C's zero ordering function, consumed selection-prefix writes and the
+separate TT write argument. All production writes have bound 1..3 in bits41..42,
+so payload is nonzero even for zero move/score/depth. E's real ordering remains.
+Twenty-nine selection cases and 189 payload boundaries pass. One control and
+one candidate per family cost **C5643/E5655**, down 44/24. Candidate native code
+differs and grows 32 B; runtime/repeat/normal qualification has not run. Clamps,
+model/AVX2 and other source complements stay fixed. The failed raw `-dM` order
+check is preserved; complete definition multiset comparison corrects that
+unordered-output assumption. Final receipt:
+`e466ab69e833bd5410e6a845f26474babedf0e6d9622898d8a5a2d815f22aadb`.
+
+The fixed external 4kc codec is also actually reproduced: scalar/HQ streams
+5,028/5,243 B restore the exact current native through decode and inverse BCJ.
+The reference C reader is not bounded at input end, so separate decode inputs
+include four actual zero bytes while original payloads are preserved. A new
+independent bounded u32/software-CRC decoder and guarded complete ELF first-cost
+are in progress. No new complete D result or decoder cost is inferred from the
+payload. External reproduction index:
+`5af5628f200c3eafe772f320ed751d3f3b7455f9f272aea8712a09d4bcc51ed0`.
+
+The new independent bounded decoder then passes one diagnostic build and two
+guarded valid-stream calls, recovering exact BCJ output bytes. A separate
+first-cost builds two actual own-ELFs: **scalar6401/HQ6614**, saving 1,056/1,093
+from maintained D7457/7707. Actual total is 176-B ELF/PHDR + 1,191-B text + 29-B
+u32/model header + 5,001/5,214-B arithmetic body + four real tail bytes; no extra
+rodata/padding is omitted. The 1,367-B nonpayload cost is measured rather than
+reusing the old 1,115 B. New complete D files are not executed or runtime
+qualified, and the encoder is an explicit external-data first-cost producer,
+not a closed maintained source encoder. Cost receipt:
+`432ec934af089db4d23edf4c3b269ee5e86941634aeb77e88f037c96f232f7a9`.

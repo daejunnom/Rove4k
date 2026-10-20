@@ -1,17 +1,18 @@
 # Maintained minimal F entry
 
-`engine.c` is the readable canonical source of the selected **5,051-byte** F
-entry. It contains shipping and diagnostic forms together. This version adopts
-one qualified query/reset/startup composition after F5083. The whole file is
-32 bytes smaller and remains **955 bytes above 4,096**. It does not establish
+`engine.c` is the readable canonical source of the selected **4,839-byte** F
+entry. It contains shipping and diagnostic forms together. The unchanged
+qualified F5051 body now uses declaration-bound automatic names and one fixed
+LZMA1 transport. The whole is 212 bytes smaller than F5051 and remains
+**743 bytes above 4,096**. It does not establish
 4 KiB eligibility, strength, fair NPS or general target portability.
 
 The production core keeps full-depth MTD(f), integer unit windows, stable
 leaves, exact-horizon/context-compatible coherent full-key single-bound TT
 entries, retained lower/upper intervals, attaining root witnesses, completed
 iteration retention and learning. The search prefix and MTD driver after the
-entry reset are byte-identical to the old source. The new native is a different
-image; it is not qualified through old full-native equality.
+entry reset are byte-identical to the old source. The native is byte-identical
+to F5051; the earlier F5083-to-F5051 structural change had a different native.
 
 The fixed exact-byte target is Linux x86-64, Ubuntu 24.04.4, GCC 13.3.0,
 binutils 2.42, glibc 2.39, Python 3.12.3 and xz 5.4.5, including WSL Ubuntu.
@@ -46,8 +47,15 @@ of two independent attempts follows this sequence:
    `69ee88c2353ae8579e6da02ac06ec2b408812c29bb4a40684d59b9f02bed14ad`.
 5. The local `shipping_storage.py` applies the same 18-name storage map.
    Seventeen names have 89 occurrences; the fixed `ready` alias has zero use.
-   It saves 432 bytes and produces the exact 10,477-byte selected source.
-6. Compile through stdin with the unchanged command
+   It saves 432 bytes and produces the exact 10,477-byte post-storage source.
+6. `shipping_scope.py` replays 451 physical occurrences of 98 AST-bound
+   automatic/parameter declarations. Names are unique within a function and
+   reusable between functions. Exact input/output hashes, each occurrence and
+   an inverse are checked. Source becomes 10,011 bytes. The generic analyzer
+   lives in `engines/experiments/tiny-scope-names`; the normal build needs no
+   libclang, external engine or experiment input. The exact map SHA is
+   `bac3ae02d4890b78d33a7e4cfca85b0bd01440e039c192f43a27c84304dfc153`.
+7. Compile through stdin with the unchanged command
    `cc -Os -pthread -x c - -o x -s`, then package the selected source literal.
 
 Both local spelling helpers bind the exact new readable, stage input/output,
@@ -63,11 +71,11 @@ The local storage helper copies the original generic lexer/opaque/rewrite
 function AST and the literal 592-word readable reservation union. It admits
 only the new F domain and checks new canonical freshness without reading
 another engine. The shared `fixed_shipping_storage.py` remains unchanged and
-is no longer a normal F build input. DEV bypasses both local spelling stages.
+is no longer a normal F build input. DEV bypasses all three spelling stages.
 
-The six pinned build helpers are `engines/scripts/specialize.py`, `minify.py`,
+The seven pinned build helpers are `engines/scripts/specialize.py`, `minify.py`,
 `rename_c.py`, `engines/compact/tiny-a/pack_stream.py`, and this folder's
-`shipping_alpha.py` and `shipping_storage.py`. Their relative paths and
+`shipping_alpha.py`, `shipping_storage.py` and `shipping_scope.py`. Their relative paths and
 LF-normalized hashes are literal recipe inputs. The builder copies and checks
 them before importing from its external output. They use only Python standard
 libraries and read no experiment, report, generated source, old executable or
@@ -85,9 +93,12 @@ or unexpected schema fails. The old shared F overlay is not consumed.
 The shipping command remains `cc -Os -pthread -x c - -o x -s`. The DEV command
 is unchanged: `cc -std=c11 -Os -pthread -DWORKERS=2 -DTT_BITS=18 -DPLY=128
 -DDEV=1 -x c - -o x`. The canonical bootstrap contains the same shipping argv.
-The original template, 75-byte shell prefix and XZ/LZMA2 stream remain fixed:
-preset 9 extreme, lc=2/lp=0/pb=0, CRC64. `bootstrap.py.in` substitutes only its
-source-literal marker; `launcher.sh` uses `tail -c+76` and `xz -dc`.
+The original bootstrap template remains. A 77-byte shell prefix uses
+`tail -c+78` and `lzma -dc`. LZMA1/ALONE is fixed to preset 9 extreme,
+lc2/lp0/pb0, BT4, dictionary 64 MiB and nice length 32. Complete cost is
+77-byte prefix plus 4,762-byte stream, including its 13-byte header and end
+bytes. ALONE has no container checksum; replacing XZ removes CRC64 checking.
+Exact recovery of normal files does not preserve corruption detection.
 
 Compiler signal-mask publication, private TMPDIR/cwd, process-group cleanup,
 file opening, private-directory removal and fd execution are unchanged. Engine
@@ -99,10 +110,10 @@ promotion.
 | Exact output | Bytes | SHA-256 |
 | --- | ---: | --- |
 | Readable engine.c | 25,755 | `ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd` |
-| Compact shipping C | 10,477 | `c63a450245ff4ca703a5abe2dc75d840c7c7e936bb2a30a726c30014e3a92e90` |
+| Compact shipping C | 10,011 | `4e7a2a76ea753ebc3ccbcb4371ea76810c06b193e45b2f6ca70e66bd79112e9a` |
 | Restored stdin native ELF | 22,672 | `757b9a14cd5174dad55754196cce098fd89018a8b0d7adcf08bcddb2e1fc092b` |
-| Complete launcher | 5,051 | `ad4030ad32af47469ca067e4f10c4b60103eddcc6afdfefd22dedea1269052ce` |
-| Decoded bootstrap | 11,476 | `3a6dc4c7c77c77b48f4b020cda1a4397af22eb2cdea97447bf97d7bae8a29162` |
+| Complete launcher | 4,839 | `fd77b62b532e4a2272e4c29351cb0ba2ef57c5bab99282177b949e0b8152158a` |
+| Decoded bootstrap | 11,010 | `661d404fa9388b07820de6b24ae4a55a8087fd739ab4e8082c04ccf73aa4ee02` |
 | New candidate DEV C | 19,513 | `84fbc9b3651494ce0ebabdc25b9a1fa7b3a334fa7394eee2631581682a804b58` |
 | New candidate DEV ELF | 26,984 | `6eb28892842bef969edff9295aae74b7edd71d61eb39ac01236f2adcd4785340` |
 
@@ -147,9 +158,9 @@ python3 -B /absolute/new/source-proof/checkout-2/engines/compact/tiny-entry-f/ve
   --build /absolute/new/source-proof/build-2 --out /absolute/new/runtime-proof-2
 ```
 
-The unchanged `fresh.py` names LOCAL9, six recipe helpers and two independent
-test helpers: **17** ordinary files. Local storage replaces one shared helper
-path; no artificial extra file is added. The source archive checks regular
+The unchanged `fresh.py` names LOCAL9, seven recipe helpers and two independent
+test helpers: **18** ordinary files. The scope helper is the additional actual
+normal dependency. The source archive checks regular
 members, raw/LF hashes and two independent extractions. Each archived builder
 makes two shipping/DEV attempts and compares full source/native/whole/bootstrap
 and diagnostic tuples. All reports, source archives, compiler outputs and
@@ -160,7 +171,14 @@ quit and EOF sessions. From each of the two extracted source trees it checks
 the actual restored `/proc` image, removed private path, no current compiler
 children, three stable startup TIDs, legal white/black zero clocks and finite
 bare go, then active-search physical quit/EOF and output-reader termination.
-Four new wrapper sessions are sufficient for this promotion. Cancellation
+The F5051 predecessor used four wrapper sessions from two extractions. This
+F4839 normal builder separately reproduces shipping and DEV tuples twice and
+runs two new unchanged-verifier sessions, producing eight legal GO results.
+Build receipt is `3802290d2aa8beb3ce464b98ccedea93efeda9afbe430528f4792ff8b3e72ea6`;
+new normal runtime receipt is
+`bd4803e0d6c16cf52086d65ac38b0e72fcf26dfca52ead045832b9bd0a407080`.
+Its exact native equals the qualified F5051 body; the older wrapper executions
+are not relabeled as runs of this new whole. Cancellation
 causality remains unproven. No generic infinite/stop contract, new game,
 benchmark or broad old engine matrix is added.
 
@@ -168,8 +186,9 @@ benchmark or broad old engine matrix is added.
 
 The qualified F composition proof61 summary is
 `eed7014b750abfdd19381be83091ecf7ede32e60973228dc6b548ed87153a4f0`.
-Its fresh F query, startup, epoch, MTD and selected-wrapper executions are used
-through exact candidate/source/native/whole identities. Original A/C fixture
+Its fresh F query, startup, epoch and MTD body evidence is reused through
+unchanged canonical/DEV and exact native identity. Older whole-file executions
+retain their historical transport scope. Original A/C fixture
 sources are historical design inputs, not reused executions. The historical
 malformed-query-fixture failure remains recorded rather than converted to a
 candidate failure or silently removed.

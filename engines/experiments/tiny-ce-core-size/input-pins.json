@@ -1,0 +1,205 @@
+{
+  "format": 1,
+  "source_head": "71a0791c1a2a52c42537ef5e39788f617e1f1de8",
+  "tracked_input_contract": "explicit pinned existing ordinary producers, no nested copied source archive",
+  "files": {
+    "engines/compact/tiny-a/pack_stream.py": {
+      "bytes": 5444,
+      "sha256": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
+      "raw_sha256": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e"
+    },
+    "engines/compact/tiny-a/stitch.py": {
+      "bytes": 3863,
+      "sha256": "2b0d25b4855a3ed4ddd9e24b8e4b0e081439baa2ed8f744dba0215a700023f23",
+      "raw_sha256": "2b0d25b4855a3ed4ddd9e24b8e4b0e081439baa2ed8f744dba0215a700023f23"
+    },
+    "engines/compact/tiny-entry-c/bootstrap.py.in": {
+      "bytes": 1082,
+      "sha256": "68e4544370fdd2ca3d240963a0782004f955930187c3d8edfda78cc2f59b7f6a",
+      "raw_sha256": "68e4544370fdd2ca3d240963a0782004f955930187c3d8edfda78cc2f59b7f6a"
+    },
+    "engines/compact/tiny-entry-c/build.py": {
+      "bytes": 10027,
+      "sha256": "263fb4f179bdeaf83568bd55cd6749067f8ee795827b6509f547938efc08ae03",
+      "raw_sha256": "263fb4f179bdeaf83568bd55cd6749067f8ee795827b6509f547938efc08ae03"
+    },
+    "engines/compact/tiny-entry-c/engine.c": {
+      "bytes": 26692,
+      "sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
+      "raw_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b"
+    },
+    "engines/compact/tiny-entry-c/launcher.sh": {
+      "bytes": 75,
+      "sha256": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a",
+      "raw_sha256": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a"
+    },
+    "engines/compact/tiny-entry-c/recipe.json": {
+      "bytes": 6144,
+      "sha256": "72a907d2a236fa7b281f50b56f9b33fb4ab751f932cd76325e3e654661588edc",
+      "raw_sha256": "72a907d2a236fa7b281f50b56f9b33fb4ab751f932cd76325e3e654661588edc"
+    },
+    "engines/compact/tiny-entry-c/shipping_alpha.py": {
+      "bytes": 11618,
+      "sha256": "d220d7001a0e4119380d6bad466d39d10ba5d5c047a75e5fdb231b3bd8bd25c3",
+      "raw_sha256": "d220d7001a0e4119380d6bad466d39d10ba5d5c047a75e5fdb231b3bd8bd25c3"
+    },
+    "engines/scripts/fixed_shipping_alpha.py": {
+      "bytes": 21999,
+      "sha256": "92b351d537c1da0f346f072df2ca4b0be713d0e286e039b30efa9f758519c806",
+      "raw_sha256": "92b351d537c1da0f346f072df2ca4b0be713d0e286e039b30efa9f758519c806"
+    },
+    "engines/scripts/minify.py": {
+      "bytes": 6624,
+      "sha256": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b",
+      "raw_sha256": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b"
+    },
+    "engines/scripts/rename_c.py": {
+      "bytes": 12574,
+      "sha256": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
+      "raw_sha256": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5"
+    },
+    "engines/scripts/specialize.py": {
+      "bytes": 2386,
+      "sha256": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d",
+      "raw_sha256": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d"
+    },
+    "engines/compact/tiny-entry-e/bootstrap.py.in": {
+      "bytes": 1072,
+      "sha256": "0402f63d44e66d57174079672762414a2324f8dd8c2b272fe34f49b68e45edbc",
+      "raw_sha256": "0402f63d44e66d57174079672762414a2324f8dd8c2b272fe34f49b68e45edbc"
+    },
+    "engines/compact/tiny-entry-e/build.py": {
+      "bytes": 9752,
+      "sha256": "2f558277494914b99340559f81ea3c0ce7e13c6fa63a72da00cdcbe1e9bc6e61",
+      "raw_sha256": "2f558277494914b99340559f81ea3c0ce7e13c6fa63a72da00cdcbe1e9bc6e61"
+    },
+    "engines/compact/tiny-entry-e/engine.c": {
+      "bytes": 28001,
+      "sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+      "raw_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712"
+    },
+    "engines/compact/tiny-entry-e/launcher.sh": {
+      "bytes": 75,
+      "sha256": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a",
+      "raw_sha256": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a"
+    },
+    "engines/compact/tiny-entry-e/recipe.json": {
+      "bytes": 5348,
+      "sha256": "d6469e8786a0019f36f015714f708cbdbd8cabc39862b04f884793eae0e046f7",
+      "raw_sha256": "d6469e8786a0019f36f015714f708cbdbd8cabc39862b04f884793eae0e046f7"
+    }
+  },
+  "families": {
+    "C": {
+      "entry": "engines/compact/tiny-entry-c",
+      "expected": {
+        "readable_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
+        "source_bytes": 12224,
+        "source_sha256": "20f06b6ed9ada03db6f8719f05ecdf9cb52802ab0a1acc8999627999db899046",
+        "native_bytes": 26424,
+        "native_sha256": "cc67f03a58f350a1bd0ab1f07e774c13cf8f6b628b469107834da6f505f7cf00",
+        "whole_bytes": 5687,
+        "whole_sha256": "0fc91619c63cd0fe163abc4825cc7badff3e8b19e4e88ad67cfec165223ab575",
+        "bootstrap_sha256": "f3f9ab2ce26f317d4c6e9d6c2ba7527fea88671297341a3cda008e613ca78047",
+        "dev_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
+        "dev_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c"
+      },
+      "profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev_default": false
+      },
+      "compiler": [
+        "cc",
+        "-std=c11",
+        "-Os",
+        "-pthread",
+        "-DWORKERS=2",
+        "-DTT_BITS=18",
+        "-mavx2",
+        "-DDEV=0",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "x"
+      ],
+      "preprocessor": [
+        "cc",
+        "-std=c11",
+        "-Os",
+        "-pthread",
+        "-DWORKERS=2",
+        "-DTT_BITS=18",
+        "-mavx2"
+      ],
+      "compression": {
+        "format": "xz",
+        "filter": "LZMA2",
+        "preset": 9,
+        "extreme": true,
+        "lc": 3,
+        "lp": 0,
+        "pb": 2,
+        "check": "CRC64"
+      }
+    },
+    "E": {
+      "entry": "engines/compact/tiny-entry-e",
+      "expected": {
+        "readable_bytes": 28001,
+        "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+        "source_bytes": 12641,
+        "source_sha256": "af0ab88d9f4ce25154b3fda909fc00b9eca0cda8d8784b4b07e4926015a2c330",
+        "native_bytes": 26408,
+        "native_sha256": "5429f2d80521f775bac6802ec4940e8e0ff1b344464ed8e9a0629ba6650eb675",
+        "whole_bytes": 5679,
+        "whole_sha256": "83e8e7f22f24e3161268554ab4c5ff7ad7f6007822ea6892e6fae68670e80fb4",
+        "bootstrap_sha256": "0abbdd272bb28aae532b6c88fbb691b5e353329bde6ea3e2caad1178e4cb9bfa",
+        "dev_source_bytes": 21314,
+        "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
+        "dev_native_bytes": 31376,
+        "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094"
+      },
+      "profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev_default": false
+      },
+      "compiler": [
+        "cc",
+        "-std=c11",
+        "-Os",
+        "-pthread",
+        "-DWORKERS=2",
+        "-DTT_BITS=18",
+        "-DDEV=0",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "x"
+      ],
+      "preprocessor": [
+        "cc",
+        "-std=c11",
+        "-Os",
+        "-pthread",
+        "-DWORKERS=2",
+        "-DTT_BITS=18"
+      ],
+      "compression": {
+        "format": "xz",
+        "filter": "LZMA2",
+        "preset": 9,
+        "extreme": true,
+        "lc": 3,
+        "lp": 0,
+        "pb": 2,
+        "check": "CRC64"
+      }
+    }
+  }
+}
