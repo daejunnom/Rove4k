@@ -3430,3 +3430,89 @@ and producing snapshots. The measured 92dfc34 normal selections pass both jobs
 in [C/Rust engine CI](https://github.com/daejunnom/Rove4k/actions/runs/39437607789)
 and [repository lifecycle](https://github.com/daejunnom/Rove4k/actions/runs/39437607775).
 Later WIP experiment heads report their own CI separately in the draft PR.
+
+## B/C/E input profile and B ordering model: measured candidates
+
+The A/F input policy is independently projected onto the current B/C/E
+shipping sources. Numeric admission uses an initial ASCII digit, complete
+`strtoull` consumption and a signed-64 upper bound. The four exact clock keys,
+last own-side value, absent-versus-zero time and budget calculation are
+preserved. A bounded line reader drains oversized/NUL input, admits a final
+line without LF and retains CR in the physical limit. B/E now share the
+nullable legal-child query between replay and first-move selection; C already
+had that query and retains it byte for byte. Search, worker reset, SEE,
+model, SIMD and state updates remain outside the changed regions.
+
+One fixed native/ALONE cost per family produces the following actual files.
+These costs are candidates until normal builder/runtime qualification closes.
+
+| Family | Shipping C | Complete file | Complete-file change |
+| --- | ---: | ---: | ---: |
+| B | 12,148 -> 11,829 | 5,546 -> 5,461 | -85 |
+| C | 11,086 -> 10,886 | 5,245 -> 5,173 | -72 |
+| E | 11,703 -> 11,378 | 5,366 -> 5,281 | -85 |
+
+Actual cost receipt is
+`17fec69bafea30a4b53d9913744f9abf2889a438df439aeeb4e2c682a6e5be99`.
+The focused include-fixture then passes, per family, 25 numeric, 26 GO and
+25 transaction cases, six special roots/96 child states, nullable-first and
+invalid query checks. B bitboards are independently reconstructed from its
+mailbox; C/E do not claim a nonexistent cached scalar field. Actual start
+and legal e2e4 child boards supply both GO sides. This workerless fixture
+does not establish production pool execution. Its receipt is
+`2f5308246118a6c4a5d9771c036b0129005c3fc617a2de04074696a4517a37c9`.
+Three actual whole-file text-only sessions also pass eight ingress payloads
+each, with zero search GO; receipt is
+`05a3f10389604e6e5773bd08a56ed6a0de4461a46767e28356a46ea5089a8452`.
+The normal verifier alone will handle the identical whole's quit/EOF search
+sessions; no duplicate focused quit/EOF qualification is added.
+
+A separate B candidate changes the declared SEE model to deterministic legal
+LVA for ordering. It selects the least pre-capture piece kind, then the lowest
+source square; illegal sources are skipped, and all four promotions of the
+selected pawn are considered. A negative continuation can be declined. The
+shared cancellation/deadline unknown value propagates before subtraction.
+This is not the former full legal minimax model. Its negative values are not
+pruning certificates: the QS negative-SEE pruning clause is removed entirely.
+The existing ordering call and unknown guard remain byte-identical.
+
+Combined with the actual input-profile B, source falls 11,829 to 11,702 bytes,
+native grows 26,392 to 26,400 bytes and the complete file falls 5,461 to 5,426
+bytes (-35). The measured combined difference from the preceding maintained
+5,546 file is -120; no unrelated saving is added arithmetically. Actual cost
+receipt is
+`01daf1ba45610f8121cc18ec5f781dea3eff46ddf250ff32c7aab59d48ed168e`;
+whole identity is
+`cb19a87f31df9b27ff76f445518768f6a051c51056e9ba6f2ddc53e3eb4a5093`.
+One native compile, one ALONE encoding and two pure strict decodes run, with
+no baseline compile/copy, engine/oracle, DEV or strength execution. Model
+qualification and normal selection remain separate work. Both producing and
+final ordinary source sets are retained; generated artifacts stay outside Git.
+
+## D fixed-model replay: first complete-file cost
+
+The new D packet removes its redundant coded-bit count and WMASK words.
+The exact native IMAGE_SIZE determines the count; the validated selected
+scalar/HQ model supplies a fixed unsigned-32 WMASK to the decoder. The 21
+mask bytes and range body retain their order. For each coded bit, the decoder
+replays unary WMASK weights and seeds in that same order, collects all
+probability slots, then performs the existing alias-sensitive updates.
+The temporary 21 seed words and 21 weights disappear, while the 21 slot
+offsets remain. Unsigned wrap, range math, prefix history and the fixed
+H24/base10 model are unchanged. This changes the packet ABI and tag; it does
+not change the version of the model's JSON schema.
+
+Each form's new packet loses eight bytes and nonpacket overhead falls
+1,293 to 1,194 bytes (176 ELF/PHDR + 1,018 text), so the actual complete
+scalar/HQ files fall 6,272/6,452 to 6,165/6,345 bytes, respectively (-107
+each). Native files remain exactly 7,964/8,352 bytes with their full previous
+identities and layouts. Two positive C decoder diagnostics restore the
+entire BCJ and native bytes, check canaries and unmap their context. Two
+CHECKPOINT0 loaders are compiled for cost; neither shipping nor audit engine
+is executed in this stage. Actual cost receipt is
+`0f08bb54783aef070a3d75eefeb28a005868156452243513da624bf7708d8137`;
+final six-file experiment index is
+`2f06d3ecc4d9e0f5fb294f6adfe533aa4559867fd31b4fad10604ed4060a5bf3`.
+No native/control compile, control encode, negative fault, sweep or retry
+runs. The existing normal D selection stays in force until separately
+discovered audit literals and unchanged positive fresh qualification close.

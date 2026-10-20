@@ -1,0 +1,425 @@
+{
+  "format": 1,
+  "family": "B",
+  "scope": "one combined legal-LVA ordering native/whole first cost after accepted B input profile; no runtime qualification",
+  "input_source": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-input-profile-source-20261020-evidence/B/candidate.c",
+  "input_pin": {
+    "bytes": 11829,
+    "sha256": "11a32cc6c48ad16856e7968c5ba91456257c1b249590f0aa71a371d2fd276a93"
+  },
+  "output_pin": {
+    "bytes": 11702,
+    "sha256": "d0b914e337f56623f7d1028381ccc4b012da02c4bc0681737a7a6a6e571274c7"
+  },
+  "literal_domain": {
+    "input": {
+      "bytes": 11829,
+      "sha256": "11a32cc6c48ad16856e7968c5ba91456257c1b249590f0aa71a371d2fd276a93"
+    },
+    "output": {
+      "bytes": 11702,
+      "sha256": "d0b914e337f56623f7d1028381ccc4b012da02c4bc0681737a7a6a6e571274c7"
+    },
+    "old_readable": {
+      "identity": {
+        "bytes": 1085,
+        "sha256": "56cb2aea9345bef6fc566bf30bcaee7cf4385dfb01e4250a8f50285780a48c73"
+      },
+      "identifier_counts": {
+        "Board": 3,
+        "COUNT": 2,
+        "Exchange": 2,
+        "MATE": 1,
+        "MOVE": 1,
+        "Move": 2,
+        "PROMO": 2,
+        "SEE_INCOMPLETE": 1,
+        "TO": 1,
+        "Worker": 1,
+        "__builtin_ctzll": 1,
+        "abs": 2,
+        "atomic_load_explicit": 1,
+        "atomic_store": 1,
+        "attackers": 1,
+        "b": 3,
+        "best": 4,
+        "candidates": 5,
+        "capture": 1,
+        "complete": 3,
+        "const": 2,
+        "deadline": 2,
+        "e": 8,
+        "exchange": 3,
+        "for": 1,
+        "from": 3,
+        "gain": 6,
+        "i": 3,
+        "if": 7,
+        "int": 9,
+        "m": 8,
+        "make": 1,
+        "material": 2,
+        "memory_order_relaxed": 1,
+        "now": 2,
+        "p": 7,
+        "promotion": 3,
+        "return": 6,
+        "s": 1,
+        "score": 3,
+        "see": 1,
+        "see_calls": 1,
+        "see_incomplete": 1,
+        "static": 2,
+        "stopped": 2,
+        "t": 6,
+        "target": 7,
+        "uint64_t": 1,
+        "visits": 1,
+        "w": 3,
+        "while": 1,
+        "z": 4
+      }
+    },
+    "new_readable": {
+      "identity": {
+        "bytes": 1079,
+        "sha256": "e3b6ef7c8144ce74890377e827f83a06eafacd4e4e6ae4688fb788498e0f8c73"
+      },
+      "identifier_counts": {
+        "Board": 2,
+        "MATE": 3,
+        "MOVE": 1,
+        "Move": 1,
+        "PROMO": 2,
+        "SEE_INCOMPLETE": 3,
+        "TO": 1,
+        "Worker": 1,
+        "__builtin_ctzll": 1,
+        "abs": 1,
+        "atomic_load_explicit": 1,
+        "atomic_store": 1,
+        "attackers": 1,
+        "b": 2,
+        "bb": 1,
+        "best": 6,
+        "candidates": 2,
+        "capture": 1,
+        "const": 1,
+        "deadline": 2,
+        "for": 2,
+        "from": 2,
+        "gain": 5,
+        "i": 3,
+        "if": 7,
+        "int": 8,
+        "kind": 5,
+        "m": 6,
+        "make": 1,
+        "material": 2,
+        "memory_order_relaxed": 1,
+        "now": 2,
+        "origins": 5,
+        "p": 5,
+        "promotion": 3,
+        "return": 5,
+        "s": 2,
+        "score": 4,
+        "sequence": 2,
+        "static": 1,
+        "stopped": 2,
+        "t": 7,
+        "target": 7,
+        "uint64_t": 2,
+        "w": 2,
+        "while": 1,
+        "z": 4
+      }
+    },
+    "old_see": {
+      "identity": {
+        "bytes": 639,
+        "sha256": "d65866537c0308c5703bf51eeda5adf0d9c1fe06605d468ee630efd56ae37411"
+      },
+      "identifier_counts": {
+        "D": 3,
+        "MATE": 1,
+        "MOVE": 1,
+        "Move": 2,
+        "PROMO": 2,
+        "Q": 1,
+        "SEE_INCOMPLETE": 1,
+        "TO": 1,
+        "__builtin_ctzll": 1,
+        "a": 6,
+        "abs": 2,
+        "atomic_load_explicit": 1,
+        "atomic_store": 1,
+        "b": 3,
+        "const": 2,
+        "d": 5,
+        "e": 8,
+        "f": 3,
+        "for": 1,
+        "i": 3,
+        "if": 7,
+        "int": 9,
+        "j": 7,
+        "l": 1,
+        "m": 8,
+        "make": 1,
+        "memory_order_relaxed": 1,
+        "now": 2,
+        "p": 7,
+        "qc": 2,
+        "qi": 2,
+        "qp": 2,
+        "return": 6,
+        "s": 1,
+        "static": 2,
+        "t": 6,
+        "uint64_t": 1,
+        "w": 1,
+        "while": 1,
+        "y": 1,
+        "yA": 1,
+        "yv": 7,
+        "z": 4,
+        "zJ": 3,
+        "za": 3,
+        "zc": 2,
+        "zd": 1,
+        "zv": 3
+      }
+    },
+    "new_see": {
+      "identity": {
+        "bytes": 619,
+        "sha256": "48b28df30eea0ea73755ff95150581e471d0e2944137d2113f0d7e837ee286ec"
+      },
+      "identifier_counts": {
+        "MATE": 3,
+        "MOVE": 1,
+        "Move": 1,
+        "PROMO": 2,
+        "Q": 2,
+        "SEE_INCOMPLETE": 3,
+        "TO": 1,
+        "__builtin_ctzll": 1,
+        "a": 6,
+        "abs": 1,
+        "atomic_load_explicit": 1,
+        "atomic_store": 1,
+        "b": 7,
+        "bb": 1,
+        "const": 1,
+        "d": 2,
+        "f": 3,
+        "for": 2,
+        "i": 3,
+        "if": 7,
+        "int": 8,
+        "j": 9,
+        "k": 5,
+        "l": 1,
+        "m": 6,
+        "make": 1,
+        "memory_order_relaxed": 1,
+        "now": 2,
+        "p": 5,
+        "qc": 2,
+        "qi": 2,
+        "qp": 2,
+        "return": 5,
+        "s": 2,
+        "static": 1,
+        "t": 7,
+        "uint64_t": 2,
+        "w": 2,
+        "while": 1,
+        "y": 1,
+        "yv": 7,
+        "z": 4,
+        "zJ": 2,
+        "za": 2,
+        "zd": 1
+      }
+    },
+    "old_exchange_type": {
+      "identity": {
+        "bytes": 38,
+        "sha256": "2ca863ce510660796ed2c4f44c9f142ea3659a8432c640f3b72e26b2b6a30d41"
+      },
+      "identifier_counts": {
+        "int": 1,
+        "struct": 1,
+        "typedef": 1,
+        "unsigned": 1,
+        "yA": 1,
+        "zc": 1,
+        "zv": 1
+      }
+    },
+    "old_QS": {
+      "identity": {
+        "bytes": 69,
+        "sha256": "e5149595f074b3fb20dd03c764fa56618786d8aba9df7a38a4d189097b3be0e0"
+      },
+      "identifier_counts": {
+        "PROMO": 1,
+        "Q": 1,
+        "SEE_INCOMPLETE": 1,
+        "continue": 1,
+        "if": 2,
+        "int": 1,
+        "m": 2,
+        "p": 1,
+        "s": 3,
+        "w": 1,
+        "ye": 1
+      }
+    }
+  },
+  "owned_executable_pins": {
+    ".gitattributes": {
+      "bytes": 14,
+      "sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9"
+    },
+    "prepare.py": {
+      "bytes": 2650,
+      "sha256": "600117ec7f89c1d7c2cf1afa960e68c01906ae5c2eaf06087a39b4ce7ac6bcfb"
+    },
+    "transform.py": {
+      "bytes": 8650,
+      "sha256": "dd1f102abd33cdff7896fe649d5e9b9327a75e8592856adf9b4df242a1d5890d"
+    },
+    "cost.py": {
+      "bytes": 8534,
+      "sha256": "63fa7b18ad3b95fa542aaeb7f21effc33e255e7fd03d194582ba17ecc5d47e18"
+    }
+  },
+  "proposal_provenance_metadata_only": {
+    "bytes": 17735,
+    "sha256": "7f94d3b8a53790f7362590e7bf3271fbd91eeb6d9a0ecbddf38ba718b8d1f72a"
+  },
+  "source_profile_metadata": {
+    "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-input-profile-source-20261020-evidence/B/source.json",
+    "identity": {
+      "bytes": 6936,
+      "sha256": "8a5ea75eb46e4b2db8318b69c0ecad19aec22413979295a67c51b467a68f1df3"
+    }
+  },
+  "new_policy": "legal LVA+all4promos, ordering only; QS negative SEE clause removed",
+  "cost_authorized": true,
+  "native_whole_identities": {
+    "source": {
+      "bytes": 11702,
+      "sha256": "d0b914e337f56623f7d1028381ccc4b012da02c4bc0681737a7a6a6e571274c7"
+    },
+    "native": {
+      "bytes": 26400,
+      "sha256": "9f7868ed7527303b6407fa4c53597d1225a7c944d901437d113b90b76fb0cce0"
+    },
+    "bootstrap": {
+      "bytes": 12767,
+      "sha256": "452ee45cf1323c68f24af72800e1caccd3ca1fb0787a1196233f6b9f48fe71fa"
+    },
+    "whole": {
+      "bytes": 5426,
+      "sha256": "cb19a87f31df9b27ff76f445518768f6a051c51056e9ba6f2ddc53e3eb4a5093"
+    },
+    "whole_delta_from_input5461": -35,
+    "whole_delta_from_prior_B5546": -120,
+    "gap_to_4096": 1330,
+    "full_baseline_native_equal": false,
+    "runtime_qualified": false,
+    "normal_promotion": false,
+    "repeat_claim": false
+  },
+  "baseline_input_profile_firstcost_acceptance": "ROOT accepted actual fixed baseline; no normal source/helper input",
+  "old_minimax_DEV_visits_stack_evidence_inherited": false,
+  "actual_cost_baseline": "/home/stemxstudio/rove4k-bce-input-profile-first-cost-20261020-v1/B",
+  "actual_cost_baseline_pins": {
+    "main.c": {
+      "bytes": 11829,
+      "sha256": "11a32cc6c48ad16856e7968c5ba91456257c1b249590f0aa71a371d2fd276a93"
+    },
+    "native/x": {
+      "bytes": 26392,
+      "sha256": "f25e810153adc990337f82311265197ed07bc3b480b8860c40f5808c44ef4c5e"
+    },
+    "bootstrap.py": {
+      "bytes": 12894,
+      "sha256": "2e53f505c6715e644d9ecb66660e773f18c19700be9fa4112b1c5aefa0337b51"
+    },
+    "x": {
+      "bytes": 5461,
+      "sha256": "b0a3812a2f01b3989d01dd42dd8d5d4447ef75bb0b0f864831f4a46056b02971"
+    }
+  },
+  "accepted_baseline_receipt_metadata_only": {
+    "path": "/home/stemxstudio/rove4k-bce-input-profile-first-cost-20261020-v1/cost.json",
+    "bytes": 34447,
+    "sha256": "17fec69bafea30a4b53d9913744f9abf2889a438df439aeeb4e2c682a6e5be99"
+  },
+  "compiler": [
+    "cc",
+    "-std=c11",
+    "-Os",
+    "-pthread",
+    "-DWORKERS=2",
+    "-DTT_BITS=18",
+    "-DDEV=0",
+    "-x",
+    "c",
+    "-",
+    "-o",
+    "x"
+  ],
+  "profile": {
+    "workers": 2,
+    "TT_BITS": 18,
+    "PLY": 128,
+    "DEV": false
+  },
+  "compression": {
+    "format": "ALONE",
+    "preset": 9,
+    "extreme": true,
+    "lc": 2,
+    "lp": 0,
+    "pb": 0,
+    "mf": "BT4",
+    "dict_size": 67108864,
+    "nice_len": 32
+  },
+  "prefix": "#!/bin/sh\np=$(tail -c+78 \"$0\"|lzma -dc)||exit\nexec python3 -c \"$p\" \"$0\" \"$@\"\n",
+  "ALONE_header13": "0200000004ffffffffffffffff",
+  "cost_limits": {
+    "candidate_native": 1,
+    "candidate_ALONE": 1,
+    "control_compile_compress_copy": 0,
+    "owned_compile_group_timeout_seconds": 90,
+    "runtime_AST_standalonePP_DEV_games_benchmarks_variants_retries": 0
+  },
+  "source_only_FINAL5_preserved_metadata": {
+    "receipt_sha256": "ed8e790581ab5660223a4c573eef7919f734b18dd34fb05210e72c3c60901c68",
+    "aggregate_sha256": "91dc46a432aae8180baeff07eecf8acb21425cdd1bbf5d1c7501e431aae8db46"
+  },
+  "first_cost_metadata_only": {
+    "run": "/home/stemxstudio/rove4k-tiny-b-lva-order-cost-20261020/first-cost",
+    "cost_receipt": {
+      "bytes": 5462,
+      "sha256": "01daf1ba45610f8121cc18ec5f781dea3eff46ddf250ff32c7aab59d48ed168e"
+    },
+    "producing_recipe": {
+      "bytes": 9469,
+      "sha256": "0b23804fed445c22851cf51866b9418a7ddc2a1fee3e1b52c3512f3630e944b9"
+    },
+    "producing_source6_aggregate": "8e9ae50b2f63796564a6dde6f80781cdcaea1bf78826a8e11f5770974237f27a",
+    "native_compile": 1,
+    "ALONE_compress": 1,
+    "strict_pure_decodes": 2,
+    "owned_group_reaped_absent": true,
+    "disposition": "positive; no functional qualification dispatched"
+  }
+}
