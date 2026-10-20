@@ -1,6 +1,6 @@
 # Maintained minimal C entry
 
-`engine.c` is the readable canonical program for the selected **5,955-byte** C
+`engine.c` is the readable canonical program for the selected **5,947-byte** C
 source entry. It includes both development and shipping branches. Maintain this
 file when changing the program; compact C, ELF and the compressed executable
 are generated outputs. This entry preserves the existing selected algorithm,
@@ -8,7 +8,14 @@ resources, minimum UCI policy, compiler arguments, bootstrap and compression
 bytes. It performs no selection sweep and does not depend on historical output
 directories, executables, reports or network access.
 
-The selected entry remains **1,859 bytes above 4,096**. This source promotion
+The current source incorporates the already qualified shipping HCE-cache removal
+from its 5,955-byte predecessor: only `Board.v` and its two maintenance updates
+are DEV-only. The existing builder, verifier, compiler, spelling and transport
+contracts remain unchanged. The predecessor source and its exact archive and
+5,955-byte source/native/bootstrap/whole controls were preserved outside Git
+before this update.
+
+The selected entry remains **1,851 bytes above 4,096**. This source promotion
 does not establish 4KiB eligibility, playing strength or many-core scalability.
 The exact-byte domain is Linux x86-64, Ubuntu 24.04.4, GCC 13.3.0, binutils 2.42,
 glibc 2.39, Python 3.12.3 and xz 5.4.5. A different compiler/encoder result fails
@@ -51,7 +58,7 @@ literal replaced by one explicit marker. Its original compiler argv list stays
 verbatim. `launcher.sh` is the exact 75-byte prefix. Packaging inserts the source
 literal and applies one fixed XZ/LZMA2 preset 9 extreme configuration,
 `lc=3/lp=0/pb=2`, CRC64. The full shell/bootstrap/source/compiler bytes count
-toward the 5,955 bytes. Signal blocking, child process groups, forwarding,
+toward the 5,947 bytes. Signal blocking, child process groups, forwarding,
 wait/kill fallback, private `TMPDIR`, cleanup and fd execution are preserved.
 
 Each build preprocesses, compacts, compiles and packages independently twice.
@@ -62,10 +69,10 @@ Git; failures retain an incomplete report.
 
 | Exact output | Bytes | SHA-256 |
 | --- | ---: | --- |
-| Readable canonical engine | 26,952 | `f0bc01d4ebde79578248e1d210723bff6be0639e829c166d6204de02466c3e82` |
-| Compact shipping C | 14,244 | `6fc93fc02e63749ae8864c1a32bbbd3ef327540753189dbd6d871b1d7c23e779` |
-| Restored stdin native ELF | 26,464 | `3ecbded7c3df09fdbf2e85b6769595f023eaed4f2add807020f66270593afe5b` |
-| Complete selected source executable | 5,955 | `ec4037167559bf2aeda349af6330d0ef83712305d6c3c6e30f09d7cf70c1af46` |
+| Readable canonical engine | 27,003 | `1f0f18ffee91ecddea3cb31e7553e1d1415e25b3f759cdec4e0f375fcd0b2298` |
+| Compact shipping C | 14,206 | `dcbfb3e92b52e2ee902055aa7331c068b6b95226f00b1edfc4b63b789405105c` |
+| Restored stdin native ELF | 26,464 | `c948e31aea9f413614881b8e8e6060e5aa70314dd84b2d9b544e3f20edb99df2` |
+| Complete selected source executable | 5,947 | `76ed08f657398ac4b8cfbd0ff2230257ab18547f082b4c29af62428d802f33d3` |
 
 The diagnostic source and native ELF must respectively equal
 `31415fddd3cf1ebd378e58ccc41cdb2b9382df646e41f002653734a5e4d746bf`
@@ -110,6 +117,13 @@ table is shared across workers. Actual PVS/QS, coherent full-key locked TT,
 history, continuation, correction, repetition/halfmove context, legal move
 admission and completed-root publication boundaries remain unchanged.
 
+The current shipping Board is 168 bytes on the qualified LP64 target; DEV keeps
+the predecessor's 176-byte layout, incremental HCE updates and independent
+invariant oracle. The raw SIMD leaf and `best-evaluation` residual were already
+used before cache removal. That residual, its sign/clamp, startup PSQT and
+capture-priority `value()` calls are unchanged. The original readable comment
+describing incremental `v` now applies to the retained DEV field.
+
 Shipping `uci` returns only `uciok`; `isready` returns `readyok`.
 `position startpos [moves ...]` remains transactional. An own-side clock uses
 the original formula/caps and minimum 1 ms, while clockless bare go uses the
@@ -118,14 +132,38 @@ words are consumed without adding public controls. Next-go, position, quit and
 EOF still settle the old search before state reuse or resource release. DEV
 retains its stronger commands, identification, FEN and diagnostics.
 
-The exact original selection is bound by final evidence index SHA-256
-`71d1a8f86d09364fbe9f1f0a2138b5c87a8361a86b46e6756a182f754c9b9f9d`, producer
-build `552db533349aa3f33fadeb7bfb3fe41ce6a02f91549788ceef1095ab038e63a1` and
-separate C core/SIMD/context receipt
-`2d1efcd44b98062f09d564d8ebbac828d25b9250a441cbfe25c67f053c9bebd3`.
-Only hashes and scope metadata are stored here; none of those historical files
-is opened by the maintained build or source proof. That prior qualification
-includes exact source-bound optimized/sanitized PSQT parity over 369,255 boards
-and 738,510 SIMD calls per build, positive production search consumption, and
-nine direct actual-minimal-source context/PLY checks. Fresh generation/runtime
-reports remain separate from that inherited coverage and from CI acceptance.
+The exact current 5,947-byte selection is bound by the cache qualification index
+`67d7dce0b1852f7227f62f87c9b9568c9ebbc365274d182a4515e707200f2d11`, producer
+`ab45382eaae131897e9cb113f11d984cd7205d2040696941fb019d29f3dcac68`, focused
+actual-DEV0 state/core proof
+`ec77e71a259b9017ef8bd893e5b77e26388ebc396cea55e98144db7546573765`, and
+selected-file runtime
+`9885005c404b06b5403b6f7ea71839446687d99f5458b2fbc425c99246c80cf6`.
+Its optimized/sanitized proof compares 160,432 normalized positions, 150,419
+legal children, 832 PSQT terms, 14 special fixtures and 5,000 deterministic
+plies per run. Ten direct shipping core checks per form include actual TT
+context misses, draw/mate precedence, positive production learning and EP
+correction exclusion. The direct ply-abort fixture preserves fields installed
+from a completed depth-four search; it is not a new `think()` publication or
+concurrent-cancellation observation. Exact cross-form search score/node/table
+equality was not claimed.
+
+The separately retained 5,955-byte predecessor has source
+`f0bc01d4ebde79578248e1d210723bff6be0639e829c166d6204de02466c3e82`, source tree
+`720ce86c92d8ffe48689ce5064ad0a8eee21b7c2`, archive
+`ec6a6b09c96f25035255fdebc890b0ab0127035686f5e4e7287282d0b94e1345` and maintained
+source receipt
+`6bf1a0b9a8c967618409a763f0531bdbe69f5a225c9d380c805245cba1f9a44c`.
+Its original portfolio index, producer and C core/SIMD/context receipts remain
+separate predecessor metadata in the recipe. The unchanged PSQT/math and exact
+DEV identities support reuse of the prior 369,255-board/738,510-SIMD-call
+optimized/sanitized coverage; that is not relabeled as a new execution of the
+changed shipping layout.
+
+Only hashes and scope metadata are stored here. No historical report, build,
+archive, executable or cache-experiment output is opened by the maintained
+build/fresh/verifier commands. The cache experiment itself has an independent
+owned control source/recipe/bootstrap and does not consume this mutable entry.
+Fresh source archives and selected-file sessions establish regeneration and
+physical runtime for this promotion separately from the reused focused proofs
+and from project-HEAD CI acceptance.

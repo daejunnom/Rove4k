@@ -32,7 +32,11 @@ typedef unsigned Move;
  * h is the FIDE repetition key, v incremental white HCE, r the reversible
  * path digest used only for TT context. e=-1 means no LEGAL en passant.
  */
-typedef struct { int8_t b[128]; int s,c,e,k[2],half,v; uint64_t h,r; } Board;
+typedef struct { int8_t b[128]; int s,c,e,k[2],half
+#if DEV
+,v
+#endif
+; uint64_t h,r; } Board;
 #if DEV
 #endif
 #define FROM(m) ((m)&127)
@@ -95,9 +99,17 @@ static uint64_t state(const Board *p){
 }
 static void put(Board *p,int q,int v){
     int old=p->b[q];
-    if(old){p->h^=piece(old,q);p->v-=value(old,q);}
+    if(old){p->h^=piece(old,q);
+#if DEV
+p->v-=value(old,q);
+#endif
+}
     p->b[q]=(int8_t)v;
-    if(v){p->h^=piece(v,q);p->v+=value(v,q);if(abs(v)==6)p->k[v<0]=q;}
+    if(v){p->h^=piece(v,q);
+#if DEV
+p->v+=value(v,q);
+#endif
+if(abs(v)==6)p->k[v<0]=q;}
 }
 static int walk(const Board *,Move *,int,int);
 int attacked(const Board *p,int sq,int side){return walk(p,0,sq,side);}

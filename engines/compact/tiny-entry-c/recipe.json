@@ -63,30 +63,37 @@
     "check": "CRC64"
   },
   "expected": {
-    "readable_sha256": "f0bc01d4ebde79578248e1d210723bff6be0639e829c166d6204de02466c3e82",
-    "source_bytes": 14244,
-    "source_sha256": "6fc93fc02e63749ae8864c1a32bbbd3ef327540753189dbd6d871b1d7c23e779",
+    "readable_sha256": "1f0f18ffee91ecddea3cb31e7553e1d1415e25b3f759cdec4e0f375fcd0b2298",
+    "source_bytes": 14206,
+    "source_sha256": "dcbfb3e92b52e2ee902055aa7331c068b6b95226f00b1edfc4b63b789405105c",
     "native_bytes": 26464,
-    "native_sha256": "3ecbded7c3df09fdbf2e85b6769595f023eaed4f2add807020f66270593afe5b",
-    "whole_bytes": 5955,
-    "whole_sha256": "ec4037167559bf2aeda349af6330d0ef83712305d6c3c6e30f09d7cf70c1af46",
-    "bootstrap_sha256": "b9f53df818ab01b1b91c398154c2c9bed40d7623456dedcc1b9bebd96f29a546",
+    "native_sha256": "c948e31aea9f413614881b8e8e6060e5aa70314dd84b2d9b544e3f20edb99df2",
+    "whole_bytes": 5947,
+    "whole_sha256": "76ed08f657398ac4b8cfbd0ff2230257ab18547f082b4c29af62428d802f33d3",
+    "bootstrap_sha256": "cc59eb95c78fad30a81da5a9c7bfec2706e48a8207058b855d2b839c77ec17e3",
     "dev_source_sha256": "31415fddd3cf1ebd378e58ccc41cdb2b9382df646e41f002653734a5e4d746bf",
     "dev_native_sha256": "5e9b05e55cba56c63b180c2dce1d9330d2f3a69d7563360e35484684ebb730ba"
   },
   "local_input_sha256": {
-    "engine.c": "f0bc01d4ebde79578248e1d210723bff6be0639e829c166d6204de02466c3e82",
+    "engine.c": "1f0f18ffee91ecddea3cb31e7553e1d1415e25b3f759cdec4e0f375fcd0b2298",
     "bootstrap.py.in": "68e4544370fdd2ca3d240963a0782004f955930187c3d8edfda78cc2f59b7f6a",
     "launcher.sh": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a"
   },
   "qualified_receipt": {
-    "final_evidence_index_sha256": "71d1a8f86d09364fbe9f1f0a2138b5c87a8361a86b46e6756a182f754c9b9f9d",
-    "producer_build_sha256": "552db533349aa3f33fadeb7bfb3fe41ce6a02f91549788ceef1095ab038e63a1",
-    "core_SIMD_context_receipt_sha256": "2d1efcd44b98062f09d564d8ebbac828d25b9250a441cbfe25c67f053c9bebd3",
-    "scope": "exact readable/compact/native/whole/DEV identity reuses the separately qualified C PSQT SIMD/context/PLY proof; no historical file is a regeneration input"
+    "final_evidence_index_sha256": "67d7dce0b1852f7227f62f87c9b9568c9ebbc365274d182a4515e707200f2d11",
+    "producer_build_sha256": "ab45382eaae131897e9cb113f11d984cd7205d2040696941fb019d29f3dcac68",
+    "focused_DEV0_state_core_receipt_sha256": "ec77e71a259b9017ef8bd893e5b77e26388ebc396cea55e98144db7546573765",
+    "selected_runtime_receipt_sha256": "9885005c404b06b5403b6f7ea71839446687d99f5458b2fbc425c99246c80cf6",
+    "predecessor_5955": {
+      "maintained_source_receipt_sha256": "6bf1a0b9a8c967618409a763f0531bdbe69f5a225c9d380c805245cba1f9a44c",
+      "portfolio_index_sha256": "71d1a8f86d09364fbe9f1f0a2138b5c87a8361a86b46e6756a182f754c9b9f9d",
+      "producer_build_sha256": "552db533349aa3f33fadeb7bfb3fe41ce6a02f91549788ceef1095ab038e63a1",
+      "core_SIMD_context_receipt_sha256": "2d1efcd44b98062f09d564d8ebbac828d25b9250a441cbfe25c67f053c9bebd3"
+    },
+    "scope": "exact qualified5947 readable/compact/native/whole identity reuses focused newDEV0 layout/state/core and selected runtime proof; exact unchangedDEV and SIMD/math coverage remain separate predecessor reuse; no historical file is a regeneration input"
   },
   "provenance": {
-    "origin": "maintained readable minimal C, startup PSQT + actual AVX2 gather leaf; unchanged selected UCI policy",
+    "origin": "maintained readable minimal C, shipping HCEcache removed with exactDEV retained; startup PSQT/actualAVX2 leaf and selectedUCI unchanged",
     "representation_decisions": "actual selected C has no token renames, function spellings, resource literal substitutions or strip flag",
     "stitch_helper": "only fixed strip_dev_counters consumed; actual expected bytes gate every result"
   }

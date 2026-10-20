@@ -51,6 +51,11 @@ and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/r
 It regenerates the 5,140-byte A, the maintained B/C/E/F wrappers and both
 maintained C D own-ELFs, then runs their selected files and restored images.
 Both no_std Rust D paths also retain their actual runtime/trace checks.
+The B/C experiment-source checkpoint `7d86a07` passes both language jobs in its
+[exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39359052804)
+and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39359052729).
+Its ordinary maintained entries are exercised; the separately recorded B6155
+and C5947 experimental qualification is local evidence, not an additional CI step.
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
@@ -1161,7 +1166,7 @@ The maintained selected complete-file costs are:
 | --- | ---: | ---: | --- |
 | A | 5,140 B | 1,044 B | Ownership/query source plus LZMA-alone entry |
 | B | 6,219 B | 2,123 B | Minimum-UCI source entry |
-| C | 5,955 B | 1,859 B | Actual SIMD/PSQT source entry |
+| C | 5,947 B | 1,851 B | SIMD/PSQT entry with DEV-only HCE cache |
 | D scalar / HQ | 7,640 / 7,881 B | 3,544 / 3,785 B | Own self-restoring ELF |
 | E | 5,899 B | 1,803 B | Untrained model/order composition source entry |
 | F | 5,479 B | 1,383 B | Full-depth MTD(f) source entry |
@@ -1297,8 +1302,24 @@ legal clocks/bare go and physical quit/EOF. The fourteen-source final receipt is
 `67d7dce0b1852f7227f62f87c9b9568c9ebbc365274d182a4515e707200f2d11`.
 
 Both experiments keep their original cost reports separate from later focused
-qualification. Maintained B/C entries remain unchanged; neither experiment is
-promoted as the final profile or accepted for 4 KiB. Actual active exits retain
+qualification. At their experimental checkpoint the maintained B/C entries
+remained unchanged. Neither is accepted as the final profile or for 4 KiB. Actual active exits retain
 cancellation causality as unproven. These later local results are outside the
 `4e3af24` CI claim. Final resource/stack/profile comparisons, games and target
 hardware work remain outstanding.
+
+The exact C5947 candidate is subsequently promoted to the maintained C entry.
+Only readable `engine.c`, the explicitly pinned recipe and README change; the
+builder, verifier, fresh driver, compiler/profile, codec, prefix and bootstrap
+remain identical to the preserved C5955 predecessor. The historical experiment
+has its own control source and does not consume the mutable maintained entry.
+Two independent extractions of the new fifteen-file source archive each repeat
+shipping/DEV generation and run two actual selected-file sessions, for four
+new physical sessions total. Shipping/native/whole and unchanged DEV pins all
+match the qualified candidate. The promotion receipt is
+`69cf45d8c105e2c5c8622a5319d09cb0248c8a2a122d6ce2e63fe77206b104d4`;
+source tree `13f03c96bb8daa802dd56a48ba831f63b1f548ab` and archive
+`089f36326e7ec3a441b0f11766ee1ed1ed3dd74b57c2a139cbdf239b1e065a73`.
+Broad state/search proof is reused by exact candidate identity; it is not rerun
+or replaced by source regeneration. This source promotion still requires its
+own later-head CI result and does not select the final target profile.
