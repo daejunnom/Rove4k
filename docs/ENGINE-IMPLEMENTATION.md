@@ -85,6 +85,11 @@ jobs in its [exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/393
 and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39368674790).
 The C job actually regenerates and executes F5179. The A/F, D phase/composition
 and Rust data8 experiments below retain their separate local evidence scopes.
+The maintained-A/D checkpoint `1f35a6e` passes both language jobs in its
+[exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39370590464)
+and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39370590452).
+It actually regenerates and executes maintained A5072 and D7478/7718. The
+separately recorded E fusion loss is source/cost evidence, not a CI engine run.
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
@@ -100,12 +105,12 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
-| A | 5,072 B | 976 B | Shared startup/search phase counter, owned move query, fixed private spelling |
+| A | 4,980 B | 884 B | Shared startup/search phase counter, owned move query, fixed local/object spelling |
 | B | 5,955 B | 1,859 B | Hybrid bitboards, legal SEE/singular and fixed private spelling |
 | C | 5,723 B | 1,627 B | Real AVX2 evaluation, cache removal and fixed private spelling |
 | D scalar / HQ | 7,478 / 7,718 B | 3,382 / 3,622 B | Own ELF restoration, metadata-first Board and shared PVS retry phase |
 | E | 5,679 B | 1,583 B | All 21 untrained coefficients in evaluation/ordering; fixed spelling |
-| F | 5,179 B | 1,083 B | Full-depth MTD(f), beta-only search and fixed private spelling |
+| F | 5,083 B | 987 B | Full-depth MTD(f), beta-only search and fixed local/object spelling |
 
 The separate Rust D native images are 16,816 bytes each. Their independent
 packed experiment retains its own qualification state and does not silently
@@ -1976,3 +1981,137 @@ Final index SHA is
 actual first-cost receipt is
 `2c2417db620d65f12d31807529dc13a055bcd3b037c6a69c328b7382e0149b0b`.
 This records a rejected size result, not new functional acceptance for E.
+
+## A/F private object spelling
+
+The [storage18 experiment](../engines/experiments/tiny-alpha-storage-af/README.md)
+adds one fixed `qa` through `qr` mapping for eighteen private shipping objects
+after the earlier type/member/local policies. The original conservative object
+protection was audited against actual consumers: pthread/atomic calls use their
+addresses and values, and these single-translation-unit entry builds have no
+consumer of the remaining object spellings. Public/API functions, directive
+consumers, types, members and strings remain protected. In particular Move is
+still consumed by the MOVE directive and remains unchanged. Aliases are not
+searched or retried; actual source and expanded-header freshness are checked.
+
+| Family | Compact source before / after | Whole before / after | Actual whole saving |
+| --- | ---: | ---: | ---: |
+| A | 10,606 / 10,184 B | 5,072 / 4,980 B | 92 B |
+| F | 11,216 / 10,745 B | 5,179 / 5,083 B | 96 B |
+
+A uses seventeen names at 87 occurrences and F uses eighteen at 99. Actual
+source savings are 422/471 B; the earlier manual estimate missed one mutex
+occurrence per family and remains preserved separately. Both independent
+candidate natives match the original complete ELF bytes before codec. Raw
+full-PP alias-only inverse, complete final macro dumps and separate configured
+profile probes pass. DEV, native code, compiler, profile, codec and launchers
+remain unchanged. These equivalences are scoped to the admitted A/F entries,
+not an assertion about unstripped entries in other families.
+
+Four actual selected-wrapper sessions pass sixteen GO epochs, exact restored
+native image, three persistent startup TIDs, legal results and physical
+reader/process/path settlement. Cancellation causality remains unproven.
+Forty-four ordinary sources freeze the producer and the executed adapter.
+Final index SHA is
+`2824e102ceb29316a522982fb8c249c0f8fd8588a2cfa0e4b6b4d5fb9649074c`;
+actual runtime receipt is
+`304b37c55065752cb1c723ad73e9d713f6681c32fc8ad91616a2ac340afc7ea1`.
+The candidates remain 884/987 B oversized. Their subsequent maintained-source
+promotion and fresh-archive execution are separate steps.
+
+The maintained A/F entries now promote those exact selected bytes through six
+builder/recipe/README files and one shared ordinary
+`engines/scripts/fixed_shipping_storage.py`. The helper embeds the identical
+fixed policy and lexical/opaque checks; its readable reservation union is
+embedded from the exact audited canonical inputs. A caller supplies only its
+own family's canonical/source bytes. There is no runtime experiment/report,
+other-family file or generated-source dependency. The stage follows the local
+alpha map, and DEV bypasses both shipping stages. Existing engine/local alpha,
+fresh/verifier tools, compiler/profile/template/launcher/codec remain exact.
+The root helper LF attribute is separate repository metadata.
+
+Old A10/F10 sources, closures, archives and shipping/DEV outputs are preserved
+before editing. New normal source closures contain eighteen A files and
+seventeen F files, twenty-eight unique files. Each family archive has two
+independent extractions, each repeating shipping and DEV generation/compilation.
+The full native ELF and both DEV identities remain unchanged, without build-ID
+or nonallocated-section exceptions. Eight new actual wrapper sessions pass
+thirty-two GO epochs, exact native image, persistent three-TID startup, legal
+clock/bare output and active quit/EOF physical settlement. No new broad core,
+PP, game, benchmark or DEV-engine run is inferred; earlier source/PP/core proof
+is reused by exact source/native identity.
+
+Final maintained promotion index SHA is
+`71b68e367a2505b3bf21b6f36ad527f5da52b317b4549da27a75a1186661dcb5`;
+raw-source/output freeze is
+`fa731d627a422c08ad94311fea50b14ac29667db726fb7c3b0fb3ccd6764b047`;
+normal-source union archive is
+`ab663f9f8aae0ce2ca40634566256917c4c639be52a9af03a52ec1ad9e2bb7ae`.
+This local source promotion awaits its exact-head CI. Both families remain
+oversized and cancellation causality remains unproven.
+
+## B bitboard material predicate: unchanged whole cost
+
+The [B dead-bb experiment](../engines/experiments/tiny-b-dead-bb/README.md)
+replaces only the insufficient-material mailbox scan with existing coherent
+piece/occupancy bitboards. It introduces no new Board state or table. Its
+unsigned minor-population and bishop-color expression is statically equivalent
+under the canonical bb/mailbox consistency contract; no repair of stale or
+arbitrary manual objects is implied.
+
+Readable source falls 77 B, pre-alpha shipping falls 47 B, but after the same
+fixed policy compact source falls only **13,606 to 13,602 B**. Native text grows
+7 B while the full ELF remains 26,592 B with different contents. The actual
+complete file stays **5,955 B**, a zero-byte saving. Both original controls and
+independent candidates reproduce. Candidate alias-only full PP inverse, macro
+definitions and full native equality before/after alias pass; the old and new
+structural natives are different identities.
+
+Twenty-four ordinary sources freeze this neutral first cost. Final index SHA
+is `f77eab167403f98d570adfe7063f831d259470f6e0fb05f23a0f8fbc012b6148`;
+actual cost receipt is
+`a0abaebf810de912c9a997a5ac9000aed6b203574c3f88a2e694550f05824bb3`.
+There is no candidate engine/material fixture/board/search/runtime/game or
+benchmark execution, no promotion and no speed claim. The target5899 source
+remains a separate candidate and is not combined with this measured result.
+
+## C query/reset/startup composition first cost
+
+The [C entry composition](../engines/experiments/tiny-c-entry-composition/README.md)
+transfers three source decisions into the actual C program: nullable-text query
+and made-child replay share one legal walk; think owns best reset instead of a
+GO-wide worker loop; startup arrivals share pending and the existing wait.
+The entire prefix before think, including Board/shipping-v handling, rules,
+PSQT constructor, actual AVX2 leaf, TT and search, remains byte-identical.
+King-capture/list guards and compiler/profile/codec remain unchanged. Initial
+stopped becomes one before first GO and direct think resets best; these private
+differences require their own C tests rather than inherited A acceptance.
+
+Readable source falls **27,003 to 26,692 B**, compact source **12,526 to
+12,224 B**, native **26,464 to 26,424 B** and actual whole **5,723 to 5,687 B**.
+Original shipping/DEV controls reproduce twice, and both independent candidate
+source/native/bootstrap/whole files match. Candidate full native bytes before
+and after fixed89 alias are equal; they differ from the old C native.
+
+The first attempt stopped before candidate compilation because a new owned guard
+incorrectly requires raw macro-dump order equality. Complete raw definitions
+and duplicate counts are equal, with order only different. The failed run and
+its source snapshot remain preserved. The corrected owned gate uses
+Counter(raw.splitlines(keepends=True)): every definition byte/ending and count
+must match, while raw-order equality is recorded separately as false. No
+whitespace or numeric normalization is introduced, full raw PP alias inverse
+remains strict, and existing frozen helper/guard domains stay unchanged.
+Independent review also repairs a nonunique inverse site and establishes owned
+process-group lifetime for candidate preprocessing before successful compilation.
+
+Twenty-eight ordinary sources close this cost-only candidate. Final index SHA
+is `f98cfee22ee4c2895719d4a6286873c12d49ca4cdce11c9ee4a16eea40b65244`;
+successful actual cost is
+`88e1dc9273c7231e33ff2783323b55353937c9a6c795b6727fc3fb31ba208932`;
+preserved first failure is
+`9e67f4282cb8ad710e51a996d1229bea2cff66c3453b5fea9a68ff9bccdc49db`.
+At this first-cost checkpoint candidate DEV/engine/semantic execution is zero.
+Selected executable candidate-1/2 files are mode 0755; the selected/x copy is
+0644 and has not been executed. C-specific query/ownership/startup/SIMD and
+selected-wrapper proof is a separate in-progress step. This candidate remains
+1,591 B oversized and does not replace the maintained C entry automatically.

@@ -3,9 +3,9 @@
 `engine.c` is the readable canonical source for the selected minimal F entry.
 It contains the shipping and diagnostic forms together. The qualified
 production integer-unit-window beta-only core is unchanged. This version adds
-one fixed shipping-only spelling policy after the previous 5,407-byte entry.
-The complete selected file is **5,179 bytes**, a 228-byte reduction and still
-**1,083 bytes above 4,096**. This folder does not
+the prior fixed shipping-only 73-name spelling stage, followed by the qualified
+18-name storage spelling stage. The complete selected file is **5,083 bytes**,
+a 96-byte reduction from 5,179 and still **987 bytes above 4,096**. This folder does not
 claim 4 KiB eligibility, strength, fair NPS or general target portability.
 
 The selected program keeps full-depth MTD(f), stable leaves, exact-horizon and
@@ -51,12 +51,16 @@ two independent attempts performs these fixed steps:
    the unchanged canonical readable F. Require all 517 occurrences, 416 directive
    bytes and 52 opaque regions to match the literal policy. The three resource
    identifiers have zero occurrences at this final stage.
-6. Compile through stdin with `cc -Os -pthread -x c - -o x -s`, then package
+6. Apply the exact 18-name storage map from the ordinary shared
+   `fixed_shipping_storage.py` to the admitted 11,216-byte F73 output. All
+   99 occurrences and opaque inventories must match. No resource or PLY
+   substitution occurs in this stage.
+7. Compile through stdin with `cc -Os -pthread -x c - -o x -s`, then package
    the selected bootstrap without changing its behavior.
 
-Five tracked helpers are required: `engines/scripts/specialize.py`, `minify.py`,
-`rename_c.py`, `engines/compact/tiny-a/pack_stream.py` and the local
-`shipping_alpha.py`. Their LF-normalized
+Six tracked helpers are required: `engines/scripts/specialize.py`, `minify.py`,
+`rename_c.py`, `engines/compact/tiny-a/pack_stream.py`, the local
+`shipping_alpha.py` and `engines/scripts/fixed_shipping_storage.py`. Their LF-normalized
 SHA-256 values are pinned. They are copied and checked before import and use
 only the Python standard library. The previous shared `tiny-f/overlay.py`
 stripper is not consumed; its older schema still correctly requires a PVS
@@ -81,10 +85,10 @@ unlinked native image.
 | Output | Bytes | SHA-256 |
 | --- | ---: | --- |
 | Readable engine.c | 26,100 | `dc065b98d99a147f862bd2d4cb0a1349ff79a2da7c1be873d906dff71cc9cd89` |
-| Compact shipping C | 11,216 | `5c4008afe4a0708558eb829c815a7a095c436df92a3a7685e8553e24efedb991` |
+| Compact shipping C | 10,745 | `fa03bfe65508b5fd72097940cea869c79744a8d3d2fa3bd09f8cd60b90173dc2` |
 | Restored stdin native ELF | 22,664 | `ef10962ff16e5158e0cb18cbf96b944404bd1c4db301bfbb47a0faed33466c22` |
-| Complete launcher | 5,179 | `41a730c266082b1c8285fef7972eb158704cd7411a475d4eecc9dd058ef587aa` |
-| Decoded bootstrap | 12,215 | `a369aabcd6a9138443076595b5d71e3198ee58db12d825a7f7fbc0dc8510bbcc` |
+| Complete launcher | 5,083 | `c4308bd1173d93a5ae83055ae0dd535264d4fec0c938dc4a78ccc2536e25ff02` |
+| Decoded bootstrap | 11,744 | `27140179b5d628d1458cc79936f5c541512ecf6a191b1754a5ce760d3245484d` |
 | DEV C | 19,852 | `9528b0e97f71d2d07d60a63956fc19a9156f778b30088b34f62e4eb445260ece` |
 | DEV native ELF | 31,120 | `bd71ff07625fa9891a4b4ef79c50b5215fa4169f18d83f15d9378fe833872a2d` |
 
@@ -105,9 +109,9 @@ python3 -B /absolute/new/archive-proof/checkout-2/engines/compact/tiny-entry-f/v
   --build /absolute/new/archive-proof/build-2 --out /absolute/new/runtime-proof-2
 ```
 
-`fresh.py` names this folder's original nine files, the five pinned build
-helpers (including the local ordinary policy) and two independent verifier
-helpers: 16 source files. Its original fixed LOCAL inventory is unchanged; the
+`fresh.py` names this folder's original nine files, the six pinned build
+helpers (including the local alpha and shared storage policies) and two
+independent verifier helpers: 17 source files. Its original fixed LOCAL inventory is unchanged; the
 policy is included through the recipe's explicit helper path. It preserves raw bytes and
 an LF-normalized payload in an isolated local Git repository without remote or
 commits, then writes a tree and archive. The project checkout's index is never
@@ -152,8 +156,9 @@ trigraph spellings fail. Exact token counts, savings arithmetic, directive and
 opaque inventories and candidate source SHA must match. There is no alias,
 resource, compiler or codec search, and DEV bypasses this stage.
 
-The final fixed spelling map reduces shipping source by 1,506 bytes and the
-complete package by 228 bytes. The complete native ELF, including build ID and
+The earlier F73 spelling map reduces shipping source by 1,506 bytes and the
+complete package by 228 bytes. The subsequent storage stage saves another
+471 source bytes and 96 complete-file bytes. The complete native ELF, including build ID and
 nonallocated sections, equals the previous literal control. Readable F and both
 DEV outputs are also unchanged. Each archived regeneration independently
 repeats these complete-byte gates; no section exception is used.
@@ -216,3 +221,42 @@ shipping/DEV controls. New promotion receipts and regeneration/runtime evidence
 also stay outside Git. Historical paths in the recipe are metadata only.
 No strength match, fair NPS, broad campaign, CI success or 4 KiB acceptance
 follows from this source promotion.
+
+## Fixed storage stage and qualification reuse
+
+The shared ordinary `fixed_shipping_storage.py` embeds the exact storage18
+policy JSON with SHA-256
+`e89afbf078f902a4cfc3c0ee8c1fba525966be76e4df14b18f50746c2d40cff3`.
+It binds the current family, post-alpha shipping source and canonical readable
+bytes before applying the same fixed name-to-alias decisions. It contains its
+own pure lexical and independent opaque/rewrite logic. It reads no experiment,
+report, other engine source or generated artifact. Reserved aliases from the
+reviewed pair remain literal policy evidence; this build checks its own exact
+canonical source, rather than claiming a fresh cross-engine scan.
+
+The 18 decisions rename only the audited same-TU external objects, file-static
+objects and block-static objects. Functions, types, Move, directive bytes,
+strings, external ABI and all previous local alpha decisions remain unchanged.
+Both shipping stages are bypassed for DEV. Full source/candidate/native pins
+are reviewed constants; a different input, occurrence inventory, opaque region,
+resource use or complete ELF fails rather than learning a new expectation.
+
+The qualified storage experiment FINAL44 index is
+`2824e102ceb29316a522982fb8c249c0f8fd8588a2cfa0e4b6b4d5fb9649074c`;
+its cost receipt is
+`505932407b3b306c8a9122cf7da11f1200a75a4f39cb821101afffbca095106d`
+and actual selected runtime receipt is
+`304b37c55065752cb1c723ad73e9d713f6681c32fc8ad91616a2ac340afc7ea1`.
+These are historical metadata, never normal regeneration inputs. Their strict
+compiler-expanded inverse, final macro definitions and actual-header alias
+freshness checks are reused by exact before/after source identity. Broad core
+proofs are reused by the unchanged complete native ELF; DEV pins also remain
+unchanged. The present fresh-source promotion checks regeneration separately
+from each selected wrapper's actual image, stable startup TIDs, legal clocks,
+finite bare go, physical quit/EOF and cleanup. It does not run new games,
+benchmarks, compiler variants or a second policy.
+
+Before promotion the original ten local source files and full named build/test
+closure, old source archive, shipping and DEV controls were preserved outside
+Git. Each fresh extraction contains the new shared helper and its own fixed
+recipe, so historical reports or generated bytes cannot become its only input.

@@ -5,11 +5,12 @@ It contains the development and shipping forms together. Edit this source when
 changing the program; do not maintain the compact C or compressed launcher by
 hand. It incorporates qualified query/job ownership, the measured LZMA-alone
 transport and startup-counter ownership source, followed by one fixed
-shipping-only A31 spelling policy that preserves PLY uses. Search policy, compiler argv,
+shipping-only A31 spelling policy that preserves PLY uses, then the qualified
+18-name storage spelling policy. Search policy, compiler argv,
 worker resources and the Python bootstrap's process/signal/cleanup logic remain unchanged.
 
-The complete selected launcher is **5,072 bytes**, a 57-byte reduction from
-5,129 and still 976 bytes above 4,096. This
+The complete selected launcher is **4,980 bytes**, a 92-byte reduction from
+5,072 and still 884 bytes above 4,096. This
 folder does not claim the 4 KiB target, a strength result or general target
 portability. Its qualified environment is Ubuntu 24.04.4 x86-64, GCC 13.3.0,
 binutils 2.42, glibc 2.39, Python 3.12.3 and xz/lzma 5.4.5. Python's linked LZMA encoder is
@@ -46,13 +47,18 @@ the fixed resource substitutions, and 31 function spellings, all in application
 order. Shipping then applies the owned ordinary `shipping_alpha.py` fixed
 31-name map with all 95 token occurrences checked. PLY is protected and retains
 all eight code uses; the final WORKERS/TT_BITS spelling stage has zero resource
-occurrences. No identifier, compiler, flag, compression or runtime search is run.
+occurrences. The subsequent `fixed_shipping_storage.py` stage applies the fixed
+18-name storage map to this exact A31 output: 17 names have 87 occurrences,
+`ready` is unused, and PLY retains all eight code uses. No identifier, compiler,
+flag, compression or runtime search is run.
 `bootstrap.py.in` preserves the selected bootstrap with only its source literal
 replaced by one explicit marker; `launcher.sh` is its exact launcher prefix.
 
-Six repository helpers are needed: `engines/scripts/specialize.py`,
+Seven repository helpers are needed: `engines/scripts/specialize.py`,
 `minify.py`, `rename_c.py`, and `engines/compact/tiny-a/stitch.py` plus
-`pack_stream.py`, together with the local `shipping_alpha.py`. Their relative paths and LF-normalized SHA-256 values are
+`pack_stream.py`, the local `shipping_alpha.py`, and the ordinary shared
+`engines/scripts/fixed_shipping_storage.py`. Their relative paths and
+LF-normalized SHA-256 values are
 pinned in the recipe. The builder copies and checks these files before importing
 them from its external output, and uses only Python standard libraries. It does
 not read an old experiment directory, report, build.json, executable, dependency
@@ -67,10 +73,10 @@ in the external output. An incomplete report remains incomplete on failure.
 | Output | Bytes | SHA-256 |
 | --- | ---: | --- |
 | Readable engine.c | 24,820 | `71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734` |
-| Compact shipping C | 10,606 | `252d87ed58df8c86b2d7898fafcedc0bed1c3bab447846b484e5afbdd5b27ac3` |
+| Compact shipping C | 10,184 | `9e764bbbea91f198a4cb5aff62aae9f3007df5f715d4d8b8142e4795b5109d5a` |
 | Stripped native ELF | 22,672 | `84ce7fd107783474af8f39aeec7b95c244d475ab797eefd2627b9741b265210a` |
-| Complete launcher | 5,072 | `47370ce2d27e84349eade3f7b3ff698f5e76f1cb382531e409420b6dbbbb8f2d` |
-| Decoded bootstrap | 11,596 | `7278a0af96c7217cbdec383692a4b7996d6c73b096cd32ea2dc2c4060caf558c` |
+| Complete launcher | 4,980 | `4f339d08d99e51cd5935f20cc10d0665ed19f515e227cb5fa6be1623e7b21a8d` |
+| Decoded bootstrap | 11,174 | `1397aa310d1ae1e65b528f3f12977494cde173356313b687436ec3b15b37a391` |
 
 The diagnostic C and ELF must equal the explicitly admitted startup-source DEV:
 `41ab9f0f5d28183b76833d038c40e0bb6a2ee6ef9303766c293dd577680a4c9c`
@@ -97,8 +103,9 @@ python3 -B /absolute/new/archive-proof/checkout-2/engines/compact/tiny-entry-a/v
 ```
 
 `fresh.py` names the complete source closure explicitly: this folder's original
-nine files, the six pinned build helpers (including the new local policy) and
-the two pinned independent test helpers, totaling 17 ordinary files. The local
+nine files, the seven pinned build helpers (including local alpha and shared
+storage policies) and the two pinned independent test helpers, totaling 18
+ordinary files. The local
 policy enters through `recipe.helper_sha256`; `fresh.py` is unchanged.
 It preserves raw input bytes, copies their explicit LF-normalized forms into a separate local Git repository with no
 remote or commits, writes a tree and archives that tree. It never changes the
@@ -163,8 +170,9 @@ These identities are metadata only, never regeneration inputs.
 
 Each independent archive extraction makes two shipping and DEV generations,
 with complete native ELF (including build ID and nonallocated sections) and
-DEV bytes equal to the previous controls. The new complete file is 57 bytes
-smaller; source is 249 bytes smaller. Readable source, search, startup, clock,
+DEV bytes equal to the previous controls. The earlier A31 complete file was 57 bytes
+smaller; its source was 249 bytes smaller. The final storage stage saves a
+further 422 source bytes and 92 complete-file bytes. Readable source, search, startup, clock,
 parser, resource profile, native compiler and LZMA-alone packaging are unchanged.
 Broad core/rule/search/startup proofs are reused by those exact identities;
 only the needed new selected-file image, clocks, quit and EOF checks are run.
@@ -249,8 +257,9 @@ raw controls, reproduces and strictly decodes each twice, then independently
 encodes/decodes the one combined whole file twice. It runs no engine/compiler.
 That cost-only producer deliberately uses immutable external control artifacts;
 the canonical builder here instead reads only the maintained ordinary source,
-fixed recipe/template/prefix and then-five tracked helpers. The current
-spelling promotion adds its local ordinary policy as a sixth helper. There is no runtime
+fixed recipe/template/prefix and then-five tracked helpers. The earlier A31
+promotion added its local ordinary policy as a sixth helper; storage18 adds
+the seventh. There is no runtime
 dependency on the composition folder or those historical artifacts.
 
 The old 5,207-byte nine-file canonical, archive tree
@@ -309,3 +318,42 @@ is consumed here, and all final identity gates still apply. Fresh archive and
 physical-run receipts distinguish new checks from that reused coverage. No
 general rules suite, strength match, fair NPS study or many-core target campaign
 is implied by this promotion.
+
+## Fixed storage stage and qualification reuse
+
+The shared ordinary `fixed_shipping_storage.py` embeds the exact storage18
+policy JSON with SHA-256
+`e89afbf078f902a4cfc3c0ee8c1fba525966be76e4df14b18f50746c2d40cff3`.
+It binds the current family, post-alpha shipping source and canonical readable
+bytes before applying the same fixed name-to-alias decisions. It contains its
+own pure lexical and independent opaque/rewrite logic. It reads no experiment,
+report, other engine source or generated artifact. Reserved aliases from the
+reviewed pair remain literal policy evidence; this build checks its own exact
+canonical source, rather than claiming a fresh cross-engine scan.
+
+The 18 decisions rename only the audited same-TU external objects, file-static
+objects and block-static objects. Functions, types, Move, directive bytes,
+strings, external ABI and all previous local alpha decisions remain unchanged.
+Both shipping stages are bypassed for DEV. Full source/candidate/native pins
+are reviewed constants; a different input, occurrence inventory, opaque region,
+resource use or complete ELF fails rather than learning a new expectation.
+
+The qualified storage experiment FINAL44 index is
+`2824e102ceb29316a522982fb8c249c0f8fd8588a2cfa0e4b6b4d5fb9649074c`;
+its cost receipt is
+`505932407b3b306c8a9122cf7da11f1200a75a4f39cb821101afffbca095106d`
+and actual selected runtime receipt is
+`304b37c55065752cb1c723ad73e9d713f6681c32fc8ad91616a2ac340afc7ea1`.
+These are historical metadata, never normal regeneration inputs. Their strict
+compiler-expanded inverse, final macro definitions and actual-header alias
+freshness checks are reused by exact before/after source identity. Broad core
+proofs are reused by the unchanged complete native ELF; DEV pins also remain
+unchanged. The present fresh-source promotion checks regeneration separately
+from each selected wrapper's actual image, stable startup TIDs, legal clocks,
+finite bare go, physical quit/EOF and cleanup. It does not run new games,
+benchmarks, compiler variants or a second policy.
+
+Before promotion the original ten local source files and full named build/test
+closure, old source archive, shipping and DEV controls were preserved outside
+Git. Each fresh extraction contains the new shared helper and its own fixed
+recipe, so historical reports or generated bytes cannot become its only input.

@@ -104,6 +104,7 @@ def main():
         lexer=module('entry_fixed_tokens',frozen/'rename_c.py')
         literal=module('entry_literal',frozen/'pack_stream.py').source_literal
         alpha=module('entry_fixed_F_alpha',frozen/'shipping_alpha.py').transform_source
+        storage=module('entry_fixed_storage',frozen/'fixed_shipping_storage.py').transform_source
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
         if template.count(marker)!=1 or len(prefix)!=75:raise ValueError('bootstrap recipe changed')
@@ -111,7 +112,7 @@ def main():
         def generate(directory,dev=False):
             active,observations=specialize({'main.c':canonical},directory,recipe['preprocessor']+['-DDEV='+str(int(dev))],os.environ.copy())
             data=compact(active['main.c'],'c')
-            counters=None;alpha_metadata=None
+            counters=None;alpha_metadata=None;storage_metadata=None
             if not dev:
                 data,counters=strip_counters(data);files={'main.c':data}
                 for old,new in recipe['resource_literals']:
@@ -122,7 +123,8 @@ def main():
                     files=lexer._replace(files,old,new)
                 data=files['main.c']
                 data,alpha_metadata=alpha(data,family='F',lexer=lexer,readable=canonical)
-            return data,observations,counters,alpha_metadata
+                data,storage_metadata=storage(data,family='F',readable=canonical)
+            return data,observations,counters,alpha_metadata,storage_metadata
         def package(source):
             expression,_=literal(source);script=template.replace(marker,expression.encode())
             ast.parse(script)
@@ -132,7 +134,7 @@ def main():
         first=None;first_dev=None
         for index in (1,2):
             directory=out/('attempt-'+str(index));directory.mkdir()
-            source,observations,counters,alpha_metadata=generate(directory/'preprocess')
+            source,observations,counters,alpha_metadata,storage_metadata=generate(directory/'preprocess')
             if len(source)!=expected['source_bytes'] or sha(source)!=expected['source_sha256']:raise ValueError('compact C identity mismatch')
             (directory/'main.c').write_bytes(source)
             native=compile_c(recipe['compiler'],source,directory/'native')
@@ -146,10 +148,10 @@ def main():
             elif current!=first:raise ValueError('independent generation did not reproduce bytes')
             row={'attempt':index,'source_bytes':len(source),'source_sha256':sha(source),'native_bytes':len(native),'native_sha256':sha(native),
                  'whole_bytes':len(whole),'whole_sha256':sha(whole),'bootstrap_sha256':sha(script),'preprocessor':observations,
-                 'counter_removal':counters,'shipping_alpha':alpha_metadata}
+                 'counter_removal':counters,'shipping_alpha':alpha_metadata,'shipping_storage':storage_metadata}
             if args.dev:
-                dev,dev_observations,_,dev_alpha=generate(directory/'preprocess-dev',True)
-                if dev_alpha is not None:raise ValueError('diagnostic source entered shipping alpha stage')
+                dev,dev_observations,_,dev_alpha,dev_storage=generate(directory/'preprocess-dev',True)
+                if dev_alpha is not None or dev_storage is not None:raise ValueError('diagnostic source entered shipping spelling stage')
                 if sha(dev)!=expected['dev_source_sha256']:raise ValueError('diagnostic C differs from qualified control')
                 dev_command=recipe['dev_compiler']
                 dev_native=compile_c(dev_command,dev,directory/'dev');(directory/'dev/main.c').write_bytes(dev)
