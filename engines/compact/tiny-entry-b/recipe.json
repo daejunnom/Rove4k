@@ -55,7 +55,8 @@
     "engines/compact/tiny-entry-b/shipping_core.py": "02806d5c811bb1c5964c691751c69ad1a48585308d1edbd7e2eff47fe96784f3",
     "engines/scripts/fixed_input_profile_bce.py": "cc3c82d2e4f77f7231d4bafaac5f446a9aa5c0320762e0902a6f32ecc5a7209e",
     "engines/compact/tiny-entry-b/shipping_order.py": "82ee301901fb147ae33723f302ff06663b919b91a6d27b1986a5cfe54be2ceb2",
-    "engines/compact/tiny-entry-b/shipping_walk.py": "9964071df9b2cb092ee042f5e49876357d11f9ed7a8541c211987198581f744a"
+    "engines/compact/tiny-entry-b/shipping_walk.py": "9964071df9b2cb092ee042f5e49876357d11f9ed7a8541c211987198581f744a",
+    "engines/compact/tiny-entry-b/shipping_tactical.py": "3039a6a214276093e18cb13e9787fe810358acdc7475ad8f0542bc71bc5d1fd2"
   },
   "compression": {
     "format": "lzma-alone",
@@ -72,15 +73,15 @@
   },
   "expected": {
     "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
-    "source_bytes": 11532,
-    "source_sha256": "3fca96ff1a913ed74edaed69d74794a433a9013e4a6cd88dc0e3dfe5e35d0b6f",
-    "native_bytes": 26384,
-    "native_sha256": "7b9503f99d7e71eb26522501eaa89caaefbd3000d38ef0637688378aa62b9423",
-    "whole_bytes": 5371,
-    "whole_sha256": "0b6642824ca291faceb774fe8c7a15af97fbce844f1b889903ddfa353e9c13b1",
+    "source_bytes": 11430,
+    "source_sha256": "54759113c9949f0f3d619d5eefe5e8ac4d6b562baf4c09da7e7743907d3f8a2a",
+    "native_bytes": 26360,
+    "native_sha256": "483a2b6c1f420a30d2f04f1acab9101f6b7dc44c06e1485117a2e8117f1365dd",
+    "whole_bytes": 5357,
+    "whole_sha256": "8b8c3b565974813aa2ea54383bcc19240c1dcf506157d2aa0b44c8b24fa3d5be",
     "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
     "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
-    "bootstrap_sha256": "88af0a7d1ba13e4de0bf1f1ddfeff487f76bc9e0361e234e6cc4f1dd38c94789"
+    "bootstrap_sha256": "ac3cbb751445b451fecfb28d6b43ca711879b6c10797e52c35eb872a353ba523"
   },
   "local_input_sha256": {
     "engine.c": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
@@ -88,328 +89,404 @@
     "launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
   },
   "qualified_receipt": {
-    "predecessor_B5955_ancestry": {
-      "family_build_sha256": "b94f663777d1219cad9827bd7322cd3a0872f5fcac2a82efb8d4df81335fef90",
-      "portfolio_freeze_sha256": "71d1a8f86d09364fbe9f1f0a2138b5c87a8361a86b46e6756a182f754c9b9f9d",
-      "portfolio_cost_sha256": "f4833f5922dcdddad9abcdbd82f588d1d1e51a5a0e6c63f46b7693fdcbae6455",
-      "portfolio_runtime_sha256": "6f26a3c46bff4d9b3dfe531eaac9a43b9a02eff52d5bda1c1bc2ca9624a84b09",
-      "B_core_proof_sha256": "a2965d8f57d36187cb33a7201467271f66f2dae42c8c42b55c518272eea5e951",
-      "shipping_alpha": {
-        "policy_sha256": "b3f08ba26b38dbce1e4b63d3eb98ab37f438295cfacff6037b1cfacbf7d5e5a0",
-        "fixed_mappings": 89,
-        "first_cost_sha256": "e0527b2c9c566150791f6095346694961b81dc007fb9f89e1c135755ab81a1d8",
-        "selected_runtime_sha256": "5fbd18434187219b571dfb962058298616d560c671485c32d320a368607df427",
-        "source_freeze_sha256": "436d7cbdc6ad7fa52b73d5b1e9075971b9249f64d8225b775585a4dbd5b0ad80"
+    "predecessor_B5371_ancestry": {
+      "predecessor_B5955_ancestry": {
+        "family_build_sha256": "b94f663777d1219cad9827bd7322cd3a0872f5fcac2a82efb8d4df81335fef90",
+        "portfolio_freeze_sha256": "71d1a8f86d09364fbe9f1f0a2138b5c87a8361a86b46e6756a182f754c9b9f9d",
+        "portfolio_cost_sha256": "f4833f5922dcdddad9abcdbd82f588d1d1e51a5a0e6c63f46b7693fdcbae6455",
+        "portfolio_runtime_sha256": "6f26a3c46bff4d9b3dfe531eaac9a43b9a02eff52d5bda1c1bc2ca9624a84b09",
+        "B_core_proof_sha256": "a2965d8f57d36187cb33a7201467271f66f2dae42c8c42b55c518272eea5e951",
+        "shipping_alpha": {
+          "policy_sha256": "b3f08ba26b38dbce1e4b63d3eb98ab37f438295cfacff6037b1cfacbf7d5e5a0",
+          "fixed_mappings": 89,
+          "first_cost_sha256": "e0527b2c9c566150791f6095346694961b81dc007fb9f89e1c135755ab81a1d8",
+          "selected_runtime_sha256": "5fbd18434187219b571dfb962058298616d560c671485c32d320a368607df427",
+          "source_freeze_sha256": "436d7cbdc6ad7fa52b73d5b1e9075971b9249f64d8225b775585a4dbd5b0ad80"
+        },
+        "scope": "historical core qualification reused through exact readable/DEV/full-native identity; fixed shipping alpha policy, header-expansion inverse and selected wrapper receipts are separate hash metadata, never regeneration inputs"
       },
-      "scope": "historical core qualification reused through exact readable/DEV/full-native identity; fixed shipping alpha policy, header-expansion inverse and selected wrapper receipts are separate hash metadata, never regeneration inputs"
-    },
-    "storage18_original_failed_index_sha256": "0bf7fa1b7fc6d74b40a0d59c30bf91c5bca7c6f729a90330d5129851c6193e66",
-    "new_image_cost_sha256": "d5d4729a808e031f5f76d63e946be00a2e321c16ae47a8bb919d8d723debf9d4",
-    "metadata_pure_fixtures_sha256": "501ee00b28ba77a5192f09a3630a696ba74909062e44731561ed4708963d3e6e",
-    "actual_file_readback_sha256": "84030a2193e74b2804dbba3d294aae1bd41247583ec1a08a8b9c03b7217fae13",
-    "scope": "Historical predecessor receipts are ancestry. Current shipping is legal-LVA ordering with shared forward geometry after fixed input. Shared-walk focused actual full-order/mask/child/Q tests and exact new full source/native/whole gates are separate from old model/image/stack classes; current normal validation is scoped in shared_forward_walk.",
-    "private_static_locals_and_codec": {
-      "scope": "historical qualification metadata only; no report, experiment or AST runtime dependency; no previous full-native identity claim",
-      "source_freeze_sha256": "a5aafc2537b38319da1a0f829d9b3ec1fe994dc64713ff798bcc8e0cfbfd380f",
-      "summary_sha256": "f2282baf0f54f7c98c517fd9b7c67e3643ceb2ba1a006448e8fd89de30dbf730",
-      "static_native_observation_sha256": "56a5159fa430e8e19a5ba024ccf8e4bf4de51d59cb904b4edeb63fb79208aaaa",
-      "combined_native_gate_sha256": "6347ebba4845b73d28155ac7b8d0df447d37c21ece9a8d1b87feede5189336f6",
-      "combined_strict_bootstrap_sha256": "b1f02215d0eb381e7d30602c279348bda29b725ee1f092daa4d5e17ea8ded26d",
-      "combined_codec_sha256": "2024bcef7ddef6dc24a5f67a5cf8260c12d9600e2f595ecb8ecb89a4fe22f4d0",
-      "previous_maintained_expected": {
-        "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
-        "source_bytes": 13071,
-        "source_sha256": "96e6e330e5289d1c404dac0402e8b672a89c52e193a9d4f9aebb02e0c9042ffa",
-        "native_bytes": 26496,
-        "native_sha256": "5a315a66f86ff81f9b0feb679b25f919c5aaf63bb9db2d157040a5b7ce6bbb4b",
-        "whole_bytes": 5851,
-        "whole_sha256": "25b2c6a1198d5e600be252ae57da84ca9f9e40c3167021ce33f3f9eff29f425c",
-        "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
-        "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
-        "bootstrap_sha256": "7159e4bad6b9bfd37f69dbcc8ebe6fec5ff497c425323ec2e71050f43dc46673"
+      "storage18_original_failed_index_sha256": "0bf7fa1b7fc6d74b40a0d59c30bf91c5bca7c6f729a90330d5129851c6193e66",
+      "new_image_cost_sha256": "d5d4729a808e031f5f76d63e946be00a2e321c16ae47a8bb919d8d723debf9d4",
+      "metadata_pure_fixtures_sha256": "501ee00b28ba77a5192f09a3630a696ba74909062e44731561ed4708963d3e6e",
+      "actual_file_readback_sha256": "84030a2193e74b2804dbba3d294aae1bd41247583ec1a08a8b9c03b7217fae13",
+      "scope": "Historical predecessor receipts are ancestry. Current shipping is legal-LVA ordering with shared forward geometry after fixed input. Shared-walk focused actual full-order/mask/child/Q tests and exact new full source/native/whole gates are separate from old model/image/stack classes; current normal validation is scoped in shared_forward_walk.",
+      "private_static_locals_and_codec": {
+        "scope": "historical qualification metadata only; no report, experiment or AST runtime dependency; no previous full-native identity claim",
+        "source_freeze_sha256": "a5aafc2537b38319da1a0f829d9b3ec1fe994dc64713ff798bcc8e0cfbfd380f",
+        "summary_sha256": "f2282baf0f54f7c98c517fd9b7c67e3643ceb2ba1a006448e8fd89de30dbf730",
+        "static_native_observation_sha256": "56a5159fa430e8e19a5ba024ccf8e4bf4de51d59cb904b4edeb63fb79208aaaa",
+        "combined_native_gate_sha256": "6347ebba4845b73d28155ac7b8d0df447d37c21ece9a8d1b87feede5189336f6",
+        "combined_strict_bootstrap_sha256": "b1f02215d0eb381e7d30602c279348bda29b725ee1f092daa4d5e17ea8ded26d",
+        "combined_codec_sha256": "2024bcef7ddef6dc24a5f67a5cf8260c12d9600e2f595ecb8ecb89a4fe22f4d0",
+        "previous_maintained_expected": {
+          "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+          "source_bytes": 13071,
+          "source_sha256": "96e6e330e5289d1c404dac0402e8b672a89c52e193a9d4f9aebb02e0c9042ffa",
+          "native_bytes": 26496,
+          "native_sha256": "5a315a66f86ff81f9b0feb679b25f919c5aaf63bb9db2d157040a5b7ce6bbb4b",
+          "whole_bytes": 5851,
+          "whole_sha256": "25b2c6a1198d5e600be252ae57da84ca9f9e40c3167021ce33f3f9eff29f425c",
+          "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
+          "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
+          "bootstrap_sha256": "7159e4bad6b9bfd37f69dbcc8ebe6fec5ff497c425323ec2e71050f43dc46673"
+        },
+        "full_native_equal_to_previous_maintained": false,
+        "image_class": {
+          "all_program_headers_equal": true,
+          "all_allocated_sections_equal_except_GNU_build_ID_descriptor": true,
+          "other_changed_loaded_bytes": "ELF header e_shoff low byte at offset 40",
+          "nonallocated_changes": "symtab/strtab and section table/offset/padding metadata; symbol fields other than mapped names unchanged",
+          "dynamic_symbols_strings_relocations_equal": true,
+          "locals_full_native_equal_to_static_only": true
+        }
       },
-      "full_native_equal_to_previous_maintained": false,
-      "image_class": {
-        "all_program_headers_equal": true,
-        "all_allocated_sections_equal_except_GNU_build_ID_descriptor": true,
-        "other_changed_loaded_bytes": "ELF header e_shoff low byte at offset 40",
-        "nonallocated_changes": "symtab/strtab and section table/offset/padding metadata; symbol fields other than mapped names unchanged",
-        "dynamic_symbols_strings_relocations_equal": true,
-        "locals_full_native_equal_to_static_only": true
-      }
-    },
-    "incoming_SEE_specialization": {
-      "scope": "shipping-only new recursive code; historical image/stack classes are not applied to this new native",
-      "previous_maintained_expected": {
-        "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
-        "source_bytes": 12220,
-        "source_sha256": "daa9ca6e03260320c13a0a551a0c2586ed53d24d49ebba74f87b57b57814ba9f",
-        "native_bytes": 26424,
-        "native_sha256": "ade0b5deba75dea772026018b60300fc5d9d3d02b58141965549384884de3694",
-        "whole_bytes": 5558,
-        "whole_sha256": "798688b2e4396367e9a64baeb407941ba28bd47f15f6a2400c875abde2b6db32",
-        "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
-        "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
-        "bootstrap_sha256": "df45f762e3ffff0db68cf51229f0a90e6789d03c85702d3a35b81fbc78c1119b"
+      "incoming_SEE_specialization": {
+        "scope": "shipping-only new recursive code; historical image/stack classes are not applied to this new native",
+        "previous_maintained_expected": {
+          "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+          "source_bytes": 12220,
+          "source_sha256": "daa9ca6e03260320c13a0a551a0c2586ed53d24d49ebba74f87b57b57814ba9f",
+          "native_bytes": 26424,
+          "native_sha256": "ade0b5deba75dea772026018b60300fc5d9d3d02b58141965549384884de3694",
+          "whole_bytes": 5558,
+          "whole_sha256": "798688b2e4396367e9a64baeb407941ba28bd47f15f6a2400c875abde2b6db32",
+          "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
+          "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
+          "bootstrap_sha256": "df45f762e3ffff0db68cf51229f0a90e6789d03c85702d3a35b81fbc78c1119b"
+        },
+        "previous_qualification_scope": "unchanged canonical/DEV and raw PP alias-only inverse; distinct full native with exact fixed metadata changes, code/data/dynamic symbols/relocations unchanged; no general ABI or old full-native equality claim; receipts are metadata, never build inputs",
+        "previous_source_decisions": "preprocess, lexical compact, exact B no-op diagnostic stripping, then one fixed shipping-only 89-name allowlist and WORKERS=2/TT_BITS=18 token literals; functions/global/static objects/directives/strings/DEV unchanged",
+        "first_cost_sha256": "c7a459fc6cc04728d77f4160eb086085e3cc2582011c070fd10d7d292d3866be",
+        "first_cost_final5_sha256": "8ba3c37419b9d84c339a9c58ab462504ad18d77bd17be00412ee14a2fbd26807",
+        "focused_proof_sha256": "fbdca8c590e7dabaf6d21d0e1b49cb075f5abfc9f86e291ad76da8cda1230421",
+        "focused_final_receipt_sha256": "bcdbda097f2aee77ece6c3d13719bd7925e32400fbcf215551ea4eb949822ce0",
+        "focused_selected_runtime_sha256": "e6dba2e552c1202fb59c00ec4d15909ec27b5568a5872e1eeedf3e954a659adc",
+        "focused_scope": "34 legal exact SEE/visit rows,2 illegal pseudo roots,2 normalized EP exclusions,seeded visit/cancel/deadline and selectedwrapper2/8GO; unchanged search/TT/learning source complement",
+        "metadata_exception_applied": false,
+        "whole_stack_qualified": false,
+        "runtime_strength_claim": false,
+        "normal_validation": {
+          "status": "complete",
+          "normal_build": {
+            "bytes": 37167,
+            "sha256": "f43079a91203007704789a62bdaa5e73403af9153870427c4e3d56588e35a069"
+          },
+          "normal_runtime": {
+            "bytes": 10635,
+            "sha256": "3554ba9a0a05d6d34453f5c7ae75cbe580101bd6820ba7c64bbbf12b08bc642d"
+          },
+          "actual_shipping_reproductions": 2,
+          "actual_DEV_reproductions": 2,
+          "old_DEV_full_identity_observed": true,
+          "selected_wrapper_sessions": 2,
+          "GO": 8,
+          "native_image_exact": true,
+          "startup_TIDs_per_session": 3,
+          "physical_quit_EOF_exit0": true,
+          "cancellation_causality": "unproven",
+          "executed_recipe": {
+            "bytes": 10809,
+            "sha256": "6e76745ff9ce0a80b5e6b4864b798261c1514998109e73138c53f2b0282f89a4"
+          },
+          "executed_README": {
+            "bytes": 5242,
+            "sha256": "fb3db33bd4a60f15037f61fdf702ed9b263f19883a04f40c94b143bb036ee3b6"
+          },
+          "source_closure_count": 20,
+          "fresh_archive_extractions": 0,
+          "fresh_archived_rebuilds": 0,
+          "DEV_engine_executions": 0,
+          "focused_fixture_reruns": 0,
+          "game_benchmark": 0,
+          "compiler_descendant_group_absence": "not observed by unchanged normal compile helper"
+        }
       },
-      "previous_qualification_scope": "unchanged canonical/DEV and raw PP alias-only inverse; distinct full native with exact fixed metadata changes, code/data/dynamic symbols/relocations unchanged; no general ABI or old full-native equality claim; receipts are metadata, never build inputs",
-      "previous_source_decisions": "preprocess, lexical compact, exact B no-op diagnostic stripping, then one fixed shipping-only 89-name allowlist and WORKERS=2/TT_BITS=18 token literals; functions/global/static objects/directives/strings/DEV unchanged",
-      "first_cost_sha256": "c7a459fc6cc04728d77f4160eb086085e3cc2582011c070fd10d7d292d3866be",
-      "first_cost_final5_sha256": "8ba3c37419b9d84c339a9c58ab462504ad18d77bd17be00412ee14a2fbd26807",
-      "focused_proof_sha256": "fbdca8c590e7dabaf6d21d0e1b49cb075f5abfc9f86e291ad76da8cda1230421",
-      "focused_final_receipt_sha256": "bcdbda097f2aee77ece6c3d13719bd7925e32400fbcf215551ea4eb949822ce0",
-      "focused_selected_runtime_sha256": "e6dba2e552c1202fb59c00ec4d15909ec27b5568a5872e1eeedf3e954a659adc",
-      "focused_scope": "34 legal exact SEE/visit rows,2 illegal pseudo roots,2 normalized EP exclusions,seeded visit/cancel/deadline and selectedwrapper2/8GO; unchanged search/TT/learning source complement",
-      "metadata_exception_applied": false,
-      "whole_stack_qualified": false,
-      "runtime_strength_claim": false,
-      "normal_validation": {
-        "status": "complete",
-        "normal_build": {
-          "bytes": 37167,
-          "sha256": "f43079a91203007704789a62bdaa5e73403af9153870427c4e3d56588e35a069"
+      "input_profile": {
+        "status": "complete: actual focused fixture/text then direct normal source reproduction and unchanged selected verifier",
+        "previous_maintained_expected": {
+          "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+          "source_bytes": 12148,
+          "source_sha256": "6c9081115f5caf209cacc502e19035247a3178aef86c4912fb3a923a651904ce",
+          "native_bytes": 26392,
+          "native_sha256": "66488f9d3b86049bfa739b89066b947788c6d88c8050ea41065f93982b4fbfaa",
+          "whole_bytes": 5546,
+          "whole_sha256": "70e5ea64a97efaa84385a429bca84bad2924a5256c478973cc2798a4b070ad2f",
+          "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
+          "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
+          "bootstrap_sha256": "75fc23bf8f147366affe037bc6cb0ea8f6a5514251c1897e168be9b3788e0f0c"
         },
-        "normal_runtime": {
-          "bytes": 10635,
-          "sha256": "3554ba9a0a05d6d34453f5c7ae75cbe580101bd6820ba7c64bbbf12b08bc642d"
+        "scope": "declared NUL-free CR-inclusive32767 first-token/number/clock/transaction shipping policy; B/E nullable parse; C existing nullable unchanged",
+        "first_cost_sha256": "17fec69bafea30a4b53d9913744f9abf2889a438df439aeeb4e2c682a6e5be99",
+        "source_only_roles_inverse_complement": true,
+        "old_DEV_body_selection_only": true,
+        "actual_old_DEV_tuple_verified": true,
+        "native_metadata_exception": false,
+        "helper_normal_inputs": "ordinary canonical/source bytes only; no experiment/report/generated engine/Clang",
+        "functional_receipt_sha256": "2f5308246118a6c4a5d9771c036b0129005c3fc617a2de04074696a4517a37c9",
+        "text_only_portfolio_receipt_sha256": "05a3f10389604e6e5773bd08a56ed6a0de4461a46767e28356a46ea5089a8452",
+        "text_only_family_receipt_sha256": "a35714c2e152371e8f154d9cd08d36abc06ae7c2ff0e9260382bf41222283172",
+        "focused": {
+          "numeric": 25,
+          "GO_workerless_fields": 26,
+          "position_transactions": 25,
+          "special_roots": 6,
+          "full_child_states": 96,
+          "nullable_first_legal": 6,
+          "actual_text_sessions": 1,
+          "actual_text_ingress_checks": 8,
+          "text_search_GO": 0,
+          "workerless_GO_is_physical_pool_proof": false,
+          "additional_selected_quit_EOF_sessions": 0,
+          "old_core_model_SIMD_SEE": "preserved source complement, not repeated generic suite"
         },
-        "actual_shipping_reproductions": 2,
-        "actual_DEV_reproductions": 2,
-        "old_DEV_full_identity_observed": true,
-        "selected_wrapper_sessions": 2,
-        "GO": 8,
-        "native_image_exact": true,
-        "startup_TIDs_per_session": 3,
-        "physical_quit_EOF_exit0": true,
-        "cancellation_causality": "unproven",
-        "executed_recipe": {
-          "bytes": 10809,
-          "sha256": "6e76745ff9ce0a80b5e6b4864b798261c1514998109e73138c53f2b0282f89a4"
-        },
-        "executed_README": {
-          "bytes": 5242,
-          "sha256": "fb3db33bd4a60f15037f61fdf702ed9b263f19883a04f40c94b143bb036ee3b6"
-        },
-        "source_closure_count": 20,
-        "fresh_archive_extractions": 0,
-        "fresh_archived_rebuilds": 0,
-        "DEV_engine_executions": 0,
-        "focused_fixture_reruns": 0,
-        "game_benchmark": 0,
-        "compiler_descendant_group_absence": "not observed by unchanged normal compile helper"
-      }
-    },
-    "input_profile": {
-      "status": "complete: actual focused fixture/text then direct normal source reproduction and unchanged selected verifier",
-      "previous_maintained_expected": {
-        "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
-        "source_bytes": 12148,
-        "source_sha256": "6c9081115f5caf209cacc502e19035247a3178aef86c4912fb3a923a651904ce",
-        "native_bytes": 26392,
-        "native_sha256": "66488f9d3b86049bfa739b89066b947788c6d88c8050ea41065f93982b4fbfaa",
-        "whole_bytes": 5546,
-        "whole_sha256": "70e5ea64a97efaa84385a429bca84bad2924a5256c478973cc2798a4b070ad2f",
-        "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
-        "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
-        "bootstrap_sha256": "75fc23bf8f147366affe037bc6cb0ea8f6a5514251c1897e168be9b3788e0f0c"
+        "normal_validation": {
+          "producer_build_sha256": "c196fc146544681c216d7542a5ffc90fdb03361f2e769ba86acea2b61d73e424",
+          "selected_runtime_sha256": "a20b0f0d1687d1786c63df32d58e8b93cb4211105b87c2292d53a442ff4b2078",
+          "producing_recipe_sha256": "2af16368d1702695a5b51224252a539977119e7bd6597ca4e844446eef4887b8",
+          "actual_shipping_reproductions": 2,
+          "actual_DEV_reproductions": 2,
+          "old_DEV_source_full_native_equal": true,
+          "actual_selected_quit_EOF_sessions": 2,
+          "legal_GO_results": 8,
+          "native_image_exact": true,
+          "startup_TIDs_per_session": 3,
+          "physical_exit_readers_private_path": true,
+          "cancellation_causality": "unproven",
+          "fresh_runs": 0,
+          "compiler_descendant_absence": "not separately observed by unchanged compile helper"
+        }
       },
-      "scope": "declared NUL-free CR-inclusive32767 first-token/number/clock/transaction shipping policy; B/E nullable parse; C existing nullable unchanged",
-      "first_cost_sha256": "17fec69bafea30a4b53d9913744f9abf2889a438df439aeeb4e2c682a6e5be99",
-      "source_only_roles_inverse_complement": true,
-      "old_DEV_body_selection_only": true,
-      "actual_old_DEV_tuple_verified": true,
-      "native_metadata_exception": false,
-      "helper_normal_inputs": "ordinary canonical/source bytes only; no experiment/report/generated engine/Clang",
-      "functional_receipt_sha256": "2f5308246118a6c4a5d9771c036b0129005c3fc617a2de04074696a4517a37c9",
-      "text_only_portfolio_receipt_sha256": "05a3f10389604e6e5773bd08a56ed6a0de4461a46767e28356a46ea5089a8452",
-      "text_only_family_receipt_sha256": "a35714c2e152371e8f154d9cd08d36abc06ae7c2ff0e9260382bf41222283172",
-      "focused": {
-        "numeric": 25,
-        "GO_workerless_fields": 26,
-        "position_transactions": 25,
-        "special_roots": 6,
-        "full_child_states": 96,
-        "nullable_first_legal": 6,
-        "actual_text_sessions": 1,
-        "actual_text_ingress_checks": 8,
-        "text_search_GO": 0,
-        "workerless_GO_is_physical_pool_proof": false,
-        "additional_selected_quit_EOF_sessions": 0,
-        "old_core_model_SIMD_SEE": "preserved source complement, not repeated generic suite"
-      },
-      "normal_validation": {
-        "producer_build_sha256": "c196fc146544681c216d7542a5ffc90fdb03361f2e769ba86acea2b61d73e424",
-        "selected_runtime_sha256": "a20b0f0d1687d1786c63df32d58e8b93cb4211105b87c2292d53a442ff4b2078",
-        "producing_recipe_sha256": "2af16368d1702695a5b51224252a539977119e7bd6597ca4e844446eef4887b8",
-        "actual_shipping_reproductions": 2,
-        "actual_DEV_reproductions": 2,
-        "old_DEV_source_full_native_equal": true,
-        "actual_selected_quit_EOF_sessions": 2,
-        "legal_GO_results": 8,
-        "native_image_exact": true,
-        "startup_TIDs_per_session": 3,
-        "physical_exit_readers_private_path": true,
-        "cancellation_causality": "unproven",
-        "fresh_runs": 0,
-        "compiler_descendant_absence": "not separately observed by unchanged compile helper"
-      }
-    },
-    "legal_LVA_ordering": {
-      "scope": "shipping-only declared model/search-policy change after fixed input; canonical/DEV old full-minimax remains reference only",
-      "previous_maintained_expected": {
-        "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
-        "source_bytes": 11829,
-        "source_sha256": "11a32cc6c48ad16856e7968c5ba91456257c1b249590f0aa71a371d2fd276a93",
-        "native_bytes": 26392,
-        "native_sha256": "f25e810153adc990337f82311265197ed07bc3b480b8860c40f5808c44ef4c5e",
-        "whole_bytes": 5461,
-        "whole_sha256": "b0a3812a2f01b3989d01dd42dd8d5d4447ef75bb0b0f864831f4a46056b02971",
-        "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
-        "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
-        "bootstrap_sha256": "2e53f505c6715e644d9ecb66660e773f18c19700be9fa4112b1c5aefa0337b51"
-      },
-      "first_cost_sha256": "01daf1ba45610f8121cc18ec5f781dea3eff46ddf250ff32c7aab59d48ed168e",
-      "first_cost_final6_sha256": "447852cc66aebb0121765f3bc8dc5eaa208e12d9c3af39b095437a6563fc1c48",
-      "focused_proof_sha256": "5bb133e2d840c61c4d1f8fcee8042080ad1ebcfafdb0acfbafb18c37c08a9aa1",
-      "focused_final_receipt_sha256": "08793fb0790909aa6057f6f42c3cf4630b23624a240c1fbf4e1caf52803dc462",
-      "declared_model": "first legal pre-capture P/N/B/R/Q/K kind then ctz source; all selected-source promotions maximized; optional decline0",
-      "QS_SEE_negative_pruning_disabled": true,
-      "approximate_negative_is_pruning_certificate": false,
-      "full_minimax_equivalence": false,
-      "DEV_model_equivalent_to_shipping": false,
-      "counterexample": {
-        "old_independent_minimax": 90,
-        "actual_production_LVA": -10,
-        "old_binary_compile_run": 0
-      },
-      "focused": {
-        "root_rows": 46,
-        "selected_subcall_rows": 43,
-        "legal_score_state_policy_rows": 85,
-        "illegal_initial_rows": 2,
-        "normalized_EP_excluded_rows": 2,
-        "cancel_deadline_guards": 6,
-        "fixture_only_external_clock_port": true,
-        "production_wallclock_evidence": false
-      },
-      "old_minimax_visits_DEV_stack_evidence_inherited": false,
-      "whole_stack_qualified": false,
-      "runtime_strength_claim": false,
-      "metadata_exception_applied": false,
-      "normal_validation": {
-        "status": "complete",
-        "normal_build": {
-          "bytes": 77864,
-          "sha256": "f9c1c3b969cae739885dd3cccf2c5f6d88768504ae7ca67d46dbbd4e697a91c2"
+      "legal_LVA_ordering": {
+        "scope": "shipping-only declared model/search-policy change after fixed input; canonical/DEV old full-minimax remains reference only",
+        "previous_maintained_expected": {
+          "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+          "source_bytes": 11829,
+          "source_sha256": "11a32cc6c48ad16856e7968c5ba91456257c1b249590f0aa71a371d2fd276a93",
+          "native_bytes": 26392,
+          "native_sha256": "f25e810153adc990337f82311265197ed07bc3b480b8860c40f5808c44ef4c5e",
+          "whole_bytes": 5461,
+          "whole_sha256": "b0a3812a2f01b3989d01dd42dd8d5d4447ef75bb0b0f864831f4a46056b02971",
+          "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
+          "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
+          "bootstrap_sha256": "2e53f505c6715e644d9ecb66660e773f18c19700be9fa4112b1c5aefa0337b51"
         },
-        "normal_runtime": {
-          "bytes": 17753,
-          "sha256": "a2d12a0fe8cafca23a9a4a4b862e655dc6364fc4d0c5ceeda9904668919b608c"
-        },
-        "executed_recipe": {
-          "bytes": 18591,
-          "sha256": "147a022ac50b1c2cff75369f680c92f035091a282eb239be204aeefa3f1d13c1"
-        },
-        "executed_README": {
-          "bytes": 7895,
-          "sha256": "fc32ca78486763f856837e8a6325230496006c5fa6fbd02280a77ff7aeb26a73"
-        },
-        "producing_B22_manifest": {
-          "bytes": 4864,
-          "sha256": "012ee35020e7fed0aa345fabe01c94cd3ca5999c68125c60ad3246aa48479c5c"
-        },
-        "source_closure_count": 22,
-        "normal_builder_invocations": 1,
-        "actual_shipping_reproductions": 2,
-        "actual_DEV_reference_reproductions": 2,
-        "old_DEV_source_full_native_observed": true,
+        "first_cost_sha256": "01daf1ba45610f8121cc18ec5f781dea3eff46ddf250ff32c7aab59d48ed168e",
+        "first_cost_final6_sha256": "447852cc66aebb0121765f3bc8dc5eaa208e12d9c3af39b095437a6563fc1c48",
+        "focused_proof_sha256": "5bb133e2d840c61c4d1f8fcee8042080ad1ebcfafdb0acfbafb18c37c08a9aa1",
+        "focused_final_receipt_sha256": "08793fb0790909aa6057f6f42c3cf4630b23624a240c1fbf4e1caf52803dc462",
+        "declared_model": "first legal pre-capture P/N/B/R/Q/K kind then ctz source; all selected-source promotions maximized; optional decline0",
+        "QS_SEE_negative_pruning_disabled": true,
+        "approximate_negative_is_pruning_certificate": false,
+        "full_minimax_equivalence": false,
         "DEV_model_equivalent_to_shipping": false,
-        "unchanged_verifier_invocations": 1,
-        "actual_selected_quit_EOF_sessions": 2,
-        "legal_GO_results": 8,
-        "new_full_native_image_exact": true,
-        "startup_TIDs_per_session": 3,
-        "physical_exit_readers_private_path": true,
-        "cancellation_causality": "unproven",
-        "fresh_runs": 0,
-        "focused_fixture_model_oracle_reruns": 0,
-        "DEV_engine_executions": 0,
-        "games_benchmarks": 0,
-        "compiler_descendant_absence": "not separately observed by unchanged compile helper; actual selected native sessions observed no helper children",
-        "metadata_exception_applied": false
+        "counterexample": {
+          "old_independent_minimax": 90,
+          "actual_production_LVA": -10,
+          "old_binary_compile_run": 0
+        },
+        "focused": {
+          "root_rows": 46,
+          "selected_subcall_rows": 43,
+          "legal_score_state_policy_rows": 85,
+          "illegal_initial_rows": 2,
+          "normalized_EP_excluded_rows": 2,
+          "cancel_deadline_guards": 6,
+          "fixture_only_external_clock_port": true,
+          "production_wallclock_evidence": false
+        },
+        "old_minimax_visits_DEV_stack_evidence_inherited": false,
+        "whole_stack_qualified": false,
+        "runtime_strength_claim": false,
+        "metadata_exception_applied": false,
+        "normal_validation": {
+          "status": "complete",
+          "normal_build": {
+            "bytes": 77864,
+            "sha256": "f9c1c3b969cae739885dd3cccf2c5f6d88768504ae7ca67d46dbbd4e697a91c2"
+          },
+          "normal_runtime": {
+            "bytes": 17753,
+            "sha256": "a2d12a0fe8cafca23a9a4a4b862e655dc6364fc4d0c5ceeda9904668919b608c"
+          },
+          "executed_recipe": {
+            "bytes": 18591,
+            "sha256": "147a022ac50b1c2cff75369f680c92f035091a282eb239be204aeefa3f1d13c1"
+          },
+          "executed_README": {
+            "bytes": 7895,
+            "sha256": "fc32ca78486763f856837e8a6325230496006c5fa6fbd02280a77ff7aeb26a73"
+          },
+          "producing_B22_manifest": {
+            "bytes": 4864,
+            "sha256": "012ee35020e7fed0aa345fabe01c94cd3ca5999c68125c60ad3246aa48479c5c"
+          },
+          "source_closure_count": 22,
+          "normal_builder_invocations": 1,
+          "actual_shipping_reproductions": 2,
+          "actual_DEV_reference_reproductions": 2,
+          "old_DEV_source_full_native_observed": true,
+          "DEV_model_equivalent_to_shipping": false,
+          "unchanged_verifier_invocations": 1,
+          "actual_selected_quit_EOF_sessions": 2,
+          "legal_GO_results": 8,
+          "new_full_native_image_exact": true,
+          "startup_TIDs_per_session": 3,
+          "physical_exit_readers_private_path": true,
+          "cancellation_causality": "unproven",
+          "fresh_runs": 0,
+          "focused_fixture_model_oracle_reruns": 0,
+          "DEV_engine_executions": 0,
+          "games_benchmarks": 0,
+          "compiler_descendant_absence": "not separately observed by unchanged compile helper; actual selected native sessions observed no helper children",
+          "metadata_exception_applied": false
+        }
+      },
+      "shared_forward_walk": {
+        "scope": "one last shipping source composition; declared LVA model and full pseudo order/geometric bitsets preserved on admitted coherent BB/mailbox states; query work changes",
+        "previous_maintained_expected": {
+          "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+          "source_bytes": 11702,
+          "source_sha256": "d0b914e337f56623f7d1028381ccc4b012da02c4bc0681737a7a6a6e571274c7",
+          "native_bytes": 26400,
+          "native_sha256": "9f7868ed7527303b6407fa4c53597d1225a7c944d901437d113b90b76fb0cce0",
+          "whole_bytes": 5426,
+          "whole_sha256": "cb19a87f31df9b27ff76f445518768f6a051c51056e9ba6f2ddc53e3eb4a5093",
+          "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
+          "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
+          "bootstrap_sha256": "452ee45cf1323c68f24af72800e1caccd3ca1fb0787a1196233f6b9f48fe71fa"
+        },
+        "first_cost_sha256": "14a7cba0f1aa3a190f71d81276282ab3151d49bb7d5456eee8cf99879e56cf1d",
+        "first_cost_summary_sha256": "a3d9eec722ac4864f1df3c1ea4220bdcf2910e902611a005cd005b66989abca0",
+        "focused_proof_sha256": "57367b67b1dd783c3c5c1740d01afa3ab5410d64ab0848698972b9edcf320579",
+        "focused_freeze_sha256": "281ec3e988249f4a231882616bc11118d13dfeef064734b6eb50604cb84c5f61",
+        "focused": {
+          "actual_production_sources": 2,
+          "O2_fixture_compiles": 2,
+          "fixture_runs": 2,
+          "full_gen_order_boards_per_source": 99,
+          "independent_full_attacker_masks_per_source": 12672,
+          "independent_legal_child_states_per_source": 1281,
+          "LVA_legal_illegal_rows_per_source": 87,
+          "normalized_EP_exclusions_per_source": 2,
+          "fixture_clock_cancel_deadline_guards_per_source": 6
+        },
+        "query_work_policy_changed": true,
+        "SEE_model_policy_changed": false,
+        "search_result_strength_performance_equivalence": false,
+        "old_full_stack_class_inherited": false,
+        "metadata_exception_applied": false,
+        "normal_validation": {
+          "status": "complete",
+          "normal_build": {
+            "bytes": 83513,
+            "sha256": "b17212d6914e3d0e02a4b0488a6aab27e34b55bf471bdce1274a04444ba8305d"
+          },
+          "normal_runtime": {
+            "bytes": 21627,
+            "sha256": "0de3dd1ac8d0b4b57808f0d116bbfdb69ee16ce1336f69aef62aa9b5307d4fcc"
+          },
+          "executed_recipe": {
+            "bytes": 22975,
+            "sha256": "5ce8f6b658a548358ee5867506b19afad48d04b48bc857f6b80590b209937066"
+          },
+          "executed_README": {
+            "bytes": 11083,
+            "sha256": "e1f014f5c9026672691143adfaaa0f2187372d94464db179aa9b318af2b453d2"
+          },
+          "source_closure_count": 23,
+          "normal_builder_invocations": 1,
+          "actual_shipping_reproductions": 2,
+          "actual_old_DEV_reference_reproductions": 2,
+          "old_DEV_source_full_native_actually_observed": true,
+          "DEV_model_equivalent_to_shipping": false,
+          "unchanged_verifier_invocations": 1,
+          "actual_selected_quit_EOF_sessions": 2,
+          "legal_GO_results": 8,
+          "exact_new_native_image": true,
+          "startup_TIDs_per_session": 3,
+          "physical_exit_readers_private_path": true,
+          "cancellation_causality": "unproven",
+          "fresh_runs": 0,
+          "extra_fixture_oracle_wrapper_game_benchmark_retry": 0,
+          "DEV_engine_executions": 0,
+          "compiler_descendant_absence": "not separately observed by unchanged normal compile helper; selected native observed helper-free",
+          "metadata_exception_applied": false
+        }
       }
     },
-    "shared_forward_walk": {
-      "scope": "one last shipping source composition; declared LVA model and full pseudo order/geometric bitsets preserved on admitted coherent BB/mailbox states; query work changes",
-      "previous_maintained_expected": {
-        "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
-        "source_bytes": 11702,
-        "source_sha256": "d0b914e337f56623f7d1028381ccc4b012da02c4bc0681737a7a6a6e571274c7",
-        "native_bytes": 26400,
-        "native_sha256": "9f7868ed7527303b6407fa4c53597d1225a7c944d901437d113b90b76fb0cce0",
-        "whole_bytes": 5426,
-        "whole_sha256": "cb19a87f31df9b27ff76f445518768f6a051c51056e9ba6f2ddc53e3eb4a5093",
-        "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
-        "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
-        "bootstrap_sha256": "452ee45cf1323c68f24af72800e1caccd3ca1fb0787a1196233f6b9f48fe71fa"
+    "current_selection": "qualified B5357 shipping tactical Move ABI and explicit quiet-promotion ordering tier; old full-minimax DEV is a distinct unchanged reference",
+    "tactical_Move_firstcost": {
+      "source5_summary_sha256": "d3dc2dc1e95f0310e14400cea79c2925b6bf2e3ba132d406711854faed962c77",
+      "cost_receipt_sha256": "d1e616ba562bea295bfbb96dce03de9c7440980143a805199af00a91b9907848",
+      "source_delta": -102,
+      "whole_delta": -14,
+      "gap_to4096": 1261,
+      "native_equality_to_previous": false,
+      "metadata_exception": false
+    },
+    "focused_tactical_proof": {
+      "receipt_sha256": "4a27c68d86ed32d65c71d9f909e69a9d244bf26ea2f6ae8adae332850ac6110e",
+      "scope": "ONE exact candidate diagnostic TU with fixture clock and two admitted observation-only P counters; not actual selected normal image execution",
+      "boards": 99,
+      "legal_LVA_score_rows": 85,
+      "illegal_rows": 2,
+      "normalized_EP_exclusions": 2,
+      "cancel_deadline_guards": 6,
+      "independent_tactical_tags": 294,
+      "independent_legal_children": 1281,
+      "qualified_singular": 1,
+      "taken_extension": 1,
+      "learning_positive": "history and continuation changed; correction64->63",
+      "excluded_root_TT_learning_board_activepath_deadline_preserved": true,
+      "TT_bits": 18,
+      "child_fullkey_read": "miss0 recorded; old20-bit slot-depth assumption not inherited"
+    },
+    "model_and_policy": {
+      "production_SEE": "unchanged declared legal-LVA ordering only; no QS SEE negative pruning",
+      "private_Move_ABI": "bit3 is capture-or-promotion metadata, FROM119 decodes coordinates, TO/PROMO/TT17-bit layout unchanged",
+      "ordering_change": "quiet promotions now receive the capture tactical base tier",
+      "canonical_DEV": "old full-minimax and raw-Move ABI reference only; not current shipping-path proof",
+      "unknown": "SEE_INCOMPLETE propagates before arithmetic and never adjusts ordering",
+      "fullnative_DEV_stack_strength_equivalence": false
+    },
+    "normal_build_runtime": {
+      "status": "qualified by one normal builder --dev and one unchanged selected verifier, no retry",
+      "build_receipt": {
+        "bytes": 100076,
+        "sha256": "f1882be151f244f59afa30a1020daeeec9366d6299096840f0ed9911d4d581e8"
       },
-      "first_cost_sha256": "14a7cba0f1aa3a190f71d81276282ab3151d49bb7d5456eee8cf99879e56cf1d",
-      "first_cost_summary_sha256": "a3d9eec722ac4864f1df3c1ea4220bdcf2910e902611a005cd005b66989abca0",
-      "focused_proof_sha256": "57367b67b1dd783c3c5c1740d01afa3ab5410d64ab0848698972b9edcf320579",
-      "focused_freeze_sha256": "281ec3e988249f4a231882616bc11118d13dfeef064734b6eb50604cb84c5f61",
-      "focused": {
-        "actual_production_sources": 2,
-        "O2_fixture_compiles": 2,
-        "fixture_runs": 2,
-        "full_gen_order_boards_per_source": 99,
-        "independent_full_attacker_masks_per_source": 12672,
-        "independent_legal_child_states_per_source": 1281,
-        "LVA_legal_illegal_rows_per_source": 87,
-        "normalized_EP_exclusions_per_source": 2,
-        "fixture_clock_cancel_deadline_guards_per_source": 6
+      "runtime_receipt": {
+        "bytes": 25816,
+        "sha256": "4496ea25f93e7623e7e3f3e163a91de85df2db18d53055696bc4d267fea29bf9"
       },
-      "query_work_policy_changed": true,
-      "SEE_model_policy_changed": false,
-      "search_result_strength_performance_equivalence": false,
-      "old_full_stack_class_inherited": false,
-      "metadata_exception_applied": false,
-      "normal_validation": {
-        "status": "complete",
-        "normal_build": {
-          "bytes": 83513,
-          "sha256": "b17212d6914e3d0e02a4b0488a6aab27e34b55bf471bdce1274a04444ba8305d"
-        },
-        "normal_runtime": {
-          "bytes": 21627,
-          "sha256": "0de3dd1ac8d0b4b57808f0d116bbfdb69ee16ce1336f69aef62aa9b5307d4fcc"
-        },
-        "executed_recipe": {
-          "bytes": 22975,
-          "sha256": "5ce8f6b658a548358ee5867506b19afad48d04b48bc857f6b80590b209937066"
-        },
-        "executed_README": {
-          "bytes": 11083,
-          "sha256": "e1f014f5c9026672691143adfaaa0f2187372d94464db179aa9b318af2b453d2"
-        },
-        "source_closure_count": 23,
-        "normal_builder_invocations": 1,
-        "actual_shipping_reproductions": 2,
-        "actual_old_DEV_reference_reproductions": 2,
-        "old_DEV_source_full_native_actually_observed": true,
-        "DEV_model_equivalent_to_shipping": false,
-        "unchanged_verifier_invocations": 1,
-        "actual_selected_quit_EOF_sessions": 2,
-        "legal_GO_results": 8,
-        "exact_new_native_image": true,
-        "startup_TIDs_per_session": 3,
-        "physical_exit_readers_private_path": true,
-        "cancellation_causality": "unproven",
-        "fresh_runs": 0,
-        "extra_fixture_oracle_wrapper_game_benchmark_retry": 0,
-        "DEV_engine_executions": 0,
-        "compiler_descendant_absence": "not separately observed by unchanged normal compile helper; selected native observed helper-free",
-        "metadata_exception_applied": false
-      }
+      "build_dispatch": {
+        "bytes": 835,
+        "sha256": "d9967cddd45cc648ecef514b5d13419db3dd6a0461c982ed075b59bd39e1438f"
+      },
+      "verify_dispatch": {
+        "bytes": 907,
+        "sha256": "0d1a979c8871e48064b9e2e6c22ea21a7f0c0cffac2a96bff0b199a9a3e8c775"
+      },
+      "producing_source24_manifest": {
+        "bytes": 4402,
+        "sha256": "8892b7548d1a71848e9d4de6078783311660904e0541d9da301ae36fd8eb01d0"
+      },
+      "producing_source24_archive": {
+        "bytes": 327680,
+        "sha256": "89f28914213a8528c670384f87a9dc37e04174df227779b8bb5b42c6edeebe8a"
+      },
+      "shipping_repeats": 2,
+      "old_DEV_reference_repeats": 2,
+      "actual_selected_sessions": 2,
+      "GO_epochs": 8,
+      "restored_native_full_identity": "483a2b6c1f420a30d2f04f1acab9101f6b7dc44c06e1485117a2e8117f1365dd",
+      "persistent_startup_TIDs": 3,
+      "helpers_private_paths_readers_main_exit": "observed absent/EOF/rc0 in both sessions",
+      "active_exit_observed": true,
+      "cancellation_causality": "unproven",
+      "normal_fresh_executions": 0,
+      "scope": "new actual shipping image restoration and narrow clocked quit/EOF lifecycle, distinct from earlier fixture-clock/two-counter tactical diagnostics",
+      "postproof_metadata": "only recipe qualified_receipt and README result metadata changed after producing closure; no second builder/verifier/fresh"
     }
   },
   "provenance": {

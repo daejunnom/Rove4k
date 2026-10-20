@@ -57,7 +57,7 @@ def main():
     if recipe['format']!=1 or recipe['family']!='B' or recipe['profile']!={'workers':2,'tt_bits':18,'ply':128,'dev_default':False}:
         raise ValueError('unsupported entry recipe/profile')
     out.mkdir(parents=True);frozen=out/'inputs';frozen.mkdir()
-    report={'complete':False,'scope':'minimal B legal-LVA ordering with shared forward geometry after fixed shipping input; distinct old-minimax DEV reference; not 4KiB acceptance',
+    report={'complete':False,'scope':'minimal B legal-LVA ordering with shared forward geometry and generated tactical Move metadata after fixed shipping input; distinct old-minimax DEV reference; not 4KiB acceptance',
             'resources':recipe['profile'],'inputs':{},'attempts':[],
             'qualified_receipt_reuse':recipe['qualified_receipt'],
             'tools':{name:subprocess.check_output(command,text=True).splitlines()[0] for name,command in
@@ -90,6 +90,7 @@ def main():
         input_profile=module('entry_fixed_BCE_input_profile',frozen/'fixed_input_profile_bce.py')
         order=module('entry_B_shipping_order',frozen/'shipping_order.py').transform_source
         walk=module('entry_B_shipping_walk',frozen/'shipping_walk.py').transform_source
+        tactical=module('entry_B_shipping_tactical',frozen/'shipping_tactical.py').transform_source
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
         if template.count(marker)!=1 or len(prefix)!=77:raise ValueError('bootstrap recipe changed')
@@ -101,7 +102,7 @@ def main():
             if dev:preprocess_source,input_metadata=input_profile.transform_readable(canonical,family='B')
             active,observations=specialize({'main.c':preprocess_source},directory,recipe['preprocessor']+['-DDEV='+str(int(dev)),'main.c','-o','x'],os.environ.copy())
             data=compact(active['main.c'],'c')
-            alpha_metadata=None;storage_metadata=None;scope_metadata=None;core_metadata=None;order_metadata=None;walk_metadata=None
+            alpha_metadata=None;storage_metadata=None;scope_metadata=None;core_metadata=None;order_metadata=None;walk_metadata=None;tactical_metadata=None
             if not dev:
                 data,_=strip(data)
                 data,alpha_metadata=alpha(data,family='B',lexer=lexer)
@@ -111,7 +112,8 @@ def main():
                 data,input_metadata=input_profile.transform_source(data,readable=canonical,family='B')
                 data,order_metadata=order(data)
                 data,walk_metadata=walk(data)
-            return data,observations,alpha_metadata,storage_metadata,scope_metadata,core_metadata,input_metadata,order_metadata,walk_metadata
+                data,tactical_metadata=tactical(data)
+            return data,observations,alpha_metadata,storage_metadata,scope_metadata,core_metadata,input_metadata,order_metadata,walk_metadata,tactical_metadata
         def package(source):
             expression,_=literal(source);script=template.replace(marker,expression.encode())
             ast.parse(script)
@@ -123,7 +125,7 @@ def main():
         first=None;first_dev=None
         for index in (1,2):
             directory=out/('attempt-'+str(index));directory.mkdir()
-            source,observations,alpha_metadata,storage_metadata,scope_metadata,core_metadata,input_metadata,order_metadata,walk_metadata=generate(directory/'preprocess')
+            source,observations,alpha_metadata,storage_metadata,scope_metadata,core_metadata,input_metadata,order_metadata,walk_metadata,tactical_metadata=generate(directory/'preprocess')
             if len(source)!=expected['source_bytes'] or sha(source)!=expected['source_sha256']:raise ValueError('compact C identity mismatch')
             (directory/'main.c').write_bytes(source)
             native=compile_c(recipe['compiler'],source,directory/'native')
@@ -137,10 +139,10 @@ def main():
             elif current!=first:raise ValueError('independent generation did not reproduce bytes')
             row={'attempt':index,'source_bytes':len(source),'source_sha256':sha(source),'native_bytes':len(native),'native_sha256':sha(native),
                  'whole_bytes':len(whole),'whole_sha256':sha(whole),'bootstrap_sha256':sha(script),'preprocessor':observations,
-                 'shipping_alpha':alpha_metadata,'shipping_storage':storage_metadata,'shipping_scope':scope_metadata,'shipping_core':core_metadata,'shipping_input':input_metadata,'shipping_order':order_metadata,'shipping_walk':walk_metadata}
+                 'shipping_alpha':alpha_metadata,'shipping_storage':storage_metadata,'shipping_scope':scope_metadata,'shipping_core':core_metadata,'shipping_input':input_metadata,'shipping_order':order_metadata,'shipping_walk':walk_metadata,'shipping_tactical':tactical_metadata}
             if args.dev:
-                dev,dev_observations,dev_alpha,dev_storage,dev_scope,dev_core,dev_input,dev_order,dev_walk=generate(directory/'preprocess-dev',True)
-                if dev_alpha is not None or dev_storage is not None or dev_scope is not None or dev_core is not None or dev_order is not None or dev_walk is not None:raise ValueError('diagnostic source entered shipping spelling/core stage')
+                dev,dev_observations,dev_alpha,dev_storage,dev_scope,dev_core,dev_input,dev_order,dev_walk,dev_tactical=generate(directory/'preprocess-dev',True)
+                if dev_alpha is not None or dev_storage is not None or dev_scope is not None or dev_core is not None or dev_order is not None or dev_walk is not None or dev_tactical is not None:raise ValueError('diagnostic source entered shipping spelling/core stage')
                 if sha(dev)!=expected['dev_source_sha256']:raise ValueError('diagnostic C differs from qualified control')
                 dev_command=recipe['dev_compiler']
                 dev_native=compile_c(dev_command,dev,directory/'dev');(directory/'dev/main.c').write_bytes(dev)
@@ -162,7 +164,9 @@ def main():
                       diagnostic_exact_control=bool(first_dev),under_4096_bytes=False,
                       shipping_SEE_model='legal-LVA ordering only; QS SEE pruning disabled',
                       diagnostic_model_equivalent_to_shipping=False,
-                      shipping_geometry='shared forward occupied-BB source walker; full attacker masks')
+                      shipping_geometry='shared forward occupied-BB source walker; full attacker masks',
+                      shipping_Move_ABI='generated bit3 tactical, FROM119, unchanged TO/PROMO and17-bit TT',
+                      shipping_ordering_policy='quiet promotions also receive capture tactical base tier')
         save();print(json.dumps({'complete':True,'out':str(out),'whole_bytes':len(first[2]),'source_sha256':sha(first[0]),
                                 'native_sha256':sha(first[1]),'whole_sha256':sha(first[2]),'diagnostic_exact_control':bool(first_dev)}),flush=True)
     except Exception as error:

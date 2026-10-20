@@ -1,4 +1,76 @@
-# Maintained minimal E entry
+# Maintained minimal E19 entry
+
+The current shipping model is **e-hand-quadratic-19-1**, hand-authored and
+**UNTRAINED**, with19 exact signed16 parameters and real evaluation plus
+ordering in search. This is a declared feature/model structure change from
+E21, not a lossless encoding or inference-equivalence claim. Current selected
+complete file is5176B,1080B above4096,105B smaller than prior5281.
+
+`engine.c` and unchanged DEV preserve the old21-coefficient reference as
+ancestry. They do not qualify the new model or private state. The ordinary
+readable `model19.h` defines the shipping19-parameter model and mappings; the
+new `shipping_model.py` follows the existing input stage, binds its token bodies
+to the exact shipping source, and guards all five edits, full inverse and
+untouched complement. It uses only ordinary source inputs. Existing guards,
+compiler, fixed resources, bootstrap, launcher and nice32 ALONE codec remain.
+Future coefficient changes require new source admission and integer bounds.
+
+White inference is M+A+A*abs(A)/128+side*tempo, clamped to+/-20000, with C
+division toward zero. Private Board fields maintain material M/activity A
+through real put deltas. The nonlinear global activity contrast adds cross-piece
+and cross-color interactions; equal activity cancels before nonlinearity.
+Doubled/isolated pawn and bishop-pair features are removed. The original actual
+five-feature ordering and exact coefficients remain; ordering scores are never
+TT bounds. Correction residual and LMR guard use the new actual raw evaluation.
+
+The selected first-cost source11105/b043eae2, native26416/5ddcd703, whole5176/
+a3a36bdc and bootstrap12170/97912c33 are explicit fixed expected identities.
+One focused ASan+UBSan fixture passed actual S/R production consumers and
+independent board/hash/model/order checks, specialmoves for both colors, the
+complete conservative activity interval and actual nonadditivity. Board is
+176B versus168B; measured fixed M allocation4408B versus4392B, with six pushes
+each. These are source/layout checks, not strength or performance claims.
+Initial observer preflight failed with0 compile/run and remains separate.
+
+```sh
+python3 -B engines/compact/tiny-entry-e/build.py --out /absolute/new/E-build --dev
+python3 -B engines/compact/tiny-entry-e/verify.py --build /absolute/E-build --out /absolute/new/E-runtime
+```
+
+Normal E19 direct builder passed once: two shipping reproductions plus two
+exact old DEV21 references. The unchanged verifier passed two selected quit/EOF
+sessions with eight legal GO results, exact new restored native, three startup
+TIDs each, private-path/descriptor cleanup and physical exit/readers fences.
+DEV repetition preserves old reference byte identity; E19 inference/state proof
+comes from its actual focused shipping fixture. `fresh.py` remains unchanged;
+its existing helper-derived closure includes the new model/helper (22 files).
+No fresh archives, games, training, data, AWS or benchmarks run for promotion.
+Cancellation causality, strength, target scaling and4KiB eligibility remain
+unproven. Root owns final Git/docs intake; generated output stays outside Git.
+
+| Form | Bytes | SHA-256 |
+| --- | ---: | --- |
+| Shipping source | 11105 | `b043eae2df9190c07beaad8c6528aa1a76db1173990eefc2f047875118991052` |
+| Native | 26416 | `5ddcd703a963d73403ce43e596430588e7050e548c0e0221976a038afc93d509` |
+| Complete | 5176 | `a3a36bdc0de02931b03434e760c983b4d7689ff432229e1c4173d26a6a664db6` |
+| Bootstrap | 12170 | `97912c3325354eafa584f76f6e70469ec99b9b9f4e41ff5c50df7c4496446e77` |
+
+Normal build receipt `1d7409d1221b48d31cb9ccd41636e3483da714967e939dad0f635d9281c1be72`
+is /home/stemxstudio/rove4k-e-model-structure-normal-20261021/build.json.
+Runtime receipt `2e9d6f7746d903cd125091f3058cf2e9f3c7a7817126ee453ecbe6c69084868a`
+is /home/stemxstudio/rove4k-e-model-structure-normal-runtime-20261021/runtime.json.
+The build preserves exact producing recipe251649c0; final recipe changes only
+qualification metadata after execution. No expected output was learned or
+updated automatically. The previous20-source closure/archive and actual old
+controls were preserved externally before normal source changes.
+
+## Historical E21 records below
+
+The following section describes prior E21 shipping5281 and its ancestors. Its
+21-coefficient/equivalence/qualification statements are historical, not current
+E19 model claims.
+
+# Historical maintained E21 entry
 
 `engine.c` remains the readable canonical program. The selected complete
 shipping file is **5,281 bytes**, **1,185 bytes above 4,096**, down from

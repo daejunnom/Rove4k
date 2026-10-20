@@ -1,8 +1,8 @@
 # Maintained minimal B entry
 
 The selected shipping source uses legal least-valuable-attacker exchange for
-ordering after the fixed text input profile. Its complete file is **5,371
-bytes**,55 below LVA-only B5426 and **1,275 above4,096**. It is not a4KiB
+ordering after the fixed text input profile and tactical Move stage. Its
+complete file is **5,357 bytes**,14 below B5371 and **1,261 above4,096**. It is not a4KiB
 entry. The readable canonical engine.c remains28,953 bytes. Canonical and DEV
 retain the old full legal minimax model and API as a distinct reference;
 DEV-model equivalence to production legal-LVA is explicitly false.
@@ -26,6 +26,51 @@ compiler argv before exec:
 cc -std=c11 -Os -pthread -DWORKERS=2 -DTT_BITS=18 -DDEV=0 -x c - -o x
 ```
 
+## Current generated-Move tactical stage
+
+The last pure ordinary helper embeds ten exact disjoint spans, full inverse,
+all-gap complement, fixed source pins and paired readable emitter role binding.
+It reads no experiment/report/Clang/artifact input. The unused0x88 FROM bit3
+holds generated capture-or-promotion metadata; FROM119 clears it, while TO,
+PROMO and the existing17-bit TT payload positions stay unchanged. Production
+TT/hash-move/exclusion comparisons retain the tagged raw Move consistently;
+only external oracle coordinate comparisons clear the metadata bit.
+
+Existing gen/add geometry classifies pawnpush2, pawncapture/EP3 and other
+quiet/capture0/1. The shared all4promotion emitter sets bit3. SEE eligibility,
+QS tactical eligibility and correction quiet guards consume this single tag,
+removing the repeated mailbox classifier. Initial empty-target EP still adds100
+only for a nonpromotion; recursive Q recaptures have occupied targets. The
+legal-LVA score model and UNKNOWN-before-arithmetic boundary remain. Quiet
+promotions now receive the capture tactical base ordering tier: this explicit
+ordering policy change can alter search/learning. No equal tree/strength or
+old raw-Move/DEV model equivalence is claimed.
+
+One cost produced source11430 (-102), native26360 (-24) and whole5357 (-14).
+The fixed native SHA is483a2b6c1f420a30d2f04f1acab9101f6b7dc44c06e1485117a2e8117f1365dd;
+whole SHA8b8c3b565974813aa2ea54383bcc19240c1dcf506157d2aa0b44c8b24fa3d5be.
+One actual candidate diagnostic TU passed99 boards,294 independent tactical
+tags,1281 legal full child states,85 legal-LVA expectations,2 illegal moves,
+2 normalized EP exclusions and6 cancel/deadline controls. Two fixture-only P
+observers recorded qualified singular1/taken extension1 with actual tagged
+capture12441, prime910/alternatives14<threshold898. Ordinary positive learning
+and excludedroot TT/learning/board/path/deadline controls passed. ActualTT18
+child fullkey readmiss0 is recorded; no oldTT20 child-depth gate is inherited.
+Fixture clock/counters are not production wallclock or selected-image evidence.
+
+One normal builder with --dev reproduced actual shipping source/native/whole/
+bootstrap twice and the old DEV source/native tuple twice. The unchanged
+selected verifier passed actual quit/EOF2 sessions and8 legal GO epochs with
+the new exact native image,3 persistent TIDs, no restoration helper/private
+path, active closing epoch and physical reader EOF/main disappearance/exit0.
+Both outer owned groups settled without intervention. Cancellation causality
+remains unproven. Canonical engine.c and old full-minimax DEV ABI remain
+unchanged references, not new-path proof. No fresh/game/strength/scaling claim.
+Build receipt SHA f1882be151f244f59afa30a1020daeeec9366d6299096840f0ed9911d4d581e8;
+runtime SHA4496ea25f93e7623e7e3f3e163a91de85df2db18d53055696bc4d267fea29bf9.
+Producing B24 source/archive and final README/recipe result metadata are
+preserved separately; no postmetadata builder/verifier rerun occurred.
+
 ## Ordinary source decisions
 
 Canonical preprocessing, minification, diagnostic stripping, shared89 spelling,
@@ -34,7 +79,9 @@ existing shipping_core.py first transforms12220 to12148 using its unchanged
 incoming-Move full-minimax composition. The fixed input helper then produces
 11829/11a32cc6c48ad16856e7968c5ba91456257c1b249590f0aa71a371d2fd276a93.
 Only then does B-only shipping_order.py produce11702 bytes. The final
-shipping_walk.py consumes those exact bytes and produces11532. No previous
+shipping_walk.py consumes those exact bytes and produces11532; the new
+shipping_tactical.py then consumes that exact11532/3fca96 input and produces
+11430/54759113 with the same old spelling/core/order/walk guards unchanged. No previous
 map or guard is generalized to accept a new source domain.
 
 shipping_order.py embeds paired readable/physical literals, fixed role and
@@ -75,14 +122,14 @@ results after changing the ordering and QS policy.
 
 | Form | Bytes | SHA-256 |
 | --- | ---: | --- |
-| Shipping C |11532|3fca96ff1a913ed74edaed69d74794a433a9013e4a6cd88dc0e3dfe5e35d0b6f|
-| Native |26384|7b9503f99d7e71eb26522501eaa89caaefbd3000d38ef0637688378aa62b9423|
-| Complete file |5371|0b6642824ca291faceb774fe8c7a15af97fbce844f1b889903ddfa353e9c13b1|
+| Shipping C |11430|54759113c9949f0f3d619d5eefe5e8ac4d6b562baf4c09da7e7743907d3f8a2a|
+| Native |26360|483a2b6c1f420a30d2f04f1acab9101f6b7dc44c06e1485117a2e8117f1365dd|
+| Complete file |5357|8b8c3b565974813aa2ea54383bcc19240c1dcf506157d2aa0b44c8b24fa3d5be|
 
-Bootstrap SHA-256 is88af0a7d1ba13e4de0bf1f1ddfeff487f76bc9e0361e234e6cc4f1dd38c94789.
+Bootstrap SHA-256 isac3cbb751445b451fecfb28d6b43ca711879b6c10797e52c35eb872a353ba523.
 The old DEV source/full-native gates remain31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2
 and9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30.
-Their equality must be observed in the normal run; they qualify the distinct
+Their equality was observed twice in this normal run; they qualify the distinct
 reference tuple, not the production LVA model.
 
 Packaging remains prefix77 and fixed LZMA1 ALONE9e/lc2lp0pb0/BT4/dict64MiB/
@@ -144,7 +191,7 @@ and archived rebuild are0 at this checkpoint. No additional fixture, DEV engine,
 game, benchmark, strength, stack or scaling qualification is claimed.
 
 
-## Shared forward geometry
+## Shared forward geometry (unchanged B5371 predecessor stage)
 
 The final pure shipping_walk helper replaces reverse attackers395 and gen727
 with one forward walker/prototype/attackers wrapper900 and gen wrapper52,

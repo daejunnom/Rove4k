@@ -186,10 +186,10 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
 | A | 4,762 B | 666 B | Order-independent text profile, shared startup/query, adjacent declarations/completion sequence and original ALONE |
-| B | 5,371 B | 1,275 B | Shared forward geometry, bounded text/query profile, declared legal-LVA ordering, hybrid attackers/singular and ALONE |
+| B | 5,357 B | 1,261 B | Generated tactical Move metadata, shared forward geometry, declared legal-LVA ordering, hybrid attackers/singular and ALONE |
 | C | 5,152 B | 1,056 B | Private incremental SIMD features, shared coefficients, bounded text profile, real AVX2 residual dot and fixed ALONE |
 | D scalar / HQ | 6,108 / 6,288 B | 2,012 / 2,192 B | Own fixed21 context ELF with explicit SSE4.2 CRC32C, residual leapers, worker reset and guarded BCJ restoration |
-| E | 5,281 B | 1,185 B | Shared bounded text/query profile, all 21 untrained coefficients, fixed TT/sort/clamp specialization and ALONE |
+| E | 5,176 B | 1,080 B | Declared untrained E19 quadratic activity model, incremental material/activity, original five-feature ordering and ALONE |
 | F | 4,728 B | 632 B | Full-depth MTD(f), exact packed HCE coefficients, shared EP legality, bounded text profile and fixed ALONE |
 
 The separate Rust D native images are 16,816 bytes each. Their independent
@@ -4084,3 +4084,98 @@ and the selected C D pair are not replaced by these unqualified experiments.
 The remaining six size gaps, final resource/ISA profile and performance,
 scaling and strength evidence remain open. This lane performs no training,
 AWS/paid execution, games, benchmark, main promotion or release.
+
+## Further model and generated-move structure reductions
+
+The following are selected ordinary C shipping changes after `51f2986`.
+They retain the fixed local two-search-worker/TT18/PLY128 profile. Model and
+ordering changes are identified explicitly; they are not value-preserving
+spellings of the old engine. The old source closures and actual controls are
+preserved outside Git before promotion. External evidence paths below are
+observations, never regeneration inputs.
+
+| Entry | Previous whole | Selected whole | Shipping source | Native | Decision |
+| --- | ---: | ---: | ---: | ---: | --- |
+| B | 5,371 B | 5,357 B | 11,532 to 11,430 B | 26,384 to 26,360 B | Private tactical Move tag; quiet-promotion ordering changes |
+| E | 5,281 B | 5,176 B | 11,378 to 11,105 B | 26,384 to 26,416 B | Explicit new hand-authored, untrained E19 model |
+
+B uses the previously unused FROM bit3 of valid 0x88 coordinates for the
+capture-or-promotion class produced by generation. FROM decodes with mask119;
+TO, PROMO and the 17-bit TT payload positions remain unchanged. Ordering,
+initial SEE eligibility, QS/reduction classification and correction quiet
+guards consume this one tag, removing the repeated mailbox classifier. Quiet
+promotions now receive the capture tactical base tier. Initial SEE awards the
+EP pawn only for nonpromotion tagged moves with an empty target; recursive
+SEE moves without the tag already have occupied targets. Full-key TT, singular
+exclusion and learning use the actual tagged identity. Canonical/DEV retains
+the old Move ABI and minimax model, and is an ancestry reference rather than
+proof of this production path.
+
+One focused diagnostic compilation/run checks 99 boards, 294 independent
+tactical tags, 1,281 legal child states and the existing legal-LVA numeric
+expectations without regenerating them. The actual singular positive control
+takes one qualified extension; excluded probes preserve root TT, learning,
+board, active path and the original deadline. The actual TT18 child-key read
+is a miss, recorded as such; the earlier TT20 child-depth witness is not
+claimed. The focused receipt SHA is
+`4a27c68d86ed32d65c71d9f909e69a9d244bf26ea2f6ae8adae332850ac6110e`.
+One ordinary builder reproduces shipping twice and the old DEV twice, followed
+by the unchanged verifier's quit/EOF two sessions and eight legal GO. The
+exact new native image, three persistent TIDs, private-path/helper cleanup,
+reader EOF and physical exit0 are observed. Cancellation causality remains
+unproven. Build/runtime receipt SHAs are
+`f1882be151f244f59afa30a1020daeeec9366d6299096840f0ed9911d4d581e8` /
+`4496ea25f93e7623e7e3f3e163a91de85df2db18d53055696bc4d267fea29bf9`.
+The normal helper follows `shipping_walk` and consumes only ordinary source
+and fixed role/literal pins. Whole SHA is
+`8b8c3b565974813aa2ea54383bcc19240c1dcf506157d2aa0b44c8b24fa3d5be`.
+
+E's `e-hand-quadratic-19-1` stores 19 exact signed16 coefficients, hand-authored
+without training or data. It removes doubled/isolated pawn and bishop-pair
+features, keeps material/center/pawn advancement, and adds a global signed
+activity interaction. Actual inference is
+`clamp(M+A+A*abs(A)/128+side*tempo, -20000, 20000)` with C integer division.
+The existing nonzero piece/hash update maintains M and A privately in Board.
+The five original ordering features and coefficients `[16,-1,12,2,4]` remain
+active, with relocated coefficient indices. The nonlinear residual is actual
+and nonadditive: g(32)=40, while g(16)+g(16)=36. Conservative bounds are
+|M|<=14,400, |A|<=1,728, product<=2,985,984 and raw<=39,466 for the fixed gain1;
+future parameter changes must rederive those bounds. The separate frozen E21
+model and Rust E21 are not modified or used as E19 equality evidence.
+
+One ASan/UBSan focused compilation/run observes the actual S/R bodies through
+definition-name-only wrappers reached by production search. Independent board,
+hash, model and ordering reconstruction, both colors' capture/EP/castle and
+all promotion kinds, 534 legal children, complete admitted activity interval
+and actual nonadditivity pass. Board grows 168 to 176 B, while the actual -Os
+search stack allocation grows 4,392 to 4,408 B. The earlier observer preflight
+failed before any compilation/runtime because it assumed a single stack
+subtraction; the corrected observer sums the actual stack-clash prologue and
+checks its epilogue. Both receipts are preserved. After the executed focused
+driver, its interruption cleanup is improved in source only; that revision is
+not relabeled as the executed driver. Focused receipt SHA is
+`3b1531a9fb64cd0460f93288cb548c2d702d2e2d1f9529ba3b04f1234f7241b6`.
+One ordinary builder reproduces E19 shipping twice and unchanged DEV21 twice.
+The unchanged selected verifier observes the exact new native in two quit/EOF
+sessions/eight legal GO, three TIDs, FD012, private-path/helper absence and
+physical exit0/reader EOF. Build/runtime receipt SHAs are
+`1d7409d1221b48d31cb9ccd41636e3483da714967e939dad0f635d9281c1be72` /
+`2e9d6f7746d903cd125091f3058cf2e9f3c7a7817126ee453ecbe6c69084868a`.
+The ordinary model fragment and closing helper are regeneration inputs; the
+experiment and reports are not. Whole SHA is
+`a3a36bdc0de02931b03434e760c983b4d7689ff432229e1c4173d26a6a664db6`.
+
+Two additional source-only investigations close without a cost candidate.
+F's runtime/input/query bodies already share the meaningful lifecycle work;
+the apparent duplication has different ownership fences. D's recursive search
+already shares normal/QS, ordering, make and the re-search call site. Replacing
+it with an explicit per-ply state machine would retain the 2,190 B search body
+and add resume/frame traffic. Its 43 B prologue and 19 B epilogue are not a
+credible hundreds-of-bytes saving. TT read/write and learning regions likewise
+contain distinct necessary work, not whole duplicated blocks. No candidate,
+compilation, codec or engine execution is inferred from these rejections.
+
+These selected entries remain above 4,096 B. Their local checks establish the
+described source/model and lifecycle scopes, not improved playing strength,
+many-core scaling, final ISA/resources, main promotion or release. No training,
+AWS/paid work, games or performance benchmark occurs in this checkpoint.
