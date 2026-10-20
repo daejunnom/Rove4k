@@ -109,6 +109,10 @@ The fixed-macro-loss checkpoint `c7be9ea` passes both language jobs in its
 [exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39392239296)
 and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39392239338).
 The A/F macro experiment remains a local cost-only loss, not a new CI engine run.
+The maintained-B-storage checkpoint `2a0d99a` passes both language jobs in its
+[exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39393850340)
+and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39393850575).
+The C job actually regenerates and exercises the 5,851-byte maintained B entry.
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
@@ -2338,3 +2342,35 @@ inputs. The first collector's mistaken C-only field lookup is preserved as a
 collector failure, not an engine failure; it causes no engine rerun. FDs are
 not claimed as observed by the unchanged B verifier. This maintained promotion
 awaits its own exact-head CI and remains 1,755 bytes above 4KiB.
+
+## D completion latch: actual output reservation observed
+
+The [D publication observation](../engines/experiments/tiny-d-completion-latch-proof/README.md)
+executes the exact unmodified 7,457/7,707-byte scalar/HQ first-cost shipping files.
+Its parent fills an empty blocking stdout pipe, then queues GO, a replacement
+position and the next GO. Read-only /proc inspection observes a worker blocked
+in its actual bestmove write and main blocked in the private futex wait, while
+the BSS word addressed by that futex is **pending=1**. Both forms retain the
+original futex expected argument three from the earlier wait; that argument is
+recorded separately from the current word one. The old result therefore still
+owns the output reservation while main is waiting to reuse engine state.
+
+After draining only the parent's filler, both ordered old/new-root results are
+independently legal and pending subsequently becomes zero. Two actual wrappers
+execute four GO epochs with stable three-TID startup, natural quit and output
+EOF settlement, no forced cleanup. Actual own-loader/native identities, RX padding,
+mapping permissions and guards, nonexecutable main stack and descriptors 0/1/2
+are observed. There is no target code/memory/register patch, personality change,
+compiler invocation, game or benchmark in this check.
+
+The exact runtime receipt is
+`99320b49fefaa20644a1261bbe82fd29984e6d9d674367b2a6a3643a0c5b28bc`;
+source/runtime intake is
+`901012de7ebd790e8aea3e87ecae0a88c8bff96276fa3761822880df595b1857`.
+Both validator source files are frozen, the existing oracle is raw-hash pinned,
+and all six recorded TIDs are absent at final intake. This is bounded output
+publication evidence, not general race freedom, new startup/partial-clone fault
+coverage, initial zero-BSS observation, cancellation causality or maintained D
+promotion. The earlier cost receipt retains its original zero engine-execution
+count; these new sessions remain separate. Normal-source promotion and newly
+bound pre-entry audits are still open.
