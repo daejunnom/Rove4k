@@ -192,7 +192,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | E | 5,118 B | 1,022 B | Global function aliases, untrained E19 quadratic activity model, incremental material/activity, original ordering and ALONE |
 | F full (default) | 4,681 B | 585 B | Capture-only private Move bit, global function aliases, calloc payload initialization sharing, unit-window TT bound expression, full-key TT, full-depth MTD(f), packed HCE and fixed ALONE |
 | F material/noise (opt-in) | 4,386 B | 290 B | Capture-only private Move bit, policy-local function aliases, fixed material/stateless-order model, full-depth MTD(f)/full-key TT/SMP retained; optional positional HCE/learners omitted; strength comparison pending |
-| F material/move-TT (opt-in) | 4,217 B | 121 B | Fixed material and16-byte full-key coherent move-only TT; MTD recomputes bounds, rules/history/witness/pool retained; strength comparison pending |
+| F material/move-TT (opt-in) | 4,180 B | 84 B | Object/type/member names, fixed material and16-byte full-key coherent move-only TT; MTD recomputes bounds, rules/history/witness/pool retained; strength comparison pending |
 
 The separate Rust D native images are 16,816 bytes each. Their independent
 packed experiment retains its own qualification state and does not silently
@@ -5392,3 +5392,35 @@ Build/runtime SHA values are
 Final summary SHA is
 `3bb471528128c58355a2f1579bbe2f19e960c962ab774b99d41bc7aa6591ee1c`.
 All experiment sources, fixtures, logs and generated outputs are outside Git.
+
+### F move-TT object/type/member bindings: actual4180-byte entry
+
+One fixed map shortens18 global-object/type/member roles at117 physical
+tokens, source8265 to8148/5ee725c0. The actual242 declarations/1979 references,
+full-position reference multiedges, canonical types/layout/offsets and byte
+complement are preserved. Nine atomic macro arguments have exact physical
+declaration bindings plus unchanged macro definitions/expanded references;
+macro names, directives, headers, external API, main and opaque tokens stay
+unchanged. An initial forward-declaration context bug was caught by reparse
+before compilation, preserved, and corrected using actual function definitions.
+The maintained fixed helper reads only exact source bytes, not ASTs/reports.
+
+One unchanged compiler invocation produces the entire same18576-byte native
+dbbe4984, without any metadata exception. The selected codec gives complete
+4180, SHA
+`3fe2ad6b1e7863f42f1d269a1ebb08069bc9857af587070dad513b9115821bcf`.
+Control4217 is reproduced exactly; individual delta addition is not used.
+The new policy function proof carries through full native equality, so no
+additional core unit runs. One ordinary selected --dev builder reproduces
+shipping twice/old full-reference DEV twice; the unchanged selected verifier
+executes the actual new wrapper in two quit/EOF sessions/eight legal GO,
+exact restored native, stable TIDs and physical exit0. Other policies' source
+guards/expected/qualification remain unchanged; their runtime is not rerun.
+
+Build/runtime SHA values are
+`61da4d2b691d613c53709c7c1f2c3408dffa61d9806d9cbc1b46c993c07e5b66` /
+`1892dc99086ffffcccd72005ba4748d812a964a4cee9234d334730081a5b9967`.
+Normal aggregate SHA is
+`f646efe27568814344c8a0540adb1396d31c8b7b60c488aa8377a02504e5d3db`.
+Producing inputs and later qualification metadata remain separate. No
+strength/scaling or <=4096 claim follows from this names-only change.

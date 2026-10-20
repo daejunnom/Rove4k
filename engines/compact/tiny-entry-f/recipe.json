@@ -62,7 +62,8 @@
     "engines/compact/tiny-entry-f/shipping_material_noise.py": "76b882092832d48488fd767189ebfe6cf8e445bb7a4ff74b261f1228c7527ad3",
     "engines/compact/tiny-entry-f/shipping_material_names.py": "3d81326468dcd4c52647508aaaa47abf13ba1ddaee561f7c97448af4e4b40553",
     "engines/compact/tiny-entry-f/shipping_material_capture.py": "e1d7960d71dce41e2f6694a76351d08d6dcf5e934f5693b8031dbfc1982b40dd",
-    "engines/compact/tiny-entry-f/shipping_move_tt.py": "70bbcae56adf94a93ab54ce5edfb7c8fea222fe5509ef8556c4262caf9400a81"
+    "engines/compact/tiny-entry-f/shipping_move_tt.py": "70bbcae56adf94a93ab54ce5edfb7c8fea222fe5509ef8556c4262caf9400a81",
+    "engines/compact/tiny-entry-f/shipping_move_tt_names.py": "3ac359c6c41b97a9cbb6002c390aa415587cdb3e66f70bfdddccbc4584ea263a"
   },
   "resource_literals": [
     [
@@ -1318,15 +1319,15 @@
     },
     "material-move-tt": {
       "name": "F-MTD-MaterialNoise-MoveTT-v1",
-      "stage": "material-noise/names/capture then move-only TT; full globalnames/capture bypassed",
+      "stage": "material-noise/names/capture then move-only TT; full globalnames/capture bypassed; then fixed shipping_move_tt_names.py",
       "expected_overrides": {
-        "source_bytes": 8265,
-        "source_sha256": "c858083e36683b1e83028e0c4e1b8d611ae12fc7058e4842ab4952fbd2de9c08",
+        "source_bytes": 8148,
+        "source_sha256": "5ee725c0e3d1479210ff023f6af75c965a421cf04645f9d60abc1ae7cedae91b",
         "native_bytes": 18576,
         "native_sha256": "dbbe498409862346939c1faa2fca30ee99cb449bc8e5f05d4b2fd4091d173a27",
-        "whole_bytes": 4217,
-        "whole_sha256": "e37761cffeaa6bcf2e72d4f8aa094a6b871f70165ba42b5c0a7b9ec27e0ff26f",
-        "bootstrap_sha256": "d2f1b517d7e98d62619566a87272fefbf1392750a0d10531cbdd0b0d7e2832d3"
+        "whole_bytes": 4180,
+        "whole_sha256": "3fe2ad6b1e7863f42f1d269a1ebb08069bc9857af587070dad513b9115821bcf",
+        "bootstrap_sha256": "b3684c4b8c92e18a0177ea3fdc01a2219e9a4974c1693029ce7967ac699c4632"
       },
       "compression": {
         "format": "lzma-alone",
@@ -1371,7 +1372,7 @@
         },
         "default_full_and_existing_material_noise_expected_unchanged": true,
         "DEV_scope": "unchanged full-reference source/native byte reproduction only; not MoveTT-model DEV coverage",
-        "normal_build_runtime": {
+        "pre_names_normal_build_runtime": {
           "complete": true,
           "build": {
             "path": "/home/stemxstudio/rove4k-f-material-move-tt-normal-20261021/build.json",
@@ -1420,6 +1421,101 @@
           "forced_cleanup": 0,
           "active_handles": 0,
           "post_execution_changes": "README and new alternate qualification metadata only; producing builder/helper exact"
+        },
+        "names_only": {
+          "scope": "fixed18-role117-physical-token object/typedef/member spelling after MoveTT; no policy change",
+          "source_ast_proof": {
+            "bytes": 58791,
+            "sha256": "04b87f97e986557230f2c02a42a4644e68cb5448b7d3f1361e05f82318e07d05",
+            "all_declarations": 242,
+            "deduplicated_references": 1979,
+            "full_position_multiplicity_references": 2022,
+            "fixed_atomic_macro_argument_bridges": 9,
+            "exact_inverse_and_byte_complement": true,
+            "headers_API_main_macros_strings_unchanged": true
+          },
+          "actual_cost": {
+            "path": "/home/stemxstudio/rove4k-f-object-type-names-cost-20261021/cost.json",
+            "bytes": 4659,
+            "sha256": "0a386ebe332f08a781b875f9d50fd356374c07cd1fb21423ce81789afea23baf",
+            "whole_control_candidate": [
+              4217,
+              4180
+            ],
+            "raw_control_candidate": [
+              8265,
+              8148
+            ],
+            "control_reencoded_byteexact": true,
+            "candidate_compiles": 1,
+            "control_candidate_encodes": [
+              1,
+              1
+            ],
+            "strict_decodes": 2
+          },
+          "entire_native_byte_equal_to_positive_unit_policy": true,
+          "native_sha256": "dbbe498409862346939c1faa2fca30ee99cb449bc8e5f05d4b2fd4091d173a27",
+          "existing_focused_positive_unit_reused_not_rerun": true,
+          "new_core_unit_compiles_executions": 0,
+          "pre_names_expected": {
+            "source_bytes": 8265,
+            "source_sha256": "c858083e36683b1e83028e0c4e1b8d611ae12fc7058e4842ab4952fbd2de9c08",
+            "native_bytes": 18576,
+            "native_sha256": "dbbe498409862346939c1faa2fca30ee99cb449bc8e5f05d4b2fd4091d173a27",
+            "whole_bytes": 4217,
+            "whole_sha256": "e37761cffeaa6bcf2e72d4f8aa094a6b871f70165ba42b5c0a7b9ec27e0ff26f",
+            "bootstrap_sha256": "d2f1b517d7e98d62619566a87272fefbf1392750a0d10531cbdd0b0d7e2832d3"
+          },
+          "normal_4180_build_runtime": {
+            "complete": true,
+            "build": {
+              "path": "/home/stemxstudio/rove4k-f-object-type-names-normal-20261021/build.json",
+              "bytes": 125977,
+              "sha256": "61da4d2b691d613c53709c7c1f2c3408dffa61d9806d9cbc1b46c993c07e5b66"
+            },
+            "runtime": {
+              "path": "/home/stemxstudio/rove4k-f-object-type-names-runtime-20261021/runtime.json",
+              "bytes": 10750,
+              "sha256": "1892dc99086ffffcccd72005ba4748d812a964a4cee9234d334730081a5b9967"
+            },
+            "strict_readback": {
+              "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-object-type-names-20261021-evidence/promotion/readback.json",
+              "bytes": 4939,
+              "sha256": "7a73c81cfba1cd4f709fab1faae58894ca0cf54a8c7243c41c472b155ca7f25c"
+            },
+            "producing_source_manifest": {
+              "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-object-type-names-20261021-evidence/promotion/producing-source.json",
+              "bytes": 5480,
+              "sha256": "caa0b39f05a8f8fb7b69ec87716efd891263e054df698d46f8672750b8cb9c5b"
+            },
+            "producing_ordinary_recipe": {
+              "bytes": 88849,
+              "sha256": "8fe5eb62dd93bd58529774c7082d626a6178a74ed4426a34759bc9125ade022a"
+            },
+            "effective_selected_recipe": {
+              "bytes": 95740,
+              "sha256": "4f4e83a05497f36662af5bb12bd4561f2042668d160c7404fe90232ba23751b5"
+            },
+            "selected_shipping_reproductions": 2,
+            "unchanged_full_reference_DEV_reproductions": 2,
+            "default_full_source9242_checked_twice": true,
+            "material_source8602_checked_twice": true,
+            "new_full_material_native_or_runtime_runs": 0,
+            "new_core_unit_compiles_executions": 0,
+            "entire_native_same_as_positive_unit_policy": true,
+            "selected_quit_EOF_sessions": 2,
+            "legal_GO_epochs": 8,
+            "restored_native_exact": true,
+            "startup_TIDs_per_session": 3,
+            "private_path_helpers_absent_at_UCI": true,
+            "one_closing_result_readers_and_physical_exit": true,
+            "cancellation_causality": "unproven",
+            "compiler_descendant_lifetime_limit": "unchanged; helper absence at UCI observed, no universal startup-descendant lifetime proof",
+            "fresh_games_performance_training": 0,
+            "active_terminal_handles": 0,
+            "post_execution_changes": "README and names_only qualification metadata only; producing helper/build/source/pins unchanged"
+          }
         }
       }
     }

@@ -1,3 +1,70 @@
+# Opt-in MaterialNoise+MoveTT names-only4180 stage
+
+The explicit `--policy material-move-tt` path now has fixed expectations for
+source8148/5ee725c0, entire native18576/dbbe4984, bootstrap9147/b3684c4b and
+complete **4180B**,37B below4217 and **84B above4096**. Default full4681,
+material-noise4386, full-reference DEV and their existing qualification remain
+unchanged. The new stage changes spelling only; it does not alter MoveTT policy.
+
+Ordinary shipping_move_tt_names.py runs only after the exact MoveTT source
+8265/c858083e. Its18-role/117-position map covers15 file objects,2 typedefs
+and1 ownedflag member, preserving function/local/static-local names. Actual
+Clang proof compared242 declarations,1979deduplicated and2022fullposition/
+multiplicity references and canonical type/layout/field offsets. Nine atomic
+macroargument tokens had exact physicaldeclannotation, expandedtarget edge
+and pinned no-stringification/paste headerdefinition proofs. Fixed source
+pins, literal invocation contracts, directive/comment/literal guards, full
+inverse and8031-byte untouched complement bind the ordinary transform.
+Normal generation reads source bytes only; Clang/report/headerfiles are not
+inputs. Existing macros/API/main/string contents and all earlier guards remain.
+
+The one cost re-encoded control4217 byteexact with selectedlc0/lp0/pb0/BT4/
+nice32/64MiB/prefix77, then compiled and encoded one candidate. Entire native
+is BYTEIDENTICAL to the current positive-unit8265/dbbe policy image. Its actual
+core/TT/material unit evidence is reused by that image identity; newcoreunit0.
+The spelling proof and cost do not imply playing strength or4KiB eligibility.
+
+```sh
+python3 -B engines/compact/tiny-entry-f/build.py --policy material-move-tt --dev --out /absolute/new/F-build
+python3 -B /absolute/new/F-build/selected-verifier/engines/compact/tiny-entry-f/verify.py --build /absolute/new/F-build --out /absolute/new/F-runtime
+```
+
+One ordinary `--policy material-move-tt --dev` build passed on its first call,
+reproducing selected source/native/bootstrap/whole twice and unchanged full-F
+DEV twice. The existing full9242 and material8602 source guards passed twice;
+their expected/qualification objects remain byte-contract-equivalent and no
+full/material native/runtime rerun is claimed. DEV bypasses the new helper.
+
+The unchanged frozen selected verifier passed the actual new4180 wrapper in
+quit/EOF two sessions/eight legal GO epochs. It restored exact dbbe4984 native,
+observed three stable startup TIDs, absent private paths/helpers at UCI, one
+closing response, finished readers and physical exit0. Cancellation causality
+and the prior compiler-descendant lifetime scope limit remain unproven.
+
+| Selected artifact | Bytes | SHA-256 |
+| --- | ---: | --- |
+| Shipping source | 8148 | `5ee725c0e3d1479210ff023f6af75c965a421cf04645f9d60abc1ae7cedae91b` |
+| Entire native | 18576 | `dbbe498409862346939c1faa2fca30ee99cb449bc8e5f05d4b2fd4091d173a27` |
+| Bootstrap | 9147 | `b3684c4b8c92e18a0177ea3fdc01a2219e9a4974c1693029ce7967ac699c4632` |
+| Complete wrapper | 4180 | `3fe2ad6b1e7863f42f1d269a1ebb08069bc9857af587070dad513b9115821bcf` |
+
+Build receipt `61da4d2b691d613c53709c7c1f2c3408dffa61d9806d9cbc1b46c993c07e5b66`
+is /home/stemxstudio/rove4k-f-object-type-names-normal-20261021/build.json.
+Runtime receipt `1892dc99086ffffcccd72005ba4748d812a964a4cee9234d334730081a5b9967`
+is /home/stemxstudio/rove4k-f-object-type-names-runtime-20261021/runtime.json.
+Strict normal source/bootstrap/whole readback is7a73c81c. Producing ordinary
+recipe8fe5eb62/effective recipe4f4e83a0 and30ordinary-source manifest are
+preserved before this README/alternate-qualification-only completion overlay.
+The helper, builder, expected pins and all other sources remain producing bytes.
+Predecessor31-file closure and actual4217 outputs were preserved before edits.
+No fresh extraction, extra core unit, game, performance, training, AWS,
+codec/flag/name variant or shared source change ran. Active terminal handles0.
+
+## Historical4217 MoveTT and earlier records
+
+The following records retain their original policy/source/runtime identities.
+Current names-only4180 qualification is stated above and in alternate metadata.
+
 # Opt-in material-move-tt policy
 
 `--policy material-move-tt` selects F-MTD-MaterialNoise-MoveTT-v1. Full F remains the default source9242/whole4681; the existing material-noise policy remains source8602/whole4386. Both original expected tuples and qualified receipts are unchanged. DEV remains the full-reference diagnostic form and bypasses all shipping policies; it is not MoveTT-model DEV coverage.
