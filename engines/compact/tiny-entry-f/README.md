@@ -1,5 +1,136 @@
 # Maintained minimal F entry
 
+The selected complete file is **4,681 bytes**, measured11 below F4692 and
+**585 bytes above4,096**. The final ordinary `shipping_capture.py` stage follows
+`shipping_global_names.py`. It changes eight fixed literal regions in the
+shipping private Move representation; DEV and canonical readable C are exact.
+The new native identity is admitted explicitly rather than represented as
+predecessor-native equality.
+
+| Selected artifact | Bytes | SHA-256 |
+|---|---:|---|
+| Shipping C |9242|`61e0f5c7f79b6c45efd225624def06bb1ac3c1b1edfe1cd0443c0f3498a4a447`|
+| Full native |18576|`bb6f0fa9e45615cbc0651d23dfee86bc59274c406d25e0ba0968da48668976bc`|
+| Decoded bootstrap |10241|`e787832ce6674aac415e96684f7318ba2b78320c4153ebe4b2966d6cb00cafa0`|
+| Complete launcher |4681|`4596f11ad8ccaea7adc6d52a3de1b3f8c0b4c37295abb37fd2244897c3faf03d`|
+
+The helper admits only source9318/e280d859… and source9242/61e0f5c7…,
+checks all eight literal old/new regions, exactly inverts its edits and binds
+the remaining8959-byte complement. Production-generated capture moves carry
+bit3; FROM119 removes it. All four N/B/R/Q quiet promotions retain capturebit0,
+capture promotions and empty-target EP carry bit3. This is distinct from B's
+promotion-inclusive tactical tag. TO/PROMO and the coherent full-key TT17 move
+payload stay exact. The sole raw untagged EP constructor goes directly to make
+and is never a classification ingress. Quiet history, continuation, learned
+correction/noise and completed MTD attaining-witness consumers retain their
+meaning. Public UCI move text is unchanged; untagged private raw Move values
+are not interchangeable with generated tagged moves.
+
+No experiment, report, artifact, AST or network is a normal build input. The
+compiler/profile, all prior source stages, bootstrap logic,77-byte launcher
+and fixed F ALONE/BT4/64MiB/nice32 codec are unchanged. The exact primitive
+capture proof used frozen pre-globalnames functions and a bounded projection
+of the shipping MTD driver (depth cap2 and observers); it did not execute
+product main, byte-identical product think, pool or wrapper. Its FINAL index
+is e73c364d83a5ba933989f7540d832bb0359430bc1721711e1676bc5e63e9000f,
+actual unit receipt0d2c7661f89c2be41ef6f57c40e1117d44fe9d4a412b547fd1c87e7c7b5a551d.
+The later composed source records the actual alias alignment rather than
+replaying historical offsets. Its complete18576B native is all-byte equal to
+the independently captured native and differs from the uncaptured predecessor.
+This supports exact-code focused-proof reuse without relabeling it as a new
+execution. Composed cost FINAL640ffe62ddfea8959b157e4026829b5ef30b2a1a732b430784734ffc3bf9b529
+and actual cost30f4654f82e74fd6b47ef3a5621e4525cd96f889d57d865f4738b04edcd69b7e
+record one compile, one fixed compression and strict old/new Python+CLI
+restoration, with no engine execution. Rawsource−76 and whole−11 are measured
+separately; prior savings are not added.
+
+Current predecessor ordinary26 source and globalnames normal controls were
+preserved before these four owned files changed. The sole ordinary --dev call
+completed terminal0: shipping source/native/bootstrap/whole reproduced twice,
+with both complete normal outputs exactly matching the composed first-cost
+bytes. Unchanged DEV source19488/1fcf03f4… and native26984/6034086b… reproduced
+twice; no DEV engine was run. The unchanged selected verifier completed once
+on the new4681 wrapper: quit and EOF two sessions, eight legal GO epochs, full
+restored bb6f0fa9… image, three stable startup TIDs, private-path/helper
+absence, completed readers and physical exit0. All observed TIDs are absent.
+Build SHA7d4c14f1e23d480877c227f9c50149cbc9828c2a47d59c34745f13bff2abd454;
+runtime SHA6c5fc8a16e03cd41a6a6797e3f0a723d1fa1f1c24b7b8be1718cb24a4164b667;
+readback SHA268cd270d3d6b9c76dfe4214d1d025d686c537f6685eb61d787128bdb20a83c2.
+Producing source27 SHA801336f6c8f5f720a95b38d2d1b456b842eb42ad911c9d2104eb3d68e460ef8d
+and recipe SHA322fbd8cdb217677d01dc3443f1b96d31cf7e0c038d3db8cdb18def16692264c
+are preserved separately. Only README and recipe completion metadata changed
+after execution; all other25 source paths and expected/compiler/profile/helper/
+bootstrap/codec values retain their producing identities. The two outer
+commands817/850 returned0, were reaped and their owned groups were absent.
+Previous receipts below remain historical and are not new capture-native or
+wrapper executions. No fresh archive, DEV engine, new core unit, fault
+campaign, game, benchmark or training run was added. Cancellation causality and
+the existing compiler-descendant lifetime limitation remain unproven. There is
+no4KiB, strength, performance or generic SMP claim.
+
+# Historical F4692 global-function spelling stage
+
+The selected complete file is **4,692 bytes**, 10 below F4702 and **596 bytes
+above 4,096**. The final ordinary `shipping_global_names.py` stage follows
+startup and maps 28 owned function names at 104 physical declaration/reference
+positions. Shipping source is 9,318 bytes, 104 below its predecessor. The entire
+18,576-byte native remains exactly identical, with no metadata exception.
+
+| Selected artifact | Bytes | SHA-256 |
+|---|---:|---|
+| Shipping C |9318|`e280d859127c5d250ca912cfe636518fd088813ffce4266589fa6f04b7e87424`|
+| Full native |18576|`a528c8ac63976666599d4d5f5e5c8510b41df73f9c857d5919be323375dd9d0a`|
+| Decoded bootstrap |10317|`85e9fdfd246580734cabcc1b0f1d77956834f014ccfcad90c8ea16788d19008e`|
+| Complete launcher |4692|`45ccd4d0e077e7bd085be3137a852354bbfc494ed80a4d5aa182089fc590f827`|
+
+The helper owns the full 9,422-byte input and 9,318-byte output pins, one
+literal 28-function/104-position map, exact inverse and protected complement.
+It protects main, header/external references, objects, types, members, all
+directives, comments and literals. These are implementation names in this
+closed standalone shipping translation unit, not an external symbol API;
+eight definitions retain C external linkage kinds while their names change.
+There is no AST, experiment, report or artifact dependency in normal generation.
+DEV bypasses the stage and retains its prior exact source/native identities.
+All earlier stages, canonical readable source, compiler/profile, bootstrap,
+77-byte launcher, full-key TT, MTD, clock and pool contracts stay unchanged.
+
+Source-only proposal SHA8893aefc6d1cd7adf46b0c3b0c898c5d1a828e998da604c87ed1a052135a6f72
+binds two semantic parses with exact observed reference projection, types and
+remaining tokens. First-cost receipt
+bd71df903dc4847e47284b6b689d90afdd0966b922b4934d390df76af83e039f
+used one candidate compile and fixed F ALONE/BT4/64MiB/nice32; original and
+candidate strict Python/CLI restoration, source/template/argv inverse passed.
+That cost executed no target/bootstrap/engine/loader. Whole saving is the
+measured 10 bytes, not the 104-byte source reduction.
+
+Current ordinary25 and actual F4702 controls were preserved before mutation.
+The initial helper's regex delimiter preparation typo was caught by static
+readback before import/build/engine execution; that source26 snapshot remains
+preserved. Only the Python delimiter was corrected, syntax parsed, and actual
+producing source26 v2 frozen before the sole normal call. The C map and frozen
+source-only/cost candidate remained exact; there was no normal execution retry.
+
+Normal --dev completed once: shipping source/native/bootstrap/whole reproduced
+twice, with whole4692 and full predecessor native exact; old DEV source/native
+reproduced twice. Unchanged selected verifier completed once: quit/EOF2sessions,
+8legalGO, restored full native, three stable startup TIDs, private-path/helper
+absence, completed readers and natural exit0. All observed TIDs are now absent.
+Build SHA2e2ce0048f1d56402a27c5b5e327b1c229bb85feca6407c514266bd9fda593a9;
+runtime SHAc8463dcd28811ba86474e9fed02770dfc4f28cc4f5b652684c7438114120a85b;
+readback SHAee8c9b9eaee903a734fd2ca708e3ac9dc9a91a93a1369e1fd7412a7d91997fa4.
+Producing source26 SHA42f817b7a9ca39ac8b0873144ef11be858d253d23ea0f6af7a52bec53a689ac3;
+producing recipe SHAfb019b82daf7f842bb360200158a72683e32e2d4ad09926ac68a14e4140de44f.
+Only README/recipe completion metadata were overlaid after these executions;
+other24 source paths and helper/expected/compiler/profile/codec remain the
+producing values. Unchanged fresh.py would discover LOCAL9+helpers15+tests2=26
+ordinary paths; no fresh extraction was executed. Cancellation causality and
+the unchanged builder's compiler-descendant/group lifetime limit remain
+unproven. No DEV engine, new core fixture, games, performance, training or
+negative campaign is added. Historical receipts below remain predecessor
+executions. No4KiB, strength, performance or general SMP claim follows.
+
+# Historical F4702 startup-zero stage
+
 The selected complete file is **4,702 bytes**, 7 below F4709 and **606 bytes
 above4,096**. The final ordinary shipping_startup.py stage follows unit_bound.
 It removes only the two key/data zero stores in the sole static az initializer

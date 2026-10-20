@@ -56,7 +56,9 @@
     "engines/compact/tiny-entry-f/shipping_hce.py": "f1d182a52ad83d93468ac92804ae4d28785aa4cb87a516afbf1920b01cf72a29",
     "engines/compact/tiny-entry-f/shipping_types.py": "76f3888830f58f11990e09b96e35a2f84dddf1f4abc3ba865380e4a8a57443d8",
     "engines/compact/tiny-entry-f/shipping_unit_bound.py": "5abf7974e6d5e615084a1301293da6e7dbb7da40ae9da0c9674a81634d11ee7e",
-    "engines/compact/tiny-entry-f/shipping_startup.py": "b6d300fe0d5bb30ffd9c64e0dac53a2c7874a955787ed38d7598dd58c6a66ae9"
+    "engines/compact/tiny-entry-f/shipping_startup.py": "b6d300fe0d5bb30ffd9c64e0dac53a2c7874a955787ed38d7598dd58c6a66ae9",
+    "engines/compact/tiny-entry-f/shipping_global_names.py": "7fa5cd69acb97225030f2da886afb2abd3f560f430ff8defd64515332a54a6a1",
+    "engines/compact/tiny-entry-f/shipping_capture.py": "296a2213a1f9391b1aef0c2a3a82c08682892a607a49438a212f5748ecac8aac"
   },
   "resource_literals": [
     [
@@ -230,15 +232,15 @@
   },
   "expected": {
     "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
-    "source_bytes": 9422,
-    "source_sha256": "109cb9df07a6d2a44b2930abcdadaba2246d953e1276a70a66ecb182fd77544a",
+    "source_bytes": 9242,
+    "source_sha256": "61e0f5c7f79b6c45efd225624def06bb1ac3c1b1edfe1cd0443c0f3498a4a447",
     "native_bytes": 18576,
-    "native_sha256": "a528c8ac63976666599d4d5f5e5c8510b41df73f9c857d5919be323375dd9d0a",
-    "whole_bytes": 4702,
-    "whole_sha256": "359313ad9a6d63d78e2207044905dbfb4adee80338d0334945ba37508170935e",
+    "native_sha256": "bb6f0fa9e45615cbc0651d23dfee86bc59274c406d25e0ba0968da48668976bc",
+    "whole_bytes": 4681,
+    "whole_sha256": "4596f11ad8ccaea7adc6d52a3de1b3f8c0b4c37295abb37fd2244897c3faf03d",
     "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
     "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
-    "bootstrap_sha256": "2e7ab68339fd8eceb305cefb6d0420f05db3e21472b8958d6910fca2ef5491da",
+    "bootstrap_sha256": "e787832ce6674aac415e96684f7318ba2b78320c4153ebe4b2966d6cb00cafa0",
     "semantic_readable_bytes": 25720,
     "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
     "dev_source_bytes": 19488,
@@ -376,48 +378,48 @@
                             "source_composition": {
                               "FINAL61_summary_sha256": "eed7014b750abfdd19381be83091ecf7ede32e60973228dc6b548ed87153a4f0",
                               "source_freeze": {
-                                "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-f-source-composition-proof-20261020-evidence/source-freeze.json",
+                                "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-tiny-f-source-composition-proof-20261020-evidence/source-freeze.json",
                                 "bytes": 10913,
                                 "sha256": "01c5f65fc92b03f44025aa0aa44f497333eb202911b9561bc13d7ccc5f39bf1d"
                               },
                               "source_archive": {
-                                "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-f-source-composition-proof-20261020-evidence/source-final.tar",
+                                "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-tiny-f-source-composition-proof-20261020-evidence/source-final.tar",
                                 "bytes": 624640,
                                 "sha256": "6e1f4614a6bfc13e44acecd2e47332f170fd018f119546c3d473b57dd92c0f88"
                               },
                               "receipts": {
                                 "cost": {
-                                  "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-f-source-composition-next-20261020-evidence/first-cost/cost.json",
+                                  "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-tiny-f-source-composition-next-20261020-evidence/first-cost/cost.json",
                                   "bytes": 27094,
                                   "sha256": "c9b2cbb83662610965b9ccd1ebc3935f73db605ec5853775836d5abd3c219313"
                                 },
                                 "query": {
-                                  "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-f-source-composition-query-20261020-evidence/executed/results.json",
+                                  "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-tiny-f-source-composition-query-20261020-evidence/executed/results.json",
                                   "bytes": 17863,
                                   "sha256": "5667f5ff42288da513bdf27b6cfc7a35846ccc1b8871a5d62af886bf23c67d16"
                                 },
                                 "startup": {
-                                  "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-f-source-composition-harness-20261020-evidence/phase/results.json",
+                                  "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-tiny-f-source-composition-harness-20261020-evidence/phase/results.json",
                                   "bytes": 39349,
                                   "sha256": "7cfdd6489ea3771502cef8ffab72acae5b857494cfd1e647548681c06690a719"
                                 },
                                 "epoch": {
-                                  "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-f-source-composition-harness-20261020-evidence/epoch/results.json",
+                                  "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-tiny-f-source-composition-harness-20261020-evidence/epoch/results.json",
                                   "bytes": 14203,
                                   "sha256": "026a8dc2cff7dea559df06e8e5e43b656c6d49d52468430d665011073bad421c"
                                 },
                                 "mtd": {
-                                  "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-f-source-composition-proof-20261020-evidence/mtd/results.json",
+                                  "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-tiny-f-source-composition-proof-20261020-evidence/mtd/results.json",
                                   "bytes": 15369,
                                   "sha256": "89b904412a091b7c26d793a460e3a7f3e4c52e66b69800b33e181bbf0a237302"
                                 },
                                 "runtime_outer": {
-                                  "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-f-source-composition-proof-20261020-evidence/runtime/runtime.json",
+                                  "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-tiny-f-source-composition-proof-20261020-evidence/runtime/runtime.json",
                                   "bytes": 4781,
                                   "sha256": "e88aa70a80b473801e5fe2e62e4b73d1fdf83afa0b2a0fa72fd29b4b267b16b3"
                                 },
                                 "runtime_original_verifier": {
-                                  "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-f-source-composition-proof-20261020-evidence/runtime/fresh/runtime.json",
+                                  "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-tiny-f-source-composition-proof-20261020-evidence/runtime/fresh/runtime.json",
                                   "bytes": 5287,
                                   "sha256": "e595137d5aaa03394dd1f1618eb36896fb40167e4cd9b6bd2ec48843e8b4dc49"
                                 }
@@ -921,6 +923,95 @@
       "old_source24_sha256": "850e9ae7dfffeb0d58f20f2642f558c63b26ddd9a9cbf9f257634bb2f6118e50",
       "scope": "sole normal --dev call shipping2 source/native/bootstrap/whole exact and DEV2 old source/full-native exact; sole unchanged selected verifier quit/EOF2sessions8legalGO, new restored native, private path/helper absence, three stable startup TIDs, completed readers and process exit0; TIDs absent on readback",
       "limits": "Cancellation causality remains unproven; no DEV engine, new core fixture, fresh/archive, game, benchmark, many-core or negative campaign. Unchanged builder does not separately observe compiler descendant/group absence."
+    },
+    "global_names": {
+      "stage": "shipping-after-startup",
+      "standalone_TU_internal_contract": true,
+      "functions": 28,
+      "physical_edits": 104,
+      "source_delta": -104,
+      "whole_delta": -10,
+      "entire_native_bytes_equal": true,
+      "metadata_exception": false,
+      "proposal_sha256": "8893aefc6d1cd7adf46b0c3b0c898c5d1a828e998da604c87ed1a052135a6f72",
+      "source_driver_sha256": "0de04858ff9a58e0c71b7c4259191bd75c76c4a19e401f8647e2756e74d3a69c",
+      "design_note_sha256": "07a49c51bf54fcc8e40fbaa5cdba38c4c205049ac129f0043c49964b657af34a",
+      "cost_sha256": "bd71df903dc4847e47284b6b689d90afdd0966b922b4934d390df76af83e039f",
+      "root_cost_intake_sha256": "b76a2c2748d1de762436459b146648f7b0a4e2d3936da896135122acb090159a",
+      "normal_status": "completed once; final README/recipe completion metadata is not another execution",
+      "normal_inputs_read_AST_experiments_reports_artifacts": false,
+      "normal": {
+        "build_sha256": "2e2ce0048f1d56402a27c5b5e327b1c229bb85feca6407c514266bd9fda593a9",
+        "runtime_sha256": "c8463dcd28811ba86474e9fed02770dfc4f28cc4f5b652684c7438114120a85b",
+        "readback_sha256": "ee8c9b9eaee903a734fd2ca708e3ac9dc9a91a93a1369e1fd7412a7d91997fa4",
+        "producing_source26_sha256": "42f817b7a9ca39ac8b0873144ef11be858d253d23ea0f6af7a52bec53a689ac3",
+        "producing_recipe_sha256": "fb019b82daf7f842bb360200158a72683e32e2d4ad09926ac68a14e4140de44f",
+        "old_source25_sha256": "a96e70590e3ba715d30f15027813ed4e6b91e11eb5b5707bc240f20e9f17c895",
+        "shipping_attempts": 2,
+        "DEV_attempts": 2,
+        "selected_quit_EOF_sessions": 2,
+        "legal_GO_epochs": 8,
+        "old_DEV_source_native_exact": true,
+        "restored_full_native_exact": true,
+        "entire_predecessor_native_equal": true,
+        "TIDs_absent_on_readback": true,
+        "scope": "unchanged selected wrapper restoration, active finite search, result count, physical exit and readers; no fresh/core/DEV engine execution",
+        "limits": "cancellation causality remains unproven; unchanged builder does not separately observe compiler descendant/group absence",
+        "metadata_only_after_execution": true
+      }
+    },
+    "capture_bit": {
+      "scope": "qualified fixed F-specific capture-only private Move ABI after global-function spellings; sole normal shipping2/DEV2 plus unchanged selected wrapper two sessions8GO",
+      "predecessor_globalnames_expected": {
+        "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+        "source_bytes": 9318,
+        "source_sha256": "e280d859127c5d250ca912cfe636518fd088813ffce4266589fa6f04b7e87424",
+        "native_bytes": 18576,
+        "native_sha256": "a528c8ac63976666599d4d5f5e5c8510b41df73f9c857d5919be323375dd9d0a",
+        "whole_bytes": 4692,
+        "whole_sha256": "45ccd4d0e077e7bd085be3137a852354bbfc494ed80a4d5aa182089fc590f827",
+        "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
+        "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
+        "bootstrap_sha256": "85e9fdfd246580734cabcc1b0f1d77956834f014ccfcad90c8ea16788d19008e",
+        "semantic_readable_bytes": 25720,
+        "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
+        "dev_source_bytes": 19488,
+        "dev_native_bytes": 26984,
+        "input_profile_readable_bytes": 28587,
+        "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530"
+      },
+      "composed_firstcost_index_sha256": "640ffe62ddfea8959b157e4026829b5ef30b2a1a732b430784734ffc3bf9b529",
+      "composed_firstcost_receipt_sha256": "30f4654f82e74fd6b47ef3a5621e4525cd96f889d57d865f4738b04edcd69b7e",
+      "F_specific_focused_proof_index_sha256": "e73c364d83a5ba933989f7540d832bb0359430bc1721711e1676bc5e63e9000f",
+      "F_specific_actual_proof_receipt_sha256": "0d2c7661f89c2be41ef6f57c40e1117d44fe9d4a412b547fd1c87e7c7b5a551d",
+      "proof_identity_reuse": "composed entire18576B native equals independent captured bb6f0fa9; prior focused unit execution, not a new normal or wrapper run",
+      "focused_scope": "59states; ordered decoded moves and children/hash/HCE/parent/text; actual TT17 and depth1to2 bounded projection of shipping MTD driver; movebit3-only state normalization",
+      "focused_limits": "actual productmain/think/pool/wrapper/concurrency/loader not executed; MTD projected loop upper bound2 plus observers, actual aj search unchanged",
+      "normal_status": "completed once; producing source27/recipe and actual build/runtime are frozen; final README/recipe receipt metadata is not another execution",
+      "normal": {
+        "build_sha256": "7d4c14f1e23d480877c227f9c50149cbc9828c2a47d59c34745f13bff2abd454",
+        "runtime_sha256": "6c5fc8a16e03cd41a6a6797e3f0a723d1fa1f1c24b7b8be1718cb24a4164b667",
+        "readback_sha256": "268cd270d3d6b9c76dfe4214d1d025d686c537f6685eb61d787128bdb20a83c2",
+        "producing_source27_sha256": "801336f6c8f5f720a95b38d2d1b456b842eb42ad911c9d2104eb3d68e460ef8d",
+        "producing_recipe_sha256": "322fbd8cdb217677d01dc3443f1b96d31cf7e0c038d3db8cdb18def16692264c",
+        "predecessor_source26_sha256": "11bcff80d988a46f04897a955e00c7866697d37d998fccb5931167ed28debf9b",
+        "shipping_attempts": 2,
+        "DEV_attempts": 2,
+        "DEV_source_native_exact": true,
+        "full_native_equal_independent_captured": true,
+        "full_native_equal_uncaptured_predecessor": false,
+        "selected_quit_EOF_sessions": 2,
+        "legal_GO_epochs": 8,
+        "restored_full_native_exact": true,
+        "three_stable_startup_TIDs_each": true,
+        "private_path_helpers_readers_and_physical_exit0": true,
+        "TIDs_absent_on_readback": true,
+        "outer_returncodes0_reaped_groups_absent": true,
+        "cancellation_causality": "unproven",
+        "fresh_core_DEV_engine_games_benchmarks_negative_campaign": 0,
+        "metadata_only_after_execution": true,
+        "scope": "new selected wrapper execution with exact full-code reuse of earlier focused capture units; does not relabel focused unit executions or predecessor images"
+      }
     }
   },
   "provenance": {
@@ -953,6 +1044,17 @@
       "old_canonical_and_DEV_bodies": true,
       "full_key_TT_and_packed_HCE_preserved": true,
       "header_name_collision_domain": "actual fixed compiler full-native identity; no generic header claim"
+    },
+    "shipping_capture": {
+      "stage": "shipping-after-globalnames",
+      "private_Move_ABI": "capture-onlybit3; FROM119; TT17 unchanged; quiet promotion bit0",
+      "regions": 8,
+      "exact_inverse": true,
+      "protected_complement_bytes": 8959,
+      "protected_complement_sha256": "a4d59cf5dc04c69c94d69e6b775506f9720df14458aeca83400db4f33a99628c",
+      "DEV_bypasses_stage": true,
+      "canonical_engine_unchanged": true,
+      "normal_external_or_experiment_dependency": false
     }
   },
   "counter_schema": {

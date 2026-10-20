@@ -190,7 +190,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | C | 5,078 B | 982 B | Native-identical type tokens, signed-net eight-lane state, exact HCE, real 128-bit madd/hadd and fixed ALONE |
 | D scalar / HQ | 6,002 / 6,220 B | 1,906 / 2,124 B | EP trial shares make, full-key aligned atomic16 TT, explicit SSE4.2/CX16 profile, own fixed21 context ELF and guarded BCJ restoration |
 | E | 5,158 B | 1,062 B | Native-identical type tokens, untrained E19 quadratic activity model, incremental material/activity, original ordering and ALONE |
-| F | 4,702 B | 606 B | Calloc payload initialization sharing, unit-window TT bound expression, uniform type tokens, full-key TT, full-depth MTD(f), packed HCE and fixed ALONE |
+| F | 4,681 B | 585 B | Capture-only private Move bit, global function aliases, calloc payload initialization sharing, unit-window TT bound expression, full-key TT, full-depth MTD(f), packed HCE and fixed ALONE |
 
 The separate Rust D native images are 16,816 bytes each. Their independent
 packed experiment retains its own qualification state and does not silently
@@ -4837,3 +4837,149 @@ The external fixed-cost FINAL index is
 `09063837468e0997398aac1407c07eb8aeb725e0bd4f23ab1670135ce2c71d63`;
 actual cost receipt SHA is
 `eed34e32e0ab3265351f08aea2b2182996f131c8a4cc1fa78fa23a6a5bef23ae`.
+
+### F fixed global function aliases: native-identical ordinary promotion
+
+A separate namespace study starts from exact F9422/109cb9df after startup.
+It assigns unique one-character aliases to28 owned two-character functions,
+with104 physical declaration/reference edits and no local renames. Names
+declared anywhere in each referencing function are conservatively blocked;
+this does not assume nonoverlapping live ranges. Four functions remain as-is.
+Main, objects, types, members, header/external references, directives and all
+opaque text remain protected. Eight owned definitions have C external linkage;
+their names are private to this standalone program, not a library symbol API.
+The fixed ice4 source is a reference for occurrence weighting and scope
+conflicts, but no implementation or grouping algorithm is imported.
+
+Two libclang semantic parses, including internal preprocessing of pinned
+headers, give zero diagnostics and exact declaration/type/layout/reference
+projection. The fixed proposal/inverse produces source9318/e280d859 (-104).
+One original-argv native compile is entirely byte-identical to the maintained
+18576/a528c8ac image, without a metadata exception. Original fixed F ALONE
+packing produces whole4692 (-10), SHA
+`45ccd4d0e077e7bd085be3137a852354bbfc494ed80a4d5aa182089fc590f827`.
+Control packing and old/new strict Python EOF/CLI restoration pass. These
+results do not establish an optimal namespace map or a new target-toolchain
+qualification. The source/cost index SHA is
+`9bac5258d0d32c1c11061f0e8e3bb36b2856f91ceef814c56665a5af51e44c3e`.
+
+Ordinary `shipping_global_names.py` replays the owned literal map after startup,
+with exact input/output, token inventory, inverse and opaque/directive guards.
+It needs no AST, experiment, report, old artifact or external engine source at
+build time; DEV bypasses it. An initial Python regex delimiter preparation
+error was found statically before normal execution. Its source26 snapshot is
+preserved; only the Python delimiter changes in producing v2, with no C
+candidate change or normal retry.
+
+One ordinary builder `--dev` reproduces2shipping/2DEV. One unchanged selected
+verifier passes two quit/EOF sessions/eight GO using the actual4692-byte new
+wrapper and exact old native image, stable three startup TIDs, private-path/
+helper absence and reader/process physical exit0. DEV bytes reproduce but
+DEV engines are not rerun. Cancellation causality stays unproven. Build SHA is
+`2e2ce0048f1d56402a27c5b5e327b1c229bb85feca6407c514266bd9fda593a9`;
+runtime SHA is
+`c8463dcd28811ba86474e9fed02770dfc4f28cc4f5b652684c7438114120a85b`.
+Final source26 SHA is
+`81840d0436bb8cf35928c73ca7e7c01a3b465874b7e8aeaf654087e70e9bc621`;
+normal FINAL index SHA is
+`c49531f8f56e67426b4f903da5479ff3acd7b5167933ad629a24b0e19cf70e7c`.
+Post-execution README/recipe metadata is separate from producing inputs. No
+other core, policy, resource, codec, bootstrap or canonical DEV path changes.
+The independent F capture-bit proposal still has its own source/cost/proof
+identity and cannot be combined by adding these measured byte reductions.
+
+### Separate compact F material/noise policy: measured cost, not selected
+
+The plan permits F to use a smaller fixed evaluation and ordering model while
+retaining its independent MTD(f), converged bounds, attaining root witness,
+last-completed result and SMP. The richer full F remains maintained. This
+candidate does not remove A's required history/continuation/correction or
+change another family's implementation.
+
+One separately frozen `F-MTD-MaterialNoise-v1` candidate starts from F9422,
+not the newer namespace source. It uses incremental signed material with the
+original basic piece values and retains TT/capture/promotion ordering plus
+the existing stateless worker/move noise. Positional HCE terms and optional
+persistent quiet learning/correction are removed. Repetition keys, full-key
+coherent TT, exact requested horizon, QS, rules, cancellation checks and MTD
+control are protected. This changes evaluation and finite-time move choice;
+it is not lossless compression or an old-PV/strength claim.
+
+The exact 17-role edit and 18-gap inverse gives source8779 (-643), SHA
+`a4f3dafc7a99ac180d582350a34ec41a78e6f51f6ec202bc1e88dcda8fd24323`.
+One unchanged compiler invocation produces native18576 with a new identity;
+its .text decreases652 and .bss70304 bytes. One original fixed F ALONE encode
+gives complete4413 (-289), SHA
+`f4ccaceada152bdf7ad8a25ba7b4ae87598333b1480a2becddbfd7b697b7e821`.
+Strict Python EOF/source/argv and CLI restoration pass. This is still317
+bytes above4096. It is not composed with either namespace or capture changes.
+No target, bootstrap, pool or unit executes in this cost receipt. Final cost
+index SHA is
+`c7eaffea2f1b7dc7e225b9c9a3ba1274febeb5b231a73132f9d34378dd26b0d4`;
+root source/artifact readback SHA is
+`f1664c5968b8f2db8cb147038717664b5ccf4301a9c78789ab31be2a502d66ce`.
+Focused new-model functional checks are separate and pending; this candidate
+does not replace the current selected F table or qualify a 4 KiB entry.
+
+### F capture-only bit composed with global aliases
+
+F's private 0x88 Move representation now has its own capture-only proposal:
+FROM119 removes bit3, emission distinguishes pawn pushes/captures from other
+geometry, and actual capture consumers read that bit. Quiet promotions retain
+capturebit0 and remain tactical through PROMO. The make-only raw EP constructor
+does not enter a classifier. F's quiet move-keyed noise/correction stays exact
+because quiet raw moves do not change. This is separate from B's
+promotion-inclusive tag and from A's source/proof.
+
+The focused old/candidate ASan+UBSan pair runs unchanged actual board,
+generation, transition, TT and search functions plus an explicitly bounded
+depth2 projection of the MTD driver. The projection changes only its name,
+loop upper bound and observer insertions, with exact inverse. It is not
+execution of byte-identical product think/main or a selected wrapper. Coverage
+is59 boards,1529 pseudo moves,1421 legal children,108 king rejects, both-colour
+EP/castling and all four quiet/capture promotions. Actual lower/upper probes,
+completed depth1/2 scores and attaining moves agree with a no-TT minimax/QS
+control; that control shares actual gen/make/raw HCE/dead-material functions,
+so it is not an independent full-board oracle. Matching-depth cuts and deeper
+cached-to-shallower full research are observed. Persistent actual quiet
+learning/correction is exercised without fake TT payload or witness injection.
+Only bit3 in actual best/TT move fields is normalized;837040 bytes of remaining
+Worker/TT state and semantic transcripts match. All four compile/unit
+processes exit0 and are reaped. Proof index SHA is
+`e73c364d83a5ba933989f7540d832bb0359430bc1721711e1676bc5e63e9000f`;
+root actual-input/result/state readback SHA is
+`b264517c9bc4eb3820faed1d8d55e05b2c627ee17958a87569f0d88c61cfa6ca`.
+
+Composition is measured from actual current source9318/e280d859. Its eight
+capture-role fragments use the current emitter/classifier aliases; old AST
+offsets are not replayed. Removing the classifier also removes four alias
+occurrences, so the raw reduction is76, not the independent candidate's80.
+Source9242/61e0f5c7 produces complete4681 (-11 from4692), SHA
+`4596f11ad8ccaea7adc6d52a3de1b3f8c0b4c37295abb37fd2244897c3faf03d`.
+Entire18576-byte native SHA
+`bb6f0fa9e45615cbc0651d23dfee86bc59274c406d25e0ba0968da48668976bc`
+equals the independently measured captured image and differs from uncaptured
+a528c8ac. Original compiler/codec/prefix, exact source inverse and strict
+old/new restoration pass. Cost FINAL index SHA is
+`640ffe62ddfea8959b157e4026829b5ef30b2a1a732b430784734ffc3bf9b529`.
+The focused proof, native identity, and ordinary selected execution have
+separate scopes; no deltas or runtime receipts are combined arithmetically.
+
+Ordinary `shipping_capture.py` owns this fixed eight-role map after global
+names; normal builds need no experiment/report/AST/upstream inputs. One
+ordinary `--dev` build reproduces shipping and unchanged DEV twice. One
+unchanged verifier executes the actual4681-byte wrapper in two quit/EOF
+sessions/eight legal GO epochs, verifies the new restored bb6 image, three
+stable startup TIDs, absent private paths/helpers and reader/physical exit0.
+Build and verifier are reaped, and observed TIDs are absent on readback.
+Cancellation causality remains unproven. No new core fixture, DEV engine,
+fresh archive, game or performance run is claimed. Build SHA is
+`7d4c14f1e23d480877c227f9c50149cbc9828c2a47d59c34745f13bff2abd454`;
+runtime SHA is
+`6c5fc8a16e03cd41a6a6797e3f0a723d1fa1f1c24b7b8be1718cb24a4164b667`.
+Final normal index SHA is
+`86f017cd45175b119313fec83aeb889dd06dda4dc6113febb84f8f5a98ff58f0`;
+root source/artifact readback SHA is
+`bb33643cf62cbb0cb8753cba2a8af89e4ea49ef919ba26714152604571607bba`.
+Producing source27, predecessor source26 and prior globalnames receipts remain
+separate; only recipe/README completion metadata changes after execution.
