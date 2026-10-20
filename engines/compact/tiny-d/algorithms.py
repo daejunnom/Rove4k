@@ -25,6 +25,31 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def cleanup_group(process):
+    if os.name == "posix":
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+    elif process.poll() is None:
+        process.kill()
+    if process.poll() is None:
+        process.wait(timeout=2)
+
+
+def run_bounded(command, *, timeout):
+    process = subprocess.Popen(command, start_new_session=os.name == "posix")
+    try:
+        code = process.wait(timeout=timeout)
+        if code:
+            raise subprocess.CalledProcessError(code, command)
+        return subprocess.CompletedProcess(command, code)
+    finally:
+        # A timed-out retained Python checker or compiler must not orphan its
+        # engine, cc1 or linker descendants when its own finally cannot run.
+        cleanup_group(process)
+
+
 class Engine:
     def __init__(self, path, *, deadline=float("inf"), command_timeout=10):
         self.deadline, self.command_timeout = deadline, command_timeout
@@ -73,15 +98,7 @@ class Engine:
         finally:
             # The process owns a new session, so abnormal exits cannot strand
             # its children. Cleanup also runs when sending quit or waiting fails.
-            if os.name == "posix":
-                try:
-                    os.killpg(self.process.pid, signal.SIGKILL)
-                except ProcessLookupError:
-                    pass
-            elif self.process.poll() is None:
-                self.process.kill()
-            if self.process.poll() is None:
-                self.process.wait(timeout=2)
+            cleanup_group(self.process)
             self.reader.join(timeout=.2)
             self.transcript.append({"exit": self.process.returncode})
         if self.process.returncode:
@@ -133,11 +150,11 @@ def main():
             directory.mkdir()
             command = ["-DWORKERS=1" if arg.startswith("-DWORKERS=") else arg for arg in record["compile"][:-1]]
             native = directory / "x"
-            subprocess.run(command + [str(native)], check=True, timeout=remaining(120))
+            run_bounded(command + [str(native)], timeout=remaining(120))
             cap = directory / "cap"
-            subprocess.run(command[:-1] + ["-DPLY=4", "-o", str(cap)], check=True, timeout=remaining(120))
-            subprocess.run([sys.executable, str(frozen_check), "--engine", str(native), "--cap-engine", str(cap),
-                            "--out", str(directory / "retained.json")], check=True, timeout=remaining(90))
+            run_bounded(command[:-1] + ["-DPLY=4", "-o", str(cap)], timeout=remaining(120))
+            run_bounded([sys.executable, str(frozen_check), "--engine", str(native), "--cap-engine", str(cap),
+                         "--out", str(directory / "retained.json")], timeout=remaining(90))
             binaries.append(native)
             report["forms"].append({"id": record["id"], "program_sha256": sha(native), "cap_sha256": sha(cap),
                                    "retained_report_sha256": sha(directory / "retained.json")})

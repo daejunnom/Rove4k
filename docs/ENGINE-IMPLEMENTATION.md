@@ -16,6 +16,9 @@ The later source/tooling checkpoints `5e24f2a` and `a681ff8` also pass both
 language jobs in their respective exact-head CI runs
 ([5e24f2a](https://github.com/daejunnom/Rove4k/actions/runs/39340690254),
 [a681ff8](https://github.com/daejunnom/Rove4k/actions/runs/39342301394)).
+The compact-portfolio checkpoint `830eaa0` also passes both language jobs in its
+[exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39345975382),
+including the new standalone D checks and Rust structural unit/reproduction path.
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
@@ -531,10 +534,13 @@ count; neither the raw ELF nor its wrapper meets the size gate.
 
 The D algorithm driver now applies a shared aggregate wall deadline and fixed
 per-command deadlines, cleans its owned process group and writes failure/partial
-transcripts in `finally`. Four focused fake-process cases cover normal replies,
-continuous info without bestmove, exit 17 and compile-stage failure; all terminate
-and preserve the intended reports. This control-flow evidence changes no engine
-bytes and does not replace the earlier executable campaigns.
+transcripts in `finally`. A follow-up also runs compiler/retained-check wrappers
+in owned process groups and cleans descendants on every exit path. Seven focused
+fake-process cases cover normal replies, continuous info without bestmove,
+exit 17, compile-stage failure and actual parent/child timeout/exit boundaries;
+all terminate and preserve the intended reports. The original four-case report
+and checker remain immutable. This control-flow evidence changes no engine bytes
+and does not replace the earlier executable campaigns.
 
 The separate [streaming picker experiment](../engines/experiments/tiny-stream/README.md)
 is a retained failure: a shared walker/visited-ordinal design increases the whole
