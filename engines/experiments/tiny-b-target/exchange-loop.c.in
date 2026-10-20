@@ -1,0 +1,6 @@
+    Move moves[MOVES];int n=generate(p,moves,target),best=0;
+    for(int i=0;i<n;i++){
+        Move m=moves[i];Board t;if(!make(p,m,&t))continue;
+        int gain=material[abs(p->b[target])]+(PROMO(m)?material[PROMO(m)]-100:0)-exchange(e,&t,target);
+        if(!e->complete)return 0;if(gain>best)best=gain;
+    }

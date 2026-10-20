@@ -45,6 +45,12 @@ in its [exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39354935
 and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39354935728).
 That run actually regenerates the 5,207-byte A file and admits both exact
 16,824-byte Rust D images before runtime and controlled production tracing.
+The maintained-portfolio/A-composition checkpoint `4e3af24` passes both language
+jobs in its [exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39358129123)
+and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39358129198).
+It regenerates the 5,140-byte A, the maintained B/C/E/F wrappers and both
+maintained C D own-ELFs, then runs their selected files and restored images.
+Both no_std Rust D paths also retain their actual runtime/trace checks.
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
@@ -100,9 +106,26 @@ completed compatible bounds and rule conclusions remain distinct.
 
 ## Verification environment
 
-WSL2 Ubuntu 24.04.4, x86-64, glibc 2.39 is available locally. Initial tools:
+WSL2 Ubuntu 24.04.4, x86-64, glibc 2.39 is available locally. Current tools:
 GCC 13.3.0, Python 3.12.3 and Rust 1.97.0. AVX2 is exposed; AVX-512 is not.
 WSL execution explicitly selects the existing `stemxstudio` account.
+The 2026-10-20 read-only refresh confirms kernel
+`6.6.87.2-microsoft-standard-WSL2`, eight visible/affinity CPUs, and Rust through
+`/home/stemxstudio/.cargo/bin/rustc` rather than the noninteractive default PATH.
+Subsequent Linux build, ELF/syscall, pthread, `/proc`, restoration and process
+lifetime checks may use this environment, with their actual artifact bindings.
+This is consistent with Microsoft's documented
+[WSL2 Linux kernel and syscall support](https://learn.microsoft.com/en-us/windows/wsl/compare-versions).
+AVX-512, final server timing, resource behavior and target-hardware scaling
+still need their corresponding target environment; eight virtual CPUs cannot
+establish 512-core performance.
+
+The Windows managed-worktree `.git` pointer contains a Windows drive path that
+Linux Git cannot interpret. Git operations therefore use Windows Git; Linux
+builds use a fixed input snapshot and external output directory. Build-intensive
+work uses the Linux filesystem, following Microsoft's
+[filesystem guidance](https://learn.microsoft.com/en-us/windows/wsl/filesystems).
+Exact source bytes and LF policies remain explicit when crossing filesystems.
 New source builds and execution evidence must identify their actual inputs;
 earlier NVCompact package checks do not establish engine correctness.
 
@@ -1132,7 +1155,7 @@ and target-hardware scaling are still required for portfolio completion.
 
 All six selected C implementations now have ordinary maintained source and a
 fixed checkout-only recipe under `engines/compact/tiny-entry-{a,b,c,d,e,f}`.
-The latest locally qualified complete-file costs are:
+The maintained selected complete-file costs are:
 
 | Family | Complete selected file | Above 4,096 B | Maintained submission form |
 | --- | ---: | ---: | --- |
@@ -1230,7 +1253,52 @@ runtime qualification. This losing whole-file result is not promoted.
 
 CI now regenerates A/B/C/E/F and runs each selected source wrapper, plus
 rebuilds both maintained D own-ELFs and checks their distinct restored images.
-The new steps remain unverified until their exact-head jobs finish. No family
+Those steps pass in the exact `4e3af24` C job; its Rust job and repository
+lifecycle also finish successfully at the linked runs above. Later experiments
+retain separate local evidence and are not included in that CI claim. No family
 yet has a qualified <=4,096-byte file. Further source reduction, actual final
 target profiles/resources, candidate-specific games and hardware scaling
 remain required; training and AWS remain excluded.
+
+## Focused B target emitter and C cache experiments
+
+The fixed [B target-emitter candidate](../engines/experiments/tiny-b-target/README.md)
+reuses the existing `attackers()` path for ordinary generation and SEE capture
+enumeration. The exact 6,219-byte control is reproduced; compact source falls
+15,566 to 15,456 bytes, native grows 26,592 to 26,624, and the actual complete
+file falls to **6,155 bytes**, a 64-byte saving and still 2,059 bytes oversized.
+Independent generation/compile/package repeats match. Optimized and sanitized
+special-move/SEE/singular/excluded-learning checks, the independent oracle's
+15 roots and 207 legal children, and two actual selected-file quit/EOF sessions
+pass. Move generation order changes and up to 64 reverse attack queries per
+ordinary generation may slow nodes; no performance or strength claim is made.
+One byte-identical diagnostic compile accounts for 692,520 worker-stack bytes,
+including the new SEE move arrays and same-ply singular frames. Library,
+pthread/signal/entry and deepest-path runtime use remain unmeasured:
+`whole_runtime_stack_qualified` is false. The original eight-source aggregate
+is preserved; adding only the ninth LF policy file changes the final aggregate
+to `d3ddcb059e9f5f0739cbf982f07164e928fb88250ff6cb1e981a391def14cdf3`
+without rerunning or relabeling earlier execution.
+
+The fixed [C shipping-cache candidate](../engines/experiments/tiny-c-state/README.md)
+guards only the unused shipping HCE cache field and its two `put` maintenance
+sites as DEV. Shipping source falls 14,244 to 14,206 bytes and actual Board size
+176 to 168; native length remains 26,464 while the complete file falls from the
+exact reproduced 5,955-byte control to **5,947 bytes**, still 1,851 oversized.
+The actual SIMD/search consumers stay unchanged, `value()` remains for PSQT
+construction and move priority, and both DEV source/native identities stay exact.
+Optimized and sanitized shipping-layout comparisons each cover 160,432 positions,
+150,419 legal children and actual TT/draw/mate/learning/PLY contracts. The PLY
+fixture installs a real direct-search result into completed fields before the
+abort call; it is not a new observation of think publication. Cross-form exact
+search scores, nodes and learned tables are not compared. Two actual selected
+wrapper sessions bind the new native image, persistent three-TID startup,
+legal clocks/bare go and physical quit/EOF. The fourteen-source final receipt is
+`67d7dce0b1852f7227f62f87c9b9568c9ebbc365274d182a4515e707200f2d11`.
+
+Both experiments keep their original cost reports separate from later focused
+qualification. Maintained B/C entries remain unchanged; neither experiment is
+promoted as the final profile or accepted for 4 KiB. Actual active exits retain
+cancellation causality as unproven. These later local results are outside the
+`4e3af24` CI claim. Final resource/stack/profile comparisons, games and target
+hardware work remain outstanding.
