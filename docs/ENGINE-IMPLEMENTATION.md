@@ -190,7 +190,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | C | 5,078 B | 982 B | Native-identical type tokens, signed-net eight-lane state, exact HCE, real 128-bit madd/hadd and fixed ALONE |
 | D scalar / HQ | 6,064 / 6,253 B | 1,968 / 2,157 B | Full-key aligned atomic16 TT, explicit SSE4.2/CX16 profile, own fixed21 context ELF and guarded BCJ restoration |
 | E | 5,158 B | 1,062 B | Native-identical type tokens, untrained E19 quadratic activity model, incremental material/activity, original ordering and ALONE |
-| F | 4,720 B | 624 B | Native-identical uniform type tokens, full-key TT, full-depth MTD(f), packed HCE and fixed ALONE |
+| F | 4,709 B | 613 B | Unit-window TT bound expression, uniform type tokens, full-key TT, full-depth MTD(f), packed HCE and fixed ALONE |
 
 The separate Rust D native images are 16,816 bytes each. Their independent
 packed experiment retains its own qualification state and does not silently
@@ -4522,3 +4522,38 @@ data8 packed scalar/HQ files grow11403/11762 to11404/11770 (+1/+8). These are
 reused historical costs, not new builds. The duplicate is closed before any
 new candidate, compile or codec run. Current source review receipt SHA is
 `71e6ccab690e0cf3d211530ebc0d06561cb36ebf45b2b1e1c0a53a45f1358981`.
+
+### F unit-window TT bound expression
+
+F's existing bound0 gate and codes1-exact/2-lower/3-upper permit replacing
+`bound==1||(bound==2&&score>=beta)||(bound==3&&score<beta)` with
+`bound!=2+(score>=beta)`. For score below beta, reject2; for equality or above,
+reject3. Exact1 remains accepted and empty0 remains rejected by the retained
+gate. C comparisons produce int0/1, so the added2 cannot overflow and all
+operands are side-effect-free locals. Requested-horizon equality/QS0, mate
+adjustment, full-key coherent transport, root cutoff prohibition, cancellation
+and MTD lower-bound witness ownership remain in the exact protected complement.
+This is an equivalent F unit-window expression, not adoption of 4ku's depth
+or TT policy and not a change for arbitrary A/PV windows.
+
+One fixed first cost changes source9464 to9442 (-22) and the complete file4720
+to4709 (-11). Native size remains18576 but its entire identity changes to
+`a25b88d5f97279b6b4cbee33d5af879e543d9796b0864f6b3331869e69415f9c`;
+it is not called native-identical. The whole SHA is
+`2b9e91889a6c963db9bf752ad6b4ace95bc6036f342e4f0e411fb46b0488d04b`.
+An independent source read verifies the single66-to44-byte guarded span,
+inverse, remaining9398 bytes and all four flags across low/equal/high scores.
+
+The ordinary `shipping_unit_bound.py` closes after type tokens, has no
+experiment/AST/report inputs and is bypassed by DEV. One normal builder call
+reproduces shipping twice and unchanged DEV twice. The unchanged selected
+verifier executes the actual new4709-byte file in two quit/EOF sessions/eight
+legal clocked GO and observes its new restored native, three persistent TIDs,
+private-path/helper cleanup, reader EOF and natural exit0. Prior core receipts
+remain predecessor evidence; there is no new game/strength/scaling or complete
+F search-fixture qualification inferred from those protocol sessions.
+The actual normal build/runtime receipt SHAs are
+`7552e9b15f59441f462d24f5623669fe72bbd3401a56716489276ae22d179395` /
+`150c838dc53690c47db2eba738dc66c46584437a98c74b814c69f3bfab1e2f01`;
+the closed first-cost/promotion index SHA is
+`1c5ee6382c59aae6bbf49c2c345da25f9970ea2100a087090a51edcb6feecfe3`.

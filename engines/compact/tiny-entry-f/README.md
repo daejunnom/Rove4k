@@ -1,5 +1,54 @@
 # Maintained minimal F entry
 
+The selected complete file is **4,709 bytes**, 11 below F4720 and **613 bytes
+above 4,096**. One ordinary `shipping_unit_bound.py` closing stage follows the
+unchanged type-token stage. It replaces only the F unit-window TT bound
+condition, reducing shipping source 9,464 to 9,442 bytes. Native length remains
+18,576 bytes but its complete identity changes; no metadata-only exception or
+predecessor native-equality claim is made.
+
+The existing bound0 gate still rejects empty. For `score<beta`,
+`2+(score>=beta)` is int2, so `bound!=...` accepts exact1/upper3 and rejects
+lower2. For `score>=beta` it is int3, accepting exact1/lower2 and rejecting
+upper3. C comparisons produce int0/1, so adding2 cannot overflow. This eight-case
+finite expression proof does not alter the exact requested depth/QS0 test,
+root cutoff prohibition, mate adjustment, full-key coherent TT, flag/payload
+encoding, MTD interval/witness, search model or worker/input lifetime.
+
+| Selected artifact | Bytes | SHA-256 |
+|---|---:|---|
+| Shipping C | 9442 | `245dae234e80c514d64da9109326dbf50077d703f6f353011f97aac682bdfd20` |
+| Full native | 18576 | `a25b88d5f97279b6b4cbee33d5af879e543d9796b0864f6b3331869e69415f9c` |
+| Complete launcher | 4709 | `2b9e91889a6c963db9bf752ad6b4ace95bc6036f342e4f0e411fb46b0488d04b` |
+
+The helper owns literal input/output identities, the one entire guarded source
+span, exact inverse and protected complement. It has no experiment, external
+report/artifact or upstream input. Canonical readable, semantic DEV, previous
+stages, compiler/resources, original bootstrap/77-byte launcher/fixed ALONE and
+unchanged selected verifier remain intact. Unchanged fresh.py discovers the new
+ordinary helper: LOCAL9 + helpers13 + tests2 = 24 source paths. No fresh/archive
+execution is part of this promotion scope.
+
+The old 23 ordinary sources and normal controls were preserved outside Git
+before editing. The first cost compiled/packaged one candidate, strict Python
+and independent CLI restoration passed, and the compiler/decoder groups were
+reaped and absent. Its receipt SHA is
+`dbf37898a1f6e8b3849c48a361b221fb5f903a68459c0e3f3e66d2223617a2c3`.
+One normal builder call reproduced shipping twice and the unchanged DEV twice.
+One unchanged selected verifier call passed two quit/EOF sessions/eight legal GO
+with the exact new restored native, three stable TIDs, private-path/helper
+absence, completed readers and natural physical exit0. Cancellation causality
+remains unproven. No core fixture or fresh/archive execution was added.
+Normal build receipt: `7552e9b15f59441f462d24f5623669fe72bbd3401a56716489276ae22d179395`.
+Normal runtime receipt: `150c838dc53690c47db2eba738dc66c46584437a98c74b814c69f3bfab1e2f01`.
+Producing recipe: `c936ae53f8df871223ad4b0e56ef46b4aaa4af49666663d2cef137486a6bd01c`.
+Only README/recipe receipt metadata change after those executions; source,
+helper, compiler, expected identities and codec retain producing bytes.
+Old semantic receipts are ancestry, not new-image execution proof. No games,
+performance/strength/scaling, new negative campaign or 4KiB acceptance is claimed.
+
+# Historical F4720 uniform type-token stage
+
 The selected complete file is **4,720 bytes**, 8 below F4728 and **624 bytes above 4,096**. The final shipping-only `shipping_types.py` stage owns the same single fixed type map used for A: `uint64_t -> W`, `int16_t -> X`, `Move -> Y`, and the private anonymous-entry typedef `zb -> Z`. Its 37-byte typedef prefix and all encoded transport bytes count. Shipping C is 9,464 bytes, 226 below the preceding source. Actual first-cost full native bytes are identical to the preceding full-key F4728 image; no metadata exception or atomic-TT composition is used.
 
 The ordinary family helper pins unchanged canonical readable and exact post-HCE source, every admitted ordinary type/declarator offset/count, the sole MOVE directive's three casts, alias freshness, include boundary, full inverse, protected complement and complete output hash. Strings, other directives, external API spellings, remaining types/layout and all old stages are protected. Future arbitrary headers are not admitted: the fixed compiler/header domain must reproduce the entire native. No experiment, report, old artifact, AST allocator or upstream source is a normal input. Existing canonical/alpha/storage/scope/member/EP/input/declaration/HCE guards run first; DEV bypasses only the new type stage.
