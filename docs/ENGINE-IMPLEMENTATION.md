@@ -90,6 +90,12 @@ The maintained-A/D checkpoint `1f35a6e` passes both language jobs in its
 and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39370590452).
 It actually regenerates and executes maintained A5072 and D7478/7718. The
 separately recorded E fusion loss is source/cost evidence, not a CI engine run.
+The maintained-A/F-storage checkpoint `23e6482` passes both language jobs in its
+[exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39372260910)
+and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39372260921).
+It regenerates and exercises A4980 and F5083 with their exact existing native
+images. The B dead-bb neutral cost and C composition first cost retain their
+separate local evidence scopes; their candidate engines are not CI steps.
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
@@ -2115,3 +2121,85 @@ Selected executable candidate-1/2 files are mode 0755; the selected/x copy is
 0644 and has not been executed. C-specific query/ownership/startup/SIMD and
 selected-wrapper proof is a separate in-progress step. This candidate remains
 1,591 B oversized and does not replace the maintained C entry automatically.
+
+## C composition: bounded functional qualification
+
+The [C composition proof](../engines/experiments/tiny-c-entry-composition-proof/README.md)
+now qualifies the same 5,687-byte candidate through its changed query, startup
+and GO ownership paths. Four actual old/new O2 and ASAN+UBSAN forms pass the
+independent Board/query checks, including legal children, invalid text,
+transactional replay, repetition hash, reversible-path digest and raw SIMD
+HCE/scalar parity. Five controlled pthread startup schedules cover early/late
+arrivals and creation failure after zero or one successful creation. The real
+epoch fixture observes four GO epochs and pending completion before root reuse.
+The unchanged actual SIMD evaluator and standalone native disassembly are
+checked separately from those ownership fixtures.
+
+Exactly two selected whole wrappers, one quit and one EOF, produce eight legal
+GO results. The unchanged C verifier observes the new native identity,
+three startup TIDs, FDs 0/1/2, one closing result per session and physical
+reader/process/private-path cleanup. These are actual restored candidate
+executions, not inherited A results. Candidate DEV has not been built or
+admitted in this proof, and old C full-native equality is not claimed. The
+epoch fixture covers early claim abort and depth-zero fallback; it does not
+establish deep iteration publication or general race freedom. Cancellation
+causality remains unproven.
+
+The first query fixture incorrectly labels a move legal in its pinned-rook
+root as invalid. Its abort and source are preserved; only that text token is
+corrected, independently rejected on all roots, before the four passing forms.
+The final record accounts for all five attempted query executions. Fifty
+ordinary sources are frozen with final index
+`f3278861a28f37adfb2aead6f7ce2f8558caf261ff77f8f68c70380d996e0641`,
+source freeze `a22ecac4bcd283128793b2fb7256504dbc3bcc669dca64eee25d4274fb7547b0`
+and source archive `7262ca5ac6c734698d7ba80aa1101e5d7829a7724dc476b77cf36857a139186a`.
+The recorded 48 owned PIDs/TIDs and both restoration paths are absent at final
+settlement. Maintained C promotion is a subsequent, separate step.
+
+## B/C/E storage spellings: original native-identity failure
+
+The [B/C/E storage experiment](../engines/experiments/tiny-alpha-storage-bce/README.md)
+applies the same fixed eighteen object spellings to ordinary B5955/C5723/E5679
+controls. Source falls by 535/461/449 bytes respectively, but the original
+full-native-identity contract fails on the first B candidate. Baselines for
+all three families reproduce twice before that compile. Candidate native
+compilation then stops: B has one attempt, C/E have none, and candidate codec,
+whole-file measurement and engine execution remain zero.
+
+The observed B file changes from 26,592 to 26,496 bytes. Direct ELF inspection
+finds unchanged program headers, allocated-section geometry, code/data,
+dynamic symbols and relocations. The GNU build-ID descriptor and nonallocated
+symbol/string/section metadata differ after source object renaming. These
+observations do not satisfy the original full-file identity assertion and do
+not prove semantic or ABI qualification. The failed original producer and its
+52 ordinary sources remain frozen; a new, separately named metadata boundary
+can be evaluated without relabeling this failure as success. Original final
+index is `0bf7fa1b7fc6d74b40a0d59c30bf91c5bca7c6f729a90330d5129851c6193e66`.
+
+## D completion latch: measured cost before lifecycle qualification
+
+The [D completion-latch experiment](../engines/experiments/tiny-d-completion-latch/README.md)
+reuses pending for startup arrival and search/result completion while retaining
+epoch and quitting. A GO publishes WORKERS+1; the last search result owns the
+remaining value one until output finishes, then releases zero for main-thread
+reuse. Startup creation failures bypass the arrival barrier and retain
+kernel clear-TID joins before stack/TT reclamation. Board, search, HQ logic,
+compiler profile, loader and codec stay unchanged.
+
+Both ordinary controls reproduce twice before the candidate whole builds.
+Scalar native falls 8,124 to 8,092 bytes, HQ 8,512 to 8,480; actual whole files
+fall 7,478 to **7,457 bytes** and 7,718 to **7,707 bytes**. Both independent
+candidate builds match. The unchanged loader/header cost is 1,115 bytes;
+payloads are 6,342/6,592. BSS remains 175,092 bytes despite the removed source
+objects. The original admission rejects the new native identities; only the
+separate exact cost adapter admits them for this measurement.
+
+Independent actual-file review confirms whole/linked byte relationships and
+bounded Deflate plus BCJ restoration to the fresh native bytes. This is data
+restoration and cost evidence; candidate engine, checkpoint and runtime mapping
+execution are zero at this frozen stage. Lifecycle qualification is separate.
+Twenty-four ordinary sources freeze the final cost index
+`05b027c5ec0e21da9ab6fdc91c8120984e2cea2e11b993edd5ceed1076748e0e`;
+actual whole receipt is
+`628ea7e3eccae0c20ade39997836a838b03e60ed128dc1eadc8a0119fd556bca`.
+Neither measured file meets 4KiB, and no performance or strength gain is claimed.

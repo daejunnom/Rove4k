@@ -1,0 +1,49 @@
+{
+  "format": 1,
+  "scope": "explicit same-TU object-only ownership, no type/member/function or directive/ABI changes",
+  "external_linkage_same_TU_objects": [
+    "table",
+    "workers",
+    "stopped",
+    "deadline",
+    "game_keys",
+    "game_length",
+    "position"
+  ],
+  "file_static_objects": [
+    "steps",
+    "mutex",
+    "command",
+    "finished",
+    "epoch",
+    "pending",
+    "quitting",
+    "fallback",
+    "ready"
+  ],
+  "block_static_objects": [
+    "material",
+    "back"
+  ],
+  "policy_sha256": "1256f5017753b43a3fd78a16bdc766a21b86f19ebf400ad61d72a35c4169a84d",
+  "source_pins": {
+    "B": {
+      "bytes": 13606,
+      "sha256": "abc1e1c734d10211e8b9f0a5fc2b97c20f931f08a33c639cd7739f349b4106d7"
+    },
+    "C": {
+      "bytes": 12526,
+      "sha256": "5b0bebf394c7774bcd6d0b677d11537a44e7dc0850cb6d38331bd4d97eb99bb3"
+    },
+    "E": {
+      "bytes": 12641,
+      "sha256": "af0ab88d9f4ce25154b3fda909fc00b9eca0cda8d8784b4b07e4926015a2c330"
+    }
+  },
+  "B_material_distinct_scopes": "HCE blockstatic king0 and SEE filestatic king20000 both named qi; scope/storage/init/use preserved, not merged",
+  "E_shipping_material_uses": 0,
+  "unused_mapping_not_reassigned": true,
+  "preserved_macro_consumer": "Move in MOVE directive unchanged; PLY B9/C12/E12 unchanged",
+  "unstripped_domain": "global aliases may change nonallocated symbols/build-ID, fullnative fail remains fail; ELF section observations only, no ABI acceptance",
+  "linkage_types_storage_duration_initializers_and_all_uses_preserved": true
+}
