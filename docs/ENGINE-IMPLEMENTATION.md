@@ -185,7 +185,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
-| A | 4,748 B | 652 B | Native-identical uniform type tokens, shared startup/query, adjacent declarations/completion sequence and original ALONE |
+| A | 4,739 B | 643 B | Native-identical lexical-scope names and type tokens, shared startup/query, adjacent declarations/completion sequence and original ALONE |
 | B | 5,340 B | 1,244 B | Native-identical type tokens, tactical Move metadata, shared geometry, legal-LVA ordering, hybrid attackers/singular and ALONE |
 | C | 5,078 B | 982 B | Native-identical type tokens, signed-net eight-lane state, exact HCE, real 128-bit madd/hadd and fixed ALONE |
 | D scalar / HQ | 6,064 / 6,253 B | 1,968 / 2,157 B | Full-key aligned atomic16 TT, explicit SSE4.2/CX16 profile, own fixed21 context ELF and guarded BCJ restoration |
@@ -4557,3 +4557,36 @@ The actual normal build/runtime receipt SHAs are
 `150c838dc53690c47db2eba738dc66c46584437a98c74b814c69f3bfab1e2f01`;
 the closed first-cost/promotion index SHA is
 `1c5ee6382c59aae6bbf49c2c345da25f9970ea2100a087090a51edcb6feecfe3`.
+
+### A bounded lexical-scope name reuse
+
+One fixed five-declaration map reuses names across disjoint nested search
+blocks. It moves the inner N first, then renames the outer best move ab to N;
+sibling ordering/search locals reuse P/R and separate reduction/cutoff/
+correction blocks reuse S. There are21 physical identifier edits, not a new
+generic allocator or identifier search. Existing Clang18.1.1 compares269
+declaration shapes and2442 reference edges before/after; only those five
+declared names differ. An initial physical-offset guard rejects the expanded
+PROMO(ab) reference before compilation. The corrected proof binds its exact
+pure macro definition, invocation, physical argument and expanded declaration;
+there is no token-paste/stringification or other macro exception. The original
+guard failure remains distinct from the executed corrected analysis.
+
+Source9476 becomes9470 (-6), its entire22672-byte native is byte-identical,
+and fixed original ALONE packing changes4748 to4739 (-9). Whole SHA is
+`bcc529093299e2d6654b4bf9473442995df00a6ea3ab62c31bd4bd24c75f05d5`.
+The ordinary `shipping_lexical_scope.py` closes after types, owns the fixed
+declaration/token/macro ledger and needs no AST, experiment or external report
+at normal build time. Canonical and DEV source, verifier, resources, compiler
+and codec remain unchanged. One normal builder call reproduces shipping twice
+and DEV twice. The unchanged selected verifier passes two quit/EOF sessions/
+eight GO using the actual new4739-byte wrapper, exact restored image, three
+persistent TIDs, private cleanup, reader EOF and physical exit0. Existing core
+qualification is reused through entire-native equality; the new wrapper's
+runtime observations are separate.
+
+The actual normal build/runtime receipt SHAs are
+`7cd0b4cbc524230547e8bde7d7b797d26fa81f7d652f12a863753fbf33b7ceaf` /
+`90e3217b7abb366cdd3d7e01a6cb65fab01ec5f77c8b877b4cc6a6cd4c6bc72a`.
+The final normal index SHA is
+`150ce129a20ece74d69b81dc1026df87cd3f2dd623632612111ceb1c4fbed954`.

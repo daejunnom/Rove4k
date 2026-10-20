@@ -1,0 +1,762 @@
+{
+  "format": 1,
+  "stage": "one fixed A nested-scope closed map; unchanged underlying declarations/code/full native required",
+  "map": [
+    {
+      "ordinal": 169,
+      "old": "ab",
+      "new": "N",
+      "declaration_offset": 4533,
+      "type": "Y",
+      "scopes": [
+        [
+          "FUNCTION_DECL",
+          4303,
+          6174
+        ],
+        [
+          "COMPOUND_STMT",
+          4366,
+          6174
+        ]
+      ],
+      "positions": [
+        4533,
+        5744,
+        5920,
+        5930,
+        5942,
+        6102
+      ]
+    },
+    {
+      "ordinal": 188,
+      "old": "N",
+      "new": "P",
+      "declaration_offset": 4993,
+      "type": "int",
+      "scopes": [
+        [
+          "FUNCTION_DECL",
+          4303,
+          6174
+        ],
+        [
+          "COMPOUND_STMT",
+          4366,
+          6174
+        ],
+        [
+          "FOR_STMT",
+          4949,
+          5181
+        ],
+        [
+          "COMPOUND_STMT",
+          4969,
+          5181
+        ]
+      ],
+      "positions": [
+        4993,
+        5060,
+        5063,
+        5098
+      ]
+    },
+    {
+      "ordinal": 189,
+      "old": "O",
+      "new": "R",
+      "declaration_offset": 5001,
+      "type": "int",
+      "scopes": [
+        [
+          "FUNCTION_DECL",
+          4303,
+          6174
+        ],
+        [
+          "COMPOUND_STMT",
+          4366,
+          6174
+        ],
+        [
+          "FOR_STMT",
+          4949,
+          5181
+        ],
+        [
+          "COMPOUND_STMT",
+          4969,
+          5181
+        ]
+      ],
+      "positions": [
+        5001,
+        5110
+      ]
+    },
+    {
+      "ordinal": 200,
+      "old": "T",
+      "new": "S",
+      "declaration_offset": 5796,
+      "type": "int",
+      "scopes": [
+        [
+          "FUNCTION_DECL",
+          4303,
+          6174
+        ],
+        [
+          "COMPOUND_STMT",
+          4366,
+          6174
+        ],
+        [
+          "FOR_STMT",
+          5181,
+          5859
+        ],
+        [
+          "COMPOUND_STMT",
+          5201,
+          5859
+        ],
+        [
+          "COMPOUND_STMT",
+          5779,
+          5858
+        ],
+        [
+          "COMPOUND_STMT",
+          5791,
+          5851
+        ]
+      ],
+      "positions": [
+        5796,
+        5818,
+        5847
+      ]
+    },
+    {
+      "ordinal": 201,
+      "old": "V",
+      "new": "S",
+      "declaration_offset": 5968,
+      "type": "int",
+      "scopes": [
+        [
+          "FUNCTION_DECL",
+          4303,
+          6174
+        ],
+        [
+          "COMPOUND_STMT",
+          4366,
+          6174
+        ],
+        [
+          "COMPOUND_STMT",
+          5963,
+          6056
+        ]
+      ],
+      "positions": [
+        5968,
+        5985,
+        5991,
+        6000,
+        6008,
+        6033
+      ]
+    }
+  ],
+  "edits": [
+    {
+      "start": 4533,
+      "end": 4535,
+      "old": "ab",
+      "new": "N",
+      "declaration_ordinal": 169,
+      "candidate_start": 4533,
+      "candidate_end": 4534
+    },
+    {
+      "start": 4993,
+      "end": 4994,
+      "old": "N",
+      "new": "P",
+      "declaration_ordinal": 188,
+      "candidate_start": 4992,
+      "candidate_end": 4993
+    },
+    {
+      "start": 5001,
+      "end": 5002,
+      "old": "O",
+      "new": "R",
+      "declaration_ordinal": 189,
+      "candidate_start": 5000,
+      "candidate_end": 5001
+    },
+    {
+      "start": 5060,
+      "end": 5061,
+      "old": "N",
+      "new": "P",
+      "declaration_ordinal": 188,
+      "candidate_start": 5059,
+      "candidate_end": 5060
+    },
+    {
+      "start": 5063,
+      "end": 5064,
+      "old": "N",
+      "new": "P",
+      "declaration_ordinal": 188,
+      "candidate_start": 5062,
+      "candidate_end": 5063
+    },
+    {
+      "start": 5098,
+      "end": 5099,
+      "old": "N",
+      "new": "P",
+      "declaration_ordinal": 188,
+      "candidate_start": 5097,
+      "candidate_end": 5098
+    },
+    {
+      "start": 5110,
+      "end": 5111,
+      "old": "O",
+      "new": "R",
+      "declaration_ordinal": 189,
+      "candidate_start": 5109,
+      "candidate_end": 5110
+    },
+    {
+      "start": 5744,
+      "end": 5746,
+      "old": "ab",
+      "new": "N",
+      "declaration_ordinal": 169,
+      "candidate_start": 5743,
+      "candidate_end": 5744
+    },
+    {
+      "start": 5796,
+      "end": 5797,
+      "old": "T",
+      "new": "S",
+      "declaration_ordinal": 200,
+      "candidate_start": 5794,
+      "candidate_end": 5795
+    },
+    {
+      "start": 5818,
+      "end": 5819,
+      "old": "T",
+      "new": "S",
+      "declaration_ordinal": 200,
+      "candidate_start": 5816,
+      "candidate_end": 5817
+    },
+    {
+      "start": 5847,
+      "end": 5848,
+      "old": "T",
+      "new": "S",
+      "declaration_ordinal": 200,
+      "candidate_start": 5845,
+      "candidate_end": 5846
+    },
+    {
+      "start": 5920,
+      "end": 5922,
+      "old": "ab",
+      "new": "N",
+      "declaration_ordinal": 169,
+      "candidate_start": 5918,
+      "candidate_end": 5919
+    },
+    {
+      "start": 5930,
+      "end": 5932,
+      "old": "ab",
+      "new": "N",
+      "declaration_ordinal": 169,
+      "candidate_start": 5927,
+      "candidate_end": 5928
+    },
+    {
+      "start": 5942,
+      "end": 5944,
+      "old": "ab",
+      "new": "N",
+      "declaration_ordinal": 169,
+      "candidate_start": 5938,
+      "candidate_end": 5939
+    },
+    {
+      "start": 5968,
+      "end": 5969,
+      "old": "V",
+      "new": "S",
+      "declaration_ordinal": 201,
+      "candidate_start": 5963,
+      "candidate_end": 5964
+    },
+    {
+      "start": 5985,
+      "end": 5986,
+      "old": "V",
+      "new": "S",
+      "declaration_ordinal": 201,
+      "candidate_start": 5980,
+      "candidate_end": 5981
+    },
+    {
+      "start": 5991,
+      "end": 5992,
+      "old": "V",
+      "new": "S",
+      "declaration_ordinal": 201,
+      "candidate_start": 5986,
+      "candidate_end": 5987
+    },
+    {
+      "start": 6000,
+      "end": 6001,
+      "old": "V",
+      "new": "S",
+      "declaration_ordinal": 201,
+      "candidate_start": 5995,
+      "candidate_end": 5996
+    },
+    {
+      "start": 6008,
+      "end": 6009,
+      "old": "V",
+      "new": "S",
+      "declaration_ordinal": 201,
+      "candidate_start": 6003,
+      "candidate_end": 6004
+    },
+    {
+      "start": 6033,
+      "end": 6034,
+      "old": "V",
+      "new": "S",
+      "declaration_ordinal": 201,
+      "candidate_start": 6028,
+      "candidate_end": 6029
+    },
+    {
+      "start": 6102,
+      "end": 6104,
+      "old": "ab",
+      "new": "N",
+      "declaration_ordinal": 169,
+      "candidate_start": 6097,
+      "candidate_end": 6098
+    }
+  ],
+  "alias_existing_token_inventory": [
+    [
+      4993,
+      "N"
+    ],
+    [
+      5060,
+      "N"
+    ],
+    [
+      5063,
+      "N"
+    ],
+    [
+      5098,
+      "N"
+    ],
+    [
+      5324,
+      "P"
+    ],
+    [
+      5352,
+      "R"
+    ],
+    [
+      5361,
+      "P"
+    ],
+    [
+      5449,
+      "R"
+    ],
+    [
+      5463,
+      "S"
+    ],
+    [
+      5512,
+      "S"
+    ],
+    [
+      5515,
+      "S"
+    ],
+    [
+      5561,
+      "S"
+    ],
+    [
+      5575,
+      "R"
+    ],
+    [
+      5583,
+      "S"
+    ],
+    [
+      5617,
+      "R"
+    ],
+    [
+      5659,
+      "R"
+    ],
+    [
+      5815,
+      "P"
+    ],
+    [
+      8190,
+      "S"
+    ],
+    [
+      8445,
+      "S"
+    ],
+    [
+      8483,
+      "S"
+    ],
+    [
+      8489,
+      "S"
+    ],
+    [
+      8499,
+      "S"
+    ],
+    [
+      8501,
+      "S"
+    ],
+    [
+      8511,
+      "S"
+    ],
+    [
+      8527,
+      "S"
+    ],
+    [
+      8547,
+      "S"
+    ],
+    [
+      8726,
+      "R"
+    ],
+    [
+      8914,
+      "R"
+    ],
+    [
+      8923,
+      "R"
+    ],
+    [
+      8944,
+      "R"
+    ],
+    [
+      9058,
+      "R"
+    ]
+  ],
+  "macro_argument_bridge": {
+    "definition": "#define PROMO(m) (((m)>>14)&7)",
+    "macro_definition_key": [
+      "MACRO_DEFINITION",
+      "scope-input.c",
+      465
+    ],
+    "definition_tokens": [
+      "PROMO",
+      "(",
+      "m",
+      ")",
+      "(",
+      "(",
+      "(",
+      "m",
+      ")",
+      ">>",
+      "14",
+      ")",
+      "&",
+      "7",
+      ")"
+    ],
+    "invocation": "PROMO(ab)",
+    "invocation_start": 5936,
+    "invocation_end": 5945,
+    "physical_argument_start": 5942,
+    "physical_argument_end": 5944,
+    "expanded_reference_location": 5936,
+    "expanded_reference_kind": "DECL_REF_EXPR",
+    "expanded_reference_decl_key": [
+      "VAR_DECL",
+      "scope-input.c",
+      4533
+    ],
+    "expanded_reference_decl_ordinal": 169,
+    "source_scope": [
+      [
+        "FUNCTION_DECL",
+        4303,
+        6174
+      ],
+      [
+        "COMPOUND_STMT",
+        4366,
+        6174
+      ]
+    ],
+    "tokenpaste_or_stringification": false,
+    "physical_token_kind": "IDENTIFIER",
+    "physical_token_cursor_kind": "DECL_REF_EXPR",
+    "physical_token_annotation_key": [
+      "VAR_DECL",
+      "scope-input.c",
+      4533
+    ]
+  },
+  "proof": {
+    "entire_reference_graph_equal": true,
+    "declaration_shape_delta_only_fixed_names": true,
+    "declarations": 269,
+    "reference_edges": 2442,
+    "source_sha256": "71ae2a35736743103e72b2bb4738b8e71d2da9a78af44ad24b61c4157548ca27",
+    "candidate_sha256": "90b7d08d450ff6865bdc07873693f90f549dcf3d3a5cf411ad37c7609dd5c527",
+    "executed_proof_sha256": "908061c220a1a0fca82faccd4f742ab935d81bf1f08a6b91ab39d16f7f22ef9b",
+    "analyzer_v2_sha256": "90d5aef0743c723a8249aadb95c2362fc6cbf1298625c229fe5b832507dae46f",
+    "original_failure_sha256": "6fb0552d8822bcd8a5747746cc2d56894c3b0763720a7b60ccf825d201160b91",
+    "scope_independence_pairs": [
+      [
+        188,
+        196,
+        [
+          4969,
+          5181
+        ],
+        [
+          5201,
+          5859
+        ]
+      ],
+      [
+        189,
+        198,
+        [
+          4969,
+          5181
+        ],
+        [
+          5201,
+          5859
+        ]
+      ],
+      [
+        199,
+        200,
+        [
+          5458,
+          5665
+        ],
+        [
+          5791,
+          5851
+        ]
+      ],
+      [
+        199,
+        201,
+        [
+          5458,
+          5665
+        ],
+        [
+          5963,
+          6056
+        ]
+      ],
+      [
+        200,
+        201,
+        [
+          5791,
+          5851
+        ],
+        [
+          5963,
+          6056
+        ]
+      ]
+    ],
+    "outer_N_original_declaration_offsets": [
+      4993
+    ],
+    "tool_version": "clang version 18.1.1",
+    "tool_paths": {
+      "clang_site": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-pr12-size-reference-20261020/toolchain/libclang-18.1.1/site-v2",
+      "resource_dir": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-pr12-size-reference-20261020/toolchain/clang18-headers/root/usr/lib/llvm-18/lib/clang/18"
+    }
+  },
+  "lexer_path": "engines/scripts/rename_c.py",
+  "lexer_sha256": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
+  "families": {
+    "A": {
+      "baseline": "/home/stemxstudio/rove4k-a-type-tokens-normal-20261021",
+      "controls": {
+        "main.c": {
+          "bytes": 9476,
+          "sha256": "71ae2a35736743103e72b2bb4738b8e71d2da9a78af44ad24b61c4157548ca27"
+        },
+        "native/x": {
+          "bytes": 22672,
+          "sha256": "28260858a130711bb5fa70816e950b7666440168e8835bb4802b98675b972422"
+        },
+        "bootstrap.py": {
+          "bytes": 10466,
+          "sha256": "209320d1565b9aa775ecdc15fb6213cab8717515611aa346229b1db6f937bdfb"
+        },
+        "x": {
+          "bytes": 4748,
+          "sha256": "a997bd9dd620d0c8331c8fd2f2bae6090a76f6862b73939b5db1142e197bc966"
+        }
+      },
+      "ordinary_bindings": {
+        "engines/compact/tiny-a/pack_stream.py": {
+          "bytes": 5444,
+          "sha256": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e"
+        },
+        "engines/compact/tiny-a/stitch.py": {
+          "bytes": 3863,
+          "sha256": "2b0d25b4855a3ed4ddd9e24b8e4b0e081439baa2ed8f744dba0215a700023f23"
+        },
+        "engines/compact/tiny-entry-a/bootstrap.py.in": {
+          "bytes": 997,
+          "sha256": "898bf1f24168f6e99a7ffb9b0ba9e805af0c7627ea115d47ac687c1389d015ba"
+        },
+        "engines/compact/tiny-entry-a/build.py": {
+          "bytes": 12346,
+          "sha256": "bc8add2378500392c518e4f898f182fd6fc2c8160b5558b59bb92df9d715ebe3"
+        },
+        "engines/compact/tiny-entry-a/engine.c": {
+          "bytes": 24820,
+          "sha256": "71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734"
+        },
+        "engines/compact/tiny-entry-a/launcher.sh": {
+          "bytes": 77,
+          "sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
+        },
+        "engines/compact/tiny-entry-a/recipe.json": {
+          "bytes": 27755,
+          "sha256": "3b9c87b5357d1b2a1faaea2c2cfb4485862db63c75289efea9cf9ef76787906d"
+        },
+        "engines/compact/tiny-entry-a/shipping_alpha.py": {
+          "bytes": 16228,
+          "sha256": "bcc2c28ad8b51a5c3eec6752e157f5de8c46e960333ad1a24fbd0ad328d8597d"
+        },
+        "engines/compact/tiny-entry-a/shipping_declarations.py": {
+          "bytes": 3959,
+          "sha256": "5abd0837fe5e800feb3758e718cce0849bccdc0eb5b25251b8dfd3a86ad04613"
+        },
+        "engines/compact/tiny-entry-a/shipping_input.py": {
+          "bytes": 12172,
+          "sha256": "794b36d7e223fabdcddfdecfbbe6407c76c530f0a061172ad5c42ed4e4864611"
+        },
+        "engines/compact/tiny-entry-a/shipping_scope.py": {
+          "bytes": 4971,
+          "sha256": "d73f8539fae3fdac62048e937f12de1c4f0ec336a9f2ad31fdb08d1cc46b8524"
+        },
+        "engines/compact/tiny-entry-a/shipping_types.py": {
+          "bytes": 10034,
+          "sha256": "f40a30680aa92bec26a08d770c741e2d3224ff4fa964dedfefa053e1f98a546a"
+        },
+        "engines/experiments/tiny-scope-names/rename.py": {
+          "bytes": 14935,
+          "sha256": "02ca17d1c251945f1c021e3482272ef891485c2227a90b4712a36b987d29f08b"
+        },
+        "engines/scripts/fixed_shipping_storage.py": {
+          "bytes": 28039,
+          "sha256": "3f4f05b0b3fee71ee8876b22653c9b7481b5af207b7e023c27b0832e4e734d71"
+        },
+        "engines/scripts/minify.py": {
+          "bytes": 6624,
+          "sha256": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b"
+        },
+        "engines/scripts/rename_c.py": {
+          "bytes": 12574,
+          "sha256": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5"
+        },
+        "engines/scripts/specialize.py": {
+          "bytes": 2386,
+          "sha256": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d"
+        }
+      },
+      "compiler": [
+        "cc",
+        "-Os",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "x",
+        "-s"
+      ],
+      "profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev_default": false
+      },
+      "compression": {
+        "format": "lzma-alone",
+        "filter": "LZMA1",
+        "preset": 9,
+        "extreme": true,
+        "lc": 2,
+        "lp": 0,
+        "pb": 0,
+        "check": "NONE",
+        "dictionary_bytes": 67108864,
+        "header_hex": "0200000004ffffffffffffffff"
+      },
+      "template_path": "engines/compact/tiny-entry-a/bootstrap.py.in",
+      "prefix_path": "engines/compact/tiny-entry-a/launcher.sh",
+      "candidate_source": {
+        "bytes": 9470,
+        "sha256": "90b7d08d450ff6865bdc07873693f90f549dcf3d3a5cf411ad37c7609dd5c527"
+      }
+    }
+  }
+}
