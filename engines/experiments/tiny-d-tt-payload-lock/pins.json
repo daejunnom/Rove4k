@@ -1,0 +1,133 @@
+{
+  "TT_payload_bits": {
+    "actual_positive_depth_max": 126,
+    "bound": [
+      41,
+      42
+    ],
+    "depth_decoder": [
+      33,
+      40
+    ],
+    "marker": 63,
+    "move": [
+      0,
+      16
+    ],
+    "score": [
+      17,
+      32
+    ],
+    "unused": [
+      43,
+      63
+    ]
+  },
+  "control_commit_metadata": "a3546f1f409337bc0cf176cdfefc14bbdd1a3693",
+  "control_external_index_sha256_metadata": "99d48c0e1454498c2ab04836aed192f0d5e80ebca77fded51dad1a9da7c1e345",
+  "control_runtime_sha256": "5b20d4e60d60b5edfb4b7b5a15217346098f0bd9ccdd155a7369c90743e81ed1",
+  "control_source_set_sha256": "81ca7f18839efd52484add4dacce2fedccb15dd8a121e834ee02bf0ba531563c",
+  "controls": {
+    "hq-shipping": {
+      "audit_bytes": 7730,
+      "audit_sha256": "390f4c5f272e38d17e8e8304fe415c994601c642cd8ee7352e8107e42bbea84e",
+      "hq": 1,
+      "native_bytes": 8480,
+      "native_sha256": "f1d6558ec5a13e400c2d6df182b01b3236bf1ee1e99f686e47f144a32d222c5c",
+      "whole_bytes": 7707,
+      "whole_sha256": "1178c3e22ac3a2e9db549ddb5246f9b197b7136fa0fc89008577c52468217963"
+    },
+    "scalar-shipping": {
+      "audit_bytes": 7480,
+      "audit_sha256": "6ae91ad47d1e88bfadd3e8e3424d7ddc1bc603b83689ea4f0ec7fed3bc542b8c",
+      "hq": 0,
+      "native_bytes": 8092,
+      "native_sha256": "59829299f667cdb6682c5ed4a955fb50b76a5584209caf9e4bddf1c0ee2cd160",
+      "whole_bytes": 7457,
+      "whole_sha256": "08c40aa381953df98aa6d6f893487ff90d9a43854acd552158795ce795afcc70"
+    }
+  },
+  "entry": {
+    ".gitattributes": {
+      "bytes": 14,
+      "sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9"
+    },
+    "README.md": {
+      "bytes": 14716,
+      "sha256": "4161e761a55a74f1659615b807169db43f491eaae1fe38bc941218c1af1399dc"
+    },
+    "build.py": {
+      "bytes": 10166,
+      "sha256": "19e53890e299c6c13bf7ee954261af60d4e272401953c83da8e2e5e8ab3a351a"
+    },
+    "fresh.py": {
+      "bytes": 10744,
+      "sha256": "0dae1cd97e912700627bc99e8ec69de54a75613d5ed0e2976f9aab51108022ca"
+    },
+    "loader/codec.py": {
+      "bytes": 8164,
+      "sha256": "17165d1cb16eaba8916833741bfa229d196c3ad07ca391c14b94288a3cdc0866"
+    },
+    "loader/image.ld": {
+      "bytes": 452,
+      "sha256": "93934099212b944b20c2f7840ee87e4817311c4f87fddbb2b3f91db28776cf99"
+    },
+    "loader/loader.c": {
+      "bytes": 5862,
+      "sha256": "8a6a9cb93ae484400056852c5bc406be1cc15dc7b8df6b0a57e6d6330a2e4094"
+    },
+    "native/board.c": {
+      "bytes": 8880,
+      "sha256": "3f04fedb7e449e69b47ac6f2b36eb89ebe193726ac5970b0ae3a4b28008e12dc"
+    },
+    "native/hq.c": {
+      "bytes": 1488,
+      "sha256": "50b246280ac1f0b9e1f20834f302b31e30221101abd979bbdc146fcae7c12b5f"
+    },
+    "native/hq.h": {
+      "bytes": 463,
+      "sha256": "ad66a03cef5288010c4377b81ee3661320195545aee6c664a42d3828bfc8b412"
+    },
+    "native/image.ld": {
+      "bytes": 446,
+      "sha256": "38756c865914b52432572864446fcc58b791dfb508af8a33156d5c190c01044b"
+    },
+    "native/runtime.c": {
+      "bytes": 15123,
+      "sha256": "5b20d4e60d60b5edfb4b7b5a15217346098f0bd9ccdd155a7369c90743e81ed1"
+    },
+    "native/search.c": {
+      "bytes": 6209,
+      "sha256": "48e0f21fee8091f1e5c5d08d606740f6ff8c56778a550af2bcfc282d655d974c"
+    },
+    "native/start.S": {
+      "bytes": 845,
+      "sha256": "4a6021518cfe67bee9e42806b596f4f0837e3e93487b1acfa115158ea019ba5b"
+    },
+    "native/tiny.h": {
+      "bytes": 2696,
+      "sha256": "e19749eb3315253e04171b89b8188df7e0db6b39ec4eb495187a6e158836823f"
+    },
+    "packer.py": {
+      "bytes": 5996,
+      "sha256": "5786ca66d9615d85f1c7b065274ba7da8a9dc08904a0e5652ec811502f10cbcb"
+    },
+    "recipe.json": {
+      "bytes": 14286,
+      "sha256": "1803cac72be7dcd1a0490afd736141236d0970887727c6ae3a41273a6ed131be"
+    },
+    "verify.py": {
+      "bytes": 29617,
+      "sha256": "4806dbcc87cf5150a6501770f743e3ff63646e3b4da1bb23281ac10d9b551be6"
+    }
+  },
+  "format": 1,
+  "maintained_promotion_final_index_sha256_metadata": "8ace0b06b07dcf4d44a12d5210a068ed357f0bf1149c6322f3d8bc77d02f5dd1",
+  "profile": {
+    "dev": 0,
+    "ply": 128,
+    "tt_bits": 18,
+    "workers": 2
+  },
+  "scope": "one fixed TT payload marker candidate; source/native cost only; no loader codec whole engine runtime or DEV qualification"
+}

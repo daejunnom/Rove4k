@@ -123,6 +123,11 @@ its [exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39399550146
 and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39399550128).
 The C job regenerates and executes the new 7,457/7,707-byte maintained D pair;
 the separately frozen A/F costs and failed C/E observation remain local results.
+The maintained-F/source-composition checkpoint `71a0791` passes both language
+jobs in its [exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39404347515)
+and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39404347797).
+The C job regenerates and executes the maintained 5,051-byte F file. Other
+source-cost experiments retain their local execution scopes.
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
@@ -2605,3 +2610,87 @@ maintained A/B images stay selected. The B final summary is
 Two copied proof control files retain a pre-existing extra blank EOF line to
 preserve their exact producing bytes; diff-check reports those whitespace
 warnings. They are not functional test failures or silently normalized inputs.
+
+## Fixed-codec reproduction and upstream source comparison
+
+The [fixed-codec producer](../engines/experiments/tiny-source-codec/README.md)
+first reproduces the original source/bootstrap/whole pins from `a3546f1` and a
+separate ordinary F5051 source snapshot. It then measures one specified LZMA1
+9-extreme configuration: lc2/lp0/pb0, BT4, 64-MiB dictionary, and nice lengths
+A273/B32/C64/E32/F32. Complete costs include the 77-byte launcher, 13-byte ALONE
+header and end bytes. They are observed costs, not sums of prior reductions.
+
+| Fixed source | Original whole | Candidate whole | Saved |
+| --- | ---: | ---: | ---: |
+| a354 A | 4,980 | 4,980 | 0 |
+| a354 B | 5,851 | 5,796 | 55 |
+| a354 C | 5,687 | 5,624 | 63 |
+| a354 E | 5,679 | 5,613 | 66 |
+| a354 F | 5,083 | 5,032 | 51 |
+| Separate F5051 | 5,051 | 5,003 | 48 |
+
+Each original/candidate package repeats independently. Six real preprocessing
+commands and 24 compression/strict-decode checks run; native/bootstrap/engine
+executions are zero. Root separately reads all 54 ordinary source pins and the
+six selected physical packages, then decodes each and checks exact bootstrap,
+compiler argv and compiler-stdin bytes. This does not qualify future runtime.
+XZ-to-ALONE removes CRC64 container checking; exact normal-byte recovery does
+not preserve corruption detection. A was already ALONE and is byte-identical.
+The other environment's codec-only minima are not relabeled as reproduced.
+Final summary: `9856ce3abaeb3d30c9e5258d6600e03f04c952d3d9720d8a4d5e294cc0deb642`.
+
+Comparison uses pinned original sources outside Git. The
+[ice4 semantic analyzer](https://github.com/MinusKelvin/ice4/blob/2bd7a54f9bb47a61a7cd97f3db9f52eadd4e2c19/minifier/semantic_analysis.rs)
+and [renamer](https://github.com/MinusKelvin/ice4/blob/2bd7a54f9bb47a61a7cd97f3db9f52eadd4e2c19/minifier/renamer.rs)
+bind declarations/references and group nonconflicting names. Rove4k's new
+independent experiment starts with AST-bound automatic locals and parameters,
+unique names within each function and reuse between functions. Static/global,
+member/type, macro and ABI spellings remain outside that initial policy.
+
+The actual [4ku search](https://github.com/kz04px/4ku/blob/203ddd4bf9b331851c796d8b5d57eac08f6e6c18/src/main.cpp)
+shares main/quiescence search and consumes only the remaining selection-sort
+suffix. Its side-relative board and packed tapered evaluation differ from the
+current A/F scalar model. A/B/F already share their recursive main/QS bodies;
+that source does not reveal a duplicate full search body to delete here.
+The [ice4 UCI path](https://github.com/MinusKelvin/ice4/blob/2bd7a54f9bb47a61a7cd97f3db9f52eadd4e2c19/src/uci.cpp)
+uses fixed-position clock parsing and joins per-GO workers before continuing
+the input loop in its TCEC branch. These are different runtime policies.
+Pinned ice4 actually uses an atomic eight-byte TT with a 16-bit tag and Lazy
+SMP; it is not classified as a plain single-thread TT implementation. Its
+search generates queen promotions and accepts one prior repetition match,
+while replay underpromotions are a separate path. Pinned 4ku generates all
+four promotions and uses a full-key plain 16-byte TT, default one thread and
+per-GO jthreads. Its shared plain stop/TT does not establish Rove4k's coherent
+publication contract. The comparison preserves Rove4k's full-key context,
+third-occurrence rule, all promotions, B SEE/singular fences and F MTD witness.
+The external comparison summary is
+`ea5672341e0b73952e49b96ebeb3d3c9311dad46a1497554f6830ec163ad8056`.
+
+The [4kc loader](https://github.com/GediminasMasaitis/4k-dot-c/blob/26e936860c8da80de73ea3041ccade96ba8112a3/loader.asm)
+reads a 16-bit output bit count and overlaps executable code with an RWX ELF
+header. A 32-bit context stream and guarded RW-to-RX restoration require a
+separate Rove4k decoder/layout; a smaller payload alone is no complete own-ELF.
+[STRO4K's build documentation](https://github.com/ONE-RANDOM-HUMAN/STRO4K/blob/51ea73a3d86141d96ad428402dc387722fc0f9b1/README.md)
+separates its NASM 4K build from the Rust STRO development program. Its reported
+4,092 bytes are not a reproduced Rust D result. External source/license bytes
+remain outside the repository and are not linked or copied into these engines.
+
+The separate [A castle proof](../engines/experiments/tiny-a-castle-proof/README.md)
+runs old/new O2 and ASan/UBSan forms. Each checks 32 selected positions, 749
+legal child states, 4,096 attack values and 14 replay states against an
+independent oracle. Child sets/full states match; move order changes in 24
+positions. Two depth-two castle searches retain score 1,028 and legal witnesses.
+The actual 4,959-byte file passes two unchanged-verifier quit/EOF sessions with
+its new native identity and no inherited DEV/runtime receipt. This is separate
+qualification, not maintained promotion, strength or stack proof. Final proof:
+`4396c9af4b5c0b7ea7ee9f68c1333e48925cd6974ce9ecd1035ae68ca6214d0a`.
+
+The [D TT payload-lock experiment](../engines/experiments/tiny-d-tt-payload-lock/README.md)
+uses payload bit 63 for slot ownership and preserves full keys. All eight
+control/candidate native builds complete. Candidate scalar/HQ native lengths
+tie at 8,092/8,480 B, with text +5 B, BSS +4 B and source +197 B. Static
+disassembly/ABI dataflow shows Entry24-to-16 and TT request 6-to-4 MiB for the
+same slot count; this is not runtime RAM measurement. The original exact-image
+packer rejects the new identities. No candidate whole, loader/codec, engine or
+DEV qualification runs, and the candidate stays unselected. Final index:
+`2c65f9c96e35a767156f7547fa0f3cce25fe25a64469476099cc594ddca079a3`.
