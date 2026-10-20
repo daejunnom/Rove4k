@@ -3400,3 +3400,33 @@ per family are unmeasured, with no candidate or whole-size saving included.
 The next structural work is prioritized against the complete family gaps;
 the twelve independent cores, final resource profiles, parallel comparisons,
 target hardware/scaling and strength validation remain open.
+
+## A/F terminal witness: source shrink with complete-file regressions
+
+The previously unmeasured nullable-parse/terminal-witness proposal is now
+measured as one fixed candidate per family. Unchanged text/query definitions
+move before search; the terminal branch reuses the query, and ordinary move
+generation moves after that branch. Exact span inverses and every untouched
+gap are checked. Each compact C file loses 23 bytes, but A's complete file
+grows 4,766 to 4,775 bytes and F's 4,735 to 4,738 bytes. Both candidates are
+rejected for size; the maintained A/F selections remain unchanged.
+
+Each family runs one stdin native compile and one fixed ALONE encoding,
+sequential A then F. Strict bootstrap/source/argv recovery and independent
+CLI decode pass. Native byte counts stay 22,672/18,576, but full identities
+differ; equal sizes do not establish native or runtime equivalence. No
+functional fixture, native/whole execution, DEV build, normal promotion,
+control compile, retry, game or benchmark follows these losses. Owned groups
+are absent and handles terminal. The exact compressed-size cause is not
+isolated, so function relocation is not counted as a general size benefit.
+
+Actual A/F cost receipts are
+`c3ad15651a1475be95ddea0cc31088ebd75291614666b6291776386f89e72a55` /
+`a70c80138f64689c6d9d8b479f30642ad099f3dbd6466429829f26dcb3dd7a28`.
+Final experiment handoff is
+`5a4cbe7bd69cd09e4b251114e196c3abbf941c2e5bb231b2cc613d9bc79e815b`;
+five ordinary experiment files are frozen separately from generated artifacts
+and producing snapshots. The measured 92dfc34 normal selections pass both jobs
+in [C/Rust engine CI](https://github.com/daejunnom/Rove4k/actions/runs/39437607789)
+and [repository lifecycle](https://github.com/daejunnom/Rove4k/actions/runs/39437607775).
+Later WIP experiment heads report their own CI separately in the draft PR.
