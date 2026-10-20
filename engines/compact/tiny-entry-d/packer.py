@@ -54,10 +54,10 @@ def admit(data, expected, digest):
     # Bind each exact native identity to its own qualified private mapping ABI.
     # This is not a generic permission for arbitrary two/three-page images.
     fixed = {
-        ('ad76de1424f4de80cbb5c9c19966cb666716c2ed6fc9703d3a2400daae4f3268', 7836):
-            (0, 0x401d27, (0x400000, 0x2000, 0x402000, 175092, 0x2b000, 0x3ff000, 0x2f000, 0x42d000)),
-        ('1c5d426eafa3100e82bd659fac8b347a9686e80f91849c27e5c534d954e8dfe5', 8224):
-            (1, 0x401e64, (0x400000, 0x3000, 0x403000, 175092, 0x2b000, 0x3ff000, 0x30000, 0x42e000)),
+        ('b758934f75e701128e8e9b1e9710afbc2032de3291e7cb0245cf8124d90612cf', 7836):
+            (0, 0x401d0f, (0x400000, 0x2000, 0x402000, 175092, 0x2b000, 0x3ff000, 0x2f000, 0x42d000)),
+        ('da682cc7c92d912852fd3fb07fdf5f515f086866dd8eafa96c485c7ca6050f24', 8192):
+            (1, 0x401e4c, (0x400000, 0x2000, 0x402000, 175092, 0x2b000, 0x3ff000, 0x2f000, 0x42d000)),
     }.get((expected['native_sha256'], expected['native_bytes']))
     geometry = tuple(layout[key] for key in ('image_base', 'image_pages', 'bss_base', 'bss_size',
                       'bss_pages', 'guard_base', 'reserve_size', 'upper_guard'))
@@ -85,8 +85,8 @@ def stripped_loader(data):
 
 def compile_loader(directory, sources, payload, layout, flags, run, digest, *, model_wmask, checkpoint=False):
     # Native bytes/layout were admitted above; bind its private model literal.
-    fixed_model = {(7836, 0x401d27): 0x0101127e,
-                   (8224, 0x401e64): 0x0810217e}.get((layout['image_size'], layout['entry']))
+    fixed_model = {(7836, 0x401d0f): 0x0101127e,
+                   (8192, 0x401e4c): 0x0810217e}.get((layout['image_size'], layout['entry']))
     if type(model_wmask) is not int or model_wmask != fixed_model:
         raise ValueError('unsupported exact native/model mapping contract')
     directory.mkdir(parents=True)

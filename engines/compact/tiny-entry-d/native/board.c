@@ -32,14 +32,18 @@ static void put(Board *p,int q,int v){
 static int walk(const Board *,Move *,int,int);
 int attacked(const Board *p,int sq,int side){return walk(p,0,sq,side);}
 int dead(const Board *p){
-    int minors=0,knights=0,colors=0;
+    int state=0;
     for(int q=0;q<128;q++)if(!(q&0x88)){
         int a=abs(p->b[q]);
-        if(a==2){minors++;knights++;}
-        else if(a==3){minors++;colors|=1<<((q+(q>>4))&1);}
+        if(a==2){if(state)return 0;state=-1;}
+        else if(a==3){
+            if(state<0)return 0;
+            state|=1<<((q+(q>>4))&1);
+            if(state==3)return 0;
+        }
         else if(a&&a<6)return 0;
     }
-    return minors<2||(!knights&&colors!=3);
+    return 1;
 }
 /* Canonicalize EP before storing a position: an uncapturable target, including
  * one whose capture exposes the king, must not distinguish repetition keys. */

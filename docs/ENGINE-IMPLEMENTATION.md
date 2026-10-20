@@ -188,7 +188,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | A | 4,689 B | 593 B | Reuse the already computed continuation slot, global function aliases, capture-only private Move bit, calloc payload initialization sharing, lexical-scope names/types, shared startup/query and original ALONE |
 | B | 5,267 B | 1,171 B | Fixed-target recapture-promotion dominance, global function aliases, tactical Move metadata, shared geometry, legal-LVA ordering, hybrid attackers/singular and ALONE |
 | C | 5,036 B | 940 B | Global function aliases, signed-net eight-lane state, exact HCE, real 128-bit madd/hadd and fixed ALONE |
-| D scalar / HQ | 6,002 / 6,220 B | 1,906 / 2,124 B | EP trial shares make, full-key aligned atomic16 TT, explicit SSE4.2/CX16 profile, own fixed21 context ELF and guarded BCJ restoration |
+| D scalar / HQ | 5,987 / 6,194 B | 1,891 / 2,098 B | One-state dead classifier, EP trial shares make, full-key aligned atomic16 TT, explicit SSE4.2/CX16 profile, own fixed21 context ELF and guarded BCJ restoration |
 | E | 5,118 B | 1,022 B | Global function aliases, untrained E19 quadratic activity model, incremental material/activity, original ordering and ALONE |
 | F full (default) | 4,681 B | 585 B | Capture-only private Move bit, global function aliases, calloc payload initialization sharing, unit-window TT bound expression, full-key TT, full-depth MTD(f), packed HCE and fixed ALONE |
 | F material/noise (opt-in) | 4,386 B | 290 B | Capture-only private Move bit, policy-local function aliases, fixed material/stateless-order model, full-depth MTD(f)/full-key TT/SMP retained; optional positional HCE/learners omitted; strength comparison pending |
@@ -5424,3 +5424,41 @@ Normal aggregate SHA is
 `f646efe27568814344c8a0540adb1396d31c8b7b60c488aa8377a02504e5d3db`.
 Producing inputs and later qualification metadata remain separate. No
 strength/scaling or <=4096 claim follows from this names-only change.
+
+### D one-state dead classifier: actual5987/6194-byte own-ELFs
+
+The classifier replaces three accumulators with one signed state and early
+live exits. Knight/bishop mixtures, multiple knights, opposite-color bishops
+or any pawn/rook/queen are live; remaining material has the old dead result.
+One ordinary O2 function unit checks109 legitimate two-king FENs against an
+independent material-count/color oracle and verifies unchanged Board bytes.
+The readable body grows37 bytes while native .text shrinks24 bytes per form;
+raw source length is not treated as complete-file cost.
+
+Scalar whole6002 becomes5987, native7836/b758934f; HQ whole6220 becomes6194,
+native8192/da682cc7. Both now occupy two RX pages, with the exact BSS/guard
+geometry and original scalar/HQ fixed21 models retained. Packer admission
+changes only the two exact native/hash/entry/layout tuples. No general
+length, guard, mapping or output check is weakened. New whole SHA values are
+`74e909cc3fa66d1ddb272efa4e8b196d1ef189d9727c4e736f42cdab00f640c3` /
+`a0199047ab2b72d3d75c3bf00b5e09e0125a33e568c649a91e14b9a196b19573`.
+
+DATA decoder/native restoration is separate from positive entry execution.
+The ordinary builder reproduces both natives/shipping files twice and audit
+files once; the positive verifier checks two pre-entry images and four
+quit/EOF shipping sessions/twelve legal GO epochs, exact restored RX and
+initial BSS/padding, guards/NX/W^X, stable startup TIDs, stdio/no-child and
+reader/physical exit. Actual build/verifier commands both exit0 with owned
+groups absent and no forced cleanup. Build/result SHA values are
+`5f198f4a25d62c01c20ed689fd39072a8b7ddfac7e444431bfdb8bf49703b732` /
+`ae352db6ae110f16c1f6c12e59f38d0bdb10a8a5da34bfa8507e3428264f3df3`.
+
+After those commands, the external collection driver looked for runtime.json
+instead of the actual results.json and exited1. Its original complete:false,
+FileNotFoundError and executed source remain preserved. A separate read-only
+companion confirms actual_commands_complete:true/outer_driver_complete:false;
+no target rerun repairs the reporting failure. Companion SHA is
+`5aecb6ffb239b7595383a383ca59a31852e76f4ea3554480869f5548eb92a59d`;
+final index SHA is
+`23077980022e8ea97b4da4e7080647fba2c1cba0186f5eff8d967f4892b9d24b`.
+No fresh, negative/fault/intrusive, game, performance or scaling campaign runs.

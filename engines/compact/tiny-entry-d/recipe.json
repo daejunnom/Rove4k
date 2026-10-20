@@ -9,7 +9,7 @@
   "target": "Linux x86-64 with SSE4.2 CRC32 and CX16; raw syscall static native plus admitted fixed-layout own-ELF",
   "native_source_sha256": {
     "native/tiny.h": "8bd51aece52f94cfe61f452d80c910357128c3ca4905ef610600dbc252a6cd6b",
-    "native/board.c": "64ccfa2f3084e470612969e8686d15af86eca359c7b1110f55ba58f943df5c70",
+    "native/board.c": "fda8cf1e5e38a76c1a564d4f8810e7011538842e348477c11756ed486311828a",
     "native/search.c": "0a07b27600630b0278f802bbb59e2bbfa4ea3efef8357562ced2b4d571130a52",
     "native/runtime.c": "bd090ab06be2997e5bfb8c7cae37b6efef9443188925df84eb64a9bda7ea0eec",
     "native/hq.h": "ad66a03cef5288010c4377b81ee3661320195545aee6c664a42d3828bfc8b412",
@@ -76,27 +76,28 @@
     "scalar-shipping": {
       "hq": 0,
       "native_bytes": 7836,
-      "native_sha256": "ad76de1424f4de80cbb5c9c19966cb666716c2ed6fc9703d3a2400daae4f3268",
-      "whole_bytes": 6002,
-      "whole_sha256": "a95c25d791a39bb3d6d05fec010eb5407249c51fd9b2ad02be6045d8dd9c4b04",
-      "payload_bytes": 4865,
+      "native_sha256": "b758934f75e701128e8e9b1e9710afbc2032de3291e7cb0245cf8124d90612cf",
+      "whole_bytes": 5987,
+      "whole_sha256": "74e909cc3fa66d1ddb272efa4e8b196d1ef189d9727c4e736f42cdab00f640c3",
+      "payload_bytes": 4850,
       "loader_and_headers_bytes": 1137,
-      "audit_bytes": 6025,
-      "audit_sha256": "81931ddcd89feed7f87d5849db20ab0b21150ea7c63f30b207316986ed32b658",
+      "audit_bytes": 6010,
+      "audit_sha256": "dfcce0ad013c20fbd7437e4ab97cd4856c3af3d711f3b06d963b6e215f2b0d9c",
       "layout": {
-        "bss_base": 4202496,
-        "bss_pages": 176128,
-        "bss_size": 175092,
-        "entry": 4201767,
-        "guard_base": 4190208,
         "image_base": 4194304,
-        "image_pages": 8192,
         "image_size": 7836,
+        "image_pages": 8192,
+        "entry": 4201743,
+        "bss_base": 4202496,
+        "bss_size": 175092,
+        "bss_pages": 176128,
+        "guard_base": 4190208,
+        "upper_guard": 4378624,
         "reserve_size": 192512,
-        "section_count": 0,
-        "section_names": 0,
         "section_offset": 0,
         "section_size": 0,
+        "section_count": 0,
+        "section_names": 0,
         "segments": [
           {
             "type": 1,
@@ -128,36 +129,36 @@
             "memsz": 0,
             "align": 8
           }
-        ],
-        "upper_guard": 4378624
+        ]
       },
-      "payload_sha256": "b8836ff71531456d630513ef1511d9ae5dbe380c65c6347a7a42e2cf766b981d",
+      "payload_sha256": "9f402f618e8a35be638d44728e3d95289d27ca39eea8bafd704812779ef60934",
       "model_wmask": 16847486
     },
     "hq-shipping": {
       "hq": 1,
-      "native_bytes": 8224,
-      "native_sha256": "1c5d426eafa3100e82bd659fac8b347a9686e80f91849c27e5c534d954e8dfe5",
-      "whole_bytes": 6220,
-      "whole_sha256": "1a5060465975f99bafb0a961b3e5b362b09b2180465272dbe3103a4e59544156",
-      "payload_bytes": 5083,
+      "native_bytes": 8192,
+      "native_sha256": "da682cc7c92d912852fd3fb07fdf5f515f086866dd8eafa96c485c7ca6050f24",
+      "whole_bytes": 6194,
+      "whole_sha256": "a0199047ab2b72d3d75c3bf00b5e09e0125a33e568c649a91e14b9a196b19573",
+      "payload_bytes": 5057,
       "loader_and_headers_bytes": 1137,
-      "audit_bytes": 6243,
-      "audit_sha256": "e894c94a6917aaf43817792659fefb0ff0716cf1f3c66da6d1be5e25613fbead",
+      "audit_bytes": 6217,
+      "audit_sha256": "d691c4510d712cca8271448040e592fd91c38246cb3904f050f629214543602f",
       "layout": {
-        "bss_base": 4206592,
-        "bss_pages": 176128,
-        "bss_size": 175092,
-        "entry": 4202084,
-        "guard_base": 4190208,
         "image_base": 4194304,
-        "image_pages": 12288,
-        "image_size": 8224,
-        "reserve_size": 196608,
-        "section_count": 0,
-        "section_names": 0,
+        "image_size": 8192,
+        "image_pages": 8192,
+        "entry": 4202060,
+        "bss_base": 4202496,
+        "bss_size": 175092,
+        "bss_pages": 176128,
+        "guard_base": 4190208,
+        "upper_guard": 4378624,
+        "reserve_size": 192512,
         "section_offset": 0,
         "section_size": 0,
+        "section_count": 0,
+        "section_names": 0,
         "segments": [
           {
             "type": 1,
@@ -165,16 +166,16 @@
             "offset": 0,
             "vaddr": 4194304,
             "paddr": 4194304,
-            "filesz": 8224,
-            "memsz": 8224,
+            "filesz": 8192,
+            "memsz": 8192,
             "align": 4096
           },
           {
             "type": 1,
             "flags": 6,
             "offset": 0,
-            "vaddr": 4206592,
-            "paddr": 4206592,
+            "vaddr": 4202496,
+            "paddr": 4202496,
             "filesz": 0,
             "memsz": 175092,
             "align": 4096
@@ -189,15 +190,14 @@
             "memsz": 0,
             "align": 8
           }
-        ],
-        "upper_guard": 4382720
+        ]
       },
-      "payload_sha256": "ee4162d9b98e5e0e8a8abaa56f33a113f4b118720c192bf98894f95c1a7be01d",
+      "payload_sha256": "6e69bf023fae40c8024754e6de92dab6de20cec21a89250ff6511d45c6b05e36",
       "model_wmask": 135274878
     }
   },
   "qualified_receipts_metadata_only": {
-    "current_selection": "qualified local exact EP make-sharing C D over unchanged atomic128 TT and Linux x86-64+SSE4.2 CRC32+CX16 profile; sole normal builder and selected positive verifier",
+    "current_selection": "qualified local signed-state dead-material C D over preserved EP make-sharing/fullkey atomic16 and Linux x86-64 SSE4.2+CX16; actual ordinary build/positive verifier PASS with separate outer postread failure retained",
     "source_lineage": "Only two reviewed board.c fragments: EP trial calls make and its provisional-parent/discard contract comment; native7, atomic128 TT, resources, profile/CPU, loader/codec and runtime/search policy unchanged",
     "fixed21_firstcost": {
       "final_index_sha256": "2f06d3ecc4d9e0f5fb294f6adfe533aa4559867fd31b4fad10604ed4060a5bf3",
@@ -209,7 +209,7 @@
     },
     "previous_selection_ancestry_only": {
       "current_selection": "qualified residual pawn/knight/king single-step specialization over unchanged D reset+memcpy-BCJ context profile; exact two new native/whole/audit identities and one closed normal fresh",
-      "source_lineage": "board-only exact489B\u2192379B residual walker fragment; seven other native and all loader/encoder/model/decoder/linker/profile/flags are unchanged",
+      "source_lineage": "board-only exact489B→379B residual walker fragment; seven other native and all loader/encoder/model/decoder/linker/profile/flags are unchanged",
       "first_cost": {
         "receipt_sha256": "96e7eda66d500b312e93f47b42fe55896f8f0f10bbf14ebfd8da6b84b14bc443",
         "final_index_sha256": "12c8df9bd8587757860a5f8a6030d5d339214619a5e8ec6c61275dd5d4f453e1",
@@ -583,6 +583,77 @@
         "limits": "No general TT/SMP race freedom, contention-drop causality, strength/performance, ignored-control/default-budget timing, exact decoder-table unmap causality or tournament CPU claim. Unchanged builder does not separately observe compiler descendants/groups."
       },
       "final_metadata_scope": "Only README and recipe qualification metadata changed after actual producing run; all other sources and producing recipe fields remain exact, with no re-execution after overlay."
+    },
+    "dead_state": {
+      "cost": {
+        "path": "/home/stemxstudio/rove4k-tiny-d-dead-state-whole-20261021-v1/cost.json",
+        "bytes": 21135,
+        "sha256": "c6b1dd45fc2b89e24f63536fba7073d130e554b5d11f0131d883bd230946f9d0"
+      },
+      "positive_functions": {
+        "path": "/home/stemxstudio/rove4k-tiny-d-dead-state-function-20261021-v1/results.json",
+        "bytes": 4679,
+        "sha256": "b5c9ccbc47fd5fa72663638c398525f65c63bd64157fc65d14425a1d7c36a86f"
+      },
+      "scope": "one equivalent dead-material classifier; exact other7 source reused; no new full core/game/strength proof",
+      "normal_build_runtime": {
+        "actual_commands_complete": true,
+        "outer_driver_complete": false,
+        "outer_driver_returncode": 1,
+        "build": {
+          "path": "/home/stemxstudio/rove4k-tiny-entry-d-dead-state-normal-build-20261021-v1/build.json",
+          "bytes": 71195,
+          "sha256": "5f198f4a25d62c01c20ed689fd39072a8b7ddfac7e444431bfdb8bf49703b732"
+        },
+        "positive_verifier_results": {
+          "path": "/home/stemxstudio/rove4k-tiny-entry-d-dead-state-normal-runtime-20261021-v1/results.json",
+          "bytes": 58158,
+          "sha256": "ae352db6ae110f16c1f6c12e59f38d0bdb10a8a5da34bfa8507e3428264f3df3"
+        },
+        "outer_failure_report_preserved": {
+          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-tiny-entry-d-dead-state-promotion-20261021/normal-result.json",
+          "bytes": 2471,
+          "sha256": "ba13b1d6439d66c35964d6c36108842650991e73316b9396c847ac4a3bc332c2"
+        },
+        "read_only_actual_companion": {
+          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-tiny-entry-d-dead-state-promotion-20261021/actual-positive-companion.json",
+          "bytes": 5552,
+          "sha256": "5aecb6ffb239b7595383a383ca59a31852e76f4ea3554480869f5548eb92a59d"
+        },
+        "producing_source21": {
+          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-tiny-entry-d-dead-state-promotion-20261021/producing-source21.json",
+          "bytes": 2650,
+          "sha256": "acd5a0b3e7298e3fdb8035c5ef1e790d60ed6ebe1e014f9b8c7f28800763e1a4"
+        },
+        "producing_recipe": {
+          "path": "/home/stemxstudio/rove4k-tiny-entry-d-dead-state-normal-build-20261021-v1/inputs/recipe.json",
+          "bytes": 42816,
+          "sha256": "68f900f774ce7c2bb66de2d63dfb68058cb76b500d736555a1b694713d3324e3"
+        },
+        "native_repeats_per_form": 2,
+        "whole_repeats_per_form": 2,
+        "audit_per_form": 1,
+        "preentry_cases": 2,
+        "shipping_quit_EOF_sessions": 4,
+        "legal_GO_epochs": 12,
+        "scope": "actual normal source reproduction and positive exact restoredRX/initialBSS/guard/NX/persistentTID/stdio/reader/physicalexit; classification function unit separately reused",
+        "postread_failure": "external driver looked for runtime.json after successful verifier wrote results.json; no command replay or original-report replacement",
+        "old_negative_fresh_new_game_strength_bench_campaigns": 0,
+        "reruns": 0,
+        "forced_cleanup": 0,
+        "active_handles": 0
+      },
+      "audit_literals": {
+        "complete": true,
+        "discovery": {
+          "path": "/home/stemxstudio/rove4k-tiny-d-dead-state-audit-discovery-20261021-v1/discovery.json",
+          "bytes": 15454,
+          "sha256": "202d12b5cebbdf18ff82292802be6261dbb4eb097c5851db8164192c86be74bb"
+        },
+        "root_static_intake_sha256": "d4dd0b240ff8d61b2862002a3ed5ea366f3059f65b854f52aa0d2f06936e5bcc",
+        "scope": "two actual whole files/header/allPHDR/entirepacket suffix static admission only; target0 at discovery"
+      },
+      "fresh_and_negative_controls_executed": false
     }
   },
   "shipping_protocol": {
