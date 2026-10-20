@@ -40,6 +40,11 @@ in its [exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39352032
 and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39352032876).
 The newer locally qualified candidates below retain their exact source and
 artifact receipts; that completed CI is not a result for a later head.
+The maintained-A/no_std-Rust-D checkpoint `ca3aae5` passes both language jobs
+in its [exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39354935832)
+and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39354935728).
+That run actually regenerates the 5,207-byte A file and admits both exact
+16,824-byte Rust D images before runtime and controlled production tracing.
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
@@ -1122,3 +1127,110 @@ Adding these steps is not a
 claim that the new head has passed it. Training and AWS remain excluded;
 eligible complete files, final selected-profile resource/strength comparisons
 and target-hardware scaling are still required for portfolio completion.
+
+## Maintained portfolio sources and actual A composition
+
+All six selected C implementations now have ordinary maintained source and a
+fixed checkout-only recipe under `engines/compact/tiny-entry-{a,b,c,d,e,f}`.
+The latest locally qualified complete-file costs are:
+
+| Family | Complete selected file | Above 4,096 B | Maintained submission form |
+| --- | ---: | ---: | --- |
+| A | 5,140 B | 1,044 B | Ownership/query source plus LZMA-alone entry |
+| B | 6,219 B | 2,123 B | Minimum-UCI source entry |
+| C | 5,955 B | 1,859 B | Actual SIMD/PSQT source entry |
+| D scalar / HQ | 7,640 / 7,881 B | 3,544 / 3,785 B | Own self-restoring ELF |
+| E | 5,899 B | 1,803 B | Untrained model/order composition source entry |
+| F | 5,479 B | 1,383 B | Full-depth MTD(f) source entry |
+
+These are the measured local two-search-worker/TT18 profiles. They are not
+final target-profile costs, strength recommendations or 4 KiB acceptance.
+The independent C/Rust cores and earlier structural comparisons remain
+available; this source promotion does not substitute one language for the other.
+
+B/C/E/F each retain their exact readable program and qualified shipping C,
+native, bootstrap, complete file and DEV bytes. Their source closures contain
+15/15/15/16 files respectively: nine local files plus only the actual required
+build/test helpers. B has no name-replacement stage; C/E retain their own
+SIMD/model pipeline and compiler argv; F retains its 34 fixed spellings.
+A's spelling, stripped compiler or encoder choices are not imposed on them.
+Each closure was archived as an isolated Git tree and extracted twice. Each
+extracted builder repeated generation/compilation/packing, followed by two
+actual selected-wrapper sessions per family. Image, startup-TID, legal-clock,
+restoration cleanup and physical quit/EOF gates pass. Existing broader SEE,
+singular, SIMD, model or MTD(f) proof is reused by exact identity rather than
+reported as new execution. Final external source receipts are B/F
+`13b33f6da3fe434ae17957048f762f89026dfc27b6a14f379267b0e015770a4c`, C
+`6bf1a0b9a8c967618409a763f0531bdbe69f5a225c9d380c805245cba1f9a44c`, E
+`6a7e5e3c3de7ea3a8d383f8c1d6a4f849a0f86cfda0744eb9881a38086b7e452`.
+
+D retains eight native sources and three loader/codec/linker inputs in its
+18-file maintained entry. Its explicit twenty-file archive also includes
+LICENSE and the independent oracle. Two isolated extractions independently
+reproduce both native images, both complete own-ELFs and the same CHECKPOINT
+audits. Eight production cases and four pre-entry audits distinguish the whole
+`/proc/exe` identity from anonymous restored RX bytes, then check zero BSS,
+guards/W^X, original entry handoff, startup TIDs, stdio/child state, legal clocked
+responses and physical exit. The ordinary single-TERM compiler-stall fixture
+also verifies owned-process cleanup and retained incomplete reports/output.
+Its final source/evidence index is
+`7c6b2dd18d72c003c839f228df96639d4cef90d9f9c5c69c880cef7866fe311a`.
+Existing kernel/protocol/loader fault proof stays attached to its original
+images and verifier versions. There is no new layout or image-class admission.
+
+The [A ownership change](../engines/experiments/tiny-a-ownership/README.md)
+unifies first-legal and exact-text move queries and returns the already-made
+child. Replay commits that child, and each worker resets its per-job result at
+think entry before any claim or pending decrement. Readable C shrinks
+25,131→24,921 bytes and compact shipping C 11,148→10,958. Query output must be
+non-aliasing caller-owned scratch, discarded on failure. Published GO jobs
+preserve their old fallback/results; a direct internal think call with a
+preseeded best now clears it. That broader private API difference is explicit.
+Three optimized/sanitized query forms check complete child state, exact token
+admission, special moves, transactional HISTORY boundaries and both direct
+reset cases. Two actual wrapper sessions cover eight repeated/replaced jobs,
+position reuse, zero clocks and active quit/EOF. Board and search bodies stay
+exact, while the changed boundary has its own proof.
+
+The [LZMA-alone transport](../engines/experiments/tiny-lzma-entry/README.md)
+keeps the exact old source/bootstrap/native but reduces 5,207→5,163 bytes.
+Its prefix grows 75→77, format/check/padding/index cost falls 58→13 and actual
+coded data falls by one byte. LZMA1 replaces LZMA2; this is not just a container
+claim, and ALONE has no equivalent XZ CRC64 protection. Strict Python and real
+CLI decodes bind the full bootstrap. Two actual selected sessions passed with
+the original adapter. Its later input-path-only revision archives the old
+verifier/recipe so canonical promotion cannot break the experiment. The new
+adapter is statically bound and unexecuted, explicitly reusing the earlier
+runtime rather than relabeling it. The PPM losing experiment likewise derives
+its old template/prefix only from admitted controls, and repeats the same
+7,483-byte result after removing its live-canonical dependency.
+
+The [actual A composition](../engines/experiments/tiny-a-compose/README.md)
+preserves and reencodes all three 5,207/5,183/5,163-byte controls, then measures
+one fixed combination at **5,140 bytes**, not the additive prediction of 5,139.
+The maintained A now contains the qualified ownership program and fixed
+77-byte/LZMA1-alone 9-extreme lc2/lp0/pb0/CHECK_NONE recipe. Its native stays the
+ownership image, and the new ownership DEV source/native pins replace the old
+5,207-byte program's DEV pins. Two fresh sixteen-file source extractions each
+repeat every output, then the actual new selected file passes two fresh
+quit/EOF sessions. The whole SHA is
+`75dc3d610d39bbc0702c6eda219fa0acb4d167c40d3c78e241cf867a33e5a4e7`;
+final eleven-source/receipt aggregate is
+`85da3ed9dec657baa9e27e0c5ca98394cf66c5753b507b8f1c1ae4506cb38657`.
+All prior canonical inputs, archives and controls remain preserved. Active
+search exit is observed; cancellation causality is still unproven.
+
+The [Rust affine-HCE first-cost experiment](../engines/experiments/tiny-rust-affine/README.md)
+preserves safe indexing and proves all 832 admitted piece/square pairs before
+compilation. Function size falls 216→150 bytes, and allocated text/rodata shrink
+106 bytes. The unchanged linker absorbs them as padding before data at offset
+0x4000, so both complete scalar/HQ ELFs remain 16,824 bytes; readable source
+grows seven bytes. It stops at cost without executing an engine or claiming
+runtime qualification. This losing whole-file result is not promoted.
+
+CI now regenerates A/B/C/E/F and runs each selected source wrapper, plus
+rebuilds both maintained D own-ELFs and checks their distinct restored images.
+The new steps remain unverified until their exact-head jobs finish. No family
+yet has a qualified <=4,096-byte file. Further source reduction, actual final
+target profiles/resources, candidate-specific games and hardware scaling
+remain required; training and AWS remain excluded.

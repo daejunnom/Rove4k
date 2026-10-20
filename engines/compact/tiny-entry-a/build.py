@@ -2,7 +2,8 @@
 """Build the maintained minimal A entry from Git source and fixed decisions.
 
 There are no experiment-directory, old build.json or executable inputs. The
-single shipping profile is fixed; --dev adds the unchanged diagnostic form.
+single shipping profile and LZMA-alone transport are fixed; --dev adds the
+qualified ownership-source diagnostic form.
 """
 import argparse
 import ast
@@ -55,12 +56,16 @@ def main():
     recipe=json.loads((HERE/'recipe.json').read_text())
     if recipe['format']!=1 or recipe['profile']!={'workers':2,'tt_bits':18,'ply':128,'dev_default':False}:
         raise ValueError('unsupported entry recipe/profile')
+    if recipe['compression']!={'format':'lzma-alone','filter':'LZMA1','preset':9,'extreme':True,'lc':2,'lp':0,'pb':0,
+                              'check':'NONE','dictionary_bytes':67108864,'header_hex':'0200000004ffffffffffffffff'}:
+        raise ValueError('unsupported fixed LZMA-alone recipe')
     out.mkdir(parents=True);frozen=out/'inputs';frozen.mkdir()
-    report={'complete':False,'scope':'canonical minimal A regeneration; fixed historical qualified bytes, not 4KiB acceptance',
+    report={'complete':False,'scope':'canonical minimal A regeneration; fixed composed bytes, not 4KiB acceptance',
             'resources':recipe['profile'],'inputs':{},'attempts':[],
             'qualified_receipt_reuse':recipe['qualified_receipt'],
             'tools':{name:subprocess.check_output(command,text=True).splitlines()[0] for name,command in
-                     {'cc':['cc','--version'],'ld':['ld','--version'],'python':['python3','--version'],'xz':['xz','--version']}.items()}}
+                     {'cc':['cc','--version'],'ld':['ld','--version'],'python':['python3','--version'],
+                      'xz':['xz','--version'],'lzma':['lzma','--version']}.items()}}
     def save():(out/'build.json').write_text(json.dumps(report,indent=2)+'\n')
     save()
     try:
@@ -83,7 +88,7 @@ def main():
         literal=module('entry_literal',frozen/'pack_stream.py').source_literal
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
-        if template.count(marker)!=1 or len(prefix)!=75:raise ValueError('bootstrap recipe changed')
+        if template.count(marker)!=1 or len(prefix)!=77:raise ValueError('bootstrap recipe changed')
         expected=recipe['expected']
         def generate(directory,dev=False):
             active,observations=specialize({'main.c':canonical},directory,recipe['preprocessor']+['-DDEV='+str(int(dev))],os.environ.copy())
@@ -97,9 +102,17 @@ def main():
         def package(source):
             expression,_=literal(source);script=template.replace(marker,expression.encode())
             ast.parse(script)
-            data=prefix+lzma.compress(script,format=lzma.FORMAT_XZ,check=lzma.CHECK_CRC64,
-                                     filters=[{'id':lzma.FILTER_LZMA2,'preset':9|lzma.PRESET_EXTREME,'lc':2,'lp':0,'pb':0}])
-            return data,script
+            payload=lzma.compress(script,format=lzma.FORMAT_ALONE,check=lzma.CHECK_NONE,
+                                  filters=[{'id':lzma.FILTER_LZMA1,'preset':9|lzma.PRESET_EXTREME,'lc':2,'lp':0,'pb':0}])
+            if payload[:13]!=bytes.fromhex('0200000004ffffffffffffffff'):
+                raise ValueError('fixed LZMA-alone header changed')
+            decoder=lzma.LZMADecompressor(format=lzma.FORMAT_ALONE)
+            if decoder.decompress(payload)!=script or not decoder.eof or decoder.unused_data:
+                raise ValueError('strict LZMA-alone restoration mismatch')
+            cli=subprocess.run(['lzma','-dc'],input=payload,capture_output=True,timeout=15)
+            if cli.returncode or cli.stderr or cli.stdout!=script:
+                raise ValueError('CLI LZMA-alone restoration mismatch')
+            return prefix+payload,script
         first=None;first_dev=None
         for index in (1,2):
             directory=out/('attempt-'+str(index));directory.mkdir()

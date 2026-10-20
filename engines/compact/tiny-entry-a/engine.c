@@ -398,7 +398,7 @@ static int search(Worker *w,const Board *p,int depth,int alpha,int beta,int ply,
     probe(key,data);return best;
 }
 void think(Worker *w,const Board *p){
-    w->nodes=0;w->depth=0;w->score=0;
+    w->nodes=0;w->depth=0;w->score=0;w->best=0;
     w->length=game_length;
     memcpy(w->keys,game_keys,game_length*sizeof(uint64_t));
     /* Each worker explores a different move tie order; each completed PVS
@@ -431,10 +431,12 @@ static void text(Move m,char *s){
     s[0]='a'+(FROM(m)&7);s[1]='1'+(FROM(m)>>4);s[2]='a'+(TO(m)&7);s[3]='1'+(TO(m)>>4);
     s[4]="  nbrq"[PROMO(m)];s[4+!!PROMO(m)]=0;
 }
-static Move first(const Board *b){Move list[MOVES];Board c;int n=gen(b,list);for(int i=0;i<n;i++)if(make(b,list[i],&c))return list[i];return 0;}
-static Move parse(const Board *b,const char *s){
-    Move list[MOVES];Board c;char name[6];int n=gen(b,list);
-    for(int i=0;i<n;i++){text(list[i],name);if(!strcmp(s,name)&&make(b,list[i],&c))return list[i];}return 0;
+static Move parse(const Board *b,const char *s,Board *c){
+    Move list[MOVES];char name[6];int n=gen(b,list);
+    for(int i=0;i<n;i++){
+        if(s){text(list[i],name);if(strcmp(s,name))continue;}
+        if(make(b,list[i],c))return list[i];
+    }return 0;
 }
 static void result(void){
     flockfile(stdout);
@@ -470,7 +472,7 @@ static void set_position(char *s){
     else return;
     keys[0]=b.h;
     if(moves)for(char *t=strtok_r(moves," \t",&save);t;t=strtok_r(NULL," \t",&save)){
-        Move m=parse(&b,t);if(!m||n==HISTORY||!make(&b,m,&c))return;b=c;keys[n++]=b.h;
+        if(n==HISTORY||!parse(&b,t,&c))return;b=c;keys[n++]=b.h;
     }
     position=b;game_length=n;memcpy(game_keys,keys,n*sizeof *keys);
 }
@@ -513,8 +515,7 @@ static void go(char *s){
     else budget=1000;
     deadline=now()+(budget>86400000?86400000:budget);
 #endif
-    fallback=first(&position);atomic_store(&stopped,0);
-    for(int i=0;i<WORKERS;i++){workers[i].depth=workers[i].score=0;workers[i].best=0;workers[i].nodes=0;}
+    Board c;fallback=parse(&position,0,&c);atomic_store(&stopped,0);
     pthread_mutex_lock(&mutex);pending=WORKERS;epoch++;pthread_cond_broadcast(&command);pthread_mutex_unlock(&mutex);
 }
 #if DEV

@@ -3,14 +3,14 @@
 `engine.c` is the readable canonical program for the selected minimal A entry.
 It contains the development and shipping forms together. Edit this source when
 changing the program; do not maintain the compact C or compressed launcher by
-hand. This promotion changes source ownership and regeneration inputs, not the
-search policy, runtime or compiler settings. The final promotion also incorporates
-the already qualified two-guard shipping specialization described below.
+hand. It incorporates the qualified query/job-ownership source and one measured
+LZMA-alone transport composition. Search policy, compiler argv, worker resources
+and the Python bootstrap's process/signal/cleanup logic remain unchanged.
 
-The complete selected launcher is **5,207 bytes**, 1,111 bytes above 4,096. This
+The complete selected launcher is **5,140 bytes**, 1,044 bytes above 4,096. This
 folder does not claim the 4 KiB target, a strength result or general target
 portability. Its qualified environment is Ubuntu 24.04.4 x86-64, GCC 13.3.0,
-binutils 2.42, glibc 2.39, Python 3.12.3 and xz 5.4.5. Python's LZMA encoder is
+binutils 2.42, glibc 2.39, Python 3.12.3 and xz/lzma 5.4.5. Python's linked LZMA encoder is
 also an input to exact compressed bytes. Other environments fail the expected
 hash checks rather than silently qualify a different entry.
 
@@ -23,14 +23,21 @@ python3 -B engines/compact/tiny-entry-a/build.py --out /absolute/new/external-ou
 ```
 
 The output must be outside any Git checkout and must not exist. `--dev` adds the
-unchanged diagnostic form; it does not select another shipping profile. Workers
+qualified ownership-source diagnostic form; it does not select another shipping profile. Workers
 are fixed at 2, TT_BITS at 18, and PLY at 128. Both search workers and the input
 thread exist at startup. Shipping has no resource options. The native command
-is exactly `cc -Os -x c - -o x -s`. The complete file is a 75-byte shell launcher
-plus an XZ stream: LZMA2 preset 9 extreme, lc=2, lp=0, pb=0, CRC64. Its Python
+is exactly `cc -Os -x c - -o x -s`. The complete file is a 77-byte shell launcher
+plus LZMA-alone: LZMA1 preset 9 extreme, lc=2, lp=0, pb=0, CHECK_NONE, 64MiB
+dictionary and an end-marked unknown-size stream. Its Python
 bootstrap restores the source, compiles it, removes its private directory and
 executes the unlinked native image. Signal/child cleanup and file descriptor
 execution are retained byte for byte.
+
+The launcher uses `lzma -dc` and addresses byte 78. The complete 13-byte ALONE
+header is `0200000004ffffffffffffffff`; all header and coded termination bytes
+count. LZMA-alone has no XZ CRC64 field; no equivalent corruption-detection
+claim is made. The fixed builder checks the header, strict Python decode with
+true EOF/no trailing bytes, and independent `lzma -dc` output before packaging.
 
 `recipe.json` stores the actual selected decisions: 45 accepted token mappings,
 the fixed resource substitutions, and 31 function spellings, all in application
@@ -54,14 +61,16 @@ in the external output. An incomplete report remains incomplete on failure.
 
 | Output | Bytes | SHA-256 |
 | --- | ---: | --- |
-| Readable engine.c | 25,131 | `321ab861fe8e8ebc1791cbd389edbecc53091ede195e172e9983f2455ee12c6d` |
-| Compact shipping C | 11,148 | `5e0e77321110371aec3a7a06f93290e7581f08f721fc9bb07fcef26c406429b7` |
-| Stripped native ELF | 22,664 | `d39167146236aafde21b59439b853bd10561f04e9186c18b839c2f84f2e16e12` |
-| Complete launcher | 5,207 | `085fcf6bd411a59111aaebbdc6bd59e2687a5c38de2ce28f0ad9643882633e36` |
+| Readable engine.c | 24,921 | `79284c72b64d087aa3127ea65b461aef8c7776355ea1c4ab9b2f81e59b4b48ed` |
+| Compact shipping C | 10,958 | `5ed00fd936cf6228ec7f73d6c1fddd0f18bfe899aff82b5aa695732240079b59` |
+| Stripped native ELF | 22,664 | `6d9a3c192078f22914e17a0332ef2f0dbd134050833c1fceb0ccb221ecba34e2` |
+| Complete launcher | 5,140 | `75dc3d610d39bbc0702c6eda219fa0acb4d167c40d3c78e241cf867a33e5a4e7` |
 
-The diagnostic C and ELF must also equal the previously qualified control:
-`8a0985aad0b1514aa78a6aafc59c0fc1cc511d1b06a441bab91a404cdd98a477`
-and `dad84ccaa35f6c9d7860b1bd39d283f8bdb7d5a1c74ec6c25615e443376974ce`.
+The diagnostic C and ELF must equal the qualified ownership candidate:
+`60e40bfa24ae06afdafbdfffacda2576b7056d22dffb12e70a22d0d8c3142942`
+and `ff29baa1648f68812424f6e1f718f5e44b9037813e74dc2492a3e4425c88cb0f`.
+These deliberately differ from the older 5,207-byte entry's DEV identities;
+the new helper/job boundary is not disguised as an unchanged general DEV image.
 
 ## Fresh source archive and physical run
 
@@ -106,15 +115,15 @@ with the selected own-clock budgeting, and `quit`/EOF physically join workers.
 public controls. A subsequent `go` or `position` still cancels and waits for the
 old epoch before shared state reuse. DEV keeps the richer parser and diagnostics.
 
-The readable program is the exact final qualified preconditions source,
-SHA `321ab861…12c6d`, derived from minimal-UCI v4 SHA `38d6c829…0a7b`.
-That predecessor derives from maintained Tiny A and the selected tiny-search structural source
+The readable program is the exact final qualified query/job-ownership source,
+SHA `79284c72…b48ed`, derived from preconditions source `321ab861…12c6d`,
+minimal-UCI v4 `38d6c829…0a7b`, maintained Tiny A and the selected tiny-search structural source
 (`109fa749bc2a137fc1384a9afa429d3734249df908f057a58c1fe105f0c43504`)
 followed by the already qualified minimal shipping UCI policy. It is an MIT
 project implementation, with no external engine source copied. Historical
 selection inputs are now fixed recipe data, not regeneration dependencies.
 
-The only readable-code change from that 5,223-byte predecessor is wrapping two
+The earlier 5,223-to-5,207 source specialization wrapped two
 guards in `#if DEV`: rejecting a captured king in `make`, and checking move-list
 overflow in `add`. Shipping calls `make` only for a move emitted by the production
 generator, and admits only legal histories from startpos. A legal predecessor
@@ -125,25 +134,60 @@ including promotion expansion: `10 + 15*27 = 415 < MOVES (512)`. No shipping FEN
 raw TT move or direct arbitrary move reaches `make`. Own-king safety, castle
 gates, EP normalization, transactional replay and all TT/pool/clock fences
 remain unchanged. These are explicit ingress and generated-move preconditions,
-not a safety claim for arbitrary raw boards or moves. Both guards remain in DEV,
-whose compact source and native output are exactly unchanged. The inherited
+not a safety claim for arbitrary raw boards or moves. Both guards remain in DEV. The inherited
 nearby source comment about retaining the king-capture prohibition describes
 that general/DEV admission; shipping instead relies on the stated legal-history
 precondition. It remains verbatim to preserve the qualified readable source.
 
-The source and selected shipping outputs are byte-identical to the final frozen
-5,207-byte candidate. The recipe records its producer receipt hash
-`59f2b8b30ca17d8e084474f1dff8b7effb1e177ebaa2fb3f9f69e09b6c27a9d1`
-and final evidence index hash
-`be24c6f166da35230f7ebbdff979979744c7cc49339927055894fe08b4ff9c8f`.
-That qualification covered the generated legal graph and capacity argument,
-actual DEV=0 O2/sanitizer/PLY forms, state/search/context contracts, and selected
-native/whole-file runtime/image/protocol fences. Identity permits their reuse,
-not a claim they were rerun by this builder. The recipe also retains the 5,223-byte
-predecessor's producer/runtime receipt hashes, and that predecessor's complete
-nine-file canonical source, Git archive/tree `d69a48ce01d96b7f6165f14078929a71d2384d66`,
-builds and runtime receipts remain preserved outside Git. The old qualification
-is not silently relabeled as a run of the new native image.
+The selected source adds exactly the previously qualified ownership changes.
+A null text pointer asks the existing generated-move/text/strcmp query for the
+first legal move. A successful query returns its already-made child in separate
+caller-owned Board scratch; replay reuses it and commits globals only after the
+whole move history succeeds. Failed-query scratch is discarded; input/output
+aliasing is outside the private helper contract. Per-job best/nodes/depth/score
+reset belongs to each `think` entry before any iteration, including a stopped
+or zero-iteration job, rather than a redundant GO loop. Learned heuristics and
+worker identity persist. Direct calls with a preseeded best now clear it; this
+is an explicit private contract change, while production GO already cleared it.
+
+The board/search body is unchanged at SHA
+`557f9e15c072410fc16c7f3aad8320e904e02574b99b1c625a9047c620b85b57`.
+The qualified ownership summary
+`671717f28b8efdf6417c2d660aac1a2a9bde0dff3661cb22caff3b4b78090407`
+binds control O2, candidate O2 and candidate ASan/UBSan query/reset checks,
+122 legal coordinate queries, 192 invalid tokens, 14 replay transactions,
+history capacity and explicit production/direct-think differences. Its separate
+actual original-XZ two-session/eight-epoch receipt proves repeated white/black
+job fences and physical exit. Those source-boundary proofs are reused; they
+are not relabeled as newly executed algorithm tests or the new ALONE process.
+
+One fixed composition was then measured, without adding independent savings:
+
+| Complete control or candidate | Bytes | Actual identity |
+| --- | ---: | --- |
+| Original source + XZ | 5,207 | `085fcf6b…33e36` |
+| Original source + ALONE | 5,163 | `4f156219…d1f8c` |
+| Ownership source + XZ | 5,183 | `9a4911a0…cfa7b` |
+| Ownership source + ALONE | **5,140** | `75dc3d61…e5a4e7` |
+
+The actual composition is 23 bytes below 5,163 and 43 below 5,183. It is not the
+5,139-byte sum of the separate savings. Its first-cost receipt is
+`e64bb57448049fe95d63859ebb4a04cdac2fd4ab1783f2154a12bcace6686fe3`.
+`engines/experiments/tiny-a-compose/build.py` preserves and hash-admits all three
+raw controls, reproduces and strictly decodes each twice, then independently
+encodes/decodes the one combined whole file twice. It runs no engine/compiler.
+That cost-only producer deliberately uses immutable external control artifacts;
+the canonical builder here instead reads only the maintained ordinary source,
+fixed recipe/template/prefix and five tracked helpers. There is no runtime
+dependency on the composition folder or those historical artifacts.
+
+The old 5,207-byte nine-file canonical, archive tree
+`a6cb91a7c6441977c6525ebf279b6639d0163689` and receipts remain preserved outside
+Git, as do the older 5,223-byte canonical/archive and all three composition
+controls. Metadata retains the preconditions/earlier receipts and the transport
+input-closure final receipt
+`2a07487768738bb9cd87f24f27a0e41b084cce7dd12322d90435a2e5c4975219`.
+The preserved old native images are not relabeled as the new ownership image.
 The current tracked stitch helper adds LF-aware assembly/metadata relative to
 the historical snapshot; only its byte-identical `strip_dev_counters` function
 is consumed here, and all final identity gates still apply. Fresh archive and

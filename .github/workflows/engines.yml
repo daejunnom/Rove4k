@@ -75,11 +75,13 @@ jobs:
       - name: Check source-literal byte preservation
         if: matrix.language == 'c'
         run: python3 -B -m unittest discover -s engines/experiments/tiny-encoding -p 'test_*.py'
-      - name: Regenerate the maintained minimal A entry and run its exact selected file
+      - name: Regenerate maintained source entries and run each exact selected file
         if: matrix.language == 'c'
         run: |
-          python3 -B engines/compact/tiny-entry-a/build.py --out "$ROVE_TEST_OUT/tiny-entry-a" --dev
-          python3 -B engines/compact/tiny-entry-a/verify.py --build "$ROVE_TEST_OUT/tiny-entry-a" --out "$ROVE_TEST_OUT/tiny-entry-a-runtime"
+          for family in a b c e f; do
+            python3 -B "engines/compact/tiny-entry-$family/build.py" --out "$ROVE_TEST_OUT/tiny-entry-$family" --dev
+            python3 -B "engines/compact/tiny-entry-$family/verify.py" --build "$ROVE_TEST_OUT/tiny-entry-$family" --out "$ROVE_TEST_OUT/tiny-entry-$family-runtime"
+          done
           python3 -B -m unittest discover -s engines/experiments/tiny-e-order -p 'test_*.py'
       - name: Check the semaphore pool through controlled real-runtime phases and faults
         if: matrix.language == 'c'
@@ -87,6 +89,11 @@ jobs:
       - name: Check dedicated D lossless codecs independently
         if: matrix.language == 'c'
         run: python3 -B -m unittest discover -s engines/experiments/tiny-d-loader -p 'test_codecs.py'
+      - name: Regenerate both maintained D own-ELFs and observe their actual restored images
+        if: matrix.language == 'c'
+        run: |
+          python3 -B engines/compact/tiny-entry-d/build.py --out "$ROVE_TEST_OUT/tiny-entry-d"
+          python3 -B engines/compact/tiny-entry-d/verify.py --build "$ROVE_TEST_OUT/tiny-entry-d/build.json" --out "$ROVE_TEST_OUT/tiny-entry-d-runtime"
       - name: Check the standalone syscall D core and both actual slider paths
         if: matrix.language == 'c'
         run: |
@@ -178,8 +185,8 @@ jobs:
             ${{ env.ROVE_TEST_OUT }}/tiny-a-verification/*.json
             ${{ env.ROVE_TEST_OUT }}/tiny-a-verification/*.jsonl
             ${{ env.ROVE_TEST_OUT }}/tiny-a-algorithms.json
-            ${{ env.ROVE_TEST_OUT }}/tiny-entry-a/build.json
-            ${{ env.ROVE_TEST_OUT }}/tiny-entry-a-runtime/**/*.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-entry-*/build.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-entry-*-runtime/**/*.json
             ${{ env.ROVE_TEST_OUT }}/tiny-d/build.json
             ${{ env.ROVE_TEST_OUT }}/tiny-d-check/**/*.json
             ${{ env.ROVE_TEST_OUT }}/tiny-d-check/**/*.jsonl

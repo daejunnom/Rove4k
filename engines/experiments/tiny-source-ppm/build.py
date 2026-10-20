@@ -4,6 +4,8 @@
 No compiler, engine, games, fault campaign, profile or parameter search runs.
 Two independent encodes/reference decodes reconstruct source/bootstrap bytes,
 then the complete executable file (all decoder/framing/launcher bytes) counts.
+Historical template and launcher bytes come only from hash-admitted control
+inputs; later changes to the maintained A entry cannot alter this size study.
 """
 import argparse
 import ast
@@ -18,11 +20,14 @@ import codec
 import reference
 
 HERE = Path(__file__).resolve().parent
-ENTRY = HERE.parents[1]/"compact"/"tiny-entry-a"
 EXPECTED = {
     "source":(11148,"5e0e77321110371aec3a7a06f93290e7581f08f721fc9bb07fcef26c406429b7"),
     "bootstrap":(None,"11679fb20e24e7cb777cb49e4bee5a7ee7ea999278651fbba6d622320e751d44"),
     "whole":(5207,"085fcf6bd411a59111aaebbdc6bd59e2687a5c38de2ce28f0ad9643882633e36"),
+}
+EXPECTED_OUTPUT = {
+    "frame":(4675,"e7ce6eb51b52466ec53700e46ce2f6353a55de17d37feacd08b4b27dfa76ccb0"),
+    "whole":(7483,"3a28978590444bc79acc47a2056c5eac5b0986fddd0d661b0e8b5346f4b6da2b"),
 }
 
 
@@ -43,13 +48,17 @@ def main():
         size,digest = EXPECTED[name]
         if (size is not None and len(data)!=size) or sha(data)!=digest:
             raise ValueError("frozen A identity mismatch: "+name)
-    template = (ENTRY/"bootstrap.py.in").read_bytes().replace(b"\r\n",b"\n")
-    launcher = (ENTRY/"launcher.sh").read_bytes().replace(b"\r\n",b"\n")
     source = original["source"]
     literal = b"r'''"+source+b"'''.encode()"
     marker = b"__ROVE_SOURCE_LITERAL__"
+    # Derive the old inputs only after admission of their complete historical
+    # controls. Never read the live A entry, whose source/transport can advance.
+    if original["bootstrap"].count(literal)!=1 or marker in original["bootstrap"]:
+        raise ValueError("historical source literal is not exactly once")
+    template = original["bootstrap"].replace(literal,marker,1)
+    launcher = original["whole"][:75]
     if len(launcher)!=75 or template.count(marker)!=1 or template.replace(marker,literal)!=original["bootstrap"]:
-        raise ValueError("exact maintained bootstrap/literal reconstruction failed")
+        raise ValueError("exact historical bootstrap/literal reconstruction failed")
     if launcher+lzma.compress(original["bootstrap"],format=lzma.FORMAT_XZ,check=lzma.CHECK_CRC64,
                              filters=[{"id":lzma.FILTER_LZMA2,"preset":9|lzma.PRESET_EXTREME,"lc":2,"lp":0,"pb":0}])!=original["whole"]:
         raise ValueError("unchanged complete5,207 control did not reproduce")
@@ -92,6 +101,10 @@ def main():
             stream = lzma.compress(wrapper,format=lzma.FORMAT_XZ,check=lzma.CHECK_CRC64,
                                    filters=[{"id":lzma.FILTER_LZMA2,"preset":9|lzma.PRESET_EXTREME,"lc":2,"lp":0,"pb":0}])
             whole = launcher+stream
+            for name,data in (("frame",frame),("whole",whole)):
+                size,digest = EXPECTED_OUTPUT[name]
+                if len(data)!=size or sha(data)!=digest:
+                    raise ValueError("historical first-cost output identity mismatch: "+name)
             if first is None:first=(frame,wrapper,whole)
             elif first!=(frame,wrapper,whole):raise ValueError("independent encoding/complete file reproduction mismatch")
             directory = out/("attempt-"+str(attempt));directory.mkdir()
