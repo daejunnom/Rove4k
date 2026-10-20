@@ -82,7 +82,8 @@ def main():
         compact=module('entry_minify',frozen/'minify.py').compact_source
         strip=module('entry_counter_strip',frozen/'stitch.py').strip_dev_counters
         literal=module('entry_literal',frozen/'pack_stream.py').source_literal
-        alpha=module('entry_fixed_shipping_alpha',frozen/'fixed_shipping_alpha.py').transform_source
+        reference=module('entry_fixed_shipping_alpha_reference',frozen/'fixed_shipping_alpha.py')
+        alpha=module('entry_composition_shipping_alpha',frozen/'shipping_alpha.py').transform_source
         lexer=module('entry_fixed_identifier_lexer',frozen/'rename_c.py')
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
@@ -99,7 +100,7 @@ def main():
             alpha_metadata=None
             if not dev:
                 data,_=strip(data)
-                data,alpha_metadata=alpha(data,family='C',lexer=lexer)
+                data,alpha_metadata=alpha(data,family='C',lexer=lexer,reference=reference,readable=canonical)
             return data,observations,alpha_metadata
         def package(source):
             expression,_=literal(source);script=template.replace(marker,expression.encode())

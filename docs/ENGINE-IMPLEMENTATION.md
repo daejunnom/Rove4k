@@ -96,6 +96,11 @@ and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/r
 It regenerates and exercises A4980 and F5083 with their exact existing native
 images. The B dead-bb neutral cost and C composition first cost retain their
 separate local evidence scopes; their candidate engines are not CI steps.
+The C-proof/D-latch-cost checkpoint `9cf8cdf` passes both language jobs in its
+[exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39390557965)
+and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39390557983).
+Its new experiments retain their local qualification/cost/failure boundaries;
+they are not additional engine CI executions.
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
@@ -113,7 +118,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | --- | ---: | ---: | --- |
 | A | 4,980 B | 884 B | Shared startup/search phase counter, owned move query, fixed local/object spelling |
 | B | 5,955 B | 1,859 B | Hybrid bitboards, legal SEE/singular and fixed private spelling |
-| C | 5,723 B | 1,627 B | Real AVX2 evaluation, cache removal and fixed private spelling |
+| C | 5,687 B | 1,591 B | Real AVX2 evaluation, shared query/startup and fixed private spelling |
 | D scalar / HQ | 7,478 / 7,718 B | 3,382 / 3,622 B | Own ELF restoration, metadata-first Board and shared PVS retry phase |
 | E | 5,679 B | 1,583 B | All 21 untrained coefficients in evaluation/ordering; fixed spelling |
 | F | 5,083 B | 987 B | Full-depth MTD(f), beta-only search and fixed local/object spelling |
@@ -2203,3 +2208,38 @@ Twenty-four ordinary sources freeze the final cost index
 actual whole receipt is
 `628ea7e3eccae0c20ade39997836a838b03e60ed128dc1eadc8a0119fd556bca`.
 Neither measured file meets 4KiB, and no performance or strength gain is claimed.
+
+## Maintained C composition source promotion
+
+The [maintained C entry](../engines/compact/tiny-entry-c/README.md) now owns the
+qualified 5,687-byte composition as its ordinary readable engine source.
+Five local files change: engine, builder, recipe, README and one new local
+shipping-alpha helper. The helper embeds the exact original C composition
+policy and calls the existing pinned shared generic scanner/rewrite with its
+own canonical bytes. It neither calls nor widens the old shared admission;
+B/E and all existing shared helper bytes remain unchanged. The compiler,
+profile, codec, bootstrap, launcher, fresh/verifier and core prefix are exact.
+
+The old seventeen-file C5723 closure and shipping/DEV files are preserved and
+reproduced from two independent archive extractions first. New DEV source and
+native are generated twice from the qualified readable and explicitly pinned;
+old C5723 DEV/native equality is not claimed. New normal generation consumes
+eighteen ordinary sources, including the local helper, and reads no historical
+report, experimental folder or old generated artifact.
+
+Two independent new source archive extractions each regenerate shipping and
+DEV twice. All source/native/bootstrap/whole and new DEV bytes reproduce.
+The unchanged verifier then executes both selected builds: four actual
+quit/EOF wrapper sessions, sixteen legal GO results, exact restored native,
+three stable startup TIDs, FDs 0/1/2 and physical reader/process/path cleanup
+pass. No new DEV engine or game/benchmark is executed. The earlier C-specific
+query/startup/epoch/SIMD proof is reused through exact readable, shipping and
+native identities; cancellation causality remains unproven.
+
+The final promotion receipt is
+`a3d54a16e4df0f18a3da3ea2361fd8138ec91903140f19fe06256922bef970be`;
+normal source archive is
+`a613040357d46f33bf5c59c72a2fc7a8d1830fce9a14fc6d0420d3a46835a75c`.
+New whole is 5,687 bytes, saving 36 and still exceeding 4KiB by 1,591.
+This local maintained promotion awaits its own exact-head CI; it does not
+replace prior CI with a future-head success claim.
