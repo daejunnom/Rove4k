@@ -1,4 +1,77 @@
-# Maintained minimal C entry
+# Maintained minimal C signed-vector entry
+
+The current selected complete file is **5092B**,60B below previous5152 and
+**996B above4096**. Shipping source10656/58e71a9c uses a private signed-net
+8-lane vector; ordinary pinned sources regenerate native, bootstrap and wrapper.
+Canonical engine.c and its PSQT/gather DEV reference remain unchanged.
+
+The new ordinary shipping_signed_vector.py is last, after shipping_incremental.
+It admits only exact10803/8fd326 source and produces exact10656/58e71a9c through
+five literal regions with full input/output, inverse and protected-complement
+guards. All previous helper guards are preserved; DEV bypasses the new stage.
+Only ordinary local source is consumed. `fresh.py` remains unchanged and its
+recipe-discovered closure is25files (LOCAL9+helpers14+tests2).
+
+The eight signed16 lanes are zero padding, six white-minus-black PNBRQK counts,
+and signed positional residual. Coefficients [0,100,320,330,500,900,0,1] retain
+all old material values. Direct piece indexing preserves value(0,q)==0; king
+material is0 and its position score remains in residual. Count<=16 and residual
+<=2016 are safe; full dot equals the original scalar HCE. Real H/K deltas, zero
+start and Board copies maintain this state through capture/EP/castling/promotions.
+EP attack-only stale scratch remains confined to attacked/W, as source-reviewed
+and dynamically checked with poison and original-mailbox comparisons.
+
+U now consumes actual128-bit SIMD: productionP disassembly loads Board offset
+0x80 into XMM, multiplies via vpmaddwd and reduces through vphaddd twice. The
+intrinsic minimum is SSE2+SSSE3. The compiler remains the fixed **-mavx2** target,
+and this is not a256-bit AVX2 leaf claim or a lower-ISA deployment qualification.
+The fixed profile is workers2/TT18/PLY128; compiler/bootstrap/prefix77 and fixed
+ALONE9e/lc2lp0pb0/BT4/64MiB/nice64 settings are unchanged.
+
+```sh
+python3 -B engines/compact/tiny-entry-c/build.py --out /absolute/new/C-build --dev
+python3 -B engines/compact/tiny-entry-c/verify.py --build /absolute/C-build --out /absolute/new/C-runtime
+```
+
+One ASan+UBSan fixture passed actualH/K/U and independent mailbox/hash/scalar/
+old16-to-signed8 algebra, all8lane perturbations including zero king/padding,
+154legalchildren with both-color specialmoves,10816 ordering comparisons and
+actualP searches in both colors. Scores0, best4742/10998 and nodes150/104 exactly
+match the pinned old actualDEV receipt; that reference was reused, not rerun.
+Actual Board is200->184B, P fixed allocation4416->4392B, pushes8->6 and prior
+32-byte dynamic alignment is absent. No previous changed-layout proof is inherited.
+Independent source/fixture read review was CLEAR. These facts do not measure speed.
+
+Firstcost pins are source10656/58e71a9c, native26376/4ffb9c37 (same length, new
+identity), bootstrap11731/9b664514 and complete5092/175b73a5. Expected identities
+were set explicitly before normal execution. One normal builder passed two
+shipping plus two unchanged DEV reproductions. The unchanged selected verifier
+passed two quit/EOF sessions and eight legal GO, exact new native image, three
+startup TIDs each, private-path/descriptor cleanup and physical process/readers
+exit. Cancellation causality and playing strength/performance remain unproven.
+Old normal24 closure/archive and actual controls were preserved outside Git
+before edits. No fresh, games, performance, training or AWS ran for promotion.
+
+| Form | Bytes | SHA-256 |
+| --- | ---: | --- |
+| Shipping source | 10656 | `58e71a9c05cb48e4d1a8de83cd833981f64165344f53c41d0c39542fdfb1ae64` |
+| Native | 26376 | `4ffb9c371eb7c0949f34ed637350ff3be9c7164890d1784c12e3cd3d93912691` |
+| Bootstrap | 11731 | `9b6645146ca734dc7133cc6f50131f8a90c582246f7ae4b9ada75c24397c9451` |
+| Complete | 5092 | `175b73a5a720e2197c3842a8e61ed0a335b927491e43d00e60e42cc8509836b4` |
+
+Normal build receipt `12c85436abbe41f246d916c4b91a0580c6435ee5b349ae44f721274a5a05e357`
+is /home/stemxstudio/rove4k-c-signed-vector-normal-20261021/build.json.
+Runtime receipt `d18ee2e01c7d38163599784e35ec8736530bd5d6ec011db0e60c98f5aa30aacd`
+is /home/stemxstudio/rove4k-c-signed-vector-normal-runtime-20261021/runtime.json.
+Exact producing recipe7226874f is preserved in build inputs; final recipe
+only closes result metadata. No expected output was updated automatically.
+
+## Historical C16 incremental records
+
+The following is historical5152B/16lane shipping and earlier ancestry. Current
+128-bit/8lane identity and its qualification are stated above.
+
+# Historical maintained C16 entry
 
 The selected complete shipping file is **5,152 B**, 7 B below the previous 5,159 B and **1,056 B above 4,096**. Ordinary pinned source inputs regenerate C, native ELF, bootstrap and wrapper. Reports are qualification metadata, never generation inputs.
 

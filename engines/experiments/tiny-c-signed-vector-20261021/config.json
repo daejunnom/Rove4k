@@ -1,0 +1,77 @@
+{
+  "baseline": {
+    "source_bytes": 10803,
+    "source_sha256": "8fd32643582b3b485cdfa077fb20ada4af67c8cc0f867206f4c4f425312b9caf",
+    "native_bytes": 26376,
+    "native_sha256": "db608da6eecd01fef7d845bb3bd8b52fe792ed527f4d2501c7c05900aad64b9a",
+    "whole_bytes": 5152,
+    "whole_sha256": "6584d2d9e8e5b777e54dfeb450c0bf59a261aaf5023430753d9e4e361b11fed1",
+    "bootstrap_sha256": "d68e78956401df2e24adc4e294cb27e839998e599ae66b55795e23d10106c3c1"
+  },
+  "candidate": {
+    "source_bytes": 10656,
+    "source_sha256": "58e71a9c05cb48e4d1a8de83cd833981f64165344f53c41d0c39542fdfb1ae64"
+  },
+  "profile": {
+    "workers": 2,
+    "tt_bits": 18,
+    "ply": 128,
+    "dev_default": false
+  },
+  "compiler": [
+    "cc",
+    "-std=c11",
+    "-Os",
+    "-pthread",
+    "-DWORKERS=2",
+    "-DTT_BITS=18",
+    "-mavx2",
+    "-DDEV=0",
+    "-x",
+    "c",
+    "-",
+    "-o",
+    "x"
+  ],
+  "compression": {
+    "format": "lzma-alone",
+    "filter": "LZMA1",
+    "preset": 9,
+    "extreme": true,
+    "lc": 2,
+    "lp": 0,
+    "pb": 0,
+    "check": "NONE",
+    "mf": "BT4",
+    "dictionary_bytes": 67108864,
+    "nice_len": 64
+  },
+  "prefix_bytes": 77,
+  "prefix_sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
+  "template_sha256": "68e4544370fdd2ca3d240963a0782004f955930187c3d8edfda78cc2f59b7f6a",
+  "literal_helper_sha256": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
+  "state_definition": {
+    "x0": "padding zero",
+    "x1_to6": "white-minus-black PNBRQK counts",
+    "x7": "signed positional residual sum(value-sign*material)",
+    "qm": [
+      0,
+      100,
+      320,
+      330,
+      500,
+      900,
+      0,
+      1
+    ]
+  },
+  "bounds": {
+    "net_piece_count_abs": 16,
+    "per_piece_residual_abs": 63,
+    "signed_residual_abs": 2016,
+    "i16_safe": true,
+    "king_material_coefficient": 0,
+    "empty_piece_material_value": 0
+  },
+  "ISA_scope": "128-bit SSE2/SSSE3 intrinsic inference under unchanged -mavx2 flags; no 256-bit AVX2 instruction claim"
+}

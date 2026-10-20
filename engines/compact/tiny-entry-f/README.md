@@ -1,5 +1,23 @@
 # Maintained minimal F entry
 
+The selected complete file is **4,720 bytes**, 8 below F4728 and **624 bytes above 4,096**. The final shipping-only `shipping_types.py` stage owns the same single fixed type map used for A: `uint64_t -> W`, `int16_t -> X`, `Move -> Y`, and the private anonymous-entry typedef `zb -> Z`. Its 37-byte typedef prefix and all encoded transport bytes count. Shipping C is 9,464 bytes, 226 below the preceding source. Actual first-cost full native bytes are identical to the preceding full-key F4728 image; no metadata exception or atomic-TT composition is used.
+
+The ordinary family helper pins unchanged canonical readable and exact post-HCE source, every admitted ordinary type/declarator offset/count, the sole MOVE directive's three casts, alias freshness, include boundary, full inverse, protected complement and complete output hash. Strings, other directives, external API spellings, remaining types/layout and all old stages are protected. Future arbitrary headers are not admitted: the fixed compiler/header domain must reproduce the entire native. No experiment, report, old artifact, AST allocator or upstream source is a normal input. Existing canonical/alpha/storage/scope/member/EP/input/declaration/HCE guards run first; DEV bypasses only the new type stage.
+
+The helper is pinned in `recipe.helper_sha256` and frozen before import. Unchanged fresh.py dynamically includes it: LOCAL9 + helpers12 + tests2 = 23 unique ordinary sources. Canonical, old semantic DEV tuple, verifier, fresh source, shared helpers, full-key coherent TT, true MTD, compiler/resources, bootstrap, 77-byte prefix and fixed ALONE nice32 remain unchanged. The independent atomic-TT experiment remains separate.
+
+| Current artifact | Bytes | SHA-256 |
+|---|---:|---|
+| Shipping C | 9464 | `d942731c54f82da8dfa1aa5fedcc6328b56b32fe0ab527b5396847ceea541f26` |
+| Full native | 18576 | `62acc5347f30e036820cd7fb2c96a065692368e44e53366460ef7b5c8c32c444` |
+| Complete launcher | 4720 | `738c33319cc0d865b12c75a8fe0a6d0d1d2ed63f162a8cf09441e793d8ffb4c7` |
+
+The sole normal builder invocation passed shipping C/native/bootstrap/whole twice and prior semantic DEV C/native twice. The unchanged selected verifier passed its sole quit/EOF invocation: two sessions/eight legal GO epochs, exact restored full-key native, three stable startup TIDs per session, absent private paths/helper children, exactly one closing result, completed readers and physical exit0. Both bounded owned command groups are terminal and absent; retry and forced cleanup counts are zero. No new core fixture, fresh extraction, game or benchmark is part of this stage. Prior native/core evidence is reused by entire native identity, not relabeled as new execution; cancellation causality and many-core performance remain unproven. Old ordinary full-key sources and actual controls were preserved outside Git first; producing/final receipt metadata remain distinct.
+
+Normal build receipt: `6d2570002cd60191971d0b82eb52649eb75b3c36b9fb6f8c51839b7ab040d914`. Normal runtime receipt: `d8d91e35afe725922a0cee5a9601c0d407e8d70366789de0c9d11f6898244bc1`. Producing recipe: `e64715857ad52339455e79a258d42b2e71f4c50662309bd60f75a82890de8dcc`; producing source23 freeze: `4daaa320591aea901ca2e504f5a478c38b6934a653fb84d1ae77f68aa2626cc6`. Only README and recipe receipt metadata changed after execution; source/helper/compiler/expected/codec inputs retain producing bytes. Git, CI and whole-project acceptance remain separate parent work.
+
+# Historical F4728 packed-HCE stage
+
 The selected complete file is **4,728 bytes**, 2 below F4730 and **632 bytes above
 4,096**. One ordinary `shipping_hce.py` closing stage runs after declarations.
 It replaces only the exact value function: signed int material/advance/center

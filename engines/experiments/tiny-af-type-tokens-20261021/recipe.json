@@ -1,0 +1,977 @@
+{
+  "format": 1,
+  "stage": "one fixed uniform type-token policy; full-native exact required",
+  "map": {
+    "uint64_t": "W",
+    "int16_t": "X",
+    "Move": "Y",
+    "zb": "Z"
+  },
+  "alias_prefix": "typedef uint64_t W;typedef int16_t X;",
+  "macro_old": "#define MOVE(f,t,p) ((Move)(f)|((Move)(t)<<7)|((Move)(p)<<14))\n",
+  "macro_new": "#define MOVE(f,t,p) ((Y)(f)|((Y)(t)<<7)|((Y)(p)<<14))\n",
+  "lexer_path": "engines/scripts/rename_c.py",
+  "lexer_sha256": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
+  "families": {
+    "A": {
+      "baseline": "/home/stemxstudio/rove4k-a-adjacent-decl-normal-20261021",
+      "controls": {
+        "main.c": {
+          "bytes": 9687,
+          "sha256": "6946861173a6b1dee660e83d72db40cde36a066be04e3c4457d4b67a6ab7ae4e"
+        },
+        "native/x": {
+          "bytes": 22672,
+          "sha256": "28260858a130711bb5fa70816e950b7666440168e8835bb4802b98675b972422"
+        },
+        "bootstrap.py": {
+          "bytes": 10677,
+          "sha256": "70d0ef0152c5aca432aa6fc4685a4e0b3584b4af8d5a28b929358fcc99e28220"
+        },
+        "x": {
+          "bytes": 4762,
+          "sha256": "e2fc1581198947298d4abe4c5552095fd57e93762f1da38704e45bb4545b3b7d"
+        }
+      },
+      "ordinary_bindings": {
+        "engines/compact/tiny-a/pack_stream.py": {
+          "bytes": 5444,
+          "sha256": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e"
+        },
+        "engines/compact/tiny-a/stitch.py": {
+          "bytes": 3863,
+          "sha256": "2b0d25b4855a3ed4ddd9e24b8e4b0e081439baa2ed8f744dba0215a700023f23"
+        },
+        "engines/compact/tiny-entry-a/bootstrap.py.in": {
+          "bytes": 997,
+          "sha256": "898bf1f24168f6e99a7ffb9b0ba9e805af0c7627ea115d47ac687c1389d015ba"
+        },
+        "engines/compact/tiny-entry-a/build.py": {
+          "bytes": 12067,
+          "sha256": "35d63e59ffb17a4dcd140a880966d3602a40eb007355baac1b6a7f4fd01e248c"
+        },
+        "engines/compact/tiny-entry-a/engine.c": {
+          "bytes": 24820,
+          "sha256": "71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734"
+        },
+        "engines/compact/tiny-entry-a/launcher.sh": {
+          "bytes": 77,
+          "sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
+        },
+        "engines/compact/tiny-entry-a/recipe.json": {
+          "bytes": 23138,
+          "sha256": "a1cec16768a7d8fca67a78ae8e7723af6699542722142dbc601ad4c003eda8d2"
+        },
+        "engines/compact/tiny-entry-a/shipping_alpha.py": {
+          "bytes": 16228,
+          "sha256": "bcc2c28ad8b51a5c3eec6752e157f5de8c46e960333ad1a24fbd0ad328d8597d"
+        },
+        "engines/compact/tiny-entry-a/shipping_declarations.py": {
+          "bytes": 3959,
+          "sha256": "5abd0837fe5e800feb3758e718cce0849bccdc0eb5b25251b8dfd3a86ad04613"
+        },
+        "engines/compact/tiny-entry-a/shipping_input.py": {
+          "bytes": 12172,
+          "sha256": "794b36d7e223fabdcddfdecfbbe6407c76c530f0a061172ad5c42ed4e4864611"
+        },
+        "engines/compact/tiny-entry-a/shipping_scope.py": {
+          "bytes": 4971,
+          "sha256": "d73f8539fae3fdac62048e937f12de1c4f0ec336a9f2ad31fdb08d1cc46b8524"
+        },
+        "engines/scripts/fixed_shipping_storage.py": {
+          "bytes": 28039,
+          "sha256": "3f4f05b0b3fee71ee8876b22653c9b7481b5af207b7e023c27b0832e4e734d71"
+        },
+        "engines/scripts/minify.py": {
+          "bytes": 6624,
+          "sha256": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b"
+        },
+        "engines/scripts/rename_c.py": {
+          "bytes": 12574,
+          "sha256": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5"
+        },
+        "engines/scripts/specialize.py": {
+          "bytes": 2386,
+          "sha256": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d"
+        }
+      },
+      "compiler": [
+        "cc",
+        "-Os",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "x",
+        "-s"
+      ],
+      "profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev_default": false
+      },
+      "compression": {
+        "format": "lzma-alone",
+        "filter": "LZMA1",
+        "preset": 9,
+        "extreme": true,
+        "lc": 2,
+        "lp": 0,
+        "pb": 0,
+        "check": "NONE",
+        "dictionary_bytes": 67108864,
+        "header_hex": "0200000004ffffffffffffffff"
+      },
+      "template_path": "engines/compact/tiny-entry-a/bootstrap.py.in",
+      "prefix_path": "engines/compact/tiny-entry-a/launcher.sh",
+      "counts": {
+        "Move": 19,
+        "uint64_t": 23,
+        "zb": 3,
+        "int16_t": 3
+      },
+      "ordinary_roles": [
+        {
+          "start": 304,
+          "end": 308,
+          "old": "Move",
+          "new": "Y",
+          "role": "typedef-declarator"
+        },
+        {
+          "start": 358,
+          "end": 366,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 554,
+          "end": 562,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 569,
+          "end": 571,
+          "old": "zb",
+          "new": "Z",
+          "role": "typedef-declarator"
+        },
+        {
+          "start": 598,
+          "end": 602,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 605,
+          "end": 613,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 640,
+          "end": 647,
+          "old": "int16_t",
+          "new": "X",
+          "role": "type-name"
+        },
+        {
+          "start": 685,
+          "end": 687,
+          "old": "zb",
+          "new": "Z",
+          "role": "type-name"
+        },
+        {
+          "start": 714,
+          "end": 722,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 750,
+          "end": 758,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 827,
+          "end": 835,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 949,
+          "end": 957,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 961,
+          "end": 969,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 1335,
+          "end": 1343,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 1371,
+          "end": 1379,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 1403,
+          "end": 1411,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 1680,
+          "end": 1684,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 2254,
+          "end": 2258,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 2714,
+          "end": 2718,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 2862,
+          "end": 2866,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 3606,
+          "end": 3610,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 3839,
+          "end": 3847,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 3851,
+          "end": 3859,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 3862,
+          "end": 3870,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 3874,
+          "end": 3876,
+          "old": "zb",
+          "new": "Z",
+          "role": "type-name"
+        },
+        {
+          "start": 4252,
+          "end": 4259,
+          "old": "int16_t",
+          "new": "X",
+          "role": "type-name"
+        },
+        {
+          "start": 4346,
+          "end": 4350,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 4471,
+          "end": 4475,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 4634,
+          "end": 4638,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 4820,
+          "end": 4828,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 4871,
+          "end": 4875,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 4894,
+          "end": 4901,
+          "old": "int16_t",
+          "new": "X",
+          "role": "type-name"
+        },
+        {
+          "start": 5101,
+          "end": 5105,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 5383,
+          "end": 5387,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 6244,
+          "end": 6252,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 6272,
+          "end": 6280,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 6298,
+          "end": 6306,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 6420,
+          "end": 6428,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 6457,
+          "end": 6461,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 6757,
+          "end": 6761,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 6780,
+          "end": 6784,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 6959,
+          "end": 6963,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 6995,
+          "end": 6999,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 7225,
+          "end": 7229,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 7902,
+          "end": 7910,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 8213,
+          "end": 8221,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 8377,
+          "end": 8385,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 8548,
+          "end": 8556,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        }
+      ],
+      "candidate_source": {
+        "bytes": 9476,
+        "sha256": "71ae2a35736743103e72b2bb4738b8e71d2da9a78af44ad24b61c4157548ca27"
+      },
+      "insert_offset": 287,
+      "source_delta": -211
+    },
+    "F": {
+      "baseline": "/home/stemxstudio/rove4k-f-packed-hce-normal-20261021",
+      "controls": {
+        "main.c": {
+          "bytes": 9690,
+          "sha256": "e0aa8dd94f6dbfa1a3da172cde28492083d259b780344f49e7f5eb906523f9f6"
+        },
+        "native/x": {
+          "bytes": 18576,
+          "sha256": "62acc5347f30e036820cd7fb2c96a065692368e44e53366460ef7b5c8c32c444"
+        },
+        "bootstrap.py": {
+          "bytes": 10689,
+          "sha256": "faa44b70c4d36748bcec015f6fae6c6b858ac8c222ee271c4331e188f4a300d1"
+        },
+        "x": {
+          "bytes": 4728,
+          "sha256": "83aa628e327891c78ec666083f63e8884437bd170db35c361806a692333bd8d5"
+        }
+      },
+      "ordinary_bindings": {
+        "engines/compact/tiny-a/pack_stream.py": {
+          "bytes": 5444,
+          "sha256": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e"
+        },
+        "engines/compact/tiny-entry-f/bootstrap.py.in": {
+          "bytes": 1006,
+          "sha256": "84608782831299a6f7b1010dea89501eb10e6e34ee1cdc8f3804d448354cf4c6"
+        },
+        "engines/compact/tiny-entry-f/build.py": {
+          "bytes": 14769,
+          "sha256": "7bb5abb4fa226e6def5fff8ea850df8db39646c94a4e039acdf9fdbe868782d7"
+        },
+        "engines/compact/tiny-entry-f/engine.c": {
+          "bytes": 25755,
+          "sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd"
+        },
+        "engines/compact/tiny-entry-f/launcher.sh": {
+          "bytes": 77,
+          "sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
+        },
+        "engines/compact/tiny-entry-f/recipe.json": {
+          "bytes": 41569,
+          "sha256": "21e41a822374cbaf4840baff0cb50b2b345b2508cbdd1a27622946626934c1d7"
+        },
+        "engines/compact/tiny-entry-f/shipping_alpha.py": {
+          "bytes": 26273,
+          "sha256": "74abadbd79735e9f6b30c513b422245bae737f81d4e3bd04a7b8e597e61937e8"
+        },
+        "engines/compact/tiny-entry-f/shipping_declarations.py": {
+          "bytes": 3945,
+          "sha256": "8a4d8426ce4d3e86d3d0cab9d6ad937194c868d8ac74a12013b6329d3f24ce3a"
+        },
+        "engines/compact/tiny-entry-f/shipping_hce.py": {
+          "bytes": 1920,
+          "sha256": "f1d182a52ad83d93468ac92804ae4d28785aa4cb87a516afbf1920b01cf72a29"
+        },
+        "engines/compact/tiny-entry-f/shipping_input.py": {
+          "bytes": 12379,
+          "sha256": "4a466b06c7f2578eea532da5cea0fba4c3b56ccb944e49677134242138247b4a"
+        },
+        "engines/compact/tiny-entry-f/shipping_scope.py": {
+          "bytes": 9460,
+          "sha256": "40c88f75ca959f3b55c3a9d038d6ac9944f73d8de4d11e029b05cd4969d91e94"
+        },
+        "engines/compact/tiny-entry-f/shipping_semantics.py": {
+          "bytes": 6122,
+          "sha256": "48c17a5b4998727189b4f5279ca0e526f6f6cef0fe5ff14e5b0bd13ea2b5112d"
+        },
+        "engines/compact/tiny-entry-f/shipping_storage.py": {
+          "bytes": 33085,
+          "sha256": "b8d1984c8585b3052f22b4f3713a7fb0a7107a5ad91a2951d91f9a852a36c3df"
+        },
+        "engines/scripts/minify.py": {
+          "bytes": 6624,
+          "sha256": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b"
+        },
+        "engines/scripts/rename_c.py": {
+          "bytes": 12574,
+          "sha256": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5"
+        },
+        "engines/scripts/specialize.py": {
+          "bytes": 2386,
+          "sha256": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d"
+        }
+      },
+      "compiler": [
+        "cc",
+        "-Os",
+        "-pthread",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "x",
+        "-s"
+      ],
+      "profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev_default": false
+      },
+      "compression": {
+        "format": "lzma-alone",
+        "filter": "LZMA1",
+        "preset": 9,
+        "extreme": true,
+        "lc": 2,
+        "lp": 0,
+        "pb": 0,
+        "check": "NONE",
+        "mf": "BT4",
+        "dictionary_bytes": 67108864,
+        "nice_len": 32
+      },
+      "template_path": "engines/compact/tiny-entry-f/bootstrap.py.in",
+      "prefix_path": "engines/compact/tiny-entry-f/launcher.sh",
+      "counts": {
+        "Move": 22,
+        "uint64_t": 23,
+        "zb": 3,
+        "int16_t": 4
+      },
+      "ordinary_roles": [
+        {
+          "start": 287,
+          "end": 291,
+          "old": "Move",
+          "new": "Y",
+          "role": "typedef-declarator"
+        },
+        {
+          "start": 340,
+          "end": 348,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 537,
+          "end": 545,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 551,
+          "end": 553,
+          "old": "zb",
+          "new": "Z",
+          "role": "typedef-declarator"
+        },
+        {
+          "start": 579,
+          "end": 583,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 586,
+          "end": 594,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 618,
+          "end": 625,
+          "old": "int16_t",
+          "new": "X",
+          "role": "type-name"
+        },
+        {
+          "start": 660,
+          "end": 662,
+          "old": "zb",
+          "new": "Z",
+          "role": "type-name"
+        },
+        {
+          "start": 689,
+          "end": 697,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 726,
+          "end": 734,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 803,
+          "end": 811,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 925,
+          "end": 933,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 937,
+          "end": 945,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 1299,
+          "end": 1307,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 1335,
+          "end": 1343,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 1367,
+          "end": 1375,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 1647,
+          "end": 1651,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 1927,
+          "end": 1931,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 2197,
+          "end": 2201,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 2676,
+          "end": 2680,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 2848,
+          "end": 2852,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 3593,
+          "end": 3597,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 3828,
+          "end": 3836,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 3840,
+          "end": 3848,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 3851,
+          "end": 3859,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 3863,
+          "end": 3865,
+          "old": "zb",
+          "new": "Z",
+          "role": "type-name"
+        },
+        {
+          "start": 4237,
+          "end": 4244,
+          "old": "int16_t",
+          "new": "X",
+          "role": "type-name"
+        },
+        {
+          "start": 4330,
+          "end": 4334,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 4426,
+          "end": 4430,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 4610,
+          "end": 4614,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 4768,
+          "end": 4772,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 4950,
+          "end": 4958,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 5000,
+          "end": 5004,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 5023,
+          "end": 5030,
+          "old": "int16_t",
+          "new": "X",
+          "role": "type-name"
+        },
+        {
+          "start": 5216,
+          "end": 5220,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 5444,
+          "end": 5448,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 5900,
+          "end": 5908,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 5928,
+          "end": 5936,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 5954,
+          "end": 5962,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 6074,
+          "end": 6082,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 6137,
+          "end": 6141,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 6178,
+          "end": 6182,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 6547,
+          "end": 6554,
+          "old": "int16_t",
+          "new": "X",
+          "role": "type-name"
+        },
+        {
+          "start": 6769,
+          "end": 6773,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 6792,
+          "end": 6796,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 6971,
+          "end": 6975,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 7009,
+          "end": 7013,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 7228,
+          "end": 7232,
+          "old": "Move",
+          "new": "Y",
+          "role": "type-name"
+        },
+        {
+          "start": 7905,
+          "end": 7913,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 8216,
+          "end": 8224,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 8380,
+          "end": 8388,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        },
+        {
+          "start": 8551,
+          "end": 8559,
+          "old": "uint64_t",
+          "new": "W",
+          "role": "type-name"
+        }
+      ],
+      "candidate_source": {
+        "bytes": 9464,
+        "sha256": "d942731c54f82da8dfa1aa5fedcc6328b56b32fe0ab527b5396847ceea541f26"
+      },
+      "insert_offset": 270,
+      "source_delta": -226
+    }
+  }
+}

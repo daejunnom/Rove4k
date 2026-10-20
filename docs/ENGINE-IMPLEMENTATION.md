@@ -185,12 +185,12 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
-| A | 4,762 B | 666 B | Order-independent text profile, shared startup/query, adjacent declarations/completion sequence and original ALONE |
+| A | 4,748 B | 652 B | Native-identical uniform type tokens, shared startup/query, adjacent declarations/completion sequence and original ALONE |
 | B | 5,357 B | 1,261 B | Generated tactical Move metadata, shared forward geometry, declared legal-LVA ordering, hybrid attackers/singular and ALONE |
-| C | 5,152 B | 1,056 B | Private incremental SIMD features, shared coefficients, bounded text profile, real AVX2 residual dot and fixed ALONE |
+| C | 5,092 B | 996 B | Private signed-net eight-lane SIMD state, exact HCE, bounded text profile, real 128-bit madd/hadd and fixed ALONE |
 | D scalar / HQ | 6,108 / 6,288 B | 2,012 / 2,192 B | Own fixed21 context ELF with explicit SSE4.2 CRC32C, residual leapers, worker reset and guarded BCJ restoration |
 | E | 5,176 B | 1,080 B | Declared untrained E19 quadratic activity model, incremental material/activity, original five-feature ordering and ALONE |
-| F | 4,728 B | 632 B | Full-depth MTD(f), exact packed HCE coefficients, shared EP legality, bounded text profile and fixed ALONE |
+| F | 4,720 B | 624 B | Native-identical uniform type tokens, full-key TT, full-depth MTD(f), packed HCE and fixed ALONE |
 
 The separate Rust D native images are 16,816 bytes each. Their independent
 packed experiment retains its own qualification state and does not silently
@@ -4179,3 +4179,89 @@ These selected entries remain above 4,096 B. Their local checks establish the
 described source/model and lifecycle scopes, not improved playing strength,
 many-core scaling, final ISA/resources, main promotion or release. No training,
 AWS/paid work, games or performance benchmark occurs in this checkpoint.
+
+## Uniform type tokens with identical complete native images
+
+A and the full-key F baseline apply one fixed type policy to the actual final
+shipping source: `uint64_t` to W, `int16_t` to X, Move to Y and the private
+Entry typedef to Z. The 37 B alias definitions follow all includes and precede
+the first type use. Fixed family-specific role ledgers cover declarations,
+casts, sizeof and the three casts in the MOVE macro. Existing source/directive
+names cannot shadow the fresh aliases; external function names, object layout,
+string literals and other directives are unchanged. Exact inverse and protected
+complement checks bind this particular presentation, rather than a general
+identifier allocator or claim about arbitrary headers.
+
+| Entry | Source before/after | Whole before/after | Entire native |
+| --- | ---: | ---: | --- |
+| A | 9,687 / 9,476 B | 4,762 / 4,748 B | All 22,672 bytes identical |
+| F full-key | 9,690 / 9,464 B | 4,728 / 4,720 B | All 18,576 bytes identical |
+
+The actual native equality is checked before each first-cost codec invocation,
+including the compiler/header namespace boundary. Each cost uses one candidate
+compile and one unchanged ALONE package with strict baseline/candidate decodes.
+One ordinary family builder then reproduces shipping twice and unchanged DEV
+twice. Each unchanged selected verifier passes two quit/EOF sessions/eight GO,
+the exact restored image, three persistent TIDs, private-path/helper absence,
+reader EOF and physical exit0. No new core fixture is inferred from identical
+native bytes, and no new archive/fresh extraction or performance run occurs.
+
+Ordinary family-owned closing helpers follow the previous last source stage.
+They contain their own literals/role ledgers and use the existing pinned lexer;
+normal regeneration has no experiment, report or old-artifact input. The four
+changed ordinary files per family are the helper, builder, recipe and README.
+Old closures/controls and producing closures remain preserved outside Git;
+only README/recipe qualification metadata changes after execution. F retains
+its complete full-key TT, and has no partial-tag policy composition here.
+
+A build/runtime receipt SHAs are
+`ec562d8fd24723a8792e97e27a1c0cb24710ffd99d4e7f79336918aed7d02d7d` /
+`cb90a87d40f90f336d01a2c79a2b126117cca002aa9d19749914330e0d8c05c4`.
+F build/runtime SHAs are
+`6d2570002cd60191971d0b82eb52649eb75b3c36b9fb6f8c51839b7ab040d914` /
+`d8d91e35afe725922a0cee5a9601c0d407e8d70366789de0c9d11f6898244bc1`.
+The external final index SHA is
+`c22baf3b3d39937fe682f64d8a27b8dede397a2fde3a600779f27d57be3e59aa`.
+
+## C signed-net SIMD state
+
+C folds the previous color-separated sixteen signed16 lanes into eight:
+zero padding, white-minus-black PNBRQK counts and the signed positional
+residual. The coefficient vector becomes `[0,100,320,330,500,900,0,1]`.
+The existing put/hash update changes the signed count and residual; the actual
+128-bit load/madd/two horizontal sums evaluate the same material-plus-position
+HCE. Natural piece indices preserve value(0,q)=0, while the zero king-material
+lane still contributes its PST through the residual. Counts are bounded by16
+and the residual by2,016 in the admitted domain, fitting signed16. This is a
+representation change rather than a new evaluation model.
+
+The complete file decreases 5,152 to 5,092 B, source 10,803 to 10,656 B, while
+native stays 26,376 B with a new full identity. Whole SHA is
+`175b73a5a720e2197c3842a8e61ed0a335b927491e43d00e60e42cc8509836b4`.
+One first-cost native/package invocation and two strict decodes are followed
+by one actual candidate ASan/UBSan compilation/run. Definition-name-only U
+observation preserves its body and checks every actual production search
+consumer. Independent mailbox/hash/scalar-HCE and old16-to-signed8 arithmetic,
+all lanes, zero/king material, 10,816 ordering cases, 154 legal children and
+four poisoned geometry-only EP scratch checks pass. Both colors' actual depth2
+searches retain the pinned old DEV scores/best/nodes. That old executed DEV
+receipt is reused explicitly; no new DEV fixture execution is claimed.
+
+Actual Board changes 200 to184 B. Production search allocation changes 4,416
+to4,392 B with eight to six pushes and no former 32-byte alignment mask.
+Disassembly shows `vmovdqu` XMM, `vpmaddwd` XMM and two `vphaddd` instructions.
+The fixed compiler remains `-mavx2`; the intrinsic minimum SSE2+SSSE3 does not
+establish a lower runtime ISA profile, and a 256-bit AVX2 leaf is no longer
+claimed. These local layout observations are not scaling or strength evidence.
+
+One ordinary builder reproduces shipping twice and unchanged DEV twice; the
+unchanged selected verifier passes two quit/EOF sessions/eight legal GO with
+the exact restored image, three persistent TIDs, private-path/helper absence,
+reader EOF and physical exit0. Build/runtime receipt SHAs are
+`12c85436abbe41f246d916c4b91a0580c6435ee5b349ae44f721274a5a05e357` /
+`d18ee2e01c7d38163599784e35ec8736530bd5d6ec011db0e60c98f5aa30aacd`.
+The five-region ordinary closing helper follows the incremental stage and
+retains every preceding source guard, canonical/gather DEV and verifier.
+The old closure/controls and producing recipe remain outside Git; only final
+recipe/README qualification metadata changes after execution. Final aggregate
+SHA is `2f83669e0b7cf5f45316b34816c7f5dbb1c4c095d0c2596b402895f264909692`.

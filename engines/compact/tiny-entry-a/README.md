@@ -1,5 +1,23 @@
 # Maintained minimal A entry
 
+The selected complete file is **4,748 bytes**, 14 below A4762 and **652 bytes above 4,096**. The final shipping-only `shipping_types.py` stage owns one fixed uniform type map: `uint64_t -> W`, `int16_t -> X`, `Move -> Y`, and the private anonymous-entry typedef `zb -> Z`. Its 37-byte typedef prefix and all encoded transport bytes count. Shipping C is 9,476 bytes, 211 below the preceding source. Actual first-cost full native bytes are identical to the A4762 image; no metadata exception is used.
+
+The ordinary helper pins the unchanged canonical readable and exact post-declarations source, every admitted ordinary type/declarator offset and count, the sole MOVE directive's three casts, alias freshness, include boundary, full inverse, protected complement and complete output hash. Strings, other directives, external API spellings, other type names, layout and all old spelling stages are protected. Freshness against arbitrary future headers is not claimed: this fixed compiler/header environment must reproduce the entire admitted native. No AST allocator, experiment, report or old artifact is a normal generation input. Existing canonical/alpha/storage/scope/input/declaration guards run first; DEV bypasses only the new stage.
+
+The new helper is pinned in `recipe.helper_sha256` and frozen before import. Unchanged fresh.py dynamically includes it: LOCAL9 + helpers11 + tests2 = 22 unique ordinary sources. Canonical/DEV/verify/fresh/shared source bodies, compiler, resource profile, bootstrap, 77-byte prefix and ALONE settings remain unchanged. A/F experiment FINAL5 is preserved separately; no F source or atomic-TT candidate is consumed by this A producer.
+
+| Current artifact | Bytes | SHA-256 |
+|---|---:|---|
+| Shipping C | 9476 | `71ae2a35736743103e72b2bb4738b8e71d2da9a78af44ad24b61c4157548ca27` |
+| Full native | 22672 | `28260858a130711bb5fa70816e950b7666440168e8835bb4802b98675b972422` |
+| Complete launcher | 4748 | `a997bd9dd620d0c8331c8fd2f2bae6090a76f6862b73939b5db1142e197bc966` |
+
+The sole normal builder invocation passed two independent shipping C/native/bootstrap/whole reproductions and two DEV C/native reproductions, with the preceding DEV tuple observed exactly. The unchanged selected verifier then passed its sole quit/EOF invocation: two sessions/eight legal GO epochs, exact restored native image, three stable startup TIDs per session, absent private paths/helper children, exactly one closing result, finished readers and physical exit0. Both bounded outer command groups are terminal and absent; no retry or forced cleanup occurred. No new engine fixture, fresh extraction, game or benchmark is authorized. Prior native/core receipts are reused by complete native identity, not relabeled as new runs; cancellation causality and many-core performance remain unproven. The prior ordinary source and named actual controls were preserved outside Git before these four-file changes. Producing and final metadata will remain distinct.
+
+Normal build receipt: `ec562d8fd24723a8792e97e27a1c0cb24710ffd99d4e7f79336918aed7d02d7d`. Normal runtime receipt: `cb90a87d40f90f336d01a2c79a2b126117cca002aa9d19749914330e0d8c05c4`. Producing recipe: `0ac71919bc8d2722ef1bdb0092fb00efff361bc4d1fab378980d08a76c41c052`; producing source22 freeze: `28f2e2531803a90f97cd7ace4328f718d605e6684c9f8cb3298e38b2eb6ef7c9`. Only this README and recipe receipt metadata changed after execution; all source/compiler/helper/expected/codec inputs retain producing bytes. Git, CI and overall 4 KiB acceptance remain separate parent work.
+
+# Historical A4762 declaration stage
+
 The selected complete file is **4,762 bytes**, 4 below A4766 and **666 bytes above 4,096**. The single new ordinary `shipping_declarations.py` stage runs after the existing shipping input profile. Its five adjacent-int regions remove six redundant type prefixes and its one completion comma expression removes one brace pair: source −26 B, complete file -4 B. The actual first-cost full native is byte-identical to the prior image; no metadata exception is used.
 
 The helper embeds the exact readable/shipping source pins and six fixed literal pairs, unique source order, full inverse and protected complement checks. It has no experiment, report, old artifact, AST allocator or upstream-source input. Existing canonical/alpha/storage/scope/input/semantic guards remain before this last stage; DEV bypasses it. Registered in `recipe.helper_sha256`, it is frozen before import and included by unchanged fresh.py: LOCAL9 + helpers10 + tests2 = 21 unique ordinary source files. Compiler/profile/77-byte prefix/bootstrap/ALONE settings are unchanged. No source/alias/codec search runs.
