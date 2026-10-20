@@ -191,7 +191,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | D scalar / HQ | 6,002 / 6,220 B | 1,906 / 2,124 B | EP trial shares make, full-key aligned atomic16 TT, explicit SSE4.2/CX16 profile, own fixed21 context ELF and guarded BCJ restoration |
 | E | 5,118 B | 1,022 B | Global function aliases, untrained E19 quadratic activity model, incremental material/activity, original ordering and ALONE |
 | F full (default) | 4,681 B | 585 B | Capture-only private Move bit, global function aliases, calloc payload initialization sharing, unit-window TT bound expression, full-key TT, full-depth MTD(f), packed HCE and fixed ALONE |
-| F material/noise (opt-in) | 4,402 B | 306 B | Fresh policy-local function aliases, fixed material/stateless-order model, full-depth MTD(f)/full-key TT/SMP retained; optional positional HCE/learners omitted; strength comparison pending |
+| F material/noise (opt-in) | 4,386 B | 290 B | Capture-only private Move bit, policy-local function aliases, fixed material/stateless-order model, full-depth MTD(f)/full-key TT/SMP retained; optional positional HCE/learners omitted; strength comparison pending |
 
 The separate Rust D native images are 16,816 bytes each. Their independent
 packed experiment retains its own qualification state and does not silently
@@ -5217,3 +5217,73 @@ root current source/output/default-contract readback SHA is
 Producing29, predecessor28 and old4413 effective recipe remain immutable;
 post-execution changes are README/alternate completion metadata only. No
 additional core/DEV engine/fresh/game/performance or negative campaign runs.
+
+### Material-policy capture representation: actual4386-byte entry
+
+The material branch now has its own seven-role capture-bit transform after
+its function-name map. It uses the current emitter/classifier and omits the
+absent correction tail; full F's offsets are not replayed. The exact inverse
+and protected complement bind source8677/dd1599d4 to8602/3752a0c7. Capture
+bit3, FROM119 and the unchanged17-bit TT move retain all four promotions,
+castles and EP, with the raw EP trial remaining make-only. Material values,
+quiet noise, TT bounds/horizons and MTD driver remain unchanged.
+
+One old/new ASan+UBSan function pair checks59 boards,1529 ordered pseudo moves
+and1421 legal full children against independent64-square rules/material.
+The bounded independent minimax also checks12 completed depths and attaining
+witnesses in each form. Normalized Worker/TT state is byte-identical after
+normalizing only private Move bit3. This is function evidence, not a product
+pool, arbitrary-search or strength claim. Adapter preparation errors were
+preserved and corrected before compilation. Proof index SHA is
+`e9c88f93b578c77cdfb2faf2812d6040ac6437d786c14cfdd4cb98b1453bf7e6`.
+
+The ordinary selected --dev builder reproduces the new shipping source,
+native and complete4386-byte file twice, plus the unchanged full-reference
+DEV twice. The unchanged selected verifier runs the actual new wrapper in
+two quit/EOF sessions/eight legal GO epochs, checking restored native identity,
+three stable startup TIDs, private-path/helper absence and reader/physical
+exit0. Cancellation causality remains unproven. Full/default F and its
+qualified receipt are preserved. New native SHA is
+`c882ff2ae11ec177f96542fa13db84e611a27572a21b79b93d53edc1b45652f6`;
+whole SHA is
+`e6d8e5e982659de7d5e4528976420f5d5881620cbd198910802d7cee368f808d`.
+Build/runtime SHA values are
+`3852c728dd5bd77e2d1d707d11bbbb1ea6fa610370fdf6afb0fd6d71e971a086` /
+`9f5a0baff79b69adb56cf4310ded5ae82a3795cd3c3ff3d4b9a2cbbb3dfe382c`.
+
+### Continued external-source comparison and separate TT policy cost
+
+The supplied PR12 analysis is a historical a3546f1 snapshot and reference
+material. Its individual savings are not added to current results. Upstream
+trees and generated outputs stay outside Git. The pinned
+[ice4 renamer](https://github.com/MinusKelvin/ice4/blob/2bd7a54f9bb47a61a7cd97f3db9f52eadd4e2c19/minifier/renamer.rs)
+groups identifiers by occurrence count and scope conflicts; it does not prove
+variable liveness. The pinned
+[4ku TT/search](https://github.com/kz04px/4ku/blob/203ddd4bf9b331851c796d8b5d57eac08f6e6c18/src/main.cpp)
+uses16-byte full-key entries, a particular bound enumeration and depth>=
+cutoff. Those conditions are not interchangeable with Rove's exact-horizon
+TT. Current B already uses legal-LVA ordering; the old exact-SEE-to-LVA saving
+cannot be counted again. The pinned
+[4kc loader](https://github.com/GediminasMasaitis/4k-dot-c/blob/26e936860c8da80de73ea3041ccade96ba8112a3/loader.asm)
+uses a16-bit restored length and RWX header/code overlap, so its loader size
+does not establish the cost of Rove's own ELF contract.
+
+One separate F policy cost removes score/depth/bound TT reuse and stores only
+a full64-bit position key and Move under the same coherent try-lock. TT moves
+only rank generated members; every search bound is recomputed. This permits
+removing the TT-only reversible-path field while retaining actual repetition
+history and halfmove/draw checks. The record becomes16 rather than24 bytes.
+The MTD driver, unit windows, convergence/conflict handling, attaining witness,
+last-completed publication and persistent pool remain. This changes search
+information and may change completed depth/strength; it is not lossless
+compression or a replacement for the full-bound reference by assumption.
+
+The first policy-only source is8340 bytes (-337 from8677) and complete4234.
+The actual combination with capture representation is8265 bytes, complete4223
+under the original codec; a bounded42-encode comparison gives4217 with
+lc0/lp0/pb0/BT4/nice32/dictionary64MiB. The6-byte codec change is measured on
+that exact combined source. Whole SHA is
+`e37761cffeaa6bcf2e72d4f8aa094a6b871f70165ba42b5c0a7b9ec27e0ff26f`.
+These are compiler/codec cost results pending functional and ordinary-entry
+qualification;121 bytes still remain above4096. No game, performance,
+scaling, training or AWS run is represented by these costs.

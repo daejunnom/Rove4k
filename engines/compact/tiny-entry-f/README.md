@@ -1,4 +1,74 @@
-# Opt-in F-MTD-MaterialNoise-v1 build policy
+# Opt-in F-MTD-MaterialNoise-v1 capture representation
+
+The explicit material-noise branch is now **4386 bytes**, actual16 below4402
+and290 above4096. The default full F remains4681 with its exact source9242/
+61e0f5c7 and nativebb6f0fa9; full/default and unchanged full DEV bypass the new
+material-only `shipping_material_capture.py`. This is a representation change
+within the already declared material/noise policy, not a new evaluation or
+ordering policy and not full-F equivalence.
+
+| Material artifact | Bytes | SHA-256 |
+|---|---:|---|
+| Shipping C |8602|`3752a0c745efb63a2c1ba08974789c10dc56b815428d11903fbc8f2b5461ea3b`|
+| Native |18576|`c882ff2ae11ec177f96542fa13db84e611a27572a21b79b93d53edc1b45652f6`|
+| Bootstrap |9601|`3d8b4fe9539af8be5700c6cbeb7498d826c3b0c7ab20cfa8152a5ff2f835cfea`|
+| Whole launcher |4386|`e6d8e5e982659de7d5e4528976420f5d5881620cbd198910802d7cee368f808d`|
+
+The new stage follows material_names and embeds exactly seven current-source
+roles (emitterc/classifierO), inverse and8338-byte protected complement.
+It does not replay the fullF map or manufacture a correction-tail edit: that
+optional tail is absent in this policy. Capture-onlybit3 is stripped byFROM119;
+quiet N/B/R/Q promotions retain0, captured promotions and empty-target EP carry8.
+Actual generated tagged moves continue through legalmake, output/query,
+coherent full-key TT17/exacthorizon/unit-window bounds and attaining MTDwitness.
+Only quiets consume original worker noise, whose rawmove remains unchanged.
+The sole untagged rawEP constructor is make-only, not classification ingress.
+No external report, artifact, experiment, AST or network is an ordinary input.
+Original profile/compiler/bootstrap/77Bprefix/FALONE BT4/64MiB/nice32 stay exact.
+
+Cost FINAL48bed00cc7c2cd1b3111ba64ed827794c3e9f5d8066cc9f8d7213e0c0db25441
+measured one compile/encode with strict old/new Python+CLI restoration.
+Raw−75 and actualwhole−16 are distinct observations. The new native differs.
+Positive proof FINALe9c88f93b578c77cdfb2faf2812d6040ac6437d786c14cfdd4cb98b1453bf7e6
+and actualreceipt6f772c8f8c50b7beab200c2ad9b091834979c05bac5dd8de497c10ee9d00932a
+bind one old/new ASanUBSan pair,59boards/1529orderedpseudo/1421legalchildren,
+independent64square legalset/material and3187minimax nodes for12 depth1→2
+completions/attainingwitnesses per form. ActualMTD12lower12upper,TT17/fullkey/
+exactdepth,184quietnoise checks and414836B Worker/TT state match after only
+private Movebit3 normalization. The separately copied driver changes only
+name/depthceiling/observer hooks; actual claim/search/gen/make bodies stay exact.
+Productmain/pool/wrapper did not run in this focused unit. Fixture-only first
+import/alias preparation errors are preserved and corrected before any Cunit.
+No fake TTpayload or witness was injected. This does not claim optional tables
+which the material policy removed, cancellation/concurrency or playing strength.
+
+Predecessor ordinary29 source and actual material4402 controls are preserved.
+The sole ordinary material --dev call completed terminal0, reproducing selected
+source/native/bootstrap/whole twice, exactly equal to first-cost outputs.
+Unchanged full-reference DEV19488/1fcf03f4… and26984/6034086b… reproduced twice;
+that is not material DEV coverage or DEV engine execution. Default full
+expected/qualifiedreceipt stay exact; its source9242/61e0f5c7… was separately
+checked twice by the existing branch admission, with no full shipping native
+or runtime rerun. The unchanged frozen selected verifier completed the new4386
+wrapper in quit/EOF two sessions/eight legal GO: restored c882ff2a… image,
+three stable startup TIDs, private path/helper absence, one closing response,
+completed readers and physical exit0; all observed TIDs are now absent.
+Build SHA3852c728dd5bd77e2d1d707d11bbbb1ea6fa610370fdf6afb0fd6d71e971a086;
+runtime SHA9f5a0baff79b69adb56cf4310ded5ae82a3795cd3c3ff3d4b9a2cbbb3dfe382c;
+readback SHA296017be8afa79b097ba2b0446ff7665dbfa08f97491b12d866bc67c2eb32668.
+Producing source30 SHA3401147167e51a4bfa73839d52d9a4127b702ef5c63fcad6b8891308874c5e6d
+and ordinary recipe SHA1a48e4705d0257136fbfbd0f6ce79718809722fbbe038d30bbf9e92dda40f2ed
+are preserved separately from final metadata. Only this README and alternate
+receipt metadata changed after execution; helper/build/all other28 sources,
+expected/compiler/profile/bootstrap/codec remain producing values. Outer
+build605/verifier663 exited0, were reaped and groups absent; forced cleanup0,
+active handles0. Cancellation causality and the unchanged compiler-descendant
+lifetime limit remain unproven. No new fullnative/runtime, DEV engine, fresh
+extraction, negative/fault/game/performance/training campaign was added.
+Historical receipts below remain their original executions; no4KiB or
+strength/performance claim follows.
+
+# Historical material4402 names-only stage
 
 The default full F remains source9242/61e0f5c7, native18576/bb6f0fa9 and whole4681/4596f11a. Canonical engine.c, the C/Rust full reference, and the full DEV source/native are unchanged. A development build may select `--policy material-noise`; this adds no UCI option and does not change the default CI policy.
 

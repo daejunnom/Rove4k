@@ -60,7 +60,8 @@
     "engines/compact/tiny-entry-f/shipping_global_names.py": "7fa5cd69acb97225030f2da886afb2abd3f560f430ff8defd64515332a54a6a1",
     "engines/compact/tiny-entry-f/shipping_capture.py": "296a2213a1f9391b1aef0c2a3a82c08682892a607a49438a212f5748ecac8aac",
     "engines/compact/tiny-entry-f/shipping_material_noise.py": "76b882092832d48488fd767189ebfe6cf8e445bb7a4ff74b261f1228c7527ad3",
-    "engines/compact/tiny-entry-f/shipping_material_names.py": "3d81326468dcd4c52647508aaaa47abf13ba1ddaee561f7c97448af4e4b40553"
+    "engines/compact/tiny-entry-f/shipping_material_names.py": "3d81326468dcd4c52647508aaaa47abf13ba1ddaee561f7c97448af4e4b40553",
+    "engines/compact/tiny-entry-f/shipping_material_capture.py": "e1d7960d71dce41e2f6694a76351d08d6dcf5e934f5693b8031dbfc1982b40dd"
   },
   "resource_literals": [
     [
@@ -1091,15 +1092,15 @@
   "alternate_policies": {
     "material-noise": {
       "name": "F-MTD-MaterialNoise-v1",
-      "stage": "after-startup-material-noise-then-material-names; full-globalnames-capture bypassed",
+      "stage": "after-startup-material-noise-then-material-names-then-material-capture; full-globalnames-capture bypassed",
       "expected_overrides": {
-        "source_bytes": 8677,
-        "source_sha256": "dd1599d4d414107383fd534701c3c7e58a4eb861a47ab174a405f7a8cc64335e",
+        "source_bytes": 8602,
+        "source_sha256": "3752a0c745efb63a2c1ba08974789c10dc56b815428d11903fbc8f2b5461ea3b",
         "native_bytes": 18576,
-        "native_sha256": "468453a045aba29632081060cda63b5575210e6e9dbdb6251e1af6556d90b9a3",
-        "whole_bytes": 4402,
-        "whole_sha256": "10c5e2d49b1024a243f9e8252a0d34d9a7a567e9e025ded633cb29467e72b78e",
-        "bootstrap_sha256": "4815a264fa010104f3daf5a151a4a79b365c7cd2407c48f2110dfce14b1c7f9b"
+        "native_sha256": "c882ff2ae11ec177f96542fa13db84e611a27572a21b79b93d53edc1b45652f6",
+        "whole_bytes": 4386,
+        "whole_sha256": "e6d8e5e982659de7d5e4528976420f5d5881620cbd198910802d7cee368f808d",
+        "bootstrap_sha256": "3d8b4fe9539af8be5700c6cbeb7498d826c3b0c7ab20cfa8152a5ff2f835cfea"
       },
       "qualified_receipt": {
         "policy_change_not_equivalence": true,
@@ -1174,7 +1175,34 @@
           "full_policy_and_full_DEV_bypass": true,
           "normal_external_or_experiment_dependency": false
         },
-        "normal_build_runtime": {
+        "capture": {
+          "stage": "material-only-after-names",
+          "source_input_bytes": 8677,
+          "source_input_sha256": "dd1599d4d414107383fd534701c3c7e58a4eb861a47ab174a405f7a8cc64335e",
+          "regions": 7,
+          "private_Move": "capture-onlybit3, FROM119, quietpromotions0, TT17 unchanged",
+          "source_delta": -75,
+          "whole_delta": -16,
+          "new_native_identity": true,
+          "predecessor_expected": {
+            "source_bytes": 8677,
+            "source_sha256": "dd1599d4d414107383fd534701c3c7e58a4eb861a47ab174a405f7a8cc64335e",
+            "native_bytes": 18576,
+            "native_sha256": "468453a045aba29632081060cda63b5575210e6e9dbdb6251e1af6556d90b9a3",
+            "whole_bytes": 4402,
+            "whole_sha256": "10c5e2d49b1024a243f9e8252a0d34d9a7a567e9e025ded633cb29467e72b78e",
+            "bootstrap_sha256": "4815a264fa010104f3daf5a151a4a79b365c7cd2407c48f2110dfce14b1c7f9b"
+          },
+          "cost_FINAL_sha256": "48bed00cc7c2cd1b3111ba64ed827794c3e9f5d8066cc9f8d7213e0c0db25441",
+          "actual_cost_sha256": "bce8df7a354daaf83e685fb0017e023ccd28831132f08979fc338f651d7b5c59",
+          "positive_FINAL_sha256": "e9c88f93b578c77cdfb2faf2812d6040ac6437d786c14cfdd4cb98b1453bf7e6",
+          "actual_positive_receipt_sha256": "6f772c8f8c50b7beab200c2ad9b091834979c05bac5dd8de497c10ee9d00932a",
+          "scope": "material-only actual old/new function units, independent legal/material/minimax/witness and bit3-only normalized TT/Worker equality; boundeddriverprojection not productmain/pool/wrapper",
+          "normal_status": "completed once; producing30 and actual normal/runtime preserved; final alternate metadata is not another execution",
+          "full_policy_default_DEV_and_all_existing_stages_unchanged": true,
+          "normal_external_or_experiment_dependency": false
+        },
+        "predecessor_4402_normal_build_runtime": {
           "complete": true,
           "build": {
             "path": "/home/stemxstudio/rove4k-f-material-names-normal-20261021/build.json",
@@ -1229,6 +1257,58 @@
           "focused_model_proof_reuse": "unchanged entire native468453; predecessor material proof/executions retain their original identity",
           "cancellation_causality": "unproven",
           "fresh_DEVengine_core_fixture_games_benchmarks_training": 0,
+          "forced_cleanup": 0,
+          "active_handles": 0,
+          "post_execution_changes": "README and alternate receipt metadata only"
+        },
+        "normal_build_runtime": {
+          "complete": true,
+          "build": {
+            "path": "/home/stemxstudio/rove4k-f-material-capture-normal-20261021/build.json",
+            "bytes": 124096,
+            "sha256": "3852c728dd5bd77e2d1d707d11bbbb1ea6fa610370fdf6afb0fd6d71e971a086"
+          },
+          "runtime": {
+            "path": "/home/stemxstudio/rove4k-f-material-capture-runtime-20261021/runtime.json",
+            "bytes": 13198,
+            "sha256": "9f5a0baff79b69adb56cf4310ded5ae82a3795cd3c3ff3d4b9a2cbbb3dfe382c"
+          },
+          "readback": {
+            "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-material-capture-promotion-20261021-evidence/readback.json",
+            "bytes": 1823,
+            "sha256": "296017be8afa79b097ba2b0446ff7665dbfa08f97491b12d866bc67c2eb32668"
+          },
+          "producing_source30": {
+            "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-material-capture-promotion-20261021-evidence/producing-source30.json",
+            "bytes": 8510,
+            "sha256": "3401147167e51a4bfa73839d52d9a4127b702ef5c63fcad6b8891308874c5e6d"
+          },
+          "ordinary_producing_recipe": {
+            "path": "/home/stemxstudio/rove4k-f-material-capture-normal-20261021/inputs/recipe.json",
+            "bytes": 77374,
+            "sha256": "1a48e4705d0257136fbfbd0f6ce79718809722fbbe038d30bbf9e92dda40f2ed"
+          },
+          "effective_selected_recipe": {
+            "path": "/home/stemxstudio/rove4k-f-material-capture-normal-20261021/selected-verifier/engines/compact/tiny-entry-f/recipe.json",
+            "bytes": 86683,
+            "sha256": "cf47333a89f332b6b3da23d28882cef5de42172129ccc0102cae20fba71c6902"
+          },
+          "predecessor_source29": {
+            "bytes": 8212,
+            "sha256": "514811df8b7aa51e300d8fe3d614a87151c93e6de70162a69c81ef400bc61713"
+          },
+          "shipping_attempts": 2,
+          "unchanged_full_reference_DEV_attempts": 2,
+          "quit_EOF_sessions": 2,
+          "legal_GO_epochs": 8,
+          "cost_source_native_bootstrap_whole_all_byte_equal": true,
+          "default_full_expected_and_qualified_receipt_unchanged": true,
+          "default_full_source9242_checked_twice": true,
+          "full_shipping_native_runtime_rerun": false,
+          "scope": "sole selected material4386 wrapper restoration/finite legal clocks/three stable startup TIDs/private path+helper absence/closing results/readers/physical exit; unchanged full DEV byte reproduction only",
+          "focused_proof_scope": "new material capture-specific old/new ASanUBSan units and independent legal/material/minimax/witness; separate boundeddriverprojection, no prior fullF proof composition",
+          "cancellation_causality": "unproven",
+          "fresh_DEVengine_new_core_games_benchmarks_negative_training": 0,
           "forced_cleanup": 0,
           "active_handles": 0,
           "post_execution_changes": "README and alternate receipt metadata only"
