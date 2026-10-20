@@ -1,0 +1,355 @@
+{
+  "status": "one exact first-cost authorized; no functional qualification/normal promotion",
+  "head": "92dfc34006b59e4e6eddafce35a3d38d610c539c",
+  "candidate_count_per_family": 1,
+  "transform": {
+    "bytes": 14692,
+    "sha256": "c9c970d72a380f35cff4cf1ff1ff2848caf3e884554a4a88591e92d9f35448bf"
+  },
+  "policy": "NUL-free; <=32767 bytes before LF/final EOF, CR-inclusive; exact first command token, space/tab/CR/LF delimiters; whole ASCII unsigned decimal <=LLONG_MAX; exact four clock keys, last own-side value wins, unknown tokens have no arity",
+  "families": {
+    "B": {
+      "canonical": {
+        "bytes": 28953,
+        "sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6"
+      },
+      "normal_recipe_raw": {
+        "bytes": 12039,
+        "sha256": "941978213bd96351df847e6eb390e4fb2e2523880c6b90e8af723ee997c4cf39"
+      },
+      "normal_expected_reused_as_input_pin": {
+        "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+        "source_bytes": 12148,
+        "source_sha256": "6c9081115f5caf209cacc502e19035247a3178aef86c4912fb3a923a651904ce",
+        "native_bytes": 26392,
+        "native_sha256": "66488f9d3b86049bfa739b89066b947788c6d88c8050ea41065f93982b4fbfaa",
+        "whole_bytes": 5546,
+        "whole_sha256": "70e5ea64a97efaa84385a429bca84bad2924a5256c478973cc2798a4b070ad2f",
+        "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
+        "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
+        "bootstrap_sha256": "75fc23bf8f147366affe037bc6cb0ea8f6a5514251c1897e168be9b3788e0f0c"
+      },
+      "input_shipping_source_path": "/home/stemxstudio/rove4k-tiny-b-see-incoming-20261020/first-cost/main.c",
+      "source_stage": "after current B incomingSEE, C core+SIMD, or E core; all earlier guards unchanged",
+      "candidate_shipping_source": {
+        "bytes": 11829,
+        "sha256": "11a32cc6c48ad16856e7968c5ba91456257c1b249590f0aa71a371d2fd276a93"
+      },
+      "dual_readable_source": {
+        "bytes": 32312,
+        "sha256": "206df7aae4b10d7c743cd4f9ab35c404373a0af7847d4faf054ce657ef46a4cc"
+      },
+      "old_DEV_body_selection_exact": true,
+      "actual_DEV_tuple_verified": false,
+      "readable_exact_inverse": true,
+      "shipping_exact_inverse": true,
+      "shipping_complement_bytes": 9684,
+      "shipping_complement_sha256": "1905094ae03831326b3c67c7de3449595d82f7010edfda1b86bddf79c593d4a2",
+      "native_measured": false,
+      "whole_measured": false,
+      "baseline_files": {
+        "source": {
+          "path": "/home/stemxstudio/rove4k-tiny-b-see-incoming-20261020/first-cost/main.c",
+          "bytes": 12148,
+          "sha256": "6c9081115f5caf209cacc502e19035247a3178aef86c4912fb3a923a651904ce"
+        },
+        "native": {
+          "path": "/home/stemxstudio/rove4k-tiny-b-see-incoming-20261020/first-cost/native/x",
+          "bytes": 26392,
+          "sha256": "66488f9d3b86049bfa739b89066b947788c6d88c8050ea41065f93982b4fbfaa"
+        },
+        "whole": {
+          "path": "/home/stemxstudio/rove4k-tiny-b-see-incoming-20261020/first-cost/x",
+          "bytes": 5546,
+          "sha256": "70e5ea64a97efaa84385a429bca84bad2924a5256c478973cc2798a4b070ad2f"
+        },
+        "bootstrap": {
+          "path": "/home/stemxstudio/rove4k-tiny-b-see-incoming-20261020/first-cost/bootstrap.py",
+          "bytes": 13213,
+          "sha256": "75fc23bf8f147366affe037bc6cb0ea8f6a5514251c1897e168be9b3788e0f0c"
+        }
+      },
+      "canonical_path": "engines/compact/tiny-entry-b/engine.c",
+      "template": "engines/compact/tiny-entry-b/bootstrap.py.in",
+      "prefix": "engines/compact/tiny-entry-b/launcher.sh",
+      "compiler": [
+        "cc",
+        "-std=c11",
+        "-Os",
+        "-pthread",
+        "-DWORKERS=2",
+        "-DTT_BITS=18",
+        "-DDEV=0",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "x"
+      ],
+      "compression": {
+        "format": "lzma-alone",
+        "filter": "LZMA1",
+        "preset": 9,
+        "extreme": true,
+        "lc": 2,
+        "lp": 0,
+        "pb": 0,
+        "check": "NONE",
+        "mf": "BT4",
+        "dictionary_bytes": 67108864,
+        "nice_len": 32
+      }
+    },
+    "C": {
+      "canonical": {
+        "bytes": 26692,
+        "sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b"
+      },
+      "normal_recipe_raw": {
+        "bytes": 16948,
+        "sha256": "750aa405d5434179c63309bf4ccfe71aa1040d50eef3f0029fa8605057cef874"
+      },
+      "normal_expected_reused_as_input_pin": {
+        "readable_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
+        "source_bytes": 11086,
+        "source_sha256": "90a566c5e814cf87dd38f92f40ce8fe7115c4d4d07f75d9ff0981ffaae1fbc28",
+        "native_bytes": 26376,
+        "native_sha256": "c32772b3d1bb9ce985bfdecbd31dc4cc5fd06721f03aa6259a4021a4fbb0c788",
+        "whole_bytes": 5245,
+        "whole_sha256": "de57a0a21e8ecb2f958207c3e71bcc7d791448340acc103faaea5f1010433933",
+        "bootstrap_sha256": "275e40359feee02e321f4619f313a6a31f0a9b8f4d3362bfe705472b89055cda",
+        "dev_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
+        "dev_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c"
+      },
+      "input_shipping_source_path": "/home/stemxstudio/rove4k-c-feature-dot-normal-20261020-v1/C-build/main.c",
+      "source_stage": "after current B incomingSEE, C core+SIMD, or E core; all earlier guards unchanged",
+      "candidate_shipping_source": {
+        "bytes": 10886,
+        "sha256": "d6265b2cabf0dfbe96744acc9cbfcccfe29c0a292901b326ee2f1f061b93aeca"
+      },
+      "dual_readable_source": {
+        "bytes": 29558,
+        "sha256": "a24ff07fee3a7e143bf78cdbf03a6fccf668849085ae8368495c5784c4b3004f"
+      },
+      "old_DEV_body_selection_exact": true,
+      "actual_DEV_tuple_verified": false,
+      "readable_exact_inverse": true,
+      "shipping_exact_inverse": true,
+      "shipping_complement_bytes": 8938,
+      "shipping_complement_sha256": "80a414037cbf473cda07123f2ed6716a9f545d0be9f1a2b955da4930fa3a97db",
+      "native_measured": false,
+      "whole_measured": false,
+      "baseline_files": {
+        "source": {
+          "path": "/home/stemxstudio/rove4k-c-feature-dot-normal-20261020-v1/C-build/main.c",
+          "bytes": 11086,
+          "sha256": "90a566c5e814cf87dd38f92f40ce8fe7115c4d4d07f75d9ff0981ffaae1fbc28"
+        },
+        "native": {
+          "path": "/home/stemxstudio/rove4k-c-feature-dot-normal-20261020-v1/C-build/native/x",
+          "bytes": 26376,
+          "sha256": "c32772b3d1bb9ce985bfdecbd31dc4cc5fd06721f03aa6259a4021a4fbb0c788"
+        },
+        "whole": {
+          "path": "/home/stemxstudio/rove4k-c-feature-dot-normal-20261020-v1/C-build/x",
+          "bytes": 5245,
+          "sha256": "de57a0a21e8ecb2f958207c3e71bcc7d791448340acc103faaea5f1010433933"
+        },
+        "bootstrap": {
+          "path": "/home/stemxstudio/rove4k-c-feature-dot-normal-20261020-v1/C-build/bootstrap.py",
+          "bytes": 12161,
+          "sha256": "275e40359feee02e321f4619f313a6a31f0a9b8f4d3362bfe705472b89055cda"
+        }
+      },
+      "canonical_path": "engines/compact/tiny-entry-c/engine.c",
+      "template": "engines/compact/tiny-entry-c/bootstrap.py.in",
+      "prefix": "engines/compact/tiny-entry-c/launcher.sh",
+      "compiler": [
+        "cc",
+        "-std=c11",
+        "-Os",
+        "-pthread",
+        "-DWORKERS=2",
+        "-DTT_BITS=18",
+        "-mavx2",
+        "-DDEV=0",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "x"
+      ],
+      "compression": {
+        "format": "lzma-alone",
+        "filter": "LZMA1",
+        "preset": 9,
+        "extreme": true,
+        "lc": 2,
+        "lp": 0,
+        "pb": 0,
+        "check": "NONE",
+        "mf": "BT4",
+        "dictionary_bytes": 67108864,
+        "nice_len": 64
+      }
+    },
+    "E": {
+      "canonical": {
+        "bytes": 28001,
+        "sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712"
+      },
+      "normal_recipe_raw": {
+        "bytes": 12301,
+        "sha256": "ac7f779f412e41aa7ae6ba718a4165da45ace3945c40d78e13861200713e0c7a"
+      },
+      "normal_expected_reused_as_input_pin": {
+        "readable_bytes": 28001,
+        "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+        "source_bytes": 11703,
+        "source_sha256": "d3368da33e992e3abdc3bbcab8917edaff8ef751fe7948d11364251a5f6f9ff8",
+        "native_bytes": 26384,
+        "native_sha256": "851c4c9fc1a3f0696de66ff54e4659de375507ad455c86204e0600912f51b137",
+        "whole_bytes": 5366,
+        "whole_sha256": "d043584483ab1e0bded0f8e04ad61931f063976d8aec1d2897c69f09595a4621",
+        "bootstrap_sha256": "dd6d482c0eddc4f94e028818f749722957baab0684661aa2e317578b9588d437",
+        "dev_source_bytes": 21314,
+        "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
+        "dev_native_bytes": 31376,
+        "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094"
+      },
+      "input_shipping_source_path": "/home/stemxstudio/rove4k-ce-core-normal-20261020-v1/E-build/main.c",
+      "source_stage": "after current B incomingSEE, C core+SIMD, or E core; all earlier guards unchanged",
+      "candidate_shipping_source": {
+        "bytes": 11378,
+        "sha256": "761e301cdad7b1dcf15da6458959612606e93be8b863ba2072e2ba509cb857f9"
+      },
+      "dual_readable_source": {
+        "bytes": 31360,
+        "sha256": "1720e6cfc1ebf548ccb5a3d53199a4937cf6644fb48e6d5b22db1ede57ab1273"
+      },
+      "old_DEV_body_selection_exact": true,
+      "actual_DEV_tuple_verified": false,
+      "readable_exact_inverse": true,
+      "shipping_exact_inverse": true,
+      "shipping_complement_bytes": 9058,
+      "shipping_complement_sha256": "1a8abd4e9b144ad9822ca2cabde07339f9940dd6707e598b0c619bf3faf889ae",
+      "native_measured": false,
+      "whole_measured": false,
+      "baseline_files": {
+        "source": {
+          "path": "/home/stemxstudio/rove4k-ce-core-normal-20261020-v1/E-build/main.c",
+          "bytes": 11703,
+          "sha256": "d3368da33e992e3abdc3bbcab8917edaff8ef751fe7948d11364251a5f6f9ff8"
+        },
+        "native": {
+          "path": "/home/stemxstudio/rove4k-ce-core-normal-20261020-v1/E-build/native/x",
+          "bytes": 26384,
+          "sha256": "851c4c9fc1a3f0696de66ff54e4659de375507ad455c86204e0600912f51b137"
+        },
+        "whole": {
+          "path": "/home/stemxstudio/rove4k-ce-core-normal-20261020-v1/E-build/x",
+          "bytes": 5366,
+          "sha256": "d043584483ab1e0bded0f8e04ad61931f063976d8aec1d2897c69f09595a4621"
+        },
+        "bootstrap": {
+          "path": "/home/stemxstudio/rove4k-ce-core-normal-20261020-v1/E-build/bootstrap.py",
+          "bytes": 12768,
+          "sha256": "dd6d482c0eddc4f94e028818f749722957baab0684661aa2e317578b9588d437"
+        }
+      },
+      "canonical_path": "engines/compact/tiny-entry-e/engine.c",
+      "template": "engines/compact/tiny-entry-e/bootstrap.py.in",
+      "prefix": "engines/compact/tiny-entry-e/launcher.sh",
+      "compiler": [
+        "cc",
+        "-std=c11",
+        "-Os",
+        "-pthread",
+        "-DWORKERS=2",
+        "-DTT_BITS=18",
+        "-DDEV=0",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "x"
+      ],
+      "compression": {
+        "format": "lzma-alone",
+        "filter": "LZMA1",
+        "preset": 9,
+        "extreme": true,
+        "lc": 2,
+        "lp": 0,
+        "pb": 0,
+        "check": "NONE",
+        "mf": "BT4",
+        "dictionary_bytes": 67108864,
+        "nice_len": 32
+      }
+    }
+  },
+  "normal_build_design": {
+    "canonical_source_unchanged": true,
+    "DEV": "select exact old DEV bodies from dual readable before existing specialization; actual old tuple not generated yet",
+    "shipping": "keep current canonical through all existing guards then pure transform_source at final stage",
+    "forbidden_normal_inputs": [
+      "experiment",
+      "external receipt",
+      "generated old engine",
+      "Clang/AST"
+    ],
+    "profile": "unchanged fixed2 workers/18 TT bits/128 PLY",
+    "compiler_codec_launcher_changed": false
+  },
+  "executions": {
+    "C_AST": 0,
+    "C_preprocessing": 0,
+    "C_compiler": 0,
+    "codec": 0,
+    "native_engine": 0,
+    "game": 0,
+    "benchmark": 0,
+    "normal_builder": 0,
+    "DEV_generation": 0,
+    "Git": 0
+  },
+  "cost": {
+    "tracked_inputs": {
+      "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
+      "engines/experiments/tiny-source-codec/decode.py": "c43303b6524321b24dfba069afc9a135998e408503740ea8d9fbcfb9bb5e9f5a",
+      "engines/compact/tiny-entry-b/engine.c": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+      "engines/compact/tiny-entry-b/recipe.json": "941978213bd96351df847e6eb390e4fb2e2523880c6b90e8af723ee997c4cf39",
+      "engines/compact/tiny-entry-b/bootstrap.py.in": "0402f63d44e66d57174079672762414a2324f8dd8c2b272fe34f49b68e45edbc",
+      "engines/compact/tiny-entry-b/launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
+      "engines/compact/tiny-entry-c/engine.c": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
+      "engines/compact/tiny-entry-c/recipe.json": "750aa405d5434179c63309bf4ccfe71aa1040d50eef3f0029fa8605057cef874",
+      "engines/compact/tiny-entry-c/bootstrap.py.in": "68e4544370fdd2ca3d240963a0782004f955930187c3d8edfda78cc2f59b7f6a",
+      "engines/compact/tiny-entry-c/launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
+      "engines/compact/tiny-entry-e/engine.c": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+      "engines/compact/tiny-entry-e/recipe.json": "ac7f779f412e41aa7ae6ba718a4165da45ace3945c40d78e13861200713e0c7a",
+      "engines/compact/tiny-entry-e/bootstrap.py.in": "0402f63d44e66d57174079672762414a2324f8dd8c2b272fe34f49b68e45edbc",
+      "engines/compact/tiny-entry-e/launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
+    },
+    "frozen_pure_helpers": [
+      "engines/compact/tiny-a/pack_stream.py",
+      "engines/experiments/tiny-source-codec/decode.py"
+    ],
+    "native_compiles_per_family": 1,
+    "codec_compressions_per_family": 1,
+    "baseline_copies": 0,
+    "baseline_compiles": 0,
+    "families_sequential": [
+      "B",
+      "C",
+      "E"
+    ],
+    "C_AST": 0,
+    "compiler_preprocessing": 0,
+    "engine_runs": 0,
+    "DEV_generations": 0,
+    "games": 0,
+    "benchmarks": 0,
+    "strict_decoder": "pinned existing restricted Python AST literal recovery only"
+  }
+}

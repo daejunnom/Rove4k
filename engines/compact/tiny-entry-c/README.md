@@ -1,7 +1,7 @@
 # Maintained minimal C entry
 
-The selected complete shipping file is **5,245 bytes**, down 99 from 5,344 and
-**1,149 bytes above 4,096**. Ordinary pinned source inputs regenerate its C,
+The selected complete shipping file is **5,173 bytes**, down 72 from 5,245 and
+**1,077 bytes above 4,096**. Ordinary pinned source inputs regenerate its C,
 native ELF, bootstrap and wrapper. Historical reports and artifacts are
 qualification metadata, never normal generation inputs.
 
@@ -22,7 +22,7 @@ python3 -B engines/compact/tiny-entry-c/verify.py --build /absolute/C-build --ou
 Output directories must be new, absolute and outside Git. A builder call
 regenerates shipping twice and optional DEV twice. The unchanged verifier runs
 one quit and one EOF wrapper, each performing its ordinary source restoration
-and compilation. The unchanged `fresh.py` can separately archive the 21-file
+and compilation. The unchanged `fresh.py` can separately archive the 22-file
 closure and execute two extractions. No fresh/archive-execution check is implied
 by a direct builder call, and fresh is not run for this promotion.
 
@@ -59,21 +59,23 @@ capture ordering and the scalar reference. Board, put, make, EP, castle,
 promotion, hash/context, TT, search and lifecycle lie in the preserved byte
 complement. There is no new Board cache or shared mutable evaluator state.
 Normal generation needs no experiment source, receipt, generated artifact,
-Clang, external model or network. DEV bypasses every shipping-only stage and
-requires its SIMD metadata to remain None.
+Clang, external model or network. DEV bypasses spelling/core/SIMD shipping stages
+and requires SIMD metadata None. The shared input helper selects the exact old
+DEV bodies without applying the shipping policy.
 
 | Form | Bytes | SHA-256 |
 | --- | ---: | --- |
-| Shipping C | 11,086 | `90a566c5e814cf87dd38f92f40ce8fe7115c4d4d07f75d9ff0981ffaae1fbc28` |
-| Native ELF | 26,376 | `c32772b3d1bb9ce985bfdecbd31dc4cc5fd06721f03aa6259a4021a4fbb0c788` |
-| Complete file | 5,245 | `de57a0a21e8ecb2f958207c3e71bcc7d791448340acc103faaea5f1010433933` |
-| Bootstrap | 12,161 | `275e40359feee02e321f4619f313a6a31f0a9b8f4d3362bfe705472b89055cda` |
+| Shipping C | 10,886 | `d6265b2cabf0dfbe96744acc9cbfcccfe29c0a292901b326ee2f1f061b93aeca` |
+| Native ELF | 26,392 | `d23185a4b9e982582dca8fc0cb4d9527c3d1ff37a4835c05affd35dd378dcc6c` |
+| Complete file | 5,173 | `52d1c1c4c4b682ded06b138fd807f1202b2141efe9ef722658f5b81c3d18c9fc` |
+| Bootstrap | 12,161 | `381d29d7febf9ee304aed9697d5230e59059e620b268a77aedef637f70bd7617` |
 
-The native is a new full identity, 32 bytes smaller than the immediate control.
-No old-full-native equality or metadata exception is claimed. Actual codegen
-places YMM `vpmaddwd`, i32 reduction and side multiplication in search `P` before
-evaluation/QS use. This is a static returned-score dependency check, not a speed
-or functional-execution measurement.
+The input-profile native is a new full identity, 16 bytes larger than the
+immediate control. No old-full-native equality or metadata exception is claimed.
+Prior feature-dot codegen on c32772b3 placed YMM `vpmaddwd`, i32 reduction and side multiplication in search `P` before
+evaluation/QS use. The input profile preserves that complete evaluator/search
+source complement; that prior disassembly is not a new codegen execution. It
+does not establish speed or strength.
 
 Packaging remains one fixed LZMA1 ALONE 9-extreme/lc2/lp0/pb0/BT4/64MiB/nice64
 stream with the 77-byte prefix. ALONE has no checksum; the complete cost includes
@@ -106,3 +108,54 @@ Per-node `value()`/feature construction may change speed. No benchmark, playing
 strength, target scaling or 4KiB eligibility is claimed. Cancellation causality
 remains unproven. Generated artifacts, fixtures, failure logs and receipts stay
 outside Git.
+## Fixed shared shipping input profile
+
+The exact current shipping source passed one focused fixture and one actual
+text-only launcher before normal generation. The direct normal builder then
+reproduced shipping twice and DEV twice, and the unchanged verifier passed
+quit/EOF two sessions with eight legal GO. Producing source/recipe and final
+qualification metadata are preserved separately.
+
+The new ordinary shared fixed_input_profile_bce.py runs only after this family's
+current final shipping stage. The original canonical and every previous guard,
+model/SIMD/SEE/search/TT stage remain unchanged. Its dual readable selects the
+exact old DEV bodies; old DEV source/full-native identities remain actual build
+gates. Existing helpers, compiler/profile/codec/bootstrap/launcher and unchanged
+verify/fresh bodies are preserved. No experiment, receipt, generated engine or
+Clang is a normal input. Closure gains this one ordinary helper.
+
+Shipping explicitly accepts NUL-free text, max32767 bytes before LF/finalEOF
+including CR, space/tab/CR/LF delimiters and exact first command tokens. Overlong
+lines drain/drop; VT/FF are not delimiters and embedded NUL is outside contract.
+Numbers are whole ASCII decimal0..LLONG_MAX; four exact clock keys consume one
+value, last own-side values win in either order, absent own clock defaults1000ms
+and present invalid/zero/missing time gives at least1ms. Existing budget caps,
+family worker reset, startup/publication/wait/shutdown and transactional replay
+remain. B/E share nullable legal query+made child; C already had that interface.
+Simple-command extras/leading delimiters/empty moves are declared policy changes,
+not malformed-reader equivalence.
+
+Earlier core/SEE/SIMD qualification paragraphs above describe their exact
+pre-input images and unchanged source responsibilities. The input-profile
+functional/text checks and normal new-image checks are separate receipts; no
+earlier full native identity or parser execution is inherited automatically.
+
+Focused input evidence: each family25 numeric,26 manually isolated GO,25 replay
+transactions,6 direct special roots/96 complete legal children, first legal
+nullable queries and all four promotions. B additionally rebuilt bitboards from
+mailbox; C/E have no shipping v cache and evaluator execution is not inferred
+from these state checks. Workerless manual GO is field publication evidence,
+not a physical pool run. One actual text-only session passed8 ingress boundaries
+with search GO0, exact new native image,3 persistent startup TIDs and EOF cleanup.
+No separate experimental quit/EOF selected sessions were repeated; the unchanged
+normal verifier below owns that check.
+
+Current normal input-profile build receipt SHA-256: `d009eb2fce9e758da78042e8541b346c09439ac8b9a2c93959cb0921452b219b`.
+Current normal selected runtime receipt: `8d644dd4f84bcd551d15af3b46de5e7115052dfe723c0286b5ac9c41cb0d9c8b`.
+The helper's actual_DEV_tuple_verified=False reports the pure byte API's scope;
+the caller's actual generation compared old DEV source/full-native identities
+and passed twice. No DEV engine, fresh extraction, game or benchmark ran.
+Cancellation causality remains unproven. Runtime restored-image, persistent
+startup TID, absent helpers/private paths and physical exit were observed;
+normal compiler descendants were not separately observed by its unchanged
+compile helper. This is a new full native class with no metadata exception.

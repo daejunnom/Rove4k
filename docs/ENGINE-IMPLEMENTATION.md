@@ -179,10 +179,10 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
 | A | 4,766 B | 670 B | Order-independent text profile, shared startup/query, bound names and original ALONE |
-| B | 5,546 B | 1,450 B | Incoming-move legal SEE, hybrid attackers/singular, bound names and ALONE |
-| C | 5,245 B | 1,149 B | Real AVX2 residual-feature dot, fixed TT/sort/clamp specialization, bound names and ALONE |
+| B | 5,461 B | 1,365 B | Shared bounded text/query profile, incoming-move legal SEE, hybrid attackers/singular and ALONE |
+| C | 5,173 B | 1,077 B | Shared bounded text profile, real AVX2 residual-feature dot, fixed TT/sort/clamp specialization and ALONE |
 | D scalar / HQ | 6,272 / 6,452 B | 2,176 / 2,356 B | Own context ELF, single-step residual leapers, worker reset and guarded BCJ restoration |
-| E | 5,366 B | 1,270 B | All 21 untrained coefficients, fixed TT/sort/clamp specialization, bound names and ALONE |
+| E | 5,281 B | 1,185 B | Shared bounded text/query profile, all 21 untrained coefficients, fixed TT/sort/clamp specialization and ALONE |
 | F | 4,735 B | 639 B | Full-depth MTD(f), shared EP legality, order-independent text profile and fixed ALONE |
 
 The separate Rust D native images are 16,816 bytes each. Their independent
@@ -3444,7 +3444,7 @@ had that query and retains it byte for byte. Search, worker reset, SEE,
 model, SIMD and state updates remain outside the changed regions.
 
 One fixed native/ALONE cost per family produces the following actual files.
-These costs are candidates until normal builder/runtime qualification closes.
+That first-cost stage is distinct from the later normal qualification below.
 
 | Family | Shipping C | Complete file | Complete-file change |
 | --- | ---: | ---: | ---: |
@@ -3466,6 +3466,34 @@ each, with zero search GO; receipt is
 `05a3f10389604e6e5773bd08a56ed6a0de4461a46767e28356a46ea5089a8452`.
 The normal verifier alone will handle the identical whole's quit/EOF search
 sessions; no duplicate focused quit/EOF qualification is added.
+
+Normal qualification then passes all three entries. One builder per family
+reproduces shipping twice and DEV twice, with all source/native/whole/bootstrap
+bytes matching the measured candidates. The full previous DEV source/native
+tuples actually match both new attempts. The new pure shared ordinary helper
+runs last after each family's existing core/SIMD stage; original canonical
+guards and protected code remain. DEV selects old bodies from the dual
+readable while retaining original canonical bytes for the existing guards.
+Normal generation imports no experiment or external report/Clang installation.
+The ordinary B/C/E closures become 21/22/20 files.
+
+The three unchanged selected verifiers pass six actual quit/EOF sessions and
+24 legal GO, observing the new native images, three stable startup TIDs per
+session, private-path removal, readers and natural physical completion.
+Fresh extraction, extra variants, games and benchmarks remain zero.
+Cancellation causality remains unproven; the unchanged normal compiler helper
+does not separately observe compiler-descendant process-group absence.
+Actual combined normal receipt is
+`243c9017e0fc9ddf225a65363ace9384d46cea397da912319f6afa1bd7b5b92e`.
+B/C/E build receipts are
+`c196fc146544681c216d7542a5ffc90fdb03361f2e769ba86acea2b61d73e424` /
+`d009eb2fce9e758da78042e8541b346c09439ac8b9a2c93959cb0921452b219b` /
+`39e7acb5b988dc1f839ae343355f39d0f17072739186751c83ba0beb6df32d9c`;
+runtime receipts are
+`a20b0f0d1687d1786c63df32d58e8b93cb4211105b87c2292d53a442ff4b2078` /
+`8d644dd4f84bcd551d15af3b46de5e7115052dfe723c0286b5ac9c41cb0d9c8b` /
+`daa28c9ee2fa8c9a20709382366249923eaf6c140d4b28de4ee995c46ace28c0`.
+Producing sources and later qualification metadata are preserved separately.
 
 A separate B candidate changes the declared SEE model to deterministic legal
 LVA for ordering. It selects the least pre-capture piece kind, then the lowest

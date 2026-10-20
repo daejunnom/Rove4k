@@ -1,8 +1,8 @@
 # Maintained minimal E entry
 
 `engine.c` remains the readable canonical program. The selected complete
-shipping file is **5,366 bytes**, **1,270 bytes above 4,096**, down from
-5,400 bytes. Ordinary source inputs regenerate the shipping C, native ELF and
+shipping file is **5,281 bytes**, **1,185 bytes above 4,096**, down from
+5,366 bytes. Ordinary source inputs regenerate the shipping C, native ELF and
 complete wrapper. Historical reports and generated artifacts are metadata only.
 
 On the qualified Linux x86-64 Ubuntu 24.04.4/GCC 13.3.0/binutils 2.42/glibc 2.39/
@@ -16,7 +16,7 @@ python3 -B engines/compact/tiny-entry-e/verify.py --build /absolute/E-build --ou
 Outputs must be new absolute directories outside Git checkouts. A builder call
 independently regenerates shipping twice and optional DEV twice. The unchanged
 verifier opens one quit and one EOF wrapper; each performs its normal source
-compilation/restoration. `fresh.py` can separately archive the 19-file ordinary
+compilation/restoration. `fresh.py` can separately archive the 20-file ordinary
 closure and rebuild two extractions. That command is unchanged and has **not**
 been run for this promotion; direct normal build repetition is a separate check.
 
@@ -58,13 +58,13 @@ is read by normal generation.
 
 | Form | Bytes | SHA-256 |
 | --- | ---: | --- |
-| Shipping C | 11,703 | `d3368da33e992e3abdc3bbcab8917edaff8ef751fe7948d11364251a5f6f9ff8` |
-| Native ELF | 26,384 | `851c4c9fc1a3f0696de66ff54e4659de375507ad455c86204e0600912f51b137` |
-| Complete file | 5,366 | `d043584483ab1e0bded0f8e04ad61931f063976d8aec1d2897c69f09595a4621` |
-| Bootstrap | — | `dd6d482c0eddc4f94e028818f749722957baab0684661aa2e317578b9588d437` |
+| Shipping C | 11,378 | `761e301cdad7b1dcf15da6458959612606e93be8b863ba2072e2ba509cb857f9` |
+| Native ELF | 26,384 | `58b4afd6642260e5fc327cc7ed9c30d59e2ac4f4fb33a5cb1ea64018d6e02a70` |
+| Complete file | 5,281 | `ece61373d390dbc2ea12ec83daaf8bb816a9f6570abd96bedda49374db9183cd` |
+| Bootstrap | — | `1e3d5f7730924b824e13de5d9ce9acc03678cc27c8b764a7c3edca57cc97709c` |
 
-The new complete native is 24 bytes larger than its immediate predecessor and
-has a new full identity. **No metadata or allocated-section exception is used.**
+The input-profile native retains its immediate control's 26,384-byte length
+and has a new full identity. The earlier core image had added 24 bytes. **No metadata or allocated-section exception is used.**
 The earlier private-name/build-ID boundary remains historical ancestry only;
 it does not equate this structurally changed image to any old full native.
 
@@ -92,3 +92,55 @@ No `fresh.py`, broad core matrix or DEV runtime was executed for this promotion.
 never used as generation inputs or relabeled as new full-core acceptance.
 Cancellation causality, playing strength, target scaling and 4 KiB eligibility
 remain unproven. Generated binaries, fixtures, receipts and archives stay outside Git.
+
+## Fixed shared shipping input profile
+
+The exact current shipping source passed one focused fixture and one actual
+text-only launcher before normal generation. The direct normal builder then
+reproduced shipping twice and DEV twice, and the unchanged verifier passed
+quit/EOF two sessions with eight legal GO. Producing source/recipe and final
+qualification metadata are preserved separately.
+
+The new ordinary shared fixed_input_profile_bce.py runs only after this family's
+current final shipping stage. The original canonical and every previous guard,
+model/SIMD/SEE/search/TT stage remain unchanged. Its dual readable selects the
+exact old DEV bodies; old DEV source/full-native identities remain actual build
+gates. Existing helpers, compiler/profile/codec/bootstrap/launcher and unchanged
+verify/fresh bodies are preserved. No experiment, receipt, generated engine or
+Clang is a normal input. Closure gains this one ordinary helper.
+
+Shipping explicitly accepts NUL-free text, max32767 bytes before LF/finalEOF
+including CR, space/tab/CR/LF delimiters and exact first command tokens. Overlong
+lines drain/drop; VT/FF are not delimiters and embedded NUL is outside contract.
+Numbers are whole ASCII decimal0..LLONG_MAX; four exact clock keys consume one
+value, last own-side values win in either order, absent own clock defaults1000ms
+and present invalid/zero/missing time gives at least1ms. Existing budget caps,
+family worker reset, startup/publication/wait/shutdown and transactional replay
+remain. B/E share nullable legal query+made child; C already had that interface.
+Simple-command extras/leading delimiters/empty moves are declared policy changes,
+not malformed-reader equivalence.
+
+Earlier core/SEE/SIMD qualification paragraphs above describe their exact
+pre-input images and unchanged source responsibilities. The input-profile
+functional/text checks and normal new-image checks are separate receipts; no
+earlier full native identity or parser execution is inherited automatically.
+
+Focused input evidence: each family25 numeric,26 manually isolated GO,25 replay
+transactions,6 direct special roots/96 complete legal children, first legal
+nullable queries and all four promotions. B additionally rebuilt bitboards from
+mailbox; C/E have no shipping v cache and evaluator execution is not inferred
+from these state checks. Workerless manual GO is field publication evidence,
+not a physical pool run. One actual text-only session passed8 ingress boundaries
+with search GO0, exact new native image,3 persistent startup TIDs and EOF cleanup.
+No separate experimental quit/EOF selected sessions were repeated; the unchanged
+normal verifier below owns that check.
+
+Current normal input-profile build receipt SHA-256: `39e7acb5b988dc1f839ae343355f39d0f17072739186751c83ba0beb6df32d9c`.
+Current normal selected runtime receipt: `daa28c9ee2fa8c9a20709382366249923eaf6c140d4b28de4ee995c46ace28c0`.
+The helper's actual_DEV_tuple_verified=False reports the pure byte API's scope;
+the caller's actual generation compared old DEV source/full-native identities
+and passed twice. No DEV engine, fresh extraction, game or benchmark ran.
+Cancellation causality remains unproven. Runtime restored-image, persistent
+startup TID, absent helpers/private paths and physical exit were observed;
+normal compiler descendants were not separately observed by its unchanged
+compile helper. This is a new full native class with no metadata exception.
