@@ -54,7 +54,8 @@
     "engines/compact/tiny-entry-e/shipping_core.py": "efaf9d647d012fe70b8d4a659e9faad7cfd5ced61f7ce73240b0c246fe05673e",
     "engines/scripts/fixed_input_profile_bce.py": "cc3c82d2e4f77f7231d4bafaac5f446a9aa5c0320762e0902a6f32ecc5a7209e",
     "engines/compact/tiny-entry-e/shipping_model.py": "181c29b2744b7eca72b0514865e975a71f9f141f7ddeae4b60bab7743a4d39e4",
-    "engines/compact/tiny-entry-e/model19.h": "3f7e2546c72ed4faf3f1257515777b0f0e530bf52c57b7901eae3f4497be26dc"
+    "engines/compact/tiny-entry-e/model19.h": "3f7e2546c72ed4faf3f1257515777b0f0e530bf52c57b7901eae3f4497be26dc",
+    "engines/compact/tiny-entry-e/shipping_types.py": "3d823cfd60985ec24226261b178294f10cc945a032ab5084fe9f3ec9f4781fe9"
   },
   "compression": {
     "format": "lzma-alone",
@@ -72,13 +73,13 @@
   "expected": {
     "readable_bytes": 28001,
     "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
-    "source_bytes": 11105,
-    "source_sha256": "b043eae2df9190c07beaad8c6528aa1a76db1173990eefc2f047875118991052",
+    "source_bytes": 10891,
+    "source_sha256": "29f5f760dfade24efa50f4fd2252bbac91b070ad707972ec2b6f19f1f7f99485",
     "native_bytes": 26416,
     "native_sha256": "5ddcd703a963d73403ce43e596430588e7050e548c0e0221976a038afc93d509",
-    "whole_bytes": 5176,
-    "whole_sha256": "a3a36bdc0de02931b03434e760c983b4d7689ff432229e1c4173d26a6a664db6",
-    "bootstrap_sha256": "97912c3325354eafa584f76f6e70469ec99b9b9f4e41ff5c50df7c4496446e77",
+    "whole_bytes": 5158,
+    "whole_sha256": "d1c1f11c85869f9472b7758ff6337375f763319d2228047365cef3cc66f3d25a",
+    "bootstrap_sha256": "2a0bebd126ad980e857981756d310acdee43d67c89339808a2bdc15fb5b5cc96",
     "dev_source_bytes": 21314,
     "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
     "dev_native_bytes": 31376,
@@ -136,7 +137,7 @@
     "future_parameter_changes": "not admitted without rebinding source and rederiving integer bounds"
   },
   "qualified_receipt": {
-    "scope": "current E19 declared model change: first cost, focused actual shipping-state/inference/order and ordinary normal reproduction plus selected restoration complete; oldDEV21 ancestry is separate",
+    "scope": "fixed type presentation; full-native-identical predecessor core reuse; historical model-specific evidence and current normal runtime remain distinct",
     "model19": {
       "first_cost_sha256": "235659d80b5ebc08f5829c1ce36b7e992b188bcbfcb4a57e42d9419d23d9865f",
       "focused_actual_shipping_sha256": "3b1531a9fb64cd0460f93288cb548c2d702d2e2d1f9529ba3b04f1234f7241b6",
@@ -340,6 +341,69 @@
           "compiler_descendant_absence": "not separately observed by unchanged compile helper"
         }
       }
+    },
+    "pre_type_tokens_scope": "current E19 declared model change: first cost, focused actual shipping-state/inference/order and ordinary normal reproduction plus selected restoration complete; oldDEV21 ancestry is separate",
+    "type_tokens": {
+      "predecessor_expected": {
+        "readable_bytes": 28001,
+        "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+        "source_bytes": 11105,
+        "source_sha256": "b043eae2df9190c07beaad8c6528aa1a76db1173990eefc2f047875118991052",
+        "native_bytes": 26416,
+        "native_sha256": "5ddcd703a963d73403ce43e596430588e7050e548c0e0221976a038afc93d509",
+        "whole_bytes": 5176,
+        "whole_sha256": "a3a36bdc0de02931b03434e760c983b4d7689ff432229e1c4173d26a6a664db6",
+        "bootstrap_sha256": "97912c3325354eafa584f76f6e70469ec99b9b9f4e41ff5c50df7c4496446e77",
+        "dev_source_bytes": 21314,
+        "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
+        "dev_native_bytes": 31376,
+        "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094"
+      },
+      "fixed_map": {
+        "uint64_t": "I",
+        "Move": "T"
+      },
+      "added_typedef_bytes": 19,
+      "ordinary_counts": {
+        "uint64_t": 23,
+        "Move": 21
+      },
+      "protected_type_counts": {
+        "int16_t": 4,
+        "zb": 3
+      },
+      "macro_Move_casts": 3,
+      "admitted_late_includes": [],
+      "source_delta": -214,
+      "whole_delta": -18,
+      "full_native_bytes_equal": true,
+      "metadata_exception": false,
+      "DEV_not_transformed": true,
+      "first_cost_sha256": "2b752446fef060eba9f66851c3cad1d253120f3ee09871bef33937878b9585a7",
+      "cost_FINAL5_inventory_sha256": "7c6a243e28a8698f00615a3510ec24b11d2a003ff70acfdf03c10bf738b85637",
+      "prepared_failures_preserved_sha256": "e1a4ba0e14d86745b2a4fd0730e754627cf2c28978954db58e626590fd5650fd",
+      "normal_input_reads_experiment_report_or_artifact": false,
+      "normal_validation": {
+        "scope": "direct normal generation and unchanged selected restoration/quit/EOF; no fresh/core/game execution",
+        "producing_recipe_sha256": "0e0a2384c05fa1491591807e56fcde835be6006fdff5d3eac8618fccf1791c91",
+        "producing_source_freeze_sha256": "9506a6dd2878046f0135f4567d011a1d210912aa2f4f68c873e1f346f5b76f2e",
+        "normal_build_sha256": "d7744f49379a1efd164fd379f3f1745cf1f21887928321c4838acd1887d4243d",
+        "normal_runtime_sha256": "f17d63b577155e3e1bb403496b0a9fa37c2841cf00d4f833cee9c97c9c30757e",
+        "shipping_attempts": 2,
+        "DEV_attempts": 2,
+        "same_prior_DEV_source_native_with_prior_scope": true,
+        "entire_native_bytes_equal_to_own_predecessor": true,
+        "selected_quit_EOF_sessions": 2,
+        "legal_GO_epochs": 8,
+        "restored_native_exact": true,
+        "startup_TIDs_each": 3,
+        "private_path_no_helper_children_readers_and_physical_exit0": true,
+        "cancellation_causality": "unproven",
+        "normal_ordinary_source_paths": 23,
+        "all_owned_outer_groups_terminal0_absent": true,
+        "fresh_extractions_newcore_games_benchmarks": 0,
+        "metadata_only_after_execution": true
+      }
     }
   },
   "provenance": {
@@ -349,7 +413,14 @@
     "native_identity": "original stdin-compiled ELF class; separate historical file-compiled images are not equated",
     "static_and_scope_replay": "Two exact physical declaration/reference maps after the existing shipping spelling stages; no runtime AST/name allocation; DEV bypasses all shipping stages.",
     "shipping_codec": "Fixed LZMA1 ALONE 9 extreme/lc2/lp0/pb0/BT4/64MiB dictionary/nice 32 and 77-byte launcher; no container checksum or codec sweep.",
-    "shipping_core": "One fixed family-local post-scope source stage: nonzero production TT data sentinel, consumed selection-prefix omission, inactive outer evaluation clamp; C only side-effect-free zero order omission. Exact 2worker/TT18/PLY128 domain, paired readable/source inverse and complement; canonical/DEV/shared guards unchanged."
+    "shipping_core": "One fixed family-local post-scope source stage: nonzero production TT data sentinel, consumed selection-prefix omission, inactive outer evaluation clamp; C only side-effect-free zero order omission. Exact 2worker/TT18/PLY128 domain, paired readable/source inverse and complement; canonical/DEV/shared guards unchanged.",
+    "shipping_type_tokens": {
+      "family_owned_helper": "engines/compact/tiny-entry-e/shipping_types.py",
+      "last_shipping_only": true,
+      "same_underlying_type_layout_canonical_DEV_resources_compiler_transport": true,
+      "full_inverse_and_protected_complement": true,
+      "fixed_header_domain": "sole actual compiler entire native equality; only C fixed late immintrin inclusion admitted"
+    }
   },
   "diagnostic_reference_model": {
     "id": "e-hand-integer-1",

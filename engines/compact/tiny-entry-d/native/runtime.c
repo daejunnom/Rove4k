@@ -147,7 +147,9 @@ static void wait(void){
     atomic_store_explicit(&stopped,1,memory_order_relaxed);
     int count;while((count=atomic_load_explicit(&pending,memory_order_acquire)))futex_wait(&pending,count,1);
 }
-static void clear(void){for(size_t i=0;i<((size_t)1<<TT_BITS);i++){table[i].key=table[i].data=0;atomic_flag_clear(&table[i].lock);}}
+#if DEV
+static void clear(void){memset(table,0,((size_t)1<<TT_BITS)*sizeof *table);}
+#endif
 static void set_position(char *input){
     const char *cursor=input;Span token=scan(&cursor);
     Board b,c;uint64_t keys[HISTORY];int n=1;
@@ -245,7 +247,7 @@ static void stats(void){
 #endif
 int main(void){
     int created=0,status=0;char line[32768];
-    table=allocate(((size_t)1<<TT_BITS)*sizeof *table);if(!table)return 2;clear();start(&position);game_keys[0]=position.h;game_length=1;
+    table=allocate(((size_t)1<<TT_BITS)*sizeof *table);if(!table)return 2;start(&position);game_keys[0]=position.h;game_length=1;
     atomic_store_explicit(&pending,WORKERS,memory_order_relaxed);
     for(;created<WORKERS;created++){
         workers[created].id=created;

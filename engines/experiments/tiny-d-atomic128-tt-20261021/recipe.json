@@ -1,0 +1,167 @@
+{
+  "scope": "one full64key/payload atomic16 TT source candidate; cost only, no TT/target execution",
+  "execution_isa_required": "Linux x86-64 SSE4.2 CRC32 + CX16; no generic-x86 compatibility claim",
+  "profile": {
+    "workers": 2,
+    "tt_bits": 18,
+    "ply": 128,
+    "dev": 0
+  },
+  "source_sha256": {
+    "tiny.h": "e19749eb3315253e04171b89b8188df7e0db6b39ec4eb495187a6e158836823f",
+    "board.c": "d412aa04f0609c0b10217d021f18fc2a888b863ece09064ffd9ad02a337963db",
+    "search.c": "48e0f21fee8091f1e5c5d08d606740f6ff8c56778a550af2bcfc282d655d974c",
+    "runtime.c": "51902e800066562f7dbc5d240db57a6635b20c74ed8fede3a4cd71329fc62a38",
+    "hq.h": "ad66a03cef5288010c4377b81ee3661320195545aee6c664a42d3828bfc8b412",
+    "hq.c": "50b246280ac1f0b9e1f20834f302b31e30221101abd979bbdc146fcae7c12b5f",
+    "start.S": "4a6021518cfe67bee9e42806b596f4f0837e3e93487b1acfa115158ea019ba5b",
+    "image.ld": "38756c865914b52432572864446fcc58b791dfb508af8a33156d5c190c01044b"
+  },
+  "reference_packer_sha256": "dec913164c4cfdda5857554f96fd6eefeb58bb9a6528a0b91172a7a1fbe7a829",
+  "changes": [
+    {
+      "file": "tiny.h",
+      "old": "typedef struct { atomic_flag lock; uint64_t key,data; } Entry;",
+      "new": "typedef struct { _Alignas(16) uint64_t key; uint64_t data; } Entry;\n_Static_assert(sizeof(Entry)==16 && _Alignof(Entry)==16 &&\n               offsetof(Entry,key)==0 && offsetof(Entry,data)==8,\"atomic128 TT layout\");"
+    },
+    {
+      "file": "search.c",
+      "old": "/* A slot is acquired without waiting. Contention is a miss, never a torn\n * key/payload publication. Search workers share slots, not mutable heuristics. */\nstatic uint64_t probe(uint64_t key,int write,uint64_t data){\n    Entry *e=table+(key&((1u<<TT_BITS)-1));\n    if(atomic_flag_test_and_set_explicit(&e->lock,memory_order_acquire))return 0;\n    if(write)e->key=key,e->data=data;\n    else data=e->key==key?e->data:0;\n    atomic_flag_clear_explicit(&e->lock,memory_order_release);\n    return data;\n}",
+      "new": "/* Full key/payload pairs use aligned atomic16 operations. One write CAS may\n * lose to another publisher; no lock state, retry or partial key is used. */\nstatic uint64_t probe(uint64_t key,int write,uint64_t data){\n    Entry *e=table+(key&((1u<<TT_BITS)-1));\n    uint64_t lo=0,hi=0;\n    __asm__ volatile(\"lock cmpxchg16b %0\":\"+m\"(*e),\"+a\"(lo),\"+d\"(hi):\"b\"(0ull),\"c\"(0ull):\"cc\",\"memory\");\n    if(write){\n        __asm__ volatile(\"lock cmpxchg16b %0\":\"+m\"(*e),\"+a\"(lo),\"+d\"(hi):\"b\"(key),\"c\"(data):\"cc\",\"memory\");\n    }else data=lo==key?hi:0;\n    return data;\n}"
+    },
+    {
+      "file": "runtime.c",
+      "old": "static void clear(void){for(size_t i=0;i<((size_t)1<<TT_BITS);i++){table[i].key=table[i].data=0;atomic_flag_clear(&table[i].lock);}}",
+      "new": "#if DEV\nstatic void clear(void){memset(table,0,((size_t)1<<TT_BITS)*sizeof *table);}\n#endif"
+    },
+    {
+      "file": "runtime.c",
+      "old": "table=allocate(((size_t)1<<TT_BITS)*sizeof *table);if(!table)return 2;clear();start(&position);",
+      "new": "table=allocate(((size_t)1<<TT_BITS)*sizeof *table);if(!table)return 2;start(&position);"
+    }
+  ],
+  "candidate_source_expected": {
+    "tiny.h": {
+      "bytes": 2849,
+      "sha256": "8bd51aece52f94cfe61f452d80c910357128c3ca4905ef610600dbc252a6cd6b"
+    },
+    "board.c": {
+      "bytes": 8770,
+      "sha256": "d412aa04f0609c0b10217d021f18fc2a888b863ece09064ffd9ad02a337963db"
+    },
+    "search.c": {
+      "bytes": 6268,
+      "sha256": "0a07b27600630b0278f802bbb59e2bbfa4ea3efef8357562ced2b4d571130a52"
+    },
+    "runtime.c": {
+      "bytes": 14978,
+      "sha256": "bd090ab06be2997e5bfb8c7cae37b6efef9443188925df84eb64a9bda7ea0eec"
+    },
+    "hq.h": {
+      "bytes": 463,
+      "sha256": "ad66a03cef5288010c4377b81ee3661320195545aee6c664a42d3828bfc8b412"
+    },
+    "hq.c": {
+      "bytes": 1488,
+      "sha256": "50b246280ac1f0b9e1f20834f302b31e30221101abd979bbdc146fcae7c12b5f"
+    },
+    "start.S": {
+      "bytes": 845,
+      "sha256": "4a6021518cfe67bee9e42806b596f4f0837e3e93487b1acfa115158ea019ba5b"
+    },
+    "image.ld": {
+      "bytes": 446,
+      "sha256": "38756c865914b52432572864446fcc58b791dfb508af8a33156d5c190c01044b"
+    }
+  },
+  "raw_native_input_delta": 163,
+  "native_flags": [
+    "-Oz",
+    "-std=c11",
+    "-nostdlib",
+    "-static",
+    "-no-pie",
+    "-fno-pie",
+    "-fno-pic",
+    "-fno-stack-protector",
+    "-fno-builtin",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-fno-ident",
+    "-fcf-protection=none",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-Wl,--gc-sections,--build-id=none,-s,-z,noexecstack",
+    "-DWORKERS=2",
+    "-DTT_BITS=18",
+    "-flto"
+  ],
+  "native_units": [
+    "board.c",
+    "search.c",
+    "runtime.c",
+    "hq.c",
+    "start.S"
+  ],
+  "loader_flags": [
+    "-Oz",
+    "-flto",
+    "-nostdlib",
+    "-static",
+    "-no-pie",
+    "-fno-pie",
+    "-fno-pic",
+    "-fno-builtin",
+    "-fno-stack-protector",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-fno-ident",
+    "-fcf-protection=none",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-Wl,--gc-sections,--build-id=none,-s,-z,noexecstack"
+  ],
+  "normal_recipe_path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-engines-af-20261020/engines/compact/tiny-entry-d/recipe.json",
+  "normal_recipe_sha256": "aede937b6e0a2dd44b1393274a6db9ac0f0fd78be4fd359bcf0bcba7fc9d44b5",
+  "normal_native_source_path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-engines-af-20261020/engines/compact/tiny-entry-d/native",
+  "baseline_build_receipt_path": "/home/stemxstudio/rove4k-tiny-entry-d-hardware-crc-fresh-20261021-v1/build-1/build.json",
+  "baseline_build_receipt_sha256": "ce5a947dc88ffcec83e6cb944403702ee17170fec0857bfa3b0a209203cd92ff",
+  "controls": {
+    "scalar-shipping": {
+      "native_path": "/home/stemxstudio/rove4k-tiny-entry-d-hardware-crc-fresh-20261021-v1/build-1/scalar-shipping/native-first/x",
+      "linked_path": "/home/stemxstudio/rove4k-tiny-entry-d-hardware-crc-fresh-20261021-v1/build-1/scalar-shipping/native-first/linked",
+      "whole_path": "/home/stemxstudio/rove4k-tiny-entry-d-hardware-crc-fresh-20261021-v1/build-1/scalar-shipping/context/x",
+      "native_bytes": 7964,
+      "native_sha256": "24a6856e00fb902a2c11580616a8048f2832f8b9d0cf35a29a8861e5841eedb8",
+      "whole_bytes": 6108,
+      "whole_sha256": "cce0f6e6c23c80721bfe514a433d7e65d76cf41f67f6aeb61bab354c65463f92",
+      "model_wmask": 16847486
+    },
+    "hq-shipping": {
+      "native_path": "/home/stemxstudio/rove4k-tiny-entry-d-hardware-crc-fresh-20261021-v1/build-1/hq-shipping/native-first/x",
+      "linked_path": "/home/stemxstudio/rove4k-tiny-entry-d-hardware-crc-fresh-20261021-v1/build-1/hq-shipping/native-first/linked",
+      "whole_path": "/home/stemxstudio/rove4k-tiny-entry-d-hardware-crc-fresh-20261021-v1/build-1/hq-shipping/context/x",
+      "native_bytes": 8352,
+      "native_sha256": "6acbd92ccd37b51b6745115336576a15ddaa1018e6521471a98e295bc2308626",
+      "whole_bytes": 6288,
+      "whole_sha256": "f9f9297f8363b1863707df0e7eb7912e56d18788c64aa86998623b3f12ef3da0",
+      "model_wmask": 135274878
+    }
+  },
+  "native_links": 2,
+  "native_control_links": 0,
+  "extra_links": 0,
+  "target_executions": 0,
+  "codec_fixed": "rove4k-context-h24-base10-fixed21-replay-zero4-v2",
+  "shipping_protocol_unchanged": {
+    "id": "finite-minimum-v1",
+    "identification": false,
+    "stop": "consume",
+    "ucinewgame": "consume",
+    "infinite": "consume",
+    "default_budget_ms": 1000,
+    "own_clock_formula": "unchanged",
+    "hard_wall_cap": false,
+    "completion_fences": "next go, position, quit, EOF acquire pending==0 after result output"
+  }
+}

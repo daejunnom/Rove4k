@@ -186,10 +186,10 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
 | A | 4,748 B | 652 B | Native-identical uniform type tokens, shared startup/query, adjacent declarations/completion sequence and original ALONE |
-| B | 5,357 B | 1,261 B | Generated tactical Move metadata, shared forward geometry, declared legal-LVA ordering, hybrid attackers/singular and ALONE |
-| C | 5,092 B | 996 B | Private signed-net eight-lane SIMD state, exact HCE, bounded text profile, real 128-bit madd/hadd and fixed ALONE |
-| D scalar / HQ | 6,108 / 6,288 B | 2,012 / 2,192 B | Own fixed21 context ELF with explicit SSE4.2 CRC32C, residual leapers, worker reset and guarded BCJ restoration |
-| E | 5,176 B | 1,080 B | Declared untrained E19 quadratic activity model, incremental material/activity, original five-feature ordering and ALONE |
+| B | 5,340 B | 1,244 B | Native-identical type tokens, tactical Move metadata, shared geometry, legal-LVA ordering, hybrid attackers/singular and ALONE |
+| C | 5,078 B | 982 B | Native-identical type tokens, signed-net eight-lane state, exact HCE, real 128-bit madd/hadd and fixed ALONE |
+| D scalar / HQ | 6,064 / 6,253 B | 1,968 / 2,157 B | Full-key aligned atomic16 TT, explicit SSE4.2/CX16 profile, own fixed21 context ELF and guarded BCJ restoration |
+| E | 5,158 B | 1,062 B | Native-identical type tokens, untrained E19 quadratic activity model, incremental material/activity, original ordering and ALONE |
 | F | 4,720 B | 624 B | Native-identical uniform type tokens, full-key TT, full-depth MTD(f), packed HCE and fixed ALONE |
 
 The separate Rust D native images are 16,816 bytes each. Their independent
@@ -4265,3 +4265,188 @@ retains every preceding source guard, canonical/gather DEV and verifier.
 The old closure/controls and producing recipe remain outside Git; only final
 recipe/README qualification metadata changes after execution. Final aggregate
 SHA is `2f83669e0b7cf5f45316b34816c7f5dbb1c4c095d0c2596b402895f264909692`.
+
+## Separate F single-word partial-tag TT policy candidate
+
+Maintained F stays at the full-key 4,720 B type-token entry. A separate
+project-owned experiment replaces its preserved 4,728 B predecessor's 24 B
+locked full-key entries with one relaxed atomic uint64 word: high21 key tag,
+low43 unchanged move/score/depth/bound payload and low18 slot index. Full64
+board/history/halfmove context formation remains; only TT identity truncates.
+At TT18, storage becomes2 MiB rather than6 MiB. Each query compares the tag
+and extracts payload from the same atomic load; each store publishes a whole
+word. Initialization precedes worker creation. This is a probabilistic cache
+policy change, not lossless full-key compression. Key bits18..42 are ignored.
+
+The one fixed first cost is source9,626 B (-64), native18,576 B with a new
+identity and whole4,711 B (-17 against its measured 4,728 B control). Whole SHA
+is `90a2f0ceac618b75990ad1d924ad9f26dfbbf50628b14fd13d043e4fcf37db6d`.
+The nominal9 B difference from today's full-key4,720 B entry is not a measured
+composition of the two transformations. The source policy has no alias/codec
+sweep or new shipping profile assertions. Fixed compiler macros and an actual
+focused observation establish sizeof8 and lock-free atomic only on this local
+Linux64/GCC target.
+
+One O2 diagnostic compilation/run uses the actual candidate plus seven
+inverse/complement-checked test hooks. Two writers perform40,000 stores and
+one reader40,000 queries, observing only coherent whole-word values and then
+joining. A constructed bit18 alias is accepted by the candidate and rejected
+by the old full-key probe; a different tag misses. The original nine horizon
+expectations, full64 context formation cases and three quiet roots at retained
+depths3/3/1/2 pass unchanged independent minimax/attaining-witness expectations.
+Startpos completes depth1 score54 in31 nodes; same-job node32 interruption
+preserves that completed witness. A separate adversarial alias-bound injection
+reaches an actual conflict/stopped branch while retaining the completed depth1
+witness. It demonstrates defensive abort for that case, not minimax correctness
+under a false cache identity. Ordinary cases have no observed conflicts.
+
+Cost/focused receipt SHAs are
+`dd650b429fbf870d0dfd09abee0ab2ead32507bf4a9cb69dd6f2678003c33ad5` /
+`c8c496993708edd0787114ced7b914217cff4faac21645c3a0639402dbcdc8ce`.
+The external proof index SHA is
+`5ac6b6934ce41f568617e8cec8348d3f2ebecf1f2127d40460bf37cefd1781c3`.
+Only four ordinary first-cost source/configuration files belong to the Git
+experiment. The actual target/instrumented/reference fixture and executed
+driver stay outside Git with their pins; the unexecuted driver before its
+interruption-cleanup correction is preserved separately.
+
+There is no product main/pool/wrapper execution, normal promotion, composition,
+all-schedules proof, target performance/scaling or playing-strength claim.
+The tag's conditional2^-21 random-alias model assumes independent uniform keys
+and is not a whole-search error probability. The candidate is retained for a
+later policy/resource comparison while the selected full-key baseline remains.
+
+## B occupancy-swap first-cost rejection
+
+A separate ordering-only SEE candidate uses one real initial make, then
+geometry-only occupancy removal and a bounded32-word gain stack instead of
+recursive full Board transitions. Shared attacker queries remain active; a
+selected king needs a geometric destination check and terminates the sequence.
+Non-king pins are deliberately ignored, so this is a different approximate
+ordering policy. Its negative result is never a QS pruning certificate. The
+scratch is never a valid Board after origin removal and cannot reach normal
+make/search/hash/HCE/TT/learning. Promotion dominance is limited to this fixed
+target-geometry model, not inherited as a legal-LVA theorem.
+
+One fixed candidate grows source11,430 to11,487 B and shrinks native26,360 to
+26,328 B, but the actual complete file grows5,357 to5,423 B (+66). The loss
+closes the experiment without fixture/engine/normal follow-up. Maintained B
+stays5,357 B with legal-LVA. No stack, performance, strength or semantic
+equivalence claim follows from the new native. The actual cost receipt SHA is
+`4db5f51b7902d3bb789ca7c68146ea771b9b48f7fd160f06af38cc9038831804`.
+Five ordinary cost sources stay fixed at producing/final aggregate
+`96e70424bf70f2a36ff68621c32787caafc120e922b56511112df2a19b4e5601`.
+A preparation-only CRLF freeze failure remains separate; only recipe newline
+serialization changes before the sole actual compile/ALONE/two strict decodes.
+No alternate candidate or codec/name search repairs that measured loss.
+
+## D full-key atomic16 TT and positive normal qualification
+
+D keeps the entire64-bit context key and64-bit payload in an aligned16-byte
+entry instead of a24-byte entry with a separate flag. Two explicit GNU x86-64
+`lock cmpxchg16b` asm blocks implement a coherent pair read and one best-effort
+write CAS, with memory/condition-code clobbers. All concurrent pair accesses
+use this primitive. A lost write is allowed; its return is not a CAS-success
+acknowledgement. The read/write contention policy differs from the former
+try-lock miss/drop policy, while key identity and valid payload transport stay
+full-width. The fixed TT18 allocation becomes4 MiB rather than6 MiB.
+
+Fresh anonymous-zero TT allocation precedes worker creation, so the shipping
+clear loop is removed. DEV's wait-then-clear remains quiescent. Header layout
+assertions bind size/alignment16 and key/data offsets0/8. The explicit execution
+profile is now `linux-x86_64-sse4.2-cx16-crc32b-v1`; CX16 is required alongside
+the previous CRC32C instruction. No generic or current tournament-server CPU
+compatibility is inferred from local execution.
+
+| Form | Native before/after | Complete before/after | Packet | Header/loader |
+| --- | ---: | ---: | ---: | ---: |
+| scalar | 7,964 / 7,932 B | 6,108 / 6,064 B | 4,927 B | 1,137 B |
+| HQ | 8,352 / 8,288 B | 6,288 / 6,253 B | 5,116 B | 1,137 B |
+
+One first cost compiles each native and unchanged fixed21 package once. The
+existing positive data-only CRC decoder helper is reused for both new packets;
+complete packet-to-BCJ-to-native bytes, canaries and owned-table unmap agree.
+It never jumps to the new engine. One separate positive unit compilation/run
+includes the actual unchanged probe, checks literal full-key/payload and
+mate/depth/bound cases, and runs two bounded writers plus one reader. All hits
+carry their matching entire key/payload; misses and dropped writes are allowed.
+It joins and unmaps normally. Actual CAS-drop causality remains unobserved.
+A preparation-driver Python syntax error occurred before any C compile/run;
+the original failure and typo-only corrected executed driver are separate.
+Unit receipt SHA is
+`6f5a330994a54546cf1eea9a544f87b15ae34079eada191b62892877db378d2e`.
+
+Two unchanged CHECKPOINT loader compiles reuse the measured packets without
+new native compilation/encoding or target execution. Root independently reads
+all eight native/packet/shipping/audit full identities, both ELF headers and
+the exact mapping/literal changes before admitting only the two new audits.
+Scalar audit is6,087 B / `9e8831581ee618d9ecb99373ee8eb39c312d7a7e696ea569e1b3a56e694cc07c`;
+HQ audit is6,276 B / `db6cdcfa09b94f0d9441384f5646678258d5e7cbeeaa9537ca149127f663985e`.
+Strict native/model/layout and audit gates remain. The verifier adds the
+all-affinity CX16 check and exact new identities; mapping/lifecycle bodies
+are unchanged.
+
+One ordinary normal builder reproduces four native images, four shipping ELFs
+and two audits exactly. One selected positive verifier then passes four
+shipping sessions/twelve GO plus two pre-entry observations. Actual restored
+RX bytes, zero BSS/padding, original entry resume, guards/NX, persistent worker
+TIDs, active workers at shutdown, only stdio, reader EOF and natural physical
+exit0 are observed. SSE4.2 and CX16 are present on all eight available local
+CPUs. Build/verifier receipt SHAs are
+`12c7096e312e4ed3d6761da81569eb222b54f8c99556eef3bef566c203bcf1a8` /
+`f4536e49cf9276a123a8954c91a12a4bfe9060cb3cd4387b597006dda017059a`.
+There is no new fresh/archive execution, negative/fault campaign, all-schedules
+race proof, target scaling, game/performance test, main promotion or release.
+
+## B/C/E fixed type-token completion
+
+The same type-presentation mechanism is now selected for B/C/E with each
+family's actual namespace. W/X/Y/Z is not blindly reused: the fixed maps are
+`uint64_t->D, Move->N` for B, `uint64_t->M, Move->T` for C and
+`uint64_t->I, Move->T` for E. Each19 B typedef prefix is included in cost.
+int16 and the private Entry typedef stay unchanged. Exact role ledgers,
+MOVE's three casts, fresh ordinary/directive names, inverse and protected
+complement bind these particular outputs. There is no name or codec sweep.
+
+| Entry | Source before/after | Whole before/after | Entire native |
+| --- | ---: | ---: | --- |
+| B | 11,430 / 11,167 B | 5,357 / 5,340 B | All26,360 B identical |
+| C | 10,656 / 10,445 B | 5,092 / 5,078 B | All26,376 B identical |
+| E19 | 11,105 / 10,891 B | 5,176 / 5,158 B | All26,416 B identical |
+
+C retains the exact later `immintrin.h` include at old byte4060; its alias
+prefix precedes the first owned type. The former all-includes-before-aliases
+helper precondition rejected this source before compilation. Admitting this
+one fixed existing include keeps the source/map/insertion unchanged; actual
+compiler/header namespace compatibility is checked by full-native equality
+before the codec. This does not create a general header exception or imply a
+different runtime ISA. B/E have no later include.
+
+A separate preparation bug incorrectly LF-normalized binary control hashes.
+The first B preflight failed before any compiler/codec invocation; E/C had not
+started. Original source5, rejection and partial outputs remain outside Git.
+The correction pins binary controls as raw bytes, while explicitly normalized
+source remains text. Candidate bytes and maps are unchanged. The corrected
+first costs compile/package each candidate once and strictly decode baseline
+and candidate once each. Every complete native matches its own actual control
+before packaging. These preparation failures are not hidden compiler retries.
+
+Ordinary family-owned closing helpers follow tactical, signed-vector and E19
+model stages respectively. They have no experiment/report/artifact input and
+retain all prior guards and canonical/DEV references. Each ordinary builder
+runs once, reproducing shipping twice and old DEV twice, followed by each
+unchanged selected verifier's two quit/EOF sessions/eight legal GO. Exact new
+whole identities, the same native images, three persistent TIDs, private-path/
+helper cleanup, reader EOF and physical exit0 pass. E's DEV21 stays ancestry,
+not proof of E19. Only recipe/README result metadata changes after execution;
+no extra core fixture, fresh/archive execution, game or benchmark is claimed.
+
+Final external B/C/E normal index SHA is
+`ba14ee1fa96d127cbd89bacd05792f5669f65fe0f1bca00d811a4683400164f1`.
+The actual build/runtime pairs are B
+`f8add1c9961dfb57273c19bebc9f4b7460ef5a8473ea50a9945f08c6920aa116` /
+`45f82945092d2573bc4acc6f10421a2f796e65f721c95ca924ae76c0f3849a5e`, C
+`fe1ddd10928fd10f7c5b2f10e00db89e5794a32a73693576c814e3e2d17bfdf8` /
+`26fc3930595ff4c5d9b5d370a71e5201db862a85d09af4c19d4c35c84377a29a`, E
+`d7744f49379a1efd164fd379f3f1745cf1f21887928321c4838acd1887d4243d` /
+`f17d63b577155e3e1bb403496b0a9fa37c2841cf00d4f833cee9c97c9c30757e`.

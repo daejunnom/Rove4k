@@ -20,7 +20,7 @@ import time
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 CODEC = 'rove4k-context-h24-base10-fixed21-replay-zero4-v2'
-EXECUTION_ISA = 'linux-x86_64-sse4.2-crc32b-v1'
+EXECUTION_ISA = 'linux-x86_64-sse4.2-cx16-crc32b-v1'
 SHIPPING_PROTOCOL = {
     'id': 'finite-minimum-v1', 'identification': False,
     'stop': 'consume', 'ucinewgame': 'consume', 'infinite': 'consume',

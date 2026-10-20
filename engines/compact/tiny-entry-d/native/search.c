@@ -5,14 +5,15 @@
 #define COUNT(w,f) ((void)0)
 #endif
 
-/* A slot is acquired without waiting. Contention is a miss, never a torn
- * key/payload publication. Search workers share slots, not mutable heuristics. */
+/* Full key/payload pairs use aligned atomic16 operations. One write CAS may
+ * lose to another publisher; no lock state, retry or partial key is used. */
 static uint64_t probe(uint64_t key,int write,uint64_t data){
     Entry *e=table+(key&((1u<<TT_BITS)-1));
-    if(atomic_flag_test_and_set_explicit(&e->lock,memory_order_acquire))return 0;
-    if(write)e->key=key,e->data=data;
-    else data=e->key==key?e->data:0;
-    atomic_flag_clear_explicit(&e->lock,memory_order_release);
+    uint64_t lo=0,hi=0;
+    __asm__ volatile("lock cmpxchg16b %0":"+m"(*e),"+a"(lo),"+d"(hi):"b"(0ull),"c"(0ull):"cc","memory");
+    if(write){
+        __asm__ volatile("lock cmpxchg16b %0":"+m"(*e),"+a"(lo),"+d"(hi):"b"(key),"c"(data):"cc","memory");
+    }else data=lo==key?hi:0;
     return data;
 }
 static int claim(Worker *w){

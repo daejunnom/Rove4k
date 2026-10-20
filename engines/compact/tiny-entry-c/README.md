@@ -1,4 +1,22 @@
-# Maintained minimal C signed-vector entry
+# Maintained minimal C entry
+
+The selected complete launcher is **5078 bytes**, 14 below C5092 and **982 bytes above4,096**. Shipping C is 10445 bytes (source delta -211). Final shipping-only `shipping_types.py` owns one fixed type map `{'uint64_t': 'M', 'Move': 'T'}` plus a19-byte uint64_t alias definition. The existing Move typedef is renamed with its type uses and exactly3 MOVE casts; int16_t and private Entry zb remain protected. All full native bytes match the actual preceding native, without a metadata exception.
+
+The ordinary family helper pins the canonical readable, complete final-stage preimage/result, type-role offsets/counts, source/directive alias freshness, sole MOVE line, exact inverse and each unchanged gap. It reads no experiment, report, old artifact, AST or network input. Its pinned existing lexer is frozen before import. Existing canonical/map/core/input and family-specific stages remain ahead of the final type stage; DEV bypasses it and retains its prior diagnostic model scope. Only C admits the fixed later immintrin header at old offset4060; no header is moved and no generic exception is opened. Actual header conflicts must fail the fixed full-native gate.
+
+Unchanged fresh.py dynamically includes the new helper, yielding 26 unique ordinary source paths. Canonical/DEV/verify/fresh/shared bodies, compiler/resources/bootstrap/77-byte prefix and per-family ALONE settings remain unchanged. The whole 14-byte gain is separate from the larger raw source reduction.
+
+| Current artifact | Bytes | SHA-256 |
+|---|---:|---|
+| Shipping C | 10445 | `d424d14f5cb16d7e6a39383821a70ef96cd6c69bcc99c5a948dc4f5a907546d4` |
+| Native ELF | 26376 | `4ffb9c371eb7c0949f34ed637350ff3be9c7164890d1784c12e3cd3d93912691` |
+| Complete launcher | 5078 | `60a5822c4cb7851e30bd147b0d7b106a38304a60c4ab2c9f9e7c6567e520c31e` |
+
+The sole normal builder invocation passed shipping C/native/bootstrap/whole twice and the prior DEV C/native tuple twice, retaining its historical model scope. The unchanged selected verifier then passed its sole quit/EOF invocation: two sessions/eight legal GO epochs, exact restored native image, three stable startup TIDs each, absent private restoration paths/helper children, one closing result, completed readers and physical exit0. Both bounded command groups are terminal0 and absent, with no retry or forced cleanup. Prior sources and raw binary controls were preserved outside Git; native/whole pins are never newline-normalized. Original preflight failures remain preserved separately; approved correction did not change any candidate. No new core fixture, fresh archive extraction, game, benchmark or alias/codec search is part of normal promotion. Historical diagnostic/core evidence is reused by exact native identity within its existing scope; cancellation causality and many-core performance remain unproven.
+
+Normal build receipt: `fe1ddd10928fd10f7c5b2f10e00db89e5794a32a73693576c814e3e2d17bfdf8`. Normal selected runtime receipt: `26fc3930595ff4c5d9b5d370a71e5201db862a85d09af4c19d4c35c84377a29a`. Producing recipe: `5a34cba163890fcfaee7aec99a90acafa41beb8d64b1e35747cc1f11fad6a302`; producing ordinary-source freeze: `6a66bef2bd31d9982575ee13d35e7ff66c2179fb01129b9b0f3d8d0ce9887b0e`. Only README/recipe completion metadata changed after execution; all helper/build/compiler/expected/codec bytes remain producing inputs. Git/CI and whole-project acceptance are separate parent work.
+
+# Historical C5092 stage
 
 The current selected complete file is **5092B**,60B below previous5152 and
 **996B above4096**. Shipping source10656/58e71a9c uses a private signed-net

@@ -6,12 +6,12 @@
     "ply": 128,
     "dev": 0
   },
-  "target": "Linux x86-64 with SSE4.2 CRC32; raw syscall static native plus admitted fixed-layout own-ELF",
+  "target": "Linux x86-64 with SSE4.2 CRC32 and CX16; raw syscall static native plus admitted fixed-layout own-ELF",
   "native_source_sha256": {
-    "native/tiny.h": "e19749eb3315253e04171b89b8188df7e0db6b39ec4eb495187a6e158836823f",
+    "native/tiny.h": "8bd51aece52f94cfe61f452d80c910357128c3ca4905ef610600dbc252a6cd6b",
     "native/board.c": "d412aa04f0609c0b10217d021f18fc2a888b863ece09064ffd9ad02a337963db",
-    "native/search.c": "48e0f21fee8091f1e5c5d08d606740f6ff8c56778a550af2bcfc282d655d974c",
-    "native/runtime.c": "51902e800066562f7dbc5d240db57a6635b20c74ed8fede3a4cd71329fc62a38",
+    "native/search.c": "0a07b27600630b0278f802bbb59e2bbfa4ea3efef8357562ced2b4d571130a52",
+    "native/runtime.c": "bd090ab06be2997e5bfb8c7cae37b6efef9443188925df84eb64a9bda7ea0eec",
     "native/hq.h": "ad66a03cef5288010c4377b81ee3661320195545aee6c664a42d3828bfc8b412",
     "native/hq.c": "50b246280ac1f0b9e1f20834f302b31e30221101abd979bbdc146fcae7c12b5f",
     "native/start.S": "4a6021518cfe67bee9e42806b596f4f0837e3e93487b1acfa115158ea019ba5b",
@@ -75,23 +75,23 @@
   "expected": {
     "scalar-shipping": {
       "hq": 0,
-      "native_bytes": 7964,
-      "native_sha256": "24a6856e00fb902a2c11580616a8048f2832f8b9d0cf35a29a8861e5841eedb8",
-      "whole_bytes": 6108,
-      "whole_sha256": "cce0f6e6c23c80721bfe514a433d7e65d76cf41f67f6aeb61bab354c65463f92",
-      "payload_bytes": 4971,
+      "native_bytes": 7932,
+      "native_sha256": "890cf9a47918f3525ae8340999d5f1d0a9a34f51f9f4ed21b01fd6472fe2f96b",
+      "whole_bytes": 6064,
+      "whole_sha256": "ef992be19acbf77b8942c19bf98cd81f92a310be03e5d4ee290595ae3886ef88",
+      "payload_bytes": 4927,
       "loader_and_headers_bytes": 1137,
-      "audit_bytes": 6131,
-      "audit_sha256": "0b48475cd8ac138662a8414981e38dea49a17e892637fc951d84849303390cd7",
+      "audit_bytes": 6087,
+      "audit_sha256": "9e8831581ee618d9ecb99373ee8eb39c312d7a7e696ea569e1b3a56e694cc07c",
       "layout": {
         "bss_base": 4202496,
         "bss_pages": 176128,
         "bss_size": 175092,
-        "entry": 4201879,
+        "entry": 4201840,
         "guard_base": 4190208,
         "image_base": 4194304,
         "image_pages": 8192,
-        "image_size": 7964,
+        "image_size": 7932,
         "reserve_size": 192512,
         "section_count": 0,
         "section_names": 0,
@@ -99,60 +99,60 @@
         "section_size": 0,
         "segments": [
           {
-            "align": 4096,
-            "filesz": 7964,
+            "type": 1,
             "flags": 5,
-            "memsz": 7964,
             "offset": 0,
+            "vaddr": 4194304,
             "paddr": 4194304,
-            "type": 1,
-            "vaddr": 4194304
+            "filesz": 7932,
+            "memsz": 7932,
+            "align": 4096
           },
           {
-            "align": 4096,
-            "filesz": 0,
+            "type": 1,
             "flags": 6,
-            "memsz": 175092,
             "offset": 0,
+            "vaddr": 4202496,
             "paddr": 4202496,
-            "type": 1,
-            "vaddr": 4202496
+            "filesz": 0,
+            "memsz": 175092,
+            "align": 4096
           },
           {
-            "align": 8,
-            "filesz": 0,
-            "flags": 6,
-            "memsz": 0,
-            "offset": 0,
-            "paddr": 0,
             "type": 1685382481,
-            "vaddr": 0
+            "flags": 6,
+            "offset": 0,
+            "vaddr": 0,
+            "paddr": 0,
+            "filesz": 0,
+            "memsz": 0,
+            "align": 8
           }
         ],
         "upper_guard": 4378624
       },
-      "payload_sha256": "1ae6c71f2355aba3ca89bcc151585c832ddcb130621444c7f5c567276f893409",
+      "payload_sha256": "d33bf29872735253fcf84c7382d441f064a39511568b976c310589642339ce8d",
       "model_wmask": 16847486
     },
     "hq-shipping": {
       "hq": 1,
-      "native_bytes": 8352,
-      "native_sha256": "6acbd92ccd37b51b6745115336576a15ddaa1018e6521471a98e295bc2308626",
-      "whole_bytes": 6288,
-      "whole_sha256": "f9f9297f8363b1863707df0e7eb7912e56d18788c64aa86998623b3f12ef3da0",
-      "payload_bytes": 5151,
+      "native_bytes": 8288,
+      "native_sha256": "84261c1153d1e0d71b3241375423cf8a6ffc386a6058380a1b14abfc6d757efe",
+      "whole_bytes": 6253,
+      "whole_sha256": "a03667db1839b238c217968a35883bf99d2b32fb82f9f475c2e8c8dd8814222c",
+      "payload_bytes": 5116,
       "loader_and_headers_bytes": 1137,
-      "audit_bytes": 6311,
-      "audit_sha256": "a6a5b1c1bc5cad1fdca2fdb4c3744fba95873a325a8381d877c73795552e5b88",
+      "audit_bytes": 6276,
+      "audit_sha256": "db6cdcfa09b94f0d9441384f5646678258d5e7cbeeaa9537ca149127f663985e",
       "layout": {
         "bss_base": 4206592,
         "bss_pages": 176128,
         "bss_size": 175092,
-        "entry": 4202196,
+        "entry": 4202157,
         "guard_base": 4190208,
         "image_base": 4194304,
         "image_pages": 12288,
-        "image_size": 8352,
+        "image_size": 8288,
         "reserve_size": 196608,
         "section_count": 0,
         "section_names": 0,
@@ -160,45 +160,45 @@
         "section_size": 0,
         "segments": [
           {
-            "align": 4096,
-            "filesz": 8352,
+            "type": 1,
             "flags": 5,
-            "memsz": 8352,
             "offset": 0,
+            "vaddr": 4194304,
             "paddr": 4194304,
-            "type": 1,
-            "vaddr": 4194304
+            "filesz": 8288,
+            "memsz": 8288,
+            "align": 4096
           },
           {
-            "align": 4096,
-            "filesz": 0,
+            "type": 1,
             "flags": 6,
-            "memsz": 175092,
             "offset": 0,
+            "vaddr": 4206592,
             "paddr": 4206592,
-            "type": 1,
-            "vaddr": 4206592
+            "filesz": 0,
+            "memsz": 175092,
+            "align": 4096
           },
           {
-            "align": 8,
-            "filesz": 0,
-            "flags": 6,
-            "memsz": 0,
-            "offset": 0,
-            "paddr": 0,
             "type": 1685382481,
-            "vaddr": 0
+            "flags": 6,
+            "offset": 0,
+            "vaddr": 0,
+            "paddr": 0,
+            "filesz": 0,
+            "memsz": 0,
+            "align": 8
           }
         ],
         "upper_guard": 4382720
       },
-      "payload_sha256": "86d0e63bf852bc8ac96576097531cf3134809e0ae837adf219e85b14ce7c7517",
+      "payload_sha256": "e900ddc25b11596c833298915f748b00ecbde00193280377624e8a736c7282c5",
       "model_wmask": 135274878
     }
   },
   "qualified_receipts_metadata_only": {
-    "current_selection": "qualified local Linux x86-64+SSE4.2 CRC32 normal C D; exact native/packet/whole/audit and one positive closed normal fresh",
-    "source_lineage": "same native8 and guarded loader.c/image.ld; exact one fixed21 decoder and three container/tag encoder edits; range_bits/models/flags/resources/public policy unchanged",
+    "current_selection": "qualified local Linux x86-64+SSE4.2 CRC32+CX16 atomic128 full-key TT normal C D; one normal builder invocation and one selected positive verifier invocation",
+    "source_lineage": "exact four reviewed atomic128 TT fragments in native/tiny.h, search.c and runtime.c; unchanged native remainder, fixed21 CRC decoder, flags/resources/public policy",
     "fixed21_firstcost": {
       "final_index_sha256": "2f06d3ecc4d9e0f5fb294f6adfe533aa4559867fd31b4fad10604ed4060a5bf3",
       "cost_sha256": "0f08bb54783aef070a3d75eefeb28a005868156452243513da624bf7708d8137",
@@ -534,6 +534,33 @@
       "target_forced_cleanup": 0,
       "scope": "one unchanged tracked fresh invocation terminal0 without retry, separate from failed discovery driver; actual bytes repeated and exact new RX/native identity/padding/BSSzero/guards/NX/originalentry + persistent threads/stdio/readers/groups observed; normal builder compiler rc0 only, no separate compiler-group observation",
       "postproof_metadata": "only README and recipe qualified_receipts_metadata_only differ from producing; other19 and all producing profile/expected/source/flags/model fields unchanged; no second fresh run"
+    },
+    "existing_record_scope": "All pre-existing receipt fields below describe predecessor source/images only; they are not executions of this atomic128 candidate.",
+    "atomic128_tt": {
+      "firstcost_native_sha256": "01dc548ca98de6578e838ddd7dce47c0fc4eb0c0e73d6ca2ff44be18216efab3",
+      "firstcost_whole_sha256": "22c86082262d1f3f3a6a0973bbf76e93a296d3e12e2a642aeb99f8b77d33a944",
+      "source25_final_index_sha256": "35f483aaab15ca4b88ffaf510fd53da008f2f968d60fbb230f81fa0952c26a16",
+      "positive_unit_sha256": "6f5a330994a54546cf1eea9a544f87b15ae34079eada191b62892877db378d2e",
+      "unit_final_index_sha256": "bf7059908a5fd1f7e51737795a3e00249b4400dd58c3f16fc487e6febe02a4f4",
+      "scope": "At the frozen first-cost/unit checkpoint: native2/encode2/shipping-loader2 and DATA-helper2 first-cost, then one ordinary positive TT unit compile/run; normal target/audit/fresh had not run. The later normal_positive receipt below is separate. Unit write attempts are not CAS acknowledgments and contention-drop causality remains unobserved.",
+      "preparation_failure_v1_sha256": "a4a9bea95c92cccdd558285ec26a69445e1c97310d613e624e9261647b7ed087",
+      "preparation_failure_scope": "Python driver SyntaxError before any C compile/run; separately preserved; corrected driver performed the sole actual C compile/run",
+      "root_audit_literal_intake": {
+        "audit_discovery_sha256": "5535a787a2f1a346512b3820a2e3de31ba737a2872d3abe7c420e9b357988665",
+        "scope": "Root independently read full discovery receipt, native/packet/shipping/audit files, audit ELF headers and native3/packer/verifier diff; exact two audit literals approved before sole normal build/positive verify; no other gate changed",
+        "actual_root_receipt_sha256": "c5d89d6a28d612c7f7b4d02ec5af8907c88d2b8a1c3d27d560c5420f883b07d2"
+      },
+      "normal_positive": {
+        "build_sha256": "12c7096e312e4ed3d6761da81569eb222b54f8c99556eef3bef566c203bcf1a8",
+        "verify_sha256": "f4536e49cf9276a123a8954c91a12a4bfe9060cb3cd4387b597006dda017059a",
+        "readback_sha256": "ff696c24deebd1758401ace9439f4897f93d2548b88e440d54496c23316105c3",
+        "producing_source23_index_sha256": "7cd4680e1e5a259b4864a85eed02a9fbd3c421e6740230ee9c28151ce6dd2880",
+        "producing_recipe_sha256": "c80654a02beae7e16cdb5a6311251a267409e1fc19150cdfc7eae23495ef402d",
+        "producing_verifier_sha256": "215ababe7abba67f29687b2a1da6e0e204a777f20c0712b95e6d86f91c7081df",
+        "scope": "sole builder1 terminal0 native4/shipping-loader4/audit-loader2 and encode4 exact; sole selected positive verifier1 terminal0 shipping4 sessions/12GO/pre-entry2; all affinity CPUs CX16 and SSE4.2; natural target reader/process/group settlement, forced0; no fresh",
+        "limits": "No general TT/SMP race freedom, contention-drop causality, strength/performance, ignored-control/default-budget timing, exact context table unmap causality or current tournament CPU claim. Unchanged builder does not separately observe compiler descendants/groups. First-cost DATA diagnostics, positive TT unit and predecessor failure records remain distinct."
+      },
+      "final_metadata_scope": "Only README and recipe qualification metadata changed after producing normal run; producing source snapshot and raw receipts remain immutable. No re-execution after this overlay."
     }
   },
   "shipping_protocol": {
@@ -563,5 +590,5 @@
     "model_schema_format": "rove4k-context-h24-base10-u32-zero4-v1",
     "packet_format": "rove4k-context-h24-base10-fixed21-replay-zero4-v2"
   },
-  "execution_isa": "linux-x86_64-sse4.2-crc32b-v1"
+  "execution_isa": "linux-x86_64-sse4.2-cx16-crc32b-v1"
 }

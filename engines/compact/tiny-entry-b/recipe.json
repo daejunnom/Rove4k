@@ -56,7 +56,8 @@
     "engines/scripts/fixed_input_profile_bce.py": "cc3c82d2e4f77f7231d4bafaac5f446a9aa5c0320762e0902a6f32ecc5a7209e",
     "engines/compact/tiny-entry-b/shipping_order.py": "82ee301901fb147ae33723f302ff06663b919b91a6d27b1986a5cfe54be2ceb2",
     "engines/compact/tiny-entry-b/shipping_walk.py": "9964071df9b2cb092ee042f5e49876357d11f9ed7a8541c211987198581f744a",
-    "engines/compact/tiny-entry-b/shipping_tactical.py": "3039a6a214276093e18cb13e9787fe810358acdc7475ad8f0542bc71bc5d1fd2"
+    "engines/compact/tiny-entry-b/shipping_tactical.py": "3039a6a214276093e18cb13e9787fe810358acdc7475ad8f0542bc71bc5d1fd2",
+    "engines/compact/tiny-entry-b/shipping_types.py": "1ec1ecc076bf3a037ad38b8c9b7ea701ff317d092e1c31e8f48f3dea285ed244"
   },
   "compression": {
     "format": "lzma-alone",
@@ -73,15 +74,15 @@
   },
   "expected": {
     "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
-    "source_bytes": 11430,
-    "source_sha256": "54759113c9949f0f3d619d5eefe5e8ac4d6b562baf4c09da7e7743907d3f8a2a",
+    "source_bytes": 11167,
+    "source_sha256": "6ae7748ee0e56a925405692385a8adfd141274aaee845efaae406416664b1755",
     "native_bytes": 26360,
     "native_sha256": "483a2b6c1f420a30d2f04f1acab9101f6b7dc44c06e1485117a2e8117f1365dd",
-    "whole_bytes": 5357,
-    "whole_sha256": "8b8c3b565974813aa2ea54383bcc19240c1dcf506157d2aa0b44c8b24fa3d5be",
+    "whole_bytes": 5340,
+    "whole_sha256": "bb27f4fafd19c2a8add29b26fe6aed55bb914212468ea0e17203d786b7bfd178",
     "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
     "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
-    "bootstrap_sha256": "ac3cbb751445b451fecfb28d6b43ca711879b6c10797e52c35eb872a353ba523"
+    "bootstrap_sha256": "930da46f30f0766d342c378bdc917cda7b197cb1ed5dc791e10464c2482199e8"
   },
   "local_input_sha256": {
     "engine.c": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
@@ -487,6 +488,67 @@
       "normal_fresh_executions": 0,
       "scope": "new actual shipping image restoration and narrow clocked quit/EOF lifecycle, distinct from earlier fixture-clock/two-counter tactical diagnostics",
       "postproof_metadata": "only recipe qualified_receipt and README result metadata changed after producing closure; no second builder/verifier/fresh"
+    },
+    "pre_type_tokens_scope": null,
+    "scope": "fixed type presentation; full-native-identical predecessor core reuse; historical model-specific evidence and current normal runtime remain distinct",
+    "type_tokens": {
+      "predecessor_expected": {
+        "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+        "source_bytes": 11430,
+        "source_sha256": "54759113c9949f0f3d619d5eefe5e8ac4d6b562baf4c09da7e7743907d3f8a2a",
+        "native_bytes": 26360,
+        "native_sha256": "483a2b6c1f420a30d2f04f1acab9101f6b7dc44c06e1485117a2e8117f1365dd",
+        "whole_bytes": 5357,
+        "whole_sha256": "8b8c3b565974813aa2ea54383bcc19240c1dcf506157d2aa0b44c8b24fa3d5be",
+        "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
+        "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
+        "bootstrap_sha256": "ac3cbb751445b451fecfb28d6b43ca711879b6c10797e52c35eb872a353ba523"
+      },
+      "fixed_map": {
+        "uint64_t": "D",
+        "Move": "N"
+      },
+      "added_typedef_bytes": 19,
+      "ordinary_counts": {
+        "uint64_t": 30,
+        "Move": 21
+      },
+      "protected_type_counts": {
+        "int16_t": 3,
+        "zb": 3
+      },
+      "macro_Move_casts": 3,
+      "admitted_late_includes": [],
+      "source_delta": -263,
+      "whole_delta": -17,
+      "full_native_bytes_equal": true,
+      "metadata_exception": false,
+      "DEV_not_transformed": true,
+      "first_cost_sha256": "ed209499c4bd1ed1edd415a67bd226554d6a8e665c69472c7d809139808bd4e3",
+      "cost_FINAL5_inventory_sha256": "7c6a243e28a8698f00615a3510ec24b11d2a003ff70acfdf03c10bf738b85637",
+      "prepared_failures_preserved_sha256": "e1a4ba0e14d86745b2a4fd0730e754627cf2c28978954db58e626590fd5650fd",
+      "normal_input_reads_experiment_report_or_artifact": false,
+      "normal_validation": {
+        "scope": "direct normal generation and unchanged selected restoration/quit/EOF; no fresh/core/game execution",
+        "producing_recipe_sha256": "312dc24f0ca4d23fd83750ff1037019fe767e6db89f063802e4576d46397ccad",
+        "producing_source_freeze_sha256": "451f9061e970179e6d5f92e796ee961915dd283d22ab642f39ef1e525e05bc4a",
+        "normal_build_sha256": "f8add1c9961dfb57273c19bebc9f4b7460ef5a8473ea50a9945f08c6920aa116",
+        "normal_runtime_sha256": "45f82945092d2573bc4acc6f10421a2f796e65f721c95ca924ae76c0f3849a5e",
+        "shipping_attempts": 2,
+        "DEV_attempts": 2,
+        "same_prior_DEV_source_native_with_prior_scope": true,
+        "entire_native_bytes_equal_to_own_predecessor": true,
+        "selected_quit_EOF_sessions": 2,
+        "legal_GO_epochs": 8,
+        "restored_native_exact": true,
+        "startup_TIDs_each": 3,
+        "private_path_no_helper_children_readers_and_physical_exit0": true,
+        "cancellation_causality": "unproven",
+        "normal_ordinary_source_paths": 25,
+        "all_owned_outer_groups_terminal0_absent": true,
+        "fresh_extractions_newcore_games_benchmarks": 0,
+        "metadata_only_after_execution": true
+      }
     }
   },
   "provenance": {
@@ -498,6 +560,13 @@
     "shipping_codec": "Fixed LZMA1 ALONE 9 extreme/lc2/lp0/pb0/BT4/64MiB dictionary/nice 32 and 77-byte launcher; no container checksum or codec sweep.",
     "incoming_SEE": "Ordinary family helper binds canonical28953, readable1085 proposal, old/new paired shipping fragments and full outputs with literal roles/counts/inverse/complement. It reads no external report/experiment/AST; DEV bypasses it.",
     "shipping_order": "Ordinary embedded paired readable/physical literals, fixed counts/roles, full input/output identity, three disjoint inverse regions and all-gap complement; exact ordering unknown guard, QS negative SEE clause removed; no experiment/report/Clang/sourceartifact dependency.",
-    "shipping_walk": "Pure embedded paired readable/physical regions, fixed full input/output/all-gap inverse, fresh helper name; occupied-BB source enumeration shared by production gen and full attacker masks. No experiment/report/generated source/Clang dependency."
+    "shipping_walk": "Pure embedded paired readable/physical regions, fixed full input/output/all-gap inverse, fresh helper name; occupied-BB source enumeration shared by production gen and full attacker masks. No experiment/report/generated source/Clang dependency.",
+    "shipping_type_tokens": {
+      "family_owned_helper": "engines/compact/tiny-entry-b/shipping_types.py",
+      "last_shipping_only": true,
+      "same_underlying_type_layout_canonical_DEV_resources_compiler_transport": true,
+      "full_inverse_and_protected_complement": true,
+      "fixed_header_domain": "sole actual compiler entire native equality; only C fixed late immintrin inclusion admitted"
+    }
   }
 }

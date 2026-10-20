@@ -64,7 +64,9 @@ int value(int,int);
 #define PROMO(m) (((m)>>14)&7)
 #define MOVE(f,t,p) ((Move)(f)|((Move)(t)<<7)|((Move)(p)<<14))
 
-typedef struct { atomic_flag lock; uint64_t key,data; } Entry;
+typedef struct { _Alignas(16) uint64_t key; uint64_t data; } Entry;
+_Static_assert(sizeof(Entry)==16 && _Alignof(Entry)==16 &&
+               offsetof(Entry,key)==0 && offsetof(Entry,data)==8,"atomic128 TT layout");
 typedef struct {
     int id,depth,score; Move best;
     uint64_t nodes,keys[HISTORY+PLY]; int length;
