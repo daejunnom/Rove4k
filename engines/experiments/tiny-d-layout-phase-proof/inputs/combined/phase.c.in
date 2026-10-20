@@ -1,0 +1,11 @@
+        int narrow=legal>1&&depth>0,reduce=0;
+        if(narrow){
+            COUNT(w,pvs);
+            reduce=depth>=4&&legal>=4&&!tactical&&!check&&!attacked(&q,q.k[q.s<0],-q.s);
+            if(reduce){COUNT(w,corr_uses);reduce=evaluation+w->correction[p->h&1023]/64<alpha+100;}
+        }
+        for(;;){
+            score=-search(w,&q,depth-1-reduce,-(narrow?alpha+1:beta),-alpha,ply+1,m,0);
+            if(!narrow||score<=alpha||(!reduce&&score>=beta))break;
+            if(reduce)reduce=0;else narrow=0;
+        }

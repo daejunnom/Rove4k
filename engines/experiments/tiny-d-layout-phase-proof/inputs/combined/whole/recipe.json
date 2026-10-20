@@ -1,0 +1,234 @@
+{
+  "format": 1,
+  "policy": "one-fixed-layout-phase-composition-existing-codec-loader-cost-v1",
+  "source25": {
+    "control/.gitattributes": {
+      "bytes": 14,
+      "sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9"
+    },
+    "control/README.md": {
+      "bytes": 9790,
+      "sha256": "dbf34bee63e3a535290f0ce8a0fb9e86046f098161a9cce8407a0f4fe6a1d7fd"
+    },
+    "control/build.py": {
+      "bytes": 10113,
+      "sha256": "cc99f4e664f49ecf58cd0a8212e652ffb3b87ac3074250a4f721cde355f55edf"
+    },
+    "control/fresh.py": {
+      "bytes": 10744,
+      "sha256": "0dae1cd97e912700627bc99e8ec69de54a75613d5ed0e2976f9aab51108022ca"
+    },
+    "control/loader/codec.py": {
+      "bytes": 8164,
+      "sha256": "17165d1cb16eaba8916833741bfa229d196c3ad07ca391c14b94288a3cdc0866"
+    },
+    "control/loader/image.ld": {
+      "bytes": 452,
+      "sha256": "93934099212b944b20c2f7840ee87e4817311c4f87fddbb2b3f91db28776cf99"
+    },
+    "control/loader/loader.c": {
+      "bytes": 5862,
+      "sha256": "8a6a9cb93ae484400056852c5bc406be1cc15dc7b8df6b0a57e6d6330a2e4094"
+    },
+    "control/native/board.c": {
+      "bytes": 8880,
+      "sha256": "3f04fedb7e449e69b47ac6f2b36eb89ebe193726ac5970b0ae3a4b28008e12dc"
+    },
+    "control/native/hq.c": {
+      "bytes": 1488,
+      "sha256": "50b246280ac1f0b9e1f20834f302b31e30221101abd979bbdc146fcae7c12b5f"
+    },
+    "control/native/hq.h": {
+      "bytes": 463,
+      "sha256": "ad66a03cef5288010c4377b81ee3661320195545aee6c664a42d3828bfc8b412"
+    },
+    "control/native/image.ld": {
+      "bytes": 446,
+      "sha256": "38756c865914b52432572864446fcc58b791dfb508af8a33156d5c190c01044b"
+    },
+    "control/native/runtime.c": {
+      "bytes": 15249,
+      "sha256": "82c62b57e500918827721553d67d9e23073c6cb5ca79dc22cdb8e38ab15f8e63"
+    },
+    "control/native/search.c": {
+      "bytes": 6269,
+      "sha256": "87bec413c4dcbccafd1b9c48e2a4ae878caae11747caf942f36a1036e88c7fb8"
+    },
+    "control/native/start.S": {
+      "bytes": 845,
+      "sha256": "4a6021518cfe67bee9e42806b596f4f0837e3e93487b1acfa115158ea019ba5b"
+    },
+    "control/native/tiny.h": {
+      "bytes": 2696,
+      "sha256": "43df781e2a86d353d5ec1d64fc8dc6390065d8640b6c9775eb9d7535868397c0"
+    },
+    "control/packer.py": {
+      "bytes": 5510,
+      "sha256": "d23886cfc118c81d1a5ea3389961ce7a407a42494941c6aace3bdc541f169a03"
+    },
+    "control/recipe.json": {
+      "bytes": 10210,
+      "sha256": "027756a98cd5bc5e524aa6b155367569c1fb8fc3e670700e092092b4837fa1ff"
+    },
+    "control/verify.py": {
+      "bytes": 28461,
+      "sha256": "83a1221d010428c6ab0927b159c21924313c724df06af4de92cc97b7ddbaa3a7"
+    },
+    "transform.py": {
+      "bytes": 1758,
+      "sha256": "43dd688efb46f162e2fdadaa98cbbec4c3ab6c3a66996efc296596e664cce8b0"
+    },
+    "phase.c.in": {
+      "bytes": 520,
+      "sha256": "0228587d1c602162ec8472c6d8f26431d4c721fee8654c9f39c51bcb6f6fd569"
+    },
+    "dependencies/layout-native-build.py": {
+      "bytes": 13730,
+      "sha256": "91e8bb51be8209be6781b9bc0a9c937ad652016186e1f3281d79f73c57443973"
+    },
+    "build.py": {
+      "bytes": 14581,
+      "sha256": "5a006ad659f890d20e553d387e39b95e2ff005fe8525f1f24bebaef0f048666b"
+    },
+    "recipe.json": {
+      "bytes": 4851,
+      "sha256": "2f8a83caeb73f5742507ee7cd4a6094c589002db010c6c24026abf68f4356760"
+    },
+    "README.md": {
+      "bytes": 4547,
+      "sha256": "6bd47ca940e9a3cb174ac46df26c90ab950881be12e4ed9c1454f0c087a6c159"
+    },
+    ".gitattributes": {
+      "bytes": 14,
+      "sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9"
+    }
+  },
+  "source_only_native_producer_sha256": "5a006ad659f890d20e553d387e39b95e2ff005fe8525f1f24bebaef0f048666b",
+  "producer_ancestry_metadata_only": {
+    "adapted_whole_producer_sha256": "454daf1c5a4eaf40cf55b7516e45d840dc2f8cc64df04a9e29556e4c2b1ea772",
+    "no_runtime_dependency": true
+  },
+  "expected_control_whole": {
+    "scalar-shipping": {
+      "bytes": 7540,
+      "sha256": "26eaedc2560776a226a8e17886e209501346524e97fc2b47483f13335fbde013"
+    },
+    "hq-shipping": {
+      "bytes": 7800,
+      "sha256": "3c863ceba32bf9173bf53d72f575c9e28e2ce2eb1cc43fde38bf03d6c9eff3ca"
+    }
+  },
+  "candidate_native": {
+    "scalar-shipping": {
+      "bytes": 8124,
+      "sha256": "199da6e1e1a94c97fe853e0ff3d89b52e2057a55592052e7fbe5500147e4aeec",
+      "entry": 4202061,
+      "layout": {
+        "entry": 4202061,
+        "section_offset": 0,
+        "section_size": 0,
+        "section_count": 0,
+        "section_names": 0,
+        "segments": [
+          {
+            "type": 1,
+            "flags": 5,
+            "offset": 0,
+            "vaddr": 4194304,
+            "paddr": 4194304,
+            "filesz": 8124,
+            "memsz": 8124,
+            "align": 4096
+          },
+          {
+            "type": 1,
+            "flags": 6,
+            "offset": 0,
+            "vaddr": 4202496,
+            "paddr": 4202496,
+            "filesz": 0,
+            "memsz": 175092,
+            "align": 4096
+          },
+          {
+            "type": 1685382481,
+            "flags": 6,
+            "offset": 0,
+            "vaddr": 0,
+            "paddr": 0,
+            "filesz": 0,
+            "memsz": 0,
+            "align": 8
+          }
+        ],
+        "image_base": 4194304,
+        "image_size": 8124,
+        "image_pages": 8192,
+        "bss_base": 4202496,
+        "bss_size": 175092,
+        "bss_pages": 176128,
+        "guard_base": 4190208,
+        "reserve_size": 192512,
+        "upper_guard": 4378624
+      }
+    },
+    "hq-shipping": {
+      "bytes": 8512,
+      "sha256": "3f4269dc5c0d72c0b43bc73c6a11afdab5844836e12e7c31d60dde08c8ae2806",
+      "entry": 4202367,
+      "layout": {
+        "entry": 4202367,
+        "section_offset": 0,
+        "section_size": 0,
+        "section_count": 0,
+        "section_names": 0,
+        "segments": [
+          {
+            "type": 1,
+            "flags": 5,
+            "offset": 0,
+            "vaddr": 4194304,
+            "paddr": 4194304,
+            "filesz": 8512,
+            "memsz": 8512,
+            "align": 4096
+          },
+          {
+            "type": 1,
+            "flags": 6,
+            "offset": 0,
+            "vaddr": 4206592,
+            "paddr": 4206592,
+            "filesz": 0,
+            "memsz": 175092,
+            "align": 4096
+          },
+          {
+            "type": 1685382481,
+            "flags": 6,
+            "offset": 0,
+            "vaddr": 0,
+            "paddr": 0,
+            "filesz": 0,
+            "memsz": 0,
+            "align": 8
+          }
+        ],
+        "image_base": 4194304,
+        "image_size": 8512,
+        "image_pages": 12288,
+        "bss_base": 4206592,
+        "bss_size": 175092,
+        "bss_pages": 176128,
+        "guard_base": 4190208,
+        "reserve_size": 196608,
+        "upper_guard": 4382720
+      }
+    }
+  },
+  "geometry_scope": "Exact cost-only declarations statically approved by root. Guards/reserve are loader macros, not observed native ELF segments or runtime mappings.",
+  "runtime_authorized": false,
+  "checkpoint": 0,
+  "codec_fixed": 1,
+  "scope": "One actual complete-file measurement of combined candidates; no additive estimate, old production admission stays unchanged and rejects candidates; no CHECKPOINT or production runtime."
+}

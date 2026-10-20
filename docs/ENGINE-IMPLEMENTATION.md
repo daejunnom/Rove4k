@@ -80,6 +80,11 @@ The source-composition checkpoint `418435c` passes both language jobs in its
 and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39367412571).
 Its B target/alpha, D metadata layout and Rust constructor experiments retain
 their separate local proof scopes; these are not additional CI executions.
+The maintained-F/qualified-composition checkpoint `8fc4267` passes both language
+jobs in its [exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39368674853)
+and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39368674790).
+The C job actually regenerates and executes F5179. The A/F, D phase/composition
+and Rust data8 experiments below retain their separate local evidence scopes.
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
@@ -95,10 +100,10 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
-| A | 5,129 B | 1,033 B | Shared startup/search phase counter, owned move query, ALONE stream |
+| A | 5,072 B | 976 B | Shared startup/search phase counter, owned move query, fixed private spelling |
 | B | 5,955 B | 1,859 B | Hybrid bitboards, legal SEE/singular and fixed private spelling |
 | C | 5,723 B | 1,627 B | Real AVX2 evaluation, cache removal and fixed private spelling |
-| D scalar / HQ | 7,540 / 7,800 B | 3,444 / 3,704 B | Own ELF restoration with finite minimum shipping protocol |
+| D scalar / HQ | 7,478 / 7,718 B | 3,382 / 3,622 B | Own ELF restoration, metadata-first Board and shared PVS retry phase |
 | E | 5,679 B | 1,583 B | All 21 untrained coefficients in evaluation/ordering; fixed spelling |
 | F | 5,179 B | 1,083 B | Full-depth MTD(f), beta-only search and fixed private spelling |
 
@@ -1763,6 +1768,52 @@ raw ten-local/sixteen-closure freeze is
 The 228-byte saving leaves F 1,083 B above 4 KiB. Core evidence is reused only
 through exact native identity; no new strength or target-profile claim follows.
 
+The later [A-only macro-preserving candidate](../engines/experiments/tiny-alpha-a/README.md)
+retains the exact 31 A-present alias pairs and their gaps, while protecting all
+eight PLY code uses instead of replacing that equal-length macro. This is a new
+fixed candidate; the joint A failure above remains unchanged. It saves 249 B of
+source and 57 B of actual whole file, **5,129 to 5,072 B**. Raw full-PP inverse
+uses aliases alone, with no whitespace/number normalization; final dumps and
+the separate configured 2/18/128 probe pass. Both complete native files equal
+the original 22,672-byte literal before codec; DEV and all runtime/compiler/
+profile/ALONE choices remain unchanged.
+
+Two actual selected-wrapper quit/EOF sessions pass eight GO epochs, exact
+restored native, persistent three TIDs, legal results and physical settlement.
+The corrected outer ownership adapter is the executed version for these new A
+sessions. This does not rerun broad core, sanitizer, game or performance proof;
+core reuse is through exact native identity and cancellation causality stays
+unproven. Thirty-three ordinary LF sources close the producer and verifier.
+Final index SHA is
+`5d0878cab7b9f7758bb12a11ea490c6e3fdc01f208aebdbdcb5536adcdf55f7b`;
+actual runtime receipt is
+`c7e8a9ef92184e6a30f5e8d7a7d5ebe067eeaade38ab6651539a5b77e0a549c7`;
+whole-file SHA is
+`47370ce2d27e84349eade3f7b3ff698f5e76f1cb382531e409420b6dbbbb8f2d`.
+This separate local candidate remains 976 B oversized; its maintained-source
+promotion has its own subsequent reproduction/runtime step.
+
+The maintained A now promotes that exact candidate through four files: builder,
+recipe, README and an owned ordinary `shipping_alpha.py`. Original forty-five
+renames, fixed resources and thirty-one function spellings keep their order;
+the new fixed map is the final shipping stage. DEV bypasses it. Canonical engine,
+full native/DEV bytes, compiler, profile, launcher, template, existing helpers
+and ALONE settings remain exact. The helper reads no experimental/historical
+or generated-engine input. Original nine sources/archive and shipping/DEV
+controls are preserved before replacement.
+
+Two independent seventeen-file source extractions each reproduce shipping and
+DEV twice. Four actual selected-wrapper sessions pass sixteen GO epochs,
+restored image identity, persistent three-TID startup, legal zero-clock/bare
+results and active quit/EOF reader/process/path settlement. Historical raw PP
+and core proofs remain reused by exact identity; no broad campaign is rerun.
+Promotion receipt SHA is
+`41516d5993b1be2473c33dc7b3f42864a22d67963a63453f665eaef9e4122fb5`;
+ten-local/seventeen-closure source freeze is
+`54d773e921f115a4c6c801a485773621b4f81b94f348c1c55d3e2fecdc0da9b4`.
+The original A/F failure and all frozen experiments remain unchanged. This is
+a local source promotion pending a subsequent exact-head CI, still oversized.
+
 ## D retry-phase qualification and metadata composition
 
 The [D retry-phase experiment](../engines/experiments/tiny-d-search-phase/README.md)
@@ -1798,10 +1849,65 @@ per-form guard/reserve constants are still declarations, not physical proof.
 Old production image admission remains unchanged and rejects the new natives.
 The cost producer has no CHECKPOINT or engine executions. Named-field Board,
 special-move/search and the new two-/three-page physical qualification are a
-separate in-progress proof, so neither this cost nor phase-only proof promotes
+separate subsequent proof below; neither cost nor phase-only proof promotes
 the combined image automatically. Twenty-eight ordinary sources are frozen;
 handoff index SHA is
 `2bda9d37186d0d171a5a7f3928929082085595b25399ed63382bd271209b639e`.
+
+The separate [combined-image qualification](../engines/experiments/tiny-d-layout-phase-proof/README.md)
+now closes forty ordinary source inputs without editing the frozen cost or
+phase-only producers. Four optimized one-worker DEV subjects pass the same
+twenty actual search cases, comparing normalized named Board fields/mailbox,
+full Worker, TT and game state. A separate independent-oracle Board campaign
+passes twenty-four fixed cases per subject, 3,051 nodes each, including perft
+400/2,039/191, initialization, special moves/rights, all-square attacks, full
+HCE, hash and reversible-path state. Layout normalization is limited to Board;
+raw within-object snapshots and the other unchanged representations stay exact.
+Reduced-null/full-null/full-window retries retain their observed coverage;
+beta-high remains dynamically unproven in this finite set.
+
+Four actual shipping quit/EOF sessions and two separate pre-entry CHECKPOINTs
+pass exact native/restored bytes, RX/BSS padding, permissions, image and worker
+guards, FD012/no children, three persistent startup TIDs, twelve legal results,
+exit 0, reader join and owned group/TID absence. Scalar's two-page RX, BSS at
+0x402000, upper guard 0x42d000 and reserve 0x2f000 are now physically observed;
+HQ retains its separately observed three-page class. Both have 43 BSS pages.
+No forced cleanup is required. Loader/codec/runtime/pool are unchanged source
+inputs, not new broad fault or game executions. Original production admission
+remains unchanged during this experimental proof. Final index SHA is
+`b05e3e344983c0bc340c28570b0229c8c5ab3cb1e579ca0e3bf290ac8a51cc83`;
+actual physical receipt is
+`dfcebada0c43fee2dba85893385f261bc398b4c4808a90a6d90055ef1c922add`.
+The qualified experiment remains 3,382/3,622 B oversized. Its separate
+maintained-source promotion has not been included in these experimental runs.
+
+The maintained D entry now promotes that exact header/search pair and the
+qualified native/whole/audit literals through seven files. Six other native
+sources, runtime/pool, loader/codec, compiler/flags/profile, fresh-source tool
+and LF policy remain exact. Packer admission binds each full native SHA/size
+to its own HQ flag, entry and complete mapping class. The independent verifier
+requires the full per-form literal layout. This is not a generic two-/three-page
+permission, and historical experiment guards remain unchanged. Earlier DEV
+identities are explicitly ancestry only; the changed Board/search does not
+claim byte-identical DEV binaries.
+
+Before editing, the old eighteen sources, archives and native/whole/audit
+controls are preserved externally. Two independent twenty-member source
+extractions reproduce eight natives, eight whole files and four separate
+audits. Eight new actual shipping sessions and four pre-entry checkpoints
+pass exact restored images, the two mappings, twenty-four legal results,
+startup/guard/permission checks and physical settlement, with no forced cleanup.
+The new maintained source closure reuses the separate Board/search proof by
+exact fragments; it does not rerun broad fault, game or benchmark campaigns.
+Final promotion index SHA is
+`b8f7c95d3606caae4ce251258e9ed1a60522690f805a64ce1683166f61c49421`;
+fresh actual results SHA is
+`87b78afdc9438aaf34d43f5b118ce89e1fa5558030d437ccc4ba3730c741e8fc`;
+closed source archive SHA is
+`49a1fd6266dfe3a374a250d962eb82473e6f38e5ab9367647e339cee9fa2f184`.
+This local source promotion awaits its subsequent exact-head CI and remains
+oversized; reduced beta-high dynamic coverage, strength and target scaling
+are not enlarged by the promotion.
 
 ## Rust D ASCII data8 packed cost and positive observation
 
@@ -1845,3 +1951,28 @@ actual positive runtime receipt is
 `a5221549c16adb9af08c0d46a90e023481f269773fa61916703353131f98aeb4`.
 Both whole files remain oversized, and this experiment does not replace the
 maintained Rust D profile or establish final target strength/scaling.
+
+## E feature/material-pass composition: measured loss
+
+The [E fusion experiment](../engines/experiments/tiny-e-feature-dead/README.md)
+collects the existing insufficient-material classification during the existing
+twenty-one-coefficient leaf feature pass. DEV retains the prior source path;
+the candidate's normal shipping source uses one fixed structural composition
+and the same fixed eighty-nine-name policy with its own literal input counts.
+No existing helper or historical guard is broadened.
+
+The exact maintained E5679 control reproduces twice first. Candidate shipping
+source falls **12,641 to 12,626 B** and native falls **26,408 to 26,376 B**, but
+the actual complete file grows **5,679 to 5,683 B**. Both independent candidates
+reproduce source/native/bootstrap/whole bytes. Candidate alias-only full-header
+inverse, final macros and pre-/post-alias full native equality pass; the
+structurally changed image is not equal to the old E native. The measured
+whole-file loss ends this candidate. There is no candidate engine/semantic,
+DEV-native, game, benchmark or promotion campaign; maintained E stays 5,679 B.
+
+Twenty-five ordinary LF source inputs preserve the candidate and the control.
+Final index SHA is
+`cb99a23f854792459be534a06bbb5836d138cb68850852bf078e20a5d8ee1ff9`;
+actual first-cost receipt is
+`2c2417db620d65f12d31807529dc13a055bcd3b037c6a69c328b7382e0149b0b`.
+This records a rejected size result, not new functional acceptance for E.

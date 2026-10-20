@@ -29,7 +29,8 @@
     "engines/scripts/minify.py": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b",
     "engines/scripts/rename_c.py": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
     "engines/compact/tiny-a/stitch.py": "2b0d25b4855a3ed4ddd9e24b8e4b0e081439baa2ed8f744dba0215a700023f23",
-    "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e"
+    "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
+    "engines/compact/tiny-entry-a/shipping_alpha.py": "bcc2c28ad8b51a5c3eec6752e157f5de8c46e960333ad1a24fbd0ad328d8597d"
   },
   "fixed_renames": [
     [
@@ -363,13 +364,13 @@
   },
   "expected": {
     "readable_sha256": "71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734",
-    "source_bytes": 10855,
-    "source_sha256": "f69044dc9ad2869bd3583308ef446a67f3afa6b31b36e7daade6a6b8cd9a3e6a",
+    "source_bytes": 10606,
+    "source_sha256": "252d87ed58df8c86b2d7898fafcedc0bed1c3bab447846b484e5afbdd5b27ac3",
     "native_bytes": 22672,
     "native_sha256": "84ce7fd107783474af8f39aeec7b95c244d475ab797eefd2627b9741b265210a",
-    "whole_bytes": 5129,
-    "whole_sha256": "5da238b8f2cc622e5f71a2da07a4f3a787c6679fa29f78b27546800174578527",
-    "bootstrap_sha256": "53cd5d2cf78c8f779744d48f597a797b08c6df12d11cb1967d52dbf37fef9e96",
+    "whole_bytes": 5072,
+    "whole_sha256": "47370ce2d27e84349eade3f7b3ff698f5e76f1cb382531e409420b6dbbbb8f2d",
+    "bootstrap_sha256": "7278a0af96c7217cbdec383692a4b7996d6c73b096cd32ea2dc2c4060caf558c",
     "dev_source_sha256": "41ab9f0f5d28183b76833d038c40e0bb6a2ee6ef9303766c293dd577680a4c9c",
     "dev_native_sha256": "8733dbf0814a2c2545251f6e0e17d243ecfd41fce7853fb325ca9720fedd1102"
   },
@@ -402,7 +403,21 @@
       },
       "scope": "actual fixed 5140 composition cost; ownership query/reset and unchanged board/search evidence reused by exact source boundaries, transport preserves exact ownership bootstrap; new selected runtime receipt is separate"
     },
-    "scope": "exact qualified startup5129 source; old rule/search/query proofs and five DEV0 startup modes reused through actual source bindings; DEV pins independently generated/compiled twice before literal admission, no new fixture execution"
+    "scope": "exact qualified startup5129 source; old rule/search/query proofs and five DEV0 startup modes reused through actual source bindings; DEV pins independently generated/compiled twice before literal admission, no new fixture execution",
+    "shipping_alpha": {
+      "policy_sha256": "e1d5daf3636851711d08309b772edf7a3546bfffeb402d745d33eaaf80560244",
+      "FINAL_index_sha256": "5d0878cab7b9f7758bb12a11ea490c6e3fdc01f208aebdbdcb5536adcdf55f7b",
+      "source_inventory_sha256": "6a009c4783cdea8384318b5e6b4908caddbfdf6d05417bb785975b2aa0372106",
+      "cost_sha256": "64c7908e6b560fa1f2c798c2f33de36a51af52a210d7f9f7db21a01cc2b1fe15",
+      "selected_runtime_sha256": "c7e8a9ef92184e6a30f5e8d7a7d5ebe067eeaade38ab6651539a5b77e0a549c7",
+      "selected_verifier_runtime_sha256": "03fb9fb7211bf186b8eb58b03bb87762b4a30b5aa378056c30f12ca4b606ef39",
+      "mapping_used": 31,
+      "source_edits": 95,
+      "source_saved_bytes": 249,
+      "preserved_PLY_code_uses": 8,
+      "scope": "new A31 PLY-preserving sole candidate raw alias-only full-PP inverse and final dM/resource gates plus actual2selectedsessions; exact native/DEV core reuse; metadata only, not regeneration inputs",
+      "original_AF_A_strict_PP_failure_preserved": true
+    }
   },
   "provenance": {
     "origin": "maintained readable Tiny A and selected structural/minimal-UCI/legal-generated-history decisions, qualified nullable-text/made-child query and worker-entry reset ownership, fixed LZMA-alone transport; qualified pending-owned startup arrival barrier with existing wait reused",
@@ -413,6 +428,7 @@
     "DEV_identity": "new startup-source DEV built twice with existing fixed command; not old 5140 DEV byte identity",
     "transport": "one measured composition, actual5140, no additive savings assumption; fixed ALONE LZMA1 profile and77byte prefix",
     "unchanged_board_TT_search_think_prefix_sha256": "9c0aba3b85cb8d36905c81d1bef5135722fcf71e4f7983374c7f1c7ae7a17f95",
-    "private_startup_difference": "main startup wait sets stopped=1 instead of initial0 before firstGO; GO clears it; direct search consumers must clear explicitly"
+    "private_startup_difference": "main startup wait sets stopped=1 instead of initial0 before firstGO; GO clears it; direct search consumers must clear explicitly",
+    "shipping_alpha": "original fixed renames/resources/functions unchanged; then owned ordinary A31 fixed map, exact counts/freshness/opaque preservation; retain all8 PLY uses; no search"
   }
 }

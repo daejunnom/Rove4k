@@ -84,14 +84,16 @@ static int search(Worker *w,const Board *p,int depth,int alpha,int beta,int ply,
         int from=FROM(m),to=TO(m),tactical=capture(p,m)||PROMO(m);
         if(quiet&&(!tactical||alpha>=beta))continue;
         w->keys[w->length++]=q.h;
-        if(legal==1||depth<=0)score=-search(w,&q,depth-1,-beta,-alpha,ply+1,m,0);
-        else{
+        int narrow=legal>1&&depth>0,reduce=0;
+        if(narrow){
             COUNT(w,pvs);
-            int reduce=depth>=4&&legal>=4&&!tactical&&!check&&!attacked(&q,q.k[q.s<0],-q.s);
+            reduce=depth>=4&&legal>=4&&!tactical&&!check&&!attacked(&q,q.k[q.s<0],-q.s);
             if(reduce){COUNT(w,corr_uses);reduce=evaluation+w->correction[p->h&1023]/64<alpha+100;}
-            score=-search(w,&q,depth-1-reduce,-alpha-1,-alpha,ply+1,m,0);
-            if(reduce&&score>alpha)score=-search(w,&q,depth-1,-alpha-1,-alpha,ply+1,m,0);
-            if(score>alpha&&score<beta)score=-search(w,&q,depth-1,-beta,-alpha,ply+1,m,0);
+        }
+        for(;;){
+            score=-search(w,&q,depth-1-reduce,-(narrow?alpha+1:beta),-alpha,ply+1,m,0);
+            if(!narrow||score<=alpha||(!reduce&&score>=beta))break;
+            if(reduce)reduce=0;else narrow=0;
         }
         --w->length;
         if(atomic_load_explicit(&stopped,memory_order_relaxed))return 0;

@@ -31,14 +31,7 @@ SHIPPING_PROTOCOL = {
     'hard_wall_cap': False,
     'completion_fences': 'next go, position, quit, EOF wait for result-before-completed epoch',
 }
-EXPECTED = {
-    "scalar-shipping": {"bytes": 7540, "sha256": "26eaedc2560776a226a8e17886e209501346524e97fc2b47483f13335fbde013",
-                        "native_bytes": 8348, "native_sha256": "0e21d39f5f294f496f2224595462661864b4a274f4c2238a38f47024f0c93bbf",
-                        "audit_bytes": 7563, "audit_sha256": "02a6400574c166d89bc0e8c0b22b9b68097e50ff4524b182683b8e83856ba6c9", "entry": 4202279},
-    "hq-shipping": {"bytes": 7800, "sha256": "3c863ceba32bf9173bf53d72f575c9e28e2ce2eb1cc43fde38bf03d6c9eff3ca",
-                    "native_bytes": 8736, "native_sha256": "6b987cc4f616ce9d835679c61d9aff8c0c16b59ec9a74db055c8ce826e14581f",
-                    "audit_bytes": 7823, "audit_sha256": "828d858a00cf03460a006b9162dfa6f8f2e3fc6aedab2bd3aa098ec75bb063fb", "entry": 4202596},
-}
+EXPECTED = {'scalar-shipping': {'bytes': 7478, 'sha256': 'd4f2ba718c5e9391708c86468416338f78b6134d1f017267c6c34add187381f2', 'native_bytes': 8124, 'native_sha256': '199da6e1e1a94c97fe853e0ff3d89b52e2057a55592052e7fbe5500147e4aeec', 'audit_bytes': 7501, 'audit_sha256': '2d509965f30de9151b4e957e8a805b35f716ac7461960497b01c69639d8d815d', 'entry': 4202061, 'layout': {'bss_base': 4202496, 'bss_pages': 176128, 'bss_size': 175092, 'entry': 4202061, 'guard_base': 4190208, 'image_base': 4194304, 'image_pages': 8192, 'image_size': 8124, 'reserve_size': 192512, 'section_count': 0, 'section_names': 0, 'section_offset': 0, 'section_size': 0, 'segments': [{'align': 4096, 'filesz': 8124, 'flags': 5, 'memsz': 8124, 'offset': 0, 'paddr': 4194304, 'type': 1, 'vaddr': 4194304}, {'align': 4096, 'filesz': 0, 'flags': 6, 'memsz': 175092, 'offset': 0, 'paddr': 4202496, 'type': 1, 'vaddr': 4202496}, {'align': 8, 'filesz': 0, 'flags': 6, 'memsz': 0, 'offset': 0, 'paddr': 0, 'type': 1685382481, 'vaddr': 0}], 'upper_guard': 4378624}}, 'hq-shipping': {'bytes': 7718, 'sha256': '3bb8a6a97a27a77508848ab9bd388a4802e07f8d8ff0e37b536176423aa7028f', 'native_bytes': 8512, 'native_sha256': '3f4269dc5c0d72c0b43bc73c6a11afdab5844836e12e7c31d60dde08c8ae2806', 'audit_bytes': 7741, 'audit_sha256': '3253d027b6132e42e47e963e011dd230384aa96dae5c4b3f3f13a9ec8ea68a1a', 'entry': 4202367, 'layout': {'bss_base': 4206592, 'bss_pages': 176128, 'bss_size': 175092, 'entry': 4202367, 'guard_base': 4190208, 'image_base': 4194304, 'image_pages': 12288, 'image_size': 8512, 'reserve_size': 196608, 'section_count': 0, 'section_names': 0, 'section_offset': 0, 'section_size': 0, 'segments': [{'align': 4096, 'filesz': 8512, 'flags': 5, 'memsz': 8512, 'offset': 0, 'paddr': 4194304, 'type': 1, 'vaddr': 4194304}, {'align': 4096, 'filesz': 0, 'flags': 6, 'memsz': 175092, 'offset': 0, 'paddr': 4206592, 'type': 1, 'vaddr': 4206592}, {'align': 8, 'filesz': 0, 'flags': 6, 'memsz': 0, 'offset': 0, 'paddr': 0, 'type': 1685382481, 'vaddr': 0}], 'upper_guard': 4382720}}}
 OWNED = set()
 
 
@@ -461,7 +454,7 @@ def main():
             native_path = resolve(native, build_path.parent)
             require(sha(native_path.read_bytes()) == expected["native_sha256"] and native_path.stat().st_size == expected["native_bytes"], "actual native file differs")
             require(layout["image_size"] == expected["native_bytes"] and layout["image_base"] == 0x400000, "native mapping layout differs")
-            require(layout["entry"] == expected["entry"] and layout["image_pages"] == 12288 and layout["bss_size"] == 175092, "selected finite entry/RX/BSS class differs")
+            require(layout == expected["layout"], "literal identity/form layout differs")
             require(layout["image_pages"] == (layout["image_size"] + 4095) // 4096 * 4096 and layout["bss_pages"] == 176128, "native page sizing differs")
             require(layout["guard_base"] == layout["image_base"] - 4096 and layout["bss_base"] == layout["image_base"] + layout["image_pages"] and layout["upper_guard"] == layout["bss_base"] + layout["bss_pages"], "native guard/BSS layout differs")
             require(len(engine["candidates"]) == 1, "expected exactly one selected fixed-codec own ELF")

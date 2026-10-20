@@ -51,12 +51,18 @@ def admit(data, expected, digest):
     layout = expected['layout']
     if any(parsed[name] != layout[name] for name in parsed):
         raise ValueError('selected TinyD layout differs')
-    # These are the two explicitly qualified finite-policy images, with exact
-    # constants; this maintained entry does not broaden the loader ABI.
-    if (layout['image_base'], layout['image_pages'], layout['bss_base'], layout['bss_size'],
-        layout['bss_pages'], layout['guard_base'], layout['reserve_size'], layout['upper_guard']) != (
-        0x400000, 0x3000, 0x403000, 175092, 0x2b000, 0x3ff000, 0x30000, 0x42e000):
-        raise ValueError('unsupported fixed mapping contract')
+    # Bind each exact native identity to its own qualified private mapping ABI.
+    # This is not a generic permission for arbitrary two/three-page images.
+    fixed = {
+        ('199da6e1e1a94c97fe853e0ff3d89b52e2057a55592052e7fbe5500147e4aeec', 8124):
+            (0, 0x401e4d, (0x400000, 0x2000, 0x402000, 175092, 0x2b000, 0x3ff000, 0x2f000, 0x42d000)),
+        ('3f4269dc5c0d72c0b43bc73c6a11afdab5844836e12e7c31d60dde08c8ae2806', 8512):
+            (1, 0x401f7f, (0x400000, 0x3000, 0x403000, 175092, 0x2b000, 0x3ff000, 0x30000, 0x42e000)),
+    }.get((expected['native_sha256'], expected['native_bytes']))
+    geometry = tuple(layout[key] for key in ('image_base', 'image_pages', 'bss_base', 'bss_size',
+                      'bss_pages', 'guard_base', 'reserve_size', 'upper_guard'))
+    if fixed != (expected['hq'], layout['entry'], geometry) or layout['image_size'] != expected['native_bytes']:
+        raise ValueError('unsupported exact identity/form mapping contract')
     return dict(layout)
 
 

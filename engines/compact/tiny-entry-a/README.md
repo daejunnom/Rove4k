@@ -4,10 +4,12 @@
 It contains the development and shipping forms together. Edit this source when
 changing the program; do not maintain the compact C or compressed launcher by
 hand. It incorporates qualified query/job ownership, the measured LZMA-alone
-transport and startup-counter ownership source. Search policy, compiler argv,
+transport and startup-counter ownership source, followed by one fixed
+shipping-only A31 spelling policy that preserves PLY uses. Search policy, compiler argv,
 worker resources and the Python bootstrap's process/signal/cleanup logic remain unchanged.
 
-The complete selected launcher is **5,129 bytes**, 1,033 bytes above 4,096. This
+The complete selected launcher is **5,072 bytes**, a 57-byte reduction from
+5,129 and still 976 bytes above 4,096. This
 folder does not claim the 4 KiB target, a strength result or general target
 portability. Its qualified environment is Ubuntu 24.04.4 x86-64, GCC 13.3.0,
 binutils 2.42, glibc 2.39, Python 3.12.3 and xz/lzma 5.4.5. Python's linked LZMA encoder is
@@ -41,13 +43,16 @@ true EOF/no trailing bytes, and independent `lzma -dc` output before packaging.
 
 `recipe.json` stores the actual selected decisions: 45 accepted token mappings,
 the fixed resource substitutions, and 31 function spellings, all in application
-order. No identifier, compiler, flag, compression or runtime search is run.
+order. Shipping then applies the owned ordinary `shipping_alpha.py` fixed
+31-name map with all 95 token occurrences checked. PLY is protected and retains
+all eight code uses; the final WORKERS/TT_BITS spelling stage has zero resource
+occurrences. No identifier, compiler, flag, compression or runtime search is run.
 `bootstrap.py.in` preserves the selected bootstrap with only its source literal
 replaced by one explicit marker; `launcher.sh` is its exact launcher prefix.
 
-Five repository helpers are needed: `engines/scripts/specialize.py`,
+Six repository helpers are needed: `engines/scripts/specialize.py`,
 `minify.py`, `rename_c.py`, and `engines/compact/tiny-a/stitch.py` plus
-`pack_stream.py`. Their relative paths and LF-normalized SHA-256 values are
+`pack_stream.py`, together with the local `shipping_alpha.py`. Their relative paths and LF-normalized SHA-256 values are
 pinned in the recipe. The builder copies and checks these files before importing
 them from its external output, and uses only Python standard libraries. It does
 not read an old experiment directory, report, build.json, executable, dependency
@@ -62,9 +67,10 @@ in the external output. An incomplete report remains incomplete on failure.
 | Output | Bytes | SHA-256 |
 | --- | ---: | --- |
 | Readable engine.c | 24,820 | `71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734` |
-| Compact shipping C | 10,855 | `f69044dc9ad2869bd3583308ef446a67f3afa6b31b36e7daade6a6b8cd9a3e6a` |
+| Compact shipping C | 10,606 | `252d87ed58df8c86b2d7898fafcedc0bed1c3bab447846b484e5afbdd5b27ac3` |
 | Stripped native ELF | 22,672 | `84ce7fd107783474af8f39aeec7b95c244d475ab797eefd2627b9741b265210a` |
-| Complete launcher | 5,129 | `5da238b8f2cc622e5f71a2da07a4f3a787c6679fa29f78b27546800174578527` |
+| Complete launcher | 5,072 | `47370ce2d27e84349eade3f7b3ff698f5e76f1cb382531e409420b6dbbbb8f2d` |
+| Decoded bootstrap | 11,596 | `7278a0af96c7217cbdec383692a4b7996d6c73b096cd32ea2dc2c4060caf558c` |
 
 The diagnostic C and ELF must equal the explicitly admitted startup-source DEV:
 `41ab9f0f5d28183b76833d038c40e0bb6a2ee6ef9303766c293dd577680a4c9c`
@@ -85,11 +91,15 @@ automatically updated by the canonical builder.
 ```sh
 python3 -B engines/compact/tiny-entry-a/fresh.py --out /absolute/new/archive-proof
 python3 -B /absolute/new/archive-proof/checkout-1/engines/compact/tiny-entry-a/verify.py \
-  --build /absolute/new/archive-proof/build-1 --out /absolute/new/runtime-proof
+  --build /absolute/new/archive-proof/build-1 --out /absolute/new/runtime-proof-1
+python3 -B /absolute/new/archive-proof/checkout-2/engines/compact/tiny-entry-a/verify.py \
+  --build /absolute/new/archive-proof/build-2 --out /absolute/new/runtime-proof-2
 ```
 
-`fresh.py` names the complete source closure explicitly: this folder's nine
-files, the five pinned build helpers and the two pinned independent test helpers.
+`fresh.py` names the complete source closure explicitly: this folder's original
+nine files, the six pinned build helpers (including the new local policy) and
+the two pinned independent test helpers, totaling 17 ordinary files. The local
+policy enters through `recipe.helper_sha256`; `fresh.py` is unchanged.
 It preserves raw input bytes, copies their explicit LF-normalized forms into a separate local Git repository with no
 remote or commits, writes a tree and archives that tree. It never changes the
 project checkout's index. It validates archive paths/types, extracts into two
@@ -109,6 +119,58 @@ finite `go`, and active-search quit/EOF. Each closing epoch must emit one legal
 bestmove and reach process wait, absent `/proc` entry and reader EOF. This is
 bounded lifecycle evidence, not a performance benchmark; CPU activity does not
 establish that cancellation caused completion.
+
+## Fixed A31 spelling policy
+
+The local standalone helper embeds the qualified A-only policy JSON exactly,
+SHA-256 `e1d5daf3636851711d08309b772edf7a3546bfffeb402d745d33eaaf80560244`.
+Only the old 10,855-byte A shipping input and exact 24,820-byte canonical A
+readable are admitted. The helper owns its fixed map, regexes, independent
+opaque scanner and rewrite functions as ordinary source. The caller supplies
+only its pinned lexer and canonical readable bytes; no experiment directory,
+report, generated source, old executable, AF policy file or other engine is
+read by the maintained build.
+
+All 31 role-audited aliases retain the original fixed alias gaps. They must be
+injective and fresh in raw and phase-two words of both the readable and actual
+shipping source. Functions, global/static storage, API identifiers, macros,
+directives and all names outside the exact allowlist remain protected. Both
+the single-pass lexer edit and repeated replacement path must agree. An
+independent scanner preserves exact directives, comments and quoted literals,
+including literal prefixes and backslash-newline splicing. It rejects trigraph
+spellings. Exact count/arithmetic gates require 31 used aliases, 95 edits,
+249 source bytes saved, 432 directive bytes and 53 opaque regions. PLY is absent
+from substitutions and remains eight code uses before and after the rewrite.
+The sole 10,606-byte candidate SHA is literal; no expected value is refreshed.
+
+The separate qualified A-only candidate keeps actual macro uses, unlike the
+earlier joint AF A candidate that failed its strict raw full-PP inverse gate.
+That older failure remains preserved; it is neither relabeled nor promoted.
+The new A-only raw compiler-expanded source passes an alias-only inverse with
+no whitespace normalization or numeric replacement, and the complete final
+macro dumps are byte-identical. Its final resource dump retains PLY=128; the
+configured readable WORKERS=2/TT_BITS=18/PLY=128 probe is separate. Those PP
+checks are reused through exact source/candidate/full-native identity here,
+rather than claimed as a fresh header-expansion campaign by the normal builder.
+The qualified cost receipt is
+`64c7908e6b560fa1f2c798c2f33de36a51af52a210d7f9f7db21a01cc2b1fe15`.
+The new candidate's original actual quit/EOF two-session receipts are
+`c7e8a9ef92184e6a30f5e8d7a7d5ebe067eeaade38ab6651539a5b77e0a549c7`
+and `03fb9fb7211bf186b8eb58b03bb87762b4a30b5aa378056c30f12ca4b606ef39`.
+The A31 FINAL index is
+`5d0878cab7b9f7758bb12a11ea490c6e3fdc01f208aebdbdcb5536adcdf55f7b`.
+These identities are metadata only, never regeneration inputs.
+
+Each independent archive extraction makes two shipping and DEV generations,
+with complete native ELF (including build ID and nonallocated sections) and
+DEV bytes equal to the previous controls. The new complete file is 57 bytes
+smaller; source is 249 bytes smaller. Readable source, search, startup, clock,
+parser, resource profile, native compiler and LZMA-alone packaging are unchanged.
+Broad core/rule/search/startup proofs are reused by those exact identities;
+only the needed new selected-file image, clocks, quit and EOF checks are run.
+Before editing, the old nine files, exact source archive and shipping/DEV
+controls were verified and preserved outside Git. Promotion evidence and all
+generated files also remain outside Git.
 
 ## Program and proof boundary
 
@@ -187,7 +249,8 @@ raw controls, reproduces and strictly decodes each twice, then independently
 encodes/decodes the one combined whole file twice. It runs no engine/compiler.
 That cost-only producer deliberately uses immutable external control artifacts;
 the canonical builder here instead reads only the maintained ordinary source,
-fixed recipe/template/prefix and five tracked helpers. There is no runtime
+fixed recipe/template/prefix and then-five tracked helpers. The current
+spelling promotion adds its local ordinary policy as a sixth helper. There is no runtime
 dependency on the composition folder or those historical artifacts.
 
 The old 5,207-byte nine-file canonical, archive tree

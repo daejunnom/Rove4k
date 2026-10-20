@@ -47,7 +47,7 @@ typedef unsigned Move;
  * h is the FIDE repetition key, v incremental white HCE, r the reversible
  * path digest used only for TT context. e=-1 means no LEGAL en passant.
  */
-typedef struct { int8_t b[128]; int s,c,e,k[2],half,v; uint64_t h,r; } Board;
+typedef struct { int s,c,e,k[2],half,v; uint64_t h,r; int8_t b[128]; } Board;
 int attacked(const Board *,int,int);
 int gen(const Board *,Move *);
 int make(const Board *,Move,Board *);

@@ -68,7 +68,7 @@ def main():
     frozen = out/'inputs'
     frozen.mkdir()
     started, deadline = time.monotonic(), time.monotonic()+180
-    report = {'complete': False, 'scope': 'maintained source regeneration of exact qualified finite C D own-ELFs; no algorithm/mapping-class/loader change',
+    report = {'complete': False, 'scope': 'maintained source regeneration of exact qualified layout-phase C D own-ELFs; two literal per-identity mapping classes, unchanged runtime/loader/codec/flags',
               'resources': recipe['profile'], 'inputs': {}, 'engines': [], 'negative_decoder_controls': [],
               'shipping_protocol': recipe['shipping_protocol'],
               'qualified_receipt_reuse_metadata_only': recipe['qualified_receipts_metadata_only'],

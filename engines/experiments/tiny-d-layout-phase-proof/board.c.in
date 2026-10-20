@@ -1,0 +1,98 @@
+/* Test-only observation of the exact board.c/HQ bodies. Every applied move is
+ * obtained from actual gen and admitted by actual make. Cross-subject records
+ * contain named fields and all mailbox cells, never Board padding or offsets. */
+#include <stdio.h>
+#include <string.h>
+#include "tiny.h"
+_Noreturn void exit(int);
+int tiny_errno;
+#define BC(x) do{if(!(x)){fprintf(stderr,"board contract line %d: %s\n",__LINE__,#x);exit(72);}}while(0)
+_Static_assert(WORKERS==1 && DEV==1 && TT_BITS==18 && PLY==128,"fixed test profile");
+static unsigned visited,cases;
+static int same(const Board *a,const Board *b){
+    return a->s==b->s && a->c==b->c && a->e==b->e && a->half==b->half &&
+        a->v==b->v && a->h==b->h && a->r==b->r && a->k[0]==b->k[0] &&
+        a->k[1]==b->k[1] && !memcmp(a->b,b->b,128);
+}
+static void load(Board *p,const char *text){
+    if(!strcmp(text,"start"))start(p);else BC(fen(p,text));
+    BC(verify_board(p));
+}
+static void uci(Move m,char text[6]){
+    static const char promotion[]="  nbrq";
+    text[0]='a'+(FROM(m)&7);text[1]='1'+(FROM(m)>>4);
+    text[2]='a'+(TO(m)&7);text[3]='1'+(TO(m)>>4);
+    text[4]=PROMO(m)?promotion[PROMO(m)]:0;text[5]=0;
+}
+static int legal(const Board *p,Move out[MOVES]){
+    Move moves[MOVES];int n=gen(p,moves),count=0;BC(n>=0 && n<=MOVES);
+    for(int i=0;i<n;i++){
+        Board q,before=*p;int ok=make(p,moves[i],&q);BC(same(p,&before));
+        if(ok){
+            BC(verify_board(&q));
+            for(int j=0;j<count;j++)BC(out[j]!=moves[i]);
+            out[count++]=moves[i];
+        }
+    }
+    return count;
+}
+static void play(Board *p,const char *text){
+    Move moves[MOVES];int n=legal(p,moves),found=0;
+    for(int i=0;i<n;i++){
+        char move[6];uci(moves[i],move);
+        if(!strcmp(move,text)){Board q;BC(make(p,moves[i],&q));*p=q;found++;}
+    }
+    BC(found==1);
+}
+static unsigned walk(const Board *p,unsigned index,const char *path,int depth){
+    BC(++visited<=6000 && verify_board(p));
+    Move moves[MOVES];int n=legal(p,moves);uint64_t attacks[2]={0,0};
+    for(unsigned bit=0;bit<64;bit++)for(int side=0;side<2;side++){
+        int q=(int)((bit&7)+(bit>>3)*16);
+        if(attacked(p,q,side?-1:1))attacks[side]|=UINT64_C(1)<<bit;
+    }
+    printf("{\"kind\":\"node\",\"case\":%u,\"path\":\"%s\",\"remaining\":%d,",index,path,depth);
+    printf("\"s\":%d,\"c\":%d,\"e\":%d,\"half\":%d,\"v\":%d,\"k\":[%d,%d],",p->s,p->c,p->e,p->half,p->v,p->k[0],p->k[1]);
+    printf("\"h\":\"%016llx\",\"r\":\"%016llx\",\"attacks\":[\"%016llx\",\"%016llx\"],\"b\":[",
+           (unsigned long long)p->h,(unsigned long long)p->r,(unsigned long long)attacks[0],(unsigned long long)attacks[1]);
+    for(int q=0;q<128;q++)printf("%s%d",q?",":"",(int)p->b[q]);
+    printf("],\"legal\":[");
+    for(int i=0;i<n;i++){char move[6];uci(moves[i],move);printf("%s\"%s\"",i?",":"",move);}
+    printf("]}\n");
+    if(!depth)return 1;
+    unsigned leaves=0;
+    for(int i=0;i<n;i++){
+        char move[6],next[32];Board q;uci(moves[i],move);BC(make(p,moves[i],&q));
+        int width=snprintf(next,sizeof next,"%s%s%s",path,*path?" ":"",move);
+        BC(width>0 && (size_t)width<sizeof next);
+        leaves+=walk(&q,index,next,depth-1);
+    }
+    return leaves;
+}
+int main(int argc,char **argv){
+    BC(argc==2);FILE *requests=fopen(argv[1],"r");BC(requests);
+    char line[2048];Board baseline;memset(&baseline,0xa5,sizeof baseline);start(&baseline);BC(verify_board(&baseline));
+    while(fgets(line,sizeof line,requests)){
+        BC(strchr(line,'\n'));line[strcspn(line,"\n")]=0;
+        char *save=0,*id=strtok_r(line,"|",&save),*depth_text=strtok_r(0,"|",&save);
+        char *text=strtok_r(0,"|",&save),*history=strtok_r(0,"|",&save);BC(id && depth_text && text && history && !strtok_r(0,"|",&save));
+        unsigned index;int depth;BC(sscanf(id,"%u",&index)==1 && index==cases);
+        BC(sscanf(depth_text,"%d",&depth)==1 && depth>=0 && depth<=2);
+        Board p,again,initial;memset(&p,0xa5,sizeof p);load(&p,text);initial=p;
+        memset(&again,0x5a,sizeof again);load(&again,text);BC(same(&p,&again));
+        if(strcmp(history,"-")){
+            char *move_save=0;
+            for(char *move=strtok_r(history," ",&move_save);move;move=strtok_r(0," ",&move_save))play(&p,move);
+        }
+        unsigned before=visited,leaves=walk(&p,index,"",depth);
+        /* Reinitialize a populated/history-bearing object, then reload the
+         * same admitted input. Both poison patterns and off-board holes matter;
+         * unnamed padding deliberately has no semantic equality requirement. */
+        start(&p);BC(same(&p,&baseline) && verify_board(&p));
+        load(&p,text);BC(same(&p,&initial));
+        printf("{\"kind\":\"summary\",\"case\":%u,\"nodes\":%u,\"leaves\":%u,\"initialization_and_reinitialization\":true}\n",index,visited-before,leaves);
+        cases++;BC(cases<=24);
+    }
+    BC(!ferror(requests) && !fclose(requests) && cases==24 && !fflush(stdout));
+    return 0;
+}
