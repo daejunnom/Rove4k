@@ -1,0 +1,92 @@
+{
+  "format": 1,
+  "family": "B",
+  "profile": {
+    "workers": 2,
+    "tt_bits": 18,
+    "ply": 128,
+    "dev_default": false
+  },
+  "compiler": [
+    "cc",
+    "-std=c11",
+    "-Os",
+    "-pthread",
+    "-DWORKERS=2",
+    "-DTT_BITS=18",
+    "-DDEV=0",
+    "-x",
+    "c",
+    "-",
+    "-o",
+    "x"
+  ],
+  "dev_compiler": [
+    "cc",
+    "-std=c11",
+    "-Os",
+    "-pthread",
+    "-DWORKERS=2",
+    "-DTT_BITS=18",
+    "-DDEV=1",
+    "-x",
+    "c",
+    "-",
+    "-o",
+    "x"
+  ],
+  "preprocessor": [
+    "cc",
+    "-std=c11",
+    "-Os",
+    "-pthread",
+    "-DWORKERS=2",
+    "-DTT_BITS=18"
+  ],
+  "helper_sha256": {
+    "engines/scripts/specialize.py": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d",
+    "engines/scripts/minify.py": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b",
+    "engines/compact/tiny-b/generate.py": "c2cc1fd68d05d66f5525dfabc2368fdb0ddff2716bbf65ecb2033614b113aa59",
+    "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e"
+  },
+  "compression": {
+    "format": "xz",
+    "filter": "LZMA2",
+    "preset": 9,
+    "extreme": true,
+    "lc": 3,
+    "lp": 0,
+    "pb": 2,
+    "check": "CRC64"
+  },
+  "expected": {
+    "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+    "source_bytes": 15566,
+    "source_sha256": "eea1fe5f60c56aa90d2d51f3fa5a1aa56a63318527943500aa02d0105668f910",
+    "native_bytes": 26592,
+    "native_sha256": "221a865e2712cb3e704128e0ae8353edd358343f564fe53093040f6515d522ec",
+    "whole_bytes": 6219,
+    "whole_sha256": "01261167253dd89a0e2d88aded2ee493fc0ffaec34cd2322459ddbc515f8aefd",
+    "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
+    "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
+    "bootstrap_sha256": "a4b430323614856d68fd59742c25d772459cc8de6cac601848f709dc67ce7c37"
+  },
+  "local_input_sha256": {
+    "engine.c": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+    "bootstrap.py.in": "0402f63d44e66d57174079672762414a2324f8dd8c2b272fe34f49b68e45edbc",
+    "launcher.sh": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a"
+  },
+  "qualified_receipt": {
+    "family_build_sha256": "b94f663777d1219cad9827bd7322cd3a0872f5fcac2a82efb8d4df81335fef90",
+    "portfolio_freeze_sha256": "71d1a8f86d09364fbe9f1f0a2138b5c87a8361a86b46e6756a182f754c9b9f9d",
+    "portfolio_cost_sha256": "f4833f5922dcdddad9abcdbd82f588d1d1e51a5a0e6c63f46b7693fdcbae6455",
+    "portfolio_runtime_sha256": "6f26a3c46bff4d9b3dfe531eaac9a43b9a02eff52d5bda1c1bc2ca9624a84b09",
+    "B_core_proof_sha256": "a2965d8f57d36187cb33a7201467271f66f2dae42c8c42b55c518272eea5e951",
+    "scope": "historical exact-source/artifact qualification metadata; builder does not read or execute receipts"
+  },
+  "provenance": {
+    "origin": "maintained readable Tiny B with bitboard/mailbox attackers, legal SEE, qualified singular and minimal shipping UCI",
+    "source_decisions": "no identifier/resource spelling substitutions; preprocess, lexical compact, exact B no-op diagnostic stripping only",
+    "native_identity_class": "actual restored compiler-stdin image, not historical file-compiled ELF"
+  }
+}

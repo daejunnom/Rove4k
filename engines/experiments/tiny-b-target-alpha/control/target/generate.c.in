@@ -1,0 +1,34 @@
+/* A negative target means all pseudo moves. A nonnegative target asks only
+ * for recaptures on that occupied enemy square; square a1 is valid zero.
+ * Shared geometrical attackers may be pinned. Unchanged make() owns legality.
+ * Target iteration changes move order; this is not node/score parity. */
+static int generate(const Board *p,Move *moves,int target){
+    int n=0,s=p->s;
+    for(int to=target<0?0:target;to<128;to+=target<0?1:128){
+        if((to&0x88)||p->b[to]*s>0||(target>=0&&!p->b[to]))continue;
+        uint64_t origins=attackers(p,to,s);
+        while(origins){
+            int i=__builtin_ctzll(origins),from=(i&7)+(i&56)*2;origins&=origins-1;
+            int pawn=abs(p->b[from])==1;
+            if(!pawn||p->b[to]||to==p->e)add(moves,&n,from,to,pawn);
+        }
+        if(target<0&&!p->b[to]){
+            int from=to-s*16;
+            if(!(from&0x88)){
+                if(p->b[from]==s)add(moves,&n,from,to,1);
+                int far=from-s*16;
+                if(!p->b[from]&&!(far&0x88)&&(far>>4)==(s>0?1:6)&&p->b[far]==s)
+                    add(moves,&n,far,to,0);
+            }
+        }
+    }
+    if(target<0){
+        int home=s>0?4:116,shift=s>0?0:2;
+        if(p->b[home]==s*6&&!attacked(p,home,-s)){
+            if((p->c&(1<<shift))&&!p->b[home+1]&&!p->b[home+2]&&!attacked(p,home+1,-s))add(moves,&n,home,home+2,0);
+            if((p->c&(2<<shift))&&!p->b[home-1]&&!p->b[home-2]&&!p->b[home-3]&&!attacked(p,home-1,-s))add(moves,&n,home,home-2,0);
+        }
+    }
+    return n;
+}
+int gen(const Board *p,Move *moves){return generate(p,moves,-1);}

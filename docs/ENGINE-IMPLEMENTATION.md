@@ -70,6 +70,11 @@ and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/r
 It actually regenerates and exercises F5407, D7540/7800 and both Rust D16816
 production paths. The separately qualified source-spelling experiment retains
 its own cost/runtime evidence; it is not an additional CI step.
+The maintained-B/C/E-spelling checkpoint `7910a33` passes both language jobs in
+its [exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39365629437)
+and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39365629402).
+The C job actually regenerates and runs the promoted B5955/C5723/E5679 entries.
+The independent packed-Rust checkpoint is source-only in this CI claim.
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
@@ -1607,3 +1612,98 @@ Its external index SHA is
 `95c581b682b3cec6398a6d29864b810aa99b5fd01457fa0abb9c74685c2d63c4`.
 This checkpoint establishes implemented and observed Rust restoration paths,
 not complete runtime admission, eligible size, strength or target scaling.
+
+## Rust D constructor reuse first cost
+
+The [runtime-start candidate](../engines/experiments/tiny-rust-d-start/README.md)
+changes only `Board::start()`: initialize the fixed 32 occupied squares through
+the already-shipping `put`, then finish state hash/context. Arbitrary-input
+rebuild, canonical EP, move/search/TT/learning, OS/SMP, ABI, compiler and linker
+remain unchanged. No const factory, dispatch change or unsafe shortcut is added.
+
+Both exact ASCII controls reproduce before candidate compilation. Each candidate
+reproduces independently and passes the existing ELF gates. Allocated `.text`
+falls **272 B** in both profiles; `.rodata` stays 304 B and `.data` 8 B. The
+unchanged data alignment absorbs that gain, so both complete natives remain
+**16,816 B**. Readable and identically merged measurement source each grow 16 B.
+Existing `put` stays 314 B and `start` shrinks 545 to 322 B; changed inlining of
+the unchanged canonical-EP body explains the remaining allocation effect.
+
+Separate ordinary-runtime std units compare all ten Board fields and 151
+elements between original/candidate and check Copy/fresh-start independence.
+Both HQ and scalar pass two tests each. These diagnostics do not compile the
+raw runtime or search. The new production ELFs have not been executed; a future
+packed cost is still a separate measurement. Twenty-four ordinary LF sources
+retain the control and constructor producer without a live-maintained dependency.
+Final aggregate SHA is
+`689a3d5b662bd6d8163fbce5ec882a31dfb6a980d596aa44212e5b5b98b53db5`;
+source manifest SHA is
+`15778ac39d3b529926881c0486df98d7be512e0efca938785e741fd33c26d655`.
+This is an allocated-code saving with narrow constructor proof, not a smaller
+whole file, a source-minification result or a qualified new shipping runtime.
+
+## B target emitter with fixed source spelling
+
+The [target/alpha composition](../engines/experiments/tiny-b-target-alpha/README.md)
+reproduces the maintained 5,955-byte B and combines the earlier target emitter
+with its own literal adaptation of the same 89-name alpha policy. The actual
+whole file is **5,899 B**, a 56 B saving, rather than the additive prediction
+from the separate target-only and spelling results. Compact source falls
+13,606 to 13,559 B; native grows 26,592 to 26,624 B and remains byte-identical
+to the previously qualified target image. No additional core policy changes.
+
+The target uses eighty of the mapping names. Its exact 607 token occurrences,
+unchanged opaque regions, fresh aliases and candidate identities are admitted
+separately; the original alpha helper and its three admitted domains stay
+unchanged. Actual resource/header/full-preprocessor inverse checks and two
+independent source/native/whole generations pass. Two actual selected-wrapper
+quit/EOF sessions pass the unchanged original verifier with literal new source,
+bootstrap and whole-file pins and the already qualified target native pin.
+
+The target's changed generation order and up to 64 reverse attacker queries per
+ordinary generation retain their unmeasured speed tradeoff. No new core/game/
+NPS campaign or universal stack claim follows from the source composition;
+whole-runtime stack qualification stays false and cancellation causality
+unproven. This remains an experimental candidate, 1,803 B oversized, rather
+than an automatic replacement for the maintained B profile.
+
+Thirty-one ordinary LF source files close the experiment without live maintained
+or generated-engine inputs. One later repository-only ignore override admits
+its three ordinary `control/target` sources while keeping other target outputs
+ignored; the original thirty-one bytes/hashes and executions stay unchanged.
+The final summary SHA is
+`f63ff76aff763489621ec6c1115e0a7541334050a86016eae4ad7d4584538c2e`;
+cost receipt is
+`c6b104022c8b1580febcc81f8826c2b2f34c25fa87323540f5c8c4ce8b8da4b7`;
+actual selected runtime is
+`141ccb1f841b6d3687a09d7fa914b13c4b270a673635a96fa47d3f940214e0eb`.
+
+## D metadata-first Board cost
+
+The [D layout experiment](../engines/experiments/tiny-d-layout/README.md)
+moves the Board's existing metadata before its 128-byte mailbox. Field types,
+board/search/runtime statements, compiler/profile and loader/codec stay fixed.
+Both layouts measure size 176, alignment 8 and four padding bytes. Metadata
+offsets become small while mailbox indexing gains an offset; no size advantage
+is assumed before compilation. Read-only consumers show no exposed Board ABI,
+raw serialization or assembly field offsets, but semantic/physical candidate
+qualification is not inferred from that audit.
+
+Original scalar/HQ natives 8,348/8,736 B reproduce first. The one fixed layout
+then reproduces at **8,220/8,576 B**, saving 128/160 B. With the unchanged fixed
+codec and loader, actual whole files reproduce at **7,513/7,748 B**, saving
+27/52 B from the original 7,540/7,800. Header/loader remains 1,115 B. These
+are measured first costs, not qualified new runtime files. The experiment has
+no engine or restoration-checkpoint executions; original image admission still
+rejects the new native identities.
+
+Twenty-five ordinary sources preserve the original native producer and the
+separate whole-cost producer. Final handoff SHA is
+`4f154f5869fb23a91165658a52ac875f319dbfd49c30ccd2ef83e34acf4a7cbe`;
+final raw-source freeze is
+`d807aa5889e2d43fb5da95160143dd2a2e8d46652d1779da54c137c30675e0d3`;
+whole-cost receipt is
+`255cb5028429d6a0aa5ddaba90673d7fe3964c278e4b381ed7666c21d337e1b5`.
+The separately measured retry-phase/layout combination changes the scalar RX
+page class and remains under its own explicit admission and qualification work.
+Its gains are not added to these individual measurements.
