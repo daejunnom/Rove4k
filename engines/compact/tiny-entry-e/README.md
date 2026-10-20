@@ -4,10 +4,11 @@
 It contains the shipping and diagnostic forms together. Its exact hand-authored,
 untrained 21-coefficient integer model supplies both the actual search leaf and
 the actual move priorities. This promotion changes the regeneration inputs and
-source ownership while preserving the program, selected source encoding,
-resources, compiler argv and complete launcher bytes.
+source ownership while preserving the program, resources, compiler argv,
+bootstrap template and fixed codec. The shipping spelling stage below changes
+the source representation and complete-file bytes while preserving native bytes.
 
-The selected complete file is **5,899 bytes**, **1,803 bytes above 4,096**. This
+The selected complete file is **5,679 bytes**, **1,583 bytes above 4,096**. This
 folder does not establish 4 KiB eligibility, strength or many-core performance.
 Its qualified environment is Ubuntu 24.04.4 x86-64, GCC 13.3.0, binutils 2.42,
 glibc 2.39, Python 3.12.3 and xz 5.4.5. Python's LZMA implementation also affects
@@ -31,10 +32,12 @@ cc -std=c11 -Os -pthread -DWORKERS=2 -DTT_BITS=18 -DDEV=0 -x c - -o x
 ```
 
 `engine.c` is conditionally specialized by the actual compiler, lexically
-compacted, and stripped of eight known shipping no-op diagnostic calls. There
-are no renames, new source-policy transforms, parameter changes, identifier
-trials, compiler trials or compression sweeps. The four pinned repository
+compacted, and stripped of eight known shipping no-op diagnostic calls. The
+fixed shipping alpha stage follows; readable C and DEV do not enter it. There
+are no parameter changes, identifier trials, compiler trials or compression
+sweeps. The six pinned repository
 helpers are `engines/scripts/specialize.py`, `engines/scripts/minify.py`,
+`engines/scripts/rename_c.py`, `engines/scripts/fixed_shipping_alpha.py`,
 `engines/compact/tiny-a/stitch.py` and `engines/compact/tiny-a/pack_stream.py`.
 Only `strip_dev_counters` and `source_literal` are consumed from the last two.
 The builder copies and validates their LF-normalized bytes before importing
@@ -59,19 +62,45 @@ Historical receipt hashes in `recipe.json` are provenance metadata only.
 | Output | Bytes | SHA-256 |
 | --- | ---: | --- |
 | Readable engine.c | 28,001 | `0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712` |
-| Compact shipping C | 14,352 | `392aba92dff47317243a7966f9aa1f725357c08b48b9b8072a1d753d6514ed46` |
+| Compact shipping C | 12,641 | `af0ab88d9f4ce25154b3fda909fc00b9eca0cda8d8784b4b07e4926015a2c330` |
 | Restored stdin native ELF | 26,408 | `5429f2d80521f775bac6802ec4940e8e0ff1b344464ed8e9a0629ba6650eb675` |
-| Complete source launcher | 5,899 | `ccf1a0b4c2163b46c445d4ec1add03bcc75ba75d66cd1647ab9dc2ca556687f3` |
+| Complete source launcher | 5,679 | `83e8e7f22f24e3161268554ab4c5ff7ad7f6007822ea6892e6fae68670e80fb4` |
 
 The diagnostic source is 21,314 bytes, SHA-256
 `c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06`.
 Its stdin-compiled native image is 31,376 bytes, SHA-256
 `2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094`.
 The bootstrap is SHA-256
-`7e9a4aa5daeab6f562c2488625e07301a5af428118e3255770701012812b4cfb`.
+`0abbdd272bb28aae532b6c88fbb691b5e353329bde6ea3e2caad1178e4cb9bfa`.
 File-compiled historical native images are a separate identity class.
 
 ## Fresh source archive and actual selected-file sessions
+
+The shipping-only policy `fixed89-alpha-resource-20261020` is embedded verbatim
+in ordinary `engines/scripts/fixed_shipping_alpha.py`; it reads no policy side
+file or experiment output. Its JSON SHA-256 is
+`b3f08ba26b38dbce1e4b63d3eb98ab37f438295cfacff6037b1cfacbf7d5e5a0`.
+The 89 fixed spelling pairs cover admitted private automatic variables,
+parameters, members and owned typedefs; E uses 70 pairs. Function names, global
+and static objects, `Move`, directives, strings, external ABI/libc/pthread names
+and nonlocal members remain unchanged. Only code-token uses of `WORKERS` and
+`TT_BITS` become `2` and `18`; `PLY` is retained. Exact input, counts, opaque
+regions, fresh aliases and expected output are checked. No name, resource,
+compiler or codec search is performed.
+
+E shipping C shrinks by 1,711 bytes and the complete file by 220 bytes relative
+to the qualified 5,899-byte ordered-core control. Its full native ELF, including
+nonallocated notes, must equal the original literal hash; no segment-only or
+build-ID exception is admitted. Readable and DEV bytes remain unchanged. Exact
+source/native/whole identities reuse the actual system-header expansion/inverse
+proof and fixed-policy qualification. First-cost receipt:
+`e0527b2c9c566150791f6095346694961b81dc007fb9f89e1c135755ab81a1d8`;
+selected six-session receipt:
+`5fbd18434187219b571dfb962058298616d560c671485c32d320a368607df427`;
+frozen source receipt:
+`436d7cbdc6ad7fa52b73d5b1e9075971b9249f64d8225b775585a4dbd5b0ad80`.
+These are metadata, never build dependencies. The commands below establish
+separate fresh maintained-source and selected-wrapper evidence.
 
 ```sh
 python3 -I -B engines/compact/tiny-entry-e/fresh.py --out /absolute/new/archive-proof
@@ -80,8 +109,8 @@ python3 -I -B /absolute/new/archive-proof/checkout-1/engines/compact/tiny-entry-
 ```
 
 `fresh.py` names the complete source closure explicitly: this folder's nine
-files, the four pinned build helpers, and the two pinned independent test
-helpers. Raw input bytes and their explicit LF-normalized hashes are preserved.
+files, the six pinned build helpers, and the two pinned independent test
+helpers: 17 files. Raw input bytes and their explicit LF-normalized hashes are preserved.
 A separate local Git repository has no remote or commits; its written tree is
 archived without touching the project index. Every archive path and entry type
 is checked. The archive is extracted twice into independent directories, each
@@ -133,8 +162,9 @@ Its producer receipt is
 That qualification bound the ordered core complement, actual 21 coefficients,
 six historical optimized/sanitized model consumers, actual priority assignments
 and positive completed-search activity, plus the composed wrapper sessions.
-The current exact readable/source/native/whole and DEV identity permits reuse
-of that evidence. This builder does not reread old receipts, rerun their model
+The exact readable, full-native and DEV identities permit reuse of that core
+evidence. Shipping source names and complete-file bytes changed only in the
+separately qualified alpha stage. This builder does not reread old receipts, rerun their model
 matrix, or relabel those executions as new. The fresh archive and two physical
 sessions above have separate receipts. No strength/Elo, target many-core run,
 AWS connection or 4,096-byte eligibility is implied by this source promotion.

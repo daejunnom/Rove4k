@@ -46,6 +46,8 @@
   "helper_sha256": {
     "engines/scripts/specialize.py": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d",
     "engines/scripts/minify.py": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b",
+    "engines/scripts/rename_c.py": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
+    "engines/scripts/fixed_shipping_alpha.py": "92b351d537c1da0f346f072df2ca4b0be713d0e286e039b30efa9f758519c806",
     "engines/compact/tiny-a/stitch.py": "2b0d25b4855a3ed4ddd9e24b8e4b0e081439baa2ed8f744dba0215a700023f23",
     "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e"
   },
@@ -62,13 +64,13 @@
   "expected": {
     "readable_bytes": 28001,
     "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
-    "source_bytes": 14352,
-    "source_sha256": "392aba92dff47317243a7966f9aa1f725357c08b48b9b8072a1d753d6514ed46",
+    "source_bytes": 12641,
+    "source_sha256": "af0ab88d9f4ce25154b3fda909fc00b9eca0cda8d8784b4b07e4926015a2c330",
     "native_bytes": 26408,
     "native_sha256": "5429f2d80521f775bac6802ec4940e8e0ff1b344464ed8e9a0629ba6650eb675",
-    "whole_bytes": 5899,
-    "whole_sha256": "ccf1a0b4c2163b46c445d4ec1add03bcc75ba75d66cd1647ab9dc2ca556687f3",
-    "bootstrap_sha256": "7e9a4aa5daeab6f562c2488625e07301a5af428118e3255770701012812b4cfb",
+    "whole_bytes": 5679,
+    "whole_sha256": "83e8e7f22f24e3161268554ab4c5ff7ad7f6007822ea6892e6fae68670e80fb4",
+    "bootstrap_sha256": "0abbdd272bb28aae532b6c88fbb691b5e353329bde6ea3e2caad1178e4cb9bfa",
     "dev_source_bytes": 21314,
     "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
     "dev_native_bytes": 31376,
@@ -123,12 +125,19 @@
       "sha256": "631e2f93b998efd918dbc89df56785e8831a31751e43962a1f034599ee29daab",
       "all_bytes_outside_go_main_identical": true
     },
-    "scope": "exact TinyE ordered/minimal-UCI composition; historical reports are hash metadata only, never build inputs or fresh execution claims"
+    "shipping_alpha": {
+      "policy_sha256": "b3f08ba26b38dbce1e4b63d3eb98ab37f438295cfacff6037b1cfacbf7d5e5a0",
+      "fixed_mappings": 89,
+      "first_cost_sha256": "e0527b2c9c566150791f6095346694961b81dc007fb9f89e1c135755ab81a1d8",
+      "selected_runtime_sha256": "5fbd18434187219b571dfb962058298616d560c671485c32d320a368607df427",
+      "source_freeze_sha256": "436d7cbdc6ad7fa52b73d5b1e9075971b9249f64d8225b775585a4dbd5b0ad80"
+    },
+    "scope": "ordered/minimal-UCI core qualification reused through exact readable/DEV/full-native identity; fixed shipping alpha policy, header-expansion inverse and selected wrapper receipts are separate hash metadata, never regeneration inputs"
   },
   "provenance": {
     "origin": "maintained TinyCE E + qualified shipping legacy-cache removal + exact model capture prior + minimal shipping UCI composition",
     "policy_changes_this_promotion": false,
-    "source_stages": "actual compiler conditional specialization, lexical minification, eight shipping no-op DEV calls removed; no identifier/resource/algorithm changes",
+    "source_stages": "actual compiler conditional specialization, lexical minification, eight shipping no-op DEV calls removed, one fixed shipping-only 89-name allowlist and WORKERS=2/TT_BITS=18 token literals; algorithm/functions/global/static/directives/strings/DEV unchanged",
     "native_identity": "original stdin-compiled ELF class; separate historical file-compiled images are not equated"
   }
 }

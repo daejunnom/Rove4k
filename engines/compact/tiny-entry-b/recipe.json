@@ -46,6 +46,8 @@
   "helper_sha256": {
     "engines/scripts/specialize.py": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d",
     "engines/scripts/minify.py": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b",
+    "engines/scripts/rename_c.py": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
+    "engines/scripts/fixed_shipping_alpha.py": "92b351d537c1da0f346f072df2ca4b0be713d0e286e039b30efa9f758519c806",
     "engines/compact/tiny-b/generate.py": "c2cc1fd68d05d66f5525dfabc2368fdb0ddff2716bbf65ecb2033614b113aa59",
     "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e"
   },
@@ -61,15 +63,15 @@
   },
   "expected": {
     "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
-    "source_bytes": 15566,
-    "source_sha256": "eea1fe5f60c56aa90d2d51f3fa5a1aa56a63318527943500aa02d0105668f910",
+    "source_bytes": 13606,
+    "source_sha256": "abc1e1c734d10211e8b9f0a5fc2b97c20f931f08a33c639cd7739f349b4106d7",
     "native_bytes": 26592,
     "native_sha256": "221a865e2712cb3e704128e0ae8353edd358343f564fe53093040f6515d522ec",
-    "whole_bytes": 6219,
-    "whole_sha256": "01261167253dd89a0e2d88aded2ee493fc0ffaec34cd2322459ddbc515f8aefd",
+    "whole_bytes": 5955,
+    "whole_sha256": "121e7fa70894df10fb945c1369cbfd3459000b2e7276749e2a3789ea412868d3",
     "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
     "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
-    "bootstrap_sha256": "a4b430323614856d68fd59742c25d772459cc8de6cac601848f709dc67ce7c37"
+    "bootstrap_sha256": "79edf5c48b2f82b36382c8544a2c7bc1f02af25227c2196679396e31238d72b6"
   },
   "local_input_sha256": {
     "engine.c": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
@@ -82,11 +84,18 @@
     "portfolio_cost_sha256": "f4833f5922dcdddad9abcdbd82f588d1d1e51a5a0e6c63f46b7693fdcbae6455",
     "portfolio_runtime_sha256": "6f26a3c46bff4d9b3dfe531eaac9a43b9a02eff52d5bda1c1bc2ca9624a84b09",
     "B_core_proof_sha256": "a2965d8f57d36187cb33a7201467271f66f2dae42c8c42b55c518272eea5e951",
-    "scope": "historical exact-source/artifact qualification metadata; builder does not read or execute receipts"
+    "shipping_alpha": {
+      "policy_sha256": "b3f08ba26b38dbce1e4b63d3eb98ab37f438295cfacff6037b1cfacbf7d5e5a0",
+      "fixed_mappings": 89,
+      "first_cost_sha256": "e0527b2c9c566150791f6095346694961b81dc007fb9f89e1c135755ab81a1d8",
+      "selected_runtime_sha256": "5fbd18434187219b571dfb962058298616d560c671485c32d320a368607df427",
+      "source_freeze_sha256": "436d7cbdc6ad7fa52b73d5b1e9075971b9249f64d8225b775585a4dbd5b0ad80"
+    },
+    "scope": "historical core qualification reused through exact readable/DEV/full-native identity; fixed shipping alpha policy, header-expansion inverse and selected wrapper receipts are separate hash metadata, never regeneration inputs"
   },
   "provenance": {
     "origin": "maintained readable Tiny B with bitboard/mailbox attackers, legal SEE, qualified singular and minimal shipping UCI",
-    "source_decisions": "no identifier/resource spelling substitutions; preprocess, lexical compact, exact B no-op diagnostic stripping only",
+    "source_decisions": "preprocess, lexical compact, exact B no-op diagnostic stripping, then one fixed shipping-only 89-name allowlist and WORKERS=2/TT_BITS=18 token literals; functions/global/static objects/directives/strings/DEV unchanged",
     "native_identity_class": "actual restored compiler-stdin image, not historical file-compiled ELF"
   }
 }

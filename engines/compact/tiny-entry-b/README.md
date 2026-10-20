@@ -7,7 +7,7 @@ fixed recipe; it changes no algorithm, protocol, resource, compiler or codec
 policy. It is the repository's MIT implementation; no external engine source
 is copied.
 
-The selected complete file is **6,219 bytes**, 2,123 bytes above 4,096. This is
+The selected complete file is **5,955 bytes**, 1,859 bytes above 4,096. This is
 not a 4 KiB, strength, scaling or general portability claim. The qualified
 domain is Linux x86-64 on Ubuntu 24.04.4, GCC 13.3.0, binutils 2.42, glibc 2.39,
 Python 3.12.3 and xz 5.4.5. Python's linked LZMA encoder also affects exact
@@ -38,17 +38,20 @@ ELFs must not be substituted for it. DEV uses the same argument list with
 LZMA2 preset 9 extreme, lc=3/lp=0/pb=2, CRC64. These are B's selected parameters,
 not A/F's lc=2/lp=0/pb=0. No compiler, spelling or compression search is run.
 
-Four tracked build helpers are needed: `engines/scripts/specialize.py`,
-`minify.py`, `engines/compact/tiny-b/generate.py`, and
+Six tracked build helpers are needed: `engines/scripts/specialize.py`,
+`minify.py`, `rename_c.py`, `fixed_shipping_alpha.py`,
+`engines/compact/tiny-b/generate.py`, and
 `engines/compact/tiny-a/pack_stream.py`. Their complete LF-normalized hashes are
 pinned in `recipe.json`. Only `strip_counters()` and its local replacement helper
 are consumed from the B generator module. Its historical overlay/base-source
 graph is not executed or read: the maintained canonical combined program is
 already in `engine.c`. After preprocessing and lexical compaction, the exact
-declared 12 no-op shipping counter sites are removed. There are no identifier,
-resource-token or function-name substitutions in B's selected pipeline.
+declared 12 no-op shipping counter sites are removed. The fixed shipping alpha
+stage then applies the qualified 89-name allowlist and the two resource-token
+literals described below. It does not alter function, global or static-object
+spellings. The readable program and DEV never enter this stage.
 
-The builder copies and checks its local inputs and four helpers before importing
+The builder copies and checks its local inputs and six helpers before importing
 the external copies. It reads no historical experiment folder, report, executable,
 dependency tree or network resource. `bootstrap.py.in` is the exact selected
 bootstrap with only the compiler-source literal replaced by an explicit marker;
@@ -58,10 +61,10 @@ unlinked-file execution and cleanup remain unchanged.
 | Output | Bytes | SHA-256 |
 | --- | ---: | --- |
 | Readable engine.c | 28,953 | `1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6` |
-| Compact shipping C | 15,566 | `eea1fe5f60c56aa90d2d51f3fa5a1aa56a63318527943500aa02d0105668f910` |
+| Compact shipping C | 13,606 | `abc1e1c734d10211e8b9f0a5fc2b97c20f931f08a33c639cd7739f349b4106d7` |
 | Restored native ELF | 26,592 | `221a865e2712cb3e704128e0ae8353edd358343f564fe53093040f6515d522ec` |
-| Complete launcher | 6,219 | `01261167253dd89a0e2d88aded2ee493fc0ffaec34cd2322459ddbc515f8aefd` |
-| Bootstrap | — | `a4b430323614856d68fd59742c25d772459cc8de6cac601848f709dc67ce7c37` |
+| Complete launcher | 5,955 | `121e7fa70894df10fb945c1369cbfd3459000b2e7276749e2a3789ea412868d3` |
+| Bootstrap | — | `79edf5c48b2f82b36382c8544a2c7bc1f02af25227c2196679396e31238d72b6` |
 
 The selected portfolio DEV compact C and restored ELF must remain exactly
 `31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2`
@@ -79,14 +82,41 @@ entry sources LF in Git.
 
 ## Fresh Git-source and actual runtime binding
 
+The shipping-only policy `fixed89-alpha-resource-20261020` is embedded verbatim
+in the ordinary `engines/scripts/fixed_shipping_alpha.py` helper; it opens no
+policy side file or experiment output. Its JSON SHA-256 is
+`b3f08ba26b38dbce1e4b63d3eb98ab37f438295cfacff6037b1cfacbf7d5e5a0`.
+The fixed 89 spelling pairs cover only admitted private automatic variables,
+parameters, members and owned typedefs; B uses 82 pairs. Function names, global
+and static objects, `Move`, directives, strings, external ABI/libc/pthread names
+and nonlocal members remain unchanged. Only code-token uses of `WORKERS` and
+`TT_BITS` become `2` and `18`; `PLY` remains spelled as before. Exact input,
+counts, opaque regions, fresh aliases and expected output are checked. There is
+no mapping, identifier, resource, compiler or encoding search.
+
+B shipping C shrinks by 1,960 bytes and the complete file by 264 bytes relative
+to the qualified 6,219-byte control. The full native ELF, including nonallocated
+notes, must equal the original literal expected hash; no segment-only or
+build-ID exception is admitted. DEV bytes and readable `engine.c` remain exact.
+The original actual system-header expansion/inverse proof and fixed-policy
+whole-file qualification are reused only through exact source/native/whole
+identities. Their first-cost receipt is
+`e0527b2c9c566150791f6095346694961b81dc007fb9f89e1c135755ab81a1d8`,
+selected six-session receipt is
+`5fbd18434187219b571dfb962058298616d560c671485c32d320a368607df427`,
+and frozen source receipt is
+`436d7cbdc6ad7fa52b73d5b1e9075971b9249f64d8225b775585a4dbd5b0ad80`.
+Those are metadata, never build dependencies. The following commands produce
+separate fresh maintained-source and selected-wrapper evidence.
+
 ```sh
 python3 -B engines/compact/tiny-entry-b/fresh.py --out /absolute/new/archive-proof
 python3 -B /absolute/new/archive-proof/checkout-1/engines/compact/tiny-entry-b/verify.py \
   --build /absolute/new/archive-proof/build-1 --out /absolute/new/runtime-proof
 ```
 
-`fresh.py` names a closed set of **15 files**: this folder's nine source files,
-the four pinned build helpers and `engines/tests/{verify.py,chess_oracle.py}`.
+`fresh.py` names a closed set of **17 files**: this folder's nine source files,
+the six pinned build helpers and `engines/tests/{verify.py,chess_oracle.py}`.
 It preserves raw inputs and hashes, copies LF-normalized inputs into a new local
 Git repository with no remote or commits, writes a tree and archives it. The
 project checkout's index is never used. It admits only the named regular files
@@ -142,7 +172,9 @@ positive controls, exact unchanged core bodies and matched DEV, 15 modeled
 shipping-policy cases and actual selected whole-file sessions. Separate direct
 minimal-source checks bound TT halfmove/path separation, scores `[0,916]`, EP
 selection/correction exclusion and PLY4 retained-witness interruption. Exact
-source/artifact identity permits that coverage to be reused; this builder does
-not claim to rerun it. The new archive and selected-image lifecycle receipts are
+readable/DEV/full-native identity permits that core coverage to be reused;
+shipping source spelling and complete-file identity changed in the separately
+qualified alpha stage. This builder does not claim to rerun the old campaign.
+The new archive and selected-image lifecycle receipts are
 separate fresh evidence. No broad engine matrix, game-strength test, fair NPS,
 many-core campaign or training is implied by canonical promotion.

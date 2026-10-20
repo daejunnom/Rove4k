@@ -49,6 +49,8 @@
   "helper_sha256": {
     "engines/scripts/specialize.py": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d",
     "engines/scripts/minify.py": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b",
+    "engines/scripts/rename_c.py": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
+    "engines/scripts/fixed_shipping_alpha.py": "92b351d537c1da0f346f072df2ca4b0be713d0e286e039b30efa9f758519c806",
     "engines/compact/tiny-a/stitch.py": "2b0d25b4855a3ed4ddd9e24b8e4b0e081439baa2ed8f744dba0215a700023f23",
     "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e"
   },
@@ -64,13 +66,13 @@
   },
   "expected": {
     "readable_sha256": "1f0f18ffee91ecddea3cb31e7553e1d1415e25b3f759cdec4e0f375fcd0b2298",
-    "source_bytes": 14206,
-    "source_sha256": "dcbfb3e92b52e2ee902055aa7331c068b6b95226f00b1edfc4b63b789405105c",
+    "source_bytes": 12526,
+    "source_sha256": "5b0bebf394c7774bcd6d0b677d11537a44e7dc0850cb6d38331bd4d97eb99bb3",
     "native_bytes": 26464,
     "native_sha256": "c948e31aea9f413614881b8e8e6060e5aa70314dd84b2d9b544e3f20edb99df2",
-    "whole_bytes": 5947,
-    "whole_sha256": "76ed08f657398ac4b8cfbd0ff2230257ab18547f082b4c29af62428d802f33d3",
-    "bootstrap_sha256": "cc59eb95c78fad30a81da5a9c7bfec2706e48a8207058b855d2b839c77ec17e3",
+    "whole_bytes": 5723,
+    "whole_sha256": "76662acd5eac4e907a5e29bacf8f252118c9bc97bf3aec0dc890bd815c6ecac0",
+    "bootstrap_sha256": "139eaf9570a82f878e959f442451f74b7006b7d558d8d745428076e5151da469",
     "dev_source_sha256": "31415fddd3cf1ebd378e58ccc41cdb2b9382df646e41f002653734a5e4d746bf",
     "dev_native_sha256": "5e9b05e55cba56c63b180c2dce1d9330d2f3a69d7563360e35484684ebb730ba"
   },
@@ -90,11 +92,18 @@
       "producer_build_sha256": "552db533349aa3f33fadeb7bfb3fe41ce6a02f91549788ceef1095ab038e63a1",
       "core_SIMD_context_receipt_sha256": "2d1efcd44b98062f09d564d8ebbac828d25b9250a441cbfe25c67f053c9bebd3"
     },
-    "scope": "exact qualified5947 readable/compact/native/whole identity reuses focused newDEV0 layout/state/core and selected runtime proof; exact unchangedDEV and SIMD/math coverage remain separate predecessor reuse; no historical file is a regeneration input"
+    "shipping_alpha": {
+      "policy_sha256": "b3f08ba26b38dbce1e4b63d3eb98ab37f438295cfacff6037b1cfacbf7d5e5a0",
+      "fixed_mappings": 89,
+      "first_cost_sha256": "e0527b2c9c566150791f6095346694961b81dc007fb9f89e1c135755ab81a1d8",
+      "selected_runtime_sha256": "5fbd18434187219b571dfb962058298616d560c671485c32d320a368607df427",
+      "source_freeze_sha256": "436d7cbdc6ad7fa52b73d5b1e9075971b9249f64d8225b775585a4dbd5b0ad80"
+    },
+    "scope": "qualified5947 predecessor core/state and SIMD/math proof reused through exact readable/DEV/full-native identity; fixed shipping alpha policy, header-expansion inverse and selected wrapper receipts are separate hash metadata, never regeneration inputs"
   },
   "provenance": {
     "origin": "maintained readable minimal C, shipping HCEcache removed with exactDEV retained; startup PSQT/actualAVX2 leaf and selectedUCI unchanged",
-    "representation_decisions": "actual selected C has no token renames, function spellings, resource literal substitutions or strip flag",
+    "representation_decisions": "one fixed shipping-only 89-name allowlist and WORKERS=2/TT_BITS=18 token literals after counter stripping; function/global/static/directive/string/DEV spellings and unstripped compiler unchanged",
     "stitch_helper": "only fixed strip_dev_counters consumed; actual expected bytes gate every result"
   }
 }

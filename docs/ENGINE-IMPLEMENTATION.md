@@ -63,9 +63,13 @@ This run regenerates the promoted C5947 and executes that exact selected file.
 The maintained-A-startup checkpoint `39cab5e` passes both language jobs in its
 [exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39362161257)
 and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39362161296).
-It regenerates the 5,129-byte A and exercises the maintained entries. The newer
-F/D and Rust parser promotions below have separate local qualification until
-their own head completes CI.
+It regenerates the 5,129-byte A and exercises the maintained entries.
+The later finite-D/F/Rust-ingress checkpoint `b2ba5ae` passes both language jobs
+in its [exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39364246525)
+and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39364246190).
+It actually regenerates and exercises F5407, D7540/7800 and both Rust D16816
+production paths. The separately qualified source-spelling experiment retains
+its own cost/runtime evidence; it is not an additional CI step.
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
@@ -82,15 +86,15 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
 | A | 5,129 B | 1,033 B | Shared startup/search phase counter, owned move query, ALONE stream |
-| B | 6,219 B | 2,123 B | Hybrid bitboards, shared attackers, legal SEE and singular exclusion |
-| C | 5,947 B | 1,851 B | Real AVX2 evaluation; unused shipping HCE cache removed |
+| B | 5,955 B | 1,859 B | Hybrid bitboards, legal SEE/singular and fixed private spelling |
+| C | 5,723 B | 1,627 B | Real AVX2 evaluation, cache removal and fixed private spelling |
 | D scalar / HQ | 7,540 / 7,800 B | 3,444 / 3,704 B | Own ELF restoration with finite minimum shipping protocol |
-| E | 5,899 B | 1,803 B | All 21 untrained coefficients in evaluation and ordering |
+| E | 5,679 B | 1,583 B | All 21 untrained coefficients in evaluation/ordering; fixed spelling |
 | F | 5,407 B | 1,311 B | Full-depth MTD(f) with beta-only integer unit-window search |
 
 The separate Rust D native images are 16,816 bytes each. Their independent
-packed experiment and the smaller B/C/E spelling candidates retain their own
-qualification state; they do not silently replace this maintained table.
+packed experiment retains its own qualification state and does not silently
+replace this maintained table.
 
 ## Starting checkpoint: 2026-10-20
 
@@ -1532,4 +1536,74 @@ actual new wrapper results SHA is
 the frozen forty-four-source aggregate is
 `436d7cbdc6ad7fa52b73d5b1e9075971b9249f64d8225b775585a4dbd5b0ad80`.
 This experimental closure has its own immutable historical control inputs.
-Maintained B/C/E promotion is a separate next step, and none fits 4,096 bytes.
+At that experiment checkpoint, maintained B/C/E promotion was still a separate
+next step. The following promotion now supplies those exact selected bytes.
+
+The maintained B/C/E entries use a standalone ordinary-source helper containing
+the identical readable policy bytes. Its transformation function bodies remain
+identical; it reads no experiment files, side policy file or historical report.
+Only each builder/recipe/README and the new helper change. Readable engines,
+DEV, compiler, resource profile, codec, launcher and existing helpers stay exact.
+The new helper has an explicit repository LF rule, separate metadata from the
+qualified source closure.
+
+Each seventeen-file source archive is extracted twice; each builder repeats
+shipping and DEV generation/compilation. All twelve shipping and twelve DEV
+builds match their literal pins. Six new selected-wrapper quit/EOF sessions
+pass exact old native bytes and the new complete files, startup TID stability,
+legal results and physical settlement. Earlier preprocessor/core proof is reused
+by exact identity rather than rerun. The final promotion index SHA is
+`6bbfcd6ffbf2b1dc029fa62295fb8cefe5687a430004a896de292c6d63aca712`;
+the ten-source/union-thirty-six-input raw freeze is
+`d2d9eb5182876708a95e4755693941b54e335f54b68021ee7d777398b61d7b83`;
+fresh actual results SHA is
+`ebacff60e489f3cb230313b4474b0cce57e206730745d5e077c2a052a6b89f53`.
+This is a local source promotion until its later exact-head CI succeeds, and
+none of the new whole files fits 4,096 bytes.
+
+## Independent Rust D self-restoring ELF checkpoint
+
+The [Rust packed experiment](../engines/experiments/tiny-rust-d-packed/README.md)
+connects the independent no_std Rust core to the project's owned fixed decoder
+and entry wrapper. It owns seven historical Rust production inputs and the
+packaging sources; it does not call a C chess engine or an external decoder.
+This uses the qualified pre-ASCII 16,824-byte native controls, not the newer
+16,816-byte maintained inputs. The original C image admission remains unchanged.
+
+The explicit Rust class removes only ELF section metadata outside PT_LOAD and
+normalizes the section-header fields. Its 16,400-byte decoded span preserves
+entry, program headers and all allocated text/rodata/data. The final mappings
+are four RX pages and one RW page containing sixteen initialized pointer bytes,
+four zero OUTPUT bytes and zero padding. Original-native, sectionless, payload
+and whole-file identities are separate. Copying section metadata over BSS is
+rejected rather than treated as a valid loaded image.
+
+Two independent builds per profile reproduce complete self-restoring files of
+**12,554 B HQ / 12,194 B scalar**, including the 1,115-byte header/loader cost.
+These save 4,270/4,630 B over the direct Rust native controls and remain far
+above 4,096 bytes. First-cost execution was zero; later runtime is a separate
+campaign. The original first-cost index SHA is
+`b9e9325c4a5cbcf04515012afd733a25dd5caec92f0e3e929bad3d19bd5eff3d`.
+
+Actual new packed-file observations pass two distinct pre-entry CHECKPOINTs
+and four shipping sessions, both profiles with quit and EOF. The checkpoints
+bind the anonymous decoded bytes, initial data/BSS, guards, permissions and
+original entry. Shipping covers 24 legal results for 24 GOs, persistent three
+startup TIDs and guarded stacks, active replacement/position/shutdown, complete
+output/readers and physical process/TID/group disappearance. None of these six
+positive sessions needed forced cleanup. Older raw-native kernel/deep/fault
+proof is not relabeled as a new packed execution.
+
+The full campaign stays **incomplete**. Its READ_IMPLIES_EXEC rejection fixture
+did not reach the intended boundary: a confirmed pre-exec flag was zero in the
+loader's actual post-exec personality query. That diagnostic reached restoration
+and was stopped at its event cap, with forced cleanup explicitly recorded.
+It is not a guard-rejection success; the scalar negative was unexecuted.
+A logging-only revision preserves events immediately but has not rerun the full
+campaign. A later register-modifying debugger fixture was not executed and is
+kept outside Git. The admitted nineteen-source checkpoint therefore preserves
+the original positive results, failed report and unproven negative separately.
+Its external index SHA is
+`95c581b682b3cec6398a6d29864b810aa99b5fd01457fa0abb9c74685c2d63c4`.
+This checkpoint establishes implemented and observed Rust restoration paths,
+not complete runtime admission, eligible size, strength or target scaling.
