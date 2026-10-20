@@ -4450,3 +4450,75 @@ The actual build/runtime pairs are B
 `26fc3930595ff4c5d9b5d370a71e5201db862a85d09af4c19d4c35c84377a29a`, E
 `d7744f49379a1efd164fd379f3f1745cf1f21887928321c4838acd1887d4243d` /
 `f17d63b577155e3e1bb403496b0a9fa37c2841cf00d4f833cee9c97c9c30757e`.
+
+## Additional external size-analysis intake
+
+The supplied `Rove4k_PR12_Size_Analysis.ko.md` has SHA
+`c2dc4b008fa51310bf41caa1eab21e1362488304cdc9183797d525effc1736eb`
+and describes historical head `a3546f1`. Its checklist is reference material;
+the current request authorizes further compression and actual upstream source
+comparison. Its old candidate sizes and body-erasure diagnostics are not new
+maintained measurements or additive savings. At intake head `dd6c5fb`, the
+maintained complete files are A4748/B5340/C5078/D6064-scalar6253-HQ/E5158/F4720.
+Scope names, adjacent declarations, type tokens, B's legal-LVA/tactical
+metadata, C's incremental signed8 vector, E19 and D's fixed context restoration
+already have their distinct implementation and qualification records above.
+
+Pinned external ice4 and 4ku source comparisons preserve the distinction
+between general design ideas and equivalent engine semantics. In particular,
+ice4 uses occurrence-weighted lexical-scope conflict grouping, rather than
+liveness coloring; the current function-wide maps leave a narrower further
+scope experiment possible. Their packed MG/EG evaluation and side-oriented
+boards are different models/representations, not replacements that preserve
+our scalar HCE by inspection. External source trees remain outside Git; their
+implementation and tuned coefficients are not inputs to the ordinary builders.
+
+Actual pinned 4kc `26e93686` and STRO4K `51ea73a3` sources were also read.
+4kc's context/hardware-CRC concept is already independently implemented in D;
+its original word-length/RWX/header-overlap loader is not our guarded RX/NX
+restoration contract. STRO4K's cited4092-byte distribution is assembled code
+with raw LZMA2/BCJ and a shell prefix using external programs, not evidence of
+a4092-byte pure Rust or own-ELF entry. Its partial-fingerprint TT and GO-created
+helpers also differ from D's full-key atomic16 and persistent workers.
+These comparisons do not contribute new measured savings. The actual source
+comparison note SHA is
+`c3b6b9a93f5d2579c497e02ac0d50809a2a1c6703896c3326b1eb57d610a18f5`;
+upstream implementation files and that note stay outside Git.
+
+### Rejected F pthread-preserving futex pool
+
+One current F4720 candidate retains pthread create/join and changes the mutex
+and two condition variables to three sequentially consistent atomic words
+plus private futex notification. Pending3 reserves final output: the last
+worker changes2 to1, prints and flushes the result, then publishes0. Ordinary
+quit/EOF and successful partial-create-prefix joins remain. Unexpected futex
+failure exits2; this fatal path is not reported as successful join completion.
+
+The old pool-related778 source bytes become585, but errno, correct syscall
+declaration and explicit platform/ABI checks add299 bytes, including249 bytes
+of compile-time target/ABI conditions in the submitted source. Actual source
+is9464 to9570 (+106), native remains18576 with a new identity, and the complete
+file grows4720 to4864 (+144). One unchanged-argv compile, one original fixed
+ALONE compression and strict source/bootstrap/argv restoration complete.
+There is no candidate engine/bootstrap execution, lifecycle qualification or
+normal promotion. The actual loss closes this fixed candidate; the current
+maintained F remains4720. A preparation-only recipe CRLF rejection happened
+before compilation/encoding and remains separate from the sole actual cost.
+The cost/decode receipt SHAs are
+`3b625fca1710d3379839f76b9a366eb648439cde2228d6f35ecf38c607840a49` /
+`1328d9d1c70dd8b92ae07122ac65ed080ef4ba4251217942da9a0b43a38b3b99`;
+the final five-source index SHA is
+`80292d9932c4d2950978584828de03be465d2c809e4fdbec1d05156e63f9bcc2`.
+
+### Rust D node-observer duplicate
+
+Current Rust D ordinary17 files are raw-byte identical to the existing
+`rust-d-finite-shipping/control`17. The parser always starts with nodes0 and
+does not set a node limit, while worker-local nodes still drive deadline polls.
+Limits.depth and Result.depth remain actual iterative-depth/result-selection
+state. Removing only global node accounting under an explicit shipping cfg is
+the already measured same-input candidate: native16816 stays16816 and its
+data8 packed scalar/HQ files grow11403/11762 to11404/11770 (+1/+8). These are
+reused historical costs, not new builds. The duplicate is closed before any
+new candidate, compile or codec run. Current source review receipt SHA is
+`71e6ccab690e0cf3d211530ebc0d06561cb36ebf45b2b1e1c0a53a45f1358981`.
