@@ -19,6 +19,8 @@ language jobs in their respective exact-head CI runs
 The compact-portfolio checkpoint `830eaa0` also passes both language jobs in its
 [exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39345975382),
 including the new standalone D checks and Rust structural unit/reproduction path.
+The process-lifetime follow-up `df5c1d1` also passes both language jobs and
+repository lifecycle checks in its [exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39346330566).
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
@@ -633,3 +635,116 @@ images are compared; each role passes clocked play, zero clocks, active stop/qui
 stable startup identities and physical cleanup. Larger measured encodings are
 not all runtime-qualified. DEV timing binaries and shipping size binaries remain
 distinct; no speed is attributed to these compressed files. Every row is oversize.
+
+## Consumer, source-layout and dedicated-loader experiments
+
+These separately frozen experiments extend the preceding portfolio. They do not
+change the canonical C/Rust cores or silently combine separately measured gains.
+The smallest new qualified C/E source files are 6,015/6,095 bytes; the dedicated
+D own-restoring ELF is 7,665/7,918 bytes for scalar/HQ. All are still oversize.
+
+| Actual experiment | Frozen control | Result | Scope |
+| --- | ---: | ---: | --- |
+| C startup PSQT gather | 6,059 B | 6,015 B | Same HCE, actual AVX2 leaf |
+| C readonly PSQT | 6,059 B | 6,455 B | Retained adverse storage result |
+| E unused shipping HCE cache | 6,107 B | 6,095 B | Cache maintenance only; tactical value() remains |
+| D direct fixed-Deflate restore, scalar/HQ | 8,806 / 9,142 B | 7,665 / 7,918 B | Complete own ELF, exact admitted native images |
+| D direct LZ restore, scalar/HQ | 8,806 / 9,142 B | 8,721 / 9,057 B | Larger than raw native; retained |
+| D span input, scalar/HQ native | 8,540 / 8,928 B | 8,476 / 8,864 B | Parser policy changes declared |
+| A span input | 5,283 B | 5,523 B | Unselected size regression |
+| A tagged sentinel, controlled/new domain | 5,531 B | 5,743 / 5,719 B | Matched readable control, not the 5,283-byte control |
+| A moving-side orientation | 5,527 B | 5,559 B | Relative history/tie policy differs |
+| D pure bitboard, scalar/HQ native | 8,540 / 8,928 B | 8,800 / 9,088 B | Smaller RAM state, larger file |
+
+The [C table experiment](../engines/experiments/tiny-c-table/README.md) retains
+all 832 exact signed-piece/square values. The startup representation adds 3,328
+shared table bytes, including 3,352 BSS section bytes after alignment, and 832 HCE
+calls before workers. The readonly representation stores the same values in
+source. Optimized and sanitizer production-consumer tests, real SIMD search,
+all 56 black-box groups, restored-image identity and fixed startup/cleanup pass.
+Its small file saving is not an NPS claim.
+
+The [E state experiment](../engines/experiments/tiny-e-state/README.md) removes
+only cached HCE from shipping Board and its two unused incremental arithmetic
+updates. The capture priority still reads `value()`, so that function stays.
+DEV cache/state diagnostics are unchanged. Shipping Board changes 176 →168
+bytes, native ZIP 10,164 →10,113 bytes; equal raw ELF lengths do not imply equal
+images. Six consumer forms per representation pass 20,000 raw/clamped model
+positions, 160,000 ordering cases and 206,389 legal transitions per run, with
+matching state/search/learning observations. Both forms pass 28 black-box groups
+and actual source/native wrapper image/startup/cleanup checks.
+
+Its source catalog was also replayed against all 23 actual Git blobs. One
+provenance JSON has verified 1,503-byte CRLF and 1,462-byte LF encodings; all other
+22 inputs match literally. Only those two exact encodings at that one path are
+admitted, with actual raw hashes/counts and a separate normalized identity.
+Mixed endings, lone CR and content drift fail. The original failure/catalog stay
+preserved. Fresh LF baseline/state, archived LF recipe and CRLF production each
+reproduce all generated sources, ten native files and 36 wrappers. Prior runtime
+evidence is reused only through exact bytes; fresh LF image/startup/cleanup also
+passes. Five admission/transform unit groups cover this boundary.
+
+The [span parser](../engines/experiments/tiny-protocol/README.md) decodes external
+coordinates, requires production-generator membership and applies each move once.
+Replay commits only after all moves succeed. Forty-nine common groups across
+eight actual forms, raw-input boundaries, seven production parser configurations,
+retained search/context/ply-cap checks and eleven D runtime faults pass. New
+ASCII-whitespace, malformed-number recovery and no-argument command handling
+are explicit policy changes. D benefits modestly; A does not.
+
+The [sentinel](../engines/experiments/tiny-sentinel/README.md),
+[moving-side orientation](../engines/experiments/tiny-oriented/README.md) and
+[pure bitboard D](../engines/experiments/tiny-d-bitboard/README.md) experiments
+are retained size regressions. Their independent special-move/perft/transition,
+hash/HCE/context, actual search, whole-file lifecycle and reproducibility checks
+pass within their recorded scopes. Sentinel controlled search matches complete
+normalized TT/heuristic/path state; orientation and pure-BB change ordering and
+do not claim identical nodes. Pure BB reduces Board 176 →104 bytes and Worker
+68,976 →44,400 bytes, while native/own files grow. Its checker now shares the
+stable D driver's absolute deadlines, owned-group cleanup and finally-written
+failure reports; a separate narrow replay preserves the old proof and matches
+the actual algorithm binaries. The reduced RAM does not make it a size winner.
+
+The [dedicated D loader](../engines/experiments/tiny-d-loader/README.md) admits
+exact native hashes and geometry, restores original RX bytes at the original
+entry and uses zero anonymous BSS. It rejects READ_IMPLIES_EXEC, reserves guarded
+address space without replacement, decodes RW then changes it to RX, and never
+uses RWX. Four files reproduce and pass pre-entry audits, production image/search/
+startup/stdio/quit/EOF checks, twenty shared shipping groups and two bounded
+colour-exchanged games. Four malformed decoder controls and fourteen input/layout
+admission cases pass. Pre-entry audit executables remain distinct from shipping
+files. Auxv, initial brk and executable identity still describe the loader; this
+scope accepts only the known static images, not general ELF process equivalence.
+
+Fixed-Deflate payloads are 6,550/6,803 bytes plus 1,115 decoder/header bytes.
+Generic LZ controls contain 7,931/8,267 payload bytes plus 875 overhead bytes.
+Further progress needs a smaller engine image or a better total representation.
+The separate [range-code experiment](../engines/experiments/tiny-d-range/README.md)
+tests exactly two intrinsically adaptive lossless profiles without training or
+parameter fitting. Its best files are 7,998/8,299 bytes and remain unselected.
+Codec/reference/native restore, malformed-frame, guard/ABI and bounded production
+startup/search checks pass; no full shared game matrix was run for this loss.
+
+The new [independent tiny Rust A](../engines/compact/tiny-rust/README.md) has a
+160-byte mailbox, unified PVS/QS, coherent single-bound TT, private heuristics,
+fixed startup pool and one frozen correction epoch per GO. It is a new policy,
+not a behavior-preserving rewrite of canonical Rust. Source totals are 33,693
+readable / 25,698 lexical / 23,334 DEV-pruned bytes; the selected complete source
+file is **9,074 bytes** and native wrapper 145,081 bytes. Every native form and
+twelve complete artifacts independently reproduce. Fourteen contracts, actual
+shipping/DEV interfaces, both final wrappers' ten shipping groups and twenty
+natural malformed-clock completions pass. The clock-presence bug and older
+9,067-byte artifact remain preserved before the final fix.
+
+An actual DEV-free production search reaches ply 127 on a one-MiB thread with
+zero recursive allocations and aborts without publishing a partial bound. Its
+measured CFA components give a representative 669,504-byte deep path, not a
+universal async/standard-library stack theorem. Only A has this tiny Rust port;
+all canonical Rust B–F cores remain available. CI adds its actual unit/builder/
+process/clock checks at a separately named small profile.
+
+The next isolated work covers packed move/priority state, smaller synchronous
+startup-pool protocols and a single-stream Rust module layout. Selected D parser
+and restoration gains must be combined and measured rather than added on paper.
+No family has earned a complete 4,096-byte artifact; final candidate games,
+selected-profile resources and target hardware scaling remain outstanding.

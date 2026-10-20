@@ -1,0 +1,42 @@
+typedef struct{const char *p;unsigned n;} Span;
+static Span scan(const char **cursor){
+    while(**cursor&&(unsigned char)**cursor<=32)++*cursor;
+    const char *first=*cursor;
+    while(**cursor&&(unsigned char)**cursor>32)++*cursor;
+    return (Span){first,(unsigned)(*cursor-first)};
+}
+static int word(Span token,const char *name){
+    for(unsigned i=0;i<token.n;i++)if(!name[i]||token.p[i]!=name[i])return 0;
+    return !name[token.n];
+}
+static uint64_t number(Span token){
+    uint64_t n=0;
+    for(unsigned i=0;i<token.n;i++){
+        unsigned d=(unsigned)(token.p[i]-'0');
+        if(d>9||n>((uint64_t)LLONG_MAX-d)/10)return 0;
+        n=n*10+d;
+    }
+    return n;
+}
+static uint64_t amount(const char **cursor){
+    const char *saved=*cursor;Span token=scan(cursor);
+    /* A missing value must not consume the following recognized key. A
+     * nonnumeric token is seen again as an ordinary key/unknown token. */
+    if(token.n&&(unsigned)(token.p[0]-'0')>9)*cursor=saved;
+    return number(token);
+}
+static int parse_apply(const Board *b,Span token,Board *child){
+    if(token.n!=4&&token.n!=5)return 0;
+    unsigned a=(unsigned)(token.p[0]-'a'),r=(unsigned)(token.p[1]-'1');
+    unsigned c=(unsigned)(token.p[2]-'a'),s=(unsigned)(token.p[3]-'1');
+    if((a|r|c|s)>7)return 0;
+    unsigned promotion=0;
+    if(token.n==5){
+        for(promotion=2;promotion<6&&"  nbrq"[promotion]!=token.p[4];promotion++);
+        if(promotion==6)return 0;
+    }
+    Move move=MOVE(a+(r<<4),c+(s<<4),promotion),list[MOVES];
+    int count=gen(b,list);
+    for(int i=0;i<count;i++)if(list[i]==move)return make(b,move,child);
+    return 0;
+}

@@ -1,0 +1,98 @@
+/* Actual parser/board code is included before this fixture. Only make's
+ * definition is named real_make, with an observable call-count wrapper. */
+extern unsigned admission_calls;
+#define CHECK(c) do{if(!(c))return (__LINE__%250)+1;}while(0)
+static unsigned length_of(const char *s){unsigned n=0;while(s[n])n++;return n;}
+static void position_text(const char *s){char line[32768];unsigned n=length_of(s);memcpy(line,s,n+1);set_position(line);}
+static int decoded(const Board *b,const char *s,Board *child){
+    admission_calls=0;return parse_apply(b,(Span){s,length_of(s)},child);
+}
+static void settled_without_helpers(void){
+    /* Clock parsing fixture only. No worker thread is created or represented
+     * as physically joined here; actual raw/whole-runtime gates do that. */
+#if PROTOCOL_D
+    atomic_store(&pending,0);atomic_store(&completed,atomic_load(&epoch));
+#else
+    pending=0;
+#endif
+}
+static int clock_case(const char *options,int black,uint64_t budget,int forever){
+    position_text(black?"startpos moves e2e4":"startpos");
+    char line[32768];memcpy(line,options,length_of(options)+1);
+    uint64_t before=now();go(line);uint64_t after=now(),actual=deadline;
+    settled_without_helpers();
+    return forever?actual==UINT64_MAX:actual>=before+budget&&actual<=after+budget;
+}
+int main(void){
+    const char *cursor=" \tuci\r startpos  ";Span token=scan(&cursor);
+    CHECK(word(token,"uci"));CHECK(word(scan(&cursor),"startpos"));CHECK(!scan(&cursor).n);
+    CHECK(!word((Span){"quitx",5},"quit"));CHECK(!word((Span){"uci",2},"uci"));
+    CHECK(!word((Span){0,0},"uci"));
+    CHECK(number((Span){"9223372036854775807",19})==(uint64_t)LLONG_MAX);
+    CHECK(!number((Span){"9223372036854775808",19}));CHECK(!number((Span){"-1",2}));
+    CHECK(!number((Span){"+1",2}));CHECK(!number((Span){"12x",3}));CHECK(!number((Span){0,0}));
+    cursor=" btime 6000";CHECK(!amount(&cursor));CHECK(word(scan(&cursor),"btime"));CHECK(amount(&cursor)==6000);
+    cursor=" 12x wtime 3000";CHECK(!amount(&cursor));CHECK(word(scan(&cursor),"wtime"));CHECK(amount(&cursor)==3000);
+    Board b,c;start(&b);
+    for(unsigned n=0;n<4;n++){admission_calls=0;CHECK(!parse_apply(&b,(Span){(const char *)1,n},&c));CHECK(!admission_calls);}
+    CHECK(decoded(&b,"e2e4",&c)&&admission_calls==1);CHECK(c.s==-1&&c.half==0&&c.b[52]==1);
+    CHECK(!decoded(&b,"e2e4q",&c)&&!admission_calls);
+    CHECK(!decoded(&b,"e2e4qq",&c)&&!admission_calls);
+    CHECK(!decoded(&b,"a1a8",&c)&&!admission_calls);
+    CHECK(!decoded(&b,"0000",&c)&&!admission_calls);
+    CHECK(!decoded(&b,"i2e4",&c)&&!admission_calls);
+    CHECK(!decoded(&b,"e9e4",&c)&&!admission_calls);
+    {const char bytes[4]={'e','2',(char)255,'4'};admission_calls=0;CHECK(!parse_apply(&b,(Span){bytes,4},&c)&&!admission_calls);}
+    position_text("startpos moves e2e4 a7a6 e4e5 d7d5");b=position;
+    CHECK(decoded(&b,"e5d6",&c)&&admission_calls==1);CHECK(c.b[83]==1&&!c.b[67]&&c.half==0);
+    position_text("startpos moves e2e4 e7e5 g1f3 b8c6 f1e2 g8f6");b=position;
+    CHECK(decoded(&b,"e1g1",&c)&&admission_calls==1);CHECK(c.b[6]==6&&c.b[5]==4&&!c.b[4]&&!c.b[7]);
+    CHECK(!decoded(&b,"e1g1q",&c)&&!admission_calls);
+    position_text("startpos moves a2a4 h7h5 a4a5 h5h4 a5a6 h4h3 a6b7 h3g2");b=position;
+    for(int i=0;i<4;i++){
+        char move[6]="b7a8n";move[4]="nbrq"[i];
+        CHECK(decoded(&b,move,&c)&&admission_calls==1);CHECK(c.b[112]==i+2&&c.half==0&&c.s==-1);
+    }
+    CHECK(!decoded(&b,"b7a8",&c)&&!admission_calls);CHECK(!decoded(&b,"b7a8Q",&c)&&!admission_calls);
+    position_text("startpos moves g1f3 g8f6 f3g1 f6g8 g1f3 g8f6 f3g1 f6g8");
+    Board saved=position;uint64_t saved_keys[HISTORY];int saved_length=game_length;
+    memcpy(saved_keys,game_keys,sizeof saved_keys);
+    position_text("startpos moves e2e4 e7e5 e1e8");
+    CHECK(!memcmp(&saved,&position,sizeof saved)&&saved_length==game_length&&!memcmp(saved_keys,game_keys,sizeof saved_keys));
+    position_text("startposition moves e2e4");
+    CHECK(!memcmp(&saved,&position,sizeof saved)&&saved_length==game_length&&!memcmp(saved_keys,game_keys,sizeof saved_keys));
+    position_text("startpos junk e2e4");
+    CHECK(!memcmp(&saved,&position,sizeof saved)&&saved_length==game_length&&!memcmp(saved_keys,game_keys,sizeof saved_keys));
+    {
+        const char *cycle[]={"g1f3 ","g8f6 ","f3g1 ","f6g8 "};char line[32768],*p=line;
+        const char *head="startpos moves ";while(*head)*p++=*head++;
+        for(int i=0;i<HISTORY-1;i++){const char *s=cycle[i&3];while(*s)*p++=*s++;}*p=0;
+        admission_calls=0;set_position(line);CHECK(game_length==HISTORY&&admission_calls==HISTORY-1);
+        saved=position;saved_length=game_length;memcpy(saved_keys,game_keys,sizeof saved_keys);
+        head="startpos moves ";p=line;while(*head)*p++=*head++;
+        for(int i=0;i<HISTORY;i++){const char *s=cycle[i&3];while(*s)*p++=*s++;}*p=0;
+        admission_calls=0;set_position(line);CHECK(admission_calls==HISTORY-1);
+        CHECK(!memcmp(&saved,&position,sizeof saved)&&saved_length==game_length&&!memcmp(saved_keys,game_keys,sizeof saved_keys));
+    }
+    CHECK(clock_case("btime 60 noise winc 400 wtime 3000",0,400,0));
+    CHECK(clock_case("wtime 3000 wtime 6000",0,200,0));
+    CHECK(clock_case("wtime btime 6000",1,200,0));
+    CHECK(clock_case("wtime",0,1,0));CHECK(clock_case("wtime -1 btime 6000",0,1,0));
+    CHECK(clock_case("wtime +1",0,1,0));CHECK(clock_case("wtime 12x",0,1,0));
+    CHECK(clock_case("wtime 9223372036854775808",0,1,0));
+    CHECK(clock_case("wtime 9223372036854775807",0,86400000,0));
+    CHECK(clock_case("wtime 3000 winc 9223372036854775807",0,600,0));
+    CHECK(clock_case("infinite wtime 0 btime 0",0,0,1));CHECK(clock_case("unknown data",0,0,1));
+#if DEV
+    position_text("fen 6k1/8/8/3pP3/8/8/8/6K1 w - d6 0 1 moves e5d6");
+    CHECK(game_length==2&&position.b[83]==1&&!position.b[67]&&verify_board(&position));
+    position_text("fen 4r2k/8/8/8/8/3p4/4B3/4K3 w - - 0 1");b=position;
+    CHECK(!decoded(&b,"e2d3",&c)&&admission_calls==1);CHECK(!memcmp(&b,&position,sizeof b));
+#endif
+#if PROTOCOL_D
+    output("protocol unit pass\n");
+#else
+    puts("protocol unit pass");
+#endif
+    return 0;
+}
