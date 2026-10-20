@@ -6,7 +6,7 @@
     "ply": 128,
     "dev": 0
   },
-  "target": "Linux x86-64 raw syscall static native plus admitted fixed-layout own-ELF",
+  "target": "Linux x86-64 with SSE4.2 CRC32; raw syscall static native plus admitted fixed-layout own-ELF",
   "native_source_sha256": {
     "native/tiny.h": "e19749eb3315253e04171b89b8188df7e0db6b39ec4eb495187a6e158836823f",
     "native/board.c": "d412aa04f0609c0b10217d021f18fc2a888b863ece09064ffd9ad02a337963db",
@@ -21,7 +21,7 @@
     "loader/loader.c": "ea574f09aefc0f910a64c683c7052482d3b2e0c52a10f09450233b155674a85c",
     "loader/image.ld": "93934099212b944b20c2f7840ee87e4817311c4f87fddbb2b3f91db28776cf99",
     "loader/codec.py": "b8308c14a0bcf416af2546632a065c67562eab2c6b9eef189855d3850b3d84da",
-    "loader/decoder.h": "1f6ac732ca74f9dfa5a0080cf8ea0b5ca10475d6d2f34a7756d65da6455ef94f",
+    "loader/decoder.h": "162129fbc2e876252d7a3f58bda9672aff3a1a6170c35903b73624e571b60fd6",
     "loader/range_bits.py": "9c4f9a69b3655a1cd95969cd601193174a15894e35a92248cb3c7ccdd74d2854",
     "loader/models.json": "3101a5638551990cb2d5a33d6d28fbab436d04d301b676cc2e45afa63b7f6920"
   },
@@ -77,12 +77,12 @@
       "hq": 0,
       "native_bytes": 7964,
       "native_sha256": "24a6856e00fb902a2c11580616a8048f2832f8b9d0cf35a29a8861e5841eedb8",
-      "whole_bytes": 6165,
-      "whole_sha256": "106f78f0a677b56051fd1034147dddcb133bb20360baed18c79cf0e4412a2342",
+      "whole_bytes": 6108,
+      "whole_sha256": "cce0f6e6c23c80721bfe514a433d7e65d76cf41f67f6aeb61bab354c65463f92",
       "payload_bytes": 4971,
-      "loader_and_headers_bytes": 1194,
-      "audit_bytes": 6188,
-      "audit_sha256": "df36408012057641f6d2ec625e65168f173d96fcd6767b50cebf4fc4cdb364a8",
+      "loader_and_headers_bytes": 1137,
+      "audit_bytes": 6131,
+      "audit_sha256": "0b48475cd8ac138662a8414981e38dea49a17e892637fc951d84849303390cd7",
       "layout": {
         "bss_base": 4202496,
         "bss_pages": 176128,
@@ -138,12 +138,12 @@
       "hq": 1,
       "native_bytes": 8352,
       "native_sha256": "6acbd92ccd37b51b6745115336576a15ddaa1018e6521471a98e295bc2308626",
-      "whole_bytes": 6345,
-      "whole_sha256": "c7936c39e9d36064d2b3399fd32619010e6280d31c5d59f42a02a12ce25d6875",
+      "whole_bytes": 6288,
+      "whole_sha256": "f9f9297f8363b1863707df0e7eb7912e56d18788c64aa86998623b3f12ef3da0",
       "payload_bytes": 5151,
-      "loader_and_headers_bytes": 1194,
-      "audit_bytes": 6368,
-      "audit_sha256": "8d4c4cebeba7133ce06c6224f8536745a6e70f88c512bb7c707fbfda4c66fecb",
+      "loader_and_headers_bytes": 1137,
+      "audit_bytes": 6311,
+      "audit_sha256": "a6a5b1c1bc5cad1fdca2fdb4c3744fba95873a325a8381d877c73795552e5b88",
       "layout": {
         "bss_base": 4206592,
         "bss_pages": 176128,
@@ -197,7 +197,7 @@
     }
   },
   "qualified_receipts_metadata_only": {
-    "current_selection": "qualified fixed21 model-replay normal C D with exact native/packet/whole/audit identities and one closed normal fresh; native8/runtime/resources/public policy unchanged",
+    "current_selection": "qualified local Linux x86-64+SSE4.2 CRC32 normal C D; exact native/packet/whole/audit and one positive closed normal fresh",
     "source_lineage": "same native8 and guarded loader.c/image.ld; exact one fixed21 decoder and three container/tag encoder edits; range_bits/models/flags/resources/public policy unchanged",
     "fixed21_firstcost": {
       "final_index_sha256": "2f06d3ecc4d9e0f5fb294f6adfe533aa4559867fd31b4fad10604ed4060a5bf3",
@@ -410,7 +410,7 @@
         "postproof_metadata": "only README and qualified_receipts_metadata_only recipe fields changed after producing closure; actual producing recipe/source/archive retained separately; no second fresh run"
       }
     },
-    "scope": "current closed-source fresh observed the new fixed21 production restoration and new positive preentry identities; previous exact unchanged-native/runtime/fault receipts remain scoped ancestry, old decoder audits are not transferred",
+    "scope": "new hardware-decoder production restoration/preentry/ISA admission observed in the sole normal fresh; predecessor stages retain their original boundaries, including outer discovery terminal1 failure; no generic x86/latest tournament CPU/strength/performance/4KiB claim",
     "audit_identity_discovery": {
       "receipt_sha256": "9d886f3ce1ecedbd3b68d715a796d4c686cb9cf58b574dbe8caf9d65655dc6ce",
       "independent_source_review_sha256": "a2e6cdd25c6dd48a97dff271fc3c9f39f6ec648fb61e65ef6f7c05e99c18f663",
@@ -418,7 +418,7 @@
       "root_specific_literal_admission": true,
       "scope": "CHECKPOINT1 loader2 only, reused exact firstcostnative/packet; fullbyte/header/entirepacket static admission, no audit or engine execution"
     },
-    "normal_fresh": {
+    "predecessor_software_decoder_normal_fresh": {
       "fresh_receipt_sha256": "5c431c0417c82f2c579d198c27a754ba6a928a33c06b8ac33b4e7a977bf0e113",
       "readback_sha256": "c76b705fce499646a46e938280e1b9fa340e57b252aaaffd2668f5351b081572",
       "independent_actual_fresh_review_sha256": "afcad66db4848dfe11e2067abb7e4505495995fabc675ffc453e02d568c55882",
@@ -438,6 +438,102 @@
       "target_forced_cleanup": 0,
       "scope": "one unchangedfresh invocation terminal0 without retry; exact actual source/native/packet/whole/audit repeats, new restoredRX/BSSzero/padding/guards/NX and natural target/readergroup cleanup; compiler descendant/group absence not separately observed by unchanged normal builder",
       "postproof_metadata": "only README and recipe qualified_receipts_metadata_only changed after actual producing closure; producingrecipe/source/archive retained separately; not a secondfresh execution"
+    },
+    "hardware_crc_firstcost": {
+      "actual_receipt_sha256": "b645ec13306c0f40ea7cd19be045fe140354482fa37f13434d0a2f6a7cd4b2c1",
+      "independent_actual_readback_sha256": "7276f3381506bf4c45d27d6aaf92e310418b561cb145090707468154abb5a7e7",
+      "CRC_comparisons": 5673,
+      "packet_full_BCJ_native_diagnostics": 2,
+      "whole_bytes": [
+        6108,
+        6288
+      ],
+      "whole_delta_bytes": [
+        -57,
+        -57
+      ],
+      "whole_engine_executions": 0,
+      "new_audit_identity": "pending actual CHECKPOINT1 discovery and root literal admission",
+      "new_shipping_preentry_fresh": "not executed",
+      "profile": "local SSE4.2 CRC32 mandatory; official wiki returned429, current tournament server ISA not verified"
+    },
+    "hardware_crc_audit_discovery": {
+      "raw_receipt_sha256": "6c489d538604d5e8e92fa529e9715f281494db2d04005edbefd8150cfe6e68ba",
+      "raw_complete_true_is_inaccurate_for_overall_run": true,
+      "overall_driver_returncode": 1,
+      "overall_discovery_pass": false,
+      "failure_companion_sha256": "b8d7dc74d6a707ec083afaf995df751ff522ba89dc6b4aab1fb9524aed3801dc",
+      "compiler_count": 2,
+      "compiler_returncodes": [
+        0,
+        0
+      ],
+      "compiler_groups_recorded_absent": true,
+      "forced_cleanup": 0,
+      "target_execution": 0,
+      "independent_source_review_sha256": "3c9b1a968a950a28dd1201e502fe946ccf49fe00cad16a6d692ecc095df3a901",
+      "independent_actual_static_review_sha256": "62bde41b08f31a52a674a213682759816b44b4c7946e30d1050412471b89e0f1",
+      "literal_admission": "root accepted only actual6131/6311 full identities after raw file/source/static/failure review",
+      "driver_retry_or_fix_execution": 0,
+      "new_normal_fresh": "separate unchanged tracked path authorized once; not yet executed at producing freeze"
+    },
+    "normal_fresh": {
+      "fresh_receipt_sha256": "96fa649d7b192addc135104313e2692121ec1df69acaf41666eb9bb796079d83",
+      "readback_sha256": "6129b0dfd350bf83c04fd0642631e7073cf513564b8241292564c3ab14bde5bf",
+      "independent_actual_fresh_review_sha256": "eabf22d41a00ff6a41f8be3d317f14d992a085b9feefc2c80fe0d72dfc33ac08",
+      "producing_source21_set_sha256": "e44f5d1a8a1b51a12d839121edcdc84f823263642723e27a5f49bd13ecaecdaa",
+      "producing_recipe_sha256": "2769b40e85320339f9ff1b058319b4d35381f7920de4cbfc9d340010aa21f9ce",
+      "producing_archive23_sha256": "7b61bc943e2f21c7273988e14007d4d9596498b0b1e5fe3b3d80539adcd4dfe3",
+      "execution_isa": "linux-x86_64-sse4.2-crc32b-v1",
+      "actual_CPU_preflight_observations": [
+        {
+          "attempt": 1,
+          "available_processors": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "profile": "linux-x86_64-sse4.2-crc32b-v1",
+          "scope": "local exposed feature admission; generic compatibility and current tournament CPU unverified",
+          "source": "/proc/cpuinfo and sched_getaffinity",
+          "sse4_2_all_available": true
+        },
+        {
+          "attempt": 2,
+          "available_processors": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "profile": "linux-x86_64-sse4.2-crc32b-v1",
+          "scope": "local exposed feature admission; generic compatibility and current tournament CPU unverified",
+          "source": "/proc/cpuinfo and sched_getaffinity",
+          "sse4_2_all_available": true
+        }
+      ],
+      "ordinary_members": 23,
+      "independent_extractions": 2,
+      "native_compiler_commands": 8,
+      "shipping_loader_compiler_commands": 8,
+      "audit_loader_compiler_commands": 4,
+      "metadata_commands": 4,
+      "fixed_encoder_calls": 8,
+      "shipping_sessions": 8,
+      "shipping_GO_epochs": 24,
+      "positive_pre_entry_sessions": 4,
+      "target_forced_cleanup": 0,
+      "scope": "one unchanged tracked fresh invocation terminal0 without retry, separate from failed discovery driver; actual bytes repeated and exact new RX/native identity/padding/BSSzero/guards/NX/originalentry + persistent threads/stdio/readers/groups observed; normal builder compiler rc0 only, no separate compiler-group observation",
+      "postproof_metadata": "only README and recipe qualified_receipts_metadata_only differ from producing; other19 and all producing profile/expected/source/flags/model fields unchanged; no second fresh run"
     }
   },
   "shipping_protocol": {
@@ -466,5 +562,6 @@
     "weightmask": "exact selected form literal passed as MODEL_WMASK, unsigned32 replay per coded bit",
     "model_schema_format": "rove4k-context-h24-base10-u32-zero4-v1",
     "packet_format": "rove4k-context-h24-base10-fixed21-replay-zero4-v2"
-  }
+  },
+  "execution_isa": "linux-x86_64-sse4.2-crc32b-v1"
 }

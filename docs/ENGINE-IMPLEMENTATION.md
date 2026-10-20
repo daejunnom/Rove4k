@@ -188,7 +188,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | A | 4,762 B | 666 B | Order-independent text profile, shared startup/query, adjacent declarations/completion sequence and original ALONE |
 | B | 5,371 B | 1,275 B | Shared forward geometry, bounded text/query profile, declared legal-LVA ordering, hybrid attackers/singular and ALONE |
 | C | 5,159 B | 1,063 B | Shared material/SIMD vector, bounded text profile, real AVX2 residual dot, fixed TT/sort/clamp specialization and ALONE |
-| D scalar / HQ | 6,165 / 6,345 B | 2,069 / 2,249 B | Own fixed21 model-replay context ELF, residual leapers, worker reset and guarded BCJ restoration |
+| D scalar / HQ | 6,108 / 6,288 B | 2,012 / 2,192 B | Own fixed21 context ELF with explicit SSE4.2 CRC32C, residual leapers, worker reset and guarded BCJ restoration |
 | E | 5,281 B | 1,185 B | Shared bounded text/query profile, all 21 untrained coefficients, fixed TT/sort/clamp specialization and ALONE |
 | F | 4,730 B | 634 B | Full-depth MTD(f), shared EP legality, adjacent declarations/completion sequence, bounded text profile and fixed ALONE |
 
@@ -3938,6 +3938,47 @@ text instead of 1,018 B text. Static disassembly confirms the byte-input,
 Five compiles, three isolated diagnostics and two static disassemblies all
 settle normally; this first-cost stage executes no produced shipping ELF.
 These data diagnostics are separate from production restoration/entry proof.
+
+Normal-source integration declares `linux-x86_64-sse4.2-crc32b-v1` explicitly
+in recipe/build/verification. Verification checks exposed SSE4.2 on every CPU
+in its inherited affinity before launching an owned target. The original
+21-file/23-member source closure, complete predecessor recipe and eight
+selected native/packet/shipping/audit controls are preserved outside Git.
+Only the CRC function and narrow profile/admission metadata change; packer,
+fresh extraction and physical observer/cleanup bodies remain byte-exact.
+Audit discovery compiles two actual CHECKPOINT1 files at 6,131 / 6,311 B,
+with hashes `0b48475cd8ac138662a8414981e38dea49a17e892637fc951d84849303390cd7`
+and `a6a5b1c1bc5cad1fdca2fdb4c3744fba95873a325a8381d877c73795552e5b88`.
+Both compiler processes return0, reap and leave their groups absent. The
+outer discovery driver nevertheless exits1 because a temporary row variable
+shadows its saved signal handler during final restoration. Its raw report's
+premature `complete:true` is retained as inaccurate, with a separate
+`complete:false` failure companion SHA
+`b8d7dc74d6a707ec083afaf995df751ff522ba89dc6b4aab1fb9524aed3801dc`.
+The overall discovery is not reported as PASS; actual compiled artifacts and
+their static review are a separate admission basis. No discovery retry or
+target execution is used to turn that driver failure into success.
+
+After actual static readback and root intake of those two audit literals, one
+separate unchanged normal `fresh.py` run passes with terminal0 and no retry.
+It archives 23 ordinary members, extracts twice independently, and reproduces
+all eight native, eight shipping whole, four audit and twelve packet outputs
+exactly. Eight shipping sessions/24 GO and four positive pre-entry observations
+pass with restored RX identity/padding, initial BSS/padding zero, exact guards,
+NX stacks, original entry resume, two persistent workers, reader EOF and
+natural target/group exit; forced cleanup is zero. Both verifier invocations
+confirm SSE4.2 on every affinity-available CPU. Compiler commands return0;
+the unchanged builder does not separately observe compiler group absence.
+The fresh receipt SHA is
+`96fa649d7b192addc135104313e2692121ec1df69acaf41666eb9bb796079d83`,
+and actual readback SHA is
+`6129b0dfd350bf83c04fd0642631e7073cf513564b8241292564c3ab14bde5bf`.
+This qualifies the new local SSE4.2 maintained pair at 6,108 / 6,288 B,
+still 2,012 / 2,192 B above the limit. It does not repair or relabel the
+earlier failed discovery driver, infer current tournament-server support,
+or measure performance/strength. Only README and recipe qualification
+metadata are overlaid after the actual producing source/archive freeze;
+the executed source set and later explanatory set remain separate.
 
 The A/F single-condition proposal removes 28 raw bytes each but remains
 uncompiled and unselected. Sharing startup notification with epoch waiters

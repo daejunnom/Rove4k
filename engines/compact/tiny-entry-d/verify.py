@@ -32,7 +32,8 @@ SHIPPING_PROTOCOL = {
     'completion_fences': 'next go, position, quit, EOF acquire pending==0 after result output',
 }
 CODEC = 'rove4k-context-h24-base10-fixed21-replay-zero4-v2'
-EXPECTED = {'scalar-shipping': {'bytes': 6165, 'sha256': '106f78f0a677b56051fd1034147dddcb133bb20360baed18c79cf0e4412a2342', 'native_bytes': 7964, 'native_sha256': '24a6856e00fb902a2c11580616a8048f2832f8b9d0cf35a29a8861e5841eedb8', 'audit_bytes': 6188, 'audit_sha256': 'df36408012057641f6d2ec625e65168f173d96fcd6767b50cebf4fc4cdb364a8', 'entry': 4201879, 'layout': {'bss_base': 4202496, 'bss_pages': 176128, 'bss_size': 175092, 'entry': 4201879, 'guard_base': 4190208, 'image_base': 4194304, 'image_pages': 8192, 'image_size': 7964, 'reserve_size': 192512, 'section_count': 0, 'section_names': 0, 'section_offset': 0, 'section_size': 0, 'segments': [{'align': 4096, 'filesz': 7964, 'flags': 5, 'memsz': 7964, 'offset': 0, 'paddr': 4194304, 'type': 1, 'vaddr': 4194304}, {'align': 4096, 'filesz': 0, 'flags': 6, 'memsz': 175092, 'offset': 0, 'paddr': 4202496, 'type': 1, 'vaddr': 4202496}, {'align': 8, 'filesz': 0, 'flags': 6, 'memsz': 0, 'offset': 0, 'paddr': 0, 'type': 1685382481, 'vaddr': 0}], 'upper_guard': 4378624}}, 'hq-shipping': {'bytes': 6345, 'sha256': 'c7936c39e9d36064d2b3399fd32619010e6280d31c5d59f42a02a12ce25d6875', 'native_bytes': 8352, 'native_sha256': '6acbd92ccd37b51b6745115336576a15ddaa1018e6521471a98e295bc2308626', 'audit_bytes': 6368, 'audit_sha256': '8d4c4cebeba7133ce06c6224f8536745a6e70f88c512bb7c707fbfda4c66fecb', 'entry': 4202196, 'layout': {'bss_base': 4206592, 'bss_pages': 176128, 'bss_size': 175092, 'entry': 4202196, 'guard_base': 4190208, 'image_base': 4194304, 'image_pages': 12288, 'image_size': 8352, 'reserve_size': 196608, 'section_count': 0, 'section_names': 0, 'section_offset': 0, 'section_size': 0, 'segments': [{'align': 4096, 'filesz': 8352, 'flags': 5, 'memsz': 8352, 'offset': 0, 'paddr': 4194304, 'type': 1, 'vaddr': 4194304}, {'align': 4096, 'filesz': 0, 'flags': 6, 'memsz': 175092, 'offset': 0, 'paddr': 4206592, 'type': 1, 'vaddr': 4206592}, {'align': 8, 'filesz': 0, 'flags': 6, 'memsz': 0, 'offset': 0, 'paddr': 0, 'type': 1685382481, 'vaddr': 0}], 'upper_guard': 4382720}}}
+EXECUTION_ISA = 'linux-x86_64-sse4.2-crc32b-v1'
+EXPECTED = {'scalar-shipping': {'bytes': 6108, 'sha256': 'cce0f6e6c23c80721bfe514a433d7e65d76cf41f67f6aeb61bab354c65463f92', 'native_bytes': 7964, 'native_sha256': '24a6856e00fb902a2c11580616a8048f2832f8b9d0cf35a29a8861e5841eedb8', 'audit_bytes': 6131, 'audit_sha256': '0b48475cd8ac138662a8414981e38dea49a17e892637fc951d84849303390cd7', 'entry': 4201879, 'layout': {'bss_base': 4202496, 'bss_pages': 176128, 'bss_size': 175092, 'entry': 4201879, 'guard_base': 4190208, 'image_base': 4194304, 'image_pages': 8192, 'image_size': 7964, 'reserve_size': 192512, 'section_count': 0, 'section_names': 0, 'section_offset': 0, 'section_size': 0, 'segments': [{'align': 4096, 'filesz': 7964, 'flags': 5, 'memsz': 7964, 'offset': 0, 'paddr': 4194304, 'type': 1, 'vaddr': 4194304}, {'align': 4096, 'filesz': 0, 'flags': 6, 'memsz': 175092, 'offset': 0, 'paddr': 4202496, 'type': 1, 'vaddr': 4202496}, {'align': 8, 'filesz': 0, 'flags': 6, 'memsz': 0, 'offset': 0, 'paddr': 0, 'type': 1685382481, 'vaddr': 0}], 'upper_guard': 4378624}}, 'hq-shipping': {'bytes': 6288, 'sha256': 'f9f9297f8363b1863707df0e7eb7912e56d18788c64aa86998623b3f12ef3da0', 'native_bytes': 8352, 'native_sha256': '6acbd92ccd37b51b6745115336576a15ddaa1018e6521471a98e295bc2308626', 'audit_bytes': 6311, 'audit_sha256': 'a6a5b1c1bc5cad1fdca2fdb4c3744fba95873a325a8381d877c73795552e5b88', 'entry': 4202196, 'layout': {'bss_base': 4206592, 'bss_pages': 176128, 'bss_size': 175092, 'entry': 4202196, 'guard_base': 4190208, 'image_base': 4194304, 'image_pages': 12288, 'image_size': 8352, 'reserve_size': 196608, 'section_count': 0, 'section_names': 0, 'section_offset': 0, 'section_size': 0, 'segments': [{'align': 4096, 'filesz': 8352, 'flags': 5, 'memsz': 8352, 'offset': 0, 'paddr': 4194304, 'type': 1, 'vaddr': 4194304}, {'align': 4096, 'filesz': 0, 'flags': 6, 'memsz': 175092, 'offset': 0, 'paddr': 4206592, 'type': 1, 'vaddr': 4206592}, {'align': 8, 'filesz': 0, 'flags': 6, 'memsz': 0, 'offset': 0, 'paddr': 0, 'type': 1685382481, 'vaddr': 0}], 'upper_guard': 4382720}}}
 OWNED = set()
 
 
@@ -47,6 +48,22 @@ def sha(data):
 def require(condition, detail):
     if not condition:
         raise AssertionError(detail)
+
+
+def execution_profile():
+    require(os.uname().machine == "x86_64", "x86-64 ISA profile required")
+    available = sorted(os.sched_getaffinity(0))
+    flags = {}
+    for block in Path("/proc/cpuinfo").read_text().strip().split("\n\n"):
+        fields = {k.strip(): v.strip() for line in block.splitlines() if ":" in line
+                  for k, v in [line.split(":", 1)]}
+        if "processor" in fields:
+            flags[int(fields["processor"])] = fields.get("flags", "").split()
+    require(available and all("sse4_2" in flags.get(cpu, []) for cpu in available),
+            "SSE4.2 CRC32 must be exposed on every available CPU")
+    return {"profile": EXECUTION_ISA, "available_processors": available,
+            "sse4_2_all_available": True, "source": "/proc/cpuinfo and sched_getaffinity",
+            "scope": "local exposed feature admission; generic compatibility and current tournament CPU unverified"}
 
 
 class Budget:
@@ -412,8 +429,10 @@ def main():
     require(args.out.is_absolute() and not out.exists() and not any((p / ".git").exists() for p in (out, *out.parents)), "--out must be new, absolute and outside Git")
     require(30 <= args.budget <= 300, "budget must be 30..300 seconds")
     require(sys.platform.startswith("linux"), "Linux /proc and parent memory access required")
+    isa_observation = execution_profile()
     out.mkdir(parents=True)
     report = {"complete": False, "scope": "Fresh exact context own-ELF pre-entry RX/BSS/permissions and narrow shipping runtime proof; no decoder-fault suite, RIE/ptrace mutation or 4k eligibility claim",
+              "execution_isa": EXECUTION_ISA, "ISA_observation": isa_observation,
               "build_sha256": None, "validator_sha256": None,
               "oracle_sha256": None, "oracle_lf_sha256": ORACLE_LF_SHA,
               "results": [], "failures": [], "interrupted_constructors_cleanup": []}
@@ -430,6 +449,7 @@ def main():
         require(all(e["audit_bytes"] is not None and e["audit_sha256"] is not None for e in EXPECTED.values()), "context audit literals require explicit discovery and admission")
         build = json.loads(build_bytes)
         require(build.get("complete") is True, "build is incomplete")
+        require(build.get("execution_isa") == EXECUTION_ISA, "build execution ISA declaration differs")
         require(not build.get("failure") and build["shipping_protocol"] == SHIPPING_PROTOCOL, "build protocol declaration differs or build failed")
         report["shipping_protocol"] = SHIPPING_PROTOCOL
         report["policy_scope"] = "declaration/exact-image binding; this run checks clocked play and quit/EOF, not ignored controls or default-budget arithmetic"

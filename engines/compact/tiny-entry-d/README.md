@@ -1,133 +1,104 @@
-# Maintained selected C D context own-ELF entry
+# Maintained C D local SSE4.2 own-ELF entry
 
-This snapshot connects the fixed21 model-replay first-cost sources and exact
-two native/packet/whole identities. New CHECKPOINT audit identities were
-compiled separately, independently read and specifically admitted by root:
-scalar6188B/df36408012057641f6d2ec625e65168f173d96fcd6767b50cebf4fc4cdb364a8,
-HQ6368B/8d4c4cebeba7133ce06c6224f8536745a6e70f88c512bb7c707fbfda4c66fecb.
-These were registered before the actual producing source/archive freeze.
-One unchanged normal fresh subsequently completed terminal0 without retry,
-as described below. Unknown audit identities remain rejected by the existing
-guards.
+This selected entry adopts one exact CRC32C byte-instruction function in the independent
+fixed21 context decoder. The whole-program execution profile is explicitly
+Linux x86-64 with SSE4.2 CRC32 support. The builder records that literal and
+the verifier checks sse4_2 on every CPU available through its inherited
+affinity before any target launch. This is a locally validated ISA choice;
+generic x86-64 compatibility and current tournament-server ISA are unverified.
+The official4K wiki returned429 during this decision, not a successful check.
 
-| Form | Unchanged native | New complete own-ELF | Whole SHA-256 |
-| --- | ---: | ---: | --- |
-| Scalar | 7964 B | 6165 B | 106f78f0a677b56051fd1034147dddcb133bb20360baed18c79cf0e4412a2342 |
-| HQ | 8352 B | 6345 B | c7936c39e9d36064d2b3399fd32619010e6280d31c5d59f42a02a12ce25d6875 |
+Current first-cost shipping identities:
 
-Both actual firstcost files are107B smaller than preserved6272/6452 controls,
-but still2069/2249B above4096. There is no strength, speed/scaling, eligibility
-or4KiB claim. The readable native engine is in native/; normal production
-reads ordinary maintained source and installed compiler/Python stdlib only,
-never experiment outputs, historical receipts or upstream implementations.
-The root MIT license applies.
+| Form | Native | Packet | Complete own ELF | Nonpacket |
+|---|---:|---:|---:|---:|
+| scalar-shipping |7964|4971|6108|1137|
+| hq-shipping |8352|5151|6288|1137|
 
-The new packet format is rove4k-context-h24-base10-fixed21-replay-zero4-v2.
-Its21 ordered mask bytes are followed by the existing arithmetic body and4
-real zero tail bytes. Native IMAGE_SIZE owns the u32 coded count8*N+1. Exact
-selected-model WMASK is passed explicitly through the internal producer API
-and bound to the exact admitted native/form geometry. MODEL_WMASK is cast to
-cx_u32 before shifts; w and weight reset once per coded bit, weight carries
-across21 models, and post-shift high24+mask reproduces each seed. Separate
-startup seeds[21]/weights[21] arrays and generic count/header parsing are gone.
-The84B slots array remains, all probabilities are read before the21 ordered
-updates, and colliding slots still receive every byte-wrap/opposite-halving
-update. Array removal is logical stack data, not105B file savings.
+Scalar whole SHA cce0f6e6c23c80721bfe514a433d7e65d76cf41f67f6aeb61bab354c65463f92;
+HQ SHA f9f9297f8363b1863707df0e7eb7912e56d18788c64aa86998623b3f12ef3da0.
+Each saves57B against previous6165/6345. Nonpacket is176B ELF/PHDR plus961B
+text. Native and packet full bytes stay unchanged. At the producing checkpoint
+new target executions were0; the subsequent sole positive fresh passed below. Root registered only actual audit
+scalar6131B SHA0b48475cd8ac138662a8414981e38dea49a17e892637fc951d84849303390cd7
+and HQ6311B SHAa6a5b1c1bc5cad1fdca2fdb4c3744fba95873a325a8381d877c73795552e5b88
+after independent full-file/source/static readback. Unknown audit identities
+remain rejected. Native/encoder/shipping/control rebuilds were0 in discovery.
 
-models.json keeps its unchanged model-source schema tag
-rove4k-context-h24-base10-u32-zero4-v1; this is distinct from the new packet
-ABI. Model masks/weights/order, H24/base10, software CRC32C, range_bits integer
-arithmetic, prefix/history and alias update semantics remain. Input length,
-real zero4, every bit-read end check, initial31 bits, sentinel, output bounds
-and final written/prefix checks are retained. Private fixed21 support is not
-an arbitrary model/container acceptance promise.
+The packet codec remains rove4k-context-h24-base10-fixed21-replay-zero4-v2;
+models.json remains its previous model-source schema. Only cx_crc changes,
+with no pre-XOR, complement, wide load, global ISA flag or dispatch fallback.
+Fixed21 WMASK replay, read-all probabilities before ordered alias updates,
+u32 and byte wrap, readend/count/sentinel/output bounds and real zero4 remain.
+The positive isolated diagnostics passed5673 CRC comparisons and both complete
+packet→BCJ→native comparisons, canaries and owned32MiB table munmap. Those isolated
+diagnostics do not substitute for the separate actual fresh observations below.
 
-Actual packets are4971/5151B, SHA
-1ae6c71f2355aba3ca89bcc151585c832ddcb130621444c7f5c567276f893409 /
-86d0e63bf852bc8ac96576097531cf3134809e0ae837adf219e85b14ce7c7517.
-Their bodies4946/5126B and realzero4 are byteequal to previous packets; only8B
-of header disappear. WMASK4 moves into code. Actual whole cost includes176B
-ELF header/PHDR+1018B compiled text+payload, no otherrodata/padding, yielding
-1194B overhead versus1293B previously. Per-bit replay adds CPU work and can
-change register pressure; no runtime performance result is inferred.
+Standalone native source/flags/linker order, scalar/HQ algorithms, HCE,
+coherent fullkey TT and all learning stay exact. WORKERS2, TT_BITS18 and
+PLY128 stay fixed. Both stacks retain their private1MiB plus guard pages.
+Scalar restores RX2 at400000/BSS402000; HQ RX3/BSS403000. Both BSS175092B
+round to43pages. Existing exact lower/upper guard and reserve contracts,
+NX stack, zero BSS, private32MiB context table lifetime, RW→RX and original
+native entries remain unchanged. No permission/guard/image-admission broadening.
 
-Firstcost receipt SHA
-0f08bb54783aef070a3d75eefeb28a005868156452243513da624bf7708d8137
-and final index SHA
-2f06d3ecc4d9e0f5fb294f6adfe533aa4559867fd31b4fad10604ed4060a5bf3
-cover one attempt: encoder2, positive libc decoder diagnostic2compiles2runs,
-and CHECKPOINT0loader2compiles. Every actual BCJ output and inverse fullnative
-matched; output canaries and table unmap passed. All8commands returned0 with
-leader reap/group absence and no forced cleanup. Independent static review
-243ffd8668a2365613dbdc39cc9260bf02dcc05a079bc5fef6fdacd024727c80
-and actual readback
-64a3c49e7bc22ddb81b4999a559a5af6d0f67132f1ea4dc2675ac7d21426aa2e
-are separate from future production restoration/pre-entry observations.
+Finite-minimum UCI policy is unchanged: uci/isready/position startpos moves/go
+clock/quit/EOF; no optional id/options. Shipping consumes stop/ucinewgame/
+infinite without adding their DEV semantics. Missing own clock gives1000ms
+budget, not a hard wall-time cap. Next go, position, quit and EOF wait for
+pending0 after complete output. Persistent clone/futex worker ownership,
+partial-create shutdown bypass and kernel clearTID joins are unchanged.
 
-Native8, guarded loader.c/image.ld, range_bits.py/models.json, compiler/linker
-flags, unit order, resources and finite public policy are unchanged. WORKERS2,
-TT_BITS18/PLY128/DEV0, coherent full-key TT, HCE/PVS/QS/history/continuation/
-correction, legal move guards and worker-owned reset/pending0-after-output
-publication remain. Shipping uci emits uciok; stop/newgame/infinite are consumed;
-absent own clock uses1000ms budget (not a hard wall cap). Nextgo/position/quit/
-EOF stop and acquire pending0 after output before reuse; replay is transactional.
+Old raw21/closed23, entire previous recipe and eight selected actual native/
+packet/whole/audit controls are preserved before modification. Old software
+decoder fresh/pre-entry receipts remain predecessor evidence only. New audit
+identities require actual CHECKPOINT1 outputs, full static readback and root
+literal intake before registration or any new normal build/fresh execution.
+No old audit is inherited and no expected field is automatically relaxed.
 
-Scalar native SHA24a6856e00fb902a2c11580616a8048f2832f8b9d0cf35a29a8861e5841eedb8,
-entry401d97/RX2/BSS402000/upper42d000/reserve2f000. HQ native SHA
-6acbd92ccd37b51b6745115336576a15ddaa1018e6521471a98e295bc2308626,
-entry401ed4/RX3/BSS403000/upper42e000/reserve30000. Both retain175092B BSS,
-43roundedpages, zero writable filebytes, lowerguard3ff000 and NX stacks.
+Normal source closure stays21 local files plus oracle/LICENSE=23 ordinary
+members. packer.py, loader.c, both linkers, native8, encoder/range/models,
+fresh.py and physical observer/helper bodies remain unchanged. No new DEV,
+general race, strength, performance, 4KiB or latest TCEC-server claim is made.
+No negative/fault/RIE/ptrace/register/personality campaign is used.
 
-The restorer retains RIE rejection and MAP_FIXED_NOREPLACE guarded reservation,
-RW-only image decode, private kernel-zero32MiB RW context table, checked table
-munmap before inverse BCJ, native RW-to-RX plus separate zeroBSS RW, and original
-stack/entry handoff. It never requests RWX. CHECKPOINT is after table unmap,
-BCJ and final RX/BSS protections, before native initialization/workers.
-New preentry observations cover restoredRX/padding, initialBSS/paddingzero,
-guards/NX and original entry resume; shipping observations cover actualnative
-identity and persistent startup workers. No additional exact context-table
-address/unmap-causality observation is claimed beyond the source contract.
+Discovery failure is preserved: both CHECKPOINT1 compilers returned0, their
+leaders were reaped/groups absent and forced cleanup0, but the outer driver
+returned1 while restoring its signal handler after a local variable shadowed
+the saved handler. Raw discovery.complete:true is inaccurate as an overall
+PASS. Its unmodified raw receipt, executed source and separate complete:false
+failure companion remain preserved. No retry, recompile or handler-fix run
+occurred. Root admitted the independently read actual outputs separately.
 
-Old normal21/source23 and20 repeated native/whole/audit controls are preserved
-outsideGit. Prior unchanged-native/runtime proofs remain scoped ancestry; old
-decoder audit/fresh receipts do not qualify these new whole/audit identities.
-Audit discovery reused exact firstcostnative/packet and compiled CHECKPOINT1
-only twice, with no encoder/native/shipping compile or target execution.
-Discovery receipt SHA
-9d886f3ce1ecedbd3b68d715a796d4c686cb9cf58b574dbe8caf9d65655dc6ce
-and independent source/actual-audit read reviews are recipe metadata. These
-new literals were registered only after specific root intake. One unchanged
-fresh archived23 ordinary members, extracted twice independently and regenerated
-native8/shippingloader8/auditloader4 plus4 metadata commands. Actual source,
-native/packet/whole/audit bytes repeated exactly. Shipping8sessions24GO and
-positivepreentry4 passed with new restoredRX/BSSzero/padding/guards/NX and
-natural target/readergroup cleanup, forced0. Compiler command records are rc0;
-compiler descendant/group absence was not separately observed by the unchanged
-builder. No old audit SHA was inherited and no guard was broadened.
+One unchanged normal fresh subsequently completed terminal0 without retry.
+Its closed23-member archive was extracted twice independently. Native8,
+shippingloader8/auditloader4 and fixed encoder outputs reproduced exactly;
+metadata commands4 and compiler commands20 returned0. Actual CPU preflight
+ran twice and admitted sse4_2 on every affinity-available local CPU, with the
+exact execution_isa declaration checked in each build/verifier receipt.
 
-Actual fresh receipt SHA
-5c431c0417c82f2c579d198c27a754ba6a928a33c06b8ac33b4e7a977bf0e113,
-readback SHAc76b705fce499646a46e938280e1b9fa340e57b252aaaffd2668f5351b081572.
+Actual shipping8sessions24GO and positivepreentry4 passed. New restored RX/
+native identity/padding, initial BSS/paddingzero, guards/NX and original entry
+resume were observed. Shipping retained two persistent workers, onlystdio,
+legal results and natural reader/process/group settlement; forced cleanup0.
+Compiler descendant/group absence was not separately observed by the unchanged
+normal builder. No direct exact context-table-address/unmap-causality claim
+is made. These observations do not establish generic CPU compatibility,
+current tournament-server admission, ignored-control/default-budget timing,
+general race freedom, strength, performance or4KiB eligibility.
+
+Actual fresh SHA96fa649d7b192addc135104313e2692121ec1df69acaf41666eb9bb796079d83;
+readback SHA6129b0dfd350bf83c04fd0642631e7073cf513564b8241292564c3ab14bde5bf.
 The actual producing source21 set is
-99512203f9fa3136b3a845248efde9c96610a1e57b39b716c1b5337314d73a5a,
-recipe SHAdbc976c0092252b0eaeeb12cf4bd6313e5f48325a4986b25fe286f88ae6dc2d8,
-archive23 SHA3fed6efd269a4f0a054cbb8b3637fda539e2136d9ae4ef45639e2acb64d63caa.
-These remain separately frozen; independent actual read reviews are pinned in
-recipe qualification metadata.
+e44f5d1a8a1b51a12d839121edcdc84f823263642723e27a5f49bd13ecaecdaa,
+recipe SHA2769b40e85320339f9ff1b058319b4d35381f7920de4cbfc9d340010aa21f9ce,
+archive23 SHA7b61bc943e2f21c7273988e14007d4d9596498b0b1e5fe3b3d80539adcd4dfe3.
+Those producing bytes and all original failure material remain frozen.
+This separate successful fresh does not repair the earlier discovery driver's
+terminal1 failure or reclassify its inaccurate raw complete:true as PASS.
 
-```sh
-python3 -I -B engines/compact/tiny-entry-d/build.py --out /absolute/new/build
-python3 -I -B engines/compact/tiny-entry-d/fresh.py --out /absolute/new/fresh
-```
-
-Audit literals are now admitted; the above commands still require the exact
-source/profile/native/packet/whole identities. No RIE/ptrace/register/
-personality negative, fault/synthetic/cancellation, game or benchmark campaign
-belongs to this integration. Recipe receipt hashes are provenance metadata
-only, never normal build inputs. Root owns Git/global docs/CI.
-
-After the sole successful fresh, only README and recipe qualification metadata
-were overlaid. The other19 localfiles and all recipe source/expected/profile/
-flags/model/policy fields remain producing-exact. This explanatory finalsource
-archive is not a second fresh execution. No new DEV identity, broadcore/fault,
-generic race, strength, startup timing or performance result is claimed.
+After the sole successful fresh, only this README and recipe qualification
+metadata were overlaid. The other19 local files and all recipe producing
+profile/expected/source/flags/model fields remain producing-exact. This final
+explanatory metadata is not a second fresh execution. No negative/fault,
+RIE/ptrace/register/personality, game, benchmark or training campaign was added.

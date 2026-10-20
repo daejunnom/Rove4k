@@ -21,8 +21,7 @@ typedef struct {
 } cx_input;
 
 static cx_u32 cx_crc(cx_u32 h,unsigned char b){
-    h^=b;
-    for(unsigned k=0;k<8;k++)h=(h>>1)^(0x82f63b78u*(h&1));
+    __asm__("crc32b %1,%0":"+r"(h):"qm"(b));
     return h;
 }
 

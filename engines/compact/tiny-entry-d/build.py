@@ -20,6 +20,7 @@ import time
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 CODEC = 'rove4k-context-h24-base10-fixed21-replay-zero4-v2'
+EXECUTION_ISA = 'linux-x86_64-sse4.2-crc32b-v1'
 SHIPPING_PROTOCOL = {
     'id': 'finite-minimum-v1', 'identification': False,
     'stop': 'consume', 'ucinewgame': 'consume', 'infinite': 'consume',
@@ -64,6 +65,8 @@ def main():
         raise ValueError('exactly the selected scalar/HQ images are required')
     if recipe['codec'] != CODEC:
         raise ValueError('unsupported fixed context codec')
+    if recipe.get('execution_isa') != EXECUTION_ISA:
+        raise ValueError('unsupported explicit execution ISA profile')
     if any(expected['audit_bytes'] is None or expected['audit_sha256'] is None for expected in recipe['expected'].values()):
         raise ValueError('context audit literals require explicit discovery and admission')
     if recipe['shipping_protocol'] != SHIPPING_PROTOCOL:
@@ -72,8 +75,8 @@ def main():
     frozen = out/'inputs'
     frozen.mkdir()
     started, deadline = time.monotonic(), time.monotonic()+180
-    report = {'complete': False, 'scope': 'maintained source regeneration of exact C D context own-ELFs; fixed independent encoder/decoder and literal native mapping classes; worker-owned reset, four-byte BCJ copy, residual leaper single-step and fixed21 WMASK replay; fixed profile/flags',
-              'resources': recipe['profile'], 'inputs': {}, 'engines': [], 'negative_decoder_controls': [],
+    report = {'complete': False, 'scope': 'maintained source regeneration of exact C D context own-ELFs; fixed independent encoder/decoder and literal native mapping classes; worker-owned reset, four-byte BCJ copy, residual leaper single-step and fixed21 WMASK replay with SSE4.2 CRC32; fixed explicit ISA profile/flags',
+              'resources': recipe['profile'], 'execution_isa': EXECUTION_ISA, 'inputs': {}, 'engines': [], 'negative_decoder_controls': [],
               'shipping_protocol': recipe['shipping_protocol'],
               'qualified_receipt_reuse_metadata_only': recipe['qualified_receipts_metadata_only'],
               'runtime_validation': 'separate verify.py receipt required', 'under4096': False}
