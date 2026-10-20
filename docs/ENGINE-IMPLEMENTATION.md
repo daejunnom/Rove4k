@@ -101,6 +101,10 @@ The C-proof/D-latch-cost checkpoint `9cf8cdf` passes both language jobs in its
 and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39390557983).
 Its new experiments retain their local qualification/cost/failure boundaries;
 they are not additional engine CI executions.
+The maintained-C-composition checkpoint `034e9d8` passes both language jobs in
+its [exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39391598903)
+and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39391598852).
+The C job actually regenerates and exercises the maintained 5,687-byte entry.
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
@@ -2241,5 +2245,32 @@ The final promotion receipt is
 normal source archive is
 `a613040357d46f33bf5c59c72a2fc7a8d1830fce9a14fc6d0420d3a46835a75c`.
 New whole is 5,687 bytes, saving 36 and still exceeding 4KiB by 1,591.
-This local maintained promotion awaits its own exact-head CI; it does not
-replace prior CI with a future-head success claim.
+Its own `034e9d8` exact-head C/Rust and repository lifecycle CI passes, as linked
+above. The C job regenerates and runs this maintained entry. This does not
+replace other experimental scopes with additional CI engine executions.
+
+## A/F stop-load macro: smaller source, larger whole files
+
+The [fixed qA experiment](../engines/experiments/tiny-af-stop-macro/README.md)
+replaces the three A and four F identical relaxed stop-load expressions with
+one fixed macro after the final include. The macro still expands at each
+original site and retains F's short circuit. All original controls reproduce
+twice before the candidate work. Actual full expanded bytes are identical,
+and raw macro-line Counters differ only by the one exact new definition.
+Both complete candidate natives equal their original full ELF bytes before
+either fixed codec call; two independent packages per family reproduce.
+
+The define-inclusive source falls A10,184 to 10,110 and F10,745 to 10,627
+bytes. Actual whole files grow A4,980 to **4,983** and F5,083 to **5,087**.
+Both candidates are rejected for promotion. Maintained A/F remain unchanged,
+and candidate wrapper, DEV, semantic fixture, game and benchmark counts are
+zero. No alternative spelling, placement, compiler flag, codec or retry is
+attempted. This measured loss is retained instead of inferring whole savings
+from source length or starting runtime tests for an unselected candidate.
+
+Thirty-seven ordinary sources close the producer. The raw thirty-tool receipt
+is `c3d67f5d81de3f67fa50e9032696406ed66931e191b88a95a55cc336cb944d2d`;
+final source/cost index is
+`6a78e50f2819950dde3ade2bf55c4bbb5a9ca4230a122e33017b4f6e4f04b0fe`.
+All tools terminate without forced cleanup. The producing source snapshot is
+preserved; the final README result is the only post-cost source change.
