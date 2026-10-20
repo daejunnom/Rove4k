@@ -423,7 +423,7 @@ void think(Worker *w,const Board *p){
 static pthread_mutex_t mutex=PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t command=PTHREAD_COND_INITIALIZER,finished=PTHREAD_COND_INITIALIZER;
 static unsigned epoch;
-static int pending,ready,quitting;
+static int pending=WORKERS,quitting;
 static Move fallback;
 
 static void text(Move m,char *s){
@@ -451,7 +451,7 @@ static void result(void){
     printf("bestmove %s\n",move);fflush(stdout);funlockfile(stdout);
 }
 static void *work(void *p){
-    Worker *w=p;unsigned seen=0;pthread_mutex_lock(&mutex);ready++;pthread_cond_broadcast(&finished);
+    Worker *w=p;unsigned seen=0;pthread_mutex_lock(&mutex);--pending;pthread_cond_broadcast(&finished);
     for(;;){
         while(seen==epoch&&!quitting)pthread_cond_wait(&command,&mutex);
         if(quitting)break;
@@ -539,7 +539,7 @@ int main(void){
     pthread_t threads[WORKERS];int created=0,status=0;char line[32768];
     table=calloc((size_t)1<<TT_BITS,sizeof *table);if(!table)return 2;clear();start(&position);game_keys[0]=position.h;game_length=1;
     for(;created<WORKERS;created++){workers[created].id=created;if(pthread_create(threads+created,NULL,work,workers+created)){status=2;goto shutdown;}}
-    pthread_mutex_lock(&mutex);while(ready<WORKERS)pthread_cond_wait(&finished,&mutex);pthread_mutex_unlock(&mutex);
+    wait();
     for(;;){
         int status=read_line(line);if(status<0)break;if(!status)continue;
         size_t n=strlen(line);

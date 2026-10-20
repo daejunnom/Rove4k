@@ -56,6 +56,10 @@ The B/C experiment-source checkpoint `7d86a07` passes both language jobs in its
 and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39359052729).
 Its ordinary maintained entries are exercised; the separately recorded B6155
 and C5947 experimental qualification is local evidence, not an additional CI step.
+The maintained-C-cache checkpoint `829f27d` passes both language jobs in its
+[exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39360106393)
+and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39360106274).
+This run regenerates the promoted C5947 and executes that exact selected file.
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
@@ -1164,7 +1168,7 @@ The maintained selected complete-file costs are:
 
 | Family | Complete selected file | Above 4,096 B | Maintained submission form |
 | --- | ---: | ---: | --- |
-| A | 5,140 B | 1,044 B | Ownership/query source plus LZMA-alone entry |
+| A | 5,129 B | 1,033 B | Ownership/query source, shared startup phase counter, LZMA-alone |
 | B | 6,219 B | 2,123 B | Minimum-UCI source entry |
 | C | 5,947 B | 1,851 B | SIMD/PSQT entry with DEV-only HCE cache |
 | D scalar / HQ | 7,640 / 7,881 B | 3,544 / 3,785 B | Own self-restoring ELF |
@@ -1323,3 +1327,60 @@ source tree `13f03c96bb8daa802dd56a48ba831f63b1f548ab` and archive
 Broad state/search proof is reused by exact candidate identity; it is not rerun
 or replaced by source regeneration. This source promotion still requires its
 own later-head CI result and does not select the final target profile.
+
+## A startup phase ownership
+
+The fixed [startup-counter source change](../engines/experiments/tiny-a-startup/README.md)
+uses `pending` during the disjoint startup and search phases. It starts at the
+fixed worker count; worker entry decrements it separately from the existing
+job-completion/result branch. After every create succeeds, main uses the existing
+`wait()` instead of a separate arrival counter and loop. Partial-create failure
+still goes directly to shutdown and joins only actually created workers.
+Board, TT, search, think, queries, parser, epoch and shutdown bodies remain exact.
+
+The exact 5,140-byte maintained control is independently reproduced. Readable
+source falls 24,921 to 24,820 bytes and compact C 10,958 to 10,855; native grows
+22,664 to 22,672 while the actual complete file falls to **5,129 bytes**, an
+11-byte saving and still 1,033 bytes oversized. A second isolated copy of the
+owned source closure independently repeats both forms twice, matching every
+readable/compact/native/bootstrap/whole output without mutable canonical inputs.
+
+One separate instrumented compile passes five forced startup schedules: both
+arrivals before main waits, a late arrival after the real wait predicate, no
+successful create, one early worker before second-create failure, and a worker
+entering after the real shutdown broadcast. Actual entry/exit/join identities
+and TT free after successful joins agree. These are diagnostic pthread wrappers,
+not the shipping native image or a general scheduler/join-error proof. Successful
+startup now leaves internal `stopped=1` instead of zero; first GO already clears
+it. A private consumer bypassing GO must clear it explicitly.
+
+Two actual selected-wrapper processes pass eighteen individually fenced GO
+epochs, including white/black zero clocks, active GO replacement and position
+reuse, final quit/EOF, exact native bytes, stable three-TID startup, restoration
+cleanup, reader EOF and absent owned PID/TID/observed-descendant identities.
+The black-box sessions do not intercept pthread joins or prove cancellation
+causality; those limitations remain explicit. No SAN/TSAN, broad board/search,
+games or performance campaign is rerun. The final twenty-four-source index is
+`f09a0b388e6417f5e80964b39eac1b2341fb2809314a5e24ef8c82f918fb0f60`;
+the selected complete file is
+`5da238b8f2cc622e5f71a2da07a4f3a787c6679fa29f78b27546800174578527`.
+First cost, isolated reproduction, actual-wrapper and diagnostic receipt hashes
+remain separate, including the actual runtime receipt
+`f13080626ea2e169651c379321de1a69fcfe2061fa458a8c527ba4b031ccb960`.
+
+The exact startup candidate is promoted to the maintained A source. The prior
+nine files, source archive and shipping/DEV controls are preserved before editing.
+Only `engine.c`, recipe and README change; builder, fresh/verifier code, template,
+prefix, compiler, spelling/resource decisions and codec remain exact. New DEV
+source/native are independently compiled twice from the qualified candidate
+before literal admission; their identities deliberately differ from A5140 DEV.
+Two isolated sixteen-file source extractions each reproduce shipping/DEV twice.
+Two new actual selected-wrapper quit/EOF sessions pass, reusing the separate
+five-schedule startup and eighteen-epoch proof through exact input bindings.
+The promotion receipt is
+`1b585bf749a7bde6cef3d3006b8856ff9624e286366afbd7fe537ff61abdc6b9`;
+source tree `162cef5a32f3b58308b1623a237d985f5448fbc4` and archive
+`8ffdde2d02fcdc8fa18bd6da08b5f8349c04ef487f97382a999282cd030ad7fb`.
+Earlier experiments use preserved controls and do not acquire a dependency on
+this new mutable canonical source. This remains a local source promotion until
+the later exact-head CI runs; eligible size and final target acceptance are open.

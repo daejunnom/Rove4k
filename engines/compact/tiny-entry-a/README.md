@@ -3,11 +3,11 @@
 `engine.c` is the readable canonical program for the selected minimal A entry.
 It contains the development and shipping forms together. Edit this source when
 changing the program; do not maintain the compact C or compressed launcher by
-hand. It incorporates the qualified query/job-ownership source and one measured
-LZMA-alone transport composition. Search policy, compiler argv, worker resources
-and the Python bootstrap's process/signal/cleanup logic remain unchanged.
+hand. It incorporates qualified query/job ownership, the measured LZMA-alone
+transport and startup-counter ownership source. Search policy, compiler argv,
+worker resources and the Python bootstrap's process/signal/cleanup logic remain unchanged.
 
-The complete selected launcher is **5,140 bytes**, 1,044 bytes above 4,096. This
+The complete selected launcher is **5,129 bytes**, 1,033 bytes above 4,096. This
 folder does not claim the 4 KiB target, a strength result or general target
 portability. Its qualified environment is Ubuntu 24.04.4 x86-64, GCC 13.3.0,
 binutils 2.42, glibc 2.39, Python 3.12.3 and xz/lzma 5.4.5. Python's linked LZMA encoder is
@@ -23,7 +23,7 @@ python3 -B engines/compact/tiny-entry-a/build.py --out /absolute/new/external-ou
 ```
 
 The output must be outside any Git checkout and must not exist. `--dev` adds the
-qualified ownership-source diagnostic form; it does not select another shipping profile. Workers
+startup-source diagnostic form; it does not select another shipping profile. Workers
 are fixed at 2, TT_BITS at 18, and PLY at 128. Both search workers and the input
 thread exist at startup. Shipping has no resource options. The native command
 is exactly `cc -Os -x c - -o x -s`. The complete file is a 77-byte shell launcher
@@ -61,16 +61,24 @@ in the external output. An incomplete report remains incomplete on failure.
 
 | Output | Bytes | SHA-256 |
 | --- | ---: | --- |
-| Readable engine.c | 24,921 | `79284c72b64d087aa3127ea65b461aef8c7776355ea1c4ab9b2f81e59b4b48ed` |
-| Compact shipping C | 10,958 | `5ed00fd936cf6228ec7f73d6c1fddd0f18bfe899aff82b5aa695732240079b59` |
-| Stripped native ELF | 22,664 | `6d9a3c192078f22914e17a0332ef2f0dbd134050833c1fceb0ccb221ecba34e2` |
-| Complete launcher | 5,140 | `75dc3d610d39bbc0702c6eda219fa0acb4d167c40d3c78e241cf867a33e5a4e7` |
+| Readable engine.c | 24,820 | `71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734` |
+| Compact shipping C | 10,855 | `f69044dc9ad2869bd3583308ef446a67f3afa6b31b36e7daade6a6b8cd9a3e6a` |
+| Stripped native ELF | 22,672 | `84ce7fd107783474af8f39aeec7b95c244d475ab797eefd2627b9741b265210a` |
+| Complete launcher | 5,129 | `5da238b8f2cc622e5f71a2da07a4f3a787c6679fa29f78b27546800174578527` |
 
-The diagnostic C and ELF must equal the qualified ownership candidate:
-`60e40bfa24ae06afdafbdfffacda2576b7056d22dffb12e70a22d0d8c3142942`
-and `ff29baa1648f68812424f6e1f718f5e44b9037813e74dc2492a3e4425c88cb0f`.
-These deliberately differ from the older 5,207-byte entry's DEV identities;
-the new helper/job boundary is not disguised as an unchanged general DEV image.
+The diagnostic C and ELF must equal the explicitly admitted startup-source DEV:
+`41ab9f0f5d28183b76833d038c40e0bb6a2ee6ef9303766c293dd577680a4c9c`
+and `8733dbf0814a2c2545251f6e0e17d243ecfd41fce7853fb325ca9720fedd1102`.
+The qualified startup experiment built shipping DEV=0 only. Before these new
+literal expectations were written, its exact readable candidate was separately
+generated and compiled twice with the existing DEV command. Both C (18,743 B)
+and ELF (31,080 B) were byte-identical. The binding receipt
+`af6889fb9009fe9cbd7c59361a005cf2a89f21274088eabb90c49570ec52d342`
+pins the candidate equal to the startup diagnostic's frozen source and the raw
+cost/body/phase/runtime receipts. This proves DEV generation/compilation, not a
+new DEV startup diagnostic or engine execution. It deliberately differs from
+the older 5,140-byte and earlier DEV identities; no expectation is learned or
+automatically updated by the canonical builder.
 
 ## Fresh source archive and physical run
 
@@ -115,8 +123,9 @@ with the selected own-clock budgeting, and `quit`/EOF physically join workers.
 public controls. A subsequent `go` or `position` still cancels and waits for the
 old epoch before shared state reuse. DEV keeps the richer parser and diagnostics.
 
-The readable program is the exact final qualified query/job-ownership source,
-SHA `79284c72…b48ed`, derived from preconditions source `321ab861…12c6d`,
+The readable program is the exact final qualified startup source,
+SHA `71f9ff6c…a734`, derived from query/job-ownership `79284c72…b48ed`,
+preconditions source `321ab861…12c6d`,
 minimal-UCI v4 `38d6c829…0a7b`, maintained Tiny A and the selected tiny-search structural source
 (`109fa749bc2a137fc1384a9afa429d3734249df908f057a58c1fe105f0c43504`)
 followed by the already qualified minimal shipping UCI policy. It is an MIT
@@ -139,7 +148,7 @@ nearby source comment about retaining the king-capture prohibition describes
 that general/DEV admission; shipping instead relies on the stated legal-history
 precondition. It remains verbatim to preserve the qualified readable source.
 
-The selected source adds exactly the previously qualified ownership changes.
+The earlier ownership source added the previously qualified query/job changes.
 A null text pointer asks the existing generated-move/text/strcmp query for the
 first legal move. A successful query returns its already-made child in separate
 caller-owned Board scratch; replay reuses it and commits globals only after the
@@ -188,6 +197,49 @@ controls. Metadata retains the preconditions/earlier receipts and the transport
 input-closure final receipt
 `2a07487768738bb9cd87f24f27a0e41b084cce7dd12322d90435a2e5c4975219`.
 The preserved old native images are not relabeled as the new ownership image.
+
+The selected startup source makes exactly three further checked changes:
+remove the separate `ready` counter and initialize `pending=WORKERS` before
+thread creation; let each worker decrement pending once under the existing
+mutex and broadcast `finished` on entry; and reuse existing `wait()` after all
+creates succeed instead of a separate startup predicate/wait sequence. Startup
+arrivals settle before input and before any job publishes its pending count.
+An arrival is not a search completion and never calls `result()`. Creation
+failure still bypasses startup wait and shuts down only the created threads;
+the count for uncreated workers is not awaited. Shutdown and join-error policy
+are unchanged; no cleanup guarantee after an injected join error is added.
+
+There is an explicit private inactive-state difference: main's startup `wait()`
+stores **`stopped=1` before the first GO**, instead of leaving its original zero.
+Public GO already clears it before publishing work. A direct search consumer
+that follows main-style startup but bypasses GO must clear it explicitly.
+This is not claimed as identical arbitrary private-call behavior.
+
+The final startup summary
+`f09a0b388e6417f5e80964b39eac1b2341fb2809314a5e24ef8c82f918fb0f60`
+binds the exact 24-file experiment, first-cost/reproduction receipts, source
+segments, five controlled phase modes and actual two-wrapper/eighteen-epoch
+receipt. Its 16,374-byte board/TT/search/think prefix is unchanged at
+`9c0aba3b85cb8d36905c81d1bef5135722fcf71e4f7983374c7f1c7ae7a17f95`;
+query/result, normal wait/GO/parser and main input/shutdown tails are also exact.
+These boundaries support narrow old proof reuse rather than a fresh full
+board/search/SAN campaign. The five modes are DEV=0 diagnostic interposition:
+two successful early/late schedules observe pending zero and stopped one at
+first input, while fail-0 and early/late fail-1 avoid waiting for uncreated
+workers and observe created-thread joins before TT free. They are not shipping
+native join interception, TSAN/SAN evidence or a scheduler/race proof.
+
+The actual qualified startup whole-file receipt separately covers two sessions
+and eighteen legal-root epochs, startup/image identity, next-GO/position fences
+and physical quit/EOF. This canonical promotion reuses that exact shipping
+source/artifact receipt and independently repeats only its own selected two
+image/clock/quit/EOF sessions. The old 5,140-byte nine-file canonical, archive
+tree `644e6f04289f9edc51ff0432e322f50a3dedaa07`, both shipping/DEV builds and all
+older composition controls remain preserved outside Git before promotion.
+Compared with 5,140, the actual startup complete file is 11 bytes smaller while
+its restored native image is 8 bytes larger. Builder, fresh-archive driver,
+selected verifier, helper versions, compiler, spellings and codec are unchanged.
+
 The current tracked stitch helper adds LF-aware assembly/metadata relative to
 the historical snapshot; only its byte-identical `strip_dev_counters` function
 is consumed here, and all final identity gates still apply. Fresh archive and
