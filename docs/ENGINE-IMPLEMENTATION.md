@@ -185,7 +185,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
-| A | 4,690 B | 594 B | Global function aliases, capture-only private Move bit, calloc payload initialization sharing, lexical-scope names/types, shared startup/query and original ALONE |
+| A | 4,689 B | 593 B | Reuse the already computed continuation slot, global function aliases, capture-only private Move bit, calloc payload initialization sharing, lexical-scope names/types, shared startup/query and original ALONE |
 | B | 5,279 B | 1,183 B | Global function aliases, tactical Move metadata, shared geometry, legal-LVA ordering, hybrid attackers/singular and ALONE |
 | C | 5,036 B | 940 B | Global function aliases, signed-net eight-lane state, exact HCE, real 128-bit madd/hadd and fixed ALONE |
 | D scalar / HQ | 6,002 / 6,220 B | 1,906 / 2,124 B | EP trial shares make, full-key aligned atomic16 TT, explicit SSE4.2/CX16 profile, own fixed21 context ELF and guarded BCJ restoration |
@@ -5287,3 +5287,32 @@ that exact combined source. Whole SHA is
 These are compiler/codec cost results pending functional and ordinary-entry
 qualification;121 bytes still remain above4096. No game, performance,
 scaling, training or AWS run is represented by these costs.
+
+### A continuation slot reuse: actual4689-byte entry
+
+The successful make path already computes the moved piece's continuation
+slot. On a quiet non-promotion cutoff that piece is identical to the source
+piece, including castling, so the learning update reuses the existing local
+instead of recomputing the index. Only one20-to11-byte span changes; source
+9265 becomes9256/c5e2d299 and the actual complete file4690 becomes4689.
+All A HCE/history/continuation/correction, rules, PVS/QS/TT and SMP remain.
+
+The new native has the same22672-byte size but a different code identity;
+no native equality is claimed. An actual-function old/new ASan+UBSan pair
+checks five quiet learning cases including king/both castles and five
+excluded promotion paths. Full learner arrays, completed result, best move,
+node count and before/after update observations agree. The normal --dev
+builder reproduces two shipping/two unchanged DEV images; the unchanged
+selected verifier runs the actual new wrapper through two quit/EOF sessions
+and eight legal GO epochs, exact restored image, stable TIDs and physical
+exit0. Cancellation causality and broader performance remain unproven.
+
+New native SHA is
+`2190f140858effe734abacac7b03b5794ba5e4d0677620a4da50e170016eaecb`;
+whole SHA is
+`e1e3386c21412c1530a5f9c747679312661243fe522db33eb437728bc5b63749`.
+Normal build/runtime SHA values are
+`da911e6bd262fac92809b384ec3052e207e963478794ce5b89fc87de449a69b1` /
+`24c67e8cee5dd46b734f4086d1ff3931a0b443e97b4183a96c7d1127819054c8`.
+Normal index SHA is
+`e76410ea895c6081fe0fa0ffbbd75823a88562d12aa81ea08865a26578bbed6f`.

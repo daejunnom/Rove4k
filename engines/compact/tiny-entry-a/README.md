@@ -1,5 +1,77 @@
 # Maintained minimal A entry
 
+The selected complete launcher is **4,689 bytes**, one byte below A4690 and
+593 bytes above4,096. The final `shipping_continuation.py` stage reuses the
+existing successful-child piece index only in the positive-depth quiet-cutoff
+continuation update. Source9265 becomes9256 (−9); native length22672 and
+.text7538 are unchanged, but actual machine-code bytes and full native identity
+change. There is no predecessor-byte equality or metadata exception.
+
+| Selected artifact | Bytes | SHA-256 |
+|---|---:|---|
+| Shipping C |9256|`c5e2d2994ea12df6df8b3152c2c89a00f787ee03ae09b1d546c9082145b5c56d`|
+| Full native |22672|`2190f140858effe734abacac7b03b5794ba5e4d0677620a4da50e170016eaecb`|
+| Decoded bootstrap |10246|`7756248004a458a7012276799522b25333b876b541f4fabbd78c68c42ee66823`|
+| Complete launcher |4689|`e1e3386c21412c1530a5f9c747679312661243fe522db33eb437728bc5b63749`|
+
+The one expression `w->an[f][s(p->b[o])]` becomes `w->an[f][R]`.
+R was already computed as `s(q.b[P])` after successful make, before recursive
+search, and is not reassigned. The cutoff's !Q excludes every promotion,
+including quiet promotions whose capture bit is0. Successful nonpromotion make
+puts the same moving piece on the destination; castling moves the same king and
+handles its rook separately. The same continuation cell therefore receives the
+same learning call. No search signature/state, arithmetic, history/correction
+policy, HCE/PVS/QS/full-key contextual TT, SMP, clock or resource contract is
+removed. All remaining source bytes, canonical readable C and DEV are exact.
+
+The ordinary helper admits only the complete9265/06ca input, one20-to11-byte
+literal, its child-index/cutoff context, exact inverse and9,245 protected bytes.
+It follows globalnames for shipping only, with no experiment/report/AST/native
+artifact input. Expected new native identity is strict. A original compiler,
+bootstrap/prefix and original ALONE defaults remain unchanged; no F nice32
+settings are introduced. The fixed cost reproduced the complete4690 control
+before compiling one candidate, packaging once and strictly restoring both via
+PythonEOF/source/template/argv and independent CLI DATA decode. Whole−1 and
+rawsource−9 are separate measurements. Previous rejected put/HCE/material-cache
+or futex candidates are not combined.
+
+Focused positive proof includes actual old/new shipping h/O with reversible
+root-cutoff before/after observers and renamed, uncalled product main. Legal
+knight/pawn/king quiet moves and both castles exercise five actual updates;
+N/B/R/Q quiet promotions and one capture promotion exercise five excluded paths.
+Entire history/continuation/correction arrays around each cutoff match the
+oracle, and both executables produce identical score/best/nodes/full learner
+observations. Two diagnostic ASan/UBSan compiles and runs passed. This is bounded
+single-thread depth3 evidence, not a shipping image, pool/SMP or strength proof.
+The initial unexecuted preparation sources are preserved; feature-header order
+and bounded runner settlement were fixed before any compile or run.
+Actual focused receipt:
+`ae230de58519c98a3ae86c2e6a28083a23ce59da9770871a969a28e147430b5a`.
+Names/type/local stages and all learner features remain independently required.
+
+The predecessor26 source and actual4690 controls, including its producing
+recipe, are preserved outside Git. Producing source27 was frozen before the
+sole ordinary --dev invocation: shipping source/native/bootstrap/whole repeated
+twice exactly match the fixed cost, and unchanged DEV source/native repeated
+twice. The sole unchanged selected verifier completed the actual4689 wrapper in
+quit/EOF two sessions and eight legal GO epochs, observing exact restored2190
+native, three stable startup TIDs each, removed private paths/no helper children,
+active closing work, exactly one closing result, finished readers and physical
+exit0. All observed TIDs are absent. Both outer commands were reaped rc0 with
+pipe EOF and absent groups, forced cleanup0/handles0. Build receipt
+`da911e6bd262fac92809b384ec3052e207e963478794ce5b89fc87de449a69b1`;
+runtime receipt
+`24c67e8cee5dd46b734f4086d1ff3931a0b443e97b4183a96c7d1127819054c8`.
+Only README and receipt metadata changed after execution; all other25 sources,
+expected/native pins, compiler, codec and helpers retain producing identities.
+Cancellation causality and the unchanged compiler-descendant lifetime limit
+remain unproven. No fresh, DEV engine, broad core matrix, game, performance,
+training or negative campaign followed. Historical receipts below retain their
+earlier image/source identities; they are not relabeled as new2190 executions. No4KiB, speed, playing
+strength or broad equivalence claim follows from this one-byte saving.
+
+# Historical A4690 global-function spelling stage
+
 The selected complete launcher is **4,690 bytes**, 26 below A4716 and
 **594 bytes above4,096**. The final `shipping_global_names.py` stage follows
 startup, shortening 28 owned global function names at 105 physical declaration
