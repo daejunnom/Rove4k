@@ -21,6 +21,12 @@ The compact-portfolio checkpoint `830eaa0` also passes both language jobs in its
 including the new standalone D checks and Rust structural unit/reproduction path.
 The process-lifetime follow-up `df5c1d1` also passes both language jobs and
 repository lifecycle checks in its [exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39346330566).
+The consumer/layout checkpoint `d7a38d7` also passes both language jobs in its
+[exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39348805876),
+including the independent tiny Rust builder, rule, process and clock contracts.
+Its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39348805878)
+also succeeds. Later local experiments below retain their own exact artifact
+proof; this CI result is not relabeled as a run of a future head.
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
@@ -748,3 +754,61 @@ startup-pool protocols and a single-stream Rust module layout. Selected D parser
 and restoration gains must be combined and measured rather than added on paper.
 No family has earned a complete 4,096-byte artifact; final candidate games,
 selected-profile resources and target hardware scaling remain outstanding.
+
+## Composed D restoration and worker/priority representations
+
+The [D composition](../engines/experiments/tiny-d-compose/README.md) actually
+combines the qualified span-input natives with the unchanged dedicated v3
+fixed-Deflate decoder. The two complete files are **7,640 / 7,881 bytes**,
+compared with separate v3's 7,665 / 7,918. The 64-byte native reduction thus
+saves 25 / 37 bytes in the complete representation. Payloads are 6,525 / 6,766
+bytes with the same 1,115-byte header/decoder overhead. Both remain 3,544 /
+3,785 bytes above the limit.
+
+Both natives are rebuilt twice from frozen protocol sources and flags. The
+original v3 admission really rejects them; a separate known-image admission
+pins the new hashes, sizes and entry addresses, with identical BSS, mappings
+and guards. Independent layout review, whole-file reproduction, pre-entry RX/
+zero-BSS audits and production post-search RX, permissions, fixed three TIDs,
+stdio and EOF checks pass. The two new files separately pass ten common
+shipping groups and two colour-exchanged twelve-ply games. No old result is
+reclassified as proof for the composition. Evidence is preserved outside Git
+under `rove4k-tiny-d-composed-20261020`; the external summary hash is
+`d98218c08f05a9e39af40016e731aba1d1b02846524a2fb412e45e02868aa0fc`.
+
+The [packed-priority experiment](../engines/experiments/tiny-ranked/README.md)
+replaces two local arrays with one widened move/priority representation. The
+two complete source files are **5,299 / 5,303 bytes**, both larger than their
+exact 5,283-byte control. Priorities are snapped before descendants, compared
+without raw-move tie breaking and stripped before every public/TT consumer.
+The actual ordered search streams and full normalized TT/learning/path states
+match in the bounded optimized and sanitizer comparisons. Negative signed
+learning, all promotion bits, two worker IDs and destructive equal-priority
+ties are exercised. Twenty-six common groups, retained/context/PLY contracts,
+actual restored images, startup, cleanup and independent reproduction pass.
+This widens public move lists and some frames; removing an array is not a RAM
+or complete-file saving. The two layouts remain unselected.
+
+The [private-signal D pool](../engines/experiments/tiny-d-signals/README.md)
+preserves the frozen board/search inputs and uses blocked, thread-targeted
+synchronous notifications around authoritative atomic epochs. Its native
+files grow 256 bytes each to **8,796 / 9,184**, and generic own-restoring files
+grow to **9,008 / 9,363**. It remains unselected. Six actual files pass 36
+common groups and two bounded colour-exchanged games, plus retained features,
+context/PLY and scalar/HQ search comparisons. Thirteen separate runtime probes
+cover rapid generations, pending/stale/wrong-target notifications, inherited
+signal state, idle sleep, partial clone failure, interrupted waits, fatal
+syscall errors and late shutdown ESRCH. All owned groups terminate. These
+runtime-only probes are separate from the real chess executable evidence.
+An uninterrupted job requires W+1 targeted sends, so 511 search workers imply
+512 such calls; no dispatch-speed or target-hardware scaling claim is made.
+The external final index hash is
+`d458f2fe14282d9a2dff751ebcec864238fa44314b3224d91474e79041b0d8b0`.
+
+The exact LF working bytes of all 24 new source/recipe files in these three
+experiments match their staged Git objects. Their output files, large raw
+traces, logs, failure reports and immutable manifests remain outside Git.
+Semaphore coordination and the independent Rust single-stream source layout
+are still separately owned work until their final qualification handoffs.
+Larger source-kernel redesigns are being evaluated because these measured
+representation changes have not closed any family's complete 4 KiB gap.
