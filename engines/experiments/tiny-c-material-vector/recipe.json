@@ -1,0 +1,61 @@
+{
+  "format": 1,
+  "family": "C",
+  "transform_sha256": "a9e62c17ce50faabf6425700282fa020b499df7fdd50197cc871c2e22d8dd0cf",
+  "compiler": [
+    "cc",
+    "-std=c11",
+    "-Os",
+    "-pthread",
+    "-DWORKERS=2",
+    "-DTT_BITS=18",
+    "-mavx2",
+    "-DDEV=0",
+    "-x",
+    "c",
+    "-",
+    "-o",
+    "x"
+  ],
+  "compression": {
+    "format": "lzma-alone",
+    "filter": "LZMA1",
+    "preset": 9,
+    "extreme": true,
+    "lc": 2,
+    "lp": 0,
+    "pb": 0,
+    "check": "NONE",
+    "mf": "BT4",
+    "dictionary_bytes": 67108864,
+    "nice_len": 64
+  },
+  "helper_sha256": {
+    "engines/compact/tiny-entry-c/recipe.json": "5e2f84c75b69fec3f3bfc0738e4be4d5bfce2898b7565a88e8a09b9228b80b48",
+    "engines/compact/tiny-entry-c/bootstrap.py.in": "68e4544370fdd2ca3d240963a0782004f955930187c3d8edfda78cc2f59b7f6a",
+    "engines/compact/tiny-entry-c/launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
+    "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e"
+  },
+  "baseline": {
+    "main.c": {
+      "bytes": 10886,
+      "sha256": "d6265b2cabf0dfbe96744acc9cbfcccfe29c0a292901b326ee2f1f061b93aeca"
+    },
+    "native/x": {
+      "bytes": 26392,
+      "sha256": "d23185a4b9e982582dca8fc0cb4d9527c3d1ff37a4835c05affd35dd378dcc6c"
+    },
+    "bootstrap.py": {
+      "bytes": 11961,
+      "sha256": "381d29d7febf9ee304aed9697d5230e59059e620b268a77aedef637f70bd7617"
+    },
+    "x": {
+      "bytes": 5173,
+      "sha256": "52d1c1c4c4b682ded06b138fd807f1202b2141efe9ef722658f5b81c3d18c9fc"
+    },
+    "build.json": {
+      "bytes": 123103,
+      "sha256": "d009eb2fce9e758da78042e8541b346c09439ac8b9a2c93959cb0921452b219b"
+    }
+  }
+}

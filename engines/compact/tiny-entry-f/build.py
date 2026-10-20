@@ -109,6 +109,7 @@ def main():
         scope=scope_module.transform_source;members=scope_module.transform_members
         semantics=module('entry_fixed_F_semantics',frozen/'shipping_semantics.py')
         input_profile=module('entry_fixed_F_input',frozen/'shipping_input.py')
+        declarations=module('entry_fixed_F_declarations',frozen/'shipping_declarations.py').transform_source
         # Keep this base for every unchanged shipping readable/spelling guard.
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
@@ -125,7 +126,7 @@ def main():
                 preprocess_source,input_metadata=input_profile.transform_readable(preprocess_source)
             active,observations=specialize({'main.c':preprocess_source},directory,recipe['preprocessor']+['-DDEV='+str(int(dev))],os.environ.copy())
             data=compact(active['main.c'],'c')
-            counters=None;alpha_metadata=None;storage_metadata=None;scope_metadata=None;member_metadata=None
+            counters=None;alpha_metadata=None;storage_metadata=None;scope_metadata=None;member_metadata=None;declaration_metadata=None
             if not dev:
                 data,counters=strip_counters(data);files={'main.c':data}
                 for old,new in recipe['resource_literals']:
@@ -142,7 +143,8 @@ def main():
                 data,semantic_metadata=semantics.transform_source(data,readable=canonical)
                 semantic_readable,_=semantics.transform_readable(canonical)
                 data,input_metadata=input_profile.transform_source(data,readable=semantic_readable)
-            return data,observations,counters,alpha_metadata,storage_metadata,scope_metadata,member_metadata,semantic_metadata,input_metadata
+                data,declaration_metadata=declarations(data,readable=canonical)
+            return data,observations,counters,alpha_metadata,storage_metadata,scope_metadata,member_metadata,semantic_metadata,input_metadata,declaration_metadata
         def package(source):
             expression,_=literal(source);script=template.replace(marker,expression.encode())
             ast.parse(script)
@@ -154,7 +156,7 @@ def main():
         first=None;first_dev=None
         for index in (1,2):
             directory=out/('attempt-'+str(index));directory.mkdir()
-            source,observations,counters,alpha_metadata,storage_metadata,scope_metadata,member_metadata,semantic_metadata,input_metadata=generate(directory/'preprocess')
+            source,observations,counters,alpha_metadata,storage_metadata,scope_metadata,member_metadata,semantic_metadata,input_metadata,declaration_metadata=generate(directory/'preprocess')
             if len(source)!=expected['source_bytes'] or sha(source)!=expected['source_sha256']:raise ValueError('compact C identity mismatch')
             (directory/'main.c').write_bytes(source)
             native=compile_c(recipe['compiler'],source,directory/'native')
@@ -169,10 +171,10 @@ def main():
             row={'attempt':index,'source_bytes':len(source),'source_sha256':sha(source),'native_bytes':len(native),'native_sha256':sha(native),
                  'whole_bytes':len(whole),'whole_sha256':sha(whole),'bootstrap_sha256':sha(script),'preprocessor':observations,
                  'counter_removal':counters,'shipping_alpha':alpha_metadata,'shipping_storage':storage_metadata,
-                 'shipping_scope':scope_metadata,'shipping_members':member_metadata,'shipping_semantics':semantic_metadata,'shipping_input':input_metadata}
+                 'shipping_scope':scope_metadata,'shipping_members':member_metadata,'shipping_semantics':semantic_metadata,'shipping_input':input_metadata,'shipping_declarations':declaration_metadata}
             if args.dev:
-                dev,dev_observations,_,dev_alpha,dev_storage,dev_scope,dev_members,dev_semantics,dev_input=generate(directory/'preprocess-dev',True)
-                if dev_alpha is not None or dev_storage is not None or dev_scope is not None or dev_members is not None:raise ValueError('diagnostic source entered shipping spelling stage')
+                dev,dev_observations,_,dev_alpha,dev_storage,dev_scope,dev_members,dev_semantics,dev_input,dev_declarations=generate(directory/'preprocess-dev',True)
+                if dev_alpha is not None or dev_storage is not None or dev_scope is not None or dev_members is not None or dev_declarations is not None:raise ValueError('diagnostic source entered shipping spelling stage')
                 if dev_semantics is None or dev_semantics['stage']!='readable-before-DEV-specialization':raise ValueError('diagnostic semantic stage missing')
                 if dev_input is None or dev_input['stage']!='readable-before-DEV-specialization' or dev_input['shipping_relation_checked']:
                     raise ValueError('diagnostic input-profile stage differs')

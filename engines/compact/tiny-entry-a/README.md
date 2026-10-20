@@ -1,5 +1,24 @@
 # Maintained minimal A entry
 
+The selected complete file is **4,762 bytes**, 4 below A4766 and **666 bytes above 4,096**. The single new ordinary `shipping_declarations.py` stage runs after the existing shipping input profile. Its five adjacent-int regions remove six redundant type prefixes and its one completion comma expression removes one brace pair: source −26 B, complete file -4 B. The actual first-cost full native is byte-identical to the prior image; no metadata exception is used.
+
+The helper embeds the exact readable/shipping source pins and six fixed literal pairs, unique source order, full inverse and protected complement checks. It has no experiment, report, old artifact, AST allocator or upstream-source input. Existing canonical/alpha/storage/scope/input/semantic guards remain before this last stage; DEV bypasses it. Registered in `recipe.helper_sha256`, it is frozen before import and included by unchanged fresh.py: LOCAL9 + helpers10 + tests2 = 21 unique ordinary source files. Compiler/profile/77-byte prefix/bootstrap/ALONE settings are unchanged. No source/alias/codec search runs.
+
+| Current artifact | Bytes | SHA-256 |
+|---|---:|---|
+| Shipping C | 9687 | `6946861173a6b1dee660e83d72db40cde36a066be04e3c4457d4b67a6ab7ae4e` |
+| Full native | 22672 | `28260858a130711bb5fa70816e950b7666440168e8835bb4802b98675b972422` |
+| Decoded bootstrap | 10677 | `70d0ef0152c5aca432aa6fc4685a4e0b3584b4af8d5a28b929358fcc99e28220` |
+| Complete launcher | 4762 | `e2fc1581198947298d4abe4c5552095fd57e93762f1da38704e45bb4545b3b7d` |
+
+The sole normal builder invocation passed shipping source/native/whole/bootstrap twice and DEV source/native twice, with the old DEV tuple observed exactly. The unchanged selected verifier passed quit/EOF two sessions and eight legal GO epochs, exact restored native image, three stable startup TIDs, absent private paths/compiler children, completed readers and physical exit0. No retry, fresh extraction, core fixture, game or benchmark occurred. Cancellation causality remains unproven. The normal commands below remain applicable.
+
+Normal build receipt: `65e50dd238b6206ea76f8b0b834843b2e9f873b3c5d34151e367fb9c7c4462f1`.
+Normal runtime receipt: `04e249e4b51a8d078f247531dad7242fb96b2781658ddeb9a16f3f0a7a25d128`.
+The producing recipe `83f6bc8acb1e1cf32706654081ee4a343e774df96daf7fa80a502e3728f3c7ca` and producing source21 snapshot are preserved outside Git. Final recipe/README add completed receipt metadata only; source/helper/expected/compiler/profile/codec inputs remain the producing values. Git commit and CI are separate parent work. The following preserved text describes the historical input-profile stage and its prior complete-file identities; its native and unchanged core receipts are reused only through exact identity. This stage does not claim 4 KiB acceptance, fresh extraction, game/strength or many-core performance.
+
+# Historical A4766 input-profile stage
+
 The complete selected launcher is **4,766 bytes**, 80 bytes below the prior
 4,846-byte entry and still 670 bytes above 4,096. This folder does not claim
 4 KiB acceptance or playing strength. The fixed target is Ubuntu24.04.4 x86-64,

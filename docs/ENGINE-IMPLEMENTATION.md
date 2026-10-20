@@ -178,12 +178,12 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
-| A | 4,766 B | 670 B | Order-independent text profile, shared startup/query, bound names and original ALONE |
-| B | 5,426 B | 1,330 B | Shared bounded text/query profile, declared legal-LVA ordering, hybrid attackers/singular and ALONE |
-| C | 5,173 B | 1,077 B | Shared bounded text profile, real AVX2 residual-feature dot, fixed TT/sort/clamp specialization and ALONE |
+| A | 4,762 B | 666 B | Order-independent text profile, shared startup/query, adjacent declarations/completion sequence and original ALONE |
+| B | 5,371 B | 1,275 B | Shared forward geometry, bounded text/query profile, declared legal-LVA ordering, hybrid attackers/singular and ALONE |
+| C | 5,159 B | 1,063 B | Shared material/SIMD vector, bounded text profile, real AVX2 residual dot, fixed TT/sort/clamp specialization and ALONE |
 | D scalar / HQ | 6,165 / 6,345 B | 2,069 / 2,249 B | Own fixed21 model-replay context ELF, residual leapers, worker reset and guarded BCJ restoration |
 | E | 5,281 B | 1,185 B | Shared bounded text/query profile, all 21 untrained coefficients, fixed TT/sort/clamp specialization and ALONE |
-| F | 4,735 B | 639 B | Full-depth MTD(f), shared EP legality, order-independent text profile and fixed ALONE |
+| F | 4,730 B | 634 B | Full-depth MTD(f), shared EP legality, adjacent declarations/completion sequence, bounded text profile and fixed ALONE |
 
 The separate Rust D native images are 16,816 bytes each. Their independent
 packed experiment retains its own qualification state and does not silently
@@ -3693,3 +3693,125 @@ passes both jobs in
 and [repository lifecycle](https://github.com/daejunnom/Rove4k/actions/runs/39447827767).
 This later failed-experiment-only checkpoint leaves maintained code and
 selected identities unchanged; its own CI is reported separately in the PR.
+
+## Additional review of the external PR12 size analysis
+
+The user supplied `Rove4k_PR12_Size_Analysis.ko.md` on 2026-10-21. Its pinned
+head is `a3546f1f409337bc0cf176cdfefc14bbdd1a3693`, before the current
+`fd262f768166ea4c37b190942e521461dc0c435a` checkpoint. Its checklists are
+reference proposals, not additional authority or a change to the engine plan.
+The current recipes already contain function-local names/internal symbol
+changes, fixed ALONE decisions, the C/E TT/sort/clamp reductions, C's real
+16-lane AVX2 residual-feature dot, B's declared legal-LVA ordering without
+negative SEE pruning, bounded input profiles and D's fixed21 own decoder.
+The older document's reductions and minima are not added to current savings.
+
+Pinned upstream implementation was inspected outside the checkout: ice4
+`2bd7a54f9bb47a61a7cd97f3db9f52eadd4e2c19` (actual board/search/UCI and
+minifier passes), 4ku `203ddd4bf9b331851c796d8b5d57eac08f6e6c18` (actual
+board/evaluation/search), 4kc `26e936860c8da80de73ea3041ccade96ba8112a3`
+(actual C/codec/loader), and STRO4K
+`51ea73a3d86141d96ad428402dc387722fc0f9b1` (actual common/UCI/search/game
+assembly). New reference downloads stay in the external comparison folder.
+No upstream implementation is copied into this repository. Existing upstream
+comparison descriptors are metadata, not vendored engines.
+
+ice4's adjacent declaration and sequenced-expression passes motivate a small
+independently written fixed C expression candidate. Its weighted lexical
+allocator does not establish that a new rename helps already one-character
+Rove locals; the measured F rename loss remains rejected. ice4's 16-bit TT
+signature/queen promotion and STRO4K's 16-bit signature/per-GO clone do not
+replace Rove's full-key coherent TT, four promotions or persistent pool.
+4ku's side flip and shared PVS/QS are useful structural comparisons, but
+Rove's flip experiment is already a measured loss and its QS/main share a
+kernel. 4kc's RWX overlapping loader is not used to bypass Rove's W^X,
+guarded restoration and NX stack requirements.
+
+Source inspection rejects several apparent large reductions before new
+compilation. C's `value` has two capture-ordering consumers in addition to
+the SIMD accumulator, so deleting it is invalid; changing only the SIMD
+residual expression adds 81 source bytes. A's TT payload ownership proposal
+saves only 17 compact-source bytes after paying its new type/probe costs.
+D's search-argument proposal adds four readable bytes; current disassembly
+identifies only 12 removable argument push/pop bytes at two call sites,
+before new cursor/rollback costs. These are source-only rejected hypotheses,
+not measured executable savings or feature deletions.
+
+The following fixed candidates were actually compiled and packed with each
+family's unchanged compiler/profile/launcher/codec. Raw source reductions are
+not substituted for complete-file measurements.
+
+| Candidate | Shipping source before / after | Complete file before / after | Complete-file change |
+| --- | ---: | ---: | ---: |
+| A adjacent declarations and completion sequence | 9,713 / 9,687 B | 4,766 / 4,762 B | -4 B |
+| B shared source-forward attacker/generator walk | 11,702 / 11,532 B | 5,426 / 5,371 B | -55 B |
+| C shared material/SIMD coefficient storage | 10,886 / 10,831 B | 5,173 / 5,159 B | -14 B |
+| F adjacent declarations and completion sequence | 9,728 / 9,702 B | 4,735 / 4,730 B | -5 B |
+
+A/F's six declaration boundaries keep their initializer order and scope. A
+completion comma expression retains result/output before broadcast inside the
+existing lock. Each candidate's entire native is byte-equal to its previous
+selected image, not merely the same length or mapped code. Both now regenerate
+through ordinary family-owned `shipping_declarations.py` closing stages after
+the input profile; no parser, upstream source, experiment or artifact is a
+normal regeneration input. Each normal builder reproduces shipping and the
+unchanged DEV twice; each unchanged selected verifier passes two sessions and
+eight GO/result pairs with exact restored image, three startup TIDs, and
+physical quit/EOF exit. The joint normal summary SHA is
+`7f70249dd7fcfd4a702997e73c2ebcc42748393839e5da7a16d1a2b94db54f0f`.
+
+B's new ordinary `shipping_walk.py` runs after its existing input and legal-LVA
+stages. A non-null buffer produces moves; a null buffer accumulates all source
+bits attacking a target. Friendly target defense, empty pawn diagonals, four
+promotions, normalized EP and castle origin/transit checks remain. Occupied
+bitboard ctz order matches the prior mailbox source order. Exact old/new
+production fixtures agree on all pseudo-list ordering for 99 boards, 12,672
+full attacker-mask queries and 1,281 complete legal child states per source,
+also checked against independent geometry/rules. The existing 85 legal and
+two illegal LVA cases, two EP exclusions and six cancellation/deadline guards
+pass. The focused receipt SHA is
+`57367b67b1dd783c3c5c1740d01afa3ab5410d64ab0848698972b9edcf320579`.
+Normal B then reproduces shipping and old-minimax DEV twice, and its unchanged
+verifier passes two sessions/eight GO. Normal summary SHA is
+`1b9650f67590c3a3e71fb83a08c183ca6314242322d82ccfe2b7c37888c203d9`.
+This query examines friendly sources rather than eight reverse rays and may
+cost more work in make/EP/SEE. Performance, strength and new-frame stack
+qualification remain open; no benchmark is claimed.
+
+C's actual `value` consumers remain. The shared sixteen signed16 coefficients
+give material as `-qm[abs(piece)+7]`, including zero and king; the same complete
+vector still feeds the real AVX2 dot and both reduction halves. Direct actual
+shipping fixtures pass 832 value cases, 832 singleton vector cases, six
+population cases, startpos and twenty legal children, plus 10,816 capture-order
+cases against old functions and independent arithmetic. Focused receipt SHA is
+`d9ab97dcf6c7f392526274e5cbde277506fc87820bba097acdc6f1a292986bb9`.
+Its selected native has a new identity; the old full-native equality claim is
+not reused. Its ordinary closing `shipping_material.py` then reproduces
+shipping twice and the unchanged DEV twice. The unchanged selected verifier
+passes two quit/EOF sessions and eight GO with the exact new restored image,
+three startup TIDs, private path/helper/FD cleanup and physical reader EOF.
+Normal build/runtime receipt SHAs are
+`b19af6e3a544943130cb6def0eb18219f149b103326d6106e8ac0cc71f76f4f9` /
+`57db9cc49da2c577d1aef24400c1ca34c98fcfdf3b421446026f8eb25fb2bc33`.
+
+The independent Rust D query/made-child experiment is rejected. It shares
+exact pseudo membership and copy-make between parsing, fallback and best
+validation while retaining their phase positions. Raw Rust grows 418 bytes;
+both native .text sections shrink 96 bytes, but page layout keeps complete
+natives at 16,816 bytes. Fresh original controls reproduce native and packed
+identities. With the unchanged own data8 BCJ/Deflate/loader, scalar complete
+file grows 11,403 to 11,420 (+17), HQ 11,762 to 11,774 (+12). All four payloads
+strictly decode and inverse-BCJ to exact image spans; no produced ELF is run.
+Existing guards are unchanged, and a separate literal candidate class retains
+every data8 geometry condition. The phase-summary SHA is
+`d0d6ebfc717c3d0e0ec4f81c92fd45eef30e9a25798eed09f6611ef833d8e189`.
+Maintained Rust D, its runtime and old identities are unchanged. There is no
+functional follow-up, codec/flags sweep or retry after this measured loss.
+
+This checkpoint changes no resource profile, E model, maintained D loader,
+canonical C/Rust policy implementation, NVCompact dependency or release state.
+Selected entries remain above 4,096 bytes: zero of six families is size-eligible.
+Target resource/ISA selection, integrated policy comparisons, scaling and
+strength remain open. No training, AWS/paid execution or game/strength
+benchmark is performed during this additional compression work. All generated
+source/native/whole files, fixtures, reports and archives remain outside Git.

@@ -1,7 +1,7 @@
 # Maintained minimal C entry
 
-The selected complete shipping file is **5,173 bytes**, down 72 from 5,245 and
-**1,077 bytes above 4,096**. Ordinary pinned source inputs regenerate its C,
+The selected complete shipping file is **5,159 bytes**, down 14 from 5,173 and
+**1,063 bytes above 4,096**. Ordinary pinned source inputs regenerate its C,
 native ELF, bootstrap and wrapper. Historical reports and artifacts are
 qualification metadata, never normal generation inputs.
 
@@ -22,7 +22,7 @@ python3 -B engines/compact/tiny-entry-c/verify.py --build /absolute/C-build --ou
 Output directories must be new, absolute and outside Git. A builder call
 regenerates shipping twice and optional DEV twice. The unchanged verifier runs
 one quit and one EOF wrapper, each performing its ordinary source restoration
-and compilation. The unchanged `fresh.py` can separately archive the 22-file
+and compilation. The unchanged `fresh.py` can separately archive the 23-file
 closure and execute two extractions. No fresh/archive-execution check is implied
 by a direct builder call, and fresh is not run for this promotion.
 
@@ -65,10 +65,10 @@ DEV bodies without applying the shipping policy.
 
 | Form | Bytes | SHA-256 |
 | --- | ---: | --- |
-| Shipping C | 10,886 | `d6265b2cabf0dfbe96744acc9cbfcccfe29c0a292901b326ee2f1f061b93aeca` |
-| Native ELF | 26,392 | `d23185a4b9e982582dca8fc0cb4d9527c3d1ff37a4835c05affd35dd378dcc6c` |
-| Complete file | 5,173 | `52d1c1c4c4b682ded06b138fd807f1202b2141efe9ef722658f5b81c3d18c9fc` |
-| Bootstrap | 12,161 | `381d29d7febf9ee304aed9697d5230e59059e620b268a77aedef637f70bd7617` |
+| Shipping C | 10,831 | `207b07cc623e5408e868591770782676ccba189af50533f23533ac76ae8cb44c` |
+| Native ELF | 26,352 | `a053a60dd48cfd599af3c08513ac5a6452b33bda03c8cab5954ea3ab1befdad9` |
+| Complete file | 5,159 | `89d55de08d53346627dd5b176f02b762593435a583c0d7138184f41f24197ece` |
+| Bootstrap | 11,906 | `1e97d02119b85915d99fab33c87b1ba06bcab8b5f15ae797e40d1bcacbe45f6e` |
 
 The input-profile native is a new full identity, 16 bytes larger than the
 immediate control. No old-full-native equality or metadata exception is claimed.
@@ -150,8 +150,8 @@ with search GO0, exact new native image,3 persistent startup TIDs and EOF cleanu
 No separate experimental quit/EOF selected sessions were repeated; the unchanged
 normal verifier below owns that check.
 
-Current normal input-profile build receipt SHA-256: `d009eb2fce9e758da78042e8541b346c09439ac8b9a2c93959cb0921452b219b`.
-Current normal selected runtime receipt: `8d644dd4f84bcd551d15af3b46de5e7115052dfe723c0286b5ac9c41cb0d9c8b`.
+Pre-material-vector normal input-profile build receipt SHA-256: `d009eb2fce9e758da78042e8541b346c09439ac8b9a2c93959cb0921452b219b`.
+Pre-material-vector normal selected runtime receipt: `8d644dd4f84bcd551d15af3b46de5e7115052dfe723c0286b5ac9c41cb0d9c8b`.
 The helper's actual_DEV_tuple_verified=False reports the pure byte API's scope;
 the caller's actual generation compared old DEV source/full-native identities
 and passed twice. No DEV engine, fresh extraction, game or benchmark ran.
@@ -159,3 +159,48 @@ Cancellation causality remains unproven. Runtime restored-image, persistent
 startup TID, absent helpers/private paths and physical exit were observed;
 normal compiler descendants were not separately observed by its unchanged
 compile helper. This is a new full native class with no metadata exception.
+
+## Shared material and SIMD weights
+
+The current shipping path adds one ordinary `shipping_material.py` closing stage
+after the fixed input profile. All earlier stage inputs, guards and mappings,
+canonical engine.c and DEV generation remain unchanged. This helper owns two
+exact old/new literal spans, whole input/output pins, inverse and protected
+complement checks; normal builds need no experiment, receipt or generated input.
+
+The exact sixteen signed16 SIMD weights now have file-local static const storage
+before value. For piece magnitude a=0..6, -qm[a+7] supplies exactly the previous
+seven material values. Empty value remains zero; king positional value, signed
+return, both capture-ordering calls and all four promotion bonuses remain. The
+actual sixteen-lane multiply-add and both-half reduction are unchanged. The
+unaligned load adds no alignment contract. This shares constant data without
+removing the general value consumer or changing the evaluator scale.
+
+Focused actual-source qualification passed one fixture compile/run: all 832
+piece/square values, 832 singleton SIMD evaluations, six 16-per-color synthetic
+placement evaluations, start position plus 20 real legal children, and 10816
+exact capture-branch values. Each matched the original source functions and
+independent scalar arithmetic. Synthetic placement/component cases are not
+legal full-board or search tests. Search/TT/board/SMP/UCI are protected source
+complement; no broad core matrix, game, benchmark or performance claim is added.
+
+Current exact shipping identities are 10831-byte C (207b07cc), 26352-byte native
+(a053a60d), 11906-byte bootstrap (1e97d021), and 5159-byte whole (89d55de0),
+14 bytes smaller than the preceding 5173-byte whole. New full-native identity
+is explicit; earlier images are ancestry. Packaging/profile/compiler remain
+fixed. Cost receipt 5450ee6b1f6bc5cfeed32b329eaf68d23d9d9684d5f1c0fefba669afb4abad56
+and focused receipt d9ab97dcf6c7f392526274e5cbde277506fc87820bba097acdc6f1a292986bb9
+are outside Git. Direct normal generation reproduced shipping twice and DEV twice;
+old DEV source and full native matched their unchanged literal identities. The
+unchanged verifier passed quit and EOF two sessions with eight legal GO results,
+new native image, three persistent TIDs, private-path/helper cleanup, stdio-only
+FDs, physical exit and reader EOF. The observed TIDs are now absent. Cancellation
+causality remains unproven. No fresh extraction, DEV engine, game or benchmark ran.
+
+The new normal build receipt is b19af6e3a544943130cb6def0eb18219f149b103326d6106e8ac0cc71f76f4f9;
+the selected runtime receipt is 57db9cc49da2c577d1aef24400c1ca34c98fcfdf3b421446026f8eb25fb2bc33.
+The exact producing recipe (09e416b2d2329e2176a893bd44c061400698f58627af634c2c207bb267ea0a4d)
+is preserved in the external normal build inputs. Final recipe/README changes
+only add qualification metadata; they were not the producing recipe revision.
+The ordinary closure is 23 files (including dynamic fresh helper discovery).
+This checkpoint used direct normal reproduction, not two archive extractions.

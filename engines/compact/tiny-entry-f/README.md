@@ -1,5 +1,24 @@
 # Maintained minimal F entry
 
+The selected complete file is **4,730 bytes**, 5 below F4735 and **634 bytes above 4,096**. The single new ordinary `shipping_declarations.py` stage runs after the existing shipping input profile. Its five adjacent-int regions remove six redundant type prefixes and its one completion comma expression removes one brace pair: source −26 B, complete file -5 B. The actual first-cost full native is byte-identical to the prior image; no metadata exception is used.
+
+The helper embeds the exact readable/shipping source pins and six fixed literal pairs, unique source order, full inverse and protected complement checks. It has no experiment, report, old artifact, AST allocator or upstream-source input. Existing canonical/alpha/storage/scope/input/semantic guards remain before this last stage; DEV bypasses it. Registered in `recipe.helper_sha256`, it is frozen before import and included by unchanged fresh.py: LOCAL9 + helpers10 + tests2 = 21 unique ordinary source files. Compiler/profile/77-byte prefix/bootstrap/ALONE settings are unchanged. No source/alias/codec search runs.
+
+| Current artifact | Bytes | SHA-256 |
+|---|---:|---|
+| Shipping C | 9702 | `60a74d16a6b3fbd7c1fc2d05207cfe4b860a52746caca137f7d34418762eab99` |
+| Full native | 18576 | `a0b1f736b25467957aa991775877a62639818c7464bfa984efc6240577fe66d1` |
+| Decoded bootstrap | 10701 | `f52495953a2af43afeb94a9fb7bdb8cd616629ec1bbf85499dbe5b369eec7ac9` |
+| Complete launcher | 4730 | `39179c21c19eb9404883d5f285d3ea21d7c4838abf0c8becaaebe0de6bb6b6b9` |
+
+The sole normal builder invocation passed shipping source/native/whole/bootstrap twice and DEV source/native twice, with the old DEV tuple observed exactly. The unchanged selected verifier passed quit/EOF two sessions and eight legal GO epochs, exact restored native image, three stable startup TIDs, absent private paths/compiler children, completed readers and physical exit0. No retry, fresh extraction, core fixture, game or benchmark occurred. Cancellation causality remains unproven. The normal commands below remain applicable.
+
+Normal build receipt: `8d58c3bfc197fcc1220d0ecabccb5af6e5a2caf42e79ba3a67bf152d0942449c`.
+Normal runtime receipt: `253243ae9f1eba350f2899274a134bc8c89b2df7a12c44c426a6f6f2a32d530e`.
+The producing recipe `5472221c1271fc6e2bf34d4ff39fdb59f0f3110dbbbd174ab7935f9fb3033313` and producing source21 snapshot are preserved outside Git. Final recipe/README add completed receipt metadata only; source/helper/expected/compiler/profile/codec inputs remain the producing values. Git commit and CI are separate parent work. The following preserved text describes the historical input-profile stage and its prior complete-file identities; its native and unchanged core receipts are reused only through exact identity. This stage does not claim 4 KiB acceptance, fresh extraction, game/strength or many-core performance.
+
+# Historical F4735 input-profile stage
+
 `engine.c`, ordinary `shipping_semantics.py` and ordinary `shipping_input.py`
 define the canonical F pipeline. The readable base remains 25,755/ec39 unchanged.
 The EP helper is unchanged; the input helper owns one fixed five-function profile

@@ -1,0 +1,112 @@
+{
+  "format": 1,
+  "family": "B",
+  "scope": "one fixed shared-forward walker first cost only; source-only proposal already root reviewed",
+  "cost_authorized": true,
+  "actual_cost_baseline": "/home/stemxstudio/rove4k-b-lva-normal-20261021/build",
+  "actual_cost_baseline_pins": {
+    "main.c": {
+      "bytes": 11702,
+      "sha256": "d0b914e337f56623f7d1028381ccc4b012da02c4bc0681737a7a6a6e571274c7"
+    },
+    "native/x": {
+      "bytes": 26400,
+      "sha256": "9f7868ed7527303b6407fa4c53597d1225a7c944d901437d113b90b76fb0cce0"
+    },
+    "bootstrap.py": {
+      "bytes": 12767,
+      "sha256": "452ee45cf1323c68f24af72800e1caccd3ca1fb0787a1196233f6b9f48fe71fa"
+    },
+    "x": {
+      "bytes": 5426,
+      "sha256": "cb19a87f31df9b27ff76f445518768f6a051c51056e9ba6f2ddc53e3eb4a5093"
+    }
+  },
+  "accepted_baseline_receipt_metadata_only": {
+    "bytes": 77864,
+    "sha256": "f9c1c3b969cae739885dd3cccf2c5f6d88768504ae7ca67d46dbbd4e697a91c2"
+  },
+  "output_pin": {
+    "bytes": 11532,
+    "sha256": "3fca96ff1a913ed74edaed69d74794a433a9013e4a6cd88dc0e3dfe5e35d0b6f"
+  },
+  "compiler": [
+    "cc",
+    "-std=c11",
+    "-Os",
+    "-pthread",
+    "-DWORKERS=2",
+    "-DTT_BITS=18",
+    "-DDEV=0",
+    "-x",
+    "c",
+    "-",
+    "-o",
+    "x"
+  ],
+  "profile": {
+    "workers": 2,
+    "TT_BITS": 18,
+    "PLY": 128,
+    "DEV": false
+  },
+  "compression": {
+    "format": "ALONE",
+    "preset": 9,
+    "extreme": true,
+    "lc": 2,
+    "lp": 0,
+    "pb": 0,
+    "mf": "BT4",
+    "dict_size": 67108864,
+    "nice_len": 32
+  },
+  "prefix": "#!/bin/sh\np=$(tail -c+78 \"$0\"|lzma -dc)||exit\nexec python3 -c \"$p\" \"$0\" \"$@\"\n",
+  "ALONE_header13": "0200000004ffffffffffffffff",
+  "owned_executable_pins": {
+    ".gitattributes": {
+      "bytes": 14,
+      "sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9"
+    },
+    "transform.py": {
+      "bytes": 7906,
+      "sha256": "2e5317c3f4d1100f9e0cdbcb8ada3f9fd82ac722bafa359a4f773c8693e077eb"
+    },
+    "cost.py": {
+      "bytes": 8459,
+      "sha256": "de53245b6486dbb081b64e585a3c3f56828e35ea1a3d0bac83907c0ce21fda61"
+    }
+  },
+  "source_only_proposal_receipt_metadata": {
+    "bytes": 3203,
+    "sha256": "c83d7162bd18401f27f0b18b1af03d03493c4c9f11d27c2a7ea3b05f770f8b74"
+  },
+  "counter_scope": {
+    "candidate_compile": 1,
+    "candidate_ALONE": 1,
+    "baseline_compile_compress_copy": 0,
+    "engine_AST_standalonePP_DEV_games_benchmarks_variants_retries": 0
+  },
+  "cost_result_metadata_only": {
+    "receipt": {
+      "bytes": 4008,
+      "sha256": "14a7cba0f1aa3a190f71d81276282ab3151d49bb7d5456eee8cf99879e56cf1d"
+    },
+    "source": {
+      "bytes": 11532,
+      "sha256": "3fca96ff1a913ed74edaed69d74794a433a9013e4a6cd88dc0e3dfe5e35d0b6f"
+    },
+    "native": {
+      "bytes": 26384,
+      "sha256": "7b9503f99d7e71eb26522501eaa89caaefbd3000d38ef0637688378aa62b9423"
+    },
+    "whole": {
+      "bytes": 5371,
+      "sha256": "0b6642824ca291faceb774fe8c7a15af97fbce844f1b889903ddfa353e9c13b1"
+    },
+    "whole_delta_from_B5426": -55,
+    "gap_to_4096": 1275,
+    "runtime_qualified": false,
+    "native_equality_to_baseline": false
+  }
+}

@@ -54,7 +54,8 @@
     "engines/compact/tiny-entry-b/shipping_scope.py": "239bd0bdf0506e9f3334f75b5deb871479d59599e44bbb0d4ed3ecd881f13c0e",
     "engines/compact/tiny-entry-b/shipping_core.py": "02806d5c811bb1c5964c691751c69ad1a48585308d1edbd7e2eff47fe96784f3",
     "engines/scripts/fixed_input_profile_bce.py": "cc3c82d2e4f77f7231d4bafaac5f446a9aa5c0320762e0902a6f32ecc5a7209e",
-    "engines/compact/tiny-entry-b/shipping_order.py": "82ee301901fb147ae33723f302ff06663b919b91a6d27b1986a5cfe54be2ceb2"
+    "engines/compact/tiny-entry-b/shipping_order.py": "82ee301901fb147ae33723f302ff06663b919b91a6d27b1986a5cfe54be2ceb2",
+    "engines/compact/tiny-entry-b/shipping_walk.py": "9964071df9b2cb092ee042f5e49876357d11f9ed7a8541c211987198581f744a"
   },
   "compression": {
     "format": "lzma-alone",
@@ -71,15 +72,15 @@
   },
   "expected": {
     "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
-    "source_bytes": 11702,
-    "source_sha256": "d0b914e337f56623f7d1028381ccc4b012da02c4bc0681737a7a6a6e571274c7",
-    "native_bytes": 26400,
-    "native_sha256": "9f7868ed7527303b6407fa4c53597d1225a7c944d901437d113b90b76fb0cce0",
-    "whole_bytes": 5426,
-    "whole_sha256": "cb19a87f31df9b27ff76f445518768f6a051c51056e9ba6f2ddc53e3eb4a5093",
+    "source_bytes": 11532,
+    "source_sha256": "3fca96ff1a913ed74edaed69d74794a433a9013e4a6cd88dc0e3dfe5e35d0b6f",
+    "native_bytes": 26384,
+    "native_sha256": "7b9503f99d7e71eb26522501eaa89caaefbd3000d38ef0637688378aa62b9423",
+    "whole_bytes": 5371,
+    "whole_sha256": "0b6642824ca291faceb774fe8c7a15af97fbce844f1b889903ddfa353e9c13b1",
     "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
     "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
-    "bootstrap_sha256": "452ee45cf1323c68f24af72800e1caccd3ca1fb0787a1196233f6b9f48fe71fa"
+    "bootstrap_sha256": "88af0a7d1ba13e4de0bf1f1ddfeff487f76bc9e0361e234e6cc4f1dd38c94789"
   },
   "local_input_sha256": {
     "engine.c": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
@@ -106,7 +107,7 @@
     "new_image_cost_sha256": "d5d4729a808e031f5f76d63e946be00a2e321c16ae47a8bb919d8d723debf9d4",
     "metadata_pure_fixtures_sha256": "501ee00b28ba77a5192f09a3630a696ba74909062e44731561ed4708963d3e6e",
     "actual_file_readback_sha256": "84030a2193e74b2804dbba3d294aae1bd41247583ec1a08a8b9c03b7217fae13",
-    "scope": "Historical predecessor receipts retained as ancestry only. Current shipping is declared legal-LVA ordering after fixed input; exact new source/native/whole gates, focused production-model fixture and separate normal reproduction/selected wrapper qualify this class. No old minimax model, image or stack equivalence is inherited.",
+    "scope": "Historical predecessor receipts are ancestry. Current shipping is legal-LVA ordering with shared forward geometry after fixed input. Shared-walk focused actual full-order/mask/child/Q tests and exact new full source/native/whole gates are separate from old model/image/stack classes; current normal validation is scoped in shared_forward_walk.",
     "private_static_locals_and_codec": {
       "scope": "historical qualification metadata only; no report, experiment or AST runtime dependency; no previous full-native identity claim",
       "source_freeze_sha256": "a5aafc2537b38319da1a0f829d9b3ec1fe994dc64713ff798bcc8e0cfbfd380f",
@@ -337,16 +338,89 @@
         "compiler_descendant_absence": "not separately observed by unchanged compile helper; actual selected native sessions observed no helper children",
         "metadata_exception_applied": false
       }
+    },
+    "shared_forward_walk": {
+      "scope": "one last shipping source composition; declared LVA model and full pseudo order/geometric bitsets preserved on admitted coherent BB/mailbox states; query work changes",
+      "previous_maintained_expected": {
+        "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+        "source_bytes": 11702,
+        "source_sha256": "d0b914e337f56623f7d1028381ccc4b012da02c4bc0681737a7a6a6e571274c7",
+        "native_bytes": 26400,
+        "native_sha256": "9f7868ed7527303b6407fa4c53597d1225a7c944d901437d113b90b76fb0cce0",
+        "whole_bytes": 5426,
+        "whole_sha256": "cb19a87f31df9b27ff76f445518768f6a051c51056e9ba6f2ddc53e3eb4a5093",
+        "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
+        "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
+        "bootstrap_sha256": "452ee45cf1323c68f24af72800e1caccd3ca1fb0787a1196233f6b9f48fe71fa"
+      },
+      "first_cost_sha256": "14a7cba0f1aa3a190f71d81276282ab3151d49bb7d5456eee8cf99879e56cf1d",
+      "first_cost_summary_sha256": "a3d9eec722ac4864f1df3c1ea4220bdcf2910e902611a005cd005b66989abca0",
+      "focused_proof_sha256": "57367b67b1dd783c3c5c1740d01afa3ab5410d64ab0848698972b9edcf320579",
+      "focused_freeze_sha256": "281ec3e988249f4a231882616bc11118d13dfeef064734b6eb50604cb84c5f61",
+      "focused": {
+        "actual_production_sources": 2,
+        "O2_fixture_compiles": 2,
+        "fixture_runs": 2,
+        "full_gen_order_boards_per_source": 99,
+        "independent_full_attacker_masks_per_source": 12672,
+        "independent_legal_child_states_per_source": 1281,
+        "LVA_legal_illegal_rows_per_source": 87,
+        "normalized_EP_exclusions_per_source": 2,
+        "fixture_clock_cancel_deadline_guards_per_source": 6
+      },
+      "query_work_policy_changed": true,
+      "SEE_model_policy_changed": false,
+      "search_result_strength_performance_equivalence": false,
+      "old_full_stack_class_inherited": false,
+      "metadata_exception_applied": false,
+      "normal_validation": {
+        "status": "complete",
+        "normal_build": {
+          "bytes": 83513,
+          "sha256": "b17212d6914e3d0e02a4b0488a6aab27e34b55bf471bdce1274a04444ba8305d"
+        },
+        "normal_runtime": {
+          "bytes": 21627,
+          "sha256": "0de3dd1ac8d0b4b57808f0d116bbfdb69ee16ce1336f69aef62aa9b5307d4fcc"
+        },
+        "executed_recipe": {
+          "bytes": 22975,
+          "sha256": "5ce8f6b658a548358ee5867506b19afad48d04b48bc857f6b80590b209937066"
+        },
+        "executed_README": {
+          "bytes": 11083,
+          "sha256": "e1f014f5c9026672691143adfaaa0f2187372d94464db179aa9b318af2b453d2"
+        },
+        "source_closure_count": 23,
+        "normal_builder_invocations": 1,
+        "actual_shipping_reproductions": 2,
+        "actual_old_DEV_reference_reproductions": 2,
+        "old_DEV_source_full_native_actually_observed": true,
+        "DEV_model_equivalent_to_shipping": false,
+        "unchanged_verifier_invocations": 1,
+        "actual_selected_quit_EOF_sessions": 2,
+        "legal_GO_results": 8,
+        "exact_new_native_image": true,
+        "startup_TIDs_per_session": 3,
+        "physical_exit_readers_private_path": true,
+        "cancellation_causality": "unproven",
+        "fresh_runs": 0,
+        "extra_fixture_oracle_wrapper_game_benchmark_retry": 0,
+        "DEV_engine_executions": 0,
+        "compiler_descendant_absence": "not separately observed by unchanged normal compile helper; selected native observed helper-free",
+        "metadata_exception_applied": false
+      }
     }
   },
   "provenance": {
     "origin": "maintained readable Tiny B with bitboard/mailbox attackers, legal SEE, qualified singular and minimal shipping UCI",
-    "source_decisions": "Unchanged canonical preprocessing/counter stripping/shared89/storage/static+scope maps and incoming-Move core helper produce12148; unchanged fixed input stage admits11829; one B-only fixed legal-LVA ordering stage produces11702. All previous mapping guards stay unchanged. DEV bypasses the new ordering stage and remains old full-minimax reference, not a production-model equivalent.",
-    "native_identity_class": "New exact restored compiler-stdin native26400; historical full images/metadata/stack classes do not apply and no metadata exception is used.",
+    "source_decisions": "Unchanged canonical preprocessing/counter stripping/shared89/storage/static+scope maps and incoming-Move core helper produce12148; unchanged fixed input stage admits11829; one B-only fixed legal-LVA ordering stage produces11702. All previous mapping guards stay unchanged. DEV bypasses the new ordering stage and remains old full-minimax reference, not a production-model equivalent. One final B-only shared-forward-geometry stage then consumes exact11702 and produces11532; preceding guards and old DEV model remain unchanged.",
+    "native_identity_class": "New exact compiler-stdin native26384 for shared forward geometry; no old full image/metadata/stack exception applies.",
     "storage18": "new exact B-only embedded policy after unchanged shared89 stage; no resource/flag/codec change; old full-native-identity failure preserved",
     "static_and_scope_replay": "Two exact physical declaration/reference maps after the existing shipping spelling stages; no runtime AST/name allocation; DEV bypasses all shipping stages.",
     "shipping_codec": "Fixed LZMA1 ALONE 9 extreme/lc2/lp0/pb0/BT4/64MiB dictionary/nice 32 and 77-byte launcher; no container checksum or codec sweep.",
     "incoming_SEE": "Ordinary family helper binds canonical28953, readable1085 proposal, old/new paired shipping fragments and full outputs with literal roles/counts/inverse/complement. It reads no external report/experiment/AST; DEV bypasses it.",
-    "shipping_order": "Ordinary embedded paired readable/physical literals, fixed counts/roles, full input/output identity, three disjoint inverse regions and all-gap complement; exact ordering unknown guard, QS negative SEE clause removed; no experiment/report/Clang/sourceartifact dependency."
+    "shipping_order": "Ordinary embedded paired readable/physical literals, fixed counts/roles, full input/output identity, three disjoint inverse regions and all-gap complement; exact ordering unknown guard, QS negative SEE clause removed; no experiment/report/Clang/sourceartifact dependency.",
+    "shipping_walk": "Pure embedded paired readable/physical regions, fixed full input/output/all-gap inverse, fresh helper name; occupied-BB source enumeration shared by production gen and full attacker masks. No experiment/report/generated source/Clang dependency."
   }
 }
