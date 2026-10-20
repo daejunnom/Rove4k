@@ -152,6 +152,12 @@ in its [exact-head engine CI](https://github.com/daejunnom/Rove4k/actions/runs/3
 and [repository lifecycle CI](https://github.com/daejunnom/Rove4k/actions/runs/39417816891).
 It exercises the same maintained entries; the newly recorded experiments are
 local cost evidence and are not extra CI runtime steps.
+The following cost-source checkpoint `6cf2ff1` also passes both language jobs
+in its [exact-head engine CI](https://github.com/daejunnom/Rove4k/actions/runs/39419480599),
+[repository lifecycle CI](https://github.com/daejunnom/Rove4k/actions/runs/39419480600)
+and the [NVCompact checks](https://github.com/daejunnom/Rove4k/actions/runs/39419480680).
+Those jobs still regenerate the preceding maintained entries, not the later
+EP-only F or reset/BCJ D candidates under local qualification below.
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
@@ -2968,9 +2974,12 @@ are not added together.
 | F guarded TT-bound predicate | 4,814 | 4,811 | -3 |
 | F EP legality through existing make | 4,814 | 4,808 | -6 |
 | F EP plus bound predicate | 4,814 | 4,808 | -6; ties EP alone |
+| F shared GO field parsing | 4,814 | 4,812 | -2; separate unqualified candidate |
 | F full-key 16-byte CMPXCHG16B TT | 4,814 | 4,862 | +48; rejected |
 | D worker-owned reset, scalar | 6,401 | 6,387 | -14 |
 | D worker-owned reset, HQ | 6,614 | 6,580 | -34 |
+| D reset plus fixed-width inverse BCJ, scalar | 6,401 | 6,313 | -88 |
+| D reset plus fixed-width inverse BCJ, HQ | 6,614 | 6,506 | -108 |
 
 F's predicate retains the outer nonzero-bound gate. Its eight decoded-bound /
 score-relation truth rows agree even though the isolated inner expression
@@ -3034,3 +3043,46 @@ All compiler outputs, complete files, source snapshots, receipts and external
 engine comparisons stay outside Git. Only independently authored experiment
 sources are committed. No third-party engine implementation is vendored; no
 games, training, AWS or target many-core benchmark is part of these costs.
+
+The EP-only candidate subsequently passes one diagnostic fixture with 16 EP
+roots, 106 full real-child states and three replays against the independent
+board oracle, then both actual 4,808-byte shipping quit/EOF sessions with eight
+legal results. The diagnostic uses the same readable EP change, without a
+substituted search or function-instrumentation observer. Existing-image
+disassembly shows the local EP attack chain growing by 256 stack bytes from
+432 to 688; search's own 4,432-byte frame stays unchanged. Bounded recursion is
+source-proven, while final-target stack and speed claims remain unmeasured.
+Actual selected-wrapper runtime receipt is
+`53f620c73bec830835374c5662373b4492dabb695497782ad80aeaff0695b745`.
+
+The reset-only D images subsequently pass four actual production sessions
+(12 GO epochs) and two existing output-publication cases (four GO epochs).
+The latter observe pending=1 while the old result write is blocked and the
+controller waits, then legal ordered old/new-root results and pending=0. Both
+forms preserve the restored native identity, RX/BSS permissions, guards,
+persistent TIDs, stdio-only descriptors and natural exit/readers. This is
+post-entry ownership evidence, not initial-BSS or pre-entry audit evidence;
+cancellation causality stays unproven. No substituted search, target writes,
+fault campaign, compiler or codec is added. Actual receipt is
+`bb01f2daf8960b73a2cb81b51776249d0ac25b5aca98c1d1f2754953d4894476`.
+
+The further D BCJ candidate replaces only byte gather/scatter with two
+four-byte `__builtin_memcpy` expressions on the fixed AMD64 little-endian
+target. Actual codegen is one unaligned 32-bit memory add, with the same
+opcode test, bounds, modulo subtraction and five-byte skip; no copy helper
+or new dependency appears. Two loader compilations reuse the exact reset
+native/packet pair, without native compilation, encoding or target execution.
+Loader text falls from 1,191 to 1,117 bytes; all 176 ELF/PHDR bytes are counted,
+so total nonpacket cost is 1,293 and complete costs are 6,313/6,506. The source
+literal inverse and independent codegen review pass. This is an actual reset
+plus BCJ composition; new-loader restoration qualification remains separate.
+Cost receipt:
+`86679cee87d5ac07b574b5da82c0edc65756e6fbbeddf53c1cd7ef90fc6dbb3c`.
+
+One standalone F GO-parser candidate also shares time/increment token parsing
+while retaining both assignments inside the own-side condition. Exact token
+consumption, number parsing and last-value policies are source-reviewed. Its
+source shrinks 58 bytes but whole only two, to 4,812; native identity changes.
+It is not combined with EP and receives no parser-runtime or normal-promotion
+claim. Cost receipt:
+`cc40b3ba82fe6961328c52e2a01750954a99acc550ae753735bc8117dad907f5`.
