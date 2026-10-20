@@ -186,7 +186,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
 | A | 4,689 B | 593 B | Reuse the already computed continuation slot, global function aliases, capture-only private Move bit, calloc payload initialization sharing, lexical-scope names/types, shared startup/query and original ALONE |
-| B | 5,279 B | 1,183 B | Global function aliases, tactical Move metadata, shared geometry, legal-LVA ordering, hybrid attackers/singular and ALONE |
+| B | 5,267 B | 1,171 B | Fixed-target recapture-promotion dominance, global function aliases, tactical Move metadata, shared geometry, legal-LVA ordering, hybrid attackers/singular and ALONE |
 | C | 5,036 B | 940 B | Global function aliases, signed-net eight-lane state, exact HCE, real 128-bit madd/hadd and fixed ALONE |
 | D scalar / HQ | 6,002 / 6,220 B | 1,906 / 2,124 B | EP trial shares make, full-key aligned atomic16 TT, explicit SSE4.2/CX16 profile, own fixed21 context ELF and guarded BCJ restoration |
 | E | 5,118 B | 1,022 B | Global function aliases, untrained E19 quadratic activity model, incremental material/activity, original ordering and ALONE |
@@ -5358,3 +5358,37 @@ Normal index SHA is
 The actual producing manifest has29 deduplicated inputs; an earlier proposed
 31 count was corrected without adding files. Completion metadata is separate
 from the frozen producing inputs. This remains121 bytes above4096.
+
+### B fixed-target recapture promotions: actual5267-byte entry
+
+The current shipping baseline already uses legal-LVA SEE, so the historical
+full-minimax-to-LVA saving is not repeated. One internal recapture span now
+uses the queen's weakly maximal completed exchange value. Each later legal
+recapture removes the differing promoted target and converges to the same
+complete child state; the target value contribution is monotone. The actual
+make/pin/king/EP checks and all four initial generated promotions stay intact.
+No negative-SEE QS pruning is added. The164-byte span becomes112 bytes and
+source11009 becomes10957/c3a86dd9; complete5279 becomes5267 (-12).
+
+One O2 function fixture compares the exact old/new Q against independent
+legal-LVA expectations:153 legal values, two illegal values, two normalized
+EP exclusions, plus the existing six clock/stop guards for each form. Ten
+promotion groups/six legal replies check attacker/legality/full-child
+convergence. Completed-value preservation does not imply full-minimax
+equivalence or identical finite-time cancellation/visit schedule; fewer
+recursive calls change when those observations occur.
+
+The ordinary --dev builder reproduces two shipping/two unchanged full-minimax
+DEV artifacts. The unchanged selected verifier runs the actual5267-byte new
+wrapper in two quit/EOF sessions/eight legal GO epochs, checking exact new
+native, stable TIDs, absent private paths/helpers and reader/physical exit0.
+New native SHA is
+`c895bf3d2802d12014869e13726dce9c29da732e75e6c476c50436c1f39ac6ca`;
+whole SHA is
+`245a05f9d0656be4a1b79c63a884b06dcc526b4e78a9e5391c8b05c6489d3d76`.
+Build/runtime SHA values are
+`a083ac7389979be45a294c7c6c7bc9cf40a5f807ccadc4041e6c81afc218dd26` /
+`88fa700eb1a85370b6fda28eea76cf98e440c2cbe51347097c441b4adf413e2a`.
+Final summary SHA is
+`3bb471528128c58355a2f1579bbe2f19e960c962ab774b99d41bc7aa6591ee1c`.
+All experiment sources, fixtures, logs and generated outputs are outside Git.

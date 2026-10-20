@@ -1,4 +1,48 @@
-# Maintained minimal B entry
+# Maintained B5267 recapture-promotion composition
+
+The selected complete file is5267B,12 below B5279 and1171 above4096.
+The last pure ordinary shipping_recapture.py consumes exact11009/ce6a8b input
+after all prior stages and produces10957/c3a86d. One164B internal recapture
+promotion span becomes112B. Actual legal make, shared l/h, initial gen4,
+numerical ordering, unknown guard, PVS/QS, fullkey TT/singular/excludedlearning
+and persistent SMP/input/resources remain unchanged. No QS SEE pruning exists.
+
+Within the fixed-target legal-LVA exchange, each next capture removes the
+different promoted target and converges to the same coherent child state.
+Thus queen weakly maximizes the four completed recapture values. This is not
+a full-chess underpromotion rule or legal-LVA/full-minimax equivalence.
+There are fewer recursive calls and stop/deadline checkpoints, so finite-time
+search/visit/cancellation schedule can differ. Canonical/DEV retains its old
+full-minimax reference bytes, not coverage of this new production Q.
+
+One first cost produced source10957/native26304/bootstrap12022/whole5267.
+New native SHAc895bf3d2802d12014869e13726dce9c29da732e75e6c476c50436c1f39ac6ca;
+whole SHA245a05f9d0656be4a1b79c63a884b06dcc526b4e78a9e5391c8b05c6489d3d76.
+One O2 diagnostic TU compared actual old/new Q with common actual l/h against
+155 independent expected values (153 legal/2 illegal),2 normalized EP
+exclusions and6 fixture-clock guards on each function. Four-promotion
+convergence passed10 groups/6 legal post-promotion replies. No production
+clock, old DEV/newQ coverage, strength, performance or stack equivalence follows.
+
+The helper embeds readable roles, full input/output/oldQ pins, one exact
+literal pair, inverse and protected complement. It reads no experiment,
+report, generated artifact, AST or network input. Existing maps/guards and
+compiler/profile/original codec/77B launcher remain unchanged.
+One ordinary --dev builder reproduced shipping source/native/bootstrap/whole
+twice and the exact old DEV source/native twice. One unchanged selected
+verifier passed quit/EOF2 sessions/8 legal GO epochs with the exact new
+restored native,3 persistent startup TIDs each, no observed helper/private
+restoration path, active closing search, one closing result, reader EOF and
+natural physical exit0. Both outer groups and all6 observed TIDs are absent;
+forced cleanup0. Cancellation causality and identical checkpoint schedule
+remain unproven. DEV is the old reference, not newQ coverage. Fresh0; no
+strength/performance/stack/scaling claim. Producing B27 and final completion
+metadata are preserved separately, with no postmetadata builder/verifier run.
+Build SHA a083ac7389979be45a294c7c6c7bc9cf40a5f807ccadc4041e6c81afc218dd26;
+runtime SHA 88fa700eb1a85370b6fda28eea76cf98e440c2cbe51347097c441b4adf413e2a.
+
+# Historical B5279 global-function spelling stage
+
 
 The selected complete launcher is **5,279 bytes**, 61 below its
 preceding complete file and **1183 bytes above4,096**. The final ordinary
