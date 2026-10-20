@@ -82,6 +82,8 @@ jobs:
             python3 -B "engines/compact/tiny-entry-$family/build.py" --out "$ROVE_TEST_OUT/tiny-entry-$family" --dev
             python3 -B "engines/compact/tiny-entry-$family/verify.py" --build "$ROVE_TEST_OUT/tiny-entry-$family" --out "$ROVE_TEST_OUT/tiny-entry-$family-runtime"
           done
+          python3 -B engines/compact/tiny-entry-f/build.py --policy material-noise --out "$ROVE_TEST_OUT/tiny-entry-f-material-noise" --dev
+          python3 -B "$ROVE_TEST_OUT/tiny-entry-f-material-noise/selected-verifier/engines/compact/tiny-entry-f/verify.py" --build "$ROVE_TEST_OUT/tiny-entry-f-material-noise" --out "$ROVE_TEST_OUT/tiny-entry-f-material-noise-runtime"
           python3 -B -m unittest discover -s engines/experiments/tiny-e-order -p 'test_*.py'
       - name: Check the semaphore pool through controlled real-runtime phases and faults
         if: matrix.language == 'c'

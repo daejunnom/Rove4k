@@ -190,7 +190,8 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | C | 5,036 B | 940 B | Global function aliases, signed-net eight-lane state, exact HCE, real 128-bit madd/hadd and fixed ALONE |
 | D scalar / HQ | 6,002 / 6,220 B | 1,906 / 2,124 B | EP trial shares make, full-key aligned atomic16 TT, explicit SSE4.2/CX16 profile, own fixed21 context ELF and guarded BCJ restoration |
 | E | 5,118 B | 1,022 B | Global function aliases, untrained E19 quadratic activity model, incremental material/activity, original ordering and ALONE |
-| F | 4,681 B | 585 B | Capture-only private Move bit, global function aliases, calloc payload initialization sharing, unit-window TT bound expression, full-key TT, full-depth MTD(f), packed HCE and fixed ALONE |
+| F full (default) | 4,681 B | 585 B | Capture-only private Move bit, global function aliases, calloc payload initialization sharing, unit-window TT bound expression, full-key TT, full-depth MTD(f), packed HCE and fixed ALONE |
+| F material/noise (opt-in) | 4,402 B | 306 B | Fresh policy-local function aliases, fixed material/stateless-order model, full-depth MTD(f)/full-key TT/SMP retained; optional positional HCE/learners omitted; strength comparison pending |
 
 The separate Rust D native images are 16,816 bytes each. Their independent
 packed experiment retains its own qualification state and does not silently
@@ -5118,3 +5119,101 @@ Post-execution recipe/README completion metadata is separated from producing
 source26/27/24. No canonical model/rule/worker/codec or verifier changes;
 cancellation causality remains unproven. These are new package execution
 receipts, not reruns of core/DEV/fresh/game/performance campaigns.
+
+### Opt-in F-MTD-MaterialNoise-v1: new-model proof and ordinary entry
+
+This fixed C alternative is now maintained beside default full F, without a
+runtime UCI option. `build.py --policy material-noise --dev --out <absolute>`
+selects its own exact source/native/bootstrap/whole expectations before
+freezing inputs. The fixed17-role/18-gap helper branches after source9422
+startup and before full-F aliases/capture. It does not combine their deltas.
+Full F's expected values, qualified receipt, compiler/profile and canonical
+C/Rust remain unchanged; source9242/61e0 full generation is checked twice as
+part of the alternate build. Its DEV output is the unchanged full-reference
+diagnostic form, not material-model DEV coverage.
+
+One ordinary O2 function unit checks12 legitimate roots,152 full legal children
+and13 material values against independent rules/material, with4castles,
+2EP and both colours' four promotions.24 zero windows and17 actual MTD jobs
+produce78 probes/39 completed depths with bounded quiet-frontier independent
+minimax, interval and attaining-witness checks. Only the actual driver's
+depth ceiling and two observation hooks change; exact inverse preserves
+actual claim/search bodies and real clock/deadline handling. A real-deadline
+job retains its last completed depth4 while depth5 is unfinished. That
+deep job's value/attainment is not independently solved, and stop causality
+is not separately instrumented. This is single-worker function evidence,
+not product main/pool/restoration, arbitrary frontier or strength coverage.
+Proof FINAL index SHA is
+`6fa0a079a13089d9c87690e0a770bb4a3f42383295ec7b5cf6e3436240a694dd`;
+root actual source/projection/result readback SHA is
+`17887497c949c22c356e09e5b9e4f8e22494a5435cfc0eb5ba0d227a8e4ecb6e`.
+
+One ordinary alternate --dev build reproduces2shipping and2old full-reference
+DEV source/native images. Source8779/a4f3dafc, native18576/468453a0,
+bootstrap9778/57fb4a19 and whole4413/f4ccacea exactly reproduce first cost.
+Because the unchanged verifier reads its sibling recipe, the builder freezes
+its exact source and two pinned test helpers under
+`<build>/selected-verifier/`, beside a deterministic effective selected recipe.
+It records both ordinary/effective identities. The unchanged relocated
+`engines/compact/tiny-entry-f/verify.py` then enforces the alternate's exact
+literal expectations; no expected/native check is waived. Qualified model
+evidence references the new material unit rather than old HCE/learner proof.
+
+The actual4413-byte wrapper passes2quit/EOF sessions and8legal GO epochs,
+exact restored native identity,3stable startup TIDs, absent private paths/
+helpers and reader/physical exit0. All outer commands are terminal/reaped,
+forced cleanup0. Build SHA is
+`da69bbebdeea3a35627f03f396f5a98859ecf1cf6d12b88373e3b14c027befcd`;
+runtime SHA is
+`a9da85a402152ffeed34abdfd7f65af23386659898450b30be10f1dd16943c0c`.
+Normal FINAL index SHA is
+`696742bcdc255ee61ee55b52aabfc6f3f5a83afa0aa1ae9016afb1260ba69e8b`;
+root source/output/default-contract readback SHA is
+`d31adac03cdaafb2fd9e2578453547ae59d20c6fa425d30f91c559048622c649`.
+Producing source28/recipe are preserved separately from final completion
+metadata and the restoration of old JSON Unicode spelling. CI explicitly
+builds and runs this optional policy alongside the five default source entries.
+No full-reference strength equivalence, matched Rust material policy, games,
+performance/scaling or <=4096 entry is claimed. The richer full F is retained.
+
+### Material-policy namespace: fresh binding map and actual4402-byte entry
+
+The material model removes functions and changes references, so full F's old
+namespace map/offsets are not replayed. Two fresh semantic parses of exact
+source8779/a4f3dafc preserve declaration/type/reference projection and79-header
+closure. A new29-function/102-span map has no local, macro or opaque edits.
+Exact inverse/complement gives source8677, SHA
+`dd1599d4d414107383fd534701c3c7e58a4eb861a47ab174a405f7a8cc64335e`.
+One unchanged compiler invocation preserves the entire18576-byte material
+native468453a0 without a metadata exception. One original F ALONE encode
+gives bootstrap9676/4815a264 and complete4402 (-11 from actual4413), SHA
+`10c5e2d49b1024a243f9e8252a0d34d9a7a567e9e025ded633cb29467e72b78e`.
+Control4413 and candidate strict EOF/CLI/source/argv restoration pass. Cost
+FINAL index SHA is
+`6e33865c134c5a7ed64355952db933a941fb5c0dc7110646414dd17a88578c7e`;
+root source/proposal/cost/output readback SHA is
+`6587d9f2c4917e247ce8bb520690edd736e023a54bc04bc6d04529f845526cbe`.
+
+Ordinary `shipping_material_names.py` owns the fixed map after material policy
+generation. Default full and DEV bypass it; the model helper and old4413
+positive/unit/normal receipts remain separately frozen. One ordinary
+--policy material-noise --dev builder reproduces2new shipping/2unchanged
+full-reference DEV. One unchanged effective-recipe verifier executes the
+actual4402-byte wrapper through2quit/EOF sessions/eight legal GO, exact new
+restored material native,3stable startup TIDs, absent private paths/helpers
+and reader/physical exit0. Outer commands exit0/group-absent, forced cleanup0.
+Build SHA is
+`09826d33357321cd5cc58ef05f5e509213e89cbacc718ed04972704ab54bdd87`;
+runtime SHA is
+`41a6f437e766b3f7528533220e9200269d3d443d6e50ae122d2b42a69fa1f2f5`.
+This reuses the new-model function proof through exact source/name and entire
+native identity; it does not rerun or relabel that unit as wrapper evidence.
+Normal FINAL index SHA is
+`eb042bd2b668640247f61048fa0190994cee438f4d7270eacc7af158602b43e8`;
+final source29 SHA is
+`13f6bcead982110e68973e3350de04c1755c0454631c902e0e4542d44912247a`;
+root current source/output/default-contract readback SHA is
+`26865674fce5c45e74c950a343f8f486161de75971fa14baf98edb29bc2a3abb`.
+Producing29, predecessor28 and old4413 effective recipe remain immutable;
+post-execution changes are README/alternate completion metadata only. No
+additional core/DEV engine/fresh/game/performance or negative campaign runs.

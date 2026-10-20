@@ -58,7 +58,9 @@
     "engines/compact/tiny-entry-f/shipping_unit_bound.py": "5abf7974e6d5e615084a1301293da6e7dbb7da40ae9da0c9674a81634d11ee7e",
     "engines/compact/tiny-entry-f/shipping_startup.py": "b6d300fe0d5bb30ffd9c64e0dac53a2c7874a955787ed38d7598dd58c6a66ae9",
     "engines/compact/tiny-entry-f/shipping_global_names.py": "7fa5cd69acb97225030f2da886afb2abd3f560f430ff8defd64515332a54a6a1",
-    "engines/compact/tiny-entry-f/shipping_capture.py": "296a2213a1f9391b1aef0c2a3a82c08682892a607a49438a212f5748ecac8aac"
+    "engines/compact/tiny-entry-f/shipping_capture.py": "296a2213a1f9391b1aef0c2a3a82c08682892a607a49438a212f5748ecac8aac",
+    "engines/compact/tiny-entry-f/shipping_material_noise.py": "76b882092832d48488fd767189ebfe6cf8e445bb7a4ff74b261f1228c7527ad3",
+    "engines/compact/tiny-entry-f/shipping_material_names.py": "3d81326468dcd4c52647508aaaa47abf13ba1ddaee561f7c97448af4e4b40553"
   },
   "resource_literals": [
     [
@@ -1085,5 +1087,158 @@
     "tt": "unchanged coherent full-key single-bound Entry; MTD driver retains lower/upper interval",
     "policy": "fixed full depth and stable leaves; exact-horizon context, learning, root attaining witness, abort and last-completed behavior preserved",
     "widewindow_fixtures_reused": false
+  },
+  "alternate_policies": {
+    "material-noise": {
+      "name": "F-MTD-MaterialNoise-v1",
+      "stage": "after-startup-material-noise-then-material-names; full-globalnames-capture bypassed",
+      "expected_overrides": {
+        "source_bytes": 8677,
+        "source_sha256": "dd1599d4d414107383fd534701c3c7e58a4eb861a47ab174a405f7a8cc64335e",
+        "native_bytes": 18576,
+        "native_sha256": "468453a045aba29632081060cda63b5575210e6e9dbdb6251e1af6556d90b9a3",
+        "whole_bytes": 4402,
+        "whole_sha256": "10c5e2d49b1024a243f9e8252a0d34d9a7a567e9e025ded633cb29467e72b78e",
+        "bootstrap_sha256": "4815a264fa010104f3daf5a151a4a79b365c7cd2407c48f2110dfce14b1c7f9b"
+      },
+      "qualified_receipt": {
+        "policy_change_not_equivalence": true,
+        "cost": "80f1cf89f3fea3caee8c0666a76638eabd9866fca8346180566abef8f4ac3f4d",
+        "focused_positive_unit": "d073e8eab9d2566efad38c6f363b239adb23867f0fca49e2971ef7bae5694230",
+        "focused_positive_scope": "bounded projected MTD driver/material oracle; actual search/claim bodies, no product entry/pool or strength claim",
+        "full_reference_unchanged": true,
+        "predecessor_4413_normal_build_runtime": {
+          "complete": true,
+          "build": {
+            "path": "/home/stemxstudio/rove4k-f-material-noise-normal-build-20261021-v1/build.json",
+            "bytes": 105124,
+            "sha256": "da69bbebdeea3a35627f03f396f5a98859ecf1cf6d12b88373e3b14c027befcd"
+          },
+          "runtime": {
+            "path": "/home/stemxstudio/rove4k-f-material-noise-normal-runtime-20261021-v1/runtime.json",
+            "bytes": 4548,
+            "sha256": "a9da85a402152ffeed34abdfd7f65af23386659898450b30be10f1dd16943c0c"
+          },
+          "producing_source_manifest": {
+            "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-material-noise-normal-20261021-evidence/source-freeze.json",
+            "bytes": 6712,
+            "sha256": "bfae26a283d5d83dade720bf16d34ac69fbc8deda0d5bf1b76df9d3e546a267e"
+          },
+          "producing_recipe": {
+            "path": "/home/stemxstudio/rove4k-f-material-noise-normal-build-20261021-v1/inputs/recipe.json",
+            "bytes": 67930,
+            "sha256": "70edfa9c6a95f820012a69c8839b76cabc92c44c25dd037e638cc22d7a153048"
+          },
+          "normal_driver": {
+            "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-material-noise-normal-20261021-evidence/normal-result.json",
+            "bytes": 4337,
+            "sha256": "1aacbfb9b07ad041c8bb1bb2ea0a976798ee85056046d3bbf04e5aaf56f5b243"
+          },
+          "selected_effective_recipe": {
+            "path": "/home/stemxstudio/rove4k-f-material-noise-normal-build-20261021-v1/selected-verifier/engines/compact/tiny-entry-f/recipe.json",
+            "bytes": 68457,
+            "sha256": "3878e3d1da3db3a1d49ccc7424712a526d83c556bb964946720aa25c162efd19"
+          },
+          "shipping_native_source_bootstrap_whole_repeats": 2,
+          "unchanged_full_reference_DEV_repeats": 2,
+          "selected_runtime_sessions": 2,
+          "legal_GO_epochs": 8,
+          "scope": "new material policy actual whole restoration/legal clocks/stable startup threads/quit+EOF physical fences; focused material/MTD unit separately reused; no strength or general SMP theorem",
+          "DEV_scope": "unchanged full-F diagnostics byte reproduction only; no material-model DEV coverage or DEV execution",
+          "default_full_scope": "9242/61e0 source generated and checked separately twice; default full expected and qualified_receipt preserved; no new full native/runtime claimed",
+          "fresh_DEVengine_games_performance_training": 0,
+          "forced_cleanup": 0,
+          "active_handles": 0
+        },
+        "names": {
+          "stage": "shipping-after-material-noise",
+          "mapped_functions": 29,
+          "physical_edits": 102,
+          "raw_source_delta": -102,
+          "whole_delta": -11,
+          "entire_native_bytes_equal": true,
+          "metadata_exception": false,
+          "predecessor_expected": {
+            "source_bytes": 8779,
+            "source_sha256": "a4f3dafc7a99ac180d582350a34ec41a78e6f51f6ec202bc1e88dcda8fd24323",
+            "native_bytes": 18576,
+            "native_sha256": "468453a045aba29632081060cda63b5575210e6e9dbdb6251e1af6556d90b9a3",
+            "whole_bytes": 4413,
+            "whole_sha256": "f4ccaceada152bdf7ad8a25ba7b4ae87598333b1480a2becddbfd7b697b7e821",
+            "bootstrap_sha256": "57fb4a19896c5aef1742767b8783b9eabb183707cb36ee482d1eb39b8194ce8f"
+          },
+          "proposal_sha256": "a8986947ab194c7a017af2984c547f07f08a454b010d1794a7f1ff1753ce2fb1",
+          "cost_sha256": "516d5e25262d3985f4359ce488e0580ee4f056952937e4c08e53273b47d6fea7",
+          "cost_final_index_sha256": "6e33865c134c5a7ed64355952db933a941fb5c0dc7110646414dd17a88578c7e",
+          "normal_status": "completed once; producing29 and actual raw build/runtime preserved; final metadata is not a second run",
+          "full_policy_and_full_DEV_bypass": true,
+          "normal_external_or_experiment_dependency": false
+        },
+        "normal_build_runtime": {
+          "complete": true,
+          "build": {
+            "path": "/home/stemxstudio/rove4k-f-material-names-normal-20261021/build.json",
+            "bytes": 110390,
+            "sha256": "09826d33357321cd5cc58ef05f5e509213e89cbacc718ed04972704ab54bdd87"
+          },
+          "runtime": {
+            "path": "/home/stemxstudio/rove4k-f-material-names-runtime-20261021/runtime.json",
+            "bytes": 8212,
+            "sha256": "41a6f437e766b3f7528533220e9200269d3d443d6e50ae122d2b42a69fa1f2f5"
+          },
+          "readback": {
+            "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-material-names-promotion-20261021-evidence/readback.json",
+            "bytes": 3833,
+            "sha256": "a5b62555b3d5e8405064d3977572697a1695c55fa3eba0ad63612d40f4afea71"
+          },
+          "producing_source29": {
+            "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-material-names-promotion-20261021-evidence/producing-source29.json",
+            "bytes": 4500,
+            "sha256": "d73ce2d354ea2d2452793b73051f9d214b5ce0b3a39b34a94b03dc32ea44664d"
+          },
+          "producing_recipe": {
+            "path": "/home/stemxstudio/rove4k-f-material-names-normal-20261021/inputs/recipe.json",
+            "bytes": 71928,
+            "sha256": "6ec8b8fa33f939b0309da828dfb7c6856f07f8601ca6f35bb8811d93f31319fb"
+          },
+          "predecessor_source28": {
+            "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-material-names-promotion-20261021-evidence/predecessor-source28.json",
+            "bytes": 4332,
+            "sha256": "35ebb313164b3fbe270cda95075b2fca949502df085de35209ae34bac5fc79ba"
+          },
+          "normal_commands": {
+            "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-material-names-promotion-20261021-evidence/normal-commands.json",
+            "bytes": 3674,
+            "sha256": "a5967d4adfa2fcb0a566781728ab53243871a54c77441081857c1a58b703bf0f"
+          },
+          "selected_effective_recipe": {
+            "path": "/home/stemxstudio/rove4k-f-material-names-normal-20261021/selected-verifier/engines/compact/tiny-entry-f/recipe.json",
+            "bytes": 76218,
+            "sha256": "b6376dc8eeb6f8b83c8edea00c53fcd3f2d7873d2f6a04a4948d22d91ed8d62a"
+          },
+          "shipping_attempts": 2,
+          "unchanged_full_reference_DEV_attempts": 2,
+          "quit_EOF_sessions": 2,
+          "legal_GO_epochs": 8,
+          "cost_source_native_bootstrap_whole_all_byte_equal": true,
+          "entire_material_predecessor_native_equal": true,
+          "default_full_expected_and_qualified_receipt_unchanged": true,
+          "default_full_source9242_checked_twice": true,
+          "full_native_runtime_rerun": false,
+          "scope": "sole selected material4402 wrapper restoration/finite legal clocks/stable three startup TIDs/private path and helper absence/closing result count/readers/physical exit; full DEV byte reproduction only",
+          "focused_model_proof_reuse": "unchanged entire native468453; predecessor material proof/executions retain their original identity",
+          "cancellation_causality": "unproven",
+          "fresh_DEVengine_core_fixture_games_benchmarks_training": 0,
+          "forced_cleanup": 0,
+          "active_handles": 0,
+          "post_execution_changes": "README and alternate receipt metadata only"
+        }
+      }
+    }
+  },
+  "selected_verifier_snapshot_sha256": {
+    "engines/compact/tiny-entry-f/verify.py": "cc63a511446c35db54676356a9d885b95db7da994133147cda3e3ff1c4464b0c",
+    "engines/tests/verify.py": "9327ad01dd75bc17f04f400b57d5af3d6891a1abbb7f22aa6222389d50da138f",
+    "engines/tests/chess_oracle.py": "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8"
   }
 }

@@ -2,7 +2,8 @@
 """Build the maintained minimal F entry from Git source and fixed decisions.
 
 There are no experiment-directory, old build.json or executable inputs. The
-single shipping profile is fixed; --dev adds the separately pinned semantic diagnostic form.
+resource/compiler profile is fixed. Full F is default; --policy material-noise
+selects a declared alternate model/order. --dev preserves the pinned full diagnostic form.
 """
 import argparse
 import ast
@@ -68,25 +69,50 @@ def compile_c(command,source,directory):
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out',type=Path,required=True)
-    parser.add_argument('--dev',action='store_true',help='also reproduce the separately pinned semantic diagnostic C and ELF')
+    parser.add_argument('--dev',action='store_true',help='also reproduce the unchanged full-F semantic diagnostic C and ELF')
+    parser.add_argument('--policy',choices=('full','material-noise'),default='full',help='development build selection only; no UCI option')
     args=parser.parse_args();out=args.out.resolve()
     if not args.out.is_absolute() or out.exists() or out==REPO or REPO in out.parents or any((p/'.git').exists() for p in (out,*out.parents)):
         parser.error('a new absolute output outside any Git checkout is required')
     if platform.system()!='Linux' or platform.machine() not in ('x86_64','amd64'):
         parser.error('the qualified fixed target is Linux x86-64')
-    recipe=json.loads((HERE/'recipe.json').read_text())
+    ordinary_recipe=normalized(HERE/'recipe.json')
+    recipe=json.loads(ordinary_recipe)
     if recipe['format']!=1 or recipe['family']!='F' or recipe['profile']!={'workers':2,'tt_bits':18,'ply':128,'dev_default':False}:
         raise ValueError('unsupported entry recipe/profile')
     if recipe['counter_schema']!=COUNTER_SCHEMA:raise ValueError('unsupported beta-only counter schema')
+    material_expected={'source_bytes': 8677, 'source_sha256': 'dd1599d4d414107383fd534701c3c7e58a4eb861a47ab174a405f7a8cc64335e', 'native_bytes': 18576, 'native_sha256': '468453a045aba29632081060cda63b5575210e6e9dbdb6251e1af6556d90b9a3', 'whole_bytes': 4402, 'whole_sha256': '10c5e2d49b1024a243f9e8252a0d34d9a7a567e9e025ded633cb29467e72b78e', 'bootstrap_sha256': '4815a264fa010104f3daf5a151a4a79b365c7cd2407c48f2110dfce14b1c7f9b'}
+    if recipe['alternate_policies']['material-noise']['expected_overrides']!=material_expected:
+        raise ValueError('fixed MaterialNoise-v1 expectations differ')
+    full_expected=dict(recipe['expected'])
+    if args.policy=='material-noise':
+        selected=recipe['alternate_policies']['material-noise']
+        recipe=json.loads(ordinary_recipe)
+        recipe['expected'].update(material_expected)
+        recipe['full_reference_qualified_receipt']=recipe['qualified_receipt']
+        recipe['qualified_receipt']=selected['qualified_receipt']
+    recipe['selected_policy']=args.policy
+    effective_recipe=(json.dumps(recipe,indent=2)+'\n').encode()
     out.mkdir(parents=True);frozen=out/'inputs';frozen.mkdir()
     report={'complete':False,'family':'F','scope':'maintained F EP and shipping input pipeline; fixed reviewed identities, not 4KiB acceptance',
-            'resources':recipe['profile'],'inputs':{},'attempts':[],
+            'resources':recipe['profile'],'policy':args.policy,'ordinary_recipe_sha256':sha(ordinary_recipe),
+            'effective_recipe_sha256':sha(effective_recipe),'expected_contract':recipe['expected'],'full_reference_expected':full_expected,
+            'inputs':{},'attempts':[],
             'qualified_receipt_reuse':recipe['qualified_receipt'],
             'tools':{name:subprocess.check_output(command,text=True).splitlines()[0] for name,command in
                      {'cc':['cc','--version'],'ld':['ld','--version'],'python':['python3','--version'],'lzma':['lzma','--version']}.items()}}
     def save():(out/'build.json').write_text(json.dumps(report,indent=2)+'\n')
     save()
     try:
+        verifier_root=out/'selected-verifier';verifier_entry=verifier_root/'engines/compact/tiny-entry-f'
+        for relative,pin in recipe['selected_verifier_snapshot_sha256'].items():
+            data=normalized(REPO/relative)
+            if sha(data)!=pin:raise ValueError('selected verifier snapshot changed: '+relative)
+            target=verifier_root/relative;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(data)
+        (verifier_entry/'recipe.json').write_bytes(effective_recipe)
+        report['selected_verifier']={'path':str(verifier_entry/'verify.py'),'recipe':str(verifier_entry/'recipe.json'),
+                                     'unchanged_source':True,'policy':args.policy,'sources':recipe['selected_verifier_snapshot_sha256'],
+                                     'command':[sys.executable,'-B',str(verifier_entry/'verify.py'),'--build',str(out),'--out','<new absolute output>']}
         for name,expected in recipe['local_input_sha256'].items():
             data=normalized(HERE/name)
             if sha(data)!=expected:raise ValueError('entry input differs from qualified recipe: '+name)
@@ -116,6 +142,8 @@ def main():
         startup=module('entry_fixed_F_startup',frozen/'shipping_startup.py').transform_source
         global_names=module('entry_fixed_F_global_names',frozen/'shipping_global_names.py').transform_source
         capture=module('entry_fixed_F_capture',frozen/'shipping_capture.py').transform_source
+        material_noise=module('entry_fixed_F_material_noise',frozen/'shipping_material_noise.py').transform_source
+        material_names=module('entry_fixed_F_material_names',frozen/'shipping_material_names.py').transform_source
         # Keep this base for every unchanged shipping readable/spelling guard.
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
@@ -132,7 +160,7 @@ def main():
                 preprocess_source,input_metadata=input_profile.transform_readable(preprocess_source)
             active,observations=specialize({'main.c':preprocess_source},directory,recipe['preprocessor']+['-DDEV='+str(int(dev))],os.environ.copy())
             data=compact(active['main.c'],'c')
-            counters=None;alpha_metadata=None;storage_metadata=None;scope_metadata=None;member_metadata=None;declaration_metadata=None;hce_metadata=None;type_metadata=None;unit_bound_metadata=None;startup_metadata=None;global_names_metadata=None;capture_metadata=None
+            counters=None;alpha_metadata=None;storage_metadata=None;scope_metadata=None;member_metadata=None;declaration_metadata=None;hce_metadata=None;type_metadata=None;unit_bound_metadata=None;startup_metadata=None;global_names_metadata=None;capture_metadata=None;policy_metadata=None;material_names_metadata=None
             if not dev:
                 data,counters=strip_counters(data);files={'main.c':data}
                 for old,new in recipe['resource_literals']:
@@ -154,9 +182,17 @@ def main():
                 data,type_metadata=types(data,readable=canonical,lexer=lexer)
                 data,unit_bound_metadata=unit_bound(data)
                 data,startup_metadata=startup(data)
-                data,global_names_metadata=global_names(data)
-                data,capture_metadata=capture(data)
-            return data,observations,counters,alpha_metadata,storage_metadata,scope_metadata,member_metadata,semantic_metadata,input_metadata,declaration_metadata,hce_metadata,type_metadata,unit_bound_metadata,startup_metadata,global_names_metadata,capture_metadata
+                if args.policy=='material-noise':
+                    full_reference,_=global_names(data);full_reference,_=capture(full_reference)
+                    if len(full_reference)!=full_expected['source_bytes'] or sha(full_reference)!=full_expected['source_sha256']:
+                        raise ValueError('default full-F source generation changed')
+                    data,policy_metadata=material_noise(data)
+                    data,material_names_metadata=material_names(data)
+                    policy_metadata['separate_full_reference_source_generation']={'bytes':len(full_reference),'sha256':sha(full_reference)}
+                else:
+                    data,global_names_metadata=global_names(data)
+                    data,capture_metadata=capture(data)
+            return data,observations,counters,alpha_metadata,storage_metadata,scope_metadata,member_metadata,semantic_metadata,input_metadata,declaration_metadata,hce_metadata,type_metadata,unit_bound_metadata,startup_metadata,global_names_metadata,capture_metadata,policy_metadata,material_names_metadata
         def package(source):
             expression,_=literal(source);script=template.replace(marker,expression.encode())
             ast.parse(script)
@@ -168,7 +204,7 @@ def main():
         first=None;first_dev=None
         for index in (1,2):
             directory=out/('attempt-'+str(index));directory.mkdir()
-            source,observations,counters,alpha_metadata,storage_metadata,scope_metadata,member_metadata,semantic_metadata,input_metadata,declaration_metadata,hce_metadata,type_metadata,unit_bound_metadata,startup_metadata,global_names_metadata,capture_metadata=generate(directory/'preprocess')
+            source,observations,counters,alpha_metadata,storage_metadata,scope_metadata,member_metadata,semantic_metadata,input_metadata,declaration_metadata,hce_metadata,type_metadata,unit_bound_metadata,startup_metadata,global_names_metadata,capture_metadata,policy_metadata,material_names_metadata=generate(directory/'preprocess')
             if len(source)!=expected['source_bytes'] or sha(source)!=expected['source_sha256']:raise ValueError('compact C identity mismatch')
             (directory/'main.c').write_bytes(source)
             native=compile_c(recipe['compiler'],source,directory/'native')
@@ -183,10 +219,10 @@ def main():
             row={'attempt':index,'source_bytes':len(source),'source_sha256':sha(source),'native_bytes':len(native),'native_sha256':sha(native),
                  'whole_bytes':len(whole),'whole_sha256':sha(whole),'bootstrap_sha256':sha(script),'preprocessor':observations,
                  'counter_removal':counters,'shipping_alpha':alpha_metadata,'shipping_storage':storage_metadata,
-                 'shipping_scope':scope_metadata,'shipping_members':member_metadata,'shipping_semantics':semantic_metadata,'shipping_input':input_metadata,'shipping_declarations':declaration_metadata,'shipping_hce':hce_metadata,'shipping_types':type_metadata,'shipping_unit_bound':unit_bound_metadata,'shipping_startup':startup_metadata,'shipping_global_names':global_names_metadata,'shipping_capture':capture_metadata}
+                 'shipping_scope':scope_metadata,'shipping_members':member_metadata,'shipping_semantics':semantic_metadata,'shipping_input':input_metadata,'shipping_declarations':declaration_metadata,'shipping_hce':hce_metadata,'shipping_types':type_metadata,'shipping_unit_bound':unit_bound_metadata,'shipping_startup':startup_metadata,'shipping_global_names':global_names_metadata,'shipping_capture':capture_metadata,'shipping_policy':policy_metadata,'shipping_material_names':material_names_metadata}
             if args.dev:
-                dev,dev_observations,_,dev_alpha,dev_storage,dev_scope,dev_members,dev_semantics,dev_input,dev_declarations,dev_hce,dev_types,dev_unit_bound,dev_startup,dev_global_names,dev_capture=generate(directory/'preprocess-dev',True)
-                if dev_alpha is not None or dev_storage is not None or dev_scope is not None or dev_members is not None or dev_declarations is not None or dev_hce is not None or dev_types is not None or dev_unit_bound is not None or dev_startup is not None or dev_global_names is not None or dev_capture is not None:raise ValueError('diagnostic source entered shipping spelling stage')
+                dev,dev_observations,_,dev_alpha,dev_storage,dev_scope,dev_members,dev_semantics,dev_input,dev_declarations,dev_hce,dev_types,dev_unit_bound,dev_startup,dev_global_names,dev_capture,dev_policy,dev_material_names=generate(directory/'preprocess-dev',True)
+                if dev_alpha is not None or dev_storage is not None or dev_scope is not None or dev_members is not None or dev_declarations is not None or dev_hce is not None or dev_types is not None or dev_unit_bound is not None or dev_startup is not None or dev_global_names is not None or dev_capture is not None or dev_policy is not None or dev_material_names is not None:raise ValueError('diagnostic source entered shipping spelling stage')
                 if dev_semantics is None or dev_semantics['stage']!='readable-before-DEV-specialization':raise ValueError('diagnostic semantic stage missing')
                 if dev_input is None or dev_input['stage']!='readable-before-DEV-specialization' or dev_input['shipping_relation_checked']:
                     raise ValueError('diagnostic input-profile stage differs')
@@ -197,7 +233,8 @@ def main():
                 if first_dev is None:first_dev=(dev,dev_native)
                 elif first_dev!=(dev,dev_native):raise ValueError('diagnostic bytes did not reproduce')
                 row['dev']={'source_sha256':sha(dev),'native_sha256':sha(dev_native),'command':dev_command,'preprocessor':dev_observations,
-                            'expected_identity_match':True,'old_DEV_identity_claimed':False,'semantic':dev_semantics,
+                            'expected_identity_match':True,'old_DEV_identity_claimed':False,
+                            'policy_scope':'unchanged full-F reference diagnostics; not material-model DEV coverage','semantic':dev_semantics,
                             'input_profile':dev_input,'prior_EP_DEV_identity_verified':True}
             report['attempts'].append(row);save()
         (out/'main.c').write_bytes(first[0]);(out/'native').mkdir();(out/'native/x').write_bytes(first[1]);(out/'native/x').chmod(0o755)
