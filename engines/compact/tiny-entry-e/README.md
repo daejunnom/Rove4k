@@ -1,9 +1,9 @@
 # Maintained minimal E entry
 
 `engine.c` remains the readable canonical program. The selected complete
-shipping file is **5,400 bytes**, **1,304 bytes above 4,096**, down from
-5,679 bytes. Source, native ELF and the wrapper are generated from ordinary
-inputs; no generated artifact is an input to the normal build.
+shipping file is **5,366 bytes**, **1,270 bytes above 4,096**, down from
+5,400 bytes. Ordinary source inputs regenerate the shipping C, native ELF and
+complete wrapper. Historical reports and generated artifacts are metadata only.
 
 On the qualified Linux x86-64 Ubuntu 24.04.4/GCC 13.3.0/binutils 2.42/glibc 2.39/
 Python 3.12.3/xz-lzma 5.4.5 toolchain:
@@ -13,65 +13,82 @@ python3 -B engines/compact/tiny-entry-e/build.py --out /absolute/new/E-build --d
 python3 -B engines/compact/tiny-entry-e/verify.py --build /absolute/E-build --out /absolute/new/E-runtime
 ```
 
-Outputs must be new absolute directories outside Git checkouts. One builder
-invocation independently regenerates shipping twice and optional DEV twice.
-The unchanged verifier opens exactly two selected wrappers for quit and EOF;
-each wrapper performs its normal fixed source compilation/restoration.
-`fresh.py` can separately archive the 18-file ordinary closure and rebuild
-two extracted copies. That separate fresh-archive check is not implied by a
-direct build invocation.
+Outputs must be new absolute directories outside Git checkouts. A builder call
+independently regenerates shipping twice and optional DEV twice. The unchanged
+verifier opens one quit and one EOF wrapper; each performs its normal source
+compilation/restoration. `fresh.py` can separately archive the 19-file ordinary
+closure and rebuild two extractions. That command is unchanged and has **not**
+been run for this promotion; direct normal build repetition is a separate check.
 
-The profile retains two search workers, one controller, TT bits 18 and PLY 128.
-These are provisional fixed resources, not final competition scaling choices.
-Compiler flags and bootstrap body remain unchanged:
+Fixed resources remain two search workers plus one controller, TT bits 18 and
+PLY 128. These provisional local resources do not establish target scaling.
+Compiler arguments, bootstrap template and launcher bytes are unchanged:
 
 ```text
 cc -std=c11 -Os -pthread -DWORKERS=2 -DTT_BITS=18 -DDEV=0 -x c - -o x
 ```
 
-Existing conditional specialization, compaction, diagnostic stripping and fixed
-shipping spelling guards remain unchanged. `shipping_scope.py` then replays the
-qualified 25 private static-function maps and 79 automatic-name
-declaration maps in that order. It changes only literal physical occurrences,
-requires exact input/output hashes at both stages and restores each input by
-inverse edits. It imports only `hashlib`; normal CI needs no Clang, experiment,
-external report, generated C, other engine source or network input. Shared
-guards are not broadened. Canonical DEV bypasses all shipping spelling stages;
-its previous source and complete native hashes remain required.
+Existing conditional specialization, compaction, diagnostic stripping, fixed
+shipping alpha and static/local scope maps remain unchanged. The new local
+`shipping_core.py` runs **after** `shipping_scope.py`. It owns one exact
+canonical-to-explanatory-readable edit set and its paired post-scope shipping
+edits. It checks literal input/output hashes and lengths, existing identifier
+roles, operators/literals, position inverse and the complete untouched byte
+complement. The canonical file itself is never rewritten. No new name allocation,
+AST, generic model/PLY rule or relaxed shared admission is involved.
 
-Packaging uses a 77-byte shell launcher and one fixed LZMA1 ALONE preset 9
-extreme/lc2/lp0/pb0/BT4/64 MiB dictionary/nice 32 stream. The ALONE container
-has no checksum. Complete file cost includes the launcher, bootstrap and source
-literal; no flag, name or codec sweep runs in the builder. Qualification checked
-strict source/compiler-argv recovery and two byte-identical encodes.
+The stage is admitted only for workers 2 / TT 18 / PLY 128 and the exact current
+readable/source hashes. It uses the nonzero production TT payload as a write
+sentinel: bound 1/2/3 occupies bits 41-42, so production stores are nonzero.
+Full 64-bit keys, lock acquire/release, busy drop, replacement and at-least-depth
+reuse remain unchanged. It omits already-consumed selection-prefix assignments
+while preserving selected moves, future suffixes and strict-greater tie behavior.
+Only the inactive outer +/-29,871 evaluation clamp is removed. Mate packing,
+correction bounds, quiescence and PLY/terminal order remain unchanged.
+
+E retains all 21 signed model coefficients, its real ordering function and the
+inner +/-20,000 clamp. Two deliberately nonadmitted 32-queen saturation setups
+exercise that inner clamp separately from the 39 admitted-shape boards.
+
+DEV bypasses alpha, scope and core stages. The canonical readable, previous DEV
+source and full native identities are required by the builder. The helper has
+only standard-library dependencies and consumes bytes supplied by the ordinary
+builder; no Clang, experiment, receipt, generated source or other-engine input
+is read by normal generation.
 
 | Form | Bytes | SHA-256 |
 | --- | ---: | --- |
-| Shipping C | 11,803 | `acd417f903ada227092b0ba371d6ad960ab80b4925ab64633b9b8a2774a9b3aa` |
-| Native ELF | 26,360 | `500ccb26bc366c129c77720d9229caac99ae9777d0148a1cc25da4a0fd6552d0` |
-| Complete file | 5,400 | `7a04e3d2fac68c4fdca62b6c1fd6e3e71b58da0add25a2b452ab08870d496ec2` |
-| Bootstrap | — | `dc65f22b293a451ca1d333f8782d206bd0555b2b1b2c58af5f53c978ad64990c` |
+| Shipping C | 11,703 | `d3368da33e992e3abdc3bbcab8917edaff8ef751fe7948d11364251a5f6f9ff8` |
+| Native ELF | 26,384 | `851c4c9fc1a3f0696de66ff54e4659de375507ad455c86204e0600912f51b137` |
+| Complete file | 5,366 | `d043584483ab1e0bded0f8e04ad61931f063976d8aec1d2897c69f09595a4621` |
+| Bootstrap | — | `dd6d482c0eddc4f94e028818f749722957baab0684661aa2e317578b9588d437` |
 
-The complete native differs from the previous maintained image. All program
-headers, code/data and dynamic symbols/strings/relocations are equal. The exact
-allocated-section exception is the GNU build-ID descriptor; the other changed
-loaded byte is the ELF header's `e_shoff` low byte at offset 40. Nonallocated
-symbol/string/section metadata and offsets also change. Symbol fields other
-than the selected private names retain their values, sizes, sections and
-attributes. The subsequent automatic-name stage produces the complete same
-native bytes as the static-only stage. These are specific observed boundaries,
-not general ELF/ABI equivalence or equality to the old complete native.
+The new complete native is 24 bytes larger than its immediate predecessor and
+has a new full identity. **No metadata or allocated-section exception is used.**
+The earlier private-name/build-ID boundary remains historical ancestry only;
+it does not equate this structurally changed image to any old full native.
 
-Historical source/AST, native-byte and strict codec receipts are recorded in
-`recipe.json` as provenance, never read by the producer. The frozen experiment
-summary is `f2282baf0f54f7c98c517fd9b7c67e3643ceb2ba1a006448e8fd89de30dbf730`.
-The normal builder requires the literal new identities above, preserves old
-expectations as ancestry, and never updates an expectation from an execution.
+Packaging retains the 77-byte launcher and one fixed LZMA1 ALONE preset 9
+extreme/lc2/lp0/pb0/BT4/64 MiB dictionary/nice 32 stream. ALONE has no checksum.
+Complete cost includes launcher, bootstrap and source literal. No flag, name,
+codec, resource or layout sweep runs in the builder.
 
-Existing core evidence is reused through unchanged canonical/DEV and the
-observed code/data/relocation boundary. Selected restoration, legal clocked and
-bare GO, fixed startup threads, private path cleanup, exactly one closing
-bestmove and physical quit/EOF settlement are checked separately by the
-unchanged verifier. Cancellation causality, final playing strength, target
-scaling and 4 KiB eligibility remain unproven. Generated binaries, receipts and
-archives stay outside Git.
+Focused experiment evidence binds the exact new shipping sources: 26 actual TT
+checks, 29 actual selection-block suffix cases and 39 admitted-shape boards per
+family. Those diagnostics do not execute the entire search or imply a broad
+core matrix. Separately, two selected wrappers per family passed legal zero-clock
+and finite bare GO, exact new restored native, startup three persistent TIDs,
+private-path/descriptor cleanup and physical quit/EOF settlement. The frozen
+focused qualification index is
+`fb155e0c5f1709c0f2806524e3e33cf2790e83b99265ad09ab33926bea59fe2c`.
+
+The normal builder reproduced shipping twice and DEV twice from the ordinary
+closure. Both DEV source and full native matched their previous literal pins.
+The unchanged verifier then passed one quit and one EOF session, with eight legal
+GO results for this family. These direct normal receipts are recorded separately
+in `recipe.json`; the final recipe adds qualification/provenance metadata after
+execution, while the exact producing recipe remains preserved outside Git.
+No `fresh.py`, broad core matrix or DEV runtime was executed for this promotion. Old receipts are preserved as ancestry,
+never used as generation inputs or relabeled as new full-core acceptance.
+Cancellation causality, playing strength, target scaling and 4 KiB eligibility
+remain unproven. Generated binaries, fixtures, receipts and archives stay outside Git.

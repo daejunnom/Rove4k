@@ -178,12 +178,12 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
-| A | 4,846 B | 750 B | Shared startup/query, exact-native automatic names and original ALONE |
-| B | 5,558 B | 1,462 B | Hybrid bitboards, legal SEE/singular, bound private names and fixed ALONE |
-| C | 5,395 B | 1,299 B | Real AVX2 evaluation, shared query/startup, bound private names and ALONE |
-| D scalar / HQ | 6,313 / 6,506 B | 2,217 / 2,410 B | Own context ELF, worker-owned reset, fixed-width BCJ and guarded restoration |
-| E | 5,400 B | 1,304 B | All 21 untrained coefficients in evaluation/ordering; bound names and ALONE |
-| F | 4,808 B | 712 B | Full-depth MTD(f), shared EP legality, bound names and fixed LZMA1 |
+| A | 4,766 B | 670 B | Order-independent text profile, shared startup/query, bound names and original ALONE |
+| B | 5,546 B | 1,450 B | Incoming-move legal SEE, hybrid attackers/singular, bound names and ALONE |
+| C | 5,344 B | 1,248 B | Real AVX2 evaluation, fixed TT/sort/clamp specialization, bound names and ALONE |
+| D scalar / HQ | 6,272 / 6,452 B | 2,176 / 2,356 B | Own context ELF, single-step residual leapers, worker reset and guarded BCJ restoration |
+| E | 5,366 B | 1,270 B | All 21 untrained coefficients, fixed TT/sort/clamp specialization, bound names and ALONE |
+| F | 4,735 B | 639 B | Full-depth MTD(f), shared EP legality, order-independent text profile and fixed ALONE |
 
 The separate Rust D native images are 16,816 bytes each. Their independent
 packed experiment retains its own qualification state and does not silently
@@ -3161,17 +3161,19 @@ size-eligible, and all twelve independent cores remain in scope.
 
 The next isolated candidates start from committed `9e2a152`, rather than the
 attachment's older `a3546f1` baseline. Their measured savings are not added to
-earlier standalone experiments. Normal selected recipes remain unchanged
-until source generation and focused functional validation are complete.
+earlier standalone experiments. First-cost recipes were kept separate until
+source generation and focused functional validation completed; the later
+normal-promotion section records the resulting maintained entries.
 
 | Candidate | Maintained whole | Actual candidate whole | Difference | Current evidence |
 | --- | ---: | ---: | ---: | --- |
-| F shipping text profile | 4,808 | 4,735 | -73 | One native compile and one fixed ALONE compression; functional qualification pending |
-| B incoming-move SEE | 5,558 | 5,546 | -12 | One native compile and one fixed ALONE compression; exact-SEE qualification pending |
-| C structural composition | 5,395 | 5,344 | -51 | One native compile and one fixed ALONE compression; functional qualification pending |
-| E structural composition | 5,400 | 5,366 | -34 | Same bounded first-cost scope; functional qualification pending |
-| D scalar residual leapers | 6,313 | 6,272 | -41 | One native and one loader compile, one fixed context encode; runtime qualification pending |
-| D HQ residual leapers | 6,506 | 6,452 | -54 | Same bounded first-cost scope; runtime qualification pending |
+| A shipping text profile | 4,846 | 4,766 | -80 | Focused input, normal reproduction and actual wrapper pass |
+| B incoming-move SEE | 5,558 | 5,546 | -12 | Focused SEE, normal reproduction and actual wrapper pass |
+| C structural composition | 5,395 | 5,344 | -51 | Focused TT/sort/eval, normal reproduction and actual wrapper pass |
+| D scalar residual leapers | 6,313 | 6,272 | -41 | Focused board/oracle and normal fresh/runtime/pre-entry pass |
+| D HQ residual leapers | 6,506 | 6,452 | -54 | Same focused and normal fresh scope |
+| E structural composition | 5,400 | 5,366 | -34 | Focused TT/sort/eval, normal reproduction and actual wrapper pass |
+| F shipping text profile | 4,808 | 4,735 | -73 | Focused input, normal reproduction and actual wrapper pass |
 
 The F candidate shares the own-side clock classifier, uses bounded `strtoull`
 admission and replaces the byte reader with a bounded text-line loop. Clock
@@ -3213,3 +3215,109 @@ It changes the recursive helper's internal return meaning to incoming move net
 gain; the full legal recapture tree, all promotion choices, incomplete fence,
 singular policy and excluded-root learning/TT rules remain explicit obligations.
 No LVA approximation or playing-strength claim is substituted for them.
+
+The same fixed text policy is independently ported to A's actual source/name
+domain. Its 9,713-byte source and 4,766-byte whole are measured with A's own
+original ALONE preset; F's nice32 setting and 73-byte saving are not reused.
+The new 22,672-byte native has SHA
+`28260858a130711bb5fa70816e950b7666440168e8835bb4802b98675b972422`;
+the actual whole is
+`8a783ff2d0f5d3546e54dba3d8c4c5931ba9b72c95270deca69eeabd33136226`.
+This first-cost uses one compiler and one compression, with no control rebuild
+or runtime qualification. A's focused validation follows separately.
+
+The next focused checks pass on the actual changed source, with original
+failures and first-cost producers preserved. B's single fixture covers 38
+score/visit rows plus seeded visit-limit, cancellation and expired-deadline
+cases; these are not million-node searches. Its search/TT/singular/learning
+caller bytes remain exact, and its actual wrapper passes two quit/EOF sessions
+with eight GO epochs. New recursion stack capacity is not qualified. Proof:
+`fbdca8c590e7dabaf6d21d0e1b49cb075f5abfc9f86e291ad76da8cda1230421`.
+
+C/E each pass 26 TT, 29 sort-suffix and 39 admitted-board cases in one compiled
+fixture. C additionally checks 768 piece-square pairs against scalar/AVX2;
+E checks all coefficients and 938 ordering values. Two nonadmitted E clipping
+examples are labeled separately. Four actual wrapper sessions produce 16 GO
+epochs with exact new process images and natural quit/EOF settlement. D's two
+compiled fixtures each pass 12 roots, 177 full board records and 22,656 attack
+queries against an independent oracle; scalar/HQ raw states and move order
+match. Its shipping execution and new pre-entry audit are still pending.
+
+F's one compiled fixture passes 25 numeric, 26 GO, 25 transaction, six special
+root and 96 full-child checks. Its workerless manual publication setup does
+not prove physical SMP. That evidence comes separately from the unchanged
+verifier's two actual sessions/eight GO and one actual text-only session.
+The latter observes LF-before-length 32,767 admission, 32,768 draining, CR's
+contribution to the CRLF boundary, final EOF and exact command-token policy.
+The functional/runtime/text receipts are
+`5311a603eef2910af95582d4e8db155ac02f4bb41a49bee5c023fd07a1442113` /
+`cb93679523bc078b7554a5f99bcf2ff47cf40e5588618d86540cb5bddbad53fd` /
+`f55ce1a122c83fab585461910d4f7ce3cc67be8d78fd82ddb4409ac046760491`.
+Natural physical settlement does not establish cancellation causality.
+
+## Maintained text, SEE, C/E core and D leaper specializations
+
+All six measured source changes above now pass their normal local generation
+and selected-file checks. The maintained table near the beginning reflects
+4,766 / 5,546 / 5,344 / 6,272–6,452 / 5,366 / 4,735 bytes. Each cost is the
+actual complete file at its unchanged family codec settings; independent
+standalone savings are not summed. No family is yet within 4,096 bytes.
+
+A/B/C/E/F each run their ordinary builder once, reproducing shipping and DEV
+twice. All five DEV tuples are compared with their prior full source/native
+identities and match. Each unchanged normal verifier then runs its actual new
+whole file for quit/EOF sessions and eight legal GO epochs: ten sessions and
+40 GO in total. The newly added ordinary helpers are recipe-pinned and need no
+experiment, historical artifact, upstream engine or Clang installation. Their
+ordinary closures are A20/B20/C20/E19/F20; fresh extraction is not run for these
+five in this checkpoint.
+
+B/C/E apply exact production-domain source transformations only after their
+unchanged spelling/scope guards. Original readable and diagnostic APIs remain
+available for their broader domains. A/F additionally feed corrected dual
+readable input into DEV specialization, where the original diagnostic branches
+are selected; their original canonical bytes still reach every old shipping
+guard. A/F text policy counts CR among the 32,767 bytes before LF, preserves
+order-independent clocks and explicitly selects its documented malformed-input
+behavior. This is source-level specialization, not a native-byte rewrite.
+
+The normal A build/runtime receipts are
+`b53178618951654aa0ab9bd1d5413162eff6a0de8178b9fc083af2d3b12e09a9` /
+`822bf19b4c150ca784bed9272399f9d0ef03de4a58f2da428798e1e98c9309d0`.
+Its focused fixture and three actual wrapper sessions pass the same explicitly
+bound input policy on A's own code and new native. The normal B receipts are
+`f43079a91203007704789a62bdaa5e73403af9153870427c4e3d56588e35a069` /
+`3554ba9a0a05d6d34453f5c7ae75cbe580101bd6820ba7c64bbbf12b08bc642d`.
+C/E's combined normal receipt is
+`f20d8f40bdb099af8a359f24a4b3f5c387f0550c16bd7438a0dd84ee8239a05a`;
+their final summary is
+`eeb670a30cd6d429a4f0788df232d803adebb1b91c4e72af0d9ca470c1323e81`.
+The normal F build/runtime receipts are
+`dd8d4d81057cb5352b51831eca446b6d43716027873442e785a419e8bddc79af` /
+`b837a43829868645ac82e6f158c41247380f2d761df2eb5687858fc7bfbf2eeb`.
+The new shipping native identities are explicit; old metadata-only or stack
+observations are not extended to the changed code. Final recipe qualification
+metadata and README results are kept separate from the exact producing files.
+
+D changes its readable board walker itself. Seven other native inputs and all
+encoder, model, decoder, loader, linker, flags, resources and observer bodies
+remain unchanged. Two new CHECKPOINT files are discovered without execution,
+then their exact bytes and layout are independently read before admission:
+scalar 6,295 bytes / `ce72966846e52a7f72d49c577ad9eb799fd81b195308b5e02def39cf84526b8f`;
+HQ 6,475 bytes / `3660dc07190104f062fabe57e2f0603df21d94d47aa9c41cb487204f2a4f4547`.
+The unchanged fresh contract passes on two independent 23-member ordinary
+source extractions. Eight native, eight shipping-loader and four audit-loader
+compilations reproduce the new identities; eight shipping sessions/24 GO and
+four positive pre-entry audits pass. Exact restored RX, RX padding, rounded
+initial BSS zero, guards/NX, original entry resume, stable workers, readers and
+natural exit are observed. There is no target mutation or negative campaign.
+Actual fresh receipt:
+`3a32b4420c299c2f826cf90d7c8760578e275abb7da16179dc5c00936a2c82c5`.
+
+The shared experimental-source head `72d5e70` passes both C/Rust jobs in
+[engine CI](https://github.com/daejunnom/Rove4k/actions/runs/39426741555) and
+[repository lifecycle](https://github.com/daejunnom/Rove4k/actions/runs/39426741244).
+That run exercises the preceding selected recipes. CI of the later normal
+promotion is reported separately for its committed SHA in the draft PR. Final resources,
+target hardware/scaling, remaining size gaps and strength validation remain
+open across the complete independent C/Rust portfolio.

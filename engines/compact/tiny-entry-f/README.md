@@ -1,23 +1,20 @@
 # Maintained minimal F entry
 
-`engine.c` together with ordinary `shipping_semantics.py` defines the canonical
-F source pipeline. The readable base remains 25,755/ec39 byte-for-byte; the
-helper owns the one exact EP-to-make change used by shipping and DEV. The known
-selected cost is **4,808 bytes**, six bytes below F4814 and **712 above 4,096**.
+`engine.c`, ordinary `shipping_semantics.py` and ordinary `shipping_input.py`
+define the canonical F pipeline. The readable base remains 25,755/ec39 unchanged.
+The EP helper is unchanged; the input helper owns one fixed five-function profile
+after EP. The normal selected file is **4,735 bytes**, 73 below F4808 and **639 above
+4,096**. The normal builder reproduced shipping and DEV in two attempts, then
+the unchanged selected verifier completed quit/EOF two sessions and eight GO.
+These are separate from the earlier focused candidate and text-only sessions.
 
-The normal builder reproduced the shipping and new DEV tuples in two
-independent attempts, and the unchanged selected verifier completed quit and EOF
-sessions on this actual 4,808-byte launcher. These are local exact-target checks.
+The production core retains full-depth MTD(f), integer unit windows, stable
+leaves, context-compatible coherent full-key TT, retained bounds, root attaining
+witnesses, completed iteration retention and learning. The exact 7,913-byte
+post-EP shipping prefix before set_position, including board/search/SMP, is
+unchanged. Input handling has a deliberate new NUL-free malformed-text policy;
+the complete native is new and no predecessor native identity is claimed.
 No 4 KiB eligibility, strength, fair NPS or general target portability follows.
-
-The production core keeps full-depth MTD(f), integer unit windows, stable
-leaves, exact-horizon/context-compatible coherent full-key single-bound TT
-entries, retained lower/upper intervals, attaining root witnesses, completed
-iteration retention and learning. The search prefix and MTD driver after the
-entry reset remain unchanged. EP normalization now asks existing make only for
-its legality boolean and discards the trial child, including its noncanonical
-scratch h/r. Its diagonal move cannot create another EP target. The new native
-differs from F4814/F5051 despite equal ELF size; old native identity is not reused.
 
 The fixed exact-byte target is Linux x86-64, Ubuntu 24.04.4, GCC 13.3.0,
 binutils 2.42, glibc 2.39, Python 3.12.3 and xz 5.4.5, including WSL Ubuntu.
@@ -32,18 +29,21 @@ python3 -B engines/compact/tiny-entry-f/build.py --out /absolute/new/external-ou
 
 The output must be new and outside Git. The fixed profile has two search
 workers plus the input thread, TT_BITS=18 and PLY=128. Shipping has no resource
-options. `--dev` adds the separately admitted new candidate diagnostic C/ELF;
+options. `--dev` regenerates the separately pinned diagnostic C/ELF;
 it does not choose another shipping profile or execute a DEV engine.
 
-The builder performs one literal semantic transform owned by the ordinary helper.
+The builder performs two fixed semantic stages owned by ordinary helpers.
 The earlier seven composition decisions remain in the unchanged readable base.
 Each of two independent attempts follows this sequence. The base canonical
 variable is retained for every existing shipping guard:
 
-1. Shipping specializes the original ec39 readable. DEV first calls the helper's
-   `transform_readable`, requiring 25,720/f9ca, then uses the same original
-   `-std=c11 -Os -pthread -DWORKERS=2 -DTT_BITS=18 -DPLY=128` and explicit DEV
-   value. Both paths lexically compact their specialized source.
+1. Shipping specializes the original ec39 readable. DEV first applies unchanged
+   EP `transform_readable` to 25,720/f9ca, then input `transform_readable` to
+   corrected dual 28,587/fe130. It uses the same original
+   `-std=c11 -Os -pthread -DWORKERS=2 -DTT_BITS=18 -DPLY=128` and explicit DEV1.
+   The dual retains the old DEV bodies. Their old source/native tuple is an
+   explicit comparison target checked by each actual generation. Both paths
+   lexically compact their specialized source.
 2. DEV stops source processing here and enters none of the shipping spelling
    stages. Shipping uses the unchanged strict
    beta-only counter-removal schema: one no-op definition, three fixed
@@ -73,7 +73,14 @@ variable is retained for every existing shipping guard:
    readable-to-shipping role projection, one occurrence, complement and exact
    raw inverse are checked. Earlier guards remain unchanged and certify their
    own pre-semantic stages; they do not certify this new body by renaming alone.
-9. Compile through stdin with the unchanged command
+9. `shipping_input.py` applies the fixed set_position/number/read_line/go/main
+   profile only after EP. It requires 9,925/354906 and emits 9,728/845f. The same
+   five-region collector projects readable roles, verifies each actual old
+   shipping region occurs once, preserves complement bytes and exact inverse,
+   and checks the paired 28,587/fe130 readable. The readable-only API has no
+   concrete shipping input and records that relation as unchecked; the shipping
+   API checks it. No aliases, policies or parameters are searched.
+10. Compile through stdin with the unchanged command
    `cc -Os -pthread -x c - -o x -s`, then package the selected source literal.
 
 Both local spelling helpers bind the exact new readable, stage input/output,
@@ -91,9 +98,10 @@ only the new F domain and checks new canonical freshness without reading
 another engine. The shared `fixed_shipping_storage.py` remains unchanged and
 is no longer a normal F build input. DEV bypasses all four spelling stages.
 
-The eight pinned build helpers are `engines/scripts/specialize.py`, `minify.py`,
+The nine pinned build helpers are `engines/scripts/specialize.py`, `minify.py`,
 `rename_c.py`, `engines/compact/tiny-a/pack_stream.py`, and this folder's
-`shipping_alpha.py`, `shipping_storage.py`, `shipping_scope.py` and `shipping_semantics.py`. Their relative paths and
+`shipping_alpha.py`, `shipping_storage.py`, `shipping_scope.py`, `shipping_semantics.py` and
+`shipping_input.py`. Their relative paths and
 LF-normalized hashes are literal recipe inputs. The builder copies and checks
 them before importing from its external output. They use only Python standard
 libraries and read no experiment, report, generated source, old executable or
@@ -114,7 +122,7 @@ is unchanged: `cc -std=c11 -Os -pthread -DWORKERS=2 -DTT_BITS=18 -DPLY=128
 The original bootstrap template remains. A 77-byte shell prefix uses
 `tail -c+78` and `lzma -dc`. LZMA1/ALONE is fixed to preset 9 extreme,
 lc2/lp0/pb0, BT4, dictionary 64 MiB and nice length 32. Complete cost is
-77-byte prefix plus 4,731-byte stream, including its 13-byte header and end
+77-byte prefix plus 4,658-byte stream, including its 13-byte header and end
 bytes. ALONE has no container checksum; replacing XZ removes CRC64 checking.
 Exact recovery of normal files does not preserve corruption detection.
 
@@ -129,14 +137,15 @@ promotion.
 | --- | ---: | --- |
 | Readable base engine.c | 25,755 | `ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd` |
 | Semantic readable for DEV specialization | 25,720 | `f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357` |
-| Compact shipping C | 9,925 | `3549063cbdca22c83536e0879b5e7baff8c7cbef3b5911f4152850732c86300c` |
-| Restored stdin native ELF | 22,672 | `9b4ca00fd54b67c33c01e92389c4f9130751233633faa828b6eb46e3b20890db` |
-| Complete launcher | 4,808 | `93377e104d934d5bde1e8c7a491b54b72d0a7a6e9d40b845f94f86bc0c2f6956` |
-| Decoded bootstrap | 10,924 | `886ede212e35c83c5f030c18aa662c58fe54a0e62e64ce17fc6f79260dd07f6e` |
-| New semantic DEV C | 19,488 | `1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2` |
-| New semantic DEV ELF | 26,984 | `6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33` |
+| Corrected dual readable before DEV specialization | 28,587 | `fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530` |
+| Compact shipping C | 9,728 | `845f731a0f1fabd62bae629ad191aadd39525d0db7d59628224e315f09c0519d` |
+| Restored stdin native ELF | 18,576 | `a0b1f736b25467957aa991775877a62639818c7464bfa984efc6240577fe66d1` |
+| Complete launcher | 4,735 | `81e1d7129c2aedfe96d53d8e1fb6db8613b22b4c21dfcaf4d1c3ac25a7b1fc71` |
+| Decoded bootstrap | 10,727 | `87724bc9e73df6dbb3da221bef0e1f4f0f8edc027206706084b5f373235e888e` |
+| Preserved semantic DEV C | 19,488 | `1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2` |
+| Preserved semantic DEV ELF | 26,984 | `6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33` |
 
-The new semantic DEV source/native identities were deliberately prepared once
+The existing EP semantic DEV source/native identities were deliberately prepared once
 from 25,720/f9ca with the unchanged preprocessor, compaction and DEV command.
 Binding receipt: `cf0b6542080770680d049dcb59e6f87d2c3e05ff4e3cd0806bd3d9705a7222d4`.
 The previous 84fbc/6eb288 pair is historical. No old DEV identity is reused,
@@ -175,15 +184,70 @@ python3 -B /absolute/new/source-proof/checkout-2/engines/compact/tiny-entry-f/ve
   --build /absolute/new/source-proof/build-2 --out /absolute/new/runtime-proof-2
 ```
 
-The unchanged `fresh.py` names LOCAL9, eight recipe helpers and two independent
-test helpers: **19** ordinary files. Registering the semantic helper in recipe
+The unchanged `fresh.py` names LOCAL9, nine recipe helpers and two independent
+test helpers: **20** ordinary files. Registering the input helper in recipe
 helper keys includes it automatically; LOCAL/fresh need no edit. When invoked,
 fresh archives the named ordinary inputs, checks regular members and raw/LF
 hashes, then rebuilds from two independent extractions. This promotion preserves
-the final source19 archive but performs **zero fresh extractions or archived
-rebuilds**. Its actual normal build is the separate two-attempt run below.
+the final source20 archive but performs **zero fresh extractions or archived
+rebuilds**. Its separate normal two-attempt run completed below; no archived rebuild is
+inferred from that normal regeneration.
 
-## Current EP semantic qualification
+## Current shipping input profile and focused qualification
+
+Shipping accepts NUL-free bounded text with exact first command tokens. Leading
+space/tab/CR/LF delimiters and simple uci/isready/quit extra arguments are accepted;
+VT/FF are not delimiters. At most 32,767 bytes before LF or final EOF are processed.
+CR counts toward this limit: text32,766+CRLF is accepted, text32,767+CRLF is drained
+and dropped. Overlong lines are drained through LF/EOF, preserving the next line.
+This policy deliberately differs on malformed input from the old character loop.
+
+Numbers require an ASCII first digit, whole-string consumption and value at most
+LLONG_MAX. Signs, whitespace, junk and unsigned overflow produce zero. GO scans
+only exact wtime/btime/winc/binc keys; recognized keys consume one value even for
+the opponent. Own-side last values win in either order. No own time gives the
+finite 1000ms default; a present zero/invalid/missing clock gives at least 1ms.
+Increment clamp, clock fifth cap and final day cap remain. Unknown tokens have
+no value arity. A recognized key consumed as a malformed value is not replayed.
+Position accepts exact startpos and optional moves, commits only after all legal
+moves succeed, preserves history tail, and rejects unsupported FEN/malformed lists.
+
+The focused proof included exact shipping C with main renamed only: one O2
+fixture compile/run, 25 numeric cases, 26 manually isolated GO cases, 25 position
+transactions, both sides' four promotions, EP/castles and 4095/4096 history limits.
+Six direct special roots and 96 complete legal children matched independent
+board/hash/path/halfmove/HCE snapshots. Direct roots do not establish shipping
+FEN. Workerless manual pending/epoch setup is publication-field evidence only.
+Physical SMP evidence comes from the actual launcher sessions.
+
+After functional PASS, the unchanged selected verifier ran the exact candidate
+with external literal three-hash admission: quit/EOF two sessions and eight GO.
+A separately authorized actual text-only session checked eight ingress boundaries
+with search GO0. All three images matched a0b1 and physical cleanup completed.
+Summary: `b6302c946b58bcad41ecef4e11570962fccecc0c2b9eb2f88acde4ec50c32e2a`.
+Functional: `5311a603eef2910af95582d4e8db155ac02f4bb41a49bee5c023fd07a1442113`.
+Selected: `cb93679523bc078b7554a5f99bcf2ff47cf40e5588618d86540cb5bddbad53fd`.
+Text-only: `f55ce1a122c83fab585461910d4f7ce3cc67be8d78fd82ddb4409ac046760491`.
+
+The original cost producer and malformed dual readable d749 are preserved.
+The newline-only correction produced fe130 with identical shipping bytes and no
+additional cost compile/codec. The normal ordinary helper owns this corrected
+readable and the paired shipping transformation. The normal builder reproduced
+shipping source/native/whole/bootstrap twice, and DEV source/native twice. The
+DEV tuple 19488/1fcf and 26984/603408 matches the preceding EP tuple by actual
+comparison. The helper's DEV_identity_verified=False describes its source-only
+role; the build receipt separately records the successful binary comparison.
+Normal build: `dd8d4d81057cb5352b51831eca446b6d43716027873442e785a419e8bddc79af`.
+Normal runtime: `b837a43829868645ac82e6f158c41247380f2d761df2eb5687858fc7bfbf2eeb`.
+Its quit/EOF two sessions produced eight legal GO results, the exact a0b1 image,
+three stable startup TIDs, no compiler children/private path, reader completion
+and physical exit. Both outer commands ended rc0 with absent process groups.
+The producing recipe d77a6da3 is preserved separately; final recipe changes only
+completed qualification metadata after execution. No DEV engine, fresh extraction,
+game, benchmark or broad core matrix was run. Existing bootstrap compiler-group
+limitations and cancellation causality unproven remain.
+
+## Historical EP semantic qualification (F4808)
 
 The focused canonical DEV1/O2 fixture checked 16 EP roots, 106 full child states
 and three position replays, including pinned pawns and discovered checks in both

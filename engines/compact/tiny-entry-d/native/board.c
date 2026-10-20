@@ -121,17 +121,14 @@ static int walk(const Board *p,Move *moves,int sq,int s){
                 if((from>>4)==(s>0?1:6)&&!p->b[to+s*16])add(moves,&n,from,to+s*16,0);
             }
         }
-        int first=a==1?(s>0?12:14):a==2?0:a==3?12:8;
-        int last=a==1?first+2:a==2?8:a==4?12:16;
+        int first=a==1?(s>0?12:14):a==2?0:8;
+        int last=a==1?first+2:a==2?8:16;
         for(int i=first;i<last;i++){
-            int d=steps[i];
-            for(int to=from+d;!(to&0x88);to+=d){
-                int target=p->b[to];
-                if(!moves&&to==sq)return 1;
-                if(target*s>0||(moves&&a==1&&!target&&to!=p->e))break;
-                if(moves)add(moves,&n,from,to,a==1);
-                if(target||a<3||a==6)break;
-            }
+            int to=from+steps[i];if(to&0x88)continue;
+            int target=p->b[to];
+            if(!moves&&to==sq)return 1;
+            if(target*s>0||(moves&&a==1&&!target&&to!=p->e))continue;
+            if(moves)add(moves,&n,from,to,a==1);
         }
         if(moves&&a==6){
             int home=s>0?4:116,shift=s>0?0:2;

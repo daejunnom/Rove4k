@@ -51,7 +51,8 @@
     "engines/compact/tiny-b/generate.py": "c2cc1fd68d05d66f5525dfabc2368fdb0ddff2716bbf65ecb2033614b113aa59",
     "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
     "engines/compact/tiny-entry-b/shipping_storage.py": "5663d0b8bbf494354cebe4cce3a709fc05dc32d88407a6b367277dfac0830662",
-    "engines/compact/tiny-entry-b/shipping_scope.py": "239bd0bdf0506e9f3334f75b5deb871479d59599e44bbb0d4ed3ecd881f13c0e"
+    "engines/compact/tiny-entry-b/shipping_scope.py": "239bd0bdf0506e9f3334f75b5deb871479d59599e44bbb0d4ed3ecd881f13c0e",
+    "engines/compact/tiny-entry-b/shipping_core.py": "02806d5c811bb1c5964c691751c69ad1a48585308d1edbd7e2eff47fe96784f3"
   },
   "compression": {
     "format": "lzma-alone",
@@ -68,15 +69,15 @@
   },
   "expected": {
     "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
-    "source_bytes": 12220,
-    "source_sha256": "daa9ca6e03260320c13a0a551a0c2586ed53d24d49ebba74f87b57b57814ba9f",
-    "native_bytes": 26424,
-    "native_sha256": "ade0b5deba75dea772026018b60300fc5d9d3d02b58141965549384884de3694",
-    "whole_bytes": 5558,
-    "whole_sha256": "798688b2e4396367e9a64baeb407941ba28bd47f15f6a2400c875abde2b6db32",
+    "source_bytes": 12148,
+    "source_sha256": "6c9081115f5caf209cacc502e19035247a3178aef86c4912fb3a923a651904ce",
+    "native_bytes": 26392,
+    "native_sha256": "66488f9d3b86049bfa739b89066b947788c6d88c8050ea41065f93982b4fbfaa",
+    "whole_bytes": 5546,
+    "whole_sha256": "70e5ea64a97efaa84385a429bca84bad2924a5256c478973cc2798a4b070ad2f",
     "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
     "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
-    "bootstrap_sha256": "df45f762e3ffff0db68cf51229f0a90e6789d03c85702d3a35b81fbc78c1119b"
+    "bootstrap_sha256": "75fc23bf8f147366affe037bc6cb0ea8f6a5514251c1897e168be9b3788e0f0c"
   },
   "local_input_sha256": {
     "engine.c": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
@@ -103,7 +104,7 @@
     "new_image_cost_sha256": "d5d4729a808e031f5f76d63e946be00a2e321c16ae47a8bb919d8d723debf9d4",
     "metadata_pure_fixtures_sha256": "501ee00b28ba77a5192f09a3630a696ba74909062e44731561ed4708963d3e6e",
     "actual_file_readback_sha256": "84030a2193e74b2804dbba3d294aae1bd41247583ec1a08a8b9c03b7217fae13",
-    "scope": "unchanged canonical/DEV and raw PP alias-only inverse; distinct full native with exact fixed metadata changes, code/data/dynamic symbols/relocations unchanged; no general ABI or old full-native equality claim; receipts are metadata, never build inputs",
+    "scope": "Historical predecessor receipts retained as ancestry; current shipping code is admitted by incoming_SEE_specialization and separately bound normal reproduction/selected-wrapper checks; no old code/image exception inherited.",
     "private_static_locals_and_codec": {
       "scope": "historical qualification metadata only; no report, experiment or AST runtime dependency; no previous full-native identity claim",
       "source_freeze_sha256": "a5aafc2537b38319da1a0f829d9b3ec1fe994dc64713ff798bcc8e0cfbfd380f",
@@ -133,14 +134,76 @@
         "dynamic_symbols_strings_relocations_equal": true,
         "locals_full_native_equal_to_static_only": true
       }
+    },
+    "incoming_SEE_specialization": {
+      "scope": "shipping-only new recursive code; historical image/stack classes are not applied to this new native",
+      "previous_maintained_expected": {
+        "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+        "source_bytes": 12220,
+        "source_sha256": "daa9ca6e03260320c13a0a551a0c2586ed53d24d49ebba74f87b57b57814ba9f",
+        "native_bytes": 26424,
+        "native_sha256": "ade0b5deba75dea772026018b60300fc5d9d3d02b58141965549384884de3694",
+        "whole_bytes": 5558,
+        "whole_sha256": "798688b2e4396367e9a64baeb407941ba28bd47f15f6a2400c875abde2b6db32",
+        "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
+        "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
+        "bootstrap_sha256": "df45f762e3ffff0db68cf51229f0a90e6789d03c85702d3a35b81fbc78c1119b"
+      },
+      "previous_qualification_scope": "unchanged canonical/DEV and raw PP alias-only inverse; distinct full native with exact fixed metadata changes, code/data/dynamic symbols/relocations unchanged; no general ABI or old full-native equality claim; receipts are metadata, never build inputs",
+      "previous_source_decisions": "preprocess, lexical compact, exact B no-op diagnostic stripping, then one fixed shipping-only 89-name allowlist and WORKERS=2/TT_BITS=18 token literals; functions/global/static objects/directives/strings/DEV unchanged",
+      "first_cost_sha256": "c7a459fc6cc04728d77f4160eb086085e3cc2582011c070fd10d7d292d3866be",
+      "first_cost_final5_sha256": "8ba3c37419b9d84c339a9c58ab462504ad18d77bd17be00412ee14a2fbd26807",
+      "focused_proof_sha256": "fbdca8c590e7dabaf6d21d0e1b49cb075f5abfc9f86e291ad76da8cda1230421",
+      "focused_final_receipt_sha256": "bcdbda097f2aee77ece6c3d13719bd7925e32400fbcf215551ea4eb949822ce0",
+      "focused_selected_runtime_sha256": "e6dba2e552c1202fb59c00ec4d15909ec27b5568a5872e1eeedf3e954a659adc",
+      "focused_scope": "34 legal exact SEE/visit rows,2 illegal pseudo roots,2 normalized EP exclusions,seeded visit/cancel/deadline and selectedwrapper2/8GO; unchanged search/TT/learning source complement",
+      "metadata_exception_applied": false,
+      "whole_stack_qualified": false,
+      "runtime_strength_claim": false,
+      "normal_validation": {
+        "status": "complete",
+        "normal_build": {
+          "bytes": 37167,
+          "sha256": "f43079a91203007704789a62bdaa5e73403af9153870427c4e3d56588e35a069"
+        },
+        "normal_runtime": {
+          "bytes": 10635,
+          "sha256": "3554ba9a0a05d6d34453f5c7ae75cbe580101bd6820ba7c64bbbf12b08bc642d"
+        },
+        "actual_shipping_reproductions": 2,
+        "actual_DEV_reproductions": 2,
+        "old_DEV_full_identity_observed": true,
+        "selected_wrapper_sessions": 2,
+        "GO": 8,
+        "native_image_exact": true,
+        "startup_TIDs_per_session": 3,
+        "physical_quit_EOF_exit0": true,
+        "cancellation_causality": "unproven",
+        "executed_recipe": {
+          "bytes": 10809,
+          "sha256": "6e76745ff9ce0a80b5e6b4864b798261c1514998109e73138c53f2b0282f89a4"
+        },
+        "executed_README": {
+          "bytes": 5242,
+          "sha256": "fb3db33bd4a60f15037f61fdf702ed9b263f19883a04f40c94b143bb036ee3b6"
+        },
+        "source_closure_count": 20,
+        "fresh_archive_extractions": 0,
+        "fresh_archived_rebuilds": 0,
+        "DEV_engine_executions": 0,
+        "focused_fixture_reruns": 0,
+        "game_benchmark": 0,
+        "compiler_descendant_group_absence": "not observed by unchanged normal compile helper"
+      }
     }
   },
   "provenance": {
     "origin": "maintained readable Tiny B with bitboard/mailbox attackers, legal SEE, qualified singular and minimal shipping UCI",
-    "source_decisions": "preprocess, lexical compact, exact B no-op diagnostic stripping, then one fixed shipping-only 89-name allowlist and WORKERS=2/TT_BITS=18 token literals; functions/global/static objects/directives/strings/DEV unchanged",
-    "native_identity_class": "actual restored compiler-stdin image, not historical file-compiled ELF",
+    "source_decisions": "Unchanged canonical preprocessing/counter stripping/shared89/storage/static+scope maps admit the exact old12220 shipping source first; one B-only fixed post-spelling incoming-Move SEE stage produces12148. Canonical/DEV API and all old mapping guards stay unchanged.",
+    "native_identity_class": "New exact restored compiler-stdin native26392; old metadata equality class is historical only and no metadata exception is applied.",
     "storage18": "new exact B-only embedded policy after unchanged shared89 stage; no resource/flag/codec change; old full-native-identity failure preserved",
     "static_and_scope_replay": "Two exact physical declaration/reference maps after the existing shipping spelling stages; no runtime AST/name allocation; DEV bypasses all shipping stages.",
-    "shipping_codec": "Fixed LZMA1 ALONE 9 extreme/lc2/lp0/pb0/BT4/64MiB dictionary/nice 32 and 77-byte launcher; no container checksum or codec sweep."
+    "shipping_codec": "Fixed LZMA1 ALONE 9 extreme/lc2/lp0/pb0/BT4/64MiB dictionary/nice 32 and 77-byte launcher; no container checksum or codec sweep.",
+    "incoming_SEE": "Ordinary family helper binds canonical28953, readable1085 proposal, old/new paired shipping fragments and full outputs with literal roles/counts/inverse/complement. It reads no external report/experiment/AST; DEV bypasses it."
   }
 }

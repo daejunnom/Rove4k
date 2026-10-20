@@ -56,7 +56,7 @@ def main():
     if recipe['format']!=1 or recipe['family']!='B' or recipe['profile']!={'workers':2,'tt_bits':18,'ply':128,'dev_default':False}:
         raise ValueError('unsupported entry recipe/profile')
     out.mkdir(parents=True);frozen=out/'inputs';frozen.mkdir()
-    report={'complete':False,'scope':'canonical minimal B regeneration; fixed historical qualified bytes, not 4KiB acceptance',
+    report={'complete':False,'scope':'canonical minimal B with fixed shipping incoming-Move SEE specialization; not 4KiB acceptance',
             'resources':recipe['profile'],'inputs':{},'attempts':[],
             'qualified_receipt_reuse':recipe['qualified_receipt'],
             'tools':{name:subprocess.check_output(command,text=True).splitlines()[0] for name,command in
@@ -84,6 +84,7 @@ def main():
         alpha=reference.transform_source
         storage=module('entry_B_storage_spelling',frozen/'shipping_storage.py').transform_source
         scope=module('entry_fixed_scope_names',frozen/'shipping_scope.py').transform_source
+        core=module('entry_B_shipping_core',frozen/'shipping_core.py').transform_source
         lexer=module('entry_fixed_identifier_lexer',frozen/'rename_c.py')
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
@@ -94,13 +95,14 @@ def main():
         def generate(directory,dev=False):
             active,observations=specialize({'main.c':canonical},directory,recipe['preprocessor']+['-DDEV='+str(int(dev)),'main.c','-o','x'],os.environ.copy())
             data=compact(active['main.c'],'c')
-            alpha_metadata=None;storage_metadata=None;scope_metadata=None
+            alpha_metadata=None;storage_metadata=None;scope_metadata=None;core_metadata=None
             if not dev:
                 data,_=strip(data)
                 data,alpha_metadata=alpha(data,family='B',lexer=lexer)
                 data,storage_metadata=storage(data,family='B',lexer=lexer,reference=reference,readable=canonical)
                 data,scope_metadata=scope(data)
-            return data,observations,alpha_metadata,storage_metadata,scope_metadata
+                data,core_metadata=core(data,readable=canonical)
+            return data,observations,alpha_metadata,storage_metadata,scope_metadata,core_metadata
         def package(source):
             expression,_=literal(source);script=template.replace(marker,expression.encode())
             ast.parse(script)
@@ -112,7 +114,7 @@ def main():
         first=None;first_dev=None
         for index in (1,2):
             directory=out/('attempt-'+str(index));directory.mkdir()
-            source,observations,alpha_metadata,storage_metadata,scope_metadata=generate(directory/'preprocess')
+            source,observations,alpha_metadata,storage_metadata,scope_metadata,core_metadata=generate(directory/'preprocess')
             if len(source)!=expected['source_bytes'] or sha(source)!=expected['source_sha256']:raise ValueError('compact C identity mismatch')
             (directory/'main.c').write_bytes(source)
             native=compile_c(recipe['compiler'],source,directory/'native')
@@ -126,10 +128,10 @@ def main():
             elif current!=first:raise ValueError('independent generation did not reproduce bytes')
             row={'attempt':index,'source_bytes':len(source),'source_sha256':sha(source),'native_bytes':len(native),'native_sha256':sha(native),
                  'whole_bytes':len(whole),'whole_sha256':sha(whole),'bootstrap_sha256':sha(script),'preprocessor':observations,
-                 'shipping_alpha':alpha_metadata,'shipping_storage':storage_metadata,'shipping_scope':scope_metadata}
+                 'shipping_alpha':alpha_metadata,'shipping_storage':storage_metadata,'shipping_scope':scope_metadata,'shipping_core':core_metadata}
             if args.dev:
-                dev,dev_observations,dev_alpha,dev_storage,dev_scope=generate(directory/'preprocess-dev',True)
-                if dev_alpha is not None or dev_storage is not None or dev_scope is not None:raise ValueError('diagnostic source entered shipping spelling stage')
+                dev,dev_observations,dev_alpha,dev_storage,dev_scope,dev_core=generate(directory/'preprocess-dev',True)
+                if dev_alpha is not None or dev_storage is not None or dev_scope is not None or dev_core is not None:raise ValueError('diagnostic source entered shipping spelling/core stage')
                 if sha(dev)!=expected['dev_source_sha256']:raise ValueError('diagnostic C differs from qualified control')
                 dev_command=recipe['dev_compiler']
                 dev_native=compile_c(dev_command,dev,directory/'dev');(directory/'dev/main.c').write_bytes(dev)

@@ -50,7 +50,8 @@
     "engines/scripts/fixed_shipping_alpha.py": "92b351d537c1da0f346f072df2ca4b0be713d0e286e039b30efa9f758519c806",
     "engines/compact/tiny-a/stitch.py": "2b0d25b4855a3ed4ddd9e24b8e4b0e081439baa2ed8f744dba0215a700023f23",
     "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
-    "engines/compact/tiny-entry-e/shipping_scope.py": "0cf6528760d8c5b2bbc3ef56ea8dfccdd67af619b671a82927287a2f1ce18fa5"
+    "engines/compact/tiny-entry-e/shipping_scope.py": "0cf6528760d8c5b2bbc3ef56ea8dfccdd67af619b671a82927287a2f1ce18fa5",
+    "engines/compact/tiny-entry-e/shipping_core.py": "efaf9d647d012fe70b8d4a659e9faad7cfd5ced61f7ce73240b0c246fe05673e"
   },
   "compression": {
     "format": "lzma-alone",
@@ -68,13 +69,13 @@
   "expected": {
     "readable_bytes": 28001,
     "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
-    "source_bytes": 11803,
-    "source_sha256": "acd417f903ada227092b0ba371d6ad960ab80b4925ab64633b9b8a2774a9b3aa",
-    "native_bytes": 26360,
-    "native_sha256": "500ccb26bc366c129c77720d9229caac99ae9777d0148a1cc25da4a0fd6552d0",
-    "whole_bytes": 5400,
-    "whole_sha256": "7a04e3d2fac68c4fdca62b6c1fd6e3e71b58da0add25a2b452ab08870d496ec2",
-    "bootstrap_sha256": "dc65f22b293a451ca1d333f8782d206bd0555b2b1b2c58af5f53c978ad64990c",
+    "source_bytes": 11703,
+    "source_sha256": "d3368da33e992e3abdc3bbcab8917edaff8ef751fe7948d11364251a5f6f9ff8",
+    "native_bytes": 26384,
+    "native_sha256": "851c4c9fc1a3f0696de66ff54e4659de375507ad455c86204e0600912f51b137",
+    "whole_bytes": 5366,
+    "whole_sha256": "d043584483ab1e0bded0f8e04ad61931f063976d8aec1d2897c69f09595a4621",
+    "bootstrap_sha256": "dd6d482c0eddc4f94e028818f749722957baab0684661aa2e317578b9588d437",
     "dev_source_bytes": 21314,
     "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
     "dev_native_bytes": 31376,
@@ -119,64 +120,130 @@
     "ordering": "5 exact weights, actual search ordering; original composed capture-material policy"
   },
   "qualified_receipt": {
-    "producer_build_sha256": "f5196a21cf363f1463912db18f5b66dd12ded196898d1eae2cc7b5b6eaabc840",
-    "final_evidence_index_sha256": "cbb9f44160caac83d1e52a4dd224513d819c493b519faffb65ff7c9f49d08590",
-    "historical_runtime_sha256": "deffe354652f62332d778254e3d61b2849b342dfc69e264ff528c3ba80d4f880",
-    "historical_core_sha256": "f21d3599fd75e6007c4b44fdf5bc59377bab5343413dea7619c4a7ad31d60a38",
-    "ordered_positive_search_sha256": "d8ed7f4c1086559daf8a17480736b4ab49168b86138b8fa1c3d775ccfe19d15a",
-    "ordered_core_complement": {
-      "bytes": 23218,
-      "sha256": "631e2f93b998efd918dbc89df56785e8831a31751e43962a1f034599ee29daab",
-      "all_bytes_outside_go_main_identical": true
+    "scope": "current fixed-profile shipping structural composition: focused source diagnostics and selected restoration only; older qualification below is ancestry, not equality to the new full native or a new broad core result",
+    "pre_core_historical_qualification": {
+      "producer_build_sha256": "f5196a21cf363f1463912db18f5b66dd12ded196898d1eae2cc7b5b6eaabc840",
+      "final_evidence_index_sha256": "cbb9f44160caac83d1e52a4dd224513d819c493b519faffb65ff7c9f49d08590",
+      "historical_runtime_sha256": "deffe354652f62332d778254e3d61b2849b342dfc69e264ff528c3ba80d4f880",
+      "historical_core_sha256": "f21d3599fd75e6007c4b44fdf5bc59377bab5343413dea7619c4a7ad31d60a38",
+      "ordered_positive_search_sha256": "d8ed7f4c1086559daf8a17480736b4ab49168b86138b8fa1c3d775ccfe19d15a",
+      "ordered_core_complement": {
+        "bytes": 23218,
+        "sha256": "631e2f93b998efd918dbc89df56785e8831a31751e43962a1f034599ee29daab",
+        "all_bytes_outside_go_main_identical": true
+      },
+      "shipping_alpha": {
+        "policy_sha256": "b3f08ba26b38dbce1e4b63d3eb98ab37f438295cfacff6037b1cfacbf7d5e5a0",
+        "fixed_mappings": 89,
+        "first_cost_sha256": "e0527b2c9c566150791f6095346694961b81dc007fb9f89e1c135755ab81a1d8",
+        "selected_runtime_sha256": "5fbd18434187219b571dfb962058298616d560c671485c32d320a368607df427",
+        "source_freeze_sha256": "436d7cbdc6ad7fa52b73d5b1e9075971b9249f64d8225b775585a4dbd5b0ad80"
+      },
+      "scope": "ordered/minimal-UCI core qualification reused through exact readable/DEV/full-native identity; fixed shipping alpha policy, header-expansion inverse and selected wrapper receipts are separate hash metadata, never regeneration inputs",
+      "private_static_locals_and_codec": {
+        "scope": "historical qualification metadata only; no report, experiment or AST runtime dependency; no previous full-native identity claim",
+        "source_freeze_sha256": "a5aafc2537b38319da1a0f829d9b3ec1fe994dc64713ff798bcc8e0cfbfd380f",
+        "summary_sha256": "f2282baf0f54f7c98c517fd9b7c67e3643ceb2ba1a006448e8fd89de30dbf730",
+        "static_native_observation_sha256": "56a5159fa430e8e19a5ba024ccf8e4bf4de51d59cb904b4edeb63fb79208aaaa",
+        "combined_native_gate_sha256": "6347ebba4845b73d28155ac7b8d0df447d37c21ece9a8d1b87feede5189336f6",
+        "combined_strict_bootstrap_sha256": "b1f02215d0eb381e7d30602c279348bda29b725ee1f092daa4d5e17ea8ded26d",
+        "combined_codec_sha256": "2024bcef7ddef6dc24a5f67a5cf8260c12d9600e2f595ecb8ecb89a4fe22f4d0",
+        "previous_maintained_expected": {
+          "readable_bytes": 28001,
+          "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+          "source_bytes": 12641,
+          "source_sha256": "af0ab88d9f4ce25154b3fda909fc00b9eca0cda8d8784b4b07e4926015a2c330",
+          "native_bytes": 26408,
+          "native_sha256": "5429f2d80521f775bac6802ec4940e8e0ff1b344464ed8e9a0629ba6650eb675",
+          "whole_bytes": 5679,
+          "whole_sha256": "83e8e7f22f24e3161268554ab4c5ff7ad7f6007822ea6892e6fae68670e80fb4",
+          "bootstrap_sha256": "0abbdd272bb28aae532b6c88fbb691b5e353329bde6ea3e2caad1178e4cb9bfa",
+          "dev_source_bytes": 21314,
+          "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
+          "dev_native_bytes": 31376,
+          "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094"
+        },
+        "full_native_equal_to_previous_maintained": false,
+        "image_class": {
+          "all_program_headers_equal": true,
+          "all_allocated_sections_equal_except_GNU_build_ID_descriptor": true,
+          "other_changed_loaded_bytes": "ELF header e_shoff low byte at offset 40",
+          "nonallocated_changes": "symtab/strtab and section table/offset/padding metadata; symbol fields other than mapped names unchanged",
+          "dynamic_symbols_strings_relocations_equal": true,
+          "locals_full_native_equal_to_static_only": true
+        }
+      }
     },
-    "shipping_alpha": {
-      "policy_sha256": "b3f08ba26b38dbce1e4b63d3eb98ab37f438295cfacff6037b1cfacbf7d5e5a0",
-      "fixed_mappings": 89,
-      "first_cost_sha256": "e0527b2c9c566150791f6095346694961b81dc007fb9f89e1c135755ab81a1d8",
-      "selected_runtime_sha256": "5fbd18434187219b571dfb962058298616d560c671485c32d320a368607df427",
-      "source_freeze_sha256": "436d7cbdc6ad7fa52b73d5b1e9075971b9249f64d8225b775585a4dbd5b0ad80"
-    },
-    "scope": "ordered/minimal-UCI core qualification reused through exact readable/DEV/full-native identity; fixed shipping alpha policy, header-expansion inverse and selected wrapper receipts are separate hash metadata, never regeneration inputs",
-    "private_static_locals_and_codec": {
-      "scope": "historical qualification metadata only; no report, experiment or AST runtime dependency; no previous full-native identity claim",
-      "source_freeze_sha256": "a5aafc2537b38319da1a0f829d9b3ec1fe994dc64713ff798bcc8e0cfbfd380f",
-      "summary_sha256": "f2282baf0f54f7c98c517fd9b7c67e3643ceb2ba1a006448e8fd89de30dbf730",
-      "static_native_observation_sha256": "56a5159fa430e8e19a5ba024ccf8e4bf4de51d59cb904b4edeb63fb79208aaaa",
-      "combined_native_gate_sha256": "6347ebba4845b73d28155ac7b8d0df447d37c21ece9a8d1b87feede5189336f6",
-      "combined_strict_bootstrap_sha256": "b1f02215d0eb381e7d30602c279348bda29b725ee1f092daa4d5e17ea8ded26d",
-      "combined_codec_sha256": "2024bcef7ddef6dc24a5f67a5cf8260c12d9600e2f595ecb8ecb89a4fe22f4d0",
+    "shipping_core_composition": {
+      "scope": "exact current-profile shipping-only structural change; focused fixtures and separate selected restoration; no old full-native equality or generic core acceptance",
+      "FINAL5_source_index_sha256": "b4652773ff0cee6c6e1160d42cabaade80c58866b28203a71c8b182651a8e88d",
+      "cost_receipt_sha256": "69b2553811f983744e9a0a33e5e9590076a983c472ffa5c4db4358844879d689",
+      "focused_fixture_summary_sha256": "9f5097a92aa42b320eaedf935cbce83ca93f69a08b76ed37a14b2a59f1a8a27d",
+      "focused_fixture_result_sha256": "b5023892b060fb569c9d10f81d9d6a580433a563206865fbd918ef628a3f0587",
+      "selected_wrapper_index_sha256": "745de7947f5ff7cbb25ac6df7fbd38d23adff481e687dec39daa58425fc4fb29",
+      "focused_qualification_index_sha256": "fb155e0c5f1709c0f2806524e3e33cf2790e83b99265ad09ab33926bea59fe2c",
       "previous_maintained_expected": {
         "readable_bytes": 28001,
         "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
-        "source_bytes": 12641,
-        "source_sha256": "af0ab88d9f4ce25154b3fda909fc00b9eca0cda8d8784b4b07e4926015a2c330",
-        "native_bytes": 26408,
-        "native_sha256": "5429f2d80521f775bac6802ec4940e8e0ff1b344464ed8e9a0629ba6650eb675",
-        "whole_bytes": 5679,
-        "whole_sha256": "83e8e7f22f24e3161268554ab4c5ff7ad7f6007822ea6892e6fae68670e80fb4",
-        "bootstrap_sha256": "0abbdd272bb28aae532b6c88fbb691b5e353329bde6ea3e2caad1178e4cb9bfa",
+        "source_bytes": 11803,
+        "source_sha256": "acd417f903ada227092b0ba371d6ad960ab80b4925ab64633b9b8a2774a9b3aa",
+        "native_bytes": 26360,
+        "native_sha256": "500ccb26bc366c129c77720d9229caac99ae9777d0148a1cc25da4a0fd6552d0",
+        "whole_bytes": 5400,
+        "whole_sha256": "7a04e3d2fac68c4fdca62b6c1fd6e3e71b58da0add25a2b452ab08870d496ec2",
+        "bootstrap_sha256": "dc65f22b293a451ca1d333f8782d206bd0555b2b1b2c58af5f53c978ad64990c",
         "dev_source_bytes": 21314,
         "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
         "dev_native_bytes": 31376,
         "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094"
       },
       "full_native_equal_to_previous_maintained": false,
-      "image_class": {
-        "all_program_headers_equal": true,
-        "all_allocated_sections_equal_except_GNU_build_ID_descriptor": true,
-        "other_changed_loaded_bytes": "ELF header e_shoff low byte at offset 40",
-        "nonallocated_changes": "symtab/strtab and section table/offset/padding metadata; symbol fields other than mapped names unchanged",
-        "dynamic_symbols_strings_relocations_equal": true,
-        "locals_full_native_equal_to_static_only": true
-      }
+      "metadata_difference_exception": false,
+      "domain": {
+        "workers": 2,
+        "tt_bits": 18,
+        "PLY": 128,
+        "MATE": 30000,
+        "outer_threshold": 29871,
+        "raw_abs_upper": 20000,
+        "normal_side": [
+          -1,
+          1
+        ],
+        "production_TT_store_bound": [
+          1,
+          2,
+          3
+        ],
+        "bound_shift": 41,
+        "TT_depth_comparison": "at least requested",
+        "C_actual_AVX2_preserved": false,
+        "E_inner_clamp_and_21_coefficients_preserved": true,
+        "query_startup_reset_changes_added": false,
+        "DEV_generated": false
+      },
+      "DEV": "actual normal DEV source and full native reproduced twice, exactly equal to previous pins; no DEV runtime claim"
+    },
+    "normal_promotion": {
+      "scope": "direct maintained ordinary builder shipping2+DEV2, unchanged verifier quit+EOF two sessions/eight legal GO; no fresh execution or broad core replay",
+      "producer_build_sha256": "053a46ffd99b28249568eb03613c14abac83c02260f08f55cf267b5cd4a2c532",
+      "selected_runtime_sha256": "7679702083a9866098e4045f9759c6cf521412b9fa72169e70a3add622565051",
+      "producing_recipe_sha256": "4784b2c1ee81b6fb5d0053ad62b8b8f0495f39d58e66b6d879d5492e2846fc66",
+      "source_native_whole_bootstrap_repeated": true,
+      "DEV_source_and_full_native_equal_to_previous": true,
+      "fresh_runs": 0,
+      "selected_sessions": 2,
+      "legal_GO_results": 8,
+      "cancellation_causality": "unproven"
     }
   },
   "provenance": {
     "origin": "maintained TinyCE E + qualified shipping legacy-cache removal + exact model capture prior + minimal shipping UCI composition",
     "policy_changes_this_promotion": false,
-    "source_stages": "actual compiler conditional specialization, lexical minification, eight shipping no-op DEV calls removed, one fixed shipping-only 89-name allowlist and WORKERS=2/TT_BITS=18 token literals; algorithm/functions/global/static/directives/strings/DEV unchanged",
+    "source_stages": "unchanged conditional specialization, lexical compaction, shipping diagnostic stripping, fixed alpha and static/local scope replay; followed by the single local exact current-profile shipping core stage; canonical and DEV unchanged",
     "native_identity": "original stdin-compiled ELF class; separate historical file-compiled images are not equated",
     "static_and_scope_replay": "Two exact physical declaration/reference maps after the existing shipping spelling stages; no runtime AST/name allocation; DEV bypasses all shipping stages.",
-    "shipping_codec": "Fixed LZMA1 ALONE 9 extreme/lc2/lp0/pb0/BT4/64MiB dictionary/nice 32 and 77-byte launcher; no container checksum or codec sweep."
+    "shipping_codec": "Fixed LZMA1 ALONE 9 extreme/lc2/lp0/pb0/BT4/64MiB dictionary/nice 32 and 77-byte launcher; no container checksum or codec sweep.",
+    "shipping_core": "One fixed family-local post-scope source stage: nonzero production TT data sentinel, consumed selection-prefix omission, inactive outer evaluation clamp; C only side-effect-free zero order omission. Exact 2worker/TT18/PLY128 domain, paired readable/source inverse and complement; canonical/DEV/shared guards unchanged."
   }
 }

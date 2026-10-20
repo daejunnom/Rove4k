@@ -54,10 +54,10 @@ def admit(data, expected, digest):
     # Bind each exact native identity to its own qualified private mapping ABI.
     # This is not a generic permission for arbitrary two/three-page images.
     fixed = {
-        ('381fd1f478b090372365371d39337920c11fee4ab04ed59ab8616d0286b125d1', 8060):
-            (0, 0x401dfe, (0x400000, 0x2000, 0x402000, 175092, 0x2b000, 0x3ff000, 0x2f000, 0x42d000)),
-        ('215ee72678b41032e7f3283bf40fda752f385833df46d2b430bfc2d5c5f89008', 8448):
-            (1, 0x401f30, (0x400000, 0x3000, 0x403000, 175092, 0x2b000, 0x3ff000, 0x30000, 0x42e000)),
+        ('24a6856e00fb902a2c11580616a8048f2832f8b9d0cf35a29a8861e5841eedb8', 7964):
+            (0, 0x401d97, (0x400000, 0x2000, 0x402000, 175092, 0x2b000, 0x3ff000, 0x2f000, 0x42d000)),
+        ('6acbd92ccd37b51b6745115336576a15ddaa1018e6521471a98e295bc2308626', 8352):
+            (1, 0x401ed4, (0x400000, 0x3000, 0x403000, 175092, 0x2b000, 0x3ff000, 0x30000, 0x42e000)),
     }.get((expected['native_sha256'], expected['native_bytes']))
     geometry = tuple(layout[key] for key in ('image_base', 'image_pages', 'bss_base', 'bss_size',
                       'bss_pages', 'guard_base', 'reserve_size', 'upper_guard'))

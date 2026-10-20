@@ -1,152 +1,132 @@
 # Maintained selected C D context own-ELF entry
 
-`native/` contains the readable raw-syscall chess engine. `loader/` contains
-the project-owned guarded restorer, independent integer context decoder and
-standard-library Python encoder. `recipe.json` pins ordinary source bytes,
-compiler/linker order, resources, finite public policy and exact
-native/payload/whole/audit identities. Generated files belong outside Git.
+The readable raw-syscall engine is in native/. The independent fixed context
+encoder/decoder and guarded restorer are in loader/. Recipe pins ordinary
+source, exact native/payload/whole/audit identities, compiler/linker flags and
+order, fixed resources and finite public policy. Generated outputs stay outside
+Git. Normal builds read ordinary maintained source and installed compiler/
+Python standard library only; experiments, past reports/native/packet outputs
+are never normal inputs. The root MIT license applies.
 
-The selected integration moves each job's best reset into its worker and
-replaces inverse-BCJ four-byte gather/scatter with fixed-size builtin copies.
-All seven other native sources, the encoder/decoder/model, both linker scripts,
-resources and compiler/linker flags are unchanged. The normal producer reads
-only maintained ordinary source, the installed compiler and Python standard
-library; experiments, reports, historical native files and packets are not
-normal build dependencies. The root MIT license applies.
-
-| Fixed form | Native ELF | Complete own-ELF | Complete SHA-256 |
+| Form | Native | Complete own-ELF | Whole SHA-256 |
 | --- | ---: | ---: | --- |
-| Scalar | 8,060 B | **6,313 B** | `66f70074da2270f1d6aa33beb50c1f34038b4bc36e4272d748c1720935fb4a9a` |
-| HQ | 8,448 B | **6,506 B** | `7ba4858dcf40c837d107f865e14b82d19ede40570059dcff1ca4bd3012ff7234` |
+| Scalar | 7964 B | **6272 B** | 145cba2da1fd883b00b4f61ba825a2a87f69ddceb105504213d1b793041fae0c |
+| HQ | 8352 B | **6452 B** | c42602b427c98b88f7cf25ec1223634ae85a36c63e3b76790cf3ba920795a38f |
 
-Both exceed 4,096 bytes by 2,217/2,410 bytes. The complete files save88/108B
-against the preserved6,401/6,614B context controls. This is an actual combined
-whole-file comparison, not a sum of predicted source or text savings. No
-event eligibility, playing-strength, throughput or scaling result is claimed.
+Both exceed4096B by2176/2356B. Measured complete costs improve41/54B over
+preserved6313/6506B controls. No strength, performance/scaling, eligibility or
+4KiB result is claimed.
 
-## Two bounded source changes
+## One Board source specialization
 
-Runtime source15027B SHA
-`51902e800066562f7dbc5d240db57a6635b20c74ed8fede3a4cd71329fc62a38`
-differs in exactly two fragments: remove go's all-worker reset loop, then set
-`w->best=0` after accepted epoch/seen checks immediately before unchanged
-think. Think already resets nodes/depth/score. Direct think callers retain
-their seeded-best API because think itself is unchanged.
+Board8770B/SHA d412aa04f0609c0b10217d021f18fc2a888b863ece09064ffd9ad02a337963db
+changes only the residual walker fragment489→379B. Slider a3/4/5 always leaves
+through d_sliding+continue in both gen and attack modes; remaining own pieces
+are P/N/K on admitted start/FEN/generated-make Boards. The old inner ray visited
+at most one square for these pieces. The new code uses one 0x88-bounded target,
+retains pawn white12..13/black14..15, knight0..7 and king8..15 directions and
+order, and keeps attack-target return before friendly/pawn-EP generation
+filtering. Pawn pushes/doubles, four promotions, castle origin/transit, king
+capture prohibition, post-move own-king legality and EP normalization remain.
+No raw arbitrary Board/make API promise is added and no bounds guard removed.
 
-Each worker initializes before its completion decrement. The last worker's
-acq_rel pending transition2→1 acquires the earlier worker's field publication;
-pending1 reserves output. Only output completion then release0/main acquire0
-allows another position or GO to reuse storage. Shutdown/quitting, partial
-startup failure bypass, guarded stacks and kernel-CLEARTID joins are unchanged.
-The runtime is new code, not an object-identical spelling substitution.
+Seven other native inputs, all six loader/encoder/model/decoder inputs, both
+linker scripts, compiler/flags/unit order and profile stay exact. Runtime's
+worker-owned best reset and pending0-after-output publication remain; think
+and direct-call seeded-best semantics are unchanged. The loader retains exact
+four-byte inverse-BCJ builtin copies and fixed context arithmetic.
 
-Loader source2997B SHA
-`ea574f09aefc0f910a64c683c7052482d3b2e0c52a10f09450233b155674a85c`
-changes only little-endian u32 gather/scatter to `__builtin_memcpy` of
-`sizeof value`. Fixed x86-64 codegen review observed exact four-byte inline
-memory access, no helper, the same modulo32 correction/opcode/skip/bounds,
-and unchanged surrounding syscall/error boundaries. Compiler output and
-full-file SHA gates retain that fixed-target contract.
+## Evidence and bounded qualification
 
-The worker-reset actual receipt
-`bb01f2daf8960b73a2cb81b51776249d0ac25b5aca98c1d1f2754953d4894476`
+Old ordinary21/archive and20 actual repeated native/whole/audit outputs were
+preserved before this integration. First-cost receipt
+96e7eda66d500b312e93f47b42fe55896f8f0f10bbf14ebfd8da6b84b14bc443
+records one native2/encode2/shipping-loader2 invocation and no target run.
+Normal guards admit only the two explicit new native identity/form/geometry
+tuples, never arbitrary two/three-page images. New CHECKPOINT1 identities were
+discovered without target execution and registered explicitly: scalar6295B/SHA
+ce72966846e52a7f72d49c577ad9eb799fd81b195308b5e02def39cf84526b8f,
+HQ6475B/SHA3660dc07190104f062fabe57e2f0603df21d94d47aa9c41cb487204f2a4f4547.
+They are distinct from shipping and all previous audit identities. The producing
+snapshot kept normal fresh pending; the subsequent sole fresh qualified these
+exact identities as recorded below.
+
+External positive receipt
+de12090b363ff09fd38ac786fbfca875b5eff2a2552ae46b30446fefaf09a736
 and independent readback
-`3c41877ef872e84fa03c30ccfd05866f5904ac190ce2058eeef6a7733a8e79b8`
-cover six shipping sessions/16 GO of this native with the previous loader.
-Four production sessions covered repeated roots and active quit/EOF. Two
-publication sessions observed actual pending1/main futex/blocked worker write,
-then ordered legal results and pending0/natural exit. Three zero-clock GO and
-one bare GO were used; bare GO was followed by a position fence. These do not
-observe private zero-iteration state, first-node deadline causality, natural
-default-budget expiry or general race freedom. They qualify new-native
-post-entry ownership, not this new BCJ loader's restoration.
+b8053fe8118ebc5c9c6fe4a6a5e5c6bb564430d987487a8f6faace2f1c087ae7
+cover actual compiled Board/HQ callers with one libcW1DEV1O2 harness, two
+candidate compiles/runs. Each records12roots/177Boards/22656attack queries,
+with independent fullstate/HCE/hash/context/legal-set/attack comparison.
+Friendly P/N/K defended squares, 0x88 endpoints, all16 quiet/capture promotions,
+both-side castles/transit/destination, legal/pinned/discovered EP, knight pin
+6/6 rejection and actual-generated kingcapture4 rejection passed. The last is
+a parser-admitted DEV-FEN guard witness, not legal game history. Scalar/HQ
+records/order match; old/new generation order uses the exact source-equivalence
+proof, not oracle order. This fixture is not shipping-Oz/LTO/loader/SMP/search
+qualification. No source function was replaced by a stub.
 
-## Closed reproduction and current qualification stage
+After frozen-source and literal audit review, one unchanged normal fresh
+completed terminal0 without retry. Its23 ordinary archive members are local21
+plus pinned oracle/LICENSE. Two independent extractions regenerated native8,
+shipping-loader8 and audit-loader4 plus4 metadata commands with exact repeated
+native/packet/whole/audit bytes. Actual shipping8sessions/24GO and pre-entry4
+passed: exact restored native RX/padding, initial BSS/padding zero, guards/NX,
+persistent startup2workers, legal results and natural target/reader/group
+cleanup. Compiler commands recorded rc0; compiler descendant/group absence was
+not separately observed by the unchanged builder.
 
-Old ordinary21/archive and20 actual native/whole/audit outputs were preserved
-before integration. New CHECKPOINT1 images were built externally for literal
-identity discovery only, with no audit/engine execution. Their fixed identities
-are scalar6336B/93df62352f49aee0d01e4022c6a7acc773593255dfa252c28a200d3e521df905 and
-HQ6529B/9bf7165d3840488c9cdd674caa2e7cb2379c6d6eed917005cd8ce2d48129a8fd. They are separate from shipping images and
-from all historical old-decoder/context audit identities.
-
-One unchanged normal fresh invocation completed with two independent closed
-source extractions. Local21 plus oracle/LICENSE make23 ordinary archive members.
-Both extractions reproduced actual native/payload/whole/audit bytes exactly:
-8 native,8 shipping-loader and4 audit-loader compiler commands plus4 metadata
-commands succeeded. The unchanged verifier passed8 shipping sessions/24GO and
-4 positive pre-entry sessions, including exact restored native RX/padding,
-initial BSS/padding zero, guards, NX, resume and natural reader/process cleanup.
-There was no target forced cleanup or retry. Compiler commands returned zero;
-compiler descendant/group absence was not separately observed by the unchanged
-builder. Exact input native and restored RX identities remain distinct from
-`/proc/PID/exe`, which names the own-loader ELF.
-
-The actual producing source21 set is
-`222aaaf8a893e6c0fbec63039d0958357c780fc8b6d567337aed3eecedf31b11`,
-recipe SHA`74d179d61c96b33777054f5928384c4e30dfbbdf638fef17358aa11fe6450d54`,
-and closed source23 archive
-`f8a86aca8e0632d34f10d9a99d53b9ad6382e76420264853158b1b899ae010c6`.
-Fresh receipt is
-`e4838c7aeed82688983244a1fb91f85c570e35a51433570015f20d4d2aa20c0c`,
-actual readback
-`af3dc55b006c4bc1ad7bd3a09a63b2aeaf6c0f53a58d01edfcb6c2603607194a`,
-and independent frozen source/literal/audit review
-`e602fc2760fb38385db008142e647e6cfd35ad41fa9c012a28ae7a57e097ca52`.
-Only README and recipe qualification metadata changed afterward. The actual
-producing closure remains frozen separately; this final explanatory overlay
-was not run as a second fresh. All producing code, expected image identities,
-flags, profile and source pins remain exact.
+Fresh receipt SHA
+3a32b4420c299c2f826cf90d7c8760578e275abb7da16179dc5c00936a2c82c5,
+actual readback SHA
+1a23327828611fc264cb420089ec1298dfc23ec9d03604e58aa00a4945883ec0.
+Producing source21 set
+98508ad3a56ae2732187a6eacba49d9bcd680c98303daef9984d617b4d2ff2b2,
+recipe SHA4f116a987b27901ae018478af7a2974af678bd1c3e5b4842e59623a338db5c37,
+archive23 SHA6705c0c3e251d827b7bb33681b55276adb5622c1c670c0e512f9ad0734076cfc
+remain separately frozen. Independent pre-fresh source/literal review SHA
+0b3d67488f6f4111ac1e6a1b32e84b8d42db266cb880a416f9d0e220e8f99984
+and the independent actual readback pin are qualification metadata in recipe.
 
 ```sh
 python3 -I -B engines/compact/tiny-entry-d/build.py --out /absolute/new/build
 python3 -I -B engines/compact/tiny-entry-d/fresh.py --out /absolute/new/fresh
 ```
 
-Build expects literal source/native/packet/whole/audit hashes and fails on a
-mismatch. It never discovers or accepts a new expected hash automatically.
-Normal admission binds each of two exact native identities to its own exact
-per-form entry/PHDR/RX/BSS/guard/reserve geometry. Historical experiment guards
-remain unchanged; this is not permission for arbitrary two/three-page images.
+## Fixed policy, resources and image boundaries
 
-## Fixed policy, resources and restoration boundary
+Shipping uci emits only uciok; isready, legal startpos histories, clocked GO,
+quit and EOF are supported. stop/ucinewgame are consumed without cancellation/
+TT clear; infinite is an unsupported consumed token. Missing own clock gives
+1000ms budget and present zero/invalid own clock gives at least1ms under the
+fixed formula. This budget is not a hard wall cap. NextGO/position/quit/EOF
+request stop and acquire pending0 after output before storage reuse. Input
+replay is transactional. This is minimum TCEC4k policy, not general TCEC UCI.
 
-Shipping implements uci/isready, startpos legal move histories, clocked GO,
-quit and EOF. uci emits only uciok; no optional ID/options are shipped. stop and
-ucinewgame are consumed without cancellation/TT clear, and infinite is an
-unsupported consumed token. GO is finite: absent own clock uses1000ms; present
-zero/invalid own clock uses at least1ms under the fixed formula. This is a
-search budget, not a hard wall-time cap. Position/nextGO/quit/EOF request stop
-and wait for pending0 after output before storage reuse. Input replay remains
-transactional. This is the project's minimum TCEC4k policy, not general TCEC UCI.
+WORKERS2/TT_BITS18/PLY128/DEV0, fixed startup clone/futex workers, coherent
+nonwaiting full-key TT, HCE/PVS/QS/history/continuation/correction, halfmove/
+FIDE-key/legal-EP/repetition context and PLY guard remain. No new DEV identity,
+fault/game/benchmark/general-race or private zero-iteration claim is made.
 
-WORKERS2/TT_BITS18/PLY128/DEV0 remain fixed. Two persistent startup workers,
-coherent nonwaiting full-key TT, legal all-four promotions, HCE/PVS/QS,
-history/continuation/correction, draw/halfmove/legal-EP context and PLY abort
-remain in the unchanged board/search/HQ complement. No new DEV equality,
-fault matrix or broad core/game/strength result is claimed for this integration.
+Scalar native SHA24a6856e00fb902a2c11580616a8048f2832f8b9d0cf35a29a8861e5841eedb8,
+entry401d97/RX2/BSS402000/upper42d000/reserve2f000. HQ native SHA
+6acbd92ccd37b51b6745115336576a15ddaa1018e6521471a98e295bc2308626,
+entry401ed4/RX3/BSS403000/upper42e000/reserve30000. Both retain175092B BSS,
+zero writable file bytes,43roundedpages, guard3ff000 and NX stacks.
+Packets4979/5159B SHA45efddf2d4c7067c32c2cfc0c2ffc7d10ba95429b1cef30f118e4afdc940dc80 /
+aa8ce58790639ec54a3634a2a503f7997f74e825d8341ba49f695303f1c20309
+have29Bheader+4946/5126Bbody+4realzero tail; actual header/loader overhead1293B.
+Encoder applies BCJ once. Fixed H24/base10/21model/u32-length integer context
+uses a private32MiB kernel-zero RW table, checked decode/unmap, inverse BCJ,
+native RW→RX and separate BSS RW protection, then native entry. CHECKPOINT
+stops after these steps before native BSS init/worker creation. Existing guarded
+policy never requests RWX and keeps READ_IMPLIES_EXEC rejection. No RIE,
+ptrace/register/personality negative or new fault campaign belongs here.
 
-Scalar native is8060B/SHA381fd1f478b090372365371d39337920c11fee4ab04ed59ab8616d0286b125d1,
-entry401dfe/RX2/BSS402000/upper42d000/reserve2f000. HQ is8448B/SHA
-215ee72678b41032e7f3283bf40fda752f385833df46d2b430bfc2d5c5f89008,
-entry401f30/RX3/BSS403000/upper42e000/reserve30000. Both retain175092B
-zero-file-byte BSS rounded43pages, lower guard3ff000 and NX stacks.
-
-The context stream is fixed H24/base10 with21 models, u32 coded length,
-software CRC/local history/seed update and a real four-byte zero tail.
-Packets5020/5213B SHA4aecde84c170d0be88d3110d9854494d453c9773235f18cb008b54eb40dfd919 /
-2a47024e48caec8065c593f42b3026731faf0131c85cea664c402fe04d55f019
-include29B header and4B tail. Encoder applies BCJ once over the native file.
-Actual ELF/header+loader overhead is1293B. Loader allocates a private32MiB
-kernel-zero RW context table, checks decode and munmap, then reverses BCJ,
-applies native RW→RX and separate BSS RW protections, and enters native code.
-CHECKPOINT stops after these steps and before native BSS initialization or
-worker creation. The fixed guarded policy never requests RWX and rejects the
-existing READ_IMPLIES_EXEC condition. No RIE/ptrace/register/personality
-negative or new fault campaign is part of this promotion.
-
-Recipe qualification hashes are metadata only. Old core, raw-kernel and
-old-decoder receipts remain explicitly scoped ancestry. Final README/recipe
-qualification metadata is a separate explanatory overlay after the one
-successful fresh run; the actual producing recipe/source/archive remains
-frozen and that overlay is not a second fresh execution.
+Recipe qualification hashes are metadata only. Prior exact runtime/kernel/
+loader and previous-image receipts remain scoped ancestry, not execution of
+this new native. After the successful sole fresh, only README and recipe's
+qualification metadata were overlaid. All other19 local files and recipe's
+source/profile/flags/policy/expected fields stay producing-exact. The actual
+producing recipe/source/archive remain separately frozen; this explanatory
+metadata overlay is not a second fresh execution.

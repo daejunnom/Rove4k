@@ -89,12 +89,15 @@ def main():
         alpha=module('entry_fixed_A_alpha',frozen/'shipping_alpha.py').transform_source
         storage=module('entry_fixed_storage',frozen/'fixed_shipping_storage.py').transform_source
         scope=module('entry_bound_A_scope',frozen/'shipping_scope.py').transform_source
+        input_profile=module('entry_fixed_A_input',frozen/'shipping_input.py')
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
         if template.count(marker)!=1 or len(prefix)!=77:raise ValueError('bootstrap recipe changed')
         expected=recipe['expected']
         def generate(directory,dev=False):
-            active,observations=specialize({'main.c':canonical},directory,recipe['preprocessor']+['-DDEV='+str(int(dev))],os.environ.copy())
+            preprocess_source=canonical;input_metadata=None
+            if dev:preprocess_source,input_metadata=input_profile.transform_readable(canonical)
+            active,observations=specialize({'main.c':preprocess_source},directory,recipe['preprocessor']+['-DDEV='+str(int(dev))],os.environ.copy())
             data=compact(active['main.c'],'c');alpha_metadata=None;storage_metadata=None;scope_metadata=None
             if not dev:
                 data,_=strip(data);files={'main.c':data}
@@ -104,7 +107,8 @@ def main():
                 data,alpha_metadata=alpha(data,family='A',lexer=lexer,readable=canonical)
                 data,storage_metadata=storage(data,family='A',readable=canonical)
                 data,scope_metadata=scope(data)
-            return data,observations,alpha_metadata,storage_metadata,scope_metadata
+                data,input_metadata=input_profile.transform_source(data,readable=canonical)
+            return data,observations,alpha_metadata,storage_metadata,scope_metadata,input_metadata
         def package(source):
             expression,_=literal(source);script=template.replace(marker,expression.encode())
             ast.parse(script)
@@ -122,7 +126,7 @@ def main():
         first=None;first_dev=None
         for index in (1,2):
             directory=out/('attempt-'+str(index));directory.mkdir()
-            source,observations,alpha_metadata,storage_metadata,scope_metadata=generate(directory/'preprocess')
+            source,observations,alpha_metadata,storage_metadata,scope_metadata,input_metadata=generate(directory/'preprocess')
             if len(source)!=expected['source_bytes'] or sha(source)!=expected['source_sha256']:raise ValueError('compact C identity mismatch')
             (directory/'main.c').write_bytes(source)
             native=compile_c(recipe['compiler'],source,directory/'native')
@@ -136,10 +140,12 @@ def main():
             elif current!=first:raise ValueError('independent generation did not reproduce bytes')
             row={'attempt':index,'source_bytes':len(source),'source_sha256':sha(source),'native_bytes':len(native),'native_sha256':sha(native),
                  'whole_bytes':len(whole),'whole_sha256':sha(whole),'bootstrap_sha256':sha(script),'preprocessor':observations,
-                 'shipping_alpha':alpha_metadata,'shipping_storage':storage_metadata,'shipping_scope':scope_metadata}
+                 'shipping_alpha':alpha_metadata,'shipping_storage':storage_metadata,'shipping_scope':scope_metadata,'shipping_input':input_metadata}
             if args.dev:
-                dev,dev_observations,dev_alpha,dev_storage,dev_scope=generate(directory/'preprocess-dev',True)
+                dev,dev_observations,dev_alpha,dev_storage,dev_scope,dev_input=generate(directory/'preprocess-dev',True)
                 if dev_alpha is not None or dev_storage is not None or dev_scope is not None:raise ValueError('diagnostic source entered shipping spelling stage')
+                if dev_input is None or dev_input['stage']!='readable-before-DEV-specialization' or dev_input['shipping_relation_checked']:
+                    raise ValueError('diagnostic input-profile stage differs')
                 if sha(dev)!=expected['dev_source_sha256']:raise ValueError('diagnostic C differs from qualified control')
                 dev_command=['cc','-Os','-pthread','-DWORKERS=2','-DTT_BITS=18','-x','c','-','-o','x']
                 dev_native=compile_c(dev_command,dev,directory/'dev');(directory/'dev/main.c').write_bytes(dev)
@@ -147,7 +153,7 @@ def main():
                 if first_dev is None:first_dev=(dev,dev_native)
                 elif first_dev!=(dev,dev_native):raise ValueError('diagnostic bytes did not reproduce')
                 row['dev']={'source_sha256':sha(dev),'native_sha256':sha(dev_native),'command':dev_command,'preprocessor':dev_observations,
-                            'exact_qualified_control_bytes':True}
+                            'exact_qualified_control_bytes':True,'input_profile':dev_input}
             report['attempts'].append(row);save()
         (out/'main.c').write_bytes(first[0]);(out/'native').mkdir();(out/'native/x').write_bytes(first[1]);(out/'native/x').chmod(0o755)
         (out/'x').write_bytes(first[2]);(out/'x').chmod(0o755);(out/'bootstrap.py').write_bytes(first[3])
