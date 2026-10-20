@@ -94,7 +94,7 @@ def compile_loader(directory, sources, payload, layout, flags, run, digest, chec
     definitions = {'IMAGE_BASE': layout['image_base'], 'IMAGE_SIZE': layout['image_size'], 'IMAGE_PAGES': layout['image_pages'],
                    'IMAGE_ENTRY': layout['entry'], 'BSS_BASE': layout['bss_base'], 'BSS_PAGES': layout['bss_pages'],
                    'GUARD_BASE': layout['guard_base'], 'RESERVE_SIZE': layout['reserve_size'],
-                   'CODEC_FIXED': 1, 'CHECKPOINT': int(checkpoint)}
+                   'CHECKPOINT': int(checkpoint)}
     command = ['cc', *flags, *[f'-D{name}={value}UL' for name, value in definitions.items()],
                str(sources/'loader.c'), str(assembly), '-Wl,-T,' + str(sources/'image.ld'), '-o', str(directory/'linked')]
     record = run(command)

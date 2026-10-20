@@ -1,10 +1,10 @@
 # Maintained minimal F entry
 
-`engine.c` is the readable canonical source of the selected **4,839-byte** F
+`engine.c` is the readable canonical source of the selected **4,814-byte** F
 entry. It contains shipping and diagnostic forms together. The unchanged
-qualified F5051 body now uses declaration-bound automatic names and one fixed
-LZMA1 transport. The whole is 212 bytes smaller than F5051 and remains
-**743 bytes above 4,096**. It does not establish
+qualified F5051 body now uses declaration-bound automatic and owned-member
+names with one fixed LZMA1 transport. The whole is 25 bytes smaller than F4839,
+237 bytes smaller than F5051, and remains **718 bytes above 4,096**. It does not establish
 4 KiB eligibility, strength, fair NPS or general target portability.
 
 The production core keeps full-depth MTD(f), integer unit windows, stable
@@ -55,7 +55,11 @@ of two independent attempts follows this sequence:
    lives in `engines/experiments/tiny-scope-names`; the normal build needs no
    libclang, external engine or experiment input. The exact map SHA is
    `bac3ae02d4890b78d33a7e4cfca85b0bd01440e039c192f43a27c84304dfc153`.
-7. Compile through stdin with the unchanged command
+7. The same local helper then applies a separate exact member map: 13 owned
+   fields at 57 physical positions, with its own 10,011-byte input, 9,954-byte
+   output, old-token checks and inverse. The original 98/451 map and function
+   stay byte-for-byte unchanged. Macro-affected `zb.zN` remains protected.
+8. Compile through stdin with the unchanged command
    `cc -Os -pthread -x c - -o x -s`, then package the selected source literal.
 
 Both local spelling helpers bind the exact new readable, stage input/output,
@@ -71,7 +75,7 @@ The local storage helper copies the original generic lexer/opaque/rewrite
 function AST and the literal 592-word readable reservation union. It admits
 only the new F domain and checks new canonical freshness without reading
 another engine. The shared `fixed_shipping_storage.py` remains unchanged and
-is no longer a normal F build input. DEV bypasses all three spelling stages.
+is no longer a normal F build input. DEV bypasses all four spelling stages.
 
 The seven pinned build helpers are `engines/scripts/specialize.py`, `minify.py`,
 `rename_c.py`, `engines/compact/tiny-a/pack_stream.py`, and this folder's
@@ -96,7 +100,7 @@ is unchanged: `cc -std=c11 -Os -pthread -DWORKERS=2 -DTT_BITS=18 -DPLY=128
 The original bootstrap template remains. A 77-byte shell prefix uses
 `tail -c+78` and `lzma -dc`. LZMA1/ALONE is fixed to preset 9 extreme,
 lc2/lp0/pb0, BT4, dictionary 64 MiB and nice length 32. Complete cost is
-77-byte prefix plus 4,762-byte stream, including its 13-byte header and end
+77-byte prefix plus 4,737-byte stream, including its 13-byte header and end
 bytes. ALONE has no container checksum; replacing XZ removes CRC64 checking.
 Exact recovery of normal files does not preserve corruption detection.
 
@@ -110,10 +114,10 @@ promotion.
 | Exact output | Bytes | SHA-256 |
 | --- | ---: | --- |
 | Readable engine.c | 25,755 | `ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd` |
-| Compact shipping C | 10,011 | `4e7a2a76ea753ebc3ccbcb4371ea76810c06b193e45b2f6ca70e66bd79112e9a` |
+| Compact shipping C | 9,954 | `00239e23500d41c45801cdb19c4e7c8cc8b22cf29bebd7e4fbc8fdd1e08c7916` |
 | Restored stdin native ELF | 22,672 | `757b9a14cd5174dad55754196cce098fd89018a8b0d7adcf08bcddb2e1fc092b` |
-| Complete launcher | 4,839 | `fd77b62b532e4a2272e4c29351cb0ba2ef57c5bab99282177b949e0b8152158a` |
-| Decoded bootstrap | 11,010 | `661d404fa9388b07820de6b24ae4a55a8087fd739ab4e8082c04ccf73aa4ee02` |
+| Complete launcher | 4,814 | `30240a27c0682519b1d2539c58d153ebaf7dcf4b9d9dde631f985f3c27261285` |
+| Decoded bootstrap | 10,953 | `b43f24051ac613826e630ed211c3fd1528ee2f85638372c62c679254b55c8e32` |
 | New candidate DEV C | 19,513 | `84fbc9b3651494ce0ebabdc25b9a1fa7b3a334fa7394eee2631581682a804b58` |
 | New candidate DEV ELF | 26,984 | `6eb28892842bef969edff9295aae74b7edd71d61eb39ac01236f2adcd4785340` |
 
@@ -213,3 +217,52 @@ and `bd71ff07625fa9891a4b4ef79c50b5215fa4169f18d83f15d9378fe833872a2d`.
 All earlier beta-only, alpha73 and storage18 qualified receipts remain in the
 recipe's predecessor metadata and external preserved source. The new normal
 build never reads those reports, old executables or experimental folders.
+
+## Exact owned-member stage and current F4814 validation
+
+The second `shipping_scope.py` entry point, `transform_members`, admits only
+post-scope source `4e7a2a76ea753ebc3ccbcb4371ea76810c06b193e45b2f6ca70e66bd79112e9a`.
+It embeds 13 declaration groups with their owning record and ordinal, checks all
+57 physical old identifiers and non-overlap, requires the sole 9,954-byte output,
+and reverses its own edits back to the exact 10,011-byte input. It does not
+modify the earlier 98-declaration/451-position automatic map or its function.
+The normal build runs member replay after automatic replay only for shipping;
+DEV's metadata is None for both stages. No AST library, experiment, external
+receipt, source map JSON or reference engine is a normal input.
+
+This is a fixed, separate source policy. Owned records reuse member names
+within their distinct C namespaces, with no collision in one record. Its
+source proof compares all other physical tokens and the 2,463 referenced edges,
+and all 22 fields' order, canonical type spelling, qualifiers, bit offsets,
+size and alignment. Header fields, macros, strings and the atomic-macro member
+`zb.zN` stay protected. That is Clang source-layout evidence; this promotion
+also observes unchanged full native bytes, rather than claiming a new generic
+ABI or AST correctness proof.
+
+The immutable source-only proof is
+`cf87b30109b2ce58fe461f3c4ed22e42b67851dc52f5e132b9f733e9f6c37317`;
+its ordinary policy input is
+`98c38def96bd2b505922b22d26b9dacef30def36cb73d0fd1b63051a34a8afed`.
+Independent source review is
+`e3abf589fde49e643db41695928030ebd8a3c9f59d56d4570cc32e56c8a168d5`.
+The separate one-native/one-fixed-codec cost receipt is
+`2b2eb28b291d10f913e00d78d9eff398608f80fa66785ae6ee3eec08ce43873a`.
+Its actual complete file saves 25 bytes from F4839; 57 source bytes are not
+reported as 57 whole-file bytes. Original 77-byte launcher, bootstrap logic,
+compiler flags, resource profile and exact ALONE settings are unchanged.
+There is no metadata exception to full native equality.
+
+Before mutation, the old ordinary18 source and F4839 pins were preserved
+outside Git. The current normal builder independently reproduced shipping and
+DEV twice, then the unchanged selected verifier ran only quit and EOF sessions:
+eight legal GO epochs, restored-image hash, stable three startup TIDs,
+private-path absence, output-reader completion and physical exit.
+Current build receipt: `522f9c565914bf1fda1cd74cbb7e5133c6e74bdf90198fa4f26d1dbff222e26f`.
+Current runtime receipt: `acbde1bf6f0438cb0f16502d1b4a9cc28951d9309333e4e28845841c4eea1e12`.
+The producing recipe is preserved separately before the final recipe adds
+only this completed qualification metadata. The existing F4839 build/runtime
+receipts above remain historical; they are not relabeled as F4814 executions.
+Canonical/DEV bytes and old core evidence are reused by exact full native
+identity. This promotion performs no new generic AST, fresh archive extraction,
+core matrix, game or benchmark, and does not strengthen the recorded bootstrap
+compiler-group lifetime limit or prove cancellation causality.

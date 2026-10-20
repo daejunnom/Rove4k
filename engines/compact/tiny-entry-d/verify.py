@@ -31,7 +31,8 @@ SHIPPING_PROTOCOL = {
     'hard_wall_cap': False,
     'completion_fences': 'next go, position, quit, EOF acquire pending==0 after result output',
 }
-EXPECTED = {'scalar-shipping': {'bytes': 7457, 'sha256': '08c40aa381953df98aa6d6f893487ff90d9a43854acd552158795ce795afcc70', 'native_bytes': 8092, 'native_sha256': '59829299f667cdb6682c5ed4a955fb50b76a5584209caf9e4bddf1c0ee2cd160', 'audit_bytes': 7480, 'audit_sha256': '6ae91ad47d1e88bfadd3e8e3424d7ddc1bc603b83689ea4f0ec7fed3bc542b8c', 'entry': 4202024, 'layout': {'bss_base': 4202496, 'bss_pages': 176128, 'bss_size': 175092, 'entry': 4202024, 'guard_base': 4190208, 'image_base': 4194304, 'image_pages': 8192, 'image_size': 8092, 'reserve_size': 192512, 'section_count': 0, 'section_names': 0, 'section_offset': 0, 'section_size': 0, 'segments': [{'align': 4096, 'filesz': 8092, 'flags': 5, 'memsz': 8092, 'offset': 0, 'paddr': 4194304, 'type': 1, 'vaddr': 4194304}, {'align': 4096, 'filesz': 0, 'flags': 6, 'memsz': 175092, 'offset': 0, 'paddr': 4202496, 'type': 1, 'vaddr': 4202496}, {'align': 8, 'filesz': 0, 'flags': 6, 'memsz': 0, 'offset': 0, 'paddr': 0, 'type': 1685382481, 'vaddr': 0}], 'upper_guard': 4378624}}, 'hq-shipping': {'bytes': 7707, 'sha256': '1178c3e22ac3a2e9db549ddb5246f9b197b7136fa0fc89008577c52468217963', 'native_bytes': 8480, 'native_sha256': 'f1d6558ec5a13e400c2d6df182b01b3236bf1ee1e99f686e47f144a32d222c5c', 'audit_bytes': 7730, 'audit_sha256': '390f4c5f272e38d17e8e8304fe415c994601c642cd8ee7352e8107e42bbea84e', 'entry': 4202330, 'layout': {'bss_base': 4206592, 'bss_pages': 176128, 'bss_size': 175092, 'entry': 4202330, 'guard_base': 4190208, 'image_base': 4194304, 'image_pages': 12288, 'image_size': 8480, 'reserve_size': 196608, 'section_count': 0, 'section_names': 0, 'section_offset': 0, 'section_size': 0, 'segments': [{'align': 4096, 'filesz': 8480, 'flags': 5, 'memsz': 8480, 'offset': 0, 'paddr': 4194304, 'type': 1, 'vaddr': 4194304}, {'align': 4096, 'filesz': 0, 'flags': 6, 'memsz': 175092, 'offset': 0, 'paddr': 4206592, 'type': 1, 'vaddr': 4206592}, {'align': 8, 'filesz': 0, 'flags': 6, 'memsz': 0, 'offset': 0, 'paddr': 0, 'type': 1685382481, 'vaddr': 0}], 'upper_guard': 4382720}}}
+CODEC = 'rove4k-context-h24-base10-u32-zero4-v1'
+EXPECTED = {'scalar-shipping': {'bytes': 6401, 'sha256': '7e8f405c40ae5a64f3420f23d77a179d4154e5b9bd9e9c67aea1c83a18d238da', 'native_bytes': 8092, 'native_sha256': '59829299f667cdb6682c5ed4a955fb50b76a5584209caf9e4bddf1c0ee2cd160', 'audit_bytes': 6424, 'audit_sha256': '07f0a624c85bec6a716cf40a738d6a455c555d6ea230528a4c531ae9d084b59f', 'entry': 4202024, 'layout': {'bss_base': 4202496, 'bss_pages': 176128, 'bss_size': 175092, 'entry': 4202024, 'guard_base': 4190208, 'image_base': 4194304, 'image_pages': 8192, 'image_size': 8092, 'reserve_size': 192512, 'section_count': 0, 'section_names': 0, 'section_offset': 0, 'section_size': 0, 'segments': [{'align': 4096, 'filesz': 8092, 'flags': 5, 'memsz': 8092, 'offset': 0, 'paddr': 4194304, 'type': 1, 'vaddr': 4194304}, {'align': 4096, 'filesz': 0, 'flags': 6, 'memsz': 175092, 'offset': 0, 'paddr': 4202496, 'type': 1, 'vaddr': 4202496}, {'align': 8, 'filesz': 0, 'flags': 6, 'memsz': 0, 'offset': 0, 'paddr': 0, 'type': 1685382481, 'vaddr': 0}], 'upper_guard': 4378624}}, 'hq-shipping': {'bytes': 6614, 'sha256': 'be6a45a21895b204550cc0ae7a9a73928d6f4df1313757bad68db4dd97c4f358', 'native_bytes': 8480, 'native_sha256': 'f1d6558ec5a13e400c2d6df182b01b3236bf1ee1e99f686e47f144a32d222c5c', 'audit_bytes': 6637, 'audit_sha256': '854595138f823be31da5d189161ed7e7e802ee8f5dc836c7c534949f9dea3a6f', 'entry': 4202330, 'layout': {'bss_base': 4206592, 'bss_pages': 176128, 'bss_size': 175092, 'entry': 4202330, 'guard_base': 4190208, 'image_base': 4194304, 'image_pages': 12288, 'image_size': 8480, 'reserve_size': 196608, 'section_count': 0, 'section_names': 0, 'section_offset': 0, 'section_size': 0, 'segments': [{'align': 4096, 'filesz': 8480, 'flags': 5, 'memsz': 8480, 'offset': 0, 'paddr': 4194304, 'type': 1, 'vaddr': 4194304}, {'align': 4096, 'filesz': 0, 'flags': 6, 'memsz': 175092, 'offset': 0, 'paddr': 4206592, 'type': 1, 'vaddr': 4206592}, {'align': 8, 'filesz': 0, 'flags': 6, 'memsz': 0, 'offset': 0, 'paddr': 0, 'type': 1685382481, 'vaddr': 0}], 'upper_guard': 4382720}}}
 OWNED = set()
 
 
@@ -412,7 +413,7 @@ def main():
     require(30 <= args.budget <= 300, "budget must be 30..300 seconds")
     require(sys.platform.startswith("linux"), "Linux /proc and parent memory access required")
     out.mkdir(parents=True)
-    report = {"complete": False, "scope": "Fresh admitted-image physical RX/permissions and narrow shipping runtime proof; no broad fault-suite rerun or 4k eligibility claim",
+    report = {"complete": False, "scope": "Fresh exact context own-ELF pre-entry RX/BSS/permissions and narrow shipping runtime proof; no decoder-fault suite, RIE/ptrace mutation or 4k eligibility claim",
               "build_sha256": None, "validator_sha256": None,
               "oracle_sha256": None, "oracle_lf_sha256": ORACLE_LF_SHA,
               "results": [], "failures": [], "interrupted_constructors_cleanup": []}
@@ -426,6 +427,7 @@ def main():
         oracle_bytes = args.oracle.read_bytes()
         report["oracle_sha256"] = sha(oracle_bytes)
         require(sha(oracle_bytes.replace(b"\r\n", b"\n")) == ORACLE_LF_SHA, "independent oracle LF-normalized source differs")
+        require(all(e["audit_bytes"] is not None and e["audit_sha256"] is not None for e in EXPECTED.values()), "context audit literals require explicit discovery and admission")
         build = json.loads(build_bytes)
         require(build.get("complete") is True, "build is incomplete")
         require(not build.get("failure") and build["shipping_protocol"] == SHIPPING_PROTOCOL, "build protocol declaration differs or build failed")
@@ -457,17 +459,17 @@ def main():
             require(layout == expected["layout"], "literal identity/form layout differs")
             require(layout["image_pages"] == (layout["image_size"] + 4095) // 4096 * 4096 and layout["bss_pages"] == 176128, "native page sizing differs")
             require(layout["guard_base"] == layout["image_base"] - 4096 and layout["bss_base"] == layout["image_base"] + layout["image_pages"] and layout["upper_guard"] == layout["bss_base"] + layout["bss_pages"], "native guard/BSS layout differs")
-            require(len(engine["candidates"]) == 1, "expected exactly one selected fixed-codec own ELF")
+            require(len(engine["candidates"]) == 1, "expected exactly one selected context-codec own ELF")
             candidate = dict(engine["candidates"][0])
             candidate["path"] = str(resolve(candidate["path"], build_path.parent))
-            require(candidate.get("codec", "fixed") == "fixed" and candidate["sha256"] == expected["sha256"] and candidate["bytes"] == expected["bytes"], "selected own ELF admission differs")
+            require(candidate.get("codec") == CODEC and candidate["sha256"] == expected["sha256"] and candidate["bytes"] == expected["bytes"], "selected own ELF admission differs")
             program = Path(candidate["path"])
             require(program.stat().st_size == expected["bytes"] and sha(program.read_bytes()) == expected["sha256"], "actual own ELF file differs")
             if candidate.get("audit"):
                 candidate["audit"] = dict(candidate["audit"])
                 candidate["audit"]["path"] = str(resolve(candidate["audit"]["path"], build_path.parent))
             require(candidate.get("audit") and candidate["audit"]["bytes"] == expected["audit_bytes"]
-                    and candidate["audit"]["sha256"] == expected["audit_sha256"], "selected finite CHECKPOINT identity differs")
+                    and candidate["audit"]["sha256"] == expected["audit_sha256"], "selected context CHECKPOINT identity differs")
             frozen = recipe / engine["id"]
             frozen.mkdir()
             (frozen / "native.elf").write_bytes(native_path.read_bytes())

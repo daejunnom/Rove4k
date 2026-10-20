@@ -132,6 +132,16 @@ The fixed-codec/source-comparison checkpoint `647f04a` also passes both jobs in
 its [exact-head engine CI](https://github.com/daejunnom/Rove4k/actions/runs/39405755104)
 and [repository lifecycle CI](https://github.com/daejunnom/Rove4k/actions/runs/39405755067).
 Its source-only codec experiment is not an additional runtime CI execution.
+The maintained-F-scope checkpoint `195b541` passes both language jobs in its
+[exact-head engine CI](https://github.com/daejunnom/Rove4k/actions/runs/39408227153)
+and [repository lifecycle CI](https://github.com/daejunnom/Rove4k/actions/runs/39408227165).
+It regenerates and exercises the maintained 4,839-byte F file.
+The maintained-A/B/C/E-scope checkpoint `ffb2799` passes both language jobs in
+its [exact-head engine CI](https://github.com/daejunnom/Rove4k/actions/runs/39410522104)
+and [repository lifecycle CI](https://github.com/daejunnom/Rove4k/actions/runs/39410522081).
+It regenerates and exercises A4846/B5558/C5395/E5400/F4839. The separately
+qualified context-D experiment and encoder remain local evidence; this CI
+still regenerates and exercises the maintained old-codec D7457/7707 pair.
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
@@ -150,9 +160,9 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | A | 4,846 B | 750 B | Shared startup/query, exact-native automatic names and original ALONE |
 | B | 5,558 B | 1,462 B | Hybrid bitboards, legal SEE/singular, bound private names and fixed ALONE |
 | C | 5,395 B | 1,299 B | Real AVX2 evaluation, shared query/startup, bound private names and ALONE |
-| D scalar / HQ | 7,457 / 7,707 B | 3,361 / 3,611 B | Own ELF restoration, metadata-first Board, shared PVS retries and completion latch |
+| D scalar / HQ | 6,401 / 6,614 B | 2,305 / 2,518 B | Own context-decoding ELF, exact native, guarded restoration and completion latch |
 | E | 5,400 B | 1,304 B | All 21 untrained coefficients in evaluation/ordering; bound names and ALONE |
-| F | 4,839 B | 743 B | Full-depth MTD(f), owned query, AST-bound automatic names and fixed LZMA1 |
+| F | 4,814 B | 718 B | Full-depth MTD(f), owned query, bound automatic/member names and fixed LZMA1 |
 
 The separate Rust D native images are 16,816 bytes each. Their independent
 packed experiment retains its own qualification state and does not silently
@@ -2851,3 +2861,86 @@ payload matching is a comparison rather than a forced termination-bit rule.
 Encoder receipt:
 `705e720ea01d5eb1f4254c6a8cda646e323d67bf9ffcc4653cb27841bae33b66`.
 Closing the maintained D source encoder/audit consumers remains separate work.
+
+## Exact F member names and an incomplete lexical experiment
+
+The exact-F owned-member map renames 13 fields at 57 physical declaration/use
+positions, reducing post-scope source from 10,011 to 9,954 B. Independent Clang
+reparse preserves the complete 2,463-edge reference graph, all other physical
+tokens and all 22 fields' order, types, qualifiers, offsets, sizes and alignments.
+The atomic-macro field zb.zN and all external/header members remain protected.
+The source-only proof and a separate read-only review are frozen; source saving
+alone is not treated as packed saving.
+
+One exact candidate native is then byte-identical to the maintained 22,672 B
+native, with no metadata exception. One fixed ALONE package costs **4,814 B**,
+down 25 B from F4839. Normal F now replays that map as a second stage in the
+existing helper; the original 98-declaration/451-position automatic map stays
+byte-identical. Canonical, DEV, bootstrap, compiler, launcher and resources stay
+fixed. No Clang, experimental source or receipt is needed for normal generation.
+
+Normal shipping and DEV each reproduce twice. The unchanged verifier passes
+two actual quit/EOF sessions and eight legal results against the new wrapper.
+Whole SHA is `30240a27c0682519b1d2539c58d153ebaf7dcf4b9d9dde631f985f3c27261285`;
+source SHA is `00239e23500d41c45801cdb19c4e7c8cc8b22cf29bebd7e4fbc8fdd1e08c7916`.
+Normal build/runtime receipts are
+`522f9c565914bf1fda1cd74cbb7e5133c6e74bdf90198fa4f26d1dbff222e26f` /
+`acbde1bf6f0438cb0f16502d1b4a9cc28951d9309333e4e28845841c4eea1e12`.
+The independent first-cost receipt is
+`2b2eb28b291d10f913e00d78d9eff398608f80fa66785ae6ee3eec08ce43873a`.
+
+The separate lexical alias prototype remains **incomplete and unselected**.
+Its first run aborts on an unclassified parameter-redefinition diagnostic;
+the second aborts on an unclassified tentative-shadowing int-to-Move-pointer
+diagnostic. Both failures and their original incomplete checkpoints remain
+preserved. The last checkpoint processes only 20/98 declarations and 56 greedy
+trials. A separate final two-parse validation admits its exact forward/inverse,
+protected declaration shapes and observed reference projection, without changing
+those failed runs into success. Its 10,011 B source changes only two aliases at
+four tokens and saves zero raw bytes; native, codec and engine execution remain
+zero. Final handoff: `1f57db2fcdb5ef340763889bd9b6d7d41eb81a5153e58a049dc7f6b2c74345b9`.
+
+## Maintained D context producer and fresh pre-entry qualification
+
+Normal D now generates its own fixed H24/base10/u32 context packets from the
+eight unchanged native sources. The exact independently authored encoder,
+range module, fixed models and decoder are ordinary local source inputs. All
+native/loader pins are checked, and the 17 producer inputs are copied before
+importing the encoder.
+There is no upstream compressor, historical packet, external artifact or
+experimental-source dependency in normal generation. The original two native
+images, compiler/link flags, resources, native admission and physical verifier
+helper bodies remain unchanged.
+
+The maintained complete own-ELFs are **6,401 / 6,614 B**, saving 1,056/1,093 B
+from D7457/7707. Their exact shipping hashes remain those of the separately
+qualified context experiment. All 1,367 B of headers/loader plus packet framing
+and real zero tail are counted. Initial discovery compiles shipping twice and
+the two new CHECKPOINT variants once each, without executing them. The actual
+audit files are 6,424/6,637 B, with hashes
+`07f0a624c85bec6a716cf40a738d6a455c555d6ea230528a4c531ae9d084b59f` /
+`854595138f823be31da5d189161ed7e7e802ee8f5dc836c7c534949f9dea3a6f`.
+They are explicitly admitted only after source and physical ELF review; no old
+decoder audit identity is reused. CHECKPOINT stops after checked context unmap,
+inverse BCJ and final RX/BSS protection, immediately before native entry.
+
+The unchanged fresh contract then passes on two independent extractions of
+exactly 23 ordinary archive members: local21 plus oracle/LICENSE. Actual native,
+whole and audit bytes match across extractions and repeated generation. This
+runs eight native, eight shipping-loader and four audit-loader compilations,
+then eight actual shipping quit/EOF sessions and four positive pre-entry audits.
+Each audit observes the exact restored RX, zero RX padding and rounded initial
+BSS, guards and permissions, then resumes the original entry and exits cleanly.
+No forced cleanup, errors, retries, RIE/ptrace mutations, games or benchmarks
+are introduced. This qualifies the new context path separately from old fault
+receipts and from the earlier production-only adapter.
+
+The producing source21 set is
+`f32b345cdc1f5b031130dcfe8ca52a5778f310a132af772e7d2208e6390be5e0`.
+The source archive is
+`4a05643884df255f56e16e50da70c10cb9536b3af1ff7b316a7bf30be924e09f`.
+Fresh result/readback receipts are
+`3e8ab7c220c5ed26da56dde77fa5b086d4f5f8165518181a10b7676f7611e35b` /
+`26ced4a9aa2bdec75f1f16c7018401eec289d0b44b33eda95d59b86c2a098776`.
+Post-run qualification metadata is distinguished from these producing inputs.
+Current-head CI and 4 KiB eligibility are still separate acceptance conditions.

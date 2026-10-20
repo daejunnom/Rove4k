@@ -23,7 +23,8 @@ ROOT = HERE.parents[2]
 PREFIX = 'engines/compact/tiny-entry-d/'
 LOCAL = ('.gitattributes', 'README.md', 'build.py', 'fresh.py', 'packer.py', 'recipe.json', 'verify.py',
          'native/tiny.h', 'native/board.c', 'native/search.c', 'native/runtime.c', 'native/hq.h',
-         'native/hq.c', 'native/start.S', 'native/image.ld', 'loader/loader.c', 'loader/image.ld', 'loader/codec.py')
+         'native/hq.c', 'native/start.S', 'native/image.ld', 'loader/loader.c', 'loader/image.ld', 'loader/codec.py',
+         'loader/decoder.h', 'loader/range_bits.py', 'loader/models.json')
 MEMBERS = tuple(PREFIX+name for name in LOCAL) + ('engines/tests/chess_oracle.py', 'LICENSE')
 
 

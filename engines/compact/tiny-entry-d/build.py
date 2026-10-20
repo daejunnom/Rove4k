@@ -16,10 +16,10 @@ import signal
 import subprocess
 import sys
 import time
-import zlib
 
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
+CODEC = 'rove4k-context-h24-base10-u32-zero4-v1'
 SHIPPING_PROTOCOL = {
     'id': 'finite-minimum-v1', 'identification': False,
     'stop': 'consume', 'ucinewgame': 'consume', 'infinite': 'consume',
@@ -62,13 +62,17 @@ def main():
         raise ValueError('unsupported selected profile')
     if list(recipe['expected']) != ['scalar-shipping', 'hq-shipping']:
         raise ValueError('exactly the selected scalar/HQ images are required')
+    if recipe['codec'] != CODEC:
+        raise ValueError('unsupported fixed context codec')
+    if any(expected['audit_bytes'] is None or expected['audit_sha256'] is None for expected in recipe['expected'].values()):
+        raise ValueError('context audit literals require explicit discovery and admission')
     if recipe['shipping_protocol'] != SHIPPING_PROTOCOL:
         raise ValueError('unsupported selected shipping protocol')
     out.mkdir(parents=True)
     frozen = out/'inputs'
     frozen.mkdir()
     started, deadline = time.monotonic(), time.monotonic()+180
-    report = {'complete': False, 'scope': 'maintained source regeneration of exact qualified completion-latch C D own-ELFs; two literal per-identity mapping classes, unchanged board/search/loader/codec/flags',
+    report = {'complete': False, 'scope': 'maintained source regeneration of exact C D context own-ELFs; fixed independent encoder/decoder and literal native mapping classes; unchanged native/profile/flags',
               'resources': recipe['profile'], 'inputs': {}, 'engines': [], 'negative_decoder_controls': [],
               'shipping_protocol': recipe['shipping_protocol'],
               'qualified_receipt_reuse_metadata_only': recipe['qualified_receipts_metadata_only'],
@@ -130,10 +134,9 @@ def main():
             target.write_bytes(data)
             report['inputs'][name] = {'bytes': len(data), 'sha256': sha(data), 'working_bytes_sha256': sha(raw), 'LF_normalization': raw != data}
         packer = module('entry_d_fixed_packer', frozen/'packer.py')
-        codec = module('entry_d_fixed_codec', frozen/'loader/codec.py')
+        codec = module('entry_d_context_codec', frozen/'loader/codec.py')
         report['tools'] = {'cc': run(['cc', '--version'])['stdout'], 'ld': run(['ld', '--version'])['stdout'],
-                           'python': sys.version, 'platform': platform.platform(), 'zlib_build': zlib.ZLIB_VERSION,
-                           'zlib_runtime': zlib.ZLIB_RUNTIME_VERSION}
+                           'python': sys.version, 'platform': platform.platform()}
         for form, expected in recipe['expected'].items():
             directory = out/form
             directory.mkdir()
@@ -156,21 +159,23 @@ def main():
                 raise ValueError('native independent repeats differ')
             native = Path(natives[0]['path']).read_bytes()
             complete = []
-            for attempt in ('fixed', 'fixed-repeat'):
-                payload = codec.fixed_compress(codec.bcj(bytes(native)))
-                if codec.bcj(codec.fixed_decompress(payload, len(native)), inverse=True) != native:
-                    raise ValueError('selected codec inverse differs from native')
+            model = codec.load_models((frozen/'loader/models.json').read_bytes(), form)
+            for attempt in ('context', 'context-repeat'):
+                payload, encoding = codec.encode_native(native, model)
+                if (len(payload), sha(payload)) != (expected['payload_bytes'], expected['payload_sha256']):
+                    raise ValueError('independent encoder differs from selected context payload')
                 candidate = packer.compile_loader(directory/attempt, frozen/'loader', payload, layout, recipe['loader_flags'], run, sha)
+                candidate['encoding'] = encoding
                 if (candidate['bytes'], candidate['sha256'], candidate['payload_bytes'], candidate['loader_and_headers_bytes']) != (
                     expected['whole_bytes'], expected['whole_sha256'], expected['payload_bytes'], expected['loader_and_headers_bytes']):
                     raise ValueError('whole file differs from selected qualification')
                 complete.append(candidate)
             if Path(complete[0]['path']).read_bytes() != Path(complete[1]['path']).read_bytes():
                 raise ValueError('independent complete-file repeats differ')
-            audit = packer.compile_loader(directory/'fixed-audit', frozen/'loader', payload, layout, recipe['loader_flags'], run, sha, checkpoint=True)
+            audit = packer.compile_loader(directory/'context-audit', frozen/'loader', payload, layout, recipe['loader_flags'], run, sha, checkpoint=True)
             if (audit['bytes'], audit['sha256']) != (expected['audit_bytes'], expected['audit_sha256']):
                 raise ValueError('same admitted CHECKPOINT image differs')
-            complete[0].update(codec='fixed', reproduction=complete[1], audit=audit, within4096=False)
+            complete[0].update(codec=CODEC, reproduction=complete[1], audit=audit, within4096=False)
             report['engines'].append({'id': form, 'input_bytes': len(native), 'input_sha256': sha(native), 'layout': layout,
                                       'native': natives[0]['path'], 'native_rebuilds': natives, 'native_reproduced': True,
                                       'candidates': [complete[0]], 'whole_reproduced': True})

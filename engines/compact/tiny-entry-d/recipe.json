@@ -18,9 +18,12 @@
     "native/image.ld": "38756c865914b52432572864446fcc58b791dfb508af8a33156d5c190c01044b"
   },
   "loader_source_sha256": {
-    "loader/loader.c": "8a6a9cb93ae484400056852c5bc406be1cc15dc7b8df6b0a57e6d6330a2e4094",
+    "loader/loader.c": "fba857458166293381a5e403e1ee8ebeeb6171e682f395b0f21524a60670fef4",
     "loader/image.ld": "93934099212b944b20c2f7840ee87e4817311c4f87fddbb2b3f91db28776cf99",
-    "loader/codec.py": "17165d1cb16eaba8916833741bfa229d196c3ad07ca391c14b94288a3cdc0866"
+    "loader/codec.py": "43b97d360a8eed9929153f06d8262b4d5dd8bf97da0bad68a3665ad77270c32f",
+    "loader/decoder.h": "f400246d0665f9d20eaf3cb4390254aed44c8f724c4f0a25a891253a2b8a4dea",
+    "loader/range_bits.py": "9c4f9a69b3655a1cd95969cd601193174a15894e35a92248cb3c7ccdd74d2854",
+    "loader/models.json": "3101a5638551990cb2d5a33d6d28fbab436d04d301b676cc2e45afa63b7f6920"
   },
   "native_flags": [
     "-Oz",
@@ -68,18 +71,18 @@
     "hq.c",
     "start.S"
   ],
-  "codec": "BCJ e8/e9 then one-final-fixed-Huffman Deflate; unchanged fixed_compress implementation; no preset selection",
+  "codec": "rove4k-context-h24-base10-u32-zero4-v1",
   "expected": {
     "scalar-shipping": {
       "hq": 0,
       "native_bytes": 8092,
       "native_sha256": "59829299f667cdb6682c5ed4a955fb50b76a5584209caf9e4bddf1c0ee2cd160",
-      "whole_bytes": 7457,
-      "whole_sha256": "08c40aa381953df98aa6d6f893487ff90d9a43854acd552158795ce795afcc70",
-      "payload_bytes": 6342,
-      "loader_and_headers_bytes": 1115,
-      "audit_bytes": 7480,
-      "audit_sha256": "6ae91ad47d1e88bfadd3e8e3424d7ddc1bc603b83689ea4f0ec7fed3bc542b8c",
+      "whole_bytes": 6401,
+      "whole_sha256": "7e8f405c40ae5a64f3420f23d77a179d4154e5b9bd9e9c67aea1c83a18d238da",
+      "payload_bytes": 5034,
+      "loader_and_headers_bytes": 1367,
+      "audit_bytes": 6424,
+      "audit_sha256": "07f0a624c85bec6a716cf40a738d6a455c555d6ea230528a4c531ae9d084b59f",
       "layout": {
         "bss_base": 4202496,
         "bss_pages": 176128,
@@ -127,18 +130,19 @@
           }
         ],
         "upper_guard": 4378624
-      }
+      },
+      "payload_sha256": "1f3d35025cd61edbbcd3d6ca8b0243969b0a52e435fd4763071b4cf4e3e6b00d"
     },
     "hq-shipping": {
       "hq": 1,
       "native_bytes": 8480,
       "native_sha256": "f1d6558ec5a13e400c2d6df182b01b3236bf1ee1e99f686e47f144a32d222c5c",
-      "whole_bytes": 7707,
-      "whole_sha256": "1178c3e22ac3a2e9db549ddb5246f9b197b7136fa0fc89008577c52468217963",
-      "payload_bytes": 6592,
-      "loader_and_headers_bytes": 1115,
-      "audit_bytes": 7730,
-      "audit_sha256": "390f4c5f272e38d17e8e8304fe415c994601c642cd8ee7352e8107e42bbea84e",
+      "whole_bytes": 6614,
+      "whole_sha256": "be6a45a21895b204550cc0ae7a9a73928d6f4df1313757bad68db4dd97c4f358",
+      "payload_bytes": 5247,
+      "loader_and_headers_bytes": 1367,
+      "audit_bytes": 6637,
+      "audit_sha256": "854595138f823be31da5d189161ed7e7e802ee8f5dc836c7c534949f9dea3a6f",
       "layout": {
         "bss_base": 4206592,
         "bss_pages": 176128,
@@ -186,94 +190,125 @@
           }
         ],
         "upper_guard": 4382720
-      }
+      },
+      "payload_sha256": "5f03ce47b7039e15fcf85166dee04c1a09b929762d22de4709428159905aa197"
     }
   },
   "qualified_receipts_metadata_only": {
-    "current_selection": "exact qualified completion-latch C D over unchanged finite-minimum-v1 public policy and unchanged layout-phase board/search; two explicit native identity classes",
-    "source_lineage": "seven exact runtime fragments consolidate ready/pending/completed into pending latch; seven other native and loader/codec/profile/flags unchanged",
-    "layout_phase": {
-      "proof_final_index_sha256": "b05e3e344983c0bc340c28570b0229c8c5ab3cb1e579ca0e3bf290ac8a51cc83",
-      "proof_source40_set_sha256": "2b729bc31ef732ce8c1dbd38128e66b4ad597c9200f4f83d03910a018e7b89ba",
-      "combined_whole_cost_sha256": "4b0b4f62b4266c8e2e60c1d8b969fe28de0ff0970822c380a5d4156bd0716b83",
-      "normalized_search_contracts_sha256": "e06e27d4c8c42e4db819afe3b8ab702a4fe61f0d9636e102efd05a4ea5ab2539",
-      "independent_board_contracts_sha256": "c123692a26644738f31e0d3710161b44a37aaefb40517b5ec6843a88606110bb",
-      "physical_two_classes_sha256": "dfcebada0c43fee2dba85893385f261bc398b4c4808a90a6d90055ef1c922add",
-      "audit_build_sha256": "8ffc4989e946df66392143b000c590468fdcf486fe06e653d139a8c2b8d5a3ff",
-      "prepromotion_old18_freeze_sha256": "7e7e9c586a629fefef9698ec2364549e589f103f590cb586014edd9769878396",
-      "scope": "prior exact actual core W1DEV1 contracts reused only for unchanged Board/search/HQ source; old physical/audit images are ancestry, not current runtime identity; reduced beta-high dynamic0/unproven"
-    },
-    "previous_finite_selection_ancestry_only": {
-      "compose_summary_sha256": "d98218c08f05a9e39af40016e731aba1d1b02846524a2fb412e45e02868aa0fc",
-      "compose_build_sha256": "86ab399d8a2732a4527db0290e01101c9b783c4f87f608c3c8db8ff23ed7540c",
-      "compose_runtime_image_sha256": "3dd9ef4cdee98201d39d3eb51675a31574e84b849cdc32cbbe9c7b838d6167f8",
-      "compose_common_shipping_sha256": "d224fb32e158bad3fcf997810ad96f6225c9b099c0e80a3bb01627fef0e9687a",
-      "compose_shipping_groups": 10,
-      "compose_oracle_games": 2,
-      "source_lineage": "qualified finite policy over project-owned tiny-protocol D; seven other native and all loader/codec sources unchanged; fixed mapping class/flags/resources retained",
-      "separate_prior_evidence_classes": {
-        "native_board_search_HQ": {
-          "source_identity": "seven non-runtime native files unchanged; runtime complement outside go/main and startup/publication/shutdown source ranges are byte-identical",
-          "algorithms_sha256": "22ecdc467df28a847d0b286c9c3e4e88a09a336c2daa18c390fa7b5e6b2eaef5",
-          "hq_kernel_sha256": "6052fc26d9f491eecc4d13f30b093adfd3cd7c877ab9a68dbdd6273859d192d0",
-          "scope": "prior kernel/search proofs, not newly executed in maintained-entry work"
-        },
-        "protocol_runtime": {
-          "campaign_sha256": "17d7e72ecb66440d84e96dcb2f7051873e2efcb3ee2d31df3c0fab4ecee52275",
-          "qualification_sha256": "1598cbf17fad096f0acd3144017ad27ded2a154a9707bd1e9da6450b7dbd4a59",
-          "scope": "prior raw runtime fault fixture provenance for unchanged source ranges only; old strong stop/newgame/infinite lifecycle is excluded from finite policy qualification"
-        },
-        "loader_fault_and_admission": {
-          "loader_source_sha256": "8a6a9cb93ae484400056852c5bc406be1cc15dc7b8df6b0a57e6d6330a2e4094",
-          "codec_source_sha256": "17165d1cb16eaba8916833741bfa229d196c3ad07ca391c14b94288a3cdc0866",
-          "old_v3_image_and_four_negative_decoder_fixtures_sha256": "cf873ffcc25eefac78e5a4f06b430d836438e4b9c5c0d9f619f3c7733231ada1",
-          "old_v3_admission_sha256": "44c8cb0af8a01ff21d0fb0bf3e72d3a80330505cf1c108b3ea4f71cc21cf4774",
-          "scope": "unchanged loader/codec and fixed mapping class; old native negative fixtures remain separate prior evidence; new finite exact image hashes are separately qualified and explicitly admitted"
-        }
+    "current_selection": "qualified fixed independent context encoder/decoder C D own-ELFs over exact unchanged native images; one normal closed fresh invocation with two independent source extractions and positive context audits",
+    "context_firstcost_index_sha256": "199e5df9b91cce82ae81f19ab0fa4726bfe92bb5c8525e2c11177974cb44aa49",
+    "context_production_runtime_index_sha256": "d2e7d4802ffbbca2d9f3f49bdcd8da3732732bce4b733c6492b3f9393d38b269",
+    "context_production_runtime_sha256": "dad61bc39bc3ee777fcbef79081a78a786f7fdeb8e27990c3cd510ccd1d3bc82",
+    "context_source9_set_sha256": "b76e85ef19884fdf9d7a428315ba66952dcdf93c5287851faff9a9c2ce0cbe52",
+    "independent_encoder_summary_sha256": "22b968d719c56e7cb92da79a178263f627c0fed866567d276631dc27b666d4b8",
+    "independent_encoder_checks_sha256": "705e720ea01d5eb1f4254c6a8cda646e323d67bf9ffcc4653cb27841bae33b66",
+    "scope": "context production receipt and new normal fresh/pre-entry receipts are separate actual observations; prior fixed-Huffman decoder audits/faults below remain old-decoder ancestry and do not qualify this decoder fault behavior",
+    "previous_completion_latch_selection_ancestry_only": {
+      "current_selection": "exact qualified completion-latch C D over unchanged finite-minimum-v1 public policy and unchanged layout-phase board/search; two explicit native identity classes",
+      "source_lineage": "seven exact runtime fragments consolidate ready/pending/completed into pending latch; seven other native and loader/codec/profile/flags unchanged",
+      "layout_phase": {
+        "proof_final_index_sha256": "b05e3e344983c0bc340c28570b0229c8c5ab3cb1e579ca0e3bf290ac8a51cc83",
+        "proof_source40_set_sha256": "2b729bc31ef732ce8c1dbd38128e66b4ad597c9200f4f83d03910a018e7b89ba",
+        "combined_whole_cost_sha256": "4b0b4f62b4266c8e2e60c1d8b969fe28de0ff0970822c380a5d4156bd0716b83",
+        "normalized_search_contracts_sha256": "e06e27d4c8c42e4db819afe3b8ab702a4fe61f0d9636e102efd05a4ea5ab2539",
+        "independent_board_contracts_sha256": "c123692a26644738f31e0d3710161b44a37aaefb40517b5ec6843a88606110bb",
+        "physical_two_classes_sha256": "dfcebada0c43fee2dba85893385f261bc398b4c4808a90a6d90055ef1c922add",
+        "audit_build_sha256": "8ffc4989e946df66392143b000c590468fdcf486fe06e653d139a8c2b8d5a3ff",
+        "prepromotion_old18_freeze_sha256": "7e7e9c586a629fefef9698ec2364549e589f103f590cb586014edd9769878396",
+        "scope": "prior exact actual core W1DEV1 contracts reused only for unchanged Board/search/HQ source; old physical/audit images are ancestry, not current runtime identity; reduced beta-high dynamic0/unproven"
       },
-      "current_selection": "qualified finite-minimum-v1 D; exact selected runtime/native/whole/audit promoted without optimization",
-      "compose_receipts_scope": "old strong-policy control ancestry only; not current shipping policy or image identity proof",
-      "finite_policy": {
-        "runtime_sha256": "82c62b57e500918827721553d67d9e23073c6cb5ca79dc22cdb8e38ab15f8e63",
-        "native_checkpoint_sha256": "1055c89f0f7bc042d33ad53ccad82fb9ca6a39368e6ed84dfd9e2a82fef24767",
-        "whole_cost_sha256": "53cb8a1fc1e9857d87e11c09bfc1ad0d61255784f427368f5940e0f4ab83a390",
-        "actual_dispatch_tt_arithmetic_sha256": "9d164b571a24181b1c93151e82a0ffe2472d77bb0635849409da7a65caf36756",
-        "own_elf_anonymous_native_physical_sha256": "69eafcbbdb6493eeccd903c903154402922441516d584e786cf378c3b4b12ea7",
-        "source_reuse_sha256": "9ce3fd141892e609e4963c5aff3c5a4f2d499f488da78478b570483ecc9e0250",
-        "ownership_reuse_sha256": "9b5ba3345badc4acbf1002973ad772415af7237411b4660d674560d95fdfcd25",
-        "prepromotion_old18_freeze_sha256": "a1a33d1838124fcf8bf3c6e3a209dc85921ae2bdeb1943e267a3a5797488f8ff",
-        "scope": "prior qualified finite source and images; 60 dispatch commands per form, TT sentinels/arithmetic with synthetic completion separate from actual physical worker proof; reused without rerunning those cases",
-        "prior_DEV_ancestry_only": {
-          "preprocessed_runtime_sha256": "4205a736ef55e70f87128e45a207d8695a1451945265fb6a124682a8ae294d18",
-          "scalar_native_bytes": 12860,
-          "scalar_native_sha256": "0b013e8a55f1708b92af1aa4d08b44520c1ed345934db1ccf767c710b5c582ad",
-          "hq_native_bytes": 13248,
-          "hq_native_sha256": "1bcf5bb9ef4d1bc6f8d0d5e5d947f418db21419f38268207bdacd90bf300832e",
-          "scope": "old finite checkpoint DEV equality only; neither native nor preprocessed hash is a current layout-phase DEV identity"
-        }
+      "previous_finite_selection_ancestry_only": {
+        "compose_summary_sha256": "d98218c08f05a9e39af40016e731aba1d1b02846524a2fb412e45e02868aa0fc",
+        "compose_build_sha256": "86ab399d8a2732a4527db0290e01101c9b783c4f87f608c3c8db8ff23ed7540c",
+        "compose_runtime_image_sha256": "3dd9ef4cdee98201d39d3eb51675a31574e84b849cdc32cbbe9c7b838d6167f8",
+        "compose_common_shipping_sha256": "d224fb32e158bad3fcf997810ad96f6225c9b099c0e80a3bb01627fef0e9687a",
+        "compose_shipping_groups": 10,
+        "compose_oracle_games": 2,
+        "source_lineage": "qualified finite policy over project-owned tiny-protocol D; seven other native and all loader/codec sources unchanged; fixed mapping class/flags/resources retained",
+        "separate_prior_evidence_classes": {
+          "native_board_search_HQ": {
+            "source_identity": "seven non-runtime native files unchanged; runtime complement outside go/main and startup/publication/shutdown source ranges are byte-identical",
+            "algorithms_sha256": "22ecdc467df28a847d0b286c9c3e4e88a09a336c2daa18c390fa7b5e6b2eaef5",
+            "hq_kernel_sha256": "6052fc26d9f491eecc4d13f30b093adfd3cd7c877ab9a68dbdd6273859d192d0",
+            "scope": "prior kernel/search proofs, not newly executed in maintained-entry work"
+          },
+          "protocol_runtime": {
+            "campaign_sha256": "17d7e72ecb66440d84e96dcb2f7051873e2efcb3ee2d31df3c0fab4ecee52275",
+            "qualification_sha256": "1598cbf17fad096f0acd3144017ad27ded2a154a9707bd1e9da6450b7dbd4a59",
+            "scope": "prior raw runtime fault fixture provenance for unchanged source ranges only; old strong stop/newgame/infinite lifecycle is excluded from finite policy qualification"
+          },
+          "loader_fault_and_admission": {
+            "loader_source_sha256": "8a6a9cb93ae484400056852c5bc406be1cc15dc7b8df6b0a57e6d6330a2e4094",
+            "codec_source_sha256": "17165d1cb16eaba8916833741bfa229d196c3ad07ca391c14b94288a3cdc0866",
+            "old_v3_image_and_four_negative_decoder_fixtures_sha256": "cf873ffcc25eefac78e5a4f06b430d836438e4b9c5c0d9f619f3c7733231ada1",
+            "old_v3_admission_sha256": "44c8cb0af8a01ff21d0fb0bf3e72d3a80330505cf1c108b3ea4f71cc21cf4774",
+            "scope": "unchanged loader/codec and fixed mapping class; old native negative fixtures remain separate prior evidence; new finite exact image hashes are separately qualified and explicitly admitted"
+          }
+        },
+        "current_selection": "qualified finite-minimum-v1 D; exact selected runtime/native/whole/audit promoted without optimization",
+        "compose_receipts_scope": "old strong-policy control ancestry only; not current shipping policy or image identity proof",
+        "finite_policy": {
+          "runtime_sha256": "82c62b57e500918827721553d67d9e23073c6cb5ca79dc22cdb8e38ab15f8e63",
+          "native_checkpoint_sha256": "1055c89f0f7bc042d33ad53ccad82fb9ca6a39368e6ed84dfd9e2a82fef24767",
+          "whole_cost_sha256": "53cb8a1fc1e9857d87e11c09bfc1ad0d61255784f427368f5940e0f4ab83a390",
+          "actual_dispatch_tt_arithmetic_sha256": "9d164b571a24181b1c93151e82a0ffe2472d77bb0635849409da7a65caf36756",
+          "own_elf_anonymous_native_physical_sha256": "69eafcbbdb6493eeccd903c903154402922441516d584e786cf378c3b4b12ea7",
+          "source_reuse_sha256": "9ce3fd141892e609e4963c5aff3c5a4f2d499f488da78478b570483ecc9e0250",
+          "ownership_reuse_sha256": "9b5ba3345badc4acbf1002973ad772415af7237411b4660d674560d95fdfcd25",
+          "prepromotion_old18_freeze_sha256": "a1a33d1838124fcf8bf3c6e3a209dc85921ae2bdeb1943e267a3a5797488f8ff",
+          "scope": "prior qualified finite source and images; 60 dispatch commands per form, TT sentinels/arithmetic with synthetic completion separate from actual physical worker proof; reused without rerunning those cases",
+          "prior_DEV_ancestry_only": {
+            "preprocessed_runtime_sha256": "4205a736ef55e70f87128e45a207d8695a1451945265fb6a124682a8ae294d18",
+            "scalar_native_bytes": 12860,
+            "scalar_native_sha256": "0b013e8a55f1708b92af1aa4d08b44520c1ed345934db1ccf767c710b5c582ad",
+            "hq_native_bytes": 13248,
+            "hq_native_sha256": "1bcf5bb9ef4d1bc6f8d0d5e5d947f418db21419f38268207bdacd90bf300832e",
+            "scope": "old finite checkpoint DEV equality only; neither native nor preprocessed hash is a current layout-phase DEV identity"
+          }
+        },
+        "scope": "previous finite source/image ancestry only; its unchanged claims and DEV identities describe that previous selection, not the new header/search pair"
       },
-      "scope": "previous finite source/image ancestry only; its unchanged claims and DEV identities describe that previous selection, not the new header/search pair"
+      "finite_policy_and_unchanged_runtime_ranges": {
+        "prior_runtime_sha256": "82c62b57e500918827721553d67d9e23073c6cb5ca79dc22cdb8e38ab15f8e63",
+        "current_runtime_sha256": "5b20d4e60d60b5edfb4b7b5a15217346098f0bd9ccdd155a7369c90743e81ed1",
+        "dispatch_tt_arithmetic_sha256": "9d164b571a24181b1c93151e82a0ffe2472d77bb0635849409da7a65caf36756",
+        "scope": "ancestry for exact unchanged finite parser/clock/TT-policy source outside seven runtime fragments; prior synthetic completed/ready observers are not current pending-latch observations"
+      },
+      "completion_latch": {
+        "runtime_sha256": "5b20d4e60d60b5edfb4b7b5a15217346098f0bd9ccdd155a7369c90743e81ed1",
+        "native_firstcost_sha256": "e8b23315a1f1a6756ec3b4a909d56de4b42ee01475fa9989b13c9b54c587b468",
+        "whole_firstcost_sha256": "628ea7e3eccae0c20ade39997836a838b03e60ed128dc1eadc8a0119fd556bca",
+        "cost_final_index_sha256": "05b027c5ec0e21da9ab6fdc91c8120984e2cea2e11b993edd5ceed1076748e0e",
+        "cost_source24_set_sha256": "596574b294ad7f2bc8f5459b47d321f0c3dd7cc7d662a2d778030cecceb1ce02",
+        "actual_shipping_publication_sha256": "99320b49fefaa20644a1261bbe82fd29984e6d9d674367b2a6a3643a0c5b28bc",
+        "publication_root_intake_sha256": "901012de7ebd790e8aea3e87ecae0a88c8bff96276fa3761822880df595b1857",
+        "static_complement_sha256": "f44e70893fda1cd16a10d3e6bfa5123a3125cc043329ab535dbbcfc72de54173",
+        "audit_literal_discovery_sha256": "a1244e951366749e0d3efe5220f903954050d6c89dc2d5d73423a8b2389038e0",
+        "prepromotion_old18_freeze_sha256": "e7052e36be4ce643157fc58c1225c0fb764b189fcaedd30e83f4331231ceeaab",
+        "publication_scope": "two exact actual shipping sessions/four GO epochs; real write backpressure pending1/main futex then ordered legal results and same word zero; no target code/memory/register/personality changes",
+        "lifecycle_reuse_scope": "source-only exact complement for partial-clone failure bypass, quitting/epoch, created-only kernel CLEARTID joins, main return and exit_group; no new startup fault execution or explicit stack/TT munmap",
+        "limits": "no new WORKERS2 DEV identity/equality, general race freedom, startup-fault execution, playing-strength/performance/scaling or 4k claim; fresh maintained audit observations are separate from publication"
+      }
     },
-    "finite_policy_and_unchanged_runtime_ranges": {
-      "prior_runtime_sha256": "82c62b57e500918827721553d67d9e23073c6cb5ca79dc22cdb8e38ab15f8e63",
-      "current_runtime_sha256": "5b20d4e60d60b5edfb4b7b5a15217346098f0bd9ccdd155a7369c90743e81ed1",
-      "dispatch_tt_arithmetic_sha256": "9d164b571a24181b1c93151e82a0ffe2472d77bb0635849409da7a65caf36756",
-      "scope": "ancestry for exact unchanged finite parser/clock/TT-policy source outside seven runtime fragments; prior synthetic completed/ready observers are not current pending-latch observations"
-    },
-    "completion_latch": {
-      "runtime_sha256": "5b20d4e60d60b5edfb4b7b5a15217346098f0bd9ccdd155a7369c90743e81ed1",
-      "native_firstcost_sha256": "e8b23315a1f1a6756ec3b4a909d56de4b42ee01475fa9989b13c9b54c587b468",
-      "whole_firstcost_sha256": "628ea7e3eccae0c20ade39997836a838b03e60ed128dc1eadc8a0119fd556bca",
-      "cost_final_index_sha256": "05b027c5ec0e21da9ab6fdc91c8120984e2cea2e11b993edd5ceed1076748e0e",
-      "cost_source24_set_sha256": "596574b294ad7f2bc8f5459b47d321f0c3dd7cc7d662a2d778030cecceb1ce02",
-      "actual_shipping_publication_sha256": "99320b49fefaa20644a1261bbe82fd29984e6d9d674367b2a6a3643a0c5b28bc",
-      "publication_root_intake_sha256": "901012de7ebd790e8aea3e87ecae0a88c8bff96276fa3761822880df595b1857",
-      "static_complement_sha256": "f44e70893fda1cd16a10d3e6bfa5123a3125cc043329ab535dbbcfc72de54173",
-      "audit_literal_discovery_sha256": "a1244e951366749e0d3efe5220f903954050d6c89dc2d5d73423a8b2389038e0",
-      "prepromotion_old18_freeze_sha256": "e7052e36be4ce643157fc58c1225c0fb764b189fcaedd30e83f4331231ceeaab",
-      "publication_scope": "two exact actual shipping sessions/four GO epochs; real write backpressure pending1/main futex then ordered legal results and same word zero; no target code/memory/register/personality changes",
-      "lifecycle_reuse_scope": "source-only exact complement for partial-clone failure bypass, quitting/epoch, created-only kernel CLEARTID joins, main return and exit_group; no new startup fault execution or explicit stack/TT munmap",
-      "limits": "no new WORKERS2 DEV identity/equality, general race freedom, startup-fault execution, playing-strength/performance/scaling or 4k claim; fresh maintained audit observations are separate from publication"
+    "normal_context_identity_discovery_sha256": "393353335e870d9ef6580e82f1231cf71da0fe4d6c7f1c21586fa8b6d8b2a4b0",
+    "audit_scope": "new context CHECKPOINT exact identities observed four times across two closed extractions: restored native RX/hash/padding, initial BSS zero, guards/NX, original entry resume and natural reader/process cleanup; old decoder audits remain ancestry only",
+    "normal_closed_source_qualification": {
+      "producing_source21_set_sha256": "f32b345cdc1f5b031130dcfe8ca52a5778f310a132af772e7d2208e6390be5e0",
+      "producing_recipe_sha256": "76af9740e012235c48d4abd6880ef91c2a49c101a6300d9df5611bcae5dbb341",
+      "producing_source23_archive_sha256": "4a05643884df255f56e16e50da70c10cb9536b3af1ff7b316a7bf30be924e09f",
+      "independent_source_review_sha256": "a8acbd25821eb5552671b4f02a3d4dc2be0720601446b4b5c4e9ee6ce7d8e19d",
+      "fresh_sha256": "3e8ab7c220c5ed26da56dde77fa5b086d4f5f8165518181a10b7676f7611e35b",
+      "actual_readback_sha256": "26ced4a9aa2bdec75f1f16c7018401eec289d0b44b33eda95d59b86c2a098776",
+      "ordinary_members": 23,
+      "independent_extractions": 2,
+      "native_compiler_commands": 8,
+      "shipping_loader_compiler_commands": 8,
+      "audit_loader_compiler_commands": 4,
+      "metadata_commands": 4,
+      "shipping_sessions": 8,
+      "positive_pre_entry_sessions": 4,
+      "scope": "one unchanged fresh invocation, rc0 without retry; actual native/whole/audit repeats plus initial BSS/RX/padding/guards and natural cleanup; no RIE/ptrace/negative/game/strength/benchmark runs",
+      "postproof_metadata": "only README and qualified_receipts_metadata_only recipe fields changed after producing closure; actual producing recipe/source/archive retained separately; not a second fresh run"
     }
   },
   "shipping_protocol": {
@@ -286,5 +321,17 @@
     "own_clock_formula": "unchanged",
     "hard_wall_cap": false,
     "completion_fences": "next go, position, quit, EOF acquire pending==0 after result output"
+  },
+  "context_format": {
+    "hash_bits": 24,
+    "base_probability": 10,
+    "table_bytes": 33554432,
+    "coded_length": "u32 little-endian 8*N+1",
+    "model_count": 21,
+    "models": "loader/models.json",
+    "zero_tail_bytes": 4,
+    "CRC": "software reflected CRC32C raw state, no initial/final XOR",
+    "table_lifetime": "private anonymous kernel-zero RW; checked munmap before inverse BCJ and native entry",
+    "BCJ": "whole native file including header, E8/E9 rel32 modulo 2^32, file offset+5, skip four operand bytes"
   }
 }

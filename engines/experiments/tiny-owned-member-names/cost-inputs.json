@@ -1,0 +1,76 @@
+{
+  "format": 1,
+  "stage": "one bounded F owned-member native+whole cost after frozen FINAL4",
+  "source4_sha256": {
+    ".gitattributes": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9",
+    "inputs.json": "98c38def96bd2b505922b22d26b9dacef30def36cb73d0fd1b63051a34a8afed",
+    "members.py": "dd5b4703fcdc83ea214cb66417a310c73afe327459ef47ff4f5aee1a06f54351",
+    "README.md": "c5b866baaddcfb75d6e7b1bf7333613049dfc93e4230556b9bbd0513e643c0be"
+  },
+  "candidate": {
+    "bytes": 9954,
+    "sha256": "00239e23500d41c45801cdb19c4e7c8cc8b22cf29bebd7e4fbc8fdd1e08c7916"
+  },
+  "helper_sha256": {
+    "engines/compact/tiny-entry-f/build.py": "e66092cc7e3f2f650d4497b2a05f66a06c5fcbdbeeb0162b503f90a0d7d3f9b2",
+    "engines/compact/tiny-entry-f/recipe.json": "9bc1f85ac3e32a65046030d04a592238d2d728cfd71b284c34ffa0be6a0cf75b",
+    "engines/compact/tiny-entry-f/bootstrap.py.in": "84608782831299a6f7b1010dea89501eb10e6e34ee1cdc8f3804d448354cf4c6",
+    "engines/compact/tiny-entry-f/launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
+    "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
+    "engines/experiments/tiny-source-codec/decode.py": "c43303b6524321b24dfba069afc9a135998e408503740ea8d9fbcfb9bb5e9f5a"
+  },
+  "baseline": {
+    "main.c": {
+      "bytes": 10011,
+      "sha256": "4e7a2a76ea753ebc3ccbcb4371ea76810c06b193e45b2f6ca70e66bd79112e9a"
+    },
+    "native/x": {
+      "bytes": 22672,
+      "sha256": "757b9a14cd5174dad55754196cce098fd89018a8b0d7adcf08bcddb2e1fc092b"
+    },
+    "x": {
+      "bytes": 4839,
+      "sha256": "fd77b62b532e4a2272e4c29351cb0ba2ef57c5bab99282177b949e0b8152158a"
+    },
+    "bootstrap.py": {
+      "bytes": 11010,
+      "sha256": "661d404fa9388b07820de6b24ae4a55a8087fd739ab4e8082c04ccf73aa4ee02"
+    },
+    "build.json": {
+      "bytes": 37234,
+      "sha256": "3802290d2aa8beb3ce464b98ccedea93efeda9afbe430528f4792ff8b3e72ea6"
+    }
+  },
+  "compiler": [
+    "cc",
+    "-Os",
+    "-pthread",
+    "-x",
+    "c",
+    "-",
+    "-o",
+    "x",
+    "-s"
+  ],
+  "compression": {
+    "format": "lzma-alone",
+    "filter": "LZMA1",
+    "preset": 9,
+    "extreme": true,
+    "lc": 2,
+    "lp": 0,
+    "pb": 0,
+    "check": "NONE",
+    "mf": "BT4",
+    "dictionary_bytes": 67108864,
+    "nice_len": 32
+  },
+  "native_compile_limit": 1,
+  "baseline_compile_limit": 0,
+  "candidate_compression_limit": 1,
+  "baseline_compressions": 0,
+  "native_metadata_exceptions": false,
+  "engine_limit": 0,
+  "normal_builder_main_limit": 0,
+  "freeze_source4_unchanged": true
+}

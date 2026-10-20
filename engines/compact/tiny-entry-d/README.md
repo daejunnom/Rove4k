@@ -1,240 +1,231 @@
-# Maintained selected C D own-ELF entry
+# Maintained selected C D context own-ELF entry
 
-The readable native program lives in `native/`; its project-owned restoring
-loader, linker and build-time codec live in `loader/`. `recipe.json` fixes
-source hashes, compiler/linker order, resources, the finite shipping policy,
-admitted layouts and exact native/whole/audit identities. Edit readable source
-deliberately; generated native images and payloads do not belong in this folder.
+The readable native program is in `native/`. The project-owned restoring
+loader, independent integer decoder and build-time encoder are in `loader/`.
+`recipe.json` pins their source, compiler/linker order, resources, finite public
+policy, exact native mapping classes and full native/whole/audit identities.
+Generated images, packets and reports belong outside this source folder.
 
-This selection promotes the qualified completion latch over the previous
-7,478/7,718 B layout-plus-phase selection. Seven exact runtime fragments replace
-separate ready/pending/completed counters with one pending latch. The complete
-Board/search/HQ sources, seven other native files, raw clone/futex ABI, loader,
-codec, flags and resources retain their exact bytes. Scalar retains its two-page
-RX class and HQ its three-page class. Each full native identity has its own
-literal entry and mapping class. There is no optimizer, flag/codec/preset sweep,
-generic ELF admission or external engine source. The root MIT license applies.
+This integration replaces the previous fixed-Huffman codec with one fixed
+H24/base10 context format. All eight native files, both linker scripts,
+resources and compiler/linker flags retain their exact bytes. The normal
+producer reads only maintained ordinary source and the installed compiler and
+Python standard library. Upstream source/programs, historical packets, images,
+experiments and report paths are not normal inputs. The root MIT license applies.
 
-| Fixed profile | Native ELF | Complete own-ELF | Complete SHA-256 |
+| Fixed form | Native ELF | Complete own-ELF | Complete SHA-256 |
 | --- | ---: | ---: | --- |
-| Scalar | 8,092 B | **7,457 B** | `08c40aa381953df98aa6d6f893487ff90d9a43854acd552158795ce795afcc70` |
-| HQ | 8,480 B | **7,707 B** | `1178c3e22ac3a2e9db549ddb5246f9b197b7136fa0fc89008577c52468217963` |
+| Scalar | 8,092 B | **6,401 B** | `7e8f405c40ae5a64f3420f23d77a179d4154e5b9bd9e9c67aea1c83a18d238da` |
+| HQ | 8,480 B | **6,614 B** | `be6a45a21895b204550cc0ae7a9a73928d6f4df1313757bad68db4dd97c4f358` |
 
-Both exceed 4,096 bytes by 3,361/3,611 bytes. The actual native files save
-32 B each and complete files save 21/11 B against the preserved layout-phase
-control; native and complete-file savings are measured separately. This folder makes no event
-eligibility, playing-strength, throughput, scaling or cross-toolchain claim.
-The previous 18 sources, source archives and both old native/whole/audit
-controls were preserved externally before this explicit expectation update.
+Both exceed 4,096 bytes by 2,305/2,518 bytes. Native identities and costs remain
+unchanged. The complete files save 1,056/1,093 B against the preserved
+7,457/7,707 B controls; these are measured whole-file differences. This folder
+makes no event eligibility, playing-strength, throughput or scaling claim.
+The old maintained18, archive and all six native/whole/audit controls were
+verified against their external preservation before integration.
 
-## Fixed finite shipping policy
+## Qualified source reproduction
 
-The [TCEC 4k minimum UCI rules](https://wiki.chessdom.org/Rules#TCEC_4k_rules)
-distinguish the required subset, tolerating unsupported controls, and optional
-identification. Shipping implements `uci`, `isready`, startpos move histories,
-clocked `go`, `quit` and EOF with these explicit choices:
+The initial normal-source discovery reproduced both full shipping SHA values
+and measured the two new CHECKPOINT identities without target execution. After
+independent frozen-source review and explicit literal admission, **one unchanged
+fresh invocation completed with two independent closed source extractions**.
+Actual source/archive, repeated native/whole/audit files, eight shipping sessions
+and four positive pre-entry audits passed. All compiler commands and target
+sessions returned zero; no forced cleanup or retry was needed.
 
-- `uci` emits `uciok` without optional id/options.
-- `stop` and `ucinewgame` are consumed without cancellation, waiting or TT clear.
-- `infinite` is consumed as an unsupported token. Every `go` is finite.
-- Without an own-side clock, the budget is 1,000 ms. This is project policy,
-  not a rule-prescribed number. With an own clock, the unchanged clock formula
-  applies; a present zero/invalid own clock uses at least 1 ms. Opposite clock
-  alone uses the default. Checked numbers, overflow, span parsing and
-  missing-value key reprocessing are unchanged.
-- Next `go`, `position`, `quit` and EOF still request cancellation and wait
-  for an acquire observation of `pending==0` after result output. Pending 1
-  reserves result publication and never permits main to reuse job storage.
-  Shutdown retains the kernel-CLEARTID joins and startup pool ownership.
+The producing source21 set is
+`f32b345cdc1f5b031130dcfe8ca52a5778f310a132af772e7d2208e6390be5e0`,
+recipe SHA `76af9740e012235c48d4abd6880ef91c2a49c101a6300d9df5611bcae5dbb341`,
+and ordinary source23 archive SHA
+`4a05643884df255f56e16e50da70c10cb9536b3af1ff7b316a7bf30be924e09f`.
+The actual fresh receipt is
+`3e8ab7c220c5ed26da56dde77fa5b086d4f5f8165518181a10b7676f7611e35b`,
+readback `26ced4a9aa2bdec75f1f16c7018401eec289d0b44b33eda95d59b86c2a098776`,
+and independent source/literal review
+`a8acbd25821eb5552671b4f02a3d4dc2be0720601446b4b5c4e9ee6ce7d8e19d`.
 
-The 1,000 ms value is a search budget, **not a hard wall-time cap**. Deadline
-checks occur every 256 claimed nodes, and fallback preparation, scheduling and
-output add time. Ignoring external stop or retaining TT between games can
-change choices under time limits; unchanged search source does not imply
-identical game results.
+Only this README and recipe qualification metadata were updated after that
+producing closure. The actual producing recipe/source/archive remain separately
+frozen; these final explanatory bytes were not the inputs of a second fresh run.
+Native, loader, encoder/model, scripts, flags and expected identities are exact
+between the producing closure and final metadata snapshot. The normal producer
+has no dependency on frozen experiments or receipts. Old decoder audits remain
+historical ancestry; the new context path has its own actual pre-entry results.
 
-DEV retains its identification, stop/newgame and infinite/depth/nodes/movetime
-source paths, but the shared private completion protocol has changed. Previous
-DEV preprocessed/native identities and prior W1 DEV core contracts are ancestry
-for their exact source scope. They are not current WORKERS=2 DEV binaries,
-new DEV equality or general race qualification. This shipping closure compiles
-only DEV=0; unchanged Board/search proofs remain separately scoped below.
+## Fixed finite shipping policy and native core
 
-## Completion latch and lifecycle evidence
+Shipping implements `uci`, `isready`, startpos move histories, clocked `go`,
+`quit` and EOF. `uci` emits `uciok` without optional identification or options.
+`stop` and `ucinewgame` are consumed without cancellation or TT clear.
+`infinite` is consumed as an unsupported token; every GO is finite. Without an
+own-side clock, its search budget is 1,000 ms. A present zero/invalid own clock
+uses at least 1 ms under the unchanged formula. Opposite clock alone uses the
+default. Checked numbers, overflow and missing-value reprocessing are unchanged.
+These choices follow the project's minimum TCEC 4k policy, not general TCEC UCI.
 
-Before clone, main runtime-stores WORKERS into zero-initialized pending storage.
-Each arrival release-decrements it, and successful startup waits for zero.
-This startup wait privately sets stopped to 1; epoch remains zero until GO.
-GO stores WORKERS+1 before epoch release. Each finished worker acq_rel-decrements
-once, and old value 2 selects the final worker. Pending 1 reserves the unchanged
-`result()` body; only its completed output is followed by release-store zero.
-Main's acquire-zero wait gates position replacement, re-GO and normal shutdown.
-Late wakes trigger condition rechecks after all prior decrements have finished.
+The default is a search budget, **not a hard wall-time cap**. Periodic deadline
+checks, fallback preparation, scheduling and output add time. Next `go`,
+`position`, `quit` and EOF still request cancellation and acquire `pending==0`
+after result output before reusing job storage. Pending 1 reserves publication.
+Ignoring stop and retaining TT can affect choices under time limits even when
+search source is unchanged.
 
-The exact source complement keeps clone failure before startup wait, created-only
-kernel-cleared TID joins, quitting and epoch publication unchanged. Failure after
-zero or one successful clone bypasses the incomplete arrival barrier. There is
-no explicit stack munmap or TT free: main joins created TIDs, returns, and
-`start.S` calls exit_group to release process mappings. Static complement receipt
-SHA is `f44e70893fda1cd16a10d3e6bfa5123a3125cc043329ab535dbbcfc72de54173`.
-Prior raw-runtime fault evidence is ancestry for those exact unchanged premises,
-not newly executed startup-failure or CLEARTID branch coverage.
+Resources are fixed at WORKERS=2, TT_BITS=18, PLY=128 and DEV=0. Two search
+workers and the input thread persist from startup. Board legality, legal EP,
+all promotions and castles, repetition/halfmove context, incremental HCE,
+PVS/QS, history/continuation/correction and full-key coherent TT remain exact.
+HQ is an actual search backend. No core feature or legality boundary is removed.
+DEV source paths remain present but this closure builds DEV=0 only; it does
+not establish a new DEV identity, equality or general race qualification.
 
-The exact scalar/HQ shipping images have a separate actual publication proof,
-receipt `99320b49fefaa20644a1261bbe82fd29984e6d9d674367b2a6a3643a0c5b28bc`.
-Two sessions and four GO epochs use real stdout backpressure: a worker blocks
-in result write while main is in private futex wait and the current pending
-word is 1. Its syscall expected argument may still be 3 and is kept separate
-from the current word. Ordered independently legal results, the same word zero,
-persistent startup TIDs and natural quit with output EOF settlement are observed. Target
-code, memory, registers and kernel personality are unmodified. This is not
-general race freedom, a new startup fault suite, strength or performance proof.
-The ordinary source archives and newly bound pre-entry audits below qualify
-reproduction and routine physical checks separately.
+Before clone, main runtime-stores WORKERS into zero-initialized pending. Worker
+arrivals release-decrement it; successful startup waits for zero. GO stores
+WORKERS+1 before epoch release. Each finished worker acq_rel-decrements once;
+old==2 selects the final worker. It writes the result while pending is 1, then
+release-stores zero. Main's acquire-zero condition gates replacement and normal
+shutdown. The exact runtime complement retains epoch/quitting, partial-clone
+failure bypass before the startup wait and created-only kernel CLEARTID joins.
+Main returns after joins and start.S calls exit_group; there is no explicit
+stack/TT munmap claim. These unchanged source contracts retain their separately
+scoped ancestry, not a new startup-fault or universal concurrency proof.
 
-## Source-only fixed build
+## Fixed context format and restore boundary
 
-On the qualified Linux x86-64 environment, including WSL Ubuntu:
+`loader/codec.py` is the independent encoder, with its exact sibling
+`range_bits.py` and `models.json`. The builder validates and copies every
+loader source/model hash before importing the codec and its helper. Each
+fixed scalar/HQ model has 21 ordered masks/weights. There is no model search,
+training, alternative codec or external build dependency. The encoder applies
+whole-file E8/E9 BCJ internally, including the ELF header, using file offset+5
+and modulo-2^32 operands; callers do not apply a second BCJ.
 
-```sh
-python3 -B engines/compact/tiny-entry-d/build.py --out /absolute/new/external-build
-```
+The packet contains a little-endian u32 coded length `8*N+1`, a u32 weightmask,
+21 mask bytes, integer arithmetic-coded body and **four actual zero tail
+bytes**. H24 selects a 32 MiB pair-counter table; base probability is 10.
+Software reflected CRC32C uses raw state without initial/final XOR. Local byte
+history, prefix, ordered alias updates and unsigned-byte wrap match the decoder.
+The fixed u32 length supports both native inputs; it does not inherit the
+reference loader's 16-bit HQ length limitation.
 
-The only option is a new absolute external output directory. The builder
-reads this folder's ordinary source and recipe plus the installed compiler
-and Python standard libraries. It never opens historical reports, experiments,
-generated images, dependency trees or network resources. Receipt hashes in
-the recipe are provenance metadata only. No executable/payload is tracked here.
+| Form | Packet | Header | Arithmetic body | Real zero tail | Other whole bytes |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Scalar | 5,034 B | 29 B | 5,001 B | 4 B | 1,367 B |
+| HQ | 5,247 B | 29 B | 5,214 B | 4 B | 1,367 B |
 
-Workers are fixed at 2, TT_BITS at 18, PLY at 128 and DEV at 0. Both search
-workers and the input thread exist at startup. Board legality, legal EP, all
-promotions/castles, repetition/halfmove state, incremental HCE, PVS/QS, learning,
-ordered TT context and full-key coherent TT are preserved. HQ remains an
-actual search backend. The build and verifier independently require the exact
-`shipping_protocol` declaration; that metadata check is not a new runtime test
-of default-budget or ignored-command behavior.
+The complete file includes actual ELF/PHDR headers, entry, decoder, inverse
+BCJ and packet. Its 1,367 nonpacket bytes are measured, not an old-loader
+estimate. There is no libc, external decoder, compiler, interpreter or helper
+at engine runtime. Encoder build-time RAM is distinct from engine TT resources.
 
-GCC `-Oz -flto`, static/raw syscall flags, five-unit order, native linker script
-and section-header stripping remain fixed. Source/output paths are the only
-substituted command arguments. Native identities are explicit literals:
+The loader first rejects READ_IMPLIES_EXEC and reserves the exact guard range
+with MAP_FIXED_NOREPLACE. Native output pages become RW for bounded decode.
+A separate kernel-zero anonymous 32 MiB RW context table lives only through
+decode; checked munmap precedes inverse BCJ and native entry. The native pages
+then become RX and separate untouched BSS pages RW. No RWX mapping is requested.
+`decoder.h` is independently written project source; upstream code is not vendored.
 
-```text
-scalar 59829299f667cdb6682c5ed4a955fb50b76a5584209caf9e4bddf1c0ee2cd160
-HQ     f1d6558ec5a13e400c2d6df182b01b3236bf1ee1e99f686e47f144a32d222c5c
-```
-
-The loader retains E8/E9 BCJ plus one-final-fixed-Huffman Deflate. Payloads are
-6,342/6,592 B; headers/decoder/inverse filter/ABI configuration add exactly
-1,115 B. The full sizes above include everything. `loader/codec.py` is the
-unchanged original build-time codec, selecting only `fixed_compress`; its
-unused alternatives are not searched. Zlib is build-time only. Running the
-full file requires no libc, external decoder, compiler, interpreter or helper.
-
-The admitted classes are exact per form and native hash, not a general range:
-
-| Form | Entry | RX at `0x400000` | BSS | Upper guard | Reservation |
+| Form | Native entry | RX at `0x400000` | BSS | Upper guard | Reservation |
 | --- | --- | --- | --- | --- | --- |
 | Scalar | `0x401e28` | 2 pages | `0x402000` | `0x42d000` | `0x2f000` |
 | HQ | `0x401f5a` | 3 pages | `0x403000` | `0x42e000` | `0x30000` |
 
-Both have BSS 175,092 B within 43 pages, lower guard `0x3ff000`, non-executable
-stacks and loader at `0x10000000`. The packer requires the full literal ELF
-header/segments plus identity, form, entry and class; the verifier independently
-requires each full literal layout. Historical production guards in frozen
-experiment inputs remain unchanged and reject these identities; the separate
-cost-only exact adapter is not a general admission. READ_IMPLIES_EXEC rejection,
-MAP_FIXED_NOREPLACE reservation, checked decode and RW-to-RX restoration bodies
-remain unchanged. There is no old-image fallback or generic page-count admission.
+Both have 175,092 B BSS within 43 pages, lower guard `0x3ff000`, NX stack and
+outer loader at `0x10000000`. `packer.admit` retains the exact per-form native
+SHA, header/PHDR, entry and geometry literals. This is no general two/three-page
+or unknown-image permission. Historical experiment guards remain unchanged.
 
-Every build compiles each native twice, independently encodes/compiles each
-whole twice, and builds a separate CHECKPOINT audit once per form. Exact
-native, whole, payload, overhead and audit identities must match the recipe;
-roundtrip alone is not acceptance. Audits are 7,480/7,730 B, never production
-entry sizes. Failures save an incomplete report and clean owned commands.
+The audit's only conditional branch is immediately before `enter`, after
+successful context-table unmap, inverse BCJ and final RX/BSS protection. It
+sends self SIGSTOP before native initialization or worker creation. CHECKPOINT=0
+removes the branch entirely and must reproduce both selected full shipping SHAs.
+CHECKPOINT=1 is a separately pinned image, not a production entry size. The fresh
+positive observer read restored RX/padding and initial zero BSS, then resumed
+original entry. The separate earlier production receipt does not prove that
+initial state; the four new positive audits do.
 
-The qualified producing environment remains GCC 13.3.0, GNU binutils 2.42,
-Python 3.12.3, zlib 1.3 and x86-64 WSL Ubuntu. Actual versions are recorded;
-other versions must reproduce the fixed bytes to pass. CRLF inputs are
-explicitly normalized to LF and lone CR is rejected. `.gitattributes` keeps
-these maintained sources LF.
+| New audit form | Complete bytes | Full SHA-256 |
+| --- | ---: | --- |
+| Scalar CHECKPOINT=1 | 6,424 B | `07f0a624c85bec6a716cf40a738d6a455c555d6ea230528a4c531ae9d084b59f` |
+| HQ CHECKPOINT=1 | 6,637 B | `854595138f823be31da5d189161ed7e7e802ee8f5dc836c7c534949f9dea3a6f` |
 
-## Closed archive and narrow physical proof
+Discovery performed two independent own encodes and four loader compiler
+commands: two shipping images plus two audits, each once. Both shipping full
+SHA values remained unchanged. Audits contain 176 B ELF/PHDR headers, 1,214 B
+text and the same exact 5,034/5,247 B packets, without other allocated data or
+padding. Each has one RX segment at `0x10000000`, entry `0x100000b0`, matching
+file/memory size and a separate NX-stack header. The discovery stage itself had
+zero target executions; the subsequent fresh invocation and four positive
+audits are separately bound above. The discovery receipt is `393353335e870d9ef6580e82f1231cf71da0fe4d6c7f1c21586fa8b6d8b2a4b0`.
+
+## Normal source producer and closed verification
+
+On qualified Linux x86-64, including WSL Ubuntu:
 
 ```sh
+python3 -B engines/compact/tiny-entry-d/build.py --out /absolute/new/external-build
 python3 -B engines/compact/tiny-entry-d/fresh.py --out /absolute/new/source-proof
 python3 -B engines/compact/tiny-entry-d/verify.py \
-  --build /absolute/new/external-build/build.json \
-  --out /absolute/new/physical-proof
+  --build /absolute/new/external-build/build.json --out /absolute/new/physical-proof
 ```
 
-`fresh.py` enumerates exactly 20 ordinary source members: this folder's 18,
-root LICENSE and tracked `engines/tests/chess_oracle.py`. It hashes and checks
-the archive member set, rejects links/unsafe paths, and creates two separate
-closed extractions without Git/generated files. Each starts its own isolated
-Python interpreter, local builder and local verifier. Actual repeated native,
-whole and audit bytes must match across extractions. The total is eight native
-builds, eight whole builds, four audits, eight production sessions and four
-pre-entry checkpoints. No immutable finite experiment or frozen helper is an
-execution dependency. The oracle is needed only by verification.
+Only the new external output directory is configurable for the build. Native
+GCC -Oz/-flto flags, five-unit order, linkers and section-metadata stripping
+are fixed. Qualified tools are GCC 13.3.0, binutils 2.42 and Python 3.12.3;
+actual versions are recorded and any environment must reproduce the literal
+bytes. CRLF input is explicitly normalized to LF and lone CR rejected.
+`.gitattributes` retains LF. No zlib or third-party Python package is required.
 
-The maintained verifier preserves the established narrow case scale: three
-clocked searches per session with actual active quit or EOF for both forms.
-It pins native/whole/audit/entry independently and checks `/proc/PID/exe` as
-the **whole own-ELF**, restored anonymous RX as the **native**, pre-entry zero
-BSS/padding, guards/W^X/non-executable stacks, persistent three startup TIDs,
-stdio-only/no children, oracle legality and complete output/reader/process
-settlement. It also rejects optional shipping id/options. This new source
-closure run does not repeat the finite dispatch/TT-sentinel/arithmetic cases.
+Each build compiles each native twice, encodes and compiles each shipping whole
+twice, and compiles one separate audit per form. Full native, packet, whole,
+nonpacket and audit identities must match literal recipe values. Fresh enumerates
+**21 local sources plus oracle/LICENSE: 23 ordinary archive members**. It checks
+raw/normalized hashes, member set and safe regular paths, then uses two closed
+extractions with separate isolated Python processes. Actual native/whole/audit
+bytes matched across extractions. Actual full fresh cost was eight native
+builds, eight shipping loader builds, four audit loader builds, four compiler
+metadata commands, eight production sessions and four pre-entry audits.
+Failures preserve incomplete reports and clean only owned process groups.
 
-The selected header/search are exactly the qualified combined pair:
-`e19749eb3315253e04171b89b8188df7e0db6b39ec4eb495187a6e158836823f` and
+The unchanged physical observer distinguishes `/proc/PID/exe` as complete own
+ELF from the restored anonymous native RX. It checks full RX/hash/padding,
+guards/NX/W^X, exact native/layout, startup TIDs, stdio/no children, independently
+legal clocked results and output/reader/process settlement. Its separate
+CHECKPOINT consumer requires initial BSS/padding zero. The metadata policy check
+does not rerun ignored-control/default-budget arithmetic, games or performance.
+No RIE/ptrace mutations or negative decoder fixtures are part of this integration.
+
+## Evidence boundaries
+
+The context first-cost index SHA is
+`199e5df9b91cce82ae81f19ab0fa4726bfe92bb5c8525e2c11177974cb44aa49`.
+Its separate production runtime index is
+`d2e7d4802ffbbca2d9f3f49bdcd8da3732732bce4b733c6492b3f9393d38b269`,
+actual report `dad61bc39bc3ee777fcbef79081a78a786f7fdeb8e27990c3cd510ccd1d3bc82`.
+Four exact whole sessions (scalar/HQ x quit/EOF), twelve legal results, native
+RX/permissions/guard observations, persistent three TIDs and natural cleanup
+passed. At eight local snapshots no extra writable interval of at least 32 MiB
+was observed; that is not a causal context-address/unmap observation. No initial
+BSS, CHECKPOINT, new startup fault or RIE/ptrace result is claimed by that report.
+
+Independent encoder summary SHA is
+`22b968d719c56e7cb92da79a178263f627c0fed866567d276631dc27b666d4b8`.
+It produced both exact packets from the native inputs and the independent C
+diagnostic restored exact BCJ bytes with canary/protection/lifetime checks.
+That bounded decoder diagnostic is separate from full own-ELF runtime proof.
+
+The unchanged Board/search pair remains
+`e19749eb3315253e04171b89b8188df7e0db6b39ec4eb495187a6e158836823f` /
 `48e0f21fee8091f1e5c5d08d606740f6ff8c56778a550af2bcfc282d655d974c`.
-The immutable proof40 index SHA is
-`b05e3e344983c0bc340c28570b0229c8c5ab3cb1e579ca0e3bf290ac8a51cc83`.
-Its four single-worker DEV search subjects retain the exact 20-case body and
-compare normalized named Board/mailbox fields, full Worker/TT/game storage and
-actual eight-argument call/counter traces. All 80 trace/state pairs match;
-observed reduced/full-null/wide retries are 128/20/47 per subject. The reduced
-score-at-or-above-beta path has actual count 0 and stays dynamically unproven;
-exact expression reasoning remains separate. Search receipt SHA is
-`e06e27d4c8c42e4db819afe3b8ab702a4fe61f0d9636e102efd05a4ea5ab2539`.
+Their normalized search and independent board receipts remain
+`e06e27d4c8c42e4db819afe3b8ab702a4fe61f0d9636e102efd05a4ea5ab2539` /
+`c123692a26644738f31e0d3710161b44a37aaefb40517b5ec6843a88606110bb`.
+They are exact-source ancestry, not newly executed here. Prior completion-latch
+publication, finite arithmetic and runtime complements are likewise separately
+scoped under recipe metadata. **Old fixed-Huffman audit/decoder-fault receipts
+remain old-decoder ancestry and do not qualify this context decoder.** No broad
+fault, game, strength, scaling or universal race claim is added.
 
-The independent Board contract checks four subjects, 24 cases and 3,051 nodes
-each. Named fields, all 128 mailbox cells, legal sets, all-square attacks and
-full HCE/hash/context match the independent oracle; special transitions and
-poison initialization/reinitialization pass. Generator order matches across
-the four actual subjects. Fixed perft depth-2 leaves are 400/2,039/191.
-Its receipt SHA is `c123692a26644738f31e0d3710161b44a37aaefb40517b5ec6843a88606110bb`.
-Neither contract compares raw Board padding across layouts. The separate exact
-selected whole proof observes both per-form mappings, four shipping sessions
-and two pre-entry checkpoints, receipt
-`dfcebada0c43fee2dba85893385f261bc398b4c4808a90a6d90055ef1c922add`.
-The Board/search contract receipts are reused by exact unchanged core inputs;
-that previous physical/audit pair is old-image ancestry, not current latch
-image evidence. New publication and maintained routine physical observations
-are separate. No broad game/fault/benchmark rerun is hidden in this promotion.
-
-The completed finite qualification remains separate provenance: its native
-checkpoint SHA is `1055c89f0f7bc042d33ad53ccad82fb9ca6a39368e6ed84dfd9e2a82fef24767`,
-whole cost `53cb8a1fc1e9857d87e11c09bfc1ad0d61255784f427368f5940e0f4ab83a390`,
-actual-dispatch TT/arithmetic `9d164b571a24181b1c93151e82a0ffe2472d77bb0635849409da7a65caf36756`,
-and physical own-ELF/native `69eafcbbdb6493eeccd903c903154402922441516d584e786cf378c3b4b12ea7`.
-The first proof exercises 60 commands, 38 exact clock cases and 14 ignored-state
-comparisons per form with explicitly synthetic completion. The second is
-actual worker/image/completion evidence. They are not relabeled as fresh runs.
-
-Broader kernel/runtime-fault and decoder-fault evidence is reused only for
-unchanged bodies; old three-page fault fixtures do not establish a new general
-two-page admission claim. Exact new scalar/HQ positive mapping observations
-are separately bound above. Old compose/finite images and old DEV hashes are
-ancestry controls, not current image identities. The
-previous strong stop/newgame/infinite lifecycle is excluded: the shared
-`engines/tests/verify.py` strong stop group expects prompt external stop and
-does not qualify this consume-only shipping profile. That shared test has not
-been weakened or claimed as passed here. All provenance hashes are retained
-as metadata without opening old evidence at build/runtime.
-
-All generated files, archives, extractions, logs, transcripts, failure history
-and final receipts remain outside Git. The final external index binds the 18
-current raw source hashes and actual changed files to the closed archive and
-terminal proof receipts. Historical experiments and other families are untouched.
+All generated files, archives, packets, transcripts and receipts stay outside
+Git. Only the 21 maintained source/data files form this local source closure.

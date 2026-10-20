@@ -1,12 +1,13 @@
-/* Dedicated Linux x86-64 restore for the two build-time-admitted TinyD images.
- * No interpreter, libc, TLS, file creation, ELF parser or external program.
- * Runtime code is original to this experiment, except the internal LZ run
- * format/inverse follows our repository's existing generic own-ELF loader.
+/* Project-owned context unpack plus the existing TinyD guarded restore.
+ * No upstream decoder source, interpreter, libc, TLS or external program.
+ * The software context decoder is independently written from its format.
  */
 typedef unsigned long usize;
 typedef unsigned int u32;
 extern const unsigned char payload[], payload_end[];
 extern void enter(usize *, usize) __attribute__((noreturn));
+#include "decoder.h"
+#define CONTEXT_BYTES 33554432UL
 
 static long sys(long number, long a, long b, long c, long d, long e, long f) {
     register long r10 __asm__("r10") = d;
@@ -24,106 +25,21 @@ __attribute__((noreturn)) static void bad(void) {
     __builtin_unreachable();
 }
 
-#if CODEC_FIXED
-typedef struct {
-    const unsigned char *next, *end;
-    u32 bits, count;
-} Bits;
-
-static unsigned bits(Bits *r, unsigned count) {
-    while (r->count < count) {
-        if (r->next == r->end) bad();
-        r->bits |= (u32)*r->next++ << r->count;
-        r->count += 8;
-    }
-    unsigned result = r->bits & ((1u << count)-1);
-    r->bits >>= count;
-    r->count -= count;
-    return result;
-}
-
-static unsigned symbol(Bits *r) {
-    unsigned code = 0;
-    for (unsigned i = 0; i < 7; i++) code = 2*code + bits(r, 1);
-    if (code < 24) return code + 256;
-    code = 2*code + bits(r, 1);
-    if (code < 192) return code - 48;
-    if (code < 200) return code + 88;
-    code = 2*code + bits(r, 1);
-    return code - 256;
-}
-
-static void unpack(unsigned char *out) {
-    Bits r = {payload, payload_end, 0, 0};
-    /* One final fixed-Huffman RFC1951 block; the producer rejects any other
-       shape rather than embedding unused stored/dynamic-block machinery. */
-    if (bits(&r, 3) != 3) bad();
-    usize n = 0;
-    for (;;) {
-        unsigned code = symbol(&r);
-        if (code < 256) {
-            if (n == IMAGE_SIZE) bad();
-            out[n++] = code;
-            continue;
-        }
-        if (code == 256) break;
-        if (code > 285) bad();
-        unsigned count;
-        if (code < 265) count = code - 254;
-        else if (code == 285) count = 258;
-        else {
-            unsigned extra = (code-261)/4;
-            count = ((4 + ((code-265)&3)) << extra) + 3 + bits(&r, extra);
-        }
-        unsigned distance = 0;
-        for (unsigned i = 0; i < 5; i++) distance = 2*distance + bits(&r, 1);
-        if (distance > 29) bad();
-        if (distance < 4) distance++;
-        else {
-            unsigned extra = distance/2 - 1;
-            distance = ((2 + (distance&1)) << extra) + 1 + bits(&r, extra);
-        }
-        if (distance > n || count > IMAGE_SIZE-n) bad();
-        do { out[n] = out[n-distance]; n++; } while (--count);
-    }
-    if (n != IMAGE_SIZE || r.next != r.end || r.bits) bad();
-}
-#else
-static void unpack(unsigned char *out) {
-    const unsigned char *p = payload;
-    usize n = 0;
-    while (p != payload_end) {
-        unsigned count = *p++;
-        if (count < 128) {
-            count++;
-            if ((usize)(payload_end-p) < count || count > IMAGE_SIZE-n) bad();
-            do { out[n++] = *p++; } while (--count);
-        } else {
-            count = (count&127)+3;
-            if (payload_end-p < 2 || count > IMAGE_SIZE-n) bad();
-            unsigned distance = (unsigned)p[0] | (unsigned)p[1] << 8;
-            p += 2;
-            if (!distance || distance > n) bad();
-            do { out[n] = out[n-distance]; n++; } while (--count);
-        }
-    }
-    if (n != IMAGE_SIZE) bad();
-}
-#endif
-
 __attribute__((used, noreturn)) void restore(usize *stack) {
-    /* An inherited READ_IMPLIES_EXEC personality can implicitly turn RW into
-       executable memory. Reject it before allocating any writable image. */
+    /* Preserve the qualified restore's personality and mapping boundary. */
     long personality = sys(135, 0xffffffffUL, 0, 0, 0, 0, 0);
     if (personality < 0 || (personality&0x400000)) bad();
-    /* MAP_FIXED_NOREPLACE must reserve this exact previously-unmapped range.
-       MAP_FIXED is deliberately never used: no existing mapping is replaced.
-       The first and last pages remain inaccessible throughout execution. */
     long mapped = sys(9, GUARD_BASE, RESERVE_SIZE, 0, 0x100022, -1, 0);
     if ((usize)mapped != GUARD_BASE) bad();
     if (sys(10, IMAGE_BASE, IMAGE_PAGES, 3, 0, 0, 0)) bad();
     unsigned char *out = (unsigned char *)IMAGE_BASE;
-    unpack(out);
+    /* The fixed H24 table is private, writable and initially kernel-zero.
+       It is separate from both RX images and released before native entry. */
+    long context = sys(9, 0, CONTEXT_BYTES, 3, 0x22, -1, 0);
+    if (!context || (usize)context >= (usize)-4095) bad();
+    if (context_decode(out, IMAGE_SIZE, payload, payload_end,
+                       (unsigned char *)context)) bad();
+    if (sys(11, context, CONTEXT_BYTES, 0, 0, 0, 0)) bad();
     for (usize i = 0; i+4 < IMAGE_SIZE;) {
         if ((out[i]&254) == 232) {
             u32 value = (u32)out[i+1] | (u32)out[i+2] << 8 |
@@ -134,13 +50,12 @@ __attribute__((used, noreturn)) void restore(usize *stack) {
             i += 5;
         } else i++;
     }
-    /* RW -> RX, never RWX. BSS consists solely of untouched anonymous zero
-       pages; its page-aligned start is separate from every executable page. */
+    /* RW -> RX, never RWX; only separate anonymous BSS becomes RW. */
     if (sys(10, IMAGE_BASE, IMAGE_PAGES, 5, 0, 0, 0) ||
         sys(10, BSS_BASE, BSS_PAGES, 3, 0, 0, 0)) bad();
 #if CHECKPOINT
-    /* Audit builds stop at this exact pre-entry memory state for a parent
-       /proc reader. Production candidates compile this entire branch out. */
+    /* Audit only: context is unmapped, RX/BSS protections are final, and
+       native entry has not initialized BSS or created workers. */
     sys(62, sys(39, 0, 0, 0, 0, 0, 0), 19, 0, 0, 0, 0);
 #endif
     enter(stack, IMAGE_ENTRY);

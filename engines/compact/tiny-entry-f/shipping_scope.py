@@ -82,3 +82,50 @@ def transform_source(data):
                    'source_saved_bytes':466,'exact_inverse':True,
                    'policy':'automatic names unique within functions, reused between functions',
                    'runtime_name_resolution':False,'AST_tool_required_by_normal_build':False}
+
+
+# Independent exact member stage; the preceding automatic map stays unchanged.
+MEMBER_INPUT_SHA256 = '4e7a2a76ea753ebc3ccbcb4371ea76810c06b193e45b2f6ca70e66bd79112e9a'
+MEMBER_OUTPUT_SHA256 = '00239e23500d41c45801cdb19c4e7c8cc8b22cf29bebd7e4fbc8fdd1e08c7916'
+MEMBER_AST_PROOF_SHA256 = 'cf87b30109b2ce58fe461f3c4ed22e42b67851dc52f5e132b9f733e9f6c37317'
+MEMBER_INPUT_POLICY_SHA256 = '98c38def96bd2b505922b22d26b9dacef30def36cb73d0fd1b63051a34a8afed'
+MEMBER_DECLARATIONS = (('za', 16, 'zB', 'a', (336, 2379, 2409, 2492, 2685, 4757, 4786, 5084)),
+ ('zb', 23, 'zF', 'a', (547, 4045, 4068, 7953)),
+ ('zb', 24, 'zt', 'b', (550, 4053, 4077, 7962)),
+ ('zc', 27, 'id', 'a', (576, 4627, 9387)),
+ ('zc', 28, 'zu', 'b', (579, 6127, 6531, 7329, 7335)),
+ ('zc', 29, 'z8', 'c', (582, 6135, 6244, 6523)),
+ ('zc', 30, 'zf', 'd', (590, 6143, 6258, 6514, 7355, 7361)),
+ ('zc', 31, 'zU', 'e', (602, 4235, 4289, 6119)),
+ ('zc', 32, 'zG', 'f', (605, 4834, 5691, 6167)),
+ ('zc', 33, 'zK', 'g', (625, 4778, 4813, 5697, 5740, 6151)),
+ ('zc', 34, 'zC', 'h', (636, 4578, 5867)),
+ ('zc', 35, 'zp', 'i', (649, 4590, 5886)),
+ ('zc', 36, 'zq', 'j', (660, 4547, 6675)))
+
+
+def transform_members(data):
+    if type(data) is not bytes or len(data)!=10011 or hashlib.sha256(data).hexdigest()!=MEMBER_INPUT_SHA256:
+        raise ValueError('exact F post-scope source required for bound member map')
+    edits=sorted((position,old.encode(),new.encode())
+                 for owner,ordinal,old,new,positions in MEMBER_DECLARATIONS for position in positions)
+    if len(MEMBER_DECLARATIONS)!=13 or len(edits)!=57:
+        raise ValueError('exact thirteen-field/fifty-seven-position member map required')
+    pieces=[];offset=0;inverse=[];produced=0
+    for position,old,new in edits:
+        if position<offset or data[position:position+len(old)]!=old:
+            raise ValueError('overlap or stale declaration-bound member occurrence')
+        gap=data[offset:position];pieces.extend((gap,new));produced+=len(gap)
+        inverse.append((produced,produced+len(new),old));produced+=len(new)
+        offset=position+len(old)
+    pieces.append(data[offset:]);result=b''.join(pieces)
+    if len(result)!=9954 or hashlib.sha256(result).hexdigest()!=MEMBER_OUTPUT_SHA256:
+        raise ValueError('member output differs from exact qualified source')
+    restored=bytearray(result)
+    for start,end,old in reversed(inverse):restored[start:end]=old
+    if bytes(restored)!=data:raise ValueError('member-map inverse changed input')
+    return result,{'input_sha256':MEMBER_INPUT_SHA256,'output_sha256':MEMBER_OUTPUT_SHA256,
+                   'AST_proof_sha256':MEMBER_AST_PROOF_SHA256,'input_policy_sha256':MEMBER_INPUT_POLICY_SHA256,
+                   'owned_fields':13,'physical_edits':57,'source_saved_bytes':57,'exact_inverse':True,
+                   'protected_atomic_member':'zb.zN','runtime_name_resolution':False,
+                   'AST_tool_required_by_normal_build':False}
