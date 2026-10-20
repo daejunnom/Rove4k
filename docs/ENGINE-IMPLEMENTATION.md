@@ -75,6 +75,11 @@ its [exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39365629437
 and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39365629402).
 The C job actually regenerates and runs the promoted B5955/C5723/E5679 entries.
 The independent packed-Rust checkpoint is source-only in this CI claim.
+The source-composition checkpoint `418435c` passes both language jobs in its
+[exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39367412574)
+and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39367412571).
+Its B target/alpha, D metadata layout and Rust constructor experiments retain
+their separate local proof scopes; these are not additional CI executions.
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
@@ -95,7 +100,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | C | 5,723 B | 1,627 B | Real AVX2 evaluation, cache removal and fixed private spelling |
 | D scalar / HQ | 7,540 / 7,800 B | 3,444 / 3,704 B | Own ELF restoration with finite minimum shipping protocol |
 | E | 5,679 B | 1,583 B | All 21 untrained coefficients in evaluation/ordering; fixed spelling |
-| F | 5,407 B | 1,311 B | Full-depth MTD(f) with beta-only integer unit-window search |
+| F | 5,179 B | 1,083 B | Full-depth MTD(f), beta-only search and fixed private spelling |
 
 The separate Rust D native images are 16,816 bytes each. Their independent
 packed experiment retains its own qualification state and does not silently
@@ -1632,8 +1637,9 @@ the unchanged canonical-EP body explains the remaining allocation effect.
 Separate ordinary-runtime std units compare all ten Board fields and 151
 elements between original/candidate and check Copy/fresh-start independence.
 Both HQ and scalar pass two tests each. These diagnostics do not compile the
-raw runtime or search. The new production ELFs have not been executed; a future
-packed cost is still a separate measurement. Twenty-four ordinary LF sources
+raw runtime or search. At this constructor-only checkpoint the new production
+ELFs have not been executed; the later packed cost and observation are recorded
+separately below. Twenty-four ordinary LF sources
 retain the control and constructor producer without a live-maintained dependency.
 Final aggregate SHA is
 `689a3d5b662bd6d8163fbce5ec882a31dfb6a980d596aa44212e5b5b98b53db5`;
@@ -1707,3 +1713,135 @@ whole-cost receipt is
 The separately measured retry-phase/layout combination changes the scalar RX
 page class and remains under its own explicit admission and qualification work.
 Its gains are not added to these individual measurements.
+
+## Fixed A/F private spelling and maintained F promotion
+
+The [A/F spelling experiment](../engines/experiments/tiny-alpha-af/README.md)
+applies one fixed role-audited map of 73 private type/member/local names.
+Functions, global/static objects, external APIs, macros and opaque bytes stay
+protected. No name, compiler or codec sweep is performed. For F, compact source
+falls 12,722 to 11,216 B and the actual whole file falls **5,407 to 5,179 B**.
+Both independent builds reproduce the exact original 22,664-byte native ELF,
+including build ID and nonallocated bytes. Full raw preprocessor alias-only
+inverse and final macro-dump equality pass. Two actual selected-file quit/EOF
+sessions pass exact restored image, fixed startup TIDs, legal clock/bare results,
+active closing output and physical settlement.
+
+The original A attempt has a different outcome: replacing PLY with its equal
+128 literal changes whitespace in the raw expanded expression. Its strict full
+preprocessor inverse fails before candidate compilation, codec or engine
+execution. That failure remains recorded; F's success does not admit A. An
+initial diagnostic incorrectly expected configured resources in the compiler's
+final macro dump. The corrected gate compares actual final dumps exactly and
+keeps the original configured 2/18/128 probe separate; it does not normalize
+whitespace or numbers to admit the failed A candidate.
+
+Forty-two ordinary sources freeze both outcomes. Final experiment index SHA is
+`6a955eae59e558c67ca4902ef1e75f18ee3d13a8372ef039105ff9887688e837`.
+The two F engine sessions used the preserved original outer adapter. Its later
+ownership repair was checked with stub children only, so those sessions are
+not attributed to the revised adapter.
+
+The maintained F builder now owns an ordinary `shipping_alpha.py`, embedding
+the original policy bytes and the identical generic scanner/rewrite function
+bodies. It admits only its exact canonical F and compact input; the experiment
+folder, historical receipts and another engine's source are not build inputs.
+DEV bypasses the new stage. Engine, native and DEV bytes, profile, compiler,
+codec, launcher and existing helper bodies remain unchanged. The four-file
+promotion expands fresh closure to sixteen ordinary sources.
+
+Two independent source extractions each reproduce shipping and DEV twice.
+Four new actual wrapper sessions cover sixteen GO epochs, exact native image,
+persistent startup TIDs, legal results, active quit/EOF and reader/process/path
+settlement. No forced cleanup is needed; cancellation causality stays unproven.
+Whole-file SHA is
+`41a730c266082b1c8285fef7972eb158704cd7411a475d4eecc9dd058ef587aa`;
+promotion receipt is
+`121713961ca1987f7fe299fc645f4572e80b4013206b698c1df77d19a6647a80`;
+raw ten-local/sixteen-closure freeze is
+`165855fcac4de546f3ae3b2de7bc16fc7ee741cdca39f5a007851b51c6204560`.
+The 228-byte saving leaves F 1,083 B above 4 KiB. Core evidence is reused only
+through exact native identity; no new strength or target-profile claim follows.
+
+## D retry-phase qualification and metadata composition
+
+The [D retry-phase experiment](../engines/experiments/tiny-d-search-phase/README.md)
+reuses the previously investigated finite retry-loop expression for D's real
+eight-argument PVS calls. It keeps reduced null-window, full-depth null-window
+retry and full-window retry decisions explicit. This is not a new search
+algorithm, and the earlier A whole-file loss remains historical evidence.
+Compact source falls 6,269 to 6,209 B; native scalar/HQ falls 8,348/8,736 to
+8,284/8,672 B. Actual whole files reproduce at **7,501/7,753 B**, saving 39/47 B.
+
+Four actual optimized one-worker DEV subjects pass twenty fixed cases against
+the old source, comparing result rows, search trace, Worker, TT and game state.
+Reduced-null, full-null retry and full-window retry branches are observed.
+Beta-high has no dynamic hit in this finite campaign and retains source-path
+reasoning only. Four actual selected-file sessions and two new pre-entry audits
+pass image, three RX pages, 43 BSS pages, guards, permissions, fixed startup
+TIDs, twelve legal results, reader/process settlement and no forced cleanup.
+There is no new broad fault, game or performance campaign. Twenty-nine sources
+and the final proof index are frozen at
+`0649c0f6978a601b7e9297abd156c0c22b95a4d2e10b7f3cfa2170adbc4e0313`.
+
+The separate [layout/phase composition](../engines/experiments/tiny-d-layout-phase/README.md)
+combines exactly the metadata-first Board declaration and this search fragment.
+Two independent builds reproduce scalar/HQ natives **8,124/8,512 B** and actual
+whole files **7,478/7,718 B**. These measured whole savings are 62/82 B from the
+original 7,540/7,800 B; they are not sums of the separate experiments. The same
+fixed payload codec and 1,115-byte header/loader are used.
+
+The actual scalar native now has two RX pages and BSS at 0x402000; HQ retains
+three RX pages and BSS at 0x403000. Both retain 43 BSS pages. Root independently
+read the exact repeat natives' ELF headers/program headers; the loader's new
+per-form guard/reserve constants are still declarations, not physical proof.
+Old production image admission remains unchanged and rejects the new natives.
+The cost producer has no CHECKPOINT or engine executions. Named-field Board,
+special-move/search and the new two-/three-page physical qualification are a
+separate in-progress proof, so neither this cost nor phase-only proof promotes
+the combined image automatically. Twenty-eight ordinary sources are frozen;
+handoff index SHA is
+`2bda9d37186d0d171a5a7f3928929082085595b25399ed63382bd271209b639e`.
+
+## Rust D ASCII data8 packed cost and positive observation
+
+The [new data8 experiment](../engines/experiments/tiny-rust-d-packed-ascii/README.md)
+combines the preserved borrowed-ASCII inputs with the constructor candidate in
+an explicit class separate from the old data16 packed image. All four matched
+forms reproduce full native and whole bytes twice before observations.
+
+| Form | Payload | Whole file | Saving from matched ASCII control |
+| --- | ---: | ---: | ---: |
+| ASCII control HQ | 10,647 B | 11,762 B | Baseline |
+| ASCII control scalar | 10,288 B | 11,403 B | Baseline |
+| Put-start HQ | 10,450 B | 11,565 B | 197 B |
+| Put-start scalar | 10,091 B | 11,206 B | 197 B |
+
+Each whole includes 1,115 B of loader/headers. Constructor `.text` reduction of
+272 B therefore becomes an actual packed saving of 197 B. The older data16 to
+ASCII-control saving, 792/791 B, is a different comparison. Original full native,
+sectionless span, payload and whole identities remain distinct. The sectionless
+span is 16,392 B; data8 stores only memcpy at 0x400146. OUTPUT is four bytes at
+0x404008, followed by padding at 0x40400c. RX4/RW1 and five decoded pages remain.
+
+Two actual pre-entry CHECKPOINTs bind a single stopped TID, FD012/no children,
+all five restored pages, initial zero OUTPUT/padding, data8, guards and observed
+permissions. SIGCONT is followed by protocol/exit; no new instruction-pointer
+trace is claimed. Four shipping quit/EOF sessions bind three persistent startup
+TIDs and two guarded 1 MiB worker stacks. Each session observes CPU tick growth
+and active workers at GO replacement, position replacement and shutdown. All
+twenty-four admitted GOs have exactly twenty-four consumed legal bestmoves,
+with complete output/readers, exit 0 and no forced cleanup. An independent
+postrun check verifies sixty-nine preserved files and ten five-page snapshots.
+
+The positive observation is complete for this fixed profile. Runtime admission
+and all loader conditions remain incomplete; READ_IMPLIES_EXEC rejection and
+cancellation causality remain unproven. No negative/personality/register/ptrace,
+new kernel join trace, deep/fault, benchmark, game, training or AWS campaign is
+attributed to this class. The old failed fixture and controls remain preserved.
+Twenty-two ordinary sources are frozen. Final index SHA is
+`eaae61309580f5dfa0758f3b38df98a41c58eef296749836fc9c226ca25601d3`;
+actual positive runtime receipt is
+`a5221549c16adb9af08c0d46a90e023481f269773fa61916703353131f98aeb4`.
+Both whole files remain oversized, and this experiment does not replace the
+maintained Rust D profile or establish final target strength/scaling.

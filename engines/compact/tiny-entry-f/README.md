@@ -1,10 +1,11 @@
 # Maintained minimal F entry
 
 `engine.c` is the readable canonical source for the selected minimal F entry.
-It contains the shipping and diagnostic forms together. This version promotes
-the qualified production integer-unit-window beta-only specialization of the
-previous 5,479-byte entry. The complete selected file is **5,407 bytes**, a
-72-byte reduction and still **1,311 bytes above 4,096**. This folder does not
+It contains the shipping and diagnostic forms together. The qualified
+production integer-unit-window beta-only core is unchanged. This version adds
+one fixed shipping-only spelling policy after the previous 5,407-byte entry.
+The complete selected file is **5,179 bytes**, a 228-byte reduction and still
+**1,083 bytes above 4,096**. This folder does not
 claim 4 KiB eligibility, strength, fair NPS or general target portability.
 
 The selected program keeps full-depth MTD(f), stable leaves, exact-horizon and
@@ -45,11 +46,17 @@ two independent attempts performs these fixed steps:
 3. Require exactly 7 `WORKERS`, 3 `TT_BITS` and 8 `PLY` identifier occurrences,
    then substitute the fixed resource values in stored order.
 4. Apply the same 34 stored function spellings without an identifier search.
-5. Compile through stdin with `cc -Os -pthread -x c - -o x -s`, then package
+5. Apply the exact 73-name private spelling map embedded in the owned ordinary
+   `shipping_alpha.py`, admitting only the old 12,722-byte shipping source and
+   the unchanged canonical readable F. Require all 517 occurrences, 416 directive
+   bytes and 52 opaque regions to match the literal policy. The three resource
+   identifiers have zero occurrences at this final stage.
+6. Compile through stdin with `cc -Os -pthread -x c - -o x -s`, then package
    the selected bootstrap without changing its behavior.
 
-Four tracked helpers are required: `engines/scripts/specialize.py`, `minify.py`,
-`rename_c.py` and `engines/compact/tiny-a/pack_stream.py`. Their LF-normalized
+Five tracked helpers are required: `engines/scripts/specialize.py`, `minify.py`,
+`rename_c.py`, `engines/compact/tiny-a/pack_stream.py` and the local
+`shipping_alpha.py`. Their LF-normalized
 SHA-256 values are pinned. They are copied and checked before import and use
 only the Python standard library. The previous shared `tiny-f/overlay.py`
 stripper is not consumed; its older schema still correctly requires a PVS
@@ -74,10 +81,10 @@ unlinked native image.
 | Output | Bytes | SHA-256 |
 | --- | ---: | --- |
 | Readable engine.c | 26,100 | `dc065b98d99a147f862bd2d4cb0a1349ff79a2da7c1be873d906dff71cc9cd89` |
-| Compact shipping C | 12,722 | `69885c0fd3096c8782a96c4f11b8d3a3b322858fe513b7420330d8e07e16baf8` |
+| Compact shipping C | 11,216 | `5c4008afe4a0708558eb829c815a7a095c436df92a3a7685e8553e24efedb991` |
 | Restored stdin native ELF | 22,664 | `ef10962ff16e5158e0cb18cbf96b944404bd1c4db301bfbb47a0faed33466c22` |
-| Complete launcher | 5,407 | `e562a49a06257d46bbbb9e0481023f3716926e4cf2a8086dcd5307b3e8a96078` |
-| Decoded bootstrap | 13,721 | `d439a9fe3f069c2e34099f6e5ef0e9b42fd0c4a7181c0e4fc8576d3039ff53fd` |
+| Complete launcher | 5,179 | `41a730c266082b1c8285fef7972eb158704cd7411a475d4eecc9dd058ef587aa` |
+| Decoded bootstrap | 12,215 | `a369aabcd6a9138443076595b5d71e3198ee58db12d825a7f7fbc0dc8510bbcc` |
 | DEV C | 19,852 | `9528b0e97f71d2d07d60a63956fc19a9156f778b30088b34f62e4eb445260ece` |
 | DEV native ELF | 31,120 | `bd71ff07625fa9891a4b4ef79c50b5215fa4169f18d83f15d9378fe833872a2d` |
 
@@ -98,8 +105,10 @@ python3 -B /absolute/new/archive-proof/checkout-2/engines/compact/tiny-entry-f/v
   --build /absolute/new/archive-proof/build-2 --out /absolute/new/runtime-proof-2
 ```
 
-`fresh.py` names this folder's nine files, the four pinned build helpers and
-two independent verifier helpers: 15 source files. It preserves raw bytes and
+`fresh.py` names this folder's original nine files, the five pinned build
+helpers (including the local ordinary policy) and two independent verifier
+helpers: 16 source files. Its original fixed LOCAL inventory is unchanged; the
+policy is included through the recipe's explicit helper path. It preserves raw bytes and
 an LF-normalized payload in an isolated local Git repository without remote or
 commits, then writes a tree and archive. The project checkout's index is never
 touched. Archive paths, types and extracted LF hashes are checked before use.
@@ -120,6 +129,48 @@ must produce one legal closing result, finish process wait and output readers,
 and leave no main process. CPU activity is bounded lifecycle evidence;
 cancellation causality remains `unproven`. The minimal shipping interface has
 no generic infinite/stop contract.
+
+## Fixed spelling policy and proof reuse
+
+The owned helper embeds the original AF JSON policy byte-for-byte and checks
+its SHA-256 `4bf1b189e9073aa994c29c07f64bcf05b1b3e749a0a172150cac68c1971d7d92`.
+This maintained consumer admits **F only**. The historical A candidate stopped
+at a strict full-preprocessor inverse mismatch, before any A candidate engine
+execution, and is not admitted or promoted here. The historical joint A/F
+readable-word freshness is not claimed as a new joint check by this builder.
+The builder supplies only its exact canonical F bytes to the local helper; no
+AF folder, historical report, generated source, old ELF or other engine's
+source is a regeneration input.
+
+All 73 role-audited aliases remain injective and fresh in both raw and
+phase-two readable F words and the actual shipping input. The default-deny
+protected set retains functions, global/static storage names, macros and API
+identifiers. The identifier lexer's single-pass rewrite must equal its repeated
+replacement path. The separate scanner preserves directive, comment and
+quoted-literal bytes, including phase-two line splicing and literal prefixes;
+trigraph spellings fail. Exact token counts, savings arithmetic, directive and
+opaque inventories and candidate source SHA must match. There is no alias,
+resource, compiler or codec search, and DEV bypasses this stage.
+
+The final fixed spelling map reduces shipping source by 1,506 bytes and the
+complete package by 228 bytes. The complete native ELF, including build ID and
+nonallocated sections, equals the previous literal control. Readable F and both
+DEV outputs are also unchanged. Each archived regeneration independently
+repeats these complete-byte gates; no section exception is used.
+
+The historical AF cost receipt
+`c474362b40ad2dba9e4039a7b3505821bb9b896cb40674e495b852db7d4ba6fc`
+separately binds F's raw compiler-expanded source with an alias-only inverse
+and identical final macro dumps. That actual compiler/PP command retained
+`-pthread` and `-s`, with only the output-path option removed. The configured
+2/18/128 readable-profile probe is distinct from the final F macro state. These
+checks are reused through exact input/candidate/native identities; the normal
+builder does not rerun a header-expansion campaign or infer it from lexical
+rewriting. The historical selected F wrapper's actual quit/EOF sessions are
+bound by runtime receipts `35035034d8ff8eaff387a57863a9c2ce4e6f7f4178b1ebb75a3c63e388419a9e`
+and `8c42b1c55df191ed80aa99a1354592a86afc699c304e9b8f0e2a3037e2960647`.
+The later outer runtime-adapter ownership repair was qualified with stubs only;
+those earlier engine sessions are not relabeled as execution of that revision.
 
 ## Private API and proof boundary
 
@@ -159,8 +210,8 @@ Shipping returns `uciok` to `uci`, `readyok` to `isready`, accepts
 quit/EOF. Next go and position cancel and wait before shared epoch reuse. DEV
 retains its richer parser and diagnostics. Unsupported words add no controls.
 
-Before replacement, the old nine maintained source files were verified against
-the old isolated archive and preserved externally with that archive and its
+Before this spelling promotion, the previous 5,407-byte entry's nine maintained
+source files were verified against its exact isolated archive and preserved externally with that archive and its
 shipping/DEV controls. New promotion receipts and regeneration/runtime evidence
 also stay outside Git. Historical paths in the recipe are metadata only.
 No strength match, fair NPS, broad campaign, CI success or 4 KiB acceptance
