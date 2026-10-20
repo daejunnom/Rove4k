@@ -1,5 +1,61 @@
 # Maintained minimal F entry
 
+The selected complete file is **4,702 bytes**, 7 below F4709 and **606 bytes
+above4,096**. The final ordinary shipping_startup.py stage follows unit_bound.
+It removes only the two key/data zero stores in the sole static az initializer
+called immediately after successful calloc and before the first pthread_create.
+Both payload members are uint64_t, so calloc zero bytes already represent their
+integer zero. The explicit atomic_flag_clear is retained. No initialized-data,
+atomic flag, TT layout, probe/key/coherence, search/MTD/window, clock or pool
+lifetime rule changes.
+
+| Selected artifact | Bytes | SHA-256 |
+|---|---:|---|
+| Shipping C |9422|`109cb9df07a6d2a44b2930abcdadaba2246d953e1276a70a66ecb182fd77544a`|
+| Full native |18576|`a528c8ac63976666599d4d5f5e5c8510b41df73f9c857d5919be323375dd9d0a`|
+| Decoded bootstrap |10421|`2e7ab68339fd8eceb305cefb6d0420f05db3e21472b8958d6910fca2ef5491da`|
+| Complete launcher |4702|`359313ad9a6d63d78e2207044905dbfb4adee80338d0334945ba37508170935e`|
+
+The helper admits the whole fixed9442B input and9422B output, unsigned64 entry
+types, sole az definition/caller, checked allocation, before-worker ordering,
+exact inverse and protected complement. It has no experiment/report/generated
+artifact dependency. Existing stages and canonical readable source stay exact.
+DEV bypasses this last stage, retaining its original startup and quiescent
+ucinewgame wait/clear behavior and its exact source/native identities.
+
+The original first-cost driver compiled the sole candidate but then failed the
+F control gate because it used A codec defaults. Its incomplete receipt
+59986c198190a22a36bc154c2587b2745dafde8587d24139d4a15d1831ab14f7 remains
+preserved. Corrected pack-only receipt
+9f7751b40f5336e9c7cf01cc48a3d6e90119acecfdc40ebeb1ba5be6827154fa reused that
+native without a compile repeat and used actual F BT4/dict64MiB/nice32. Strict
+old/new Python and independent CLI restoration passed; target execution0.
+This separate correction does not relabel the initial incomplete run as PASS.
+
+Old ordinary24 was preserved before existing file edits. Unchanged fresh.py
+will discover LOCAL9+helpers14+tests2=25 unique ordinary source paths. The sole
+normal --dev call completed terminal0: shipping source/native/bootstrap/whole
+reproduced twice, and the original DEV source/full-native identities reproduced
+twice. The unchanged selected verifier completed terminal0: quit/EOF2sessions,
+8legalGO, new restored native, three stable startup TIDs, private-path/helper
+absence, finished readers and natural physical exit0. All observed TIDs are
+absent on readback. Cancellation causality remains unproven. No DEV engine ran.
+
+Normal build SHA2a0363b4ced6fd880cb3e27242985b90ec2a3af9bf8980daf2022a84d4ffe0bc;
+normal runtime SHA390a7657598c9a267489fdff71e625df8ae0585357aba5d68dfc213969b345d1;
+readback SHA905f88308d890b7c05df4c3af5345b26bf94755e417bf370c2ee762cc55c1f09.
+Producing source25 manifest SHA452bc289b5d1e073786eabfeffc235606d104ef0136783c614883ddf0438c577,
+recipe SHA434941f6b66c69045332f5ede45e54eabd167a2ce573d80b664c2d89134ab6ea.
+Only this README and recipe completion metadata were overlaid after the actual
+run; other23source files and expected/compiler/profile/codec fields remain the
+producing values. The unmodified builder does not separately observe compiler
+descendant/group absence. The 77B launcher/bootstrap and resources stay fixed.
+No core fixture/fresh/archive/game/benchmark/training or new negative campaign
+was added. Earlier receipts remain predecessor evidence, not new-image runs.
+No4KiB, strength/performance or general SMP claim follows.
+
+# Historical F4709 unit-window bound stage
+
 The selected complete file is **4,709 bytes**, 11 below F4720 and **613 bytes
 above 4,096**. One ordinary `shipping_unit_bound.py` closing stage follows the
 unchanged type-token stage. It replaces only the F unit-window TT bound

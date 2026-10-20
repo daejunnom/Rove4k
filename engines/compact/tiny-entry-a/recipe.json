@@ -36,7 +36,9 @@
     "engines/compact/tiny-entry-a/shipping_input.py": "794b36d7e223fabdcddfdecfbbe6407c76c530f0a061172ad5c42ed4e4864611",
     "engines/compact/tiny-entry-a/shipping_declarations.py": "5abd0837fe5e800feb3758e718cce0849bccdc0eb5b25251b8dfd3a86ad04613",
     "engines/compact/tiny-entry-a/shipping_types.py": "f40a30680aa92bec26a08d770c741e2d3224ff4fa964dedfefa053e1f98a546a",
-    "engines/compact/tiny-entry-a/shipping_lexical_scope.py": "b14e258f8d18ee0da4d0ed6c8386bc51e363c09d1d21b2131de46ba812dc2aca"
+    "engines/compact/tiny-entry-a/shipping_lexical_scope.py": "b14e258f8d18ee0da4d0ed6c8386bc51e363c09d1d21b2131de46ba812dc2aca",
+    "engines/compact/tiny-entry-a/shipping_capture.py": "bb5ad405028121c78c6a357485620c4c71a703de42aab80d898e1349aa206446",
+    "engines/compact/tiny-entry-a/shipping_startup.py": "3848dda9b4004eea0bc3e172ee66b6ebe147104e5d575b878e115265a7e5e675"
   },
   "fixed_renames": [
     [
@@ -370,17 +372,18 @@
   },
   "expected": {
     "readable_sha256": "71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734",
-    "source_bytes": 9470,
-    "source_sha256": "90b7d08d450ff6865bdc07873693f90f549dcf3d3a5cf411ad37c7609dd5c527",
+    "source_bytes": 9370,
+    "source_sha256": "7dc2243e255e2b191e4bb7785826c69556c45534ed4c1832796ccdca637d4f55",
     "native_bytes": 22672,
-    "native_sha256": "28260858a130711bb5fa70816e950b7666440168e8835bb4802b98675b972422",
-    "whole_bytes": 4739,
-    "whole_sha256": "bcc529093299e2d6654b4bf9473442995df00a6ea3ab62c31bd4bd24c75f05d5",
-    "bootstrap_sha256": "fcbde190a2d2fe0e79760816664eb4b679c3b8ce46d781e0178f85a41535d38c",
+    "native_sha256": "47ec496697134d91a4efb71e14441e5a542df93278c64a2dfdcf1e7eec0de9dc",
+    "whole_bytes": 4716,
+    "whole_sha256": "928438fdbe0ea0c83e5b03b00c1a7e8aed2a94d0df43976364b85fb439dd5678",
+    "bootstrap_sha256": "04d2eca05f6f2dc33170e06ed287cf9bbed38b03626ebb8494c42d3d4d80b685",
     "dev_source_sha256": "41ab9f0f5d28183b76833d038c40e0bb6a2ee6ef9303766c293dd577680a4c9c",
     "dev_native_sha256": "8733dbf0814a2c2545251f6e0e17d243ecfd41fce7853fb325ca9720fedd1102",
     "input_profile_readable_bytes": 27687,
-    "input_profile_readable_sha256": "63821a63cbf6507393e0617da9f611b778ada46c9a89b49fdefc8996bb461e2c"
+    "input_profile_readable_sha256": "63821a63cbf6507393e0617da9f611b778ada46c9a89b49fdefc8996bb461e2c",
+    "bootstrap_bytes": 10360
   },
   "local_input_sha256": {
     "engine.c": "71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734",
@@ -388,7 +391,7 @@
     "launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
   },
   "qualified_receipt": {
-    "scope": "fixed nested-scope5 declaration names; exact full-native predecessor core reuse; new whole-wrapper positive qualification separate",
+    "scope": "startup-only unsigned TT zero stores omitted after fresh calloc; explicit atomic_flag initialization retained; new whole/native require normal reproduction and selected execution",
     "predecessor_A4762": {
       "expected": {
         "readable_sha256": "71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734",
@@ -717,6 +720,155 @@
         "fresh_extractions_newcore_games_benchmarks": 0,
         "metadata_only_after_execution": true
       }
+    },
+    "pre_capture_scope": "fixed nested-scope5 declaration names; exact full-native predecessor core reuse; new whole-wrapper positive qualification separate",
+    "capture_bit3": {
+      "predecessor_A4739_expected": {
+        "readable_sha256": "71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734",
+        "source_bytes": 9470,
+        "source_sha256": "90b7d08d450ff6865bdc07873693f90f549dcf3d3a5cf411ad37c7609dd5c527",
+        "native_bytes": 22672,
+        "native_sha256": "28260858a130711bb5fa70816e950b7666440168e8835bb4802b98675b972422",
+        "whole_bytes": 4739,
+        "whole_sha256": "bcc529093299e2d6654b4bf9473442995df00a6ea3ab62c31bd4bd24c75f05d5",
+        "bootstrap_sha256": "fcbde190a2d2fe0e79760816664eb4b679c3b8ce46d781e0178f85a41535d38c",
+        "dev_source_sha256": "41ab9f0f5d28183b76833d038c40e0bb6a2ee6ef9303766c293dd577680a4c9c",
+        "dev_native_sha256": "8733dbf0814a2c2545251f6e0e17d243ecfd41fce7853fb325ca9720fedd1102",
+        "input_profile_readable_bytes": 27687,
+        "input_profile_readable_sha256": "63821a63cbf6507393e0617da9f611b778ada46c9a89b49fdefc8996bb461e2c"
+      },
+      "source_only_proposal_index_sha256": "e069242a83d16d41a2e68864185a993a101fbc64ac6437ea7ecd8bdcae3e84d3",
+      "first_cost_FINAL_index_sha256": "07443b69673554935cfdaaad7126dc745e642c5169a9db828d052eca18150bd4",
+      "actual_first_cost_sha256": "e55a5cf1c56dad8fb852fac79cfef829f473020e2e7e912b6425ba6af3d1db85",
+      "focused_proof_FINAL_index_sha256": "0b2f9f62327dc40b39a47de047209b3df6dc1a179577e49ffb04520ae0e1a385",
+      "actual_focused_fixture_receipt_sha256": "f9766271159cacc8fe46a21fa0d96cf9702014b76f6797c8ed9309bed241ffcd",
+      "root_intake_sha256": "15dedfdf71f28beab6b9285028610a9bbd5fad5b1ce30fca6c44881c3f35cde3",
+      "literal_regions": 8,
+      "source_delta": -79,
+      "whole_delta": -12,
+      "FROM_mask": 119,
+      "capture_bit": 3,
+      "TT_move_bits": 17,
+      "empty_target_EP_capture": true,
+      "quiet_promotion_capture_bit": 0,
+      "B_promotion_inclusive_tag_imported": false,
+      "private_Move_ABI_changed": true,
+      "exact_inverse_and_protected_complement": true,
+      "new_native_identity": true,
+      "old_full_native_equality_claimed": false,
+      "DEV_not_transformed": true,
+      "focused": {
+        "boards": 59,
+        "ordered_pseudo_moves": 1529,
+        "legal_children": 1421,
+        "ownking_rejects": 108,
+        "search_cases": 5,
+        "search_depths": [
+          1,
+          2
+        ],
+        "worker_TT_snapshot_bytes": 702380,
+        "worker_TT_snapshot_sha256": "83bad542e2bcb9a94e05c799c9f2119661d53748b9b4369d1d2a748026858be9",
+        "same_decoded_state_not_raw_Move_identity": true,
+        "history_continuation_correction_positive": true,
+        "ASan_UBSan_units": 2,
+        "product_main_pool_wrapper_not_run": true
+      },
+      "not_newly_proved": [
+        "C>=4 LMR reduction execution",
+        "concurrent TT contention",
+        "cancellation causality",
+        "many-core performance",
+        "playing strength"
+      ],
+      "normal_build_reads_experiment_evidence_artifact_AST_network": false,
+      "normal_validation_pending": false,
+      "normal_validation": {
+        "scope": "ordinary source regeneration, prior DEV byte reproduction and newly executed selected wrapper; focused source-function proof remains separate ancestry",
+        "producing_recipe_sha256": "c90449f97080acdf87229bd11449959692ed84133dd274e8cab0260794836b31",
+        "producing_source24_index_sha256": "2118d5151569000df80dc9edc033b5ae8b90dab5b401c4d8036aecdc167c041b",
+        "normal_build_sha256": "814d64942d6b6db2e37e88fd79befe2fc32aeaf60d26f5304469949bddcbd61a",
+        "normal_selected_runtime_sha256": "33d100bae2ef94c97af06b9b14354aead21a648a43d8d4190159595f091c76a1",
+        "build_command_sha256": "45893909a0ede8b41625636db37545e7a5ccbc1132daadd9bb506d8e51184055",
+        "runtime_command_sha256": "208997d3e48261e0e3dd0a521a930b93cb492c03f1e811e5990e30eee2b16537",
+        "shipping_attempts": 2,
+        "DEV_attempts": 2,
+        "prior_DEV_source_native_exact": true,
+        "selected_verifier_invocations": 1,
+        "selected_quit_EOF_sessions": 2,
+        "legal_GO_epochs": 8,
+        "new_native_image_full_identity_observed": true,
+        "startup_TIDs_each": 3,
+        "private_paths_helpers_absent_readers_finished_physical_exit0": true,
+        "active_before_quit_EOF": true,
+        "cancellation_causality": "unproven",
+        "all_outer_groups_terminal0_reaped_absent": true,
+        "retries_or_forced_cleanup": 0,
+        "fresh_extractions_core_fixture_reruns_games_benchmarks": 0,
+        "metadata_only_after_producing_execution": true
+      }
+    },
+    "pre_startup_zero_scope": "fixed capture-only bit3 private generated Move ABI; source-function focused proof and new native identity, normal reproduction/runtime remain separate",
+    "startup_zero": {
+      "predecessor_A4727_expected": {
+        "readable_sha256": "71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734",
+        "source_bytes": 9391,
+        "source_sha256": "b4aa345388c20d4701732a2ce561bd2714b1f1d26b756aa79c05ae8dfc006cf8",
+        "native_bytes": 22672,
+        "native_sha256": "99c729d5d2100cbff4781500e0e7805637623b98ac5bb6446ceabcf367bb945b",
+        "whole_bytes": 4727,
+        "whole_sha256": "a288bc81f47a6a91eace846bab9675cbf9bf590b87a100d679bf0b74ece20376",
+        "bootstrap_sha256": "11b68e9ed08ce786781cc9ba4c63c0067f715b39b2c907625e21298ce5aff0fb",
+        "dev_source_sha256": "41ab9f0f5d28183b76833d038c40e0bb6a2ee6ef9303766c293dd577680a4c9c",
+        "dev_native_sha256": "8733dbf0814a2c2545251f6e0e17d243ecfd41fce7853fb325ca9720fedd1102",
+        "input_profile_readable_bytes": 27687,
+        "input_profile_readable_sha256": "63821a63cbf6507393e0617da9f611b778ada46c9a89b49fdefc8996bb461e2c",
+        "bootstrap_bytes": 10381
+      },
+      "predecessor_A4727_FINAL_index_sha256": "ce85eb27c2e8a6bcce77fb369fa90ef91a3ec97a2d1f4c4be77be1c5473153c4",
+      "root_cost_FINAL31_receipt_sha256": "239a76737e3666b1ccf041f81624de8caa83feb01832aa0826441d8af83dd798",
+      "actual_first_cost_sha256": "a783585f81ab588414f9a7b588846cac2e3d2180846dd0a2bc734f5782923c64",
+      "literal_regions": 1,
+      "source_delta": -21,
+      "whole_delta": -11,
+      "definition_plus_sole_call_count": 2,
+      "calloc_before_threads": true,
+      "unsigned_uint64_zero_contract": true,
+      "explicit_atomic_flag_clear_retained": true,
+      "no_reset_consumer_admitted": true,
+      "inverse_and_protected_complement": true,
+      "protected_complement_bytes": 9282,
+      "protected_complement_sha256": "4ef280e525fc856e114c0afa086aac5e9f03f7602e481ebc6f2abc4648146580",
+      "DEV_not_transformed": true,
+      "new_native_identity": true,
+      "capture_fixture_remains_exact_9391_source_not_new_native_execution": true,
+      "new_focused_fixture_runs": 0,
+      "normal_generation_has_no_experiment_artifact_evidence_AST_network_input": true,
+      "normal_validation_pending": false,
+      "normal_validation": {
+        "scope": "sole ordinary regeneration and newly observed selected wrapper restoration/quit/EOF; no focused fixture rerun",
+        "producing_recipe_sha256": "0404b32f924b15a2a6e183ac86695bee7a995f2d0faa905388b124d3131a96d3",
+        "producing_source25_sha256": "d8c7066a485965db20c4dca7a5c90713a3036ecfd3b1177bbfa917ff49ff595f",
+        "normal_build_sha256": "bd98edca98f6903f567c02dca89e3210d38f061dc58c1c028709842180eff1ed",
+        "normal_selected_runtime_sha256": "c8888416a51f4061a51c7822348c42c1b9799199add629092e7106e6313ba7d2",
+        "build_command_sha256": "18b00cc052ba6e38105c2f1b803f71d939bb29a975e7d48bd7ae366d29d0a1c8",
+        "runtime_command_sha256": "a328fe4ce0f1c438ae2d1b93f796eca17ca7f61f3960611e57efb4036a0d0096",
+        "shipping_generations": 2,
+        "DEV_generations": 2,
+        "old_DEV_source_native_tuple_exact": true,
+        "unchanged_verifier_invocations": 1,
+        "quit_EOF_sessions": 2,
+        "legal_GO_epochs": 8,
+        "new_native_full_image_observed": true,
+        "startup_TIDs_each": 3,
+        "active_before_quit_EOF": true,
+        "private_paths_helpers_absent_readers_finished_physical_exit0": true,
+        "all_outer_groups_terminal0_reaped_absent": true,
+        "normal_retry_or_forced_cleanup": 0,
+        "fresh_core_fixture_games_benchmarks": 0,
+        "cancellation_causality": "unproven",
+        "metadata_only_after_producing_execution": true
+      }
     }
   },
   "provenance": {
@@ -752,9 +904,27 @@
     },
     "shipping_lexical_scope": {
       "ordinary_family_helper": "engines/compact/tiny-entry-a/shipping_lexical_scope.py",
-      "last_shipping_stage_after_types": true,
+      "last_shipping_stage_after_types": false,
       "old_function_wide_scope_stage_preserved": true,
-      "same_canonical_DEV_flags_resources_bootstrap_codec": true
+      "same_canonical_DEV_flags_resources_bootstrap_codec": true,
+      "stage_after_types_before_capture": true
+    },
+    "shipping_capture_bit3": {
+      "ordinary_family_helper": "engines/compact/tiny-entry-a/shipping_capture.py",
+      "last_shipping_stage_after_lexical": false,
+      "fixed_literal_regions": 8,
+      "readable_source_DEV_prior_stages_flags_resources_codec_unchanged": true,
+      "private_Move_ABI_changed": true,
+      "normal_receipts_are_metadata_only": true,
+      "stage_after_lexical_before_startup": true
+    },
+    "shipping_startup_zero": {
+      "ordinary_family_helper": "engines/compact/tiny-entry-a/shipping_startup.py",
+      "last_shipping_stage_after_capture": true,
+      "sole_fresh_calloc_caller_before_workers": true,
+      "unsigned_key_data_zero_by_calloc_atomic_flags_explicit": true,
+      "same_canonical_DEV_flags_resources_bootstrap_codec": true,
+      "runtime_and_cost_receipts_are_metadata_only": true
     }
   },
   "input_policy": {

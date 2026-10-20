@@ -1,5 +1,151 @@
 # Maintained minimal A entry
 
+The selected complete launcher is **4,716 bytes**, 11 below A4727 and
+**620 bytes above4,096**. Sole normal --dev regeneration and unchanged selected
+verification both passed at their first invocation. Expected pins remain the
+literal reviewed first-cost values, never refreshed from output. The preceding
+4727 producing/final sources and actual normal receipts stay closed and preserved
+separately. No4KiB acceptance, playing strength or broader target is claimed.
+
+`shipping_startup.py` is the last shipping-only stage after capture bits. One
+fixed clear-function literal removes redundant unsigned key/data zero stores
+and the now-unneeded loop braces: source9391->9370. The helper guards exact
+old/new hashes, canonical readable identity, one region/inverse,9,282 protected
+bytes, exactly2 aX occurrences (definition+sole caller), one calloc and one
+pthread_create site. The sole main caller follows successful fresh calloc and
+precedes worker creation; no later table-reset consumer is admitted.
+
+calloc gives all-bits-zero storage, and W is unsigned exact-width uint64_t, so
+the two TT key/data fields already hold value0. Every explicit per-entry
+atomic_flag_clear remains in its original order. This theorem concerns fresh
+startup only; it is not permission to omit atomic_flag initialization or clear
+an existing populated table. The native image changes. The capture fixture
+still belongs to its exact9391-byte source; it is not relabeled as execution of
+this new image. Board/search consumers are in the unchanged complement.
+
+The helper reads no files and imports only hashlib. All prior canonical,
+spelling, scope, input, type, lexical and capture guards remain unchanged.
+It is pinned and frozen before import; DEV bypasses it and must reproduce its
+prior explicit source/native tuple. Unchanged fresh.py now discovers25 ordinary
+source paths; no fresh extraction or new core fixture is part of this stage.
+Canonical engine, verifier, bootstrap, launcher, compiler/resources and original
+ALONE profile remain unchanged. There is no experiment, evidence, artifact,
+AST/library, external source or network dependency in normal regeneration.
+
+| Current observed artifact | Bytes | SHA-256 |
+|---|---:|---|
+| Shipping C | 9370 | `7dc2243e255e2b191e4bb7785826c69556c45534ed4c1832796ccdca637d4f55` |
+| Full native | 22672 | `47ec496697134d91a4efb71e14441e5a542df93278c64a2dfdcf1e7eec0de9dc` |
+| Decoded bootstrap | 10360 | `04d2eca05f6f2dc33170e06ed287cf9bbed38b03626ebb8494c42d3d4d80b685` |
+| Complete launcher | 4716 | `928438fdbe0ea0c83e5b03b00c1a7e8aed2a94d0df43976364b85fb439dd5678` |
+
+The original normal commands preserved below remain applicable. First-cost
+compilation/transport, language-level initialization proof, normal regeneration,
+selected process execution and project acceptance remain separate evidence.
+
+The sole ordinary builder --dev invocation reproduced shipping C/native/
+bootstrap/whole twice and the explicit preceding41ab/8733 DEV C/native tuple
+twice. The sole unchanged selected verifier executed the actual4716 wrapper in
+quit and EOF sessions, eight legal GO epochs total. It observed the full new
+47ec4966... /proc/exe image, three stable startup TIDs in each session, absent
+private paths/helper children, active closing work, exactly one closing bestmove,
+finished readers and physical exit0. Both outer groups were terminal0/reaped/
+absent, with no retry or forced cleanup. Cancellation causality stays unproven.
+No fresh archive, focused fixture, negative campaign, game or benchmark ran.
+
+Normal build receipt:
+`bd98edca98f6903f567c02dca89e3210d38f061dc58c1c028709842180eff1ed`.
+Normal selected runtime receipt:
+`c8888416a51f4061a51c7822348c42c1b9799199add629092e7106e6313ba7d2`.
+Producing recipe:
+`0404b32f924b15a2a6e183ac86695bee7a995f2d0faa905388b124d3131a96d3`;
+producing25-source manifest:
+`d8c7066a485965db20c4dca7a5c90713a3036ecfd3b1177bbfa917ff49ff595f`.
+Only recipe completion metadata and this README changed after execution;
+helper/builder/expected/compiler/resources/codec retain producing bytes. Raw
+normal and GitLF text hashes are distinguished from raw binary identities.
+Git commit, CI and project readiness remain separate parent work.
+
+# Historical A4727 capture-bit stage
+
+The selected complete launcher is **4,727 bytes**, 12 below A4739 and
+**631 bytes above4,096**. The normal builder reproduced all fixed shipping
+artifacts twice and the prior DEV tuple twice; the unchanged selected verifier
+then passed its sole quit/EOF invocation. Expected values are the literal
+reviewed first-cost identities, never refreshed from output. The previous
+A4739 source and ordinary23-input raw/LF closure were preserved before this
+change. No4KiB, playing-strength or broader-target acceptance is claimed.
+
+`shipping_capture.py` is the final shipping-only stage after lexical names.
+It embeds eight literal old/new regions, exact9470/9391 source hashes, canonical
+readable identity, source/output offsets, complete inverse and the9,130-byte
+protected complement. It reads no files. All prior canonical/alpha/storage/
+scope/input/declaration/type/lexical checks run unchanged first; the helper is
+pinned in recipe.helper_sha256 and frozen before import. DEV bypasses this
+stage and must reproduce its explicit prior C/native tuple. Unchanged fresh.py
+will discover the helper, yielding24 named ordinary source paths; fresh archive
+extraction is not part of this promotion. No experiment, evidence, historical
+artifact, AST/library, upstream source or network is a normal generation input.
+
+This changes the private generated Move encoding and the entire native image.
+Capture-only bit3 uses the unused0x88 source-square bit, cleared by FROM119.
+TO/PROMO and the17-bit TT move field stay unchanged. Emitter class0 covers quiet,
+castle and double push;1 is a nonpawn capture;2 is a single pawn push;3 is a pawn
+capture or empty-target EP. Promotion eligibility uses class>1, and quiet N/B/R/Q
+promotions retain capture tag0 and their old quiet history/continuation/noise.
+B's promotion-inclusive tactical tag is not imported. Only generated/tagged
+moves may enter classification consumers; no old persistent raw-Move ABI or
+old full-native equality is claimed.
+
+| Current observed artifact | Bytes | SHA-256 |
+|---|---:|---|
+| Shipping C | 9391 | `b4aa345388c20d4701732a2ce561bd2714b1f1d26b756aa79c05ae8dfc006cf8` |
+| Full native | 22672 | `99c729d5d2100cbff4781500e0e7805637623b98ac5bb6446ceabcf367bb945b` |
+| Decoded bootstrap | 10381 | `11b68e9ed08ce786781cc9ba4c63c0067f715b39b2c907625e21298ce5aff0fb` |
+| Complete launcher | 4727 | `a288bc81f47a6a91eace846bab9675cbf9bf590b87a100d679bf0b74ece20376` |
+
+The focused positive proof ran exact shipping functions under ASan/UBSan in
+one fixed old/candidate fixture. It checked59 boards,1,529 ordered pseudo moves,
+1,421 legal children, independent capture/attack/hash/HCE/rolling-context checks,
+all quiet/capture promotions in both colors, EP, text/query and actual TT17/full
+keys. Five freshTT18 one-worker depth1->2 searches produced identical scores,
+nodes, decoded best witnesses and702,380-byte normalized Worker/TT snapshots;
+actual history/continuation/correction updates were positive. This is bounded
+source-function evidence, not execution of the selected native image or whole
+wrapper. C>=4 LMR execution, concurrent TT contention, pool/cancellation and
+playing strength were not newly proved. The focused index is
+`0b2f9f62327dc40b39a47de047209b3df6dc1a179577e49ffb04520ae0e1a385`.
+Compiler/resources/bootstrap/77-byte prefix and original ALONE settings remain
+unchanged. The normal commands preserved below remain applicable.
+
+The sole ordinary --dev build passed two independent shipping C/native/
+bootstrap/whole generations and two DEV C/native generations, with the literal
+prior41ab/8733 DEV tuple observed exactly. The sole unchanged selected verifier
+executed the actual new4727 wrapper in quit and EOF sessions: eight legal GO
+epochs, full new99c729... /proc/exe image, three stable startup TIDs per session,
+unlinked private paths, no runtime helper children, active closing work, one
+closing bestmove, finished readers and physical exit0. Cancellation causality
+remains unproven. Both bounded outer groups were terminal0/reaped/absent; no
+retry or forced cleanup occurred. No fresh extraction, repeated core fixture,
+new negative campaign, game or benchmark ran for this promotion. The earlier
+focused source-function proof is retained separately and does not substitute
+for this newly observed selected-image execution.
+
+Normal build receipt:
+`814d64942d6b6db2e37e88fd79befe2fc32aeaf60d26f5304469949bddcbd61a`.
+Normal selected runtime receipt:
+`33d100bae2ef94c97af06b9b14354aead21a648a43d8d4190159595f091c76a1`.
+Producing recipe:
+`c90449f97080acdf87229bd11449959692ed84133dd274e8cab0260794836b31`;
+producing24-source index:
+`2118d5151569000df80dc9edc033b5ae8b90dab5b401c4d8036aecdc167c041b`.
+Only this README and recipe completion metadata changed after execution.
+Source/helper/expected/compiler/profile/codec inputs retain producing bytes;
+normal LF text metadata, Git LF source identity and raw binary controls are
+recorded separately. Git commit, CI and project acceptance remain parent work.
+
+# Historical A4739 lexical-scope stage
+
 The selected complete launcher is **4,739 bytes**, 9 below A4748 and **643 bytes above4,096**. The final shipping-only `shipping_lexical_scope.py` follows the unchanged type stage. It closes one5-declaration map in search au: bestmove ab->N, ordering-loop N->P/O->R, cutoff T->S and correction V->S. Moving the old inner N first frees N for the outer bestmove; P/R are sibling-loop names, and the3 S blocks are pairwise disjoint. There are21 position-bound identifier edits and6 raw source bytes saved. The actual full native stays byte-identical to the preceding native; no algorithm, ordering, TT, layout or ABI change is introduced.
 
 The ordinary helper owns current9476/result9470 full hashes, canonical readable pin, exact declaration/reference occurrence ledger, alias inventory, inverse and every protected byte gap. One macro argument is explicitly bound: unchanged `#define PROMO(m) (((m)>>14)&7)`, sole old invocation5936:5945, physical ab5942:5944 and its expanded DeclRef to declaration169/4533. It admits no stringify/paste, definition edit or additional macro-affected token. Every other directive, literal, type/member/global/function and opaque region remains protected. The source proof compared269 declaration shapes and2442 reference edges before/after and kept the full binding graph, with only5 names changed. This proof is historical qualification bound to exact source, not a normal AST dependency.

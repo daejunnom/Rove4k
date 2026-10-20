@@ -93,6 +93,8 @@ def main():
         declarations=module('entry_fixed_A_declarations',frozen/'shipping_declarations.py').transform_source
         types=module('entry_fixed_A_types',frozen/'shipping_types.py').transform_source
         lexical=module('entry_fixed_A_lexical_scope',frozen/'shipping_lexical_scope.py').transform_source
+        capture=module('entry_fixed_A_capture',frozen/'shipping_capture.py').transform_source
+        startup=module('entry_fixed_A_startup',frozen/'shipping_startup.py').transform_source
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
         if template.count(marker)!=1 or len(prefix)!=77:raise ValueError('bootstrap recipe changed')
@@ -101,7 +103,7 @@ def main():
             preprocess_source=canonical;input_metadata=None
             if dev:preprocess_source,input_metadata=input_profile.transform_readable(canonical)
             active,observations=specialize({'main.c':preprocess_source},directory,recipe['preprocessor']+['-DDEV='+str(int(dev))],os.environ.copy())
-            data=compact(active['main.c'],'c');alpha_metadata=None;storage_metadata=None;scope_metadata=None;declaration_metadata=None;type_metadata=None;lexical_metadata=None
+            data=compact(active['main.c'],'c');alpha_metadata=None;storage_metadata=None;scope_metadata=None;declaration_metadata=None;type_metadata=None;lexical_metadata=None;capture_metadata=None;startup_metadata=None
             if not dev:
                 data,_=strip(data);files={'main.c':data}
                 for old,new in recipe['fixed_renames']+recipe['resource_literals']+recipe['function_spellings']:
@@ -114,7 +116,9 @@ def main():
                 data,declaration_metadata=declarations(data,readable=canonical)
                 data,type_metadata=types(data,readable=canonical,lexer=lexer)
                 data,lexical_metadata=lexical(data,readable=canonical,lexer=lexer)
-            return data,observations,alpha_metadata,storage_metadata,scope_metadata,input_metadata,declaration_metadata,type_metadata,lexical_metadata
+                data,capture_metadata=capture(data,readable=canonical)
+                data,startup_metadata=startup(data,readable=canonical)
+            return data,observations,alpha_metadata,storage_metadata,scope_metadata,input_metadata,declaration_metadata,type_metadata,lexical_metadata,capture_metadata,startup_metadata
         def package(source):
             expression,_=literal(source);script=template.replace(marker,expression.encode())
             ast.parse(script)
@@ -132,7 +136,7 @@ def main():
         first=None;first_dev=None
         for index in (1,2):
             directory=out/('attempt-'+str(index));directory.mkdir()
-            source,observations,alpha_metadata,storage_metadata,scope_metadata,input_metadata,declaration_metadata,type_metadata,lexical_metadata=generate(directory/'preprocess')
+            source,observations,alpha_metadata,storage_metadata,scope_metadata,input_metadata,declaration_metadata,type_metadata,lexical_metadata,capture_metadata,startup_metadata=generate(directory/'preprocess')
             if len(source)!=expected['source_bytes'] or sha(source)!=expected['source_sha256']:raise ValueError('compact C identity mismatch')
             (directory/'main.c').write_bytes(source)
             native=compile_c(recipe['compiler'],source,directory/'native')
@@ -146,10 +150,10 @@ def main():
             elif current!=first:raise ValueError('independent generation did not reproduce bytes')
             row={'attempt':index,'source_bytes':len(source),'source_sha256':sha(source),'native_bytes':len(native),'native_sha256':sha(native),
                  'whole_bytes':len(whole),'whole_sha256':sha(whole),'bootstrap_sha256':sha(script),'preprocessor':observations,
-                 'shipping_alpha':alpha_metadata,'shipping_storage':storage_metadata,'shipping_scope':scope_metadata,'shipping_input':input_metadata,'shipping_declarations':declaration_metadata,'shipping_types':type_metadata,'shipping_lexical_scope':lexical_metadata}
+                 'shipping_alpha':alpha_metadata,'shipping_storage':storage_metadata,'shipping_scope':scope_metadata,'shipping_input':input_metadata,'shipping_declarations':declaration_metadata,'shipping_types':type_metadata,'shipping_lexical_scope':lexical_metadata,'shipping_capture':capture_metadata,'shipping_startup':startup_metadata}
             if args.dev:
-                dev,dev_observations,dev_alpha,dev_storage,dev_scope,dev_input,dev_declarations,dev_types,dev_lexical=generate(directory/'preprocess-dev',True)
-                if dev_alpha is not None or dev_storage is not None or dev_scope is not None or dev_declarations is not None or dev_types is not None or dev_lexical is not None:raise ValueError('diagnostic source entered shipping spelling stage')
+                dev,dev_observations,dev_alpha,dev_storage,dev_scope,dev_input,dev_declarations,dev_types,dev_lexical,dev_capture,dev_startup=generate(directory/'preprocess-dev',True)
+                if dev_alpha is not None or dev_storage is not None or dev_scope is not None or dev_declarations is not None or dev_types is not None or dev_lexical is not None or dev_capture is not None or dev_startup is not None:raise ValueError('diagnostic source entered shipping spelling stage')
                 if dev_input is None or dev_input['stage']!='readable-before-DEV-specialization' or dev_input['shipping_relation_checked']:
                     raise ValueError('diagnostic input-profile stage differs')
                 if sha(dev)!=expected['dev_source_sha256']:raise ValueError('diagnostic C differs from qualified control')

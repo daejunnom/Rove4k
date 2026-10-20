@@ -185,12 +185,12 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
-| A | 4,739 B | 643 B | Native-identical lexical-scope names and type tokens, shared startup/query, adjacent declarations/completion sequence and original ALONE |
+| A | 4,716 B | 620 B | Capture-only private Move bit, calloc payload initialization sharing, lexical-scope names/types, shared startup/query and original ALONE |
 | B | 5,340 B | 1,244 B | Native-identical type tokens, tactical Move metadata, shared geometry, legal-LVA ordering, hybrid attackers/singular and ALONE |
 | C | 5,078 B | 982 B | Native-identical type tokens, signed-net eight-lane state, exact HCE, real 128-bit madd/hadd and fixed ALONE |
 | D scalar / HQ | 6,002 / 6,220 B | 1,906 / 2,124 B | EP trial shares make, full-key aligned atomic16 TT, explicit SSE4.2/CX16 profile, own fixed21 context ELF and guarded BCJ restoration |
 | E | 5,158 B | 1,062 B | Native-identical type tokens, untrained E19 quadratic activity model, incremental material/activity, original ordering and ALONE |
-| F | 4,709 B | 613 B | Unit-window TT bound expression, uniform type tokens, full-key TT, full-depth MTD(f), packed HCE and fixed ALONE |
+| F | 4,702 B | 606 B | Calloc payload initialization sharing, unit-window TT bound expression, uniform type tokens, full-key TT, full-depth MTD(f), packed HCE and fixed ALONE |
 
 The separate Rust D native images are 16,816 bytes each. Their independent
 packed experiment retains its own qualification state and does not silently
@@ -4672,12 +4672,168 @@ One fixed cost changes current A9470 to9391 source bytes (-79) and complete
 4739 to4727 (-12); native remains22672 bytes but has a new entire identity.
 Eight exact regions/inverse and9130 protected complement bytes bind the source.
 One unchanged-argv compile and original fixed ALONE compression pass old/new
-strict transport restoration. This does not qualify tag semantics, legal
-children, TT17/private ABI, search/learning or runtime. Maintained A stays4739,
-and there is no automatic F application. The pending focused proof must check
+strict transport restoration. That cost-only checkpoint did not qualify tag
+semantics, legal children, TT17/private ABI, search/learning or runtime;
+maintained A then stayed4739, with no automatic F application. The next proof had to check
 actual producer/classification, EP and all quiet/capture promotions, decoded
 children, text/query/witness/TT consumers and unchanged quiet ordering state.
 The actual first-cost receipt SHA is
 `e55a5cf1c56dad8fb852fac79cfef829f473020e2e7e912b6425ba6af3d1db85`;
 final five-source index SHA is
 `07443b69673554935cfdaaad7126dc745e642c5169a9db828d052eca18150bd4`.
+
+### A capture-only bit: focused semantics and ordinary selected execution
+
+The exact old9470/new9391 sources were subsequently included in the same
+ASan/UBSan fixture, with product main renamed and never called. It invoked
+actual shipping generation, make, attack, text/query, TT and one-worker search
+functions. Decoded FROM/TO/PROMO and an independent mailbox capture predicate
+were compared rather than requiring the deliberately changed raw moves to be
+equal. Across59 admitted boards and1529 ordered pseudo moves,1421 complete
+legal children and108 self-check rejections matched. Independent attack,
+hash/HCE/path state and parent immutability were checked. Positive cases include
+both-color empty-target EP, nonpawn quiet moves to the same EP target, castles
+and all N/B/R/Q quiet/capture promotions. Quiet promotion remains capturebit0.
+
+Actual17-bit TT move transport and same-slot different full-key misses passed.
+Five fresh-TT18 depth1-to2 searches matched scores, nodes, best/text/query
+witnesses and the entire normalized702380-byte Worker/populated-TT snapshot
+(`83bad542e2bcb9a94e05c799c9f2119661d53748b9b4369d1d2a748026858be9`).
+Only the deliberately added capture bit is removed from recorded move fields.
+History, continuation and correction updates were positively exercised, as was
+an actual third-repetition history. Both units exit0 without sanitizer output;
+compiler warnings and all original outputs remain external. This is not a new
+LMR-depth, concurrent-TT, cancellation, product-main or wrapper proof. Focused
+FINAL index SHA is
+`0b2f9f62327dc40b39a47de047209b3df6dc1a179577e49ffb04520ae0e1a385`;
+actual receipt is
+`f9766271159cacc8fe46a21fa0d96cf9702014b76f6797c8ed9309bed241ffcd`.
+
+The ordinary self-contained `shipping_capture.py` now owns the literal eight
+regions, exact inverse and protected complement after lexical naming. It has
+no experiment/report/fixture dependency. Canonical readable source and DEV
+remain unchanged. One ordinary builder with `--dev` reproduces2shipping/2DEV:
+source9391/b4aa3453, native22672/99c729d5, bootstrap10381/11b68e9e and actual
+whole4727/a288bc81. One unchanged selected verifier then passes two quit/EOF
+sessions/eight GO with that exact new wrapper and restored image, stable three
+startup TIDs, private-path/helper absence and physical reader/process exit.
+Cancellation causality remains unproven; earlier core receipts retain their
+ancestry scope. Build receipt SHA is
+`814d64942d6b6db2e37e88fd79befe2fc32aeaf60d26f5304469949bddcbd61a`;
+runtime receipt is
+`33d100bae2ef94c97af06b9b14354aead21a648a43d8d4190159595f091c76a1`.
+Producing and final metadata snapshots are separate; the A4727 FINAL index is
+`ce85eb27c2e8a6bcce77fb369fa90ef91a3ec97a2d1f4c4be77be1c5473153c4`.
+The later startup-only change below does not relabel this fixture or native.
+
+### Two further cost candidates rejected or closed without promotion
+
+An A bootstrap-only spelling candidate aliases `pthread_sigmask` and uses loops
+for the same two signal installs/resets. Its template shrinks997 to925 bytes,
+but original fixed ALONE makes the actual whole4727 to4730 (+3). Strict Python
+and CLI restoration pass; compiler/bootstrap/engine execution is0. It is not
+selected. The original template, private compiler process-group handling,
+cleanup and fd-exec remain in use.
+
+An independent Rust D candidate moves pseudo generation into an appender on
+fresh, fully initialized caller-owned Moves. The current native really has a
+2056-byte pseudo temporary/return copy. In the new scalar/HQ images that copy
+vanishes from the generator, but a2056-byte local/return copy appears in legal;
+the safe capacity guard remains. Actual `.text` grows80 bytes in each form,
+complete native lengths remain16816 and raw source grows292. These exact
+outputs justify closing the native-size lane; whole-file cost is unmeasured,
+with codec/target execution0. Source7 controls/candidates and positioned inverse
+remain external. An initial inverse-uniqueness preparation failure occurred
+before compilation and is preserved; the corrected producer performs the sole
+native pair. No normal Rust source changes follow. Native cost receipt SHA is
+`357eea76d76b52c8277393211dce3bcd2ea34b1e873b002d4bcd3b9872137ee2`;
+FINAL index is
+`c219d3d3225463a359ca14826344e0c6c6d8468e02c6d6a93a1a121ecd2eedbb`.
+
+### A/F startup-only TT initialization sharing
+
+Both shipping entries allocate the TT with checked `calloc`, then call their
+static initialization function once before creating any worker. Their key/data
+fields are exact-width unsigned64, so calloc's zero bytes already represent0.
+Each entry's `atomic_flag_clear` remains explicit. Only the duplicated key/data
+zero stores and unnecessary braces are removed. The functions are now admitted
+as startup initialization, not reusable reset; DEV bypasses this stage and
+retains its original quiescent clear/new-game path. Full-source, type, sole
+caller/order and inverse/complement guards bind this narrower contract. No TT
+layout/probe, full-key, search, clock, pool or resource policy changes follow.
+
+For A, a self-contained stage after capture changes source9391 to9370 (-21)
+and complete4727 to4716 (-11). Entire native remains22672 bytes but changes to
+`47ec496697134d91a4efb71e14441e5a542df93278c64a2dfdcf1e7eec0de9dc`;
+whole SHA is
+`928438fdbe0ea0c83e5b03b00c1a7e8aed2a94d0df43976364b85fb439dd5678`.
+One ordinary `--dev` build reproduces2shipping/2DEV, and one unchanged selected
+verifier passes two sessions/eight GO with the actual4716-byte wrapper. Build
+receipt SHA is
+`bd98edca98f6903f567c02dca89e3210d38f061dc58c1c028709842180eff1ed`;
+runtime receipt is
+`c8888416a51f4061a51c7822348c42c1b9799199add629092e7106e6313ba7d2`.
+The final A4716 source/normal index is
+`400cb9016830d02f643beb5ed7f60047270e94a8e371864699cdf00b2f2cf07e`.
+The preceding focused capture fixture remains bound to source9391/native99c7;
+this new wrapper execution is recorded separately.
+
+F was measured independently from the current unit-bound source, without
+importing A's capture-bit change. Source9442 becomes9422 (-20), complete4709
+becomes4702 (-7), and entire native18576 changes to
+`a528c8ac63976666599d4d5f5e5c8510b41df73f9c857d5919be323375dd9d0a`.
+Whole SHA is
+`359313ad9a6d63d78e2207044905dbfb4adee80338d0334945ba37508170935e`.
+An initial cost driver incorrectly borrowed A's default ALONE settings and
+failed exact F control after its sole successful native compile. That incomplete
+receipt stays preserved. A pack-only correction uses F's unchanged fixed
+BT4/64MiB/nice32 recipe, restores old/new exactly and does not recompile.
+One ordinary `--dev` builder then reproduces2shipping/2DEV, followed by one
+unchanged verifier/two sessions/eight GO. Build receipt SHA is
+`2a0363b4ced6fd880cb3e27242985b90ec2a3af9bf8980daf2022a84d4ffe0bc`;
+runtime receipt is
+`390a7657598c9a267489fdff71e625df8ae0585357aba5d68dfc213969b345d1`.
+Final source25 manifest SHA is
+`b221a21b42032800d797323ab3c88e5529f8bb0259c22955b6fc839c8a9e2f6d`.
+
+Both selected executions verify the exact restored native image, private
+directory/helper absence, stable three startup TIDs, legal bounded GO, active
+quit/EOF completion and reader/process physical exit0. DEV bytes reproduce but
+DEV engines are not rerun. Cancellation causality remains unproven. Producing
+inputs and final README/recipe metadata are preserved separately. There is no
+new fresh/archive, broad core/race proof, performance/scaling, game/strength or
+tournament-host acceptance. All six complete-file gaps remain open.
+
+### Separate D NUL-token representation: fixed cost only
+
+A new external candidate replaces private pointer/length spans with mutable
+NUL-terminated tokens. Nondigit amount lookahead must remain nondestructive,
+digit-leading invalid/overflow input must consume its complete token, and DEV
+FEN must locate its moves boundary without destroying field spaces. Read-line
+draining/EOF/EINTR, clock limits, position transactionality, publication and
+startup/shutdown remain protected source regions. This is a new representation
+cost, not a repeat of the earlier GO-arm or private-signal alternatives.
+
+Six exact regions and seven inverse-preserved gaps change runtime source by
++71 bytes. The sole scalar/HQ compile pair reduces `.text`31 and native32 bytes
+per form, to7804/8192. HQ now fits exactly two RX pages with BSS at402000 and
+the same43 BSS pages. An old page-class equality guard rejects this new layout
+after both successful compiles; its incomplete receipt stays preserved. Root
+reads back the actual four native/linked files and admits only those two new
+hashes/entries/layouts for external cost packaging. The old guard is not
+generally weakened, and the compilers are not rerun.
+
+One unchanged fixed context21/BCJ codec and own-loader pair produces packets
+4866/5067 with1137 nonpacket bytes each. Complete scalar6003 is1 byte larger;
+HQ6204 is16 bytes smaller than maintained6002/6220. Whole SHAs are
+`2c914e2fd88caae812df55ab4e5707580c7e85562f2842c088c173d742fbad06` /
+`33407e1a85327ade6c67cf6c1f68cbfc4dd4fff7c87cd65fad5b3b2880116cbe`.
+The existing positive DATA-only decoder restores exact BCJ/native bytes with
+canaries/table unmap; it never enters the generated engine or loader. No
+protocol fixture, product main, worker pool, selected audit/runtime or normal
+promotion follows. D6002/6220 remains maintained. This small HQ cost win is
+not yet a semantic, resource, performance or tournament qualification.
+The external fixed-cost FINAL index is
+`09063837468e0997398aac1407c07eb8aeb725e0bd4f23ab1670135ce2c71d63`;
+actual cost receipt SHA is
+`eed34e32e0ab3265351f08aea2b2182996f131c8a4cc1fa78fa23a6a5bef23ae`.
