@@ -1,5 +1,68 @@
 # Maintained minimal B entry
 
+The selected complete launcher is **5,279 bytes**, 61 below its
+preceding complete file and **1183 bytes above4,096**. The final ordinary
+`shipping_global_names.py` follows the type-token stage. It shortens 12 owned
+global functions at 46 physical declaration/reference spans, source
+11167->11009. No local names or model/search logic change.
+
+| Selected artifact | Bytes | SHA-256 |
+|---|---:|---|
+| Shipping C |11009|`ce6a8b884009a4735ad5c9dbc948b444fe1af185ee7b40dd6335946625b92587`|
+| Full native |26304|`7fcfab6f5933f5a945ee7841a54204fd00bb9b3fa9caec23d96d4455a7b9e998`|
+| Decoded bootstrap |12074|`097089946cd68344760ea20c8e13ec43db8a03f336d57c509a82a789193c8a8f`|
+| Complete launcher |5279|`ac675d1954d10ead1a3df1fd33426aa8178118cccce5bc4d81abdf12c77e6f3a`|
+
+Full native and full declared load-image identity to the predecessor are
+false. The bounded object review compares all26 SHF_ALLOC sections: only the
+explicitly pinned build-id note differs. Allocated code/data bytes, address,
+flags and geometry otherwise match. Exact owned-name-normalized symbols retain
+binding/type/size/address/visibility/section, with external dynsym/relocations,
+PHDR and entry unchanged. The declared PT_LOAD bytes differ only in ELF
+section-table-offset lowbyte at40 and build-id descriptor20B at888. Unallocated
+symbol/string tables legitimately encode the declared implementation names.
+This is a static ELF comparison, not process-memory observation or a generic
+metadata exception. The compiler check requires only the one reviewed new
+full-native pin above, never arbitrary metadata changes.
+
+The helper owns full input/output pins, exact literal function/physical-span
+map, token-width checks, inverse, protected complement/directives/opaque bytes.
+main, header/external references, objects, types, members and all existing
+family model/tag/SIMD/search/clock/resource guards remain unchanged. These are
+owned names in a standalone shipping TU, not an external symbol API. No
+AST/experiment/report/artifact dependency enters normal regeneration. DEV
+bypasses the stage and retains its prior source/native and evidence scope.
+Compiler arguments, original family codec, bootstrap and77B launcher stay fixed.
+
+Source proposal SHAf59ddbe83d3561787207553d9de6b423ba7a227aedb97b1f8c8033ace531a6ec;
+fixed cost SHAe192da7467cbf2dfa950bf50f3127d45e684ef7c484c110bd2a86ccb1d8899c2;
+bounded metadata review SHA4f80b574c9bc0af5c5f7f16a5ba4f5e29601edad11e0856fb34cb099be353cc1.
+Strict original whole/bootstrap reproduction and Python/CLI source/template/
+argv restoration passed. Cost and read-object review executed no target.
+Current ordinary source and controls were preserved, and producing source was
+frozen before the sole normal --dev call. Shipping source/native/bootstrap/
+whole reproduced twice with exactly the measured new full-native pin; prior
+DEV source/native reproduced twice. The unchanged selected verifier completed
+once: quit/EOF2sessions8legalGO, exact restored new native, stable three startup
+TIDs each, private-path/helper absence, active closing search, exactly one
+closing bestmove, finished readers and natural physical exit0. All six observed
+TIDs are now absent. No normal retry or forced cleanup occurred.
+Build SHAc90599c91b3842e7d057610c674894a72698179a21406a294fd597d507f0044d;
+runtime SHA85fb029303d04913adeb853cec45dc923dd78b052ac69439ed58231fe3b321ad;
+readback SHA5a91b08df7d76378dca0e04cf451e9f28e96957942877b5d18cdb7fa6fe7ba0a.
+Producing source SHA8eb3087d63b4f3c2841b2b8d31482ea2714346f2e65e66d2cbb97350a0c36ec0;
+producing recipe SHAfcda2fd4fd7d7b7941063467a96d66b45a8311b224f2b6c43f8a7d3e978bc4be.
+Only README/recipe completion metadata changed after execution; other
+24 source paths and all helper/expected/compiler/profile/codec
+remain producing bytes. Unchanged fresh.py would discover26 ordinary
+paths; no fresh extraction ran. Cancellation causality and the unchanged
+builder's separate compiler-descendant lifetime proof remain unproven.
+No DEV engine, new core matrix, games, benchmark, training or negative campaign
+was added. Prior native/body proofs retain their exact source/static reuse
+scope, and prior wrapper receipts are not relabeled as these new executions.
+
+# Historical B5340 type-token stage
+
 The selected complete launcher is **5340 bytes**, 17 below B5357 and **1244 bytes above4,096**. Shipping C is 11167 bytes (source delta -263). Final shipping-only `shipping_types.py` owns one fixed type map `{'uint64_t': 'D', 'Move': 'N'}` plus a19-byte uint64_t alias definition. The existing Move typedef is renamed with its type uses and exactly3 MOVE casts; int16_t and private Entry zb remain protected. All full native bytes match the actual preceding native, without a metadata exception.
 
 The ordinary family helper pins the canonical readable, complete final-stage preimage/result, type-role offsets/counts, source/directive alias freshness, sole MOVE line, exact inverse and each unchanged gap. It reads no experiment, report, old artifact, AST or network input. Its pinned existing lexer is frozen before import. Existing canonical/map/core/input and family-specific stages remain ahead of the final type stage; DEV bypasses it and retains its prior diagnostic model scope. Only C admits the fixed later immintrin header at old offset4060; no header is moved and no generic exception is opened. Actual header conflicts must fail the fixed full-native gate.

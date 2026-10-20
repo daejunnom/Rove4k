@@ -186,10 +186,10 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
 | A | 4,690 B | 594 B | Global function aliases, capture-only private Move bit, calloc payload initialization sharing, lexical-scope names/types, shared startup/query and original ALONE |
-| B | 5,340 B | 1,244 B | Native-identical type tokens, tactical Move metadata, shared geometry, legal-LVA ordering, hybrid attackers/singular and ALONE |
-| C | 5,078 B | 982 B | Native-identical type tokens, signed-net eight-lane state, exact HCE, real 128-bit madd/hadd and fixed ALONE |
+| B | 5,279 B | 1,183 B | Global function aliases, tactical Move metadata, shared geometry, legal-LVA ordering, hybrid attackers/singular and ALONE |
+| C | 5,036 B | 940 B | Global function aliases, signed-net eight-lane state, exact HCE, real 128-bit madd/hadd and fixed ALONE |
 | D scalar / HQ | 6,002 / 6,220 B | 1,906 / 2,124 B | EP trial shares make, full-key aligned atomic16 TT, explicit SSE4.2/CX16 profile, own fixed21 context ELF and guarded BCJ restoration |
-| E | 5,158 B | 1,062 B | Native-identical type tokens, untrained E19 quadratic activity model, incremental material/activity, original ordering and ALONE |
+| E | 5,118 B | 1,022 B | Global function aliases, untrained E19 quadratic activity model, incremental material/activity, original ordering and ALONE |
 | F | 4,681 B | 585 B | Capture-only private Move bit, global function aliases, calloc payload initialization sharing, unit-window TT bound expression, full-key TT, full-depth MTD(f), packed HCE and fixed ALONE |
 
 The separate Rust D native images are 16,816 bytes each. Their independent
@@ -4918,8 +4918,9 @@ index SHA is
 `c7eaffea2f1b7dc7e225b9c9a3ba1274febeb5b231a73132f9d34378dd26b0d4`;
 root source/artifact readback SHA is
 `f1664c5968b8f2db8cb147038717664b5ccf4301a9c78789ab31be2a502d66ce`.
-Focused new-model functional checks are separate and pending; this candidate
-does not replace the current selected F table or qualify a 4 KiB entry.
+At this cost checkpoint focused new-model functional checks are still pending;
+the candidate does not replace the current selected F table or qualify a 4 KiB
+entry. Later functional/policy evidence is recorded separately below.
 
 ### F capture-only bit composed with global aliases
 
@@ -5030,8 +5031,8 @@ That incomplete result is not reported as no compression opportunity.
 Every complete control reproduces with its own unchanged compiler, template,
 prefix and fixed codec, including C's actual -mavx2. Each candidate has one
 compile and encode with strict old/new restoration. These source deltas do
-not predict codec gains. The BCE measurements remain separate from ordinary
-promotion pending explicit allocated-section/symbol/layout review; full
+not predict codec gains. At this checkpoint the BCE measurements still require
+ordinary promotion and allocated-section/symbol/layout review, recorded below; full
 native identity is not asserted for them. A's capture-only tag/PROMO lexical
 bridge, B's promotion-inclusive OR tag, C's actual XMM eight-lane madd/hadd2,
 and E's current19 parameters and five-feature ordering remain protected.
@@ -5058,3 +5059,62 @@ Producing and final source26 differ only by completion metadata. An external
 copied metadata label is corrected with the original preserved, without a
 source or execution change. Cancellation causality remains unproven; no new
 core, DEV engine, fresh archive, game or performance execution is claimed.
+
+### F decode-once UCI coordinates: source-only closure
+
+Current selected F parse is164 source bytes; text remains183 bytes because
+bestmove output needs it. Parse already makes a selected legal child only
+once. Removing its local text buffer/call saves20 raw bytes, while a direct
+coordinate/promotion matcher must add exact4/5 length, a..h/1..8 and lowercase
+NBRQ-language validation. One straightforward defined-C spelling of that
+validation/pack is247 bytes, giving local raw+228 after the masked comparison.
+This is not a minimum-size proof or a whole prediction, but provides no
+defensible gain for constructing a candidate now. A future version must
+match geometry excluding only capturebit3 and still return/make the actual
+generated tagged move, preserving NULL fallback and transactional admission.
+The older tiny-protocol bundled rewrite's Awhole+240 is not falsely assigned
+to this standalone F idea. No candidate C, compile, codec or target runs.
+Source-only index SHA is
+`a080105a2f04e7f668ab26599aed6eaaddc3bbc04e789846d6ff4c7d78d375d8`.
+
+### B/C/E namespace: bounded ELF review and ordinary promotion
+
+The three new unstripped native images are not byte-identical to their
+predecessors. An explicit read-object comparison confirms all26 allocated
+section geometries and contents except the separately pinned build-id note;
+text, data, relocations,30 dynamic symbols, entry and13 program headers match.
+All symbols under only the exact owned STT_FUNC map preserve binding, type,
+visibility, address, size and section. Physical symbol/string indices may
+reorder. Each declared PT_LOAD file difference is exactly one byte at ELF
+e_shoff offset40 and20 build-id descriptor bytes at888; there is no blanket
+metadata exception or whole loaded-image equality claim. Review SHA is
+`4f80b574c9bc0af5c5f7f16a5ba4f5e29601edad11e0856fb34cb099be353cc1`;
+root frozen input readback SHA is
+`4a70be786fdc47732288fda200496f47551bd176d6046026b72f160064c6dc3f`.
+This source/ELF review is separate from runtime acceptance.
+
+Each ordinary builder now has a family-owned fixed global-name stage after
+type tokens, with exact inverse, complement and protected token guards. No
+AST/report/upstream source is a build input, and DEV bypasses the stage. The
+three ordinary --dev builders reproduce6shipping/6unchanged DEV in total;
+strict exact new-native/output pins remain enforced. The three unchanged
+selected verifiers execute the actual new wrappers in6quit/EOF sessions and
+24legal GO epochs with exact restored images, stable three startup TIDs,
+private-path/helper absence and reader/physical exit0. All six outer commands
+exit0/reap, all18 observed TIDs are absent and no retry/forced cleanup occurs.
+
+| Family | New native SHA-256 | Complete file SHA-256 | Normal build / runtime SHA-256 |
+| --- | --- | --- | --- |
+| B5279 | 7fcfab6f5933f5a945ee7841a54204fd00bb9b3fa9caec23d96d4455a7b9e998 | ac675d1954d10ead1a3df1fd33426aa8178118cccce5bc4d81abdf12c77e6f3a | c90599c9 / 85fb0293 |
+| C5036 | afa5b0bbc81a232d6c1600f486438235d97655e966f8ac6d50f4f6e34abacad4 | 18caf239012ad04552def951b2e77a72f2ac4f486996b28a8fbe268857d19c65 | 65ab2043 / 9e5d89fd |
+| E5118 | 2882e45f06e6604bb50ab00269a04e1febca65f590a523c490b3f8267c400734 | 3d90f959ae9a41cac62f7d8e5fb67c8a9e7f6dae4059df344f6c16a8b8b75df2 | a1d7b963 / e92b3ba7 |
+
+The full receipt identities are in each maintained recipe/README. Normal
+FINAL index SHA is
+`7b3d98645023a47f83a951bf896b9c809aa22e508342c136b34038480ae7dfcc`;
+root actual source/output/receipt readback SHA is
+`e63c51c6869a0d5c1ad3786ad8cd304b45be9e07b0b09cb962682b16917a136f`.
+Post-execution recipe/README completion metadata is separated from producing
+source26/27/24. No canonical model/rule/worker/codec or verifier changes;
+cancellation causality remains unproven. These are new package execution
+receipts, not reruns of core/DEV/fresh/game/performance campaigns.

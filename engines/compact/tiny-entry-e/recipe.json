@@ -55,7 +55,8 @@
     "engines/scripts/fixed_input_profile_bce.py": "cc3c82d2e4f77f7231d4bafaac5f446a9aa5c0320762e0902a6f32ecc5a7209e",
     "engines/compact/tiny-entry-e/shipping_model.py": "181c29b2744b7eca72b0514865e975a71f9f141f7ddeae4b60bab7743a4d39e4",
     "engines/compact/tiny-entry-e/model19.h": "3f7e2546c72ed4faf3f1257515777b0f0e530bf52c57b7901eae3f4497be26dc",
-    "engines/compact/tiny-entry-e/shipping_types.py": "3d823cfd60985ec24226261b178294f10cc945a032ab5084fe9f3ec9f4781fe9"
+    "engines/compact/tiny-entry-e/shipping_types.py": "3d823cfd60985ec24226261b178294f10cc945a032ab5084fe9f3ec9f4781fe9",
+    "engines/compact/tiny-entry-e/shipping_global_names.py": "fdf0032237aa3b6825e8c697f028b2dfe82ed80e4bf04a14c372ded8ab8d51cd"
   },
   "compression": {
     "format": "lzma-alone",
@@ -73,17 +74,18 @@
   "expected": {
     "readable_bytes": 28001,
     "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
-    "source_bytes": 10891,
-    "source_sha256": "29f5f760dfade24efa50f4fd2252bbac91b070ad707972ec2b6f19f1f7f99485",
-    "native_bytes": 26416,
-    "native_sha256": "5ddcd703a963d73403ce43e596430588e7050e548c0e0221976a038afc93d509",
-    "whole_bytes": 5158,
-    "whole_sha256": "d1c1f11c85869f9472b7758ff6337375f763319d2228047365cef3cc66f3d25a",
-    "bootstrap_sha256": "2a0bebd126ad980e857981756d310acdee43d67c89339808a2bdc15fb5b5cc96",
+    "source_bytes": 10755,
+    "source_sha256": "7577ff9c4e23393534cf396e12a88e64cf44a0c73014f78154d8d9fa791b97b1",
+    "native_bytes": 26368,
+    "native_sha256": "2882e45f06e6604bb50ab00269a04e1febca65f590a523c490b3f8267c400734",
+    "whole_bytes": 5118,
+    "whole_sha256": "3d90f959ae9a41cac62f7d8e5fb67c8a9e7f6dae4059df344f6c16a8b8b75df2",
+    "bootstrap_sha256": "b186b7533bc16987ad65699b48688a646afc207a820ee04f4df32f95057709ec",
     "dev_source_bytes": 21314,
     "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
     "dev_native_bytes": 31376,
-    "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094"
+    "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
+    "bootstrap_bytes": 11820
   },
   "local_input_sha256": {
     "engine.c": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
@@ -403,6 +405,44 @@
         "all_owned_outer_groups_terminal0_absent": true,
         "fresh_extractions_newcore_games_benchmarks": 0,
         "metadata_only_after_execution": true
+      }
+    },
+    "global_names": {
+      "stage": "shipping-after-types",
+      "functions": 10,
+      "physical_edits": 36,
+      "source_delta": -136,
+      "whole_delta": -40,
+      "entire_predecessor_native_equal": false,
+      "exact_reviewed_new_native_required": true,
+      "generic_metadata_exception": false,
+      "metadata_review_sha256": "4f80b574c9bc0af5c5f7f16a5ba4f5e29601edad11e0856fb34cb099be353cc1",
+      "metadata_reader_sha256": "0c602ff4bbcf84471d5fccb1b2086340a9060b005ab863429b47463cd450ab64",
+      "bounded_native_relation": "all26 SHF_ALLOC except exact pinned build-id bytes/address/flags/geometry same; exact mapped symbol attributes and external dynamic symbols/relocations/PHDR/entry match; loaded e_shoff lowbyte and build-id descriptor differ explicitly",
+      "source_proposal_sha256": "0816d024e19b329407efae46bc4490ceeda9eb94530cea0786004dcd2133522f",
+      "cost_sha256": "e192da7467cbf2dfa950bf50f3127d45e684ef7c484c110bd2a86ccb1d8899c2",
+      "normal_status": "completed once; final README/recipe completion overlay is not another execution",
+      "standalone_implementation_symbols_only": true,
+      "normal_inputs_read_AST_experiments_reports_artifacts": false,
+      "normal": {
+        "build_sha256": "a1d7b963324018b1189ca6063e7c194cc7eeafa9b2517e97e36ad283d67a2658",
+        "runtime_sha256": "e92b3ba7d67885ac296783675099a90f40771174e058cc08a152603ef57a1b4c",
+        "readback_sha256": "30a4b1d52431dcee828edff5e97fb18431f45b8c174ea09ef7de79a17768ef3e",
+        "producing_source_sha256": "c6261b695c8ff53d59a31487a227440dc418a86e4067f897b62704dc11ad637a",
+        "producing_recipe_sha256": "8553d812a1e16bf54448f0844f10adb2cb27961d079c0ac84e8a88be68bf036e",
+        "old_source_sha256": "33ff76643c9a6d1098fb12ff3f0ffbfeb71ca3e44b82162fcdb903decc501efc",
+        "source_count": 24,
+        "shipping_attempts": 2,
+        "DEV_attempts": 2,
+        "selected_quit_EOF_sessions": 2,
+        "legal_GO_epochs": 8,
+        "normal_full_candidate_bytes_exact": true,
+        "old_DEV_source_native_exact": true,
+        "TIDs_absent_on_readback": true,
+        "entire_predecessor_native_equal": false,
+        "metadata_only_after_execution": true,
+        "scope": "exact new native/image and selected wrapper physical lifetime observed; source/body and bounded static metadata proof reused under exact candidate bytes",
+        "limits": "cancellation causality unproven; no fresh/DEV-engine/new core/game/performance matrix; unchanged builder has no separate compiler-descendant/group lifetime proof"
       }
     }
   },

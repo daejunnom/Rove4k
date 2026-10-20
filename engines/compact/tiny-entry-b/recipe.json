@@ -57,7 +57,8 @@
     "engines/compact/tiny-entry-b/shipping_order.py": "82ee301901fb147ae33723f302ff06663b919b91a6d27b1986a5cfe54be2ceb2",
     "engines/compact/tiny-entry-b/shipping_walk.py": "9964071df9b2cb092ee042f5e49876357d11f9ed7a8541c211987198581f744a",
     "engines/compact/tiny-entry-b/shipping_tactical.py": "3039a6a214276093e18cb13e9787fe810358acdc7475ad8f0542bc71bc5d1fd2",
-    "engines/compact/tiny-entry-b/shipping_types.py": "1ec1ecc076bf3a037ad38b8c9b7ea701ff317d092e1c31e8f48f3dea285ed244"
+    "engines/compact/tiny-entry-b/shipping_types.py": "1ec1ecc076bf3a037ad38b8c9b7ea701ff317d092e1c31e8f48f3dea285ed244",
+    "engines/compact/tiny-entry-b/shipping_global_names.py": "9a4ef3465193b34cb5739adf2e2863cb09670422cb244ab16d29c4124abe1522"
   },
   "compression": {
     "format": "lzma-alone",
@@ -74,15 +75,16 @@
   },
   "expected": {
     "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
-    "source_bytes": 11167,
-    "source_sha256": "6ae7748ee0e56a925405692385a8adfd141274aaee845efaae406416664b1755",
-    "native_bytes": 26360,
-    "native_sha256": "483a2b6c1f420a30d2f04f1acab9101f6b7dc44c06e1485117a2e8117f1365dd",
-    "whole_bytes": 5340,
-    "whole_sha256": "bb27f4fafd19c2a8add29b26fe6aed55bb914212468ea0e17203d786b7bfd178",
+    "source_bytes": 11009,
+    "source_sha256": "ce6a8b884009a4735ad5c9dbc948b444fe1af185ee7b40dd6335946625b92587",
+    "native_bytes": 26304,
+    "native_sha256": "7fcfab6f5933f5a945ee7841a54204fd00bb9b3fa9caec23d96d4455a7b9e998",
+    "whole_bytes": 5279,
+    "whole_sha256": "ac675d1954d10ead1a3df1fd33426aa8178118cccce5bc4d81abdf12c77e6f3a",
     "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
     "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
-    "bootstrap_sha256": "930da46f30f0766d342c378bdc917cda7b197cb1ed5dc791e10464c2482199e8"
+    "bootstrap_sha256": "097089946cd68344760ea20c8e13ec43db8a03f336d57c509a82a789193c8a8f",
+    "bootstrap_bytes": 12074
   },
   "local_input_sha256": {
     "engine.c": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
@@ -548,6 +550,44 @@
         "all_owned_outer_groups_terminal0_absent": true,
         "fresh_extractions_newcore_games_benchmarks": 0,
         "metadata_only_after_execution": true
+      }
+    },
+    "global_names": {
+      "stage": "shipping-after-types",
+      "functions": 12,
+      "physical_edits": 46,
+      "source_delta": -158,
+      "whole_delta": -61,
+      "entire_predecessor_native_equal": false,
+      "exact_reviewed_new_native_required": true,
+      "generic_metadata_exception": false,
+      "metadata_review_sha256": "4f80b574c9bc0af5c5f7f16a5ba4f5e29601edad11e0856fb34cb099be353cc1",
+      "metadata_reader_sha256": "0c602ff4bbcf84471d5fccb1b2086340a9060b005ab863429b47463cd450ab64",
+      "bounded_native_relation": "all26 SHF_ALLOC except exact pinned build-id bytes/address/flags/geometry same; exact mapped symbol attributes and external dynamic symbols/relocations/PHDR/entry match; loaded e_shoff lowbyte and build-id descriptor differ explicitly",
+      "source_proposal_sha256": "f59ddbe83d3561787207553d9de6b423ba7a227aedb97b1f8c8033ace531a6ec",
+      "cost_sha256": "e192da7467cbf2dfa950bf50f3127d45e684ef7c484c110bd2a86ccb1d8899c2",
+      "normal_status": "completed once; final README/recipe completion overlay is not another execution",
+      "standalone_implementation_symbols_only": true,
+      "normal_inputs_read_AST_experiments_reports_artifacts": false,
+      "normal": {
+        "build_sha256": "c90599c91b3842e7d057610c674894a72698179a21406a294fd597d507f0044d",
+        "runtime_sha256": "85fb029303d04913adeb853cec45dc923dd78b052ac69439ed58231fe3b321ad",
+        "readback_sha256": "5a91b08df7d76378dca0e04cf451e9f28e96957942877b5d18cdb7fa6fe7ba0a",
+        "producing_source_sha256": "8eb3087d63b4f3c2841b2b8d31482ea2714346f2e65e66d2cbb97350a0c36ec0",
+        "producing_recipe_sha256": "fcda2fd4fd7d7b7941063467a96d66b45a8311b224f2b6c43f8a7d3e978bc4be",
+        "old_source_sha256": "83cdd87587045726a9075da5a7b86ddd6a0b57bfb5a6968ffacc9956a29cf8e2",
+        "source_count": 26,
+        "shipping_attempts": 2,
+        "DEV_attempts": 2,
+        "selected_quit_EOF_sessions": 2,
+        "legal_GO_epochs": 8,
+        "normal_full_candidate_bytes_exact": true,
+        "old_DEV_source_native_exact": true,
+        "TIDs_absent_on_readback": true,
+        "entire_predecessor_native_equal": false,
+        "metadata_only_after_execution": true,
+        "scope": "exact new native/image and selected wrapper physical lifetime observed; source/body and bounded static metadata proof reused under exact candidate bytes",
+        "limits": "cancellation causality unproven; no fresh/DEV-engine/new core/game/performance matrix; unchanged builder has no separate compiler-descendant/group lifetime proof"
       }
     }
   },
