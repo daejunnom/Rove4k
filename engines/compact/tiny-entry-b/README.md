@@ -1,180 +1,100 @@
 # Maintained minimal B entry
 
-`engine.c` is the readable canonical B program, including DEV and shipping
-forms. It is the exact qualified minimal-UCI portfolio B source, not generated
-compact C maintained by hand. This folder promotes the existing program and
-fixed recipe; it changes no algorithm, protocol, resource, compiler or codec
-policy. It is the repository's MIT implementation; no external engine source
-is copied.
+`engine.c` is the unchanged readable canonical B program. The selected complete
+shipping file is **5,851 bytes**, still **1,755 bytes above 4,096**. The program
+retains hybrid bitboards, shared attackers, legal SEE, qualified singular
+exclusion, PVS/QS, coherent full-key TT and its existing fixed-resource UCI pool.
+Compact C, native ELF and complete wrapper are generated artifacts.
 
-The selected complete file is **5,955 bytes**, 1,859 bytes above 4,096. This is
-not a 4 KiB, strength, scaling or general portability claim. The qualified
-domain is Linux x86-64 on Ubuntu 24.04.4, GCC 13.3.0, binutils 2.42, glibc 2.39,
-Python 3.12.3 and xz 5.4.5. Python's linked LZMA encoder also affects exact
-compressed bytes. Other environments must pass the same exact identity gates;
-the builder does not silently accept a different output.
+## Ordinary build
 
-## Fixed build and identities
-
-From a normal checkout on that Linux environment, including WSL Ubuntu:
+On Linux x86-64 with the recorded Ubuntu 24.04.4/GCC 13.3.0/binutils 2.42/
+glibc 2.39/Python 3.12.3/xz 5.4.5 toolchain:
 
 ```sh
-python3 -B engines/compact/tiny-entry-b/build.py --out /absolute/new/external-build --dev
+python3 -B engines/compact/tiny-entry-b/build.py --out /absolute/new/B-build --dev
+python3 -B engines/compact/tiny-entry-b/fresh.py --out /absolute/new/B-fresh
 ```
 
-Outputs must be new absolute paths outside any Git checkout. Workers are fixed
-at 2, TT_BITS at 18, and PLY at 128. `--dev` additionally builds the unchanged
-diagnostic form; it does not select another shipping configuration. The actual
-compiler-stdin command is exactly:
+Output paths must be new absolute directories outside any Git checkout. The
+single local profile fixes two search workers, one controller, TT bits 18 and
+PLY 128. These are not final target-resource selections. Shipping compiler:
 
-```sh
+```text
 cc -std=c11 -Os -pthread -DWORKERS=2 -DTT_BITS=18 -DDEV=0 -x c - -o x
 ```
 
-This is B's selected unstripped command, not A's shorter stripped command. The
-restored-native ELF is an explicit identity class; historical file-compiled
-ELFs must not be substituted for it. DEV uses the same argument list with
-`-DDEV=1`. The complete entry uses the selected 75-byte shell launcher and XZ
-LZMA2 preset 9 extreme, lc=3/lp=0/pb=2, CRC64. These are B's selected parameters,
-not A/F's lc=2/lp=0/pb=0. No compiler, spelling or compression search is run.
+DEV changes only DEV to one. The compiler remains unstripped. Bootstrap,
+75-byte launcher and fixed XZ/LZMA2 preset 9 extreme, lc3/lp0/pb2, CRC64 remain
+unchanged. All bootstrap, source, restoration and launcher bytes count toward
+the complete file. The builder performs no policy, flag or codec sweep.
 
-Six tracked build helpers are needed: `engines/scripts/specialize.py`,
-`minify.py`, `rename_c.py`, `fixed_shipping_alpha.py`,
-`engines/compact/tiny-b/generate.py`, and
-`engines/compact/tiny-a/pack_stream.py`. Their complete LF-normalized hashes are
-pinned in `recipe.json`. Only `strip_counters()` and its local replacement helper
-are consumed from the B generator module. Its historical overlay/base-source
-graph is not executed or read: the maintained canonical combined program is
-already in `engine.c`. After preprocessing and lexical compaction, the exact
-declared 12 no-op shipping counter sites are removed. The fixed shipping alpha
-stage then applies the qualified 89-name allowlist and the two resource-token
-literals described below. It does not alter function, global or static-object
-spellings. The readable program and DEV never enter this stage.
+The old shared89 source-name/resource stage runs unchanged. A new local
+`shipping_storage.py` then applies the fixed eighteen remaining object names
+to the single exact B shipping source. Its embedded policy SHA is
+`ed24184ebe07a23e09983a219eb2f20370c783e7b308aee2515df8ecfe713c87`.
+It calls only the caller's pinned shared generic rewrite/scanner and lexer,
+with its own canonical readable bytes. The shared helper and C/E admission
+domains remain unchanged. DEV bypasses both shipping spelling stages.
 
-The builder copies and checks its local inputs and six helpers before importing
-the external copies. It reads no historical experiment folder, report, executable,
-dependency tree or network resource. `bootstrap.py.in` is the exact selected
-bootstrap with only the compiler-source literal replaced by an explicit marker;
-`launcher.sh` is its exact shell prefix. Runtime signal/process-group handling,
-unlinked-file execution and cleanup remain unchanged.
+The normal source closure has eighteen files. Helpers and local inputs are
+authenticated and copied before import. It reads no experiment, historical
+report, old generated file, other-family canonical source or network input.
+Each builder invocation reproduces shipping twice and optional DEV twice.
+`fresh.py` uses a separate temporary Git tree/archive and two independent source
+extractions without changing the calling checkout's index.
 
-| Output | Bytes | SHA-256 |
+## Source and image boundary
+
+Canonical B and DEV source/native remain exact to the old B5955 control.
+Shipping C falls **13,606 to 13,071 bytes** through 112 fixed token edits, with
+directives, literals, APIs, resources and PLY uses preserved. Actual complete
+preprocessor alias-only inversion, fresh header names and macro-definition
+multiplicity pass for this source pair.
+
+The new shipping ELF is a distinct image. The original experiment's whole-ELF
+identity assertion failed and remains failed. The separate new-image
+qualification pins both full hashes and accounts for all file bytes. Program
+headers, allocated-section geometry, code/data, dynamic symbols/strings and
+relocations remain exact. Explicit differences are limited to the literal GNU
+build-ID descriptor, ELF section-table pointer and fixed nonallocated
+symbol/string/section metadata associated with nineteen named object symbols.
+Local symbol order, raw attributes, values, sizes, sections and multiplicity
+remain fixed; only the permitted global ordering/string offsets differ.
+
+The qualifier does not normalize or strip an image, and does not claim general
+ABI equivalence. The sole stdin translation unit has no exported engine-object
+consumer in its unchanged dynamic symbol/relocation domain. Existing rule and
+search evidence is reused within this source and machine-code boundary, with
+actual selected restoration and process checks kept separate.
+
+The new normal builder requires the new full native identity. It never treats
+that image as the old native, and no failed old expectation is automatically
+updated. The metadata pure-byte suite passes 44 cases; first-cost controls and
+both independent candidate packages reproduce. The original failure index is
+`0bf7fa1b7fc6d74b40a0d59c30bf91c5bca7c6f729a90330d5129851c6193e66`;
+new cost receipt is
+`d5d4729a808e031f5f76d63e946be00a2e321c16ae47a8bb919d8d723debf9d4`.
+These hashes are provenance metadata, never generation inputs.
+
+## Selected identities
+
+| Form | Bytes | SHA-256 |
 | --- | ---: | --- |
-| Readable engine.c | 28,953 | `1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6` |
-| Compact shipping C | 13,606 | `abc1e1c734d10211e8b9f0a5fc2b97c20f931f08a33c639cd7739f349b4106d7` |
-| Restored native ELF | 26,592 | `221a865e2712cb3e704128e0ae8353edd358343f564fe53093040f6515d522ec` |
-| Complete launcher | 5,955 | `121e7fa70894df10fb945c1369cbfd3459000b2e7276749e2a3789ea412868d3` |
-| Bootstrap | — | `79edf5c48b2f82b36382c8544a2c7bc1f02af25227c2196679396e31238d72b6` |
+| Shipping C | 13,071 | `96e6e330e5289d1c404dac0402e8b672a89c52e193a9d4f9aebb02e0c9042ffa` |
+| Native ELF | 26,496 | `5a315a66f86ff81f9b0feb679b25f919c5aaf63bb9db2d157040a5b7ce6bbb4b` |
+| Complete file | 5,851 | `25b2c6a1198d5e600be252ae57da84ca9f9e40c3167021ce33f3f9eff29f425c` |
+| Bootstrap | — | `7159e4bad6b9bfd37f69dbcc8ebe6fec5ff497c425323ec2e71050f43dc46673` |
 
-The selected portfolio DEV compact C and restored ELF must remain exactly
-`31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2`
-and `9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30`.
-These are the matched portfolio DEV controls; no historical file-compiled DEV
-image is relabeled as this compiler-stdin image.
-
-Every build independently preprocesses, compacts, compiles and packages twice,
-then requires all expected hashes and direct complete-byte equality. Optional
-DEV generation/compilation also repeats twice. Raw used inputs, compiler stderr,
-preprocessed/compact C, bootstrap, native ELF, launcher and `build.json` stay in
-the external output. Reports remain incomplete on failure. CRLF checkouts are
-explicitly normalized to LF; lone CR fails. Local `.gitattributes` keeps all nine
-entry sources LF in Git.
-
-## Fresh Git-source and actual runtime binding
-
-The shipping-only policy `fixed89-alpha-resource-20261020` is embedded verbatim
-in the ordinary `engines/scripts/fixed_shipping_alpha.py` helper; it opens no
-policy side file or experiment output. Its JSON SHA-256 is
-`b3f08ba26b38dbce1e4b63d3eb98ab37f438295cfacff6037b1cfacbf7d5e5a0`.
-The fixed 89 spelling pairs cover only admitted private automatic variables,
-parameters, members and owned typedefs; B uses 82 pairs. Function names, global
-and static objects, `Move`, directives, strings, external ABI/libc/pthread names
-and nonlocal members remain unchanged. Only code-token uses of `WORKERS` and
-`TT_BITS` become `2` and `18`; `PLY` remains spelled as before. Exact input,
-counts, opaque regions, fresh aliases and expected output are checked. There is
-no mapping, identifier, resource, compiler or encoding search.
-
-B shipping C shrinks by 1,960 bytes and the complete file by 264 bytes relative
-to the qualified 6,219-byte control. The full native ELF, including nonallocated
-notes, must equal the original literal expected hash; no segment-only or
-build-ID exception is admitted. DEV bytes and readable `engine.c` remain exact.
-The original actual system-header expansion/inverse proof and fixed-policy
-whole-file qualification are reused only through exact source/native/whole
-identities. Their first-cost receipt is
-`e0527b2c9c566150791f6095346694961b81dc007fb9f89e1c135755ab81a1d8`,
-selected six-session receipt is
-`5fbd18434187219b571dfb962058298616d560c671485c32d320a368607df427`,
-and frozen source receipt is
-`436d7cbdc6ad7fa52b73d5b1e9075971b9249f64d8225b775585a4dbd5b0ad80`.
-Those are metadata, never build dependencies. The following commands produce
-separate fresh maintained-source and selected-wrapper evidence.
+The unchanged verifier binds a freshly generated wrapper to its new native:
 
 ```sh
-python3 -B engines/compact/tiny-entry-b/fresh.py --out /absolute/new/archive-proof
-python3 -B /absolute/new/archive-proof/checkout-1/engines/compact/tiny-entry-b/verify.py \
-  --build /absolute/new/archive-proof/build-1 --out /absolute/new/runtime-proof
+python3 -B engines/compact/tiny-entry-b/verify.py --build /absolute/B-build --out /absolute/new/B-runtime
 ```
 
-`fresh.py` names a closed set of **17 files**: this folder's nine source files,
-the six pinned build helpers and `engines/tests/{verify.py,chess_oracle.py}`.
-It preserves raw inputs and hashes, copies LF-normalized inputs into a new local
-Git repository with no remote or commits, writes a tree and archives it. The
-project checkout's index is never used. It admits only the named regular files
-and directory entries with safe archive paths. Two separate fresh extractions
-each invoke their own extracted builder with `--dev`, each doing two independent
-attempts; shipping C/native/whole/bootstrap and DEV C/native are compared across
-both extractions. `fresh.json`, raw inputs, source.tar and tree hash preserve the
-proof. An uncommitted isolated tree is source evidence, not project HEAD or CI
-success; after integration the same named ordinary files work from a checkout.
-
-`verify.py` SHA-pins and copies the two tracked independent black-box helpers.
-It checks the selected source/native/whole identities, launches only the actual
-whole file twice, and verifies the fixed three TIDs before UCI input, the exact
-restored image through `/proc`, the removed private directory and no live helper
-child. It checks legal white/black zero-clock moves, finite bare `go`, and an
-observably active clocked search followed by quit and EOF in separate sessions.
-Each final epoch must emit one legal bestmove, reach process wait and reader EOF,
-and leave no `/proc` entry. CPU activity is process-level evidence, not proof of
-cancellation causality or a performance measurement.
-
-## Preserved engine and reused qualification
-
-B keeps mailbox plus occupied/piece bitboards, shared attack logic, legal SEE
-with pin/king/EP/promotion handling and cancellation, qualified single singular
-extension with excluded-search learning/TT boundaries, PVS, check-aware QS,
-incremental HCE, history, continuation and learned correction. All four
-promotions, castling, canonical EP, FIDE third repetition, halfmove/dead-position
-handling, reversible-context full-key coherent locked TT and PLY abort with a
-retained legal witness remain in the actual source. Search workers are created
-at startup; completion and storage-reuse fences remain unchanged.
-
-The selected minimal shipping protocol returns `uciok` and `readyok`, accepts
-transactional `position startpos [moves ...]`, finite `go` with the qualified
-own-side clock policy, and quit/EOF. `stop` and `ucinewgame` are consumed without
-cancellation, wait or TT clearing; `infinite` is an ignored shipping token, so
-clockless go has the finite 1,000 ms default. Subsequent go/position and quit/EOF
-still cancel and physically settle old epochs before reuse. DEV retains the
-stronger identification/parser/diagnostics. No old optional-stop result is
-reused as proof of this deliberately narrower shipping policy.
-
-`recipe.json` records metadata hashes of the original family producer
-`b94f663777d1219cad9827bd7322cd3a0872f5fcac2a82efb8d4df81335fef90`,
-portfolio freeze receipt
-`71d1a8f86d09364fbe9f1f0a2138b5c87a8361a86b46e6756a182f754c9b9f9d`,
-actual portfolio runtime receipt
-`6f26a3c46bff4d9b3dfe531eaac9a43b9a02eff52d5bda1c1bc2ca9624a84b09`
-and separate B core receipt
-`a2965d8f57d36187cb33a7201467271f66f2dae42c8c42b55c518272eea5e951`.
-These are provenance, not builder inputs or executable prerequisites.
-
-The historical qualification binds actual SEE/singular optimized/sanitized
-positive controls, exact unchanged core bodies and matched DEV, 15 modeled
-shipping-policy cases and actual selected whole-file sessions. Separate direct
-minimal-source checks bound TT halfmove/path separation, scores `[0,916]`, EP
-selection/correction exclusion and PLY4 retained-witness interruption. Exact
-readable/DEV/full-native identity permits that core coverage to be reused;
-shipping source spelling and complete-file identity changed in the separately
-qualified alpha stage. This builder does not claim to rerun the old campaign.
-The new archive and selected-image lifecycle receipts are
-separate fresh evidence. No broad engine matrix, game-strength test, fair NPS,
-many-core campaign or training is implied by canonical promotion.
+It checks legal clocked/bare GO output, the restored full native identity,
+three stable startup TIDs, no remaining compiler child/private path,
+one active-close result and physical quit/EOF settlement. It does not require
+ordinary-TCEC optional commands from the minimum 4K interface. Cancellation
+causality, final playing strength, target scaling and 4KiB eligibility remain
+unproven. Generated binaries, reports and archives stay outside Git.

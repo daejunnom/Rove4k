@@ -105,6 +105,10 @@ The maintained-C-composition checkpoint `034e9d8` passes both language jobs in
 its [exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39391598903)
 and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39391598852).
 The C job actually regenerates and exercises the maintained 5,687-byte entry.
+The fixed-macro-loss checkpoint `c7be9ea` passes both language jobs in its
+[exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39392239296)
+and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39392239338).
+The A/F macro experiment remains a local cost-only loss, not a new CI engine run.
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
@@ -121,7 +125,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
 | A | 4,980 B | 884 B | Shared startup/search phase counter, owned move query, fixed local/object spelling |
-| B | 5,955 B | 1,859 B | Hybrid bitboards, legal SEE/singular and fixed private spelling |
+| B | 5,851 B | 1,755 B | Hybrid bitboards, legal SEE/singular and fixed local/object spelling |
 | C | 5,687 B | 1,591 B | Real AVX2 evaluation, shared query/startup and fixed private spelling |
 | D scalar / HQ | 7,478 / 7,718 B | 3,382 / 3,622 B | Own ELF restoration, metadata-first Board and shared PVS retry phase |
 | E | 5,679 B | 1,583 B | All 21 untrained coefficients in evaluation/ordering; fixed spelling |
@@ -2274,3 +2278,63 @@ final source/cost index is
 `6a78e50f2819950dde3ade2bf55c4bbb5a9ca4230a122e33017b4f6e4f04b0fe`.
 All tools terminate without forced cleanup. The producing source snapshot is
 preserved; the final README result is the only post-cost source change.
+
+## B storage spellings: distinct metadata class and maintained promotion
+
+The separate [B metadata stage](../engines/experiments/tiny-alpha-storage-bce/METADATA.md)
+now measures the same fixed storage18 source under an explicitly different
+native-image contract. The original full-native assertion stays failed. The new
+qualifier pins both entire files and accounts for the header, section payloads,
+symbol/string records and intervening bytes. All program headers and allocated
+section geometry remain exact; code/data, dynamic symbols/strings and
+relocations are exact. Only the literal build-ID descriptor, section-table
+pointer and the specified nonallocated metadata of nineteen object symbols may
+change. Local symbol ordering and raw attributes remain fixed; permitted global
+symbol order is compared with exact mapped record multiplicity. No stripping,
+normalized executable or general ABI equivalence is claimed.
+
+Forty-four pure byte fixtures pass, including repinned structural mutations.
+The fixed normal producer first reproduces B5955 twice, then independently
+compiles and packages the new candidate twice. Candidate C/E compiles and all
+target executions remain zero in that cost stage. Actual whole cost is
+**5,851 bytes**, saving 104; shipping source is 13,071, saving 535. Independent
+actual-file readback confirms the two full natives/wholes, 26 allocated-section
+geometries, unchanged remaining payloads, strict XZ restoration and the exact
+compiler-stdin source. Cost receipt is
+`d5d4729a808e031f5f76d63e946be00a2e321c16ae47a8bb919d8d723debf9d4`;
+readback is `84030a2193e74b2804dbba3d294aae1bd41247583ec1a08a8b9c03b7217fae13`.
+The pure fixture loader uses an explicit local import for its documented
+isolated Python invocation; the qualifier and its literal policy are unchanged.
+The producing 57-source snapshot remains preserved, with only the final result
+documentation added afterward.
+
+The [maintained B entry](../engines/compact/tiny-entry-b/README.md) now applies
+this fixed mapping through one local embedded-policy helper after unchanged
+shared89 alpha. Canonical B, DEV, compiler/profile/codec/bootstrap/launcher and
+the existing shared C/E helpers remain unchanged. The three generic scanner/
+rewrite function ASTs match the experimental reference. Normal builds consume
+eighteen ordinary sources, without experiments, other canonical families,
+historical reports or old generated files as inputs. Admission requires the new
+full native SHA; it never presents this image as the old B native.
+
+The old seventeen-source normal closure and shipping/DEV files are preserved
+and reproduced first. Two independent new source extractions regenerate
+shipping and DEV twice each. Both fresh wrappers then pass the unchanged B
+verifier: four actual quit/EOF sessions, sixteen legal GO results, new native
+identity, stable three-TID startup, no live compiler child/private path and
+physical reader/process settlement. New DEV bytes equal the old full files;
+there is no new DEV runtime, game or benchmark. Existing rule/search evidence
+is reused within the exact canonical/source and machine-code boundary, not
+through an assertion of old full-native equality. Cancellation causality remains
+unproven.
+
+The final promotion receipt is
+`7837cec084aa65e2a7541765fa2a7a60a8050445d14f2fe297e6d0fc7fdacbf6`.
+The executed normal-source archive is
+`eb6d28e0a58dc8d96035fff51359d1b82c26a8c116635f4690139cf9bc58069b`.
+After those runs, README alone removes an unsupported FD-observation claim;
+the receipt pins both documentation versions and all unchanged executable
+inputs. The first collector's mistaken C-only field lookup is preserved as a
+collector failure, not an engine failure; it causes no engine rerun. FDs are
+not claimed as observed by the unchanged B verifier. This maintained promotion
+awaits its own exact-head CI and remains 1,755 bytes above 4KiB.
