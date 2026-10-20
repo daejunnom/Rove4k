@@ -1,12 +1,11 @@
-"""One fixed F shipping spelling policy, stored as ordinary source.
+"""One fixed F composition alpha domain, with the original73 map and scanners.
 
-The original AF policy JSON is embedded byte-for-byte. Only the qualified F
-shipping source is admitted here. The caller supplies the pinned identifier
-lexer and the canonical readable F bytes. There are no live AF, report, old
-executable, compiler, header, or codec dependencies in this pure lexical stage.
-The independent opaque scanner and rewrite functions are copied unchanged from
-the qualified AF reference. Actual complete-native and package gates remain the
-builder's responsibility; lexical checks alone do not prove C semantics.
+Both original AF policy bytes and the explicit new F-only count domain are
+embedded. The caller supplies its pinned lexer and exact new canonical readable.
+There are no file, experiment, report, old executable or other engine reads.
+Generic lexical/opaque functions are copied unchanged from the prior ordinary
+helper. Header/native/package/runtime qualification belongs to the caller;
+lexical reproduction is not a general C AST or name-binding proof.
 """
 from collections import Counter
 import hashlib
@@ -723,44 +722,318 @@ def _rewrite(data, substitutions, *, lexer):
     return candidate, counts, opaque
 
 
+_DOMAIN_SHA256 = "749133a23382dbaaf74fdd46e80d3b3c963688430502e14e84d0d63832870a04"
+_DOMAIN_BYTES = b'''{
+  "format": 1,
+  "family": "F",
+  "scope": "sole fixed source composition, unchanged alpha73 and storage18 maps with candidate-specific literal count/domain; no policy discovery at build time",
+  "readable": {
+    "bytes": 25755,
+    "sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd"
+  },
+  "baseline_alpha_policy_sha256": "4bf1b189e9073aa994c29c07f64bcf05b1b3e749a0a172150cac68c1971d7d92",
+  "baseline_storage_policy_sha256": "e89afbf078f902a4cfc3c0ee8c1fba525966be76e4df14b18f50746c2d40cff3",
+  "alpha_mapping": {
+    "Board": "za",
+    "Entry": "zb",
+    "Worker": "zc",
+    "advance": "zd",
+    "bad": "ze",
+    "best": "zf",
+    "bestmove": "zg",
+    "beta": "zh",
+    "bonus": "zi",
+    "bound": "zj",
+    "budget": "zk",
+    "cell": "zl",
+    "center": "zm",
+    "check": "zn",
+    "colors": "zo",
+    "continuation": "zp",
+    "correction": "zq",
+    "count": "zr",
+    "created": "zs",
+    "data": "zt",
+    "depth": "zu",
+    "draw": "zv",
+    "end": "zw",
+    "error": "zx",
+    "evaluation": "zy",
+    "file": "zz",
+    "from": "zA",
+    "half": "zB",
+    "history": "zC",
+    "home": "zD",
+    "inc": "zE",
+    "key": "zF",
+    "keys": "zG",
+    "knights": "zH",
+    "last": "zI",
+    "legal": "zJ",
+    "length": "zK",
+    "line": "zL",
+    "list": "zM",
+    "lock": "zN",
+    "lower": "zO",
+    "minors": "zP",
+    "move": "zQ",
+    "moves": "zR",
+    "name": "zS",
+    "next": "zT",
+    "nodes": "zU",
+    "old": "zV",
+    "pawn": "zW",
+    "ply": "zX",
+    "present": "zY",
+    "prior": "zZ",
+    "prom": "z0",
+    "promotion": "z1",
+    "quiet": "z2",
+    "rank": "z3",
+    "repetitions": "z4",
+    "rook": "z5",
+    "root": "z6",
+    "save": "z7",
+    "score": "z8",
+    "scores": "z9",
+    "seen": "ya",
+    "shift": "yb",
+    "side": "yc",
+    "status": "yd",
+    "tactical": "ye",
+    "target": "yf",
+    "threads": "yg",
+    "transit": "yh",
+    "ttdepth": "yi",
+    "upper": "yj",
+    "witness": "yk"
+  },
+  "alpha_resources": {
+    "WORKERS": "2",
+    "TT_BITS": "18",
+    "PLY": "128"
+  },
+  "storage_mapping": {
+    "back": "qa",
+    "command": "qb",
+    "deadline": "qc",
+    "epoch": "qd",
+    "fallback": "qe",
+    "finished": "qf",
+    "game_keys": "qg",
+    "game_length": "qh",
+    "material": "qi",
+    "mutex": "qj",
+    "pending": "qk",
+    "position": "ql",
+    "quitting": "qm",
+    "ready": "qn",
+    "steps": "qo",
+    "stopped": "qp",
+    "table": "qq",
+    "workers": "qr"
+  },
+  "resource_token_counts_before_literals": {
+    "WORKERS": 6,
+    "TT_BITS": 3,
+    "PLY": 8
+  },
+  "alpha": {
+    "source": {
+      "bytes": 12395,
+      "sha256": "ae4b81bf9a29e43efea3fe63c3ed733d2482546de3704e932ad61328fe68cc7b"
+    },
+    "candidate": {
+      "bytes": 10909,
+      "sha256": "69ee88c2353ae8579e6da02ac06ec2b408812c29bb4a40684d59b9f02bed14ad"
+    },
+    "alpha_counts": {
+      "Board": 25,
+      "Entry": 3,
+      "Worker": 8,
+      "advance": 2,
+      "bad": 3,
+      "best": 16,
+      "bestmove": 3,
+      "beta": 10,
+      "bonus": 6,
+      "bound": 7,
+      "budget": 9,
+      "cell": 6,
+      "center": 2,
+      "check": 4,
+      "colors": 3,
+      "continuation": 3,
+      "correction": 5,
+      "count": 5,
+      "created": 8,
+      "data": 16,
+      "depth": 20,
+      "draw": 4,
+      "end": 4,
+      "error": 6,
+      "evaluation": 2,
+      "file": 2,
+      "from": 40,
+      "half": 8,
+      "history": 3,
+      "home": 12,
+      "inc": 4,
+      "key": 11,
+      "keys": 9,
+      "knights": 3,
+      "last": 2,
+      "legal": 3,
+      "length": 6,
+      "line": 16,
+      "list": 5,
+      "lock": 4,
+      "lower": 6,
+      "minors": 4,
+      "move": 7,
+      "moves": 28,
+      "name": 3,
+      "next": 2,
+      "nodes": 4,
+      "old": 4,
+      "pawn": 2,
+      "ply": 10,
+      "present": 3,
+      "prior": 5,
+      "prom": 3,
+      "promotion": 3,
+      "quiet": 3,
+      "rank": 4,
+      "repetitions": 3,
+      "rook": 2,
+      "root": 3,
+      "save": 8,
+      "score": 38,
+      "scores": 7,
+      "seen": 3,
+      "shift": 3,
+      "side": 6,
+      "status": 7,
+      "tactical": 3,
+      "target": 8,
+      "threads": 3,
+      "transit": 2,
+      "ttdepth": 2,
+      "upper": 5,
+      "witness": 7
+    },
+    "resource_counts": {
+      "WORKERS": 0,
+      "TT_BITS": 0,
+      "PLY": 0
+    },
+    "mapping_used": 73,
+    "alpha_saved_bytes": 1486,
+    "resource_saved_bytes": 0,
+    "source_saved_bytes": 1486,
+    "source_edits_count": 509,
+    "retained_directive_bytes": 416,
+    "opaque_regions_preserved": 52
+  },
+  "storage": {
+    "source": {
+      "bytes": 10909,
+      "sha256": "69ee88c2353ae8579e6da02ac06ec2b408812c29bb4a40684d59b9f02bed14ad"
+    },
+    "candidate": {
+      "bytes": 10477,
+      "sha256": "c63a450245ff4ca703a5abe2dc75d840c7c7e936bb2a30a726c30014e3a92e90"
+    },
+    "alpha_counts": {
+      "back": 3,
+      "command": 4,
+      "deadline": 3,
+      "epoch": 4,
+      "fallback": 3,
+      "finished": 4,
+      "game_keys": 4,
+      "game_length": 5,
+      "material": 2,
+      "mutex": 13,
+      "pending": 5,
+      "position": 8,
+      "quitting": 4,
+      "ready": 0,
+      "steps": 2,
+      "stopped": 10,
+      "table": 9,
+      "workers": 6
+    },
+    "resource_counts": {},
+    "mapping_used": 17,
+    "alpha_saved_bytes": 432,
+    "resource_saved_bytes": 0,
+    "source_saved_bytes": 432,
+    "source_edits_count": 89,
+    "retained_directive_bytes": 416,
+    "opaque_regions_preserved": 52
+  },
+  "preserved_PLY_code_uses": 0
+}
+'''
 
-def transform_source(data,*,family,lexer,readable):
-    """Admit F only, with the original mapping/count/freshness boundaries."""
-    fixed=json.loads(POLICY_BYTES)
-    if family!='F':raise ValueError('only the qualified maintained F input is admitted')
-    row=fixed['families']['F'];_binding(data,row['source'],'F shipping input')
-    mapping=fixed['mapping'];resources=fixed['resource_literals']
-    if resources!={'WORKERS':'2','TT_BITS':'18','PLY':'128'}:
-        raise ValueError('fixed resources changed')
-    if len(mapping)!=73 or sorted(mapping)!=fixed['allowed_shipping_names'] or set(mapping)&set(fixed['protected_shipping_names']):
-        raise ValueError('protected or unaudited old spelling admitted')
-    if any(len(old)<=2 or not re.fullmatch(r'[A-Za-z][A-Za-z0-9]*',new) or len(new)!=2 for old,new in mapping.items()):
-        raise ValueError('unexpected alias rule')
-    aliases=set(mapping.values())
-    if len(aliases)!=len(mapping):raise ValueError('noninjective F aliases')
-    _binding(readable,fixed['readable_inputs']['engines/compact/tiny-entry-f/engine.c'],'F canonical readable input')
-    reserved=set(_WORD.findall(readable.decode()))|set(_WORD.findall(_logical(readable.decode())[0]))
-    if aliases&reserved:raise ValueError('alias occurs in the canonical readable F source')
-    before=_sha(data)
-    candidate,counts,opaque=_rewrite(data,{**mapping,**resources},lexer=lexer)
-    alpha_counts={old:counts[old] for old in mapping}
-    resource_counts={old:counts[old] for old in resources}
-    if alpha_counts!=row['alpha_counts'] or resource_counts!=row['resource_counts']:
-        raise ValueError('literal F token occurrence counts changed')
-    alpha_saved=sum((len(old)-len(new))*counts[old] for old,new in mapping.items())
-    resource_saved=sum((len(old)-len(new))*counts[old] for old,new in resources.items())
-    directive_bytes=sum(len(raw.encode()) for kind,raw in opaque if kind=='directive')
-    used=sum(counts[old]>0 for old in mapping)
-    if (alpha_saved!=row['alpha_saved_bytes'] or resource_saved!=row['resource_saved_bytes']
-            or len(data)-len(candidate)!=row['source_saved_bytes'] or used!=row['mapping_used']
-            or sum(counts.values())!=row['source_edits_count'] or directive_bytes!=row['retained_directive_bytes']
-            or len(opaque)!=row['opaque_regions_preserved']):
-        raise ValueError('literal F arithmetic or opaque count changed')
-    _binding(candidate,row['candidate'],'F sole candidate')
-    if _sha(data)!=before:raise ValueError('source mutated')
-    return candidate,{'family':'F','original_AF_policy_sha256':POLICY_SHA256,'mapping':mapping,'mapping_used':used,
-        'alpha_counts':alpha_counts,'resource_literals':resources,'resource_counts':resource_counts,
-        'alpha_saved_bytes':alpha_saved,'resource_saved_bytes':resource_saved,'source_saved_bytes':len(data)-len(candidate),
-        'source_edits_count':sum(counts.values()),'retained_directive_bytes':directive_bytes,'opaque_regions_preserved':len(opaque),
-        'canonical_F_freshness_checked':True,'independent_opaque_and_rewrite_checks':True,
-        'source_only_proof':True,'native_or_package_gate_executed':False}
+
+def transform_source(data, *, family, lexer, readable):
+    """Admit only the new exact F domain after unchanged resource/function stages."""
+    if family != "F" or not isinstance(family, str):
+        raise ValueError("only the exact maintained F composition domain is admitted")
+    if not isinstance(data, bytes) or not isinstance(readable, bytes):
+        raise ValueError("immutable shipping and canonical readable bytes required")
+    if (_sha(POLICY_BYTES) != POLICY_SHA256 or _sha(_DOMAIN_BYTES) != _DOMAIN_SHA256):
+        raise ValueError("embedded original alpha or composition domain policy changed")
+    original, fixed = json.loads(POLICY_BYTES), json.loads(_DOMAIN_BYTES)
+    if (fixed["format"] != 1 or fixed["family"] != "F"
+            or fixed["baseline_alpha_policy_sha256"] != POLICY_SHA256):
+        raise ValueError("unknown F alpha composition domain")
+    mapping, resources = fixed["alpha_mapping"], fixed["alpha_resources"]
+    if (mapping != original["mapping"] or resources != original["resource_literals"]
+            or resources != {"WORKERS": "2", "TT_BITS": "18", "PLY": "128"}
+            or len(mapping) != 73 or sorted(mapping) != original["allowed_shipping_names"]
+            or set(mapping).intersection(original["protected_shipping_names"])):
+        raise ValueError("original alpha73 resource/protected boundary changed")
+    if any(len(old) <= 2 or not re.fullmatch(r"[A-Za-z][A-Za-z0-9]*", new) or len(new) != 2
+           for old, new in mapping.items()):
+        raise ValueError("unexpected original alpha alias rule")
+    aliases = set(mapping.values())
+    if len(aliases) != 73 or aliases.intersection(fixed["storage_mapping"].values()):
+        raise ValueError("noninjective or overlapping fixed F aliases")
+    _binding(readable, fixed["readable"], "F composition canonical readable")
+    own_text = readable.decode("utf-8")
+    reserved = set(_WORD.findall(own_text)) | set(_WORD.findall(_logical(own_text)[0]))
+    if aliases.intersection(reserved):
+        raise ValueError("alpha alias occurs in canonical composition readable")
+    row = fixed["alpha"]
+    _binding(data, row["source"], "F composition alpha input")
+    before, readable_before = _sha(data), _sha(readable)
+    candidate, counts, opaque = _rewrite(data, {**mapping, **resources}, lexer=lexer)
+    actual = {
+        "source": row["source"], "candidate": row["candidate"],
+        "alpha_counts": {old: counts[old] for old in mapping},
+        "resource_counts": {old: counts[old] for old in resources},
+        "mapping_used": sum(counts[old] > 0 for old in mapping),
+        "alpha_saved_bytes": sum((len(old) - len(new)) * counts[old] for old, new in mapping.items()),
+        "resource_saved_bytes": sum((len(old) - len(new)) * counts[old] for old, new in resources.items()),
+        "source_saved_bytes": len(data) - len(candidate), "source_edits_count": sum(counts.values()),
+        "retained_directive_bytes": sum(len(part.encode("utf-8")) for kind, part in opaque if kind == "directive"),
+        "opaque_regions_preserved": len(opaque),
+    }
+    if actual != row or any(actual["resource_counts"].values()):
+        raise ValueError("new F alpha literal counts/arithmetic/opaque domain changed")
+    _binding(candidate, row["candidate"], "sole F composition alpha result")
+    if _sha(data) != before or _sha(readable) != readable_before:
+        raise ValueError("input bytes mutated")
+    return candidate, {
+        "family": "F", "policy_sha256": _DOMAIN_SHA256,
+        "original_AF_policy_sha256": POLICY_SHA256, "mapping": mapping,
+        "resource_literals": resources, **actual,
+        "canonical_F_freshness_checked": True,
+        "original73_mapping_and_protection_unchanged": True,
+        "independent_opaque_and_rewrite_checks": True,
+        "input_immutable": True, "source_only_proof": True,
+        "native_or_package_gate_executed": False,
+    }

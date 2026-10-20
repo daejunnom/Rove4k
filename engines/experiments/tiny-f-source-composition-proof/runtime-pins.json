@@ -1,0 +1,61 @@
+{
+  "format": 1,
+  "scope": "exact two F5051 wrappers after four actual functional gates; no candidate shipping DEV identity",
+  "cost_directory": "/home/stemxstudio/rove4k-tiny-f-source-composition-next-first-20261020",
+  "cost_sha256": "c9b2cbb83662610965b9ccd1ebc3935f73db605ec5853775836d5abd3c219313",
+  "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+  "expected": {
+    "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+    "source_bytes": 10477,
+    "source_sha256": "c63a450245ff4ca703a5abe2dc75d840c7c7e936bb2a30a726c30014e3a92e90",
+    "native_bytes": 22672,
+    "native_sha256": "757b9a14cd5174dad55754196cce098fd89018a8b0d7adcf08bcddb2e1fc092b",
+    "whole_bytes": 5051,
+    "whole_sha256": "ad4030ad32af47469ca067e4f10c4b60103eddcc6afdfefd22dedea1269052ce",
+    "bootstrap_sha256": "3a6dc4c7c77c77b48f4b020cda1a4397af22eb2cdea97447bf97d7bae8a29162"
+  },
+  "functional_receipts": {
+    "query": {
+      "path": "/home/stemxstudio/rove4k-tiny-f-source-composition-query-20261020/results.json",
+      "sha256": "5667f5ff42288da513bdf27b6cfc7a35846ccc1b8871a5d62af886bf23c67d16"
+    },
+    "phase": {
+      "path": "/home/stemxstudio/rove4k-tiny-f-source-composition-phase-20261020/results.json",
+      "sha256": "7cfdd6489ea3771502cef8ffab72acae5b857494cfd1e647548681c06690a719"
+    },
+    "epoch": {
+      "path": "/home/stemxstudio/rove4k-tiny-f-source-composition-epoch-20261020/results.json",
+      "sha256": "026a8dc2cff7dea559df06e8e5e43b656c6d49d52468430d665011073bad421c"
+    },
+    "mtd": {
+      "path": "/home/stemxstudio/rove4k-tiny-f-source-composition-mtd-20261020/results.json",
+      "sha256": "89b904412a091b7c26d793a460e3a7f3e4c52e66b69800b33e181bbf0a237302"
+    }
+  },
+  "ordinary_inputs": {
+    "control/control/engines/compact/tiny-entry-f/verify.py": {
+      "bytes": 7012,
+      "sha256": "cc63a511446c35db54676356a9d885b95db7da994133147cda3e3ff1c4464b0c"
+    },
+    "reference/engines/tests/verify.py": {
+      "bytes": 45921,
+      "sha256": "9327ad01dd75bc17f04f400b57d5af3d6891a1abbb7f22aa6222389d50da138f"
+    },
+    "reference/engines/tests/chess_oracle.py": {
+      "bytes": 10730,
+      "sha256": "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8"
+    },
+    "runtime_ownership.py": {
+      "bytes": 2616,
+      "sha256": "1d55526126696f3c03c2d8e17e25bff2803c18984c63d6741891e330c08c50af"
+    }
+  },
+  "mirror_files": {
+    "control/control/engines/compact/tiny-entry-f/verify.py": "engines/compact/tiny-entry-f/verify.py",
+    "reference/engines/tests/verify.py": "engines/tests/verify.py",
+    "reference/engines/tests/chess_oracle.py": "engines/tests/chess_oracle.py"
+  },
+  "candidate_DEV_identity_admitted": false,
+  "actual_wrapper_limit": 2,
+  "actual_attempt": 1
+}

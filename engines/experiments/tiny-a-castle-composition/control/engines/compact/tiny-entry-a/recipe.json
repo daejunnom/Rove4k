@@ -1,0 +1,454 @@
+{
+  "format": 1,
+  "profile": {
+    "workers": 2,
+    "tt_bits": 18,
+    "ply": 128,
+    "dev_default": false
+  },
+  "compiler": [
+    "cc",
+    "-Os",
+    "-x",
+    "c",
+    "-",
+    "-o",
+    "x",
+    "-s"
+  ],
+  "preprocessor": [
+    "cc",
+    "-std=c11",
+    "-Os",
+    "-pthread",
+    "-DWORKERS=2",
+    "-DTT_BITS=18"
+  ],
+  "helper_sha256": {
+    "engines/scripts/specialize.py": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d",
+    "engines/scripts/minify.py": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b",
+    "engines/scripts/rename_c.py": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
+    "engines/compact/tiny-a/stitch.py": "2b0d25b4855a3ed4ddd9e24b8e4b0e081439baa2ed8f744dba0215a700023f23",
+    "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
+    "engines/compact/tiny-entry-a/shipping_alpha.py": "bcc2c28ad8b51a5c3eec6752e157f5de8c46e960333ad1a24fbd0ad328d8597d",
+    "engines/scripts/fixed_shipping_storage.py": "3f4f05b0b3fee71ee8876b22653c9b7481b5af207b7e023c27b0832e4e734d71"
+  },
+  "fixed_renames": [
+    [
+      "score",
+      "l"
+    ],
+    [
+      "from",
+      "o"
+    ],
+    [
+      "moves",
+      "B"
+    ],
+    [
+      "depth",
+      "C"
+    ],
+    [
+      "Board",
+      "E"
+    ],
+    [
+      "alpha",
+      "G"
+    ],
+    [
+      "best",
+      "H"
+    ],
+    [
+      "line",
+      "R"
+    ],
+    [
+      "budget",
+      "S"
+    ],
+    [
+      "data",
+      "U"
+    ],
+    [
+      "created",
+      "V"
+    ],
+    [
+      "bestmove",
+      "ab"
+    ],
+    [
+      "target",
+      "ad"
+    ],
+    [
+      "piece_index",
+      "ae"
+    ],
+    [
+      "home",
+      "af"
+    ],
+    [
+      "correction",
+      "ah"
+    ],
+    [
+      "Worker",
+      "ai"
+    ],
+    [
+      "scores",
+      "aj"
+    ],
+    [
+      "status",
+      "ak"
+    ],
+    [
+      "continuation",
+      "an"
+    ],
+    [
+      "bound",
+      "ao"
+    ],
+    [
+      "length",
+      "at"
+    ],
+    [
+      "repetitions",
+      "av"
+    ],
+    [
+      "tactical",
+      "az"
+    ],
+    [
+      "keys",
+      "aA"
+    ],
+    [
+      "list",
+      "aB"
+    ],
+    [
+      "evaluation",
+      "aC"
+    ],
+    [
+      "ply",
+      "aD"
+    ],
+    [
+      "reduce",
+      "aE"
+    ],
+    [
+      "beta",
+      "aH"
+    ],
+    [
+      "half",
+      "aI"
+    ],
+    [
+      "save",
+      "aJ"
+    ],
+    [
+      "bonus",
+      "aK"
+    ],
+    [
+      "check",
+      "aL"
+    ],
+    [
+      "error",
+      "aM"
+    ],
+    [
+      "promotion",
+      "aR"
+    ],
+    [
+      "key",
+      "aT"
+    ],
+    [
+      "set_position",
+      "aU"
+    ],
+    [
+      "infinite",
+      "aY"
+    ],
+    [
+      "clock",
+      "a1"
+    ],
+    [
+      "count",
+      "a2"
+    ],
+    [
+      "legal",
+      "a4"
+    ],
+    [
+      "nodes",
+      "a5"
+    ],
+    [
+      "minors",
+      "a7"
+    ],
+    [
+      "side",
+      "bd"
+    ]
+  ],
+  "resource_literals": [
+    [
+      "WORKERS",
+      "2"
+    ],
+    [
+      "TT_BITS",
+      "18"
+    ]
+  ],
+  "function_spellings": [
+    [
+      "attacked",
+      "aa"
+    ],
+    [
+      "make",
+      "ac"
+    ],
+    [
+      "think",
+      "ag"
+    ],
+    [
+      "value",
+      "al"
+    ],
+    [
+      "start",
+      "am"
+    ],
+    [
+      "dead",
+      "ap"
+    ],
+    [
+      "mix",
+      "aq"
+    ],
+    [
+      "gen",
+      "ar"
+    ],
+    [
+      "now",
+      "as"
+    ],
+    [
+      "search",
+      "au"
+    ],
+    [
+      "probe",
+      "aw"
+    ],
+    [
+      "capture",
+      "ax"
+    ],
+    [
+      "claim",
+      "ay"
+    ],
+    [
+      "learn",
+      "aF"
+    ],
+    [
+      "first",
+      "aG"
+    ],
+    [
+      "parse",
+      "aN"
+    ],
+    [
+      "go",
+      "aO"
+    ],
+    [
+      "result",
+      "aP"
+    ],
+    [
+      "read_line",
+      "aQ"
+    ],
+    [
+      "number",
+      "aS"
+    ],
+    [
+      "work",
+      "aV"
+    ],
+    [
+      "wait",
+      "aW"
+    ],
+    [
+      "clear",
+      "aX"
+    ],
+    [
+      "text",
+      "aZ"
+    ],
+    [
+      "rights",
+      "ba"
+    ],
+    [
+      "piece",
+      "bb"
+    ],
+    [
+      "state",
+      "bc"
+    ],
+    [
+      "ep",
+      "be"
+    ],
+    [
+      "put",
+      "bf"
+    ],
+    [
+      "walk",
+      "bg"
+    ],
+    [
+      "add",
+      "bh"
+    ]
+  ],
+  "compression": {
+    "format": "lzma-alone",
+    "filter": "LZMA1",
+    "preset": 9,
+    "extreme": true,
+    "lc": 2,
+    "lp": 0,
+    "pb": 0,
+    "check": "NONE",
+    "dictionary_bytes": 67108864,
+    "header_hex": "0200000004ffffffffffffffff"
+  },
+  "expected": {
+    "readable_sha256": "71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734",
+    "source_bytes": 10184,
+    "source_sha256": "9e764bbbea91f198a4cb5aff62aae9f3007df5f715d4d8b8142e4795b5109d5a",
+    "native_bytes": 22672,
+    "native_sha256": "84ce7fd107783474af8f39aeec7b95c244d475ab797eefd2627b9741b265210a",
+    "whole_bytes": 4980,
+    "whole_sha256": "4f339d08d99e51cd5935f20cc10d0665ed19f515e227cb5fa6be1623e7b21a8d",
+    "bootstrap_sha256": "1397aa310d1ae1e65b528f3f12977494cde173356313b687436ec3b15b37a391",
+    "dev_source_sha256": "41ab9f0f5d28183b76833d038c40e0bb6a2ee6ef9303766c293dd577680a4c9c",
+    "dev_native_sha256": "8733dbf0814a2c2545251f6e0e17d243ecfd41fce7853fb325ca9720fedd1102"
+  },
+  "local_input_sha256": {
+    "engine.c": "71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734",
+    "bootstrap.py.in": "898bf1f24168f6e99a7ffb9b0ba9e805af0c7627ea115d47ac687c1389d015ba",
+    "launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
+  },
+  "qualified_receipt": {
+    "startup_final_summary_sha256": "f09a0b388e6417f5e80964b39eac1b2341fb2809314a5e24ef8c82f918fb0f60",
+    "startup_first_cost_sha256": "e24de8edf5f33558193d8f0e57b68de4a2eb9bf5f9887be24426f1d072578240",
+    "startup_body_bindings_sha256": "9ac7b17088d1b823f963ce1e688a136a759329727de42935a214e6509684fecb",
+    "startup_five_phase_modes_sha256": "a56a73586870531ce6547917fa62564fd14978564da72679b74de139519f0dff",
+    "startup_actual_two_wrappers_18epochs_sha256": "f13080626ea2e169651c379321de1a69fcfe2061fa458a8c527ba4b031ccb960",
+    "startup_standalone_reproduction_sha256": "d132d82be9ac252cd6bb96b29301e1e180700d1b0dc294e6d70d7f8931285911",
+    "independent_DEV_two_compile_binding_sha256": "af6889fb9009fe9cbd7c59361a005cf2a89f21274088eabb90c49570ec52d342",
+    "predecessor_5140": {
+      "composition_first_cost_sha256": "e64bb57448049fe95d63859ebb4a04cdac2fd4ab1783f2154a12bcace6686fe3",
+      "ownership_summary_sha256": "671717f28b8efdf6417c2d660aac1a2a9bde0dff3661cb22caff3b4b78090407",
+      "transport_original_freeze_sha256": "8c672052054916bba63d436bddfa9fff6a45d27487eaa5d8d2a61c5d076ce1d8",
+      "transport_input_closure_revision_sha256": "2a07487768738bb9cd87f24f27a0e41b084cce7dd12322d90435a2e5c4975219",
+      "predecessor_5207": {
+        "producer_build_sha256": "59f2b8b30ca17d8e084474f1dff8b7effb1e177ebaa2fb3f9f69e09b6c27a9d1",
+        "final_evidence_index_sha256": "be24c6f166da35230f7ebbdff979979744c7cc49339927055894fe08b4ff9c8f",
+        "predecessor_5223": {
+          "producer_build_sha256": "fa4587ce3af610e04edff071e5976b2fdb638f2c163701d21dbe61de34c907f2",
+          "runtime_receipt_sha256": "5d298cc4e7ad787a5503c46a2d33a8e338689f678d64fc8bc0a086ef6ed077d3"
+        },
+        "scope": "final qualified 5207 generated-member/legal-startpos-history specialization; historical receipts are not executed or inferred by builder"
+      },
+      "scope": "actual fixed 5140 composition cost; ownership query/reset and unchanged board/search evidence reused by exact source boundaries, transport preserves exact ownership bootstrap; new selected runtime receipt is separate"
+    },
+    "scope": "exact qualified startup5129 source; old rule/search/query proofs and five DEV0 startup modes reused through actual source bindings; DEV pins independently generated/compiled twice before literal admission, no new fixture execution",
+    "shipping_alpha": {
+      "policy_sha256": "e1d5daf3636851711d08309b772edf7a3546bfffeb402d745d33eaaf80560244",
+      "FINAL_index_sha256": "5d0878cab7b9f7758bb12a11ea490c6e3fdc01f208aebdbdcb5536adcdf55f7b",
+      "source_inventory_sha256": "6a009c4783cdea8384318b5e6b4908caddbfdf6d05417bb785975b2aa0372106",
+      "cost_sha256": "64c7908e6b560fa1f2c798c2f33de36a51af52a210d7f9f7db21a01cc2b1fe15",
+      "selected_runtime_sha256": "c7e8a9ef92184e6a30f5e8d7a7d5ebe067eeaade38ab6651539a5b77e0a549c7",
+      "selected_verifier_runtime_sha256": "03fb9fb7211bf186b8eb58b03bb87762b4a30b5aa378056c30f12ca4b606ef39",
+      "mapping_used": 31,
+      "source_edits": 95,
+      "source_saved_bytes": 249,
+      "preserved_PLY_code_uses": 8,
+      "scope": "new A31 PLY-preserving sole candidate raw alias-only full-PP inverse and final dM/resource gates plus actual2selectedsessions; exact native/DEV core reuse; metadata only, not regeneration inputs",
+      "original_AF_A_strict_PP_failure_preserved": true
+    },
+    "shipping_storage": {
+      "scope": "historical exact input/candidate PP inverse, final macro and actual-header freshness; unchanged whole-native/core identity; fresh maintained generation/runtime are separate external receipts, not normal build inputs",
+      "policy_sha256": "e89afbf078f902a4cfc3c0ee8c1fba525966be76e4df14b18f50746c2d40cff3",
+      "fixed_mappings": 18,
+      "input_source_bytes": 10606,
+      "input_source_sha256": "252d87ed58df8c86b2d7898fafcedc0bed1c3bab447846b484e5afbdd5b27ac3",
+      "source_edits": 87,
+      "mapping_used": 17,
+      "source_saved_bytes": 422,
+      "whole_saved_bytes": 92,
+      "storage_FINAL44_index_sha256": "2824e102ceb29316a522982fb8c249c0f8fd8588a2cfa0e4b6b4d5fb9649074c",
+      "cost_sha256": "505932407b3b306c8a9122cf7da11f1200a75a4f39cb821101afffbca095106d",
+      "selected_runtime_sha256": "304b37c55065752cb1c723ad73e9d713f6681c32fc8ad91616a2ac340afc7ea1",
+      "family_selected_runtime_sha256": "0b3073520f8f9e17d9a114e0c6732df4d2b2d11086f03a689adcde41633ffaba",
+      "full_native_identity": true,
+      "DEV_not_transformed": true,
+      "other_family_runtime_source_input": false
+    }
+  },
+  "provenance": {
+    "origin": "maintained readable Tiny A and selected structural/minimal-UCI/legal-generated-history decisions, qualified nullable-text/made-child query and worker-entry reset ownership, fixed LZMA-alone transport; qualified pending-owned startup arrival barrier with existing wait reused",
+    "source_rename_decisions": "45 accepted mappings through trial93 fixed, no search",
+    "function_encoding": "combined-fixed-stripped fixed selected spelling decisions",
+    "stitch_helper": "current tracked LF-aware stitch; only identical strip_dev_counters is consumed",
+    "unchanged_board_search_body_sha256": "557f9e15c072410fc16c7f3aad8320e904e02574b99b1c625a9047c620b85b57",
+    "DEV_identity": "new startup-source DEV built twice with existing fixed command; not old 5140 DEV byte identity",
+    "transport": "one measured composition, actual5140, no additive savings assumption; fixed ALONE LZMA1 profile and77byte prefix",
+    "unchanged_board_TT_search_think_prefix_sha256": "9c0aba3b85cb8d36905c81d1bef5135722fcf71e4f7983374c7f1c7ae7a17f95",
+    "private_startup_difference": "main startup wait sets stopped=1 instead of initial0 before firstGO; GO clears it; direct search consumers must clear explicitly",
+    "shipping_alpha": "original fixed renames/resources/functions unchanged; then owned ordinary A31 fixed map, exact counts/freshness/opaque preservation; retain all8 PLY uses; no search",
+    "shipping_storage": "one final storage18 spelling stage after unchanged local alpha; self-contained pinned ordinary helper receives only currentfamily source andcanonical bytes; no structural, resource, compiler or codec changes; DEV bypass"
+  }
+}

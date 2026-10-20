@@ -391,7 +391,7 @@ static int search(Worker *w,const Board *p,int depth,int beta,int ply,int prior,
     probe(key,data);return best;
 }
 void think(Worker *w,const Board *p){
-    w->nodes=0;w->depth=0;w->score=0;
+    w->nodes=0;w->depth=0;w->score=0;w->best=0;
     w->length=game_length;
     memcpy(w->keys,game_keys,game_length*sizeof(uint64_t));
     for(int depth=1;depth<=
@@ -433,7 +433,7 @@ void think(Worker *w,const Board *p){
 static pthread_mutex_t mutex=PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t command=PTHREAD_COND_INITIALIZER,finished=PTHREAD_COND_INITIALIZER;
 static unsigned epoch;
-static int pending,ready,quitting;
+static int pending=WORKERS,quitting;
 static Move fallback;
 
 static void text(Move m,char *s){
@@ -441,10 +441,9 @@ static void text(Move m,char *s){
     s[0]='a'+(FROM(m)&7);s[1]='1'+(FROM(m)>>4);s[2]='a'+(TO(m)&7);s[3]='1'+(TO(m)>>4);
     s[4]="  nbrq"[PROMO(m)];s[4+!!PROMO(m)]=0;
 }
-static Move first(const Board *b){Move list[MOVES];Board c;int n=gen(b,list);for(int i=0;i<n;i++)if(make(b,list[i],&c))return list[i];return 0;}
-static Move parse(const Board *b,const char *s){
-    Move list[MOVES];Board c;char name[6];int n=gen(b,list);
-    for(int i=0;i<n;i++){text(list[i],name);if(!strcmp(s,name)&&make(b,list[i],&c))return list[i];}return 0;
+static Move parse(const Board *b,const char *s,Board *c){
+    Move list[MOVES];char name[6];int n=gen(b,list);
+    for(int i=0;i<n;i++){text(list[i],name);if((!s||!strcmp(s,name))&&make(b,list[i],c))return list[i];}return 0;
 }
 static void result(void){
     flockfile(stdout);
@@ -459,7 +458,7 @@ static void result(void){
     printf("bestmove %s\n",move);fflush(stdout);funlockfile(stdout);
 }
 static void *work(void *p){
-    Worker *w=p;unsigned seen=0;pthread_mutex_lock(&mutex);ready++;pthread_cond_broadcast(&finished);
+    Worker *w=p;unsigned seen=0;pthread_mutex_lock(&mutex);--pending;pthread_cond_broadcast(&finished);
     for(;;){
         while(seen==epoch&&!quitting)pthread_cond_wait(&command,&mutex);
         if(quitting)break;
@@ -480,7 +479,7 @@ static void set_position(char *s){
     else return;
     keys[0]=b.h;
     if(moves)for(char *t=strtok_r(moves," \t",&save);t;t=strtok_r(NULL," \t",&save)){
-        Move m=parse(&b,t);if(!m||n==HISTORY||!make(&b,m,&c))return;b=c;keys[n++]=b.h;
+        if(n==HISTORY||!parse(&b,t,&c))return;b=c;keys[n++]=b.h;
     }
     position=b;game_length=n;memcpy(game_keys,keys,n*sizeof *keys);
 }
@@ -523,8 +522,7 @@ static void go(char *s){
     else budget=1000;
     deadline=now()+(budget>86400000?86400000:budget);
 #endif
-    fallback=first(&position);atomic_store(&stopped,0);
-    for(int i=0;i<WORKERS;i++){workers[i].depth=workers[i].score=0;workers[i].best=0;workers[i].nodes=0;}
+    Board c;fallback=parse(&position,0,&c);atomic_store(&stopped,0);
     pthread_mutex_lock(&mutex);pending=WORKERS;epoch++;pthread_cond_broadcast(&command);pthread_mutex_unlock(&mutex);
 }
 #if DEV
@@ -550,7 +548,7 @@ int main(void){
     pthread_t threads[WORKERS];int created=0,status=0;char line[32768];
     table=calloc((size_t)1<<TT_BITS,sizeof *table);if(!table)return 2;clear();start(&position);game_keys[0]=position.h;game_length=1;
     for(;created<WORKERS;created++){workers[created].id=created;if(pthread_create(threads+created,NULL,work,workers+created)){status=2;goto shutdown;}}
-    pthread_mutex_lock(&mutex);while(ready<WORKERS)pthread_cond_wait(&finished,&mutex);pthread_mutex_unlock(&mutex);
+    wait();
     for(;;){
         int status=read_line(line);if(status<0)break;if(!status)continue;
         size_t n=strlen(line);

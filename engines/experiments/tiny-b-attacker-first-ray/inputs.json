@@ -1,0 +1,121 @@
+{
+  "format": 1,
+  "scope": "sole B attacker first-ray candidate; source generation and package inputs all ordinary in this closure",
+  "control_receipt_sha256": "7ed9de8d763c9191306e7ccea6b78ad171712e546bf185986dc1c44b77527b34",
+  "source_files": {
+    ".gitattributes": {
+      "bytes": 14,
+      "sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9"
+    },
+    ".gitignore": {
+      "bytes": 19,
+      "sha256": "862263fa1f46c20f0d1e4dac5ffcc75abd55c08211b2c3864c5f8764b9d87793"
+    },
+    "README.md": {
+      "bytes": 4423,
+      "sha256": "af76be9a127ac2b9c13ad2ebb23a691c7c4c417c83a37c02a552258e51591dbe"
+    },
+    "baseline.json": {
+      "bytes": 3395,
+      "sha256": "68ff8bb990fd2cb92fdc5e26c786403dbcf4635eb5f03d20e886a82989ceffcf"
+    },
+    "build-control.py": {
+      "bytes": 2807,
+      "sha256": "143fd2de21c43fc8b6815c08055ac723f28549efcbfaa4985879aaccf793c2e9"
+    },
+    "build.py": {
+      "bytes": 10116,
+      "sha256": "136d9e3f2b652328861a8535f26952694f80a4858ca794f0785c86402dfe9adf"
+    },
+    "candidate.c": {
+      "bytes": 28930,
+      "sha256": "6f1102dfe23ce0d733494539a6bd7cc05507c5fc151edfa87071d03d70c5b36f"
+    },
+    "control/engines/compact/tiny-a/pack_stream.py": {
+      "bytes": 5444,
+      "sha256": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e"
+    },
+    "control/engines/compact/tiny-b/generate.py": {
+      "bytes": 5581,
+      "sha256": "c2cc1fd68d05d66f5525dfabc2368fdb0ddff2716bbf65ecb2033614b113aa59"
+    },
+    "control/engines/compact/tiny-entry-b/.gitattributes": {
+      "bytes": 14,
+      "sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9"
+    },
+    "control/engines/compact/tiny-entry-b/README.md": {
+      "bytes": 5333,
+      "sha256": "f3e07777ee37d7d00e5918aacd9533e37908a8155faef48753aab6ab8a8d0771"
+    },
+    "control/engines/compact/tiny-entry-b/bootstrap.py.in": {
+      "bytes": 1072,
+      "sha256": "0402f63d44e66d57174079672762414a2324f8dd8c2b272fe34f49b68e45edbc"
+    },
+    "control/engines/compact/tiny-entry-b/build.py": {
+      "bytes": 9715,
+      "sha256": "247a81e9ef87c0881982a7db900480ebc175949414b7385fa437ee39dfa1262e"
+    },
+    "control/engines/compact/tiny-entry-b/engine.c": {
+      "bytes": 28953,
+      "sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6"
+    },
+    "control/engines/compact/tiny-entry-b/fresh.py": {
+      "bytes": 5360,
+      "sha256": "81df003f684e813d5f77b2667cb9994767ac18a2065b7e7d1c0ae1706fad8d17"
+    },
+    "control/engines/compact/tiny-entry-b/launcher.sh": {
+      "bytes": 75,
+      "sha256": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a"
+    },
+    "control/engines/compact/tiny-entry-b/recipe.json": {
+      "bytes": 5202,
+      "sha256": "c1eed41b63b59cf35eb3040a48274c6cfe8421d9dc9a17d7fe7d9a1a6860835d"
+    },
+    "control/engines/compact/tiny-entry-b/shipping_storage.py": {
+      "bytes": 8334,
+      "sha256": "5663d0b8bbf494354cebe4cce3a709fc05dc32d88407a6b367277dfac0830662"
+    },
+    "control/engines/compact/tiny-entry-b/verify.py": {
+      "bytes": 7012,
+      "sha256": "cc63a511446c35db54676356a9d885b95db7da994133147cda3e3ff1c4464b0c"
+    },
+    "control/engines/scripts/fixed_shipping_alpha.py": {
+      "bytes": 21999,
+      "sha256": "92b351d537c1da0f346f072df2ca4b0be713d0e286e039b30efa9f758519c806"
+    },
+    "control/engines/scripts/minify.py": {
+      "bytes": 6624,
+      "sha256": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b"
+    },
+    "control/engines/scripts/rename_c.py": {
+      "bytes": 12574,
+      "sha256": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5"
+    },
+    "control/engines/scripts/specialize.py": {
+      "bytes": 2386,
+      "sha256": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d"
+    },
+    "policy.json": {
+      "bytes": 5986,
+      "sha256": "000b0509fe0c94869287995b310e2f84755c9d91d912673e25ab57e29cde7592"
+    },
+    "policy.py": {
+      "bytes": 4156,
+      "sha256": "6afc42bb00d68509320c9095ae7f2d167d024d00cde5fb5568e13914cd65dc59"
+    },
+    "preprocess.py": {
+      "bytes": 2339,
+      "sha256": "41ec7639694b6feebbbfacf3c1285581abf5f78e786c8d4f478aa25a389ef376"
+    },
+    "tools.py": {
+      "bytes": 2438,
+      "sha256": "356b836aa44b944c8365b91cf37eebdb01ceb13f03fc39c00e9fd6f4e9bfb0b1"
+    },
+    "transform.json": {
+      "bytes": 1273,
+      "sha256": "948903a539c615dce9ca40919b0f204a83ee2124c4f3178f5ba07fef5affbe86"
+    }
+  },
+  "candidate_native_compile_limit": 2,
+  "candidate_engine_execution_limit": 0
+}

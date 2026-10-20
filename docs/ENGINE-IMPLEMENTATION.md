@@ -118,6 +118,11 @@ The D-publication checkpoint `1c8be9d` passes both language jobs in its
 and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39395877918).
 The new D output-reservation observation remains a separate local runtime
 result; the CI does not execute that new experiment or promote its candidates.
+The maintained-D/source-cost checkpoint `a3546f1` passes both language jobs in
+its [exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39399550146)
+and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39399550128).
+The C job regenerates and executes the new 7,457/7,707-byte maintained D pair;
+the separately frozen A/F costs and failed C/E observation remain local results.
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
@@ -138,7 +143,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | C | 5,687 B | 1,591 B | Real AVX2 evaluation, shared query/startup and fixed private spelling |
 | D scalar / HQ | 7,457 / 7,707 B | 3,361 / 3,611 B | Own ELF restoration, metadata-first Board, shared PVS retries and completion latch |
 | E | 5,679 B | 1,583 B | All 21 untrained coefficients in evaluation/ordering; fixed spelling |
-| F | 5,083 B | 987 B | Full-depth MTD(f), beta-only search and fixed local/object spelling |
+| F | 5,051 B | 955 B | Full-depth MTD(f), owned move query, per-think reset and shared startup pending |
 
 The separate Rust D native images are 16,816 bytes each. Their independent
 packed experiment retains its own qualification state and does not silently
@@ -2483,3 +2488,120 @@ early leader exit. This is a static control-flow limitation, not an observed
 failure of the successful startup sessions or a new executed fault campaign.
 The external audit is
 `55567a59592a9db13b5027ed57c073087e854441f3fab436df2d3575a50efd38`.
+
+## F5051 functional qualification and separate E5647 first cost
+
+The [F-specific proof](../engines/experiments/tiny-f-source-composition-proof/README.md)
+qualifies the exact F5051 source composition without changing its frozen cost
+inputs. Old/new optimized and sanitizer query forms compare shipping Board176's
+incremental v/h/r, legal children, special positions and atomic replay/history
+transactions against an independent 64-square oracle and scalar evaluation.
+Five actual pthread startup schedules cover two successful arrival orders and
+three expected partial-create failures. A four-GO actual runtime diagnostic
+observes positive-pending replacement/position waits, natural own-clock expiry,
+result ownership, two joins and subsequent TT free.
+
+Focused old/new DEV1 diagnostics execute six actual think calls. Independent
+minimax checks the completed quiet depth-three value and attaining witness.
+A new startpos job completes depth one at 31 nodes, then a limit of 32 interrupts
+the next iteration while retaining that same job's completed best/score. Old/new
+observed states match. This is a narrowly bound diagnostic, not a packaged DEV
+identity, search-strength comparison or inherited C proof.
+
+The unchanged F verifier then runs exactly two actual F5051 wrappers, quit and
+EOF, producing eight independently legal GO results. New restored-native SHA,
+three startup TIDs, compiler-child/private-path cleanup, reader settlement and
+physical exit pass. The genuine cost receipt is copied verbatim for explicit
+QA artifact admission; the executable link targets the actual mode-0755 first
+cost file. FD012 is not claimed because the unchanged F verifier does not record
+FDs. Cancellation causality remains unproven. The private stopped/best-reset/
+failed-child and bounded nullable-text-work differences remain explicit.
+
+All 61 proof sources, actual snapshots and archive bytes are frozen; the 28
+cost sources retain their original bytes. Final proof summary is
+`eed7014b750abfdd19381be83091ecf7ede32e60973228dc6b548ed87153a4f0`.
+Actual wrapper outer/original-verifier receipts are
+`e88aa70a80b473801e5fe2e62e4b73d1fdf83afa0b2a0fa72fd29b4b267b16b3`
+and `e595137d5aaa03394dd1f1618eb36896fb40167e4cd9b6bd2ec48843e8b4dc49`.
+All 31 recorded PIDs/TIDs are absent at final intake. Normal F promotion remains
+separate and must discover and pin its new DEV bytes from ordinary source.
+
+The [separate E composition](../engines/experiments/tiny-e-source-composition-next/README.md)
+applies the analogous nullable query, made-child replay, think reset and startup
+pending changes to E5679. Its E-only DEV order call keeps tiny_order on the
+original position rather than the made child. All 21 coefficients and the
+18,042-byte Board/model/search prefix retain their exact source. New local
+literal admission keeps the same 89-name map without widening shared domains.
+
+The one candidate measures source 12,339, native 26,376 and whole **5,647 bytes**,
+saving 302/32/32 respectively against E5679. Both final representations reproduce
+twice; actual full-PP alias inversion, raw macro multiplicity and freshness pass.
+Engine/DEV/runtime executions remain zero at this immutable cost checkpoint.
+Its 23 ordinary sources are unchanged after execution; cost summary is
+`37976679f0b99e2fc4877ea20ff6367cf70d7f253bc169b34ce9a7ab4bff5012`
+and cost receipt is
+`6857c539c7d881a7e6a897b27f694ac0d2e76634ae64fdda888209b326b35a28`.
+The current maintained table is not replaced by this first-cost result.
+
+Actual work includes four control compiles/packages: an outer pipeline pair,
+then an unchanged ordinary-builder pair. Two additional pre-alpha candidate
+compiles completed before scope correction arrived; their outputs/counts are
+preserved and are not presented as required validation. Two earlier preparation
+errors stopped before preprocessing/compiler/codec work and remain separate
+incomplete receipts. Candidate wrappers are preserved as mode0644; future
+execution uses an explicitly bound separate executable copy. Cost tools returned
+terminally, but no new group-absence/reader proof is asserted for that stage.
+Root independently verifies current sources, both actual representation pairs,
+strict XZ restoration and AST compiler-stdin source for E as well as F.
+
+## Maintained F5051 and new size-analysis intake
+
+The ordinary F producer now includes the qualified query/reset/startup change.
+Its six changed files use the same fixed alpha73/storage18 decisions in local
+helpers; shared domains, compiler, profile, bootstrap and codec stay fixed.
+The normal source closure has 17 files. Two independent source extractions,
+each with two shipping/DEV builds, reproduce the complete new tuples. Four
+actual wrapper sessions produce 16 legal GO results and settle naturally.
+DEV source/native identities are newly generated and pinned; DEV engines are
+not executed. No previous DEV identity is inherited. Final promotion index is
+`af79c02bfca0450c23bd6ef5b4645e81b21614ffb208072045b2aa37ed05b375`.
+The maintained file is **5,051 B**, source 10,477 B and native 22,672 B, with
+whole SHA `ad4030ad32af47469ca067e4f10c4b60103eddcc6afdfefd22dedea1269052ce`.
+Local reproduction and runtime qualification do not claim future-head CI success.
+
+E5647 separately passes old/new optimized and sanitizer query/model checks,
+five startup schedules, four actual GO epochs and two unchanged-verifier
+wrapper sessions. Its exact model/search prefix remains source reuse; features
+12/14 are not observed nonzero and the clamp is not exercised. The 59-file
+proof summary is `e5141d5d714061101767d8c6f4b043990282a94011407c845f784e4ffa8228af`.
+E remains 5,679 B in the maintained table pending a normal-producer change.
+
+The C/E storage experiment preserves its original failed C string-Counter
+comparison. A separate observer admits the exact suffix-sharing class and
+checks allocated contents, headers, relocations and remaining byte gaps. Both
+final native forms repeat. Two packages each measure **C5603/E5595**, saving
+84 B each with the original codec. Strict decoding and AST source/argv binding
+pass; candidate engines and normal-producer promotion remain unexecuted.
+Its final 46-file cost summary is
+`19940b30277a38afedd522eedc78480ec6b85c9448bd96a84e83a357609117ef`.
+
+The user-supplied PR12 size analysis is reference evidence from another
+environment. Its reported hashes, codec minima and full-native equality are
+not treated as current reproduction. Work now tests independently implemented
+function-local name reuse, fixed LZMA1 settings, Rust D's shipping node-accounting
+path and D's internal context decoder. Fixed upstream ice4, 4ku, 4kc and STRO4K
+sources and licenses are compared outside this repository. No upstream engine
+source is vendored or used as a Rove4k build input. Policy differences such as
+queen-only generation, twofold repetition and per-GO thread creation cannot
+silently become equivalent source compression.
+
+Two other fixed candidates keep distinct dispositions. A's merged castle
+emission costs 4,959 B, down 21 B, with a new native and changed private move
+order; its focused functional proof is a separate follow-up. B's first-ray
+attacker merge shrinks shipping source 11 B but grows the complete file
+12 B to 5,863 B. B is rejected before engine/runtime qualification. Existing
+maintained A/B images stay selected. The B final summary is
+`2dd665666a308b9586560af615815a362612d9442d99bd693d9f13023d5b8c2d`.
+Two copied proof control files retain a pre-existing extra blank EOF line to
+preserve their exact producing bytes; diff-check reports those whitespace
+warnings. They are not functional test failures or silently normalized inputs.

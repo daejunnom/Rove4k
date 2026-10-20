@@ -1,0 +1,33 @@
+{
+  "class": "E5647-actual-first-cost-QA-only",
+  "scope": "unchanged E selected verifier + new0755 firstcost bytecopy; no new DEV/maintained build claim",
+  "cost_directory": "/home/stemxstudio/rove4k-e-source-composition-next-firstcost-20261020/candidate",
+  "cost_sha256": "6857c539c7d881a7e6a897b27f694ac0d2e76634ae64fdda888209b326b35a28",
+  "expected": {
+    "source_bytes": 12339,
+    "source_sha256": "549dfdf4f1f876e9a71b3df5ef07afb136d076257b057ca0df9788d4f360a938",
+    "native_bytes": 26376,
+    "native_sha256": "557abd8381e593e247e3f90d59665b2ae982e81a840494dca43301cbebd37aa1",
+    "whole_bytes": 5647,
+    "whole_sha256": "4ef55b410013832b8501ae2fa94dd06ffd381a540b4415b57d30f6c6d5decb69",
+    "bootstrap_sha256": "512d4bcdba09e9150b55b6dc0dda703fc3715388ce74e3bd558d184fdc2788f6"
+  },
+  "functional_receipts": {
+    "query": {
+      "path": "/home/stemxstudio/rove4k-e-source-composition-proof-20261020/query/results.json",
+      "sha256": "259da7d451067e6954f4b74da47ec359e2ff79a084b980dd58c1602b0244992f"
+    },
+    "phase": {
+      "path": "/home/stemxstudio/rove4k-e-source-composition-proof-20261020/phase/results.json",
+      "sha256": "bba9fb24dadd7a270c5fa6032dd0ccfbd7ba1d3bf63ff60cb6d84fd04b948265"
+    },
+    "epoch": {
+      "path": "/home/stemxstudio/rove4k-e-source-composition-proof-20261020/epoch/results.json",
+      "sha256": "83f4d460537964231bbd8848d5edac21fd1bc98f945cc6bf7521a1bbf7cdb358"
+    }
+  },
+  "candidate_DEV_identity_admitted": false,
+  "original_wrapper_mode": "0644",
+  "QA_copy_mode": "0755",
+  "cancellation_causality": "unproven"
+}

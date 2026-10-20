@@ -104,7 +104,7 @@ def main():
         lexer=module('entry_fixed_tokens',frozen/'rename_c.py')
         literal=module('entry_literal',frozen/'pack_stream.py').source_literal
         alpha=module('entry_fixed_F_alpha',frozen/'shipping_alpha.py').transform_source
-        storage=module('entry_fixed_storage',frozen/'fixed_shipping_storage.py').transform_source
+        storage=module('entry_fixed_F_storage',frozen/'shipping_storage.py').transform_source
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
         if template.count(marker)!=1 or len(prefix)!=75:raise ValueError('bootstrap recipe changed')
