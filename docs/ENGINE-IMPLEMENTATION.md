@@ -3660,3 +3660,36 @@ integrated parallel-policy comparisons, scaling and strength remain open;
 training and AWS remain outside the active goal's scope. A/F's next bounded
 source lane investigates duplicated hash/HCE remove/add updates with explicit
 empty-piece hash zero, without changing the maintained entries at this point.
+
+## A/F combined square-state updates: first-cost losses
+
+That next state-update proposal is now measured. Private piece(0,q) is
+explicitly made zero; value(0,q) already equals zero. The two remove/add
+branches in put can then share final hash/HCE arithmetic while retaining the
+king-square update and all caller/state/EP/rights/halfmove/context bytes.
+The zero guard is essential because the original unused piece-zero domain
+returns mix(q+768). Paired readable/shipping roles, direct private callers,
+two positional inverses and every protected gap are checked. No external
+engine code, new name allocator or board representation is introduced.
+
+One native/ALONE cost per family, A then F, saves 22 source bytes each but
+grows complete A 4,766 to 4,772 (+6) and F 4,735 to 4,738 (+3). Both are
+rejected; maintained A/F stay 4,766/4,735. Native sizes remain 22,672/18,576
+but full identities differ. These are cost observations and source reasoning,
+not executed functional equivalence. Strict source/argv/true-EOF and
+independent CLI restoration pass. Owned commands/groups terminate; no
+functional fixture, native/whole engine, DEV, normal promotion, control
+compile/copy, additional variant, retry, game or benchmark follows.
+
+Actual A/F cost receipts are
+`b127b7509df088340f16ac99da31aa2dfd28ebaf5bc0568f16ce94c0b16d8775` /
+`dfafa09d28fe1513587e7138830a902b51f73a02547bbab01d9b0278c12aa068`;
+final five-file experiment index is
+`e1295ebb74bbfa1cd928692342a7169d1d12c83357ee07a62f3f6d5ec774a253`.
+Producing source/config stays separate from the final README result metadata.
+The qualified B/D promotion head `77dd96126b43d03ef787f0ddf856071609f28802`
+passes both jobs in
+[C/Rust engine CI](https://github.com/daejunnom/Rove4k/actions/runs/39447827788)
+and [repository lifecycle](https://github.com/daejunnom/Rove4k/actions/runs/39447827767).
+This later failed-experiment-only checkpoint leaves maintained code and
+selected identities unchanged; its own CI is reported separately in the PR.
