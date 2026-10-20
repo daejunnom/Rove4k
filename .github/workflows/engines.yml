@@ -75,6 +75,9 @@ jobs:
       - name: Check source-literal byte preservation
         if: matrix.language == 'c'
         run: python3 -B -m unittest discover -s engines/experiments/tiny-encoding -p 'test_*.py'
+      - name: Check the semaphore pool through controlled real-runtime phases and faults
+        if: matrix.language == 'c'
+        run: python3 -B engines/experiments/tiny-semaphore/pool-check.py --frozen engines/experiments/tiny-semaphore --out "$ROVE_TEST_OUT/semaphore-pool"
       - name: Check dedicated D lossless codecs independently
         if: matrix.language == 'c'
         run: python3 -B -m unittest discover -s engines/experiments/tiny-d-loader -p 'test_codecs.py'
@@ -109,6 +112,14 @@ jobs:
         env:
           RUSTUP_TOOLCHAIN: 1.97.0
         run: python3 -B engines/compact/tiny-rust/tests.py --out "$ROVE_TEST_OUT/tiny-rust-contracts" --workers 2 --tt-bits 12 --quick
+      - name: Check Rust single-source bindings and actual compiler bootstrap lifetimes
+        if: matrix.language == 'rust'
+        env:
+          RUSTUP_TOOLCHAIN: 1.97.0
+        run: |
+          python3 -B engines/experiments/tiny-rust-stream/test_merge.py --out "$ROVE_TEST_OUT/tiny-rust-layout/merge"
+          python3 -B engines/experiments/tiny-rust-stream/test_merge.py --resources-only --out "$ROVE_TEST_OUT/tiny-rust-layout/resources"
+          python3 -B engines/experiments/tiny-rust-stream/test_stream.py --out "$ROVE_TEST_OUT/tiny-rust-layout/stream"
       - name: Build all six real candidate paths
         env:
           RUSTUP_TOOLCHAIN: 1.97.0
@@ -138,5 +149,7 @@ jobs:
             ${{ env.ROVE_TEST_OUT }}/rust-structural/build.json
             ${{ env.ROVE_TEST_OUT }}/tiny-rust-contracts/**/*.json
             ${{ env.ROVE_TEST_OUT }}/tiny-rust-contracts/**/*.jsonl
+            ${{ env.ROVE_TEST_OUT }}/tiny-rust-layout/**/*.json
+            ${{ env.ROVE_TEST_OUT }}/semaphore-pool/**/*.json
           if-no-files-found: ignore
           retention-days: 7

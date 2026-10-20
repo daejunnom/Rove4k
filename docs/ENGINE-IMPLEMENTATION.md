@@ -27,6 +27,9 @@ including the independent tiny Rust builder, rule, process and clock contracts.
 Its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39348805878)
 also succeeds. Later local experiments below retain their own exact artifact
 proof; this CI result is not relabeled as a run of a future head.
+The D-composition/priority/signal checkpoint `147d9e2` also passes both language
+jobs in its [exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39349918237)
+and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39349918247).
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
@@ -812,3 +815,79 @@ Semaphore coordination and the independent Rust single-stream source layout
 are still separately owned work until their final qualification handoffs.
 Larger source-kernel redesigns are being evaluated because these measured
 representation changes have not closed any family's complete 4 KiB gap.
+
+## Qualified Rust stdin source and semaphore completion
+
+The [Rust stream experiment](../engines/experiments/tiny-rust-stream/README.md)
+merges the four exact DEV-pruned modules into inline modules, then embodies
+the fixed two-worker/TT18 profile and removes only its unused compile-time
+number parser. Board, search, runtime and main token contracts are retained;
+source locations change and native hashes belong to a new class. Source shrinks
+23,334 →22,981 bytes, and the complete file shrinks **9,074 →9,009 bytes**.
+The final whole hash is
+`d996efd72a4fed56daba9a9e9a560846e4e0b49a4aad76ad9a7702d3c5a821fc`;
+an earlier same-size artifact has different bytes and remains separate.
+The unchanged four-file ZIP baseline is independently reproduced byte for byte.
+
+The final stream stores source and Python bootstrap in one 8,896-byte payload
+plus a 113-byte stub; that stub is not the entire restoration cost. Runtime
+uses literal `rustc` from the caller's PATH and no external crate or C backend.
+The helper observes compiler exit with `waitid(WNOWAIT)`, retaining leader
+identity while draining its process group before the final reap. It saves and
+normalizes SIGCHLD for that waitable compiler, then restores the Python-entry
+disposition before the engine exec. Decoder-entry signal handling, compiler
+status/signals, a leader exiting before its child, inherited SIGCHLD, queued
+stdin/argv/environment, temporary cleanup and actual fd-exec are separately
+exercised. The shebang shell's earlier signal normalization stays an observed
+boundary rather than an assumed Python guarantee.
+
+Two stdin native compiles and all three whole codec forms reproduce. The
+selected source is `516aab3e…56e0b`, actual live ELF is `c477f362…e6309`, and
+three persistent startup TIDs match the exact selected artifact. The native and
+wrapper pass ten shipping groups and twenty natural malformed/missing/zero
+clock completions. A diagnostic assembly build is entirely byte-identical to
+that selected native. Production CFA components are 4,640 /73,344 /2,240 bytes;
+an actual one-MiB worker reaches ply 127 with 128 nodes, no search allocation
+and a propagated incomplete result. These are bounded observations, not a
+universal asynchronous-stack or hardware-scaling proof. All old failed and
+intermediate 9,009/9,121/8,989-byte streams remain preserved. The final external
+aggregate is `rove4k-tiny-rust-stream-qualified-20261020-evidence/phase-summary.json`,
+SHA-256 `e7ce47d6ce6ac81c24e9028a1cf68802ece90e088f383961191612dc3b7781a5`.
+
+The [semaphore experiment](../engines/experiments/tiny-semaphore/README.md)
+changes the condition-variable runtime only, with exact board/header/search
+bytes. Its matched readable control is 5,527 bytes and the candidate **5,515**;
+the previously qualified 5,283-byte candidate remains a distinct, smaller
+control. Its 137-byte shipping-source reduction is not added to that earlier
+file. Shared completion starts with one token; GO consumes it, posts one private
+token per worker, and the last worker posts completion only after output flush.
+Stored tokens and the release/acquire chain retain jobs posted before waits.
+Initialization/creation prefixes are destroyed/joined only after ownership
+ends, and fatal wait/post paths terminate with status 2.
+
+Thirteen actual DEV/whole-file groups, retained PVS/QS/TT/history/continuation/
+correction and context/PLY contracts, actual restored-image identity, fixed
+three TIDs, normal physical cleanup and independent source/native/whole
+reproduction pass. A separate final 26-case runtime fixture proves generations
+1..97, workers [0,1] for each, 194 jobs and 98 private posts per worker including
+quit. It explicitly observes initial and second real waits, tokens before a
+wait, delayed workers, and physical output before position publication. Partial
+init/create, allocation, wait/post/join and EINTR cases terminate as expected;
+no timeout cleanup signal was used. Its earlier cross-pipe observation failure
+and unavailable unsaved trace are retained as partial evidence; the production
+runtime stays unchanged. The final external summary hash is
+`48dc518a018a4c7d9cc8570e0167f991b7064f9e1e40bf35edf8cb80fd603a6e`.
+
+CI now invokes the exact production Rust merge/resource bindings, real Rust
+bootstrap fixtures and controlled semaphore runtime phases on a Linux Git
+checkout. Registration alone does not prove a new-head CI success; the local
+selected whole-artifact proof and old `147d9e2` CI keep their own identities.
+The qualified Rust stream driver originally has 391 CRLF endings and no lone
+CR. Before Git integration it is canonicalized to LF with exact Python AST and
+compiled-bytecode identity. Its original raw receipt stays preserved and the
+new source encoding has a separate receipt. Runtime inputs and all producer
+bytes remain unchanged; new-head CI executes the canonical driver itself.
+The next source work is a minimal shipping UCI policy, one fused generation/
+search kernel and an independent no_std scalar/HQ Rust D. Training and AWS stay
+excluded. Every family still needs a complete <=4,096-byte submission, final
+selected-profile/resource/strength comparison and target-hardware evidence.
