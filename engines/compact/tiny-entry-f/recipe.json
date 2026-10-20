@@ -61,7 +61,8 @@
     "engines/compact/tiny-entry-f/shipping_capture.py": "296a2213a1f9391b1aef0c2a3a82c08682892a607a49438a212f5748ecac8aac",
     "engines/compact/tiny-entry-f/shipping_material_noise.py": "76b882092832d48488fd767189ebfe6cf8e445bb7a4ff74b261f1228c7527ad3",
     "engines/compact/tiny-entry-f/shipping_material_names.py": "3d81326468dcd4c52647508aaaa47abf13ba1ddaee561f7c97448af4e4b40553",
-    "engines/compact/tiny-entry-f/shipping_material_capture.py": "e1d7960d71dce41e2f6694a76351d08d6dcf5e934f5693b8031dbfc1982b40dd"
+    "engines/compact/tiny-entry-f/shipping_material_capture.py": "e1d7960d71dce41e2f6694a76351d08d6dcf5e934f5693b8031dbfc1982b40dd",
+    "engines/compact/tiny-entry-f/shipping_move_tt.py": "70bbcae56adf94a93ab54ce5edfb7c8fea222fe5509ef8556c4262caf9400a81"
   },
   "resource_literals": [
     [
@@ -1312,6 +1313,113 @@
           "forced_cleanup": 0,
           "active_handles": 0,
           "post_execution_changes": "README and alternate receipt metadata only"
+        }
+      }
+    },
+    "material-move-tt": {
+      "name": "F-MTD-MaterialNoise-MoveTT-v1",
+      "stage": "material-noise/names/capture then move-only TT; full globalnames/capture bypassed",
+      "expected_overrides": {
+        "source_bytes": 8265,
+        "source_sha256": "c858083e36683b1e83028e0c4e1b8d611ae12fc7058e4842ab4952fbd2de9c08",
+        "native_bytes": 18576,
+        "native_sha256": "dbbe498409862346939c1faa2fca30ee99cb449bc8e5f05d4b2fd4091d173a27",
+        "whole_bytes": 4217,
+        "whole_sha256": "e37761cffeaa6bcf2e72d4f8aa094a6b871f70165ba42b5c0a7b9ec27e0ff26f",
+        "bootstrap_sha256": "d2f1b517d7e98d62619566a87272fefbf1392750a0d10531cbdd0b0d7e2832d3"
+      },
+      "compression": {
+        "format": "lzma-alone",
+        "filter": "LZMA1",
+        "preset": 9,
+        "extreme": true,
+        "lc": 0,
+        "lp": 0,
+        "pb": 0,
+        "check": "NONE",
+        "mf": "BT4",
+        "dictionary_bytes": 67108864,
+        "nice_len": 32
+      },
+      "qualified_receipt": {
+        "policy_change_not_equivalence": true,
+        "scope": "full-key move ordering only; no TT score/depth/bound reuse; actual history/half/material/MTD/pool retained",
+        "actual_composition_cost": {
+          "path": "/home/stemxstudio/rove4k-f-move-tt-combine-codec-20261021/cost.json",
+          "sha256": "4e475a92bca3a290e9019ef7497c498572db369543680cfc3de30aa44d512d07",
+          "fixed_source_bytes": 8265,
+          "original_codec_whole_bytes": 4223,
+          "selected_codec_whole_bytes": 4217,
+          "encoder_calls": 42,
+          "no_additive_savings_claim": true
+        },
+        "focused_positive_unit": {
+          "path": "/home/stemxstudio/rove4k-f-move-tt-positive-20261021-v1/results.json",
+          "bytes": 8165,
+          "sha256": "131de9b7eccfaf063d55e8fcebf16b37aa6872bf3937a10267c5aec511d13661",
+          "actual_N_R_s_exact": true,
+          "driver_projection": "depth ceiling and probe/completed observations only",
+          "probe_scope": "16-byte key+Move trylock; key0/zero-read/slot miss/busy and bounded two-writer coherence",
+          "board_scope": "12 roots/152 complete legal children; independent material/capture bit and 164 remaining full Board states/hash",
+          "MTD_scope": "24 windows,17 finite jobs/78 probes/39 completed depths; independent quiet material minimax and attaining witness chronology",
+          "context_scope": "same board half99/100; actual 8ply threefold; dead/mate/stalemate",
+          "interruption_scope": "actual clock observed unfinished later depth and retained last-completed fields; deep canceled attainment and exact stop cause not separately proved",
+          "unit_compiles": 1,
+          "unit_executions": 1,
+          "production_entry_pool_wrapper_execution": false,
+          "strength_performance_general_SMP_claimed": false
+        },
+        "default_full_and_existing_material_noise_expected_unchanged": true,
+        "DEV_scope": "unchanged full-reference source/native byte reproduction only; not MoveTT-model DEV coverage",
+        "normal_build_runtime": {
+          "complete": true,
+          "build": {
+            "path": "/home/stemxstudio/rove4k-f-material-move-tt-normal-20261021/build.json",
+            "bytes": 119373,
+            "sha256": "0bd6316dd9add8d0b53f1094c6dd4605901ff08c6cba9ad1cc042c2fda1c4df2"
+          },
+          "runtime": {
+            "path": "/home/stemxstudio/rove4k-f-material-move-tt-runtime-20261021/runtime.json",
+            "bytes": 6197,
+            "sha256": "2b14761769a6b0768c69386bf3ba08f23ca2b64287e0a0ed02e9673ad889fd0c"
+          },
+          "producing_source_manifest": {
+            "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-move-tt-promotion-20261021-evidence/producing-source.json",
+            "bytes": 4527,
+            "sha256": "477d348f9be61704ba1ec4a5214993f04c67a7d2935bf52cf435ceb0131a5296"
+          },
+          "producing_ordinary_recipe": {
+            "path": "/home/stemxstudio/rove4k-f-material-move-tt-normal-20261021/inputs/recipe.json",
+            "bytes": 83780,
+            "sha256": "eb18e9d3b881ec89cb6e81c778b5c26d61d344e2b364b7de2c05a27a52c6f3cf"
+          },
+          "effective_selected_recipe": {
+            "path": "/home/stemxstudio/rove4k-f-material-move-tt-normal-20261021/selected-verifier/engines/compact/tiny-entry-f/recipe.json",
+            "bytes": 86106,
+            "sha256": "c9bab50da96b25ff057177a838932d05829bcc9f9d5926db36d7f895d9e71e52"
+          },
+          "outer_commands": {
+            "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-move-tt-promotion-20261021-evidence/normal-commands.json",
+            "bytes": 2266,
+            "sha256": "147889240f21900e353de0e62ad2df2ce862cde69cfc36c05b78f2d57ee3f73b"
+          },
+          "ordinary_source_count": 29,
+          "shipping_attempts": 2,
+          "unchanged_full_reference_DEV_attempts": 2,
+          "selected_quit_EOF_sessions": 2,
+          "legal_GO_epochs": 8,
+          "actual_source_native_bootstrap_whole_equal_cost": true,
+          "default_full_source9242_checked_twice": true,
+          "existing_material_source8602_checked_twice": true,
+          "existing_full_and_material_expected_and_receipts_unchanged": true,
+          "DEV_scope": "full-reference source/native bytes only; no MoveTT-model DEV execution",
+          "runtime_scope": "new4217 wrapper restored exact dbbe4984 native; legal clocks; three stable startup TIDs; private path and compiler/helper absence; readers/one closing result/physical exit",
+          "cancellation_causality": "unproven",
+          "compiler_descendant_limit": "unchanged verifier observes helper absence at UCI; no universal startup-descendant lifetime proof",
+          "fresh_core_games_performance_training": 0,
+          "forced_cleanup": 0,
+          "active_handles": 0,
+          "post_execution_changes": "README and new alternate qualification metadata only; producing builder/helper exact"
         }
       }
     }

@@ -192,6 +192,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | E | 5,118 B | 1,022 B | Global function aliases, untrained E19 quadratic activity model, incremental material/activity, original ordering and ALONE |
 | F full (default) | 4,681 B | 585 B | Capture-only private Move bit, global function aliases, calloc payload initialization sharing, unit-window TT bound expression, full-key TT, full-depth MTD(f), packed HCE and fixed ALONE |
 | F material/noise (opt-in) | 4,386 B | 290 B | Capture-only private Move bit, policy-local function aliases, fixed material/stateless-order model, full-depth MTD(f)/full-key TT/SMP retained; optional positional HCE/learners omitted; strength comparison pending |
+| F material/move-TT (opt-in) | 4,217 B | 121 B | Fixed material and16-byte full-key coherent move-only TT; MTD recomputes bounds, rules/history/witness/pool retained; strength comparison pending |
 
 The separate Rust D native images are 16,816 bytes each. Their independent
 packed experiment retains its own qualification state and does not silently
@@ -5316,3 +5317,44 @@ Normal build/runtime SHA values are
 `24c67e8cee5dd46b734f4086d1ff3931a0b443e97b4183a96c7d1127819054c8`.
 Normal index SHA is
 `e76410ea895c6081fe0fa0ffbbd75823a88562d12aa81ea08865a26578bbed6f`.
+
+### F move-only TT: positive function proof and actual4217-byte entry
+
+The separate `--policy material-move-tt` is now a maintained build selection,
+without adding a UCI option. Its fixed eight-role/nine-gap helper consumes
+the8602-byte captured material form and produces8265/c858083e. Full F and
+the existing4386-byte material/noise policy remain separate, unchanged
+references. Every selected shipping generation checks both reference source
+identities; its DEV remains the unchanged full-F diagnostic form.
+
+An ordinary O2 function unit includes the actual new probe/claim/search and
+only projects the driver's depth ceiling and two observers. It checks the
+16-byte coherent record, key0, zero-as-read, full-key slot collisions and busy
+misses, plus a bounded two-writer/reader exercise. Twelve roots/152 children
+match independent rules/material, including EP/castles/four promotions and
+the remaining Board state/hash. Twenty-four windows and17 MTD jobs produce
+78 probes/39 completed depths with guarded independent quiet minimax,
+interval and attaining-witness observations. Reused move-cache cases retain
+different halfmove and actual threefold results, dead material, mate and
+stalemate. A real-deadline job retains depth4 when depth5 is unfinished;
+that canceled job's deep attainment and stop causality remain unproven.
+This is bounded function evidence, not general SMP/strength equivalence.
+Function result SHA is
+`131de9b7eccfaf063d55e8fcebf16b37aa6872bf3937a10267c5aec511d13661`;
+proof index SHA is
+`23a2e404ecf96b3d3ab165aa77b64bf31f4a3e7021fca3c84c443d72b560c2fb`.
+
+The ordinary builder reproduces shipping twice/full-reference DEV twice and
+freezes the unchanged selected verifier beside the effective exact recipe.
+That verifier runs the actual4217-byte wrapper through two quit/EOF sessions
+and eight legal GO epochs, exact restored native18576/dbbe4984, stable three
+startup TIDs, private-path/helper absence and reader/physical exit0. No
+expected-image gate is waived. CI explicitly selects all three F policies.
+Build/runtime SHA values are
+`0bd6316dd9add8d0b53f1094c6dd4605901ff08c6cba9ad1cc042c2fda1c4df2` /
+`2b14761769a6b0768c69386bf3ba08f23ca2b64287e0a0ed02e9673ad889fd0c`.
+Normal index SHA is
+`5ce914d03543b6269d89c4ad60d5e40c43f2ac2ff62ac68989dd992ef00d1a28`.
+The actual producing manifest has29 deduplicated inputs; an earlier proposed
+31 count was corrected without adding files. Completion metadata is separate
+from the frozen producing inputs. This remains121 bytes above4096.
