@@ -49,28 +49,32 @@
     "engines/scripts/rename_c.py": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
     "engines/scripts/fixed_shipping_alpha.py": "92b351d537c1da0f346f072df2ca4b0be713d0e286e039b30efa9f758519c806",
     "engines/compact/tiny-a/stitch.py": "2b0d25b4855a3ed4ddd9e24b8e4b0e081439baa2ed8f744dba0215a700023f23",
-    "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e"
+    "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
+    "engines/compact/tiny-entry-e/shipping_scope.py": "0cf6528760d8c5b2bbc3ef56ea8dfccdd67af619b671a82927287a2f1ce18fa5"
   },
   "compression": {
-    "format": "xz",
-    "filter": "LZMA2",
+    "format": "lzma-alone",
+    "filter": "LZMA1",
     "preset": 9,
     "extreme": true,
-    "lc": 3,
+    "lc": 2,
     "lp": 0,
-    "pb": 2,
-    "check": "CRC64"
+    "pb": 0,
+    "check": "NONE",
+    "mf": "BT4",
+    "dictionary_bytes": 67108864,
+    "nice_len": 32
   },
   "expected": {
     "readable_bytes": 28001,
     "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
-    "source_bytes": 12641,
-    "source_sha256": "af0ab88d9f4ce25154b3fda909fc00b9eca0cda8d8784b4b07e4926015a2c330",
-    "native_bytes": 26408,
-    "native_sha256": "5429f2d80521f775bac6802ec4940e8e0ff1b344464ed8e9a0629ba6650eb675",
-    "whole_bytes": 5679,
-    "whole_sha256": "83e8e7f22f24e3161268554ab4c5ff7ad7f6007822ea6892e6fae68670e80fb4",
-    "bootstrap_sha256": "0abbdd272bb28aae532b6c88fbb691b5e353329bde6ea3e2caad1178e4cb9bfa",
+    "source_bytes": 11803,
+    "source_sha256": "acd417f903ada227092b0ba371d6ad960ab80b4925ab64633b9b8a2774a9b3aa",
+    "native_bytes": 26360,
+    "native_sha256": "500ccb26bc366c129c77720d9229caac99ae9777d0148a1cc25da4a0fd6552d0",
+    "whole_bytes": 5400,
+    "whole_sha256": "7a04e3d2fac68c4fdca62b6c1fd6e3e71b58da0add25a2b452ab08870d496ec2",
+    "bootstrap_sha256": "dc65f22b293a451ca1d333f8782d206bd0555b2b1b2c58af5f53c978ad64990c",
     "dev_source_bytes": 21314,
     "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
     "dev_native_bytes": 31376,
@@ -79,7 +83,7 @@
   "local_input_sha256": {
     "engine.c": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
     "bootstrap.py.in": "0402f63d44e66d57174079672762414a2324f8dd8c2b272fe34f49b68e45edbc",
-    "launcher.sh": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a"
+    "launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
   },
   "model": {
     "id": "e-hand-integer-1",
@@ -132,12 +136,47 @@
       "selected_runtime_sha256": "5fbd18434187219b571dfb962058298616d560c671485c32d320a368607df427",
       "source_freeze_sha256": "436d7cbdc6ad7fa52b73d5b1e9075971b9249f64d8225b775585a4dbd5b0ad80"
     },
-    "scope": "ordered/minimal-UCI core qualification reused through exact readable/DEV/full-native identity; fixed shipping alpha policy, header-expansion inverse and selected wrapper receipts are separate hash metadata, never regeneration inputs"
+    "scope": "ordered/minimal-UCI core qualification reused through exact readable/DEV/full-native identity; fixed shipping alpha policy, header-expansion inverse and selected wrapper receipts are separate hash metadata, never regeneration inputs",
+    "private_static_locals_and_codec": {
+      "scope": "historical qualification metadata only; no report, experiment or AST runtime dependency; no previous full-native identity claim",
+      "source_freeze_sha256": "a5aafc2537b38319da1a0f829d9b3ec1fe994dc64713ff798bcc8e0cfbfd380f",
+      "summary_sha256": "f2282baf0f54f7c98c517fd9b7c67e3643ceb2ba1a006448e8fd89de30dbf730",
+      "static_native_observation_sha256": "56a5159fa430e8e19a5ba024ccf8e4bf4de51d59cb904b4edeb63fb79208aaaa",
+      "combined_native_gate_sha256": "6347ebba4845b73d28155ac7b8d0df447d37c21ece9a8d1b87feede5189336f6",
+      "combined_strict_bootstrap_sha256": "b1f02215d0eb381e7d30602c279348bda29b725ee1f092daa4d5e17ea8ded26d",
+      "combined_codec_sha256": "2024bcef7ddef6dc24a5f67a5cf8260c12d9600e2f595ecb8ecb89a4fe22f4d0",
+      "previous_maintained_expected": {
+        "readable_bytes": 28001,
+        "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+        "source_bytes": 12641,
+        "source_sha256": "af0ab88d9f4ce25154b3fda909fc00b9eca0cda8d8784b4b07e4926015a2c330",
+        "native_bytes": 26408,
+        "native_sha256": "5429f2d80521f775bac6802ec4940e8e0ff1b344464ed8e9a0629ba6650eb675",
+        "whole_bytes": 5679,
+        "whole_sha256": "83e8e7f22f24e3161268554ab4c5ff7ad7f6007822ea6892e6fae68670e80fb4",
+        "bootstrap_sha256": "0abbdd272bb28aae532b6c88fbb691b5e353329bde6ea3e2caad1178e4cb9bfa",
+        "dev_source_bytes": 21314,
+        "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
+        "dev_native_bytes": 31376,
+        "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094"
+      },
+      "full_native_equal_to_previous_maintained": false,
+      "image_class": {
+        "all_program_headers_equal": true,
+        "all_allocated_sections_equal_except_GNU_build_ID_descriptor": true,
+        "other_changed_loaded_bytes": "ELF header e_shoff low byte at offset 40",
+        "nonallocated_changes": "symtab/strtab and section table/offset/padding metadata; symbol fields other than mapped names unchanged",
+        "dynamic_symbols_strings_relocations_equal": true,
+        "locals_full_native_equal_to_static_only": true
+      }
+    }
   },
   "provenance": {
     "origin": "maintained TinyCE E + qualified shipping legacy-cache removal + exact model capture prior + minimal shipping UCI composition",
     "policy_changes_this_promotion": false,
     "source_stages": "actual compiler conditional specialization, lexical minification, eight shipping no-op DEV calls removed, one fixed shipping-only 89-name allowlist and WORKERS=2/TT_BITS=18 token literals; algorithm/functions/global/static/directives/strings/DEV unchanged",
-    "native_identity": "original stdin-compiled ELF class; separate historical file-compiled images are not equated"
+    "native_identity": "original stdin-compiled ELF class; separate historical file-compiled images are not equated",
+    "static_and_scope_replay": "Two exact physical declaration/reference maps after the existing shipping spelling stages; no runtime AST/name allocation; DEV bypasses all shipping stages.",
+    "shipping_codec": "Fixed LZMA1 ALONE 9 extreme/lc2/lp0/pb0/BT4/64MiB dictionary/nice 32 and 77-byte launcher; no container checksum or codec sweep."
   }
 }

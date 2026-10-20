@@ -6,11 +6,12 @@ changing the program; do not maintain the compact C or compressed launcher by
 hand. It incorporates qualified query/job ownership, the measured LZMA-alone
 transport and startup-counter ownership source, followed by one fixed
 shipping-only A31 spelling policy that preserves PLY uses, then the qualified
-18-name storage spelling policy. Search policy, compiler argv,
+18-name storage spelling policy and declaration-bound automatic-name replay.
+Search policy, compiler argv,
 worker resources and the Python bootstrap's process/signal/cleanup logic remain unchanged.
 
-The complete selected launcher is **4,980 bytes**, a 92-byte reduction from
-5,072 and still 884 bytes above 4,096. This
+The complete selected launcher is **4,846 bytes**, a 134-byte reduction from
+4,980 and still 750 bytes above 4,096. This
 folder does not claim the 4 KiB target, a strength result or general target
 portability. Its qualified environment is Ubuntu 24.04.4 x86-64, GCC 13.3.0,
 binutils 2.42, glibc 2.39, Python 3.12.3 and xz/lzma 5.4.5. Python's linked LZMA encoder is
@@ -49,15 +50,21 @@ order. Shipping then applies the owned ordinary `shipping_alpha.py` fixed
 all eight code uses; the final WORKERS/TT_BITS spelling stage has zero resource
 occurrences. The subsequent `fixed_shipping_storage.py` stage applies the fixed
 18-name storage map to this exact A31 output: 17 names have 87 occurrences,
-`ready` is unused, and PLY retains all eight code uses. No identifier, compiler,
+`ready` is unused, and PLY retains all eight code uses. The final local
+`shipping_scope.py` replays 70 AST-bound declarations at 274 exact physical
+locations. Input/output SHA, each original occurrence and a byte inverse are
+checked. It shortens source by 274 bytes to 9,910 bytes; aliases are unique
+within functions and reused between functions. The normal build needs no
+libclang, reference engine or experiment input. No identifier, compiler,
 flag, compression or runtime search is run.
 `bootstrap.py.in` preserves the selected bootstrap with only its source literal
 replaced by one explicit marker; `launcher.sh` is its exact launcher prefix.
 
-Seven repository helpers are needed: `engines/scripts/specialize.py`,
+Eight repository helpers are needed: `engines/scripts/specialize.py`,
 `minify.py`, `rename_c.py`, and `engines/compact/tiny-a/stitch.py` plus
 `pack_stream.py`, the local `shipping_alpha.py`, and the ordinary shared
-`engines/scripts/fixed_shipping_storage.py`. Their relative paths and
+`engines/scripts/fixed_shipping_storage.py`, followed by the local
+`shipping_scope.py`. Their relative paths and
 LF-normalized SHA-256 values are
 pinned in the recipe. The builder copies and checks these files before importing
 them from its external output, and uses only Python standard libraries. It does
@@ -73,10 +80,10 @@ in the external output. An incomplete report remains incomplete on failure.
 | Output | Bytes | SHA-256 |
 | --- | ---: | --- |
 | Readable engine.c | 24,820 | `71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734` |
-| Compact shipping C | 10,184 | `9e764bbbea91f198a4cb5aff62aae9f3007df5f715d4d8b8142e4795b5109d5a` |
+| Compact shipping C | 9,910 | `a3414baa5034a62067f74f7f8fff9a1578827f37e6ca59b0db8e5bc1968df312` |
 | Stripped native ELF | 22,672 | `84ce7fd107783474af8f39aeec7b95c244d475ab797eefd2627b9741b265210a` |
-| Complete launcher | 4,980 | `4f339d08d99e51cd5935f20cc10d0665ed19f515e227cb5fa6be1623e7b21a8d` |
-| Decoded bootstrap | 11,174 | `1397aa310d1ae1e65b528f3f12977494cde173356313b687436ec3b15b37a391` |
+| Complete launcher | 4,846 | `1227e4ba99a986d52a33f6b901f3be117d1b522001f2f86f6da07e4c27a74c9d` |
+| Decoded bootstrap | 10,900 | `d73d24f699811253492ad8bab152907835763a68d7a35962e83d14156840cb47` |
 
 The diagnostic C and ELF must equal the explicitly admitted startup-source DEV:
 `41ab9f0f5d28183b76833d038c40e0bb6a2ee6ef9303766c293dd577680a4c9c`
@@ -103,8 +110,8 @@ python3 -B /absolute/new/archive-proof/checkout-2/engines/compact/tiny-entry-a/v
 ```
 
 `fresh.py` names the complete source closure explicitly: this folder's original
-nine files, the seven pinned build helpers (including local alpha and shared
-storage policies) and the two pinned independent test helpers, totaling 18
+nine files, the eight pinned build helpers (including local alpha, shared
+storage and local scope policies) and the two pinned independent test helpers, totaling 19
 ordinary files. The local
 policy enters through `recipe.helper_sha256`; `fresh.py` is unchanged.
 It preserves raw input bytes, copies their explicit LF-normalized forms into a separate local Git repository with no
@@ -259,7 +266,7 @@ That cost-only producer deliberately uses immutable external control artifacts;
 the canonical builder here instead reads only the maintained ordinary source,
 fixed recipe/template/prefix and then-five tracked helpers. The earlier A31
 promotion added its local ordinary policy as a sixth helper; storage18 adds
-the seventh. There is no runtime
+the seventh, and fixed scope replay adds the eighth. There is no runtime
 dependency on the composition folder or those historical artifacts.
 
 The old 5,207-byte nine-file canonical, archive tree
@@ -334,7 +341,7 @@ canonical source, rather than claiming a fresh cross-engine scan.
 The 18 decisions rename only the audited same-TU external objects, file-static
 objects and block-static objects. Functions, types, Move, directive bytes,
 strings, external ABI and all previous local alpha decisions remain unchanged.
-Both shipping stages are bypassed for DEV. Full source/candidate/native pins
+All three shipping spelling stages are bypassed for DEV. Full source/candidate/native pins
 are reviewed constants; a different input, occurrence inventory, opaque region,
 resource use or complete ELF fails rather than learning a new expectation.
 
@@ -357,3 +364,47 @@ Before promotion the original ten local source files and full named build/test
 closure, old source archive, shipping and DEV controls were preserved outside
 Git. Each fresh extraction contains the new shared helper and its own fixed
 recipe, so historical reports or generated bytes cannot become its only input.
+
+## Fixed scope replay and current selected verification
+
+The exact AST-bound A map is
+`c7c84366437df666fd353213242a3ae9e2e6e71c0914992b563a9012619241cf`.
+The local ordinary helper embeds only its 70 declaration groups and 274
+physical occurrences. It admits the qualified 10,184-byte post-storage input
+`9e764bbbea91f198a4cb5aff62aae9f3007df5f715d4d8b8142e4795b5109d5a`
+and requires the sole 9,910-byte output. It verifies exact inverse bytes.
+Globals, static storage, functions, types, fields, header/macro identifiers,
+string bytes and external ABI are unchanged. Its normal generation imports
+only standard-library hashing and does not read the experimental analyzer,
+map JSON, reports, external toolchain or generated old files.
+
+This is the separately measured locals-only A policy with the original ALONE
+codec and unchanged 77-byte launcher. It does not include private-function
+names or another codec composition. Full native ELF including all metadata
+remains exactly `84ce7fd107783474af8f39aeec7b95c244d475ab797eefd2627b9741b265210a`;
+canonical castling/rules/search/startup bodies and both DEV pins are unchanged.
+Core and original binding proofs are reused through these exact identities.
+The first A row's source/native/whole receipt is
+`7f38a9bca532519fd68efbdb8580999c1ad4fa201baf7564d8d7b76aad816157`.
+Its overall report retains a B AST rejection; only its completed A row is
+reused here. That historical failure is not relabeled as a successful campaign.
+
+Before mutation, the original normal18 ordinary source closure and old pins
+were preserved outside Git. This promotion ran one normal build, with two
+independent shipping/DEV generations and complete native/whole comparisons,
+then only the unchanged A selected verifier's quit and EOF sessions: eight
+legal GO epochs, exact restored image, three stable startup TIDs, private-path
+removal, process absence and output-reader completion. It did not run a fresh
+archive extraction, new AST analysis, DEV engine, broad core matrix, game or
+benchmark. The unchanged `fresh.py` can close the new ordinary19 source set;
+that capability is separate from this promotion's actually executed checks.
+
+Production build receipt: `2ff77ccd43d3df223a2926a46cef5ca82319b97beb2dc82de4214bf769f69d34`.
+Selected runtime receipt: `399ca285479bc1e02b026656b8b274d1f1c8b148c0033a7d25e742b6fec23ef5`.
+The production recipe is preserved externally before adding only the later
+qualification metadata. Existing wrapper/core receipts remain historical;
+they are not relabeled as executions of the 4,846-byte whole. Cancellation
+causality and standard-descriptor observation remain unproven/unobserved as
+recorded. Compiler signal/group/tempfile/fd-exec behavior is unchanged; selected
+successful startup and leader reaping do not prove a general descendant-group
+lifetime contract. The previously recorded bootstrap limitation remains.

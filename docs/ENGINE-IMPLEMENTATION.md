@@ -147,11 +147,11 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
-| A | 4,980 B | 884 B | Shared startup/search phase counter, owned move query, fixed local/object spelling |
-| B | 5,851 B | 1,755 B | Hybrid bitboards, legal SEE/singular and fixed local/object spelling |
-| C | 5,687 B | 1,591 B | Real AVX2 evaluation, shared query/startup and fixed private spelling |
+| A | 4,846 B | 750 B | Shared startup/query, exact-native automatic names and original ALONE |
+| B | 5,558 B | 1,462 B | Hybrid bitboards, legal SEE/singular, bound private names and fixed ALONE |
+| C | 5,395 B | 1,299 B | Real AVX2 evaluation, shared query/startup, bound private names and ALONE |
 | D scalar / HQ | 7,457 / 7,707 B | 3,361 / 3,611 B | Own ELF restoration, metadata-first Board, shared PVS retries and completion latch |
-| E | 5,679 B | 1,583 B | All 21 untrained coefficients in evaluation/ordering; fixed spelling |
+| E | 5,400 B | 1,304 B | All 21 untrained coefficients in evaluation/ordering; bound names and ALONE |
 | F | 4,839 B | 743 B | Full-depth MTD(f), owned query, AST-bound automatic names and fixed LZMA1 |
 
 The separate Rust D native images are 16,816 bytes each. Their independent
@@ -2780,3 +2780,74 @@ reusing the old 1,115 B. New complete D files are not executed or runtime
 qualified, and the encoder is an explicit external-data first-cost producer,
 not a closed maintained source encoder. Cost receipt:
 `432ec934af089db4d23edf4c3b269ee5e86941634aeb77e88f037c96f232f7a9`.
+
+## Normal A/B/C/E names and separate runtime follow-ups
+
+Normal A now replays its 70-declaration/274-occurrence map, retaining original
+ALONE, compiler, canonical engine, complete native and DEV bytes. The maintained
+file is **4,846 B**, down 134 B. Shipping and DEV each reproduce twice, and two
+unchanged-verifier quit/EOF sessions produce eight legal results. All four owned
+files and the 19-file ordinary source closure are frozen; no libclang or
+experimental input is required by normal generation. Final promotion summary:
+`39310589b4e16d23b82a32fd19839a941ed1f0f7a0b1779d7330a905bc9f032c`.
+
+The static-function experiment first admits only real owned static function
+declarations/direct references, excluding address-taken workers, constructors,
+macros, external ABI and name observers. Each actual candidate retains all
+PHDR/allocated code/data/dynamic/relocation bytes except the exact GNU build-ID
+descriptor; e_shoff and nonallocated symbol/string/section metadata also change.
+Full-native equality to the maintained predecessor is false. Automatic names
+on top reproduce those new static-only natives exactly. Actual combined codec
+cost is measured on the resulting source, not added from separate savings:
+
+| Family | Final C | Combined original XZ | Fixed ALONE | Saved from maintained predecessor |
+| --- | ---: | ---: | ---: | ---: |
+| B | 12,220 | 5,619 | 5,558 | 293 |
+| C | 11,455 | 5,459 | 5,395 | 292 |
+| E | 11,803 | 5,455 | 5,400 | 279 |
+
+Normal B/C/E now use two exact position-bound replay stages and fixed ALONE.
+Each shipping/DEV tuple reproduces twice; each unchanged verifier runs two new
+quit/EOF wrapper sessions. The combined 15-file change preserves all canonical,
+DEV, bootstrap, shared policy and verifier inputs. Normal closures have 19/19/18
+files. There is no Clang, report, upstream engine or experimental source normal
+dependency. A stale early C XZ-format check stops one CLI before output/compiler;
+it is corrected consistently for C/E and the failed preparation is preserved.
+Final promotion summary:
+`8280977aa06c274444984dacc1dfab077515eacf1e4a9d1efa687b27418f5bf6`.
+An independent read-only source review is clear. These are local normal results;
+CI is reported only for the actual later committed head.
+
+The separate B source-sharing candidate costs 5,843 B, saving only eight despite
+161 B less shipping C. It shares old/new put updates and exact clock-token
+consumption, and forwards continuation piece context. New native code differs;
+engine/runtime/repeat qualification is zero. It is not combined with names or
+selected over B5558. Summary:
+`6faacbe5e5bb85f75287c7e1a7cd651b0cc05c5ab141fa49938e7127580ac6a7`.
+
+The Rust D explicit shipping-node-budget specialization preserves parser,
+stop/newgame/infinite/bare-GO policy, local deadline/result counts and correction
+epochs. Focused default/DEV/node/deadline fixtures pass, but complete scalar/HQ
+costs **11,404/11,770 B**, up 1/8 B. Native length ties at 16,816 B while RX
+grows 16 B. The sole candidate is size-rejected without production ELF execution
+or more variants. Final handoff:
+`69c7d84fe16bda6b8380123fc81acc2fbaa0c10a181ca020f93a8bd44040672b`.
+
+The D context whole then passes four actual scalar/HQ quit/EOF sessions, with
+12 independently legal results, exact restored native RX and padding, guards,
+three persistent TIDs, stdio-only FDs, absent children, reader EOF and physical
+group settlement. The adapter admits only the two new whole hashes and exact
+old native/layout/helper inputs, leaving the old verifier main/EXPECTED intact.
+At eight map observations no RW interval of at least 32 MiB appears in this
+local profile; context-address/munmap causality and CHECKPOINT initial BSS are
+not inferred. New RIE/ptrace negative tests are zero. Actual runtime receipt:
+`dad61bc39bc3ee777fcbef79081a78a786f7fdeb8e27990c3cd510ccd1d3bc82`.
+
+An independent standard-library Python fixed-model encoder also restores three
+small fixtures and both exact native inputs through the existing guarded C
+diagnostic. Its two isolated CLI encodes happen to reproduce the complete
+5034/5247-byte payloads, without an upstream program or model search. Exact old
+payload matching is a comparison rather than a forced termination-bit rule.
+Encoder receipt:
+`705e720ea01d5eb1f4254c6a8cda646e323d67bf9ffcc4653cb27841bae33b66`.
+Closing the maintained D source encoder/audit consumers remains separate work.

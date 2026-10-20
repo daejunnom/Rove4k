@@ -50,34 +50,38 @@
     "engines/scripts/fixed_shipping_alpha.py": "92b351d537c1da0f346f072df2ca4b0be713d0e286e039b30efa9f758519c806",
     "engines/compact/tiny-b/generate.py": "c2cc1fd68d05d66f5525dfabc2368fdb0ddff2716bbf65ecb2033614b113aa59",
     "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
-    "engines/compact/tiny-entry-b/shipping_storage.py": "5663d0b8bbf494354cebe4cce3a709fc05dc32d88407a6b367277dfac0830662"
+    "engines/compact/tiny-entry-b/shipping_storage.py": "5663d0b8bbf494354cebe4cce3a709fc05dc32d88407a6b367277dfac0830662",
+    "engines/compact/tiny-entry-b/shipping_scope.py": "239bd0bdf0506e9f3334f75b5deb871479d59599e44bbb0d4ed3ecd881f13c0e"
   },
   "compression": {
-    "format": "xz",
-    "filter": "LZMA2",
+    "format": "lzma-alone",
+    "filter": "LZMA1",
     "preset": 9,
     "extreme": true,
-    "lc": 3,
+    "lc": 2,
     "lp": 0,
-    "pb": 2,
-    "check": "CRC64"
+    "pb": 0,
+    "check": "NONE",
+    "mf": "BT4",
+    "dictionary_bytes": 67108864,
+    "nice_len": 32
   },
   "expected": {
     "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
-    "source_bytes": 13071,
-    "source_sha256": "96e6e330e5289d1c404dac0402e8b672a89c52e193a9d4f9aebb02e0c9042ffa",
-    "native_bytes": 26496,
-    "native_sha256": "5a315a66f86ff81f9b0feb679b25f919c5aaf63bb9db2d157040a5b7ce6bbb4b",
-    "whole_bytes": 5851,
-    "whole_sha256": "25b2c6a1198d5e600be252ae57da84ca9f9e40c3167021ce33f3f9eff29f425c",
+    "source_bytes": 12220,
+    "source_sha256": "daa9ca6e03260320c13a0a551a0c2586ed53d24d49ebba74f87b57b57814ba9f",
+    "native_bytes": 26424,
+    "native_sha256": "ade0b5deba75dea772026018b60300fc5d9d3d02b58141965549384884de3694",
+    "whole_bytes": 5558,
+    "whole_sha256": "798688b2e4396367e9a64baeb407941ba28bd47f15f6a2400c875abde2b6db32",
     "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
     "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
-    "bootstrap_sha256": "7159e4bad6b9bfd37f69dbcc8ebe6fec5ff497c425323ec2e71050f43dc46673"
+    "bootstrap_sha256": "df45f762e3ffff0db68cf51229f0a90e6789d03c85702d3a35b81fbc78c1119b"
   },
   "local_input_sha256": {
     "engine.c": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
     "bootstrap.py.in": "0402f63d44e66d57174079672762414a2324f8dd8c2b272fe34f49b68e45edbc",
-    "launcher.sh": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a"
+    "launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
   },
   "qualified_receipt": {
     "predecessor_B5955_ancestry": {
@@ -99,12 +103,44 @@
     "new_image_cost_sha256": "d5d4729a808e031f5f76d63e946be00a2e321c16ae47a8bb919d8d723debf9d4",
     "metadata_pure_fixtures_sha256": "501ee00b28ba77a5192f09a3630a696ba74909062e44731561ed4708963d3e6e",
     "actual_file_readback_sha256": "84030a2193e74b2804dbba3d294aae1bd41247583ec1a08a8b9c03b7217fae13",
-    "scope": "unchanged canonical/DEV and raw PP alias-only inverse; distinct full native with exact fixed metadata changes, code/data/dynamic symbols/relocations unchanged; no general ABI or old full-native equality claim; receipts are metadata, never build inputs"
+    "scope": "unchanged canonical/DEV and raw PP alias-only inverse; distinct full native with exact fixed metadata changes, code/data/dynamic symbols/relocations unchanged; no general ABI or old full-native equality claim; receipts are metadata, never build inputs",
+    "private_static_locals_and_codec": {
+      "scope": "historical qualification metadata only; no report, experiment or AST runtime dependency; no previous full-native identity claim",
+      "source_freeze_sha256": "a5aafc2537b38319da1a0f829d9b3ec1fe994dc64713ff798bcc8e0cfbfd380f",
+      "summary_sha256": "f2282baf0f54f7c98c517fd9b7c67e3643ceb2ba1a006448e8fd89de30dbf730",
+      "static_native_observation_sha256": "56a5159fa430e8e19a5ba024ccf8e4bf4de51d59cb904b4edeb63fb79208aaaa",
+      "combined_native_gate_sha256": "6347ebba4845b73d28155ac7b8d0df447d37c21ece9a8d1b87feede5189336f6",
+      "combined_strict_bootstrap_sha256": "b1f02215d0eb381e7d30602c279348bda29b725ee1f092daa4d5e17ea8ded26d",
+      "combined_codec_sha256": "2024bcef7ddef6dc24a5f67a5cf8260c12d9600e2f595ecb8ecb89a4fe22f4d0",
+      "previous_maintained_expected": {
+        "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+        "source_bytes": 13071,
+        "source_sha256": "96e6e330e5289d1c404dac0402e8b672a89c52e193a9d4f9aebb02e0c9042ffa",
+        "native_bytes": 26496,
+        "native_sha256": "5a315a66f86ff81f9b0feb679b25f919c5aaf63bb9db2d157040a5b7ce6bbb4b",
+        "whole_bytes": 5851,
+        "whole_sha256": "25b2c6a1198d5e600be252ae57da84ca9f9e40c3167021ce33f3f9eff29f425c",
+        "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
+        "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
+        "bootstrap_sha256": "7159e4bad6b9bfd37f69dbcc8ebe6fec5ff497c425323ec2e71050f43dc46673"
+      },
+      "full_native_equal_to_previous_maintained": false,
+      "image_class": {
+        "all_program_headers_equal": true,
+        "all_allocated_sections_equal_except_GNU_build_ID_descriptor": true,
+        "other_changed_loaded_bytes": "ELF header e_shoff low byte at offset 40",
+        "nonallocated_changes": "symtab/strtab and section table/offset/padding metadata; symbol fields other than mapped names unchanged",
+        "dynamic_symbols_strings_relocations_equal": true,
+        "locals_full_native_equal_to_static_only": true
+      }
+    }
   },
   "provenance": {
     "origin": "maintained readable Tiny B with bitboard/mailbox attackers, legal SEE, qualified singular and minimal shipping UCI",
     "source_decisions": "preprocess, lexical compact, exact B no-op diagnostic stripping, then one fixed shipping-only 89-name allowlist and WORKERS=2/TT_BITS=18 token literals; functions/global/static objects/directives/strings/DEV unchanged",
     "native_identity_class": "actual restored compiler-stdin image, not historical file-compiled ELF",
-    "storage18": "new exact B-only embedded policy after unchanged shared89 stage; no resource/flag/codec change; old full-native-identity failure preserved"
+    "storage18": "new exact B-only embedded policy after unchanged shared89 stage; no resource/flag/codec change; old full-native-identity failure preserved",
+    "static_and_scope_replay": "Two exact physical declaration/reference maps after the existing shipping spelling stages; no runtime AST/name allocation; DEV bypasses all shipping stages.",
+    "shipping_codec": "Fixed LZMA1 ALONE 9 extreme/lc2/lp0/pb0/BT4/64MiB dictionary/nice 32 and 77-byte launcher; no container checksum or codec sweep."
   }
 }

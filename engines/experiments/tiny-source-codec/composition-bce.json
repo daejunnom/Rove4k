@@ -1,0 +1,127 @@
+{
+  "stage": "BCE-static-plus-locals-one-fixed-codec",
+  "producer_sha256": "c64cf842ff7a453b363c23c784963046de0a80a2538c2e33e2912f50a213a2a7",
+  "API": {
+    "build.py": "7f5d2d3a52b5f3b4b3410cfad5919a7ec28b94baae8a331cbbf8c102b5adaa90",
+    "decode.py": "c43303b6524321b24dfba069afc9a135998e408503740ea8d9fbcfb9bb5e9f5a",
+    "launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
+    "control-head/engines/compact/tiny-entry-b/launcher.sh": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a"
+  },
+  "repetitions": 2,
+  "receipts": {
+    "native_gate": {
+      "path": "/home/stemxstudio/rove4k-private-function-names-combined-native-20261020/gate.json",
+      "bytes": 2861,
+      "sha256": "6347ebba4845b73d28155ac7b8d0df447d37c21ece9a8d1b87feede5189336f6"
+    },
+    "bootstrap_gate": {
+      "path": "/home/stemxstudio/rove4k-private-function-names-combined-bootstrap-v2-20261020/bootstrap.json",
+      "bytes": 5494,
+      "sha256": "b1f02215d0eb381e7d30602c279348bda29b725ee1f092daa4d5e17ea8ded26d"
+    }
+  },
+  "cases": {
+    "B": {
+      "source": {
+        "path": "/home/stemxstudio/rove4k-private-function-names-compose-v2-20261020/B/candidate.c",
+        "bytes": 12220,
+        "sha256": "daa9ca6e03260320c13a0a551a0c2586ed53d24d49ebba74f87b57b57814ba9f"
+      },
+      "bootstrap": {
+        "path": "/home/stemxstudio/rove4k-private-function-names-combined-bootstrap-v2-20261020/B/bootstrap.py",
+        "bytes": 13285,
+        "sha256": "df45f762e3ffff0db68cf51229f0a90e6789d03c85702d3a35b81fbc78c1119b"
+      },
+      "compiler_argv": [
+        "cc",
+        "-std=c11",
+        "-Os",
+        "-pthread",
+        "-DWORKERS=2",
+        "-DTT_BITS=18",
+        "-DDEV=0",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "x"
+      ],
+      "nice_len": 32,
+      "maintained_whole_bytes": 5851,
+      "static_only_original_xz_context": {
+        "bytes": 5779,
+        "sha256": "35fba462ed5ae17ce9a725949bdcab0eef78c8170a4ac6d7c30504a10f15fcf0"
+      },
+      "scope": "actual private-function+locals source; static-only cost is context, never the combined baseline"
+    },
+    "C": {
+      "source": {
+        "path": "/home/stemxstudio/rove4k-private-function-names-compose-v2-20261020/C/candidate.c",
+        "bytes": 11455,
+        "sha256": "f70cd11e8cdd1a3d2503255189e80ca9070cf310777d2ff8a89ec9beff732f82"
+      },
+      "bootstrap": {
+        "path": "/home/stemxstudio/rove4k-private-function-names-combined-bootstrap-v2-20261020/C/bootstrap.py",
+        "bytes": 12530,
+        "sha256": "a02f4b0e2441217d3591e5ee5a80ad7c53275c72311bdf6398bd80dc740703e9"
+      },
+      "compiler_argv": [
+        "cc",
+        "-std=c11",
+        "-Os",
+        "-pthread",
+        "-DWORKERS=2",
+        "-DTT_BITS=18",
+        "-mavx2",
+        "-DDEV=0",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "x"
+      ],
+      "nice_len": 64,
+      "maintained_whole_bytes": 5687,
+      "static_only_original_xz_context": {
+        "bytes": 5615,
+        "sha256": "c42811c62190ff59773116f526bab5d2f599026e2a0604178e171874c0490de7"
+      },
+      "scope": "actual private-function+locals source; static-only cost is context, never the combined baseline"
+    },
+    "E": {
+      "source": {
+        "path": "/home/stemxstudio/rove4k-private-function-names-compose-v2-20261020/E/candidate.c",
+        "bytes": 11803,
+        "sha256": "acd417f903ada227092b0ba371d6ad960ab80b4925ab64633b9b8a2774a9b3aa"
+      },
+      "bootstrap": {
+        "path": "/home/stemxstudio/rove4k-private-function-names-combined-bootstrap-v2-20261020/E/bootstrap.py",
+        "bytes": 12868,
+        "sha256": "dc65f22b293a451ca1d333f8782d206bd0555b2b1b2c58af5f53c978ad64990c"
+      },
+      "compiler_argv": [
+        "cc",
+        "-std=c11",
+        "-Os",
+        "-pthread",
+        "-DWORKERS=2",
+        "-DTT_BITS=18",
+        "-DDEV=0",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "x"
+      ],
+      "nice_len": 32,
+      "maintained_whole_bytes": 5679,
+      "static_only_original_xz_context": {
+        "bytes": 5603,
+        "sha256": "090797f53211223d2b121e5e74ed214a482e411bc7004e8e7681bde5d1caf5fe"
+      },
+      "scope": "actual private-function+locals source; static-only cost is context, never the combined baseline"
+    }
+  },
+  "encoder": "unchanged frozen build.encode API; originalXZ9e lc3lp0pb2 CRC64 once + specifiedALONE LZMA1 9e lc2lp0pb0 BT4 dict64MiB nice32/64/32 twice",
+  "native_provenance": "Combined local renames fullnative equal to static-only images. Static-only is distinct metadata class vs maintained images, not full-old equality. No native/engine execution in this codec stage."
+}

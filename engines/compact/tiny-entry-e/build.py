@@ -58,14 +58,15 @@ def main():
     flags=['cc','-std=c11','-Os','-pthread','-DWORKERS=2','-DTT_BITS=18']
     if recipe['compiler']!=flags+['-DDEV=0','-x','c','-','-o','x'] or recipe['dev_compiler']!=flags+['-DDEV=1','-x','c','-','-o','x'] or recipe['preprocessor']!=flags:
         raise ValueError('fixed E compiler or resource recipe changed')
-    if recipe['compression']!={'format':'xz','filter':'LZMA2','preset':9,'extreme':True,'lc':3,'lp':0,'pb':2,'check':'CRC64'}:
+    compression={'format': 'lzma-alone', 'filter': 'LZMA1', 'preset': 9, 'extreme': True, 'lc': 2, 'lp': 0, 'pb': 0, 'check': 'NONE', 'mf': 'BT4', 'dictionary_bytes': 67108864, 'nice_len': 32}
+    if recipe['compression']!=compression:
         raise ValueError('fixed E compression recipe changed')
     out.mkdir(parents=True);frozen=out/'inputs';frozen.mkdir()
     report={'complete':False,'scope':'canonical minimal E regeneration; fixed historical qualified bytes, not 4KiB acceptance',
             'resources':recipe['profile'],'inputs':{},'attempts':[],
             'qualified_receipt_reuse':recipe['qualified_receipt'],
             'tools':{name:subprocess.check_output(command,text=True).splitlines()[0] for name,command in
-                     {'cc':['cc','--version'],'ld':['ld','--version'],'python':['python3','--version'],'xz':['xz','--version']}.items()}}
+                     {'cc':['cc','--version'],'ld':['ld','--version'],'python':['python3','--version'],'lzma':['lzma','--version']}.items()}}
     def save():(out/'build.json').write_text(json.dumps(report,indent=2)+'\n')
     save()
     try:
@@ -86,29 +87,33 @@ def main():
         strip=module('entry_counter_strip',frozen/'stitch.py').strip_dev_counters
         literal=module('entry_literal',frozen/'pack_stream.py').source_literal
         alpha=module('entry_fixed_shipping_alpha',frozen/'fixed_shipping_alpha.py').transform_source
+        scope=module('entry_fixed_scope_names',frozen/'shipping_scope.py').transform_source
         lexer=module('entry_fixed_identifier_lexer',frozen/'rename_c.py')
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
-        if template.count(marker)!=1 or len(prefix)!=75:raise ValueError('bootstrap recipe changed')
+        if template.count(marker)!=1 or len(prefix)!=77:raise ValueError('bootstrap recipe changed')
         expected=recipe['expected']
         def generate(directory,dev=False):
             active,observations=specialize({'main.c':canonical},directory,recipe['preprocessor']+['-DDEV='+str(int(dev))],os.environ.copy())
             data=compact(active['main.c'],'c')
-            alpha_metadata=None
+            alpha_metadata=None;scope_metadata=None
             if not dev:
                 data,_=strip(data)
                 data,alpha_metadata=alpha(data,family='E',lexer=lexer)
-            return data,observations,alpha_metadata
+                data,scope_metadata=scope(data)
+            return data,observations,alpha_metadata,scope_metadata
         def package(source):
             expression,_=literal(source);script=template.replace(marker,expression.encode())
             ast.parse(script)
-            data=prefix+lzma.compress(script,format=lzma.FORMAT_XZ,check=lzma.CHECK_CRC64,
-                                     filters=[{'id':lzma.FILTER_LZMA2,'preset':9|lzma.PRESET_EXTREME,'lc':3,'lp':0,'pb':2}])
+            data=prefix+lzma.compress(script,format=lzma.FORMAT_ALONE,check=lzma.CHECK_NONE,
+                                     filters=[{'id':lzma.FILTER_LZMA1,'preset':9|lzma.PRESET_EXTREME,
+                                               'lc':2,'lp':0,'pb':0,'mf':lzma.MF_BT4,
+                                               'dict_size':67108864,'nice_len':32}])
             return data,script
         first=None;first_dev=None
         for index in (1,2):
             directory=out/('attempt-'+str(index));directory.mkdir()
-            source,observations,alpha_metadata=generate(directory/'preprocess')
+            source,observations,alpha_metadata,scope_metadata=generate(directory/'preprocess')
             if len(source)!=expected['source_bytes'] or sha(source)!=expected['source_sha256']:raise ValueError('compact C identity mismatch')
             (directory/'main.c').write_bytes(source)
             native=compile_c(recipe['compiler'],source,directory/'native')
@@ -122,10 +127,10 @@ def main():
             elif current!=first:raise ValueError('independent generation did not reproduce bytes')
             row={'attempt':index,'source_bytes':len(source),'source_sha256':sha(source),'native_bytes':len(native),'native_sha256':sha(native),
                  'whole_bytes':len(whole),'whole_sha256':sha(whole),'bootstrap_sha256':sha(script),'preprocessor':observations,
-                 'shipping_alpha':alpha_metadata}
+                 'shipping_alpha':alpha_metadata,'shipping_scope':scope_metadata}
             if args.dev:
-                dev,dev_observations,dev_alpha=generate(directory/'preprocess-dev',True)
-                if dev_alpha is not None:raise ValueError('diagnostic source entered shipping alpha stage')
+                dev,dev_observations,dev_alpha,dev_scope=generate(directory/'preprocess-dev',True)
+                if dev_alpha is not None or dev_scope is not None:raise ValueError('diagnostic source entered shipping alpha stage')
                 if sha(dev)!=expected['dev_source_sha256']:raise ValueError('diagnostic C differs from qualified control')
                 dev_command=recipe['dev_compiler']
                 dev_native=compile_c(dev_command,dev,directory/'dev');(directory/'dev/main.c').write_bytes(dev)

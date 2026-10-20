@@ -1,0 +1,80 @@
+{
+  "format": 1,
+  "scope": "One fixed B source-only composition; no PP/compile/cost/runtime qualification",
+  "baseline": {
+    "bytes": 28953,
+    "sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6"
+  },
+  "candidate": {
+    "bytes": 28791,
+    "sha256": "5cf3b5b7b01cd23abd4658955065f04db9dac0175495624e39a165998cc5ed46"
+  },
+  "raw_saved_bytes": 162,
+  "root_authorized_changes": [
+    "exact four clock keys single value consumption",
+    "old/new BB hash HCE put body sharing",
+    "direct continuation prior index"
+  ],
+  "literal_changes": [
+    {
+      "label": "uniform-old-new-cell-update",
+      "occurrences": 1,
+      "before": "static void put(Board *p,int q,int v){\n    int old=p->b[q];\n    if(old){p->bb[old<0][abs(old)]^=bit(q);p->bb[old<0][0]^=bit(q);p->h^=piece(old,q);p->v-=value(old,q);}\n    p->b[q]=(int8_t)v;\n    if(v){p->bb[v<0][abs(v)]^=bit(q);p->bb[v<0][0]^=bit(q);p->h^=piece(v,q);p->v+=value(v,q);if(abs(v)==6)p->k[v<0]=q;}\n}\n",
+      "after": "static void put(Board *p,int q,int v){\n    for(int old=p->b[q],sign=-1;sign<2;sign+=2,old=v)if(old){\n        p->bb[old<0][abs(old)]^=bit(q);p->bb[old<0][0]^=bit(q);\n        p->h^=piece(old,q);p->v+=sign*value(old,q);\n    }\n    p->b[q]=(int8_t)v;if(abs(v)==6)p->k[v<0]=q;\n}\n",
+      "raw_saved_bytes": 39
+    },
+    {
+      "label": "exact-four-clock-single-consume",
+      "occurrences": 1,
+      "before": "        if(!strcmp(t,\"wtime\")||!strcmp(t,\"btime\")){int side=*t=='w'?1:-1;uint64_t n=number(strtok_r(NULL,\" \\t\",&save));if(side==position.s){clock=n;present=1;}}\n        else if(!strcmp(t,\"winc\")||!strcmp(t,\"binc\")){int side=*t=='w'?1:-1;uint64_t n=number(strtok_r(NULL,\" \\t\",&save));if(side==position.s)inc=n;}\n",
+      "after": "        if(!strcmp(t,\"wtime\")||!strcmp(t,\"btime\")||!strcmp(t,\"winc\")||!strcmp(t,\"binc\")){int side=*t=='w'?1:-1;uint64_t n=number(strtok_r(NULL,\" \\t\",&save));if(side==position.s){if(t[1]=='t'){clock=n;present=1;}else inc=n;}}\n",
+      "raw_saved_bytes": 86
+    },
+    {
+      "label": "continuation-signature",
+      "occurrences": 1,
+      "before": "int ply,Move previous,Move *root",
+      "after": "int ply,int prior,Move *root",
+      "raw_saved_bytes": 4
+    },
+    {
+      "label": "same-position-singular-context",
+      "occurrences": 1,
+      "before": "threshold,ply,previous,0,tt,0",
+      "after": "threshold,ply,prior,0,tt,0",
+      "raw_saved_bytes": 3
+    },
+    {
+      "label": "remove-recovered-prior",
+      "occurrences": 1,
+      "before": "    int prior=previous?piece_index(p->b[TO(previous)]):6;\n",
+      "after": "",
+      "raw_saved_bytes": 58
+    },
+    {
+      "label": "made-child-index-once",
+      "occurrences": 1,
+      "before": "        int from=FROM(m),to=TO(m),tactical=capture(p,m)||PROMO(m);",
+      "after": "        int from=FROM(m),to=TO(m),tactical=capture(p,m)||PROMO(m),pi=piece_index(q.b[to]);",
+      "raw_saved_bytes": -24
+    },
+    {
+      "label": "child-context-across-four-retries",
+      "occurrences": 4,
+      "before": "ply+1,m,0,0,learning",
+      "after": "ply+1,pi,0,0,learning",
+      "raw_saved_bytes": -4
+    },
+    {
+      "label": "root-continuation-sentinel",
+      "occurrences": 1,
+      "before": "depth,-MATE,MATE,0,0,&best,0,1",
+      "after": "depth,-MATE,MATE,0,6,&best,0,1",
+      "raw_saved_bytes": 0
+    }
+  ],
+  "inverse_reconstructs_baseline": true,
+  "excludes_rejected_B_attacker_fragment": true,
+  "old_native_identity_required": false,
+  "future_first_cost_requires_root_scope_coordination": true
+}
