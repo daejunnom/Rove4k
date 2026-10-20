@@ -1,0 +1,75 @@
+{
+  "format": 1,
+  "normal_entry": "../../compact/tiny-entry-d",
+  "normal_recipe_sha256": "74e3568e2e689a822d145e01648cea65442a1e3f1d8bcab88aa68a147a9b3a73",
+  "build_helper_sha256": "6757f71a5f826bfe9b6e34ce2f2d30fff4a4699ded24c76c851948fd4173121d",
+  "packer_sha256": "26c1e9660cbe834dd67391dd309e8223391d8137ba199101399c5cc87b629f1e",
+  "loader_source_sha256": {
+    "loader/loader.c": "fba857458166293381a5e403e1ee8ebeeb6171e682f395b0f21524a60670fef4",
+    "loader/image.ld": "93934099212b944b20c2f7840ee87e4817311c4f87fddbb2b3f91db28776cf99",
+    "loader/codec.py": "43b97d360a8eed9929153f06d8262b4d5dd8bf97da0bad68a3665ad77270c32f",
+    "loader/decoder.h": "f400246d0665f9d20eaf3cb4390254aed44c8f724c4f0a25a891253a2b8a4dea",
+    "loader/range_bits.py": "9c4f9a69b3655a1cd95969cd601193174a15894e35a92248cb3c7ccdd74d2854",
+    "loader/models.json": "3101a5638551990cb2d5a33d6d28fbab436d04d301b676cc2e45afa63b7f6920"
+  },
+  "loader_flags": [
+    "-Oz",
+    "-flto",
+    "-nostdlib",
+    "-static",
+    "-no-pie",
+    "-fno-pie",
+    "-fno-pic",
+    "-fno-builtin",
+    "-fno-stack-protector",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-fno-ident",
+    "-fcf-protection=none",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-Wl,--gc-sections,--build-id=none,-s,-z,noexecstack"
+  ],
+  "codec": "rove4k-context-h24-base10-u32-zero4-v1",
+  "candidate_source8_root": "/home/stemxstudio/rove4k-tiny-d-worker-reset-native-20261020-v1/candidate-source8",
+  "candidate_source8_set_sha256": "23700202ce6574379cee0303e8da3a7f72080e1de5cbed741407ad5e83de7782",
+  "candidate_source8": {
+    "tiny.h": {
+      "bytes": 2696,
+      "sha256": "e19749eb3315253e04171b89b8188df7e0db6b39ec4eb495187a6e158836823f"
+    },
+    "board.c": {
+      "bytes": 8880,
+      "sha256": "3f04fedb7e449e69b47ac6f2b36eb89ebe193726ac5970b0ae3a4b28008e12dc"
+    },
+    "search.c": {
+      "bytes": 6209,
+      "sha256": "48e0f21fee8091f1e5c5d08d606740f6ff8c56778a550af2bcfc282d655d974c"
+    },
+    "runtime.c": {
+      "bytes": 15027,
+      "sha256": "51902e800066562f7dbc5d240db57a6635b20c74ed8fede3a4cd71329fc62a38"
+    },
+    "hq.h": {
+      "bytes": 463,
+      "sha256": "ad66a03cef5288010c4377b81ee3661320195545aee6c664a42d3828bfc8b412"
+    },
+    "hq.c": {
+      "bytes": 1488,
+      "sha256": "50b246280ac1f0b9e1f20834f302b31e30221101abd979bbdc146fcae7c12b5f"
+    },
+    "start.S": {
+      "bytes": 845,
+      "sha256": "4a6021518cfe67bee9e42806b596f4f0837e3e93487b1acfa115158ea019ba5b"
+    },
+    "image.ld": {
+      "bytes": 446,
+      "sha256": "38756c865914b52432572864446fcc58b791dfb508af8a33156d5c190c01044b"
+    }
+  },
+  "native_paths": {
+    "scalar-shipping": "/home/stemxstudio/rove4k-tiny-d-worker-reset-native-20261020-v1/scalar-shipping/x",
+    "hq-shipping": "/home/stemxstudio/rove4k-tiny-d-worker-reset-native-20261020-v1/hq-shipping/x"
+  },
+  "scope": "one independent encode and CHECKPOINT0 loader compile per form; native/control compile, control copy, target, audit, fresh, negative, sweep and retry zero"
+}

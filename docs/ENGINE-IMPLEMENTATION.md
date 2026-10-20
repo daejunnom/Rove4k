@@ -147,6 +147,11 @@ jobs in its [exact-head engine CI](https://github.com/daejunnom/Rove4k/actions/r
 and [repository lifecycle CI](https://github.com/daejunnom/Rove4k/actions/runs/39413637981).
 It regenerates and exercises the new maintained D6401/6614 own-ELFs and F4814,
 alongside A4846/B5558/C5395/E5400. Later cost-only candidates remain separate.
+The subsequent source-cost checkpoint `03018dd` also passes both language jobs
+in its [exact-head engine CI](https://github.com/daejunnom/Rove4k/actions/runs/39417816887)
+and [repository lifecycle CI](https://github.com/daejunnom/Rove4k/actions/runs/39417816891).
+It exercises the same maintained entries; the newly recorded experiments are
+local cost evidence and are not extra CI runtime steps.
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
@@ -2959,8 +2964,10 @@ are not added together.
 
 | Exact candidate | Maintained whole | Candidate whole | Change |
 | --- | ---: | ---: | ---: |
+| A local own-side piece expressions | 4,846 | 4,853 | +7; rejected |
 | F guarded TT-bound predicate | 4,814 | 4,811 | -3 |
 | F EP legality through existing make | 4,814 | 4,808 | -6 |
+| F EP plus bound predicate | 4,814 | 4,808 | -6; ties EP alone |
 | F full-key 16-byte CMPXCHG16B TT | 4,814 | 4,862 | +48; rejected |
 | D worker-owned reset, scalar | 6,401 | 6,387 | -14 |
 | D worker-owned reset, HQ | 6,614 | 6,580 | -34 |
@@ -2977,6 +2984,11 @@ The guarded-predicate cost receipt is
 `187fd808c759720d23f4777d164d659f05c0a141955612674ff7f21de2777f04`;
 the EP cost receipt is
 `c59a93ae67cce82b0accac9d743099d663b264d4c1af49402f01afc7a5d816cb`.
+One actual combination of those two transformations costs the same 4,808 bytes
+as EP alone, despite its 9,916-byte source being nine bytes shorter. It is not
+selected over the simpler EP-only candidate. Its separate new native and whole
+identities are retained in external receipt
+`a1eea975549fb09481cd72ba500f41d2163faf99960b972a0836f6f786c8389c`.
 
 The CAS16 experiment preserves all 64 key bits and all payload bits in a single
 coherent operation. It changes contention policy: reads obtain a coherent
@@ -3006,6 +3018,17 @@ C, native or package is generated for that lane. Its independent policy review
 is clear for those two positions, without a general GNU-extension or typedef
 chain claim. The inventory is closed without treating its arithmetic target as
 a realized saving. Scope coloring remains the earlier incomplete experiment.
+
+A separate source review traces pinned 4ku's side-relative bitboards and
+recomputed hash/evaluation, and ice4's absolute board plus direction/sign
+parameters. They do not establish a large drop from physically flipping the
+current A/F board. The earlier complete flip already grows by 32 bytes. One
+smaller six-expression A candidate keeps absolute board/key/move domains and
+normalizes only local mover values. Its shipping source shrinks 19 bytes, but
+one actual package grows by seven bytes to 4,853. It is size-rejected without
+runtime or F variants. The new native differs despite tying in file length.
+Its actual first-cost receipt is
+`0674ab007661efee495abb350bbac896697cf4691f809b9a32f67671252d9131`.
 
 All compiler outputs, complete files, source snapshots, receipts and external
 engine comparisons stay outside Git. Only independently authored experiment

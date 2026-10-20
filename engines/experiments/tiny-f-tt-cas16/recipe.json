@@ -1,0 +1,100 @@
+{
+  "format": 1,
+  "baseline_source_sha256": "00239e23500d41c45801cdb19c4e7c8cc8b22cf29bebd7e4fbc8fdd1e08c7916",
+  "baseline_source_bytes": 9954,
+  "baseline_expected": {
+    "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+    "source_bytes": 9954,
+    "source_sha256": "00239e23500d41c45801cdb19c4e7c8cc8b22cf29bebd7e4fbc8fdd1e08c7916",
+    "native_bytes": 22672,
+    "native_sha256": "757b9a14cd5174dad55754196cce098fd89018a8b0d7adcf08bcddb2e1fc092b",
+    "whole_bytes": 4814,
+    "whole_sha256": "30240a27c0682519b1d2539c58d153ebaf7dcf4b9d9dde631f985f3c27261285",
+    "dev_source_sha256": "84fbc9b3651494ce0ebabdc25b9a1fa7b3a334fa7394eee2631581682a804b58",
+    "dev_native_sha256": "6eb28892842bef969edff9295aae74b7edd71d61eb39ac01236f2adcd4785340",
+    "bootstrap_sha256": "b43f24051ac613826e630ed211c3fd1528ee2f85638372c62c679254b55c8e32"
+  },
+  "normal_recipe_sha256": "f86f728fb147b1fa5936f02886a46c36d903837b71a1264b3c00bac281d5ab5a",
+  "helper_sha256": {
+    "engines/compact/tiny-entry-f/build.py": "153e8a1d8a99bc8791910099fcf771dbc634524a399f1cf0ece98c27068ef5d0",
+    "engines/compact/tiny-entry-f/recipe.json": "f86f728fb147b1fa5936f02886a46c36d903837b71a1264b3c00bac281d5ab5a",
+    "engines/compact/tiny-entry-f/bootstrap.py.in": "84608782831299a6f7b1010dea89501eb10e6e34ee1cdc8f3804d448354cf4c6",
+    "engines/compact/tiny-entry-f/launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
+    "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
+    "engines/experiments/tiny-source-codec/decode.py": "c43303b6524321b24dfba069afc9a135998e408503740ea8d9fbcfb9bb5e9f5a"
+  },
+  "baseline_compiler": [
+    "cc",
+    "-Os",
+    "-pthread",
+    "-x",
+    "c",
+    "-",
+    "-o",
+    "x",
+    "-s"
+  ],
+  "candidate_compiler": [
+    "cc",
+    "-Os",
+    "-pthread",
+    "-mcx16",
+    "-x",
+    "c",
+    "-",
+    "-o",
+    "x",
+    "-s"
+  ],
+  "compression": {
+    "format": "lzma-alone",
+    "filter": "LZMA1",
+    "preset": 9,
+    "extreme": true,
+    "lc": 2,
+    "lp": 0,
+    "pb": 0,
+    "check": "NONE",
+    "mf": "BT4",
+    "dictionary_bytes": 67108864,
+    "nice_len": 32
+  },
+  "rules": [
+    {
+      "role": "Entry scalar and sole-compile ABI/CAS16 assertion",
+      "before": "typedef struct{atomic_flag zN;uint64_t a,b;}zb;",
+      "after": "typedef unsigned __int128 zb;_Static_assert(sizeof(zb)==16&&_Alignof(zb)==16&&__GCC_HAVE_SYNC_COMPARE_AND_SWAP_16,\"\");",
+      "count": 1
+    },
+    {
+      "role": "full snapshot and one conditional store/drop",
+      "before": "static uint64_t ak(uint64_t a,uint64_t d){zb*e=qq+(a&((1u<<18)-1));if(atomic_flag_test_and_set_explicit(&e->zN,memory_order_acquire))return 0;if(d)e->a=a,e->b=d;else d=e->a==a?e->b:0;atomic_flag_clear_explicit(&e->zN,memory_order_release);return d;}",
+      "after": "static uint64_t ak(uint64_t a,uint64_t d){zb*e=qq+(a&((1u<<18)-1));zb v=__sync_val_compare_and_swap(e,0,0);if(d)return __sync_val_compare_and_swap(e,v,((zb)d<<64)|a)==v?d:0;return(uint64_t)v==a?v>>64:0;}",
+      "count": 1
+    },
+    {
+      "role": "retained quiescent clear scalar body",
+      "before": "static void az(void){for(size_t i=0;i<((size_t)1<<18);i++){qq[i].a=qq[i].b=0;atomic_flag_clear(&qq[i].zN);}}",
+      "after": "static void az(void){for(size_t i=0;i<((size_t)1<<18);i++)qq[i]=0;}",
+      "count": 1
+    },
+    {
+      "role": "redundant startup clear removal after calloc",
+      "before": "if(!qq)return 2;az();ae(&ql);",
+      "after": "if(!qq)return 2;ae(&ql);",
+      "count": 1
+    }
+  ],
+  "byteorder": "conceptual integer fullkeylow64,datahigh64; castunsigned128beforeshift",
+  "qualification": "single nativecompile only; actual objdump/readelf inspection, no execution",
+  "runtime_admission": "Linuxx86_64+advertisedCX16+GNU13;16bytecallocABI chain; no actualruntimeaddress observation",
+  "new_algorithm": "no softwarebusyflag; coherentread instead of possiblebusy-miss; oneCASwritedrop on changedsnapshot; no retry",
+  "clear_boundary": "shipping9954 has no DEV branch; clear function retained quiescent for DEV-compatible intent; source-only nowunused under shipping after startupcallremoval",
+  "engine_executions_authorized": false,
+  "Clang_AST_authorized": false,
+  "native_execution_authorized": false,
+  "baseline_copy_or_compile_authorized": false,
+  "sweeps_authorized": false,
+  "candidate_source_bytes": 9933,
+  "candidate_source_sha256": "17d9ffff73bcac9d3127dbdf482c7978b70d14ee0628354d50cebe98c83ebaa0"
+}
