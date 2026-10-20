@@ -142,6 +142,11 @@ and [repository lifecycle CI](https://github.com/daejunnom/Rove4k/actions/runs/3
 It regenerates and exercises A4846/B5558/C5395/E5400/F4839. The separately
 qualified context-D experiment and encoder remain local evidence; this CI
 still regenerates and exercises the maintained old-codec D7457/7707 pair.
+The maintained-context-D/F-member checkpoint `e266ea5` passes both language
+jobs in its [exact-head engine CI](https://github.com/daejunnom/Rove4k/actions/runs/39413637855)
+and [repository lifecycle CI](https://github.com/daejunnom/Rove4k/actions/runs/39413637981).
+It regenerates and exercises the new maintained D6401/6614 own-ELFs and F4814,
+alongside A4846/B5558/C5395/E5400. Later cost-only candidates remain separate.
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
@@ -2944,3 +2949,65 @@ Fresh result/readback receipts are
 `26ced4a9aa2bdec75f1f16c7018401eec289d0b44b33eda95d59b86c2a098776`.
 Post-run qualification metadata is distinguished from these producing inputs.
 Current-head CI and 4 KiB eligibility are still separate acceptance conditions.
+
+## Further source sharing: first costs, not maintained entries
+
+The next bounded experiments keep the maintained `e266ea5` sources and exact
+admission guards unchanged. Each row below is one physically generated complete
+file, including its original launcher or ELF header/loader. Independent gains
+are not added together.
+
+| Exact candidate | Maintained whole | Candidate whole | Change |
+| --- | ---: | ---: | ---: |
+| F guarded TT-bound predicate | 4,814 | 4,811 | -3 |
+| F EP legality through existing make | 4,814 | 4,808 | -6 |
+| F full-key 16-byte CMPXCHG16B TT | 4,814 | 4,862 | +48; rejected |
+| D worker-owned reset, scalar | 6,401 | 6,387 | -14 |
+| D worker-owned reset, HQ | 6,614 | 6,580 | -34 |
+
+F's predicate retains the outer nonzero-bound gate. Its eight decoded-bound /
+score-relation truth rows agree even though the isolated inner expression
+differs for bound zero. Only nine shipping-source bytes change. The EP candidate
+shares the three-square board edit and own-king legality check through `make`.
+Its trial child is discarded; a temporarily noncanonical scratch hash cannot
+escape to TT, history or results. Its inner EP immediately returns because the
+trial capture cannot create a double-push target. Both candidates produce new
+native identities and retain separate functional qualification requirements.
+The guarded-predicate cost receipt is
+`187fd808c759720d23f4777d164d659f05c0a141955612674ff7f21de2777f04`;
+the EP cost receipt is
+`c59a93ae67cce82b0accac9d743099d663b264d4c1af49402f01afc7a5d816cb`.
+
+The CAS16 experiment preserves all 64 key bits and all payload bits in a single
+coherent operation. It changes contention policy: reads obtain a coherent
+snapshot and a failed single store attempt drops its update. Inline codegen and
+the added `-mcx16` bootstrap are included in the cost. The first checker wrongly
+expected two static CAS instruction sites; the original failure is preserved.
+An explicit read-only admission identifies three legitimate sites (read
+snapshot, write snapshot, conditional write), reuses the unchanged native, and
+allows the sole package measurement. The larger complete file rejects this
+candidate without runtime or additional flag/codec variants. The 24-to-16-byte
+entry reduction is allocation arithmetic, not a measured RSS or file saving.
+
+D removes the controller's duplicated all-worker result-reset loop. Each worker
+clears its own best move immediately before the unchanged `think` reset of
+nodes, depth and score. Epoch publication, completion/output reservation and
+storage-reuse ownership remain explicit. Scalar/HQ natives shrink by 32 bytes
+each to 8,060/8,448; their distinct compressed savings are measured, not inferred
+from native lengths. The fixed context packets cost 5,020/5,213 bytes, with the
+same 1,367 bytes of ELF header and loader. The first whole-cost receipt is
+`c89c7ec1a595ded61c11844352e80f244149eb29088eaa62b3ec6499ce9d2063`.
+New-code runtime and pre-entry qualification are not inherited from the former
+native identities.
+
+The separate adjacent-declaration inventory finds only two conservative plain
+`int ` joins in the exact F source: eight raw duplicate-prefix bytes. No changed
+C, native or package is generated for that lane. Its independent policy review
+is clear for those two positions, without a general GNU-extension or typedef
+chain claim. The inventory is closed without treating its arithmetic target as
+a realized saving. Scope coloring remains the earlier incomplete experiment.
+
+All compiler outputs, complete files, source snapshots, receipts and external
+engine comparisons stay outside Git. Only independently authored experiment
+sources are committed. No third-party engine implementation is vendored; no
+games, training, AWS or target many-core benchmark is part of these costs.
