@@ -1,5 +1,62 @@
 # Maintained minimal A entry
 
+The selected complete launcher is **4,690 bytes**, 26 below A4716 and
+**594 bytes above4,096**. The final `shipping_global_names.py` stage follows
+startup, shortening 28 owned global function names at 105 physical declaration
+and reference spans. Source9370->9265; the entire22672B native is identical to
+its predecessor, without a metadata exception. Source bytes are not whole
+bytes. No4KiB, playing strength or broader target claim follows.
+
+| Selected artifact | Bytes | SHA-256 |
+|---|---:|---|
+| Shipping C |9265|`06ca0bc2871c2b1a8ce1eeccc24d65680bbc874066498db6e0c295af89003a46`|
+| Full native |22672|`47ec496697134d91a4efb71e14441e5a542df93278c64a2dfdcf1e7eec0de9dc`|
+| Decoded bootstrap |10255|`c8f790266aa38f727c6d4ca3099a96321bdd1931449836f1d7509ee2ec3c2e7c`|
+| Complete launcher |4690|`c72f691a64c4813e4c988a5f5b3b7ddfa069c3e936ba4756862eb090eb588d78`|
+
+The helper owns exact full input/output pins, one fixed28/105 map, physical
+identifier inventories, exact inverse, protected complement, directive and
+opaque guards. main/header/external references, objects, types, members,
+capture-only bit3/FROM119 and the existing PROMO(N) lexical bridge remain
+unchanged. Eight definitions retain C external linkage kinds while their
+program-owned implementation names change inside the closed standalone TU;
+these names are not an external symbol API. No AST/experiment/report/artifact
+dependency is used in normal generation. All old guards run first. DEV bypasses
+this stage and retains its preceding source/native tuple. Compiler arguments,
+resource profile, bootstrap/prefix and the original A ALONE defaults remain
+unchanged; no F codec settings are substituted.
+
+The source-only proposal is ce4d72fca0153a8c5f8adf54bb9d950919024180aa3b174e13db2ab27daec05b.
+Fixed sequential ABCE cost receipt is
+e192da7467cbf2dfa950bf50f3127d45e684ef7c484c110bd2a86ccb1d8899c2.
+Its sole A candidate compile reproduced the full predecessor native. Original
+whole/bootstrap reproduction and strict Python/CLI source/template/argv
+restoration passed. This cost ran no target/bootstrap/engine/loader.
+
+Current ordinary25 and A4716 controls were preserved before mutation.
+Producing source26 was frozen before the sole normal --dev invocation. Shipping
+source/native/bootstrap/whole reproduced twice, and the preceding explicit
+DEV source/native tuple reproduced twice. The unchanged selected verifier
+completed once: quit/EOF2sessions8legalGO, exact restored full native, three
+stable startup TIDs each, private-path/helper absence, active closing search,
+exactly one closing bestmove, readers finished and natural physical exit0.
+All six observed startup TIDs are now absent. Both outer groups terminated0
+and were absent; there was no normal retry or forced cleanup.
+Build SHA228cdb10e989005f72e0e22d38abae01c6c5d9816c20d8a0b9da5b4d0bd16186;
+runtime SHA7d68692df6dad32647e67ddb898eeb775337a46b4812a28b06435361121c3881;
+readback SHA3e34dae7dc503701bfeedbead0f5f6c021cdce947b35c2b285f0646405f3a484.
+Producing source26 SHAafae93c1bdcaa564a11c3db7545a00627c4480ef9398ac58c142f6bbcabffb15;
+producing recipe SHAbd2d463ada9e6fcb3e5f72e726c529df26ea3a2468d735ea33e02fd1970fbb89.
+Only README/recipe completion metadata changed after execution. Other24 source
+paths and helper/expected/compiler/profile/codec remain producing bytes.
+Unchanged fresh.py would discover26 ordinary sources; no fresh extraction ran.
+Cancellation causality and the unchanged builder's separate compiler-descendant
+lifetime observation remain unproven. No DEV engine, new core fixture, game,
+benchmark, training or negative campaign was added. Historical receipts below
+remain predecessor executions, and Git/CI/project acceptance remain root work.
+
+# Historical A4716 startup-zero stage
+
 The selected complete launcher is **4,716 bytes**, 11 below A4727 and
 **620 bytes above4,096**. Sole normal --dev regeneration and unchanged selected
 verification both passed at their first invocation. Expected pins remain the

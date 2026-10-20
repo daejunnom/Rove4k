@@ -185,7 +185,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
-| A | 4,716 B | 620 B | Capture-only private Move bit, calloc payload initialization sharing, lexical-scope names/types, shared startup/query and original ALONE |
+| A | 4,690 B | 594 B | Global function aliases, capture-only private Move bit, calloc payload initialization sharing, lexical-scope names/types, shared startup/query and original ALONE |
 | B | 5,340 B | 1,244 B | Native-identical type tokens, tactical Move metadata, shared geometry, legal-LVA ordering, hybrid attackers/singular and ALONE |
 | C | 5,078 B | 982 B | Native-identical type tokens, signed-net eight-lane state, exact HCE, real 128-bit madd/hadd and fixed ALONE |
 | D scalar / HQ | 6,002 / 6,220 B | 1,906 / 2,124 B | EP trial shares make, full-key aligned atomic16 TT, explicit SSE4.2/CX16 profile, own fixed21 context ELF and guarded BCJ restoration |
@@ -4983,3 +4983,78 @@ root source/artifact readback SHA is
 `bb33643cf62cbb0cb8753cba2a8af89e4ea49ef919ba26714152604571607bba`.
 Producing source27, predecessor source26 and prior globalnames receipts remain
 separate; only recipe/README completion metadata changes after execution.
+
+### F bootstrap module aliases: complete-file loss
+
+One fixed `signal`/`subprocess` module-alias proposal preserves the binding-
+normalized complete Python AST, embedded C source, compiler argv and all
+signal/process-group/TMPDIR/fd/unlink/exec paths. Imports add10 raw bytes and
+receivers remove97: template1006 to919, bootstrap10241 to10154. One fixed
+original ALONE encode instead grows whole4681 to4682 (+1), SHA
+`9cd42414ede788b73f71d37512e991bbd3ea6fe5b208b192e8f4449584644e5d`.
+Control/candidate strict decode passes; compiler/bootstrap/target execution
+and normal/Git changes are0. Receipt SHA is
+`9ce4bcd1122e0f118144a4aaa04a01a9fb94bb7ef75115c9547f0713392003a1`.
+The candidate is rejected without another alias or codec sweep.
+
+A separate source-only shell assessment does not justify317 bytes of whole
+savings. Python's fixed983-byte code is currently compressed together with
+the source. Even an incomplete shell outline would grow uncompressed prefix
+77 to238 before safe signal/group publication, cancellation and physical wait
+code. FD-based unlinked exec also changes inherited descriptor and argv0
+contracts; a parent-shell design adds a resident process and active private
+executable path. No shell candidate is built or run. A source-only compressed
+stream or its difference from the current whole is not removable bootstrap
+overhead or a submission lower bound.
+
+### Independent A/B/C/E global-name maps and A ordinary promotion
+
+The current four shipping sources are analyzed separately, including their
+actual compiler flags and pinned headers. Frequency-first function aliases
+respect conservative referencing-function scope conflicts, existing one-
+character functions and all opaque/directive/header tokens. There are no new
+local-variable renames. Exact inverse, declaration/type/layout/reference
+projection and remaining physical tokens pass. This is a fixed-source binding
+argument, not generic C equivalence, optimal coloring or live-range reuse.
+A uses2 semantic parses; an initial F-only length eligibility mistake in BCE
+is preserved before the corrected comparison, for3 actual parses per BCE.
+That incomplete result is not reported as no compression opportunity.
+
+| Family | Source before/after | Physical edits/functions | Complete before/after | Native observation |
+| --- | ---: | ---: | ---: | --- |
+| A | 9370/9265 | 105/28 | 4716/4690 | Entire22672-byte image identical |
+| B | 11167/11009 | 46/12 | 5340/5279 | Unstripped image changes; metadata review separate |
+| C | 10445/10305 | 37/10 | 5078/5036 | Unstripped image changes; metadata review separate |
+| E | 10891/10755 | 36/10 | 5158/5118 | Unstripped image changes; metadata review separate |
+
+Every complete control reproduces with its own unchanged compiler, template,
+prefix and fixed codec, including C's actual -mavx2. Each candidate has one
+compile and encode with strict old/new restoration. These source deltas do
+not predict codec gains. The BCE measurements remain separate from ordinary
+promotion pending explicit allocated-section/symbol/layout review; full
+native identity is not asserted for them. A's capture-only tag/PROMO lexical
+bridge, B's promotion-inclusive OR tag, C's actual XMM eight-lane madd/hadd2,
+and E's current19 parameters and five-feature ordering remain protected.
+Source-only final index SHA is
+`8daad35c83b343a1d58ceff65b4f7c2bb98843ab03a6bae1b667b41ad754f1fa`.
+
+A's ordinary `shipping_global_names.py` replays its own28-function/105-span
+map after startup, with exact source/inverse/token guards and no external
+analysis/runtime input. Two unmapped functions remain. One ordinary --dev
+build reproduces2shipping/2unchanged DEV; entire native remains47ec4966.
+Source9265/06ca0bc2 and complete4690, SHA
+`c72f691a64c4813e4c988a5f5b3b7ddfa069c3e936ba4756862eb090eb588d78`,
+are executed through one unchanged selected verifier: two quit/EOF sessions,
+eight legal GO epochs, stable three startup TIDs, absent private paths/helpers
+and reader/physical exit0. Build SHA is
+`228cdb10e989005f72e0e22d38abae01c6c5d9816c20d8a0b9da5b4d0bd16186`;
+runtime SHA is
+`7d68692df6dad32647e67ddb898eeb775337a46b4812a28b06435361121c3881`.
+Final normal index SHA is
+`130c675f0ea2a8805c0986be1fb545dc6dc1b68673233614bfc3e3e3b30c3fd8`;
+root actual source/output/receipt readback SHA is
+`1c2652c14331ade61cf9cca8edcc126929ed83ca9e573ff82f4d0794a9581eeb`.
+Producing and final source26 differ only by completion metadata. An external
+copied metadata label is corrected with the original preserved, without a
+source or execution change. Cancellation causality remains unproven; no new
+core, DEV engine, fresh archive, game or performance execution is claimed.
