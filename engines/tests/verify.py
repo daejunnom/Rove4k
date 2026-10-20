@@ -754,8 +754,10 @@ def load_specs(args):
             identifier = spec["id"] + "-" + form
             require(not any(item["id"] == identifier for item in expanded), f"duplicate expanded engine id {identifier}")
             expanded.append({**spec, "id": identifier, "command": [str(path)], "cwd": str(path.parent),
-                             "source_form": form, "artifacts": []})
+                             "source_form": form, "artifacts": [], "expected_program_sha256": digest})
             seen[digest] = identifier
+    require(len({spec["id"] for spec in expanded}) == len(expanded),
+            "duplicate expanded engine identifiers")
     return expanded
 
 

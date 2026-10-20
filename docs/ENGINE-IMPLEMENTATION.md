@@ -12,14 +12,18 @@ passed both C and Rust jobs. The immutable local rebuild passed 144/144 behavior
 groups, independent byte reproduction of all 24 native forms, and four bounded
 A/F C-versus-Rust games. The sections below preserve earlier checkpoint results
 as history; they do not override this newer evidence.
-The later source/tooling checkpoint `5e24f2a` also passes both language jobs in
-its [exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39340690254).
+The later source/tooling checkpoints `5e24f2a` and `a681ff8` also pass both
+language jobs in their respective exact-head CI runs
+([5e24f2a](https://github.com/daejunnom/Rove4k/actions/runs/39340690254),
+[a681ff8](https://github.com/daejunnom/Rove4k/actions/runs/39342301394)).
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
-reduction, D's eligible own-ELF artifact, feature-aligned structural comparisons,
-target-profile search/resource checks and final candidate games. Startup-only
-evidence and small-profile games have the narrower scopes recorded below.
+reduction, D's eligible own-ELF artifact, final candidate comparisons and games,
+and selected profile/resource and target-hardware evidence. The first matched
+C/Rust structural comparison and the twelve original target512 short searches
+now have their own bounded evidence; these do not accept future smaller cores.
+Startup-only evidence and small-profile games have the narrower scopes below.
 
 ## Starting checkpoint: 2026-10-20
 
@@ -300,10 +304,12 @@ whole-file costs are:
 
 All twelve selected D files now also pass sixty full shipping behavior groups
 using clocked go: actual source/native/self-ELF execution, legal results,
-replacement, stop, quit and EOF. The producer startup observations occurred
-under concurrent work and are not used to rank performance. All forms exceed
-the size limit. The preserved first clocked validator records output ordering;
-it does not prove that the signal caused the search to finish.
+replacement, stop, quit and EOF. A separate strengthened rerun pins every actual
+file SHA and requires exactly three startup tasks, stable identities and a
+three-task peak; all sixty groups pass. The earlier observation-only report is
+preserved, not rewritten. Concurrent producer startup observations are not used
+to rank performance. All forms exceed the size limit. The validators record
+output/signal ordering without proving cancellation causality.
 
 Additional optional C source work shares PVS/QS control, specializes fixed
 Loose SMP, removes unreachable production code and narrows proved worker state.
@@ -384,14 +390,15 @@ only one TT group, so this is not a cross-group scaling test.
 
 C/Rust policy runs use their actual implementations. Their HCE coefficients,
 search heuristics and TT bytes per slot differ; these results therefore do not
-isolate a language effect. A feature-aligned structural comparison remains open.
+isolate a language effect. A separately generated E experiment now aligns the
+actual evaluation, ordering, heuristics, TT key/layout and resource policy for a
+bounded structural comparison, described below.
 No Elo, strength ranking or many-core recommendation follows from these games.
 
-The next work is candidate-specific source reduction, fresh acceptance of the
-new optional pipeline stages, feature-aligned comparisons, further selected
-profile workload evidence, and eligible complete files for every family. A
-separate compact A architecture is still under active reduction and must keep
-its own source and whole-file validation. Training and AWS remain excluded.
+The next work is candidate-specific source reduction, fresh acceptance of
+selected new cores, final candidate comparisons, further selected profile
+workloads and eligible complete files for every family. Each smaller architecture
+retains its own source and whole-file validation. Training and AWS remain excluded.
 
 ## Smaller A architecture and shipping command boundary
 
@@ -444,3 +451,179 @@ already completed before it; immediate legal completion does not establish
 active cancellation. These harness changes have clock-only and immediate-result
 fixtures plus a current A DEV regression. Broader D/E/operations shipping runs
 use their own preserved validator inputs and remain separately tracked.
+
+## Smaller portfolio and structural Rust checkpoint
+
+The new compact cores make every family's specific implementation cost visible.
+They are optional, separately generated candidates; the twelve canonical cores
+remain available. These local measurements include the entire selected file.
+
+| Family | Smaller selected complete file | Format and actual distinct logic | Remaining over 4,096 B |
+| --- | ---: | --- | ---: |
+| A | 5,283 B | Source stream; mailbox HCE/PVS, retained learning and SMP | 1,187 B |
+| B | 6,283 B | Source stream; incremental bitboards, shared attackers, legal SEE and singular exclusion | 2,187 B |
+| C | 6,059 B | Source stream; AVX2 gather/arithmetic HCE used by search | 1,963 B |
+| D scalar / HQ | 8,540 / 8,928 B | Standalone syscall native ELF; persistent clone/futex pool and actual scalar/HQ | 4,444 / 4,832 B |
+| E | 6,107 B | Source stream; all 21 untrained coefficients in evaluation and ordering | 2,011 B |
+| F | 5,551 B | Source stream; exact-horizon full-depth MTD(f) with attaining bound witness | 1,455 B |
+
+A's [encoding experiment](../engines/experiments/tiny-encoding/README.md)
+reproduces the 5,419 → 5,303 → 5,283-byte chain. Fixed-resource spelling and
+compiler-argument changes preserve exact native bytes within their declared
+stripped/unstripped identity classes. Seven bounded XZ settings add a further
+20-byte saving. The final whole file passes five shipping groups and actual
+restored-image identity, startup-thread and cleanup checks. Its compiler command
+`cc -Os -x c - -o x -s` is qualified only on Ubuntu 24.04.4 / GCC 13.3 / glibc
+2.39; omitting `-pthread` leaves the real pthread functions and their glibc 2.34
+symbol requirements present. This is not a broad compiler/host portability claim.
+The 75-byte shell prefix is counted together with the compressed Python/C/argv
+payload; it is not the whole bootstrap cost.
+
+[TinyB](../engines/compact/tiny-b/README.md) passes 23 process groups, its
+optimized and ASan/UBSan SEE/singular contracts, producer guards and actual
+feature/context/EP/dead-material/ply-cap checks. Singular tests verify both real
+qualification and a genuinely extended child, and fence excluded-node TT and
+learning effects. The selected whole file also restores the exact independently
+compiled stdin image, keeps three startup TIDs and leaves no compiler children
+or owned temporary files. All 24 complete forms reproduce.
+
+[TinyC and TinyE](../engines/compact/tiny-ce/README.md) pass 56 process groups
+across their DEV, original, lexical, selected source and selected native files.
+The AVX2 kernel's optimized and sanitizer runs compare 369,255 board positions
+and 738,510 evaluations each. Actual completed C search consumes SIMD leaves.
+E's production consumer checks 2,007 arbitrary/dense positions against the
+independent frozen oracle, including raw/clamped evaluation, ordering and special
+moves; actual search consumes both model outputs. Source and native launchers
+restore their exact expected images with fixed three-task startup and cleanup.
+Their board-oracle reuse is limited to byte-identical frozen board/header code.
+
+[TinyF](../engines/compact/tiny-f/README.md) is an explicit full-depth policy
+candidate: MTD(f) probes retain a stable HCE leaf scale, use only exact-horizon TT
+cutoffs and publish a lower-bound attaining witness. Selective LMR is absent;
+correction learns and affects actual quiet ordering rather than leaf values or
+depth. This differs from the selective A/canonical policy and is not presented
+as a pure spelling transform. The 5,763 → 5,703-byte structural change preserves
+36 single-worker result/state observations and a 3,785-node total. Fixed-profile
+spelling/argv plus two bounded XZ settings yield the selected 5,551-byte file.
+Its stripped native identity is separate from the unstripped control.
+
+The final proof passes 28 process groups, twelve independent minimax/witness
+fixtures, real horizon/QS/root/mate/correction-ordering controls, node-32 and
+`PLY=4` last-completed-result retention, and optimized/sanitizer full-key TT
+contention contracts. Ten Linux admission/ownership cases reject cross-build,
+source/native/input drift and outside paths and reap an actual orphan. The
+selected whole file restores its exact expected image, keeps three stable TIDs
+and leaves no compiler children or owned temporary files. Earlier audit failures
+and the fixes for proof-input freezing and exception cleanup are retained.
+
+[TinyD](../engines/compact/tiny-d/README.md) supplies `_start`, raw syscalls,
+guarded worker stacks and a persistent clone/futex pool without libc, TLS,
+interpreter or per-search worker creation. The selected `-Oz -flto` six-form
+campaign passes 36 process groups and two bounded games. Five positions have
+exact scalar/HQ depth-four score, nodes, PV and best move. Actual search and
+context/abort contracts, 4,932,096 HQ kernel comparisons per mode/build and
+eleven raw-runtime fault probes pass. Scalar/HQ startup-only profiles with 511
+search workers pass four quit/EOF cases with 512 stable TIDs; TT bits 18 and no
+search make this separate from the canonical large-TT target512 campaign.
+Own-loader alternatives are larger at 8,806/9,142 bytes. The scalar ELF contains
+7,952 bytes of text, 348 read-only bytes and 240 header/padding bytes. All bytes
+count; neither the raw ELF nor its wrapper meets the size gate.
+
+The D algorithm driver now applies a shared aggregate wall deadline and fixed
+per-command deadlines, cleans its owned process group and writes failure/partial
+transcripts in `finally`. Four focused fake-process cases cover normal replies,
+continuous info without bestmove, exit 17 and compile-stage failure; all terminate
+and preserve the intended reports. This control-flow evidence changes no engine
+bytes and does not replace the earlier executable campaigns.
+
+The separate [streaming picker experiment](../engines/experiments/tiny-stream/README.md)
+is a retained failure: a shared walker/visited-ordinal design increases the whole
+A file from 5,419 to 5,579 bytes. Its real legality, feature, context and shipping
+checks pass, but its new plumbing costs more than the removed sorting. It also
+changes tie/re-evaluation policy; no speed or strength improvement is claimed.
+
+Rust's [guarded structural generator](../engines/compact/rust/README.md) is
+integrated through the explicit `--rust-structural-compact` option. It currently
+accepts only A/shipping/loose with the pinned canonical source. The pure transform
+removes inactive families, diagnostics and scheduling while preserving effectful
+TT writes, frozen evaluation epochs, paired bounds/witnesses and startup/physical
+completion barriers. Actual raw hashes and CRLF counts are retained; only the
+verified CRLF-to-LF Rust normalization is accepted, and content drift is rejected.
+
+The central producer changes source totals from 88,157 original / 61,773 lexical
+to 34,335 structural / 34,341 structural-lexical bytes. Its best complete source
+file is **11,645 bytes**; native wrapper and own ELF are 155,028 and 247,102 bytes.
+All 56 central artifacts pass startup and independent source/native/package
+reproduction. Four selected complete files pass twenty shipping groups with
+exact stable three-task startup. Sixteen transform tests include nine compiled
+behavior pairs; an additional 44-position driver compares board/evaluation/search
+and independent perft. The original LF/CRLF admission failure is preserved.
+Earlier owner-recipe 11,675-byte results use a different packaging recipe and
+are not silently substituted for these central values. Other Rust families are
+not supported by this optional specialization yet.
+
+The manifest loader also fixes compact variants to their own actual SHA rather
+than inheriting the original file pin and rejects expanded-ID collisions in both
+input orders before starting any process. Twelve metadata-only cases, including
+two old-validator defect controls, pass. This does not rerun or replace earlier
+engine runtime evidence.
+
+Further structural work is assigned in separate experimental paths: one span
+scanner/direct coordinate input path, a tagged 120-square sentinel mailbox, and
+a pure bitboard D representation that removes mailbox/HQ adapters. A separate
+genuinely Rust tiny core is also being implemented. Each must earn new whole-file
+and runtime evidence; no size saving or final acceptance is assumed. All full-key
+TT, rule, completed-result and fixed-startup contracts remain part of the work.
+
+## Matched C/Rust implementation and submission costs
+
+The separate [matched E experiment](../engines/experiments/matched/README.md)
+uses the same actual 21-coefficient model, PVS/QS, learning/update equations,
+LMR policy, total move-order tie, full-key 16-byte TT, identical Zobrist/pawn and
+ordered reversible keys, four-MiB allocation and one-MiB search stacks. Both
+clear and touch the whole TT before input admission. One or four search workers
+run fixed loose sharing; language-specific board/rule implementations remain.
+Neither common policy nor identical nodes isolates a causal language effect.
+
+Five hash-overlay tests cover all 1,561 keys and 146 special-move/history states.
+Six one-worker cold fixtures agree on every completed score/node count and final
+move, while four-worker fixtures require semantic equality and stable five-task
+startup without pretending shared-TT schedules are identical. Both profiles pass
+sixteen independent black-box groups each.
+
+The bounded timing campaign contains **18 valid pairs / 36 paired fresh-process
+runs** across three positions, two profiles and three samples. Its first quiet
+window expired after sixteen pairs because dispatch/forwarding consumed most of
+the reserved interval. That report remains failed/partial, with its extra C
+singleton and incomplete Rust attempt excluded from paired summaries and retained
+separately. A second reserved window ran only the missing four-worker Kiwipete
+sample indices 1 and 2; it passed and physically exited. Nine measurement functions
+and all runtime inputs/native/tool identities are invariant across the helper
+selector change. The combined index links the immutable reports instead of
+rewriting the failed campaign as success.
+
+At one worker, median parent-observed search wall times for C/Rust are
+142.48/185.67 ms at startpos, 224.18/266.20 ms in the opening and 325.00/326.83 ms
+at Kiwipete; exact corresponding node totals are 84,834, 92,847 and 88,002. At four
+workers medians are 70.52/88.27, 114.71/130.70 and 181.44/162.50 ms, with different
+actual work. These are three short local samples of exact DEV speed artifacts,
+not a general language, strength or scaling ranking. Process CPU is `utime+stime`
+without double-counting threads; its conservative endpoint quantization bound is
+20 ms. The supervisor lacks a separate physical core, and RSS is approximate
+kernel accounting. Full raw endpoints, affinity, startup, memory and order remain.
+
+A separate size recipe reproduces and executes all sixteen selected role files:
+
+| Search workers | Language | Whole source | Whole native wrapper | Raw native ELF | Own restoring ELF |
+| ---: | --- | ---: | ---: | ---: | ---: |
+| 1 | C | 13,942 B | 13,918 B | 34,864 B | 20,811 B |
+| 1 | Rust | 18,717 B | 164,362 B | 367,568 B | 253,793 B |
+| 4 | C | 13,944 B | 14,043 B | 34,864 B | 20,980 B |
+| 4 | Rust | 18,719 B | 165,799 B | 371,720 B | 256,580 B |
+
+The [cost report](../engines/experiments/matched/COST.md) counts every decoder,
+header, model and fixed compiler argument. Selected payloads and actual running
+images are compared; each role passes clocked play, zero clocks, active stop/quit,
+stable startup identities and physical cleanup. Larger measured encodings are
+not all runtime-qualified. DEV timing binaries and shipping size binaries remain
+distinct; no speed is attributed to these compressed files. Every row is oversize.

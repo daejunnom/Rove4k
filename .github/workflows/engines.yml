@@ -50,7 +50,11 @@ jobs:
         run: python3 engines/tests/run_search_contract.py --out "$ROVE_TEST_OUT/search-contract" --variants BCF --workers 1
       - name: Check structural source admission and bounded worker representations
         if: matrix.language == 'c'
-        run: python3 -m unittest discover -s engines/compact/c -p 'test_*.py'
+        run: |
+          python3 -m unittest discover -s engines/compact/c -p 'test_*.py'
+          python3 -B -m unittest discover -s engines/compact/tiny-b -p 'test_*.py'
+          python3 -B -m unittest discover -s engines/compact/tiny-ce -p 'test_*.py'
+          python3 -B -m unittest discover -s engines/compact/tiny-f -p 'test_*.py'
       - name: Check coherent full-key TT publication and directional replacement
         if: matrix.language == 'c'
         run: |
@@ -66,6 +70,23 @@ jobs:
           python3 engines/tests/verify.py --manifest "$ROVE_TEST_OUT/tiny-a/validation-manifest.json" --out "$ROVE_TEST_OUT/tiny-a-verification" --startup-threads 3
           cc -std=c11 -O2 -pthread -DWORKERS=2 -DTT_BITS=18 -DDEV=1 -DPLY=4 "$ROVE_TEST_OUT/tiny-a/dev/main.c" -o "$ROVE_TEST_OUT/tiny-a-cap"
           python3 engines/compact/tiny-a/check.py --engine "$ROVE_TEST_OUT/tiny-a/dev/x" --cap-engine "$ROVE_TEST_OUT/tiny-a-cap" --out "$ROVE_TEST_OUT/tiny-a-algorithms.json"
+      - name: Check source-literal byte preservation
+        if: matrix.language == 'c'
+        run: python3 -B -m unittest discover -s engines/experiments/tiny-encoding -p 'test_*.py'
+      - name: Check the standalone syscall D core and both actual slider paths
+        if: matrix.language == 'c'
+        run: |
+          python3 -B engines/compact/tiny-d/build.py --out "$ROVE_TEST_OUT/tiny-d" --optimize z --lto
+          python3 -B engines/compact/tiny-d/check.py --build "$ROVE_TEST_OUT/tiny-d/build.json" --out "$ROVE_TEST_OUT/tiny-d-check"
+          python3 -B engines/compact/tiny-d/algorithms.py --build "$ROVE_TEST_OUT/tiny-d/build.json" --out "$ROVE_TEST_OUT/tiny-d-algorithms"
+          python3 -B engines/compact/tiny-d/test_runtime.py --out "$ROVE_TEST_OUT/tiny-d-runtime"
+      - name: Check guarded Rust source specialization and native reproduction
+        if: matrix.language == 'rust'
+        env:
+          RUSTUP_TOOLCHAIN: 1.97.0
+        run: |
+          python3 -B -m unittest discover -s engines/compact/rust -p 'test_*.py'
+          python3 -B engines/scripts/build.py --out "$ROVE_TEST_OUT/rust-structural" --profile local-ship --languages rust --variants A --rust-structural-compact --no-pack --reproduce
       - name: Check independent Rust rule and search contracts
         if: matrix.language == 'rust'
         env:
@@ -97,6 +118,13 @@ jobs:
             ${{ env.ROVE_TEST_OUT }}/tiny-a/build.json
             ${{ env.ROVE_TEST_OUT }}/tiny-a/validation-manifest.json
             ${{ env.ROVE_TEST_OUT }}/tiny-a-verification/*.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-a-verification/*.jsonl
             ${{ env.ROVE_TEST_OUT }}/tiny-a-algorithms.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-d/build.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-d-check/**/*.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-d-check/**/*.jsonl
+            ${{ env.ROVE_TEST_OUT }}/tiny-d-algorithms/**/*.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-d-runtime/results.json
+            ${{ env.ROVE_TEST_OUT }}/rust-structural/build.json
           if-no-files-found: ignore
           retention-days: 7

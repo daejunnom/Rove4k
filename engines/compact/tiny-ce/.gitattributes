@@ -1,0 +1,4 @@
+# Strict frozen input hashes cover the literal bytes, including line endings.
+core/*.c -text
+core/*.h -text
+core/provenance.json text eol=lf

@@ -1,0 +1,41 @@
+{
+  "git_commit": "a681ff840c60c7a5f9477782c7fdb126555db3a5",
+  "description": "Frozen TinyA generated board plus single translation unit, shipping diagnostic removal selected by producer",
+  "inputs": [
+    {
+      "source": "engines/compact/tiny-a/tiny.h",
+      "frozen": "core/tiny.h",
+      "sha256": "e209d37be5c1a8b320c45de87944ed3dc55b8c006713834ad4fd1cfb5eeae19d",
+      "bytes": 2021
+    },
+    {
+      "source": "engines/compact/tiny-a/board-generated.c.in",
+      "frozen": "core/board.c",
+      "sha256": "d96f3981b46c13ae152da97ecf884c0a35d81081cd3b242c659ffe39b2d74235",
+      "bytes": 8459
+    },
+    {
+      "source": "engines/compact/tiny-a/search.c",
+      "frozen": "core/search.c",
+      "sha256": "87bec413c4dcbccafd1b9c48e2a4ae878caae11747caf942f36a1036e88c7fb8",
+      "bytes": 6269
+    },
+    {
+      "source": "engines/compact/tiny-a/main.c",
+      "frozen": "core/main.c",
+      "sha256": "46e31d2cd761cab09afe537af82cec1e6941eb96bdd72b9d4455ea47ca5c6b63",
+      "bytes": 8699
+    }
+  ],
+  "normalization": "Input hashes cover actual checkout bytes; stitch performs explicit CRLF to LF normalization",
+  "inherited_contracts": [
+    "0x88 mailbox and legal move admission",
+    "incremental HCE and full repetition hash",
+    "512 move bound",
+    "coherent full-key TT",
+    "PVS and quiescence",
+    "history continuation correction",
+    "fixed persistent startup workers",
+    "complete-root publication and stop boundaries"
+  ]
+}

@@ -1,0 +1,124 @@
+// Optional matched-c-policy-v1. This is the real Rust PVS/QS over Rust Board,
+// model and coherent TT, with C's selected E policies and learning equations.
+#[cfg(not(all(rove_matched_c_policy, rove_f_single)))]
+compile_error!("matched policy requires its explicit study cfg and single TT");
+const _: ()=assert!(crate::VARIANT==b'E'&&crate::PARALLEL==0);
+pub type Correction=[[i32;1024];2];
+fn move_index(m:Move)->usize {m.from as usize*128+m.to as usize}
+fn piece_index(p:i8)->usize {if p>0{p as usize}else{(6-p)as usize}}
+
+pub struct Searcher {
+    table:Arc<Table>,control:Arc<Control>,worker:usize,
+    history:Vec<i32>,continuation:[[i32;13];13],correction:Correction,
+    killers:[[Move;2];96],previous:[Move;96],pv:Vec<Vec<Move>>,
+    reply_hint:Option<Move>,hint_ply:usize,pub root_choice:Move,
+}
+impl Searcher {
+    pub fn new(table:Arc<Table>,control:Arc<Control>,variant:u8,worker:usize)->Self {
+        assert_eq!(variant,b'E');
+        Self{table,control,worker,history:vec![0;32768],continuation:[[0;13];13],correction:[[0;1024];2],
+             killers:[[Move::default();2];96],previous:[Move::default();96],
+             pv:(0..=96).map(|_|Vec::with_capacity(96)).collect(),reply_hint:None,hint_ply:1,root_choice:Move::default()}
+    }
+    pub fn reset_learning(&mut self){self.history.fill(0);self.continuation=[[0;13];13];self.correction=[[0;1024];2];self.killers=[[Move::default();2];96];self.previous.fill(Move::default());for p in&mut self.pv{p.clear();}}
+    pub fn begin_depth(&mut self){}
+    pub fn freeze_to(&self,out:&mut Correction)->u64{*out=self.correction;0}
+    pub fn use_frozen(&mut self,input:&Correction,epoch:u64){assert_eq!(epoch,0);self.correction=*input;}
+    fn key(&self,b:&Board)->u64{b.study_context_key()}
+    fn draw(b:&Board)->bool{b.halfmove>=100||b.repeated()||b.insufficient()}
+    fn tick(&self)->Result<(),()> {
+        if self.control.stop.load(Ordering::Relaxed){return Err(());}
+        let limit=self.control.node_limit.load(Ordering::Relaxed);
+        let mut n=self.control.nodes.load(Ordering::Relaxed);
+        loop{if limit!=0&&n>=limit{self.control.stop.store(true,Ordering::Relaxed);return Err(());}
+             match self.control.nodes.compare_exchange_weak(n,n+1,Ordering::Relaxed,Ordering::Relaxed){Ok(_)=>break,Err(new)=>n=new}}
+        if n&255==0&&self.control.deadline().is_some_and(|d|Instant::now()>=d){self.control.stop.store(true,Ordering::Relaxed);return Err(());}
+        Ok(())
+    }
+    fn evaluation(&self,b:&Board)->i32{eval::evaluate(b,b'E')}
+    fn order(&self,b:&Board,m:Move,tt:Move,ply:usize)->i32{
+        if m==tt{return 2_000_000_000;}if self.reply_hint==Some(m)&&ply==self.hint_ply{return 1_900_000_000;}
+        let victim=b.captured(m).unsigned_abs()as usize;
+        let attacker=b.cells[m.from as usize].unsigned_abs()as usize;
+        let mut score=if victim!=0||m.promo!=0 {
+            1_000_000+crate::board::VALUE[victim]*32-crate::board::VALUE[attacker]
+                +if m.promo!=0{crate::board::VALUE[m.promo as usize]}else{0}
+        }else{
+            let mut value=self.history[(b.side<0)as usize*16384+move_index(m)];
+            if ply!=0&&self.previous[ply-1]!=Move::default(){let prior=piece_index(-b.cells[self.previous[ply-1].to as usize]);if prior<13{value+=self.continuation[prior][piece_index(b.cells[m.from as usize])];}}
+            if self.killers[ply][0]==m{value+=500_000;}else if self.killers[ply][1]==m{value+=400_000;}
+            value
+        };
+        score+=eval::order(b,m);
+        if self.worker!=0{score+=((encode_move(m)*(self.worker as u64*17+13))&31)as i32;}
+        score
+    }
+    fn select(moves:&mut MoveList,scores:&mut[i32;256],i:usize){
+        let mut at=i;for j in i+1..moves.len(){if scores[j]>scores[at]||scores[j]==scores[at]&&encode_move(moves[j])<encode_move(moves[at]){at=j;}}
+        moves.swap(i,at);scores.swap(i,at);
+    }
+    fn set_pv(&mut self,ply:usize,m:Move){self.pv[ply].clear();self.pv[ply].push(m);let(current,child)=self.pv.split_at_mut(ply+1);current[ply].extend_from_slice(&child[0]);}
+    fn qsearch(&mut self,b:&Board,mut alpha:i32,beta:i32,ply:usize)->Result<i32,()>{
+        self.tick()?;if ply>=95{return Err(());}self.pv[ply].clear();
+        let check=b.in_check();let mut moves=b.legal();
+        if moves.is_empty(){return Ok(if check{-MATE+ply as i32}else{0});}if Self::draw(b){return Ok(0);}
+        // C's policy computes this even in check; both study cores do so.
+        let stand=self.evaluation(b);let mut best=if check{-INF}else{stand};
+        if !check{if stand>=beta{return Ok(stand);}if stand>alpha{alpha=stand;}}
+        let mut scores=[0;256];for(i,&m)in moves.iter().enumerate(){scores[i]=self.order(b,m,Move::default(),ply);}
+        for i in 0..moves.len(){Self::select(&mut moves,&mut scores,i);let m=moves[i];if !check&&!b.is_capture(m)&&m.promo==0{continue;}
+            self.previous[ply]=m;let score=-self.qsearch(&b.play(m),-beta,-alpha,ply+1)?;
+            if score>best{best=score;}if score>alpha{alpha=score;self.set_pv(ply,m);if alpha>=beta{break;}}
+        }Ok(best)
+    }
+    fn negamax(&mut self,b:&Board,depth:u8,mut alpha:i32,mut beta:i32,ply:usize,isolated:bool)->Result<i32,()>{
+        if depth==0{return self.qsearch(b,alpha,beta,ply);}self.tick()?;if ply>=95{return Err(());}self.pv[ply].clear();
+        let check=b.in_check();let mut moves=b.legal();if moves.is_empty(){return Ok(if check{-MATE+ply as i32}else{0});}if Self::draw(b){return Ok(0);}
+        alpha=alpha.max(-MATE+ply as i32);beta=beta.min(MATE-ply as i32-1);if alpha>=beta{return Ok(alpha);}
+        let original_alpha=alpha;let key=self.key(b);let entry=if isolated{None}else{self.table.get(key,ply)};
+        let tt=entry.map_or(Move::default(),|e|e.mv);
+        if let Some(e)=entry{if ply!=0&&e.depth>=depth{let cut=if e.lower==e.upper{Some(e.lower)}else if e.lower>=beta{Some(e.lower)}else if e.upper<=alpha{Some(e.upper)}else{None};if let Some(score)=cut{return Ok(score);}}}
+        let mut scores=[0;256];for(i,&m)in moves.iter().enumerate(){scores[i]=self.order(b,m,tt,ply);}
+        let raw=self.evaluation(b);let corr=self.correction[(b.side<0)as usize][b.study_pawn_key as usize&1023]/64;
+        let(mut best,mut best_move,mut searched)=(-INF,Move::default(),0usize);
+        for i in 0..moves.len(){Self::select(&mut moves,&mut scores,i);let m=moves[i];let quiet=!b.is_capture(m)&&m.promo==0;
+            self.previous[ply]=m;let child=b.play(m);let full=depth-1;let mut score;
+            if searched==0{score=-self.negamax(&child,full,-beta,-alpha,ply+1,isolated)?;}else{
+                let reduction=(depth>=4&&searched>=4&&quiet&&!check&&!child.in_check()&&raw+corr<alpha+100)as u8;
+                score=-self.negamax(&child,full-reduction,-alpha-1,-alpha,ply+1,isolated)?;
+                if score>alpha&&reduction!=0{score=-self.negamax(&child,full,-alpha-1,-alpha,ply+1,isolated)?;}
+                if score>alpha&&score<beta{score=-self.negamax(&child,full,-beta,-alpha,ply+1,isolated)?;}
+            }
+            searched+=1;if score>best{best=score;best_move=m;}if score>alpha{alpha=score;self.set_pv(ply,m);if ply==0{self.root_choice=m;}}
+            if alpha>=beta{if !isolated&&quiet{
+                let bonus=depth as i32*depth as i32;let h=&mut self.history[(b.side<0)as usize*16384+move_index(m)];*h+=bonus-*h*bonus/16384;
+                if self.killers[ply][0]!=m{self.killers[ply][1]=self.killers[ply][0];self.killers[ply][0]=m;}
+                if ply!=0{let prior=piece_index(-b.cells[self.previous[ply-1].to as usize]);let current=piece_index(b.cells[m.from as usize]);if prior<13{let c=&mut self.continuation[prior][current];*c+=bonus-*c*bonus/16384;}}
+            }break;}
+        }
+        if !isolated{
+            let lower=if best>original_alpha{best}else{-INF};let upper=if best<beta{best}else{INF};
+            self.table.put(Entry{key,mv:best_move,depth,lower,upper},ply,&self.control);
+            if !check&&best_move!=Move::default()&&!b.is_capture(best_move)&&best_move.promo==0&&best>original_alpha&&best<beta&&best.abs()<MATE-96{
+                let error=(best-raw).clamp(-256,256);let c=&mut self.correction[(b.side<0)as usize][b.study_pawn_key as usize&1023];*c+=error-*c/64;
+            }
+        }Ok(best)
+    }
+    pub fn iteration(&mut self,b:&Board,depth:u8,guess:i32)->Option<SearchResult>{self.begin_depth();self.iteration_frozen(b,depth,guess)}
+    pub fn iteration_frozen(&mut self,b:&Board,depth:u8,_guess:i32)->Option<SearchResult>{
+        self.root_choice=Move::default();self.reply_hint=None;let score=self.negamax(b,depth,-INF,INF,0,false).ok()?;
+        let best=self.pv[0].first().copied().unwrap_or(self.root_choice);
+        Some(SearchResult{score,best,reply:self.pv[0].get(1).copied(),depth,nodes:self.control.nodes.load(Ordering::Relaxed),completed:true})
+    }
+    pub fn search_move(&mut self,b:&Board,m:Move,depth:u8,alpha:i32,beta:i32)->Option<SearchResult>{self.search_move_hint(b,m,None,depth,alpha,beta)}
+    pub fn search_move_hint(&mut self,b:&Board,m:Move,hint:Option<Move>,depth:u8,alpha:i32,beta:i32)->Option<SearchResult>{
+        if !b.legal().contains(&m){return None;}self.reply_hint=hint;self.hint_ply=1;self.previous[0]=m;
+        let score=self.negamax(&b.play(m),depth.saturating_sub(1),-beta,-alpha,1,false).map(|v|-v);self.reply_hint=None;
+        Some(SearchResult{score:score.ok()?,best:m,reply:self.pv[1].first().copied(),depth,nodes:self.control.nodes.load(Ordering::Relaxed),completed:true})
+    }
+    pub fn search_clause(&mut self,b:&Board,first:Move,reply:Move,depth:u8,alpha:i32,beta:i32)->Option<SearchResult>{
+        if !b.legal().contains(&first){return None;}let child=b.play(first);if !child.legal().contains(&reply){return None;}
+        self.previous[0]=first;self.previous[1]=reply;let score=self.negamax(&child.play(reply),depth.saturating_sub(2),alpha,beta,2,true).ok()?;
+        Some(SearchResult{score,best:first,reply:Some(reply),depth,nodes:self.control.nodes.load(Ordering::Relaxed),completed:true})
+    }
+}

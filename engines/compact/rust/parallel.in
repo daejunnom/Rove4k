@@ -1,0 +1,42 @@
+use crate::board::Board;
+use crate::search::{Control,Limits,SearchResult,Searcher,Table};
+use crate::pool::{Helpers,Task};
+use std::io;
+use std::sync::Arc;
+struct Depth{reset:bool,board:Board,depth:u8,guess:i32,frozen:[[i16;2048];3],epoch:u64}
+impl Task for Depth{
+ fn work(&self,searcher:&mut Searcher,_worker:usize)->Option<SearchResult>{
+  if self.reset{searcher.reset_learning();return None;}
+  searcher.use_frozen(&self.frozen,self.epoch);
+  searcher.iteration_frozen(&self.board,self.depth,self.guess).filter(|r|r.completed)
+ }
+}
+pub struct Engine{leader:Searcher,helpers:Helpers<Depth>,table:Arc<Table>,control:Arc<Control>}
+impl Engine{
+ pub fn new(variant:u8,workers:usize,tt_bits:usize,control:Arc<Control>,mode:u8)->io::Result<Self>{
+  let _=(variant,mode);assert!((1..=512).contains(&workers));assert!((8..=26).contains(&tt_bits));
+  let table=Arc::new(Table::new(tt_bits));
+  let leader=Searcher::new(table.clone(),control.clone(),crate::VARIANT,0);
+  let searchers=(1..workers).map(|i|Searcher::new(table.clone(),control.clone(),crate::VARIANT,i)).collect();
+  let helpers=Helpers::new(Depth{reset:true,board:Board::start(),depth:0,guess:0,frozen:[[0;2048];3],epoch:0},searchers)?;
+  Ok(Self{leader,helpers,table,control})
+ }
+ pub fn reset(&mut self){self.helpers.wait();self.table.clear();self.leader.reset_learning();self.helpers.prepare(|task|task.reset=true);self.helpers.begin();self.helpers.wait();}
+ fn loose_depth(&mut self,board:&Board,depth:u8,guess:i32)->Option<SearchResult>{
+  self.leader.begin_depth();
+  self.helpers.prepare(|task|{task.board.reuse_from(board);task.depth=depth;task.epoch=self.leader.freeze_to(&mut task.frozen);task.reset=false;task.guess=guess;});
+  self.helpers.begin();
+  let leader=self.leader.iteration_frozen(board,depth,guess).filter(|r|r.completed);
+  let helper=self.helpers.first_result();leader.or(helper)
+ }
+ pub fn execute(&mut self,board:&Board,limits:&Limits)->Option<SearchResult>{
+  if board.legal().is_empty()||board.halfmove>=100||board.repeated()||board.insufficient(){return self.leader.iteration(board,1,0).filter(|r|r.completed);}
+  let mut best=None;
+  for depth in 1..=limits.depth.max(1){
+   if self.control.cancelled(){break;}
+   let guess=best.map_or(0,|r:SearchResult|r.score);
+   let Some(r)=self.loose_depth(board,depth,guess)else{break;};best=Some(r);
+  }
+  best
+ }
+}

@@ -66,6 +66,11 @@ agent edit cannot change an ongoing campaign. To repeat the complete recipe,
 invoke `recipe/engines/scripts/build.py` with `--source-root` pointing at the old
 `sources/`, a new external output directory and the same flags. Each engine has
 its explicit `generation_config` and SHA-256, in addition to source hashes.
+The manifest's original executable entry also carries its expected program
+SHA-256, fixed startup/maximum thread total and 60-second startup bound. These
+are validation requirements: declaring them does not prove successful startup
+or persistent thread identity. When selecting another artifact for verification,
+pin that artifact's actual SHA-256 and carry the same fixed thread requirements.
 
 `--c-lto on` adds C cross-translation-unit optimization as an explicit compiler
 experiment. The default is `off`; Rust's independently declared LTO recipe is
@@ -100,6 +105,24 @@ the previous structural form. `--small-worker` appends another worker-storage
 form and requires structural search, a shipping profile and the loose policy.
 These are separately measured candidates; a source or native saving is not
 automatically an improvement to every complete-file format.
+
+`--rust-structural-compact` adds two separate Rust source forms: the guarded
+structural producer output and that output followed by lexical compaction.
+Both remain in the comparison because an extra lexical pass can increase the
+complete compressed file. This optional producer requires `--variant A`, a
+shipping profile and the loose policy. It binds the exact six canonical Rust
+production files from checkpoint `de5676d` and rejects changed source or
+unsupported configurations explicitly. The binding admits audited LF/CRLF
+equivalence, with actual raw input hashes/bytes, normalized binding hashes and
+CRLF counts recorded separately; other content changes and lone CR fail.
+The model input is omitted only within
+the admitted A/MODEL0 configuration. Original and lexical baselines remain in
+the build, and the manifest records all producer/helper/template hashes and
+input/output source hashes. `--reproduce` independently reruns the producer
+before the native and complete-file reproduction checks. The producer's
+[documented scope](compact/rust/README.md) and its original differential proof
+do not establish other-family support, large-machine scaling or 4K eligibility.
+
 `--shipping-operations` adds another separate C form and requires the loose
 shipping profile, structural search and small-worker storage. It specializes
 the shipping stop/diagnostic paths, with the non-B arity transformation applied

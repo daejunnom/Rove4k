@@ -185,6 +185,7 @@ def main():
     parser.add_argument("--model-format", choices=("varint", "static16"), default="varint", help="explicit exact E-model representation candidate")
     parser.add_argument("--source-root", type=Path, help="reuse an explicit c/rust/model source snapshot; hashes remain authoritative")
     parser.add_argument("--structural-compact", action="store_true", help="also generate the separately identified C source-structure candidate")
+    parser.add_argument("--rust-structural-compact", action="store_true", help="also compare bound Rust A shipping/loose structural source forms")
     parser.add_argument("--structural-search", action="store_true", help="also compare the separately generated C search layout; requires loose policy")
     parser.add_argument("--small-worker", action="store_true", help="also compare compact C worker storage; requires structural-search and shipping")
     parser.add_argument("--shipping-operations", action="store_true", help="also compare specialized C shipping operations; requires small-worker, shipping and loose policy")
@@ -229,6 +230,8 @@ def main():
         parser.error("F currently requires --parallel loose to preserve whole-root MTD(f); select another variant for other parallel policies")
     if args.hq != "auto" and variants != ["D"]:
         parser.error("explicit --hq scalar|hq is the D comparison; select --variant D")
+    if args.rust_structural_compact and ("rust" not in languages or variants != ["A"] or profile["development"] or args.parallel != "loose"):
+        parser.error("--rust-structural-compact requires Rust, --variant A, a shipping profile and --parallel loose")
     if args.structural_search:
         args.structural_compact = True
         if args.parallel != "loose" or "c" not in languages:
@@ -259,6 +262,7 @@ def main():
                "parallel": args.parallel, "model_cross_candidate": args.model,
                "model_format": args.model_format,
                "structural_compact": args.structural_compact, "structural_search": args.structural_search,
+               "rust_structural_compact": args.rust_structural_compact,
                "small_worker": args.small_worker, "identifier_compact": args.identifier_compact,
                "shipping_operations": args.shipping_operations,
                "d_sliding_attacks": args.hq,
@@ -337,6 +341,8 @@ def main():
                                                        files=files, parallel=("loose", "root", "groups", "pals", "hybrid").index(args.parallel), model=args.model, hq=use_hq, c_lto=args.c_lto == "on", f_tt=args.f_tt, f_guess=args.f_guess)
                 record = {"id": identifier, "profile": "dev" if profile["development"] else "shipping",
                           "workers": profile["search_workers"], "configuration": fixed_env,
+                          "startup_threads": profile["expected_total_threads"],
+                          "max_threads": profile["expected_total_threads"], "startup_timeout": 60,
                           "sources": [{"path": "engines/" + name,
                                        "bytes": len(data), "sha256": digest(data),
                                        "compact_bytes": len(compact[name]), "compact_sha256": digest(compact[name])}
@@ -351,6 +357,7 @@ def main():
                                      "model_format": args.model_format if model_record else None,
                                      "optimize": args.optimize, "command": command, "fixed_environment": fixed_env,
                                      "structural_compact": args.structural_compact, "structural_search": args.structural_search,
+                                     "rust_structural_compact": args.rust_structural_compact,
                                      "small_worker": args.small_worker, "identifier_compact": args.identifier_compact,
                                      "shipping_operations": args.shipping_operations,
                                      "identifier_trials": args.identifier_trials if args.identifier_compact else None,
@@ -361,6 +368,21 @@ def main():
                 record["generation_config_sha256"] = digest(json.dumps(generation_config, sort_keys=True, separators=(",", ":")).encode())
                 forms = [("original", files), ("compact", compact)]
                 repeated_forms = {"original": files, "compact": {name: compact_source(data, language) for name, data in files.items()}}
+                if language == "rust" and args.rust_structural_compact:
+                    generator_path = recipe_root / "engines/compact/rust/generate.py"
+                    generator = load_module("rove_frozen_rust_structural", generator_path)
+                    structured, changes = generator.specialize_rust(dict(files), configuration=dict(fixed_env))
+                    record["rust_structural_compaction"] = {"preparation": changes,
+                        "generator_inputs": [{"path": str(path.relative_to(recipe_root)), "sha256": digest(path.read_bytes())}
+                                             for path in sorted(generator_path.parent.rglob("*"))
+                                             if path.is_file() and path.suffix in (".py", ".h", ".in")]}
+                    forms += [("rust-structural-specialized", structured),
+                              ("rust-structural-specialized-compact", {name: compact_source(data, "rust") for name, data in structured.items()})]
+                    if args.reproduce:
+                        again, _ = generator.specialize_rust(dict(files), configuration=dict(fixed_env))
+                        record["rust_structural_compaction"]["source_reproduction_identical"] = structured == again
+                        repeated_forms["rust-structural-specialized"] = again
+                        repeated_forms["rust-structural-specialized-compact"] = {name: compact_source(data, "rust") for name, data in again.items()}
                 if language == "c" and (not args.no_pack or args.identifier_compact):
                     environment = os.environ.copy()
                     environment.update(fixed_env)
@@ -456,6 +478,7 @@ def main():
                     if form == "original":
                         record["command"] = [native["path"]]
                         record["cwd"] = str(base / form)
+                        record["expected_program_sha256"] = native["sha256"]
                     if not args.no_pack:
                         # Runtime compiler resolves from the tournament PATH,
                         # independent from this workstation's installation path.

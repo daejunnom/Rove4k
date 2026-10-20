@@ -42,6 +42,10 @@ bytes gets an additional `ID-compact` engine entry. Only exactly identical
 executable bytes reuse an execution, with the reason and hash recorded in
 `identical_artifact_reuse`. Equal size, matching source semantics, package hashes
 or successful handshake alone do not justify execution reuse.
+Every expanded entry pins its own executable hash. File drift and ambiguous
+expanded identifiers, including an explicit entry colliding with a generated
+compact identifier in either input order, fail manifest admission before any
+engine process starts.
 
 `command` is an argument array, never shell text. `cwd`, `workers`, and
 `max_threads` are optional. `max_threads` is the actual total process-thread
