@@ -30,6 +30,11 @@ proof; this CI result is not relabeled as a run of a future head.
 The D-composition/priority/signal checkpoint `147d9e2` also passes both language
 jobs in its [exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39349918237)
 and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39349918247).
+The Rust-stream/semaphore checkpoint `b2bf5ce` also passes both language jobs in
+its [exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39351271963),
+including the new actual Rust stream, resource-binding and controlled semaphore
+steps. Its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39351272214)
+also succeeds.
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
@@ -891,3 +896,59 @@ The next source work is a minimal shipping UCI policy, one fused generation/
 search kernel and an independent no_std scalar/HQ Rust D. Training and AWS stay
 excluded. Every family still needs a complete <=4,096-byte submission, final
 selected-profile/resource/strength comparison and target-hardware evidence.
+
+## Minimal shipping policy and failed visitor fusion
+
+The [minimal UCI candidate](../engines/experiments/tiny-uci-min/README.md) is a
+qualified **5,223-byte** whole source launcher, 60 bytes smaller than its exact
+5,283-byte control and still 1,127 bytes above the size limit. Compact source
+is 11,351 →11,192 bytes; the 22,664-byte native length stays equal while its
+bytes change. Source/native/whole generation is independently repeated twice.
+The final whole SHA-256 is
+`fbb416160e98beb8f10cc5fec6b3792f4591055626344dcbe31cb50ffce41ee9`.
+
+This is a declared protocol policy change. Shipping emits `uciok` without id,
+consumes stop/newgame without cancellation or TT reset, and gives bare go a
+1,000-ms budget. An unsupported infinite token leaves that same finite default.
+The own-side clock calculation stays unchanged. Go/position/quit/EOF retain
+internal cancellation and physical completion fences; startup still initializes
+all TT locks. DEV preprocessing and native bytes remain exactly unchanged.
+This distinction follows TCEC4k 7.9-7.11 and the accepted plan's consume-only
+minimum, not the full general UCI behavior. A finite default does not imply a
+strict wall-time upper bound because deadline sampling is every 256 nodes.
+
+All eight actual native/wrapper process runs pass with exact image hashes,
+three stable pre-input TIDs, only stdio descriptors, no compiler children or
+temporary files, next-job/position fences and quit/EOF physical exit plus
+reader join. The final driver also passes twelve independent oracle perfts
+and one strict unchanged DEV session. Thirty separately modeled dispatcher/
+budget/TT-sentinel cases have no physical worker threads; their state/TT claims
+are not expanded to the actual threaded observations. Ignored-control CPU
+progress and result ordering are not reported as cancellation causality.
+The old stronger common checker stays unchanged. Original failed producer
+directories and their corrected exact DEV comparison are preserved. The
+external freeze receipt is
+`b99b6f9aa911df3d3e0a3d17e4364fabcf36dd367f0ff957352f623822f4203b`.
+
+The [visitor fusion](../engines/experiments/tiny-fused/README.md) removes real
+gen/make/first/match consumer boundaries and the move/score lists, but its Fact,
+Visit and mode glue makes compact source grow **11,351 →12,655 bytes** and the
+whole file **5,283 →5,739 bytes**. It is an unselected negative result, with no
+post-result sweep or full test-count campaign. Its fixed TT/best-tactical/
+tactical/best-quiet/quiet staging is an explicit move-order/LMR policy change.
+Independent precompile review corrected material-draw/PLY precedence and a
+quiet TT hint prematurely ending QS captures. Bounded optimized and sanitizer
+production fixtures cover those boundaries, all four promotions, legal EP,
+castle/hash/context transitions, third repetition, invalid-input rollback,
+actual positive learners and raw prefix uniqueness. One actual whole wrapper
+passes four clocked/cancelled epochs with exact restored image, startup TIDs,
+cleanup and physical join. This evidence is intentionally narrower than the
+canonical full suite. The external index hash is
+`5e0c9a82414453af695d9fec3a6c3c3409d3acef70c5d1ad5a1e970730c4383e`.
+
+Source work continues with a direct kernel that avoids that context layer,
+minimal-UCI B/C/E/F candidates, a fresh-checkout canonical A source/recipe, and
+an independent no_std Rust D scalar/HQ runtime. Each remains separately owned
+until its actual final artifact and relevant runtime proof are handed off.
+No family yet has a complete 4,096-byte file; source reduction, selected
+profiles/resources, final strength comparison and target hardware remain open.
