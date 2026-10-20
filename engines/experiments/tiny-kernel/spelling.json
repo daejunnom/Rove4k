@@ -1,0 +1,334 @@
+{
+  "schema": 1,
+  "scope": "one fixed selected mapping; historical accepted substitutions only, no search",
+  "provenance": {
+    "rename_report_sha256": "3eae16eedebab9ae2870f298756503b51099c4902b0eb22eb143c087b3af4933",
+    "selected_trial": 93,
+    "encoding_report_sha256": "23f6b53adba6b28ae4c9c490cb1f0f347a46a189be2b31d7336fcace6b1b722b",
+    "encoding_case": "combined-fixed-stripped"
+  },
+  "profile": {
+    "workers": 2,
+    "tt_bits": 18
+  },
+  "control": {
+    "readable_sha256": "109fa749bc2a137fc1384a9afa429d3734249df908f057a58c1fe105f0c43504",
+    "encoded_source_sha256": "49aa4d484458d0e4f6d14850fb2260a7007ea40f588003131d43a516d06a592e",
+    "encoded_source_bytes": 11351,
+    "native_sha256": "0454dfde844f29a962dc2b79b0ff6485dc461cb836d8103a57e811030e8578d4",
+    "native_bytes": 22664,
+    "bootstrap_sha256": "cbf2c1f024929aedb38da64b4c8f9b5d962a9bd2d2b36f8fff2b22f0034ab633",
+    "whole_sha256": "798c1492fcfc5734c9794704b5575a19755618e19d51aa12950302044065b645",
+    "whole_bytes": 5283
+  },
+  "ordered_identifier_steps": [
+    {
+      "trial": 2,
+      "identifier": "score",
+      "replacement": "l"
+    },
+    {
+      "trial": 3,
+      "identifier": "from",
+      "replacement": "o"
+    },
+    {
+      "trial": 5,
+      "identifier": "moves",
+      "replacement": "B"
+    },
+    {
+      "trial": 6,
+      "identifier": "depth",
+      "replacement": "C"
+    },
+    {
+      "trial": 8,
+      "identifier": "Board",
+      "replacement": "E"
+    },
+    {
+      "trial": 10,
+      "identifier": "alpha",
+      "replacement": "G"
+    },
+    {
+      "trial": 11,
+      "identifier": "best",
+      "replacement": "H"
+    },
+    {
+      "trial": 20,
+      "identifier": "line",
+      "replacement": "R"
+    },
+    {
+      "trial": 21,
+      "identifier": "budget",
+      "replacement": "S"
+    },
+    {
+      "trial": 23,
+      "identifier": "data",
+      "replacement": "U"
+    },
+    {
+      "trial": 24,
+      "identifier": "created",
+      "replacement": "V"
+    },
+    {
+      "trial": 30,
+      "identifier": "bestmove",
+      "replacement": "ab"
+    },
+    {
+      "trial": 32,
+      "identifier": "target",
+      "replacement": "ad"
+    },
+    {
+      "trial": 33,
+      "identifier": "piece_index",
+      "replacement": "ae"
+    },
+    {
+      "trial": 34,
+      "identifier": "home",
+      "replacement": "af"
+    },
+    {
+      "trial": 36,
+      "identifier": "correction",
+      "replacement": "ah"
+    },
+    {
+      "trial": 37,
+      "identifier": "Worker",
+      "replacement": "ai"
+    },
+    {
+      "trial": 38,
+      "identifier": "scores",
+      "replacement": "aj"
+    },
+    {
+      "trial": 39,
+      "identifier": "status",
+      "replacement": "ak"
+    },
+    {
+      "trial": 41,
+      "identifier": "continuation",
+      "replacement": "an"
+    },
+    {
+      "trial": 42,
+      "identifier": "bound",
+      "replacement": "ao"
+    },
+    {
+      "trial": 47,
+      "identifier": "length",
+      "replacement": "at"
+    },
+    {
+      "trial": 49,
+      "identifier": "repetitions",
+      "replacement": "av"
+    },
+    {
+      "trial": 53,
+      "identifier": "tactical",
+      "replacement": "az"
+    },
+    {
+      "trial": 54,
+      "identifier": "keys",
+      "replacement": "aA"
+    },
+    {
+      "trial": 55,
+      "identifier": "list",
+      "replacement": "aB"
+    },
+    {
+      "trial": 56,
+      "identifier": "evaluation",
+      "replacement": "aC"
+    },
+    {
+      "trial": 57,
+      "identifier": "ply",
+      "replacement": "aD"
+    },
+    {
+      "trial": 58,
+      "identifier": "reduce",
+      "replacement": "aE"
+    },
+    {
+      "trial": 61,
+      "identifier": "beta",
+      "replacement": "aH"
+    },
+    {
+      "trial": 62,
+      "identifier": "half",
+      "replacement": "aI"
+    },
+    {
+      "trial": 63,
+      "identifier": "save",
+      "replacement": "aJ"
+    },
+    {
+      "trial": 64,
+      "identifier": "bonus",
+      "replacement": "aK"
+    },
+    {
+      "trial": 65,
+      "identifier": "check",
+      "replacement": "aL"
+    },
+    {
+      "trial": 66,
+      "identifier": "error",
+      "replacement": "aM"
+    },
+    {
+      "trial": 71,
+      "identifier": "promotion",
+      "replacement": "aR"
+    },
+    {
+      "trial": 73,
+      "identifier": "key",
+      "replacement": "aT"
+    },
+    {
+      "trial": 74,
+      "identifier": "set_position",
+      "replacement": "aU"
+    },
+    {
+      "trial": 78,
+      "identifier": "infinite",
+      "replacement": "aY"
+    },
+    {
+      "trial": 81,
+      "identifier": "clock",
+      "replacement": "a1"
+    },
+    {
+      "trial": 82,
+      "identifier": "count",
+      "replacement": "a2"
+    },
+    {
+      "trial": 84,
+      "identifier": "legal",
+      "replacement": "a4"
+    },
+    {
+      "trial": 85,
+      "identifier": "nodes",
+      "replacement": "a5"
+    },
+    {
+      "trial": 87,
+      "identifier": "minors",
+      "replacement": "a7"
+    },
+    {
+      "trial": 93,
+      "identifier": "side",
+      "replacement": "bd"
+    }
+  ],
+  "resource_literals": {
+    "WORKERS": "2",
+    "TT_BITS": "18"
+  },
+  "manual_function_spellings": {
+    "attacked": "aa",
+    "make": "ac",
+    "think": "ag",
+    "value": "al",
+    "start": "am",
+    "dead": "ap",
+    "mix": "aq",
+    "gen": "ar",
+    "now": "as",
+    "search": "au",
+    "probe": "aw",
+    "capture": "ax",
+    "claim": "ay",
+    "learn": "aF",
+    "first": "aG",
+    "parse": "aN",
+    "go": "aO",
+    "result": "aP",
+    "read_line": "aQ",
+    "number": "aS",
+    "work": "aV",
+    "wait": "aW",
+    "clear": "aX",
+    "text": "aZ",
+    "rights": "ba",
+    "piece": "bb",
+    "state": "bc",
+    "ep": "be",
+    "put": "bf",
+    "walk": "bg",
+    "add": "bh"
+  },
+  "compiler": [
+    "cc",
+    "-Os",
+    "-x",
+    "c",
+    "-",
+    "-o",
+    "x",
+    "-s"
+  ],
+  "argv_representation": "split",
+  "compression": {
+    "codec": "xz",
+    "preset": 9,
+    "extreme": true,
+    "lc": 2,
+    "lp": 0,
+    "pb": 0,
+    "check": "CRC64"
+  },
+  "helpers": {
+    "specialize.py": {
+      "path": "engines/scripts/specialize.py",
+      "sha256": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d"
+    },
+    "minify.py": {
+      "path": "engines/scripts/minify.py",
+      "sha256": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b"
+    },
+    "stitch.py": {
+      "path": "engines/compact/tiny-a/stitch.py",
+      "sha256": "2b0d25b4855a3ed4ddd9e24b8e4b0e081439baa2ed8f744dba0215a700023f23"
+    },
+    "rename_c.py": {
+      "path": "engines/scripts/rename_c.py",
+      "sha256": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5"
+    },
+    "pack_stream.py": {
+      "path": "engines/compact/tiny-a/pack_stream.py",
+      "sha256": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e"
+    },
+    "encoding_campaign.py": {
+      "path": "engines/experiments/tiny-encoding/campaign.py",
+      "sha256": "83d539168b24ab88e83a4d2b69736a3ad40d52597517e6c2b555013cf9337a32"
+    }
+  }
+}

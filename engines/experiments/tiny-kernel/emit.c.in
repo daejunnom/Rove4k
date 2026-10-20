@@ -1,0 +1,62 @@
+do{
+    Move m=MOVE(from,to,prom);
+    int target=p->b[to],tactical=target||(a==1&&to==p->e)||prom;
+    if(mode==K_SEARCH&&!witness){
+        if(count>=MOVES)abort();
+        int index=count++;
+        if(!stage){
+            ranks[index]=w->history[from][to]+w->continuation[prior][piece_index(v)]+(int)((m*37u+w->id*19u)%17);
+            break;
+        }
+        if(stage!=(m==tt?1:tactical?2:ranks[index]>=K_RANK?3:4))break;
+    }
+    if(mode==K_MATCH&&m!=query)break;
+    if(abs(target)==6)break;
+    Board q=*p;q.h^=state(p);q.half++;q.e=-1;
+    if(a==1){
+        q.half=0;
+        if(to==p->e&&!target)put(&q,to-s*16,0);
+        if(abs(to-from)==32)q.e=from+s*16;
+    }
+    if(target)q.half=0;
+    if(a==6&&abs(to-from)==2){
+        int rook=to>from?from+3:from-4,transit=to>from?from+1:from-1;
+        put(&q,rook,0);put(&q,transit,s*4);
+    }
+    put(&q,from,0);put(&q,to,prom?s*prom:v);
+    q.c&=~(rights(from)|rights(to));q.s=-s;
+    if(attacked(&q,q.k[s<0],-s))break;
+    ep(&q);q.h^=state(&q);
+    q.r=q.half?((p->r<<1)|(p->r>>63))^q.h:q.h;
+    if(mode==K_FIRST)return m;
+    if(mode==K_MATCH){*out=q;return m;}
+    K_COLLECTED();
+    if(witness){if(!draw){COUNT(w,ply_aborts);atomic_store(&stopped,1);}return 0;}
+    ++legal;
+    K_OBSERVE(w,m,stage,ranks[count-1]);
+    if(quiet){if(alpha>=beta)goto kernel_done;if(!tactical)break;}
+    int next=piece_index(q.b[to]);
+    w->keys[w->length++]=q.h;
+    if(legal==1||depth<=0)score=-kernel(w,&q,depth-1,-beta,-alpha,ply+1,next,0,K_SEARCH,0,0);
+    else{
+        COUNT(w,pvs);
+        int reduce=depth>=4&&legal>=4&&!tactical&&!check&&!attacked(&q,q.k[q.s<0],-q.s);
+        if(reduce){COUNT(w,corr_uses);reduce=evaluation+w->correction[p->h&1023]/64<alpha+100;}
+        score=-kernel(w,&q,depth-1-reduce,-alpha-1,-alpha,ply+1,next,0,K_SEARCH,0,0);
+        if(reduce&&score>alpha)score=-kernel(w,&q,depth-1,-alpha-1,-alpha,ply+1,next,0,K_SEARCH,0,0);
+        if(score>alpha&&score<beta)score=-kernel(w,&q,depth-1,-beta,-alpha,ply+1,next,0,K_SEARCH,0,0);
+    }
+    --w->length;
+    if(atomic_load_explicit(&stopped,memory_order_relaxed))return 0;
+    if(score>best){best=score;bestmove=m;if(root)*root=m;}
+    if(score>alpha)alpha=score;
+    if(alpha>=beta){
+        if(depth>0&&!tactical){
+            int bonus=depth*depth;
+            learn(&w->history[from][to],bonus);
+            learn(&w->continuation[prior][piece_index(v)],bonus);
+            COUNT(w,hist_updates);COUNT(w,cont_updates);
+        }
+        goto kernel_done;
+    }
+}while(0)

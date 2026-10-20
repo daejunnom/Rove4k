@@ -35,6 +35,11 @@ its [exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39351271963
 including the new actual Rust stream, resource-binding and controlled semaphore
 steps. Its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39351272214)
 also succeeds.
+The minimum-UCI/visitor-cost checkpoint `fce70d1` also passes both language jobs
+in its [exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39352032977)
+and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39352032876).
+The newer locally qualified candidates below retain their exact source and
+artifact receipts; that completed CI is not a result for a later head.
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
@@ -952,3 +957,168 @@ an independent no_std Rust D scalar/HQ runtime. Each remains separately owned
 until its actual final artifact and relevant runtime proof are handed off.
 No family yet has a complete 4,096-byte file; source reduction, selected
 profiles/resources, final strength comparison and target hardware remain open.
+
+## Maintained minimal source and portfolio policy checkpoint
+
+The smallest locally qualified complete files now have the following costs.
+These are measured complete launchers, including their decoder/bootstrap, not
+the lengths of a C source fragment or a restored native executable.
+
+| Family | Qualified whole file | Remaining above 4,096 B | Selected local change |
+| --- | ---: | ---: | --- |
+| A | 5,207 B | 1,111 B | Minimal UCI and generated-move preconditions |
+| B | 6,219 B | 2,123 B | Minimal shipping UCI |
+| C | 5,955 B | 1,859 B | Startup PSQT gather plus minimal shipping UCI |
+| D scalar / HQ | 7,640 / 7,881 B | 3,544 / 3,785 B | Previously qualified own-ELF composition |
+| E | 5,899 B | 1,803 B | Capture-prior removal plus minimal shipping UCI |
+| F | 5,479 B | 1,383 B | Minimal shipping UCI |
+
+The [maintained A entry](../engines/compact/tiny-entry-a/README.md) is now a
+readable canonical program and a fixed recipe. Its ordinary checkout inputs
+are nine owned files and five SHA-pinned build helpers; two pinned test helpers
+complete its verification closure. It reads no historical build/report or
+generated engine directory. A fresh sixteen-file Git tree was archived and
+extracted twice, and both extracted builders independently repeated generation,
+compilation and packing. Compact C is 11,148 bytes, native ELF 22,664 bytes and
+the whole launcher 5,207 bytes, with whole SHA-256
+`085fcf6bd411a59111aaebbdc6bd59e2687a5c38de2ce28f0ad9643882633e36`.
+The fresh source tree is `a6cb91a7c6441977c6525ebf279b6639d0163689`;
+its external final index SHA is
+`8c4ad6f919f5737005acf289c42c53c083410a0989eded752e00c49a35590470`.
+Two actual selected-wrapper sessions bind the regenerated native image,
+three stable pre-input TIDs, legal white/black/bare-go results, removed
+restoration directory/helpers and active quit/EOF physical exit with one final
+legal result. Historical broader proof is reused by exact identity. The
+previous 5,223-byte canonical source/archive and evidence remain preserved.
+
+The final A change keeps the king-capture and move-list-capacity guards in DEV
+and omits them only in shipping. The [precondition proof](../engines/experiments/tiny-preconditions/README.md)
+traces every shipping make/add consumer: only generated moves from startpos
+histories enter make, and TT hints only reorder or cut search. The preceding
+legal transition preserves the king-safety invariant; the actual pseudo-move
+bound is `10 + 15*27 = 415 < 512`, including all promotions. Own-king safety,
+EP/castle checks and transactional replay remain. This removes 44 compact C
+bytes and 16 whole-file bytes; DEV source and native bytes are identical.
+Eight O2/sanitizer/PLY forms, eight actual native/whole runtime sessions and
+fifteen separate modeled clock cases pass. The final runtime driver also
+corrects its owned-process cleanup on aggregate alarm; the deliberate timeout
+fixture observes leader and grandchild disappearance. Neither that fixture
+nor active-search exit establishes arbitrary nested cancellation causality.
+
+The [B/C/E/F minimum-UCI experiment](../engines/experiments/tiny-uci-portfolio/README.md)
+reproduces each old control before applying the same qualified command policy.
+Whole-file changes are B 6,283→6,219, C 6,015→5,955, E 6,095→6,031 and
+F 5,551→5,479 bytes. Everything outside go/main is byte-identical to each
+readable control, and DEV preprocessing/native pairs remain exact. Eight actual
+whole-file sessions and four strict DEV sessions pass. New focused B/C core
+checks and thirty modeled B/F dispatch cases have separate scopes; unchanged
+SEE, singular, SIMD, model and MTD(f) coverage is reused only through exact
+source/harness/image bindings. The final external receipt SHA is
+`71d1a8f86d09364fbe9f1f0a2138b5c87a8361a86b46e6756a182f754c9b9f9d`.
+
+The [E ordering change](../engines/experiments/tiny-e-order/README.md) removes
+the old HCE/PST capture prior because the unchanged frozen model already has
+its material-order term. It keeps the 500,000 capture class, promotion/TT
+priorities, all 21 untrained coefficients, model leaf/clamp and full model
+ordering sum. This explicitly changes move order, later reductions and
+learning, so no unchanged-search or stronger-play claim is made. It reduces
+compact C 14,896→14,547, native 26,504→26,440 and whole file 6,095→5,959 bytes.
+Six actual production forms per policy pass O2/sanitizer model, legal-transition
+and priority-consumer checks, and both policies pass their 28-group bounded
+process suite. Selected source/native restorations have exact image/startup/
+cleanup proof. The final metadata-only clarification preserves every tested
+engine byte, bound by external receipt SHA
+`ee0d1015fb2090a5fd52349dfa5a09518fa5d5adb99a69a96b4743459f286332`.
+The separate [actual composition](../engines/experiments/tiny-e-compose/README.md)
+reproduces the 5,959-byte order control and 6,031-byte UCI control, then measures
+5,899 bytes, not the 5,895-byte arithmetic prediction. Compact C is 14,352 bytes
+and restored stdin ELF 26,408 bytes. Both transform orders and a separate
+whole-function transplant produce the same source; all 23,218 readable bytes
+outside go/main equal the qualified order-only core. Two actual whole-file
+sessions and one strict ordered-DEV session pass, with exact native/image/TID/
+cleanup and physical completion gates. Six earlier model-consumer forms and
+positive search/learning proof are reused through literal source/report pins.
+The final proof-tool-only fixes keep every tested engine byte identical and
+preserve the first runtime record. Final external receipt SHA is
+`cbb9f44160caac83d1e52a4dd224513d819c493b519faffb65ff7c9f49d08590`.
+Git preserves the exact CRLF bytes of the fixed E-order and E-composition
+input-map JSON files through path-specific attributes; other source inputs
+are unchanged. This metadata preservation is separate from the frozen
+eight-file experiment receipts.
+
+The [direct kernel](../engines/experiments/tiny-kernel/README.md) avoids the
+visitor/context layer but still loses: compact C before fixed spelling grows
+13,366→13,654, encoded C 11,351→11,876, native 22,664→26,760 and whole file
+5,283→5,543 bytes. The five generation stages, frozen rank threshold and worker
+file order are explicit search-policy changes. Independent byte reproduction,
+bounded legal/attack/transaction contracts, optimized/sanitized positive search
+fixtures and one actual whole-file lifecycle pass; no full-suite, strength or
+scaling claim follows. This losing architecture is retained as evidence and
+does not replace the selected A source.
+
+A single original [source PPM experiment](../engines/experiments/tiny-source-ppm/build.py)
+also stops on first cost. Its order-four exclusion model compresses the exact
+11,148-byte C to a 4,675-byte frame, but its complete standard-library decoder,
+bootstrap reconstruction and launcher produce 7,483 bytes, 2,276 bytes larger
+than the reproduced 5,207-byte control. Independent reference decoding twice
+and intercepted final exec restore the exact C and original bootstrap. There
+are zero compiler invocations or engine executions in that first-cost proof;
+it supplies no new runtime, strength or eligibility evidence.
+
+## Independent no_std Rust D runtime checkpoint
+
+The [separate Rust D implementation](../engines/compact/tiny-rust-d/README.md)
+has its own Linux x86-64 entry, raw syscall/clone trampoline, futex coordination,
+guarded worker stacks and assembly memory primitives. It uses Rust core without
+external crates, libc, pthread, TLS, interpreter or a C backend. Both actual
+scalar and HQ paths independently reproduce **16,824-byte complete ELFs**.
+HQ SHA is `2c84c684d840ad7e7f0567b2b76d9c28693a00f6f95779675fb45ff84c06d3b3`;
+scalar SHA is `0c364208165b79d95f146650ec8ae144f1e4cb6427197b80f37f0e97a90a4eb3`.
+Static gates inspect an auxiliary unstripped link and require its allocated
+sections/addresses/BSS to equal the stripped image, with no unresolved symbols,
+dynamic dependency, interpreter, TLS or executable stack.
+
+Fresh ordinary sessions of both actual shipping images pass three-TID startup,
+clock/search/stop/position/reset/quit/EOF, cumulative per-GO result totals and
+full output EOF. Separate owned-child ptrace runs of the same images hold actual
+output and exit syscalls: finished stays old before bestmove output while OUTPUT
+is held, and the new generation is published only after the full write with
+OUTPUT released. The kernel clear-TID contract is observed before successful
+stack unmap. Waitpid notification ordering is a separate observation and is
+not used as a substitute for this join. No GO-time clone/mmap/mprotect occurs.
+The single main controller owns start/reset/shutdown; this is not a general
+pool API safe for concurrent external controllers.
+
+Exact-body std board drivers pass twenty published perft totals per lane,
+128 independent positions, 3,590 child transitions, 16,384 attack queries and
+148,480 raw HQ/ray cases; full scalar/HQ responses match. Eleven search contracts
+per lane retain positive search/learning, coherent full-key/context TT and
+completed/interrupted witness evidence. Separate no_std deep diagnostic images
+reach the 128-ply abort on the actual guarded 1 MiB stack path and join before
+unmap. Fourteen fault images cover failed second clone after one physical
+worker exists, worker clock failure after startup and GO, short I/O, retries
+and actual lower/upper guard faults. These diagnostic images and the std
+allocator probes remain separate from unchanged shipping-image proof.
+
+The actual HQ shipping ELF also equals an auxiliary frame-audit image: search
+CFA 4,880 bytes, worker entry 73,200, pseudo generation 2,224 and main 431,952.
+The observed deep path and these frames are not a universal stack bound.
+Production Rust/assembly/linker bytes did not change during qualification;
+first harness failures and final strict runtime/trace verifier fixes are
+preserved with the versions that produced each receipt. Final seventeen-file
+source/evidence aggregate SHA is
+`a79b90ec7deed06cff221b9cfbb94edc722eb101f71a08484d2605a65823c0a9`.
+Git integration removes one extra final LF from only the search test fixture;
+the old seventeen-file receipt remains historical, with a separate exact
+normalization/hook/unit-image receipt. Production sources and runtime evidence
+retain their original identities.
+No compressed-loader, 4 KiB, strength, NPS or 512-worker scaling claim follows.
+
+CI now builds the maintained A source with its fixed expected bytes and runs
+that exact selected launcher from a clean checkout. It also builds/reproduces
+both Rust D lanes and invokes actual runtime, production tracing, board and
+search-unit checks after explicit expected native-hash admission.
+Adding these steps is not a
+claim that the new head has passed it. Training and AWS remain excluded;
+eligible complete files, final selected-profile resource/strength comparisons
+and target-hardware scaling are still required for portfolio completion.

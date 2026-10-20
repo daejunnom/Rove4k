@@ -75,6 +75,12 @@ jobs:
       - name: Check source-literal byte preservation
         if: matrix.language == 'c'
         run: python3 -B -m unittest discover -s engines/experiments/tiny-encoding -p 'test_*.py'
+      - name: Regenerate the maintained minimal A entry and run its exact selected file
+        if: matrix.language == 'c'
+        run: |
+          python3 -B engines/compact/tiny-entry-a/build.py --out "$ROVE_TEST_OUT/tiny-entry-a" --dev
+          python3 -B engines/compact/tiny-entry-a/verify.py --build "$ROVE_TEST_OUT/tiny-entry-a" --out "$ROVE_TEST_OUT/tiny-entry-a-runtime"
+          python3 -B -m unittest discover -s engines/experiments/tiny-e-order -p 'test_*.py'
       - name: Check the semaphore pool through controlled real-runtime phases and faults
         if: matrix.language == 'c'
         run: python3 -B engines/experiments/tiny-semaphore/pool-check.py --frozen engines/experiments/tiny-semaphore --out "$ROVE_TEST_OUT/semaphore-pool"
@@ -120,6 +126,37 @@ jobs:
           python3 -B engines/experiments/tiny-rust-stream/test_merge.py --out "$ROVE_TEST_OUT/tiny-rust-layout/merge"
           python3 -B engines/experiments/tiny-rust-stream/test_merge.py --resources-only --out "$ROVE_TEST_OUT/tiny-rust-layout/resources"
           python3 -B engines/experiments/tiny-rust-stream/test_stream.py --out "$ROVE_TEST_OUT/tiny-rust-layout/stream"
+      - name: Build independent no_std Rust D and check its real scalar and HQ paths
+        if: matrix.language == 'rust'
+        env:
+          RUSTUP_TOOLCHAIN: 1.97.0
+        run: |
+          mkdir -p "$ROVE_TEST_OUT/tiny-rust-d"
+          for lane in hq scalar; do
+            python3 -I -B engines/compact/tiny-rust-d/build.py --out "$ROVE_TEST_OUT/tiny-rust-d/$lane" --hq "$lane" --workers 2 --tt-bits 18 --reproduce
+          done
+          python3 - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          root = Path(os.environ['ROVE_TEST_OUT']) / 'tiny-rust-d'
+          expected = {
+              'hq': '2c84c684d840ad7e7f0567b2b76d9c28693a00f6f95779675fb45ff84c06d3b3',
+              'scalar': '0c364208165b79d95f146650ec8ae144f1e4cb6427197b80f37f0e97a90a4eb3',
+          }
+          for lane, pin in expected.items():
+              report = json.loads((root / lane / 'build.json').read_text())
+              image = (root / lane / 'first/x').read_bytes()
+              assert len(image) == report['complete_native_bytes'] == 16824
+              assert hashlib.sha256(image).hexdigest() == report['complete_native_sha256'] == pin, lane
+              assert report['reproduced'] and all(report['artifact_gates'].values())
+              assert (report['workers'], report['tt_bits'], report['startup_threads'], report['hq']) == (2, 18, 3, lane)
+          PY
+          python3 -I -B engines/compact/tiny-rust-d/verify_runtime.py --hq "$ROVE_TEST_OUT/tiny-rust-d/hq/first/x" --scalar "$ROVE_TEST_OUT/tiny-rust-d/scalar/first/x" --out "$ROVE_TEST_OUT/tiny-rust-d/runtime"
+          for lane in hq scalar; do
+            python3 -I -B engines/compact/tiny-rust-d/tests/runtime_trace.py --image "$ROVE_TEST_OUT/tiny-rust-d/$lane/first/x" --out "$ROVE_TEST_OUT/tiny-rust-d/trace-$lane"
+          done
+          python3 -I -B engines/compact/tiny-rust-d/verify_board.py --out "$ROVE_TEST_OUT/tiny-rust-d/board"
+          python3 -I -B engines/compact/tiny-rust-d/verify_search.py --unit-only --out "$ROVE_TEST_OUT/tiny-rust-d/search"
       - name: Build all six real candidate paths
         env:
           RUSTUP_TOOLCHAIN: 1.97.0
@@ -141,6 +178,8 @@ jobs:
             ${{ env.ROVE_TEST_OUT }}/tiny-a-verification/*.json
             ${{ env.ROVE_TEST_OUT }}/tiny-a-verification/*.jsonl
             ${{ env.ROVE_TEST_OUT }}/tiny-a-algorithms.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-entry-a/build.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-entry-a-runtime/**/*.json
             ${{ env.ROVE_TEST_OUT }}/tiny-d/build.json
             ${{ env.ROVE_TEST_OUT }}/tiny-d-check/**/*.json
             ${{ env.ROVE_TEST_OUT }}/tiny-d-check/**/*.jsonl
@@ -150,6 +189,7 @@ jobs:
             ${{ env.ROVE_TEST_OUT }}/tiny-rust-contracts/**/*.json
             ${{ env.ROVE_TEST_OUT }}/tiny-rust-contracts/**/*.jsonl
             ${{ env.ROVE_TEST_OUT }}/tiny-rust-layout/**/*.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-rust-d/**/*.json
             ${{ env.ROVE_TEST_OUT }}/semaphore-pool/**/*.json
           if-no-files-found: ignore
           retention-days: 7
