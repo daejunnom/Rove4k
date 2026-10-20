@@ -11,7 +11,7 @@
     "native/tiny.h": "e19749eb3315253e04171b89b8188df7e0db6b39ec4eb495187a6e158836823f",
     "native/board.c": "3f04fedb7e449e69b47ac6f2b36eb89ebe193726ac5970b0ae3a4b28008e12dc",
     "native/search.c": "48e0f21fee8091f1e5c5d08d606740f6ff8c56778a550af2bcfc282d655d974c",
-    "native/runtime.c": "82c62b57e500918827721553d67d9e23073c6cb5ca79dc22cdb8e38ab15f8e63",
+    "native/runtime.c": "5b20d4e60d60b5edfb4b7b5a15217346098f0bd9ccdd155a7369c90743e81ed1",
     "native/hq.h": "ad66a03cef5288010c4377b81ee3661320195545aee6c664a42d3828bfc8b412",
     "native/hq.c": "50b246280ac1f0b9e1f20834f302b31e30221101abd979bbdc146fcae7c12b5f",
     "native/start.S": "4a6021518cfe67bee9e42806b596f4f0837e3e93487b1acfa115158ea019ba5b",
@@ -72,23 +72,23 @@
   "expected": {
     "scalar-shipping": {
       "hq": 0,
-      "native_bytes": 8124,
-      "native_sha256": "199da6e1e1a94c97fe853e0ff3d89b52e2057a55592052e7fbe5500147e4aeec",
-      "whole_bytes": 7478,
-      "whole_sha256": "d4f2ba718c5e9391708c86468416338f78b6134d1f017267c6c34add187381f2",
-      "payload_bytes": 6363,
+      "native_bytes": 8092,
+      "native_sha256": "59829299f667cdb6682c5ed4a955fb50b76a5584209caf9e4bddf1c0ee2cd160",
+      "whole_bytes": 7457,
+      "whole_sha256": "08c40aa381953df98aa6d6f893487ff90d9a43854acd552158795ce795afcc70",
+      "payload_bytes": 6342,
       "loader_and_headers_bytes": 1115,
-      "audit_bytes": 7501,
-      "audit_sha256": "2d509965f30de9151b4e957e8a805b35f716ac7461960497b01c69639d8d815d",
+      "audit_bytes": 7480,
+      "audit_sha256": "6ae91ad47d1e88bfadd3e8e3424d7ddc1bc603b83689ea4f0ec7fed3bc542b8c",
       "layout": {
         "bss_base": 4202496,
         "bss_pages": 176128,
         "bss_size": 175092,
-        "entry": 4202061,
+        "entry": 4202024,
         "guard_base": 4190208,
         "image_base": 4194304,
         "image_pages": 8192,
-        "image_size": 8124,
+        "image_size": 8092,
         "reserve_size": 192512,
         "section_count": 0,
         "section_names": 0,
@@ -97,9 +97,9 @@
         "segments": [
           {
             "align": 4096,
-            "filesz": 8124,
+            "filesz": 8092,
             "flags": 5,
-            "memsz": 8124,
+            "memsz": 8092,
             "offset": 0,
             "paddr": 4194304,
             "type": 1,
@@ -131,23 +131,23 @@
     },
     "hq-shipping": {
       "hq": 1,
-      "native_bytes": 8512,
-      "native_sha256": "3f4269dc5c0d72c0b43bc73c6a11afdab5844836e12e7c31d60dde08c8ae2806",
-      "whole_bytes": 7718,
-      "whole_sha256": "3bb8a6a97a27a77508848ab9bd388a4802e07f8d8ff0e37b536176423aa7028f",
-      "payload_bytes": 6603,
+      "native_bytes": 8480,
+      "native_sha256": "f1d6558ec5a13e400c2d6df182b01b3236bf1ee1e99f686e47f144a32d222c5c",
+      "whole_bytes": 7707,
+      "whole_sha256": "1178c3e22ac3a2e9db549ddb5246f9b197b7136fa0fc89008577c52468217963",
+      "payload_bytes": 6592,
       "loader_and_headers_bytes": 1115,
-      "audit_bytes": 7741,
-      "audit_sha256": "3253d027b6132e42e47e963e011dd230384aa96dae5c4b3f3f13a9ec8ea68a1a",
+      "audit_bytes": 7730,
+      "audit_sha256": "390f4c5f272e38d17e8e8304fe415c994601c642cd8ee7352e8107e42bbea84e",
       "layout": {
         "bss_base": 4206592,
         "bss_pages": 176128,
         "bss_size": 175092,
-        "entry": 4202367,
+        "entry": 4202330,
         "guard_base": 4190208,
         "image_base": 4194304,
         "image_pages": 12288,
-        "image_size": 8512,
+        "image_size": 8480,
         "reserve_size": 196608,
         "section_count": 0,
         "section_names": 0,
@@ -156,9 +156,9 @@
         "segments": [
           {
             "align": 4096,
-            "filesz": 8512,
+            "filesz": 8480,
             "flags": 5,
-            "memsz": 8512,
+            "memsz": 8480,
             "offset": 0,
             "paddr": 4194304,
             "type": 1,
@@ -190,8 +190,8 @@
     }
   },
   "qualified_receipts_metadata_only": {
-    "current_selection": "exact qualified layout-phase C D over unchanged finite-minimum-v1 runtime; two explicit per-identity mapping classes",
-    "source_lineage": "only one Board declaration reorder and one exact8argument search phase fragment; other6native and loader/codec/profile/flags unchanged",
+    "current_selection": "exact qualified completion-latch C D over unchanged finite-minimum-v1 public policy and unchanged layout-phase board/search; two explicit native identity classes",
+    "source_lineage": "seven exact runtime fragments consolidate ready/pending/completed into pending latch; seven other native and loader/codec/profile/flags unchanged",
     "layout_phase": {
       "proof_final_index_sha256": "b05e3e344983c0bc340c28570b0229c8c5ab3cb1e579ca0e3bf290ac8a51cc83",
       "proof_source40_set_sha256": "2b729bc31ef732ce8c1dbd38128e66b4ad597c9200f4f83d03910a018e7b89ba",
@@ -201,12 +201,7 @@
       "physical_two_classes_sha256": "dfcebada0c43fee2dba85893385f261bc398b4c4808a90a6d90055ef1c922add",
       "audit_build_sha256": "8ffc4989e946df66392143b000c590468fdcf486fe06e653d139a8c2b8d5a3ff",
       "prepromotion_old18_freeze_sha256": "7e7e9c586a629fefef9698ec2364549e589f103f590cb586014edd9769878396",
-      "scope": "exact actual core W1DEV1 contracts, independent Board fields and exact own-ELF W2 positive physical observations; reduced beta-high dynamic0/unproven; no broadfault/game/performance claim"
-    },
-    "unchanged_finite_runtime": {
-      "runtime_sha256": "82c62b57e500918827721553d67d9e23073c6cb5ca79dc22cdb8e38ab15f8e63",
-      "dispatch_tt_arithmetic_sha256": "9d164b571a24181b1c93151e82a0ffe2472d77bb0635849409da7a65caf36756",
-      "scope": "exact unchanged runtime body and protocol policy; previous synthetic completion/arithmetic separate from new actual physical fence proof"
+      "scope": "prior exact actual core W1DEV1 contracts reused only for unchanged Board/search/HQ source; old physical/audit images are ancestry, not current runtime identity; reduced beta-high dynamic0/unproven"
     },
     "previous_finite_selection_ancestry_only": {
       "compose_summary_sha256": "d98218c08f05a9e39af40016e731aba1d1b02846524a2fb412e45e02868aa0fc",
@@ -258,6 +253,27 @@
         }
       },
       "scope": "previous finite source/image ancestry only; its unchanged claims and DEV identities describe that previous selection, not the new header/search pair"
+    },
+    "finite_policy_and_unchanged_runtime_ranges": {
+      "prior_runtime_sha256": "82c62b57e500918827721553d67d9e23073c6cb5ca79dc22cdb8e38ab15f8e63",
+      "current_runtime_sha256": "5b20d4e60d60b5edfb4b7b5a15217346098f0bd9ccdd155a7369c90743e81ed1",
+      "dispatch_tt_arithmetic_sha256": "9d164b571a24181b1c93151e82a0ffe2472d77bb0635849409da7a65caf36756",
+      "scope": "ancestry for exact unchanged finite parser/clock/TT-policy source outside seven runtime fragments; prior synthetic completed/ready observers are not current pending-latch observations"
+    },
+    "completion_latch": {
+      "runtime_sha256": "5b20d4e60d60b5edfb4b7b5a15217346098f0bd9ccdd155a7369c90743e81ed1",
+      "native_firstcost_sha256": "e8b23315a1f1a6756ec3b4a909d56de4b42ee01475fa9989b13c9b54c587b468",
+      "whole_firstcost_sha256": "628ea7e3eccae0c20ade39997836a838b03e60ed128dc1eadc8a0119fd556bca",
+      "cost_final_index_sha256": "05b027c5ec0e21da9ab6fdc91c8120984e2cea2e11b993edd5ceed1076748e0e",
+      "cost_source24_set_sha256": "596574b294ad7f2bc8f5459b47d321f0c3dd7cc7d662a2d778030cecceb1ce02",
+      "actual_shipping_publication_sha256": "99320b49fefaa20644a1261bbe82fd29984e6d9d674367b2a6a3643a0c5b28bc",
+      "publication_root_intake_sha256": "901012de7ebd790e8aea3e87ecae0a88c8bff96276fa3761822880df595b1857",
+      "static_complement_sha256": "f44e70893fda1cd16a10d3e6bfa5123a3125cc043329ab535dbbcfc72de54173",
+      "audit_literal_discovery_sha256": "a1244e951366749e0d3efe5220f903954050d6c89dc2d5d73423a8b2389038e0",
+      "prepromotion_old18_freeze_sha256": "e7052e36be4ce643157fc58c1225c0fb764b189fcaedd30e83f4331231ceeaab",
+      "publication_scope": "two exact actual shipping sessions/four GO epochs; real write backpressure pending1/main futex then ordered legal results and same word zero; no target code/memory/register/personality changes",
+      "lifecycle_reuse_scope": "source-only exact complement for partial-clone failure bypass, quitting/epoch, created-only kernel CLEARTID joins, main return and exit_group; no new startup fault execution or explicit stack/TT munmap",
+      "limits": "no new WORKERS2 DEV identity/equality, general race freedom, startup-fault execution, playing-strength/performance/scaling or 4k claim; fresh maintained audit observations are separate from publication"
     }
   },
   "shipping_protocol": {
@@ -269,6 +285,6 @@
     "default_budget_ms": 1000,
     "own_clock_formula": "unchanged",
     "hard_wall_cap": false,
-    "completion_fences": "next go, position, quit, EOF wait for result-before-completed epoch"
+    "completion_fences": "next go, position, quit, EOF acquire pending==0 after result output"
   }
 }

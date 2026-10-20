@@ -25,7 +25,7 @@ SHIPPING_PROTOCOL = {
     'stop': 'consume', 'ucinewgame': 'consume', 'infinite': 'consume',
     'default_budget_ms': 1000, 'own_clock_formula': 'unchanged',
     'hard_wall_cap': False,
-    'completion_fences': 'next go, position, quit, EOF wait for result-before-completed epoch',
+    'completion_fences': 'next go, position, quit, EOF acquire pending==0 after result output',
 }
 
 
@@ -68,7 +68,7 @@ def main():
     frozen = out/'inputs'
     frozen.mkdir()
     started, deadline = time.monotonic(), time.monotonic()+180
-    report = {'complete': False, 'scope': 'maintained source regeneration of exact qualified layout-phase C D own-ELFs; two literal per-identity mapping classes, unchanged runtime/loader/codec/flags',
+    report = {'complete': False, 'scope': 'maintained source regeneration of exact qualified completion-latch C D own-ELFs; two literal per-identity mapping classes, unchanged board/search/loader/codec/flags',
               'resources': recipe['profile'], 'inputs': {}, 'engines': [], 'negative_decoder_controls': [],
               'shipping_protocol': recipe['shipping_protocol'],
               'qualified_receipt_reuse_metadata_only': recipe['qualified_receipts_metadata_only'],

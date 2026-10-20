@@ -1,0 +1,117 @@
+{
+  "format": 1,
+  "scope": "sole fixed F source composition first cost; all source-generation and packaging inputs are ordinary sources in this closure",
+  "control_receipt_sha256": "8b9982c4fac3d8af5eb7c987f59afdd063b49e164028e6e9bb9f025e120fba13",
+  "source_files": {
+    ".gitattributes": {
+      "bytes": 14,
+      "sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9"
+    },
+    ".gitignore": {
+      "bytes": 19,
+      "sha256": "862263fa1f46c20f0d1e4dac5ffcc75abd55c08211b2c3864c5f8764b9d87793"
+    },
+    "README.md": {
+      "bytes": 3763,
+      "sha256": "fd93daad400bd5db613848ee6d906bf48d7fc67772e9fabcd1a5e79fb1358f2a"
+    },
+    "baseline.json": {
+      "bytes": 3309,
+      "sha256": "58d41754ec3cfe870453831e4fbce24f00d130bef1617fbe50108fecd2581153"
+    },
+    "build-control.py": {
+      "bytes": 2807,
+      "sha256": "b082bb8073dfd9747f14783661529ffadf8b40f2fad8d35c0fcc92410bdbd84c"
+    },
+    "build.py": {
+      "bytes": 10023,
+      "sha256": "089c17c69f5ae0addf3aeb7e2d2662eb29e58cc77f40b3c10274ea3e2897ce0c"
+    },
+    "candidate.c": {
+      "bytes": 25755,
+      "sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd"
+    },
+    "control/engines/compact/tiny-a/pack_stream.py": {
+      "bytes": 5444,
+      "sha256": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e"
+    },
+    "control/engines/compact/tiny-entry-f/.gitattributes": {
+      "bytes": 14,
+      "sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9"
+    },
+    "control/engines/compact/tiny-entry-f/README.md": {
+      "bytes": 16215,
+      "sha256": "c10d1e9abb6cef163f342b18e3f3e6f5cade24ae4a7090d210deb871d5154ec4"
+    },
+    "control/engines/compact/tiny-entry-f/bootstrap.py.in": {
+      "bytes": 1006,
+      "sha256": "84608782831299a6f7b1010dea89501eb10e6e34ee1cdc8f3804d448354cf4c6"
+    },
+    "control/engines/compact/tiny-entry-f/build.py": {
+      "bytes": 11518,
+      "sha256": "11f973ab34ef5b986469177fb17fc95292588332b73f584077c47d4e7b3c8981"
+    },
+    "control/engines/compact/tiny-entry-f/engine.c": {
+      "bytes": 26100,
+      "sha256": "dc065b98d99a147f862bd2d4cb0a1349ff79a2da7c1be873d906dff71cc9cd89"
+    },
+    "control/engines/compact/tiny-entry-f/fresh.py": {
+      "bytes": 5360,
+      "sha256": "81df003f684e813d5f77b2667cb9994767ac18a2065b7e7d1c0ae1706fad8d17"
+    },
+    "control/engines/compact/tiny-entry-f/launcher.sh": {
+      "bytes": 75,
+      "sha256": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a"
+    },
+    "control/engines/compact/tiny-entry-f/recipe.json": {
+      "bytes": 11348,
+      "sha256": "09e57419c9b821239727043b28a2d2f983ef3bd058dccb9371cb6572cc28299e"
+    },
+    "control/engines/compact/tiny-entry-f/shipping_alpha.py": {
+      "bytes": 20068,
+      "sha256": "beb86014c320d493af5c02e899a2eeca470abf9a262a09015293533c0a0e0794"
+    },
+    "control/engines/compact/tiny-entry-f/verify.py": {
+      "bytes": 7012,
+      "sha256": "cc63a511446c35db54676356a9d885b95db7da994133147cda3e3ff1c4464b0c"
+    },
+    "control/engines/scripts/fixed_shipping_storage.py": {
+      "bytes": 28039,
+      "sha256": "3f4f05b0b3fee71ee8876b22653c9b7481b5af207b7e023c27b0832e4e734d71"
+    },
+    "control/engines/scripts/minify.py": {
+      "bytes": 6624,
+      "sha256": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b"
+    },
+    "control/engines/scripts/rename_c.py": {
+      "bytes": 12574,
+      "sha256": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5"
+    },
+    "control/engines/scripts/specialize.py": {
+      "bytes": 2386,
+      "sha256": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d"
+    },
+    "policy.json": {
+      "bytes": 5456,
+      "sha256": "749133a23382dbaaf74fdd46e80d3b3c963688430502e14e84d0d63832870a04"
+    },
+    "policy.py": {
+      "bytes": 5087,
+      "sha256": "2270e7c20fd2d02f892d250112607e993c5ec31949cd941a662e28528a477bcb"
+    },
+    "preprocess.py": {
+      "bytes": 2634,
+      "sha256": "fb4d2a001fdbc48104932b4102857d69ae5fd74bc58a9dac05e3b277c06bd0e9"
+    },
+    "tools.py": {
+      "bytes": 2423,
+      "sha256": "f7b26670d27138229fbd20ac3207b2e48367cb878291ae42c3e40402e088a83e"
+    },
+    "transform.json": {
+      "bytes": 2442,
+      "sha256": "ad4c012792ac9c9b1dc77495fe57956621d0855cc8d0a1597f4c1d26c1332aba"
+    }
+  },
+  "candidate_native_compile_limit": 2,
+  "candidate_engine_execute_limit": 0
+}

@@ -1,0 +1,119 @@
+{
+  "format": 1,
+  "scope": "one exact A PVS retry source composition; same original31+storage18 maps, newliteral counts only",
+  "readable": {
+    "bytes": 24751,
+    "sha256": "b1855017138a77c6f36050d5903abb1379180e62272b4412ccd43e9b4809d1fd"
+  },
+  "original_alpha_policy_sha256": "e1d5daf3636851711d08309b772edf7a3546bfffeb402d745d33eaaf80560244",
+  "original_storage_policy_sha256": "e89afbf078f902a4cfc3c0ee8c1fba525966be76e4df14b18f50746c2d40cff3",
+  "alpha": {
+    "source": {
+      "bytes": 10821,
+      "sha256": "98012e169e63f961748af044818cbddd78e0fd48be44e2f7d14883f652545826"
+    },
+    "candidate": {
+      "bytes": 10578,
+      "sha256": "e54cd6fc1b2150d181acd186b144a0441c5ceeb17d92509b6e0df267240a8980"
+    },
+    "alpha_counts": {
+      "Entry": 3,
+      "advance": 2,
+      "bad": 3,
+      "cell": 3,
+      "center": 2,
+      "colors": 3,
+      "draw": 4,
+      "end": 4,
+      "file": 2,
+      "history": 3,
+      "inc": 4,
+      "knights": 3,
+      "last": 2,
+      "lock": 4,
+      "move": 3,
+      "name": 3,
+      "next": 2,
+      "old": 6,
+      "pawn": 2,
+      "present": 3,
+      "prior": 3,
+      "prom": 3,
+      "quiet": 3,
+      "rank": 4,
+      "rook": 2,
+      "root": 3,
+      "seen": 3,
+      "shift": 3,
+      "threads": 3,
+      "transit": 2,
+      "ttdepth": 2
+    },
+    "resource_counts": {
+      "WORKERS": 0,
+      "TT_BITS": 0
+    },
+    "mapping_used": 31,
+    "source_edits_count": 92,
+    "alpha_saved_bytes": 243,
+    "resource_saved_bytes": 0,
+    "source_saved_bytes": 243,
+    "retained_directive_bytes": 432,
+    "opaque_regions_preserved": 53,
+    "preserved_PLY_code_uses": 8
+  },
+  "storage": {
+    "source": {
+      "bytes": 10578,
+      "sha256": "e54cd6fc1b2150d181acd186b144a0441c5ceeb17d92509b6e0df267240a8980"
+    },
+    "candidate": {
+      "bytes": 10156,
+      "sha256": "6227b58d60680970eb7ee98c15fe9f73181a22e513fabb301d9030c3b66bd20d"
+    },
+    "alpha_counts": {
+      "back": 3,
+      "command": 4,
+      "deadline": 3,
+      "epoch": 4,
+      "fallback": 3,
+      "finished": 4,
+      "game_keys": 4,
+      "game_length": 5,
+      "material": 2,
+      "mutex": 13,
+      "pending": 5,
+      "position": 8,
+      "quitting": 4,
+      "ready": 0,
+      "steps": 2,
+      "stopped": 8,
+      "table": 9,
+      "workers": 6
+    },
+    "resource_counts": {},
+    "mapping_used": 17,
+    "source_edits_count": 87,
+    "alpha_saved_bytes": 422,
+    "resource_saved_bytes": 0,
+    "source_saved_bytes": 422,
+    "retained_directive_bytes": 432,
+    "opaque_regions_preserved": 53,
+    "preserved_PLY_code_uses": 8
+  },
+  "new_readable_words": [
+    "narrow"
+  ],
+  "algorithm": {
+    "baseline_readable_sha256": "71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734",
+    "candidate_readable_sha256": "b1855017138a77c6f36050d5903abb1379180e62272b4412ccd43e9b4809d1fd",
+    "old_region_bytes": 592,
+    "new_region_bytes": 523,
+    "protected_complement_bytes": 24228,
+    "protected_complement_sha256": "d5cd28d9b09caa33c15844c32feca710cd34275a5cd2dd435cd2311a94a5ff97",
+    "protected_complement_identical": true,
+    "scope": "four recursive child call sites to one retry-state loop",
+    "native_identity_expected_to_change": true,
+    "candidate_runtime_qualified": false
+  }
+}

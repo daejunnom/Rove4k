@@ -57,7 +57,7 @@ int max_depth;
 uint64_t deadline,game_keys[HISTORY];
 int game_length;
 Board position;
-static atomic_int epoch,pending,completed,ready,quitting,ids[WORKERS];
+static atomic_int epoch,pending,quitting,ids[WORKERS];
 static Move fallback;
 
 uint64_t now(void){long t[2];if(CALL(228,1,t,0,0,0,0))abort();return (uint64_t)t[0]*1000+(uint64_t)t[1]/1000000;}
@@ -130,23 +130,22 @@ static void result(void){
 }
 static void work(void *p){
     Worker *w=p;int seen=0;
-    atomic_fetch_add_explicit(&ready,1,memory_order_release);wake(&ready);
+    atomic_fetch_sub_explicit(&pending,1,memory_order_release);wake(&pending);
     for(;;){
         int current=atomic_load_explicit(&epoch,memory_order_acquire);
         if(atomic_load_explicit(&quitting,memory_order_relaxed))return;
         if(current==seen){futex_wait(&epoch,seen,1);continue;}
         seen=current;think(w,&position);
-        if(atomic_fetch_sub_explicit(&pending,1,memory_order_acq_rel)==1){
-            result();atomic_store_explicit(&completed,seen,memory_order_release);wake(&completed);
+        if(atomic_fetch_sub_explicit(&pending,1,memory_order_acq_rel)==2){
+            result();atomic_store_explicit(&pending,0,memory_order_release);wake(&pending);
         }
     }
 }
-/* Completion is distinct from the last search decrement: a new command must
- * not change workers/position while final bestmove publication is in flight. */
+/* pending counts startup arrivals, then workers plus an output reservation.
+ * Only zero releases storage after the complete bestmove has been written. */
 static void wait(void){
     atomic_store_explicit(&stopped,1,memory_order_relaxed);
-    int target=atomic_load_explicit(&epoch,memory_order_relaxed),done;
-    while((done=atomic_load_explicit(&completed,memory_order_acquire))!=target)futex_wait(&completed,done,1);
+    int count;while((count=atomic_load_explicit(&pending,memory_order_acquire)))futex_wait(&pending,count,1);
 }
 static void clear(void){for(size_t i=0;i<((size_t)1<<TT_BITS);i++){table[i].key=table[i].data=0;atomic_flag_clear(&table[i].lock);}}
 static void set_position(char *input){
@@ -228,7 +227,7 @@ static void go(char *s){
 #endif
     fallback=first(&position);atomic_store_explicit(&stopped,0,memory_order_relaxed);
     for(int i=0;i<WORKERS;i++){workers[i].depth=workers[i].score=0;workers[i].best=0;workers[i].nodes=0;}
-    atomic_store_explicit(&pending,WORKERS,memory_order_relaxed);atomic_fetch_add_explicit(&epoch,1,memory_order_release);wake(&epoch);
+    atomic_store_explicit(&pending,WORKERS+1,memory_order_relaxed);atomic_fetch_add_explicit(&epoch,1,memory_order_release);wake(&epoch);
 }
 #if DEV
 static uint64_t perft(const Board *b,int d){if(!d)return 1;uint64_t total=0;Move list[MOVES];Board c;int n=gen(b,list);for(int i=0;i<n;i++)if(make(b,list[i],&c))total+=perft(&c,d-1);return total;}
@@ -248,6 +247,7 @@ static void stats(void){
 int main(void){
     int created=0,status=0;char line[32768];
     table=allocate(((size_t)1<<TT_BITS)*sizeof *table);if(!table)return 2;clear();start(&position);game_keys[0]=position.h;game_length=1;
+    atomic_store_explicit(&pending,WORKERS,memory_order_relaxed);
     for(;created<WORKERS;created++){
         workers[created].id=created;
         /* One inaccessible guard page precedes each private 1 MiB stack. */
@@ -255,7 +255,7 @@ int main(void){
         if(CALL(10,stack,4096,0,0,0,0)||spawn(work,workers+created,stack+1048576+4096,(int *)(ids+created))<0){status=2;break;}
     }
     if(status)goto shutdown;
-    int count;while((count=atomic_load_explicit(&ready,memory_order_acquire))<WORKERS)futex_wait(&ready,count,1);
+    wait();
     for(;;){
         int valid=read_line(line);if(valid<0)break;if(!valid)continue;
 #if !DEV

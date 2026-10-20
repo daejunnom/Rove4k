@@ -113,6 +113,11 @@ The maintained-B-storage checkpoint `2a0d99a` passes both language jobs in its
 [exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39393850340)
 and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39393850575).
 The C job actually regenerates and exercises the 5,851-byte maintained B entry.
+The D-publication checkpoint `1c8be9d` passes both language jobs in its
+[exact-head CI](https://github.com/daejunnom/Rove4k/actions/runs/39395877875)
+and its [repository lifecycle run](https://github.com/daejunnom/Rove4k/actions/runs/39395877918).
+The new D output-reservation observation remains a separate local runtime
+result; the CI does not execute that new experiment or promote its candidates.
 
 **No family has a verified complete file at or below 4,096 bytes.** All twelve
 cores have functional evidence, but portfolio completion still requires source
@@ -131,7 +136,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | A | 4,980 B | 884 B | Shared startup/search phase counter, owned move query, fixed local/object spelling |
 | B | 5,851 B | 1,755 B | Hybrid bitboards, legal SEE/singular and fixed local/object spelling |
 | C | 5,687 B | 1,591 B | Real AVX2 evaluation, shared query/startup and fixed private spelling |
-| D scalar / HQ | 7,478 / 7,718 B | 3,382 / 3,622 B | Own ELF restoration, metadata-first Board and shared PVS retry phase |
+| D scalar / HQ | 7,457 / 7,707 B | 3,361 / 3,611 B | Own ELF restoration, metadata-first Board, shared PVS retries and completion latch |
 | E | 5,679 B | 1,583 B | All 21 untrained coefficients in evaluation/ordering; fixed spelling |
 | F | 5,083 B | 987 B | Full-depth MTD(f), beta-only search and fixed local/object spelling |
 
@@ -2341,7 +2346,8 @@ the receipt pins both documentation versions and all unchanged executable
 inputs. The first collector's mistaken C-only field lookup is preserved as a
 collector failure, not an engine failure; it causes no engine rerun. FDs are
 not claimed as observed by the unchanged B verifier. This maintained promotion
-awaits its own exact-head CI and remains 1,755 bytes above 4KiB.
+subsequently passes exact-head `2a0d99a` CI, recorded above, and remains
+1,755 bytes above 4KiB.
 
 ## D completion latch: actual output reservation observed
 
@@ -2373,4 +2379,107 @@ publication evidence, not general race freedom, new startup/partial-clone fault
 coverage, initial zero-BSS observation, cancellation causality or maintained D
 promotion. The earlier cost receipt retains its original zero engine-execution
 count; these new sessions remain separate. Normal-source promotion and newly
-bound pre-entry audits are still open.
+bound pre-entry audits were open at that observation checkpoint; the following
+promotion supplies their separate evidence.
+
+## Maintained D completion latch and fixed A/F source costs
+
+The [maintained D entry](../engines/compact/tiny-entry-d/README.md) now regenerates
+the exact 7,457/7,707-byte scalar/HQ completion-latch files from eighteen ordinary
+sources. Six files change: runtime, build metadata, recipe, exact packer/verifier
+admission and README. The twelve other files, including seven native inputs,
+loader/codec and fresh driver, retain their raw bytes. Board/search/HQ, compiler,
+resources and finite public policy stay within their existing source contracts.
+New full native identities and entry points are explicit; no generic page-range
+admission or old-image fallback is introduced.
+
+New CHECKPOINT audit images measure 7,480/7,730 bytes. Two independently created
+closed source archives and the archive used by the unchanged fresh driver have
+identical bytes. Two source extractions independently reproduce eight native,
+eight whole and four audit files. Eight actual shipping sessions (four quit,
+four EOF) produce 24 independently legal results, and four pre-entry sessions
+observe zero BSS/padding and exact restored RX/guard permissions. All twelve
+sessions settle naturally with reader EOF/join and absent owned groups. The
+routine verifier does not resample the pending latch; the separate actual
+output-reservation observation above supplies that narrower fact.
+
+The final source/promotion index is
+`8ace0b06b07dcf4d44a12d5210a068ed357f0bf1149c6322f3d8bc77d02f5dd1`;
+fresh execution is
+`d656183b4a41fbc35fdfb2eb6ca8b786e3e3666ce2c7d970251050703711cc04`.
+The actual source archive is
+`965f0e33150a02cdbea35efdfe4349ee0486d06e7a37ad3eb49b966d436669f5`.
+Partial-clone failure bypass and created-TID joins are source-complement reuse,
+not new fault executions. The actual reclamation order is created-TID join,
+main return and exit_group; there is no explicit stack munmap or TT free.
+New DEV identity, general race freedom, cancellation causality, strength,
+scaling and 4KiB acceptance remain unclaimed.
+
+The [fixed A retry experiment](../engines/experiments/tiny-a-source-composition-next/README.md)
+consolidates four child-search call sites into one retry-state loop. Its
+protected 24,228-byte source complement remains exact. Original A4980 is
+reproduced twice first; the sole candidate then reproduces twice. Readable
+source falls 69 bytes and shipping source 28, but the complete file grows
+**20 bytes to 5,000**. Its new native has the same length and a different full
+identity. This is a measured loss, so maintained A4980 remains selected. No
+candidate engine, DEV, game or runtime qualification runs. The final 26-source
+receipt is `d5c8b61991877935c2645f43ce70197bc5b06878c2290c12e9146c66609e1baa`;
+cost is `429597181a78b6ac825078cf5394a3e01076d1f593bfc7ab3b5eacfaae6e0378`.
+
+The [fixed F composition experiment](../engines/experiments/tiny-f-source-composition-next/README.md)
+shares nullable legal query/made-child replay, think-owned reset and startup
+pending. The complete 15,340-byte search prefix and 1,354-byte MTD driver remain
+exact. Its original 73 alpha and eighteen storage maps retain their decisions;
+the new source/count domain is separate and literal. Original F5083 reproduces
+twice first. The sole candidate independently reproduces source, native and
+whole twice: shipping source falls 268 bytes to 10,477; the new native grows
+eight bytes to 22,672; the whole file falls **32 bytes to 5,051**. Actual raw
+preprocessing alias inversion, macro-definition bytes/multiplicity and header
+freshness pass. This is cost evidence only; maintained F5083 remains selected
+while new F-specific query/startup/result qualification proceeds separately.
+Engine/DEV/runtime executions remain zero in the immutable first-cost receipt
+`c9b2cbb83662610965b9ccd1ebc3935f73db605ec5853775836d5abd3c219313`.
+The 28-source final summary is
+`4c5a0779fbd5aa2c16fbc0a43aa8bbfc5d70d10247c35a26df8b4885603f409d`.
+Root independently reads both cost files' actual representations, strict LZMA
+restoration and compiler-stdin source; source/archive/frozen bytes match.
+
+## Current C/E storage observation: original string-packing failure
+
+The [current C/E storage study](../engines/experiments/tiny-storage-ce-current/README.md)
+uses current C5687 rather than the older C5723 domain. Both original builders
+reproduce their shipping files twice before the first candidate native. Its
+fixed eighteen-name map reduces C source by 422 bytes and E source by 449.
+Only the first C candidate native is compiled. Full native equality is not
+asserted: old C is 26,424 bytes and this new identity is 26,344.
+
+The observer passes program headers, allocated section geometry, other payloads
+and the seventeen mapped object records, then rejects its complete stored
+string-entry Counter. That failure is preserved. C's second and E's candidate
+compiles, all candidate codecs/whole files/engines and the later file-gap loop
+are zero/unreached. The observer is not edited to turn this result into success.
+
+Independent physical parsing identifies the precise representation assumption:
+old global object table references byte 130, a suffix five bytes into stored
+tiny_table at 125. New tiny_table remains a local BSS object with the same value
+and size, while qq has a separate stored entry at 818. The only extra complete
+stored entry beyond the literal mapped Counter is qq. ELF string indices can
+reference substrings; this is permitted by the
+[ELF gABI string-table contract](https://gabi.xinuos.com/elf/04-strtab.html).
+A separately named exact suffix-packing class requires its own source/actual
+byte review; no metadata, runtime or maintained promotion is yet claimed.
+
+The immutable original 38-source final summary is
+`83ca8460a6d06ddf5def9e6cbd470b3d8f182d6a25e630d1792a07c3034497ed`;
+the failed producer is
+`dfa01b450ab9fefc1fe795ae8bf8b8f8d0211c364ab92779a1be7250683841e7`.
+Root verifies all current raw inputs and the actual suffix/object attributes.
+Old B's independent nineteen-pair qualifier and its earlier failure stay exact.
+
+A separate read-only A/F bootstrap audit finds no safe substantive size
+simplification. It also narrows prior cleanup claims: existing poll/leader-wait
+logic does not establish absence of same-group compiler descendants after an
+early leader exit. This is a static control-flow limitation, not an observed
+failure of the successful startup sessions or a new executed fault campaign.
+The external audit is
+`55567a59592a9db13b5027ed57c073087e854441f3fab436df2d3575a50efd38`.

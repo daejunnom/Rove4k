@@ -6,25 +6,23 @@ source hashes, compiler/linker order, resources, the finite shipping policy,
 admitted layouts and exact native/whole/audit identities. Edit readable source
 deliberately; generated native images and payloads do not belong in this folder.
 
-This selection promotes the qualified layout-plus-phase D source and images
-over the previous 7,540/7,800 B finite selection. Exactly one Board declaration
-moves unchanged metadata before the mailbox, and one eight-argument search
-fragment shares its existing PVS retries through one phase loop. Board fields
-and logical representation are unchanged. Six other native files, raw OS/pool
-ownership, finite runtime, loader/codec, flags and resources remain unchanged.
-Scalar now has an explicitly qualified two-page RX class; HQ retains three RX
-pages. Each exact native identity has its own literal class. There is no
-optimizer, flag/codec/preset sweep, generic ELF admission or external engine
-source. The root MIT license applies.
+This selection promotes the qualified completion latch over the previous
+7,478/7,718 B layout-plus-phase selection. Seven exact runtime fragments replace
+separate ready/pending/completed counters with one pending latch. The complete
+Board/search/HQ sources, seven other native files, raw clone/futex ABI, loader,
+codec, flags and resources retain their exact bytes. Scalar retains its two-page
+RX class and HQ its three-page class. Each full native identity has its own
+literal entry and mapping class. There is no optimizer, flag/codec/preset sweep,
+generic ELF admission or external engine source. The root MIT license applies.
 
 | Fixed profile | Native ELF | Complete own-ELF | Complete SHA-256 |
 | --- | ---: | ---: | --- |
-| Scalar | 8,124 B | **7,478 B** | `d4f2ba718c5e9391708c86468416338f78b6134d1f017267c6c34add187381f2` |
-| HQ | 8,512 B | **7,718 B** | `3bb8a6a97a27a77508848ab9bd388a4802e07f8d8ff0e37b536176423aa7028f` |
+| Scalar | 8,092 B | **7,457 B** | `08c40aa381953df98aa6d6f893487ff90d9a43854acd552158795ce795afcc70` |
+| HQ | 8,480 B | **7,707 B** | `1178c3e22ac3a2e9db549ddb5246f9b197b7136fa0fc89008577c52468217963` |
 
-Both exceed 4,096 bytes by 3,382/3,622 bytes. The actual combined native files
-save 224 B each and complete files save 62/82 B against that finite control;
-separate experiment savings are not added as estimates. This folder makes no event
+Both exceed 4,096 bytes by 3,361/3,611 bytes. The actual native files save
+32 B each and complete files save 21/11 B against the preserved layout-phase
+control; native and complete-file savings are measured separately. This folder makes no event
 eligibility, playing-strength, throughput, scaling or cross-toolchain claim.
 The previous 18 sources, source archives and both old native/whole/audit
 controls were preserved externally before this explicit expectation update.
@@ -44,9 +42,10 @@ clocked `go`, `quit` and EOF with these explicit choices:
   applies; a present zero/invalid own clock uses at least 1 ms. Opposite clock
   alone uses the default. Checked numbers, overflow, span parsing and
   missing-value key reprocessing are unchanged.
-- Next `go`, `position`, `quit` and EOF still cancel and wait for
-  `completed==epoch` after result output. `pending==0` is not that completion
-  fence. Shutdown retains the kernel-CLEARTID joins and startup pool ownership.
+- Next `go`, `position`, `quit` and EOF still request cancellation and wait
+  for an acquire observation of `pending==0` after result output. Pending 1
+  reserves result publication and never permits main to reuse job storage.
+  Shutdown retains the kernel-CLEARTID joins and startup pool ownership.
 
 The 1,000 ms value is a search budget, **not a hard wall-time cap**. Deadline
 checks occur every 256 claimed nodes, and fallback preparation, scheduling and
@@ -54,14 +53,44 @@ output add time. Ignoring external stop or retaining TT between games can
 change choices under time limits; unchanged search source does not imply
 identical game results.
 
-DEV retains the original protocol identification, actual stop/newgame and
-infinite/depth/nodes/movetime source paths. The Board declaration and search
-have changed, so the previous finite selection's DEV preprocessed/native
-identities are **ancestry only**, not current DEV binaries or reused equality.
-They remain explicitly scoped as old metadata in the recipe. The qualified
-new pair instead has actual fixed O2/WORKERS=1/DEV=1 search and independent Board
-contracts described below. This shipping source closure does not compile or
-claim a new raw WORKERS=2 DEV executable.
+DEV retains its identification, stop/newgame and infinite/depth/nodes/movetime
+source paths, but the shared private completion protocol has changed. Previous
+DEV preprocessed/native identities and prior W1 DEV core contracts are ancestry
+for their exact source scope. They are not current WORKERS=2 DEV binaries,
+new DEV equality or general race qualification. This shipping closure compiles
+only DEV=0; unchanged Board/search proofs remain separately scoped below.
+
+## Completion latch and lifecycle evidence
+
+Before clone, main runtime-stores WORKERS into zero-initialized pending storage.
+Each arrival release-decrements it, and successful startup waits for zero.
+This startup wait privately sets stopped to 1; epoch remains zero until GO.
+GO stores WORKERS+1 before epoch release. Each finished worker acq_rel-decrements
+once, and old value 2 selects the final worker. Pending 1 reserves the unchanged
+`result()` body; only its completed output is followed by release-store zero.
+Main's acquire-zero wait gates position replacement, re-GO and normal shutdown.
+Late wakes trigger condition rechecks after all prior decrements have finished.
+
+The exact source complement keeps clone failure before startup wait, created-only
+kernel-cleared TID joins, quitting and epoch publication unchanged. Failure after
+zero or one successful clone bypasses the incomplete arrival barrier. There is
+no explicit stack munmap or TT free: main joins created TIDs, returns, and
+`start.S` calls exit_group to release process mappings. Static complement receipt
+SHA is `f44e70893fda1cd16a10d3e6bfa5123a3125cc043329ab535dbbcfc72de54173`.
+Prior raw-runtime fault evidence is ancestry for those exact unchanged premises,
+not newly executed startup-failure or CLEARTID branch coverage.
+
+The exact scalar/HQ shipping images have a separate actual publication proof,
+receipt `99320b49fefaa20644a1261bbe82fd29984e6d9d674367b2a6a3643a0c5b28bc`.
+Two sessions and four GO epochs use real stdout backpressure: a worker blocks
+in result write while main is in private futex wait and the current pending
+word is 1. Its syscall expected argument may still be 3 and is kept separate
+from the current word. Ordered independently legal results, the same word zero,
+persistent startup TIDs and natural quit with output EOF settlement are observed. Target
+code, memory, registers and kernel personality are unmodified. This is not
+general race freedom, a new startup fault suite, strength or performance proof.
+The ordinary source archives and newly bound pre-entry audits below qualify
+reproduction and routine physical checks separately.
 
 ## Source-only fixed build
 
@@ -90,12 +119,12 @@ and section-header stripping remain fixed. Source/output paths are the only
 substituted command arguments. Native identities are explicit literals:
 
 ```text
-scalar 199da6e1e1a94c97fe853e0ff3d89b52e2057a55592052e7fbe5500147e4aeec
-HQ     3f4269dc5c0d72c0b43bc73c6a11afdab5844836e12e7c31d60dde08c8ae2806
+scalar 59829299f667cdb6682c5ed4a955fb50b76a5584209caf9e4bddf1c0ee2cd160
+HQ     f1d6558ec5a13e400c2d6df182b01b3236bf1ee1e99f686e47f144a32d222c5c
 ```
 
 The loader retains E8/E9 BCJ plus one-final-fixed-Huffman Deflate. Payloads are
-6,363/6,603 B; headers/decoder/inverse filter/ABI configuration add exactly
+6,342/6,592 B; headers/decoder/inverse filter/ABI configuration add exactly
 1,115 B. The full sizes above include everything. `loader/codec.py` is the
 unchanged original build-time codec, selecting only `fixed_compress`; its
 unused alternatives are not searched. Zlib is build-time only. Running the
@@ -105,21 +134,22 @@ The admitted classes are exact per form and native hash, not a general range:
 
 | Form | Entry | RX at `0x400000` | BSS | Upper guard | Reservation |
 | --- | --- | --- | --- | --- | --- |
-| Scalar | `0x401e4d` | 2 pages | `0x402000` | `0x42d000` | `0x2f000` |
-| HQ | `0x401f7f` | 3 pages | `0x403000` | `0x42e000` | `0x30000` |
+| Scalar | `0x401e28` | 2 pages | `0x402000` | `0x42d000` | `0x2f000` |
+| HQ | `0x401f5a` | 3 pages | `0x403000` | `0x42e000` | `0x30000` |
 
 Both have BSS 175,092 B within 43 pages, lower guard `0x3ff000`, non-executable
 stacks and loader at `0x10000000`. The packer requires the full literal ELF
 header/segments plus identity, form, entry and class; the verifier independently
-requires each full literal layout. Previous experiment guards remain unchanged
-and reject these new identities. READ_IMPLIES_EXEC rejection,
+requires each full literal layout. Historical production guards in frozen
+experiment inputs remain unchanged and reject these identities; the separate
+cost-only exact adapter is not a general admission. READ_IMPLIES_EXEC rejection,
 MAP_FIXED_NOREPLACE reservation, checked decode and RW-to-RX restoration bodies
 remain unchanged. There is no old-image fallback or generic page-count admission.
 
 Every build compiles each native twice, independently encodes/compiles each
 whole twice, and builds a separate CHECKPOINT audit once per form. Exact
 native, whole, payload, overhead and audit identities must match the recipe;
-roundtrip alone is not acceptance. Audits are 7,501/7,741 B, never production
+roundtrip alone is not acceptance. Audits are 7,480/7,730 B, never production
 entry sizes. Failures save an incomplete report and clean owned commands.
 
 The qualified producing environment remains GCC 13.3.0, GNU binutils 2.42,
@@ -179,8 +209,10 @@ Neither contract compares raw Board padding across layouts. The separate exact
 selected whole proof observes both per-form mappings, four shipping sessions
 and two pre-entry checkpoints, receipt
 `dfcebada0c43fee2dba85893385f261bc398b4c4808a90a6d90055ef1c922add`.
-These receipts are reused by exact inputs; no broad game/fault/benchmark rerun
-is hidden in this source-promotion check.
+The Board/search contract receipts are reused by exact unchanged core inputs;
+that previous physical/audit pair is old-image ancestry, not current latch
+image evidence. New publication and maintained routine physical observations
+are separate. No broad game/fault/benchmark rerun is hidden in this promotion.
 
 The completed finite qualification remains separate provenance: its native
 checkpoint SHA is `1055c89f0f7bc042d33ad53ccad82fb9ca6a39368e6ed84dfd9e2a82fef24767`,

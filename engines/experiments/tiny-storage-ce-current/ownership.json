@@ -1,0 +1,42 @@
+{
+  "format": 1,
+  "scope": "sameTU privateobjects only; currentC ready absent/E materialDEVonly; nofunction/member/type/API/directivechange",
+  "external_linkage_same_TU_objects": [
+    "table",
+    "workers",
+    "stopped",
+    "deadline",
+    "game_keys",
+    "game_length",
+    "position"
+  ],
+  "file_static_objects": [
+    "steps",
+    "mutex",
+    "command",
+    "finished",
+    "epoch",
+    "pending",
+    "quitting",
+    "fallback",
+    "ready"
+  ],
+  "block_static_objects": [
+    "material",
+    "back"
+  ],
+  "policy_sha256": "6ef55a89d7688a30cc339a1f27d36c6a7d912939e680389f00cbb373a6539fbb",
+  "source_pins": {
+    "C": {
+      "bytes": 12224,
+      "sha256": "20f06b6ed9ada03db6f8719f05ecdf9cb52802ab0a1acc8999627999db899046"
+    },
+    "E": {
+      "bytes": 12641,
+      "sha256": "af0ab88d9f4ce25154b3fda909fc00b9eca0cda8d8784b4b07e4926015a2c330"
+    }
+  },
+  "currentC_unused": "ready\u2192qn0, no reallocation; query/startup/reset composition source12224, notold12526",
+  "E_unused": "material\u2192qi0 DEVonly, no reallocation",
+  "unstripped_native_boundary": "completeoldSHA mismatch expected; newfamilyobservational class only, no existingBqualifier changes; exact17symbolpairs independentliteralexpectation pendingactualbaseline check"
+}
