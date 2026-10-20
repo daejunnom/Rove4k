@@ -192,7 +192,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | E | 5,118 B | 1,022 B | Global function aliases, untrained E19 quadratic activity model, incremental material/activity, original ordering and ALONE |
 | F full (default) | 4,681 B | 585 B | Capture-only private Move bit, global function aliases, calloc payload initialization sharing, unit-window TT bound expression, full-key TT, full-depth MTD(f), packed HCE and fixed ALONE |
 | F material/noise (opt-in) | 4,386 B | 290 B | Capture-only private Move bit, policy-local function aliases, fixed material/stateless-order model, full-depth MTD(f)/full-key TT/SMP retained; optional positional HCE/learners omitted; strength comparison pending |
-| F material/move-TT (opt-in) | 4,180 B | 84 B | Object/type/member names, fixed material and16-byte full-key coherent move-only TT; MTD recomputes bounds, rules/history/witness/pool retained; strength comparison pending |
+| F material/move-TT (opt-in) | 4,174 B | 78 B | Bound-preserving declaration/expressions, object/type/member names, fixed material and16-byte full-key coherent move-only TT; MTD recomputes bounds, rules/history/witness/pool retained; strength comparison pending |
 
 The separate Rust D native images are 16,816 bytes each. Their independent
 packed experiment retains its own qualification state and does not silently
@@ -5462,3 +5462,40 @@ no target rerun repairs the reporting failure. Companion SHA is
 final index SHA is
 `23077980022e8ea97b4da4e7080647fba2c1cba0186f5eff8d967f4892b9d24b`.
 No fresh, negative/fault/intrusive, game, performance or scaling campaign runs.
+
+### F fixed declarations/expressions: actual4174-byte entry
+
+Four exact regions merge same-block integer declarations, remove a quiet-noise
+cast/suffix under the fixed unsigned-Move/id0..1/value-range contract, spell
+the unchanged ply bound127 and express the same depth range1..126. No quiet
+noise, stop/bound check, model or search policy is removed. The pure helper
+preserves inverse/complement and all directives/opaque tokens. Source8148
+becomes8130/c63cf3d6. The actual compiler preserves the entire dbbe4984 native,
+and fixed codec whole4180 becomes4174, SHA
+`0111de5226d69c9467a6cae18e8268a259ae05e6b7b1399433a9c819b7969cc1`.
+
+One ordinary selected --dev builder reproduces shipping twice/unchanged
+full-reference DEV twice; one frozen unchanged verifier executes the actual
+4174-byte wrapper through two quit/EOF sessions/eight legal GO with exact
+restored image, stable startup TIDs and physical exit0. Existing default/
+material expected and qualification objects stay unchanged; no extra core
+unit is needed through the exact native identity. Build/runtime SHA values
+are
+`ce646ea452a75aa803d13689314bfa18a9aaeded913ebbb6066f0e064980da59` /
+`a39c5b977c058f845993261e4d52e70838393700b0b9fd2fcda9a05f21e2d219`.
+Normal index SHA is
+`80c73ad6b7adf6ad1c900cb60bf7ca6c89a05fe302fc11767da557581e3c9ef5`.
+This is78 bytes above4096, not a qualified4KiB entry.
+
+A separate, unselected atomic32 Move17/tag15 ordering-policy cost is4166
+bytes from the earlier8148-byte names source. It uses hash low18 bits for
+the index and bits18..32 for the tag; this is not a full-key record. An alias
+can change generated-move ordering but supplies no cached score/direct move
+execution. It retains full64-bit repetition history. Its new native and
+whole have only compile/codec/strict-restore evidence, unit/normal execution0.
+Whole SHA is
+`d2b84c110cf5f59f10bc7faba2f1cfbc6489095883efb69f50808cdef87f55aa`;
+cost index SHA is
+`e1ab869cb227ca067e2174dc03d0f0c2c7e5aa624daa512079508ec8d294f1be`.
+The14-byte cost delta and later6-byte expression delta are not added; their
+composition is unmeasured. It does not replace the maintained4174 policy.

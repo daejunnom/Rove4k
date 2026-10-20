@@ -1,4 +1,63 @@
-# Opt-in MaterialNoise+MoveTT names-only4180 stage
+# Opt-in MaterialNoise+MoveTT fixed expressions4174
+
+The explicit `--policy material-move-tt` branch now expects **4174bytes**,
+actual6 below4180 and **78 above4096**. Source8130/c63cf3d6, entire native18576/
+dbbe4984, bootstrap9129/a66be2c7 and whole0111de52 are fixed. Default full4681,
+material-noise4386, full-reference DEV and their expected/qualification objects
+remain exact. This changes four declaration/expression spellings only, not the
+MoveTT/material policy, noise, input contract, resources or stop semantics.
+
+| MoveTT selected artifact | Bytes | SHA-256 |
+|---|---:|---|
+| Shipping C |8130|`c63cf3d6216c9b9376c08a1f8ca753170b3b322536b31b39b45cf188ea3e2a47`|
+| Entire native |18576|`dbbe498409862346939c1faa2fca30ee99cb449bc8e5f05d4b2fd4091d173a27`|
+| Decoded bootstrap |9129|`a66be2c7aeb481951c0ce5c604bed24f0e092b25db17f5420faa0c3a9ab7f4ec`|
+| Whole launcher |4174|`0111de5226d69c9467a6cae18e8268a259ae05e6b7b1399433a9c819b7969cc1`|
+
+`shipping_material_expressions.py` runs after MoveTTnames only. It accepts the
+exact8148 input and8130 output, embeds4 literalspans, protects33opaque tokens,
+17directives and8085complementbytes, and reconstructs its whole input by exact
+inverse. Its C proof retains H/K scope and initialization order; Y is unsigned,
+workerid0..1 makes noise0..16; the unsigned conditional alternatives and unchanged
+promotion totals fit int32; ply127 and iterationdepths1..126 are exact. No
+Clang/report/fixture/artifact or name-allocation tool is a normal build input.
+Full/material4386 and DEV branches bypass this helper. All old helper bodies,
+compiler/profile/codec/bootstrap/77Bprefix remain unchanged.
+
+Actual cost FINALff7efd68b7de65a31c22406709dc77f3dc061decd0a719d3298cfd9e8bf20bb3
+and receipt081b459207b881cf52224b9eb1e40f3365987b6472dc573e48fd11748ba38a60
+record one candidatecompile/encode, exact4180 controlreencode and two strict
+source/bootstrap/argv restorations. Entire native is byteidentical, with no
+masked metadata. Rawsource−18 is distinct from actualwhole−6. Earlier focused
+MoveTT/core proof is reused through that exact code identity; no new core unit
+was compiled or run. Cost/byteproof are not a new wrapper runtime receipt.
+The initial source-only countguard preparation error (one assumed stop-return,
+actualtwo) was preserved and corrected to exactcount2 before compiler/codec.
+
+Predecessor32 ordinary sources,4180 artifacts and producing/final manifests
+are preserved before these four files changed. The sole selected --dev builder
+passed on its first call: source/native/bootstrap/whole4174 reproduced twice,
+entire-equal to cost; unchanged full-reference DEV19488/1fcf03f4… and26984/
+6034086b… reproduced twice. Existing full9242 and material8602 source guards
+passed twice; their entire expected/qualification objects stay exact. No new
+full/material shipping native/runtime or DEV engine ran. Frozen unchanged
+selected verifier passed new4174 quit/EOF two sessions/eight legal GO: exact
+dbbe4984 native restored, stable3 startupTIDs, privatepath/helper absence,
+oneclosing result, completed readers and physicalexit0; TIDs now absent.
+Build SHAce646ea452a75aa803d13689314bfa18a9aaeded913ebbb6066f0e064980da59;
+runtime SHAa39c5b977c058f845993261e4d52e70838393700b0b9fd2fcda9a05f21e2d219;
+readback SHAde726ebfa63746ef3a33ff1c7395334f5c165d18efcfa0f0960e6465a05f0090.
+Producing33-source manifest SHAc158a687826fc013ec66d16b2a49116d92db4c262fb5b334aa8457b11409d189
+and ordinary recipe SHA571d1690af2ffc2aedab9b51b4794a9dd2ff6711d2a15d7f6b6f6a708865c4f1
+remain separate. Only README and expression receipt completion metadata changed
+after execution; helper/build/all other31 paths, expected/codec/resources are
+producing values. Outer build733/verifier766 returned0, reaped/groupsabsent;
+forcedcleanup0/activehandles0. No new coreunit, fresh/game/performance/training/
+negative campaign was added. Prior cancellation causality and compiler-descendant
+lifetime scope limits stay unproven; no4KiB or strength claim follows. Root owns
+Git and global documentation.
+
+# Historical MoveTT names-only4180 stage
 
 The explicit `--policy material-move-tt` path now has fixed expectations for
 source8148/5ee725c0, entire native18576/dbbe4984, bootstrap9147/b3684c4b and

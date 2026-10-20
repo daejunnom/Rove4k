@@ -63,7 +63,8 @@
     "engines/compact/tiny-entry-f/shipping_material_names.py": "3d81326468dcd4c52647508aaaa47abf13ba1ddaee561f7c97448af4e4b40553",
     "engines/compact/tiny-entry-f/shipping_material_capture.py": "e1d7960d71dce41e2f6694a76351d08d6dcf5e934f5693b8031dbfc1982b40dd",
     "engines/compact/tiny-entry-f/shipping_move_tt.py": "70bbcae56adf94a93ab54ce5edfb7c8fea222fe5509ef8556c4262caf9400a81",
-    "engines/compact/tiny-entry-f/shipping_move_tt_names.py": "3ac359c6c41b97a9cbb6002c390aa415587cdb3e66f70bfdddccbc4584ea263a"
+    "engines/compact/tiny-entry-f/shipping_move_tt_names.py": "3ac359c6c41b97a9cbb6002c390aa415587cdb3e66f70bfdddccbc4584ea263a",
+    "engines/compact/tiny-entry-f/shipping_material_expressions.py": "53cd23cd38fa0351f4ebac6132c021a73359846a676051ca2a1127f3de4c2159"
   },
   "resource_literals": [
     [
@@ -1319,15 +1320,15 @@
     },
     "material-move-tt": {
       "name": "F-MTD-MaterialNoise-MoveTT-v1",
-      "stage": "material-noise/names/capture then move-only TT; full globalnames/capture bypassed; then fixed shipping_move_tt_names.py",
+      "stage": "material-noise/names/capture then move-only TT; full globalnames/capture bypassed; then fixed shipping_move_tt_names.py; then fixed shipping_material_expressions.py",
       "expected_overrides": {
-        "source_bytes": 8148,
-        "source_sha256": "5ee725c0e3d1479210ff023f6af75c965a421cf04645f9d60abc1ae7cedae91b",
+        "source_bytes": 8130,
+        "source_sha256": "c63cf3d6216c9b9376c08a1f8ca753170b3b322536b31b39b45cf188ea3e2a47",
         "native_bytes": 18576,
         "native_sha256": "dbbe498409862346939c1faa2fca30ee99cb449bc8e5f05d4b2fd4091d173a27",
-        "whole_bytes": 4180,
-        "whole_sha256": "3fe2ad6b1e7863f42f1d269a1ebb08069bc9857af587070dad513b9115821bcf",
-        "bootstrap_sha256": "b3684c4b8c92e18a0177ea3fdc01a2219e9a4974c1693029ce7967ac699c4632"
+        "whole_bytes": 4174,
+        "whole_sha256": "0111de5226d69c9467a6cae18e8268a259ae05e6b7b1399433a9c819b7969cc1",
+        "bootstrap_sha256": "a66be2c7aeb481951c0ce5c604bed24f0e092b25db17f5420faa0c3a9ab7f4ec"
       },
       "compression": {
         "format": "lzma-alone",
@@ -1515,6 +1516,84 @@
             "fresh_games_performance_training": 0,
             "active_terminal_handles": 0,
             "post_execution_changes": "README and names_only qualification metadata only; producing helper/build/source/pins unchanged"
+          }
+        },
+        "expressions": {
+          "scope": "one fixed4 literal declaration/expression spelling bundle after MoveTTnames; same policy/model/input/noise/stop/resources; no renaming",
+          "stage": "material-only-after-object-type-names",
+          "prior_4180_expected": {
+            "source_bytes": 8148,
+            "source_sha256": "5ee725c0e3d1479210ff023f6af75c965a421cf04645f9d60abc1ae7cedae91b",
+            "native_bytes": 18576,
+            "native_sha256": "dbbe498409862346939c1faa2fca30ee99cb449bc8e5f05d4b2fd4091d173a27",
+            "whole_bytes": 4180,
+            "whole_sha256": "3fe2ad6b1e7863f42f1d269a1ebb08069bc9857af587070dad513b9115821bcf",
+            "bootstrap_sha256": "b3684c4b8c92e18a0177ea3fdc01a2219e9a4974c1693029ce7967ac699c4632"
+          },
+          "exact_inverse_complement": true,
+          "protected_complement_bytes": 8085,
+          "protected_complement_sha256": "25c1a62dff1972aac936c912e23e0b666e59ac80ca61d794cefec103079271ee",
+          "C_semantics": "intdeclsame scope/order; unsigned m and workerid0..1 give exactnoise0..16; changed conditional common unsigned type but allalternatives and promotion totals fit int32; exactply127 anddepths1..126",
+          "cost_FINAL_sha256": "ff7efd68b7de65a31c22406709dc77f3dc061decd0a719d3298cfd9e8bf20bb3",
+          "actual_cost_sha256": "081b459207b881cf52224b9eb1e40f3365987b6472dc573e48fd11748ba38a60",
+          "source_equivalence_sha256": "56240673552caf599afa485371ce6913755cb88dd39f4bffc84158a2c5718b4e",
+          "raw_delta": -18,
+          "whole_delta": -6,
+          "entire_native_byte_equal": true,
+          "new_core_unit_compiles_executions": 0,
+          "prior_focused_positive_reuse": "actual entire18576B dbbe native unchanged, previous focused scope is not a newexecution",
+          "other_policies_full_DEV_bypass": true,
+          "normal_external_AST_report_fixture_dependency": false,
+          "normal_status": "completed sole selected --dev and frozen unchanged verifier; final README/expression receipt metadata is not another execution",
+          "normal_4174_build_runtime": {
+            "complete": true,
+            "build": {
+              "path": "/home/stemxstudio/rove4k-f-expressions-normal-20261021/build.json",
+              "bytes": 136231,
+              "sha256": "ce646ea452a75aa803d13689314bfa18a9aaeded913ebbb6066f0e064980da59"
+            },
+            "runtime": {
+              "path": "/home/stemxstudio/rove4k-f-expressions-runtime-20261021/runtime.json",
+              "bytes": 15129,
+              "sha256": "a39c5b977c058f845993261e4d52e70838393700b0b9fd2fcda9a05f21e2d219"
+            },
+            "strict_readback": {
+              "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-expressions-promotion-20261021-evidence/readback.json",
+              "bytes": 1982,
+              "sha256": "de726ebfa63746ef3a33ff1c7395334f5c165d18efcfa0f0960e6465a05f0090"
+            },
+            "producing_source_manifest": {
+              "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-expressions-promotion-20261021-evidence/producing-source.json",
+              "bytes": 9396,
+              "sha256": "c158a687826fc013ec66d16b2a49116d92db4c262fb5b334aa8457b11409d189"
+            },
+            "ordinary_producing_recipe": {
+              "bytes": 93704,
+              "sha256": "571d1690af2ffc2aedab9b51b4794a9dd2ff6711d2a15d7f6b6f6a708865c4f1"
+            },
+            "effective_selected_recipe": {
+              "bytes": 105000,
+              "sha256": "24cdb5cd5bfffcc7f8d57221375dba3e8e20a41292c3d3615803a21d1f6e0f67"
+            },
+            "selected_shipping_reproductions": 2,
+            "unchanged_full_reference_DEV_reproductions": 2,
+            "default_full_source9242_material_source8602_checked_twice": true,
+            "full_and_material_expected_qualified_objects_unchanged": true,
+            "full_material_native_runtime_reruns": 0,
+            "new_core_units": 0,
+            "entire_native_same_as_existing_positive_unit_policy": true,
+            "selected_quit_EOF_sessions": 2,
+            "legal_GO_epochs": 8,
+            "restored_native_exact": true,
+            "startup_TIDs_per_session": 3,
+            "private_paths_helpers_at_UCI_absent": true,
+            "one_closing_result_readers_physical_exit0": true,
+            "observed_TIDs_now_absent": true,
+            "cancellation_causality": "unproven",
+            "compiler_descendant_lifetime_scope": "unchanged; no universal lifetime proof",
+            "forced_cleanup": 0,
+            "active_handles": 0,
+            "post_execution_changes": "README and expression qualification metadata only"
           }
         }
       }

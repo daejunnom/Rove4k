@@ -84,7 +84,7 @@ def main():
     material_expected={'source_bytes': 8602, 'source_sha256': '3752a0c745efb63a2c1ba08974789c10dc56b815428d11903fbc8f2b5461ea3b', 'native_bytes': 18576, 'native_sha256': 'c882ff2ae11ec177f96542fa13db84e611a27572a21b79b93d53edc1b45652f6', 'whole_bytes': 4386, 'whole_sha256': 'e6d8e5e982659de7d5e4528976420f5d5881620cbd198910802d7cee368f808d', 'bootstrap_sha256': '3d8b4fe9539af8be5700c6cbeb7498d826c3b0c7ab20cfa8152a5ff2f835cfea'}
     if recipe['alternate_policies']['material-noise']['expected_overrides']!=material_expected:
         raise ValueError('fixed MaterialNoise-v1 expectations differ')
-    move_tt_expected={'source_bytes': 8148, 'source_sha256': '5ee725c0e3d1479210ff023f6af75c965a421cf04645f9d60abc1ae7cedae91b', 'native_bytes': 18576, 'native_sha256': 'dbbe498409862346939c1faa2fca30ee99cb449bc8e5f05d4b2fd4091d173a27', 'whole_bytes': 4180, 'whole_sha256': '3fe2ad6b1e7863f42f1d269a1ebb08069bc9857af587070dad513b9115821bcf', 'bootstrap_sha256': 'b3684c4b8c92e18a0177ea3fdc01a2219e9a4974c1693029ce7967ac699c4632'}
+    move_tt_expected={'source_bytes': 8130, 'source_sha256': 'c63cf3d6216c9b9376c08a1f8ca753170b3b322536b31b39b45cf188ea3e2a47', 'native_bytes': 18576, 'native_sha256': 'dbbe498409862346939c1faa2fca30ee99cb449bc8e5f05d4b2fd4091d173a27', 'whole_bytes': 4174, 'whole_sha256': '0111de5226d69c9467a6cae18e8268a259ae05e6b7b1399433a9c819b7969cc1', 'bootstrap_sha256': 'a66be2c7aeb481951c0ce5c604bed24f0e092b25db17f5420faa0c3a9ab7f4ec'}
     move_tt_compression={'format': 'lzma-alone', 'filter': 'LZMA1', 'preset': 9, 'extreme': True, 'lc': 0, 'lp': 0, 'pb': 0, 'check': 'NONE', 'mf': 'BT4', 'dictionary_bytes': 67108864, 'nice_len': 32}
     if recipe['alternate_policies']['material-move-tt']['expected_overrides']!=move_tt_expected or recipe['alternate_policies']['material-move-tt']['compression']!=move_tt_compression:
         raise ValueError('fixed MoveTT expectations/codec differ')
@@ -154,6 +154,7 @@ def main():
         material_capture=module('entry_fixed_F_material_capture',frozen/'shipping_material_capture.py').transform_source
         move_tt=module('entry_fixed_F_move_TT',frozen/'shipping_move_tt.py').transform_source
         move_tt_names=module('entry_fixed_F_move_TT_names',frozen/'shipping_move_tt_names.py').transform_source
+        expressions=module('entry_fixed_F_expressions',frozen/'shipping_material_expressions.py').transform_source
         # Keep this base for every unchanged shipping readable/spelling guard.
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
@@ -171,7 +172,7 @@ def main():
                 preprocess_source,input_metadata=input_profile.transform_readable(preprocess_source)
             active,observations=specialize({'main.c':preprocess_source},directory,recipe['preprocessor']+['-DDEV='+str(int(dev))],os.environ.copy())
             data=compact(active['main.c'],'c')
-            counters=None;alpha_metadata=None;storage_metadata=None;scope_metadata=None;member_metadata=None;declaration_metadata=None;hce_metadata=None;type_metadata=None;unit_bound_metadata=None;startup_metadata=None;global_names_metadata=None;capture_metadata=None;policy_metadata=None;material_names_metadata=None;material_capture_metadata=None;move_tt_metadata=None;move_tt_names_metadata=None
+            counters=None;alpha_metadata=None;storage_metadata=None;scope_metadata=None;member_metadata=None;declaration_metadata=None;hce_metadata=None;type_metadata=None;unit_bound_metadata=None;startup_metadata=None;global_names_metadata=None;capture_metadata=None;policy_metadata=None;material_names_metadata=None;material_capture_metadata=None;move_tt_metadata=None;move_tt_names_metadata=None;expressions_metadata=None
             if not dev:
                 data,counters=strip_counters(data);files={'main.c':data}
                 for old,new in recipe['resource_literals']:
@@ -206,12 +207,13 @@ def main():
                         material_reference={'bytes':len(data),'sha256':sha(data)}
                         data,move_tt_metadata=move_tt(data)
                         data,move_tt_names_metadata=move_tt_names(data)
+                        data,expressions_metadata=expressions(data)
                         move_tt_metadata['separate_material_reference_source_generation']=material_reference
                     policy_metadata['separate_full_reference_source_generation']={'bytes':len(full_reference),'sha256':sha(full_reference)}
                 else:
                     data,global_names_metadata=global_names(data)
                     data,capture_metadata=capture(data)
-            return data,observations,counters,alpha_metadata,storage_metadata,scope_metadata,member_metadata,semantic_metadata,input_metadata,declaration_metadata,hce_metadata,type_metadata,unit_bound_metadata,startup_metadata,global_names_metadata,capture_metadata,policy_metadata,material_names_metadata,material_capture_metadata,move_tt_metadata,move_tt_names_metadata
+            return data,observations,counters,alpha_metadata,storage_metadata,scope_metadata,member_metadata,semantic_metadata,input_metadata,declaration_metadata,hce_metadata,type_metadata,unit_bound_metadata,startup_metadata,global_names_metadata,capture_metadata,policy_metadata,material_names_metadata,material_capture_metadata,move_tt_metadata,move_tt_names_metadata,expressions_metadata
         def package(source):
             expression,_=literal(source);script=template.replace(marker,expression.encode())
             ast.parse(script)
@@ -223,7 +225,7 @@ def main():
         first=None;first_dev=None
         for index in (1,2):
             directory=out/('attempt-'+str(index));directory.mkdir()
-            source,observations,counters,alpha_metadata,storage_metadata,scope_metadata,member_metadata,semantic_metadata,input_metadata,declaration_metadata,hce_metadata,type_metadata,unit_bound_metadata,startup_metadata,global_names_metadata,capture_metadata,policy_metadata,material_names_metadata,material_capture_metadata,move_tt_metadata,move_tt_names_metadata=generate(directory/'preprocess')
+            source,observations,counters,alpha_metadata,storage_metadata,scope_metadata,member_metadata,semantic_metadata,input_metadata,declaration_metadata,hce_metadata,type_metadata,unit_bound_metadata,startup_metadata,global_names_metadata,capture_metadata,policy_metadata,material_names_metadata,material_capture_metadata,move_tt_metadata,move_tt_names_metadata,expressions_metadata=generate(directory/'preprocess')
             if len(source)!=expected['source_bytes'] or sha(source)!=expected['source_sha256']:raise ValueError('compact C identity mismatch')
             (directory/'main.c').write_bytes(source)
             native=compile_c(recipe['compiler'],source,directory/'native')
@@ -238,10 +240,10 @@ def main():
             row={'attempt':index,'source_bytes':len(source),'source_sha256':sha(source),'native_bytes':len(native),'native_sha256':sha(native),
                  'whole_bytes':len(whole),'whole_sha256':sha(whole),'bootstrap_sha256':sha(script),'preprocessor':observations,
                  'counter_removal':counters,'shipping_alpha':alpha_metadata,'shipping_storage':storage_metadata,
-                 'shipping_scope':scope_metadata,'shipping_members':member_metadata,'shipping_semantics':semantic_metadata,'shipping_input':input_metadata,'shipping_declarations':declaration_metadata,'shipping_hce':hce_metadata,'shipping_types':type_metadata,'shipping_unit_bound':unit_bound_metadata,'shipping_startup':startup_metadata,'shipping_global_names':global_names_metadata,'shipping_capture':capture_metadata,'shipping_policy':policy_metadata,'shipping_material_names':material_names_metadata,'shipping_material_capture':material_capture_metadata,'shipping_move_tt':move_tt_metadata,'shipping_move_tt_names':move_tt_names_metadata}
+                 'shipping_scope':scope_metadata,'shipping_members':member_metadata,'shipping_semantics':semantic_metadata,'shipping_input':input_metadata,'shipping_declarations':declaration_metadata,'shipping_hce':hce_metadata,'shipping_types':type_metadata,'shipping_unit_bound':unit_bound_metadata,'shipping_startup':startup_metadata,'shipping_global_names':global_names_metadata,'shipping_capture':capture_metadata,'shipping_policy':policy_metadata,'shipping_material_names':material_names_metadata,'shipping_material_capture':material_capture_metadata,'shipping_move_tt':move_tt_metadata,'shipping_move_tt_names':move_tt_names_metadata,'shipping_material_expressions':expressions_metadata}
             if args.dev:
-                dev,dev_observations,_,dev_alpha,dev_storage,dev_scope,dev_members,dev_semantics,dev_input,dev_declarations,dev_hce,dev_types,dev_unit_bound,dev_startup,dev_global_names,dev_capture,dev_policy,dev_material_names,dev_material_capture,dev_move_tt,dev_move_tt_names=generate(directory/'preprocess-dev',True)
-                if dev_alpha is not None or dev_storage is not None or dev_scope is not None or dev_members is not None or dev_declarations is not None or dev_hce is not None or dev_types is not None or dev_unit_bound is not None or dev_startup is not None or dev_global_names is not None or dev_capture is not None or dev_policy is not None or dev_material_names is not None or dev_material_capture is not None or dev_move_tt is not None or dev_move_tt_names is not None:raise ValueError('diagnostic source entered shipping spelling stage')
+                dev,dev_observations,_,dev_alpha,dev_storage,dev_scope,dev_members,dev_semantics,dev_input,dev_declarations,dev_hce,dev_types,dev_unit_bound,dev_startup,dev_global_names,dev_capture,dev_policy,dev_material_names,dev_material_capture,dev_move_tt,dev_move_tt_names,dev_expressions=generate(directory/'preprocess-dev',True)
+                if dev_alpha is not None or dev_storage is not None or dev_scope is not None or dev_members is not None or dev_declarations is not None or dev_hce is not None or dev_types is not None or dev_unit_bound is not None or dev_startup is not None or dev_global_names is not None or dev_capture is not None or dev_policy is not None or dev_material_names is not None or dev_material_capture is not None or dev_move_tt is not None or dev_move_tt_names is not None or dev_expressions is not None:raise ValueError('diagnostic source entered shipping spelling stage')
                 if dev_semantics is None or dev_semantics['stage']!='readable-before-DEV-specialization':raise ValueError('diagnostic semantic stage missing')
                 if dev_input is None or dev_input['stage']!='readable-before-DEV-specialization' or dev_input['shipping_relation_checked']:
                     raise ValueError('diagnostic input-profile stage differs')
