@@ -188,7 +188,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | A | 4,739 B | 643 B | Native-identical lexical-scope names and type tokens, shared startup/query, adjacent declarations/completion sequence and original ALONE |
 | B | 5,340 B | 1,244 B | Native-identical type tokens, tactical Move metadata, shared geometry, legal-LVA ordering, hybrid attackers/singular and ALONE |
 | C | 5,078 B | 982 B | Native-identical type tokens, signed-net eight-lane state, exact HCE, real 128-bit madd/hadd and fixed ALONE |
-| D scalar / HQ | 6,064 / 6,253 B | 1,968 / 2,157 B | Full-key aligned atomic16 TT, explicit SSE4.2/CX16 profile, own fixed21 context ELF and guarded BCJ restoration |
+| D scalar / HQ | 6,002 / 6,220 B | 1,906 / 2,124 B | EP trial shares make, full-key aligned atomic16 TT, explicit SSE4.2/CX16 profile, own fixed21 context ELF and guarded BCJ restoration |
 | E | 5,158 B | 1,062 B | Native-identical type tokens, untrained E19 quadratic activity model, incremental material/activity, original ordering and ALONE |
 | F | 4,709 B | 613 B | Unit-window TT bound expression, uniform type tokens, full-key TT, full-depth MTD(f), packed HCE and fixed ALONE |
 
@@ -4590,3 +4590,94 @@ The actual normal build/runtime receipt SHAs are
 `90e3217b7abb366cdd3d7e01a6cb65fab01ec5f77c8b877b4cc6a6cd4c6bc72a`.
 The final normal index SHA is
 `150ce129a20ece74d69b81dc1026df87cd3f2dd623632612111ceb1c4fbed954`.
+
+### D EP transition sharing
+
+EP normalization now delegates its private three-square capture/own-king trial
+to existing make. A provisional EP parent has a valid side/king cache, empty
+target on the proper rank, opposing pawn behind it and an adjacent own pawn.
+Those facts come independently from a generated double push or DEV FEN/board
+admission; already-normalized EP is not assumed circularly. The trial capture
+has displacement15/17 and no promotion, so its child e stays-1 and nested ep
+returns immediately. Only the boolean result escapes. Its temporary h/r may
+be unfinished during outer normalization; the child is discarded and cannot
+reach search/TT/history/evaluation. The private make contract documents this
+exception. Existing full-key atomic16 TT, search, model, pool and loader remain.
+
+The functional fragment shrinks by81 readable bytes; an explicit318-byte
+contract comment makes board.c8770 become9007 (+237). Comments are not native
+payload. Actual .text shrinks73 bytes in each form; alignment makes complete
+native7932/8288 become7836/8224 (-96/-64). Fixed21 packets4927/5116 become
+4865/5083 and the complete own-ELFs6064/6253 become6002/6220 (-62/-33).
+Nonpacket headers/loader stay1137. Source/native/packet/whole differences are
+measured separately, not added. The new make frame and extra generic metadata
+work are not claimed as speed or stack improvements.
+
+One fixed cost links each native/package once. Existing positive DATA-only
+decoder helpers recover both exact BCJ/native byte streams with canaries and
+table unmap, without entering the engine. A separate ordinary DEV1 unit uses
+the actual old/new board sources, namespace-renaming only the control. Scalar
+and HQ each compile/run once with ASan/UBSan. Both pass20 mirrored EP roots,
+150 named Board/child records and26 FEN/history observations against control
+and independent rule/hash/HCE/path reconstruction. Both colors, one/two
+origins, pins/discoveries/check evasions and double pushes are covered. Test
+layer function-entry hooks observe make/ep maximum depth2 without changing
+Board contents, arguments or production code; source child e=-1 establishes
+the termination mechanism. No trial metadata poisoning or escape experiment
+is performed. Unit receipt SHA is
+`2e21ea646a7dfddc3c55d7e95bccb6ba80278a5f44b8b72a025f2f11c446a69d`.
+
+The first-cost24 ordinary sources remain frozen separately from that external
+unit source. Its final index SHA is
+`e82210b98dc5feaa58dc4140ac11a8e3cbd9817da4dff537313152a7aa8cc447`.
+Git's existing LF attributes require a later newline-only pack-recipe closure:
+226 CRLF pairs become LF, with identical parsed JSON and the other23 files
+unchanged. Original FINAL24/producing bytes remain preserved. No code/codec
+rerun or gate change accompanies this; the separate Git-final index SHA is
+`9b732710e32542bcb4239dde5781985d0fb9804b1de62e6cc5250c0e5354f9c2`.
+
+Two new CHECKPOINT1 audits are generated without target execution from the
+measured packets and unchanged loader. Root reads their complete identities
+and ELF headers before admitting scalar6025/
+`81931ddcd89feed7f87d5849db20ab0b21150ea7c63f30b207316986ed32b658`
+and HQ6243/
+`e894c94a6917aaf43817792659fefb0ff0716cf1f3c66da6d1be5e25613fbead`.
+Only the board fragment/comment, exact packer/verifier identity literals,
+recipe and README change. Builder/fresh, loader6, native7 and verifier
+function/class bodies remain unchanged; old source23 is retained externally.
+
+One ordinary normal builder reproduces native4/whole4/audit2 exactly, followed
+by one selected positive verifier's four shipping sessions/twelve GO and two
+pre-entry observations. Actual restored RX bytes, zero BSS/padding, guards/NX,
+new native entry resume, persistent three TIDs, active-worker shutdown, only
+stdio, reader EOF and natural physical exit0 pass. SSE4.2/CX16 admission remains
+the explicit local profile. Build/positive receipt SHAs are
+`fed982d44a7ec06641b442135751329043a205cf438d02518c762ea5a54a0d50` /
+`3786ac409f2c60e18b261d43fbbafdf07cc0a1d5ffc661770e33c47bca97382e`.
+Root's final source23/native4/whole4/audit2 readback index SHA is
+`852d923dc796da8037937160d9b3eb03c52f1a9899ca9af8204efa279b7900b7`.
+There is no new fresh/archive, negative campaign, general race proof, shipping
+stack/performance/scaling, game/strength or tournament-host qualification.
+
+### Separate A capture-only Move-bit first cost
+
+The next independent A candidate records capture-only classification in private
+Move bit3 while retaining17-bit TT moves and decoding FROM with119. The reused
+emitter argument distinguishes quiet/castle/doublepush0, nonpawn capture1,
+single pawn push2 and pawn capture/empty-target EP3. Promotion eligibility uses
+the pawn bit; quiet promotion retains capture bit0 and its existing ordering/
+noise/history behavior. This differs from B's promotion-inclusive tactical bit.
+
+One fixed cost changes current A9470 to9391 source bytes (-79) and complete
+4739 to4727 (-12); native remains22672 bytes but has a new entire identity.
+Eight exact regions/inverse and9130 protected complement bytes bind the source.
+One unchanged-argv compile and original fixed ALONE compression pass old/new
+strict transport restoration. This does not qualify tag semantics, legal
+children, TT17/private ABI, search/learning or runtime. Maintained A stays4739,
+and there is no automatic F application. The pending focused proof must check
+actual producer/classification, EP and all quiet/capture promotions, decoded
+children, text/query/witness/TT consumers and unchanged quiet ordering state.
+The actual first-cost receipt SHA is
+`e55a5cf1c56dad8fb852fac79cfef829f473020e2e7e912b6425ba6af3d1db85`;
+final five-source index SHA is
+`07443b69673554935cfdaaad7126dc745e642c5169a9db828d052eca18150bd4`.

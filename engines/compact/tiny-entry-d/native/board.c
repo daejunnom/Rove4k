@@ -48,8 +48,7 @@ static void ep(Board *p){
     for(int d=-1;d<=1;d+=2){
         int q=p->e-p->s*16+d;
         if(!(q&0x88)&&p->b[q]==p->s){
-            Board t=*p;t.b[q]=t.b[p->e-p->s*16]=0;t.b[p->e]=(int8_t)p->s;
-            if(!attacked(&t,p->k[p->s<0],-p->s))return;
+            Board t;if(make(p,MOVE(q,p->e,0),&t))return;
         }
     }
     p->e=-1;
@@ -63,7 +62,11 @@ static int rights(int q){return q==4?3:q==116?12:q==0?2:q==7?1:q==112?8:q==119?4
  * the castle rook exists; normalized EP proves its captured pawn exists.
  * Keep the king-capture prohibition: gen includes attacked king squares.
  * Keep the resulting own-king test: ordinary pins, EP discoveries and castle
- * destination attacks are intentionally filtered only after applying a move. */
+ * destination attacks are intentionally filtered only after applying a move.
+ * ep may also request a boolean-only trial from a provisional parent: valid
+ * side/king, empty target on the EP rank, opposing victim, and adjacent own
+ * pawn prove a nonpromoting EP capture. Its h/r may be unfinished. Discard
+ * the child; legality reads no h/r/v, and its e=-1 ends nested ep immediately. */
 int make(const Board *p,Move m,Board *t){
     int from=FROM(m),to=TO(m),prom=PROMO(m),s=p->s;
     int v=p->b[from],target=p->b[to];

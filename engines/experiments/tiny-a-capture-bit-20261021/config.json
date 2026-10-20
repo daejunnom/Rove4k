@@ -1,0 +1,25 @@
+{
+  "format": 1,
+  "family": "A",
+  "source_proposal_index_sha256": "e069242a83d16d41a2e68864185a993a101fbc64ac6437ea7ecd8bdcae3e84d3",
+  "transform_sha256": "725a8e5e6c0fcbb461e4aa879e350b1724e7c063b7b76718c4c9c5ab3ebd25b6",
+  "fixed_sha256": "8f2289f95369b7026c377d8349e8027a9e5d746c942e7334a3309fd2921bd358",
+  "normal_recipe_raw_sha256": "2e4ca82b2f55440fadba26578044504efdb847a261d2d0b1c9f172ea92dbeee9",
+  "normal_recipe_LF_sha256": "2e4ca82b2f55440fadba26578044504efdb847a261d2d0b1c9f172ea92dbeee9",
+  "baseline_root": "/home/stemxstudio/rove4k-a-lexical-scope-normal-20261021",
+  "baseline": {
+    "main.c": {"bytes": 9470, "sha256": "90b7d08d450ff6865bdc07873693f90f549dcf3d3a5cf411ad37c7609dd5c527"},
+    "native/x": {"bytes": 22672, "sha256": "28260858a130711bb5fa70816e950b7666440168e8835bb4802b98675b972422"},
+    "x": {"bytes": 4739, "sha256": "bcc529093299e2d6654b4bf9473442995df00a6ea3ab62c31bd4bd24c75f05d5"},
+    "bootstrap.py": {"bytes": 10460, "sha256": "fcbde190a2d2fe0e79760816664eb4b679c3b8ce46d781e0178f85a41535d38c"},
+    "build.json": {"bytes": 119451, "sha256": "7cd0b4cbc524230547e8bde7d7b797d26fa81f7d652f12a863753fbf33b7ceaf"}
+  },
+  "profile": {"workers": 2, "tt_bits": 18, "ply": 128, "dev_default": false},
+  "compiler": ["cc", "-Os", "-x", "c", "-", "-o", "x", "-s"],
+  "compression": {"format": "lzma-alone", "filter": "LZMA1", "preset": 9, "extreme": true, "lc": 2, "lp": 0, "pb": 0, "check": "NONE", "dictionary_bytes": 67108864, "header_hex": "0200000004ffffffffffffffff"},
+  "helper_sha256": {
+    "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
+    "engines/compact/tiny-entry-a/bootstrap.py.in": "898bf1f24168f6e99a7ffb9b0ba9e805af0c7627ea115d47ac687c1389d015ba",
+    "engines/compact/tiny-entry-a/launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
+  }
+}

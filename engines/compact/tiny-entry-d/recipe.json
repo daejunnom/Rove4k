@@ -9,7 +9,7 @@
   "target": "Linux x86-64 with SSE4.2 CRC32 and CX16; raw syscall static native plus admitted fixed-layout own-ELF",
   "native_source_sha256": {
     "native/tiny.h": "8bd51aece52f94cfe61f452d80c910357128c3ca4905ef610600dbc252a6cd6b",
-    "native/board.c": "d412aa04f0609c0b10217d021f18fc2a888b863ece09064ffd9ad02a337963db",
+    "native/board.c": "64ccfa2f3084e470612969e8686d15af86eca359c7b1110f55ba58f943df5c70",
     "native/search.c": "0a07b27600630b0278f802bbb59e2bbfa4ea3efef8357562ced2b4d571130a52",
     "native/runtime.c": "bd090ab06be2997e5bfb8c7cae37b6efef9443188925df84eb64a9bda7ea0eec",
     "native/hq.h": "ad66a03cef5288010c4377b81ee3661320195545aee6c664a42d3828bfc8b412",
@@ -75,23 +75,23 @@
   "expected": {
     "scalar-shipping": {
       "hq": 0,
-      "native_bytes": 7932,
-      "native_sha256": "890cf9a47918f3525ae8340999d5f1d0a9a34f51f9f4ed21b01fd6472fe2f96b",
-      "whole_bytes": 6064,
-      "whole_sha256": "ef992be19acbf77b8942c19bf98cd81f92a310be03e5d4ee290595ae3886ef88",
-      "payload_bytes": 4927,
+      "native_bytes": 7836,
+      "native_sha256": "ad76de1424f4de80cbb5c9c19966cb666716c2ed6fc9703d3a2400daae4f3268",
+      "whole_bytes": 6002,
+      "whole_sha256": "a95c25d791a39bb3d6d05fec010eb5407249c51fd9b2ad02be6045d8dd9c4b04",
+      "payload_bytes": 4865,
       "loader_and_headers_bytes": 1137,
-      "audit_bytes": 6087,
-      "audit_sha256": "9e8831581ee618d9ecb99373ee8eb39c312d7a7e696ea569e1b3a56e694cc07c",
+      "audit_bytes": 6025,
+      "audit_sha256": "81931ddcd89feed7f87d5849db20ab0b21150ea7c63f30b207316986ed32b658",
       "layout": {
         "bss_base": 4202496,
         "bss_pages": 176128,
         "bss_size": 175092,
-        "entry": 4201840,
+        "entry": 4201767,
         "guard_base": 4190208,
         "image_base": 4194304,
         "image_pages": 8192,
-        "image_size": 7932,
+        "image_size": 7836,
         "reserve_size": 192512,
         "section_count": 0,
         "section_names": 0,
@@ -104,8 +104,8 @@
             "offset": 0,
             "vaddr": 4194304,
             "paddr": 4194304,
-            "filesz": 7932,
-            "memsz": 7932,
+            "filesz": 7836,
+            "memsz": 7836,
             "align": 4096
           },
           {
@@ -131,28 +131,28 @@
         ],
         "upper_guard": 4378624
       },
-      "payload_sha256": "d33bf29872735253fcf84c7382d441f064a39511568b976c310589642339ce8d",
+      "payload_sha256": "b8836ff71531456d630513ef1511d9ae5dbe380c65c6347a7a42e2cf766b981d",
       "model_wmask": 16847486
     },
     "hq-shipping": {
       "hq": 1,
-      "native_bytes": 8288,
-      "native_sha256": "84261c1153d1e0d71b3241375423cf8a6ffc386a6058380a1b14abfc6d757efe",
-      "whole_bytes": 6253,
-      "whole_sha256": "a03667db1839b238c217968a35883bf99d2b32fb82f9f475c2e8c8dd8814222c",
-      "payload_bytes": 5116,
+      "native_bytes": 8224,
+      "native_sha256": "1c5d426eafa3100e82bd659fac8b347a9686e80f91849c27e5c534d954e8dfe5",
+      "whole_bytes": 6220,
+      "whole_sha256": "1a5060465975f99bafb0a961b3e5b362b09b2180465272dbe3103a4e59544156",
+      "payload_bytes": 5083,
       "loader_and_headers_bytes": 1137,
-      "audit_bytes": 6276,
-      "audit_sha256": "db6cdcfa09b94f0d9441384f5646678258d5e7cbeeaa9537ca149127f663985e",
+      "audit_bytes": 6243,
+      "audit_sha256": "e894c94a6917aaf43817792659fefb0ff0716cf1f3c66da6d1be5e25613fbead",
       "layout": {
         "bss_base": 4206592,
         "bss_pages": 176128,
         "bss_size": 175092,
-        "entry": 4202157,
+        "entry": 4202084,
         "guard_base": 4190208,
         "image_base": 4194304,
         "image_pages": 12288,
-        "image_size": 8288,
+        "image_size": 8224,
         "reserve_size": 196608,
         "section_count": 0,
         "section_names": 0,
@@ -165,8 +165,8 @@
             "offset": 0,
             "vaddr": 4194304,
             "paddr": 4194304,
-            "filesz": 8288,
-            "memsz": 8288,
+            "filesz": 8224,
+            "memsz": 8224,
             "align": 4096
           },
           {
@@ -192,13 +192,13 @@
         ],
         "upper_guard": 4382720
       },
-      "payload_sha256": "e900ddc25b11596c833298915f748b00ecbde00193280377624e8a736c7282c5",
+      "payload_sha256": "ee4162d9b98e5e0e8a8abaa56f33a113f4b118720c192bf98894f95c1a7be01d",
       "model_wmask": 135274878
     }
   },
   "qualified_receipts_metadata_only": {
-    "current_selection": "qualified local Linux x86-64+SSE4.2 CRC32+CX16 atomic128 full-key TT normal C D; one normal builder invocation and one selected positive verifier invocation",
-    "source_lineage": "exact four reviewed atomic128 TT fragments in native/tiny.h, search.c and runtime.c; unchanged native remainder, fixed21 CRC decoder, flags/resources/public policy",
+    "current_selection": "qualified local exact EP make-sharing C D over unchanged atomic128 TT and Linux x86-64+SSE4.2 CRC32+CX16 profile; sole normal builder and selected positive verifier",
+    "source_lineage": "Only two reviewed board.c fragments: EP trial calls make and its provisional-parent/discard contract comment; native7, atomic128 TT, resources, profile/CPU, loader/codec and runtime/search policy unchanged",
     "fixed21_firstcost": {
       "final_index_sha256": "2f06d3ecc4d9e0f5fb294f6adfe533aa4559867fd31b4fad10604ed4060a5bf3",
       "cost_sha256": "0f08bb54783aef070a3d75eefeb28a005868156452243513da624bf7708d8137",
@@ -535,7 +535,7 @@
       "scope": "one unchanged tracked fresh invocation terminal0 without retry, separate from failed discovery driver; actual bytes repeated and exact new RX/native identity/padding/BSSzero/guards/NX/originalentry + persistent threads/stdio/readers/groups observed; normal builder compiler rc0 only, no separate compiler-group observation",
       "postproof_metadata": "only README and recipe qualified_receipts_metadata_only differ from producing; other19 and all producing profile/expected/source/flags/model fields unchanged; no second fresh run"
     },
-    "existing_record_scope": "All pre-existing receipt fields below describe predecessor source/images only; they are not executions of this atomic128 candidate.",
+    "existing_record_scope": "All pre-existing receipt fields describe their producing predecessor source/images. Atomic128 source proof applies only to unchanged TT code; its old images/runtime receipts are not executions of the new EP images.",
     "atomic128_tt": {
       "firstcost_native_sha256": "01dc548ca98de6578e838ddd7dce47c0fc4eb0c0e73d6ca2ff44be18216efab3",
       "firstcost_whole_sha256": "22c86082262d1f3f3a6a0973bbf76e93a296d3e12e2a642aeb99f8b77d33a944",
@@ -561,6 +561,28 @@
         "limits": "No general TT/SMP race freedom, contention-drop causality, strength/performance, ignored-control/default-budget timing, exact context table unmap causality or current tournament CPU claim. Unchanged builder does not separately observe compiler descendants/groups. First-cost DATA diagnostics, positive TT unit and predecessor failure records remain distinct."
       },
       "final_metadata_scope": "Only README and recipe qualification metadata changed after producing normal run; producing source snapshot and raw receipts remain immutable. No re-execution after this overlay."
+    },
+    "ep_make_share": {
+      "native_firstcost_sha256": "b19caeb5a30ec83bc278a72ad4ccc959c091a3101129c2d9d87f2a926faef52b",
+      "whole_firstcost_sha256": "908d98b6755c308fda9d1e902a811d38b913e7d0e37d6a78876367afb9dd57ce",
+      "focused_positive_unit_sha256": "2e21ea646a7dfddc3c55d7e95bccb6ba80278a5f44b8b72a025f2f11c446a69d",
+      "focused_unit_source_manifest_sha256": "179c8e26e5529461c9e02e1622f665d71f55e31ec753695814b00fc068cedad4",
+      "root_cost_intake_sha256": "b80d197c351b80ab89d74e6b25d241033763d647005d1557a3182c8cc6d02a38",
+      "audit_discovery_sha256": "b83f11fc3e10da3c1e155a25775da9db0e01933289e933f9a4977a5de04b8762",
+      "root_audit_intake_sha256": "cbc7027129819d0d806823e60a3a978984e889a4523f90a5d0a6e1f18c617cfe",
+      "scope": "At the frozen first-cost/focused-unit/producing checkpoint: native2/encode2/loader2/DATA-helper2 and separate scalar/HQ ordinary ASan/UBSan unit2; each unit20roots/150full-state-child records/26FEN-history observations with actual make/ep max depth2. Normal target verification had not run at that checkpoint. New exact audit literals had been admitted by root without relaxing gates; later normal_positive below is separate.",
+      "discard_contract": "EP boolean trial parent may have unfinished h/r; geometry proves nonpromoting EP; child is discarded, legality reads no h/r/v and child e=-1 ends nested EP.",
+      "normal_positive": {
+        "build_sha256": "fed982d44a7ec06641b442135751329043a205cf438d02518c762ea5a54a0d50",
+        "verify_sha256": "3786ac409f2c60e18b261d43fbbafdf07cc0a1d5ffc661770e33c47bca97382e",
+        "readback_sha256": "630e7b4842624fd77c22a05583b7331928deb0f4f9f9ad483bd4b5eded1817a9",
+        "producing_source23_sha256": "a7c4ad7442df2c8123691dbba9c45db936dd2421da2c228f9bdca36dee2a0b3f",
+        "producing_recipe_sha256": "ce5f08c746724861eee9bb4bd91585b3b786880595248af4cef249688f2c44ec",
+        "producing_verifier_sha256": "bc11ea494a6b812f15d0a957712086d1de211e76ccff046a8fb1339360b6a921",
+        "scope": "sole normal builder1 terminal0: native4/whole-loader4/audit-loader2/encode4 exact; sole selected positive verifier1 terminal0: shipping4sessions/12GO and pre-entry2, natural cleanup/forced0 and recorded TIDs absent. All affinity CPUs0..7 expose SSE4.2+CX16. No fresh invocation.",
+        "limits": "No general TT/SMP race freedom, contention-drop causality, strength/performance, ignored-control/default-budget timing, exact decoder-table unmap causality or tournament CPU claim. Unchanged builder does not separately observe compiler descendants/groups."
+      },
+      "final_metadata_scope": "Only README and recipe qualification metadata changed after actual producing run; all other sources and producing recipe fields remain exact, with no re-execution after overlay."
     }
   },
   "shipping_protocol": {
