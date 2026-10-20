@@ -2,7 +2,8 @@
 """Build the maintained minimal B entry from Git source and fixed decisions.
 
 There are no experiment-directory, old build.json or executable inputs. The
-single shipping profile is fixed; --dev adds the unchanged diagnostic form.
+single shipping profile is fixed; --dev adds the unchanged old full-minimax
+reference model, which is distinct from production legal-LVA ordering.
 """
 import argparse
 import ast
@@ -46,7 +47,7 @@ def compile_c(command,source,directory):
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out',type=Path,required=True)
-    parser.add_argument('--dev',action='store_true',help='also reproduce the qualified diagnostic C and ELF')
+    parser.add_argument('--dev',action='store_true',help='also reproduce the old full-minimax diagnostic reference C and ELF')
     args=parser.parse_args();out=args.out.resolve()
     if not args.out.is_absolute() or out.exists() or out==REPO or REPO in out.parents or any((p/'.git').exists() for p in (out,*out.parents)):
         parser.error('a new absolute output outside any Git checkout is required')
@@ -56,7 +57,7 @@ def main():
     if recipe['format']!=1 or recipe['family']!='B' or recipe['profile']!={'workers':2,'tt_bits':18,'ply':128,'dev_default':False}:
         raise ValueError('unsupported entry recipe/profile')
     out.mkdir(parents=True);frozen=out/'inputs';frozen.mkdir()
-    report={'complete':False,'scope':'canonical minimal B with fixed shipping incoming-Move SEE specialization; not 4KiB acceptance',
+    report={'complete':False,'scope':'minimal B legal-LVA ordering after fixed shipping input; distinct old-minimax DEV reference; not 4KiB acceptance',
             'resources':recipe['profile'],'inputs':{},'attempts':[],
             'qualified_receipt_reuse':recipe['qualified_receipt'],
             'tools':{name:subprocess.check_output(command,text=True).splitlines()[0] for name,command in
@@ -87,6 +88,7 @@ def main():
         core=module('entry_B_shipping_core',frozen/'shipping_core.py').transform_source
         lexer=module('entry_fixed_identifier_lexer',frozen/'rename_c.py')
         input_profile=module('entry_fixed_BCE_input_profile',frozen/'fixed_input_profile_bce.py')
+        order=module('entry_B_shipping_order',frozen/'shipping_order.py').transform_source
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
         if template.count(marker)!=1 or len(prefix)!=77:raise ValueError('bootstrap recipe changed')
@@ -98,7 +100,7 @@ def main():
             if dev:preprocess_source,input_metadata=input_profile.transform_readable(canonical,family='B')
             active,observations=specialize({'main.c':preprocess_source},directory,recipe['preprocessor']+['-DDEV='+str(int(dev)),'main.c','-o','x'],os.environ.copy())
             data=compact(active['main.c'],'c')
-            alpha_metadata=None;storage_metadata=None;scope_metadata=None;core_metadata=None
+            alpha_metadata=None;storage_metadata=None;scope_metadata=None;core_metadata=None;order_metadata=None
             if not dev:
                 data,_=strip(data)
                 data,alpha_metadata=alpha(data,family='B',lexer=lexer)
@@ -106,7 +108,8 @@ def main():
                 data,scope_metadata=scope(data)
                 data,core_metadata=core(data,readable=canonical)
                 data,input_metadata=input_profile.transform_source(data,readable=canonical,family='B')
-            return data,observations,alpha_metadata,storage_metadata,scope_metadata,core_metadata,input_metadata
+                data,order_metadata=order(data)
+            return data,observations,alpha_metadata,storage_metadata,scope_metadata,core_metadata,input_metadata,order_metadata
         def package(source):
             expression,_=literal(source);script=template.replace(marker,expression.encode())
             ast.parse(script)
@@ -118,7 +121,7 @@ def main():
         first=None;first_dev=None
         for index in (1,2):
             directory=out/('attempt-'+str(index));directory.mkdir()
-            source,observations,alpha_metadata,storage_metadata,scope_metadata,core_metadata,input_metadata=generate(directory/'preprocess')
+            source,observations,alpha_metadata,storage_metadata,scope_metadata,core_metadata,input_metadata,order_metadata=generate(directory/'preprocess')
             if len(source)!=expected['source_bytes'] or sha(source)!=expected['source_sha256']:raise ValueError('compact C identity mismatch')
             (directory/'main.c').write_bytes(source)
             native=compile_c(recipe['compiler'],source,directory/'native')
@@ -132,10 +135,10 @@ def main():
             elif current!=first:raise ValueError('independent generation did not reproduce bytes')
             row={'attempt':index,'source_bytes':len(source),'source_sha256':sha(source),'native_bytes':len(native),'native_sha256':sha(native),
                  'whole_bytes':len(whole),'whole_sha256':sha(whole),'bootstrap_sha256':sha(script),'preprocessor':observations,
-                 'shipping_alpha':alpha_metadata,'shipping_storage':storage_metadata,'shipping_scope':scope_metadata,'shipping_core':core_metadata,'shipping_input':input_metadata}
+                 'shipping_alpha':alpha_metadata,'shipping_storage':storage_metadata,'shipping_scope':scope_metadata,'shipping_core':core_metadata,'shipping_input':input_metadata,'shipping_order':order_metadata}
             if args.dev:
-                dev,dev_observations,dev_alpha,dev_storage,dev_scope,dev_core,dev_input=generate(directory/'preprocess-dev',True)
-                if dev_alpha is not None or dev_storage is not None or dev_scope is not None or dev_core is not None:raise ValueError('diagnostic source entered shipping spelling/core stage')
+                dev,dev_observations,dev_alpha,dev_storage,dev_scope,dev_core,dev_input,dev_order=generate(directory/'preprocess-dev',True)
+                if dev_alpha is not None or dev_storage is not None or dev_scope is not None or dev_core is not None or dev_order is not None:raise ValueError('diagnostic source entered shipping spelling/core stage')
                 if sha(dev)!=expected['dev_source_sha256']:raise ValueError('diagnostic C differs from qualified control')
                 dev_command=recipe['dev_compiler']
                 dev_native=compile_c(dev_command,dev,directory/'dev');(directory/'dev/main.c').write_bytes(dev)
@@ -143,7 +146,9 @@ def main():
                 if first_dev is None:first_dev=(dev,dev_native)
                 elif first_dev!=(dev,dev_native):raise ValueError('diagnostic bytes did not reproduce')
                 row['dev']={'source_sha256':sha(dev),'native_sha256':sha(dev_native),'command':dev_command,'preprocessor':dev_observations,
-                            'exact_qualified_control_bytes':True,'shipping_input_readable':dev_input}
+                            'exact_qualified_control_bytes':True,'shipping_input_readable':dev_input,
+                            'model':'old full legal minimax reference; not production legal-LVA',
+                            'shipping_model_equivalence':False}
             report['attempts'].append(row);save()
         (out/'main.c').write_bytes(first[0]);(out/'native').mkdir();(out/'native/x').write_bytes(first[1]);(out/'native/x').chmod(0o755)
         (out/'x').write_bytes(first[2]);(out/'x').chmod(0o755);(out/'bootstrap.py').write_bytes(first[3])
@@ -152,7 +157,9 @@ def main():
         report.update(complete=True,source_reproduced=True,native_reproduced=True,whole_reproduced=True,
                       actual={'command':[str(out/'x')],'native':str(out/'native/x'),'source':str(out/'main.c'),
                               'whole_sha256':sha(first[2]),'native_sha256':sha(first[1]),'source_sha256':sha(first[0])},
-                      diagnostic_exact_control=bool(first_dev),under_4096_bytes=False)
+                      diagnostic_exact_control=bool(first_dev),under_4096_bytes=False,
+                      shipping_SEE_model='legal-LVA ordering only; QS SEE pruning disabled',
+                      diagnostic_model_equivalent_to_shipping=False)
         save();print(json.dumps({'complete':True,'out':str(out),'whole_bytes':len(first[2]),'source_sha256':sha(first[0]),
                                 'native_sha256':sha(first[1]),'whole_sha256':sha(first[2]),'diagnostic_exact_control':bool(first_dev)}),flush=True)
     except Exception as error:

@@ -83,7 +83,12 @@ def stripped_loader(data):
     return bytes(out)
 
 
-def compile_loader(directory, sources, payload, layout, flags, run, digest, checkpoint=False):
+def compile_loader(directory, sources, payload, layout, flags, run, digest, *, model_wmask, checkpoint=False):
+    # Native bytes/layout were admitted above; bind its private model literal.
+    fixed_model = {(7964, 0x401d97): 0x0101127e,
+                   (8352, 0x401ed4): 0x0810217e}.get((layout['image_size'], layout['entry']))
+    if type(model_wmask) is not int or model_wmask != fixed_model:
+        raise ValueError('unsupported exact native/model mapping contract')
     directory.mkdir(parents=True)
     payload_path = directory / 'payload.bin'
     payload_path.write_bytes(payload)
@@ -94,7 +99,7 @@ def compile_loader(directory, sources, payload, layout, flags, run, digest, chec
     definitions = {'IMAGE_BASE': layout['image_base'], 'IMAGE_SIZE': layout['image_size'], 'IMAGE_PAGES': layout['image_pages'],
                    'IMAGE_ENTRY': layout['entry'], 'BSS_BASE': layout['bss_base'], 'BSS_PAGES': layout['bss_pages'],
                    'GUARD_BASE': layout['guard_base'], 'RESERVE_SIZE': layout['reserve_size'],
-                   'CHECKPOINT': int(checkpoint)}
+                   'CHECKPOINT': int(checkpoint), 'MODEL_WMASK': model_wmask}
     command = ['cc', *flags, *[f'-D{name}={value}UL' for name, value in definitions.items()],
                str(sources/'loader.c'), str(assembly), '-Wl,-T,' + str(sources/'image.ld'), '-o', str(directory/'linked')]
     record = run(command)

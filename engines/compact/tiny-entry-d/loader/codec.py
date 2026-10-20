@@ -23,6 +23,7 @@ Encoder=_range_module.Encoder
 U32=(1<<32)-1
 U64=(1<<64)-1
 FORMAT='rove4k-context-h24-base10-u32-zero4-v1'
+PACKET_FORMAT='rove4k-context-h24-base10-fixed21-replay-zero4-v2'
 TABLE_BYTES=1<<25
 
 def sha(data):return hashlib.sha256(data).hexdigest()
@@ -123,9 +124,9 @@ def encode_context(data,model):
         if prefix<256 or prefix&255!=byte:raise AssertionError('local prefix invariant')
         history=((history<<8)|byte)&U64;prefix=1
     body=coder.finish()
-    header=struct.pack('<II',len(data)*8+1,weightmask)+masks
+    header=masks
     payload=header+body+b'\0'*4
-    return payload,{'format':FORMAT,'decoded_bytes':len(data),'coded_symbols':symbols,
+    return payload,{'format':PACKET_FORMAT,'decoded_bytes':len(data),'coded_symbols':symbols,
         'header_bytes':len(header),'arithmetic_body_bytes':len(body),'arithmetic_body_bits':coder.body_bits,
         'zero_tail_bytes':4,'payload_bytes':len(payload),'payload_sha256':sha(payload),
         'duplicate_slot_updates':alias_updates,'counter_wrap_updates':counter_wraps,

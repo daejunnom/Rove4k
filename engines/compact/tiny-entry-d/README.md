@@ -1,132 +1,133 @@
 # Maintained selected C D context own-ELF entry
 
-The readable raw-syscall engine is in native/. The independent fixed context
-encoder/decoder and guarded restorer are in loader/. Recipe pins ordinary
-source, exact native/payload/whole/audit identities, compiler/linker flags and
-order, fixed resources and finite public policy. Generated outputs stay outside
-Git. Normal builds read ordinary maintained source and installed compiler/
-Python standard library only; experiments, past reports/native/packet outputs
-are never normal inputs. The root MIT license applies.
+This snapshot connects the fixed21 model-replay first-cost sources and exact
+two native/packet/whole identities. New CHECKPOINT audit identities were
+compiled separately, independently read and specifically admitted by root:
+scalar6188B/df36408012057641f6d2ec625e65168f173d96fcd6767b50cebf4fc4cdb364a8,
+HQ6368B/8d4c4cebeba7133ce06c6224f8536745a6e70f88c512bb7c707fbfda4c66fecb.
+These were registered before the actual producing source/archive freeze.
+One unchanged normal fresh subsequently completed terminal0 without retry,
+as described below. Unknown audit identities remain rejected by the existing
+guards.
 
-| Form | Native | Complete own-ELF | Whole SHA-256 |
+| Form | Unchanged native | New complete own-ELF | Whole SHA-256 |
 | --- | ---: | ---: | --- |
-| Scalar | 7964 B | **6272 B** | 145cba2da1fd883b00b4f61ba825a2a87f69ddceb105504213d1b793041fae0c |
-| HQ | 8352 B | **6452 B** | c42602b427c98b88f7cf25ec1223634ae85a36c63e3b76790cf3ba920795a38f |
+| Scalar | 7964 B | 6165 B | 106f78f0a677b56051fd1034147dddcb133bb20360baed18c79cf0e4412a2342 |
+| HQ | 8352 B | 6345 B | c7936c39e9d36064d2b3399fd32619010e6280d31c5d59f42a02a12ce25d6875 |
 
-Both exceed4096B by2176/2356B. Measured complete costs improve41/54B over
-preserved6313/6506B controls. No strength, performance/scaling, eligibility or
-4KiB result is claimed.
+Both actual firstcost files are107B smaller than preserved6272/6452 controls,
+but still2069/2249B above4096. There is no strength, speed/scaling, eligibility
+or4KiB claim. The readable native engine is in native/; normal production
+reads ordinary maintained source and installed compiler/Python stdlib only,
+never experiment outputs, historical receipts or upstream implementations.
+The root MIT license applies.
 
-## One Board source specialization
+The new packet format is rove4k-context-h24-base10-fixed21-replay-zero4-v2.
+Its21 ordered mask bytes are followed by the existing arithmetic body and4
+real zero tail bytes. Native IMAGE_SIZE owns the u32 coded count8*N+1. Exact
+selected-model WMASK is passed explicitly through the internal producer API
+and bound to the exact admitted native/form geometry. MODEL_WMASK is cast to
+cx_u32 before shifts; w and weight reset once per coded bit, weight carries
+across21 models, and post-shift high24+mask reproduces each seed. Separate
+startup seeds[21]/weights[21] arrays and generic count/header parsing are gone.
+The84B slots array remains, all probabilities are read before the21 ordered
+updates, and colliding slots still receive every byte-wrap/opposite-halving
+update. Array removal is logical stack data, not105B file savings.
 
-Board8770B/SHA d412aa04f0609c0b10217d021f18fc2a888b863ece09064ffd9ad02a337963db
-changes only the residual walker fragment489→379B. Slider a3/4/5 always leaves
-through d_sliding+continue in both gen and attack modes; remaining own pieces
-are P/N/K on admitted start/FEN/generated-make Boards. The old inner ray visited
-at most one square for these pieces. The new code uses one 0x88-bounded target,
-retains pawn white12..13/black14..15, knight0..7 and king8..15 directions and
-order, and keeps attack-target return before friendly/pawn-EP generation
-filtering. Pawn pushes/doubles, four promotions, castle origin/transit, king
-capture prohibition, post-move own-king legality and EP normalization remain.
-No raw arbitrary Board/make API promise is added and no bounds guard removed.
+models.json keeps its unchanged model-source schema tag
+rove4k-context-h24-base10-u32-zero4-v1; this is distinct from the new packet
+ABI. Model masks/weights/order, H24/base10, software CRC32C, range_bits integer
+arithmetic, prefix/history and alias update semantics remain. Input length,
+real zero4, every bit-read end check, initial31 bits, sentinel, output bounds
+and final written/prefix checks are retained. Private fixed21 support is not
+an arbitrary model/container acceptance promise.
 
-Seven other native inputs, all six loader/encoder/model/decoder inputs, both
-linker scripts, compiler/flags/unit order and profile stay exact. Runtime's
-worker-owned best reset and pending0-after-output publication remain; think
-and direct-call seeded-best semantics are unchanged. The loader retains exact
-four-byte inverse-BCJ builtin copies and fixed context arithmetic.
+Actual packets are4971/5151B, SHA
+1ae6c71f2355aba3ca89bcc151585c832ddcb130621444c7f5c567276f893409 /
+86d0e63bf852bc8ac96576097531cf3134809e0ae837adf219e85b14ce7c7517.
+Their bodies4946/5126B and realzero4 are byteequal to previous packets; only8B
+of header disappear. WMASK4 moves into code. Actual whole cost includes176B
+ELF header/PHDR+1018B compiled text+payload, no otherrodata/padding, yielding
+1194B overhead versus1293B previously. Per-bit replay adds CPU work and can
+change register pressure; no runtime performance result is inferred.
 
-## Evidence and bounded qualification
+Firstcost receipt SHA
+0f08bb54783aef070a3d75eefeb28a005868156452243513da624bf7708d8137
+and final index SHA
+2f06d3ecc4d9e0f5fb294f6adfe533aa4559867fd31b4fad10604ed4060a5bf3
+cover one attempt: encoder2, positive libc decoder diagnostic2compiles2runs,
+and CHECKPOINT0loader2compiles. Every actual BCJ output and inverse fullnative
+matched; output canaries and table unmap passed. All8commands returned0 with
+leader reap/group absence and no forced cleanup. Independent static review
+243ffd8668a2365613dbdc39cc9260bf02dcc05a079bc5fef6fdacd024727c80
+and actual readback
+64a3c49e7bc22ddb81b4999a559a5af6d0f67132f1ea4dc2675ac7d21426aa2e
+are separate from future production restoration/pre-entry observations.
 
-Old ordinary21/archive and20 actual repeated native/whole/audit outputs were
-preserved before this integration. First-cost receipt
-96e7eda66d500b312e93f47b42fe55896f8f0f10bbf14ebfd8da6b84b14bc443
-records one native2/encode2/shipping-loader2 invocation and no target run.
-Normal guards admit only the two explicit new native identity/form/geometry
-tuples, never arbitrary two/three-page images. New CHECKPOINT1 identities were
-discovered without target execution and registered explicitly: scalar6295B/SHA
-ce72966846e52a7f72d49c577ad9eb799fd81b195308b5e02def39cf84526b8f,
-HQ6475B/SHA3660dc07190104f062fabe57e2f0603df21d94d47aa9c41cb487204f2a4f4547.
-They are distinct from shipping and all previous audit identities. The producing
-snapshot kept normal fresh pending; the subsequent sole fresh qualified these
-exact identities as recorded below.
+Native8, guarded loader.c/image.ld, range_bits.py/models.json, compiler/linker
+flags, unit order, resources and finite public policy are unchanged. WORKERS2,
+TT_BITS18/PLY128/DEV0, coherent full-key TT, HCE/PVS/QS/history/continuation/
+correction, legal move guards and worker-owned reset/pending0-after-output
+publication remain. Shipping uci emits uciok; stop/newgame/infinite are consumed;
+absent own clock uses1000ms budget (not a hard wall cap). Nextgo/position/quit/
+EOF stop and acquire pending0 after output before reuse; replay is transactional.
 
-External positive receipt
-de12090b363ff09fd38ac786fbfca875b5eff2a2552ae46b30446fefaf09a736
-and independent readback
-b8053fe8118ebc5c9c6fe4a6a5e5c6bb564430d987487a8f6faace2f1c087ae7
-cover actual compiled Board/HQ callers with one libcW1DEV1O2 harness, two
-candidate compiles/runs. Each records12roots/177Boards/22656attack queries,
-with independent fullstate/HCE/hash/context/legal-set/attack comparison.
-Friendly P/N/K defended squares, 0x88 endpoints, all16 quiet/capture promotions,
-both-side castles/transit/destination, legal/pinned/discovered EP, knight pin
-6/6 rejection and actual-generated kingcapture4 rejection passed. The last is
-a parser-admitted DEV-FEN guard witness, not legal game history. Scalar/HQ
-records/order match; old/new generation order uses the exact source-equivalence
-proof, not oracle order. This fixture is not shipping-Oz/LTO/loader/SMP/search
-qualification. No source function was replaced by a stub.
+Scalar native SHA24a6856e00fb902a2c11580616a8048f2832f8b9d0cf35a29a8861e5841eedb8,
+entry401d97/RX2/BSS402000/upper42d000/reserve2f000. HQ native SHA
+6acbd92ccd37b51b6745115336576a15ddaa1018e6521471a98e295bc2308626,
+entry401ed4/RX3/BSS403000/upper42e000/reserve30000. Both retain175092B BSS,
+43roundedpages, zero writable filebytes, lowerguard3ff000 and NX stacks.
 
-After frozen-source and literal audit review, one unchanged normal fresh
-completed terminal0 without retry. Its23 ordinary archive members are local21
-plus pinned oracle/LICENSE. Two independent extractions regenerated native8,
-shipping-loader8 and audit-loader4 plus4 metadata commands with exact repeated
-native/packet/whole/audit bytes. Actual shipping8sessions/24GO and pre-entry4
-passed: exact restored native RX/padding, initial BSS/padding zero, guards/NX,
-persistent startup2workers, legal results and natural target/reader/group
-cleanup. Compiler commands recorded rc0; compiler descendant/group absence was
-not separately observed by the unchanged builder.
+The restorer retains RIE rejection and MAP_FIXED_NOREPLACE guarded reservation,
+RW-only image decode, private kernel-zero32MiB RW context table, checked table
+munmap before inverse BCJ, native RW-to-RX plus separate zeroBSS RW, and original
+stack/entry handoff. It never requests RWX. CHECKPOINT is after table unmap,
+BCJ and final RX/BSS protections, before native initialization/workers.
+New preentry observations cover restoredRX/padding, initialBSS/paddingzero,
+guards/NX and original entry resume; shipping observations cover actualnative
+identity and persistent startup workers. No additional exact context-table
+address/unmap-causality observation is claimed beyond the source contract.
 
-Fresh receipt SHA
-3a32b4420c299c2f826cf90d7c8760578e275abb7da16179dc5c00936a2c82c5,
-actual readback SHA
-1a23327828611fc264cb420089ec1298dfc23ec9d03604e58aa00a4945883ec0.
-Producing source21 set
-98508ad3a56ae2732187a6eacba49d9bcd680c98303daef9984d617b4d2ff2b2,
-recipe SHA4f116a987b27901ae018478af7a2974af678bd1c3e5b4842e59623a338db5c37,
-archive23 SHA6705c0c3e251d827b7bb33681b55276adb5622c1c670c0e512f9ad0734076cfc
-remain separately frozen. Independent pre-fresh source/literal review SHA
-0b3d67488f6f4111ac1e6a1b32e84b8d42db266cb880a416f9d0e220e8f99984
-and the independent actual readback pin are qualification metadata in recipe.
+Old normal21/source23 and20 repeated native/whole/audit controls are preserved
+outsideGit. Prior unchanged-native/runtime proofs remain scoped ancestry; old
+decoder audit/fresh receipts do not qualify these new whole/audit identities.
+Audit discovery reused exact firstcostnative/packet and compiled CHECKPOINT1
+only twice, with no encoder/native/shipping compile or target execution.
+Discovery receipt SHA
+9d886f3ce1ecedbd3b68d715a796d4c686cb9cf58b574dbe8caf9d65655dc6ce
+and independent source/actual-audit read reviews are recipe metadata. These
+new literals were registered only after specific root intake. One unchanged
+fresh archived23 ordinary members, extracted twice independently and regenerated
+native8/shippingloader8/auditloader4 plus4 metadata commands. Actual source,
+native/packet/whole/audit bytes repeated exactly. Shipping8sessions24GO and
+positivepreentry4 passed with new restoredRX/BSSzero/padding/guards/NX and
+natural target/readergroup cleanup, forced0. Compiler command records are rc0;
+compiler descendant/group absence was not separately observed by the unchanged
+builder. No old audit SHA was inherited and no guard was broadened.
+
+Actual fresh receipt SHA
+5c431c0417c82f2c579d198c27a754ba6a928a33c06b8ac33b4e7a977bf0e113,
+readback SHAc76b705fce499646a46e938280e1b9fa340e57b252aaaffd2668f5351b081572.
+The actual producing source21 set is
+99512203f9fa3136b3a845248efde9c96610a1e57b39b716c1b5337314d73a5a,
+recipe SHAdbc976c0092252b0eaeeb12cf4bd6313e5f48325a4986b25fe286f88ae6dc2d8,
+archive23 SHA3fed6efd269a4f0a054cbb8b3637fda539e2136d9ae4ef45639e2acb64d63caa.
+These remain separately frozen; independent actual read reviews are pinned in
+recipe qualification metadata.
 
 ```sh
 python3 -I -B engines/compact/tiny-entry-d/build.py --out /absolute/new/build
 python3 -I -B engines/compact/tiny-entry-d/fresh.py --out /absolute/new/fresh
 ```
 
-## Fixed policy, resources and image boundaries
+Audit literals are now admitted; the above commands still require the exact
+source/profile/native/packet/whole identities. No RIE/ptrace/register/
+personality negative, fault/synthetic/cancellation, game or benchmark campaign
+belongs to this integration. Recipe receipt hashes are provenance metadata
+only, never normal build inputs. Root owns Git/global docs/CI.
 
-Shipping uci emits only uciok; isready, legal startpos histories, clocked GO,
-quit and EOF are supported. stop/ucinewgame are consumed without cancellation/
-TT clear; infinite is an unsupported consumed token. Missing own clock gives
-1000ms budget and present zero/invalid own clock gives at least1ms under the
-fixed formula. This budget is not a hard wall cap. NextGO/position/quit/EOF
-request stop and acquire pending0 after output before storage reuse. Input
-replay is transactional. This is minimum TCEC4k policy, not general TCEC UCI.
-
-WORKERS2/TT_BITS18/PLY128/DEV0, fixed startup clone/futex workers, coherent
-nonwaiting full-key TT, HCE/PVS/QS/history/continuation/correction, halfmove/
-FIDE-key/legal-EP/repetition context and PLY guard remain. No new DEV identity,
-fault/game/benchmark/general-race or private zero-iteration claim is made.
-
-Scalar native SHA24a6856e00fb902a2c11580616a8048f2832f8b9d0cf35a29a8861e5841eedb8,
-entry401d97/RX2/BSS402000/upper42d000/reserve2f000. HQ native SHA
-6acbd92ccd37b51b6745115336576a15ddaa1018e6521471a98e295bc2308626,
-entry401ed4/RX3/BSS403000/upper42e000/reserve30000. Both retain175092B BSS,
-zero writable file bytes,43roundedpages, guard3ff000 and NX stacks.
-Packets4979/5159B SHA45efddf2d4c7067c32c2cfc0c2ffc7d10ba95429b1cef30f118e4afdc940dc80 /
-aa8ce58790639ec54a3634a2a503f7997f74e825d8341ba49f695303f1c20309
-have29Bheader+4946/5126Bbody+4realzero tail; actual header/loader overhead1293B.
-Encoder applies BCJ once. Fixed H24/base10/21model/u32-length integer context
-uses a private32MiB kernel-zero RW table, checked decode/unmap, inverse BCJ,
-native RW→RX and separate BSS RW protection, then native entry. CHECKPOINT
-stops after these steps before native BSS init/worker creation. Existing guarded
-policy never requests RWX and keeps READ_IMPLIES_EXEC rejection. No RIE,
-ptrace/register/personality negative or new fault campaign belongs here.
-
-Recipe qualification hashes are metadata only. Prior exact runtime/kernel/
-loader and previous-image receipts remain scoped ancestry, not execution of
-this new native. After the successful sole fresh, only README and recipe's
-qualification metadata were overlaid. All other19 local files and recipe's
-source/profile/flags/policy/expected fields stay producing-exact. The actual
-producing recipe/source/archive remain separately frozen; this explanatory
-metadata overlay is not a second fresh execution.
+After the sole successful fresh, only README and recipe qualification metadata
+were overlaid. The other19 localfiles and all recipe source/expected/profile/
+flags/model/policy fields remain producing-exact. This explanatory finalsource
+archive is not a second fresh execution. No new DEV identity, broadcore/fault,
+generic race, strength, startup timing or performance result is claimed.

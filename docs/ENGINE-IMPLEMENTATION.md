@@ -179,9 +179,9 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
 | A | 4,766 B | 670 B | Order-independent text profile, shared startup/query, bound names and original ALONE |
-| B | 5,461 B | 1,365 B | Shared bounded text/query profile, incoming-move legal SEE, hybrid attackers/singular and ALONE |
+| B | 5,426 B | 1,330 B | Shared bounded text/query profile, declared legal-LVA ordering, hybrid attackers/singular and ALONE |
 | C | 5,173 B | 1,077 B | Shared bounded text profile, real AVX2 residual-feature dot, fixed TT/sort/clamp specialization and ALONE |
-| D scalar / HQ | 6,272 / 6,452 B | 2,176 / 2,356 B | Own context ELF, single-step residual leapers, worker reset and guarded BCJ restoration |
+| D scalar / HQ | 6,165 / 6,345 B | 2,069 / 2,249 B | Own fixed21 model-replay context ELF, residual leapers, worker reset and guarded BCJ restoration |
 | E | 5,281 B | 1,185 B | Shared bounded text/query profile, all 21 untrained coefficients, fixed TT/sort/clamp specialization and ALONE |
 | F | 4,735 B | 639 B | Full-depth MTD(f), shared EP legality, order-independent text profile and fixed ALONE |
 
@@ -3512,10 +3512,45 @@ receipt is
 `01daf1ba45610f8121cc18ec5f781dea3eff46ddf250ff32c7aab59d48ed168e`;
 whole identity is
 `cb19a87f31df9b27ff76f445518768f6a051c51056e9ba6f2ddc53e3eb4a5093`.
-One native compile, one ALONE encoding and two pure strict decodes run, with
-no baseline compile/copy, engine/oracle, DEV or strength execution. Model
-qualification and normal selection remain separate work. Both producing and
-final ordinary source sets are retained; generated artifacts stay outside Git.
+One native compile, one ALONE encoding and two pure strict decodes run in that
+cost stage, with no baseline compile/copy, engine/oracle, DEV or strength
+execution. Both producing and final ordinary source sets are retained;
+generated artifacts stay outside Git.
+
+Separate model qualification subsequently passes one production-source
+include-fixture compile/run. An independent 64-cell oracle supplies 85 legal
+score/state/policy rows, two illegal initial moves, two normalized-EP exclusions
+and six immediate/deep cancellation/deadline guards. Actual child placement,
+side, EP, halfmove and rights, plus rebuilt native hash/HCE/bitboards, agree.
+All selected-source promotion branches are evaluated. A losing queen
+continuation is declined as zero; pinned attackers, king safety and EP removal
+are covered. The fixture-only external clock does not change target source
+bytes and does not establish production wall-clock behavior.
+
+The explicit FEN `k7/8/2p1B3/3n4/1rP1P1K1/1b6/8/8 w - - 0 1`, e6d5,
+has independent full-minimax score +90 and actual legal-LVA score -10.
+The rotated case scores +90 under its different ctz priority. This documents
+the intended model difference, not equivalence or a strength improvement.
+Focused proof/final receipts are
+`5bb133e2d840c61c4d1f8fcee8042080ad1ebcfafdb0acfbafb18c37c08a9aa1` /
+`08793fb0790909aa6057f6f42c3cf4630b23624a240c1fbf4e1caf52803dc462`.
+
+The new pure ordinary B-only shipping_order.py is applied after the unchanged
+input helper. It embeds its literal roles/counts, input/output pins and
+11,083-byte protected complement; normal builds read no experiment/report/AST.
+Canonical and DEV retain full legal minimax as an explicitly different
+reference model. One normal builder reproduces the new shipping twice and
+the old full DEV tuple twice. One unchanged verifier passes two actual
+quit/EOF sessions and eight legal GO, with the new full native image, three
+startup TIDs, readers, private-path removal and physical exit. No additional
+focused wrapper, fresh rebuild, oracle, game or benchmark is run. Stack and
+strength are not qualified; cancellation causality remains unproven. B's
+ordinary closure is now 22 files. Actual normal build/runtime receipts are
+`f9c1c3b969cae739885dd3cccf2c5f6d88768504ae7ca67d46dbbd4e697a91c2` /
+`a2d12a0fe8cafca23a9a4a4b862e655dc6364fc4d0c5ceeda9904668919b608c`.
+Producing and completion-only metadata are separately preserved; final
+source handoff is
+`692f41fab64ef6d68203b515fbaf6022a723cba44ded1cf79120c303ffd472f6`.
 
 ## D fixed-model replay: first complete-file cost
 
@@ -3542,5 +3577,86 @@ is executed in this stage. Actual cost receipt is
 final six-file experiment index is
 `2f06d3ecc4d9e0f5fb294f6adfe533aa4559867fd31b4fad10604ed4060a5bf3`.
 No native/control compile, control encode, negative fault, sweep or retry
-runs. The existing normal D selection stays in force until separately
-discovered audit literals and unchanged positive fresh qualification close.
+runs. The first-cost stage does not inherit the previous whole's physical audit.
+
+Normal integration now closes that separate qualification. The required
+internal MODEL_WMASK argument is bound to the exact admitted native/form
+geometry. The packet tag changes in the encoder, builder and verifier while
+the model-source tag and integer coder stay unchanged. The independently
+checked native/full-layout guards and physical observer bodies are retained.
+Seven ordinary files change; native8, loader.c/image.ld, range_bits/models,
+fresh.py, flags and resource policy remain unchanged. The closed normal
+source set stays 21 local files plus oracle and LICENSE.
+
+Separate CHECKPOINT1 discovery reuses exact first-cost native/packet inputs
+and compiles two audit loaders without executing them. Root and an independent
+reader inspect actual bytes, program headers and the entire embedded packet.
+Only the observed scalar 6,188/df364080... and HQ 6,368/8d4c4ceb... audit
+identities are registered in the recipe and independent verifier literals.
+The discovery receipt is
+`9d886f3ce1ecedbd3b68d715a796d4c686cb9cf58b574dbe8caf9d65655dc6ce`.
+
+One unchanged fresh campaign then passes two independent closed 23-member
+source extractions. It performs eight native, eight shipping-loader and four
+audit-loader compiles. Both forms' native/full whole/audit bytes reproduce
+across both extractions. Eight production quit/EOF sessions run 24 legal GO;
+four positive pre-entry audits observe exact restored RX bytes and padding,
+zero BSS and padding, guards, NX and original-entry resume before natural
+target/reader/process cleanup. No additional native fixture, negative fault,
+RIE/ptrace/register/personality campaign, retry, game or benchmark is added.
+Actual fresh receipt is
+`5c431c0417c82f2c579d198c27a754ba6a928a33c06b8ac33b4e7a977bf0e113`;
+actual readback is
+`c76b705fce499646a46e938280e1b9fa340e57b252aaaffd2668f5351b081572`.
+The producing archive and later qualification metadata stay distinct.
+
+## F lexical reuse: equal source/native size, larger complete file
+
+A separate fixed-current-F experiment inventories one-character automatic
+locals and definition parameters directly, rather than invoking the older
+long-name eligibility path. It uses original physical declaration/reference
+positions and deterministic greedy aliases. Globals, statics, members, types,
+ABI, macros, external names and opaque spans stay protected; unsupported
+name/type observers and variably modified type contexts are excluded. Each
+accepted trial requires zero parser errors, exact declaration/type shapes,
+original-position reference bindings with multiplicity, remaining tokens,
+header closure and positional inverse/complement. This fixed-source CIndex
+projection is not an arbitrary-C equivalence claim. The pinned external
+ice4 renamer informs the comparison only; no upstream implementation is copied.
+
+Revision 1 aborts when ordinary alias-collision diagnostics hit Clang's default
+fatal error-count limit. Its source, fatal trial and incomplete checkpoint are
+preserved. Explicit revision 2 adds only `-ferror-limit=0`; ordinary errors
+still reject aliases and genuine fatal/nonlocal errors still abort. One fresh
+60-second pass processes 102 of 169 eligible declarations. All 169 start with
+one-character names. Greedy completion is false, but an independent final
+parse validates the retained candidate: 94 changed declarations/490 physical
+identifier positions, 278 declaration shapes and 2,429 reference edges with
+multiplicity. The 544 parses and 60.679 seconds belong to source analysis,
+not a codec or engine search. V1's failed 86 parses are separate evidence.
+
+The validated candidate is still 9,728 source bytes. One normal-argv stdin
+compile gives the entire old 18,576-byte native exactly; no metadata exception
+is used. One unchanged ALONE encoding nevertheless grows the complete file
+4,735 to 4,763 bytes (+28), so the candidate is rejected and normal F stays
+4,735 bytes. Strict bootstrap/source/argv recovery passes for baseline and
+candidate. No control compile/copy, additional AST/PP, engine/wrapper, DEV,
+normal promotion, game, benchmark or retry follows this cost. Compiler-group
+absence is not separately observed by the unchanged compile helper.
+Source-only v2 and cost final indices are
+`ee5506b4eacb7c555e967fe6db0810e4c5a56e1aed13ee1232e1120138d536c3` /
+`621b3cb56572b630611e98afa6f90c93fa3e9ce13c43bec675b2dab61af30245`;
+actual cost receipt is
+`90f523773740ae5b05566a69319bd2d7127dbe35f42981831a448e884447a151`.
+Producing ordinary source5 stays frozen separately from external results.
+
+The preceding B/C/E promotion head `2c4482bc60ebf66c2e16010f94564152b5450921`
+passes both jobs in
+[C/Rust engine CI](https://github.com/daejunnom/Rove4k/actions/runs/39446196913)
+and [repository lifecycle](https://github.com/daejunnom/Rove4k/actions/runs/39446196928).
+The later B/D promotion and F failed-cost head reports its own checks in the
+draft PR. No family yet meets 4,096 bytes. Final resource/ISA profiles,
+integrated parallel-policy comparisons, scaling and strength remain open;
+training and AWS remain outside the active goal's scope. A/F's next bounded
+source lane investigates duplicated hash/HCE remove/add updates with explicit
+empty-piece hash zero, without changing the maintained entries at this point.

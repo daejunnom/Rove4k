@@ -53,7 +53,8 @@
     "engines/compact/tiny-entry-b/shipping_storage.py": "5663d0b8bbf494354cebe4cce3a709fc05dc32d88407a6b367277dfac0830662",
     "engines/compact/tiny-entry-b/shipping_scope.py": "239bd0bdf0506e9f3334f75b5deb871479d59599e44bbb0d4ed3ecd881f13c0e",
     "engines/compact/tiny-entry-b/shipping_core.py": "02806d5c811bb1c5964c691751c69ad1a48585308d1edbd7e2eff47fe96784f3",
-    "engines/scripts/fixed_input_profile_bce.py": "cc3c82d2e4f77f7231d4bafaac5f446a9aa5c0320762e0902a6f32ecc5a7209e"
+    "engines/scripts/fixed_input_profile_bce.py": "cc3c82d2e4f77f7231d4bafaac5f446a9aa5c0320762e0902a6f32ecc5a7209e",
+    "engines/compact/tiny-entry-b/shipping_order.py": "82ee301901fb147ae33723f302ff06663b919b91a6d27b1986a5cfe54be2ceb2"
   },
   "compression": {
     "format": "lzma-alone",
@@ -70,15 +71,15 @@
   },
   "expected": {
     "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
-    "source_bytes": 11829,
-    "source_sha256": "11a32cc6c48ad16856e7968c5ba91456257c1b249590f0aa71a371d2fd276a93",
-    "native_bytes": 26392,
-    "native_sha256": "f25e810153adc990337f82311265197ed07bc3b480b8860c40f5808c44ef4c5e",
-    "whole_bytes": 5461,
-    "whole_sha256": "b0a3812a2f01b3989d01dd42dd8d5d4447ef75bb0b0f864831f4a46056b02971",
+    "source_bytes": 11702,
+    "source_sha256": "d0b914e337f56623f7d1028381ccc4b012da02c4bc0681737a7a6a6e571274c7",
+    "native_bytes": 26400,
+    "native_sha256": "9f7868ed7527303b6407fa4c53597d1225a7c944d901437d113b90b76fb0cce0",
+    "whole_bytes": 5426,
+    "whole_sha256": "cb19a87f31df9b27ff76f445518768f6a051c51056e9ba6f2ddc53e3eb4a5093",
     "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
     "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
-    "bootstrap_sha256": "2e53f505c6715e644d9ecb66660e773f18c19700be9fa4112b1c5aefa0337b51"
+    "bootstrap_sha256": "452ee45cf1323c68f24af72800e1caccd3ca1fb0787a1196233f6b9f48fe71fa"
   },
   "local_input_sha256": {
     "engine.c": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
@@ -105,7 +106,7 @@
     "new_image_cost_sha256": "d5d4729a808e031f5f76d63e946be00a2e321c16ae47a8bb919d8d723debf9d4",
     "metadata_pure_fixtures_sha256": "501ee00b28ba77a5192f09a3630a696ba74909062e44731561ed4708963d3e6e",
     "actual_file_readback_sha256": "84030a2193e74b2804dbba3d294aae1bd41247583ec1a08a8b9c03b7217fae13",
-    "scope": "Historical predecessor receipts retained as ancestry; current shipping code is admitted by incoming_SEE_specialization and separately bound normal reproduction/selected-wrapper checks; no old code/image exception inherited.",
+    "scope": "Historical predecessor receipts retained as ancestry only. Current shipping is declared legal-LVA ordering after fixed input; exact new source/native/whole gates, focused production-model fixture and separate normal reproduction/selected wrapper qualify this class. No old minimax model, image or stack equivalence is inherited.",
     "private_static_locals_and_codec": {
       "scope": "historical qualification metadata only; no report, experiment or AST runtime dependency; no previous full-native identity claim",
       "source_freeze_sha256": "a5aafc2537b38319da1a0f829d9b3ec1fe994dc64713ff798bcc8e0cfbfd380f",
@@ -251,15 +252,101 @@
         "fresh_runs": 0,
         "compiler_descendant_absence": "not separately observed by unchanged compile helper"
       }
+    },
+    "legal_LVA_ordering": {
+      "scope": "shipping-only declared model/search-policy change after fixed input; canonical/DEV old full-minimax remains reference only",
+      "previous_maintained_expected": {
+        "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+        "source_bytes": 11829,
+        "source_sha256": "11a32cc6c48ad16856e7968c5ba91456257c1b249590f0aa71a371d2fd276a93",
+        "native_bytes": 26392,
+        "native_sha256": "f25e810153adc990337f82311265197ed07bc3b480b8860c40f5808c44ef4c5e",
+        "whole_bytes": 5461,
+        "whole_sha256": "b0a3812a2f01b3989d01dd42dd8d5d4447ef75bb0b0f864831f4a46056b02971",
+        "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
+        "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
+        "bootstrap_sha256": "2e53f505c6715e644d9ecb66660e773f18c19700be9fa4112b1c5aefa0337b51"
+      },
+      "first_cost_sha256": "01daf1ba45610f8121cc18ec5f781dea3eff46ddf250ff32c7aab59d48ed168e",
+      "first_cost_final6_sha256": "447852cc66aebb0121765f3bc8dc5eaa208e12d9c3af39b095437a6563fc1c48",
+      "focused_proof_sha256": "5bb133e2d840c61c4d1f8fcee8042080ad1ebcfafdb0acfbafb18c37c08a9aa1",
+      "focused_final_receipt_sha256": "08793fb0790909aa6057f6f42c3cf4630b23624a240c1fbf4e1caf52803dc462",
+      "declared_model": "first legal pre-capture P/N/B/R/Q/K kind then ctz source; all selected-source promotions maximized; optional decline0",
+      "QS_SEE_negative_pruning_disabled": true,
+      "approximate_negative_is_pruning_certificate": false,
+      "full_minimax_equivalence": false,
+      "DEV_model_equivalent_to_shipping": false,
+      "counterexample": {
+        "old_independent_minimax": 90,
+        "actual_production_LVA": -10,
+        "old_binary_compile_run": 0
+      },
+      "focused": {
+        "root_rows": 46,
+        "selected_subcall_rows": 43,
+        "legal_score_state_policy_rows": 85,
+        "illegal_initial_rows": 2,
+        "normalized_EP_excluded_rows": 2,
+        "cancel_deadline_guards": 6,
+        "fixture_only_external_clock_port": true,
+        "production_wallclock_evidence": false
+      },
+      "old_minimax_visits_DEV_stack_evidence_inherited": false,
+      "whole_stack_qualified": false,
+      "runtime_strength_claim": false,
+      "metadata_exception_applied": false,
+      "normal_validation": {
+        "status": "complete",
+        "normal_build": {
+          "bytes": 77864,
+          "sha256": "f9c1c3b969cae739885dd3cccf2c5f6d88768504ae7ca67d46dbbd4e697a91c2"
+        },
+        "normal_runtime": {
+          "bytes": 17753,
+          "sha256": "a2d12a0fe8cafca23a9a4a4b862e655dc6364fc4d0c5ceeda9904668919b608c"
+        },
+        "executed_recipe": {
+          "bytes": 18591,
+          "sha256": "147a022ac50b1c2cff75369f680c92f035091a282eb239be204aeefa3f1d13c1"
+        },
+        "executed_README": {
+          "bytes": 7895,
+          "sha256": "fc32ca78486763f856837e8a6325230496006c5fa6fbd02280a77ff7aeb26a73"
+        },
+        "producing_B22_manifest": {
+          "bytes": 4864,
+          "sha256": "012ee35020e7fed0aa345fabe01c94cd3ca5999c68125c60ad3246aa48479c5c"
+        },
+        "source_closure_count": 22,
+        "normal_builder_invocations": 1,
+        "actual_shipping_reproductions": 2,
+        "actual_DEV_reference_reproductions": 2,
+        "old_DEV_source_full_native_observed": true,
+        "DEV_model_equivalent_to_shipping": false,
+        "unchanged_verifier_invocations": 1,
+        "actual_selected_quit_EOF_sessions": 2,
+        "legal_GO_results": 8,
+        "new_full_native_image_exact": true,
+        "startup_TIDs_per_session": 3,
+        "physical_exit_readers_private_path": true,
+        "cancellation_causality": "unproven",
+        "fresh_runs": 0,
+        "focused_fixture_model_oracle_reruns": 0,
+        "DEV_engine_executions": 0,
+        "games_benchmarks": 0,
+        "compiler_descendant_absence": "not separately observed by unchanged compile helper; actual selected native sessions observed no helper children",
+        "metadata_exception_applied": false
+      }
     }
   },
   "provenance": {
     "origin": "maintained readable Tiny B with bitboard/mailbox attackers, legal SEE, qualified singular and minimal shipping UCI",
-    "source_decisions": "Unchanged canonical preprocessing/counter stripping/shared89/storage/static+scope maps admit the exact old12220 shipping source first; one B-only fixed post-spelling incoming-Move SEE stage produces12148. Canonical/DEV API and all old mapping guards stay unchanged.",
-    "native_identity_class": "New exact restored compiler-stdin native26392; old metadata equality class is historical only and no metadata exception is applied.",
+    "source_decisions": "Unchanged canonical preprocessing/counter stripping/shared89/storage/static+scope maps and incoming-Move core helper produce12148; unchanged fixed input stage admits11829; one B-only fixed legal-LVA ordering stage produces11702. All previous mapping guards stay unchanged. DEV bypasses the new ordering stage and remains old full-minimax reference, not a production-model equivalent.",
+    "native_identity_class": "New exact restored compiler-stdin native26400; historical full images/metadata/stack classes do not apply and no metadata exception is used.",
     "storage18": "new exact B-only embedded policy after unchanged shared89 stage; no resource/flag/codec change; old full-native-identity failure preserved",
     "static_and_scope_replay": "Two exact physical declaration/reference maps after the existing shipping spelling stages; no runtime AST/name allocation; DEV bypasses all shipping stages.",
     "shipping_codec": "Fixed LZMA1 ALONE 9 extreme/lc2/lp0/pb0/BT4/64MiB dictionary/nice 32 and 77-byte launcher; no container checksum or codec sweep.",
-    "incoming_SEE": "Ordinary family helper binds canonical28953, readable1085 proposal, old/new paired shipping fragments and full outputs with literal roles/counts/inverse/complement. It reads no external report/experiment/AST; DEV bypasses it."
+    "incoming_SEE": "Ordinary family helper binds canonical28953, readable1085 proposal, old/new paired shipping fragments and full outputs with literal roles/counts/inverse/complement. It reads no external report/experiment/AST; DEV bypasses it.",
+    "shipping_order": "Ordinary embedded paired readable/physical literals, fixed counts/roles, full input/output identity, three disjoint inverse regions and all-gap complement; exact ordering unknown guard, QS negative SEE clause removed; no experiment/report/Clang/sourceartifact dependency."
   }
 }
