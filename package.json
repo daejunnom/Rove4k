@@ -13,6 +13,7 @@
     "test": "node tools/nvcompact/scripts/test-cli.mjs",
     "test:core": "node tools/nvcompact/scripts/cargo.mjs test --workspace --locked",
     "test:nvcompact": "npm test && npm run test:core",
+    "test:comparison": "node --test tools/nvcompact/scripts/compare-results.test.mjs",
     "pack:nvcompact": "node tools/nvcompact/scripts/pack.mjs",
     "pack:cli": "npm run pack:nvcompact",
     "verify:package": "node tools/nvcompact/scripts/verify-package.mjs",

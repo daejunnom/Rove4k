@@ -1,0 +1,2103 @@
+{
+  "format": "nvcompact.pr13.metadata-evidence.v1",
+  "status": "pass",
+  "engine_or_compiler_or_verifier_started": false,
+  "scope": "Read-only projection of actual full artifact/hash comparisons and previously recorded receipts. No engine source, compressed payload or executable bytes are embedded. No new UCI, runtime, strength or semantic acceptance is issued.",
+  "canonical_builds": {
+    "inventory_sha256": "114e8d330acf087046174475f3a041f881c152db7a5211c6d279f867758ee6f9",
+    "source_commit": "0e716e0b366272c66749f6e7194f64cb715e2d00",
+    "canonical_failure_count": 7,
+    "canonical_failures_preserved": true,
+    "original_pins_not_modified": true,
+    "records": [
+      {
+        "name": "af-a",
+        "original_bytes": 4652,
+        "original_sha256": "fd7307213f35a16b111854125ec028e1fc4c07d0042bb0e5421976c8de244f20",
+        "source_bootstrap_whole_pins_match": true,
+        "historical_native_pin_match": false,
+        "historical_whole_pin_match": null,
+        "canonical_build_status": "failed_historical_native_identity_gate",
+        "engine_runs": 0
+      },
+      {
+        "name": "af-b",
+        "original_bytes": 5219,
+        "original_sha256": "65cfbe6f391f620beeb8d8b190570ed5eed2c38b937ba87b1cbf4f547fe606b0",
+        "source_bootstrap_whole_pins_match": true,
+        "historical_native_pin_match": false,
+        "historical_whole_pin_match": null,
+        "canonical_build_status": "failed_historical_native_identity_gate",
+        "engine_runs": 0
+      },
+      {
+        "name": "af-c",
+        "original_bytes": 4992,
+        "original_sha256": "07341bf4431dc2a6d412045377784bb28548baee5cd6142093a01c6d0b9d826b",
+        "source_bootstrap_whole_pins_match": true,
+        "historical_native_pin_match": false,
+        "historical_whole_pin_match": null,
+        "canonical_build_status": "failed_historical_native_identity_gate",
+        "engine_runs": 0
+      },
+      {
+        "name": "af-e",
+        "original_bytes": 5076,
+        "original_sha256": "fbbe85f3e048159c578ff85152d7e0bcd5e4d771a5d9801b4fcdf039f5e1befc",
+        "source_bootstrap_whole_pins_match": true,
+        "historical_native_pin_match": false,
+        "historical_whole_pin_match": null,
+        "canonical_build_status": "failed_historical_native_identity_gate",
+        "engine_runs": 0
+      },
+      {
+        "name": "af-f",
+        "original_bytes": 4645,
+        "original_sha256": "a3eaf6f94477beb9897bbccec11e990eb703bc3243034199271deb1b41e023bb",
+        "source_bootstrap_whole_pins_match": true,
+        "historical_native_pin_match": false,
+        "historical_whole_pin_match": null,
+        "canonical_build_status": "failed_historical_native_identity_gate",
+        "engine_runs": 0
+      },
+      {
+        "name": "af-f-material",
+        "original_bytes": 4369,
+        "original_sha256": "eff84e9b34ba121c7c17397252e2f61e832c6f2cfe0fcd51f182f99b677a3682",
+        "source_bootstrap_whole_pins_match": true,
+        "historical_native_pin_match": false,
+        "historical_whole_pin_match": null,
+        "canonical_build_status": "failed_historical_native_identity_gate",
+        "engine_runs": 0
+      },
+      {
+        "name": "af-f-move",
+        "original_bytes": 4089,
+        "original_sha256": "ccb77b12ade5ef7dd367970edd4bfc3d97d4709a00fc9861570355785563d70c",
+        "source_bootstrap_whole_pins_match": true,
+        "historical_native_pin_match": false,
+        "historical_whole_pin_match": null,
+        "canonical_build_status": "failed_historical_native_identity_gate",
+        "engine_runs": 0
+      },
+      {
+        "name": "af-d-scalar",
+        "original_bytes": 5966,
+        "original_sha256": "ec52f4ea0fa8f8c792f88402ad8bc966a50055d80aab26ace444e8cb0daf3319",
+        "source_bootstrap_whole_pins_match": null,
+        "historical_native_pin_match": true,
+        "historical_whole_pin_match": true,
+        "canonical_build_status": "retained_pinned_build",
+        "engine_runs": 0
+      },
+      {
+        "name": "af-d-hq",
+        "original_bytes": 6175,
+        "original_sha256": "5badc54a2f24eb8f5c1e5ee033e27005eececcf84b8672c438a2a720e22ceab0",
+        "source_bootstrap_whole_pins_match": null,
+        "historical_native_pin_match": true,
+        "historical_whole_pin_match": true,
+        "canonical_build_status": "retained_pinned_build",
+        "engine_runs": 0
+      }
+    ]
+  },
+  "groups": [
+    {
+      "name": "general",
+      "status": "pass",
+      "rows": [
+        {
+          "name": "4k.c",
+          "category": "4k",
+          "original_sha256": "04e8f61d6ed6ad5feaaea7c62c578b647b9cdbc0e2313c4437645aff63a54af6",
+          "original_bytes": 3932,
+          "baseline": {
+            "bytes": 3932,
+            "sha256": "04e8f61d6ed6ad5feaaea7c62c578b647b9cdbc0e2313c4437645aff63a54af6",
+            "variant": "raw",
+            "equivalence": "complete submitted file byte identity",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "candidate": {
+            "bytes": 3932,
+            "sha256": "04e8f61d6ed6ad5feaaea7c62c578b647b9cdbc0e2313c4437645aff63a54af6",
+            "variant": "raw",
+            "equivalence": "complete submitted file byte identity",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "saved_vs_baseline_bytes": 0,
+          "status": "pass",
+          "no_size_regression": true,
+          "baseline_evidence": {
+            "summary_sha256": "6dc6441f85dfbc457752af3e06932d144bae303f59ad109c3fe6ddc97ac44e54",
+            "summary_bytes": 3950,
+            "no_size_regression_vs_input": true,
+            "winner_id": "identity",
+            "winner_variant": "raw",
+            "codec": null,
+            "candidate_count": 16,
+            "original_decoder_status": null,
+            "selected_decoder_status": null,
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "50266d5403530bd7d0ca7a4cb31046874c652da9b147c146914ca3d58873d9b1",
+              "bytes": 3932,
+              "sha256": "04e8f61d6ed6ad5feaaea7c62c578b647b9cdbc0e2313c4437645aff63a54af6",
+              "protocol": "not_run"
+            }
+          },
+          "candidate_evidence": {
+            "summary_sha256": "fb7d10adfb847db5b20e45ea48ac09e64dacd88ec6196c0c57feb16361632ed9",
+            "summary_bytes": 3950,
+            "no_size_regression_vs_input": true,
+            "winner_id": "identity",
+            "winner_variant": "raw",
+            "codec": null,
+            "candidate_count": 16,
+            "original_decoder_status": null,
+            "selected_decoder_status": null,
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "fc6648d3b1ab23afb19b09349c0381f85a776ddf344cb0c73814a9e7255c3246",
+              "bytes": 3932,
+              "sha256": "04e8f61d6ed6ad5feaaea7c62c578b647b9cdbc0e2313c4437645aff63a54af6",
+              "protocol": "not_run"
+            }
+          }
+        },
+        {
+          "name": "4ku",
+          "category": "4k",
+          "original_sha256": "be51d7aae0f36f493aa5cdbf1b847425c61fb1f89e93b7969222e662e43ced22",
+          "original_bytes": 4093,
+          "baseline": {
+            "bytes": 4088,
+            "sha256": "f2aced2d9f84e6166d07f880a1864092b7b043b6d817beb7cec9e4b38f173270",
+            "variant": "raw",
+            "equivalence": "original compressed payload; inspected tail/decoder spelling",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "candidate": {
+            "bytes": 4088,
+            "sha256": "f2aced2d9f84e6166d07f880a1864092b7b043b6d817beb7cec9e4b38f173270",
+            "variant": "raw",
+            "equivalence": "original compressed payload; inspected tail/decoder spelling",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "saved_vs_baseline_bytes": 0,
+          "status": "pass",
+          "no_size_regression": true,
+          "baseline_evidence": {
+            "summary_sha256": "35e8ed5bdb52086e718eb1f63eecdbe178204465b5f6095d1290a31c76744471",
+            "summary_bytes": 564699,
+            "no_size_regression_vs_input": true,
+            "winner_id": "submitted-payload",
+            "winner_variant": "raw",
+            "codec": {
+              "decoder": "xz -d",
+              "format": "submitted"
+            },
+            "candidate_count": 36346,
+            "original_decoder_status": "pass",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "e7ab843ee6a0b73c038734c5da93574336407e44167aa3ebd5fcf44ed1bc58e8",
+              "bytes": 4088,
+              "sha256": "f2aced2d9f84e6166d07f880a1864092b7b043b6d817beb7cec9e4b38f173270",
+              "protocol": "not_run"
+            }
+          },
+          "candidate_evidence": {
+            "summary_sha256": "926a0b66670748f7e592782ac4dbca6223c8e14f52dc1a85aa5e378cc620020d",
+            "summary_bytes": 566696,
+            "no_size_regression_vs_input": true,
+            "winner_id": "submitted-payload",
+            "winner_variant": "raw",
+            "codec": {
+              "decoder": "xz -d",
+              "format": "submitted"
+            },
+            "candidate_count": 36357,
+            "original_decoder_status": "pass",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "bdd5c8299a9df77d632217fc9d5120e13d8fa6bc8b8da41db88191e24f57533a",
+              "bytes": 4088,
+              "sha256": "f2aced2d9f84e6166d07f880a1864092b7b043b6d817beb7cec9e4b38f173270",
+              "protocol": "not_run"
+            }
+          }
+        },
+        {
+          "name": "M4sseur",
+          "category": "4k",
+          "original_sha256": "50585513f84e39b72fd4855efc8afc0b2f9db22be33fbe6ade2f856983fc5876",
+          "original_bytes": 4095,
+          "baseline": {
+            "bytes": 4092,
+            "sha256": "cdb8d5fe6cad839b4682cc0db48722b06f0fff7f46f7ab67b2453319a759c4a3",
+            "variant": "raw",
+            "equivalence": "original compressed payload; inspected tail/decoder spelling",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "candidate": {
+            "bytes": 4092,
+            "sha256": "cdb8d5fe6cad839b4682cc0db48722b06f0fff7f46f7ab67b2453319a759c4a3",
+            "variant": "raw",
+            "equivalence": "original compressed payload; inspected tail/decoder spelling",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "saved_vs_baseline_bytes": 0,
+          "status": "pass",
+          "no_size_regression": true,
+          "baseline_evidence": {
+            "summary_sha256": "22f9fe009587127bc351624847795c9e1848697028d2db75b027d03d4b57bfdc",
+            "summary_bytes": 545139,
+            "no_size_regression_vs_input": true,
+            "winner_id": "submitted-payload",
+            "winner_variant": "raw",
+            "codec": {
+              "decoder": "xz -d",
+              "format": "submitted"
+            },
+            "candidate_count": 36346,
+            "original_decoder_status": "pass",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "f6931318001c593d5bd3b1f84366105328dd75fa06cdb0160880677b51e17f81",
+              "bytes": 4092,
+              "sha256": "cdb8d5fe6cad839b4682cc0db48722b06f0fff7f46f7ab67b2453319a759c4a3",
+              "protocol": "not_run"
+            }
+          },
+          "candidate_evidence": {
+            "summary_sha256": "40b14c9ff7b1ce5b82142df09851e4b3c7703cbbf45232dfc67347111034ffa5",
+            "summary_bytes": 547147,
+            "no_size_regression_vs_input": true,
+            "winner_id": "submitted-payload",
+            "winner_variant": "raw",
+            "codec": {
+              "decoder": "xz -d",
+              "format": "submitted"
+            },
+            "candidate_count": 36357,
+            "original_decoder_status": "pass",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "0ef1a6c0fe28fba3181aa1c7eb6b6d8a030233eac06834adde01155a5bf484ab",
+              "bytes": 4092,
+              "sha256": "cdb8d5fe6cad839b4682cc0db48722b06f0fff7f46f7ab67b2453319a759c4a3",
+              "protocol": "not_run"
+            }
+          }
+        },
+        {
+          "name": "STRO4K",
+          "category": "4k",
+          "original_sha256": "c4b3a7d3ca808418dd014be9527b81057c4db5de8d24ab0c4ee14a360f17ae98",
+          "original_bytes": 4096,
+          "baseline": {
+            "bytes": 4078,
+            "sha256": "bec5025be231f88508565b4dfc24b7dad8f26c5eb9f15aabac1f62ef31fd948e",
+            "variant": "raw",
+            "equivalence": "decoded payload byte identity",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "candidate": {
+            "bytes": 4078,
+            "sha256": "bec5025be231f88508565b4dfc24b7dad8f26c5eb9f15aabac1f62ef31fd948e",
+            "variant": "raw",
+            "equivalence": "decoded payload byte identity",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "saved_vs_baseline_bytes": 0,
+          "status": "pass",
+          "no_size_regression": true,
+          "baseline_evidence": {
+            "summary_sha256": "d43e2dfdfa5baea4973234f787fd8190418192bceb59a6d4f224506b0f6882db",
+            "summary_bytes": 6344,
+            "no_size_regression_vs_input": true,
+            "winner_id": "18b77d8eb71c5fba",
+            "winner_variant": "raw",
+            "codec": {
+              "dict_size": 8192,
+              "format": "raw",
+              "lc": 0,
+              "lp": 0,
+              "mf": 18,
+              "nice_len": 38,
+              "pb": 0,
+              "preset": 6,
+              "x86": true
+            },
+            "candidate_count": 3306,
+            "original_decoder_status": "pass",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "978cc7fe70eac77bce7585b28080296744deec973a4923611ebbfb8bc8102a39",
+              "bytes": 4078,
+              "sha256": "bec5025be231f88508565b4dfc24b7dad8f26c5eb9f15aabac1f62ef31fd948e",
+              "protocol": "not_run"
+            }
+          },
+          "candidate_evidence": {
+            "summary_sha256": "a3a697d59fb758388de02e8ed405b7db8817eee89c066c3d594ecdcb49162773",
+            "summary_bytes": 6341,
+            "no_size_regression_vs_input": true,
+            "winner_id": "18b77d8eb71c5fba",
+            "winner_variant": "raw",
+            "codec": {
+              "dict_size": 8192,
+              "format": "raw",
+              "lc": 0,
+              "lp": 0,
+              "mf": 18,
+              "nice_len": 38,
+              "pb": 0,
+              "preset": 6,
+              "x86": true
+            },
+            "candidate_count": 3307,
+            "original_decoder_status": "pass",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "6bdf16cb307813089bc92363f391619509d6713893ebda2879b50d4788c46253",
+              "bytes": 4078,
+              "sha256": "bec5025be231f88508565b4dfc24b7dad8f26c5eb9f15aabac1f62ef31fd948e",
+              "protocol": "not_run"
+            }
+          }
+        },
+        {
+          "name": "c4ke",
+          "category": "4k",
+          "original_sha256": "b5ecbcd8a189cf3296bc5ea874dd0ed612949d02744252041f2d2914776769ea",
+          "original_bytes": 4093,
+          "baseline": {
+            "bytes": 4092,
+            "sha256": "65565271a6dc5a9f2fbf2ae6582a73023433f5a161d475097d2c1cfc71454be4",
+            "variant": "raw",
+            "equivalence": "original compressed payload; inspected tail/decoder spelling",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "candidate": {
+            "bytes": 4092,
+            "sha256": "65565271a6dc5a9f2fbf2ae6582a73023433f5a161d475097d2c1cfc71454be4",
+            "variant": "raw",
+            "equivalence": "original compressed payload; inspected tail/decoder spelling",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "saved_vs_baseline_bytes": 0,
+          "status": "pass",
+          "no_size_regression": true,
+          "baseline_evidence": {
+            "summary_sha256": "3e0464f03b2501174fd99b8dac30e7f8bf2063c00f69adeb67920b633dae0905",
+            "summary_bytes": 674005,
+            "no_size_regression_vs_input": true,
+            "winner_id": "submitted-payload",
+            "winner_variant": "raw",
+            "codec": {
+              "decoder": "xz -d",
+              "format": "submitted"
+            },
+            "candidate_count": 19826,
+            "original_decoder_status": "pass",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "786b3d6731ea29109074206b41b7b6fd39bdd78e196c00fb7e30e994341db2e7",
+              "bytes": 4092,
+              "sha256": "65565271a6dc5a9f2fbf2ae6582a73023433f5a161d475097d2c1cfc71454be4",
+              "protocol": "not_run"
+            }
+          },
+          "candidate_evidence": {
+            "summary_sha256": "ed8b1a015ad0009637d7d2205130bdaac408b36ea29e7126daecd156edb9ec8c",
+            "summary_bytes": 675100,
+            "no_size_regression_vs_input": true,
+            "winner_id": "submitted-payload",
+            "winner_variant": "raw",
+            "codec": {
+              "decoder": "xz -d",
+              "format": "submitted"
+            },
+            "candidate_count": 19832,
+            "original_decoder_status": "pass",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "8f89ce0a42081fe9c0348fd0b17d43b71456d907f6522bfb2647d5b57943ab83",
+              "bytes": 4092,
+              "sha256": "65565271a6dc5a9f2fbf2ae6582a73023433f5a161d475097d2c1cfc71454be4",
+              "protocol": "not_run"
+            }
+          }
+        },
+        {
+          "name": "ice4",
+          "category": "4k",
+          "original_sha256": "707d994e0515473f53052998ee85d03041f17f8c23b3793d497f64b8e41b252b",
+          "original_bytes": 4087,
+          "baseline": {
+            "bytes": 4082,
+            "sha256": "375bc59140135faeed14574af38cafcacc0b4608c24b91a06ff67cdcf81feb1a",
+            "variant": "shortest",
+            "equivalence": "complete native bytes identical under submitted compile recipe",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "candidate": {
+            "bytes": 4082,
+            "sha256": "375bc59140135faeed14574af38cafcacc0b4608c24b91a06ff67cdcf81feb1a",
+            "variant": "shortest",
+            "equivalence": "complete native bytes identical under submitted compile recipe",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "saved_vs_baseline_bytes": 0,
+          "status": "pass",
+          "no_size_regression": true,
+          "baseline_evidence": {
+            "summary_sha256": "76031dfbf385343d5800d9d58912225d7ddbf4f30c5d334c98f08ce14e93b2e6",
+            "summary_bytes": 900913,
+            "no_size_regression_vs_input": true,
+            "winner_id": "a10d91e23d965c8c",
+            "winner_variant": "shortest",
+            "codec": {
+              "dict_size": 16384,
+              "format": "alone",
+              "lc": 2,
+              "lp": 0,
+              "mf": 18,
+              "nice_len": 41,
+              "pb": 0,
+              "preset": 6
+            },
+            "candidate_count": 23130,
+            "original_decoder_status": "pass",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "45b6dd1a6df38e1d3c3c0b0475af7a725ca3f066364f5dc16c532b75688e7d56",
+              "bytes": 4082,
+              "sha256": "375bc59140135faeed14574af38cafcacc0b4608c24b91a06ff67cdcf81feb1a",
+              "protocol": "not_run"
+            }
+          },
+          "candidate_evidence": {
+            "summary_sha256": "698401105dadda958c24053fc0f458ee43c2f64e1f0fcb66f864023b4d855dd6",
+            "summary_bytes": 902191,
+            "no_size_regression_vs_input": true,
+            "winner_id": "a10d91e23d965c8c",
+            "winner_variant": "shortest",
+            "codec": {
+              "dict_size": 16384,
+              "format": "alone",
+              "lc": 2,
+              "lp": 0,
+              "mf": 18,
+              "nice_len": 41,
+              "pb": 0,
+              "preset": 6
+            },
+            "candidate_count": 23137,
+            "original_decoder_status": "pass",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "8482e807c76f11adbf654f4b28104f6b75ce1f8d1906004d49157f870cd06a32",
+              "bytes": 4082,
+              "sha256": "375bc59140135faeed14574af38cafcacc0b4608c24b91a06ff67cdcf81feb1a",
+              "protocol": "not_run"
+            }
+          }
+        },
+        {
+          "name": "molly",
+          "category": "4k",
+          "original_sha256": "98c8d9863a7837677a3c2b8f62c3afdbcf6fa44c659555db0e8168f613e47f02",
+          "original_bytes": 4096,
+          "baseline": {
+            "bytes": 4095,
+            "sha256": "511e3816c0706570e01143aca466134d65c464352271e98bffae96919518a22a",
+            "variant": "raw",
+            "equivalence": "original compressed payload; inspected tail/decoder spelling",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "candidate": {
+            "bytes": 4095,
+            "sha256": "511e3816c0706570e01143aca466134d65c464352271e98bffae96919518a22a",
+            "variant": "raw",
+            "equivalence": "original compressed payload; inspected tail/decoder spelling",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "saved_vs_baseline_bytes": 0,
+          "status": "pass",
+          "no_size_regression": true,
+          "baseline_evidence": {
+            "summary_sha256": "5aa2d69fda8f289187a7fd62db54d033b08ce367cab8e6b48fcc69c0f3dad304",
+            "summary_bytes": 2149336,
+            "no_size_regression_vs_input": true,
+            "winner_id": "submitted-payload",
+            "winner_variant": "raw",
+            "codec": {
+              "decoder": "xz -d",
+              "format": "submitted"
+            },
+            "candidate_count": 3306,
+            "original_decoder_status": "pass",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "3bc070ec9a3f5f64cd44ca35b86b4cd15c5b9ad36b225145cb64a718cfd6d364",
+              "bytes": 4095,
+              "sha256": "511e3816c0706570e01143aca466134d65c464352271e98bffae96919518a22a",
+              "protocol": "not_run"
+            }
+          },
+          "candidate_evidence": {
+            "summary_sha256": "c5fa8b4e9e70150d395af698c95f30bc217fed2ee1ea5e5cf08b297565263c6a",
+            "summary_bytes": 2154198,
+            "no_size_regression_vs_input": true,
+            "winner_id": "submitted-payload",
+            "winner_variant": "raw",
+            "codec": {
+              "decoder": "xz -d",
+              "format": "submitted"
+            },
+            "candidate_count": 3307,
+            "original_decoder_status": "pass",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "01668246e8d223664cfa891c3382738908cc7db35425ff4361096b0459eff6a9",
+              "bytes": 4095,
+              "sha256": "511e3816c0706570e01143aca466134d65c464352271e98bffae96919518a22a",
+              "protocol": "not_run"
+            }
+          }
+        },
+        {
+          "name": "moonfish",
+          "category": "4k",
+          "original_sha256": "665eb7be5fd47b531f0849f4ae8f92be6e068fff40f55cf7e5f9e2b4cdad8c42",
+          "original_bytes": 3941,
+          "baseline": {
+            "bytes": 3889,
+            "sha256": "2eb530ec1c4c62a3d1b95b4129314c14b3aa5df433ec3eaf813903922beb4805",
+            "variant": "shortest-compact",
+            "equivalence": "complete native bytes identical under submitted compile recipe",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "candidate": {
+            "bytes": 3871,
+            "sha256": "3532be32eb0bd18678ec5b515719bb219494f12393696d1fa21482531b0a312c",
+            "variant": "c-source-search-71d9db64ef171618",
+            "equivalence": "unchanged C bytes or verified typed source derivation; complete native and compiler diagnostic byte identity; exact payload readback under declared embedding contract",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "saved_vs_baseline_bytes": 18,
+          "status": "pass",
+          "no_size_regression": true,
+          "baseline_evidence": {
+            "summary_sha256": "1d84e129d8efd601807d10806710e0f4e271d141ce8273c38c1a7b24ab06aa2e",
+            "summary_bytes": 799914,
+            "no_size_regression_vs_input": true,
+            "winner_id": "5eb00099ee26c8fb",
+            "winner_variant": "shortest-compact",
+            "codec": {
+              "dict_size": 16384,
+              "format": "alone",
+              "lc": 2,
+              "lp": 0,
+              "mf": 19,
+              "nice_len": 53,
+              "pb": 0,
+              "preset": 6
+            },
+            "candidate_count": 36346,
+            "original_decoder_status": "fail",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "51a4cd540722131d4a4b5c0a0bd27bd457b60f8394dd2654e6c046ed84fbace0",
+              "bytes": 3889,
+              "sha256": "2eb530ec1c4c62a3d1b95b4129314c14b3aa5df433ec3eaf813903922beb4805",
+              "protocol": "not_run"
+            }
+          },
+          "candidate_evidence": {
+            "summary_sha256": "e41df1fa5779f720fcd3a7f8110d29ffe481fba52da3fbd5c9bfc410ce43dc76",
+            "summary_bytes": 847003,
+            "no_size_regression_vs_input": true,
+            "winner_id": "aa63b62cb3906ec4",
+            "winner_variant": "c-source-search-71d9db64ef171618",
+            "codec": {
+              "dict_size": 16384,
+              "format": "alone",
+              "lc": 2,
+              "lp": 0,
+              "mf": 18,
+              "nice_len": 57,
+              "pb": 0,
+              "preset": 6
+            },
+            "candidate_count": 39662,
+            "original_decoder_status": "fail",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "completed",
+              "exhaustion_reason": null,
+              "evaluations": 639,
+              "accepted_steps": 3,
+              "accepted_rule_counts": {
+                "c-source-integer": 5,
+                "c-source-local-name": 7,
+                "c-source-character": 2,
+                "leaf-braces": 3
+              },
+              "source_changed": true,
+              "payload_changed": true,
+              "selected_by_final_codec_portfolio": true,
+              "original_cost_bytes": 3952,
+              "selected_cost_bytes": 3902,
+              "saved_cost_bytes": 50,
+              "all_recorded_native_and_diagnostic_identities_match": true,
+              "baseline_native": {
+                "bytes": 30128,
+                "sha256": "e183ab21f0f5ec3449120250b1333ec71b4a1314e23005aea03e4829d70f66f9",
+                "compiler_sha256": "6117c52522997d2aaccb2b52b3c6bf42c0a6c5edb1d718431fed6b2fc5fec234",
+                "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "stderr_sha256": "4941fbb2c73ec1430311f1e4098a247b0419e5b62deb3debb5b466daa6f82561"
+              },
+              "final_source_sha256": "71d9db64ef17161812e07934255b13f17b747f35c0eb90d8dc64c01ae2152716",
+              "final_payload_sha256": "71d9db64ef17161812e07934255b13f17b747f35c0eb90d8dc64c01ae2152716",
+              "detailed_records_in_summary": false,
+              "detailed_record_count": 1315,
+              "detailed_report_sha256": "c8a00b6a20be8512962a9acc7b43d3e31ac69ac2570a3c570130ec062302786b",
+              "detailed_report_bytes": 3192066,
+              "engine_execution": "not performed",
+              "scope": "Projection of recorded source proofs and compiler receipts; no new execution or semantic proof."
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "cc29997bb6fa318a4a74c37e17ae6f3c63da4c01d0ae03108cec7d49810e71db",
+              "bytes": 3871,
+              "sha256": "3532be32eb0bd18678ec5b515719bb219494f12393696d1fa21482531b0a312c",
+              "protocol": "not_run"
+            }
+          }
+        },
+        {
+          "name": "pygone",
+          "category": "4k",
+          "original_sha256": "f44c111d821c5bffb9117154dcffbfb0e83ab41b35e174b084a9bb5000ee1768",
+          "original_bytes": 4093,
+          "baseline": {
+            "bytes": 4020,
+            "sha256": "290e27a9d9f72770d34a94a19f22749bc2f109469ca19880853f9d1c23e258d6",
+            "variant": "raw",
+            "equivalence": "decoded payload byte identity",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "candidate": {
+            "bytes": 4020,
+            "sha256": "290e27a9d9f72770d34a94a19f22749bc2f109469ca19880853f9d1c23e258d6",
+            "variant": "raw",
+            "equivalence": "decoded payload byte identity",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "saved_vs_baseline_bytes": 0,
+          "status": "pass",
+          "no_size_regression": true,
+          "baseline_evidence": {
+            "summary_sha256": "3405fcfe7f258388c1929939829c6b1b5971a22398259ed21f3633a2acae2841",
+            "summary_bytes": 1606247,
+            "no_size_regression_vs_input": true,
+            "winner_id": "e24b054008748544",
+            "winner_variant": "raw",
+            "codec": {
+              "dict_size": 16384,
+              "format": "alone",
+              "lc": 2,
+              "lp": 0,
+              "mf": 18,
+              "nice_len": 40,
+              "pb": 0,
+              "preset": 6
+            },
+            "candidate_count": 16522,
+            "original_decoder_status": "pass",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "8001c00b17b60f6bdf6004e6d43520686cf03c8eeeda2cc886d1b159b706c8d2",
+              "bytes": 4020,
+              "sha256": "290e27a9d9f72770d34a94a19f22749bc2f109469ca19880853f9d1c23e258d6",
+              "protocol": "not_run"
+            }
+          },
+          "candidate_evidence": {
+            "summary_sha256": "f0aa759ae047ffdb503d1899bfb51b6c321eaf99d3fb228a634d7136f0750fd4",
+            "summary_bytes": 1606245,
+            "no_size_regression_vs_input": true,
+            "winner_id": "e24b054008748544",
+            "winner_variant": "raw",
+            "codec": {
+              "dict_size": 16384,
+              "format": "alone",
+              "lc": 2,
+              "lp": 0,
+              "mf": 18,
+              "nice_len": 40,
+              "pb": 0,
+              "preset": 6
+            },
+            "candidate_count": 16527,
+            "original_decoder_status": "pass",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "7113d0d6319887a1154af13d6f3f474d23dff3c2e4c57c47dbabdf7284a24307",
+              "bytes": 4020,
+              "sha256": "290e27a9d9f72770d34a94a19f22749bc2f109469ca19880853f9d1c23e258d6",
+              "protocol": "not_run"
+            }
+          }
+        },
+        {
+          "name": "sunfish",
+          "category": "4k",
+          "original_sha256": "3066c961174281678f2e15edd118fa45231b4d6e1dcc1f77ea11a62309318261",
+          "original_bytes": 2844,
+          "baseline": {
+            "bytes": 2776,
+            "sha256": "2d148a3523bef4d4bdc95341cdb81405e2b96d42a5135881172ab199357d8b9a",
+            "variant": "shortest-compact",
+            "equivalence": "typed Python AST identity under explicit source observation contract",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "candidate": {
+            "bytes": 2776,
+            "sha256": "2d148a3523bef4d4bdc95341cdb81405e2b96d42a5135881172ab199357d8b9a",
+            "variant": "shortest-compact",
+            "equivalence": "typed Python AST identity under explicit source observation contract",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "saved_vs_baseline_bytes": 0,
+          "status": "pass",
+          "no_size_regression": true,
+          "baseline_evidence": {
+            "summary_sha256": "2b4ffc85f53afe8163db57dac941fc3218a2d34b80ac498267f038ee7ca82ac8",
+            "summary_bytes": 1072996,
+            "no_size_regression_vs_input": true,
+            "winner_id": "f1cfe68d58961cb3",
+            "winner_variant": "shortest-compact",
+            "codec": {
+              "dict_size": 8192,
+              "format": "alone",
+              "lc": 2,
+              "lp": 0,
+              "mf": 19,
+              "nice_len": 23,
+              "pb": 1,
+              "preset": 6
+            },
+            "candidate_count": 36346,
+            "original_decoder_status": "pass",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "6bef7029a5ad9e7855e2a199f5a28a167ad9ea0beb5b7c7962a31415440928c0",
+              "bytes": 2776,
+              "sha256": "2d148a3523bef4d4bdc95341cdb81405e2b96d42a5135881172ab199357d8b9a",
+              "protocol": "not_run"
+            }
+          },
+          "candidate_evidence": {
+            "summary_sha256": "4360957d5d0d056fa9ffc62f966981d997f00395cdeb87f3ea31958a08666d08",
+            "summary_bytes": 1072993,
+            "no_size_regression_vs_input": true,
+            "winner_id": "f1cfe68d58961cb3",
+            "winner_variant": "shortest-compact",
+            "codec": {
+              "dict_size": 8192,
+              "format": "alone",
+              "lc": 2,
+              "lp": 0,
+              "mf": 19,
+              "nice_len": 23,
+              "pb": 1,
+              "preset": 6
+            },
+            "candidate_count": 36357,
+            "original_decoder_status": "pass",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "4e89a4a435a0bb9d8a5d35ffc8b7c5e9b310aaafcced938ca774323c150413fb",
+              "bytes": 2776,
+              "sha256": "2d148a3523bef4d4bdc95341cdb81405e2b96d42a5135881172ab199357d8b9a",
+              "protocol": "not_run"
+            }
+          }
+        },
+        {
+          "name": "we4k",
+          "category": "4k",
+          "original_sha256": "8540b397425582d86d73d54d1ba7a44927c6207812123065749bf14cacf8354e",
+          "original_bytes": 4079,
+          "baseline": {
+            "bytes": 4011,
+            "sha256": "cb741bb7970981232f140bcecbbffe2ae8c77632740f3df2c2417add9da37ae7",
+            "variant": "raw",
+            "equivalence": "decoded payload byte identity",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "candidate": {
+            "bytes": 4011,
+            "sha256": "cb741bb7970981232f140bcecbbffe2ae8c77632740f3df2c2417add9da37ae7",
+            "variant": "raw",
+            "equivalence": "decoded payload byte identity",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "saved_vs_baseline_bytes": 0,
+          "status": "pass",
+          "no_size_regression": true,
+          "baseline_evidence": {
+            "summary_sha256": "b90e6e1f6477d32cad7c3f8269238046221aa3d7a90e2ff61ced11a37c5a977a",
+            "summary_bytes": 6001,
+            "no_size_regression_vs_input": true,
+            "winner_id": "f8dac7522fb813f2",
+            "winner_variant": "raw",
+            "codec": {
+              "dict_size": 8192,
+              "format": "raw",
+              "lc": 0,
+              "lp": 0,
+              "mf": 18,
+              "nice_len": 15,
+              "pb": 0,
+              "preset": 6,
+              "x86": true
+            },
+            "candidate_count": 3306,
+            "original_decoder_status": "pass",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "7cb5ac119ab91e16ad9661974154dc5c314fdb56bb31e39f6167771de1216b92",
+              "bytes": 4011,
+              "sha256": "cb741bb7970981232f140bcecbbffe2ae8c77632740f3df2c2417add9da37ae7",
+              "protocol": "not_run"
+            }
+          },
+          "candidate_evidence": {
+            "summary_sha256": "3308e698ad0c14eaeffce46ec48b1e64181393541510792cfa8b2fdeb09fd965",
+            "summary_bytes": 6006,
+            "no_size_regression_vs_input": true,
+            "winner_id": "f8dac7522fb813f2",
+            "winner_variant": "raw",
+            "codec": {
+              "dict_size": 8192,
+              "format": "raw",
+              "lc": 0,
+              "lp": 0,
+              "mf": 18,
+              "nice_len": 15,
+              "pb": 0,
+              "preset": 6,
+              "x86": true
+            },
+            "candidate_count": 3307,
+            "original_decoder_status": "pass",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "1ae41e41490f650db3a41987b982bff6bef093bbd763e7693eeab13b5dbc43db",
+              "bytes": 4011,
+              "sha256": "cb741bb7970981232f140bcecbbffe2ae8c77632740f3df2c2417add9da37ae7",
+              "protocol": "not_run"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "elf",
+      "status": "pass",
+      "rows": [
+        {
+          "name": "4k.c-v8.0",
+          "category": "4k-elf",
+          "original_sha256": "6eb03195b277f42ece9488c42c1e459791ffcbf0dc197bdfa700dd9574715ace",
+          "original_bytes": 4042,
+          "baseline": {
+            "bytes": 4042,
+            "sha256": "6eb03195b277f42ece9488c42c1e459791ffcbf0dc197bdfa700dd9574715ace",
+            "variant": "raw",
+            "equivalence": "complete submitted file byte identity",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "candidate": {
+            "bytes": 4042,
+            "sha256": "6eb03195b277f42ece9488c42c1e459791ffcbf0dc197bdfa700dd9574715ace",
+            "variant": "raw",
+            "equivalence": "complete submitted file byte identity",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "saved_vs_baseline_bytes": 0,
+          "status": "pass",
+          "no_size_regression": true,
+          "baseline_evidence": {
+            "summary_sha256": "ff915dfb3a66aa4b72593ce62ca206efb8415c47351b15b70b84e41ea9aaed95",
+            "summary_bytes": 2943,
+            "no_size_regression_vs_input": true,
+            "winner_id": "identity",
+            "winner_variant": "raw",
+            "codec": null,
+            "candidate_count": 1,
+            "original_decoder_status": null,
+            "selected_decoder_status": null,
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "47667fbb1a990bad4e42b68f328630f3e3f4ec81d314ff4d7b3228f7f30d1d63",
+              "bytes": 4042,
+              "sha256": "6eb03195b277f42ece9488c42c1e459791ffcbf0dc197bdfa700dd9574715ace",
+              "protocol": "not_run"
+            }
+          },
+          "candidate_evidence": {
+            "summary_sha256": "a074060f48756efdea95914c758804c2bb5f95c3193f4fb07db91004290233c5",
+            "summary_bytes": 2943,
+            "no_size_regression_vs_input": true,
+            "winner_id": "identity",
+            "winner_variant": "raw",
+            "codec": null,
+            "candidate_count": 1,
+            "original_decoder_status": null,
+            "selected_decoder_status": null,
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "083c6f5bc16dc78b405d4ae8142f36173896df830b3f44f6ceb2d8ca992732b9",
+              "bytes": 4042,
+              "sha256": "6eb03195b277f42ece9488c42c1e459791ffcbf0dc197bdfa700dd9574715ace",
+              "protocol": "not_run"
+            }
+          }
+        },
+        {
+          "name": "4k.c-v9.0",
+          "category": "4k-elf",
+          "original_sha256": "04e8f61d6ed6ad5feaaea7c62c578b647b9cdbc0e2313c4437645aff63a54af6",
+          "original_bytes": 3932,
+          "baseline": {
+            "bytes": 3932,
+            "sha256": "04e8f61d6ed6ad5feaaea7c62c578b647b9cdbc0e2313c4437645aff63a54af6",
+            "variant": "raw",
+            "equivalence": "complete submitted file byte identity",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "candidate": {
+            "bytes": 3932,
+            "sha256": "04e8f61d6ed6ad5feaaea7c62c578b647b9cdbc0e2313c4437645aff63a54af6",
+            "variant": "raw",
+            "equivalence": "complete submitted file byte identity",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "saved_vs_baseline_bytes": 0,
+          "status": "pass",
+          "no_size_regression": true,
+          "baseline_evidence": {
+            "summary_sha256": "2309d6c27fa2b1f0075e853f08ce4b6be153be7b9a0e6793e2717cbf0f5b372c",
+            "summary_bytes": 4073,
+            "no_size_regression_vs_input": true,
+            "winner_id": "identity",
+            "winner_variant": "raw",
+            "codec": null,
+            "candidate_count": 1,
+            "original_decoder_status": null,
+            "selected_decoder_status": null,
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "50266d5403530bd7d0ca7a4cb31046874c652da9b147c146914ca3d58873d9b1",
+              "bytes": 3932,
+              "sha256": "04e8f61d6ed6ad5feaaea7c62c578b647b9cdbc0e2313c4437645aff63a54af6",
+              "protocol": "not_run"
+            }
+          },
+          "candidate_evidence": {
+            "summary_sha256": "014c87ab3b446c002b6bbe98be86e9ee25ec052b3a4feb8131577051ea4e1784",
+            "summary_bytes": 4073,
+            "no_size_regression_vs_input": true,
+            "winner_id": "identity",
+            "winner_variant": "raw",
+            "codec": null,
+            "candidate_count": 1,
+            "original_decoder_status": null,
+            "selected_decoder_status": null,
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "fc6648d3b1ab23afb19b09349c0381f85a776ddf344cb0c73814a9e7255c3246",
+              "bytes": 3932,
+              "sha256": "04e8f61d6ed6ad5feaaea7c62c578b647b9cdbc0e2313c4437645aff63a54af6",
+              "protocol": "not_run"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "af",
+      "status": "pass",
+      "rows": [
+        {
+          "name": "af-a",
+          "category": "4k",
+          "original_sha256": "fd7307213f35a16b111854125ec028e1fc4c07d0042bb0e5421976c8de244f20",
+          "original_bytes": 4652,
+          "baseline": {
+            "bytes": 4637,
+            "sha256": "165c86d963a0701f12f26dc428378840d8bab7fc8109728549b855aed3b2a5de",
+            "variant": "shortest-compact",
+            "equivalence": "typed Python AST identity under explicit source observation contract",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "candidate": {
+            "bytes": 4616,
+            "sha256": "bc498e95a978de0a9c4e9b11992d78b4742fd42c54a5c69e34fadaba6b27758e",
+            "variant": "c-source-search-72efa7c981b34757",
+            "equivalence": "unchanged C bytes or verified typed source derivation; complete native and compiler diagnostic byte identity; exact payload readback under declared embedding contract",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "saved_vs_baseline_bytes": 21,
+          "status": "pass",
+          "no_size_regression": true,
+          "baseline_evidence": {
+            "summary_sha256": "7a7dfc985b1004d9dd44abc99214f55fb667ec81c7a3ec8ebda4895101a94f2b",
+            "summary_bytes": 50669,
+            "no_size_regression_vs_input": true,
+            "winner_id": "1991021bdcedb613",
+            "winner_variant": "shortest-compact",
+            "codec": {
+              "dict_size": 16384,
+              "format": "alone",
+              "lc": 2,
+              "lp": 0,
+              "mf": 18,
+              "nice_len": 32,
+              "pb": 0,
+              "preset": 6
+            },
+            "candidate_count": 2642,
+            "original_decoder_status": "pass",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "bf4a71f956d8bf0ff09e3635f920df5c754b86c100664cbd3229f3e4eb20e11f",
+              "bytes": 4637,
+              "sha256": "165c86d963a0701f12f26dc428378840d8bab7fc8109728549b855aed3b2a5de",
+              "protocol": "not_run"
+            }
+          },
+          "candidate_evidence": {
+            "summary_sha256": "f4a28a3ae8c34bda0202ee3a7abe127839979cc3857c6fe68f68182f6e8fc363",
+            "summary_bytes": 86759,
+            "no_size_regression_vs_input": true,
+            "winner_id": "38cab353661333dc",
+            "winner_variant": "c-source-search-72efa7c981b34757",
+            "codec": {
+              "dict_size": 16384,
+              "format": "alone",
+              "lc": 2,
+              "lp": 0,
+              "mf": 18,
+              "nice_len": 24,
+              "pb": 0,
+              "preset": 6
+            },
+            "candidate_count": 2981,
+            "original_decoder_status": "pass",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "completed",
+              "exhaustion_reason": null,
+              "evaluations": 1913,
+              "accepted_steps": 2,
+              "accepted_rule_counts": {
+                "c-source-local-name": 7,
+                "c-source-integer": 3,
+                "c-source-character": 1
+              },
+              "source_changed": true,
+              "payload_changed": true,
+              "selected_by_final_codec_portfolio": true,
+              "original_cost_bytes": 4648,
+              "selected_cost_bytes": 4621,
+              "saved_cost_bytes": 27,
+              "all_recorded_native_and_diagnostic_identities_match": true,
+              "baseline_native": {
+                "bytes": 18576,
+                "sha256": "bc26eddc218b4e787fbe777d6da9689a6d314659763841104c8b7e0e0c9f079e",
+                "compiler_sha256": "6117c52522997d2aaccb2b52b3c6bf42c0a6c5edb1d718431fed6b2fc5fec234",
+                "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "final_source_sha256": "41300ed042444801cf462d9409ace6782de8647ea30b22be26313556d6d5e4f2",
+              "final_payload_sha256": "72efa7c981b3475770f33e9244406c8a5e1323d678744ae917925fc3ffcb1278",
+              "detailed_records_in_summary": false,
+              "detailed_record_count": 2476,
+              "detailed_report_sha256": "e1d329c62780f80ccbe44270f404440c05c853183da63b283f40906a0b713535",
+              "detailed_report_bytes": 3249802,
+              "engine_execution": "not performed",
+              "scope": "Projection of recorded source proofs and compiler receipts; no new execution or semantic proof."
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "e1366b5dc092a195185e2aa69d71c4c5251961e18051e55556b46404518758d0",
+              "bytes": 4616,
+              "sha256": "bc498e95a978de0a9c4e9b11992d78b4742fd42c54a5c69e34fadaba6b27758e",
+              "protocol": "not_run"
+            }
+          }
+        },
+        {
+          "name": "af-b",
+          "category": "4k",
+          "original_sha256": "65cfbe6f391f620beeb8d8b190570ed5eed2c38b937ba87b1cbf4f547fe606b0",
+          "original_bytes": 5219,
+          "baseline": {
+            "bytes": 5211,
+            "sha256": "4f34085cbb0227773c0447fb62434e2a06e436833709f5b8c00a5303128d4d50",
+            "variant": "shortest-compact",
+            "equivalence": "typed Python AST identity under explicit source observation contract",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "candidate": {
+            "bytes": 5173,
+            "sha256": "3c9a43d0cc1a958ed8ed29179ce9755f5046fc3d567d37222e22b33369483877",
+            "variant": "c-source-search-ce9b3a2d9fdd9ed7",
+            "equivalence": "unchanged C bytes or verified typed source derivation; complete native and compiler diagnostic byte identity; exact payload readback under declared embedding contract",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "saved_vs_baseline_bytes": 38,
+          "status": "pass",
+          "no_size_regression": true,
+          "baseline_evidence": {
+            "summary_sha256": "268eb205d093f2c7befab9222927fc57eb86181eac6a051533638d0820f9ced1",
+            "summary_bytes": 51282,
+            "no_size_regression_vs_input": true,
+            "winner_id": "0270b3b83bf0a8fd",
+            "winner_variant": "shortest-compact",
+            "codec": {
+              "dict_size": 16384,
+              "format": "alone",
+              "lc": 3,
+              "lp": 0,
+              "mf": 18,
+              "nice_len": 32,
+              "pb": 0,
+              "preset": 6
+            },
+            "candidate_count": 2642,
+            "original_decoder_status": "pass",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "6b80d2215dee7bb49e2327c2349adf5a3b51a8a7be096c56c888e390c4a373ca",
+              "bytes": 5211,
+              "sha256": "4f34085cbb0227773c0447fb62434e2a06e436833709f5b8c00a5303128d4d50",
+              "protocol": "not_run"
+            }
+          },
+          "candidate_evidence": {
+            "summary_sha256": "931a7d9bf98adce22a21626a200bbe4861cff6b85724791503aa7c23bb277f70",
+            "summary_bytes": 98320,
+            "no_size_regression_vs_input": true,
+            "winner_id": "4f72f2e105ff1dbb",
+            "winner_variant": "c-source-search-ce9b3a2d9fdd9ed7",
+            "codec": {
+              "dict_size": 16384,
+              "format": "alone",
+              "lc": 3,
+              "lp": 0,
+              "mf": 18,
+              "nice_len": 32,
+              "pb": 0,
+              "preset": 6
+            },
+            "candidate_count": 2981,
+            "original_decoder_status": "pass",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "budget-exhausted",
+              "exhaustion_reason": "complete-file-evaluation-budget",
+              "evaluations": 2048,
+              "accepted_steps": 2,
+              "accepted_rule_counts": {
+                "c-source-local-name": 9,
+                "c-source-character": 1,
+                "c-source-integer": 1
+              },
+              "source_changed": true,
+              "payload_changed": true,
+              "selected_by_final_codec_portfolio": true,
+              "original_cost_bytes": 5215,
+              "selected_cost_bytes": 5174,
+              "saved_cost_bytes": 41,
+              "all_recorded_native_and_diagnostic_identities_match": true,
+              "baseline_native": {
+                "bytes": 26304,
+                "sha256": "8d1392f96509bb8a613c9e7ea723880c75d1a72d4a5a4d643fa8f77c26a8e145",
+                "compiler_sha256": "6117c52522997d2aaccb2b52b3c6bf42c0a6c5edb1d718431fed6b2fc5fec234",
+                "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "final_source_sha256": "d025627ae8eb62ee1c3c717f8662be8fe1a4e89241e89bdace5ddd23a57ed9d8",
+              "final_payload_sha256": "ce9b3a2d9fdd9ed71f6f2b95cb0dd6b1e7b354aeb5c7fc13dba7d749c2d9c29f",
+              "detailed_records_in_summary": false,
+              "detailed_record_count": 2627,
+              "detailed_report_sha256": "3ec10439981c31bb89aaacb62ab1e74ebd5cc2c885957b5c2fdeb042fbfee0a8",
+              "detailed_report_bytes": 3674934,
+              "engine_execution": "not performed",
+              "scope": "Projection of recorded source proofs and compiler receipts; no new execution or semantic proof."
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "ba4aa6120d51c4d68f6735a6f416945bf510d1b4586851c3b995708290490814",
+              "bytes": 5173,
+              "sha256": "3c9a43d0cc1a958ed8ed29179ce9755f5046fc3d567d37222e22b33369483877",
+              "protocol": "not_run"
+            }
+          }
+        },
+        {
+          "name": "af-c",
+          "category": "4k",
+          "original_sha256": "07341bf4431dc2a6d412045377784bb28548baee5cd6142093a01c6d0b9d826b",
+          "original_bytes": 4992,
+          "baseline": {
+            "bytes": 4979,
+            "sha256": "dac677e20f19347808eb48feea201659a5030389fb149af115f2fb1eae2ccfe5",
+            "variant": "shortest-compact",
+            "equivalence": "typed Python AST identity under explicit source observation contract",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "candidate": {
+            "bytes": 4979,
+            "sha256": "dac677e20f19347808eb48feea201659a5030389fb149af115f2fb1eae2ccfe5",
+            "variant": "shortest-compact",
+            "equivalence": "typed Python AST identity under explicit source observation contract",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "saved_vs_baseline_bytes": 0,
+          "status": "pass",
+          "no_size_regression": true,
+          "baseline_evidence": {
+            "summary_sha256": "908d64397d12edaf96f79407d3162a1f8dab3781841769f870283110ec9b8718",
+            "summary_bytes": 51597,
+            "no_size_regression_vs_input": true,
+            "winner_id": "96c3472ed3535974",
+            "winner_variant": "shortest-compact",
+            "codec": {
+              "dict_size": 16384,
+              "format": "alone",
+              "lc": 2,
+              "lp": 0,
+              "mf": 18,
+              "nice_len": 24,
+              "pb": 0,
+              "preset": 6
+            },
+            "candidate_count": 2642,
+            "original_decoder_status": "pass",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "cf5ba4708cb0b6990a54b750abadebf711a6e211f265436c87acac0c15284c56",
+              "bytes": 4979,
+              "sha256": "dac677e20f19347808eb48feea201659a5030389fb149af115f2fb1eae2ccfe5",
+              "protocol": "not_run"
+            }
+          },
+          "candidate_evidence": {
+            "summary_sha256": "5492ec6fc79e44ede71542e8c83de8b00e7c00e4f2fcc060a5a0ef64d07a8b66",
+            "summary_bytes": 58364,
+            "no_size_regression_vs_input": true,
+            "winner_id": "96c3472ed3535974",
+            "winner_variant": "shortest-compact",
+            "codec": {
+              "dict_size": 16384,
+              "format": "alone",
+              "lc": 2,
+              "lp": 0,
+              "mf": 18,
+              "nice_len": 24,
+              "pb": 0,
+              "preset": 6
+            },
+            "candidate_count": 2650,
+            "original_decoder_status": "pass",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "budget-exhausted",
+              "exhaustion_reason": "frontend-output-budget",
+              "evaluations": 4,
+              "accepted_steps": 0,
+              "accepted_rule_counts": {},
+              "source_changed": false,
+              "payload_changed": false,
+              "selected_by_final_codec_portfolio": false,
+              "original_cost_bytes": 4988,
+              "selected_cost_bytes": 4988,
+              "saved_cost_bytes": 0,
+              "all_recorded_native_and_diagnostic_identities_match": true,
+              "baseline_native": {
+                "bytes": 26360,
+                "sha256": "b384567aff98e37035875e5071fa9292556c4f175a7a869073fb2807bff3b886",
+                "compiler_sha256": "6117c52522997d2aaccb2b52b3c6bf42c0a6c5edb1d718431fed6b2fc5fec234",
+                "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "final_source_sha256": "e3af22b2404d37187076ee676c51446aa561ac8cd14583b37d3da2529d9190a7",
+              "final_payload_sha256": "befbe147f3f50818e915783a9d6db3a2876f7bdf3e1c891fb72cbe1f29b208f0",
+              "detailed_records_in_summary": false,
+              "detailed_record_count": 8,
+              "detailed_report_sha256": "c6f3dfc13f41e9983a58d3711e242e7128bbf12fc0e7b1965f868971b60434f5",
+              "detailed_report_bytes": 8450,
+              "engine_execution": "not performed",
+              "scope": "Projection of recorded source proofs and compiler receipts; no new execution or semantic proof."
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "0db2fce981b5b0cb0beb8313b66ecb6e3acffca5fadd4fdc34e788c944fdcd18",
+              "bytes": 4979,
+              "sha256": "dac677e20f19347808eb48feea201659a5030389fb149af115f2fb1eae2ccfe5",
+              "protocol": "not_run"
+            }
+          }
+        },
+        {
+          "name": "af-d-hq",
+          "category": "4k-elf",
+          "original_sha256": "5badc54a2f24eb8f5c1e5ee033e27005eececcf84b8672c438a2a720e22ceab0",
+          "original_bytes": 6175,
+          "baseline": {
+            "bytes": 6175,
+            "sha256": "5badc54a2f24eb8f5c1e5ee033e27005eececcf84b8672c438a2a720e22ceab0",
+            "variant": "raw",
+            "equivalence": "complete submitted file byte identity",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "candidate": {
+            "bytes": 6175,
+            "sha256": "5badc54a2f24eb8f5c1e5ee033e27005eececcf84b8672c438a2a720e22ceab0",
+            "variant": "raw",
+            "equivalence": "complete submitted file byte identity",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "saved_vs_baseline_bytes": 0,
+          "status": "pass",
+          "no_size_regression": true,
+          "baseline_evidence": {
+            "summary_sha256": "f388db9d898c77fc95bb3004b4828a78ad746a376423ba959a71ea4acd176887",
+            "summary_bytes": 2826,
+            "no_size_regression_vs_input": true,
+            "winner_id": "identity",
+            "winner_variant": "raw",
+            "codec": null,
+            "candidate_count": 1,
+            "original_decoder_status": null,
+            "selected_decoder_status": null,
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "c77e679f01b30ff223643e431ffddc4e91e4d2a142da8cedfacc516b1e68b9ff",
+              "bytes": 6175,
+              "sha256": "5badc54a2f24eb8f5c1e5ee033e27005eececcf84b8672c438a2a720e22ceab0",
+              "protocol": "not_run"
+            }
+          },
+          "candidate_evidence": {
+            "summary_sha256": "2866ae4050fdce36119811a531fe08f73fa77df8714dbdfe5be5d2ab35641c59",
+            "summary_bytes": 2830,
+            "no_size_regression_vs_input": true,
+            "winner_id": "identity",
+            "winner_variant": "raw",
+            "codec": null,
+            "candidate_count": 1,
+            "original_decoder_status": null,
+            "selected_decoder_status": null,
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "35a4ad3633a39ffe31e02db40dedcb096ef380218878c25ddf2d141d632441e1",
+              "bytes": 6175,
+              "sha256": "5badc54a2f24eb8f5c1e5ee033e27005eececcf84b8672c438a2a720e22ceab0",
+              "protocol": "not_run"
+            }
+          }
+        },
+        {
+          "name": "af-d-scalar",
+          "category": "4k-elf",
+          "original_sha256": "ec52f4ea0fa8f8c792f88402ad8bc966a50055d80aab26ace444e8cb0daf3319",
+          "original_bytes": 5966,
+          "baseline": {
+            "bytes": 5966,
+            "sha256": "ec52f4ea0fa8f8c792f88402ad8bc966a50055d80aab26ace444e8cb0daf3319",
+            "variant": "raw",
+            "equivalence": "complete submitted file byte identity",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "candidate": {
+            "bytes": 5966,
+            "sha256": "ec52f4ea0fa8f8c792f88402ad8bc966a50055d80aab26ace444e8cb0daf3319",
+            "variant": "raw",
+            "equivalence": "complete submitted file byte identity",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "saved_vs_baseline_bytes": 0,
+          "status": "pass",
+          "no_size_regression": true,
+          "baseline_evidence": {
+            "summary_sha256": "5facf8147862fea8fa98e33f106195c05fcab5b1ccfb1605485d0440d433d75b",
+            "summary_bytes": 2854,
+            "no_size_regression_vs_input": true,
+            "winner_id": "identity",
+            "winner_variant": "raw",
+            "codec": null,
+            "candidate_count": 1,
+            "original_decoder_status": null,
+            "selected_decoder_status": null,
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "41928d303191f2ef88b397081e09c620efaf93e7ddd97a95a4967011fb253a51",
+              "bytes": 5966,
+              "sha256": "ec52f4ea0fa8f8c792f88402ad8bc966a50055d80aab26ace444e8cb0daf3319",
+              "protocol": "not_run"
+            }
+          },
+          "candidate_evidence": {
+            "summary_sha256": "a821f997f044cd3a0ac657eb914df820235c0228b40221e575ae9b6a18eabb7d",
+            "summary_bytes": 2859,
+            "no_size_regression_vs_input": true,
+            "winner_id": "identity",
+            "winner_variant": "raw",
+            "codec": null,
+            "candidate_count": 1,
+            "original_decoder_status": null,
+            "selected_decoder_status": null,
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "d703349cd8dbaa3aec3f2d86c7c5f4c1731601ecafc7c0824d116d543bb71e43",
+              "bytes": 5966,
+              "sha256": "ec52f4ea0fa8f8c792f88402ad8bc966a50055d80aab26ace444e8cb0daf3319",
+              "protocol": "not_run"
+            }
+          }
+        },
+        {
+          "name": "af-e",
+          "category": "4k",
+          "original_sha256": "fbbe85f3e048159c578ff85152d7e0bcd5e4d771a5d9801b4fcdf039f5e1befc",
+          "original_bytes": 5076,
+          "baseline": {
+            "bytes": 5069,
+            "sha256": "d9f7f1d14b1032ac09a732ca612e55f627e69d7e4933fc0c27b088824b2290e7",
+            "variant": "shortest-compact",
+            "equivalence": "typed Python AST identity under explicit source observation contract",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "candidate": {
+            "bytes": 5038,
+            "sha256": "f9d1e912b637af7c1837dc8ba15e98c0c01365dc1614c7b58085ef2e70ef236c",
+            "variant": "c-source-search-a1f6741e65fca502",
+            "equivalence": "unchanged C bytes or verified typed source derivation; complete native and compiler diagnostic byte identity; exact payload readback under declared embedding contract",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "saved_vs_baseline_bytes": 31,
+          "status": "pass",
+          "no_size_regression": true,
+          "baseline_evidence": {
+            "summary_sha256": "4941e27539162477d333688eb757aa2c07ca1e0b1814d7fe0a0eb54848d46613",
+            "summary_bytes": 51500,
+            "no_size_regression_vs_input": true,
+            "winner_id": "1991021bdcedb613",
+            "winner_variant": "shortest-compact",
+            "codec": {
+              "dict_size": 16384,
+              "format": "alone",
+              "lc": 2,
+              "lp": 0,
+              "mf": 18,
+              "nice_len": 32,
+              "pb": 0,
+              "preset": 6
+            },
+            "candidate_count": 2642,
+            "original_decoder_status": "pass",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "ba14cc5da970a68d4c70ee8519496018b45b8774bd3e3087949f32227ef21c0c",
+              "bytes": 5069,
+              "sha256": "d9f7f1d14b1032ac09a732ca612e55f627e69d7e4933fc0c27b088824b2290e7",
+              "protocol": "not_run"
+            }
+          },
+          "candidate_evidence": {
+            "summary_sha256": "ea401b58b1bdf289cd02cd0c391666055a622282b637203c5f102367ef9d3348",
+            "summary_bytes": 87850,
+            "no_size_regression_vs_input": true,
+            "winner_id": "651f52ee578116aa",
+            "winner_variant": "c-source-search-a1f6741e65fca502",
+            "codec": {
+              "dict_size": 16384,
+              "format": "alone",
+              "lc": 2,
+              "lp": 0,
+              "mf": 19,
+              "nice_len": 32,
+              "pb": 0,
+              "preset": 6
+            },
+            "candidate_count": 3421,
+            "original_decoder_status": "pass",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "budget-exhausted",
+              "exhaustion_reason": "complete-file-evaluation-budget",
+              "evaluations": 2048,
+              "accepted_steps": 2,
+              "accepted_rule_counts": {
+                "c-source-local-name": 9,
+                "c-source-character": 1,
+                "c-source-integer": 1
+              },
+              "source_changed": true,
+              "payload_changed": true,
+              "selected_by_final_codec_portfolio": true,
+              "original_cost_bytes": 5072,
+              "selected_cost_bytes": 5039,
+              "saved_cost_bytes": 33,
+              "all_recorded_native_and_diagnostic_identities_match": true,
+              "baseline_native": {
+                "bytes": 26400,
+                "sha256": "e58c321bf4a13083f6cc91740046f92294f6fb606f59430bb1ee0de98e1d1992",
+                "compiler_sha256": "6117c52522997d2aaccb2b52b3c6bf42c0a6c5edb1d718431fed6b2fc5fec234",
+                "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "final_source_sha256": "7208cc7e9bb9f4acdfb4c8e78e882bca395fe5c9c546c70c081fe5e81b031e18",
+              "final_payload_sha256": "a1f6741e65fca50200879640103e42a279d624265d0810909b7ed26088e4ec88",
+              "detailed_records_in_summary": false,
+              "detailed_record_count": 2604,
+              "detailed_report_sha256": "4a230e5714f52377c4f44e5bbcbb4a4ce9a60cb11108096c98109812b96656b5",
+              "detailed_report_bytes": 3553248,
+              "engine_execution": "not performed",
+              "scope": "Projection of recorded source proofs and compiler receipts; no new execution or semantic proof."
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "442b7d6be8997288d66cd264f2cd59f0c9f081512d02dba473a8f4b2bbf56482",
+              "bytes": 5038,
+              "sha256": "f9d1e912b637af7c1837dc8ba15e98c0c01365dc1614c7b58085ef2e70ef236c",
+              "protocol": "not_run"
+            }
+          }
+        },
+        {
+          "name": "af-f-material",
+          "category": "4k",
+          "original_sha256": "eff84e9b34ba121c7c17397252e2f61e832c6f2cfe0fcd51f182f99b677a3682",
+          "original_bytes": 4369,
+          "baseline": {
+            "bytes": 4359,
+            "sha256": "4c07a523f51fa4982872a20c3fb9102285637ba4ba8ab2eec4f602fa476a4782",
+            "variant": "shortest-compact",
+            "equivalence": "typed Python AST identity under explicit source observation contract",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "candidate": {
+            "bytes": 4331,
+            "sha256": "70c5a64ce240d6bd1407b629159be62a80a425a7483a1f73ec39a0003460adf1",
+            "variant": "c-source-search-5225691686089d79",
+            "equivalence": "unchanged C bytes or verified typed source derivation; complete native and compiler diagnostic byte identity; exact payload readback under declared embedding contract",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "saved_vs_baseline_bytes": 28,
+          "status": "pass",
+          "no_size_regression": true,
+          "baseline_evidence": {
+            "summary_sha256": "009307d59ffb16d76010f770ccd8c77327653c0dabe142789a70667131db2c9b",
+            "summary_bytes": 50776,
+            "no_size_regression_vs_input": true,
+            "winner_id": "c92ad4ea9dfce0e2",
+            "winner_variant": "shortest-compact",
+            "codec": {
+              "dict_size": 16384,
+              "format": "alone",
+              "lc": 0,
+              "lp": 0,
+              "mf": 18,
+              "nice_len": 24,
+              "pb": 0,
+              "preset": 6
+            },
+            "candidate_count": 2642,
+            "original_decoder_status": "pass",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "1e67e87d13457e555f773c0bd1f7a71d8545e849dc6886497531b8f3b37d58e1",
+              "bytes": 4359,
+              "sha256": "4c07a523f51fa4982872a20c3fb9102285637ba4ba8ab2eec4f602fa476a4782",
+              "protocol": "not_run"
+            }
+          },
+          "candidate_evidence": {
+            "summary_sha256": "42b248bf185fdcd9c17f098b45b187bccadc4bc474810e76a7744aef3dbdfd0f",
+            "summary_bytes": 94935,
+            "no_size_regression_vs_input": true,
+            "winner_id": "f109147746a21c6a",
+            "winner_variant": "c-source-search-5225691686089d79",
+            "codec": {
+              "dict_size": 16384,
+              "format": "alone",
+              "lc": 0,
+              "lp": 0,
+              "mf": 18,
+              "nice_len": 24,
+              "pb": 0,
+              "preset": 6
+            },
+            "candidate_count": 3091,
+            "original_decoder_status": "pass",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "budget-exhausted",
+              "exhaustion_reason": "complete-file-evaluation-budget",
+              "evaluations": 2048,
+              "accepted_steps": 2,
+              "accepted_rule_counts": {
+                "c-source-local-name": 9,
+                "c-source-integer": 3,
+                "c-source-character": 1
+              },
+              "source_changed": true,
+              "payload_changed": true,
+              "selected_by_final_codec_portfolio": true,
+              "original_cost_bytes": 4365,
+              "selected_cost_bytes": 4337,
+              "saved_cost_bytes": 28,
+              "all_recorded_native_and_diagnostic_identities_match": true,
+              "baseline_native": {
+                "bytes": 18576,
+                "sha256": "a6abdb6ba3e5a215a925c0f5e94a21176c6e2e32be94c25908b1cc64ca74fd08",
+                "compiler_sha256": "6117c52522997d2aaccb2b52b3c6bf42c0a6c5edb1d718431fed6b2fc5fec234",
+                "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "final_source_sha256": "1406b49c6b5cb5bbf9323d068c1d81bade25e0fd8db5d61e79ec2e36e4a65419",
+              "final_payload_sha256": "5225691686089d79b30a1efbed3b45293a22af44149a9f1a6fe41ad6f8757d18",
+              "detailed_records_in_summary": false,
+              "detailed_record_count": 2600,
+              "detailed_report_sha256": "a3030ba9aa9b4e6ef16357dafcb146c3a155e655b8853d0e0c0d6b6596e9672f",
+              "detailed_report_bytes": 3354649,
+              "engine_execution": "not performed",
+              "scope": "Projection of recorded source proofs and compiler receipts; no new execution or semantic proof."
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "92bf0d66bab219b8f3caed76082f0613861d78d43a55a1338960348b58b70abf",
+              "bytes": 4331,
+              "sha256": "70c5a64ce240d6bd1407b629159be62a80a425a7483a1f73ec39a0003460adf1",
+              "protocol": "not_run"
+            }
+          }
+        },
+        {
+          "name": "af-f-move",
+          "category": "4k",
+          "original_sha256": "ccb77b12ade5ef7dd367970edd4bfc3d97d4709a00fc9861570355785563d70c",
+          "original_bytes": 4089,
+          "baseline": {
+            "bytes": 4080,
+            "sha256": "6017a865a996d85c8dc01e31629c19f13355548ec0517cf959487951b70c5f47",
+            "variant": "raw",
+            "equivalence": "decoded payload byte identity",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "candidate": {
+            "bytes": 4047,
+            "sha256": "1bf76bbcaaa3a4da6ef3bebd1cf8363991197eee0f2801424f2731074334361a",
+            "variant": "c-source-search-07584d823d5a8779",
+            "equivalence": "unchanged C bytes or verified typed source derivation; complete native and compiler diagnostic byte identity; exact payload readback under declared embedding contract",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "saved_vs_baseline_bytes": 33,
+          "status": "pass",
+          "no_size_regression": true,
+          "baseline_evidence": {
+            "summary_sha256": "6328449b0fc784f4b6f95b67b282791ebf2c9ef4fa0287cf8aa3c370cb3b33e2",
+            "summary_bytes": 50692,
+            "no_size_regression_vs_input": true,
+            "winner_id": "b44c0f5af15850ce",
+            "winner_variant": "raw",
+            "codec": {
+              "dict_size": 16384,
+              "format": "alone",
+              "lc": 2,
+              "lp": 0,
+              "mf": 18,
+              "nice_len": 32,
+              "pb": 0,
+              "preset": 6
+            },
+            "candidate_count": 2642,
+            "original_decoder_status": "pass",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "562aaa5f85ab3648cd3f75c7b2d4fa8055c246408f368bac79a5386ec80cf987",
+              "bytes": 4080,
+              "sha256": "6017a865a996d85c8dc01e31629c19f13355548ec0517cf959487951b70c5f47",
+              "protocol": "not_run"
+            }
+          },
+          "candidate_evidence": {
+            "summary_sha256": "803300518a706a37bfff22e903c140249d70de7271adfdb51a4cd99fff7441e8",
+            "summary_bytes": 86202,
+            "no_size_regression_vs_input": true,
+            "winner_id": "765e08f20fbaadb0",
+            "winner_variant": "c-source-search-07584d823d5a8779",
+            "codec": {
+              "dict_size": 16384,
+              "format": "alone",
+              "lc": 0,
+              "lp": 0,
+              "mf": 18,
+              "nice_len": 24,
+              "pb": 0,
+              "preset": 6
+            },
+            "candidate_count": 3091,
+            "original_decoder_status": "pass",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "budget-exhausted",
+              "exhaustion_reason": "complete-file-evaluation-budget",
+              "evaluations": 2048,
+              "accepted_steps": 1,
+              "accepted_rule_counts": {
+                "c-source-local-name": 10,
+                "c-source-integer": 1,
+                "c-source-character": 1
+              },
+              "source_changed": true,
+              "payload_changed": true,
+              "selected_by_final_codec_portfolio": true,
+              "original_cost_bytes": 4085,
+              "selected_cost_bytes": 4049,
+              "saved_cost_bytes": 36,
+              "all_recorded_native_and_diagnostic_identities_match": true,
+              "baseline_native": {
+                "bytes": 18576,
+                "sha256": "c3fd3c09f8d72d4dd94cec47bfabd1c022cf151fd9624d29c1f750b90ba6126c",
+                "compiler_sha256": "6117c52522997d2aaccb2b52b3c6bf42c0a6c5edb1d718431fed6b2fc5fec234",
+                "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "final_source_sha256": "2930ac405871b9e7765329bff7bc3c5fbb9dee1a878e49cd19db446911ecd674",
+              "final_payload_sha256": "07584d823d5a877968880e7bfa0c9333420593676c2390cc3ed4ea4d742601a7",
+              "detailed_records_in_summary": false,
+              "detailed_record_count": 2597,
+              "detailed_report_sha256": "13ac2951da15a53bcfe10caf2051b12f2175ab3355ce681d89bcc5def007124c",
+              "detailed_report_bytes": 3376341,
+              "engine_execution": "not performed",
+              "scope": "Projection of recorded source proofs and compiler receipts; no new execution or semantic proof."
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "3418724a5720ef5deb7473a77916281de806a8ceb19675453edd2e92ec0760b2",
+              "bytes": 4047,
+              "sha256": "1bf76bbcaaa3a4da6ef3bebd1cf8363991197eee0f2801424f2731074334361a",
+              "protocol": "not_run"
+            }
+          }
+        },
+        {
+          "name": "af-f",
+          "category": "4k",
+          "original_sha256": "a3eaf6f94477beb9897bbccec11e990eb703bc3243034199271deb1b41e023bb",
+          "original_bytes": 4645,
+          "baseline": {
+            "bytes": 4637,
+            "sha256": "1fb5c616868b2dbf6cf705b09c1c06c1eb14d104c00355cdff6a7ed6fedfedaf",
+            "variant": "raw",
+            "equivalence": "decoded payload byte identity",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "candidate": {
+            "bytes": 4611,
+            "sha256": "5d43c2c70b4a4ffecce719c4d5fc98c3fc2f3aa9740c90da231467f738ef2791",
+            "variant": "c-source-search-01ac01d85836c61a",
+            "equivalence": "unchanged C bytes or verified typed source derivation; complete native and compiler diagnostic byte identity; exact payload readback under declared embedding contract",
+            "protocol": "not_run",
+            "recorded_recipe_rebuild": "pass; a separate reproduce invocation is still recorded independently"
+          },
+          "saved_vs_baseline_bytes": 26,
+          "status": "pass",
+          "no_size_regression": true,
+          "baseline_evidence": {
+            "summary_sha256": "81a15084a3af8e27947d9de750e3194f40f8a7a03b98f9eeafbdaf72f6472cdc",
+            "summary_bytes": 50697,
+            "no_size_regression_vs_input": true,
+            "winner_id": "616f32247f6acb38",
+            "winner_variant": "raw",
+            "codec": {
+              "dict_size": 16384,
+              "format": "alone",
+              "lc": 2,
+              "lp": 0,
+              "mf": 18,
+              "nice_len": 16,
+              "pb": 0,
+              "preset": 6
+            },
+            "candidate_count": 2642,
+            "original_decoder_status": "pass",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "not_configured"
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "b665a0e01717841354072ec51b0113dec07ca83c84565b49ebc1553c99175006",
+              "bytes": 4637,
+              "sha256": "1fb5c616868b2dbf6cf705b09c1c06c1eb14d104c00355cdff6a7ed6fedfedaf",
+              "protocol": "not_run"
+            }
+          },
+          "candidate_evidence": {
+            "summary_sha256": "6388f67cf449e250b4c4e4dd6c94e73b47554aab8b3725622954800d3ba1510b",
+            "summary_bytes": 92327,
+            "no_size_regression_vs_input": true,
+            "winner_id": "85da49eb19d13f78",
+            "winner_variant": "c-source-search-01ac01d85836c61a",
+            "codec": {
+              "dict_size": 67108864,
+              "format": "alone",
+              "lc": 2,
+              "lp": 0,
+              "mf": 20,
+              "nice_len": 32,
+              "pb": 0,
+              "preset": 2147483657
+            },
+            "candidate_count": 3421,
+            "original_decoder_status": "pass",
+            "selected_decoder_status": "pass",
+            "source_search": {
+              "status": "budget-exhausted",
+              "exhaustion_reason": "complete-file-evaluation-budget",
+              "evaluations": 2048,
+              "accepted_steps": 2,
+              "accepted_rule_counts": {
+                "c-source-local-name": 9,
+                "c-source-character": 1,
+                "c-source-integer": 3
+              },
+              "source_changed": true,
+              "payload_changed": true,
+              "selected_by_final_codec_portfolio": true,
+              "original_cost_bytes": 4641,
+              "selected_cost_bytes": 4611,
+              "saved_cost_bytes": 30,
+              "all_recorded_native_and_diagnostic_identities_match": true,
+              "baseline_native": {
+                "bytes": 18576,
+                "sha256": "e81669026da6c335ecc85457e1422c5d130ad536c8c7b60dbb8c3ce8aa91b493",
+                "compiler_sha256": "6117c52522997d2aaccb2b52b3c6bf42c0a6c5edb1d718431fed6b2fc5fec234",
+                "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "final_source_sha256": "c38fef40582e1c3d3a1695920f6d8318478417a8c516f2ae8e24a6c638a078ff",
+              "final_payload_sha256": "01ac01d85836c61aee6a727dee1c238d7fdbc98dbc41daf5ce7bf1098a147880",
+              "detailed_records_in_summary": false,
+              "detailed_record_count": 2658,
+              "detailed_report_sha256": "d9994db66cdab25f338da80ae507302376628fbef0a647f3c37cb9b7a7332e47",
+              "detailed_report_bytes": 3665714,
+              "engine_execution": "not performed",
+              "scope": "Projection of recorded source proofs and compiler receipts; no new execution or semantic proof."
+            },
+            "replay": {
+              "status": "recorded_pass_actual_bytes_readback",
+              "report_sha256": "973d9d8f5835eb396bfdf75ed5726e64687d5c08aaea80d318d76d17b22a0a3c",
+              "bytes": 4611,
+              "sha256": "5d43c2c70b4a4ffecce719c4d5fc98c3fc2f3aa9740c90da231467f738ef2791",
+              "protocol": "not_run"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "projection_source": {
+    "path": "${WORK}/final-evidence.json",
+    "sha256": "e7b7287b9a15981631b0440273dedc93a131103511f63b7ad8bd8d64558bd667",
+    "note": "Reviewed metadata projection. Original report is preserved outside Git."
+  }
+}

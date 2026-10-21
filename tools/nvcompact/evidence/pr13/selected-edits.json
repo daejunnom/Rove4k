@@ -1,0 +1,944 @@
+{
+  "count": 9,
+  "format": "nvcompact.pr13.reviewed-selected-edits.v1",
+  "interpretation": [
+    "The comparison uses complete submitted artifact sizes, including the launcher.",
+    "Rule counts and token-edit occurrences count admitted operations; later steps can revisit one source occurrence.",
+    "Individual rule effects are conditional on earlier edits and the codec; no additive isolated-rule saving is asserted.",
+    "C stopped on a typed frontend capacity error with no C edits; its final winner is a retained legacy wrapper spelling.",
+    "Seven historical native-pin mismatches remain failed; native identity here is against the reproducible local compiler baseline.",
+    "These size and derivation checks do not claim new chess runtime, UCI, or playing-strength validation."
+  ],
+  "path_labels": {
+    "${PR12}": "pinned PR12 source snapshot",
+    "${REPO}": "Rove4k PR13 checkout",
+    "${WORK}": "task workspace"
+  },
+  "pr12_source_commit": "0e716e0b366272c66749f6e7194f64cb715e2d00",
+  "projection": true,
+  "raw_audit": {
+    "bytes": 50691,
+    "filename": "${WORK}/nvcompact-pr13-analysis/selected-edit-audit-final.json",
+    "sha256": "f972dbaa133a0fc16a8ac361d006a0ef5f77cf11d33cba730000c9f931fe0283"
+  },
+  "rows": [
+    {
+      "accepted_rule_groups": {
+        "c-source-character": 1,
+        "c-source-integer": 3,
+        "c-source-local-name": 7
+      },
+      "accepted_rule_token_sites": {
+        "c-source-character": 3,
+        "c-source-integer": 13,
+        "c-source-local-name": 71
+      },
+      "accepted_steps": 2,
+      "actual_artifact_identity_readback": true,
+      "all_recorded_native_and_diagnostic_identities_match": true,
+      "baseline_minimum_bytes": 4637,
+      "baseline_winner_sha256": "165c86d963a0701f12f26dc428378840d8bab7fc8109728549b855aed3b2a5de",
+      "category": "4k",
+      "condition_steps_accepted": 0,
+      "engine_execution": false,
+      "evaluation_limit": 2048,
+      "evaluations": 1913,
+      "exhaustion_reason": null,
+      "final_codec_additional_saved_bytes": 5,
+      "final_winner_complete_embedded_source_matches_search_source": true,
+      "final_winner_complete_embedded_source_unchanged": false,
+      "fresh_final_native_record_matches": true,
+      "frontend_capacity_stop": null,
+      "margin_below_4096_bytes": -520,
+      "minimum_bytes": 4616,
+      "name": "af-a",
+      "native_bearing_detail_records": 13,
+      "native_identity": {
+        "bytes": 18576,
+        "compiler_sha256": "6117c52522997d2aaccb2b52b3c6bf42c0a6c5edb1d718431fed6b2fc5fec234",
+        "sha256": "bc26eddc218b4e787fbe777d6da9689a6d314659763841104c8b7e0e0c9f079e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "nvcompact_tool": {
+        "codecs": {
+          "gzip_mtime": 0,
+          "gzip_os": 255,
+          "implementation": "Rust with liblzma, zlib and libbz2; Cargo.lock pins bindings",
+          "lzma": "5.2.5"
+        },
+        "executable_sha256": "86bcf85c1dc2790003c26e84c273a9b263d6bb215c2f9bdea64400165749b986",
+        "runtime": "Rust",
+        "version": "0.4.1"
+      },
+      "original_bytes": 4652,
+      "original_sha256": "fd7307213f35a16b111854125ec028e1fc4c07d0042bb0e5421976c8de244f20",
+      "raw_baseline_summary": {
+        "bytes": 50669,
+        "filename": "${WORK}/nvcompact-pr13-analysis/baseline/af/af-a/summary.json",
+        "sha256": "7a7dfc985b1004d9dd44abc99214f55fb667ec81c7a3ec8ebda4895101a94f2b"
+      },
+      "raw_source_search_report": {
+        "bytes": 3249802,
+        "filename": "${WORK}/nvcompact-pr13-analysis/final/af/af-a/source-search/source-search/report.json",
+        "sha256": "e1d329c62780f80ccbe44270f404440c05c853183da63b283f40906a0b713535"
+      },
+      "raw_summary": {
+        "bytes": 86759,
+        "filename": "${WORK}/nvcompact-pr13-analysis/final/af/af-a/summary.json",
+        "sha256": "f4a28a3ae8c34bda0202ee3a7abe127839979cc3857c6fe68f68182f6e8fc363"
+      },
+      "recorded_derivation_replay_audited": true,
+      "recorded_edit_bytes_independently_reconstructed": true,
+      "saved_vs_baseline_bytes": 21,
+      "saved_vs_original_bytes": 36,
+      "separate_nvcompact_reproduce_scope": "Reported separately in the campaign aggregate.",
+      "source_final_bytes": 9122,
+      "source_final_sha256": "41300ed042444801cf462d9409ace6782de8647ea30b22be26313556d6d5e4f2",
+      "source_input_sha256": "e427db6e5697679c4765d4b0842dbfebe9637cffd1c2d1e48c3787f8fc43964b",
+      "source_original_bytes": 9125,
+      "source_proof": "accepted-typed-derivations",
+      "source_raw_bytes_saved": 3,
+      "source_search": true,
+      "source_search_cost_saved_bytes": 27,
+      "source_search_embedded_literal_round_trip_and_outer_bytes_match": true,
+      "source_search_final_cost_bytes": 4621,
+      "source_search_fixed_cost_codec": {
+        "dict_size": 67108864,
+        "format": "alone",
+        "lc": 2,
+        "lp": 0,
+        "pb": 0,
+        "preset": 2147483657
+      },
+      "source_search_initial_cost_bytes": 4648,
+      "source_search_native_file_actual_readback_matches": true,
+      "source_search_payload_sha256": "72efa7c981b3475770f33e9244406c8a5e1323d678744ae917925fc3ffcb1278",
+      "source_search_selected": true,
+      "source_unchanged": false,
+      "status": "completed",
+      "total_token_sites": 87,
+      "winner_codec": {
+        "dict_size": 16384,
+        "format": "alone",
+        "lc": 2,
+        "lp": 0,
+        "mf": 18,
+        "nice_len": 24,
+        "pb": 0,
+        "preset": 6
+      },
+      "winner_header_bytes": 73,
+      "winner_packed_bytes": 4543,
+      "winner_payload_equals_search_payload": true,
+      "winner_payload_sha256": "72efa7c981b3475770f33e9244406c8a5e1323d678744ae917925fc3ffcb1278",
+      "winner_sha256": "bc498e95a978de0a9c4e9b11992d78b4742fd42c54a5c69e34fadaba6b27758e",
+      "winner_variant": "c-source-search-72efa7c981b34757"
+    },
+    {
+      "accepted_rule_groups": {
+        "c-source-character": 1,
+        "c-source-integer": 1,
+        "c-source-local-name": 9
+      },
+      "accepted_rule_token_sites": {
+        "c-source-character": 3,
+        "c-source-integer": 4,
+        "c-source-local-name": 127
+      },
+      "accepted_steps": 2,
+      "actual_artifact_identity_readback": true,
+      "all_recorded_native_and_diagnostic_identities_match": true,
+      "baseline_minimum_bytes": 5211,
+      "baseline_winner_sha256": "4f34085cbb0227773c0447fb62434e2a06e436833709f5b8c00a5303128d4d50",
+      "category": "4k",
+      "condition_steps_accepted": 0,
+      "engine_execution": false,
+      "evaluation_limit": 2048,
+      "evaluations": 2048,
+      "exhaustion_reason": "complete-file-evaluation-budget",
+      "final_codec_additional_saved_bytes": 1,
+      "final_winner_complete_embedded_source_matches_search_source": true,
+      "final_winner_complete_embedded_source_unchanged": false,
+      "fresh_final_native_record_matches": true,
+      "frontend_capacity_stop": null,
+      "margin_below_4096_bytes": -1077,
+      "minimum_bytes": 5173,
+      "name": "af-b",
+      "native_bearing_detail_records": 13,
+      "native_identity": {
+        "bytes": 26304,
+        "compiler_sha256": "6117c52522997d2aaccb2b52b3c6bf42c0a6c5edb1d718431fed6b2fc5fec234",
+        "sha256": "8d1392f96509bb8a613c9e7ea723880c75d1a72d4a5a4d643fa8f77c26a8e145",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "nvcompact_tool": {
+        "codecs": {
+          "gzip_mtime": 0,
+          "gzip_os": 255,
+          "implementation": "Rust with liblzma, zlib and libbz2; Cargo.lock pins bindings",
+          "lzma": "5.2.5"
+        },
+        "executable_sha256": "86bcf85c1dc2790003c26e84c273a9b263d6bb215c2f9bdea64400165749b986",
+        "runtime": "Rust",
+        "version": "0.4.1"
+      },
+      "original_bytes": 5219,
+      "original_sha256": "65cfbe6f391f620beeb8d8b190570ed5eed2c38b937ba87b1cbf4f547fe606b0",
+      "raw_baseline_summary": {
+        "bytes": 51282,
+        "filename": "${WORK}/nvcompact-pr13-analysis/baseline/af/af-b/summary.json",
+        "sha256": "268eb205d093f2c7befab9222927fc57eb86181eac6a051533638d0820f9ced1"
+      },
+      "raw_source_search_report": {
+        "bytes": 3674934,
+        "filename": "${WORK}/nvcompact-pr13-analysis/final/af/af-b/source-search/source-search/report.json",
+        "sha256": "3ec10439981c31bb89aaacb62ab1e74ebd5cc2c885957b5c2fdeb042fbfee0a8"
+      },
+      "raw_summary": {
+        "bytes": 98320,
+        "filename": "${WORK}/nvcompact-pr13-analysis/final/af/af-b/summary.json",
+        "sha256": "931a7d9bf98adce22a21626a200bbe4861cff6b85724791503aa7c23bb277f70"
+      },
+      "recorded_derivation_replay_audited": true,
+      "recorded_edit_bytes_independently_reconstructed": true,
+      "saved_vs_baseline_bytes": 38,
+      "saved_vs_original_bytes": 46,
+      "separate_nvcompact_reproduce_scope": "Reported separately in the campaign aggregate.",
+      "source_final_bytes": 10686,
+      "source_final_sha256": "d025627ae8eb62ee1c3c717f8662be8fe1a4e89241e89bdace5ddd23a57ed9d8",
+      "source_input_sha256": "1aa26d8fcff91a0e38403211a72a0f52f464711a0462c7b611f4d112668ea5c1",
+      "source_original_bytes": 10745,
+      "source_proof": "accepted-typed-derivations",
+      "source_raw_bytes_saved": 59,
+      "source_search": true,
+      "source_search_cost_saved_bytes": 41,
+      "source_search_embedded_literal_round_trip_and_outer_bytes_match": true,
+      "source_search_final_cost_bytes": 5174,
+      "source_search_fixed_cost_codec": {
+        "dict_size": 67108864,
+        "format": "alone",
+        "lc": 2,
+        "lp": 0,
+        "mf": 20,
+        "nice_len": 32,
+        "pb": 0,
+        "preset": 2147483657
+      },
+      "source_search_initial_cost_bytes": 5215,
+      "source_search_native_file_actual_readback_matches": true,
+      "source_search_payload_sha256": "ce9b3a2d9fdd9ed71f6f2b95cb0dd6b1e7b354aeb5c7fc13dba7d749c2d9c29f",
+      "source_search_selected": true,
+      "source_unchanged": false,
+      "status": "budget-exhausted",
+      "total_token_sites": 134,
+      "winner_codec": {
+        "dict_size": 16384,
+        "format": "alone",
+        "lc": 3,
+        "lp": 0,
+        "mf": 18,
+        "nice_len": 32,
+        "pb": 0,
+        "preset": 6
+      },
+      "winner_header_bytes": 73,
+      "winner_packed_bytes": 5100,
+      "winner_payload_equals_search_payload": true,
+      "winner_payload_sha256": "ce9b3a2d9fdd9ed71f6f2b95cb0dd6b1e7b354aeb5c7fc13dba7d749c2d9c29f",
+      "winner_sha256": "3c9a43d0cc1a958ed8ed29179ce9755f5046fc3d567d37222e22b33369483877",
+      "winner_variant": "c-source-search-ce9b3a2d9fdd9ed7"
+    },
+    {
+      "accepted_rule_groups": {},
+      "accepted_rule_token_sites": {},
+      "accepted_steps": 0,
+      "actual_artifact_identity_readback": true,
+      "all_recorded_native_and_diagnostic_identities_match": true,
+      "baseline_minimum_bytes": 4979,
+      "baseline_winner_sha256": "dac677e20f19347808eb48feea201659a5030389fb149af115f2fb1eae2ccfe5",
+      "category": "4k",
+      "condition_steps_accepted": 0,
+      "engine_execution": false,
+      "evaluation_limit": 2048,
+      "evaluations": 4,
+      "exhaustion_reason": "frontend-output-budget",
+      "final_codec_additional_saved_bytes": null,
+      "final_winner_complete_embedded_source_matches_search_source": true,
+      "final_winner_complete_embedded_source_unchanged": true,
+      "fresh_final_native_record_matches": true,
+      "frontend_capacity_stop": {
+        "capture": {
+          "captured_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "captured_stdout_sha256": "2e1acfe5a2c4fa9c4a65d4fa470920831746fcc1025cef7a0f54a3bb02b9e012",
+          "label": "Clang source spelling frontend",
+          "maximum_bytes": 33554432,
+          "returncode": 125,
+          "stderr_bytes": 0,
+          "stdout_bytes": 33554432,
+          "wall_seconds": 1.293753299
+        },
+        "frontend_proof": "incomplete",
+        "phase": "spelling-generation",
+        "retained": "last fully verified incumbent; unchanged C retains byte-identity proof",
+        "round": 1,
+        "stage": "frontend-capacity-stop",
+        "syntax_recheck": "passed",
+        "truncated_output_accepted": false
+      },
+      "margin_below_4096_bytes": -883,
+      "minimum_bytes": 4979,
+      "name": "af-c",
+      "native_bearing_detail_records": 2,
+      "native_identity": {
+        "bytes": 26360,
+        "compiler_sha256": "6117c52522997d2aaccb2b52b3c6bf42c0a6c5edb1d718431fed6b2fc5fec234",
+        "sha256": "b384567aff98e37035875e5071fa9292556c4f175a7a869073fb2807bff3b886",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "nvcompact_tool": {
+        "codecs": {
+          "gzip_mtime": 0,
+          "gzip_os": 255,
+          "implementation": "Rust with liblzma, zlib and libbz2; Cargo.lock pins bindings",
+          "lzma": "5.2.5"
+        },
+        "executable_sha256": "86bcf85c1dc2790003c26e84c273a9b263d6bb215c2f9bdea64400165749b986",
+        "runtime": "Rust",
+        "version": "0.4.1"
+      },
+      "original_bytes": 4992,
+      "original_sha256": "07341bf4431dc2a6d412045377784bb28548baee5cd6142093a01c6d0b9d826b",
+      "raw_baseline_summary": {
+        "bytes": 51597,
+        "filename": "${WORK}/nvcompact-pr13-analysis/baseline/af/af-c/summary.json",
+        "sha256": "908d64397d12edaf96f79407d3162a1f8dab3781841769f870283110ec9b8718"
+      },
+      "raw_source_search_report": {
+        "bytes": 8450,
+        "filename": "${WORK}/nvcompact-pr13-analysis/final/af/af-c/source-search/source-search/report.json",
+        "sha256": "c6f3dfc13f41e9983a58d3711e242e7128bbf12fc0e7b1965f868971b60434f5"
+      },
+      "raw_summary": {
+        "bytes": 58364,
+        "filename": "${WORK}/nvcompact-pr13-analysis/final/af/af-c/summary.json",
+        "sha256": "5492ec6fc79e44ede71542e8c83de8b00e7c00e4f2fcc060a5a0ef64d07a8b66"
+      },
+      "recorded_derivation_replay_audited": true,
+      "recorded_edit_bytes_independently_reconstructed": true,
+      "saved_vs_baseline_bytes": 0,
+      "saved_vs_original_bytes": 13,
+      "separate_nvcompact_reproduce_scope": "Reported separately in the campaign aggregate.",
+      "source_final_bytes": 10174,
+      "source_final_sha256": "e3af22b2404d37187076ee676c51446aa561ac8cd14583b37d3da2529d9190a7",
+      "source_input_sha256": "e3af22b2404d37187076ee676c51446aa561ac8cd14583b37d3da2529d9190a7",
+      "source_original_bytes": 10174,
+      "source_proof": "byte-identical-to-original",
+      "source_raw_bytes_saved": 0,
+      "source_search": true,
+      "source_search_cost_saved_bytes": 0,
+      "source_search_embedded_literal_round_trip_and_outer_bytes_match": true,
+      "source_search_final_cost_bytes": 4988,
+      "source_search_fixed_cost_codec": {
+        "dict_size": 67108864,
+        "format": "alone",
+        "lc": 2,
+        "lp": 0,
+        "mf": 20,
+        "nice_len": 64,
+        "pb": 0,
+        "preset": 2147483657
+      },
+      "source_search_initial_cost_bytes": 4988,
+      "source_search_native_file_actual_readback_matches": true,
+      "source_search_payload_sha256": "befbe147f3f50818e915783a9d6db3a2876f7bdf3e1c891fb72cbe1f29b208f0",
+      "source_search_selected": false,
+      "source_unchanged": true,
+      "status": "budget-exhausted",
+      "total_token_sites": 0,
+      "winner_codec": {
+        "dict_size": 16384,
+        "format": "alone",
+        "lc": 2,
+        "lp": 0,
+        "mf": 18,
+        "nice_len": 24,
+        "pb": 0,
+        "preset": 6
+      },
+      "winner_header_bytes": 73,
+      "winner_packed_bytes": 4906,
+      "winner_payload_equals_search_payload": false,
+      "winner_payload_sha256": "e4d87fd0cf782f198a575b8c7caef20ebfc9cec74c63eb9ea3af7552a1f0b35b",
+      "winner_sha256": "dac677e20f19347808eb48feea201659a5030389fb149af115f2fb1eae2ccfe5",
+      "winner_variant": "shortest-compact"
+    },
+    {
+      "actual_artifact_identity_readback": true,
+      "baseline_minimum_bytes": 5966,
+      "baseline_winner_sha256": "ec52f4ea0fa8f8c792f88402ad8bc966a50055d80aab26ace444e8cb0daf3319",
+      "category": "4k-elf",
+      "engine_execution": false,
+      "margin_below_4096_bytes": -1870,
+      "minimum_bytes": 5966,
+      "name": "af-d-scalar",
+      "nvcompact_tool": {
+        "codecs": {
+          "gzip_mtime": 0,
+          "gzip_os": 255,
+          "implementation": "Rust with liblzma, zlib and libbz2; Cargo.lock pins bindings",
+          "lzma": "5.2.5"
+        },
+        "executable_sha256": "86bcf85c1dc2790003c26e84c273a9b263d6bb215c2f9bdea64400165749b986",
+        "runtime": "Rust",
+        "version": "0.4.1"
+      },
+      "original_bytes": 5966,
+      "original_sha256": "ec52f4ea0fa8f8c792f88402ad8bc966a50055d80aab26ace444e8cb0daf3319",
+      "raw_baseline_summary": {
+        "bytes": 2854,
+        "filename": "${WORK}/nvcompact-pr13-analysis/baseline/af/af-d-scalar/summary.json",
+        "sha256": "5facf8147862fea8fa98e33f106195c05fcab5b1ccfb1605485d0440d433d75b"
+      },
+      "raw_summary": {
+        "bytes": 2859,
+        "filename": "${WORK}/nvcompact-pr13-analysis/final/af/af-d-scalar/summary.json",
+        "sha256": "a821f997f044cd3a0ac657eb914df820235c0228b40221e575ae9b6a18eabb7d"
+      },
+      "saved_vs_baseline_bytes": 0,
+      "saved_vs_original_bytes": 0,
+      "source_search": false,
+      "winner_codec": null,
+      "winner_header_bytes": null,
+      "winner_packed_bytes": null,
+      "winner_sha256": "ec52f4ea0fa8f8c792f88402ad8bc966a50055d80aab26ace444e8cb0daf3319",
+      "winner_variant": "raw"
+    },
+    {
+      "actual_artifact_identity_readback": true,
+      "baseline_minimum_bytes": 6175,
+      "baseline_winner_sha256": "5badc54a2f24eb8f5c1e5ee033e27005eececcf84b8672c438a2a720e22ceab0",
+      "category": "4k-elf",
+      "engine_execution": false,
+      "margin_below_4096_bytes": -2079,
+      "minimum_bytes": 6175,
+      "name": "af-d-hq",
+      "nvcompact_tool": {
+        "codecs": {
+          "gzip_mtime": 0,
+          "gzip_os": 255,
+          "implementation": "Rust with liblzma, zlib and libbz2; Cargo.lock pins bindings",
+          "lzma": "5.2.5"
+        },
+        "executable_sha256": "86bcf85c1dc2790003c26e84c273a9b263d6bb215c2f9bdea64400165749b986",
+        "runtime": "Rust",
+        "version": "0.4.1"
+      },
+      "original_bytes": 6175,
+      "original_sha256": "5badc54a2f24eb8f5c1e5ee033e27005eececcf84b8672c438a2a720e22ceab0",
+      "raw_baseline_summary": {
+        "bytes": 2826,
+        "filename": "${WORK}/nvcompact-pr13-analysis/baseline/af/af-d-hq/summary.json",
+        "sha256": "f388db9d898c77fc95bb3004b4828a78ad746a376423ba959a71ea4acd176887"
+      },
+      "raw_summary": {
+        "bytes": 2830,
+        "filename": "${WORK}/nvcompact-pr13-analysis/final/af/af-d-hq/summary.json",
+        "sha256": "2866ae4050fdce36119811a531fe08f73fa77df8714dbdfe5be5d2ab35641c59"
+      },
+      "saved_vs_baseline_bytes": 0,
+      "saved_vs_original_bytes": 0,
+      "source_search": false,
+      "winner_codec": null,
+      "winner_header_bytes": null,
+      "winner_packed_bytes": null,
+      "winner_sha256": "5badc54a2f24eb8f5c1e5ee033e27005eececcf84b8672c438a2a720e22ceab0",
+      "winner_variant": "raw"
+    },
+    {
+      "accepted_rule_groups": {
+        "c-source-character": 1,
+        "c-source-integer": 1,
+        "c-source-local-name": 9
+      },
+      "accepted_rule_token_sites": {
+        "c-source-character": 3,
+        "c-source-integer": 1,
+        "c-source-local-name": 81
+      },
+      "accepted_steps": 2,
+      "actual_artifact_identity_readback": true,
+      "all_recorded_native_and_diagnostic_identities_match": true,
+      "baseline_minimum_bytes": 5069,
+      "baseline_winner_sha256": "d9f7f1d14b1032ac09a732ca612e55f627e69d7e4933fc0c27b088824b2290e7",
+      "category": "4k",
+      "condition_steps_accepted": 0,
+      "engine_execution": false,
+      "evaluation_limit": 2048,
+      "evaluations": 2048,
+      "exhaustion_reason": "complete-file-evaluation-budget",
+      "final_codec_additional_saved_bytes": 1,
+      "final_winner_complete_embedded_source_matches_search_source": true,
+      "final_winner_complete_embedded_source_unchanged": false,
+      "fresh_final_native_record_matches": true,
+      "frontend_capacity_stop": null,
+      "margin_below_4096_bytes": -942,
+      "minimum_bytes": 5038,
+      "name": "af-e",
+      "native_bearing_detail_records": 13,
+      "native_identity": {
+        "bytes": 26400,
+        "compiler_sha256": "6117c52522997d2aaccb2b52b3c6bf42c0a6c5edb1d718431fed6b2fc5fec234",
+        "sha256": "e58c321bf4a13083f6cc91740046f92294f6fb606f59430bb1ee0de98e1d1992",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "nvcompact_tool": {
+        "codecs": {
+          "gzip_mtime": 0,
+          "gzip_os": 255,
+          "implementation": "Rust with liblzma, zlib and libbz2; Cargo.lock pins bindings",
+          "lzma": "5.2.5"
+        },
+        "executable_sha256": "86bcf85c1dc2790003c26e84c273a9b263d6bb215c2f9bdea64400165749b986",
+        "runtime": "Rust",
+        "version": "0.4.1"
+      },
+      "original_bytes": 5076,
+      "original_sha256": "fbbe85f3e048159c578ff85152d7e0bcd5e4d771a5d9801b4fcdf039f5e1befc",
+      "raw_baseline_summary": {
+        "bytes": 51500,
+        "filename": "${WORK}/nvcompact-pr13-analysis/baseline/af/af-e/summary.json",
+        "sha256": "4941e27539162477d333688eb757aa2c07ca1e0b1814d7fe0a0eb54848d46613"
+      },
+      "raw_source_search_report": {
+        "bytes": 3553248,
+        "filename": "${WORK}/nvcompact-pr13-analysis/final/af/af-e/source-search/source-search/report.json",
+        "sha256": "4a230e5714f52377c4f44e5bbcbb4a4ce9a60cb11108096c98109812b96656b5"
+      },
+      "raw_summary": {
+        "bytes": 87850,
+        "filename": "${WORK}/nvcompact-pr13-analysis/final/af/af-e/summary.json",
+        "sha256": "ea401b58b1bdf289cd02cd0c391666055a622282b637203c5f102367ef9d3348"
+      },
+      "recorded_derivation_replay_audited": true,
+      "recorded_edit_bytes_independently_reconstructed": true,
+      "saved_vs_baseline_bytes": 31,
+      "saved_vs_original_bytes": 38,
+      "separate_nvcompact_reproduce_scope": "Reported separately in the campaign aggregate.",
+      "source_final_bytes": 10599,
+      "source_final_sha256": "7208cc7e9bb9f4acdfb4c8e78e882bca395fe5c9c546c70c081fe5e81b031e18",
+      "source_input_sha256": "75a6e0211afb6c6200327bf4d27dd3ed1a8cc4c7ded480e5bc25805a447ccfb7",
+      "source_original_bytes": 10624,
+      "source_proof": "accepted-typed-derivations",
+      "source_raw_bytes_saved": 25,
+      "source_search": true,
+      "source_search_cost_saved_bytes": 33,
+      "source_search_embedded_literal_round_trip_and_outer_bytes_match": true,
+      "source_search_final_cost_bytes": 5039,
+      "source_search_fixed_cost_codec": {
+        "dict_size": 67108864,
+        "format": "alone",
+        "lc": 2,
+        "lp": 0,
+        "mf": 20,
+        "nice_len": 32,
+        "pb": 0,
+        "preset": 2147483657
+      },
+      "source_search_initial_cost_bytes": 5072,
+      "source_search_native_file_actual_readback_matches": true,
+      "source_search_payload_sha256": "a1f6741e65fca50200879640103e42a279d624265d0810909b7ed26088e4ec88",
+      "source_search_selected": true,
+      "source_unchanged": false,
+      "status": "budget-exhausted",
+      "total_token_sites": 85,
+      "winner_codec": {
+        "dict_size": 16384,
+        "format": "alone",
+        "lc": 2,
+        "lp": 0,
+        "mf": 19,
+        "nice_len": 32,
+        "pb": 0,
+        "preset": 6
+      },
+      "winner_header_bytes": 73,
+      "winner_packed_bytes": 4965,
+      "winner_payload_equals_search_payload": true,
+      "winner_payload_sha256": "a1f6741e65fca50200879640103e42a279d624265d0810909b7ed26088e4ec88",
+      "winner_sha256": "f9d1e912b637af7c1837dc8ba15e98c0c01365dc1614c7b58085ef2e70ef236c",
+      "winner_variant": "c-source-search-a1f6741e65fca502"
+    },
+    {
+      "accepted_rule_groups": {
+        "c-source-character": 1,
+        "c-source-integer": 3,
+        "c-source-local-name": 9
+      },
+      "accepted_rule_token_sites": {
+        "c-source-character": 3,
+        "c-source-integer": 7,
+        "c-source-local-name": 96
+      },
+      "accepted_steps": 2,
+      "actual_artifact_identity_readback": true,
+      "all_recorded_native_and_diagnostic_identities_match": true,
+      "baseline_minimum_bytes": 4637,
+      "baseline_winner_sha256": "1fb5c616868b2dbf6cf705b09c1c06c1eb14d104c00355cdff6a7ed6fedfedaf",
+      "category": "4k",
+      "condition_steps_accepted": 0,
+      "engine_execution": false,
+      "evaluation_limit": 2048,
+      "evaluations": 2048,
+      "exhaustion_reason": "complete-file-evaluation-budget",
+      "final_codec_additional_saved_bytes": 0,
+      "final_winner_complete_embedded_source_matches_search_source": true,
+      "final_winner_complete_embedded_source_unchanged": false,
+      "fresh_final_native_record_matches": true,
+      "frontend_capacity_stop": null,
+      "margin_below_4096_bytes": -515,
+      "minimum_bytes": 4611,
+      "name": "af-f",
+      "native_bearing_detail_records": 15,
+      "native_identity": {
+        "bytes": 18576,
+        "compiler_sha256": "6117c52522997d2aaccb2b52b3c6bf42c0a6c5edb1d718431fed6b2fc5fec234",
+        "sha256": "e81669026da6c335ecc85457e1422c5d130ad536c8c7b60dbb8c3ce8aa91b493",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "nvcompact_tool": {
+        "codecs": {
+          "gzip_mtime": 0,
+          "gzip_os": 255,
+          "implementation": "Rust with liblzma, zlib and libbz2; Cargo.lock pins bindings",
+          "lzma": "5.2.5"
+        },
+        "executable_sha256": "86bcf85c1dc2790003c26e84c273a9b263d6bb215c2f9bdea64400165749b986",
+        "runtime": "Rust",
+        "version": "0.4.1"
+      },
+      "original_bytes": 4645,
+      "original_sha256": "a3eaf6f94477beb9897bbccec11e990eb703bc3243034199271deb1b41e023bb",
+      "raw_baseline_summary": {
+        "bytes": 50697,
+        "filename": "${WORK}/nvcompact-pr13-analysis/baseline/af/af-f/summary.json",
+        "sha256": "81a15084a3af8e27947d9de750e3194f40f8a7a03b98f9eeafbdaf72f6472cdc"
+      },
+      "raw_source_search_report": {
+        "bytes": 3665714,
+        "filename": "${WORK}/nvcompact-pr13-analysis/final/af/af-f/source-search/source-search/report.json",
+        "sha256": "d9994db66cdab25f338da80ae507302376628fbef0a647f3c37cb9b7a7332e47"
+      },
+      "raw_summary": {
+        "bytes": 92327,
+        "filename": "${WORK}/nvcompact-pr13-analysis/final/af/af-f/summary.json",
+        "sha256": "6388f67cf449e250b4c4e4dd6c94e73b47554aab8b3725622954800d3ba1510b"
+      },
+      "recorded_derivation_replay_audited": true,
+      "recorded_edit_bytes_independently_reconstructed": true,
+      "saved_vs_baseline_bytes": 26,
+      "saved_vs_original_bytes": 34,
+      "separate_nvcompact_reproduce_scope": "Reported separately in the campaign aggregate.",
+      "source_final_bytes": 9105,
+      "source_final_sha256": "c38fef40582e1c3d3a1695920f6d8318478417a8c516f2ae8e24a6c638a078ff",
+      "source_input_sha256": "2542ab10fd598d5496a4f34a6f22f3e048c64c2cbf1a5396f1c33a8a7da5b6e6",
+      "source_original_bytes": 9109,
+      "source_proof": "accepted-typed-derivations",
+      "source_raw_bytes_saved": 4,
+      "source_search": true,
+      "source_search_cost_saved_bytes": 30,
+      "source_search_embedded_literal_round_trip_and_outer_bytes_match": true,
+      "source_search_final_cost_bytes": 4611,
+      "source_search_fixed_cost_codec": {
+        "dict_size": 67108864,
+        "format": "alone",
+        "lc": 2,
+        "lp": 0,
+        "mf": 20,
+        "nice_len": 32,
+        "pb": 0,
+        "preset": 2147483657
+      },
+      "source_search_initial_cost_bytes": 4641,
+      "source_search_native_file_actual_readback_matches": true,
+      "source_search_payload_sha256": "01ac01d85836c61aee6a727dee1c238d7fdbc98dbc41daf5ce7bf1098a147880",
+      "source_search_selected": true,
+      "source_unchanged": false,
+      "status": "budget-exhausted",
+      "total_token_sites": 106,
+      "winner_codec": {
+        "dict_size": 67108864,
+        "format": "alone",
+        "lc": 2,
+        "lp": 0,
+        "mf": 20,
+        "nice_len": 32,
+        "pb": 0,
+        "preset": 2147483657
+      },
+      "winner_header_bytes": 73,
+      "winner_packed_bytes": 4538,
+      "winner_payload_equals_search_payload": true,
+      "winner_payload_sha256": "01ac01d85836c61aee6a727dee1c238d7fdbc98dbc41daf5ce7bf1098a147880",
+      "winner_sha256": "5d43c2c70b4a4ffecce719c4d5fc98c3fc2f3aa9740c90da231467f738ef2791",
+      "winner_variant": "c-source-search-01ac01d85836c61a"
+    },
+    {
+      "accepted_rule_groups": {
+        "c-source-character": 1,
+        "c-source-integer": 3,
+        "c-source-local-name": 9
+      },
+      "accepted_rule_token_sites": {
+        "c-source-character": 3,
+        "c-source-integer": 9,
+        "c-source-local-name": 106
+      },
+      "accepted_steps": 2,
+      "actual_artifact_identity_readback": true,
+      "all_recorded_native_and_diagnostic_identities_match": true,
+      "baseline_minimum_bytes": 4359,
+      "baseline_winner_sha256": "4c07a523f51fa4982872a20c3fb9102285637ba4ba8ab2eec4f602fa476a4782",
+      "category": "4k",
+      "condition_steps_accepted": 0,
+      "engine_execution": false,
+      "evaluation_limit": 2048,
+      "evaluations": 2048,
+      "exhaustion_reason": "complete-file-evaluation-budget",
+      "final_codec_additional_saved_bytes": 6,
+      "final_winner_complete_embedded_source_matches_search_source": true,
+      "final_winner_complete_embedded_source_unchanged": false,
+      "fresh_final_native_record_matches": true,
+      "frontend_capacity_stop": null,
+      "margin_below_4096_bytes": -235,
+      "minimum_bytes": 4331,
+      "name": "af-f-material",
+      "native_bearing_detail_records": 15,
+      "native_identity": {
+        "bytes": 18576,
+        "compiler_sha256": "6117c52522997d2aaccb2b52b3c6bf42c0a6c5edb1d718431fed6b2fc5fec234",
+        "sha256": "a6abdb6ba3e5a215a925c0f5e94a21176c6e2e32be94c25908b1cc64ca74fd08",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "nvcompact_tool": {
+        "codecs": {
+          "gzip_mtime": 0,
+          "gzip_os": 255,
+          "implementation": "Rust with liblzma, zlib and libbz2; Cargo.lock pins bindings",
+          "lzma": "5.2.5"
+        },
+        "executable_sha256": "86bcf85c1dc2790003c26e84c273a9b263d6bb215c2f9bdea64400165749b986",
+        "runtime": "Rust",
+        "version": "0.4.1"
+      },
+      "original_bytes": 4369,
+      "original_sha256": "eff84e9b34ba121c7c17397252e2f61e832c6f2cfe0fcd51f182f99b677a3682",
+      "raw_baseline_summary": {
+        "bytes": 50776,
+        "filename": "${WORK}/nvcompact-pr13-analysis/baseline/af/af-f-material/summary.json",
+        "sha256": "009307d59ffb16d76010f770ccd8c77327653c0dabe142789a70667131db2c9b"
+      },
+      "raw_source_search_report": {
+        "bytes": 3354649,
+        "filename": "${WORK}/nvcompact-pr13-analysis/final/af/af-f-material/source-search/source-search/report.json",
+        "sha256": "a3030ba9aa9b4e6ef16357dafcb146c3a155e655b8853d0e0c0d6b6596e9672f"
+      },
+      "raw_summary": {
+        "bytes": 94935,
+        "filename": "${WORK}/nvcompact-pr13-analysis/final/af/af-f-material/summary.json",
+        "sha256": "42b248bf185fdcd9c17f098b45b187bccadc4bc474810e76a7744aef3dbdfd0f"
+      },
+      "recorded_derivation_replay_audited": true,
+      "recorded_edit_bytes_independently_reconstructed": true,
+      "saved_vs_baseline_bytes": 28,
+      "saved_vs_original_bytes": 38,
+      "separate_nvcompact_reproduce_scope": "Reported separately in the campaign aggregate.",
+      "source_final_bytes": 8594,
+      "source_final_sha256": "1406b49c6b5cb5bbf9323d068c1d81bade25e0fd8db5d61e79ec2e36e4a65419",
+      "source_input_sha256": "4867a0fdc8376359464e3eeb64c2dc6d441b9d57eadc8d0c4b9b4257f179db1f",
+      "source_original_bytes": 8604,
+      "source_proof": "accepted-typed-derivations",
+      "source_raw_bytes_saved": 10,
+      "source_search": true,
+      "source_search_cost_saved_bytes": 28,
+      "source_search_embedded_literal_round_trip_and_outer_bytes_match": true,
+      "source_search_final_cost_bytes": 4337,
+      "source_search_fixed_cost_codec": {
+        "dict_size": 67108864,
+        "format": "alone",
+        "lc": 2,
+        "lp": 0,
+        "mf": 20,
+        "nice_len": 32,
+        "pb": 0,
+        "preset": 2147483657
+      },
+      "source_search_initial_cost_bytes": 4365,
+      "source_search_native_file_actual_readback_matches": true,
+      "source_search_payload_sha256": "5225691686089d79b30a1efbed3b45293a22af44149a9f1a6fe41ad6f8757d18",
+      "source_search_selected": true,
+      "source_unchanged": false,
+      "status": "budget-exhausted",
+      "total_token_sites": 118,
+      "winner_codec": {
+        "dict_size": 16384,
+        "format": "alone",
+        "lc": 0,
+        "lp": 0,
+        "mf": 18,
+        "nice_len": 24,
+        "pb": 0,
+        "preset": 6
+      },
+      "winner_header_bytes": 73,
+      "winner_packed_bytes": 4258,
+      "winner_payload_equals_search_payload": true,
+      "winner_payload_sha256": "5225691686089d79b30a1efbed3b45293a22af44149a9f1a6fe41ad6f8757d18",
+      "winner_sha256": "70c5a64ce240d6bd1407b629159be62a80a425a7483a1f73ec39a0003460adf1",
+      "winner_variant": "c-source-search-5225691686089d79"
+    },
+    {
+      "accepted_rule_groups": {
+        "c-source-character": 1,
+        "c-source-integer": 1,
+        "c-source-local-name": 10
+      },
+      "accepted_rule_token_sites": {
+        "c-source-character": 3,
+        "c-source-integer": 5,
+        "c-source-local-name": 86
+      },
+      "accepted_steps": 1,
+      "actual_artifact_identity_readback": true,
+      "all_recorded_native_and_diagnostic_identities_match": true,
+      "baseline_minimum_bytes": 4080,
+      "baseline_winner_sha256": "6017a865a996d85c8dc01e31629c19f13355548ec0517cf959487951b70c5f47",
+      "category": "4k",
+      "condition_steps_accepted": 0,
+      "engine_execution": false,
+      "evaluation_limit": 2048,
+      "evaluations": 2048,
+      "exhaustion_reason": "complete-file-evaluation-budget",
+      "final_codec_additional_saved_bytes": 2,
+      "final_winner_complete_embedded_source_matches_search_source": true,
+      "final_winner_complete_embedded_source_unchanged": false,
+      "fresh_final_native_record_matches": true,
+      "frontend_capacity_stop": null,
+      "margin_below_4096_bytes": 49,
+      "minimum_bytes": 4047,
+      "name": "af-f-move",
+      "native_bearing_detail_records": 14,
+      "native_identity": {
+        "bytes": 18576,
+        "compiler_sha256": "6117c52522997d2aaccb2b52b3c6bf42c0a6c5edb1d718431fed6b2fc5fec234",
+        "sha256": "c3fd3c09f8d72d4dd94cec47bfabd1c022cf151fd9624d29c1f750b90ba6126c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "nvcompact_tool": {
+        "codecs": {
+          "gzip_mtime": 0,
+          "gzip_os": 255,
+          "implementation": "Rust with liblzma, zlib and libbz2; Cargo.lock pins bindings",
+          "lzma": "5.2.5"
+        },
+        "executable_sha256": "86bcf85c1dc2790003c26e84c273a9b263d6bb215c2f9bdea64400165749b986",
+        "runtime": "Rust",
+        "version": "0.4.1"
+      },
+      "original_bytes": 4089,
+      "original_sha256": "ccb77b12ade5ef7dd367970edd4bfc3d97d4709a00fc9861570355785563d70c",
+      "raw_baseline_summary": {
+        "bytes": 50692,
+        "filename": "${WORK}/nvcompact-pr13-analysis/baseline/af/af-f-move/summary.json",
+        "sha256": "6328449b0fc784f4b6f95b67b282791ebf2c9ef4fa0287cf8aa3c370cb3b33e2"
+      },
+      "raw_source_search_report": {
+        "bytes": 3376341,
+        "filename": "${WORK}/nvcompact-pr13-analysis/final/af/af-f-move/source-search/source-search/report.json",
+        "sha256": "13ac2951da15a53bcfe10caf2051b12f2175ab3355ce681d89bcc5def007124c"
+      },
+      "raw_summary": {
+        "bytes": 86202,
+        "filename": "${WORK}/nvcompact-pr13-analysis/final/af/af-f-move/summary.json",
+        "sha256": "803300518a706a37bfff22e903c140249d70de7271adfdb51a4cd99fff7441e8"
+      },
+      "recorded_derivation_replay_audited": true,
+      "recorded_edit_bytes_independently_reconstructed": true,
+      "saved_vs_baseline_bytes": 33,
+      "saved_vs_original_bytes": 42,
+      "separate_nvcompact_reproduce_scope": "Reported separately in the campaign aggregate.",
+      "source_final_bytes": 7810,
+      "source_final_sha256": "2930ac405871b9e7765329bff7bc3c5fbb9dee1a878e49cd19db446911ecd674",
+      "source_input_sha256": "8352665bca27f8c17c8ba1eeede04ddf0abaf70d88bebb5d70c6104c0c3481ec",
+      "source_original_bytes": 7821,
+      "source_proof": "accepted-typed-derivations",
+      "source_raw_bytes_saved": 11,
+      "source_search": true,
+      "source_search_cost_saved_bytes": 36,
+      "source_search_embedded_literal_round_trip_and_outer_bytes_match": true,
+      "source_search_final_cost_bytes": 4049,
+      "source_search_fixed_cost_codec": {
+        "dict_size": 67108864,
+        "format": "alone",
+        "lc": 0,
+        "lp": 0,
+        "mf": 20,
+        "nice_len": 32,
+        "pb": 0,
+        "preset": 2147483657
+      },
+      "source_search_initial_cost_bytes": 4085,
+      "source_search_native_file_actual_readback_matches": true,
+      "source_search_payload_sha256": "07584d823d5a877968880e7bfa0c9333420593676c2390cc3ed4ea4d742601a7",
+      "source_search_selected": true,
+      "source_unchanged": false,
+      "status": "budget-exhausted",
+      "total_token_sites": 94,
+      "winner_codec": {
+        "dict_size": 16384,
+        "format": "alone",
+        "lc": 0,
+        "lp": 0,
+        "mf": 18,
+        "nice_len": 24,
+        "pb": 0,
+        "preset": 6
+      },
+      "winner_header_bytes": 73,
+      "winner_packed_bytes": 3974,
+      "winner_payload_equals_search_payload": true,
+      "winner_payload_sha256": "07584d823d5a877968880e7bfa0c9333420593676c2390cc3ed4ea4d742601a7",
+      "winner_sha256": "1bf76bbcaaa3a4da6ef3bebd1cf8363991197eee0f2801424f2731074334361a",
+      "winner_variant": "c-source-search-07584d823d5a8779"
+    }
+  ],
+  "saved_bytes_vs_baseline": 177,
+  "scope": "Read-only metadata projection and actual native-file readback; no compiler or target engine execution.",
+  "selected_condition_steps": 0,
+  "source_commit": "c5f4af0cfff7d7c6863dd142631f80b9f697e81a",
+  "source_search_tools": {
+    "compiler": {
+      "path": "${CC}",
+      "sha256": "6117c52522997d2aaccb2b52b3c6bf42c0a6c5edb1d718431fed6b2fc5fec234"
+    },
+    "frontend": {
+      "path": "${WORK}/tools/clang20/usr/bin/clang-20",
+      "sha256": "b1ca2b35b07cb5cb7db47247f329151ed22692a19de2763859b0867e6323e2fe"
+    }
+  },
+  "tool_path_labels": {
+    "${CC}": "Observed cc launcher executable; SHA/version retained in the corresponding tool receipt.",
+    "${GCC13}": "Observed resolved GCC 13 executable; SHA/version retained in the corresponding tool receipt.",
+    "${LD}": "Observed ld launcher executable; SHA/version retained in the corresponding tool receipt.",
+    "${LD_BFD}": "Observed resolved GNU BFD linker executable; SHA/version retained in the corresponding tool receipt.",
+    "${PYTHON3}": "Observed python3 launcher executable; SHA/version retained in the corresponding tool receipt.",
+    "${PYTHON312}": "Observed resolved CPython 3.12 executable; SHA/version retained in the corresponding tool receipt.",
+    "${NODE}": "Observed Node executable; SHA/version retained in the corresponding tool receipt."
+  }
+}

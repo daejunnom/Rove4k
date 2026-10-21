@@ -355,7 +355,7 @@ fn compile_argv(manifest: &Value) -> Result<Option<Vec<String>>> {
         .transpose()
 }
 
-fn native_fingerprint(
+pub(crate) fn native_fingerprint(
     source: &[u8],
     argv: &[String],
     directory: &Path,
@@ -386,6 +386,7 @@ fn native_fingerprint(
         "compiler changed during source comparison"
     );
     let mut detail = json!({"argv":command,"returncode":result.code,"compiler_sha256":fingerprint,
+        "stdout_sha256":sha256(&result.stdout),"stderr_sha256":sha256(&result.stderr),
         "stderr":String::from_utf8_lossy(&result.stderr[result.stderr.len().saturating_sub(8192)..]),
         "seconds":result.wall_seconds,"timed_out":result.timed_out,"output_limited":result.output_limited});
     if result.success() && output.is_file() {
@@ -435,7 +436,9 @@ fn payload_variants(
     let limits: process::Limits =
         serde_json::from_value(manifest.get("compile_limits").cloned().unwrap_or(json!({})))?;
     let builddir = out.join("native-equivalence");
-    let baseline = if let Some(argv) = &compiler {
+    // A Python bootstrap's optional compiler recipe describes embedded C, not
+    // the Python payload. Python notation has its own typed-AST contract.
+    let baseline = if let Some(argv) = compiler.as_ref().filter(|_| language != "python") {
         let record = native_fingerprint(payload, argv, &builddir, &limits)?;
         reports.push(json!({"id":"baseline","native":record}));
         Some(record)
@@ -733,9 +736,84 @@ pub fn run(manifest_path: &Path, output: &Path, options: &EnvelopeOptions) -> Re
         fs::write(output.join("original-payload"), &payload)?;
         summary["payload_sha256"] = json!(sha256(&payload));
         summary["payload_bytes"] = json!(payload.len());
-        let (variants, reports) = payload_variants(&payload, &manifest, &output, options.notation)?;
+        let (mut variants, reports) =
+            payload_variants(&payload, &manifest, &output, options.notation)?;
         summary["notation"] = json!(reports);
         let submitted_recipe: Recipe = serde_json::from_value(spec["payload_codec"].clone())?;
+        if options.notation {
+            if let Some(search_spec) = manifest.get("source_search") {
+                let mut search: crate::source_search::SourceSearchOptions =
+                    serde_json::from_value(search_spec.clone())?;
+                ensure!(
+                    manifest["language"]
+                        == if search.embedding.is_some() {
+                            "python"
+                        } else {
+                            "c"
+                        },
+                    "source search requires C or an explicitly declared Python bytes embedding"
+                );
+                if search_spec.get("compile_limits").is_none() {
+                    if let Some(limits) = manifest.get("compile_limits") {
+                        search.compile_limits = serde_json::from_value(limits.clone())?;
+                    }
+                }
+                let compiler = compile_argv(&manifest)?
+                    .context("source search requires the submitted C compile_argv recipe")?;
+                let mut measure = |data: &[u8]| -> Result<usize> {
+                    let candidate = Payload {
+                        id: "source-cost".into(),
+                        data: data.to_vec(),
+                        equivalence: "candidate only".into(),
+                    };
+                    Ok(
+                        evaluate(&candidate, &submitted_recipe, &header, old_decoder)?
+                            .1
+                            .len(),
+                    )
+                };
+                let cost_decoder = codec::decoder_for(&submitted_recipe)?;
+                let cost_header = best_header(&header, old_decoder, &cost_decoder)?;
+                let cost_objective = json!({"kind":"inspected-envelope-fixed-codec-v1","category":category,
+                    "inspected_header_sha256":sha256(&header),"inspected_header_bytes":header.len(),
+                    "cost_header_sha256":sha256(&cost_header),"cost_header_bytes":cost_header.len(),
+                    "inspected_decoder":old_decoder,"cost_decoder":cost_decoder,
+                    "codec":submitted_recipe,"implementation":summary["tool"],
+                    "scope":"entire encoded payload plus entire inspected cost header; no engine execution"});
+                let searched = crate::source_search::search_with_cost_context(
+                    &payload,
+                    &search,
+                    &compiler,
+                    &output.join("source-search"),
+                    Some(&cost_objective),
+                    &mut measure,
+                )?;
+                let id = format!("c-source-search-{}", &sha256(&searched.data)[..16]);
+                // Detailed candidate records already have an owned output file.
+                // Keep the replay summary small instead of duplicating a bounded
+                // 32 MiB search log alongside the accepted derivation.
+                let report_path = "source-search/source-search/report.json";
+                let report_bytes = fs::read(output.join(report_path))?;
+                let mut compact_report = searched.report;
+                let records_count = compact_report["records"].as_array().map_or(0, Vec::len);
+                compact_report
+                    .as_object_mut()
+                    .context("source-search report is not an object")?
+                    .remove("records");
+                compact_report["detail"] = json!({"path":report_path,"sha256":sha256(&report_bytes),
+                    "bytes":report_bytes.len(),"records":records_count});
+                summary["source_search"] = json!({"variant":id,"report":compact_report,
+                    "recipe":searched.recipe,"cost_codec":submitted_recipe,
+                    "cost_scope":"complete inspected header plus encoded whole payload; final codec portfolio is additional"});
+                if searched.data != payload && !variants.iter().any(|v| v.data == searched.data) {
+                    variants.push(Payload {
+                        id,
+                        data: searched.data,
+                        equivalence: "unchanged C bytes or verified typed source derivation; complete native and compiler diagnostic byte identity; exact payload readback under declared embedding contract".into(),
+                    });
+                }
+            }
+        }
         let submitted_decoder = codec::decoder_for(&submitted_recipe)?;
         let prefix = best_header(&header, old_decoder, &submitted_decoder)?;
         let mut submitted = prefix.clone();
@@ -751,7 +829,13 @@ pub fn run(manifest_path: &Path, output: &Path, options: &EnvelopeOptions) -> Re
         records.push(submitted_record);
         let mut per_variant = Vec::new();
         for variant in &variants {
-            let initial = codec::recipes(variant.data.len(), options.thorough);
+            let mut initial = codec::recipes(variant.data.len(), options.thorough);
+            let legacy_initial_count = initial.len();
+            // Keep the inspected codec parameters too. Source-search savings
+            // must not disappear because its cost recipe is absent here.
+            if !initial.contains(&submitted_recipe) {
+                initial.push(submitted_recipe.clone());
+            }
             let (measured, mut variant_best, mut variant_data) =
                 evaluate_batch(variant, &initial, &header, old_decoder, options.jobs)?;
             let sizes: Vec<(Recipe, usize)> = initial
@@ -764,7 +848,16 @@ pub fn run(manifest_path: &Path, output: &Path, options: &EnvelopeOptions) -> Re
                 )
                 .collect();
             records.extend(measured);
-            let refinements = codec::refinements(&sizes, options.thorough);
+            // Extra seeds must not displace a formerly explored refinement:
+            // refinements selects only two format/filter families. Preserve
+            // the exact old portfolio, then union any new-seed refinements.
+            let mut refinements =
+                codec::refinements(&sizes[..legacy_initial_count], options.thorough);
+            for extra in codec::refinements(&sizes, options.thorough) {
+                if !refinements.contains(&extra) {
+                    refinements.push(extra);
+                }
+            }
             if !refinements.is_empty() {
                 let (mut refined, record, data) =
                     evaluate_batch(variant, &refinements, &header, old_decoder, options.jobs)?;
@@ -878,7 +971,11 @@ pub fn run(manifest_path: &Path, output: &Path, options: &EnvelopeOptions) -> Re
         "input or winning artifact mutated during campaign"
     );
     write_json(&output.join("candidates.json"), &records)?;
-    write_json(&output.join("summary.json"), &summary)?;
+    let mut summary_bytes = serde_json::to_vec_pretty(&summary)?;
+    summary_bytes.push(b'\n');
+    ensure!(summary_bytes.len() <= 32 << 20,
+        "completed envelope summary exceeds the 32 MiB replay input bound; detailed outputs were retained");
+    fs::write(output.join("summary.json"), summary_bytes)?;
     Ok(summary)
 }
 
@@ -909,6 +1006,37 @@ fn regenerate_native(original: &[u8], record: &Value, manifest: &Value) -> Resul
         "ELF-only replay cannot use a script loader"
     );
     Ok(crate::pack::pack_by_id(&native, "x86_64-unknown-linux-gnu", id)?.data)
+}
+
+fn derive_payload(summary: &Value, record: &Value, payload: &[u8], work: &Path) -> Result<Payload> {
+    let id = text(record, "variant")?;
+    if id == "raw" {
+        return Ok(Payload {
+            id: id.into(),
+            data: payload.to_vec(),
+            equivalence: "decoded payload byte identity".into(),
+        });
+    }
+    if summary["source_search"]["variant"].as_str() == Some(id) {
+        let compiler = compile_argv(&summary["manifest"])?
+            .context("recorded source search compile recipe is missing")?;
+        let data = crate::source_search::replay(
+            payload,
+            &summary["source_search"]["recipe"],
+            &compiler,
+            &work.join("source-search"),
+        )?;
+        return Ok(Payload {
+            id: id.into(),
+            data,
+            equivalence: text(record, "equivalence")?.into(),
+        });
+    }
+    payload_variants(payload, &summary["manifest"], work, true)?
+        .0
+        .into_iter()
+        .find(|item| item.id == id)
+        .context("source derivation no longer produces the recorded accepted variant")
 }
 
 pub fn reproduce_record(
@@ -943,20 +1071,7 @@ pub fn reproduce_record(
             data.extend_from_slice(&original[header.len()..]);
             data
         } else {
-            let variant_id = text(record, "variant")?;
-            let variants = if variant_id == "raw" {
-                vec![Payload {
-                    id: "raw".into(),
-                    data: payload,
-                    equivalence: "decoded payload byte identity".into(),
-                }]
-            } else {
-                payload_variants(&payload, manifest, work, true)?.0
-            };
-            let selected = variants
-                .iter()
-                .find(|item| item.id == variant_id)
-                .context("source derivation no longer produces the recorded accepted variant")?;
+            let selected = derive_payload(summary, record, &payload, work)?;
             if let Some(expected) = record.get("payload_sha256").and_then(Value::as_str) {
                 ensure!(
                     sha256(&selected.data) == expected,
@@ -964,7 +1079,7 @@ pub fn reproduce_record(
                 );
             }
             evaluate(
-                selected,
+                &selected,
                 &serde_json::from_value(record["recipe"].clone())?,
                 &header,
                 text(spec, "decoder")?,
@@ -1013,16 +1128,29 @@ pub fn reproduce(summary_path: &Path, output: &Path, selection: &str) -> Result<
         "semantic_scope":record["equivalence"],"tool":runtime_fingerprint()?,"uci":{"status":"not_run"}});
     if record["id"] != "identity" && summary["manifest"].get("envelope").is_some() {
         let spec = &summary["manifest"]["envelope"];
-        let (_, payload) = extract(&original, spec)?;
-        let payload = if record["variant"] == "raw" {
-            payload
+        let (header, original_payload) = extract(&original, spec)?;
+        // reproduce_record already regenerated and verified the source. Read
+        // back this exact artifact for the independent deployed decoder check;
+        // do not launch another source search or compile the same derivation twice.
+        let payload = if record["id"] == "submitted-payload" {
+            original_payload
         } else {
-            payload_variants(&payload, &summary["manifest"], &output, true)?
-                .0
-                .into_iter()
-                .find(|item| json!(item.id) == record["variant"])
-                .context("replay payload variant missing")?
-                .data
+            let codec: Recipe = serde_json::from_value(record["recipe"].clone())?;
+            let prefix = best_header(
+                &header,
+                text(spec, "decoder")?,
+                &codec::decoder_for(&codec)?,
+            )?;
+            ensure!(
+                data.starts_with(&prefix),
+                "replayed header differs before decoder check"
+            );
+            let restored = codec::decode(&data[prefix.len()..], &codec, codec::MAX_PAYLOAD)?;
+            ensure!(
+                sha256(&restored) == text(record, "payload_sha256")?,
+                "replayed payload hash differs"
+            );
+            restored
         };
         report["payload_check"] =
             check_deployed_payload(&path, record, &summary["manifest"], &original, &payload)?;

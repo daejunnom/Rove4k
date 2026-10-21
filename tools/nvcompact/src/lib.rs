@@ -1,5 +1,7 @@
+pub mod attempts;
 pub mod cflow;
 pub mod codec;
+pub mod csource;
 pub mod elf;
 pub mod envelope;
 pub mod native;
@@ -7,6 +9,8 @@ pub mod notation;
 pub mod pack;
 pub mod process;
 pub mod resource;
+pub mod source_payload;
+pub mod source_search;
 pub mod uci;
 
 pub fn sha256(bytes: &[u8]) -> String {

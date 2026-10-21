@@ -2,7 +2,7 @@
 //! pass is reparsed, unsupported constructs retain identity, and every final
 //! candidate still requires the application's real compile/verify contract.
 use crate::notation::{lex, Token, Variant, MAX_SOURCE};
-use crate::process::{run, Limits};
+use crate::process::{run, Limits, Output};
 use anyhow::{bail, Context, Result};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
@@ -24,6 +24,7 @@ pub const RULES: &[&str] = &[
     "increment",
     "leaf-braces",
     "forever",
+    "boolean-domain",
 ];
 const INTEGERS: &[&str] = &[
     "_Bool",
@@ -100,6 +101,11 @@ pub struct CFlowOptions {
     pub token_contract: String,
     pub max_variants: usize,
     pub max_passes: usize,
+    /// Include valid equal/longer source edits for an external whole-file cost
+    /// comparison. This never weakens the semantic or frontend guards.
+    pub include_nonshrinking: bool,
+    /// Emit bounded single-edit alternatives after the legacy rule portfolio.
+    pub individual_edits: usize,
     pub frontend_seconds: f64,
     pub frontend_memory_bytes: u64,
     pub ast_bytes: usize,
@@ -114,6 +120,8 @@ impl Default for CFlowOptions {
             token_contract: "opaque".into(),
             max_variants: 16,
             max_passes: 2,
+            include_nonshrinking: false,
+            individual_edits: 0,
             frontend_seconds: 30.0,
             frontend_memory_bytes: 1 << 30,
             ast_bytes: 32 << 20,
@@ -136,6 +144,9 @@ pub fn validate_args(values: &[String]) -> Result<()> {
     const FIXED: &[&str] = &[
         "-m32",
         "-m64",
+        "-mavx2",
+        "-msse4.2",
+        "-mcx16",
         "-funsigned-char",
         "-fsigned-char",
         "-fshort-enums",
@@ -202,16 +213,91 @@ fn resolve_executable(value: &str) -> Result<PathBuf> {
     }
     bail!("Clang frontend unavailable: {value}; provide a Clang path")
 }
+/// A bounded frontend capture is incomplete. This is not an AST, a successful
+/// parse, or evidence that no transformation applies. Callers only expose this
+/// error for AST/preprocessing stages after a separate syntax-only check passes.
+#[derive(Debug, Serialize)]
+pub(crate) struct FrontendOutputLimit {
+    label: String,
+    maximum_bytes: usize,
+    returncode: i32,
+    stdout_bytes: usize,
+    stderr_bytes: usize,
+    captured_stdout_sha256: String,
+    captured_stderr_sha256: String,
+    stderr_tail: String,
+    wall_seconds: f64,
+}
+
+impl std::fmt::Display for FrontendOutputLimit {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} exceeded its {}-byte output budget (captured stdout {}, stderr {}, exit {}); frontend proof is incomplete",
+            self.label, self.maximum_bytes, self.stdout_bytes, self.stderr_bytes, self.returncode)
+    }
+}
+impl std::error::Error for FrontendOutputLimit {}
+
+pub(crate) fn check_frontend_output(
+    output: Output,
+    label: &str,
+    maximum: usize,
+) -> Result<Vec<u8>> {
+    if crate::process::cancelled() {
+        bail!("cancelled during frontend capture");
+    }
+    if output.output_limited && !output.timed_out {
+        return Err(FrontendOutputLimit {
+            label: label.into(),
+            maximum_bytes: maximum,
+            returncode: output.code,
+            stdout_bytes: output.stdout.len(),
+            stderr_bytes: output.stderr.len(),
+            captured_stdout_sha256: crate::sha256(&output.stdout),
+            captured_stderr_sha256: crate::sha256(&output.stderr),
+            stderr_tail: String::from_utf8_lossy(
+                &output.stderr[output.stderr.len().saturating_sub(8192)..],
+            )
+            .into_owned(),
+            wall_seconds: output.wall_seconds,
+        }
+        .into());
+    }
+    output.check(label)?;
+    Ok(output.stdout)
+}
+
+/// Recognize only the two internally generated AST/preprocessing suffixes.
+/// Version/ABI commands and arbitrary argv never become optional capacity stops.
+pub(crate) fn frontend_syntax_probe(argv: &[String]) -> Option<Vec<String>> {
+    let n = argv.len();
+    let prefix = if n >= 4
+        && argv[n - 4] == "-fsyntax-only"
+        && argv[n - 3] == "-Xclang"
+        && argv[n - 2] == "-ast-dump=json"
+    {
+        n - 4
+    } else if n >= 3 && argv[n - 3] == "-E" && argv[n - 2] == "-dD" {
+        n - 3
+    } else {
+        return None;
+    };
+    let mut probe = argv[..prefix].to_vec();
+    probe.extend(["-fsyntax-only".into(), argv[n - 1].clone()]);
+    Some(probe)
+}
+
 struct Frontend {
     options: CFlowOptions,
     root: tempfile::TempDir,
     executable: PathBuf,
+    executable_sha256: String,
     cwd: PathBuf,
     info: Value,
 }
 impl Frontend {
     fn new(options: &CFlowOptions) -> Result<Self> {
         let executable = resolve_executable(&options.clang)?;
+        let executable_sha256 = crate::sha256(&std::fs::read(&executable)?);
         let cwd = if let Some(source_path) = &options.source_path {
             source_path
                 .canonicalize()?
@@ -225,6 +311,7 @@ impl Frontend {
             options: options.clone(),
             root: tempfile::tempdir()?,
             executable,
+            executable_sha256,
             cwd,
             info: Value::Null,
         };
@@ -239,7 +326,7 @@ impl Frontend {
         if !version.to_ascii_lowercase().contains("clang version") {
             bail!("--clang did not identify itself as Clang");
         }
-        result.info = json!({"executable":result.executable,"executable_sha256":crate::sha256(&std::fs::read(&result.executable)?),"version":version,"standard":options.standard,"compiler_args":options.compiler_args,"source_include_directory":result.cwd,"seconds_per_parse":options.frontend_seconds,"address_space_bytes":options.frontend_memory_bytes,"ast_output_bytes":options.ast_bytes});
+        result.info = json!({"executable":result.executable,"executable_sha256":result.executable_sha256,"version":version,"standard":options.standard,"compiler_args":options.compiler_args,"source_include_directory":result.cwd,"seconds_per_parse":options.frontend_seconds,"address_space_bytes":options.frontend_memory_bytes,"ast_output_bytes":options.ast_bytes});
         Ok(result)
     }
     fn execute(&self, argv: Vec<String>, bytes: usize) -> Result<Vec<u8>> {
@@ -251,6 +338,22 @@ impl Frontend {
             file_bytes: bytes as u64,
         };
         let output = run(&argv, b"", &self.cwd, &limits)?;
+        if crate::sha256(&std::fs::read(&self.executable)?) != self.executable_sha256 {
+            bail!("frontend changed during C condition analysis");
+        }
+        if output.output_limited && !output.timed_out {
+            if let Some(probe) = frontend_syntax_probe(&argv) {
+                let mut probe_limits = limits.clone();
+                probe_limits.output_bytes = bytes.min(65536);
+                probe_limits.file_bytes = probe_limits.output_bytes as u64;
+                let checked = run(&probe, b"", &self.cwd, &probe_limits)?;
+                if crate::sha256(&std::fs::read(&self.executable)?) != self.executable_sha256 {
+                    bail!("frontend changed during C condition capacity recheck");
+                }
+                checked.check("Clang syntax recheck after frontend output limit")?;
+                return check_frontend_output(output, "Clang frontend", bytes);
+            }
+        }
         output.check("Clang frontend")?;
         Ok(output.stdout)
     }
@@ -296,6 +399,7 @@ impl Frontend {
             tree,
             path.to_string_lossy().into_owned(),
             macros,
+            self.options.include_nonshrinking,
         )
     }
 }
@@ -325,6 +429,7 @@ struct Analysis {
     macros: HashSet<String>,
     functions: Vec<(usize, usize)>,
     notes: Vec<String>,
+    include_nonshrinking: bool,
 }
 fn flatten(mut value: Value, parent: Option<usize>, nodes: &mut Vec<Node>) -> usize {
     let inner = value
@@ -380,6 +485,7 @@ impl Analysis {
         tree: Value,
         main_path: String,
         macros: HashSet<String>,
+        include_nonshrinking: bool,
     ) -> Result<Self> {
         let tokens = lex(&source, "c")?
             .into_iter()
@@ -394,6 +500,7 @@ impl Analysis {
             macros,
             functions: vec![],
             notes: vec![],
+            include_nonshrinking,
         };
         flatten(tree, None, &mut result.nodes);
         for (i, node) in result.nodes.iter().enumerate() {
@@ -444,10 +551,18 @@ impl Analysis {
     }
     fn typ(&self, n: usize) -> &str {
         let t = &self.nodes[n].value["type"];
-        t["desugaredQualType"]
+        let typ = t["desugaredQualType"]
             .as_str()
             .or_else(|| t["qualType"].as_str())
-            .unwrap_or("")
+            .unwrap_or("");
+        // Clang can print C's built-in _Bool as `bool` when <stdbool.h> is
+        // active. Desugar first: a user typedef such as `typedef int bool`
+        // must remain int, not acquire a Boolean-domain proof by its name.
+        if typ == "bool" {
+            "_Bool"
+        } else {
+            typ
+        }
     }
     fn unwrap(&self, mut n: usize) -> usize {
         while matches!(self.kind(n), "ImplicitCastExpr" | "ParenExpr")
@@ -494,6 +609,42 @@ impl Analysis {
                         self.op(n),
                         "==" | "!=" | "<" | ">" | "<=" | ">=" | "&&" | "||"
                     ))
+    }
+    /// Prove the evaluated source value belongs to {0, 1}; do not infer a range
+    /// from sampled outputs or from the destination of a later conversion.
+    fn boolean_domain(&self, n: usize) -> bool {
+        // Keep the source value type before stripping casts. In particular,
+        // lvalue-to-rvalue removes const from an actual _Bool object; an int
+        // converted to _Bool only by a surrounding context is not a proof.
+        if self.value_type(n) == "_Bool" {
+            return true;
+        }
+        let n = self.unwrap(n);
+        if self.boolean_result(n) {
+            return true;
+        }
+        if self.kind(n) == "IntegerLiteral"
+            && INTEGERS.contains(&self.typ(n))
+            && matches!(self.nodes[n].value["value"].as_str(), Some("0" | "1"))
+        {
+            return true;
+        }
+        // A signed one-bit field can hold -1 and therefore is not Boolean.
+        // Restrict this extension to C's standard unsigned-int bitfield form.
+        if self.kind(n) == "MemberExpr" && self.typ(n) == "unsigned int" {
+            return self.nodes[n].value["referencedMemberDecl"]
+                .as_str()
+                .and_then(|id| self.declarations.get(id))
+                .is_some_and(|&field| {
+                    self.kind(field) == "FieldDecl"
+                        && self.nodes[field].value["isBitfield"].as_bool() == Some(true)
+                        && self.nodes[field].inner.first().is_some_and(|&width| {
+                            matches!(self.kind(width), "ConstantExpr" | "IntegerLiteral")
+                                && self.nodes[width].value["value"].as_str() == Some("1")
+                        })
+                });
+        }
+        false
     }
     fn binding(&self, n: usize) -> Option<&str> {
         let n = self.unwrap(n);
@@ -782,7 +933,9 @@ impl Analysis {
         {
             return Ok(());
         }
-        if text.len() < end - start {
+        if text != self.source[start..end]
+            && (self.include_nonshrinking || text.len() < end - start)
+        {
             edits.push(Edit {
                 start,
                 end,
@@ -959,6 +1112,23 @@ impl Analysis {
                         if let Some(value) = value {
                             self.add(&mut edits, enabled, function, n, format!("{}{}", if self.op(n) == "==" { "!" } else { "!!" }, self.expression(value, 14)), "zero-test", "C logical-not/equality-to-zero correspondence; one scalar read; int result", None, Some(14))?;
                         }
+                        let value = if self.literal(right, "1", false) {
+                            Some(left)
+                        } else if self.literal(left, "1", false) {
+                            Some(right)
+                        } else {
+                            None
+                        };
+                        if let Some(value) = value.filter(|&v| self.boolean_domain(v)) {
+                            let (text, prec) = if self.op(n) == "!=" {
+                                (format!("!{}", self.expression(value, 14)), 14)
+                            } else if self.boolean_result(value) {
+                                (self.text(value), self.precedence(value))
+                            } else {
+                                (format!("!!{}", self.expression(value, 14)), 14)
+                            };
+                            self.add(&mut edits, enabled, function, n, text, "boolean-domain", "source value proven in {0,1} by _Bool, Boolean operator, integer literal, or unsigned-int one-bit field; evaluation once and int comparison result preserved", None, Some(prec))?;
+                        }
                     }
                     if self.op(n) == "="
                         && self.binding(left).is_some()
@@ -1107,8 +1277,8 @@ impl Analysis {
 fn apply_pass(analysis: &Analysis, enabled: &HashSet<&str>) -> Result<(Vec<u8>, Vec<Value>)> {
     let mut edits = analysis.find(enabled)?;
     edits.sort_by(|a, b| {
-        let saved_a = a.end - a.start - a.text.len();
-        let saved_b = b.end - b.start - b.text.len();
+        let saved_a = (a.end - a.start) as i64 - a.text.len() as i64;
+        let saved_b = (b.end - b.start) as i64 - b.text.len() as i64;
         saved_b
             .cmp(&saved_a)
             .then_with(|| (a.start, a.end, &a.rule).cmp(&(b.start, b.end, &b.rule)))
@@ -1126,7 +1296,7 @@ fn apply_pass(analysis: &Analysis, enabled: &HashSet<&str>) -> Result<(Vec<u8>, 
     let mut source = analysis.source.clone();
     let mut audit = vec![];
     for e in selected {
-        audit.push(json!({"start":e.start,"end":e.end,"before":&source[e.start..e.end],"after":e.text,"rule":e.rule,"proof":e.proof,"function":e.function,"source_bytes_saved":e.end-e.start-e.text.len()}));
+        audit.push(json!({"start":e.start,"end":e.end,"before":&source[e.start..e.end],"after":e.text,"rule":e.rule,"proof":e.proof,"function":e.function,"source_bytes_saved":(e.end-e.start) as i64-e.text.len() as i64}));
         source.replace_range(e.start..e.end, &e.text);
     }
     audit.reverse();
@@ -1146,8 +1316,11 @@ pub fn generate_variants(source: &[u8], options: &CFlowOptions) -> Result<Vec<Va
     if !matches!(options.standard.as_str(), "c11" | "c17" | "gnu11" | "gnu17") {
         bail!("supported C standards: c11, c17, gnu11, gnu17");
     }
-    if !(1..=32).contains(&options.max_variants) || !(1..=8).contains(&options.max_passes) {
-        bail!("max_variants must be 1..32 and max_passes 1..8");
+    if !(1..=128).contains(&options.max_variants)
+        || !(1..=8).contains(&options.max_passes)
+        || options.individual_edits > 128
+    {
+        bail!("max_variants must be 1..128, max_passes 1..8 and individual_edits 0..128");
     }
     if !options.frontend_seconds.is_finite()
         || options.frontend_seconds <= 0.0
@@ -1158,7 +1331,7 @@ pub fn generate_variants(source: &[u8], options: &CFlowOptions) -> Result<Vec<Va
         bail!("frontend budget outside supported bounds");
     }
     validate_args(&options.compiler_args)?;
-    let mut contract = json!({"language":"c","token_contract":options.token_contract,"standard":options.standard,"source_sha256":crate::sha256(source),"compiler_args":options.compiler_args,"required_acceptance":"fixed compatible frontend/ABI, compilation and application verification; final submitted-file size selection","proof_scope":"guarded local C rules; not whole-program equivalence proof","implementation":"native Rust"});
+    let mut contract = json!({"language":"c","token_contract":options.token_contract,"standard":options.standard,"source_sha256":crate::sha256(source),"compiler_args":options.compiler_args,"include_nonshrinking":options.include_nonshrinking,"individual_edits":options.individual_edits,"required_acceptance":"fixed compatible frontend/ABI, compilation and application verification; final submitted-file size selection","proof_scope":"guarded local C rules; not whole-program equivalence proof","implementation":"native Rust"});
     let mut result = vec![Variant::new(
         "raw",
         source,
@@ -1255,12 +1428,98 @@ pub fn generate_variants(source: &[u8], options: &CFlowOptions) -> Result<Vec<Va
             contract.clone(),
         ));
     }
+    let enabled = RULES.iter().copied().collect();
+    let mut individuals = original.find(&enabled)?;
+    individuals.sort_by(|a, b| {
+        (a.start, a.end, &a.rule, &a.text).cmp(&(b.start, b.end, &b.rule, &b.text))
+    });
+    for (ordinal, e) in individuals
+        .into_iter()
+        .take(
+            options
+                .individual_edits
+                .min(options.max_variants - result.len()),
+        )
+        .enumerate()
+    {
+        let mut data = original.source.clone();
+        data.replace_range(e.start..e.end, &e.text);
+        let checked = frontend.parse(data.as_bytes())?;
+        if !checked
+            .functions
+            .iter()
+            .any(|&(d, _)| checked.name(d) == e.function)
+        {
+            continue;
+        }
+        let audit = json!({"start":e.start,"end":e.end,"before":&original.source[e.start..e.end],"after":e.text,"rule":e.rule,"proof":e.proof,"function":e.function,"source_bytes_saved":(e.end-e.start) as i64-e.text.len() as i64,"pass":1});
+        result.push(Variant::new(
+            &format!("c-one-{ordinal:03}-{}", e.rule),
+            source,
+            data.into_bytes(),
+            vec![audit],
+            original.notes.clone(),
+            contract.clone(),
+        ));
+    }
     Ok(result)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn frontend_capacity_is_typed_and_only_recognized_commands_get_syntax_probes() {
+        let prefix = vec![
+            "clang".to_string(),
+            "-x".into(),
+            "c".into(),
+            "-mavx2".into(),
+            "-DVALUE=2".into(),
+        ];
+        let mut expected = prefix.clone();
+        expected.extend(["-fsyntax-only".into(), "translation.c".into()]);
+        let mut ast = prefix.clone();
+        ast.extend([
+            "-fsyntax-only".into(),
+            "-Xclang".into(),
+            "-ast-dump=json".into(),
+            "translation.c".into(),
+        ]);
+        assert_eq!(frontend_syntax_probe(&ast), Some(expected.clone()));
+        let mut macros = prefix;
+        macros.extend(["-E".into(), "-dD".into(), "translation.c".into()]);
+        assert_eq!(frontend_syntax_probe(&macros), Some(expected.clone()));
+        assert!(frontend_syntax_probe(&expected).is_none());
+        assert!(frontend_syntax_probe(&["clang".into(), "--version".into()]).is_none());
+
+        let output = |code, output_limited, timed_out| Output {
+            code,
+            stdout: b"partial".to_vec(),
+            stderr: b"diagnostic".to_vec(),
+            wall_seconds: 0.1,
+            timed_out,
+            output_limited,
+        };
+        let limited = check_frontend_output(output(125, true, false), "fixture", 17).unwrap_err();
+        assert!(limited.downcast_ref::<FrontendOutputLimit>().is_some());
+        for failed in [
+            output(1, false, false),
+            output(125, false, false),
+            output(124, true, true),
+        ] {
+            assert!(check_frontend_output(failed, "fixture", 17)
+                .unwrap_err()
+                .downcast_ref::<FrontendOutputLimit>()
+                .is_none());
+        }
+        assert_eq!(
+            check_frontend_output(output(0, false, false), "fixture", 17).unwrap(),
+            b"partial"
+        );
+    }
+
     fn options() -> Option<CFlowOptions> {
         let clang = std::env::var("NVCOMPACT_CLANG").unwrap_or_else(|_| "clang".into());
         if resolve_executable(&clang).is_err() {
@@ -1333,6 +1592,7 @@ mod tests {
             "--target=x86_64-linux-gnu".into()
         ])
         .is_ok());
+        assert!(validate_args(&["-mavx2".into(), "-msse4.2".into(), "-mcx16".into()]).is_ok());
     }
     #[test]
     fn full_portfolio_preserves_independent_integer_and_nan_oracle() {
@@ -1351,12 +1611,13 @@ int compound(int c){c=c+3;return c;}
 int increment(int c){return c+=1;}
 int leaf(int c){if(c){return 2;}return 3;}
 int forever(int c){while(1){if(c--==0)break;}return c;}
+int domain(_Bool c){return c!=1;}
 unsigned long mixed(int c){if(c)return -1;else return 1U;}
 int nan_guard(double x){return !(x<0);}
-int main(void){for(int i=0;i<4;i++)printf("%d %d %d %d %d %d %d %d %d %d %d %d %d\n",choose(i),tail(i),assign(i),effect(i),guard(i),boolean(i),zero(i),truth(i),neg(i),compound(i),increment(i),leaf(i),forever(i));printf("%lu %d\n",mixed(1),nan_guard(__builtin_nan("")));}
+int main(void){for(int i=0;i<4;i++)printf("%d %d %d %d %d %d %d %d %d %d %d %d %d\n",choose(i),tail(i),assign(i),effect(i),guard(i),boolean(i),zero(i),truth(i),neg(i),compound(i),increment(i),leaf(i),forever(i));printf("%lu %d\n",mixed(1),nan_guard(__builtin_nan("")));printf("%d %d\n",domain(0),domain(1));}
 "#;
         let variants = generate_variants(source, &options).unwrap();
-        assert_eq!(variants.len(), 15);
+        assert_eq!(variants.len(), RULES.len() + 2);
         assert!(variants.iter().find(|v| v.id == "c-all").unwrap().bytes < source.len());
         let exercised: HashSet<_> = variants
             .iter()
@@ -1390,6 +1651,7 @@ int main(void){for(int i=0;i<4;i++)printf("%d %d %d %d %d %d %d %d %d %d %d %d %
             ));
         }
         expected.push_str(&format!("{} 1\n", u64::MAX));
+        expected.push_str("1 0\n");
         let directory = tempfile::tempdir().unwrap();
         for v in variants {
             assert_eq!(
@@ -1407,6 +1669,10 @@ int main(void){for(int i=0;i<4;i++)printf("%d %d %d %d %d %d %d %d %d %d %d %d %
             b"#define P _Pragma(\"pack(1)\")\nint f(int c){if(c){P return 1;}else{return 2;}}\nstruct X{char a;int b;};",
             b"#define E\nint f(int c){if(c){E return 1;}else{return 2;}}\n#undef E\n",
             b"int f(int c){volatile int x=0;if(c){x=1;}else{x=2;}return x;}",
+            b"#include <stdbool.h>\nint f(_Bool a){return a!=true;}",
+            b"#include <stdbool.h>\nint f(_Bool a){bool b=a;return b!=1;}",
+            b"int f(volatile _Bool a){return a!=1;}",
+            b"int f(_Atomic _Bool a){return a!=1;}",
             b"int f(int c,int(*callback)(void)){if(c){return callback();}else{return callback();}}",
             b"int target(void)__attribute__((returns_twice));int f(int c){if(c){return target();}else{return target();}}",
             b"int f(int c){return _Generic(c,int:!!c,default:0);}",
@@ -1434,5 +1700,185 @@ int main(void){for(int i=0;i<4;i++)printf("%d %d %d %d %d %d %d %d %d %d %d %d %
         assert!(variants
             .iter()
             .all(|v| !String::from_utf8_lossy(&v.data).contains("elsecontinue")));
+    }
+
+    #[test]
+    fn boolean_domain_keeps_int_counterexample_signed_fields_and_effect_counts() {
+        let Some(options) = options() else { return };
+        let source = br#"#include <stdio.h>
+typedef int bool;
+struct B{unsigned u:1;signed s:1;};
+int calls;
+int touch(int value){calls++;return value;}
+int plain(int a){return a!=1;}
+int misleading_name(bool a){return a!=1;}
+int boolean_not(_Bool a){return a!=1;}
+int boolean_equal(_Bool a){return 1==a;}
+int unsigned_field(struct B *p){return p->u!=1;}
+int signed_field(struct B *p){return p->s!=1;}
+int effect(int a){return (touch(a)>0)!=1;}
+unsigned long mixed(int c){if(c)return -1;else return 1U;}
+int main(void){struct B b;for(int a=-2;a<=2;a++){b.u=a!=0;b.s=a!=0?-1:0;calls=0;int x=effect(a);printf("%d %d %d %d %d %d %d %d\n",plain(a),misleading_name(a),boolean_not(a),boolean_equal(a),unsigned_field(&b),signed_field(&b),x,calls);}printf("%lu\n",mixed(1));}
+"#;
+        let variants = generate_variants(source, &options).unwrap();
+        let records: Vec<_> = variants.iter().flat_map(|v| &v.audit).collect();
+        for function in ["boolean_not", "boolean_equal", "unsigned_field", "effect"] {
+            assert!(
+                records
+                    .iter()
+                    .any(|r| { r["function"] == function && r["rule"] == "boolean-domain" }),
+                "expected a proven Boolean-domain rewrite for {function}"
+            );
+        }
+        for function in ["plain", "misleading_name", "signed_field"] {
+            assert!(
+                !records
+                    .iter()
+                    .any(|r| { r["function"] == function && r["rule"] == "boolean-domain" }),
+                "unproved or signed range must remain unchanged for {function}"
+            );
+        }
+        let mut expected = String::new();
+        for a in -2..=2 {
+            expected.push_str(&format!(
+                "{} {} {} {} {} 1 {} 1\n",
+                i32::from(a != 1),
+                i32::from(a != 1),
+                i32::from(a == 0),
+                i32::from(a != 0),
+                i32::from(a == 0),
+                i32::from(a <= 0),
+            ));
+        }
+        expected.push_str(&format!("{}\n", u64::MAX));
+        let directory = tempfile::tempdir().unwrap();
+        for v in variants {
+            assert_eq!(
+                compile_run(&options.clang, &v.data, directory.path(), &v.id),
+                expected.as_bytes(),
+                "variant {}",
+                v.id
+            );
+        }
+    }
+
+    #[test]
+    fn stdbool_aliases_qualification_effects_and_reparsed_chains_keep_the_oracle() {
+        let Some(options) = options() else { return };
+        let source = br#"#include <stdio.h>
+#include <stdbool.h>
+typedef _Bool Flag;
+typedef const _Bool ConstFlag;
+int calls;
+_Bool touch_bool(int a){calls++;return a;}
+int direct(_Bool a){return a!=1;}
+int reversed(bool a){return 1!=a;}
+int alias(Flag a){return a!=1;}
+int qualified(ConstFlag a){return a!=1;}
+int explicit_bool(int a){return (_Bool)a!=1;}
+int explicit_int(int a){return (int)a!=1;}
+int call_once(int a){return touch_bool(a)!=1;}
+int postincrement(_Bool *a){return (*a)++!=1;}
+int chain(_Bool a){return (a!=1)!=1;}
+int normalized(int a){return (a?1:0)!=1;}
+int main(void){for(int a=-2;a<=2;a++){calls=0;int x=call_once(a);_Bool b=a;int y=postincrement(&b);printf("%d %d %d %d %d %d %d %d %d %d %d %d\n",direct(a),reversed(a),alias(a),qualified(a),explicit_bool(a),explicit_int(a),x,calls,y,b,chain(a),normalized(a));}}
+"#;
+        let variants = generate_variants(source, &options).unwrap();
+        let records: Vec<_> = variants.iter().flat_map(|v| &v.audit).collect();
+        for function in [
+            "direct",
+            "reversed",
+            "alias",
+            "qualified",
+            "explicit_bool",
+            "call_once",
+            "postincrement",
+            "chain",
+            "normalized",
+        ] {
+            assert!(
+                records
+                    .iter()
+                    .any(|r| r["function"] == function && r["rule"] == "boolean-domain"),
+                "expected a proven Boolean-domain rewrite for {function}"
+            );
+        }
+        assert!(!records
+            .iter()
+            .any(|r| r["function"] == "explicit_int" && r["rule"] == "boolean-domain"));
+        for function in ["direct", "reversed", "alias", "qualified"] {
+            assert!(records.iter().any(|r| {
+                r["function"] == function && r["rule"] == "boolean-domain" && r["after"] == "!a"
+            }));
+        }
+        let combined = variants.iter().find(|v| v.id == "c-all").unwrap();
+        assert!(combined.audit.iter().any(|r| {
+            r["function"] == "normalized" && r["rule"] == "boolean" && r["pass"] == 1
+        }));
+        assert!(combined.audit.iter().any(|r| {
+            r["function"] == "normalized" && r["rule"] == "boolean-domain" && r["pass"] == 2
+        }));
+        // The all-rule recipe may prefer equality inversion on pass two.
+        // Check the domain-only recipe to exercise the nested proof itself.
+        let domain = variants
+            .iter()
+            .find(|v| v.id == "c-boolean-domain")
+            .unwrap();
+        assert!(domain.audit.iter().any(|r| {
+            r["function"] == "chain" && r["rule"] == "boolean-domain" && r["pass"] == 2
+        }));
+        let mut expected = String::new();
+        for a in -2..=2 {
+            let not = i32::from(a == 0);
+            expected.push_str(&format!(
+                "{not} {not} {not} {not} {not} {} {not} 1 {not} 1 {} {not}\n",
+                i32::from(a != 1),
+                i32::from(a != 0),
+            ));
+        }
+        let directory = tempfile::tempdir().unwrap();
+        for v in variants {
+            assert_eq!(
+                compile_run(&options.clang, &v.data, directory.path(), &v.id),
+                expected.as_bytes(),
+                "variant {}",
+                v.id
+            );
+        }
+    }
+
+    #[test]
+    fn individual_portfolio_keeps_equal_and_growing_edits_when_requested() {
+        let Some(mut options) = options() else { return };
+        // A short compound spelling can become longer when logical operands
+        // need parentheses; individual alternatives must not be source-pruned.
+        let source = b"int f(int a,int b,int c){return !(a&&b||c);}int g(int x){return (x!=0)+1;}";
+        options.max_variants = 64;
+        options.individual_edits = 32;
+        options.include_nonshrinking = true;
+        let variants = generate_variants(source, &options).unwrap();
+        assert!(variants.iter().any(|v| {
+            v.audit
+                .iter()
+                .any(|r| r["source_bytes_saved"].as_i64().unwrap() <= 0)
+        }));
+        assert!(variants.iter().any(|v| v.id.starts_with("c-one-")));
+        assert_eq!(variants[0].data, source);
+        for variant in variants.iter().filter(|v| v.id.starts_with("c-one-")) {
+            assert_eq!(variant.audit.len(), 1);
+            let edit = &variant.audit[0];
+            let mut replay = source.to_vec();
+            replay.splice(
+                edit["start"].as_u64().unwrap() as usize..edit["end"].as_u64().unwrap() as usize,
+                edit["after"].as_str().unwrap().bytes(),
+            );
+            assert_eq!(replay, variant.data);
+        }
+        options.include_nonshrinking = false;
+        let shrinking = generate_variants(source, &options).unwrap();
+        assert!(shrinking.iter().all(|v| v
+            .audit
+            .iter()
+            .all(|r| { r["source_bytes_saved"].as_i64().unwrap() > 0 })));
     }
 }
