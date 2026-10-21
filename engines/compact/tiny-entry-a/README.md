@@ -1,3 +1,21 @@
+# Maintained A: final literal/poll compaction — 2026-10-21
+
+Current whole **4619 B**, source **9052 B**.
+Fixed LP64 large mixer hex literal wrappers omitted; values/types and the entire native image remain unchanged.
+All full family features and DEV bypass remain. Final transforms operate on
+separate reference copies where needed; raw policy preimages stay unchanged.
+
+The ordinary --dev builder reproduces shipping and full DEV twice, and unchanged
+selected verifiers pass actual quit/EOF, restoration, legal finite GO and physical
+exit. Local2-worker/TT18 only; final resources and strength remain open. Final
+normal summary SHA-256:
+`af00002687cf6ed0d84f2e85f21169d381bb1cd8721005c05cc87a4fabe2bb96`.
+
+Current source SHA-256: `d1d490074754c3468785b1cd7f8f3c841f3ed1115933003fcc06edc5314e452c`.
+Current whole SHA-256: `e9a4e3110aabe23dc1c0d3da7f2abc5578f09bb4801c535188fe7a6793685231`.
+
+Older sections retain their original checkpoint identities.
+
 # Maintained A: integer source compression — 2026-10-21
 
 The late fixed integer pass uses the existing unsigned64 alias and high-bit

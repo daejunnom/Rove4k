@@ -101,6 +101,7 @@ def main():
         refine=module('entry_shipping_refinements',frozen/'shipping_refinements.py')
         dead_state=module('entry_material_state',frozen/'shipping_material_state.py')
         integer_forms=module('entry_integer_forms',frozen/'shipping_integer_forms.py')
+        mixer_forms=module('entry_mixer_literals',frozen/'shipping_mixer_literals.py')
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
         if template.count(marker)!=1 or len(prefix)!=77:raise ValueError('bootstrap recipe changed')
@@ -133,6 +134,8 @@ def main():
                 common_metadata['material_state']=dead_state_metadata
                 data,integer_metadata=integer_forms.transform_source(data,family='A')
                 common_metadata['integer_forms']=integer_metadata
+                data,final_metadata=mixer_forms.transform_source(data,family='A')
+                common_metadata['mixer_literals']=final_metadata
             return data,observations,alpha_metadata,storage_metadata,scope_metadata,input_metadata,declaration_metadata,type_metadata,lexical_metadata,capture_metadata,startup_metadata,global_names_metadata,continuation_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())

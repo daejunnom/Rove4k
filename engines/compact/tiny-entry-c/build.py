@@ -88,6 +88,8 @@ def main():
         dead_state=module('entry_material_state',frozen/'shipping_material_state.py')
         integer_forms=module('entry_integer_forms',frozen/'shipping_integer_forms.py')
         late_forms=module('entry_late_forms',frozen/'shipping_compaction.py')
+        include_forms=module('entry_include_forms',frozen/'shipping_includes.py')
+        mixer_forms=module('entry_mixer_literals',frozen/'shipping_mixer_literals.py')
         reference=module('entry_fixed_shipping_alpha_reference',frozen/'fixed_shipping_alpha.py')
         alpha=module('entry_composition_shipping_alpha',frozen/'shipping_alpha.py').transform_source
         scope=module('entry_fixed_scope_names',frozen/'shipping_scope.py').transform_source
@@ -136,6 +138,10 @@ def main():
                 common_metadata['integer_forms']=integer_metadata
                 data,late_metadata=late_forms.transform_source(data,family='C')
                 common_metadata['job_startup_SEE_forms']=late_metadata
+                data,include_metadata=include_forms.transform_source(data,family='C')
+                common_metadata['literal_include_forms']=include_metadata
+                data,final_metadata=mixer_forms.transform_source(data,family='C')
+                common_metadata['mixer_literals']=final_metadata
             return data,observations,alpha_metadata,scope_metadata,core_metadata,simd_metadata,input_metadata,material_metadata,incremental_metadata,signed_metadata,type_metadata,global_names_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())

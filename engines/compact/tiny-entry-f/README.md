@@ -1,3 +1,49 @@
+# Maintained F: final literal/poll compaction — 2026-10-21
+
+Current whole **4581 B**, source **8939 B**.
+Fixed LP64 large mixer hex literal wrappers omitted; values/types and the entire native image remain unchanged.
+All full family features and DEV bypass remain. Final transforms operate on
+separate reference copies where needed; raw policy preimages stay unchanged.
+
+The ordinary --dev builder reproduces shipping and full DEV twice, and unchanged
+selected verifiers pass actual quit/EOF, restoration, legal finite GO and physical
+exit. Local2-worker/TT18 only; final resources and strength remain open. Final
+normal summary SHA-256:
+`af00002687cf6ed0d84f2e85f21169d381bb1cd8721005c05cc87a4fabe2bb96`.
+
+Current source SHA-256: `53f3326c9062601fa037212f853c91c34cd1b36a076a571d8e1f52624514e08c`.
+Current whole SHA-256: `feb85424fc8663f891eb80c844855ae0b2a14e604bc691066e774d3cdc39bd8c`.
+
+Full/default F is4581B, still485B above4096. Optional material/noise is4330B;
+MoveTT is4057B with39B spare. Optional size eligibility does not complete full
+F; all positional HCE/learners/full-key bound-TT/MTD(f)/SMP remain in default F.
+
+Older sections retain their original checkpoint identities.
+
+# Maintained F: literal include forms — 2026-10-21
+
+Whole **4592→4589 B**, source **8959 B**.
+Only the fixed literal angle-header gap is removed, after all prior shipping
+stages. Every other source byte and directive boundary is preserved. The
+entire native image equals the preceding qualified image. DEV bypasses this
+pass; F's raw policy preimages are retained through separate reference copies.
+
+Ordinary --dev reproduces shipping/DEV twice and unchanged selected verifiers
+pass actual quit/EOF, restoration, finite clocks and physical exit. This is
+local2-worker/TT18 evidence; no new functional or strength run is claimed.
+Normal summary SHA-256:
+`b6be10f54e68ea2c381ed85a5a8fce47253825bb5bafbd1639b5b9802e9c5137`.
+
+Current source SHA-256: `601ea9b983a6b86fa74ff09555d2c9349433b9b0d7c664c636fb87aa19316acf`.
+Current whole SHA-256: `42f90fbc82e9a3fdc3e7d400d0baee6b3b90e13ff0a51190cef04652075969db`.
+
+Full/default is4589B and still needs493B. Material/noise is4341B; MoveTT is4067B
+with29B spare. The latter ties whole size while reducing raw source7B. Both
+optional natives remain entire-byte identical; optional size eligibility does
+not complete full/default F. Compression continues beyond the size threshold.
+
+Older sections retain their original checkpoint identities.
+
 # Maintained F: explicit smaller hash policy — 2026-10-21
 
 Default/full F is **4592 B**, source **8966 B**, still **496 B** above4096.

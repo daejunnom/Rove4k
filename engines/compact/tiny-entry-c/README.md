@@ -1,3 +1,40 @@
+# Maintained C: final literal/poll compaction — 2026-10-21
+
+Current whole **4960 B**, source **10084 B**.
+Fixed LP64 large mixer hex literal wrappers omitted; values/types and the entire native image remain unchanged.
+All full family features and DEV bypass remain. Final transforms operate on
+separate reference copies where needed; raw policy preimages stay unchanged.
+
+The ordinary --dev builder reproduces shipping and full DEV twice, and unchanged
+selected verifiers pass actual quit/EOF, restoration, legal finite GO and physical
+exit. Local2-worker/TT18 only; final resources and strength remain open. Final
+normal summary SHA-256:
+`af00002687cf6ed0d84f2e85f21169d381bb1cd8721005c05cc87a4fabe2bb96`.
+
+Current source SHA-256: `ed5b5fba543a7ab3a208af466e14744d0339447b0b812448a5092a068cd9715b`.
+Current whole SHA-256: `342fb248af88d22b754b7f7f21ddac68826cdea24a3cd053a3674a5111f81062`.
+
+Older sections retain their original checkpoint identities.
+
+# Maintained C: literal include forms — 2026-10-21
+
+Whole **4969→4968 B**, source **10114 B**.
+Only the fixed literal angle-header gap is removed, after all prior shipping
+stages. Every other source byte and directive boundary is preserved. The
+entire native image equals the preceding qualified image. DEV bypasses this
+pass; F's raw policy preimages are retained through separate reference copies.
+
+Ordinary --dev reproduces shipping/DEV twice and unchanged selected verifiers
+pass actual quit/EOF, restoration, finite clocks and physical exit. This is
+local2-worker/TT18 evidence; no new functional or strength run is claimed.
+Normal summary SHA-256:
+`b6be10f54e68ea2c381ed85a5a8fce47253825bb5bafbd1639b5b9802e9c5137`.
+
+Current source SHA-256: `fde89cdc49ef55d075343cd2480a5e65a02d18e94884271890b579ae60e93304`.
+Current whole SHA-256: `19b88253046c526cba21053f5868012ee06de18d256912158a0a85a7523b40b0`.
+
+Older sections retain their original checkpoint identities.
+
 # Maintained C: startup TT source compaction — 2026-10-21
 
 Whole **4976→4969 B**, source **10151→10123 B**, gap **873 B**. The

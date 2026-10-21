@@ -61,7 +61,9 @@
     "engines/scripts/shipping_refinements.py": "6ecb62499035cedaf6308539de0744a011f7b183ca768984462c4f0435406804",
     "engines/scripts/shipping_material_state.py": "eded8d82eed40c383564603a51582e829ff9de2fc626bdc11eab26e6c424b380",
     "engines/scripts/shipping_integer_forms.py": "a989dc2fd2ea60d9ab786cf51874ea646363e6f5731a302e1335cbb283fbcd93",
-    "engines/scripts/shipping_compaction.py": "47977f6c944978675f1f37be733270c30ff39fc2f2c9f80c9e18243d496912c5"
+    "engines/scripts/shipping_compaction.py": "47977f6c944978675f1f37be733270c30ff39fc2f2c9f80c9e18243d496912c5",
+    "engines/scripts/shipping_includes.py": "d7c3ad6e7811d848b0d6bab7331c929ab2c3175cd030438ddc81d22ea8cdf4bc",
+    "engines/scripts/shipping_mixer_literals.py": "7b25cb806a51cad9e867ebc588bcb99677c9e2f9d0a5df0b31d019e22bc6d114"
   },
   "compression": {
     "format": "lzma-alone",
@@ -79,18 +81,18 @@
   "expected": {
     "readable_bytes": 28001,
     "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
-    "source_bytes": 10477,
-    "source_sha256": "1bf5ca54da0a0ae5ae7c96deabf3830bace04db821c56fd9759c35e317da7436",
+    "source_bytes": 10440,
+    "source_sha256": "c65f0d610acbba9ad2dbfad230a18fb8c0a15d1eab995675a58ea71c5b5352e8",
     "native_bytes": 26400,
     "native_sha256": "94dfc1c9c31e4e88f740b3b2d1f02e17ffe4fe03ab1360575049f50b91028bba",
-    "whole_bytes": 5028,
-    "whole_sha256": "f32e6d680fc09737a33e06c9a28fb739a5b3e4bf8c0e816988bfd1cdf55a9880",
-    "bootstrap_sha256": "6c85aeb3c165c6d250c838de41f313fe0ab67419d34459f96e3c7423a64a0e5b",
+    "whole_bytes": 5019,
+    "whole_sha256": "e978bb6c2f6eade3f31a4b6d63490e0b557efa96dae801040cd6e519c397328a",
+    "bootstrap_sha256": "33cbd38bea957a21f12434faad0529036520a026643e2416853b3a7228c5bce1",
     "dev_source_bytes": 21314,
     "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
     "dev_native_bytes": 31376,
     "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
-    "bootstrap_bytes": 11534
+    "bootstrap_bytes": 11497
   },
   "local_input_sha256": {
     "engine.c": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
@@ -831,5 +833,154 @@
         "sha256": "af1c72e264e470481a7b3ae0204d4566ef07d82573b69e159d77a75c8d8b7357"
       }
     }
+  },
+  "literal_include_forms": {
+    "scope": "only fixed literal angle-header gap; all code/other directives/line boundaries preserved; DEV bypass",
+    "previous_expected": {
+      "readable_bytes": 28001,
+      "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+      "source_bytes": 10477,
+      "source_sha256": "1bf5ca54da0a0ae5ae7c96deabf3830bace04db821c56fd9759c35e317da7436",
+      "native_bytes": 26400,
+      "native_sha256": "94dfc1c9c31e4e88f740b3b2d1f02e17ffe4fe03ab1360575049f50b91028bba",
+      "whole_bytes": 5028,
+      "whole_sha256": "f32e6d680fc09737a33e06c9a28fb739a5b3e4bf8c0e816988bfd1cdf55a9880",
+      "bootstrap_sha256": "6c85aeb3c165c6d250c838de41f313fe0ab67419d34459f96e3c7423a64a0e5b",
+      "dev_source_bytes": 21314,
+      "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
+      "dev_native_bytes": 31376,
+      "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
+      "bootstrap_bytes": 11534
+    },
+    "exact_source_replay": {
+      "stage": "late-literal-include-gap",
+      "family": "E",
+      "policy": "full",
+      "input_bytes": 10477,
+      "input_sha256": "1bf5ca54da0a0ae5ae7c96deabf3830bace04db821c56fd9759c35e317da7436",
+      "output_bytes": 10470,
+      "output_sha256": "5a3352258412593216641c095762a3171a40a0f3e4d02fa434f67824281b1012",
+      "literal_include_gaps": 7,
+      "exact_inverse": true,
+      "complement_bytes": 10343,
+      "complement_sha256": "7591195b431ca969e2a3b0ea635b4e6f10aec8b117a2303be97b2fd15ea0e9db",
+      "external_reads": 0,
+      "compiler_codec_engine_executed_by_transform": 0
+    },
+    "cost": {
+      "path": "/home/stemxstudio/rove4k-common-include-space-cost-20261021-v1/results.json",
+      "bytes": 110005,
+      "sha256": "1c5140ba629d196054e275e2994cb1299f85ffdfc2a61cdbbd384777aeef3eea"
+    },
+    "complete_file_delta": -1,
+    "raw_source_delta": -7,
+    "native_entire_bytes_equal": true,
+    "normal_validation": {
+      "status": "PASS one ordinary --dev and unchanged selected verifier per selection",
+      "summary": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-include-forms-normal-20261021-evidence/summary.json",
+        "bytes": 18755,
+        "sha256": "b6be10f54e68ea2c381ed85a5a8fce47253825bb5bafbd1639b5b9802e9c5137"
+      },
+      "producing_recipe": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-include-forms-normal-20261021-evidence/E-producing-recipe.json",
+        "bytes": 45090,
+        "sha256": "0a7bb6bc9b7f399d94243ceb162203f55f09f6c4eda09f1c7923be1bd31ea507"
+      },
+      "selections": {
+        "E": {
+          "build": {
+            "path": "/home/stemxstudio/rove4k-include-forms-normal-20261021/E/build/build.json",
+            "bytes": 149806,
+            "sha256": "11535a8ae3a815b0c67800f0ec421c2cefc08124ca672e603d826207a0dd9bdc"
+          },
+          "runtime": {
+            "path": "/home/stemxstudio/rove4k-include-forms-normal-20261021/E/runtime/runtime.json",
+            "bytes": 23446,
+            "sha256": "490c841d659ef16d382eb83d044a9827e6c672617bd529eb75c284709ffbd0fb"
+          },
+          "shipping_reproductions": 2,
+          "DEV_reproductions": 2,
+          "actual_quit_EOF_sessions": 2,
+          "native_entire_bytes_equal": true
+        }
+      },
+      "component_function_proofs": "reused under exact entire native identity; no new functional fixture run",
+      "annotation_only": true
+    }
+  },
+  "mixer_literals": {
+    "previous_expected": {
+      "readable_bytes": 28001,
+      "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+      "source_bytes": 10470,
+      "source_sha256": "5a3352258412593216641c095762a3171a40a0f3e4d02fa434f67824281b1012",
+      "native_bytes": 26400,
+      "native_sha256": "94dfc1c9c31e4e88f740b3b2d1f02e17ffe4fe03ab1360575049f50b91028bba",
+      "whole_bytes": 5027,
+      "whole_sha256": "655679923b68aa3d60d2ada9694f3b37ac1ee83a7fdfc91c3e7c0c8fc08901a6",
+      "bootstrap_sha256": "871a1923f39358b779779a7c8b5a9b1c1307095c7a0b1bf26011fdf6af16334e",
+      "dev_source_bytes": 21314,
+      "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
+      "dev_native_bytes": 31376,
+      "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
+      "bootstrap_bytes": 11527
+    },
+    "exact_source_replay": {
+      "stage": "late-fixed-LP64-mixer-literals",
+      "family": "E",
+      "policy": "full",
+      "input_bytes": 10470,
+      "input_sha256": "5a3352258412593216641c095762a3171a40a0f3e4d02fa434f67824281b1012",
+      "output_bytes": 10440,
+      "output_sha256": "c65f0d610acbba9ad2dbfad230a18fb8c0a15d1eab995675a58ea71c5b5352e8",
+      "literal_spans": 1,
+      "exact_inverse": true,
+      "complement_bytes": 10325,
+      "complement_sha256": "89ee826a60e49786099e203a7368a663b31628443be520517bb789ed7cba59ba",
+      "external_reads": 0,
+      "compiler_codec_engine_executed_by_transform": 0
+    },
+    "cost": {
+      "path": "/home/stemxstudio/rove4k-common-mixer-hex-cost-20261021-v1/results.json",
+      "bytes": 101590,
+      "sha256": "1953e28c850e1c49ad5783c255241b28466eb863f18496686e0e03c38d433755"
+    },
+    "scope": "fixed LP64 large hex literal type/value preservation; hash policy unchanged",
+    "native_entire_bytes_equal": true,
+    "normal_validation": {
+      "status": "PASS one ordinary --dev and unchanged selected verifier per selection",
+      "summary": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-hex-guard-normal-20261021-evidence/summary.json",
+        "bytes": 21274,
+        "sha256": "af00002687cf6ed0d84f2e85f21169d381bb1cd8721005c05cc87a4fabe2bb96"
+      },
+      "producing_recipe": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-hex-guard-normal-20261021-evidence/E-producing-recipe.json",
+        "bytes": 48623,
+        "sha256": "3b9b6d76c36d950593a31dda41a366642953117c4b143578410ab3a6d7ee3413"
+      },
+      "selections": {
+        "E": {
+          "build": {
+            "path": "/home/stemxstudio/rove4k-hex-guard-normal-20261021/E/build/build.json",
+            "bytes": 151464,
+            "sha256": "6329d60ccd8f53c5bac2a26be8959f431d12b96571f30f92a42bf6a7c2f3628c"
+          },
+          "runtime": {
+            "path": "/home/stemxstudio/rove4k-hex-guard-normal-20261021/E/runtime/runtime.json",
+            "bytes": 23444,
+            "sha256": "6efb77fdfcd4c56274768cc7ced65df0252010c0d17ca89caceb653e1a8c9b9a"
+          },
+          "shipping_reproductions": 2,
+          "DEV_reproductions": 2,
+          "actual_quit_EOF_sessions": 2,
+          "native_entire_bytes_equal": true
+        }
+      },
+      "annotation_only": true,
+      "scope": "local2-worker TT18 only; not target hardware, many-core, strength/games or full portfolio acceptance"
+    },
+    "DEV_bypass": true
   }
 }

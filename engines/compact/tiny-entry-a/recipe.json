@@ -44,7 +44,8 @@
     "engines/scripts/shipping_common.py": "58f2cfdb37bbd0c010e82bc8d9c2118b00fe41ef6a556c18cc94db11455e2a15",
     "engines/scripts/shipping_refinements.py": "6ecb62499035cedaf6308539de0744a011f7b183ca768984462c4f0435406804",
     "engines/scripts/shipping_material_state.py": "eded8d82eed40c383564603a51582e829ff9de2fc626bdc11eab26e6c424b380",
-    "engines/scripts/shipping_integer_forms.py": "a989dc2fd2ea60d9ab786cf51874ea646363e6f5731a302e1335cbb283fbcd93"
+    "engines/scripts/shipping_integer_forms.py": "a989dc2fd2ea60d9ab786cf51874ea646363e6f5731a302e1335cbb283fbcd93",
+    "engines/scripts/shipping_mixer_literals.py": "7b25cb806a51cad9e867ebc588bcb99677c9e2f9d0a5df0b31d019e22bc6d114"
   },
   "fixed_renames": [
     [
@@ -378,18 +379,18 @@
   },
   "expected": {
     "readable_sha256": "71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734",
-    "source_bytes": 9082,
-    "source_sha256": "038ec565e9ad3ae339fe2830165ab0f621455024ab8aea5b2da861a925a78945",
+    "source_bytes": 9052,
+    "source_sha256": "d1d490074754c3468785b1cd7f8f3c841f3ed1115933003fcc06edc5314e452c",
     "native_bytes": 18576,
     "native_sha256": "ca24e8e88d15a81c635d7f762b972509443930cec19e1daa8b5e547458551c53",
-    "whole_bytes": 4628,
-    "whole_sha256": "6ef884d6d72c0bd46d8511e6843abd9fb006ce881c48cc6a06105a1ef60f71d8",
-    "bootstrap_sha256": "b9cf4282d92dbb374ceb0fd686981c156a6142d9a8f477d6e82bb034aa7634af",
+    "whole_bytes": 4619,
+    "whole_sha256": "e9a4e3110aabe23dc1c0d3da7f2abc5578f09bb4801c535188fe7a6793685231",
+    "bootstrap_sha256": "61bf90328c08f2c8bf9f29f2fd687ea9d3c2534620df7c54a1b2b36e90037310",
     "dev_source_sha256": "41ab9f0f5d28183b76833d038c40e0bb6a2ee6ef9303766c293dd577680a4c9c",
     "dev_native_sha256": "8733dbf0814a2c2545251f6e0e17d243ecfd41fce7853fb325ca9720fedd1102",
     "input_profile_readable_bytes": 27687,
     "input_profile_readable_sha256": "63821a63cbf6507393e0617da9f611b778ada46c9a89b49fdefc8996bb461e2c",
-    "bootstrap_bytes": 10064
+    "bootstrap_bytes": 10034
   },
   "local_input_sha256": {
     "engine.c": "71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734",
@@ -1261,5 +1262,78 @@
       "final_native_full_bytes_equal_material_state": true,
       "producing_recipe_precedes_this_receipt_annotation": true
     }
+  },
+  "mixer_literals": {
+    "previous_expected": {
+      "readable_sha256": "71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734",
+      "source_bytes": 9082,
+      "source_sha256": "038ec565e9ad3ae339fe2830165ab0f621455024ab8aea5b2da861a925a78945",
+      "native_bytes": 18576,
+      "native_sha256": "ca24e8e88d15a81c635d7f762b972509443930cec19e1daa8b5e547458551c53",
+      "whole_bytes": 4628,
+      "whole_sha256": "6ef884d6d72c0bd46d8511e6843abd9fb006ce881c48cc6a06105a1ef60f71d8",
+      "bootstrap_sha256": "b9cf4282d92dbb374ceb0fd686981c156a6142d9a8f477d6e82bb034aa7634af",
+      "dev_source_sha256": "41ab9f0f5d28183b76833d038c40e0bb6a2ee6ef9303766c293dd577680a4c9c",
+      "dev_native_sha256": "8733dbf0814a2c2545251f6e0e17d243ecfd41fce7853fb325ca9720fedd1102",
+      "input_profile_readable_bytes": 27687,
+      "input_profile_readable_sha256": "63821a63cbf6507393e0617da9f611b778ada46c9a89b49fdefc8996bb461e2c",
+      "bootstrap_bytes": 10064
+    },
+    "exact_source_replay": {
+      "stage": "late-fixed-LP64-mixer-literals",
+      "family": "A",
+      "policy": "full",
+      "input_bytes": 9082,
+      "input_sha256": "038ec565e9ad3ae339fe2830165ab0f621455024ab8aea5b2da861a925a78945",
+      "output_bytes": 9052,
+      "output_sha256": "d1d490074754c3468785b1cd7f8f3c841f3ed1115933003fcc06edc5314e452c",
+      "literal_spans": 1,
+      "exact_inverse": true,
+      "complement_bytes": 8937,
+      "complement_sha256": "e6aa6e4e1634478e6b67a465f972a637d79396073d2ff1c546bac0ac3b942c81",
+      "external_reads": 0,
+      "compiler_codec_engine_executed_by_transform": 0
+    },
+    "cost": {
+      "path": "/home/stemxstudio/rove4k-common-mixer-hex-cost-20261021-v1/results.json",
+      "bytes": 101590,
+      "sha256": "1953e28c850e1c49ad5783c255241b28466eb863f18496686e0e03c38d433755"
+    },
+    "scope": "fixed LP64 large hex literal type/value preservation; hash policy unchanged",
+    "native_entire_bytes_equal": true,
+    "normal_validation": {
+      "status": "PASS one ordinary --dev and unchanged selected verifier per selection",
+      "summary": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-hex-guard-normal-20261021-evidence/summary.json",
+        "bytes": 21274,
+        "sha256": "af00002687cf6ed0d84f2e85f21169d381bb1cd8721005c05cc87a4fabe2bb96"
+      },
+      "producing_recipe": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-hex-guard-normal-20261021-evidence/A-producing-recipe.json",
+        "bytes": 62277,
+        "sha256": "86c8b47c826053192d6c4d126ec3f78a479307e2d1a2338df0dbe735505ca7ce"
+      },
+      "selections": {
+        "A": {
+          "build": {
+            "path": "/home/stemxstudio/rove4k-hex-guard-normal-20261021/A/build/build.json",
+            "bytes": 163055,
+            "sha256": "f91cf7b21ca3a166058aa78a719b9e757c5bbeb56cd20bbb844dbf423cb8cc26"
+          },
+          "runtime": {
+            "path": "/home/stemxstudio/rove4k-hex-guard-normal-20261021/A/runtime/runtime.json",
+            "bytes": 41540,
+            "sha256": "0003c506e58c4e997f3be5c8cb8e7da46a1eb4140f4b0e2dab3b400bf53979aa"
+          },
+          "shipping_reproductions": 2,
+          "DEV_reproductions": 2,
+          "actual_quit_EOF_sessions": 2,
+          "native_entire_bytes_equal": true
+        }
+      },
+      "annotation_only": true,
+      "scope": "local2-worker TT18 only; not target hardware, many-core, strength/games or full portfolio acceptance"
+    },
+    "DEV_bypass": true
   }
 }

@@ -1,3 +1,40 @@
+# Maintained B: final literal/poll compaction — 2026-10-21
+
+Current whole **5154 B**, source **10577 B**.
+Clock-first SEE guard; cancellation polling order/timing changes. Completed legal-LVA values and unknown propagation remain.
+All full family features and DEV bypass remain. Final transforms operate on
+separate reference copies where needed; raw policy preimages stay unchanged.
+
+The ordinary --dev builder reproduces shipping and full DEV twice, and unchanged
+selected verifiers pass actual quit/EOF, restoration, legal finite GO and physical
+exit. Local2-worker/TT18 only; final resources and strength remain open. Final
+normal summary SHA-256:
+`af00002687cf6ed0d84f2e85f21169d381bb1cd8721005c05cc87a4fabe2bb96`.
+
+Current source SHA-256: `d360c9ca23b30fe7f295d3f1e0012da9618a1a25a6b8b9cec19240fdac6396ae`.
+Current whole SHA-256: `3130d6214fb6de833a7fb5543899e647f1bc43485f3c94e454f508c99b47acb0`.
+
+Older sections retain their original checkpoint identities.
+
+# Maintained B: literal include forms — 2026-10-21
+
+Whole **5162→5161 B**, source **10588 B**.
+Only the fixed literal angle-header gap is removed, after all prior shipping
+stages. Every other source byte and directive boundary is preserved. The
+entire native image equals the preceding qualified image. DEV bypasses this
+pass; F's raw policy preimages are retained through separate reference copies.
+
+Ordinary --dev reproduces shipping/DEV twice and unchanged selected verifiers
+pass actual quit/EOF, restoration, finite clocks and physical exit. This is
+local2-worker/TT18 evidence; no new functional or strength run is claimed.
+Normal summary SHA-256:
+`b6be10f54e68ea2c381ed85a5a8fce47253825bb5bafbd1639b5b9802e9c5137`.
+
+Current source SHA-256: `13f1b0d74752f7aa2743616ad6465d1ee8e1497d70da7d3db242e38bdccc5c3b`.
+Current whole SHA-256: `64c48807d6f308f931cabbae500260f9ef30a6fd89f93a316f38102fd48af229`.
+
+Older sections retain their original checkpoint identities.
+
 # Maintained B: job/startup and SEE source compaction — 2026-10-21
 
 Whole **5196→5162 B**, source **10702→10595 B**, gap **1066 B**. The

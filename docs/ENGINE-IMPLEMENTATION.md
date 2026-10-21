@@ -172,7 +172,7 @@ The later PALS and hardware-CRC work below retains its own source and runtime
 boundaries; those earlier CI runs are not relabeled as results for new bytes.
 
 **F's opt-in material/move-TT file is locally reproduced and exercised at
-4,067 bytes; default full F is still 4,592 bytes.** This optional reduced-feature
+4,057 bytes; default full F is still 4,581 bytes.** This optional reduced-feature
 size result does not complete default F or the A–F portfolio. All twelve
 cores have functional evidence, but portfolio completion still requires source
 reduction, D's eligible own-ELF artifact, final candidate comparisons and games,
@@ -187,14 +187,14 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
-| A | 4,628 B | 532 B | Unsigned64 number forms; one-state material classifier; main-owned token cursor and valid-0x88 promotion predicate; existing full HCE/PVS/QS/TT/learners/SMP and fixed ALONE retained |
-| B | 5,162 B | 1,066 B | Worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained |
-| C | 4,969 B | 873 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners retained |
+| A | 4,619 B | 523 B | Unsigned64 number forms; one-state material classifier; main-owned token cursor and valid-0x88 promotion predicate; existing full HCE/PVS/QS/TT/learners/SMP and fixed ALONE retained; fixed LP64 mixer literals |
+| B | 5,154 B | 1,058 B | Worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained; literal include gaps compacted; clock-first SEE poll; cancellation timing changed |
+| C | 4,960 B | 864 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners retained; literal include gaps compacted; fixed LP64 mixer literals |
 | D scalar / HQ | 5,966 / 6,175 B | 1,870 / 2,079 B | Capture-only Move bit3; full-key aligned atomic16 TT, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained |
-| E | 5,028 B | 932 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained |
-| F full (default) | 4,592 B | 496 B | Explicit no-preadd hash policy with new repetition/context/TT/correction buckets; terminal legal-loop sharing and integer forms; packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; default size target remains open |
-| F material/noise (opt-in) | 4,343 B | 247 B | Unsigned64 number forms and two fixed TT18 casts omitted; one-state material classifier, fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted |
-| F material/move-TT (opt-in) | 4,067 B | 0 B (29 B spare) | Unsigned64 number forms; one-state material classifier, fixed material, main-owned token cursor, terminal-loop sharing and coherent atomic64 Move17/high46 plus index18; local size eligibility only, full F and strength acceptance remain open |
+| E | 5,019 B | 923 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; literal include gaps compacted; fixed LP64 mixer literals |
+| F full (default) | 4,581 B | 485 B | Explicit no-preadd hash policy with new repetition/context/TT/correction buckets; terminal legal-loop sharing and integer forms; packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; default size target remains open; literal include gaps compacted; fixed LP64 mixer literals |
+| F material/noise (opt-in) | 4,330 B | 234 B | Unsigned64 number forms and two fixed TT18 casts omitted; one-state material classifier, fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted; literal include gaps compacted; fixed LP64 mixer literals |
+| F material/move-TT (opt-in) | 4,057 B | 0 B (39 B spare) | Unsigned64 number forms; one-state material classifier, fixed material, main-owned token cursor, terminal-loop sharing and coherent atomic64 Move17/high46 plus index18; local size eligibility only, full F and strength acceptance remain open; fixed LP64 mixer literals |
 
 The separate Rust D native images are 16,816 bytes each. Their independent
 packed experiment retains its own qualification state and does not silently
@@ -6163,3 +6163,142 @@ Reset proof5013B SHA:
 af1c72e264e470481a7b3ae0204d4566ef07d82573b69e159d77a75c8d8b7357.
 New hash proof10988B SHA:
 62545d3a20037615dc645f1ca399e9f6c7f44058b5332336b964f1bea15d46b7.
+
+
+## Literal include gaps with identical native images — 2026-10-21
+
+The preceding source checkpoint8abcbc3 passes both
+[C/Rust engine CI](https://github.com/daejunnom/Rove4k/actions/runs/39545848195)
+and [Node22/24 lifecycle CI](https://github.com/daejunnom/Rove4k/actions/runs/39545848206).
+The late shipping_includes.py removes exactly the single space in fixed
+whole-line `#include <literal.h>` directives. It preserves header bytes/order,
+newlines, all macro/conditional directives and all other source bytes. The
+identifier include and angle-header remain distinct preprocessing tokens.
+This is not a general directive-whitespace relaxation or header deletion.
+
+The six selected cases use seven directives each except C, which has nine,
+including its limits.h and later immintrin.h. The pass follows all existing
+fixed-offset stages. F's selected full/material/move paths, full_reference and
+material_cleaned each apply the matching case only to their final copy; raw
+preimages still feed the existing policy transforms. DEV bypasses the pass.
+All four builders pin and freeze the helper before import. Exact input/output,
+literal offsets, inverse and each protected gap are verified without external
+cost/source/receipt reads during ordinary builds.
+
+| Selection | Previous source | Current source | Previous whole | Current whole | Whole delta |
+|---|---:|---:|---:|---:|---:|
+| B |10595|10588|5162|5161|-1|
+| C |10123|10114|4969|4968|-1|
+| E |10477|10470|5028|5027|-1|
+| F full |8966|8959|4592|4589|-3|
+| F-material |8545|8538|4343|4341|-2|
+| F-move |7778|7771|4067|4067|0|
+
+F-move is deliberately admitted as a7B raw-source reduction with tied whole
+size and unchanged29B spare. Its new wrapper bytes are reproduced and tested;
+whole-byte equality is not claimed. A's identical proposal loses1B of whole
+size (4628->4629) and is excluded from both the helper and wiring. No loss is
+hidden by a metadata exception or a changed codec.
+
+All seven fixed costs preserve their actual compiler/package settings:
+A uses its original preset defaults; C retains -mavx2 and nice64; B/E/F retain
+their existing settings and F-move retains lc0. Each candidate compiles/encodes
+once, controls neither. Every entire native equals its actual preceding image,
+not merely its length or sections. Old/new strict Python and CLI restores all
+match source/compiler-argv/bootstrap. Cost110005B SHA:
+1c5140ba629d196054e275e2994cb1299f85ffdfc2a61cdbbd384777aeef3eea.
+
+The selected six ordinary --dev builders reproduce shipping source/native/
+bootstrap/whole and full-reference DEV twice. All twelve actual selected
+quit/EOF wrappers pass unchanged verifiers, exact restoration, stable3 TIDs,
+legal finite GO, private-path/helper absence, closing result, reader EOF and
+physical exit. Component function proofs are reused under entire native
+identity; no fresh ASan/function or strength run is claimed for this spelling
+stage. Producing-input readback precedes receipt-only annotations. Normal
+summary18755B SHA:
+b6be10f54e68ea2c381ed85a5a8fce47253825bb5bafbd1639b5b9802e9c5137.
+This remains local2-worker/TT18 evidence. A/D and their prior qualification are
+unchanged; full F's hash policy is unchanged from8abcbc3. Its493B remaining
+size gap, final resources, games/strength and portfolio acceptance remain open.
+
+A separate fixed full-F castling-right-mask lookup changes79 source bytes to78
+while preserving all int inputs, but whole4589->4601 loses12B. It is closed
+without adoption, alternative constants/layouts, A cost or function runtime.
+Rights cost6215B SHA:
+400e2d68c6482e23e08cbe02a170c75ae7b5fb5239bdbd19cef795fcd51c0c87.
+The comparison engine's minifier suggestion is used only as a narrow design
+reference; third-party source remains outside Git.
+
+
+## Fixed mixer literals and B clock-first SEE polling — 2026-10-21
+
+The final source chain retains the preceding include-only stage and adds one
+late fixed decision per family. A/C/E/F use shipping_mixer_literals.py; B uses
+its own shipping_guard.py. Both are pure literal replays with exact source
+pins, inverse and protected gaps, frozen by recipe before import. DEV bypasses
+them. F's final selected/full-reference/material-reference copies are transformed
+after includes; earlier material/move transforms still receive raw preimages.
+
+Only three large mixer constants lose UINT64_C wrappers. Each lies strictly
+between2^63 and2^64. On the fixed LP64 hosted-C target, unsuffixed nondecimal
+type selection first fits unsigned long64, the same type/value as the actual
+header's UL macro expansion. Add/multiply/shift operands and hash values stay
+unchanged. This is representation compression, not another hash policy.
+Full F has two constants after its previous no-preadd policy; the others have
+three. Headers stay. B's important UINT64_C(1)<<bit(0..63) is never converted
+to int32. B's standalone mixer spelling loses2B (5161->5163), so it is excluded
+without retrying layouts or combining that measured loss with the guard.
+
+B replaces the114B SEE cancellation guard with103B: sample monotonic time,
+set stopped if expired, then load stopped. The actual GO waits for every old
+worker before updating the deadline and resetting stopped; within a job the
+deadline is immutable and stop sticky. Illegal make still returns before the
+guard. Completed legal-LVA results, recursive unknown propagation and the
+ordering unknown guard stay; QS still does not use SEE as a negative-pruning
+certificate. Poll ordering and cancellation observation change. Equal cancelled
+visit/clock/TT/learning traces or latency are not claimed.
+
+One actual new-candidate ASan/UBSan fixture compares the current old Q renamed
+only at declaration/recursion against new Q. Its56 frozen inputs give54 Q
+comparisons plus2 normalized-EP exclusions,128 rank checks,6 cancellation/
+deadline guards and positive convergence4groups/2replies. Completed scores and
+uninterrupted clock calls agree; Board/two Workers stay unchanged. Old guard
+calls[1,2,2,3,3,4] and separately predeclared new[1,1,1,2,2,3] both pass. One
+compile/run, no retry. Proof9566B SHA:
+9139d25cccc5f57f2f49e52c0af486cb4174a5534a9057164cb732554348cd31.
+
+| Case | Before mixer/guard whole | Current whole | Stage saved | Current source | Above4096 |
+|---|---:|---:|---:|---:|---:|
+| A |4628|4619|9|9052|523|
+| B |5161|5154|7|10577|1058|
+| C |4968|4960|8|10084|864|
+| E |5027|5019|8|10440|923|
+| F full |4589|4581|8|8939|485|
+| F-material |4341|4330|11|8508|234|
+| F-move |4067|4057|10|7741|0 (39 spare)|
+
+All six selected mixer costs have entire native identity to their preceding
+images, including A's compiler/default codec, C's -mavx2/nice64 and F-move lc0.
+B has a new native identity and text16B smaller. No file-length-only identity
+or metadata exception is used. Mixer cost101590B SHA:
+1953e28c850e1c49ad5783c255241b28466eb863f18496686e0e03c38d433755.
+B guard cost15623B SHA:
+df55297d11d185e92f1415ef609250340cff5ccd70ba0408a4bbc6be20ed0543.
+
+All seven final ordinary --dev builds and unchanged selected verifiers pass.
+Shipping source/native/bootstrap/whole and full-reference DEV reproduce twice
+per selection. Fourteen actual new quit/EOF wrappers observe exact restored
+native, stable3 TIDs, legal finite GO, private-path/helper absence, one closing
+result, reader EOF and physical exit. Six function qualifications are reused
+under complete native identity; B's focused Q proof and final wrapper checks
+have their distinct scopes. Producing-input readback precedes receipt-only
+annotations. Final normal summary21274B SHA:
+af00002687cf6ed0d84f2e85f21169d381bb1cd8721005c05cc87a4fabe2bb96.
+
+Relative to8abcbc3, whole savings are A9/B8/C9/E9/F11/F-material13/F-move10B.
+Their source reductions are30/18/39/37/27/37/37B. D is unchanged5966/6175B.
+Full/default F still needs485B. Optional F-move's39B spare is an intermediate
+reduced-feature result. The goal remains active: all A–F source compression,
+D's eligible own-ELF, selected resources/target hardware and strength/candidate
+acceptance remain open. No new games, training/data collection, AWS or paid
+execution is performed. Passing a size threshold does not end compression.
