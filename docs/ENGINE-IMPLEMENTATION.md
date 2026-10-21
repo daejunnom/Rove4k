@@ -192,7 +192,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | C | 4,952 B | 856 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners retained; literal include gaps compacted; fixed LP64 mixer literals |
 | D scalar / HQ | 5,947 / 6,169 B | 1,851 / 2,073 B | Consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained |
 | E | 5,011 B | 915 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; literal include gaps compacted; fixed LP64 mixer literals |
-| F full (default) | 4,548 B | 452 B | Explicit no-preadd hash policy with new repetition/context/TT/correction buckets; terminal legal-loop sharing and integer forms; packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; default size target remains open; literal forms, correction clamp, private piece-index calls and fixed history token compacted |
+| F full (default) | 4,537 B | 441 B | Explicit no-preadd hash policy with new repetition/context/TT/correction buckets; terminal legal-loop sharing and integer forms; packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; default size target remains open; literal forms, correction clamp, private piece-index calls and fixed history token compacted |
 | F material/noise (opt-in) | 4,325 B | 229 B | Unsigned64 number forms and two fixed TT18 casts omitted; one-state material classifier, fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted; literal include gaps compacted; fixed LP64 mixer literals |
 | F material/move-TT (opt-in) | 4,051 B | 0 B (45 B spare) | Unsigned64 number forms; one-state material classifier, fixed material, main-owned token cursor, terminal-loop sharing and coherent atomic64 Move17/high46 plus index18; local size eligibility only, full F and strength acceptance remain open; fixed LP64 mixer literals |
 
@@ -6531,3 +6531,50 @@ league option inventory is added. External4ku/ice4 reference source stays outsid
 Git. Full F still needs452B; the all-family goal continues beyond size passage.
 Final target resources, many-core behavior, strength/candidate acceptance and
 D's eligible own-ELF remain separate. Training/data/AWS/paid runs stay excluded.
+
+## Full-F single result stream operation — 2026-10-21
+
+The shipping result callback contains one complete printf bestmove line followed
+by fflush. Its explicit flockfile/funlockfile pair is removed. The fixed glibc
+stdio premise is per-operation internal stream locking, as documented in the
+[glibc2.39 stream-locking source](https://github.com/bminor/glibc/blob/glibc-2.39/manual/stdio.texi#L443)
+and [vfprintf implementation](https://github.com/bminor/glibc/blob/glibc-2.39/stdio-common/vfprintf-internal.c#L1473).
+No unlocked/raw-FD/signal writer is admitted in this shipping source. DEV's
+multi-call info sequence and selected optional policies bypass the new stage.
+
+This deliberately relaxes the outer multi-call output grouping: controller ack
+operations may run during aggregation or between result printf and fflush, and
+may flush buffered output themselves. Individual complete stdio operations
+retain stream exclusion. Callback selection, result flush and completion
+broadcast stay under the actual job mutex, so the controller's next position,
+GO and closing fence still follow callback completion. Exact timing, response
+order, forced collision, cross-process or signal-handler atomicity is not claimed.
+
+The pure exact two-deletion helper follows clock on selected full F and separate
+full-reference copies. Source8859→8821B, bootstrap9838→9800B and whole4548→4537B.
+The fresh18576B native changes identity; no metadata exception is used. One
+compile/encode and strict old/new Python/CLI restoration pass. Cost9634B SHA:
+fdc94debb1e962a62daabeb09e6ab2142b248540d40bba91468779059294ec6e.
+
+Actual measured-wrapper protocol observation first failed before engine launch:
+the cost artifact had mode0644. The original complete:false/terminal:true receipt
+and launch-intent log remain, with engine sessions0. Only that owned artifact's
+mode changes to0755; raw4537B identity remains. A new V2 output/source preserves
+the earlier failure and runs two actual sessions. GO0+isready is posted in one
+write/flush; exactly readyok then legal bestmove g1f3 appears in both, with no
+extra/partial line through quit/EOF. Actual native identity, private-path/helper
+absence, stable3 TIDs, physical reader EOF, rc0 and main/group absence pass.
+Actual overlap causality remains unproven and close occurs after the response
+pair. V2 runtime4349B SHA:
+2df168c7fe2b4a59ac132e5c983af87456f6d6b22d2a70746b588208ab9a9f5b.
+
+All three maintained F builders then reproduce shipping/DEV twice; unchanged
+selected verifiers pass six fresh quit/EOF sessions including active closing
+search observation. Selected optional artifacts and every DEV remain entire-byte
+equal. Producing input readback/saved recipe precede receipt-only annotations.
+Normal summary6407B SHA:
+094a1234527c26c3c28ad3806c139cf0ad6faebcad766f2a3cfca02391c87df7.
+Full/default4537B still needs441B, retaining full HCE, all learners, coherent
+full-key bound TT, full-depth MTD(f), completion witness and SMP. A/B/C/E and D
+stay at their preceding maintained values. Goal and compression beyond size
+passage remain active; resources/many-core/strength/eligibility remain separate.

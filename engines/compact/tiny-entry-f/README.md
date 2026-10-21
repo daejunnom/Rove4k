@@ -1,3 +1,33 @@
+# Maintained F: one complete result stdio operation — 2026-10-21
+
+Full/default whole **4537 B**, source **8821 B**, remaining **441 B**.
+Delete only the explicit flockfile/funlockfile pair around aggregation and the
+single complete bestmove printf plus fflush. Per-operation stdio locking keeps
+the result line complete; main uciok/readyok may now run during aggregation or
+between printf and fflush. Exact multi-call grouping/timing equivalence is not
+claimed. Result selection and fflush still finish under the job mutex before
+completion broadcast. All HCE/learners/full-bound TT/MTD(f)/SMP features remain.
+
+Raw source−38B and actual whole−11B from clock4548B; native has a new identity.
+The pure fixed two-span stage follows clock in full selection and separate full
+references. DEV and selected optional4325/4051B artifacts remain entire-byte
+equal. All three ordinary builders reproduce shipping/DEV twice and unchanged
+selected verifiers pass six fresh actual quit/EOF sessions. Normal summary SHA:
+`094a1234527c26c3c28ad3806c139cf0ad6faebcad766f2a3cfca02391c87df7`.
+
+Two additional actual measured-wrapper sessions queue GO0 and isready together,
+observe exactly one readyok and one legal bestmove, then physically exit through
+quit/EOF. Both observed readyok first; actual overlap/collision causality remains
+unproven. The original measured artifact's0644 exec failure is retained; only its
+mode changed to0755 for the separate V2 observation, without changing bytes.
+
+Current source SHA-256: `00c48b5c6d74a45d68fe8280d45648e4405763c6c5742d8e11ed9736c71beb9c`.
+Current whole SHA-256: `89bade10f09691eefeab94149ed2fee94a36d6c1598c5da65ddb27e61771c2ad`.
+
+Local two-worker/TT18 checks do not establish final resources, many-core behavior
+or strength. Full F remains above4096B and compression continues beyond passage.
+Older sections retain their checkpoint identities.
+
 # Maintained F: compact clock presence — 2026-10-21
 
 Complete file **4548 B**, compact C **8859 B**.

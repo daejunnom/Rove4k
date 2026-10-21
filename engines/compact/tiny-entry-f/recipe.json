@@ -75,7 +75,8 @@
     "engines/scripts/shipping_mixer_literals.py": "7b25cb806a51cad9e867ebc588bcb99677c9e2f9d0a5df0b31d019e22bc6d114",
     "engines/compact/tiny-entry-f/shipping_clamp.py": "54f7b75e3b5adfa4c012d1c7c8acf5b17013cff8ba848f0fbf39907d0dec64a7",
     "engines/compact/tiny-entry-f/shipping_source_forms.py": "54e34ccf0889a01b5603492081b3058bbfe98770b545ef9652b32250a5647697",
-    "engines/scripts/shipping_clock.py": "46c19879deae1d056f4b059c6c7d9667a3e935110dfb33015b29fd0dec4d8c43"
+    "engines/scripts/shipping_clock.py": "46c19879deae1d056f4b059c6c7d9667a3e935110dfb33015b29fd0dec4d8c43",
+    "engines/compact/tiny-entry-f/shipping_result_stream.py": "326921d09da32c97193f126c002815d72b475b067d77871f21fb49567e4ecaad"
   },
   "resource_literals": [
     [
@@ -249,22 +250,22 @@
   },
   "expected": {
     "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
-    "source_bytes": 8859,
-    "source_sha256": "e868953700cc0a319b8293cde473d9c0fd44a29e5105f25e1cc114e601740f59",
+    "source_bytes": 8821,
+    "source_sha256": "00c48b5c6d74a45d68fe8280d45648e4405763c6c5742d8e11ed9736c71beb9c",
     "native_bytes": 18576,
-    "native_sha256": "c33c1272aa2e2f1591c33abcd47795443e2fdfc368fe8618533fda1cb1530c76",
-    "whole_bytes": 4548,
-    "whole_sha256": "d4487fe3c04f12f5bb2f928891e0986a5b98c7ac8dd34a4ad511f3ee1e42e336",
+    "native_sha256": "3554b0309d686aaeeb20b10454047dc21548c4533e08e552680554d0e20d972d",
+    "whole_bytes": 4537,
+    "whole_sha256": "89bade10f09691eefeab94149ed2fee94a36d6c1598c5da65ddb27e61771c2ad",
     "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
     "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
-    "bootstrap_sha256": "536c6e134d6757b904c7c315e4fec257b334ceba9dfac0723b572409fbe66359",
+    "bootstrap_sha256": "c78fad55d88b8e4fff420e60e6519c528d254edfb5d2aea2dec55af91922ae1b",
     "semantic_readable_bytes": 25720,
     "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
     "dev_source_bytes": 19488,
     "dev_native_bytes": 26984,
     "input_profile_readable_bytes": 28587,
     "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
-    "bootstrap_bytes": 9838
+    "bootstrap_bytes": 9800
   },
   "local_input_sha256": {
     "engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
@@ -3076,6 +3077,63 @@
         "sha256": "60cb4bd08a6d88d99d82740c54b93a253ab29e49fd9bd708eb38a8ded53929eb"
       },
       "annotation_only": true
+    }
+  },
+  "result_stream": {
+    "scope": "full-only explicit stdout lock pair deletion after clock presence; single bestmove printf and qj-owned flush completion fence retained",
+    "previous_expected_after_clock": {
+      "source_bytes": 8859,
+      "source_sha256": "e868953700cc0a319b8293cde473d9c0fd44a29e5105f25e1cc114e601740f59",
+      "native_bytes": 18576,
+      "native_sha256": "c33c1272aa2e2f1591c33abcd47795443e2fdfc368fe8618533fda1cb1530c76",
+      "whole_bytes": 4548,
+      "whole_sha256": "d4487fe3c04f12f5bb2f928891e0986a5b98c7ac8dd34a4ad511f3ee1e42e336",
+      "bootstrap_bytes": 9838,
+      "bootstrap_sha256": "536c6e134d6757b904c7c315e4fec257b334ceba9dfac0723b572409fbe66359"
+    },
+    "cost": {
+      "path": "/home/stemxstudio/rove4k-f-result-stream-lock-first-cost-20261021/cost.json",
+      "bytes": 9634,
+      "sha256": "fdc94debb1e962a62daabeb09e6ab2142b248540d40bba91468779059294ec6e"
+    },
+    "raw_delta": -38,
+    "whole_delta_against_clock_control": -11,
+    "native_entire_bytes_equal": false,
+    "intentional_multi_call_stream_group_change": true,
+    "main_ack_interleaving": "permitted during aggregation and between result printf/fflush",
+    "stdio_premise": "reviewed fixed glibc/POSIX per-operation stream locking",
+    "exact_timing_order_group_equivalence_claimed": false,
+    "DEV_and_selected_optional_policies": "bypass this stage; all previous expected identities retained",
+    "normal_validation": {
+      "status": "PASS",
+      "summary": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-result-stream-normal-20261021-evidence/summary.json",
+        "bytes": 6407,
+        "sha256": "094a1234527c26c3c28ad3806c139cf0ad6faebcad766f2a3cfca02391c87df7"
+      },
+      "producing_recipe": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-result-stream-normal-20261021-evidence/producing-recipe.json",
+        "bytes": 173879,
+        "sha256": "621d0336163d84fc2b6f66765514b16de786e5b81a06361d489d5de1c21e25df"
+      },
+      "annotation_only": true
+    },
+    "protocol_observation": {
+      "status": "PASS two measured wrapper sessions",
+      "receipt": {
+        "path": "/home/stemxstudio/rove4k-f-result-stream-lock-protocol-run-20261021-v2/runtime.json",
+        "bytes": 4349,
+        "sha256": "2df168c7fe2b4a59ac132e5c983af87456f6d6b22d2a70746b588208ab9a9f5b"
+      },
+      "observed_order": "readyok then one legal bestmove in both sessions",
+      "scope": "GO0 plus isready queued in one write/flush; exact complete lines; quit/EOF after pair, physical EOF and process/group absence; actual overlap causality unproven",
+      "earlier_permission_failure": {
+        "path": "/home/stemxstudio/rove4k-f-result-stream-lock-protocol-run-20261021/runtime.json",
+        "bytes": 2206,
+        "sha256": "a7d8ea8db4f1c2e79dbf4fe52e23d349dfc6db992c84561a90cb421a6970b56d",
+        "engine_sessions": 0
+      },
+      "correction": "owned measured wrapper mode0644 to0755; raw artifact unchanged; separate v2 source/output preserves first failure"
     }
   }
 }
