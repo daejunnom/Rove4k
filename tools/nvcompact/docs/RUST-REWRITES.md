@@ -65,8 +65,9 @@ Replay resolves the tools needed by the selected implementation and their declar
 | `increment` | `+= 1`/`-= 1` can use prefix increment/decrement only for an exact source `int` literal 1. |
 | `leaf-braces` | A single nondeclaration leaf can lose braces without changing label, dangling-else or lifetime scope. |
 | `forever` | A nonzero integer-literal `while` condition can become `for(;;)` if `for` is not a macro. |
+| `boolean-domain` | Comparisons with 1 can use truth/negation only for a proven 0/1 domain, preserving one evaluation and the C `int` result. Ordinary integers and signed one-bit fields are excluded. |
 
-The generator emits `raw`, `c-all` and one candidate per rule. It chooses nonoverlapping shorter edits deterministically inside each pass, then reparses the changed file. This local choice is one candidate, not a claim of a global compression minimum.
+By default the generator emits `raw`, `c-all` and bounded rule candidates, chooses nonoverlapping shorter edits deterministically inside each pass, and reparses the changed file. `--include-nonshrinking` and `--individual-edits N` additionally expose equal/longer and individual alternatives for a whole-file cost consumer. This local portfolio is not a claim of a global compression minimum. The opt-in [whole-file source search](SOURCE-PORTFOLIO.md) measures these alternatives in actual compressed submissions; it does not replace the native-link path's original-object contract above.
 
 The function protection gate excludes unsupported expressions, volatile/atomic access, aggregate call-result lifetimes, compound literals, statement expressions, generic/type-observing operations, inline assembly, returns-twice/context-observing calls and unresolved indirect calls. It rejects macro expansion source locations and also scans raw source identifiers against the union of all encountered macro definitions, including definitions later undefined. This catches empty macros and pragma effects that disappear from the AST. A newly protected function after a pass causes that pass to remain unapplied.
 
@@ -80,7 +81,7 @@ For a NaN, `!(x < 0)` is true while `x >= 0` is false. Relational complement rew
 
 Deleting a macro that expands to `_Pragma("pack(1)")` can change the layout of a later declaration even if both files parse. Removing braces around an unsupported identifier spelling can concatenate `else` with an identifier. These require source-token and preprocessing protection in addition to AST parsing.
 
-Module tests contain project-owned small semantic fixtures, not third-party engines. One fixture separately exercises all thirteen rule families, compiles every generated candidate and compares execution with an independently calculated integer/NaN oracle. The tests also cover signed/unsigned conversion, macro/pragma disappearance, returns-twice and indirect calls, volatile access, unsupported identifier spellings, exact literal types and Python AST/trivia preservation. Actual external-engine results belong in the campaign evidence and must state whether execution was performed.
+Module tests contain project-owned small semantic fixtures, not third-party engines. The original fixture exercises the thirteen earlier rule families, compiles every generated candidate and compares execution with an independently calculated integer/NaN oracle. Additional Boolean-domain fixtures check ordinary-int and signed-bitfield counterexamples, one-read effects and exact result types. The tests also cover signed/unsigned conversion, macro/pragma disappearance, returns-twice and indirect calls, volatile access, unsupported identifier spellings, exact literal types and Python AST/trivia preservation. Actual external-engine results belong in the campaign evidence and must state whether execution was performed.
 
 ## Observed migration checks
 

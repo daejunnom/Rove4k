@@ -1,0 +1,345 @@
+{
+  "format": "nvcompact.pr13.validation.v1",
+  "date_utc": "2026-10-21",
+  "projection": true,
+  "source_commit": "c5f4af0cfff7d7c6863dd142631f80b9f697e81a",
+  "baseline_commit": "56bfb5f45bff59a570d3f04f8eba06332d53c052",
+  "pr12_source_commit": "0e716e0b366272c66749f6e7194f64cb715e2d00",
+  "tool_build": {
+    "source_commit": "c5f4af0cfff7d7c6863dd142631f80b9f697e81a",
+    "bytes": 10753440,
+    "sha256": "86bcf85c1dc2790003c26e84c273a9b263d6bb215c2f9bdea64400165749b986",
+    "baseline_commit": "56bfb5f45bff59a570d3f04f8eba06332d53c052",
+    "baseline_sha256": "d96cd0bfd129fbb3b16e48c82036f8066a9bd678fada13a1644cba666eccda0f"
+  },
+  "toolchain": {
+    "cc": "GCC 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04)",
+    "ld": "GNU ld 2.42",
+    "clang": "Clang 20.1.8",
+    "rustc": "1.99.1 (58cf8f9c3 2026-10-13)",
+    "node": "24.19.0",
+    "python": "CPython 3.12.14"
+  },
+  "test_gate": {
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "--workspace",
+      "--",
+      "--test-threads=2"
+    ],
+    "source_commit": "c5f4af0",
+    "returncode": 0,
+    "groups": [
+      {
+        "passed": 47,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 10,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    ],
+    "full_gate_complete": true,
+    "passed": 60,
+    "log_sha256": "2d8c56ba75c8de9b57a48cd6ad0c1bbf4823522a97ca0c868c051ddb79638690",
+    "seconds": 58.30796829500014
+  },
+  "node_tests": {
+    "launcher": {
+      "passed": 5,
+      "failed": 0,
+      "log_sha256": "6e4e897b8a2831803dd41287d5c94aabd7d01cedbe69e76dc171d560fd1319e2"
+    },
+    "comparison": {
+      "passed": 1,
+      "failed": 0,
+      "log_sha256": "0133189023c30f563bf6af579dd8097cdafe246a908162ef87e65b4e292ae7e5"
+    }
+  },
+  "ci": {
+    "source_commit": "c5f4af0cfff7d7c6863dd142631f80b9f697e81a",
+    "nvcompact": {
+      "run_id": 39544994949,
+      "status": "completed",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "node": 22,
+          "job_id": 119041041251,
+          "conclusion": "success"
+        },
+        {
+          "node": 24,
+          "job_id": 119041041621,
+          "conclusion": "success"
+        }
+      ],
+      "includes_actual_offline_installed_tarball_validation": true
+    },
+    "repository_lifecycle": {
+      "run_id": 39544994932,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "scope": "Observed workflows on tested implementation commit. Later evidence/documentation heads have separate CI status."
+  },
+  "comparison_counts": {
+    "total": 26,
+    "engine_input_profile_rows": 22,
+    "owned_examples": 4,
+    "smaller": 7,
+    "byte_identical": 19,
+    "size_regressions": 0,
+    "note": "Counts are input/profile/category rows; General 4k.c and ELF v9.0 reuse one public artifact."
+  },
+  "historical_external_minima": [
+    {
+      "group": "general",
+      "name": "ice4",
+      "previous_evidence": "../0.4/general-comparison.json",
+      "previous_evidence_sha256": "076833fa901f6249c218b5edf14c4184089e2cab96fb7d4cd8acc5bb9c7b3cdf",
+      "minimum_bytes": 4082,
+      "minimum_sha256": "375bc59140135faeed14574af38cafcacc0b4608c24b91a06ff67cdcf81feb1a",
+      "original_and_minimum_actual_bytes_match": true
+    },
+    {
+      "group": "general",
+      "name": "4ku",
+      "previous_evidence": "../0.4/general-comparison.json",
+      "previous_evidence_sha256": "076833fa901f6249c218b5edf14c4184089e2cab96fb7d4cd8acc5bb9c7b3cdf",
+      "minimum_bytes": 4088,
+      "minimum_sha256": "f2aced2d9f84e6166d07f880a1864092b7b043b6d817beb7cec9e4b38f173270",
+      "original_and_minimum_actual_bytes_match": true
+    },
+    {
+      "group": "general",
+      "name": "STRO4K",
+      "previous_evidence": "../0.4/general-comparison.json",
+      "previous_evidence_sha256": "076833fa901f6249c218b5edf14c4184089e2cab96fb7d4cd8acc5bb9c7b3cdf",
+      "minimum_bytes": 4078,
+      "minimum_sha256": "bec5025be231f88508565b4dfc24b7dad8f26c5eb9f15aabac1f62ef31fd948e",
+      "original_and_minimum_actual_bytes_match": true
+    },
+    {
+      "group": "general",
+      "name": "4k.c",
+      "previous_evidence": "../0.4/general-comparison.json",
+      "previous_evidence_sha256": "076833fa901f6249c218b5edf14c4184089e2cab96fb7d4cd8acc5bb9c7b3cdf",
+      "minimum_bytes": 3932,
+      "minimum_sha256": "04e8f61d6ed6ad5feaaea7c62c578b647b9cdbc0e2313c4437645aff63a54af6",
+      "original_and_minimum_actual_bytes_match": true
+    },
+    {
+      "group": "general",
+      "name": "c4ke",
+      "previous_evidence": "../0.4/general-comparison.json",
+      "previous_evidence_sha256": "076833fa901f6249c218b5edf14c4184089e2cab96fb7d4cd8acc5bb9c7b3cdf",
+      "minimum_bytes": 4092,
+      "minimum_sha256": "65565271a6dc5a9f2fbf2ae6582a73023433f5a161d475097d2c1cfc71454be4",
+      "original_and_minimum_actual_bytes_match": true
+    },
+    {
+      "group": "general",
+      "name": "pygone",
+      "previous_evidence": "../0.4/general-comparison.json",
+      "previous_evidence_sha256": "076833fa901f6249c218b5edf14c4184089e2cab96fb7d4cd8acc5bb9c7b3cdf",
+      "minimum_bytes": 4020,
+      "minimum_sha256": "290e27a9d9f72770d34a94a19f22749bc2f109469ca19880853f9d1c23e258d6",
+      "original_and_minimum_actual_bytes_match": true
+    },
+    {
+      "group": "general",
+      "name": "sunfish",
+      "previous_evidence": "../0.4/general-comparison.json",
+      "previous_evidence_sha256": "076833fa901f6249c218b5edf14c4184089e2cab96fb7d4cd8acc5bb9c7b3cdf",
+      "minimum_bytes": 2776,
+      "minimum_sha256": "2d148a3523bef4d4bdc95341cdb81405e2b96d42a5135881172ab199357d8b9a",
+      "original_and_minimum_actual_bytes_match": true
+    },
+    {
+      "group": "general",
+      "name": "moonfish",
+      "previous_evidence": "../0.4/general-comparison.json",
+      "previous_evidence_sha256": "076833fa901f6249c218b5edf14c4184089e2cab96fb7d4cd8acc5bb9c7b3cdf",
+      "minimum_bytes": 3889,
+      "minimum_sha256": "2eb530ec1c4c62a3d1b95b4129314c14b3aa5df433ec3eaf813903922beb4805",
+      "original_and_minimum_actual_bytes_match": true
+    },
+    {
+      "group": "general",
+      "name": "M4sseur",
+      "previous_evidence": "../0.4/general-comparison.json",
+      "previous_evidence_sha256": "076833fa901f6249c218b5edf14c4184089e2cab96fb7d4cd8acc5bb9c7b3cdf",
+      "minimum_bytes": 4092,
+      "minimum_sha256": "cdb8d5fe6cad839b4682cc0db48722b06f0fff7f46f7ab67b2453319a759c4a3",
+      "original_and_minimum_actual_bytes_match": true
+    },
+    {
+      "group": "general",
+      "name": "molly",
+      "previous_evidence": "../0.4/general-comparison.json",
+      "previous_evidence_sha256": "076833fa901f6249c218b5edf14c4184089e2cab96fb7d4cd8acc5bb9c7b3cdf",
+      "minimum_bytes": 4095,
+      "minimum_sha256": "511e3816c0706570e01143aca466134d65c464352271e98bffae96919518a22a",
+      "original_and_minimum_actual_bytes_match": true
+    },
+    {
+      "group": "general",
+      "name": "we4k",
+      "previous_evidence": "../0.4/general-comparison.json",
+      "previous_evidence_sha256": "076833fa901f6249c218b5edf14c4184089e2cab96fb7d4cd8acc5bb9c7b3cdf",
+      "minimum_bytes": 4011,
+      "minimum_sha256": "cb741bb7970981232f140bcecbbffe2ae8c77632740f3df2c2417add9da37ae7",
+      "original_and_minimum_actual_bytes_match": true
+    },
+    {
+      "group": "elf",
+      "name": "4k.c-v8.0",
+      "previous_evidence": "../0.4/elf-comparison.json",
+      "previous_evidence_sha256": "c20807766c9d0c7db36d718d12aed15cbe4aecbb8551b82b8a6784244e55da4b",
+      "minimum_bytes": 4042,
+      "minimum_sha256": "6eb03195b277f42ece9488c42c1e459791ffcbf0dc197bdfa700dd9574715ace",
+      "original_and_minimum_actual_bytes_match": true
+    },
+    {
+      "group": "elf",
+      "name": "4k.c-v9.0",
+      "previous_evidence": "../0.4/elf-comparison.json",
+      "previous_evidence_sha256": "c20807766c9d0c7db36d718d12aed15cbe4aecbb8551b82b8a6784244e55da4b",
+      "minimum_bytes": 3932,
+      "minimum_sha256": "04e8f61d6ed6ad5feaaea7c62c578b647b9cdbc0e2313c4437645aff63a54af6",
+      "original_and_minimum_actual_bytes_match": true
+    }
+  ],
+  "fresh_replays": {
+    "baseline": {
+      "count": 22,
+      "all_exit_zero_and_identity_match": true,
+      "runs_sha256": "6506b46b773556844e9d7900717b5188209633c768b8aaafc38a1958eaefed8b",
+      "max_workers": 2,
+      "child_address_space_bytes": 3221225472,
+      "child_cpu_seconds": 180,
+      "outer_wall_seconds_per_row": 240,
+      "engine_execution": "not performed"
+    },
+    "final": {
+      "count": 22,
+      "all_exit_zero_and_identity_match": true,
+      "runs_sha256": "1da65cf5e1091af11d88494e8746fef650082392ac49450d7765321226604b4a",
+      "max_workers": 2,
+      "child_address_space_bytes": 3221225472,
+      "child_cpu_seconds": 180,
+      "outer_wall_seconds_per_row": 240,
+      "engine_execution": "not performed"
+    }
+  },
+  "failures_and_limits": [
+    {
+      "id": "af-historical-native-pins",
+      "count": 7,
+      "status": "failed_preserved",
+      "scope": "Canonical PR12 native SHA gates differed in this environment. Source/bootstrap/complete input pins match. This campaign establishes same-environment old/new native identity, not historical native reproduction.",
+      "raw_inventory_sha256": "114e8d330acf087046174475f3a041f881c152db7a5211c6d279f867758ee6f9",
+      "pins_changed": false
+    },
+    {
+      "id": "af-c-frontend-initial",
+      "status": "initial_failed_final_safe_capacity_stop",
+      "scope": "Production 32 MiB frontend output bound remains; same-flags syntax recheck succeeds, typed frontend proof incomplete, no truncated AST accepted, final C source unchanged and old minimum retained.",
+      "diagnostic_probe": {
+        "source_sha256": "e3af22b2404d37187076ee676c51446aa561ac8cd14583b37d3da2529d9190a7",
+        "clang_sha256": "b1ca2b35b07cb5cb7db47247f329151ed22692a19de2763859b0867e6323e2fe",
+        "limits": {
+          "wall_seconds": 30,
+          "child_address_space_bytes": 1073741824,
+          "raw_combined_output_bytes": 536870912,
+          "retained_json_bytes": 134217728
+        },
+        "exit_code": 0,
+        "stop_reason": null,
+        "bytes": {
+          "stdout": 218675664,
+          "stderr": 0,
+          "trimmed_layout": 95022965,
+          "physical_lines": 5000611
+        },
+        "sha256": {
+          "stdout": "7e702a937f4876b7f381acc4c6ceab048f2cd1c1f43d285348411fb8d893f0cf",
+          "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "trimmed_layout": "3f8662d4ea56e9318db53f6bc1b3985b37138fa4df85de88ee19669dd89a4f55"
+        },
+        "wall_seconds": 1.6998221950007064,
+        "child_max_rss_kib": 82776
+      },
+      "diagnostic_receipt_sha256": "c303dbc0c528471bfd535295bc553ce39287d9140c2c5fcf1d5641aab0b8314b"
+    },
+    {
+      "id": "owned-zero-tail-first",
+      "status": "initial_failed_successful_explicit_retry",
+      "scope": "First 1 GiB virtual-address-space attempt failed Node 24 V8 CodeRange reservation. Baseline and candidate rerun at 2 GiB. Manual baseline retry command was outside original runs.json; its limits are not inferred from directory spelling. No chess engine options changed."
+    },
+    {
+      "id": "molly-baseline-path",
+      "status": "initial_failed_successful_explicit_retry",
+      "scope": "Initial rustc lookup failed. Explicit prepared Rust PATH retry completed and matched the historical minimum exactly."
+    },
+    {
+      "id": "workspace-incomplete-transcript",
+      "status": "incomplete_not_counted_as_pass",
+      "scope": "Original final workspace transcript has no completion totals. Cause not established. Fresh subprocess returncode and every expected test group were checked in successful final retry.",
+      "incomplete_log_sha256": "a88d9aea62419498c1e20f317af816ea9f10cb121d8581449943202784fc85ee"
+    },
+    {
+      "id": "moonfish-original-decoder",
+      "status": "original_failure_preserved",
+      "scope": "Original public wrapper decoder failure remains separate from pinned decoded-payload identity and selected-candidate decoder success. No new runtime/UCI acceptance."
+    }
+  ],
+  "independent_review": {
+    "source_binding_and_literal_derivation": "reviewed",
+    "condition_guards_and_capacity_stop": "reviewed",
+    "legacy_codec_refinements": "reviewed_and_regression_fixed",
+    "whole_file_and_native_readback": "reviewed",
+    "moonfish_brace_step": "reviewed",
+    "note": "Collaborating-agent review, not another person's PR approval."
+  },
+  "execution_scope": {
+    "chess_engine_runs": 0,
+    "python_bootstrap_runs": 0,
+    "custom_elf_loader_runs": 0,
+    "compiler_and_decoder_runs": true,
+    "owned_finite_arithmetic_verifiers_run": true,
+    "new_uci_or_match_acceptance": false,
+    "worker_or_tt_or_search_policy_changes": false,
+    "external_engine_source_or_binary_vendored": false,
+    "npm_published": false
+  },
+  "later_pr12_observation": {
+    "head": "8abcbc3a4af0ef02435ca1ba52f10b43715bf99c",
+    "commit_range_read": "0e716e0b366272c66749f6e7194f64cb715e2d00..8abcbc3a4af0ef02435ca1ba52f10b43715bf99c",
+    "new_commits": 3,
+    "source_and_metadata_read": true,
+    "new_head_compression_campaign_performed": false,
+    "scope": "Frozen comparison inputs remain 0e716e0. Subsequent PR12 integer/init/terminal/hash-policy changes are identified in the handoff, not mixed into baseline or claimed as new NVCompact size results."
+  }
+}

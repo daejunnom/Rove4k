@@ -1,0 +1,1218 @@
+{
+  "baseline_runs_sha256": "3b3acdcfc4c2dd3e0a8f940eed3b2acf00dd7e635db41c6c76701b0494c9f573",
+  "byte_identical_winners": 4,
+  "candidate_runs_sha256": "838680831c528cfe2587dfe4167ad4d1519c7882c8c8f54501dd2f361109b42c",
+  "count": 4,
+  "format": "nvcompact.pr13.reviewed-owned-fixtures.v1",
+  "limitations": [
+    "Recorded passing verifier receipts are audited, not re-executed by this script.",
+    "Finite owned fixture verifiers do not constitute a general semantic proof.",
+    "c-rewrites may add generated candidates while every baseline input and candidate remains pinned."
+  ],
+  "projection": true,
+  "raw_audit": {
+    "bytes": 40416,
+    "filename": "${WORK}/nvcompact-pr13-analysis/owned-example-audit-final.json",
+    "sha256": "4edde8bb3dc2e16164704c24f8bfac6b921b42bd97074e68ce1be8f94031966d"
+  },
+  "retained_failed_attempt": {
+    "directory": "${WORK}/nvcompact-pr13-analysis/baseline/owned/zero-tail",
+    "failure_class": "node-code-range-virtual-memory-reservation",
+    "name": "zero-tail",
+    "note": "The failed 1 GiB run is not used as a successful baseline. The corrected baseline and independent replay have validated artifact receipts. Their manual invocation is absent from the original runs.json; no missing command-line budget is inferred from the directory name.",
+    "recorded_invocation": {
+      "exit_code": 2,
+      "limits": {
+        "command_seconds": 60,
+        "cpu_seconds": 90,
+        "jobs": 2,
+        "max_candidates": 24,
+        "max_seconds": 600,
+        "memory_bytes": 1073741824
+      },
+      "recorded_in_runs_json": true
+    },
+    "report_sha256": "94481bfcffc4e7cc2e10a8690a4702a0f871a3c9ab8b6a46000643e574aebfdc",
+    "status": "failed",
+    "successful_baseline_directory": "zero-tail-2g"
+  },
+  "rows": [
+    {
+      "added_generated_input_sha256": {},
+      "baseline": {
+        "actual_native_internal_and_independent_replay_match": true,
+        "artifact": {
+          "bytes": 16056,
+          "sha256": "5cd79509d1574bed3813183101ed4b0a1d9fbfa87c7df3c5d3698f61d92db98a"
+        },
+        "artifact_copies_verified": [
+          "measured_candidate",
+          "winner_copy",
+          "internal_fresh_build",
+          "independent_replay_winner",
+          "independent_replay_selected"
+        ],
+        "deployment": "linked",
+        "native_bytes": 16056,
+        "native_sha256": "5cd79509d1574bed3813183101ed4b0a1d9fbfa87c7df3c5d3698f61d92db98a",
+        "packing": "none",
+        "raw_recipe": {
+          "bytes": 4381,
+          "filename": "${WORK}/nvcompact-pr13-analysis/baseline/owned/native-build/winner.recipe.json",
+          "sha256": "a93d9110130a88dd77d09725600d8aff63e0d0195574df3309a426e4964a9710"
+        },
+        "raw_replay_report": {
+          "bytes": 759,
+          "filename": "${WORK}/nvcompact-pr13-analysis/baseline/owned/native-build-replay/reproduction.json",
+          "sha256": "f731f4e3f6b8b800ae82130fce08d89008b4d069f16e04ef5dc9753321c3804f"
+        },
+        "raw_report": {
+          "bytes": 9926,
+          "filename": "${WORK}/nvcompact-pr13-analysis/baseline/owned/native-build/report.json",
+          "sha256": "814662cdad46a52f37c17c9a1a237debaa5ed90190b0680c2b2573d9b18ad90c"
+        },
+        "recorded_invocation": {
+          "exit_code": 0,
+          "limits": {
+            "command_seconds": 60,
+            "cpu_seconds": 90,
+            "jobs": 2,
+            "max_seconds": 600,
+            "memory_bytes": 1073741824
+          },
+          "recorded_in_runs_json": true
+        },
+        "recorded_replay_invocation": {
+          "exit_code": 0,
+          "limits": {
+            "command_seconds": 60,
+            "max_seconds": 90,
+            "memory_bytes": 1073741824
+          },
+          "recorded_in_runs_json": true
+        },
+        "runtime": {
+          "backend": "rust",
+          "binary_sha256": "d96cd0bfd129fbb3b16e48c82036f8066a9bd678fada13a1644cba666eccda0f",
+          "version": "0.4.1"
+        },
+        "selection": {
+          "build": "size",
+          "link": "hosted",
+          "order": [
+            "square"
+          ],
+          "variants": {
+            "square": "multiply"
+          }
+        },
+        "snapshot_copies_verified": 3,
+        "tools": {
+          "cc": {
+            "executable": "${CC}",
+            "resolved": "${GCC13}",
+            "sha256": "6117c52522997d2aaccb2b52b3c6bf42c0a6c5edb1d718431fed6b2fc5fec234",
+            "version_probe": "not_run"
+          },
+          "python": {
+            "executable": "${PYTHON3}",
+            "resolved": "${PYTHON312}",
+            "sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+            "version_probe": "not_run"
+          }
+        },
+        "verification": {
+          "fresh_build": {
+            "command_receipt_sha256": "7e8fd7faf8ae7cddb5151c30c8cc963532bc6068a1aedd313bb9a8a277798711",
+            "output_limited": false,
+            "returncode": 0,
+            "status": "pass",
+            "stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "bytes": 65,
+              "sha256": "c310717b7eb24ea73d39b81f63eeec7775f72e387b8e1c109b9f39a2828695e8"
+            },
+            "timed_out": false
+          },
+          "independent_replay": {
+            "command_receipt_sha256": "0ec2125bb0646300a40b4b8e3e2378aeca7685a8133ac7d8eb411e9dbffa5590",
+            "output_limited": false,
+            "returncode": 0,
+            "status": "pass",
+            "stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "bytes": 65,
+              "sha256": "c310717b7eb24ea73d39b81f63eeec7775f72e387b8e1c109b9f39a2828695e8"
+            },
+            "timed_out": false
+          },
+          "screening": {
+            "command_receipt_sha256": "a17f154d7c432490d3dffa328f90534113df67a54b09762eb0824cf235022b2c",
+            "output_limited": false,
+            "returncode": 0,
+            "status": "pass",
+            "stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "bytes": 64,
+              "sha256": "ac6fc80da5bf2d6cec2ec183a4aff46aaf51301d2dd48537d76851707f3c78e4"
+            },
+            "timed_out": false
+          }
+        },
+        "winner_id": "linked"
+      },
+      "baseline_bytes": 16056,
+      "baseline_input_hashes_preserved": true,
+      "build_and_verifier_contracts_preserved": true,
+      "candidate": {
+        "actual_native_internal_and_independent_replay_match": true,
+        "artifact": {
+          "bytes": 16056,
+          "sha256": "5cd79509d1574bed3813183101ed4b0a1d9fbfa87c7df3c5d3698f61d92db98a"
+        },
+        "artifact_copies_verified": [
+          "measured_candidate",
+          "winner_copy",
+          "internal_fresh_build",
+          "independent_replay_winner",
+          "independent_replay_selected"
+        ],
+        "deployment": "linked",
+        "native_bytes": 16056,
+        "native_sha256": "5cd79509d1574bed3813183101ed4b0a1d9fbfa87c7df3c5d3698f61d92db98a",
+        "packing": "none",
+        "raw_recipe": {
+          "bytes": 4381,
+          "filename": "${WORK}/nvcompact-pr13-analysis/final/owned/native-build/winner.recipe.json",
+          "sha256": "bd648c10127fe9ed8ff787e770faea5527bf4cbc19a7ec23376702255b507305"
+        },
+        "raw_replay_report": {
+          "bytes": 752,
+          "filename": "${WORK}/nvcompact-pr13-analysis/final/owned/native-build-replay/reproduction.json",
+          "sha256": "c80ccabaf271dbd490281194eba9ae1fcbc573feb46efb6930a33b7dcd81017b"
+        },
+        "raw_report": {
+          "bytes": 9886,
+          "filename": "${WORK}/nvcompact-pr13-analysis/final/owned/native-build/report.json",
+          "sha256": "9a9133e3a4edb5be2820af23d246206a63b964c19b40460a832b01823960d4bd"
+        },
+        "recorded_invocation": {
+          "exit_code": 0,
+          "limits": {
+            "command_seconds": 60,
+            "cpu_seconds": 90,
+            "jobs": 2,
+            "max_seconds": 600,
+            "memory_bytes": 1073741824
+          },
+          "recorded_in_runs_json": true
+        },
+        "recorded_replay_invocation": {
+          "exit_code": 0,
+          "limits": {
+            "command_seconds": 60,
+            "max_seconds": 90,
+            "memory_bytes": 1073741824
+          },
+          "recorded_in_runs_json": true
+        },
+        "runtime": {
+          "backend": "rust",
+          "binary_sha256": "86bcf85c1dc2790003c26e84c273a9b263d6bb215c2f9bdea64400165749b986",
+          "version": "0.4.1"
+        },
+        "selection": {
+          "build": "size",
+          "link": "hosted",
+          "order": [
+            "square"
+          ],
+          "variants": {
+            "square": "multiply"
+          }
+        },
+        "snapshot_copies_verified": 3,
+        "tools": {
+          "cc": {
+            "executable": "${CC}",
+            "resolved": "${GCC13}",
+            "sha256": "6117c52522997d2aaccb2b52b3c6bf42c0a6c5edb1d718431fed6b2fc5fec234",
+            "version_probe": "not_run"
+          },
+          "python": {
+            "executable": "${PYTHON3}",
+            "resolved": "${PYTHON312}",
+            "sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+            "version_probe": "not_run"
+          }
+        },
+        "verification": {
+          "fresh_build": {
+            "command_receipt_sha256": "af4555e4f9156dfc5de962bdd0d7c32ec14d2f9d1170efbd0f303606f266292e",
+            "output_limited": false,
+            "returncode": 0,
+            "status": "pass",
+            "stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "bytes": 65,
+              "sha256": "c310717b7eb24ea73d39b81f63eeec7775f72e387b8e1c109b9f39a2828695e8"
+            },
+            "timed_out": false
+          },
+          "independent_replay": {
+            "command_receipt_sha256": "98cca3632c9eac412b5f3bd82a94ec747fdd84433b2d7c458ffbb14fa33e9f61",
+            "output_limited": false,
+            "returncode": 0,
+            "status": "pass",
+            "stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "bytes": 65,
+              "sha256": "c310717b7eb24ea73d39b81f63eeec7775f72e387b8e1c109b9f39a2828695e8"
+            },
+            "timed_out": false
+          },
+          "screening": {
+            "command_receipt_sha256": "78363d3700fd58fc7937f26fdffce0d0fe08f3738017d6c48ec6c8bd53f27e28",
+            "output_limited": false,
+            "returncode": 0,
+            "status": "pass",
+            "stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "bytes": 64,
+              "sha256": "ac6fc80da5bf2d6cec2ec183a4aff46aaf51301d2dd48537d76851707f3c78e4"
+            },
+            "timed_out": false
+          }
+        },
+        "winner_id": "linked"
+      },
+      "candidate_bytes": 16056,
+      "input_sha256": {
+        "main.c": "a754987e7d0a2380f9b41513e80aeb2f8e4e917fdc66b47c68ad9b7bd7c38567",
+        "square_mul.c": "c39f30e690af0498c48590d76142a3e9275d572afe1ce48f980da4839d0a1c07",
+        "square_sum.c": "5e51f6f97aa8902dfd9eb42e816c52095cac23c5c3853c0c7e406a813d81b360",
+        "verify.py": "8012fe6100ac6fa896e3e2f7e38d54879e8cddcc594091ed98bb9c22b296b286"
+      },
+      "name": "native-build",
+      "saved_bytes": 0,
+      "winner_byte_identical": true
+    },
+    {
+      "added_generated_input_sha256": {},
+      "baseline": {
+        "actual_native_internal_and_independent_replay_match": true,
+        "artifact": {
+          "bytes": 504,
+          "sha256": "f97695af958e803a251dd291a01476b4f6823d188c3f296e9061bd0e70fd9300"
+        },
+        "artifact_copies_verified": [
+          "measured_candidate",
+          "winner_copy",
+          "internal_fresh_build",
+          "independent_replay_winner",
+          "independent_replay_selected"
+        ],
+        "deployment": "no-section-headers",
+        "native_bytes": 792,
+        "native_sha256": "afe968b36d0bcba9da14454f4c94e5ae7a740b77e425cbeb28b77b7de31b8a35",
+        "packing": "raw",
+        "raw_recipe": {
+          "bytes": 14192,
+          "filename": "${WORK}/nvcompact-pr13-analysis/baseline/owned/mixed/winner.recipe.json",
+          "sha256": "5e3177a5893aba6e50ef95e9fd321087eb5f9f3754bbcc1c0751c9931df3a5f7"
+        },
+        "raw_replay_report": {
+          "bytes": 785,
+          "filename": "${WORK}/nvcompact-pr13-analysis/baseline/owned/mixed-replay/reproduction.json",
+          "sha256": "06bfdc404610419b55d617331053f66bf62b8efa4c624bce8e6140bee00b40c7"
+        },
+        "raw_report": {
+          "bytes": 493322,
+          "filename": "${WORK}/nvcompact-pr13-analysis/baseline/owned/mixed/report.json",
+          "sha256": "a0f34e5e239fe05e390a970bc81dc78a020581789c8894cc206a267819d5c1e3"
+        },
+        "recorded_invocation": {
+          "exit_code": 0,
+          "limits": {
+            "command_seconds": 60,
+            "cpu_seconds": 90,
+            "jobs": 2,
+            "max_candidates": 18,
+            "max_seconds": 600,
+            "memory_bytes": 1073741824
+          },
+          "recorded_in_runs_json": true
+        },
+        "recorded_replay_invocation": {
+          "exit_code": 0,
+          "limits": {
+            "command_seconds": 60,
+            "max_seconds": 90,
+            "memory_bytes": 1073741824
+          },
+          "recorded_in_runs_json": true
+        },
+        "runtime": {
+          "backend": "rust",
+          "binary_sha256": "d96cd0bfd129fbb3b16e48c82036f8066a9bd678fada13a1644cba666eccda0f",
+          "version": "0.4.1"
+        },
+        "selection": {
+          "build": "size-lto",
+          "link": "compact",
+          "order": [
+            "popcount",
+            "square"
+          ],
+          "variants": {
+            "popcount": "c_kernighan",
+            "square": "c_table"
+          }
+        },
+        "snapshot_copies_verified": 3,
+        "tools": {
+          "cc": {
+            "executable": "${CC}",
+            "resolved": "${GCC13}",
+            "sha256": "6117c52522997d2aaccb2b52b3c6bf42c0a6c5edb1d718431fed6b2fc5fec234",
+            "version_probe": "not_run"
+          },
+          "ld": {
+            "executable": "${LD}",
+            "resolved": "${LD_BFD}",
+            "sha256": "5b674ea1d7017c2929f3c52c43487478bb240ecdd7197a25cce3813a70329a5c",
+            "version_probe": "not_run"
+          },
+          "python": {
+            "executable": "${PYTHON3}",
+            "resolved": "${PYTHON312}",
+            "sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+            "version_probe": "not_run"
+          }
+        },
+        "verification": {
+          "fresh_build": {
+            "command_receipt_sha256": "4c66d6c9c85082eb17727a5af9481d428e147f254e151e42da5bc42c08634978",
+            "output_limited": false,
+            "returncode": 0,
+            "status": "pass",
+            "stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "bytes": 266,
+              "sha256": "dc73fef892d06d2cb92a5bf18a9c8bb8b6a2e9a4f3838e8680b4b3399ae9d0ab"
+            },
+            "timed_out": false
+          },
+          "independent_replay": {
+            "command_receipt_sha256": "0550e7831685f16870a21b59f311a582d7f0979e351d6e7fc2eae668c8c269f6",
+            "output_limited": false,
+            "returncode": 0,
+            "status": "pass",
+            "stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "bytes": 264,
+              "sha256": "8fdac260a565ee1a01dde6e648a5a80daf464d455e0ddbfd93da3a9a9bd6a2bc"
+            },
+            "timed_out": false
+          },
+          "screening": {
+            "command_receipt_sha256": "9976628fd318e8daa9414e3fcf06a4a078334d03de7af1ca6e9a62b13fa16ce7",
+            "output_limited": false,
+            "returncode": 0,
+            "status": "pass",
+            "stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "bytes": 264,
+              "sha256": "cb9493d6f93bd1951280c3c90d688258aa9fa35556ec570a81b07ab6be7d1a71"
+            },
+            "timed_out": false
+          }
+        },
+        "winner_id": "no-section-headers__raw"
+      },
+      "baseline_bytes": 504,
+      "baseline_input_hashes_preserved": true,
+      "build_and_verifier_contracts_preserved": true,
+      "candidate": {
+        "actual_native_internal_and_independent_replay_match": true,
+        "artifact": {
+          "bytes": 504,
+          "sha256": "f97695af958e803a251dd291a01476b4f6823d188c3f296e9061bd0e70fd9300"
+        },
+        "artifact_copies_verified": [
+          "measured_candidate",
+          "winner_copy",
+          "internal_fresh_build",
+          "independent_replay_winner",
+          "independent_replay_selected"
+        ],
+        "deployment": "no-section-headers",
+        "native_bytes": 792,
+        "native_sha256": "afe968b36d0bcba9da14454f4c94e5ae7a740b77e425cbeb28b77b7de31b8a35",
+        "packing": "raw",
+        "raw_recipe": {
+          "bytes": 14192,
+          "filename": "${WORK}/nvcompact-pr13-analysis/final/owned/mixed/winner.recipe.json",
+          "sha256": "2345dad7c8a63afb746268e3267cb09ba189cd11de71281135d1db392a74b1a8"
+        },
+        "raw_replay_report": {
+          "bytes": 779,
+          "filename": "${WORK}/nvcompact-pr13-analysis/final/owned/mixed-replay/reproduction.json",
+          "sha256": "4a48633581d207c704dca6bf483571107dce14e54701836d5e59415dbbc87a3b"
+        },
+        "raw_report": {
+          "bytes": 490916,
+          "filename": "${WORK}/nvcompact-pr13-analysis/final/owned/mixed/report.json",
+          "sha256": "9cdf380c2dd92c2a77f294303bd4edce7cf8ff809d2ec36b4744253314ef5b7a"
+        },
+        "recorded_invocation": {
+          "exit_code": 0,
+          "limits": {
+            "command_seconds": 60,
+            "cpu_seconds": 90,
+            "jobs": 2,
+            "max_candidates": 18,
+            "max_seconds": 600,
+            "memory_bytes": 1073741824
+          },
+          "recorded_in_runs_json": true
+        },
+        "recorded_replay_invocation": {
+          "exit_code": 0,
+          "limits": {
+            "command_seconds": 60,
+            "max_seconds": 90,
+            "memory_bytes": 1073741824
+          },
+          "recorded_in_runs_json": true
+        },
+        "runtime": {
+          "backend": "rust",
+          "binary_sha256": "86bcf85c1dc2790003c26e84c273a9b263d6bb215c2f9bdea64400165749b986",
+          "version": "0.4.1"
+        },
+        "selection": {
+          "build": "size-lto",
+          "link": "compact",
+          "order": [
+            "popcount",
+            "square"
+          ],
+          "variants": {
+            "popcount": "c_kernighan",
+            "square": "c_table"
+          }
+        },
+        "snapshot_copies_verified": 3,
+        "tools": {
+          "cc": {
+            "executable": "${CC}",
+            "resolved": "${GCC13}",
+            "sha256": "6117c52522997d2aaccb2b52b3c6bf42c0a6c5edb1d718431fed6b2fc5fec234",
+            "version_probe": "not_run"
+          },
+          "ld": {
+            "executable": "${LD}",
+            "resolved": "${LD_BFD}",
+            "sha256": "5b674ea1d7017c2929f3c52c43487478bb240ecdd7197a25cce3813a70329a5c",
+            "version_probe": "not_run"
+          },
+          "python": {
+            "executable": "${PYTHON3}",
+            "resolved": "${PYTHON312}",
+            "sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+            "version_probe": "not_run"
+          }
+        },
+        "verification": {
+          "fresh_build": {
+            "command_receipt_sha256": "3858f1c42c9631d9eeb1cf43dd7092fc4239c2830590451fe18834631d1c0cbc",
+            "output_limited": false,
+            "returncode": 0,
+            "status": "pass",
+            "stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "bytes": 266,
+              "sha256": "457bdddaac518257ca2cfec3488ff76642bd5d2685cc4218cb4eb701590cc68c"
+            },
+            "timed_out": false
+          },
+          "independent_replay": {
+            "command_receipt_sha256": "1ee1e8398ee6bece143707d0e944124c01829a79ae0e85cf389790683bdca542",
+            "output_limited": false,
+            "returncode": 0,
+            "status": "pass",
+            "stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "bytes": 266,
+              "sha256": "8accb6eebe24d279f92196d36e80681b0290f57c851e321db55a6c07401ed948"
+            },
+            "timed_out": false
+          },
+          "screening": {
+            "command_receipt_sha256": "6df63f5112005b682b67e4d04195879c4c90fdc608ec218040110e0d5669d810",
+            "output_limited": false,
+            "returncode": 0,
+            "status": "pass",
+            "stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "bytes": 264,
+              "sha256": "1eb41818371348e42c0139c3f37fa1f73080ccfc0871eec01c9a81ac5f4b3620"
+            },
+            "timed_out": false
+          }
+        },
+        "winner_id": "no-section-headers__raw"
+      },
+      "candidate_bytes": 504,
+      "input_sha256": {
+        "examples/mixed/README.md": "1e3a58986752541bdd1cd4b05ef09267ce18fd00a658331ea1e3a69c5c0ef1c3",
+        "examples/mixed/driver_hosted.c": "c74c33db27d9ebfad4c9a82b885c1a2a4270bcc7e11d1a7d18f8c24d0dd0e288",
+        "examples/mixed/driver_linux_x86_64.c": "dff6c97f7f1af93c6394ba9ccce2876451fd02a67251cb06bb2cabcb07fda0d7",
+        "examples/mixed/kernels.h": "0eb747fb4ca4175e1854a53094f81ff04ed49bb752b40e963ff5709a471fab53",
+        "examples/mixed/popcount_kernighan.c": "8cc40c80b0902e41cce16ca603c47c4af37da6dade6349fe61d60ffc414ac67b",
+        "examples/mixed/popcount_rust.rs": "bfd3bee11b2df8a66f422bda7f81f6b5a5c521be8430d8ab0095edbb1bc018df",
+        "examples/mixed/popcount_swar.c": "462cc5c6f42736752ec981654999bffd340998ddca8fbde788f03a645bedeaca",
+        "examples/mixed/square_arithmetic.c": "9c495da1cfefac4fde77467be5e1c560cea442c28fedfb366e8607cad5ac728c",
+        "examples/mixed/square_rust.rs": "606ecc55099e92cca9fc58cd61a0dc9829aa627dc4576a5cab41464d9a64c8dc",
+        "examples/mixed/square_table.c": "a3f4652acec943d5b73744223ae0be18ad8264ceb8970499621479b3bb6c95e6",
+        "examples/mixed/start_linux_x86_64.S": "274b24fd266cc57462ee0f49591c3357a5147eb825588bd485a7b1fb659efbdb",
+        "examples/mixed/verifier.py": "af7cfa4781964c08af42b83f2c6dd7c31bb2751c57d1f088b14cdd7e4e6caaa1",
+        "linker/hosted.ld": "177f6612aadb094ee4524ae731a96991289918e7cc78d2f811dab4a9bc9fa482",
+        "linker/linux-x86_64-compact.ld": "b777f989ac801a1b04363a30bc8bbb8abd139f5f7f3d7a070212bb22a1c631f3"
+      },
+      "name": "mixed",
+      "saved_bytes": 0,
+      "winner_byte_identical": true
+    },
+    {
+      "added_generated_input_sha256": {},
+      "baseline": {
+        "actual_native_internal_and_independent_replay_match": true,
+        "artifact": {
+          "bytes": 441,
+          "sha256": "f0f8ffe01305587b35e52c0984cfcb103b60d476a2750d104032819f620a5ce7"
+        },
+        "artifact_copies_verified": [
+          "measured_candidate",
+          "winner_copy",
+          "internal_fresh_build",
+          "independent_replay_winner",
+          "independent_replay_selected"
+        ],
+        "deployment": "no-section-headers-zero-tail",
+        "native_bytes": 8912,
+        "native_sha256": "973f2606e1947612f2ee53aaaa231524a9690ba9497536c0d3cbaddb5dd914c4",
+        "packing": "raw",
+        "raw_recipe": {
+          "bytes": 9545,
+          "filename": "${WORK}/nvcompact-pr13-analysis/baseline/owned/zero-tail-2g/winner.recipe.json",
+          "sha256": "77c2eb47a90a91e346a8037e99c18609fdb61730a66b3dc0070f8398f58190cd"
+        },
+        "raw_replay_report": {
+          "bytes": 776,
+          "filename": "${WORK}/nvcompact-pr13-analysis/baseline/owned/zero-tail-2g-replay/reproduction.json",
+          "sha256": "a37389feb4a2855b4588b2774c2e764e2ab4882cc8d018128569004502021ab5"
+        },
+        "raw_report": {
+          "bytes": 441469,
+          "filename": "${WORK}/nvcompact-pr13-analysis/baseline/owned/zero-tail-2g/report.json",
+          "sha256": "16c7f9283d6a6457ba0b83f1bda32a928aaab1cc900aa079b377b78d2be7bdff"
+        },
+        "recorded_invocation": {
+          "recorded_in_runs_json": false
+        },
+        "recorded_replay_invocation": {
+          "recorded_in_runs_json": false
+        },
+        "runtime": {
+          "backend": "rust",
+          "binary_sha256": "d96cd0bfd129fbb3b16e48c82036f8066a9bd678fada13a1644cba666eccda0f",
+          "version": "0.4.1"
+        },
+        "selection": {
+          "build": "size-z-fat",
+          "link": "compact",
+          "order": [
+            "state"
+          ],
+          "variants": {
+            "state": "rust"
+          }
+        },
+        "snapshot_copies_verified": 3,
+        "tools": {
+          "cc": {
+            "executable": "${CC}",
+            "resolved": "${GCC13}",
+            "sha256": "6117c52522997d2aaccb2b52b3c6bf42c0a6c5edb1d718431fed6b2fc5fec234",
+            "version_probe": "not_run"
+          },
+          "ld": {
+            "executable": "${LD}",
+            "resolved": "${LD_BFD}",
+            "sha256": "5b674ea1d7017c2929f3c52c43487478bb240ecdd7197a25cce3813a70329a5c",
+            "version_probe": "not_run"
+          },
+          "node": {
+            "executable": "${NODE}",
+            "resolved": "${NODE}",
+            "sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+            "version_probe": "not_run"
+          },
+          "rustc": {
+            "executable": "${WORK}/tools/rust-nv13/toolchain/bin/rustc",
+            "resolved": "${WORK}/tools/rust-nv13/toolchain/bin/rustc",
+            "sha256": "b53b780f77f952062f8ca8a3b70aef2390b1e45ad91939be94afdc9543026853",
+            "version_probe": "not_run"
+          }
+        },
+        "verification": {
+          "fresh_build": {
+            "command_receipt_sha256": "16680ea75c4e0e517c52819ce754d05a6b97b0fa061fa4c14ca492210e189e64",
+            "output_limited": false,
+            "returncode": 0,
+            "status": "pass",
+            "stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "bytes": 45,
+              "sha256": "273f61fa5ca98b98fdacac48a6d0b442c5d230aef3e56fed8a1356bf2969f852"
+            },
+            "timed_out": false
+          },
+          "independent_replay": {
+            "command_receipt_sha256": "ab2f3d82a8ccbc8453a9e80414c7af1a706356ba17d1570e0676256c371d8a6f",
+            "output_limited": false,
+            "returncode": 0,
+            "status": "pass",
+            "stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "bytes": 45,
+              "sha256": "273f61fa5ca98b98fdacac48a6d0b442c5d230aef3e56fed8a1356bf2969f852"
+            },
+            "timed_out": false
+          },
+          "screening": {
+            "command_receipt_sha256": "4c54071919c807d5aecb7dbd426f5cb7d29ee74daddb92164a445f6ecef67553",
+            "output_limited": false,
+            "returncode": 0,
+            "status": "pass",
+            "stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "bytes": 45,
+              "sha256": "273f61fa5ca98b98fdacac48a6d0b442c5d230aef3e56fed8a1356bf2969f852"
+            },
+            "timed_out": false
+          }
+        },
+        "winner_id": "no-section-headers-zero-tail__raw"
+      },
+      "baseline_bytes": 441,
+      "baseline_input_hashes_preserved": true,
+      "build_and_verifier_contracts_preserved": true,
+      "candidate": {
+        "actual_native_internal_and_independent_replay_match": true,
+        "artifact": {
+          "bytes": 441,
+          "sha256": "f0f8ffe01305587b35e52c0984cfcb103b60d476a2750d104032819f620a5ce7"
+        },
+        "artifact_copies_verified": [
+          "measured_candidate",
+          "winner_copy",
+          "internal_fresh_build",
+          "independent_replay_winner",
+          "independent_replay_selected"
+        ],
+        "deployment": "no-section-headers-zero-tail",
+        "native_bytes": 8912,
+        "native_sha256": "973f2606e1947612f2ee53aaaa231524a9690ba9497536c0d3cbaddb5dd914c4",
+        "packing": "raw",
+        "raw_recipe": {
+          "bytes": 9545,
+          "filename": "${WORK}/nvcompact-pr13-analysis/final/owned/zero-tail/winner.recipe.json",
+          "sha256": "beddae13cddc2f2e44c287589f03aea2b4e790c013fd78b2ddc9c9383ac88b72"
+        },
+        "raw_replay_report": {
+          "bytes": 765,
+          "filename": "${WORK}/nvcompact-pr13-analysis/final/owned/zero-tail-replay/reproduction.json",
+          "sha256": "d56a183e73da0eb2c1eaa6753e0ad7dc570f071751b5fc7123cff9a6f1d2f907"
+        },
+        "raw_report": {
+          "bytes": 437111,
+          "filename": "${WORK}/nvcompact-pr13-analysis/final/owned/zero-tail/report.json",
+          "sha256": "81818f51e4f20c069076ad7819a370faf9b85ef89e43d7c6754c25332a16e64b"
+        },
+        "recorded_invocation": {
+          "exit_code": 0,
+          "limits": {
+            "command_seconds": 60,
+            "cpu_seconds": 90,
+            "jobs": 2,
+            "max_candidates": 24,
+            "max_seconds": 600,
+            "memory_bytes": 2147483648
+          },
+          "recorded_in_runs_json": true
+        },
+        "recorded_replay_invocation": {
+          "exit_code": 0,
+          "limits": {
+            "command_seconds": 60,
+            "max_seconds": 90,
+            "memory_bytes": 2147483648
+          },
+          "recorded_in_runs_json": true
+        },
+        "runtime": {
+          "backend": "rust",
+          "binary_sha256": "86bcf85c1dc2790003c26e84c273a9b263d6bb215c2f9bdea64400165749b986",
+          "version": "0.4.1"
+        },
+        "selection": {
+          "build": "size-z-fat",
+          "link": "compact",
+          "order": [
+            "state"
+          ],
+          "variants": {
+            "state": "rust"
+          }
+        },
+        "snapshot_copies_verified": 3,
+        "tools": {
+          "cc": {
+            "executable": "${CC}",
+            "resolved": "${GCC13}",
+            "sha256": "6117c52522997d2aaccb2b52b3c6bf42c0a6c5edb1d718431fed6b2fc5fec234",
+            "version_probe": "not_run"
+          },
+          "ld": {
+            "executable": "${LD}",
+            "resolved": "${LD_BFD}",
+            "sha256": "5b674ea1d7017c2929f3c52c43487478bb240ecdd7197a25cce3813a70329a5c",
+            "version_probe": "not_run"
+          },
+          "node": {
+            "executable": "${NODE}",
+            "resolved": "${NODE}",
+            "sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+            "version_probe": "not_run"
+          },
+          "rustc": {
+            "executable": "${WORK}/tools/rust-nv13/toolchain/bin/rustc",
+            "resolved": "${WORK}/tools/rust-nv13/toolchain/bin/rustc",
+            "sha256": "b53b780f77f952062f8ca8a3b70aef2390b1e45ad91939be94afdc9543026853",
+            "version_probe": "not_run"
+          }
+        },
+        "verification": {
+          "fresh_build": {
+            "command_receipt_sha256": "08278af0078b0313a8365bbe1056c30d5c842cb6d31b8ae417e3a16f15ddc25b",
+            "output_limited": false,
+            "returncode": 0,
+            "status": "pass",
+            "stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "bytes": 45,
+              "sha256": "273f61fa5ca98b98fdacac48a6d0b442c5d230aef3e56fed8a1356bf2969f852"
+            },
+            "timed_out": false
+          },
+          "independent_replay": {
+            "command_receipt_sha256": "85fbf62eef2e57defa9368cb52e13635575d8d02fdf3c8397fc8c8aece950a42",
+            "output_limited": false,
+            "returncode": 0,
+            "status": "pass",
+            "stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "bytes": 45,
+              "sha256": "273f61fa5ca98b98fdacac48a6d0b442c5d230aef3e56fed8a1356bf2969f852"
+            },
+            "timed_out": false
+          },
+          "screening": {
+            "command_receipt_sha256": "8fa0cb99da1403499658eeeb2a78f9f004c18d92265f5186723b5ba21fae69ea",
+            "output_limited": false,
+            "returncode": 0,
+            "status": "pass",
+            "stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "bytes": 45,
+              "sha256": "273f61fa5ca98b98fdacac48a6d0b442c5d230aef3e56fed8a1356bf2969f852"
+            },
+            "timed_out": false
+          }
+        },
+        "winner_id": "no-section-headers-zero-tail__raw"
+      },
+      "candidate_bytes": 441,
+      "input_sha256": {
+        "examples/mixed/start_linux_x86_64.S": "274b24fd266cc57462ee0f49591c3357a5147eb825588bd485a7b1fb659efbdb",
+        "examples/zero-tail/README.md": "3d85a642b7d5fc7eecaa7eabadd5376b42a6434b5c3bd344ec1458d0992460ad",
+        "examples/zero-tail/driver.c": "443aaff43252a878a2451d66645c062b2d22b7a964683efa96759ba48dfbfe1e",
+        "examples/zero-tail/kernel.c": "e631f5d8c4835c6223a030c56c88d679ddc93bd9ad4021c07997bcaa5a50a0b8",
+        "examples/zero-tail/kernel.rs": "fdf26e948015a9f59dd7dddb1db78caf9f62eb9ded5a0ff7ec0a76631e343a98",
+        "examples/zero-tail/verify.mjs": "3c5cb51bcf0599abae7855c8350917c858934a70558eb2bc0d8031d596f7fbec",
+        "linker/linux-x86_64-zero-tail.ld": "ea21c817eb21d38eb361a1a7ab5dc6ace0b33597eb3706313a9817beaa9b9aa5"
+      },
+      "name": "zero-tail",
+      "saved_bytes": 0,
+      "winner_byte_identical": true
+    },
+    {
+      "added_generated_input_sha256": {
+        "c-boolean-domain.c": "34b37bcf53a7579e8d4ea739527047ba182e8d9521b376d94269cb25bc9c2715"
+      },
+      "baseline": {
+        "actual_native_internal_and_independent_replay_match": true,
+        "artifact": {
+          "bytes": 2141,
+          "sha256": "739919620359133a6b0b07d069a79788d6019937d3cbd61c1bd33daef2203bca"
+        },
+        "artifact_copies_verified": [
+          "measured_candidate",
+          "winner_copy",
+          "internal_fresh_build",
+          "independent_replay_winner",
+          "independent_replay_selected"
+        ],
+        "deployment": "original",
+        "native_bytes": 14400,
+        "native_sha256": "56cc039c268a08eccddc9038bb5ce02ec541bc009f660cad6b70ee1935332850",
+        "packing": "xz-6",
+        "raw_recipe": {
+          "bytes": 11460,
+          "filename": "${WORK}/nvcompact-pr13-analysis/baseline/owned/c-rewrites/winner.recipe.json",
+          "sha256": "6f79b10bd6e05083dff349cfc7ef8d674c4a44230f2ea1d52b67df6524cd990b"
+        },
+        "raw_replay_report": {
+          "bytes": 759,
+          "filename": "${WORK}/nvcompact-pr13-analysis/baseline/owned/c-rewrites-replay/reproduction.json",
+          "sha256": "b6c13b261857d867341f4bd39666fddd96fc84138864159e15b4dffaf31901e1"
+        },
+        "raw_report": {
+          "bytes": 62238,
+          "filename": "${WORK}/nvcompact-pr13-analysis/baseline/owned/c-rewrites/report.json",
+          "sha256": "8b2242f9c7cc384cf5006ccf426c33c6499365aee5566f6ab714b3fbcf17c78f"
+        },
+        "recorded_invocation": {
+          "exit_code": 0,
+          "limits": {
+            "command_seconds": 60,
+            "cpu_seconds": 90,
+            "jobs": 2,
+            "max_candidates": 32,
+            "max_seconds": 600,
+            "memory_bytes": 1073741824
+          },
+          "recorded_in_runs_json": true
+        },
+        "recorded_replay_invocation": {
+          "recorded_in_runs_json": false
+        },
+        "runtime": {
+          "backend": "rust",
+          "binary_sha256": "d96cd0bfd129fbb3b16e48c82036f8066a9bd678fada13a1644cba666eccda0f",
+          "version": "0.4.1"
+        },
+        "selection": {
+          "build": "size",
+          "link": "hosted",
+          "order": [
+            "program"
+          ],
+          "variants": {
+            "program": "c-all"
+          }
+        },
+        "snapshot_copies_verified": 3,
+        "tools": {
+          "cc": {
+            "executable": "${WORK}/tools/clang20/usr/bin/clang-20",
+            "resolved": "${WORK}/tools/clang20/usr/lib/llvm-20/bin/clang",
+            "sha256": "b1ca2b35b07cb5cb7db47247f329151ed22692a19de2763859b0867e6323e2fe",
+            "version_probe": "not_run"
+          },
+          "python": {
+            "executable": "${PYTHON3}",
+            "resolved": "${PYTHON312}",
+            "sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+            "version_probe": "not_run"
+          }
+        },
+        "verification": {
+          "fresh_build": {
+            "command_receipt_sha256": "8904cae8f7a1b9cae7cf9e2bf701b3c6cfcf02f551875ee0c0184c4cee03ac50",
+            "output_limited": false,
+            "returncode": 0,
+            "status": "pass",
+            "stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "bytes": 64,
+              "sha256": "ce43155c0e4fc459976faac7d4a9433a048f5187dcf4eea5683c64850b61cb91"
+            },
+            "timed_out": false
+          },
+          "independent_replay": {
+            "command_receipt_sha256": "10337e6162b6bfdfd9104825cd71d3aad5fe4109b0e2f2fcabf03fb81edb9694",
+            "output_limited": false,
+            "returncode": 0,
+            "status": "pass",
+            "stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "bytes": 64,
+              "sha256": "ce43155c0e4fc459976faac7d4a9433a048f5187dcf4eea5683c64850b61cb91"
+            },
+            "timed_out": false
+          },
+          "screening": {
+            "command_receipt_sha256": "05768f0d6476f5aa9348d530be5581dae6b522c2e2bc9d0053be143b96449efe",
+            "output_limited": false,
+            "returncode": 0,
+            "status": "pass",
+            "stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "bytes": 64,
+              "sha256": "ce43155c0e4fc459976faac7d4a9433a048f5187dcf4eea5683c64850b61cb91"
+            },
+            "timed_out": false
+          }
+        },
+        "winner_id": "original__xz-6"
+      },
+      "baseline_bytes": 2141,
+      "baseline_input_hashes_preserved": true,
+      "build_and_verifier_contracts_preserved": true,
+      "candidate": {
+        "actual_native_internal_and_independent_replay_match": true,
+        "artifact": {
+          "bytes": 2141,
+          "sha256": "739919620359133a6b0b07d069a79788d6019937d3cbd61c1bd33daef2203bca"
+        },
+        "artifact_copies_verified": [
+          "measured_candidate",
+          "winner_copy",
+          "internal_fresh_build",
+          "independent_replay_winner",
+          "independent_replay_selected"
+        ],
+        "deployment": "original",
+        "native_bytes": 14400,
+        "native_sha256": "56cc039c268a08eccddc9038bb5ce02ec541bc009f660cad6b70ee1935332850",
+        "packing": "xz-6",
+        "raw_recipe": {
+          "bytes": 12071,
+          "filename": "${WORK}/nvcompact-pr13-analysis/final/owned/c-rewrites/winner.recipe.json",
+          "sha256": "a8ed7f0893e3b0eb8aeaabbd5f8d16b457e063c298238884a9efb6810fa718b0"
+        },
+        "raw_replay_report": {
+          "bytes": 753,
+          "filename": "${WORK}/nvcompact-pr13-analysis/final/owned/c-rewrites-replay/reproduction.json",
+          "sha256": "d9e29d23106f3c6e55b735b4820c69b2e7fbac034f53564be6e72a25d6c89c0a"
+        },
+        "raw_report": {
+          "bytes": 65826,
+          "filename": "${WORK}/nvcompact-pr13-analysis/final/owned/c-rewrites/report.json",
+          "sha256": "4d58a0cf05b803e04db19b7f4ff30cd71bfa935f4bc818cc11ef292a279caaf9"
+        },
+        "recorded_invocation": {
+          "exit_code": 0,
+          "limits": {
+            "command_seconds": 60,
+            "cpu_seconds": 90,
+            "jobs": 2,
+            "max_candidates": 32,
+            "max_seconds": 600,
+            "memory_bytes": 1073741824
+          },
+          "recorded_in_runs_json": true
+        },
+        "recorded_replay_invocation": {
+          "exit_code": 0,
+          "limits": {
+            "command_seconds": 60,
+            "max_seconds": 90,
+            "memory_bytes": 1073741824
+          },
+          "recorded_in_runs_json": true
+        },
+        "runtime": {
+          "backend": "rust",
+          "binary_sha256": "86bcf85c1dc2790003c26e84c273a9b263d6bb215c2f9bdea64400165749b986",
+          "version": "0.4.1"
+        },
+        "selection": {
+          "build": "size",
+          "link": "hosted",
+          "order": [
+            "program"
+          ],
+          "variants": {
+            "program": "c-all"
+          }
+        },
+        "snapshot_copies_verified": 3,
+        "tools": {
+          "cc": {
+            "executable": "${WORK}/tools/clang20/usr/bin/clang-20",
+            "resolved": "${WORK}/tools/clang20/usr/lib/llvm-20/bin/clang",
+            "sha256": "b1ca2b35b07cb5cb7db47247f329151ed22692a19de2763859b0867e6323e2fe",
+            "version_probe": "not_run"
+          },
+          "python": {
+            "executable": "${PYTHON3}",
+            "resolved": "${PYTHON312}",
+            "sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+            "version_probe": "not_run"
+          }
+        },
+        "verification": {
+          "fresh_build": {
+            "command_receipt_sha256": "cd91b1a16134087e2bcc9deefd2dea84fa2077ff93f8b7748a175f31978921ac",
+            "output_limited": false,
+            "returncode": 0,
+            "status": "pass",
+            "stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "bytes": 64,
+              "sha256": "ce43155c0e4fc459976faac7d4a9433a048f5187dcf4eea5683c64850b61cb91"
+            },
+            "timed_out": false
+          },
+          "independent_replay": {
+            "command_receipt_sha256": "fa029be037205ad43bbad4ac005bcc126bc07858f388ea403b445f40ea72a376",
+            "output_limited": false,
+            "returncode": 0,
+            "status": "pass",
+            "stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "bytes": 64,
+              "sha256": "ce43155c0e4fc459976faac7d4a9433a048f5187dcf4eea5683c64850b61cb91"
+            },
+            "timed_out": false
+          },
+          "screening": {
+            "command_receipt_sha256": "8cd4f07ffa3ecf0d64d6d23636784afb09cf8bc264e536fc6d87ada7b4bb1359",
+            "output_limited": false,
+            "returncode": 0,
+            "status": "pass",
+            "stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "bytes": 64,
+              "sha256": "ce43155c0e4fc459976faac7d4a9433a048f5187dcf4eea5683c64850b61cb91"
+            },
+            "timed_out": false
+          }
+        },
+        "winner_id": "original__xz-6"
+      },
+      "candidate_bytes": 2141,
+      "input_sha256": {
+        "c-all.c": "682f771b2717d6fa9ff7b80f4904a56e0ec66463ea40036a7176456f20a95c4f",
+        "c-boolean.c": "43992f7017392ff74dd529fd666d7f6f3fa311a034e254cf556fac467349eec0",
+        "c-compound.c": "64a7ebe434912f704e04d3793616b4f51bb448a636a198037f319db27e731ef4",
+        "c-forever.c": "bf2fc0e1d330c627a33363f2c5ea52d9a1fd4ce11235fa2458c0eeedebb3f74e",
+        "c-guard.c": "534044df1cfeeddb93647d4db5ff3e53c5a54887be26b2da255fc878b4e7c5bf",
+        "c-if-assignment.c": "34b37bcf53a7579e8d4ea739527047ba182e8d9521b376d94269cb25bc9c2715",
+        "c-if-effect.c": "34b37bcf53a7579e8d4ea739527047ba182e8d9521b376d94269cb25bc9c2715",
+        "c-if-return.c": "63206f0c23ceb4bc8dac9a2aaac9599c8564871f4b76d2f0eaf0f405c285f46f",
+        "c-increment.c": "e478fdf6f5f5ef2fd224122beceef78497cf94cdded1312f49d0bd7d59c56c28",
+        "c-leaf-braces.c": "462a7a2c74ab6d19d6705bdaa11b63ab18b477efe637eee8a29c2646b6573f92",
+        "c-negation.c": "34b37bcf53a7579e8d4ea739527047ba182e8d9521b376d94269cb25bc9c2715",
+        "c-return-tail.c": "34b37bcf53a7579e8d4ea739527047ba182e8d9521b376d94269cb25bc9c2715",
+        "c-truth.c": "34b37bcf53a7579e8d4ea739527047ba182e8d9521b376d94269cb25bc9c2715",
+        "c-zero-test.c": "3221d287e353e4375b24f5ae9c04083ac6f7871db294fffe347ce6d20bdf1e59",
+        "raw.c": "34b37bcf53a7579e8d4ea739527047ba182e8d9521b376d94269cb25bc9c2715",
+        "verify.py": "84da9c5f40d501e6ac0cb17b984ddac1d33fb26f26e2acae4e10cf56502ebaef"
+      },
+      "name": "c-rewrites",
+      "saved_bytes": 0,
+      "winner_byte_identical": true
+    }
+  ],
+  "scope": "Read-only audit of prior finite arithmetic-fixture verifier receipts and actual artifacts; no new execution.",
+  "size_regressions": 0,
+  "source_commit": "c5f4af0cfff7d7c6863dd142631f80b9f697e81a",
+  "total_saved_bytes": 0,
+  "tool_path_labels": {
+    "${CC}": "Observed cc launcher executable; SHA/version retained in the corresponding tool receipt.",
+    "${GCC13}": "Observed resolved GCC 13 executable; SHA/version retained in the corresponding tool receipt.",
+    "${LD}": "Observed ld launcher executable; SHA/version retained in the corresponding tool receipt.",
+    "${LD_BFD}": "Observed resolved GNU BFD linker executable; SHA/version retained in the corresponding tool receipt.",
+    "${PYTHON3}": "Observed python3 launcher executable; SHA/version retained in the corresponding tool receipt.",
+    "${PYTHON312}": "Observed resolved CPython 3.12 executable; SHA/version retained in the corresponding tool receipt.",
+    "${NODE}": "Observed Node executable; SHA/version retained in the corresponding tool receipt."
+  }
+}

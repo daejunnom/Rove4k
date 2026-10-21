@@ -163,6 +163,41 @@ compare supported expression and control-flow forms. An integer-to-floating
 spelling such as `100000` to `1e5` is not accepted merely because the mathematical
 values match; type and context still matter.
 
+`spell-c` exposes bounded, unranked candidates for automatic local names and
+type-preserving integer/character spellings. The opt-in envelope `source_search`
+compares their **complete compressed submission cost**, including an explicitly
+inspected Python bytes embedding when present. Equal-length or longer source
+spellings can win. Accepted changes require binding/type checks and identical
+complete native output and compiler diagnostics under the declared recipe.
+`replay` reconstructs the accepted derivation without repeating the search.
+Source search also retains original/candidate source snapshots, derivations and
+failed or unselected observations in a bounded external attempt archive. It
+automatically compares the recorded complete-file costs when sealing the run;
+`compare-attempts ARCHIVE... --output NEW_JSON` compares saved runs under matching
+input, tool, observation and codec contexts. It checks archive integrity without
+executing saved commands or promoting size-only measurements to verified results.
+
+The guarded Boolean-domain rule includes actual C `_Bool`/`stdbool.h` types and
+aliases: `a != 1` and `1 != a` can become `!a` when the evaluated value is proven
+to be 0 or 1. A name such as `typedef int bool` does not establish that domain.
+Evaluation count, result type, macro boundaries and volatile/atomic protections
+remain part of the rule's applicability checks.
+The [whole-file source portfolio guide](docs/SOURCE-PORTFOLIO.md) documents the
+contracts, configuration, bounds and unsupported cases. Engine-specific work
+is separated in the [PR #12 handoff](docs/PR12-HANDOFF.ko.md).
+The [PR #13 measurements](docs/PR13-RESULTS.ko.md) compare 26 pinned
+input/profile rows: seven smaller complete files and 19 byte-identical winners,
+with explicit replay, compiler-proof and unexecuted runtime boundaries.
+The [attempt-retention and Boolean follow-up](docs/PR13-ATTEMPTS-FOLLOWUP.ko.md)
+records the new comparison command and a fresh check against those PR #13
+winners: all 26 matching-condition rows remain byte-identical, with 22 fresh
+engine/profile replays and four independently verified owned examples.
+
+`npm run test:comparison` checks the read-only regression reporter. Its
+`scripts/compare-results.mjs` command compares actual complete files against a
+separately pinned manifest roster and the previous NVCompact winner, preserving
+missing, failed and unexecuted cases rather than treating them as equivalent.
+
 Several different source expressions can produce identical ELF bytes because
 the compiler recognizes equivalent computations and optimizes them to the same
 machine code. The linker then combines the compiled inputs. Identical linked
