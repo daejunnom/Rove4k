@@ -11,7 +11,9 @@
 | [기본 3개 엔진 메타데이터](evidence/external-size-commits/primary-engine-commits.json) | full SHA, URL, 검토 범위, patch digest, 적용 분류, 남은 후보 |
 | [보조 엔진 메타데이터](evidence/external-size-commits/other-engine-commit-review.json) | full SHA, URL, 기술, 의미·성능 위험, 당시 크기 근거, 조사 inventory |
 | [PR #12 고정 소스 확인](evidence/external-size-commits/pr12-68db496f-review.json) | `68db496f...`의 읽은 파일·blob·SHA-256, recipe의 기대 크기/identity |
-| [PR #12 담당자 인계](PR12-HANDOFF.ko.md) | 같은 고정 head의 반영 상태, 역사적 표 보존, 엔진별 후속 판단 |
+| [PR #12 후속 head 참고](evidence/external-size-commits/pr12-b65a7498-review.json) | `68db496f...`→`b65a7498...`의 실제 변경·채택 상태와 관측 계약; 이번 캠페인 미측정, 외부 355건과 별도 |
+| [PR #12 bootstrap 환경 복사 후속](evidence/external-size-commits/pr12-7a112cbf-review.json) | `b65a7498...`→`7a112cbf...` 1개 커밋·17개 파일 diff, 채택·크기 열세와 수동 wrapper 관측 계약; 비교 입력은 `68db496f...` 유지 |
+| [PR #12 담당자 인계](PR12-HANDOFF.ko.md) | 고정 비교 기준·역사적 표와 후속 head 참고를 분리한 엔진별 판단 |
 
 총 **355개 선택 커밋 diff 또는 실험 기록**을 검토했다. 기존 roster에 대응하는 **10개 엔진 계열 347건**과, 실제 참가가 확인되지 않은 **Pytteliten 8건**을 구분한다. 355건을 모두 성공한 무손실 절감이나 독립적인 최적화 355종으로 해석하지 않는다. 혼합 변경, 실패 수정, 문서 실험과 제목 검색의 false positive도 포함한다.
 

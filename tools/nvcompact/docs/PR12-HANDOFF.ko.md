@@ -1,9 +1,13 @@
 # PR #12 엔진 담당자를 위한 압축 인계
 
 이 문서는 NVCompact의 공통 변환과 엔진 지식이 필요한 변경의 경계를 정리한다.
-최신 검토는 **PR #12의 `68db496f478735411e2036231f03e3f35c76f088`에 고정**한다.
-진행 중인 PR의 이후 변경을 혼합하지 않으며 `0e716e0`/`8abcbc3` 기준 PR #13 인계와
-크기 표는 2절에 역사로 보존한다. 새 엔진 설계를 고정하는 규약이나 모든 제안의
+이번 NVCompact 비교 입력과 1~8절의 검토는 **PR #12의
+`68db496f478735411e2036231f03e3f35c76f088`에 고정**한다. 9절은 이후
+`b65a7498f9bc4dd6107e1e8b9a70baec6003e316`의 변경을 별도 미측정 참고로 추가한다.
+10절은 최종 원격 확인에서 추가된 `7a112cbf15f4efa5360b44dc2dbeece9e8ef5d52`의
+bootstrap 환경 표현 변경을 같은 방식으로 분리한다.
+`0e716e0`/`8abcbc3` 기준 PR #13 인계와 크기 표는 2절에 역사로 보존한다.
+서로 다른 head의 결과를 합치지 않는다. 새 엔진 설계를 고정하는 규약이나 모든 제안의
 구현 지시가 아니다. 직접 PR #12에 댓글·메시지를 게시하지 않고 이 문서를 인계로 갱신한다.
 
 외부 조사에서는 **355개 선택 커밋 diff/기록**을 검토했다. 그중 Pytteliten 8건은
@@ -252,6 +256,181 @@ recipe에 관한 근거이며 C 전반의 모든 target에 대한 정리를 대�
 - [ ] 수정 파일: 실제 선택 후보의 계약과 검증 접점, 구현 내용: domain·타입·효과·수명 증명이 필요한 engine-specific 변환을 공통 NVCompact 이름 예외로 옮기지 않고 필요한 사실을 드러내는 설계로 제안한다.
 - [ ] 수정 파일: 기존 비교 기록과 `docs/ENGINE-IMPLEMENTATION.md`, 구현 내용: 크기 열세·의미 실패·환경 미완료를 구분해 유지하고 source/codec 문맥 변경 후 재검토 결과를 새 기록으로 연결한다. 동일한 조건의 반복 검사나 새 전용 registry를 의무화하지 않는다.
 
-이 인계는 PR #12의 `68db496f478735411e2036231f03e3f35c76f088` 이후 내용에 대해
-채택·거절·크기·검증 상태를 주장하지 않는다. 후속 head를 사용할 때에는 source와
-recipe를 다시 고정하고 이 문서의 역사와 새 결과를 나누어 갱신한다.
+여기까지의 1~8절은 PR #12의 `68db496f478735411e2036231f03e3f35c76f088` 이후
+채택·거절·크기·검증 상태를 주장하지 않는다. 이후의 검토는 아래처럼 source와
+recipe를 다시 고정하고 이 문서의 역사와 별도 기록으로 남긴다.
+
+## 9. 후속 head 참고: b65a7498, 이번 캠페인 미측정
+
+2026-10-21에 `b65a7498f9bc4dd6107e1e8b9a70baec6003e316`을 추가로 읽었다.
+`68db496f…` 이후 first-parent에는 develop 통합 1개와 엔진 변경 4개가 있다.
+누적 변경 25개 파일 중 엔진·구현 기록 18개 파일의 전체 변경 hunk를 읽었으며,
+새 helper 3개는 전체 소스를 읽었다. 나머지 출시 메타데이터 7개를 엔진 의미 변경으로
+분류하지 않았다. [경로·blob·SHA-256·읽은 범위](evidence/external-size-commits/pr12-b65a7498-review.json)를
+남겼으며 generator·compiler·codec·bootstrap·엔진·loader·UCI·대국은 실행하지 않았다.
+
+**이번 NVCompact 캠페인의 입력은 계속 `68db496f…`다.** 아래 수치와 sanitizer·
+실행 검증 설명은 후속 PR #12의 저장된 기록이며 이번 분석의 독립 실측·인수 결과가
+아니다. Rove4k 자체의 후속 커밋을 외부 엔진 연구 355건에 추가하지 않는다.
+
+### 9.1 후속 recipe가 기록한 전체 파일
+
+| 경로 | 68db496f의 유지 파일 | b65a7498의 기록 | 차이와 채택 상태 |
+| --- | ---: | ---: | --- |
+| A | 4,610 B | 4,610 B | 같은 recipe blob, 변경 없음 |
+| B | 5,144 B | 5,144 B | 같은 recipe blob, argv 대안은 크기 열세로 미채택 |
+| C | 4,952 B | 4,934 B | −18 B, caller-owned continuation slot과 양수 bonus 표현 반영 |
+| D scalar / HQ | 5,937 / 6,148 B | 5,914 / 6,125 B | 각각 −23 B, 정확한 clock/inc parser 공유 반영 |
+| E | 5,011 B | 5,010 B | −1 B, 고정 compiler argv의 문자열 표현 반영 |
+| F full/default | 4,537 B | 4,505 B | −32 B, depth/repetition과 고정 int macro 두 단계 반영 |
+| F material/noise | 4,325 B | 4,325 B | 선택 정책의 source/native/whole 유지; 새 full reference 생성은 별도 |
+| F material/move-TT | 4,051 B | 4,051 B | 선택 정책의 source/native/whole 유지; optional runtime은 재실행하지 않았다고 기록 |
+
+Full F는 여전히 409 B 초과이고 D는 1,818/2,029 B 초과다. 이 표에 `68db496f…`에서
+얻은 NVCompact 절감량을 더해 후속 head의 최소를 예측하지 않는다. C와 full F는
+native 길이가 그대로여도 전체 native 해시가 바뀌었으므로 과거 native 실행 근거를
+새 이미지의 성공으로 옮기지 않는다. F macro 단계의 native 일치는 바로 앞의
+depth/repetition 후보에 대한 것이며 `68db496f…` full F와의 일치를 뜻하지 않는다.
+
+### 9.2 이미 반영한 기술과 일반화의 경계
+
+| 커밋·반영 영역 | 실제 변경 | NVCompact에 넘길 조건 |
+| --- | --- | --- |
+| [8dc192a4 · E argv](https://github.com/daejunnom/Rove4k/commit/8dc192a481b5b9393a9226a233e67a2344a2231d) | 고정 ASCII 인자 목록을 문자열의 인자 없는 `.split()`으로 표현. 인자 순서와 Popen keyword·수명 코드는 그대로이며 bootstrap raw −27 B | 빈 인자·공백 포함 인자가 없는 고정 domain. Source columns·traceback 바이트 동치는 별도로 제외한 수동 wrapper 계약이며 임의 argv에 적용하지 않음 |
+| [376a2b9c · C search context](https://github.com/daejunnom/Rove4k/commit/376a2b9cc90f19ec84fccddaa49a29b4044cfd97) | 이미 만든 child의 signed piece slot을 재귀 호출 4곳에 전달하고 root는 neutral6. Quiet continuation에도 같은 column을 사용. 양수 depth-square bonus만 받는 두 learner caller에서 `abs` 제거 | Promotion/EP/castling의 child 의미, root·caller inventory와 양수 범위가 필요. 고정 bonus 1..15876·int16 cell의 연산 범위를 분석한 엔진 특수화이며 일반 함수 API 동치가 아님 |
+| [4dfb1231 · full F depth/repetition](https://github.com/daejunnom/Rove4k/commit/4dfb1231d9aabe0f3295235a164e401e7cb47617) | QS depth를 0에서 포화시켜 zero 판정·소비를 단순화하고, repetition을 2씩 증가하는 뒤쪽 거리로 순회 | `new_depth=max(old_depth,0)`, production root1..126과 history 길이1..4223의 관계가 필요. 새 private 함수의 임의 음수 입력까지 동치라고 하지 않음. `a<=0`→`!a`는 새 nonnegative 불변식 아래의 결과 |
+| 같은 커밋 · F macro | MOVES의 4회와 MATE의 7회 사용을 같은 `int` literal 512/30000으로 펴고 두 정의 제거. Source −38 B, 직전 후보 대비 whole −16 B | Macro dump·source location을 관측하지 않는 고정 계약과 모든 소비처의 타입·array extent를 확인해야 함. 짧은 이름·상수 인라인이 항상 유리하다는 규칙이 아님 |
+| [b65a7498 · D parser](https://github.com/daejunnom/Rove4k/commit/b65a7498f9bc4dd6107e1e8b9a70baec6003e316) | 원래 순서의 wtime/btime/winc/binc exact-word 판정과 amount 소비를 공유. 이미 인정한 단어 안의 문자로 time/inc를 구분 | 반대편 값도 한 번 소비하고 missing/nonnumeric cursor rewind, zero·중복·overflow·DEV 처리를 보존해야 함. 새 native의 해시·size·entry로 packer 인수를 갱신했으며 loader guard를 약화한 것이 아님 |
+
+이 변경들은 이미 유지 경로에 반영됐다. 같은 API 공유, 양수 범위의 `abs` 제거,
+nonnegative 조건식, affine index, fixed-token inline을 다시 신규 미구현 TODO로
+세지 않는다. NVCompact의 일반 후보가 되려면 엔진 이름·고정 offset을 예외로 추가하는
+대신 필요한 호출·범위·효과·관측 사실을 공통 분석과 검증으로 확인할 수 있어야 한다.
+고정 preimage·inverse는 변환 재생을 확인하며 그 자체가 임의 입력의 의미 증명은 아니다.
+
+### 9.3 크기 열세와 결합 효과도 보존한다
+
+E와 같은 argv 표현은 당시 B에서 5,144→5,145 B, C에서 4,952→4,953 B로 커져
+채택하지 않았다. C source가 바뀐 뒤에도 list 4,934 B와 split 4,935 B를 같은
+새 native·codec에서 다시 비교했다고 기록한다. 오래된 −1/+1 B를 다른 문맥에 더하지 않았다.
+
+Full F는 QS만 4,533 B, repetition만 4,526 B, 실제 결합 4,521 B, 그 뒤 macro가
+4,505 B다. Formatter 4,523 B와 macro/formatter 결합 4,507 B는 보존된 미채택
+결과다. D도 reply-only 5,936/6,150 B, clock/reply 결합 5,928/6,129 B보다
+clock-only 5,914/6,125 B를 선택했다. 짧은 source, 단독 절약량 합, 한 번의 패배만으로
+다른 source·codec 문맥의 후보를 영구 제거하면 안 된다는 실제 인계 자료다.
+
+### 9.4 자동 source-search와 수동 wrapper 관측 계약
+
+후속 [구현 기록](https://github.com/daejunnom/Rove4k/blob/b65a7498f9bc4dd6107e1e8b9a70baec6003e316/docs/ENGINE-IMPLEMENTATION.md)은
+실제 full F Python wrapper의 uncaught-error traceback 위치가 source literal의
+표기·줄 변경을 관측할 수 있어 당시 자동 whole-payload search를 `compile-input-only`로
+인수하지 않았다고 명시한다. Missing Clang로 manifest 작성 전 멈춘 준비도 별도이며
+자동 후보의 compile·codec·엔진 실행은 없었다고 기록한다.
+
+이 문제는 후속 head에만 한정되지 않는다. **`68db496f…` 캠페인의 native identity와
+크기 측정은 그 wrapper의 관측 계약을 입증하지 않는다.** Python embedding의 선언,
+고정 C 입력·compiler 결과와 전체 wrapper의 traceback/location 관측을 구분해야 한다.
+이는 이전 캠페인의 실제 winner에서 traceback 위치가 달라졌다는 주장이 아니다.
+개별 winner가 위치 정보를 유지하는지와, 전체 자동 탐색 domain의 선언 전제가
+성립하는지는 서로 다른 검사다.
+후속 E의 수동 argv 변경도 source columns·traceback 바이트 동치를 제외한다고 명시한
+다른 계약이다. 이를 현재 NVCompact 자동 경로의 성공으로 승격하거나, 부적격 입력만을
+위해 자동 계약을 조용히 완화하지 않는다. 이 경계와 실제 캠페인의 인수 상태는
+[source portfolio 계약](SOURCE-PORTFOLIO.md) 및 해당 캠페인의 결과·metadata에서 함께 확인한다.
+
+## 10. 후속 head 참고: 7a112cbf의 bootstrap 환경 복사, 이번 캠페인 미측정
+
+2026-10-21에 [7a112cbf15f4efa5360b44dc2dbeece9e8ef5d52](https://github.com/daejunnom/Rove4k/commit/7a112cbf15f4efa5360b44dc2dbeece9e8ef5d52)를
+추가로 읽었다. 9절의 `b65a7498…` 이후 정확히 1개 커밋이며, 변경 17개 파일의
+전체 diff를 읽었다. 다섯 bootstrap template은 변경 후 전체 본문도 확인했고,
+F `build.py`의 optional 정책 소비 경로를 함께 읽었다. **새 파일·새 helper는 없다.**
+기존 1~9절과 그 metadata를 보존하고 [새 경로·blob·검토 범위](evidence/external-size-commits/pr12-7a112cbf-review.json)를
+별도로 남긴다. Generator·compiler·codec·bootstrap·엔진·loader·UCI·대국은 실행하지 않았다.
+
+**NVCompact 비교 입력은 계속 `68db496f…`이며 외부 조사 건수는 355건 그대로다.**
+아래 크기와 build/runtime 상태는 새 PR #12의 recipe·README·구현 기록에서 읽은
+작성자 기록이다. 원시 실행 영수증이나 외부 source-plan 파일을 이번 검토에서 열거나
+그 해시를 독립 검증하지 않았고, 이 후속 head의 NVCompact 압축도 측정하지 않았다.
+
+### 10.1 이미 채택한 변경과 유지한 소비자
+
+A/B/C/E/F의 공통 변경은 같은 위치의 `e=os.environ.copy();e['TMPDIR']=d`를
+`e=dict(os.environ,TMPDIR=d)`로 표현한 것이다. 각 template과 생성 bootstrap이
+6 B 짧아졌다. 전체 template diff에서 compiler argv·stdin 전달, signal mask,
+Popen 게시·정리, 종료 상태 전달, 파일 descriptor를 통한 exec 부분은 바뀌지 않았다.
+엔진 C 정본 blob과 recipe의 source/native/DEV 기대 식별자, compiler·profile·model·
+codec 설정도 이전 head와 같다. 이는 실제 바이너리를 이번 검토에서 재생성했다는
+뜻은 아니다. D의 유지 디렉터리는 같은 tree이며 변경하지 않았다.
+
+F는 공유 template을 쓰는 full·material/noise·material/move-TT 세 정책의 bootstrap·
+whole 기대값과 `build.py` 안의 optional 기대값 dictionary 두 개를 함께 갱신했다.
+Recipe와 소비 dictionary가 일치하는지 확인하는 guard 및 codec 비교는 그대로다.
+새 wrapper의 기록된 identity를 소비하는 수정이며, `68db496f…`의 역사적 native pin
+불일치를 해결하거나 NVCompact 검사를 완화한 변경으로 보지 않는다.
+
+| 유지 profile | b65a7498 기록 | 7a112cbf 기록 | 기록된 전체 파일 차이 |
+| --- | ---: | ---: | ---: |
+| A | 4,610 B | 4,606 B | −4 B |
+| B | 5,144 B | 5,138 B | −6 B |
+| C | 4,934 B | 4,924 B | −10 B |
+| D scalar / HQ | 5,914 / 6,125 B | 5,914 / 6,125 B | 변경 없음 |
+| E | 5,010 B | 5,004 B | −6 B |
+| F full/default | 4,505 B | 4,497 B | −8 B |
+| F material/noise | 4,325 B | 4,319 B | −6 B |
+| F material/move-TT | 4,051 B | 4,045 B | −6 B |
+
+Full F는 여전히 401 B 초과이고 optional move-TT의 여유는 51 B다. Optional 결과가
+full F의 통과나 기력 인수는 아니다. 이 차이를 현재 NVCompact 캠페인의 절감량에
+더하거나 후속 head의 최솟값으로 예측하지 않는다.
+
+### 10.2 더 짧은 helper와 결합 후보의 크기 열세
+
+구현 기록은 다섯 고정 문맥마다 signal-helper 공유·환경 표현·두 변경의 결합이라는
+세 대안을 원래 control과 비교했다고 적는다. 변경 후보 15개와 control 5개를 구분하며,
+추가 optional F 두 건은 환경 표현만 같은 고정 codec으로 인코딩한 별도 기록이다.
+
+| 고정 문맥 | 기존 control | Signal helper | 환경 표현만, 채택 | 결합 |
+| --- | ---: | ---: | ---: | ---: |
+| A | 4,610 | 4,618 | 4,606 | 4,611 |
+| B | 5,144 | 5,150 | 5,138 | 5,143 |
+| C | 4,934 | 4,937 | 4,924 | 4,930 |
+| E | 5,010 | 5,018 | 5,004 | 5,014 |
+| F full | 4,505 | 4,509 | 4,497 | 4,499 |
+
+Signal helper는 raw 39 B를 줄였어도 이 다섯 문맥에서 모두 control보다 커졌다고
+기록한다. 결합은 B/C/F에서 control보다 작지만 모두 환경 표현 단독보다 크다.
+이를 의미 실패라고 바꾸어 적지 않는다. 미채택 helper의 실제 소스·변환·원시 비용
+영수증은 외부 source-plan에 있다는 기록과 hash를 보존하며, 이 커밋의 diff만으로
+그 helper의 동치성을 독립 검토했다고 주장하지 않는다. Raw 길이·단독 절감량 합·
+기존 크기 패배로 조합을 영구 제거하지 않는다는 NVCompact의 기존 방향을 뒷받침한다.
+
+### 10.3 관측 계약과 실행 기록의 경계
+
+이 변경은 고정 wrapper에서 환경 mapping을 복사하고 TMPDIR를 덮어쓰는 수동 표현
+변경이다. 일반화하려면 `dict` binding, 원본 mapping과 `.copy()`의 동작, key/value의
+평가·효과, 중간 assignment를 관측하는 경로까지 확인해야 한다. 임의의 객체·shadowed
+builtin·다른 평가 위치에 적용하는 정규식 rewrite의 근거가 아니다. 다섯 template의
+signal handler는 이 중간 `e`를 읽지 않지만, 그 사실이 signal 도착 시점·tracing·
+예외 위치를 포함한 모든 Python 관측의 동치를 증명하지는 않는다.
+
+새 recipe도 `source_spelling_columns_traceback_bytes_equal=false`를 명시한다.
+원문·column·실패 traceback 바이트 동치는 수동 계약의 범위 밖이며, NVCompact의
+`compile-input-only` 인수로 표시하지 않는다. 현재 embedding adapter는 선택 C bytes
+상수 바깥의 AST를 유지하므로 이 환경 constructor 변경은 그 literal 표기 후보와
+별개의 wrapper 변환이다. 새로운 wrapper 분석·명시적 계약 없이 자동 후보에 넣거나
+특정 엔진만을 위해 기존 관측 계약을 완화하지 않는다. 이 환경 표현은 이미 PR #12에
+채택됐으므로 엔진 담당자에게 새 미구현 TODO로 다시 넘기지 않는다.
+
+Upstream은 기본 A/B/C/E/F builder 각각 shipping 2회·DEV 2회, 기존 verifier 각각
+quit/EOF 2 session·legal GO 8 epoch·시작 TID 3개·정확한 native 복원·private path
+부재·실제 process/reader 종료를 확인했다고 기록한다. Optional F 둘은 shipping을
+각각 2회 재현하고 full-reference source를 확인했지만 DEV/runtime은 재실행하지
+않았다. 작성자는 builder 7개와 verifier 5개가 첫 실행에서 rc0였다고 적으며,
+cancellation causality·새 기력·최종 하드웨어 인수는 미확정으로 남긴다. 앞선 CI를
+새 wrapper의 CI로 바꾸어 표시하지 않는다.
+
+외부 final index의 기록은 20,482 B,
+SHA-256 `31677eccefc1c3d51fa012efb4dd242076ad361fda1b69f04b87b273a93baa91`이며,
+68개 참조 pin을 확인했다는 주체는 PR #12 작성자다. 이번 검토는 커밋 안의 해당
+주장·receipt 식별자와 실제 source/소비자 변경을 읽은 범위에 한정한다.

@@ -15,7 +15,10 @@ Those PR #13 results are historical measurements. The current
 [search architecture](SEARCH-ARCHITECTURE.ko.md) explains the ownership, shared
 evaluation and finite search space described below; it is not a new measurement
 of those engines. The [external commit review](EXTERNAL-SIZE-COMMITS.ko.md) records
-upstream techniques and failures separately.
+upstream techniques and failures separately. The [PR #16 results](PR16-RESULTS.ko.md)
+record the new same-input regression runs, a separate bootstrap-byte-preserving
+matrix and cost-reuse experiment. Their observation-contract qualifications
+must be read alongside byte and native identity results.
 
 ## 1. Three different sizes
 
@@ -260,6 +263,10 @@ Declare the outer Python notation contract separately if enabling its own
 notation transformations; it has the same source-observation obligations.
 AST equality alone does not establish either observation contract. These are
 assumptions to verify against the actual bootstrap and its deployment context.
+Native identity and a smaller complete file do not establish those assumptions.
+A particular winner may retain all observed line/position metadata while other
+generated literal styles can change it; checking that winner alone does not
+admit the entire automatic search domain under `compile-input-only`.
 
 The adapter preserves surrounding payload bytes exactly and verifies the whole
 Python AST while allowing only the selected bytes constant's value to change.
@@ -298,39 +305,54 @@ The strategies start from the same original payload in this order:
 
 | Strategy | Cost objective | Result |
 | --- | --- | --- |
-| `source-search` | The manifest's inspected `envelope.payload_codec` and its complete supported header spelling. | Retains a winner under the prior source-search objective. |
-| `source-search-portfolio` | The minimum complete-file cost from the current codec policy. | Also considers sources whose advantage depends on another codec; enabled by default. |
+| `source-search` | The manifest's inspected `envelope.payload_codec` and its complete supported header spelling. | Uses `legacy_priority`; preserves the earlier ordering and a distinct priority seed when needed. |
+| `source-search-portfolio` | The minimum complete-file cost from the current codec policy. | Uses `interleaved_online`; also considers sources whose advantage depends on another codec, enabled by default. |
 
-Each strategy first runs the improving-incumbent priority rounds. A round
-generates spelling groups, measures their applicable payload renderings, and
-orders improving singles by whole-file cost with a stable identifier tie-break.
-Compatible improvements and optional guarded condition recipes can advance the
-incumbent. Every retained spelling choice remains available to later systematic
-work, including singles that were equal or larger in complete-file size.
+The submitted-codec strategy first runs its earlier improving-incumbent rounds:
+measure applicable spelling renderings, order improving singles by whole-file
+cost with a stable identifier tie-break, and admit compatible improvements and
+guarded condition recipes. Its deferred pass then visits nontrivial spelling
+subsets on the visited immutable bases. Losing or tied singles remain eligible.
 
-After the priority rounds, a lazy iterator visits nontrivial subsets of the
-generated spelling choices on each visited priority basis. Incompatible edit or
-binding combinations are recorded; compatible combinations are measured as
-whole payloads. Individual savings are not summed. Only a smaller, admitted and
-retained result can replace the incumbent, and a winning branch restores the
-accepted-step prefix for its own basis. Generator limits, `max_combinations`,
-measurement/time limits and evidence limits bound this work. Conditions retain
-their registered recipes and bounded individual edits; this does not enumerate
-all flow-edit combinations or all rewrite sequences. See the
+The full-codec strategy alternates singleton and subset work and immediately
+checks a measured improvement instead of scoring all singles before admission.
+Registered condition alternatives use a singleton-only lane. Initial
+round/family phases share the remaining time and unreserved evaluation budget;
+these quanta limit new candidate starts. Paused queues resume afterward without
+restarting their enumeration. Reaching the subset-attempt cap in this policy
+leaves subsets incomplete but does not block remaining singletons or conditions.
+The budget remains finite, and one expensive operation can still exhaust it.
+
+Legacy deferred subsets and online work use a common generated-space
+composition/measurement/admission path. Incompatible edit or binding combinations are recorded; compatible
+combinations are measured as whole payloads. Individual savings are not summed.
+Only a smaller, admitted and retained result can replace the incumbent. A
+winning sibling restores its own immutable basis's accepted-step prefix rather
+than appending a fictitious chain of sibling edits. Generator, combination,
+measurement/time and evidence limits bound this work. Conditions retain their
+registered recipes and bounded individual edits; this does not enumerate all
+flow-edit combinations or all rewrite sequences. See the
 [architecture and coverage definitions](SEARCH-ARCHITECTURE.ko.md) for the exact
-finite domain and completion fields.
+finite domain, quantum allocation and completion fields.
 
 The shared `WholeFileObjective` reuses successful codec work only for the same
 payload identity and complete recipe inside its fixed inspected-envelope
 context. The two strategies keep separate cost contexts and attempt archives.
 Both winners enter the final codec comparison; identical payloads can share a
 canonical final variant without losing their strategy-specific receipts.
+The submitted-codec strategy also retains its pre-deferred priority winner when
+it differs from both the original payload and the final source winner. It
+reserves an additional fresh readback before deferred work when needed; if the
+reservation and another new measurement cannot fit, deferred work does not
+start. The common `SeedFinalizer` checks each retained seed under the same
+contract. A priority snapshot is not a free or automatically accepted result.
 
 The final comparison preserves:
 
 - The original complete submitted file and original compressed stream.
 - Existing notation/source candidates and the existing codec seeds.
 - Both enabled source-strategy winners.
+- A distinct validated `legacy-priority-seed` from the submitted-codec strategy.
 - The refinements that the legacy seeds would have selected, even when a new
   seed would otherwise displace a previously explored refinement family.
 - The inspected submitted codec for changed sources, together with applicable
@@ -438,6 +460,7 @@ external include file has been independently snapshotted.
 | `source_search.max_combinations` | 16384 | 1–1048576 systematic subset attempts per strategy, including incompatible subsets. |
 | `source_search.max_seconds` | 300 | Positive finite value up to 86400; per-strategy scheduling deadline. |
 | `source_search.max_retained_source_bytes` | 67108864 | 0–536870912 additional deduplicated candidate-source snapshot bytes. |
+| Serialized/API `source_search.scheduling` | `legacy_priority` | `legacy_priority` or `interleaved_online`; envelope assigns the effective policy by strategy, overriding this input field. |
 | Top-level `source_search_portfolio` | `true` | Boolean; enables the second source strategy when `source_search` is active. |
 | `candidates.max_candidates` | 256 | 1–512, including raw. |
 | `candidates.max_name_groups` | 36 | 0–128. |
@@ -455,9 +478,12 @@ search portfolio uses `include_nonshrinking=true`, `individual_edits=32`, and
 `max_variants=64`, with the configured frontend and pass settings.
 
 The evaluation budget counts the original measurement, newly measured rendered
-payloads and a fresh final measurement when output changes. Cached identical
-payload measurements do not count again. A slot is reserved for final readback;
-with a budget of one, the measured original remains the result. Previously
+payloads and fresh final measurements for changed retained seeds. Cached
+identical payload measurements do not count again. One slot is initially
+reserved for final readback; a second may be reserved before legacy deferred
+work to preserve its priority seed. Reservations and actual fresh calls are
+reported separately. With a budget of one, the measured original remains the
+result. Previously
 measured singles can still be verified after the cost-exploration budget is
 exhausted; an unmeasured composition cannot be accepted by estimating its cost.
 
@@ -465,12 +491,21 @@ Each enabled strategy owns these limits independently. With both default
 strategies, `source_search_budget` reports aggregate ceilings of 4096 payload
 evaluations, 32768 combination attempts and 600 scheduling seconds. The shared
 codec cache can reduce actual compression work without merging the strategies'
-cost contexts. Final codec comparison, in-flight operations, native/codec scratch
-memory and final acceptance remain separate from those aggregate counters.
+cost contexts. A strategy's priority seed shares its budget; it is not an extra
+strategy. `retained_source_seeds` records seed count separately. Fresh source
+seed readbacks count within those evaluation limits. Final envelope codec
+comparison is separate work; in-flight operations and final acceptance can
+extend beyond the scheduling deadlines. Native/codec scratch memory is not
+covered by the retained-cache budgets.
 
 The time limit is checked between bounded operations. It is not a hard deadline
-that interrupts an arbitrary codec callback; final acceptance can finish after
-exploration stops. Compiler/frontend subprocesses have their own finite limits.
+that interrupts an arbitrary codec callback. Online phase quanta are checked
+before starting candidates; their payload styles are still measured only while
+the global exploration budget permits. A candidate started before the deadline
+may finish bounded admission of an already measured improvement afterward.
+This permission does not start another candidate or bypass cancellation,
+retention failure or frontend-capacity stops. Final acceptance can also finish
+after exploration stops. Compiler/frontend subprocesses have their own finite limits.
 Limits apply per process rather than as a hard cgroup reservation for an
 arbitrary process tree. Cancellation aborts the operation and reaps owned child
 processes. Source generation and candidate compile work are currently serial.
@@ -483,9 +518,12 @@ acceptance when proof cannot be retained. The shared evaluator has separate
 bounded codec/header caches and at most `jobs` active codec workers. These are
 separate bounds, not an aggregate process memory guarantee.
 
-The envelope summary's `source_search_portfolio` array embeds each strategy's
-accepted recipe and compact report; `source_search` keeps the first strategy as
-a compatibility view. Each `detail.path`, byte count and SHA-256 identify its
+The envelope summary's `source_search_portfolio` array embeds each retained
+strategy/seed's recipe, `seed_role`, scheduling policy and compact report;
+`source_search` keeps the first entry as a compatibility view. A strategy can
+have both `final-winner` and `legacy-priority-seed` entries sharing one detailed
+report. Read work/evaluation totals once per strategy/report, not once per seed.
+Each `detail.path`, byte count and SHA-256 identify its
 detailed report under the owned output directory. Records include generator notes/assumptions,
 measured styles, native receipts, rejected candidates, accepted derivations and
 budget exhaustion. A frontend AST/preprocessing output cap has a specific bounded
@@ -500,17 +538,35 @@ inability to revalidate an established original context, including output
 exhaustion, is instead a fatal context failure. Version/ABI probe failures do not
 take the optional capacity path. A syntax-check failure remains an error.
 
-Spelling coverage reports generated choices, declared subset counts, attempted
-and incompatible subsets, duplicate sources and unfinished work on each visited
-priority basis. `declared_basis_spaces_complete` aggregates the basis-level
-cost completion flags. The status distinguishes `completed`, `budget-exhausted`
+Coverage identifies each generated family's immutable basis, policy, choices,
+declared subset count and attempted/incompatible/duplicate work. Online entries
+also record `initial_quantum`, the first phase's `initial_progress`, and
+`resumed_after_initial_phases`; the top-level report records `scheduling` and
+`coverage.quantum`. `singles_attempted` includes singleton attempts and legacy
+priority score starts, not completed payload styles or actual codec calls.
+`unvisited_singles` and `unvisited_nontrivial_subsets` count remaining attempts.
+`declared_basis_spaces_complete` aggregates the generated-space cost completion
+flags, including online condition alternatives; those alternatives do not claim
+to cover every flow sequence. The status distinguishes `completed`, `budget-exhausted`
 and `space-incomplete`; its scope excludes undiscovered generator choices and
 the separate flow/codec heuristics. Cached original AST proofs also require
 preprocessing readback. A changed or unreadable original frontend context is a
 fatal `FrontendContextChanged`, not a candidate-only semantic rejection or an
 ordinary output-capacity stop.
 The detailed report's `source_context` records the run-long observation and its
-work separately from `frontend_work` for round-specific prepared analyses.
+work separately from `frontend_work`. The latter covers the tracked
+priority/interleaved-online/systematic and separate condition-generation
+`PreparedSource` instances. Flow reuse of the same prepared basis accumulates
+in that basis's round statistic instead of duplicating it. Temporary admission,
+replay and other frontend calls remain outside that statistic. It is not the total
+Clang workload and cannot by itself establish overall call reduction or speedup.
+The initial `source-context` journal event retains the original preprocessing
+hash and tool observation even when a later operation fails. Final accumulated
+work statistics belong to the successful report; failure records do not claim
+to contain those final totals.
+`observation_contract` separately records the caller-established C/Python
+source/token/location/traceback preconditions. Masked AST or native identity
+does not prove those declarations valid for the actual wrapper.
 
 The final report distinguishes unchanged C byte identity from accepted typed
 derivations through `final.source_unchanged` and `final.source_proof`. An unchanged
@@ -643,6 +699,7 @@ only the recorded accepted recipe and enforce its existing exact checks.
 
 ## Implementation references
 
+- [Current regression results and observation scope](PR16-RESULTS.ko.md)
 - [Ownership, reuse and finite coverage](SEARCH-ARCHITECTURE.ko.md)
 - [Shared Clang session and context observation](../src/c_frontend.rs)
 - [C spelling candidates and binding verification](../src/csource.rs)

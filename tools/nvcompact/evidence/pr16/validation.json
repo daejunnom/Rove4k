@@ -1,0 +1,869 @@
+{
+  "schema": "nvcompact-pr16-validation-v2",
+  "observed_at_utc": "2026-10-21T10:09:15.921303+00:00",
+  "implementation_commit": "04d4a553bf36744b49f414834381ad7e26d8ea12",
+  "implementation_tree": "441ef779321d740ad3b41869b5303cd45529cd80",
+  "base_develop": "9b73693216ea289681a59e93902c52d16a3894a7",
+  "baseline_code_commit": "29dfde6916017b6b78d0cc1ee9f97f5a70f392e2",
+  "af_input_commit": "68db496f478735411e2036231f03e3f35c76f088",
+  "pr12_later_head_review_only": "7a112cbf15f4efa5360b44dc2dbeece9e8ef5d52",
+  "pr12_preserved_later_head_reviews": [
+    "b65a7498f9bc4dd6107e1e8b9a70baec6003e316",
+    "7a112cbf15f4efa5360b44dc2dbeece9e8ef5d52"
+  ],
+  "source_scope": "Tests, release and benchmark used unchanged tracked implementation at this commit; subsequent documentation/evidence commits do not change measured code. Later PR12 source is reviewed but not substituted into the frozen comparison.",
+  "release_binary": {
+    "path": "/workspace/scratch/d70af21bae00/nvcompact-next/final-online/nvcompact",
+    "bytes": 11168496,
+    "sha256": "dd1bb60450590f5a734690a6a45c87933d235e5f69f7d4d5b5a1e03ae858ce66"
+  },
+  "build_and_test_receipts": [
+    {
+      "stage": "full-tests-online-01",
+      "argv": [
+        "cargo",
+        "test",
+        "--workspace",
+        "--locked",
+        "--offline",
+        "--",
+        "--test-threads=1"
+      ],
+      "implementation_commit": "04d4a553bf36744b49f414834381ad7e26d8ea12",
+      "implementation_tree": "441ef779321d740ad3b41869b5303cd45529cd80",
+      "source_sha256": {
+        "tools/nvcompact/src/attempts.rs": "7ac7323cece2a1bf582cd7cc246a6713ea6bd4fe94ec9abc4ce753ca61638b53",
+        "tools/nvcompact/src/c_frontend.rs": "977f9535e53f8cf9d27d581055457b2b2452525e2014ef0c6f7d345a5a1f6f7c",
+        "tools/nvcompact/src/cflow.rs": "4c3d92f19d33290b4dd151f0188a751be25e9619622a8018a8bb033551a23c56",
+        "tools/nvcompact/src/codec.rs": "c36cf131471f2ba9373e69ba4c76622583363b470b906adf3e0eb9f6553ed6d4",
+        "tools/nvcompact/src/csource.rs": "c0ea0d7d828ba475e9317cd3becbde288978348c17307945e6bae57744b79b8b",
+        "tools/nvcompact/src/elf.rs": "3279ffe573368de685b200202ca436508d5fea36441485fde41d08207d8efd97",
+        "tools/nvcompact/src/envelope.rs": "44cd11e41393a4cb32ed83869765866050e50c8afa274098fee51dbe4676dcce",
+        "tools/nvcompact/src/envelope_cost.rs": "8fd8fae4a2c2ebbb9ea767a7d972dbd2b0ac5ff6e67fee5540b4e753460bd4f2",
+        "tools/nvcompact/src/envelope_source.rs": "5273f8865ebbae1ef6278f957545c16f0ef3f97f2abd07ab0e22ef7b47cdd3de",
+        "tools/nvcompact/src/lib.rs": "6e90c7295e16b1e338ba4ac05f695b68ab844c8e29e9cb1e5f2d2390236b3f7c",
+        "tools/nvcompact/src/main.rs": "41da6c4c040ea84dbb2119810c9435dc98151d06f9af505491157b3fcba59eac",
+        "tools/nvcompact/src/native.rs": "56f2713b4504b205721abd20d55bd3599d1448f132f5d6873c52e45379b72638",
+        "tools/nvcompact/src/notation.rs": "6f9422c4a58aa12cbb752cfcbc420fb9c3c3e227d975f12a54e2f84bfb76be23",
+        "tools/nvcompact/src/pack.rs": "b14c1308ad78ddf12e19420190e5fdad170e1ffb95802767af2214eb21ea901a",
+        "tools/nvcompact/src/process.rs": "f2679e62104c2682ae31e64f1f6befa685a2417b24721ef2aab92bb922d227ef",
+        "tools/nvcompact/src/resource.rs": "e7e37bb0ae97e1fcb0e5d3d15778ce48f27b7d54aec4d7a74dc9dc0ca6bc0e96",
+        "tools/nvcompact/src/source_payload.rs": "14eb5987b409943666676a619d7fd10dd2ffc581948f0101ed7f3cba9f1109f7",
+        "tools/nvcompact/src/source_search/plan.rs": "b2406666b9cfcd970218ceb16890130f82be81a1bd4eb3f4e6e3d68a1f2f08e3",
+        "tools/nvcompact/src/source_search/runtime.rs": "05fd42548e5da4bbdfcadb5881a0d789dd796a314d8d34907954371b69621de2",
+        "tools/nvcompact/src/source_search.rs": "a63bbd9037493e8c036ffa43e5929fd304bcd983b6ac451540814d6016fe2ac0",
+        "tools/nvcompact/src/uci.rs": "2836d2898c7d5926785dd65a18007d4f23d47129ab2377f96747ddfd0d4024bd",
+        "tools/nvcompact/tests/packing.rs": "177e29003e1b0b409dabe0c287a2dc78632f8412910ac9285d547a69c284e2bc",
+        "tools/nvcompact/tests/source_search.rs": "047e1a404ede457efe13ce27eff4a0bc84cbf719fe554aa08a51f4280c3aff2c",
+        "tools/nvcompact/examples/cost_reuse.rs": "4b647c86c4f2e96bdbe4b9d8afaf0c5967347d69b1cb6badb1d3575c2ff325c0",
+        "Cargo.lock": "7c428f0f1559e020a16ae71d5a96704f35fb9c0519a614be6becf1de9c8240bd",
+        "Cargo.toml": "71e674c54de487fd0fcd19bdb3f6d510f15866e281417c45c4cea48dac2fe438",
+        "tools/nvcompact/Cargo.toml": "9c60934735fa01cde7bfd16bef1a00411fbe1df6c59b2e78ffae37dcf6a1207f"
+      },
+      "source_unchanged": true,
+      "seconds": 331.83669543266296,
+      "environment": {
+        "CARGO_HOME": "/workspace/scratch/d70af21bae00/nvcompact-next/cargo-home",
+        "CARGO_TARGET_DIR": "/workspace/scratch/d70af21bae00/nvcompact-next/target",
+        "CARGO_BUILD_JOBS": "2",
+        "NVCOMPACT_CLANG": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "LD_LIBRARY_PATH": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/x86_64-linux-gnu"
+      },
+      "log": {
+        "path": "/workspace/scratch/d70af21bae00/nvcompact-next/full-tests-online-01.log",
+        "bytes": 9043,
+        "sha256": "025ca828ee2aa8c6ab1d45764d6b42a595f0cd72f69e2cd82cc028e3dfa4b2ca"
+      },
+      "returncode": 0
+    },
+    {
+      "stage": "release-online-01",
+      "argv": [
+        "cargo",
+        "build",
+        "--release",
+        "--locked",
+        "--offline",
+        "-p",
+        "nvcompact",
+        "--bin",
+        "nvcompact",
+        "--example",
+        "cost_reuse"
+      ],
+      "implementation_commit": "04d4a553bf36744b49f414834381ad7e26d8ea12",
+      "implementation_tree": "441ef779321d740ad3b41869b5303cd45529cd80",
+      "source_sha256": {
+        "tools/nvcompact/src/attempts.rs": "7ac7323cece2a1bf582cd7cc246a6713ea6bd4fe94ec9abc4ce753ca61638b53",
+        "tools/nvcompact/src/c_frontend.rs": "977f9535e53f8cf9d27d581055457b2b2452525e2014ef0c6f7d345a5a1f6f7c",
+        "tools/nvcompact/src/cflow.rs": "4c3d92f19d33290b4dd151f0188a751be25e9619622a8018a8bb033551a23c56",
+        "tools/nvcompact/src/codec.rs": "c36cf131471f2ba9373e69ba4c76622583363b470b906adf3e0eb9f6553ed6d4",
+        "tools/nvcompact/src/csource.rs": "c0ea0d7d828ba475e9317cd3becbde288978348c17307945e6bae57744b79b8b",
+        "tools/nvcompact/src/elf.rs": "3279ffe573368de685b200202ca436508d5fea36441485fde41d08207d8efd97",
+        "tools/nvcompact/src/envelope.rs": "44cd11e41393a4cb32ed83869765866050e50c8afa274098fee51dbe4676dcce",
+        "tools/nvcompact/src/envelope_cost.rs": "8fd8fae4a2c2ebbb9ea767a7d972dbd2b0ac5ff6e67fee5540b4e753460bd4f2",
+        "tools/nvcompact/src/envelope_source.rs": "5273f8865ebbae1ef6278f957545c16f0ef3f97f2abd07ab0e22ef7b47cdd3de",
+        "tools/nvcompact/src/lib.rs": "6e90c7295e16b1e338ba4ac05f695b68ab844c8e29e9cb1e5f2d2390236b3f7c",
+        "tools/nvcompact/src/main.rs": "41da6c4c040ea84dbb2119810c9435dc98151d06f9af505491157b3fcba59eac",
+        "tools/nvcompact/src/native.rs": "56f2713b4504b205721abd20d55bd3599d1448f132f5d6873c52e45379b72638",
+        "tools/nvcompact/src/notation.rs": "6f9422c4a58aa12cbb752cfcbc420fb9c3c3e227d975f12a54e2f84bfb76be23",
+        "tools/nvcompact/src/pack.rs": "b14c1308ad78ddf12e19420190e5fdad170e1ffb95802767af2214eb21ea901a",
+        "tools/nvcompact/src/process.rs": "f2679e62104c2682ae31e64f1f6befa685a2417b24721ef2aab92bb922d227ef",
+        "tools/nvcompact/src/resource.rs": "e7e37bb0ae97e1fcb0e5d3d15778ce48f27b7d54aec4d7a74dc9dc0ca6bc0e96",
+        "tools/nvcompact/src/source_payload.rs": "14eb5987b409943666676a619d7fd10dd2ffc581948f0101ed7f3cba9f1109f7",
+        "tools/nvcompact/src/source_search/plan.rs": "b2406666b9cfcd970218ceb16890130f82be81a1bd4eb3f4e6e3d68a1f2f08e3",
+        "tools/nvcompact/src/source_search/runtime.rs": "05fd42548e5da4bbdfcadb5881a0d789dd796a314d8d34907954371b69621de2",
+        "tools/nvcompact/src/source_search.rs": "a63bbd9037493e8c036ffa43e5929fd304bcd983b6ac451540814d6016fe2ac0",
+        "tools/nvcompact/src/uci.rs": "2836d2898c7d5926785dd65a18007d4f23d47129ab2377f96747ddfd0d4024bd",
+        "tools/nvcompact/tests/packing.rs": "177e29003e1b0b409dabe0c287a2dc78632f8412910ac9285d547a69c284e2bc",
+        "tools/nvcompact/tests/source_search.rs": "047e1a404ede457efe13ce27eff4a0bc84cbf719fe554aa08a51f4280c3aff2c",
+        "tools/nvcompact/examples/cost_reuse.rs": "4b647c86c4f2e96bdbe4b9d8afaf0c5967347d69b1cb6badb1d3575c2ff325c0",
+        "Cargo.lock": "7c428f0f1559e020a16ae71d5a96704f35fb9c0519a614be6becf1de9c8240bd",
+        "Cargo.toml": "71e674c54de487fd0fcd19bdb3f6d510f15866e281417c45c4cea48dac2fe438",
+        "tools/nvcompact/Cargo.toml": "9c60934735fa01cde7bfd16bef1a00411fbe1df6c59b2e78ffae37dcf6a1207f"
+      },
+      "source_unchanged": true,
+      "seconds": 60.8538556098938,
+      "environment": {
+        "CARGO_HOME": "/workspace/scratch/d70af21bae00/nvcompact-next/cargo-home",
+        "CARGO_TARGET_DIR": "/workspace/scratch/d70af21bae00/nvcompact-next/target",
+        "CARGO_BUILD_JOBS": "2",
+        "NVCOMPACT_CLANG": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "LD_LIBRARY_PATH": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/x86_64-linux-gnu"
+      },
+      "log": {
+        "path": "/workspace/scratch/d70af21bae00/nvcompact-next/release-online-01.log",
+        "bytes": 165,
+        "sha256": "d03fbd269ccaa21474693ad7ff48b77e2c8be103073e75b27ebd9df78d0d06cc"
+      },
+      "returncode": 0,
+      "binaries": [
+        {
+          "built": {
+            "path": "/workspace/scratch/d70af21bae00/nvcompact-next/target/release/nvcompact",
+            "bytes": 11168496,
+            "sha256": "dd1bb60450590f5a734690a6a45c87933d235e5f69f7d4d5b5a1e03ae858ce66"
+          },
+          "frozen": {
+            "path": "/workspace/scratch/d70af21bae00/nvcompact-next/final-online/nvcompact",
+            "bytes": 11168496,
+            "sha256": "dd1bb60450590f5a734690a6a45c87933d235e5f69f7d4d5b5a1e03ae858ce66"
+          }
+        },
+        {
+          "built": {
+            "path": "/workspace/scratch/d70af21bae00/nvcompact-next/target/release/examples/cost_reuse",
+            "bytes": 2797712,
+            "sha256": "773645b8b71ce1896b90b068e8b3b51155a0a83317cd8b4fdb2b7e0b965f673c"
+          },
+          "frozen": {
+            "path": "/workspace/scratch/d70af21bae00/nvcompact-next/final-online/cost_reuse",
+            "bytes": 2797712,
+            "sha256": "773645b8b71ce1896b90b068e8b3b51155a0a83317cd8b4fdb2b7e0b965f673c"
+          }
+        }
+      ]
+    },
+    {
+      "stage": "cost-reuse-online-01",
+      "argv": [
+        "/workspace/scratch/d70af21bae00/nvcompact-next/final-online/cost_reuse"
+      ],
+      "implementation_commit": "04d4a553bf36744b49f414834381ad7e26d8ea12",
+      "implementation_tree": "441ef779321d740ad3b41869b5303cd45529cd80",
+      "source_sha256": {
+        "tools/nvcompact/src/attempts.rs": "7ac7323cece2a1bf582cd7cc246a6713ea6bd4fe94ec9abc4ce753ca61638b53",
+        "tools/nvcompact/src/c_frontend.rs": "977f9535e53f8cf9d27d581055457b2b2452525e2014ef0c6f7d345a5a1f6f7c",
+        "tools/nvcompact/src/cflow.rs": "4c3d92f19d33290b4dd151f0188a751be25e9619622a8018a8bb033551a23c56",
+        "tools/nvcompact/src/codec.rs": "c36cf131471f2ba9373e69ba4c76622583363b470b906adf3e0eb9f6553ed6d4",
+        "tools/nvcompact/src/csource.rs": "c0ea0d7d828ba475e9317cd3becbde288978348c17307945e6bae57744b79b8b",
+        "tools/nvcompact/src/elf.rs": "3279ffe573368de685b200202ca436508d5fea36441485fde41d08207d8efd97",
+        "tools/nvcompact/src/envelope.rs": "44cd11e41393a4cb32ed83869765866050e50c8afa274098fee51dbe4676dcce",
+        "tools/nvcompact/src/envelope_cost.rs": "8fd8fae4a2c2ebbb9ea767a7d972dbd2b0ac5ff6e67fee5540b4e753460bd4f2",
+        "tools/nvcompact/src/envelope_source.rs": "5273f8865ebbae1ef6278f957545c16f0ef3f97f2abd07ab0e22ef7b47cdd3de",
+        "tools/nvcompact/src/lib.rs": "6e90c7295e16b1e338ba4ac05f695b68ab844c8e29e9cb1e5f2d2390236b3f7c",
+        "tools/nvcompact/src/main.rs": "41da6c4c040ea84dbb2119810c9435dc98151d06f9af505491157b3fcba59eac",
+        "tools/nvcompact/src/native.rs": "56f2713b4504b205721abd20d55bd3599d1448f132f5d6873c52e45379b72638",
+        "tools/nvcompact/src/notation.rs": "6f9422c4a58aa12cbb752cfcbc420fb9c3c3e227d975f12a54e2f84bfb76be23",
+        "tools/nvcompact/src/pack.rs": "b14c1308ad78ddf12e19420190e5fdad170e1ffb95802767af2214eb21ea901a",
+        "tools/nvcompact/src/process.rs": "f2679e62104c2682ae31e64f1f6befa685a2417b24721ef2aab92bb922d227ef",
+        "tools/nvcompact/src/resource.rs": "e7e37bb0ae97e1fcb0e5d3d15778ce48f27b7d54aec4d7a74dc9dc0ca6bc0e96",
+        "tools/nvcompact/src/source_payload.rs": "14eb5987b409943666676a619d7fd10dd2ffc581948f0101ed7f3cba9f1109f7",
+        "tools/nvcompact/src/source_search/plan.rs": "b2406666b9cfcd970218ceb16890130f82be81a1bd4eb3f4e6e3d68a1f2f08e3",
+        "tools/nvcompact/src/source_search/runtime.rs": "05fd42548e5da4bbdfcadb5881a0d789dd796a314d8d34907954371b69621de2",
+        "tools/nvcompact/src/source_search.rs": "a63bbd9037493e8c036ffa43e5929fd304bcd983b6ac451540814d6016fe2ac0",
+        "tools/nvcompact/src/uci.rs": "2836d2898c7d5926785dd65a18007d4f23d47129ab2377f96747ddfd0d4024bd",
+        "tools/nvcompact/tests/packing.rs": "177e29003e1b0b409dabe0c287a2dc78632f8412910ac9285d547a69c284e2bc",
+        "tools/nvcompact/tests/source_search.rs": "047e1a404ede457efe13ce27eff4a0bc84cbf719fe554aa08a51f4280c3aff2c",
+        "tools/nvcompact/examples/cost_reuse.rs": "4b647c86c4f2e96bdbe4b9d8afaf0c5967347d69b1cb6badb1d3575c2ff325c0",
+        "Cargo.lock": "7c428f0f1559e020a16ae71d5a96704f35fb9c0519a614be6becf1de9c8240bd",
+        "Cargo.toml": "71e674c54de487fd0fcd19bdb3f6d510f15866e281417c45c4cea48dac2fe438",
+        "tools/nvcompact/Cargo.toml": "9c60934735fa01cde7bfd16bef1a00411fbe1df6c59b2e78ffae37dcf6a1207f"
+      },
+      "source_unchanged": true,
+      "seconds": 0.36894965171813965,
+      "environment": {
+        "CARGO_HOME": "/workspace/scratch/d70af21bae00/nvcompact-next/cargo-home",
+        "CARGO_TARGET_DIR": "/workspace/scratch/d70af21bae00/nvcompact-next/target",
+        "CARGO_BUILD_JOBS": "2",
+        "NVCOMPACT_CLANG": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "LD_LIBRARY_PATH": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/x86_64-linux-gnu"
+      },
+      "log": {
+        "path": "/workspace/scratch/d70af21bae00/nvcompact-next/cost-reuse-online-01.log",
+        "bytes": 16542,
+        "sha256": "ba923b0f3fd61baa5fe8bbf673e5763b09e121692f28175856fed354a7533bbf"
+      },
+      "returncode": 0
+    }
+  ],
+  "local_rust_suite": {
+    "result": "passed",
+    "passed": 87,
+    "failed": 0,
+    "ignored": 0,
+    "filtered_out": 0,
+    "targets": [
+      {
+        "target": "library",
+        "status": "ok",
+        "passed": 67,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered_out": 0,
+        "seconds": 105.76
+      },
+      {
+        "target": "binary",
+        "status": "ok",
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered_out": 0,
+        "seconds": 0.0
+      },
+      {
+        "target": "packing integration",
+        "status": "ok",
+        "passed": 10,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered_out": 0,
+        "seconds": 21.68
+      },
+      {
+        "target": "source-search integration",
+        "status": "ok",
+        "passed": 10,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered_out": 0,
+        "seconds": 196.77
+      },
+      {
+        "target": "documentation",
+        "status": "ok",
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered_out": 0,
+        "seconds": 0.0
+      }
+    ],
+    "asserted_boundaries": [
+      "single-candidate cost losses do not prune compatible source combinations",
+      "fresh cost and recipe verification bypass measurement caches",
+      "fixed-codec and full-portfolio evidence remain different cost contexts",
+      "portfolio-only and legacy source recipe lookups both replay",
+      "canonical aliases point to actual final payload candidates",
+      "initial frontend output capacity does not become an invalidated cached proof",
+      "spelling, flow, unchanged fallback, final fresh success/failure and baseline header changes fail the run",
+      "typed context errors survive failure classification and post-operation checks",
+      "space-incomplete evidence admits only already-verified final incumbents",
+      "online single/subset alternation admits a nonmonotone pair before singleton-batch starvation",
+      "family scheduling quantum leaves starts for typed condition candidates",
+      "same-basis sibling winners restore the real basis prefix rather than a fictitious edit chain",
+      "subset cap does not terminate remaining singleton lanes",
+      "strong cancellation/retention/frontend stops are not hidden by scheduling time exhaustion",
+      "legacy priority seed has independent fresh proof within the same evaluation reservation",
+      "seed reports do not multiply strategy-level aggregate budgets",
+      "source/token/location/traceback non-observation remains a caller-established precondition, not a masked-AST/native proof"
+    ]
+  },
+  "cost_reuse_benchmark": {
+    "scope": "same fixed recipe domain and identical repeated inert inputs; not whole-campaign speed",
+    "jobs": 1,
+    "unique_payloads": 8,
+    "repeats_per_payload": 16,
+    "trials_per_policy": 4,
+    "measurement_median_seconds": {
+      "cache_disabled": 0.0683734825,
+      "cache_enabled": 0.008916076
+    },
+    "median_ratio_disabled_to_enabled": 7.6685621006370965,
+    "measurement_timer": "objective creation, codec/header work, restoration, candidate records, artifact construction and hashing; no untimed warmup",
+    "fresh_timer": "separate; all eight unique payloads evaluated under the whole fixed recipe domain without retained caches",
+    "order": "alternating; each policy ran first in two of four paired trials",
+    "limits": "Local inert-input microbenchmark only. Search coverage, full-engine campaign speed and memory savings were not held constant or inferred.",
+    "receipt": {
+      "path": "/workspace/scratch/d70af21bae00/repos/Rove4k-nvsearch/tools/nvcompact/evidence/pr16/cost-reuse.json",
+      "bytes": 16542,
+      "sha256": "ba923b0f3fd61baa5fe8bbf673e5763b09e121692f28175856fed354a7533bbf"
+    },
+    "execution_receipt": {
+      "stage": "cost-reuse-online-01",
+      "argv": [
+        "/workspace/scratch/d70af21bae00/nvcompact-next/final-online/cost_reuse"
+      ],
+      "implementation_commit": "04d4a553bf36744b49f414834381ad7e26d8ea12",
+      "implementation_tree": "441ef779321d740ad3b41869b5303cd45529cd80",
+      "source_sha256": {
+        "tools/nvcompact/src/attempts.rs": "7ac7323cece2a1bf582cd7cc246a6713ea6bd4fe94ec9abc4ce753ca61638b53",
+        "tools/nvcompact/src/c_frontend.rs": "977f9535e53f8cf9d27d581055457b2b2452525e2014ef0c6f7d345a5a1f6f7c",
+        "tools/nvcompact/src/cflow.rs": "4c3d92f19d33290b4dd151f0188a751be25e9619622a8018a8bb033551a23c56",
+        "tools/nvcompact/src/codec.rs": "c36cf131471f2ba9373e69ba4c76622583363b470b906adf3e0eb9f6553ed6d4",
+        "tools/nvcompact/src/csource.rs": "c0ea0d7d828ba475e9317cd3becbde288978348c17307945e6bae57744b79b8b",
+        "tools/nvcompact/src/elf.rs": "3279ffe573368de685b200202ca436508d5fea36441485fde41d08207d8efd97",
+        "tools/nvcompact/src/envelope.rs": "44cd11e41393a4cb32ed83869765866050e50c8afa274098fee51dbe4676dcce",
+        "tools/nvcompact/src/envelope_cost.rs": "8fd8fae4a2c2ebbb9ea767a7d972dbd2b0ac5ff6e67fee5540b4e753460bd4f2",
+        "tools/nvcompact/src/envelope_source.rs": "5273f8865ebbae1ef6278f957545c16f0ef3f97f2abd07ab0e22ef7b47cdd3de",
+        "tools/nvcompact/src/lib.rs": "6e90c7295e16b1e338ba4ac05f695b68ab844c8e29e9cb1e5f2d2390236b3f7c",
+        "tools/nvcompact/src/main.rs": "41da6c4c040ea84dbb2119810c9435dc98151d06f9af505491157b3fcba59eac",
+        "tools/nvcompact/src/native.rs": "56f2713b4504b205721abd20d55bd3599d1448f132f5d6873c52e45379b72638",
+        "tools/nvcompact/src/notation.rs": "6f9422c4a58aa12cbb752cfcbc420fb9c3c3e227d975f12a54e2f84bfb76be23",
+        "tools/nvcompact/src/pack.rs": "b14c1308ad78ddf12e19420190e5fdad170e1ffb95802767af2214eb21ea901a",
+        "tools/nvcompact/src/process.rs": "f2679e62104c2682ae31e64f1f6befa685a2417b24721ef2aab92bb922d227ef",
+        "tools/nvcompact/src/resource.rs": "e7e37bb0ae97e1fcb0e5d3d15778ce48f27b7d54aec4d7a74dc9dc0ca6bc0e96",
+        "tools/nvcompact/src/source_payload.rs": "14eb5987b409943666676a619d7fd10dd2ffc581948f0101ed7f3cba9f1109f7",
+        "tools/nvcompact/src/source_search/plan.rs": "b2406666b9cfcd970218ceb16890130f82be81a1bd4eb3f4e6e3d68a1f2f08e3",
+        "tools/nvcompact/src/source_search/runtime.rs": "05fd42548e5da4bbdfcadb5881a0d789dd796a314d8d34907954371b69621de2",
+        "tools/nvcompact/src/source_search.rs": "a63bbd9037493e8c036ffa43e5929fd304bcd983b6ac451540814d6016fe2ac0",
+        "tools/nvcompact/src/uci.rs": "2836d2898c7d5926785dd65a18007d4f23d47129ab2377f96747ddfd0d4024bd",
+        "tools/nvcompact/tests/packing.rs": "177e29003e1b0b409dabe0c287a2dc78632f8412910ac9285d547a69c284e2bc",
+        "tools/nvcompact/tests/source_search.rs": "047e1a404ede457efe13ce27eff4a0bc84cbf719fe554aa08a51f4280c3aff2c",
+        "tools/nvcompact/examples/cost_reuse.rs": "4b647c86c4f2e96bdbe4b9d8afaf0c5967347d69b1cb6badb1d3575c2ff325c0",
+        "Cargo.lock": "7c428f0f1559e020a16ae71d5a96704f35fb9c0519a614be6becf1de9c8240bd",
+        "Cargo.toml": "71e674c54de487fd0fcd19bdb3f6d510f15866e281417c45c4cea48dac2fe438",
+        "tools/nvcompact/Cargo.toml": "9c60934735fa01cde7bfd16bef1a00411fbe1df6c59b2e78ffae37dcf6a1207f"
+      },
+      "source_unchanged": true,
+      "seconds": 0.36894965171813965,
+      "environment": {
+        "CARGO_HOME": "/workspace/scratch/d70af21bae00/nvcompact-next/cargo-home",
+        "CARGO_TARGET_DIR": "/workspace/scratch/d70af21bae00/nvcompact-next/target",
+        "CARGO_BUILD_JOBS": "2",
+        "NVCOMPACT_CLANG": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "LD_LIBRARY_PATH": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/x86_64-linux-gnu"
+      },
+      "log": {
+        "path": "/workspace/scratch/d70af21bae00/nvcompact-next/cost-reuse-online-01.log",
+        "bytes": 16542,
+        "sha256": "ba923b0f3fd61baa5fe8bbf673e5763b09e121692f28175856fed354a7533bbf"
+      },
+      "returncode": 0
+    }
+  },
+  "same_input_comparisons": {
+    "receipt": {
+      "path": "/workspace/scratch/d70af21bae00/repos/Rove4k-nvsearch/tools/nvcompact/evidence/pr16/comparison.json",
+      "bytes": 1489459,
+      "sha256": "b895fcd5c4be5e8bb3976d1a047bedcb2c48e8fad0b82e224e04758f7694f91e"
+    },
+    "original_matrix": {
+      "baseline": 26,
+      "compared": 26,
+      "size_regressions": 0,
+      "identical_winners": 26,
+      "independent_replay_passes": 26,
+      "preserved_earlier_comparisons": 44
+    },
+    "bootstrap_byte_preserving_matrix": {
+      "baseline": 7,
+      "compared": 7,
+      "size_regressions": 0,
+      "identical_winners": 7,
+      "bootstrap_payload_identity_passes": 7,
+      "independent_replay_passes": 7
+    },
+    "qualification": "Seven frozen A/B/C/E/F Python profiles declared compile-input-only and outer no-token-observation; unrestricted traceback/source/location non-observation was not established. Their original matrix is conditional regression measurement, not whole-bootstrap semantic or submission acceptance. Per-winner static positions are reported separately when audited."
+  },
+  "actual_campaign_reuse_observations": {
+    "source": {
+      "unique_strategy_reports": 16,
+      "retained_cost_requests": 18411,
+      "cost_memo_hits": 304,
+      "nonreused_retained_cost_requests": 18107,
+      "reported_prepared_source_ast_parses": 327,
+      "online_subset_attempts": 524
+    },
+    "source_scope": "Unique strategy/detail reports only; retained cost events exclude original and final fresh events. AST counts cover recorded PreparedSource sessions, not all Clang calls or a measured baseline reduction.",
+    "objective_rows_with_statistics": 17,
+    "objective_row_names": [
+      "4ku",
+      "M4sseur",
+      "STRO4K",
+      "c4ke",
+      "ice4",
+      "molly",
+      "moonfish",
+      "pygone",
+      "sunfish",
+      "we4k",
+      "af-a",
+      "af-b",
+      "af-c",
+      "af-e",
+      "af-f-material",
+      "af-f-move",
+      "af-f"
+    ],
+    "objective_work": {
+      "measurements": 1673361,
+      "codec_executions": 1672989,
+      "codec_cache_hits": 372,
+      "codec_failures": 0,
+      "fresh_codec_executions": 2006,
+      "header_derivations": 95,
+      "header_cache_hits": 1673283
+    },
+    "objective_codec_hit_fraction": 0.00022230708137694138,
+    "scope": "Seventeen rows report codec objective statistics; five other envelope rows take direct ELF paths. Source payload requests and codec work are different units. Low actual codec hit ratio does not support extrapolating the repeated-input microbenchmark to whole-campaign speed."
+  },
+  "github_ci": {
+    "commit": "04d4a553bf36744b49f414834381ad7e26d8ea12",
+    "runs": [
+      {
+        "id": 39579034164,
+        "name": "Repository lifecycle",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 127,
+        "jobs_url": "https://api.github.com/repos/daejunnom/Rove4k/actions/runs/39579034164/jobs",
+        "logs_url": "https://api.github.com/repos/daejunnom/Rove4k/actions/runs/39579034164/logs",
+        "workflow_id": 389294592
+      },
+      {
+        "id": 39579034167,
+        "name": "NVCompact",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 43,
+        "jobs_url": "https://api.github.com/repos/daejunnom/Rove4k/actions/runs/39579034167/jobs",
+        "logs_url": "https://api.github.com/repos/daejunnom/Rove4k/actions/runs/39579034167/logs",
+        "workflow_id": 389247941
+      }
+    ],
+    "jobs": [
+      {
+        "id": 119151734433,
+        "name": "rust-and-npm (24)",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 39579034167,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Configure external build directories",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Install the release npm CLI",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Prepare native build dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Install workspace launcher",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Verify launcher ownership and argv",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Verify complete-file regression reporting",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Verify release boundaries without publishing",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Verify GitHub Packages mirror boundaries without publishing",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Test Rust implementation and owned fixtures",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Build native internal tool",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          },
+          {
+            "name": "Prepare complete local npm tarball",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14
+          },
+          {
+            "name": "Verify actual offline-installed tarball",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15
+          },
+          {
+            "name": "Post Run actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 29
+          },
+          {
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 30
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 31
+          }
+        ]
+      },
+      {
+        "id": 119151734694,
+        "name": "rust-and-npm (22)",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 39579034167,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Configure external build directories",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Install the release npm CLI",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Prepare native build dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Install workspace launcher",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Verify launcher ownership and argv",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Verify complete-file regression reporting",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Verify release boundaries without publishing",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Verify GitHub Packages mirror boundaries without publishing",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Test Rust implementation and owned fixtures",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Build native internal tool",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          },
+          {
+            "name": "Prepare complete local npm tarball",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14
+          },
+          {
+            "name": "Verify actual offline-installed tarball",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15
+          },
+          {
+            "name": "Post Run actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 29
+          },
+          {
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 30
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 31
+          }
+        ]
+      }
+    ],
+    "later_docs_commit": "Subsequent head CI is separately observed in the PR. These actual code-commit run results are not moved to another commit."
+  },
+  "environment": {
+    "rust": {
+      "argv": [
+        "/workspace/scratch/d70af21bae00/nvcompact-next/toolchain/rust/bin/rustc",
+        "--version"
+      ],
+      "output": "rustc 1.99.1 (58cf8f9c3 2026-10-13)"
+    },
+    "gcc": {
+      "argv": [
+        "cc",
+        "--version"
+      ],
+      "output": "cc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+    },
+    "ld": {
+      "argv": [
+        "ld",
+        "--version"
+      ],
+      "output": "GNU ld (GNU Binutils for Ubuntu) 2.42\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis program is free software; you may redistribute it under the terms of\nthe GNU General Public License version 3 or (at your option) a later version.\nThis program has absolutely no warranty."
+    },
+    "memory_limit_bytes": 8589934592,
+    "cpu_max": "800000 100000",
+    "cargo_build_jobs": 2,
+    "codec_jobs_per_campaign": 2,
+    "maximum_simultaneous_comparison_campaigns": 4,
+    "resource_scope": "Observed cgroup limits, not resource reservation or TCEC-server acceptance.",
+    "maximum_codec_workers_across_comparison_campaigns": 8,
+    "sequential_validation": "Full Rust suite, release build and inert cost benchmark completed before final comparison campaigns started."
+  },
+  "review": {
+    "scope": "Separate agent reviews of codec/source integration, search coverage consumers, frontend ownership and failure boundaries; not human PR approval.",
+    "corrected_findings": [
+      "strategy winners identical to another payload now retain canonical aliases",
+      "two strategies now expose aggregate scheduling/evaluation/combination limits",
+      "coverage defaults and space-incomplete evidence consumers agree",
+      "cached preprocessing context is retained across changing source bases",
+      "failed parse/compile/fresh work does not bypass context checks",
+      "native receipts are recorded before post-operation context checks",
+      "typed context failures retain their original error chain",
+      "redundant admission tool checks no longer bypass the owning context guard",
+      "initial preprocessing observation is retained as a source-context journal event even for failed runs",
+      "full-portfolio batch scoring consumed the scheduling budget before admission/subsets; online shared exploration now interleaves both lanes",
+      "early families could consume all starts; bounded initial windows preserve resumable work for later phases",
+      "new fixed-codec winner could discard an older source seed that wins another final codec; both pass the common finalizer",
+      "shared per-strategy report is deduplicated by strategy/detail identity when aggregating retained seeds",
+      "Python wrapper observational contracts were not independently established by native or masked-AST identity; conditional and bootstrap-byte-preserving matrices remain separate"
+    ],
+    "limits": [
+      "C compiler identity is checked by native comparison and final pin checks; SourceContext owns Clang and preprocessing observations.",
+      "Observation guards are not hermetic snapshots or protection against arbitrary concurrent filesystem changes."
+    ]
+  },
+  "preserved_prior_validation": {
+    "path": "/workspace/scratch/d70af21bae00/repos/Rove4k-nvsearch/tools/nvcompact/evidence/pr16/iterations/32fa6de-validation.json",
+    "bytes": 11154,
+    "sha256": "1555ea1d02c8813e9e6652ea72f8b2d199717ec13887603b599f0263760d8a43"
+  },
+  "preserved_local_attempts": [
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/c-frontend-01.log",
+      "bytes": 506,
+      "sha256": "4a4ede9ee9b56778f6bb6512dc0d512a260dbbe4d6e9c6f888b871a946a8ca7f"
+    },
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/cargo-fetch-02.log",
+      "bytes": 4033,
+      "sha256": "14adc9fb4523d83542ba0a191645e7ebc6149fbf1c27f2cecc1e47b23a4e9977"
+    },
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/cflow-01.log",
+      "bytes": 1155,
+      "sha256": "26bcd32026a90168b2b67c0765c32c84ed38848966ef873bbded3298f59023e3"
+    },
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/csource-01.log",
+      "bytes": 4454,
+      "sha256": "b60a3ebee3ab193685e5054d9560ad22f3b8e36b9a1249911de25cff1d3c5d52"
+    },
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/csource-03.log",
+      "bytes": 7822,
+      "sha256": "9d8797f9868dc547e50b69a500edae7485c363dd878c987b891d29ae1c3d014b"
+    },
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/csource-04.log",
+      "bytes": 3791,
+      "sha256": "e7881c6af70fbb3fae403042ece45814d9a6d2e6af32d6ab86156661310c3b61"
+    },
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/csource-05.log",
+      "bytes": 33517,
+      "sha256": "f5355df6e629f636c30aa9feef0b68c4a7fd0ecc49e41f927f6ad0472ab16043"
+    },
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/csource-06.log",
+      "bytes": 1108,
+      "sha256": "35a8b548566346a4858e4682fd12d6488c795100492a1b780ee748358f7041d8"
+    },
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/csource-07.log",
+      "bytes": 1106,
+      "sha256": "25add512a966e84c39a05cd015616134f4fd8157af4f50de2369c2316cc77167"
+    },
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/libclang-cpp20-repair.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/source-context-01.log",
+      "bytes": 813,
+      "sha256": "4b77b4e3eb1c05d4bc67ec9fafee40f990681a07e5c955d2c22f2d4f0debafe3"
+    },
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/full-tests-01.log",
+      "bytes": 7748,
+      "sha256": "15d0a84beb224b2e05a536ed24c18c7f678206dec4026d9f3d431476c47fa880"
+    },
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/release-final-01.log",
+      "bytes": 165,
+      "sha256": "d229785d71cc6abca12ceb33fba34a3eac0623c4b916aad9b34a1f1afd8570f1"
+    },
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/source-context-integration-01.log",
+      "bytes": 1221,
+      "sha256": "1389f77956859254e011c9e8cde288ce695e80228569f8c9477332099cfe302b"
+    },
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/source-context-integration-02.log",
+      "bytes": 1221,
+      "sha256": "59f65d69f15e54152cbebbdbf9da6d38f5febf13718a4ac810ce456451c9accc"
+    },
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/online-scheduler-tool-check.json",
+      "bytes": 533,
+      "sha256": "c6677bd8b8cbc1d964a971577f2053c76d0819408c9e799900685e7b05cd9f70"
+    },
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/online-scheduler-test-results.json",
+      "bytes": 1415,
+      "sha256": "f423819ebb45b7bd06880d29b6fe2be4259badc2cd38eb00623daeca8c19c128"
+    },
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/online-scheduler-final-focused.json",
+      "bytes": 909,
+      "sha256": "85012ac2476ccafc5311d25f71b5f62b7a4242b2942648b9a353cbbf34c5aa81"
+    },
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/online-scheduler-final-focused.log",
+      "bytes": 1627,
+      "sha256": "a30bf4fa9aa0170a1d0ffd6a7527e042c9fd66bfa049b79ade1780ac9aa2ff3b"
+    }
+  ],
+  "failure_scope": "Compiler/bootstrap recovery failures, historical native pin mismatches, cancelled search and cross-binary replay refusals remain in comparison.json; they are not relabelled as successful original runs.",
+  "execution_scope": {
+    "chess_engines": "not executed",
+    "python_bootstraps": "not executed",
+    "custom_elf_loaders": "not executed",
+    "uci_or_strength": "not measured",
+    "compiler_and_decoder": "executed with declared finite limits",
+    "owned_arithmetic_oracles": "executed only by the declared small owned fixtures",
+    "npm_publish": "not performed",
+    "pr_merge": "not performed",
+    "python_static_winner_audit": "AST/code metadata may be parsed/compiled without executing bootstrap code; equality is a bounded observation, not all-path non-observation proof"
+  }
+}

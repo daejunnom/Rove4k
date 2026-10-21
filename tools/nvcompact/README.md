@@ -176,24 +176,38 @@ inspected Python bytes embedding when present. Equal-length or longer source
 spellings can win. Accepted changes require binding/type checks and identical
 complete native output and compiler diagnostics under the declared recipe.
 `replay` reconstructs the accepted derivation without repeating the search.
+The caller must establish the declared source/wrapper observation contract;
+masked AST and native identity do not establish traceback/location non-observation.
 
-The search runs the existing improving-incumbent rounds first, then lazily visits
-subsets of the generated spelling choices on those visited source bases. Losing
-or tied singles remain eligible for a combined gain. `max_combinations` defaults
-to 16384 per strategy, with a supported maximum of 1048576; generation, time,
-measurement and retention bounds remain separate. Reports distinguish a fully
-visited declared spelling space from budget stops or an unscheduled space.
-This does not enumerate every equivalent program or every condition-rewrite
-sequence. Preserving earlier priority and candidates is not a guarantee of the
-same minimum under every wall-clock limit or execution environment.
+The submitted-codec strategy keeps the existing improving-incumbent rounds
+before deferred spelling subsets. The full-codec strategy instead interleaves
+singletons and subsets, checks a measured improvement immediately, and gives
+initial round/family phases bounded shares before resuming their saved queues.
+It does not wait for every singleton and payload style to be scored before
+admission. A started candidate may finish bounded proof of its measured
+improvement after the scheduling deadline; cancellation and retention/frontend
+stops remain binding, and new candidates cannot start after the deadline.
+
+Losing or tied singles remain eligible for a combined gain. `max_combinations`
+defaults to 16384 per strategy, with a supported maximum of 1048576; generation,
+time, measurement and retention bounds remain separate. Reports distinguish
+declared generated-space completion from budget stops and unfinished work.
+Condition recipes and codec refinements retain their bounded heuristic scope;
+the search does not enumerate every equivalent program or rewrite sequence.
+Preserving earlier priority and candidates is not a guarantee of the same
+minimum under every wall-clock limit or execution environment.
 
 When `source_search` is enabled, the envelope defaults to two source strategies:
 the submitted codec first, then the complete current codec policy as an
-objective. Both winners enter the final comparison. Set the manifest's top-level
+objective. Both winners enter the final comparison, together with a distinct
+legacy priority seed when deferred work changes that winner. The seed shares
+its strategy's budget and crosses the same fresh final checks; it is not a new
+strategy. Set the manifest's top-level
 `"source_search_portfolio": false` to exclude the second strategy explicitly.
 Each strategy owns its budget and attempt archive; `source_search_budget` reports
-the aggregate limits. With defaults, two strategies permit up to 4096 complete
-payload evaluations, 32768 combination attempts and 600 scheduling seconds.
+the aggregate limits and retained seed count separately. With defaults, two
+strategies permit up to 4096 complete payload evaluations, 32768 combination
+attempts and 600 scheduling seconds.
 One evaluation may run many codecs, and in-flight work, final acceptance and the
 final codec comparison are separate from those scheduling deadlines.
 
@@ -205,6 +219,28 @@ The default codec policy includes adaptive legacy refinements. The Rust API's
 explicit fixed-recipe policy can exhaust its declared list; neither policy
 claims the global compression optimum. The [search architecture](docs/SEARCH-ARCHITECTURE.ko.md)
 describes ownership, reuse, exact coverage and fresh verification boundaries.
+
+To measure repeated whole-file cost reuse on owned inert data, run from the
+repository root:
+
+```sh
+cargo run --release --locked -p nvcompact --example cost_reuse
+```
+
+The [bounded example](examples/cost_reuse.rs) evaluates eight payloads 16 times
+against the same fixed gzip levels 1, 6 and 9 with `jobs=1`. It compares retained
+codec/header caches with disabled caches in four trials each, alternating the
+execution order. JSON output records each duration, actual work and reuse
+statistics, complete winning artifact hashes, and fresh evaluations of every
+unique payload. Repeated, cache-policy and fresh artifact identities must agree.
+Each policy runs first twice. The measurement timer includes objective setup,
+header/codec work, restoration, artifact construction and identity checks; fresh
+checks have a separate timer. There is no untimed warmup before measurement.
+The shell header is data in this example. These measurements isolate identical
+repeated work; they do not establish the overall speedup of an engine campaign
+or a search that now explores more candidates. The source-search
+`frontend_work` statistic likewise covers only tracked prepared analyses, not
+all Clang work or the full command's running time.
 
 Source search also retains original/candidate source snapshots, derivations and
 failed or unselected observations in a bounded external attempt archive. It
@@ -225,6 +261,12 @@ The [external byte-saving commit review](docs/EXTERNAL-SIZE-COMMITS.ko.md) recor
 upstream techniques, losses and semantic/deployment tradeoffs independently of
 whether Rove4k already uses them; historical upstream sizes are not new local
 measurements.
+The [PR #16 measurements](docs/PR16-RESULTS.ko.md) record the ownership/search
+refactor against the same pinned inputs, a separate bootstrap-byte-preserving
+matrix, and the bounded cost-reuse experiment. Source-search measurements under
+declared non-observation assumptions are distinguished from wrapper semantics,
+UCI and submission acceptance. Its A–F input commit differs from the older
+PR #13 campaign, so engine changes are not attributed to the compressor.
 The [PR #13 measurements](docs/PR13-RESULTS.ko.md) compare 26 pinned
 input/profile rows: seven smaller complete files and 19 byte-identical winners,
 with explicit replay, compiler-proof and unexecuted runtime boundaries.
