@@ -108,30 +108,51 @@ pub fn recipes(payload_size: usize, thorough: bool) -> Vec<Recipe> {
 }
 
 pub fn refinements(records: &[(Recipe, usize)], thorough: bool) -> Vec<Recipe> {
-    let mut ordered: Vec<_> = records.iter().enumerate().collect();
-    ordered.sort_by_key(|(index, (_, size))| (*size, *index));
-    let mut seeds: Vec<Recipe> = Vec::new();
-    for (_, (recipe, _)) in ordered {
+    materialize_refinements(
+        refinement_seeds(records.iter().map(|(recipe, size)| (recipe, *size))),
+        thorough,
+    )
+}
+
+/// Retain the two lowest (cost, declaration index) family minima. A later
+/// recipe can improve its family or enter the best two, so no complete sort
+/// or copy of the initial domain is needed. Equal costs keep the first recipe.
+fn refinement_seeds<'a>(records: impl IntoIterator<Item = (&'a Recipe, usize)>) -> Vec<&'a Recipe> {
+    let mut seeds: Vec<(usize, &'a Recipe, usize)> = Vec::with_capacity(2);
+    for (index, (recipe, size)) in records.into_iter().enumerate() {
         if !matches!(recipe.format.as_str(), "alone" | "xz" | "raw") {
             continue;
         }
-        if seeds
+        let key = (size, index);
+        let family = seeds
             .iter()
-            .any(|item| item.format == recipe.format && item.x86 == recipe.x86)
-        {
+            .position(|(_, item, _)| item.format == recipe.format && item.x86 == recipe.x86);
+        if let Some(position) = family {
+            if key >= (seeds[position].2, seeds[position].0) {
+                continue;
+            }
+            seeds[position] = (index, recipe, size);
+        } else if seeds.len() < 2 {
+            seeds.push((index, recipe, size));
+        } else if key < (seeds[1].2, seeds[1].0) {
+            seeds[1] = (index, recipe, size);
+        } else {
             continue;
         }
-        seeds.push(recipe.clone());
-        if seeds.len() == 2 {
-            break;
+        if seeds.len() == 2 && (seeds[1].2, seeds[1].0) < (seeds[0].2, seeds[0].0) {
+            seeds.swap(0, 1);
         }
     }
+    seeds.into_iter().map(|(_, recipe, _)| recipe).collect()
+}
+
+fn materialize_refinements(seeds: Vec<&Recipe>, thorough: bool) -> Vec<Recipe> {
     let nice: Vec<u32> = if thorough {
         (4..=273).collect()
     } else {
         vec![4, 8, 16, 24, 32, 48, 64, 96, 128, 192, 273]
     };
-    let mut output = Vec::new();
+    let mut output = Vec::with_capacity(seeds.len() * 5 * nice.len());
     for seed in seeds {
         for mf in [
             lzma_sys::LZMA_MF_HC3,
@@ -273,19 +294,27 @@ impl CodecPortfolio {
             self.recipes,
             PortfolioRecipes::Legacy { thorough: true, .. }
         );
-        let sizes: Vec<_> = plan
-            .initial
-            .iter()
-            .cloned()
-            .zip(complete_file_sizes.iter().copied())
-            .collect();
-        let mut output = refinements(&sizes[..plan.legacy_initial_count], thorough);
-        for recipe in refinements(&sizes, thorough) {
-            if !output.contains(&recipe) {
-                output.push(recipe);
+        let records = || plan.initial.iter().zip(complete_file_sizes.iter().copied());
+        let mut seeds = refinement_seeds(records().take(plan.legacy_initial_count));
+        if plan.legacy_initial_count != plan.initial.len() {
+            for seed in refinement_seeds(records()) {
+                // Every generated recipe overwrites exactly these two fields.
+                // Normalize their seed identity before expansion: equal seeds
+                // generate identical ordered domains, and unequal seeds have
+                // disjoint domains. At most four seeds need comparison.
+                let identity = |recipe: &Recipe| {
+                    let mut key = recipe.clone();
+                    key.mf = None;
+                    key.nice_len = None;
+                    key
+                };
+                let key = identity(seed);
+                if !seeds.iter().any(|previous| identity(previous) == key) {
+                    seeds.push(seed);
+                }
             }
         }
-        Ok(output)
+        Ok(materialize_refinements(seeds, thorough))
     }
 
     pub fn context(&self) -> serde_json::Value {
@@ -608,6 +637,111 @@ pub fn decoder_for(recipe: &Recipe) -> Result<String> {
 #[cfg(test)]
 mod streaming_tests {
     use super::*;
+
+    // Independent previous algorithm: sort the whole domain, then retain the
+    // first occurrence of each family and materialize both domains before
+    // deduplicating complete recipes. This is intentionally test-only.
+    fn sorted_reference(records: &[(Recipe, usize)], thorough: bool) -> Vec<Recipe> {
+        let mut ordered: Vec<_> = records.iter().enumerate().collect();
+        ordered.sort_by_key(|(index, (_, size))| (*size, *index));
+        let mut seeds: Vec<&Recipe> = Vec::new();
+        for (_, (recipe, _)) in ordered {
+            if matches!(recipe.format.as_str(), "alone" | "xz" | "raw")
+                && !seeds
+                    .iter()
+                    .any(|prior| prior.format == recipe.format && prior.x86 == recipe.x86)
+            {
+                seeds.push(recipe);
+                if seeds.len() == 2 {
+                    break;
+                }
+            }
+        }
+        materialize_refinements(seeds, thorough)
+    }
+
+    #[test]
+    fn linear_refinement_selection_preserves_complete_ordered_domain() {
+        let domain = recipes(12_345, false);
+        for iteration in 0..24 {
+            let records: Vec<_> = domain
+                .iter()
+                .cloned()
+                .enumerate()
+                .map(|(index, recipe)| {
+                    // Include broad ties, late family improvements, and cases
+                    // where a previously excluded family enters the best two.
+                    let size = match iteration % 3 {
+                        0 => (index * (iteration + 1) + 17) % 5,
+                        1 => (domain.len() - index) / (iteration + 1),
+                        _ => (index ^ (index >> 2) ^ iteration) % 31,
+                    };
+                    (recipe, size)
+                })
+                .collect();
+            assert_eq!(
+                refinements(&records, false),
+                sorted_reference(&records, false)
+            );
+        }
+        assert!(refinements(&[], false).is_empty());
+        let only_ineligible = vec![(Recipe::new("gzip"), 0), (Recipe::new("bzip2"), 1)];
+        assert!(refinements(&only_ineligible, false).is_empty());
+    }
+
+    #[test]
+    fn refinement_seed_union_matches_expanded_recipe_union() {
+        for thorough in [false, true] {
+            for variant in 0..4 {
+                let base = CodecPortfolio::legacy(thorough, None).plan(4097);
+                let mut submitted = base.initial[0].clone();
+                // Changing overwritten fields generates the same refinement
+                // domain; changing depth or context generates a distinct one.
+                submitted.mf = Some(lzma_sys::LZMA_MF_HC4 as u32);
+                submitted.nice_len = Some(77);
+                if variant == 2 {
+                    submitted.depth = Some(13);
+                } else if variant == 3 {
+                    submitted.format = "raw".into();
+                    submitted.x86 = true;
+                    submitted.lc = Some(2);
+                }
+                let policy = CodecPortfolio::legacy(thorough, (variant != 0).then_some(submitted));
+                let plan = policy.plan(4097);
+                let sizes: Vec<_> = (0..plan.initial.len())
+                    .map(|index| if index >= base.initial.len() { 0 } else { 100 })
+                    .collect();
+                let records: Vec<_> = plan.initial.iter().cloned().zip(sizes.clone()).collect();
+                let mut expected = sorted_reference(&records[..base.initial.len()], thorough);
+                for recipe in sorted_reference(&records, thorough) {
+                    if !expected.contains(&recipe) {
+                        expected.push(recipe);
+                    }
+                }
+                assert_eq!(policy.refinement_recipes(&plan, &sizes).unwrap(), expected);
+                assert!(policy
+                    .refinement_recipes(&plan, &sizes[..sizes.len() - 1])
+                    .is_err());
+            }
+        }
+    }
+
+    #[test]
+    fn chunked_output_limits_detect_one_extra_byte_at_scratch_boundaries() {
+        for length in [0, 1, 64, 65_535, 65_536, 65_537] {
+            let payload: Vec<_> = (0..length).map(|index| (index % 251) as u8).collect();
+            let mut restored = Vec::new();
+            read_chunks(&mut Cursor::new(&payload), length, &mut |chunk| {
+                restored.extend_from_slice(chunk);
+                Ok(())
+            })
+            .unwrap();
+            assert_eq!(restored, payload);
+            let mut excess = payload;
+            excess.push(7);
+            assert!(read_chunks(&mut Cursor::new(excess), length, &mut |_| Ok(())).is_err());
+        }
+    }
 
     #[test]
     fn streamed_comparison_checks_every_byte_length_and_stream_end() {

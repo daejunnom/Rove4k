@@ -270,16 +270,36 @@ findings into compression or rewrites the input. `--instrument diagnostic`
 exports a separate, bounded C11 diagnostic copy; `--profile observations.log`
 imports its samples as observations, without turning them into static facts.
 
+The domain pass now combines intervals, known bits and bounded finite sets.
+Pure single-variable expressions also receive typed n-version comparison:
+generic arithmetic/shift/mask/Boolean alternatives are checked over every value
+in the supplied containing domain. For example, the rank predicate can yield
+`!(to+16&96)` when the site admits only `0..127`; a `0x88` mask guard alone does
+not establish that bound. Long and long-long ranks, signedness, short-circuiting
+and undefined operations remain part of the comparison.
+
+Profile comparison uses a guaranteed expression-entry read and checks the full
+observed minimum-to-maximum interval, including unsampled values. These results
+remain conditional hypotheses and include separately bounded outside-domain
+counterexamples. Shared DAG/typed-vector memoization avoids repeated work while
+retaining algorithm-family alternatives. The [domain and n-version design](docs/DOMAIN-NVERSION.ko.md)
+describes proof scopes, actual grammar, budgets, omissions and command options.
+
 `nvcompact inspect-binary submission --word-bytes 8` inventories exact repeated
 bytes in the final artifact. Matching bytes are not automatically semantic
 constants or measured savings. The [advisor design and usage](docs/SHORTCODE-ADVISOR.ko.md)
 explains type, side-effect, control-flow, profiling and resource boundaries.
 The small owned [example](examples/advice/program.c) exercises all three source
 diagnostics. Neither command starts the submitted program.
+The [domain example](examples/advice/domains.c) contrasts explicit bounds, a
+sparse board domain, an insufficient mask guard, and conditional observations.
 
 The [performance and advisory follow-up](docs/PERFORMANCE-ADVICE-RESULTS.ko.md)
 records the streaming verifier, indexed FIFO cache, bounded worker scheduling,
 48 baseline/final measurements, complete test run and independent advisory audit.
+The [domain and performance extension results](docs/DOMAIN-PERFORMANCE-RESULTS.ko.md)
+record the subsequent typed-domain audit, retained TCEC comparisons, planning
+algorithm improvement and rejected scratch-buffer experiments.
 
 The [external byte-saving commit review](docs/EXTERNAL-SIZE-COMMITS.ko.md) records
 upstream techniques, losses and semantic/deployment tradeoffs independently of
