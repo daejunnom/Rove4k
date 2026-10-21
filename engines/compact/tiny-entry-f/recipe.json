@@ -86,7 +86,8 @@
     "engines/compact/tiny-entry-f/shipping_history_path.py": "d345e87322f6aa17f141861c9fa6f330ff2c3642d765d9c0e2d6dc32a597a70c",
     "engines/scripts/source_package.py": "55fa739e7c17fffdb3bf1191c7a26aa38d35e9e32473e4008c23ece3d5703d1f",
     "engines/compact/tiny-entry-f/shipping_names.py": "b69d376bf2e206273b12344fe30fbddbce6d51396c01fab8d53fd8f25401d48b",
-    "engines/compact/tiny-entry-f/bootstrap_full.py": "6b4fb2b068d9574ce7068bf0bc5e577452b54fb64cd86a13b9c8c400af694a7d"
+    "engines/compact/tiny-entry-f/bootstrap_full.py": "813eb1a9f0a31a54350e4df015c49d0a63e9d2d57923a4035e563aa7b95e222c",
+    "engines/compact/tiny-entry-f/shipping_selector.py": "69bf3747d81455690c11abc95046e173c5a8915e2abd001ad6976bbe22c3e48d"
   },
   "resource_literals": [
     [
@@ -260,22 +261,22 @@
   },
   "expected": {
     "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
-    "source_bytes": 8538,
-    "source_sha256": "400ad454b0e3108814636bab4060f224ae4b2d28cdc7929c8c98590adb46c59d",
+    "source_bytes": 8513,
+    "source_sha256": "9f2804e0bc9467ee5f831cf7e2f90bb27f54117a50228ffb3ad1681d4873a272",
     "native_bytes": 18576,
     "native_sha256": "926710668d5975d6972ca18d22bea985b2b4aa9153f41c946c03d5bbac71f876",
-    "whole_bytes": 4445,
-    "whole_sha256": "9e574b5b825964189a1b4b0ac8be3e1ab6415748c8bceae4f1dafafc579e337f",
+    "whole_bytes": 4439,
+    "whole_sha256": "de4c6a8fe2298b2ebe142f2dadc5172ca9ed73533913bb82dccd8a10d94ae4da",
     "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
     "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
-    "bootstrap_sha256": "2a8710e02bc4e2ca6c59e580f3d7b41796ff3a09e55f0dd65a3d330f40e0f578",
+    "bootstrap_sha256": "1c227f5be06fa2eabf64f0f772afea4e437c67d045593f07a28ec25a2103d703",
     "semantic_readable_bytes": 25720,
     "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
     "dev_source_bytes": 19488,
     "dev_native_bytes": 26984,
     "input_profile_readable_bytes": 28587,
     "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
-    "bootstrap_bytes": 9478
+    "bootstrap_bytes": 9445
   },
   "local_input_sha256": {
     "engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
@@ -1171,6 +1172,25 @@
       "entire_artifact_DEV_pre_names_bytes_equal": true,
       "new_runtime": 0,
       "new_source_tree_CI_claimed": false,
+      "metadata_only_after_execution": true
+    },
+    "fixed2_selector": {
+      "status": "PASS maintained4442; native/DEV exact predecessor",
+      "build_receipt_sha256": "de07cc1b879d852a74ec7b3eda5cd08c95a8226f44d81b5854f4ea80be38baaf",
+      "runtime_receipt_sha256": "b1cd186a75e565baba5a4a878c6f7cba4f4805127970f3a6d6355214622ba2ee",
+      "producing_recipe_sha256": "018a16085a2521661db72d3e9933ea2d8687a99ceea1b8628c8d1a22178d8f25",
+      "optional_shipping_twice_per_policy_and_new_full_reference": true,
+      "F8_pre_name_input_preserved": true,
+      "new_F8_SAN_firstcost": 0,
+      "metadata_only_after_execution": true
+    },
+    "bootstrap_wait_positional": {
+      "status": "PASS maintained4439 shipping2/unchangedDEV2 and unchanged selected quitEOF2sessions8GO",
+      "build_receipt_sha256": "dfd8d0a3aca02d574546d8e4c1b232302ff8490ab03fc6752c26be59bc9682ad",
+      "runtime_receipt_sha256": "4a9c5e7765839e7ec86de3bc540950d2d275df4dfbae57d51a297b222e49e137",
+      "producing_recipe_sha256": "7ccdc0f1403a833c2f1fb3543e01ae521a325fe9a58bebb8bf8493ff0dc774f1",
+      "prior4442_record_unchanged": true,
+      "new_optional_SAN_firstcost_fault": 0,
       "metadata_only_after_execution": true
     }
   },
@@ -5032,6 +5052,371 @@
       "runtime_reuse_basis": "entire source/native/bootstrap/whole are byte-identical to the qualified control; no new runtime execution",
       "new_firstcost_search_fault": 0,
       "failures_retries": 0
+    }
+  },
+  "fixed2_selector": {
+    "scope": "pure fixed2 full shipping and separately generated optional full_reference after shipping_names; canonical/DEV/actual optional bypass",
+    "predecessor_expected": {
+      "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+      "source_bytes": 8538,
+      "source_sha256": "400ad454b0e3108814636bab4060f224ae4b2d28cdc7929c8c98590adb46c59d",
+      "native_bytes": 18576,
+      "native_sha256": "926710668d5975d6972ca18d22bea985b2b4aa9153f41c946c03d5bbac71f876",
+      "whole_bytes": 4445,
+      "whole_sha256": "9e574b5b825964189a1b4b0ac8be3e1ab6415748c8bceae4f1dafafc579e337f",
+      "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
+      "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
+      "bootstrap_sha256": "2a8710e02bc4e2ca6c59e580f3d7b41796ff3a09e55f0dd65a3d330f40e0f578",
+      "semantic_readable_bytes": 25720,
+      "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
+      "dev_source_bytes": 19488,
+      "dev_native_bytes": 26984,
+      "input_profile_readable_bytes": 28587,
+      "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
+      "bootstrap_bytes": 9478
+    },
+    "input_bytes": 8538,
+    "input_sha256": "400ad454b0e3108814636bab4060f224ae4b2d28cdc7929c8c98590adb46c59d",
+    "output_bytes": 8513,
+    "output_sha256": "9f2804e0bc9467ee5f831cf7e2f90bb27f54117a50228ffb3ad1681d4873a272",
+    "raw_delta": -25,
+    "whole_delta": -3,
+    "source_index_sha256": "c268e177ac0aa2462ee35abf1b2d8d368f59be5a0048dfd21ecff7e92e020648",
+    "source_proof_sha256": "b0f22e9ad7ecf3ab5de924e2fc9376dcc4f2467f5dd7fd96624b2429ced7d69e",
+    "firstcost_index_sha256": "f30f3c56a3b92e07e3aa0e3f4c058d0b7b304de1d1ea52aa6655dcf0edf43b97",
+    "strict_depth_first_tie_lazy_fallback_preserved": true,
+    "completion_ownership": "only last worker calls y under qj after all results stable; original epoch/stop/drain/join bytes protected",
+    "native_entire_bytes_equal_to_predecessor_firstcost": true,
+    "F8_pre_name_input_preserved": "8538/47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0; own strictnames+six-resource roles unchanged; do not apply fixed2 selector to workers8",
+    "source_code_traceback_timing_generic_worker_count_identity_claimed": false,
+    "normal_validation_pending": false,
+    "normal_validation": {
+      "status": "PASS full shipping2/unchangedDEV2; unchanged selected quitEOF2sessions8GO; both optional full_reference consumers",
+      "build_receipt": {
+        "path": "/home/stemxstudio/rove4k-f-fixed2-selector-promotion-20261022/normal/build/build.json",
+        "bytes": 247713,
+        "sha256": "de07cc1b879d852a74ec7b3eda5cd08c95a8226f44d81b5854f4ea80be38baaf"
+      },
+      "runtime_receipt": {
+        "path": "/home/stemxstudio/rove4k-f-fixed2-selector-promotion-20261022/normal/runtime/runtime.json",
+        "bytes": 69039,
+        "sha256": "b1cd186a75e565baba5a4a878c6f7cba4f4805127970f3a6d6355214622ba2ee"
+      },
+      "normal_commands": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-fixed2-selector-promotion-20261022-evidence/normal-commands.json",
+        "bytes": 6151,
+        "sha256": "4d1b02a5f588245cc4c5d9a946e68bf0e37427f158510f29db10184a385dee23"
+      },
+      "producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-f-fixed2-selector-promotion-20261022/normal/build/inputs/recipe.json",
+        "bytes": 269617,
+        "sha256": "018a16085a2521661db72d3e9933ea2d8687a99ceea1b8628c8d1a22178d8f25"
+      },
+      "shipping_reproductions": 2,
+      "unchanged_DEV_reproductions": 2,
+      "source_native_bootstrap_whole_exact_firstcost": true,
+      "native_DEV_exact_predecessor": true,
+      "sessions": 2,
+      "legal_GO_results": 8,
+      "startup_TIDs": 3,
+      "pre_name_outputs": [
+        {
+          "path": "/home/stemxstudio/rove4k-f-fixed2-selector-promotion-20261022/normal/build/source-before-names.c",
+          "bytes": 8538,
+          "sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
+        },
+        {
+          "path": "/home/stemxstudio/rove4k-f-fixed2-selector-promotion-20261022/normal/build/attempt-1/source-before-names.c",
+          "bytes": 8538,
+          "sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
+        },
+        {
+          "path": "/home/stemxstudio/rove4k-f-fixed2-selector-promotion-20261022/normal/build/attempt-2/source-before-names.c",
+          "bytes": 8538,
+          "sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
+        }
+      ],
+      "optional_policies": {
+        "material-noise": {
+          "build": {
+            "path": "/home/stemxstudio/rove4k-f-fixed2-selector-promotion-20261022/normal/material-noise/build.json",
+            "bytes": 198231,
+            "sha256": "48e6bf8de6763b35d7c612389a56508529f3a0f7539b37d50ef8bcd7134633b7"
+          },
+          "artifacts": {
+            "main.c": {
+              "path": "/home/stemxstudio/rove4k-f-fixed2-selector-promotion-20261022/normal/material-noise/main.c",
+              "bytes": 8508,
+              "sha256": "a7b50f5d084b558c1fb07f3c4c572afa29291a4982ddd00fd783f187a3f74c93"
+            },
+            "native/x": {
+              "path": "/home/stemxstudio/rove4k-f-fixed2-selector-promotion-20261022/normal/material-noise/native/x",
+              "bytes": 18576,
+              "sha256": "24ae0622c5a0fd10191950f53e0f6ea5d3e3d05fbb1b20aaa72c2b5f2754873f"
+            },
+            "bootstrap.py": {
+              "path": "/home/stemxstudio/rove4k-f-fixed2-selector-promotion-20261022/normal/material-noise/bootstrap.py",
+              "bytes": 9481,
+              "sha256": "d5154ad0ce7db5a9968cf0a80c3da36269aaa154af4831a57e0b5ad4b2585f7f"
+            },
+            "x": {
+              "path": "/home/stemxstudio/rove4k-f-fixed2-selector-promotion-20261022/normal/material-noise/x",
+              "bytes": 4319,
+              "sha256": "dd9566fcb5b9373244703be1201715f286a2cde66db397dc0ef2e0372ac7be5f"
+            }
+          },
+          "prior_artifacts_entire_bytes_equal": true,
+          "separate_full_reference_actual": [
+            {
+              "attempt": 1,
+              "bytes": 8513,
+              "sha256": "9f2804e0bc9467ee5f831cf7e2f90bb27f54117a50228ffb3ad1681d4873a272",
+              "fixed2_selector": {
+                "family": "F",
+                "stage": "fixed-two-worker-completion-selector-after-names",
+                "input_bytes": 8538,
+                "input_sha256": "400ad454b0e3108814636bab4060f224ae4b2d28cdc7929c8c98590adb46c59d",
+                "output_bytes": 8513,
+                "output_sha256": "9f2804e0bc9467ee5f831cf7e2f90bb27f54117a50228ffb3ad1681d4873a272",
+                "raw_delta": -25,
+                "edits": 1,
+                "full_inverse": true,
+                "all_gaps_equal": true,
+                "gap_count": 2,
+                "protected_gaps": [
+                  [
+                    6296,
+                    "a3af680a8c67b427efe30f184c5f41de81f8ac897d868745d27ac18b8e999b0d"
+                  ],
+                  [
+                    2193,
+                    "121c73407c81829eb4179e0326f086f126928ba521e32d5490d982f07bf57ed2"
+                  ]
+                ],
+                "fixed_workers": 2,
+                "strict_greater_depth_and_first_worker_tie_preserved": true,
+                "completion_mutex_and_lazy_fallback_bytes_protected": true,
+                "pre_names_F8_input_and_own_resource_specialization_preserved": true,
+                "external_reads": 0,
+                "compiler_codec_engine_executed_by_transform": 0
+              }
+            },
+            {
+              "attempt": 2,
+              "bytes": 8513,
+              "sha256": "9f2804e0bc9467ee5f831cf7e2f90bb27f54117a50228ffb3ad1681d4873a272",
+              "fixed2_selector": {
+                "family": "F",
+                "stage": "fixed-two-worker-completion-selector-after-names",
+                "input_bytes": 8538,
+                "input_sha256": "400ad454b0e3108814636bab4060f224ae4b2d28cdc7929c8c98590adb46c59d",
+                "output_bytes": 8513,
+                "output_sha256": "9f2804e0bc9467ee5f831cf7e2f90bb27f54117a50228ffb3ad1681d4873a272",
+                "raw_delta": -25,
+                "edits": 1,
+                "full_inverse": true,
+                "all_gaps_equal": true,
+                "gap_count": 2,
+                "protected_gaps": [
+                  [
+                    6296,
+                    "a3af680a8c67b427efe30f184c5f41de81f8ac897d868745d27ac18b8e999b0d"
+                  ],
+                  [
+                    2193,
+                    "121c73407c81829eb4179e0326f086f126928ba521e32d5490d982f07bf57ed2"
+                  ]
+                ],
+                "fixed_workers": 2,
+                "strict_greater_depth_and_first_worker_tie_preserved": true,
+                "completion_mutex_and_lazy_fallback_bytes_protected": true,
+                "pre_names_F8_input_and_own_resource_specialization_preserved": true,
+                "external_reads": 0,
+                "compiler_codec_engine_executed_by_transform": 0
+              }
+            }
+          ],
+          "shipping_reproductions": 2,
+          "new_DEV_runtime": 0
+        },
+        "material-move-tt": {
+          "build": {
+            "path": "/home/stemxstudio/rove4k-f-fixed2-selector-promotion-20261022/normal/material-move-tt/build.json",
+            "bytes": 220291,
+            "sha256": "a910af0a70e187f85fc0fa45a82dfe05914d783633157276e47a61f5e834dd0d"
+          },
+          "artifacts": {
+            "main.c": {
+              "path": "/home/stemxstudio/rove4k-f-fixed2-selector-promotion-20261022/normal/material-move-tt/main.c",
+              "bytes": 7741,
+              "sha256": "6d3fa3e0099285dd9efe8934f7b419fdd204f80ed4eaf502ad64a9f5b2e12122"
+            },
+            "native/x": {
+              "path": "/home/stemxstudio/rove4k-f-fixed2-selector-promotion-20261022/normal/material-move-tt/native/x",
+              "bytes": 18576,
+              "sha256": "1a964e23bc8967b6eb74714389b4d94fd0e505d5d1eba3616775b7e4b0a522d5"
+            },
+            "bootstrap.py": {
+              "path": "/home/stemxstudio/rove4k-f-fixed2-selector-promotion-20261022/normal/material-move-tt/bootstrap.py",
+              "bytes": 8714,
+              "sha256": "39d03ecca6211628b1748a72390a3bec71681cb8e2f0f0999481dc83ebc0dc5c"
+            },
+            "x": {
+              "path": "/home/stemxstudio/rove4k-f-fixed2-selector-promotion-20261022/normal/material-move-tt/x",
+              "bytes": 4045,
+              "sha256": "825108ca4528301f091d3deb44aaaf890b0ae54ac81bbebfbd6ff7e170d65c29"
+            }
+          },
+          "prior_artifacts_entire_bytes_equal": true,
+          "separate_full_reference_actual": [
+            {
+              "attempt": 1,
+              "bytes": 8513,
+              "sha256": "9f2804e0bc9467ee5f831cf7e2f90bb27f54117a50228ffb3ad1681d4873a272",
+              "fixed2_selector": {
+                "family": "F",
+                "stage": "fixed-two-worker-completion-selector-after-names",
+                "input_bytes": 8538,
+                "input_sha256": "400ad454b0e3108814636bab4060f224ae4b2d28cdc7929c8c98590adb46c59d",
+                "output_bytes": 8513,
+                "output_sha256": "9f2804e0bc9467ee5f831cf7e2f90bb27f54117a50228ffb3ad1681d4873a272",
+                "raw_delta": -25,
+                "edits": 1,
+                "full_inverse": true,
+                "all_gaps_equal": true,
+                "gap_count": 2,
+                "protected_gaps": [
+                  [
+                    6296,
+                    "a3af680a8c67b427efe30f184c5f41de81f8ac897d868745d27ac18b8e999b0d"
+                  ],
+                  [
+                    2193,
+                    "121c73407c81829eb4179e0326f086f126928ba521e32d5490d982f07bf57ed2"
+                  ]
+                ],
+                "fixed_workers": 2,
+                "strict_greater_depth_and_first_worker_tie_preserved": true,
+                "completion_mutex_and_lazy_fallback_bytes_protected": true,
+                "pre_names_F8_input_and_own_resource_specialization_preserved": true,
+                "external_reads": 0,
+                "compiler_codec_engine_executed_by_transform": 0
+              }
+            },
+            {
+              "attempt": 2,
+              "bytes": 8513,
+              "sha256": "9f2804e0bc9467ee5f831cf7e2f90bb27f54117a50228ffb3ad1681d4873a272",
+              "fixed2_selector": {
+                "family": "F",
+                "stage": "fixed-two-worker-completion-selector-after-names",
+                "input_bytes": 8538,
+                "input_sha256": "400ad454b0e3108814636bab4060f224ae4b2d28cdc7929c8c98590adb46c59d",
+                "output_bytes": 8513,
+                "output_sha256": "9f2804e0bc9467ee5f831cf7e2f90bb27f54117a50228ffb3ad1681d4873a272",
+                "raw_delta": -25,
+                "edits": 1,
+                "full_inverse": true,
+                "all_gaps_equal": true,
+                "gap_count": 2,
+                "protected_gaps": [
+                  [
+                    6296,
+                    "a3af680a8c67b427efe30f184c5f41de81f8ac897d868745d27ac18b8e999b0d"
+                  ],
+                  [
+                    2193,
+                    "121c73407c81829eb4179e0326f086f126928ba521e32d5490d982f07bf57ed2"
+                  ]
+                ],
+                "fixed_workers": 2,
+                "strict_greater_depth_and_first_worker_tie_preserved": true,
+                "completion_mutex_and_lazy_fallback_bytes_protected": true,
+                "pre_names_F8_input_and_own_resource_specialization_preserved": true,
+                "external_reads": 0,
+                "compiler_codec_engine_executed_by_transform": 0
+              }
+            }
+          ],
+          "shipping_reproductions": 2,
+          "new_DEV_runtime": 0
+        }
+      },
+      "owned_handles": 0,
+      "failures_retries": 0,
+      "new_SAN_firstcost_F8_product": 0,
+      "cancellation_causality": "unproven"
+    }
+  },
+  "bootstrap_wait_positional": {
+    "scope": "full emitted bootstrap cleanup wait argument representation only; pure shared full helper unchanged API",
+    "predecessor_expected": {
+      "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+      "source_bytes": 8513,
+      "source_sha256": "9f2804e0bc9467ee5f831cf7e2f90bb27f54117a50228ffb3ad1681d4873a272",
+      "native_bytes": 18576,
+      "native_sha256": "926710668d5975d6972ca18d22bea985b2b4aa9153f41c946c03d5bbac71f876",
+      "whole_bytes": 4442,
+      "whole_sha256": "ef95933090df567023bb238ca544c5b0c2d72ed31a5a46c56ca052d149848d73",
+      "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
+      "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
+      "bootstrap_sha256": "93e37a7409f343b0618e4ed938da593935df842b01778d2f057fe3354ad470b9",
+      "semantic_readable_bytes": 25720,
+      "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
+      "dev_source_bytes": 19488,
+      "dev_native_bytes": 26984,
+      "input_profile_readable_bytes": 28587,
+      "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
+      "bootstrap_bytes": 9453
+    },
+    "old_helper_sha256": "6b4fb2b068d9574ce7068bf0bc5e577452b54fb64cd86a13b9c8c400af694a7d",
+    "new_helper_sha256": "813eb1a9f0a31a54350e4df015c49d0a63e9d2d57923a4035e563aa7b95e222c",
+    "legacy_template_bytes": 988,
+    "legacy_template_sha256": "159c5fe166f4b0804471e9d3a70d8f055a510858a6ae33f0ed6b4cfd17fca6f9",
+    "full_template_bytes": 947,
+    "full_template_sha256": "7719272010d58735a2768064ce4b30733b8eed4a96488864a111030da7cab533",
+    "source_native_selector_pre_names_DEV_unchanged": true,
+    "optional_selected_source_template_codec_unchanged": true,
+    "raw_bootstrap_delta": -8,
+    "whole_delta": -3,
+    "cost_index_sha256": "438c08e143fac228b75263ad891f9337f0728039a4a1eb52fef3c4225bd205c2",
+    "cost_receipt_sha256": "3856dffbe4bcef51189460e7dadc57eda81a7e1bce2983b69a78e35e25fdf654",
+    "semantic_scope": "plain Popen.wait same timeout value5 bound positionally instead of by keyword; signal masks/publication/group cleanup/private paths/fdexec unchanged; no source/code/traceback/allocation-fault timing identity claimed",
+    "normal_validation_pending": false,
+    "new_cost_or_fault_campaign": 0,
+    "normal_validation": {
+      "status": "PASS maintained4439 shipping2/unchangedDEV2 and unchanged selected quitEOF2sessions8GO",
+      "build_receipt": {
+        "path": "/home/stemxstudio/rove4k-f-bootstrap-positional-wait-promotion-20261022/normal/build/build.json",
+        "bytes": 248406,
+        "sha256": "dfd8d0a3aca02d574546d8e4c1b232302ff8490ab03fc6752c26be59bc9682ad"
+      },
+      "runtime_receipt": {
+        "path": "/home/stemxstudio/rove4k-f-bootstrap-positional-wait-promotion-20261022/normal/runtime/runtime.json",
+        "bytes": 69629,
+        "sha256": "4a9c5e7765839e7ec86de3bc540950d2d275df4dfbae57d51a297b222e49e137"
+      },
+      "normal_commands": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-bootstrap-positional-wait-promotion-20261022-evidence/normal-commands.json",
+        "bytes": 3435,
+        "sha256": "c391b55584aad02ab636725e0fac093d1ac46174002581e939eab16641a2355c"
+      },
+      "producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-f-bootstrap-positional-wait-promotion-20261022/normal/build/inputs/recipe.json",
+        "bytes": 284489,
+        "sha256": "7ccdc0f1403a833c2f1fb3543e01ae521a325fe9a58bebb8bf8493ff0dc774f1"
+      },
+      "shipping_reproductions": 2,
+      "unchanged_DEV_reproductions": 2,
+      "C_native_DEV_pre_names_entire_bytes_equal_to_qualified4442": true,
+      "bootstrap_whole_entire_bytes_equal_to_encoded_candidate": true,
+      "sessions": 2,
+      "legal_GO_results": 8,
+      "startup_TIDs": 3,
+      "new_optional_SAN_firstcost_fault": 0,
+      "failures_retries": 0,
+      "owned_handles": 0,
+      "cancellation_causality": "unproven"
     }
   }
 }

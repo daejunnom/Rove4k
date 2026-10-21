@@ -1,3 +1,32 @@
+# Maintained D: shared TT probe stages — 2026-10-22
+
+The maintained `probe` source shares its two `cmpxchg16b` statements in one
+finite stage loop: **405 → 321 B**, reducing `native/search.c` **6401 → 6317 B**.
+The separate scalar and HQ first costs reproduce the prior native, DATA packet
+and complete own-ELF bytes exactly. Selected complete sizes remain **5908 / 6111 B**;
+this is source compaction with **zero whole-file byte gain**.
+
+Zero `write` keeps one CAS and every nonzero `int` keeps two. The first lo/hi
+outputs feed the second expected pair; desired values, full-key TT, best-effort
+failed-write drop, return convention, asm constraints and memory clobber remain.
+Independent source/asm reading found no concrete blocker. Other source and all
+binary/model/layout/guard expectations remain unchanged. No new concurrency,
+stack, timing, strength or 4KiB acceptance claim follows from this cleanup.
+
+One unchanged ordinary builder completed once and reproduced both selected
+native images and complete own-ELFs twice, plus each CHECKPOINT image once.
+All native/packet/whole/audit bytes and ELF/BSS layouts match their prior selected
+identities. Actual build: `7376bb3710b244032df7c871446419801faa1de612afdc410714b2fcef3a43e8`.
+Its shipping profile is DEV0; no new DEV compile or runtime was performed.
+The unchanged positive verifier and exact native/whole/audit identity permit reuse
+of prior runtime `711bf615bdd32b680bee281fb41bb7eb98b00090a75263b23c17f91824943378`
+(pre-entry2, quit/EOF4,12 legal GO,3 persistent TIDs and physical cleanup).
+New runtime calls are **zero**. This does not add new concurrency, stack, timing,
+negative/fault or TT-stress evidence. First-cost, producing source/recipe, actual
+normal and original runtime receipts are separate preserved evidence. Only this
+README and recipe receipt annotation changed after normal; native source and all
+binary expectations remain fixed. No failure, retry or forced cleanup was needed.
+
 # Maintained D: HQ-only derived history length — 2026-10-21
 
 Selected complete scalar/HQ **5908 / 6111 B**, remaining **1812 / 2015 B**.

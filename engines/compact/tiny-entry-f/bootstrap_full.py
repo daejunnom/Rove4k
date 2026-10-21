@@ -3,7 +3,8 @@
 The caller admits the legacy template and owns source insertion and encoding.
 This helper accepts immutable template bytes only; it reads no files or
 environment and has no compiler, profile, artifact, report or network input.
-The exact 988-byte legacy input becomes the existing 955-byte full template.
+The exact 988-byte legacy input becomes the 947-byte full template. The final
+edit binds the same timeout5 through Popen.wait's first positional argument.
 """
 import hashlib
 
@@ -17,6 +18,7 @@ _EDITS = (
      b'for s in 2,15:signal.signal(s,stop)\n'),
     (b'signal.signal(2,signal.SIG_DFL);signal.signal(15,signal.SIG_DFL)\n',
      b'for s in 2,15:signal.signal(s,signal.SIG_DFL)\n'),
+    (b'   try:p.wait(timeout=5)\n', b'   try:p.wait(5)\n'),
 )
 
 

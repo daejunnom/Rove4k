@@ -1,4 +1,112 @@
-# Maintained F: shared full-template preparation — 2026-10-22
+# Maintained F2: positional cleanup timeout — 2026-10-22
+
+The full/default file is **4439 B**, three below4442 and343 above4096.
+Bootstrap is9445 B, eight below9453. The shared full-template helper adds
+one exact `p.wait(timeout=5)` -> `p.wait(5)` representation change after its
+four existing edits. The plain Popen method receives the same timeout5.
+Signal masks, blocked publication, group TERM/KILL/reap, private TMPDIR,
+fd-open/delete/exec, C bytes, argv/stdin/environment and encoding remain.
+Source/code/traceback/allocation-fault timing identity is not claimed.
+
+Selector8513/9f2804e0..., native18576/92671066..., names, pre-name8538/
+47353..., canonical, DEV and fixed resources/model stay unchanged. The
+shared legacy988-byte template and optional4319/4045 selected products
+remain unchanged; only full template preparation yields947 bytes. F2's
+builder keeps its existing pure-helper API and code. F8 owns its separate
+helper pin, source closure, artifact expectations and validation.
+
+Fixed encoded candidate whole SHA-256:
+`de4c6a8fe2298b2ebe142f2dadc5172ca9ed73533913bb82dccd8a10d94ae4da`.
+Bootstrap SHA-256:
+`1c227f5be06fa2eabf64f0f772afea4e437c67d045593f07a28ec25a2103d703`.
+The independent encode-only comparison is frozen in
+`rove4k-bootstrap-wait-positional-20261022-evidence`. The original4442
+source/cost/normal receipts remain unchanged in their separate directories.
+
+One ordinary full `--dev` call reproduces shipping2 and unchanged DEV2.
+C/native/DEV and all three pre-name outputs remain byte-identical to the
+qualified4442 predecessor; both bootstrap/whole outputs equal the encoded
+4439 candidate. The unchanged selected verifier passes actual4439
+quit/EOF2sessions8 legal GO, exact native restoration, stable3TIDs, absent
+private paths/helpers, reader EOF and physical exit0. Parent commands are
+reaped with exit0 and absent groups; cleanup/failures/retries/owned handles0.
+The F2 selected stream is terminal before the separate F8 positive run.
+
+Build receipt:
+`dfd8d0a3aca02d574546d8e4c1b232302ff8490ab03fc6752c26be59bc9682ad`.
+Runtime receipt:
+`4a9c5e7765839e7ec86de3bc540950d2d275df4dfbae57d51a297b222e49e137`.
+Producing recipe:
+`7ccdc0f1403a833c2f1fb3543e01ae521a325fe9a58bebb8bf8493ff0dc774f1`.
+Producing and final annotations are separate in
+`rove4k-f-bootstrap-positional-wait-promotion-20261022-evidence`.
+No new optional execution, SAN, first-cost or fault campaign is added;
+the unchanged optional selected paths reuse the previous4319/4045 records.
+Positive execution does not add cleanup-timeout or signal-fault coverage,
+and cancellation causality remains unproven. Prior4442 normal/CI records
+remain frozen with their original scope.
+
+# Historical F2: direct completion selector — 2026-10-22
+
+The full/default file is **4442 B**, three bytes below4445 and346 above4096.
+Compact C is8513 B,25 below8538. `shipping_selector.py` is one pure fixed2
+stage after shipping_names. It replaces the one-iteration result scan by
+`zc*w=qr+(qr[1].b>qr->b);`. The deeper completed result wins and worker0
+still wins a tie. Lazy legal fallback, terminal0000, source model, TT,
+learners, search, resource policies and completion/drain code are preserved.
+The caller holds qj after the last worker decrements qk to0, so both plain
+completed-depth fields are stable. The comparison yields int0/1 and selects
+within the actual two-element qr array; it adds no arithmetic overflow,
+state store, atomic operation or function call.
+
+The helper admits exact source8538/400ad454..., checks one literal span and
+two protected gaps, and reconstructs the complete input by inverse. Earlier
+helpers, names bindings, canonical and DEV bypass are unchanged. Actual
+optional sources also bypass the stage; each separate fixed2 full_reference
+copy applies it after names before its full-source identity check.
+
+F8 consumes unchanged source-before-names.c8538/47353... and its own strict
+names400ad.../six-resource-literal specialization. This two-way selector is
+F2-only and is not an F8 input or transformation. F8 owns source-closure
+provenance synchronization separately. The first-cost native remains18576 B
+and entire-byte equal to qualified926710...; no extra SAN is inferred or run.
+
+Fixed first-cost whole SHA-256:
+`ef95933090df567023bb238ca544c5b0c2d72ed31a5a46c56ca052d149848d73`.
+Bootstrap9453 B:
+`93e37a7409f343b0618e4ed938da593935df842b01778d2f057fe3354ad470b9`.
+Original source/proof and the one compile/encode remain external in
+`rove4k-f-fixed2-selector-source-20261022-evidence` and
+`rove4k-f-fixed2-selector-first-cost-20261022-evidence`.
+
+One ordinary full `--dev` call reproduces shipping2 and unchanged DEV2.
+New source/native/bootstrap/whole equal the fixed first-cost bytes; native
+and DEV source/native equal the qualified4445 predecessor in full bytes.
+The unchanged selected verifier passes actual4442 quit/EOF2sessions8 legal
+GO, exact restored native, stable3TIDs, removed private paths/helpers,
+reader EOF and physical exit0. One existing ordinary builder per optional
+policy reproduces selected shipping twice and executes the separate8513
+full-reference identity check twice. Selected4319/4045 source/native/
+bootstrap/whole remain byte-identical; new optional DEV/runtime executions
+are0. No new SAN or first-cost measurement is performed during promotion.
+
+Full build receipt:
+`de07cc1b879d852a74ec7b3eda5cd08c95a8226f44d81b5854f4ea80be38baaf`.
+Selected runtime:
+`b1cd186a75e565baba5a4a878c6f7cba4f4805127970f3a6d6355214622ba2ee`.
+Optional build receipts:
+`48e6bf8de6763b35d7c612389a56508529f3a0f7539b37d50ef8bcd7134633b7`
+and `a910af0a70e187f85fc0fa45a82dfe05914d783633157276e47a61f5e834dd0d`.
+Producing recipe:
+`018a16085a2521661db72d3e9933ea2d8687a99ceea1b8628c8d1a22178d8f25`.
+Four parent commands exit0, are reaped and leave absent groups; cleanup,
+failures/retries and owned handles are0. Producing and final annotations
+are separate in `rove4k-f-fixed2-selector-promotion-20261022-evidence`.
+The prior973e7b5 CI belongs to its predecessor source tree. Source/code/
+location/traceback identity, strength, performance and generic worker-count
+equivalence are not claimed; cancellation causality remains unproven.
+
+# Historical F: shared full-template preparation — 2026-10-22
 
 The full/default file remains **4445 B**. `bootstrap_full.py` exposes one
 pure `prepare_template(template: bytes) -> bytes` operation shared with the

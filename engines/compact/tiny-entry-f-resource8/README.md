@@ -1,4 +1,50 @@
-# Maintained F8: current full-F spelling and packaging — 2026-10-22
+# Maintained F8: positional timeout wait — 2026-10-22
+
+The selected full F8 file is **4442 B**,3 B below4445 and346 B above4096.
+Only the full bootstrap call spelling changes from `p.wait(timeout=5)` to
+`p.wait(5)`. Actual CPython3.12 `Popen.wait(self, timeout=None)` binds the same
+integer5 and runs the same timed wait, escalation and final reap. Plain Popen
+is the fixed receiver; subclass/monkeypatch and source/token/traceback-column
+observations are outside this spelling premise. Env, signal-mask/PID
+publication, compiler argv/raw stdin, private-path/unlink/fdexec and73-byte
+header/BT2 encoding remain. The shared helper keeps its original988-byte
+input guard and adds this fifth literal edit, yielding947 template bytes.
+
+Source8538/ad02fbb8… and entire native18576/33509091… stay unchanged. The F2
+producer now includes its separate fixed2 selector helper in provenance,
+but F8 does not invoke that selector. Its strict pipeline remains
+pre-name47353 -> names400ad -> six resource rolesad02, retaining the actual
+8-way completed-result selection. Bootstrap9470 B is
+`86eac9c3a2f5b6ddee9ceb2ab1072945d5e028e63fb74795bd13898c2a24b345`;
+complete4442 B is
+`46f564294ca11fa1a544d15ed170d54304421d115b9866981010a24c302d5419`.
+
+The separate one-encode F8 cost directly measured4445 ->4442, with exact
+old/new Python+CLI restoration and no compiler or wrapper execution. Cost
+receipt `3856dffbe4bcef51189460e7dadc57eda81a7e1bce2983b69a78e35e25fdf654`
+keeps that result distinct from the independently measured F2 context.
+The ordinary builder reproduced the candidate source/native/bootstrap/whole
+twice (compile2/encode2/strict2), including the56-file source closure. Source
+and entire native match the preceding4445 profile, while bootstrap/whole
+match the separate wait first cost. Build receipt:
+`8b25da994334a8396602220ce82ea96031831488b380092337b3670da59b5cfe`.
+
+The byte-unchanged positive verifier passes actual4442 quit/EOF two sessions
+and eight legal GO results, fixed nine TIDs and positive CPU activity from
+all eight workers. Exact native/private unlinked image identity, position
+and completion fences, reader EOF/join and absent owned group/TIDs pass;
+forced cleanup, failures and retries are0. Runtime receipt:
+`dd6642172a7fc31ffe72a7a89ee58e88825ab2b662d4fef575b57c3c09d17cc5`.
+Actual outputs are `/home/stemxstudio/rove4k-f8-wait-positional-promote-20261022/normal/{build,runtime}`.
+A/F2 creators reported their original selected handles terminal and E
+waited for F8 completion, avoiding simultaneous selected engine runs. This
+is bounded manual coordination, not a new scheduling or performance proof.
+Producing recipe is preserved separately from this receipt-only annotation;
+no new fault, general compiler-descendant, strength/scaling/stack-peak or
+final4k resource acceptance is claimed. Cancellation causality is unproven.
+Historical4445 receipts/source freezes below retain their original scope.
+
+# Historical F8: current full-F spelling and packaging — 2026-10-22
 
 The selected complete file is **4445 B**,29 B below the qualified4474-byte
 legacy entry and349 B above4096. Source remains8538 B; native remains18576 B

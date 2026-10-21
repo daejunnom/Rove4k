@@ -1,4 +1,83 @@
-# Maintained A: shared terminal legality loop — 2026-10-22
+# Maintained A: private make binding and selected package — 2026-10-22
+
+The selected complete file is **4559 B**, 10 B below qualified A4569 and
+463 B above 4096. Shipping C remains 8914 B. `shipping_names.py` applies one
+destination parameter rename in make `v`: `E*t` becomes `E*w` at 24 identifier
+tokens. All 25 protected gaps (8890 B) and a full inverse are checked. Its
+whole-function freshness preserves declarations/references, macro arguments,
+member names and global calls. The existing GO function `w` is outside this
+scope and is never referenced inside `v`. Board/type/alias/lifetime/dataflow,
+rules/search/TT/learners/thread policy, canonical and DEV remain unchanged.
+
+The complete 18576 B native is byte-identical to qualified A4569, not merely
+the same size. The only new source spelling is the pointer binding; a separate
+pure literal step emits the same C bytes as raw triple-double Python bytes
+instead of raw triple-single. The 9878 B bootstrap retains all 956 B outside
+the selected literal exactly. The fixed selected package is ALONE LZMA1,
+preset 6 (extreme false), lc2/lp0/pb0, BT2=18, dict16384, nice24, CHECK_NONE and
+the unchanged 73 B XZ_STDIN_HEADER. It is BT2, not HC4. Earlier package settings
+are historical; the current recipe explicitly carries this selected tuple.
+
+The single prepublication NVCompact0.6 run newly compiled baseline twice,
+the improving candidate once and the final source once. All 4 actual native
+receipts match the qualified full image and empty diagnostics; the retained
+final image was read back against the qualified bytes without another
+compile. Independent source review found no binding/capture counterexample.
+Source/token/location/traceback non-observation remains an explicit
+compile-input-only development assumption; AST and native identity do not
+prove that assumption or new arithmetic/concurrency/core coverage. No new
+SAN or large fixture was added for this names-only, identical-native change.
+
+| Comparison | Whole bytes | Meaning |
+| --- | ---: | --- |
+| Original C/literal with original fixed codec | 4569 | Qualified baseline |
+| Same C, raw triple-double literal,original fixed codec | 4568 | Literal choice saves 1 B |
+| Renamed C, same triple-double literal,original fixed codec | 4567 | Binding choice saves 1 B more |
+| Original payload with final codec | 4560 | Codec saves 9 B on original payload |
+| Renamed C+double literal with final codec | 4559 | Current combined selection |
+
+Thus fixed-objective source/literal selection saves 2 B and subsequent codec
+selection saves 8 B on that selected payload. The 1 B difference under the
+final codec compares original-single against renamed-double together; no
+name-only crossed measurement under that final codec was performed.
+
+The source run stopped at combination 8/8 with status budget-exhausted and
+45/64 score evaluations, not a complete name-space search. It visited 5 singles,
+encountered 3 incompatible subsets and left 18 nontrivial subsets unvisited.
+Fresh reservations 2 are separate from actual retained seed 1. Source memo
+events reused 1 cost and newly measured 43; baseline 1 and final fresh 1 complete
+the 45 evaluation count. Global codec counters are separately 704 cached-domain
+executions+2 fresh executions (source final cost and final selected encoding),
+with 2 codec cache hits. No separate replay or second search ran.
+
+One ordinary `build.py --dev` invocation reproduced shipping C/native/
+bootstrap/whole twice, exactly matching the retained ONE-run candidate, and
+reproduced unchanged DEV source/full native twice. The unchanged selected
+verifier freshly ran the new wrapper in quit/EOF 2 sessions with 8 legal GO,
+the exact restored qualified native, 3 startup TIDs each, removed private
+restoration/helper paths,reader completion and physical exit 0. All normal
+commands exited 0 and were reaped with their original groups absent; no timeout,
+retry or forced cleanup occurred. Lifetime evidence comes from the original
+supervisors/verifier, not later bare numeric PID lookups. Cancellation causality,
+strength, performance and complete-core qualification remain outside this change.
+
+| Form | Bytes | SHA-256 |
+| --- | ---: | --- |
+| Shipping C | 8914 | `5319dd376e8e7fe6c03c6b40f6fc81b571902d75a663148ffbae00b615059c18` |
+| Native | 18576 | `7700f1164da1b1a7ea8a784969742d1cf6d38a1f298986e41f564648ceaddf0c` |
+| Bootstrap | 9878 | `04c1cdce33231ec62791905ab5e52560cb14d75e563dec0a60636ba7d9da032a` |
+| Complete | 4559 | `ae756e0c014e32de6628ddeb54148d92e109731518a76a2eebb903daa96b27ce` |
+
+Actual output: `/home/stemxstudio/rove4k-a-private-binding-promote-20261022/normal/build`.
+Build receipt `923f668798a028e84e6bfe97a344c9cd7e124c876dc2fe86511bd498944a7e6d`;
+runtime `23e389a3c5db19d2f2211d31faf84b9d73f3f69eea8ce600470947b5a005c957`;
+producing recipe `2691cf5f0974c01c6fccb4f0511e9544b536b09c39342c3226f727fd4e0d8e3c`.
+The source-producing closure has 34 ordinary inputs. Final recipe/README are
+receipt-only annotations after that producing revision; source-producing code,
+expected bytes and fixed codec are unchanged. No new first-cost or source/
+codec search, archive/fresh, games, training, AWS or performance run was added.
+
+# Historical A: shared terminal legality loop — 2026-10-22
 
 현재 일반 생성 경로가 **4569 B whole**, **8914 B shipping C**, **18576 B native**를
 두 번 재현했다. qualified A4580 대비 소스51 B, 제출 파일11 B가 줄었으며 아직4096 B보다

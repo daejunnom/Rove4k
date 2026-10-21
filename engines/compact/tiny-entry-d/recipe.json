@@ -10,7 +10,7 @@
   "native_source_sha256": {
     "native/tiny.h": "55a0a29dc2a5c378937443c4cc6c2067520a280793d7ecdd14a733941351e4ba",
     "native/board.c": "559e4589325152a493e565730581521d1c16ab5dea20cc8dc51ccc2505c30437",
-    "native/search.c": "8ab07ac6fe92a69ae0fc24e604c72386a827813ddf74d09bc29ef4856472be77",
+    "native/search.c": "6f28dc49b1caf346ead734b4d054039418ce863d039a9ad18cd5b9477884f150",
     "native/runtime.c": "2febf5acec5a3c74ab3a6dcb2fd2a1eb2ba44fab4d6892d9c354fcdcebfe4342",
     "native/hq.h": "ad66a03cef5288010c4377b81ee3661320195545aee6c664a42d3828bfc8b412",
     "native/hq.c": "50b246280ac1f0b9e1f20834f302b31e30221101abd979bbdc146fcae7c12b5f",
@@ -197,8 +197,8 @@
     }
   },
   "qualified_receipts_metadata_only": {
-    "current_selection": "HQ-only derived history length over shared castling/clock packed-HCE D; scalar exact old image, full HCE/PVS/QS/learners/fullkey atomic16/SMP/fixed ISA preserved",
-    "source_lineage": "Only HQ&&!DEV selects derived game_length+ply; all scalar and DEV owned regions retain original exact text; header/search change, other native6 and loader/model/flags/protocol remain unchanged.",
+    "current_selection": "HQ-only derived history length over shared castling/clock packed-HCE D; scalar exact old image, full HCE/PVS/QS/learners/fullkey atomic16/SMP/fixed ISA preserved; TT probe stage sharing reduces maintained source 84 B with byte-identical scalar/HQ shipping outputs",
+    "source_lineage": "Only HQ&&!DEV selects derived game_length+ply; all scalar and DEV owned regions retain original exact text; header/search change, other native6 and loader/model/flags/protocol remain unchanged. Subsequent TT-stage source-only cleanup shares the two cmpxchg16b asm statements in one finite stage loop; selected shipping native/packet/whole/audit identities remain unchanged.",
     "fixed21_firstcost": {
       "final_index_sha256": "2f06d3ecc4d9e0f5fb294f6adfe533aa4559867fd31b4fad10604ed4060a5bf3",
       "cost_sha256": "0f08bb54783aef070a3d75eefeb28a005868156452243513da624bf7708d8137",
@@ -1041,6 +1041,71 @@
         "forced_cleanup": false,
         "scope": "exact restored native RX and zero initial BSS/padding/guards/NX; persistent TIDs/stdio/nochildren and physical readers/process/group settlement; no negative/fault campaign, game or strength claim"
       }
+    },
+    "tt_probe_stage_sharing": {
+      "source_proposal": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-tt-stage-source-proposal-20261022-evidence/final-index.json",
+        "bytes": 1428,
+        "sha256": "1fe6407ac5ca61d2da41d9869717be3509e11ba3a5332d55e32a97a1048b9b18"
+      },
+      "scalar_first_cost": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-tt-stage-scalar-first-cost-20261022-evidence/final-index.json",
+        "bytes": 13532,
+        "sha256": "2379835da95d82ef02e84cc634aa88159267ef3d7ae73d2dbed54edc8e874776"
+      },
+      "HQ_first_cost": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-tt-stage-hq-first-cost-20261022-evidence/final-index.json",
+        "bytes": 13665,
+        "sha256": "fe4c5ec926f1ea577576bf6dffbb85ff66dde78d6369f0721b3f706a790fb70c"
+      },
+      "source": {
+        "file": "native/search.c",
+        "old_bytes": 6401,
+        "old_sha256": "8ab07ac6fe92a69ae0fc24e604c72386a827813ddf74d09bc29ef4856472be77",
+        "new_bytes": 6317,
+        "new_sha256": "6f28dc49b1caf346ead734b4d054039418ce863d039a9ad18cd5b9477884f150",
+        "raw_delta": -84,
+        "spans": 1,
+        "full_inverse": true
+      },
+      "whole_delta_each": 0,
+      "native_packet_whole_all_byte_identical_each": true,
+      "guard_or_model_changes": 0,
+      "source_contract": "write==0 one stage; every nonzero int write two stages, same full key/payload expected pair and desired values, volatile/+m/+a/+d/b/c/cc/memory; failed writes remain best-effort drop without acknowledgement",
+      "DEV_scope": "same source-domain proof; ordinary selected builder compiles DEV0 only; no new DEV compile/runtime claim",
+      "normal_validation": {
+        "status": "PASS one unchanged ordinary builder; native/whole/audit bytes and ELF/BSS unchanged",
+        "build": {
+          "path": "/home/stemxstudio/rove4k-d-tt-stage-normal-20261022-v1/build.json",
+          "bytes": 97486,
+          "sha256": "7376bb3710b244032df7c871446419801faa1de612afdc410714b2fcef3a43e8"
+        },
+        "normal_wrapper": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-tt-stage-promotion-20261022-evidence/normal.json",
+          "bytes": 8161,
+          "sha256": "bb978aa4ccd092759b1ea86fa2a61557d1e77ee21ab618a3e9f4d069bef91b99"
+        },
+        "producing_recipe": {
+          "path": "/home/stemxstudio/rove4k-d-tt-stage-normal-20261022-v1/inputs/recipe.json",
+          "bytes": 70326,
+          "sha256": "05fe0ca04f90b2a2848f837abc2d50c64d305393d6300b18f64542362d43e76a"
+        },
+        "native_reproductions_each": 2,
+        "whole_reproductions_each": 2,
+        "audit_reproductions_each": 1,
+        "reused_selected_positive_runtime": {
+          "path": "/home/stemxstudio/rove4k-d-hq-history-normal-runtime-20261021-v1/results.json",
+          "bytes": 57991,
+          "sha256": "711bf615bdd32b680bee281fb41bb7eb98b00090a75263b23c17f91824943378"
+        },
+        "new_runtime_calls": 0,
+        "reuse_basis": "both selected native/whole/audit byte-for-byte identical to prior qualified images; layouts and unchanged verifier source identical",
+        "prior_positive_scope": "pre-entry2, quit/EOF4 sessions,12 legal GO, persistent3TIDs, exact restored RX/zero BSS/padding/guards/NX and physical readers/process/group cleanup",
+        "DEV_compile_calls": 0,
+        "forced_cleanup": false,
+        "scope": "Source reduction only. No new runtime/negative/fault/TTstress/ptrace/RIE/personality or DEV codegen qualification; no new concurrency/stack/performance/strength/4KiB claim. Only recipe/README changed after this producing normal."
+      },
+      "scope": "Source reduction only, not whole-file gain or a new concurrency/stack/performance/4KiB claim; original first-cost receipts remain frozen separately."
     }
   },
   "shipping_protocol": {

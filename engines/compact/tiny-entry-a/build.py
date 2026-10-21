@@ -56,8 +56,8 @@ def main():
     recipe=json.loads((HERE/'recipe.json').read_text())
     if recipe['format']!=1 or recipe['profile']!={'workers':2,'tt_bits':18,'ply':128,'dev_default':False}:
         raise ValueError('unsupported entry recipe/profile')
-    if recipe['compression']!={'format':'lzma-alone','filter':'LZMA1','preset':9,'extreme':True,'lc':2,'lp':0,'pb':0,
-                              'check':'NONE','dictionary_bytes':67108864,'header_hex':'0200000004ffffffffffffffff'}:
+    if recipe['compression']!={'format':'lzma-alone','filter':'LZMA1','preset':6,'extreme':False,'lc':2,'lp':0,'pb':0,
+                              'check':'NONE','mf':'BT2','dictionary_bytes':16384,'nice_len':24,'header_hex':'0200400000ffffffffffffffff'}:
         raise ValueError('unsupported fixed LZMA-alone recipe')
     out.mkdir(parents=True);frozen=out/'inputs';frozen.mkdir()
     report={'complete':False,'scope':'canonical minimal A regeneration; fixed composed bytes, not 4KiB acceptance',
@@ -109,6 +109,7 @@ def main():
         evaluation_cache=module('entry_evaluation_cache',frozen/'shipping_evaluation.py')
         worker_epilogue=module('entry_worker_epilogue',frozen/'shipping_worker_epilogue.py')
         terminal_loop=module('entry_terminal_loop',frozen/'shipping_terminal.py')
+        fixed_names=module('entry_A_private_names',frozen/'shipping_names.py')
         canonical=(frozen/'engine.c').read_bytes();reference=evaluation_cache.reference_readable(canonical)
         template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
@@ -160,13 +161,17 @@ def main():
                 common_metadata['worker_epilogue']=worker_metadata
                 data,terminal_metadata=terminal_loop.transform_source(data)
                 common_metadata['terminal_shared_legal_loop']=terminal_metadata
+                data,name_metadata=fixed_names.transform_source(data)
+                common_metadata['private_destination_binding']=name_metadata
             return data,observations,alpha_metadata,storage_metadata,scope_metadata,input_metadata,declaration_metadata,type_metadata,lexical_metadata,capture_metadata,startup_metadata,global_names_metadata,continuation_metadata,common_metadata
         def package(source):
-            expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())
+            expression,_=common.source_literal(source,literal)
+            expression=fixed_names.transform_literal(expression)
+            script=template.replace(marker,expression.encode())
             ast.parse(script)
-            payload=lzma.compress(script,format=lzma.FORMAT_ALONE,check=lzma.CHECK_NONE,
-                                  filters=[{'id':lzma.FILTER_LZMA1,'preset':9|lzma.PRESET_EXTREME,'lc':2,'lp':0,'pb':0}])
-            if payload[:13]!=bytes.fromhex('0200000004ffffffffffffffff'):
+            whole=source_package.package(script,recipe['compression'],prefix=prefix)
+            payload=whole[len(prefix):]
+            if payload[:13]!=bytes.fromhex(recipe['compression']['header_hex']):
                 raise ValueError('fixed LZMA-alone header changed')
             decoder=lzma.LZMADecompressor(format=lzma.FORMAT_ALONE)
             if decoder.decompress(payload)!=script or not decoder.eof or decoder.unused_data:

@@ -180,6 +180,7 @@ def main():
         move_tt_names=module('entry_fixed_F_move_TT_names',frozen/'shipping_move_tt_names.py').transform_source
         expressions=module('entry_fixed_F_expressions',frozen/'shipping_material_expressions.py').transform_source
         fixed_names=module('entry_fixed_F_names',frozen/'shipping_names.py').transform_source
+        fixed_selector=module('entry_fixed_F_selector',frozen/'shipping_selector.py').transform_source
         # Keep this base for every unchanged shipping readable/spelling guard.
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
@@ -267,6 +268,8 @@ def main():
                     full_common_metadata['history_path']=path_metadata
                     full_reference,names_metadata=fixed_names(full_reference)
                     full_common_metadata['fixed_names']=names_metadata
+                    full_reference,selector_metadata=fixed_selector(full_reference,family='F')
+                    full_common_metadata['fixed2_selector']=selector_metadata
                     if len(full_reference)!=full_expected['source_bytes'] or sha(full_reference)!=full_expected['source_sha256']:
                         raise ValueError('default full-F source generation changed')
                     data,policy_metadata=material_noise(data)
@@ -341,6 +344,8 @@ def main():
                     before_names=data
                     data,names_metadata=fixed_names(data)
                     common_metadata['fixed_names']=names_metadata
+                    data,selector_metadata=fixed_selector(data,family='F')
+                    common_metadata['fixed2_selector']=selector_metadata
             return data,observations,counters,alpha_metadata,storage_metadata,scope_metadata,member_metadata,semantic_metadata,input_metadata,declaration_metadata,hce_metadata,type_metadata,unit_bound_metadata,startup_metadata,global_names_metadata,capture_metadata,policy_metadata,material_names_metadata,material_capture_metadata,move_tt_metadata,move_tt_names_metadata,expressions_metadata,common_metadata,before_names
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())

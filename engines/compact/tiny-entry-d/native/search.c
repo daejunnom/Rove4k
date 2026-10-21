@@ -10,11 +10,9 @@
 static uint64_t probe(uint64_t key,int write,uint64_t data){
     Entry *e=table+(key&((1u<<TT_BITS)-1));
     uint64_t lo=0,hi=0;
-    __asm__ volatile("lock cmpxchg16b %0":"+m"(*e),"+a"(lo),"+d"(hi):"b"(0ull),"c"(0ull):"cc","memory");
-    if(write){
-        __asm__ volatile("lock cmpxchg16b %0":"+m"(*e),"+a"(lo),"+d"(hi):"b"(key),"c"(data):"cc","memory");
-    }else data=lo==key?hi:0;
-    return data;
+    for(int i=0;i<=!!write;i++)
+        __asm__ volatile("lock cmpxchg16b %0":"+m"(*e),"+a"(lo),"+d"(hi):"b"(i?key:0ull),"c"(i?data:0ull):"cc","memory");
+    return write?data:lo==key?hi:0;
 }
 static int claim(Worker *w){
     if(atomic_load_explicit(&stopped,memory_order_relaxed))return 0;
