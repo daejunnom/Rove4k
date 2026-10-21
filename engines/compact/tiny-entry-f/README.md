@@ -1,3 +1,29 @@
+# Maintained F: fixed source forms — 2026-10-21
+
+Full/default whole **4553 B**, source **8871 B**. Inline the pure private
+piece-index helper's three int8_t cell reads and four expansions of the fixed
+history constant. Int promotion/addition, one evaluation per cell, continuation
+targets and 4224/4096 key capacities are preserved. Raw−62 B after clamp; actual
+composition whole−21 B. Both isolated costs are4564 B, so their savings were
+not added. The fresh native remains entire-byte identical.
+
+The single pure stage follows clamp in full selection and separate full
+references. Optional raw inputs and all selected artifacts remain unchanged;
+DEV retains its readable macro/helper and previous bytes. Shipping/DEV
+reproduce twice for each of three selections, and unchanged verifiers pass
+six actual quit/EOF sessions. Normal summary SHA-256:
+`9669f3aa030fd02a39a7d66704ae38c465b906eab7f035095627990b27830aaf`.
+
+Current source SHA-256: `14c87dab541b9ccad59a44ea0d2e5a916fe2c7a7e6211ee10789dbc2489246c3`.
+Current whole SHA-256: `002e9ecb8729e779ef600cb79ada8bf139869eae42440c4ca3f67559a646d89b`.
+
+Default needs **457 B**. Positional HCE, all learners, full-key bound TT,
+full-depth MTD(f), completion witness and SMP remain. Optional4325/4051 B
+results are separate. Local2-worker/TT18 observations do not establish target
+resources, many-core behavior or strength. Compression continues beyond passage.
+
+Older sections retain their original checkpoint identities.
+
 # Maintained F: local correction clamp — 2026-10-21
 
 Full/default whole **4574 B**, source **8933 B**. A plain local int's two

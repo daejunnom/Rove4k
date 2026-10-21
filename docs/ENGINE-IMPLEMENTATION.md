@@ -190,9 +190,9 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | A | 4,613 B | 517 B | Unsigned64 number forms; one-state material classifier; main-owned token cursor and valid-0x88 promotion predicate; existing full HCE/PVS/QS/TT/learners/SMP and fixed ALONE retained; fixed LP64 mixer literals |
 | B | 5,148 B | 1,052 B | Worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained; literal include gaps compacted; clock-first SEE poll; cancellation timing changed |
 | C | 4,954 B | 858 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners retained; literal include gaps compacted; fixed LP64 mixer literals |
-| D scalar / HQ | 5,966 / 6,175 B | 1,870 / 2,079 B | Capture-only Move bit3; full-key aligned atomic16 TT, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained |
+| D scalar / HQ | 5,947 / 6,169 B | 1,851 / 2,073 B | Consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained |
 | E | 5,014 B | 918 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; literal include gaps compacted; fixed LP64 mixer literals |
-| F full (default) | 4,574 B | 478 B | Explicit no-preadd hash policy with new repetition/context/TT/correction buckets; terminal legal-loop sharing and integer forms; packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; default size target remains open; literal include gaps, fixed LP64 mixer literals and local correction clamp compacted |
+| F full (default) | 4,553 B | 457 B | Explicit no-preadd hash policy with new repetition/context/TT/correction buckets; terminal legal-loop sharing and integer forms; packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; default size target remains open; literal forms, correction clamp, private piece-index calls and fixed history token compacted |
 | F material/noise (opt-in) | 4,325 B | 229 B | Unsigned64 number forms and two fixed TT18 casts omitted; one-state material classifier, fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted; literal include gaps compacted; fixed LP64 mixer literals |
 | F material/move-TT (opt-in) | 4,051 B | 0 B (45 B spare) | Unsigned64 number forms; one-state material classifier, fixed material, main-owned token cursor, terminal-loop sharing and coherent atomic64 Move17/high46 plus index18; local size eligibility only, full F and strength acceptance remain open; fixed LP64 mixer literals |
 
@@ -6412,3 +6412,63 @@ array for learning. In contrast,
 retains full swaps and later reads the prefix for history penalties. That
 difference must be checked per implementation. External engine sources remain
 outside this repository; no code or measured savings are imported from them.
+
+## Full-F fixed source forms and D consumed prefix — 2026-10-21
+
+The source checkpoint5af20d0 passes all C/Rust engine and Node22/24 lifecycle
+jobs. Two more full-F source forms retain that checkpoint's entire native:
+delete the private32B piece-index helper and expand its three actual int8_t
+arguments as parenthesized cell+6; delete the21B HISTORY definition and replace
+its four ordinary expansions with the identical int token4096. Raw savings
+are29B and33B. Each cell/index/pointer is evaluated once, int promotion/addition
+and learner targets stay exact, and 4224/4096 key capacities and rejection
+remain. Final macro/line identities change; canonical/DEV and earlier fixed
+transformation inputs retain their bytes.
+
+Each isolated cost is4564B, down10B from clamp4574B. The actual composition is
+4553B, 11B smaller than either isolated result: savings are measured, not
+added. A single pure nine-span helper maps8933→8871B with exact positional
+inverse and all complementary bytes preserved. One fresh compile and fixed
+encode yield entire-byte equal18576B native d7ce48d6...; strict Python/CLI old
+and new restoration passes. Composition cost9563B SHA:
+76899105c69ad3a61d44bed6712f5fbf7eee99e06d42a62d94ecc75b420f5635.
+
+All three F ordinary builders reproduce shipping/DEV twice; unchanged selected
+verifiers pass six actual quit/EOF sessions. Full-reference copies include the
+new stage after clamp, while optional raw inputs, outputs and full DEV stay
+entire-byte equal. Function proofs are reused under native identity. Producing
+readback precedes metadata-only annotations. Normal summary7071B SHA:
+9669f3aa030fd02a39a7d66704ae38c465b906eab7f035095627990b27830aaf.
+
+D independently removes two writes to the consumed selection-sort slot and
+their score temporary. The selected Move stays local; future suffix state and
+strict-greater tie permutation are identical by induction. Current legal/QS
+skips, PVS retries and positive cutoff learning never observe the old prefix.
+Readable search6141→6102B; text falls13B per form. Scalar native7772→7740B,
+HQ stays8128B with a changed identity. Fixed21 packets become4810/5032B and
+whole5947/6169B, down19/6B. Nonpacket1137B, model masks, page/BSS/guard/reserve,
+full-key atomic16 TT, HCE/PVS/QS/learners and SMP remain. Entry offsets follow
+the actual new code. Exact known-native/form/model mappings and verifier
+expectations admit only these bytes; inspection and lifecycle bodies stay.
+
+Cost native2/encode2/loader2 and old/new independent Python restore4 precede
+audit-loader discovery2 and root static admission of actual eight files/ELF
+headers/packet suffixes. One ordinary builder then reproduces native/whole
+twice and audit once. The selected positive verifier passes pre-entry2 and
+quit/EOF4 sessions with12 legal GO, persistent3 TIDs, exact restored RX,
+zero initial BSS/padding, guards/NX, stdio/no observed child and physical
+settlement. No negative/fault campaign or game is run. Build77739B SHA:
+9cd5c6748ec72de497957c7f6fc2ff20de4010b5f91ceb010df5153a27f23cc3.
+Positive runtime58050B SHA:
+c7ef4b272d6252fb602a8edf1be0c8d99ec157021a4c4aa84b711a049d86b5d9.
+Producing21/build-input17 readback precedes README/recipe receipt annotations;
+the final index5503B is b1212756633dfd63bfc069b6d458fdf77e3c0808749e969d051151328a5bd461.
+
+Full/default F retains every family feature and still needs457B. Optional
+material/noise4325B and MoveTT4051B remain separate policies. A/B/C/E currently
+remain4613/5148/4954/5014B. Their common clock-presence sentinel has measured
+source−12B each and whole−3/−2/−2/−1B, but changed natives: focused qualification
+and normal intake are pending, so those costs are not in the current table.
+The all-family goal remains active beyond size passage. Final resources,
+target hardware/many-core behavior, strength/candidate acceptance and D's
+eligible own-ELF still require evidence. Training/data/AWS/paid runs stay out.

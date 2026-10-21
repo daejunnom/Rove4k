@@ -73,7 +73,8 @@
     "engines/compact/tiny-entry-f/shipping_hash_policy.py": "98b084bb25232a237f616629b25dc9fcde7ba1bedd8a48e67f3b4c9fd6587f04",
     "engines/scripts/shipping_includes.py": "d7c3ad6e7811d848b0d6bab7331c929ab2c3175cd030438ddc81d22ea8cdf4bc",
     "engines/scripts/shipping_mixer_literals.py": "7b25cb806a51cad9e867ebc588bcb99677c9e2f9d0a5df0b31d019e22bc6d114",
-    "engines/compact/tiny-entry-f/shipping_clamp.py": "54f7b75e3b5adfa4c012d1c7c8acf5b17013cff8ba848f0fbf39907d0dec64a7"
+    "engines/compact/tiny-entry-f/shipping_clamp.py": "54f7b75e3b5adfa4c012d1c7c8acf5b17013cff8ba848f0fbf39907d0dec64a7",
+    "engines/compact/tiny-entry-f/shipping_source_forms.py": "54e34ccf0889a01b5603492081b3058bbfe98770b545ef9652b32250a5647697"
   },
   "resource_literals": [
     [
@@ -247,22 +248,22 @@
   },
   "expected": {
     "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
-    "source_bytes": 8933,
-    "source_sha256": "cc8ef7dab0e35e2a62fee66d427eab09698e6eeebfa6eed3abb0e20d20b1a0a1",
+    "source_bytes": 8871,
+    "source_sha256": "14c87dab541b9ccad59a44ea0d2e5a916fe2c7a7e6211ee10789dbc2489246c3",
     "native_bytes": 18576,
     "native_sha256": "d7ce48d63be158372763a0797c380116d6c1b886d36e2a4a94b97d03b691bf16",
-    "whole_bytes": 4574,
-    "whole_sha256": "bcb86fda8ce426caa85cfe9fe72ceaab073c4bfef175a4db668b6f0ec3921ee1",
+    "whole_bytes": 4553,
+    "whole_sha256": "002e9ecb8729e779ef600cb79ada8bf139869eae42440c4ca3f67559a646d89b",
     "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
     "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
-    "bootstrap_sha256": "3cd0db3f29975465aa6915c5821be73cf80a9cc31f0292921e12e332ae8eff61",
+    "bootstrap_sha256": "5f5a2ff73ff4b0479cb8c6b628909cd1ad2aa46792898c1124aac7625bdaf15f",
     "semantic_readable_bytes": 25720,
     "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
     "dev_source_bytes": 19488,
     "dev_native_bytes": 26984,
     "input_profile_readable_bytes": 28587,
     "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
-    "bootstrap_bytes": 9912
+    "bootstrap_bytes": 9850
   },
   "local_input_sha256": {
     "engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
@@ -3017,6 +3018,28 @@
         "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-clamp-normal-20261021-evidence/summary.json",
         "bytes": 6902,
         "sha256": "5e079fce09822966fcc5ca90789405eac2bc7c16bc81fbc93a2b5ed992af9270"
+      },
+      "annotation_only": true
+    }
+  },
+  "source_forms": {
+    "scope": "full-F pure piece-index inline and fixed HISTORY token; all features/resources preserved",
+    "cost": {
+      "path": "/home/stemxstudio/rove4k-full-f-source-forms-composition-first-cost-20261021/cost.json",
+      "bytes": 9563,
+      "sha256": "76899105c69ad3a61d44bed6712f5fbf7eee99e06d42a62d94ecc75b420f5635"
+    },
+    "raw_delta": -62,
+    "whole_delta_against_clamp": -21,
+    "whole_delta_against_best_standalone": -11,
+    "native_entire_bytes_equal": true,
+    "HISTORY_macro_removed": true,
+    "normal_validation": {
+      "status": "PASS",
+      "summary": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-source-forms-normal-20261021-evidence/summary.json",
+        "bytes": 7071,
+        "sha256": "9669f3aa030fd02a39a7d66704ae38c465b906eab7f035095627990b27830aaf"
       },
       "annotation_only": true
     }
