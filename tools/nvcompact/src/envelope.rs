@@ -1,7 +1,8 @@
 //! Repack inspected submission envelopes without inferring arbitrary shell ASTs.
 //! A measured minimum is not automatically an accepted chess submission.
 use crate::{
-    codec::{self, Recipe},
+    codec::{self, CodecPortfolio, Recipe},
+    envelope_cost::{CacheBudget, WholeFileObjective},
     process, sha256, write_json,
 };
 use anyhow::{bail, ensure, Context, Result};
@@ -12,10 +13,7 @@ use std::fs;
 use std::io::Read;
 use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
-use std::sync::{
-    atomic::{AtomicUsize, Ordering},
-    mpsc, OnceLock,
-};
+use std::sync::OnceLock;
 use std::time::Instant;
 
 const MAX_ARTIFACT: usize = 4 << 20;
@@ -496,93 +494,21 @@ fn payload_variants(
     Ok((values, reports))
 }
 
+/// A separate replay owns a new objective and bypasses measurement caches.
 fn evaluate(
     variant: &Payload,
     recipe: &Recipe,
     header: &[u8],
     old_decoder: &str,
 ) -> Result<(Value, Vec<u8>)> {
-    ensure!(!process::cancelled(), "cancelled before codec candidate");
-    let blob = codec::compress(&variant.data, recipe)?;
-    ensure!(
-        codec::decode(&blob, recipe, codec::MAX_PAYLOAD)? == variant.data,
-        "codec roundtrip changed payload"
-    );
-    let prefix = best_header(header, old_decoder, &codec::decoder_for(recipe)?)?;
-    let mut data = prefix.clone();
-    data.extend_from_slice(&blob);
-    let id = sha256(&serde_json::to_vec(&json!([variant.id, recipe]))?)[..16].to_string();
-    let record = json!({"id":id,"variant":variant.id,"recipe":recipe,"bytes":data.len(),
-        "header_bytes":prefix.len(),"packed_bytes":blob.len(),"source_bytes":variant.data.len(),
-        "sha256":sha256(&data),"payload_sha256":sha256(&variant.data),"equivalence":variant.equivalence});
-    Ok((record, data))
-}
-
-/// At most `jobs` codecs and their result buffers run concurrently. Completion
-/// order cannot change record order or tie selection. Streams never cross
-/// thread boundaries and every scoped worker is joined before returning.
-fn evaluate_batch(
-    variant: &Payload,
-    recipes: &[Recipe],
-    header: &[u8],
-    decoder: &str,
-    jobs: usize,
-) -> Result<(Vec<Value>, Value, Vec<u8>)> {
-    ensure!(!recipes.is_empty(), "empty codec batch");
-    let next = AtomicUsize::new(0);
-    let (sender, receiver) = mpsc::sync_channel(jobs);
-    let mut records = vec![Value::Null; recipes.len()];
-    let mut best: Option<(usize, Value, Vec<u8>)> = None;
-    let mut failure: Option<anyhow::Error> = None;
-    std::thread::scope(|scope| {
-        let mut handles = Vec::new();
-        for _ in 0..jobs.min(recipes.len()) {
-            let sender = sender.clone();
-            let next = &next;
-            handles.push(scope.spawn(move || loop {
-                let index = next.fetch_add(1, Ordering::Relaxed);
-                if index >= recipes.len() {
-                    break;
-                }
-                let result = evaluate(variant, &recipes[index], header, decoder);
-                if sender.send((index, result)).is_err() {
-                    break;
-                }
-            }));
-        }
-        drop(sender);
-        for (index, result) in receiver {
-            match result {
-                Ok((record, data)) => {
-                    if best.as_ref().is_none_or(|(old_index, _, old)| {
-                        (data.len(), index) < (old.len(), *old_index)
-                    }) {
-                        best = Some((index, record.clone(), data));
-                    }
-                    records[index] = record;
-                }
-                Err(error) => {
-                    if failure.is_none() {
-                        failure = Some(error);
-                    }
-                }
-            }
-        }
-        for handle in handles {
-            if handle.join().is_err() && failure.is_none() {
-                failure = Some(anyhow::anyhow!("codec worker panicked"));
-            }
-        }
-    });
-    if let Some(error) = failure {
-        return Err(error);
-    }
-    ensure!(
-        records.iter().all(|item| !item.is_null()),
-        "codec worker failed to return all recipes"
-    );
-    let (_, record, data) = best.context("no measured codec candidates")?;
-    Ok((records, record, data))
+    WholeFileObjective::new(
+        header,
+        old_decoder,
+        CodecPortfolio::fixed(vec![recipe.clone()])?,
+        1,
+        CacheBudget::disabled(),
+    )?
+    .fresh_evaluate_recipe(&variant.id, &variant.data, &variant.equivalence, recipe)
 }
 
 pub fn check_deployed_payload(
@@ -740,6 +666,13 @@ pub fn run(manifest_path: &Path, output: &Path, options: &EnvelopeOptions) -> Re
             payload_variants(&payload, &manifest, &output, options.notation)?;
         summary["notation"] = json!(reports);
         let submitted_recipe: Recipe = serde_json::from_value(spec["payload_codec"].clone())?;
+        let mut objective = WholeFileObjective::new(
+            &header,
+            old_decoder,
+            CodecPortfolio::legacy(options.thorough, Some(submitted_recipe.clone())),
+            options.jobs,
+            CacheBudget::default(),
+        )?;
         if options.notation {
             if let Some(search_spec) = manifest.get("source_search") {
                 let mut search: crate::source_search::SourceSearchOptions =
@@ -760,18 +693,6 @@ pub fn run(manifest_path: &Path, output: &Path, options: &EnvelopeOptions) -> Re
                 }
                 let compiler = compile_argv(&manifest)?
                     .context("source search requires the submitted C compile_argv recipe")?;
-                let mut measure = |data: &[u8]| -> Result<usize> {
-                    let candidate = Payload {
-                        id: "source-cost".into(),
-                        data: data.to_vec(),
-                        equivalence: "candidate only".into(),
-                    };
-                    Ok(
-                        evaluate(&candidate, &submitted_recipe, &header, old_decoder)?
-                            .1
-                            .len(),
-                    )
-                };
                 let cost_decoder = codec::decoder_for(&submitted_recipe)?;
                 let cost_header = best_header(&header, old_decoder, &cost_decoder)?;
                 let cost_objective = json!({"kind":"inspected-envelope-fixed-codec-v1","category":category,
@@ -780,38 +701,49 @@ pub fn run(manifest_path: &Path, output: &Path, options: &EnvelopeOptions) -> Re
                     "inspected_decoder":old_decoder,"cost_decoder":cost_decoder,
                     "codec":submitted_recipe,"implementation":summary["tool"],
                     "scope":"entire encoded payload plus entire inspected cost header; no engine execution"});
-                let searched = crate::source_search::search_with_cost_context(
+                let portfolio_search = match manifest.get("source_search_portfolio") {
+                    Some(value) => value
+                        .as_bool()
+                        .context("source_search_portfolio must be a boolean")?,
+                    None => true,
+                };
+                let searched = crate::envelope_source::search(
                     &payload,
                     &search,
                     &compiler,
-                    &output.join("source-search"),
-                    Some(&cost_objective),
-                    &mut measure,
+                    &mut objective,
+                    &submitted_recipe,
+                    &output,
+                    cost_objective,
+                    &summary["tool"],
+                    portfolio_search,
                 )?;
-                let id = format!("c-source-search-{}", &sha256(&searched.data)[..16]);
-                // Detailed candidate records already have an owned output file.
-                // Keep the replay summary small instead of duplicating a bounded
-                // 32 MiB search log alongside the accepted derivation.
-                let report_path = "source-search/source-search/report.json";
-                let report_bytes = fs::read(output.join(report_path))?;
-                let mut compact_report = searched.report;
-                let records_count = compact_report["records"].as_array().map_or(0, Vec::len);
-                compact_report
-                    .as_object_mut()
-                    .context("source-search report is not an object")?
-                    .remove("records");
-                compact_report["detail"] = json!({"path":report_path,"sha256":sha256(&report_bytes),
-                    "bytes":report_bytes.len(),"records":records_count});
-                summary["source_search"] = json!({"variant":id,"report":compact_report,
-                    "recipe":searched.recipe,"cost_codec":submitted_recipe,
-                    "cost_scope":"complete inspected header plus encoded whole payload; final codec portfolio is additional"});
-                if searched.data != payload && !variants.iter().any(|v| v.data == searched.data) {
-                    variants.push(Payload {
-                        id,
-                        data: searched.data,
-                        equivalence: "unchanged C bytes or verified typed source derivation; complete native and compiler diagnostic byte identity; exact payload readback under declared embedding contract".into(),
-                    });
+                let strategy_count = searched
+                    .iter()
+                    .filter_map(|candidate| candidate.summary["strategy"].as_str())
+                    .collect::<std::collections::HashSet<_>>()
+                    .len();
+                summary["source_search_budget"] = json!({"strategies":strategy_count,
+                    "retained_source_seeds":searched.len(),
+                    "maximum_complete_payload_evaluations":strategy_count*search.max_evaluations,
+                    "maximum_combination_attempts":strategy_count*search.max_combinations,
+                    "total_scheduling_seconds":strategy_count as f64*search.max_seconds,
+                    "scope":"separate per-strategy scheduling deadlines; bounded in-flight operation and final acceptance may complete afterward; codec scratch and final portfolio are separate",
+                    "codec_cache":"shared across strategies and final comparison"});
+                let mut strategy_summaries = Vec::new();
+                for mut candidate in searched {
+                    let existing = variants.iter().find(|v| v.data == candidate.data);
+                    candidate.summary["canonical_variant"] =
+                        json!(existing.map_or(candidate.id.as_str(), |v| v.id.as_str()));
+                    candidate.summary["alias_of"] = existing.map_or(Value::Null, |v| json!(v.id));
+                    if existing.is_none() {
+                        variants.push(Payload { id: candidate.id.clone(), data: candidate.data,
+                            equivalence: "unchanged C bytes or verified typed source derivation; complete native and compiler diagnostic byte identity; exact payload readback under declared embedding contract".into() });
+                    }
+                    strategy_summaries.push(candidate.summary);
                 }
+                summary["source_search"] = strategy_summaries[0].clone();
+                summary["source_search_portfolio"] = json!(strategy_summaries);
             }
         }
         let submitted_decoder = codec::decoder_for(&submitted_recipe)?;
@@ -829,52 +761,15 @@ pub fn run(manifest_path: &Path, output: &Path, options: &EnvelopeOptions) -> Re
         records.push(submitted_record);
         let mut per_variant = Vec::new();
         for variant in &variants {
-            let mut initial = codec::recipes(variant.data.len(), options.thorough);
-            let legacy_initial_count = initial.len();
-            // Keep the inspected codec parameters too. Source-search savings
-            // must not disappear because its cost recipe is absent here.
-            if !initial.contains(&submitted_recipe) {
-                initial.push(submitted_recipe.clone());
+            let evaluated = objective.evaluate(&variant.id, &variant.data, &variant.equivalence)?;
+            records.extend(evaluated.records);
+            if evaluated.data.len() < best_data.len() {
+                best = evaluated.best.clone();
+                best_data = evaluated.data;
             }
-            let (measured, mut variant_best, mut variant_data) =
-                evaluate_batch(variant, &initial, &header, old_decoder, options.jobs)?;
-            let sizes: Vec<(Recipe, usize)> = initial
-                .iter()
-                .cloned()
-                .zip(
-                    measured
-                        .iter()
-                        .map(|item| item["bytes"].as_u64().unwrap() as usize),
-                )
-                .collect();
-            records.extend(measured);
-            // Extra seeds must not displace a formerly explored refinement:
-            // refinements selects only two format/filter families. Preserve
-            // the exact old portfolio, then union any new-seed refinements.
-            let mut refinements =
-                codec::refinements(&sizes[..legacy_initial_count], options.thorough);
-            for extra in codec::refinements(&sizes, options.thorough) {
-                if !refinements.contains(&extra) {
-                    refinements.push(extra);
-                }
-            }
-            if !refinements.is_empty() {
-                let (mut refined, record, data) =
-                    evaluate_batch(variant, &refinements, &header, old_decoder, options.jobs)?;
-                for item in &mut refined {
-                    item["phase"] = json!("match-finder-refinement");
-                }
-                records.extend(refined);
-                if data.len() < variant_data.len() {
-                    variant_best = record;
-                    variant_data = data;
-                }
-            }
-            if variant_data.len() < best_data.len() {
-                best = variant_best.clone();
-                best_data = variant_data;
-            }
-            per_variant.push(variant_best);
+            let mut result = evaluated.best;
+            result["coverage"] = evaluated.coverage;
+            per_variant.push(result);
         }
         summary["variants"] = json!(per_variant);
         let selected = variants
@@ -888,18 +783,21 @@ pub fn run(manifest_path: &Path, output: &Path, options: &EnvelopeOptions) -> Re
             data.extend_from_slice(original_blob);
             data
         } else {
-            evaluate(
-                selected,
-                &serde_json::from_value(best["recipe"].clone())?,
-                &header,
-                old_decoder,
-            )?
-            .1
+            objective
+                .fresh_evaluate_recipe(
+                    &selected.id,
+                    &selected.data,
+                    &selected.equivalence,
+                    &serde_json::from_value(best["recipe"].clone())?,
+                )?
+                .1
         };
         ensure!(
             regenerated == best_data,
             "selected compression recipe does not reproduce exactly"
         );
+        summary["cost_evaluator"] =
+            json!({"context":objective.context(),"statistics":objective.stats()});
         executable(&output.join("smallest"), &best_data)?;
         if best["id"] != "identity" {
             summary["smallest_payload_check"] = check_deployed_payload(
@@ -1017,12 +915,20 @@ fn derive_payload(summary: &Value, record: &Value, payload: &[u8], work: &Path) 
             equivalence: "decoded payload byte identity".into(),
         });
     }
-    if summary["source_search"]["variant"].as_str() == Some(id) {
+    let source_recipe = summary
+        .get("source_search_portfolio")
+        .and_then(Value::as_array)
+        .and_then(|all| all.iter().find(|item| item["variant"].as_str() == Some(id)))
+        .or_else(|| {
+            (summary["source_search"]["variant"].as_str() == Some(id))
+                .then_some(&summary["source_search"])
+        });
+    if let Some(searched) = source_recipe {
         let compiler = compile_argv(&summary["manifest"])?
             .context("recorded source search compile recipe is missing")?;
         let data = crate::source_search::replay(
             payload,
-            &summary["source_search"]["recipe"],
+            &searched["recipe"],
             &compiler,
             &work.join("source-search"),
         )?;

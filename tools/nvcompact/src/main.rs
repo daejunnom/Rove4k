@@ -1,7 +1,8 @@
 use anyhow::{bail, ensure, Context, Result};
 use clap::{Args, Parser, Subcommand};
 use nvcompact::{
-    attempts, cflow, csource, envelope, native, notation, process, resource, uci, write_json,
+    advice_profile, advisor, artifact_advice, attempts, cflow, csource, envelope, native, notation,
+    process, resource, uci, write_json,
 };
 use serde_json::{json, Value};
 use std::collections::BTreeMap;
@@ -33,6 +34,12 @@ enum Command {
     RewriteC(RewriteArgs),
     /// Generate unranked C local-name and typed literal candidates; no target execution.
     SpellC(SpellArgs),
+    /// Report C constants, unused symbols and use-site ranges. Never rewrites compression inputs.
+    AdviseC(AdviceArgs),
+    /// Analyze an explicit C, C++ or Rust scalar subset; other languages are unsupported.
+    AdviseSource(SourceAdviceArgs),
+    /// Inventory repeated bytes in a complete final file; no semantic-constant claim.
+    InspectBinary(InspectBinaryArgs),
     /// Compare retained source attempts without executing commands or revalidating semantics.
     CompareAttempts {
         #[arg(required = true, num_args = 1..=16)]
@@ -181,6 +188,69 @@ struct SpellArgs {
     names_per_group: usize,
     #[arg(long)]
     portfolio: Option<PathBuf>,
+}
+#[derive(Args)]
+struct AdviceArgs {
+    source: PathBuf,
+    #[arg(long, default_value = "clang")]
+    clang: String,
+    /// Defaults to c11, c++17 or rust2021 according to the explicit language.
+    #[arg(long)]
+    standard: Option<String>,
+    #[arg(long = "compiler-arg", allow_hyphen_values = true)]
+    compiler_args: Vec<String>,
+    #[arg(long, default_value_t = 256)]
+    max_findings: usize,
+    #[arg(long, default_value_t = 10_000)]
+    max_ranges: usize,
+    /// Maximum retained pure expression sites for advisory n-version comparison.
+    #[arg(long, default_value_t = 64)]
+    max_nversion_targets: usize,
+    /// Scalar/memo work limit per static or observed comparison phase.
+    #[arg(long, default_value_t = 16_000_000)]
+    max_nversion_work: usize,
+    /// Conservative node-work bound for finite-domain flow propagation.
+    #[arg(long, default_value_t = 8_000_000)]
+    max_finite_flow_work: usize,
+    #[arg(long, default_value_t = 30.0)]
+    frontend_seconds: f64,
+    #[arg(long, default_value_t = 1_073_741_824u64)]
+    frontend_memory_bytes: u64,
+    #[arg(long, default_value_t = 33_554_432)]
+    frontend_ast_bytes: usize,
+    /// Write JSON to a new report file; stdout always carries the report.
+    #[arg(long)]
+    report: Option<PathBuf>,
+    /// Import diagnostic stderr samples; these never narrow the static facts.
+    #[arg(long)]
+    profile: Option<PathBuf>,
+    /// Export a separate diagnostic source/header into a fresh directory; does not execute it.
+    #[arg(long)]
+    instrument: Option<PathBuf>,
+    #[arg(long, default_value_t = 128)]
+    max_probes: usize,
+    #[arg(long, default_value_t = 100_000)]
+    max_samples: usize,
+}
+#[derive(Args)]
+struct SourceAdviceArgs {
+    /// Supported: c, cpp (or c++), rust. No extension-based fallback.
+    #[arg(long)]
+    language: String,
+    #[command(flatten)]
+    options: AdviceArgs,
+}
+#[derive(Args)]
+struct InspectBinaryArgs {
+    artifact: PathBuf,
+    #[arg(long, default_value_t = 8)]
+    word_bytes: usize,
+    #[arg(long, default_value_t = 128)]
+    max_findings: usize,
+    #[arg(long, default_value_t = 64)]
+    max_offsets: usize,
+    #[arg(long)]
+    report: Option<PathBuf>,
 }
 #[derive(Args)]
 struct EnvelopeArgs {
@@ -472,6 +542,56 @@ fn export_rewrite(
     new_json(&directory.join("manifest.json"), &manifest)
 }
 
+fn advise(args: AdviceArgs, language: advisor::SourceLanguage) -> Result<(Value, bool)> {
+    ensure!(
+        language == advisor::SourceLanguage::C
+            || (args.profile.is_none() && args.instrument.is_none()),
+        "--profile and --instrument are currently supported only for C; C++ and Rust advisory analysis is static-only"
+    );
+    let original = source(&args.source)?;
+    let opts = advisor::AdvisorOptions {
+        clang: args.clang,
+        standard: args
+            .standard
+            .unwrap_or_else(|| language.default_standard().into()),
+        compiler_args: args.compiler_args,
+        source_path: Some(args.source.canonicalize()?),
+        frontend_seconds: args.frontend_seconds,
+        frontend_memory_bytes: args.frontend_memory_bytes,
+        ast_bytes: args.frontend_ast_bytes,
+        max_findings: args.max_findings,
+        max_ranges: args.max_ranges,
+        max_nversion_targets: args.max_nversion_targets,
+        max_nversion_work: args.max_nversion_work,
+        max_finite_flow_work: args.max_finite_flow_work,
+    };
+    let analysis = advisor::analyze_source(&original, language, &opts)?;
+    let mut report = serde_json::to_value(&analysis)?;
+    if let Some(path) = &args.profile {
+        report["observations"] =
+            advice_profile::observe(&analysis, &bounded_input(path, 16 << 20)?)?;
+    }
+    if let Some(path) = &args.instrument {
+        let instrumented = advice_profile::instrument(
+            &original,
+            &analysis,
+            &advice_profile::InstrumentOptions {
+                max_sites: args.max_probes,
+                max_samples: args.max_samples,
+            },
+        )?;
+        fs::create_dir(path).context("instrumentation requires a fresh output directory")?;
+        new_file(&path.join("instrumented.c"), &instrumented.source)?;
+        new_file(&path.join(&instrumented.header_name), &instrumented.header)?;
+        new_json(&path.join("instrumentation.json"), &instrumented.manifest)?;
+        report["instrumentation"] = instrumented.manifest;
+    }
+    if let Some(path) = &args.report {
+        new_json(path, &report)?;
+    }
+    Ok((report, true))
+}
+
 fn dispatch(command: Command) -> Result<(Value, bool)> {
     match command {
         Command::Build(args) | Command::Run(args) => unreachable_build(args),
@@ -597,6 +717,24 @@ fn dispatch(command: Command) -> Result<(Value, bool)> {
                 "scope":"unranked candidates; envelope source_search adds whole-file cost and structural/native admission"}),
                 true,
             ))
+        }
+        Command::AdviseC(args) => advise(args, advisor::SourceLanguage::C),
+        Command::AdviseSource(args) => advise(args.options, args.language.parse()?),
+        Command::InspectBinary(args) => {
+            let input = bounded_input(&args.artifact, 4 << 20)?;
+            let report = artifact_advice::inspect(
+                &input,
+                &artifact_advice::ArtifactAdviceOptions {
+                    word_bytes: args.word_bytes,
+                    max_findings: args.max_findings,
+                    max_offsets: args.max_offsets,
+                    ..Default::default()
+                },
+            )?;
+            if let Some(path) = &args.report {
+                new_json(path, &report)?;
+            }
+            Ok((report, true))
         }
         Command::CompareAttempts { archives, output } => {
             Ok((attempts::compare_to_file(&archives, &output)?, true))

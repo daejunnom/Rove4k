@@ -1,13 +1,13 @@
 //! Deterministic, bounded codec recipes. The original stream is a separate
 //! candidate: a finite search is never assumed to rediscover upstream settings.
-use anyhow::{bail, ensure, Context, Result};
+use anyhow::{bail, ensure, Result};
 use serde::{Deserialize, Serialize};
 use std::io::{Cursor, Read, Write};
 
 pub const MAX_PAYLOAD: usize = 8 << 20;
 const DECODER_MEMORY: u64 = 256 << 20;
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Recipe {
     pub format: String,
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
@@ -108,30 +108,51 @@ pub fn recipes(payload_size: usize, thorough: bool) -> Vec<Recipe> {
 }
 
 pub fn refinements(records: &[(Recipe, usize)], thorough: bool) -> Vec<Recipe> {
-    let mut ordered: Vec<_> = records.iter().enumerate().collect();
-    ordered.sort_by_key(|(index, (_, size))| (*size, *index));
-    let mut seeds: Vec<Recipe> = Vec::new();
-    for (_, (recipe, _)) in ordered {
+    materialize_refinements(
+        refinement_seeds(records.iter().map(|(recipe, size)| (recipe, *size))),
+        thorough,
+    )
+}
+
+/// Retain the two lowest (cost, declaration index) family minima. A later
+/// recipe can improve its family or enter the best two, so no complete sort
+/// or copy of the initial domain is needed. Equal costs keep the first recipe.
+fn refinement_seeds<'a>(records: impl IntoIterator<Item = (&'a Recipe, usize)>) -> Vec<&'a Recipe> {
+    let mut seeds: Vec<(usize, &'a Recipe, usize)> = Vec::with_capacity(2);
+    for (index, (recipe, size)) in records.into_iter().enumerate() {
         if !matches!(recipe.format.as_str(), "alone" | "xz" | "raw") {
             continue;
         }
-        if seeds
+        let key = (size, index);
+        let family = seeds
             .iter()
-            .any(|item| item.format == recipe.format && item.x86 == recipe.x86)
-        {
+            .position(|(_, item, _)| item.format == recipe.format && item.x86 == recipe.x86);
+        if let Some(position) = family {
+            if key >= (seeds[position].2, seeds[position].0) {
+                continue;
+            }
+            seeds[position] = (index, recipe, size);
+        } else if seeds.len() < 2 {
+            seeds.push((index, recipe, size));
+        } else if key < (seeds[1].2, seeds[1].0) {
+            seeds[1] = (index, recipe, size);
+        } else {
             continue;
         }
-        seeds.push(recipe.clone());
-        if seeds.len() == 2 {
-            break;
+        if seeds.len() == 2 && (seeds[1].2, seeds[1].0) < (seeds[0].2, seeds[0].0) {
+            seeds.swap(0, 1);
         }
     }
+    seeds.into_iter().map(|(_, recipe, _)| recipe).collect()
+}
+
+fn materialize_refinements(seeds: Vec<&Recipe>, thorough: bool) -> Vec<Recipe> {
     let nice: Vec<u32> = if thorough {
         (4..=273).collect()
     } else {
         vec![4, 8, 16, 24, 32, 48, 64, 96, 128, 192, 273]
     };
-    let mut output = Vec::new();
+    let mut output = Vec::with_capacity(seeds.len() * 5 * nice.len());
     for seed in seeds {
         for mf in [
             lzma_sys::LZMA_MF_HC3,
@@ -151,16 +172,195 @@ pub fn refinements(records: &[(Recipe, usize)], thorough: bool) -> Vec<Recipe> {
     output
 }
 
-fn read_bounded(reader: &mut impl Read, maximum: usize) -> Result<Vec<u8>> {
-    let mut output = Vec::new();
-    reader
-        .take(maximum.checked_add(1).context("output bound overflow")? as u64)
-        .read_to_end(&mut output)?;
-    ensure!(
-        output.len() <= maximum,
-        "decompressed payload exceeds {maximum} bytes"
-    );
-    Ok(output)
+/// Whether measured initial costs choose a second, adaptive recipe set.
+/// `None` evaluates the declared initial set completely; `LegacyUnion` is a
+/// heuristic and never promises to enumerate every match-finder combination.
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum RefinementMode {
+    None,
+    LegacyUnion,
+}
+
+#[derive(Clone, Debug, Serialize)]
+#[serde(tag = "kind", rename_all = "snake_case")]
+enum PortfolioRecipes {
+    Legacy {
+        thorough: bool,
+        submitted: Option<Recipe>,
+    },
+    Fixed {
+        recipes: Vec<Recipe>,
+        declared_count: usize,
+    },
+}
+
+/// Owns one finite codec policy, independently of payload generation and
+/// compression. In particular an added submitted recipe cannot displace a
+/// refinement that the earlier legacy search would have measured.
+#[derive(Clone, Debug, Serialize)]
+pub struct CodecPortfolio {
+    recipes: PortfolioRecipes,
+    refinement_mode: RefinementMode,
+}
+
+#[derive(Clone, Debug)]
+pub struct PortfolioPlan {
+    pub initial: Vec<Recipe>,
+    legacy_initial_count: usize,
+}
+
+impl CodecPortfolio {
+    pub fn legacy(thorough: bool, submitted: Option<Recipe>) -> Self {
+        Self {
+            recipes: PortfolioRecipes::Legacy {
+                thorough,
+                submitted,
+            },
+            refinement_mode: RefinementMode::LegacyUnion,
+        }
+    }
+
+    /// Preserve declaration order while coalescing exactly identical recipes.
+    /// This declares the complete codec domain, suitable for a finite source ×
+    /// codec comparison without source-dependent refinement seed selection.
+    pub fn fixed(recipes: Vec<Recipe>) -> Result<Self> {
+        ensure!(
+            (1..=16_384).contains(&recipes.len()),
+            "fixed codec portfolio must contain 1..16384 recipes"
+        );
+        let declared_count = recipes.len();
+        let mut seen = std::collections::HashSet::new();
+        let recipes = recipes
+            .into_iter()
+            .filter(|recipe| seen.insert(recipe.clone()))
+            .collect();
+        Ok(Self {
+            recipes: PortfolioRecipes::Fixed {
+                recipes,
+                declared_count,
+            },
+            refinement_mode: RefinementMode::None,
+        })
+    }
+
+    pub fn with_refinement_mode(mut self, mode: RefinementMode) -> Self {
+        self.refinement_mode = mode;
+        self
+    }
+
+    pub fn plan(&self, payload_size: usize) -> PortfolioPlan {
+        match &self.recipes {
+            PortfolioRecipes::Legacy {
+                thorough,
+                submitted,
+            } => {
+                let mut initial = recipes(payload_size, *thorough);
+                let legacy_initial_count = initial.len();
+                if let Some(recipe) = submitted {
+                    if !initial.contains(recipe) {
+                        initial.push(recipe.clone());
+                    }
+                }
+                PortfolioPlan {
+                    initial,
+                    legacy_initial_count,
+                }
+            }
+            PortfolioRecipes::Fixed { recipes, .. } => PortfolioPlan {
+                initial: recipes.clone(),
+                legacy_initial_count: recipes.len(),
+            },
+        }
+    }
+
+    pub fn refinement_recipes(
+        &self,
+        plan: &PortfolioPlan,
+        complete_file_sizes: &[usize],
+    ) -> Result<Vec<Recipe>> {
+        ensure!(
+            plan.initial.len() == complete_file_sizes.len(),
+            "codec refinement costs do not match initial recipe domain"
+        );
+        ensure!(
+            plan.legacy_initial_count <= plan.initial.len(),
+            "legacy codec prefix exceeds initial domain"
+        );
+        if self.refinement_mode == RefinementMode::None {
+            return Ok(Vec::new());
+        }
+        let thorough = matches!(
+            self.recipes,
+            PortfolioRecipes::Legacy { thorough: true, .. }
+        );
+        let records = || plan.initial.iter().zip(complete_file_sizes.iter().copied());
+        let mut seeds = refinement_seeds(records().take(plan.legacy_initial_count));
+        if plan.legacy_initial_count != plan.initial.len() {
+            for seed in refinement_seeds(records()) {
+                // Every generated recipe overwrites exactly these two fields.
+                // Normalize their seed identity before expansion: equal seeds
+                // generate identical ordered domains, and unequal seeds have
+                // disjoint domains. At most four seeds need comparison.
+                let identity = |recipe: &Recipe| {
+                    let mut key = recipe.clone();
+                    key.mf = None;
+                    key.nice_len = None;
+                    key
+                };
+                let key = identity(seed);
+                if !seeds.iter().any(|previous| identity(previous) == key) {
+                    seeds.push(seed);
+                }
+            }
+        }
+        Ok(materialize_refinements(seeds, thorough))
+    }
+
+    pub fn context(&self) -> serde_json::Value {
+        serde_json::json!({
+            "policy":self,
+            "domain":if self.refinement_mode == RefinementMode::None {
+                "all declared initial recipes; exact duplicates retain the first occurrence"
+            } else if matches!(&self.recipes, PortfolioRecipes::Fixed { .. }) {
+                "declared initial recipes followed by measured two-family match-finder refinements"
+            } else {
+                "legacy initial recipes plus submitted recipe, then union of legacy and augmented two-family refinements"
+            },
+            "adaptive_refinement":self.refinement_mode != RefinementMode::None,
+            "exhaustive_declared_recipe_domain":self.refinement_mode == RefinementMode::None,
+            "global_optimum":false,
+            "tie_order":"initial declaration order, followed by refinement declaration order"
+        })
+    }
+}
+
+/// Drain a decoder in bounded chunks. The extra byte distinguishes exact
+/// output from a stream which only shares the expected prefix.
+fn read_chunks(
+    reader: &mut impl Read,
+    maximum: usize,
+    emit: &mut impl FnMut(&[u8]) -> Result<()>,
+) -> Result<()> {
+    ensure!(maximum < usize::MAX, "invalid output limit");
+    let mut output_bytes = 0;
+    let mut buffer = [0u8; 65536];
+    loop {
+        let capacity = buffer.len().min(maximum + 1 - output_bytes);
+        let written = match reader.read(&mut buffer[..capacity]) {
+            Err(error) if error.kind() == std::io::ErrorKind::Interrupted => continue,
+            result => result?,
+        };
+        if written == 0 {
+            return Ok(());
+        }
+        output_bytes += written;
+        ensure!(
+            output_bytes <= maximum,
+            "decompressed payload exceeds {maximum} bytes"
+        );
+        emit(&buffer[..written])?;
+    }
 }
 
 /// One raw liblzma stream, owned by its calling worker and always finalized.
@@ -173,7 +373,13 @@ impl Drop for LzmaStream {
     }
 }
 
-fn lzma(data: &[u8], recipe: &Recipe, encode: bool, maximum: usize) -> Result<Vec<u8>> {
+fn lzma_chunks(
+    data: &[u8],
+    recipe: &Recipe,
+    encode: bool,
+    maximum: usize,
+    emit: &mut impl FnMut(&[u8]) -> Result<()>,
+) -> Result<()> {
     ensure!(maximum < usize::MAX, "invalid output limit");
     ensure!(
         !recipe.x86 || recipe.format != "alone",
@@ -260,20 +466,21 @@ fn lzma(data: &[u8], recipe: &Recipe, encode: bool, maximum: usize) -> Result<Ve
     );
     stream.0.next_in = data.as_ptr();
     stream.0.avail_in = data.len();
-    let mut output = Vec::new();
+    let mut output_bytes = 0;
+    let mut buffer = [0u8; 65536];
     loop {
-        let mut buffer = [0u8; 65536];
         stream.0.next_out = buffer.as_mut_ptr();
-        stream.0.avail_out = buffer.len().min(maximum + 1 - output.len());
+        stream.0.avail_out = buffer.len().min(maximum + 1 - output_bytes);
         let capacity = stream.0.avail_out;
         let before = stream.0.avail_in;
         let status = unsafe { lzma_sys::lzma_code(&mut stream.0, lzma_sys::LZMA_FINISH) };
         let written = capacity - stream.0.avail_out;
-        output.extend_from_slice(&buffer[..written]);
+        output_bytes += written;
         ensure!(
-            output.len() <= maximum,
+            output_bytes <= maximum,
             "codec output exceeds {maximum} bytes"
         );
+        emit(&buffer[..written])?;
         if status == lzma_sys::LZMA_STREAM_END {
             ensure!(
                 stream.0.avail_in == 0,
@@ -290,6 +497,15 @@ fn lzma(data: &[u8], recipe: &Recipe, encode: bool, maximum: usize) -> Result<Ve
             "unfinished LZMA stream made no progress"
         );
     }
+    Ok(())
+}
+
+fn lzma(data: &[u8], recipe: &Recipe, encode: bool, maximum: usize) -> Result<Vec<u8>> {
+    let mut output = Vec::new();
+    lzma_chunks(data, recipe, encode, maximum, &mut |chunk| {
+        output.extend_from_slice(chunk);
+        Ok(())
+    })?;
     Ok(output)
 }
 
@@ -332,42 +548,77 @@ pub fn compress(data: &[u8], recipe: &Recipe) -> Result<Vec<u8>> {
     }
 }
 
-pub fn decode(data: &[u8], recipe: &Recipe, maximum: usize) -> Result<Vec<u8>> {
+fn decode_chunks(
+    data: &[u8],
+    recipe: &Recipe,
+    maximum: usize,
+    emit: &mut impl FnMut(&[u8]) -> Result<()>,
+) -> Result<()> {
     match recipe.format.as_str() {
         "identity" => {
             ensure!(data.len() <= maximum, "identity exceeds payload bound");
-            Ok(data.to_vec())
+            emit(data)
         }
         "gzip" => {
             let mut reader = flate2::bufread::GzDecoder::new(Cursor::new(data));
-            let output = read_bounded(&mut reader, maximum)?;
+            read_chunks(&mut reader, maximum, emit)?;
             ensure!(
                 reader.into_inner().position() == data.len() as u64,
                 "trailing gzip data is unsupported"
             );
-            Ok(output)
+            Ok(())
         }
         "zlib" => {
             let mut reader = flate2::bufread::ZlibDecoder::new(Cursor::new(data));
-            let output = read_bounded(&mut reader, maximum)?;
+            read_chunks(&mut reader, maximum, emit)?;
             ensure!(
                 reader.total_in() == data.len() as u64,
                 "trailing zlib data is unsupported"
             );
-            Ok(output)
+            Ok(())
         }
         "bzip2" => {
             let mut reader = bzip2::bufread::BzDecoder::new(Cursor::new(data));
-            let output = read_bounded(&mut reader, maximum)?;
+            read_chunks(&mut reader, maximum, emit)?;
             ensure!(
                 reader.total_in() == data.len() as u64,
                 "trailing bzip2 data is unsupported"
             );
-            Ok(output)
+            Ok(())
         }
-        "alone" | "xz" | "raw" => lzma(data, recipe, false, maximum),
+        "alone" | "xz" | "raw" => lzma_chunks(data, recipe, false, maximum, emit),
         other => bail!("unsupported decoder {other}"),
     }
+}
+
+pub fn decode(data: &[u8], recipe: &Recipe, maximum: usize) -> Result<Vec<u8>> {
+    let mut output = Vec::new();
+    decode_chunks(data, recipe, maximum, &mut |chunk| {
+        output.extend_from_slice(chunk);
+        Ok(())
+    })?;
+    Ok(output)
+}
+
+/// Verify every restored byte and the exact stream boundary without retaining
+/// another full decoded payload. Decoder integrity/trailing-input checks are
+/// shared with `decode`; a matching prefix is never accepted as a roundtrip.
+pub fn verify_decode(data: &[u8], recipe: &Recipe, expected: &[u8]) -> Result<()> {
+    let mut offset = 0;
+    decode_chunks(data, recipe, expected.len(), &mut |chunk| {
+        let end = offset + chunk.len();
+        ensure!(
+            expected.get(offset..end) == Some(chunk),
+            "codec roundtrip changed payload"
+        );
+        offset = end;
+        Ok(())
+    })?;
+    ensure!(
+        offset == expected.len(),
+        "codec roundtrip truncated payload"
+    );
+    Ok(())
 }
 
 pub fn decoder_for(recipe: &Recipe) -> Result<String> {
@@ -381,4 +632,154 @@ pub fn decoder_for(recipe: &Recipe) -> Result<String> {
         "bzip2" => "bzip2 -d".into(),
         other => bail!("no allowed shell decoder for {other}"),
     })
+}
+
+#[cfg(test)]
+mod streaming_tests {
+    use super::*;
+
+    // Independent previous algorithm: sort the whole domain, then retain the
+    // first occurrence of each family and materialize both domains before
+    // deduplicating complete recipes. This is intentionally test-only.
+    fn sorted_reference(records: &[(Recipe, usize)], thorough: bool) -> Vec<Recipe> {
+        let mut ordered: Vec<_> = records.iter().enumerate().collect();
+        ordered.sort_by_key(|(index, (_, size))| (*size, *index));
+        let mut seeds: Vec<&Recipe> = Vec::new();
+        for (_, (recipe, _)) in ordered {
+            if matches!(recipe.format.as_str(), "alone" | "xz" | "raw")
+                && !seeds
+                    .iter()
+                    .any(|prior| prior.format == recipe.format && prior.x86 == recipe.x86)
+            {
+                seeds.push(recipe);
+                if seeds.len() == 2 {
+                    break;
+                }
+            }
+        }
+        materialize_refinements(seeds, thorough)
+    }
+
+    #[test]
+    fn linear_refinement_selection_preserves_complete_ordered_domain() {
+        let domain = recipes(12_345, false);
+        for iteration in 0..24 {
+            let records: Vec<_> = domain
+                .iter()
+                .cloned()
+                .enumerate()
+                .map(|(index, recipe)| {
+                    // Include broad ties, late family improvements, and cases
+                    // where a previously excluded family enters the best two.
+                    let size = match iteration % 3 {
+                        0 => (index * (iteration + 1) + 17) % 5,
+                        1 => (domain.len() - index) / (iteration + 1),
+                        _ => (index ^ (index >> 2) ^ iteration) % 31,
+                    };
+                    (recipe, size)
+                })
+                .collect();
+            assert_eq!(
+                refinements(&records, false),
+                sorted_reference(&records, false)
+            );
+        }
+        assert!(refinements(&[], false).is_empty());
+        let only_ineligible = vec![(Recipe::new("gzip"), 0), (Recipe::new("bzip2"), 1)];
+        assert!(refinements(&only_ineligible, false).is_empty());
+    }
+
+    #[test]
+    fn refinement_seed_union_matches_expanded_recipe_union() {
+        for thorough in [false, true] {
+            for variant in 0..4 {
+                let base = CodecPortfolio::legacy(thorough, None).plan(4097);
+                let mut submitted = base.initial[0].clone();
+                // Changing overwritten fields generates the same refinement
+                // domain; changing depth or context generates a distinct one.
+                submitted.mf = Some(lzma_sys::LZMA_MF_HC4 as u32);
+                submitted.nice_len = Some(77);
+                if variant == 2 {
+                    submitted.depth = Some(13);
+                } else if variant == 3 {
+                    submitted.format = "raw".into();
+                    submitted.x86 = true;
+                    submitted.lc = Some(2);
+                }
+                let policy = CodecPortfolio::legacy(thorough, (variant != 0).then_some(submitted));
+                let plan = policy.plan(4097);
+                let sizes: Vec<_> = (0..plan.initial.len())
+                    .map(|index| if index >= base.initial.len() { 0 } else { 100 })
+                    .collect();
+                let records: Vec<_> = plan.initial.iter().cloned().zip(sizes.clone()).collect();
+                let mut expected = sorted_reference(&records[..base.initial.len()], thorough);
+                for recipe in sorted_reference(&records, thorough) {
+                    if !expected.contains(&recipe) {
+                        expected.push(recipe);
+                    }
+                }
+                assert_eq!(policy.refinement_recipes(&plan, &sizes).unwrap(), expected);
+                assert!(policy
+                    .refinement_recipes(&plan, &sizes[..sizes.len() - 1])
+                    .is_err());
+            }
+        }
+    }
+
+    #[test]
+    fn chunked_output_limits_detect_one_extra_byte_at_scratch_boundaries() {
+        for length in [0, 1, 64, 65_535, 65_536, 65_537] {
+            let payload: Vec<_> = (0..length).map(|index| (index % 251) as u8).collect();
+            let mut restored = Vec::new();
+            read_chunks(&mut Cursor::new(&payload), length, &mut |chunk| {
+                restored.extend_from_slice(chunk);
+                Ok(())
+            })
+            .unwrap();
+            assert_eq!(restored, payload);
+            let mut excess = payload;
+            excess.push(7);
+            assert!(read_chunks(&mut Cursor::new(excess), length, &mut |_| Ok(())).is_err());
+        }
+    }
+
+    #[test]
+    fn streamed_comparison_checks_every_byte_length_and_stream_end() {
+        let payload: Vec<_> = (0..200_003).map(|i| (i % 251) as u8).collect();
+        for format in ["identity", "gzip", "zlib", "bzip2", "alone", "xz", "raw"] {
+            let mut recipe = Recipe::new(format);
+            recipe.dict_size = Some(1 << 18);
+            let packed = compress(&payload, &recipe).unwrap();
+            assert_eq!(decode(&packed, &recipe, payload.len()).unwrap(), payload);
+            verify_decode(&packed, &recipe, &payload).unwrap();
+            let mut different = payload.clone();
+            different[65_537] ^= 1;
+            assert!(
+                verify_decode(&packed, &recipe, &different).is_err(),
+                "{format}"
+            );
+            assert!(
+                verify_decode(&packed, &recipe, &payload[..payload.len() - 1]).is_err(),
+                "{format}"
+            );
+            let mut longer = payload.clone();
+            longer.push(0);
+            assert!(
+                verify_decode(&packed, &recipe, &longer).is_err(),
+                "{format}"
+            );
+            let mut trailing = packed.clone();
+            trailing.push(0);
+            assert!(
+                verify_decode(&trailing, &recipe, &payload).is_err(),
+                "{format}"
+            );
+            assert!(
+                verify_decode(&packed[..packed.len() - 1], &recipe, &payload).is_err(),
+                "{format}"
+            );
+            let empty = compress(&[], &recipe).unwrap();
+            verify_decode(&empty, &recipe, &[]).unwrap();
+        }
+    }
 }

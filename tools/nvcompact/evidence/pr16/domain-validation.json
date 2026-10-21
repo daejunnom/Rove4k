@@ -1,0 +1,1047 @@
+{
+  "schema": "nvcompact-domain-validation-v1",
+  "date": "2026-10-21",
+  "baseline_revision": "d0c962ae49d2a4a664f9feef41bf8c7a285c16bd",
+  "feature_revision": "e0a616aee57b1d5e63246fa45a1816f19f85a79e",
+  "scope": {
+    "purpose": "Independent finite-domain, typed n-version, profile and full-source advisory audit.",
+    "engine_execution": false,
+    "engine_executable_compilation": false,
+    "engine_sources_vendored": false,
+    "compression_candidates_created": 0,
+    "packed_size_improvement_claimed": false,
+    "workspace_suite": "Owned by the parent integration run; not duplicated or counted here.",
+    "interpretation": "Finite containing-domain comparisons, bounded native observations, and conditional profile closures are separate evidence scopes. No whole-program reachability or engine-strength claim.",
+    "language_stage": "C-only advisory stage before the separately requested C++ and Rust adapters; later language validation must be recorded separately."
+  },
+  "build_identity": {
+    "audited_cli": {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/nvcompact-audit",
+      "bytes": 107644656,
+      "sha256": "fb7c2a7aa10adfbafc0372277b50fbb5efc7c6c8870064a3db6dd3ba1e65eadc"
+    },
+    "cli_fingerprint_unchanged_during_audit": true,
+    "baseline_moonfish_cli_sha256": "736bff8b5bf22bd2ad14e0597965309d5cee131a1a27165d9b7308b8c09f6db3",
+    "baseline_advisory_module_sha256": {
+      "tools/nvcompact/src/advisor.rs": "ebd441d94e769f861c9e6b7b3d5b4294ca41b933f27899ed20484a5adb5092d7",
+      "tools/nvcompact/src/advisor/flow.rs": "d19494c53eecf8ea0b2eef713dd4b55a5a340bc7556e0fe349560c54010d1d15",
+      "tools/nvcompact/src/advice_profile.rs": "9d9cb8b5f000a188871a376d3505f760c6728c81d412090ab9231393ec0c59f4",
+      "tools/nvcompact/src/c_frontend.rs": "c27c4fd87e3a4eb71aaedc0f269268c276c3fb2c399f9e2441803c37135477fa"
+    },
+    "reviewed_working_tree_module_sha256": {
+      "tools/nvcompact/src/advisor.rs": "6ee0b37ba424226b254d63c2d8ffdd6a1d1db88ec3d4d21db39294e58731f8c5",
+      "tools/nvcompact/src/advisor/domain.rs": "0f0635b4ebff0639a983b93f978143936f8892969f9a92bb30ff5ed69824549e",
+      "tools/nvcompact/src/advisor/flow.rs": "529951b07098e1e9e625b700d7e020ec93103741b6f2caf622a552f83c393a44",
+      "tools/nvcompact/src/advisor/expressions.rs": "4363ee1984bf8e93705108c0919d8bc44311c101eb7f0d74e580bc6188260a6d",
+      "tools/nvcompact/src/advisor/nversion.rs": "a9256e5dd2c4fc5c84932ed23b1e12df7bedb3644306b5af8fddf0d735d9c582",
+      "tools/nvcompact/src/advisor/tests.rs": "6342ba49ecbe75f4309fef207444008cd777b4a1e8bd1ca6f0e3ff5cc3da2919",
+      "tools/nvcompact/src/advice_profile.rs": "3abb8349d928ae9a96be1b702555fb0e1edf0ada452a5b30899c2e9611a1daec",
+      "tools/nvcompact/src/c_frontend.rs": "cca45b278f1b47f861c088ee6dce7cfb6a6d086ede5611a6e16f77e98e881721",
+      "tools/nvcompact/src/main.rs": "b3ff4c4370011376b40c2a2f43599ada5179a72f6ccdfb29c636f65ae97ce6b4"
+    },
+    "module_hash_scope": "Working-tree hashes at evidence assembly. Earlier standalone oracle module hashes are recorded separately; later memo/storage/report changes were reviewed and exercised by the current CLI audit.",
+    "scalar_oracle_module_sha256_at_generation": "e77a9f1b00487f44223a5ecd4bd101b15679ecf55b35ce4b5a66b8e3dbfa1670",
+    "domain_oracle_module_sha256_at_copy": "61556724d35b13408660a5f09fa8bc8dc842b5ae6947b09dee9e9f46e961ab5d",
+    "frontend": {
+      "executable": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+      "executable_sha256": "b15e7640bf3082f36ef14321711706b265df3058721e3c2caef3a4b83895d07d",
+      "version": "Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin"
+    }
+  },
+  "resource_context": {
+    "cli_process_cpu_affinity": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "cli_process_cpu_seconds": 60,
+    "cli_process_address_space_bytes": 1073741824,
+    "cli_wall_timeout_seconds": 90,
+    "owned_native_wall_timeout_seconds": 30,
+    "same_context_f_followup_cpu_seconds": 30,
+    "same_context_f_followup_wall_seconds": 45,
+    "frontend_seconds_per_command": 30,
+    "frontend_address_space_bytes": 1073741824,
+    "frontend_ast_output_bytes": 33554432,
+    "ld_library_path": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/x86_64-linux-gnu"
+  },
+  "abstract_domain_oracle": {
+    "tests_passed": 4,
+    "tests_failed": 0,
+    "small_model": "Every signed and unsigned 4-bit interval, every consistent known-zero/known-one combination, and every subsequent lower-bound intersection.",
+    "sparse_joins": 65025,
+    "sparse_join_model": "Every ordered pair of nonempty subsets of {-4,-3,-2,-1,0,1,2,3}.",
+    "scope": "Exact domain logic copied to standalone wrapper; serialization derives removed only to avoid a parallel Cargo build. Concrete-set oracle independently checks all 4-bit intervals/consistent-bit restrictions and 8-value finite unions.",
+    "later_changes": "Arc-backed finite-set sharing and capped report summaries were reviewed separately; this oracle is not relabeled as testing those later serialization changes.",
+    "compile_returncode": 0,
+    "run_returncode": 0,
+    "reproduction_compile_argv": [
+      "/workspace/scratch/d70af21bae00/nvcompact-next/toolchain/rust/bin/rustc",
+      "--test",
+      "-O",
+      "/workspace/scratch/7bea14fb3412/round2-work/audit-research/domain-audit-wrapper.rs",
+      "-o",
+      "/workspace/scratch/7bea14fb3412/round2-work/audit-research/domain-audit"
+    ],
+    "reproduction_run_argv": [
+      "/workspace/scratch/7bea14fb3412/round2-work/audit-research/domain-audit"
+    ]
+  },
+  "typed_native_oracle": {
+    "generated_cases": 8688,
+    "executed_defined_cases": 7757,
+    "withheld_cases": 931,
+    "withheld_reasons": {
+      "division_by_zero": 288,
+      "invalid_shift": 482,
+      "negative_signed_right_shift": 86,
+      "signed_overflow": 64,
+      "signed_conversion_out_of_range": 11
+    },
+    "value_mismatches": 0,
+    "c_type_or_rank_mismatches": 0,
+    "ubsan_errors": 0,
+    "types": [
+      "int",
+      "unsigned int",
+      "long",
+      "unsigned long",
+      "long long",
+      "unsigned long long"
+    ],
+    "coverage": "All 6x6 integer type pairings; arithmetic, bitwise, comparisons, casts, shifts 31/32/63/64, type endpoints, lazy logical/conditional branches. Native _Generic checks result type/rank.",
+    "scope": "Independent GCC native C11 arithmetic and _Generic type oracle; owned generated expressions only. No external engine execution.",
+    "withheld_execution": "Unsupported or undefined model cases were recorded and excluded from native defined-case execution.",
+    "compile_argv": [
+      "/usr/bin/gcc",
+      "-std=c11",
+      "-O0",
+      "-fsanitize=undefined",
+      "-fno-sanitize-recover=all",
+      "/workspace/scratch/7bea14fb3412/round2-work/audit-research/native-oracle.c",
+      "-o",
+      "/workspace/scratch/7bea14fb3412/round2-work/audit-research/native-oracle"
+    ],
+    "run_argv": [
+      "/workspace/scratch/7bea14fb3412/round2-work/audit-research/native-oracle"
+    ],
+    "generator": {
+      "path": "/workspace/scratch/7bea14fb3412/nvcompact-work/nversion-harness/src/bin/native_oracle.rs",
+      "bytes": 3508,
+      "sha256": "d967d67ab273fdae2b89da60b9377c2c3078aba6d15c4ba4e38301a36587e624"
+    },
+    "generator_reproduction_argv": [
+      "cargo",
+      "run",
+      "--offline",
+      "--jobs",
+      "1",
+      "--manifest-path",
+      "/workspace/scratch/7bea14fb3412/nvcompact-work/nversion-harness/Cargo.toml",
+      "--bin",
+      "native_oracle",
+      "--",
+      "/workspace/scratch/7bea14fb3412/round2-work/audit-research"
+    ],
+    "generator_environment": {
+      "CARGO_HOME": "/workspace/scratch/7bea14fb3412/nvcompact-work/cargo-home",
+      "CARGO_TARGET_DIR": "/workspace/scratch/7bea14fb3412/nvcompact-work/nversion-target",
+      "rust_toolchain_bin": "/workspace/scratch/d70af21bae00/nvcompact-next/toolchain/rust/bin"
+    }
+  },
+  "whole_function_native_oracle": {
+    "owned_fixture_functions": 19,
+    "emitted_replacements": 94,
+    "input_comparisons": 124738,
+    "mismatches": 0,
+    "ubsan_errors": 0,
+    "inputs": "-300..1024, INT_MIN and INT_MAX; potentially long-running loop fixtures would omit extreme inputs.",
+    "replacement_method": "Every emitted positive n-version finding was separately parenthesized in its complete original function; original and candidate return values were compared.",
+    "output": "checks=124738 failures=0",
+    "scope": "Bounded ordinary/extreme input observations using GCC C11 -O0 with undefined-behavior sanitizer; not an exhaustive whole-program proof."
+  },
+  "finite_search": {
+    "report_complete": false,
+    "expression_sites_retained": 64,
+    "expression_sites_omitted": 8,
+    "searches_incomplete": 2,
+    "omissions_are_visible": true,
+    "default_budgets": {
+      "max_expression_targets": 64,
+      "max_global_evaluation_steps": 16000000,
+      "max_finite_flow_reserved_work": 8000000,
+      "max_values_per_domain": 4096,
+      "max_candidates_per_search": 10000,
+      "max_evaluation_steps_per_search": 2000000,
+      "max_cached_values_per_search": 131072,
+      "max_retained_candidates": 24,
+      "max_rejection_samples": 24
+    },
+    "fixture_evaluation_steps": 1009814,
+    "fixture_finite_flow_reserved_work": 305840,
+    "rank128_statistics": {
+      "generated": 3656,
+      "evaluation_steps": 25048,
+      "original_inputs_checked": 128,
+      "semantic_signatures": 15,
+      "semantic_duplicates": 5,
+      "reclaimed_cached_values": 640,
+      "comparison_reuses": 1,
+      "cache_hits": 13580,
+      "retained": 4,
+      "memo_capacity_skips": 0
+    },
+    "generic_examples": [
+      {
+        "function": "rank64",
+        "original": "(x >> 3) == 0 || (x >> 3) == 7",
+        "status": "compared",
+        "domain": {
+          "minimum": "0",
+          "maximum": "63",
+          "known_zero": "0xffffffc0",
+          "known_one": "0x0",
+          "finite_cardinality": 64,
+          "values_omitted": 0
+        },
+        "candidates": [
+          "!(x+8&48)",
+          "x<8||x>55",
+          "(x-8&48)==48",
+          "(unsigned)x-8>47"
+        ]
+      },
+      {
+        "function": "rank128",
+        "original": "(x >> 4) == 0 || (x >> 4) == 7",
+        "status": "compared",
+        "domain": {
+          "minimum": "0",
+          "maximum": "127",
+          "known_zero": "0xffffff80",
+          "known_one": "0x0",
+          "finite_cardinality": 128,
+          "values_omitted": 0
+        },
+        "candidates": [
+          "!(x+16&96)",
+          "x<16||x>111",
+          "(x-16&96)==96",
+          "(unsigned)x-16>95"
+        ]
+      },
+      {
+        "function": "rank512",
+        "original": "(x >> 6) == 0 || (x >> 6) == 7",
+        "status": "compared",
+        "domain": {
+          "minimum": "0",
+          "maximum": "511",
+          "known_zero": "0xfffffe00",
+          "known_one": "0x0",
+          "finite_cardinality": 512,
+          "values_omitted": 512
+        },
+        "candidates": [
+          "!(x+64&384)",
+          "x<64||x>447",
+          "(x-64&384)==384",
+          "(unsigned)x-64>383"
+        ]
+      },
+      {
+        "function": "board_guard",
+        "original": "(x >> 4) == 0 || (x >> 4) == 7",
+        "status": "compared",
+        "domain": {
+          "minimum": "0",
+          "maximum": "119",
+          "known_zero": "0xffffff88",
+          "known_one": "0x0",
+          "finite_cardinality": 64,
+          "values_omitted": 0
+        },
+        "candidates": [
+          "!(x+16&96)",
+          "x<16||x>103",
+          "(x-8&96)==96",
+          "(unsigned)x-16>87"
+        ]
+      },
+      {
+        "function": "disjoint",
+        "original": "x == 0 || x == 7",
+        "status": "compared",
+        "domain": {
+          "minimum": "0",
+          "maximum": "7",
+          "known_zero": "0xfffffff8",
+          "known_one": "0x0",
+          "finite_cardinality": 2,
+          "values_omitted": 0
+        },
+        "candidates": [
+          "1",
+          "x<8",
+          "x!=1",
+          "!(x&8)",
+          "!(x+1&2)",
+          "!(x+1&4)",
+          "!(x>>3&1)",
+          "x>=0&&x<=7",
+          "(unsigned)x-0<=7"
+        ]
+      },
+      {
+        "function": "joined_domain",
+        "original": "x == 0 || x == 7",
+        "status": "compared",
+        "domain": {
+          "minimum": "0",
+          "maximum": "7",
+          "known_zero": "0xfffffff8",
+          "known_one": "0x0",
+          "finite_cardinality": 2,
+          "values_omitted": 0
+        },
+        "candidates": [
+          "1",
+          "x<8",
+          "x!=1",
+          "!(x&8)",
+          "!(x+1&2)",
+          "!(x+1&4)",
+          "!(x>>3&1)",
+          "x>=0&&x<=7",
+          "(unsigned)x-0<=7"
+        ]
+      },
+      {
+        "function": "insufficient_mask",
+        "original": "(x >> 4) == 0 || (x >> 4) == 7",
+        "status": "static-domain-too-large; eligible for conditional profile hypotheses",
+        "domain": {
+          "minimum": "-2147483648",
+          "maximum": "2147483647",
+          "known_zero": "0x88",
+          "known_one": "0x0",
+          "finite_cardinality": null,
+          "values_omitted": 0
+        },
+        "candidates": []
+      },
+      {
+        "function": "signed_cast_gate",
+        "original": "(x >> 4) == 0 || (x >> 4) == 7",
+        "status": "static-domain-too-large; eligible for conditional profile hypotheses",
+        "domain": {
+          "minimum": "-2147483648",
+          "maximum": "2147483647",
+          "known_zero": "0x0",
+          "known_one": "0x0",
+          "finite_cardinality": null,
+          "values_omitted": 0
+        },
+        "candidates": []
+      }
+    ],
+    "proof_scope": "Each accepted candidate has a complete typed comparison over its supplied conservative containing set. Finite grammar/budget exhaustion limits discovery; it does not convert a partial comparison into proof.",
+    "memo_review": "Complete typed Outcome vectors only; exact vector comparison after hash lookup, partial/error/type isolation, immutable complete representatives, canonical child and comparison-evidence reuse. No full equality-saturation claim."
+  },
+  "profile_audit": {
+    "cases": [
+      {
+        "name": "profile-0-127",
+        "entry_samples": 128,
+        "hypothesis_minimum": "0",
+        "hypothesis_maximum": "127",
+        "assurance": "conditional-observed-interval-closure",
+        "status": "compared-conditionally; static facts unchanged",
+        "candidate_sources": [
+          "!(to+16&96)",
+          "to<16||to>111",
+          "(to-16&96)==96",
+          "(unsigned)to-16>95"
+        ],
+        "static_ranges_unchanged": true,
+        "trace": {
+          "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/profile-0-127.trace",
+          "bytes": 61854,
+          "sha256": "a47a06614cc53650adbf833ecfb02eed086bab417519ee4c5214dcea0238ce2a"
+        },
+        "report": {
+          "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/profile-0-127-advice.json",
+          "bytes": 602039,
+          "sha256": "04b6f2bf147e796cfcbe4a209efc5729654d8717b0b45445ffe34c41770ed2d7"
+        }
+      },
+      {
+        "name": "profile-extended",
+        "entry_samples": 130,
+        "hypothesis_minimum": "0",
+        "hypothesis_maximum": "256",
+        "assurance": "conditional-observed-interval-closure",
+        "status": "compared-conditionally; static facts unchanged",
+        "candidate_sources": [],
+        "static_ranges_unchanged": true,
+        "trace": {
+          "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/profile-extended.trace",
+          "bytes": 62526,
+          "sha256": "0123b748d680077a04ddefc135a9f362f39dd95350d36bae91ea95d31c459756"
+        },
+        "report": {
+          "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/profile-extended-advice.json",
+          "bytes": 479924,
+          "sha256": "d0989dfeee1f080dfb4ef4051ef9096586b11ba5e7dda3f8729f6bbef08f2a73"
+        }
+      }
+    ],
+    "outside_counterexample": {
+      "candidate": {
+        "c_type": "i32",
+        "value": "1"
+      },
+      "candidate_error": null,
+      "input": "128",
+      "original": {
+        "c_type": "i32",
+        "value": "0"
+      },
+      "original_error": null,
+      "reason": "typed result differs"
+    },
+    "closure": "All integers between the entry-sample minimum and maximum, including unobserved values. Observed sparse values and known bits do not narrow this closure.",
+    "rhs_only_omits_whole_predicate": true,
+    "static_contradiction": {
+      "sample": "135",
+      "source": "deliberately constructed trace, not an actual fixture execution",
+      "status": "withheld: observations contradict static domain; investigate the source/context or analysis",
+      "comparison_suppressed": true
+    },
+    "outside_probe_limits": {
+      "max_candidates_per_expression": 8,
+      "max_values_per_candidate": 32,
+      "scope": "Separately bounded diagnostics; not included in synthesis evaluation-step counts. No witness is not a universal proof."
+    },
+    "static_facts_changed": false,
+    "compression_candidates_created": 0,
+    "finite_membership_scope": "When more than 256 finite values are omitted from the report, imported membership checks use interval/known bits and explicitly say omitted holes are not checked."
+  },
+  "full_source_comparison": [
+    {
+      "name": "Moonfish",
+      "source": {
+        "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/moonfish-original.c",
+        "bytes": 10608,
+        "sha256": "35ebc2c360277d1a22e674db52e612f52eac14a85b6dc6b94484824fafb4436c"
+      },
+      "context_identical": true,
+      "standard": "gnu11",
+      "compiler_args": [
+        "-pthread"
+      ],
+      "baseline": {
+        "source_sha256": "35ebc2c360277d1a22e674db52e612f52eac14a85b6dc6b94484824fafb4436c",
+        "analysis_context_sha256": "f676e15c1045ca1fb8971d0e8d010dc6c954b90fb26715b24d914eab5f867fbd",
+        "complete": true,
+        "statistics": {
+          "functions_analyzed": 34,
+          "functions_withheld": 2,
+          "range_sites_emitted": 70,
+          "range_sites_omitted": 0,
+          "findings_emitted": 8,
+          "findings_omitted": 0
+        },
+        "finding_counts": {
+          "duplicate-constant": 8
+        }
+      },
+      "final": {
+        "source_sha256": "35ebc2c360277d1a22e674db52e612f52eac14a85b6dc6b94484824fafb4436c",
+        "analysis_context_sha256": "0a0e42899194cd67b4b406ec26b6c0a70d08ad726f80c4d330ed24ef265cd3a3",
+        "complete": false,
+        "statistics": {
+          "functions_analyzed": 34,
+          "functions_withheld": 2,
+          "range_sites_emitted": 70,
+          "range_sites_omitted": 0,
+          "expression_sites_emitted": 47,
+          "expression_sites_omitted": 0,
+          "findings_emitted": 8,
+          "findings_omitted": 0,
+          "nversion_searches_incomplete": 1,
+          "nversion_scalar_evaluations": 28344,
+          "finite_flow_reserved_work": 0,
+          "finite_flow_budget_exhausted": false
+        },
+        "finding_counts": {
+          "duplicate-constant": 8
+        }
+      },
+      "result": "8 duplicate-constant findings before and after; final adds 47 expression inventories but no replacement finding. av*32 reaches the declared 10000-candidate limit, reported incomplete.",
+      "baseline_report": {
+        "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/moonfish-baseline-advice.json",
+        "bytes": 50172,
+        "sha256": "75327783746f7c1866806c62fff76ad3130d1d03530cac8ad051ee0f0251954b"
+      },
+      "final_report": {
+        "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/moonfish-round2-advice.json",
+        "bytes": 162834,
+        "sha256": "3d84a9b1ce6921a44dd5ce63874c831068e06817835ff9a464b10fc17bd55c04"
+      }
+    },
+    {
+      "name": "Rove4k PR12 F",
+      "source": {
+        "path": "/workspace/scratch/7bea14fb3412/nvcompact-work/rove4k-f-source.c",
+        "bytes": 25755,
+        "sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd"
+      },
+      "source_commit": "b53ef1f5891b46ff1da4e1f326c78c9a6778ef37",
+      "source_repository_path": "engines/compact/tiny-entry-f/engine.c",
+      "context_identical": true,
+      "standard": "c11",
+      "compiler_args": [
+        "-pthread"
+      ],
+      "baseline_binary_identity": "Retained first-round report and source/module evidence; this invocation did not retain a separate binary fingerprint.",
+      "baseline": {
+        "source_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+        "analysis_context_sha256": "69d216187a15e9294bda51e5993f3dc05ff9123ec1a4ce2e630f0655f62a692b",
+        "complete": true,
+        "statistics": {
+          "functions_analyzed": 26,
+          "functions_withheld": 8,
+          "range_sites_emitted": 99,
+          "range_sites_omitted": 0,
+          "findings_emitted": 5,
+          "findings_omitted": 0
+        },
+        "finding_counts": {
+          "duplicate-constant": 5
+        }
+      },
+      "final": {
+        "source_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+        "analysis_context_sha256": "57977d6e8ed9419f173997033eea32552548c6b058b580dc3ff4a694df125fce",
+        "complete": true,
+        "statistics": {
+          "functions_analyzed": 26,
+          "functions_withheld": 8,
+          "range_sites_emitted": 99,
+          "range_sites_omitted": 0,
+          "expression_sites_emitted": 58,
+          "expression_sites_omitted": 0,
+          "findings_emitted": 6,
+          "findings_omitted": 0,
+          "nversion_searches_incomplete": 0,
+          "nversion_scalar_evaluations": 2292,
+          "finite_flow_reserved_work": 376,
+          "finite_flow_budget_exhausted": false
+        },
+        "finding_counts": {
+          "duplicate-constant": 5,
+          "nversion-domain-equivalence": 1
+        }
+      },
+      "new_suggestion": {
+        "original": "promotion?2:0",
+        "candidate": "promotion*2",
+        "function": "add"
+      },
+      "requested_promotion_predicate": "(to>>4)==0||(to>>4)==7 retains the full declared int domain at add; no caller/generator invariant is invented.",
+      "baseline_report": {
+        "path": "/workspace/scratch/7bea14fb3412/nvcompact-work/rove4k-f-advice.json",
+        "bytes": 64284,
+        "sha256": "b5e3607e8b181be385f77c160fcbc6e3cbac9a72a78b35937c20c078b43686af"
+      },
+      "final_report": {
+        "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/rove-pr12-f-c11-advice.json",
+        "bytes": 244510,
+        "sha256": "e661830da899aba6f8cc877e6e1f7c688791c54818c23d214a268db9c7b03391"
+      },
+      "additional_context": "A separate gnu11/-pthread final parse gave the same finding counts; it is not used as the same-context baseline comparison."
+    },
+    {
+      "name": "4k.c v9 source",
+      "source": {
+        "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/4k-dot-c-v9.c",
+        "bytes": 69121,
+        "sha256": "69d9620e0c274f7bc2e862c5dbbadfac07f329011320fa886c99390bdedd6ea2"
+      },
+      "source_commit": "880a877d6af2046cc5ce7deb85ea5ad2855b41a1",
+      "standard": "gnu2x",
+      "baseline_exit_code": 2,
+      "final_exit_code": 2,
+      "status": "Unsupported exact upstream dialect; no source or dialect substitution to force admission.",
+      "diagnostic": "nvcompact: supported C standards: c11, c17, gnu11, gnu17"
+    }
+  ],
+  "retained_input_integrity": {
+    "catalog": "tools/nvcompact/comparisons/metadata/artifacts.json",
+    "catalog_sha256": "2e8978657777083614fa18380f547aa93f640aebeefad2afe78a3f41a8de6c44",
+    "verified": 13,
+    "mismatched": 0,
+    "general_inputs": 11,
+    "elf_inputs": 2,
+    "inputs": [
+      {
+        "name": "ice4",
+        "category": "4k",
+        "path": "/workspace/scratch/d70af21bae00/nvcompact-next/regression/inputs/general/ice4",
+        "bytes": 4087,
+        "sha256": "707d994e0515473f53052998ee85d03041f17f8c23b3793d497f64b8e41b252b",
+        "catalog_sha256_matches": true,
+        "source_commit": "2bd7a54f9bb47a61a7cd97f3db9f52eadd4e2c19",
+        "source_payload_language": "cpp"
+      },
+      {
+        "name": "4ku",
+        "category": "4k",
+        "path": "/workspace/scratch/d70af21bae00/nvcompact-next/regression/inputs/general/4ku",
+        "bytes": 4093,
+        "sha256": "be51d7aae0f36f493aa5cdbf1b847425c61fb1f89e93b7969222e662e43ced22",
+        "catalog_sha256_matches": true,
+        "source_commit": "203ddd4bf9b331851c796d8b5d57eac08f6e6c18",
+        "source_payload_language": "cpp"
+      },
+      {
+        "name": "STRO4K",
+        "category": "4k",
+        "path": "/workspace/scratch/d70af21bae00/nvcompact-next/regression/inputs/general/STRO4K",
+        "bytes": 4096,
+        "sha256": "c4b3a7d3ca808418dd014be9527b81057c4db5de8d24ab0c4ee14a360f17ae98",
+        "catalog_sha256_matches": true,
+        "source_commit": "d06d36c4655f99bf1d925ae7a2c22d6657d46e7b",
+        "source_payload_language": "native/other"
+      },
+      {
+        "name": "4k.c",
+        "category": "4k",
+        "path": "/workspace/scratch/d70af21bae00/nvcompact-next/regression/inputs/general/4k.c",
+        "bytes": 3932,
+        "sha256": "04e8f61d6ed6ad5feaaea7c62c578b647b9cdbc0e2313c4437645aff63a54af6",
+        "catalog_sha256_matches": true,
+        "source_commit": "880a877d6af2046cc5ce7deb85ea5ad2855b41a1",
+        "source_payload_language": "native/other"
+      },
+      {
+        "name": "c4ke",
+        "category": "4k",
+        "path": "/workspace/scratch/d70af21bae00/nvcompact-next/regression/inputs/general/c4ke",
+        "bytes": 4093,
+        "sha256": "b5ecbcd8a189cf3296bc5ea874dd0ed612949d02744252041f2d2914776769ea",
+        "catalog_sha256_matches": true,
+        "source_commit": "22e318f59b3a9eed1d2b8161da832222d4a51033",
+        "source_payload_language": "cpp"
+      },
+      {
+        "name": "pygone",
+        "category": "4k",
+        "path": "/workspace/scratch/d70af21bae00/nvcompact-next/regression/inputs/general/pygone",
+        "bytes": 4093,
+        "sha256": "f44c111d821c5bffb9117154dcffbfb0e83ab41b35e174b084a9bb5000ee1768",
+        "catalog_sha256_matches": true,
+        "source_commit": "11bf1426bc491753b66e945692c5ee4a8d510e45",
+        "source_payload_language": "python"
+      },
+      {
+        "name": "sunfish",
+        "category": "4k",
+        "path": "/workspace/scratch/d70af21bae00/nvcompact-next/regression/inputs/general/sunfish",
+        "bytes": 2844,
+        "sha256": "3066c961174281678f2e15edd118fa45231b4d6e1dcc1f77ea11a62309318261",
+        "catalog_sha256_matches": true,
+        "source_commit": "ccecec26626b858a60d48cf715ebbdd603ee6f85",
+        "source_payload_language": "python"
+      },
+      {
+        "name": "moonfish",
+        "category": "4k",
+        "path": "/workspace/scratch/d70af21bae00/nvcompact-next/regression/inputs/general/moonfish",
+        "bytes": 3941,
+        "sha256": "665eb7be5fd47b531f0849f4ae8f92be6e068fff40f55cf7e5f9e2b4cdad8c42",
+        "catalog_sha256_matches": true,
+        "source_commit": null,
+        "source_payload_language": "c"
+      },
+      {
+        "name": "M4sseur",
+        "category": "4k",
+        "path": "/workspace/scratch/d70af21bae00/nvcompact-next/regression/inputs/general/M4sseur",
+        "bytes": 4095,
+        "sha256": "50585513f84e39b72fd4855efc8afc0b2f9db22be33fbe6ade2f856983fc5876",
+        "catalog_sha256_matches": true,
+        "source_commit": "470fa53925c1cafeaaf84db3612abb5eb0ae9e9f",
+        "source_payload_language": "cpp"
+      },
+      {
+        "name": "molly",
+        "category": "4k",
+        "path": "/workspace/scratch/d70af21bae00/nvcompact-next/regression/inputs/general/molly",
+        "bytes": 4096,
+        "sha256": "98c8d9863a7837677a3c2b8f62c3afdbcf6fa44c659555db0e8168f613e47f02",
+        "catalog_sha256_matches": true,
+        "source_commit": "e317a0c7b823832a87239027f536582cf0576111",
+        "source_payload_language": "rust"
+      },
+      {
+        "name": "we4k",
+        "category": "4k",
+        "path": "/workspace/scratch/d70af21bae00/nvcompact-next/regression/inputs/general/we4k",
+        "bytes": 4079,
+        "sha256": "8540b397425582d86d73d54d1ba7a44927c6207812123065749bf14cacf8354e",
+        "catalog_sha256_matches": true,
+        "source_commit": "93dde6ad4aef461bdf4c8dd9d413f92090fc16eb",
+        "source_payload_language": "native/other"
+      },
+      {
+        "name": "4k.c-v9.0",
+        "category": "4k-elf",
+        "path": "/workspace/scratch/d70af21bae00/nvcompact-next/regression/inputs/elf/4k.c-v9.0",
+        "bytes": 3932,
+        "sha256": "04e8f61d6ed6ad5feaaea7c62c578b647b9cdbc0e2313c4437645aff63a54af6",
+        "catalog_sha256_matches": true,
+        "source_commit": "880a877d6af2046cc5ce7deb85ea5ad2855b41a1",
+        "source_payload_language": "native/other"
+      },
+      {
+        "name": "4k.c-v8.0",
+        "category": "4k-elf",
+        "path": "/workspace/scratch/d70af21bae00/nvcompact-next/regression/inputs/elf/4k.c-v8.0",
+        "bytes": 4042,
+        "sha256": "6eb03195b277f42ece9488c42c1e459791ffcbf0dc197bdfa700dd9574715ace",
+        "catalog_sha256_matches": true,
+        "source_commit": "7807995933db2c03cefd1e76569d88ef9e912e8c",
+        "source_payload_language": "native/other"
+      }
+    ],
+    "scope": "Rehashed retained inert bytes only. C++/Rust/Python/native payloads were not treated as supported whole-source C analyses."
+  },
+  "commands": [
+    {
+      "label": "domain-fixture-advice",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/nvcompact-audit",
+        "advise-c",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/domain-fixtures.c",
+        "--clang",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "whole-function-compile",
+      "command": [
+        "gcc",
+        "-std=c11",
+        "-O0",
+        "-fsanitize=undefined",
+        "-fno-sanitize-recover=all",
+        "whole-function-candidates.c",
+        "-o",
+        "whole-function-candidates"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "whole-function-native",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/whole-function-candidates"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "profile-static-advice",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/nvcompact-audit",
+        "advise-c",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/profile-fixture.c",
+        "--clang",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "--instrument",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/profile-instrumented",
+        "--max-probes",
+        "128",
+        "--max-samples",
+        "20000"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "profile-compile",
+      "command": [
+        "gcc",
+        "-std=c11",
+        "-O0",
+        "-fsanitize=undefined",
+        "-fno-sanitize-recover=all",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/profile-instrumented/instrumented.c",
+        "-o",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/profile-probe"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "profile-0-127",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/profile-probe"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "profile-0-127-advice",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/nvcompact-audit",
+        "advise-c",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/profile-fixture.c",
+        "--clang",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "--profile",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/profile-0-127.trace"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "profile-extended",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/profile-probe",
+        "extra"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "profile-extended-advice",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/nvcompact-audit",
+        "advise-c",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/profile-fixture.c",
+        "--clang",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "--profile",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/profile-extended.trace"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "profile-rhs-only-advice",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/nvcompact-audit",
+        "advise-c",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/profile-fixture.c",
+        "--clang",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "--profile",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/profile-rhs-only.trace"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "contradictory-static-advice",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/nvcompact-audit",
+        "advise-c",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/domain-fixtures.c",
+        "--clang",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "--profile",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/contradictory-static.trace"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "moonfish-round2-advice",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/nvcompact-audit",
+        "advise-c",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/moonfish-original.c",
+        "--clang",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "--standard",
+        "gnu11",
+        "--compiler-arg=-pthread"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "rove-pr12-f-advice",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/nvcompact-audit",
+        "advise-c",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/rove-pr12-f.c",
+        "--clang",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "--standard",
+        "gnu11",
+        "--compiler-arg=-pthread"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "4kc-round2-unsupported",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/nvcompact-audit",
+        "advise-c",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/4k-dot-c-v9.c",
+        "--clang",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "--standard",
+        "gnu2x"
+      ],
+      "returncode": 2
+    },
+    {
+      "label": "rove-pr12-f-c11-same-context",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/nvcompact-audit",
+        "advise-c",
+        "/workspace/scratch/7bea14fb3412/nvcompact-work/rove4k-f-source.c",
+        "--clang",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "--standard",
+        "c11",
+        "--compiler-arg=-pthread"
+      ],
+      "returncode": 0
+    }
+  ],
+  "review": {
+    "outstanding_correctness_defects": [],
+    "resolved_findings": [
+      "Finite-flow evaluator work has an explicit conservative reservation budget and precision fallback.",
+      "Conditional-expression images preserve sparse result unions through the shared branch transfer.",
+      "Shared LP64 admission checks unsigned64 and the signed bit representation assumed by the evaluator.",
+      "Imported static membership states when omitted finite-set holes cannot be checked."
+    ],
+    "remaining_scope_limits": [
+      "Intraprocedural, single-binding pure integer expressions; no memory/alias/interprocedural reachability proof.",
+      "At this audited C-only stage: C11/C17 LP64 subset; C++ and exact gnu2x input contexts were unsupported. Subsequent adapters require separate validation.",
+      "Finite grammar, domain and work bounds can withhold or omit opportunities; counts/statuses expose those limits.",
+      "Finite runtime observations cannot prove unseen executions; outside probes are diagnostic only.",
+      "Raw expression length is not packed/native cost; no engine performance, strength or shipping qualification was rerun."
+    ]
+  },
+  "raw_artifacts": {
+    "root": "/workspace/scratch/7bea14fb3412/round2-work/audit-research",
+    "files": {
+      "input-research.json": {
+        "bytes": 12214,
+        "sha256": "409fbe46c0c0ac91b1a22d295d2254336c8ec19254b163bce96356d9e4825ce6"
+      },
+      "cli-audit-result.json": {
+        "bytes": 179086,
+        "sha256": "15808169b6c313b3c33091cfe0caed28824f990fbfac3fda9e6e0e0f27949fc4"
+      },
+      "domain-audit-result.json": {
+        "bytes": 1479,
+        "sha256": "411ffacc87eaf20b281ca330c7cd0719f5e6fcff3e808373ecec24e4c717331c"
+      },
+      "domain-audit-wrapper.rs": {
+        "bytes": 9780,
+        "sha256": "2376be3c1015f5e9d808922c87442c71f90b0eb286e2c8ae2fc493e8f0547a9c"
+      },
+      "domain-exhaustive.rs": {
+        "bytes": 2106,
+        "sha256": "d4b9c2c117e0e3ff69059de0061e127a8f7cbca9e9442158a4d128e28e9188cf"
+      },
+      "native-oracle-result.json": {
+        "bytes": 1023,
+        "sha256": "6cc9b399102352dbc1a808091719a0ea7fa222dcd422b0776b9c54406242d247"
+      },
+      "native-oracle.c": {
+        "bytes": 695309,
+        "sha256": "b8fb3fcee7e67c5b4ef2de590e8feb755f772bccadf882ebbc58af907ebafe8a"
+      },
+      "native-oracle-expected.json": {
+        "bytes": 3928107,
+        "sha256": "ee33498c7f78939498b803c8b9cbbff5057170229d2cf0f9417001f2cc0e070f"
+      },
+      "native-oracle.stdout": {
+        "bytes": 90133,
+        "sha256": "045f4e22716a5305eac7d069a5cd47d31cb556a9d0f856e0337aca0ab3af3548"
+      },
+      "native-oracle.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "domain-fixtures.c": {
+        "bytes": 2066,
+        "sha256": "85ce6642f1db06ab237bbcb5f1a843d5b8d60078f83db78679fedec0f11621d2"
+      },
+      "whole-function-candidates.c": {
+        "bytes": 29747,
+        "sha256": "29606f8efe42b33243120ddaa9177a902cbb5d1b6abf4261dc42a6d022db2d97"
+      },
+      "whole-function-native.stdout": {
+        "bytes": 25,
+        "sha256": "a676f2c81955b3c5a38561847b9f921e44fac4b0f72c8c6a3993d2dcb52d5f04"
+      },
+      "whole-function-native.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "domain-fixture-advice.json": {
+        "bytes": 1764300,
+        "sha256": "6a701dcca706890f81ad2f313cc0bd9ea33b605fac063bb58ab1d9fea3eccbb6"
+      },
+      "profile-fixture.c": {
+        "bytes": 416,
+        "sha256": "8daa537528373767251745f4e7b39c60bc02b40e3131f766ba8d14c720fa0bce"
+      },
+      "profile-static-advice.json": {
+        "bytes": 19288,
+        "sha256": "17748b48d6d8875c4f5893018b04c6428fffa61223e8c626eb928952d491b7ad"
+      },
+      "profile-rhs-only-advice.json": {
+        "bytes": 135823,
+        "sha256": "ddbc7503566b05b5eee28979a84a916ebfc2f13cf2abb396a68ed5e6bed44d43"
+      },
+      "contradictory-static-advice.json": {
+        "bytes": 1769714,
+        "sha256": "28f86b9b5a2dcf02b7d0ba405bad6d8a04d0cab8b1415569337b5c4f839496d8"
+      },
+      "contradictory-static.trace": {
+        "bytes": 168,
+        "sha256": "bdc595b21729b070c11de3796a1dfd0d352fcae90f39c3002653d93e497c69a1"
+      },
+      "moonfish-baseline-advice.json": {
+        "bytes": 50172,
+        "sha256": "75327783746f7c1866806c62fff76ad3130d1d03530cac8ad051ee0f0251954b"
+      },
+      "moonfish-round2-advice.json": {
+        "bytes": 162834,
+        "sha256": "3d84a9b1ce6921a44dd5ce63874c831068e06817835ff9a464b10fc17bd55c04"
+      },
+      "external-advisor-baseline.json": {
+        "bytes": 1679,
+        "sha256": "cadf9c468001ba39744b63dd4766b4608e4bf3589da7c2dcf9c3704bf65e2f0a"
+      },
+      "rove-pr12-f-advice.json": {
+        "bytes": 244524,
+        "sha256": "8e5820330edd940d6713655091ab4375e539fdd72feb695405e5ba8893ca8660"
+      },
+      "rove-pr12-f-c11-advice.json": {
+        "bytes": 244510,
+        "sha256": "e661830da899aba6f8cc877e6e1f7c688791c54818c23d214a268db9c7b03391"
+      },
+      "rove-pr12-f-c11-run.json": {
+        "bytes": 886,
+        "sha256": "3fa2cfc421322da52c590c752cf7c2c39cec78c14cdd794830886134775c92a9"
+      },
+      "4kc-round2-unsupported.stderr": {
+        "bytes": 57,
+        "sha256": "63dc012f83c84f1dedb4b22a40cd219ed715e30d3695db0a65de0e5f89ac691a"
+      },
+      "cli_audit.py": {
+        "bytes": 9053,
+        "sha256": "8e27f59ad8f443dacfaf38c344ba8166a52f174a18a46b896b76c02d9d19aad6"
+      },
+      "collect_inputs.py": {
+        "bytes": 5707,
+        "sha256": "a5cfff85698f7780ac0ce50444f06649717d79b85c2b4443f3500ce8eb3e720b"
+      }
+    },
+    "retention": "Original reports, generated owned fixtures and logs remain outside Git. Paths and digests identify the evidence; external source payloads are not copied into this repository."
+  }
+}

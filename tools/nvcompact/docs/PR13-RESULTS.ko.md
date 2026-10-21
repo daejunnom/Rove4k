@@ -297,9 +297,10 @@ ELF는 `comparisons/elf`와 별도 출력 경로를 사용한다. A–F의 입�
 달라졌다면 그 head에서 정본을 다시 생성하고 source·literal SHA와 offset을 다시 확인한다.
 이 문서의 0e716e0 입력에 맞춘 offset을 다른 head에 적용하지 않는다.
 
-[PR #12 인계 문서](PR12-HANDOFF.ko.md)는 공통 변환으로 증명하지 못한 TT bound 조건,
-0x88 유효 이동 범위, cast·signedness, tokenizer 소유권, SIMD 평가, loader 및 모델·탐색
-변경을 따로 정리한다. 엔진의 worker·TT·탐색 정책을 줄이는 변경은 이 PR에 포함하지 않았다.
+공통 변환으로 증명하지 못한 TT bound 조건, 0x88 유효 이동 범위, cast·signedness,
+tokenizer 소유권, SIMD 평가, loader 및 모델·탐색 변경은
+[PR #12](https://github.com/daejunnom/Rove4k/pull/12)의 엔진 작업으로 판단한다.
+엔진의 worker·TT·탐색 정책을 줄이는 변경은 이 PR에 포함하지 않았다.
 이 문서에서 측정한 0e716e0의 F full은 515 B, material/noise는 235 B가 초과한다.
 다음 엔진 작업은 최신 head에서 새로 측정한 부족분을 기준으로 공통 처리 공유·데이터
 표현·개별 알고리즘 변경의 비용과 의미를 판단해야 한다.

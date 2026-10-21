@@ -79,8 +79,10 @@ fn options(clang: &str, embedding: Value) -> source_search::SourceSearchOptions 
         embedding: Some(embedding),
         embedding_contract: "compile-input-only".into(),
         conditions: false,
+        scheduling: source_search::SchedulingPolicy::LegacyPriority,
         max_rounds: 1,
         max_evaluations: 128,
+        max_combinations: 16384,
         max_seconds: 60.0,
         max_retained_source_bytes: 64 << 20,
         compile_limits: process::Limits {
@@ -171,6 +173,14 @@ fn whole_file_objective_retains_equal_length_name_improvements_and_replays() {
     assert!(new["winner"]["bytes"].as_u64().unwrap() <= old["winner"]["bytes"].as_u64().unwrap());
     assert_eq!(new["no_size_regression"], true);
     assert!(new["accepted"].is_null());
+    assert_eq!(
+        new["source_search"]["report"]["observation_contract"]["declaration"],
+        "caller-established precondition; not proven by masked AST/native identity"
+    );
+    assert_eq!(
+        new["source_search"]["report"]["observation_contract"]["python_wrapper"],
+        "source/token/location/traceback non-observation required"
+    );
     assert_eq!(new["uci"]["status"], "not_run");
     let candidates: Vec<Value> =
         serde_json::from_slice(&fs::read(current_out.join("candidates.json")).unwrap()).unwrap();
@@ -192,6 +202,56 @@ fn whole_file_objective_retains_equal_length_name_improvements_and_replays() {
         comparison["groups"][0]["context"]["cost_objective"]["codec"],
         serde_json::to_value(compression()).unwrap()
     );
+    let strategies = new["source_search_portfolio"].as_array().unwrap();
+    assert_eq!(
+        strategies
+            .iter()
+            .filter(|s| s["seed_role"] == "final-winner")
+            .count(),
+        2
+    );
+    assert_eq!(new["source_search_budget"]["strategies"], 2);
+    assert_eq!(
+        new["source_search_budget"]["retained_source_seeds"],
+        strategies.len()
+    );
+    assert!(strategies
+        .iter()
+        .any(|s| s["strategy"] == "source-search" && s["scheduling"] == "legacy_priority"));
+    assert!(strategies
+        .iter()
+        .any(|s| s["strategy"] == "source-search-portfolio"
+            && s["scheduling"] == "interleaved_online"));
+    assert_eq!(
+        new["source_search_budget"]["maximum_complete_payload_evaluations"],
+        256
+    );
+    let both_contexts = attempts::compare(&[
+        retained.clone(),
+        current_out.join("source-search-portfolio/source-search/attempts"),
+    ])
+    .unwrap();
+    assert_eq!(both_contexts["groups"].as_array().unwrap().len(), 2);
+    for (index, strategy) in strategies.iter().enumerate() {
+        assert!(candidates
+            .iter()
+            .any(|c| c["variant"] == strategy["canonical_variant"]));
+        if strategy["seed_role"] == "legacy-priority-seed" {
+            let replayed = source_search::replay(
+                &original_payload,
+                &strategy["recipe"],
+                &compiler_argv(&compiler),
+                &directory
+                    .path()
+                    .join(format!("priority-seed-replay-{index}")),
+            )
+            .unwrap();
+            assert_eq!(
+                sha256(&replayed),
+                strategy["recipe"]["final"]["payload_sha256"]
+            );
+        }
+    }
     let measured_rows = comparison["groups"][0]["rows"].as_array().unwrap();
     assert!(measured_rows
         .iter()
@@ -234,9 +294,515 @@ fn whole_file_objective_retains_equal_length_name_improvements_and_replays() {
         fs::read(directory.path().join("envelope-replay/reproduced")).unwrap(),
         fs::read(current_out.join("smallest")).unwrap()
     );
+    let source_record = candidates
+        .iter()
+        .find(|c| c["variant"] == new["source_search"]["variant"])
+        .unwrap();
+    let original_file = fs::read(directory.path().join("current-input/original")).unwrap();
+    let mut portfolio_only = new.clone();
+    portfolio_only
+        .as_object_mut()
+        .unwrap()
+        .remove("source_search");
+    let from_portfolio = envelope::reproduce_record(
+        &portfolio_only,
+        source_record,
+        &original_file,
+        &directory.path().join("portfolio-only-replay"),
+    )
+    .unwrap();
+    let mut historical = new.clone();
+    historical
+        .as_object_mut()
+        .unwrap()
+        .remove("source_search_portfolio");
+    let from_historical = envelope::reproduce_record(
+        &historical,
+        source_record,
+        &original_file,
+        &directory.path().join("historical-replay"),
+    )
+    .unwrap();
+    assert_eq!(from_portfolio, from_historical);
+    assert_eq!(
+        sha256(&from_portfolio),
+        source_record["sha256"].as_str().unwrap()
+    );
     assert!(
         !directory.path().join("current/x").exists(),
         "the bootstrap must never execute"
+    );
+}
+
+#[test]
+fn online_search_admits_a_nonmonotone_pair_before_the_singleton_batch_can_exhaust_budget() {
+    let Some((clang, compiler)) = tools() else {
+        return;
+    };
+    const INPUT: &[u8] = b"int f(int alpha){return alpha+1;}int g(int beta){return beta+2;}int main(void){return f(1)!=g(0);}\n";
+    let directory = tempfile::tempdir().unwrap();
+    let mut opts = options(&clang, Value::Null);
+    opts.embedding = None;
+    opts.embedding_contract = "opaque".into();
+    opts.candidates.max_candidates = 3;
+    opts.candidates.max_name_groups = 2;
+    opts.candidates.names_per_group = 1;
+    opts.max_evaluations = 4;
+    let compile = compiler_argv(&compiler);
+    let cost = |data: &[u8]| -> anyhow::Result<usize> {
+        let text = std::str::from_utf8(data)?;
+        Ok(match (text.contains("alpha"), text.contains("beta")) {
+            (true, true) => 100,
+            (false, false) => 90,
+            _ => 101,
+        })
+    };
+    let legacy = source_search::search(
+        INPUT,
+        &opts,
+        &compile,
+        &directory.path().join("legacy"),
+        &mut cost.clone(),
+    )
+    .unwrap();
+    assert_eq!(legacy.report["selected_whole_file_bytes"], 100);
+    opts.scheduling = source_search::SchedulingPolicy::InterleavedOnline;
+    let online = source_search::search(
+        INPUT,
+        &opts,
+        &compile,
+        &directory.path().join("online"),
+        &mut cost.clone(),
+    )
+    .unwrap();
+    assert_eq!(online.report["selected_whole_file_bytes"], 90);
+    assert_eq!(online.report["evaluations"], 4);
+    assert_eq!(online.report["scheduling"], "interleaved_online");
+    assert_eq!(
+        online.report["coverage"]["basis_spaces"][0]["systematic_subsets_attempted"],
+        1
+    );
+    let records = online.report["records"].as_array().unwrap();
+    let costs: Vec<_> = records
+        .iter()
+        .filter(|r| r["stage"] == "complete-file-cost" && r["id"] != "original-source")
+        .map(|r| r["whole_file_bytes"].as_u64().unwrap())
+        .collect();
+    assert_eq!(costs, vec![101, 90]);
+    assert!(records
+        .iter()
+        .any(|r| r["stage"] == "composition-admitted" && r["phase"] == "interleaved-online"));
+    assert_eq!(
+        source_search::replay(
+            INPUT,
+            &online.recipe,
+            &compile,
+            &directory.path().join("replay")
+        )
+        .unwrap(),
+        online.data
+    );
+}
+
+#[test]
+fn online_sibling_winners_replace_the_basis_prefix_and_subset_cap_does_not_starve_singles() {
+    let Some((clang, compiler)) = tools() else {
+        return;
+    };
+    const INPUT: &[u8] = b"int f(int alpha){return alpha+1;}int g(int beta){return beta+2;}int main(void){return f(1)!=g(0);}\n";
+    let directory = tempfile::tempdir().unwrap();
+    let mut opts = options(&clang, Value::Null);
+    opts.embedding = None;
+    opts.embedding_contract = "opaque".into();
+    opts.scheduling = source_search::SchedulingPolicy::InterleavedOnline;
+    opts.candidates.max_candidates = 3;
+    opts.candidates.max_name_groups = 2;
+    opts.candidates.names_per_group = 1;
+    opts.max_combinations = 1;
+    let compile = compiler_argv(&compiler);
+    let mut cost = |data: &[u8]| -> anyhow::Result<usize> {
+        let text = std::str::from_utf8(data)?;
+        Ok(match (text.contains("alpha"), text.contains("beta")) {
+            (true, true) => 100,
+            (false, true) => 90,
+            (true, false) => 80,
+            (false, false) => 95,
+        })
+    };
+    let result = source_search::search(
+        INPUT,
+        &opts,
+        &compile,
+        &directory.path().join("online"),
+        &mut cost,
+    )
+    .unwrap();
+    assert_eq!(result.report["selected_whole_file_bytes"], 80);
+    assert_eq!(
+        result.report["records"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|r| r["stage"] == "composition-admitted")
+            .count(),
+        2
+    );
+    assert_eq!(result.recipe["steps"].as_array().unwrap().len(), 1);
+    assert_eq!(
+        result.recipe["steps"][0]["input_source_sha256"],
+        sha256(INPUT)
+    );
+    assert_eq!(
+        source_search::replay(
+            INPUT,
+            &result.recipe,
+            &compile,
+            &directory.path().join("replay")
+        )
+        .unwrap(),
+        result.data
+    );
+
+    // A subset cap removes only that queue's new work in the online policy.
+    // Other generated alternatives remain measurable and the omitted subsets
+    // remain explicitly incomplete instead of being reported as exhausted.
+    opts.candidates.max_candidates = 4;
+    opts.candidates.names_per_group = 2;
+    let capped = source_search::search(
+        INPUT,
+        &opts,
+        &compile,
+        &directory.path().join("capped"),
+        &mut |_| Ok(100),
+    )
+    .unwrap();
+    let space = &capped.report["coverage"]["basis_spaces"][0];
+    assert_eq!(space["singles_attempted"], space["generated_choices"]);
+    assert_eq!(space["systematic_subsets_attempted"], 1);
+    assert_eq!(space["stop"], "combination-attempt-budget");
+    assert_eq!(space["exhausted"], false);
+    assert_eq!(capped.report["status"], "space-incomplete");
+}
+
+#[test]
+fn online_phase_quantum_leaves_work_for_typed_condition_candidates() {
+    let Some((clang, compiler)) = tools() else {
+        return;
+    };
+    const INPUT: &[u8] = b"int f(_Bool alpha){return alpha!=1;}int main(void){return f(1);}\n";
+    let directory = tempfile::tempdir().unwrap();
+    let mut opts = options(&clang, Value::Null);
+    opts.embedding = None;
+    opts.embedding_contract = "opaque".into();
+    opts.conditions = true;
+    opts.scheduling = source_search::SchedulingPolicy::InterleavedOnline;
+    opts.candidates.max_candidates = 17;
+    opts.candidates.max_name_groups = 1;
+    opts.candidates.names_per_group = 16;
+    opts.max_evaluations = 8;
+    let compile = compiler_argv(&compiler);
+    let result = source_search::search(
+        INPUT,
+        &opts,
+        &compile,
+        &directory.path().join("online"),
+        &mut |data| {
+            Ok(if std::str::from_utf8(data)?.contains("!=1") {
+                100
+            } else {
+                90
+            })
+        },
+    )
+    .unwrap();
+    assert_eq!(result.report["selected_whole_file_bytes"], 90);
+    let spaces = result.report["coverage"]["basis_spaces"]
+        .as_array()
+        .unwrap();
+    let spelling = spaces.iter().find(|s| s["family"] == "c-source").unwrap();
+    let flow = spaces.iter().find(|s| s["family"] == "c-flow").unwrap();
+    assert!(
+        spelling["singles_attempted"].as_u64().unwrap()
+            < spelling["generated_choices"].as_u64().unwrap()
+    );
+    assert!(flow["singles_attempted"].as_u64().unwrap() > 0);
+    assert!(result.report["records"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|r| r["stage"] == "condition-admitted" && r["phase"] == "interleaved-online"));
+    assert!(result.report["evaluations"].as_u64().unwrap() <= opts.max_evaluations as u64);
+    assert_eq!(
+        source_search::replay(
+            INPUT,
+            &result.recipe,
+            &compile,
+            &directory.path().join("replay")
+        )
+        .unwrap(),
+        result.data
+    );
+}
+
+#[test]
+fn legacy_priority_seed_has_its_own_fresh_proof_and_never_exceeds_the_shared_evaluation_limit() {
+    let Some((clang, compiler)) = tools() else {
+        return;
+    };
+    const INPUT: &[u8] = b"int f(int alpha){return alpha+1;}int g(int beta){return beta+2;}int h(int gamma){return gamma+3;}int main(void){return f(1)+g(0)!=h(1);}\n";
+    struct Cost {
+        fresh_calls: usize,
+    }
+    impl source_search::CompleteFileObjective for Cost {
+        fn measure(&mut self, data: &[u8]) -> anyhow::Result<usize> {
+            let text = std::str::from_utf8(data)?;
+            Ok(
+                match (
+                    text.contains("alpha"),
+                    text.contains("beta"),
+                    text.contains("gamma"),
+                ) {
+                    (true, true, true) => 100,
+                    (false, true, true) => 90,
+                    (false, false, true) => 85,
+                    (false, true, false) => 92,
+                    (true, false, false) => 80,
+                    (false, false, false) => 95,
+                    _ => 101,
+                },
+            )
+        }
+        fn fresh_measure(&mut self, data: &[u8]) -> anyhow::Result<usize> {
+            self.fresh_calls += 1;
+            self.measure(data)
+        }
+    }
+    let directory = tempfile::tempdir().unwrap();
+    let mut opts = options(&clang, Value::Null);
+    opts.embedding = None;
+    opts.embedding_contract = "opaque".into();
+    opts.candidates.max_candidates = 4;
+    opts.candidates.max_name_groups = 3;
+    opts.candidates.names_per_group = 1;
+    opts.max_evaluations = 16;
+    let compile = compiler_argv(&compiler);
+    let mut cost = Cost { fresh_calls: 0 };
+    let result = source_search::search_with_objective(
+        INPUT,
+        &opts,
+        &compile,
+        &directory.path().join("both"),
+        None,
+        &mut cost,
+    )
+    .unwrap();
+    assert_eq!(result.report["selected_whole_file_bytes"], 80);
+    let priority = result
+        .priority_seed
+        .as_ref()
+        .expect("distinct priority source retained");
+    assert_eq!(priority.recipe["final"]["whole_file_bytes"], 90);
+    assert_eq!(cost.fresh_calls, 2);
+    assert_eq!(result.report["fresh_measurement_reservations"], 2);
+    assert_eq!(result.report["retained_seed_count"], 2);
+    assert!(result.report["evaluations"].as_u64().unwrap() <= opts.max_evaluations as u64);
+    for (name, data, recipe) in [
+        ("final", &result.data, &result.recipe),
+        ("priority", &priority.data, &priority.recipe),
+    ] {
+        assert_eq!(
+            recipe["final"]["cost_reproduction"],
+            "fresh-objective-evaluation"
+        );
+        assert_eq!(
+            source_search::replay(INPUT, recipe, &compile, &directory.path().join(name)).unwrap(),
+            *data
+        );
+    }
+    // The priority pass gets the same budget as before. Insufficient room for
+    // a new deferred cost plus two final readbacks leaves that winner intact.
+    opts.max_evaluations = 6;
+    let mut cost = Cost { fresh_calls: 0 };
+    let limited = source_search::search_with_objective(
+        INPUT,
+        &opts,
+        &compile,
+        &directory.path().join("limited"),
+        None,
+        &mut cost,
+    )
+    .unwrap();
+    assert_eq!(limited.report["selected_whole_file_bytes"], 90);
+    assert_eq!(
+        limited.report["exhaustion_reason"],
+        "priority-seed-evaluation-reservation"
+    );
+    assert_eq!(limited.report["evaluations"], 5);
+    assert_eq!(limited.report["fresh_measurement_reservations"], 1);
+    assert!(limited.priority_seed.is_none());
+    assert_eq!(cost.fresh_calls, 1);
+    // Old v1 recipes did not have a scheduling field; reconstruction remains
+    // identical and cannot silently opt old searches into the online policy.
+    let mut old_recipe = limited.recipe.clone();
+    old_recipe["options"]
+        .as_object_mut()
+        .unwrap()
+        .remove("scheduling");
+    let old_options: source_search::SourceSearchOptions =
+        serde_json::from_value(old_recipe["options"].clone()).unwrap();
+    assert_eq!(
+        old_options.scheduling,
+        source_search::SchedulingPolicy::LegacyPriority
+    );
+    assert_eq!(
+        source_search::replay(
+            INPUT,
+            &old_recipe,
+            &compile,
+            &directory.path().join("old-recipe")
+        )
+        .unwrap(),
+        limited.data
+    );
+}
+
+#[test]
+fn losing_singles_remain_composable_and_fresh_cost_cannot_use_measurement_cache() {
+    let Some((clang, compiler)) = tools() else {
+        return;
+    };
+    const INPUT: &[u8] = b"int f(int alpha){return alpha+1;}int g(int beta){return beta+2;}int main(void){return f(1)!=g(0);}\n";
+    struct NonMonotoneCost {
+        fresh_calls: usize,
+        fail_fresh: bool,
+    }
+    impl source_search::CompleteFileObjective for NonMonotoneCost {
+        fn measure(&mut self, data: &[u8]) -> anyhow::Result<usize> {
+            let source = std::str::from_utf8(data)?;
+            Ok(match (source.contains("alpha"), source.contains("beta")) {
+                (true, true) => 100,
+                (false, false) => 90,
+                _ => 101,
+            })
+        }
+        fn fresh_measure(&mut self, data: &[u8]) -> anyhow::Result<usize> {
+            self.fresh_calls += 1;
+            Ok(self.measure(data)? + usize::from(self.fail_fresh))
+        }
+    }
+    let directory = tempfile::tempdir().unwrap();
+    let mut opts = options(&clang, Value::Null);
+    opts.embedding = None;
+    opts.embedding_contract = "opaque".into();
+    opts.candidates.max_candidates = 3;
+    opts.candidates.max_name_groups = 2;
+    opts.candidates.names_per_group = 1;
+    opts.max_combinations = 8;
+    opts.max_evaluations = 16;
+    let compile = compiler_argv(&compiler);
+    let mut objective = NonMonotoneCost {
+        fresh_calls: 0,
+        fail_fresh: false,
+    };
+    let searched = source_search::search_with_objective(
+        INPUT,
+        &opts,
+        &compile,
+        &directory.path().join("combinations"),
+        None,
+        &mut objective,
+    )
+    .unwrap();
+    assert_eq!(searched.report["selected_whole_file_bytes"], 90);
+    assert_eq!(objective.fresh_calls, 1);
+    let space = &searched.report["coverage"]["basis_spaces"][0];
+    assert_eq!(space["generated_choices"], 2);
+    assert_eq!(space["nontrivial_subsets"], "1");
+    assert_eq!(space["systematic_subsets_attempted"], 1);
+    assert_eq!(space["exhausted"], true);
+    assert_eq!(space["all_declared_costs_evaluated"], true);
+    let records = searched.report["records"].as_array().unwrap();
+    assert_eq!(
+        records
+            .iter()
+            .filter(|r| r["stage"] == "complete-file-cost" && r["whole_file_bytes"] == 101)
+            .count(),
+        2
+    );
+    assert!(records
+        .iter()
+        .any(|r| r["stage"] == "composition-admitted" && r["phase"] == "systematic"));
+    assert_eq!(
+        source_search::replay(
+            INPUT,
+            &searched.recipe,
+            &compile,
+            &directory.path().join("replay")
+        )
+        .unwrap(),
+        searched.data
+    );
+
+    let out = directory.path().join("fresh-failure");
+    let mut changed = NonMonotoneCost {
+        fresh_calls: 0,
+        fail_fresh: true,
+    };
+    let error =
+        source_search::search_with_objective(INPUT, &opts, &compile, &out, None, &mut changed)
+            .unwrap_err();
+    assert!(format!("{error:#}").contains("final complete-file cost is not reproducible"));
+    assert_eq!(changed.fresh_calls, 1);
+    let compared = attempts::compare(&[out.join("source-search/attempts")]).unwrap();
+    assert_eq!(compared["runs"][0]["status"], "failed");
+
+    // Already measured singles can still be admitted after the new-evaluation
+    // limit, with the last measurement reserved for independent readback.
+    opts.max_evaluations = 3;
+    let mut calls = 0;
+    let limited = source_search::search(
+        INPUT,
+        &opts,
+        &compile,
+        &directory.path().join("measured-single"),
+        &mut |data| {
+            calls += 1;
+            Ok(if data == INPUT { 100 } else { 90 })
+        },
+    )
+    .unwrap();
+    assert_eq!(limited.report["selected_whole_file_bytes"], 90);
+    assert_eq!(calls, 3);
+    assert_eq!(
+        limited.report["exhaustion_reason"],
+        "complete-file-evaluation-budget"
+    );
+
+    opts.max_evaluations = 32;
+    opts.max_combinations = 1;
+    opts.candidates.max_candidates = 4;
+    opts.candidates.names_per_group = 2;
+    let partial = source_search::search(
+        INPUT,
+        &opts,
+        &compile,
+        &directory.path().join("combination-limit"),
+        &mut |_| Ok(100),
+    )
+    .unwrap();
+    assert_eq!(partial.data, INPUT);
+    assert_eq!(
+        partial.report["exhaustion_reason"],
+        "combination-attempt-budget"
+    );
+    assert_eq!(partial.report["coverage"]["combination_attempts"], 1);
+    assert_eq!(
+        partial.report["coverage"]["basis_spaces"][0]["exhausted"],
+        false
+    );
+    assert_eq!(
+        partial.report["coverage"]["declared_basis_spaces_complete"],
+        false
     );
 }
 
@@ -342,6 +908,140 @@ fn retained_attempts_survive_budget_stops_and_failed_costs() {
         .as_str()
         .unwrap()
         .contains("context hash mismatch"));
+}
+
+#[test]
+fn changed_frontend_context_is_fatal_at_the_search_admission_boundary() {
+    let Some((clang, compiler)) = tools() else {
+        return;
+    };
+    let directory = tempfile::tempdir().unwrap();
+    let header = directory.path().join("value.h");
+    struct ChangingCost<'a> {
+        input: &'a [u8],
+        header: &'a Path,
+        phase: &'a str,
+        changes: usize,
+        fresh_calls: usize,
+    }
+    impl ChangingCost<'_> {
+        fn change_header(&mut self) -> anyhow::Result<()> {
+            fs::write(self.header, b"enum { OFFSET = 2 };\n")?;
+            self.changes += 1;
+            Ok(())
+        }
+        fn cost(&self, data: &[u8]) -> usize {
+            if data == self.input || self.phase == "unchanged" {
+                100
+            } else {
+                90
+            }
+        }
+    }
+    impl source_search::CompleteFileObjective for ChangingCost<'_> {
+        fn measure(&mut self, data: &[u8]) -> anyhow::Result<usize> {
+            if self.changes == 0
+                && (self.phase == "baseline"
+                    || data != self.input
+                        && matches!(self.phase, "spelling" | "flow" | "unchanged"))
+            {
+                self.change_header()?;
+            }
+            Ok(self.cost(data))
+        }
+        fn fresh_measure(&mut self, data: &[u8]) -> anyhow::Result<usize> {
+            self.fresh_calls += 1;
+            if matches!(self.phase, "final" | "failed-final") {
+                self.change_header()?;
+            }
+            anyhow::ensure!(self.phase != "failed-final", "injected fresh-cost failure");
+            Ok(self.cost(data))
+        }
+    }
+    for (scheduling, phase) in [
+        source_search::SchedulingPolicy::LegacyPriority,
+        source_search::SchedulingPolicy::InterleavedOnline,
+    ]
+    .into_iter()
+    .flat_map(|policy| {
+        [
+            "spelling",
+            "flow",
+            "unchanged",
+            "final",
+            "failed-final",
+            "baseline",
+        ]
+        .into_iter()
+        .map(move |phase| (policy, phase))
+    }) {
+        fs::write(&header, b"enum { OFFSET = 1 };\n").unwrap();
+        let input = format!("#include \"{}\"\nint k=OFFSET;int f(_Bool alpha){{return alpha!=1;}}int main(void){{return f(1)+k;}}\n", header.display()).into_bytes();
+        let mut opts = options(&clang, Value::Null);
+        opts.embedding = None;
+        opts.embedding_contract = "opaque".into();
+        opts.scheduling = scheduling;
+        opts.candidates.max_candidates = if phase == "spelling" { 2 } else { 1 };
+        opts.candidates.max_name_groups = 1;
+        opts.candidates.names_per_group = 1;
+        opts.conditions = phase != "spelling";
+        let out = directory.path().join(format!("{scheduling:?}-{phase}"));
+        let mut objective = ChangingCost {
+            input: &input,
+            header: &header,
+            phase,
+            changes: 0,
+            fresh_calls: 0,
+        };
+        let error = source_search::search_with_objective(
+            &input,
+            &opts,
+            &compiler_argv(&compiler),
+            &out,
+            None,
+            &mut objective,
+        )
+        .unwrap_err();
+        let explanation = format!("{error:#}");
+        assert!(explanation.contains("changed"), "{phase}: {explanation}");
+        assert!(
+            error
+                .downcast_ref::<csource::FrontendContextChanged>()
+                .is_some(),
+            "{phase}: {explanation}"
+        );
+        assert_eq!(objective.changes, 1, "{phase}");
+        if matches!(phase, "final" | "failed-final") {
+            assert_eq!(objective.fresh_calls, 1, "{phase}");
+        }
+        if phase == "failed-final" {
+            assert!(explanation.contains("injected fresh-cost failure"));
+        }
+        let receipt: Value = serde_json::from_slice(
+            &fs::read(out.join("source-search/failed-report.json")).unwrap(),
+        )
+        .unwrap();
+        assert_eq!(receipt["status"], "failed");
+        assert!(
+            !receipt["records"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|r| r["stage"] == "semantic-rejected"),
+            "{phase}"
+        );
+        if phase == "flow" {
+            assert!(receipt["records"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|r| r["stage"] == "condition-candidate"));
+        }
+        assert_eq!(
+            attempts::compare(&[out.join("source-search/attempts")]).unwrap()["runs"][0]["status"],
+            "failed"
+        );
+    }
 }
 
 #[test]

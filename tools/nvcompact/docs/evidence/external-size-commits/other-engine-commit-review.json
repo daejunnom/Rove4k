@@ -1,0 +1,4388 @@
+{
+  "schema": "nvcompact.external-history-review.v1",
+  "review_date": "2026-10-21",
+  "purpose": "PR12 engine handoff and NVCompact generalization research; upstream methods retained regardless of Rove4k adoption",
+  "method": "Public git histories cloned with --no-checkout outside the Rove4k repository; selected actual diffs read. No engine/bootstrap/ELF loader/build script execution or new compression measurement.",
+  "candidate_search": "Keyword scan over all reachable non-merge refs plus manual follow-up for related changes; selected_diffs_reviewed includes some non-keyword follow-ups. This is not every historical commit or formal semantic verification.",
+  "classification": {
+    "P": "의미 보존 후보: 이 diff의 사용 문맥을 벗어나 자동 적용하려면 별도 증명이 필요함",
+    "M": "알고리즘/검색 순서/평가/타이밍 또는 계약 변화가 섞인 수정",
+    "B": "빌드·압축·패키징 후보: 대상 ABI와 실행 환경 검증 필요",
+    "V": "정확성·재현성·검증 개선/실패 사례",
+    "F": "기능이나 관찰 가능한 출력을 제거하는 특수화",
+    "D": "기록 또는 설계 실험: 엔진 변경으로 착각하면 안 됨"
+  },
+  "limitations": [
+    "All byte savings are upstream title/README/source-comment/ledger claims, never new measurements. Mixed commits cannot attribute total gain to a single sub-change. Do not add deltas across revisions.",
+    "c4ke and STRO4K histories include multiple branches; cherry-picked equivalents are not independent experiments. The selected SHA is the precise evidence reference.",
+    "STRO4K public history/branches do not establish correspondence to every current TCEC roster label, including version 6.0; 2026 Sunfish NNUE experiments are not automatically the historical classic submission.",
+    "Pytteliten explicitly targets TCEC4K in upstream README, but actual participation was not confirmed in the existing Rove4k event roster; it is an adjacent reference.",
+    "Moonfish means zamfofex/moonfish only. Public sourcehut and current neocities script were inaccessible through this session web tool. Prior metadata records sourcehut 404 and unresolved historical/current equivalence. No Moonfish commit delta is claimed.",
+    "The initially fetched github.com/mateoxh/molly is an unrelated namesake and is excluded. The reviewed TCEC molly is codeberg.org/latuernich/molly.",
+    "Certain large commits were reviewed through selected file/hunk diffs; each record states that scope. This catalogue is evidence for design candidates, not a full security/correctness audit of any upstream minifier.",
+    "No external engine source is intended to enter Rove4k; only citations and analysis from this review should be integrated."
+  ],
+  "inventory": [
+    {
+      "engine": "c4ke",
+      "repository": "https://github.com/citrus610/c4ke",
+      "head": "ca95d3ac5e59f4759534dffb7ab1b28afa922d74",
+      "reachable_commits_all_refs": 523,
+      "reachable_nonmerge_commits_all_refs": 332,
+      "keyword_candidate_count": 94,
+      "keyword_pattern": "byte|shrink|compress|minif|size|golf|pack|small",
+      "selected_diffs_reviewed": 79,
+      "keyword_candidates": [
+        {
+          "sha": "e04603901f54a725288cacdd753fd9aabe6cddf1",
+          "date": "2026-09-07",
+          "title": "se smaller depth scale"
+        },
+        {
+          "sha": "422cec0aeb64075e73178fe335d43d8a3dc5e485",
+          "date": "2026-08-09",
+          "title": "misc: 4 bytes shrink"
+        },
+        {
+          "sha": "b0985397a2319214cfb662efcaaa82b3c740cc31",
+          "date": "2026-08-09",
+          "title": "misc: shrink 16 bytes"
+        },
+        {
+          "sha": "ffb03259b7e2973923395485c1a2bfb39d19e5d7",
+          "date": "2026-08-06",
+          "title": "misc: save 6 bytes using i32 for moves"
+        },
+        {
+          "sha": "d9aa411efe126b78906753572303f021c4c9263e",
+          "date": "2026-08-05",
+          "title": "misc: shrink 5 bytes"
+        },
+        {
+          "sha": "eae91eaf093afcf50ed65ee978278576882ea9b2",
+          "date": "2026-08-01",
+          "title": "misc: save 8 bytes"
+        },
+        {
+          "sha": "c2b056ec3e8416cf182fdb4ea0f1b65035dd2318",
+          "date": "2026-08-01",
+          "title": "misc: shrink 5 bytes"
+        },
+        {
+          "sha": "deddfedc02ca3718f868a0e66f574d592e3f15fd",
+          "date": "2026-07-23",
+          "title": "shrink 5 bytes"
+        },
+        {
+          "sha": "d7567032254b3566ac889fac3c89abcd829dfbf6",
+          "date": "2026-04-21",
+          "title": "misc: save 2 bytes"
+        },
+        {
+          "sha": "e7250ef24e981ec2f66e446c3564d7d18bb48857",
+          "date": "2026-01-04",
+          "title": "update the minifier and tuner"
+        },
+        {
+          "sha": "50a3f439205495bbbc9280478abad85ea7c13000",
+          "date": "2026-01-04",
+          "title": "misc: save 7 bytes"
+        },
+        {
+          "sha": "ca2614c213c3a77910e6974b071e6649a1575acb",
+          "date": "2025-12-31",
+          "title": "small shrink"
+        },
+        {
+          "sha": "4b0dcee9dc0120e20e3e11389160e06c8b36b622",
+          "date": "2025-12-30",
+          "title": "misc: save 6 bytes"
+        },
+        {
+          "sha": "7eca768851cc3e4de9638ee2ae95a16e24000c43",
+          "date": "2025-12-30",
+          "title": "misc: save 9 bytes"
+        },
+        {
+          "sha": "1d8a6047075677fcad7e90582813785b0af6027d",
+          "date": "2025-12-29",
+          "title": "shrink root board"
+        },
+        {
+          "sha": "a5c243da4a324f53c2d20f8d355aac7ddbfef85d",
+          "date": "2025-12-24",
+          "title": "smaller endgame scale"
+        },
+        {
+          "sha": "9d6c91912fc38e03ca4c71cbe1ded213f19d64ae",
+          "date": "2025-12-23",
+          "title": "misc: save 21 bytes"
+        },
+        {
+          "sha": "678f8d6647db52e6c1c73d544180ffb5690faa98",
+          "date": "2025-12-22",
+          "title": "update minifier"
+        },
+        {
+          "sha": "c29ae2f9a16ad3af71cb3d1b226447352cecc26a",
+          "date": "2025-12-22",
+          "title": "corrhist smp shrink"
+        },
+        {
+          "sha": "dbfa58a1bc965651b953292010276c03b2d98ffc",
+          "date": "2025-12-19",
+          "title": "misc: save 5 bytes"
+        },
+        {
+          "sha": "de87bb2a6cb6deb72b32c2aaf4ec0695d2f83f46",
+          "date": "2025-12-18",
+          "title": "save 10 bytes but risky"
+        },
+        {
+          "sha": "7056eff516bfe3a9f72bb0618b82172fae8d2897",
+          "date": "2025-12-16",
+          "title": "shrink with c++23 features"
+        },
+        {
+          "sha": "2898f6edd096d00ef79f4dadbcdcdc8cd6522443",
+          "date": "2025-12-11",
+          "title": "misc: save 9 bytes"
+        },
+        {
+          "sha": "d5ca1719dad56fa0b414a1a63fc86d7bd9f99428",
+          "date": "2025-12-09",
+          "title": "update minifier character set"
+        },
+        {
+          "sha": "15aad646c521194711fb13da3a2bd73e6d318439",
+          "date": "2025-11-28",
+          "title": "misc: save 2 bytes"
+        },
+        {
+          "sha": "955a2036f13d8a41515ceb9bf61394af5212f07c",
+          "date": "2025-11-24",
+          "title": "misc: save 5 bytes"
+        },
+        {
+          "sha": "7780ed2c0cc18ee3c098476be5d23630b6d7dc32",
+          "date": "2025-11-17",
+          "title": "misc: save 2 bytes"
+        },
+        {
+          "sha": "e8b48f193bb727aca2d1de7604778ba9df6d943e",
+          "date": "2025-11-16",
+          "title": "misc: save 8 bytes"
+        },
+        {
+          "sha": "2104a34a00c7381ba4e23bdb8d82139b9da8fa4a",
+          "date": "2025-11-13",
+          "title": "misc: save 7 bytes"
+        },
+        {
+          "sha": "64bd1b27e1fb1a9ee52b2ac025e93b8fc4791daf",
+          "date": "2025-11-11",
+          "title": "shrink some unneeded score guard"
+        },
+        {
+          "sha": "1bf90695161a9bb89bc22aa2c1ff8bd0b95e2084",
+          "date": "2025-11-11",
+          "title": "misc: shrink endgame scaling"
+        },
+        {
+          "sha": "09981f09dc4d47d041816db752e0ec198a050557",
+          "date": "2025-10-18",
+          "title": "minifier shrink math stuffs"
+        },
+        {
+          "sha": "b58a9cfa413322a8655f45201926a0478e4ac277",
+          "date": "2025-10-15",
+          "title": "tt score mate adjust and shrink"
+        },
+        {
+          "sha": "a372d9739d0d7364a219f6b7843d2bb99f493454",
+          "date": "2025-10-15",
+          "title": "misc: small shrink"
+        },
+        {
+          "sha": "af6412c796346769a5ea253e04dfeabc173ef270",
+          "date": "2025-10-12",
+          "title": "small shrink"
+        },
+        {
+          "sha": "5da1f6adcdf77ad0715e8872a93f0e7b1dba6f87",
+          "date": "2025-10-12",
+          "title": "small shrink"
+        },
+        {
+          "sha": "655caf51a853a7ac3a785fbca140a349749da98e",
+          "date": "2025-10-12",
+          "title": "small shrink"
+        },
+        {
+          "sha": "00ebc3cbb3c58838fa395da304e7b971be251033",
+          "date": "2025-10-12",
+          "title": "small shrink of LMR-ZWS-PVS code + typo correction"
+        },
+        {
+          "sha": "56c81e468f7cf468505f5c0c9eac8f5c98dee67f",
+          "date": "2025-10-12",
+          "title": "Small shrink"
+        },
+        {
+          "sha": "8db8ca532bb88a7d4fb7882bedf0395c1fcf40e1",
+          "date": "2025-10-12",
+          "title": "small shrink"
+        },
+        {
+          "sha": "65dc6f9157556bc8b96afb2b2f397364bf74df0d",
+          "date": "2025-10-10",
+          "title": "misc: shrink 2 bytes"
+        },
+        {
+          "sha": "f49f79d63d7f302a3b2965158346e041854ee76a",
+          "date": "2025-10-06",
+          "title": "misc: shrink 17 bytes"
+        },
+        {
+          "sha": "6febd97eccf79f7626267eed1176fa6752b36dfc",
+          "date": "2025-10-01",
+          "title": "more shrink"
+        },
+        {
+          "sha": "014c726d74ee164f5c70320e3a93b30d99270e30",
+          "date": "2025-10-01",
+          "title": "retune shrink data str"
+        },
+        {
+          "sha": "8437d073afba364bb9037d7672a895a063077347",
+          "date": "2025-09-30",
+          "title": "shrink piece attack mask"
+        },
+        {
+          "sha": "ce5705849e3535598721d031f40a0eba8c64b292",
+          "date": "2025-09-29",
+          "title": "misc: save 3 bytes"
+        },
+        {
+          "sha": "e3e6858ce2539a33a8eb6a4faa456d43cece448a",
+          "date": "2025-09-29",
+          "title": "misc: shrink"
+        },
+        {
+          "sha": "38b6000d8071acb90fbaf1f4878a2b2d99736725",
+          "date": "2025-09-27",
+          "title": "fix minifier bug tokens contain CR"
+        },
+        {
+          "sha": "654dd4c5205f43f230ae01f438e47d4588b678cf",
+          "date": "2025-09-25",
+          "title": "minifier 100% scope awareness"
+        },
+        {
+          "sha": "30dcde63f07164d2848a3842dcf67927bf550aa4",
+          "date": "2025-09-24",
+          "title": "smaller scale pst"
+        },
+        {
+          "sha": "c55e8341b5290167caf5cb4c48c65168d380b951",
+          "date": "2025-09-23",
+          "title": "Small shrink"
+        },
+        {
+          "sha": "6044ae19e2bfb3cf2325b1562503fec4679c3ff1",
+          "date": "2025-09-23",
+          "title": "fix minifier not minifying correctly"
+        },
+        {
+          "sha": "c385dfc0de7899f25482965c832cf564812a07dd",
+          "date": "2025-09-23",
+          "title": "small bugfix"
+        },
+        {
+          "sha": "bb4ccb3a766a534dff4a5c05c902379198592244",
+          "date": "2025-09-23",
+          "title": "remove braces + post increment for better compression"
+        },
+        {
+          "sha": "4650f3e690a553040e4024ce9b3a3a56fd6f2495",
+          "date": "2025-09-23",
+          "title": "Use for loops for better compression"
+        },
+        {
+          "sha": "100aa28601a55c99ba230688ddd51bcdb035ae86",
+          "date": "2025-09-23",
+          "title": "smol shrink"
+        },
+        {
+          "sha": "f27bd1825548a1350419793228914745d02f94af",
+          "date": "2025-09-23",
+          "title": "shrink"
+        },
+        {
+          "sha": "72d8cd85f25272874138c93910f70ee9e6f2b014",
+          "date": "2025-09-23",
+          "title": "shrink"
+        },
+        {
+          "sha": "0b8dbdbe4a8e3019dc7de027ec454f85f0360198",
+          "date": "2025-09-23",
+          "title": "post increment for better compression"
+        },
+        {
+          "sha": "8671d300aa07c126fc053b63887e979586d00c64",
+          "date": "2025-09-23",
+          "title": "shrink (evil ptr trick)"
+        },
+        {
+          "sha": "8acbb75da9366a2ebb0f17ea7fd43982e438a41e",
+          "date": "2025-09-23",
+          "title": "fix readme for checking minified bench"
+        },
+        {
+          "sha": "29f121b876f5bc9e201bac92a8a856506cdfde18",
+          "date": "2025-09-21",
+          "title": "misc: add comments and small shrink"
+        },
+        {
+          "sha": "bafec3dfc9fe5d3226b32aa21de09ad8751f6478",
+          "date": "2025-09-21",
+          "title": "shrink eval slightly"
+        },
+        {
+          "sha": "ade913bb2720632bc7fb916979f5b4354328f69f",
+          "date": "2025-09-21",
+          "title": "misc: shrink `Board::edit()` save 6 byte"
+        },
+        {
+          "sha": "e0db838e131f844839c5530a56f9dc6055d946dd",
+          "date": "2025-09-21",
+          "title": "misc: shrink ep code save 1 byte"
+        },
+        {
+          "sha": "457f4fbf91ec54d65d92fed5adaa759970cbb648",
+          "date": "2025-09-20",
+          "title": "misc: save 1 byte"
+        },
+        {
+          "sha": "4d6c8a06cd353a2a02e456ffaa758e5eab5ab484",
+          "date": "2025-09-19",
+          "title": "misc: save 1 byte"
+        },
+        {
+          "sha": "87e4b1613f5953a7b15fc597ace5f8414bd0e374",
+          "date": "2025-09-19",
+          "title": "misc: save 18 bytes"
+        },
+        {
+          "sha": "8cbe2bfe097113341c7b5f4b597913bdc161612a",
+          "date": "2025-09-18",
+          "title": "smaller delta"
+        },
+        {
+          "sha": "bda1a5ec368526ed40cb8e51f61aa204a863f533",
+          "date": "2025-09-16",
+          "title": "misc: save 10 bytes"
+        },
+        {
+          "sha": "a49b68f15660a98b646343c20fdc1e3634f4fe87",
+          "date": "2025-09-16",
+          "title": "misc: save 5 bytes"
+        },
+        {
+          "sha": "7addd27d49eada59c09c1ccca57ec92b12699fed",
+          "date": "2025-09-15",
+          "title": "misc: save 9 bytes"
+        },
+        {
+          "sha": "3604ce127184404f7228936dfabf0aa7a9a0cd95",
+          "date": "2025-09-15",
+          "title": "misc: save 18 bytes"
+        },
+        {
+          "sha": "70aa3de3a418e92021ca4e8f3836a4f0ca5b8af9",
+          "date": "2025-09-14",
+          "title": "misc: save 1 byte"
+        },
+        {
+          "sha": "5f70585d9f5adafb031faa91a04ba100bf461110",
+          "date": "2025-09-14",
+          "title": "misc: save 9 bytes"
+        },
+        {
+          "sha": "b0270cee22e10f7156441945ab3ee831ae51abaf",
+          "date": "2025-09-14",
+          "title": "misc: save 4 bytes"
+        },
+        {
+          "sha": "b108921fe30062974bf6a0aee245322e3bec456d",
+          "date": "2025-09-12",
+          "title": "minifier add name shadowing"
+        },
+        {
+          "sha": "f139e2005211e4920eeba59632d4b4cf430c868e",
+          "date": "2025-09-10",
+          "title": "fix out of bound access and save bytes"
+        },
+        {
+          "sha": "e2c61f1ae1010eae7650d732592cd2f8567ec782",
+          "date": "2025-09-10",
+          "title": "misc: save 1 byte"
+        },
+        {
+          "sha": "0f320abb538824f9023b479c0f255b64366591fc",
+          "date": "2025-09-08",
+          "title": "misc: save 4 bytes"
+        },
+        {
+          "sha": "fef9801c927913328c869a6cdd7c97e3734edaa6",
+          "date": "2025-09-08",
+          "title": "misc: save 1 byte"
+        },
+        {
+          "sha": "f53a4842418d9256a7f9585c17ca4e917de0c8d5",
+          "date": "2025-09-07",
+          "title": "misc: save 10 bytes"
+        },
+        {
+          "sha": "900cd2898039c1f2aec3387be610d274162ae756",
+          "date": "2025-09-07",
+          "title": "misc: save 5 bytes"
+        },
+        {
+          "sha": "3c694dabaf1a7b4ead8a761b761bf4f44def60dd",
+          "date": "2025-09-06",
+          "title": "misc: save 6 bytes"
+        },
+        {
+          "sha": "ef496b6bb42d95cb23dd595b32af3d4de0095d64",
+          "date": "2025-09-05",
+          "title": "misc: add check script to check minified bench"
+        },
+        {
+          "sha": "b909f98a19b024fcfa3abacac071c7d85f4ab160",
+          "date": "2025-09-03",
+          "title": "fix minifer function detection again"
+        },
+        {
+          "sha": "bb9d8a00f57d3d9155d467a3681534c373f1fb39",
+          "date": "2025-09-03",
+          "title": "fix minifer function detection bug"
+        },
+        {
+          "sha": "905e0eae887ed80e84b352390883c33b1d57547a",
+          "date": "2025-09-02",
+          "title": "misc: add a comment line to minifier"
+        },
+        {
+          "sha": "8c9b240767504b7703ff3059cb93e1cc2ab4a136",
+          "date": "2025-09-02",
+          "title": "fix scope detection in minifier"
+        },
+        {
+          "sha": "56c3b1b9c5c3a64757b146e3d06c7ebe8f1f86fa",
+          "date": "2025-09-01",
+          "title": "misc: minifier semi scope aware"
+        },
+        {
+          "sha": "1ac06ac6929592386851afdce7066d3c481eeb41",
+          "date": "2025-08-31",
+          "title": "misc: minify the code size"
+        },
+        {
+          "sha": "0e2b32262b365eaae0d501605308c0f9001d2732",
+          "date": "2025-08-30",
+          "title": "working minifier"
+        },
+        {
+          "sha": "ba90a3448937eb0015b901d0d98a33bb0e2a989e",
+          "date": "2025-08-29",
+          "title": "init minifier"
+        },
+        {
+          "sha": "27e86b34b2abfae45589971c0d4543703217bc1d",
+          "date": "2025-08-25",
+          "title": "smaller ray attack and add perft test"
+        }
+      ]
+    },
+    {
+      "engine": "STRO4K",
+      "repository": "https://github.com/ONE-RANDOM-HUMAN/STRO4K",
+      "head": "51ea73a3d86141d96ad428402dc387722fc0f9b1",
+      "reachable_commits_all_refs": 749,
+      "reachable_nonmerge_commits_all_refs": 720,
+      "keyword_candidate_count": 48,
+      "keyword_pattern": "byte|shrink|compress|minif|size|golf|pack|small",
+      "selected_diffs_reviewed": 19,
+      "keyword_candidates": [
+        {
+          "sha": "72a513a3c5eb2b2d8d5244ba8a9f54d0c1859043",
+          "date": "2026-07-06",
+          "title": "Use file-based pawn shield eval and reduce size"
+        },
+        {
+          "sha": "db77ad06fe393592e5aaf424a5a2631d5575be64",
+          "date": "2026-07-06",
+          "title": "Add attacked queens to mobility attacks and reduce size"
+        },
+        {
+          "sha": "2c2bff6c50a4a9adcd767e5d3b15cb1bc1883254",
+          "date": "2026-06-16",
+          "title": "Reduce size"
+        },
+        {
+          "sha": "e35dde09199cabdf689f7086c2c2116a63c2155a",
+          "date": "2026-06-13",
+          "title": "Reduce size"
+        },
+        {
+          "sha": "6ab0c5672c8bd0591acbf4b1d3560ce5b5e9c14e",
+          "date": "2026-06-12",
+          "title": "Implement 2-ply conthist based corrhist and reduce size"
+        },
+        {
+          "sha": "342b013fe4b352a8fab0d508798d55257a27d9d9",
+          "date": "2026-06-12",
+          "title": "Implement 2-ply conthist based corrhist and reduce size"
+        },
+        {
+          "sha": "28a90b06cf7b2c858db312fc393424b823530c27",
+          "date": "2026-06-12",
+          "title": "Reduce size"
+        },
+        {
+          "sha": "2f7416101c95189c446303db0cbde234f61ebc8d",
+          "date": "2026-06-12",
+          "title": "Implement conthist based corrhist and reduce size"
+        },
+        {
+          "sha": "080562ead240e6fc4495ea04e94fe9cbf23e3284",
+          "date": "2026-06-12",
+          "title": "Reduce size"
+        },
+        {
+          "sha": "ff0c71af1f0eb30ac19c495568bc267f4c0de741",
+          "date": "2026-06-10",
+          "title": "Reduce size"
+        },
+        {
+          "sha": "ccdd47284cbbf719326f37d2f439c73bc588c508",
+          "date": "2025-11-04",
+          "title": "Use smaller movegen and hash"
+        },
+        {
+          "sha": "4d557f2747c947202208d720517ecba3e17d562c",
+          "date": "2025-11-03",
+          "title": "Use smaller movegen and hash"
+        },
+        {
+          "sha": "b38dbf532e92558af3ae78801bf009e944b00ff9",
+          "date": "2025-10-29",
+          "title": "Implement material corrhist and reduce size"
+        },
+        {
+          "sha": "15e6aee64807f323a9e20c9c1c69a8323ec541f4",
+          "date": "2025-10-23",
+          "title": "Implement material corrhist in STRO and use smaller hash"
+        },
+        {
+          "sha": "5cf08fcc4e9adaee2cc25b31afbd3593d5d2dd33",
+          "date": "2025-10-22",
+          "title": "Reduce size and use smaller hash"
+        },
+        {
+          "sha": "43103810a281a89270f588c0a0db29e1ca0e97cb",
+          "date": "2025-10-21",
+          "title": "Reduce size and use smaller hash"
+        },
+        {
+          "sha": "7a4f8b88b2b88d97dad0563e9260fb54110a5858",
+          "date": "2025-06-17",
+          "title": "Reduce size"
+        },
+        {
+          "sha": "31621bfa4a03f9c62a9a2584e0f8dda7d04ccdc9",
+          "date": "2025-06-09",
+          "title": "Reduce size"
+        },
+        {
+          "sha": "a3a2ecfd724d870a566b219fa9a1598595d208ce",
+          "date": "2025-03-23",
+          "title": "Add support for more threads and reduce size"
+        },
+        {
+          "sha": "a932100c57134bbbab21203d9f2dad07354ed0b2",
+          "date": "2025-01-12",
+          "title": "Reduce size"
+        },
+        {
+          "sha": "199b7351dedaee6e590a0520ab8bf3e3de53cce4",
+          "date": "2024-08-02",
+          "title": "Reduce size"
+        },
+        {
+          "sha": "eb7c9dd19a7d7a5f5a051501c40ba13961d1e91d",
+          "date": "2024-07-30",
+          "title": "Use AVX-512 in asm and reduce size"
+        },
+        {
+          "sha": "6b876ebeadf28a055c952c640d60c467f1bfe68d",
+          "date": "2024-05-08",
+          "title": "Reduce size"
+        },
+        {
+          "sha": "5b1b3f0aae4851c33ba8c7f957d0ccf25b3d0ecf",
+          "date": "2024-05-06",
+          "title": "Reduce size"
+        },
+        {
+          "sha": "5a565bd06cc53830cbc03855687f774bd5309eba",
+          "date": "2024-05-06",
+          "title": "Reduce size"
+        },
+        {
+          "sha": "c7761d9d276627666efccb79bfc57efb1b1d3e2a",
+          "date": "2024-05-04",
+          "title": "Reduce size"
+        },
+        {
+          "sha": "81ae24f3a42bbe2831ea2bd22f3f0b24466461c4",
+          "date": "2024-04-24",
+          "title": "Reduce size"
+        },
+        {
+          "sha": "2a84984784df728c15ea0ce14b97b9b26715eb29",
+          "date": "2024-04-24",
+          "title": "Reduce size"
+        },
+        {
+          "sha": "ef68fd0b3604ac5fa1f2cd11f334f4d5ab3eeadb",
+          "date": "2024-01-08",
+          "title": "Reduce size"
+        },
+        {
+          "sha": "830ff05d49821a15b59816c22489fc7c514a99d9",
+          "date": "2023-12-05",
+          "title": "Make movegen emit moves with two bytes of extra space"
+        },
+        {
+          "sha": "e0c4e6fc5f6ab9a6c639d59d2a57343ae136f915",
+          "date": "2023-11-27",
+          "title": "Reduce size"
+        },
+        {
+          "sha": "a7f9c30f1d1021c0c6f5f20e405b258dd1ebf69b",
+          "date": "2023-11-24",
+          "title": "Update README.md and fix size"
+        },
+        {
+          "sha": "2731b388242c8d66fdec1bff6830efeaca6249eb",
+          "date": "2023-11-06",
+          "title": "Rewrite eval for reduced size"
+        },
+        {
+          "sha": "fde5bd90791bdc25cd7e7ea5ef07c34b2224363e",
+          "date": "2023-10-24",
+          "title": "Reduce size"
+        },
+        {
+          "sha": "03358e45d51141c7eefe8d11814d8fd32b9223ee",
+          "date": "2023-09-27",
+          "title": "Reduce size"
+        },
+        {
+          "sha": "48a8168d3cd0b9e11f61f704253e71761bd157fe",
+          "date": "2023-09-27",
+          "title": "Implement better compression in 4k build"
+        },
+        {
+          "sha": "4b6bb2679a993b2c5f7e7ebd15da41f42a5454fc",
+          "date": "2023-09-26",
+          "title": "Reduce binary size by switching to gold"
+        },
+        {
+          "sha": "0b4d478419a488bc0b8761fe9f303dfb361a9fcf",
+          "date": "2023-08-25",
+          "title": "Use smaller aspiration window size for main thread"
+        },
+        {
+          "sha": "708770de9cc82bc2c0609adf5f34a4f0a6f50643",
+          "date": "2023-08-24",
+          "title": "Increase aspiration window size"
+        },
+        {
+          "sha": "9de14780e77320e630df1683e6c03e5cd3f3662c",
+          "date": "2023-08-21",
+          "title": "Increase aspiration window size"
+        },
+        {
+          "sha": "bf700077f9898a423fcfa6f5b827a54ec90a4bf9",
+          "date": "2023-07-21",
+          "title": "Reduce size and fix new game bug"
+        },
+        {
+          "sha": "c9742006980dd8f3140341cfdcf79f17b6c37e21",
+          "date": "2023-07-21",
+          "title": "Reduce size"
+        },
+        {
+          "sha": "3ebf97a9cb7e50b113de0e57371e3c897db61cac",
+          "date": "2023-07-17",
+          "title": "Update size in README.md"
+        },
+        {
+          "sha": "9f614a17433225a1bfa26a3dd34c1498feb94a52",
+          "date": "2023-04-28",
+          "title": "Reduce NNUE layer size and add material eval"
+        },
+        {
+          "sha": "53e9e47766ef16466abb590cb5e4c2433b78d888",
+          "date": "2023-04-18",
+          "title": "Reduce binary size"
+        },
+        {
+          "sha": "181bfa593ee61682413f8722721c0d3899c05e78",
+          "date": "2023-04-12",
+          "title": "Reduce size"
+        },
+        {
+          "sha": "6944b3db9156a057e166de61728a8d6df292bde9",
+          "date": "2023-04-04",
+          "title": "Fix packing of evals for TT data"
+        },
+        {
+          "sha": "d2651639222182e6117818347a1da667e26c86b9",
+          "date": "2023-04-04",
+          "title": "Fix packing of evals for TT data"
+        }
+      ]
+    },
+    {
+      "engine": "M4sseur",
+      "repository": "https://github.com/Diazepawn/M4sseur",
+      "head": "470fa53925c1cafeaaf84db3612abb5eb0ae9e9f",
+      "reachable_commits_all_refs": 17,
+      "reachable_nonmerge_commits_all_refs": 17,
+      "keyword_candidate_count": 2,
+      "keyword_pattern": "byte|shrink|compress|minif|size|golf|pack|small",
+      "selected_diffs_reviewed": 5,
+      "keyword_candidates": [
+        {
+          "sha": "470fa53925c1cafeaaf84db3612abb5eb0ae9e9f",
+          "date": "2023-05-06",
+          "title": "Tweaked Taps and TM, search, code size"
+        },
+        {
+          "sha": "fa887befbc5f5cdaf1c53ff5928efa8d91b81496",
+          "date": "2023-05-03",
+          "title": "Size improvements"
+        }
+      ]
+    },
+    {
+      "engine": "we4k",
+      "repository": "https://github.com/ONE-RANDOM-HUMAN/we4k",
+      "head": "352f7378a0775c0da86ad11de8cce7a1153047d8",
+      "reachable_commits_all_refs": 10,
+      "reachable_nonmerge_commits_all_refs": 10,
+      "keyword_candidate_count": 0,
+      "keyword_pattern": "byte|shrink|compress|minif|size|golf|pack|small",
+      "selected_diffs_reviewed": 2,
+      "keyword_candidates": []
+    },
+    {
+      "engine": "sunfish",
+      "repository": "https://github.com/thomasahle/sunfish",
+      "head": "e396948acbd80cdcbad3dccfb07e878fba9df8f4",
+      "reachable_commits_all_refs": 1460,
+      "reachable_nonmerge_commits_all_refs": 1363,
+      "keyword_candidate_count": 123,
+      "keyword_pattern": "byte|shrink|compress|minif|size|golf|pack|small",
+      "selected_diffs_reviewed": 10,
+      "keyword_candidates": [
+        {
+          "sha": "ed22c19b90c2cf69c0f0b5e11074be96155b1ee6",
+          "date": "2026-08-23",
+          "title": "Check the README against compressed.py (#260)"
+        },
+        {
+          "sha": "e6ffdba0a8e0c31596a245fe8d8a9af42e4d0808",
+          "date": "2026-08-23",
+          "title": "Check the README against compressed.py"
+        },
+        {
+          "sha": "9102cf1048412058bfee95a8ec3094f5f4931634",
+          "date": "2026-08-23",
+          "title": "README: the line count links to compressed.py, the packing intro stays plain"
+        },
+        {
+          "sha": "4c742c19da0df5c9530851d7fb36afe70d30530b",
+          "date": "2026-08-23",
+          "title": "Ship the packed engine as compressed.py at the repo root (#257)"
+        },
+        {
+          "sha": "3e702f36d806418bd75a6c0079977a17fb70b241",
+          "date": "2026-08-23",
+          "title": "compressed.py folds single-statement blocks onto their header (≤120 cols)"
+        },
+        {
+          "sha": "73fad4dc9a4c0cca85b4372333e1652227e9bc3f",
+          "date": "2026-08-22",
+          "title": "Pin corpus source window size"
+        },
+        {
+          "sha": "f31688ce1d7c3a0373f6331662349903bdb94646",
+          "date": "2026-08-22",
+          "title": "compressed.py: only the Chess logic + Search logic sections"
+        },
+        {
+          "sha": "3ad35fe26748bb0bcf75968cc16d1724d37ec4e4",
+          "date": "2026-08-22",
+          "title": "compressed.py hides what numbfish hides: the engine core only"
+        },
+        {
+          "sha": "0b5ea206eaf8c592911de22196cb417f11a59afb",
+          "date": "2026-08-22",
+          "title": "compressed.py is the readable stripped engine, numbfish-style"
+        },
+        {
+          "sha": "955ea391ff5041e8f24a0f84277a64c89a52598e",
+          "date": "2026-08-22",
+          "title": "compressed.py is the clean.sh output"
+        },
+        {
+          "sha": "974958218c63bf3c03b938c8996b6966ac4e57da",
+          "date": "2026-08-22",
+          "title": "compressed.py is plain Python, not a binary"
+        },
+        {
+          "sha": "9a26feb8311718bb0c762a973bf3d5d2a027b44b",
+          "date": "2026-08-22",
+          "title": "Ship the packed engine as compressed.py at the repo root"
+        },
+        {
+          "sha": "4b157a71bf82b5d3213367c1fc3f755a598cca10",
+          "date": "2026-08-19",
+          "title": "Index the shrink closure"
+        },
+        {
+          "sha": "3d861d721e87b390f3f3989393286a60bf07adf1",
+          "date": "2026-08-19",
+          "title": "CLOSURE shrink: all four rungs fail both bars, my own void clause's premise is refuted, and the EVAL AXIS CLOSES -- twelve mechanisms, zero conversions"
+        },
+        {
+          "sha": "852da297b49331c18021647874662804770d99b2",
+          "date": "2026-08-19",
+          "title": "REGISTRATION shrink: the SHIFT+k shrinkage ladder, rung values on record before game 1"
+        },
+        {
+          "sha": "85cecc22f2c466e6b116473fd4d8d114440734cb",
+          "date": "2026-08-19",
+          "title": "MEMO: the evaluation tax is the CARRIER, not the evaluator -- incrementality is already banked, and the reopen condition is met by a 60-byte port that reopens NOTHING"
+        },
+        {
+          "sha": "8be399fd73cddb7b620b559817573a5d53dada14",
+          "date": "2026-08-19",
+          "title": "CLOSURE: king buckets land in the band -- INPUT CONDITIONING CLOSES for the packed family, eleven mechanisms, zero conversions"
+        },
+        {
+          "sha": "4987b9d25f7b79c8bc2111085badfcf04ac42fc4",
+          "date": "2026-08-19",
+          "title": "COHORT 1 HARVEST: six shippable bucketed artifacts, every gate green, and a byte prediction wrong in the GENEROUS direction"
+        },
+        {
+          "sha": "8ebcf3772904539a6af1233d09c33c4ef81410a8",
+          "date": "2026-08-19",
+          "title": "The factored emitter learns buckets, and the composed byte number comes back 4-5x wrong"
+        },
+        {
+          "sha": "09b3b4057c815c8acc383a4add9371a9f2f6e390",
+          "date": "2026-08-19",
+          "title": "pack.sh: restore --no-hoist-literals + shebang strip"
+        },
+        {
+          "sha": "db70dfbeaf930354f9fdcd08e84bc84e17c5fbb8",
+          "date": "2026-08-19",
+          "title": "PORTFOLIO REGISTRATION: eight families priced in bytes AND speed, before a single arm trains"
+        },
+        {
+          "sha": "1c4468ccd6d3af7c141cc57f98211b3b422d9f21",
+          "date": "2026-08-18",
+          "title": "The artifact learns `go nodes`: +30 bytes, 3410 -> 3440, 656 under budget"
+        },
+        {
+          "sha": "a5ef9e96b7e000d40007a2719cb349e4de5eb5ae",
+          "date": "2026-08-18",
+          "title": "PRE-REGISTER the book line-fit gauntlet, and a second structural fact about packed artifacts"
+        },
+        {
+          "sha": "7e4db94a935881bc84f57e7aac691de7eefb28f6",
+          "date": "2026-08-18",
+          "title": "AMENDMENT 1 to METER 4: the registered EPD book is unplayable by a packed arm"
+        },
+        {
+          "sha": "c33e8e9909888776a7d9252f7da9e3a38617cc0a",
+          "date": "2026-08-18",
+          "title": "De-stale the two live docs the golf outdated, and leave the registration alone"
+        },
+        {
+          "sha": "467332213d35aa4afc35d5986071a1c6418a54f4",
+          "date": "2026-08-18",
+          "title": "small formatting improvements"
+        },
+        {
+          "sha": "f8c564fdfc3ee0bcffb94abde006ff2bd74f8fd0",
+          "date": "2026-08-18",
+          "title": "Stage-2 emitter: a trained arch=factor checkpoint -> a certified packed entry"
+        },
+        {
+          "sha": "9ce5c6988ff293cb09367343def82cab091bcc33",
+          "date": "2026-08-18",
+          "title": "kptap LANDS: the queens-off cliff becomes a phase ramp, +56.07 for 53 bytes"
+        },
+        {
+          "sha": "9cdbfaf6d40fe3ccbd6c9b2812994f424ea99cdd",
+          "date": "2026-08-18",
+          "title": "CORRECTION: nn_cp runs ONCE PER NODE -- the width tax is ~3x smaller than priced"
+        },
+        {
+          "sha": "cae5063b66322a834bfa52f332daf80cc2eea3b5",
+          "date": "2026-08-18",
+          "title": "REGISTER ARM 1': the bias band becomes a knob, with a byte-identical no-op receipt"
+        },
+        {
+          "sha": "73a2865c5d8e52f0efd5e5c21c8c625b363069b8",
+          "date": "2026-08-17",
+          "title": "FACTORED COMPRESSION, pre-registered: archaeology, priced, and one gate"
+        },
+        {
+          "sha": "b605999724ba70d115e533499910a6463e23f56f",
+          "date": "2026-08-17",
+          "title": "Re-anchor the replnet byte ledger on the bytes-literal decode"
+        },
+        {
+          "sha": "2e1e35f27725c9e59fa45ac3072979504daae23f",
+          "date": "2026-08-17",
+          "title": "Read the replnet payload straight off a bytes literal: 3812 -> 3790"
+        },
+        {
+          "sha": "4435faac11b10d78b287c75c3f1914de2d3955c6",
+          "date": "2026-08-17",
+          "title": "ACCUMULATOR PRICING: width is nearly free, and BYTES are the binding constraint"
+        },
+        {
+          "sha": "2e3c769ea33a857324a18cddde3604d647eb2b42",
+          "date": "2026-08-16",
+          "title": "Phase A feasibility: Leela data located and licensed, and the slice we need is far smaller than asked"
+        },
+        {
+          "sha": "18bad55575552280630b85f47c517e7057153eb1",
+          "date": "2026-08-16",
+          "title": "Tuple moves: the speed campaign reaches +29.59% nps at -29 bytes"
+        },
+        {
+          "sha": "8402cc1ade5f2e4a5b0df4d4c9b4e5852682a753",
+          "date": "2026-08-15",
+          "title": "Size the tuner queue for overlapping refills"
+        },
+        {
+          "sha": "d4ec655b15d0ab34df10baa2d397f20b8c231e2a",
+          "date": "2026-08-15",
+          "title": "The one-layer noise floor is ~4e-5, the same size as gaps this ledger has been ranking on"
+        },
+        {
+          "sha": "9b569d0b43aae1e603918d6fa69250e211898e7c",
+          "date": "2026-08-15",
+          "title": "Amend stage 2 before game 1: adjudication would be one-sided on packed arms"
+        },
+        {
+          "sha": "24372919d7196689b6536d6d2cfc463c10fbd98c",
+          "date": "2026-08-15",
+          "title": "The density dial REVERSES under fidelity (35 free bytes), and the n8/kb4 seams are priced and declined as a direction call"
+        },
+        {
+          "sha": "5c02a568f2081d6e9db81e1f3faee46dc88cede8",
+          "date": "2026-08-14",
+          "title": "4k: correct the K-table swap rationale comments (docs-only, pack-identical)"
+        },
+        {
+          "sha": "d82b22b0268d6bbb0cef9b161bcd5e33d9f4d173",
+          "date": "2026-08-14",
+          "title": "replnet_proto: header numbers refreshed to the landed packer (eb8897c)"
+        },
+        {
+          "sha": "e2ff235227171724399f15c441d534d6d8bb349c",
+          "date": "2026-08-14",
+          "title": "pack_entry.sh: same indivisible lever pair, measured on layout B's own cells"
+        },
+        {
+          "sha": "dc4f7c7c64dbcfcd866bec79d507937e99925886",
+          "date": "2026-08-14",
+          "title": "MEASUREMENTS: bake-off denominators at the LANDED packer (v1 3567, v1c 3519)"
+        },
+        {
+          "sha": "eb8897cc6c884555992db0d9c2a745b90e2ee32c",
+          "date": "2026-08-14",
+          "title": "pack.sh: --no-hoist-literals + payload-shebang strip, verified across all families"
+        },
+        {
+          "sha": "3514cec968dfe8a920070fa3e83e3b0e2caca833",
+          "date": "2026-08-14",
+          "title": "MEASUREMENTS: re-seamed bake-off denominators (v1 3594, v1c 3543); pack-pin incident recorded"
+        },
+        {
+          "sha": "1752ff171b46de3a53ef389884d049b5f805f5f9",
+          "date": "2026-08-14",
+          "title": "compress/: re-seam against golf round 2 (a1a1a6d); pin the pack scripts too"
+        },
+        {
+          "sha": "89b5df99cc83920ec93c24c90a7dc83c13a2ff5d",
+          "date": "2026-08-14",
+          "title": "compress: refuse a drifted entry by name; pin the round-trip test"
+        },
+        {
+          "sha": "a1a1a6d0af00cde19d2b168d66f0f530f83edc5a",
+          "date": "2026-08-14",
+          "title": "REPLNET golf round 2: code 3449->3217, trained candidate 3594; 1024-B payload budget measured 142 short"
+        },
+        {
+          "sha": "986fa96b3f67600dadd06e3cc530db296dd2b1d1",
+          "date": "2026-08-14",
+          "title": "MEASUREMENTS: compression bake-off tables (v1 + v1c), shipped codec survives 15 arms x 2 layouts"
+        },
+        {
+          "sha": "a2e9678c35b61fea32eefce7572e12ca79ce1984",
+          "date": "2026-08-14",
+          "title": "train/: rate-aware constraint (payload BYTES, zoo-calibrated) + bakeoff export hook"
+        },
+        {
+          "sha": "12d316aa3859adac136491ff6831328b46a51a64",
+          "date": "2026-08-14",
+          "title": "compress/: encoder-zoo bake-off harness, instrument-validated both layouts"
+        },
+        {
+          "sha": "d35d6d71d0d315aba6cb08730bc640808e4815b5",
+          "date": "2026-08-14",
+          "title": "ctwin: hot/cold TT split -- 16-byte chain nodes"
+        },
+        {
+          "sha": "6b5b1a640c5819eb09540831cc089e7143ffcaaf",
+          "date": "2026-08-14",
+          "title": "train/: packed big-int layer family with exact backprop + field-budget certification"
+        },
+        {
+          "sha": "8bad06457f36f8d69d50d4c5f2c9256d6ae877e9",
+          "date": "2026-08-14",
+          "title": "ctwin: packed-key insertion sort + stack move lists"
+        },
+        {
+          "sha": "098ba7f1b3fa12fc5fcd28e7a91b773fd6f84c8e",
+          "date": "2026-08-14",
+          "title": "Replacement net priced: N=4 packed big-int fits at 4075 B (21 spare)"
+        },
+        {
+          "sha": "28ec750a53ffcf1c3f7fb6930940f2ff99eba313",
+          "date": "2026-08-14",
+          "title": "ctwin: eviction-path identity measured (TABLE_SIZE 500/50 sweeps)"
+        },
+        {
+          "sha": "e4f9d992b09ad02c65d7ea6106b9846bb8f2f760",
+          "date": "2026-08-14",
+          "title": "Ledger: golf leads measured, 3357 -> 3299, pend threshold crossed"
+        },
+        {
+          "sha": "451b5ccbfb8bd8cb629a1d5e6601aab6ecb8ea64",
+          "date": "2026-08-14",
+          "title": "Golf: codec stops emitting '* 1' at step 1, 3300 -> 3299"
+        },
+        {
+          "sha": "4ed692d71ec983ced51203aabb16fcc5b9b79dbb",
+          "date": "2026-08-14",
+          "title": "Golf: namedtuple typenames feed only repr(), 3307 -> 3300"
+        },
+        {
+          "sha": "ba990e7ef1946f202416c474d859bcbb101b70c9",
+          "date": "2026-08-14",
+          "title": "Golf: fold the __version__ indirection, 3322 -> 3307"
+        },
+        {
+          "sha": "3d506cd412655090c92ca0db3caac7026021fade",
+          "date": "2026-08-14",
+          "title": "Golf: rename what nothing outside the entry dereferences, 3357 -> 3322"
+        },
+        {
+          "sha": "5fea7ca5e93b5a96361fc8c1e7875ba07aa7b564",
+          "date": "2026-08-14",
+          "title": "Machinery golf: 4619 -> 4512 over twelve verified steps, and the kill-condition fires"
+        },
+        {
+          "sha": "d0a40311fc5ba6bbf4de99ec9fd1ddc0fb82601d",
+          "date": "2026-08-14",
+          "title": "Packed128 revival audit: the +96 artifact identified, the composition priced, and width is the wall"
+        },
+        {
+          "sha": "a46a801939046e232ad1d46cc4497f87990a3940",
+          "date": "2026-08-14",
+          "title": "The mix is the mechanism: a size-matched control swings phase 18-24 by 16.8 points"
+        },
+        {
+          "sha": "01f65091caec299c5123f4115caa62de4916fc1a",
+          "date": "2026-08-13",
+          "title": "Drop a composed eval-bytes column from the student pricer"
+        },
+        {
+          "sha": "202d772e9b795a440f70af78fb8a19856963d378",
+          "date": "2026-08-13",
+          "title": "The bestmove (none) class is removable at the root gamma seed, for 5 bytes"
+        },
+        {
+          "sha": "a850b0bdfec8517355c5e9f67216a06d34f2c9bf",
+          "date": "2026-08-13",
+          "title": "The 1024-1500 B eval grid, priced by building: bytes reach it, data does not"
+        },
+        {
+          "sha": "3a391dda745c9275b606982b62126fd1fad35b79",
+          "date": "2026-08-13",
+          "title": "Fits: quantisation is free and SAVES bytes, the taper is priced but its data is not there"
+        },
+        {
+          "sha": "62456cf9928fa2e3d03bd3f7b67b5151a12ce1d4",
+          "date": "2026-08-13",
+          "title": "Decode the eval at startup on the moved base: 3475 -> 3378 bytes, 718 spare"
+        },
+        {
+          "sha": "2be29308c4ba5b70a356ab03ad8d284acabfad5a",
+          "date": "2026-08-13",
+          "title": "Golf: -22 taken, and two of the three \"safe\" trims are not safe"
+        },
+        {
+          "sha": "296fd55ad1ed0ae5501439c5d14b8ea52caf3ca3",
+          "date": "2026-08-13",
+          "title": "Golf: the engine is 2964 bytes MEASURED, and the named cuts are worth ~115"
+        },
+        {
+          "sha": "f1f537cbf952ab7881e1b3f1537cd6c735af2a2b",
+          "date": "2026-08-13",
+          "title": "LANDED: IIR ships -- entry 3475 -> 3472, and it is STRONGER as well as smaller"
+        },
+        {
+          "sha": "d1843601b281d9e93a9b15ec7ea74e0a777cabcc",
+          "date": "2026-08-13",
+          "title": "CONFIRMED: iirk.noiid is +22.3 +/- 16.0 and the entry shrinks to 3472"
+        },
+        {
+          "sha": "e2cd746ad0181ade9dabcb1ff6cfe03f15873d1b",
+          "date": "2026-08-13",
+          "title": "A ZERO-BYTE candidate falls out of corrhist's autopsy"
+        },
+        {
+          "sha": "21e93b99d15733aa9242cda025764874ca3d63c5",
+          "date": "2026-08-13",
+          "title": "iirk: IIR's 7% nps tax was a duplicate hash, recoverable for one byte"
+        },
+        {
+          "sha": "fb0f3822fea3eefa205e764abe53f07e4c6ee9b7",
+          "date": "2026-08-13",
+          "title": "Ordering RR pre-registered: hist needs +61, the byte-negative arms need only not to lose"
+        },
+        {
+          "sha": "ee9c52f5d1f56ba949f00bd7cf6633968e88bcc9",
+          "date": "2026-08-13",
+          "title": "THE HOLE IS CLOSED: +107.5 over classic, and the fix ships at 3475 bytes"
+        },
+        {
+          "sha": "4f95eebb12c368936ed53e08c532458476e8cf06",
+          "date": "2026-08-13",
+          "title": "Stale carried score: reproduced, sized, and priced -- both fixes still save bytes"
+        },
+        {
+          "sha": "6be545f3be13da473f3fbcfb1b17ac1af8c6b210",
+          "date": "2026-08-13",
+          "title": "Review: fishtest's own result block, and size for both engines"
+        },
+        {
+          "sha": "c89ea9aa7563740c60047543246c41bdcf5a10a3",
+          "date": "2026-08-13",
+          "title": "Report bytes against the ENTRY, and fix LMP's keep/drop threshold before the screen"
+        },
+        {
+          "sha": "62c2cee4c4fed6ff8a0d6bd67a2c4949ded83e2f",
+          "date": "2026-08-12",
+          "title": "MILESTONE: a valid 4k entry, built and verified at 3517 bytes"
+        },
+        {
+          "sha": "7179fdc896b4f42c0b832523badbaa92c90a4afe",
+          "date": "2026-08-12",
+          "title": "LMR for the packed engine -- and the guards report we were already unstable"
+        },
+        {
+          "sha": "48508947f2eafbff9b4df3efb67fca2b2af666d1",
+          "date": "2026-08-12",
+          "title": "Packing reversed twice: compose base-3 with lzma, and pack joint not split"
+        },
+        {
+          "sha": "ffead53ad2bbccfc0e69824c73bae1438069324a",
+          "date": "2026-08-12",
+          "title": "4k: no-temp-file packer, split-vs-joint settled, UCI audited, divisor sweep queued"
+        },
+        {
+          "sha": "2c816321d515e9df06446ce025071b623f2207bc",
+          "date": "2026-08-12",
+          "title": "4k: recover the engine+net packer, re-derive the real budget, decode the 1207-byte net"
+        },
+        {
+          "sha": "b267a198479bcaf4350085ab36c40ec96b358ea9",
+          "date": "2026-08-12",
+          "title": "nnue_4k/README: the net counts toward the 4096 bytes"
+        },
+        {
+          "sha": "0df0ae3ec83850852a90bffbbb935338ed89ae3b",
+          "date": "2026-08-12",
+          "title": "Rename the NNUE bot unit: sunfish-packed -> sunfish-nnue"
+        },
+        {
+          "sha": "fdc0601bc453c10c02e60f224542abdc9da3cb67",
+          "date": "2026-08-12",
+          "title": "Packed loop: the measured time formula and a hard deadline (TCEC)"
+        },
+        {
+          "sha": "892c2e76ce9328021d19f06d72af1ff47c04f947",
+          "date": "2026-08-11",
+          "title": "pack.sh: 74-byte self-extracting header (was 116)"
+        },
+        {
+          "sha": "3627d4963d80d73b1357aee0b0a03b97e553ae68",
+          "date": "2026-08-11",
+          "title": "Packed phase-sketch lanes: 32-bit angle fields, zero-cost accumulation"
+        },
+        {
+          "sha": "b0ddb8c445dfc2258baaa5995fd9e6a4631e3134",
+          "date": "2026-08-11",
+          "title": "Cover terminal roots in packed UCI loop"
+        },
+        {
+          "sha": "7f7d40a492e4ecbbc59bbf4a5375e9b3f8ef608e",
+          "date": "2026-08-11",
+          "title": "Rename the engine file: sunfish_packed.py -> sunfish_nnue.py"
+        },
+        {
+          "sha": "0656461d3c3e9928c2efdd42807d0610c5d088ed",
+          "date": "2026-08-11",
+          "title": "Measurement record: material-base attribution closed; the road to 4096 is classic's own golf"
+        },
+        {
+          "sha": "d324cbfbc77f3ddde7dc6f70d87ff5c8899de758",
+          "date": "2026-08-11",
+          "title": "Golf: dev-only segment machinery, fused load region -- 4516 to 4443"
+        },
+        {
+          "sha": "715109dfca5bbe5049b9bce620101b500760c076",
+          "date": "2026-08-11",
+          "title": "nnue_4k/tests becomes a package: bare pytest at the root works again"
+        },
+        {
+          "sha": "1c67aefce0a522b748074b2bc82ba4cd87541833",
+          "date": "2026-08-11",
+          "title": "Golf pass 2: derived SWAR constants, unified ROWS build, branchless kbucket"
+        },
+        {
+          "sha": "04413c40c2f0da81d50118a4a0bb1780d64b3245",
+          "date": "2026-08-11",
+          "title": "nnue_4k: the packed NNUE engine moves to master as a folder"
+        },
+        {
+          "sha": "8b438203ef4078e8eae959eb327483f7bc2e76e2",
+          "date": "2026-08-11",
+          "title": "Measurement record: the TCEC-4k field ladder -- packed v2 and classic vs the lower half"
+        },
+        {
+          "sha": "0731001c5202a7ddfff2ea3ac4e9394ea31f2888",
+          "date": "2026-08-11",
+          "title": "Lichess bot deployment bundle for the packed engine"
+        },
+        {
+          "sha": "bf46a60eef93c94d24432ed2f9b01fee360ecb41",
+          "date": "2026-08-10",
+          "title": "Packed bilinear + tail + phase: engine side, verified"
+        },
+        {
+          "sha": "6da5edd1bcd9271eced63b7c4996145972027f2f",
+          "date": "2026-08-10",
+          "title": "Packed bilinear + tail + phase: pnet build and reference read-out"
+        },
+        {
+          "sha": "8d2b67845ddffaeba4f1dd0a1e7b5e6478d4ac88",
+          "date": "2026-08-10",
+          "title": "packed/bench.py: deterministic fixed-depth bench for the packed engine"
+        },
+        {
+          "sha": "e39fed113d43b81a3c589358e0424038840c8d97",
+          "date": "2026-08-10",
+          "title": "King-bucketed rows in the packed engine (B > 1 nets), engine side"
+        },
+        {
+          "sha": "3943373b639022d4d044a70c8fa2c119c3776094",
+          "date": "2026-08-10",
+          "title": "lichess docs: the live TABLE_SIZE was 300000, not the template's 100000 (#165)"
+        },
+        {
+          "sha": "a9d2334b50c470bc443cc78296149038b008a18c",
+          "date": "2026-08-09",
+          "title": "Packed big-int NNUE: representation, engine, and the nps result"
+        },
+        {
+          "sha": "069db32a2b806219e411e7d8a999dee871c87b02",
+          "date": "2026-08-09",
+          "title": "TESTING.md: how to test the packed artifact (no FEN by design)"
+        },
+        {
+          "sha": "0f0e333b01fc61a12fedf9c895fcc50813be8a0d",
+          "date": "2026-08-09",
+          "title": "Formal: restate for the golfed consumer (003b731)"
+        },
+        {
+          "sha": "c07c5504ebb6845ee36439dfa9b9e4e44db7e0fc",
+          "date": "2026-08-09",
+          "title": "Golf the kcx search on its own proven invariants"
+        },
+        {
+          "sha": "b1e6b321a1e329342d960f869d7aa874ea63bcd7",
+          "date": "2026-08-08",
+          "title": "Fix second golf casualty: bare 'board' NameError killed every search"
+        },
+        {
+          "sha": "45df3f97c537d46dee6caa940d21b674ff06df8b",
+          "date": "2026-08-08",
+          "title": "Fix master breakage from line-golfing: restore class Searcher, hoist parse/render/hist"
+        },
+        {
+          "sha": "6b517c644e03eb57d730c65b0355e5ddbc285bc0",
+          "date": "2026-08-07",
+          "title": "pack.sh header: prefer pypy3 like the polyglot shebang"
+        },
+        {
+          "sha": "e3c77c51e39564ea0abe3d76bb43745177a005b1",
+          "date": "2026-08-06",
+          "title": "Document and CI-test build/pack.sh; fix its broken exec header"
+        },
+        {
+          "sha": "47abac5d4fa590aad5b5595f0f8d6d0cf4bf57fd",
+          "date": "2026-08-05",
+          "title": "CI: use fastchess for tournament matches, compress tiny-UCI go parsing"
+        },
+        {
+          "sha": "5de486c5d64bbe468625b9852327c60723805ede",
+          "date": "2023-04-19",
+          "title": "Small fixes to nnue"
+        },
+        {
+          "sha": "d87c15fa5578c72f9e1e1e007c291e1c363deac8",
+          "date": "2022-12-29",
+          "title": "Small uci change"
+        },
+        {
+          "sha": "287c94bda7e201a11be6d3fcb3b0e42f9616125e",
+          "date": "2022-12-29",
+          "title": "Small uci change"
+        },
+        {
+          "sha": "0c0a33ab120effd2500d4c9b3022ab3b1d8258f6",
+          "date": "2022-12-26",
+          "title": "pack with pypy3"
+        },
+        {
+          "sha": "50bca65bd4eaf4cbd6cf0a136b9040c81e0ee2fb",
+          "date": "2022-12-22",
+          "title": "no more table size"
+        },
+        {
+          "sha": "881dc747ad9ae933279c820aa8b66f4886505d6b",
+          "date": "2022-12-21",
+          "title": "New packing tools"
+        },
+        {
+          "sha": "1a12a19666b66fcb890fd692889d694e8d0ad43b",
+          "date": "2020-02-11",
+          "title": "Added compressed version"
+        },
+        {
+          "sha": "237053ea8150f0dee7d14e43c0ca6612af20f796",
+          "date": "2016-08-21",
+          "title": "Just found itertools.compress"
+        },
+        {
+          "sha": "9426a0a90540dbb1b8fa5c0385c323e69fc05b8d",
+          "date": "2014-12-02",
+          "title": "[README.md] fix small typo"
+        }
+      ]
+    },
+    {
+      "engine": "Pytteliten",
+      "repository": "https://github.com/1337crisis/Pytteliten",
+      "head": "ba711c475cffd96a942fc24ae1e1c6f3ea27ea99",
+      "reachable_commits_all_refs": 43,
+      "reachable_nonmerge_commits_all_refs": 43,
+      "keyword_candidate_count": 6,
+      "keyword_pattern": "byte|shrink|compress|minif|size|golf|pack|small",
+      "selected_diffs_reviewed": 8,
+      "keyword_candidates": [
+        {
+          "sha": "a4608a1bfa4e00fa4c6ee603d3ff0dd527d41ff1",
+          "date": "2023-07-13",
+          "title": "Improve Minifier (#40)"
+        },
+        {
+          "sha": "4d69e295684c09ec55827d6d8f0d6d3cf7785d62",
+          "date": "2023-06-19",
+          "title": "Smaller Move Parsing (#34)"
+        },
+        {
+          "sha": "8ea2755b71061e4ebb619389f93dd3b964966f04",
+          "date": "2023-06-03",
+          "title": "Print clear size at end of build (#16)"
+        },
+        {
+          "sha": "d18a1730d3ea6540a1ba048c6b729e81ee949cb2",
+          "date": "2023-05-13",
+          "title": "Structs in minifier (#4)"
+        },
+        {
+          "sha": "4a76a79a969af8cc946fbd48367b23f2f74162d6",
+          "date": "2023-05-13",
+          "title": "Minifier V2 (#3)"
+        },
+        {
+          "sha": "d55d97fae4fbaf3ed165e5a9dbabf06ece48b4e0",
+          "date": "2023-05-10",
+          "title": "Minifier V1 (#1)"
+        }
+      ]
+    },
+    {
+      "engine": "pygone",
+      "repository": "https://github.com/scs-ben/pygone",
+      "head": "cbaebeeaaa5aab9c9ff2eaa153a65ec960a071b5",
+      "reachable_commits_all_refs": 383,
+      "reachable_nonmerge_commits_all_refs": 351,
+      "keyword_candidate_count": 15,
+      "keyword_pattern": "byte|shrink|compress|minif|size|golf|pack|small",
+      "selected_diffs_reviewed": 11,
+      "keyword_candidates": [
+        {
+          "sha": "7432094865fb6ea9cbbb7db3d9a93c9328813672",
+          "date": "2026-06-10",
+          "title": "shrink"
+        },
+        {
+          "sha": "ab7e4b6c5fba2f0343f8a9e979c36670ebce91aa",
+          "date": "2026-06-10",
+          "title": "shrink"
+        },
+        {
+          "sha": "417d42409e53c76ea65fbc2acb8a6480fd3ed799",
+          "date": "2026-06-09",
+          "title": "intense golfing"
+        },
+        {
+          "sha": "98d2a6a19ba677cac35fcc1613be76347f93ea0e",
+          "date": "2025-12-06",
+          "title": "get those extra bytes"
+        },
+        {
+          "sha": "03d25290024bd8c18dc13d6a5dd7517688195699",
+          "date": "2025-11-26",
+          "title": "small tweaks"
+        },
+        {
+          "sha": "7a67547886babc8c44e64dd282e5eedb98938e55",
+          "date": "2025-11-25",
+          "title": "more shrink"
+        },
+        {
+          "sha": "ad5f1c1f4e7afb3b2abdd5521f847f10dd051929",
+          "date": "2025-11-24",
+          "title": "fix unit shrink so mini file can run"
+        },
+        {
+          "sha": "3f064d43d83a507e927fcb321e4bd21120f4b09f",
+          "date": "2025-11-22",
+          "title": "shrink so much"
+        },
+        {
+          "sha": "0db781aa5fc850bb1cea4269c2d6acf64c20d2cb",
+          "date": "2025-11-21",
+          "title": "tweak to shrink"
+        },
+        {
+          "sha": "f6eac176384feba1a646ccdc28015f23071bdc7e",
+          "date": "2022-12-23",
+          "title": "small tweaks, very bad at finding mate"
+        },
+        {
+          "sha": "c97aadf9b8a0c7730278aa9c1f4b833e4b4268ce",
+          "date": "2022-12-22",
+          "title": "small tweaks"
+        },
+        {
+          "sha": "172686702da4c74e43c6832ec8e907de6431fd1c",
+          "date": "2020-10-24",
+          "title": "shrink binary"
+        },
+        {
+          "sha": "afa242d14b1df271d0286c3e9999a5fa28ecc46d",
+          "date": "2020-10-14",
+          "title": "small clean up"
+        },
+        {
+          "sha": "4f27f6b5ca7db7582f9f32e6a861a4effbf79689",
+          "date": "2020-10-12",
+          "title": "small tweaks and try to promote home row piece development"
+        },
+        {
+          "sha": "8d60c4728edb456cbc04848042caf2740530f7ba",
+          "date": "2020-09-10",
+          "title": "work on shrinking"
+        }
+      ]
+    },
+    {
+      "engine": "molly-tcec",
+      "repository": "https://codeberg.org/latuernich/molly",
+      "head": "a1867f8bad01e606c98e60108b56d494f0bac3f8",
+      "reachable_commits_all_refs": 110,
+      "reachable_nonmerge_commits_all_refs": 110,
+      "keyword_candidate_count": 15,
+      "keyword_pattern": "byte|shrink|compress|minif|size|golf|pack|small",
+      "selected_diffs_reviewed": 15,
+      "keyword_candidates": [
+        {
+          "sha": "cc3302b0da72a8c3d288cc41a155c04aac3ebaaf",
+          "date": "2025-03-16",
+          "title": "Get rid of AtomicUsize for counting nodes"
+        },
+        {
+          "sha": "1941cc396e600322f490e3be14cd9ab9381bd29c",
+          "date": "2024-12-11",
+          "title": "Inline consts when minifying"
+        },
+        {
+          "sha": "3d106da25ac5433b6eecfd5190df0c1ccc96f489",
+          "date": "2024-11-21",
+          "title": "Size diff in commit is now with + for positive values"
+        },
+        {
+          "sha": "428bec3c11c1c3315d41c1a133012d5a444bf6b0",
+          "date": "2024-11-20",
+          "title": "Fancy size diff things"
+        },
+        {
+          "sha": "05ea434b165ffda6f06238482cd2974b72377729",
+          "date": "2024-08-03",
+          "title": "Actually set TT in minified binary"
+        },
+        {
+          "sha": "4fe7f48841b9e64cd965e8f8cfe5319c740d100a",
+          "date": "2024-08-03",
+          "title": "Set HASH_SIZE when setting Hash option"
+        },
+        {
+          "sha": "68703a803d2d30f8e420d1002d2b03164b63ad64",
+          "date": "2024-08-03",
+          "title": "Don't reset TT size on ucinewgame"
+        },
+        {
+          "sha": "891728b00deccadf997d73f30dd99a7632b1023e",
+          "date": "2024-08-01",
+          "title": "Make minification deterministic"
+        },
+        {
+          "sha": "7cdff1e4c666557d4ec7584c3092603df2225733",
+          "date": "2024-07-26",
+          "title": "More minor minifications"
+        },
+        {
+          "sha": "4e654ad423be70a6e133d45bdc6809132183258e",
+          "date": "2024-07-26",
+          "title": "Make castling movegen slightly smaller"
+        },
+        {
+          "sha": "5895e746b0e7a72d09e531d21e6e9210f7f5514f",
+          "date": "2024-07-26",
+          "title": "Minify Zobrist hashing"
+        },
+        {
+          "sha": "ff85421ac9ad80a3a52f953cf4f0898e78137d26",
+          "date": "2024-07-20",
+          "title": "Remove nodes from minified code"
+        },
+        {
+          "sha": "203f0ba6433e0f1dbc80b99259844dccff9b45c3",
+          "date": "2024-07-08",
+          "title": "Add spaces between // and minifier instruction"
+        },
+        {
+          "sha": "2d7b736a587df53a6b86fbd039f41b6fb4d4cd8c",
+          "date": "2024-07-06",
+          "title": "Script for testing the minified executable against the release mode binary"
+        },
+        {
+          "sha": "46b270304689926611fae594979958da51b010b4",
+          "date": "2024-07-06",
+          "title": "Very basic minifier"
+        }
+      ]
+    }
+  ],
+  "reviewed_commit_count": 149,
+  "rows": [
+    {
+      "engine": "c4ke",
+      "sha": "422cec0aeb64075e73178fe335d43d8a3dc5e485",
+      "date": "2026-08-09",
+      "title": "misc: 4 bytes shrink",
+      "url": "https://github.com/citrus610/c4ke/commit/422cec0aeb64075e73178fe335d43d8a3dc5e485",
+      "files_changed": [
+        "src/main.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "64회 DIAG 초기화를 832회 Zobrist 초기화 루프 안 i%64 인덱스로 합침",
+      "semantic_or_performance_risk": "DIAG 각 원소를 13회 쓰는 시간 증가; 초기화의 멱등성/루프 경계 증명",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "제목: 4 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "b0985397a2319214cfb662efcaaa82b3c740cc31",
+      "date": "2026-08-09",
+      "title": "misc: shrink 16 bytes",
+      "url": "https://github.com/citrus610/c4ke/commit/b0985397a2319214cfb662efcaaa82b3c740cc31",
+      "files_changed": [
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "move 임시변수로 noisy/quiet history 갱신 표현을 통일하고 bonus 부호를 루프 밖에서 변경",
+      "semantic_or_performance_risk": "임시변수 수명·bonus 복구·관찰 순서 필요; 짧은 원문보다 반복되는 문자열이 유리할 수 있음",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "제목: 16 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "ffb03259b7e2973923395485c1a2bfb39d19e5d7",
+      "date": "2026-08-06",
+      "title": "misc: save 6 bytes using i32 for moves",
+      "url": "https://github.com/citrus610/c4ke/commit/ffb03259b7e2973923395485c1a2bfb39d19e5d7",
+      "files_changed": [
+        "src/board.cpp",
+        "src/chess.cpp",
+        "src/main.cpp",
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "move/list를 i16에서 i32로 넓혀 기존 i32 선언과 합침",
+      "semantic_or_performance_risk": "자료형/ABI/메모리 사용량이 바뀜; 좁은 정수가 항상 최저 파일 비용이 아님",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "제목: 6 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "d9aa411efe126b78906753572303f021c4c9263e",
+      "date": "2026-08-05",
+      "title": "misc: shrink 5 bytes",
+      "url": "https://github.com/citrus610/c4ke/commit/d9aa411efe126b78906753572303f021c4c9263e",
+      "files_changed": [
+        "src/board.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "별도 protected-pawn popcount를 기존 pawn 평가 루프의 조건 추가로 통합",
+      "semantic_or_performance_risk": "반복 순서와 정수 overflow 중간값을 확인; 추가 분기와 기존 popcount 비용 비교",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "제목: 5 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "eae91eaf093afcf50ed65ee978278576882ea9b2",
+      "date": "2026-08-01",
+      "title": "misc: save 8 bytes",
+      "url": "https://github.com/citrus610/c4ke/commit/eae91eaf093afcf50ed65ee978278576882ea9b2",
+      "files_changed": [
+        "src/board.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "Board::edit에서 삭제·삽입의 piece 임시변수를 재사용해 같은 텍스트 표현 생성",
+      "semantic_or_performance_risk": "alias/상태 갱신 순서와 p의 실제 값 확인; 임시변수를 늘려도 압축 후 감소 가능",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "제목: 8 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "c2b056ec3e8416cf182fdb4ea0f1b65035dd2318",
+      "date": "2026-08-01",
+      "title": "misc: shrink 5 bytes",
+      "url": "https://github.com/citrus610/c4ke/commit/c2b056ec3e8416cf182fdb4ea0f1b65035dd2318",
+      "files_changed": [
+        "src/board.cpp",
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "pawn/non-pawn hash 필드를 hash_corrhist[3] 배열로 통합",
+      "semantic_or_performance_risk": "구조체 레이아웃과 인덱스 계약 변화",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "제목: 5 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "deddfedc02ca3718f868a0e66f574d592e3f15fd",
+      "date": "2026-07-23",
+      "title": "shrink 5 bytes",
+      "url": "https://github.com/citrus610/c4ke/commit/deddfedc02ca3718f868a0e66f574d592e3f15fd",
+      "files_changed": [
+        "src/board.cpp",
+        "src/chess.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "별도 color bitboard 바이트 반전을 6 piece-type 루프에 합쳐 각 color를 홀수 3회 반전",
+      "semantic_or_performance_risk": "6회/홀수 불변식에 의존하고 초기화 시간이 늘어남",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "제목: 5 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "d7567032254b3566ac889fac3c89abcd829dfbf6",
+      "date": "2026-04-21",
+      "title": "misc: save 2 bytes",
+      "url": "https://github.com/citrus610/c4ke/commit/d7567032254b3566ac889fac3c89abcd829dfbf6",
+      "files_changed": [
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "noisy reduction clamp를 제거하고 reduction>0 분기 안 호출에서 is_quiet?reduction:1 선택",
+      "semantic_or_performance_risk": "정수 reduction의 양수 구간에만 동치; 분기 밖 일반화 금지",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "제목: 2 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "e7250ef24e981ec2f66e446c3564d7d18bb48857",
+      "date": "2026-01-04",
+      "title": "update the minifier and tuner",
+      "url": "https://github.com/citrus610/c4ke/commit/e7250ef24e981ec2f66e446c3564d7d18bb48857",
+      "files_changed": [
+        "tuner/eval.h"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "tuner의 king-pawn threat/blocked-passer 파라미터와 관련 경로 삭제",
+      "semantic_or_performance_risk": "minifier 관련 제목과 달리 평가 특징 삭제가 섞임",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "50a3f439205495bbbc9280478abad85ea7c13000",
+      "date": "2026-01-04",
+      "title": "misc: save 7 bytes",
+      "url": "https://github.com/citrus610/c4ke/commit/50a3f439205495bbbc9280478abad85ea7c13000",
+      "files_changed": [
+        "src/board.cpp",
+        "src/main.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "독립 선언/초기화 순서 변경, time 임시변수 대신 TIME_LIMIT 재사용",
+      "semantic_or_performance_risk": "전역 값의 외부 관찰/동시성 및 평가 순서 확인",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "제목: 7 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "ca2614c213c3a77910e6974b071e6649a1575acb",
+      "date": "2025-12-31",
+      "title": "small shrink",
+      "url": "https://github.com/citrus610/c4ke/commit/ca2614c213c3a77910e6974b071e6649a1575acb",
+      "files_changed": [
+        "src/eval.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "VALUE/LAYOUT 등 독립 상수 배열 선언 순서 변경",
+      "semantic_or_performance_risk": "주소/섹션 배치와 초기화 의존성 영향 확인; 최종 압축 문맥으로 비교",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "4b0dcee9dc0120e20e3e11389160e06c8b36b622",
+      "date": "2025-12-30",
+      "title": "misc: save 6 bytes",
+      "url": "https://github.com/citrus610/c4ke/commit/4b0dcee9dc0120e20e3e11389160e06c8b36b622",
+      "files_changed": [
+        "src/board.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "pawn attack 임시변수 순서 변경; north(north(pawns))를 <<16으로 표현",
+      "semantic_or_performance_risk": "north가 순수 unsigned 8-bit shift일 때만 축약 가능",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "제목: 6 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "7eca768851cc3e4de9638ee2ae95a16e24000c43",
+      "date": "2025-12-30",
+      "title": "misc: save 9 bytes",
+      "url": "https://github.com/citrus610/c4ke/commit/7eca768851cc3e4de9638ee2ae95a16e24000c43",
+      "files_changed": [
+        "src/chess.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "동일한 u64 전역들을 하나의 선언으로 합치고 순서 정리",
+      "semantic_or_performance_risk": "선언 범위/초기화 순서/링크 배치 확인",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "제목: 9 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "1d8a6047075677fcad7e90582813785b0af6027d",
+      "date": "2025-12-29",
+      "title": "shrink root board",
+      "url": "https://github.com/citrus610/c4ke/commit/1d8a6047075677fcad7e90582813785b0af6027d",
+      "files_changed": [
+        "src/board.cpp",
+        "src/main.cpp",
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "Board를 전역 BOARD로 두고 각 worker가 시작 시 복사; 인자와 lambda capture 제거",
+      "semantic_or_performance_risk": "root와 worker의 소유권/동기화 계약에 의존; 일반 local-to-global 변환 금지",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "9d6c91912fc38e03ca4c71cbe1ded213f19d64ae",
+      "date": "2025-12-23",
+      "title": "misc: save 21 bytes",
+      "url": "https://github.com/citrus610/c4ke/commit/9d6c91912fc38e03ca4c71cbe1ded213f19d64ae",
+      "files_changed": [
+        "src/board.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "Board 필드 재배치/일부 u8 축소, literal suffix 제거, mask 표기, 평가 공통 8배 인수 축약",
+      "semantic_or_performance_risk": "자료형·정수 반올림·범위 및 레이아웃 변경이 혼합됨",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "제목: 21 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "678f8d6647db52e6c1c73d544180ffb5690faa98",
+      "date": "2025-12-22",
+      "title": "update minifier",
+      "url": "https://github.com/citrus610/c4ke/commit/678f8d6647db52e6c1c73d544180ffb5690faa98",
+      "files_changed": [
+        "minifier/eval.h"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "PASSER/KING_PASSER 압축 데이터의 decode offset을 합산해 하나의 OFFSET_PASSER 사용",
+      "semantic_or_performance_risk": "항이 같은 조건에서 같은 횟수 더해질 때만 offset 합산 가능",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "c29ae2f9a16ad3af71cb3d1b226447352cecc26a",
+      "date": "2025-12-22",
+      "title": "corrhist smp shrink",
+      "url": "https://github.com/citrus610/c4ke/commit/c29ae2f9a16ad3af71cb3d1b226447352cecc26a",
+      "files_changed": [
+        "src/board.cpp",
+        "src/chess.cpp",
+        "src/eval.cpp",
+        "src/main.cpp",
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "passer decode/scaling/offset 통합, Boolean 곱, globals 통합; corrhist를 thread member에서 전역으로 변경",
+      "semantic_or_performance_risk": "평가 산술뿐 아니라 학습 상태의 스레드 공유 정책이 변경됨",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "dbfa58a1bc965651b953292010276c03b2d98ffc",
+      "date": "2025-12-19",
+      "title": "misc: save 5 bytes",
+      "url": "https://github.com/citrus610/c4ke/commit/dbfa58a1bc965651b953292010276c03b2d98ffc",
+      "files_changed": [
+        "src/main.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "13×64 RNG 초기화 중첩 루프를 832회 루프 및 i/64,i%64로 선형화",
+      "semantic_or_performance_risk": "방문 순서·반복 횟수 동일 증명; 나눗셈 비용 비교",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "제목: 5 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "de87bb2a6cb6deb72b32c2aaf4ec0695d2f83f46",
+      "date": "2025-12-18",
+      "title": "save 10 bytes but risky",
+      "url": "https://github.com/citrus610/c4ke/commit/de87bb2a6cb6deb72b32c2aaf4ec0695d2f83f46",
+      "files_changed": [
+        "src/board.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "king/knight 생성 순서와 평가 순서 변경, quadratic scale를 linear로 바꾸고 bias 삭제",
+      "semantic_or_performance_risk": "탐색 순서와 평가 자체가 달라짐; 무손실 압축으로 분류 불가",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "제목: 10 B 절감, but risky",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "7056eff516bfe3a9f72bb0618b82172fae8d2897",
+      "date": "2025-12-16",
+      "title": "shrink with c++23 features",
+      "url": "https://github.com/citrus610/c4ke/commit/7056eff516bfe3a9f72bb0618b82172fae8d2897",
+      "files_changed": [
+        "minifier/mini.h",
+        "src/chess.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "긴 __builtin 함수명을 C++23 countr_zero/popcount/byteswap로 바꾸고 minifier 키워드 보호",
+      "semantic_or_performance_risk": "표준 버전/라이브러리와 zero 입력 의미가 다름; ctz(0) 전제 필요",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "2898f6edd096d00ef79f4dadbcdcdc8cd6522443",
+      "date": "2025-12-11",
+      "title": "misc: save 9 bytes",
+      "url": "https://github.com/citrus610/c4ke/commit/2898f6edd096d00ef79f4dadbcdcdc8cd6522443",
+      "files_changed": [
+        "src/board.cpp",
+        "src/chess.cpp",
+        "src/main.cpp",
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "void에 짧은 type alias를 도입하고 bound 변수를 i32 선언에 합침",
+      "semantic_or_performance_risk": "alias만은 후보지만 정수 폭/TT 저장 변환은 별도 검토",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "제목: 9 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "d5ca1719dad56fa0b414a1a63fc86d7bd9f99428",
+      "date": "2025-12-09",
+      "title": "update minifier character set",
+      "url": "https://github.com/citrus610/c4ke/commit/d5ca1719dad56fa0b414a1a63fc86d7bd9f99428",
+      "files_changed": [
+        "minifier/mini.h"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "B",
+      "technique": "생성 식별자 알파벳을 문자 빈도 etaoins... 순서로 재배열",
+      "semantic_or_performance_risk": "원문 길이가 같아도 LZMA 문맥이 달라짐; 예약어/충돌 보존 후 실제 파일 비교",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "15aad646c521194711fb13da3a2bd73e6d318439",
+      "date": "2025-11-28",
+      "title": "misc: save 2 bytes",
+      "url": "https://github.com/citrus610/c4ke/commit/15aad646c521194711fb13da3a2bd73e6d318439",
+      "files_changed": [
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "excluded move 판정을 child.make 뒤로 이동; LMR 부동소수 연산 순서 변경",
+      "semantic_or_performance_risk": "부수효과 발생 여부 및 부동소수 반올림 변화",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "제목: 2 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "955a2036f13d8a41515ceb9bf61394af5212f07c",
+      "date": "2025-11-24",
+      "title": "misc: save 5 bytes",
+      "url": "https://github.com/citrus610/c4ke/commit/955a2036f13d8a41515ceb9bf61394af5212f07c",
+      "files_changed": [
+        "src/chess.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "F",
+      "technique": "promotion 출력 lookup을 queen/space 선택으로 축소",
+      "semantic_or_performance_risk": "underpromotion이 가능하면 출력 의미가 달라짐; 엔진 계약으로만 허용",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "제목: 5 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "7780ed2c0cc18ee3c098476be5d23630b6d7dc32",
+      "date": "2025-11-17",
+      "title": "misc: save 2 bytes",
+      "url": "https://github.com/citrus610/c4ke/commit/7780ed2c0cc18ee3c098476be5d23630b6d7dc32",
+      "files_changed": [
+        "src/board.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "end cursor 대신 입력 move-list 포인터를 증가시키고 시작 포인터 보관",
+      "semantic_or_performance_risk": "인자 포인터가 값 복사인지, 범위와 반환 규약이 같은지 확인",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "제목: 2 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "e8b48f193bb727aca2d1de7604778ba9df6d943e",
+      "date": "2025-11-16",
+      "title": "misc: save 8 bytes",
+      "url": "https://github.com/citrus610/c4ke/commit/e8b48f193bb727aca2d1de7604778ba9df6d943e",
+      "files_changed": [
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "selection sort에 self-compare 1회 추가, depth_next 재사용, terminal guard 분리",
+      "semantic_or_performance_risk": "비교자가 순수해야 하며 추가 작업 및 return 조건 동치 필요",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "제목: 8 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "2104a34a00c7381ba4e23bdb8d82139b9da8fa4a",
+      "date": "2025-11-13",
+      "title": "misc: save 7 bytes",
+      "url": "https://github.com/citrus610/c4ke/commit/2104a34a00c7381ba4e23bdb8d82139b9da8fa4a",
+      "files_changed": [
+        "src/board.cpp",
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "king mask 재사용, *this={} 초기화, outer guard 대신 중복 조건, 산술 분배",
+      "semantic_or_performance_risk": "C++ 초기화 의미/부수효과/정수 overflow에 의존",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "제목: 7 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "64bd1b27e1fb1a9ee52b2ac025e93b8fc4791daf",
+      "date": "2025-11-11",
+      "title": "shrink some unneeded score guard",
+      "url": "https://github.com/citrus610/c4ke/commit/64bd1b27e1fb1a9ee52b2ac025e93b8fc4791daf",
+      "files_changed": [
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "TT mate score 보정과 aspiration window clamp 삭제",
+      "semantic_or_performance_risk": "검색/점수 계약 변화; 자동 압축 대상 아님",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "1bf90695161a9bb89bc22aa2c1ff8bd0b95e2084",
+      "date": "2025-11-11",
+      "title": "misc: shrink endgame scaling",
+      "url": "https://github.com/citrus610/c4ke/commit/1bf90695161a9bb89bc22aa2c1ff8bd0b95e2084",
+      "files_changed": [
+        "src/board.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "Board의 증분 phases[2]를 없애고 기존 평가 traversal에서 phase 재계산",
+      "semantic_or_performance_risk": "상태 크기와 hot-path 계산 비용의 교환; 동일한 phase 의미를 검증해야 함",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "09981f09dc4d47d041816db752e0ec198a050557",
+      "date": "2025-10-18",
+      "title": "minifier shrink math stuffs",
+      "url": "https://github.com/citrus610/c4ke/commit/09981f09dc4d47d041816db752e0ec198a050557",
+      "files_changed": [
+        "minifier/mini.h"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "V",
+      "technique": "token minifier의 +- 처리에서 음수 token 시작 여부를 검사하는 수정",
+      "semantic_or_performance_risk": "문자열 처리만으로 C/C++ 산술 의미를 보장하지 못함; typed AST 필요",
+      "nvcompact_route": "validation",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "b58a9cfa413322a8655f45201926a0478e4ac277",
+      "date": "2025-10-15",
+      "title": "tt score mate adjust and shrink",
+      "url": "https://github.com/citrus610/c4ke/commit/b58a9cfa413322a8655f45201926a0478e4ac277",
+      "files_changed": [
+        "src/board.cpp",
+        "src/chess.cpp",
+        "src/main.cpp",
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "attacker 인자를 square→bitmask로 변경해 ctz/shift 왕복 제거, halfmove/guard/상수/TT 수정",
+      "semantic_or_performance_risk": "캐슬링 처리 및 평가 상수도 바뀐 혼합 patch; 부분 아이디어만 분리",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "a372d9739d0d7364a219f6b7843d2bb99f493454",
+      "date": "2025-10-15",
+      "title": "misc: small shrink",
+      "url": "https://github.com/citrus610/c4ke/commit/a372d9739d0d7364a219f6b7843d2bb99f493454",
+      "files_changed": [
+        "src/board.cpp",
+        "src/chess.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "큰 bitmask의 ULL suffix를 없애거나 U로 축소하고 미사용 define 제거",
+      "semantic_or_performance_risk": "목표 ABI의 literal type·signedness·shift 결과가 보존되어야 함",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "af6412c796346769a5ea253e04dfeabc173ef270",
+      "date": "2025-10-12",
+      "title": "small shrink",
+      "url": "https://github.com/citrus610/c4ke/commit/af6412c796346769a5ea253e04dfeabc173ef270",
+      "files_changed": [
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "TT slot reference 임시변수를 제거하고 동일 인덱스를 반복 표현",
+      "semantic_or_performance_risk": "해시 값 안정성·중복 load의 동시성·alias 확인; 임시변수 제거/추가 양방향 비교",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "5da1f6adcdf77ad0715e8872a93f0e7b1dba6f87",
+      "date": "2025-10-12",
+      "title": "small shrink",
+      "url": "https://github.com/citrus610/c4ke/commit/5da1f6adcdf77ad0715e8872a93f0e7b1dba6f87",
+      "files_changed": [
+        "src/board.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "piece color 추출 &1을 %2로 변경",
+      "semantic_or_performance_risk": "nonnegative 정수 domain에서만 동치; 음수 signed 일반화 금지",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "655caf51a853a7ac3a785fbca140a349749da98e",
+      "date": "2025-10-12",
+      "title": "small shrink",
+      "url": "https://github.com/citrus610/c4ke/commit/655caf51a853a7ac3a785fbca140a349749da98e",
+      "files_changed": [
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "first-legal/PV 불변식으로 LMR/ZWS/PVS 조건 재구성",
+      "semantic_or_performance_risk": "검색 tree와 call 순서의 엔진별 증명이 필요",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "00ebc3cbb3c58838fa395da304e7b971be251033",
+      "date": "2025-10-12",
+      "title": "small shrink of LMR-ZWS-PVS code + typo correction",
+      "url": "https://github.com/citrus610/c4ke/commit/00ebc3cbb3c58838fa395da304e7b971be251033",
+      "files_changed": [
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "score=beta 초기값을 두고 선택적 reduced search 다음 ZWS call을 공유",
+      "semantic_or_performance_risk": "깊이/실패 경계와 호출 횟수 동치 검증 필요",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "56c81e468f7cf468505f5c0c9eac8f5c98dee67f",
+      "date": "2025-10-12",
+      "title": "Small shrink",
+      "url": "https://github.com/citrus610/c4ke/commit/56c81e468f7cf468505f5c0c9eac8f5c98dee67f",
+      "files_changed": [
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "stand-pat의 alpha/best 대입을 조건식 안으로 이동하고 pruning/depth guard 재구성",
+      "semantic_or_performance_risk": "cutoff 전 상태 대입과 depth 조건 의미를 함께 검토",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "8db8ca532bb88a7d4fb7882bedf0395c1fcf40e1",
+      "date": "2025-10-12",
+      "title": "small shrink",
+      "url": "https://github.com/citrus610/c4ke/commit/8db8ca532bb88a7d4fb7882bedf0395c1fcf40e1",
+      "files_changed": [
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "TT entry를 먼저 load한 뒤 key miss에 zero 처리하는 형태로 반전",
+      "semantic_or_performance_risk": "동시 TT 갱신 시 스냅샷 및 메모리 접근 의미 확인",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "65dc6f9157556bc8b96afb2b2f397364bf74df0d",
+      "date": "2025-10-10",
+      "title": "misc: shrink 2 bytes",
+      "url": "https://github.com/citrus610/c4ke/commit/65dc6f9157556bc8b96afb2b2f397364bf74df0d",
+      "files_changed": [
+        "src/board.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "piece/2<KNIGHT를 piece<WHITE_KNIGHT로 축약",
+      "semantic_or_performance_risk": "정수 인코딩과 nonnegative 범위 증명 필요",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "제목: 2 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "f49f79d63d7f302a3b2965158346e041854ee76a",
+      "date": "2025-10-06",
+      "title": "misc: shrink 17 bytes",
+      "url": "https://github.com/citrus610/c4ke/commit/f49f79d63d7f302a3b2965158346e041854ee76a",
+      "files_changed": [
+        "minifier/eval.h",
+        "minifier/main.cpp",
+        "minifier/mini.h",
+        "src/board.cpp",
+        "src/eval.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "decoder 공통 offset 합치기, *0x10000→<<16, token +- 및 ±0 제거, 평가 분기 재배치",
+      "semantic_or_performance_risk": "signed shift/overflow/부동소수/단항/문자열과 평가 분기 위험; token 규칙을 범용 복사하지 않음",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "제목: 17 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "6febd97eccf79f7626267eed1176fa6752b36dfc",
+      "date": "2025-10-01",
+      "title": "more shrink",
+      "url": "https://github.com/citrus610/c4ke/commit/6febd97eccf79f7626267eed1176fa6752b36dfc",
+      "files_changed": [
+        "minifier/eval.h",
+        "src/eval.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "decoder int를 i32 alias로 통일하면서 평가 가중치 재조정",
+      "semantic_or_performance_risk": "retuning이 섞여 무손실 크기 효과로 귀속할 수 없음",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "014c726d74ee164f5c70320e3a93b30d99270e30",
+      "date": "2025-10-01",
+      "title": "retune shrink data str",
+      "url": "https://github.com/citrus610/c4ke/commit/014c726d74ee164f5c70320e3a93b30d99270e30",
+      "files_changed": [
+        "minifier/eval.h",
+        "src/board.cpp",
+        "src/eval.cpp",
+        "tuner/eval.h",
+        "tuner/main.cpp",
+        "tuner/tuner.h"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "PST rank/file 평균을 MATERIAL로 이동하고 값 중심화/양자화/scale 재설계",
+      "semantic_or_performance_risk": "가중치 재학습 및 반올림이 섞임; lossless offset 후보만 분리",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "8437d073afba364bb9037d7672a895a063077347",
+      "date": "2025-09-30",
+      "title": "shrink piece attack mask",
+      "url": "https://github.com/citrus610/c4ke/commit/8437d073afba364bb9037d7672a895a063077347",
+      "files_changed": [
+        "src/board.cpp",
+        "src/chess.cpp",
+        "src/main.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "knight/bishop/rook/king attack 경로를 type 인자를 받는 공유 attack 함수로 합침",
+      "semantic_or_performance_risk": "inline/dispatch와 ISA 비용·방문 순서·hot path 속도 검증 필요",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "ce5705849e3535598721d031f40a0eba8c64b292",
+      "date": "2025-09-29",
+      "title": "misc: save 3 bytes",
+      "url": "https://github.com/citrus610/c4ke/commit/ce5705849e3535598721d031f40a0eba8c64b292",
+      "files_changed": [
+        "src/board.cpp",
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "legals 증가 시점을 검색 뒤로 이동하고 관련 비교 임계값 변경",
+      "semantic_or_performance_risk": "모든 소비자와 초기 상태를 동시에 바꾸어야 동치",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "제목: 3 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "e3e6858ce2539a33a8eb6a4faa456d43cece448a",
+      "date": "2025-09-29",
+      "title": "misc: shrink",
+      "url": "https://github.com/citrus610/c4ke/commit/e3e6858ce2539a33a8eb6a4faa456d43cece448a",
+      "files_changed": [
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "조건부 대입 ternary를 if(condition) reduction=2 형태로 되돌림",
+      "semantic_or_performance_risk": "삼항연산자 고정 선호 금지; 동일 후보를 양방향 실제 artifact로 평가",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "38b6000d8071acb90fbaf1f4878a2b2d99736725",
+      "date": "2025-09-27",
+      "title": "fix minifier bug tokens contain CR",
+      "url": "https://github.com/citrus610/c4ke/commit/38b6000d8071acb90fbaf1f4878a2b2d99736725",
+      "files_changed": [
+        "minifier/mini.h"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "V",
+      "technique": "minifier가 상수 값 끝 whitespace/CR을 정리하도록 수정",
+      "semantic_or_performance_risk": "lexical 경계와 문자열 literal 보존 필요",
+      "nvcompact_route": "validation",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "654dd4c5205f43f230ae01f438e47d4588b678cf",
+      "date": "2025-09-25",
+      "title": "minifier 100% scope awareness",
+      "url": "https://github.com/citrus610/c4ke/commit/654dd4c5205f43f230ae01f438e47d4588b678cf",
+      "files_changed": [
+        "minifier/main.cpp",
+        "minifier/mini.h"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "V",
+      "technique": "minifier에 if/else/for/while statement scope 추적과 이름 교체 재귀를 복원",
+      "semantic_or_performance_risk": "upstream의 scope-awareness 주장은 범용 C++ 안전성 증명이 아님",
+      "nvcompact_route": "validation",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "c55e8341b5290167caf5cb4c48c65168d380b951",
+      "date": "2025-09-23",
+      "title": "Small shrink",
+      "url": "https://github.com/citrus610/c4ke/commit/c55e8341b5290167caf5cb4c48c65168d380b951",
+      "files_changed": [
+        "src/board.cpp",
+        "src/main.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "Board enpassant 기본 초기화와 *this=Board{} reset으로 startpos API 단순화",
+      "semantic_or_performance_risk": "반환 계약과 객체 수명·초기값 같음 확인",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "6044ae19e2bfb3cf2325b1562503fec4679c3ff1",
+      "date": "2025-09-23",
+      "title": "fix minifier not minifying correctly",
+      "url": "https://github.com/citrus610/c4ke/commit/6044ae19e2bfb3cf2325b1562503fec4679c3ff1",
+      "files_changed": [
+        "minifier/mini.h"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "V",
+      "technique": "minifier 보호 키워드에 jthread 추가",
+      "semantic_or_performance_risk": "예약어 나열은 해결책 일부; 외부 심볼/타입 binding 원칙 필요",
+      "nvcompact_route": "validation",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "bb4ccb3a766a534dff4a5c05c902379198592244",
+      "date": "2025-09-23",
+      "title": "remove braces + post increment for better compression",
+      "url": "https://github.com/citrus610/c4ke/commit/bb4ccb3a766a534dff4a5c05c902379198592244",
+      "files_changed": [
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "nodes prefix increment를 postfix로, 출력 statement를 comma로 병합",
+      "semantic_or_performance_risk": "관측되는 증가식은 polling phase를 바꿈; 버려지는 값의 ++만 일반화 가능",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "4650f3e690a553040e4024ce9b3a3a56fd6f2495",
+      "date": "2025-09-23",
+      "title": "Use for loops for better compression",
+      "url": "https://github.com/citrus610/c4ke/commit/4650f3e690a553040e4024ce9b3a3a56fd6f2495",
+      "files_changed": [
+        "src/main.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "range-for 및 외부 id 증가를 index-for로 통합",
+      "semantic_or_performance_risk": "스레드 배열 길이와 lambda capture 시점 동일해야 함",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "100aa28601a55c99ba230688ddd51bcdb035ae86",
+      "date": "2025-09-23",
+      "title": "smol shrink",
+      "url": "https://github.com/citrus610/c4ke/commit/100aa28601a55c99ba230688ddd51bcdb035ae86",
+      "files_changed": [
+        "src/board.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "castling-right OR 대입을 논리 조건 안으로 이동",
+      "semantic_or_performance_risk": "대입 결과가 nonzero이고 부수효과 순서가 같다는 증명 필요",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "f27bd1825548a1350419793228914745d02f94af",
+      "date": "2025-09-23",
+      "title": "shrink",
+      "url": "https://github.com/citrus610/c4ke/commit/f27bd1825548a1350419793228914745d02f94af",
+      "files_changed": [
+        "src/board.cpp",
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "comma-chain으로 braces 축소, quiet/noisy 배열을 ternary lvalue로 선택",
+      "semantic_or_performance_risk": "후자는 C++ 구문이며 일반 C의 조건식은 assignable lvalue가 아님",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "72d8cd85f25272874138c93910f70ee9e6f2b014",
+      "date": "2025-09-23",
+      "title": "shrink",
+      "url": "https://github.com/citrus610/c4ke/commit/72d8cd85f25272874138c93910f70ee9e6f2b014",
+      "files_changed": [
+        "src/board.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "if/else hash XOR를 ternary lvalue target으로 합침",
+      "semantic_or_performance_risk": "C++ 전용 및 atomic/overloaded operator·평가 순서 고려",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "0b8dbdbe4a8e3019dc7de027ec454f85f0360198",
+      "date": "2025-09-23",
+      "title": "post increment for better compression",
+      "url": "https://github.com/citrus610/c4ke/commit/0b8dbdbe4a8e3019dc7de027ec454f85f0360198",
+      "files_changed": [
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "결과가 버려지는 loop increment의 ++depth를 depth++로 변경",
+      "semantic_or_performance_risk": "builtin scalar에서 버려지는 값일 때만; overloaded increment 제외",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "8671d300aa07c126fc053b63887e979586d00c64",
+      "date": "2025-09-23",
+      "title": "shrink (evil ptr trick)",
+      "url": "https://github.com/citrus610/c4ke/commit/8671d300aa07c126fc053b63887e979586d00c64",
+      "files_changed": [
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "(*ptr)[i][j]를 ptr[0][i][j]로 표현",
+      "semantic_or_performance_risk": "순수 built-in pointer/array domain과 동일 bounds 확인",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "8acbb75da9366a2ebb0f17ea7fd43982e438a41e",
+      "date": "2025-09-23",
+      "title": "fix readme for checking minified bench",
+      "url": "https://github.com/citrus610/c4ke/commit/8acbb75da9366a2ebb0f17ea7fd43982e438a41e",
+      "files_changed": [
+        "makefile"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "V",
+      "technique": "minified bench가 원본 main.cpp를 다시 컴파일하던 오류를 mini.cpp 컴파일로 수정",
+      "semantic_or_performance_risk": "원본 대 원본 비교는 변환 검증이 아니며 실제 제출 경로를 검사해야 함",
+      "nvcompact_route": "validation",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "29f121b876f5bc9e201bac92a8a856506cdfde18",
+      "date": "2025-09-21",
+      "title": "misc: add comments and small shrink",
+      "url": "https://github.com/citrus610/c4ke/commit/29f121b876f5bc9e201bac92a8a856506cdfde18",
+      "files_changed": [
+        "src/board.cpp",
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "Zobrist에 zero sentinel 원소를 두어 enpassant 해시 XOR guard 제거",
+      "semantic_or_performance_risk": "없음 인덱스가 실제 zero이고 모든 경로에서 bounds가 맞아야 함",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "bafec3dfc9fe5d3226b32aa21de09ad8751f6478",
+      "date": "2025-09-21",
+      "title": "shrink eval slightly",
+      "url": "https://github.com/citrus610/c4ke/commit/bafec3dfc9fe5d3226b32aa21de09ad8751f6478",
+      "files_changed": [
+        "src/board.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "packed MG/EG 점수에 부호를 적용하는 시점을 lane 추출 전으로 변경",
+      "semantic_or_performance_risk": "carry·반올림·음수 shift 의미가 달라질 수 있음",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "ade913bb2720632bc7fb916979f5b4354328f69f",
+      "date": "2025-09-21",
+      "title": "misc: shrink `Board::edit()` save 6 byte",
+      "url": "https://github.com/citrus610/c4ke/commit/ade913bb2720632bc7fb916979f5b4354328f69f",
+      "files_changed": [
+        "src/board.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "확실히 set된 bit의 clear를 XOR로 변경하고 mask 식 inline",
+      "semantic_or_performance_risk": "set-bit 불변식 없이는 and-not와 XOR가 다름",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "제목: 6 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "e0db838e131f844839c5530a56f9dc6055d946dd",
+      "date": "2025-09-21",
+      "title": "misc: shrink ep code save 1 byte",
+      "url": "https://github.com/citrus610/c4ke/commit/e0db838e131f844839c5530a56f9dc6055d946dd",
+      "files_changed": [
+        "src/board.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "enpassant assignment를 hash index 내부에서 별도 statement로 분리",
+      "semantic_or_performance_risk": "원문이 길어져도 압축 후 짧아지는 사례; evaluation ordering 보존",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "제목: 1 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "457f4fbf91ec54d65d92fed5adaa759970cbb648",
+      "date": "2025-09-20",
+      "title": "misc: save 1 byte",
+      "url": "https://github.com/citrus610/c4ke/commit/457f4fbf91ec54d65d92fed5adaa759970cbb648",
+      "files_changed": [
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "&& 체인에서 is_quiet 조건 위치 변경",
+      "semantic_or_performance_risk": "순수 load인지, short circuit/volatile/공유 상태 관측 같은지 확인",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "제목: 1 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "4d6c8a06cd353a2a02e456ffaa758e5eab5ab484",
+      "date": "2025-09-19",
+      "title": "misc: save 1 byte",
+      "url": "https://github.com/citrus610/c4ke/commit/4d6c8a06cd353a2a02e456ffaa758e5eab5ab484",
+      "files_changed": [
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "C++ 함수 기본 인자를 넣어 여러 call의 명시 FALSE 제거",
+      "semantic_or_performance_risk": "선언 가시성·overload·call-site 계약을 모두 추적",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "제목: 1 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "87e4b1613f5953a7b15fc597ace5f8414bd0e374",
+      "date": "2025-09-19",
+      "title": "misc: save 18 bytes",
+      "url": "https://github.com/citrus610/c4ke/commit/87e4b1613f5953a7b15fc597ace5f8414bd0e374",
+      "files_changed": [
+        "src/board.cpp",
+        "src/chess.cpp",
+        "src/eval.cpp",
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "동일 타입 선언을 합치고 locals 위치/초기화를 공유",
+      "semantic_or_performance_risk": "C++ nontrivial 수명과 definite assignment·scope shadowing 제외 또는 증명",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "제목: 18 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "bda1a5ec368526ed40cb8e51f61aa204a863f533",
+      "date": "2025-09-16",
+      "title": "misc: save 10 bytes",
+      "url": "https://github.com/citrus610/c4ke/commit/bda1a5ec368526ed40cb8e51f61aa204a863f533",
+      "files_changed": [
+        "minifier/eval.h",
+        "src/board.cpp",
+        "src/eval.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "PST decode offset과 scale를 공통화하고 piece 조건 단순화",
+      "semantic_or_performance_risk": "정수 중간값/호출 순서와 offset 적용 횟수 증명",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "제목: 10 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "a49b68f15660a98b646343c20fdc1e3634f4fe87",
+      "date": "2025-09-16",
+      "title": "misc: save 5 bytes",
+      "url": "https://github.com/citrus610/c4ke/commit/a49b68f15660a98b646343c20fdc1e3634f4fe87",
+      "files_changed": [
+        "minifier/eval.h",
+        "src/eval.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "접근하지 않는 table leading zero를 제거하고 INDEX를 보정",
+      "semantic_or_performance_risk": "모든 가능한 index와 sentinel 경로 확인 필요",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "제목: 5 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "7addd27d49eada59c09c1ccca57ec92b12699fed",
+      "date": "2025-09-15",
+      "title": "misc: save 9 bytes",
+      "url": "https://github.com/citrus610/c4ke/commit/7addd27d49eada59c09c1ccca57ec92b12699fed",
+      "files_changed": [
+        "minifier/mini.h",
+        "src/board.cpp",
+        "src/chess.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "짧은 이름 alphabet에 _ 추가, statement scope 추적 비활성화, literal suffix/complement 표현",
+      "semantic_or_performance_risk": "이름 후보는 일반화 가능하지만 scope 제거와 signed literal shift는 안전하지 않음",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "제목: 9 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "3604ce127184404f7228936dfabf0aa7a9a0cd95",
+      "date": "2025-09-15",
+      "title": "misc: save 18 bytes",
+      "url": "https://github.com/citrus610/c4ke/commit/3604ce127184404f7228936dfabf0aa7a9a0cd95",
+      "files_changed": [
+        "src/board.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "2원소 임시 배열을 scalars로 분해하고 평가 합산식을 한 표현으로 묶음",
+      "semantic_or_performance_risk": "alias/주소 노출 없다는 조건, signed intermediate overflow 확인",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "제목: 18 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "70aa3de3a418e92021ca4e8f3836a4f0ca5b8af9",
+      "date": "2025-09-14",
+      "title": "misc: save 1 byte",
+      "url": "https://github.com/citrus610/c4ke/commit/70aa3de3a418e92021ca4e8f3836a4f0ca5b8af9",
+      "files_changed": [
+        "src/board.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "castling_rights 임시변수를 없애고 식을 두 call-site에 반복",
+      "semantic_or_performance_risk": "중복 계산과 읽기 시점 보존; factoring의 역방향도 후보로 유지",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "제목: 1 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "5f70585d9f5adafb031faa91a04ba100bf461110",
+      "date": "2025-09-14",
+      "title": "misc: save 9 bytes",
+      "url": "https://github.com/citrus610/c4ke/commit/5f70585d9f5adafb031faa91a04ba100bf461110",
+      "files_changed": [
+        "src/board.cpp",
+        "src/eval.cpp",
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "helper를 Board member로 이동, from 임시변수 제거, C++ initializer = 삭제, enpassant hash index 수정",
+      "semantic_or_performance_risk": "hash 수정이 섞여 전체 patch는 동치 압축으로 취급 불가",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "제목: 9 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "b0270cee22e10f7156441945ab3ee831ae51abaf",
+      "date": "2025-09-14",
+      "title": "misc: save 4 bytes",
+      "url": "https://github.com/citrus610/c4ke/commit/b0270cee22e10f7156441945ab3ee831ae51abaf",
+      "files_changed": [
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "extension 임시변수를 제거하고 depth_next에 직접 증가",
+      "semantic_or_performance_risk": "초기 depth/확장 guard와 변수 수명 증명 필요",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "제목: 4 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "f139e2005211e4920eeba59632d4b4cf430c868e",
+      "date": "2025-09-10",
+      "title": "fix out of bound access and save bytes",
+      "url": "https://github.com/citrus610/c4ke/commit/f139e2005211e4920eeba59632d4b4cf430c868e",
+      "files_changed": [
+        "src/board.cpp",
+        "src/chess.cpp",
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "KEYS에 zero sentinel 확장, enpassant/halfmove 처리 및 visited loop 수정",
+      "semantic_or_performance_risk": "sentinel 설계 외에 correctness 수정이 섞임",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "e2c61f1ae1010eae7650d732592cd2f8567ec782",
+      "date": "2025-09-10",
+      "title": "misc: save 1 byte",
+      "url": "https://github.com/citrus610/c4ke/commit/e2c61f1ae1010eae7650d732592cd2f8567ec782",
+      "files_changed": [
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "tt.depth>=depth-3를 tt.depth>depth-4로 경계 정규화",
+      "semantic_or_performance_risk": "bounded integer domain과 underflow/overflow 안전성 필요",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "제목: 1 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "0f320abb538824f9023b479c0f255b64366591fc",
+      "date": "2025-09-08",
+      "title": "misc: save 4 bytes",
+      "url": "https://github.com/citrus610/c4ke/commit/0f320abb538824f9023b479c0f255b64366591fc",
+      "files_changed": [
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "qsearch quiet-prune에서 board.checkers guard 제거",
+      "semantic_or_performance_risk": "이 분기의 도달 조건이 이미 not-in-check임을 엔진에서 증명해야 함",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "제목: 4 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "fef9801c927913328c869a6cdd7c97e3734edaa6",
+      "date": "2025-09-08",
+      "title": "misc: save 1 byte",
+      "url": "https://github.com/citrus610/c4ke/commit/fef9801c927913328c869a6cdd7c97e3734edaa6",
+      "files_changed": [
+        "src/board.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "pawns[2]를 만들어 attack/phalanx 등 반복 표현 공유",
+      "semantic_or_performance_risk": "common-subexpression 후보이나 배열 비용/범위/alias 확인",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "제목: 1 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "f53a4842418d9256a7f9585c17ca4e917de0c8d5",
+      "date": "2025-09-07",
+      "title": "misc: save 10 bytes",
+      "url": "https://github.com/citrus610/c4ke/commit/f53a4842418d9256a7f9585c17ca4e917de0c8d5",
+      "files_changed": [
+        "src/board.cpp",
+        "src/main.cpp",
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "make의 bool legal 반환을 illegal attack mask로 바꾸고 호출 조건 반전; 배타 명령 guard 분리",
+      "semantic_or_performance_risk": "API/반환 의미가 바뀌는 대규모 계약 재설계",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "제목: 10 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "900cd2898039c1f2aec3387be610d274162ae756",
+      "date": "2025-09-07",
+      "title": "misc: save 5 bytes",
+      "url": "https://github.com/citrus610/c4ke/commit/900cd2898039c1f2aec3387be610d274162ae756",
+      "files_changed": [
+        "src/board.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "mask/occupied 임시변수를 제거해 긴 표현 반복, else braces 제거, 피연산자 순서 변경",
+      "semantic_or_performance_risk": "INT_MIN 부호 반전 등 정수 정의역과 duplicated read 확인",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "제목: 5 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "3c694dabaf1a7b4ead8a761b761bf4f44def60dd",
+      "date": "2025-09-06",
+      "title": "misc: save 6 bytes",
+      "url": "https://github.com/citrus610/c4ke/commit/3c694dabaf1a7b4ead8a761b761bf4f44def60dd",
+      "files_changed": [
+        "src/board.cpp",
+        "src/chess.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "piece/2 비교를 인코딩 범위 비교로, 6회 ray expansion을 반복 텍스트로 펼침",
+      "semantic_or_performance_risk": "원문 길이 증가가 압축 패턴을 도울 수 있음; 반복 횟수/overflow 증명",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "제목: 6 B 절감",
+      "remeasured_here": false
+    },
+    {
+      "engine": "c4ke",
+      "sha": "ef496b6bb42d95cb23dd595b32af3d4de0095d64",
+      "date": "2025-09-05",
+      "title": "misc: add check script to check minified bench",
+      "url": "https://github.com/citrus610/c4ke/commit/ef496b6bb42d95cb23dd595b32af3d4de0095d64",
+      "files_changed": [
+        "check.sh",
+        "makefile",
+        "minifier/main.cpp",
+        "src/board.cpp",
+        "src/chess.cpp",
+        "src/main.cpp",
+        "src/search.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "V",
+      "technique": "minified bench identity 확인 경로 추가; 후속 8acbb75d에서 실제 대상 오류 수정",
+      "semantic_or_performance_risk": "검증 기능 자체도 원본/변형 입력을 다르게 받는지 positive control 필요",
+      "nvcompact_route": "validation",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "STRO4K",
+      "sha": "48a8168d3cd0b9e11f61f704253e71761bd157fe",
+      "date": "2023-09-27",
+      "title": "Implement better compression in 4k build",
+      "url": "https://github.com/ONE-RANDOM-HUMAN/STRO4K/commit/48a8168d3cd0b9e11f61f704253e71761bd157fe",
+      "files_changed": [
+        ".gitignore",
+        "README.md",
+        "build4k",
+        "build4krs/Cargo.toml",
+        "build4krs/src/main.rs"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "B",
+      "technique": "NASM 1회 뒤 ld/gold/lld/mold × lc/lp(sum≤4) × pb × 5 match finder의 1500 설정을 시도하고 최저 packed 결과 선택",
+      "semantic_or_performance_risk": "유한한 선언된 search space이며 모든 가능한 프로그램은 아님; 객체 재사용·linker 실패 기록·전체 wrapper 비용 검증",
+      "nvcompact_route": "build-profile",
+      "upstream_size_evidence": "README: 4073→4044 B (29 B)",
+      "remeasured_here": false
+    },
+    {
+      "engine": "STRO4K",
+      "sha": "4b6bb2679a993b2c5f7e7ebd15da41f42a5454fc",
+      "date": "2023-09-26",
+      "title": "Reduce binary size by switching to gold",
+      "url": "https://github.com/ONE-RANDOM-HUMAN/STRO4K/commit/4b6bb2679a993b2c5f7e7ebd15da41f42a5454fc",
+      "files_changed": [
+        "README.md",
+        "build4k"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "B",
+      "technique": "링커를 ld.lld에서 ld.gold로 교체",
+      "semantic_or_performance_risk": "동일 object의 ELF 배치가 codec 결과를 바꿀 수 있음; ABI와 실행 의미 검증",
+      "nvcompact_route": "build-profile",
+      "upstream_size_evidence": "README: 4095→4073 B (22 B)",
+      "remeasured_here": false
+    },
+    {
+      "engine": "STRO4K",
+      "sha": "bf700077f9898a423fcfa6f5b827a54ec90a4bf9",
+      "date": "2023-07-21",
+      "title": "Reduce size and fix new game bug",
+      "url": "https://github.com/ONE-RANDOM-HUMAN/STRO4K/commit/bf700077f9898a423fcfa6f5b827a54ec90a4bf9",
+      "files_changed": [
+        "README.md",
+        "build4k",
+        "stro/src/search/threads.rs",
+        "unpack.sh"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "xz container를 raw x86+LZMA2 및 대응 header로 바꿈; Rust newgame reset도 수정",
+      "semantic_or_performance_risk": "43 B 전체를 codec만의 효과로 귀속 불가; decoder/header와 reset 의미 확인",
+      "nvcompact_route": "build-profile",
+      "upstream_size_evidence": "README: 4083→4040 B (43 B)",
+      "remeasured_here": false
+    },
+    {
+      "engine": "STRO4K",
+      "sha": "c9742006980dd8f3140341cfdcf79f17b6c37e21",
+      "date": "2023-07-21",
+      "title": "Reduce size",
+      "url": "https://github.com/ONE-RANDOM-HUMAN/STRO4K/commit/c9742006980dd8f3140341cfdcf79f17b6c37e21",
+      "files_changed": [
+        "README.md",
+        "stro/src/asm.rs",
+        "stro4k/src/common.asm",
+        "stro4k/src/uci.asm"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "packed 값의 런타임 8-entry shift-table 초기화를 literal dq 테이블로 대체",
+      "semantic_or_performance_risk": "정적 data가 커져도 decoder 제거와 zero 반복성으로 최종 감소; startup/data 양방향 비교",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "README: 4091→4083 B (8 B)",
+      "remeasured_here": false
+    },
+    {
+      "engine": "STRO4K",
+      "sha": "199b7351dedaee6e590a0520ab8bf3e3de53cce4",
+      "date": "2024-08-02",
+      "title": "Reduce size",
+      "url": "https://github.com/ONE-RANDOM-HUMAN/STRO4K/commit/199b7351dedaee6e590a0520ab8bf3e3de53cce4",
+      "files_changed": [
+        "README.md",
+        "stro4k/src/search.asm"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "PV/check flag의 별도 test/branch를 하나의 OR mask test로 합침",
+      "semantic_or_performance_risk": "같은 flags lifetime과 분기 목적지 증명; 성능은 branch/압축 문맥에 따라 다름",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "README: 4051→4046 B (5 B)",
+      "remeasured_here": false
+    },
+    {
+      "engine": "STRO4K",
+      "sha": "31621bfa4a03f9c62a9a2584e0f8dda7d04ccdc9",
+      "date": "2025-06-09",
+      "title": "Reduce size",
+      "url": "https://github.com/ONE-RANDOM-HUMAN/STRO4K/commit/31621bfa4a03f9c62a9a2584e0f8dda7d04ccdc9",
+      "files_changed": [
+        "README.md",
+        "stro4k/src/search.asm"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "dummy dec 삭제, history 계산/포인터 재사용, memory zero 비교를 base+offset 비교로 바꿈",
+      "semantic_or_performance_risk": "주석은 dummy가 때때로 압축을 돕는다고 명시; DCE 항상 유리하다는 가정 금지",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "README: 4091→4085 B (6 B)",
+      "remeasured_here": false
+    },
+    {
+      "engine": "STRO4K",
+      "sha": "080562ead240e6fc4495ea04e94fe9cbf23e3284",
+      "date": "2026-06-12",
+      "title": "Reduce size",
+      "url": "https://github.com/ONE-RANDOM-HUMAN/STRO4K/commit/080562ead240e6fc4495ea04e94fe9cbf23e3284",
+      "files_changed": [
+        "stro4k/src/evaluate.asm"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "AVX512 broadcast를 GPR source로, mov immediate를 push/pop으로, imul register 역할 재배열",
+      "semantic_or_performance_risk": "목표 ISA·stack/flags/register liveness 계약에 묶이는 assembly 최적화",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "STRO4K",
+      "sha": "ff0c71af1f0eb30ac19c495568bc267f4c0de741",
+      "date": "2026-06-10",
+      "title": "Reduce size",
+      "url": "https://github.com/ONE-RANDOM-HUMAN/STRO4K/commit/ff0c71af1f0eb30ac19c495568bc267f4c0de741",
+      "files_changed": [
+        "stro4k/src/search.asm"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "5개의 corrhist 갱신 block을 lodsq cursor와 공통 NASM %rep body로 통일",
+      "semantic_or_performance_risk": "실행 코드가 loop가 아니라 unrolled 반복일 수 있음; pointer-array 레이아웃 불변식 필요",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "STRO4K",
+      "sha": "81ae24f3a42bbe2831ea2bd22f3f0b24466461c4",
+      "date": "2024-04-24",
+      "title": "Reduce size",
+      "url": "https://github.com/ONE-RANDOM-HUMAN/STRO4K/commit/81ae24f3a42bbe2831ea2bd22f3f0b24466461c4",
+      "files_changed": [
+        "README.md",
+        "stro4k/src/search.asm",
+        "stro4k/src/uci.asm"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "gives-check를 al에 보존하여 save/retest 제거; 입력 read 2회 loop를 펼침",
+      "semantic_or_performance_risk": "register liveness·읽기 순서와 고정 반복 횟수 증명",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "README: 4032→4016 B (16 B)",
+      "remeasured_here": false
+    },
+    {
+      "engine": "STRO4K",
+      "sha": "e0c4e6fc5f6ab9a6c639d59d2a57343ae136f915",
+      "date": "2023-11-27",
+      "title": "Reduce size",
+      "url": "https://github.com/ONE-RANDOM-HUMAN/STRO4K/commit/e0c4e6fc5f6ab9a6c639d59d2a57343ae136f915",
+      "files_changed": [
+        "README.md",
+        "stro4k/src/evaluate.asm"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "color swap을 loop entry에 배치해 공통 처리하고 제어 흐름 재배치",
+      "semantic_or_performance_risk": "entry/back-edge/exit 각각의 swap 횟수 확인",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "README: 4025→4022 B (3 B)",
+      "remeasured_here": false
+    },
+    {
+      "engine": "STRO4K",
+      "sha": "28a90b06cf7b2c858db312fc393424b823530c27",
+      "date": "2026-06-12",
+      "title": "Reduce size",
+      "url": "https://github.com/ONE-RANDOM-HUMAN/STRO4K/commit/28a90b06cf7b2c858db312fc393424b823530c27",
+      "files_changed": [
+        "README.md",
+        "stro/src/search.rs",
+        "stro4k/src/search.asm"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "2개 sentinel ply의 static_eval을 i16 MAX로 초기화하고 ply>=2 guard 삭제; ply-data pointer 유지",
+      "semantic_or_performance_risk": "sentinel의 평가 비교 결과, depth 경계, custom register convention 증명",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "README: 4096→4086 B (10 B)",
+      "remeasured_here": false
+    },
+    {
+      "engine": "STRO4K",
+      "sha": "ccdd47284cbbf719326f37d2f439c73bc588c508",
+      "date": "2025-11-04",
+      "title": "Use smaller movegen and hash",
+      "url": "https://github.com/ONE-RANDOM-HUMAN/STRO4K/commit/ccdd47284cbbf719326f37d2f439c73bc588c508",
+      "files_changed": [
+        "stro/src/movegen.rs",
+        "stro/src/position.rs",
+        "stro4k/src/movegen.asm",
+        "stro4k/src/search.asm"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "pawn serialization 순서 변경, AES hash round 제거, castling check 재배치",
+      "semantic_or_performance_risk": "move order와 hash 품질/충돌 특성이 달라짐; 검색 의미 보존 변환 아님",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "STRO4K",
+      "sha": "5cf08fcc4e9adaee2cc25b31afbd3593d5d2dd33",
+      "date": "2025-10-22",
+      "title": "Reduce size and use smaller hash",
+      "url": "https://github.com/ONE-RANDOM-HUMAN/STRO4K/commit/5cf08fcc4e9adaee2cc25b31afbd3593d5d2dd33",
+      "files_changed": [
+        "stro/src/position.rs",
+        "stro4k/src/common.asm",
+        "stro4k/src/evaluate.asm",
+        "stro4k/src/movegen.asm",
+        "stro4k/src/search.asm",
+        "stro4k/src/uci.asm"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "hash seed를 Board 인접 16 B load로 구성; vpternlog, push/pop 순서, TT key test를 재설계",
+      "semantic_or_performance_risk": "board 레이아웃·hash 의미와 zero-entry admission 계약 변경",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "STRO4K",
+      "sha": "a3a2ecfd724d870a566b219fa9a1598595d208ce",
+      "date": "2025-03-23",
+      "title": "Add support for more threads and reduce size",
+      "url": "https://github.com/ONE-RANDOM-HUMAN/STRO4K/commit/a3a2ecfd724d870a566b219fa9a1598595d208ce",
+      "files_changed": [
+        "README.md",
+        "stro4k/src/common.asm",
+        "stro4k/src/search.asm",
+        "stro4k/src/uci.asm"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "worker counter를 byte→dword로 넓히고 BSS stacks/TT 배치, 시작 pointer, 공통 worker exit 경로 통합",
+      "semantic_or_performance_risk": "더 많은 threads 지원과 파일 감소가 동시에 가능; atomic 종료/stack bounds 검증 필요",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "README: 4054→4033 B (21 B)",
+      "remeasured_here": false
+    },
+    {
+      "engine": "STRO4K",
+      "sha": "2a84984784df728c15ea0ce14b97b9b26715eb29",
+      "date": "2024-04-24",
+      "title": "Reduce size",
+      "url": "https://github.com/ONE-RANDOM-HUMAN/STRO4K/commit/2a84984784df728c15ea0ce14b97b9b26715eb29",
+      "files_changed": [
+        "README.md",
+        "stro4k/src/search.asm"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "piece-value table을 16→32 bit로 넓혀 movzx/임시 register를 줄임",
+      "semantic_or_performance_risk": "table raw size 대신 전체 machine code+compression 비용을 평가해야 함",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "README: 4034→4032 B (2 B)",
+      "remeasured_here": false
+    },
+    {
+      "engine": "STRO4K",
+      "sha": "ef68fd0b3604ac5fa1f2cd11f334f4d5ab3eeadb",
+      "date": "2024-01-08",
+      "title": "Reduce size",
+      "url": "https://github.com/ONE-RANDOM-HUMAN/STRO4K/commit/ef68fd0b3604ac5fa1f2cd11f334f4d5ab3eeadb",
+      "files_changed": [
+        "README.md",
+        "stro4k/src/search.asm"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "search failure flag의 매 return 전달 대신 saved stack pointer로 root 직접 복귀",
+      "semantic_or_performance_risk": "destructor/cleanup/board restoration/ABI를 우회할 수 있어 엔진별 전문 설계 필요",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "README: 4054→4038 B (16 B)",
+      "remeasured_here": false
+    },
+    {
+      "engine": "STRO4K",
+      "sha": "fde5bd90791bdc25cd7e7ea5ef07c34b2224363e",
+      "date": "2023-10-24",
+      "title": "Reduce size",
+      "url": "https://github.com/ONE-RANDOM-HUMAN/STRO4K/commit/fde5bd90791bdc25cd7e7ea5ef07c34b2224363e",
+      "files_changed": [
+        "README.md",
+        "stro4k/src/search.asm",
+        "stro4k/src/uci.asm"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "worker exit 공유, 반환 move를 ebx에 보존해 stack 왕복 제거, newline read loop 단순화",
+      "semantic_or_performance_risk": "사용자 정의 calling convention의 모든 호출자를 함께 검증",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "README: 4106→4088 B (18 B)",
+      "remeasured_here": false
+    },
+    {
+      "engine": "STRO4K",
+      "sha": "53e9e47766ef16466abb590cb5e4c2433b78d888",
+      "date": "2023-04-18",
+      "title": "Reduce binary size",
+      "url": "https://github.com/ONE-RANDOM-HUMAN/STRO4K/commit/53e9e47766ef16466abb590cb5e4c2433b78d888",
+      "files_changed": [
+        "README.md",
+        "stro4k/src/evaluate.asm",
+        "stro4k/src/search.asm"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "pawn MG/EG 상수를 interleave하고 vector widening/SWAR multiply 및 mask 재사용",
+      "semantic_or_performance_risk": "packed lane carry·overflow 및 sign/scale 의미 증명",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "README: 3755→3747 B (8 B)",
+      "remeasured_here": false
+    },
+    {
+      "engine": "STRO4K",
+      "sha": "181bfa593ee61682413f8722721c0d3899c05e78",
+      "date": "2023-04-12",
+      "title": "Reduce size",
+      "url": "https://github.com/ONE-RANDOM-HUMAN/STRO4K/commit/181bfa593ee61682413f8722721c0d3899c05e78",
+      "files_changed": [
+        "README.md",
+        "stro4k/src/game.asm",
+        "stro4k/src/search.asm"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "is-check/improving/PV/pruning 상태를 flag byte로 묶고 test/branch 공유; dead hash 삭제",
+      "semantic_or_performance_risk": "상태 lifetime과 bit alias 검증; 짧은 jump 자체가 압축 결과를 개선한다고 가정하면 안 됨",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "README: 3739→3711 B (28 B)",
+      "remeasured_here": false
+    },
+    {
+      "engine": "molly-tcec",
+      "sha": "891728b00deccadf997d73f30dd99a7632b1023e",
+      "date": "2024-08-01",
+      "title": "Make minification deterministic",
+      "url": "https://codeberg.org/latuernich/molly/commit/891728b00deccadf997d73f30dd99a7632b1023e",
+      "files_changed": [
+        "minify/src/main.rs"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "V",
+      "technique": "rename 대상 집합을 HashSet→BTreeSet으로 바꾸어 이름 배정 순서를 결정적으로 고정",
+      "semantic_or_performance_risk": "HashMap iteration에 따라 다른 파일이 나오는 재현성 문제를 구조에서 해결",
+      "nvcompact_route": "validation",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "molly-tcec",
+      "sha": "b327cd08b27eaa94026c5e162d72aeed9e19bc45",
+      "date": "2024-07-30",
+      "title": "Replace the names of functions",
+      "url": "https://codeberg.org/latuernich/molly/commit/b327cd08b27eaa94026c5e162d72aeed9e19bc45",
+      "files_changed": [
+        "minify/Cargo.toml",
+        "minify/src/main.rs",
+        "src/main.rs"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "syn visitor로 main을 제외한 함수명을 수집하고 짧은 이름으로 변경",
+      "semantic_or_performance_risk": "식별자 문자열 전체 치환은 scope/namespace/매크로/충돌 분석을 대신하지 못함",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "molly-tcec",
+      "sha": "dc8ce701ca8b3c30007624f42827dc771233f202",
+      "date": "2024-07-29",
+      "title": "Optimize lzma params",
+      "url": "https://codeberg.org/latuernich/molly/commit/dc8ce701ca8b3c30007624f42827dc771233f202",
+      "files_changed": [
+        "build.sh"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "B",
+      "technique": "5종 match finder × nice 2..273의 1360개 LZMA1 설정을 비교, lc=2,pb=0 고정",
+      "semantic_or_performance_risk": "명시 범위의 grid search; 원문 minification과 codec 후보의 교차 결과를 봐야 함",
+      "nvcompact_route": "build-profile",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "molly-tcec",
+      "sha": "7cdff1e4c666557d4ec7584c3092603df2225733",
+      "date": "2024-07-26",
+      "title": "More minor minifications",
+      "url": "https://codeberg.org/latuernich/molly/commit/7cdff1e4c666557d4ec7584c3092603df2225733",
+      "files_changed": [
+        "src/main.rs"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "binary literal을 decimal로, pawn 방향 함수를 선택해 중복 연산 공유, diagonal helper 재사용",
+      "semantic_or_performance_risk": "Rust 타입 추론/함수 pointer 선택 및 inline 비용 확인",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "molly-tcec",
+      "sha": "4e654ad423be70a6e133d45bdc6809132183258e",
+      "date": "2024-07-26",
+      "title": "Make castling movegen slightly smaller",
+      "url": "https://codeberg.org/latuernich/molly/commit/4e654ad423be70a6e133d45bdc6809132183258e",
+      "files_changed": [
+        "src/main.rs"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "castling mask 0b11/0b00001110/0b01100000을 짧은 decimal로 표현",
+      "semantic_or_performance_risk": "같은 정수 타입과 연산 문맥이면 후보; 최저 source 길이가 최저 packed 길이를 뜻하지 않음",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "molly-tcec",
+      "sha": "5895e746b0e7a72d09e531d21e6e9210f7f5514f",
+      "date": "2024-07-26",
+      "title": "Minify Zobrist hashing",
+      "url": "https://codeberg.org/latuernich/molly/commit/5895e746b0e7a72d09e531d21e6e9210f7f5514f",
+      "files_changed": [
+        "src/main.rs"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "Zobrist const fn를 const block에 합치고 RNG recurrence/seed를 짧게 재설계",
+      "semantic_or_performance_risk": "hash 값이 변경됨; const block 단순화와 RNG 변경은 분리",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "molly-tcec",
+      "sha": "97e37caff2db5f0fbebc97f13da6cbb4c4be7725",
+      "date": "2024-07-20",
+      "title": "Apparently, inlining the big constants messes up performance",
+      "url": "https://codeberg.org/latuernich/molly/commit/97e37caff2db5f0fbebc97f13da6cbb4c4be7725",
+      "files_changed": [
+        "minify/src/main.rs"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "V",
+      "technique": "PST/ZOBRIST_KEYS를 const 인라인 대상에서 제외하는 name-based 예외 추가",
+      "semantic_or_performance_risk": "예외를 NVCompact에 복사하지 말고 크기/재계산/constant promotion/수명 모델로 판단",
+      "nvcompact_route": "validation",
+      "upstream_size_evidence": "제목은 큰 const inline의 성능 악화를 보고; 바이트 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "molly-tcec",
+      "sha": "f943f605c5dedbfb19c2cc6f0333bb4afa147993",
+      "date": "2024-07-20",
+      "title": "Consts used in macro calls are not getting replaced, quickfix",
+      "url": "https://codeberg.org/latuernich/molly/commit/f943f605c5dedbfb19c2cc6f0333bb4afa147993",
+      "files_changed": [
+        "src/main.rs"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "V",
+      "technique": "macro argument 안 const 치환 누락을 피하려고 검색 결과를 임시변수에 저장해 println에 전달",
+      "semantic_or_performance_risk": "macro token-tree는 일반 AST walk에 자동 포함되지 않음; 불완전 치환 경계 모델 필요",
+      "nvcompact_route": "validation",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "molly-tcec",
+      "sha": "d12cbe21a5f072b32b1d3f36543a518c742b46aa",
+      "date": "2024-07-07",
+      "title": "Remove constants, replace them with their assigned values",
+      "url": "https://codeberg.org/latuernich/molly/commit/d12cbe21a5f072b32b1d3f36543a518c742b46aa",
+      "files_changed": [
+        "Cargo.lock",
+        "minify/Cargo.toml",
+        "minify/src/main.rs"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "syn 기반 const initializer 수집 후 Expr::Path와 match Pat::Ident에 대입, const 선언 삭제",
+      "semantic_or_performance_risk": "전역 문자열 map은 binding resolution이 아님; forward reference/타입/매크로/패턴 경계 필요",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "molly-tcec",
+      "sha": "9a0b6559927e7ed2cbf5903d574b3a8a663c03be",
+      "date": "2024-07-07",
+      "title": "Remove comments and spaces where possible using syn",
+      "url": "https://codeberg.org/latuernich/molly/commit/9a0b6559927e7ed2cbf5903d574b3a8a663c03be",
+      "files_changed": [
+        ".gitignore",
+        "Cargo.lock",
+        "minify/Cargo.toml",
+        "minify/src/main.rs"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "syn/proc_macro2 token stream으로 comments/whitespace를 제거하고 delimiter 재출력",
+      "semantic_or_performance_risk": "punctuation spacing, doc comments/attributes와 매크로 token 의미 보존 필요",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "molly-tcec",
+      "sha": "1941cc396e600322f490e3be14cd9ab9381bd29c",
+      "date": "2024-12-11",
+      "title": "Inline consts when minifying",
+      "url": "https://codeberg.org/latuernich/molly/commit/1941cc396e600322f490e3be14cd9ab9381bd29c",
+      "files_changed": [
+        "molly/src/main.rs",
+        "xtask/Cargo.toml",
+        "xtask/src/minify/mod.rs",
+        "xtask/src/minify/rename.rs"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "V",
+      "technique": "별도 indexer/inline visitor로 const 치환을 재구성; vec!를 std::vec::from_elem으로 변경",
+      "semantic_or_performance_risk": "수집/변환 분리는 개선이나 식별자명만으로 binding 판정하면 한계; macro 경계를 명시해야 함",
+      "nvcompact_route": "validation",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "molly-tcec",
+      "sha": "05ea434b165ffda6f06238482cd2974b72377729",
+      "date": "2024-08-03",
+      "title": "Actually set TT in minified binary",
+      "url": "https://codeberg.org/latuernich/molly/commit/05ea434b165ffda6f06238482cd2974b72377729",
+      "files_changed": [
+        "src/main.rs"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "V",
+      "technique": "TT 초기화 앞뒤 minify skip 표시를 제거해 minified 실행에서 실제 TT를 설정하도록 고침",
+      "semantic_or_performance_risk": "development 경로만 검사하면 제출 artifact가 다른 의미가 될 수 있는 직접 사례",
+      "nvcompact_route": "validation",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "molly-tcec",
+      "sha": "ff89cde6c504d4986adcbeb8433037a166d3accf",
+      "date": "2024-07-19",
+      "title": "Add material values to reduce value range in PSTs",
+      "url": "https://codeberg.org/latuernich/molly/commit/ff89cde6c504d4986adcbeb8433037a166d3accf",
+      "files_changed": [
+        "kerosene/src/params.rs",
+        "src/main.rs"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "PST 평균을 별도 material 값으로 분리하고 좁은 residual 값을 저장",
+      "semantic_or_performance_risk": "diff의 수치가 단순한 정확한 offset 차만은 아님; retuning/rounding 포함, lossless 재인코딩만 따로 후보화",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "molly-tcec",
+      "sha": "45b1cbf0bdd2fa96c4d31cc8bec54a565121c697",
+      "date": "2024-08-01",
+      "title": "Reuse entry variable",
+      "url": "https://codeberg.org/latuernich/molly/commit/45b1cbf0bdd2fa96c4d31cc8bec54a565121c697",
+      "files_changed": [
+        "src/main.rs"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "TT entry를 &mut로 잡아 lookup/storage에서 같은 변수 재사용",
+      "semantic_or_performance_risk": "재귀 검색과 공유 TT 사이 long-lived mutable reference alias는 별도 안전성 검토; 무조건 자동화 금지",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "molly-tcec",
+      "sha": "ff85421ac9ad80a3a52f953cf4f0898e78137d26",
+      "date": "2024-07-20",
+      "title": "Remove nodes from minified code",
+      "url": "https://codeberg.org/latuernich/molly/commit/ff85421ac9ad80a3a52f953cf4f0898e78137d26",
+      "files_changed": [
+        "minify/src/main.rs",
+        "src/main.rs"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "F",
+      "technique": "minify skip 구간으로 node-count argument/update 및 info nodes/nps 출력 삭제",
+      "semantic_or_performance_risk": "관찰 가능한 UCI output 기능 제거; 무손실 압축 기준과 분리",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "M4sseur",
+      "sha": "470fa53925c1cafeaaf84db3612abb5eb0ae9e9f",
+      "date": "2023-05-06",
+      "title": "Tweaked Taps and TM, search, code size",
+      "url": "https://github.com/Diazepawn/M4sseur/commit/470fa53925c1cafeaaf84db3612abb5eb0ae9e9f",
+      "files_changed": [
+        "nanosrc/nanonizer.cpp",
+        "src/eval.h",
+        "src/main.cpp",
+        "src/search.h",
+        "src/tables.h",
+        "src/testing.h"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "짧은 식별자 alphabet의 x/p 위치 및 2자 이름 순서를 바꿈; zero initializer 명시",
+      "semantic_or_performance_risk": "시간 관리/검색 깊이/탭 가중치 변경도 있어 전체 patch는 동치가 아님",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "M4sseur",
+      "sha": "f9b89d2c7eda33eabfac485fb9e74232faed90c0",
+      "date": "2023-05-04",
+      "title": "Various improvements and fixes",
+      "url": "https://github.com/Diazepawn/M4sseur/commit/f9b89d2c7eda33eabfac485fb9e74232faed90c0",
+      "files_changed": [
+        "nanosrc/nanonizer.cpp",
+        "src/main.cpp",
+        "src/search.h",
+        "src/testing.h",
+        "src/ttable.h"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "minifier에서 서로 다른 scope 변수에 같은 짧은 이름 배정, TT 선언 합침, sleep loop→sleep_until",
+      "semantic_or_performance_risk": "hardcoded 이름 예외/스레드 시간 정책 변경, 출력 nodes 삭제가 섞임",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "M4sseur",
+      "sha": "fa887befbc5f5cdaf1c53ff5928efa8d91b81496",
+      "date": "2023-05-03",
+      "title": "Size improvements",
+      "url": "https://github.com/Diazepawn/M4sseur/commit/fa887befbc5f5cdaf1c53ff5928efa8d91b81496",
+      "files_changed": [
+        "launcher.sh",
+        "launcher12.sh",
+        "lbuild_tcec.sh",
+        "lbuild_tcec12.sh"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "B",
+      "technique": "POSIX-compatible launcher의 shebang을 /bin/bash→/bin/sh로 변경",
+      "semantic_or_performance_risk": "shell 기능이 POSIX subset일 때만 가능; wrapper offset 재계산 필요",
+      "nvcompact_route": "build-profile",
+      "upstream_size_evidence": "launcher offset: 136→134, 139→137; 각각 header 2 B",
+      "remeasured_here": false
+    },
+    {
+      "engine": "M4sseur",
+      "sha": "23fef58bf9773a798bc2a000335d0996864f6dfd",
+      "date": "2023-05-02",
+      "title": "Update nanonizer.cpp",
+      "url": "https://github.com/Diazepawn/M4sseur/commit/23fef58bf9773a798bc2a000335d0996864f6dfd",
+      "files_changed": [
+        "nanosrc/nanonizer.cpp"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "이름 alphabet 및 scope별 이름 재사용 지정 확대; thread 상수 52→103",
+      "semantic_or_performance_risk": "rename 규칙과 engine hardware policy 변경을 분리해야 함",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "M4sseur",
+      "sha": "1016b17554ab16f02fe8090b235f9efe9c56467b",
+      "date": "2023-05-02",
+      "title": "Update tables.h",
+      "url": "https://github.com/Diazepawn/M4sseur/commit/1016b17554ab16f02fe8090b235f9efe9c56467b",
+      "files_changed": [
+        "src/tables.h"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "packed evaluation string/weights를 수정하고 여러 튜닝 대안을 보존",
+      "semantic_or_performance_risk": "size 후보 탐색에서 발견했으나 평가 값 변경; lossless compression 사례 아님",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "pygone",
+      "sha": "7432094865fb6ea9cbbb7db3d9a93c9328813672",
+      "date": "2026-06-10",
+      "title": "shrink",
+      "url": "https://github.com/scs-ben/pygone/commit/7432094865fb6ea9cbbb7db3d9a93c9328813672",
+      "files_changed": [
+        "board.py",
+        "search.py"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "클래스 piece-value constant를 모듈 전역으로 옮겨 반복 Board./self. 접근 제거",
+      "semantic_or_performance_risk": "Python reflection, subclass/attribute rebinding, monkey-patching이 관찰되지 않는 폐쇄 프로그램 조건 필요",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "pygone",
+      "sha": "ab7e4b6c5fba2f0343f8a9e979c36670ebce91aa",
+      "date": "2026-06-10",
+      "title": "shrink",
+      "url": "https://github.com/scs-ben/pygone/commit/ab7e4b6c5fba2f0343f8a9e979c36670ebce91aa",
+      "files_changed": [
+        "board.py",
+        "search.py"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "if/else 선택식, castling mask shift 공통화, 공통 계수 인수분해, Boolean sum/add로 분기 표현",
+      "semantic_or_performance_risk": "Python int와 bool domain에서는 유망; overloaded object/side effect/short circuit 제외",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "pygone",
+      "sha": "98d2a6a19ba677cac35fcc1613be76347f93ea0e",
+      "date": "2025-12-06",
+      "title": "get those extra bytes",
+      "url": "https://github.com/scs-ben/pygone/commit/98d2a6a19ba677cac35fcc1613be76347f93ea0e",
+      "files_changed": [
+        "search.py"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "root movegen의 killers argument 삭제; None 검사 대신 truthiness 사용",
+      "semantic_or_performance_risk": "move order 변화와 falsey 유효값 존재 여부 확인 필요",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "pygone",
+      "sha": "7a67547886babc8c44e64dd282e5eedb98938e55",
+      "date": "2025-11-25",
+      "title": "more shrink",
+      "url": "https://github.com/scs-ben/pygone/commit/7a67547886babc8c44e64dd282e5eedb98938e55",
+      "files_changed": [
+        "pygone.py"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "P",
+      "technique": "한 번만 쓰는 from/to/promotion 지역 변수를 호출 인자에 inline",
+      "semantic_or_performance_risk": "Python evaluation 순서·예외·locals reflection 차이를 확인",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "pygone",
+      "sha": "ad5f1c1f4e7afb3b2abdd5521f847f10dd051929",
+      "date": "2025-11-24",
+      "title": "fix unit shrink so mini file can run",
+      "url": "https://github.com/scs-ben/pygone/commit/ad5f1c1f4e7afb3b2abdd5521f847f10dd051929",
+      "files_changed": [
+        "board.py",
+        "combine.py",
+        "logo.png",
+        "perft.py",
+        "pygone.py",
+        "pyshrink.py",
+        "search.py",
+        "shrink.py",
+        "unit.py"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "V",
+      "technique": "inline module 코드의 backslash를 escape하고 minified shebang을 pypy3로 변경",
+      "semantic_or_performance_risk": "코드를 다시 문자열에 담는 층에서 escape가 깨지는 실제 실패; 여러 encoding layer 구분",
+      "nvcompact_route": "validation",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "pygone",
+      "sha": "0db781aa5fc850bb1cea4269c2d6acf64c20d2cb",
+      "date": "2025-11-21",
+      "title": "tweak to shrink",
+      "url": "https://github.com/scs-ben/pygone/commit/0db781aa5fc850bb1cea4269c2d6acf64c20d2cb",
+      "files_changed": [
+        "src/shrink.py"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "builtin alias와 python_minifier 단계를 제거하고 직접 replacement/공백 정리 경로로 전환",
+      "semantic_or_performance_risk": "blank line 삭제는 multiline string에 영향을 줄 수 있음; fallback을 안전한 범용법으로 채택하지 않음",
+      "nvcompact_route": "validation",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "pygone",
+      "sha": "172686702da4c74e43c6832ec8e907de6431fd1c",
+      "date": "2020-10-24",
+      "title": "shrink binary",
+      "url": "https://github.com/scs-ben/pygone/commit/172686702da4c74e43c6832ec8e907de6431fd1c",
+      "files_changed": [
+        "bin/pygone",
+        "src/pygone-mini.py"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "quiescence alpha 갱신/return 구조 재배치와 delta-like early return 삭제",
+      "semantic_or_performance_risk": "binary shrink 제목이 있어도 검색 pruning 삭제임; 동일 의미 자동화 불가",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "pygone",
+      "sha": "417d42409e53c76ea65fbc2acb8a6480fd3ed799",
+      "date": "2026-06-09",
+      "title": "intense golfing",
+      "url": "https://github.com/scs-ben/pygone/commit/417d42409e53c76ea65fbc2acb8a6480fd3ed799",
+      "files_changed": [
+        "Makefile",
+        "board.py",
+        "combine.py",
+        "prepare.sh",
+        "search.py",
+        "shrink.py"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "disjoint bitboard OR→sum, king LSBit→bit_length, 임시변수 제거, 반복 TT guard hoist, 짧은 launcher",
+      "semantic_or_performance_risk": "disjoint/king-singleton 불변식 필요; time_up을 미리 캡처하면 중간 취소 관찰이 달라짐; 예측 가능한 tmp 경로 주의",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "pygone",
+      "sha": "cbf5e9363e8f696e2fc841aff35bd2dd65f7ed12",
+      "date": "2026-06-09",
+      "title": "don't need to support moves to go",
+      "url": "https://github.com/scs-ben/pygone/commit/cbf5e9363e8f696e2fc841aff35bd2dd65f7ed12",
+      "files_changed": [
+        "pygone.py"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "F",
+      "technique": "UCI movestogo 옵션 parsing 제거",
+      "semantic_or_performance_risk": "프로토콜 지원 기능 삭제; 동일 의미 압축으로 분류 불가",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "pygone",
+      "sha": "30a1e4734a4ce256f6ee39fa11b784118e081e82",
+      "date": "2026-05-27",
+      "title": "update the preamble",
+      "url": "https://github.com/scs-ben/pygone/commit/30a1e4734a4ce256f6ee39fa11b784118e081e82",
+      "files_changed": [
+        "board.py",
+        "combine.py",
+        "perft.py",
+        "pygone.py",
+        "search.py",
+        "shrink.py",
+        "unit.py"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "D",
+      "technique": "copyright preamble 연도/저자만 정정",
+      "semantic_or_performance_risk": "제목만 보고 압축 후보로 분류하면 생기는 false positive의 예",
+      "nvcompact_route": "reference",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "pygone",
+      "sha": "8d9fa29bdf785d9b14d1739f49a5dcc67fd3c509",
+      "date": "2025-12-05",
+      "title": "find a little space for killers",
+      "url": "https://github.com/scs-ben/pygone/commit/8d9fa29bdf785d9b14d1739f49a5dcc67fd3c509",
+      "files_changed": [
+        "search.py"
+      ],
+      "review_scope": "변경 diff 본문 검토; 의미 보존을 형식 증명하거나 엔진을 실행하지 않음",
+      "semantic_class": "M",
+      "technique": "같은 값을 반환하는 TT guards를 OR로 합침; 시간 체크 주기를 매 node로 변경",
+      "semantic_or_performance_risk": "guard factoring은 후보지만 time polling 변경은 성능/중단 타이밍 의미 변화",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "we4k",
+      "sha": "93dde6ad4aef461bdf4c8dd9d413f92090fc16eb",
+      "date": "2022-12-21",
+      "title": "Tune eval and add build script",
+      "url": "https://github.com/ONE-RANDOM-HUMAN/we4k/commit/93dde6ad4aef461bdf4c8dd9d413f92090fc16eb",
+      "files_changed": [
+        "README.md",
+        "bdzz.sh",
+        "build4k.sh",
+        "src/asm/evaluate.asm",
+        "src/board.zig",
+        "src/evaluate.zig",
+        "src/search.zig"
+      ],
+      "review_scope": "선택 파일 diff 검토: build4k.sh, bdzz.sh, README.md, build.zig, src/board.zig; 같은 commit의 다른 평가/검색 변경은 검토 범위 밖",
+      "semantic_class": "B",
+      "technique": "Zig ReleaseSmall+NASM, sstrip -z, vondehi --xz --nostub, 83-byte shell header; OptionalSquare wrapper를 u8로 단순화",
+      "semantic_or_performance_risk": "현재 toolchain에서 같은 크기 보장 안 됨; 당시 script는 외부 도구를 다운로드하므로 재현 시 pinning과 별도 실행 승인이 필요",
+      "nvcompact_route": "build-profile",
+      "upstream_size_evidence": "README는 4096 B 안으로 packing 가능하다고 설명; 실제 byte 수 미기재",
+      "remeasured_here": false
+    },
+    {
+      "engine": "we4k",
+      "sha": "d30fdbc61fe78969c6bf7b788547e77b798e856f",
+      "date": "2023-04-05",
+      "title": "Fix build and update README.md",
+      "url": "https://github.com/ONE-RANDOM-HUMAN/we4k/commit/d30fdbc61fe78969c6bf7b788547e77b798e856f",
+      "files_changed": [
+        "README.md",
+        "build.zig",
+        "build4k.sh",
+        "src/asm/uci.asm",
+        "src/moveorder.zig",
+        "src/search.zig"
+      ],
+      "review_scope": "선택 파일 diff 검토: build4k.sh, bdzz.sh, README.md, build.zig, src/board.zig; 같은 commit의 다른 평가/검색 변경은 검토 범위 밖",
+      "semantic_class": "V",
+      "technique": "Zig build API와 -Drelease-small→-Doptimize=ReleaseSmall migration",
+      "semantic_or_performance_risk": "compiler/API 변화가 과거 build 재현을 깨뜨리는 사례; 최신 코드와 당시 제출물을 구별",
+      "nvcompact_route": "validation",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "Pytteliten",
+      "sha": "4d69e295684c09ec55827d6d8f0d6d3cf7785d62",
+      "date": "2023-06-19",
+      "title": "Smaller Move Parsing (#34)",
+      "url": "https://github.com/1337crisis/Pytteliten/commit/4d69e295684c09ec55827d6d8f0d6d3cf7785d62",
+      "files_changed": [
+        "main.cpp"
+      ],
+      "review_scope": "diff 검토. README가 TCEC4K를 목표로 명시한 인접 프로젝트이며 기존 Rove4k event roster에서 실제 참가 확인은 되지 않음",
+      "semantic_class": "P",
+      "technique": "별도 UCI move parser를 삭제하고 기존 move generation+moveToString으로 입력 move를 매칭",
+      "semantic_or_performance_risk": "합법/지원 입력 domain에서만 같은 의미; parsing startup 비용과 잘못된 입력 처리 변화",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "Pytteliten",
+      "sha": "ff2adb6916d3491851aa1323dc16aec184255e89",
+      "date": "2023-06-07",
+      "title": "Ternary in mate detection (#28)",
+      "url": "https://github.com/1337crisis/Pytteliten/commit/ff2adb6916d3491851aa1323dc16aec184255e89",
+      "files_changed": [
+        "main.cpp"
+      ],
+      "review_scope": "diff 검토. README가 TCEC4K를 목표로 명시한 인접 프로젝트이며 기존 Rove4k event roster에서 실제 참가 확인은 되지 않음",
+      "semantic_class": "P",
+      "technique": "mate/stalemate nested if를 return condition?mate:0로 변경",
+      "semantic_or_performance_risk": "C++ branch expression conversion 및 evaluation domain 필요; 최종 packed 개선은 별도 측정",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "Pytteliten",
+      "sha": "d24527548233b35d3ecb7303251b7f4a7176d1ca",
+      "date": "2023-06-07",
+      "title": "Abuse auto (#25)",
+      "url": "https://github.com/1337crisis/Pytteliten/commit/d24527548233b35d3ecb7303251b7f4a7176d1ca",
+      "files_changed": [
+        "main.cpp"
+      ],
+      "review_scope": "diff 검토. README가 TCEC4K를 목표로 명시한 인접 프로젝트이며 기존 Rove4k event roster에서 실제 참가 확인은 되지 않음",
+      "semantic_class": "M",
+      "technique": "긴 명시 return/parameter 타입을 auto로 변경",
+      "semantic_or_performance_risk": "template instantiation·deduced type·implicit narrowing가 달라질 수 있음; C에 적용 불가",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "Pytteliten",
+      "sha": "057937a5e01e11311d5c6bda25f3cbe970b4c423",
+      "date": "2023-06-07",
+      "title": "Remove all ``const`` (#24)",
+      "url": "https://github.com/1337crisis/Pytteliten/commit/057937a5e01e11311d5c6bda25f3cbe970b4c423",
+      "files_changed": [
+        "main.cpp",
+        "minifier.py"
+      ],
+      "review_scope": "diff 검토. README가 TCEC4K를 목표로 명시한 인접 프로젝트이며 기존 Rove4k event roster에서 실제 참가 확인은 되지 않음",
+      "semantic_class": "M",
+      "technique": "minifier가 모든 const token을 제거하도록 함",
+      "semantic_or_performance_risk": "const overload, constexpr, linkage, alias·readonly 및 최적화 의미를 바꾸므로 범용 규칙으로 금지",
+      "nvcompact_route": "reference",
+      "upstream_size_evidence": "삭제된 주석에 2369 B가 있으나 delta 근거 아님",
+      "remeasured_here": false
+    },
+    {
+      "engine": "Pytteliten",
+      "sha": "9f3b46b32218dbe83a9d1521b7164f8fa4d34b99",
+      "date": "2023-06-03",
+      "title": "Using namespace std (#13)",
+      "url": "https://github.com/1337crisis/Pytteliten/commit/9f3b46b32218dbe83a9d1521b7164f8fa4d34b99",
+      "files_changed": [
+        ".github/workflows/check-size.yml",
+        "main.cpp",
+        "minifier.py"
+      ],
+      "review_scope": "diff 검토. README가 TCEC4K를 목표로 명시한 인접 프로젝트이며 기존 Rove4k event roster에서 실제 참가 확인은 되지 않음",
+      "semantic_class": "P",
+      "technique": "using namespace std로 반복 std:: qualification 제거",
+      "semantic_or_performance_risk": "minified whole-program에도 name lookup/ADL/overload 충돌을 검증해야 함",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "추가 주석 1939 B; 이전 대비 delta 미기재",
+      "remeasured_here": false
+    },
+    {
+      "engine": "Pytteliten",
+      "sha": "d18a1730d3ea6540a1ba048c6b729e81ee949cb2",
+      "date": "2023-05-13",
+      "title": "Structs in minifier (#4)",
+      "url": "https://github.com/1337crisis/Pytteliten/commit/d18a1730d3ea6540a1ba048c6b729e81ee949cb2",
+      "files_changed": [
+        "main.cpp",
+        "minifier.py"
+      ],
+      "review_scope": "diff 검토. README가 TCEC4K를 목표로 명시한 인접 프로젝트이며 기존 Rove4k event roster에서 실제 참가 확인은 되지 않음",
+      "semantic_class": "V",
+      "technique": "minifier에서 struct/main을 보호해 struct 사용을 지원",
+      "semantic_or_performance_risk": "keyword whitelist의 작은 수정이며 scope-aware name resolution 증명은 아님",
+      "nvcompact_route": "validation",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "Pytteliten",
+      "sha": "ba711c475cffd96a942fc24ae1e1c6f3ea27ea99",
+      "date": "2023-12-30",
+      "title": "Better Deletion regions (#37)",
+      "url": "https://github.com/1337crisis/Pytteliten/commit/ba711c475cffd96a942fc24ae1e1c6f3ea27ea99",
+      "files_changed": [
+        ".gitignore",
+        "Makefile",
+        "main.cpp",
+        "minifier/minifier.py"
+      ],
+      "review_scope": "diff 검토. README가 TCEC4K를 목표로 명시한 인접 프로젝트이며 기존 Rove4k event roster에서 실제 참가 확인은 되지 않음",
+      "semantic_class": "V",
+      "technique": "삭제 구간 주석을 #ifndef MINIFIED 및 build define으로 통일",
+      "semantic_or_performance_risk": "원본과 축소 profile을 각각 실제 컴파일할 수 있게 하지만 의도적 기능 차이는 계속 별도 명시해야 함",
+      "nvcompact_route": "validation",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "Pytteliten",
+      "sha": "0cbb902cee7102d591a42f58f2cc884393df5bf9",
+      "date": "2023-05-19",
+      "title": "Deletion regions and more formatting (#7)",
+      "url": "https://github.com/1337crisis/Pytteliten/commit/0cbb902cee7102d591a42f58f2cc884393df5bf9",
+      "files_changed": [
+        ".clang-format",
+        "main.cpp",
+        "minifier.py",
+        "pytteliten.cpp"
+      ],
+      "review_scope": "diff 검토. README가 TCEC4K를 목표로 명시한 인접 프로젝트이며 기존 Rove4k event roster에서 실제 참가 확인은 되지 않음",
+      "semantic_class": "F",
+      "technique": "minifier deletion regions 도입",
+      "semantic_or_performance_risk": "표시된 코드 삭제는 동치 증명이 아니며 feature profile로 다뤄야 함",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "명시 바이트 수 없음",
+      "remeasured_here": false
+    },
+    {
+      "engine": "sunfish",
+      "sha": "892c2e76ce9328021d19f06d72af1ff47c04f947",
+      "date": "2026-08-11",
+      "title": "pack.sh: 74-byte self-extracting header (was 116)",
+      "url": "https://github.com/thomasahle/sunfish/commit/892c2e76ce9328021d19f06d72af1ff47c04f947",
+      "files_changed": [
+        "nnue_4k/README.md",
+        "tools/build/pack.sh"
+      ],
+      "review_scope": "선택 diff 검토: 실제 pack/build/generator/entry 변경 및 size ledger; 12d316aa는 __init__, arms registry, bakeoff, packrun만 읽었고 개별 codec 전부를 검토하지 않음",
+      "semantic_class": "B",
+      "technique": "named interpreter에 bash process substitution으로 payload를 전달해 tmp/chmod/cleanup 제거",
+      "semantic_or_performance_risk": "bash 및 /dev/fd 요구; artifact self-read/__file__ 계약, stdin와 argument forwarding 확인",
+      "nvcompact_route": "build-profile",
+      "upstream_size_evidence": "header 116→74 B (42 B); README 전체 수치는 다른 변화가 섞임",
+      "remeasured_here": false
+    },
+    {
+      "engine": "sunfish",
+      "sha": "eb8897cc6c884555992db0d9c2a745b90e2ee32c",
+      "date": "2026-08-14",
+      "title": "pack.sh: --no-hoist-literals + payload-shebang strip, verified across all families",
+      "url": "https://github.com/thomasahle/sunfish/commit/eb8897cc6c884555992db0d9c2a745b90e2ee32c",
+      "files_changed": [
+        "nnue_4k/MEASUREMENTS.md",
+        "tools/build/README.md",
+        "tools/build/check_entry.sh",
+        "tools/build/pack.sh"
+      ],
+      "review_scope": "선택 diff 검토: 실제 pack/build/generator/entry 변경 및 size ledger; 12d316aa는 __init__, arms registry, bakeoff, packrun만 읽었고 개별 codec 전부를 검토하지 않음",
+      "semantic_class": "B",
+      "technique": "literal hoisting 비활성화+payload shebang 삭제를 조합; 더 긴 minified text가 더 작게 압축됨",
+      "semantic_or_performance_risk": "shebang만 삭제하면 classic +4 B 보고; 개별 역효과 후보를 탐색에서 미리 버리면 조합 이익을 놓침",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "주석: classic 3232→3210 B, nnue 3931→3900 B, pst_entry 3341→3295 B 등",
+      "remeasured_here": false
+    },
+    {
+      "engine": "sunfish",
+      "sha": "09b3b4057c815c8acc383a4add9371a9f2f6e390",
+      "date": "2026-08-19",
+      "title": "pack.sh: restore --no-hoist-literals + shebang strip",
+      "url": "https://github.com/thomasahle/sunfish/commit/09b3b4057c815c8acc383a4add9371a9f2f6e390",
+      "files_changed": [
+        "tests/test_pack_sh_levers.py",
+        "tools/build/README.md",
+        "tools/build/check_entry.sh",
+        "tools/build/pack.sh"
+      ],
+      "review_scope": "선택 diff 검토: 실제 pack/build/generator/entry 변경 및 size ledger; 12d316aa는 __init__, arms registry, bakeoff, packrun만 읽었고 개별 codec 전부를 검토하지 않음",
+      "semantic_class": "V",
+      "technique": "다른 branch에만 있던 no-hoist/shebang 최적화를 복원하고 실제 packer A/B test 추가",
+      "semantic_or_performance_risk": "4096 B ceiling만 통과시키면 45 B 회귀를 놓침; 원본 baseline과 같은 toolchain 비교 필요",
+      "nvcompact_route": "validation",
+      "upstream_size_evidence": "기록: shipped entry 3455→3410 B (45 B), 재측정 아님",
+      "remeasured_here": false
+    },
+    {
+      "engine": "sunfish",
+      "sha": "2e1e35f27725c9e59fa45ac3072979504daae23f",
+      "date": "2026-08-17",
+      "title": "Read the replnet payload straight off a bytes literal: 3812 -> 3790",
+      "url": "https://github.com/thomasahle/sunfish/commit/2e1e35f27725c9e59fa45ac3072979504daae23f",
+      "files_changed": [
+        "nnue_4k/packed/make_proto_payload.py",
+        "nnue_4k/replnet_proto.py"
+      ],
+      "review_scope": "선택 diff 검토: 실제 pack/build/generator/entry 변경 및 size ledger; 12d316aa는 __init__, arms registry, bakeoff, packrun만 읽었고 개별 codec 전부를 검토하지 않음",
+      "semantic_class": "P",
+      "technique": "big-int 인코딩 후 그대로 역추출하는 identity pipeline 제거; LSB-first bytes literal 및 단일 alphabet gap",
+      "semantic_or_performance_risk": "기존 decoded vector와 bit-exact round-trip 증거 필요; alphabet/인덱스/escaping을 함께 변경",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "3812→3790 B (22 B), commit 본문과 source 주석",
+      "remeasured_here": false
+    },
+    {
+      "engine": "sunfish",
+      "sha": "18bad55575552280630b85f47c517e7057153eb1",
+      "date": "2026-08-16",
+      "title": "Tuple moves: the speed campaign reaches +29.59% nps at -29 bytes",
+      "url": "https://github.com/thomasahle/sunfish/commit/18bad55575552280630b85f47c517e7057153eb1",
+      "files_changed": [
+        "nnue_4k/MEASUREMENTS.md",
+        "nnue_4k/pst_entry.py",
+        "tools/build/make_pst_entry.py"
+      ],
+      "review_scope": "선택 diff 검토: 실제 pack/build/generator/entry 변경 및 size ledger; 12d316aa는 __init__, arms registry, bakeoff, packrun만 읽었고 개별 codec 전부를 검토하지 않음",
+      "semantic_class": "P",
+      "technique": "Move namedtuple을 tuple로 바꾸고 constructor/attribute 접근을 제거",
+      "semantic_or_performance_risk": "API 소비자 수정과 sorting tie order 유지 필요; Python reflection 차이 및 공개 API 제약",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "제목: 29 B 절감, 전체 campaign NPS +29.59%; 이 commit 단독 속도값으로 해석 금지",
+      "remeasured_here": false
+    },
+    {
+      "engine": "sunfish",
+      "sha": "62456cf9928fa2e3d03bd3f7b67b5151a12ce1d4",
+      "date": "2026-08-13",
+      "title": "Decode the eval at startup on the moved base: 3475 -> 3378 bytes, 718 spare",
+      "url": "https://github.com/thomasahle/sunfish/commit/62456cf9928fa2e3d03bd3f7b67b5151a12ce1d4",
+      "files_changed": [
+        "nnue_4k/MEASUREMENTS.md",
+        "nnue_4k/pst_entry.py",
+        "tools/build/make_pst_entry.py",
+        "tools/eval4k/agree.py",
+        "tools/eval4k/codec.py",
+        "tools/eval4k/measure.py",
+        "tools/eval4k/price_taper.py",
+        "tools/eval4k/schemes.py",
+        "tools/eval4k/splice.py"
+      ],
+      "review_scope": "선택 diff 검토: 실제 pack/build/generator/entry 변경 및 size ledger; 12d316aa는 __init__, arms registry, bakeoff, packrun만 읽었고 개별 codec 전부를 검토하지 않음",
+      "semantic_class": "P",
+      "technique": "384 PST 값을 base90 string/mixed-radix 210로 저장하고 startup에서 원래 tables 복원",
+      "semantic_or_performance_risk": "기존 literal tables를 독립 reference로 비교; quantization/mirroring 대안과 정확한 재인코딩을 분리",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "3475→3378 B (97 B), generator 주석과 commit 제목",
+      "remeasured_here": false
+    },
+    {
+      "engine": "sunfish",
+      "sha": "881dc747ad9ae933279c820aa8b66f4886505d6b",
+      "date": "2022-12-21",
+      "title": "New packing tools",
+      "url": "https://github.com/thomasahle/sunfish/commit/881dc747ad9ae933279c820aa8b66f4886505d6b",
+      "files_changed": [
+        "pack.sh",
+        "pack_head.sh",
+        "sunfish.py",
+        "sunfish_nnue_color.py",
+        "sunfish_uci.py",
+        "test_uci.py"
+      ],
+      "review_scope": "선택 diff 검토: 실제 pack/build/generator/entry 변경 및 size ledger; 12d316aa는 __init__, arms registry, bakeoff, packrun만 읽었고 개별 codec 전부를 검토하지 않음",
+      "semantic_class": "B",
+      "technique": "2022년 pyminify+rename-globals+xz+shell self-extractor packing 도입",
+      "semantic_or_performance_risk": "최종 header+compressed source를 비교; 최신 2026 NNUE tooling을 당시 제출과 혼동하지 않음",
+      "nvcompact_route": "build-profile",
+      "upstream_size_evidence": "header tail offset +73; 같은 commit의 전체 압축 delta 미기재",
+      "remeasured_here": false
+    },
+    {
+      "engine": "sunfish",
+      "sha": "202d772e9b795a440f70af78fb8a19856963d378",
+      "date": "2026-08-13",
+      "title": "The bestmove (none) class is removable at the root gamma seed, for 5 bytes",
+      "url": "https://github.com/thomasahle/sunfish/commit/202d772e9b795a440f70af78fb8a19856963d378",
+      "files_changed": [
+        "nnue_4k/MEASUREMENTS.md"
+      ],
+      "review_scope": "선택 diff 검토: 실제 pack/build/generator/entry 변경 및 size ledger; 12d316aa는 __init__, arms registry, bakeoff, packrun만 읽었고 개별 codec 전부를 검토하지 않음",
+      "semantic_class": "D",
+      "technique": "root gamma seed를 pos.score-150로 바꾸면 첫 fail-high를 앞당긴다는 실험 문서",
+      "semantic_or_performance_risk": "실제 검색 순서/중단 시 move가 바뀜; 작은 추가 용량으로 correctness 여유를 사는 엔진 아이디어",
+      "nvcompact_route": "engine-owner",
+      "upstream_size_evidence": "기록은 +5 B (3350→3355), 절감이 아님",
+      "remeasured_here": false
+    },
+    {
+      "engine": "sunfish",
+      "sha": "48508947f2eafbff9b4df3efb67fca2b2af666d1",
+      "date": "2026-08-12",
+      "title": "Packing reversed twice: compose base-3 with lzma, and pack joint not split",
+      "url": "https://github.com/thomasahle/sunfish/commit/48508947f2eafbff9b4df3efb67fca2b2af666d1",
+      "files_changed": [
+        "nnue_4k/MEASUREMENTS.md"
+      ],
+      "review_scope": "선택 diff 검토: 실제 pack/build/generator/entry 변경 및 size ledger; 12d316aa는 __init__, arms registry, bakeoff, packrun만 읽었고 개별 codec 전부를 검토하지 않음",
+      "semantic_class": "D",
+      "technique": "실제 가중치로 조사하니 random-byte 실험 결론이 반전: alphabet packing 뒤 LZMA, code/data joint stream",
+      "semantic_or_performance_risk": "4K 적합 결과가 아니라 더 큰 실험; lossy quantization과 lossless encoding을 구별하며 byte 효과 합산 금지",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "기록: joint 15525 B vs split 16532 B; base3+LZMA 2840 B vs raw base3 3840 B(예시)",
+      "remeasured_here": false
+    },
+    {
+      "engine": "sunfish",
+      "sha": "12d316aa3859adac136491ff6831328b46a51a64",
+      "date": "2026-08-14",
+      "title": "compress/: encoder-zoo bake-off harness, instrument-validated both layouts",
+      "url": "https://github.com/thomasahle/sunfish/commit/12d316aa3859adac136491ff6831328b46a51a64",
+      "files_changed": [
+        "nnue_4k/train/.gitignore",
+        "nnue_4k/train/compress/__init__.py",
+        "nnue_4k/train/compress/arms/__init__.py",
+        "nnue_4k/train/compress/arms/base81.py",
+        "nnue_4k/train/compress/arms/codebook.py",
+        "nnue_4k/train/compress/arms/controls.py",
+        "nnue_4k/train/compress/arms/lanes.py",
+        "nnue_4k/train/compress/arms/lowrank.py",
+        "nnue_4k/train/compress/arms/mixedradix.py",
+        "nnue_4k/train/compress/arms/rans.py",
+        "nnue_4k/train/compress/arms/reorder.py",
+        "nnue_4k/train/compress/arms/rle.py",
+        "nnue_4k/train/compress/arms/sparse.py",
+        "nnue_4k/train/compress/bakeoff.py",
+        "nnue_4k/train/compress/entrysrc.py",
+        "nnue_4k/train/compress/packrun.py",
+        "nnue_4k/train/compress/qnet.py"
+      ],
+      "review_scope": "선택 diff 검토: 실제 pack/build/generator/entry 변경 및 size ledger; 12d316aa는 __init__, arms registry, bakeoff, packrun만 읽었고 개별 codec 전부를 검토하지 않음",
+      "semantic_class": "B",
+      "technique": "등록된 encoder × joint/split layout을 비교하고 독립 decoded-data reference와 실제 artifact boot/size로 랭킹",
+      "semantic_or_performance_risk": "검토는 harness 및 공통 arm protocol; 모든 개별 codec 구현과 정확성을 감사한 것은 아님",
+      "nvcompact_route": "candidate",
+      "upstream_size_evidence": "도입 commit은 최저 byte 수 미기재",
+      "remeasured_here": false
+    }
+  ],
+  "unavailable_or_excluded": [
+    {
+      "name": "Moonfish",
+      "repository": "https://git.sr.ht/~zamfofex/moonfish",
+      "artifact": "https://moonfish.neocities.org/moonfish.sh",
+      "status": "public current/history correspondence not verified; web fetch inaccessible on review date"
+    },
+    {
+      "name": "molly namesake",
+      "repository": "https://github.com/mateoxh/molly",
+      "status": "excluded; wrong author/project"
+    }
+  ]
+}
