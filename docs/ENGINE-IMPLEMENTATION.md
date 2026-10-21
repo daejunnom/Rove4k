@@ -191,7 +191,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | B | 5,144 B | 1,048 B | Worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained; literal include gaps and overlong-line drain compacted; clock-first SEE poll; cancellation timing changed |
 | C | 4,952 B | 856 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners retained; literal include gaps compacted; fixed LP64 mixer literals |
 | D scalar / HQ | 5,937 / 6,148 B | 1,841 / 2,052 B | Consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained |
-| E | 5,011 B | 915 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; literal include gaps compacted; fixed LP64 mixer literals |
+| E | 5,010 B | 914 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; literal include gaps and fixed ASCII compiler argv compacted; fixed LP64 mixer literals |
 | F full (default) | 4,537 B | 441 B | Explicit no-preadd hash policy with new repetition/context/TT/correction buckets; terminal legal-loop sharing and integer forms; packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; default size target remains open; literal forms, correction clamp, private piece-index calls and fixed history token compacted |
 | F material/noise (opt-in) | 4,325 B | 229 B | Unsigned64 number forms and two fixed TT18 casts omitted; one-state material classifier, fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted; literal include gaps compacted; fixed LP64 mixer literals |
 | F material/move-TT (opt-in) | 4,051 B | 0 B (45 B spare) | Unsigned64 number forms; one-state material classifier, fixed material, main-owned token cursor, terminal-loop sharing and coherent atomic64 Move17/high46 plus index18; local size eligibility only, full F and strength acceptance remain open; fixed LP64 mixer literals |
@@ -6654,3 +6654,31 @@ measurement and the necessary current semantic/native/restoration checks.
 Recorded comparison does not revalidate or readmit an old candidate. The engine
 plan now states this boundary, and ordinary fixed-recipe builds remain replay
 of the selected construction rather than hidden research searches.
+
+## Fixed compiler argv comparison and maintained E5010 (2026-10-21)
+
+The current B/C/E wrappers compare a literal argv list with a fixed ASCII
+string followed by zero-argument `.split()`. Every compiler argument is nonempty
+and whitespace-free, so the ordered argv is identical; source, native, codec,
+Popen keywords, private temporary path and compiler/exec lifetime logic remain
+unchanged. Source spelling/columns and failure-traceback bytes are outside this
+manual representation comparison. It does not assert NVCompact's separate
+`compile-input-only` observation contract.
+
+The actual complete-file results are B5144→5145, C4952→4953 and E5011→5010 B.
+All six old/new strict Python and independent CLI restores pass. B and C remain
+unchanged: their larger candidates are retained size losses, not semantic or
+restoration failures, and may be measured again in a changed source context.
+The frozen source plan and bounded cost producer are preserved externally at
+`rove4k-bce-bootstrap-argv-source-20261021-evidence`; the actual cost receipt is
+26855 B/SHA-256 `5610bf56f5f0ca8776490f395e662a9b4419154f149d3661ecece0c78ef8308f`.
+
+Only E adopts this spelling. Its ordinary --dev builder reproduces shipping
+and unchanged diagnostic forms twice; the unchanged selected verifier passes
+two quit/EOF sessions with eight legal GO results, exact restored native,
+three startup TIDs, absent private paths/helpers and physical exit. The build
+receipt SHA-256 is `f25d18bf04902d67b8f5894cdb9a2a7f3c91fe9f7d2c29541637f67f07930868`;
+runtime receipt is `64744c39bf9130ab16abbff516d872331c274e7cfbdd066564d66d609fd6e93e`.
+No cost, normal-build or selected-runtime retry was needed. This is a local
+two-worker/TT18 size and execution result, with no new game, strength or final
+server-resource claim. E remains914 B above4096.

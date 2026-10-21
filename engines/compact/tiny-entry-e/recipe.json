@@ -87,18 +87,18 @@
     "source_sha256": "431bdde48fd1f2d450bb92dd6c03e3309017158353de06bfe4fffd0bc96c839e",
     "native_bytes": 26400,
     "native_sha256": "dd9015f8a5960a4595d2da5dfc09d6fae24bed1d2e7b1698b1e50245d42da0e0",
-    "whole_bytes": 5011,
-    "whole_sha256": "9bcc5310b5410f72da9cab0a1156d1079ad6cb9344914e77f68cccc5c2442f04",
-    "bootstrap_sha256": "252a230c584fc8a8d9ab92ae48d1df0fc63da2f2fd65ad439dfe81f6adaad4f9",
+    "whole_bytes": 5010,
+    "whole_sha256": "5514ce2f4b74c39f65ca9afcc2b9dfa241598e04df5fdb89eabefdfc28a86594",
+    "bootstrap_sha256": "fd0ec9d80fe948ad849fc8e252cadbcc5392c014fb361577e3c71a070163c10e",
     "dev_source_bytes": 21314,
     "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
     "dev_native_bytes": 31376,
     "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
-    "bootstrap_bytes": 11445
+    "bootstrap_bytes": 11418
   },
   "local_input_sha256": {
     "engine.c": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
-    "bootstrap.py.in": "66cb9e8bfe64b1c1a7f10dff77ae5c83f51b535a81d5e4252fe5460ba4e64e2e",
+    "bootstrap.py.in": "7c34f63073972ab3c4cc46b26daea3daf65f3d0195dab875dd0ac20085131cd0",
     "launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
   },
   "model": {
@@ -1152,6 +1152,72 @@
         "bytes": 57501,
         "sha256": "552edc1be3559d73af1cce407ee303149df9191e78b2f6ccb586bb8c03dc7000"
       },
+      "annotation_only": true
+    }
+  },
+  "bootstrap_argv": {
+    "scope": "fixed nonempty whitespace-free ASCII compiler argv; literal list to zero-argument literal str.split()",
+    "previous_expected": {
+      "readable_bytes": 28001,
+      "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+      "source_bytes": 10400,
+      "source_sha256": "431bdde48fd1f2d450bb92dd6c03e3309017158353de06bfe4fffd0bc96c839e",
+      "native_bytes": 26400,
+      "native_sha256": "dd9015f8a5960a4595d2da5dfc09d6fae24bed1d2e7b1698b1e50245d42da0e0",
+      "whole_bytes": 5011,
+      "whole_sha256": "9bcc5310b5410f72da9cab0a1156d1079ad6cb9344914e77f68cccc5c2442f04",
+      "bootstrap_sha256": "252a230c584fc8a8d9ab92ae48d1df0fc63da2f2fd65ad439dfe81f6adaad4f9",
+      "dev_source_bytes": 21314,
+      "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
+      "dev_native_bytes": 31376,
+      "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
+      "bootstrap_bytes": 11445
+    },
+    "old_template_sha256": "66cb9e8bfe64b1c1a7f10dff77ae5c83f51b535a81d5e4252fe5460ba4e64e2e",
+    "new_template_sha256": "7c34f63073972ab3c4cc46b26daea3daf65f3d0195dab875dd0ac20085131cd0",
+    "raw_template_delta": -27,
+    "compiler_argv_source_native_DEV_unchanged": true,
+    "Popen_keywords_stdio_signal_lifetime_and_other_bytes_unchanged": true,
+    "bootstrap_newline_count_unchanged": true,
+    "source_columns_and_traceback_bytes_equal": false,
+    "NVCompact_compile_input_only_contract_applies": false,
+    "cost": {
+      "path": "/home/stemxstudio/rove4k-bce-bootstrap-argv-first-cost-20261021/results.json",
+      "bytes": 26855,
+      "sha256": "5610bf56f5f0ca8776490f395e662a9b4419154f149d3661ecece0c78ef8308f"
+    },
+    "source_proof": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-bootstrap-argv-source-20261021-evidence/fixed.json",
+      "bytes": 11168,
+      "sha256": "1bb49cb7207ef0ae4f3387904037758e6e02b1e8694aeebe94bb8f1569cdafa0"
+    },
+    "normal_validation": {
+      "status": "PASS one ordinary --dev builder and unchanged selected verifier; no retry",
+      "summary": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-e-bootstrap-argv-normal-20261021-evidence/normal.json",
+        "bytes": 2547,
+        "sha256": "2a3a18193c3f2380b384c6fc538c5362ece1ab2bad7c574c4399a3019ad1bdeb"
+      },
+      "producing_recipe": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-e-bootstrap-argv-normal-20261021-evidence/producing-recipe.json",
+        "bytes": 60852,
+        "sha256": "91481162488b1b05a5f98ca2154ce784812874dc3366e9252d7838df8ce4b498"
+      },
+      "build": {
+        "path": "/home/stemxstudio/rove4k-e-bootstrap-argv-normal-20261021/build/build.json",
+        "bytes": 157345,
+        "sha256": "f25d18bf04902d67b8f5894cdb9a2a7f3c91fe9f7d2c29541637f67f07930868"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-e-bootstrap-argv-normal-20261021/runtime/runtime.json",
+        "bytes": 23441,
+        "sha256": "64744c39bf9130ab16abbff516d872331c274e7cfbdd066564d66d609fd6e93e"
+      },
+      "shipping_reproductions": 2,
+      "DEV_reproductions": 2,
+      "actual_quit_EOF_sessions": 2,
+      "legal_GO_epochs": 8,
+      "source_native_DEV_entire_bytes_unchanged": true,
       "annotation_only": true
     }
   }

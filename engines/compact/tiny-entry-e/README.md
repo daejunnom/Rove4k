@@ -1,3 +1,41 @@
+# Maintained E: fixed ASCII compiler argv spelling — 2026-10-21
+
+Complete file **5010 B**, compact C **10400 B**, unchanged native **26400 B**.
+The sole Popen argv literal list becomes one fixed ASCII string followed by
+argument-free `.split()`. All arguments are nonempty and contain no whitespace;
+the resulting ordered argv exactly matches the existing compiler recipe.
+The bootstrap loses27 raw bytes and the actual complete file saves1 byte.
+
+Compiler flags, C source, native and DEV expectations, nice32 ALONE codec,
+77-byte launcher, private TMPDIR, stdio, signal publication, compiler cleanup
+and unlinked descriptor exec stay unchanged. Bootstrap newline count stays
+the same, while spelling/columns and failure-traceback byte identity are not
+preserved claims. NVCompact compile-input-only is a separate, stronger contract
+and this manual wrapper choice does not enter the current automatic F search.
+
+Cost checks decode old/new through Python and independent lzma CLI, recover
+the exact bootstrap/C stdin/argv, and observe all six CLI processes reaped with
+absent groups. B/C each grow1 byte in their own current contexts and remain
+unchanged; their loss is a size result, not a restoration failure.
+
+One ordinary --dev build reproduces shipping and old DEV source/native twice.
+The unchanged selected verifier passes quit/EOF2 sessions and8 legal GO
+epochs, observing the exact restored native,3 persistent startup TIDs,
+absent private paths/helpers, fd0/1/2 and physical process/reader closure.
+Cancellation causality and generic compiler-descendant lifetime remain
+unproven. DEV is reference ancestry, not new E19 model qualification.
+No fresh extraction, extra core matrix, game or benchmark is repeated.
+
+Build receipt SHA-256: `f25d18bf04902d67b8f5894cdb9a2a7f3c91fe9f7d2c29541637f67f07930868`.
+Runtime receipt SHA-256: `64744c39bf9130ab16abbff516d872331c274e7cfbdd066564d66d609fd6e93e`.
+Producing recipe SHA-256: `91481162488b1b05a5f98ca2154ce784812874dc3366e9252d7838df8ce4b498`.
+Only README/recipe completion metadata changes after execution; the
+producing recipe and all previous checkpoint evidence remain external.
+
+Current source SHA-256: `431bdde48fd1f2d450bb92dd6c03e3309017158353de06bfe4fffd0bc96c839e`.
+Current native SHA-256: `dd9015f8a5960a4595d2da5dfc09d6fae24bed1d2e7b1698b1e50245d42da0e0`.
+Current whole SHA-256: `5514ce2f4b74c39f65ca9afcc2b9dfa241598e04df5fdb89eabefdfc28a86594`.
+
 # Maintained E: compact clock presence and E19 slots — 2026-10-21
 
 Complete file **5011 B**, compact C **10400 B**.

@@ -10,7 +10,7 @@ with tempfile.TemporaryDirectory(prefix='r4-') as d:
  e=os.environ.copy();e['TMPDIR']=d
  try:
   m=signal.pthread_sigmask(signal.SIG_BLOCK,{2,15})
-  try:p=subprocess.Popen(['cc', '-std=c11', '-Os', '-pthread', '-DWORKERS=2', '-DTT_BITS=18', '-DDEV=0', '-x', 'c', '-', '-o', 'x'],cwd=d,env=e,stdin=subprocess.PIPE,start_new_session=True,preexec_fn=lambda:signal.pthread_sigmask(signal.SIG_SETMASK,m))
+  try:p=subprocess.Popen('cc -std=c11 -Os -pthread -DWORKERS=2 -DTT_BITS=18 -DDEV=0 -x c - -o x'.split(),cwd=d,env=e,stdin=subprocess.PIPE,start_new_session=True,preexec_fn=lambda:signal.pthread_sigmask(signal.SIG_SETMASK,m))
   finally:signal.pthread_sigmask(signal.SIG_SETMASK,m)
   p.communicate(__ROVE_SOURCE_LITERAL__)
  finally:
