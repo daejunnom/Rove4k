@@ -172,7 +172,7 @@ The later PALS and hardware-CRC work below retains its own source and runtime
 boundaries; those earlier CI runs are not relabeled as results for new bytes.
 
 **F's opt-in material/move-TT file is locally reproduced and exercised at
-4,093 bytes; default full F is still 4,654 bytes.** This optional reduced-feature
+4,089 bytes; default full F is still 4,645 bytes.** This optional reduced-feature
 size result does not complete default F or the A–F portfolio. All twelve
 cores have functional evidence, but portfolio completion still requires source
 reduction, D's eligible own-ELF artifact, final candidate comparisons and games,
@@ -187,14 +187,14 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
-| A | 4,661 B | 565 B | Main-owned token cursor and valid-0x88 promotion predicate; existing full HCE/PVS/QS/TT/learners/SMP and fixed ALONE retained |
-| B | 5,229 B | 1,133 B | Main-owned token cursor, promotion predicate and make/SEE material-gain sharing; hybrid attackers/singular and full policy retained |
-| C | 5,001 B | 905 B | Main-owned tokenizer and promotion predicate; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners and fixed ALONE retained |
+| A | 4,652 B | 556 B | One-state material classifier; main-owned token cursor and valid-0x88 promotion predicate; existing full HCE/PVS/QS/TT/learners/SMP and fixed ALONE retained |
+| B | 5,219 B | 1,123 B | One-state material classifier; main-owned token cursor, promotion predicate and make/SEE material-gain sharing; hybrid attackers/singular and full policy retained |
+| C | 4,992 B | 896 B | One-state material classifier; main-owned tokenizer and promotion predicate; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners and fixed ALONE retained |
 | D scalar / HQ | 5,966 / 6,175 B | 1,870 / 2,079 B | Capture-only Move bit3; full-key aligned atomic16 TT, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained |
-| E | 5,086 B | 990 B | Main-owned tokenizer and promotion predicate; untrained E19 model/ordering, full search/learners and fixed ALONE retained |
-| F full (default) | 4,654 B | 558 B | Main-owned tokenizer, mate-adjust expressions and promotion predicate; packed positional HCE, learners, full-bound full-key TT and full-depth MTD(f)/SMP retained; default size target remains open |
-| F material/noise (opt-in) | 4,374 B | 278 B | Fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted; unchanged at this checkpoint |
-| F material/move-TT (opt-in) | 4,093 B | 0 B (3 B spare) | Fixed material, main-owned token cursor, terminal-loop sharing and coherent atomic64 Move17/high46 plus index18; local size eligibility only, full F and strength acceptance remain open |
+| E | 5,076 B | 980 B | One-state material classifier; main-owned tokenizer and promotion predicate; untrained E19 model/ordering, full search/learners and fixed ALONE retained |
+| F full (default) | 4,645 B | 549 B | One-state material classifier; main-owned tokenizer, mate-adjust expressions and promotion predicate; packed positional HCE, learners, full-bound full-key TT and full-depth MTD(f)/SMP retained; default size target remains open |
+| F material/noise (opt-in) | 4,369 B | 273 B | One-state material classifier, fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted |
+| F material/move-TT (opt-in) | 4,089 B | 0 B (7 B spare) | One-state material classifier, fixed material, main-owned token cursor, terminal-loop sharing and coherent atomic64 Move17/high46 plus index18; local size eligibility only, full F and strength acceptance remain open |
 
 The separate Rust D native images are 16,816 bytes each. Their independent
 packed experiment retains its own qualification state and does not silently
@@ -5789,3 +5789,79 @@ fcbc8120b8a666d5bc90b9faf97462f9f47f6e947394d4855d46484652cfb74c.
 Further shared material-classifier work remains a separately scoped candidate.
 Compression and full-default size work continue beyond eligibility; no
 training, AWS, paid execution, merge or release is added.
+
+## Shared one-state material classification — 2026-10-21
+
+The preceding full-source checkpoint9dce883 passes
+[C/Rust engine CI](https://github.com/daejunnom/Rove4k/actions/runs/39536538621)
+and [Node22/24 lifecycle CI](https://github.com/daejunnom/Rove4k/actions/runs/39536538692).
+Its synthetic mergee26acd5ee94d40be3b7f8e8f627c49be5abdd24b has the same
+77ca94e25854c2c1b80ed69b66a6a4608978166f tree, with develop56bfb5f and
+head9dce883 parents. This CI success keeps that exact source scope.
+
+The new shipping_material_state.py applies after shipping_refinements to all
+seven fixed source profiles. It adopts D's existing one-state classifier and
+changes only one full function per source. State0 means no minor,−1 one knight,
+1/2 only bishops on one square color. A second knight, knight/bishop mixture,
+opposite-color bishops or P/R/Q returns live. KNN remains live; arbitrarily
+many same-square-color promoted bishops retain the previous dead result.
+This is the same limited recognition policy, not a theoretical dead-position
+oracle. Models, learning, search, rules/history, TT, input and pool remain in
+the protected complement. No feature is removed from the full/defaults.
+
+| Policy | Previous whole | New whole | Saved | Source delta | Above4096 |
+|---|---:|---:|---:|---:|---:|
+| A |4661|4652|9|+18|556|
+| B |5229|5219|10|+18|1123|
+| C |5001|4992|9|+18|896|
+| E |5086|5076|10|+18|980|
+| F full/default |4654|4645|9|+18|549|
+| F material/noise |4374|4369|5|+18|273|
+| F material/move-TT |4093|4089|4|+18|0 (7 spare)|
+
+Each source grows18B while the logical state and actual whole cost shrink.
+The existing compiler/77B prefix/bootstrap/fixed ALONE settings are retained;
+neither D's historical gain nor other-family deltas are transferred or added.
+Actual A native crosses a file-layout boundary22672→18576B; this is not a
+metadata exception. All new native/whole pins are explicitly admitted.
+
+Actual old/new functions and an independent rank/file material-count oracle
+run on109 canonical FENs for each profile under ASan/UBSan. All seven agree
+on31 dead/78 live and leave the entire Board unchanged, including B bitboards,
+C vector state, E model caches, HCE/hash and context where present. Actual
+PUT/STATE populate the boards; F MoveTT's absent context field is not invented.
+Each included TU is unchanged and main is renamed without being called.
+Six-function receipt:
+ed44c77b2a10caa257b2dde348e06be8b5e31927156f490d09bef7e501d44500.
+Independent B receipt:
+c38b7cec15f18a4106b2e6f068c25bfc7a3780070609753fb92fe6182e7e9c7c.
+Readback companions bind actual included source, fixture, commands and current
+pins for these finite executions; the original runners are not relabeled as
+general pre/post hash-fenced executors. No redundant replay is performed.
+
+The pure helper embeds seven exact input/output identities, full-function
+literals/offsets, inverse and unchanged-complement checks. It imports only
+hashlib and reads no external receipts/artifacts during builds. Its7196B SHA:
+eded8d82eed40c383564603a51582e829ff9de2fc626bdc11eab26e6c424b380.
+Canonical/DEV inputs bypass the stage. F checks new full/material reference
+copies while retaining raw source for its earlier fixed transforms. Explicit
+material/move expectations are updated to the measured identities; codecs,
+verifier snapshots and normal acceptance logic are unchanged.
+
+All seven ordinary --dev producer invocations and unchanged selected verifiers
+pass. Shipping source/native/bootstrap/whole and full-reference DEV reproduce
+twice per policy. Fourteen actual quit/EOF sessions observe exact restored
+native, stable3 TIDs, legal finite GO, private-path/helper absence, one closing
+result, reader EOF and physical exit. Producing-input readback matches before
+later receipt-only annotations. Summary22137B/SHA:
+2c75a07e42a796030509be4ed6ea5f1046a5528911629463397222f1fdbe051f.
+Root's F reference-block indentation preparation defect was caught before any
+F builder/compile/engine invocation, preserved externally and corrected using
+the actual line's indentation. A/B/C successful commands were not repeated.
+
+Default full F is4645B and still needs549B. The optional4089B file has seven
+bytes spare and remains a reduced-feature intermediate. Its further4B gain
+demonstrates continued compression after size eligibility. All other family
+size gaps and D own-ELF eligibility remain open, as do final profiles and
+performance/strength evidence. No training/data collection, AWS/paid work,
+main/develop promotion or release is introduced.

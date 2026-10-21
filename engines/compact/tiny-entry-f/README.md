@@ -1,3 +1,41 @@
+# Maintained F: shared material-state compression — 2026-10-21
+
+A shared late source pass replaces three material-classification accumulators
+with one signed state, preserving the existing limited policy. Bare kings
+and a single minor remain dead; KNN stays live. Bishop-only minor sets are
+dead when confined to one square color. Full models/search/TT/
+learning/rules/input/pool remain outside the one-function edit. This is not
+a general theoretical dead-position oracle. Raw source grows18B per policy,
+while actual complete-file cost decreases; independent deltas are not added.
+
+| Policy | Previous whole | Current whole | Saved | Above4096 |
+|---|---:|---:|---:|---:|
+| F | 4654 | **4645** | 9 | 549 |
+| F-material | 4374 | **4369** | 5 | 273 |
+| F-move | 4093 | **4089** | 4 | 0 (7 spare) |
+
+Actual old/new classifiers and an independent material/count oracle agree
+on109 canonical FENs per policy (31 dead/78 live), with entire Board bytes
+unchanged, under ASan/UBSan. Each ordinary --dev build reproduces shipping
+and full-reference DEV twice. The unchanged selected verifier exercises
+new actual quit/EOF wrappers, exact restored native, stable3 TIDs, legal
+GO, private-path/helper absence, closing result, reader EOF and physical
+exit. Normal summary SHA-256:
+`2c75a07e42a796030509be4ed6ea5f1046a5528911629463397222f1fdbe051f`.
+These are local2-worker/TT18 results, not final resources or strength.
+
+Default full F still needs549B. The reduced-feature MoveTT opt-in is4089B,
+seven bytes below4096, and remains an intermediate result. Source reduction
+continues for default full F and beyond eligibility for the opt-in.
+
+| Policy | Source bytes | Native bytes | Whole SHA-256 |
+|---|---:|---:|---|
+| F | 9109 | 18576 | `a3eaf6f94477beb9897bbccec11e990eb703bc3243034199271deb1b41e023bb` |
+| F-material | 8604 | 18576 | `eff84e9b34ba121c7c17397252e2f61e832c6f2cfe0fcd51f182f99b677a3682` |
+| F-move | 7821 | 18576 | `ccb77b12ade5ef7dd367970edd4bfc3d97d4709a00fc9861570355785563d70c` |
+
+Older sections retain their original checkpoint identities.
+
 # Maintained F: further full-source compression — 2026-10-21
 
 The full/default policy now shares the main-owned tokenizer. Its existing

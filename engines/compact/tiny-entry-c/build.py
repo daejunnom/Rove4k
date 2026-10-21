@@ -85,6 +85,7 @@ def main():
         literal=module('entry_literal',frozen/'pack_stream.py').source_literal
         common=module('entry_shipping_common',frozen/'shipping_common.py')
         refine=module('entry_shipping_refinements',frozen/'shipping_refinements.py')
+        dead_state=module('entry_material_state',frozen/'shipping_material_state.py')
         reference=module('entry_fixed_shipping_alpha_reference',frozen/'fixed_shipping_alpha.py')
         alpha=module('entry_composition_shipping_alpha',frozen/'shipping_alpha.py').transform_source
         scope=module('entry_fixed_scope_names',frozen/'shipping_scope.py').transform_source
@@ -127,6 +128,8 @@ def main():
                 data,common_metadata=common.transform_source(data,family='C')
                 data,refinement=refine.transform_source(data,family='C')
                 common_metadata['refinements']=refinement
+                data,dead_state_metadata=dead_state.transform_source(data,family='C')
+                common_metadata['material_state']=dead_state_metadata
             return data,observations,alpha_metadata,scope_metadata,core_metadata,simd_metadata,input_metadata,material_metadata,incremental_metadata,signed_metadata,type_metadata,global_names_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())

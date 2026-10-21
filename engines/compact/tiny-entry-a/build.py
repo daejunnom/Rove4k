@@ -99,6 +99,7 @@ def main():
         continuation=module('entry_fixed_A_continuation',frozen/'shipping_continuation.py').transform_source
         common=module('entry_fixed_common',frozen/'shipping_common.py')
         refine=module('entry_shipping_refinements',frozen/'shipping_refinements.py')
+        dead_state=module('entry_material_state',frozen/'shipping_material_state.py')
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
         if template.count(marker)!=1 or len(prefix)!=77:raise ValueError('bootstrap recipe changed')
@@ -127,6 +128,8 @@ def main():
                 data,common_metadata=common.transform_source(data,family='A')
                 data,refinement=refine.transform_source(data,family='A')
                 common_metadata['refinements']=refinement
+                data,dead_state_metadata=dead_state.transform_source(data,family='A')
+                common_metadata['material_state']=dead_state_metadata
             return data,observations,alpha_metadata,storage_metadata,scope_metadata,input_metadata,declaration_metadata,type_metadata,lexical_metadata,capture_metadata,startup_metadata,global_names_metadata,continuation_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())

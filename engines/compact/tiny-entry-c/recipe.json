@@ -64,7 +64,8 @@
     "engines/compact/tiny-entry-c/shipping_types.py": "53a8391b0ea0f7ae3f6c5feed927c5d08191bd751a8a7249c76a824f0bc34c70",
     "engines/compact/tiny-entry-c/shipping_global_names.py": "48c062632b5050ad5943eceb00ca566d9d8932f23423ae80b678bf7bfe5a8213",
     "engines/scripts/shipping_common.py": "58f2cfdb37bbd0c010e82bc8d9c2118b00fe41ef6a556c18cc94db11455e2a15",
-    "engines/scripts/shipping_refinements.py": "6ecb62499035cedaf6308539de0744a011f7b183ca768984462c4f0435406804"
+    "engines/scripts/shipping_refinements.py": "6ecb62499035cedaf6308539de0744a011f7b183ca768984462c4f0435406804",
+    "engines/scripts/shipping_material_state.py": "eded8d82eed40c383564603a51582e829ff9de2fc626bdc11eab26e6c424b380"
   },
   "compression": {
     "format": "lzma-alone",
@@ -81,16 +82,16 @@
   },
   "expected": {
     "readable_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
-    "source_bytes": 10156,
-    "source_sha256": "316a2704f2f7b5746fccfdb98f8f9b76a8004af68481eb32e7024b1d2b7b9bab",
+    "source_bytes": 10174,
+    "source_sha256": "e3af22b2404d37187076ee676c51446aa561ac8cd14583b37d3da2529d9190a7",
     "native_bytes": 26368,
-    "native_sha256": "32432396b3a42bd6fba8b615cee3ae7073fdfa33d7bb65a1fac8885d19ee3fcd",
-    "whole_bytes": 5001,
-    "whole_sha256": "8ce2685230f164cdc76059834fb116c8f5dce36ab3c8fd1c57e9d6ef9c11d28c",
-    "bootstrap_sha256": "aff33c31178347c1d35bfbc5fe4617ea23289e0b3bf36ec4b11e3680c605741e",
+    "native_sha256": "acb8b1a3526166eb4376f9ad0e071449ae3622b8b54cc12682781d99495324bd",
+    "whole_bytes": 4992,
+    "whole_sha256": "07341bf4431dc2a6d412045377784bb28548baee5cd6142093a01c6d0b9d826b",
+    "bootstrap_sha256": "befbe147f3f50818e915783a9d6db3a2876f7bdf3e1c891fb72cbe1f29b208f0",
     "dev_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
     "dev_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c",
-    "bootstrap_bytes": 11223
+    "bootstrap_bytes": 11241
   },
   "local_input_sha256": {
     "engine.c": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
@@ -696,6 +697,67 @@
       },
       "scope": "two exact shipping/DEV reproductions; selected new full wrapper quit/EOF, local2-worker TT18 only",
       "producing_recipe_precedes_this_receipt_annotation": true
+    }
+  },
+  "material_state": {
+    "scope": "one-state representation of existing limited dead-material policy; full feature set retained; actual function proof separate from selected wrapper",
+    "previous_expected": {
+      "readable_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
+      "source_bytes": 10156,
+      "source_sha256": "316a2704f2f7b5746fccfdb98f8f9b76a8004af68481eb32e7024b1d2b7b9bab",
+      "native_bytes": 26368,
+      "native_sha256": "32432396b3a42bd6fba8b615cee3ae7073fdfa33d7bb65a1fac8885d19ee3fcd",
+      "whole_bytes": 5001,
+      "whole_sha256": "8ce2685230f164cdc76059834fb116c8f5dce36ab3c8fd1c57e9d6ef9c11d28c",
+      "bootstrap_sha256": "aff33c31178347c1d35bfbc5fe4617ea23289e0b3bf36ec4b11e3680c605741e",
+      "dev_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
+      "dev_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c",
+      "bootstrap_bytes": 11223
+    },
+    "raw_source_delta": 18,
+    "whole_delta": -9,
+    "exact_source_replay": {
+      "stage": "fixed-shipping-material-state",
+      "family": "C",
+      "policy": "full",
+      "input_bytes": 10156,
+      "input_sha256": "316a2704f2f7b5746fccfdb98f8f9b76a8004af68481eb32e7024b1d2b7b9bab",
+      "output_bytes": 10174,
+      "output_sha256": "e3af22b2404d37187076ee676c51446aa561ac8cd14583b37d3da2529d9190a7",
+      "function_offset": 1770,
+      "old_function_sha256": "beddfa596006cc3d76243c1c379de0066fd7725bfb1d6da84473a8700586d207",
+      "new_function_sha256": "3f059cc25f303c76cfbfb2c7592797f8fe5d5fd29c94eca23c255064ef3e840d",
+      "literal_edits": 1,
+      "exact_inverse": true,
+      "unchanged_complement_bytes": 9960,
+      "unchanged_complement_sha256": "f41d077f35be07c731cc54cd5e9a1996b857e442d4bc6af60b7fc85d8f610704"
+    },
+    "DEV_bypass": true,
+    "normal_positive_metadata_only": {
+      "build": {
+        "path": "/home/stemxstudio/rove4k-material-state-normal-20261021/C/build/build.json",
+        "bytes": 173419,
+        "sha256": "26682edeee3cafef9df78735d58802955b2dd247f39511fab27a77fe94577367"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-material-state-normal-20261021/C/runtime/runtime.json",
+        "bytes": 34687,
+        "sha256": "1f3d3a12be9a750e09bf0e1d6ad0f3e6d41e47a6b1e78012126c5196e65019d5"
+      },
+      "scope": "two exact shipping/DEV reproductions and selected new actual quit/EOF; local2-worker TT18 only",
+      "producing_recipe_precedes_this_receipt_annotation": true
+    },
+    "functions_receipts_metadata_only": {
+      "six": {
+        "path": "/home/stemxstudio/rove4k-common-dead-state-functions-20261021/results.json",
+        "bytes": 10651,
+        "sha256": "ed44c77b2a10caa257b2dde348e06be8b5e31927156f490d09bef7e501d44500"
+      },
+      "B": {
+        "path": "/home/stemxstudio/rove4k-b-dead-signed-state-functions-20261021/results.json",
+        "bytes": 2140,
+        "sha256": "c38b7cec15f18a4106b2e6f068c25bfc7a3780070609753fb92fe6182e7e9c7c"
+      }
     }
   }
 }
