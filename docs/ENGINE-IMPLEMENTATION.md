@@ -171,8 +171,15 @@ It regenerates and exercises A4762/B5371/C5159/D6165/6345/E5281/F4730.
 The later PALS and hardware-CRC work below retains its own source and runtime
 boundaries; those earlier CI runs are not relabeled as results for new bytes.
 
+The D HQ-history checkpoint `cf4a152` passes both language jobs in its
+[engine CI](https://github.com/daejunnom/Rove4k/actions/runs/39594373382) and
+Node22/24 [repository checks](https://github.com/daejunnom/Rove4k/actions/runs/39594373244).
+Both actual language-job checkouts use merge9f25a035, whose tree equals that
+head's tree. The common fallback/QS changes below have their own later local
+qualification; that completed CI is not relabeled as a run of later bytes.
+
 **F's opt-in material/move-TT file is locally reproduced and exercised at
-4,045 bytes; default full F is still 4,483 bytes.** This optional reduced-feature
+4,045 bytes; default full F is still 4,479 bytes.** This optional reduced-feature
 size result does not complete default F or the A–F portfolio. All twelve
 cores have functional evidence, but portfolio completion still requires source
 reduction, D's eligible own-ELF artifact, final candidate comparisons and games,
@@ -187,12 +194,12 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
-| A | 4,592 B | 496 B | Unsigned64 number forms; one-state material classifier; main-owned token cursor and valid-0x88 promotion predicate; history length derived from immutable job length plus ply; existing full HCE/PVS/QS/TT/learners/SMP and fixed ALONE retained; fixed LP64 mixer literals; compact environment snapshot |
-| B | 5,122 B | 1,026 B | Worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained; made-child continuation row passed through PVS and same-position singular verification; literal include gaps and overlong-line drain compacted; clock-first SEE poll; cancellation timing changed; compact environment snapshot |
-| C | 4,908 B | 812 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners retained; history length derived from immutable job length plus ply; child continuation slot and positive-only cutoff bonus compacted; fixed LP64 mixer literals; compact environment snapshot |
+| A | 4,587 B | 491 B | Unsigned64 number forms; one-state material classifier; main-owned token cursor and valid-0x88 promotion predicate; history length derived from immutable job length plus ply; existing full HCE/PVS/QS/TT/learners/SMP and fixed ALONE retained; fixed LP64 mixer literals; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero |
+| B | 5,116 B | 1,020 B | Worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained; made-child continuation row passed through PVS and same-position singular verification; literal include gaps and overlong-line drain compacted; clock-first SEE poll; cancellation timing changed; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero |
+| C | 4,897 B | 801 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners retained; history length derived from immutable job length plus ply; child continuation slot and positive-only cutoff bonus compacted; fixed LP64 mixer literals; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero |
 | D scalar / HQ | 5,908 / 6,111 B | 1,812 / 2,015 B | HQ-only history length derived from immutable job length plus ply; scalar and DEV retain their original blocks; exact clock/inc parsing and ordered K/Q castling branches shared; consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained |
-| E | 4,986 B | 890 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; child continuation slot and positive-only cutoff bonus compacted; literal include gaps and fixed ASCII compiler argv compacted; fixed LP64 mixer literals; compact environment snapshot |
-| F full (default) | 4,483 B | 387 B | Packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; history length derived from immutable job length plus ply; nonnegative QS depth, repetition-distance loop, fixed integer macros and plain-int keyword spelling compacted after the no-preadd hash, terminal, correction and source-form stages; compact environment snapshot; default size target remains open |
+| E | 4,974 B | 878 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; child continuation slot and positive-only cutoff bonus compacted; literal include gaps and fixed ASCII compiler argv compacted; fixed LP64 mixer literals; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero |
+| F full (default) | 4,479 B | 383 B | Packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; history length derived from immutable job length plus ply; nonnegative QS depth, repetition-distance loop, fixed integer macros and plain-int keyword spelling compacted after the no-preadd hash, terminal, correction and source-form stages; compact environment snapshot; default size target remains open; lazy fallback and first-legal quiet-QS standpat cutoff |
 | F material/noise (opt-in) | 4,319 B | 223 B | Unsigned64 number forms and two fixed TT18 casts omitted; one-state material classifier, fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted; literal include gaps compacted; fixed LP64 mixer literals; compact environment snapshot |
 | F material/move-TT (opt-in) | 4,045 B | 0 B (51 B spare) | Unsigned64 number forms; one-state material classifier, fixed material, main-owned token cursor, terminal-loop sharing and coherent atomic64 Move17/high46 plus index18; local size eligibility only, full F and strength acceptance remain open; fixed LP64 mixer literals; compact environment snapshot |
 
@@ -243,6 +250,49 @@ also pass. However, actual search-phase attack calls increase from65,023 to
 search entries and six root correction guards. This finite work count is
 not a wall-time or strength measurement. The two-byte size gain remains
 unselected in this source context; normal production/SMP is not run for it.
+
+## Shared lazy fallback and full-F legal QS cutoff: 2026-10-21
+
+A/B/C/E/F remove a stored global fallback and its eager GO query. The sole
+result consumer queries the same immutable root with private scratch only
+when the selected completed best is zero. That last worker still owns the
+mutex after all think calls return; output/flush precedes completion wakeup.
+Three owned regions and four protected gaps retain winner/tie selection,
+generation, wait and join. GO work, query timing and scratch stack ownership
+change; no stack-peak, timed speed or many-core result is claimed.
+
+Complete normal files change A4592→4587, B5122→5116, C4908→4897 and E4986→4974.
+Full F selects the combined lazy/QS form4483→4479. Its lazy-only4478 form is
+one byte smaller, but the selected QS form stops after the first legal make
+when a quiet QS standpat already reaches beta. It retains terminal precedence,
+legal witness, score/depth0/lower-bound/full-key TT publication and learners.
+The component's eight fixed serial cases retain typed state and3425 nodes;
+make calls59087→18119 and attacks65023→24055 count omitted pure work, not
+timed speed or strength. Lazy fallback's separate seven-case actual-output
+comparison covers both zero-best sides, terminal0000, depth winners and ties.
+
+Seven ordinary builders and five unchanged selected verifiers pass on their
+first executions. Every default reproduces shipping and unchanged DEV twice
+and passes quit/EOF sessions with eight legal GO results, exact restoration,
+three startup TIDs, private-path absence and physical process/reader exit.
+Both optional F actual files stay4319/4045 byte-exact while their full reference
+passes history→lazy→QS8559. Optional DEV/runtime is not repeated.
+A preparation schema KeyError occurred before builder/compiler/codec/target
+execution; its original script/trace is preserved separately, then its adapter
+was corrected. No ordinary builder or selected execution was retried.
+
+The normal handoff is preserved outside Git in
+rove4k-common-lazy-fallback-promotion-20261021-evidence/
+qualified-normal-handoff.json, SHA-256
+bf30aed69b7ebac32d6067538a01d3d5ff60abe1eefc6915f1dbb685946b3303.
+Root independently checks its37 raw file pins. The completed normal index
+is61628 B/SHA-256386182d0c92a2212dd7316161c6963748b7500e78451db346106d66ef3f97f66,
+in the same external folder. Root checks129 distinct file references, resolving
+historical working-source identities through portfolio-producing-v2 and current
+source through final17. Normal results total10 sessions/40 GO. Source reviews
+find no actionable shared-helper or F-hook issue. Canonical/DEV and reduced actual F
+bypass both new stages. All default entries remain above4096; final resource,
+many-core, explicit split/group/PALS integration and strength work stay open.
 
 ## D HQ-only derived history length: 2026-10-21
 

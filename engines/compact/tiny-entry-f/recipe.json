@@ -80,7 +80,9 @@
     "engines/compact/tiny-entry-f/shipping_depth_repetition.py": "e719af113dcca4da8e4ad6d3b44e57a8a09a5985ec35ceaf7a44ae1b1e8e6753",
     "engines/compact/tiny-entry-f/shipping_macro_literals.py": "8926a35c4d297a62ea433eb0923b06547e26f096f251c0b40c2642c7261bce10",
     "engines/compact/tiny-entry-f/shipping_int_token.py": "adf509f08421f5c078660fd66bafb4879a4f9f2ca2ee72676de78a3b912004e5",
-    "engines/compact/tiny-entry-f/shipping_history_depth.py": "3197d492ee319e46f111ceff650e000ca3a6490c3c36fb4ffc82b4ea143f08c5"
+    "engines/compact/tiny-entry-f/shipping_history_depth.py": "3197d492ee319e46f111ceff650e000ca3a6490c3c36fb4ffc82b4ea143f08c5",
+    "engines/scripts/shipping_lazy_fallback.py": "023b370e75df2d50f44641eac7d1b49091ef2424d9ed7983d6d6f3c7d700b2ce",
+    "engines/compact/tiny-entry-f/shipping_qs_cutoff.py": "ae95c21527a235880a4e9f140537f488df71b99caec988a3c08cf710d7df4534"
   },
   "resource_literals": [
     [
@@ -254,22 +256,22 @@
   },
   "expected": {
     "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
-    "source_bytes": 8566,
-    "source_sha256": "c7da40086c5f6d0616b21a990e1296c405d6486808eb34b5d2de3c486f5e4c5e",
+    "source_bytes": 8559,
+    "source_sha256": "65ca88c60d29f87249aac7e43905af1420e868065701e93fb7bdacbbc560f4c7",
     "native_bytes": 18576,
-    "native_sha256": "cc751d06f4e215e6ac80c39ae906a67d9230b677fbb43520df0d77789bb191cb",
-    "whole_bytes": 4483,
-    "whole_sha256": "4b2eb24038f5347aa3d59f189f784c18697b2195129fad3cab0419697e768b68",
+    "native_sha256": "b06657d01e1b11af7ffef6faa59a4f9c720100f5517acef378a514e937e53ef2",
+    "whole_bytes": 4479,
+    "whole_sha256": "a549f59715228d9a3e32b60f8434ca83e1c0f1a3155db994c0ec50015d7d4100",
     "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
     "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
-    "bootstrap_sha256": "f6634e859be6664eb87e6795e5de76020366e94ed7fcf38013e25ace5fe1c813",
+    "bootstrap_sha256": "1677bfba691044f8879c52a70bec8e3afb54734dd055fac205a9d0d96ec1ea23",
     "semantic_readable_bytes": 25720,
     "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
     "dev_source_bytes": 19488,
     "dev_native_bytes": 26984,
     "input_profile_readable_bytes": 28587,
     "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
-    "bootstrap_bytes": 9539
+    "bootstrap_bytes": 9532
   },
   "local_input_sha256": {
     "engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
@@ -3871,6 +3873,439 @@
         }
       },
       "metadata_only_after_execution": true
+    }
+  },
+  "lazy_fallback": {
+    "scope": "full shipping and separately generated optional full references after derived_history_depth; canonical DEV/reduced actual bypass",
+    "helper_sha256": "023b370e75df2d50f44641eac7d1b49091ef2424d9ed7983d6d6f3c7d700b2ce",
+    "metadata": {
+      "family": "F",
+      "stage": "late-shipping-immutable-root-lazy-fallback",
+      "input_bytes": 8566,
+      "input_sha256": "c7da40086c5f6d0616b21a990e1296c405d6486808eb34b5d2de3c486f5e4c5e",
+      "output_bytes": 8550,
+      "output_sha256": "a5ee66aac85b5681e255e880553b9602228946f36d0b0a8ad950fb5b1cea4f2f",
+      "raw_delta": -16,
+      "owned_regions": 3,
+      "protected_gaps": 4,
+      "full_inverse": true,
+      "all_gaps_equal": true,
+      "protected_complement_bytes": 8517,
+      "protected_complement_sha256": "c3e1aa556d0e32939ace1e2985259001068c120380e1a8e3540d960593424973",
+      "global_fallback_and_eager_GO_setup_removed": true,
+      "selected_nonzero_best_short_circuit_retained": true,
+      "same_immutable_root_first_legal_or_terminal_zero": true,
+      "depth_winner_tie_epoch_completion_join_bytes_protected": true,
+      "scratch_owner": "last result worker after think returned",
+      "GO_work_and_output_query_timing_changed": true,
+      "worker_result_stack_peak_measured": false,
+      "query_call_counter_instrumented": false,
+      "canonical_DEV_and_reduced_actual_F": "caller bypass",
+      "new_native_identity_required": true,
+      "external_reads": 0,
+      "compiler_codec_engine_executed_by_transform": 0
+    },
+    "predecessor_expected": {
+      "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+      "source_bytes": 8566,
+      "source_sha256": "c7da40086c5f6d0616b21a990e1296c405d6486808eb34b5d2de3c486f5e4c5e",
+      "native_bytes": 18576,
+      "native_sha256": "cc751d06f4e215e6ac80c39ae906a67d9230b677fbb43520df0d77789bb191cb",
+      "whole_bytes": 4483,
+      "whole_sha256": "4b2eb24038f5347aa3d59f189f784c18697b2195129fad3cab0419697e768b68",
+      "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
+      "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
+      "bootstrap_sha256": "f6634e859be6664eb87e6795e5de76020366e94ed7fcf38013e25ace5fe1c813",
+      "semantic_readable_bytes": 25720,
+      "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
+      "dev_source_bytes": 19488,
+      "dev_native_bytes": 26984,
+      "input_profile_readable_bytes": 28587,
+      "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
+      "bootstrap_bytes": 9539
+    },
+    "firstcost_index": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-common-lazy-fallback-first-cost-20261021-evidence/final-index.json",
+      "bytes": 61423,
+      "sha256": "8e95ae24891b5639a5bd0458d4c1c8480bc3230724a413e87c16c7f31f96d09b"
+    },
+    "focused_representative_F_index": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-common-lazy-fallback-full-f-focused-20261021-evidence/final-index.json",
+      "bytes": 6528,
+      "sha256": "893232efb1a6270499ac15d7514c973b96a7f8adf65b27d3384e50fd42fbeae9"
+    },
+    "normal_validation": {
+      "status": "PASS one ordinary --dev builder and unchanged selected verifier; first normal attempt",
+      "scope": "local fixed2-worker TT18 current shipping and unchanged diagnostic identities; selected positive quit/EOF/restoration/physical fences only",
+      "producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-common-lazy-fallback-normal-20261021/F/build/inputs/recipe.json",
+        "bytes": 216972,
+        "sha256": "09815ce7eebd69e4b46d3dd471275278756f9a01b29d4e4bd2ae73c082808852"
+      },
+      "producing_builder": {
+        "path": "/home/stemxstudio/rove4k-common-lazy-fallback-normal-20261021/F/build/inputs/build.py",
+        "bytes": 33028,
+        "sha256": "c92bb5057a86a8b080c4433639f4f949b2b0734eb388952645b8cf23498b1638"
+      },
+      "producer_build": {
+        "path": "/home/stemxstudio/rove4k-common-lazy-fallback-normal-20261021/F/build/build.json",
+        "bytes": 214662,
+        "sha256": "7391e339ab595328c0640a675bc82b20776a4626600b128f097821fef534d261"
+      },
+      "selected_runtime": {
+        "path": "/home/stemxstudio/rove4k-common-lazy-fallback-normal-20261021/F/runtime/runtime.json",
+        "bytes": 60809,
+        "sha256": "282226056f2154aa7c20f5ebafb17e14c6fcbdfb9415ca9e0f15a5dce8863dce"
+      },
+      "data_readback": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-common-lazy-fallback-promotion-20261021-evidence/normal-readback.json",
+        "bytes": 50184,
+        "sha256": "1f36ca5a22a58f8155db9525a77c57ddfc9f0544e91a322a35a2247f484711d1"
+      },
+      "actual_shipping_reproductions": 2,
+      "actual_old_DEV_reproductions": 2,
+      "old_DEV_source_and_entire_native_bytes_equal": true,
+      "unchanged_selected_quit_EOF_sessions": 2,
+      "GO": 8,
+      "startup_TIDs_each": 3,
+      "exact_restored_native_and_private_path_process_readers_exit": true,
+      "all_owned_groups_absent": true,
+      "owned_handles": 0,
+      "cancellation_causality": "unproven",
+      "extra_SAN_PP_fresh_core_game_trace_negative_executions": 0,
+      "stackpeak_timing_manycore_strength_model_readiness_claim": false,
+      "producing_and_annotation_bytes_distinct": true
+    },
+    "query_timing_and_worker_stack_changed": true,
+    "worker_result_stack_peak_measured": false,
+    "all5_SAN_or_pool_or_strength_claim": false
+  },
+  "qs_legal_cutoff": {
+    "scope": "full shipping and optional full references only; selected after lazy_fallback; DEV/reduced actual bypass",
+    "helper_sha256": "ae95c21527a235880a4e9f140537f488df71b99caec988a3c08cf710d7df4534",
+    "metadata": {
+      "family": "F",
+      "stage": "quiet-QS-first-legal-standpat-cutoff-after-lazy-fallback",
+      "input_bytes": 8550,
+      "input_sha256": "a5ee66aac85b5681e255e880553b9602228946f36d0b0a8ad950fb5b1cea4f2f",
+      "output_bytes": 8559,
+      "output_sha256": "65ca88c60d29f87249aac7e43905af1420e868065701e93fb7bdacbbc560f4c7",
+      "raw_delta": 9,
+      "edits": 1,
+      "full_inverse": true,
+      "all_gaps_equal": true,
+      "protected_gaps": [
+        [
+          4841,
+          "2e788f94f0ce0d040bb6050b9494217c66c7af79c820c1eb32b6c37bde26229b"
+        ],
+        [
+          3683,
+          "42166f524c71ebd7fca5bd43af8cf731f5415a0362b7be257f9d48c4bbd24ca1"
+        ]
+      ],
+      "protected_complement": [
+        8524,
+        "f779cfbf0024e99b6039840f02fde2627b6d3a9bcceae15036384a0c3cc689fd"
+      ],
+      "old_actual_U": [
+        1203,
+        "61337dd2b9060c6b61ed44c1ec82daa52c8f48138436bcd94aaef3cd060b506b"
+      ],
+      "new_actual_U": [
+        1212,
+        "19517466683504a84254948fd339ec60175e7c4408e32192fc27dd660624a48e"
+      ],
+      "terminal_before_break_and_nonzero_legal_preserved": true,
+      "final_full_key_depth_score_bound_witness_TT_store_unchanged": true,
+      "claim_deadline_cancel_and_learning_sites_unchanged": true,
+      "lazy_global_result_GO_regions_disjoint_after_QS": true,
+      "combined_cost_index_sha256": "e7ed0bcf358e527ff08a652d30648abcd8c84efdfcdd55e10219ab6fcddf3b77",
+      "component_focused_index_sha256": "91fe05c91368c9fdfe63b423cdfbc539f58d43f1c123b04f5532bb83e40e6fc6",
+      "component_focused_result_sha256": "6bdd9b7911e9a6b247bdbfd2a5b41b7904ac3684968ef156dd9ed5ac63697483",
+      "measured_combined_whole_bytes": 4479,
+      "measured_whole_delta_to_lazy_only": 1,
+      "measured_whole_delta_to_maintained": -4,
+      "component8_search_make_calls": [
+        59087,
+        18119
+      ],
+      "component8_search_attack_calls": [
+        65023,
+        24055
+      ],
+      "component8_raw_oracles_excluded": true,
+      "combined_normal_or_manycore_proof_claimed_by_helper": false,
+      "pure_query_work_order_and_timing_changed": true,
+      "external_reads": 0,
+      "compiler_codec_engine_executed_by_transform": 0
+    },
+    "combined_firstcost_index": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-full-f-lazy-qs-combined-first-cost-20261021-evidence/final-index.json",
+      "bytes": 17600,
+      "sha256": "e7ed0bcf358e527ff08a652d30648abcd8c84efdfcdd55e10219ab6fcddf3b77"
+    },
+    "focused_component_index": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-full-f-qs-legal-cutoff-focused-20261021-evidence/final-index.json",
+      "bytes": 11137,
+      "sha256": "91fe05c91368c9fdfe63b423cdfbc539f58d43f1c123b04f5532bb83e40e6fc6"
+    },
+    "selected_combined": {
+      "whole_bytes": 4479,
+      "source_bytes": 8559,
+      "whole_delta_to_maintained": -4,
+      "whole_delta_to_lazy_only": 1
+    },
+    "unselected_lazy_only": {
+      "whole_bytes": 4478,
+      "source_bytes": 8550,
+      "reason": "one byte smaller; root selected additional measured pure-query reduction with combined4479"
+    },
+    "source_component_work": {
+      "make_calls": [
+        59087,
+        18119
+      ],
+      "attack_calls": [
+        65023,
+        24055
+      ],
+      "unit_search_states_equal": 8,
+      "raw_oracles_excluded": true,
+      "wall_time_speed_claim": false
+    },
+    "predecessor_solo_QS_whole_delta": 3,
+    "normal_validation": {
+      "status": "PASS one ordinary --dev builder and unchanged selected verifier; first normal attempt",
+      "scope": "local fixed2-worker TT18 current shipping and unchanged diagnostic identities; selected positive quit/EOF/restoration/physical fences only",
+      "producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-common-lazy-fallback-normal-20261021/F/build/inputs/recipe.json",
+        "bytes": 216972,
+        "sha256": "09815ce7eebd69e4b46d3dd471275278756f9a01b29d4e4bd2ae73c082808852"
+      },
+      "producing_builder": {
+        "path": "/home/stemxstudio/rove4k-common-lazy-fallback-normal-20261021/F/build/inputs/build.py",
+        "bytes": 33028,
+        "sha256": "c92bb5057a86a8b080c4433639f4f949b2b0734eb388952645b8cf23498b1638"
+      },
+      "producer_build": {
+        "path": "/home/stemxstudio/rove4k-common-lazy-fallback-normal-20261021/F/build/build.json",
+        "bytes": 214662,
+        "sha256": "7391e339ab595328c0640a675bc82b20776a4626600b128f097821fef534d261"
+      },
+      "selected_runtime": {
+        "path": "/home/stemxstudio/rove4k-common-lazy-fallback-normal-20261021/F/runtime/runtime.json",
+        "bytes": 60809,
+        "sha256": "282226056f2154aa7c20f5ebafb17e14c6fcbdfb9415ca9e0f15a5dce8863dce"
+      },
+      "data_readback": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-common-lazy-fallback-promotion-20261021-evidence/normal-readback.json",
+        "bytes": 50184,
+        "sha256": "1f36ca5a22a58f8155db9525a77c57ddfc9f0544e91a322a35a2247f484711d1"
+      },
+      "actual_shipping_reproductions": 2,
+      "actual_old_DEV_reproductions": 2,
+      "old_DEV_source_and_entire_native_bytes_equal": true,
+      "unchanged_selected_quit_EOF_sessions": 2,
+      "GO": 8,
+      "startup_TIDs_each": 3,
+      "exact_restored_native_and_private_path_process_readers_exit": true,
+      "all_owned_groups_absent": true,
+      "owned_handles": 0,
+      "cancellation_causality": "unproven",
+      "extra_SAN_PP_fresh_core_game_trace_negative_executions": 0,
+      "stackpeak_timing_manycore_strength_model_readiness_claim": false,
+      "producing_and_annotation_bytes_distinct": true,
+      "optional_actual_unchanged_and_full_reference": {
+        "F-material": {
+          "files": {
+            "source": {
+              "current": {
+                "path": "/home/stemxstudio/rove4k-common-lazy-fallback-normal-20261021/F-material/build/main.c",
+                "bytes": 8508,
+                "sha256": "a7b50f5d084b558c1fb07f3c4c572afa29291a4982ddd00fd783f187a3f74c93"
+              },
+              "predecessor": {
+                "path": "/home/stemxstudio/rove4k-full-f-history-derived-normal-20261021/F-material/build/main.c",
+                "bytes": 8508,
+                "sha256": "a7b50f5d084b558c1fb07f3c4c572afa29291a4982ddd00fd783f187a3f74c93"
+              },
+              "entire_bytes_equal": true
+            },
+            "native": {
+              "current": {
+                "path": "/home/stemxstudio/rove4k-common-lazy-fallback-normal-20261021/F-material/build/native/x",
+                "bytes": 18576,
+                "sha256": "24ae0622c5a0fd10191950f53e0f6ea5d3e3d05fbb1b20aaa72c2b5f2754873f"
+              },
+              "predecessor": {
+                "path": "/home/stemxstudio/rove4k-full-f-history-derived-normal-20261021/F-material/build/native/x",
+                "bytes": 18576,
+                "sha256": "24ae0622c5a0fd10191950f53e0f6ea5d3e3d05fbb1b20aaa72c2b5f2754873f"
+              },
+              "entire_bytes_equal": true
+            },
+            "bootstrap": {
+              "current": {
+                "path": "/home/stemxstudio/rove4k-common-lazy-fallback-normal-20261021/F-material/build/bootstrap.py",
+                "bytes": 9481,
+                "sha256": "d5154ad0ce7db5a9968cf0a80c3da36269aaa154af4831a57e0b5ad4b2585f7f"
+              },
+              "predecessor": {
+                "path": "/home/stemxstudio/rove4k-full-f-history-derived-normal-20261021/F-material/build/bootstrap.py",
+                "bytes": 9481,
+                "sha256": "d5154ad0ce7db5a9968cf0a80c3da36269aaa154af4831a57e0b5ad4b2585f7f"
+              },
+              "entire_bytes_equal": true
+            },
+            "whole": {
+              "current": {
+                "path": "/home/stemxstudio/rove4k-common-lazy-fallback-normal-20261021/F-material/build/x",
+                "bytes": 4319,
+                "sha256": "dd9566fcb5b9373244703be1201715f286a2cde66db397dc0ef2e0372ac7be5f"
+              },
+              "predecessor": {
+                "path": "/home/stemxstudio/rove4k-full-f-history-derived-normal-20261021/F-material/build/x",
+                "bytes": 4319,
+                "sha256": "dd9566fcb5b9373244703be1201715f286a2cde66db397dc0ef2e0372ac7be5f"
+              },
+              "entire_bytes_equal": true
+            }
+          },
+          "build_receipt": {
+            "path": "/home/stemxstudio/rove4k-common-lazy-fallback-normal-20261021/F-material/build/build.json",
+            "bytes": 170809,
+            "sha256": "ef8df72eef22badb6cf7cabfd05550a534c892273cb76af79470def01f8078f9"
+          },
+          "two_shipping_reproductions": true,
+          "DEV_or_runtime_executions": 0,
+          "actual_lazy_QS_bypass": true,
+          "new_separate_full_reference": {
+            "bytes": 8559,
+            "sha256": "65ca88c60d29f87249aac7e43905af1420e868065701e93fb7bdacbbc560f4c7",
+            "lazy_then_QS_both_attempts": true
+          }
+        },
+        "F-move": {
+          "files": {
+            "source": {
+              "current": {
+                "path": "/home/stemxstudio/rove4k-common-lazy-fallback-normal-20261021/F-move/build/main.c",
+                "bytes": 7741,
+                "sha256": "6d3fa3e0099285dd9efe8934f7b419fdd204f80ed4eaf502ad64a9f5b2e12122"
+              },
+              "predecessor": {
+                "path": "/home/stemxstudio/rove4k-full-f-history-derived-normal-20261021/F-move/build/main.c",
+                "bytes": 7741,
+                "sha256": "6d3fa3e0099285dd9efe8934f7b419fdd204f80ed4eaf502ad64a9f5b2e12122"
+              },
+              "entire_bytes_equal": true
+            },
+            "native": {
+              "current": {
+                "path": "/home/stemxstudio/rove4k-common-lazy-fallback-normal-20261021/F-move/build/native/x",
+                "bytes": 18576,
+                "sha256": "1a964e23bc8967b6eb74714389b4d94fd0e505d5d1eba3616775b7e4b0a522d5"
+              },
+              "predecessor": {
+                "path": "/home/stemxstudio/rove4k-full-f-history-derived-normal-20261021/F-move/build/native/x",
+                "bytes": 18576,
+                "sha256": "1a964e23bc8967b6eb74714389b4d94fd0e505d5d1eba3616775b7e4b0a522d5"
+              },
+              "entire_bytes_equal": true
+            },
+            "bootstrap": {
+              "current": {
+                "path": "/home/stemxstudio/rove4k-common-lazy-fallback-normal-20261021/F-move/build/bootstrap.py",
+                "bytes": 8714,
+                "sha256": "39d03ecca6211628b1748a72390a3bec71681cb8e2f0f0999481dc83ebc0dc5c"
+              },
+              "predecessor": {
+                "path": "/home/stemxstudio/rove4k-full-f-history-derived-normal-20261021/F-move/build/bootstrap.py",
+                "bytes": 8714,
+                "sha256": "39d03ecca6211628b1748a72390a3bec71681cb8e2f0f0999481dc83ebc0dc5c"
+              },
+              "entire_bytes_equal": true
+            },
+            "whole": {
+              "current": {
+                "path": "/home/stemxstudio/rove4k-common-lazy-fallback-normal-20261021/F-move/build/x",
+                "bytes": 4045,
+                "sha256": "825108ca4528301f091d3deb44aaaf890b0ae54ac81bbebfbd6ff7e170d65c29"
+              },
+              "predecessor": {
+                "path": "/home/stemxstudio/rove4k-full-f-history-derived-normal-20261021/F-move/build/x",
+                "bytes": 4045,
+                "sha256": "825108ca4528301f091d3deb44aaaf890b0ae54ac81bbebfbd6ff7e170d65c29"
+              },
+              "entire_bytes_equal": true
+            }
+          },
+          "build_receipt": {
+            "path": "/home/stemxstudio/rove4k-common-lazy-fallback-normal-20261021/F-move/build/build.json",
+            "bytes": 192827,
+            "sha256": "c7d7a173bf18efc944e8ec45811303b8590214b72ebfb224646b2a27fa9d11d7"
+          },
+          "two_shipping_reproductions": true,
+          "DEV_or_runtime_executions": 0,
+          "actual_lazy_QS_bypass": true,
+          "new_separate_full_reference": {
+            "bytes": 8559,
+            "sha256": "65ca88c60d29f87249aac7e43905af1420e868065701e93fb7bdacbbc560f4c7",
+            "lazy_then_QS_both_attempts": true
+          }
+        }
+      }
+    },
+    "runtime_stack_timing_manycore_strength_claimed": false,
+    "prior_unselected_cost_and_query_work": {
+      "cache": {
+        "cost_index": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-full-f-check-cache-first-cost-20261021-evidence/final-index.json",
+          "bytes": 10605,
+          "sha256": "6562e32234e8d6dc790164af5657ab2f056303d651d1777009d39ee44d9627eb"
+        },
+        "focused_index": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-full-f-check-cache-focused-20261021-evidence/final-index.json",
+          "bytes": 9294,
+          "sha256": "b5ef1ee512aeacb39d991cf5c40a660e921b4d3f66abb3dae5f293d83b73847d"
+        },
+        "old_whole_bytes": 4495,
+        "new_whole_bytes": 4493,
+        "whole_delta": -2,
+        "search_make_calls": [
+          59087,
+          59087
+        ],
+        "search_attack_calls": [
+          65023,
+          120469
+        ],
+        "attack_call_increase_percent": 85.27136551681713,
+        "selected": false,
+        "wall_time_speed_claim": false
+      },
+      "QS_solo": {
+        "cost_index": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-full-f-qs-legal-cutoff-first-cost-20261021-evidence/final-index.json",
+          "bytes": 12258,
+          "sha256": "c95e13f015af19601d0e96561b74b5600546a60a0af2648d95f9b59670da5d9a"
+        },
+        "old_whole_bytes": 4483,
+        "new_whole_bytes": 4486,
+        "whole_delta": 3,
+        "selected": false
+      },
+      "lazy_only": {
+        "whole_bytes": 4478,
+        "selected": false
+      },
+      "selected_combined": {
+        "whole_bytes": 4479,
+        "delta_to_lazy_only": 1,
+        "delta_to_maintained_4483": -4
+      },
+      "isolated_costs_are_not_additive": true
     }
   }
 }

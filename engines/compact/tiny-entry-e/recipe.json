@@ -66,7 +66,8 @@
     "engines/scripts/shipping_mixer_literals.py": "7b25cb806a51cad9e867ebc588bcb99677c9e2f9d0a5df0b31d019e22bc6d114",
     "engines/scripts/shipping_clock.py": "46c19879deae1d056f4b059c6c7d9667a3e935110dfb33015b29fd0dec4d8c43",
     "engines/compact/tiny-entry-e/shipping_zero_slots.py": "f15f17881ab84eaee88f130b782b23b2019e15dd2d44302fb26bbe9e8ea2ec6c",
-    "engines/compact/tiny-entry-e/shipping_search_context.py": "55889f3535aceb764be3a07c584244337e5a0d95a4823474ad5b13e5025ccb63"
+    "engines/compact/tiny-entry-e/shipping_search_context.py": "55889f3535aceb764be3a07c584244337e5a0d95a4823474ad5b13e5025ccb63",
+    "engines/scripts/shipping_lazy_fallback.py": "023b370e75df2d50f44641eac7d1b49091ef2424d9ed7983d6d6f3c7d700b2ce"
   },
   "compression": {
     "format": "lzma-alone",
@@ -84,18 +85,18 @@
   "expected": {
     "readable_bytes": 28001,
     "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
-    "source_bytes": 10360,
-    "source_sha256": "6e9e7eb6a439934aba2d48f9387f710a95a0032a89233ff2b676b5d6451d47fb",
-    "native_bytes": 26400,
-    "native_sha256": "1b034d2f517e847acdd950590d212bc1cd1c8b76a20a95f7735938e0ebae8781",
-    "whole_bytes": 4986,
-    "whole_sha256": "e6c560d7d1ee3ae0ff23db3bb7f60e05050ceb6ed17436d09496b52c8cb3957b",
-    "bootstrap_sha256": "c9a9a833949906d4916492191dd38f683a69a37e085c33636ee8d9ae7d59379b",
+    "source_bytes": 10326,
+    "source_sha256": "9ad6770abe1b2b69e13d5f43bf3bcd06bc29914ca074d2320b200dcdfad91e99",
+    "native_bytes": 26368,
+    "native_sha256": "67a114c88b4f2ccacac49fe9a459e1e6f776fee39e03f17a6cbac78d03756086",
+    "whole_bytes": 4974,
+    "whole_sha256": "de55885c2dfe49c394b6376b64e8b73308fd00b11c2544b749be56afad8a1730",
+    "bootstrap_sha256": "9f55283a901bcceca2a3507c2c056338b30ad79012a69efe4576c3a02ff9531e",
     "dev_source_bytes": 21314,
     "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
     "dev_native_bytes": 31376,
     "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
-    "bootstrap_bytes": 11372
+    "bootstrap_bytes": 11338
   },
   "local_input_sha256": {
     "engine.c": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
@@ -1383,6 +1384,81 @@
       "runtime_all_four_PVS_ports_observed": false,
       "fresh_extra_SAN_core_strength_games_performance_CI_calls": 0,
       "annotation_only_after_run": true
+    }
+  },
+  "lazy_fallback": {
+    "stage": "shipping-after-search-context",
+    "helper": "engines/scripts/shipping_lazy_fallback.py",
+    "predecessor_expected": {
+      "readable_bytes": 28001,
+      "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+      "source_bytes": 10360,
+      "source_sha256": "6e9e7eb6a439934aba2d48f9387f710a95a0032a89233ff2b676b5d6451d47fb",
+      "native_bytes": 26400,
+      "native_sha256": "1b034d2f517e847acdd950590d212bc1cd1c8b76a20a95f7735938e0ebae8781",
+      "whole_bytes": 4986,
+      "whole_sha256": "e6c560d7d1ee3ae0ff23db3bb7f60e05050ceb6ed17436d09496b52c8cb3957b",
+      "bootstrap_sha256": "c9a9a833949906d4916492191dd38f683a69a37e085c33636ee8d9ae7d59379b",
+      "dev_source_bytes": 21314,
+      "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
+      "dev_native_bytes": 31376,
+      "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
+      "bootstrap_bytes": 11372
+    },
+    "fixed_regions": 3,
+    "protected_gaps": 4,
+    "scratch": "fb",
+    "exact_inverse_and_complement": true,
+    "source_delta": -34,
+    "whole_delta": -12,
+    "full_native_equal_to_predecessor": false,
+    "canonical_DEV_bypass": true,
+    "first_cost_sha256": "b9613dd993cfab433a479a43b80d8f1b4457f9cbe6147418661f5ca876d2276a",
+    "first_cost_plan_sha256": "f306a0b5e77ba5237e7e538697a3ed986d3bb80a5a51b0876ddc9dfb528dbc3a",
+    "first_cost_scope": "one fixed candidate compile+encode with strict Python/CLI restoration; no bootstrap/engine/SAN/functional/normal execution",
+    "root_and_publication": "immutable root through last-worker mutex-held result and physical output; last-complete depth, fallback legality, pending/epoch and joins retained",
+    "timing_and_stack": "GO eager query moved to last-worker result stack; work timing, scheduling and stack-peak equality or improvement not claimed",
+    "normal_validation": {
+      "status": "PASS one ordinary --dev builder and unchanged selected verifier; first normal attempt",
+      "scope": "local fixed2-worker TT18 current shipping and unchanged diagnostic identities; selected positive quit/EOF/restoration/physical fences only",
+      "producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-common-lazy-fallback-normal-20261021/E/build/inputs/recipe.json",
+        "bytes": 73029,
+        "sha256": "a3b59bccf04ffadf9c0483e9f3a2e6499ddbbb6d9af114a85fceb75d6913c697"
+      },
+      "producing_builder": {
+        "path": "/home/stemxstudio/rove4k-common-lazy-fallback-normal-20261021/E/build/inputs/build.py",
+        "bytes": 15061,
+        "sha256": "6a98ba8a333e045917045488ad720cecd538209d6840c54f7c78746e6b0b6315"
+      },
+      "producer_build": {
+        "path": "/home/stemxstudio/rove4k-common-lazy-fallback-normal-20261021/E/build/build.json",
+        "bytes": 165560,
+        "sha256": "227e9ea551677e79267ad4ec5ce86b21c476d6e04cf124e56aafdbae92a7f6d7"
+      },
+      "selected_runtime": {
+        "path": "/home/stemxstudio/rove4k-common-lazy-fallback-normal-20261021/E/runtime/runtime.json",
+        "bytes": 25994,
+        "sha256": "2c7006db86a5af3079373b4c1575d72b7fb3afbd07e82949bf67855e1fc60bdd"
+      },
+      "data_readback": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-common-lazy-fallback-promotion-20261021-evidence/normal-readback.json",
+        "bytes": 50184,
+        "sha256": "1f36ca5a22a58f8155db9525a77c57ddfc9f0544e91a322a35a2247f484711d1"
+      },
+      "actual_shipping_reproductions": 2,
+      "actual_old_DEV_reproductions": 2,
+      "old_DEV_source_and_entire_native_bytes_equal": true,
+      "unchanged_selected_quit_EOF_sessions": 2,
+      "GO": 8,
+      "startup_TIDs_each": 3,
+      "exact_restored_native_and_private_path_process_readers_exit": true,
+      "all_owned_groups_absent": true,
+      "owned_handles": 0,
+      "cancellation_causality": "unproven",
+      "extra_SAN_PP_fresh_core_game_trace_negative_executions": 0,
+      "stackpeak_timing_manycore_strength_model_readiness_claim": false,
+      "producing_and_annotation_bytes_distinct": true
     }
   }
 }

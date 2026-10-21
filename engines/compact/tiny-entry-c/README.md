@@ -1,3 +1,57 @@
+# Maintained C: derive fallback only when the completed result needs it — 2026-10-21
+
+The fixed first-cost candidate is **4897 B**, compact C **9958 B**: source34B
+and whole11B below the preceding4908B entry, still801B above4096. The ordinary
+shipping pipeline now applies the shared `shipping_lazy_fallback.py` after every
+existing source pass. It removes the stored fallback and the eager GO query.
+The final worker derives the first legal move from the unchanged root only when
+the selected completed result has no best move. Exact three-region replay,
+input/output pins, inverse and protected gaps admit this fixed source alone.
+Canonical/DEV, all search/model/SIMD features, compiler/profile/template,
+prefix77 and ALONE9e-lc2-nice64 remain unchanged.
+
+Worker selection still uses greatest completed depth and retains worker0 on
+ties. The existing nullable legal query is reused; terminal roots still format
+zero as `0000`. The query writes caller scratch only. Source ownership remains
+the existing last-worker callback under the mutex after all `think` calls have
+returned, followed by result flush and completion broadcast. Main changes the
+root only after its existing wait returns; quit/EOF and joins retain that order.
+These are source/lifetime relations, not a new pool, SMP or cancellation proof.
+
+Work moves from before worker publication to the conditional result path. Since
+the deadline is set before the old eager query, exact work duration, nodes,
+search timing and best-move bytes are not equivalence claims. The extra query
+runs after recursive search and `think` have returned; actual worker stack peak
+for this result path remains unmeasured. No C component execution or playing
+strength/performance result is claimed for this promotion.
+
+The single fixed compile/encode first-cost receipt is
+`b9613dd993cfab433a479a43b80d8f1b4457f9cbe6147418661f5ca876d2276a`;
+plan `f306a0b5e77ba5237e7e538697a3ed986d3bb80a5a51b0876ddc9dfb528dbc3a`.
+That first-cost phase strictly restored baseline/candidate without running
+either bootstrap or engine. The new native identity is explicit. One ordinary
+--dev builder has now reproduced shipping twice and exact old DEV source/ELF
+twice. The unchanged selected verifier passed quit/EOF in two sessions with
+eight GO results, three startup TIDs each, exact restored image and physical
+process/reader/private-path exit. Build receipt SHA-256:
+`068b6284d7fe315ac3bf9f76a28ff407dfa3883259c589b65183a765d3724605`;
+runtime `aac374531728fca975b466d242ad61ee0709ad23fae9d13ded85bc665d30154d`.
+Cancellation causality remains unproven; stack peak, clock equivalence,
+many-core and strength remain unmeasured. Earlier normal receipts below keep
+their own predecessor images.
+
+| First-cost form | Bytes | SHA-256 |
+| --- | ---: | --- |
+| Shipping source | 9958 | `1c7d102dfc3eda05cad0c7f2032537b67633f364341037ff57237a3600a209ad` |
+| Native | 26336 | `9e2c649a2a459551d00a9622d005612b8c4cbd7bab877428f86dc6c906bbfa6e` |
+| Bootstrap | 11007 | `b08f48163f7200210635460870293be40e252d15ae6a8c347bd38a4599f93451` |
+| Complete | 4897 | `eea215b26a4ad623756a92cf0bf68eb3c01eb57d7ca33e6016b3d8738dc6fddc` |
+
+Before/producing source records are preserved outside Git in the common lazy
+fallback promotion evidence. Reports and measured artifacts are metadata only,
+never helper inputs. The recipe-driven closure discovers the new helper through
+`helper_sha256`; no fresh/archive execution is implied by this registration.
+
 # Maintained C: derive history depth from the immutable job — 2026-10-21
 
 Complete file **4908 B**, compact C **9992 B**: source40B and whole16B below

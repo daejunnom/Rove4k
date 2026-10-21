@@ -1,3 +1,59 @@
+# Maintained F: lazy fallback plus first-legal QS cutoff — 2026-10-21
+
+Selected full/default first-cost file **4479 B**, compact C **8559 B**,
+remaining **383 B** above4096. The shared pure `shipping_lazy_fallback.py`
+runs after history-depth, then F's pure `shipping_qs_cutoff.py`. Both stages
+also run on separately generated optional full references; actual reduced
+material-noise4319 B and material/move-TT4045 B, canonical source and DEV
+bypass both. Compiler, codec, full HCE/learners, coherent bound/depth TT,
+full-depth MTD(f), rules, witnesses and fixed2-worker/TT18 resources stay.
+The18576 B native has a new full identity; old native equality is not claimed.
+
+Lazy fallback removes only the global job field, eager GO query/scratch and
+its result consumer. The last worker still holds the mutex after all think
+calls returned until result/flush/completion. Same-root legal fallback and
+terminal0000, max completed depth and first-worker ties remain. A single
+fatal ASan/UBSan two-TU component compile/run passed7 actual result/query
+cases for white/black replay, FoolsMate, nonzero depth winners and ties, with
+all typed Board/Worker/job state unchanged. Metadata was synthetic completed
+state; actual think/pool/stack peak/SMP was not tested. Output capture alone
+was added. Old eager query seed was explicit; new lazy0/1 remains C ternary
+source induction, without a query hook. GO work and output query timing move,
+and scratch moves to the last-result worker; exact time/nodes are not equal.
+
+The QS stage cuts off a quiet stand-pat node after the first legal child when
+stand-pat already reaches beta, retaining legal terminal detection and the
+final full-key/depth/bound/witness TT write. Previously focused8 actual search
+states kept complete typed state/TT/result while make queries changed
+59087->18119 and attack queries65023->24055 (raw oracles excluded). These are
+component operation counts, not a measured wall-time speed or strength claim.
+Combined U is exactly that focused QS U; lazy result/GO edits are disjoint.
+
+Lazy-only **4478 B** is preserved as an unselected1 B smaller source; root
+selected combined4479 for the measured pure-query reduction. QS-alone's
++3 B size result (4483->4486) remains a separate prior cost. The earlier
+check-cache candidate measured4495->4493 (-2 B), but focused search attack
+queries rose65023->120469 (+85.271%) while make calls stayed59087; it remains
+unselected. Those query counts are not wall-time speed evidence. No sum of
+isolated costs substitutes for the actual combined4479 measurement.
+
+One ordinary default --dev builder reproduced the selected combined shipping
+twice and exact old full-F DEV source/ELF twice. The unchanged selected verifier
+passed quit/EOF in two sessions, eight GO results, three startup TIDs each,
+exact restored native and physical process/reader/private-path exit. Build
+receipt SHA-256 is
+`7391e339ab595328c0640a675bc82b20776a4626600b128f097821fef534d261`;
+runtime `282226056f2154aa7c20f5ebafb17e14c6fcbdfb9415ca9e0f15a5dce8863dce`.
+The two optional ordinary builders reproduced actual4319/4045 shipping twice
+each with entire source/native/bootstrap/whole bytes equal to their exact
+predecessors; both separately generated the new8559 full reference with lazy
+then QS in both attempts. Optional DEV/runtime executions were zero.
+Cancellation causality remains unproven. These local fixed2/TT18 positive
+results add no many-core, strength, timing equality or stack-peak evidence.
+Old normal receipts below retain their original images and are not relabeled.
+Before/producing/final records are outside Git in
+`rove4k-common-lazy-fallback-promotion-20261021-evidence`.
+
 # Maintained F: history base plus recursion ply — 2026-10-21
 
 Complete full/default file **4483 B**, compact C **8566 B**, remaining

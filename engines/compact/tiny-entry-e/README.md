@@ -1,3 +1,44 @@
+# Maintained E: lazy fallback normal reproduction and selected validation passed — 2026-10-21
+
+The fixed first-cost file is **4974 B**, compact C **10326 B**, native
+**26368 B**. Against the exact 4986 B predecessor, this source removes34 B
+and the actual whole file saves12 B. The new source/native/bootstrap/whole
+identities are recorded in the recipe; full-native equality is not claimed.
+One candidate compile and encode completed in the five-context portfolio,
+with strict Python/CLI restoration; that cost phase ran no bootstrap or engine.
+One ordinary --dev builder has now reproduced shipping twice and exact old DEV
+source/native twice. The unchanged selected verifier passed quit/EOF in two
+sessions with eight GO results, three startup TIDs each, exact restored native
+and physical process/reader/private-path exit. Build receipt SHA-256:
+`227e9ea551677e79267ad4ec5ce86b21c476d6e04cf124e56aafdbae92a7f6d7`;
+runtime `2c7006db86a5af3079373b4c1575d72b7fb3afbd07e82949bf67855e1fc60bdd`.
+These are local fixed2/TT18 positive observations. Cancellation causality
+remains unproven; no stack-peak, timing equality, many-core or strength result
+is added. The cost-only statements below retain their original scope.
+
+The shipping-only late stage follows continuation-context processing. Its
+three exact regions remove the global fallback declaration and eager GO
+query, then derive the same first legal move only when the selected worker's
+last completed witness is zero. The fixed scratch name is `fb`; full inverse
+and protected gaps bind the transformation to the exact predecessor source.
+The existing helper freeze/import path records `shipping_lazy_fallback.py`.
+Canonical diagnostics and the distinct DEV21 reference bypass the stage.
+
+The last worker calls result while holding the pool mutex after all think
+calls have returned. Main cannot replace the immutable root until that result
+and its physical output finish. Completed-depth selection, fallback legality,
+pending/epoch wrap, cancellation, quit/EOF join, TT, E19 and learners retain
+their contracts. The first-legal query moves from GO setup to the last
+worker's result stack; deadline work, scheduling and stack peaks are not
+claimed identical or smaller. This cost result proves no runtime, strength,
+many-core or final-target readiness. The 4096 B full-engine goal remains open.
+
+First-cost receipt SHA-256:
+`b9613dd993cfab433a479a43b80d8f1b4457f9cbe6147418661f5ca876d2276a`.
+Before/producing records stay outside Git in the E subfolder of
+`rove4k-common-lazy-fallback-promotion-20261021-evidence`.
+Older sections below retain their own qualified image and execution scope.
+
 # Maintained E: carried continuation context and positive cutoff learner — 2026-10-21
 
 Complete file **4986 B**, compact C **10360 B**, native **26400 B**. The

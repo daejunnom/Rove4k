@@ -104,6 +104,7 @@ def main():
         mixer_forms=module('entry_mixer_literals',frozen/'shipping_mixer_literals.py')
         clock_form=module('entry_clock_sentinel',frozen/'shipping_clock.py')
         history_depth=module('entry_history_depth',frozen/'shipping_history_depth.py').transform_source
+        lazy_fallback=module('entry_lazy_fallback',frozen/'shipping_lazy_fallback.py')
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
         if template.count(marker)!=1 or len(prefix)!=77:raise ValueError('bootstrap recipe changed')
@@ -142,6 +143,8 @@ def main():
                 common_metadata['clock_presence']=clock_metadata
                 data,history_metadata=history_depth(data)
                 common_metadata['history_depth']=history_metadata
+                data,lazy_fallback_metadata=lazy_fallback.transform_source(data,family='A')
+                common_metadata['lazy_fallback']=lazy_fallback_metadata
             return data,observations,alpha_metadata,storage_metadata,scope_metadata,input_metadata,declaration_metadata,type_metadata,lexical_metadata,capture_metadata,startup_metadata,global_names_metadata,continuation_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())

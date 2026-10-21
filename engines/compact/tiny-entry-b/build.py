@@ -104,6 +104,7 @@ def main():
         clock_form=module('entry_clock_sentinel',frozen/'shipping_clock.py')
         line_drain=module('entry_B_line_drain',frozen/'shipping_line_drain.py').transform_source
         search_context=module('entry_B_search_context',frozen/'shipping_search_context.py').transform_source
+        lazy_fallback=module('entry_lazy_fallback',frozen/'shipping_lazy_fallback.py').transform_source
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
         if template.count(marker)!=1 or len(prefix)!=77:raise ValueError('bootstrap recipe changed')
@@ -148,6 +149,8 @@ def main():
                 common_metadata['line_drain']=line_drain_metadata
                 data,context_metadata=search_context(data,readable=canonical)
                 common_metadata['search_context']=context_metadata
+                data,fallback_metadata=lazy_fallback(data,family='B')
+                common_metadata['lazy_fallback']=fallback_metadata
             return data,observations,alpha_metadata,storage_metadata,scope_metadata,core_metadata,input_metadata,order_metadata,walk_metadata,tactical_metadata,type_metadata,global_names_metadata,recapture_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())

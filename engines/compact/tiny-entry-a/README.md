@@ -1,3 +1,44 @@
+# Maintained A: lazy first-legal fallback — 2026-10-21
+
+The fixed first-cost candidate is **4587 B** complete and **8995 B** compact C,
+saving5 whole bytes against4592 and16 raw C bytes against9011. The final
+shipping-only source stage removes the global fallback and its eager GO
+scratch/query. Result aggregation retains the deepest completed worker and
+the existing first-worker tie; only a selected zero best invokes the unchanged
+pure legal query on the immutable root. A terminal root still renders0000.
+Canonical and full-reference DEV source/targets remain unchanged.
+
+The callback remains under the pool mutex after all think calls return. Main
+cannot reuse the root until wait returns, and result output/flush still
+precedes the completion broadcast. The query runs after the recursive search
+frames unwind. Whole-worker stack peak is unmeasured. Removing work after
+deadline setup and moving conditional query work before output changes work
+timing; exact elapsed time, searched nodes and search-result identity under
+the clock are not equality claims.
+
+The five-context portfolio measured one fixed compile/encode per candidate;
+its actual cost receipt SHA-256 is
+`b9613dd993cfab433a479a43b80d8f1b4457f9cbe6147418661f5ca876d2276a`.
+This A source has three changed regions, exact inverse and four protected
+gaps. It has a new native identity. One ordinary --dev builder reproduced
+shipping twice and the exact old DEV source/native twice; the unchanged
+selected verifier passed quit/EOF in two sessions with eight GO results,
+three startup TIDs each, exact restored native and physical process/reader/
+private-path exit. The producing build and runtime receipt SHA-256 values are
+`2b9986c5699684ad0b3090395bdc511f36ceaebe460601524163c231bdb9ba5b`
+and `3b0f154c8ed3d30675e5262d0a964231eb2c0ac2f843dea96910e8d8db4ddbd6`.
+These local fixed2/TT18 results do not measure whole-worker stack peak,
+clock equivalence or cancellation causality; the latter remains unproven.
+No new strength, many-core or final-target acceptance is claimed.
+
+Expected source SHA-256:
+`a52d492bcdfe623863153b9d5d651c6218fa1511e3253c3d6efe80b81c017101`.
+Expected whole SHA-256:
+`f84d4ab2140e15b94d420456d4f65fa55afeb23313a08aa282d88f26de7ad2c0`.
+Before/producing records remain outside Git in
+`rove4k-common-lazy-fallback-promotion-20261021-evidence/A`. The older sections
+below retain their original checkpoints and validation scopes.
+
 # Maintained A: derived private history length — 2026-10-21
 
 Complete file **4592 B**, compact C **9011 B**. The final A-only shipping
