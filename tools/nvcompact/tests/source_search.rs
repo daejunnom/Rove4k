@@ -1,6 +1,7 @@
 //! Whole-submission integration checks with a small owned C program. Neither
 //! the Python bootstrap nor its compiled C executable is started by these tests.
 use nvcompact::{
+    attempts,
     cflow::CFlowOptions,
     codec::{self, Recipe},
     csource::{self, CSourceOptions},
@@ -81,6 +82,7 @@ fn options(clang: &str, embedding: Value) -> source_search::SourceSearchOptions 
         max_rounds: 1,
         max_evaluations: 128,
         max_seconds: 60.0,
+        max_retained_source_bytes: 64 << 20,
         compile_limits: process::Limits {
             seconds: 10.0,
             cpu_seconds: 15,
@@ -179,6 +181,36 @@ fn whole_file_objective_retains_equal_length_name_improvements_and_replays() {
         .iter()
         .any(|c| c["variant"] == new["source_search"]["variant"]));
     let recipe = &new["source_search"]["recipe"];
+    let retained = current_out.join("source-search/source-search/attempts");
+    let comparison = attempts::compare(&[retained.clone()]).unwrap();
+    assert_eq!(comparison["groups"][0]["cross_run_comparable"], true);
+    assert_eq!(
+        comparison["groups"][0]["context"]["cost_objective"]["kind"],
+        "inspected-envelope-fixed-codec-v1"
+    );
+    assert_eq!(
+        comparison["groups"][0]["context"]["cost_objective"]["codec"],
+        serde_json::to_value(compression()).unwrap()
+    );
+    let measured_rows = comparison["groups"][0]["rows"].as_array().unwrap();
+    assert!(measured_rows
+        .iter()
+        .any(|row| row["semantic_status"] == "recorded-verified"
+            && row["selected_in_recorded_run"] == true));
+    assert!(measured_rows
+        .iter()
+        .any(|row| row["semantic_status"] == "not-checked"
+            && row["selected_in_recorded_run"] == false));
+    for row in measured_rows
+        .iter()
+        .filter(|row| !row["base_source_sha256"].is_null())
+    {
+        let basis = row["base_source_sha256"].as_str().unwrap();
+        assert_eq!(
+            sha256(&fs::read(retained.join("objects").join(basis)).unwrap()),
+            basis
+        );
+    }
     assert!(!recipe["steps"].as_array().unwrap().is_empty());
     let restored = source_search::replay(
         &original_payload,
@@ -206,6 +238,110 @@ fn whole_file_objective_retains_equal_length_name_improvements_and_replays() {
         !directory.path().join("current/x").exists(),
         "the bootstrap must never execute"
     );
+}
+
+#[test]
+fn retained_attempts_survive_budget_stops_and_failed_costs() {
+    let Some((clang, compiler)) = tools() else {
+        return;
+    };
+    let directory = tempfile::tempdir().unwrap();
+    let mut opts = options(&clang, Value::Null);
+    opts.embedding = None;
+    opts.embedding_contract = "opaque".into();
+    opts.max_evaluations = 2;
+    let compile = compiler_argv(&compiler);
+    let mut measure = |data: &[u8]| -> anyhow::Result<usize> {
+        Ok(40 + codec::compress(data, &compression())?.len())
+    };
+    let out = directory.path().join("evaluation-stop");
+    let result = source_search::search(SOURCE, &opts, &compile, &out, &mut measure).unwrap();
+    assert_eq!(result.data, SOURCE);
+    assert_eq!(
+        result.report["exhaustion_reason"],
+        "complete-file-evaluation-budget"
+    );
+    let comparison = attempts::compare(&[out.join("source-search/attempts")]).unwrap();
+    assert!(comparison["groups"][0]["rows"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|row| row["outcome"] == "unmeasured" && row["selected_in_recorded_run"] == false));
+
+    opts.max_evaluations = 128;
+    opts.max_retained_source_bytes = 0;
+    let out = directory.path().join("retention-stop");
+    let result = source_search::search(SOURCE, &opts, &compile, &out, &mut measure).unwrap();
+    assert_eq!(result.data, SOURCE);
+    assert_eq!(
+        result.report["exhaustion_reason"],
+        "retained-source-byte-budget"
+    );
+    assert_eq!(
+        result.report["retention_stop"]["unretained_candidate"],
+        true
+    );
+    assert_eq!(
+        result.report["attempts"]["retained_candidate_source_bytes"],
+        0
+    );
+    attempts::compare(&[out.join("source-search/attempts")]).unwrap();
+
+    opts.max_retained_source_bytes = 64 << 20;
+    let out = directory.path().join("codec-failure");
+    let mut calls = 0;
+    let error = source_search::search(SOURCE, &opts, &compile, &out, &mut |data| {
+        calls += 1;
+        if calls > 1 {
+            anyhow::bail!("owned failing complete-file measurement");
+        }
+        measure(data)
+    })
+    .unwrap_err();
+    assert!(format!("{error:#}").contains("owned failing complete-file measurement"));
+    let comparison = attempts::compare(&[out.join("source-search/attempts")]).unwrap();
+    assert_eq!(comparison["runs"][0]["status"], "failed");
+    assert!(comparison["groups"][0]["rows"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|row| row["outcome"] == "cost-failed" && row["selected_in_recorded_run"] == false));
+    assert!(out.join("source-search/failed-report.json").is_file());
+
+    let out = directory.path().join("baseline-compile-failure");
+    let mut bad_compile = compile.clone();
+    bad_compile.push("-nvcompact-owned-invalid-option".into());
+    let error = source_search::search(SOURCE, &opts, &bad_compile, &out, &mut measure).unwrap_err();
+    assert!(format!("{error:#}").contains("declared source compiler did not complete successfully"));
+    let comparison = attempts::compare(&[out.join("source-search/attempts")]).unwrap();
+    assert_eq!(comparison["runs"][0]["status"], "failed");
+    assert_eq!(comparison["groups"][0]["cross_run_comparable"], false);
+
+    let out = directory.path().join("preserve-both-errors");
+    let mut calls = 0;
+    let error = source_search::search(SOURCE, &opts, &compile, &out, &mut |data| {
+        calls += 1;
+        if calls > 1 {
+            fs::write(out.join("source-search/attempts/context.json"), b"{}").unwrap();
+            anyhow::bail!("owned original cost failure before archive sealing");
+        }
+        measure(data)
+    })
+    .unwrap_err();
+    let error = format!("{error:#}");
+    assert!(error.contains("owned original cost failure before archive sealing"));
+    assert!(error.contains("attempt context hash mismatch"));
+    let receipt: Value =
+        serde_json::from_slice(&fs::read(out.join("source-search/failed-report.json")).unwrap())
+            .unwrap();
+    assert!(receipt["search_error"]
+        .as_str()
+        .unwrap()
+        .contains("owned original cost failure"));
+    assert!(receipt["evidence_error"]
+        .as_str()
+        .unwrap()
+        .contains("context hash mismatch"));
 }
 
 #[test]

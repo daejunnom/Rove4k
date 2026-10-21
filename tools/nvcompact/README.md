@@ -170,6 +170,18 @@ inspected Python bytes embedding when present. Equal-length or longer source
 spellings can win. Accepted changes require binding/type checks and identical
 complete native output and compiler diagnostics under the declared recipe.
 `replay` reconstructs the accepted derivation without repeating the search.
+Source search also retains original/candidate source snapshots, derivations and
+failed or unselected observations in a bounded external attempt archive. It
+automatically compares the recorded complete-file costs when sealing the run;
+`compare-attempts ARCHIVE... --output NEW_JSON` compares saved runs under matching
+input, tool, observation and codec contexts. It checks archive integrity without
+executing saved commands or promoting size-only measurements to verified results.
+
+The guarded Boolean-domain rule includes actual C `_Bool`/`stdbool.h` types and
+aliases: `a != 1` and `1 != a` can become `!a` when the evaluated value is proven
+to be 0 or 1. A name such as `typedef int bool` does not establish that domain.
+Evaluation count, result type, macro boundaries and volatile/atomic protections
+remain part of the rule's applicability checks.
 The [whole-file source portfolio guide](docs/SOURCE-PORTFOLIO.md) documents the
 contracts, configuration, bounds and unsupported cases. Engine-specific work
 is separated in the [PR #12 handoff](docs/PR12-HANDOFF.ko.md).

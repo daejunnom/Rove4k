@@ -1,6 +1,8 @@
 use anyhow::{bail, ensure, Context, Result};
 use clap::{Args, Parser, Subcommand};
-use nvcompact::{cflow, csource, envelope, native, notation, process, resource, uci, write_json};
+use nvcompact::{
+    attempts, cflow, csource, envelope, native, notation, process, resource, uci, write_json,
+};
 use serde_json::{json, Value};
 use std::collections::BTreeMap;
 use std::fs;
@@ -31,6 +33,13 @@ enum Command {
     RewriteC(RewriteArgs),
     /// Generate unranked C local-name and typed literal candidates; no target execution.
     SpellC(SpellArgs),
+    /// Compare retained source attempts without executing commands or revalidating semantics.
+    CompareAttempts {
+        #[arg(required = true, num_args = 1..=16)]
+        archives: Vec<PathBuf>,
+        #[arg(long)]
+        output: PathBuf,
+    },
     /// Repack an explicitly described complete external submission file.
     Envelope(EnvelopeArgs),
     /// Reproduce one exact envelope result, without another compression search.
@@ -588,6 +597,9 @@ fn dispatch(command: Command) -> Result<(Value, bool)> {
                 "scope":"unranked candidates; envelope source_search adds whole-file cost and structural/native admission"}),
                 true,
             ))
+        }
+        Command::CompareAttempts { archives, output } => {
+            Ok((attempts::compare_to_file(&archives, &output)?, true))
         }
         Command::Envelope(args) => {
             let opts = envelope::EnvelopeOptions {

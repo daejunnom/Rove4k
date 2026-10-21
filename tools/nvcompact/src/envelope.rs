@@ -772,11 +772,20 @@ pub fn run(manifest_path: &Path, output: &Path, options: &EnvelopeOptions) -> Re
                             .len(),
                     )
                 };
-                let searched = crate::source_search::search(
+                let cost_decoder = codec::decoder_for(&submitted_recipe)?;
+                let cost_header = best_header(&header, old_decoder, &cost_decoder)?;
+                let cost_objective = json!({"kind":"inspected-envelope-fixed-codec-v1","category":category,
+                    "inspected_header_sha256":sha256(&header),"inspected_header_bytes":header.len(),
+                    "cost_header_sha256":sha256(&cost_header),"cost_header_bytes":cost_header.len(),
+                    "inspected_decoder":old_decoder,"cost_decoder":cost_decoder,
+                    "codec":submitted_recipe,"implementation":summary["tool"],
+                    "scope":"entire encoded payload plus entire inspected cost header; no engine execution"});
+                let searched = crate::source_search::search_with_cost_context(
                     &payload,
                     &search,
                     &compiler,
                     &output.join("source-search"),
+                    Some(&cost_objective),
                     &mut measure,
                 )?;
                 let id = format!("c-source-search-{}", &sha256(&searched.data)[..16]);

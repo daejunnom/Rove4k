@@ -110,7 +110,14 @@ The Boolean-domain rule illustrates the proof requirement. `x != 1` may become
 `_Bool`, an existing Boolean operator, or a supported unsigned-int one-bit field.
 An ordinary `int` can be 2, and a signed one-bit field can be -1; neither is
 accepted under that argument. The rule preserves one evaluation and the original
-comparison's `int` result. Conditional returns also check operand types before
+comparison's `int` result. Clang's canonical `bool` spelling after `<stdbool.h>`
+is recognized after type desugaring, including aliases and qualified Boolean
+objects whose actual lvalue conversion produces `_Bool`. A user declaration such
+as `typedef int bool` does not establish a Boolean range. The literal may occur
+on either side, and later passes can simplify expressions that an earlier pass
+made Boolean; each pass reparses the changed source. The rule does not infer a
+Boolean range from a variable name, sampled values, or a later assignment to a
+Boolean destination. Conditional returns also check operand types before
 contextual return conversions: matching the function's return type alone is
 insufficient. Relational complementation does not assume away floating NaNs.
 
@@ -357,6 +364,7 @@ external include file has been independently snapshotted.
 | `source_search.max_rounds` | 2 | 1–8 rounds. |
 | `source_search.max_evaluations` | 2048 | 1–16384 actual complete-file measurement calls. |
 | `source_search.max_seconds` | 300 | Positive finite value up to 86400; scheduling deadline. |
+| `source_search.max_retained_source_bytes` | 67108864 | 0–536870912 additional deduplicated candidate-source snapshot bytes. |
 | `candidates.max_candidates` | 256 | 1–512, including raw. |
 | `candidates.max_name_groups` | 36 | 0–128. |
 | `candidates.names_per_group` | 4 | 1–16. |
@@ -447,11 +455,94 @@ External engine sources, generated sources, binaries and raw campaign outputs
 stay outside Git and npm packaging. Publish reviewed provenance, hashes,
 commands and results; do not vendor comparison inputs to make the examples run.
 
+## 7. Preserve attempts and compare recorded measurements
+
+Source search preserves attempted alternatives in its owned external output,
+including candidates that were larger, equal in size, rejected by an admission
+gate, or left unverified when a budget ended. A size-only measurement does not
+establish semantic acceptance. These records retain evidence for reviewing a
+failed transformation and for recognizing an alternative that may become useful
+under another source or codec context.
+
+Each fresh source search creates `attempts/` beside its detailed `report.json`.
+For the envelope command above, the existing nested output layout places it at
+`source-search-run/source-search/source-search/attempts/`:
+
+| Artifact | Purpose |
+| --- | --- |
+| `context.json` | Immutable input, observation contract, tool/compiler and cost-objective context. |
+| `objects/<sha256>` | Content-addressed original payload/source and retained candidate source snapshots. |
+| `events.jsonl` | Append-only attempt events, derivations, measurements, admission outcomes and limits. |
+| `index.json` | Sealed inventory with the hashes needed to check the retained evidence. |
+| `comparison.json` | Automatically generated ranking of recorded complete-file measurements. |
+
+Source identity, the round's input source, rendered payload identity and literal
+style remain distinct. Two spellings that compile to the same ELF can have
+different compressed costs; different Python literal encodings of the same C
+source can also have different costs. Recorded failures remain part of the
+history even when a later attempt succeeds.
+
+The source snapshot budget is separate from the existing source/payload input
+limits and the detailed-report bounds. `max_retained_source_bytes` limits
+additional, deduplicated candidate source snapshots; the mandatory original
+payload and source use their existing 8 MiB input limits. A value of zero leaves
+no additional candidate snapshot budget. When an archive limit prevents retaining
+new candidate evidence, search stops optional exploration and keeps its current
+verified incumbent. Limits and unfinished work are recorded rather than reported
+as evidence that no better candidate exists. Keep the complete owned archive
+when preserving an attempt; a hash without the corresponding source or derivation
+is insufficient to reconstruct the change.
+
+Compare archives without running any saved command:
+
+```sh
+npm exec -- nvcompact compare-attempts \
+  /absolute/external/source-search-run/source-search/source-search/attempts \
+  /absolute/external/another-run/source-search/source-search/attempts/index.json \
+  --output /absolute/external/attempt-comparison.json
+```
+
+The command accepts archive directories or `index.json` paths. It verifies
+recorded hashes and retained source snapshots, reads at most 16 archives within
+a 1 GiB aggregate read bound, and creates a new output file exclusively. An
+existing comparison is not overwritten. Source search also generates a
+comparison when sealing a completed or failed run, so inspecting one run does
+not require this extra command. A crash or evidence-write error can leave an
+unsealed directory; this command requires the sealed index and does not invent
+the missing outcome. Preserve any partial journal and snapshots for diagnosis.
+
+The comparison groups matching recorded input, compiler/frontend, NVCompact
+executable, working directory, observation contract and complete-file cost
+contexts. The inspected header, decoder and codec objective belong to that
+context, together with the baseline's twice-reproducible native and diagnostic
+observations. Mismatched contexts, including another NVCompact build, form
+separate groups with no cross-group winner. A failed or incomplete baseline
+cannot establish that cross-run context. A library caller using an arbitrary
+cost callback without an explicit objective also gets run-local comparison only;
+a numeric byte count alone is not a portable measurement contract.
+
+Rows distinguish `size_relation` (`smaller`, `equal`, `larger`, or `unmeasured`)
+from `semantic_status` (`recorded-verified`, `recorded-source-identity`,
+`not-checked`, `rejected`, `compile-failed`, or `incomplete`). Being the smallest
+measured row does not make it the selected or verified result. A smaller
+candidate can still have failed its type, binding, native-output or diagnostic
+checks. Admission evidence
+and the selected incumbent are reported separately.
+
+`compare-attempts` compares existing receipts. It does not recompress, compile,
+execute an engine, import historical source edits, or re-admit a rejected
+candidate. A new source search performs fresh bounded generation and checks
+under its current input and objective, producing a separate history. Changing
+the source, toolchain or codec never transfers an old offset, cost or acceptance
+status into that new run. The normal `replay` command continues to reconstruct
+only the recorded accepted recipe and enforce its existing exact checks.
+
 ## Implementation references
 
 - [C spelling candidates and binding verification](../src/csource.rs)
 - [Typed condition candidates](../src/cflow.rs)
 - [Python bytes adapter](../src/source_payload.rs)
 - [Whole-file search and exact source replay](../src/source_search.rs)
+- [Attempt archives and recorded-cost comparison](../src/attempts.rs)
 - [Envelope selection, preserved refinements and final replay](../src/envelope.rs)
 - [Owned integration fixtures](../tests/source_search.rs)
