@@ -70,7 +70,8 @@
     "engines/scripts/shipping_compaction.py": "47977f6c944978675f1f37be733270c30ff39fc2f2c9f80c9e18243d496912c5",
     "engines/scripts/shipping_includes.py": "d7c3ad6e7811d848b0d6bab7331c929ab2c3175cd030438ddc81d22ea8cdf4bc",
     "engines/scripts/shipping_mixer_literals.py": "7b25cb806a51cad9e867ebc588bcb99677c9e2f9d0a5df0b31d019e22bc6d114",
-    "engines/scripts/shipping_clock.py": "46c19879deae1d056f4b059c6c7d9667a3e935110dfb33015b29fd0dec4d8c43"
+    "engines/scripts/shipping_clock.py": "46c19879deae1d056f4b059c6c7d9667a3e935110dfb33015b29fd0dec4d8c43",
+    "engines/compact/tiny-entry-c/shipping_search_context.py": "ad1d05a41e212dff3a386fa05fee56e5f8ded4cae4ddc4af6cbc70859564b62d"
   },
   "compression": {
     "format": "lzma-alone",
@@ -87,16 +88,16 @@
   },
   "expected": {
     "readable_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
-    "source_bytes": 10072,
-    "source_sha256": "fc2209ce96c714d3828790cae882051f8cbf8980f4e874381954280f0c9d17a3",
+    "source_bytes": 10032,
+    "source_sha256": "7612b83cb6a274c9b67c5217aa9c983c6271378df234b6d853e8985d97e46b12",
     "native_bytes": 26368,
-    "native_sha256": "cffa6827915d2ee4c0dfcdc941e773c3157a07db6b153437c483d2f26e7c50f2",
-    "whole_bytes": 4952,
-    "whole_sha256": "824609ce753cb0e18d51db0532c0139e2a134113b7731393182bee4b537d78d0",
-    "bootstrap_sha256": "6492de5a54f86ee2287b06b724f8b290b13d3b8fcaac58ac42d93a7fd9969dda",
+    "native_sha256": "54d60a5d673a3315a120219fff89285570040a693f957244b83979a45c9b2639",
+    "whole_bytes": 4934,
+    "whole_sha256": "27e805397c36fa56994e822549cbb6bbce188f7ef82310663076620fb62011a6",
+    "bootstrap_sha256": "a4cc90aa502493ae4c6f7d7ef175f14554a938f971099f540f818f67ebbe9bac",
     "dev_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
     "dev_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c",
-    "bootstrap_bytes": 11127
+    "bootstrap_bytes": 11087
   },
   "local_input_sha256": {
     "engine.c": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
@@ -104,7 +105,7 @@
     "launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
   },
   "qualified_receipt": {
-    "scope": "fixed type presentation; full-native-identical predecessor core reuse; historical model-specific evidence and current normal runtime remain distinct",
+    "scope": "current C shipping caller-slot and positive-only learner equivalence; new native identity; unchanged SIMD/board/TT/parser/pool bodies protected by exact source gaps; canonical and DEV unchanged",
     "signed_vector": {
       "first_cost_sha256": "a2f271ae423855f6de7e448c85994aea3ce98acb3106b008962b09ca5798dbac",
       "focused_actual_shipping_sha256": "bfebab79e5f1658097f0938ea4099cc9ab907dbff2b725813840ad934202fa21",
@@ -573,6 +574,33 @@
         "metadata_only_after_execution": true,
         "scope": "exact new native/image and selected wrapper physical lifetime observed; source/body and bounded static metadata proof reused under exact candidate bytes",
         "limits": "cancellation causality unproven; no fresh/DEV-engine/new core/game/performance matrix; unchanged builder has no separate compiler-descendant/group lifetime proof"
+      }
+    },
+    "pre_search_context_historical_scope": "fixed type presentation; full-native-identical predecessor core reuse; historical model-specific evidence and current normal runtime remain distinct",
+    "search_context": {
+      "focused_SAN_sha256": "fff573aab97d612de83984bc29410ab29f9c396f91aec03e9153c754c141a0be",
+      "actual_old_new_search_pairs": 31,
+      "special_child_pairs": 22,
+      "legal_child_observations": 128,
+      "positive_bonus_int16_cell_cases": 8257536,
+      "old_new_score_best_worker_TT_bytes_exact": true,
+      "actual_quiet_history_and_continuation_updates_observed": true,
+      "main_worker_starts_in_component_fixture": 0,
+      "full_SIMD_or_strength_validation_repeated": false,
+      "old_native_identity_reused": false,
+      "normal_promotion": {
+        "scope": "one ordinary --dev builder and unchanged selected verifier; no fresh/strength campaign",
+        "producing_recipe_sha256": "4b9570821172db183c8021ff8ddaadeaeebf883835e04b9e352d8f56d331d1c9",
+        "producer_build_sha256": "949ba4a6c9ed86354ec7ba6a9b50084a42fb34fc00df90f70ac46da1ec53a31e",
+        "selected_runtime_sha256": "0108890c067ff67c95c81205ee57951f921e4c311664fed9946d5e63598c153e",
+        "shipping_reproductions": 2,
+        "unchanged_DEV_reproductions": 2,
+        "selected_sessions": 2,
+        "legal_GO_results": 8,
+        "startup_TIDs_per_session": 3,
+        "native_image_restoration_private_path_exit": true,
+        "cancellation_causality": "unproven",
+        "old_native_identity_reused": false
       }
     }
   },
@@ -1168,6 +1196,38 @@
         "sha256": "0c4c86d63555293246b9be37ceff2e15ef8409cc330b115f21ff2361f2fd6653"
       },
       "annotation_only": true
+    }
+  },
+  "search_context": {
+    "stage": "shipping only, after clock_presence; canonical/DEV bypass unchanged",
+    "source_before_bytes": 10072,
+    "source_after_bytes": 10032,
+    "root_neutral_slot": 6,
+    "recursive_slots": "already-made child signed piece at TO plus6",
+    "cutoff_bonus": "only existing positive depth-square callers; no negative bonus API generalization",
+    "fixed_wrapper_comparison": {
+      "same_source_and_native_compile": true,
+      "list_whole_bytes": 4934,
+      "split_whole_bytes": 4935,
+      "selected": "list",
+      "historical_old_source_split_loss_preserved": true
+    },
+    "entire_native_equal_to_predecessor": false,
+    "cost_sha256": "bbdc8b3ab0b3696a5f552c8e11be0c9970f55e1b0f12e5163d2c93290dcf1c67",
+    "focused_SAN_sha256": "fff573aab97d612de83984bc29410ab29f9c396f91aec03e9153c754c141a0be",
+    "normal_promotion": {
+      "scope": "one ordinary --dev builder and unchanged selected verifier; no fresh/strength campaign",
+      "producing_recipe_sha256": "4b9570821172db183c8021ff8ddaadeaeebf883835e04b9e352d8f56d331d1c9",
+      "producer_build_sha256": "949ba4a6c9ed86354ec7ba6a9b50084a42fb34fc00df90f70ac46da1ec53a31e",
+      "selected_runtime_sha256": "0108890c067ff67c95c81205ee57951f921e4c311664fed9946d5e63598c153e",
+      "shipping_reproductions": 2,
+      "unchanged_DEV_reproductions": 2,
+      "selected_sessions": 2,
+      "legal_GO_results": 8,
+      "startup_TIDs_per_session": 3,
+      "native_image_restoration_private_path_exit": true,
+      "cancellation_causality": "unproven",
+      "old_native_identity_reused": false
     }
   }
 }

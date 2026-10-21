@@ -1,3 +1,46 @@
+# Maintained C: child continuation slot and positive cutoff learner — 2026-10-21
+
+Complete file **4934 B**, compact C **10032 B**. The fixed shipping-only
+composition removes40 source bytes and18 whole bytes from the preceding
+4952 B entry. Search passes the already-made child's signed piece slot to
+its four recursive calls and neutral6 at the root; quiet cutoff continuation
+learning consumes the same column. The two existing learner calls pass only
+positive depth-square bonuses, so their redundant abs is omitted. Canonical
+and DEV keep the previous APIs and general learner expression.
+
+A fixed new-source comparison measured list4934 versus split4935 with one
+native compile and the same C compiler/profile/ALONE64 codec. The existing
+list template remains selected. The historical old-source split+1 B loss is
+preserved separately; no byte deltas were added to predict this result.
+
+Focused fatal ASan/UBSan compares31 actual old/new search pairs, including22
+special-child adapters and128 legal child observations. Scores, best moves,
+full worker/learner state and TT bytes agree. Both EP colors, all four castle
+wings and all four promotions in both colors are observed. It exhausts
+8,257,536 actual positive depth-square/int16 cell combinations. The component
+fixture never starts production main/workers; special children are direct
+ply0 caller adapters. Unchanged board/generator/make/SIMD/input/pool bodies
+are protected by exact source gaps, with no new whole-core or strength claim.
+Focused receipt SHA-256:
+`fff573aab97d612de83984bc29410ab29f9c396f91aec03e9153c754c141a0be`.
+
+The ordinary builder reproduces shipping and unchanged DEV twice. The
+unchanged selected verifier passes two actual quit/EOF sessions and8 legal
+GO results, exact native restoration, stable3 startup TIDs, private-path
+cleanup and physical exit. This is local2-worker/TT18 evidence. Final target
+resources, many-core behavior and strength remain open. Build receipt SHA-256:
+`949ba4a6c9ed86354ec7ba6a9b50084a42fb34fc00df90f70ac46da1ec53a31e`.
+Selected runtime receipt SHA-256:
+`0108890c067ff67c95c81205ee57951f921e4c311664fed9946d5e63598c153e`.
+
+Current source SHA-256: `7612b83cb6a274c9b67c5217aa9c983c6271378df234b6d853e8985d97e46b12`.
+Current native SHA-256: `54d60a5d673a3315a120219fff89285570040a693f957244b83979a45c9b2639`.
+Current whole SHA-256: `27e805397c36fa56994e822549cbb6bbce188f7ef82310663076620fb62011a6`.
+
+The producing recipe is preserved by the build; final recipe annotations add
+these result references without changing producer decisions or inputs. Older
+sections retain their original checkpoint identities.
+
 # Maintained C: compact clock presence — 2026-10-21
 
 Complete file **4952 B**, compact C **10072 B**.

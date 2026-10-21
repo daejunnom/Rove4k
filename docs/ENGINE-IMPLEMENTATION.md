@@ -189,7 +189,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | --- | ---: | ---: | --- |
 | A | 4,610 B | 514 B | Unsigned64 number forms; one-state material classifier; main-owned token cursor and valid-0x88 promotion predicate; existing full HCE/PVS/QS/TT/learners/SMP and fixed ALONE retained; fixed LP64 mixer literals |
 | B | 5,144 B | 1,048 B | Worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained; literal include gaps and overlong-line drain compacted; clock-first SEE poll; cancellation timing changed |
-| C | 4,952 B | 856 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners retained; literal include gaps compacted; fixed LP64 mixer literals |
+| C | 4,934 B | 838 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners retained; child continuation slot and positive-only cutoff bonus compacted; fixed LP64 mixer literals |
 | D scalar / HQ | 5,937 / 6,148 B | 1,841 / 2,052 B | Consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained |
 | E | 5,010 B | 914 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; literal include gaps and fixed ASCII compiler argv compacted; fixed LP64 mixer literals |
 | F full (default) | 4,537 B | 441 B | Explicit no-preadd hash policy with new repetition/context/TT/correction buckets; terminal legal-loop sharing and integer forms; packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; default size target remains open; literal forms, correction clamp, private piece-index calls and fixed history token compacted |
@@ -6682,3 +6682,39 @@ runtime receipt is `64744c39bf9130ab16abbff516d872331c274e7cfbdd066564d66d609fd6
 No cost, normal-build or selected-runtime retry was needed. This is a local
 two-worker/TT18 size and execution result, with no new game, strength or final
 server-resource claim. E remains914 B above4096.
+
+## C4934 caller-owned continuation slot (2026-10-21)
+
+C's shipping search passes the already-made child's signed piece slot to all
+four recursive calls, rather than passing a Move and decoding the same child
+piece again. The root explicitly supplies neutral6. Quiet cutoff learning
+reuses that slot, including the correct child roles for promotion, EP and
+castling. The learner's only two callers use positive depth-square bonuses,
+allowing its redundant abs to be omitted in this fixed caller domain.
+The readable engine, DEV API and SIMD evaluator body remain unchanged.
+
+Source10072→10032 B gives an actual complete-file4952→4934 B. One native
+compile compares the old list wrapper4934 with the retained split wrapper4935;
+the list remains selected. The new native has a different full identity,
+despite the unchanged26368-byte length. No old native/core execution receipt
+is relabeled as a run of this image.
+
+One fatal ASan/UBSan fixture run compares31 actual old/new search pairs,
+including22 special-child adapters and128 legal children, plus8257536 positive
+bonus/int16-cell cases. Scores, witnesses, full Worker/learner and TT bytes
+agree; nonzero history and continuation updates are observed. The component
+fixture starts no production main or worker pool. Its SHA-256 is
+`fff573aab97d612de83984bc29410ab29f9c396f91aec03e9153c754c141a0be`.
+An initial preparation used a struct assignment for a byte-level snapshot;
+the preserved correction uses memcpy before any compile/run, rather than
+changing a score or expected behavior.
+
+Ordinary --dev regeneration then reproduces shipping and unchanged DEV twice.
+The unchanged selected verifier passes quit/EOF sessions with8 legal GO results,
+exact restored native,3 startup TIDs, absent private paths and physical exit.
+Build receipt: `949ba4a6c9ed86354ec7ba6a9b50084a42fb34fc00df90f70ac46da1ec53a31e`;
+runtime: `0108890c067ff67c95c81205ee57951f921e4c311664fed9946d5e63598c153e`.
+Inputs, failed preparations, the finite list/split comparison and producing
+versus annotated recipes are preserved in the external
+`rove4k-c-search-context-*-20261021*` evidence folders. C remains838 B above4096;
+final hardware, many-core behavior and strength are separate open work.
