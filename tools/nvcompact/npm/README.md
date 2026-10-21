@@ -62,5 +62,12 @@ verifier can explicitly require an interpreter; those are separate deployment
 and verification dependencies. ELF-only submission candidates do not use script
 loaders. `nvcompact --help` lists the current command surface.
 
+`spell-c` generates local-binding and typed literal alternatives. An inspected
+submission manifest can opt into `source_search` to compare their complete
+compressed file cost, preserving the previous portfolio and requiring native
+and compiler-diagnostic identity. `replay` reconstructs the selected derivation
+without repeating its search. See the [source portfolio guide](https://github.com/daejunnom/Rove4k/blob/develop/tools/nvcompact/docs/SOURCE-PORTFOLIO.md)
+for the explicit C/Python observation contracts and bounded search settings.
+
 See the [maintainer publishing guide](https://github.com/daejunnom/Rove4k/blob/main/tools/nvcompact/docs/PUBLISHING.md)
 for the personal-account bootstrap, OIDC configuration and release workflow.

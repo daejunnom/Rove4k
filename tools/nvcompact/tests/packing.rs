@@ -326,7 +326,11 @@ fn full_envelope_portfolio_replays_and_does_not_execute_submission() {
     };
     let out = directory.path().join("search");
     let summary = envelope::run(&manifest, &out, &options).unwrap();
-    assert_eq!(summary["candidates"], 332);
+    let records: Vec<Value> =
+        serde_json::from_slice(&fs::read(out.join("candidates.json")).unwrap()).unwrap();
+    assert!(records.iter().any(|r| r["id"] == "identity"));
+    assert!(records.iter().any(|r| r["id"] == "submitted-payload"));
+    assert!(records.iter().any(|r| r["recipe"]["format"] == "xz"));
     assert_eq!(summary["no_size_regression"], true);
     assert_eq!(summary["uci"]["status"], "not_run");
     assert!(summary["accepted"].is_null());
@@ -355,6 +359,98 @@ fn full_envelope_portfolio_replays_and_does_not_execute_submission() {
         "smallest"
     )
     .is_err());
+}
+
+#[test]
+fn submitted_codec_cannot_displace_legacy_refinement_candidates() {
+    let directory = tempfile::tempdir().unwrap();
+    // Four interleaved literal alphabets favor lp=2, which is outside the
+    // normal initial portfolio. This owned byte fixture makes the submitted
+    // recipe replace a legacy seed if both compete for the same two slots.
+    let mut state = 0x1234_5678u32;
+    let payload: Vec<u8> = (0..600)
+        .map(|index| {
+            state = state.wrapping_mul(1_664_525).wrapping_add(1_013_904_223);
+            32 + (index % 4) as u8 * 8 + ((state >> 24) & 7) as u8
+        })
+        .collect();
+    let submitted = recipe(json!({"format":"alone","preset":2147483657u32,
+        "dict_size":4096,"lc":0,"lp":2,"pb":0}));
+    let legacy = codec::recipes(payload.len(), false);
+    assert!(!legacy.contains(&submitted));
+    let header = b"#!/bin/sh\ntail -n+3 \"$0\"|xz -d\n";
+    let artifact = [
+        header.as_slice(),
+        &codec::compress(&payload, &submitted).unwrap(),
+    ]
+    .concat();
+    fs::write(directory.path().join("original"), &artifact).unwrap();
+    let manifest = directory.path().join("manifest.json");
+    write_json(
+        &manifest,
+        &json!({"name":"owned-refinement-retention","artifact":"original","category":"4k",
+            "sha256":sha256(&artifact),"payload_sha256":sha256(&payload),
+            "envelope":{"header_bytes":header.len(),"header_sha256":sha256(header),
+                "decoder":"xz -d","payload_codec":submitted}}),
+    )
+    .unwrap();
+    let out = directory.path().join("search");
+    let summary = envelope::run(
+        &manifest,
+        &out,
+        &envelope::EnvelopeOptions {
+            notation: false,
+            jobs: 1,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+    let records: Vec<Value> =
+        serde_json::from_slice(&fs::read(out.join("candidates.json")).unwrap()).unwrap();
+    let initial_cost = |recipe: &Recipe| {
+        let expected = serde_json::to_value(recipe).unwrap();
+        records
+            .iter()
+            .find(|record| {
+                record["variant"] == "raw"
+                    && record["phase"] != "match-finder-refinement"
+                    && record["recipe"] == expected
+            })
+            .expect("every initial codec must be measured")["bytes"]
+            .as_u64()
+            .unwrap() as usize
+    };
+    // Reconstruct the old ordered input from measured whole-file costs. This
+    // oracle does not depend on the new additive-refinement implementation.
+    let legacy_sizes: Vec<_> = legacy
+        .into_iter()
+        .map(|recipe| {
+            let bytes = initial_cost(&recipe);
+            (recipe, bytes)
+        })
+        .collect();
+    let expected = codec::refinements(&legacy_sizes, false);
+    assert!(!expected.is_empty());
+    let mut competing = legacy_sizes;
+    competing.push((submitted.clone(), initial_cost(&submitted)));
+    let displaced = codec::refinements(&competing, false);
+    assert!(
+        expected.iter().any(|recipe| !displaced.contains(recipe)),
+        "fixture must expose a refinement that the former combined seed selection loses"
+    );
+    for recipe in expected {
+        let expected = serde_json::to_value(&recipe).unwrap();
+        assert!(
+            records.iter().any(|record| {
+                record["variant"] == "raw"
+                    && record["phase"] == "match-finder-refinement"
+                    && record["recipe"] == expected
+            }),
+            "submitted codec displaced legacy refinement: {recipe:?}"
+        );
+    }
+    assert_eq!(summary["no_size_regression"], true);
+    assert_eq!(summary["uci"]["status"], "not_run");
 }
 
 #[test]
