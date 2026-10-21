@@ -14,14 +14,24 @@ use crate::{sha256, write_json};
 use anyhow::{bail, ensure, Context, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::time::Instant;
+
+mod plan;
+mod runtime;
 
 const SCHEMA: &str = "nvcompact-source-search-v1";
 const MAX_RECORDS: usize = 32768;
 const MAX_REPORT_BYTES: usize = 32 << 20;
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum SchedulingPolicy {
+    #[default]
+    LegacyPriority,
+    InterleavedOnline,
+}
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(default, deny_unknown_fields)]
@@ -30,8 +40,14 @@ pub struct SourceSearchOptions {
     pub embedding: Option<Value>,
     pub embedding_contract: String,
     pub conditions: bool,
+    /// Existing recipes retain their original ordering. The whole-codec
+    /// envelope strategy explicitly opts into bounded online admission.
+    pub scheduling: SchedulingPolicy,
     pub max_rounds: usize,
     pub max_evaluations: usize,
+    /// Composition attempts, including incompatible subsets. This is separate
+    /// from expensive whole-file measurements and never filters by source size.
+    pub max_combinations: usize,
     pub max_seconds: f64,
     /// Additional deduplicated source snapshots. Original inputs are retained
     /// separately under the existing 8 MiB per-input bound.
@@ -46,8 +62,10 @@ impl Default for SourceSearchOptions {
             embedding: None,
             embedding_contract: "opaque".into(),
             conditions: true,
+            scheduling: SchedulingPolicy::LegacyPriority,
             max_rounds: 2,
             max_evaluations: 2048,
+            max_combinations: 16384,
             max_seconds: 300.0,
             max_retained_source_bytes: 64 << 20,
             compile_limits: Limits::default(),
@@ -67,6 +85,10 @@ impl SourceSearchOptions {
             "max_evaluations must be 1..16384"
         );
         ensure!(
+            (1..=1_048_576).contains(&self.max_combinations),
+            "max_combinations must be 1..1048576"
+        );
+        ensure!(
             self.max_seconds.is_finite() && self.max_seconds > 0.0 && self.max_seconds <= 86400.0,
             "max_seconds must be finite, positive and at most 86400"
         );
@@ -83,7 +105,7 @@ impl SourceSearchOptions {
         );
         if self.embedding.is_some() {
             ensure!(self.embedding_contract == "compile-input-only",
-                "embedded C requires embedding_contract=compile-input-only: the wrapper must not observe source bytes except as the declared compiler input");
+                "embedded C requires embedding_contract=compile-input-only: the selected bytes may be observed only as the declared compiler input; C and the surrounding Python wrapper must not observe source/token/location spelling or traceback-dependent locations. This caller-established precondition is not proven by masked AST or native identity");
         } else {
             ensure!(
                 matches!(
@@ -102,6 +124,13 @@ pub struct SearchResult {
     pub data: Vec<u8>,
     pub report: Value,
     pub recipe: Value,
+    pub priority_seed: Option<SearchSeed>,
+}
+
+#[derive(Debug)]
+pub struct SearchSeed {
+    pub data: Vec<u8>,
+    pub recipe: Value,
 }
 
 #[derive(Clone, Debug)]
@@ -111,93 +140,150 @@ struct Score {
     payload_sha256: String,
 }
 
-struct Budget {
-    started: Instant,
-    evaluations: usize,
-    maximum: usize,
-    seconds: f64,
-    reason: Option<String>,
-    frontend_capacity_stop: Option<Value>,
-    records: Vec<Value>,
-    record_bytes: usize,
-    costs: HashMap<String, usize>,
-    archive: Archive,
-    retention_stop: Option<Value>,
+#[derive(Clone)]
+struct Incumbent {
+    source: Vec<u8>,
+    payload: Vec<u8>,
+    score: Score,
+    steps: Vec<Value>,
 }
 
-impl Budget {
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum ProofFamily {
+    Spelling,
+    Condition,
+}
+
+impl ProofFamily {
+    fn kind(self) -> &'static str {
+        match self {
+            Self::Spelling => "c-source",
+            Self::Condition => "c-flow",
+        }
+    }
+}
+
+/// A caller owns the whole-file objective, including codec/header context.
+/// Fresh validation is a different operation from reusable cost measurement.
+pub trait CompleteFileObjective {
+    fn measure(&mut self, payload: &[u8]) -> Result<usize>;
+    fn fresh_measure(&mut self, payload: &[u8]) -> Result<usize>;
+}
+
+struct CallbackObjective<'a, F>(&'a mut F);
+impl<F: FnMut(&[u8]) -> Result<usize>> CompleteFileObjective for CallbackObjective<'_, F> {
+    fn measure(&mut self, payload: &[u8]) -> Result<usize> {
+        (self.0)(payload)
+    }
+    fn fresh_measure(&mut self, payload: &[u8]) -> Result<usize> {
+        (self.0)(payload)
+    }
+}
+
+/// Deferred systematic work owns immutable bases and derivations, never ASTs
+/// for every branch. Priority scheduling and eligibility are independent.
+struct RoundSpace {
+    source: Vec<u8>,
+    choices: Vec<Variant>,
+    prefix: Vec<Value>,
+    round: usize,
+    family: ProofFamily,
+    queue: plan::WorkQueue,
+    seen: HashSet<String>,
+    singles_attempted: usize,
+    subsets_attempted: usize,
+    incompatible: usize,
+    duplicate: usize,
+    coverage_index: usize,
+}
+
+impl RoundSpace {
+    fn new(
+        source: Vec<u8>,
+        choices: Vec<Variant>,
+        prefix: Vec<Value>,
+        round: usize,
+        family: ProofFamily,
+        order: plan::Order,
+        coverage_index: usize,
+    ) -> Self {
+        let mut seen = HashSet::from([sha256(&source)]);
+        if order == plan::Order::SubsetsOnly {
+            seen.extend(choices.iter().map(|v| v.sha256.clone()));
+        }
+        Self {
+            queue: plan::WorkQueue::new(choices.len(), order),
+            source,
+            choices,
+            prefix,
+            round,
+            family,
+            seen,
+            singles_attempted: 0,
+            subsets_attempted: 0,
+            incompatible: 0,
+            duplicate: 0,
+            coverage_index,
+        }
+    }
+}
+
+const MAX_PLAN_SOURCE_BYTES: usize = 64 << 20;
+
+/// One run wires independent owners together; scheduling does not own evidence,
+/// and evidence retention cannot silently turn a measured candidate into proof.
+struct SearchRun {
+    budget: runtime::RunBudget,
+    journal: runtime::EvidenceJournal,
+    costs: runtime::CostMemo,
+    frontend_capacity_stop: Option<Value>,
+    context: Option<crate::c_frontend::SourceContext>,
+}
+
+impl SearchRun {
     fn new(options: &SourceSearchOptions, archive: Archive) -> Self {
         Self {
-            started: Instant::now(),
-            evaluations: 0,
-            maximum: options.max_evaluations,
-            seconds: options.max_seconds,
-            reason: None,
+            budget: runtime::RunBudget::new(options),
+            journal: runtime::EvidenceJournal::new(archive),
+            costs: runtime::CostMemo::new(),
             frontend_capacity_stop: None,
-            records: Vec::new(),
-            record_bytes: 0,
-            costs: HashMap::new(),
-            archive,
-            retention_stop: None,
+            context: None,
         }
     }
-
     fn cancelled(&self) -> Result<()> {
-        ensure!(!process::cancelled(), "source search cancelled");
-        Ok(())
+        self.budget.cancelled()
     }
-
+    fn observe<T>(&self, operation: impl FnOnce() -> Result<T>) -> Result<T> {
+        observe_context(self.context.as_ref(), operation)
+    }
+    fn observe_record<T>(
+        &mut self,
+        operation: impl FnOnce() -> Result<T>,
+        receipt: impl FnOnce(&T) -> Value,
+    ) -> Result<T> {
+        let journal = &mut self.journal;
+        let budget = &mut self.budget;
+        observe_context(self.context.as_ref(), || {
+            let value = operation()?;
+            // Keep completed work even when the subsequent context check
+            // fails. Evidence failure remains inside the observed operation,
+            // so it cannot replace a simultaneous typed context failure.
+            ensure!(
+                journal.record(budget, receipt(&value))?,
+                "completed operation could not retain its receipt; result not admitted"
+            );
+            Ok(value)
+        })
+    }
     fn available(&mut self) -> Result<bool> {
-        self.cancelled()?;
-        if self.reason.is_none() && self.started.elapsed().as_secs_f64() >= self.seconds {
-            self.reason = Some("scheduling-time-budget".into());
-        }
-        Ok(self.reason.is_none())
+        self.budget.available()
     }
-
     fn verification_available(&mut self) -> Result<bool> {
-        self.cancelled()?;
-        if self.started.elapsed().as_secs_f64() >= self.seconds {
-            self.reason = Some("scheduling-time-budget".into());
-        }
-        Ok(self
-            .reason
-            .as_deref()
-            .is_none_or(|r| r == "complete-file-evaluation-budget"))
+        self.budget.verification_available()
     }
-
     fn record(&mut self, value: Value) -> Result<bool> {
-        self.cancelled()?;
-        let bytes = serde_json::to_vec(&value)?.len();
-        if self.records.len() >= MAX_RECORDS
-            || bytes > MAX_REPORT_BYTES.saturating_sub(self.record_bytes)
-        {
-            // Unlike exhaustion of new cost measurements, losing the ability
-            // to retain evidence also stops verification of measured singles.
-            self.reason = Some("report-memory-budget".into());
-            // Keep one bounded emergency receipt on disk. A large unretained
-            // derivation cannot be measured or admitted after this boundary.
-            if self.retention_stop.is_none() {
-                let detail = if bytes <= 65536 {
-                    value.clone()
-                } else {
-                    json!({"stage":value["stage"],"round":value["round"],
-                        "id":value["id"],"unretained_record_bytes":bytes,
-                        "unretained_record_sha256":sha256(&serde_json::to_vec(&value)?)})
-                };
-                let stop = json!({"stage":"retention-capacity-stop","reason":"report-memory-budget",
-                    "last_observation":detail,"candidate_not_admitted":true});
-                self.archive.append(&stop)?;
-                self.retention_stop = Some(stop);
-            }
-            return Ok(false);
-        }
-        self.archive.append(&value)?;
-        self.record_bytes += bytes;
-        self.records.push(value);
-        Ok(true)
+        self.journal.record(&mut self.budget, value)
     }
-
     fn candidate(
         &mut self,
         stage: &str,
@@ -205,69 +291,56 @@ impl Budget {
         base: &[u8],
         variant: &Variant,
     ) -> Result<bool> {
-        ensure!(
-            sha256(&variant.data) == variant.sha256 && variant.data.len() == variant.bytes,
-            "candidate snapshot differs from its derivation identity"
-        );
-        if !self.archive.source(base)? || !self.archive.source(&variant.data)? {
-            self.reason = Some("retained-source-byte-budget".into());
-            let stop = json!({"stage":"retention-capacity-stop","reason":self.reason,"round":round,
-                "id":variant.id,"source_sha256":variant.sha256,"source_bytes":variant.bytes,
-                "base_source_sha256":sha256(base),"unretained_candidate":true,
-                "retained":"last fully verified incumbent; remaining generated candidates not explored"});
-            self.retention_stop = Some(stop.clone());
-            self.record(stop)?;
-            return Ok(false);
-        }
-        self.record(json!({"stage":stage,"round":round,"variant":variant,
-            "base_source_sha256":sha256(base)}))
+        self.journal
+            .candidate(&mut self.budget, stage, round, base, variant)
     }
-
-    fn stop_for_frontend_capacity(
+    fn measure(
         &mut self,
-        error: &anyhow::Error,
+        started: Option<&runtime::StartedCandidate>,
+        payload: &[u8],
+        measure: &mut impl FnMut(&[u8]) -> Result<usize>,
+    ) -> Result<Option<(usize, bool)>> {
+        self.costs
+            .measure(&mut self.budget, started, payload, measure)
+    }
+    /// None stops at a bounded frontend capacity; an ordinary error is
+    /// returned to its consumer. Changed context is fatal and retains the
+    /// original typed error and complete cause chain.
+    fn classify_frontend_failure(
+        &mut self,
+        error: anyhow::Error,
         phase: &str,
         round: usize,
         id: &str,
-    ) -> Result<bool> {
+    ) -> Result<Option<anyhow::Error>> {
         self.cancelled()?;
+        if error
+            .downcast_ref::<csource::FrontendContextChanged>()
+            .is_some()
+        {
+            return Err(error.context("source-search frontend context changed"));
+        }
         let Some(capacity) = error.downcast_ref::<cflow::FrontendOutputLimit>() else {
-            return Ok(false);
+            return Ok(Some(error));
         };
         let evidence = json!({"stage":"frontend-capacity-stop","phase":phase,"round":round,"id":id,
             "reason":format!("{error:#}"),"capture":capacity,"syntax_recheck":"passed",
             "frontend_proof":"incomplete","truncated_output_accepted":false,
             "retained":"last fully verified incumbent; unchanged C retains byte-identity proof"});
-        self.reason = Some("frontend-output-budget".into());
-        // Retain this bounded receipt even if the detailed-record budget fills
-        // at this point. No partial frontend output can become an accepted AST.
+        self.budget.reason = Some("frontend-output-budget".into());
         self.frontend_capacity_stop = Some(evidence.clone());
         self.record(evidence)?;
-        Ok(true)
+        Ok(None)
     }
+}
 
-    fn measure(
-        &mut self,
-        payload: &[u8],
-        measure: &mut impl FnMut(&[u8]) -> Result<usize>,
-    ) -> Result<Option<(usize, bool)>> {
-        let hash = sha256(payload);
-        if let Some(&cost) = self.costs.get(&hash) {
-            return Ok(Some((cost, true)));
-        }
-        if !self.available()? {
-            return Ok(None);
-        }
-        // Reserve the last allowed measurement for fresh final-cost readback.
-        // A one-evaluation request therefore returns the measured raw input.
-        if self.evaluations + 1 >= self.maximum {
-            self.reason = Some("complete-file-evaluation-budget".into());
-            return Ok(None);
-        }
-        self.evaluations += 1;
-        let cost = measure(payload)?;
-        self.costs.insert(hash, cost);
-        Ok(Some((cost, false)))
+fn observe_context<T>(
+    context: Option<&crate::c_frontend::SourceContext>,
+    operation: impl FnOnce() -> Result<T>,
+) -> Result<T> {
+    match context {
+        Some(context) => context.observe(operation),
+        None => operation(),
     }
 }
 
@@ -330,21 +403,22 @@ fn cflow_options(options: &SourceSearchOptions) -> cflow::CFlowOptions {
 }
 
 fn score_source(
-    budget: &mut Budget,
+    budget: &mut SearchRun,
     adapter: &PayloadAdapter,
     source: &[u8],
     id: &str,
     round: usize,
     incumbent_cost: usize,
+    started: Option<&runtime::StartedCandidate>,
     measure: &mut impl FnMut(&[u8]) -> Result<usize>,
 ) -> Result<Option<Score>> {
+    if !budget.budget.scoring_available(started)? {
+        return Ok(None);
+    }
     let mut best: Option<Score> = None;
     for rendered in adapter.render(source)? {
-        if !budget.available()? {
-            break;
-        }
         let payload_hash = sha256(&rendered.data);
-        let measured = match budget.measure(&rendered.data, measure) {
+        let measured = match budget.measure(started, &rendered.data, measure) {
             Ok(value) => value,
             Err(error) => {
                 budget.record(json!({"stage":"complete-file-cost-failed","round":round,"id":id,
@@ -385,30 +459,318 @@ fn admit(
     source: &[u8],
     variant: &Variant,
     spelling: bool,
+    prepared: Option<&csource::PreparedSource>,
     options: &SourceSearchOptions,
     compiler: &[String],
     native_dir: &Path,
     baseline: &Value,
-    frontend: &Value,
-    budget: &mut Budget,
+    budget: &mut SearchRun,
     round: usize,
 ) -> Result<Value> {
-    check_tool(&options.candidates.frontend.clang, frontend, "frontend")?;
     if spelling {
-        csource::verify_variant(source, variant, &options.candidates)?;
+        if let Some(prepared) = prepared {
+            ensure!(prepared.source() == source, "prepared source basis differs");
+            prepared.verify_variant(variant)?;
+        } else {
+            csource::verify_variant(source, variant, &options.candidates)?;
+        }
     }
-    let native = native_fingerprint(&variant.data, compiler, native_dir, &options.compile_limits)?;
-    ensure!(
-        budget.record(
+    let native = budget.observe_record(
+        || native_fingerprint(&variant.data, compiler, native_dir, &options.compile_limits),
+        |native| {
             json!({"stage":"candidate-compile","round":round,"id":variant.id,
-        "source_sha256":variant.sha256,"native":native})
-        )?,
-        "candidate compile completed but its evidence budget is exhausted; candidate not admitted"
-    );
+            "source_sha256":variant.sha256,"native":native})
+        },
+    )?;
     same_native(&native, baseline)
         .with_context(|| format!("candidate native receipt: {native}"))?;
-    check_tool(&options.candidates.frontend.clang, frontend, "frontend")?;
     Ok(native)
+}
+
+/// One generated immutable space has one composition/measurement/admission
+/// path. Scheduling changes only its queue and the boundary for starting work;
+/// it cannot weaken source proof, native identity, evidence or replay.
+fn explore_space(
+    space: &mut RoundSpace,
+    prepared: Option<&csource::PreparedSource>,
+    options: &SourceSearchOptions,
+    adapter: &PayloadAdapter,
+    compiler: &[String],
+    native_dir: &Path,
+    baseline: &Value,
+    budget: &mut SearchRun,
+    incumbent: &mut Incumbent,
+    combination_attempts: &mut usize,
+    entry: &mut Value,
+    window: Option<&runtime::WorkWindow>,
+    measure: &mut impl FnMut(&[u8]) -> Result<usize>,
+) -> Result<()> {
+    let online = options.scheduling == SchedulingPolicy::InterleavedOnline;
+    let phase = if online {
+        "interleaved-online"
+    } else {
+        "systematic"
+    };
+    entry["stop"] = Value::Null;
+    if let Some(window) = window {
+        entry["initial_quantum"] = window.describe();
+    }
+    while space.queue.pending() {
+        if !budget.available()? {
+            entry["stop"] = json!(budget.budget.reason);
+            break;
+        }
+        let subsets_allowed = *combination_attempts < options.max_combinations;
+        if !space.queue.available(subsets_allowed) {
+            entry["stop"] = json!("combination-attempt-budget");
+            if !online {
+                budget.budget.reason = Some("combination-attempt-budget".into());
+            }
+            break;
+        }
+        if let Some(stop) = window.and_then(|window| window.stop(&budget.budget)) {
+            entry["stop"] = json!(stop);
+            break;
+        }
+        let Some(started) = budget.budget.start_candidate()? else {
+            entry["stop"] = json!(budget.budget.reason);
+            break;
+        };
+        let work = space
+            .queue
+            .next(subsets_allowed)
+            .context("source-space queue lost available work")?;
+        let (variant, composed) = match work {
+            plan::Work::Single(index) => {
+                space.singles_attempted += 1;
+                (space.choices[index].clone(), false)
+            }
+            plan::Work::Subset(indices) => {
+                space.subsets_attempted += 1;
+                *combination_attempts += 1;
+                let proposed: Vec<_> = indices.iter().map(|&i| space.choices[i].clone()).collect();
+                match prepared
+                    .context("spelling composition has no prepared basis")?
+                    .compose_variants(&proposed)
+                {
+                    Ok(value) => (value, true),
+                    Err(error) => {
+                        space.incompatible += 1;
+                        budget.record(
+                            json!({"stage":"composition-rejected","round":space.round,
+                            "phase":phase,"base_source_sha256":sha256(&space.source),
+                            "components":indices,"reason":format!("{error:#}"),
+                            "classification":"overlap or binding-contract inapplicability"}),
+                        )?;
+                        continue;
+                    }
+                }
+            }
+        };
+        if !space.seen.insert(variant.sha256.clone()) {
+            space.duplicate += 1;
+            continue;
+        }
+        if composed
+            && !budget.candidate("composed-candidate", space.round, &space.source, &variant)?
+        {
+            entry["stop"] = json!(budget.budget.reason);
+            break;
+        }
+        let Some(score) = score_source(
+            budget,
+            adapter,
+            &variant.data,
+            &variant.id,
+            space.round,
+            incumbent.score.cost,
+            online.then_some(&started),
+            measure,
+        )?
+        else {
+            continue;
+        };
+        if score.cost >= incumbent.score.cost {
+            continue;
+        }
+        let verification_allowed = if online {
+            budget.budget.completion_available(&started)?
+        } else {
+            budget.verification_available()?
+        };
+        if !verification_allowed {
+            entry["stop"] = json!(budget.budget.reason);
+            break;
+        }
+        match admit(
+            &space.source,
+            &variant,
+            space.family == ProofFamily::Spelling,
+            prepared,
+            options,
+            compiler,
+            native_dir,
+            baseline,
+            budget,
+            space.round,
+        ) {
+            Ok(native) => {
+                let rendered = payload_for(adapter, &variant.data, &score)?;
+                let stage = if space.family == ProofFamily::Spelling {
+                    "composition-admitted"
+                } else {
+                    "condition-admitted"
+                };
+                if !budget.record(json!({"stage":stage,"round":space.round,
+                    "phase":phase,"id":variant.id,"source_sha256":variant.sha256,
+                    "payload_sha256":score.payload_sha256,"whole_file_bytes":score.cost,"native":native,
+                    "candidate_completion":"bounded proof for an already started measured candidate"}))? {
+                    entry["stop"] = json!(budget.budget.reason);
+                    break;
+                }
+                // Siblings share the same immutable basis. Appending each
+                // online winner would claim a fictitious replay chain.
+                incumbent.steps = space.prefix.clone();
+                incumbent.steps.push(json!({"kind":space.family.kind(),"round":space.round,
+                    "input_source_sha256":sha256(&space.source),"variant":variant,"style":score.style,
+                    "payload_sha256":score.payload_sha256,"whole_file_bytes":score.cost,"native":native}));
+                incumbent.source = variant.data;
+                incumbent.payload = rendered;
+                incumbent.score = score;
+            }
+            Err(error) => {
+                let Some(error) = budget.classify_frontend_failure(
+                    error,
+                    "space-admission",
+                    space.round,
+                    &variant.id,
+                )?
+                else {
+                    entry["stop"] = json!(budget.budget.reason);
+                    break;
+                };
+                budget.cancelled()?;
+                budget.record(json!({"stage":"semantic-rejected","round":space.round,
+                    "id":variant.id,"source_sha256":variant.sha256,"reason":format!("{error:#}"),
+                    "measured_whole_file_bytes":score.cost}))?;
+            }
+        }
+    }
+    entry["singles_attempted"] = json!(space.singles_attempted);
+    entry["systematic_subsets_attempted"] = json!(space.subsets_attempted);
+    entry["incompatible_subsets"] = json!(space.incompatible);
+    entry["duplicate_sources"] = json!(space.duplicate);
+    entry["unvisited_singles"] = json!(space.choices.len() - space.singles_attempted);
+    entry["unvisited_nontrivial_subsets"] = json!(plan::Combinations::unvisited(
+        if space.family == ProofFamily::Spelling {
+            space.choices.len()
+        } else {
+            0
+        },
+        space.subsets_attempted
+    ));
+    if window.is_some() {
+        entry["initial_progress"] = json!({"singles_attempted":space.singles_attempted,
+            "systematic_subsets_attempted":space.subsets_attempted,"stop":entry["stop"]});
+    }
+    entry["exhausted"] = json!(!space.queue.pending());
+    entry["all_declared_costs_evaluated"] =
+        json!(!space.queue.pending() && budget.budget.reason.is_none());
+    Ok(())
+}
+
+/// Every retained seed crosses the same fresh acceptance boundary. A priority
+/// snapshot is not promoted merely because it was once the incumbent.
+struct SeedFinalizer<'a> {
+    options: &'a SourceSearchOptions,
+    compiler: &'a [String],
+    native_dir: &'a Path,
+    adapter: &'a PayloadAdapter,
+    original_source: &'a [u8],
+    original_payload: &'a [u8],
+    initial_cost: usize,
+    baseline: &'a Value,
+    repeated: &'a Value,
+    compiler_pin: &'a Value,
+    frontend_pin: &'a Value,
+}
+
+impl SeedFinalizer<'_> {
+    fn finish(
+        &self,
+        selected: &Incumbent,
+        role: &str,
+        budget: &mut SearchRun,
+        objective: &mut impl CompleteFileObjective,
+    ) -> Result<SearchSeed> {
+        budget.cancelled()?;
+        check_tool(&self.compiler[0], self.compiler_pin, "compiler")?;
+        check_tool(
+            &self.options.candidates.frontend.clang,
+            self.frontend_pin,
+            "frontend",
+        )?;
+        ensure!(
+            selected.score.cost <= self.initial_cost,
+            "source search regressed the original complete-file cost"
+        );
+        let final_native = if selected.source == self.original_source {
+            self.repeated.clone()
+        } else {
+            let checked = budget.observe_record(
+                || {
+                    native_fingerprint(
+                        &selected.source,
+                        self.compiler,
+                        self.native_dir,
+                        &self.options.compile_limits,
+                    )
+                },
+                |native| {
+                    json!({"stage":"final-compile","seed_role":role,
+                    "source_sha256":sha256(&selected.source),"native":native})
+                },
+            )?;
+            same_native(&checked, self.baseline)
+                .context("final selected source failed fresh native reproduction")?;
+            checked
+        };
+        ensure!(
+            payload_for(self.adapter, &selected.source, &selected.score)? == selected.payload,
+            "final payload replay differs"
+        );
+        if selected.payload != self.original_payload {
+            ensure!(
+                budget.budget.evaluations < self.options.max_evaluations,
+                "final complete-file measurement reservation lost"
+            );
+            budget.budget.evaluations += 1;
+            ensure!(
+                budget.observe(|| objective.fresh_measure(&selected.payload))?
+                    == selected.score.cost,
+                "final complete-file cost is not reproducible"
+            );
+        }
+        // Even an unchanged fallback must not reuse a stale source context.
+        if let Some(context) = &budget.context {
+            context.recheck()?;
+        }
+        let source_unchanged = selected.source == self.original_source;
+        let final_record = json!({"source_sha256":sha256(&selected.source),"source_bytes":selected.source.len(),
+            "source_unchanged":source_unchanged,"source_proof":if source_unchanged{"byte-identical-to-original"}else{"accepted-typed-derivations"},
+            "payload_sha256":sha256(&selected.payload),"payload_bytes":selected.payload.len(),
+            "cost_reproduction":if selected.payload != self.original_payload{"fresh-objective-evaluation"}else{"unchanged-input-baseline-measurement"},
+            "style":selected.score.style,"whole_file_bytes":selected.score.cost,"native":final_native});
+        let recipe = json!({"schema":SCHEMA,"options":self.options,"compiler_argv":self.compiler,
+            "compiler":self.compiler_pin,"frontend":self.frontend_pin,
+            "input_payload_sha256":sha256(self.original_payload),"input_source_sha256":sha256(self.original_source),
+            "baseline_native":self.baseline,"baseline_whole_file_bytes":self.initial_cost,
+            "steps":selected.steps,"final":final_record});
+        Ok(SearchSeed {
+            data: selected.payload.clone(),
+            recipe,
+        })
+    }
 }
 
 fn owned_directory(out: &Path, name: &str) -> Result<PathBuf> {
@@ -447,6 +809,24 @@ pub fn search_with_cost_context(
     cost_objective: Option<&Value>,
     measure: &mut impl FnMut(&[u8]) -> Result<usize>,
 ) -> Result<SearchResult> {
+    search_with_objective(
+        payload,
+        options,
+        compiler,
+        out,
+        cost_objective,
+        &mut CallbackObjective(measure),
+    )
+}
+
+pub fn search_with_objective(
+    payload: &[u8],
+    options: &SourceSearchOptions,
+    compiler: &[String],
+    out: &Path,
+    cost_objective: Option<&Value>,
+    objective: &mut impl CompleteFileObjective,
+) -> Result<SearchResult> {
     options.validate()?;
     ensure!(
         !compiler.is_empty(),
@@ -463,24 +843,31 @@ pub fn search_with_cost_context(
         compiler,
         cost_objective,
     )?;
-    let mut budget = Budget::new(options, archive);
-    let mut result = search_inner(payload, options, compiler, &directory, measure, &mut budget);
+    let mut budget = SearchRun::new(options, archive);
+    let mut result = search_inner(
+        payload,
+        options,
+        compiler,
+        &directory,
+        objective,
+        &mut budget,
+    );
     let outcome = match &result {
         Ok(searched) => {
-            json!({"status":searched.report["status"],"exhaustion_reason":budget.reason,
-            "retention_stop":budget.retention_stop,"final":searched.recipe["final"]})
+            json!({"status":searched.report["status"],"exhaustion_reason":budget.budget.reason,
+            "retention_stop":budget.journal.retention_stop,"final":searched.recipe["final"]})
         }
         Err(error) => json!({"status":"failed","error":format!("{error:#}"),
-            "exhaustion_reason":budget.reason,"retention_stop":budget.retention_stop}),
+            "exhaustion_reason":budget.budget.reason,"retention_stop":budget.journal.retention_stop}),
     };
-    let attempts = match budget.archive.finish(outcome) {
+    let attempts = match budget.journal.archive.finish(outcome) {
         Ok(value) => value,
         Err(archive_error) => {
             let original_error = result.as_ref().err().map(|error| format!("{error:#}"));
             let receipt_error = write_json(&directory.join("failed-report.json"),
                 &json!({"schema":SCHEMA,"status":"failed","input_payload_sha256":sha256(payload),
                     "search_error":original_error,"evidence_error":format!("{archive_error:#}"),
-                    "records":budget.records,"evaluations":budget.evaluations,
+                    "records":budget.journal.records,"evaluations":budget.budget.evaluations,
                     "preserved":"existing source snapshots, event journal and any completed search files; not a completed evidence archive"}))
                 .err().map(|error|format!("{error:#}"));
             let detail = format!("retained-attempt finalization failed: {archive_error:#}; failed-receipt write error: {}",
@@ -499,8 +886,8 @@ pub fn search_with_cost_context(
             &directory.join("failed-report.json"),
             &json!({"schema":SCHEMA,"status":"failed",
             "error":format!("{error:#}"),"input_payload_sha256":sha256(payload),
-            "evaluations":budget.evaluations,"records":budget.records,"attempts":attempts,
-            "seconds":budget.started.elapsed().as_secs_f64()}),
+            "evaluations":budget.budget.evaluations,"records":budget.journal.records,"attempts":attempts,
+            "seconds":budget.budget.started.elapsed().as_secs_f64()}),
         ) {
             let original = result.expect_err("failed-report branch has a search failure");
             return Err(
@@ -516,72 +903,112 @@ fn search_inner(
     options: &SourceSearchOptions,
     compiler: &[String],
     directory: &Path,
-    measure: &mut impl FnMut(&[u8]) -> Result<usize>,
-    budget: &mut Budget,
+    objective: &mut impl CompleteFileObjective,
+    budget: &mut SearchRun,
 ) -> Result<SearchResult> {
+    let measure = &mut |data: &[u8]| objective.measure(data);
     budget.cancelled()?;
     let adapter = PayloadAdapter::new(payload, options.embedding.as_ref())?;
     let original_source = adapter.source().to_vec();
     let compiler_pin = tool_pin(&compiler[0])?;
     let frontend_pin = tool_pin(&options.candidates.frontend.clang)?;
-    budget.archive.input("original-source", &original_source)?;
+    budget
+        .journal
+        .archive
+        .input("original-source", &original_source)?;
     budget.record(
         json!({"stage":"search-context","input_source_sha256":sha256(&original_source),
         "compiler":compiler_pin,"frontend":frontend_pin}),
     )?;
+    match crate::c_frontend::SourceContext::new(
+        &original_source,
+        (&options.candidates.frontend).into(),
+    ) {
+        Ok(context) => {
+            budget.context = Some(context);
+            budget.record(json!({"stage":"source-context",
+                "observation":budget.context.as_ref().map(|context| context.statistics())}))?;
+        }
+        Err(error) => {
+            if let Some(error) =
+                budget.classify_frontend_failure(error, "original-context", 0, "original-source")?
+            {
+                return Err(error);
+            }
+        }
+    }
     let native_dir = directory.join("native");
-    let baseline = native_fingerprint(
-        &original_source,
-        compiler,
-        &native_dir,
-        &options.compile_limits,
+    let baseline = budget.observe_record(
+        || {
+            native_fingerprint(
+                &original_source,
+                compiler,
+                &native_dir,
+                &options.compile_limits,
+            )
+        },
+        |native| json!({"stage":"baseline-compile","attempt":1,"native":native}),
     )?;
-    budget.record(json!({"stage":"baseline-compile","attempt":1,"native":baseline}))?;
     native_identity(&baseline)?;
-    let repeated = native_fingerprint(
-        &original_source,
-        compiler,
-        &native_dir,
-        &options.compile_limits,
+    let repeated = budget.observe_record(
+        || {
+            native_fingerprint(
+                &original_source,
+                compiler,
+                &native_dir,
+                &options.compile_limits,
+            )
+        },
+        |native| json!({"stage":"baseline-compile","attempt":2,"native":native}),
     )?;
-    budget.record(json!({"stage":"baseline-compile","attempt":2,"native":repeated}))?;
     same_native(&repeated, &baseline).context("original native compilation is not reproducible")?;
     check_tool(&compiler[0], &compiler_pin, "compiler")?;
-    budget.evaluations += 1;
-    let initial_cost = measure(payload).context("original complete-file cost failed")?;
-    budget.costs.insert(sha256(payload), initial_cost);
+    budget.budget.evaluations += 1;
+    let initial_cost = budget
+        .observe(|| measure(payload))
+        .context("original complete-file cost failed")?;
+    budget.costs.insert_baseline(payload, initial_cost);
     budget.record(json!({"stage":"baseline-cost","whole_file_bytes":initial_cost,"payload_bytes":payload.len(),"payload_sha256":sha256(payload)}))?;
     let initial_style = if options.embedding.is_some() {
         "original"
     } else {
         "direct"
     };
-    let mut source = original_source.clone();
-    let mut current_payload = payload.to_vec();
-    let mut current = Score {
-        cost: initial_cost,
-        style: initial_style.into(),
-        payload_sha256: sha256(payload),
+    let mut incumbent = Incumbent {
+        source: original_source.clone(),
+        payload: payload.to_vec(),
+        score: Score {
+            cost: initial_cost,
+            style: initial_style.into(),
+            payload_sha256: sha256(payload),
+        },
+        steps: Vec::new(),
     };
-    let mut steps = Vec::new();
+    let online = options.scheduling == SchedulingPolicy::InterleavedOnline;
+    let mut combination_attempts = 0usize;
+    let mut spaces = Vec::new();
+    let mut plan_bytes = 0usize;
+    let mut coverage = Vec::new();
+    let mut frontend_work = Vec::new();
 
     // Literal-envelope spelling alone can improve a submission. This is kept
     // separate from a C source edit and needs no fictitious source derivation.
     if let Some(score) = score_source(
         budget,
         &adapter,
-        &source,
+        &incumbent.source,
         "original-source",
         0,
-        current.cost,
+        incumbent.score.cost,
+        None,
         measure,
     )? {
-        if score.cost < current.cost {
-            let rendered = payload_for(&adapter, &source, &score)?;
+        if score.cost < incumbent.score.cost {
+            let rendered = payload_for(&adapter, &incumbent.source, &score)?;
             if budget.record(json!({"stage":"accepted-payload-spelling","style":score.style,
                 "source_unchanged":true,"whole_file_bytes":score.cost,"payload_sha256":score.payload_sha256}))? {
-                current_payload = rendered;
-                current = score;
+                incumbent.payload = rendered;
+                incumbent.score = score;
             }
         }
     }
@@ -590,37 +1017,43 @@ fn search_inner(
         if !budget.available()? {
             break;
         }
-        let before_cost = current.cost;
-        let round_source = source.clone();
+        let before_cost = incumbent.score.cost;
+        let round_source = incumbent.source.clone();
         check_tool(
             &options.candidates.frontend.clang,
             &frontend_pin,
             "frontend",
         )?;
-        let generated = match csource::generate_variants(&round_source, &options.candidates)
-            .context("C spelling candidate generation failed")
+        let prepared = match csource::PreparedSource::new(&round_source, &options.candidates)
+            .context("C spelling basis preparation failed")
         {
             Ok(value) => value,
             Err(error) => {
-                if budget.stop_for_frontend_capacity(
-                    &error,
+                if let Some(error) = budget.classify_frontend_failure(
+                    error,
                     "spelling-generation",
                     round,
                     "round-input",
                 )? {
-                    break;
+                    return Err(error);
                 }
-                return Err(error);
+                break;
             }
         };
+        let generated = prepared
+            .generate_variants()
+            .context("C spelling candidate generation failed")?;
         if !budget.record(
             json!({"stage":"generation-summary","family":"c-source","round":round,
             "variants_including_raw":generated.len(),"raw":generated.first()}),
         )? {
             break;
         }
+        let generation = generated.first().map(|v| v.contract["generation"].clone());
         let mut singles = Vec::new();
+        let mut priority_single_attempts = 0usize;
         let mut seen = HashSet::from([sha256(&round_source)]);
+        let mut choices = Vec::new();
         for variant in generated {
             if !seen.insert(variant.sha256.clone()) {
                 continue;
@@ -628,11 +1061,13 @@ fn search_inner(
             if !budget.candidate("spelling-candidate", round, &round_source, &variant)? {
                 break;
             }
+            choices.push(variant.clone());
             // Generation is already bounded: preserve remaining candidates
             // after a scheduling/evaluation stop without running new work.
-            if !budget.available()? {
+            if online || !budget.available()? {
                 continue;
             }
+            priority_single_attempts += 1;
             if let Some(score) = score_source(
                 budget,
                 &adapter,
@@ -640,6 +1075,7 @@ fn search_inner(
                 &variant.id,
                 round,
                 before_cost,
+                None,
                 measure,
             )? {
                 if score.cost < before_cost {
@@ -647,129 +1083,194 @@ fn search_inner(
                 }
             }
         }
-        singles.sort_by(|a, b| (a.1.cost, &a.0.id).cmp(&(b.1.cost, &b.0.id)));
-        let mut selected = Vec::<Variant>::new();
-        let mut selected_best: Option<(Variant, Score, Value)> = None;
-        let mut best_cost = current.cost;
-        for (single, single_score) in singles {
-            if !budget.verification_available()? {
-                break;
+        let retained_bytes =
+            round_source.len() + choices.iter().map(|v| v.data.len()).sum::<usize>();
+        let scheduled = retained_bytes <= MAX_PLAN_SOURCE_BYTES.saturating_sub(plan_bytes);
+        coverage.push(json!({"round":round,"family":"c-source","policy":options.scheduling,
+            "basis_source_sha256":sha256(&round_source),
+            "generated_choices":choices.len(),"nontrivial_subsets":plan::Combinations::cardinality(choices.len()),
+            "singles_attempted":priority_single_attempts,"systematic_subsets_attempted":0,"incompatible_subsets":0,"duplicate_sources":0,
+            "unvisited_singles":choices.len() - priority_single_attempts,
+            "unvisited_nontrivial_subsets":plan::Combinations::cardinality(choices.len()),
+            "exhausted":false,"all_declared_costs_evaluated":false,
+            "scheduled":scheduled,"stop":if scheduled{Value::Null}else{json!("plan-source-memory-budget")},
+            "generation":generation,
+            "scope":"all subsets of generated spelling choices on this visited immutable basis; compatible audited edits commute"}));
+        if scheduled {
+            plan_bytes += retained_bytes;
+            spaces.push(RoundSpace::new(
+                round_source.clone(),
+                choices,
+                incumbent.steps.clone(),
+                round,
+                ProofFamily::Spelling,
+                if online {
+                    plan::Order::Interleaved
+                } else {
+                    plan::Order::SubsetsOnly
+                },
+                coverage.len() - 1,
+            ));
+            spaces.last_mut().unwrap().singles_attempted = priority_single_attempts;
+        }
+        if online {
+            if scheduled {
+                let remaining_phases =
+                    (options.max_rounds - round + 1) * (1 + usize::from(options.conditions));
+                let window = budget.budget.share(remaining_phases);
+                let space = spaces.last_mut().unwrap();
+                explore_space(
+                    space,
+                    Some(&prepared),
+                    options,
+                    &adapter,
+                    compiler,
+                    &native_dir,
+                    &baseline,
+                    budget,
+                    &mut incumbent,
+                    &mut combination_attempts,
+                    &mut coverage[space.coverage_index],
+                    Some(&window),
+                    measure,
+                )?;
             }
-            // Once cost exploration is exhausted, previously measured single
-            // candidates can still reach their semantic gate. An unmeasured
-            // composition cannot borrow the sum of their individual savings.
-            if !selected.is_empty() && !budget.available()? {
-                break;
-            }
-            let mut proposed = selected.clone();
-            proposed.push(single.clone());
-            let combined = if selected.is_empty() {
-                single
-            } else {
-                match csource::compose_variants(&round_source, &proposed, &options.candidates) {
-                    Ok(value) => value,
-                    Err(error) => {
-                        budget.record(json!({"stage":"composition-rejected","round":round,
+        } else {
+            singles.sort_by(|a, b| (a.1.cost, &a.0.id).cmp(&(b.1.cost, &b.0.id)));
+            let mut selected = Vec::<Variant>::new();
+            let mut selected_best: Option<(Variant, Score, Value)> = None;
+            let mut best_cost = incumbent.score.cost;
+            for (single, single_score) in singles {
+                if !budget.verification_available()? {
+                    break;
+                }
+                // Once cost exploration is exhausted, previously measured single
+                // candidates can still reach their semantic gate. An unmeasured
+                // composition cannot borrow the sum of their individual savings.
+                if !selected.is_empty() && !budget.available()? {
+                    break;
+                }
+                let mut proposed = selected.clone();
+                proposed.push(single.clone());
+                let combined = if selected.is_empty() {
+                    single
+                } else {
+                    match prepared.compose_variants(&proposed) {
+                        Ok(value) => value,
+                        Err(error) => {
+                            budget.record(json!({"stage":"composition-rejected","round":round,
                             "id":single.id,"base_source_sha256":sha256(&round_source),
                             "components":proposed.iter().map(|v|json!({"id":v.id,"source_sha256":v.sha256})).collect::<Vec<_>>(),
                             "reason":format!("{error:#}"),"classification":"overlap or binding-contract inapplicability"}))?;
-                        continue;
+                            continue;
+                        }
                     }
-                }
-            };
-            if !budget.candidate("composed-candidate", round, &round_source, &combined)? {
-                break;
-            }
-            let score = if selected.is_empty() {
-                single_score
-            } else {
-                let Some(score) = score_source(
-                    budget,
-                    &adapter,
-                    &combined.data,
-                    &combined.id,
-                    round,
-                    best_cost,
-                    measure,
-                )?
-                else {
-                    continue;
                 };
-                score
-            };
-            if score.cost >= best_cost {
-                continue;
-            }
-            if !budget.verification_available()? {
-                break;
-            }
-            match admit(
-                &round_source,
-                &combined,
-                true,
-                options,
-                compiler,
-                &native_dir,
-                &baseline,
-                &frontend_pin,
-                budget,
-                round,
-            ) {
-                Ok(native) => {
-                    payload_for(&adapter, &combined.data, &score)?;
-                    if !budget.record(json!({"stage":"composition-admitted","round":round,
+                if !budget.candidate("composed-candidate", round, &round_source, &combined)? {
+                    break;
+                }
+                let score = if selected.is_empty() {
+                    single_score
+                } else {
+                    let Some(score) = score_source(
+                        budget,
+                        &adapter,
+                        &combined.data,
+                        &combined.id,
+                        round,
+                        best_cost,
+                        None,
+                        measure,
+                    )?
+                    else {
+                        continue;
+                    };
+                    score
+                };
+                if score.cost >= best_cost {
+                    continue;
+                }
+                if !budget.verification_available()? {
+                    break;
+                }
+                match admit(
+                    &round_source,
+                    &combined,
+                    true,
+                    Some(&prepared),
+                    options,
+                    compiler,
+                    &native_dir,
+                    &baseline,
+                    budget,
+                    round,
+                ) {
+                    Ok(native) => {
+                        payload_for(&adapter, &combined.data, &score)?;
+                        if !budget.record(json!({"stage":"composition-admitted","round":round,
                         "id":combined.id,"source_sha256":combined.sha256,
                         "payload_sha256":score.payload_sha256,"whole_file_bytes":score.cost,"native":native,
                         "scope":"typed AST/binding identity and complete native/diagnostic equality; no engine execution"}))? { break; }
-                    best_cost = score.cost;
-                    selected = proposed;
-                    selected_best = Some((combined, score, native));
-                }
-                Err(error) => {
-                    if budget.stop_for_frontend_capacity(
-                        &error,
-                        "spelling-admission",
-                        round,
-                        &combined.id,
-                    )? {
-                        break;
+                        best_cost = score.cost;
+                        selected = proposed;
+                        selected_best = Some((combined, score, native));
                     }
-                    budget.cancelled()?;
-                    budget.record(
-                        json!({"stage":"semantic-rejected","round":round,"id":combined.id,
+                    Err(error) => {
+                        let Some(error) = budget.classify_frontend_failure(
+                            error,
+                            "spelling-admission",
+                            round,
+                            &combined.id,
+                        )?
+                        else {
+                            break;
+                        };
+                        budget.cancelled()?;
+                        budget.record(
+                            json!({"stage":"semantic-rejected","round":round,"id":combined.id,
                         "source_sha256":combined.sha256,
                         "reason":format!("{error:#}"),"measured_whole_file_bytes":score.cost}),
-                    )?;
+                        )?;
+                    }
                 }
             }
-        }
-        if let Some((variant, score, native)) = selected_best {
-            current_payload = payload_for(&adapter, &variant.data, &score)?;
-            steps.push(
+            if let Some((variant, score, native)) = selected_best {
+                incumbent.payload = payload_for(&adapter, &variant.data, &score)?;
+                incumbent.steps.push(
                 json!({"kind":"c-source","round":round,"input_source_sha256":sha256(&round_source),
                 "variant":variant,"style":score.style,"payload_sha256":score.payload_sha256,
                 "whole_file_bytes":score.cost,"native":native}),
             );
-            source = variant.data;
-            current = score;
+                incumbent.source = variant.data;
+                incumbent.score = score;
+            }
         }
 
         if options.conditions && budget.available()? {
             let flow_options = cflow_options(options);
-            let flows = match cflow::generate_variants(&source, &flow_options)
-                .context("typed C condition candidate generation failed")
+            let (flows, flow_analysis) = match (|| -> Result<(Vec<Variant>, Value)> {
+                if incumbent.source == round_source {
+                    Ok((prepared.flow_variants(&flow_options)?, Value::Null))
+                } else {
+                    let flow_basis =
+                        csource::PreparedSource::new(&incumbent.source, &options.candidates)?;
+                    let generated = flow_basis.flow_variants(&flow_options)?;
+                    Ok((generated, flow_basis.statistics()))
+                }
+            })()
+            .context("typed C condition candidate generation failed")
             {
                 Ok(value) => value,
                 Err(error) => {
-                    if budget.stop_for_frontend_capacity(
-                        &error,
+                    if let Some(error) = budget.classify_frontend_failure(
+                        error,
                         "condition-generation",
                         round,
                         "round-input",
                     )? {
-                        break;
+                        return Err(error);
                     }
-                    return Err(error);
+                    break;
                 }
             };
             if !budget.record(
@@ -778,145 +1279,296 @@ fn search_inner(
             )? {
                 break;
             }
-            let mut candidates = Vec::new();
-            let mut seen = HashSet::from([sha256(&source)]);
-            for variant in flows {
-                if !seen.insert(variant.sha256.clone()) {
-                    continue;
+            if !flow_analysis.is_null() {
+                frontend_work.push(json!({"round":round,"phase":"condition-generation",
+                    "basis_source_sha256":sha256(&incumbent.source),"shared_analysis":flow_analysis}));
+            }
+            if online {
+                let generation = flows.first().map(|v| v.contract["generation"].clone());
+                let mut choices = Vec::new();
+                let mut seen = HashSet::from([sha256(&incumbent.source)]);
+                for variant in flows {
+                    if !seen.insert(variant.sha256.clone()) {
+                        continue;
+                    }
+                    if !budget.candidate(
+                        "condition-candidate",
+                        round,
+                        &incumbent.source,
+                        &variant,
+                    )? {
+                        break;
+                    }
+                    choices.push(variant);
                 }
-                if !budget.candidate("condition-candidate", round, &source, &variant)? {
-                    break;
+                let retained_bytes =
+                    incumbent.source.len() + choices.iter().map(|v| v.data.len()).sum::<usize>();
+                let scheduled = retained_bytes <= MAX_PLAN_SOURCE_BYTES.saturating_sub(plan_bytes);
+                coverage.push(json!({"round":round,"family":"c-flow","policy":options.scheduling,
+                    "basis_source_sha256":sha256(&incumbent.source),"generated_choices":choices.len(),
+                    "nontrivial_subsets":"0","singles_attempted":0,"systematic_subsets_attempted":0,
+                    "unvisited_singles":choices.len(),"unvisited_nontrivial_subsets":"0",
+                    "incompatible_subsets":0,"duplicate_sources":0,"generation":generation,
+                    "exhausted":false,"all_declared_costs_evaluated":false,"scheduled":scheduled,
+                    "stop":if scheduled{Value::Null}else{json!("plan-source-memory-budget")},
+                    "scope":"generated typed condition alternatives on this immutable basis; no claim of all rewrite sequences"}));
+                if scheduled {
+                    plan_bytes += retained_bytes;
+                    spaces.push(RoundSpace::new(
+                        incumbent.source.clone(),
+                        choices,
+                        incumbent.steps.clone(),
+                        round,
+                        ProofFamily::Condition,
+                        plan::Order::SinglesOnly,
+                        coverage.len() - 1,
+                    ));
+                    let remaining_phases = (options.max_rounds - round) * 2 + 1;
+                    let window = budget.budget.share(remaining_phases);
+                    let space = spaces.last_mut().unwrap();
+                    explore_space(
+                        space,
+                        None,
+                        options,
+                        &adapter,
+                        compiler,
+                        &native_dir,
+                        &baseline,
+                        budget,
+                        &mut incumbent,
+                        &mut combination_attempts,
+                        &mut coverage[space.coverage_index],
+                        Some(&window),
+                        measure,
+                    )?;
                 }
-                if !budget.available()? {
-                    continue;
-                }
-                if let Some(score) = score_source(
-                    budget,
-                    &adapter,
-                    &variant.data,
-                    &variant.id,
-                    round,
-                    current.cost,
-                    measure,
-                )? {
-                    if score.cost < current.cost {
-                        candidates.push((variant, score));
+            } else {
+                let mut candidates = Vec::new();
+                let mut seen = HashSet::from([sha256(&incumbent.source)]);
+                for variant in flows {
+                    if !seen.insert(variant.sha256.clone()) {
+                        continue;
+                    }
+                    if !budget.candidate(
+                        "condition-candidate",
+                        round,
+                        &incumbent.source,
+                        &variant,
+                    )? {
+                        break;
+                    }
+                    if !budget.available()? {
+                        continue;
+                    }
+                    if let Some(score) = score_source(
+                        budget,
+                        &adapter,
+                        &variant.data,
+                        &variant.id,
+                        round,
+                        incumbent.score.cost,
+                        None,
+                        measure,
+                    )? {
+                        if score.cost < incumbent.score.cost {
+                            candidates.push((variant, score));
+                        }
                     }
                 }
-            }
-            candidates.sort_by(|a, b| (a.1.cost, &a.0.id).cmp(&(b.1.cost, &b.0.id)));
-            for (variant, score) in candidates {
-                if !budget.verification_available()? {
-                    break;
-                }
-                match admit(
-                    &source,
-                    &variant,
-                    false,
-                    options,
-                    compiler,
-                    &native_dir,
-                    &baseline,
-                    &frontend_pin,
-                    budget,
-                    round,
-                ) {
-                    Ok(native) => {
-                        let rendered = payload_for(&adapter, &variant.data, &score)?;
-                        if !budget.record(json!({"stage":"condition-admitted","round":round,"id":variant.id,
+                candidates.sort_by(|a, b| (a.1.cost, &a.0.id).cmp(&(b.1.cost, &b.0.id)));
+                for (variant, score) in candidates {
+                    if !budget.verification_available()? {
+                        break;
+                    }
+                    match admit(
+                        &incumbent.source,
+                        &variant,
+                        false,
+                        None,
+                        options,
+                        compiler,
+                        &native_dir,
+                        &baseline,
+                        budget,
+                        round,
+                    ) {
+                        Ok(native) => {
+                            let rendered = payload_for(&adapter, &variant.data, &score)?;
+                            if !budget.record(json!({"stage":"condition-admitted","round":round,"id":variant.id,
                             "source_sha256":variant.sha256,"payload_sha256":score.payload_sha256,
                             "whole_file_bytes":score.cost,"native":native,
                             "scope":"generated typed local rule guards and complete native/diagnostic equality; no engine execution"}))? { break; }
-                        steps.push(json!({"kind":"c-flow","round":round,"input_source_sha256":sha256(&source),
+                            incumbent.steps.push(json!({"kind":"c-flow","round":round,"input_source_sha256":sha256(&incumbent.source),
                             "variant":variant,"style":score.style,"payload_sha256":score.payload_sha256,
                             "whole_file_bytes":score.cost,"native":native}));
-                        current_payload = rendered;
-                        source = variant.data;
-                        current = score;
-                        break;
-                    }
-                    Err(error) => {
-                        budget.cancelled()?;
-                        budget.record(
-                            json!({"stage":"semantic-rejected","round":round,"id":variant.id,
+                            incumbent.payload = rendered;
+                            incumbent.source = variant.data;
+                            incumbent.score = score;
+                            break;
+                        }
+                        Err(error) => {
+                            let Some(error) = budget.classify_frontend_failure(
+                                error,
+                                "condition-admission",
+                                round,
+                                &variant.id,
+                            )?
+                            else {
+                                break;
+                            };
+                            budget.cancelled()?;
+                            budget.record(
+                                json!({"stage":"semantic-rejected","round":round,"id":variant.id,
                             "source_sha256":variant.sha256,
                             "reason":format!("{error:#}"),"measured_whole_file_bytes":score.cost}),
-                        )?;
+                            )?;
+                        }
                     }
                 }
             }
         }
-        if current.cost == before_cost {
+        frontend_work.push(
+            json!({"round":round,"phase":if online{"interleaved-online"}else{"priority"},
+            "basis_source_sha256":sha256(&round_source),
+            "shared_analysis":prepared.statistics()}),
+        );
+        if incumbent.score.cost == before_cost {
             break;
         }
     }
 
-    budget.cancelled()?;
-    check_tool(&compiler[0], &compiler_pin, "compiler")?;
-    check_tool(
-        &options.candidates.frontend.clang,
-        &frontend_pin,
-        "frontend",
-    )?;
-    ensure!(
-        current.cost <= initial_cost,
-        "source search regressed the original complete-file cost"
-    );
-    let final_native = if source == original_source {
-        repeated
-    } else {
-        let checked = native_fingerprint(&source, compiler, &native_dir, &options.compile_limits)?;
-        same_native(&checked, &baseline)
-            .context("final selected source failed fresh native reproduction")?;
-        checked
-    };
-    ensure!(
-        payload_for(&adapter, &source, &current)? == current_payload,
-        "final payload replay differs"
-    );
-    if current_payload != payload {
-        ensure!(
-            budget.evaluations < options.max_evaluations,
-            "final complete-file measurement reservation lost"
-        );
-        budget.evaluations += 1;
-        ensure!(
-            measure(&current_payload)? == current.cost,
-            "final complete-file cost is not reproducible"
-        );
+    // Preserve the legacy objective's priority seed before a deferred subset
+    // wins under that objective but loses after final codec comparison.
+    let priority_snapshot = (!online).then(|| incumbent.clone());
+    if !online
+        && incumbent.payload != payload
+        && spaces.iter().any(|s| s.queue.pending())
+        && budget.available()?
+    {
+        budget.budget.reserve_priority_seed();
     }
-    let source_unchanged = source == original_source;
-    let source_proof = if source_unchanged {
-        "byte-identical-to-original"
-    } else {
-        "accepted-typed-derivations"
+    // Resume the same finite queues after each round/family had its initial
+    // share. Legacy ordering remains deferred-subsets-only; online search has
+    // already admitted measured singles/subsets before reaching this pass.
+    for space in &mut spaces {
+        let entry = &mut coverage[space.coverage_index];
+        if !budget.available()? {
+            entry["stop"] = json!(budget.budget.reason);
+            continue;
+        }
+        if !space.queue.pending() {
+            entry["exhausted"] = json!(true);
+            entry["all_declared_costs_evaluated"] = json!(true);
+            continue;
+        }
+        let prepared = if space.family == ProofFamily::Spelling {
+            match csource::PreparedSource::new(&space.source, &options.candidates) {
+                Ok(value) => Some(value),
+                Err(error) => {
+                    if let Some(error) = budget.classify_frontend_failure(
+                        error,
+                        "combination-basis",
+                        space.round,
+                        "round-input",
+                    )? {
+                        return Err(error);
+                    }
+                    entry["stop"] = json!(budget.budget.reason);
+                    continue;
+                }
+            }
+        } else {
+            None
+        };
+        entry["resumed_after_initial_phases"] = json!(online);
+        explore_space(
+            space,
+            prepared.as_ref(),
+            options,
+            &adapter,
+            compiler,
+            &native_dir,
+            &baseline,
+            budget,
+            &mut incumbent,
+            &mut combination_attempts,
+            entry,
+            None,
+            measure,
+        )?;
+        if let Some(prepared) = prepared {
+            frontend_work.push(json!({"round":space.round,"phase":"systematic",
+                "basis_source_sha256":sha256(&space.source),"shared_analysis":prepared.statistics()}));
+        }
+    }
+
+    let finalizer = SeedFinalizer {
+        options,
+        compiler,
+        native_dir: &native_dir,
+        adapter: &adapter,
+        original_source: &original_source,
+        original_payload: payload,
+        initial_cost,
+        baseline: &baseline,
+        repeated: &repeated,
+        compiler_pin: &compiler_pin,
+        frontend_pin: &frontend_pin,
     };
-    let final_record = json!({"source_sha256":sha256(&source),"source_bytes":source.len(),
-        "source_unchanged":source_unchanged,"source_proof":source_proof,
-        "payload_sha256":sha256(&current_payload),"payload_bytes":current_payload.len(),
-        "style":current.style,"whole_file_bytes":current.cost,"native":final_native});
-    let recipe = json!({"schema":SCHEMA,"options":options,"compiler_argv":compiler,
-        "compiler":compiler_pin,"frontend":frontend_pin,"input_payload_sha256":sha256(payload),
-        "input_source_sha256":sha256(&original_source),"baseline_native":baseline,
-        "baseline_whole_file_bytes":initial_cost,"steps":steps,"final":final_record});
-    let report = json!({"schema":SCHEMA,"status":if budget.reason.is_some(){"budget-exhausted"}else{"completed"},
-        "exhaustion_reason":budget.reason,"frontend_capacity_stop":budget.frontend_capacity_stop,
-        "retention_stop":budget.retention_stop,
-        "evaluations":budget.evaluations,"evaluation_limit":options.max_evaluations,
-        "seconds":budget.started.elapsed().as_secs_f64(),"time_limit_kind":"scheduling deadline between bounded operations; final acceptance completes separately",
-        "original_whole_file_bytes":initial_cost,"selected_whole_file_bytes":current.cost,
-        "saved_whole_file_bytes":initial_cost-current.cost,"input_payload_sha256":sha256(payload),
-        "input_source_sha256":sha256(&original_source),"final":final_record,"accepted_steps":steps.len(),
-        "records":budget.records,"engine_execution":"not performed","optimality":"bounded measured portfolio only",
+    let selected = finalizer.finish(&incumbent, "final-winner", budget, objective)?;
+    let priority_seed = match priority_snapshot {
+        Some(priority) if priority.payload != incumbent.payload && priority.payload != payload => {
+            let seed = finalizer.finish(&priority, "legacy-priority-seed", budget, objective)?;
+            write_json(&directory.join("priority-seed-recipe.json"), &seed.recipe)?;
+            fs::write(directory.join("priority-seed-payload"), &seed.data)?;
+            Some(seed)
+        }
+        _ => None,
+    };
+    let recipe = selected.recipe;
+    let final_record = &recipe["final"];
+    let declared_spaces_complete = coverage
+        .iter()
+        .all(|v| v["all_declared_costs_evaluated"] == true);
+    let report = json!({"schema":SCHEMA,"status":if budget.budget.reason.is_some(){"budget-exhausted"}else if !declared_spaces_complete{"space-incomplete"}else{"completed"},
+        "exhaustion_reason":budget.budget.reason,"frontend_capacity_stop":budget.frontend_capacity_stop,
+        "retention_stop":budget.journal.retention_stop,
+        "evaluations":budget.budget.evaluations,"evaluation_limit":options.max_evaluations,
+        "fresh_measurement_reservations":budget.budget.fresh_reservations,
+        "retained_seed_count":1 + usize::from(priority_seed.is_some()),
+        "priority_seed":priority_seed.as_ref().map(|seed| json!({"role":"legacy-priority-seed",
+            "final":seed.recipe["final"],"recipe_path":"priority-seed-recipe.json", "payload_path":"priority-seed-payload"})),
+        "scheduling":options.scheduling,
+        "seconds":budget.budget.started.elapsed().as_secs_f64(),
+        "time_limit_kind":if online{"scheduling deadline for new candidate starts; started candidates may finish bounded scoring and proof within evaluation and operation limits; final acceptance completes separately"}else{"scheduling deadline between bounded operations; final acceptance completes separately"},
+        "original_whole_file_bytes":initial_cost,"selected_whole_file_bytes":incumbent.score.cost,
+        "saved_whole_file_bytes":initial_cost-incumbent.score.cost,"input_payload_sha256":sha256(payload),
+        "input_source_sha256":sha256(&original_source),"final":final_record,"accepted_steps":incumbent.steps.len(),
+        "records":budget.journal.records,"engine_execution":"not performed","optimality":"bounded declared search space only",
+        "coverage":{"basis_spaces":coverage,"combination_attempts":combination_attempts,
+            "declared_basis_spaces_complete":declared_spaces_complete,
+            "status_scope":"completion of declared generated spaces on visited immutable bases; generation limits, unvisited bases and codec heuristics are separate",
+            "combination_limit":options.max_combinations,"plan_source_bytes":plan_bytes,
+            "plan_source_byte_limit":MAX_PLAN_SOURCE_BYTES,
+            "priority":if online{"singleton/subset round-robin with immediate proof; bounded initial round/family shares then resumed queues"}else{"legacy improving-incumbent rounds first"},
+            "quantum":if online{json!({"allocation":"remaining time and unreserved evaluations divided by remaining round/family phases", "phase_boundary":"before a candidate; payload styles and bounded admission may finish", "deferred_queues":"resumed after initial phases without restarting enumeration"})}else{Value::Null},
+            "all_equivalent_programs_explored":false,"all_rewrite_sequences_explored":false},
+        "frontend_work":frontend_work,
+        "source_context":budget.context.as_ref().map(|context| context.statistics()),
         "embedding_contract":options.embedding_contract,
+        "observation_contract":{"embedding":options.embedding_contract,
+            "c_source":options.candidates.frontend.token_contract,
+            "python_wrapper":if options.embedding.is_some(){json!("source/token/location/traceback non-observation required")}else{Value::Null},
+            "declaration":"caller-established precondition; not proven by masked AST/native identity"},
         "acceptance":"unchanged C bytes or applicable typed source proof; complete native and diagnostic identity; exact payload-adapter readback"});
     write_json(&directory.join("report.json"), &report)?;
     write_json(&directory.join("recipe.json"), &recipe)?;
-    fs::write(directory.join("selected-payload"), &current_payload)?;
+    fs::write(directory.join("selected-payload"), &incumbent.payload)?;
     Ok(SearchResult {
-        data: current_payload,
+        data: selected.data,
         report,
         recipe,
+        priority_seed,
     })
 }
 
@@ -964,9 +1616,21 @@ pub fn replay(payload: &[u8], recipe: &Value, compiler: &[String], out: &Path) -
         "embedded source identity changed"
     );
     let native_dir = directory.join("native");
-    let baseline = native_fingerprint(&source, compiler, &native_dir, &options.compile_limits)?;
+    let context = if steps.is_empty() {
+        None
+    } else {
+        Some(crate::c_frontend::SourceContext::new(
+            &source,
+            (&options.candidates.frontend).into(),
+        )?)
+    };
+    let baseline = observe_context(context.as_ref(), || {
+        native_fingerprint(&source, compiler, &native_dir, &options.compile_limits)
+    })?;
     same_native(&baseline, &recipe["baseline_native"])?;
-    let repeated = native_fingerprint(&source, compiler, &native_dir, &options.compile_limits)?;
+    let repeated = observe_context(context.as_ref(), || {
+        native_fingerprint(&source, compiler, &native_dir, &options.compile_limits)
+    })?;
     same_native(&repeated, &baseline)?;
     let mut receipts = vec![
         json!({"stage":"baseline-compile","attempt":1,"native":baseline}),
@@ -980,34 +1644,40 @@ pub fn replay(payload: &[u8], recipe: &Value, compiler: &[String], out: &Path) -
         );
         let recorded: Variant = serde_json::from_value(step["variant"].clone())
             .context("invalid recorded source variant")?;
-        let candidate = match step["kind"].as_str() {
-            Some("c-source") => csource::replay_variant(&source, &recorded, &options.candidates)?,
-            Some("c-flow") => {
-                ensure!(
-                    options.conditions,
-                    "recorded condition step is disabled by its contract"
-                );
-                let generated = cflow::generate_variants(&source, &cflow_options(&options))?;
-                let selected = generated
-                    .into_iter()
-                    .find(|v| v.id == recorded.id)
-                    .context("recorded condition recipe is no longer available")?;
-                ensure!(
-                    selected.sha256 == recorded.sha256
-                        && selected.bytes == recorded.bytes
-                        && selected.audit == recorded.audit,
-                    "recorded condition derivation changed"
-                );
-                selected
-            }
-            _ => bail!("unknown recorded source derivation"),
-        };
-        let native = native_fingerprint(
-            &candidate.data,
-            compiler,
-            &native_dir,
-            &options.compile_limits,
-        )?;
+        let candidate = observe_context(context.as_ref(), || {
+            Ok(match step["kind"].as_str() {
+                Some("c-source") => {
+                    csource::replay_variant(&source, &recorded, &options.candidates)?
+                }
+                Some("c-flow") => {
+                    ensure!(
+                        options.conditions,
+                        "recorded condition step is disabled by its contract"
+                    );
+                    let generated = cflow::generate_variants(&source, &cflow_options(&options))?;
+                    let selected = generated
+                        .into_iter()
+                        .find(|v| v.id == recorded.id)
+                        .context("recorded condition recipe is no longer available")?;
+                    ensure!(
+                        selected.sha256 == recorded.sha256
+                            && selected.bytes == recorded.bytes
+                            && selected.audit == recorded.audit,
+                        "recorded condition derivation changed"
+                    );
+                    selected
+                }
+                _ => bail!("unknown recorded source derivation"),
+            })
+        })?;
+        let native = observe_context(context.as_ref(), || {
+            native_fingerprint(
+                &candidate.data,
+                compiler,
+                &native_dir,
+                &options.compile_limits,
+            )
+        })?;
         same_native(&native, &baseline)?;
         same_native(&native, &step["native"])?;
         let style = step["style"]
@@ -1036,7 +1706,9 @@ pub fn replay(payload: &[u8], recipe: &Value, compiler: &[String], out: &Path) -
             && final_record["payload_bytes"].as_u64() == Some(rendered.data.len() as u64),
         "final source-search payload changed"
     );
-    let final_native = native_fingerprint(&source, compiler, &native_dir, &options.compile_limits)?;
+    let final_native = observe_context(context.as_ref(), || {
+        native_fingerprint(&source, compiler, &native_dir, &options.compile_limits)
+    })?;
     same_native(&final_native, &baseline)?;
     same_native(&final_native, &final_record["native"])?;
     check_tool(&compiler[0], &recipe["compiler"], "compiler")?;
@@ -1053,4 +1725,86 @@ pub fn replay(payload: &[u8], recipe: &Value, compiler: &[String], out: &Path) -
     )?;
     fs::write(directory.join("selected-payload"), &rendered.data)?;
     Ok(rendered.data)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::time::{Duration, Instant};
+
+    #[test]
+    fn started_scoring_finishes_rendered_styles_after_deadline_within_cost_limit() {
+        let payload = b"x=b'int x;'\n";
+        let source = b"int x=7;";
+        let embedding = json!({"kind":"python-bytes","start":2,"end":payload.len()-1,
+            "sha256":sha256(&payload[2..payload.len()-1])});
+        let adapter = PayloadAdapter::new(payload, Some(&embedding)).unwrap();
+        let rendered = adapter.render(source).unwrap();
+        assert_eq!(rendered.len(), 4);
+        let directory = tempfile::tempdir().unwrap();
+
+        for (online, maximum, expected_calls) in
+            [(false, 8, 0), (true, 8, 4), (true, 4, 2), (true, 2, 0)]
+        {
+            let options = SourceSearchOptions {
+                max_evaluations: maximum,
+                ..Default::default()
+            };
+            let archive = Archive::new(
+                &directory.path().join(format!("{online}-{maximum}")),
+                payload,
+                &options,
+                &[],
+                None,
+            )
+            .unwrap();
+            let mut run = SearchRun::new(&options, archive);
+            run.budget.evaluations = 1; // Original payload already measured.
+            let started = run.budget.start_candidate().unwrap().unwrap();
+            // Deterministically model composition using up the remaining time
+            // before score_source begins its real render/measure/record path.
+            run.budget.started = Instant::now() - Duration::from_secs(301);
+            let mut measured = Vec::new();
+            let score = score_source(
+                &mut run,
+                &adapter,
+                source,
+                "deadline-candidate",
+                1,
+                100,
+                online.then_some(&started),
+                &mut |data| {
+                    let index = rendered.iter().position(|item| item.data == data).unwrap();
+                    measured.push(index);
+                    Ok(99 - index)
+                },
+            )
+            .unwrap();
+            assert_eq!(measured, (0..expected_calls).collect::<Vec<_>>());
+            assert_eq!(run.budget.evaluations, 1 + expected_calls);
+            assert_eq!(run.budget.fresh_reservations, 1);
+            assert_eq!(run.journal.records.len(), expected_calls);
+            if expected_calls == 0 {
+                assert!(score.is_none());
+            } else {
+                let score = score.unwrap();
+                assert_eq!(score.cost, 100 - expected_calls);
+                assert_eq!(score.style, rendered[expected_calls - 1].style);
+                assert_eq!(
+                    payload_for(&adapter, source, &score).unwrap(),
+                    rendered[expected_calls - 1].data
+                );
+                assert!(run.budget.completion_available(&started).unwrap());
+            }
+            assert!(run.budget.start_candidate().unwrap().is_none());
+            assert_eq!(
+                run.budget.reason.as_deref(),
+                Some(if online && maximum <= 4 {
+                    "complete-file-evaluation-budget"
+                } else {
+                    "scheduling-time-budget"
+                })
+            );
+        }
+    }
 }

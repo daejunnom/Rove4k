@@ -4,15 +4,18 @@
 //! spellings can compress better, so this module never chooses by source length.
 //! A caller must validate an improving candidate with `verify_variant` and its
 //! real compiler recipe before admitting it to a submission portfolio.
-use crate::cflow::{check_frontend_output, frontend_syntax_probe, validate_args, CFlowOptions};
+pub use crate::c_frontend::FrontendContextChanged;
+use crate::c_frontend::{FrontendConfig, FrontendSession, ParsedSource as Parsed};
+use crate::cflow::{self, CFlowOptions};
 use crate::notation::{lex, literal_candidates, Token, Variant, MAX_SOURCE};
-use crate::{process, sha256};
+#[cfg(test)]
+use crate::process;
+use crate::sha256;
 use anyhow::{ensure, Context, Result};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Map, Value};
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
-use std::path::PathBuf;
 
 const MAX_PORTFOLIO_BYTES: usize = 64 << 20;
 
@@ -59,25 +62,13 @@ pub(crate) fn validate_options(options: &CSourceOptions) -> Result<()> {
     );
     let front = &options.frontend;
     ensure!(
-        matches!(front.standard.as_str(), "c11" | "c17" | "gnu11" | "gnu17"),
-        "supported C standards: c11, c17, gnu11, gnu17"
-    );
-    ensure!(
         matches!(
             front.token_contract.as_str(),
             "opaque" | "no-token-observation" | "preprocessed"
         ),
         "unknown source/token contract"
     );
-    ensure!(
-        front.frontend_seconds.is_finite()
-            && front.frontend_seconds > 0.0
-            && front.frontend_seconds <= 300.0
-            && front.frontend_memory_bytes >= 64 << 20
-            && (65536..=128 << 20).contains(&front.ast_bytes),
-        "frontend budget outside supported bounds"
-    );
-    validate_args(&front.compiler_args)
+    FrontendConfig::from(front).validate()
 }
 
 fn unchanged_reason(source: &[u8], options: &CSourceOptions) -> Option<&'static str> {
@@ -97,153 +88,143 @@ fn unchanged_reason(source: &[u8], options: &CSourceOptions) -> Option<&'static 
     }
 }
 
-struct Frontend {
-    options: CFlowOptions,
-    root: tempfile::TempDir,
-    executable: PathBuf,
-    executable_sha256: String,
-    cwd: PathBuf,
-    info: Value,
+/// An immutable source basis and its typed observation. Candidate generation,
+/// composition and admission have separate methods; none selects a winner.
+/// A round shares lexical/AST setup, while every changed candidate still gets
+/// a fresh AST and cached base proofs require current preprocessing readback.
+pub struct PreparedSource {
+    source: Vec<u8>,
+    options: CSourceOptions,
+    analysis: Option<PreparedAnalysis>,
 }
 
-struct Parsed {
-    tree: Value,
-    macros: HashSet<String>,
-    main_path: String,
+struct PreparedAnalysis {
+    frontend: FrontendSession,
+    parsed: Parsed,
+    tokens: Vec<Token>,
+    signature: Value,
 }
 
-impl Frontend {
-    fn new(options: &CFlowOptions) -> Result<Self> {
-        let executable = process::resolve_tool(&options.clang)?;
-        let cwd = options
-            .source_path
-            .as_ref()
-            .map(|p| -> Result<PathBuf> {
-                Ok(p.canonicalize()?
-                    .parent()
-                    .context("source has no parent")?
-                    .to_owned())
-            })
-            .transpose()?
-            .unwrap_or(std::env::current_dir()?);
-        let executable_sha256 = sha256(&std::fs::read(&executable)?);
-        let mut result = Self {
-            options: options.clone(),
-            root: tempfile::tempdir()?,
-            executable,
-            executable_sha256,
-            cwd,
-            info: Value::Null,
-        };
-        let version = result.execute(
-            vec![
-                result.executable.to_string_lossy().into_owned(),
-                "--version".into(),
-            ],
-            b"",
-            65536,
-        )?;
-        let version = String::from_utf8_lossy(&version).trim().to_string();
+impl PreparedAnalysis {
+    fn new(source: &[u8], options: &CSourceOptions) -> Result<Self> {
+        let tokens = significant(std::str::from_utf8(source)?)?;
+        let frontend = FrontendSession::new(FrontendConfig::from(&options.frontend), true)?;
+        let parsed = frontend.parse(source, true)?;
         ensure!(
-            version.to_ascii_lowercase().contains("clang version"),
-            "frontend must identify itself as Clang"
+            parsed.preprocessing.as_ref().is_some_and(|p| p.utf8),
+            "Clang preprocessing output is not UTF-8"
         );
-        // Test the actual frontend ABI rather than trusting a user-supplied
-        // target label or redefinable __SIZEOF_* preprocessing names.
-        let mut probe = result.prefix();
-        probe.extend(["-fsyntax-only".into(), "-".into()]);
-        result.execute(probe, b"_Static_assert(sizeof(int)==4 && sizeof(long)==8 && sizeof(long long)==8 && sizeof(void*)==8 && ~0U==4294967295U,\"NVCompact c11-lp64 model mismatch\");\n", 65536)?;
-        result.info = json!({"executable":result.executable,"executable_sha256":result.executable_sha256,"version":version,
-            "standard":options.standard,"compiler_args":options.compiler_args,"source_include_directory":result.cwd,
-            "seconds_per_parse":options.frontend_seconds,"address_space_bytes":options.frontend_memory_bytes,"ast_output_bytes":options.ast_bytes});
-        Ok(result)
-    }
-
-    fn prefix(&self) -> Vec<String> {
-        let mut result = vec![
-            self.executable.to_string_lossy().into_owned(),
-            "-x".into(),
-            "c".into(),
-            format!("-std={}", self.options.standard),
-        ];
-        result.extend(self.options.compiler_args.clone());
-        result.extend(["-iquote".into(), self.cwd.to_string_lossy().into_owned()]);
-        result
-    }
-
-    fn execute(&self, command: Vec<String>, input: &[u8], maximum: usize) -> Result<Vec<u8>> {
-        let limits = process::Limits {
-            seconds: self.options.frontend_seconds,
-            memory_bytes: self.options.frontend_memory_bytes,
-            output_bytes: maximum,
-            cpu_seconds: self.options.frontend_seconds.ceil() as u64 + 1,
-            file_bytes: maximum as u64,
-        };
-        let output = process::run(&command, input, &self.cwd, &limits)?;
-        ensure!(
-            sha256(&std::fs::read(&self.executable)?) == self.executable_sha256,
-            "frontend changed during source analysis"
-        );
-        if output.output_limited && !output.timed_out {
-            if let Some(probe) = frontend_syntax_probe(&command) {
-                // A truncated JSON stream proves neither syntax validity nor
-                // typed equivalence. Keep ordinary source errors fatal before
-                // reporting this specific output-capacity exhaustion.
-                let probe_limits = process::Limits {
-                    output_bytes: maximum.min(65536),
-                    file_bytes: maximum.min(65536) as u64,
-                    ..limits
-                };
-                let checked = process::run(&probe, input, &self.cwd, &probe_limits)?;
-                ensure!(
-                    sha256(&std::fs::read(&self.executable)?) == self.executable_sha256,
-                    "frontend changed during capacity syntax check"
-                );
-                checked.check("Clang source spelling syntax after output exhaustion")?;
-                return check_frontend_output(output, "Clang source spelling frontend", maximum);
-            }
-        }
-        output.check("Clang source spelling frontend")?;
-        Ok(output.stdout)
-    }
-
-    fn parse(&self, source: &[u8], definitions: bool) -> Result<Parsed> {
-        let path = self.root.path().join("translation.c");
-        std::fs::write(&path, source)?;
-        let mut command = self.prefix();
-        command.extend([
-            "-fsyntax-only".into(),
-            "-Xclang".into(),
-            "-ast-dump=json".into(),
-            path.to_string_lossy().into_owned(),
-        ]);
-        let tree: Value =
-            serde_json::from_slice(&self.execute(command, b"", self.options.ast_bytes)?)
-                .context("Clang AST JSON is invalid or exceeds supported nesting")?;
-        ensure!(
-            tree["kind"] == "TranslationUnitDecl",
-            "unsupported Clang AST shape"
-        );
-        let mut macros = HashSet::new();
-        if definitions {
-            let mut command = self.prefix();
-            command.extend([
-                "-E".into(),
-                "-dD".into(),
-                path.to_string_lossy().into_owned(),
-            ]);
-            let bytes = self.execute(command, b"", self.options.ast_bytes)?;
-            let text = String::from_utf8(bytes)?;
-            // Include definitions later undefined: such macros may have been
-            // active at one of the source positions under consideration.
-            let pattern = Regex::new(r"(?m)^\s*#\s*define\s+([A-Za-z_][A-Za-z_0-9]*)")?;
-            macros.extend(pattern.captures_iter(&text).map(|c| c[1].to_owned()));
-        }
-        Ok(Parsed {
-            tree,
-            macros,
-            main_path: path.to_string_lossy().into_owned(),
+        let signature = semantic_signature(&parsed.tree);
+        Ok(Self {
+            frontend,
+            parsed,
+            tokens,
+            signature,
         })
+    }
+}
+
+impl PreparedSource {
+    pub fn new(source: &[u8], options: &CSourceOptions) -> Result<Self> {
+        validate_options(options)?;
+        ensure!(
+            source.len() <= MAX_SOURCE,
+            "source exceeds supported byte limit"
+        );
+        let analysis = if unchanged_reason(source, options).is_none() && options.max_candidates > 1
+        {
+            Some(PreparedAnalysis::new(source, options)?)
+        } else {
+            None
+        };
+        Ok(Self {
+            source: source.to_vec(),
+            options: options.clone(),
+            analysis,
+        })
+    }
+
+    pub fn source(&self) -> &[u8] {
+        &self.source
+    }
+
+    pub fn statistics(&self) -> Value {
+        self.analysis
+            .as_ref()
+            .map(|a| a.frontend.statistics())
+            .unwrap_or_else(
+                || json!({"commands":0,"ast_parses":0,"preprocessing_runs":0,"context_rechecks":0}),
+            )
+    }
+
+    pub fn generate_variants(&self) -> Result<Vec<Variant>> {
+        generate_prepared(self)
+    }
+
+    pub fn compose_variants(&self, choices: &[Variant]) -> Result<Variant> {
+        let text = std::str::from_utf8(&self.source)?;
+        if let Some(analysis) = &self.analysis {
+            compose_with_tokens(&self.source, choices, &self.options, &analysis.tokens)
+        } else {
+            compose_with_tokens(&self.source, choices, &self.options, &significant(text)?)
+        }
+    }
+
+    pub fn verify_variant(&self, candidate: &Variant) -> Result<()> {
+        ensure!(
+            candidate.data.len() <= MAX_SOURCE,
+            "source exceeds supported byte limit"
+        );
+        ensure!(
+            unchanged_reason(&self.source, &self.options).is_none(),
+            "source does not satisfy spelling observation contract"
+        );
+        let temporary;
+        let analysis = if let Some(analysis) = &self.analysis {
+            analysis
+        } else {
+            temporary = PreparedAnalysis::new(&self.source, &self.options)?;
+            &temporary
+        };
+        audited_edits_with_tokens(&self.source, candidate, &analysis.tokens)?;
+        analysis.frontend.recheck(&self.source, &analysis.parsed)?;
+        let changed = analysis.frontend.parse(&candidate.data, false);
+        // A source-context mutation can itself cause a parse/proof failure.
+        // Revalidate before classifying that failure as candidate-specific.
+        analysis.frontend.recheck(&self.source, &analysis.parsed)?;
+        let changed = changed?;
+        ensure!(
+            analysis.signature == semantic_signature(&changed.tree),
+            "candidate changed typed AST structure or declaration/reference bindings"
+        );
+        Ok(())
+    }
+
+    /// Policy knobs may differ; the physical frontend invocation must match.
+    /// The flow analyzer owns its view of this snapshot and reparses changes.
+    pub fn flow_variants(&self, options: &CFlowOptions) -> Result<Vec<Variant>> {
+        ensure!(
+            options.token_contract == self.options.frontend.token_contract,
+            "flow and spelling observation contracts differ"
+        );
+        if let Some(analysis) = &self.analysis {
+            ensure!(
+                analysis.frontend.matches(&FrontendConfig::from(options)),
+                "flow and spelling frontend configurations differ"
+            );
+            analysis.frontend.recheck(&self.source, &analysis.parsed)?;
+            let variants = cflow::generate_variants_with_snapshot(
+                &self.source,
+                options,
+                &analysis.frontend,
+                &analysis.parsed,
+                &analysis.tokens,
+            );
+            analysis.frontend.recheck(&self.source, &analysis.parsed)?;
+            variants
+        } else {
+            cflow::generate_variants(&self.source, options)
+        }
     }
 }
 
@@ -349,7 +330,10 @@ fn make_edits(
 }
 
 fn apply_edits(source: &str, edits: &[Edit]) -> Result<Vec<u8>> {
-    let tokens = significant(source)?;
+    apply_edits_with_tokens(source, edits, &significant(source)?)
+}
+
+fn apply_edits_with_tokens(source: &str, edits: &[Edit], tokens: &[Token]) -> Result<Vec<u8>> {
     let mut sorted = edits.to_vec();
     sorted.sort_by_key(|e| (e.start, e.end));
     let mut end = 0;
@@ -498,9 +482,13 @@ fn name_groups(
     source: &str,
     tokens: &[Token],
     options: &CSourceOptions,
-) -> Vec<Group> {
+) -> (Vec<Group>, Value) {
     if !options.rename_locals {
-        return vec![];
+        return (
+            vec![],
+            json!({"enabled":false,"discovered_groups":0,"available_choices":0,"selected_groups":0,"selected_choices":0,
+            "max_name_groups":options.max_name_groups,"names_per_group":options.names_per_group}),
+        );
     }
     let mut frequency = HashMap::<String, usize>::new();
     for token in tokens
@@ -510,6 +498,7 @@ fn name_groups(
         *frequency.entry(token.text.clone()).or_default() += 1;
     }
     let mut groups = Vec::new();
+    let mut available_choices = 0usize;
     for function in top_level_source_nodes(parsed, source)
         .into_iter()
         .filter(|node| node["kind"] == "FunctionDecl")
@@ -563,6 +552,7 @@ fn name_groups(
                 .cmp(frequency.get(a).unwrap_or(&0))
                 .then_with(|| a.cmp(b))
         });
+        let available_for_group = choices.len();
         choices.truncate(options.names_per_group);
         if choices.is_empty() {
             continue;
@@ -636,6 +626,7 @@ fn name_groups(
                 continue;
             }
             binding_ids.sort();
+            available_choices += available_for_group;
             groups.push(Group { rule: "c-source-local-name", old, sites, choices: choices.clone(),
                 proof: json!({"function":function["name"],"function_start":lo,"binding_ids":binding_ids,
                     "scope":"automatic locals and parameters; declaration/reference identity; fresh in whole function, expanded references and encountered macros"}) });
@@ -652,8 +643,15 @@ fn name_groups(
             })
             .then_with(|| a.old.cmp(&b.old))
     });
+    let discovered_groups = groups.len();
+    let choices_after_name_limit = groups.iter().map(|g| g.choices.len()).sum::<usize>();
     groups.truncate(options.max_name_groups);
-    groups
+    let coverage = json!({"enabled":true,"scope":"eligible automatic binding groups and fresh ASCII letters a-z/A-Z",
+        "discovered_groups":discovered_groups,"available_choices":available_choices,
+        "choices_after_names_per_group":choices_after_name_limit,"selected_groups":groups.len(),
+        "selected_choices":groups.iter().map(|g|g.choices.len()).sum::<usize>(),
+        "max_name_groups":options.max_name_groups,"names_per_group":options.names_per_group});
+    (groups, coverage)
 }
 
 fn contract(source: &[u8], options: &CSourceOptions) -> Value {
@@ -665,7 +663,12 @@ fn contract(source: &[u8], options: &CSourceOptions) -> Value {
 /// Generate raw plus independently applicable groups. The upper bound includes
 /// raw; exhaustion is deterministic and does not imply global optimality.
 pub fn generate_variants(source: &[u8], options: &CSourceOptions) -> Result<Vec<Variant>> {
-    validate_options(options)?;
+    PreparedSource::new(source, options)?.generate_variants()
+}
+
+fn generate_prepared(prepared: &PreparedSource) -> Result<Vec<Variant>> {
+    let source = prepared.source.as_slice();
+    let options = &prepared.options;
     ensure!(
         source.len() <= MAX_SOURCE,
         "source exceeds supported byte limit"
@@ -681,38 +684,73 @@ pub fn generate_variants(source: &[u8], options: &CSourceOptions) -> Result<Vec<
     )];
     if let Some(reason) = unchanged_reason(source, options) {
         result[0].notes.push(reason.into());
+        result[0].contract["generation"] = json!({"status":"inapplicable","reason":reason,"generated_variants":1,"scope":"registered guarded source spellings only"});
         return Ok(result);
     }
     if options.max_candidates == 1 {
+        result[0].contract["generation"] = json!({"status":"bounded","stop_reason":"max_candidates","generated_variants":1,"discovery":"not performed"});
         return Ok(result);
     }
     let text = std::str::from_utf8(source)?;
-    let tokens = significant(text)?;
-    let frontend = Frontend::new(&options.frontend)?;
-    let parsed = frontend.parse(source, true)?;
-    contract["frontend"] = frontend.info.clone();
+    let analysis = prepared
+        .analysis
+        .as_ref()
+        .context("prepared source analysis missing")?;
+    let tokens = &analysis.tokens;
+    let parsed = &analysis.parsed;
+    contract["frontend"] = analysis.frontend.info.clone();
     result[0].contract = contract.clone();
-    let names = name_groups(&parsed, text, &tokens, options);
-    let literals = literal_groups(&parsed, text, options)?;
+    let (names, name_coverage) = name_groups(parsed, text, tokens, options);
+    let literals = literal_groups(parsed, text, options)?;
+    let literal_groups = literals.len();
+    let literal_choices = literals
+        .iter()
+        .map(|g| g.choices.iter().filter(|s| **s != g.old).count())
+        .sum::<usize>();
+    let scheduled_choices = names
+        .iter()
+        .map(|g| g.choices.iter().filter(|s| **s != g.old).count())
+        .sum::<usize>()
+        + literal_choices;
+    let mut generation = json!({"scope":"registered guarded spelling groups; no spelling combinations or arbitrary C programs",
+        "names":name_coverage,"literal_groups":literal_groups,"literal_choices":literal_choices,
+        "scheduled_choices":scheduled_choices,"max_candidates":options.max_candidates,
+        "source_byte_limit":MAX_SOURCE,
+        "retained_candidate_byte_limit":MAX_PORTFOLIO_BYTES,"generated_variants":1,
+        "visited_choices":0,"duplicate_choices":0,"stop_reason":null});
+    let mut visited = 0usize;
+    let mut duplicates = 0usize;
+    let mut stop_reason = None;
     // Names first reserves useful one-letter redistribution even when a TU has
     // thousands of literal groups; each family is bounded by the global cap.
     let mut seen = HashSet::from([sha256(source)]);
     let mut retained_bytes = source.len();
-    for group in names.into_iter().chain(literals) {
+    'groups: for group in names.into_iter().chain(literals) {
         for replacement in group.choices {
             if replacement == group.old {
                 continue;
             }
-            let edits = make_edits(text, &tokens, &group.sites, &replacement)?;
-            let data = apply_edits(text, &edits)?;
+            visited += 1;
+            let edits = make_edits(text, tokens, &group.sites, &replacement)?;
+            let data = apply_edits_with_tokens(text, &edits, tokens)?;
             if data.len() > MAX_SOURCE || retained_bytes + data.len() > MAX_PORTFOLIO_BYTES {
                 result[0].notes.push(
-                    "source spelling portfolio reached the 64 MiB retained-candidate byte bound"
-                        .into(),
+                    if data.len() > MAX_SOURCE {
+                        "source spelling candidate exceeds the supported source-byte bound"
+                    } else {
+                        "source spelling portfolio reached the 64 MiB retained-candidate byte bound"
+                    }
+                    .into(),
                 );
-                return Ok(result);
+                stop_reason = Some(if data.len() > MAX_SOURCE {
+                    "source-byte-limit"
+                } else {
+                    "retained-candidate-byte-limit"
+                });
+                break 'groups;
             }
             if !seen.insert(sha256(&data)) {
+                duplicates += 1;
                 continue;
             }
             retained_bytes += data.len();
@@ -723,11 +761,26 @@ pub fn generate_variants(source: &[u8], options: &CSourceOptions) -> Result<Vec<
             audit["edits"] = json!(edits);
             let id = format!("c-source-{}", &sha256(&data)[..16]);
             result.push(Variant::new(&id, source, data, vec![audit], vec!["candidate only; typed AST/binding and submitted native comparison still required".into()], contract.clone()));
-            if result.len() == options.max_candidates {
-                return Ok(result);
+            if result.len() == options.max_candidates && visited < scheduled_choices {
+                stop_reason = Some("max_candidates");
+                break 'groups;
             }
         }
     }
+    generation["generated_variants"] = json!(result.len());
+    generation["visited_choices"] = json!(visited);
+    generation["duplicate_choices"] = json!(duplicates);
+    generation["stop_reason"] = json!(stop_reason);
+    let names_complete = generation["names"]["discovered_groups"]
+        == generation["names"]["selected_groups"]
+        && generation["names"]["available_choices"] == generation["names"]["selected_choices"];
+    generation["status"] = json!(if stop_reason.is_none() && names_complete {
+        "registered-single-space-exhausted"
+    } else {
+        "bounded"
+    });
+    generation["retained_candidate_bytes"] = json!(retained_bytes);
+    result[0].contract["generation"] = generation;
     Ok(result)
 }
 
@@ -753,14 +806,18 @@ fn recorded_edits(source: &[u8], variant: &Variant) -> Result<Vec<Edit>> {
     Ok(edits)
 }
 
-fn audited_edits(source: &[u8], variant: &Variant) -> Result<Vec<Edit>> {
+fn audited_edits_with_tokens(
+    source: &[u8],
+    variant: &Variant,
+    tokens: &[Token],
+) -> Result<Vec<Edit>> {
     ensure!(
         variant.sha256 == sha256(&variant.data) && variant.bytes == variant.data.len(),
         "candidate byte identity is stale"
     );
     let edits = recorded_edits(source, variant)?;
     ensure!(
-        apply_edits(std::str::from_utf8(source)?, &edits)? == variant.data,
+        apply_edits_with_tokens(std::str::from_utf8(source)?, &edits, tokens)? == variant.data,
         "audited edits do not reconstruct candidate"
     );
     Ok(edits)
@@ -774,11 +831,25 @@ pub fn compose_variants(
     options: &CSourceOptions,
 ) -> Result<Variant> {
     validate_options(options)?;
+    compose_with_tokens(
+        source,
+        choices,
+        options,
+        &significant(std::str::from_utf8(source)?)?,
+    )
+}
+
+fn compose_with_tokens(
+    source: &[u8],
+    choices: &[Variant],
+    options: &CSourceOptions,
+    tokens: &[Token],
+) -> Result<Variant> {
     let mut edits = Vec::new();
     let mut audits = Vec::new();
     let mut names = HashSet::new();
     for choice in choices {
-        edits.extend(audited_edits(source, choice)?);
+        edits.extend(audited_edits_with_tokens(source, choice, tokens)?);
         for audit in &choice.audit {
             if audit["rule"] == "c-source-local-name" {
                 let function = audit["function_start"]
@@ -793,7 +864,7 @@ pub fn compose_variants(
             audits.push(audit.clone());
         }
     }
-    let data = apply_edits(std::str::from_utf8(source)?, &edits)?;
+    let data = apply_edits_with_tokens(std::str::from_utf8(source)?, &edits, tokens)?;
     let id = format!("c-source-composed-{}", &sha256(&data)[..16]);
     Ok(Variant::new(&id, source, data, audits, vec!["composed candidate; verify typed AST/bindings and actual native bytes before acceptance".into()], contract(source, options)))
 }
@@ -903,8 +974,12 @@ pub fn verify_variant(source: &[u8], candidate: &Variant, options: &CSourceOptio
         unchanged_reason(source, options).is_none(),
         "source does not satisfy spelling observation contract"
     );
-    audited_edits(source, candidate)?;
-    let frontend = Frontend::new(&options.frontend)?;
+    audited_edits_with_tokens(
+        source,
+        candidate,
+        &significant(std::str::from_utf8(source)?)?,
+    )?;
+    let frontend = FrontendSession::new(FrontendConfig::from(&options.frontend), true)?;
     let original = frontend.parse(source, false)?;
     let changed = frontend.parse(&candidate.data, false)?;
     ensure!(
@@ -959,6 +1034,183 @@ mod tests {
             },
             ..Default::default()
         })
+    }
+
+    #[test]
+    fn prepared_source_reuses_base_analysis_without_changing_candidates_or_proofs() {
+        let Some(mut options) = options() else {
+            return;
+        };
+        options.max_name_groups = 1;
+        options.names_per_group = 2;
+        options.max_candidates = 8;
+        let source=b"int f(int input){int local=input+131071;return local+input;}int b(_Bool flag){return flag!=1;}\n";
+        let prepared = PreparedSource::new(source, &options).unwrap();
+        let variants = prepared.generate_variants().unwrap();
+        let coverage = &variants[0].contract["generation"];
+        assert!(
+            coverage["names"]["discovered_groups"].as_u64().unwrap()
+                > coverage["names"]["selected_groups"].as_u64().unwrap()
+        );
+        assert!(
+            coverage["names"]["available_choices"].as_u64().unwrap()
+                > coverage["names"]["selected_choices"].as_u64().unwrap()
+        );
+        assert_eq!(coverage["status"], "bounded");
+        let ast_before = prepared.statistics()["ast_parses"].as_u64().unwrap();
+        let changed = variants
+            .iter()
+            .filter(|v| v.data != source)
+            .take(2)
+            .collect::<Vec<_>>();
+        assert_eq!(changed.len(), 2);
+        for candidate in &changed {
+            prepared.verify_variant(candidate).unwrap();
+            verify_variant(source, candidate, &options).unwrap();
+        }
+        assert_eq!(
+            prepared.statistics()["ast_parses"].as_u64().unwrap() - ast_before,
+            changed.len() as u64,
+            "shared gate must freshly parse each changed candidate without redoing base AST"
+        );
+        let mut flows = options.frontend.clone();
+        flows.max_variants = 32;
+        flows.individual_edits = 4;
+        flows.include_nonshrinking = true;
+        let shared = prepared.flow_variants(&flows).unwrap();
+        let separate = cflow::generate_variants(source, &flows).unwrap();
+        assert_eq!(
+            shared
+                .iter()
+                .map(|v| (&v.id, &v.data, &v.audit))
+                .collect::<Vec<_>>(),
+            separate
+                .iter()
+                .map(|v| (&v.id, &v.data, &v.audit))
+                .collect::<Vec<_>>()
+        );
+        assert_eq!(shared[0].contract["generation"]["source_ast_reused"], true);
+        assert_eq!(
+            shared[0].contract["generation"]["all_edit_combinations_explored"],
+            false
+        );
+        flows.compiler_args.push("-funsigned-char".into());
+        assert!(prepared
+            .flow_variants(&flows)
+            .unwrap_err()
+            .to_string()
+            .contains("configurations differ"));
+    }
+
+    #[test]
+    fn prepared_proof_refuses_changed_include_context_and_keeps_generation_limits_explicit() {
+        let Some(mut options) = options() else {
+            return;
+        };
+        let directory = tempfile::tempdir().unwrap();
+        let source_path = directory.path().join("input.c");
+        let header = directory.path().join("values.h");
+        let source = b"#include \"values.h\"\nint f(int value){return value+VALUE;}\n";
+        std::fs::write(&source_path, source).unwrap();
+        std::fs::write(&header, b"#define VALUE 17\n").unwrap();
+        options.frontend.source_path = Some(source_path);
+        options.max_candidates = 2;
+        let prepared = PreparedSource::new(source, &options).unwrap();
+        let variants = prepared.generate_variants().unwrap();
+        assert_eq!(
+            variants[0].contract["generation"]["stop_reason"],
+            "max_candidates"
+        );
+        prepared.verify_variant(&variants[1]).unwrap();
+        std::fs::write(&header, b"#define VALUE 18\n").unwrap();
+        let changed = prepared.verify_variant(&variants[1]).unwrap_err();
+        assert!(changed
+            .to_string()
+            .contains("preprocessing context changed"));
+        assert!(changed.downcast_ref::<FrontendContextChanged>().is_some());
+        assert!(prepared
+            .flow_variants(&options.frontend)
+            .unwrap_err()
+            .to_string()
+            .contains("preprocessing context changed"));
+        // A separate proof has a new input context; a previous observation is
+        // never silently promoted to that new context by the cached session.
+        verify_variant(source, &variants[1], &options).unwrap();
+        std::fs::remove_file(header).unwrap();
+        let missing = prepared.verify_variant(&variants[1]).unwrap_err();
+        assert!(
+            missing.downcast_ref::<FrontendContextChanged>().is_some(),
+            "an unreadable include context cannot become a candidate-only rejection"
+        );
+    }
+
+    #[test]
+    fn context_mutation_is_not_hidden_by_a_failed_candidate_parse() {
+        use std::os::unix::fs::PermissionsExt;
+        let Some(mut options) = options() else {
+            return;
+        };
+        let directory = tempfile::tempdir().unwrap();
+        let source_path = directory.path().join("input.c");
+        let header = directory.path().join("values.h");
+        let trigger = directory.path().join("change-on-ast");
+        let wrapper = directory.path().join("observed-clang");
+        let real = process::resolve_tool(&options.frontend.clang).unwrap();
+        let word =
+            |path: &std::path::Path| format!("'{}'", path.to_string_lossy().replace('\'', "'\\''"));
+        let script=format!("#!/bin/sh\nfor arg do\n if [ \"$arg\" = -ast-dump=json ] && [ -f {} ]; then\n  printf '#error changed during candidate parse\\n' > {}\n fi\ndone\nexec {} \"$@\"\n",word(&trigger),word(&header),word(&real));
+        std::fs::write(&wrapper, script).unwrap();
+        std::fs::set_permissions(&wrapper, std::fs::Permissions::from_mode(0o700)).unwrap();
+        // Keep the macro out of the transformed function: the existing flow
+        // guard correctly protects functions that directly observe macros.
+        let source = b"#include \"values.h\"\nint marker=VALUE;int f(int value){if(value)return 17;else return 0;}\n";
+        std::fs::write(&source_path, source).unwrap();
+        options.frontend.clang = wrapper.to_string_lossy().into_owned();
+        options.frontend.source_path = Some(source_path);
+        options.max_candidates = 2;
+        for flow in [false, true] {
+            std::fs::write(&header, b"#define VALUE 17\n").unwrap();
+            if trigger.exists() {
+                std::fs::remove_file(&trigger).unwrap();
+            }
+            let prepared = PreparedSource::new(source, &options).unwrap();
+            let variants = prepared.generate_variants().unwrap();
+            std::fs::write(&trigger, b"armed").unwrap();
+            let failure = if flow {
+                prepared.flow_variants(&options.frontend).unwrap_err()
+            } else {
+                prepared.verify_variant(&variants[1]).unwrap_err()
+            };
+            assert!(
+                failure.downcast_ref::<FrontendContextChanged>().is_some(),
+                "a failed parse must still detect mutation of the reused base: {failure:#}"
+            );
+        }
+    }
+
+    #[test]
+    fn shared_frontend_preserves_the_consumers_encoding_contracts() {
+        let Some(mut options) = options() else {
+            return;
+        };
+        let directory = tempfile::tempdir().unwrap();
+        let source_path = directory.path().join("input.c");
+        let source = b"#include \"bytes.h\"\nint f(int value){if(value)return 1;else return 2;}\n";
+        std::fs::write(&source_path, source).unwrap();
+        // An unused macro preserves a raw literal byte in -E -dD output while
+        // the actual translation unit is valid and its function is ordinary C.
+        std::fs::write(directory.path().join("bytes.h"), b"#define RAW \"\xff\"\n").unwrap();
+        options.frontend.source_path = Some(source_path);
+        let flows = cflow::generate_variants(source, &options.frontend).unwrap();
+        assert!(
+            flows.iter().any(|v| v.data != source),
+            "the shared frontend must retain flow's header-byte support"
+        );
+        let error = generate_variants(source, &options).unwrap_err();
+        assert!(
+            error.to_string().contains("not UTF-8"),
+            "spelling analysis keeps its existing stricter contract: {error:#}"
+        );
     }
 
     #[test]

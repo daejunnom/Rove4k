@@ -1,6 +1,6 @@
 {
   "name": "nvcompact",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "license": "MIT",
   "description": "Rust N-version compaction, native linking and TCEC 4K submission tools",
   "type": "module",

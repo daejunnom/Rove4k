@@ -4,22 +4,24 @@ NVCompact means **N-version compaction**: preserve the original, construct
 explicit alternatives, verify their applicable contracts, and compare the
 complete deliverable. It is an internal Rust tool in the Rove4k monorepo.
 
-The source version is 0.5.0. Node supplies the `nvcompact` npm command boundary;
+The source version is 0.6.0. Node supplies the `nvcompact` npm command boundary;
 Rust performs the active compilation orchestration, spelling transformations,
 packing, reproduction, resource checks and UCI probes. The archived Python 0.3
 implementation is reference material for past results.
 
-Version 0.5.0 adds bounded whole-file source search, retained attempt archives
-and the read-only `compare-attempts` command, with stricter Boolean-domain
-checks for typed C rewrites. See the [0.5.0 release notes](docs/RELEASE-0.5.ko.md)
-for the changes, measured scope and platform limits. Historical measurements
-below retain their recorded inputs and tool versions.
+Version 0.6.0 adds advisory-only C/C++/Rust scalar-domain analysis, bounded
+typed n-version suggestions, constant and unused-declaration diagnostics, and
+final-file repeated-byte inspection. It also reduces repeated search planning,
+cache lookup and decode-verification work. See the [0.6.0 release notes](docs/RELEASE-0.6.ko.md)
+for the supported subsets, measured gains and limits. The source-search and
+retained-attempt features from [0.5.0](docs/RELEASE-0.5.ko.md) remain available.
+Historical measurements below retain their recorded inputs and tool versions.
 
 ## Build and package
 
 The current execution environment is Linux. Use Node 22 or later, Rust/Cargo,
 and the build dependencies for liblzma, zlib and libbz2. C/C++ comparison builds
-need their declared compiler; typed C transformations also need Clang.
+need their declared compiler; typed C transformations and C/C++ advice also need Clang.
 
 ```sh
 npm ci --ignore-scripts
@@ -52,7 +54,7 @@ repository. Omitting `--no-build` first builds current source. The explicit
 `--no-build` path checks recorded source, host and executable fingerprints.
 
 Install the resulting tarball with
-`npm install --offline --ignore-scripts /absolute/path/nvcompact-0.5.0.tgz`.
+`npm install --offline --ignore-scripts /absolute/path/nvcompact-0.6.0.tgz`.
 The npm target is Linux x64/glibc, with release CI on Ubuntu 24.04. It does not
 claim universal binary compatibility. `NVCOMPACT_BIN` selects another
 explicit Rust executable without triggering a build or another backend.
@@ -68,6 +70,8 @@ Korean characters. It installs the actual tarball offline, exercises command
 selection and typed notation, builds and reproduces an owned C fixture, verifies
 256 integer inputs and two invalid inputs, checks fresh explicit execution
 authorization, and confirms that installed package bytes remain unchanged.
+It also checks the installed C++/Rust advisory utilities, explicit unsupported
+language/profile boundaries, and repeated-byte inspection on owned fixtures.
 
 The recorded 0.4.0 local run passed 41 Rust tests, five launcher tests, and all
 nine installed-package validation groups. The actual installed package was
@@ -176,6 +180,74 @@ inspected Python bytes embedding when present. Equal-length or longer source
 spellings can win. Accepted changes require binding/type checks and identical
 complete native output and compiler diagnostics under the declared recipe.
 `replay` reconstructs the accepted derivation without repeating the search.
+The caller must establish the declared source/wrapper observation contract;
+masked AST and native identity do not establish traceback/location non-observation.
+
+The submitted-codec strategy keeps the existing improving-incumbent rounds
+before deferred spelling subsets. The full-codec strategy instead interleaves
+singletons and subsets, checks a measured improvement immediately, and gives
+initial round/family phases bounded shares before resuming their saved queues.
+It does not wait for every singleton and payload style to be scored before
+admission. An online candidate started before the scheduling deadline may finish
+its bounded payload-style scoring and proof afterward. Evaluation limits and
+fresh-verification reservations still bound scoring; cancellation and
+retention/frontend stops remain binding. New candidates cannot start after the
+deadline, and the legacy strategy retains its checks between payload costs.
+
+Losing or tied singles remain eligible for a combined gain. `max_combinations`
+defaults to 16384 per strategy, with a supported maximum of 1048576; generation,
+time, measurement and retention bounds remain separate. Reports distinguish
+declared generated-space completion from budget stops and unfinished work.
+Condition recipes and codec refinements retain their bounded heuristic scope;
+the search does not enumerate every equivalent program or rewrite sequence.
+Preserving earlier priority and candidates is not a guarantee of the same
+minimum under every wall-clock limit or execution environment.
+
+When `source_search` is enabled, the envelope defaults to two source strategies:
+the submitted codec first, then the complete current codec policy as an
+objective. Both winners enter the final comparison, together with a distinct
+legacy priority seed when deferred work changes that winner. The seed shares
+its strategy's budget and crosses the same fresh final checks; it is not a new
+strategy. Set the manifest's top-level
+`"source_search_portfolio": false` to exclude the second strategy explicitly.
+Each strategy owns its budget and attempt archive; `source_search_budget` reports
+the aggregate limits and retained seed count separately. With defaults, two
+strategies permit up to 4096 complete payload evaluations, 32768 combination
+attempts and 600 scheduling seconds.
+One evaluation may run many codecs, and in-flight work, final acceptance and the
+final codec comparison are separate from those scheduling deadlines.
+
+Both strategies and final selection share the whole-file evaluator's bounded
+codec/header caches. Keys preserve payload identity and the complete recipe;
+same native ELF bytes do not merge distinct source costs. Workers are reused
+within a codec batch, while fresh final checks bypass measurement caches.
+The default codec policy includes adaptive legacy refinements. The Rust API's
+explicit fixed-recipe policy can exhaust its declared list; neither policy
+claims the global compression optimum. The [search architecture](docs/SEARCH-ARCHITECTURE.ko.md)
+describes ownership, reuse, exact coverage and fresh verification boundaries.
+
+To measure repeated whole-file cost reuse on owned inert data, run from the
+repository root:
+
+```sh
+cargo run --release --locked -p nvcompact --example cost_reuse
+```
+
+The [bounded example](examples/cost_reuse.rs) evaluates eight payloads 16 times
+against the same fixed gzip levels 1, 6 and 9 with `jobs=1`. It compares retained
+codec/header caches with disabled caches in four trials each, alternating the
+execution order. JSON output records each duration, actual work and reuse
+statistics, complete winning artifact hashes, and fresh evaluations of every
+unique payload. Repeated, cache-policy and fresh artifact identities must agree.
+Each policy runs first twice. The measurement timer includes objective setup,
+header/codec work, restoration, artifact construction and identity checks; fresh
+checks have a separate timer. There is no untimed warmup before measurement.
+The shell header is data in this example. These measurements isolate identical
+repeated work; they do not establish the overall speedup of an engine campaign
+or a search that now explores more candidates. The source-search
+`frontend_work` statistic likewise covers only tracked prepared analyses, not
+all Clang work or the full command's running time.
+
 Source search also retains original/candidate source snapshots, derivations and
 failed or unselected observations in a bounded external attempt archive. It
 automatically compares the recorded complete-file costs when sealing the run;
@@ -190,7 +262,81 @@ Evaluation count, result type, macro boundaries and volatile/atomic protections
 remain part of the rule's applicability checks.
 The [whole-file source portfolio guide](docs/SOURCE-PORTFOLIO.md) documents the
 contracts, configuration, bounds and unsupported cases. Engine-specific work
-is separated in the [PR #12 handoff](docs/PR12-HANDOFF.ko.md).
+is tracked separately in [PR #12](https://github.com/daejunnom/Rove4k/pull/12).
+
+### Short-coding advice
+
+`advise-source SOURCE --language c|cpp|rust` selects an explicit source-language
+contract. C++17/20 uses Clang's real C++ AST and preserves built-in scalar type
+and value category. Rust's bounded primitive subset uses separate Rust typing,
+checked arithmetic and rendering; it does not build a crate or expand macros.
+Python and other languages return an explicit unsupported-language error. These
+language restrictions apply to advisory analysis, not byte compression.
+
+```sh
+nvcompact advise-source final.cpp --language cpp --standard c++17
+nvcompact advise-source final.rs --language rust --standard rust2021
+```
+
+C++ and Rust currently support static advice only; `--profile` and `--instrument`
+are explicitly rejected. Shared findings/ranges and `language_details` identify
+actual language semantics separately from the internal candidate generator.
+See the [language contracts](docs/LANGUAGE-ADVISOR.ko.md),
+[native audit and retained-engine limitations](docs/LANGUAGE-RESULTS.ko.md), and owned
+[C++](examples/advice/domains.cpp) / [Rust](examples/advice/domains.rs) examples.
+
+These commands are included in the 0.6.0 source and package. The earlier
+published npm 0.5.0 tarball does not include them. See the release workflow and
+registry for publication status; a local source build alone is not publication.
+
+`nvcompact advise-c final.c --report advice.json` reports typed repeated
+constants, declarations with no translation-unit references, and integer ranges
+at evaluated read sites, with conditional shortening suggestions. It never feeds
+findings into compression or rewrites the input. `--instrument diagnostic`
+exports a separate, bounded C11 diagnostic copy; `--profile observations.log`
+imports its samples as observations, without turning them into static facts.
+
+The domain pass now combines intervals, known bits and bounded finite sets.
+Pure single-variable expressions also receive typed n-version comparison:
+generic arithmetic/shift/mask/Boolean alternatives are checked over every value
+in the supplied containing domain. For example, the rank predicate can yield
+`!(to+16&96)` when the site admits only `0..127`; a `0x88` mask guard alone does
+not establish that bound. Long and long-long ranks, signedness, short-circuiting
+and undefined operations remain part of the comparison.
+
+Profile comparison uses a guaranteed expression-entry read and checks the full
+observed minimum-to-maximum interval, including unsampled values. These results
+remain conditional hypotheses and include separately bounded outside-domain
+counterexamples. Shared DAG/typed-vector memoization avoids repeated work while
+retaining algorithm-family alternatives. The [domain and n-version design](docs/DOMAIN-NVERSION.ko.md)
+describes proof scopes, actual grammar, budgets, omissions and command options.
+
+`nvcompact inspect-binary submission --word-bytes 8` inventories exact repeated
+bytes in the final artifact. Matching bytes are not automatically semantic
+constants or measured savings. The [advisor design and usage](docs/SHORTCODE-ADVISOR.ko.md)
+explains type, side-effect, control-flow, profiling and resource boundaries.
+The small owned [example](examples/advice/program.c) exercises all three source
+diagnostics. Neither command starts the submitted program.
+The [domain example](examples/advice/domains.c) contrasts explicit bounds, a
+sparse board domain, an insufficient mask guard, and conditional observations.
+
+The [performance and advisory follow-up](docs/PERFORMANCE-ADVICE-RESULTS.ko.md)
+records the streaming verifier, indexed FIFO cache, bounded worker scheduling,
+48 baseline/final measurements, complete test run and independent advisory audit.
+The [domain and performance extension results](docs/DOMAIN-PERFORMANCE-RESULTS.ko.md)
+record the subsequent typed-domain audit, retained TCEC comparisons, planning
+algorithm improvement and rejected scratch-buffer experiments.
+
+The [external byte-saving commit review](docs/EXTERNAL-SIZE-COMMITS.ko.md) records
+upstream techniques, losses and semantic/deployment tradeoffs independently of
+whether Rove4k already uses them; historical upstream sizes are not new local
+measurements.
+The [PR #16 measurements](docs/PR16-RESULTS.ko.md) record the ownership/search
+refactor against the same pinned inputs, a separate bootstrap-byte-preserving
+matrix, and the bounded cost-reuse experiment. Source-search measurements under
+declared non-observation assumptions are distinguished from wrapper semantics,
+UCI and submission acceptance. Its A–F input commit differs from the older
+PR #13 campaign, so engine changes are not attributed to the compressor.
 The [PR #13 measurements](docs/PR13-RESULTS.ko.md) compare 26 pinned
 input/profile rows: seven smaller complete files and 19 byte-identical winners,
 with explicit replay, compiler-proof and unexecuted runtime boundaries.

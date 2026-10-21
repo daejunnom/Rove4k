@@ -1,0 +1,289 @@
+{
+  "schema": "nvcompact-pr16-validation-v1",
+  "observed_at_utc": "2026-10-21T09:09:24.463445+00:00",
+  "implementation_commit": "32fa6de33670a417315cb5594961dadb4c871fbc",
+  "implementation_tree": "aabd7c0ad05b82782eba955bb9d4e7638d635c78",
+  "base_develop": "9b73693216ea289681a59e93902c52d16a3894a7",
+  "baseline_code_commit": "29dfde6916017b6b78d0cc1ee9f97f5a70f392e2",
+  "af_input_commit": "68db496f478735411e2036231f03e3f35c76f088",
+  "source_scope": "Subsequent documentation/evidence commits do not change the implementation measured here.",
+  "release_binary": {
+    "path": "/workspace/scratch/d70af21bae00/nvcompact-next/target/release/nvcompact",
+    "bytes": 11128088,
+    "sha256": "41f1f0cfffda1939656a1c163dd97eb55dfbadce42f9fe2b10d7c69f76f5be88"
+  },
+  "release_build": {
+    "argv": [
+      "cargo",
+      "build",
+      "--release",
+      "--locked",
+      "--offline",
+      "-p",
+      "nvcompact"
+    ],
+    "result": "passed",
+    "log": {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/release-final-02.log",
+      "bytes": 165,
+      "sha256": "5fe032eef62e6848417763105369b87bb1d45681a9f37c0f8211c1c22b415ec2"
+    }
+  },
+  "local_rust_suite": {
+    "argv": [
+      "cargo",
+      "test",
+      "--workspace",
+      "--locked",
+      "--offline",
+      "--",
+      "--test-threads=1"
+    ],
+    "log": {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/full-tests-final-01.log",
+      "bytes": 8166,
+      "sha256": "72f502b5788406c648e732214524b21b738ec74194509532cffddb8f2c631dc4"
+    },
+    "result": "passed",
+    "passed": 80,
+    "failed": 0,
+    "ignored": 0,
+    "targets": [
+      {
+        "status": "ok",
+        "passed": "64",
+        "failed": "0",
+        "ignored": "0",
+        "measured": "0",
+        "filtered_out": "0",
+        "seconds": "111.36"
+      },
+      {
+        "status": "ok",
+        "passed": "0",
+        "failed": "0",
+        "ignored": "0",
+        "measured": "0",
+        "filtered_out": "0",
+        "seconds": "0.00"
+      },
+      {
+        "status": "ok",
+        "passed": "10",
+        "failed": "0",
+        "ignored": "0",
+        "measured": "0",
+        "filtered_out": "0",
+        "seconds": "20.10"
+      },
+      {
+        "status": "ok",
+        "passed": "6",
+        "failed": "0",
+        "ignored": "0",
+        "measured": "0",
+        "filtered_out": "0",
+        "seconds": "142.07"
+      },
+      {
+        "status": "ok",
+        "passed": "0",
+        "failed": "0",
+        "ignored": "0",
+        "measured": "0",
+        "filtered_out": "0",
+        "seconds": "0.00"
+      }
+    ],
+    "target_order": [
+      "library",
+      "binary",
+      "packing integration",
+      "source-search integration",
+      "documentation"
+    ],
+    "clang": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+    "asserted_boundaries": [
+      "single-candidate cost losses do not prune compatible source combinations",
+      "fresh cost and recipe verification bypass measurement caches",
+      "fixed-codec and full-portfolio evidence remain different cost contexts",
+      "portfolio-only and legacy source recipe lookups both replay",
+      "canonical aliases point to actual final payload candidates",
+      "initial frontend output capacity does not become an invalidated cached proof",
+      "spelling, flow, unchanged fallback, final fresh success/failure and baseline header changes fail the run",
+      "typed context errors survive failure classification and post-operation checks",
+      "space-incomplete evidence admits only already-verified final incumbents"
+    ]
+  },
+  "github_ci": {
+    "commit": "32fa6de33670a417315cb5594961dadb4c871fbc",
+    "nvcompact": {
+      "run_id": 39573695475,
+      "result": "success",
+      "url": "https://github.com/daejunnom/Rove4k/actions/runs/39573695475",
+      "jobs": [
+        {
+          "id": 119133854731,
+          "node_major": 22,
+          "result": "success"
+        },
+        {
+          "id": 119133854488,
+          "node_major": 24,
+          "result": "success"
+        }
+      ],
+      "observed_successful_steps": [
+        "launcher ownership and argv",
+        "complete-file comparison reporting",
+        "npm release boundaries without publishing",
+        "GitHub Packages mirror boundaries without publishing",
+        "Rust implementation and owned fixtures",
+        "native tool build",
+        "local npm tarball",
+        "actual offline-installed tarball validation"
+      ]
+    },
+    "repository_lifecycle": {
+      "run_id": 39573695290,
+      "result": "success",
+      "url": "https://github.com/daejunnom/Rove4k/actions/runs/39573695290"
+    },
+    "later_docs_commit": "CI at a subsequent PR head is reported separately in the PR; these observed results remain tied to their actual commit."
+  },
+  "environment": {
+    "rust": {
+      "argv": [
+        "/workspace/scratch/d70af21bae00/nvcompact-next/toolchain/rust/bin/rustc",
+        "--version"
+      ],
+      "output": "rustc 1.99.1 (58cf8f9c3 2026-10-13)"
+    },
+    "gcc": {
+      "argv": [
+        "cc",
+        "--version"
+      ],
+      "output": "cc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+    },
+    "ld": {
+      "argv": [
+        "ld",
+        "--version"
+      ],
+      "output": "GNU ld (GNU Binutils for Ubuntu) 2.42\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis program is free software; you may redistribute it under the terms of\nthe GNU General Public License version 3 or (at your option) a later version.\nThis program has absolutely no warranty."
+    },
+    "memory_limit_bytes": 8589934592,
+    "cpu_max": "800000 100000",
+    "cargo_build_jobs": 2,
+    "codec_jobs_per_campaign": 2,
+    "maximum_simultaneous_comparison_campaigns": 3,
+    "resource_scope": "Observed cgroup limits, not resource reservation or TCEC-server acceptance."
+  },
+  "review": {
+    "scope": "Separate agent reviews of codec/source integration, search coverage consumers, frontend ownership and failure boundaries; not human PR approval.",
+    "corrected_findings": [
+      "strategy winners identical to another payload now retain canonical aliases",
+      "two strategies now expose aggregate scheduling/evaluation/combination limits",
+      "coverage defaults and space-incomplete evidence consumers agree",
+      "cached preprocessing context is retained across changing source bases",
+      "failed parse/compile/fresh work does not bypass context checks",
+      "native receipts are recorded before post-operation context checks",
+      "typed context failures retain their original error chain",
+      "redundant admission tool checks no longer bypass the owning context guard",
+      "initial preprocessing observation is retained as a source-context journal event even for failed runs"
+    ],
+    "limits": [
+      "C compiler identity is checked by native comparison and final pin checks; SourceContext owns Clang and preprocessing observations.",
+      "Observation guards are not hermetic snapshots or protection against arbitrary concurrent filesystem changes."
+    ]
+  },
+  "preserved_local_attempts": [
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/c-frontend-01.log",
+      "bytes": 506,
+      "sha256": "4a4ede9ee9b56778f6bb6512dc0d512a260dbbe4d6e9c6f888b871a946a8ca7f"
+    },
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/cargo-fetch-02.log",
+      "bytes": 4033,
+      "sha256": "14adc9fb4523d83542ba0a191645e7ebc6149fbf1c27f2cecc1e47b23a4e9977"
+    },
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/cflow-01.log",
+      "bytes": 1155,
+      "sha256": "26bcd32026a90168b2b67c0765c32c84ed38848966ef873bbded3298f59023e3"
+    },
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/csource-01.log",
+      "bytes": 4454,
+      "sha256": "b60a3ebee3ab193685e5054d9560ad22f3b8e36b9a1249911de25cff1d3c5d52"
+    },
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/csource-03.log",
+      "bytes": 7822,
+      "sha256": "9d8797f9868dc547e50b69a500edae7485c363dd878c987b891d29ae1c3d014b"
+    },
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/csource-04.log",
+      "bytes": 3791,
+      "sha256": "e7881c6af70fbb3fae403042ece45814d9a6d2e6af32d6ab86156661310c3b61"
+    },
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/csource-05.log",
+      "bytes": 33517,
+      "sha256": "f5355df6e629f636c30aa9feef0b68c4a7fd0ecc49e41f927f6ad0472ab16043"
+    },
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/csource-06.log",
+      "bytes": 1108,
+      "sha256": "35a8b548566346a4858e4682fd12d6488c795100492a1b780ee748358f7041d8"
+    },
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/csource-07.log",
+      "bytes": 1106,
+      "sha256": "25add512a966e84c39a05cd015616134f4fd8157af4f50de2369c2316cc77167"
+    },
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/libclang-cpp20-repair.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/source-context-01.log",
+      "bytes": 813,
+      "sha256": "4b77b4e3eb1c05d4bc67ec9fafee40f990681a07e5c955d2c22f2d4f0debafe3"
+    },
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/full-tests-01.log",
+      "bytes": 7748,
+      "sha256": "15d0a84beb224b2e05a536ed24c18c7f678206dec4026d9f3d431476c47fa880"
+    },
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/release-final-01.log",
+      "bytes": 165,
+      "sha256": "d229785d71cc6abca12ceb33fba34a3eac0623c4b916aad9b34a1f1afd8570f1"
+    },
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/source-context-integration-01.log",
+      "bytes": 1221,
+      "sha256": "1389f77956859254e011c9e8cde288ce695e80228569f8c9477332099cfe302b"
+    },
+    {
+      "path": "/workspace/scratch/d70af21bae00/nvcompact-next/source-context-integration-02.log",
+      "bytes": 1221,
+      "sha256": "59f65d69f15e54152cbebbdbf9da6d38f5febf13718a4ac810ce456451c9accc"
+    }
+  ],
+  "failure_scope": "Compiler/bootstrap recovery failures, historical native pin mismatches, cancelled search and cross-binary replay refusals remain in comparison.json; they are not relabelled as successful original runs.",
+  "execution_scope": {
+    "chess_engines": "not executed",
+    "python_bootstraps": "not executed",
+    "custom_elf_loaders": "not executed",
+    "uci_or_strength": "not measured",
+    "compiler_and_decoder": "executed with declared finite limits",
+    "owned_arithmetic_oracles": "executed only by the declared small owned fixtures",
+    "npm_publish": "not performed",
+    "pr_merge": "not performed"
+  }
+}

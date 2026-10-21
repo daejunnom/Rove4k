@@ -1,0 +1,845 @@
+{
+  "format": "nvcompact.language-integration.v1",
+  "scope": "C/C++/Rust advisory integration and an actual offline-installed local package; no engine execution or registry publication.",
+  "base_before_language_commit": {
+    "branch": "feature/nvcompact-search-architecture",
+    "head": "1f213570f082d363b962869843aed224d7bfc3aa",
+    "develop": "9b73693216ea289681a59e93902c52d16a3894a7"
+  },
+  "workspace_test": {
+    "command": [
+      "cargo",
+      "test",
+      "--workspace",
+      "--locked",
+      "--",
+      "--test-threads=2"
+    ],
+    "cpu_affinity": [
+      4,
+      5
+    ],
+    "rustc": "1.99.1",
+    "clang": "20",
+    "groups": [
+      "library",
+      "main",
+      "advice",
+      "advice_cpp",
+      "packing",
+      "source_search",
+      "doc-tests"
+    ],
+    "results": [
+      {
+        "passed": 125,
+        "failed": 0,
+        "ignored": 0,
+        "seconds": 78.48
+      },
+      {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0,
+        "seconds": 0.0
+      },
+      {
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0,
+        "seconds": 1.4
+      },
+      {
+        "passed": 4,
+        "failed": 0,
+        "ignored": 0,
+        "seconds": 1.85
+      },
+      {
+        "passed": 10,
+        "failed": 0,
+        "ignored": 0,
+        "seconds": 13.38
+      },
+      {
+        "passed": 10,
+        "failed": 0,
+        "ignored": 0,
+        "seconds": 129.34
+      },
+      {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0,
+        "seconds": 0.0
+      }
+    ],
+    "passed": 152,
+    "failed": 0,
+    "source_snapshot_rust_sha256": "24685b8bc10067e18dbcc072018eb39708d66e8cb51d0358208fba429f5d8cb1",
+    "scope_note": "Full suite before final formatter/constant-fold-only Rust change; final affected Rust tests and independent native rerun are separately recorded. Exact final commit CI runs the full suite including the additional test."
+  },
+  "final_rust_test": {
+    "command": [
+      "/workspace/scratch/d70af21bae00/nvcompact-next/toolchain/rust/bin/cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "--manifest-path",
+      "tools/nvcompact/Cargo.toml",
+      "--lib",
+      "advisor::rust::tests",
+      "--",
+      "--nocapture",
+      "--test-threads=1"
+    ],
+    "passed": 10,
+    "failed": 0,
+    "source_sha256": "bf353fc535a776ae5e4b2743bbae74b54d8a868e8f92016ba841ff8f4f5125ac",
+    "change": "Fold typed integer constant casts using the existing Rust cast_value owner; no change to final reparse, source-type and exhaustive Rust evaluation gates. One regression covers u32/i64/u64 candidates plus narrowing/widening and bool conversion boundaries.",
+    "native_followup": "language-validation.json contains the final 54 candidates and 64366 native comparisons per overflow mode.",
+    "cwd": "/workspace/scratch/7bea14fb3412/Rove4k",
+    "cpu_affinity": [
+      0,
+      1
+    ],
+    "timeout_seconds": 180,
+    "environment": {
+      "CARGO_BUILD_JOBS": "2",
+      "CARGO_HOME": "/workspace/scratch/7bea14fb3412/nvcompact-work/cargo-home",
+      "CARGO_TARGET_DIR": "/workspace/scratch/7bea14fb3412/nvcompact-work/advisor-target",
+      "RUSTC": "/workspace/scratch/d70af21bae00/nvcompact-next/toolchain/rust/bin/rustc",
+      "LD_LIBRARY_PATH": "/workspace/scratch/d70af21bae00/nvcompact-next/toolchain/rust/lib"
+    },
+    "capture": "bash pipefail; combined stdout/stderr piped to tee constant-fold-unit-tests.log; exact invocation confirmed by test owner."
+  },
+  "node_checks": {
+    "node": "v24.19.0",
+    "launcher": {
+      "command": [
+        "node",
+        "tools/nvcompact/scripts/test-cli.mjs"
+      ],
+      "passed": 5,
+      "failed": 0
+    },
+    "comparison": {
+      "command": [
+        "node",
+        "--test",
+        "tools/nvcompact/scripts/compare-results.test.mjs"
+      ],
+      "passed": 1,
+      "failed": 0
+    },
+    "repository_lifecycle": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/repository.test.mjs"
+      ],
+      "passed": 7,
+      "failed": 0,
+      "initial_attempt": "Sandbox run failed with spawnSync git EPERM while creating owned temporary fixture repositories. Tests were unchanged; allowed rerun passed all seven. Both logs are preserved."
+    }
+  },
+  "production_build": {
+    "format": "nvcompact.npm-build.v1",
+    "version": "0.5.0",
+    "binary": "/workspace/scratch/7bea14fb3412/nvcompact-work/advisor-target/x86_64-unknown-linux-gnu/release/nvcompact",
+    "platform_key": "linux-x64",
+    "rust_host": "x86_64-unknown-linux-gnu",
+    "rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1",
+    "source": {
+      "files": {
+        "Cargo.lock": "7c428f0f1559e020a16ae71d5a96704f35fb9c0519a614be6becf1de9c8240bd",
+        "Cargo.toml": "71e674c54de487fd0fcd19bdb3f6d510f15866e281417c45c4cea48dac2fe438",
+        "tools/nvcompact/Cargo.toml": "9c60934735fa01cde7bfd16bef1a00411fbe1df6c59b2e78ffae37dcf6a1207f",
+        "tools/nvcompact/src/advice_profile.rs": "ea3dbffc463af645a1e6f7f5a1714dfa83a5c5e1d3947b2635286ead718f65a5",
+        "tools/nvcompact/src/advisor.rs": "da47a309b323703ed8320b80c8342cc29d9e0bd233b9587ee62da472dc010f8e",
+        "tools/nvcompact/src/advisor/cpp.rs": "1eab5c19b45c0e4c298fa793dc39adf83120f94637e0b4658a0f9162a099c559",
+        "tools/nvcompact/src/advisor/domain.rs": "0f0635b4ebff0639a983b93f978143936f8892969f9a92bb30ff5ed69824549e",
+        "tools/nvcompact/src/advisor/expressions.rs": "9b8f7c203532a444d6f250cffcacd0116703fdcf850dc827d5dae1510692003a",
+        "tools/nvcompact/src/advisor/flow.rs": "48d1013698294d23717b9c1de3bf1e4c8e34c8b5fe16c3d5ddaeafd4b4ea4841",
+        "tools/nvcompact/src/advisor/nversion.rs": "ed2f964a926cdb2f193dff54cca6e15807a37a88981b9773b399a0ddbcfd0744",
+        "tools/nvcompact/src/advisor/rust.rs": "bf353fc535a776ae5e4b2743bbae74b54d8a868e8f92016ba841ff8f4f5125ac",
+        "tools/nvcompact/src/advisor/tests.rs": "6342ba49ecbe75f4309fef207444008cd777b4a1e8bd1ca6f0e3ff5cc3da2919",
+        "tools/nvcompact/src/artifact_advice.rs": "532afe1e849a797ff224b4b1ae5f364a80c5d4ddde90816f7f3e139567a5c795",
+        "tools/nvcompact/src/attempts.rs": "7ac7323cece2a1bf582cd7cc246a6713ea6bd4fe94ec9abc4ce753ca61638b53",
+        "tools/nvcompact/src/c_frontend.rs": "9f9b6219fc44a98703a00df87be912bf2b342a1099ec5687e9f7f85ae3c2e978",
+        "tools/nvcompact/src/cflow.rs": "4c3d92f19d33290b4dd151f0188a751be25e9619622a8018a8bb033551a23c56",
+        "tools/nvcompact/src/codec.rs": "d7131449e9ae7047579011e4c2255f2a36027adb5b242fc73e0d0a8d623e1de7",
+        "tools/nvcompact/src/csource.rs": "c0ea0d7d828ba475e9317cd3becbde288978348c17307945e6bae57744b79b8b",
+        "tools/nvcompact/src/elf.rs": "3279ffe573368de685b200202ca436508d5fea36441485fde41d08207d8efd97",
+        "tools/nvcompact/src/envelope.rs": "44cd11e41393a4cb32ed83869765866050e50c8afa274098fee51dbe4676dcce",
+        "tools/nvcompact/src/envelope_cost.rs": "7271eb5fdb76da99e95e3d5403f905c541bda80d4ae788ffef01f3536352a0a4",
+        "tools/nvcompact/src/envelope_source.rs": "5273f8865ebbae1ef6278f957545c16f0ef3f97f2abd07ab0e22ef7b47cdd3de",
+        "tools/nvcompact/src/lib.rs": "a7f5825dd7cc71c5bbd3444e531b21a7bdf0309e8c5f204d5f58ecfe82241998",
+        "tools/nvcompact/src/main.rs": "b28bc4658a22525d31e9867eb2c6af8c1e5f08fccd869c3348655e18b4c7fa16",
+        "tools/nvcompact/src/native.rs": "56f2713b4504b205721abd20d55bd3599d1448f132f5d6873c52e45379b72638",
+        "tools/nvcompact/src/notation.rs": "6f9422c4a58aa12cbb752cfcbc420fb9c3c3e227d975f12a54e2f84bfb76be23",
+        "tools/nvcompact/src/pack.rs": "b14c1308ad78ddf12e19420190e5fdad170e1ffb95802767af2214eb21ea901a",
+        "tools/nvcompact/src/process.rs": "f2679e62104c2682ae31e64f1f6befa685a2417b24721ef2aab92bb922d227ef",
+        "tools/nvcompact/src/resource.rs": "e7e37bb0ae97e1fcb0e5d3d15778ce48f27b7d54aec4d7a74dc9dc0ca6bc0e96",
+        "tools/nvcompact/src/source_payload.rs": "14eb5987b409943666676a619d7fd10dd2ffc581948f0101ed7f3cba9f1109f7",
+        "tools/nvcompact/src/source_search.rs": "a63bbd9037493e8c036ffa43e5929fd304bcd983b6ac451540814d6016fe2ac0",
+        "tools/nvcompact/src/source_search/plan.rs": "b2406666b9cfcd970218ceb16890130f82be81a1bd4eb3f4e6e3d68a1f2f08e3",
+        "tools/nvcompact/src/source_search/runtime.rs": "05fd42548e5da4bbdfcadb5881a0d789dd796a314d8d34907954371b69621de2",
+        "tools/nvcompact/src/uci.rs": "2836d2898c7d5926785dd65a18007d4f23d47129ab2377f96747ddfd0d4024bd"
+      },
+      "sha256": "d9dc08bd1c18d9ca59a921dc1a052602549df2f64598d552f283541c7e345efe"
+    },
+    "bytes": 12320360,
+    "sha256": "78acfdc10d3c64e9b4745c64991d39365e41ba92648424f0e6f4bffd1739e92b"
+  },
+  "local_package": {
+    "format": "nvcompact.npm-pack.v1",
+    "status": "packed",
+    "name": "nvcompact",
+    "version": "0.5.0",
+    "private": false,
+    "published": false,
+    "platform_key": "linux-x64",
+    "path": "/workspace/scratch/7bea14fb3412/round2-work/package/packages/nvcompact-0.5.0.tgz",
+    "bytes": 4220740,
+    "sha256": "8fdfb43b56d2c47bf532aff9e83d82b77fad7b10225f7effb6b86956211c973d",
+    "runtime": {
+      "format": "nvcompact.npm-native.v1",
+      "version": "0.5.0",
+      "platform_key": "linux-x64",
+      "rust_host": "x86_64-unknown-linux-gnu",
+      "rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1",
+      "source_sha256": "d9dc08bd1c18d9ca59a921dc1a052602549df2f64598d552f283541c7e345efe",
+      "cargo_lock_sha256": "7c428f0f1559e020a16ae71d5a96704f35fb9c0519a614be6becf1de9c8240bd",
+      "bytes": 12320360,
+      "sha256": "78acfdc10d3c64e9b4745c64991d39365e41ba92648424f0e6f4bffd1739e92b"
+    },
+    "files": [
+      {
+        "path": "LICENSE",
+        "size": 1066,
+        "mode": 420
+      },
+      {
+        "path": "README.md",
+        "size": 4900,
+        "mode": 420
+      },
+      {
+        "path": "bin/nvcompact.mjs",
+        "size": 118,
+        "mode": 493
+      },
+      {
+        "path": "lib/cli.mjs",
+        "size": 3379,
+        "mode": 420
+      },
+      {
+        "path": "lib/ensure-native.mjs",
+        "size": 620,
+        "mode": 420
+      },
+      {
+        "path": "lib/paths.mjs",
+        "size": 661,
+        "mode": 420
+      },
+      {
+        "path": "native/linux-x64/nvcompact",
+        "size": 12320360,
+        "mode": 493
+      },
+      {
+        "path": "native/runtime.json",
+        "size": 633,
+        "mode": 420
+      },
+      {
+        "path": "package.json",
+        "size": 990,
+        "mode": 420
+      }
+    ]
+  },
+  "offline_installation": {
+    "format": "nvcompact.npm-install-validation.v1",
+    "status": "pass",
+    "package_sha256": "8fdfb43b56d2c47bf532aff9e83d82b77fad7b10225f7effb6b86956211c973d",
+    "runtime_sha256": "78acfdc10d3c64e9b4745c64991d39365e41ba92648424f0e6f4bffd1739e92b",
+    "node": "v24.19.0",
+    "platform_key": "linux-x64",
+    "installed_package": "/workspace/scratch/7bea14fb3412/round2-work/package/installed-verification/consumer 한글 with spaces-5Xot2C/node_modules/nvcompact",
+    "checks": [
+      "offline actual tarball installation",
+      "native --version and command discovery",
+      "Rust doctor without targets",
+      "raw ELF build with no verifier execution",
+      "independent exact native replay",
+      "explicit verification of 256 integer cases and 2 invalid cases",
+      "verified recipe still requires --verify for new execution",
+      "typed source notation",
+      "installed Rust static domain advice without compiler invocation or source mutation",
+      "installed package bytes and modes unchanged; no external engine sources"
+    ],
+    "commands": [
+      {
+        "command": "npm",
+        "args": [
+          "install",
+          "--offline",
+          "--ignore-scripts",
+          "--no-audit",
+          "--no-fund",
+          "--package-lock=false",
+          "/workspace/scratch/7bea14fb3412/round2-work/package/packages/nvcompact-0.5.0.tgz"
+        ],
+        "code": 0,
+        "seconds": 0.755,
+        "stdout_sha256": "fee6dde8b97342eaab5450ed6eafa13aaf60e905e26416bab346b3be601d1e66",
+        "stderr_sha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+        "stdout_path": "logs/1792586966009-28-0.stdout",
+        "stderr_path": "logs/1792586966009-28-0.stderr"
+      },
+      {
+        "command": "/workspace/scratch/7bea14fb3412/round2-work/package/installed-verification/consumer 한글 with spaces-5Xot2C/node_modules/.bin/nvcompact",
+        "args": [
+          "--version"
+        ],
+        "code": 0,
+        "seconds": 0.049,
+        "stdout_sha256": "a43985ad123de5e08aa3ca4e85c434a937ab566b2c7a8071668935c6c3825cfb",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_path": "logs/1792586966796-28-1.stdout",
+        "stderr_path": "logs/1792586966796-28-1.stderr"
+      },
+      {
+        "command": "/workspace/scratch/7bea14fb3412/round2-work/package/installed-verification/consumer 한글 with spaces-5Xot2C/node_modules/.bin/nvcompact",
+        "args": [
+          "--help"
+        ],
+        "code": 0,
+        "seconds": 0.062,
+        "stdout_sha256": "06f1ae9a9c98e8790c6548873ad41e4b864b944618ff237db41dd2cd1d2972f2",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_path": "logs/1792586966847-28-2.stdout",
+        "stderr_path": "logs/1792586966847-28-2.stderr"
+      },
+      {
+        "command": "/workspace/scratch/7bea14fb3412/round2-work/package/installed-verification/consumer 한글 with spaces-5Xot2C/node_modules/.bin/nvcompact",
+        "args": [
+          "doctor",
+          "--json"
+        ],
+        "code": 0,
+        "seconds": 0.058,
+        "stdout_sha256": "9455f2640d3d79ecfc80c0d3348235406d8bd40aa38f3868e901183a0cd3c2d7",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_path": "logs/1792586966910-28-3.stdout",
+        "stderr_path": "logs/1792586966910-28-3.stderr"
+      },
+      {
+        "command": "/workspace/scratch/7bea14fb3412/round2-work/package/installed-verification/consumer 한글 with spaces-5Xot2C/node_modules/.bin/nvcompact",
+        "args": [
+          "build",
+          "/workspace/scratch/7bea14fb3412/round2-work/package/installed-verification/consumer 한글 with spaces-5Xot2C/owned native fixture/manifest.json",
+          "--out",
+          "/workspace/scratch/7bea14fb3412/round2-work/package/installed-verification/consumer 한글 with spaces-5Xot2C/plain",
+          "--jobs",
+          "1"
+        ],
+        "code": 0,
+        "seconds": 0.211,
+        "stdout_sha256": "755f7d425216561cde598b04b066945c7b47b6c54bc6868a5b4e91c47837dafe",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_path": "logs/1792586966970-28-4.stdout",
+        "stderr_path": "logs/1792586966970-28-4.stderr"
+      },
+      {
+        "command": "/workspace/scratch/7bea14fb3412/round2-work/package/installed-verification/consumer 한글 with spaces-5Xot2C/node_modules/.bin/nvcompact",
+        "args": [
+          "reproduce",
+          "/workspace/scratch/7bea14fb3412/round2-work/package/installed-verification/consumer 한글 with spaces-5Xot2C/plain/winner.recipe.json",
+          "--out",
+          "/workspace/scratch/7bea14fb3412/round2-work/package/installed-verification/consumer 한글 with spaces-5Xot2C/plain-replay"
+        ],
+        "code": 0,
+        "seconds": 0.134,
+        "stdout_sha256": "003116dc5ccb5fd37aea4424b65e75a71634a3f38af83b9a7d00081fde79eb67",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_path": "logs/1792586967183-28-5.stdout",
+        "stderr_path": "logs/1792586967183-28-5.stderr"
+      },
+      {
+        "command": "/workspace/scratch/7bea14fb3412/round2-work/package/installed-verification/consumer 한글 with spaces-5Xot2C/node_modules/.bin/nvcompact",
+        "args": [
+          "build",
+          "/workspace/scratch/7bea14fb3412/round2-work/package/installed-verification/consumer 한글 with spaces-5Xot2C/owned native fixture/manifest.json",
+          "--out",
+          "/workspace/scratch/7bea14fb3412/round2-work/package/installed-verification/consumer 한글 with spaces-5Xot2C/verified",
+          "--verify",
+          "--jobs",
+          "1"
+        ],
+        "code": 0,
+        "seconds": 1.058,
+        "stdout_sha256": "82240ebe14a87bd9ccf3cb7d06d02907b4efe67118bd40a1119c86675b708728",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_path": "logs/1792586967317-28-6.stdout",
+        "stderr_path": "logs/1792586967317-28-6.stderr"
+      },
+      {
+        "command": "/workspace/scratch/7bea14fb3412/round2-work/package/installed-verification/consumer 한글 with spaces-5Xot2C/node_modules/.bin/nvcompact",
+        "args": [
+          "reproduce",
+          "/workspace/scratch/7bea14fb3412/round2-work/package/installed-verification/consumer 한글 with spaces-5Xot2C/verified/winner.recipe.json",
+          "--out",
+          "/workspace/scratch/7bea14fb3412/round2-work/package/installed-verification/consumer 한글 with spaces-5Xot2C/verified-replay-default"
+        ],
+        "code": 0,
+        "seconds": 0.142,
+        "stdout_sha256": "003116dc5ccb5fd37aea4424b65e75a71634a3f38af83b9a7d00081fde79eb67",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_path": "logs/1792586968376-28-7.stdout",
+        "stderr_path": "logs/1792586968376-28-7.stderr"
+      },
+      {
+        "command": "/workspace/scratch/7bea14fb3412/round2-work/package/installed-verification/consumer 한글 with spaces-5Xot2C/node_modules/.bin/nvcompact",
+        "args": [
+          "reproduce",
+          "/workspace/scratch/7bea14fb3412/round2-work/package/installed-verification/consumer 한글 with spaces-5Xot2C/verified/winner.recipe.json",
+          "--out",
+          "/workspace/scratch/7bea14fb3412/round2-work/package/installed-verification/consumer 한글 with spaces-5Xot2C/verified-replay-explicit",
+          "--verify"
+        ],
+        "code": 0,
+        "seconds": 0.359,
+        "stdout_sha256": "58fd06168d5a764329d8f32e7b2240e94067a6bf99af8150fe4e668d8ad547ae",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_path": "logs/1792586968519-28-8.stdout",
+        "stderr_path": "logs/1792586968519-28-8.stderr"
+      },
+      {
+        "command": "/workspace/scratch/7bea14fb3412/round2-work/package/installed-verification/consumer 한글 with spaces-5Xot2C/node_modules/.bin/nvcompact",
+        "args": [
+          "notation",
+          "/workspace/scratch/7bea14fb3412/round2-work/package/installed-verification/consumer 한글 with spaces-5Xot2C/spelling 한글.c",
+          "--language",
+          "c",
+          "--target",
+          "c11-lp64",
+          "--token-contract",
+          "no-token-observation",
+          "--compact",
+          "--output",
+          "/workspace/scratch/7bea14fb3412/round2-work/package/installed-verification/consumer 한글 with spaces-5Xot2C/short.c"
+        ],
+        "code": 0,
+        "seconds": 0.058,
+        "stdout_sha256": "8d7ceb5f959726fb824dfc08d4f8f0111a62faf0a2c002fb894b54af8c1e5d20",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_path": "logs/1792586968879-28-9.stdout",
+        "stderr_path": "logs/1792586968879-28-9.stderr"
+      },
+      {
+        "command": "/workspace/scratch/7bea14fb3412/round2-work/package/installed-verification/consumer 한글 with spaces-5Xot2C/node_modules/.bin/nvcompact",
+        "args": [
+          "advise-source",
+          "/workspace/scratch/7bea14fb3412/round2-work/package/installed-verification/consumer 한글 with spaces-5Xot2C/advice.rs",
+          "--language",
+          "rust"
+        ],
+        "code": 0,
+        "seconds": 0.056,
+        "stdout_sha256": "3753de085da77f946d3c19f07aa2cd622a7dda68e986e234e9f5ccfee7e18fb3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_path": "logs/1792586968939-28-10.stdout",
+        "stderr_path": "logs/1792586968939-28-10.stderr"
+      }
+    ],
+    "fixture_input_count": 256,
+    "fixture_invalid_count": 2,
+    "engine_tests": "none; owned tiny fixture only",
+    "registry_publication": false
+  },
+  "installed_language_examples": {
+    "format": "nvcompact.installed-language-smoke.v1",
+    "status": "pass",
+    "package_sha256": "8fdfb43b56d2c47bf532aff9e83d82b77fad7b10225f7effb6b86956211c973d",
+    "runtime_sha256": "78acfdc10d3c64e9b4745c64991d39365e41ba92648424f0e6f4bffd1739e92b",
+    "installed_files_unchanged": true,
+    "rows": [
+      {
+        "language": "cpp",
+        "command": [
+          "/workspace/scratch/7bea14fb3412/round2-work/package/installed-verification/consumer 한글 with spaces-5Xot2C/node_modules/.bin/nvcompact",
+          "advise-source",
+          "/workspace/scratch/7bea14fb3412/Rove4k/tools/nvcompact/examples/advice/domains.cpp",
+          "--language",
+          "cpp",
+          "--clang",
+          "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang"
+        ],
+        "returncode": 0,
+        "source_sha256": "ea5e326f76669cc5188fcadafdb71e1d0cb83ab100fc1f04352b68386e41efd5",
+        "source_unchanged": true,
+        "report_sha256": "a04a08d87cf89cc8dda9b3cee7cbe7f46e9ad023c34590f981a580d8dee238b6",
+        "statistics": {
+          "ast_nodes": 99,
+          "compression_candidates_created": 0,
+          "expression_sites_emitted": 12,
+          "expression_sites_omitted": 0,
+          "final_file_bytes_measured": false,
+          "findings_emitted": 15,
+          "findings_omitted": 0,
+          "finite_flow_budget_exhausted": false,
+          "finite_flow_reserved_work": 25088,
+          "finite_flow_work_budget": 8000000,
+          "frontend_work": {
+            "ast_parses": 1,
+            "commands": 5,
+            "context_rechecks": 0,
+            "preprocessing_runs": 2,
+            "scope": "one owned frontend session; counters include failed attempts; final native/cost/replay checks are separate"
+          },
+          "functions_analyzed": 3,
+          "functions_withheld": 1,
+          "nversion_scalar_evaluations": 116651,
+          "nversion_searches_incomplete": 0,
+          "nversion_work_budget": 16000000,
+          "range_sites_emitted": 9,
+          "range_sites_omitted": 0,
+          "source_modified": false
+        },
+        "complete": true,
+        "positive_findings": [
+          {
+            "original": "(to >> 4) == 0",
+            "suggestion": "!(to&112)",
+            "assurance": "exhaustive-static-cpp-containing-domain"
+          },
+          {
+            "original": "(to >> 4) == 0",
+            "suggestion": "to<16",
+            "assurance": "exhaustive-static-cpp-containing-domain"
+          },
+          {
+            "original": "(to >> 4) == 0",
+            "suggestion": "to<=15",
+            "assurance": "exhaustive-static-cpp-containing-domain"
+          },
+          {
+            "original": "(to >> 4) == 0 || (to >> 4) == 7",
+            "suggestion": "!(to+16&96)",
+            "assurance": "exhaustive-static-cpp-containing-domain"
+          },
+          {
+            "original": "(to >> 4) == 0 || (to >> 4) == 7",
+            "suggestion": "(to-16&96)==96",
+            "assurance": "exhaustive-static-cpp-containing-domain"
+          },
+          {
+            "original": "(to >> 4) == 0 || (to >> 4) == 7",
+            "suggestion": "to<16||to>111",
+            "assurance": "exhaustive-static-cpp-containing-domain"
+          },
+          {
+            "original": "(to >> 4) == 7",
+            "suggestion": "!(to+16&96)",
+            "assurance": "exhaustive-static-cpp-containing-domain"
+          },
+          {
+            "original": "(to >> 4) == 7",
+            "suggestion": "to>>4==7",
+            "assurance": "exhaustive-static-cpp-containing-domain"
+          },
+          {
+            "original": "(to >> 4) == 7",
+            "suggestion": "to>>4>=7",
+            "assurance": "exhaustive-static-cpp-containing-domain"
+          },
+          {
+            "original": "x & 7",
+            "suggestion": "x%8",
+            "assurance": "exhaustive-static-cpp-containing-domain"
+          },
+          {
+            "original": "x & 7",
+            "suggestion": "x&7",
+            "assurance": "exhaustive-static-cpp-containing-domain"
+          },
+          {
+            "original": "x & 7",
+            "suggestion": "x*1",
+            "assurance": "exhaustive-static-cpp-containing-domain"
+          }
+        ]
+      },
+      {
+        "language": "rust",
+        "command": [
+          "/workspace/scratch/7bea14fb3412/round2-work/package/installed-verification/consumer 한글 with spaces-5Xot2C/node_modules/.bin/nvcompact",
+          "advise-source",
+          "/workspace/scratch/7bea14fb3412/Rove4k/tools/nvcompact/examples/advice/domains.rs",
+          "--language",
+          "rust"
+        ],
+        "returncode": 0,
+        "source_sha256": "217d565e64d90dbea74223f1c3e7959d03fb92ab54fee1473f224f466a4f5e1d",
+        "source_unchanged": true,
+        "report_sha256": "26a3c4faa279d90e60a1416af8eadaa3df87c8ae6f8b4e3b6898221a329a9575",
+        "statistics": {
+          "compression_candidates_created": 0,
+          "expression_sites_emitted": 7,
+          "expression_sites_omitted": 0,
+          "final_file_bytes_measured": false,
+          "findings_emitted": 19,
+          "findings_omitted": 0,
+          "finite_flow_work": 695,
+          "finite_flow_work_exhausted": false,
+          "functions_analyzed": 3,
+          "functions_or_files_withheld": 1,
+          "nversion_incomplete_searches": 0,
+          "nversion_work": 150821,
+          "nversion_work_exhausted": false,
+          "ranges_emitted": 8,
+          "ranges_omitted": 0,
+          "source_modified": false
+        },
+        "complete": false,
+        "positive_findings": [
+          {
+            "original": "(to >> 4) == 0 || (to >> 4) == 7",
+            "suggestion": "to-16&96==96",
+            "assurance": "exhaustive_rust_typed_static_domain"
+          },
+          {
+            "original": "(to >> 4) == 0",
+            "suggestion": "to<=15",
+            "assurance": "exhaustive_rust_typed_static_domain"
+          },
+          {
+            "original": "(to >> 4) == 0",
+            "suggestion": "to<16",
+            "assurance": "exhaustive_rust_typed_static_domain"
+          },
+          {
+            "original": "(to >> 4)",
+            "suggestion": "to>>4&7",
+            "assurance": "exhaustive_rust_typed_static_domain"
+          },
+          {
+            "original": "(to >> 4) == 0",
+            "suggestion": "to&112==0",
+            "assurance": "exhaustive_rust_typed_static_domain"
+          },
+          {
+            "original": "(to >> 4) == 0 || (to >> 4) == 7",
+            "suggestion": "to+16&96==0",
+            "assurance": "exhaustive_rust_typed_static_domain"
+          },
+          {
+            "original": "(to >> 4) == 0 || (to >> 4) == 7",
+            "suggestion": "to<16||to>111",
+            "assurance": "exhaustive_rust_typed_static_domain"
+          },
+          {
+            "original": "(to >> 4)",
+            "suggestion": "to/16",
+            "assurance": "exhaustive_rust_typed_static_domain"
+          },
+          {
+            "original": "(to >> 4)",
+            "suggestion": "to>>4&15",
+            "assurance": "exhaustive_rust_typed_static_domain"
+          },
+          {
+            "original": "(to >> 4) == 7",
+            "suggestion": "to>>4>=7",
+            "assurance": "exhaustive_rust_typed_static_domain"
+          },
+          {
+            "original": "(to >> 4)",
+            "suggestion": "to>>4&15",
+            "assurance": "exhaustive_rust_typed_static_domain"
+          },
+          {
+            "original": "(to >> 4)",
+            "suggestion": "to/16",
+            "assurance": "exhaustive_rust_typed_static_domain"
+          },
+          {
+            "original": "(to >> 4) == 7",
+            "suggestion": "to&240==112",
+            "assurance": "exhaustive_rust_typed_static_domain"
+          },
+          {
+            "original": "(to >> 4)",
+            "suggestion": "to>>4&7",
+            "assurance": "exhaustive_rust_typed_static_domain"
+          },
+          {
+            "original": "(to >> 4) == 7",
+            "suggestion": "to&112==112",
+            "assurance": "exhaustive_rust_typed_static_domain"
+          },
+          {
+            "original": "x & 7",
+            "suggestion": "x%8",
+            "assurance": "exhaustive_rust_typed_static_domain"
+          },
+          {
+            "original": "x & 7",
+            "suggestion": "x",
+            "assurance": "exhaustive_rust_typed_static_domain"
+          },
+          {
+            "original": "x & 7",
+            "suggestion": "x&7",
+            "assurance": "exhaustive_rust_typed_static_domain"
+          },
+          {
+            "original": "x + 1",
+            "suggestion": "x+1",
+            "assurance": "exhaustive_rust_typed_static_domain"
+          }
+        ]
+      }
+    ]
+  },
+  "current_pr12_read_only": {
+    "url": "https://github.com/daejunnom/Rove4k/pull/12",
+    "head": "28edec815bba36d4fcd4d3db38c66a8acf81ae47",
+    "base": "9b73693216ea289681a59e93902c52d16a3894a7",
+    "state": "open/draft",
+    "canonical_f": {
+      "path": "engines/compact/tiny-entry-f/engine.c",
+      "bytes": 25755,
+      "sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+      "git_blob": "585c42588f09dfa54e9464a239d133b98a33e0ef",
+      "byte_identical_to_audited_input": true
+    },
+    "full_f_bytes_reported_in_pr": 4479,
+    "full_f_bytes_over_4096": 383,
+    "shipping_transform_validation": "Not rerun here; unchanged canonical source does not certify changed shipping transformations/final artifacts.",
+    "handoff_document": "Removed by PR16. PR12 still inherits the unchanged base blob9c9ebd8b8f4c0b8fa999a8450a8271592c9bc3a3; the file is not a PR12-added/modified file."
+  },
+  "identity_checks": {
+    "all_build_source_files_match_worktree": true,
+    "release_binary_matches_build_and_package": true,
+    "installed_package_bytes_and_modes_unchanged": true,
+    "source_inputs_unchanged": true,
+    "performance_sources": {
+      "tools/nvcompact/src/codec.rs": "d7131449e9ae7047579011e4c2255f2a36027adb5b242fc73e0d0a8d623e1de7",
+      "tools/nvcompact/src/envelope_cost.rs": "7271eb5fdb76da99e95e3d5403f905c541bda80d4ae788ffef01f3536352a0a4",
+      "tools/nvcompact/examples/performance.rs": "ab2abd62fe4a3f86789afe531d3c61df1140c15a7f93cc2b9ae766422b8a7752"
+    }
+  },
+  "raw_logs": [
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/full-language-tests.log",
+      "bytes": 15681,
+      "sha256": "49e77af2c1246b2c095de6b17cfe5adf741ff8f15ba485088feede0f708080b5"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/rust-advisor/initial-failed-tests.log",
+      "bytes": 2429,
+      "sha256": "a27772bcbe126ee29270d61a216ebddc044e72af65c655b9053cb6dad28c3a95"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/rust-advisor/unit-tests.log",
+      "bytes": 1313,
+      "sha256": "9e7142bead84e67a99f46c798ced1849522d77ed115e6a9477892a9cf4fd6611"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/rust-advisor/constant-fold-unit-tests.log",
+      "bytes": 1417,
+      "sha256": "e3401ff32467079578c815283c4eff267a241a8e596a64cf846a31410bc4aac8"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/debug-build-language-final.log",
+      "bytes": 159,
+      "sha256": "7a1c300b8ea8681392adffe963d7985f84f7ef2fc691bafc9875817300c900a1"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/debug-build-constant-fold.log",
+      "bytes": 159,
+      "sha256": "645c4e03733d9733e588908a3d5a29d4c6829eff8f895261456d2a89f2b9ef53"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/release-build-before-constant-fold.log",
+      "bytes": 475,
+      "sha256": "f8a02ce8b508d983d4b484b28a1d48ddf5d105c82bf669e1ca9b37719108d4e3"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/release-build-constant-fold-final.log",
+      "bytes": 475,
+      "sha256": "0896e4c0ba7e373f327239f69e83fb17986e73df837b5ef69fc71697311febf5"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/node-launcher-final.log",
+      "bytes": 481,
+      "sha256": "8c8da9ed3d1a5645faf14edb47834ac54cda7fac429ea376dad71c476bdbe2f2"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/node-comparison-final.log",
+      "bytes": 183,
+      "sha256": "44e4bbcfc5a1ec8650d6271dfa552f6720d1e22b1ed60b1ae119cdf326f0a095"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/repository-test-direct.log",
+      "bytes": 13761,
+      "sha256": "7d761264eea490afb30a230b4972482197676246f6bc7d878f500ccefc44df8f"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/repository-test-escalated.log",
+      "bytes": 912,
+      "sha256": "e337ad884be5289978d93767eec8ea5c7f2b44f3fc813f2e23f7703953ea3006"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/package-pack-final.log",
+      "bytes": 1813,
+      "sha256": "36f1b475fc88177710bebb474679ecb6638dbd729c3a1ffc9bf8770a04c3757b"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/package-verify-final.log",
+      "bytes": 282,
+      "sha256": "1c59a8abeec38e10dd325221d8f65a0fb74409f5cc2c7a9b5a242532d9a860ee"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/installed-cpp-advice.stdout",
+      "bytes": 212907,
+      "sha256": "a04a08d87cf89cc8dda9b3cee7cbe7f46e9ad023c34590f981a580d8dee238b6"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/installed-cpp-advice.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/installed-rust-advice.stdout",
+      "bytes": 98544,
+      "sha256": "26a3c4faa279d90e60a1416af8eadaa3df87c8ae6f8b4e3b6898221a329a9575"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/installed-rust-advice.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/installed-language-smoke.json",
+      "bytes": 8341,
+      "sha256": "5be1a8d3cd4b7bbbab28607afef97473bd2e3a4701aa900618ff899af83d819c"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/package/build-before-constant-fold.json",
+      "bytes": 4422,
+      "sha256": "45c37a8f2208684bbd13fe382bccfe17e1a2bfecad07fa4b9f16d6f6b80700bb"
+    }
+  ],
+  "limitations": [
+    "152 local workspace tests are the preceding frozen snapshot, not a renamed 153-test local run; final changed Rust has 10 targeted tests plus native revalidation, and final CI is recorded separately on the PR.",
+    "The package is a local development build with version0.5.0, not an update to the already published registry package.",
+    "No PR merge, npm publication, external engine build/run, paid resources, training, or whole-engine strength/size qualification was performed."
+  ]
+}
