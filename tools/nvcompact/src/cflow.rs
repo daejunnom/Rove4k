@@ -551,10 +551,18 @@ impl Analysis {
     }
     fn typ(&self, n: usize) -> &str {
         let t = &self.nodes[n].value["type"];
-        t["desugaredQualType"]
+        let typ = t["desugaredQualType"]
             .as_str()
             .or_else(|| t["qualType"].as_str())
-            .unwrap_or("")
+            .unwrap_or("");
+        // Clang can print C's built-in _Bool as `bool` when <stdbool.h> is
+        // active. Desugar first: a user typedef such as `typedef int bool`
+        // must remain int, not acquire a Boolean-domain proof by its name.
+        if typ == "bool" {
+            "_Bool"
+        } else {
+            typ
+        }
     }
     fn unwrap(&self, mut n: usize) -> usize {
         while matches!(self.kind(n), "ImplicitCastExpr" | "ParenExpr")
@@ -605,8 +613,14 @@ impl Analysis {
     /// Prove the evaluated source value belongs to {0, 1}; do not infer a range
     /// from sampled outputs or from the destination of a later conversion.
     fn boolean_domain(&self, n: usize) -> bool {
+        // Keep the source value type before stripping casts. In particular,
+        // lvalue-to-rvalue removes const from an actual _Bool object; an int
+        // converted to _Bool only by a surrounding context is not a proof.
+        if self.value_type(n) == "_Bool" {
+            return true;
+        }
         let n = self.unwrap(n);
-        if self.typ(n) == "_Bool" || self.boolean_result(n) {
+        if self.boolean_result(n) {
             return true;
         }
         if self.kind(n) == "IntegerLiteral"
@@ -1655,6 +1669,10 @@ int main(void){for(int i=0;i<4;i++)printf("%d %d %d %d %d %d %d %d %d %d %d %d %
             b"#define P _Pragma(\"pack(1)\")\nint f(int c){if(c){P return 1;}else{return 2;}}\nstruct X{char a;int b;};",
             b"#define E\nint f(int c){if(c){E return 1;}else{return 2;}}\n#undef E\n",
             b"int f(int c){volatile int x=0;if(c){x=1;}else{x=2;}return x;}",
+            b"#include <stdbool.h>\nint f(_Bool a){return a!=true;}",
+            b"#include <stdbool.h>\nint f(_Bool a){bool b=a;return b!=1;}",
+            b"int f(volatile _Bool a){return a!=1;}",
+            b"int f(_Atomic _Bool a){return a!=1;}",
             b"int f(int c,int(*callback)(void)){if(c){return callback();}else{return callback();}}",
             b"int target(void)__attribute__((returns_twice));int f(int c){if(c){return target();}else{return target();}}",
             b"int f(int c){return _Generic(c,int:!!c,default:0);}",
@@ -1688,17 +1706,19 @@ int main(void){for(int i=0;i<4;i++)printf("%d %d %d %d %d %d %d %d %d %d %d %d %
     fn boolean_domain_keeps_int_counterexample_signed_fields_and_effect_counts() {
         let Some(options) = options() else { return };
         let source = br#"#include <stdio.h>
+typedef int bool;
 struct B{unsigned u:1;signed s:1;};
 int calls;
 int touch(int value){calls++;return value;}
 int plain(int a){return a!=1;}
+int misleading_name(bool a){return a!=1;}
 int boolean_not(_Bool a){return a!=1;}
 int boolean_equal(_Bool a){return 1==a;}
 int unsigned_field(struct B *p){return p->u!=1;}
 int signed_field(struct B *p){return p->s!=1;}
 int effect(int a){return (touch(a)>0)!=1;}
 unsigned long mixed(int c){if(c)return -1;else return 1U;}
-int main(void){struct B b;for(int a=-2;a<=2;a++){b.u=a!=0;b.s=a!=0?-1:0;calls=0;int x=effect(a);printf("%d %d %d %d %d %d %d\n",plain(a),boolean_not(a),boolean_equal(a),unsigned_field(&b),signed_field(&b),x,calls);}printf("%lu\n",mixed(1));}
+int main(void){struct B b;for(int a=-2;a<=2;a++){b.u=a!=0;b.s=a!=0?-1:0;calls=0;int x=effect(a);printf("%d %d %d %d %d %d %d %d\n",plain(a),misleading_name(a),boolean_not(a),boolean_equal(a),unsigned_field(&b),signed_field(&b),x,calls);}printf("%lu\n",mixed(1));}
 "#;
         let variants = generate_variants(source, &options).unwrap();
         let records: Vec<_> = variants.iter().flat_map(|v| &v.audit).collect();
@@ -1710,7 +1730,7 @@ int main(void){struct B b;for(int a=-2;a<=2;a++){b.u=a!=0;b.s=a!=0?-1:0;calls=0;
                 "expected a proven Boolean-domain rewrite for {function}"
             );
         }
-        for function in ["plain", "signed_field"] {
+        for function in ["plain", "misleading_name", "signed_field"] {
             assert!(
                 !records
                     .iter()
@@ -1721,7 +1741,8 @@ int main(void){struct B b;for(int a=-2;a<=2;a++){b.u=a!=0;b.s=a!=0?-1:0;calls=0;
         let mut expected = String::new();
         for a in -2..=2 {
             expected.push_str(&format!(
-                "{} {} {} {} 1 {} 1\n",
+                "{} {} {} {} {} 1 {} 1\n",
+                i32::from(a != 1),
                 i32::from(a != 1),
                 i32::from(a == 0),
                 i32::from(a != 0),
@@ -1730,6 +1751,91 @@ int main(void){struct B b;for(int a=-2;a<=2;a++){b.u=a!=0;b.s=a!=0?-1:0;calls=0;
             ));
         }
         expected.push_str(&format!("{}\n", u64::MAX));
+        let directory = tempfile::tempdir().unwrap();
+        for v in variants {
+            assert_eq!(
+                compile_run(&options.clang, &v.data, directory.path(), &v.id),
+                expected.as_bytes(),
+                "variant {}",
+                v.id
+            );
+        }
+    }
+
+    #[test]
+    fn stdbool_aliases_qualification_effects_and_reparsed_chains_keep_the_oracle() {
+        let Some(options) = options() else { return };
+        let source = br#"#include <stdio.h>
+#include <stdbool.h>
+typedef _Bool Flag;
+typedef const _Bool ConstFlag;
+int calls;
+_Bool touch_bool(int a){calls++;return a;}
+int direct(_Bool a){return a!=1;}
+int reversed(bool a){return 1!=a;}
+int alias(Flag a){return a!=1;}
+int qualified(ConstFlag a){return a!=1;}
+int explicit_bool(int a){return (_Bool)a!=1;}
+int explicit_int(int a){return (int)a!=1;}
+int call_once(int a){return touch_bool(a)!=1;}
+int postincrement(_Bool *a){return (*a)++!=1;}
+int chain(_Bool a){return (a!=1)!=1;}
+int normalized(int a){return (a?1:0)!=1;}
+int main(void){for(int a=-2;a<=2;a++){calls=0;int x=call_once(a);_Bool b=a;int y=postincrement(&b);printf("%d %d %d %d %d %d %d %d %d %d %d %d\n",direct(a),reversed(a),alias(a),qualified(a),explicit_bool(a),explicit_int(a),x,calls,y,b,chain(a),normalized(a));}}
+"#;
+        let variants = generate_variants(source, &options).unwrap();
+        let records: Vec<_> = variants.iter().flat_map(|v| &v.audit).collect();
+        for function in [
+            "direct",
+            "reversed",
+            "alias",
+            "qualified",
+            "explicit_bool",
+            "call_once",
+            "postincrement",
+            "chain",
+            "normalized",
+        ] {
+            assert!(
+                records
+                    .iter()
+                    .any(|r| r["function"] == function && r["rule"] == "boolean-domain"),
+                "expected a proven Boolean-domain rewrite for {function}"
+            );
+        }
+        assert!(!records
+            .iter()
+            .any(|r| r["function"] == "explicit_int" && r["rule"] == "boolean-domain"));
+        for function in ["direct", "reversed", "alias", "qualified"] {
+            assert!(records.iter().any(|r| {
+                r["function"] == function && r["rule"] == "boolean-domain" && r["after"] == "!a"
+            }));
+        }
+        let combined = variants.iter().find(|v| v.id == "c-all").unwrap();
+        assert!(combined.audit.iter().any(|r| {
+            r["function"] == "normalized" && r["rule"] == "boolean" && r["pass"] == 1
+        }));
+        assert!(combined.audit.iter().any(|r| {
+            r["function"] == "normalized" && r["rule"] == "boolean-domain" && r["pass"] == 2
+        }));
+        // The all-rule recipe may prefer equality inversion on pass two.
+        // Check the domain-only recipe to exercise the nested proof itself.
+        let domain = variants
+            .iter()
+            .find(|v| v.id == "c-boolean-domain")
+            .unwrap();
+        assert!(domain.audit.iter().any(|r| {
+            r["function"] == "chain" && r["rule"] == "boolean-domain" && r["pass"] == 2
+        }));
+        let mut expected = String::new();
+        for a in -2..=2 {
+            let not = i32::from(a == 0);
+            expected.push_str(&format!(
+                "{not} {not} {not} {not} {not} {} {not} 1 {not} 1 {} {not}\n",
+                i32::from(a != 1),
+                i32::from(a != 0),
+            ));
+        }
         let directory = tempfile::tempdir().unwrap();
         for v in variants {
             assert_eq!(
