@@ -1,3 +1,51 @@
+# Maintained F full4385 — fixed integer expressions, 2026-10-22
+
+The ONE fixed source candidate reduces4396->4385 B (-11),289 B above4096.
+Pure `shipping_integer_expressions.py` follows the existing direct_walker
+guard: C8410->8385 (-25), bootstrap9332->9307. Native18576 length ties but
+full bytes change to91d2a5f9...; .text6974->6985 (+11). No native identity,
+instruction/performance advantage or complete core acceptance is claimed.
+
+Seven fixed spans/eight protected gaps/full inverse fold int constants,
+retain exact mate29872/ply127/depths1..126 and W:uint64_t TT index262143.
+MTD q/d are plain private stack ints. Conditional sequencing and + operands'
+relative read order differ, but both read q twice/d once with no write,
+call, volatile or atomic operand. q==d within while(d<f), f<=30000 protects
++1; stopped/out-of-range results cannot reach the next probe or completed
+score publication. No assumption that every raw U result lies in its caller
+interval is needed. Literal/comment/directive bytes, walker and condition
+code remain exact outside these seven spans. Existing guards, canonical/DEV,
+learners/search/full-key TT,2workers/TT18, implicit GNU17 pthread compiler,
+full nice16/BT2/dict16KiB/lc2lp0pb0 and73-byte header remain unchanged.
+
+ONE firstcost used candidatecompile1/encode1, baseline0/0, strictPython2/
+CLI2 with exact source/bootstrap/compiler/EOF/trailing checks. Native changed.
+Optional selected4319/4045 bypass the stage; their explicit full_reference
+calls it after walker and checks8385. F8 consumes unchanged pre-name8538/
+47353... and retains own4442/nice24/9TID, current verifier and startup policy.
+Its producer closure becomes54+2+5=61; the prior60-file local F8 execution
+keeps its original scope. This change adds no local F8 product execution.
+
+One full ordinary --dev reproduced shipping2 exactly to fixed firstcost and
+old DEV2; one unchanged selected verifier passed quit/EOF2 sessions8 legal GO,
+stable3 TIDs, exact new native/private paths/helpers and physical readers/
+process exit. Optional normal --dev each ran once: selected4319/4045 entire
+C/native/bootstrap/whole remained exact; each separate full_reference8385
+reproduced twice and each full DEV2 remained old-exact. All4 original commands
+returned0/reaped/groups absent/forced0/owned0, without product failure/retry.
+F8 pre-name8538/47353... remains exact in root/attempt1/attempt2. Its61-file
+current closure is metadata readback only; no local F8 or optional selected
+runtime was added. Producing code/expected decisions stay exact; final
+recipe/README annotate receipts only. F selected image has no FD-list field,
+so no extra FD inspection is claimed. Cancellation causality/full core,
+strength, timing/performance, many-core and fault behavior remain unproved.
+No new NVC/codec sweep/SAN/fault/old-controller composition or Git was added.
+
+Actual full output: /home/stemxstudio/rove4k-f-integer-expressions-promotion-20261022-v1/full/build; build SHA deab1cd12915bb9f4d791501e024ebf95ce8940f9e46dda12b2ef28bbc237448; runtime SHA 810717367fe857d2809ded3269bec957da9996f84a8292937d17d21cbac58863.
+
+External evidence: rove4k-f-integer-expressions-first-cost-20261022-evidence
+and rove4k-f-integer-expressions-promotion-20261022-evidence.
+
 # Maintained F full direct walker4396 — 2026-10-22
 
 고정 ONEcost는 condition4410에서4396 B로14 B 줄었다. 새 shipping_walker

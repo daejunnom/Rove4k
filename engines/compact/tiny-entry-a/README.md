@@ -1,3 +1,40 @@
+# A fixed-two-worker output / individual stdio locking
+
+Current selected fixed cost is **4525 B** (predecessor4541, −16 B). One ordinary
+`--dev` and the unchanged selected verifier passed on this new native.
+The pure shipping-only `shipping_output.py` follows the existing condition
+stage: 3 exact regions,4 protected gaps (one empty),8797 complement bytes and
+full inverse; source8886→8821. Strict completed-depth `>` keeps worker0 on ties.
+The callback still holds qj through its single bestmove printf and fflush,
+before completion/drain/root reuse. Canonical/DEV and the2-worker pool remain.
+
+Removing the outer flockfile/funlockfile pair allows main puts/fflush between
+worker printf/fflush. POSIX individual stream-call locking preserves each
+single-call line; flush grouping/visibility/lock contention/scheduling and
+signal/error timing are not claimed trace-equivalent. Source-only partial
+create/epoch-wrap arguments remain distinct from selected observations.
+
+The candidate literal is inverted to the original8886 raw literal, passed
+through the unchanged condition→names literal guards, then forwarded again.
+Old helpers/guards are unchanged; no external report/artifact is a builder
+input. A remains `cc -Os` without `-pthread`,implicit GNU17 and fixed
+ALONE6/BT2/16KiB/lc2/lp0/pb0/nice24/header73/FD0 template. Native18576 has
+changed to5fd8f877…, bootstrap9775/c0662345…, whole4525/2ca28727…;
+source-only HCE8874 is separate and not combined. A selected observer has no
+FD-list observation; no FD-list claim is made. No full strength/performance
+or general trace equality follows from this fixed-cost result.
+
+<!-- A_FIXED_OUTPUT_COMPLETION:PASS -->
+Ordinary build reproduced2 shipping and2 unchanged DEV tuples; source/native/
+bootstrap/whole equal all four first-cost artifacts byte for byte. Selected
+quit/EOF2 sessions completed8 legal GO with3 startup TIDs/session and actual
+new native5fd8f877..., private-path/helper/readers/process physical exit.
+Original command handles returned0, were reaped and their groups were absent
+at settlement (no forced cleanup or late numeric-PID check). The A observer
+has no FD-list observation. No exhaustive stdout-interposition schedule,
+partial-create/epoch-wrap runtime, full-core/strength or timed speed claim is
+added. Original selected cancellation causality remains unproven.
+
 # Maintained A: shared fixed readonly flag template — 2026-10-22
 
 The fixed first-cost file is **4541 B**, down9 from4550.

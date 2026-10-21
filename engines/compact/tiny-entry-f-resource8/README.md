@@ -1,3 +1,16 @@
+# F2 integer-expression producer provenance — 2026-10-22
+
+F2's late integer-expression helper follows its existing walker guard;
+F8 still consumes pre-name8538/47353... before those late stages. Only its
+producer builder pin/new helper are added: base54+positive2+own5=61 files.
+F8 own source/native/bootstrap/whole4442, nice24/header73,9TID, current
+verifier6f407... and startup/strict FD policy stay unchanged. The existing
+local60-file F8 execution retains its original scope; this update adds no
+local F8 compile/encode/runtime. Full producer preName8538/47353... root and
+both attempts are exact. Current base54+2+5=61 named files passed byte-hash
+closure readback only. Existing local60-file F8 execution remains historical;
+the61-file closure is for the next CI and has not been locally executed.
+
 # F direct-walker producer·새 기동 관측 로컬 통과 — 2026-10-22
 
 F2 producer closure는 builder pin과 shipping_walker helper만 더해 base53

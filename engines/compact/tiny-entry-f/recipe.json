@@ -91,7 +91,8 @@
     "engines/compact/tiny-entry-f/shipping_rank.py": "0850ee61f108bc24fa48995f5f13b49d16a24c788f38cd070c9644e9e044c932",
     "engines/compact/tiny-entry-f/shipping_digit_fd.py": "ae396191f09c6738879d42d1cc62e2c54cda1165b89c91c9ef677b4985040960",
     "engines/compact/tiny-entry-f/shipping_condition.py": "c6bf5e284c5648b305817a0da53e7d95566e856eb4a053ac281d88990a495e0f",
-    "engines/compact/tiny-entry-f/shipping_walker.py": "cacaeda593a77a8c4ea359351bab1b9b4d2561844f579a993c1875d7b20b208d"
+    "engines/compact/tiny-entry-f/shipping_walker.py": "cacaeda593a77a8c4ea359351bab1b9b4d2561844f579a993c1875d7b20b208d",
+    "engines/compact/tiny-entry-f/shipping_integer_expressions.py": "3857ecd6c4cdf6a32ce13d1052957aa9aca087455e4b0b47be42b159234cd47a"
   },
   "resource_literals": [
     [
@@ -265,22 +266,22 @@
   },
   "expected": {
     "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
-    "source_bytes": 8410,
-    "source_sha256": "0185b1140d96adc4c0e48ba08ee52e296f733046a9958c6810ecec2e39e4a884",
+    "source_bytes": 8385,
+    "source_sha256": "acae5c84a77a22d52335aa905ac1b72117d7c74c3ac06e0fc86300c368a540c5",
     "native_bytes": 18576,
-    "native_sha256": "c18d793b4b4e9124727f6b4b694d663c675ba66ce8e5d3279eb54dad9daaf78a",
-    "whole_bytes": 4396,
-    "whole_sha256": "e4a78c128d24044830e383e90b1014b257f2f079181d80cd00e8aef14316422c",
+    "native_sha256": "91d2a5f92315ab2249e8dd35090c6539507aa4cbfa892423b57a57ccaaf70e94",
+    "whole_bytes": 4385,
+    "whole_sha256": "be8f6858e7b84151e2be74f1ad10258f946d65b8ef0ae432aa2624d51c249967",
     "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
     "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
-    "bootstrap_sha256": "5ecb8686455f6385e861a688742e9ddc74c24084a81d62c43580df050cd52c73",
+    "bootstrap_sha256": "b88dc1f2c148f4ac7c21d1db353b12a79a0076fab2b12f51b6e973087644147a",
     "semantic_readable_bytes": 25720,
     "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
     "dev_source_bytes": 19488,
     "dev_native_bytes": 26984,
     "input_profile_readable_bytes": 28587,
     "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
-    "bootstrap_bytes": 9332
+    "bootstrap_bytes": 9307
   },
   "local_input_sha256": {
     "engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
@@ -6119,6 +6120,130 @@
       "active_handles": 0,
       "source_code_after_producing_freeze_changed": false,
       "newCI_run_performed_here": false
+    }
+  },
+  "fixed_integer_expressions": {
+    "stage": "full after existing direct_walker, including explicit optional separate full_reference; actual optional/DEV/F8 bypass",
+    "predecessor_expected": {
+      "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+      "source_bytes": 8410,
+      "source_sha256": "0185b1140d96adc4c0e48ba08ee52e296f733046a9958c6810ecec2e39e4a884",
+      "native_bytes": 18576,
+      "native_sha256": "c18d793b4b4e9124727f6b4b694d663c675ba66ce8e5d3279eb54dad9daaf78a",
+      "whole_bytes": 4396,
+      "whole_sha256": "e4a78c128d24044830e383e90b1014b257f2f079181d80cd00e8aef14316422c",
+      "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
+      "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
+      "bootstrap_sha256": "5ecb8686455f6385e861a688742e9ddc74c24084a81d62c43580df050cd52c73",
+      "semantic_readable_bytes": 25720,
+      "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
+      "dev_source_bytes": 19488,
+      "dev_native_bytes": 26984,
+      "input_profile_readable_bytes": 28587,
+      "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
+      "bootstrap_bytes": 9332
+    },
+    "source_index": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-integer-expressions-source-20261022-evidence/final-index.json",
+      "bytes": 3412,
+      "sha256": "d08fc16e87e16452b734638ac837c24f2a7bfeef611e13ce88ba5cf5fe3f253a"
+    },
+    "source_spans": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-integer-expressions-source-20261022-evidence/spans.json",
+      "bytes": 8319,
+      "sha256": "1e2a23fb1e48266f1ee555c1c1882ca3a39ee0268dc43c5900436136cd242d4a"
+    },
+    "firstcost_index": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-integer-expressions-first-cost-20261022-evidence/final-index.json",
+      "bytes": 16379,
+      "sha256": "f70af407d3d9abbfe9e8968413450424c13684f11bad49dcd2ad9a14bab6c416"
+    },
+    "firstcost_reexecuted": false,
+    "source_regions": 7,
+    "protected_gaps": 8,
+    "full_inverse": true,
+    "source_delta": -25,
+    "whole_delta": -11,
+    "native_entire_bytes_equal": false,
+    "text_delta": 11,
+    "semantic_domain": "qualified int32/unsigned32/W:uint64_t; exact integer thresholds; private plain MTD q/d; stopped/out-of-range before next probe and completed-score publication",
+    "observations": "source/literal/native/layout/instructions/timing may differ; no native identity/performance/full core acceptance claim",
+    "old_guards_canonical_DEV_optional_selected_F8_pre_name_and_resources_unchanged": true,
+    "separate_full_reference_source_expected": {
+      "bytes": 8385,
+      "sha256": "acae5c84a77a22d52335aa905ac1b72117d7c74c3ac06e0fc86300c368a540c5"
+    },
+    "normal_validation": {
+      "producing_recipe": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-integer-expressions-promotion-20261022-evidence/producing/tiny-entry-f/recipe.json",
+        "bytes": 327630,
+        "sha256": "a091e9c1017035e6696c13d13b0f8112fbd15bf095cd049ac1a26441f6699e67"
+      },
+      "producing_builder": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-integer-expressions-promotion-20261022-evidence/producing/tiny-entry-f/build.py",
+        "bytes": 37923,
+        "sha256": "866797f9c830b38fb89e38184c06d84972cf0b5418f7881e6adb323ecc3260c1"
+      },
+      "full_build": {
+        "path": "/home/stemxstudio/rove4k-f-integer-expressions-promotion-20261022-v1/full/build/build.json",
+        "bytes": 265351,
+        "sha256": "deab1cd12915bb9f4d791501e024ebf95ce8940f9e46dda12b2ef28bbc237448"
+      },
+      "full_selected_runtime": {
+        "path": "/home/stemxstudio/rove4k-f-integer-expressions-promotion-20261022-v1/full/runtime/runtime.json",
+        "bytes": 76899,
+        "sha256": "810717367fe857d2809ded3269bec957da9996f84a8292937d17d21cbac58863"
+      },
+      "full_stage": {
+        "path": "/home/stemxstudio/rove4k-f-integer-expressions-promotion-20261022-v1/build-stage.json",
+        "bytes": 11989,
+        "sha256": "acce9958e17a535299690fffb296d7f721d33f7f1aaed4200b0d9c654ff52881"
+      },
+      "selected_stage": {
+        "path": "/home/stemxstudio/rove4k-f-integer-expressions-promotion-20261022-v1/selected-stage.json",
+        "bytes": 3746,
+        "sha256": "117e92232a173570321d9540a5c354facf0987f9e23ad127e842b2764a9406df"
+      },
+      "optional_stage": {
+        "path": "/home/stemxstudio/rove4k-f-integer-expressions-promotion-20261022-v1/optional-stage.json",
+        "bytes": 160372,
+        "sha256": "9845682a06e258c5b2d2d37ccbeb616a6d4dde14842a26ff53ad1eaa105308c4"
+      },
+      "readback": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-integer-expressions-promotion-20261022-evidence/normal-readback.json",
+        "bytes": 29520,
+        "sha256": "c732784241bf3ea728b3ca75f5a4ec247802af538b93f45f2822064099d6b02c"
+      },
+      "ordinary_full_dev": 1,
+      "ordinary_optional_dev": 2,
+      "full_ship_reproductions": 2,
+      "old_DEV_reproductions_each_policy": 2,
+      "optional_selected_entirebytes_unchanged": true,
+      "optional_separate_full_reference8385": true,
+      "F8_pre_names8538_exact_three": [
+        {
+          "path": "/home/stemxstudio/rove4k-f-integer-expressions-promotion-20261022-v1/full/build/source-before-names.c",
+          "bytes": 8538,
+          "sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
+        },
+        {
+          "path": "/home/stemxstudio/rove4k-f-integer-expressions-promotion-20261022-v1/full/build/attempt-1/source-before-names.c",
+          "bytes": 8538,
+          "sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
+        },
+        {
+          "path": "/home/stemxstudio/rove4k-f-integer-expressions-promotion-20261022-v1/full/build/attempt-2/source-before-names.c",
+          "bytes": 8538,
+          "sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
+        }
+      ],
+      "F8_compile_encode_runtime": 0,
+      "full_selected_sessions": 2,
+      "legal_GO": 8,
+      "startup_TIDs_each": 3,
+      "source_native_bootstrap_whole_exact_firstcost": true,
+      "scope": "fixed full new native selected physical coverage; optional normal only; no fault/manycore/performance/strength/core completion claim",
+      "producing_final_annotation_distinct": true
     }
   }
 }

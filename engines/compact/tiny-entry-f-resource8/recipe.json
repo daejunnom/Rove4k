@@ -31,7 +31,7 @@
   "base_source_closure_sha256": {
     "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
     "engines/compact/tiny-entry-f/bootstrap.py.in": "159c5fe166f4b0804471e9d3a70d8f055a510858a6ae33f0ed6b4cfd17fca6f9",
-    "engines/compact/tiny-entry-f/build.py": "04bcefd04801f516ef8eb06706251d14cba42ae003412529eb0378866d1122a4",
+    "engines/compact/tiny-entry-f/build.py": "866797f9c830b38fb89e38184c06d84972cf0b5418f7881e6adb323ecc3260c1",
     "engines/compact/tiny-entry-f/engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
     "engines/compact/tiny-entry-f/launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
     "engines/compact/tiny-entry-f/shipping_alpha.py": "74abadbd79735e9f6b30c513b422245bae737f81d4e3bd04a7b8e597e61937e8",
@@ -81,7 +81,8 @@
     "engines/compact/tiny-entry-f/shipping_rank.py": "0850ee61f108bc24fa48995f5f13b49d16a24c788f38cd070c9644e9e044c932",
     "engines/compact/tiny-entry-f/shipping_digit_fd.py": "ae396191f09c6738879d42d1cc62e2c54cda1165b89c91c9ef677b4985040960",
     "engines/compact/tiny-entry-f/shipping_condition.py": "c6bf5e284c5648b305817a0da53e7d95566e856eb4a053ac281d88990a495e0f",
-    "engines/compact/tiny-entry-f/shipping_walker.py": "cacaeda593a77a8c4ea359351bab1b9b4d2561844f579a993c1875d7b20b208d"
+    "engines/compact/tiny-entry-f/shipping_walker.py": "cacaeda593a77a8c4ea359351bab1b9b4d2561844f579a993c1875d7b20b208d",
+    "engines/compact/tiny-entry-f/shipping_integer_expressions.py": "3857ecd6c4cdf6a32ce13d1052957aa9aca087455e4b0b47be42b159234cd47a"
   },
   "positive_helper_sha256": {
     "engines/compact/tiny-entry-d/verify.py": "3ae1f525e718f9cef90b4009ff415065587cf9552b82d2785911a672243fae33",
@@ -716,5 +717,74 @@
     "strict_FD_children_two9S_samples_passed": true,
     "physical_readers_process_group_exit": true,
     "e8_failure_or_FD3_identity_resolved_claimed": false
+  },
+  "F2_integer_expressions_producer_provenance": {
+    "scope": "F2 builder/new integer helper code provenance only, after preName; no F8 product",
+    "pre_name_source": {
+      "bytes": 8538,
+      "sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
+    },
+    "F8_expected_unchanged": {
+      "source_bytes": 8538,
+      "source_sha256": "ad02fbb83d8c1012ab09f52da68cb019f8b9669a0a1fa9fe1ccfc93b892158f1",
+      "native_bytes": 18576,
+      "native_sha256": "3350909127fb70b57560c4e17fd16eca7bd00f9aa53fff3d1ad9ce2ba6658973",
+      "bootstrap_bytes": 9470,
+      "bootstrap_sha256": "86eac9c3a2f5b6ddee9ceb2ab1072945d5e028e63fb74795bd13898c2a24b345",
+      "whole_bytes": 4442,
+      "whole_sha256": "46f564294ca11fa1a544d15ed170d54304421d115b9866981010a24c302d5419"
+    },
+    "base_named_files": 54,
+    "whole_named_closure_count": 61,
+    "prior_local_60_execution_reused_only_in_original_scope": true,
+    "F8_own_nice24_and_current_verifier_preserved": true,
+    "F8_compile_encode_runtime": 0,
+    "full_producer_validation": {
+      "producing_F_recipe": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-integer-expressions-promotion-20261022-evidence/producing/tiny-entry-f/recipe.json",
+        "bytes": 327630,
+        "sha256": "a091e9c1017035e6696c13d13b0f8112fbd15bf095cd049ac1a26441f6699e67"
+      },
+      "full_build": {
+        "path": "/home/stemxstudio/rove4k-f-integer-expressions-promotion-20261022-v1/full/build/build.json",
+        "bytes": 265351,
+        "sha256": "deab1cd12915bb9f4d791501e024ebf95ce8940f9e46dda12b2ef28bbc237448"
+      },
+      "pre_names_three_actual": [
+        {
+          "path": "/home/stemxstudio/rove4k-f-integer-expressions-promotion-20261022-v1/full/build/source-before-names.c",
+          "bytes": 8538,
+          "sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
+        },
+        {
+          "path": "/home/stemxstudio/rove4k-f-integer-expressions-promotion-20261022-v1/full/build/attempt-1/source-before-names.c",
+          "bytes": 8538,
+          "sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
+        },
+        {
+          "path": "/home/stemxstudio/rove4k-f-integer-expressions-promotion-20261022-v1/full/build/attempt-2/source-before-names.c",
+          "bytes": 8538,
+          "sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
+        }
+      ],
+      "base_source_closure54_current": true,
+      "current_F_source_recipe": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-engines-af-20261020/engines/compact/tiny-entry-f/recipe.json",
+        "bytes": 331257,
+        "sha256": "c6c3c18dd7a9faa7904b006847a2748f1bd44a2b49788a7282a7b39c6ab6a3fd"
+      },
+      "optional_stage": {
+        "path": "/home/stemxstudio/rove4k-f-integer-expressions-promotion-20261022-v1/optional-stage.json",
+        "bytes": 160372,
+        "sha256": "9845682a06e258c5b2d2d37ccbeb616a6d4dde14842a26ff53ad1eaa105308c4"
+      },
+      "full_selected_runtime": {
+        "path": "/home/stemxstudio/rove4k-f-integer-expressions-promotion-20261022-v1/full/runtime/runtime.json",
+        "bytes": 76899,
+        "sha256": "810717367fe857d2809ded3269bec957da9996f84a8292937d17d21cbac58863"
+      },
+      "F8_new_compile_encode_runtime": 0,
+      "scope": "producer provenance only; existing F8 selected4442 qualification reused by unchanged pre-name/pipeline/expected"
+    }
   }
 }

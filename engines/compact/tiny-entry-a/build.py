@@ -112,6 +112,7 @@ def main():
         terminal_loop=module('entry_terminal_loop',frozen/'shipping_terminal.py')
         fixed_names=module('entry_A_private_names',frozen/'shipping_names.py')
         condition_form=module('entry_A_one_condition',frozen/'shipping_condition.py')
+        output_form=module('entry_A_fixed_output',frozen/'shipping_output.py')
         canonical=(frozen/'engine.c').read_bytes();reference=evaluation_cache.reference_readable(canonical)
         template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
@@ -169,10 +170,12 @@ def main():
                 common_metadata['private_destination_binding']=name_metadata
                 data,condition_metadata=condition_form.transform_source(data)
                 common_metadata['shared_condition']=condition_metadata
+                data,output_metadata=output_form.transform_source(data)
+                common_metadata['fixed_output']=output_metadata
             return data,observations,alpha_metadata,storage_metadata,scope_metadata,input_metadata,declaration_metadata,type_metadata,lexical_metadata,capture_metadata,startup_metadata,global_names_metadata,continuation_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal)
-            expression=condition_form.transform_literal(expression,fixed_names.transform_literal)
+            expression=output_form.transform_literal(expression,lambda original:condition_form.transform_literal(original,fixed_names.transform_literal))
             script=template.replace(marker,expression.encode())
             ast.parse(script)
             whole=source_package.package(script,recipe['compression'],prefix=prefix)
