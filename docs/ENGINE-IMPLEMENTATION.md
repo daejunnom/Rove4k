@@ -185,6 +185,13 @@ Both actual engine-job checkouts use merge0c2a7a7a, with the same tree as that
 head. The subsequent B/E history and resource8 local qualifications below
 retain their own identities; this CI result does not qualify later bytes.
 
+The B/E history and fixed-eight-worker checkpoint `726158f` also passes both
+language jobs in its [engine CI](https://github.com/daejunnom/Rove4k/actions/runs/39601974098)
+and Node22/24 [repository checks](https://github.com/daejunnom/Rove4k/actions/runs/39601973964).
+Both engine jobs actually check out merge `21c2d152`, whose tree equals that
+head. The C job executes the new fixed-eight-worker positive step. These results
+precede the additional generic fixed-root source path described separately.
+
 **F's opt-in material/move-TT file is locally reproduced and exercised at
 4,045 bytes; default full F is still 4,479 bytes.** This optional reduced-feature
 size result does not complete default F or the A–F portfolio. All twelve
@@ -214,6 +221,72 @@ The canonical Rust D native images are16,816 bytes each. The separate maintained
 finite Rust shipping entry also has16,816-byte natives with new identities and
 11,108/11,476-byte scalar/HQ own-ELFs. Its normal qualification below does not
 replace the C D table or establish4KiB eligibility.
+
+## Generic fixed-A root source specialization: 2026-10-21
+
+The general C and Rust engines already implement explicit root splitting,
+groups, PALS and hybrid policies. This checkpoint derives a smaller source
+form from each existing mode 1 root scheduler. It does not add another scheduler
+or replace the maintained tiny entries' loose policy. The new generic forms
+require A/shipping/model0, two search workers, TT18 and three total engine TIDs.
+No public resource UCI options are added. Canonical engines and existing loose
+source/metadata remain unchanged.
+
+C removes unreachable policy branches from bound canonical files, retaining
+its completed NORMAL-slot reuse for compatible first/depth/generation/window
+and bound. Rust derives its scheduler from canonical tokens instead of the
+loose template. Its exact first proposal seeds the incumbent and finished=1;
+cache=None and first_job=1 skip that first task. Mode 1 does not produce the
+PALS Some-cache or approved Repair results. Each language retains its own
+evaluation, correction and TT meaning; this is a same-language source
+comparison rather than a language-only matched pair.
+
+One ordinary shared build compiles seven natural forms with GCC 13.3 and
+Rust 1.97. There is no independent second native rebuild in this checkpoint.
+The lexical-to-root comparisons are:
+
+| Language | Actual compile-input source | Native ELF | Generic whole source package |
+| --- | ---: | ---: | ---: |
+| C | 60,283 → 44,098 B | 30,768 → 30,768 B, distinct hashes | 21,175 → 15,140 B |
+| Rust | 64,853 → 38,458 B | 374,952 → 373,672 B | 24,961 → 16,151 B |
+
+The C source comparison includes compiler conditional specialization and
+function pruning; Rust uses structural then lexical generation. The separate
+whole costs use the same frozen generic LZMA/XZ-preset9/base85 envelope and
+include source restoration and compiler settings. Four encodes and four strict
+restorations pass exact source maps, archive/argv/environment, XZ EOF/trailing
+checks and lifecycle AST comparison. Those packages are not executed by the
+cost check. This generic context does not replace the maintained tiny-entry
+sizes above or establish 4096-byte eligibility.
+
+Existing structural unit regressions pass 13 C and 16 Rust tests without skips.
+Separate real-search adapters consume exact canonical/generated sources with
+shipping constants: C uses two UBSan compile/run pairs, Rust two non-test
+compile/run pairs. They exercise actual first-child ply1/history, TT/window
+bounds, mate/draw and partial-result/root-TT separation, completed-depth
+retention and the unchanged deadline value. C additionally observes actual completed
+NORMAL reuse and lower-cutoff aggregation. Rust observes the final first-job
+skip/completion state and 40 real jobs over two depths; the initial finished=1
+publication instant remains a source observation. Time-limited node traces
+are not required to be identical and are not performance comparisons.
+
+Production original/selected pairs separately pass four quit/EOF sessions per
+language: 12 C and 28 Rust legal GO results, fixed 3-TID startup, GO/position drain
+fences, GO-followed quit/EOF, reader/sampler joins and physical process/group/TID
+absence. No forced cleanup or product source repair is needed. These checks
+do not establish strength, scaling, race-freedom by measurement, PVS-retry
+coverage or final-server acceptance. C does not independently observe whether
+the GO-followed shutdown reaches pending or active work, or a midflight wall
+deadline; Rust separately observes active work. The CI step compiles the new forms and
+records any startup checks allowed by the existing local execution policy;
+the external actual-search fixtures retain their narrower local scope.
+
+The first supervisor attempt fails before CLI exec because its child limit
+exceeds its inherited hard limit. That failure is preserved separately; the
+successful second supervisor changes only limit inheritance and performs the
+one actual shared CLI build. Source-index intake verifies 111 explicit file
+references before documentation annotations. Reports, adapters and generated
+artifacts stay outside Git.
 
 ## Reattached size analysis and next structural work: 2026-10-21
 

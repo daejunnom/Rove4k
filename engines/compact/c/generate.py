@@ -93,8 +93,9 @@ def prepare_sources(files, *, variant, parallel=0, development=False, model=Fals
                     compact_search=False,small_worker=False,shipping_operations=False):
     """Return transformed sources and source/provenance observations.
 
-    Only fixed Loose SMP (mode 0) is supported.  Other policies retain canonical
-    sources.  Development keeps canonical FEN admission and diagnostics.
+    Fixed Loose SMP retains its original recipe. Shipping A mode1 extracts the
+    canonical explicit-root policy; other policies retain canonical sources.
+    Development keeps canonical FEN admission and diagnostics.
     """
     if variant not in 'ABCDEF' or len(variant) != 1:
         raise ValueError('one A-F candidate is required')
@@ -106,6 +107,19 @@ def prepare_sources(files, *, variant, parallel=0, development=False, model=Fals
         raise ValueError('shipping operations require fixed Loose shipping, compact search and small worker')
     result = dict(files)
     changes = []
+    if parallel == 1 and variant == 'A' and not development and not model:
+        normalized = {name:data.replace(b'\r\n',b'\n') for name,data in result.items()}
+        if normalized != result:
+            changes.append({'applied': True, 'operation': 'physical-C-newline-normalization',
+                            'contract': 'CRLF to LF as in C translation phase 1; logical lines and literal escape spelling retained'})
+        spec = importlib.util.spec_from_file_location('rove_compact_fixed_root', HERE / 'fixed_root.py')
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        result, observation = module.specialize_sources(normalized, functions=functions, mask=_mask)
+        observation['template'] = str(HERE / 'fixed_root.py')
+        observation['sha256'] = hashlib.sha256((HERE / 'fixed_root.py').read_bytes()).hexdigest()
+        changes.append(observation)
+        return result, changes
     if parallel != 0:
         return result, [{'applied': False, 'reason': 'fixed-loose specialization requires parallel=0'}]
     normalized = {name:data.replace(b'\r\n',b'\n') for name,data in result.items()}

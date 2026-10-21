@@ -1,4 +1,4 @@
-"""Guarded Rust A shipping-source specialization.
+"""Guarded Rust A shipping-source specialization for loose and fixed root.
 
 The accepted input descends from canonical de5676d with reviewed PALS feedback. This optional
 producer removes inactive source before packing; it does not call a C backend,
@@ -239,6 +239,77 @@ def _replace(tokens, old, new, *, count=1):
     return tokens
 
 
+def _root_parallel(tokens):
+    """Prune the bound production scheduler for fixed A/root; never a template.
+
+    The journal is inverted before returning. Only exact, pinned token spans
+    are edited; work publication, queue consumption and drain stay canonical.
+    """
+    original = list(tokens)
+    journal = []
+
+    def change(start, end, replacement, role):
+        old = tokens[start:end]
+        journal.append((start, old, list(replacement), role))
+        tokens[start:end] = replacement
+
+    def rewrite(old, new, role):
+        needle = tokenize(old)
+        positions = [i for i in range(len(tokens)-len(needle)+1) if tokens[i:i+len(needle)] == needle]
+        if len(positions) != 1: raise ValueError("root source anchor mismatch: " + role)
+        change(positions[0], positions[0]+len(needle), tokenize(new), role)
+
+    def drop_function(name):
+        start, end = _function(tokens, name)
+        while start >= 2 and tokens[start-1] == "]":
+            opening = matching(tokens, start-1)
+            if opening == 0 or tokens[opening-1] != "#": break
+            start = opening-1
+        change(start, end, [], "unreachable function " + name)
+
+    needle = tokenize("#[derive(Clone,Copy,Debug,PartialEq,Eq)] enum Bound")
+    starts = [i for i in range(len(tokens)-len(needle)+1) if tokens[i:i+len(needle)] == needle]
+    if len(starts) != 1: raise ValueError("root PALS item boundary mismatch")
+    change(starts[0], _function(tokens, "report")[0], [], "unreachable PALS types and producer")
+    for name in ("report", "policy", "group_count", "loose_depth"):
+        drop_function(name)
+    rewrite("if let Some(r)=result{report(r);}", "", "shipping terminal report")
+    rewrite("report(r);", "", "shipping completed-depth report")
+    rewrite("use std::time::{Duration,Instant};", "", "unreachable policy timing import")
+    rewrite("enum Kind{Reset,Loose,Split}", "enum Kind{Reset,Split}", "fixed task kinds")
+    rewrite("depth:u8,guess:i32,", "depth:u8,", "unused loose guess field")
+    rewrite("epoch:u64,workers:usize,groups:usize,first_job:usize,", "epoch:u64,first_job:usize,", "single shared-table task context")
+    rewrite("let loose={{false}};if loose{completed(searcher.iteration_frozen(&self.board,self.depth,self.guess))}else{self.work(searcher,worker*self.groups/self.workers,self.first_job+worker);None}", "self.work(searcher,0,self.first_job+worker);None", "canonical root task callback")
+    rewrite("workers:usize,mode:u8,effective:u8,groups:usize,counters:Arc<Counters>,", "workers:usize,counters:Arc<Counters>,", "inactive engine policy fields")
+    rewrite("let effective=if variant==b'F'{0}else{mode};let groups=group_count(variant,effective,workers,tt_bits);let group_shift=if groups==1{0}else{usize::BITS as usize-(groups-1).leading_zeros()as usize};let tables:Vec<_> =(0..groups).map(|_|Arc::new(Table::new(tt_bits.saturating_sub(group_shift)))).collect();", "let tables=vec![Arc::new(Table::new(tt_bits))];", "one table with the original total TT budget")
+    rewrite("tables[i*groups/workers].clone()", "tables[0].clone()", "helpers share the original single group")
+    rewrite("depth:0,guess:0,", "depth:0,", "unused loose guess initializer")
+    rewrite("epoch:0,workers,groups,first_job:0,", "epoch:0,first_job:0,", "single group task initializer")
+    rewrite("workers,mode,effective,groups,counters", "workers,counters", "inactive engine policy initializer")
+    rewrite("previous:Option<SearchResult>,pals:bool", "previous:Option<SearchResult>", "fixed root split signature")
+    rewrite("let pals={crate::PARALLEL==3};", "", "fixed root excludes PALS selection")
+    positions = [i for i in range(len(tokens)-3) if tokens[i:i+4] == ["if", "pals", "&&", "depth"]]
+    if len(positions) != 1: raise ValueError("root PALS statement boundary mismatch")
+    _, _, end, _ = _if_parts(tokens, positions[0])
+    change(positions[0], end, [], "PALS-only proposal/Repair cache producer")
+    rewrite("let mut proposal=", "let proposal=", "immutable exact first proposal")
+    rewrite("let mut cache=None;", "let cache=None;", "mode1 cache remains None")
+    rewrite("let(mut best,mut older,mut last_cost,mut last_policy)=(None,None,Duration::ZERO,255);let mut parity_guess=[0;2];", "let mut best=None;", "only completed root depth state")
+    rewrite("let selected={policy(crate::PARALLEL,best,older,last_cost,&self.control)};if last_policy!=255&&selected!=last_policy{self.counters.switches.fetch_add(1,Ordering::Relaxed);}self.counters.policies.fetch_or(1<<selected,Ordering::Relaxed);last_policy=selected;let start=Instant::now();let previous=best.map_or(0,|r:SearchResult|r.score);let guess={previous};{}", "", "inactive hybrid/F selection and timing")
+    rewrite("let r=if selected==0{self.loose_depth(board,depth,guess)}else{self.split_depth(board,depth,best,selected==3)};last_cost=start.elapsed();", "let r=self.split_depth(board,depth,best);", "canonical fixed-root invocation")
+    rewrite("parity_guess[(depth&1)as usize]=r.score;older=best;", "", "inactive hybrid/F history")
+    rewrite("let counters=&self.counters;{}", "", "inactive DEV counter display")
+    restored = list(tokens)
+    for start, old, new, role in reversed(journal):
+        if restored[start:start+len(new)] != new: raise ValueError("root inverse mismatch: " + role)
+        restored[start:start+len(new)] = old
+    if restored != original: raise ValueError("root inverse did not restore bound scheduler")
+    digest = lambda ts: hashlib.sha256(render(ts).encode()).hexdigest()
+    proof = {"input_token_sha256": digest(original), "output_token_sha256": digest(tokens),
+             "inverse_exact": True, "edits": [{"role": role, "old_token_sha256": digest(old), "new_token_sha256": digest(new)} for _,old,new,role in journal]}
+    return tokens, proof
+
+
 def _configuration(configuration):
     cfg = dict(configuration)
     for key in ("ROVE_VARIANT", "ROVE_WORKERS", "ROVE_TT_BITS", "ROVE_DEV", "ROVE_PARALLEL", "ROVE_MODEL", "ROVE_HQ"):
@@ -249,13 +320,16 @@ def _configuration(configuration):
         if not isinstance(cfg[key], str): raise ValueError("configuration values must be strings")
     for key,value in {"SOURCE_DATE_EPOCH":"0", "LC_ALL":"C", "TZ":"UTC"}.items():
         if key in cfg and cfg[key] != value: raise ValueError("unsupported configuration: " + key)
-    fixed = {"ROVE_VARIANT": "A", "ROVE_DEV": "0", "ROVE_PARALLEL": "0", "ROVE_MODEL": "0", "ROVE_HQ": "0", "ROVE_F_SINGLE": "0", "ROVE_F_PARITY": "0"}
+    fixed = {"ROVE_VARIANT": "A", "ROVE_DEV": "0", "ROVE_MODEL": "0", "ROVE_HQ": "0", "ROVE_F_SINGLE": "0", "ROVE_F_PARITY": "0"}
     for key, value in fixed.items():
         if cfg.get(key, "0") != value: raise ValueError("unsupported configuration: " + key)
     for key, lo, hi in (("ROVE_WORKERS", 1, 512), ("ROVE_TT_BITS", 8, 26)):
         text = cfg[key]
         if not text.isascii() or not text.isdecimal() or not lo <= int(text) <= hi: raise ValueError("unsupported configuration: " + key)
         if str(int(text)) != text: raise ValueError("noncanonical configuration: " + key)
+    if cfg["ROVE_PARALLEL"] not in ("0", "1"): raise ValueError("unsupported configuration: ROVE_PARALLEL")
+    if cfg["ROVE_PARALLEL"] == "1" and (cfg["ROVE_WORKERS"], cfg["ROVE_TT_BITS"]) != ("2", "18"):
+        raise ValueError("root structural profile requires workers 2 / TT bits 18")
     return cfg
 
 
@@ -268,7 +342,8 @@ def specialize_rust(files, *, configuration):
         # input hashes/lengths in evidence. Lone CR or any content drift fails.
         if name not in files or hashlib.sha256(files[name].replace(b"\r\n",b"\n")).hexdigest() != expected: raise ValueError("source binding mismatch: " + name)
     if any(name not in {*_SOURCE_BINDINGS, "model/frozen.rs"} for name in files): raise ValueError("unexpected production source input")
-    constants = {"DEV": False, "crate::DEV": False, "VARIANT": 65, "crate::VARIANT": 65, "self.variant()": 65, "HQ": False, "eval::CROSS_MODEL": False, "crate::PARALLEL": 0}
+    root = cfg["ROVE_PARALLEL"] == "1"
+    constants = {"DEV": False, "crate::DEV": False, "VARIANT": 65, "crate::VARIANT": 65, "self.variant()": 65, "HQ": False, "eval::CROSS_MODEL": False, "crate::PARALLEL": int(cfg["ROVE_PARALLEL"])}
     tokens = {name: _strip_cfg(_clean(tokenize(data.decode("utf-8")))) for name,data in files.items() if name in _SOURCE_BINDINGS}
     # Profile-conditioned branches are folded before selected unreachable items.
     tokens = {name: fold_tokens(ts, constants) for name,ts in tokens.items()}
@@ -277,6 +352,9 @@ def specialize_rust(files, *, configuration):
     for name in ("read_command", "set_position", "go_limits"):
         start,end = _function(main,name); extracted[name] = render(main[start:end])
     main_text = _TEMPLATES["main"].replace("@WORKERS@",cfg["ROVE_WORKERS"]).replace("@TT_BITS@",cfg["ROVE_TT_BITS"])
+    if root:
+        if main_text.count("const PARALLEL:u8=0;") != 1: raise ValueError("root main profile anchor mismatch")
+        main_text = main_text.replace("const PARALLEL:u8=0;", "const PARALLEL:u8=1;")
     for name in extracted: main_text = main_text.replace("@"+name.upper()+"@",extracted[name])
     # DEV match guards must be removed as arms, not converted to wildcard arms.
     mt = tokenize(main_text)
@@ -294,26 +372,42 @@ def specialize_rust(files, *, configuration):
             del mt[start:end];i=start
         else:i+=1
     board = tokens["rust/board.rs"]
-    board = _drop_functions(board,("hq_line","hq_attacks","square","from_fen","attackers_hq","perft","see","see_with_abort","exchange","fen","extend"))
+    board = _drop_functions(board,("hq_line","hq_attacks","square","from_fen","attackers_hq","perft","see","see_with_abort","exchange","fen") + (() if root else ("extend",)))
     # The profile's false HQ constant is now unused; remove its full const item.
     at=board.index("HQ"); begin=at-1; end=at
     while board[end] != ";":
         if board[end] in ("(","[","{"): end=matching(board,end)+1
         else:end+=1
     del board[begin:end+1]
-    search = _drop_functions(tokens["rust/search.rs"], ("search_move","search_move_hint","search_clause"))
+    search = _drop_functions(tokens["rust/search.rs"], ("search_clause",) if root else ("search_move","search_move_hint","search_clause"))
     # Retain the eager TT publication when the F-only inconsistency abort is
     # removed. Dropping the false conditional wholesale would lose this write.
     search = _replace(search,"if !self.table.put(Entry {key,mv:best_move,depth,lower,upper},ply,&self.control) && self.variant()==b'F' {self.control.stop.store(true,Ordering::Relaxed);return Err(());}","let _=self.table.put(Entry {key,mv:best_move,depth,lower,upper},ply,&self.control);")
     search = _replace(search,"let mut lower_witness=None;","")
+    parallel, root_proof = _root_parallel(tokens["rust/parallel.rs"]) if root else (tokenize(_TEMPLATES["parallel"]), None)
+    pool = _drop_functions(tokens["rust/pool.rs"], ("control","first_result") if root else ("control","task"))
     output = {
         "rust/main.rs": render(mt).encode(),
         "rust/board.rs": render(board).encode(),
         "rust/eval.rs": b"use crate::board::Board;pub fn evaluate(b:&Board,_variant:u8)->i32{(b.evalwhite()*b.side as i32).clamp(-20000,20000)}",
         "rust/search.rs": render(search).encode(),
-        "rust/parallel.rs": render(tokenize(_TEMPLATES["parallel"])).encode(),
-        "rust/pool.rs": render(_drop_functions(tokens["rust/pool.rs"],("control","task"))).encode(),
+        "rust/parallel.rs": render(parallel).encode(),
+        "rust/pool.rs": render(pool).encode(),
     }
     changes = ["DEV UCI arms and diagnostics excluded from runtime source", "A incremental HCE retained; inactive B/C/E model/SIMD source excluded", "A scalar sliding attacks retained; inactive HQ/SEE and FEN/perft display excluded", "paired TT writes retained including eager F-abort condition publication", "F MTD/singular/PALS branches excluded only for fixed A loose profile", "loose SMP startup/barriers, frozen correction epoch and first completed worker priority preserved", "test modules excluded before packing"]
     metadata = {"producer":"rust-A-structural-v1", "configuration":dict(cfg),"input_sha256":{n:hashlib.sha256(d).hexdigest() for n,d in sorted(files.items())},"binding_normalized_sha256":{n:hashlib.sha256(files[n].replace(b"\r\n",b"\n")).hexdigest() for n in sorted(_SOURCE_BINDINGS)},"input_crlf_counts":{n:d.count(b"\r\n") for n,d in sorted(files.items())},"output_sha256":{n:hashlib.sha256(d).hexdigest() for n,d in sorted(output.items())},"input_bytes":sum(map(len,files.values())),"output_bytes":sum(map(len,output.values())),"changes":changes,"guards":{"source_binding":"canonical-de5676d+reviewed-PALS-feedback","source_binding_review":"finite proposal/refutation/same-first repair/same-reply followup; hint-node TT cutoff gate and priority; terminal draw boundary in pruned helper methods","binding_normalization":"Rust CRLF to LF; raw input hashes retained","variant":"A","development":False,"parallel":"loose","hq":False,"model":False,"external_crates":False,"canonical_unchanged":True}}
+    if root:
+        metadata["producer"] = "rust-A-fixed-root-structural-v1"
+        metadata["guards"].update(parallel="root", workers=2, tt_bits=18, native_threads=3,
+                                  source_only=True, runtime_qualified=False,
+                                  source_binding_review="canonical fixed mode1 root queue and completion; PALS/group/hybrid producers unreachable and excluded")
+        metadata["root_transform"] = root_proof
+        metadata["changes"] = changes[:4] + [
+            "canonical Depth/search_move queue and all-required-complete aggregation retained; no parallel.in backend",
+            "exact first NORMAL proposal seeds initial best and finished=1; cache=None implies first_job=1 and skips that first task",
+            "PALS Some-cache/approved unrestricted Repair producers excluded for mode1; typed cache consumer remains depth-local",
+            "canonical Board.play(first), ply1, root history, SearchResult depth/witness and hint-node TT rules retained",
+            "original GO control/deadline, immutable root owner, frozen correction epoch, helper drain and physical join retained",
+            "group/PALS/hybrid/F-only and DEV/test paths excluded; no new resource UCI options",
+            "Rust frozen-correction leaf and epoch/history TT differ from C; no language-only matched claim"]
     return output, metadata

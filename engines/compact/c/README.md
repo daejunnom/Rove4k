@@ -5,12 +5,36 @@ This optional source recipe is selected by `engines/scripts/build.py
 then uses the selected C compiler's conditional specialization and the ordinary
 lexical compactor. It does not supply a separate weakened chess core.
 
-The recipe currently applies to fixed Loose SMP only. Root splitting, groups,
-PALS and hybrid retain the canonical implementation. Every Loose worker searches
+The existing Loose recipe applies to fixed Loose SMP. Every Loose worker searches
 the complete root; helpers and the coordinator start before the first UCI input.
 The lowest-index complete result with a compatible bound wins, and the completion
 barrier precedes callback-state reuse. Startup failure exits instead of silently
 reducing workers. The helper pool is joined before its synchronization is freed.
+
+An additional fixed A root recipe is selected with `--variant A --profile
+local-ship --parallel root --structural-compact`. `fixed_root.py` derives it from
+the bound canonical scheduler and search callback. It removes unreachable Loose,
+group, PALS and hybrid branches while preserving the normal proposal, compatible
+completed-result reuse, atomic root queue and completed-iteration aggregation.
+The first child still uses the canonical make, history and ply-1 search. The
+canonical main, board, evaluator, search algorithm, deadline, callback drain and
+helper joins remain in use. This path does not use `fixed_loose.h` or `uci.c.in`.
+Its source/build guard requires A, shipping, model off, two search workers and
+TT bits 18. Other root profiles are rejected; group/PALS/hybrid source requests
+continue to use the canonical implementation. These are source-generation
+contracts. Native size, whole-file size and runtime qualification are recorded
+separately from the raw-source reduction.
+
+The first local A/root build reduces the actual lexical compile inputs from
+60,283 to 44,098 bytes. Both natives are 30,768 bytes with different hashes.
+Real canonical/selected search and scheduler adapters pass under UBSan, and
+four production quit/EOF sessions pass twelve legal GO results with three
+persistent TIDs and physical process/thread exit. A separate generic
+LZMA/XZ-preset9/base85 source envelope measures 21,175 to 15,140 whole bytes;
+the packaged source is restored exactly but is not executed in that cost check.
+These are bounded local results, separate from the maintained tiny entries,
+4096-byte eligibility, strength and many-core scaling. See the fixed-root
+checkpoint in `docs/ENGINE-IMPLEMENTATION.md` for the observation limits.
 
 `fixed_loose.h` specializes the generic scheduler to that policy. `uci.c.in` is a
 shipping-only main: Session owns the position and history, commands update them

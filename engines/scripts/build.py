@@ -184,8 +184,8 @@ def main():
     parser.add_argument("--model", action="store_true", help="explicit SIMD plus frozen-model cross candidate")
     parser.add_argument("--model-format", choices=("varint", "static16"), default="varint", help="explicit exact E-model representation candidate")
     parser.add_argument("--source-root", type=Path, help="reuse an explicit c/rust/model source snapshot; hashes remain authoritative")
-    parser.add_argument("--structural-compact", action="store_true", help="also generate the separately identified C source-structure candidate")
-    parser.add_argument("--rust-structural-compact", action="store_true", help="also compare bound Rust A shipping/loose structural source forms")
+    parser.add_argument("--structural-compact", action="store_true", help="also generate C structural source forms; fixed root requires A shipping workers2/TT18")
+    parser.add_argument("--rust-structural-compact", action="store_true", help="also compare bound Rust A shipping structural forms for loose or fixed root workers2/TT18")
     parser.add_argument("--structural-search", action="store_true", help="also compare the separately generated C search layout; requires loose policy")
     parser.add_argument("--small-worker", action="store_true", help="also compare compact C worker storage; requires structural-search and shipping")
     parser.add_argument("--shipping-operations", action="store_true", help="also compare specialized C shipping operations; requires small-worker, shipping and loose policy")
@@ -230,8 +230,14 @@ def main():
         parser.error("F currently requires --parallel loose to preserve whole-root MTD(f); select another variant for other parallel policies")
     if args.hq != "auto" and variants != ["D"]:
         parser.error("explicit --hq scalar|hq is the D comparison; select --variant D")
-    if args.rust_structural_compact and ("rust" not in languages or variants != ["A"] or profile["development"] or args.parallel != "loose"):
-        parser.error("--rust-structural-compact requires Rust, --variant A, a shipping profile and --parallel loose")
+    fixed_root_structural = args.parallel == "root" and (args.structural_compact or args.rust_structural_compact)
+    if fixed_root_structural:
+        if variants != ["A"] or profile["development"] or profile["search_workers"] != 2 or profile["tt_bits"] != 18 or profile["expected_total_threads"] != 3:
+            parser.error("fixed root structural source requires --variant A, shipping, workers2, TT18 and three total engine threads")
+        if args.structural_compact and "c" not in languages:
+            parser.error("fixed root --structural-compact requires the C implementation")
+    if args.rust_structural_compact and ("rust" not in languages or variants != ["A"] or profile["development"] or args.parallel not in ("loose", "root")):
+        parser.error("--rust-structural-compact requires Rust, --variant A, shipping and loose or fixed root policy")
     if args.structural_search:
         args.structural_compact = True
         if args.parallel != "loose" or "c" not in languages:
@@ -249,6 +255,21 @@ def main():
             parser.error("nondefault --f-tt/--f-guess experiments require --variant F")
         if args.structural_compact or args.structural_search or args.small_worker:
             parser.error("nondefault F experiments are not yet qualified with structural overlays")
+    root_source_contract = None
+    if fixed_root_structural:
+        root_source_contract = {
+            "scope": "current canonical fixed mode1 root scheduling and NORMAL reuse, specialized as A shipping source",
+            "variant": "A", "parallel": "root", "search_workers": 2, "tt_bits": 18,
+            "expected_total_threads": 3,
+            "normal_reuse": {"c": "completed NORMAL first/depth/generation with compatible bound/window",
+                             "rust": "exact first proposal seeds initial best and is skipped by first_job=1/finished=1; cache=None; PALS cache/Repair producers excluded"},
+            "root_TT": "partial first-move results do not publish a whole-root exact entry; canonical child TT contracts retained",
+            "completed_depth": "canonical aggregate completion; incomplete work retains last completed result or legal root fallback",
+            "deadline": "one original job deadline and cancellation policy; reassignment does not reset the budget",
+            "ownership": "immutable job root until callback drain; private worker search state; coherent shared TT; physical joins before release",
+            "language_semantics": "each canonical evaluator, correction, search and TT meaning retained; no language-only matched claim",
+            "excluded": ["groups", "PALS", "Repair", "hybrid", "F non-loose", "new UCI options"],
+            "evidence": "source-generation contract only; no build/runtime/strength/scaling acceptance implied"}
     out.mkdir(parents=True, exist_ok=True)
     # A local script must never accidentally start a 255/508/511-worker profile.
     execute = not args.no_smoke and profile["expected_total_threads"] <= min(8, os.cpu_count() or 1)
@@ -273,6 +294,8 @@ def main():
                "tools": {}, "engines": [], "complete": False,
                "execution_policy": "local profiles only; target profiles remain compile-only",
                "eligibility": "no tournament approval or playing-strength claim"}
+    if root_source_contract is not None:
+        summary["fixed_root_structural_source_contract"] = root_source_contract
     tooling_paths = [path for path in (ROOT / "engines/scripts").rglob("*")
                      if path.is_file() and path.suffix in (".py", ".c", ".ld")]
     compact_directory = ROOT / "engines/compact"
@@ -364,6 +387,8 @@ def main():
                                      "c_lto": args.c_lto,
                                      "f_tt": args.f_tt if variant == "F" else None, "f_guess": args.f_guess if variant == "F" else None,
                                      "compiler_version": summary["tools"][language]["version"]}
+                if root_source_contract is not None and ((language == "c" and args.structural_compact) or (language == "rust" and args.rust_structural_compact)):
+                    generation_config["fixed_root_structural_source_contract"] = root_source_contract
                 record["generation_config"] = generation_config
                 record["generation_config_sha256"] = digest(json.dumps(generation_config, sort_keys=True, separators=(",", ":")).encode())
                 forms = [("original", files), ("compact", compact)]
@@ -372,17 +397,21 @@ def main():
                     generator_path = recipe_root / "engines/compact/rust/generate.py"
                     generator = load_module("rove_frozen_rust_structural", generator_path)
                     structured, changes = generator.specialize_rust(dict(files), configuration=dict(fixed_env))
-                    record["rust_structural_compaction"] = {"preparation": changes,
+                    if fixed_root_structural and (not isinstance(changes, dict) or changes.get("producer") != "rust-A-fixed-root-structural-v1" or changes.get("guards", {}).get("parallel") != "root"):
+                        raise ValueError("fixed root Rust structural producer did not establish its source contract")
+                    rust_record_key = "rust_root_structural_compaction" if fixed_root_structural else "rust_structural_compaction"
+                    rust_form = "rust-root-structural-specialized" if fixed_root_structural else "rust-structural-specialized"
+                    record[rust_record_key] = {"preparation": changes,
                         "generator_inputs": [{"path": str(path.relative_to(recipe_root)), "sha256": digest(path.read_bytes())}
                                              for path in sorted(generator_path.parent.rglob("*"))
                                              if path.is_file() and path.suffix in (".py", ".h", ".in")]}
-                    forms += [("rust-structural-specialized", structured),
-                              ("rust-structural-specialized-compact", {name: compact_source(data, "rust") for name, data in structured.items()})]
+                    forms += [(rust_form, structured),
+                              (rust_form + "-compact", {name: compact_source(data, "rust") for name, data in structured.items()})]
                     if args.reproduce:
                         again, _ = generator.specialize_rust(dict(files), configuration=dict(fixed_env))
-                        record["rust_structural_compaction"]["source_reproduction_identical"] = structured == again
-                        repeated_forms["rust-structural-specialized"] = again
-                        repeated_forms["rust-structural-specialized-compact"] = {name: compact_source(data, "rust") for name, data in again.items()}
+                        record[rust_record_key]["source_reproduction_identical"] = structured == again
+                        repeated_forms[rust_form] = again
+                        repeated_forms[rust_form + "-compact"] = {name: compact_source(data, "rust") for name, data in again.items()}
                 if language == "c" and (not args.no_pack or args.identifier_compact):
                     environment = os.environ.copy()
                     environment.update(fixed_env)
@@ -398,7 +427,7 @@ def main():
                     generator = load_module("rove_structural_compact", generator_path)
                     environment = os.environ.copy()
                     environment.update(fixed_env)
-                    structural_forms = [("structural-specialized", "structural_compaction", {})]
+                    structural_forms = [("root-structural-specialized", "root_structural_compaction", {})] if fixed_root_structural else [("structural-specialized", "structural_compaction", {})]
                     if args.structural_search:
                         structural_forms.append(("structural-search-specialized", "structural_search_compaction", {"compact_search": True}))
                     if args.small_worker:
@@ -410,6 +439,8 @@ def main():
                             prepared, changes = generator.prepare_sources(files, variant=variant,
                                                 parallel=("loose", "root", "groups", "pals", "hybrid").index(args.parallel),
                                                 development=profile["development"], model=args.model, **options)
+                            if fixed_root_structural and sum(1 for change in changes if isinstance(change, dict) and change.get("applied") is True and change.get("operation") == "fixed-root-source-specialization") != 1:
+                                raise ValueError("fixed root C structural producer did not apply its source contract")
                             prepared, observations = specialize_c(prepared, destination, command, environment)
                             post_changes = []
                             if options.get("shipping_operations"):
