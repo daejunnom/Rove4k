@@ -206,13 +206,9 @@ static void go(char *s){
 #endif
     const char *cursor=s;
     for(Span token;(token=scan(&cursor)).n;){
-        if(word(token,"wtime")||word(token,"btime")){
+        if(word(token,"wtime")||word(token,"btime")||word(token,"winc")||word(token,"binc")){
             int side=*token.p=='w'?1:-1;uint64_t n=amount(&cursor);
-            if(side==position.s){clock=n;present=1;}
-        }
-        else if(word(token,"winc")||word(token,"binc")){
-            int side=*token.p=='w'?1:-1;uint64_t n=amount(&cursor);
-            if(side==position.s)inc=n;
+            if(side==position.s){if(token.p[1]=='t'){clock=n;present=1;}else inc=n;}
         }
 #if DEV
         else if(word(token,"infinite"))infinite=1;

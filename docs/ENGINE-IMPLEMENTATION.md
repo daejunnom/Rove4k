@@ -172,7 +172,7 @@ The later PALS and hardware-CRC work below retains its own source and runtime
 boundaries; those earlier CI runs are not relabeled as results for new bytes.
 
 **F's opt-in material/move-TT file is locally reproduced and exercised at
-4,051 bytes; default full F is still 4,575 bytes.** This optional reduced-feature
+4,051 bytes; default full F is still 4,505 bytes.** This optional reduced-feature
 size result does not complete default F or the A–F portfolio. All twelve
 cores have functional evidence, but portfolio completion still requires source
 reduction, D's eligible own-ELF artifact, final candidate comparisons and games,
@@ -190,7 +190,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | A | 4,610 B | 514 B | Unsigned64 number forms; one-state material classifier; main-owned token cursor and valid-0x88 promotion predicate; existing full HCE/PVS/QS/TT/learners/SMP and fixed ALONE retained; fixed LP64 mixer literals |
 | B | 5,144 B | 1,048 B | Worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained; literal include gaps and overlong-line drain compacted; clock-first SEE poll; cancellation timing changed |
 | C | 4,934 B | 838 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners retained; child continuation slot and positive-only cutoff bonus compacted; fixed LP64 mixer literals |
-| D scalar / HQ | 5,937 / 6,148 B | 1,841 / 2,052 B | Consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained |
+| D scalar / HQ | 5,914 / 6,125 B | 1,818 / 2,029 B | Exact clock/inc parsing shared; consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained |
 | E | 5,010 B | 914 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; literal include gaps and fixed ASCII compiler argv compacted; fixed LP64 mixer literals |
 | F full (default) | 4,505 B | 409 B | Packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; nonnegative QS depth, repetition-distance loop and fixed integer macros compacted after the no-preadd hash, terminal, correction and source-form stages; default size target remains open |
 | F material/noise (opt-in) | 4,325 B | 229 B | Unsigned64 number forms and two fixed TT18 casts omitted; one-state material classifier, fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted; literal include gaps compacted; fixed LP64 mixer literals |
@@ -6771,3 +6771,41 @@ source-search candidate compile/codec/engine ran. Both facts remain in
 `rove4k-nvc050-full-f-current-20261021-evidence/non-admission.json`, distinct
 from the successful fixed source transformations above. No new strength,
 many-core or final-server acceptance is inferred from this local profile.
+
+## D5914/6125 exact clock/inc branch sharing (2026-10-21)
+
+D's readable runtime shares only the wtime/btime/winc/binc branch, preserving
+the original four exact-word tests in short-circuit order. It consumes amount
+once even for opponent values, then classifies time/inc through a character
+inside the already-admitted4/5-byte word. Missing nonnumeric values still
+rewind D's cursor; own-side zero/duplicate/overflow handling, DEV branches,
+budget, deadline, fallback and completion fences remain. Reply stays256 B.
+
+Runtime14987→14885 B gives native7676/8032 B and complete own-ELF5914/6125 B,
+23 B smaller in each form. Reply-only5936/6150 and the actual union5928/6129
+are preserved but not selected. Full HCE/PVS/QS/learners, atomic16 full-key TT,
+SMP, fixed21 models and explicit ISA remain. Static admission binds each new
+native's hash/size/entry; RX2pages, BSS175092, guard/reserve/NX geometry and
+guard bodies are unchanged. Only two packer identity/model literal blocks
+change. The positive verifier's EXPECTED data changes, with its entire remaining
+29214-byte body unchanged at SHA-256
+`389ac04925b5ab4597a34a9ac8b318de572da9b0d9b293b384eea785f10cc4fa`.
+
+One fatal ASan/UBSan compile/run compares34 parser/budget cases in four actual
+old/new DEV0/1 host projections, with no production main or workers. Focused
+receipt: `ceb2b0f3492bb5a82438d4dcd7ab31ecff744b44c8935d4cde7f81f1ba750817`.
+The interrupted work's two completed checkpoint-loader discovery compilations
+were recovered by exact receipt and terminal/PID evidence, rather than repeated.
+Ordinary regeneration independently reproduces both native/packet/shipping and
+checkpoint forms; positive verification passes two pre-entry inspections and
+four quit/EOF sessions with12 legal GO results, the restored mapping, zero BSS,
+padding/guards/NX,3 startup TIDs, stdio, absent children and physical exit.
+No RIE/ptrace/register/personality/fault campaign is performed.
+
+Build receipt: `2460e3cc44e722123733e973ea22cd1c9bf95dd55843f9126c027ed8d99544ad`;
+runtime: `30929ddd6a8cfdce94222e535bd89f105098c4951d0cf406bfc561a4954ffeeb`.
+Final source/cost/producing-recipe and post-execution annotation identities are
+in external `rove4k-d-clock-normal-promotion-20261021-evidence/final-index.json`,
+7498 B/SHA-256 `e97ef10a73b99f1c0c1f6adccdc3510f601d189f340386236623b00d02f802d6`.
+These local two-worker/TT18 results leave1818/2029 B above4096, without new
+strength, many-core or final-hardware acceptance.

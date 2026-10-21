@@ -1,3 +1,38 @@
+# Maintained D: shared exact clock/inc parser — 2026-10-21
+
+Complete scalar/HQ **5914 / 6125 B**, remaining **1818 / 2029 B**.
+One branch recognizes wtime/btime/winc/binc in the original short-circuit
+order and consumes amount once, including opponent options. Exact word
+admission makes token[1] safe. D's missing nonnumeric value rewinds the
+cursor; duplicate, zero, overflow, opposite-side and DEV options retain
+their existing behavior. The clock formula, deadlines, fallback, pending,
+epoch and completion fences are unchanged. Reply remains256 bytes.
+
+Runtime14987→14885 B gives native7676/8032 B and actual whole−23 B each.
+The independently measured reply-only5936/6150 and combined5928/6129 are
+retained size results; neither is selected. No component deltas are added.
+HCE/PVS/QS/all learners, full-key atomic16 TT, SMP, BSS175092, RX2 pages,
+guards/NX/reserve, fixed21 models and explicit SSE4.2/CX16 ISA remain.
+
+One fatal ASan/UBSan compile/run compares actual old/new parser/budget/DEV
+projections over34 cases. It starts no engine main or worker and assumes
+pending0; actual restoration and lifecycle proof is a separate normal run.
+Focused result SHA-256: ceb2b0f3492bb5a82438d4dcd7ab31ecff744b44c8935d4cde7f81f1ba750817.
+The earlier two CHECKPOINT-only loader compilations are reused by exact
+discovery identity, without repeating them or executing audit images here.
+
+Ordinary regeneration reproduces both native images and complete files twice,
+plus their CHECKPOINT images once. The existing positive verifier passes
+pre-entry2 and quit/EOF4 sessions with12 legal GO results, exact restored
+RX, zero initial BSS/padding, guards/NX, persistent3 startup TIDs, stdio-only
+descriptors, no child helpers and physical reader/process/group closure.
+Build receipt SHA-256: 2460e3cc44e722123733e973ea22cd1c9bf95dd55843f9126c027ed8d99544ad.
+Runtime receipt SHA-256: 30929ddd6a8cfdce94222e535bd89f105098c4951d0cf406bfc561a4954ffeeb.
+The actual producing recipe is preserved separately from this receipt-only
+annotation. No normal failure or retry was needed.
+No RIE/ptrace/register/personality/fault campaign, game or benchmark runs.
+Final hardware, many-core behavior, strength and 4KiB acceptance remain open.
+
 # Maintained D: packed HCE coefficient table — 2026-10-21
 
 Complete scalar/HQ **5937 / 6148 B**, remaining **1841 / 2052 B**.
