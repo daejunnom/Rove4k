@@ -15,12 +15,49 @@ use std::cell::Cell;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use std::path::PathBuf;
 
+mod cpp;
 pub(crate) mod domain;
 mod expressions;
 mod flow;
 pub mod nversion;
+pub mod rust;
 pub use domain::DomainSummary;
 pub use expressions::ExpressionSite;
+
+/// An explicit source-language contract. Unsupported languages never fall
+/// through to a fixed-width C analysis based on filename or similar syntax.
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum SourceLanguage {
+    C,
+    Cpp,
+    Rust,
+}
+
+impl std::str::FromStr for SourceLanguage {
+    type Err = anyhow::Error;
+
+    fn from_str(value: &str) -> Result<Self> {
+        match value {
+            "c" => Ok(Self::C),
+            "cpp" | "c++" => Ok(Self::Cpp),
+            "rust" => Ok(Self::Rust),
+            _ => anyhow::bail!(
+                "unsupported advisory language {value:?}; supported: c, cpp, rust. Python and other languages are explicitly unsupported by this fixed-width domain analyzer"
+            ),
+        }
+    }
+}
+
+impl SourceLanguage {
+    pub fn default_standard(self) -> &'static str {
+        match self {
+            Self::C => "c11",
+            Self::Cpp => "c++17",
+            Self::Rust => "rust2021",
+        }
+    }
+}
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(default)]
@@ -117,13 +154,17 @@ pub struct AdviceReport {
     pub ranges: Vec<RangeSite>,
     #[serde(default)]
     pub expressions: Vec<ExpressionSite>,
+    /// Language-specific typed evidence. C++/Rust adapters do not expose their
+    /// internal C candidate carrier as a proof of source-language semantics.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub language_details: Option<Value>,
     pub limitations: Vec<String>,
     /// False when report budgets omit findings or range sites. True is not a
     /// claim to cover unsupported C or to prove whole-program equivalence.
     pub complete: bool,
 }
 
-pub fn analyze(source: &[u8], options: &AdvisorOptions) -> Result<AdviceReport> {
+pub(super) fn validate_options(source: &[u8], options: &AdvisorOptions) -> Result<()> {
     ensure!(source.len() <= MAX_SOURCE, "advisor source exceeds 8 MiB");
     ensure!(
         (1..=100_000).contains(&options.max_findings)
@@ -136,6 +177,23 @@ pub fn analyze(source: &[u8], options: &AdvisorOptions) -> Result<AdviceReport> 
             && (1_000..=100_000_000).contains(&options.max_finite_flow_work),
         "n-version targets must be 1..512 and work budgets 1000..100000000"
     );
+    Ok(())
+}
+
+pub fn analyze_source(
+    source: &[u8],
+    language: SourceLanguage,
+    options: &AdvisorOptions,
+) -> Result<AdviceReport> {
+    match language {
+        SourceLanguage::C => analyze(source, options),
+        SourceLanguage::Cpp => cpp::analyze(source, options),
+        SourceLanguage::Rust => rust::analyze(source, options),
+    }
+}
+
+pub fn analyze(source: &[u8], options: &AdvisorOptions) -> Result<AdviceReport> {
+    validate_options(source, options)?;
     let source = std::str::from_utf8(source)?;
     let frontend = FrontendSession::new(
         FrontendConfig {
@@ -174,6 +232,7 @@ pub fn analyze(source: &[u8], options: &AdvisorOptions) -> Result<AdviceReport> 
     Ok(AdviceReport {
         format_version: 2,
         advisory_only: true,
+        language_details: None,
         source_sha256: sha256(source.as_bytes()),
         analysis_context_sha256: context,
         frontend: frontend.info.clone(),

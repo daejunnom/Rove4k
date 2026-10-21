@@ -5,6 +5,12 @@
 
 ## 1. 목적과 실행 경계
 
+언어를 명시하는 `advise-source SOURCE --language c|cpp|rust`도 제공한다.
+C++·Rust는 각 언어의 타입·연산 규칙을 검사하는 정적 scalar 부분집합이며,
+Python 등은 고정 폭 영역 분석의 명시적 미지원으로 처리한다.
+지원 문법·정적 계측 구분·보고서 경계는 [언어별 자문 계약](LANGUAGE-ADVISOR.ko.md)에 있다.
+이 문서의 `advise-c` 계측·관측 설명은 C 전용이다.
+
 `advise-c`는 최종 생성 C 또는 명시적으로 추출한 C payload를 읽어 중복 상수,
 참조가 없는 선언, 실제 사용 위치의 정수 값 범위와 축약 후보를 보고한다.
 `inspect-binary`는 완성된 제출 파일에서 반복되는 4·8바이트 구간을 찾는다.

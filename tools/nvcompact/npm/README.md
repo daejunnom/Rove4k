@@ -83,5 +83,12 @@ observations without promoting them to static facts. These additions are not a
 claim that the already-published 0.5.0 tarball includes the new commands.
 See the [advisor guide](https://github.com/daejunnom/Rove4k/blob/feature/nvcompact-search-architecture/tools/nvcompact/docs/SHORTCODE-ADVISOR.ko.md).
 
+The same follow-up source builds add `advise-source SOURCE --language c|cpp|rust`.
+C++ and Rust adapters provide conservative static scalar-subset advice, with
+language-specific type and arithmetic checks. Python and other languages are
+explicitly unsupported by this domain analyzer; they are never silently parsed
+as C. C++/Rust `--profile` and `--instrument` are also explicitly unsupported.
+See the [language contracts](https://github.com/daejunnom/Rove4k/blob/feature/nvcompact-search-architecture/tools/nvcompact/docs/LANGUAGE-ADVISOR.ko.md).
+
 See the [maintainer publishing guide](https://github.com/daejunnom/Rove4k/blob/main/tools/nvcompact/docs/PUBLISHING.md)
 for the personal-account bootstrap, OIDC configuration and release workflow.

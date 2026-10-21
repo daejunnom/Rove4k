@@ -116,6 +116,15 @@ const spelling = 'unsigned long long x=0x0000000000000001ULL;\n';
 await writeFile(path.join(work, 'spelling 한글.c'), spelling);
 await run(['notation', path.join(work, 'spelling 한글.c'), '--language', 'c', '--target', 'c11-lp64', '--token-contract', 'no-token-observation', '--compact', '--output', path.join(work, 'short.c')]);
 assert((await readFile(path.join(work, 'short.c'))).length < Buffer.byteLength(spelling));
+const rustAdviceSource = 'pub fn mask(x:i32)->i32{if x<0||x>7{return 0;}x&7}\n';
+const rustAdvicePath = path.join(work, 'advice.rs');
+await writeFile(rustAdvicePath, rustAdviceSource);
+const rustAdvice = JSON.parse((await run(['advise-source', rustAdvicePath, '--language', 'rust'])).stdout);
+assert.equal(rustAdvice.frontend.language, 'rust');
+assert.equal(rustAdvice.advisory_only, true);
+assert.equal(rustAdvice.statistics.compression_candidates_created, 0);
+assert(rustAdvice.findings.some(finding => finding.assurance === 'exhaustive_rust_typed_static_domain'));
+assert.equal(await readFile(rustAdvicePath, 'utf8'), rustAdviceSource);
 assert.deepEqual(await inventory(installed), before, 'installed package changed while executing');
 const report = { format: 'nvcompact.npm-install-validation.v1', status: 'pass',
   package_sha256: packaged.sha256, runtime_sha256: packaged.runtime.sha256,
@@ -124,6 +133,7 @@ const report = { format: 'nvcompact.npm-install-validation.v1', status: 'pass',
     'raw ELF build with no verifier execution','independent exact native replay',
     'explicit verification of 256 integer cases and 2 invalid cases',
     'verified recipe still requires --verify for new execution','typed source notation',
+    'installed Rust static domain advice without compiler invocation or source mutation',
     'installed package bytes and modes unchanged; no external engine sources'],
   commands: records, fixture_input_count: 256, fixture_invalid_count: 2,
   engine_tests: 'none; owned tiny fixture only', registry_publication: false };

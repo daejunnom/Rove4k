@@ -39,7 +39,7 @@ pub(super) struct Lowered {
     pub nodes: usize,
 }
 
-fn binary(op: &str) -> Option<BinaryOp> {
+pub(super) fn binary(op: &str) -> Option<BinaryOp> {
     Some(match op {
         "+" => BinaryOp::Add,
         "-" => BinaryOp::Sub,
@@ -68,6 +68,7 @@ pub(super) fn is_target(a: &Analysis<'_>, n: usize) -> bool {
         || (a.kind(n) == "UnaryOperator" && matches!(a.op(n), "!" | "~" | "-"))
         || a.kind(n) == "ConditionalOperator")
         && a.location(n).is_some()
+        && (!super::cpp::is_cpp(a) || a.nodes[n].value["valueCategory"] == "prvalue")
 }
 
 pub(super) fn lower(
@@ -75,6 +76,9 @@ pub(super) fn lower(
     n: usize,
     admitted: &impl Fn(&str) -> bool,
 ) -> Option<Lowered> {
+    if super::cpp::is_cpp(a) {
+        return super::cpp::lower(a, n, admitted);
+    }
     struct Lowering<'a, 'b, F> {
         a: &'a Analysis<'b>,
         admitted: &'a F,

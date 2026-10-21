@@ -4,7 +4,8 @@
 비교 기준은 `d0c962ae49d2a4a664f9feef41bf8c7a285c16bd`이며,
 앞선 streaming/cache/worker 개선의 기록은 [이전 결과](PERFORMANCE-ADVICE-RESULTS.ko.md)에 보존한다.
 여기의 시간 차이는 NVCompact 개발 도구의 측정이다. 엔진 기력·탐색 속도·제출 크기 개선을 뜻하지 않는다.
-C++·Rust 확장은 이 C 단계 이후 별도 언어 의미 검증을 거친다.
+C++·Rust 확장은 이 C 단계 이후 별도 언어 의미 검증을 거쳤으며,
+최종 수치와 전체 입력의 보류 범위는 [언어 확장 결과](LANGUAGE-RESULTS.ko.md)에 있다.
 
 ## 1. 실제로 추가한 분석
 

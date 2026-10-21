@@ -292,7 +292,7 @@ fn validate_expr(expr: &Expr) -> Result<(), EvalError> {
     Ok(())
 }
 
-fn common_type(left: CIntType, right: CIntType) -> CIntType {
+pub(super) fn common_type(left: CIntType, right: CIntType) -> CIntType {
     if left.is_unsigned() == right.is_unsigned() {
         if left.rank() >= right.rank() {
             left

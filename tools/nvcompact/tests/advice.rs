@@ -39,6 +39,46 @@ fn cli(arguments: &[String], cwd: &Path) -> process::Output {
 }
 
 #[test]
+fn unsupported_languages_and_language_specific_features_fail_before_frontend_or_writes() {
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path();
+    for language in ["python", "javascript", "unknown"] {
+        let args = [
+            "advise-source",
+            "absent.input",
+            "--language",
+            language,
+            "--clang",
+            "/absent/compiler",
+            "--report",
+            "unexpected.json",
+        ]
+        .map(str::to_owned);
+        let result = cli(&args, root);
+        assert!(!result.success());
+        assert!(String::from_utf8_lossy(&result.stderr).contains("unsupported advisory language"));
+        assert!(!root.join("unexpected.json").exists());
+    }
+    for language in ["cpp", "rust"] {
+        for option in ["--profile", "--instrument"] {
+            let args = [
+                "advise-source",
+                "absent.input",
+                "--language",
+                language,
+                option,
+                "unexpected",
+            ]
+            .map(str::to_owned);
+            let result = cli(&args, root);
+            assert!(!result.success());
+            assert!(String::from_utf8_lossy(&result.stderr).contains("static-only"));
+            assert!(!root.join("unexpected").exists());
+        }
+    }
+}
+
+#[test]
 fn separate_instrumentation_preserves_owned_results_and_bounds_multithreaded_samples() {
     let Some(clang) = frontend() else {
         return;

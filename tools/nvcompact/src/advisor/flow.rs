@@ -129,6 +129,12 @@ pub(super) fn analyze(a: &mut Analysis<'_>) {
                 .map(|b| (f, b))
         })
         .collect();
+    analyze_functions(a, functions);
+}
+
+/// The language adapter owns function admission and AST ancestry. The shared
+/// intraprocedural pass never reparents namespace or template AST nodes.
+pub(super) fn analyze_functions(a: &mut Analysis<'_>, functions: Vec<(usize, usize)>) {
     for (function, body) in functions {
         let mut flow = Flow {
             a,
@@ -232,7 +238,11 @@ pub(super) fn analyze(a: &mut Analysis<'_>) {
                     Fact::new(
                         t.bounds,
                         t,
-                        "declared parameter type in a defined C execution".into(),
+                        if super::cpp::is_cpp(flow.a) {
+                            "declared parameter type in a defined C++ execution admitted by the common integer model".into()
+                        } else {
+                            "declared parameter type in a defined C execution".into()
+                        },
                     ),
                 );
             }
@@ -422,6 +432,7 @@ impl Flow<'_, '_> {
     fn pure(&self, n: usize) -> bool {
         match self.a.kind(n) {
             "IntegerLiteral" | "CharacterLiteral" => true,
+            "CXXBoolLiteralExpr" if super::cpp::is_cpp(self.a) => true,
             "DeclRefExpr" => self.binding(n).is_some(),
             "ParenExpr" | "ImplicitCastExpr" | "CStyleCastExpr" | "ConstantExpr" => {
                 int_type(self.a.typ(n)).is_some()
@@ -534,6 +545,12 @@ impl Flow<'_, '_> {
         });
     }
     fn proposal(&mut self, n: usize, kind: &str, text: String, evidence: String) {
+        // C++ expression types affect overload resolution, decltype and auto.
+        // Its adapter admits proposals only after independent surface typing;
+        // numeric 0/1 flow facts alone do not authorize C spelling advice.
+        if super::cpp::is_cpp(self.a) {
+            return;
+        }
         if !self.pure(n) || text.is_empty() {
             return;
         }
@@ -750,6 +767,9 @@ impl Flow<'_, '_> {
             "CharacterLiteral" => self.a.nodes[n].value["value"]
                 .as_i64()
                 .map(|n| Range::one(n as i128)),
+            "CXXBoolLiteralExpr" if super::cpp::is_cpp(self.a) => self.a.nodes[n].value["value"]
+                .as_bool()
+                .map(|v| Range::one(v as i128)),
             "DeclRefExpr" => {
                 // A bare declaration reference is an lvalue. Its parent cast
                 // determines whether an actual value read occurs.
@@ -1103,6 +1123,9 @@ impl Flow<'_, '_> {
             "CharacterLiteral" => self.a.nodes[n].value["value"]
                 .as_i64()
                 .map(|v| Range::one(v as i128)),
+            "CXXBoolLiteralExpr" if super::cpp::is_cpp(self.a) => self.a.nodes[n].value["value"]
+                .as_bool()
+                .map(|v| Range::one(v as i128)),
             "ParenExpr" | "ConstantExpr" if cs.len() == 1 => self.constant(cs[0]),
             "ImplicitCastExpr" | "CStyleCastExpr" if cs.len() == 1 => {
                 Some(convert(self.constant(cs[0])?, int_type(self.a.typ(n))?))
@@ -1150,6 +1173,8 @@ impl Flow<'_, '_> {
                 // Only value-preserving conversion/truth of _Bool can refine.
                 if self.a.kind(n) == "ParenExpr"
                     || self.a.nodes[n].value["castKind"] == "LValueToRValue"
+                    || (super::cpp::is_cpp(self.a)
+                        && self.a.nodes[n].value["castKind"] == "IntegralToBoolean")
                     || self.binding(n).is_some()
                 {
                     return self.refine(cs[0], truth, env);

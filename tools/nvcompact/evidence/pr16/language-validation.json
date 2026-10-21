@@ -1,0 +1,2363 @@
+{
+  "format": "nvcompact.pr16.language-validation.v1",
+  "scope": {
+    "stage": "C++ and Rust advisory adapters, separate from historical C-only domain and codec performance evidence",
+    "claims": "Review and bounded native observations of owned scalar fixtures; finite-domain proofs remain scoped to the admitted language model and source/context identity.",
+    "external_source_policy": "Retained 4ku, ice4 and Molly source payloads were read/parsed only. No engine, release wrapper, build script, macro expansion process or external engine executable was built/run. Clang preprocessing and syntax-only AST parsing were bounded.",
+    "not_claimed": [
+      "Full C++ or Rust support",
+      "Whole-engine equivalence, strength or speed improvement",
+      "Optimality over all equivalent programs",
+      "C++/Rust dynamic profiling",
+      "New whole-artifact compression measurements"
+    ],
+    "related_evidence": [
+      "domain-validation.json",
+      "domain-performance.json"
+    ]
+  },
+  "identity": {
+    "frozen_cli": {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/nvcompact-language-audit",
+      "bytes": 111560240,
+      "sha256": "d413e8169df96090dd39e2b3a4d7441366812bb95bdfa8bf9c8fb7a611c6ad36"
+    },
+    "audited_source_sha256": {
+      "tools/nvcompact/src/advisor.rs": "da47a309b323703ed8320b80c8342cc29d9e0bd233b9587ee62da472dc010f8e",
+      "tools/nvcompact/src/advisor/cpp.rs": "1eab5c19b45c0e4c298fa793dc39adf83120f94637e0b4658a0f9162a099c559",
+      "tools/nvcompact/src/advisor/rust.rs": "bf353fc535a776ae5e4b2743bbae74b54d8a868e8f92016ba841ff8f4f5125ac",
+      "tools/nvcompact/src/advisor/nversion.rs": "ed2f964a926cdb2f193dff54cca6e15807a37a88981b9773b399a0ddbcfd0744",
+      "tools/nvcompact/src/advisor/domain.rs": "0f0635b4ebff0639a983b93f978143936f8892969f9a92bb30ff5ed69824549e",
+      "tools/nvcompact/src/advisor/flow.rs": "48d1013698294d23717b9c1de3bf1e4c8e34c8b5fe16c3d5ddaeafd4b4ea4841",
+      "tools/nvcompact/src/advisor/expressions.rs": "9b8f7c203532a444d6f250cffcacd0116703fdcf850dc827d5dae1510692003a",
+      "tools/nvcompact/src/c_frontend.rs": "9f9b6219fc44a98703a00df87be912bf2b342a1099ec5687e9f7f85ae3c2e978",
+      "tools/nvcompact/src/main.rs": "b28bc4658a22525d31e9867eb2c6af8c1e5f08fccd869c3348655e18b4c7fa16",
+      "tools/nvcompact/src/advice_profile.rs": "ea3dbffc463af645a1e6f7f5a1714dfa83a5c5e1d3947b2635286ead718f65a5",
+      "tools/nvcompact/tests/advice_cpp.rs": "aa1dbacf528a713292e3df2d3372c1409f040ba97c18941ca56e8bee88ef948d",
+      "tools/nvcompact/tests/advice.rs": "d775661cc7ac3a2ce635ee2dd1fcb31e6df8ae7acbd39b796db6bcf6952a29ba",
+      "tools/nvcompact/tests/fixtures/advisor-rust/scalar.rs": "3ec52eddf7865d7e59cb8cfafe0e0e48c2588423ae2133fa12420b7171c31713"
+    },
+    "cpp_and_external_parse_snapshot": {
+      "frozen_cli": {
+        "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/nvcompact-language-audit",
+        "bytes": 111559872,
+        "sha256": "fa190e0963cfa42c993373c81884d021e394daa3c2a333d4b6a1d2f7cb5c8837"
+      },
+      "source_sha256": {
+        "tools/nvcompact/src/advisor.rs": "da47a309b323703ed8320b80c8342cc29d9e0bd233b9587ee62da472dc010f8e",
+        "tools/nvcompact/src/advisor/cpp.rs": "1eab5c19b45c0e4c298fa793dc39adf83120f94637e0b4658a0f9162a099c559",
+        "tools/nvcompact/src/advisor/rust.rs": "24685b8bc10067e18dbcc072018eb39708d66e8cb51d0358208fba429f5d8cb1",
+        "tools/nvcompact/src/advisor/nversion.rs": "ed2f964a926cdb2f193dff54cca6e15807a37a88981b9773b399a0ddbcfd0744",
+        "tools/nvcompact/src/advisor/domain.rs": "0f0635b4ebff0639a983b93f978143936f8892969f9a92bb30ff5ed69824549e",
+        "tools/nvcompact/src/advisor/flow.rs": "48d1013698294d23717b9c1de3bf1e4c8e34c8b5fe16c3d5ddaeafd4b4ea4841",
+        "tools/nvcompact/src/advisor/expressions.rs": "9b8f7c203532a444d6f250cffcacd0116703fdcf850dc827d5dae1510692003a",
+        "tools/nvcompact/src/c_frontend.rs": "9f9b6219fc44a98703a00df87be912bf2b342a1099ec5687e9f7f85ae3c2e978",
+        "tools/nvcompact/src/main.rs": "b28bc4658a22525d31e9867eb2c6af8c1e5f08fccd869c3348655e18b4c7fa16",
+        "tools/nvcompact/src/advice_profile.rs": "ea3dbffc463af645a1e6f7f5a1714dfa83a5c5e1d3947b2635286ead718f65a5",
+        "tools/nvcompact/tests/advice_cpp.rs": "aa1dbacf528a713292e3df2d3372c1409f040ba97c18941ca56e8bee88ef948d",
+        "tools/nvcompact/tests/advice.rs": "d775661cc7ac3a2ce635ee2dd1fcb31e6df8ae7acbd39b796db6bcf6952a29ba",
+        "tools/nvcompact/tests/fixtures/advisor-rust/scalar.rs": "3ec52eddf7865d7e59cb8cfafe0e0e48c2588423ae2133fa12420b7171c31713"
+      }
+    },
+    "source_delta_between_snapshots": {
+      "tools/nvcompact/src/advisor/rust.rs": {
+        "first_audit": "24685b8bc10067e18dbcc072018eb39708d66e8cb51d0358208fba429f5d8cb1",
+        "final_audit": "bf353fc535a776ae5e4b2743bbae74b54d8a868e8f92016ba841ff8f4f5125ac"
+      }
+    },
+    "delta_review": "All 12 non-Rust source/test hashes match. The Rust diff consists of formatting, generic constant integer-destination cast folding via the existing cast_value function, and one focused regression test. The full diff was independently read; no parser, file/function admission, primitive evaluator, flow-domain transfer or work-owner behavior changed. Final native Rust candidate/domain/budget checks were repeated; C++ native, external parse and unchanged admission boundary observations retain their original snapshot identity.",
+    "post_final_audit_source_delta": {},
+    "native_toolchains": {
+      "native-cxx-toolchain": {
+        "invoked_executable": "/usr/bin/c++",
+        "resolved_executable": "/usr/bin/x86_64-linux-gnu-g++-13",
+        "sha256": "52f1ddb33fe78b9441e0f42e9cd22c571f1101938e046c8a26582494e041cc73",
+        "version": "c++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+      },
+      "native-rust-toolchain": {
+        "invoked_executable": "/workspace/scratch/d70af21bae00/nvcompact-next/toolchain/rust/bin/rustc",
+        "resolved_executable": "/workspace/scratch/d70af21bae00/nvcompact-next/toolchain/rust/bin/rustc",
+        "sha256": "b53b780f77f952062f8ca8a3b70aef2390b1e45ad91939be94afdc9543026853",
+        "version": "rustc 1.99.1 (58cf8f9c3 2026-10-13)"
+      }
+    },
+    "native_toolchain_hashes_reverified_for_final_recheck": true,
+    "clang_frontend": {
+      "address_space_bytes": 1073741824,
+      "ast_output_bytes": 33554432,
+      "compiler_args": [],
+      "executable": "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+      "executable_sha256": "b15e7640bf3082f36ef14321711706b265df3058721e3c2caef3a4b83895d07d",
+      "language": "c++",
+      "seconds_per_parse": 30.0,
+      "source_include_directory": "/workspace/scratch/7bea14fb3412/round2-work/audit-research",
+      "standard": "c++20",
+      "version": "Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin"
+    }
+  },
+  "native_replacement_checks": {
+    "method": "Each emitted positive n-version finding was parenthesized and replaced at its exact byte span inside a separately named copy of its complete owned function. Whole original/replacement functions were compared across finite-site values, boundary values, a contiguous small-input sweep and primitive extrema. These are bounded independent native observations, not exhaustive execution over 32/64-bit input types.",
+    "cpp_type_category_check": "__is_same(decltype((original)),decltype((candidate))) static_assert; both C++17 and C++20; UBSan and nonrecovering errors enabled.",
+    "rust_type_check": "Each candidate also compiled in a function returning its reported exact primitive result type. Rust2021 native runs used overflow-checks=yes and overflow-checks=no separately.",
+    "cpp_input_types": [
+      "int",
+      "unsigned int",
+      "long",
+      "unsigned long",
+      "long long",
+      "unsigned long long"
+    ],
+    "rust_fixture_input_types": [
+      "i32",
+      "u32",
+      "i64",
+      "u64"
+    ],
+    "counts": [
+      {
+        "language": "cpp",
+        "standard": "c++17",
+        "candidate_count": 73,
+        "input_comparisons": 87809,
+        "type_and_category_checks": 73,
+        "value_mismatches": 0,
+        "ubsan_errors": 0,
+        "run_label": "language-native-c++17",
+        "audit_snapshot": "initial_language"
+      },
+      {
+        "language": "cpp",
+        "standard": "c++20",
+        "candidate_count": 73,
+        "input_comparisons": 87809,
+        "type_and_category_checks": 73,
+        "value_mismatches": 0,
+        "ubsan_errors": 0,
+        "run_label": "language-native-c++20",
+        "audit_snapshot": "initial_language"
+      },
+      {
+        "language": "rust",
+        "standard": "rust2021",
+        "overflow_checks": "yes",
+        "candidate_count": 54,
+        "input_comparisons": 64366,
+        "type_checks": 54,
+        "value_mismatches": 0,
+        "run_label": "language-native-rust2021-overflow-yes",
+        "audit_snapshot": "final_constant_fold"
+      },
+      {
+        "language": "rust",
+        "standard": "rust2021",
+        "overflow_checks": "no",
+        "candidate_count": 54,
+        "input_comparisons": 64366,
+        "type_checks": 54,
+        "value_mismatches": 0,
+        "run_label": "language-native-rust2021-overflow-no",
+        "audit_snapshot": "final_constant_fold"
+      }
+    ],
+    "distinct_count_note": "The 73 C++ findings are tested separately in two language modes; the final 54 Rust findings are tested in two overflow modes. Counts are not presented as twice as many distinct suggestions.",
+    "owned_analysis_reports": {
+      "c++17": {
+        "statistics": {
+          "ast_nodes": 342,
+          "compression_candidates_created": 0,
+          "expression_sites_emitted": 55,
+          "expression_sites_omitted": 0,
+          "final_file_bytes_measured": false,
+          "findings_emitted": 85,
+          "findings_omitted": 0,
+          "finite_flow_budget_exhausted": false,
+          "finite_flow_reserved_work": 190328,
+          "finite_flow_work_budget": 8000000,
+          "frontend_work": {
+            "ast_parses": 1,
+            "commands": 5,
+            "context_rechecks": 0,
+            "preprocessing_runs": 2,
+            "scope": "one owned frontend session; counters include failed attempts; final native/cost/replay checks are separate"
+          },
+          "functions_analyzed": 12,
+          "functions_withheld": 0,
+          "nversion_scalar_evaluations": 699271,
+          "nversion_searches_incomplete": 0,
+          "nversion_work_budget": 16000000,
+          "range_sites_emitted": 40,
+          "range_sites_omitted": 0,
+          "source_modified": false
+        },
+        "complete": true
+      },
+      "c++20": {
+        "statistics": {
+          "ast_nodes": 342,
+          "compression_candidates_created": 0,
+          "expression_sites_emitted": 55,
+          "expression_sites_omitted": 0,
+          "final_file_bytes_measured": false,
+          "findings_emitted": 85,
+          "findings_omitted": 0,
+          "finite_flow_budget_exhausted": false,
+          "finite_flow_reserved_work": 190328,
+          "finite_flow_work_budget": 8000000,
+          "frontend_work": {
+            "ast_parses": 1,
+            "commands": 5,
+            "context_rechecks": 0,
+            "preprocessing_runs": 2,
+            "scope": "one owned frontend session; counters include failed attempts; final native/cost/replay checks are separate"
+          },
+          "functions_analyzed": 12,
+          "functions_withheld": 0,
+          "nversion_scalar_evaluations": 699271,
+          "nversion_searches_incomplete": 0,
+          "nversion_work_budget": 16000000,
+          "range_sites_emitted": 40,
+          "range_sites_omitted": 0,
+          "source_modified": false
+        },
+        "complete": true
+      },
+      "rust2021": {
+        "statistics": {
+          "compression_candidates_created": 0,
+          "expression_sites_emitted": 34,
+          "expression_sites_omitted": 0,
+          "final_file_bytes_measured": false,
+          "findings_emitted": 54,
+          "findings_omitted": 0,
+          "finite_flow_work": 4848,
+          "finite_flow_work_exhausted": false,
+          "functions_analyzed": 11,
+          "functions_or_files_withheld": 0,
+          "nversion_incomplete_searches": 0,
+          "nversion_work": 864918,
+          "nversion_work_exhausted": false,
+          "ranges_emitted": 37,
+          "ranges_omitted": 0,
+          "source_modified": false
+        },
+        "complete": true,
+        "withheld": []
+      }
+    }
+  },
+  "rust_native_transfer_domains": {
+    "scope": "Eight owned functions exercise Rust-only integer/bool transfers. Native sample sets agree with the conservative inferred finite domains; this observation is not a whole-type exhaustive execution proof.",
+    "rows": [
+      {
+        "overflow_checks": "yes",
+        "native_values_observed": 5402,
+        "all_observations_contained": true,
+        "observed_set_equals_reported_finite_set": true,
+        "functions": [
+          {
+            "function": "bit_not",
+            "input_type": "i32",
+            "result_type": "i32",
+            "input_samples": 772,
+            "reported_and_observed_values": [
+              "-8",
+              "-7",
+              "-6",
+              "-5",
+              "-4",
+              "-3",
+              "-2",
+              "-1"
+            ]
+          },
+          {
+            "function": "shr_negative",
+            "input_type": "i32",
+            "result_type": "i32",
+            "input_samples": 772,
+            "reported_and_observed_values": [
+              "-2",
+              "-1",
+              "0",
+              "1"
+            ]
+          },
+          {
+            "function": "shl_truncate",
+            "input_type": "u32",
+            "result_type": "u32",
+            "input_samples": 514,
+            "reported_and_observed_values": [
+              "0",
+              "2147483648"
+            ]
+          },
+          {
+            "function": "signed_shl",
+            "input_type": "i32",
+            "result_type": "i32",
+            "input_samples": 772,
+            "reported_and_observed_values": [
+              "-2147483648",
+              "-1073741824",
+              "0",
+              "1073741824"
+            ]
+          },
+          {
+            "function": "cast_wrap",
+            "input_type": "u32",
+            "result_type": "i32",
+            "input_samples": 514,
+            "reported_and_observed_values": [
+              "-2",
+              "-1"
+            ]
+          },
+          {
+            "function": "cast_widen",
+            "input_type": "i32",
+            "result_type": "u64",
+            "input_samples": 772,
+            "reported_and_observed_values": [
+              "0",
+              "1",
+              "18446744073709551614",
+              "18446744073709551615"
+            ]
+          },
+          {
+            "function": "cast_narrow",
+            "input_type": "u64",
+            "result_type": "u32",
+            "input_samples": 514,
+            "reported_and_observed_values": [
+              "0",
+              "1",
+              "4294967294",
+              "4294967295"
+            ]
+          },
+          {
+            "function": "bool_as",
+            "input_type": "i32",
+            "result_type": "i32",
+            "input_samples": 772,
+            "reported_and_observed_values": [
+              "0",
+              "1"
+            ]
+          }
+        ]
+      },
+      {
+        "overflow_checks": "no",
+        "native_values_observed": 5402,
+        "all_observations_contained": true,
+        "observed_set_equals_reported_finite_set": true,
+        "functions": [
+          {
+            "function": "bit_not",
+            "input_type": "i32",
+            "result_type": "i32",
+            "input_samples": 772,
+            "reported_and_observed_values": [
+              "-8",
+              "-7",
+              "-6",
+              "-5",
+              "-4",
+              "-3",
+              "-2",
+              "-1"
+            ]
+          },
+          {
+            "function": "shr_negative",
+            "input_type": "i32",
+            "result_type": "i32",
+            "input_samples": 772,
+            "reported_and_observed_values": [
+              "-2",
+              "-1",
+              "0",
+              "1"
+            ]
+          },
+          {
+            "function": "shl_truncate",
+            "input_type": "u32",
+            "result_type": "u32",
+            "input_samples": 514,
+            "reported_and_observed_values": [
+              "0",
+              "2147483648"
+            ]
+          },
+          {
+            "function": "signed_shl",
+            "input_type": "i32",
+            "result_type": "i32",
+            "input_samples": 772,
+            "reported_and_observed_values": [
+              "-2147483648",
+              "-1073741824",
+              "0",
+              "1073741824"
+            ]
+          },
+          {
+            "function": "cast_wrap",
+            "input_type": "u32",
+            "result_type": "i32",
+            "input_samples": 514,
+            "reported_and_observed_values": [
+              "-2",
+              "-1"
+            ]
+          },
+          {
+            "function": "cast_widen",
+            "input_type": "i32",
+            "result_type": "u64",
+            "input_samples": 772,
+            "reported_and_observed_values": [
+              "0",
+              "1",
+              "18446744073709551614",
+              "18446744073709551615"
+            ]
+          },
+          {
+            "function": "cast_narrow",
+            "input_type": "u64",
+            "result_type": "u32",
+            "input_samples": 514,
+            "reported_and_observed_values": [
+              "0",
+              "1",
+              "4294967294",
+              "4294967295"
+            ]
+          },
+          {
+            "function": "bool_as",
+            "input_type": "i32",
+            "result_type": "i32",
+            "input_samples": 772,
+            "reported_and_observed_values": [
+              "0",
+              "1"
+            ]
+          }
+        ]
+      }
+    ],
+    "source_sha256": "2bd4c9af0dd808422e1f12821250c314a9e9e77c8e76458219a4df8e209e6900",
+    "native_source_sha256": "cc252b0393e63b365d897763e91ee6b406ccf17c1a072b7ed3fba853690176a6",
+    "audit_snapshot": "final_constant_fold"
+  },
+  "serialized_finite_domains": {
+    "checks": [
+      {
+        "report": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-owned-rust2021.json",
+        "expression_domains_checked": 34,
+        "all_full_domain_lists_and_candidate_hashes_consistent": true
+      },
+      {
+        "report": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-rust-domain-advice.json",
+        "expression_domains_checked": 7,
+        "all_full_domain_lists_and_candidate_hashes_consistent": true
+      }
+    ],
+    "additional_check": "Every present DomainSummary.finite_cardinality equals the full domain_values list length. Values are sorted and unique, at most 4096; each candidate checked_values and domain hash matches its expression domain.",
+    "scope": "The display summary can omit values after 256; the complete Rust language_details domain_values list is retained independently. Native transfer observations do not turn samples into static assumptions."
+  },
+  "admission_and_budget_checks": {
+    "cases": [
+      {
+        "case": "rust-late-outer-item",
+        "complete": false,
+        "statistics": {
+          "compression_candidates_created": 0,
+          "expression_sites_emitted": 0,
+          "expression_sites_omitted": 0,
+          "final_file_bytes_measured": false,
+          "findings_emitted": 0,
+          "findings_omitted": 0,
+          "finite_flow_work": 0,
+          "finite_flow_work_exhausted": false,
+          "functions_analyzed": 0,
+          "functions_or_files_withheld": 1,
+          "nversion_incomplete_searches": 0,
+          "nversion_work": 0,
+          "nversion_work_exhausted": false,
+          "ranges_emitted": 0,
+          "ranges_omitted": 0,
+          "source_modified": false
+        },
+        "withheld": [
+          {
+            "findings_emitted": 0,
+            "reason": "Only standalone optional-pub fn items are admitted. Attributes, imports, aliases, modules, impls, macros, and other surrounding items can change name/type resolution and withhold the whole file.",
+            "scope": "whole_file"
+          }
+        ],
+        "audit_snapshot": "initial_language"
+      },
+      {
+        "case": "rust-whole-function-reject",
+        "complete": false,
+        "statistics": {
+          "compression_candidates_created": 0,
+          "expression_sites_emitted": 0,
+          "expression_sites_omitted": 0,
+          "final_file_bytes_measured": false,
+          "findings_emitted": 0,
+          "findings_omitted": 0,
+          "finite_flow_work": 0,
+          "finite_flow_work_exhausted": false,
+          "functions_analyzed": 0,
+          "functions_or_files_withheld": 1,
+          "nversion_incomplete_searches": 0,
+          "nversion_work": 0,
+          "nversion_work_exhausted": false,
+          "ranges_emitted": 0,
+          "ranges_omitted": 0,
+          "source_modified": false
+        },
+        "withheld": [
+          {
+            "findings_emitted": 0,
+            "function": "bad",
+            "location": {
+              "column": 1,
+              "end": 68,
+              "line": 1,
+              "start": 0
+            },
+            "reason": "unknown binding or unsupported call",
+            "scope": "whole_function"
+          }
+        ],
+        "audit_snapshot": "initial_language"
+      },
+      {
+        "case": "rust-raw-string-opacity",
+        "complete": false,
+        "statistics": {
+          "compression_candidates_created": 0,
+          "expression_sites_emitted": 5,
+          "expression_sites_omitted": 0,
+          "final_file_bytes_measured": false,
+          "findings_emitted": 9,
+          "findings_omitted": 0,
+          "finite_flow_work": 671,
+          "finite_flow_work_exhausted": false,
+          "functions_analyzed": 1,
+          "functions_or_files_withheld": 1,
+          "nversion_incomplete_searches": 0,
+          "nversion_work": 149584,
+          "nversion_work_exhausted": false,
+          "ranges_emitted": 4,
+          "ranges_omitted": 0,
+          "source_modified": false
+        },
+        "withheld": [
+          {
+            "findings_emitted": 0,
+            "function": "bad",
+            "location": {
+              "column": 1,
+              "end": 136,
+              "line": 2,
+              "start": 71
+            },
+            "reason": "unsupported expression token <unsupported-literal> at byte 100",
+            "scope": "whole_function"
+          }
+        ],
+        "audit_snapshot": "initial_language"
+      },
+      {
+        "case": "rust-long-cast-chain",
+        "complete": false,
+        "statistics": {
+          "compression_candidates_created": 0,
+          "expression_sites_emitted": 0,
+          "expression_sites_omitted": 0,
+          "final_file_bytes_measured": false,
+          "findings_emitted": 0,
+          "findings_omitted": 0,
+          "finite_flow_work": 0,
+          "finite_flow_work_exhausted": false,
+          "functions_analyzed": 0,
+          "functions_or_files_withheld": 1,
+          "nversion_incomplete_searches": 0,
+          "nversion_work": 0,
+          "nversion_work_exhausted": false,
+          "ranges_emitted": 0,
+          "ranges_omitted": 0,
+          "source_modified": false
+        },
+        "withheld": [
+          {
+            "findings_emitted": 0,
+            "function": "bad",
+            "location": {
+              "column": 1,
+              "end": 35021,
+              "line": 1,
+              "start": 0
+            },
+            "reason": "expression node budget exceeded",
+            "scope": "whole_function"
+          }
+        ],
+        "audit_snapshot": "initial_language"
+      },
+      {
+        "case": "rust-angle-cast-reject",
+        "complete": false,
+        "statistics": {
+          "compression_candidates_created": 0,
+          "expression_sites_emitted": 0,
+          "expression_sites_omitted": 0,
+          "final_file_bytes_measured": false,
+          "findings_emitted": 0,
+          "findings_omitted": 0,
+          "finite_flow_work": 0,
+          "finite_flow_work_exhausted": false,
+          "functions_analyzed": 0,
+          "functions_or_files_withheld": 1,
+          "nversion_incomplete_searches": 0,
+          "nversion_work": 0,
+          "nversion_work_exhausted": false,
+          "ranges_emitted": 0,
+          "ranges_omitted": 0,
+          "source_modified": false
+        },
+        "withheld": [
+          {
+            "findings_emitted": 0,
+            "function": "bad",
+            "location": {
+              "column": 1,
+              "end": 32,
+              "line": 1,
+              "start": 0
+            },
+            "reason": "Rust requires parentheses around this cast before < or <<",
+            "scope": "whole_function"
+          }
+        ],
+        "audit_snapshot": "initial_language"
+      },
+      {
+        "case": "rust-keyword-reject",
+        "complete": false,
+        "statistics": {
+          "compression_candidates_created": 0,
+          "expression_sites_emitted": 0,
+          "expression_sites_omitted": 0,
+          "final_file_bytes_measured": false,
+          "findings_emitted": 0,
+          "findings_omitted": 0,
+          "finite_flow_work": 0,
+          "finite_flow_work_exhausted": false,
+          "functions_analyzed": 0,
+          "functions_or_files_withheld": 1,
+          "nversion_incomplete_searches": 0,
+          "nversion_work": 0,
+          "nversion_work_exhausted": false,
+          "ranges_emitted": 0,
+          "ranges_omitted": 0,
+          "source_modified": false
+        },
+        "withheld": [
+          {
+            "findings_emitted": 0,
+            "function": "try",
+            "location": {
+              "column": 1,
+              "end": 23,
+              "line": 1,
+              "start": 0
+            },
+            "reason": "unsupported binding/name try",
+            "scope": "whole_function"
+          }
+        ],
+        "audit_snapshot": "initial_language"
+      },
+      {
+        "case": "rust-checked-overflow",
+        "complete": true,
+        "statistics": {
+          "compression_candidates_created": 0,
+          "expression_sites_emitted": 1,
+          "expression_sites_omitted": 0,
+          "final_file_bytes_measured": false,
+          "findings_emitted": 0,
+          "findings_omitted": 0,
+          "finite_flow_work": 12,
+          "finite_flow_work_exhausted": false,
+          "functions_analyzed": 1,
+          "functions_or_files_withheld": 0,
+          "nversion_incomplete_searches": 0,
+          "nversion_work": 6,
+          "nversion_work_exhausted": false,
+          "ranges_emitted": 2,
+          "ranges_omitted": 0,
+          "source_modified": false
+        },
+        "withheld": [],
+        "audit_snapshot": "initial_language"
+      },
+      {
+        "case": "rust-budget-nversion_work",
+        "complete": false,
+        "statistics": {
+          "compression_candidates_created": 0,
+          "expression_sites_emitted": 34,
+          "expression_sites_omitted": 0,
+          "final_file_bytes_measured": false,
+          "findings_emitted": 0,
+          "findings_omitted": 0,
+          "finite_flow_work": 4848,
+          "finite_flow_work_exhausted": false,
+          "functions_analyzed": 11,
+          "functions_or_files_withheld": 0,
+          "nversion_incomplete_searches": 34,
+          "nversion_work": 1000,
+          "nversion_work_exhausted": true,
+          "ranges_emitted": 37,
+          "ranges_omitted": 0,
+          "source_modified": false
+        },
+        "withheld": [],
+        "audit_snapshot": "final_constant_fold"
+      },
+      {
+        "case": "rust-budget-finite_flow_work",
+        "complete": false,
+        "statistics": {
+          "compression_candidates_created": 0,
+          "expression_sites_emitted": 8,
+          "expression_sites_omitted": 0,
+          "final_file_bytes_measured": false,
+          "findings_emitted": 15,
+          "findings_omitted": 0,
+          "finite_flow_work": 1000,
+          "finite_flow_work_exhausted": true,
+          "functions_analyzed": 11,
+          "functions_or_files_withheld": 0,
+          "nversion_incomplete_searches": 0,
+          "nversion_work": 199313,
+          "nversion_work_exhausted": false,
+          "ranges_emitted": 6,
+          "ranges_omitted": 0,
+          "source_modified": false
+        },
+        "withheld": [],
+        "audit_snapshot": "final_constant_fold"
+      }
+    ],
+    "explicit_python": "Exit 2 with unsupported advisory language before attempting nonexistent source or Clang paths; no report/instrumentation file was requested or emitted.",
+    "work_owner": "Rust original evaluation, shared candidate-generator evaluation_steps and every reparsed Rust candidate evaluation charge the same global search work owner. Finite-flow propagation has its own bounded owner. At a 1000-work ceiling, exhaustion is visible and incomplete comparisons are never accepted.",
+    "transaction_boundary": "Entire file item admission occurs before any function analysis. A late alias/import/attribute withholds all earlier parsed functions. Unsupported body syntax withholds the whole function; raw-string contents cannot become phantom fn/braces.",
+    "reuse_scope": "File/function syntax rejection, opacity, keyword/cast grammar, checked-overflow admission and explicit Python rejection were observed on the initial snapshot. The reviewed production delta changes only constant construction, leaving those gates unchanged. Both explicit work caps were rerun on the final snapshot."
+  },
+  "external_source_comparison": {
+    "attempts": [
+      {
+        "name": "4ku",
+        "language": "cpp",
+        "source_commit": "203ddd4bf9b331851c796d8b5d57eac08f6e6c18",
+        "retained_payload": "/workspace/scratch/d70af21bae00/nvcompact-next/regression/baseline/general/4ku/original-payload",
+        "source_bytes": 10308,
+        "source_sha256": "a5d32dc962ebf717faccbff2a2b3644b61c2f4e7d7304cf6a3cd9810936950e7",
+        "standard": "gnu++17",
+        "full_retained_source": true,
+        "engine_built_or_run": false,
+        "run_label": "retained-4ku-language",
+        "status": "frontend-or-budget-failure; not reported as analysis success",
+        "diagnostic_excerpt": "nvcompact: Clang syntax recheck after frontend output exhaustion failed (exit 1, timeout false, output limit false): /tmp/.tmp1NKeRp/translation.cpp:11:917: error: 'auto' not allowed in function prototype"
+      },
+      {
+        "name": "ice4",
+        "language": "cpp",
+        "source_commit": "2bd7a54f9bb47a61a7cd97f3db9f52eadd4e2c19",
+        "retained_payload": "/workspace/scratch/d70af21bae00/nvcompact-next/regression/baseline/general/ice4/original-payload",
+        "source_bytes": 8750,
+        "source_sha256": "0980ed274f09d24069160427cba3885e8324076b39ca42e087c4e5ed6fa1dbf0",
+        "standard": "gnu++17",
+        "full_retained_source": true,
+        "engine_built_or_run": false,
+        "run_label": "retained-ice4-language",
+        "status": "frontend-or-budget-failure; not reported as analysis success",
+        "diagnostic_excerpt": "nvcompact: Clang frontend exceeded its 134217728-byte output budget (captured stdout 134216945, stderr 783, exit 125); frontend proof is incomplete"
+      },
+      {
+        "name": "molly",
+        "language": "rust",
+        "source_commit": "e317a0c7b823832a87239027f536582cf0576111",
+        "retained_payload": "/workspace/scratch/d70af21bae00/nvcompact-next/regression/candidate-online-final-01/general/molly/original-payload",
+        "source_bytes": 13486,
+        "source_sha256": "9411457e5b9f17ce3bc5dde00c6e198aafa2a3cd5a4f074bc944be58bd78cb0a",
+        "standard": "rust2021",
+        "full_retained_source": true,
+        "engine_built_or_run": false,
+        "run_label": "retained-molly-language",
+        "status": "advisory-report-returned",
+        "statistics": {
+          "compression_candidates_created": 0,
+          "expression_sites_emitted": 0,
+          "expression_sites_omitted": 0,
+          "final_file_bytes_measured": false,
+          "findings_emitted": 0,
+          "findings_omitted": 0,
+          "finite_flow_work": 0,
+          "finite_flow_work_exhausted": false,
+          "functions_analyzed": 0,
+          "functions_or_files_withheld": 1,
+          "nversion_incomplete_searches": 0,
+          "nversion_work": 0,
+          "nversion_work_exhausted": false,
+          "ranges_emitted": 0,
+          "ranges_omitted": 0,
+          "source_modified": false
+        },
+        "complete": false,
+        "withheld": [
+          {
+            "findings_emitted": 0,
+            "reason": "Only standalone optional-pub fn items are admitted. Attributes, imports, aliases, modules, impls, macros, and other surrounding items can change name/type resolution and withhold the whole file.",
+            "scope": "whole_file"
+          }
+        ],
+        "finding_kinds": {}
+      },
+      {
+        "name": "4ku",
+        "run_label": "retained-4ku-cpp20-corrected",
+        "standard": "c++20",
+        "compiler_args": [
+          "-pthread",
+          "-march=native"
+        ],
+        "reason": "Corrected to the exact C++20 dialect explicitly present in the retained release wrapper and comparisons/general/4ku.json compile_argv. Earlier gnu++17 attempt retained as a failed context choice. Clang syntax-only analysis is not release compilation; -O3 is outside allowed frontend argument subset.",
+        "source_sha256": "a5d32dc962ebf717faccbff2a2b3644b61c2f4e7d7304cf6a3cd9810936950e7",
+        "engine_built_or_run": false,
+        "full_retained_source": true,
+        "status": "frontend-or-budget-failure; not reported as analysis success",
+        "diagnostic_excerpt": "nvcompact: Clang frontend exceeded its 134217728-byte output budget (captured stdout 134217202, stderr 526, exit 125); frontend proof is incomplete"
+      }
+    ],
+    "primary_outcomes": {
+      "4ku": "Corrected C++20 context matches the dialect explicitly present in the retained release wrapper; the whole translation-unit Clang AST still exceeded the declared 134217728-byte output cap. No partial AST or advice was accepted.",
+      "ice4": "Declared GNU++17 parse reached the same 134217728-byte Clang AST cap. The upstream wrapper leaves dialect at compiler default; this is a declared analysis context, not a release reproduction.",
+      "molly": "The unchanged full Rust source payload begins with surrounding imports/items outside the strict standalone-function subset. Whole-file withheld, zero ranges/findings, complete=false."
+    },
+    "preserved_failure": "Initial 4ku GNU++17 attempt was a mistaken context selection, not an engine/source defect; its diagnostic is retained separately from the corrected C++20 capacity failure.",
+    "compiler_context_limit": "The advisor uses pinned Clang syntax-only analysis. -O3 release compilation is outside the allowed frontend argument subset; no release compiler/context equivalence is claimed."
+  },
+  "targeted_owner_tests": {
+    "cpp": [
+      {
+        "command": "taskset -c 6,7 cargo test --offline --jobs 1 -p nvcompact --test advice_cpp -- --test-threads=1",
+        "passed": 4,
+        "failed": 0,
+        "log": "cpp-integration.captured.log",
+        "native_oracle": "Clang parsing C++17 and C++20; CXX=c++ native C++20 compiler with decltype type/value-category static_assert, all retained finite-domain expressions compared, UBSan enabled. Test does not print native candidate/input counts; at least four candidates asserted."
+      },
+      {
+        "command": "taskset -c 6,7 cargo test --offline --jobs 1 -p nvcompact --lib advisor::cpp -- --test-threads=1",
+        "passed": 1,
+        "failed": 0,
+        "log": "cpp-unit.captured.log"
+      },
+      {
+        "command": "taskset -c 6,7 cargo test --offline --jobs 1 -p nvcompact --test advice -- --test-threads=1",
+        "passed": 3,
+        "failed": 0,
+        "log": "c-advice-regression.log"
+      }
+    ],
+    "cpp_scope_note": "C++ adapter targeted verification, captured tool output; source hashes after deleting one redundant tautological test assertion (no behavior/assertion coverage change). Full final workspace verification is separate.",
+    "rust": {
+      "command": "set -o pipefail\ntimeout 180 taskset -c 0-1 env CARGO_BUILD_JOBS=2 CARGO_HOME=/workspace/scratch/7bea14fb3412/nvcompact-work/cargo-home CARGO_TARGET_DIR=/workspace/scratch/7bea14fb3412/nvcompact-work/advisor-target RUSTC=/workspace/scratch/d70af21bae00/nvcompact-next/toolchain/rust/bin/rustc LD_LIBRARY_PATH=/workspace/scratch/d70af21bae00/nvcompact-next/toolchain/rust/lib /workspace/scratch/d70af21bae00/nvcompact-next/toolchain/rust/bin/cargo test --offline --locked --manifest-path tools/nvcompact/Cargo.toml --lib advisor::rust::tests -- --nocapture --test-threads=1 2>&1 | tee /workspace/scratch/7bea14fb3412/round2-work/rust-advisor/constant-fold-unit-tests.log",
+      "passed": 10,
+      "failed": 0,
+      "log": "/workspace/scratch/7bea14fb3412/round2-work/rust-advisor/constant-fold-unit-tests.log",
+      "scope": "Final ten-test Rust unit run, including generic typed constant-cast wrap/narrow/widen/bool-to-integer preservation and u32/i64/u64 positive mask shortening. Full-workspace integration and package evidence are maintained separately by the integration owner.",
+      "working_directory": "/workspace/scratch/7bea14fb3412/Rove4k",
+      "shell": "bash",
+      "environment": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_HOME": "/workspace/scratch/7bea14fb3412/nvcompact-work/cargo-home",
+        "CARGO_TARGET_DIR": "/workspace/scratch/7bea14fb3412/nvcompact-work/advisor-target",
+        "RUSTC": "/workspace/scratch/d70af21bae00/nvcompact-next/toolchain/rust/bin/rustc",
+        "LD_LIBRARY_PATH": "/workspace/scratch/d70af21bae00/nvcompact-next/toolchain/rust/lib"
+      },
+      "cargo_argv": [
+        "/workspace/scratch/d70af21bae00/nvcompact-next/toolchain/rust/bin/cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--manifest-path",
+        "tools/nvcompact/Cargo.toml",
+        "--lib",
+        "advisor::rust::tests",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "cpu_affinity": "0-1",
+      "timeout_seconds": 180,
+      "provenance": "Exact original tool invocation supplied by the executing owner performance2; audit did not rerun this command."
+    },
+    "native_counts_note": "The C++ owner test only asserted at least four native candidates and did not print counts. Exact native counts in this evidence come exclusively from the independent audit above.",
+    "invocation_metadata_correction": "The prior evidence inherited CPUs 6,7 / --jobs 1 / -p nvcompact incorrectly. Both actual owner Rust invocations use CARGO_BUILD_JOBS=2, --locked and --manifest-path, with the CPU affinity stated above. This metadata correction changes no result count or captured log."
+  },
+  "review_findings_resolved": [
+    {
+      "finding": "C++ advisory constructor incorrectly reached the C-only standard check",
+      "root_change": "Keep the C-standard validator on the C constructor; share only finite budget/argument validation with the explicit C++ constructor.",
+      "evidence": "Read audit, actual C++17/C++20 integration and native runs."
+    },
+    {
+      "finding": "Flat Rust as chains bypassed the expression-node check before recursive walks",
+      "root_change": "Charge/check every cast constructor, matching binary construction; 5000-cast input now withholds the whole function.",
+      "evidence": "Read audit and rust-long-cast-chain.json."
+    },
+    {
+      "finding": "Rust cast-left < and << syntax was accepted by the small parser but rejected by rustc",
+      "root_change": "Track original grouping and reject unparenthesized ambiguous casts; typed renderer parenthesizes cast operands.",
+      "evidence": "Owned native rustc syntax rejection, corrected parser boundary and compiled emitted candidates."
+    },
+    {
+      "finding": "Rust reserved keywords were admitted as ordinary binding/function names",
+      "root_change": "Complete reserved-keyword admission table at identifier parsing.",
+      "evidence": "rust-keyword-reject.json and targeted Rust tests."
+    },
+    {
+      "finding": "Unsuffixed integer literals could inherit bool from an expected type",
+      "root_change": "Central literal/type resolution explicitly rejects numeric-to-bool inference across return, if, logic, bitwise and let contexts.",
+      "evidence": "Preserved initial unit failures and successful nine-test rerun."
+    },
+    {
+      "finding": "Whole-binding enumeration lost finite intermediate mask/cast domains",
+      "root_change": "Keep exact correlated finite image first; otherwise use conservative typed operand domains and a capped 4096-pair Cartesian image, with full-type fallback after any failed/budgeted evaluation.",
+      "evidence": "Independent double read review and eight native Rust domain functions under both overflow modes."
+    },
+    {
+      "finding": "Short-circuit test confused entry and right-hand read domains",
+      "root_change": "Test entry domain64 and RHS domain56 separately; preserve their distinct execution scopes.",
+      "evidence": "Rust targeted tests and full domain/hash serialization checks."
+    },
+    {
+      "finding": "C-promotion-shaped casts around typed generator constants erased non-i32 byte savings",
+      "root_change": "The shared Rust cast_node constructor folds constant integer destinations with existing Rust cast_value semantics. Integer-to-bool remains invalid; no textual replacement or domain-specific exception was added. Every emitted candidate still reparses, preserves exact result type and passes independent full-domain Rust evaluation.",
+      "evidence": "Final ten Rust unit tests; 54 native-compiled findings and 64366 whole-function comparisons per overflow mode; eight native domain transfers and both 1000-work caps rechecked."
+    }
+  ],
+  "remaining_limits": {
+    "correctness_defects_found_outstanding": [],
+    "cpp": "Only admitted non-overloaded free functions, ordinary scalar integers and built-in operations; source bool types and lvalue/prvalue categories are separate from the numeric carrier. Unsupported templates/methods/references/nonlocal reads/calls/objects withhold the function. Large real header-inclusive ASTs can stop at the finite capture budget.",
+    "rust": "Standalone optional-pub fn items only; i32/u32/i64/u64/bool explicit bindings; whole-file gate for surrounding imports/types/consts/attributes/macros. Bool-input synthesis, loops, calls, references, shadowing and full crate semantics are unsupported. C candidate grammar may withhold Rust-defined operations; source-language admission remains independent.",
+    "proof_scope": "Finite typed site domains only; conservative facts and observed samples are distinct. A complete bounded grammar search is not global optimality; unsupported/capacity-limited external inputs are not successes."
+  },
+  "execution_limits": {
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "per_child_cpu_seconds": 60,
+    "per_child_wall_seconds": 90,
+    "per_child_address_space_bytes": 2147483648,
+    "per_child_file_bytes": 33554432,
+    "external_cpp_ast_output_bytes": 134217728,
+    "native_program_wall_seconds": 30,
+    "engine_executions": 0
+  },
+  "commands": [
+    {
+      "label": "language-owned-c++17",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/nvcompact-language-audit",
+        "advise-source",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-owned.cpp",
+        "--language",
+        "cpp",
+        "--clang",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "--standard",
+        "c++17",
+        "--max-nversion-targets",
+        "256"
+      ],
+      "returncode": 0,
+      "seconds": 2.7064986129989848,
+      "stdout_bytes": 1315787,
+      "stderr_bytes": 0,
+      "audit_snapshot": "initial_language"
+    },
+    {
+      "label": "language-native-c++17-compile",
+      "command": [
+        "c++",
+        "-std=c++17",
+        "-O0",
+        "-fsanitize=undefined",
+        "-fno-sanitize-recover=all",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-native-c++17.cpp",
+        "-o",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-native-c++17"
+      ],
+      "returncode": 0,
+      "seconds": 0.4942319550027605,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0,
+      "audit_snapshot": "initial_language"
+    },
+    {
+      "label": "language-native-c++17",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-native-c++17"
+      ],
+      "returncode": 0,
+      "seconds": 0.005758895000326447,
+      "stdout_bytes": 24,
+      "stderr_bytes": 0,
+      "audit_snapshot": "initial_language"
+    },
+    {
+      "label": "language-owned-c++20",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/nvcompact-language-audit",
+        "advise-source",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-owned.cpp",
+        "--language",
+        "cpp",
+        "--clang",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "--standard",
+        "c++20",
+        "--max-nversion-targets",
+        "256"
+      ],
+      "returncode": 0,
+      "seconds": 2.667796225003258,
+      "stdout_bytes": 1315787,
+      "stderr_bytes": 0,
+      "audit_snapshot": "initial_language"
+    },
+    {
+      "label": "language-native-c++20-compile",
+      "command": [
+        "c++",
+        "-std=c++20",
+        "-O0",
+        "-fsanitize=undefined",
+        "-fno-sanitize-recover=all",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-native-c++20.cpp",
+        "-o",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-native-c++20"
+      ],
+      "returncode": 0,
+      "seconds": 0.3803898389960523,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0,
+      "audit_snapshot": "initial_language"
+    },
+    {
+      "label": "language-native-c++20",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-native-c++20"
+      ],
+      "returncode": 0,
+      "seconds": 0.007252464005432557,
+      "stdout_bytes": 24,
+      "stderr_bytes": 0,
+      "audit_snapshot": "initial_language"
+    },
+    {
+      "label": "language-owned-rust2021",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/nvcompact-language-audit",
+        "advise-source",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-owned.rs",
+        "--language",
+        "rust",
+        "--clang",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "--standard",
+        "rust2021",
+        "--max-nversion-targets",
+        "256"
+      ],
+      "returncode": 0,
+      "seconds": 2.5664306199978455,
+      "stdout_bytes": 397153,
+      "stderr_bytes": 0,
+      "audit_snapshot": "initial_language"
+    },
+    {
+      "label": "language-native-rust2021-overflow-yes-compile",
+      "command": [
+        "/workspace/scratch/d70af21bae00/nvcompact-next/toolchain/rust/bin/rustc",
+        "--edition=2021",
+        "-Awarnings",
+        "-C",
+        "overflow-checks=yes",
+        "-C",
+        "opt-level=0",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-native-rust2021.rs",
+        "-o",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-native-rust2021-overflow-yes"
+      ],
+      "returncode": 0,
+      "seconds": 0.2149056739945081,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0,
+      "audit_snapshot": "initial_language"
+    },
+    {
+      "label": "language-native-rust2021-overflow-yes",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-native-rust2021-overflow-yes"
+      ],
+      "returncode": 0,
+      "seconds": 0.0039967490010894835,
+      "stdout_bytes": 24,
+      "stderr_bytes": 0,
+      "audit_snapshot": "initial_language"
+    },
+    {
+      "label": "language-native-rust2021-overflow-no-compile",
+      "command": [
+        "/workspace/scratch/d70af21bae00/nvcompact-next/toolchain/rust/bin/rustc",
+        "--edition=2021",
+        "-Awarnings",
+        "-C",
+        "overflow-checks=no",
+        "-C",
+        "opt-level=0",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-native-rust2021.rs",
+        "-o",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-native-rust2021-overflow-no"
+      ],
+      "returncode": 0,
+      "seconds": 0.19771637399389874,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0,
+      "audit_snapshot": "initial_language"
+    },
+    {
+      "label": "language-native-rust2021-overflow-no",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-native-rust2021-overflow-no"
+      ],
+      "returncode": 0,
+      "seconds": 0.0033768479988793842,
+      "stdout_bytes": 24,
+      "stderr_bytes": 0,
+      "audit_snapshot": "initial_language"
+    },
+    {
+      "label": "rust-late-outer-item",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/nvcompact-language-audit",
+        "advise-source",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/rust-late-outer-item.rs",
+        "--language",
+        "rust",
+        "--clang",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "--standard",
+        "rust2021"
+      ],
+      "returncode": 0,
+      "seconds": 0.0083266259971424,
+      "stdout_bytes": 3494,
+      "stderr_bytes": 0,
+      "audit_snapshot": "initial_language"
+    },
+    {
+      "label": "rust-whole-function-reject",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/nvcompact-language-audit",
+        "advise-source",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/rust-whole-function-reject.rs",
+        "--language",
+        "rust",
+        "--clang",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "--standard",
+        "rust2021"
+      ],
+      "returncode": 0,
+      "seconds": 0.0052096250001341105,
+      "stdout_bytes": 3485,
+      "stderr_bytes": 0,
+      "audit_snapshot": "initial_language"
+    },
+    {
+      "label": "rust-raw-string-opacity",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/nvcompact-language-audit",
+        "advise-source",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/rust-raw-string-opacity.rs",
+        "--language",
+        "rust",
+        "--clang",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "--standard",
+        "rust2021"
+      ],
+      "returncode": 0,
+      "seconds": 0.4083518770057708,
+      "stdout_bytes": 72978,
+      "stderr_bytes": 0,
+      "audit_snapshot": "initial_language"
+    },
+    {
+      "label": "rust-long-cast-chain",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/nvcompact-language-audit",
+        "advise-source",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/rust-long-cast-chain.rs",
+        "--language",
+        "rust",
+        "--clang",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "--standard",
+        "rust2021"
+      ],
+      "returncode": 0,
+      "seconds": 0.01207457000418799,
+      "stdout_bytes": 3484,
+      "stderr_bytes": 0,
+      "audit_snapshot": "initial_language"
+    },
+    {
+      "label": "rust-angle-cast-reject",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/nvcompact-language-audit",
+        "advise-source",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/rust-angle-cast-reject.rs",
+        "--language",
+        "rust",
+        "--clang",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "--standard",
+        "rust2021"
+      ],
+      "returncode": 0,
+      "seconds": 0.006659914994088467,
+      "stdout_bytes": 3507,
+      "stderr_bytes": 0,
+      "audit_snapshot": "initial_language"
+    },
+    {
+      "label": "rust-keyword-reject",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/nvcompact-language-audit",
+        "advise-source",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/rust-keyword-reject.rs",
+        "--language",
+        "rust",
+        "--clang",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "--standard",
+        "rust2021"
+      ],
+      "returncode": 0,
+      "seconds": 0.004997969001124147,
+      "stdout_bytes": 3478,
+      "stderr_bytes": 0,
+      "audit_snapshot": "initial_language"
+    },
+    {
+      "label": "rust-checked-overflow",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/nvcompact-language-audit",
+        "advise-source",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/rust-checked-overflow.rs",
+        "--language",
+        "rust",
+        "--clang",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "--standard",
+        "rust2021"
+      ],
+      "returncode": 0,
+      "seconds": 0.005647673002386,
+      "stdout_bytes": 6342,
+      "stderr_bytes": 0,
+      "audit_snapshot": "initial_language"
+    },
+    {
+      "label": "rust-budget-nversion_work",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/nvcompact-language-audit",
+        "advise-source",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-owned.rs",
+        "--language",
+        "rust",
+        "--clang",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "--standard",
+        "rust2021",
+        "--max-nversion-work",
+        "1000"
+      ],
+      "returncode": 0,
+      "seconds": 0.03174460199807072,
+      "stdout_bytes": 200005,
+      "stderr_bytes": 0,
+      "audit_snapshot": "initial_language"
+    },
+    {
+      "label": "rust-budget-finite_flow_work",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/nvcompact-language-audit",
+        "advise-source",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-owned.rs",
+        "--language",
+        "rust",
+        "--clang",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "--standard",
+        "rust2021",
+        "--max-finite-flow-work",
+        "1000"
+      ],
+      "returncode": 0,
+      "seconds": 0.5958972869993886,
+      "stdout_bytes": 100897,
+      "stderr_bytes": 0,
+      "audit_snapshot": "initial_language"
+    },
+    {
+      "label": "explicit-python-unsupported",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/nvcompact-language-audit",
+        "advise-source",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/missing-unread.py",
+        "--language",
+        "python",
+        "--clang",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/missing-clang"
+      ],
+      "returncode": 2,
+      "seconds": 0.006413281997083686,
+      "stdout_bytes": 0,
+      "stderr_bytes": 166,
+      "audit_snapshot": "initial_language"
+    },
+    {
+      "label": "retained-4ku-language",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/nvcompact-language-audit",
+        "advise-source",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/regression/baseline/general/4ku/original-payload",
+        "--language",
+        "cpp",
+        "--clang",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "--standard",
+        "gnu++17",
+        "--compiler-arg=-pthread",
+        "--frontend-ast-bytes",
+        "134217728"
+      ],
+      "returncode": 2,
+      "seconds": 5.736637137997604,
+      "stdout_bytes": 0,
+      "stderr_bytes": 2724,
+      "audit_snapshot": "initial_language"
+    },
+    {
+      "label": "retained-ice4-language",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/nvcompact-language-audit",
+        "advise-source",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/regression/baseline/general/ice4/original-payload",
+        "--language",
+        "cpp",
+        "--clang",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "--standard",
+        "gnu++17",
+        "--compiler-arg=-pthread",
+        "--frontend-ast-bytes",
+        "134217728"
+      ],
+      "returncode": 2,
+      "seconds": 12.01377954599593,
+      "stdout_bytes": 0,
+      "stderr_bytes": 148,
+      "audit_snapshot": "initial_language"
+    },
+    {
+      "label": "retained-molly-language",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/nvcompact-language-audit",
+        "advise-source",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/regression/candidate-online-final-01/general/molly/original-payload",
+        "--language",
+        "rust",
+        "--clang",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "--standard",
+        "rust2021"
+      ],
+      "returncode": 0,
+      "seconds": 0.010701630999392364,
+      "stdout_bytes": 3494,
+      "stderr_bytes": 0,
+      "audit_snapshot": "initial_language"
+    },
+    {
+      "label": "retained-4ku-cpp20-corrected",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/nvcompact-language-audit",
+        "advise-source",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/regression/baseline/general/4ku/original-payload",
+        "--language",
+        "cpp",
+        "--clang",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "--standard",
+        "c++20",
+        "--compiler-arg=-pthread",
+        "--compiler-arg=-march=native",
+        "--frontend-ast-bytes",
+        "134217728"
+      ],
+      "returncode": 2,
+      "seconds": 11.561355876998277,
+      "stdout_bytes": 0,
+      "stderr_bytes": 148,
+      "audit_snapshot": "initial_language"
+    },
+    {
+      "label": "language-rust-domain-advice",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/nvcompact-language-audit",
+        "advise-source",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-rust-domain-owned.rs",
+        "--language",
+        "rust",
+        "--clang",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "--standard",
+        "rust2021"
+      ],
+      "returncode": 0,
+      "seconds": 0.18352360399876488,
+      "stdout_bytes": 42410,
+      "stderr_bytes": 0,
+      "audit_snapshot": "initial_language"
+    },
+    {
+      "label": "language-rust-domain-overflow-yes-compile",
+      "command": [
+        "/workspace/scratch/d70af21bae00/nvcompact-next/toolchain/rust/bin/rustc",
+        "--edition=2021",
+        "-Awarnings",
+        "-C",
+        "opt-level=0",
+        "-C",
+        "overflow-checks=yes",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-rust-domain-native.rs",
+        "-o",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-rust-domain-overflow-yes"
+      ],
+      "returncode": 0,
+      "seconds": 0.09004331700270995,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0,
+      "audit_snapshot": "initial_language"
+    },
+    {
+      "label": "language-rust-domain-overflow-yes",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-rust-domain-overflow-yes"
+      ],
+      "returncode": 0,
+      "seconds": 0.004393225994135719,
+      "stdout_bytes": 87386,
+      "stderr_bytes": 0,
+      "audit_snapshot": "initial_language"
+    },
+    {
+      "label": "language-rust-domain-overflow-no-compile",
+      "command": [
+        "/workspace/scratch/d70af21bae00/nvcompact-next/toolchain/rust/bin/rustc",
+        "--edition=2021",
+        "-Awarnings",
+        "-C",
+        "opt-level=0",
+        "-C",
+        "overflow-checks=no",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-rust-domain-native.rs",
+        "-o",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-rust-domain-overflow-no"
+      ],
+      "returncode": 0,
+      "seconds": 0.08885319600085495,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0,
+      "audit_snapshot": "initial_language"
+    },
+    {
+      "label": "language-rust-domain-overflow-no",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-rust-domain-overflow-no"
+      ],
+      "returncode": 0,
+      "seconds": 0.00725339899508981,
+      "stdout_bytes": 87386,
+      "stderr_bytes": 0,
+      "audit_snapshot": "initial_language"
+    },
+    {
+      "label": "native-cxx-toolchain",
+      "command": [
+        "/usr/bin/c++",
+        "--version"
+      ],
+      "returncode": 0,
+      "seconds": 0.0031518989999312907,
+      "stdout_bytes": 244,
+      "stderr_bytes": 0,
+      "audit_snapshot": "initial_language"
+    },
+    {
+      "label": "native-rust-toolchain",
+      "command": [
+        "/workspace/scratch/d70af21bae00/nvcompact-next/toolchain/rust/bin/rustc",
+        "--version"
+      ],
+      "returncode": 0,
+      "seconds": 0.00969832499686163,
+      "stdout_bytes": 36,
+      "stderr_bytes": 0,
+      "audit_snapshot": "initial_language"
+    },
+    {
+      "label": "language-owned-rust2021",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/nvcompact-language-audit",
+        "advise-source",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-owned.rs",
+        "--language",
+        "rust",
+        "--clang",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "--standard",
+        "rust2021",
+        "--max-nversion-targets",
+        "256"
+      ],
+      "returncode": 0,
+      "seconds": 2.4057996980045573,
+      "stdout_bytes": 426088,
+      "stderr_bytes": 0,
+      "audit_snapshot": "final_constant_fold"
+    },
+    {
+      "label": "language-native-rust2021-overflow-yes-compile",
+      "command": [
+        "/workspace/scratch/d70af21bae00/nvcompact-next/toolchain/rust/bin/rustc",
+        "--edition=2021",
+        "-Awarnings",
+        "-C",
+        "overflow-checks=yes",
+        "-C",
+        "opt-level=0",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-native-rust2021.rs",
+        "-o",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-native-rust2021-overflow-yes"
+      ],
+      "returncode": 0,
+      "seconds": 0.4175091049983166,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0,
+      "audit_snapshot": "final_constant_fold"
+    },
+    {
+      "label": "language-native-rust2021-overflow-yes",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-native-rust2021-overflow-yes"
+      ],
+      "returncode": 0,
+      "seconds": 0.004728248997707851,
+      "stdout_bytes": 24,
+      "stderr_bytes": 0,
+      "audit_snapshot": "final_constant_fold"
+    },
+    {
+      "label": "language-native-rust2021-overflow-no-compile",
+      "command": [
+        "/workspace/scratch/d70af21bae00/nvcompact-next/toolchain/rust/bin/rustc",
+        "--edition=2021",
+        "-Awarnings",
+        "-C",
+        "overflow-checks=no",
+        "-C",
+        "opt-level=0",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-native-rust2021.rs",
+        "-o",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-native-rust2021-overflow-no"
+      ],
+      "returncode": 0,
+      "seconds": 0.6601578679983504,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0,
+      "audit_snapshot": "final_constant_fold"
+    },
+    {
+      "label": "language-native-rust2021-overflow-no",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-native-rust2021-overflow-no"
+      ],
+      "returncode": 0,
+      "seconds": 0.005883185003767721,
+      "stdout_bytes": 24,
+      "stderr_bytes": 0,
+      "audit_snapshot": "final_constant_fold"
+    },
+    {
+      "label": "rust-budget-nversion_work",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/nvcompact-language-audit",
+        "advise-source",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-owned.rs",
+        "--language",
+        "rust",
+        "--clang",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "--standard",
+        "rust2021",
+        "--max-nversion-work",
+        "1000"
+      ],
+      "returncode": 0,
+      "seconds": 0.047961999000108335,
+      "stdout_bytes": 200005,
+      "stderr_bytes": 0,
+      "audit_snapshot": "final_constant_fold"
+    },
+    {
+      "label": "rust-budget-finite_flow_work",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/nvcompact-language-audit",
+        "advise-source",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-owned.rs",
+        "--language",
+        "rust",
+        "--clang",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "--standard",
+        "rust2021",
+        "--max-finite-flow-work",
+        "1000"
+      ],
+      "returncode": 0,
+      "seconds": 0.7994582020037342,
+      "stdout_bytes": 106641,
+      "stderr_bytes": 0,
+      "audit_snapshot": "final_constant_fold"
+    },
+    {
+      "label": "language-rust-domain-advice",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/nvcompact-language-audit",
+        "advise-source",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-rust-domain-owned.rs",
+        "--language",
+        "rust",
+        "--clang",
+        "/workspace/scratch/d70af21bae00/nvcompact-next/frontend-checks/clang20/usr/lib/llvm-20/bin/clang",
+        "--standard",
+        "rust2021"
+      ],
+      "returncode": 0,
+      "seconds": 0.1870043290036847,
+      "stdout_bytes": 42410,
+      "stderr_bytes": 0,
+      "audit_snapshot": "final_constant_fold"
+    },
+    {
+      "label": "language-rust-domain-overflow-yes-compile",
+      "command": [
+        "/workspace/scratch/d70af21bae00/nvcompact-next/toolchain/rust/bin/rustc",
+        "--edition=2021",
+        "-Awarnings",
+        "-C",
+        "opt-level=0",
+        "-C",
+        "overflow-checks=yes",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-rust-domain-native.rs",
+        "-o",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-rust-domain-overflow-yes"
+      ],
+      "returncode": 0,
+      "seconds": 0.13063512300141156,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0,
+      "audit_snapshot": "final_constant_fold"
+    },
+    {
+      "label": "language-rust-domain-overflow-yes",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-rust-domain-overflow-yes"
+      ],
+      "returncode": 0,
+      "seconds": 0.007109759004379157,
+      "stdout_bytes": 87386,
+      "stderr_bytes": 0,
+      "audit_snapshot": "final_constant_fold"
+    },
+    {
+      "label": "language-rust-domain-overflow-no-compile",
+      "command": [
+        "/workspace/scratch/d70af21bae00/nvcompact-next/toolchain/rust/bin/rustc",
+        "--edition=2021",
+        "-Awarnings",
+        "-C",
+        "opt-level=0",
+        "-C",
+        "overflow-checks=no",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-rust-domain-native.rs",
+        "-o",
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-rust-domain-overflow-no"
+      ],
+      "returncode": 0,
+      "seconds": 0.13375611099763773,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0,
+      "audit_snapshot": "final_constant_fold"
+    },
+    {
+      "label": "language-rust-domain-overflow-no",
+      "command": [
+        "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-rust-domain-overflow-no"
+      ],
+      "returncode": 0,
+      "seconds": 0.007397688998025842,
+      "stdout_bytes": 87386,
+      "stderr_bytes": 0,
+      "audit_snapshot": "final_constant_fold"
+    }
+  ],
+  "raw_artifacts": [
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/explicit-python-unsupported.stderr",
+      "bytes": 166,
+      "sha256": "d0597f3cfe69290009a305ed49843069aa9c20cdf1da105f25d3e95940503aa1"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-audit-result.json",
+      "bytes": 78497,
+      "sha256": "5f9aa120e8896a8b16d0f81d9b61c8cbd9e48602a206e86f42f28092bcf71b79"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/assemble_final_evidence.py",
+      "bytes": 9604,
+      "sha256": "9ccb1faf3c486e0a03e9bed66f12bb7a0d7d7fa50abd516fe359b06adf5ef091"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-audit-result.json",
+      "bytes": 26934,
+      "sha256": "49435bcf8ebc55b349ac580abfb6afd3b3f808d7302251376d9a1dcca6e8dd86"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-frozen-identities.json",
+      "bytes": 1693,
+      "sha256": "764bfd1e942c6f767698744227dcfcdbceba5f2c2b2f1cfadfd360ef167a7664"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-native-rust2021-overflow-no-compile.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-native-rust2021-overflow-no-compile.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-native-rust2021-overflow-no.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-native-rust2021-overflow-no.stdout",
+      "bytes": 24,
+      "sha256": "f98de57625b16d8f049cf39fe006514f9d2ef14c4c72751119e27bd4fbc8b256"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-native-rust2021-overflow-yes-compile.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-native-rust2021-overflow-yes-compile.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-native-rust2021-overflow-yes.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-native-rust2021-overflow-yes.stdout",
+      "bytes": 24,
+      "sha256": "f98de57625b16d8f049cf39fe006514f9d2ef14c4c72751119e27bd4fbc8b256"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-native-rust2021.rs",
+      "bytes": 464350,
+      "sha256": "47ae376ce8171c2188b297c3094378f2a330f3fa9825571ee2cb64c3719a4478"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-owned-rust2021.json",
+      "bytes": 426088,
+      "sha256": "7745de04da57339f3d02c5be608ae462a09fe68b908d6e900c4e20dc00e59c1e"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-owned.rs",
+      "bytes": 742,
+      "sha256": "e147d14c1817152478e2db3bcb9e88ef8559361580429a04758b8902512d608a"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-rust-domain-advice.json",
+      "bytes": 42410,
+      "sha256": "48cc1cdebe5283b780442c089205caaa9fee759ffbe4488222b27e41e1ce77d1"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-rust-domain-native.rs",
+      "bytes": 38834,
+      "sha256": "cc252b0393e63b365d897763e91ee6b406ccf17c1a072b7ed3fba853690176a6"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-rust-domain-overflow-no-compile.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-rust-domain-overflow-no-compile.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-rust-domain-overflow-no.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-rust-domain-overflow-no.stdout",
+      "bytes": 87386,
+      "sha256": "b90260d340a4952f6d9fdae953ea1c3ad38c34d0b23239738aa64573b7c5972e"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-rust-domain-overflow-yes-compile.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-rust-domain-overflow-yes-compile.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-rust-domain-overflow-yes.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-rust-domain-overflow-yes.stdout",
+      "bytes": 87386,
+      "sha256": "b90260d340a4952f6d9fdae953ea1c3ad38c34d0b23239738aa64573b7c5972e"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/language-rust-domain-owned.rs",
+      "bytes": 514,
+      "sha256": "2bd4c9af0dd808422e1f12821250c314a9e9e77c8e76458219a4df8e209e6900"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/run_rust_recheck.py",
+      "bytes": 2879,
+      "sha256": "97d1a1ff988e9a30ca0ef38c201252fd97443c171b03aa08e865ac72f814e75c"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/rust-budget-finite_flow_work.json",
+      "bytes": 106641,
+      "sha256": "6d105af37c975cb23cbfcd042e42b6e135ce523e5e393176c3166e65d2aab616"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/rust-budget-nversion_work.json",
+      "bytes": 200005,
+      "sha256": "3902963ae8f4f5ab7833b5320bf01a2ddb5b33de93d284a7e383c4c898774370"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-constant-fold/rust-owner-invocations.json",
+      "bytes": 4272,
+      "sha256": "ee96f6dd7c94b56c1dd07f5b4a9f421bc88941612ef1917cc0b432a636656b58"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-frozen-identities.json",
+      "bytes": 1670,
+      "sha256": "6ad7204c04c3cb57d1b0ba9ff47bad50dad4a9965eddd213e3a6378f55270714"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-native-c++17-compile.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-native-c++17-compile.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-native-c++17.cpp",
+      "bytes": 1494824,
+      "sha256": "ec4cf436b8e544ccbc8e31935058d1a3e3b2ad97f72a12755498ccb0d566c932"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-native-c++17.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-native-c++17.stdout",
+      "bytes": 24,
+      "sha256": "fd00b3d4b5d033c3e3cffcbf990d11b971d4aa0de0c5a3effadac831b7811eea"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-native-c++20-compile.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-native-c++20-compile.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-native-c++20.cpp",
+      "bytes": 1494824,
+      "sha256": "ec4cf436b8e544ccbc8e31935058d1a3e3b2ad97f72a12755498ccb0d566c932"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-native-c++20.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-native-c++20.stdout",
+      "bytes": 24,
+      "sha256": "fd00b3d4b5d033c3e3cffcbf990d11b971d4aa0de0c5a3effadac831b7811eea"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-native-rust2021-overflow-no-compile.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-native-rust2021-overflow-no-compile.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-native-rust2021-overflow-no.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-native-rust2021-overflow-no.stdout",
+      "bytes": 24,
+      "sha256": "2db53896ad9f48ca52a760ee1d9abbf949efbd03a8060f91612763c4fc00fef3"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-native-rust2021-overflow-yes-compile.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-native-rust2021-overflow-yes-compile.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-native-rust2021-overflow-yes.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-native-rust2021-overflow-yes.stdout",
+      "bytes": 24,
+      "sha256": "2db53896ad9f48ca52a760ee1d9abbf949efbd03a8060f91612763c4fc00fef3"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-native-rust2021.rs",
+      "bytes": 224373,
+      "sha256": "292c9f8e9084fc4f571c03d7af9b6930f53f70cf67d803c01d1d3f928c513f49"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-owned-c++17.json",
+      "bytes": 1315787,
+      "sha256": "c2441f46f254b9a778fd01bc26ac5200d2653ffe896cd3f857358bb9fd802eac"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-owned-c++20.json",
+      "bytes": 1315787,
+      "sha256": "adf7fb2da136963a21b519a23c1ba1fae38792ec7d84180b7b0b85813cdb589d"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-owned-rust2021.json",
+      "bytes": 397153,
+      "sha256": "6f5bd27cc0767930ad9f1844b5924eaad3f7cdb3e2346dd50d7e25dd46c621c1"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-owned.cpp",
+      "bytes": 840,
+      "sha256": "53b2ea0847892892bfbab260fd11e3d3cf5e44e6a0bd120067c40d4a0a53dad2"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-owned.rs",
+      "bytes": 742,
+      "sha256": "e147d14c1817152478e2db3bcb9e88ef8559361580429a04758b8902512d608a"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-rust-domain-advice.json",
+      "bytes": 42410,
+      "sha256": "48cc1cdebe5283b780442c089205caaa9fee759ffbe4488222b27e41e1ce77d1"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-rust-domain-native.rs",
+      "bytes": 38834,
+      "sha256": "cc252b0393e63b365d897763e91ee6b406ccf17c1a072b7ed3fba853690176a6"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-rust-domain-overflow-no-compile.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-rust-domain-overflow-no-compile.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-rust-domain-overflow-no.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-rust-domain-overflow-no.stdout",
+      "bytes": 87386,
+      "sha256": "b90260d340a4952f6d9fdae953ea1c3ad38c34d0b23239738aa64573b7c5972e"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-rust-domain-overflow-yes-compile.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-rust-domain-overflow-yes-compile.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-rust-domain-overflow-yes.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-rust-domain-overflow-yes.stdout",
+      "bytes": 87386,
+      "sha256": "b90260d340a4952f6d9fdae953ea1c3ad38c34d0b23239738aa64573b7c5972e"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-rust-domain-owned.rs",
+      "bytes": 514,
+      "sha256": "2bd4c9af0dd808422e1f12821250c314a9e9e77c8e76458219a4df8e209e6900"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-validation-before-constant-fold.json",
+      "bytes": 69623,
+      "sha256": "ddfbbd06865ca9a6ac3e085de757183ebfe221925c807ae0296ffdb431cfde76"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language_audit.py",
+      "bytes": 14394,
+      "sha256": "a17115d5e4a548b886415ddbab2156e93a15ad97c23aff92f30eff36bd87113c"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language_rust_domains.py",
+      "bytes": 3174,
+      "sha256": "83dbfdae84f14f44502af55190a2a0b529ca2613f8000a7c8d360d09e59505ff"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/retained-4ku-cpp20-corrected.stderr",
+      "bytes": 148,
+      "sha256": "0da99627f2c29f853025fa06d2d3f39ff57b5143bd8a99f59334d01eeacfabad"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/retained-4ku-language.stderr",
+      "bytes": 2724,
+      "sha256": "4ce2198a299adc40a83e7c6d8cfeb6e7722d1002b03abfcdf1fc2758514b23ad"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/retained-ice4-language.stderr",
+      "bytes": 148,
+      "sha256": "b2b192f7459de4bb546b8b1b2b0d579198444c9b70a8d068b4fb63a18c4d62fb"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/retained-molly-language.json",
+      "bytes": 3494,
+      "sha256": "a4f0c6915fa07bdba29094be2b0aba525ce3d38af3cc9fc6fbfcc6c5bca2ce2e"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/rust-angle-cast-reject.json",
+      "bytes": 3507,
+      "sha256": "89231ba8f22763877bf016cd4bfed0b37736c559b5a25c92cb1feacefd684905"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/rust-budget-finite_flow_work.json",
+      "bytes": 100897,
+      "sha256": "a256095932c1f3cb777706109b9ecff93f38d7dea90b54096edbeb9ee682f7d6"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/rust-budget-nversion_work.json",
+      "bytes": 200005,
+      "sha256": "3902963ae8f4f5ab7833b5320bf01a2ddb5b33de93d284a7e383c4c898774370"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/rust-checked-overflow.json",
+      "bytes": 6342,
+      "sha256": "5f61c58ccdd1bdd08d4ffcddbdf1180db8c09bfffbdc5c01975c40a8cc44659a"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/rust-keyword-reject.json",
+      "bytes": 3478,
+      "sha256": "8fc6f0081a7460d1e69f3b68115d2a138efab2e1215a6b3ad1d4b4e2ac97dd95"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/rust-late-outer-item.json",
+      "bytes": 3494,
+      "sha256": "b33bb3cb3bc304b0a78ef477f61c960b35afcc94e96fe720fccdc8363fb9e9ed"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/rust-long-cast-chain.json",
+      "bytes": 3484,
+      "sha256": "79034a01915f5cee8da813cb5c93c1b9fe9432035b82f0884de4a6866aaa8213"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/rust-raw-string-opacity.json",
+      "bytes": 72978,
+      "sha256": "7cf7f40ce363c26d022f275242a253b3dff862bb722319093c4de6e94ab25625"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/rust-whole-function-reject.json",
+      "bytes": 3485,
+      "sha256": "f9b2667ce4c2c1345c09c3c327f0f8db68c9f197588bf5894c83d2177fb0efb9"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/cpp-adapter/c-advice-regression.log",
+      "bytes": 668,
+      "sha256": "b692931d122309a57cd197cf4abc7de412b5fd8e0082f315a89d522fdbb8fe10"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/cpp-adapter/cpp-integration.captured.log",
+      "bytes": 751,
+      "sha256": "a15eea02aa4f5eb8c2d93e8327abadf4ee8fc1a71ed495436bcbbe225f1c3a05"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/cpp-adapter/cpp-unit.captured.log",
+      "bytes": 500,
+      "sha256": "107921405b47744e04ea2124c5cd04ef2f525f276dc80b2c414cff9f39cdf0ec"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/cpp-adapter/targeted-validation.json",
+      "bytes": 2458,
+      "sha256": "a6f27c8f9b37512cfe031022b7a3527819a66773677e40c206ad9b54e39ce014"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/rust-advisor/constant-fold-unit-tests.log",
+      "bytes": 1417,
+      "sha256": "e3401ff32467079578c815283c4eff267a241a8e596a64cf846a31410bc4aac8"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/rust-advisor/initial-failed-tests.log",
+      "bytes": 2429,
+      "sha256": "a27772bcbe126ee29270d61a216ebddc044e72af65c655b9053cb6dad28c3a95"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/rust-advisor/rust-before-workspace-format.rs",
+      "bytes": 96903,
+      "sha256": "24685b8bc10067e18dbcc072018eb39708d66e8cb51d0358208fba429f5d8cb1"
+    },
+    {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/rust-advisor/unit-tests.log",
+      "bytes": 1313,
+      "sha256": "9e7142bead84e67a99f46c798ced1849522d77ed115e6a9477892a9cf4fd6611"
+    }
+  ],
+  "raw_artifact_digest_verification": {
+    "count": 91,
+    "all_current_paths_verified": true,
+    "retained_external_source_hashes_reverified": 3
+  },
+  "constant_fold_improvement": {
+    "scope": "Expression spelling and discovery under the same owned fixture source and finite-domain contract. No final packed-file byte saving or runtime speedup is inferred.",
+    "before": {
+      "audit_snapshot": "initial_language",
+      "candidate_count_per_native_mode": 24,
+      "input_comparisons_per_native_mode": 30936,
+      "nversion_work": 893816
+    },
+    "after": {
+      "audit_snapshot": "final_constant_fold",
+      "candidate_count_per_native_mode": 54,
+      "input_comparisons_per_native_mode": 64366,
+      "nversion_work": 864918
+    },
+    "examples": [
+      {
+        "function": "rank64",
+        "variable_type": "u32",
+        "result_type": "bool",
+        "original": "(x>>3)==0||(x>>3)==7",
+        "candidate": "x+8&48==0",
+        "original_expression_bytes": 20,
+        "candidate_expression_bytes": 9,
+        "domain_values": 64,
+        "domain_sha256": "7a61ce53d17eb721f1f7ead1b73d46792741cf9b82591734c084441e9eeacffe",
+        "evidence": {
+          "checked_values": 64,
+          "domain_sha256": "7a61ce53d17eb721f1f7ead1b73d46792741cf9b82591734c084441e9eeacffe",
+          "language": "rust",
+          "overflow_model": "defined with overflow checks enabled and disabled",
+          "same_result_type": true,
+          "source_reparsed": true,
+          "status": "exhaustive_static_domain"
+        }
+      },
+      {
+        "function": "rank512",
+        "variable_type": "i64",
+        "result_type": "bool",
+        "original": "(x>>6)==0||(x>>6)==7",
+        "candidate": "x+64&384==0",
+        "original_expression_bytes": 20,
+        "candidate_expression_bytes": 11,
+        "domain_values": 512,
+        "domain_sha256": "036f25d3e52783865ddc4915bf4d0cb05839ca214b36af36cfda74b16c16b99c",
+        "evidence": {
+          "checked_values": 512,
+          "domain_sha256": "036f25d3e52783865ddc4915bf4d0cb05839ca214b36af36cfda74b16c16b99c",
+          "language": "rust",
+          "overflow_model": "defined with overflow checks enabled and disabled",
+          "same_result_type": true,
+          "source_reparsed": true,
+          "status": "exhaustive_static_domain"
+        }
+      },
+      {
+        "function": "rank_u64",
+        "variable_type": "u64",
+        "result_type": "bool",
+        "original": "(x>>4)==0||(x>>4)==7",
+        "candidate": "x+16&96==0",
+        "original_expression_bytes": 20,
+        "candidate_expression_bytes": 10,
+        "domain_values": 128,
+        "domain_sha256": "e374288e6fd77688ab0bf9c4f4da1c9310f37aa631ec818b593d9d22c3a25e4b",
+        "evidence": {
+          "checked_values": 128,
+          "domain_sha256": "e374288e6fd77688ab0bf9c4f4da1c9310f37aa631ec818b593d9d22c3a25e4b",
+          "language": "rust",
+          "overflow_model": "defined with overflow checks enabled and disabled",
+          "same_result_type": true,
+          "source_reparsed": true,
+          "status": "exhaustive_static_domain"
+        }
+      }
+    ]
+  },
+  "historical_initial_rust_stage": {
+    "preserved_evidence": {
+      "path": "/workspace/scratch/7bea14fb3412/round2-work/audit-research/language-validation-before-constant-fold.json",
+      "bytes": 69623,
+      "sha256": "ddfbbd06865ca9a6ac3e085de757183ebfe221925c807ae0296ffdb431cfde76"
+    },
+    "rust_source_sha256": "24685b8bc10067e18dbcc072018eb39708d66e8cb51d0358208fba429f5d8cb1",
+    "format_only_intermediate_source_sha256": "7985443bc86b06f23725affb2d22a4af65a7eb5a87568a53bfdfdd08a3d65926",
+    "native_counts": [
+      {
+        "language": "rust",
+        "standard": "rust2021",
+        "overflow_checks": "yes",
+        "candidate_count": 24,
+        "input_comparisons": 30936,
+        "type_checks": 24,
+        "value_mismatches": 0,
+        "run_label": "language-native-rust2021-overflow-yes"
+      },
+      {
+        "language": "rust",
+        "standard": "rust2021",
+        "overflow_checks": "no",
+        "candidate_count": 24,
+        "input_comparisons": 30936,
+        "type_checks": 24,
+        "value_mismatches": 0,
+        "run_label": "language-native-rust2021-overflow-no"
+      }
+    ],
+    "targeted_rust_tests": {
+      "command": "set -o pipefail\ntimeout 180 taskset -c 0-3 env CARGO_BUILD_JOBS=2 CARGO_HOME=/workspace/scratch/7bea14fb3412/nvcompact-work/cargo-home CARGO_TARGET_DIR=/workspace/scratch/7bea14fb3412/nvcompact-work/advisor-target RUSTC=/workspace/scratch/d70af21bae00/nvcompact-next/toolchain/rust/bin/rustc LD_LIBRARY_PATH=/workspace/scratch/d70af21bae00/nvcompact-next/toolchain/rust/lib /workspace/scratch/d70af21bae00/nvcompact-next/toolchain/rust/bin/cargo test --offline --locked --manifest-path tools/nvcompact/Cargo.toml --lib advisor::rust::tests -- --nocapture --test-threads=1 2>&1 | tee /workspace/scratch/7bea14fb3412/round2-work/rust-advisor/unit-tests.log",
+      "passed": 9,
+      "failed": 0,
+      "log": "/workspace/scratch/7bea14fb3412/round2-work/rust-advisor/unit-tests.log",
+      "scope": "unit-tests.log is the last successful nine-test run, including the package-mask assertion. Full domain_values and two proof-field assertions were added after that run and subsequently covered by the root full-workspace suite and final ten-test run. The first six-pass/three-fail log was preserved separately before correction.",
+      "working_directory": "/workspace/scratch/7bea14fb3412/Rove4k",
+      "shell": "bash",
+      "environment": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_HOME": "/workspace/scratch/7bea14fb3412/nvcompact-work/cargo-home",
+        "CARGO_TARGET_DIR": "/workspace/scratch/7bea14fb3412/nvcompact-work/advisor-target",
+        "RUSTC": "/workspace/scratch/d70af21bae00/nvcompact-next/toolchain/rust/bin/rustc",
+        "LD_LIBRARY_PATH": "/workspace/scratch/d70af21bae00/nvcompact-next/toolchain/rust/lib"
+      },
+      "cargo_argv": [
+        "/workspace/scratch/d70af21bae00/nvcompact-next/toolchain/rust/bin/cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--manifest-path",
+        "tools/nvcompact/Cargo.toml",
+        "--lib",
+        "advisor::rust::tests",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "cpu_affinity": "0-3",
+      "timeout_seconds": 180,
+      "provenance": "Exact original tool invocation supplied by the executing owner performance2; audit did not rerun this command."
+    },
+    "scope": "Preserved initial observations remain available; final Rust totals above supersede the earlier 24-candidate stage. The preserved JSON contains an incorrect inherited owner test command; the corrected historical invocation here supersedes that metadata while original captured logs and counts remain unchanged."
+  }
+}

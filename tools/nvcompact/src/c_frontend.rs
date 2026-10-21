@@ -29,6 +29,10 @@ impl FrontendConfig {
             matches!(self.standard.as_str(), "c11" | "c17" | "gnu11" | "gnu17"),
             "supported C standards: c11, c17, gnu11, gnu17"
         );
+        self.validate_limits()
+    }
+
+    fn validate_limits(&self) -> Result<()> {
         ensure!(
             self.seconds.is_finite()
                 && self.seconds > 0.0
@@ -38,6 +42,30 @@ impl FrontendConfig {
             "frontend budget outside supported bounds"
         );
         validate_args(&self.compiler_args)
+    }
+}
+
+/// Language belongs to the frontend invocation, not to a filename heuristic.
+/// Production C transformations retain their C-only constructor and validator.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum FrontendLanguage {
+    C,
+    Cpp,
+}
+
+impl FrontendLanguage {
+    fn clang_name(self) -> &'static str {
+        match self {
+            Self::C => "c",
+            Self::Cpp => "c++",
+        }
+    }
+
+    fn translation_unit(self) -> &'static str {
+        match self {
+            Self::C => "translation.c",
+            Self::Cpp => "translation.cpp",
+        }
     }
 }
 
@@ -119,6 +147,7 @@ impl SourceContext {
 
 pub(crate) struct FrontendSession {
     config: FrontendConfig,
+    language: FrontendLanguage,
     root: tempfile::TempDir,
     executable: PathBuf,
     executable_sha256: String,
@@ -149,6 +178,26 @@ impl std::error::Error for FrontendContextChanged {}
 impl FrontendSession {
     pub fn new(config: FrontendConfig, require_lp64: bool) -> Result<Self> {
         config.validate()?;
+        Self::create(config, require_lp64, FrontendLanguage::C)
+    }
+
+    /// Advisory-only C++ entry. This does not widen the language accepted by
+    /// source spelling, flow transformations, compression or context replay.
+    pub fn new_for_advice(config: FrontendConfig) -> Result<Self> {
+        let language = match config.standard.as_str() {
+            "c11" | "c17" | "gnu11" | "gnu17" => FrontendLanguage::C,
+            "c++17" | "c++20" | "gnu++17" | "gnu++20" => FrontendLanguage::Cpp,
+            _ => bail!("supported advisory standards: c11, c17, gnu11, gnu17, c++17, c++20, gnu++17, gnu++20"),
+        };
+        config.validate_limits()?;
+        Self::create(config, true, language)
+    }
+
+    fn create(
+        config: FrontendConfig,
+        require_lp64: bool,
+        language: FrontendLanguage,
+    ) -> Result<Self> {
         let executable = process::resolve_tool(&config.clang)?;
         let cwd = config
             .source_path
@@ -164,6 +213,7 @@ impl FrontendSession {
         let executable_sha256 = sha256(&std::fs::read(&executable)?);
         let mut result = Self {
             config,
+            language,
             root: tempfile::tempdir()?,
             executable,
             executable_sha256,
@@ -190,12 +240,25 @@ impl FrontendSession {
         if require_lp64 {
             let mut probe = result.prefix();
             probe.extend(["-fsyntax-only".into(), "-".into()]);
-            result.execute(probe, b"_Static_assert(sizeof(int)==4 && sizeof(long)==8 && sizeof(long long)==8 && sizeof(void*)==8 && ~0U==4294967295U && ~0UL==18446744073709551615UL && ~0ULL==18446744073709551615ULL && ~0==-1 && ~0L==-1L && ~0LL==-1LL,\"NVCompact C LP64 two's-complement integer model mismatch\");\n", 65536)?;
+            let assertion = match result.language {
+                FrontendLanguage::C => "_Static_assert",
+                FrontendLanguage::Cpp => "static_assert",
+            };
+            let language_name = match result.language {
+                FrontendLanguage::C => "C",
+                FrontendLanguage::Cpp => "C++",
+            };
+            let input = format!("{assertion}(sizeof(int)==4 && sizeof(long)==8 && sizeof(long long)==8 && sizeof(void*)==8 && ~0U==4294967295U && ~0UL==18446744073709551615UL && ~0ULL==18446744073709551615ULL && ~0==-1 && ~0L==-1L && ~0LL==-1LL,\"NVCompact {language_name} LP64 two's-complement integer model mismatch\");\n");
+            result.execute(probe, input.as_bytes(), 65536)?;
         }
         result.info = json!({"executable":result.executable,"executable_sha256":result.executable_sha256,
             "version":version,"standard":result.config.standard,"compiler_args":result.config.compiler_args,
             "source_include_directory":result.cwd,"seconds_per_parse":result.config.seconds,
             "address_space_bytes":result.config.memory_bytes,"ast_output_bytes":result.config.ast_bytes});
+        // Preserve existing C context identities and report snapshots exactly.
+        if result.language == FrontendLanguage::Cpp {
+            result.info["language"] = json!("c++");
+        }
         Ok(result)
     }
 
@@ -226,7 +289,7 @@ impl FrontendSession {
         let mut result = vec![
             self.executable.to_string_lossy().into_owned(),
             "-x".into(),
-            "c".into(),
+            self.language.clang_name().into(),
             format!("-std={}", self.config.standard),
         ];
         result.extend(self.config.compiler_args.clone());
@@ -265,7 +328,7 @@ impl FrontendSession {
     }
 
     fn preprocess(&self, source: &[u8]) -> Result<Vec<u8>> {
-        let path = self.root.path().join("translation.c");
+        let path = self.root.path().join(self.language.translation_unit());
         std::fs::write(&path, source)?;
         let mut command = self.prefix();
         command.extend([
@@ -323,7 +386,7 @@ impl FrontendSession {
         } else {
             None
         };
-        let path = self.root.path().join("translation.c");
+        let path = self.root.path().join(self.language.translation_unit());
         std::fs::write(&path, source)?;
         let mut command = self.prefix();
         command.extend([

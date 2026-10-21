@@ -260,6 +260,25 @@ is tracked separately in [PR #12](https://github.com/daejunnom/Rove4k/pull/12).
 
 ### Short-coding advice
 
+`advise-source SOURCE --language c|cpp|rust` selects an explicit source-language
+contract. C++17/20 uses Clang's real C++ AST and preserves built-in scalar type
+and value category. Rust's bounded primitive subset uses separate Rust typing,
+checked arithmetic and rendering; it does not build a crate or expand macros.
+Python and other languages return an explicit unsupported-language error. These
+language restrictions apply to advisory analysis, not byte compression.
+
+```sh
+nvcompact advise-source final.cpp --language cpp --standard c++17
+nvcompact advise-source final.rs --language rust --standard rust2021
+```
+
+C++ and Rust currently support static advice only; `--profile` and `--instrument`
+are explicitly rejected. Shared findings/ranges and `language_details` identify
+actual language semantics separately from the internal candidate generator.
+See the [language contracts](docs/LANGUAGE-ADVISOR.ko.md),
+[native audit and retained-engine limitations](docs/LANGUAGE-RESULTS.ko.md), and owned
+[C++](examples/advice/domains.cpp) / [Rust](examples/advice/domains.rs) examples.
+
 These commands are available in this branch's source build; they are not part of
 the already published npm 0.5.0 release.
 

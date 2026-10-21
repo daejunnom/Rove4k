@@ -64,6 +64,15 @@ fn valid_digest(value: &str) -> bool {
 fn check_report(report: &AdviceReport) -> Result<()> {
     ensure!(report.advisory_only, "profile requires an advisory report");
     ensure!(
+        report.language_details.is_none()
+            && report
+                .frontend
+                .get("language")
+                .and_then(Value::as_str)
+                .is_none_or(|language| language == "c"),
+        "profile and instrumentation are currently supported only for C reports"
+    );
+    ensure!(
         valid_digest(&report.source_sha256) && valid_digest(&report.analysis_context_sha256),
         "invalid source/context fingerprint"
     );
@@ -238,6 +247,7 @@ struct Observation<'a> {
     maximum: String,
     outside_static_range: bool,
     outside_static_domain: bool,
+    static_membership_scope: &'static str,
     observed_known_zero: String,
     observed_known_one: String,
     distinct_values: Vec<String>,
@@ -488,6 +498,11 @@ pub fn observe(report: &AdviceReport, trace: &[u8]) -> Result<Value> {
             maximum: max.to_string(),
             outside_static_range: outside,
             outside_static_domain: samples.outside_domain,
+            static_membership_scope: if site.domain.as_ref().is_some_and(|d| d.values_omitted > 0) {
+                "interval and known bits; omitted finite-set holes are not checked"
+            } else {
+                "reported interval, known bits and complete listed finite set when present"
+            },
             observed_known_zero: format!("0x{:x}", samples.zero),
             observed_known_one: format!("0x{:x}", samples.one),
             distinct_values: samples
@@ -535,6 +550,24 @@ mod tests {
             "{TRACE_PREFIX}\t{}\t{}\trange:20:21\t{value}\n",
             report.source_sha256, report.analysis_context_sha256
         )
+    }
+
+    #[test]
+    fn c_profile_contract_rejects_other_language_reports() {
+        for language in ["cpp", "rust", "python"] {
+            let mut report = report();
+            report.frontend["language"] = json!(language);
+            assert!(observe(&report, b"").is_err());
+            assert!(instrument(
+                b"int f(int x){return x;}",
+                &report,
+                &InstrumentOptions::default()
+            )
+            .is_err());
+        }
+        let mut report = report();
+        report.language_details = Some(json!({"adapter":"other-language"}));
+        assert!(observe(&report, b"").is_err());
     }
 
     #[test]
