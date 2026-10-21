@@ -193,7 +193,7 @@ head. The C job executes the new fixed-eight-worker positive step. These results
 precede the additional generic fixed-root source path described separately.
 
 **F's opt-in material/move-TT file is locally reproduced and exercised at
-4,045 bytes; default full F is now 4,468 bytes.** This optional reduced-feature
+4,045 bytes; default full F is now 4,447 bytes.** This optional reduced-feature
 size result does not complete default F or the A–F portfolio. All twelve
 cores have functional evidence, but portfolio completion still requires source
 reduction, D's eligible own-ELF artifact, final candidate comparisons and games,
@@ -213,7 +213,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | C | 4,880 B | 784 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners retained; history length derived from immutable job length plus ply; child continuation slot and positive-only cutoff bonus compacted; fixed LP64 mixer literals; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero; capture-only Move bit3 reuses generator metadata with separate PROMO and unchanged quiet noise |
 | D scalar / HQ | 5,908 / 6,111 B | 1,812 / 2,015 B | HQ-only history length derived from immutable job length plus ply; scalar and DEV retain their original blocks; exact clock/inc parsing and ordered K/Q castling branches shared; consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained |
 | E | 4,946 B | 850 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; child continuation slot and positive-only cutoff bonus compacted; literal include gaps and fixed ASCII compiler argv compacted; fixed LP64 mixer literals; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero; private history length derived from immutable published job base plus ply; capture-only Move bit3 reuses generator metadata with separate PROMO and unchanged quiet noise |
-| F full (default) | 4,468 B | 372 B | Packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; history length derived from immutable job length plus ply; nonnegative QS depth, repetition-distance loop, fixed integer macros and plain-int keyword spelling compacted after the no-preadd hash, terminal, correction and source-form stages; compact environment snapshot; default size target remains open; lazy fallback and first-legal quiet-QS standpat cutoff; immutable global job-prefix keys shared while workers store only private path keys; fixed 73-byte stdin/xz header and BT2/16KiB ALONE |
+| F full (default) | 4,447 B | 351 B | Packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; history length derived from immutable job length plus ply; nonnegative QS depth, repetition-distance loop, fixed integer macros and plain-int keyword spelling compacted after the no-preadd hash, terminal, correction and source-form stages; compact environment snapshot; default size target remains open; lazy fallback and first-legal quiet-QS standpat cutoff; immutable global job-prefix keys shared while workers store only private path keys; fixed 73-byte stdin/xz header and BT2/16KiB ALONE; five fixed local binding spellings |
 | F material/noise (opt-in) | 4,319 B | 223 B | Unsigned64 number forms and two fixed TT18 casts omitted; one-state material classifier, fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted; literal include gaps compacted; fixed LP64 mixer literals; compact environment snapshot |
 | F material/move-TT (opt-in) | 4,045 B | 0 B (51 B spare) | Unsigned64 number forms; one-state material classifier, fixed material, main-owned token cursor, terminal-loop sharing and coherent atomic64 Move17/high46 plus index18; local size eligibility only, full F and strength acceptance remain open; fixed LP64 mixer literals; compact environment snapshot |
 
@@ -222,7 +222,59 @@ finite Rust shipping entry also has16,816-byte natives with new identities and
 11,108/11,476-byte scalar/HQ own-ELFs. Its normal qualification below does not
 replace the C D table or establish4KiB eligibility.
 
+## Full F4447 and the explicit F8 source stage: 2026-10-22
+
+The prepublication NVCompact0.6 tool artifact finds five private binding-name
+changes in the current F4468 context. Source8538 and bootstrap9506 retain
+their lengths; whole4468→4447 B uses the same73-byte header and fixed BT2/
+16KiB ALONE recipe. All59 one-byte token edits have exact inverse and unchanged
+gap proofs. Actual typed binding and macro checks, eight newly produced native
+compiles and a complete-byte readback retain native18576/SHA92671066. The
+bounded search reaches512 evaluations with unvisited round2 singles and
+systematic combinations; neither complete-space search nor optimality is claimed.
+
+The pure maintained shipping_names.py replays those edits after history_path
+from current canonical inputs. It reads no research artifact, AST or tool output.
+Ordinary full --dev regeneration reproduces shipping and unchanged DEV twice;
+the unchanged selected verifier executes the actual4447 wrapper in quit/EOF
+sessions with8 legal GO, exact native restoration, stable3TIDs, absent private
+paths/helpers, reader EOF and physical exit0. Both optional normal builders
+also reproduce their unchanged4319/4045 tuples twice, while their separate
+full-reference copies follow the new spelling stage. Optional DEV/runtime are
+not rerun. External promotion index:
+`e326abd82394b02a0e88a00c9ceff370fe1067ae60ba655acc3543473149bb30`.
+
+The producer now emits source-before-names.c at its selected output and both
+attempts. Those three files remain8538/SHA47353a15. F8 explicitly consumes
+that stage instead of the selected renamed main.c; workflow and producer
+closure pins follow the same contract. Its six-role specialization, base C,
+native, legacy77-byte bootstrap/header, BT4 codec and4474-byte package are
+unchanged. Existing source_closure and actual pre-name readback pass; prior
+normal/9-TID positive receipts are re-read and reused, with no new local F8
+compile/encode/runtime. A collector's initial wrong complete-field assumption
+is preserved separately from the existing positive passed result. Consumer
+index: `b9c2007805486e2414163e8e08954f671813934c351e014b37a0f77834aaa818`.
+
+This is local fixed2/TT18 qualification. The preceding4ad936b CI below executes
+F4468, not F4447. New-head CI, final4KiB eligibility, resources, compact parallel
+policies and strength remain separate. No npm republish is needed: public
+NVCompact0.6.0 and its direct-OIDC release are already complete, and the public
+tarball matches the prepublication tool artifact used by these experiments.
+
 ## Shared stream headers and cached B evaluation: 2026-10-22
+
+Checkpoint4ad936b passes terminal Engine C/Rust and Repository Node22/24 CI in
+[engine39635516445](https://github.com/daejunnom/Rove4k/actions/runs/39635516445)
+and [repository39635516557](https://github.com/daejunnom/Rove4k/actions/runs/39635516557).
+All four actual checkouts are mergefc99bdd2, with parents761bdc0/4ad936b and
+the same1777240c tree as the requested head. The C log regenerates
+A4582/B5073/C4880/E4946/F4468 and optional4319/4045; each selected file passes
+two runtime sessions. F8 separately reproduces its exact4474 identity through
+actual recipe/build/verifier gates and passes two positive sessions. That
+size is source-gated, not a direct size field in stdout. C-only maintained/F8
+steps are skipped in Rust; Rust's own contracts, generic A-F build and actual
+process verification pass. External CI index:
+`5f5d1039b54677efab94822d1256208fc8632ee98107f47385d90d5b656ce369`.
 
 The preceding0f41df9 head passes terminal Engine C/Rust and Repository Node22/24
 CI in [engine39630537886](https://github.com/daejunnom/Rove4k/actions/runs/39630537886)

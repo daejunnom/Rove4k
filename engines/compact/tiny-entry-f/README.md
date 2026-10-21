@@ -1,3 +1,59 @@
+# Maintained F: fixed local spelling replay — 2026-10-22
+
+The full/default file is **4447 B**, 21 bytes below4468 and **351 B above
+4096**. Compact C remains8538 B. Five automatic binding groups change59
+one-byte identifier tokens: mixer parameter x->d, start-board loop f->i,
+TT-score local H->u, MTD-f-score local g->q, and start-board scratch t->q.
+The complete native image stays18576 B and byte-identical to the preceding
+qualified926710... image. Canonical, full DEV, TT, learners, search and fixed
+resource policies are unchanged.
+
+`shipping_names.py` is a pure final full-F adapter after history_path. Its
+four function anchors,59 exact spans,8479-byte protected complement and full
+inverse bind the maintained candidate; it reads no experiment, artifact,
+compiler,codec,AST or network. Actual typed binding/expanded-macro checks and
+native/empty-diagnostic identity came from the bounded NVC0.6 run. Source,
+token,location and traceback identity are not promised by the spelling edit.
+No scalar AtomicExpr or concurrency proof is inferred from that run.
+
+The ordinary full builder emits `source-before-names.c` at the selected root
+and in attempt-1/2. All three retain the8538-byte pre-name source
+`47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0`.
+F8 consumes this explicit development output. Selected `main.c` uses the new
+`400ad454b0e3108814636bab4060f224ae4b2d28cdc7929c8c98590adb46c59d`.
+MaterialNoise and MoveTT apply names only to a separate full-reference copy
+for its updated full-source identity check; their selected source bypasses
+this stage. Their4319/4045 artifacts and policy/codec/header choices remain.
+
+One ordinary full `--dev` call reproduces shipping2 and unchanged DEV2. Actual
+new native and DEV source/native compare in complete bytes to the preceding
+qualified build. The unchanged snapshotted selected verifier passes two
+quit/EOF sessions and8 legal GO results, exact restored native, stable3TIDs,
+absent private paths/helpers, reader EOF and physical exit0. One ordinary
+builder per optional policy, without DEV or runtime, also reproduces shipping
+twice and the unchanged4319/4045 source/native/bootstrap/whole identities.
+F8 recipe/workflow connection belongs to its separate consumer owner; this
+promotion performs no F8 compile, codec or runtime execution.
+
+Full build receipt:
+`30a48a253a970de9a68f0090e59f841bf86e025c4f09f76d25ceb1b26ebd23c8`.
+Selected runtime receipt:
+`38c37ce7d6984ca06381a5fe9bbf2f6a946bca0ffd710f4e9ccaa0a724f83cef`.
+Optional build receipts:
+`bfc7ac574696e02589f2c39b1d20c0ab583923ddf7a15a83fe6c267941fa489b`
+and `34e55b9816ffc07a5d9a5e8a648bd883120964418a81092e7ad2ffe343e7fb2a`.
+Whole SHA-256:
+`1d27f6e80a418cf8ec40cebeb772ce69028407d6ea10b0e4466dc807b89fc528`.
+
+Producing source/recipe, command logs and before/after readback remain outside
+Git in `rove4k-f-names-promote-20261022-evidence`. No source search is rerun
+during promotion. The earlier NVC run exhausted512 evaluations; three single
+choices on round2 and systematic combinations remain unvisited. This local
+fixed2/TT18 qualification adds no strength, many-core or final-target result;
+cancellation causality remains unproven. Current code stayed frozen through
+execution; final recipe/README add receipt metadata only. Historical
+checkpoints and their original scopes remain below.
+
 # Maintained F: direct environment argument — 2026-10-22
 
 The full/default selection is **4,468 B**, two bytes below F4470 and

@@ -84,7 +84,8 @@
     "engines/scripts/shipping_lazy_fallback.py": "023b370e75df2d50f44641eac7d1b49091ef2424d9ed7983d6d6f3c7d700b2ce",
     "engines/compact/tiny-entry-f/shipping_qs_cutoff.py": "ae95c21527a235880a4e9f140537f488df71b99caec988a3c08cf710d7df4534",
     "engines/compact/tiny-entry-f/shipping_history_path.py": "d345e87322f6aa17f141861c9fa6f330ff2c3642d765d9c0e2d6dc32a597a70c",
-    "engines/scripts/source_package.py": "55fa739e7c17fffdb3bf1191c7a26aa38d35e9e32473e4008c23ece3d5703d1f"
+    "engines/scripts/source_package.py": "55fa739e7c17fffdb3bf1191c7a26aa38d35e9e32473e4008c23ece3d5703d1f",
+    "engines/compact/tiny-entry-f/shipping_names.py": "b69d376bf2e206273b12344fe30fbddbce6d51396c01fab8d53fd8f25401d48b"
   },
   "resource_literals": [
     [
@@ -259,14 +260,14 @@
   "expected": {
     "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
     "source_bytes": 8538,
-    "source_sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0",
+    "source_sha256": "400ad454b0e3108814636bab4060f224ae4b2d28cdc7929c8c98590adb46c59d",
     "native_bytes": 18576,
     "native_sha256": "926710668d5975d6972ca18d22bea985b2b4aa9153f41c946c03d5bbac71f876",
-    "whole_bytes": 4468,
-    "whole_sha256": "a8a526d46ddcaf4eb3c41b5b7612ea05575e7d2c79e546b163f3a8fca5a2790c",
+    "whole_bytes": 4447,
+    "whole_sha256": "1d27f6e80a418cf8ec40cebeb772ce69028407d6ea10b0e4466dc807b89fc528",
     "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
     "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
-    "bootstrap_sha256": "9a086aa99fcaaa92b37899c0d83bc59d699a695ece2f8595c18a5360a1fa6ed8",
+    "bootstrap_sha256": "5d954210168b72ef0c08d63fab4a41b1ace42020f305cee72b7a4d2b02fc4923",
     "semantic_readable_bytes": 25720,
     "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
     "dev_source_bytes": 19488,
@@ -4670,5 +4671,214 @@
     "kind": "three-line-xz-stdin",
     "bytes": 73,
     "sha256": "2c30c82c7df658b37c9d64b6f6b393a5d2cb2169933ab6254fabdf525924c34a"
+  },
+  "fixed_names": {
+    "scope": "full F final five local binding spellings; zero raw-length delta and exact native identity",
+    "predecessor_expected": {
+      "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+      "source_bytes": 8538,
+      "source_sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0",
+      "native_bytes": 18576,
+      "native_sha256": "926710668d5975d6972ca18d22bea985b2b4aa9153f41c946c03d5bbac71f876",
+      "whole_bytes": 4468,
+      "whole_sha256": "a8a526d46ddcaf4eb3c41b5b7612ea05575e7d2c79e546b163f3a8fca5a2790c",
+      "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
+      "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
+      "bootstrap_sha256": "9a086aa99fcaaa92b37899c0d83bc59d699a695ece2f8595c18a5360a1fa6ed8",
+      "semantic_readable_bytes": 25720,
+      "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
+      "dev_source_bytes": 19488,
+      "dev_native_bytes": 26984,
+      "input_profile_readable_bytes": 28587,
+      "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
+      "bootstrap_bytes": 9506
+    },
+    "input_bytes": 8538,
+    "input_sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0",
+    "output_bytes": 8538,
+    "output_sha256": "400ad454b0e3108814636bab4060f224ae4b2d28cdc7929c8c98590adb46c59d",
+    "binding_groups": [
+      [
+        "r",
+        "x",
+        "d",
+        9
+      ],
+      [
+        "o",
+        "f",
+        "i",
+        9
+      ],
+      [
+        "U",
+        "H",
+        "u",
+        15
+      ],
+      [
+        "i",
+        "g",
+        "q",
+        13
+      ],
+      [
+        "o",
+        "t",
+        "q",
+        13
+      ]
+    ],
+    "identifier_token_edits": 59,
+    "raw_source_delta": 0,
+    "whole_delta": -21,
+    "entire_native_bytes_equal": true,
+    "canonical_DEV_optional_policies_changed": false,
+    "F8_pre_name_source": {
+      "output": "source-before-names.c",
+      "bytes": 8538,
+      "sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0",
+      "scope": "full default ordinary build, both attempts and selected output; selected main.c has names applied"
+    },
+    "source_search_scope": "one bounded NVC0.6 run; budget-exhausted512/512, round2 single3 and systematic subsets remain; no optimality claim",
+    "source_proof": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-nvc060-source-space-20261022-evidence/intake-proof.json",
+      "bytes": 33931,
+      "sha256": "cfd2b3e258b751e7fa46f182b690af5a13db7b04d6d9b4f46a56d46d5f67321b"
+    },
+    "tool_receipt": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-nvc060-source-space-20261022-evidence/one-run.receipt.json",
+      "bytes": 4513,
+      "sha256": "50609a13c19d3ab3f38a834d71d59f9e6a7d489acea2168421c5e8c0799605a1"
+    },
+    "normal_validation_pending": false,
+    "normal_validation": {
+      "status": "PASS full ordinary --dev and unchanged selected verifier; optional reference consumers also reproduced",
+      "producing_recipe": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-names-promote-20261022-evidence/producing-recipe.json",
+        "bytes": 251863,
+        "sha256": "e1b26b58c8bc2c5b4508017512abb9e3fc16b4fb20b29d81c9ea0017caddb6bd"
+      },
+      "producing_builder": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-names-promote-20261022-evidence/producing-build.py",
+        "bytes": 35452,
+        "sha256": "eecbea9458c50d1e8af6e39e5370996f975c6e9502a6349ef9d5bb92012a6283"
+      },
+      "producing_helper": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-names-promote-20261022-evidence/producing-shipping_names.py",
+        "bytes": 4196,
+        "sha256": "b69d376bf2e206273b12344fe30fbddbce6d51396c01fab8d53fd8f25401d48b"
+      },
+      "full_build": {
+        "path": "/home/stemxstudio/rove4k-f-names-promote-20261022/normal/build/build.json",
+        "bytes": 243458,
+        "sha256": "30a48a253a970de9a68f0090e59f841bf86e025c4f09f76d25ceb1b26ebd23c8"
+      },
+      "selected_runtime": {
+        "path": "/home/stemxstudio/rove4k-f-names-promote-20261022/normal/runtime/runtime.json",
+        "bytes": 67841,
+        "sha256": "38c37ce7d6984ca06381a5fe9bbf2f6a946bca0ffd710f4e9ccaa0a724f83cef"
+      },
+      "outer_commands": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-names-promote-20261022-evidence/normal-commands.json",
+        "bytes": 5888,
+        "sha256": "8d5eb74fa745d837f11266852b70f179159e282c7e206d85e2c2ae95c208ece5"
+      },
+      "full_shipping_generations": 2,
+      "unchanged_DEV_generations": 2,
+      "actual_previous_native_entire_bytes_equal": true,
+      "actual_previous_DEV_source_native_entire_bytes_equal": true,
+      "F8_pre_name_outputs": [
+        {
+          "path": "/home/stemxstudio/rove4k-f-names-promote-20261022/normal/build/source-before-names.c",
+          "bytes": 8538,
+          "sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
+        },
+        {
+          "path": "/home/stemxstudio/rove4k-f-names-promote-20261022/normal/build/attempt-1/source-before-names.c",
+          "bytes": 8538,
+          "sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
+        },
+        {
+          "path": "/home/stemxstudio/rove4k-f-names-promote-20261022/normal/build/attempt-2/source-before-names.c",
+          "bytes": 8538,
+          "sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
+        }
+      ],
+      "optional_builds": {
+        "material-noise": {
+          "build": {
+            "path": "/home/stemxstudio/rove4k-f-names-promote-20261022/normal/material-noise/build.json",
+            "bytes": 194970,
+            "sha256": "bfc7ac574696e02589f2c39b1d20c0ab583923ddf7a15a83fe6c267941fa489b"
+          },
+          "source": {
+            "path": "/home/stemxstudio/rove4k-f-names-promote-20261022/normal/material-noise/main.c",
+            "bytes": 8508,
+            "sha256": "a7b50f5d084b558c1fb07f3c4c572afa29291a4982ddd00fd783f187a3f74c93"
+          },
+          "native": {
+            "path": "/home/stemxstudio/rove4k-f-names-promote-20261022/normal/material-noise/native/x",
+            "bytes": 18576,
+            "sha256": "24ae0622c5a0fd10191950f53e0f6ea5d3e3d05fbb1b20aaa72c2b5f2754873f"
+          },
+          "bootstrap": {
+            "path": "/home/stemxstudio/rove4k-f-names-promote-20261022/normal/material-noise/bootstrap.py",
+            "bytes": 9481,
+            "sha256": "d5154ad0ce7db5a9968cf0a80c3da36269aaa154af4831a57e0b5ad4b2585f7f"
+          },
+          "whole": {
+            "path": "/home/stemxstudio/rove4k-f-names-promote-20261022/normal/material-noise/x",
+            "bytes": 4319,
+            "sha256": "dd9566fcb5b9373244703be1201715f286a2cde66db397dc0ef2e0372ac7be5f"
+          },
+          "ordinary_builder_invocations": 1,
+          "shipping_generations": 2,
+          "new_DEV_runtime_executions": 0,
+          "same_previous_expected_source_native_bootstrap_whole": true,
+          "scope": "separate full_reference new names/expected consumer executed; selected optional source bypasses names"
+        },
+        "material-move-tt": {
+          "build": {
+            "path": "/home/stemxstudio/rove4k-f-names-promote-20261022/normal/material-move-tt/build.json",
+            "bytes": 217030,
+            "sha256": "34e55b9816ffc07a5d9a5e8a648bd883120964418a81092e7ad2ffe343e7fb2a"
+          },
+          "source": {
+            "path": "/home/stemxstudio/rove4k-f-names-promote-20261022/normal/material-move-tt/main.c",
+            "bytes": 7741,
+            "sha256": "6d3fa3e0099285dd9efe8934f7b419fdd204f80ed4eaf502ad64a9f5b2e12122"
+          },
+          "native": {
+            "path": "/home/stemxstudio/rove4k-f-names-promote-20261022/normal/material-move-tt/native/x",
+            "bytes": 18576,
+            "sha256": "1a964e23bc8967b6eb74714389b4d94fd0e505d5d1eba3616775b7e4b0a522d5"
+          },
+          "bootstrap": {
+            "path": "/home/stemxstudio/rove4k-f-names-promote-20261022/normal/material-move-tt/bootstrap.py",
+            "bytes": 8714,
+            "sha256": "39d03ecca6211628b1748a72390a3bec71681cb8e2f0f0999481dc83ebc0dc5c"
+          },
+          "whole": {
+            "path": "/home/stemxstudio/rove4k-f-names-promote-20261022/normal/material-move-tt/x",
+            "bytes": 4045,
+            "sha256": "825108ca4528301f091d3deb44aaaf890b0ae54ac81bbebfbd6ff7e170d65c29"
+          },
+          "ordinary_builder_invocations": 1,
+          "shipping_generations": 2,
+          "new_DEV_runtime_executions": 0,
+          "same_previous_expected_source_native_bootstrap_whole": true,
+          "scope": "separate full_reference new names/expected consumer executed; selected optional source bypasses names"
+        }
+      },
+      "quit_EOF_sessions": 2,
+      "legal_GO_results": 8,
+      "startup_TIDs_each": 3,
+      "actual_native_image_and_private_cleanup_readerEOF_process_exit0": true,
+      "all_outer_commands_terminal0_reaped_groups_absent": true,
+      "forced_cleanup_retries_failures": 0,
+      "metadata_only_after_producing_execution": true,
+      "no_new_strength_manycore_final_target_acceptance": true
+    }
   }
 }

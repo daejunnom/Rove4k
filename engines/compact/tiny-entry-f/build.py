@@ -178,6 +178,7 @@ def main():
         move_tt=module('entry_fixed_F_move_TT',frozen/'shipping_move_tt.py').transform_source
         move_tt_names=module('entry_fixed_F_move_TT_names',frozen/'shipping_move_tt_names.py').transform_source
         expressions=module('entry_fixed_F_expressions',frozen/'shipping_material_expressions.py').transform_source
+        fixed_names=module('entry_fixed_F_names',frozen/'shipping_names.py').transform_source
         # Keep this base for every unchanged shipping readable/spelling guard.
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
@@ -197,7 +198,7 @@ def main():
         compression=recipe['compression']
         expected=recipe['expected']
         def generate(directory,dev=False):
-            preprocess_source=canonical;semantic_metadata=None;input_metadata=None
+            preprocess_source=canonical;semantic_metadata=None;input_metadata=None;before_names=None
             if dev:
                 preprocess_source,semantic_metadata=semantics.transform_readable(canonical)
                 preprocess_source,input_metadata=input_profile.transform_readable(preprocess_source)
@@ -265,6 +266,8 @@ def main():
                     full_common_metadata['qs_legal_cutoff']=qs_metadata
                     full_reference,path_metadata=history_path.transform_source(full_reference,family='F')
                     full_common_metadata['history_path']=path_metadata
+                    full_reference,names_metadata=fixed_names(full_reference)
+                    full_common_metadata['fixed_names']=names_metadata
                     if len(full_reference)!=full_expected['source_bytes'] or sha(full_reference)!=full_expected['source_sha256']:
                         raise ValueError('default full-F source generation changed')
                     data,policy_metadata=material_noise(data)
@@ -336,7 +339,10 @@ def main():
                     common_metadata['qs_legal_cutoff']=qs_metadata
                     data,path_metadata=history_path.transform_source(data,family='F')
                     common_metadata['history_path']=path_metadata
-            return data,observations,counters,alpha_metadata,storage_metadata,scope_metadata,member_metadata,semantic_metadata,input_metadata,declaration_metadata,hce_metadata,type_metadata,unit_bound_metadata,startup_metadata,global_names_metadata,capture_metadata,policy_metadata,material_names_metadata,material_capture_metadata,move_tt_metadata,move_tt_names_metadata,expressions_metadata,common_metadata
+                    before_names=data
+                    data,names_metadata=fixed_names(data)
+                    common_metadata['fixed_names']=names_metadata
+            return data,observations,counters,alpha_metadata,storage_metadata,scope_metadata,member_metadata,semantic_metadata,input_metadata,declaration_metadata,hce_metadata,type_metadata,unit_bound_metadata,startup_metadata,global_names_metadata,capture_metadata,policy_metadata,material_names_metadata,material_capture_metadata,move_tt_metadata,move_tt_names_metadata,expressions_metadata,common_metadata,before_names
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())
             ast.parse(script)
@@ -345,24 +351,28 @@ def main():
         first=None;first_dev=None
         for index in (1,2):
             directory=out/('attempt-'+str(index));directory.mkdir()
-            source,observations,counters,alpha_metadata,storage_metadata,scope_metadata,member_metadata,semantic_metadata,input_metadata,declaration_metadata,hce_metadata,type_metadata,unit_bound_metadata,startup_metadata,global_names_metadata,capture_metadata,policy_metadata,material_names_metadata,material_capture_metadata,move_tt_metadata,move_tt_names_metadata,expressions_metadata,common_metadata=generate(directory/'preprocess')
+            source,observations,counters,alpha_metadata,storage_metadata,scope_metadata,member_metadata,semantic_metadata,input_metadata,declaration_metadata,hce_metadata,type_metadata,unit_bound_metadata,startup_metadata,global_names_metadata,capture_metadata,policy_metadata,material_names_metadata,material_capture_metadata,move_tt_metadata,move_tt_names_metadata,expressions_metadata,common_metadata,before_names=generate(directory/'preprocess')
             if len(source)!=expected['source_bytes'] or sha(source)!=expected['source_sha256']:raise ValueError('compact C identity mismatch')
             (directory/'main.c').write_bytes(source)
+            if before_names is not None:(directory/'source-before-names.c').write_bytes(before_names)
             native=compile_c(recipe['compiler'],source,directory/'native')
             if len(native)!=expected['native_bytes'] or sha(native)!=expected['native_sha256']:raise ValueError('native ELF identity mismatch')
             whole,script=package(source)
             if len(whole)!=expected['whole_bytes'] or sha(whole)!=expected['whole_sha256'] or sha(script)!=expected['bootstrap_sha256']:
                 raise ValueError('complete launcher identity mismatch')
             (directory/'x').write_bytes(whole);(directory/'x').chmod(0o755);(directory/'bootstrap.py').write_bytes(script)
-            current=(source,native,whole,script)
+            current=(source,native,whole,script,before_names)
             if first is None:first=current
             elif current!=first:raise ValueError('independent generation did not reproduce bytes')
             row={'attempt':index,'source_bytes':len(source),'source_sha256':sha(source),'native_bytes':len(native),'native_sha256':sha(native),
                  'whole_bytes':len(whole),'whole_sha256':sha(whole),'bootstrap_sha256':sha(script),'preprocessor':observations,
                  'counter_removal':counters,'shipping_alpha':alpha_metadata,'shipping_storage':storage_metadata,
-                 'shipping_scope':scope_metadata,'shipping_members':member_metadata,'shipping_semantics':semantic_metadata,'shipping_input':input_metadata,'shipping_declarations':declaration_metadata,'shipping_hce':hce_metadata,'shipping_types':type_metadata,'shipping_unit_bound':unit_bound_metadata,'shipping_startup':startup_metadata,'shipping_global_names':global_names_metadata,'shipping_capture':capture_metadata,'shipping_policy':policy_metadata,'shipping_material_names':material_names_metadata,'shipping_material_capture':material_capture_metadata,'shipping_move_tt':move_tt_metadata,'shipping_move_tt_names':move_tt_names_metadata,'shipping_material_expressions':expressions_metadata,'shipping_common':common_metadata}
+                 'shipping_scope':scope_metadata,'shipping_members':member_metadata,'shipping_semantics':semantic_metadata,'shipping_input':input_metadata,'shipping_declarations':declaration_metadata,'shipping_hce':hce_metadata,'shipping_types':type_metadata,'shipping_unit_bound':unit_bound_metadata,'shipping_startup':startup_metadata,'shipping_global_names':global_names_metadata,'shipping_capture':capture_metadata,'shipping_policy':policy_metadata,'shipping_material_names':material_names_metadata,'shipping_material_capture':material_capture_metadata,'shipping_move_tt':move_tt_metadata,'shipping_move_tt_names':move_tt_names_metadata,'shipping_material_expressions':expressions_metadata,'shipping_common':common_metadata,
+                 'source_before_names':({'bytes':len(before_names),'sha256':sha(before_names),
+                                         'path':str(directory/'source-before-names.c')} if before_names is not None else None)}
             if args.dev:
-                dev,dev_observations,_,dev_alpha,dev_storage,dev_scope,dev_members,dev_semantics,dev_input,dev_declarations,dev_hce,dev_types,dev_unit_bound,dev_startup,dev_global_names,dev_capture,dev_policy,dev_material_names,dev_material_capture,dev_move_tt,dev_move_tt_names,dev_expressions,dev_common=generate(directory/'preprocess-dev',True)
+                dev,dev_observations,_,dev_alpha,dev_storage,dev_scope,dev_members,dev_semantics,dev_input,dev_declarations,dev_hce,dev_types,dev_unit_bound,dev_startup,dev_global_names,dev_capture,dev_policy,dev_material_names,dev_material_capture,dev_move_tt,dev_move_tt_names,dev_expressions,dev_common,dev_before_names=generate(directory/'preprocess-dev',True)
+                if dev_before_names is not None:raise ValueError('diagnostic source entered fixed names stage')
                 if dev_alpha is not None or dev_storage is not None or dev_scope is not None or dev_members is not None or dev_declarations is not None or dev_hce is not None or dev_types is not None or dev_unit_bound is not None or dev_startup is not None or dev_global_names is not None or dev_capture is not None or dev_policy is not None or dev_material_names is not None or dev_material_capture is not None or dev_move_tt is not None or dev_move_tt_names is not None or dev_expressions is not None or dev_common is not None:raise ValueError('diagnostic source entered shipping spelling stage')
                 if dev_semantics is None or dev_semantics['stage']!='readable-before-DEV-specialization':raise ValueError('diagnostic semantic stage missing')
                 if dev_input is None or dev_input['stage']!='readable-before-DEV-specialization' or dev_input['shipping_relation_checked']:
@@ -379,6 +389,11 @@ def main():
                             'input_profile':dev_input,'prior_EP_DEV_identity_verified':True}
             report['attempts'].append(row);save()
         (out/'main.c').write_bytes(first[0]);(out/'native').mkdir();(out/'native/x').write_bytes(first[1]);(out/'native/x').chmod(0o755)
+        if first[4] is not None:
+            (out/'source-before-names.c').write_bytes(first[4])
+            report['source_before_names']={'path':str(out/'source-before-names.c'),
+                                          'bytes':len(first[4]),'sha256':sha(first[4]),
+                                          'scope':'full shipping source immediately before fixed local-name replay; F8 consumer input'}
         (out/'x').write_bytes(first[2]);(out/'x').chmod(0o755);(out/'bootstrap.py').write_bytes(first[3])
         if first_dev:
             (out/'dev').mkdir();(out/'dev/main.c').write_bytes(first_dev[0]);(out/'dev/x').write_bytes(first_dev[1]);(out/'dev/x').chmod(0o755)
