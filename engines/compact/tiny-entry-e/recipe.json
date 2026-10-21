@@ -65,7 +65,8 @@
     "engines/scripts/shipping_includes.py": "d7c3ad6e7811d848b0d6bab7331c929ab2c3175cd030438ddc81d22ea8cdf4bc",
     "engines/scripts/shipping_mixer_literals.py": "7b25cb806a51cad9e867ebc588bcb99677c9e2f9d0a5df0b31d019e22bc6d114",
     "engines/scripts/shipping_clock.py": "46c19879deae1d056f4b059c6c7d9667a3e935110dfb33015b29fd0dec4d8c43",
-    "engines/compact/tiny-entry-e/shipping_zero_slots.py": "f15f17881ab84eaee88f130b782b23b2019e15dd2d44302fb26bbe9e8ea2ec6c"
+    "engines/compact/tiny-entry-e/shipping_zero_slots.py": "f15f17881ab84eaee88f130b782b23b2019e15dd2d44302fb26bbe9e8ea2ec6c",
+    "engines/compact/tiny-entry-e/shipping_search_context.py": "55889f3535aceb764be3a07c584244337e5a0d95a4823474ad5b13e5025ccb63"
   },
   "compression": {
     "format": "lzma-alone",
@@ -83,18 +84,18 @@
   "expected": {
     "readable_bytes": 28001,
     "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
-    "source_bytes": 10400,
-    "source_sha256": "431bdde48fd1f2d450bb92dd6c03e3309017158353de06bfe4fffd0bc96c839e",
+    "source_bytes": 10360,
+    "source_sha256": "6e9e7eb6a439934aba2d48f9387f710a95a0032a89233ff2b676b5d6451d47fb",
     "native_bytes": 26400,
-    "native_sha256": "dd9015f8a5960a4595d2da5dfc09d6fae24bed1d2e7b1698b1e50245d42da0e0",
-    "whole_bytes": 5004,
-    "whole_sha256": "610837c13883d34fd3e007670d3af6b35aa1ffb6b5ecde89b98f0153f12bd421",
-    "bootstrap_sha256": "43d53acbff2b7fc193146d66aa50e5500ca83ee921b9303a1a4ea6f6f47c413a",
+    "native_sha256": "1b034d2f517e847acdd950590d212bc1cd1c8b76a20a95f7735938e0ebae8781",
+    "whole_bytes": 4986,
+    "whole_sha256": "e6c560d7d1ee3ae0ff23db3bb7f60e05050ceb6ed17436d09496b52c8cb3957b",
+    "bootstrap_sha256": "c9a9a833949906d4916492191dd38f683a69a37e085c33636ee8d9ae7d59379b",
     "dev_source_bytes": 21314,
     "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
     "dev_native_bytes": 31376,
     "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
-    "bootstrap_bytes": 11412
+    "bootstrap_bytes": 11372
   },
   "local_input_sha256": {
     "engine.c": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
@@ -148,7 +149,7 @@
     "future_parameter_changes": "not admitted without rebinding source and rederiving integer bounds"
   },
   "qualified_receipt": {
-    "scope": "fixed type presentation; full-native-identical predecessor core reuse; historical model-specific evidence and current normal runtime remain distinct",
+    "scope": "current fixed E19 continuation-slot and positive-bonus search form; prior full-native identity qualifications are historical ancestry, separate from focused current source semantics and selected normal runtime",
     "model19": {
       "first_cost_sha256": "235659d80b5ebc08f5829c1ce36b7e992b188bcbfcb4a57e42d9419d23d9865f",
       "focused_actual_shipping_sha256": "3b1531a9fb64cd0460f93288cb548c2d702d2e2d1f9529ba3b04f1234f7241b6",
@@ -452,6 +453,51 @@
         "metadata_only_after_execution": true,
         "scope": "exact new native/image and selected wrapper physical lifetime observed; source/body and bounded static metadata proof reused under exact candidate bytes",
         "limits": "cancellation causality unproven; no fresh/DEV-engine/new core/game/performance matrix; unchanged builder has no separate compiler-descendant/group lifetime proof"
+      }
+    },
+    "pre_search_context_historical_scope": "fixed type presentation; full-native-identical predecessor core reuse; historical model-specific evidence and current normal runtime remain distinct",
+    "search_context": {
+      "focused_SAN_sha256": "3ffd8da701ba069f3983d016916a79868f52389fde180f96f933575f01f6290d",
+      "old_new_actual_search_pairs": 34,
+      "entire_native_equal_to_predecessor": false,
+      "runtime_all_four_PVS_ports_observed": false,
+      "C_positive_bonus_exhaustive_evidence_reused": true,
+      "normal_validation": {
+        "status": "PASS one ordinary --dev builder and unchanged selected verifier; no retry",
+        "scope": "fixed local2-worker TT18 shipping, actual E19 source; component search state equality, normal selected physical fences, CI/strength/target-hardware readiness remain separate",
+        "producing_recipe": {
+          "path": "/home/stemxstudio/rove4k-e-search-context-normal-20261021/inputs/recipe.json",
+          "bytes": 67070,
+          "sha256": "920b9f7dc074acaa6852181cf8e20e2a22d4e6b64373060eec8337fee66be03e"
+        },
+        "producer_build": {
+          "path": "/home/stemxstudio/rove4k-e-search-context-normal-20261021/build.json",
+          "bytes": 160529,
+          "sha256": "78131c0bc5ecbcea7467afa8f555315251e1a0e9274d2d327f1624ef77b3e07a"
+        },
+        "selected_runtime": {
+          "path": "/home/stemxstudio/rove4k-e-search-context-normal-20261021-runtime/runtime.json",
+          "bytes": 24086,
+          "sha256": "ea884bad548665715eb022315bd788e4ac72aac0eab322ab5bd1a79238104da7"
+        },
+        "normal_results": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-e-search-context-normal-20261021-evidence/normal-results.json",
+          "bytes": 17702,
+          "sha256": "36d331b19b23d64f57037cb2a63ad1147761d6ecbd0e398d20d1241d1e071715"
+        },
+        "shipping_reproductions": 2,
+        "unchanged_DEV_reproductions": 2,
+        "selected_quit_EOF_sessions": 2,
+        "legal_GO_results": 8,
+        "startup_TIDs_per_session": 3,
+        "private_path_native_restoration_process_reader_physical_exit": true,
+        "startup_TIDs_closed": 6,
+        "owned_handles": 0,
+        "cancellation_causality": "unproven",
+        "entire_native_equal_to_predecessor": false,
+        "runtime_all_four_PVS_ports_observed": false,
+        "fresh_extra_SAN_core_strength_games_performance_CI_calls": 0,
+        "annotation_only_after_run": true
       }
     }
   },
@@ -1262,6 +1308,81 @@
         "8a5fce",
         "fc2a08"
       ]
+    }
+  },
+  "search_context": {
+    "stage": "shipping only after clock_presence and model_zero_slots; canonical/DEV bypass unchanged",
+    "helper": "shipping_search_context.py",
+    "helper_sha256": "55889f3535aceb764be3a07c584244337e5a0d95a4823474ad5b13e5025ccb63",
+    "source_before_bytes": 10400,
+    "source_before_sha256": "431bdde48fd1f2d450bb92dd6c03e3309017158353de06bfe4fffd0bc96c839e",
+    "source_after_bytes": 10360,
+    "source_after_sha256": "6e9e7eb6a439934aba2d48f9387f710a95a0032a89233ff2b676b5d6451d47fb",
+    "root_neutral_slot": 6,
+    "recursive_slots": "already-made signed child piece at TO plus6",
+    "cutoff_bonus": "only two existing positive depth-square callers; no negative-bonus API generalization",
+    "exact_regions": 7,
+    "protected_gaps": 8,
+    "full_source_inverse": true,
+    "E19_model_ordering_unchanged": true,
+    "entire_native_equal_to_predecessor": false,
+    "cost_sha256": "93d6ca56f2f5780f1c6a83d0a5b4c5c1b6101a7765dedb372329b27581b8c6dc",
+    "focused_SAN_sha256": "3ffd8da701ba069f3983d016916a79868f52389fde180f96f933575f01f6290d",
+    "scope": "manual fixed shipping C; not NVCompact typed Python embedding admission; focused actual search state equality, no strength or target-hardware claim",
+    "source_PVS_sites": 4,
+    "runtime_PVS_ports_observed": false,
+    "previous_expected": {
+      "readable_bytes": 28001,
+      "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+      "source_bytes": 10400,
+      "source_sha256": "431bdde48fd1f2d450bb92dd6c03e3309017158353de06bfe4fffd0bc96c839e",
+      "native_bytes": 26400,
+      "native_sha256": "dd9015f8a5960a4595d2da5dfc09d6fae24bed1d2e7b1698b1e50245d42da0e0",
+      "whole_bytes": 5004,
+      "whole_sha256": "610837c13883d34fd3e007670d3af6b35aa1ffb6b5ecde89b98f0153f12bd421",
+      "bootstrap_sha256": "43d53acbff2b7fc193146d66aa50e5500ca83ee921b9303a1a4ea6f6f47c413a",
+      "dev_source_bytes": 21314,
+      "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
+      "dev_native_bytes": 31376,
+      "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
+      "bootstrap_bytes": 11412
+    },
+    "normal_validation": {
+      "status": "PASS one ordinary --dev builder and unchanged selected verifier; no retry",
+      "scope": "fixed local2-worker TT18 shipping, actual E19 source; component search state equality, normal selected physical fences, CI/strength/target-hardware readiness remain separate",
+      "producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-e-search-context-normal-20261021/inputs/recipe.json",
+        "bytes": 67070,
+        "sha256": "920b9f7dc074acaa6852181cf8e20e2a22d4e6b64373060eec8337fee66be03e"
+      },
+      "producer_build": {
+        "path": "/home/stemxstudio/rove4k-e-search-context-normal-20261021/build.json",
+        "bytes": 160529,
+        "sha256": "78131c0bc5ecbcea7467afa8f555315251e1a0e9274d2d327f1624ef77b3e07a"
+      },
+      "selected_runtime": {
+        "path": "/home/stemxstudio/rove4k-e-search-context-normal-20261021-runtime/runtime.json",
+        "bytes": 24086,
+        "sha256": "ea884bad548665715eb022315bd788e4ac72aac0eab322ab5bd1a79238104da7"
+      },
+      "normal_results": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-e-search-context-normal-20261021-evidence/normal-results.json",
+        "bytes": 17702,
+        "sha256": "36d331b19b23d64f57037cb2a63ad1147761d6ecbd0e398d20d1241d1e071715"
+      },
+      "shipping_reproductions": 2,
+      "unchanged_DEV_reproductions": 2,
+      "selected_quit_EOF_sessions": 2,
+      "legal_GO_results": 8,
+      "startup_TIDs_per_session": 3,
+      "private_path_native_restoration_process_reader_physical_exit": true,
+      "startup_TIDs_closed": 6,
+      "owned_handles": 0,
+      "cancellation_causality": "unproven",
+      "entire_native_equal_to_predecessor": false,
+      "runtime_all_four_PVS_ports_observed": false,
+      "fresh_extra_SAN_core_strength_games_performance_CI_calls": 0,
+      "annotation_only_after_run": true
     }
   }
 }

@@ -1,3 +1,65 @@
+# Maintained E: carried continuation context and positive cutoff learner — 2026-10-21
+
+Complete file **4986 B**, compact C **10360 B**, native **26400 B**. The
+fixed shipping change removes 40 C bytes and saves 18 complete-file bytes
+against the actual 5004 B environment-form entry. The current file remains
+above 4096 bytes. Native size is unchanged, but its complete bytes differ
+from the predecessor; no old full-native identity is claimed.
+
+The private search receives the signed already-made child piece slot instead
+of decoding the previous move at child entry. All four PVS calls pass that
+slot, and the root passes neutral slot 6. Successful make supplies the actual
+promoted piece, EP pawn or castling king. A quiet nonpromotion cutoff reuses
+the same slot as the original parent FROM column. The two cutoff learner
+callers pass positive depth squared, so the shipping-only formula removes
+`abs(bonus)` within the fixed depth 1..126 and int16 cell domain. Canonical
+and DEV retain their original APIs and formula.
+
+The pure maintained helper follows clock and model-zero processing. It checks
+the exact 10400-byte input, unchanged readable source, seven literal regions,
+eight protected gaps, complete inverse and exact 10360-byte output. Its
+registration enters the builder's frozen helper inputs and the dynamic fresh
+source closure. Fresh extraction was not executed. E19 coefficients, nonlinear
+evaluation, ordering, gen/make, repetition, TT, correction, worker/input/pool,
+compiler argv and the fixed nice32 ALONE codec remain protected.
+
+One fatal ASan+UBSan fixture compile/run compared the actual old and new search
+across 34 pairs, complete Worker and TT bytes, scores, best moves and caller
+Board preservation. It covered 128 legal children, 22 EP/castle/promotion
+children and both signed quiet contexts, with changed history and continuation
+cells. The 35 learner boundary cases accompany reuse of the identical sibling
+C formula/types/domain exhaustive evidence; that exhaustive run was not
+repeated. The four PVS source sites have exact correspondence. Runtime execution
+of all four branches was not separately instrumented or claimed.
+
+One ordinary `--dev` build reproduced shipping and unchanged DEV twice. The
+unchanged selected verifier passed two quit/EOF sessions and eight legal GO
+epochs, restored the exact new native, and observed three persistent startup
+TIDs per session, absent private paths, physical process exit and reader EOF.
+All six observed startup TIDs were absent after closure. Both owned command
+groups were absent with empty diagnostics. Cancellation causality remains
+unproven. Component proof, this normal result and future CI/strength/final
+hardware results are separate. No extra fresh, SAN/core campaign, game or
+performance run was added after normal validation.
+
+This is a manual fixed shipping source transformation. It does not establish
+NVCompact typed Python embedding admission. Source/constant observer absence
+remains unresolved in the recorded custom-startup environment.
+
+Source SHA-256: `6e9e7eb6a439934aba2d48f9387f710a95a0032a89233ff2b676b5d6451d47fb`.
+Native SHA-256: `1b034d2f517e847acdd950590d212bc1cd1c8b76a20a95f7735938e0ebae8781`.
+Bootstrap SHA-256: `c9a9a833949906d4916492191dd38f683a69a37e085c33636ee8d9ae7d59379b`.
+Whole SHA-256: `e6c560d7d1ee3ae0ff23db3bb7f60e05050ceb6ed17436d09496b52c8cb3957b`.
+Build receipt SHA-256: `78131c0bc5ecbcea7467afa8f555315251e1a0e9274d2d327f1624ef77b3e07a`.
+Runtime receipt SHA-256: `ea884bad548665715eb022315bd788e4ac72aac0eab322ab5bd1a79238104da7`.
+
+Producing sources/recipe, normal receipts and pre-change files are preserved
+in `rove4k-e-search-context-normal-20261021-evidence` and the external source
+plan folder. The initial host preparation SyntaxError, original source proposal,
+first cost and focused SAN receipts remain unchanged. Only completion metadata
+and this README were annotated after execution. Historical sections below keep
+their own sources, images and qualification scopes.
+
 # Maintained E: compact environment snapshot — 2026-10-21
 
 Complete file **5004 B**, compact C **10400 B**. The single
