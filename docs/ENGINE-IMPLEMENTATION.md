@@ -193,7 +193,7 @@ head. The C job executes the new fixed-eight-worker positive step. These results
 precede the additional generic fixed-root source path described separately.
 
 **F's opt-in material/move-TT file is locally reproduced and exercised at
-4,045 bytes; default full F is now 4,476 bytes.** This optional reduced-feature
+4,045 bytes; default full F is now 4,470 bytes.** This optional reduced-feature
 size result does not complete default F or the A–F portfolio. All twelve
 cores have functional evidence, but portfolio completion still requires source
 reduction, D's eligible own-ELF artifact, final candidate comparisons and games,
@@ -208,12 +208,12 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
-| A | 4,587 B | 491 B | Unsigned64 number forms; one-state material classifier; main-owned token cursor and valid-0x88 promotion predicate; history length derived from immutable job length plus ply; existing full HCE/PVS/QS/TT/learners/SMP and fixed ALONE retained; fixed LP64 mixer literals; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero |
-| B | 5,086 B | 990 B | Worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained; made-child continuation row passed through PVS and same-position singular verification; literal include gaps and overlong-line drain compacted; clock-first SEE poll; cancellation timing changed; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero; private history length derived from immutable published job base plus ply; private piece-plus-six helper inlined at its two consumers with complete native identity |
+| A | 4,586 B | 490 B | Unsigned64 number forms; one-state material classifier; main-owned token cursor and valid-0x88 promotion predicate; history length derived from immutable job length plus ply; existing full HCE/PVS/QS/TT/learners/SMP and fixed ALONE retained; fixed LP64 mixer literals; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero; raw evaluation reused in correction error |
+| B | 5,079 B | 983 B | Worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained; made-child continuation row passed through PVS and same-position singular verification; literal include gaps and overlong-line drain compacted; clock-first SEE poll; cancellation timing changed; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero; private history length derived from immutable published job base plus ply; private piece-plus-six helper inlined at its two consumers with complete native identity; singular-depth temporary and empty shipping instrumentation branch removed |
 | C | 4,897 B | 801 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners retained; history length derived from immutable job length plus ply; child continuation slot and positive-only cutoff bonus compacted; fixed LP64 mixer literals; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero |
 | D scalar / HQ | 5,908 / 6,111 B | 1,812 / 2,015 B | HQ-only history length derived from immutable job length plus ply; scalar and DEV retain their original blocks; exact clock/inc parsing and ordered K/Q castling branches shared; consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained |
 | E | 4,962 B | 866 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; child continuation slot and positive-only cutoff bonus compacted; literal include gaps and fixed ASCII compiler argv compacted; fixed LP64 mixer literals; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero; private history length derived from immutable published job base plus ply |
-| F full (default) | 4,476 B | 380 B | Packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; history length derived from immutable job length plus ply; nonnegative QS depth, repetition-distance loop, fixed integer macros and plain-int keyword spelling compacted after the no-preadd hash, terminal, correction and source-form stages; compact environment snapshot; default size target remains open; lazy fallback and first-legal quiet-QS standpat cutoff; immutable global job-prefix keys shared while workers store only private path keys |
+| F full (default) | 4,470 B | 374 B | Packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; history length derived from immutable job length plus ply; nonnegative QS depth, repetition-distance loop, fixed integer macros and plain-int keyword spelling compacted after the no-preadd hash, terminal, correction and source-form stages; compact environment snapshot; default size target remains open; lazy fallback and first-legal quiet-QS standpat cutoff; immutable global job-prefix keys shared while workers store only private path keys; fixed 73-byte stdin/xz header and BT2/16KiB ALONE |
 | F material/noise (opt-in) | 4,319 B | 223 B | Unsigned64 number forms and two fixed TT18 casts omitted; one-state material classifier, fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted; literal include gaps compacted; fixed LP64 mixer literals; compact environment snapshot |
 | F material/move-TT (opt-in) | 4,045 B | 0 B (51 B spare) | Unsigned64 number forms; one-state material classifier, fixed material, main-owned token cursor, terminal-loop sharing and coherent atomic64 Move17/high46 plus index18; local size eligibility only, full F and strength acceptance remain open; fixed LP64 mixer literals; compact environment snapshot |
 
@@ -221,6 +221,68 @@ The canonical Rust D native images are16,816 bytes each. The separate maintained
 finite Rust shipping entry also has16,816-byte natives with new identities and
 11,108/11,476-byte scalar/HQ own-ELFs. Its normal qualification below does not
 replace the C D table or establish4KiB eligibility.
+
+## Cached evaluation, dead instrumentation and fixed packaging: 2026-10-22
+
+A reuses its unchanged raw evaluation in correction error calculation. The
+canonical uses `best-evaluation`; the shipping source changes `H-p->s*p->v` to
+`H-F`. Existing spelling passes consume an explicitly recovered reference and
+the final shipping stage restores the same cache expression. Canonical text
+increases one byte; actual shipping source falls8995 to8987 B and the complete
+file falls4587 to4586 B, with a new18576-byte native. Fatal Clang18 UBSan-trap
+old/new search observations cover correction use/update, recursive Board
+immutability and exact logical snapshots over three deterministic states.
+The initial missing sanitizer-runtime link failure remains separate. Ordinary
+shipping and new DEV reproduce twice; the unchanged selected verifier passes
+quit/EOF, eight legal GO results, three startup TIDs and physical exit. External
+promotion index: `5c3d6a7d54b81890361d59588bb0fb9cfa8424e59bc995c39ef8f613fc5e7eef`.
+
+B removes the private singular-depth temporary and the empty instrumentation
+branch left after shipping counter removal. The same short-circuit condition
+still contributes0/1 to the same four child-depth consumers. Shipping source
+falls10421 to10409 B and the complete file falls5086 to5079 B; its complete
+26296-byte native and canonical/DEV remain byte-identical. Normal shipping and
+DEV reproduce twice; actual selected-wrapper quit/EOF sessions pass eight legal
+GO results and the existing restoration, reader and physical-exit checks.
+External B promotion index:
+`ec64f58df447acd92ed5b93581a02cd58d145f02549b68fe4f8322840d819780`.
+
+Full F now adopts the separately replayed NVCompact0.6 result:4476 to4470 B.
+The new shared `engines/scripts/source_package.py` owns fixed ALONE encoding
+and a73-byte stdin/xz shell header. The full recipe selects preset6,16KiB
+dictionary,lc2/lp0/pb0, BT2 and nice24. Numeric liblzma match-finder18 is BT2;
+an initial HC4 name-translation error produced a different whole file and is
+preserved as a failed build, rather than accepted by changing expectations.
+The corrected ordinary builder reproduces the exact trial/replay4470 bytes
+and unchanged DEV twice, and its actual selected wrapper passes quit/EOF,
+eight legal GO results, exact native restoration and physical exit. Source8538,
+bootstrap9511 and native18576 remain byte-identical to the preceding full F.
+The optional material/noise and material/move-TT branches explicitly retain
+their legacy77-byte header and fixed codecs; their4319/4045-byte evidence is
+reused where the complete influence inputs are unchanged. The separate F8
+profile retains its own4474-byte package and resource evidence. Its producer
+closure now binds the new F build and shared packer; its actual source, own
+encoder, build, verifier and expected output remain unchanged. One read-only
+closure check passes; existing normal/runtime receipts are reused. External
+F packaging index: `a7983d0a342c7f273dbaab72b04503ca203d238ba2ca0960333f795df627d904`;
+F8 closure index: `dcd399596545a9ce67126558cd022962030429f7616b044bc825cfbe1189e4ee`.
+
+The preceding b9c3a5c checkpoint has terminal-success C/Rust jobs in
+[engine run39625474239](https://github.com/daejunnom/Rove4k/actions/runs/39625474239)
+and Node22/24 jobs in
+[repository run39625474539](https://github.com/daejunnom/Rove4k/actions/runs/39625474539).
+Both engine checkouts are mergec68874ae, whose tree equals b9c3a5c's tree.
+The Engine run aggregate was still in_progress/null at the last15:39:19Z API
+observation; job success is not relabeled as a terminal workflow conclusion.
+Those logs actually regenerate B5086, full F4476, optional4319/4045 and the
+fixed8 positive runtime. They precede the new local A/B/F changes above.
+External CI index: `97fa982b3648bec25c9023595370409e1361f768808c07ef3676ba5e0338cce8`.
+
+Every default family still exceeds4096 B. Source/dataflow reduction, D's own-ELF
+size, final compact policy/profile selection, target resources and candidate
+games remain open; training and AWS remain excluded. Local byte reproduction,
+focused semantics, process lifetime, CI, strength and organizer acceptance keep
+their separate scopes. No reservation or scheduled follow-up is used.
 
 ## Maintained B/F history checkpoint and NVCompact 0.6: 2026-10-22
 

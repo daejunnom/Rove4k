@@ -1,4 +1,69 @@
-# Maintained F: private path with shared immutable job history — 2026-10-21
+# Maintained F: fixed NVCompact 0.6 envelope recipe — 2026-10-22
+
+The full/default selection is **4,470 B**, six bytes below the 4,476 B
+predecessor and **374 B above 4,096**. This is a packaging change. Its C source
+is still 8,538 B (`47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0`),
+bootstrap 9,511 B (`2dfe6caf6f169720244e94a3625cdddea58ae72931975da26ef5b0490a010b47`),
+and native 18,576 B (`926710668d5975d6972ca18d22bea985b2b4aa9153f41c946c03d5bbac71f876`).
+No source-search edit was accepted in the bounded NVCompact trial.
+
+The new shared `engines/scripts/source_package.py` owns fixed LZMA1 encoding
+and the 73-byte three-line header. It performs no search and rewrites no
+bootstrap. `tail -n+4` skips exactly the three header lines; `xz -d` reads the
+ALONE stream on stdin and writes Python to stdout. The decoder-failure exit,
+command-substitution trailing-newline behavior, Python argv and exec remain.
+The full recipe fixes preset 6, BT2, a 16,384-byte dictionary, lc2/lp0/pb0 and
+nice24. Header bytes save four; the measured header/codec combination saves
+six in the complete file. These are not additive independent codec results.
+
+The ordinary generator reproduces the selected result from readable sources,
+the unchanged bootstrap template and the fixed recipe; it does not execute
+NVCompact, import an experiment, or read the trial artifact. The old 77-byte
+`launcher.sh` remains the input for the 4,319 B MaterialNoise and 4,045 B
+MoveTT opt-ins, with their previous BT4/64-MiB/nice32 recipes (lc2 and lc0
+respectively). DEV keeps its previous source/compiler/native identity. Other
+families and the separate F8 candidate do not opt in through this change.
+
+The frozen NVCompact trial and separate replay both produced
+`aeb63f8dd212e5337268bac5f2401782f156f833fa6343da50a12a8ac298e06d`.
+The trial's quick UCI result is separate from maintained normal validation.
+The first integration attempt misread numeric match finder
+18 as HC4 (4); it stopped at complete-file identity checking after one native
+compile and one encoding. Its inputs and failure are preserved. V2 uses the
+trial's actual BT2 (18), without changing the expected trial identity.
+Historical sections retain their original artifacts and qualification scopes.
+
+V2 normal validation passed one ordinary builder call: two shipping generations,
+two full-native reproductions, and two unchanged DEV source/native reproductions.
+Bounded ALONE decoding of the actual 73-byte-header file recovers the exact
+9,511-byte predecessor bootstrap with EOF and no unused bytes. Its previous
+AST/compiler-stdin relation is reused by that exact identity. No synthetic
+header adapter or new AST analysis was used. Both whole outputs equal the
+NVCompact trial and independent replay byte for byte.
+
+One unchanged selected verifier then ran the actual 4,470-byte wrapper in two
+quit/EOF sessions with eight legal GO epochs. Each observed the exact restored
+native, an absent private path, three persistent startup TIDs, no remaining
+helpers, complete readers and physical exit0. This is selected restoration and
+lifetime coverage; cancellation causality, generic compiler descendants,
+strength, many-core and complete 4K eligibility are not established here.
+MaterialNoise/MoveTT reuse is explicit: their expected source/native/bootstrap/
+whole identities, legacy 77-byte header and effective encoder parameters are
+unchanged; no new optional compile or engine run is claimed.
+
+Normal build receipt:
+`f1eaba11f9d594fbd3da7687cce43e951d1d538b5ed5374d772f4ea8aa3c5ec3`.
+Selected runtime receipt:
+`e1de8204fae3c1b1a0a07b45165bd9cff55e72b450d55aa804e6431dbbb0c8c5`.
+Producing recipe:
+`be7731a2a0d67806eafe7d79942d8be22843af11ca73310611c2503b2a687081`.
+Producing source closure: 53 ordinary files. Final README and recipe add these
+receipt annotations only; the producing builder/helper and all expected
+artifacts remain fixed. The failed HC4 attempt retains one native compile and
+one encoding; successful V2 has four native compiles and two encodings, plus
+the two selected-wrapper startup compiles. No additional sweep or core suite ran.
+
+# Historical F: private path with shared immutable job history — 2026-10-21
 
 Selected full/default first-cost file **4476 B**, compact C **8538 B**,
 remaining **380 B** above4096. The fixed pure `shipping_history_path.py`

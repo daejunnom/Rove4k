@@ -1,3 +1,61 @@
+# Maintained A: cached correction evaluation — 2026-10-22
+
+The current complete file is **4586 B**, with **8987 B** compact C: 1 whole
+byte and 8 shipping-source bytes smaller than the preceding 4587 B entry.
+Canonical search now computes `error=best-evaluation`; fixed shipping uses
+`S=H-F`. Both reuse the raw signed-int static evaluation already computed
+for that search frame. TT score normalization and correction-based LMR
+eligibility do not change this value. HCE, all learners, TT, LMR, worker and
+memory policies are retained. The readable canonical grows one byte because
+its descriptive local name is longer; the emitted compact C saves eight.
+
+The pure A evaluation adapter derives the exact older readable reference
+preimage for existing pinned spelling stages, then restores cached evaluation
+at the final shipping boundary. The profiled DEV source also uses cached
+evaluation and has a genuinely new source/native tuple; old DEV byte equality
+is not claimed. Existing stage metadata describes their reference inputs.
+No artifact, runtime receipt, codec or external source is a generation input.
+
+Focused old/new direct-call searches pass at START depth1/depth4 and a black
+root after e2e4 depth4 with a nonzero prior correction. Actual correction
+updates/uses are 1/0, 21/17 and 16/17, with zero raw-evaluation mismatches.
+Scores, best moves, nodes, keys, complete learner arrays and every TT key/data
+field compare exactly in 12,789,906 bytes of logical snapshots. Every recursive
+search checks its input Board's logical fields unchanged through return.
+This is deterministic single-worker evidence, separate from the source review
+of production root lifetime and pool drain.
+
+The first Clang18 UBSan compile failed at link because the standalone runtime
+archive is unavailable; the original failed command and diagnostic are retained.
+The successful focused build uses Clang18 `-O1 -fsanitize=undefined
+-fsanitize-trap=undefined -fno-sanitize-recover=all`, so exercised compiler
+undefined-behavior checks terminate fatally without that runtime archive.
+This covers the exercised normal inputs, not all arithmetic or concurrency.
+Focused receipt SHA-256:
+`88adec67adf9fc91996866ae4a1960b348c0b17459f7c2b4dc2f5c1fd4f56835`.
+
+One ordinary `--dev` builder reproduces shipping and the new DEV tuple twice.
+The unchanged selected verifier passes two quit/EOF sessions and eight legal
+GO results, three stable startup TIDs per session, exact restored native,
+absent private paths/helpers, reader EOF and physical exit0. Outer successful
+groups are reaped and absent, with no forced cleanup. Build/runtime receipt
+SHA-256 values are respectively:
+`63f731846fe0f712e3af83e0e284cfb3683f6b450e25ceb1c4f1067429feec1e`
+and `1d16ccccf45a741b86d4d3c829c110ef6bd6ee249fea9d6481e82962ea1644d8`.
+
+Current source SHA-256:
+`4fd5231ace3db9f7d8aca8c2e26871895905cd3e77cb38e4b41117bdca4f31d8`.
+Current whole SHA-256:
+`db6eaf173b985fcfa974af537a5bcfe4dafa3c696b3d1b68a5209204b46c2f58`.
+Evidence and the producing pre-annotation recipe remain outside Git in
+`rove4k-a-eval-cache-promote-20261022-evidence`; the original fixed first-cost
+is preserved in `rove4k-a-nv060-source-20261022-evidence`. Actual NVC0.6 advice
+was incomplete and withheld search analysis for AtomicExpr; candidate proof
+comes from the source review and focused comparison, not tool certification.
+These local fixed2/TT18 results do not establish strength, many-core or final
+target acceptance. Cancellation causality remains unproven. Older checkpoints
+and their validation scopes are retained below.
+
 # Maintained A: lazy first-legal fallback — 2026-10-21
 
 The fixed first-cost candidate is **4587 B** complete and **8995 B** compact C,

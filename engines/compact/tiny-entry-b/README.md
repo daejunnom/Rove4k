@@ -1,3 +1,49 @@
+# Maintained B: shipping dead instrumentation cleanup ordinary reproduction and selected validation passed — 2026-10-22
+
+The fixed first-cost file is **5079 B**, compact C **10409 B**, native
+**26296 B**. Relative to qualified B5086, one shipping-only dead instrumentation
+cleanup removes12 source bytes and7 actual whole-file bytes. Entire native
+bytes remain exactly `67076339c1fcb72988d60a945125c37d1670e0a97fe14241b54e334ffe089f36`.
+The4096 B goal remains open. One ordinary --dev builder reproduced shipping
+source/native/bootstrap/whole twice and exact old DEV source/native twice.
+The unchanged selected positive verifier passed quit/EOF2 sessions and8 legal
+GO,3 startup TIDs each, exact restored native, absent helper/private paths and
+physical process/reader exit0. All six startup TIDs are absent. Cancellation
+causality remains unproven.
+
+The pure B-owned `shipping_singular_depth.py` runs after piece-index. It
+replaces `int zH=yr&&m==tt,z3=a-1+zH;if(zH){}` with
+`int z3=a-1+(yr&&m==tt);` in one fixed span, preserving two unchanged gaps,
+the10386-byte complement and full inverse. zH has only the declaration, depth
+consumer and empty diagnostic condition. The decision stays int0/1, with
+the same short-circuit order and one evaluation; all values are ordinary local
+scalars with no side effects. The same int depth addition and four recursive
+depth consumers remain. This changes no extension/search/learning/TT/pool or
+protocol policy. Canonical/DEV retain their live COUNT extension observation
+and bypass this shipping-only cleanup. Previous helpers remain unchanged.
+
+The existing single cost used actual frozen package/template/raw br literal/
+77-byte launcher and unchanged cc/GCC13, ALONE9e/lc2lp0pb0/BT4/64MiB/nice32.
+Baseline bootstrap exact preceded candidate compile1/encode1; strict Python2/
+CLI2 full restoration had EOFtrue and trailing0. Native bytes equal the current
+qualified predecessor. First-cost index SHA-256:
+`ea4de29610715a88f7a4e5c86b1e91cc4b7fd29f9fef29caa61c5d81dacc9ad2`.
+No cost rerun, extra SAN/fault/sweep/negative/session or performance, RAM,
+many-core, strength or whole-project readiness claim is added. Original cost
+outputs and before/producing/final records remain outside Git in
+`rove4k-b-singular-depth-normal-20261022-evidence`; older sections retain their
+own original image and validation scope.
+
+Ordinary build receipt SHA-256:
+`3975c907b4ea578c876873c39db5e5ad38410601549aa8fa681b932ff3a74ebf`;
+selected runtime `55b091d0f75459d1cc14d626cede4442a3c94b0b5d9726a1b8df4e35a1201d80`.
+Actual producing recipe SHA-256:
+`9b2293e01539bface7a3486a87e6d5dfa6ad0e434612e13fe1f814d19e65bb82`.
+Producing inputs were stable until both commands physically exited; final
+recipe/README completion annotations are separate. Metadata did not trigger
+a rebuild. Source/normal/cost evidence remains external. Fresh/SAN/extra fault/
+sweep/session/game/benchmark0. Deferred evaluation-cache work is not included.
+
 # Maintained B: private piece-index inline ordinary reproduction and selected validation passed — 2026-10-22
 
 The fixed first-cost file is **5086 B**, compact C **10421 B**, native

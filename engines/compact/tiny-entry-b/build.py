@@ -107,6 +107,7 @@ def main():
         lazy_fallback=module('entry_lazy_fallback',frozen/'shipping_lazy_fallback.py').transform_source
         history_depth=module('entry_history_depth',frozen/'shipping_history_depth.py').transform_source
         piece_index=module('entry_B_piece_index',frozen/'shipping_piece_index.py').transform_source
+        singular_depth=module('entry_B_singular_depth',frozen/'shipping_singular_depth.py').transform_source
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
         if template.count(marker)!=1 or len(prefix)!=77:raise ValueError('bootstrap recipe changed')
@@ -157,6 +158,8 @@ def main():
                 common_metadata['history_depth']=history_metadata
                 data,piece_metadata=piece_index(data)
                 common_metadata['piece_index']=piece_metadata
+                data,singular_metadata=singular_depth(data)
+                common_metadata['singular_depth']=singular_metadata
             return data,observations,alpha_metadata,storage_metadata,scope_metadata,core_metadata,input_metadata,order_metadata,walk_metadata,tactical_metadata,type_metadata,global_names_metadata,recapture_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())

@@ -72,7 +72,8 @@
     "engines/compact/tiny-entry-b/shipping_search_context.py": "39b39640187daf5242f791730e454d55755c1802cc3b6ffc55530a35df403678",
     "engines/scripts/shipping_lazy_fallback.py": "023b370e75df2d50f44641eac7d1b49091ef2424d9ed7983d6d6f3c7d700b2ce",
     "engines/scripts/shipping_history_depth.py": "54476cfff4a77e0d3678594b01f9530f1018dd2431fa7b55c87867a870f55b0b",
-    "engines/compact/tiny-entry-b/shipping_piece_index.py": "20e3b97e7a184bb0fa7806b331bf9f7e549f76a08fd602f5bbb186d881f38f85"
+    "engines/compact/tiny-entry-b/shipping_piece_index.py": "20e3b97e7a184bb0fa7806b331bf9f7e549f76a08fd602f5bbb186d881f38f85",
+    "engines/compact/tiny-entry-b/shipping_singular_depth.py": "2da8d9cc70cad49970ae44ba8b92107affd9048408a1a98ebbe114ee3e5f62b3"
   },
   "compression": {
     "format": "lzma-alone",
@@ -89,16 +90,16 @@
   },
   "expected": {
     "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
-    "source_bytes": 10421,
-    "source_sha256": "792a8b50f307aeac98415636d280a076f1ba8ea68e7eb4f43ec9dff514299e85",
+    "source_bytes": 10409,
+    "source_sha256": "85bcdfe488fdd02195669ada95a02e2d2ab3699e677abecfe7fa91ddc68ab9c8",
     "native_bytes": 26296,
     "native_sha256": "67076339c1fcb72988d60a945125c37d1670e0a97fe14241b54e334ffe089f36",
-    "whole_bytes": 5086,
-    "whole_sha256": "285159ba06c3e1e212e70e96fca39ca7ebcd45e0ec336b09e1fbcedd9c375638",
+    "whole_bytes": 5079,
+    "whole_sha256": "f53020e09c0ed7a7abf156efea561e485c240f43fd7e13a75c613181645de659",
     "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
     "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
-    "bootstrap_sha256": "54c947952e31555f8aaa40182d725014e34179b08eae8c08061313e7bd79febf",
-    "bootstrap_bytes": 11460
+    "bootstrap_sha256": "a2b99737f48c78331bf457220d03aaac08827122d9c01a0af9a9de10f3374c57",
+    "bootstrap_bytes": 11448
   },
   "local_input_sha256": {
     "engine.c": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
@@ -736,6 +737,19 @@
         "runtime_sha256": "dc0bdf20c0579cd8754946035979179de2180bca56f2780da37ec9c3a4c63439",
         "scope": "local fixed2/TT18 shipping reproduction and selected restoration/legal GO/physical exit; no performance/RAM/strength claim"
       }
+    },
+    "singular_depth": {
+      "scope": "current shipping-only dead diagnostic decision temporary cleanup; actual full native equals qualified B5086; prior receipts retain exact scope",
+      "first_cost_index_sha256": "ea4de29610715a88f7a4e5c86b1e91cc4b7fd29f9fef29caa61c5d81dacc9ad2",
+      "source_bytes": 10409,
+      "whole_bytes": 5079,
+      "entire_native_equal_to_B5086": true,
+      "normal_validation": {
+        "status": "PASS",
+        "build_sha256": "3975c907b4ea578c876873c39db5e5ad38410601549aa8fa681b932ff3a74ebf",
+        "runtime_sha256": "55b091d0f75459d1cc14d626cede4442a3c94b0b5d9726a1b8df4e35a1201d80",
+        "scope": "local fixed2/TT18 shipping regeneration and actual5079 restored-wrapper legalGO/physical-exit path; no new algorithm/policy/runtime performance claim"
+      }
     }
   },
   "provenance": {
@@ -755,7 +769,8 @@
       "full_inverse_and_protected_complement": true,
       "fixed_header_domain": "sole actual compiler entire native equality; only C fixed late immintrin inclusion admitted"
     },
-    "piece_index": "Pure B-owned exact final three-span/four-gap/inverse transform after history-depth; int8_t is promoted once to int before +6; blackking0/rootneutral6 and zw13x13 consumers unchanged; canonical/DEV bypass; no research/runtime/codecs are helper inputs."
+    "piece_index": "Pure B-owned exact final three-span/four-gap/inverse transform after history-depth; int8_t is promoted once to int before +6; blackking0/rootneutral6 and zw13x13 consumers unchanged; canonical/DEV bypass; no research/runtime/codecs are helper inputs.",
+    "singular_depth": "Pure B-owned final one-span/two-gap/inverse cleanup after piece-index: sole meaningful consumer receives yr&&m==tt directly once, empty diagnostic branch removed; canonical/DEV counter and current policy remain unchanged; research files are not build inputs."
   },
   "shared_shipping": {
     "scope": "late unused guard, fixed TT18 casts for A/C/E, ASCII raw-bytes envelope; entire native unchanged; fresh selected wrapper verification separate",
@@ -1803,6 +1818,123 @@
         647,
         659,
         660
+      ],
+      "closed_startup_TIDs_absent": true,
+      "exact_restored_native_private_path_and_process_reader_exit": true,
+      "all_owned_groups_absent": true,
+      "owned_handles": 0,
+      "cancellation_causality": "unproven",
+      "fresh_core_game_negative_trace_extra_SAN_cost_reruns": 0,
+      "manycore_performance_RAM_strength_readiness_claim": false,
+      "producing_and_annotation_bytes_distinct": true
+    }
+  },
+  "singular_depth": {
+    "stage": "shipping-after-piece-index",
+    "helper": "engines/compact/tiny-entry-b/shipping_singular_depth.py",
+    "predecessor_expected": {
+      "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+      "source_bytes": 10421,
+      "source_sha256": "792a8b50f307aeac98415636d280a076f1ba8ea68e7eb4f43ec9dff514299e85",
+      "native_bytes": 26296,
+      "native_sha256": "67076339c1fcb72988d60a945125c37d1670e0a97fe14241b54e334ffe089f36",
+      "whole_bytes": 5086,
+      "whole_sha256": "285159ba06c3e1e212e70e96fca39ca7ebcd45e0ec336b09e1fbcedd9c375638",
+      "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
+      "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
+      "bootstrap_sha256": "54c947952e31555f8aaa40182d725014e34179b08eae8c08061313e7bd79febf",
+      "bootstrap_bytes": 11460
+    },
+    "fixed_transform": {
+      "family": "B",
+      "stage": "late-shipping-dead-extension-instrumentation-cleanup",
+      "input_bytes": 10421,
+      "input_sha256": "792a8b50f307aeac98415636d280a076f1ba8ea68e7eb4f43ec9dff514299e85",
+      "output_bytes": 10409,
+      "output_sha256": "85bcdfe488fdd02195669ada95a02e2d2ab3699e677abecfe7fa91ddc68ab9c8",
+      "raw_delta": -12,
+      "owned_regions": 1,
+      "protected_gaps": 2,
+      "full_inverse": true,
+      "all_gaps_equal": true,
+      "protected_complement_bytes": 10386,
+      "protected_complement_sha256": "662e47f7f732ebe48572398d134818e39afa23071428676bd5dcdf08a62542ea",
+      "temporary_has_one_meaningful_depth_consumer": true,
+      "empty_diagnostic_condition_removed": true,
+      "decision_type": "int0or1",
+      "decision_evaluation_count": 1,
+      "short_circuit_and_int_depth_addition_preserved": true,
+      "ordinary_local_values_without_side_effects": true,
+      "all_four_recursive_depth_consumers_byte_protected": true,
+      "model_search_learner_TT_pool_protocol_policy_bytes_protected": true,
+      "canonical_DEV": "caller bypass; diagnostic counter remains live",
+      "external_reads": 0,
+      "compiler_codec_engine_executed_by_transform": 0
+    },
+    "scope": "shipping-only dead instrumentation cleanup; canonical/DEV extension counter remains live",
+    "source_contract": "one fixed pure source span; existing exact input/output/gaps/inverse contract; no general observer/NV admission",
+    "full_native_equal_to_predecessor": true,
+    "whole_delta": -7,
+    "canonical_DEV_bypass": true,
+    "first_cost": {
+      "index_sha256": "ea4de29610715a88f7a4e5c86b1e91cc4b7fd29f9fef29caa61c5d81dacc9ad2",
+      "candidate_compiler": 1,
+      "candidate_encode": 1,
+      "baseline_compile_encode": 0,
+      "strict_Python_and_CLI_old_new": true,
+      "engine_or_bootstrap_run": false
+    },
+    "normal_validation_pending": false,
+    "research_files_are_build_inputs": false,
+    "normal_validation": {
+      "status": "PASS one ordinary --dev builder and unchanged selected positive verifier; first attempt",
+      "scope": "local fixed2/TT18 shipping regeneration and actual5079 restored-wrapper legalGO/physical-exit path; no new algorithm/policy/runtime performance claim",
+      "producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-b-singular-depth-normal-20261022/build/inputs/recipe.json",
+        "bytes": 101262,
+        "sha256": "9b2293e01539bface7a3486a87e6d5dfa6ad0e434612e13fe1f814d19e65bb82"
+      },
+      "producing_builder": {
+        "path": "/home/stemxstudio/rove4k-b-singular-depth-normal-20261022/build/inputs/build.py",
+        "bytes": 17119,
+        "sha256": "a97f5dcc64022ab808978aea50e361483c72c789d6aa8e8d634cf87e4e620d1a"
+      },
+      "producer_build": {
+        "path": "/home/stemxstudio/rove4k-b-singular-depth-normal-20261022/build/build.json",
+        "bytes": 180141,
+        "sha256": "3975c907b4ea578c876873c39db5e5ad38410601549aa8fa681b932ff3a74ebf"
+      },
+      "selected_runtime": {
+        "path": "/home/stemxstudio/rove4k-b-singular-depth-normal-20261022/runtime/runtime.json",
+        "bytes": 40770,
+        "sha256": "55b091d0f75459d1cc14d626cede4442a3c94b0b5d9726a1b8df4e35a1201d80"
+      },
+      "orchestration": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-b-singular-depth-normal-20261022-evidence/normal-results.json",
+        "bytes": 23726,
+        "sha256": "5442e14efee72565d65b8bd3d2d755f9ce3c606c0f5a977b696fe8b451677cab"
+      },
+      "physical_exit": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-b-singular-depth-normal-20261022-evidence/physical-exit.json",
+        "bytes": 468,
+        "sha256": "80a3d7b5410bc49bce3d88f734229188f84751509c41172570b2c3e6344b39b7"
+      },
+      "producing_source_closure_files": 41,
+      "shipping_reproductions": 2,
+      "old_DEV_reproductions": 2,
+      "old_DEV_source_and_entire_native_bytes_equal": true,
+      "current_source_native_bootstrap_whole_entire_bytes_equal_to_firstcost": true,
+      "entire_native_equal_to_qualified_B5086": true,
+      "fresh_selected_sessions": 2,
+      "actual_legal_GO_results": 8,
+      "startup_TIDs_each": 3,
+      "closed_startup_TIDs": [
+        637,
+        649,
+        650,
+        687,
+        699,
+        700
       ],
       "closed_startup_TIDs_absent": true,
       "exact_restored_native_private_path_and_process_reader_exit": true,

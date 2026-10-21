@@ -105,13 +105,18 @@ def main():
         clock_form=module('entry_clock_sentinel',frozen/'shipping_clock.py')
         history_depth=module('entry_history_depth',frozen/'shipping_history_depth.py').transform_source
         lazy_fallback=module('entry_lazy_fallback',frozen/'shipping_lazy_fallback.py')
-        canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
+        evaluation_cache=module('entry_evaluation_cache',frozen/'shipping_evaluation.py')
+        canonical=(frozen/'engine.c').read_bytes();reference=evaluation_cache.reference_readable(canonical)
+        template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
         if template.count(marker)!=1 or len(prefix)!=77:raise ValueError('bootstrap recipe changed')
         expected=recipe['expected']
         def generate(directory,dev=False):
-            preprocess_source=canonical;input_metadata=None
-            if dev:preprocess_source,input_metadata=input_profile.transform_readable(canonical)
+            preprocess_source=reference;input_metadata=None
+            if dev:
+                preprocess_source,input_metadata=input_profile.transform_readable(reference)
+                preprocess_source,cache_metadata=evaluation_cache.reuse_readable(preprocess_source)
+                input_metadata['evaluation_cache']=cache_metadata
             active,observations=specialize({'main.c':preprocess_source},directory,recipe['preprocessor']+['-DDEV='+str(int(dev))],os.environ.copy())
             data=compact(active['main.c'],'c');alpha_metadata=None;storage_metadata=None;scope_metadata=None;declaration_metadata=None;type_metadata=None;lexical_metadata=None;capture_metadata=None;startup_metadata=None;global_names_metadata=None;continuation_metadata=None;common_metadata=None
             if not dev:
@@ -119,15 +124,15 @@ def main():
                 for old,new in recipe['fixed_renames']+recipe['resource_literals']+recipe['function_spellings']:
                     files=replace(files,old,new)
                 data=files['main.c']
-                data,alpha_metadata=alpha(data,family='A',lexer=lexer,readable=canonical)
-                data,storage_metadata=storage(data,family='A',readable=canonical)
+                data,alpha_metadata=alpha(data,family='A',lexer=lexer,readable=reference)
+                data,storage_metadata=storage(data,family='A',readable=reference)
                 data,scope_metadata=scope(data)
-                data,input_metadata=input_profile.transform_source(data,readable=canonical)
-                data,declaration_metadata=declarations(data,readable=canonical)
-                data,type_metadata=types(data,readable=canonical,lexer=lexer)
-                data,lexical_metadata=lexical(data,readable=canonical,lexer=lexer)
-                data,capture_metadata=capture(data,readable=canonical)
-                data,startup_metadata=startup(data,readable=canonical)
+                data,input_metadata=input_profile.transform_source(data,readable=reference)
+                data,declaration_metadata=declarations(data,readable=reference)
+                data,type_metadata=types(data,readable=reference,lexer=lexer)
+                data,lexical_metadata=lexical(data,readable=reference,lexer=lexer)
+                data,capture_metadata=capture(data,readable=reference)
+                data,startup_metadata=startup(data,readable=reference)
                 data,global_names_metadata=global_names(data)
                 data,continuation_metadata=continuation(data)
                 data,common_metadata=common.transform_source(data,family='A')
@@ -145,6 +150,8 @@ def main():
                 common_metadata['history_depth']=history_metadata
                 data,lazy_fallback_metadata=lazy_fallback.transform_source(data,family='A')
                 common_metadata['lazy_fallback']=lazy_fallback_metadata
+                data,cache_metadata=evaluation_cache.transform_source(data)
+                common_metadata['evaluation_cache']=cache_metadata
             return data,observations,alpha_metadata,storage_metadata,scope_metadata,input_metadata,declaration_metadata,type_metadata,lexical_metadata,capture_metadata,startup_metadata,global_names_metadata,continuation_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())

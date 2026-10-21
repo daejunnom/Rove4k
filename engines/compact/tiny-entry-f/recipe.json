@@ -83,7 +83,8 @@
     "engines/compact/tiny-entry-f/shipping_history_depth.py": "3197d492ee319e46f111ceff650e000ca3a6490c3c36fb4ffc82b4ea143f08c5",
     "engines/scripts/shipping_lazy_fallback.py": "023b370e75df2d50f44641eac7d1b49091ef2424d9ed7983d6d6f3c7d700b2ce",
     "engines/compact/tiny-entry-f/shipping_qs_cutoff.py": "ae95c21527a235880a4e9f140537f488df71b99caec988a3c08cf710d7df4534",
-    "engines/compact/tiny-entry-f/shipping_history_path.py": "d345e87322f6aa17f141861c9fa6f330ff2c3642d765d9c0e2d6dc32a597a70c"
+    "engines/compact/tiny-entry-f/shipping_history_path.py": "d345e87322f6aa17f141861c9fa6f330ff2c3642d765d9c0e2d6dc32a597a70c",
+    "engines/scripts/source_package.py": "55fa739e7c17fffdb3bf1191c7a26aa38d35e9e32473e4008c23ece3d5703d1f"
   },
   "resource_literals": [
     [
@@ -245,15 +246,15 @@
   "compression": {
     "format": "lzma-alone",
     "filter": "LZMA1",
-    "preset": 9,
-    "extreme": true,
+    "preset": 6,
+    "extreme": false,
     "lc": 2,
     "lp": 0,
     "pb": 0,
     "check": "NONE",
-    "mf": "BT4",
-    "dictionary_bytes": 67108864,
-    "nice_len": 32
+    "mf": "BT2",
+    "dictionary_bytes": 16384,
+    "nice_len": 24
   },
   "expected": {
     "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
@@ -261,8 +262,8 @@
     "source_sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0",
     "native_bytes": 18576,
     "native_sha256": "926710668d5975d6972ca18d22bea985b2b4aa9153f41c946c03d5bbac71f876",
-    "whole_bytes": 4476,
-    "whole_sha256": "d4cfcc402e7c21e7ff86095f8332e8bff1dd618001f0cf9c7138000cc038b854",
+    "whole_bytes": 4470,
+    "whole_sha256": "aeb63f8dd212e5337268bac5f2401782f156f833fa6343da50a12a8ac298e06d",
     "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
     "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
     "bootstrap_sha256": "2dfe6caf6f169720244e94a3625cdddea58ae72931975da26ef5b0490a010b47",
@@ -1046,6 +1047,68 @@
       "normal_status": "PASS fixed2 ordinary2/DEV2 and selected2sessions8GO; original predecessor receipts retain own images",
       "build_receipt_sha256": "df39d13f4cbab843fbdc3d28f1ffcb2d3fabf5ce90e2c35a3923bd9267b565ea",
       "runtime_receipt_sha256": "19e00c1ddcb1ca518065df1649d7af92944f6f585ac7333410478ca9c6ddc74b"
+    },
+    "nvcompact_060_packaging": {
+      "status": "PASS normal shipping2/DEV2 and unchanged selected quit/EOF2sessions8GO",
+      "predecessor_expected": {
+        "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+        "source_bytes": 8538,
+        "source_sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0",
+        "native_bytes": 18576,
+        "native_sha256": "926710668d5975d6972ca18d22bea985b2b4aa9153f41c946c03d5bbac71f876",
+        "whole_bytes": 4476,
+        "whole_sha256": "d4cfcc402e7c21e7ff86095f8332e8bff1dd618001f0cf9c7138000cc038b854",
+        "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
+        "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
+        "bootstrap_sha256": "2dfe6caf6f169720244e94a3625cdddea58ae72931975da26ef5b0490a010b47",
+        "semantic_readable_bytes": 25720,
+        "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
+        "dev_source_bytes": 19488,
+        "dev_native_bytes": 26984,
+        "input_profile_readable_bytes": 28587,
+        "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
+        "bootstrap_bytes": 9511
+      },
+      "trial_final_index_sha256": "6bc1c44ba006816528bdeab99983b03e9272fdd05abe78aeb7ea6c31690d12f8",
+      "trial_summary_sha256": "48ed069091a63dcfa53b46e86833bbf34770a856bb35df943b28a5f5095d8275",
+      "scope": "full F envelope and codec only; exact source/bootstrap/native/DEV preserved; alternate policies retain legacy codec/header",
+      "source_search_steps_accepted": 0,
+      "selected_whole_bytes": 4470,
+      "remaining_bytes_above4096": 374,
+      "initial_integration_failure": {
+        "cause": "Numeric trial match finder18 was mislabeled HC4(4); corrected to actual BT2(18)",
+        "normal_sha256": "e4e14a22fa0ff4b9ef9c94d9114e914a69ac337d2c1e8dce590d3344ce143213",
+        "compiler_runs": 1,
+        "codec_executions": 1,
+        "selected_wrapper_sessions": 0,
+        "source_and_native_identity_passed": true,
+        "whole_identity_passed": false,
+        "preserved": true,
+        "expected_trial_identity_changed": false
+      },
+      "build_receipt_sha256": "f1eaba11f9d594fbd3da7687cce43e951d1d538b5ed5374d772f4ea8aa3c5ec3",
+      "runtime_receipt_sha256": "e1de8204fae3c1b1a0a07b45165bd9cff55e72b450d55aa804e6431dbbb0c8c5",
+      "normal_receipt_sha256": "f9ff21c02425ca3c49ac89f9a5f7acced574a7c3e193f099d642b82eea770a98",
+      "producing_recipe_sha256": "be7731a2a0d67806eafe7d79942d8be22843af11ca73310611c2503b2a687081",
+      "producing_source_paths": 53,
+      "producing_source_index_sha256": "42e9426070130bd7185d441837681fae5dda1f4abd1a4aefa8ce56fbdd90e489",
+      "source_bootstrap_native_DEV_unchanged": true,
+      "whole_exact_trial_and_independent_replay": true,
+      "strict_ALONE_bootstrap_restore": "exact predecessor9511B; EOF true, unused0; existing source/argv proof reused",
+      "optional_reuse": {
+        "policies": [
+          "material-noise",
+          "material-move-tt"
+        ],
+        "whole_bytes": [
+          4319,
+          4045
+        ],
+        "same_expected_and_effective_codec_and_legacy_header": true,
+        "basis": "literal branch and parameter equality to previous encoder; no new optional compile or runtime"
+      },
+      "fresh_games_strength_manycore": 0,
+      "metadata_only_after_execution": true
     }
   },
   "provenance": {
@@ -1644,6 +1707,24 @@
             "sha256": "d7e61bafc473359404170db07e5c713a4c5912028131fb29675f2e20d8075131"
           }
         }
+      },
+      "compression": {
+        "format": "lzma-alone",
+        "filter": "LZMA1",
+        "preset": 9,
+        "extreme": true,
+        "lc": 2,
+        "lp": 0,
+        "pb": 0,
+        "check": "NONE",
+        "mf": "BT4",
+        "dictionary_bytes": 67108864,
+        "nice_len": 32
+      },
+      "launcher": {
+        "kind": "byte-offset-lzma-stdin",
+        "bytes": 77,
+        "sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
       }
     },
     "material-move-tt": {
@@ -2246,6 +2327,11 @@
             "sha256": "986ba65be2aac751816b6314ed4bba0ae3647106a24db3f29bdebd1cb8b4b33f"
           }
         }
+      },
+      "launcher": {
+        "kind": "byte-offset-lzma-stdin",
+        "bytes": 77,
+        "sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
       }
     }
   },
@@ -4538,5 +4624,10 @@
       "limits": "source-lifetime proof plus selected fixed2 positive runtime; no manycore/strength/stack/RAM/timing claim; cancellation causality unproven"
     },
     "runtime_RAM_performance_manycore_strength_claimed": false
+  },
+  "launcher": {
+    "kind": "three-line-xz-stdin",
+    "bytes": 73,
+    "sha256": "2c30c82c7df658b37c9d64b6f6b393a5d2cb2169933ab6254fabdf525924c34a"
   }
 }

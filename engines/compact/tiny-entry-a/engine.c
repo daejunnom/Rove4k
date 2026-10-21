@@ -387,7 +387,7 @@ static int search(Worker *w,const Board *p,int depth,int alpha,int beta,int ply,
     if(!legal)return check?-MATE+ply:0;
     bound=best<=old?3:best>=beta?2:1;
     if(depth>0&&bound==1&&!check&&bestmove&&!capture(p,bestmove)&&!PROMO(bestmove)&&abs(best)<MATE-PLY){
-        int error=best-p->s*p->v;if(error>256)error=256;if(error< -256)error=-256;
+        int error=best-evaluation;if(error>256)error=256;if(error< -256)error=-256;
         w->correction[p->h&1023]+=error-w->correction[p->h&1023]/64;
         COUNT(w,corr_updates);
     }

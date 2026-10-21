@@ -10,7 +10,6 @@ import ast
 import hashlib
 import importlib.util
 import json
-import lzma
 import os
 from pathlib import Path
 import platform
@@ -89,13 +88,17 @@ def main():
     if recipe['alternate_policies']['material-move-tt']['expected_overrides']!=move_tt_expected or recipe['alternate_policies']['material-move-tt']['compression']!=move_tt_compression:
         raise ValueError('fixed MoveTT expectations/codec differ')
     original_compression={'format': 'lzma-alone', 'filter': 'LZMA1', 'preset': 9, 'extreme': True, 'lc': 2, 'lp': 0, 'pb': 0, 'check': 'NONE', 'mf': 'BT4', 'dictionary_bytes': 67108864, 'nice_len': 32}
-    if recipe['compression']!=original_compression:raise ValueError('fixed full/reference codec differs')
+    full_compression={'format': 'lzma-alone', 'filter': 'LZMA1', 'preset': 6, 'extreme': False, 'lc': 2, 'lp': 0, 'pb': 0, 'check': 'NONE', 'mf': 'BT2', 'dictionary_bytes': 16384, 'nice_len': 24}
+    if recipe['compression']!=full_compression:raise ValueError('fixed full/reference codec differs')
+    if recipe['alternate_policies']['material-noise']['compression']!=original_compression:
+        raise ValueError('fixed MaterialNoise-v1 codec differs')
     full_expected=dict(recipe['expected'])
     if args.policy!='full':
         selected=recipe['alternate_policies'][args.policy]
         recipe=json.loads(ordinary_recipe)
         recipe['expected'].update(move_tt_expected if args.policy=='material-move-tt' else material_expected)
-        if args.policy=='material-move-tt':recipe['compression']=dict(move_tt_compression)
+        recipe['compression']=dict(selected['compression'])
+        recipe['launcher']=dict(selected['launcher'])
         recipe['full_reference_qualified_receipt']=recipe['qualified_receipt']
         recipe['qualified_receipt']=selected['qualified_receipt']
     recipe['selected_policy']=args.policy
@@ -136,6 +139,7 @@ def main():
         compact=module('entry_minify',frozen/'minify.py').compact_source
         lexer=module('entry_fixed_tokens',frozen/'rename_c.py')
         literal=module('entry_literal',frozen/'pack_stream.py').source_literal
+        source_package=module('entry_source_package',frozen/'source_package.py')
         common=module('entry_shipping_common',frozen/'shipping_common.py')
         refine=module('entry_shipping_refinements',frozen/'shipping_refinements.py')
         dead_state=module('entry_material_state',frozen/'shipping_material_state.py')
@@ -178,10 +182,12 @@ def main():
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
         if template.count(marker)!=1 or len(prefix)!=77:raise ValueError('bootstrap recipe changed')
-        compression={'format':'lzma-alone','filter':'LZMA1','preset':9,'extreme':True,
-                     'lc':2,'lp':0,'pb':0,'check':'NONE','mf':'BT4',
-                     'dictionary_bytes':67108864,'nice_len':32}
-        if recipe['compression']!=(move_tt_compression if args.policy=='material-move-tt' else compression):raise ValueError('fixed selected LZMA1 recipe changed')
+        if args.policy=='full':prefix=source_package.XZ_STDIN_HEADER
+        if len(prefix)!=recipe['launcher']['bytes'] or sha(prefix)!=recipe['launcher']['sha256']:
+            raise ValueError('fixed selected launcher changed')
+        selected_compression={'full':full_compression,'material-noise':original_compression,
+                              'material-move-tt':move_tt_compression}[args.policy]
+        if recipe['compression']!=selected_compression:raise ValueError('fixed selected LZMA1 recipe changed')
         compression=recipe['compression']
         expected=recipe['expected']
         def generate(directory,dev=False):
@@ -328,10 +334,7 @@ def main():
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())
             ast.parse(script)
-            data=prefix+lzma.compress(script,format=lzma.FORMAT_ALONE,check=lzma.CHECK_NONE,
-                                     filters=[{'id':lzma.FILTER_LZMA1,'preset':9|lzma.PRESET_EXTREME,
-                                               'lc':compression['lc'],'lp':0,'pb':0,'mf':lzma.MF_BT4,
-                                               'dict_size':67108864,'nice_len':32}])
+            data=source_package.package(script,compression,prefix=prefix)
             return data,script
         first=None;first_dev=None
         for index in (1,2):
