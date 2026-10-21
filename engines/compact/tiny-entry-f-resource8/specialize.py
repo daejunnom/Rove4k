@@ -1,13 +1,13 @@
 """One source-only full-F late resource profile: workers8/TT18, no file IO."""
 import hashlib
-INPUT = (8559, '65ca88c60d29f87249aac7e43905af1420e868065701e93fb7bdacbbc560f4c7')
-OUTPUT = (8559, '541276276b54aaf8cedfac5c0bcab3fa29365c78ecd0637d3c5981a3785ae741')
-EDITS = ((565, 'worker_state_array', b'zc qr[2]', 559, b'zc qr[8]'), (5951, 'startup_ready_pending', b'static S qk=2,qm', 5939, b'static S qk=8,qm'), (6337, 'completed_result_depth_scan', b'for(S i=1;i<2;i++)if(qr[i].b', 6325, b'for(S i=1;i<8;i++)if(qr[i].b'), (7735, 'job_pending_publication', b'pthread_mutex_lock(&qj);qk=2;qd++', 7708, b'pthread_mutex_lock(&qj);qk=8;qd++'), (7822, 'thread_handle_array', b'pthread_t a[2]', 7810, b'pthread_t a[8]'), (7926, 'create_success_count_limit', b'for(;d<2;d++){qr[d].a=d;', 7919, b'for(;d<8;d++){qr[d].a=d;'))
+INPUT = (8538, '47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0')
+OUTPUT = (8538, '911622580a6697be411eed8b39ece1b66d4ed8c585087ca7593ec512677e28d8')
+EDITS = ((560, 'worker_state_array', b'zc qr[2]', 554, b'zc qr[8]'), (5930, 'startup_ready_pending', b'static S qk=2,qm', 5918, b'static S qk=8,qm'), (6316, 'completed_result_depth_scan', b'for(S i=1;i<2;i++)if(qr[i].b', 6304, b'for(S i=1;i<8;i++)if(qr[i].b'), (7714, 'job_pending_publication', b'pthread_mutex_lock(&qj);qk=2;qd++', 7687, b'pthread_mutex_lock(&qj);qk=8;qd++'), (7801, 'thread_handle_array', b'pthread_t a[2]', 7789, b'pthread_t a[8]'), (7905, 'create_success_count_limit', b'for(;d<2;d++){qr[d].a=d;', 7898, b'for(;d<8;d++){qr[d].a=d;'))
 
 def _pin(source):return len(source),hashlib.sha256(source).hexdigest()
 def transform_source(source,workers=8,tt_bits=18,family='F'):
     if family!='F' or workers!=8 or tt_bits!=18 or type(source) is not bytes or _pin(source)!=INPUT:
-        raise ValueError('only pinned full-F8559 workers8/TT18 profile is admitted')
+        raise ValueError('only pinned full-F8538 path-only workers8/TT18 profile is admitted')
     result=bytearray(source);spans=[];gaps=[];cursor=0
     for at,role,anchor,start,replacement in EDITS:
         if source[start:start+len(anchor)]!=anchor or source.count(anchor)!=1 or source[at:at+1]!=b'2':

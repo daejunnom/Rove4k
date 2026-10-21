@@ -1,3 +1,52 @@
+# Maintained B: private piece-index inline ordinary reproduction and selected validation passed — 2026-10-22
+
+The fixed first-cost file is **5086 B**, compact C **10421 B**, native
+**26296 B**. Relative to the qualified B5098 predecessor, removing the sole
+private `J(int)` definition and spelling its two calls as parenthesized
+`int8_t + 6` expressions removes 30 source bytes and 12 actual complete-file
+bytes. The entire native image remains exactly
+`67076339c1fcb72988d60a945125c37d1670e0a97fe14241b54e334ffe089f36`.
+The 4096 B goal remains open. One ordinary --dev builder reproduced shipping source/native/bootstrap/whole
+twice and the exact old DEV source/native twice. The unchanged selected positive
+verifier passed quit/EOF2 sessions and8 legal GO with three startup TIDs each,
+exact restored native, absent helpers/private paths and physical process/reader
+exit0. All six startup TIDs are absent. Cancellation causality remains unproven.
+
+The pure B-owned `shipping_piece_index.py` runs last after history-depth.
+It binds exact10451/10421 input/output identities, three spans, four unchanged
+gaps, the protected10398-byte complement and a full positional inverse.
+There are only the private definition and two actual calls; no address-taking,
+macro or opaque-literal use exists in the fixed input. Each board element is
+evaluated once and promoted from int8_t to int in both forms. Even the full
+int8_t range plus6 is representable by int. Valid pieces[-6,6] map to[0,12],
+including black king0, empty/root neutral6 and white king12 in zw[13][13].
+The scoring/update consumers, recursive context, model, learners, search, TT,
+pool publication and protocol bytes remain unchanged. Canonical diagnostics
+and old-minimax DEV bypass the stage; no new layout or policy is introduced.
+
+The existing cost was one compiler and one encode, with baseline bootstrap
+exact before candidate compilation and strict Python2/CLI2 full restoration,
+EOF and no trailing data. Actual frozen package/template/77-byte launcher/raw
+br source envelope and ALONE9e/lc2lp0pb0/BT4/dict64MiB/nice32 are unchanged.
+First-cost index SHA-256:
+`a658e7465009fa6453e136cb76971a0a470dfe6144b96dae1eb3249a452741b8`.
+The first preparation length-assertion error remains preserved externally;
+the cost itself completed without error/retry. No cost rerun is required.
+No performance, RAM, many-core, strength or whole-project readiness claim
+is added. Reports and exact before/producing/final records remain outside Git
+in `rove4k-b-piece-index-normal-20261022-evidence`; older sections below retain
+their original image and validation scope.
+
+Ordinary build receipt SHA-256:
+`fb8993e2a84057d004f59ff36eca2426d010fa1f87ec14439e3ae1a5ef3c4d35`;
+selected runtime `dc0bdf20c0579cd8754946035979179de2180bca56f2780da37ec9c3a4c63439`.
+Actual producing recipe SHA-256:
+`bb199ab41b3e6ff4202a872f8fa77f5449351fc40c3ac7e54359c13de9b88f90`.
+The producing closure stayed unchanged until both commands exited; final recipe
+and README completion annotations were then added separately. Original producing
+sources and command receipts remain external. The original first cost was reused
+without rerun. Fresh, SAN, extra oracle/negative/session, game and benchmark0.
+
 # Maintained B: derived history length ordinary reproduction and selected validation passed — 2026-10-21
 
 The fixed first-cost file is **5098 B**, compact C **10451 B**, native

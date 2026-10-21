@@ -1,3 +1,54 @@
+# Maintained F: private path with shared immutable job history — 2026-10-21
+
+Selected full/default first-cost file **4476 B**, compact C **8538 B**,
+remaining **380 B** above4096. The fixed pure `shipping_history_path.py`
+follows lazy fallback then QS in full shipping and separately generated
+optional full references. Exact4 edits/5 gaps/full inverse save21 source
+bytes and3 actual whole-file bytes against the qualified4479 B predecessor.
+The global4096-key job history and public qh1..4096 remain; the private
+Worker stores128 search-path keys. Its native has a new full identity.
+No RAM, stack, speed, strength or arbitrary Worker ABI equality is claimed.
+
+At every search entry old.f[qh+j] maps to new.f[j]. Distance<ply reads the
+private path; distance==ply reads qg[qh-1]. Parents write path[ply] before
+childply+1, deepest parent126 writes126, and cap127 prevents another child.
+The original repetition loop, half>=100 comparisons, Board.r/TT context,
+all learners, terminal/cap precedence and full MTD driver remain. Main
+publishes qg/qh before GO and position cannot replace them until all complete
+think/MTD/correction/result consumers have returned through the mutex drain.
+
+One fatal ASan/UBSan compile/run passed32 actual-source pairs. Original QS8
+rows/expectations and prior results were preserved;24 mapping cases add
+qh1/short/4096, strict global/private boundary, high126/127 path slots,
+half99/100, repetition/parity/irreversible boundary, QS/MTD3, mate/stop/claim
+and TT reader bounds. Typed Board/r/global-job/path/learners/full TT and
+locks, score/best/nodes/cursor plus actual query event bytes agreed. The
+fixture does not execute production pool synchronization; its private
+synthetic states are not public parser-reachability claims. The original
+preparation-only punctuation failure remains preserved; SAN had no retry.
+
+One ordinary default --dev builder independently reproduced shipping twice
+and unchanged full-F DEV twice, with entire source/native/bootstrap/whole
+equal to the measured candidate. The unchanged selected verifier passed
+quit/EOF in two sessions, eight GO results, three startup TIDs each, exact
+restored image, absent private paths, finished readers and physical exit.
+Both optional ordinary builders reproduced actual4319/4045 shipping twice
+with entire source/native/bootstrap/whole bytes equal to their predecessors,
+while separately generating the updated8538 full reference and replaying the
+new inverse/five-gap checks twice. Optional DEV/runtime were zero. All four
+outer commands ended0/empty diagnostics/absent owned groups; owned handles0.
+Cancellation causality remains unproven. No new SAN, fresh/core/game/negative
+campaign or performance run occurred during this promotion.
+
+Build receipt SHA-256 `df39d13f4cbab843fbdc3d28f1ffcb2d3fabf5ce90e2c35a3923bd9267b565ea`;
+runtime `19e00c1ddcb1ca518065df1649d7af92944f6f585ac7333410478ca9c6ddc74b`.
+Actual producing recipe/builder/helper are frozen separately in the build;
+the current recipe/README add only completed qualification annotations.
+No profile8 outcome is inferred. The maintained resource8 consumer needs
+its own base closure/identity and normal9TID qualification after this freeze.
+Original source, cost, focused and before/producing/final records remain in
+`rove4k-full-f-worker-path-history-promotion-20261021-evidence` outside Git.
+
 # Maintained F: lazy fallback plus first-legal QS cutoff — 2026-10-21
 
 Selected full/default first-cost file **4479 B**, compact C **8559 B**,

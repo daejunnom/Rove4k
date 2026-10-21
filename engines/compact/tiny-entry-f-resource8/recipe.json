@@ -14,65 +14,66 @@
     "ply": 128
   },
   "base_source": {
-    "bytes": 8559,
-    "sha256": "65ca88c60d29f87249aac7e43905af1420e868065701e93fb7bdacbbc560f4c7"
+    "bytes": 8538,
+    "sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
   },
   "expected": {
-    "source_bytes": 8559,
-    "source_sha256": "541276276b54aaf8cedfac5c0bcab3fa29365c78ecd0637d3c5981a3785ae741",
+    "source_bytes": 8538,
+    "source_sha256": "911622580a6697be411eed8b39ece1b66d4ed8c585087ca7593ec512677e28d8",
     "native_bytes": 18576,
-    "native_sha256": "01fdae7bd5812f59d373fadf240d03c561ebfe33d29b9856a9a83f99e8d43c61",
-    "bootstrap_bytes": 9532,
-    "bootstrap_sha256": "3aa2c7ebcee2b6bbbc4c7b5290a995c1c0cd71a6cf29d0fc4d609a8d7cde4178",
-    "whole_bytes": 4478,
-    "whole_sha256": "1a377f1dc88c9e678d6ed40c9ef06f94116f632597a19735431876f4d30fe70e"
+    "native_sha256": "3350909127fb70b57560c4e17fd16eca7bd00f9aa53fff3d1ad9ce2ba6658973",
+    "bootstrap_bytes": 9511,
+    "bootstrap_sha256": "95d0410dd0046d76a012d775851f342cf804656e6ff986a3da730f595581f265",
+    "whole_bytes": 4474,
+    "whole_sha256": "65a1ed9a72d9a4f20d9053e7b95fab64b700cbf952593807f86cbb45a1d44b4a"
   },
-  "specialize_sha256": "9caf279c660f810e80d1453b82e85d867d46e040f1461212cceb3ab71074d4f8",
+  "specialize_sha256": "86fbfe6530ccdf3bf7adfdb23c46e3d4812e03c1614ae5b8d3cd5a1dbebe1683",
   "base_source_closure_sha256": {
-    "engines/scripts/specialize.py": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d",
-    "engines/scripts/minify.py": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b",
-    "engines/scripts/rename_c.py": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
     "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
+    "engines/compact/tiny-entry-f/bootstrap.py.in": "159c5fe166f4b0804471e9d3a70d8f055a510858a6ae33f0ed6b4cfd17fca6f9",
+    "engines/compact/tiny-entry-f/build.py": "6042d9efee9cbdd7783dc2c10d10565e428d2db6eef980c74976f6c7c63585a8",
+    "engines/compact/tiny-entry-f/engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+    "engines/compact/tiny-entry-f/launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
     "engines/compact/tiny-entry-f/shipping_alpha.py": "74abadbd79735e9f6b30c513b422245bae737f81d4e3bd04a7b8e597e61937e8",
-    "engines/compact/tiny-entry-f/shipping_storage.py": "b8d1984c8585b3052f22b4f3713a7fb0a7107a5ad91a2951d91f9a852a36c3df",
-    "engines/compact/tiny-entry-f/shipping_scope.py": "40c88f75ca959f3b55c3a9d038d6ac9944f73d8de4d11e029b05cd4969d91e94",
-    "engines/compact/tiny-entry-f/shipping_semantics.py": "48c17a5b4998727189b4f5279ca0e526f6f6cef0fe5ff14e5b0bd13ea2b5112d",
-    "engines/compact/tiny-entry-f/shipping_input.py": "4a466b06c7f2578eea532da5cea0fba4c3b56ccb944e49677134242138247b4a",
-    "engines/compact/tiny-entry-f/shipping_declarations.py": "8a4d8426ce4d3e86d3d0cab9d6ad937194c868d8ac74a12013b6329d3f24ce3a",
-    "engines/compact/tiny-entry-f/shipping_hce.py": "f1d182a52ad83d93468ac92804ae4d28785aa4cb87a516afbf1920b01cf72a29",
-    "engines/compact/tiny-entry-f/shipping_types.py": "76f3888830f58f11990e09b96e35a2f84dddf1f4abc3ba865380e4a8a57443d8",
-    "engines/compact/tiny-entry-f/shipping_unit_bound.py": "5abf7974e6d5e615084a1301293da6e7dbb7da40ae9da0c9674a81634d11ee7e",
-    "engines/compact/tiny-entry-f/shipping_startup.py": "b6d300fe0d5bb30ffd9c64e0dac53a2c7874a955787ed38d7598dd58c6a66ae9",
-    "engines/compact/tiny-entry-f/shipping_global_names.py": "7fa5cd69acb97225030f2da886afb2abd3f560f430ff8defd64515332a54a6a1",
     "engines/compact/tiny-entry-f/shipping_capture.py": "296a2213a1f9391b1aef0c2a3a82c08682892a607a49438a212f5748ecac8aac",
-    "engines/compact/tiny-entry-f/shipping_material_noise.py": "76b882092832d48488fd767189ebfe6cf8e445bb7a4ff74b261f1228c7527ad3",
-    "engines/compact/tiny-entry-f/shipping_material_names.py": "3d81326468dcd4c52647508aaaa47abf13ba1ddaee561f7c97448af4e4b40553",
+    "engines/compact/tiny-entry-f/shipping_clamp.py": "54f7b75e3b5adfa4c012d1c7c8acf5b17013cff8ba848f0fbf39907d0dec64a7",
+    "engines/compact/tiny-entry-f/shipping_declarations.py": "8a4d8426ce4d3e86d3d0cab9d6ad937194c868d8ac74a12013b6329d3f24ce3a",
+    "engines/compact/tiny-entry-f/shipping_depth_repetition.py": "e719af113dcca4da8e4ad6d3b44e57a8a09a5985ec35ceaf7a44ae1b1e8e6753",
+    "engines/compact/tiny-entry-f/shipping_global_names.py": "7fa5cd69acb97225030f2da886afb2abd3f560f430ff8defd64515332a54a6a1",
+    "engines/compact/tiny-entry-f/shipping_hash_policy.py": "98b084bb25232a237f616629b25dc9fcde7ba1bedd8a48e67f3b4c9fd6587f04",
+    "engines/compact/tiny-entry-f/shipping_hce.py": "f1d182a52ad83d93468ac92804ae4d28785aa4cb87a516afbf1920b01cf72a29",
+    "engines/compact/tiny-entry-f/shipping_history_depth.py": "3197d492ee319e46f111ceff650e000ca3a6490c3c36fb4ffc82b4ea143f08c5",
+    "engines/compact/tiny-entry-f/shipping_history_path.py": "d345e87322f6aa17f141861c9fa6f330ff2c3642d765d9c0e2d6dc32a597a70c",
+    "engines/compact/tiny-entry-f/shipping_input.py": "4a466b06c7f2578eea532da5cea0fba4c3b56ccb944e49677134242138247b4a",
+    "engines/compact/tiny-entry-f/shipping_int_token.py": "adf509f08421f5c078660fd66bafb4879a4f9f2ca2ee72676de78a3b912004e5",
+    "engines/compact/tiny-entry-f/shipping_macro_literals.py": "8926a35c4d297a62ea433eb0923b06547e26f096f251c0b40c2642c7261bce10",
     "engines/compact/tiny-entry-f/shipping_material_capture.py": "e1d7960d71dce41e2f6694a76351d08d6dcf5e934f5693b8031dbfc1982b40dd",
+    "engines/compact/tiny-entry-f/shipping_material_expressions.py": "53cd23cd38fa0351f4ebac6132c021a73359846a676051ca2a1127f3de4c2159",
+    "engines/compact/tiny-entry-f/shipping_material_names.py": "3d81326468dcd4c52647508aaaa47abf13ba1ddaee561f7c97448af4e4b40553",
+    "engines/compact/tiny-entry-f/shipping_material_noise.py": "76b882092832d48488fd767189ebfe6cf8e445bb7a4ff74b261f1228c7527ad3",
     "engines/compact/tiny-entry-f/shipping_move_tt.py": "70bbcae56adf94a93ab54ce5edfb7c8fea222fe5509ef8556c4262caf9400a81",
     "engines/compact/tiny-entry-f/shipping_move_tt_names.py": "3ac359c6c41b97a9cbb6002c390aa415587cdb3e66f70bfdddccbc4584ea263a",
-    "engines/compact/tiny-entry-f/shipping_material_expressions.py": "53cd23cd38fa0351f4ebac6132c021a73359846a676051ca2a1127f3de4c2159",
-    "engines/scripts/shipping_common.py": "58f2cfdb37bbd0c010e82bc8d9c2118b00fe41ef6a556c18cc94db11455e2a15",
-    "engines/scripts/shipping_refinements.py": "6ecb62499035cedaf6308539de0744a011f7b183ca768984462c4f0435406804",
-    "engines/scripts/shipping_material_state.py": "eded8d82eed40c383564603a51582e829ff9de2fc626bdc11eab26e6c424b380",
-    "engines/scripts/shipping_integer_forms.py": "a989dc2fd2ea60d9ab786cf51874ea646363e6f5731a302e1335cbb283fbcd93",
-    "engines/compact/tiny-entry-f/shipping_terminal.py": "6d60a1d32f5445c0e2c5ecfdf0f2b809349a739db675d08c7f1b34c7a0c571a1",
-    "engines/compact/tiny-entry-f/shipping_hash_policy.py": "98b084bb25232a237f616629b25dc9fcde7ba1bedd8a48e67f3b4c9fd6587f04",
-    "engines/scripts/shipping_includes.py": "d7c3ad6e7811d848b0d6bab7331c929ab2c3175cd030438ddc81d22ea8cdf4bc",
-    "engines/scripts/shipping_mixer_literals.py": "7b25cb806a51cad9e867ebc588bcb99677c9e2f9d0a5df0b31d019e22bc6d114",
-    "engines/compact/tiny-entry-f/shipping_clamp.py": "54f7b75e3b5adfa4c012d1c7c8acf5b17013cff8ba848f0fbf39907d0dec64a7",
-    "engines/compact/tiny-entry-f/shipping_source_forms.py": "54e34ccf0889a01b5603492081b3058bbfe98770b545ef9652b32250a5647697",
-    "engines/scripts/shipping_clock.py": "46c19879deae1d056f4b059c6c7d9667a3e935110dfb33015b29fd0dec4d8c43",
-    "engines/compact/tiny-entry-f/shipping_result_stream.py": "326921d09da32c97193f126c002815d72b475b067d77871f21fb49567e4ecaad",
-    "engines/compact/tiny-entry-f/shipping_depth_repetition.py": "e719af113dcca4da8e4ad6d3b44e57a8a09a5985ec35ceaf7a44ae1b1e8e6753",
-    "engines/compact/tiny-entry-f/shipping_macro_literals.py": "8926a35c4d297a62ea433eb0923b06547e26f096f251c0b40c2642c7261bce10",
-    "engines/compact/tiny-entry-f/shipping_int_token.py": "adf509f08421f5c078660fd66bafb4879a4f9f2ca2ee72676de78a3b912004e5",
-    "engines/compact/tiny-entry-f/shipping_history_depth.py": "3197d492ee319e46f111ceff650e000ca3a6490c3c36fb4ffc82b4ea143f08c5",
-    "engines/scripts/shipping_lazy_fallback.py": "023b370e75df2d50f44641eac7d1b49091ef2424d9ed7983d6d6f3c7d700b2ce",
     "engines/compact/tiny-entry-f/shipping_qs_cutoff.py": "ae95c21527a235880a4e9f140537f488df71b99caec988a3c08cf710d7df4534",
-    "engines/compact/tiny-entry-f/engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
-    "engines/compact/tiny-entry-f/bootstrap.py.in": "159c5fe166f4b0804471e9d3a70d8f055a510858a6ae33f0ed6b4cfd17fca6f9",
-    "engines/compact/tiny-entry-f/launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
-    "engines/compact/tiny-entry-f/build.py": "c92bb5057a86a8b080c4433639f4f949b2b0734eb388952645b8cf23498b1638"
+    "engines/compact/tiny-entry-f/shipping_result_stream.py": "326921d09da32c97193f126c002815d72b475b067d77871f21fb49567e4ecaad",
+    "engines/compact/tiny-entry-f/shipping_scope.py": "40c88f75ca959f3b55c3a9d038d6ac9944f73d8de4d11e029b05cd4969d91e94",
+    "engines/compact/tiny-entry-f/shipping_semantics.py": "48c17a5b4998727189b4f5279ca0e526f6f6cef0fe5ff14e5b0bd13ea2b5112d",
+    "engines/compact/tiny-entry-f/shipping_source_forms.py": "54e34ccf0889a01b5603492081b3058bbfe98770b545ef9652b32250a5647697",
+    "engines/compact/tiny-entry-f/shipping_startup.py": "b6d300fe0d5bb30ffd9c64e0dac53a2c7874a955787ed38d7598dd58c6a66ae9",
+    "engines/compact/tiny-entry-f/shipping_storage.py": "b8d1984c8585b3052f22b4f3713a7fb0a7107a5ad91a2951d91f9a852a36c3df",
+    "engines/compact/tiny-entry-f/shipping_terminal.py": "6d60a1d32f5445c0e2c5ecfdf0f2b809349a739db675d08c7f1b34c7a0c571a1",
+    "engines/compact/tiny-entry-f/shipping_types.py": "76f3888830f58f11990e09b96e35a2f84dddf1f4abc3ba865380e4a8a57443d8",
+    "engines/compact/tiny-entry-f/shipping_unit_bound.py": "5abf7974e6d5e615084a1301293da6e7dbb7da40ae9da0c9674a81634d11ee7e",
+    "engines/scripts/minify.py": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b",
+    "engines/scripts/rename_c.py": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
+    "engines/scripts/shipping_clock.py": "46c19879deae1d056f4b059c6c7d9667a3e935110dfb33015b29fd0dec4d8c43",
+    "engines/scripts/shipping_common.py": "58f2cfdb37bbd0c010e82bc8d9c2118b00fe41ef6a556c18cc94db11455e2a15",
+    "engines/scripts/shipping_includes.py": "d7c3ad6e7811d848b0d6bab7331c929ab2c3175cd030438ddc81d22ea8cdf4bc",
+    "engines/scripts/shipping_integer_forms.py": "a989dc2fd2ea60d9ab786cf51874ea646363e6f5731a302e1335cbb283fbcd93",
+    "engines/scripts/shipping_lazy_fallback.py": "023b370e75df2d50f44641eac7d1b49091ef2424d9ed7983d6d6f3c7d700b2ce",
+    "engines/scripts/shipping_material_state.py": "eded8d82eed40c383564603a51582e829ff9de2fc626bdc11eab26e6c424b380",
+    "engines/scripts/shipping_mixer_literals.py": "7b25cb806a51cad9e867ebc588bcb99677c9e2f9d0a5df0b31d019e22bc6d114",
+    "engines/scripts/shipping_refinements.py": "6ecb62499035cedaf6308539de0744a011f7b183ca768984462c4f0435406804",
+    "engines/scripts/specialize.py": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d"
   },
   "positive_helper_sha256": {
     "engines/compact/tiny-entry-d/verify.py": "552538753ca76684a520843f87aa790274eb0b81c9e174a34255dbfadc207afa",
@@ -141,20 +142,123 @@
   },
   "final_4k_allocation": "unknown",
   "scalability_or_tournament_acceptance": "unproven",
+  "previous_local_normal_validation": {
+    "source_revision": "full-root-copy Worker history; qualified baseline source8559/whole4478",
+    "base_source": {
+      "bytes": 8559,
+      "sha256": "65ca88c60d29f87249aac7e43905af1420e868065701e93fb7bdacbbc560f4c7"
+    },
+    "expected": {
+      "source_bytes": 8559,
+      "source_sha256": "541276276b54aaf8cedfac5c0bcab3fa29365c78ecd0637d3c5981a3785ae741",
+      "native_bytes": 18576,
+      "native_sha256": "01fdae7bd5812f59d373fadf240d03c561ebfe33d29b9856a9a83f99e8d43c61",
+      "bootstrap_bytes": 9532,
+      "bootstrap_sha256": "3aa2c7ebcee2b6bbbc4c7b5290a995c1c0cd71a6cf29d0fc4d609a8d7cde4178",
+      "whole_bytes": 4478,
+      "whole_sha256": "1a377f1dc88c9e678d6ed40c9ef06f94116f632597a19735431876f4d30fe70e"
+    },
+    "validation": {
+      "status": "local ordinary reproduction and selected normal positive PASS; CI owned separately",
+      "producing_recipe_sha256": "d7bd1987b4515376eaf9c12d8ed9d87b286b1f63b8cb76fe6b39a365b2297a14",
+      "ordinary_build_receipt": {
+        "path": "/home/stemxstudio/rove4k-full-f-resource8-normal-20261021-v1/build/build.json",
+        "bytes": 13538,
+        "sha256": "1480f7a2e5501396ade10a7d687bcd8c2205632e5809391a2b658ee3af069b3e"
+      },
+      "positive_receipt": {
+        "path": "/home/stemxstudio/rove4k-full-f-resource8-normal-20261021-v1/runtime/runtime.json",
+        "bytes": 65321,
+        "sha256": "5c50b5c304d31708fd2727d1e9b4e9fd32397b761986debc92c7da2f31591756"
+      },
+      "ordinary_build_calls": 1,
+      "native_and_whole_reproductions": 2,
+      "positive_calls": 1,
+      "sessions": 2,
+      "legal_GO_results": 8,
+      "native_TIDs": 9,
+      "active_search_workers": 8,
+      "forced_cleanup_or_errors": 0,
+      "observed_memory_kB": {
+        "VmSize": [
+          74972,
+          74972
+        ],
+        "startup_VmRSS": [
+          7552,
+          7552
+        ],
+        "active_VmRSS": [
+          8320,
+          8064
+        ]
+      },
+      "limits_of_evidence": "current startup/active observations; no peak, precise startup-time, speed/scaling or final4k allocation acceptance",
+      "post_run_annotation_only": true
+    }
+  },
+  "path_only_history_revision": {
+    "scope": "full-F fixed workers8/TT18; path-only private Worker history with immutable shared root history",
+    "previous_base_source": {
+      "bytes": 8559,
+      "sha256": "65ca88c60d29f87249aac7e43905af1420e868065701e93fb7bdacbbc560f4c7"
+    },
+    "previous_expected": {
+      "source_bytes": 8559,
+      "source_sha256": "541276276b54aaf8cedfac5c0bcab3fa29365c78ecd0637d3c5981a3785ae741",
+      "native_bytes": 18576,
+      "native_sha256": "01fdae7bd5812f59d373fadf240d03c561ebfe33d29b9856a9a83f99e8d43c61",
+      "bootstrap_bytes": 9532,
+      "bootstrap_sha256": "3aa2c7ebcee2b6bbbc4c7b5290a995c1c0cd71a6cf29d0fc4d609a8d7cde4178",
+      "whole_bytes": 4478,
+      "whole_sha256": "1a377f1dc88c9e678d6ed40c9ef06f94116f632597a19735431876f4d30fe70e"
+    },
+    "previous_specialize_sha256": "9caf279c660f810e80d1453b82e85d867d46e040f1461212cceb3ab71074d4f8",
+    "changed_base_closure": [
+      {
+        "after": "6042d9efee9cbdd7783dc2c10d10565e428d2db6eef980c74976f6c7c63585a8",
+        "before": "c92bb5057a86a8b080c4433639f4f949b2b0734eb388952645b8cf23498b1638",
+        "path": "engines/compact/tiny-entry-f/build.py"
+      },
+      {
+        "after": "d345e87322f6aa17f141861c9fa6f330ff2c3642d765d9c0e2d6dc32a597a70c",
+        "before": null,
+        "path": "engines/compact/tiny-entry-f/shipping_history_path.py"
+      }
+    ],
+    "full_inverse_and_seven_gaps": true,
+    "resource_roles_unchanged": [
+      "worker_state_array",
+      "startup_ready_pending",
+      "completed_result_depth_scan",
+      "job_pending_publication",
+      "thread_handle_array",
+      "create_success_count_limit"
+    ],
+    "all_other_source_bytes_unchanged": true,
+    "worker_history_capacity": 128,
+    "global_root_history_capacity": 4096,
+    "actual_created_count_join_unchanged": true,
+    "ordinary_validation": "ordinary native/source/bootstrap/payload/whole two reproductions and unchanged nine-TID positive PASS",
+    "first_cost_whole_delta_to_old8": -4,
+    "two_worker_delta_not_projected": true,
+    "manycore_scalability_or_final_hardware_acceptance": false
+  },
   "local_normal_validation": {
     "status": "local ordinary reproduction and selected normal positive PASS; CI owned separately",
-    "producing_recipe_sha256": "d7bd1987b4515376eaf9c12d8ed9d87b286b1f63b8cb76fe6b39a365b2297a14",
+    "source_revision": "path-only private Worker history plus immutable global root prefix",
+    "producing_recipe_LF_sha256": "88a7acdde138606d6da66ab08357482c7ee187669675b9aa1b9c68affef120e1",
     "ordinary_build_receipt": {
-      "path": "/home/stemxstudio/rove4k-full-f-resource8-normal-20261021-v1/build/build.json",
-      "bytes": 13538,
-      "sha256": "1480f7a2e5501396ade10a7d687bcd8c2205632e5809391a2b658ee3af069b3e"
+      "path": "/home/stemxstudio/rove4k-full-f-path-only-resource8-normal-20261022-v2/build/build.json",
+      "bytes": 13843,
+      "sha256": "9bd44fd9389fd1dcc3658fdbb586ca2b5f51388e86e91d5005b5c2e1568ad075"
     },
     "positive_receipt": {
-      "path": "/home/stemxstudio/rove4k-full-f-resource8-normal-20261021-v1/runtime/runtime.json",
-      "bytes": 65321,
-      "sha256": "5c50b5c304d31708fd2727d1e9b4e9fd32397b761986debc92c7da2f31591756"
+      "path": "/home/stemxstudio/rove4k-full-f-path-only-resource8-normal-20261022-v2/runtime/runtime.json",
+      "bytes": 65480,
+      "sha256": "cc85a6ed5999b4bc7058f0d58e326f851fd228dc47e30f1814d445301e7167c7"
     },
-    "ordinary_build_calls": 1,
+    "successful_ordinary_build_calls": 1,
     "native_and_whole_reproductions": 2,
     "positive_calls": 1,
     "sessions": 2,
@@ -162,18 +266,24 @@
     "native_TIDs": 9,
     "active_search_workers": 8,
     "forced_cleanup_or_errors": 0,
+    "preserved_precompile_failures": [
+      "missing output parent before output creation",
+      "raw CRLF helper pin registered where normalized LF pin was required"
+    ],
+    "precompile_failure_compile_encode_runtime_calls": 0,
+    "helper_pin_contract": "specialize_sha256 binds the normalized LF frozen helper; raw Windows bytes have a separate SHA in producing metadata",
     "observed_memory_kB": {
       "VmSize": [
-        74972,
-        74972
+        74716,
+        74716
       ],
       "startup_VmRSS": [
         7552,
         7552
       ],
       "active_VmRSS": [
-        8320,
-        8064
+        8192,
+        7936
       ]
     },
     "limits_of_evidence": "current startup/active observations; no peak, precise startup-time, speed/scaling or final4k allocation acceptance",

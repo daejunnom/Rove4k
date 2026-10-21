@@ -154,6 +154,7 @@ def main():
         history_depth=module('entry_F_history_depth',frozen/'shipping_history_depth.py')
         lazy_fallback=module('entry_shared_lazy_fallback',frozen/'shipping_lazy_fallback.py')
         qs_cutoff=module('entry_F_qs_cutoff',frozen/'shipping_qs_cutoff.py')
+        history_path=module('entry_F_history_path',frozen/'shipping_history_path.py')
         alpha=module('entry_fixed_F_alpha',frozen/'shipping_alpha.py').transform_source
         storage=module('entry_fixed_F_storage',frozen/'shipping_storage.py').transform_source
         scope_module=module('entry_bound_F_scope',frozen/'shipping_scope.py')
@@ -250,6 +251,8 @@ def main():
                     full_common_metadata['lazy_fallback']=lazy_metadata
                     full_reference,qs_metadata=qs_cutoff.transform_source(full_reference,family='F')
                     full_common_metadata['qs_legal_cutoff']=qs_metadata
+                    full_reference,path_metadata=history_path.transform_source(full_reference,family='F')
+                    full_common_metadata['history_path']=path_metadata
                     if len(full_reference)!=full_expected['source_bytes'] or sha(full_reference)!=full_expected['source_sha256']:
                         raise ValueError('default full-F source generation changed')
                     data,policy_metadata=material_noise(data)
@@ -319,6 +322,8 @@ def main():
                     common_metadata['lazy_fallback']=lazy_metadata
                     data,qs_metadata=qs_cutoff.transform_source(data,family='F')
                     common_metadata['qs_legal_cutoff']=qs_metadata
+                    data,path_metadata=history_path.transform_source(data,family='F')
+                    common_metadata['history_path']=path_metadata
             return data,observations,counters,alpha_metadata,storage_metadata,scope_metadata,member_metadata,semantic_metadata,input_metadata,declaration_metadata,hce_metadata,type_metadata,unit_bound_metadata,startup_metadata,global_names_metadata,capture_metadata,policy_metadata,material_names_metadata,material_capture_metadata,move_tt_metadata,move_tt_names_metadata,expressions_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())
