@@ -1,3 +1,53 @@
+# Maintained E: capture-only Move bit3 — 2026-10-22
+
+Selected first-cost whole **4950 B**, compact C **10210 B**: source76 B and
+actual whole12 B below qualified4962, still854 B above4096. The pure fixed
+`shipping_capture.py` follows derived history only in shipping. Its8 edits,
+9 individually pinned gaps, full inverse and complement bind the actual
+source. Canonical and old DEV21 bypass it; fresh closure discovers it from
+the existing recipe helper map without research files as generation inputs.
+
+Valid0x88 source squares leave bit3 free. Capture metadata uses that bit,
+FROM119 strips it, and TO/PROMO plus17bit TT Move allocation stay. Quiet
+promotion is tag0 with PROMO handled separately. E19 coefficients, physical21
+slots/zero0,6, quadratic S(), five-feature R(), Board accumulators and quiet
+raw-Move noise remain protected. Captures bypass the quiet-noise tier. This
+changes private Move/TT ABI: use fresh TT, never mix old/new payloads. Raw
+native/Move/TT byte identity and timed-node equality are not claimed.
+
+One fatal ASan/UBSan compile/run passed actual old/new E52 pairs. Original
+E34 plus18 history cases, expectation checks and prior result fields remain;
+819 actual generated move checks include29 captures and8 quiet promotions.
+Tag is checked independently against the old mailbox capture predicate;
+actual make rejects a generated king capture and pinned EP normalizes out.
+Both EP colors, all four castles and both-color NBRQ promotions retain their
+original focused cases. Typed Board/r/material/activity/E19 evaluation and
+order scores, keys, learners, all TT keys/score/depth/bound bits, decoded best,
+nodes/cursor/owner state agree. Logical Move fields normalize only capturebit3.
+The actual unmodified M/e/generator/model source is included in separate TUs.
+No C execution qualifies E; all PVS/research branch coverage remains unmeasured,
+and private negative-base adapters do not extend public history1..4096.
+
+One ordinary --dev builder reproduced shipping twice with entire source,
+native, bootstrap and whole bytes equal to first-cost4950. It also actually
+regenerated old DEV21 source/native twice and matched their exact predecessor
+bytes; this is reference-model diagnostics, not E19 model qualification. The
+unchanged selected verifier passed quit/EOF two sessions and8 legal GO epochs,
+exact restored native,3 startup TIDs, stdio-only FDs, exec PID identity, absent
+private paths and physical process/readers exit. Both outer commands ended0
+with empty diagnostics, absent groups and owned handles0; no failure/retry.
+Cancellation causality remains unproven. No extra SAN/fresh/core/game/fault/
+performance/CI run was added during normal promotion. No all-PVS/manycore/
+RAM/performance/strength/target-hardware claim is made.
+
+Actual build receipt `20e24b18611cb154967cf5709050c178b63b6295284691170454636e0657e554`;
+selected runtime `5611021f83bb35228c686033b5547439c84a3a5c587083d53307b2f632387cd2`.
+Producing recipe/builder/helper are preserved separately before current
+recipe/README add completed qualification annotations. Original source,
+first-cost and focused evidence remain unchanged. Before/producing/final
+records are outside Git in
+`rove4k-e-capture-tag-promotion-20261022-evidence`.
+
 # Maintained E: derive history length from the immutable job — 2026-10-21
 
 Complete file **4962 B**, compact C **10286 B**: raw source40B and actual

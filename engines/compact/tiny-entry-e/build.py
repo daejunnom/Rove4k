@@ -98,6 +98,7 @@ def main():
         search_context=module('entry_E_search_context',frozen/'shipping_search_context.py')
         lazy_fallback=module('entry_lazy_fallback',frozen/'shipping_lazy_fallback.py').transform_source
         history_depth=module('entry_history_depth',frozen/'shipping_history_depth.py').transform_source
+        capture_tag=module('entry_E_capture_tag',frozen/'shipping_capture.py').transform_source
         alpha=module('entry_fixed_shipping_alpha',frozen/'fixed_shipping_alpha.py').transform_source
         scope=module('entry_fixed_scope_names',frozen/'shipping_scope.py').transform_source
         core=module('entry_fixed_shipping_core',frozen/'shipping_core.py').transform_source
@@ -150,6 +151,8 @@ def main():
                 common_metadata['lazy_fallback']=fallback_metadata
                 data,history_metadata=history_depth(data,family='E')
                 common_metadata['history_depth']=history_metadata
+                data,capture_metadata=capture_tag(data)
+                common_metadata['capture_tag']=capture_metadata
             return data,observations,alpha_metadata,scope_metadata,core_metadata,input_metadata,model_metadata,type_metadata,global_names_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())

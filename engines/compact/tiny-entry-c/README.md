@@ -1,3 +1,57 @@
+# Maintained C capture-only Move metadata — 2026-10-22
+
+The ordinary builder now reproduces **9882 B** shipping C, **26304 B** native
+and **4884 B** complete file. Against the selected4897 B predecessor this saves
+76 B of source,32 B of native and13 B of the whole file. It is still788 B above
+4096. The fixed compiler/profile,128-bit SIMD evaluator,Board,learners,rules,
+pool,77-byte launcher and ALONE9e-lc2-nice64 recipe are retained.
+
+The shipping-only late `shipping_capture.py` applies8 exact edits with9
+protected gaps and full inverse. Actual gen carries capture-only metadata in
+reserved source-square bit3; FROM119 strips it. TO/PROMO and17-bit TT move width
+stay the same. Quiet promotions retain tag0 and separate PROMO handling,
+including their old quiet noise tier. Raw Move and TT payload bytes change;
+old/new natives or in-process TT state must never mix. Canonical/DEV remain the
+old untagged reference domain. Qualification compares decoded logical moves
+and normalizes only the new bit3 in best/publishedbest/TT payload; every other
+TT bit and the full64-bit key are compared exactly.
+
+One fatal ASan/UBSan compile/run passed the existing51 actual-source
+search/history cases. The affected-move bridge additionally passed9 bounded
+roots using actual gen,make,text,nullable parse and TT probe. It independently
+checked mailbox capture classification,ordered moves,both colors of EP and
+quiet/capture N/B/R/Q promotion,all four castle wings,king-capture make/parse
+rejection,parent preservation and complete logical child state. This is the
+C-specific changed-representation proof; it is not new generic core or pool
+acceptance. Focused result SHA-256:
+`9485f5c6572cd975b8cf07f3ff80dfeb1e116c14576b16bab9ef1d69dc5d080b`;
+focused final index `023f106532478d7819f2386bb7da95c040eb775cd9971445c780a60e04f45168`.
+
+One ordinary --dev builder reproduced shipping twice and exact old DEV source
+and full native twice. The unchanged selected verifier completed quit/EOF in
+two sessions with eight legal GO results,three startup TIDs each,exact restored
+native image,stdio-only FDs and process/reader/private-path exit. Known outer
+groups and observed native TIDs were independently absent after completion;
+owned handles0,no forced cleanup. Build receipt SHA-256:
+`1a5cf087a64ed27d598dd8e46fc93a5fe6d65f4f516e852155bfedbb8226d765`;
+runtime `2b8f31e3bc4679a53423cfc4f87f5ba3460efe7520bddbc01abc7a0f4c912029`;
+normal final index `b5c8328cce75c499f11f1700631ea0a8baf319f416f139097cb017947e92cefe`.
+Producing recipe `8bc1d6de41c827b646704a586abd3465b95485705c8c6cdf24cc83c9a091699a`
+and the four-file producing freeze are preserved externally before this
+annotation-only completion. Helper/build bytes are unchanged by the overlay.
+
+The original first supervisor failed before compiler/codec/decoder because an
+external composite source index was serialized as a float. That failure is
+preserved. Only external index types/owned paths were repaired before the one
+actual first-cost compile/encode,Python2/CLI2 strict restorations and full EOF
+checks. First-cost index `f91ef90a980e53d4b3f51e01632e49dbd8300f56cc489e782346540e53b1633f`;
+cost `129fbed02327a7d6ae39287bed0e268c928b05ffb626be522a632235a694d7ef`.
+
+Cancellation causality remains unproven. The unchanged compile helper has no
+separate compiler-descendant lifetime record. No DEV engine runtime,fresh
+archive,playing strength,performance or peak-RAM campaign was run. The older
+sections below record predecessor stages and their separate evidence domains.
+
 # Maintained C: derive fallback only when the completed result needs it — 2026-10-21
 
 The fixed first-cost candidate is **4897 B**, compact C **9958 B**: source34B

@@ -68,7 +68,8 @@
     "engines/compact/tiny-entry-e/shipping_zero_slots.py": "f15f17881ab84eaee88f130b782b23b2019e15dd2d44302fb26bbe9e8ea2ec6c",
     "engines/compact/tiny-entry-e/shipping_search_context.py": "55889f3535aceb764be3a07c584244337e5a0d95a4823474ad5b13e5025ccb63",
     "engines/scripts/shipping_lazy_fallback.py": "023b370e75df2d50f44641eac7d1b49091ef2424d9ed7983d6d6f3c7d700b2ce",
-    "engines/scripts/shipping_history_depth.py": "54476cfff4a77e0d3678594b01f9530f1018dd2431fa7b55c87867a870f55b0b"
+    "engines/scripts/shipping_history_depth.py": "54476cfff4a77e0d3678594b01f9530f1018dd2431fa7b55c87867a870f55b0b",
+    "engines/compact/tiny-entry-e/shipping_capture.py": "8729bef4acc4acd7071a561ee0ddfa6cd744db1397880fe53a3520e91354baf0"
   },
   "compression": {
     "format": "lzma-alone",
@@ -86,18 +87,18 @@
   "expected": {
     "readable_bytes": 28001,
     "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
-    "source_bytes": 10286,
-    "source_sha256": "d5dcfbc1abb8ffb61283680b84cd84a175fc5fe68515ea8156ff86ba4c8e38bd",
-    "native_bytes": 26368,
-    "native_sha256": "5e53c78bcffd25c51fbc519c0dcadc916c48afc463a9c8954f65b2475a89e543",
-    "whole_bytes": 4962,
-    "whole_sha256": "ae0cdde171524f50aef7f463ca297253588ef9dfcadc27bff42a1e3bc7651830",
-    "bootstrap_sha256": "2be7fdc472ac0df45eb8435ec0f07a0dda1326e1a641a8246c0d6fd4f48b8cd9",
+    "source_bytes": 10210,
+    "source_sha256": "060847dbe19b898d5a7a0f7b49ee35b2338529abb2b63073798453db227ee147",
+    "native_bytes": 26336,
+    "native_sha256": "615cf660e80de9d7a5e07534db731652486e9768cd398b797df796bbba183a3c",
+    "whole_bytes": 4950,
+    "whole_sha256": "3c2b459bc45581df9b70bda6851be6145c65f8dc2b1251b4f5d7ed058881ba5b",
+    "bootstrap_sha256": "f7e4de35baa293b5edc82fa25d65705d5b648d2fd132b3d080e8945ca0c1364a",
     "dev_source_bytes": 21314,
     "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
     "dev_native_bytes": 31376,
     "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
-    "bootstrap_bytes": 11298
+    "bootstrap_bytes": 11222
   },
   "local_input_sha256": {
     "engine.c": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
@@ -501,6 +502,14 @@
         "fresh_extra_SAN_core_strength_games_performance_CI_calls": 0,
         "annotation_only_after_run": true
       }
+    },
+    "capture_tag": {
+      "source_proof_sha256": "1476c00ffc81c3dc3ad03099db5fb4391f742ba2fb696ae89552fb56281adde1",
+      "firstcost_sha256": "f19172285eff796fb4b65dca296474642e23fb8b5f9ecc19418552b153ae6d2d",
+      "focused_index_sha256": "86e9784a4ee2b0e80e31ddb447e0a959a4e1cd70f385abed8ccada3f5c78a696",
+      "normal_status": "PASS shipping2+actualoldDEV21source/native2; unchangedselected2sessions8GO local2TT18",
+      "build_sha256": "20e24b18611cb154967cf5709050c178b63b6295284691170454636e0657e554",
+      "runtime_sha256": "5611021f83bb35228c686033b5547439c84a3a5c587083d53307b2f632387cd2"
     }
   },
   "provenance": {
@@ -1588,5 +1597,133 @@
       "fresh_archive_extra_SAN_core_games_fault_negative_benchmark_CI_Git": 0,
       "research_JSON_generation_inputs": 0
     }
+  },
+  "capture_tag": {
+    "scope": "E-only shipping after derived history; canonical and old DEV21 bypass; no model/parameter/resource/compiler/codec change",
+    "helper_sha256": "8729bef4acc4acd7071a561ee0ddfa6cd744db1397880fe53a3520e91354baf0",
+    "metadata": {
+      "family": "E",
+      "stage": "E-shipping-capture-only-Move-bit3",
+      "input_bytes": 10286,
+      "input_sha256": "d5dcfbc1abb8ffb61283680b84cd84a175fc5fe68515ea8156ff86ba4c8e38bd",
+      "output_bytes": 10210,
+      "output_sha256": "060847dbe19b898d5a7a0f7b49ee35b2338529abb2b63073798453db227ee147",
+      "raw_delta": -76,
+      "edits": 8,
+      "literal_regions": 8,
+      "gap_count": 9,
+      "protected_gaps": 9,
+      "full_inverse": true,
+      "all_gaps_equal": true,
+      "each_gap_pin_checked": true,
+      "complement_bytes": 9938,
+      "complement_sha256": "31dd351095d2ba79ef18b3931381bc9afa12f5a1c218c69b84078351cb35b877",
+      "private_Move_ABI_changed": true,
+      "capture_bit": 3,
+      "FROM_mask": 119,
+      "TO_PROMO_TT17_unchanged": true,
+      "quiet_promotion_tag": 0,
+      "PROMO_separate": true,
+      "classes": {
+        "quiet_castle_doublepush": 0,
+        "nonpawn_capture": 1,
+        "pawn_push": 2,
+        "pawn_capture_EP": 3
+      },
+      "quiet_raw_Move_noise_unchanged": true,
+      "E19_weights_S_R_and_accumulators_protected": true,
+      "fresh_TT_required": true,
+      "old_new_TT_state_must_not_mix": true,
+      "canonical_DEV_unchanged": true,
+      "native_Move_TT_raw_identity_claimed": false,
+      "runtime_qualification_claimed": false,
+      "external_reads": 0,
+      "compiler_codec_engine_executed_by_transform": 0
+    },
+    "predecessor_expected": {
+      "readable_bytes": 28001,
+      "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+      "source_bytes": 10286,
+      "source_sha256": "d5dcfbc1abb8ffb61283680b84cd84a175fc5fe68515ea8156ff86ba4c8e38bd",
+      "native_bytes": 26368,
+      "native_sha256": "5e53c78bcffd25c51fbc519c0dcadc916c48afc463a9c8954f65b2475a89e543",
+      "whole_bytes": 4962,
+      "whole_sha256": "ae0cdde171524f50aef7f463ca297253588ef9dfcadc27bff42a1e3bc7651830",
+      "bootstrap_sha256": "2be7fdc472ac0df45eb8435ec0f07a0dda1326e1a641a8246c0d6fd4f48b8cd9",
+      "dev_source_bytes": 21314,
+      "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
+      "dev_native_bytes": 31376,
+      "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
+      "bootstrap_bytes": 11298
+    },
+    "source_proof": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-ce-capture-tag-source-20261022-evidence/source-proof.json",
+      "bytes": 11929,
+      "sha256": "1476c00ffc81c3dc3ad03099db5fb4391f742ba2fb696ae89552fb56281adde1"
+    },
+    "firstcost_index": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-e-capture-tag-first-cost-20261022-evidence/final-index.json",
+      "bytes": 22167,
+      "sha256": "f19172285eff796fb4b65dca296474642e23fb8b5f9ecc19418552b153ae6d2d"
+    },
+    "focused_index": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-e-capture-tag-focused-20261022-evidence/final-index.json",
+      "bytes": 8319,
+      "sha256": "86e9784a4ee2b0e80e31ddb447e0a959a4e1cd70f385abed8ccada3f5c78a696"
+    },
+    "focused_actual": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-e-capture-tag-focused-20261022-evidence/results.json",
+      "bytes": 25064,
+      "sha256": "ef1ecac6d78071d34cb9213f7aefde6b4f59d63a035c63c2deec095e5c742ec1"
+    },
+    "focused_summary": "one fatal ASan/UBSan compile/run; exact original E52 cases and all prior result fields;819generated tags/29captures/8quietpromotions and2 independent rule boundaries per variant; normalize capturebit3 only from logical Move17 fields",
+    "normal_validation": {
+      "status": "PASS one ordinary --dev builder and unchanged selected verifier; no retry",
+      "normal_readback": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-e-capture-tag-promotion-20261022-evidence/normal-readback.json",
+        "bytes": 4993,
+        "sha256": "65e37c3cca716b5882206f5bfbe6c440d8e13c1ddf153a76b5ad656ff79bcf50"
+      },
+      "build": {
+        "path": "/home/stemxstudio/rove4k-e-capture-tag-normal-20261022/E/build/build.json",
+        "bytes": 172885,
+        "sha256": "20e24b18611cb154967cf5709050c178b63b6295284691170454636e0657e554"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-e-capture-tag-normal-20261022/E/runtime/runtime.json",
+        "bytes": 26385,
+        "sha256": "5611021f83bb35228c686033b5547439c84a3a5c587083d53307b2f632387cd2"
+      },
+      "producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-e-capture-tag-normal-20261022/E/build/inputs/recipe.json",
+        "bytes": 85758,
+        "sha256": "0bb9d7f3506fc313a3e0f094ad84025e6c878db16b74a5b9fdd57e9dfad0d4b4"
+      },
+      "producing_builder": {
+        "path": "/home/stemxstudio/rove4k-e-capture-tag-normal-20261022/E/build/inputs/build.py",
+        "bytes": 15516,
+        "sha256": "a1c5704c9924ded27c1c2906eac28818963eb49b42dd204e8ebe22dced80dd3b"
+      },
+      "producing_helper": {
+        "path": "/home/stemxstudio/rove4k-e-capture-tag-normal-20261022/E/build/inputs/shipping_capture.py",
+        "bytes": 6047,
+        "sha256": "8729bef4acc4acd7071a561ee0ddfa6cd744db1397880fe53a3520e91354baf0"
+      },
+      "shipping_reproductions": 2,
+      "old_DEV21_actual_reproductions": 2,
+      "old_DEV21_identity_reused_without_regeneration": false,
+      "unchanged_canonical_E19_model_ordering_compiler_codec_profile": true,
+      "selected_sessions": 2,
+      "selected_GO": 8,
+      "TIDs_per_session": 3,
+      "private_path_FDs_actualnative_process_reader_physical_exit": true,
+      "all_outer_groups_absent": true,
+      "owned_handles": 0,
+      "normal_retry": 0,
+      "cancellation_causality": "unproven",
+      "extra_SAN_PP_fresh_core_fault_games_benchmark_CI_Git": 0
+    },
+    "source_model_guards": "same E19 logical19/physical21/zero0,6/quadratic/order; captures bypass raw quietnoise and quietpromotion tag0/PROMO separate; fresh TT only",
+    "performance_RAM_manycore_strength_claimed": false
   }
 }
