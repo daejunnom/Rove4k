@@ -1,3 +1,69 @@
+# Maintained B: carried continuation row through singular search — 2026-10-21
+
+Complete file **5122 B**, compact C **10507 B**, native **26304 B**. The
+fixed source form removes 41 C bytes and saves 16 actual complete-file bytes
+against the 5138 B environment-form entry. The file remains 1026 bytes above
+4096. Native size is unchanged, but its complete bytes differ from the old
+image; prior full-native identity is not a qualification claim for this form.
+
+The root passes neutral continuation row 6. Four successful-made-child PVS
+calls pass the actual signed destination piece slot, including promoted piece,
+EP pawn and castling king. Same-position singular verification forwards the
+entry row unchanged, with the same Board/ply, excluded TT move and learning0.
+Black-king row 0 is valid and is never treated as the previous-move sentinel.
+All other call arguments, depth/windows, SEE and cancel-poll source ordering,
+singular eligibility/extensions, excluded TT and learning gates are retained.
+The existing positive cutoff learner body is unchanged.
+
+The current-row read advances into the caller after successful child make.
+Its value correspondence uses the initialized private/immutable child Board;
+general read timing and arbitrary observer equivalence are not claimed.
+Forwarding the existing row in the singular call itself adds no Board read.
+Quiet cutoff learning reuses the same slot as the old parent FROM column:
+shipping bit3 excludes captures, EP and every promotion from that quiet gate.
+
+The pure maintained helper follows clock and line-drain processing. It checks
+the exact 10548-byte source, unchanged readable input, seven literal regions,
+eight protected gaps, full inverse and exact 10507-byte output. Registration
+enters the frozen helper inputs and the existing dynamic fresh source closure.
+Canonical and DEV bypass this stage. Fresh was not executed. The HCE/model,
+Move ABI, gen/make, repetition, TT, correction, worker/input/pool, compiler,
+77-byte launcher and nice32/lc2 ALONE codec stay protected.
+
+One fatal ASan+UBSan compile/run compared actual old/new P across 36 pairs,
+including scores, best moves, nodes, complete Worker, complete TT key/data/lock
+bytes and caller Board preservation with memcpy snapshots. Legal children128,
+special children22 and both signed quiet contexts passed. Four black-king
+row0 pairs passed. A legal seeded TT at depth6/ttdepth3/bound1/nonmate/ply1
+satisfied singular eligibility before both calls; a separate excluded/learning0
+pair ignored seeded exact TT score64, returned draw0 and preserved learners
+and parent TT bytes. These are value/eligibility checks. Runtime singular and
+all-four-PVS branch coverage were not instrumented or inferred from nodes.
+The identical existing positive learner evidence was reused without another
+exhaustive run.
+
+One ordinary `--dev` builder reproduced shipping and unchanged DEV twice,
+consuming the new frozen helper and both exact inverse/gap metadata rows.
+The unchanged selected verifier passed quit/EOF2 sessions and eight legal GO
+epochs, restored the exact new native, and observed three persistent startup
+TIDs per session, absent private paths, physical process exit and reader EOF.
+All six observed TIDs were absent afterward. Both owned groups were absent
+with empty diagnostics. Cancellation causality remains unproven. No extra
+fresh, SAN/core campaign, game, negative, trace, performance or CI run followed.
+
+Current source SHA-256: `8c7a110e5282e75128cf76c4b706a0c79ca5890be25a93e38f1734e9fb53089e`.
+Native SHA-256: `9a0faaef78894c73883fdd4e1a688d3d437d8dde0efcc4b6d209fb7d585cbcef`.
+Bootstrap SHA-256: `df7ee285c8a63ff3f44f5caa01d28b39b29292b3192115d7e02e98aa5eae78f2`.
+Whole SHA-256: `db430ad83be9bd323495653f98ed1c5457d45daf53b9c7452ff376c8dc444ef9`.
+Build receipt SHA-256: `a906b7c87a3c5db7dfe9e513be43ed7ac88f77702afa80e689046edb303c7ecc`.
+Runtime receipt SHA-256: `f16d0c12492c8859d76ff3e246506fc4e70e9037d4c838d66b105a3108bf6cb5`.
+
+Before/producing sources and normal receipts are preserved in the external
+`rove4k-b-continuation-context-normal-20261021-evidence` folder. The original
+source proposal, read-timing clarification, first cost and first focused
+outcome remain unchanged. Only completion metadata and this README were
+annotated after execution. Historical sections keep their own image scope.
+
 # Maintained B: compact environment snapshot — 2026-10-21
 
 Complete file **5138 B**, compact C **10548 B**. The single

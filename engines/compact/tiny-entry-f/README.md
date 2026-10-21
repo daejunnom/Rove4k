@@ -1,3 +1,69 @@
+# Maintained F: history base plus recursion ply — 2026-10-21
+
+Complete full/default file **4483 B**, compact C **8566 B**, remaining
+**387 B** above4096. Derive private Worker history length from immutable
+published qh plus recursion ply f; remove only the stored cursor, its reset
+and push/pop maintenance. The exact6-span stage saves21 raw C/bootstrap
+bytes and12 actual whole-file bytes against int-token4495 B. Full HCE,
+learners, coherent full-bound TT, full-depth MTD(f), rules, witnesses and
+SMP/profile remain. The18576 B native has a new identity; native or Worker
+layout equality with the preceding entry is not claimed.
+
+`shipping_history_depth.py` follows int-token in full shipping and separate
+optional full references. Each call checks fixed input/output, all6 literal
+spans, complete inverse and7 equal gaps. DEV/canonical and actual optional
+engines bypass it. Recipe helper registration includes it in frozen inputs
+and the existing dynamic fresh-source closure; no fresh run was performed.
+
+The source invariant is old cursor=qh+ply at every U entry/return. QS depth
+can stay0 while ply increases. The sole child push precedes f+1 recursion;
+the old pop precedes stopped/result/learning, and every MTD root re-enters
+at ply0. Published qh1..4096 stays immutable until all workers finish; the
+unchanged4224-key array covers the maximum child slot4222.
+
+One fatal ASan/UBSan compile/run passed90 typed old/new pairs: all18 earlier
+terminal/HCE cases,13 horizon pairs,44 history pairs and15 public-base,
+capacity, real clock-unwind and controlled root-reentry cases. Complete
+typed key/job-key/learner arrays, Board semantic fields, all262144 TT
+key/data cells and clear locks, score/root/nodes/stop and restored cursor
+were compared. No raw Worker equality was used across the removed field.
+Nonzero-ply private cases retain explicit isolated qh=L-entryply adapters;
+this does not extend public qh. Actual think/MTD driver and pool were not
+called by that fixture. Node counts do not establish PVS/LMR/retry branches;
+unobserved root/child/research entries retain the source-induction scope.
+
+One ordinary --dev builder call reproduced current shipping twice and
+unchanged DEV twice, including exact entire first-cost candidate bytes.
+The unchanged selected verifier passed two quit/EOF sessions and8 legal
+GO epochs with the new restored native,3 startup TIDs per session, absent
+private paths and physical process/reader exit. All6 observed startup TIDs
+are absent at close. Cancellation causality remains unproven.
+
+Optional material-noise4319 B and material/move-TT4045 B each reproduced
+their old actual source/native/bootstrap/whole bytes twice while generating
+the updated8566 B full reference through the new inverse/gap checks.
+Optional DEV/runtime were not repeated. Compiler/codec/profile/model,
+canonical input and DEV expectations are unchanged.
+
+Actual full build receipt SHA-256:
+`a293b26c05cebf1fa06c28089d1f17dbd95fe59319f1a5611c149e8e9ac32b8f`.
+Actual selected runtime receipt SHA-256:
+`b54a35988f19b06f06a7021a91ef9c4cc414b2f7d2a4f3978ee85f6cb9e2d1d0`.
+Current whole SHA-256:
+`4b2eb24038f5347aa3d59f189f784c18697b2195129fad3cab0419697e768b68`.
+Current native SHA-256:
+`cc751d06f4e215e6ac80c39ae906a67d9230b677fbb43520df0d77789bb191cb`.
+
+All4 outer normal commands ended rc0 with empty diagnostics and absent
+owned groups; no cleanup/retry or live handle remains. No extra SAN, fresh,
+core, game, negative campaign, strength or performance run was added during
+promotion. Before files, producing recipe/helper/builder, command logs and
+actual receipts are preserved in
+`rove4k-full-f-history-derived-normal-20261021-evidence`. Final recipe edits
+only annotate completed normal results; original source/first-cost/focused
+evidence and prior first-failure artifacts remain unchanged. Historical
+sections below retain their own images and scope.
+
 # Maintained F: fixed plain-int keyword source form — 2026-10-21
 
 Complete full/default file **4495 B**, compact C **8587 B**, remaining

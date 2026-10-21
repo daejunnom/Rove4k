@@ -79,7 +79,8 @@
     "engines/compact/tiny-entry-f/shipping_result_stream.py": "326921d09da32c97193f126c002815d72b475b067d77871f21fb49567e4ecaad",
     "engines/compact/tiny-entry-f/shipping_depth_repetition.py": "e719af113dcca4da8e4ad6d3b44e57a8a09a5985ec35ceaf7a44ae1b1e8e6753",
     "engines/compact/tiny-entry-f/shipping_macro_literals.py": "8926a35c4d297a62ea433eb0923b06547e26f096f251c0b40c2642c7261bce10",
-    "engines/compact/tiny-entry-f/shipping_int_token.py": "adf509f08421f5c078660fd66bafb4879a4f9f2ca2ee72676de78a3b912004e5"
+    "engines/compact/tiny-entry-f/shipping_int_token.py": "adf509f08421f5c078660fd66bafb4879a4f9f2ca2ee72676de78a3b912004e5",
+    "engines/compact/tiny-entry-f/shipping_history_depth.py": "3197d492ee319e46f111ceff650e000ca3a6490c3c36fb4ffc82b4ea143f08c5"
   },
   "resource_literals": [
     [
@@ -253,22 +254,22 @@
   },
   "expected": {
     "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
-    "source_bytes": 8587,
-    "source_sha256": "a1ebe0f07ddf1889a9caa17f6903a5f2ecbc62ac3249d7006176a8aa5ce736cd",
+    "source_bytes": 8566,
+    "source_sha256": "c7da40086c5f6d0616b21a990e1296c405d6486808eb34b5d2de3c486f5e4c5e",
     "native_bytes": 18576,
-    "native_sha256": "6b59a5440c580c8073defe03518b5bfe25269547d299dff63ab98e5da6dd356f",
-    "whole_bytes": 4495,
-    "whole_sha256": "0066dd3b47a998029ca8d959a0c06a8b0eaeb4129a2c0044fc16e577054c7886",
+    "native_sha256": "cc751d06f4e215e6ac80c39ae906a67d9230b677fbb43520df0d77789bb191cb",
+    "whole_bytes": 4483,
+    "whole_sha256": "4b2eb24038f5347aa3d59f189f784c18697b2195129fad3cab0419697e768b68",
     "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
     "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
-    "bootstrap_sha256": "6fa895be1eed60ced2e09deec40244aa8a39d698e899e390ebe8cda3a188f481",
+    "bootstrap_sha256": "f6634e859be6664eb87e6795e5de76020366e94ed7fcf38013e25ace5fe1c813",
     "semantic_readable_bytes": 25720,
     "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
     "dev_source_bytes": 19488,
     "dev_native_bytes": 26984,
     "input_profile_readable_bytes": 28587,
     "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
-    "bootstrap_bytes": 9560
+    "bootstrap_bytes": 9539
   },
   "local_input_sha256": {
     "engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
@@ -3654,6 +3655,222 @@
       "metadata_only_after_execution": true,
       "no_new_functional_ASAN_fixture_runs": true,
       "PP_and_entire_native_first_cost_proof_reused": true
+    }
+  },
+  "derived_history_depth": {
+    "scope": "full shipping and separately generated optional full references after int-token; DEV/canonical/actual optional source bypass",
+    "helper_sha256": "3197d492ee319e46f111ceff650e000ca3a6490c3c36fb4ffc82b4ea143f08c5",
+    "input_bytes": 8587,
+    "input_sha256": "a1ebe0f07ddf1889a9caa17f6903a5f2ecbc62ac3249d7006176a8aa5ce736cd",
+    "output_bytes": 8566,
+    "output_sha256": "c7da40086c5f6d0616b21a990e1296c405d6486808eb34b5d2de3c486f5e4c5e",
+    "raw_delta": -21,
+    "old_whole_bytes": 4495,
+    "new_whole_bytes": 4483,
+    "actual_whole_delta": -12,
+    "old_native_sha256": "6b59a5440c580c8073defe03518b5bfe25269547d299dff63ab98e5da6dd356f",
+    "new_native_sha256": "cc751d06f4e215e6ac80c39ae906a67d9230b677fbb43520df0d77789bb191cb",
+    "native_entire_bytes_equal": false,
+    "Worker_layout_identity_claimed": false,
+    "full_inverse_and_each_gap_checked_every_call": true,
+    "complement": {
+      "bytes": 8548,
+      "sha256": "cd2e31eb3d2c95ecdc59973fd44d9c6c703627cba14091ce58ffccea5257a5cf"
+    },
+    "source_final_index": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-full-f-history-derived-source-20261021-evidence/final-index.json",
+      "bytes": 7924,
+      "sha256": "da4a4fd526824e697eaeb4446af30995a2e70c73e3bd6beccfae7f56c6ffd50d"
+    },
+    "first_cost_final_index": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-full-f-history-derived-first-cost-20261021-evidence/final-index.json",
+      "bytes": 12197,
+      "sha256": "06647e252f0868427147c51a92840e7a846b44b9eeeb6f7d4e88e47f91d70fac"
+    },
+    "focused_final_index": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-full-f-history-derived-focused-20261021-evidence/final-index.json",
+      "bytes": 12399,
+      "sha256": "3ed3ec8a767ff279ec5c687785ee8c17649f2db1e67f8071df648a287e9975b8"
+    },
+    "focused_result": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-full-f-history-derived-focused-20261021-evidence/actual-results/results.json",
+      "bytes": 34798,
+      "sha256": "845f229d44f45425b63bec1777c3314490416eab02cadcdb9cc88119f90dd08d"
+    },
+    "focused_pairs": {
+      "legacy": 18,
+      "horizon": 13,
+      "history": 44,
+      "boundary_public_base_reentry": 15
+    },
+    "raw_Worker_comparison": false,
+    "actual_think_or_MTD_pool_run_in_fixture": false,
+    "PVS_LMR_retry_branch_coverage_claimed": false,
+    "public_qh_domain_extended": false,
+    "normal_validation": {
+      "status": "PASS",
+      "full": {
+        "build_receipt": {
+          "path": "/home/stemxstudio/rove4k-full-f-history-derived-normal-20261021/F/build/build.json",
+          "bytes": 206357,
+          "sha256": "a293b26c05cebf1fa06c28089d1f17dbd95fe59319f1a5611c149e8e9ac32b8f"
+        },
+        "runtime_receipt": {
+          "path": "/home/stemxstudio/rove4k-full-f-history-derived-normal-20261021/F/runtime/runtime.json",
+          "bytes": 60796,
+          "sha256": "b54a35988f19b06f06a7021a91ef9c4cc414b2f7d2a4f3978ee85f6cb9e2d1d0"
+        },
+        "producing_recipe": {
+          "path": "/home/stemxstudio/rove4k-full-f-history-derived-normal-20261021/F/build/inputs/recipe.json",
+          "bytes": 201866,
+          "sha256": "ef089de48ec6d12cd9b8e559b02ff2d7a1f0a093d1a3aa932a94a2c62615aee3"
+        },
+        "artifacts": {
+          "source": {
+            "path": "/home/stemxstudio/rove4k-full-f-history-derived-normal-20261021/F/build/main.c",
+            "bytes": 8566,
+            "sha256": "c7da40086c5f6d0616b21a990e1296c405d6486808eb34b5d2de3c486f5e4c5e"
+          },
+          "native": {
+            "path": "/home/stemxstudio/rove4k-full-f-history-derived-normal-20261021/F/build/native/x",
+            "bytes": 18576,
+            "sha256": "cc751d06f4e215e6ac80c39ae906a67d9230b677fbb43520df0d77789bb191cb"
+          },
+          "bootstrap": {
+            "path": "/home/stemxstudio/rove4k-full-f-history-derived-normal-20261021/F/build/bootstrap.py",
+            "bytes": 9539,
+            "sha256": "f6634e859be6664eb87e6795e5de76020366e94ed7fcf38013e25ace5fe1c813"
+          },
+          "whole": {
+            "path": "/home/stemxstudio/rove4k-full-f-history-derived-normal-20261021/F/build/x",
+            "bytes": 4483,
+            "sha256": "4b2eb24038f5347aa3d59f189f784c18697b2195129fad3cab0419697e768b68"
+          }
+        },
+        "shipping_reproductions": 2,
+        "unchanged_DEV_reproductions": 2,
+        "entire_measured_source_native_bootstrap_whole_reproduced": true,
+        "native_entire_bytes_equal_to_previous": false,
+        "sessions": 2,
+        "legal_GO_epochs": 8,
+        "startup_TIDs_per_session": 3,
+        "observed_startup_TIDs": [
+          706,
+          718,
+          719,
+          720,
+          732,
+          733
+        ],
+        "all_observed_TIDs_absent": true,
+        "private_path_image_process_readers_physical_exit": true,
+        "cancellation_causality": "unproven"
+      },
+      "optional_policy_builds": {
+        "material-noise": {
+          "build_receipt": {
+            "path": "/home/stemxstudio/rove4k-full-f-history-derived-normal-20261021/F-material/build/build.json",
+            "bytes": 161832,
+            "sha256": "8ec9f3ca833f59974d24b3fb40dbb8019377dfb798eafb56c71a4c383880b426"
+          },
+          "producing_recipe": {
+            "path": "/home/stemxstudio/rove4k-full-f-history-derived-normal-20261021/F-material/build/inputs/recipe.json",
+            "bytes": 201866,
+            "sha256": "ef089de48ec6d12cd9b8e559b02ff2d7a1f0a093d1a3aa932a94a2c62615aee3"
+          },
+          "artifacts": {
+            "source": {
+              "path": "/home/stemxstudio/rove4k-full-f-history-derived-normal-20261021/F-material/build/main.c",
+              "bytes": 8508,
+              "sha256": "a7b50f5d084b558c1fb07f3c4c572afa29291a4982ddd00fd783f187a3f74c93"
+            },
+            "native": {
+              "path": "/home/stemxstudio/rove4k-full-f-history-derived-normal-20261021/F-material/build/native/x",
+              "bytes": 18576,
+              "sha256": "24ae0622c5a0fd10191950f53e0f6ea5d3e3d05fbb1b20aaa72c2b5f2754873f"
+            },
+            "bootstrap": {
+              "path": "/home/stemxstudio/rove4k-full-f-history-derived-normal-20261021/F-material/build/bootstrap.py",
+              "bytes": 9481,
+              "sha256": "d5154ad0ce7db5a9968cf0a80c3da36269aaa154af4831a57e0b5ad4b2585f7f"
+            },
+            "whole": {
+              "path": "/home/stemxstudio/rove4k-full-f-history-derived-normal-20261021/F-material/build/x",
+              "bytes": 4319,
+              "sha256": "dd9566fcb5b9373244703be1201715f286a2cde66db397dc0ef2e0372ac7be5f"
+            }
+          },
+          "shipping_reproductions": 2,
+          "DEV_runs": 0,
+          "runtime_runs": 0,
+          "actual_tuple_entire_bytes_equal_to_prior_normal": true,
+          "new_full_reference_source_matches": true,
+          "new_full_reference_inverse_gaps_checked": true
+        },
+        "material-move-tt": {
+          "build_receipt": {
+            "path": "/home/stemxstudio/rove4k-full-f-history-derived-normal-20261021/F-move/build/build.json",
+            "bytes": 183850,
+            "sha256": "d43041a2af38b8434c865271f36203cf5b0a0c473dde8d2db044fee5eef646cf"
+          },
+          "producing_recipe": {
+            "path": "/home/stemxstudio/rove4k-full-f-history-derived-normal-20261021/F-move/build/inputs/recipe.json",
+            "bytes": 201866,
+            "sha256": "ef089de48ec6d12cd9b8e559b02ff2d7a1f0a093d1a3aa932a94a2c62615aee3"
+          },
+          "artifacts": {
+            "source": {
+              "path": "/home/stemxstudio/rove4k-full-f-history-derived-normal-20261021/F-move/build/main.c",
+              "bytes": 7741,
+              "sha256": "6d3fa3e0099285dd9efe8934f7b419fdd204f80ed4eaf502ad64a9f5b2e12122"
+            },
+            "native": {
+              "path": "/home/stemxstudio/rove4k-full-f-history-derived-normal-20261021/F-move/build/native/x",
+              "bytes": 18576,
+              "sha256": "1a964e23bc8967b6eb74714389b4d94fd0e505d5d1eba3616775b7e4b0a522d5"
+            },
+            "bootstrap": {
+              "path": "/home/stemxstudio/rove4k-full-f-history-derived-normal-20261021/F-move/build/bootstrap.py",
+              "bytes": 8714,
+              "sha256": "39d03ecca6211628b1748a72390a3bec71681cb8e2f0f0999481dc83ebc0dc5c"
+            },
+            "whole": {
+              "path": "/home/stemxstudio/rove4k-full-f-history-derived-normal-20261021/F-move/build/x",
+              "bytes": 4045,
+              "sha256": "825108ca4528301f091d3deb44aaaf890b0ae54ac81bbebfbd6ff7e170d65c29"
+            }
+          },
+          "shipping_reproductions": 2,
+          "DEV_runs": 0,
+          "runtime_runs": 0,
+          "actual_tuple_entire_bytes_equal_to_prior_normal": true,
+          "new_full_reference_source_matches": true,
+          "new_full_reference_inverse_gaps_checked": true
+        }
+      },
+      "normal_commands": {
+        "full": {
+          "path": "/home/stemxstudio/rove4k-full-f-history-derived-normal-20261021/commands/full.json",
+          "bytes": 1892,
+          "sha256": "5ccf15002f631428aa07eadb21356b96ee7bc5caf4001a2783095b1c277956a3"
+        },
+        "material": {
+          "path": "/home/stemxstudio/rove4k-full-f-history-derived-normal-20261021/commands/material.json",
+          "bytes": 1948,
+          "sha256": "adb2f3ec54b5519c599a2f0f0f0d46086e19a6364c8e79c340d2db9add88739b"
+        },
+        "move": {
+          "path": "/home/stemxstudio/rove4k-full-f-history-derived-normal-20261021/commands/move.json",
+          "bytes": 1934,
+          "sha256": "3d076887e8e72b8c9e771ed957ca6f9c3bc9be608f951b5c346c39aa174a224f"
+        },
+        "selected": {
+          "path": "/home/stemxstudio/rove4k-full-f-history-derived-normal-20261021/commands/selected.json",
+          "bytes": 2000,
+          "sha256": "93a26197287883c50b8c77769e7257d23003fbda93f05eabc669d2b5edb0e2fb"
+        }
+      },
+      "metadata_only_after_execution": true
     }
   }
 }

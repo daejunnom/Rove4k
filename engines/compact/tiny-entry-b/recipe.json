@@ -68,7 +68,8 @@
     "engines/scripts/shipping_includes.py": "d7c3ad6e7811d848b0d6bab7331c929ab2c3175cd030438ddc81d22ea8cdf4bc",
     "engines/compact/tiny-entry-b/shipping_guard.py": "af47d979479a95026c8516d49b762d9db2175c0d39117d1ee89872bd3ad97048",
     "engines/scripts/shipping_clock.py": "46c19879deae1d056f4b059c6c7d9667a3e935110dfb33015b29fd0dec4d8c43",
-    "engines/compact/tiny-entry-b/shipping_line_drain.py": "8f613988384235f8af8114ff39236cbf831f1aaccd5d9160a70d688e6d03bc01"
+    "engines/compact/tiny-entry-b/shipping_line_drain.py": "8f613988384235f8af8114ff39236cbf831f1aaccd5d9160a70d688e6d03bc01",
+    "engines/compact/tiny-entry-b/shipping_search_context.py": "39b39640187daf5242f791730e454d55755c1802cc3b6ffc55530a35df403678"
   },
   "compression": {
     "format": "lzma-alone",
@@ -85,16 +86,16 @@
   },
   "expected": {
     "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
-    "source_bytes": 10548,
-    "source_sha256": "d91416e56e2b7716b9df2bec5db22c1f9d3f6ded5598d80741d68487ecc09bbb",
+    "source_bytes": 10507,
+    "source_sha256": "8c7a110e5282e75128cf76c4b706a0c79ca5890be25a93e38f1734e9fb53089e",
     "native_bytes": 26304,
-    "native_sha256": "456956420deddff56280323fdba19812256772929ab8179e9fc28233ddead5c7",
-    "whole_bytes": 5138,
-    "whole_sha256": "d048764814144c1b526f73a38112096be9ebefe64a4e91719852f7fc8c2d1366",
+    "native_sha256": "9a0faaef78894c73883fdd4e1a688d3d437d8dde0efcc4b6d209fb7d585cbcef",
+    "whole_bytes": 5122,
+    "whole_sha256": "db430ad83be9bd323495653f98ed1c5457d45daf53b9c7452ff376c8dc444ef9",
     "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
     "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
-    "bootstrap_sha256": "ecf670b9cb9122909f5dbff30430cec901514f522ba0f2df6896ea22a5b8683b",
-    "bootstrap_bytes": 11587
+    "bootstrap_sha256": "df7ee285c8a63ff3f44f5caa01d28b39b29292b3192115d7e02e98aa5eae78f2",
+    "bootstrap_bytes": 11546
   },
   "local_input_sha256": {
     "engine.c": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
@@ -673,6 +674,52 @@
         "builder_separate_compiler_descendant_lifetime_proof": false
       },
       "fresh_executions": 0
+    },
+    "search_context": {
+      "scope": "current fixed shipping continuation row form; prior receipt images retain their own historical source/native identities",
+      "focused_SAN_sha256": "79797c4ce9578d103134db868e50413e506689360897292907e13bd40bcdbd62",
+      "old_new_actual_search_pairs": 36,
+      "entire_native_equal_to_predecessor": false,
+      "runtime_singular_PVS_branch_observed": false,
+      "existing_positive_learner_unchanged": true,
+      "normal_validation": {
+        "status": "PASS one ordinary --dev builder and unchanged selected verifier; first attempt",
+        "scope": "local fixed2-worker TT18 actual shipping reproduction and selected restoration/physical fences; focused component proof, normal, CI/strength/hardware are separate",
+        "producing_recipe": {
+          "path": "/home/stemxstudio/rove4k-b-continuation-context-normal-20261021/inputs/recipe.json",
+          "bytes": 76360,
+          "sha256": "73ceb2f6c89ff7cdf9fc8ae658a6cdfe4218fd5b0e257d91984bacd00490f95d"
+        },
+        "producer_build": {
+          "path": "/home/stemxstudio/rove4k-b-continuation-context-normal-20261021/build.json",
+          "bytes": 164282,
+          "sha256": "a906b7c87a3c5db7dfe9e513be43ed7ac88f77702afa80e689046edb303c7ecc"
+        },
+        "selected_runtime": {
+          "path": "/home/stemxstudio/rove4k-b-continuation-context-normal-20261021-runtime/runtime.json",
+          "bytes": 37582,
+          "sha256": "f16d0c12492c8859d76ff3e246506fc4e70e9037d4c838d66b105a3108bf6cb5"
+        },
+        "normal_results": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-b-continuation-context-normal-20261021-evidence/normal-results.json",
+          "bytes": 19580,
+          "sha256": "7b6028d6ba63a1a55ce37d871582c843b6bb6616a0dee2b4783d3eaeb3addd5f"
+        },
+        "shipping_reproductions": 2,
+        "unchanged_DEV_reproductions": 2,
+        "selected_quit_EOF_sessions": 2,
+        "legal_GO_results": 8,
+        "startup_TIDs_per_session": 3,
+        "native_restored_private_path_absent_physical_process_reader_exit": true,
+        "startup_TIDs_closed": 6,
+        "owned_handles": 0,
+        "entire_native_equal_to_predecessor": false,
+        "cancellation_causality": "unproven",
+        "runtime_PVS_ports_observed": false,
+        "runtime_singular_branch_observed": false,
+        "extra_fresh_SAN_core_game_negative_trace_performance_CI_runs": 0,
+        "annotation_only_after_run": true
+      }
     }
   },
   "provenance": {
@@ -1346,6 +1393,84 @@
         "098141",
         "934f4f"
       ]
+    }
+  },
+  "search_context": {
+    "stage": "shipping only after clock_presence and line_drain; canonical/DEV bypass unchanged",
+    "helper": "shipping_search_context.py",
+    "helper_sha256": "39b39640187daf5242f791730e454d55755c1802cc3b6ffc55530a35df403678",
+    "source_before_bytes": 10548,
+    "source_before_sha256": "d91416e56e2b7716b9df2bec5db22c1f9d3f6ded5598d80741d68487ecc09bbb",
+    "source_after_bytes": 10507,
+    "source_after_sha256": "8c7a110e5282e75128cf76c4b706a0c79ca5890be25a93e38f1734e9fb53089e",
+    "root_neutral_slot": 6,
+    "black_king_slot0_valid": true,
+    "same_position": "entry row forwarded unchanged with same p/n, excluded tt, learning0; no child read in the forwarding expression",
+    "made_child": "all four PVS calls receive signed already-made destination piece plus6",
+    "read_timing": "row read is advanced into caller after successful make of a private/immutable child; general timing/observer equivalence is not claimed",
+    "positive_learner_unchanged": true,
+    "exact_regions": 7,
+    "protected_gaps": 8,
+    "full_source_inverse": true,
+    "entire_native_equal_to_predecessor": false,
+    "cost_sha256": "26e9f3b05e4cb588d1671b09f41a750fab27834cede4adf29d6a5269e420dd5d",
+    "focused_SAN_sha256": "79797c4ce9578d103134db868e50413e506689360897292907e13bd40bcdbd62",
+    "focused_old_new_pairs": 36,
+    "forced_singular_eligibility_pairs": 1,
+    "direct_excluded_pairs": 1,
+    "runtime_PVS_ports_observed": false,
+    "runtime_singular_branch_observed": false,
+    "scope": "manual fixed shipping source. Protected SEE/cancel/singular/depth/learning behavior, focused actual value state equality and future selected normal remain separate from CI/strength/hardware qualification",
+    "previous_expected": {
+      "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+      "source_bytes": 10548,
+      "source_sha256": "d91416e56e2b7716b9df2bec5db22c1f9d3f6ded5598d80741d68487ecc09bbb",
+      "native_bytes": 26304,
+      "native_sha256": "456956420deddff56280323fdba19812256772929ab8179e9fc28233ddead5c7",
+      "whole_bytes": 5138,
+      "whole_sha256": "d048764814144c1b526f73a38112096be9ebefe64a4e91719852f7fc8c2d1366",
+      "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
+      "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
+      "bootstrap_sha256": "ecf670b9cb9122909f5dbff30430cec901514f522ba0f2df6896ea22a5b8683b",
+      "bootstrap_bytes": 11587
+    },
+    "normal_validation": {
+      "status": "PASS one ordinary --dev builder and unchanged selected verifier; first attempt",
+      "scope": "local fixed2-worker TT18 actual shipping reproduction and selected restoration/physical fences; focused component proof, normal, CI/strength/hardware are separate",
+      "producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-b-continuation-context-normal-20261021/inputs/recipe.json",
+        "bytes": 76360,
+        "sha256": "73ceb2f6c89ff7cdf9fc8ae658a6cdfe4218fd5b0e257d91984bacd00490f95d"
+      },
+      "producer_build": {
+        "path": "/home/stemxstudio/rove4k-b-continuation-context-normal-20261021/build.json",
+        "bytes": 164282,
+        "sha256": "a906b7c87a3c5db7dfe9e513be43ed7ac88f77702afa80e689046edb303c7ecc"
+      },
+      "selected_runtime": {
+        "path": "/home/stemxstudio/rove4k-b-continuation-context-normal-20261021-runtime/runtime.json",
+        "bytes": 37582,
+        "sha256": "f16d0c12492c8859d76ff3e246506fc4e70e9037d4c838d66b105a3108bf6cb5"
+      },
+      "normal_results": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-b-continuation-context-normal-20261021-evidence/normal-results.json",
+        "bytes": 19580,
+        "sha256": "7b6028d6ba63a1a55ce37d871582c843b6bb6616a0dee2b4783d3eaeb3addd5f"
+      },
+      "shipping_reproductions": 2,
+      "unchanged_DEV_reproductions": 2,
+      "selected_quit_EOF_sessions": 2,
+      "legal_GO_results": 8,
+      "startup_TIDs_per_session": 3,
+      "native_restored_private_path_absent_physical_process_reader_exit": true,
+      "startup_TIDs_closed": 6,
+      "owned_handles": 0,
+      "entire_native_equal_to_predecessor": false,
+      "cancellation_causality": "unproven",
+      "runtime_PVS_ports_observed": false,
+      "runtime_singular_branch_observed": false,
+      "extra_fresh_SAN_core_game_negative_trace_performance_CI_runs": 0,
+      "annotation_only_after_run": true
     }
   }
 }
