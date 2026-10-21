@@ -1,3 +1,16 @@
+# F2 digit/FD producer provenance — validated 2026-10-22
+
+Only the F2 builder pin and new shipping_digit_fd helper are added to current
+producer provenance. F8 still consumes pre-name8538/47353... before F2 late
+selector/rank/digit, then applies its unchanged names and six resource roles.
+F8 does not invoke the new full-template FD transform; its source/native/
+bootstrap/whole4442, own nice24/header73 and nine-TID conditions remain exact.
+Shared bootstrap_full/source_package and all historical receipts stay unchanged.
+F2 ordinary root/attempt1/attempt2 pre-name8538/47353... all equal the actual
+qualified predecessor. The current51-file producer closure matches its source
+bytes. Existing F8 positive evidence is reused only for unchanged selected inputs;
+new F8 compile/encode/runtime is0.
+
 # F2 full nice16 producer provenance - 2026-10-22
 
 F2 changes its own full encoder nice24 ->16, with unchanged C/native/bootstrap.

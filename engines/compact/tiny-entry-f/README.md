@@ -1,3 +1,40 @@
+# Maintained F full4424: ASCII digit guard + Linux readonly FD — 2026-10-22
+
+The explicit composition first-cost is4424 B,13 below qualified4437 and5 below
+best independent FD4429. New pure shipping_digit_fd.py owns two separate exact
+transforms: post-local-rank full C8509 ->8497, and full prepared template947 ->937
+before inserting any source literal. The latter yields bootstrap9419. Each
+transform checks exact input/output hashes, one span, two gaps and full inverse.
+The same source stage updates each optional policy's separate full_reference;
+actual material4319/move4045 products and every DEV stage bypass both changes.
+Canonical, prior guards, source-before-names8538/47353..., F8's own source/nice24/
+4442/9-TID conditions, full2 workers/TT18/nice16/header73 and search/model stay.
+Shared bootstrap_full/source_package remain byte-identical.
+
+The source expression preserves ASCII/int32/unsigned32 modulo arithmetic, null
+short circuit and one char load. Existing strtoull/end/high-bit checks and clock
+consumers are protected. FD flag0 is standard os.O_RDONLY0 on the selected Linux
+ABI; private-path/FD lifetime, signal mask/Popen publication, group kill/wait,
+argv/stdin/stderr ownership stay. Python source/bytecode/attribute/traceback and
+timing equivalence, OS-generic equivalence and performance gains are not claimed.
+The independently compiled numeric native is entirely equal to ea471236...;
+the actual new bootstrap/whole now pass the ordinary and selected runs.
+
+One ordinary full --dev reproduces actual source8497/native18576/bootstrap9419/
+whole4424 twice plus unchanged DEV2. One unchanged selected verifier passes the
+new whole in quit/EOF2sessions8GO with restored nativeea471, stable3 TIDs and
+physical process/readers exit. Both optional ordinary builders run once --dev:
+actual selected source/native/bootstrap/whole4319/4045 stay entire-byte exact to
+their predecessors, each separate full_reference is8497, and unchanged DEV2each
+also reproduce. No new optional selected, F8 runtime, SAN/NVC or codec search.
+All four original commands are reaped rc0/groups absent/forcedcleanup0/owned0.
+Full build receipt:f37fa223dac52b632f89c337fe27aa1658f0bff52ba029a9d3062b159ef538a8
+Runtime receipt:a3935e9342efbb809b73b66b405cc9e179b8e3d3d7ebceb62b4f6cb7ec523ccd
+First-cost and producing snapshots remain distinct from these normal receipts.
+Original source-only and independent/composition indices stay frozen. The external
+promotion producer and receipts are under
+`rove4k-f-digit-fd-promotion-20261022-evidence`.
+
 # Maintained full F: nice16 codec selection - 2026-10-22
 
 The selected complete file is4437 B, one below the qualified rank4438.

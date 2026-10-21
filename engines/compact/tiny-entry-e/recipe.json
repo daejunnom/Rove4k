@@ -72,7 +72,8 @@
     "engines/compact/tiny-entry-e/shipping_capture.py": "8729bef4acc4acd7071a561ee0ddfa6cd744db1397880fe53a3520e91354baf0",
     "engines/scripts/source_package.py": "55fa739e7c17fffdb3bf1191c7a26aa38d35e9e32473e4008c23ece3d5703d1f",
     "engines/compact/tiny-entry-e/shipping_ordering_side.py": "ed68850e2939a773659bc0154b102bb69d35b117afae7760cc56779cf8888948",
-    "engines/compact/tiny-entry-e/shipping_center.py": "7a9621bd54a02509d2bcf628f8813f83016302b5ef372da222627bfce027dd51"
+    "engines/compact/tiny-entry-e/shipping_center.py": "7a9621bd54a02509d2bcf628f8813f83016302b5ef372da222627bfce027dd51",
+    "engines/compact/tiny-entry-e/newshipping_terminal.py": "e30e8839099e8b88a318ada069789fff95f345a2d9ed3fecd0eb797d7d871e3f"
   },
   "compression": {
     "format": "lzma-alone",
@@ -90,18 +91,18 @@
   "expected": {
     "readable_bytes": 28001,
     "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
-    "source_bytes": 10190,
-    "source_sha256": "34cc868b06252cb25a58be54d9e8fecb26cd6705d159533363ab57aa96b70bcd",
+    "source_bytes": 10142,
+    "source_sha256": "260c30750d1ee11a569d1d8916a9d7fb38883df80571559f16e1b5a05cfb783c",
     "native_bytes": 26336,
-    "native_sha256": "953d8bd582a96cea2339acc9ca137a30716a834cc497bcbb29950b0564b4fe7a",
-    "whole_bytes": 4933,
-    "whole_sha256": "c8c360ab38119d4d48ce60991f536f996fe0ebdc9963ea95fda9b11e4510f3b4",
-    "bootstrap_sha256": "d5582661260276e65a410a2fcec9bb1e245f2dc4a49e047a061088879f718a25",
+    "native_sha256": "5a1f68ee513193876fbf78d05d5670b923c143688c48751f18c9bc82d67b0858",
+    "whole_bytes": 4924,
+    "whole_sha256": "07649b90730158461463b070d628af0985bb63eb366cd028a6ae9ec84d495ed5",
+    "bootstrap_sha256": "497f158a0e5b733fbe9f9cd106c5dc1a11fb8d8da7b1c4898074a3a5a4a5d520",
     "dev_source_bytes": 21314,
     "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
     "dev_native_bytes": 31376,
     "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
-    "bootstrap_bytes": 11202
+    "bootstrap_bytes": 11154
   },
   "local_input_sha256": {
     "engine.c": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
@@ -675,6 +676,90 @@
         "scope": "Current E4933/73header restored native image and unchanged selected2worker startup/input/quit/EOF paths. Source algebra+64valid domain closes d/R feature effect; no repeat SAN. Cancellation causality, timed node/bestmove equality, performance/strength/full qualification remain unproven",
         "prior_CI": "E4935 8f9890e prior-head CI is separate; no new-head CI claimed here"
       }
+    },
+    "terminal_sharing": {
+      "scope": "Current four-region terminal sharing: source contract, fixed firstcost, actual E terminal-only fatalSAN and ordinary/selected E4924 wrapper. Prior native/CI/feature qualifications remain separate ancestry.",
+      "firstcost": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-terminal-sharing-first-cost-20261022-evidence/final-index.json",
+        "bytes": 11487,
+        "sha256": "7987545ad0a81394a69d181d9aca9a59c276be5b0335c41d8451d90497797993"
+      },
+      "native_entire_bytes_equal_to_predecessor": false,
+      "focused_status": "PASS",
+      "normal_status": "PASS",
+      "focused_validation": {
+        "status": "PASS one fatal ASan/UBSan actual old/new terminal function compile/run",
+        "index": {
+          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-terminal-focused-20261022-evidence/final-index.json",
+          "bytes": 10720,
+          "sha256": "4ae4eb41a5c90be920572a260e077d025318a5854ad7e2629eae8fd9e5a93a7c"
+        },
+        "result": {
+          "path": "/home/stemxstudio/rove4k-e-terminal-focused-20261022-v1/results.json",
+          "bytes": 10621,
+          "sha256": "712ebd273d9d2b935128963b1ea6c8e635abdb83b5f0a26d4f674fb923ad8339"
+        },
+        "actual_old_calls": 28,
+        "actual_new_calls": 28,
+        "engine_main_pool_runs": 0,
+        "every_case_returns_before_first_recursive_call": true,
+        "typed_parent_workers_learners_job_root_stop_TT_final_state_preserved": true,
+        "no_transient_atomic_trace_claim": true,
+        "original_handles_terminal_reaped_group_absent_at_settlement": true,
+        "owned_handles": 0
+      },
+      "normal_validation": {
+        "status": "ordinary --dev and unchanged selected wrapper PASS",
+        "build": {
+          "path": "/home/stemxstudio/rove4k-e-terminal-sharing-normal-20261022/build/build.json",
+          "bytes": 195999,
+          "sha256": "769e345bfacc0c614a5fe0073e2a88df61b2cd81eb216213bb88c1bd825bbabe"
+        },
+        "runtime": {
+          "path": "/home/stemxstudio/rove4k-e-terminal-sharing-normal-20261022/runtime/runtime.json",
+          "bytes": 37947,
+          "sha256": "d9dd187e9d4c50e6c9974c3bd2309cf1661910a68bc84890643592af0efc14c5"
+        },
+        "supervisor_results": {
+          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-terminal-sharing-normal-20261022-evidence/normal-results.json",
+          "bytes": 23750,
+          "sha256": "61818588a7f06d51063585da1e01fb80dcf68cfa1ce860612561b97dc03a2c31"
+        },
+        "original_handle_exit": {
+          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-terminal-sharing-normal-20261022-evidence/physical-exit.json",
+          "bytes": 604,
+          "sha256": "130725d3c941a650927a663480bdc15748ef09946016af3ba0515899d0a18fea"
+        },
+        "producing_recipe": {
+          "path": "/home/stemxstudio/rove4k-e-terminal-sharing-normal-20261022/build/inputs/recipe.json",
+          "bytes": 120461,
+          "sha256": "26d305eaa9e3f509929564c8d1a4aca1b0e1fc20152af56fb9a98ca906b55f33"
+        },
+        "producing_readme": {
+          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-terminal-sharing-normal-20261022-evidence/producing/engines/compact/tiny-entry-e/README.md",
+          "bytes": 64557,
+          "sha256": "506336f33aa2b46789a282640b6dc08b8c4ac7ebc2fbb9b981c304e8d4aa51aa"
+        },
+        "normal_builder_calls": 1,
+        "shipping_reproductions": 2,
+        "unchanged_DEV_reproductions": 2,
+        "selected_verifier_calls": 1,
+        "selected_sessions": 2,
+        "session_terminations": [
+          "quit",
+          "EOF"
+        ],
+        "actual_source_native_bootstrap_whole_entire_bytes_equal_to_firstcost": true,
+        "old_DEV_entire_source_native_equal": true,
+        "new_native_entire_bytes_equal_to_predecessor": false,
+        "current_input_pins_stable_during_commands": true,
+        "original_handles_terminal_reaped_group_absent_at_settlement": true,
+        "owned_handles": 0,
+        "cost_reruns": 0,
+        "positive_coordination": "A original terminal -> B original terminal -> E original focus/normal/selected -> F owner notified only after E original terminal/owned0",
+        "scope": "Actual E4924 restored native image and unchanged selected2worker input/quit/EOF paths. FatalSAN focused terminal domain is separate; private terminal ordering/work/timing/SMP interleaving may differ. Cancellation causality, timed nodes/bestmove, performance/strength/full qualification remain unproven",
+        "new_head_CI_claimed": false
+      }
     }
   },
   "provenance": {
@@ -693,7 +778,8 @@
       "fixed_header_domain": "sole actual compiler entire native equality; only C fixed late immintrin inclusion admitted"
     },
     "ordering_side": "Fixed pure late E stage reuses generator-owned mover side in R; removes sign-only local; canonical/DEV unchanged; no runtime artifact or research input.",
-    "center_feature": "One pure late Q function span shares mirrored axis-min construction as centered Manhattan; actual valid0x88 d/R domain unchanged, readable model/DEV original reference admitted first."
+    "center_feature": "One pure late Q function span shares mirrored axis-min construction as centered Manhattan; actual valid0x88 d/R domain unchanged, readable model/DEV original reference admitted first.",
+    "terminal_sharing": "Four pure late shipping regions share terminal legality loop with ordinary generated-move iteration, after center_feature. Terminal pure ordering/private scratch/work/timing may differ; mode and public terminal return/stop/TT contracts preserved; canonical/DEV bypass."
   },
   "diagnostic_reference_model": {
     "id": "e-hand-integer-1",
@@ -2188,5 +2274,154 @@
       "scope": "Current E4933/73header restored native image and unchanged selected2worker startup/input/quit/EOF paths. Source algebra+64valid domain closes d/R feature effect; no repeat SAN. Cancellation causality, timed node/bestmove equality, performance/strength/full qualification remain unproven",
       "prior_CI": "E4935 8f9890e prior-head CI is separate; no new-head CI claimed here"
     }
+  },
+  "terminal_sharing": {
+    "helper": "newshipping_terminal.py",
+    "helper_sha256": "e30e8839099e8b88a318ada069789fff95f345a2d9ed3fecd0eb797d7d871e3f",
+    "metadata": {
+      "family": "E",
+      "stage": "late-shipping-terminal-sharing",
+      "input_bytes": 10190,
+      "input_sha256": "34cc868b06252cb25a58be54d9e8fecb26cd6705d159533363ab57aa96b70bcd",
+      "output_bytes": 10142,
+      "output_sha256": "260c30750d1ee11a569d1d8916a9d7fb38883df80571559f16e1b5a05cfb783c",
+      "raw_delta": -48,
+      "owned_regions": 4,
+      "protected_gaps": 5,
+      "full_inverse": true,
+      "all_gaps_equal": true,
+      "protected_complement_bytes": 10015,
+      "protected_complement_sha256": "da9f03bdbed0852b6959492949b67a6d03ac0a3be0a326c29172048738450a30",
+      "terminal_mask": {
+        "ordinary": 0,
+        "draw": 1,
+        "cap_only": 2,
+        "draw_and_cap": 3
+      },
+      "actual_call_domain": "initialized production zd Worker, valid za Board, n0..127 and yb0..12; generated moves from h and legal e on private child",
+      "preserved": "draw precedence; cap-only stopped store; no-legal mate/stale; terminal entire G-call suppression; QS/standpat bypass; first legal return before ++Z/path/learners/TT-store/root publication; logical19/physical21 coefficients and update order; unchanged nonterminal search",
+      "terminal_private_observation_delta": "terminal paths now score/sort private generated moves before legal make; private first legal child/order/work, wall time and SMP interleaving can differ",
+      "state_contract": "parent Board and public/owned search state preserved in terminal return domain; no equality claim for private ordering/scratch or transient timing",
+      "canonical_DEV": "caller bypass; earlier canonical/model/DEV reference admission unchanged",
+      "native_entire_bytes_equal_to_predecessor": false,
+      "runtime_qualification_claimed": false,
+      "external_reads": 0,
+      "compiler_codec_engine_executed_by_transform": 0
+    },
+    "predecessor_expected": {
+      "readable_bytes": 28001,
+      "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+      "source_bytes": 10190,
+      "source_sha256": "34cc868b06252cb25a58be54d9e8fecb26cd6705d159533363ab57aa96b70bcd",
+      "native_bytes": 26336,
+      "native_sha256": "953d8bd582a96cea2339acc9ca137a30716a834cc497bcbb29950b0564b4fe7a",
+      "whole_bytes": 4933,
+      "whole_sha256": "c8c360ab38119d4d48ce60991f536f996fe0ebdc9963ea95fda9b11e4510f3b4",
+      "bootstrap_sha256": "d5582661260276e65a410a2fcec9bb1e245f2dc4a49e047a061088879f718a25",
+      "dev_source_bytes": 21314,
+      "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
+      "dev_native_bytes": 31376,
+      "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
+      "bootstrap_bytes": 11202
+    },
+    "firstcost": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-terminal-sharing-first-cost-20261022-evidence/final-index.json",
+      "bytes": 11487,
+      "sha256": "7987545ad0a81394a69d181d9aca9a59c276be5b0335c41d8451d90497797993"
+    },
+    "source_proposal": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-be-duplicate-source-proposals-20261022-evidence/E/proposal.json",
+      "bytes": 6727,
+      "sha256": "421d7d1f645fae01be45f15b869919e8f097cdb656fb4c7aca76c6110b8557f6"
+    },
+    "source_index": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-be-duplicate-source-proposals-20261022-evidence/E/final-index.json",
+      "bytes": 3598,
+      "sha256": "af5baaeb5d858bc9a5568f418e6a823cfd229cc403679491dee66b120b5062c8"
+    },
+    "source_closure": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-be-duplicate-source-proposals-20261022-evidence/E/source-closure.json",
+      "bytes": 13421,
+      "sha256": "5edb8f393e5bccfb87789562abcf10d8cee3f80311026b22caffe3e12dc9b509"
+    },
+    "native_entire_bytes_equal_to_predecessor": false,
+    "focused_status": "PASS",
+    "normal_status": "PASS",
+    "cost_reruns": 0,
+    "scope": "Current terminal return domain source proof and fixed firstcost; new native requires own focused and normal receipts. Prior E19/ordering/center proofs remain ancestry; no inherited runtime/performance/strength qualification.",
+    "focused_validation": {
+      "status": "PASS one fatal ASan/UBSan actual old/new terminal function compile/run",
+      "index": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-terminal-focused-20261022-evidence/final-index.json",
+        "bytes": 10720,
+        "sha256": "4ae4eb41a5c90be920572a260e077d025318a5854ad7e2629eae8fd9e5a93a7c"
+      },
+      "result": {
+        "path": "/home/stemxstudio/rove4k-e-terminal-focused-20261022-v1/results.json",
+        "bytes": 10621,
+        "sha256": "712ebd273d9d2b935128963b1ea6c8e635abdb83b5f0a26d4f674fb923ad8339"
+      },
+      "actual_old_calls": 28,
+      "actual_new_calls": 28,
+      "engine_main_pool_runs": 0,
+      "every_case_returns_before_first_recursive_call": true,
+      "typed_parent_workers_learners_job_root_stop_TT_final_state_preserved": true,
+      "no_transient_atomic_trace_claim": true,
+      "original_handles_terminal_reaped_group_absent_at_settlement": true,
+      "owned_handles": 0
+    },
+    "normal_validation": {
+      "status": "ordinary --dev and unchanged selected wrapper PASS",
+      "build": {
+        "path": "/home/stemxstudio/rove4k-e-terminal-sharing-normal-20261022/build/build.json",
+        "bytes": 195999,
+        "sha256": "769e345bfacc0c614a5fe0073e2a88df61b2cd81eb216213bb88c1bd825bbabe"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-e-terminal-sharing-normal-20261022/runtime/runtime.json",
+        "bytes": 37947,
+        "sha256": "d9dd187e9d4c50e6c9974c3bd2309cf1661910a68bc84890643592af0efc14c5"
+      },
+      "supervisor_results": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-terminal-sharing-normal-20261022-evidence/normal-results.json",
+        "bytes": 23750,
+        "sha256": "61818588a7f06d51063585da1e01fb80dcf68cfa1ce860612561b97dc03a2c31"
+      },
+      "original_handle_exit": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-terminal-sharing-normal-20261022-evidence/physical-exit.json",
+        "bytes": 604,
+        "sha256": "130725d3c941a650927a663480bdc15748ef09946016af3ba0515899d0a18fea"
+      },
+      "producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-e-terminal-sharing-normal-20261022/build/inputs/recipe.json",
+        "bytes": 120461,
+        "sha256": "26d305eaa9e3f509929564c8d1a4aca1b0e1fc20152af56fb9a98ca906b55f33"
+      },
+      "producing_readme": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-terminal-sharing-normal-20261022-evidence/producing/engines/compact/tiny-entry-e/README.md",
+        "bytes": 64557,
+        "sha256": "506336f33aa2b46789a282640b6dc08b8c4ac7ebc2fbb9b981c304e8d4aa51aa"
+      },
+      "normal_builder_calls": 1,
+      "shipping_reproductions": 2,
+      "unchanged_DEV_reproductions": 2,
+      "selected_verifier_calls": 1,
+      "selected_sessions": 2,
+      "session_terminations": [
+        "quit",
+        "EOF"
+      ],
+      "actual_source_native_bootstrap_whole_entire_bytes_equal_to_firstcost": true,
+      "old_DEV_entire_source_native_equal": true,
+      "new_native_entire_bytes_equal_to_predecessor": false,
+      "current_input_pins_stable_during_commands": true,
+      "original_handles_terminal_reaped_group_absent_at_settlement": true,
+      "owned_handles": 0,
+      "cost_reruns": 0,
+      "positive_coordination": "A original terminal -> B original terminal -> E original focus/normal/selected -> F owner notified only after E original terminal/owned0",
+      "scope": "Actual E4924 restored native image and unchanged selected2worker input/quit/EOF paths. FatalSAN focused terminal domain is separate; private terminal ordering/work/timing/SMP interleaving may differ. Cancellation causality, timed nodes/bestmove, performance/strength/full qualification remain unproven",
+      "new_head_CI_claimed": false
+    },
+    "validation_status": "source contract, one fixed firstcost, actual terminal fatalSAN1/1 and ordinary --dev/unchanged selected PASS"
   }
 }

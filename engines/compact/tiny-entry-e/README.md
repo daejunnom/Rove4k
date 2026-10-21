@@ -1,3 +1,68 @@
+# Maintained E: shared terminal legality iteration — 2026-10-22
+
+The fixed first-cost file is **4924 B**, compact C **10142 B**, native
+**26336 B** and bootstrap **11154 B**: source48 and whole9 bytes below
+E4933. The entire native changed to
+`5a1f68ee513193876fbf78d05d5670b923c143688c48751f18c9bc82d67b0858`.
+The pure late `newshipping_terminal.py` follows `shipping_center` only
+inside shipping. Four exact regions, five protected gaps and full inverse
+bind the actual10190/34cc868b source to10142/260c3075. Canonical/DEV and
+their earlier model/reference admission bypass this stage.
+
+The mask is ordinary0/draw1/cap-only2/draw+cap3. Terminal positions suppress
+the entire TT G call and QS standpat; their first legal move returns before
+++Z, path/learner/TT-store/root publication. Entry o() node accounting stays
+before this terminal decision in both versions. Draw takes precedence, only
+cap-only stores stopped, and no-legal mate/stale stays exact. Initialized
+production Worker history and yb0..12, actual Board caches and all19 logical/
+21 physical coefficients remain in domain. Terminal paths now compute
+ordering and sort private scratch before legal make. Private first legal
+child/order/work, wall time and SMP interleaving may differ; these are
+accepted observation changes, not byte identity or timed-node equality.
+
+The actual E GCC13 compiler order, workers2/TT18/PLY128,73-byte header and
+ALONE9e/lc2lp0pb0/BT4/dict64MiB/nice32 remain fixed. Firstcost compile1/
+encode1 reused baseline bytes without baseline compile/encode, and strict
+Python2/CLI2 restored complete source/bootstrap with EOF/no trailing data.
+Its immutable index SHA-256 is
+`7987545ad0a81394a69d181d9aca9a59c276be5b0335c41d8451d90497797993`.
+Prior mate/halfmove/controller LOSS records remain unchanged. No cost retry,
+NVC, codec sweep, feature removal, model update or training is used.
+
+Actual E terminal fatal ASan/UBSan focus passed with one compile/run and
+28 old/new paired calls, including draw/cap/both, no-legal mate/stale,
+claim rejects, both sides, EP/promotion/castling and initialized yb0..12.
+The unchanged actual new TU includes old M with only its definition name
+aliased; every case returns before recursion. Actual E19 physical21 and
+typed parent/Worker/history/path/correction/learner/root/entry-node/stop
+and TT final states agreed. Warm exact137/depth255 is set/read through
+actual G and would expose an escaped terminal cutoff at n127. It does not
+measure ordinary M137 or transient atomic probes; TT probe suppression
+follows separately from the actual source guard. Compiler and fixture
+stderr were empty, original handles settled without forced cleanup, and
+ASan retained64TiB virtual shadow allowance with finite sampled RSS/CPU/
+output/wall supervision. Focused index SHA-256 is
+`4ae4eb41a5c90be920572a260e077d025318a5854ad7e2629eae8fd9e5a93a7c`.
+Historical C results do not qualify E. The maintained ordinary builder
+ran once with --dev and reproduced shipping twice plus unchanged DEV twice.
+The entire source/native/bootstrap/whole equal the original firstcost
+artifacts; DEV21314/31376 source/native equal the previous actual controls.
+The unchanged selected verifier ran once on actual4924 B with quit/EOF
+two sessions and eight legal GO epochs. Each observed the new restored
+native image, main+two worker TIDs, private-path removal, finite input,
+active-search physical exit and finished readers. Build receipt SHA-256 is
+`769e345bfacc0c614a5fe0073e2a88df61b2cd81eb216213bb88c1bd825bbabe`; runtime receipt is
+`d9dd187e9d4c50e6c9974c3bd2309cf1661910a68bc84890643592af0efc14c5`.
+Original focus/build/selected/outer handles all settled, were reaped, and
+had no owned groups at settlement, with no forced cleanup and owned0.
+A then B completed before E, and F was notified only after E original
+terminal/owned0. No late bare PID/TID gate or positive overlap is used.
+Producing recipe SHA-256 `26d305eaa9e3f509929564c8d1a4aca1b0e1fc20152af56fb9a98ca906b55f33`
+is frozen separately; subsequent recipe/README changes are completion
+annotations only. New-head CI is separate and owned by root. Cancellation
+causality, timed node/bestmove equality, performance, strength and broad
+qualification remain unproven; the4096 B target remains open.
+
 # Maintained E: shared center feature construction — 2026-10-22
 
 The fixed first-cost file is **4933 B**, compact C **10190 B**, native

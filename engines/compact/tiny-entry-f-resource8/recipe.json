@@ -31,7 +31,7 @@
   "base_source_closure_sha256": {
     "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
     "engines/compact/tiny-entry-f/bootstrap.py.in": "159c5fe166f4b0804471e9d3a70d8f055a510858a6ae33f0ed6b4cfd17fca6f9",
-    "engines/compact/tiny-entry-f/build.py": "48a3c7e39ba1c0723a7c6540d2c5550e156a3e3515dc83dd207c36cc8ff48c01",
+    "engines/compact/tiny-entry-f/build.py": "539959e74c51d9b62b8afb5bb223b0d4d3b37db9668b0e050e323ededca58d43",
     "engines/compact/tiny-entry-f/engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
     "engines/compact/tiny-entry-f/launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
     "engines/compact/tiny-entry-f/shipping_alpha.py": "74abadbd79735e9f6b30c513b422245bae737f81d4e3bd04a7b8e597e61937e8",
@@ -78,7 +78,8 @@
     "engines/compact/tiny-entry-f/shipping_names.py": "b69d376bf2e206273b12344fe30fbddbce6d51396c01fab8d53fd8f25401d48b",
     "engines/compact/tiny-entry-f/bootstrap_full.py": "813eb1a9f0a31a54350e4df015c49d0a63e9d2d57923a4035e563aa7b95e222c",
     "engines/compact/tiny-entry-f/shipping_selector.py": "69bf3747d81455690c11abc95046e173c5a8915e2abd001ad6976bbe22c3e48d",
-    "engines/compact/tiny-entry-f/shipping_rank.py": "0850ee61f108bc24fa48995f5f13b49d16a24c788f38cd070c9644e9e044c932"
+    "engines/compact/tiny-entry-f/shipping_rank.py": "0850ee61f108bc24fa48995f5f13b49d16a24c788f38cd070c9644e9e044c932",
+    "engines/compact/tiny-entry-f/shipping_digit_fd.py": "ae396191f09c6738879d42d1cc62e2c54cda1165b89c91c9ef677b4985040960"
   },
   "positive_helper_sha256": {
     "engines/compact/tiny-entry-d/verify.py": "3ae1f525e718f9cef90b4009ff415065587cf9552b82d2785911a672243fae33",
@@ -266,7 +267,7 @@
       "sha256": "dd6642172a7fc31ffe72a7a89ee58e88825ab2b662d4fef575b57c3c09d17cc5"
     },
     "orchestration_receipt": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-wait-positional-promote-20261022-evidence/normal.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-wait-positional-promote-20261022-evidence/normal.json",
       "bytes": 8945,
       "sha256": "0ecfcac8b46d0fdb0775246ed1ad33144ed4ea12dd20240bb2bbcc8272236aa4"
     },
@@ -392,7 +393,7 @@
         "sha256": "53307d4eb7539efa02dd0354bcf962de8b9946b3bdd3a10d643409d54ce2b926"
       },
       "orchestration_receipt": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-current-packaging-promote-20261022-evidence/normal.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-current-packaging-promote-20261022-evidence/normal.json",
         "bytes": 8644,
         "sha256": "4914d3d12233db37311c252f675442aa7d8ac7fdce53cd1fe7772bb1da2f9368"
       },
@@ -435,14 +436,14 @@
       "old_LF_sha256": "552538753ca76684a520843f87aa790274eb0b81c9e174a34255dbfadc207afa",
       "new_LF_sha256": "3ae1f525e718f9cef90b4009ff415065587cf9552b82d2785911a672243fae33",
       "owner_proof": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-d-body-packet-promotion-20261022-evidence/shared-helper-consumer-proof.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-body-packet-promotion-20261022-evidence/shared-helper-consumer-proof.json",
         "bytes": 1919,
         "sha256": "82b2370329646a4aab6e05155009255c73e4b1507b7871a124b647e0b4553bc1",
         "LF_bytes": 1919,
         "LF_sha256": "82b2370329646a4aab6e05155009255c73e4b1507b7871a124b647e0b4553bc1"
       },
       "own_read_proof": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-local-hce-rank-promotion-20261022-evidence/F8-D-verifier-provenance.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-local-hce-rank-promotion-20261022-evidence/F8-D-verifier-provenance.json",
         "bytes": 1304,
         "sha256": "b1b103f51d2ed1ddc76924c537771181322595a0af9dae3644c86eeb056e12dd",
         "LF_bytes": 1304,
@@ -496,6 +497,49 @@
       "byte_exact_predecessor": true,
       "new_F8_compile_encode_runtime": 0,
       "scope": "source-closure provenance only; unchanged selected F8 input and all codec/expected9TID conditions reused"
+    }
+  },
+  "F2_digit_fd_producer_provenance": {
+    "status": "PASS F2 ordinary source-closure/pre-name readback only; unchanged F8 positive reused, no new F8 execution",
+    "F2_builder_LF_sha256": "539959e74c51d9b62b8afb5bb223b0d4d3b37db9668b0e050e323ededca58d43",
+    "previous_builder_LF_sha256": "48a3c7e39ba1c0723a7c6540d2c5550e156a3e3515dc83dd207c36cc8ff48c01",
+    "new_helper_path": "engines/compact/tiny-entry-f/shipping_digit_fd.py",
+    "new_helper_LF_sha256": "ae396191f09c6738879d42d1cc62e2c54cda1165b89c91c9ef677b4985040960",
+    "scope": "F8 hashes F2 producer code provenance but does not invoke its late rank/digit stage or FDtemplate transform",
+    "base_pre_name": [
+      8538,
+      "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
+    ],
+    "F8_base_source_expected_codec_and_nine_TIDs_unchanged": true,
+    "new_F8_compile_encode_runtime": 0,
+    "prior_F8_local_positive_reuse": "unchanged own selected source/native/bootstrap/whole/input and assertions; provenance-only change",
+    "ordinary_F2_pre_name_validation": {
+      "F2_build": {
+        "path": "/home/stemxstudio/rove4k-f-digit-fd-promotion-20261022-v1/full/build/build.json",
+        "bytes": 259176,
+        "sha256": "f37fa223dac52b632f89c337fe27aa1658f0bff52ba029a9d3062b159ef538a8"
+      },
+      "actual_pre_name": {
+        "path": "/home/stemxstudio/rove4k-f-digit-fd-promotion-20261022-v1/full/build/source-before-names.c",
+        "bytes": 8538,
+        "sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
+      },
+      "attempt_pre_names": [
+        {
+          "path": "/home/stemxstudio/rove4k-f-digit-fd-promotion-20261022-v1/full/build/attempt-1/source-before-names.c",
+          "bytes": 8538,
+          "sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
+        },
+        {
+          "path": "/home/stemxstudio/rove4k-f-digit-fd-promotion-20261022-v1/full/build/attempt-2/source-before-names.c",
+          "bytes": 8538,
+          "sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
+        }
+      ],
+      "all_three_equal_to_predecessor": true,
+      "source_closure51_matches_actual_bytes": true,
+      "new_F8_compile_encode_runtime": 0,
+      "scope": "producer provenance only; actualF2 main8497 is not F8 input; samepreName8538/47353 and ownF8 selectedsource/native/bootstrap/whole4442/nice24/9TID conditions remain"
     }
   }
 }
