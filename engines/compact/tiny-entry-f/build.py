@@ -148,6 +148,8 @@ def main():
         source_forms=module('entry_F_source_forms',frozen/'shipping_source_forms.py')
         clock_forms=module('entry_clock_presence',frozen/'shipping_clock.py')
         result_stream=module('entry_F_result_stream',frozen/'shipping_result_stream.py')
+        depth_repetition=module('entry_F_depth_repetition',frozen/'shipping_depth_repetition.py')
+        macro_literals=module('entry_F_macro_literals',frozen/'shipping_macro_literals.py')
         alpha=module('entry_fixed_F_alpha',frozen/'shipping_alpha.py').transform_source
         storage=module('entry_fixed_F_storage',frozen/'shipping_storage.py').transform_source
         scope_module=module('entry_bound_F_scope',frozen/'shipping_scope.py')
@@ -232,6 +234,10 @@ def main():
                     full_common_metadata['clock_presence']=clock_metadata
                     full_reference,stream_metadata=result_stream.transform_source(full_reference)
                     full_common_metadata['result_stream']=stream_metadata
+                    full_reference,depth_metadata=depth_repetition.transform_source(full_reference)
+                    full_common_metadata['depth_repetition']=depth_metadata
+                    full_reference,macro_metadata=macro_literals.transform_source(full_reference,family='F')
+                    full_common_metadata['fixed_macro_literals']=macro_metadata
                     if len(full_reference)!=full_expected['source_bytes'] or sha(full_reference)!=full_expected['source_sha256']:
                         raise ValueError('default full-F source generation changed')
                     data,policy_metadata=material_noise(data)
@@ -289,6 +295,10 @@ def main():
                     common_metadata['clock_presence']=clock_metadata
                     data,stream_metadata=result_stream.transform_source(data)
                     common_metadata['result_stream']=stream_metadata
+                    data,depth_metadata=depth_repetition.transform_source(data)
+                    common_metadata['depth_repetition']=depth_metadata
+                    data,macro_metadata=macro_literals.transform_source(data,family='F')
+                    common_metadata['fixed_macro_literals']=macro_metadata
             return data,observations,counters,alpha_metadata,storage_metadata,scope_metadata,member_metadata,semantic_metadata,input_metadata,declaration_metadata,hce_metadata,type_metadata,unit_bound_metadata,startup_metadata,global_names_metadata,capture_metadata,policy_metadata,material_names_metadata,material_capture_metadata,move_tt_metadata,move_tt_names_metadata,expressions_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())

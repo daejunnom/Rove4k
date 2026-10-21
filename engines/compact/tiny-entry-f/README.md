@@ -1,3 +1,45 @@
+# Maintained F: saturated QS depth and repetition distance — 2026-10-21
+
+Full/default whole **4505 B**, compact source **8755 B**, remaining
+**409 B**. One ordinary full `build.py --dev` call reproduced shipping and DEV
+twice. The unchanged selected verifier passed quit/EOF two sessions and eight
+GO epochs with the exact restored native. Both optional builders also reproduce
+their unchanged source/native/bootstrap/whole pairs (4325 B and 4051 B), with
+new full-reference generation checked and no optional runtime rerun.
+All positional HCE, learners, full-key coherent bound TT, full-depth MTD(f),
+FIDE rules, completion witness and SMP/resources remain.
+
+The pure depth/repetition stage follows result-stream replay in full selection
+and separate full references. Production depth1..126 saturates at QS0; negative
+old QS arguments in the private fixture explicitly map to new0. Repetition
+distance2,4,... scans exactly the old same-parity keys and bound. Canonical DEV
+and selected material/noise and move-TT policies bypass both new stages.
+
+One actual combined shipping TU ASan/UBSan fixture compares old/new Board,
+complete Worker/key arrays and TT bytes:18 cases,13 horizon pairs and44 synthetic
+history/cache pairs. The history vectors are loop primitives, not legal games.
+The first unexecuted preparation's inherited raw-HCE witness assertion was
+wrong for a kings-only dead child; it remains preserved. V2 checks that terminal
+witness as legal/dead/value0 without changing the candidate or score oracle.
+The production MTD driver is source-identical; it was not called by that fixture.
+
+The subsequent fixed macro stage replaces MOVES4 uses and MATE7 uses with the
+same int512/int30000 tokens and removes only their definitions. Its entire
+native equals the qualified depth/repetition candidate. Actual costs were
+QS4533, repetition4526, their measured combination4521, then macro4505.
+The formatter4523 and macro/formatter union4507 remain unadopted; savings are
+not added. No many-core, strength, game or benchmark result is claimed.
+
+Actual full build receipt SHA-256:
+`32f9b1c30c6a126dd05561b43c4bc1241ec62bfc01eff836c8358b420df63267`.
+Actual selected runtime receipt SHA-256:
+`f7b3d66eee190d87b548c4cb80d2205b2c6fa9ef44d6e2a98759369445df3e73`.
+All six observed startup TIDs are absent on readback. Completion metadata in
+this README and recipe was added after execution; producing inputs remain in
+the external build and evidence directories. No fresh archive extraction was
+run here; cancellation causality and compiler descendant-group absence are not
+claimed. The focused fixture did not run the MTD driver; the actual wrapper did.
+
 # Maintained F: one complete result stdio operation — 2026-10-21
 
 Full/default whole **4537 B**, source **8821 B**, remaining **441 B**.

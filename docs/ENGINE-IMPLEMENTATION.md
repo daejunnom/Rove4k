@@ -192,7 +192,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | C | 4,934 B | 838 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners retained; child continuation slot and positive-only cutoff bonus compacted; fixed LP64 mixer literals |
 | D scalar / HQ | 5,937 / 6,148 B | 1,841 / 2,052 B | Consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained |
 | E | 5,010 B | 914 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; literal include gaps and fixed ASCII compiler argv compacted; fixed LP64 mixer literals |
-| F full (default) | 4,537 B | 441 B | Explicit no-preadd hash policy with new repetition/context/TT/correction buckets; terminal legal-loop sharing and integer forms; packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; default size target remains open; literal forms, correction clamp, private piece-index calls and fixed history token compacted |
+| F full (default) | 4,505 B | 409 B | Packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; nonnegative QS depth, repetition-distance loop and fixed integer macros compacted after the no-preadd hash, terminal, correction and source-form stages; default size target remains open |
 | F material/noise (opt-in) | 4,325 B | 229 B | Unsigned64 number forms and two fixed TT18 casts omitted; one-state material classifier, fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted; literal include gaps compacted; fixed LP64 mixer literals |
 | F material/move-TT (opt-in) | 4,051 B | 0 B (45 B spare) | Unsigned64 number forms; one-state material classifier, fixed material, main-owned token cursor, terminal-loop sharing and coherent atomic64 Move17/high46 plus index18; local size eligibility only, full F and strength acceptance remain open; fixed LP64 mixer literals |
 
@@ -6718,3 +6718,56 @@ Inputs, failed preparations, the finite list/split comparison and producing
 versus annotated recipes are preserved in the external
 `rove4k-c-search-context-*-20261021*` evidence folders. C remains838 B above4096;
 final hardware, many-core behavior and strength are separate open work.
+
+## Full/default F4505: depth, repetition and fixed integer tokens (2026-10-21)
+
+The full F source changes8821→8793 B by saturating private QS depth at0 and
+expressing repetition as same-parity distances2,4,... bounded by halfmove count
+and history length. Production root depth is1..126; the relation is
+new_depth=max(old_depth,0), preserving TT's zero-QS horizon, positive-depth
+learning, check evasions and the unchanged ply/mate limit. Arbitrary direct
+negative-depth calls to the new private U are outside this contract. Stable
+worker history length1..4223 keeps the same key order inside4224 entries.
+
+Actual QS-only4533 and repetition-only4526 compare with their separately
+compiled/encoded composition4521, from4537 B. A further fixed-int specialization
+removes MOVES512/MATE30000 definitions and expands their11 uses; source becomes
+8755 B and the complete file4505 B. This last step has the same entire native
+as the8793-byte candidate. A coordinate formatter loop is retained but not
+selected:4523 B alone and4507 B with macros are larger than4505. Those are
+context-specific size results, not permanent exclusions or runtime qualification.
+
+One fatal ASan/UBSan compile/run compares18 actual old/new U cases,13 TT-horizon
+pairs and44 synthetic history pairs, including explicit negative-to-zero QS
+adapters. Worker, TT, score/witness and history-key order agree. The actual
+think/MTD driver is unchanged in source; this fixture does not call it, and
+synthetic histories are not presented as legal games. Focused receipt:
+`0fe01764a65c81c9c620eee164086cdb65e3a5abe47c448fc8313155661f978f`.
+The first fixture preparation's inappropriate raw-HCE witness assertion for a
+dead-position score0 was corrected before any compile/run; its original
+source and the unchanged score0 expectation remain preserved separately.
+
+The ordinary full --dev build reproduces shipping and unchanged DEV twice.
+The unchanged selected verifier then executes the actual driver in quit/EOF
+sessions, with8 legal GO results, exact native restoration, stable3 startup
+TIDs, absent private paths/helpers and physical exit. Full build receipt:
+`32f9b1c30c6a126dd05561b43c4bc1241ec62bfc01eff836c8358b420df63267`;
+runtime: `f7b3d66eee190d87b548c4cb80d2205b2c6fa9ef44d6e2a98759369445df3e73`.
+Separate ordinary optional-policy builds preserve4325/4051 B and generate
+the new full_reference through both added stages; no optional-policy DEV or
+runtime is rerun. Full's source/native/whole SHA-256 values are respectively
+`8a6383c9185defbcb68c03a3acfca72c0b16f2ccec09a44d9575d80a262365ae`,
+`6b59a5440c580c8073defe03518b5bfe25269547d299dff63ab98e5da6dd356f` and
+`4608c2c875cebf7b353c417f5d3aa9623ed3c85ef02affb666b30339624f8c7c`.
+Full remains409 B above4096, retaining positional HCE and all learners.
+
+The source plans, finite costs, unselected candidates and preparation failures
+remain external in the depth/repetition and format/macro evidence folders.
+Current NVCompact0.5 automatic whole-payload search is separately not admitted:
+unrestricted literal-style/line changes can affect the actual Python wrapper's
+uncaught-error traceback locations, contrary to its compile-input-only contract.
+Its preparation also stopped at missing Clang before writing a manifest; no
+source-search candidate compile/codec/engine ran. Both facts remain in
+`rove4k-nvc050-full-f-current-20261021-evidence/non-admission.json`, distinct
+from the successful fixed source transformations above. No new strength,
+many-core or final-server acceptance is inferred from this local profile.

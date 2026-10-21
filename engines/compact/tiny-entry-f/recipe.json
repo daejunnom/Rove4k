@@ -76,7 +76,9 @@
     "engines/compact/tiny-entry-f/shipping_clamp.py": "54f7b75e3b5adfa4c012d1c7c8acf5b17013cff8ba848f0fbf39907d0dec64a7",
     "engines/compact/tiny-entry-f/shipping_source_forms.py": "54e34ccf0889a01b5603492081b3058bbfe98770b545ef9652b32250a5647697",
     "engines/scripts/shipping_clock.py": "46c19879deae1d056f4b059c6c7d9667a3e935110dfb33015b29fd0dec4d8c43",
-    "engines/compact/tiny-entry-f/shipping_result_stream.py": "326921d09da32c97193f126c002815d72b475b067d77871f21fb49567e4ecaad"
+    "engines/compact/tiny-entry-f/shipping_result_stream.py": "326921d09da32c97193f126c002815d72b475b067d77871f21fb49567e4ecaad",
+    "engines/compact/tiny-entry-f/shipping_depth_repetition.py": "e719af113dcca4da8e4ad6d3b44e57a8a09a5985ec35ceaf7a44ae1b1e8e6753",
+    "engines/compact/tiny-entry-f/shipping_macro_literals.py": "8926a35c4d297a62ea433eb0923b06547e26f096f251c0b40c2642c7261bce10"
   },
   "resource_literals": [
     [
@@ -250,22 +252,22 @@
   },
   "expected": {
     "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
-    "source_bytes": 8821,
-    "source_sha256": "00c48b5c6d74a45d68fe8280d45648e4405763c6c5742d8e11ed9736c71beb9c",
+    "source_bytes": 8755,
+    "source_sha256": "8a6383c9185defbcb68c03a3acfca72c0b16f2ccec09a44d9575d80a262365ae",
     "native_bytes": 18576,
-    "native_sha256": "3554b0309d686aaeeb20b10454047dc21548c4533e08e552680554d0e20d972d",
-    "whole_bytes": 4537,
-    "whole_sha256": "89bade10f09691eefeab94149ed2fee94a36d6c1598c5da65ddb27e61771c2ad",
+    "native_sha256": "6b59a5440c580c8073defe03518b5bfe25269547d299dff63ab98e5da6dd356f",
+    "whole_bytes": 4505,
+    "whole_sha256": "4608c2c875cebf7b353c417f5d3aa9623ed3c85ef02affb666b30339624f8c7c",
     "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
     "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
-    "bootstrap_sha256": "c78fad55d88b8e4fff420e60e6519c528d254edfb5d2aea2dec55af91922ae1b",
+    "bootstrap_sha256": "9ae7413c3e712b9339c9bb085f4d1d8905108a3ab7ec36e10ab4a43786428797",
     "semantic_readable_bytes": 25720,
     "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
     "dev_source_bytes": 19488,
     "dev_native_bytes": 26984,
     "input_profile_readable_bytes": 28587,
     "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
-    "bootstrap_bytes": 9800
+    "bootstrap_bytes": 9734
   },
   "local_input_sha256": {
     "engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
@@ -3134,6 +3136,110 @@
         "engine_sessions": 0
       },
       "correction": "owned measured wrapper mode0644 to0755; raw artifact unchanged; separate v2 source/output preserves first failure"
+    }
+  },
+  "depth_repetition": {
+    "scope": "full-only production depth saturation and exact repetition-distance loop after result stream; independent primitive QS+history proofs plus existing fullHCE positives",
+    "previous_expected_after_result_stream": {
+      "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+      "source_bytes": 8821,
+      "source_sha256": "00c48b5c6d74a45d68fe8280d45648e4405763c6c5742d8e11ed9736c71beb9c",
+      "native_bytes": 18576,
+      "native_sha256": "3554b0309d686aaeeb20b10454047dc21548c4533e08e552680554d0e20d972d",
+      "whole_bytes": 4537,
+      "whole_sha256": "89bade10f09691eefeab94149ed2fee94a36d6c1598c5da65ddb27e61771c2ad",
+      "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
+      "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
+      "bootstrap_sha256": "c78fad55d88b8e4fff420e60e6519c528d254edfb5d2aea2dec55af91922ae1b",
+      "semantic_readable_bytes": 25720,
+      "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
+      "dev_source_bytes": 19488,
+      "dev_native_bytes": 26984,
+      "input_profile_readable_bytes": 28587,
+      "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
+      "bootstrap_bytes": 9800
+    },
+    "source_plan_sha256": "bc98ab1ec25127c4bcce7cadc2840581d66de8a22a4e808bf4358b0743f5278e",
+    "first_cost_index_sha256": "fcccf4b7ac6ca76982e514ec66b49484747bcd142d687e631e588b5c3f4490d0",
+    "costs": {
+      "qs_whole": 4533,
+      "repetition_whole": 4526,
+      "actual_composed_whole": 4521,
+      "composed_delta": -16,
+      "additive_claim": false
+    },
+    "focused": {
+      "path": "/home/stemxstudio/rove4k-f-depth-repetition-focused-20261021-v2/results.json",
+      "bytes": 7492,
+      "sha256": "0fe01764a65c81c9c620eee164086cdb65e3a5abe47c448fc8313155661f978f",
+      "SAN_compiles": 1,
+      "fixture_runs": 1,
+      "terminal_cases": 18,
+      "TT_horizon_pairs": 13,
+      "history_pairs": 44,
+      "source_prefix_and_think_lifecycle_suffix_exact": true,
+      "actual_think_called_in_fixture": false,
+      "synthetic_history_vectors_not_legal_game_claim": true,
+      "negative_adapter": "new=max(old,0)",
+      "preserved_v1": "source-only failed inherited HCE-witness assertion; execution0; dead witness score0 retained in separate V2"
+    },
+    "new_native_identity": true,
+    "DEV_and_selected_optional_policies": "bypass; expected identities unchanged",
+    "normal_validation": {
+      "status": "PASS",
+      "metadata_only_after_execution": true,
+      "producing_source_manifest": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-depth-repetition-normal-20261021-evidence/producing-source.json",
+        "bytes": 2731,
+        "sha256": "6e7c204f6e455b057de4838e18f9ab3ae3ed6318d745658ca81a60eee9b1b41d"
+      },
+      "full_build": {
+        "path": "/home/stemxstudio/rove4k-f-depth-repetition-normal-20261021/F/build/build.json",
+        "bytes": 201589,
+        "sha256": "32f9b1c30c6a126dd05561b43c4bc1241ec62bfc01eff836c8358b420df63267"
+      },
+      "selected_runtime": {
+        "path": "/home/stemxstudio/rove4k-f-depth-repetition-normal-20261021/F/runtime/runtime.json",
+        "bytes": 60796,
+        "sha256": "f7b3d66eee190d87b548c4cb80d2205b2c6fa9ef44d6e2a98759369445df3e73"
+      },
+      "build_calls": {
+        "full_with_DEV": 1,
+        "selected_optionals_without_DEV": 2
+      },
+      "shipping_attempts": 6,
+      "DEV_attempts": 2,
+      "selected_verifier_calls": 1,
+      "actual_wrapper_sessions": 2,
+      "GO_epochs": 8,
+      "optional_runtime_sessions": 0,
+      "all_three_policies_expected_bytes_match": true,
+      "selected_optional_expected_and_DEV_tuple_unchanged": true,
+      "TIDs_absent_on_readback": true,
+      "fresh_archives_games_benchmarks": 0,
+      "limits": "No fresh archive extraction or new MTD-driver unit; actual wrapper invokes production driver. Cancellation causality remains unproven. Unchanged builder does not separately observe compiler descendant/group absence."
+    }
+  },
+  "fixed_macro_literals": {
+    "scope": "full-only exact MOVES512/MATE30000 definitions and11fixed int uses after depth/repetition; source-location/macro dumps not observed",
+    "helper_sha256": "8926a35c4d297a62ea433eb0923b06547e26f096f251c0b40c2642c7261bce10",
+    "input_bytes": 8793,
+    "input_sha256": "6d1f0c57ac56c4e4d25022b58716c94704a5ce4ed4a110e3ca7d281b1d3b21d4",
+    "output_bytes": 8755,
+    "output_sha256": "8a6383c9185defbcb68c03a3acfca72c0b16f2ccec09a44d9575d80a262365ae",
+    "raw_delta": -38,
+    "whole_delta_against_depth_repetition": -16,
+    "entire_native_same_as_qualified_depth_candidate": true,
+    "cost_plan_sha256": "bce3ac9cc0dd7b694961628775c8f63a725ae96f99cb9586ac53d869719850e3",
+    "cost_final_index_sha256": "a04fdb920216fdd33311c44d95372ca13e6e0038f8990e515e07512e19bd2523",
+    "formatter_unadopted_whole": 4523,
+    "macro_formatter_union_unadopted_whole": 4507,
+    "normal_validation": {
+      "status": "PASS",
+      "same_actual_normal_run_as_depth_repetition": true,
+      "full_build_sha256": "32f9b1c30c6a126dd05561b43c4bc1241ec62bfc01eff836c8358b420df63267",
+      "selected_runtime_sha256": "f7b3d66eee190d87b548c4cb80d2205b2c6fa9ef44d6e2a98759369445df3e73",
+      "metadata_only_after_execution": true
     }
   }
 }
