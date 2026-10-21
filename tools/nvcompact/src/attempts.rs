@@ -276,7 +276,7 @@ fn load(path: &Path, remaining: &mut usize) -> Result<Retained> {
     ensure!(
         matches!(
             index["outcome"]["status"].as_str(),
-            Some("completed" | "budget-exhausted" | "failed")
+            Some("completed" | "budget-exhausted" | "space-incomplete" | "failed")
         ),
         "attempt outcome status is missing or invalid"
     );
@@ -533,7 +533,7 @@ fn rows(archive: &Retained, run: usize) -> Vec<Value> {
     let mut output = Vec::new();
     let completed = matches!(
         outcome["status"].as_str(),
-        Some("completed" | "budget-exhausted")
+        Some("completed" | "budget-exhausted" | "space-incomplete")
     );
     let mut measured_keys = HashSet::new();
     if let Some(base) = baseline {
@@ -783,11 +783,22 @@ mod tests {
         for status in ["not-checked", "rejected", "compile-failed", "incomplete"] {
             let path = root.path().join(status);
             let mut archive = fixture(&path, Some(objective.clone()), status);
-            archive.finish(completed()).unwrap();
+            let mut outcome = completed();
+            if status == "incomplete" {
+                outcome["status"] = json!("space-incomplete");
+            }
+            archive.finish(outcome).unwrap();
             paths.push(path);
         }
         let result = compare(&paths).unwrap();
         assert_eq!(result["groups"].as_array().unwrap().len(), 1);
+        assert!(result["groups"][0]["rows"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|row| row["run"] == 3
+                && row["id"] == "baseline"
+                && row["selected_in_recorded_run"] == true));
         for row in result["groups"][0]["rows"]
             .as_array()
             .unwrap()

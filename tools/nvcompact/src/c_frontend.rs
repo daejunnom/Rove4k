@@ -55,6 +55,63 @@ pub(crate) struct PreprocessingObservation {
     pub utf8: bool,
 }
 
+/// One original preprocessing context retained across a complete search or
+/// replay, independently of its changing candidate bases and AST lifetimes.
+/// This is an observation guard, not an additional C transformation or proof.
+/// It deliberately accepts opaque header bytes and does not require an AST or
+/// an LP64 probe, including when no source-spelling candidates are requested.
+pub(crate) struct SourceContext {
+    source: Box<[u8]>,
+    frontend: FrontendSession,
+    observation: PreprocessingObservation,
+}
+
+impl SourceContext {
+    pub fn new(source: &[u8], config: FrontendConfig) -> Result<Self> {
+        let frontend = FrontendSession::new(config, false)?;
+        // Until the first observation exists, bounded output exhaustion keeps
+        // its original capacity type: no cached proof has been invalidated.
+        let bytes = frontend.preprocess(source)?;
+        let observation = PreprocessingObservation {
+            sha256: sha256(&bytes),
+            utf8: std::str::from_utf8(&bytes).is_ok(),
+        };
+        Ok(Self {
+            source: source.into(),
+            frontend,
+            observation,
+        })
+    }
+
+    pub fn recheck(&self) -> Result<()> {
+        self.frontend
+            .recheck_observation(&self.source, &self.observation)
+    }
+
+    /// Keep context validation outside the operation's success path. A failing
+    /// compiler, cost callback or verifier must not hide changed dependencies.
+    /// Retain an operation failure in the error explanation while preserving
+    /// the typed context failure for the caller's fatal-error classification.
+    pub fn observe<T>(&self, operation: impl FnOnce() -> Result<T>) -> Result<T> {
+        self.recheck()?;
+        let result = operation();
+        match (self.recheck(), result) {
+            (Ok(()), result) => result,
+            (Err(context), Ok(_)) => Err(context),
+            (Err(context), Err(operation)) => Err(context.context(format!(
+                "operation also failed before post-operation context validation: {operation:#}"
+            ))),
+        }
+    }
+
+    pub fn statistics(&self) -> Value {
+        json!({"source_sha256":sha256(&self.source),
+            "preprocessing_sha256":self.observation.sha256,"frontend":self.frontend.info,
+            "work":self.frontend.statistics(),
+            "scope":"one original-source preprocessing observation across the run; no AST or transformation proof"})
+    }
+}
+
 pub(crate) struct FrontendSession {
     config: FrontendConfig,
     root: tempfile::TempDir,
@@ -220,18 +277,25 @@ impl FrontendSession {
     /// observation still agrees. This checks include resolution and macro state
     /// rather than guessing a complete cache key from header filenames.
     pub fn recheck(&self, source: &[u8], snapshot: &ParsedSource) -> Result<()> {
-        let expected = &snapshot
+        let expected = snapshot
             .preprocessing
             .as_ref()
-            .context("snapshot has no preprocessing observation")?
-            .sha256;
+            .context("snapshot has no preprocessing observation")?;
+        self.recheck_observation(source, expected)
+    }
+
+    fn recheck_observation(
+        &self,
+        source: &[u8],
+        expected: &PreprocessingObservation,
+    ) -> Result<()> {
         self.context_rechecks.set(self.context_rechecks.get() + 1);
         let bytes=self.preprocess(source).context(FrontendContextChanged {
-            reason: "original preprocessing context could not be revalidated; cached AST proof cannot be reused",
+            reason: "original preprocessing context could not be revalidated; recorded source analysis cannot be reused",
         })?;
-        if sha256(&bytes) != *expected {
+        if sha256(&bytes) != expected.sha256 {
             return Err(FrontendContextChanged {
-                reason: "original preprocessing context changed; cached AST proof cannot be reused",
+                reason: "original preprocessing context changed; recorded source analysis cannot be reused",
             }
             .into());
         }
@@ -431,6 +495,103 @@ pub(crate) fn frontend_syntax_probe(argv: &[String]) -> Option<Vec<String>> {
 mod tests {
     use super::*;
     use std::os::unix::fs::PermissionsExt;
+
+    fn real_config(source_path: PathBuf) -> Option<FrontendConfig> {
+        let clang = std::env::var("NVCOMPACT_CLANG").unwrap_or_else(|_| "clang".into());
+        if process::resolve_tool(&clang).is_err() {
+            eprintln!("source context fixture not executed: set NVCOMPACT_CLANG");
+            return None;
+        }
+        Some(FrontendConfig {
+            clang,
+            standard: "c11".into(),
+            compiler_args: vec![],
+            source_path: Some(source_path),
+            seconds: 5.0,
+            memory_bytes: 1 << 30,
+            ast_bytes: 65536,
+        })
+    }
+
+    #[test]
+    fn source_context_needs_no_ast_and_preserves_opaque_header_bytes() {
+        let directory = tempfile::tempdir().unwrap();
+        let source_path = directory.path().join("main.c");
+        let header = directory.path().join("context.h");
+        let source = b"#include \"context.h\"\nint f(int b){if(b)return 3;else return 4;}\n";
+        std::fs::write(&source_path, source).unwrap();
+        std::fs::write(&header, b"#define UNUSED_TEXT \"\xff\"\n").unwrap();
+        let Some(config) = real_config(source_path) else {
+            return;
+        };
+        let context = SourceContext::new(source, config).unwrap();
+        assert!(!context.observation.utf8);
+        context.recheck().unwrap();
+        assert_eq!(context.statistics()["work"]["ast_parses"], 0);
+        // An unused header can change without changing GCC's output. It still
+        // invalidates the declared original frontend observation for the run.
+        std::fs::write(&header, b"#define UNUSED_TEXT \"different\"\n").unwrap();
+        let error = context.recheck().unwrap_err();
+        assert!(error.downcast_ref::<FrontendContextChanged>().is_some());
+    }
+
+    #[test]
+    fn source_context_observes_failed_operations_and_rejects_stale_preconditions() {
+        let directory = tempfile::tempdir().unwrap();
+        let source_path = directory.path().join("main.c");
+        let header = directory.path().join("context.h");
+        let source = b"#include \"context.h\"\nint f(void){return 0;}\n";
+        std::fs::write(&source_path, source).unwrap();
+        std::fs::write(&header, b"#define UNUSED_VALUE 1\n").unwrap();
+        let Some(config) = real_config(source_path) else {
+            return;
+        };
+        let context = SourceContext::new(source, config).unwrap();
+        let error = context
+            .observe(|| -> Result<()> {
+                std::fs::write(&header, b"#error changed while compiling\n")?;
+                bail!("original compile operation failure")
+            })
+            .unwrap_err();
+        assert!(error.downcast_ref::<FrontendContextChanged>().is_some());
+        assert!(format!("{error:#}").contains("original compile operation failure"));
+        assert!(format!("{error:#}").contains("changed while compiling"));
+        let called = Cell::new(false);
+        let error = context
+            .observe(|| {
+                called.set(true);
+                Ok(())
+            })
+            .unwrap_err();
+        assert!(!called.get());
+        assert!(error.downcast_ref::<FrontendContextChanged>().is_some());
+    }
+
+    #[test]
+    fn source_context_distinguishes_initial_capacity_from_later_invalidated_context() {
+        let directory = tempfile::tempdir().unwrap();
+        let source_path = directory.path().join("main.c");
+        let header = directory.path().join("context.h");
+        let source = b"#include \"context.h\"\nint f(void){return 0;}\n";
+        std::fs::write(&source_path, source).unwrap();
+        std::fs::write(&header, b"#define UNUSED_VALUE 1\n").unwrap();
+        let Some(config) = real_config(source_path) else {
+            return;
+        };
+        let context = SourceContext::new(source, config.clone()).unwrap();
+        let oversized = format!("#define UNUSED_TEXT \"{}\"\n", "x".repeat(100_000));
+        let error = context
+            .observe(|| {
+                std::fs::write(&header, oversized.as_bytes())?;
+                Ok(())
+            })
+            .unwrap_err();
+        assert!(error.downcast_ref::<FrontendContextChanged>().is_some());
+        assert!(error.downcast_ref::<FrontendOutputLimit>().is_some());
+        let error = SourceContext::new(source, config).err().unwrap();
+        assert!(error.downcast_ref::<FrontendOutputLimit>().is_some());
+        assert!(error.downcast_ref::<FrontendContextChanged>().is_none());
+    }
 
     #[test]
     fn changed_frontend_is_a_context_failure_before_another_parse() {

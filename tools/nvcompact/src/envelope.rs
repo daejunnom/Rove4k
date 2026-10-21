@@ -718,17 +718,26 @@ pub fn run(manifest_path: &Path, output: &Path, options: &EnvelopeOptions) -> Re
                     &summary["tool"],
                     portfolio_search,
                 )?;
-                summary["source_search"] = searched[0].summary.clone();
-                summary["source_search_portfolio"] =
-                    json!(searched.iter().map(|s| &s.summary).collect::<Vec<_>>());
-                for candidate in searched {
-                    if candidate.data != payload
-                        && !variants.iter().any(|v| v.data == candidate.data)
-                    {
-                        variants.push(Payload { id: candidate.id, data: candidate.data,
+                summary["source_search_budget"] = json!({"strategies":searched.len(),
+                    "maximum_complete_payload_evaluations":searched.len()*search.max_evaluations,
+                    "maximum_combination_attempts":searched.len()*search.max_combinations,
+                    "total_scheduling_seconds":searched.len() as f64*search.max_seconds,
+                    "scope":"separate per-strategy scheduling deadlines; bounded in-flight operation and final acceptance may complete afterward; codec scratch and final portfolio are separate",
+                    "codec_cache":"shared across strategies and final comparison"});
+                let mut strategy_summaries = Vec::new();
+                for mut candidate in searched {
+                    let existing = variants.iter().find(|v| v.data == candidate.data);
+                    candidate.summary["canonical_variant"] =
+                        json!(existing.map_or(candidate.id.as_str(), |v| v.id.as_str()));
+                    candidate.summary["alias_of"] = existing.map_or(Value::Null, |v| json!(v.id));
+                    if existing.is_none() {
+                        variants.push(Payload { id: candidate.id.clone(), data: candidate.data,
                             equivalence: "unchanged C bytes or verified typed source derivation; complete native and compiler diagnostic byte identity; exact payload readback under declared embedding contract".into() });
                     }
+                    strategy_summaries.push(candidate.summary);
                 }
+                summary["source_search"] = strategy_summaries[0].clone();
+                summary["source_search_portfolio"] = json!(strategy_summaries);
             }
         }
         let submitted_decoder = codec::decoder_for(&submitted_recipe)?;

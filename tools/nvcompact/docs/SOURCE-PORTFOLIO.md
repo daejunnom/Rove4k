@@ -11,6 +11,11 @@ The measured comparison results and their execution scope are recorded in
 [PR #12 handoff](PR12-HANDOFF.ko.md). This guide describes the implemented interface
 and its contracts; it does not establish a compression optimum or tournament
 qualification.
+Those PR #13 results are historical measurements. The current
+[search architecture](SEARCH-ARCHITECTURE.ko.md) explains the ownership, shared
+evaluation and finite search space described below; it is not a new measurement
+of those engines. The [external commit review](EXTERNAL-SIZE-COMMITS.ko.md) records
+upstream techniques and failures separately.
 
 ## 1. Three different sizes
 
@@ -131,6 +136,11 @@ The source search is an optional **top-level `source_search` object**, alongside
 `language`, `compile_argv` and `envelope`. It is not nested inside `envelope`.
 Existing manifests keep their original behavior when this object is absent.
 `--no-notation` also disables source search.
+When enabled, the source search defaults to a submitted-codec strategy followed
+by a codec-portfolio strategy. The optional top-level Boolean
+`source_search_portfolio` defaults to `true`; setting it to `false` excludes the
+second strategy while keeping the submitted-codec strategy. It is not a field
+inside `source_search` and is not a CLI flag.
 
 Begin with an inspected external submission manifest that already pins the
 original artifact, its header, decoder and `envelope.payload_codec`. Preserve
@@ -165,6 +175,7 @@ these fragments do not replace the artifact/envelope declarations.
     "conditions": true,
     "max_rounds": 2,
     "max_evaluations": 2048,
+    "max_combinations": 16384,
     "max_seconds": 300
   }
 }
@@ -269,46 +280,75 @@ npm exec -- nvcompact replay /absolute/external/source-search-run/summary.json \
   --output /absolute/external/source-search-replay --selection smallest
 ```
 
-`--thorough` expands the final codec portfolio. `--jobs` controls its codec
-workers; it does not parallelize source generation or candidate compilation.
+`--thorough` expands the codec policy used by the portfolio source strategy and
+the final comparison. `--jobs` controls the shared evaluator's codec workers;
+it does not parallelize source generation or candidate compilation.
 The source-search bounds are manifest settings. The separate `--uci` option
 requests actual final-artifact protocol probes and is not part of the commands
 above. Resource-heavy engine execution retains the separate plan/start workflow.
 
 ## 4. Selection and preservation of the previous portfolio
 
-Source exploration uses a fixed objective: recompress the **whole rendered
-payload** with the manifest's inspected `envelope.payload_codec`, select the
-supported header spelling for that decoder, and count the complete resulting
-file. Header and framing bytes are included. Python literal escaping and all
-unchanged bootstrap bytes are included. A candidate's raw source length is never
-used as a cheaper substitute for this measurement.
+Both source strategies compare the **whole rendered payload** plus the complete
+inspected header for the selected decoder. Header and framing bytes, Python
+literal escaping and all unchanged bootstrap bytes are included. A candidate's
+raw source length is never used as a substitute for this measurement.
 
-Each round generates independent spelling groups, measures their applicable
-payload renderings, and orders improving singles by complete-file cost with a
-stable identifier tie-break. Compatible groups are combined greedily from that
-round's input. Each combination is remeasured; individual savings are not summed.
-An improving combination must pass the semantic gates before it becomes the
-provisional incumbent. The selected combination becomes one replayable step.
-Optional guarded C condition candidates are evaluated separately on the current
-source; arbitrary condition edits are not composed as if independent.
+The strategies start from the same original payload in this order:
 
-The resulting source is one additional input to the final codec search. That
-search preserves:
+| Strategy | Cost objective | Result |
+| --- | --- | --- |
+| `source-search` | The manifest's inspected `envelope.payload_codec` and its complete supported header spelling. | Retains a winner under the prior source-search objective. |
+| `source-search-portfolio` | The minimum complete-file cost from the current codec policy. | Also considers sources whose advantage depends on another codec; enabled by default. |
+
+Each strategy first runs the improving-incumbent priority rounds. A round
+generates spelling groups, measures their applicable payload renderings, and
+orders improving singles by whole-file cost with a stable identifier tie-break.
+Compatible improvements and optional guarded condition recipes can advance the
+incumbent. Every retained spelling choice remains available to later systematic
+work, including singles that were equal or larger in complete-file size.
+
+After the priority rounds, a lazy iterator visits nontrivial subsets of the
+generated spelling choices on each visited priority basis. Incompatible edit or
+binding combinations are recorded; compatible combinations are measured as
+whole payloads. Individual savings are not summed. Only a smaller, admitted and
+retained result can replace the incumbent, and a winning branch restores the
+accepted-step prefix for its own basis. Generator limits, `max_combinations`,
+measurement/time limits and evidence limits bound this work. Conditions retain
+their registered recipes and bounded individual edits; this does not enumerate
+all flow-edit combinations or all rewrite sequences. See the
+[architecture and coverage definitions](SEARCH-ARCHITECTURE.ko.md) for the exact
+finite domain and completion fields.
+
+The shared `WholeFileObjective` reuses successful codec work only for the same
+payload identity and complete recipe inside its fixed inspected-envelope
+context. The two strategies keep separate cost contexts and attempt archives.
+Both winners enter the final codec comparison; identical payloads can share a
+canonical final variant without losing their strategy-specific receipts.
+
+The final comparison preserves:
 
 - The original complete submitted file and original compressed stream.
 - Existing notation/source candidates and the existing codec seeds.
+- Both enabled source-strategy winners.
 - The refinements that the legacy seeds would have selected, even when a new
   seed would otherwise displace a previously explored refinement family.
 - The inspected submitted codec for changed sources, together with applicable
   additional seeds and refinements.
 
-Consequently a source-search win under its fixed codec is not reported as the
-final result until the complete final portfolio is compared. Another old source
-or codec can still win. An unchanged selection is reported as preservation, not
-new compression. The bounded greedy source search does not exhaust combinations
-that become beneficial only together, or sources that improve only under some
-other codec; there is no global-optimality claim.
+Consequently a strategy's source winner is not reported as the final result
+until the complete final portfolio is compared. Another source or codec can
+still win. The default codec policy adds a submitted recipe to the legacy initial
+domain and retains the union of earlier and augmented adaptive refinements. It
+does not exhaust every codec option combination. The Rust API's
+`CodecPortfolio::fixed(recipes)` instead defines an explicit finite list with no
+adaptive refinement by default. This fixed-list API does not change the
+envelope command's default policy.
+
+An unchanged selection is reported as preservation, not new compression.
+Keeping priority order and earlier candidates is not a guarantee of finding the
+same minimum under every wall-clock budget or execution environment. No global
+compression optimum is claimed.
 
 For native ELF submissions, preserving complete native bytes necessarily
 preserves that native file's size. This source-enveloping path applies to an
@@ -336,9 +376,35 @@ identity. Different debug metadata, build identifiers, paths, warnings or output
 bytes can reject a candidate. The implementation does not infer that a rejected
 candidate is equivalent because a sample output happened to match.
 
+A `SourceContext` separately retains the original source's preprocessing
+observation across the search, independently of changing round bases and cached
+AST lifetimes. It uses its own frontend session and needs neither an AST nor an
+LP64 probe; opaque header bytes remain valid observation bytes. This does not
+relax the spelling analyzer's type-model or encoding contract. Baseline native
+compilations and initial cost, admission's actual compilation, final changed
+native output and fresh cost are observed before and after the operation. An
+operation wrapped by this guard is rechecked even when it fails; if context also
+changed, the original operation error remains in the explanation and the typed
+context failure remains fatal. A stale precondition prevents that operation
+from starting.
+Native observations preserve a completed compilation receipt before the
+post-operation context check. Receipt persistence is inside that observed
+operation, so a write failure cannot hide a simultaneous typed context failure.
+
+The guard is not a preprocessing pass around every candidate cost measurement.
+A final recheck also covers a search that inspected only non-improving choices
+and retained the original. Candidate cost errors themselves still fail the run;
+the interface does not promise that every such failure is reclassified as a
+context change.
+
 Final acceptance freshly checks changed source compilation, exact payload
-rendering and reproducibility of the selected complete-file cost. The envelope
-then regenerates the selected codec result and checks deployed decoder readback.
+rendering and reproducibility of the selected complete-file cost. The source
+objective's fresh operation bypasses retained codec/header measurements. For the
+portfolio strategy, this repeats the policy's full evaluation and adaptive seed
+selection, not only the previously winning codec. An unchanged original payload
+is identified as an unchanged-input baseline measurement. The envelope then
+independently regenerates the final selected recipe and checks deployed decoder
+readback.
 No chess engine or Python bootstrap is executed by source search or ordinary
 replay. Compiler and decoder subprocesses do run under their declared contracts.
 
@@ -349,6 +415,12 @@ spelling steps; recorded condition steps regenerate their bounded rule recipe
 and select its exact audited ID/hash. It performs the source/native/adapter checks
 again, then applies the selected final codec and requires exact final size and
 hash. It does not repeat whole-file source exploration or codec optimization.
+When accepted source steps exist, replay creates a new original-source context
+guard and observes its baseline, step reconstruction/compilation and final
+native boundaries. With no accepted source steps, replay uses the native and
+embedding identity checks without claiming to have run that guard. The guard
+checks consistency within the current replay; it is not a persisted snapshot
+of every include dependency from the earlier search.
 
 The envelope replay additionally pins the generating NVCompact executable and
 codec runtime. A different executable is not silently substituted. Retain the
@@ -362,9 +434,11 @@ external include file has been independently snapshotted.
 | Setting | Default | Supported range or scope |
 | --- | ---: | --- |
 | `source_search.max_rounds` | 2 | 1–8 rounds. |
-| `source_search.max_evaluations` | 2048 | 1–16384 actual complete-file measurement calls. |
-| `source_search.max_seconds` | 300 | Positive finite value up to 86400; scheduling deadline. |
+| `source_search.max_evaluations` | 2048 | 1–16384 complete-payload objective calls per strategy; one call may evaluate many codecs. |
+| `source_search.max_combinations` | 16384 | 1–1048576 systematic subset attempts per strategy, including incompatible subsets. |
+| `source_search.max_seconds` | 300 | Positive finite value up to 86400; per-strategy scheduling deadline. |
 | `source_search.max_retained_source_bytes` | 67108864 | 0–536870912 additional deduplicated candidate-source snapshot bytes. |
+| Top-level `source_search_portfolio` | `true` | Boolean; enables the second source strategy when `source_search` is active. |
 | `candidates.max_candidates` | 256 | 1–512, including raw. |
 | `candidates.max_name_groups` | 36 | 0–128. |
 | `candidates.names_per_group` | 4 | 1–16. |
@@ -387,6 +461,13 @@ with a budget of one, the measured original remains the result. Previously
 measured singles can still be verified after the cost-exploration budget is
 exhausted; an unmeasured composition cannot be accepted by estimating its cost.
 
+Each enabled strategy owns these limits independently. With both default
+strategies, `source_search_budget` reports aggregate ceilings of 4096 payload
+evaluations, 32768 combination attempts and 600 scheduling seconds. The shared
+codec cache can reduce actual compression work without merging the strategies'
+cost contexts. Final codec comparison, in-flight operations, native/codec scratch
+memory and final acceptance remain separate from those aggregate counters.
+
 The time limit is checked between bounded operations. It is not a hard deadline
 that interrupts an arbitrary codec callback; final acceptance can finish after
 exploration stops. Compiler/frontend subprocesses have their own finite limits.
@@ -395,22 +476,41 @@ arbitrary process tree. Cancellation aborts the operation and reaps owned child
 processes. Source generation and candidate compile work are currently serial.
 
 Source/payload inputs are bounded to 8 MiB. The spelling generator retains at
-most 64 MiB of candidate source buffers. Detailed search records are bounded to
-32768 entries and 32 MiB; report-memory exhaustion stops further acceptance when
-proof cannot be retained. These are separate bounds, not an aggregate process
-memory guarantee.
+most 64 MiB of candidate source buffers, and deferred subset plans separately
+retain at most 64 MiB of source buffers. Detailed search records are bounded to
+32768 entries and 32 MiB per strategy; report-memory exhaustion stops further
+acceptance when proof cannot be retained. The shared evaluator has separate
+bounded codec/header caches and at most `jobs` active codec workers. These are
+separate bounds, not an aggregate process memory guarantee.
 
-The envelope summary embeds the accepted recipe and a compact source-search
-report. Its `detail.path`, byte count and SHA-256 identify the detailed report
-under the owned output directory. Records include generator notes/assumptions,
+The envelope summary's `source_search_portfolio` array embeds each strategy's
+accepted recipe and compact report; `source_search` keeps the first strategy as
+a compatibility view. Each `detail.path`, byte count and SHA-256 identify its
+detailed report under the owned output directory. Records include generator notes/assumptions,
 measured styles, native receipts, rejected candidates, accepted derivations and
 budget exhaustion. A frontend AST/preprocessing output cap has a specific bounded
 stop path: NVCompact first performs a syntax-only check with the same language,
-target and preprocessing arguments, finite limits, and executable identity. Only
-when that check succeeds does search report `frontend-output-budget` and retain
-its last fully verified incumbent. The record explicitly marks frontend proof
-as incomplete and states that truncated output was not accepted. Version/ABI
-probe failures do not take this path. A syntax-check failure remains an error.
+target and preprocessing arguments, finite limits, and executable identity.
+Initial context capture or candidate analysis can use the bounded
+`frontend-output-budget` stop only when that check succeeds. If the initial
+observation cannot be captured, no context guard is established; baseline checks
+and the unchanged-input path remain. The record explicitly marks frontend proof
+as incomplete and states that truncated output was not accepted. A later
+inability to revalidate an established original context, including output
+exhaustion, is instead a fatal context failure. Version/ABI probe failures do not
+take the optional capacity path. A syntax-check failure remains an error.
+
+Spelling coverage reports generated choices, declared subset counts, attempted
+and incompatible subsets, duplicate sources and unfinished work on each visited
+priority basis. `declared_basis_spaces_complete` aggregates the basis-level
+cost completion flags. The status distinguishes `completed`, `budget-exhausted`
+and `space-incomplete`; its scope excludes undiscovered generator choices and
+the separate flow/codec heuristics. Cached original AST proofs also require
+preprocessing readback. A changed or unreadable original frontend context is a
+fatal `FrontendContextChanged`, not a candidate-only semantic rejection or an
+ordinary output-capacity stop.
+The detailed report's `source_context` records the run-long observation and its
+work separately from `frontend_work` for round-specific prepared analyses.
 
 The final report distinguishes unchanged C byte identity from accepted typed
 derivations through `final.source_unchanged` and `final.source_proof`. An unchanged
@@ -465,8 +565,10 @@ failed transformation and for recognizing an alternative that may become useful
 under another source or codec context.
 
 Each fresh source search creates `attempts/` beside its detailed `report.json`.
-For the envelope command above, the existing nested output layout places it at
-`source-search-run/source-search/source-search/attempts/`:
+For the envelope command above, the submitted-codec strategy keeps the existing
+layout `source-search-run/source-search/source-search/attempts/`. The default
+second strategy uses
+`source-search-run/source-search-portfolio/source-search/attempts/`. Each contains:
 
 | Artifact | Purpose |
 | --- | --- |
@@ -520,6 +622,8 @@ separate groups with no cross-group winner. A failed or incomplete baseline
 cannot establish that cross-run context. A library caller using an arbitrary
 cost callback without an explicit objective also gets run-local comparison only;
 a numeric byte count alone is not a portable measurement contract.
+In particular, submitted-codec and portfolio-objective archives form separate
+groups even when their input and final payload happen to match.
 
 Rows distinguish `size_relation` (`smaller`, `equal`, `larger`, or `unmeasured`)
 from `semantic_status` (`recorded-verified`, `recorded-source-identity`,
@@ -539,10 +643,17 @@ only the recorded accepted recipe and enforce its existing exact checks.
 
 ## Implementation references
 
+- [Ownership, reuse and finite coverage](SEARCH-ARCHITECTURE.ko.md)
+- [Shared Clang session and context observation](../src/c_frontend.rs)
 - [C spelling candidates and binding verification](../src/csource.rs)
 - [Typed condition candidates](../src/cflow.rs)
 - [Python bytes adapter](../src/source_payload.rs)
 - [Whole-file search and exact source replay](../src/source_search.rs)
+- [Lazy spelling subset plan](../src/source_search/plan.rs)
+- [Budget, evidence journal and run-local cost memo](../src/source_search/runtime.rs)
 - [Attempt archives and recorded-cost comparison](../src/attempts.rs)
+- [Complete-file cost ownership and bounded reuse](../src/envelope_cost.rs)
+- [Independent envelope source strategies](../src/envelope_source.rs)
+- [Fixed and adaptive codec policies](../src/codec.rs)
 - [Envelope selection, preserved refinements and final replay](../src/envelope.rs)
 - [Owned integration fixtures](../tests/source_search.rs)

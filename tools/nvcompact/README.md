@@ -4,10 +4,16 @@ NVCompact means **N-version compaction**: preserve the original, construct
 explicit alternatives, verify their applicable contracts, and compare the
 complete deliverable. It is an internal Rust tool in the Rove4k monorepo.
 
-The current version is 0.4.1. Node supplies the `nvcompact` npm command boundary;
+The source version is 0.5.0. Node supplies the `nvcompact` npm command boundary;
 Rust performs the active compilation orchestration, spelling transformations,
 packing, reproduction, resource checks and UCI probes. The archived Python 0.3
 implementation is reference material for past results.
+
+Version 0.5.0 adds bounded whole-file source search, retained attempt archives
+and the read-only `compare-attempts` command, with stricter Boolean-domain
+checks for typed C rewrites. See the [0.5.0 release notes](docs/RELEASE-0.5.ko.md)
+for the changes, measured scope and platform limits. Historical measurements
+below retain their recorded inputs and tool versions.
 
 ## Build and package
 
@@ -46,7 +52,7 @@ repository. Omitting `--no-build` first builds current source. The explicit
 `--no-build` path checks recorded source, host and executable fingerprints.
 
 Install the resulting tarball with
-`npm install --offline --ignore-scripts /absolute/path/nvcompact-0.4.1.tgz`.
+`npm install --offline --ignore-scripts /absolute/path/nvcompact-0.5.0.tgz`.
 The npm target is Linux x64/glibc, with release CI on Ubuntu 24.04. It does not
 claim universal binary compatibility. `NVCOMPACT_BIN` selects another
 explicit Rust executable without triggering a build or another backend.
@@ -170,6 +176,36 @@ inspected Python bytes embedding when present. Equal-length or longer source
 spellings can win. Accepted changes require binding/type checks and identical
 complete native output and compiler diagnostics under the declared recipe.
 `replay` reconstructs the accepted derivation without repeating the search.
+
+The search runs the existing improving-incumbent rounds first, then lazily visits
+subsets of the generated spelling choices on those visited source bases. Losing
+or tied singles remain eligible for a combined gain. `max_combinations` defaults
+to 16384 per strategy, with a supported maximum of 1048576; generation, time,
+measurement and retention bounds remain separate. Reports distinguish a fully
+visited declared spelling space from budget stops or an unscheduled space.
+This does not enumerate every equivalent program or every condition-rewrite
+sequence. Preserving earlier priority and candidates is not a guarantee of the
+same minimum under every wall-clock limit or execution environment.
+
+When `source_search` is enabled, the envelope defaults to two source strategies:
+the submitted codec first, then the complete current codec policy as an
+objective. Both winners enter the final comparison. Set the manifest's top-level
+`"source_search_portfolio": false` to exclude the second strategy explicitly.
+Each strategy owns its budget and attempt archive; `source_search_budget` reports
+the aggregate limits. With defaults, two strategies permit up to 4096 complete
+payload evaluations, 32768 combination attempts and 600 scheduling seconds.
+One evaluation may run many codecs, and in-flight work, final acceptance and the
+final codec comparison are separate from those scheduling deadlines.
+
+Both strategies and final selection share the whole-file evaluator's bounded
+codec/header caches. Keys preserve payload identity and the complete recipe;
+same native ELF bytes do not merge distinct source costs. Workers are reused
+within a codec batch, while fresh final checks bypass measurement caches.
+The default codec policy includes adaptive legacy refinements. The Rust API's
+explicit fixed-recipe policy can exhaust its declared list; neither policy
+claims the global compression optimum. The [search architecture](docs/SEARCH-ARCHITECTURE.ko.md)
+describes ownership, reuse, exact coverage and fresh verification boundaries.
+
 Source search also retains original/candidate source snapshots, derivations and
 failed or unselected observations in a bounded external attempt archive. It
 automatically compares the recorded complete-file costs when sealing the run;
@@ -185,6 +221,10 @@ remain part of the rule's applicability checks.
 The [whole-file source portfolio guide](docs/SOURCE-PORTFOLIO.md) documents the
 contracts, configuration, bounds and unsupported cases. Engine-specific work
 is separated in the [PR #12 handoff](docs/PR12-HANDOFF.ko.md).
+The [external byte-saving commit review](docs/EXTERNAL-SIZE-COMMITS.ko.md) records
+upstream techniques, losses and semantic/deployment tradeoffs independently of
+whether Rove4k already uses them; historical upstream sizes are not new local
+measurements.
 The [PR #13 measurements](docs/PR13-RESULTS.ko.md) compare 26 pinned
 input/profile rows: seven smaller complete files and 19 byte-identical winners,
 with explicit replay, compiler-proof and unexecuted runtime boundaries.

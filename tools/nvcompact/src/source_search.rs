@@ -156,6 +156,7 @@ struct SearchRun {
     journal: runtime::EvidenceJournal,
     costs: runtime::CostMemo,
     frontend_capacity_stop: Option<Value>,
+    context: Option<crate::c_frontend::SourceContext>,
 }
 
 impl SearchRun {
@@ -165,10 +166,33 @@ impl SearchRun {
             journal: runtime::EvidenceJournal::new(archive),
             costs: runtime::CostMemo::new(),
             frontend_capacity_stop: None,
+            context: None,
         }
     }
     fn cancelled(&self) -> Result<()> {
         self.budget.cancelled()
+    }
+    fn observe<T>(&self, operation: impl FnOnce() -> Result<T>) -> Result<T> {
+        observe_context(self.context.as_ref(), operation)
+    }
+    fn observe_record<T>(
+        &mut self,
+        operation: impl FnOnce() -> Result<T>,
+        receipt: impl FnOnce(&T) -> Value,
+    ) -> Result<T> {
+        let journal = &mut self.journal;
+        let budget = &mut self.budget;
+        observe_context(self.context.as_ref(), || {
+            let value = operation()?;
+            // Keep completed work even when the subsequent context check
+            // fails. Evidence failure remains inside the observed operation,
+            // so it cannot replace a simultaneous typed context failure.
+            ensure!(
+                journal.record(budget, receipt(&value))?,
+                "completed operation could not retain its receipt; result not admitted"
+            );
+            Ok(value)
+        })
     }
     fn available(&mut self) -> Result<bool> {
         self.budget.available()
@@ -196,22 +220,25 @@ impl SearchRun {
     ) -> Result<Option<(usize, bool)>> {
         self.costs.measure(&mut self.budget, payload, measure)
     }
-    fn stop_for_frontend_capacity(
+    /// None stops at a bounded frontend capacity; an ordinary error is
+    /// returned to its consumer. Changed context is fatal and retains the
+    /// original typed error and complete cause chain.
+    fn classify_frontend_failure(
         &mut self,
-        error: &anyhow::Error,
+        error: anyhow::Error,
         phase: &str,
         round: usize,
         id: &str,
-    ) -> Result<bool> {
+    ) -> Result<Option<anyhow::Error>> {
         self.cancelled()?;
-        ensure!(
-            error
-                .downcast_ref::<csource::FrontendContextChanged>()
-                .is_none(),
-            "source-search frontend context changed: {error:#}"
-        );
+        if error
+            .downcast_ref::<csource::FrontendContextChanged>()
+            .is_some()
+        {
+            return Err(error.context("source-search frontend context changed"));
+        }
         let Some(capacity) = error.downcast_ref::<cflow::FrontendOutputLimit>() else {
-            return Ok(false);
+            return Ok(Some(error));
         };
         let evidence = json!({"stage":"frontend-capacity-stop","phase":phase,"round":round,"id":id,
             "reason":format!("{error:#}"),"capture":capacity,"syntax_recheck":"passed",
@@ -220,7 +247,17 @@ impl SearchRun {
         self.budget.reason = Some("frontend-output-budget".into());
         self.frontend_capacity_stop = Some(evidence.clone());
         self.record(evidence)?;
-        Ok(true)
+        Ok(None)
+    }
+}
+
+fn observe_context<T>(
+    context: Option<&crate::c_frontend::SourceContext>,
+    operation: impl FnOnce() -> Result<T>,
+) -> Result<T> {
+    match context {
+        Some(context) => context.observe(operation),
+        None => operation(),
     }
 }
 
@@ -343,11 +380,9 @@ fn admit(
     compiler: &[String],
     native_dir: &Path,
     baseline: &Value,
-    frontend: &Value,
     budget: &mut SearchRun,
     round: usize,
 ) -> Result<Value> {
-    check_tool(&options.candidates.frontend.clang, frontend, "frontend")?;
     if spelling {
         if let Some(prepared) = prepared {
             ensure!(prepared.source() == source, "prepared source basis differs");
@@ -356,17 +391,15 @@ fn admit(
             csource::verify_variant(source, variant, &options.candidates)?;
         }
     }
-    let native = native_fingerprint(&variant.data, compiler, native_dir, &options.compile_limits)?;
-    ensure!(
-        budget.record(
+    let native = budget.observe_record(
+        || native_fingerprint(&variant.data, compiler, native_dir, &options.compile_limits),
+        |native| {
             json!({"stage":"candidate-compile","round":round,"id":variant.id,
-        "source_sha256":variant.sha256,"native":native})
-        )?,
-        "candidate compile completed but its evidence budget is exhausted; candidate not admitted"
-    );
+            "source_sha256":variant.sha256,"native":native})
+        },
+    )?;
     same_native(&native, baseline)
         .with_context(|| format!("candidate native receipt: {native}"))?;
-    check_tool(&options.candidates.frontend.clang, frontend, "frontend")?;
     Ok(native)
 }
 
@@ -517,26 +550,53 @@ fn search_inner(
         json!({"stage":"search-context","input_source_sha256":sha256(&original_source),
         "compiler":compiler_pin,"frontend":frontend_pin}),
     )?;
+    match crate::c_frontend::SourceContext::new(
+        &original_source,
+        (&options.candidates.frontend).into(),
+    ) {
+        Ok(context) => {
+            budget.context = Some(context);
+            budget.record(json!({"stage":"source-context",
+                "observation":budget.context.as_ref().map(|context| context.statistics())}))?;
+        }
+        Err(error) => {
+            if let Some(error) =
+                budget.classify_frontend_failure(error, "original-context", 0, "original-source")?
+            {
+                return Err(error);
+            }
+        }
+    }
     let native_dir = directory.join("native");
-    let baseline = native_fingerprint(
-        &original_source,
-        compiler,
-        &native_dir,
-        &options.compile_limits,
+    let baseline = budget.observe_record(
+        || {
+            native_fingerprint(
+                &original_source,
+                compiler,
+                &native_dir,
+                &options.compile_limits,
+            )
+        },
+        |native| json!({"stage":"baseline-compile","attempt":1,"native":native}),
     )?;
-    budget.record(json!({"stage":"baseline-compile","attempt":1,"native":baseline}))?;
     native_identity(&baseline)?;
-    let repeated = native_fingerprint(
-        &original_source,
-        compiler,
-        &native_dir,
-        &options.compile_limits,
+    let repeated = budget.observe_record(
+        || {
+            native_fingerprint(
+                &original_source,
+                compiler,
+                &native_dir,
+                &options.compile_limits,
+            )
+        },
+        |native| json!({"stage":"baseline-compile","attempt":2,"native":native}),
     )?;
-    budget.record(json!({"stage":"baseline-compile","attempt":2,"native":repeated}))?;
     same_native(&repeated, &baseline).context("original native compilation is not reproducible")?;
     check_tool(&compiler[0], &compiler_pin, "compiler")?;
     budget.budget.evaluations += 1;
-    let initial_cost = measure(payload).context("original complete-file cost failed")?;
+    let initial_cost = budget
+        .observe(|| measure(payload))
+        .context("original complete-file cost failed")?;
     budget.costs.insert_baseline(payload, initial_cost);
     budget.record(json!({"stage":"baseline-cost","whole_file_bytes":initial_cost,"payload_bytes":payload.len(),"payload_sha256":sha256(payload)}))?;
     let initial_style = if options.embedding.is_some() {
@@ -594,15 +654,15 @@ fn search_inner(
         {
             Ok(value) => value,
             Err(error) => {
-                if budget.stop_for_frontend_capacity(
-                    &error,
+                if let Some(error) = budget.classify_frontend_failure(
+                    error,
                     "spelling-generation",
                     round,
                     "round-input",
                 )? {
-                    break;
+                    return Err(error);
                 }
-                return Err(error);
+                break;
             }
         };
         let generated = prepared
@@ -651,6 +711,7 @@ fn search_inner(
         coverage.push(json!({"round":round,"basis_source_sha256":sha256(&round_source),
             "generated_choices":choices.len(),"nontrivial_subsets":plan::Combinations::cardinality(choices.len()),
             "systematic_subsets_attempted":0,"incompatible_subsets":0,"duplicate_sources":0,
+            "exhausted":false,"all_declared_costs_evaluated":false,
             "scheduled":scheduled,"stop":if scheduled{Value::Null}else{json!("plan-source-memory-budget")},
             "generation":generation,
             "scope":"all subsets of generated spelling choices on this visited priority basis; compatible audited edits commute"}));
@@ -728,7 +789,6 @@ fn search_inner(
                 compiler,
                 &native_dir,
                 &baseline,
-                &frontend_pin,
                 budget,
                 round,
             ) {
@@ -743,14 +803,15 @@ fn search_inner(
                     selected_best = Some((combined, score, native));
                 }
                 Err(error) => {
-                    if budget.stop_for_frontend_capacity(
-                        &error,
+                    let Some(error) = budget.classify_frontend_failure(
+                        error,
                         "spelling-admission",
                         round,
                         &combined.id,
-                    )? {
+                    )?
+                    else {
                         break;
-                    }
+                    };
                     budget.cancelled()?;
                     budget.record(
                         json!({"stage":"semantic-rejected","round":round,"id":combined.id,
@@ -785,15 +846,15 @@ fn search_inner(
             {
                 Ok(value) => value,
                 Err(error) => {
-                    if budget.stop_for_frontend_capacity(
-                        &error,
+                    if let Some(error) = budget.classify_frontend_failure(
+                        error,
                         "condition-generation",
                         round,
                         "round-input",
                     )? {
-                        break;
+                        return Err(error);
                     }
-                    return Err(error);
+                    break;
                 }
             };
             if !budget.record(
@@ -842,7 +903,6 @@ fn search_inner(
                     compiler,
                     &native_dir,
                     &baseline,
-                    &frontend_pin,
                     budget,
                     round,
                 ) {
@@ -861,14 +921,15 @@ fn search_inner(
                         break;
                     }
                     Err(error) => {
-                        if budget.stop_for_frontend_capacity(
-                            &error,
+                        let Some(error) = budget.classify_frontend_failure(
+                            error,
                             "condition-admission",
                             round,
                             &variant.id,
-                        )? {
+                        )?
+                        else {
                             break;
-                        }
+                        };
                         budget.cancelled()?;
                         budget.record(
                             json!({"stage":"semantic-rejected","round":round,"id":variant.id,
@@ -902,21 +963,22 @@ fn search_inner(
         }
         if space.choices.len() < 2 {
             entry["exhausted"] = json!(true);
+            entry["all_declared_costs_evaluated"] = json!(true);
             continue;
         }
         let prepared = match csource::PreparedSource::new(&space.source, &options.candidates) {
             Ok(value) => value,
             Err(error) => {
-                if budget.stop_for_frontend_capacity(
-                    &error,
+                if let Some(error) = budget.classify_frontend_failure(
+                    error,
                     "combination-basis",
                     space.round,
                     "round-input",
                 )? {
-                    entry["stop"] = json!(budget.budget.reason);
-                    continue;
+                    return Err(error);
                 }
-                return Err(error);
+                entry["stop"] = json!(budget.budget.reason);
+                continue;
             }
         };
         let mut seen: HashSet<String> = space.choices.iter().map(|v| v.sha256.clone()).collect();
@@ -985,7 +1047,6 @@ fn search_inner(
                 compiler,
                 &native_dir,
                 &baseline,
-                &frontend_pin,
                 budget,
                 space.round,
             ) {
@@ -1007,16 +1068,17 @@ fn search_inner(
                     current = score;
                 }
                 Err(error) => {
-                    if budget.stop_for_frontend_capacity(
-                        &error,
+                    let Some(error) = budget.classify_frontend_failure(
+                        error,
                         "combination-admission",
                         space.round,
                         &combined.id,
-                    )? {
+                    )?
+                    else {
                         exhausted = false;
                         entry["stop"] = json!(budget.budget.reason);
                         break;
-                    }
+                    };
                     budget.cancelled()?;
                     budget.record(json!({"stage":"semantic-rejected","round":space.round,
                         "id":combined.id,"source_sha256":combined.sha256,"reason":format!("{error:#}"),
@@ -1047,7 +1109,10 @@ fn search_inner(
     let final_native = if source == original_source {
         repeated
     } else {
-        let checked = native_fingerprint(&source, compiler, &native_dir, &options.compile_limits)?;
+        let checked = budget.observe_record(
+            || native_fingerprint(&source, compiler, &native_dir, &options.compile_limits),
+            |native| json!({"stage":"final-compile","source_sha256":sha256(&source),"native":native}),
+        )?;
         same_native(&checked, &baseline)
             .context("final selected source failed fresh native reproduction")?;
         checked
@@ -1063,9 +1128,14 @@ fn search_inner(
         );
         budget.budget.evaluations += 1;
         ensure!(
-            objective.fresh_measure(&current_payload)? == current.cost,
+            budget.observe(|| objective.fresh_measure(&current_payload))? == current.cost,
             "final complete-file cost is not reproducible"
         );
+    }
+    // Even a non-improving candidate may have observed a changed environment.
+    // A source-byte identity fallback is not a license to reuse a stale context.
+    if let Some(context) = &budget.context {
+        context.recheck()?;
     }
     let source_unchanged = source == original_source;
     let source_proof = if source_unchanged {
@@ -1076,12 +1146,16 @@ fn search_inner(
     let final_record = json!({"source_sha256":sha256(&source),"source_bytes":source.len(),
         "source_unchanged":source_unchanged,"source_proof":source_proof,
         "payload_sha256":sha256(&current_payload),"payload_bytes":current_payload.len(),
+        "cost_reproduction":if current_payload != payload{"fresh-objective-evaluation"}else{"unchanged-input-baseline-measurement"},
         "style":current.style,"whole_file_bytes":current.cost,"native":final_native});
     let recipe = json!({"schema":SCHEMA,"options":options,"compiler_argv":compiler,
         "compiler":compiler_pin,"frontend":frontend_pin,"input_payload_sha256":sha256(payload),
         "input_source_sha256":sha256(&original_source),"baseline_native":baseline,
         "baseline_whole_file_bytes":initial_cost,"steps":steps,"final":final_record});
-    let report = json!({"schema":SCHEMA,"status":if budget.budget.reason.is_some(){"budget-exhausted"}else{"completed"},
+    let declared_spaces_complete = coverage
+        .iter()
+        .all(|v| v["all_declared_costs_evaluated"] == true);
+    let report = json!({"schema":SCHEMA,"status":if budget.budget.reason.is_some(){"budget-exhausted"}else if !declared_spaces_complete{"space-incomplete"}else{"completed"},
         "exhaustion_reason":budget.budget.reason,"frontend_capacity_stop":budget.frontend_capacity_stop,
         "retention_stop":budget.journal.retention_stop,
         "evaluations":budget.budget.evaluations,"evaluation_limit":options.max_evaluations,
@@ -1091,10 +1165,13 @@ fn search_inner(
         "input_source_sha256":sha256(&original_source),"final":final_record,"accepted_steps":steps.len(),
         "records":budget.journal.records,"engine_execution":"not performed","optimality":"bounded declared search space only",
         "coverage":{"basis_spaces":coverage,"combination_attempts":combination_attempts,
+            "declared_basis_spaces_complete":declared_spaces_complete,
+            "status_scope":"completion of generated spelling subsets on visited priority bases; generation limits and flow/codec heuristics are separate",
             "combination_limit":options.max_combinations,"plan_source_bytes":plan_bytes,
             "plan_source_byte_limit":MAX_PLAN_SOURCE_BYTES,"priority":"legacy improving-incumbent rounds first",
             "all_equivalent_programs_explored":false,"all_rewrite_sequences_explored":false},
         "frontend_work":frontend_work,
+        "source_context":budget.context.as_ref().map(|context| context.statistics()),
         "embedding_contract":options.embedding_contract,
         "acceptance":"unchanged C bytes or applicable typed source proof; complete native and diagnostic identity; exact payload-adapter readback"});
     write_json(&directory.join("report.json"), &report)?;
@@ -1151,9 +1228,21 @@ pub fn replay(payload: &[u8], recipe: &Value, compiler: &[String], out: &Path) -
         "embedded source identity changed"
     );
     let native_dir = directory.join("native");
-    let baseline = native_fingerprint(&source, compiler, &native_dir, &options.compile_limits)?;
+    let context = if steps.is_empty() {
+        None
+    } else {
+        Some(crate::c_frontend::SourceContext::new(
+            &source,
+            (&options.candidates.frontend).into(),
+        )?)
+    };
+    let baseline = observe_context(context.as_ref(), || {
+        native_fingerprint(&source, compiler, &native_dir, &options.compile_limits)
+    })?;
     same_native(&baseline, &recipe["baseline_native"])?;
-    let repeated = native_fingerprint(&source, compiler, &native_dir, &options.compile_limits)?;
+    let repeated = observe_context(context.as_ref(), || {
+        native_fingerprint(&source, compiler, &native_dir, &options.compile_limits)
+    })?;
     same_native(&repeated, &baseline)?;
     let mut receipts = vec![
         json!({"stage":"baseline-compile","attempt":1,"native":baseline}),
@@ -1167,34 +1256,40 @@ pub fn replay(payload: &[u8], recipe: &Value, compiler: &[String], out: &Path) -
         );
         let recorded: Variant = serde_json::from_value(step["variant"].clone())
             .context("invalid recorded source variant")?;
-        let candidate = match step["kind"].as_str() {
-            Some("c-source") => csource::replay_variant(&source, &recorded, &options.candidates)?,
-            Some("c-flow") => {
-                ensure!(
-                    options.conditions,
-                    "recorded condition step is disabled by its contract"
-                );
-                let generated = cflow::generate_variants(&source, &cflow_options(&options))?;
-                let selected = generated
-                    .into_iter()
-                    .find(|v| v.id == recorded.id)
-                    .context("recorded condition recipe is no longer available")?;
-                ensure!(
-                    selected.sha256 == recorded.sha256
-                        && selected.bytes == recorded.bytes
-                        && selected.audit == recorded.audit,
-                    "recorded condition derivation changed"
-                );
-                selected
-            }
-            _ => bail!("unknown recorded source derivation"),
-        };
-        let native = native_fingerprint(
-            &candidate.data,
-            compiler,
-            &native_dir,
-            &options.compile_limits,
-        )?;
+        let candidate = observe_context(context.as_ref(), || {
+            Ok(match step["kind"].as_str() {
+                Some("c-source") => {
+                    csource::replay_variant(&source, &recorded, &options.candidates)?
+                }
+                Some("c-flow") => {
+                    ensure!(
+                        options.conditions,
+                        "recorded condition step is disabled by its contract"
+                    );
+                    let generated = cflow::generate_variants(&source, &cflow_options(&options))?;
+                    let selected = generated
+                        .into_iter()
+                        .find(|v| v.id == recorded.id)
+                        .context("recorded condition recipe is no longer available")?;
+                    ensure!(
+                        selected.sha256 == recorded.sha256
+                            && selected.bytes == recorded.bytes
+                            && selected.audit == recorded.audit,
+                        "recorded condition derivation changed"
+                    );
+                    selected
+                }
+                _ => bail!("unknown recorded source derivation"),
+            })
+        })?;
+        let native = observe_context(context.as_ref(), || {
+            native_fingerprint(
+                &candidate.data,
+                compiler,
+                &native_dir,
+                &options.compile_limits,
+            )
+        })?;
         same_native(&native, &baseline)?;
         same_native(&native, &step["native"])?;
         let style = step["style"]
@@ -1223,7 +1318,9 @@ pub fn replay(payload: &[u8], recipe: &Value, compiler: &[String], out: &Path) -
             && final_record["payload_bytes"].as_u64() == Some(rendered.data.len() as u64),
         "final source-search payload changed"
     );
-    let final_native = native_fingerprint(&source, compiler, &native_dir, &options.compile_limits)?;
+    let final_native = observe_context(context.as_ref(), || {
+        native_fingerprint(&source, compiler, &native_dir, &options.compile_limits)
+    })?;
     same_native(&final_native, &baseline)?;
     same_native(&final_native, &final_record["native"])?;
     check_tool(&compiler[0], &recipe["compiler"], "compiler")?;

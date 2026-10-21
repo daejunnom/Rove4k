@@ -193,6 +193,23 @@ fn whole_file_objective_retains_equal_length_name_improvements_and_replays() {
         comparison["groups"][0]["context"]["cost_objective"]["codec"],
         serde_json::to_value(compression()).unwrap()
     );
+    let strategies = new["source_search_portfolio"].as_array().unwrap();
+    assert_eq!(strategies.len(), 2);
+    assert_eq!(
+        new["source_search_budget"]["maximum_complete_payload_evaluations"],
+        256
+    );
+    let both_contexts = attempts::compare(&[
+        retained.clone(),
+        current_out.join("source-search-portfolio/source-search/attempts"),
+    ])
+    .unwrap();
+    assert_eq!(both_contexts["groups"].as_array().unwrap().len(), 2);
+    for strategy in strategies {
+        assert!(candidates
+            .iter()
+            .any(|c| c["variant"] == strategy["canonical_variant"]));
+    }
     let measured_rows = comparison["groups"][0]["rows"].as_array().unwrap();
     assert!(measured_rows
         .iter()
@@ -234,6 +251,40 @@ fn whole_file_objective_retains_equal_length_name_improvements_and_replays() {
     assert_eq!(
         fs::read(directory.path().join("envelope-replay/reproduced")).unwrap(),
         fs::read(current_out.join("smallest")).unwrap()
+    );
+    let source_record = candidates
+        .iter()
+        .find(|c| c["variant"] == new["source_search"]["variant"])
+        .unwrap();
+    let original_file = fs::read(directory.path().join("current-input/original")).unwrap();
+    let mut portfolio_only = new.clone();
+    portfolio_only
+        .as_object_mut()
+        .unwrap()
+        .remove("source_search");
+    let from_portfolio = envelope::reproduce_record(
+        &portfolio_only,
+        source_record,
+        &original_file,
+        &directory.path().join("portfolio-only-replay"),
+    )
+    .unwrap();
+    let mut historical = new.clone();
+    historical
+        .as_object_mut()
+        .unwrap()
+        .remove("source_search_portfolio");
+    let from_historical = envelope::reproduce_record(
+        &historical,
+        source_record,
+        &original_file,
+        &directory.path().join("historical-replay"),
+    )
+    .unwrap();
+    assert_eq!(from_portfolio, from_historical);
+    assert_eq!(
+        sha256(&from_portfolio),
+        source_record["sha256"].as_str().unwrap()
     );
     assert!(
         !directory.path().join("current/x").exists(),
@@ -330,6 +381,55 @@ fn losing_singles_remain_composable_and_fresh_cost_cannot_use_measurement_cache(
     assert_eq!(changed.fresh_calls, 1);
     let compared = attempts::compare(&[out.join("source-search/attempts")]).unwrap();
     assert_eq!(compared["runs"][0]["status"], "failed");
+
+    // Already measured singles can still be admitted after the new-evaluation
+    // limit, with the last measurement reserved for independent readback.
+    opts.max_evaluations = 3;
+    let mut calls = 0;
+    let limited = source_search::search(
+        INPUT,
+        &opts,
+        &compile,
+        &directory.path().join("measured-single"),
+        &mut |data| {
+            calls += 1;
+            Ok(if data == INPUT { 100 } else { 90 })
+        },
+    )
+    .unwrap();
+    assert_eq!(limited.report["selected_whole_file_bytes"], 90);
+    assert_eq!(calls, 3);
+    assert_eq!(
+        limited.report["exhaustion_reason"],
+        "complete-file-evaluation-budget"
+    );
+
+    opts.max_evaluations = 32;
+    opts.max_combinations = 1;
+    opts.candidates.max_candidates = 4;
+    opts.candidates.names_per_group = 2;
+    let partial = source_search::search(
+        INPUT,
+        &opts,
+        &compile,
+        &directory.path().join("combination-limit"),
+        &mut |_| Ok(100),
+    )
+    .unwrap();
+    assert_eq!(partial.data, INPUT);
+    assert_eq!(
+        partial.report["exhaustion_reason"],
+        "combination-attempt-budget"
+    );
+    assert_eq!(partial.report["coverage"]["combination_attempts"], 1);
+    assert_eq!(
+        partial.report["coverage"]["basis_spaces"][0]["exhausted"],
+        false
+    );
+    assert_eq!(
+        partial.report["coverage"]["declared_basis_spaces_complete"],
+        false
+    );
 }
 
 #[test]
@@ -434,6 +534,130 @@ fn retained_attempts_survive_budget_stops_and_failed_costs() {
         .as_str()
         .unwrap()
         .contains("context hash mismatch"));
+}
+
+#[test]
+fn changed_frontend_context_is_fatal_at_the_search_admission_boundary() {
+    let Some((clang, compiler)) = tools() else {
+        return;
+    };
+    let directory = tempfile::tempdir().unwrap();
+    let header = directory.path().join("value.h");
+    struct ChangingCost<'a> {
+        input: &'a [u8],
+        header: &'a Path,
+        phase: &'a str,
+        changes: usize,
+        fresh_calls: usize,
+    }
+    impl ChangingCost<'_> {
+        fn change_header(&mut self) -> anyhow::Result<()> {
+            fs::write(self.header, b"enum { OFFSET = 2 };\n")?;
+            self.changes += 1;
+            Ok(())
+        }
+        fn cost(&self, data: &[u8]) -> usize {
+            if data == self.input || self.phase == "unchanged" {
+                100
+            } else {
+                90
+            }
+        }
+    }
+    impl source_search::CompleteFileObjective for ChangingCost<'_> {
+        fn measure(&mut self, data: &[u8]) -> anyhow::Result<usize> {
+            if self.changes == 0
+                && (self.phase == "baseline"
+                    || data != self.input
+                        && matches!(self.phase, "spelling" | "flow" | "unchanged"))
+            {
+                self.change_header()?;
+            }
+            Ok(self.cost(data))
+        }
+        fn fresh_measure(&mut self, data: &[u8]) -> anyhow::Result<usize> {
+            self.fresh_calls += 1;
+            if matches!(self.phase, "final" | "failed-final") {
+                self.change_header()?;
+            }
+            anyhow::ensure!(self.phase != "failed-final", "injected fresh-cost failure");
+            Ok(self.cost(data))
+        }
+    }
+    for phase in [
+        "spelling",
+        "flow",
+        "unchanged",
+        "final",
+        "failed-final",
+        "baseline",
+    ] {
+        fs::write(&header, b"enum { OFFSET = 1 };\n").unwrap();
+        let input = format!("#include \"{}\"\nint k=OFFSET;int f(_Bool alpha){{return alpha!=1;}}int main(void){{return f(1)+k;}}\n", header.display()).into_bytes();
+        let mut opts = options(&clang, Value::Null);
+        opts.embedding = None;
+        opts.embedding_contract = "opaque".into();
+        opts.candidates.max_candidates = if phase == "spelling" { 2 } else { 1 };
+        opts.candidates.max_name_groups = 1;
+        opts.candidates.names_per_group = 1;
+        opts.conditions = phase != "spelling";
+        let out = directory.path().join(phase);
+        let mut objective = ChangingCost {
+            input: &input,
+            header: &header,
+            phase,
+            changes: 0,
+            fresh_calls: 0,
+        };
+        let error = source_search::search_with_objective(
+            &input,
+            &opts,
+            &compiler_argv(&compiler),
+            &out,
+            None,
+            &mut objective,
+        )
+        .unwrap_err();
+        let explanation = format!("{error:#}");
+        assert!(explanation.contains("changed"), "{phase}: {explanation}");
+        assert!(
+            error
+                .downcast_ref::<csource::FrontendContextChanged>()
+                .is_some(),
+            "{phase}: {explanation}"
+        );
+        assert_eq!(objective.changes, 1, "{phase}");
+        if matches!(phase, "final" | "failed-final") {
+            assert_eq!(objective.fresh_calls, 1, "{phase}");
+        }
+        if phase == "failed-final" {
+            assert!(explanation.contains("injected fresh-cost failure"));
+        }
+        let receipt: Value = serde_json::from_slice(
+            &fs::read(out.join("source-search/failed-report.json")).unwrap(),
+        )
+        .unwrap();
+        assert_eq!(receipt["status"], "failed");
+        assert!(
+            !receipt["records"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|r| r["stage"] == "semantic-rejected"),
+            "{phase}"
+        );
+        if phase == "flow" {
+            assert!(receipt["records"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|r| r["stage"] == "condition-candidate"));
+        }
+        assert_eq!(
+            attempts::compare(&[out.join("source-search/attempts")]).unwrap()["runs"][0]["status"],
+            "failed"
+        );
+    }
 }
 
 #[test]

@@ -61,7 +61,7 @@ Moonfish는 zamfofex의 엔진만을 뜻한다. 공식 과거 SourceHut와 현�
 
 ### 최종 파일을 기준으로 대안을 남긴다
 
-4ku는 [f2be6e67](https://github.com/kz04px/4ku/commit/f2be6e678273b688587c1a0317367378b445c6a4)에서 사용하지 않는 짧은 `0` 인자를 이미 반복되는 더 긴 표현으로 바꾸어 당시 5 B 절감을 기록했다. c4ke [e3e6858c](https://github.com/citrus610/c4ke/commit/e3e6858ce2539a33a8eb6a4faa456d43cece448a)는 조건부 대입 삼항식을 `if`로 되돌렸다. 상수 접기·임시변수 인라인·분기 제거를 항상 짧아지는 canonical form으로 확정할 근거는 없다.
+4ku의 [f2be6e67](https://github.com/kz04px/4ku/commit/f2be6e678273b688587c1a0317367378b445c6a4)는 사용하지 않는 짧은 `0` 인자를 이미 반복되는 더 긴 표현으로 바꾸고 bound·분기 구조도 함께 수정했다. 전체 patch의 기록은 3988→3983 B이며, 5 B를 인자 변경 하나에 귀속하지 않는다. c4ke [e3e6858c](https://github.com/citrus610/c4ke/commit/e3e6858ce2539a33a8eb6a4faa456d43cece448a)는 조건부 대입 삼항식을 `if`로 되돌렸다. 상수 접기·임시변수 인라인·분기 제거를 항상 짧아지는 canonical form으로 확정할 근거는 없다.
 
 [Sunfish eb8897cc](https://github.com/thomasahle/sunfish/commit/eb8897cc6c884555992db0d9c2a745b90e2ee32c)는 shebang 삭제만으로 classic이 4 B 커졌지만 literal hoisting 비활성화와 결합하면 3232→3210 B가 됐다고 기록한다. 개별 크기 열세만으로 조합 후보를 제거하면 이 이득을 놓친다. 실패·미채택 후보는 당시 문맥과 이유를 보존하고 새로운 문맥에서 재측정할 수 있어야 한다.
 
