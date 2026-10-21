@@ -1,3 +1,51 @@
+# Maintained C D discarded sort-prefix own-ELF
+
+Selection keeps the winner in local `m` and copies the former slot `i` into
+slot `j`, without writing the consumed slot `i`. Each later selection reads
+only the identical suffix. Strict ties, failed/quiet child skips and retries
+retain their order; current history/continuation learning uses local from/to,
+not consumed prefix. No feature, TT, resource, clock or pool policy changes.
+
+| Form | Native | Fixed21-v2 packet | Complete own ELF | Change from capture-tag | Nonpacket |
+|---|---:|---:|---:|---:|---:|
+| scalar-shipping |7740|4810|5947|-19|1137|
+| hq-shipping |8128|5032|6169|-6|1137|
+
+Readable search6141→6102B is separate from actual text−13B per form and
+native−32B/scalar versus tied HQ length. Both native identities change.
+Entries401ccc/401dfe retain RX2/BSS402000/175092B/43roundedpages and exact
+3ff000/42d000 guards, reserve2f000, NX stack and model0101127e/0810217e.
+Fullkey atomic16, HCE/PVS/QS and all learners remain current implementations.
+
+Cost806e1efe27fb2d5d59ad8267701bfe87e692bd4576fd19bf7a8b884313131b77
+includes native2/encode2/shipping-loader2; Python arithmetic decode and inverse
+BCJ restored old/new packets to full native bytes in4 positive DATA cases.
+No generated decoder/loader/engine was executed in that cost. New audit
+5970/267a960918dd5d659f82c95297646b65a37ae9e3b64d90ed8bf06b7c347a67bb
+and6192/4ecdadf57452787028d977476cebbd3413d269c413a6ae582d0b8eadeabcf6ed
+were compiled once each and root-admitted after exact static ELF/packet readback
+(root intake a7fbd1001f735a3b1547c617340b45fc6dd62156e943beceb5af313536bc2860).
+At this producing checkpoint, normal positive verification had not yet run;
+actual subsequent normal receipts are recorded separately. Historical capture,
+function/negative/fresh evidence below keeps its original image and scope.
+No strength/performance equivalence or4KiB eligibility is claimed.
+
+The ordinary builder subsequently reproduced each new native/whole twice and
+each audit once: build9cd5c6748ec72de497957c7f6fc2ff20de4010b5f91ceb010df5153a27f23cc3.
+The selected positive verifier passed pre-entry2 and quit/EOF4sessions with12
+legal GO results, persistent3TIDs, only stdio/no child, exact restored RX/zero
+initial BSS+padding/guards/NX, joined readers and naturally settled processes.
+Receipt c7ef4b272d6252fb602a8edf1be0c8d99ec157021a4c4aa84b711a049d86b5d9;
+local affinity0..7 exposes SSE4.2+CX16. Source suffix equivalence and actual
+wrapper observations are separate scopes; general SMP race freedom, strength,
+performance, ignored-control/default-budget timing and tournament ISA are not
+established. No fresh.py/game/benchmark or negative/fault campaign was run.
+A preparation-only WSL git inventory exit128 occurred before source mutation
+or build/verify; its original failure is external and no target run was retried.
+Producing21/readback f946379f0f04afebd069b24f314d3dcdca00ef8f2125931c5164abd90c622af4
+is preserved; only README/recipe annotations changed after that readback.
+Both complete files remain over4096 by1851/2073B.
+
 # Maintained C D capture-only Move bit3 own-ELF
 
 The selected internal Move representation reserves source-square bit3 for capture,

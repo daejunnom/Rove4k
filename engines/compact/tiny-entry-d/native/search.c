@@ -76,8 +76,8 @@ static int search(Worker *w,const Board *p,int depth,int alpha,int beta,int ply,
     }
     for(int i=0;i<count;i++){
         int j=i;for(int k=i+1;k<count;k++)if(scores[k]>scores[j])j=k;
-        Move m=moves[j];moves[j]=moves[i];moves[i]=m;
-        int t=scores[j];scores[j]=scores[i];scores[i]=t;
+        Move m=moves[j];moves[j]=moves[i];
+        scores[j]=scores[i];
         Board q;if(!make(p,m,&q))continue;
         ++legal;
         int from=FROM(m),to=TO(m),tactical=(m&8)||PROMO(m);
