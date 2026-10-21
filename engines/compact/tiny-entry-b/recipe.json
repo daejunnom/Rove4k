@@ -75,7 +75,8 @@
     "engines/compact/tiny-entry-b/shipping_piece_index.py": "20e3b97e7a184bb0fa7806b331bf9f7e549f76a08fd602f5bbb186d881f38f85",
     "engines/compact/tiny-entry-b/shipping_singular_depth.py": "2da8d9cc70cad49970ae44ba8b92107affd9048408a1a98ebbe114ee3e5f62b3",
     "engines/compact/tiny-entry-b/shipping_cached_evaluation.py": "648170c3cbb58677ff782b2d239896aa810a869eb4283a6b0522e6198743afee",
-    "engines/scripts/source_package.py": "55fa739e7c17fffdb3bf1191c7a26aa38d35e9e32473e4008c23ece3d5703d1f"
+    "engines/scripts/source_package.py": "55fa739e7c17fffdb3bf1191c7a26aa38d35e9e32473e4008c23ece3d5703d1f",
+    "engines/compact/tiny-entry-b/shipping_declarations.py": "120910570823339c73a005db9a315021e90d5dbdbaf51e6a82f382ae5b775acb"
   },
   "compression": {
     "format": "lzma-alone",
@@ -92,16 +93,16 @@
   },
   "expected": {
     "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
-    "source_bytes": 10402,
-    "source_sha256": "75a081d620af7d966d340d8ffcba5763f37d4df44ab01822d8b178042e0d8faa",
+    "source_bytes": 10394,
+    "source_sha256": "61f6dabc7b171c864c3d3511906799e13b638023d96a537c1fa15a05a0648c63",
     "native_bytes": 26296,
     "native_sha256": "b38c33127b9913366b58b24dc3275d371d66caba6af3d507bb330eb14efcb7ea",
     "whole_bytes": 5073,
-    "whole_sha256": "9e30fd867aa33a8d1a6dc04e8bb97f5b55969c89e5a37c2e48ba159095a49531",
+    "whole_sha256": "b7698bdcb13626ef19fc16156095f5991819a1c3d857d52b47ba6994052d8f26",
     "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
     "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
-    "bootstrap_sha256": "8177e8f01acf1e82d5d8aae72914a1ded1ed6d64c44e02f663021cb9590d8399",
-    "bootstrap_bytes": 11441
+    "bootstrap_sha256": "099abe65c52382d14e724e045fbf226302e69972c743cd7f95320db3a5750df7",
+    "bootstrap_bytes": 11433
   },
   "local_input_sha256": {
     "engine.c": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
@@ -609,7 +610,7 @@
         }
       }
     },
-    "current_selection": "Qualified B5267: completed legal-LVA recapture-promotion composition, changed checkpoint schedule; old DEV reference unchanged",
+    "current_selection": "Qualified B5073 current source10394: same-int HCE declarations source-8 with whole increase0 and entire predecessor native equality; old firstcost TIE preserved; DEV/model/ownership unchanged",
     "recapture_composition": {
       "cost_sha256": "a8182391c142332a86d0f482ca83f4ce520dde43697c79cbdb60461495b5c8e7",
       "proof_sha256": "a10aa506487c96f70401f2c6dabf92bcb980122f43e7dbfa814a370afc91b61c",
@@ -771,6 +772,68 @@
         "runtime_sha256": "57ff84af754dbf80a88d3438f65acaa93579515f13044ff51ed94154d1bb08fd",
         "scope": "local fixed2/TT18 combined73-byte-header actual new native restoration/legalGO/physical exit; sourcecache-only5077 focused comparison separate from timed node equality/performance"
       }
+    },
+    "hce_declarations": {
+      "status": "PASS one ordinary --dev builder and unchanged selected verifier; first attempt",
+      "selection": {
+        "original_firstcost_decision": "TIE0_UNSELECTED_STOP",
+        "subsequent_authorized_selection": "source itself -8, whole increase0, entire native equal; separate from original whole TIE",
+        "normal_validation_pending": false,
+        "firstcost_index": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-b-hce-declarations-first-cost-20261022-evidence/final-index.json",
+          "bytes": 19239,
+          "sha256": "fce4d2edb706a48e54ddd1f5c7433d5a23906af61f4da151955e91eb4c809ad2"
+        }
+      },
+      "normal_validation": {
+        "status": "PASS one ordinary --dev builder and unchanged selected verifier; first attempt",
+        "build_receipt": {
+          "path": "/home/stemxstudio/rove4k-b-hce-declarations-normal-20261022/build/build.json",
+          "bytes": 188642,
+          "sha256": "55acc523acffc8209b4b8674777ceeddd9b5d58c996a2905fd0aa448f42c4d60"
+        },
+        "selected_runtime": {
+          "path": "/home/stemxstudio/rove4k-b-hce-declarations-normal-20261022/runtime/runtime.json",
+          "bytes": 43153,
+          "sha256": "59df1f3b6d4a6e2c2445c18ccae46fd3f4e637778b046df4c4c0fdd7c2ee684b"
+        },
+        "producing_recipe": {
+          "path": "/home/stemxstudio/rove4k-b-hce-declarations-normal-20261022/build/inputs/recipe.json",
+          "bytes": 123947,
+          "sha256": "81887349ea604895a751a924038790f1054115d426384ba0faa8c2e15495dec1"
+        },
+        "producing_source_closure_files": 44,
+        "normal_results": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-b-hce-declarations-promotion-20261022-evidence/normal-results.json",
+          "bytes": 25340,
+          "sha256": "a1691da4f5367ae3ee8304aa5e0e26bc026d7bc9848c369210459f5ccabf5da3"
+        },
+        "original_handle_physical_exit": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-b-hce-declarations-promotion-20261022-evidence/physical-exit.json",
+          "bytes": 492,
+          "sha256": "3ff177b59516b37cfd947c258773973d865f47357c070ac4cae56453222e6db4"
+        },
+        "normal_builder_calls": 1,
+        "shipping_reproductions": 2,
+        "unchanged_DEV_reproductions": 2,
+        "selected_verifier_calls": 1,
+        "selected_quit_EOF_sessions": 2,
+        "selected_legal_GO_results": 8,
+        "startup_TIDs_per_session": 3,
+        "actual_restored_native_sha256": "b38c33127b9913366b58b24dc3275d371d66caba6af3d507bb330eb14efcb7ea",
+        "private_restoration_paths_absent": true,
+        "stdout_readers_and_original_process_handles_settled": true,
+        "original_command_groups_absent_at_reap": true,
+        "cleanup": [],
+        "owned_handles": 0,
+        "source_native_bootstrap_whole_entire_bytes_equal_to_firstcost": true,
+        "native_entire_bytes_equal_to_qualified_predecessor": true,
+        "additional_semantic_fixture_SAN_PP_NVC_fresh_game_cost_runs": 0,
+        "cancellation_causality": "unproven",
+        "performance_RAM_strength_claimed": false,
+        "annotation_only_after_both_original_commands_terminal": true
+      },
+      "scope": "local fixed2/TT18 shipping reproduction and selected physical fences; no performance/RAM/strength claim"
     }
   },
   "provenance": {
@@ -793,7 +856,8 @@
     "piece_index": "Pure B-owned exact final three-span/four-gap/inverse transform after history-depth; int8_t is promoted once to int before +6; blackking0/rootneutral6 and zw13x13 consumers unchanged; canonical/DEV bypass; no research/runtime/codecs are helper inputs.",
     "singular_depth": "Pure B-owned final one-span/two-gap/inverse cleanup after piece-index: sole meaningful consumer receives yr&&m==tt directly once, empty diagnostic branch removed; canonical/DEV counter and current policy remain unchanged; research files are not build inputs.",
     "cached_evaluation": "Pure B-owned final one-span/two-gap/inverse rawHCE-cache reuse; Board s/v immutable through actual SEE/make/child/same-position/root publication; canonical/DEV and all prior readable helper pins unchanged; new native explicitly pinned; research files are not build inputs.",
-    "source_header": "Shared pinned73-byte XZ_STDIN_HEADER selected only after legacy77-byte launcher/template input validation; original sourcecache payload reused for direct measurement with no encode; final normal builds encode the unchanged bootstrap with the unchanged recipe."
+    "source_header": "Shared pinned73-byte XZ_STDIN_HEADER selected only after legacy77-byte launcher/template input validation; original sourcecache payload reused for direct measurement with no encode; final normal builds encode the unchanged bootstrap with the unchanged recipe.",
+    "hce_declarations": "Pure B-owned exact two-span/three-gap/full-inverse same-int HCE declaration merge after cached-evaluation. Same initializer full-expressions/type/scope/order and bounded scalar/read-only values; canonical/DEV and earlier helper guards unchanged. Selected on source-8/whole0/actual entire-native equality, preserving original TIE cost."
   },
   "shared_shipping": {
     "scope": "late unused guard, fixed TT18 casts for A/C/E, ASCII raw-bytes envelope; entire native unchanged; fresh selected wrapper verification separate",
@@ -2230,5 +2294,118 @@
       "timed_node_RAM_performance_strength_readiness_claim": false,
       "producing_and_annotation_bytes_distinct": true
     }
+  },
+  "hce_declarations": {
+    "stage": "shipping-after-cached-evaluation",
+    "helper": "engines/compact/tiny-entry-b/shipping_declarations.py",
+    "predecessor_expected": {
+      "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+      "source_bytes": 10402,
+      "source_sha256": "75a081d620af7d966d340d8ffcba5763f37d4df44ab01822d8b178042e0d8faa",
+      "native_bytes": 26296,
+      "native_sha256": "b38c33127b9913366b58b24dc3275d371d66caba6af3d507bb330eb14efcb7ea",
+      "whole_bytes": 5073,
+      "whole_sha256": "9e30fd867aa33a8d1a6dc04e8bb97f5b55969c89e5a37c2e48ba159095a49531",
+      "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
+      "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
+      "bootstrap_sha256": "8177e8f01acf1e82d5d8aae72914a1ded1ed6d64c44e02f663021cb9590d8399",
+      "bootstrap_bytes": 11441
+    },
+    "fixed_transform": {
+      "family": "B",
+      "stage": "late-shipping-HCE-adjacent-int-declarations",
+      "input_bytes": 10402,
+      "input_sha256": "75a081d620af7d966d340d8ffcba5763f37d4df44ab01822d8b178042e0d8faa",
+      "output_bytes": 10394,
+      "output_sha256": "61f6dabc7b171c864c3d3511906799e13b638023d96a537c1fa15a05a0648c63",
+      "raw_delta": -8,
+      "owned_regions": 2,
+      "protected_gaps": 3,
+      "full_inverse": true,
+      "all_gaps_equal": true,
+      "protected_complement_bytes": 10388,
+      "protected_complement_sha256": "d2b259bae7f5a4cf2cb8c0ee0b1c0d4390a44db3cda8024ebc773a2b59c6ce18",
+      "same_automatic_int_type_and_declarator_scope": true,
+      "initializer_full_expressions_order_dependencies_preserved": true,
+      "pure_bounded_integer_abs_and_immutable_qi_reads_only": true,
+      "formulas_coefficients_calls_and_all_other_bytes_preserved": true,
+      "canonical_DEV": "caller bypass; unchanged readable reference domain",
+      "general_macro_source_or_traceback_equivalence_claimed": false,
+      "native_identity_is_separate_actual_compiler_evidence": true,
+      "external_reads": 0,
+      "compiler_codec_engine_executed_by_transform": 0
+    },
+    "source_proof": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-b-hce-declarations-source-20261022-evidence/source-proof.json",
+      "bytes": 8299,
+      "sha256": "716e7b468b0b669aba29333b2e806f3494fcc274cc2ad9ad77be560785cf7506"
+    },
+    "selection": {
+      "original_firstcost_decision": "TIE0_UNSELECTED_STOP",
+      "subsequent_authorized_selection": "source itself -8, whole increase0, entire native equal; separate from original whole TIE",
+      "normal_validation_pending": false,
+      "firstcost_index": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-b-hce-declarations-first-cost-20261022-evidence/final-index.json",
+        "bytes": 19239,
+        "sha256": "fce4d2edb706a48e54ddd1f5c7433d5a23906af61f4da151955e91eb4c809ad2"
+      }
+    },
+    "native_entire_bytes_equal_to_predecessor": true,
+    "source_delta": -8,
+    "bootstrap_delta": -8,
+    "whole_delta": 0,
+    "canonical_DEV_bypass": true,
+    "new_semantic_fixture_SAN_not_required": "fixed syntax/domain source proof and actual entire native identity",
+    "research_files_are_build_inputs": false,
+    "normal_validation_pending": false,
+    "normal_validation": {
+      "status": "PASS one ordinary --dev builder and unchanged selected verifier; first attempt",
+      "build_receipt": {
+        "path": "/home/stemxstudio/rove4k-b-hce-declarations-normal-20261022/build/build.json",
+        "bytes": 188642,
+        "sha256": "55acc523acffc8209b4b8674777ceeddd9b5d58c996a2905fd0aa448f42c4d60"
+      },
+      "selected_runtime": {
+        "path": "/home/stemxstudio/rove4k-b-hce-declarations-normal-20261022/runtime/runtime.json",
+        "bytes": 43153,
+        "sha256": "59df1f3b6d4a6e2c2445c18ccae46fd3f4e637778b046df4c4c0fdd7c2ee684b"
+      },
+      "producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-b-hce-declarations-normal-20261022/build/inputs/recipe.json",
+        "bytes": 123947,
+        "sha256": "81887349ea604895a751a924038790f1054115d426384ba0faa8c2e15495dec1"
+      },
+      "producing_source_closure_files": 44,
+      "normal_results": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-b-hce-declarations-promotion-20261022-evidence/normal-results.json",
+        "bytes": 25340,
+        "sha256": "a1691da4f5367ae3ee8304aa5e0e26bc026d7bc9848c369210459f5ccabf5da3"
+      },
+      "original_handle_physical_exit": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-b-hce-declarations-promotion-20261022-evidence/physical-exit.json",
+        "bytes": 492,
+        "sha256": "3ff177b59516b37cfd947c258773973d865f47357c070ac4cae56453222e6db4"
+      },
+      "normal_builder_calls": 1,
+      "shipping_reproductions": 2,
+      "unchanged_DEV_reproductions": 2,
+      "selected_verifier_calls": 1,
+      "selected_quit_EOF_sessions": 2,
+      "selected_legal_GO_results": 8,
+      "startup_TIDs_per_session": 3,
+      "actual_restored_native_sha256": "b38c33127b9913366b58b24dc3275d371d66caba6af3d507bb330eb14efcb7ea",
+      "private_restoration_paths_absent": true,
+      "stdout_readers_and_original_process_handles_settled": true,
+      "original_command_groups_absent_at_reap": true,
+      "cleanup": [],
+      "owned_handles": 0,
+      "source_native_bootstrap_whole_entire_bytes_equal_to_firstcost": true,
+      "native_entire_bytes_equal_to_qualified_predecessor": true,
+      "additional_semantic_fixture_SAN_PP_NVC_fresh_game_cost_runs": 0,
+      "cancellation_causality": "unproven",
+      "performance_RAM_strength_claimed": false,
+      "annotation_only_after_both_original_commands_terminal": true
+    },
+    "adopted_after_ordinary_qualification": true
   }
 }

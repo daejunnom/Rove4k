@@ -1,3 +1,60 @@
+# Maintained E: shared center feature construction — 2026-10-22
+
+The fixed first-cost file is **4933 B**, compact C **10190 B**, native
+**26336 B** and bootstrap **11202 B**. Sharing Q's two mirrored axis-min
+constructions removes10 source bytes and2 actual complete-file bytes from
+E4935. Native length is unchanged but the entire image differs:
+`953d8bd582a96cea2339acc9ca137a30716a834cc497bcbb29950b0564b4fe7a`.
+Source-domain equivalence, first-cost, ordinary --dev reproduction and the
+unchanged selected wrapper verifier passed. The4096 B target remains open.
+
+The E-owned pure `shipping_center.py` follows ordering-side processing only
+in shipping. It changes the sole Q body from two min-like ternaries to
+`7-(abs(q%8*2-7)+abs(q/8-7))/2`, with one exact span, two protected gaps and
+full inverse. Q is called only by d's private piece-activity updates and R's
+generated-move center delta. Valid0x88 q=16*rank+file has file/rank0..7,
+so q%8=file and q/8=2*rank. Both abs arguments are odd in-7..7; their sum
+is even2..14, division is exact, and the same center result stays0..6.
+All64 valid-square source data agree. Offboard q8(old0/new1) is outside
+actual callers; arbitrary Q(int) equivalence is not claimed.
+
+Each d/H update therefore preserves exact typed Board fields and mutation
+order, including material/activity/mailbox/king/hash. All19 logical/21
+physical coefficients, fixed zero slots, S quadratic/clamp, five R features,
+search/learners/TT/input/pool and canonical/DEV reference admission remain.
+The existing readable model is admitted before this late shipping stage.
+This source proof closes the d/R feature impact; the136Board/2472move SAN
+campaign is not repeated. A new native identity does not inherit old-native
+runtime qualification, timed node equality, performance or strength claims.
+
+Actual frozen package/raw bytes envelope, GCC13, workers2/TT18/PLY128,
+73-byte header and ALONE9e/lc2lp0pb0/BT4/dict64MiB/nice32 are fixed.
+Baseline11212 bootstrap exact preceded candidatecompile1/encode1; baseline
+compile/encode0 and strictPython2/CLI2 full bootstrap/source EOF/trailing
+restoration passed. First-cost index SHA-256 is
+`b150cc861c1e7f84321a803de8455981c7b53ced097ea2ceb0894963e840d689`.
+Original source/proposal/outputs/receipts and prior LOSS indices remain outside
+Git; no cost rerun, source/codec sweep, NVC, training or feature removal is used.
+
+The maintained builder ran once with --dev, reproducing shipping twice and
+old DEV twice. Source/native/bootstrap/whole matched first-cost in their
+entirety; old DEV21314/31376 source/native matched the previous controls.
+The unchanged selected verifier ran once against actual4933 B, with quit
+and EOF sessions and eight legal GO epochs. Each session observed the new
+restored native, main+two worker TIDs, private-path removal, finite input
+completion, active-search physical exit and finished readers. Cancellation
+causality, timed node/bestmove equality, performance and strength remain
+unproven. Build receipt SHA-256 is
+`d4a871605fe4aa68f2b1e81a0f8890ccd06121d4718653ec47167bc07e997cc4`; runtime receipt is
+`4a543b5d3d7bd2b165e506f68aaaf3120aadde94034690c1945868a329ecf0a7`.
+All original handles settled with group absence at settlement, no forced
+cleanup and owned handles0. B completed before E started and C was notified
+after E terminal/owned0; there was no selected overlap or late bare PID/TID
+gate. Producing recipe SHA-256 `db788ebd715aebb7e308c70171434259ede85ce82446ffa70fdbb921e3dcc27f`
+is frozen separately. Final recipe changes after execution are completion
+annotations only. E4935 8f9890e CI remains prior-head evidence; a new-head
+CI result is not claimed by this local validation.
+
 # Maintained E: generated mover side reuse — 2026-10-22
 
 The fixed first-cost file is **4935 B**, compact C **10200 B**, native

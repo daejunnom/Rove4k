@@ -109,6 +109,7 @@ def main():
         piece_index=module('entry_B_piece_index',frozen/'shipping_piece_index.py').transform_source
         singular_depth=module('entry_B_singular_depth',frozen/'shipping_singular_depth.py').transform_source
         cached_evaluation=module('entry_B_cached_evaluation',frozen/'shipping_cached_evaluation.py').transform_source
+        hce_declarations=module('entry_B_HCE_declarations',frozen/'shipping_declarations.py').transform_source
         source_package=module('entry_B_source_package',frozen/'source_package.py')
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
@@ -165,6 +166,8 @@ def main():
                 common_metadata['singular_depth']=singular_metadata
                 data,evaluation_metadata=cached_evaluation(data)
                 common_metadata['cached_evaluation']=evaluation_metadata
+                data,declaration_metadata=hce_declarations(data)
+                common_metadata['hce_declarations']=declaration_metadata
             return data,observations,alpha_metadata,storage_metadata,scope_metadata,core_metadata,input_metadata,order_metadata,walk_metadata,tactical_metadata,type_metadata,global_names_metadata,recapture_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())

@@ -101,6 +101,7 @@ def main():
         history_depth=module('entry_history_depth',frozen/'shipping_history_depth.py').transform_source
         capture_tag=module('entry_E_capture_tag',frozen/'shipping_capture.py').transform_source
         ordering_side=module('entry_E_ordering_side',frozen/'shipping_ordering_side.py').transform_source
+        center_feature=module('entry_E_center_feature',frozen/'shipping_center.py').transform_source
         alpha=module('entry_fixed_shipping_alpha',frozen/'fixed_shipping_alpha.py').transform_source
         scope=module('entry_fixed_scope_names',frozen/'shipping_scope.py').transform_source
         core=module('entry_fixed_shipping_core',frozen/'shipping_core.py').transform_source
@@ -158,6 +159,8 @@ def main():
                 common_metadata['capture_tag']=capture_metadata
                 data,ordering_metadata=ordering_side(data)
                 common_metadata['ordering_side']=ordering_metadata
+                data,center_metadata=center_feature(data)
+                common_metadata['center_feature']=center_metadata
             return data,observations,alpha_metadata,scope_metadata,core_metadata,input_metadata,model_metadata,type_metadata,global_names_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())

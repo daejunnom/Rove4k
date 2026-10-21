@@ -1,3 +1,49 @@
+# Maintained B: HCE declarations source −8, whole TIE, ordinary/selected PASS — 2026-10-22
+
+The maintained whole remains **5073 B**, while compact C is **10394 B** (−8)
+and native remains **26296 B**, entire bytes identical to the predecessor.
+The original first-cost TIE0/unselected record is preserved. A subsequent
+explicit selection uses source reduction with zero whole increase and full
+native identity; this is a source-size choice, not a measured whole-file gain.
+The4096 B goal remains open and every B feature is retained.
+
+The pure B-owned `shipping_declarations.py` runs after cached-evaluation only
+in shipping. It changes `;int j=` to `,j=` and `;int m=` to `,m=` in r(). The
+same automatic int declarators keep their scopes, initializer full-expressions,
+lexical dependencies and bounded arithmetic. Coefficients, abs calls, qi reads,
+return and every other byte remain. Two exact spans, three gaps,10388-byte
+complement and full inverse are checked on every application. Canonical/DEV
+and all earlier helper input/output pins remain unchanged. Fresh source-closure
+collection follows recipe helper_sha256; no fresh/archive execution was added.
+
+One ordinary --dev builder regenerated exact shipping source/native/bootstrap/
+whole twice and exact old DEV source/native twice. One unchanged selected
+verifier passed quit/EOF2 sessions and8 legal GO,3 startup TIDs per session,
+actual native restoration, absent compiler/private paths and physical process/
+reader exit. Original parent/build/selected handles terminal0 with group absence
+at original reap, cleanup0/owned0. No late bare PID/TID gate was added.
+Cancellation causality remains unproven. C/E selected execution was serialized.
+
+New source SHA-256: `61f6dabc7b171c864c3d3511906799e13b638023d96a537c1fa15a05a0648c63`.
+Whole5073 SHA-256: `b7698bdcb13626ef19fc16156095f5991819a1c3d857d52b47ba6994052d8f26`.
+Same native SHA-256: `b38c33127b9913366b58b24dc3275d371d66caba6af3d507bb330eb14efcb7ea`.
+Build receipt: `55acc523acffc8209b4b8674777ceeddd9b5d58c996a2905fd0aa448f42c4d60`;
+selected receipt: `59df1f3b6d4a6e2c2445c18ccae46fd3f4e637778b046df4c4c0fdd7c2ee684b`.
+Producing recipe: `81887349ea604895a751a924038790f1054115d426384ba0faa8c2e15495dec1`.
+The producing closure stayed frozen through both original commands; only
+recipe/README completion annotations changed afterward, with no rebuild.
+
+Actual fixed-compiler native proof and strict Python2/CLI2 restore reuse the
+original compile1/encode1/baseline0 first-cost result. Its frozen TIE index is
+`fce4d2edb706a48e54ddd1f5c7433d5a23906af61f4da151955e91eb4c809ad2`.
+No extra semantic fixture/SAN/engine/game/performance check or codec/name sweep
+was added. SEE/clock poll/TT/workers and termination policy remain unchanged.
+Original source/TIE and distinct mate/halfmove/combined/M-two-pass losses remain
+outside Git. General source/traceback, RAM/stack/speed and strength are not
+claimed. Before/producing/final evidence remains in
+`rove4k-b-hce-declarations-promotion-20261022-evidence/final-index.json`.
+Historical sections below retain their own source/image/receipt scope.
+
 # Maintained B: raw evaluation reuse and shared73-byte header; focused comparison and ordinary/selected validation passed — 2026-10-22
 
 The combined maintained file is **5073 B**, compact C **10402 B**, native

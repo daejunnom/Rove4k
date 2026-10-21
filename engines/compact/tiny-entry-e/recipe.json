@@ -71,7 +71,8 @@
     "engines/scripts/shipping_history_depth.py": "54476cfff4a77e0d3678594b01f9530f1018dd2431fa7b55c87867a870f55b0b",
     "engines/compact/tiny-entry-e/shipping_capture.py": "8729bef4acc4acd7071a561ee0ddfa6cd744db1397880fe53a3520e91354baf0",
     "engines/scripts/source_package.py": "55fa739e7c17fffdb3bf1191c7a26aa38d35e9e32473e4008c23ece3d5703d1f",
-    "engines/compact/tiny-entry-e/shipping_ordering_side.py": "ed68850e2939a773659bc0154b102bb69d35b117afae7760cc56779cf8888948"
+    "engines/compact/tiny-entry-e/shipping_ordering_side.py": "ed68850e2939a773659bc0154b102bb69d35b117afae7760cc56779cf8888948",
+    "engines/compact/tiny-entry-e/shipping_center.py": "7a9621bd54a02509d2bcf628f8813f83016302b5ef372da222627bfce027dd51"
   },
   "compression": {
     "format": "lzma-alone",
@@ -89,18 +90,18 @@
   "expected": {
     "readable_bytes": 28001,
     "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
-    "source_bytes": 10200,
-    "source_sha256": "6d336854f38c3a1aaf2b3facb7487aa3ece687f5280a5e9315eb08b2425bf329",
+    "source_bytes": 10190,
+    "source_sha256": "34cc868b06252cb25a58be54d9e8fecb26cd6705d159533363ab57aa96b70bcd",
     "native_bytes": 26336,
-    "native_sha256": "77a43ff91f24cd37b38923269ee9415e96aa6fb73c7fa5a985849d3f1aa53242",
-    "whole_bytes": 4935,
-    "whole_sha256": "d796caf3a219b0318f5e658ddf7597fe6b6b9ae44d3e20e6ae6fcc021568b85d",
-    "bootstrap_sha256": "0cd71dc3f20c31c568e4ac27727ed5c580c24924b553cbc4dd1481855ce0e879",
+    "native_sha256": "953d8bd582a96cea2339acc9ca137a30716a834cc497bcbb29950b0564b4fe7a",
+    "whole_bytes": 4933,
+    "whole_sha256": "c8c360ab38119d4d48ce60991f536f996fe0ebdc9963ea95fda9b11e4510f3b4",
+    "bootstrap_sha256": "d5582661260276e65a410a2fcec9bb1e245f2dc4a49e047a061088879f718a25",
     "dev_source_bytes": 21314,
     "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
     "dev_native_bytes": 31376,
     "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
-    "bootstrap_bytes": 11212
+    "bootstrap_bytes": 11202
   },
   "local_input_sha256": {
     "engine.c": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
@@ -612,6 +613,68 @@
         "scope": "Current E4935/73header restored native image and unchanged selected 2worker startup/input/quit/EOF paths; cancellation causality, timed node equality, performance, strength and full qualification remain unproven",
         "prior_CI": "973e7b5 and d26e503 prior-head CI status is separate; this local validation does not claim new-head CI success"
       }
+    },
+    "center_feature": {
+      "scope": "Current Q source/value/domain proof, fixed firstcost and maintained ordinary/actual selected E4933 wrapper. Prior R SAN/native runtime ancestry remains separate; no fresh SAN campaign",
+      "firstcost_sha256": "b150cc861c1e7f84321a803de8455981c7b53ced097ea2ceb0894963e840d689",
+      "source_only_sha256": "be1591b8a1a749210b0bcd11eb8dd72723839d379bc977794dab22aa69a5ee52",
+      "native_entire_bytes_equal_to_predecessor": false,
+      "fresh_SAN_runs": 0,
+      "normal_status": "PASS",
+      "normal_validation": {
+        "status": "ordinary --dev and unchanged selected wrapper PASS",
+        "build": {
+          "path": "/home/stemxstudio/rove4k-e-centered-feature-normal-20261022/build/build.json",
+          "bytes": 186884,
+          "sha256": "d4a871605fe4aa68f2b1e81a0f8890ccd06121d4718653ec47167bc07e997cc4"
+        },
+        "runtime": {
+          "path": "/home/stemxstudio/rove4k-e-centered-feature-normal-20261022/runtime/runtime.json",
+          "bytes": 33082,
+          "sha256": "4a543b5d3d7bd2b165e506f68aaaf3120aadde94034690c1945868a329ecf0a7"
+        },
+        "supervisor_results": {
+          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-centered-feature-normal-20261022-evidence/normal-results.json",
+          "bytes": 23273,
+          "sha256": "fac52b38550f92d53bfbb27ec0d53f3a4f81d823af8b28d3adfd0da97c7a9c23"
+        },
+        "original_handle_exit": {
+          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-centered-feature-normal-20261022-evidence/physical-exit.json",
+          "bytes": 604,
+          "sha256": "73a7cb4751906f5cb609eda7fce7817ac389b638c1bb205fc8a4c9d86354c40c"
+        },
+        "producing_recipe": {
+          "path": "/home/stemxstudio/rove4k-e-centered-feature-normal-20261022/build/inputs/recipe.json",
+          "bytes": 106862,
+          "sha256": "db788ebd715aebb7e308c70171434259ede85ce82446ffa70fdbb921e3dcc27f"
+        },
+        "producing_readme": {
+          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-centered-feature-normal-20261022-evidence/producing/engines/compact/tiny-entry-e/README.md",
+          "bytes": 60174,
+          "sha256": "861a34e9602d06f6c443d0482811fec556b16a7e3728968a8b5bec4e35f2a180"
+        },
+        "normal_builder_calls": 1,
+        "shipping_reproductions": 2,
+        "unchanged_DEV_reproductions": 2,
+        "selected_verifier_calls": 1,
+        "selected_sessions": 2,
+        "session_terminations": [
+          "quit",
+          "EOF"
+        ],
+        "actual_source_native_bootstrap_whole_entire_bytes_equal_to_firstcost": true,
+        "old_DEV_entire_source_native_equal": true,
+        "new_native_entire_bytes_equal_to_predecessor": false,
+        "current_input_pins_stable_during_commands": true,
+        "source_Q_all_valid_square_value_domain_equivalent": true,
+        "fresh_SAN_runs": 0,
+        "original_handles_terminal_reaped_group_absent_at_settlement": true,
+        "owned_handles": 0,
+        "cost_reruns": 0,
+        "positive_coordination": "B original owner terminal/owned0 received; E original selected completed; C notified only after E terminal/owned0",
+        "scope": "Current E4933/73header restored native image and unchanged selected2worker startup/input/quit/EOF paths. Source algebra+64valid domain closes d/R feature effect; no repeat SAN. Cancellation causality, timed node/bestmove equality, performance/strength/full qualification remain unproven",
+        "prior_CI": "E4935 8f9890e prior-head CI is separate; no new-head CI claimed here"
+      }
     }
   },
   "provenance": {
@@ -629,7 +692,8 @@
       "full_inverse_and_protected_complement": true,
       "fixed_header_domain": "sole actual compiler entire native equality; only C fixed late immintrin inclusion admitted"
     },
-    "ordering_side": "Fixed pure late E stage reuses generator-owned mover side in R; removes sign-only local; canonical/DEV unchanged; no runtime artifact or research input."
+    "ordering_side": "Fixed pure late E stage reuses generator-owned mover side in R; removes sign-only local; canonical/DEV unchanged; no runtime artifact or research input.",
+    "center_feature": "One pure late Q function span shares mirrored axis-min construction as centered Manhattan; actual valid0x88 d/R domain unchanged, readable model/DEV original reference admitted first."
   },
   "diagnostic_reference_model": {
     "id": "e-hand-integer-1",
@@ -1993,6 +2057,136 @@
       "cost_reruns": 0,
       "scope": "Current E4935/73header restored native image and unchanged selected 2worker startup/input/quit/EOF paths; cancellation causality, timed node equality, performance, strength and full qualification remain unproven",
       "prior_CI": "973e7b5 and d26e503 prior-head CI status is separate; this local validation does not claim new-head CI success"
+    }
+  },
+  "center_feature": {
+    "scope": "E-only pure late Q construction after generated-mover-side reuse; model/coefficients/features/typed Board mutation and canonical/DEV reference domains unchanged",
+    "helper_sha256": "7a9621bd54a02509d2bcf628f8813f83016302b5ef372da222627bfce027dd51",
+    "metadata": {
+      "family": "E",
+      "stage": "late-shipping-centered-center-feature",
+      "input_bytes": 10200,
+      "input_sha256": "6d336854f38c3a1aaf2b3facb7487aa3ece687f5280a5e9315eb08b2425bf329",
+      "output_bytes": 10190,
+      "output_sha256": "34cc868b06252cb25a58be54d9e8fecb26cd6705d159533363ab57aa96b70bcd",
+      "raw_delta": -10,
+      "owned_regions": 1,
+      "protected_gaps": 2,
+      "full_inverse": true,
+      "all_gaps_equal": true,
+      "protected_complement_bytes": 10132,
+      "protected_complement_sha256": "576a1bef4acf3a1dbcfef367dec6777ba2309d22614f71272d0a8cc3af04eaf5",
+      "actual_call_contract": "Q consumes valid0x88 squares through H/d piece-activity updates and R generated FROM/TO center delta",
+      "square_domain": "q=16*rank+file, file/rank0..7; q%8=file, q/8=2*rank",
+      "abs_argument_bounds": [
+        -7,
+        7
+      ],
+      "abs_sum_even_bounds": [
+        2,
+        14
+      ],
+      "division_by2_exact": true,
+      "output_bounds": [
+        0,
+        6
+      ],
+      "Q_pure_no_Board_access_or_mutation": true,
+      "typed_Board_all_fields_and_update_order_preserved": true,
+      "logical19_physical21_coefficients_and_features_preserved": true,
+      "S_quadratic_clamp_and_other_R_features_protected": true,
+      "canonical_DEV": "caller bypass; existing model19.h and DEV reference admission preserved",
+      "native_bit_identity_claimed": false,
+      "runtime_qualification_claimed": false,
+      "external_reads": 0,
+      "compiler_codec_engine_executed_by_transform": 0
+    },
+    "predecessor_expected": {
+      "readable_bytes": 28001,
+      "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+      "source_bytes": 10200,
+      "source_sha256": "6d336854f38c3a1aaf2b3facb7487aa3ece687f5280a5e9315eb08b2425bf329",
+      "native_bytes": 26336,
+      "native_sha256": "77a43ff91f24cd37b38923269ee9415e96aa6fb73c7fa5a985849d3f1aa53242",
+      "whole_bytes": 4935,
+      "whole_sha256": "d796caf3a219b0318f5e658ddf7597fe6b6b9ae44d3e20e6ae6fcc021568b85d",
+      "bootstrap_sha256": "0cd71dc3f20c31c568e4ac27727ed5c580c24924b553cbc4dd1481855ce0e879",
+      "dev_source_bytes": 21314,
+      "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
+      "dev_native_bytes": 31376,
+      "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
+      "bootstrap_bytes": 11212
+    },
+    "source_only_index": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-centered-feature-source-20261022-evidence/final-index.json",
+      "bytes": 4556,
+      "sha256": "be1591b8a1a749210b0bcd11eb8dd72723839d379bc977794dab22aa69a5ee52"
+    },
+    "firstcost_index": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-centered-feature-first-cost-20261022-evidence/final-index.json",
+      "bytes": 43226,
+      "sha256": "b150cc861c1e7f84321a803de8455981c7b53ced097ea2ceb0894963e840d689"
+    },
+    "source_scalar64": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-centered-feature-first-cost-20261022-evidence/old-new-64-valid-squares.json",
+      "bytes": 7990,
+      "sha256": "ca98a5e5e7a626d4acd2787178688ca2781ecef285c30725db6d748c89326234"
+    },
+    "semantic_basis": "All64 valid Q inputs exactly equal with closed actual d/H and R/gen caller domain; root accepted source contract; no repeated E136Board/2472move SAN campaign",
+    "validation_status": "accepted source Q value/domain equivalence, first-cost gain, ordinary --dev and unchanged selected wrapper PASS; fresh SAN0",
+    "normal_validation": {
+      "status": "ordinary --dev and unchanged selected wrapper PASS",
+      "build": {
+        "path": "/home/stemxstudio/rove4k-e-centered-feature-normal-20261022/build/build.json",
+        "bytes": 186884,
+        "sha256": "d4a871605fe4aa68f2b1e81a0f8890ccd06121d4718653ec47167bc07e997cc4"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-e-centered-feature-normal-20261022/runtime/runtime.json",
+        "bytes": 33082,
+        "sha256": "4a543b5d3d7bd2b165e506f68aaaf3120aadde94034690c1945868a329ecf0a7"
+      },
+      "supervisor_results": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-centered-feature-normal-20261022-evidence/normal-results.json",
+        "bytes": 23273,
+        "sha256": "fac52b38550f92d53bfbb27ec0d53f3a4f81d823af8b28d3adfd0da97c7a9c23"
+      },
+      "original_handle_exit": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-centered-feature-normal-20261022-evidence/physical-exit.json",
+        "bytes": 604,
+        "sha256": "73a7cb4751906f5cb609eda7fce7817ac389b638c1bb205fc8a4c9d86354c40c"
+      },
+      "producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-e-centered-feature-normal-20261022/build/inputs/recipe.json",
+        "bytes": 106862,
+        "sha256": "db788ebd715aebb7e308c70171434259ede85ce82446ffa70fdbb921e3dcc27f"
+      },
+      "producing_readme": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-centered-feature-normal-20261022-evidence/producing/engines/compact/tiny-entry-e/README.md",
+        "bytes": 60174,
+        "sha256": "861a34e9602d06f6c443d0482811fec556b16a7e3728968a8b5bec4e35f2a180"
+      },
+      "normal_builder_calls": 1,
+      "shipping_reproductions": 2,
+      "unchanged_DEV_reproductions": 2,
+      "selected_verifier_calls": 1,
+      "selected_sessions": 2,
+      "session_terminations": [
+        "quit",
+        "EOF"
+      ],
+      "actual_source_native_bootstrap_whole_entire_bytes_equal_to_firstcost": true,
+      "old_DEV_entire_source_native_equal": true,
+      "new_native_entire_bytes_equal_to_predecessor": false,
+      "current_input_pins_stable_during_commands": true,
+      "source_Q_all_valid_square_value_domain_equivalent": true,
+      "fresh_SAN_runs": 0,
+      "original_handles_terminal_reaped_group_absent_at_settlement": true,
+      "owned_handles": 0,
+      "cost_reruns": 0,
+      "positive_coordination": "B original owner terminal/owned0 received; E original selected completed; C notified only after E terminal/owned0",
+      "scope": "Current E4933/73header restored native image and unchanged selected2worker startup/input/quit/EOF paths. Source algebra+64valid domain closes d/R feature effect; no repeat SAN. Cancellation causality, timed node/bestmove equality, performance/strength/full qualification remain unproven",
+      "prior_CI": "E4935 8f9890e prior-head CI is separate; no new-head CI claimed here"
     }
   }
 }
