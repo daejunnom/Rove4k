@@ -70,7 +70,8 @@
     "engines/scripts/shipping_clock.py": "46c19879deae1d056f4b059c6c7d9667a3e935110dfb33015b29fd0dec4d8c43",
     "engines/compact/tiny-entry-b/shipping_line_drain.py": "8f613988384235f8af8114ff39236cbf831f1aaccd5d9160a70d688e6d03bc01",
     "engines/compact/tiny-entry-b/shipping_search_context.py": "39b39640187daf5242f791730e454d55755c1802cc3b6ffc55530a35df403678",
-    "engines/scripts/shipping_lazy_fallback.py": "023b370e75df2d50f44641eac7d1b49091ef2424d9ed7983d6d6f3c7d700b2ce"
+    "engines/scripts/shipping_lazy_fallback.py": "023b370e75df2d50f44641eac7d1b49091ef2424d9ed7983d6d6f3c7d700b2ce",
+    "engines/scripts/shipping_history_depth.py": "54476cfff4a77e0d3678594b01f9530f1018dd2431fa7b55c87867a870f55b0b"
   },
   "compression": {
     "format": "lzma-alone",
@@ -87,16 +88,16 @@
   },
   "expected": {
     "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
-    "source_bytes": 10491,
-    "source_sha256": "a10c8545156da1bb2f0ceaddc7f19dcca1740baa9b962905404dacbda9b0c5f5",
+    "source_bytes": 10451,
+    "source_sha256": "67603c505eec2377c4c4d96f19caf084178c104e44bd5d1aabed861341b55358",
     "native_bytes": 26296,
-    "native_sha256": "034bd4d749f60c5d2bb0991933e78b12cb4420a597ff466db29c7b59694cac92",
-    "whole_bytes": 5116,
-    "whole_sha256": "ace17216ee87b957813e5b1665f003f2f5fd19178456981ffadefaf4b1231118",
+    "native_sha256": "67076339c1fcb72988d60a945125c37d1670e0a97fe14241b54e334ffe089f36",
+    "whole_bytes": 5098,
+    "whole_sha256": "a6d856414f5b18e8987802d29999d5c11fcff656c6216f82837e28934b98af41",
     "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
     "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
-    "bootstrap_sha256": "6c324bf5935769b67c2b6bc5ccaaa1aa70682282d8633a989c3e6c7424760a61",
-    "bootstrap_bytes": 11530
+    "bootstrap_sha256": "344689b3bf06cb4b609ddd043a86ee569a85aa07a99b05841a9e39828787bec6",
+    "bootstrap_bytes": 11490
   },
   "local_input_sha256": {
     "engine.c": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
@@ -1543,6 +1544,134 @@
       "cancellation_causality": "unproven",
       "extra_SAN_PP_fresh_core_game_trace_negative_executions": 0,
       "stackpeak_timing_manycore_strength_model_readiness_claim": false,
+      "producing_and_annotation_bytes_distinct": true
+    }
+  },
+  "history_depth": {
+    "stage": "shipping-after-lazy-fallback",
+    "helper": "engines/scripts/shipping_history_depth.py",
+    "predecessor_expected": {
+      "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+      "source_bytes": 10491,
+      "source_sha256": "a10c8545156da1bb2f0ceaddc7f19dcca1740baa9b962905404dacbda9b0c5f5",
+      "native_bytes": 26296,
+      "native_sha256": "034bd4d749f60c5d2bb0991933e78b12cb4420a597ff466db29c7b59694cac92",
+      "whole_bytes": 5116,
+      "whole_sha256": "ace17216ee87b957813e5b1665f003f2f5fd19178456981ffadefaf4b1231118",
+      "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
+      "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
+      "bootstrap_sha256": "6c324bf5935769b67c2b6bc5ccaaa1aa70682282d8633a989c3e6c7424760a61",
+      "bootstrap_bytes": 11530
+    },
+    "fixed_transform": {
+      "family": "B",
+      "stage": "late-shipping-history-length-from-job-base-and-ply",
+      "input_bytes": 10491,
+      "input_sha256": "a10c8545156da1bb2f0ceaddc7f19dcca1740baa9b962905404dacbda9b0c5f5",
+      "output_bytes": 10451,
+      "output_sha256": "67603c505eec2377c4c4d96f19caf084178c104e44bd5d1aabed861341b55358",
+      "raw_delta": -40,
+      "owned_regions": 5,
+      "protected_gaps": 6,
+      "full_inverse": true,
+      "all_gaps_equal": true,
+      "protected_complement_bytes": 10385,
+      "protected_complement_sha256": "6fadf64a9f742923bbc956d98dbf181d0634981fa3c7d8224e7494ce6525827e",
+      "private_Worker_cursor_reset_push_pop_removed": true,
+      "entry_length": "immutable job history length plus unchanged recursion ply",
+      "public_job_length_range": [
+        1,
+        4096
+      ],
+      "entry_ply_range": [
+        0,
+        127
+      ],
+      "key_capacity": 4224,
+      "ordinary_child_key_index_and_ply_preserved": true,
+      "same_position_call_ply_and_history_length_preserved": true,
+      "nonnegative_repetition_index_set_preserved": true,
+      "recursive_arguments_and_other_logic_byte_protected": true,
+      "job_publication_pool_and_lazy_fallback_byte_protected": true,
+      "Worker_layout_and_native_identity_unchanged": false,
+      "canonical_DEV": "caller bypass",
+      "external_reads": 0,
+      "AST": false,
+      "compiler_codec_engine_executed_by_transform": 0
+    },
+    "source_contract": "manual fixed shipping-C candidate; no general source-location, arbitrary observer or NV typed-embedding admission",
+    "qh_publication": "immutable job length is published before worker entry; main drains both think calls before position replacement; existing pool/epoch/quit/EOF/cancel source unchanged",
+    "same_position_singular": "same n, same qh+n length, entry row, excluded TT and learning0; all7 P10-argument vectors byte protected",
+    "new_recursive_arguments": 0,
+    "whole_delta": -18,
+    "full_native_equal_to_predecessor": false,
+    "new_native_identity_explicit": true,
+    "canonical_DEV_bypass": true,
+    "first_cost": {
+      "index_sha256": "efb21f48be6f60419f52ab207604cf826a502b393690a65d452d2c53905a9dba",
+      "receipt_sha256": "4c239d42b5401c9bc98c1964af7904b1e2bfdf368a99b1403e2f85718e42d416",
+      "candidate_compiler": 1,
+      "candidate_encode": 1,
+      "baseline_compile_encode": 0,
+      "strict_Python_and_CLI_old_new": true,
+      "engine_or_bootstrap_run": false
+    },
+    "focused": {
+      "index_sha256": "afda9d92bfad3b7a860f8a23288bf6c7a829d1cb5e72d4a34e51c84cb5b74e54",
+      "results_sha256": "f187e91380fe9b745b736250eaf490daaef0a35e2100a52e0a309e0005d3fc69",
+      "fatal_SAN_compile": 1,
+      "fixture_runs": 1,
+      "actual_old_new_pairs": 50,
+      "original_B_cases": 36,
+      "added_history_boundary_cases": 14,
+      "runtime_PVS_ports_observed": false,
+      "runtime_singular_branch_observed": false,
+      "live_main_pool": 0,
+      "learner_exhaustive_repeat": 0
+    },
+    "research_files_are_build_inputs": false,
+    "normal_validation_pending": false,
+    "normal_validation": {
+      "status": "PASS one ordinary --dev builder and unchanged selected verifier; first normal attempt",
+      "scope": "local fixed2/TT18 selected native/restored wrapper and physical exit; historical broad receipts retain exact old-image scope",
+      "producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-b-history-depth-normal-20261021/build/inputs/recipe.json",
+        "bytes": 88602,
+        "sha256": "2c26f4f898e9bf892c937a215cd0993a6c94e636f44b1f3ff9e7326a29ac1a6d"
+      },
+      "producing_builder": {
+        "path": "/home/stemxstudio/rove4k-b-history-depth-normal-20261021/build/inputs/build.py",
+        "bytes": 16666,
+        "sha256": "bd51dff146fbf1fa87d9ebf38c9d17439498282bf6f15284085775e7985aaf11"
+      },
+      "producer_build": {
+        "path": "/home/stemxstudio/rove4k-b-history-depth-normal-20261021/build/build.json",
+        "bytes": 172841,
+        "sha256": "bfb25fe664fc2e8c584dc8c2c36b5f8f41234ad8ab335f7be588f12670a8c660"
+      },
+      "selected_runtime": {
+        "path": "/home/stemxstudio/rove4k-b-history-depth-normal-20261021/runtime/runtime.json",
+        "bytes": 39556,
+        "sha256": "484c80b79ce100815e5529b19aff3ad2a0632c9759388b3564f09582d31111b8"
+      },
+      "orchestration": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-b-history-depth-normal-20261021-evidence/normal-results.json",
+        "bytes": 22243,
+        "sha256": "ab82892b601737e9bad592a38e153626eafcd4ae8a6941a6c8b99c4152354cf6"
+      },
+      "shipping_reproductions": 2,
+      "old_DEV_reproductions": 2,
+      "old_DEV_source_and_entire_native_bytes_equal": true,
+      "fresh_selected_sessions": 2,
+      "actual_GO_results": 8,
+      "startup_TIDs_each": 3,
+      "closed_startup_TIDs_absent": true,
+      "exact_restored_native_private_path_and_process_reader_exit": true,
+      "all_owned_groups_absent": true,
+      "owned_handles": 0,
+      "cancellation_causality": "unproven",
+      "fresh_core_game_negative_trace_or_extra_SAN_runs": 0,
+      "manycore_performance_strength_readiness_claim": false,
       "producing_and_annotation_bytes_distinct": true
     }
   }

@@ -87,6 +87,11 @@ jobs:
           python3 -B engines/compact/tiny-entry-f/build.py --policy material-move-tt --out "$ROVE_TEST_OUT/tiny-entry-f-material-move-tt" --dev
           python3 -B "$ROVE_TEST_OUT/tiny-entry-f-material-move-tt/selected-verifier/engines/compact/tiny-entry-f/verify.py" --build "$ROVE_TEST_OUT/tiny-entry-f-material-move-tt" --out "$ROVE_TEST_OUT/tiny-entry-f-material-move-tt-runtime"
           python3 -B -m unittest discover -s engines/experiments/tiny-e-order -p 'test_*.py'
+      - name: Reproduce the fixed eight-worker F profile and check its positive lifetime
+        if: matrix.language == 'c'
+        run: |
+          python3 -I -B engines/compact/tiny-entry-f-resource8/build.py --base-source "$ROVE_TEST_OUT/tiny-entry-f/main.c" --out "$ROVE_TEST_OUT/tiny-entry-f-resource8"
+          python3 -I -B engines/compact/tiny-entry-f-resource8/verify.py --build "$ROVE_TEST_OUT/tiny-entry-f-resource8" --out "$ROVE_TEST_OUT/tiny-entry-f-resource8-runtime"
       - name: Check the semaphore pool through controlled real-runtime phases and faults
         if: matrix.language == 'c'
         run: python3 -B engines/experiments/tiny-semaphore/pool-check.py --frozen engines/experiments/tiny-semaphore --out "$ROVE_TEST_OUT/semaphore-pool"

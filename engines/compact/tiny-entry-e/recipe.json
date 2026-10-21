@@ -67,7 +67,8 @@
     "engines/scripts/shipping_clock.py": "46c19879deae1d056f4b059c6c7d9667a3e935110dfb33015b29fd0dec4d8c43",
     "engines/compact/tiny-entry-e/shipping_zero_slots.py": "f15f17881ab84eaee88f130b782b23b2019e15dd2d44302fb26bbe9e8ea2ec6c",
     "engines/compact/tiny-entry-e/shipping_search_context.py": "55889f3535aceb764be3a07c584244337e5a0d95a4823474ad5b13e5025ccb63",
-    "engines/scripts/shipping_lazy_fallback.py": "023b370e75df2d50f44641eac7d1b49091ef2424d9ed7983d6d6f3c7d700b2ce"
+    "engines/scripts/shipping_lazy_fallback.py": "023b370e75df2d50f44641eac7d1b49091ef2424d9ed7983d6d6f3c7d700b2ce",
+    "engines/scripts/shipping_history_depth.py": "54476cfff4a77e0d3678594b01f9530f1018dd2431fa7b55c87867a870f55b0b"
   },
   "compression": {
     "format": "lzma-alone",
@@ -85,18 +86,18 @@
   "expected": {
     "readable_bytes": 28001,
     "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
-    "source_bytes": 10326,
-    "source_sha256": "9ad6770abe1b2b69e13d5f43bf3bcd06bc29914ca074d2320b200dcdfad91e99",
+    "source_bytes": 10286,
+    "source_sha256": "d5dcfbc1abb8ffb61283680b84cd84a175fc5fe68515ea8156ff86ba4c8e38bd",
     "native_bytes": 26368,
-    "native_sha256": "67a114c88b4f2ccacac49fe9a459e1e6f776fee39e03f17a6cbac78d03756086",
-    "whole_bytes": 4974,
-    "whole_sha256": "de55885c2dfe49c394b6376b64e8b73308fd00b11c2544b749be56afad8a1730",
-    "bootstrap_sha256": "9f55283a901bcceca2a3507c2c056338b30ad79012a69efe4576c3a02ff9531e",
+    "native_sha256": "5e53c78bcffd25c51fbc519c0dcadc916c48afc463a9c8954f65b2475a89e543",
+    "whole_bytes": 4962,
+    "whole_sha256": "ae0cdde171524f50aef7f463ca297253588ef9dfcadc27bff42a1e3bc7651830",
+    "bootstrap_sha256": "2be7fdc472ac0df45eb8435ec0f07a0dda1326e1a641a8246c0d6fd4f48b8cd9",
     "dev_source_bytes": 21314,
     "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
     "dev_native_bytes": 31376,
     "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
-    "bootstrap_bytes": 11338
+    "bootstrap_bytes": 11298
   },
   "local_input_sha256": {
     "engine.c": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
@@ -1459,6 +1460,133 @@
       "extra_SAN_PP_fresh_core_game_trace_negative_executions": 0,
       "stackpeak_timing_manycore_strength_model_readiness_claim": false,
       "producing_and_annotation_bytes_distinct": true
+    }
+  },
+  "history_depth": {
+    "scope": "E shipping after lazy fallback; immutable game_length+ply replaces private cursor; new Worker layout/native identity; unchanged E19/ordering/canonical/DEV",
+    "predecessor_expected": {
+      "readable_bytes": 28001,
+      "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+      "source_bytes": 10326,
+      "source_sha256": "9ad6770abe1b2b69e13d5f43bf3bcd06bc29914ca074d2320b200dcdfad91e99",
+      "native_bytes": 26368,
+      "native_sha256": "67a114c88b4f2ccacac49fe9a459e1e6f776fee39e03f17a6cbac78d03756086",
+      "whole_bytes": 4974,
+      "whole_sha256": "de55885c2dfe49c394b6376b64e8b73308fd00b11c2544b749be56afad8a1730",
+      "bootstrap_sha256": "9f55283a901bcceca2a3507c2c056338b30ad79012a69efe4576c3a02ff9531e",
+      "dev_source_bytes": 21314,
+      "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
+      "dev_native_bytes": 31376,
+      "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
+      "bootstrap_bytes": 11338
+    },
+    "shared_pure_helper": {
+      "path": "engines/scripts/shipping_history_depth.py",
+      "bytes": 5968,
+      "sha256": "54476cfff4a77e0d3678594b01f9530f1018dd2431fa7b55c87867a870f55b0b"
+    },
+    "shared_helper_handoff": {
+      "bytes": 8647,
+      "sha256": "547b215843264a11f41293363fa70a5833a1bdb01f397d63ee507721f001dcd6"
+    },
+    "source_plan": {
+      "bytes": 10839,
+      "sha256": "2961d24abc4889d1a7cb3ec1dcdb35db7338f03bf7bd7e19187cc6d670362538"
+    },
+    "source_only_index": {
+      "bytes": 10939,
+      "sha256": "948a87962873926f44c416ea752bf0d580ee035a45b7c523f82e952c5eebc394"
+    },
+    "actual_first_cost": {
+      "bytes": 15905,
+      "sha256": "c73291cef6ccb496ea6b932b01fd946f006aa2e945be444409e22faa10d83602"
+    },
+    "cost_index": {
+      "bytes": 17210,
+      "sha256": "21b8df980210df1f8d83a0e48b9dd8478e0b97f22d1e6aa866eb896b31fb38a6"
+    },
+    "actual_focused": {
+      "bytes": 19284,
+      "sha256": "49ea100873b64b90f36b0e71a2739db4edff5f5074567c8ad7efc481a1bfb341"
+    },
+    "focused_index": {
+      "bytes": 10364,
+      "sha256": "5737ea367c43638c928863bf1708d6470534abd291cf90f4b07835d853b28619"
+    },
+    "source_regions": 5,
+    "protected_gaps": 6,
+    "raw_source_delta": -40,
+    "whole_delta": -12,
+    "full_inverse_and_protected_complement": true,
+    "relation": "old entry cursor == immutable game_length+n; all four recursive ports retain n+1",
+    "public_job_length_range": [
+      1,
+      4096
+    ],
+    "entry_ply_range": [
+      0,
+      127
+    ],
+    "key_capacity": 4224,
+    "maximum_child_key_index": 4222,
+    "Worker_layout_changed": true,
+    "old_full_native_equality_claimed": false,
+    "E19_logical19_physical21_zero0_6_and_ordering_unchanged": true,
+    "canonical_and_old_DEV21_unchanged": true,
+    "runtime_PVS_retry_branch_coverage": "unmeasured; no node proxy or branch instrumentation",
+    "focused": "one fatal ASan/UBSan compile/run; E34 original cases plus18 history boundary adapters,52 typed actual old/new pairs,35 original learner boundary spots",
+    "normal_generation_research_JSON_reads": 0,
+    "normal_transform_external_reads": 0,
+    "fresh_discovery": "new shared helper in existing recipe-driven source closure; no fresh invocation",
+    "normal_validation_pending": false,
+    "normal_validation": {
+      "scope": "one ordinary --dev builder and one unchanged selected verifier; local2worker TT18, not strength/final-target acceptance",
+      "producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-e-history-depth-normal-20261021/build/inputs/recipe.json",
+        "bytes": 78612,
+        "sha256": "68b7f7f3ca77b3056d415d1f15a99119994656f64a694d181f0d39220ee8a98d"
+      },
+      "producing_sources": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-e-history-depth-normal-20261021-evidence/producing-sources.json",
+        "bytes": 4663,
+        "sha256": "f70701dc7a1f732c35bd4d7318e2c00cb16fdd335cad7ea56ce9fb77f04077a7"
+      },
+      "build": {
+        "path": "/home/stemxstudio/rove4k-e-history-depth-normal-20261021/build/build.json",
+        "bytes": 169038,
+        "sha256": "414ff2654e0c8df85ff30afb732ff02ff14c9bf97773139b1903a2f65b7dbacc"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-e-history-depth-normal-20261021/runtime/runtime.json",
+        "bytes": 25987,
+        "sha256": "d53464080526aaca5a76e11394a22154fb2210c212197a5e58f398591b62bbdd"
+      },
+      "normal_commands": {
+        "path": "/home/stemxstudio/rove4k-e-history-depth-normal-20261021/normal-commands.json",
+        "bytes": 2741,
+        "sha256": "0200ce38942720d4cb035a61c66a61c4ad239a6e4baa89b7242dffd0bed03579"
+      },
+      "shared_helper_freeze": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-engines-af-20261020/engines/scripts/shipping_history_depth.py",
+        "bytes": 5968,
+        "sha256": "54476cfff4a77e0d3678594b01f9530f1018dd2431fa7b55c87867a870f55b0b"
+      },
+      "shipping_generations": 2,
+      "old_DEV21_generations": 2,
+      "old_DEV_source_native_exact": true,
+      "E19_shipping_model_and_ordering_guards_preserved": true,
+      "canonical_readable_unchanged": true,
+      "selected_verifier_invocations": 1,
+      "quit_EOF_sessions": 2,
+      "legal_GO_epochs": 8,
+      "new_native_full_image_observed": true,
+      "old_native_equality_claimed": false,
+      "startup_TIDs_per_session": 3,
+      "private_path_FD_cleanup_physical_process_reader_exit": true,
+      "cancellation_causality": "unproven",
+      "normal_retry": 0,
+      "fresh_archive_extra_SAN_core_games_fault_negative_benchmark_CI_Git": 0,
+      "research_JSON_generation_inputs": 0
     }
   }
 }

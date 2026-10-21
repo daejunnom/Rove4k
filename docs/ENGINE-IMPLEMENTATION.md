@@ -178,6 +178,13 @@ Both actual language-job checkouts use merge9f25a035, whose tree equals that
 head's tree. The common fallback/QS changes below have their own later local
 qualification; that completed CI is not relabeled as a run of later bytes.
 
+The shared fallback/QS checkpoint `28edec8` passes both language jobs in its
+[engine CI](https://github.com/daejunnom/Rove4k/actions/runs/39596928208) and
+Node22/24 [repository checks](https://github.com/daejunnom/Rove4k/actions/runs/39596928230).
+Both actual engine-job checkouts use merge0c2a7a7a, with the same tree as that
+head. The subsequent B/E history and resource8 local qualifications below
+retain their own identities; this CI result does not qualify later bytes.
+
 **F's opt-in material/move-TT file is locally reproduced and exercised at
 4,045 bytes; default full F is still 4,479 bytes.** This optional reduced-feature
 size result does not complete default F or the A–F portfolio. All twelve
@@ -195,10 +202,10 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
 | A | 4,587 B | 491 B | Unsigned64 number forms; one-state material classifier; main-owned token cursor and valid-0x88 promotion predicate; history length derived from immutable job length plus ply; existing full HCE/PVS/QS/TT/learners/SMP and fixed ALONE retained; fixed LP64 mixer literals; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero |
-| B | 5,116 B | 1,020 B | Worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained; made-child continuation row passed through PVS and same-position singular verification; literal include gaps and overlong-line drain compacted; clock-first SEE poll; cancellation timing changed; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero |
+| B | 5,098 B | 1,002 B | Worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained; made-child continuation row passed through PVS and same-position singular verification; literal include gaps and overlong-line drain compacted; clock-first SEE poll; cancellation timing changed; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero; private history length derived from immutable published job base plus ply |
 | C | 4,897 B | 801 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners retained; history length derived from immutable job length plus ply; child continuation slot and positive-only cutoff bonus compacted; fixed LP64 mixer literals; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero |
 | D scalar / HQ | 5,908 / 6,111 B | 1,812 / 2,015 B | HQ-only history length derived from immutable job length plus ply; scalar and DEV retain their original blocks; exact clock/inc parsing and ordered K/Q castling branches shared; consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained |
-| E | 4,974 B | 878 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; child continuation slot and positive-only cutoff bonus compacted; literal include gaps and fixed ASCII compiler argv compacted; fixed LP64 mixer literals; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero |
+| E | 4,962 B | 866 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; child continuation slot and positive-only cutoff bonus compacted; literal include gaps and fixed ASCII compiler argv compacted; fixed LP64 mixer literals; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero; private history length derived from immutable published job base plus ply |
 | F full (default) | 4,479 B | 383 B | Packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; history length derived from immutable job length plus ply; nonnegative QS depth, repetition-distance loop, fixed integer macros and plain-int keyword spelling compacted after the no-preadd hash, terminal, correction and source-form stages; compact environment snapshot; default size target remains open; lazy fallback and first-legal quiet-QS standpat cutoff |
 | F material/noise (opt-in) | 4,319 B | 223 B | Unsigned64 number forms and two fixed TT18 casts omitted; one-state material classifier, fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted; literal include gaps compacted; fixed LP64 mixer literals; compact environment snapshot |
 | F material/move-TT (opt-in) | 4,045 B | 0 B (51 B spare) | Unsigned64 number forms; one-state material classifier, fixed material, main-owned token cursor, terminal-loop sharing and coherent atomic64 Move17/high46 plus index18; local size eligibility only, full F and strength acceptance remain open; fixed LP64 mixer literals; compact environment snapshot |
@@ -250,6 +257,90 @@ also pass. However, actual search-phase attack calls increase from65,023 to
 search entries and six root correction guards. This finite work count is
 not a wall-time or strength measurement. The two-byte size gain remains
 unselected in this source context; normal production/SMP is not run for it.
+
+## Fixed eight-worker full-F local comparison: 2026-10-21
+
+The separate tiny-entry-f-resource8 entry consumes the exact8559-byte full F
+base source plus a frozen project source closure. A pure six-literal late
+specialization fixes8 search workers and TT18, with9 native TIDs including
+the controller. Chess constants, successful-created-count shutdown, full HCE,
+learners, coherent full-key TT and full-depth MTD(f) remain. Existing F profile2,
+canonical/DEV and reduced policies are unchanged. No public resource option or
+external research receipt/native is a normal build input.
+
+Complete profile8 is4478 B, one byte below its same-context profile2 control.
+It remains382 B above4096 and does not replace the two-worker table above.
+One ordinary builder reproduces source/native/bootstrap/whole/payload twice.
+One positive verifier passes quit/EOF two sessions with eight legal GO results,
+the actual stable9 TIDs, all eight workers' active state and CPU-tick increase,
+native/private-path identity, position fence, reader completion and physical
+process/group/observed-TID exit. No forced cleanup or error remains.
+VmSize74972 kB, startup VmRSS7552 kB and active VmRSS8320/8064 kB are snapshots,
+not peaks, timed strength/scaling results or final-server resource acceptance.
+
+The new verifier's process-publication signal issue is fixed locally before
+normal execution, with independent source review; generic helpers, original
+child masks and legacy3-TID assertions are unchanged. The first-cost package
+envelope omission is preserved, with successful native reuse only in a separate
+packing extension. Normal two-fold regeneration is independent of that cost.
+The C-only CI step uses the existing ordinary F main.c as --base-source, then
+runs this profile's own builder/verifier; existing artifact globs cover it.
+
+Root checks25 normal-index file references and all51 registered source hashes.
+The external final index is b4afc17ea61b1f0be235ef156d437d01245942a7fee42bd33933a120bf2974a9.
+Official4k rules and the4kVII event page do not specify the final thread/RAM
+allocation used here; that allocation remains unknown. The general TCEC
+512-thread description is not substituted for an official4k assignment.
+
+## Preserved metadata and QS-query costs: 2026-10-21
+
+The single full-F signed8 Board metadata candidate ties4479 whole bytes with a
+new native identity; layout, RAM, stack and functional execution are unmeasured,
+so it is not adopted. A's corresponding independent candidate saves one whole
+byte4587→4586 but expands native18576→22672: RX grows60 B and its following
+alignment gap grows4036 B. Header-derived LOAD address union grows one4KiB
+interval; actual RSS/Board/stack/speed are unknown. That candidate stays held.
+
+A separate F QS-query-sharing candidate moves unchanged legal-query functions
+and connects a common terminal/draw epilogue. It costs4494 B,15 B above4479, so
+it remains unselected without focused or target execution. Original candidates,
+inverse/gap proofs, fixed package contexts, costs and reasons remain outside Git;
+none is a permanent exclusion for another source, packaging or resource context.
+
+## Shared B/E derived history length: 2026-10-21
+
+B and E remove a private Worker history cursor and derive the same entry
+length from immutable published job history plus existing ply. The existing
+repetition-bound local is reused; the scan retains its nonnegative clamp,
+parity and reversible window. Ordinary children write the same key index
+and advance ply; B's same-position singular verification keeps the same ply
+and history length. All recursive argument vectors are byte-protected.
+
+One shared pure shipping_history_depth.py maintains the two fixed source
+classes with five edits, six protected gaps, complement pins and full inverse.
+It runs after lazy fallback, only for shipping. Canonical/DEV, B's selected
+SEE/singular/learner policy and E19 evaluation/ordering/physical21 slots remain.
+Raw source shrinks40 bytes in each family. Complete files change B5116→5098
+and E4974→4962, with explicit new native identities; Worker layout/native
+equality or measured memory savings are not claimed.
+
+One fatal ASan/UBSan compile/run per family passes50 B and52 E actual old/new
+pairs. Original cases and learner observations remain, with targeted history,
+parity, half99/100, TT, terminal, stop and cap127/max-write4222 boundaries.
+Independent actual Worker types retain all typed fields, keys, three learners,
+Board and full TT/locks; the old restored cursor equals base+ply. Direct
+fixture-only base adapters do not enlarge the public history1..4096 contract.
+Individual PVS/singular branch runtime coverage remains unmeasured.
+
+Each ordinary builder runs once, reproduces shipping twice and unchanged DEV
+twice, then its unchanged selected verifier passes quit/EOF two sessions with
+eight legal GO results, exact restoration, three TIDs, private-path cleanup
+and physical process/reader/group exit. All first executions pass; final
+recipe/README annotations are separated from producing inputs. Root checks59
+B and103 E normal-index file references. Their external normal indices are
+eba1dc0dcdaf0e540b3916de309154d472217e7bae5116020bf1b0992f27074a
+and7cdb375654ba80410febd47512101e36721df931b890de202e21038f1a80e843.
+No fresh/archive, added core/game, or many-core/strength acceptance is claimed.
 
 ## Shared lazy fallback and full-F legal QS cutoff: 2026-10-21
 

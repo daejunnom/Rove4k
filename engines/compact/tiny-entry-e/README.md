@@ -1,3 +1,56 @@
+# Maintained E: derive history length from the immutable job — 2026-10-21
+
+Complete file **4962 B**, compact C **10286 B**: raw source40B and actual
+whole12B below the qualified4974B predecessor, still866B above4096.
+`engines/scripts/shipping_history_depth.py` is the pure shared B/E helper;
+the E client calls family E after lazy fallback as its last shipping stage.
+It derives L=game_length+ply using the existing bound local, preserves the
+same repetition index set and child key write, and removes the private cursor
+and balanced reset/pop. Five spans, six gaps, inverse and exact input/output
+pins guard the fixed source. No research JSON/artifact is a generation input.
+Worker layout/native identity change; old native byte equality is not claimed.
+
+E19's19 logical coefficients,21 physical slots including zeros0/6, nonlinear
+evaluation, all five ordering features and Board state remain byte protected.
+Canonical/old DEV21, resources, compiler without C AVX2 flags, envdict template,
+prefix77 and ALONE9e/lc2/lp0/pb0/BT4/64MiB/nice32 remain unchanged.
+
+One fatal ASan/UBSan compile/run passed52 actual old/new search pairs: original
+E34 searches, both-color quiet/special child cases and learner seed plus18
+history/stop/TT/terminal boundary adapters. It preserves35 learner boundary
+spots, not C's exhaustive loop. Typed Worker/allkeys/threelearners/fullTT/Board/
+E19 evaluation and ordering/scorebestnodes and old cursor restoration agree.
+Root1/4096, half99/100, ply127 and maximum child index4222 pass. Private base
+L-ply adapters do not expand public history. The four PVS ports retain n+1 by
+source induction; runtime retry-branch coverage is unmeasured, with no node proxy.
+Focused receipt: `49ea100873b64b90f36b0e71a2739db4edff5f5074567c8ad7efc481a1bfb341`.
+
+One ordinary --dev builder now reproduces shipping twice and exact oldDEV21
+source/native twice. The unchanged selected verifier passes two quit/EOF sessions
+and8 legal GO results, exact restored new native image,3 startup TIDs, stdio-only
+FDs, absent private paths and physical process/reader exit. Existing E19 shipping
+and distinct oldDEV model guards remain. Cancellation causality is unproven.
+
+| Form | Bytes | SHA-256 |
+| --- | ---: | --- |
+| Shipping C | 10286 | `d5dcfbc1abb8ffb61283680b84cd84a175fc5fe68515ea8156ff86ba4c8e38bd` |
+| Native | 26368 | `5e53c78bcffd25c51fbc519c0dcadc916c48afc463a9c8954f65b2475a89e543` |
+| Bootstrap | 11298 | `2be7fdc472ac0df45eb8435ec0f07a0dda1326e1a641a8246c0d6fd4f48b8cd9` |
+| Complete | 4962 | `ae0cdde171524f50aef7f463ca297253588ef9dfcadc27bff42a1e3bc7651830` |
+
+Normal build receipt: `414ff2654e0c8df85ff30afb732ff02ff14c9bf97773139b1903a2f65b7dbacc`.
+Selected runtime receipt: `d53464080526aaca5a76e11394a22154fb2210c212197a5e58f398591b62bbdd`.
+Actual build is `/home/stemxstudio/rove4k-e-history-depth-normal-20261021/build`.
+Its producing recipe78612B/68b7f7f3... is preserved in inputs, separate from final
+recipe/README completion annotations. Expected outputs were explicit before
+normal execution. The first normal invocation passed with no retry.
+
+The shared helper is registered in the36-file recipe-driven source closure;
+fresh/archive was not executed. Before/producing/source/cost/focused evidence
+stays outside Git. Historical sections retain their own identities and scope.
+No new strength, many-core, final-target, timing or whole-engine acceptance is
+added; no extra SAN/core/game/fault/negative campaign or Git action ran.
+
 # Maintained E: lazy fallback normal reproduction and selected validation passed — 2026-10-21
 
 The fixed first-cost file is **4974 B**, compact C **10326 B**, native

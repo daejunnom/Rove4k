@@ -1,3 +1,57 @@
+# Maintained B: derived history length ordinary reproduction and selected validation passed — 2026-10-21
+
+The fixed first-cost file is **5098 B**, compact C **10451 B**, native
+**26296 B**. Against qualified lazy-fallback 5116 B, five exact C regions
+remove 40 B and save 18 actual whole-file bytes. Native length is unchanged
+but the full image differs; the new recipe admits its explicit identity.
+The 4096 B goal remains open. One ordinary --dev builder reproduced shipping
+source/native/bootstrap/whole twice and exact old DEV source/native twice.
+The unchanged selected verifier passed quit/EOF in two sessions with eight
+legal GO results, exact restored native, three startup TIDs each and physical
+process/reader/private-path exit. These are local fixed2/TT18 observations.
+Cancellation causality remains unproven.
+
+The pure shared `shipping_history_depth.py` runs last, after lazy fallback,
+only on shipping C. Exact input/output SHA-256, five regions, six protected
+gaps, full inverse and protected complement guard this one form. It derives
+the P-entry length as immutable job `qh+n`, reuses local W, writes the child
+key at W and removes the private Worker cursor/reset/push/pop. The loop's
+nonnegative condition retains max(0,length-1-halfmove), including short
+histories with large halfmove clocks. Root qh is 1..4096; ply is 0..127;
+the highest admitted child write is 4222 in 4224 key cells.
+
+Same-position singular verification forwards the same ply and entry length;
+four made-child PVS calls still pass ply+1. All seven 10-argument vectors,
+SEE/cancel ordering, learner formulas, TT/Board, continuation row0/neutral6,
+protocol and pool publication bytes remain protected. Main's existing
+drain precedes root replacement, and job publication precedes worker entry.
+Canonical diagnostics and the unchanged old-minimax DEV path bypass this
+stage. The frozen helper registry also supplies existing fresh discovery;
+fresh is not executed. Builds need no external research reports.
+
+One fixed cost compile+encode and strict old/new Python/CLI restoration
+completed without target execution. A separate fatal ASan/UBSan compile
+and run passed 50 actual old/new search pairs: original B 36 plus 14 history
+bounds, using both actual Worker layouts and typed common-state/full-TT/
+Board comparisons. qh 1/4096, parity, short-history clamp, cap 127, write 4222,
+TT/terminal/stop restoration and both singular-eligibility/excluded cases
+passed. Eligibility and direct excluded observations do not establish
+runtime singular-branch or each-PVS-port coverage. No live pool/main ran.
+The ordinary image and restored runtime have separate passing receipts.
+This is a fixed manual shipping-source contract; general source-location
+or arbitrary observer equivalence and NV typed embedding remain unclaimed.
+No Worker-size, performance, timing, many-core, game or strength conclusion
+is added. Before/producing/final records stay outside Git in
+`rove4k-b-history-depth-normal-20261021-evidence`. Older sections retain
+their own historical image and validation scope.
+
+Ordinary build receipt SHA-256:
+`bfb25fe664fc2e8c584dc8c2c36b5f8f41234ad8ab335f7be588f12670a8c660`;
+selected runtime `484c80b79ce100815e5529b19aff3ad2a0632c9759388b3564f09582d31111b8`.
+Actual producing recipe SHA-256:
+`2c26f4f898e9bf892c937a215cd0993a6c94e636f44b1f3ff9e7326a29ac1a6d`.
+Final recipe/README annotations were added only after those commands exited.
+
 # Maintained B: lazy fallback normal reproduction and selected validation passed — 2026-10-21
 
 The fixed first-cost file is **5116 B**, compact C **10491 B**, native
