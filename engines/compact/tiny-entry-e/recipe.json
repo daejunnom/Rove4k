@@ -69,7 +69,8 @@
     "engines/compact/tiny-entry-e/shipping_search_context.py": "55889f3535aceb764be3a07c584244337e5a0d95a4823474ad5b13e5025ccb63",
     "engines/scripts/shipping_lazy_fallback.py": "023b370e75df2d50f44641eac7d1b49091ef2424d9ed7983d6d6f3c7d700b2ce",
     "engines/scripts/shipping_history_depth.py": "54476cfff4a77e0d3678594b01f9530f1018dd2431fa7b55c87867a870f55b0b",
-    "engines/compact/tiny-entry-e/shipping_capture.py": "8729bef4acc4acd7071a561ee0ddfa6cd744db1397880fe53a3520e91354baf0"
+    "engines/compact/tiny-entry-e/shipping_capture.py": "8729bef4acc4acd7071a561ee0ddfa6cd744db1397880fe53a3520e91354baf0",
+    "engines/scripts/source_package.py": "55fa739e7c17fffdb3bf1191c7a26aa38d35e9e32473e4008c23ece3d5703d1f"
   },
   "compression": {
     "format": "lzma-alone",
@@ -91,8 +92,8 @@
     "source_sha256": "060847dbe19b898d5a7a0f7b49ee35b2338529abb2b63073798453db227ee147",
     "native_bytes": 26336,
     "native_sha256": "615cf660e80de9d7a5e07534db731652486e9768cd398b797df796bbba183a3c",
-    "whole_bytes": 4950,
-    "whole_sha256": "3c2b459bc45581df9b70bda6851be6145c65f8dc2b1251b4f5d7ed058881ba5b",
+    "whole_bytes": 4946,
+    "whole_sha256": "97fc4d9c6fe1af1951d4906303b4a0b5e8a396019ae2584911c9585db948229c",
     "bootstrap_sha256": "f7e4de35baa293b5edc82fa25d65705d5b648d2fd132b3d080e8945ca0c1364a",
     "dev_source_bytes": 21314,
     "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
@@ -510,6 +511,42 @@
       "normal_status": "PASS shipping2+actualoldDEV21source/native2; unchangedselected2sessions8GO local2TT18",
       "build_sha256": "20e24b18611cb154967cf5709050c178b63b6295284691170454636e0657e554",
       "runtime_sha256": "5611021f83bb35228c686033b5547439c84a3a5c587083d53307b2f632387cd2"
+    },
+    "common_73byte_header": {
+      "status": "PASS ordinary shipping2/DEV2 and unchanged selected quit/EOF2sessions8GO",
+      "scope": "77 to73byte header only; encoded payload/source/bootstrap/native/DEV/codec unchanged",
+      "predecessor_expected": {
+        "readable_bytes": 28001,
+        "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+        "source_bytes": 10210,
+        "source_sha256": "060847dbe19b898d5a7a0f7b49ee35b2338529abb2b63073798453db227ee147",
+        "native_bytes": 26336,
+        "native_sha256": "615cf660e80de9d7a5e07534db731652486e9768cd398b797df796bbba183a3c",
+        "whole_bytes": 4950,
+        "whole_sha256": "3c2b459bc45581df9b70bda6851be6145c65f8dc2b1251b4f5d7ed058881ba5b",
+        "bootstrap_sha256": "f7e4de35baa293b5edc82fa25d65705d5b648d2fd132b3d080e8945ca0c1364a",
+        "dev_source_bytes": 21314,
+        "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
+        "dev_native_bytes": 31376,
+        "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
+        "bootstrap_bytes": 11222
+      },
+      "old_header_sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
+      "new_header_sha256": "2c30c82c7df658b37c9d64b6f6b393a5d2cb2169933ab6254fabdf525924c34a",
+      "payload_sha256": "0a758fa107d37fa62bd56a7a0fcd160133dc721662cb0773f1d425cc47fa0038",
+      "old_new_strict_restore": true,
+      "source_argv_proof_reuse": "exact unchanged bootstrap bytes; no new AST analysis",
+      "baseline_compile_and_encode": 0,
+      "header_proof_sha256": "5559d3cb0d09ed50e2f50ae84180a91b3d6d890e7844315fef6fbb7913b9cef3",
+      "build_receipt_sha256": "66e3ef54e6f138f7ec25c0271c1b8538aa4c0457edd67ce994248835b80da600",
+      "runtime_receipt_sha256": "b18ad71e1360eb4f703662a0d7e2efab87f94c5ffaf2ea1282019467d5871b0e",
+      "producing_recipe_sha256": "043610c3554771a74ad4fd2ed30d9d7830bb7368eff2cfd72ac6d24261003cd6",
+      "producing_source_paths": 38,
+      "producing_source_index_sha256": "9c01c86954e649d290944f7a94556046ef790198e44a416cc5b06bc8cae6530e",
+      "payload_source_bootstrap_native_DEV_unchanged": true,
+      "normal_failures": 0,
+      "normal_retries": 0,
+      "metadata_only_after_execution": true
     }
   },
   "provenance": {

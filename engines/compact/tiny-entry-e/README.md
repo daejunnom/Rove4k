@@ -1,4 +1,34 @@
-# Maintained E: capture-only Move bit3 — 2026-10-22
+# Maintained E: shared73-byte header — 2026-10-22
+
+The selected complete file is **4946 B**, four bytes below E4950 and850 B
+above4096. Its10210 B C,26336 B native,11222 B bootstrap and exact DEV tuple
+remain unchanged. The sole output change is the pinned shared
+`source_package.XZ_STDIN_HEADER` replacing the77-byte shell prefix with73 B.
+The legacy marker/prefix validation and local launcher are retained; the
+existing encoder emits the identical compressed payload with unchanged codec.
+
+`tail -n+4` skips three header lines and stdin `xz -d` restores the exact ALONE
+bootstrap. Decoder-failure exit, trailing-newline command substitution, Python
+argv and exec remain. Exact old/new bounded decode plus unchanged bootstrap
+identity reuses the earlier source/argv/core proofs. This does not change E19
+evaluation, Move metadata, C source or native code. Whole SHA:
+`97fc4d9c6fe1af1951d4906303b4a0b5e8a396019ae2584911c9585db948229c`.
+One ordinary --dev call reproduced shipping and the unchanged DEV tuple
+twice. Its complete outputs equal the exact header-only substitution, with
+the original compressed payload intact. One unchanged selected verifier
+passed quit/EOF2 sessions8 legal GO, exact restored native, persistent3
+startup TIDs, private-path/helper/readers cleanup and physical exit0. All
+outer commands exited0, were reaped and left their groups absent. No
+runtime failure or retry occurred. Generic signal/descendant/fresh/core/
+game/strength/many-core coverage is not added by this packaging change.
+
+Build receipt `66e3ef54e6f138f7ec25c0271c1b8538aa4c0457edd67ce994248835b80da600`;
+runtime `b18ad71e1360eb4f703662a0d7e2efab87f94c5ffaf2ea1282019467d5871b0e`;
+producing recipe `043610c3554771a74ad4fd2ed30d9d7830bb7368eff2cfd72ac6d24261003cd6`.
+Producing closure 38 ordinary files. Final recipe/README are receipt-only
+annotations; source-producing code and expected artifact bytes are unchanged.
+
+# Historical E: capture-only Move bit3 — 2026-10-22
 
 Selected first-cost whole **4950 B**, compact C **10210 B**: source76 B and
 actual whole12 B below qualified4962, still854 B above4096. The pure fixed

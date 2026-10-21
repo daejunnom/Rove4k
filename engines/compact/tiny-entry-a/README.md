@@ -1,4 +1,37 @@
-# Maintained A: cached correction evaluation — 2026-10-22
+# Maintained A: shared73-byte header — 2026-10-22
+
+The selected complete file is **4582 B**, four bytes below A4586 and486 B
+above4096. Its8987 B C,18576 B native,9951 B bootstrap and exact DEV tuple
+remain unchanged. The only output change replaces the77-byte shell header
+with `source_package.XZ_STDIN_HEADER` (73 B); all existing compressed payload
+bytes and the compiler/codec/bootstrap remain identical. The generator freezes
+and imports that shared constant after validating the legacy template marker
+and77-byte input. Its existing encoder is retained.
+
+`tail -n+4` skips exactly three header lines; piped `xz -d` restores the same
+ALONE bootstrap. Decoder failure still exits, command substitution retains the
+same trailing-newline behavior, and Python argv/exec are unchanged. The old
+local launcher remains an ordinary legacy input. Exact old/new bounded ALONE
+restoration binds the unchanged bootstrap; its source/argv/core proofs are
+reused by identity. This is header packaging, not source/native compression.
+The new whole SHA is
+`7695d824549f10139fa740709e04c8e56934e643dc739def9bb1239631c97347`.
+One ordinary --dev call reproduced shipping and the unchanged DEV tuple
+twice. Its complete outputs equal the exact header-only substitution, with
+the original compressed payload intact. One unchanged selected verifier
+passed quit/EOF2 sessions8 legal GO, exact restored native, persistent3
+startup TIDs, private-path/helper/readers cleanup and physical exit0. All
+outer commands exited0, were reaped and left their groups absent. No
+runtime failure or retry occurred. Generic signal/descendant/fresh/core/
+game/strength/many-core coverage is not added by this packaging change.
+
+Build receipt `83bbec21c8c19f617ab9d2d73c1a2d689996be71a5e36ad9d6577d5c4b2ef82a`;
+runtime `cbbd2aaf3b84a4181cdc003ec375f5484ae4a375854e17dd67e44a5a3cc00cd1`;
+producing recipe `92bc2a18e36bfbb1b24c458cef045da11552655ab652b3487e8d153bb97037af`.
+Producing closure 37 ordinary files. Final recipe/README are receipt-only
+annotations; source-producing code and expected artifact bytes are unchanged.
+
+# Historical A: cached correction evaluation — 2026-10-22
 
 The current complete file is **4586 B**, with **8987 B** compact C: 1 whole
 byte and 8 shipping-source bytes smaller than the preceding 4587 B entry.

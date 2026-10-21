@@ -1,4 +1,35 @@
-# Maintained C capture-only Move metadata — 2026-10-22
+# Maintained C: shared73-byte header — 2026-10-22
+
+The selected complete file is **4880 B**, four bytes below C4884 and784 B
+above4096. Its9882 B C,26304 B native,10931 B bootstrap and exact DEV tuple
+remain unchanged. Only the77-byte shell header is replaced with the pinned
+shared `source_package.XZ_STDIN_HEADER` (73 B), after the existing legacy
+marker/input validation. Every compressed payload byte is preserved, and the
+existing ALONE encoder/compiler/profile remains unchanged.
+
+The three-line header uses `tail -n+4` and stdin `xz -d`; decoder failure still
+exits before Python, with unchanged command-substitution newline behavior,
+argv and exec. The local77-byte launcher remains for legacy consumers. Exact
+old/new bounded ALONE decoding recovers the same bootstrap, allowing reuse of
+its source/argv/core proofs by identity. This is packaging, not new C or SIMD
+compression. Whole SHA:
+`660ce07e172134d1b1af3107dccfb4d1cdf4c858449f3b784d76b6a11c0d5e4e`.
+One ordinary --dev call reproduced shipping and the unchanged DEV tuple
+twice. Its complete outputs equal the exact header-only substitution, with
+the original compressed payload intact. One unchanged selected verifier
+passed quit/EOF2 sessions8 legal GO, exact restored native, persistent3
+startup TIDs, private-path/helper/readers cleanup and physical exit0. All
+outer commands exited0, were reaped and left their groups absent. No
+runtime failure or retry occurred. Generic signal/descendant/fresh/core/
+game/strength/many-core coverage is not added by this packaging change.
+
+Build receipt `633d67efb28eb3c0c36c689451938cca785027a780efd1a353df9f64b3b05904`;
+runtime `4992783c8e446ffeb3a9ea10246c665d734bfa09189c9a8bc1c3bcf8ff044fa8`;
+producing recipe `c5980f1833193cdffbaaec0862ccdee4745709f19ec604e7c46b345064255baf`.
+Producing closure 40 ordinary files. Final recipe/README are receipt-only
+annotations; source-producing code and expected artifact bytes are unchanged.
+
+# Historical C capture-only Move metadata — 2026-10-22
 
 The ordinary builder now reproduces **9882 B** shipping C, **26304 B** native
 and **4884 B** complete file. Against the selected4897 B predecessor this saves

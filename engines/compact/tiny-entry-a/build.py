@@ -86,6 +86,7 @@ def main():
         strip=module('entry_counter_strip',frozen/'stitch.py').strip_dev_counters
         lexer=module('entry_fixed_tokens',frozen/'rename_c.py');replace=lexer._replace
         literal=module('entry_literal',frozen/'pack_stream.py').source_literal
+        source_package=module('entry_source_package',frozen/'source_package.py')
         alpha=module('entry_fixed_A_alpha',frozen/'shipping_alpha.py').transform_source
         storage=module('entry_fixed_storage',frozen/'fixed_shipping_storage.py').transform_source
         scope=module('entry_bound_A_scope',frozen/'shipping_scope.py').transform_source
@@ -110,6 +111,7 @@ def main():
         template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
         if template.count(marker)!=1 or len(prefix)!=77:raise ValueError('bootstrap recipe changed')
+        prefix=source_package.XZ_STDIN_HEADER
         expected=recipe['expected']
         def generate(directory,dev=False):
             preprocess_source=reference;input_metadata=None

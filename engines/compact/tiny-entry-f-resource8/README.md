@@ -31,3 +31,13 @@ CI에서 기존 F 생성 단계가 `tiny-entry-f/main.c`를 제공한 뒤 새 bu
 builder와 verifier는 유한 AS/CPU/wall/output 한계 및 소유 group cleanup을 사용한다. 정상 관찰의 startup/active VmSize·VmRSS/maps는 해당 시점 자료이며 stack peak·속도·확장성 결과가 아니다. path-only Worker의 실제 메모리 관측은 새 positive 실행 자료로 구분한다. 새로운 negative/fault/ptrace/RIE/trace/SAN/기력 캠페인은 포함하지 않는다.
 
 초기 ordinary 호출은 출력 부모 폴더 부재로 도구 실행 전에 끝났고, 다음 호출은 CRLF raw helper hash와 LF freeze hash의 등록 불일치로 컴파일 전에 끝났다. 두 실패를 그대로 보존한 뒤 parent만 준비하고 recipe.specialize_sha256을 명시된 LF 계약에 맞췄다. Helper 원문과 builder/verifier 본문, source/native/whole 기대값, compiler/codec은 바꾸지 않았다. `specialize_sha256`은 LF2529 B / `86fbfe65…`를 뜻하며 Windows raw helper2555 B / `a5a2158d…`와 구분한다.
+
+## Full-profile bootstrap environment reuse — 2026-10-22
+
+The base producer's full-only bootstrap preparation now inlines its one-use
+Popen environment dictionary. Its F source remains8538 B/47353a15…; F8 still
+consumes the original shared template and its own77-byte/BT4 packaging. This
+profile's source/native/bootstrap/whole, compiler, codec, builder and positive
+verifier are unchanged. Only the producer Fbuild provenance pin is updated.
+Existing4474-byte reproduction and nine-TID positive receipts are reused;
+no new F8 compiler/codec/runtime execution is claimed by this metadata change.

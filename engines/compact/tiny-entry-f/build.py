@@ -182,7 +182,13 @@ def main():
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
         if template.count(marker)!=1 or len(prefix)!=77:raise ValueError('bootstrap recipe changed')
-        if args.policy=='full':prefix=source_package.XZ_STDIN_HEADER
+        if args.policy=='full':
+            # One fixed full-profile bootstrap choice; shared legacy consumers
+            # retain the original template and its published artifacts.
+            template=template.replace(b' e=dict(os.environ,TMPDIR=d)\n',b'',1)
+            template=template.replace(b'cwd=d,env=e,stdin=subprocess.PIPE',
+                                      b'cwd=d,env=dict(os.environ,TMPDIR=d),stdin=subprocess.PIPE',1)
+            prefix=source_package.XZ_STDIN_HEADER
         if len(prefix)!=recipe['launcher']['bytes'] or sha(prefix)!=recipe['launcher']['sha256']:
             raise ValueError('fixed selected launcher changed')
         selected_compression={'full':full_compression,'material-noise':original_compression,

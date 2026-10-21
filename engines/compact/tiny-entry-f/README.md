@@ -1,4 +1,46 @@
-# Maintained F: fixed NVCompact 0.6 envelope recipe — 2026-10-22
+# Maintained F: direct environment argument — 2026-10-22
+
+The full/default selection is **4,468 B**, two bytes below F4470 and
+**372 B above 4,096**. Only the emitted Python bootstrap is shorter:
+9,511 -> 9,506 B, SHA-256
+`9a086aa99fcaaa92b37899c0d83bc59d699a695ece2f8595c18a5360a1fa6ed8`.
+The whole SHA-256 is
+`a8a526d46ddcaf4eb3c41b5b7612ea05575e7d2c79e546b163f3a8fca5a2790c`.
+Engine C8538/native18576 and the previous DEV tuple remain unchanged.
+
+Full-profile template preparation removes the sole `e` assignment and passes
+the same `dict(os.environ,TMPDIR=d)` directly to `Popen`. The bootstrap is
+single threaded and its handlers do not mutate the environment. The copy now
+runs inside the blocked spawn window; existing finally blocks still restore
+the signal mask and own child cleanup, private tempfile lifetime, unlink and
+descriptor exec. Source spelling/location/traceback identity is not claimed.
+
+The shared `bootstrap.py.in` remains the legacy template for MaterialNoise,
+MoveTT and F8. Their 4319/4045/4474 B artifacts and codec/header choices are
+unchanged. `source_package.py` retains encoding responsibility and is not
+modified. No alternate policy is silently repackaged. The measured fixed
+candidate, inverse/complement and strict source/argv recovery are preserved
+in first-cost receipt
+`2bce446544ed5e673f880b327f6b395e6f35e743e1b0aad0a36a812151e84718`.
+
+One maintained builder call passed shipping2/DEV2; all C/native/DEV identities
+matched the predecessor and both bootstrap/whole outputs matched the measured
+candidate exactly. The unchanged selected verifier then passed actual4468
+quit/EOF2 sessions8 legal GO with the exact restored native, persistent3TIDs,
+private-path removal, no helpers, closed readers and physical exit0. Parent
+commands exited0, were reaped and left their process groups absent. There were
+no failures or retries in this promotion. This does not add signal-fault,
+generic descendant, fresh/core/game/strength or many-core coverage.
+
+Build receipt `91933993e920588aa4c735d0845eaa2be1e46af37a61d88baf719876dff18ac2`;
+runtime `271b3b07cdbaf5a6c55d3ae5247ed5e0ab9249ec2dcee04597afb4c461f9dc97`;
+producing recipe `8c0a8704e416c5b794d51b9197788758fc7eab4f8e1c8f4c928a2b962347b88d`.
+The53-file producing closure remains external. Final recipe/README add receipt
+metadata only; the producing code and all expected artifact identities stay
+fixed. Optional and F8 artifacts are reused through their unchanged template,
+codec/header and source/native identities; new optional/F8 executions are0.
+
+# Historical F: fixed NVCompact 0.6 envelope recipe — 2026-10-22
 
 The full/default selection is **4,470 B**, six bytes below the 4,476 B
 predecessor and **374 B above 4,096**. This is a packaging change. Its C source

@@ -73,7 +73,9 @@
     "engines/scripts/shipping_lazy_fallback.py": "023b370e75df2d50f44641eac7d1b49091ef2424d9ed7983d6d6f3c7d700b2ce",
     "engines/scripts/shipping_history_depth.py": "54476cfff4a77e0d3678594b01f9530f1018dd2431fa7b55c87867a870f55b0b",
     "engines/compact/tiny-entry-b/shipping_piece_index.py": "20e3b97e7a184bb0fa7806b331bf9f7e549f76a08fd602f5bbb186d881f38f85",
-    "engines/compact/tiny-entry-b/shipping_singular_depth.py": "2da8d9cc70cad49970ae44ba8b92107affd9048408a1a98ebbe114ee3e5f62b3"
+    "engines/compact/tiny-entry-b/shipping_singular_depth.py": "2da8d9cc70cad49970ae44ba8b92107affd9048408a1a98ebbe114ee3e5f62b3",
+    "engines/compact/tiny-entry-b/shipping_cached_evaluation.py": "648170c3cbb58677ff782b2d239896aa810a869eb4283a6b0522e6198743afee",
+    "engines/scripts/source_package.py": "55fa739e7c17fffdb3bf1191c7a26aa38d35e9e32473e4008c23ece3d5703d1f"
   },
   "compression": {
     "format": "lzma-alone",
@@ -90,16 +92,16 @@
   },
   "expected": {
     "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
-    "source_bytes": 10409,
-    "source_sha256": "85bcdfe488fdd02195669ada95a02e2d2ab3699e677abecfe7fa91ddc68ab9c8",
+    "source_bytes": 10402,
+    "source_sha256": "75a081d620af7d966d340d8ffcba5763f37d4df44ab01822d8b178042e0d8faa",
     "native_bytes": 26296,
-    "native_sha256": "67076339c1fcb72988d60a945125c37d1670e0a97fe14241b54e334ffe089f36",
-    "whole_bytes": 5079,
-    "whole_sha256": "f53020e09c0ed7a7abf156efea561e485c240f43fd7e13a75c613181645de659",
+    "native_sha256": "b38c33127b9913366b58b24dc3275d371d66caba6af3d507bb330eb14efcb7ea",
+    "whole_bytes": 5073,
+    "whole_sha256": "9e30fd867aa33a8d1a6dc04e8bb97f5b55969c89e5a37c2e48ba159095a49531",
     "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
     "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
-    "bootstrap_sha256": "a2b99737f48c78331bf457220d03aaac08827122d9c01a0af9a9de10f3374c57",
-    "bootstrap_bytes": 11448
+    "bootstrap_sha256": "8177e8f01acf1e82d5d8aae72914a1ded1ed6d64c44e02f663021cb9590d8399",
+    "bootstrap_bytes": 11441
   },
   "local_input_sha256": {
     "engine.c": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
@@ -750,6 +752,25 @@
         "runtime_sha256": "55b091d0f75459d1cc14d626cede4442a3c94b0b5d9726a1b8df4e35a1201d80",
         "scope": "local fixed2/TT18 shipping regeneration and actual5079 restored-wrapper legalGO/physical-exit path; no new algorithm/policy/runtime performance claim"
       }
+    },
+    "cached_evaluation": {
+      "scope": "same source meaning under actual Board/Worker/root ownership; new native image b38c requires its own focused/normal evidence; old runtime/stack class not inherited",
+      "first_cost_index_sha256": "c543b5c2aa110873b1069ae7e79c92fc2a4a21febc22e6a25e81be062cf127af",
+      "source_bytes": 10402,
+      "whole_bytes": 5077,
+      "entire_native_equal_to_B5079": false,
+      "native_metadata_exception": false,
+      "focused_validation": {
+        "status": "PASS",
+        "index_sha256": "9939f6e2d9120f0406d4d6fdc4170fcf9c1abfaa127eae2ef8f7ac214c0ed43e",
+        "scope": "sourcecache-only5079\u21925077; instrumented fixture copies with observer inverse, separate from shared header and normal shipping image"
+      },
+      "normal_validation": {
+        "status": "PASS",
+        "build_sha256": "ca944e8ca0c02071011beb4be60565d819c85141e1140a60094575b76e9f84da",
+        "runtime_sha256": "57ff84af754dbf80a88d3438f65acaa93579515f13044ff51ed94154d1bb08fd",
+        "scope": "local fixed2/TT18 combined73-byte-header actual new native restoration/legalGO/physical exit; sourcecache-only5077 focused comparison separate from timed node equality/performance"
+      }
     }
   },
   "provenance": {
@@ -770,7 +791,9 @@
       "fixed_header_domain": "sole actual compiler entire native equality; only C fixed late immintrin inclusion admitted"
     },
     "piece_index": "Pure B-owned exact final three-span/four-gap/inverse transform after history-depth; int8_t is promoted once to int before +6; blackking0/rootneutral6 and zw13x13 consumers unchanged; canonical/DEV bypass; no research/runtime/codecs are helper inputs.",
-    "singular_depth": "Pure B-owned final one-span/two-gap/inverse cleanup after piece-index: sole meaningful consumer receives yr&&m==tt directly once, empty diagnostic branch removed; canonical/DEV counter and current policy remain unchanged; research files are not build inputs."
+    "singular_depth": "Pure B-owned final one-span/two-gap/inverse cleanup after piece-index: sole meaningful consumer receives yr&&m==tt directly once, empty diagnostic branch removed; canonical/DEV counter and current policy remain unchanged; research files are not build inputs.",
+    "cached_evaluation": "Pure B-owned final one-span/two-gap/inverse rawHCE-cache reuse; Board s/v immutable through actual SEE/make/child/same-position/root publication; canonical/DEV and all prior readable helper pins unchanged; new native explicitly pinned; research files are not build inputs.",
+    "source_header": "Shared pinned73-byte XZ_STDIN_HEADER selected only after legacy77-byte launcher/template input validation; original sourcecache payload reused for direct measurement with no encode; final normal builds encode the unchanged bootstrap with the unchanged recipe."
   },
   "shared_shipping": {
     "scope": "late unused guard, fixed TT18 casts for A/C/E, ASCII raw-bytes envelope; entire native unchanged; fresh selected wrapper verification separate",
@@ -1943,6 +1966,268 @@
       "cancellation_causality": "unproven",
       "fresh_core_game_negative_trace_extra_SAN_cost_reruns": 0,
       "manycore_performance_RAM_strength_readiness_claim": false,
+      "producing_and_annotation_bytes_distinct": true
+    }
+  },
+  "cached_evaluation": {
+    "stage": "shipping-after-singular-depth",
+    "helper": "engines/compact/tiny-entry-b/shipping_cached_evaluation.py",
+    "predecessor_expected": {
+      "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+      "source_bytes": 10409,
+      "source_sha256": "85bcdfe488fdd02195669ada95a02e2d2ab3699e677abecfe7fa91ddc68ab9c8",
+      "native_bytes": 26296,
+      "native_sha256": "67076339c1fcb72988d60a945125c37d1670e0a97fe14241b54e334ffe089f36",
+      "whole_bytes": 5079,
+      "whole_sha256": "f53020e09c0ed7a7abf156efea561e485c240f43fd7e13a75c613181645de659",
+      "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
+      "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
+      "bootstrap_sha256": "a2b99737f48c78331bf457220d03aaac08827122d9c01a0af9a9de10f3374c57",
+      "bootstrap_bytes": 11448
+    },
+    "fixed_transform": {
+      "family": "B",
+      "stage": "late-shipping-immutable-entry-raw-evaluation-reuse",
+      "input_bytes": 10409,
+      "input_sha256": "85bcdfe488fdd02195669ada95a02e2d2ab3699e677abecfe7fa91ddc68ab9c8",
+      "output_bytes": 10402,
+      "output_sha256": "75a081d620af7d966d340d8ffcba5763f37d4df44ab01822d8b178042e0d8faa",
+      "raw_delta": -7,
+      "owned_regions": 1,
+      "protected_gaps": 2,
+      "full_inverse": true,
+      "all_gaps_equal": true,
+      "protected_complement_bytes": 10389,
+      "protected_complement_sha256": "811166337067a3fef4ae0b95a9910caf19a999a2b11d7c1aad10841af89bf064",
+      "cached_raw_int": "zF=p->s*p->v; not correction-adjusted",
+      "cache_reassigned_or_address_taken": false,
+      "input_Board_immutable_in_actual_search_call_graph": true,
+      "same_position_excluded_and_child_copy_ownership_preserved": true,
+      "root_publication_and_drain_bytes_protected": true,
+      "correction_guard_clamp_update_and_all_other_search_bytes_protected": true,
+      "canonical_DEV": "caller bypass; existing readable reference domain preserved",
+      "external_reads": 0,
+      "compiler_codec_engine_executed_by_transform": 0
+    },
+    "source_contract": "fixed actual immutable-entry rawHCE reuse; const spelling alone is not proof; actual child-copy/same-position/root ownership reviewed",
+    "canonical_reference_contract": "canonical engine remains byte-identical; every prior helper readable/domain pin is unchanged; DEV preserves old reference bytes",
+    "full_native_equal_to_predecessor": false,
+    "new_native_identity_explicit": true,
+    "native_metadata_exception_applied": false,
+    "whole_delta": -2,
+    "canonical_DEV_bypass": true,
+    "first_cost": {
+      "index_sha256": "c543b5c2aa110873b1069ae7e79c92fc2a4a21febc22e6a25e81be062cf127af",
+      "candidate_compiler": 1,
+      "candidate_encode": 1,
+      "baseline_compile_encode": 0,
+      "strict_Python_and_CLI_old_new": true,
+      "engine_or_bootstrap_run": false
+    },
+    "focused_validation_pending": false,
+    "normal_validation_pending": false,
+    "research_files_are_build_inputs": false,
+    "focused_validation": {
+      "index": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-b-cached-evaluation-focused-20261022-evidence/final-index.json",
+        "bytes": 20380,
+        "sha256": "9939f6e2d9120f0406d4d6fdc4170fcf9c1abfaa127eae2ef8f7ac214c0ed43e"
+      },
+      "results": {
+        "path": "/home/stemxstudio/rove4k-b-cached-evaluation-focused-20261022-v1/run/results.json",
+        "bytes": 27631,
+        "sha256": "482ae6cda9e362de4d0d78eb3173594c7f40471a31b36d96e0c95598a5ae822e"
+      },
+      "status": "FOCUSED_ACTUAL_OLD_NEW_SEARCH_SAN_PASS",
+      "actual_old_new_search_pairs": 55,
+      "actual_same_position_calls": 2,
+      "actual_same_position_returns": 2,
+      "same_position_calls_per_variant": 1,
+      "actual_SEE_entries_total_both_variants": 8652,
+      "correction_cases": 5,
+      "raw_errors": [
+        0,
+        256,
+        257,
+        -256,
+        -257
+      ],
+      "clamped_errors": [
+        0,
+        256,
+        256,
+        -256,
+        -256
+      ],
+      "all3_learner_arrays_and_full_TT_and_logical_Board_equal": true,
+      "input_and_job_owners_preserved": true,
+      "runtime_same_position_callsite_and_return_observed": true,
+      "fixture_only_observer_ports": 4,
+      "actual_shipping_main_pool": 0,
+      "timed_node_equivalence_claim": false,
+      "whole_native_image_stack_or_runtime_qualification": false,
+      "source_includes": "instrumented copies, not unmodified production includes; exact originals and observer inverse preserved",
+      "compile_count": 1,
+      "run_count": 1,
+      "cost_remeasurements": 0,
+      "comparison": {
+        "actual_types_separate_TUs": true,
+        "cross_layout_cast_or_raw_Worker_memcmp": false,
+        "Worker": "id/depth/score/best/nodes;4224keys;128x128history;13x13continuation;1024correction",
+        "TT": "all262144coherent fullkey/data records plus clearlock",
+        "Board": "128squares,14BB,side/castle/EP/2kings/half/rawHCE/fullFIDEkey/pathkey; typedlogical plus within-layout caller snapshot",
+        "same_position": "actual before/after call counters; original outer input Board unchanged",
+        "correction_value_evidence": "observer snapshots checked by executable equality assertions; score/best/nodes directly emitted"
+      },
+      "evidence_scope": "sourcecache-only5079\u21925077; instrumented fixture copies with observer inverse, separate from shared header and normal shipping image"
+    },
+    "normal_validation": {
+      "status": "PASS one existing ordinary --dev builder and unchanged combined5073 selected wrapper verifier; first attempt",
+      "scope": "local fixed2/TT18 combined73-byte-header actual new native restoration/legalGO/physical exit; sourcecache-only5077 focused comparison separate from timed node equality/performance",
+      "producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-b-cached-evaluation-normal-20261022/build/inputs/recipe.json",
+        "bytes": 112873,
+        "sha256": "20995e85f7e9e02416598c460babd87434adeb490ee8bb4ba7bf895f7110c500"
+      },
+      "producing_builder": {
+        "path": "/home/stemxstudio/rove4k-b-cached-evaluation-normal-20261022/build/inputs/build.py",
+        "bytes": 17504,
+        "sha256": "c8cfc34e53f14f32058df6d716218136c8abec2d57b2167f5ffef1070c01c8ab"
+      },
+      "producer_build": {
+        "path": "/home/stemxstudio/rove4k-b-cached-evaluation-normal-20261022/build/build.json",
+        "bytes": 184538,
+        "sha256": "ca944e8ca0c02071011beb4be60565d819c85141e1140a60094575b76e9f84da"
+      },
+      "selected_runtime": {
+        "path": "/home/stemxstudio/rove4k-b-cached-evaluation-normal-20261022/runtime/runtime.json",
+        "bytes": 41962,
+        "sha256": "57ff84af754dbf80a88d3438f65acaa93579515f13044ff51ed94154d1bb08fd"
+      },
+      "orchestration": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-b-cached-evaluation-normal-20261022-evidence/normal-results.json",
+        "bytes": 24815,
+        "sha256": "7e44249b3daef7bbfe9d340c7b5e0397203117d4668275328ecf778559c53186"
+      },
+      "physical_exit": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-b-cached-evaluation-normal-20261022-evidence/physical-exit.json",
+        "bytes": 468,
+        "sha256": "eca54ee2ee0d85bf271bd49596c6197b6271db942969ad68f73173b87ababe94"
+      },
+      "producing_source_closure_files": 43,
+      "shipping_reproductions": 2,
+      "old_DEV_reproductions": 2,
+      "old_DEV_source_and_entire_native_bytes_equal": true,
+      "source_native_bootstrap_entire_bytes_equal_to_firstcost": true,
+      "whole_entire_bytes_equal_to_header_direct_measurement": true,
+      "entire_native_equal_to_qualified_B5079": false,
+      "new_native_identity_explicit": true,
+      "native_metadata_exception": false,
+      "fresh_selected_sessions": 2,
+      "actual_legal_GO_results": 8,
+      "startup_TIDs_each": 3,
+      "closed_startup_TIDs": [
+        634,
+        647,
+        648,
+        649,
+        661,
+        662
+      ],
+      "startup_TIDs_absent_observed_after_sessions": true,
+      "exact_restored_native_private_path_and_process_reader_exit": true,
+      "all_owned_groups_absent_observed_at_settlement": true,
+      "owned_handles": 0,
+      "cancellation_causality": "unproven",
+      "fresh_extra_fault_sweep_game_cost_reruns": 0,
+      "timed_node_RAM_performance_strength_readiness_claim": false,
+      "producing_and_annotation_bytes_distinct": true
+    }
+  },
+  "source_header": {
+    "stage": "package-prefix-selection-after-legacy-template-input-check",
+    "helper": "engines/scripts/source_package.py",
+    "helper_sha256": "55fa739e7c17fffdb3bf1191c7a26aa38d35e9e32473e4008c23ece3d5703d1f",
+    "legacy_launcher_input_retained": true,
+    "legacy_header_bytes": 77,
+    "selected": "XZ_STDIN_HEADER",
+    "header_bytes": 73,
+    "header_sha256": "2c30c82c7df658b37c9d64b6f6b393a5d2cb2169933ab6254fabdf525924c34a",
+    "predecessor_sourcecache_whole_bytes": 5077,
+    "predecessor_sourcecache_whole_sha256": "70ae576260dfffedab1bed7ae703ed52e03dbf26edf58f57517ee2fa33db7220",
+    "same_existing_payload": {
+      "bytes": 5000,
+      "sha256": "2bb93d2eaa2a0ce0bbbc6e3433dd7c5edafa8267db67f85c56bfd72abb577d3e"
+    },
+    "whole_delta": -4,
+    "no_new_encode_for_direct_measurement": true,
+    "direct_measurement": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-b-cached-evaluation-normal-20261022-evidence/packaging/measurement.json",
+      "bytes": 3132,
+      "sha256": "9b95f3f0a8d183de73f02f7f1e9795f1866a01ff73781c044cb624641532da05"
+    },
+    "source_native_bootstrap_compiler_codec_DEV_unchanged": true,
+    "combined_normal_validation_pending": false,
+    "combined_normal_validation": {
+      "status": "PASS one existing ordinary --dev builder and unchanged combined5073 selected wrapper verifier; first attempt",
+      "scope": "local fixed2/TT18 combined73-byte-header actual new native restoration/legalGO/physical exit; sourcecache-only5077 focused comparison separate from timed node equality/performance",
+      "producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-b-cached-evaluation-normal-20261022/build/inputs/recipe.json",
+        "bytes": 112873,
+        "sha256": "20995e85f7e9e02416598c460babd87434adeb490ee8bb4ba7bf895f7110c500"
+      },
+      "producing_builder": {
+        "path": "/home/stemxstudio/rove4k-b-cached-evaluation-normal-20261022/build/inputs/build.py",
+        "bytes": 17504,
+        "sha256": "c8cfc34e53f14f32058df6d716218136c8abec2d57b2167f5ffef1070c01c8ab"
+      },
+      "producer_build": {
+        "path": "/home/stemxstudio/rove4k-b-cached-evaluation-normal-20261022/build/build.json",
+        "bytes": 184538,
+        "sha256": "ca944e8ca0c02071011beb4be60565d819c85141e1140a60094575b76e9f84da"
+      },
+      "selected_runtime": {
+        "path": "/home/stemxstudio/rove4k-b-cached-evaluation-normal-20261022/runtime/runtime.json",
+        "bytes": 41962,
+        "sha256": "57ff84af754dbf80a88d3438f65acaa93579515f13044ff51ed94154d1bb08fd"
+      },
+      "orchestration": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-b-cached-evaluation-normal-20261022-evidence/normal-results.json",
+        "bytes": 24815,
+        "sha256": "7e44249b3daef7bbfe9d340c7b5e0397203117d4668275328ecf778559c53186"
+      },
+      "physical_exit": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-b-cached-evaluation-normal-20261022-evidence/physical-exit.json",
+        "bytes": 468,
+        "sha256": "eca54ee2ee0d85bf271bd49596c6197b6271db942969ad68f73173b87ababe94"
+      },
+      "producing_source_closure_files": 43,
+      "shipping_reproductions": 2,
+      "old_DEV_reproductions": 2,
+      "old_DEV_source_and_entire_native_bytes_equal": true,
+      "source_native_bootstrap_entire_bytes_equal_to_firstcost": true,
+      "whole_entire_bytes_equal_to_header_direct_measurement": true,
+      "entire_native_equal_to_qualified_B5079": false,
+      "new_native_identity_explicit": true,
+      "native_metadata_exception": false,
+      "fresh_selected_sessions": 2,
+      "actual_legal_GO_results": 8,
+      "startup_TIDs_each": 3,
+      "closed_startup_TIDs": [
+        634,
+        647,
+        648,
+        649,
+        661,
+        662
+      ],
+      "startup_TIDs_absent_observed_after_sessions": true,
+      "exact_restored_native_private_path_and_process_reader_exit": true,
+      "all_owned_groups_absent_observed_at_settlement": true,
+      "owned_handles": 0,
+      "cancellation_causality": "unproven",
+      "fresh_extra_fault_sweep_game_cost_reruns": 0,
+      "timed_node_RAM_performance_strength_readiness_claim": false,
       "producing_and_annotation_bytes_distinct": true
     }
   }

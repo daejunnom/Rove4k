@@ -1,3 +1,73 @@
+# Maintained B: raw evaluation reuse and shared73-byte header; focused comparison and ordinary/selected validation passed — 2026-10-22
+
+The combined maintained file is **5073 B**, compact C **10402 B**, native
+**26296 B**. The sourcecache stage reuses the entry raw evaluation instead of
+recomputing p->s*p->v, removing7 source bytes and2 actual whole-file bytes from
+B5079 to5077. The shared73-byte header removes4 further bytes to5073.
+Native length is unchanged but its entire image differs:
+`b38c33127b9913366b58b24dc3275d371d66caba6af3d507bb330eb14efcb7ea`.
+No native metadata exception or old runtime/stack class is inherited.
+The4096 B goal remains open. Focused sourcecache-only actual old/new validation passed.
+One ordinary --dev builder reproduced source/native/bootstrap and combined5073
+whole twice, plus exact old DEV source/native twice. The unchanged combined5073
+selected wrapper verifier passed quit/EOF2 sessions and8 legal GO,3 startup TIDs
+each, exact new native restoration, absent helper/private paths and physical
+process/reader exit0. All six startup TIDs were absent after the sessions.
+Cancellation causality is unproven.
+
+The pure B-owned `shipping_cached_evaluation.py` runs after singular-depth.
+It replaces `int zE=zi-p->s*p->v;` with `int zE=zi-zF;` in one fixed span,
+preserving two gaps,10389-byte complement and full inverse. zF is the same
+raw int evaluation initialized once and never assigned/addressed again.
+Actual make/SEE use distinct child copies, singular/excluded calls preserve
+their input Board, root output is a separate N local, Worker/TT are separate
+objects, and main drains both workers before replacing the published root.
+This ownership argument is specific to the fixed actual call graph, beyond
+const spelling alone. Clamp, learner updates and all other search bytes remain.
+Canonical engine and DEV stay byte-identical, preserving all existing helper
+readable/domain pins. The shipping representation is replayed from those
+unchanged readable inputs; no opaque research artifact is a builder input.
+
+Original first-cost index SHA-256:
+`c543b5c2aa110873b1069ae7e79c92fc2a4a21febc22e6a25e81be062cf127af`.
+Its candidate compile1/encode1 and strict Python2/CLI2 restoration are reused
+without remeasurement. The sourcecache-only first cost retained cc/GCC13/profile/77-byte launcher/raw br
+envelope and ALONE9e/lc2lp0pb0/BT4/dict64MiB/nice32; the final shared73-byte
+header is a separately measured packaging change below.
+Reports and before/producing/final evidence remain outside Git in
+`rove4k-b-cached-evaluation-normal-20261022-evidence`. Timing/node equality,
+RAM, strength, many-core and whole-project readiness are separate claims.
+Older sections retain their original source/image and evidence scope.
+
+Focused actual5079/5077 source pairs passed55 controlled searches under fatal
+ASan/UBSan compile1/run1. Typed Board/job ownership,4224path keys,4096job keys,
+all262144TT key/data/clearlocks and all3learners matched. Actual same-position
+singular call/return was observed once per variant, and SEE entries8652 total.
+Correction raw0/±256/±257 produced clamp0/±256 with actual update/seed-decay
+assertions. Four explicit fixture-only observer ports have inverse proofs;
+these are instrumented copies, not unmodified production includes or timed
+shipping node/stack qualifications. Focused index SHA-256:
+`9939f6e2d9120f0406d4d6fdc4170fcf9c1abfaa127eae2ef8f7ac214c0ed43e`.
+
+Separately, shared `source_package.py` SHA-25655fa739e7c17fffdb3bf1191c7a26aa38d35e9e32473e4008c23ece3d5703d1f
+supplies XZ_STDIN_HEADER73. The legacy launcher.sh77/template input check stays
+intact. The exact5077 first-cost bytes were checked and the same compressed
+payload was prefixed by73 bytes to measure5073 directly, encode0. Python and
+the actual xz-d CLI restored full bootstrap/source bytes with EOF/trailing0.
+Source/native/bootstrap/compiler/codec/DEV are unchanged. This combined header
+has separate direct-measurement evidence and final5073 normal/runtime
+receipts below. The original5077 sourcecache cost and focused scope remain distinct.
+
+
+Ordinary build receipt SHA-256:
+`ca944e8ca0c02071011beb4be60565d819c85141e1140a60094575b76e9f84da`;
+selected runtime `57ff84af754dbf80a88d3438f65acaa93579515f13044ff51ed94154d1bb08fd`.
+Actual producing recipe SHA-256:
+`20995e85f7e9e02416598c460babd87434adeb490ee8bb4ba7bf895f7110c500`.
+Inputs stayed stable until both commands exited; completion annotations are
+separate. Metadata did not trigger a rebuild. Cost remeasurement, fresh, extra
+fault/sweep/game/benchmark0. Reports and originals remain outside Git.
+
 # Maintained B: shipping dead instrumentation cleanup ordinary reproduction and selected validation passed — 2026-10-22
 
 The fixed first-cost file is **5079 B**, compact C **10409 B**, native

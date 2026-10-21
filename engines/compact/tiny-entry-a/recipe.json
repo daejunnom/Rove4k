@@ -49,7 +49,8 @@
     "engines/scripts/shipping_clock.py": "46c19879deae1d056f4b059c6c7d9667a3e935110dfb33015b29fd0dec4d8c43",
     "engines/compact/tiny-entry-a/shipping_history_depth.py": "ac37e86ddefa35458eb89068ad76777f8686160627f0155f49069c06787eaf23",
     "engines/scripts/shipping_lazy_fallback.py": "023b370e75df2d50f44641eac7d1b49091ef2424d9ed7983d6d6f3c7d700b2ce",
-    "engines/compact/tiny-entry-a/shipping_evaluation.py": "6793983dadfcd699ad6530206bf69773c8436e37d9080e48ebd962d896282c68"
+    "engines/compact/tiny-entry-a/shipping_evaluation.py": "6793983dadfcd699ad6530206bf69773c8436e37d9080e48ebd962d896282c68",
+    "engines/scripts/source_package.py": "55fa739e7c17fffdb3bf1191c7a26aa38d35e9e32473e4008c23ece3d5703d1f"
   },
   "fixed_renames": [
     [
@@ -387,8 +388,8 @@
     "source_sha256": "4fd5231ace3db9f7d8aca8c2e26871895905cd3e77cb38e4b41117bdca4f31d8",
     "native_bytes": 18576,
     "native_sha256": "cb483c627d7ac747e95b9d1c804e08da1c02d586a91f5715872d4b9879d67334",
-    "whole_bytes": 4586,
-    "whole_sha256": "db6eaf173b985fcfa974af537a5bcfe4dafa3c696b3d1b68a5209204b46c2f58",
+    "whole_bytes": 4582,
+    "whole_sha256": "7695d824549f10139fa740709e04c8e56934e643dc739def9bb1239631c97347",
     "bootstrap_sha256": "bc9a22d30693915db093e75467573b2bab415da1c6c05bc1f08748d5d3d2d425",
     "dev_source_sha256": "d1f0ff322843a4210cb1cad574bc6726eef576c0fd398cb0e1cfbc12fdc81f01",
     "dev_native_sha256": "078df7141403841798e0bcb1545e59975492359b78d88b0637b99865a6bf72b9",
@@ -1003,6 +1004,41 @@
         "scope": "actual normal artifacts and raw receipts read-only after sole build/verifier, no new target execution",
         "limits": "Cancellation causality remains unproven. Unchanged bootstrap/compiler-descendant lifetime limit remains. Focused units were diagnostic depth3 single-thread with observers; no generic SMP, strength, performance, full semantic equivalence or4KiB claim. No fresh/DEVengine/newmatrix/game/benchmark/training/negative campaign."
       }
+    },
+    "common_73byte_header": {
+      "status": "PASS ordinary shipping2/DEV2 and unchanged selected quit/EOF2sessions8GO",
+      "scope": "77 to73byte header only; encoded payload/source/bootstrap/native/DEV/codec unchanged",
+      "predecessor_expected": {
+        "readable_sha256": "a6aab57fffacc1900dbd9de133652d811d316b3823144ec2181c4f8dda581b6a",
+        "source_bytes": 8987,
+        "source_sha256": "4fd5231ace3db9f7d8aca8c2e26871895905cd3e77cb38e4b41117bdca4f31d8",
+        "native_bytes": 18576,
+        "native_sha256": "cb483c627d7ac747e95b9d1c804e08da1c02d586a91f5715872d4b9879d67334",
+        "whole_bytes": 4586,
+        "whole_sha256": "db6eaf173b985fcfa974af537a5bcfe4dafa3c696b3d1b68a5209204b46c2f58",
+        "bootstrap_sha256": "bc9a22d30693915db093e75467573b2bab415da1c6c05bc1f08748d5d3d2d425",
+        "dev_source_sha256": "d1f0ff322843a4210cb1cad574bc6726eef576c0fd398cb0e1cfbc12fdc81f01",
+        "dev_native_sha256": "078df7141403841798e0bcb1545e59975492359b78d88b0637b99865a6bf72b9",
+        "input_profile_readable_bytes": 27688,
+        "input_profile_readable_sha256": "4af39bc6496c85281b322063245ee97a522b4d6c6df7c4844f71d981e733164a",
+        "bootstrap_bytes": 9951
+      },
+      "old_header_sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
+      "new_header_sha256": "2c30c82c7df658b37c9d64b6f6b393a5d2cb2169933ab6254fabdf525924c34a",
+      "payload_sha256": "be2f8c405d58597649e67d99ff8bfb4d760931f89c65f964303d3b723a0ac5e4",
+      "old_new_strict_restore": true,
+      "source_argv_proof_reuse": "exact unchanged bootstrap bytes; no new AST analysis",
+      "baseline_compile_and_encode": 0,
+      "header_proof_sha256": "5559d3cb0d09ed50e2f50ae84180a91b3d6d890e7844315fef6fbb7913b9cef3",
+      "build_receipt_sha256": "83bbec21c8c19f617ab9d2d73c1a2d689996be71a5e36ad9d6577d5c4b2ef82a",
+      "runtime_receipt_sha256": "cbbd2aaf3b84a4181cdc003ec375f5484ae4a375854e17dd67e44a5a3cc00cd1",
+      "producing_recipe_sha256": "92bc2a18e36bfbb1b24c458cef045da11552655ab652b3487e8d153bb97037af",
+      "producing_source_paths": 37,
+      "producing_source_index_sha256": "148cfba7f23188197ab0cc4a9cae68466a937fd3cd7f645b2b7218f8acc710b9",
+      "payload_source_bootstrap_native_DEV_unchanged": true,
+      "normal_failures": 0,
+      "normal_retries": 0,
+      "metadata_only_after_execution": true
     }
   },
   "provenance": {
