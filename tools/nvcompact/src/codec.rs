@@ -1,6 +1,6 @@
 //! Deterministic, bounded codec recipes. The original stream is a separate
 //! candidate: a finite search is never assumed to rediscover upstream settings.
-use anyhow::{bail, ensure, Context, Result};
+use anyhow::{bail, ensure, Result};
 use serde::{Deserialize, Serialize};
 use std::io::{Cursor, Read, Write};
 
@@ -306,16 +306,32 @@ impl CodecPortfolio {
     }
 }
 
-fn read_bounded(reader: &mut impl Read, maximum: usize) -> Result<Vec<u8>> {
-    let mut output = Vec::new();
-    reader
-        .take(maximum.checked_add(1).context("output bound overflow")? as u64)
-        .read_to_end(&mut output)?;
-    ensure!(
-        output.len() <= maximum,
-        "decompressed payload exceeds {maximum} bytes"
-    );
-    Ok(output)
+/// Drain a decoder in bounded chunks. The extra byte distinguishes exact
+/// output from a stream which only shares the expected prefix.
+fn read_chunks(
+    reader: &mut impl Read,
+    maximum: usize,
+    emit: &mut impl FnMut(&[u8]) -> Result<()>,
+) -> Result<()> {
+    ensure!(maximum < usize::MAX, "invalid output limit");
+    let mut output_bytes = 0;
+    let mut buffer = [0u8; 65536];
+    loop {
+        let capacity = buffer.len().min(maximum + 1 - output_bytes);
+        let written = match reader.read(&mut buffer[..capacity]) {
+            Err(error) if error.kind() == std::io::ErrorKind::Interrupted => continue,
+            result => result?,
+        };
+        if written == 0 {
+            return Ok(());
+        }
+        output_bytes += written;
+        ensure!(
+            output_bytes <= maximum,
+            "decompressed payload exceeds {maximum} bytes"
+        );
+        emit(&buffer[..written])?;
+    }
 }
 
 /// One raw liblzma stream, owned by its calling worker and always finalized.
@@ -328,7 +344,13 @@ impl Drop for LzmaStream {
     }
 }
 
-fn lzma(data: &[u8], recipe: &Recipe, encode: bool, maximum: usize) -> Result<Vec<u8>> {
+fn lzma_chunks(
+    data: &[u8],
+    recipe: &Recipe,
+    encode: bool,
+    maximum: usize,
+    emit: &mut impl FnMut(&[u8]) -> Result<()>,
+) -> Result<()> {
     ensure!(maximum < usize::MAX, "invalid output limit");
     ensure!(
         !recipe.x86 || recipe.format != "alone",
@@ -415,20 +437,21 @@ fn lzma(data: &[u8], recipe: &Recipe, encode: bool, maximum: usize) -> Result<Ve
     );
     stream.0.next_in = data.as_ptr();
     stream.0.avail_in = data.len();
-    let mut output = Vec::new();
+    let mut output_bytes = 0;
+    let mut buffer = [0u8; 65536];
     loop {
-        let mut buffer = [0u8; 65536];
         stream.0.next_out = buffer.as_mut_ptr();
-        stream.0.avail_out = buffer.len().min(maximum + 1 - output.len());
+        stream.0.avail_out = buffer.len().min(maximum + 1 - output_bytes);
         let capacity = stream.0.avail_out;
         let before = stream.0.avail_in;
         let status = unsafe { lzma_sys::lzma_code(&mut stream.0, lzma_sys::LZMA_FINISH) };
         let written = capacity - stream.0.avail_out;
-        output.extend_from_slice(&buffer[..written]);
+        output_bytes += written;
         ensure!(
-            output.len() <= maximum,
+            output_bytes <= maximum,
             "codec output exceeds {maximum} bytes"
         );
+        emit(&buffer[..written])?;
         if status == lzma_sys::LZMA_STREAM_END {
             ensure!(
                 stream.0.avail_in == 0,
@@ -445,6 +468,15 @@ fn lzma(data: &[u8], recipe: &Recipe, encode: bool, maximum: usize) -> Result<Ve
             "unfinished LZMA stream made no progress"
         );
     }
+    Ok(())
+}
+
+fn lzma(data: &[u8], recipe: &Recipe, encode: bool, maximum: usize) -> Result<Vec<u8>> {
+    let mut output = Vec::new();
+    lzma_chunks(data, recipe, encode, maximum, &mut |chunk| {
+        output.extend_from_slice(chunk);
+        Ok(())
+    })?;
     Ok(output)
 }
 
@@ -487,42 +519,77 @@ pub fn compress(data: &[u8], recipe: &Recipe) -> Result<Vec<u8>> {
     }
 }
 
-pub fn decode(data: &[u8], recipe: &Recipe, maximum: usize) -> Result<Vec<u8>> {
+fn decode_chunks(
+    data: &[u8],
+    recipe: &Recipe,
+    maximum: usize,
+    emit: &mut impl FnMut(&[u8]) -> Result<()>,
+) -> Result<()> {
     match recipe.format.as_str() {
         "identity" => {
             ensure!(data.len() <= maximum, "identity exceeds payload bound");
-            Ok(data.to_vec())
+            emit(data)
         }
         "gzip" => {
             let mut reader = flate2::bufread::GzDecoder::new(Cursor::new(data));
-            let output = read_bounded(&mut reader, maximum)?;
+            read_chunks(&mut reader, maximum, emit)?;
             ensure!(
                 reader.into_inner().position() == data.len() as u64,
                 "trailing gzip data is unsupported"
             );
-            Ok(output)
+            Ok(())
         }
         "zlib" => {
             let mut reader = flate2::bufread::ZlibDecoder::new(Cursor::new(data));
-            let output = read_bounded(&mut reader, maximum)?;
+            read_chunks(&mut reader, maximum, emit)?;
             ensure!(
                 reader.total_in() == data.len() as u64,
                 "trailing zlib data is unsupported"
             );
-            Ok(output)
+            Ok(())
         }
         "bzip2" => {
             let mut reader = bzip2::bufread::BzDecoder::new(Cursor::new(data));
-            let output = read_bounded(&mut reader, maximum)?;
+            read_chunks(&mut reader, maximum, emit)?;
             ensure!(
                 reader.total_in() == data.len() as u64,
                 "trailing bzip2 data is unsupported"
             );
-            Ok(output)
+            Ok(())
         }
-        "alone" | "xz" | "raw" => lzma(data, recipe, false, maximum),
+        "alone" | "xz" | "raw" => lzma_chunks(data, recipe, false, maximum, emit),
         other => bail!("unsupported decoder {other}"),
     }
+}
+
+pub fn decode(data: &[u8], recipe: &Recipe, maximum: usize) -> Result<Vec<u8>> {
+    let mut output = Vec::new();
+    decode_chunks(data, recipe, maximum, &mut |chunk| {
+        output.extend_from_slice(chunk);
+        Ok(())
+    })?;
+    Ok(output)
+}
+
+/// Verify every restored byte and the exact stream boundary without retaining
+/// another full decoded payload. Decoder integrity/trailing-input checks are
+/// shared with `decode`; a matching prefix is never accepted as a roundtrip.
+pub fn verify_decode(data: &[u8], recipe: &Recipe, expected: &[u8]) -> Result<()> {
+    let mut offset = 0;
+    decode_chunks(data, recipe, expected.len(), &mut |chunk| {
+        let end = offset + chunk.len();
+        ensure!(
+            expected.get(offset..end) == Some(chunk),
+            "codec roundtrip changed payload"
+        );
+        offset = end;
+        Ok(())
+    })?;
+    ensure!(
+        offset == expected.len(),
+        "codec roundtrip truncated payload"
+    );
+    Ok(())
 }
 
 pub fn decoder_for(recipe: &Recipe) -> Result<String> {
@@ -536,4 +603,49 @@ pub fn decoder_for(recipe: &Recipe) -> Result<String> {
         "bzip2" => "bzip2 -d".into(),
         other => bail!("no allowed shell decoder for {other}"),
     })
+}
+
+#[cfg(test)]
+mod streaming_tests {
+    use super::*;
+
+    #[test]
+    fn streamed_comparison_checks_every_byte_length_and_stream_end() {
+        let payload: Vec<_> = (0..200_003).map(|i| (i % 251) as u8).collect();
+        for format in ["identity", "gzip", "zlib", "bzip2", "alone", "xz", "raw"] {
+            let mut recipe = Recipe::new(format);
+            recipe.dict_size = Some(1 << 18);
+            let packed = compress(&payload, &recipe).unwrap();
+            assert_eq!(decode(&packed, &recipe, payload.len()).unwrap(), payload);
+            verify_decode(&packed, &recipe, &payload).unwrap();
+            let mut different = payload.clone();
+            different[65_537] ^= 1;
+            assert!(
+                verify_decode(&packed, &recipe, &different).is_err(),
+                "{format}"
+            );
+            assert!(
+                verify_decode(&packed, &recipe, &payload[..payload.len() - 1]).is_err(),
+                "{format}"
+            );
+            let mut longer = payload.clone();
+            longer.push(0);
+            assert!(
+                verify_decode(&packed, &recipe, &longer).is_err(),
+                "{format}"
+            );
+            let mut trailing = packed.clone();
+            trailing.push(0);
+            assert!(
+                verify_decode(&trailing, &recipe, &payload).is_err(),
+                "{format}"
+            );
+            assert!(
+                verify_decode(&packed[..packed.len() - 1], &recipe, &payload).is_err(),
+                "{format}"
+            );
+            let empty = compress(&[], &recipe).unwrap();
+            verify_decode(&empty, &recipe, &[]).unwrap();
+        }
+    }
 }

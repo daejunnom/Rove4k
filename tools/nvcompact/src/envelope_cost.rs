@@ -14,6 +14,8 @@ use serde::Serialize;
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use std::{
+    collections::hash_map::RandomState,
+    hash::{BuildHasher, Hash},
     mem::size_of,
     sync::{mpsc, Arc},
     thread::{Scope, ScopedJoinHandle},
@@ -23,7 +25,11 @@ use std::{
 /// Entries include their vector storage, owned key strings and encoded bytes.
 /// Allocator bookkeeping, the inspected input/configuration, caller-owned
 /// reports, one current best artifact, and at most `jobs` active codec workers
-/// (including their compression/restoration buffers) are outside these budgets.
+/// (including their compression scratch and 64 KiB restoration buffer) are
+/// outside these budgets. Ordered result windows permit at most `4 * jobs`
+/// entries; additional header + encoded buffers beyond `jobs` are capped at 16 MiB
+/// by conservative per-result output bounds. These are allocation budgets, not
+/// a process RSS limit.
 #[derive(Clone, Copy, Debug, Serialize)]
 pub struct CacheBudget {
     pub max_bytes: usize,
@@ -73,12 +79,14 @@ pub struct CostStats {
     pub codec_executions: usize,
     pub codec_cache_hits: usize,
     pub codec_failures: usize,
+    pub codec_not_started: usize,
     pub header_derivations: usize,
     pub header_cache_hits: usize,
     pub header_failures: usize,
     pub fresh_measurements: usize,
     pub fresh_codec_executions: usize,
     pub fresh_codec_failures: usize,
+    pub fresh_codec_not_started: usize,
     pub fresh_header_derivations: usize,
     pub fresh_header_failures: usize,
     pub codec_cache_entries: usize,
@@ -99,11 +107,11 @@ enum Reuse {
     Fresh,
 }
 
-trait CacheIdentity: PartialEq {
+trait CacheIdentity: Eq + Hash {
     fn owned_key_bytes(&self) -> usize;
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 struct CodecKey {
     payload: [u8; 32],
     payload_bytes: usize,
@@ -122,17 +130,27 @@ impl CacheIdentity for String {
     }
 }
 
+const NO_SLOT: usize = usize::MAX;
+
 struct CacheEntry<K> {
     key: K,
     bytes: Arc<[u8]>,
     owned_bytes: usize,
+    previous: usize,
+    next: usize,
+    bucket: usize,
 }
 
-/// A bounded FIFO whose metadata allocation is counted before admission.
-/// Batches insert in declaration order, so worker timing cannot change FIFO
-/// retention. Lookup compares the complete typed recipe, not a partial label.
+/// A bounded, indexed FIFO. Slot and bucket allocations are charged before
+/// admission. Slots form a ring, so eviction never moves all retained keys.
+/// Hash collisions still compare the complete typed key. Declaration-ordered
+/// admission determines retention independently of worker completion order.
 struct BoundedBytesCache<K> {
-    entries: Vec<CacheEntry<K>>,
+    entries: Vec<Option<CacheEntry<K>>>,
+    buckets: Vec<usize>,
+    hash_builder: RandomState,
+    head: usize,
+    len: usize,
     max_bytes: usize,
     owned_bytes: usize,
     peak_bytes: usize,
@@ -142,13 +160,25 @@ struct BoundedBytesCache<K> {
 
 impl<K: CacheIdentity> BoundedBytesCache<K> {
     fn new(max_bytes: usize, max_entries: usize) -> Self {
-        // Leave room for at least a small byte allocation per entry when the
-        // caller chooses a very small budget. The vector never grows later.
-        let capacity = max_entries.min(max_bytes / (size_of::<CacheEntry<K>>() + 32));
-        let entries = Vec::with_capacity(capacity);
-        let owned_bytes = entries.capacity() * size_of::<CacheEntry<K>>();
+        // The bucket count is the next power of two above 2 * capacity, hence
+        // less than 4 * capacity. Reserve room for useful byte storage too.
+        let capacity = max_entries
+            .min(max_bytes / (size_of::<Option<CacheEntry<K>>>() + 4 * size_of::<usize>() + 32));
+        let mut entries = Vec::with_capacity(capacity);
+        entries.resize_with(capacity, || None);
+        let buckets = if capacity == 0 {
+            Vec::new()
+        } else {
+            vec![NO_SLOT; (2 * capacity).next_power_of_two()]
+        };
+        let owned_bytes = entries.capacity() * size_of::<Option<CacheEntry<K>>>()
+            + buckets.capacity() * size_of::<usize>();
         Self {
             entries,
+            buckets,
+            hash_builder: RandomState::new(),
+            head: 0,
+            len: 0,
             max_bytes,
             owned_bytes,
             peak_bytes: owned_bytes,
@@ -157,38 +187,82 @@ impl<K: CacheIdentity> BoundedBytesCache<K> {
         }
     }
 
+    fn slot(&self, key: &K) -> Option<usize> {
+        if self.buckets.is_empty() {
+            return None;
+        }
+        let bucket = self.hash_builder.hash_one(key) as usize & (self.buckets.len() - 1);
+        let mut slot = self.buckets[bucket];
+        while slot != NO_SLOT {
+            let entry = self.entries[slot].as_ref().expect("occupied cache link");
+            if entry.key == *key {
+                return Some(slot);
+            }
+            slot = entry.next;
+        }
+        None
+    }
+
     fn get(&self, key: &K) -> Option<Arc<[u8]>> {
-        self.entries
-            .iter()
-            .find(|entry| entry.key == *key)
-            .map(|entry| Arc::clone(&entry.bytes))
+        self.slot(key).map(|slot| {
+            Arc::clone(
+                &self.entries[slot]
+                    .as_ref()
+                    .expect("occupied cache slot")
+                    .bytes,
+            )
+        })
+    }
+
+    fn evict(&mut self) {
+        let removed = self.entries[self.head].take().expect("occupied FIFO head");
+        if removed.previous == NO_SLOT {
+            self.buckets[removed.bucket] = removed.next;
+        } else {
+            self.entries[removed.previous].as_mut().unwrap().next = removed.next;
+        }
+        if removed.next != NO_SLOT {
+            self.entries[removed.next].as_mut().unwrap().previous = removed.previous;
+        }
+        self.head = (self.head + 1) % self.entries.len();
+        self.len -= 1;
+        self.owned_bytes -= removed.owned_bytes;
+        self.evictions += 1;
     }
 
     fn insert(&mut self, key: K, bytes: Arc<[u8]>) {
-        if self.entries.iter().any(|entry| entry.key == key) {
+        if self.slot(&key).is_some() {
             return;
         }
-        // Arc's two counters plus aligned byte storage, and the actual owned
-        // String capacities. Vec slot storage is already in owned_bytes.
+        // Arc's two counters plus aligned byte storage, and actual owned String
+        // capacities. Preallocated slots and buckets are already charged.
         let arc_bytes = bytes.len().next_multiple_of(size_of::<usize>()) + 2 * size_of::<usize>();
         let owned_bytes = key.owned_key_bytes() + arc_bytes;
-        let metadata_bytes = self.entries.capacity() * size_of::<CacheEntry<K>>();
-        if self.entries.capacity() == 0 || metadata_bytes + owned_bytes > self.max_bytes {
+        let metadata_bytes = self.entries.capacity() * size_of::<Option<CacheEntry<K>>>()
+            + self.buckets.capacity() * size_of::<usize>();
+        if self.entries.is_empty() || metadata_bytes + owned_bytes > self.max_bytes {
             self.skipped += 1;
             return;
         }
-        while self.entries.len() == self.entries.capacity()
-            || self.owned_bytes + owned_bytes > self.max_bytes
-        {
-            let removed = self.entries.remove(0);
-            self.owned_bytes -= removed.owned_bytes;
-            self.evictions += 1;
+        while self.len == self.entries.len() || self.owned_bytes + owned_bytes > self.max_bytes {
+            self.evict();
         }
-        self.entries.push(CacheEntry {
+        let bucket = self.hash_builder.hash_one(&key) as usize & (self.buckets.len() - 1);
+        let next = self.buckets[bucket];
+        let slot = (self.head + self.len) % self.entries.len();
+        if next != NO_SLOT {
+            self.entries[next].as_mut().unwrap().previous = slot;
+        }
+        self.entries[slot] = Some(CacheEntry {
             key,
             bytes,
             owned_bytes,
+            previous: NO_SLOT,
+            next,
+            bucket,
         });
+        self.buckets[bucket] = slot;
+        self.len += 1;
         self.owned_bytes += owned_bytes;
         self.peak_bytes = self.peak_bytes.max(self.owned_bytes);
         debug_assert!(self.owned_bytes <= self.max_bytes);
@@ -308,7 +382,8 @@ impl WholeFileObjective {
             "codec_portfolio":self.portfolio.context(),"codecs":codec::library_versions(),
             "jobs":self.jobs,"cache_budget":self.budget,
             "cache_scope":"one objective; payload SHA-256 and length plus complete typed recipe; successful compression and byte restoration only",
-            "memory_scope":"cache allocation budgets exclude allocator metadata, immutable objective input, caller reports, one current best artifact and at most jobs active compression/restoration workers",
+            "memory_scope":"cache budgets include slot/bucket allocations; exclude allocator metadata, immutable input, caller reports, one best artifact and jobs active codec workers; each decoder comparison uses at most 64 KiB output scratch; ordered windows have at most 4*jobs results with at most 16 MiB conservative extra header+encoded-output allowance beyond jobs; window keys/channels/tuple metadata are additional bounded overhead",
+            "worker_schedule":"available workers claim the next declared cache miss inside a bounded ordered window; results and cache admission retain declaration order",
             "cost_scope":"entire inspected header plus entire encoded source payload; no native-ELF merging",
             "fresh_evaluation":"bypass all retained codec/header measurements and regenerate the requested recipe domain"
         })
@@ -316,12 +391,12 @@ impl WholeFileObjective {
 
     pub fn stats(&self) -> CostStats {
         CostStats {
-            codec_cache_entries: self.codec_cache.entries.len(),
+            codec_cache_entries: self.codec_cache.len,
             codec_cache_bytes: self.codec_cache.owned_bytes,
             codec_cache_peak_bytes: self.codec_cache.peak_bytes,
             codec_cache_evictions: self.codec_cache.evictions,
             codec_cache_skipped: self.codec_cache.skipped,
-            header_cache_entries: self.header_cache.entries.len(),
+            header_cache_entries: self.header_cache.len,
             header_cache_bytes: self.header_cache.owned_bytes,
             header_cache_peak_bytes: self.header_cache.peak_bytes,
             header_cache_evictions: self.header_cache.evictions,
@@ -508,12 +583,19 @@ impl WholeFileObjective {
                 result.best = refined.best;
             }
         }
-        let coverage = json!({
-            "policy":self.portfolio.context(),"initial_recipes":plan.initial.len(),
-            "refinement_recipes":refinements.len(),"completed_recipe_requests":result.sizes.len(),
-            "complete":true,"fresh":reuse == Reuse::Fresh,
-            "scope":"complete declared initial domain and the policy-selected refinements; no global compression optimum"
-        });
+        // Scalar cost callers do not consume coverage or recipe JSON. Keep
+        // that allocation on the report-producing boundary, while preserving
+        // the exact evaluated recipe domain and all measurement statistics.
+        let coverage = if records {
+            json!({
+                "policy":self.portfolio.context(),"initial_recipes":plan.initial.len(),
+                "refinement_recipes":refinements.len(),"completed_recipe_requests":result.sizes.len(),
+                "complete":true,"fresh":reuse == Reuse::Fresh,
+                "scope":"complete declared initial domain and the policy-selected refinements; no global compression optimum"
+            })
+        } else {
+            Value::Null
+        };
         Ok((result, coverage))
     }
 
@@ -528,7 +610,14 @@ impl WholeFileObjective {
         } else {
             self.stats.fresh_header_derivations += 1;
         }
-        let header = Arc::from(best_header(&self.header, &self.old_decoder, &decoder)?);
+        let bytes = best_header(&self.header, &self.old_decoder, &decoder)?;
+        // Allowed decoder and tail-offset substitutions are far below 128
+        // extra bytes. Check the allowance before retaining a derived header.
+        ensure!(
+            bytes.len() <= self.header.len() + 128,
+            "derived header exceeds scheduler allowance"
+        );
+        let header = Arc::from(bytes);
         if reuse == Reuse::Allowed {
             self.header_cache.insert(decoder, Arc::clone(&header));
         }
@@ -557,16 +646,19 @@ impl WholeFileObjective {
         let mut records = Vec::new();
         let mut sizes = Vec::with_capacity(recipes.len());
         let mut best: Option<ArtifactCandidate> = None;
-        let payload_hash_text = hex::encode(payload_hash);
+        let payload_hash_text = emit_records.then(|| hex::encode(payload_hash));
 
-        // A bounded ordered window keeps both worker results and cache FIFO
-        // deterministic without retaining all compressed outputs in RAM. The
-        // same scoped workers serve every window; cache-only batches and the
-        // serial path do not create threads.
+        // Keep admission and ties ordered while workers dynamically take the
+        // next cache miss. Extra lookahead is limited both by count and by a
+        // conservative encoded-output allowance, so large payloads do not
+        // multiply retained result memory merely to improve scheduling.
+        let window = codec_window(self.jobs, payload.len(), self.header.len() + 128);
+        // The same scoped workers serve every window; cache-only batches and
+        // the serial path do not create threads.
         std::thread::scope(|scope| {
             let mut workers = None;
             let outcome = (|| {
-                for chunk in recipes.chunks(self.jobs) {
+                for chunk in recipes.chunks(window) {
                     ensure!(!process::cancelled(), "cancelled before codec batch");
                     let mut pending = Vec::with_capacity(chunk.len());
                     for recipe in chunk {
@@ -621,12 +713,14 @@ impl WholeFileObjective {
                             self.stats.codec_cache_hits += 1;
                             (cached, "cache_hit")
                         } else {
-                            if reuse == Reuse::Allowed {
-                                self.stats.codec_executions += 1;
-                            } else {
-                                self.stats.fresh_codec_executions += 1;
+                            let outcome = result.context("codec worker returned no result")?;
+                            match (reuse, outcome.executed) {
+                                (Reuse::Allowed, true) => self.stats.codec_executions += 1,
+                                (Reuse::Fresh, true) => self.stats.fresh_codec_executions += 1,
+                                (Reuse::Allowed, false) => self.stats.codec_not_started += 1,
+                                (Reuse::Fresh, false) => self.stats.fresh_codec_not_started += 1,
                             }
-                            match result.context("codec worker returned no result")? {
+                            match outcome.result {
                                 Ok(packed) => (
                                     packed,
                                     if reuse == Reuse::Fresh {
@@ -662,7 +756,7 @@ impl WholeFileObjective {
                         if emit_records {
                             records.push(candidate.record(
                                 id,
-                                &payload_hash_text,
+                                payload_hash_text.as_deref().expect("requested record hash"),
                                 payload.len(),
                                 equivalence,
                             )?);
@@ -692,45 +786,99 @@ impl WholeFileObjective {
     }
 }
 
+/// Extra complete header + compressed results may use at most this much
+/// beyond the original jobs-sized window. Both output bounds are checked
+/// before retention, including fresh/disabled-cache header allocations.
+const LOOKAHEAD_BYTES: usize = 16 << 20;
+
+fn codec_window(jobs: usize, payload_bytes: usize, header_bound: usize) -> usize {
+    if jobs == 1 {
+        return 1;
+    }
+    let output_bound = payload_bytes
+        .saturating_mul(2)
+        .saturating_add(65536)
+        .saturating_add(header_bound);
+    jobs + (3 * jobs).min(LOOKAHEAD_BYTES / output_bound)
+}
+
+struct CodecOutcome {
+    executed: bool,
+    result: Result<Arc<[u8]>>,
+}
+
+impl CodecOutcome {
+    fn not_started(message: &str) -> Self {
+        Self {
+            executed: false,
+            result: Err(anyhow::anyhow!("{message}")),
+        }
+    }
+}
+
+struct Completion {
+    worker: usize,
+    index: usize,
+    outcome: CodecOutcome,
+}
+
 struct CodecWorker<'scope> {
-    input: mpsc::SyncSender<Recipe>,
-    output: mpsc::Receiver<Result<Arc<[u8]>>>,
+    input: mpsc::SyncSender<(usize, Recipe)>,
     handle: ScopedJoinHandle<'scope, ()>,
 }
 
-/// A batch owns its workers and one bounded request/reply channel per worker.
-/// No borrowed input or unjoined worker survives the batch. Request windows
-/// preserve deterministic cache admission independently of completion order.
+/// A batch owns all workers, a bounded request channel per worker, and one
+/// bounded completion channel. Each worker has at most one outstanding task.
+/// Completions schedule more work immediately; the caller later consumes the
+/// bounded window in declaration order. All workers are joined on every exit.
 struct CodecWorkers<'scope> {
     payload: &'scope [u8],
     workers: Vec<CodecWorker<'scope>>,
+    output: mpsc::Receiver<Completion>,
 }
 
 impl<'scope> CodecWorkers<'scope> {
     fn new<'env>(scope: &'scope Scope<'scope, 'env>, payload: &'scope [u8], jobs: usize) -> Self {
         let mut workers = Vec::new();
+        let (replies, output) = mpsc::sync_channel(jobs);
         if jobs > 1 {
-            for _ in 0..jobs {
-                let (input, requests) = mpsc::sync_channel::<Recipe>(1);
-                let (replies, output) = mpsc::sync_channel(1);
+            for worker in 0..jobs {
+                let (input, requests) = mpsc::sync_channel::<(usize, Recipe)>(1);
+                let replies = replies.clone();
                 let handle = scope.spawn(move || {
-                    while let Ok(recipe) = requests.recv() {
-                        if replies.send(compress_roundtrip(payload, &recipe)).is_err() {
+                    while let Ok((index, recipe)) = requests.recv() {
+                        // A panic must produce a completion too; otherwise a
+                        // shared reply channel could wait forever while live
+                        // siblings are idle waiting for their next requests.
+                        let outcome =
+                            std::panic::catch_unwind(|| compress_roundtrip(payload, &recipe))
+                                .unwrap_or_else(|_| CodecOutcome {
+                                    executed: true,
+                                    result: Err(anyhow::anyhow!("codec worker panicked")),
+                                });
+                        if replies
+                            .send(Completion {
+                                worker,
+                                index,
+                                outcome,
+                            })
+                            .is_err()
+                        {
                             break;
                         }
                     }
                 });
-                workers.push(CodecWorker {
-                    input,
-                    output,
-                    handle,
-                });
+                workers.push(CodecWorker { input, handle });
             }
         }
-        Self { payload, workers }
+        Self {
+            payload,
+            workers,
+            output,
+        }
     }
 
-    fn measure(&self, requests: &[Option<&Recipe>]) -> Vec<Option<Result<Arc<[u8]>>>> {
+    fn measure(&self, requests: &[Option<&Recipe>]) -> Vec<Option<CodecOutcome>> {
         if self.workers.is_empty() {
             return requests
                 .iter()
@@ -738,35 +886,67 @@ impl<'scope> CodecWorkers<'scope> {
                 .collect();
         }
         let mut results: Vec<_> = (0..requests.len()).map(|_| None).collect();
-        for (index, recipe) in requests.iter().enumerate() {
-            if let Some(recipe) = recipe {
-                if self.workers[index].input.send((*recipe).clone()).is_err() {
-                    results[index] = Some(Err(anyhow::anyhow!(
-                        "codec worker disconnected before request"
-                    )));
+        let mut remaining = requests
+            .iter()
+            .enumerate()
+            .filter_map(|(index, recipe)| recipe.map(|recipe| (index, recipe)));
+        let dispatch = |worker: usize,
+                        remaining: &mut dyn Iterator<Item = (usize, &Recipe)>,
+                        results: &mut [Option<CodecOutcome>]|
+         -> bool {
+            for (index, recipe) in remaining {
+                if self.workers[worker]
+                    .input
+                    .send((index, recipe.clone()))
+                    .is_ok()
+                {
+                    return true;
                 }
+                results[index] = Some(CodecOutcome::not_started(
+                    "codec worker disconnected before request",
+                ));
             }
+            false
+        };
+        let mut active = 0;
+        for worker in 0..self.workers.len() {
+            active += usize::from(dispatch(worker, &mut remaining, &mut results));
         }
-        for (index, recipe) in requests.iter().enumerate() {
-            if recipe.is_some() && results[index].is_none() {
-                results[index] = Some(self.workers[index].output.recv().unwrap_or_else(|_| {
-                    Err(anyhow::anyhow!("codec worker disconnected before result"))
-                }));
+        while active != 0 {
+            match self.output.recv() {
+                Ok(Completion {
+                    worker,
+                    index,
+                    outcome,
+                }) => {
+                    active -= 1;
+                    results[index] = Some(outcome);
+                    active += usize::from(dispatch(worker, &mut remaining, &mut results));
+                }
+                Err(_) => {
+                    for (index, recipe) in requests.iter().enumerate() {
+                        if recipe.is_some() && results[index].is_none() {
+                            results[index] = Some(CodecOutcome::not_started(
+                                "codec workers disconnected before result",
+                            ));
+                        }
+                    }
+                    break;
+                }
             }
         }
         results
     }
 
     fn finish(self) -> Result<()> {
-        let mut failure = None;
-        for CodecWorker {
-            input,
-            output,
-            handle,
-        } in self.workers
-        {
+        let mut handles = Vec::with_capacity(self.workers.len());
+        for CodecWorker { input, handle } in self.workers {
             drop(input);
-            drop(output);
+            handles.push(handle);
+        }
+        drop(self.output);
+        let mut failure = None;
+        for handle in handles {
             if handle.join().is_err() && failure.is_none() {
                 failure = Some(anyhow::anyhow!("codec worker panicked"));
             }
@@ -786,14 +966,22 @@ fn payload_digest(payload: &[u8]) -> Result<[u8; 32]> {
     Ok(Sha256::digest(payload).into())
 }
 
-fn compress_roundtrip(payload: &[u8], recipe: &Recipe) -> Result<Arc<[u8]>> {
-    ensure!(!process::cancelled(), "cancelled before codec candidate");
-    let packed = codec::compress(payload, recipe)?;
-    ensure!(
-        codec::decode(&packed, recipe, codec::MAX_PAYLOAD)? == payload,
-        "codec roundtrip changed payload"
-    );
-    Ok(Arc::from(packed))
+fn compress_roundtrip(payload: &[u8], recipe: &Recipe) -> CodecOutcome {
+    if process::cancelled() {
+        return CodecOutcome::not_started("cancelled before codec candidate");
+    }
+    CodecOutcome {
+        executed: true,
+        result: (|| {
+            let packed = codec::compress(payload, recipe)?;
+            ensure!(
+                packed.len() <= payload.len().saturating_mul(2).saturating_add(65536),
+                "encoded result exceeds bounded scheduler output profile"
+            );
+            codec::verify_decode(&packed, recipe, payload)?;
+            Ok(Arc::from(packed))
+        })(),
+    }
 }
 
 #[cfg(test)]
@@ -818,6 +1006,62 @@ mod tests {
             budget,
         )
         .unwrap()
+    }
+
+    #[test]
+    fn indexed_fifo_handles_collisions_wraparound_and_oversize_entries() {
+        // Force every key into one bucket to exercise collision-chain removal
+        // across ring wraparound independently of the hash function's choices.
+        #[derive(PartialEq, Eq)]
+        struct Collision(u32);
+        impl Hash for Collision {
+            fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+                0u8.hash(state);
+            }
+        }
+        impl CacheIdentity for Collision {
+            fn owned_key_bytes(&self) -> usize {
+                0
+            }
+        }
+        let mut cache = BoundedBytesCache::new(4096, 3);
+        for index in 0..30 {
+            let bytes: Arc<[u8]> = Arc::from(vec![index as u8; 19]);
+            cache.insert(Collision(index), Arc::clone(&bytes));
+            cache.insert(Collision(index), Arc::from(vec![255; 19]));
+            assert_eq!(cache.len, (index as usize + 1).min(3));
+            assert!(cache.owned_bytes <= cache.max_bytes);
+            for query in 0..=index {
+                let found = cache.get(&Collision(query));
+                if query + 3 <= index {
+                    assert!(found.is_none());
+                } else {
+                    assert_eq!(found.as_deref(), Some(vec![query as u8; 19].as_slice()));
+                }
+            }
+        }
+        let retained = cache.get(&Collision(29)).unwrap();
+        cache.insert(Collision(100), Arc::from(vec![0; 4096]));
+        assert_eq!(cache.skipped, 1);
+        assert_eq!(cache.evictions, 27);
+        assert_eq!(cache.get(&Collision(29)).unwrap(), retained);
+        assert_eq!(retained.as_ref(), &[29; 19]);
+    }
+
+    #[test]
+    fn worker_lookahead_is_bounded_by_count_and_output_allowance() {
+        for jobs in 1..=16 {
+            for bytes in [0, 1024, 65536, 1 << 20, codec::MAX_PAYLOAD] {
+                for header in [256, (4 << 20) + 128] {
+                    let window = codec_window(jobs, bytes, header);
+                    assert!((jobs..=4 * jobs).contains(&window));
+                    assert!((window - jobs) * (2 * bytes + 65536 + header) <= LOOKAHEAD_BYTES);
+                    if jobs == 1 {
+                        assert_eq!(window, 1);
+                    }
+                }
+            }
+        }
     }
 
     #[test]
@@ -907,6 +1151,33 @@ mod tests {
         assert_eq!(one.coverage["initial_recipes"], 5);
         assert_eq!(serial.stats().codec_cache_entries, 0);
         assert_eq!(parallel.stats().codec_cache_bytes, 0);
+    }
+
+    #[test]
+    fn parallel_failures_report_first_declared_error_and_never_cache_failure() {
+        let mut first_bad = Recipe::new("alone");
+        first_bad.preset = Some(u32::MAX);
+        let mut later_bad = Recipe::new("xz");
+        later_bad.lc = Some(5);
+        for jobs in [1, 2, 4] {
+            let mut cost = objective(
+                vec![gzip(9), first_bad.clone(), gzip(1), later_bad.clone()],
+                jobs,
+                CacheBudget::default(),
+            );
+            for _ in 0..2 {
+                let error = cost.measure(&[b'x'; 65537]).unwrap_err().to_string();
+                assert!(error.contains("invalid LZMA preset"), "{jobs}: {error}");
+            }
+            assert_eq!(cost.stats().codec_not_started, 0);
+            // Serial stops at the first failure; a parallel bounded window
+            // observes both failures and preserves any successful siblings.
+            assert_eq!(cost.stats().codec_failures, if jobs == 1 { 2 } else { 4 });
+            assert_eq!(
+                cost.stats().codec_cache_entries,
+                if jobs == 1 { 1 } else { 2 }
+            );
+        }
     }
 
     #[test]
