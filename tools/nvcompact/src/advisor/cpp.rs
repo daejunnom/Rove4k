@@ -669,7 +669,7 @@ pub(super) fn analyze(source: &[u8], options: &AdvisorOptions) -> Result<AdviceR
     analysis.notes = BTreeSet::from([
         "C++17/20 source is parsed as C++ by Clang. Advice never edits source or enters compression search; complete-file recompilation and measurement remain separate.".into(),
         "Only admitted non-overloaded free functions with ordinary automatic int/unsigned/long/long-long scalars are modeled. Namespaces and language-linkage declarations retain their actual AST ancestry.".into(),
-        "Templates, methods, class objects, references, pointers, Bool variables, qualified storage, nonlocal reads, calls, named casts, overloaded/rewritten operators and unrecognized AST constructs withhold the entire function.".into(),
+        "Templates, methods, class objects, references, pointers, Bool variables, qualified storage, nonlocal reads, calls, named casts, overloaded/rewritten operators and unrecognized AST constructs withhold the function's flow and equivalence analysis. Directly observed typed literal duplicates may still be reported as separate diagnostics.".into(),
         "C++ bool expression results and lvalue/prvalue categories are validated separately from a private C integer value carrier. Candidates preserve both; only prvalue targets are advised.".into(),
         "The common defined integer model is deliberately stricter than C++17/20: negative signed shifts, out-of-range signed casts and other unsupported cases withhold comparison, even where a C++ version specifies a value.".into(),
         "Static domains describe individual evaluated reads in admitted defined executions, not whole-program invariants. C++ runtime profiling/instrumentation is not supported.".into(),

@@ -134,13 +134,15 @@ workspace edition에 맞춘 rustfmt와 상수 cast 접기 이후 최종 debug CL
 
 실행 명령, 소스·바이너리·보고서·원시 로그 지문, 실패·보류 결과는
 [language-validation.json](../evidence/pr16/language-validation.json)에 있다.
-최종 패키지와 통합 검증 기록은
+0.6.0 버전을 올리기 전 개발 패키지와 통합 검증 기록은
 [language-integration.json](../evidence/pr16/language-integration.json)에 둔다.
-현재 기능은 후속 소스 빌드이며 이미 게시된 npm 0.5.0의 기능이라는 뜻은 아니다.
+이 snapshot은 source version 0.5.0을 사용한 후속 개발 빌드다. 이미 게시된 npm 0.5.0과는
+다른 artifact이며, 아래 hash를 새 0.6.0 배포 파일의 식별자로 사용하지 않는다.
+후속 버전·게이트·공개 결과는 [0.6.0 릴리스 노트](RELEASE-0.6.ko.md)의 경로에서 확인한다.
 
-### 최종 release·설치 패키지
+### 버전 갱신 전 release-mode 개발 빌드·설치 패키지
 
-공식 build 접점으로 최종 소스를 빌드하고, 그 source fingerprint가 현재 입력과 일치하는 것을
+공식 build 접점으로 당시 최종 소스를 빌드하고, 그 source fingerprint가 당시 입력과 일치하는 것을
 확인한 뒤 tarball을 만들었다. 실제 오프라인 설치본에서 **10개 계약 검사·11회 명령 실행**을 통과했다.
 자체 native fixture의 정상 입력 256개·오류 입력 2개, 독립 재현과 명시적 실행 검증 경계,
 새 Rust 자문, 설치 파일 bytes·mode 불변을 포함한다. Node는 v24.19.0이다.
@@ -151,11 +153,11 @@ C++는 15개 finding·9곳의 읽기, Rust는 19개 finding·8곳의 읽기를 �
 두 입력 원문과 설치 파일은 바뀌지 않았고 압축 후보 수는 모두 0이었다.
 공백을 포함한 원문 byte 차이도 finding 길이에 포함되므로 finding 수를 구조적 개선 수로 읽지 않는다.
 
-- 최종 release CLI: 12,320,360 B,
+- 이 snapshot의 release-mode CLI: 12,320,360 B,
   SHA-256 `78acfdc10d3c64e9b4745c64991d39365e41ba92648424f0e6f4bffd1739e92b`.
 - 로컬 tarball: 4,220,740 B,
   SHA-256 `8fdfb43b56d2c47bf532aff9e83d82b77fad7b10225f7effb6b86956211c973d`.
 - package inventory: 도구 실행 파일·launcher·metadata·문서·license 9개 파일.
   외부 엔진 소스·실행 파일은 포함하지 않는다. 이 개발 도구의 크기는 엔진 4 KiB 제출 크기와 별개다.
 
-npm registry 게시와 PR 병합은 수행하지 않았다.
+이 snapshot의 검증 작업에는 npm registry 게시와 PR 병합을 포함하지 않았다.

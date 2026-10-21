@@ -6,10 +6,11 @@ satisfies the selected contract. The Rust implementation is maintained inside
 [Rove4k](https://github.com/daejunnom/Rove4k/tree/main/tools/nvcompact).
 The npm package and executable are both named `nvcompact`.
 
-Version 0.5.0 adds bounded complete-file source search, retained source-search
-attempts and the read-only `compare-attempts` command. Typed C Boolean rewrites
-require a proved 0-or-1 value domain. The [0.5.0 release notes](https://github.com/daejunnom/Rove4k/blob/main/tools/nvcompact/docs/RELEASE-0.5.ko.md)
-describe the source contracts, measured results and supported platforms.
+Version 0.6.0 adds advisory-only C/C++/Rust scalar-domain analysis, bounded typed
+n-version suggestions, repeated-constant and unused-declaration diagnostics,
+and final-file repeated-byte inspection. It also improves search planning,
+cache lookup and decode verification. The [0.6.0 release notes](https://github.com/daejunnom/Rove4k/blob/main/tools/nvcompact/docs/RELEASE-0.6.ko.md)
+describe the supported subsets, measured results and platform limits.
 
 ## Install and use
 
@@ -24,7 +25,7 @@ The published native target is **Linux x64 with glibc**. Release CI uses Ubuntu
 24.04; glibc 2.39 or newer, zlib and the GCC runtime must be available. Node 22
 or newer launches the bundled Rust executable. Windows, macOS, ARM and musl
 packages are not currently provided. C/C++ builds require their declared
-compiler, typed C rewrites require Clang, and decoder/interpreter requirements
+compiler, typed C rewrites and C/C++ advice require Clang, and decoder/interpreter requirements
 belong to each explicitly selected deployment or verifier.
 
 ## Build a package from source
@@ -46,7 +47,7 @@ chess engine files or archived Python implementation.
 Install that tarball into another project:
 
 ```sh
-npm install --offline --ignore-scripts /absolute/path/nvcompact-0.5.0.tgz
+npm install --offline --ignore-scripts /absolute/path/nvcompact-0.6.0.tgz
 npm exec -- nvcompact --version
 npm exec -- nvcompact doctor --json
 ```
@@ -74,21 +75,21 @@ and compiler-diagnostic identity. `replay` reconstructs the selected derivation
 without repeating its search. See the [source portfolio guide](https://github.com/daejunnom/Rove4k/blob/main/tools/nvcompact/docs/SOURCE-PORTFOLIO.md)
 for the explicit C/Python observation contracts and bounded search settings.
 
-Source builds from the follow-up development PR also provide `advise-c` for
+Version 0.6.0 provides `advise-c` for
 typed constants, unused declarations and integer ranges at individual reads,
 plus `inspect-binary` for exact repeated-byte inventories. Advice does not enter
 the compressor or edit inputs. Optional `advise-c --instrument` exports a
 separate diagnostic copy without starting it; `--profile` attaches finite
-observations without promoting them to static facts. These additions are not a
-claim that the already-published 0.5.0 tarball includes the new commands.
-See the [advisor guide](https://github.com/daejunnom/Rove4k/blob/feature/nvcompact-search-architecture/tools/nvcompact/docs/SHORTCODE-ADVISOR.ko.md).
+observations without promoting them to static facts. These commands were not
+included in the earlier 0.5.0 tarball.
+See the [advisor guide](https://github.com/daejunnom/Rove4k/blob/main/tools/nvcompact/docs/SHORTCODE-ADVISOR.ko.md).
 
-The same follow-up source builds add `advise-source SOURCE --language c|cpp|rust`.
+Use `advise-source SOURCE --language c|cpp|rust` to select the source language.
 C++ and Rust adapters provide conservative static scalar-subset advice, with
 language-specific type and arithmetic checks. Python and other languages are
 explicitly unsupported by this domain analyzer; they are never silently parsed
 as C. C++/Rust `--profile` and `--instrument` are also explicitly unsupported.
-See the [language contracts](https://github.com/daejunnom/Rove4k/blob/feature/nvcompact-search-architecture/tools/nvcompact/docs/LANGUAGE-ADVISOR.ko.md).
+See the [language contracts](https://github.com/daejunnom/Rove4k/blob/main/tools/nvcompact/docs/LANGUAGE-ADVISOR.ko.md).
 
 See the [maintainer publishing guide](https://github.com/daejunnom/Rove4k/blob/main/tools/nvcompact/docs/PUBLISHING.md)
 for the personal-account bootstrap, OIDC configuration and release workflow.

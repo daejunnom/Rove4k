@@ -61,7 +61,9 @@ prvalue의 대안으로 채택하지 않는다. 후보의 타입과 value catego
 초기 지원 대상은 namespace·language-linkage 안을 포함한 비오버로드 free function과
 보통 자동 저장의 `int`·`unsigned int`·`long`·`unsigned long`·`long long`·`unsigned long long`이다.
 중간 bool 식과 bool literal은 처리한다. bool 변수·매개변수, pointer/reference,
-qualified/static 지역변수, nonlocal 읽기·호출, named cast와 알 수 없는 AST node는 함수 전체를 보류한다.
+qualified/static 지역변수, nonlocal 읽기·호출, named cast와 알 수 없는 AST node는 함수의 흐름·동치 분석을 보류한다.
+이 보류와 별개로 Clang AST에서 직접 관측한 typed literal 중복은 `duplicate-constant`
+진단에 남을 수 있다. 그 진단은 해당 함수의 영역이나 치환 동치가 입증됐다는 뜻이 아니다.
 
 오버로드된 연산자, 사용자 정의 변환, reference alias, template 의존식, 객체 수명과
 비정상 제어 흐름을 보통 정수 연산으로 낮추지 않는다.

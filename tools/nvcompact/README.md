@@ -4,22 +4,24 @@ NVCompact means **N-version compaction**: preserve the original, construct
 explicit alternatives, verify their applicable contracts, and compare the
 complete deliverable. It is an internal Rust tool in the Rove4k monorepo.
 
-The source version is 0.5.0. Node supplies the `nvcompact` npm command boundary;
+The source version is 0.6.0. Node supplies the `nvcompact` npm command boundary;
 Rust performs the active compilation orchestration, spelling transformations,
 packing, reproduction, resource checks and UCI probes. The archived Python 0.3
 implementation is reference material for past results.
 
-Version 0.5.0 adds bounded whole-file source search, retained attempt archives
-and the read-only `compare-attempts` command, with stricter Boolean-domain
-checks for typed C rewrites. See the [0.5.0 release notes](docs/RELEASE-0.5.ko.md)
-for the changes, measured scope and platform limits. Historical measurements
-below retain their recorded inputs and tool versions.
+Version 0.6.0 adds advisory-only C/C++/Rust scalar-domain analysis, bounded
+typed n-version suggestions, constant and unused-declaration diagnostics, and
+final-file repeated-byte inspection. It also reduces repeated search planning,
+cache lookup and decode-verification work. See the [0.6.0 release notes](docs/RELEASE-0.6.ko.md)
+for the supported subsets, measured gains and limits. The source-search and
+retained-attempt features from [0.5.0](docs/RELEASE-0.5.ko.md) remain available.
+Historical measurements below retain their recorded inputs and tool versions.
 
 ## Build and package
 
 The current execution environment is Linux. Use Node 22 or later, Rust/Cargo,
 and the build dependencies for liblzma, zlib and libbz2. C/C++ comparison builds
-need their declared compiler; typed C transformations also need Clang.
+need their declared compiler; typed C transformations and C/C++ advice also need Clang.
 
 ```sh
 npm ci --ignore-scripts
@@ -52,7 +54,7 @@ repository. Omitting `--no-build` first builds current source. The explicit
 `--no-build` path checks recorded source, host and executable fingerprints.
 
 Install the resulting tarball with
-`npm install --offline --ignore-scripts /absolute/path/nvcompact-0.5.0.tgz`.
+`npm install --offline --ignore-scripts /absolute/path/nvcompact-0.6.0.tgz`.
 The npm target is Linux x64/glibc, with release CI on Ubuntu 24.04. It does not
 claim universal binary compatibility. `NVCOMPACT_BIN` selects another
 explicit Rust executable without triggering a build or another backend.
@@ -68,6 +70,8 @@ Korean characters. It installs the actual tarball offline, exercises command
 selection and typed notation, builds and reproduces an owned C fixture, verifies
 256 integer inputs and two invalid inputs, checks fresh explicit execution
 authorization, and confirms that installed package bytes remain unchanged.
+It also checks the installed C++/Rust advisory utilities, explicit unsupported
+language/profile boundaries, and repeated-byte inspection on owned fixtures.
 
 The recorded 0.4.0 local run passed 41 Rust tests, five launcher tests, and all
 nine installed-package validation groups. The actual installed package was
@@ -279,8 +283,9 @@ See the [language contracts](docs/LANGUAGE-ADVISOR.ko.md),
 [native audit and retained-engine limitations](docs/LANGUAGE-RESULTS.ko.md), and owned
 [C++](examples/advice/domains.cpp) / [Rust](examples/advice/domains.rs) examples.
 
-These commands are available in this branch's source build; they are not part of
-the already published npm 0.5.0 release.
+These commands are included in the 0.6.0 source and package. The earlier
+published npm 0.5.0 tarball does not include them. See the release workflow and
+registry for publication status; a local source build alone is not publication.
 
 `nvcompact advise-c final.c --report advice.json` reports typed repeated
 constants, declarations with no translation-unit references, and integer ranges
