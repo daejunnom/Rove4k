@@ -23,7 +23,12 @@ PR #13은 별도 `feature/*` 브랜치에서 `develop`을 대상으로 작업한
 | F material/move-TT | 4,089 B | 0 B, 여유 7 B |
 
 표는 해당 커밋의 유지 recipe가 명시하는 값이다. PR #13에서 새로 실행한 결과는
-별도 회귀 기록으로 구분한다. 현재 local profile은 search worker 2개와 controller,
+별도 [최종 회귀 기록](PR13-RESULTS.ko.md)으로 구분한다. 새 최소는 A 4,616 B,
+B 5,173 B, C 4,979 B, D scalar/HQ 5,966/6,175 B, E 5,038 B,
+F full 4,611 B, F material/noise 4,331 B, F material/move-TT 4,047 B다.
+F full은 515 B, material/noise는 235 B가 여전히 초과하며 move-TT는 49 B 여유가 있다.
+이 결과에 새 UCI·대국 인수를 포함하지 않는다. 과거 native 핀 7건의 실패도 유지한다.
+현재 local profile은 search worker 2개와 controller,
 TT18, PLY128이다. 이 값으로 최종 TCEC 서버 자원·기력·실행 적격성을 인수하지 않는다.
 
 이전 조사 기준 `364e316` 이후 이미 반영된 변경을 다시 미구현 과제로 세지 않는다.
@@ -37,6 +42,29 @@ TT18, PLY128이다. 이 값으로 최종 TCEC 서버 자원·기력·실행 적�
 원문: [구현 기록](https://github.com/daejunnom/Rove4k/blob/0e716e0b366272c66749f6e7194f64cb715e2d00/docs/ENGINE-IMPLEMENTATION.md),
 [material-state 생성 단계](https://github.com/daejunnom/Rove4k/blob/0e716e0b366272c66749f6e7194f64cb715e2d00/engines/scripts/shipping_material_state.py),
 [후기 개별 변환](https://github.com/daejunnom/Rove4k/blob/0e716e0b366272c66749f6e7194f64cb715e2d00/engines/scripts/shipping_refinements.py).
+
+### 최종 인계 시점의 후속 head
+
+비교 실행 중 PR #12가 `8abcbc3a4af0ef02435ca1ba52f10b43715bf99c`까지 진행했다.
+0e716e0 이후 세 커밋과 실제 생성 단계를 추가로 읽어 아래를 확인했다. 이 후속 head는
+위 NVCompact 크기 표의 측정 대상이 아니며, 기존 head의 절감량을 그대로 더하지 않는다.
+
+- `8bc1abe`: 고정 unsigned64 숫자 admission의 high-bit 표현, 일부 limits include 제거,
+  full/material F의 고정 TT18 cast 제거, full F terminal legal-loop 공유가 반영됐다.
+- `8abcbc3`: B/E worker job 초기화 공유, B/C/E의 checked calloc 직후 plain TT zero-store
+  제거, B의 TO127 SEE 승격 조건과 고정 TT18 cast 제거가 반영됐다. atomic flag 초기화는
+  계속 수행한다. 직접 preseeded think 호출 등의 경계는 engine 계약으로 구분돼 있다.
+- 같은 `8abcbc3`의 full F mixer pre-add 제거는 **명시적인 hash 정책 변경**이다.
+  이를 같은 native의 표기 압축으로 NVCompact가 일반화하지 않는다.
+
+따라서 아래 조건·상태 표는 일반화의 증명 경계로 읽는다. 이미 적용된 cast·승격 조건·
+terminal 공유를 새 구현 과제로 다시 세지 않는다. 통합 대상은 최신 head의 정본·recipe를
+다시 고정하고 변환 후 native 및 실제 전체 파일을 대조하는 경로다.
+
+후속 근거: [정수 표현](https://github.com/daejunnom/Rove4k/blob/8abcbc3a4af0ef02435ca1ba52f10b43715bf99c/engines/scripts/shipping_integer_forms.py),
+[초기화와 SEE](https://github.com/daejunnom/Rove4k/blob/8abcbc3a4af0ef02435ca1ba52f10b43715bf99c/engines/scripts/shipping_compaction.py),
+[terminal 공유](https://github.com/daejunnom/Rove4k/blob/8abcbc3a4af0ef02435ca1ba52f10b43715bf99c/engines/compact/tiny-entry-f/shipping_terminal.py),
+[hash 정책](https://github.com/daejunnom/Rove4k/blob/8abcbc3a4af0ef02435ca1ba52f10b43715bf99c/engines/compact/tiny-entry-f/shipping_hash_policy.py).
 
 ## 2. NVCompact의 공통 변환으로 다룰 부분
 

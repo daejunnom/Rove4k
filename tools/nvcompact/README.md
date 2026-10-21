@@ -173,6 +173,9 @@ complete native output and compiler diagnostics under the declared recipe.
 The [whole-file source portfolio guide](docs/SOURCE-PORTFOLIO.md) documents the
 contracts, configuration, bounds and unsupported cases. Engine-specific work
 is separated in the [PR #12 handoff](docs/PR12-HANDOFF.ko.md).
+The [PR #13 measurements](docs/PR13-RESULTS.ko.md) compare 26 pinned
+input/profile rows: seven smaller complete files and 19 byte-identical winners,
+with explicit replay, compiler-proof and unexecuted runtime boundaries.
 
 `npm run test:comparison` checks the read-only regression reporter. Its
 `scripts/compare-results.mjs` command compares actual complete files against a

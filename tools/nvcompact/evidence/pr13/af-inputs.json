@@ -1,0 +1,1673 @@
+{
+  "format": "nvcompact.pr13.af-input-metadata.v1",
+  "projection": true,
+  "source_commit": "0e716e0b366272c66749f6e7194f64cb715e2d00",
+  "raw_inventory": {
+    "path": "${WORK}/af-input-inventory.json",
+    "sha256": "114e8d330acf087046174475f3a041f881c152db7a5211c6d279f867758ee6f9"
+  },
+  "scope": "Pinned maintained inputs and measured manifests. No source, compressed stream or executable bytes. Paths are logical labels, not runnable manifest paths; resolve labels and revalidate tools before use.",
+  "path_labels": {
+    "${WORK}": "external PR13 campaign root",
+    "${REPO}": "feature branch repository root",
+    "${PR12}": "pinned PR12 checkout",
+    "${CANONICAL_AF}": "preserved canonical build attempts",
+    "${CLANG20}": "observed Clang 20.1.8 executable, pinned in source recipes",
+    "${RETAINED_D}": "external preserved D build from 364e316; source/recipe unchanged at pinned comparison head"
+  },
+  "only_manifest_change_is_source_search": true,
+  "records": [
+    {
+      "name": "af-a",
+      "source_commit": "0e716e0b366272c66749f6e7194f64cb715e2d00",
+      "policy": "full",
+      "category": "4k",
+      "artifact": "${WORK}/af-inputs/af-a",
+      "source_bytes": 9125,
+      "source_sha256": "e427db6e5697679c4765d4b0842dbfebe9637cffd1c2d1e48c3787f8fc43964b",
+      "source_origin": "${CANONICAL_AF}/a/attempt-1/main.c",
+      "recipe_sha256": "2c1562b86c5943209bb0470b3ff37c3c36005ae147d6ce79f5350936e026b288",
+      "original_bytes": 4652,
+      "original_sha256": "fd7307213f35a16b111854125ec028e1fc4c07d0042bb0e5421976c8de244f20",
+      "bootstrap_bytes": 10107,
+      "bootstrap_sha256": "8d1361bf4692bea9b25fbce96d3c47ff77c89bca5d334135f068729c27087824",
+      "header_bytes": 77,
+      "header_sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
+      "embedding": {
+        "kind": "python-bytes",
+        "start": 597,
+        "end": 9730,
+        "sha256": "a0ee5ccdb2af913a1bbde5ce74e049d982bb77e857b2d8574fe3150c0b5ddd75"
+      },
+      "maintained_literal_style": "raw-bytes-single",
+      "source_bootstrap_whole_pins_match": true,
+      "canonical_build_status": "failed_historical_native_identity_gate",
+      "historical_native_bytes": 18576,
+      "historical_native_sha256": "ca24e8e88d15a81c635d7f762b972509443930cec19e1daa8b5e547458551c53",
+      "local_native_bytes": 18576,
+      "local_native_sha256": "bc26eddc218b4e787fbe777d6da9689a6d314659763841104c8b7e0e0c9f079e",
+      "historical_native_pin_match": false,
+      "engine_runs": 0
+    },
+    {
+      "name": "af-b",
+      "source_commit": "0e716e0b366272c66749f6e7194f64cb715e2d00",
+      "policy": "full",
+      "category": "4k",
+      "artifact": "${WORK}/af-inputs/af-b",
+      "source_bytes": 10745,
+      "source_sha256": "1aa26d8fcff91a0e38403211a72a0f52f464711a0462c7b611f4d112668ea5c1",
+      "source_origin": "${CANONICAL_AF}/b/attempt-1/main.c",
+      "recipe_sha256": "89a3b03a4202a9510c3b58adce3afc0517f8667e5412855812213885984209ab",
+      "original_bytes": 5219,
+      "original_sha256": "65cfbe6f391f620beeb8d8b190570ed5eed2c38b937ba87b1cbf4f547fe606b0",
+      "bootstrap_bytes": 11802,
+      "bootstrap_sha256": "01d0650c30f03b3f5f3fab4d57be20d0dac7126dd82603c2eaee9bc130a3fb62",
+      "header_bytes": 77,
+      "header_sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
+      "embedding": {
+        "kind": "python-bytes",
+        "start": 672,
+        "end": 11425,
+        "sha256": "3ef2dc92bcbdb731433583d3353aa468d923f95732e518eb6489d238680d22df"
+      },
+      "maintained_literal_style": "raw-bytes-single",
+      "source_bootstrap_whole_pins_match": true,
+      "canonical_build_status": "failed_historical_native_identity_gate",
+      "historical_native_bytes": 26304,
+      "historical_native_sha256": "84116aabdd831e97fea3305b5ec8ce06ea5a156daa15e4432521e97bffbc5478",
+      "local_native_bytes": 26304,
+      "local_native_sha256": "8d1392f96509bb8a613c9e7ea723880c75d1a72d4a5a4d643fa8f77c26a8e145",
+      "historical_native_pin_match": false,
+      "engine_runs": 0
+    },
+    {
+      "name": "af-c",
+      "source_commit": "0e716e0b366272c66749f6e7194f64cb715e2d00",
+      "policy": "full",
+      "category": "4k",
+      "artifact": "${WORK}/af-inputs/af-c",
+      "source_bytes": 10174,
+      "source_sha256": "e3af22b2404d37187076ee676c51446aa561ac8cd14583b37d3da2529d9190a7",
+      "source_origin": "${CANONICAL_AF}/c/attempt-1/main.c",
+      "recipe_sha256": "25bec6ff041d1810f36c44ab11f904436c21132eae1106965df946ea757f0e9d",
+      "original_bytes": 4992,
+      "original_sha256": "07341bf4431dc2a6d412045377784bb28548baee5cd6142093a01c6d0b9d826b",
+      "bootstrap_bytes": 11241,
+      "bootstrap_sha256": "befbe147f3f50818e915783a9d6db3a2876f7bdf3e1c891fb72cbe1f29b208f0",
+      "header_bytes": 77,
+      "header_sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
+      "embedding": {
+        "kind": "python-bytes",
+        "start": 682,
+        "end": 10864,
+        "sha256": "848cf9af222b83dea8ab178f4379ee997157d54e73272bf384f5d2fb3728a323"
+      },
+      "maintained_literal_style": "raw-bytes-single",
+      "source_bootstrap_whole_pins_match": true,
+      "canonical_build_status": "failed_historical_native_identity_gate",
+      "historical_native_bytes": 26368,
+      "historical_native_sha256": "acb8b1a3526166eb4376f9ad0e071449ae3622b8b54cc12682781d99495324bd",
+      "local_native_bytes": 26360,
+      "local_native_sha256": "b384567aff98e37035875e5071fa9292556c4f175a7a869073fb2807bff3b886",
+      "historical_native_pin_match": false,
+      "engine_runs": 0
+    },
+    {
+      "name": "af-e",
+      "source_commit": "0e716e0b366272c66749f6e7194f64cb715e2d00",
+      "policy": "full",
+      "category": "4k",
+      "artifact": "${WORK}/af-inputs/af-e",
+      "source_bytes": 10624,
+      "source_sha256": "75a6e0211afb6c6200327bf4d27dd3ed1a8cc4c7ded480e5bc25805a447ccfb7",
+      "source_origin": "${CANONICAL_AF}/e/attempt-1/main.c",
+      "recipe_sha256": "dccf9fb338548ddad3d33bd1c07c9d9e4cae4cb6ba7c0114ae79886cc53ea68c",
+      "original_bytes": 5076,
+      "original_sha256": "fbbe85f3e048159c578ff85152d7e0bcd5e4d771a5d9801b4fcdf039f5e1befc",
+      "bootstrap_bytes": 11681,
+      "bootstrap_sha256": "068e7d7b6f44450ddf646d56313f3ea4d4170e8b44db220de6437ece233a00fc",
+      "header_bytes": 77,
+      "header_sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
+      "embedding": {
+        "kind": "python-bytes",
+        "start": 672,
+        "end": 11304,
+        "sha256": "ea22b7d70b932f83efd5e81be73aeed0236d3d1001461857afd606c1163f7eff"
+      },
+      "maintained_literal_style": "raw-bytes-single",
+      "source_bootstrap_whole_pins_match": true,
+      "canonical_build_status": "failed_historical_native_identity_gate",
+      "historical_native_bytes": 26400,
+      "historical_native_sha256": "c9ff0297831427fad2effc0c2df32f670c67782bed6c3f926b4b31fbc525980a",
+      "local_native_bytes": 26400,
+      "local_native_sha256": "e58c321bf4a13083f6cc91740046f92294f6fb606f59430bb1ee0de98e1d1992",
+      "historical_native_pin_match": false,
+      "engine_runs": 0
+    },
+    {
+      "name": "af-f",
+      "source_commit": "0e716e0b366272c66749f6e7194f64cb715e2d00",
+      "policy": "full",
+      "category": "4k",
+      "artifact": "${WORK}/af-inputs/af-f",
+      "source_bytes": 9109,
+      "source_sha256": "2542ab10fd598d5496a4f34a6f22f3e048c64c2cbf1a5396f1c33a8a7da5b6e6",
+      "source_origin": "${CANONICAL_AF}/f/attempt-1/main.c",
+      "recipe_sha256": "4cc55199b63e6bbd69aebebdef77dfaf5ed83ebc83a47f728b4dbb50cc34bb2b",
+      "original_bytes": 4645,
+      "original_sha256": "a3eaf6f94477beb9897bbccec11e990eb703bc3243034199271deb1b41e023bb",
+      "bootstrap_bytes": 10100,
+      "bootstrap_sha256": "2c87000cbfedbc5fe19c517ac383e30aa44c7ee6b0c8bedb3b1943240930a6b6",
+      "header_bytes": 77,
+      "header_sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
+      "embedding": {
+        "kind": "python-bytes",
+        "start": 606,
+        "end": 9723,
+        "sha256": "a6ca67275a3d830eaa06987164777d8c391d7319cb7f92fd0bd20dd2a1859790"
+      },
+      "maintained_literal_style": "raw-bytes-single",
+      "source_bootstrap_whole_pins_match": true,
+      "canonical_build_status": "failed_historical_native_identity_gate",
+      "historical_native_bytes": 18576,
+      "historical_native_sha256": "c2a1902f6e2d79292b2bb148b5e132e3bbda2edf1d8c30fdf7714b690419ee5e",
+      "local_native_bytes": 18576,
+      "local_native_sha256": "e81669026da6c335ecc85457e1422c5d130ad536c8c7b60dbb8c3ce8aa91b493",
+      "historical_native_pin_match": false,
+      "engine_runs": 0
+    },
+    {
+      "name": "af-f-material",
+      "source_commit": "0e716e0b366272c66749f6e7194f64cb715e2d00",
+      "policy": "material-noise",
+      "category": "4k",
+      "artifact": "${WORK}/af-inputs/af-f-material",
+      "source_bytes": 8604,
+      "source_sha256": "4867a0fdc8376359464e3eeb64c2dc6d441b9d57eadc8d0c4b9b4257f179db1f",
+      "source_origin": "${CANONICAL_AF}/f-material/attempt-1/main.c",
+      "recipe_sha256": "4cc55199b63e6bbd69aebebdef77dfaf5ed83ebc83a47f728b4dbb50cc34bb2b",
+      "original_bytes": 4369,
+      "original_sha256": "eff84e9b34ba121c7c17397252e2f61e832c6f2cfe0fcd51f182f99b677a3682",
+      "bootstrap_bytes": 9595,
+      "bootstrap_sha256": "3a8bbbc95c5e7d188e34b07a9eb08050249278489c7c4c7f924645f2039e1aa4",
+      "header_bytes": 77,
+      "header_sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
+      "embedding": {
+        "kind": "python-bytes",
+        "start": 606,
+        "end": 9218,
+        "sha256": "2d1b09946e1184241f1a71af092f947444761d8918d91003d821786d9f13cfa4"
+      },
+      "maintained_literal_style": "raw-bytes-single",
+      "source_bootstrap_whole_pins_match": true,
+      "canonical_build_status": "failed_historical_native_identity_gate",
+      "historical_native_bytes": 18576,
+      "historical_native_sha256": "24ae0622c5a0fd10191950f53e0f6ea5d3e3d05fbb1b20aaa72c2b5f2754873f",
+      "local_native_bytes": 18576,
+      "local_native_sha256": "a6abdb6ba3e5a215a925c0f5e94a21176c6e2e32be94c25908b1cc64ca74fd08",
+      "historical_native_pin_match": false,
+      "engine_runs": 0
+    },
+    {
+      "name": "af-f-move",
+      "source_commit": "0e716e0b366272c66749f6e7194f64cb715e2d00",
+      "policy": "material-move-tt",
+      "category": "4k",
+      "artifact": "${WORK}/af-inputs/af-f-move",
+      "source_bytes": 7821,
+      "source_sha256": "8352665bca27f8c17c8ba1eeede04ddf0abaf70d88bebb5d70c6104c0c3481ec",
+      "source_origin": "${CANONICAL_AF}/f-move/attempt-1/main.c",
+      "recipe_sha256": "4cc55199b63e6bbd69aebebdef77dfaf5ed83ebc83a47f728b4dbb50cc34bb2b",
+      "original_bytes": 4089,
+      "original_sha256": "ccb77b12ade5ef7dd367970edd4bfc3d97d4709a00fc9861570355785563d70c",
+      "bootstrap_bytes": 8812,
+      "bootstrap_sha256": "c5921c298776aa90ffb68ffda7bb9cdc0b5008883f4dc24d26f10f8f8de45215",
+      "header_bytes": 77,
+      "header_sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
+      "embedding": {
+        "kind": "python-bytes",
+        "start": 606,
+        "end": 8435,
+        "sha256": "eadf78964dabfbd6d147ff04afc3f2b91eef2bcb47976083469dea912e2df2e3"
+      },
+      "maintained_literal_style": "raw-bytes-single",
+      "source_bootstrap_whole_pins_match": true,
+      "canonical_build_status": "failed_historical_native_identity_gate",
+      "historical_native_bytes": 18576,
+      "historical_native_sha256": "1a964e23bc8967b6eb74714389b4d94fd0e505d5d1eba3616775b7e4b0a522d5",
+      "local_native_bytes": 18576,
+      "local_native_sha256": "c3fd3c09f8d72d4dd94cec47bfabd1c022cf151fd9624d29c1f750b90ba6126c",
+      "historical_native_pin_match": false,
+      "engine_runs": 0
+    },
+    {
+      "name": "af-d-scalar",
+      "source_commit": "0e716e0b366272c66749f6e7194f64cb715e2d00",
+      "category": "4k-elf",
+      "variant": "scalar-shipping",
+      "original_bytes": 5966,
+      "original_sha256": "ec52f4ea0fa8f8c792f88402ad8bc966a50055d80aab26ace444e8cb0daf3319",
+      "artifact": "${WORK}/af-inputs/af-d-scalar",
+      "retained_origin": "${RETAINED_D}/scalar-shipping/context/x",
+      "retained_build_sha256": "1483640558d50280c8dee6b7a69a2d4ad385c1a331a6c32ffc9f7d4bd0b8708b",
+      "recipe_sha256": "1477e12aa2953817781dd12b4f1f71caa919d65dd05c13a3aee7e065caf3e6c7",
+      "source_recipe_unchanged_since": "364e316951214ac2008c7c7a0b5bfd6412bd1e98",
+      "source_and_recipe_readback_match": true,
+      "historical_native_pin_match": true,
+      "native_sha256": "cf8baab6f2bd26dc42da129df0c2c411780cd6ed2dd2aacbac1ffe994ad11f40",
+      "historical_whole_pin_match": true,
+      "repeated_whole_bytes_equal": true,
+      "engine_runs": 0
+    },
+    {
+      "name": "af-d-hq",
+      "source_commit": "0e716e0b366272c66749f6e7194f64cb715e2d00",
+      "category": "4k-elf",
+      "variant": "hq-shipping",
+      "original_bytes": 6175,
+      "original_sha256": "5badc54a2f24eb8f5c1e5ee033e27005eececcf84b8672c438a2a720e22ceab0",
+      "artifact": "${WORK}/af-inputs/af-d-hq",
+      "retained_origin": "${RETAINED_D}/hq-shipping/context/x",
+      "retained_build_sha256": "1483640558d50280c8dee6b7a69a2d4ad385c1a331a6c32ffc9f7d4bd0b8708b",
+      "recipe_sha256": "1477e12aa2953817781dd12b4f1f71caa919d65dd05c13a3aee7e065caf3e6c7",
+      "source_recipe_unchanged_since": "364e316951214ac2008c7c7a0b5bfd6412bd1e98",
+      "source_and_recipe_readback_match": true,
+      "historical_native_pin_match": true,
+      "native_sha256": "f27718c749ef40c7d1f30e27e4e0991792329d60c3c696bb4b9e487677543110",
+      "historical_whole_pin_match": true,
+      "repeated_whole_bytes_equal": true,
+      "engine_runs": 0
+    }
+  ],
+  "canonical_failure_count": 7,
+  "historical_pins_updated": false,
+  "baseline_manifests": {
+    "af-a.json": {
+      "format": "nvcompact.external-engine.v1",
+      "name": "af-a",
+      "artifact": "af-a",
+      "artifact_key": "af-a",
+      "category": "4k",
+      "original_bytes": 4652,
+      "sha256": "fd7307213f35a16b111854125ec028e1fc4c07d0042bb0e5421976c8de244f20",
+      "provenance": {
+        "source_url": "https://github.com/daejunnom/Rove4k",
+        "source_commit": "0e716e0b366272c66749f6e7194f64cb715e2d00",
+        "recipe_path": "engines/compact/tiny-entry-a/recipe.json",
+        "recipe_sha256": "2c1562b86c5943209bb0470b3ff37c3c36005ae147d6ce79f5350936e026b288",
+        "policy": "full",
+        "comparison_role": "Pinned PR12 owned engine regression input",
+        "artifact_provenance": "independent packaging of exact maintained generated source",
+        "source_bootstrap_whole_pins_match": true,
+        "canonical_build_status": "failed_historical_native_identity_gate",
+        "historical_native_pin_match": false,
+        "historical_native_sha256": "ca24e8e88d15a81c635d7f762b972509443930cec19e1daa8b5e547458551c53",
+        "local_native_sha256": "bc26eddc218b4e787fbe777d6da9689a6d314659763841104c8b7e0e0c9f079e",
+        "no_canonical_gate_was_modified_or_bypassed": true
+      },
+      "runtime_profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev_default": false
+      },
+      "runtime_blocked": "Compile/pack comparison only. This harness does not execute engines; runtime requires a separate declared resource plan and explicit start.",
+      "envelope": {
+        "decoder": "lzma -dc",
+        "payload_codec": {
+          "format": "alone",
+          "preset": 2147483657,
+          "dict_size": 67108864,
+          "lc": 2,
+          "lp": 0,
+          "pb": 0
+        },
+        "header_bytes": 77,
+        "header_sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
+      },
+      "payload_sha256": "8d1361bf4692bea9b25fbce96d3c47ff77c89bca5d334135f068729c27087824",
+      "language": "python",
+      "notation": {
+        "token_contract": "no-token-observation",
+        "compact": true
+      },
+      "compile_argv": [
+        "cc",
+        "-Os",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "{output}",
+        "-s"
+      ],
+      "compile_limits": {
+        "seconds": 60.0,
+        "memory_bytes": 1073741824,
+        "output_bytes": 16777216,
+        "cpu_seconds": 120,
+        "file_bytes": 67108864
+      }
+    },
+    "af-b.json": {
+      "format": "nvcompact.external-engine.v1",
+      "name": "af-b",
+      "artifact": "af-b",
+      "artifact_key": "af-b",
+      "category": "4k",
+      "original_bytes": 5219,
+      "sha256": "65cfbe6f391f620beeb8d8b190570ed5eed2c38b937ba87b1cbf4f547fe606b0",
+      "provenance": {
+        "source_url": "https://github.com/daejunnom/Rove4k",
+        "source_commit": "0e716e0b366272c66749f6e7194f64cb715e2d00",
+        "recipe_path": "engines/compact/tiny-entry-b/recipe.json",
+        "recipe_sha256": "89a3b03a4202a9510c3b58adce3afc0517f8667e5412855812213885984209ab",
+        "policy": "full",
+        "comparison_role": "Pinned PR12 owned engine regression input",
+        "artifact_provenance": "independent packaging of exact maintained generated source",
+        "source_bootstrap_whole_pins_match": true,
+        "canonical_build_status": "failed_historical_native_identity_gate",
+        "historical_native_pin_match": false,
+        "historical_native_sha256": "84116aabdd831e97fea3305b5ec8ce06ea5a156daa15e4432521e97bffbc5478",
+        "local_native_sha256": "8d1392f96509bb8a613c9e7ea723880c75d1a72d4a5a4d643fa8f77c26a8e145",
+        "no_canonical_gate_was_modified_or_bypassed": true
+      },
+      "runtime_profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev_default": false
+      },
+      "runtime_blocked": "Compile/pack comparison only. This harness does not execute engines; runtime requires a separate declared resource plan and explicit start.",
+      "envelope": {
+        "decoder": "lzma -dc",
+        "payload_codec": {
+          "format": "alone",
+          "preset": 2147483657,
+          "dict_size": 67108864,
+          "lc": 2,
+          "lp": 0,
+          "pb": 0,
+          "nice_len": 32,
+          "mf": 20
+        },
+        "header_bytes": 77,
+        "header_sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
+      },
+      "payload_sha256": "01d0650c30f03b3f5f3fab4d57be20d0dac7126dd82603c2eaee9bc130a3fb62",
+      "language": "python",
+      "notation": {
+        "token_contract": "no-token-observation",
+        "compact": true
+      },
+      "compile_argv": [
+        "cc",
+        "-std=c11",
+        "-Os",
+        "-pthread",
+        "-DWORKERS=2",
+        "-DTT_BITS=18",
+        "-DDEV=0",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "{output}"
+      ],
+      "compile_limits": {
+        "seconds": 60.0,
+        "memory_bytes": 1073741824,
+        "output_bytes": 16777216,
+        "cpu_seconds": 120,
+        "file_bytes": 67108864
+      }
+    },
+    "af-c.json": {
+      "format": "nvcompact.external-engine.v1",
+      "name": "af-c",
+      "artifact": "af-c",
+      "artifact_key": "af-c",
+      "category": "4k",
+      "original_bytes": 4992,
+      "sha256": "07341bf4431dc2a6d412045377784bb28548baee5cd6142093a01c6d0b9d826b",
+      "provenance": {
+        "source_url": "https://github.com/daejunnom/Rove4k",
+        "source_commit": "0e716e0b366272c66749f6e7194f64cb715e2d00",
+        "recipe_path": "engines/compact/tiny-entry-c/recipe.json",
+        "recipe_sha256": "25bec6ff041d1810f36c44ab11f904436c21132eae1106965df946ea757f0e9d",
+        "policy": "full",
+        "comparison_role": "Pinned PR12 owned engine regression input",
+        "artifact_provenance": "independent packaging of exact maintained generated source",
+        "source_bootstrap_whole_pins_match": true,
+        "canonical_build_status": "failed_historical_native_identity_gate",
+        "historical_native_pin_match": false,
+        "historical_native_sha256": "acb8b1a3526166eb4376f9ad0e071449ae3622b8b54cc12682781d99495324bd",
+        "local_native_sha256": "b384567aff98e37035875e5071fa9292556c4f175a7a869073fb2807bff3b886",
+        "no_canonical_gate_was_modified_or_bypassed": true
+      },
+      "runtime_profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev_default": false
+      },
+      "runtime_blocked": "Compile/pack comparison only. This harness does not execute engines; runtime requires a separate declared resource plan and explicit start.",
+      "envelope": {
+        "decoder": "lzma -dc",
+        "payload_codec": {
+          "format": "alone",
+          "preset": 2147483657,
+          "dict_size": 67108864,
+          "lc": 2,
+          "lp": 0,
+          "pb": 0,
+          "nice_len": 64,
+          "mf": 20
+        },
+        "header_bytes": 77,
+        "header_sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
+      },
+      "payload_sha256": "befbe147f3f50818e915783a9d6db3a2876f7bdf3e1c891fb72cbe1f29b208f0",
+      "language": "python",
+      "notation": {
+        "token_contract": "no-token-observation",
+        "compact": true
+      },
+      "compile_argv": [
+        "cc",
+        "-std=c11",
+        "-Os",
+        "-pthread",
+        "-DWORKERS=2",
+        "-DTT_BITS=18",
+        "-mavx2",
+        "-DDEV=0",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "{output}"
+      ],
+      "compile_limits": {
+        "seconds": 60.0,
+        "memory_bytes": 1073741824,
+        "output_bytes": 16777216,
+        "cpu_seconds": 120,
+        "file_bytes": 67108864
+      }
+    },
+    "af-d-hq.json": {
+      "format": "nvcompact.external-engine.v1",
+      "name": "af-d-hq",
+      "artifact": "af-d-hq",
+      "artifact_key": "af-d-hq",
+      "category": "4k-elf",
+      "original_bytes": 6175,
+      "sha256": "5badc54a2f24eb8f5c1e5ee033e27005eececcf84b8672c438a2a720e22ceab0",
+      "provenance": {
+        "source_url": "https://github.com/daejunnom/Rove4k",
+        "source_commit": "0e716e0b366272c66749f6e7194f64cb715e2d00",
+        "recipe_path": "engines/compact/tiny-entry-d/recipe.json",
+        "recipe_sha256": "1477e12aa2953817781dd12b4f1f71caa919d65dd05c13a3aee7e065caf3e6c7",
+        "variant": "hq-shipping",
+        "comparison_role": "Pinned PR12 owned engine regression input",
+        "artifact_provenance": "retained exact maintained build with unchanged source/recipe",
+        "source_recipe_unchanged_since": "364e316951214ac2008c7c7a0b5bfd6412bd1e98",
+        "retained_build_sha256": "1483640558d50280c8dee6b7a69a2d4ad385c1a331a6c32ffc9f7d4bd0b8708b",
+        "historical_native_and_whole_pins_match": true
+      },
+      "runtime_profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev": 0
+      },
+      "runtime_blocked": "Static ELF comparison only; this harness does not execute the engine or its loader.",
+      "allow_section_header_removal": false
+    },
+    "af-d-scalar.json": {
+      "format": "nvcompact.external-engine.v1",
+      "name": "af-d-scalar",
+      "artifact": "af-d-scalar",
+      "artifact_key": "af-d-scalar",
+      "category": "4k-elf",
+      "original_bytes": 5966,
+      "sha256": "ec52f4ea0fa8f8c792f88402ad8bc966a50055d80aab26ace444e8cb0daf3319",
+      "provenance": {
+        "source_url": "https://github.com/daejunnom/Rove4k",
+        "source_commit": "0e716e0b366272c66749f6e7194f64cb715e2d00",
+        "recipe_path": "engines/compact/tiny-entry-d/recipe.json",
+        "recipe_sha256": "1477e12aa2953817781dd12b4f1f71caa919d65dd05c13a3aee7e065caf3e6c7",
+        "variant": "scalar-shipping",
+        "comparison_role": "Pinned PR12 owned engine regression input",
+        "artifact_provenance": "retained exact maintained build with unchanged source/recipe",
+        "source_recipe_unchanged_since": "364e316951214ac2008c7c7a0b5bfd6412bd1e98",
+        "retained_build_sha256": "1483640558d50280c8dee6b7a69a2d4ad385c1a331a6c32ffc9f7d4bd0b8708b",
+        "historical_native_and_whole_pins_match": true
+      },
+      "runtime_profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev": 0
+      },
+      "runtime_blocked": "Static ELF comparison only; this harness does not execute the engine or its loader.",
+      "allow_section_header_removal": false
+    },
+    "af-e.json": {
+      "format": "nvcompact.external-engine.v1",
+      "name": "af-e",
+      "artifact": "af-e",
+      "artifact_key": "af-e",
+      "category": "4k",
+      "original_bytes": 5076,
+      "sha256": "fbbe85f3e048159c578ff85152d7e0bcd5e4d771a5d9801b4fcdf039f5e1befc",
+      "provenance": {
+        "source_url": "https://github.com/daejunnom/Rove4k",
+        "source_commit": "0e716e0b366272c66749f6e7194f64cb715e2d00",
+        "recipe_path": "engines/compact/tiny-entry-e/recipe.json",
+        "recipe_sha256": "dccf9fb338548ddad3d33bd1c07c9d9e4cae4cb6ba7c0114ae79886cc53ea68c",
+        "policy": "full",
+        "comparison_role": "Pinned PR12 owned engine regression input",
+        "artifact_provenance": "independent packaging of exact maintained generated source",
+        "source_bootstrap_whole_pins_match": true,
+        "canonical_build_status": "failed_historical_native_identity_gate",
+        "historical_native_pin_match": false,
+        "historical_native_sha256": "c9ff0297831427fad2effc0c2df32f670c67782bed6c3f926b4b31fbc525980a",
+        "local_native_sha256": "e58c321bf4a13083f6cc91740046f92294f6fb606f59430bb1ee0de98e1d1992",
+        "no_canonical_gate_was_modified_or_bypassed": true
+      },
+      "runtime_profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev_default": false
+      },
+      "runtime_blocked": "Compile/pack comparison only. This harness does not execute engines; runtime requires a separate declared resource plan and explicit start.",
+      "envelope": {
+        "decoder": "lzma -dc",
+        "payload_codec": {
+          "format": "alone",
+          "preset": 2147483657,
+          "dict_size": 67108864,
+          "lc": 2,
+          "lp": 0,
+          "pb": 0,
+          "nice_len": 32,
+          "mf": 20
+        },
+        "header_bytes": 77,
+        "header_sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
+      },
+      "payload_sha256": "068e7d7b6f44450ddf646d56313f3ea4d4170e8b44db220de6437ece233a00fc",
+      "language": "python",
+      "notation": {
+        "token_contract": "no-token-observation",
+        "compact": true
+      },
+      "compile_argv": [
+        "cc",
+        "-std=c11",
+        "-Os",
+        "-pthread",
+        "-DWORKERS=2",
+        "-DTT_BITS=18",
+        "-DDEV=0",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "{output}"
+      ],
+      "compile_limits": {
+        "seconds": 60.0,
+        "memory_bytes": 1073741824,
+        "output_bytes": 16777216,
+        "cpu_seconds": 120,
+        "file_bytes": 67108864
+      }
+    },
+    "af-f-material.json": {
+      "format": "nvcompact.external-engine.v1",
+      "name": "af-f-material",
+      "artifact": "af-f-material",
+      "artifact_key": "af-f-material",
+      "category": "4k",
+      "original_bytes": 4369,
+      "sha256": "eff84e9b34ba121c7c17397252e2f61e832c6f2cfe0fcd51f182f99b677a3682",
+      "provenance": {
+        "source_url": "https://github.com/daejunnom/Rove4k",
+        "source_commit": "0e716e0b366272c66749f6e7194f64cb715e2d00",
+        "recipe_path": "engines/compact/tiny-entry-f/recipe.json",
+        "recipe_sha256": "4cc55199b63e6bbd69aebebdef77dfaf5ed83ebc83a47f728b4dbb50cc34bb2b",
+        "policy": "material-noise",
+        "comparison_role": "Pinned PR12 owned engine regression input",
+        "artifact_provenance": "independent packaging of exact maintained generated source",
+        "source_bootstrap_whole_pins_match": true,
+        "canonical_build_status": "failed_historical_native_identity_gate",
+        "historical_native_pin_match": false,
+        "historical_native_sha256": "24ae0622c5a0fd10191950f53e0f6ea5d3e3d05fbb1b20aaa72c2b5f2754873f",
+        "local_native_sha256": "a6abdb6ba3e5a215a925c0f5e94a21176c6e2e32be94c25908b1cc64ca74fd08",
+        "no_canonical_gate_was_modified_or_bypassed": true
+      },
+      "runtime_profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev_default": false
+      },
+      "runtime_blocked": "Compile/pack comparison only. This harness does not execute engines; runtime requires a separate declared resource plan and explicit start.",
+      "envelope": {
+        "decoder": "lzma -dc",
+        "payload_codec": {
+          "format": "alone",
+          "preset": 2147483657,
+          "dict_size": 67108864,
+          "lc": 2,
+          "lp": 0,
+          "pb": 0,
+          "nice_len": 32,
+          "mf": 20
+        },
+        "header_bytes": 77,
+        "header_sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
+      },
+      "payload_sha256": "3a8bbbc95c5e7d188e34b07a9eb08050249278489c7c4c7f924645f2039e1aa4",
+      "language": "python",
+      "notation": {
+        "token_contract": "no-token-observation",
+        "compact": true
+      },
+      "compile_argv": [
+        "cc",
+        "-Os",
+        "-pthread",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "{output}",
+        "-s"
+      ],
+      "compile_limits": {
+        "seconds": 60.0,
+        "memory_bytes": 1073741824,
+        "output_bytes": 16777216,
+        "cpu_seconds": 120,
+        "file_bytes": 67108864
+      }
+    },
+    "af-f-move.json": {
+      "format": "nvcompact.external-engine.v1",
+      "name": "af-f-move",
+      "artifact": "af-f-move",
+      "artifact_key": "af-f-move",
+      "category": "4k",
+      "original_bytes": 4089,
+      "sha256": "ccb77b12ade5ef7dd367970edd4bfc3d97d4709a00fc9861570355785563d70c",
+      "provenance": {
+        "source_url": "https://github.com/daejunnom/Rove4k",
+        "source_commit": "0e716e0b366272c66749f6e7194f64cb715e2d00",
+        "recipe_path": "engines/compact/tiny-entry-f/recipe.json",
+        "recipe_sha256": "4cc55199b63e6bbd69aebebdef77dfaf5ed83ebc83a47f728b4dbb50cc34bb2b",
+        "policy": "material-move-tt",
+        "comparison_role": "Pinned PR12 owned engine regression input",
+        "artifact_provenance": "independent packaging of exact maintained generated source",
+        "source_bootstrap_whole_pins_match": true,
+        "canonical_build_status": "failed_historical_native_identity_gate",
+        "historical_native_pin_match": false,
+        "historical_native_sha256": "1a964e23bc8967b6eb74714389b4d94fd0e505d5d1eba3616775b7e4b0a522d5",
+        "local_native_sha256": "c3fd3c09f8d72d4dd94cec47bfabd1c022cf151fd9624d29c1f750b90ba6126c",
+        "no_canonical_gate_was_modified_or_bypassed": true
+      },
+      "runtime_profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev_default": false
+      },
+      "runtime_blocked": "Compile/pack comparison only. This harness does not execute engines; runtime requires a separate declared resource plan and explicit start.",
+      "envelope": {
+        "decoder": "lzma -dc",
+        "payload_codec": {
+          "format": "alone",
+          "preset": 2147483657,
+          "dict_size": 67108864,
+          "lc": 0,
+          "lp": 0,
+          "pb": 0,
+          "nice_len": 32,
+          "mf": 20
+        },
+        "header_bytes": 77,
+        "header_sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
+      },
+      "payload_sha256": "c5921c298776aa90ffb68ffda7bb9cdc0b5008883f4dc24d26f10f8f8de45215",
+      "language": "python",
+      "notation": {
+        "token_contract": "no-token-observation",
+        "compact": true
+      },
+      "compile_argv": [
+        "cc",
+        "-Os",
+        "-pthread",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "{output}",
+        "-s"
+      ],
+      "compile_limits": {
+        "seconds": 60.0,
+        "memory_bytes": 1073741824,
+        "output_bytes": 16777216,
+        "cpu_seconds": 120,
+        "file_bytes": 67108864
+      }
+    },
+    "af-f.json": {
+      "format": "nvcompact.external-engine.v1",
+      "name": "af-f",
+      "artifact": "af-f",
+      "artifact_key": "af-f",
+      "category": "4k",
+      "original_bytes": 4645,
+      "sha256": "a3eaf6f94477beb9897bbccec11e990eb703bc3243034199271deb1b41e023bb",
+      "provenance": {
+        "source_url": "https://github.com/daejunnom/Rove4k",
+        "source_commit": "0e716e0b366272c66749f6e7194f64cb715e2d00",
+        "recipe_path": "engines/compact/tiny-entry-f/recipe.json",
+        "recipe_sha256": "4cc55199b63e6bbd69aebebdef77dfaf5ed83ebc83a47f728b4dbb50cc34bb2b",
+        "policy": "full",
+        "comparison_role": "Pinned PR12 owned engine regression input",
+        "artifact_provenance": "independent packaging of exact maintained generated source",
+        "source_bootstrap_whole_pins_match": true,
+        "canonical_build_status": "failed_historical_native_identity_gate",
+        "historical_native_pin_match": false,
+        "historical_native_sha256": "c2a1902f6e2d79292b2bb148b5e132e3bbda2edf1d8c30fdf7714b690419ee5e",
+        "local_native_sha256": "e81669026da6c335ecc85457e1422c5d130ad536c8c7b60dbb8c3ce8aa91b493",
+        "no_canonical_gate_was_modified_or_bypassed": true
+      },
+      "runtime_profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev_default": false
+      },
+      "runtime_blocked": "Compile/pack comparison only. This harness does not execute engines; runtime requires a separate declared resource plan and explicit start.",
+      "envelope": {
+        "decoder": "lzma -dc",
+        "payload_codec": {
+          "format": "alone",
+          "preset": 2147483657,
+          "dict_size": 67108864,
+          "lc": 2,
+          "lp": 0,
+          "pb": 0,
+          "nice_len": 32,
+          "mf": 20
+        },
+        "header_bytes": 77,
+        "header_sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
+      },
+      "payload_sha256": "2c87000cbfedbc5fe19c517ac383e30aa44c7ee6b0c8bedb3b1943240930a6b6",
+      "language": "python",
+      "notation": {
+        "token_contract": "no-token-observation",
+        "compact": true
+      },
+      "compile_argv": [
+        "cc",
+        "-Os",
+        "-pthread",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "{output}",
+        "-s"
+      ],
+      "compile_limits": {
+        "seconds": 60.0,
+        "memory_bytes": 1073741824,
+        "output_bytes": 16777216,
+        "cpu_seconds": 120,
+        "file_bytes": 67108864
+      }
+    }
+  },
+  "candidate_manifests": {
+    "af-a.json": {
+      "format": "nvcompact.external-engine.v1",
+      "name": "af-a",
+      "artifact": "af-a",
+      "artifact_key": "af-a",
+      "category": "4k",
+      "original_bytes": 4652,
+      "sha256": "fd7307213f35a16b111854125ec028e1fc4c07d0042bb0e5421976c8de244f20",
+      "provenance": {
+        "source_url": "https://github.com/daejunnom/Rove4k",
+        "source_commit": "0e716e0b366272c66749f6e7194f64cb715e2d00",
+        "recipe_path": "engines/compact/tiny-entry-a/recipe.json",
+        "recipe_sha256": "2c1562b86c5943209bb0470b3ff37c3c36005ae147d6ce79f5350936e026b288",
+        "policy": "full",
+        "comparison_role": "Pinned PR12 owned engine regression input",
+        "artifact_provenance": "independent packaging of exact maintained generated source",
+        "source_bootstrap_whole_pins_match": true,
+        "canonical_build_status": "failed_historical_native_identity_gate",
+        "historical_native_pin_match": false,
+        "historical_native_sha256": "ca24e8e88d15a81c635d7f762b972509443930cec19e1daa8b5e547458551c53",
+        "local_native_sha256": "bc26eddc218b4e787fbe777d6da9689a6d314659763841104c8b7e0e0c9f079e",
+        "no_canonical_gate_was_modified_or_bypassed": true
+      },
+      "runtime_profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev_default": false
+      },
+      "runtime_blocked": "Compile/pack comparison only. This harness does not execute engines; runtime requires a separate declared resource plan and explicit start.",
+      "envelope": {
+        "decoder": "lzma -dc",
+        "payload_codec": {
+          "format": "alone",
+          "preset": 2147483657,
+          "dict_size": 67108864,
+          "lc": 2,
+          "lp": 0,
+          "pb": 0
+        },
+        "header_bytes": 77,
+        "header_sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
+      },
+      "payload_sha256": "8d1361bf4692bea9b25fbce96d3c47ff77c89bca5d334135f068729c27087824",
+      "language": "python",
+      "notation": {
+        "token_contract": "no-token-observation",
+        "compact": true
+      },
+      "compile_argv": [
+        "cc",
+        "-Os",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "{output}",
+        "-s"
+      ],
+      "compile_limits": {
+        "seconds": 60.0,
+        "memory_bytes": 1073741824,
+        "output_bytes": 16777216,
+        "cpu_seconds": 120,
+        "file_bytes": 67108864
+      },
+      "source_search": {
+        "candidates": {
+          "frontend": {
+            "clang": "${CLANG20}",
+            "standard": "gnu11",
+            "compiler_args": [],
+            "token_contract": "no-token-observation",
+            "frontend_memory_bytes": 1073741824
+          },
+          "target": "c11-lp64",
+          "max_candidates": 256,
+          "max_name_groups": 36,
+          "names_per_group": 4,
+          "rename_locals": true,
+          "integer_literals": true,
+          "character_literals": true
+        },
+        "embedding": {
+          "kind": "python-bytes",
+          "start": 597,
+          "end": 9730,
+          "sha256": "a0ee5ccdb2af913a1bbde5ce74e049d982bb77e857b2d8574fe3150c0b5ddd75"
+        },
+        "embedding_contract": "compile-input-only",
+        "conditions": true,
+        "max_rounds": 2,
+        "max_evaluations": 2048,
+        "max_seconds": 300.0,
+        "compile_limits": {
+          "seconds": 60.0,
+          "memory_bytes": 1073741824,
+          "output_bytes": 16777216,
+          "cpu_seconds": 120,
+          "file_bytes": 67108864
+        }
+      }
+    },
+    "af-b.json": {
+      "format": "nvcompact.external-engine.v1",
+      "name": "af-b",
+      "artifact": "af-b",
+      "artifact_key": "af-b",
+      "category": "4k",
+      "original_bytes": 5219,
+      "sha256": "65cfbe6f391f620beeb8d8b190570ed5eed2c38b937ba87b1cbf4f547fe606b0",
+      "provenance": {
+        "source_url": "https://github.com/daejunnom/Rove4k",
+        "source_commit": "0e716e0b366272c66749f6e7194f64cb715e2d00",
+        "recipe_path": "engines/compact/tiny-entry-b/recipe.json",
+        "recipe_sha256": "89a3b03a4202a9510c3b58adce3afc0517f8667e5412855812213885984209ab",
+        "policy": "full",
+        "comparison_role": "Pinned PR12 owned engine regression input",
+        "artifact_provenance": "independent packaging of exact maintained generated source",
+        "source_bootstrap_whole_pins_match": true,
+        "canonical_build_status": "failed_historical_native_identity_gate",
+        "historical_native_pin_match": false,
+        "historical_native_sha256": "84116aabdd831e97fea3305b5ec8ce06ea5a156daa15e4432521e97bffbc5478",
+        "local_native_sha256": "8d1392f96509bb8a613c9e7ea723880c75d1a72d4a5a4d643fa8f77c26a8e145",
+        "no_canonical_gate_was_modified_or_bypassed": true
+      },
+      "runtime_profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev_default": false
+      },
+      "runtime_blocked": "Compile/pack comparison only. This harness does not execute engines; runtime requires a separate declared resource plan and explicit start.",
+      "envelope": {
+        "decoder": "lzma -dc",
+        "payload_codec": {
+          "format": "alone",
+          "preset": 2147483657,
+          "dict_size": 67108864,
+          "lc": 2,
+          "lp": 0,
+          "pb": 0,
+          "nice_len": 32,
+          "mf": 20
+        },
+        "header_bytes": 77,
+        "header_sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
+      },
+      "payload_sha256": "01d0650c30f03b3f5f3fab4d57be20d0dac7126dd82603c2eaee9bc130a3fb62",
+      "language": "python",
+      "notation": {
+        "token_contract": "no-token-observation",
+        "compact": true
+      },
+      "compile_argv": [
+        "cc",
+        "-std=c11",
+        "-Os",
+        "-pthread",
+        "-DWORKERS=2",
+        "-DTT_BITS=18",
+        "-DDEV=0",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "{output}"
+      ],
+      "compile_limits": {
+        "seconds": 60.0,
+        "memory_bytes": 1073741824,
+        "output_bytes": 16777216,
+        "cpu_seconds": 120,
+        "file_bytes": 67108864
+      },
+      "source_search": {
+        "candidates": {
+          "frontend": {
+            "clang": "${CLANG20}",
+            "standard": "gnu11",
+            "compiler_args": [
+              "-pthread",
+              "-DWORKERS=2",
+              "-DTT_BITS=18",
+              "-DDEV=0"
+            ],
+            "token_contract": "no-token-observation",
+            "frontend_memory_bytes": 1073741824
+          },
+          "target": "c11-lp64",
+          "max_candidates": 256,
+          "max_name_groups": 36,
+          "names_per_group": 4,
+          "rename_locals": true,
+          "integer_literals": true,
+          "character_literals": true
+        },
+        "embedding": {
+          "kind": "python-bytes",
+          "start": 672,
+          "end": 11425,
+          "sha256": "3ef2dc92bcbdb731433583d3353aa468d923f95732e518eb6489d238680d22df"
+        },
+        "embedding_contract": "compile-input-only",
+        "conditions": true,
+        "max_rounds": 2,
+        "max_evaluations": 2048,
+        "max_seconds": 300.0,
+        "compile_limits": {
+          "seconds": 60.0,
+          "memory_bytes": 1073741824,
+          "output_bytes": 16777216,
+          "cpu_seconds": 120,
+          "file_bytes": 67108864
+        }
+      }
+    },
+    "af-c.json": {
+      "format": "nvcompact.external-engine.v1",
+      "name": "af-c",
+      "artifact": "af-c",
+      "artifact_key": "af-c",
+      "category": "4k",
+      "original_bytes": 4992,
+      "sha256": "07341bf4431dc2a6d412045377784bb28548baee5cd6142093a01c6d0b9d826b",
+      "provenance": {
+        "source_url": "https://github.com/daejunnom/Rove4k",
+        "source_commit": "0e716e0b366272c66749f6e7194f64cb715e2d00",
+        "recipe_path": "engines/compact/tiny-entry-c/recipe.json",
+        "recipe_sha256": "25bec6ff041d1810f36c44ab11f904436c21132eae1106965df946ea757f0e9d",
+        "policy": "full",
+        "comparison_role": "Pinned PR12 owned engine regression input",
+        "artifact_provenance": "independent packaging of exact maintained generated source",
+        "source_bootstrap_whole_pins_match": true,
+        "canonical_build_status": "failed_historical_native_identity_gate",
+        "historical_native_pin_match": false,
+        "historical_native_sha256": "acb8b1a3526166eb4376f9ad0e071449ae3622b8b54cc12682781d99495324bd",
+        "local_native_sha256": "b384567aff98e37035875e5071fa9292556c4f175a7a869073fb2807bff3b886",
+        "no_canonical_gate_was_modified_or_bypassed": true
+      },
+      "runtime_profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev_default": false
+      },
+      "runtime_blocked": "Compile/pack comparison only. This harness does not execute engines; runtime requires a separate declared resource plan and explicit start.",
+      "envelope": {
+        "decoder": "lzma -dc",
+        "payload_codec": {
+          "format": "alone",
+          "preset": 2147483657,
+          "dict_size": 67108864,
+          "lc": 2,
+          "lp": 0,
+          "pb": 0,
+          "nice_len": 64,
+          "mf": 20
+        },
+        "header_bytes": 77,
+        "header_sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
+      },
+      "payload_sha256": "befbe147f3f50818e915783a9d6db3a2876f7bdf3e1c891fb72cbe1f29b208f0",
+      "language": "python",
+      "notation": {
+        "token_contract": "no-token-observation",
+        "compact": true
+      },
+      "compile_argv": [
+        "cc",
+        "-std=c11",
+        "-Os",
+        "-pthread",
+        "-DWORKERS=2",
+        "-DTT_BITS=18",
+        "-mavx2",
+        "-DDEV=0",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "{output}"
+      ],
+      "compile_limits": {
+        "seconds": 60.0,
+        "memory_bytes": 1073741824,
+        "output_bytes": 16777216,
+        "cpu_seconds": 120,
+        "file_bytes": 67108864
+      },
+      "source_search": {
+        "candidates": {
+          "frontend": {
+            "clang": "${CLANG20}",
+            "standard": "gnu11",
+            "compiler_args": [
+              "-pthread",
+              "-DWORKERS=2",
+              "-DTT_BITS=18",
+              "-mavx2",
+              "-DDEV=0"
+            ],
+            "token_contract": "no-token-observation",
+            "frontend_memory_bytes": 1073741824
+          },
+          "target": "c11-lp64",
+          "max_candidates": 256,
+          "max_name_groups": 36,
+          "names_per_group": 4,
+          "rename_locals": true,
+          "integer_literals": true,
+          "character_literals": true
+        },
+        "embedding": {
+          "kind": "python-bytes",
+          "start": 682,
+          "end": 10864,
+          "sha256": "848cf9af222b83dea8ab178f4379ee997157d54e73272bf384f5d2fb3728a323"
+        },
+        "embedding_contract": "compile-input-only",
+        "conditions": true,
+        "max_rounds": 2,
+        "max_evaluations": 2048,
+        "max_seconds": 300.0,
+        "compile_limits": {
+          "seconds": 60.0,
+          "memory_bytes": 1073741824,
+          "output_bytes": 16777216,
+          "cpu_seconds": 120,
+          "file_bytes": 67108864
+        }
+      }
+    },
+    "af-d-hq.json": {
+      "format": "nvcompact.external-engine.v1",
+      "name": "af-d-hq",
+      "artifact": "af-d-hq",
+      "artifact_key": "af-d-hq",
+      "category": "4k-elf",
+      "original_bytes": 6175,
+      "sha256": "5badc54a2f24eb8f5c1e5ee033e27005eececcf84b8672c438a2a720e22ceab0",
+      "provenance": {
+        "source_url": "https://github.com/daejunnom/Rove4k",
+        "source_commit": "0e716e0b366272c66749f6e7194f64cb715e2d00",
+        "recipe_path": "engines/compact/tiny-entry-d/recipe.json",
+        "recipe_sha256": "1477e12aa2953817781dd12b4f1f71caa919d65dd05c13a3aee7e065caf3e6c7",
+        "variant": "hq-shipping",
+        "comparison_role": "Pinned PR12 owned engine regression input",
+        "artifact_provenance": "retained exact maintained build with unchanged source/recipe",
+        "source_recipe_unchanged_since": "364e316951214ac2008c7c7a0b5bfd6412bd1e98",
+        "retained_build_sha256": "1483640558d50280c8dee6b7a69a2d4ad385c1a331a6c32ffc9f7d4bd0b8708b",
+        "historical_native_and_whole_pins_match": true
+      },
+      "runtime_profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev": 0
+      },
+      "runtime_blocked": "Static ELF comparison only; this harness does not execute the engine or its loader.",
+      "allow_section_header_removal": false
+    },
+    "af-d-scalar.json": {
+      "format": "nvcompact.external-engine.v1",
+      "name": "af-d-scalar",
+      "artifact": "af-d-scalar",
+      "artifact_key": "af-d-scalar",
+      "category": "4k-elf",
+      "original_bytes": 5966,
+      "sha256": "ec52f4ea0fa8f8c792f88402ad8bc966a50055d80aab26ace444e8cb0daf3319",
+      "provenance": {
+        "source_url": "https://github.com/daejunnom/Rove4k",
+        "source_commit": "0e716e0b366272c66749f6e7194f64cb715e2d00",
+        "recipe_path": "engines/compact/tiny-entry-d/recipe.json",
+        "recipe_sha256": "1477e12aa2953817781dd12b4f1f71caa919d65dd05c13a3aee7e065caf3e6c7",
+        "variant": "scalar-shipping",
+        "comparison_role": "Pinned PR12 owned engine regression input",
+        "artifact_provenance": "retained exact maintained build with unchanged source/recipe",
+        "source_recipe_unchanged_since": "364e316951214ac2008c7c7a0b5bfd6412bd1e98",
+        "retained_build_sha256": "1483640558d50280c8dee6b7a69a2d4ad385c1a331a6c32ffc9f7d4bd0b8708b",
+        "historical_native_and_whole_pins_match": true
+      },
+      "runtime_profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev": 0
+      },
+      "runtime_blocked": "Static ELF comparison only; this harness does not execute the engine or its loader.",
+      "allow_section_header_removal": false
+    },
+    "af-e.json": {
+      "format": "nvcompact.external-engine.v1",
+      "name": "af-e",
+      "artifact": "af-e",
+      "artifact_key": "af-e",
+      "category": "4k",
+      "original_bytes": 5076,
+      "sha256": "fbbe85f3e048159c578ff85152d7e0bcd5e4d771a5d9801b4fcdf039f5e1befc",
+      "provenance": {
+        "source_url": "https://github.com/daejunnom/Rove4k",
+        "source_commit": "0e716e0b366272c66749f6e7194f64cb715e2d00",
+        "recipe_path": "engines/compact/tiny-entry-e/recipe.json",
+        "recipe_sha256": "dccf9fb338548ddad3d33bd1c07c9d9e4cae4cb6ba7c0114ae79886cc53ea68c",
+        "policy": "full",
+        "comparison_role": "Pinned PR12 owned engine regression input",
+        "artifact_provenance": "independent packaging of exact maintained generated source",
+        "source_bootstrap_whole_pins_match": true,
+        "canonical_build_status": "failed_historical_native_identity_gate",
+        "historical_native_pin_match": false,
+        "historical_native_sha256": "c9ff0297831427fad2effc0c2df32f670c67782bed6c3f926b4b31fbc525980a",
+        "local_native_sha256": "e58c321bf4a13083f6cc91740046f92294f6fb606f59430bb1ee0de98e1d1992",
+        "no_canonical_gate_was_modified_or_bypassed": true
+      },
+      "runtime_profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev_default": false
+      },
+      "runtime_blocked": "Compile/pack comparison only. This harness does not execute engines; runtime requires a separate declared resource plan and explicit start.",
+      "envelope": {
+        "decoder": "lzma -dc",
+        "payload_codec": {
+          "format": "alone",
+          "preset": 2147483657,
+          "dict_size": 67108864,
+          "lc": 2,
+          "lp": 0,
+          "pb": 0,
+          "nice_len": 32,
+          "mf": 20
+        },
+        "header_bytes": 77,
+        "header_sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
+      },
+      "payload_sha256": "068e7d7b6f44450ddf646d56313f3ea4d4170e8b44db220de6437ece233a00fc",
+      "language": "python",
+      "notation": {
+        "token_contract": "no-token-observation",
+        "compact": true
+      },
+      "compile_argv": [
+        "cc",
+        "-std=c11",
+        "-Os",
+        "-pthread",
+        "-DWORKERS=2",
+        "-DTT_BITS=18",
+        "-DDEV=0",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "{output}"
+      ],
+      "compile_limits": {
+        "seconds": 60.0,
+        "memory_bytes": 1073741824,
+        "output_bytes": 16777216,
+        "cpu_seconds": 120,
+        "file_bytes": 67108864
+      },
+      "source_search": {
+        "candidates": {
+          "frontend": {
+            "clang": "${CLANG20}",
+            "standard": "gnu11",
+            "compiler_args": [
+              "-pthread",
+              "-DWORKERS=2",
+              "-DTT_BITS=18",
+              "-DDEV=0"
+            ],
+            "token_contract": "no-token-observation",
+            "frontend_memory_bytes": 1073741824
+          },
+          "target": "c11-lp64",
+          "max_candidates": 256,
+          "max_name_groups": 36,
+          "names_per_group": 4,
+          "rename_locals": true,
+          "integer_literals": true,
+          "character_literals": true
+        },
+        "embedding": {
+          "kind": "python-bytes",
+          "start": 672,
+          "end": 11304,
+          "sha256": "ea22b7d70b932f83efd5e81be73aeed0236d3d1001461857afd606c1163f7eff"
+        },
+        "embedding_contract": "compile-input-only",
+        "conditions": true,
+        "max_rounds": 2,
+        "max_evaluations": 2048,
+        "max_seconds": 300.0,
+        "compile_limits": {
+          "seconds": 60.0,
+          "memory_bytes": 1073741824,
+          "output_bytes": 16777216,
+          "cpu_seconds": 120,
+          "file_bytes": 67108864
+        }
+      }
+    },
+    "af-f-material.json": {
+      "format": "nvcompact.external-engine.v1",
+      "name": "af-f-material",
+      "artifact": "af-f-material",
+      "artifact_key": "af-f-material",
+      "category": "4k",
+      "original_bytes": 4369,
+      "sha256": "eff84e9b34ba121c7c17397252e2f61e832c6f2cfe0fcd51f182f99b677a3682",
+      "provenance": {
+        "source_url": "https://github.com/daejunnom/Rove4k",
+        "source_commit": "0e716e0b366272c66749f6e7194f64cb715e2d00",
+        "recipe_path": "engines/compact/tiny-entry-f/recipe.json",
+        "recipe_sha256": "4cc55199b63e6bbd69aebebdef77dfaf5ed83ebc83a47f728b4dbb50cc34bb2b",
+        "policy": "material-noise",
+        "comparison_role": "Pinned PR12 owned engine regression input",
+        "artifact_provenance": "independent packaging of exact maintained generated source",
+        "source_bootstrap_whole_pins_match": true,
+        "canonical_build_status": "failed_historical_native_identity_gate",
+        "historical_native_pin_match": false,
+        "historical_native_sha256": "24ae0622c5a0fd10191950f53e0f6ea5d3e3d05fbb1b20aaa72c2b5f2754873f",
+        "local_native_sha256": "a6abdb6ba3e5a215a925c0f5e94a21176c6e2e32be94c25908b1cc64ca74fd08",
+        "no_canonical_gate_was_modified_or_bypassed": true
+      },
+      "runtime_profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev_default": false
+      },
+      "runtime_blocked": "Compile/pack comparison only. This harness does not execute engines; runtime requires a separate declared resource plan and explicit start.",
+      "envelope": {
+        "decoder": "lzma -dc",
+        "payload_codec": {
+          "format": "alone",
+          "preset": 2147483657,
+          "dict_size": 67108864,
+          "lc": 2,
+          "lp": 0,
+          "pb": 0,
+          "nice_len": 32,
+          "mf": 20
+        },
+        "header_bytes": 77,
+        "header_sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
+      },
+      "payload_sha256": "3a8bbbc95c5e7d188e34b07a9eb08050249278489c7c4c7f924645f2039e1aa4",
+      "language": "python",
+      "notation": {
+        "token_contract": "no-token-observation",
+        "compact": true
+      },
+      "compile_argv": [
+        "cc",
+        "-Os",
+        "-pthread",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "{output}",
+        "-s"
+      ],
+      "compile_limits": {
+        "seconds": 60.0,
+        "memory_bytes": 1073741824,
+        "output_bytes": 16777216,
+        "cpu_seconds": 120,
+        "file_bytes": 67108864
+      },
+      "source_search": {
+        "candidates": {
+          "frontend": {
+            "clang": "${CLANG20}",
+            "standard": "gnu11",
+            "compiler_args": [
+              "-pthread"
+            ],
+            "token_contract": "no-token-observation",
+            "frontend_memory_bytes": 1073741824
+          },
+          "target": "c11-lp64",
+          "max_candidates": 256,
+          "max_name_groups": 36,
+          "names_per_group": 4,
+          "rename_locals": true,
+          "integer_literals": true,
+          "character_literals": true
+        },
+        "embedding": {
+          "kind": "python-bytes",
+          "start": 606,
+          "end": 9218,
+          "sha256": "2d1b09946e1184241f1a71af092f947444761d8918d91003d821786d9f13cfa4"
+        },
+        "embedding_contract": "compile-input-only",
+        "conditions": true,
+        "max_rounds": 2,
+        "max_evaluations": 2048,
+        "max_seconds": 300.0,
+        "compile_limits": {
+          "seconds": 60.0,
+          "memory_bytes": 1073741824,
+          "output_bytes": 16777216,
+          "cpu_seconds": 120,
+          "file_bytes": 67108864
+        }
+      }
+    },
+    "af-f-move.json": {
+      "format": "nvcompact.external-engine.v1",
+      "name": "af-f-move",
+      "artifact": "af-f-move",
+      "artifact_key": "af-f-move",
+      "category": "4k",
+      "original_bytes": 4089,
+      "sha256": "ccb77b12ade5ef7dd367970edd4bfc3d97d4709a00fc9861570355785563d70c",
+      "provenance": {
+        "source_url": "https://github.com/daejunnom/Rove4k",
+        "source_commit": "0e716e0b366272c66749f6e7194f64cb715e2d00",
+        "recipe_path": "engines/compact/tiny-entry-f/recipe.json",
+        "recipe_sha256": "4cc55199b63e6bbd69aebebdef77dfaf5ed83ebc83a47f728b4dbb50cc34bb2b",
+        "policy": "material-move-tt",
+        "comparison_role": "Pinned PR12 owned engine regression input",
+        "artifact_provenance": "independent packaging of exact maintained generated source",
+        "source_bootstrap_whole_pins_match": true,
+        "canonical_build_status": "failed_historical_native_identity_gate",
+        "historical_native_pin_match": false,
+        "historical_native_sha256": "1a964e23bc8967b6eb74714389b4d94fd0e505d5d1eba3616775b7e4b0a522d5",
+        "local_native_sha256": "c3fd3c09f8d72d4dd94cec47bfabd1c022cf151fd9624d29c1f750b90ba6126c",
+        "no_canonical_gate_was_modified_or_bypassed": true
+      },
+      "runtime_profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev_default": false
+      },
+      "runtime_blocked": "Compile/pack comparison only. This harness does not execute engines; runtime requires a separate declared resource plan and explicit start.",
+      "envelope": {
+        "decoder": "lzma -dc",
+        "payload_codec": {
+          "format": "alone",
+          "preset": 2147483657,
+          "dict_size": 67108864,
+          "lc": 0,
+          "lp": 0,
+          "pb": 0,
+          "nice_len": 32,
+          "mf": 20
+        },
+        "header_bytes": 77,
+        "header_sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
+      },
+      "payload_sha256": "c5921c298776aa90ffb68ffda7bb9cdc0b5008883f4dc24d26f10f8f8de45215",
+      "language": "python",
+      "notation": {
+        "token_contract": "no-token-observation",
+        "compact": true
+      },
+      "compile_argv": [
+        "cc",
+        "-Os",
+        "-pthread",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "{output}",
+        "-s"
+      ],
+      "compile_limits": {
+        "seconds": 60.0,
+        "memory_bytes": 1073741824,
+        "output_bytes": 16777216,
+        "cpu_seconds": 120,
+        "file_bytes": 67108864
+      },
+      "source_search": {
+        "candidates": {
+          "frontend": {
+            "clang": "${CLANG20}",
+            "standard": "gnu11",
+            "compiler_args": [
+              "-pthread"
+            ],
+            "token_contract": "no-token-observation",
+            "frontend_memory_bytes": 1073741824
+          },
+          "target": "c11-lp64",
+          "max_candidates": 256,
+          "max_name_groups": 36,
+          "names_per_group": 4,
+          "rename_locals": true,
+          "integer_literals": true,
+          "character_literals": true
+        },
+        "embedding": {
+          "kind": "python-bytes",
+          "start": 606,
+          "end": 8435,
+          "sha256": "eadf78964dabfbd6d147ff04afc3f2b91eef2bcb47976083469dea912e2df2e3"
+        },
+        "embedding_contract": "compile-input-only",
+        "conditions": true,
+        "max_rounds": 2,
+        "max_evaluations": 2048,
+        "max_seconds": 300.0,
+        "compile_limits": {
+          "seconds": 60.0,
+          "memory_bytes": 1073741824,
+          "output_bytes": 16777216,
+          "cpu_seconds": 120,
+          "file_bytes": 67108864
+        }
+      }
+    },
+    "af-f.json": {
+      "format": "nvcompact.external-engine.v1",
+      "name": "af-f",
+      "artifact": "af-f",
+      "artifact_key": "af-f",
+      "category": "4k",
+      "original_bytes": 4645,
+      "sha256": "a3eaf6f94477beb9897bbccec11e990eb703bc3243034199271deb1b41e023bb",
+      "provenance": {
+        "source_url": "https://github.com/daejunnom/Rove4k",
+        "source_commit": "0e716e0b366272c66749f6e7194f64cb715e2d00",
+        "recipe_path": "engines/compact/tiny-entry-f/recipe.json",
+        "recipe_sha256": "4cc55199b63e6bbd69aebebdef77dfaf5ed83ebc83a47f728b4dbb50cc34bb2b",
+        "policy": "full",
+        "comparison_role": "Pinned PR12 owned engine regression input",
+        "artifact_provenance": "independent packaging of exact maintained generated source",
+        "source_bootstrap_whole_pins_match": true,
+        "canonical_build_status": "failed_historical_native_identity_gate",
+        "historical_native_pin_match": false,
+        "historical_native_sha256": "c2a1902f6e2d79292b2bb148b5e132e3bbda2edf1d8c30fdf7714b690419ee5e",
+        "local_native_sha256": "e81669026da6c335ecc85457e1422c5d130ad536c8c7b60dbb8c3ce8aa91b493",
+        "no_canonical_gate_was_modified_or_bypassed": true
+      },
+      "runtime_profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev_default": false
+      },
+      "runtime_blocked": "Compile/pack comparison only. This harness does not execute engines; runtime requires a separate declared resource plan and explicit start.",
+      "envelope": {
+        "decoder": "lzma -dc",
+        "payload_codec": {
+          "format": "alone",
+          "preset": 2147483657,
+          "dict_size": 67108864,
+          "lc": 2,
+          "lp": 0,
+          "pb": 0,
+          "nice_len": 32,
+          "mf": 20
+        },
+        "header_bytes": 77,
+        "header_sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
+      },
+      "payload_sha256": "2c87000cbfedbc5fe19c517ac383e30aa44c7ee6b0c8bedb3b1943240930a6b6",
+      "language": "python",
+      "notation": {
+        "token_contract": "no-token-observation",
+        "compact": true
+      },
+      "compile_argv": [
+        "cc",
+        "-Os",
+        "-pthread",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "{output}",
+        "-s"
+      ],
+      "compile_limits": {
+        "seconds": 60.0,
+        "memory_bytes": 1073741824,
+        "output_bytes": 16777216,
+        "cpu_seconds": 120,
+        "file_bytes": 67108864
+      },
+      "source_search": {
+        "candidates": {
+          "frontend": {
+            "clang": "${CLANG20}",
+            "standard": "gnu11",
+            "compiler_args": [
+              "-pthread"
+            ],
+            "token_contract": "no-token-observation",
+            "frontend_memory_bytes": 1073741824
+          },
+          "target": "c11-lp64",
+          "max_candidates": 256,
+          "max_name_groups": 36,
+          "names_per_group": 4,
+          "rename_locals": true,
+          "integer_literals": true,
+          "character_literals": true
+        },
+        "embedding": {
+          "kind": "python-bytes",
+          "start": 606,
+          "end": 9723,
+          "sha256": "a6ca67275a3d830eaa06987164777d8c391d7319cb7f92fd0bd20dd2a1859790"
+        },
+        "embedding_contract": "compile-input-only",
+        "conditions": true,
+        "max_rounds": 2,
+        "max_evaluations": 2048,
+        "max_seconds": 300.0,
+        "compile_limits": {
+          "seconds": 60.0,
+          "memory_bytes": 1073741824,
+          "output_bytes": 16777216,
+          "cpu_seconds": 120,
+          "file_bytes": 67108864
+        }
+      }
+    }
+  }
+}
