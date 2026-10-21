@@ -1,3 +1,34 @@
+# Maintained C: qualified source refinements — 2026-10-21
+
+Only the generator-admitted valid-0x88 promotion predicate is changed here. Actual signed eight-lane SIMD evaluation, full search, learners, TT and runtime retain their prior policy.
+
+| Policy | Previous whole | Current whole | Saved | Above 4096 |
+|---|---:|---:|---:|---:|
+| C | 5020 | **5016** | 4 | 920 |
+
+These are actual composed complete-file results, including the unchanged77-byte
+prefix and current fixed compiler/codec. New native identities are admitted
+explicitly; equal native lengths do not imply identical images. Canonical
+full-reference DEV remains unchanged. The fixed replay helper uses complete
+source pins, nonoverlapping literals, inverse and untouched-complement checks.
+
+One ordinary --dev build per policy independently reproduced shipping source,
+native, bootstrap and whole twice and DEV twice. The unchanged selected
+verifier exercised the actual new wrapper in quit/EOF sessions: exact native
+restoration, stable3 startup TIDs, legal finite GO, private-path/helper absence,
+one closing result, reader EOF and physical exit. Component function proofs
+and these wrapper observations have separate scopes. No strength or final
+tournament profile acceptance follows from the local two-worker TT18 runs.
+
+| Policy | Source bytes | Native bytes | Whole SHA-256 |
+|---|---:|---:|---|
+| C | 10260 | 26336 | `f9c113395db8327124197ef0a7b2aabdabf717d569c78ebe51da13a85fbb1718` |
+
+Normal summary SHA-256:
+`cc82bacb31cfd8fb020fa375a3a1d1b3ece7ac2991dc7ebcf2c7ed772e3d230e`.
+This frozen summary binds producing inputs before subsequent receipt-only
+recipe annotations. Older sections below retain their original identities.
+
 # Maintained C: shared final shipping reductions
 
 The final `engines/scripts/shipping_common.py` pass removes the sole unused

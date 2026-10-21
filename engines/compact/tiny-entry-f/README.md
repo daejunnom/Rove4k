@@ -1,3 +1,47 @@
+# Maintained F: qualified source refinements — 2026-10-21
+
+Default full F changes only the valid-0x88 promotion predicate and keeps positional HCE, learners and full-bound TT. Material/noise is an exact passthrough. The opt-in MoveTT policy also shares the main token cursor and terminal scan, packs a coherent full-key ordering record into atomic64 (implicit index18 plus stored high46, Move17), and omits two proven fixed-TT18 casts.
+
+| Policy | Previous whole | Current whole | Saved | Above 4096 |
+|---|---:|---:|---:|---:|
+| full (default) | 4668 | **4667** | 1 | 571 |
+| material-noise (opt-in) | 4374 | **4374** | 0 | 278 |
+| material-move-tt (opt-in) | 4162 | **4093** | 69 | 0 (3 spare) |
+
+These are actual composed complete-file results, including the unchanged77-byte
+prefix and current fixed compiler/codec. New native identities are admitted
+explicitly; equal native lengths do not imply identical images. Canonical
+full-reference DEV remains unchanged. The fixed replay helper uses complete
+source pins, nonoverlapping literals, inverse and untouched-complement checks.
+
+One ordinary --dev build per policy independently reproduced shipping source,
+native, bootstrap and whole twice and DEV twice. The unchanged selected
+verifier exercised the actual new wrapper in quit/EOF sessions: exact native
+restoration, stable3 startup TIDs, legal finite GO, private-path/helper absence,
+one closing result, reader EOF and physical exit. Component function proofs
+and these wrapper observations have separate scopes. No strength or final
+tournament profile acceptance follows from the local two-worker TT18 runs.
+
+**4093 is an optional reduced-feature intermediate result. Default full F
+still needs571 bytes.** Continue common and individual source compression
+after size eligibility, retain the full-default target, and reinvest room
+in useful features. The MoveTT has8-byte records/2MiB; seq_cst atomic stores
+replace the old busy-miss/write-drop policy. Scheduling/order/strength
+equivalence is not claimed. A separate fixture includes the final7803-byte
+source and verifies actual atomic operations and terminal/MTD completion
+under ASan/UBSan; receipt d6f97a3f30f1929fec963597a91e86390d60f5a119b637fa8988cb1f34a076d0.
+
+| Policy | Source bytes | Native bytes | Whole SHA-256 |
+|---|---:|---:|---|
+| full (default) | 9213 | 18576 | `8583445d9da913c2776600d16636552951d4d3cd8c672abd88b4ece8d1fd110d` |
+| material-noise (opt-in) | 8586 | 18576 | `65f23ea21560feb632da99a75f3983a62eaaaa6c9d6d7581a805537289e2973d` |
+| material-move-tt (opt-in) | 7803 | 18576 | `7909cb6c6f0ed3d37ca97a42ebf656d57e2ad058efb36b924d8d28a6c47b879c` |
+
+Normal summary SHA-256:
+`cc82bacb31cfd8fb020fa375a3a1d1b3ece7ac2991dc7ebcf2c7ed772e3d230e`.
+This frozen summary binds producing inputs before subsequent receipt-only
+recipe annotations. Older sections below retain their original identities.
+
 # Maintained F: shared final shipping reductions
 
 The final `engines/scripts/shipping_common.py` pass removes the sole unused

@@ -1,3 +1,52 @@
+# Maintained C D capture-only Move bit3 own-ELF
+
+The selected internal Move representation reserves source-square bit3 for capture,
+clears that bit in FROM, and sets it while generating moves. The existing emitter
+argument now holds capture/pawn-promotion flags. Quiet promotions keep capture0;
+capture promotions/EP carry1; castles and quiet N/K moves to an empty active EP
+target carry0. All four promotions and move order are preserved. Runtime raw
+coordinate queries mask only bit3 for comparison and make the actual generated
+member. The separate provisional-parent EP make trial remains raw/untagged and
+boolean-only. TT retains all17 Move bits; this is a private in-process ABI, with
+fresh zeroed TT and no old-format interoperability promise.
+
+| Form | Native | Fixed21-v2 packet | Complete own ELF | Change from dead-state | Nonpacket |
+|---|---:|---:|---:|---:|---:|
+| scalar-shipping |7772|4829|5966|-21|1137|
+| hq-shipping |8128|5038|6175|-19|1137|
+
+Readable native source is82B smaller across tiny.h/board.c/search.c/runtime.c.
+Actual text shrinks54/65B; native files shrink64B each. Scalar entry401cd9,
+HQ401e0b, exact RX2/BSS402000/175092B/43roundedpages, lower3ff000/upper42d000,
+reserve2f000, zero-file RW and NX remain explicit per-identity literals. Models
+stay0101127e/0810217e, independent of page count. Fullkey aligned16 TT, all score/
+depth/bound payload bits, HCE/PVS/QS/history/continuation/correction, repetition,
+rules, finite UCI, fixed pool/resources, hardware CRC decoder, linkers and flags
+remain the existing policy. Packer/verifier permit only these exact two new
+identity/form/layout/model tuples; their physical/guard observer bodies are exact.
+
+Focused ASan/UBSan DEV functions pass19roots/286orderedpseudo/282legalchildren
+per form, including quiet/capture promotions16/8, castles6, EP7 and nonpawn
+last-rank captures6. Actual text/parse282 and raw-untagged EP7 pass; independent
+rules, named Board/HCE/hash/context agree. Actual search14old/new pairs per form
+at depth3/IDs0,1 compares complete initialized Worker and naturally published
+fullkey TT with only Move bit3 normalized; history/cont/corr/PVS/QS are exercised.
+Function receipt c618e8566df3d0d49b403ccc0e05fd6649cb505f498bdd104bb6c727264cb25a
+is separate from shipping/SMP/lifecycle evidence. DATA decoder2 restored exact
+full native/BCJ bytes, canaries and table release. Cost receipt c6a21d6edd93cc8cd1e0d8d15157a263654df5730207c575cb5bbb0210287f76.
+
+Both new CHECKPOINT images were discovered compile-only and admitted after
+static readback: scalar5989/cbb4d82be9ec59f9b1111c1cb9ebafbc227c90e134d696a97979f8f6026e42bd,
+HQ6198/8e19b1daa7bf0e450c12d28bc4e50dc91b35b9c9752a0351643259457b9790d3.
+The ordinary builder reproduced each native/whole twice and each audit once;
+build receipt8820abbf8bb205231028999cecc49d057b007700811746ec33d8ab238112db2e.
+The existing positive verifier passed two pre-entry zero/RX/guard/NX observations
+and four actual scalar/HQ quit/EOF sessions with12 legal GO results, stable3
+startup TIDs and physical exit; receipt9d7ff8085c0c44c57fcfe35cc73ca5b7cacbae48bac74b644451b606c063aee8.
+No prior negative/fault/RIE/ptrace/register/personality campaign was retried.
+Old dead-state evidence below retains its original identity. All generated and
+failed-preparation records stay external. Both complete files remain over4096.
+
 # Maintained C D signed-state dead-material own-ELF
 
 The selected source changes only dead()'s three accumulators into one signed state. Zero means no minor,-1 means one knight without bishops,1/2 means only bishops on one square color. A second knight, knight/bishop mixture, opposite-color bishops or P/R/Q is live; all remaining admitted cases are dead. The original recognition policy is preserved, including KNN treated live and arbitrary same-color promoted bishops treated dead. This is not a full theoretical dead-position oracle.

@@ -1,3 +1,34 @@
+# Maintained B: qualified source refinements — 2026-10-21
+
+Main-owned token consumption and the valid-0x88 promotion predicate are shared. Actual make returns 1+material gain on success (0 on failure); SEE consumes that gain and shares the material table. Non-SEE callers consume only success truth.
+
+| Policy | Previous whole | Current whole | Saved | Above 4096 |
+|---|---:|---:|---:|---:|
+| B | 5256 | **5229** | 27 | 1133 |
+
+These are actual composed complete-file results, including the unchanged77-byte
+prefix and current fixed compiler/codec. New native identities are admitted
+explicitly; equal native lengths do not imply identical images. Canonical
+full-reference DEV remains unchanged. The fixed replay helper uses complete
+source pins, nonoverlapping literals, inverse and untouched-complement checks.
+
+One ordinary --dev build per policy independently reproduced shipping source,
+native, bootstrap and whole twice and DEV twice. The unchanged selected
+verifier exercised the actual new wrapper in quit/EOF sessions: exact native
+restoration, stable3 startup TIDs, legal finite GO, private-path/helper absence,
+one closing result, reader EOF and physical exit. Component function proofs
+and these wrapper observations have separate scopes. No strength or final
+tournament profile acceptance follows from the local two-worker TT18 runs.
+
+| Policy | Source bytes | Native bytes | Whole SHA-256 |
+|---|---:|---:|---|
+| B | 10727 | 26304 | `5739a6da7fa5e6ed63c1b201eb1d9a2ec6b9f1f675560e7e9351c4ebbeb388a9` |
+
+Normal summary SHA-256:
+`cc82bacb31cfd8fb020fa375a3a1d1b3ece7ac2991dc7ebcf2c7ed772e3d230e`.
+This frozen summary binds producing inputs before subsequent receipt-only
+recipe annotations. Older sections below retain their original identities.
+
 # Maintained B: shared final shipping reductions
 
 The final `engines/scripts/shipping_common.py` pass removes the sole unused

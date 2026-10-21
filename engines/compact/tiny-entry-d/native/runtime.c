@@ -107,7 +107,7 @@ static int parse_apply(const Board *b,Span token,Board *child){
     }
     Move move=MOVE(a+(r<<4),c+(s<<4),promotion),list[MOVES];
     int count=gen(b,list);
-    for(int i=0;i<count;i++)if(list[i]==move)return make(b,move,child);
+    for(int i=0;i<count;i++)if((list[i]&~8u)==move)return make(b,list[i],child);
     return 0;
 }
 

@@ -95,11 +95,11 @@ int make(const Board *p,Move m,Board *t){
     t->r=t->half?((p->r<<1)|(p->r>>63))^t->h:t->h;
     return 1;
 }
-static void add(Move *moves,int *n,int from,int to,int pawn){
-    int promotion=pawn&&((to>>4)==0||(to>>4)==7);
+static void add(Move *moves,int *n,int from,int to,int kind){
+    int promotion=kind>1&&((to>>4)==0||(to>>4)==7);
     for(int z=promotion?2:0;z<=(promotion?5:0);z++){
         if(*n>=MOVES)abort();
-        moves[(*n)++]=MOVE(from,to,z);
+        moves[(*n)++]=MOVE(from,to,z)|((kind&1)<<3);
     }
 }
 /* Both modes walk forward from pieces of side s. A null output list asks
@@ -117,14 +117,14 @@ static int walk(const Board *p,Move *moves,int sq,int s){
                 int bit=__builtin_ctzll(destinations),to=(bit&7)+(bit>>3)*16;
                 destinations&=destinations-1;
                 if(!moves&&to==sq)return 1;
-                if(moves&&p->b[to]*s<=0)add(moves,&n,from,to,0);
+                if(moves&&p->b[to]*s<=0)add(moves,&n,from,to,!!p->b[to]);
             }
             continue;
         }
         if(moves&&a==1){
             int to=from+s*16;
             if(!(to&0x88)&&!p->b[to]){
-                add(moves,&n,from,to,1);
+                add(moves,&n,from,to,2);
                 if((from>>4)==(s>0?1:6)&&!p->b[to+s*16])add(moves,&n,from,to+s*16,0);
             }
         }
@@ -135,7 +135,7 @@ static int walk(const Board *p,Move *moves,int sq,int s){
             int target=p->b[to];
             if(!moves&&to==sq)return 1;
             if(target*s>0||(moves&&a==1&&!target&&to!=p->e))continue;
-            if(moves)add(moves,&n,from,to,a==1);
+            if(moves)add(moves,&n,from,to,a==1?3:!!target);
         }
         if(moves&&a==6){
             int home=s>0?4:116,shift=s>0?0:2;

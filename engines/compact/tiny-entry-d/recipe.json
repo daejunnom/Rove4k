@@ -8,10 +8,10 @@
   },
   "target": "Linux x86-64 with SSE4.2 CRC32 and CX16; raw syscall static native plus admitted fixed-layout own-ELF",
   "native_source_sha256": {
-    "native/tiny.h": "8bd51aece52f94cfe61f452d80c910357128c3ca4905ef610600dbc252a6cd6b",
-    "native/board.c": "fda8cf1e5e38a76c1a564d4f8810e7011538842e348477c11756ed486311828a",
-    "native/search.c": "0a07b27600630b0278f802bbb59e2bbfa4ea3efef8357562ced2b4d571130a52",
-    "native/runtime.c": "bd090ab06be2997e5bfb8c7cae37b6efef9443188925df84eb64a9bda7ea0eec",
+    "native/tiny.h": "41daa4fbbf9581cc97eb3ca214425880e800e7f6422f57705f5102719333dd3e",
+    "native/board.c": "ec2d8732b389b0739c6db2d473f677bee49b685abcd8f3ef3c0adda3d9161e01",
+    "native/search.c": "496439b855fbc9f3c995e32c584234efbc6f6616a6455c9190d2ec0c21420053",
+    "native/runtime.c": "e58ede21b12db9feab7df32465f0be5ee526156b23e3b5c91ab67a2eccde24b0",
     "native/hq.h": "ad66a03cef5288010c4377b81ee3661320195545aee6c664a42d3828bfc8b412",
     "native/hq.c": "50b246280ac1f0b9e1f20834f302b31e30221101abd979bbdc146fcae7c12b5f",
     "native/start.S": "4a6021518cfe67bee9e42806b596f4f0837e3e93487b1acfa115158ea019ba5b",
@@ -75,19 +75,19 @@
   "expected": {
     "scalar-shipping": {
       "hq": 0,
-      "native_bytes": 7836,
-      "native_sha256": "b758934f75e701128e8e9b1e9710afbc2032de3291e7cb0245cf8124d90612cf",
-      "whole_bytes": 5987,
-      "whole_sha256": "74e909cc3fa66d1ddb272efa4e8b196d1ef189d9727c4e736f42cdab00f640c3",
-      "payload_bytes": 4850,
+      "native_bytes": 7772,
+      "native_sha256": "cf8baab6f2bd26dc42da129df0c2c411780cd6ed2dd2aacbac1ffe994ad11f40",
+      "whole_bytes": 5966,
+      "whole_sha256": "ec52f4ea0fa8f8c792f88402ad8bc966a50055d80aab26ace444e8cb0daf3319",
+      "payload_bytes": 4829,
       "loader_and_headers_bytes": 1137,
-      "audit_bytes": 6010,
-      "audit_sha256": "dfcce0ad013c20fbd7437e4ab97cd4856c3af3d711f3b06d963b6e215f2b0d9c",
+      "audit_bytes": 5989,
+      "audit_sha256": "cbb4d82be9ec59f9b1111c1cb9ebafbc227c90e134d696a97979f8f6026e42bd",
       "layout": {
         "image_base": 4194304,
-        "image_size": 7836,
+        "image_size": 7772,
         "image_pages": 8192,
-        "entry": 4201743,
+        "entry": 4201689,
         "bss_base": 4202496,
         "bss_size": 175092,
         "bss_pages": 176128,
@@ -105,8 +105,8 @@
             "offset": 0,
             "vaddr": 4194304,
             "paddr": 4194304,
-            "filesz": 7836,
-            "memsz": 7836,
+            "filesz": 7772,
+            "memsz": 7772,
             "align": 4096
           },
           {
@@ -131,24 +131,24 @@
           }
         ]
       },
-      "payload_sha256": "9f402f618e8a35be638d44728e3d95289d27ca39eea8bafd704812779ef60934",
+      "payload_sha256": "4668cb5b8d9617a4d8b6b46248811f184355bbc254de53d3aa9eefbbcc4cf66c",
       "model_wmask": 16847486
     },
     "hq-shipping": {
       "hq": 1,
-      "native_bytes": 8192,
-      "native_sha256": "da682cc7c92d912852fd3fb07fdf5f515f086866dd8eafa96c485c7ca6050f24",
-      "whole_bytes": 6194,
-      "whole_sha256": "a0199047ab2b72d3d75c3bf00b5e09e0125a33e568c649a91e14b9a196b19573",
-      "payload_bytes": 5057,
+      "native_bytes": 8128,
+      "native_sha256": "f27718c749ef40c7d1f30e27e4e0991792329d60c3c696bb4b9e487677543110",
+      "whole_bytes": 6175,
+      "whole_sha256": "5badc54a2f24eb8f5c1e5ee033e27005eececcf84b8672c438a2a720e22ceab0",
+      "payload_bytes": 5038,
       "loader_and_headers_bytes": 1137,
-      "audit_bytes": 6217,
-      "audit_sha256": "d691c4510d712cca8271448040e592fd91c38246cb3904f050f629214543602f",
+      "audit_bytes": 6198,
+      "audit_sha256": "8e19b1daa7bf0e450c12d28bc4e50dc91b35b9c9752a0351643259457b9790d3",
       "layout": {
         "image_base": 4194304,
-        "image_size": 8192,
+        "image_size": 8128,
         "image_pages": 8192,
-        "entry": 4202060,
+        "entry": 4201995,
         "bss_base": 4202496,
         "bss_size": 175092,
         "bss_pages": 176128,
@@ -166,8 +166,8 @@
             "offset": 0,
             "vaddr": 4194304,
             "paddr": 4194304,
-            "filesz": 8192,
-            "memsz": 8192,
+            "filesz": 8128,
+            "memsz": 8128,
             "align": 4096
           },
           {
@@ -192,13 +192,13 @@
           }
         ]
       },
-      "payload_sha256": "6e69bf023fae40c8024754e6de92dab6de20cec21a89250ff6511d45c6b05e36",
+      "payload_sha256": "88e9e466e958d73c7556b91baccd439f20e25d28353d6b4859ed64c42aa68c66",
       "model_wmask": 135274878
     }
   },
   "qualified_receipts_metadata_only": {
-    "current_selection": "qualified local signed-state dead-material C D over preserved EP make-sharing/fullkey atomic16 and Linux x86-64 SSE4.2+CX16; actual ordinary build/positive verifier PASS with separate outer postread failure retained",
-    "source_lineage": "Only two reviewed board.c fragments: EP trial calls make and its provisional-parent/discard contract comment; native7, atomic128 TT, resources, profile/CPU, loader/codec and runtime/search policy unchanged",
+    "current_selection": "capture-only private Move bit3; full HCE/PVS/QS/learners/fullkey atomic16 and SSE4.2+CX16; focused functions, exact new audits, normal reproduction and actual selected positive execution passed",
+    "source_lineage": "ten capture-representation roles in tiny.h/board.c/search.c/runtime.c; raw coordinate queries match generated member, provisional EP stays raw/boolean; other native sources, resources, loader/codec/profile/flags and full search policy retained",
     "fixed21_firstcost": {
       "final_index_sha256": "2f06d3ecc4d9e0f5fb294f6adfe533aa4559867fd31b4fad10604ed4060a5bf3",
       "cost_sha256": "0f08bb54783aef070a3d75eefeb28a005868156452243513da624bf7708d8137",
@@ -209,7 +209,7 @@
     },
     "previous_selection_ancestry_only": {
       "current_selection": "qualified residual pawn/knight/king single-step specialization over unchanged D reset+memcpy-BCJ context profile; exact two new native/whole/audit identities and one closed normal fresh",
-      "source_lineage": "board-only exact489B→379B residual walker fragment; seven other native and all loader/encoder/model/decoder/linker/profile/flags are unchanged",
+      "source_lineage": "board-only exact489B\u2192379B residual walker fragment; seven other native and all loader/encoder/model/decoder/linker/profile/flags are unchanged",
       "first_cost": {
         "receipt_sha256": "96e7eda66d500b312e93f47b42fe55896f8f0f10bbf14ebfd8da6b84b14bc443",
         "final_index_sha256": "12c8df9bd8587757860a5f8a6030d5d339214619a5e8ec6c61275dd5d4f453e1",
@@ -611,17 +611,17 @@
           "sha256": "ae352db6ae110f16c1f6c12e59f38d0bdb10a8a5da34bfa8507e3428264f3df3"
         },
         "outer_failure_report_preserved": {
-          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-tiny-entry-d-dead-state-promotion-20261021/normal-result.json",
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-entry-d-dead-state-promotion-20261021/normal-result.json",
           "bytes": 2471,
           "sha256": "ba13b1d6439d66c35964d6c36108842650991e73316b9396c847ac4a3bc332c2"
         },
         "read_only_actual_companion": {
-          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-tiny-entry-d-dead-state-promotion-20261021/actual-positive-companion.json",
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-entry-d-dead-state-promotion-20261021/actual-positive-companion.json",
           "bytes": 5552,
           "sha256": "5aecb6ffb239b7595383a383ca59a31852e76f4ea3554480869f5548eb92a59d"
         },
         "producing_source21": {
-          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-tiny-entry-d-dead-state-promotion-20261021/producing-source21.json",
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-entry-d-dead-state-promotion-20261021/producing-source21.json",
           "bytes": 2650,
           "sha256": "acd5a0b3e7298e3fdb8035c5ef1e790d60ed6ebe1e014f9b8c7f28800763e1a4"
         },
@@ -654,6 +654,54 @@
         "scope": "two actual whole files/header/allPHDR/entirepacket suffix static admission only; target0 at discovery"
       },
       "fresh_and_negative_controls_executed": false
+    },
+    "capture_tag": {
+      "cost": {
+        "path": "/home/stemxstudio/rove4k-tiny-d-capture-tag-whole-20261021-v1/cost.json",
+        "bytes": 21325,
+        "sha256": "c6a21d6edd93cc8cd1e0d8d15157a263654df5730207c575cb5bbb0210287f76"
+      },
+      "focused_positive_functions": {
+        "path": "/home/stemxstudio/rove4k-tiny-d-capture-tag-functions-20261021-v1/results.json",
+        "bytes": 28021,
+        "sha256": "c618e8566df3d0d49b403ccc0e05fd6649cb505f498bdd104bb6c727264cb25a"
+      },
+      "source_regions": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-d-capture-tag-sourceonly-20261021/regions.json",
+        "bytes": 8564,
+        "sha256": "501c00ca94a43182e69d1a0d43a51f5f684beb9592c4956f8bab7bd72eb7b122"
+      },
+      "cost_final": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-d-capture-tag-sourceonly-20261021/cost-final-index.json",
+        "bytes": 982,
+        "sha256": "97141b0da9350cb4e218ec85e8cedf36458736f9c0db74f650bb0d372f781fd3"
+      },
+      "scope": "ten representation roles; quiet raw moves/noise and all required policy/features preserved; actual function DEV projection is separate from shipping/SMP qualification",
+      "normal_positive": {
+        "build": {
+          "path": "/home/stemxstudio/rove4k-tiny-d-capture-tag-normal-20261021-v1/build.json",
+          "bytes": 74791,
+          "sha256": "8820abbf8bb205231028999cecc49d057b007700811746ec33d8ab238112db2e"
+        },
+        "runtime": {
+          "path": "/home/stemxstudio/rove4k-tiny-d-capture-tag-normal-runtime-20261021-v1/results.json",
+          "bytes": 58054,
+          "sha256": "9d7ff8085c0c44c57fcfe35cc73ca5b7cacbae48bac74b644451b606c063aee8"
+        },
+        "audit_intake": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-qualified-composition-20261021-evidence/D-audit-intake.json",
+          "bytes": 589,
+          "sha256": "7a51c3d0260d190e7e8d66b4d3795e499fca1d0010aa841fa0a8cd1a6d1bd658"
+        },
+        "producing_recipe_precedes_this_receipt_annotation": true,
+        "scope": "existing ordinary producer and positive verifier; native/whole twice, audit once, pre-entry2 and quit/EOF4,12 legal GO; no negative campaign retry"
+      },
+      "audit_discovery": {
+        "path": "/home/stemxstudio/rove4k-tiny-d-capture-tag-audit-discovery-20261021-v1/discovery.json",
+        "sha256": "af8123a7606781d738dd24878a8dfff3ac818165be77d4fd3fc7876b1c5b7b4a",
+        "scope": "root reads exact full ELF/packet, RX/NX two PHDR and CHECKPOINT/model literals before admission; target execution separate"
+      },
+      "predecessor_recipe_sha256": "7c6f97a47dfd700bc4a13e6b615f8694ca130e1d99612a8207903186a0281ea8"
     }
   },
   "shipping_protocol": {

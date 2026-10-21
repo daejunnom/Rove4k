@@ -32,8 +32,6 @@ static void learn(int16_t *cell,int bonus){
     *cell+=(bonus-*cell*abs(bonus)/16384);
 }
 static int piece_index(int p){return p+6;}
-static int capture(const Board *p,Move m){return p->b[TO(m)]||
-    (abs(p->b[FROM(m)])==1&&TO(m)==p->e);}
 static int search(Worker *w,const Board *p,int depth,int alpha,int beta,int ply,Move previous,Move *root){
     if(!claim(w))return 0;
     int check=attacked(p,p->k[p->s<0],-p->s),draw=p->half>=100;
@@ -72,7 +70,7 @@ static int search(Worker *w,const Board *p,int depth,int alpha,int beta,int ply,
     int prior=previous?piece_index(p->b[TO(previous)]):6;
     for(int i=0;i<count;i++){
         Move m=moves[i];int from=FROM(m),to=TO(m),pi=piece_index(p->b[from]);
-        scores[i]=m==tt?1000000:capture(p,m)?500000+abs(value(p->b[to],to))*16-abs(value(p->b[from],from)):
+        scores[i]=m==tt?1000000:(m&8)?500000+abs(value(p->b[to],to))*16-abs(value(p->b[from],from)):
             w->history[from][to]+w->continuation[prior][pi]+(int)((m*37u+w->id*19u)%17);
         if(PROMO(m))scores[i]+=400000+PROMO(m)*1000;
     }
@@ -82,7 +80,7 @@ static int search(Worker *w,const Board *p,int depth,int alpha,int beta,int ply,
         int t=scores[j];scores[j]=scores[i];scores[i]=t;
         Board q;if(!make(p,m,&q))continue;
         ++legal;
-        int from=FROM(m),to=TO(m),tactical=capture(p,m)||PROMO(m);
+        int from=FROM(m),to=TO(m),tactical=(m&8)||PROMO(m);
         if(quiet&&(!tactical||alpha>=beta))continue;
         w->keys[w->length++]=q.h;
         int narrow=legal>1&&depth>0,reduce=0;
@@ -112,7 +110,7 @@ static int search(Worker *w,const Board *p,int depth,int alpha,int beta,int ply,
     }
     if(!legal)return check?-MATE+ply:0;
     bound=best<=old?3:best>=beta?2:1;
-    if(depth>0&&bound==1&&!check&&bestmove&&!capture(p,bestmove)&&!PROMO(bestmove)&&abs(best)<MATE-PLY){
+    if(depth>0&&bound==1&&!check&&bestmove&&!(bestmove&8)&&!PROMO(bestmove)&&abs(best)<MATE-PLY){
         int error=best-p->s*p->v;if(error>256)error=256;if(error< -256)error=-256;
         w->correction[p->h&1023]+=error-w->correction[p->h&1023]/64;
         COUNT(w,corr_updates);

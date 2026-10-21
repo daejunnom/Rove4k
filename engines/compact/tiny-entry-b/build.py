@@ -95,6 +95,7 @@ def main():
         global_names=module('entry_B_global_names',frozen/'shipping_global_names.py').transform_source
         recapture=module('entry_B_recapture_promotion',frozen/'shipping_recapture.py').transform_source
         common=module('entry_shipping_common',frozen/'shipping_common.py')
+        refine=module('entry_shipping_refinements',frozen/'shipping_refinements.py')
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
         if template.count(marker)!=1 or len(prefix)!=77:raise ValueError('bootstrap recipe changed')
@@ -121,6 +122,8 @@ def main():
                 data,global_names_metadata=global_names(data)
                 data,recapture_metadata=recapture(data)
                 data,common_metadata=common.transform_source(data,family='B')
+                data,refinement=refine.transform_source(data,family='B')
+                common_metadata['refinements']=refinement
             return data,observations,alpha_metadata,storage_metadata,scope_metadata,core_metadata,input_metadata,order_metadata,walk_metadata,tactical_metadata,type_metadata,global_names_metadata,recapture_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())

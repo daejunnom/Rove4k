@@ -59,7 +59,7 @@ int verify_board(const Board *);
 #endif
 uint64_t mix(uint64_t);
 int value(int,int);
-#define FROM(m) ((m)&127)
+#define FROM(m) ((m)&119)
 #define TO(m) (((m)>>7)&127)
 #define PROMO(m) (((m)>>14)&7)
 #define MOVE(f,t,p) ((Move)(f)|((Move)(t)<<7)|((Move)(p)<<14))

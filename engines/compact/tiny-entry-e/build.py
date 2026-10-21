@@ -87,6 +87,7 @@ def main():
         strip=module('entry_counter_strip',frozen/'stitch.py').strip_dev_counters
         literal=module('entry_literal',frozen/'pack_stream.py').source_literal
         common=module('entry_shipping_common',frozen/'shipping_common.py')
+        refine=module('entry_shipping_refinements',frozen/'shipping_refinements.py')
         alpha=module('entry_fixed_shipping_alpha',frozen/'fixed_shipping_alpha.py').transform_source
         scope=module('entry_fixed_scope_names',frozen/'shipping_scope.py').transform_source
         core=module('entry_fixed_shipping_core',frozen/'shipping_core.py').transform_source
@@ -117,6 +118,8 @@ def main():
                 data,type_metadata=types(data,readable=canonical,lexer=lexer)
                 data,global_names_metadata=global_names(data)
                 data,common_metadata=common.transform_source(data,family='E')
+                data,refinement=refine.transform_source(data,family='E')
+                common_metadata['refinements']=refinement
             return data,observations,alpha_metadata,scope_metadata,core_metadata,input_metadata,model_metadata,type_metadata,global_names_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())

@@ -171,7 +171,9 @@ It regenerates and exercises A4762/B5371/C5159/D6165/6345/E5281/F4730.
 The later PALS and hardware-CRC work below retains its own source and runtime
 boundaries; those earlier CI runs are not relabeled as results for new bytes.
 
-**No family has a verified complete file at or below 4,096 bytes.** All twelve
+**F's opt-in material/move-TT file is locally reproduced and exercised at
+4,093 bytes; default full F is still 4,667 bytes.** This optional reduced-feature
+size result does not complete default F or the A–F portfolio. All twelve
 cores have functional evidence, but portfolio completion still requires source
 reduction, D's eligible own-ELF artifact, final candidate comparisons and games,
 and selected profile/resource and target-hardware evidence. The first matched
@@ -185,14 +187,14 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
-| A | 4,674 B | 578 B | Shared final guard/literal/fixed-TT18 casts; Reuse the already computed continuation slot, global function aliases, capture-only private Move bit, calloc payload initialization sharing, lexical-scope names/types, shared startup/query and original ALONE |
-| B | 5,256 B | 1,160 B | Shared final guard/literal; Fixed-target recapture-promotion dominance, global function aliases, tactical Move metadata, shared geometry, legal-LVA ordering, hybrid attackers/singular and ALONE |
-| C | 5,020 B | 924 B | Shared final guard/literal/fixed-TT18 casts; Global function aliases, signed-net eight-lane state, exact HCE, real 128-bit madd/hadd and fixed ALONE |
-| D scalar / HQ | 5,987 / 6,194 B | 1,891 / 2,098 B | One-state dead classifier, EP trial shares make, full-key aligned atomic16 TT, explicit SSE4.2/CX16 profile, own fixed21 context ELF and guarded BCJ restoration |
-| E | 5,104 B | 1,008 B | Shared final guard/literal/fixed-TT18 casts; Global function aliases, untrained E19 quadratic activity model, incremental material/activity, original ordering and ALONE |
-| F full (default) | 4,668 B | 572 B | Shared final guard/literal; Capture-only private Move bit, global function aliases, calloc payload initialization sharing, unit-window TT bound expression, full-key TT, full-depth MTD(f), packed HCE and fixed ALONE |
-| F material/noise (opt-in) | 4,374 B | 278 B | Shared final guard/literal; Capture-only private Move bit, policy-local function aliases, fixed material/stateless-order model, full-depth MTD(f)/full-key TT/SMP retained; optional positional HCE/learners omitted; strength comparison pending |
-| F material/move-TT (opt-in) | 4,162 B | 66 B | Shared final guard/literal; Bound-preserving declaration/expressions, object/type/member names, fixed material and16-byte full-key coherent move-only TT; MTD recomputes bounds, rules/history/witness/pool retained; strength comparison pending |
+| A | 4,661 B | 565 B | Main-owned token cursor and valid-0x88 promotion predicate; existing full HCE/PVS/QS/TT/learners/SMP and fixed ALONE retained |
+| B | 5,229 B | 1,133 B | Main-owned token cursor, promotion predicate and make/SEE material-gain sharing; hybrid attackers/singular and full policy retained |
+| C | 5,016 B | 920 B | Promotion predicate; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners and fixed ALONE retained |
+| D scalar / HQ | 5,966 / 6,175 B | 1,870 / 2,079 B | Capture-only Move bit3; full-key aligned atomic16 TT, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained |
+| E | 5,101 B | 1,005 B | Promotion predicate; untrained E19 model/ordering, full search/learners and fixed ALONE retained |
+| F full (default) | 4,667 B | 571 B | Promotion predicate; packed positional HCE, learners, full-bound full-key TT and full-depth MTD(f)/SMP retained; default size target remains open |
+| F material/noise (opt-in) | 4,374 B | 278 B | Fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted; unchanged at this checkpoint |
+| F material/move-TT (opt-in) | 4,093 B | 0 B (3 B spare) | Fixed material, main-owned token cursor, terminal-loop sharing and coherent atomic64 Move17/high46 plus index18; local size eligibility only, full F and strength acceptance remain open |
 
 The separate Rust D native images are 16,816 bytes each. Their independent
 packed experiment retains its own qualification state and does not silently
@@ -5572,3 +5574,121 @@ proposal; no complete-file savings are assigned to it.
 All six family size gaps remain. No training, games, AWS or paid execution,
 main/develop promotion or release was performed by this checkpoint. External
 reference engines and generated artifacts remain outside Git.
+
+## Qualified common and per-family composition — 2026-10-21
+
+The preceding 0da35e2 checkpoint passes both language jobs in
+[engine CI](https://github.com/daejunnom/Rove4k/actions/runs/39528795707)
+and [lifecycle CI](https://github.com/daejunnom/Rove4k/actions/runs/39528795769).
+Synthetic merge a78c9ddcf4d58e168e388f0c3742c980fc23b4e0 has the same
+9a1c62210929cf8e867b579c52fbc59fd10af3cd tree, with develop56bfb5f and
+head0da35e2 parents. This success does not qualify the newer sources below.
+
+The maintained late replay now composes qualified source changes after
+shipping_common. Embedded full-source pins, nonoverlapping literals, inverse
+and untouched-complement checks require the exact source. No external receipt
+is a build dependency. Historical snapshots and full-reference DEV are retained.
+The new helper SHA is
+62ac2fc6d1d8d7525d35d84cb6deeed0b2cff366e74604b0b7f9d219278fd685.
+
+| Entry | Previous whole | New whole | Saved | Above4096 |
+|---|---:|---:|---:|---:|
+| A |4674|4661|13|565|
+| B |5256|5229|27|1133|
+| C |5020|5016|4|920|
+| D scalar |5987|5966|21|1870|
+| D HQ |6194|6175|19|2079|
+| E |5104|5101|3|1005|
+| F full/default |4668|4667|1|571|
+| F material/noise opt-in |4374|4374|0|278|
+| F material/move-TT opt-in |4162|4093|69|0 (3 spare)|
+
+Every value counts the actual complete file, not added candidate savings.
+New native identities are explicit even where length is unchanged. These are
+local2-worker/TT18 artifacts, not final resource or strength acceptance.
+**Default full F remains an open size target.** The4093 opt-in omits positional
+HCE/learners and caches only ordering moves; it does not replace default F.
+Per the user's update, common and individual compression continues after size
+eligibility, with room reinvested in useful retained/improved features.
+
+The promotion emitter uses !(to+16&96) only for generator-admitted valid0x88
+destinations. Invalid to135 is an explicit counterexample outside that scope.
+Six winners pass independent old/new ASan/UBSan emitter checks on245760 cases
+and337920 moves, including all four promotions in order. F material costs+1B
+and remains unchanged. Proof:
+3ff8c91b730b6c185e11087deda134ef5c0bf9bbb334663ce5dcea1adbb22307.
+
+A/B and opt-in F MoveTT share one main-owned strtok cursor through nt().
+Workers do not tokenize and main does not resume a parent token stream.
+Each policy's functions compare74 GO/23 position cases, full Board/history
+transactions, missing-value/key consumption and next-line reset. Component
+wrappers also execute quit/EOF. AB/F indexes:
+fe9bce608f0fd896b65421bb93733aacda48f406ebf011fbf662f4458e514a11 /
+4ff7f31d6639e306b61a5f4c20ab752d487e1fc861234fa1b74286cfed2cb7ad.
+
+B shares actual make's material gain with legal-LVA SEE as positive1+gain;
+other callers use truth only. One material table replaces the duplicate.
+The focused proof compares2323 generated/2043 legal/280 illegal moves, full
+child state/gain,158 SEE queries and6 cancellation guards. Two private initial
+untagged-EP cases remain explicit exclusions; production receives generated
+tags. Proof:8cdcc8b2996291430e5f534ab4ec7fa4d1243f4f04905b58b3737c6c55f142e6.
+
+Opt-in F shares the terminal legal-child scan with the ordered loop and uses
+coherent8-byte seq_cst atomic records. Slot index18 plus stored high46 retains
+full64 key identity with Move17; zero queries and key0 remain valid. TT falls
+4→2MiB. Busy misses/write drops disappear, so ordering, scheduling and strength
+equivalence are not claimed. Two fixed positive TT18 casts are also omitted.
+The actual final7803-byte TU passes one ASan/UBSan fixture compile/run: real
+atomic type/init/N, low18/high46 distinctions, seven Move forms, two writers
+20000 stores/40000 queries and fifteen terminal/MTD queries, including an
+independent depth1 witness and last-complete preservation. Final function SHA:
+d6f97a3f30f1929fec963597a91e86390d60f5a119b637fa8988cb1f34a076d0.
+Actual combined cost SHA:
+564f52fbfc60e0d9757254d1d4a7abf62c6dc927493d2590646cd34b35744457.
+
+All seven source-wrapper entries pass ordinary --dev builds and unchanged
+selected verifiers. Shipping source/native/bootstrap/whole and full-reference
+DEV reproduce twice. Fourteen actual quit/EOF sessions observe exact native,
+stable3 startup TIDs, legal finite GO, private-path/helper absence, closing
+single bestmove, reader EOF and physical exit. These are separate from function
+proofs and do not extend failure-path lifetime or strength guarantees.
+Normal summary18436B/SHA:
+cc82bacb31cfd8fb020fa375a3a1d1b3ece7ac2991dc7ebcf2c7ed772e3d230e.
+It checks producing inputs before later receipt-only recipe annotations.
+Frozen inputs and preparation failures remain outside Git.
+
+D separately adopts capture-only Move bit3, FROM119 and generated-tag replay;
+the provisional EP trial remains raw and boolean-only. ASan/UBSan function
+checks cover19 roots/286 pseudo/282 legal moves and14 old/new search pairs per
+form, normalizing only Move bit3. Full Worker/TT payload and all full search
+features remain. Exact new audit literals were admitted after static discovery;
+observer gates are unchanged. The ordinary builder reproduces native/whole
+twice and audit once. The existing positive verifier passes pre-entry2 and
+four quit/EOF sessions/12 legal GO results. Build/runtime SHA:
+8820abbf8bb205231028999cecc49d057b007700811746ec33d8ab238112db2e /
+9d7ff8085c0c44c57fcfe35cc73ca5b7cacbae48bac74b644451b606c063aee8.
+The prior rejected negative campaign was not retried.
+
+External-only C/E static-AB/move-TT experiments cost4584/4651B and have focused
+function proofs. Actual SIMD/E19 and rules/history remain, but optional
+learners/PVS reductions/score TT are omitted. No maintained producer or pool
+wrapper qualifies these alternatives; full-default C/E targets remain open.
+A nullable-legal-query sharing experiment costs C/E+1B and is closed.
+
+### Current 4K rules and continued source compression
+
+The [4K rules](https://wiki.chessdom.org/TCEC_4k_Rules), retrieved2026-10-21,
+page oldid7853, require one4096B file, startup within60s and no own files left.
+The4K UCI subset includes bare/clocked go, startpos/moves, readiness, uci and
+quit; stop/ucinewgame must be tolerated. Extra UCI features are optional.
+4K ELF additionally forbids external programs. Normal league option/info
+requirements are not imported into shipping. Information hidden in engine
+configuration counts toward size. Recheck event conditions for final selection.
+
+Continue full-default F source compression alongside common and individual
+work in the other families. Tokenizer expansion to C/E/full F and full F TT
+mate-adjust branch sharing now have source-only proposals; neither has a new
+cost or runtime claim. External engine implementations remain outside Git.
+Each family's size gap, D eligible own-ELF, final resource profiles and their
+actual short-search/runtime/strength evidence remain open. Training/data
+collection, AWS/paid execution and release are outside this checkpoint.
