@@ -1,3 +1,20 @@
+# Maintained C: smaller plain-Popen cleanup guard — 2026-10-21
+
+Whole **4954 B**. The current template/script loses12 raw bytes
+by testing the fixed plain Popen/None value directly. Poll, cleanup, signal mask,
+compiler argv/C input, private path, descriptor exec and physical lifetime
+operations remain unchanged. C source/native are entire-byte unchanged.
+
+All seven selections regenerate --dev twice and pass unchanged actual selected
+quit/EOF verification. This is local2-worker/TT18 evidence, with no new general
+descendant cleanup, startup-fault or strength guarantee. Normal summary SHA-256:
+`90e45a020a55ef5a3ff6af78dfa42908eb8625395fe5c991d860bde8d34b2ff6`.
+
+Current source SHA-256: `ed5b5fba543a7ab3a208af466e14744d0339447b0b812448a5092a068cd9715b`.
+Current whole SHA-256: `f0ee42134a2d8604a3f363b0f9e9b350bf56f3de89ba166fadb35a0ce4f6b545`.
+
+Older sections retain their original checkpoint identities.
+
 # Maintained C: final literal/poll compaction — 2026-10-21
 
 Current whole **4960 B**, source **10084 B**.

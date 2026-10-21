@@ -14,7 +14,7 @@ with tempfile.TemporaryDirectory(prefix='r4-') as d:
   finally:signal.pthread_sigmask(signal.SIG_SETMASK,m)
   p.communicate(__ROVE_SOURCE_LITERAL__)
  finally:
-  if p is not None and p.poll() is None:
+  if p and p.poll() is None:
    try:os.killpg(p.pid,q)
    except ProcessLookupError:pass
    try:p.wait(timeout=5)

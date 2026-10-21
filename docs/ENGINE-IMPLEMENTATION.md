@@ -172,7 +172,7 @@ The later PALS and hardware-CRC work below retains its own source and runtime
 boundaries; those earlier CI runs are not relabeled as results for new bytes.
 
 **F's opt-in material/move-TT file is locally reproduced and exercised at
-4,057 bytes; default full F is still 4,581 bytes.** This optional reduced-feature
+4,051 bytes; default full F is still 4,575 bytes.** This optional reduced-feature
 size result does not complete default F or the A–F portfolio. All twelve
 cores have functional evidence, but portfolio completion still requires source
 reduction, D's eligible own-ELF artifact, final candidate comparisons and games,
@@ -187,14 +187,14 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
-| A | 4,619 B | 523 B | Unsigned64 number forms; one-state material classifier; main-owned token cursor and valid-0x88 promotion predicate; existing full HCE/PVS/QS/TT/learners/SMP and fixed ALONE retained; fixed LP64 mixer literals |
-| B | 5,154 B | 1,058 B | Worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained; literal include gaps compacted; clock-first SEE poll; cancellation timing changed |
-| C | 4,960 B | 864 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners retained; literal include gaps compacted; fixed LP64 mixer literals |
+| A | 4,613 B | 517 B | Unsigned64 number forms; one-state material classifier; main-owned token cursor and valid-0x88 promotion predicate; existing full HCE/PVS/QS/TT/learners/SMP and fixed ALONE retained; fixed LP64 mixer literals |
+| B | 5,148 B | 1,052 B | Worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained; literal include gaps compacted; clock-first SEE poll; cancellation timing changed |
+| C | 4,954 B | 858 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners retained; literal include gaps compacted; fixed LP64 mixer literals |
 | D scalar / HQ | 5,966 / 6,175 B | 1,870 / 2,079 B | Capture-only Move bit3; full-key aligned atomic16 TT, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained |
-| E | 5,019 B | 923 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; literal include gaps compacted; fixed LP64 mixer literals |
-| F full (default) | 4,581 B | 485 B | Explicit no-preadd hash policy with new repetition/context/TT/correction buckets; terminal legal-loop sharing and integer forms; packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; default size target remains open; literal include gaps compacted; fixed LP64 mixer literals |
-| F material/noise (opt-in) | 4,330 B | 234 B | Unsigned64 number forms and two fixed TT18 casts omitted; one-state material classifier, fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted; literal include gaps compacted; fixed LP64 mixer literals |
-| F material/move-TT (opt-in) | 4,057 B | 0 B (39 B spare) | Unsigned64 number forms; one-state material classifier, fixed material, main-owned token cursor, terminal-loop sharing and coherent atomic64 Move17/high46 plus index18; local size eligibility only, full F and strength acceptance remain open; fixed LP64 mixer literals |
+| E | 5,014 B | 918 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; literal include gaps compacted; fixed LP64 mixer literals |
+| F full (default) | 4,575 B | 479 B | Explicit no-preadd hash policy with new repetition/context/TT/correction buckets; terminal legal-loop sharing and integer forms; packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; default size target remains open; literal include gaps compacted; fixed LP64 mixer literals |
+| F material/noise (opt-in) | 4,325 B | 229 B | Unsigned64 number forms and two fixed TT18 casts omitted; one-state material classifier, fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted; literal include gaps compacted; fixed LP64 mixer literals |
+| F material/move-TT (opt-in) | 4,051 B | 0 B (45 B spare) | Unsigned64 number forms; one-state material classifier, fixed material, main-owned token cursor, terminal-loop sharing and coherent atomic64 Move17/high46 plus index18; local size eligibility only, full F and strength acceptance remain open; fixed LP64 mixer literals |
 
 The separate Rust D native images are 16,816 bytes each. Their independent
 packed experiment retains its own qualification state and does not silently
@@ -6302,3 +6302,62 @@ reduced-feature result. The goal remains active: all A–F source compression,
 D's eligible own-ELF, selected resources/target hardware and strength/candidate
 acceptance remain open. No new games, training/data collection, AWS or paid
 execution is performed. Passing a size threshold does not end compression.
+
+
+## Plain-Popen cleanup guard source compaction — 2026-10-21
+
+The preceding source checkpoint0458092 passes
+[C/Rust engine CI](https://github.com/daejunnom/Rove4k/actions/runs/39548145732).
+Each maintained compiler bootstrap replaces only
+`if p is not None and p.poll() is None:` with `if p and p.poll() is None:`.
+The current plain CPython3.12 Popen class defines neither bool nor len and is
+always truthy; p is only None or the actual returned Popen. None short-circuits
+without poll and every Popen makes the same single poll/cleanup decision.
+Falsey monkeypatched Popen objects are outside this fixed runtime domain.
+
+Compiler argv/raw C input, PID publication signal mask, handlers, killpg/wait/
+timeout/returncode, private TMPDIR, TemporaryDirectory cleanup, unlink-before-
+descriptor exec, argv/env and the77B shell prefix stay byte exact outside that
+line. This neither improves nor proves a general exited-leader/remaining-
+descendant cleanup guarantee. No new fault campaign or generic Python rewrite
+is added. Historical generic pack_stream bootstrap is not a current producer
+and remains unchanged; the actual five tracked templates are updated directly.
+
+| Selection | Previous whole | Current whole | Saved | C source bytes (unchanged) |
+|---|---:|---:|---:|---:|
+| A |4619|4613|6|9052|
+| B |5154|5148|6|10577|
+| C |4960|4954|6|10084|
+| E |5019|5014|5|10440|
+| F full |4581|4575|6|8939|
+| F-material |4330|4325|5|8508|
+| F-move |4057|4051|6|7741|
+
+Each emitted script and owned template loses12 raw bytes. The seven fixed costs
+encode once each and never recompile unchanged C. Existing normal native files
+are explicitly reused as identity inputs, not claimed as new compile results.
+Python strict14/CLI14 decodes restore exact C/argv/bootstrap; inverse, raw
+complement and all other AST nodes match. Case-specific A defaults, C nice64/
+-mavx2 and F-move lc0 remain. Cost26764B SHA:
+ecf965ab3eba1474b85d2d75a9a8dec46ede51e3a9bef3ea02282dea0900d75b.
+
+Actual ordinary regeneration from the new tracked templates then passes all
+seven --dev builders and unchanged selected verifiers. C/native and full DEV
+remain entire-byte equal to preceding outputs; new scripts/whole reproduce
+twice. Fourteen actual new quit/EOF wrappers pass exact restoration, stable3
+TIDs, legal finite GO, private-path/helper absence, closing result, reader EOF
+and physical exit. Function proofs are reused; no new function/strength or
+startup-fault result is claimed. Producing-input readback precedes annotations.
+Normal summary15346B SHA:
+90e45a020a55ef5a3ff6af78dfa42908eb8625395fe5c991d860bde8d34b2ff6.
+
+The preparatory metadata query's rows/cases field typo and the cost owner's
+post-run readback filter typo are preserved as read-only preparation/collection
+errors. Neither changes candidates, expected output or prior cost results;
+successful compilers/encoders are not repeated to repair reporting.
+
+Full/default F now needs479B. Optional F-move4051B has45B spare and remains a
+reduced-feature intermediate. D stays5966/6175B. The A–F goal and compression
+beyond size passage remain active; final target resources, many-core behavior,
+candidate/strength acceptance and D's eligible own-ELF still require evidence.
+Training/data collection, AWS, paid runs and new games stay excluded.
