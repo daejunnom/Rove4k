@@ -1,4 +1,58 @@
-# Maintained F: fixed local spelling replay — 2026-10-22
+# Maintained F: inline handler pairs — 2026-10-22
+
+The full/default selection is **4445 B**, two bytes below4447 and **349 B
+above4096**. Its emitted bootstrap is9478 B,28 below9506. Full-profile
+template preparation expresses each fixed signal2/15 registration pair as
+`for s in 2,15:signal.signal(s,...)`. Calls keep the same2-then15 order and
+the same stop handler or SIG_DFL value. The loop target is fresh module
+storage; the stop handler's s is local and no later logic reads global s.
+Signal masks, blocked Popen publication, private TMPDIR/cwd, compiler-group
+kill/wait, source bytes, fd-open/delete/exec, argv/stdin/environment retain
+their expressions. Source/code/traceback identity and instruction/allocation
+failure timing are not promised by this representation change.
+
+The source8538/400ad454... and complete native18576/92671066... identities,
+canonical, names helper, full DEV, profile/model and codec/header remain.
+The shared legacy bootstrap template stays unchanged for optional policies
+and F8. Their4319/4045/4474 tuples are reused through the same source,
+template, codec/header and policy branches; no new optional/F8 product
+execution is performed by this change. The separate optional full-reference
+C generation checks only source bytes and is unaffected by bootstrap bytes.
+F8's explicit source-before-names.c producer stays byte-identical; its
+consumer owner synchronizes the changed F build source-closure pin.
+
+First-cost candidate whole SHA-256:
+`9e574b5b825964189a1b4b0ac8be3e1ab6415748c8bceae4f1dafafc579e337f`.
+Bootstrap SHA-256:
+`2a8710e02bc4e2ca6c59e580f3d7b41796ff3a09e55f0dd65a3d330f40e0f578`.
+Exact2spans/3gaps, full inverse, loop-unrolled AST and old/new strict
+restoration are in `rove4k-f-bootstrap-handler-loops-first-cost-20261022-evidence`.
+An incorrect initial raw-length expectation stopped before any encode;
+the original failure is preserved. The corrected same candidate used one
+encode and no compile/runtime. No helper/codec search was added.
+
+One maintained ordinary `--dev` call reproduces shipping2 and unchanged
+DEV2. Source/native and DEV source/native compare in full bytes with the
+qualified4447 predecessor; both bootstrap/whole reproductions match the
+measured candidate. The unchanged selected verifier passes actual4445
+quit/EOF2sessions8 legal GO, exact native restoration, stable3TIDs, absent
+private paths/helpers, reader EOF and physical exit0. Parent commands exit0,
+are reaped and leave their groups absent; cleanup/failures/retries are0.
+This adds no signal-fault, arbitrary descendant, strength, many-core or
+final-target coverage; cancellation causality remains unproven.
+
+Build receipt:
+`4d06f4e12ee52d99ef4fda8b745b33757e2a193dbd4247ecc8ddd95225267145`.
+Runtime receipt:
+`2df071c90e8e4a883810ef2509be1a2e23b985b095105fe1673bd3039af39917`.
+Producing recipe:
+`c32747e48df1848d37d39bafce40a1c855e6d7c99e7ab67adf192199daae7d2d`.
+The producing snapshots and logs stay outside Git in
+`rove4k-f-bootstrap-handler-loops-promotion-20261022-evidence`; final recipe
+and README add receipt metadata only. Historical checkpoints and their
+scopes remain below.
+
+# Historical F: fixed local spelling replay — 2026-10-22
 
 The full/default file is **4447 B**, 21 bytes below4468 and **351 B above
 4096**. Compact C remains8538 B. Five automatic binding groups change59

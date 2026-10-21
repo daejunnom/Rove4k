@@ -263,18 +263,18 @@
     "source_sha256": "400ad454b0e3108814636bab4060f224ae4b2d28cdc7929c8c98590adb46c59d",
     "native_bytes": 18576,
     "native_sha256": "926710668d5975d6972ca18d22bea985b2b4aa9153f41c946c03d5bbac71f876",
-    "whole_bytes": 4447,
-    "whole_sha256": "1d27f6e80a418cf8ec40cebeb772ce69028407d6ea10b0e4466dc807b89fc528",
+    "whole_bytes": 4445,
+    "whole_sha256": "9e574b5b825964189a1b4b0ac8be3e1ab6415748c8bceae4f1dafafc579e337f",
     "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
     "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
-    "bootstrap_sha256": "5d954210168b72ef0c08d63fab4a41b1ace42020f305cee72b7a4d2b02fc4923",
+    "bootstrap_sha256": "2a8710e02bc4e2ca6c59e580f3d7b41796ff3a09e55f0dd65a3d330f40e0f578",
     "semantic_readable_bytes": 25720,
     "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
     "dev_source_bytes": 19488,
     "dev_native_bytes": 26984,
     "input_profile_readable_bytes": 28587,
     "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
-    "bootstrap_bytes": 9506
+    "bootstrap_bytes": 9478
   },
   "local_input_sha256": {
     "engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
@@ -1150,6 +1150,16 @@
       "normal_retries": 0,
       "wrapper_sessions": 2,
       "legal_GO": 8,
+      "metadata_only_after_execution": true
+    },
+    "bootstrap_handler_loops": {
+      "status": "PASS maintained shipping2/DEV2 and unchanged selected quit/EOF2sessions8GO",
+      "build_receipt_sha256": "4d06f4e12ee52d99ef4fda8b745b33757e2a193dbd4247ecc8ddd95225267145",
+      "runtime_receipt_sha256": "2df071c90e8e4a883810ef2509be1a2e23b985b095105fe1673bd3039af39917",
+      "producing_recipe_sha256": "c32747e48df1848d37d39bafce40a1c855e6d7c99e7ab67adf192199daae7d2d",
+      "source_native_DEV_unchanged": true,
+      "optional_F8_product_reuse": true,
+      "new_optional_F8_executions": 0,
       "metadata_only_after_execution": true
     }
   },
@@ -4879,6 +4889,94 @@
       "forced_cleanup_retries_failures": 0,
       "metadata_only_after_producing_execution": true,
       "no_new_strength_manycore_final_target_acceptance": true
+    }
+  },
+  "bootstrap_handler_loops": {
+    "scope": "full/default emitted bootstrap only; two inline signal2/15 loops",
+    "predecessor_expected": {
+      "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+      "source_bytes": 8538,
+      "source_sha256": "400ad454b0e3108814636bab4060f224ae4b2d28cdc7929c8c98590adb46c59d",
+      "native_bytes": 18576,
+      "native_sha256": "926710668d5975d6972ca18d22bea985b2b4aa9153f41c946c03d5bbac71f876",
+      "whole_bytes": 4447,
+      "whole_sha256": "1d27f6e80a418cf8ec40cebeb772ce69028407d6ea10b0e4466dc807b89fc528",
+      "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
+      "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
+      "bootstrap_sha256": "5d954210168b72ef0c08d63fab4a41b1ace42020f305cee72b7a4d2b02fc4923",
+      "semantic_readable_bytes": 25720,
+      "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
+      "dev_source_bytes": 19488,
+      "dev_native_bytes": 26984,
+      "input_profile_readable_bytes": 28587,
+      "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
+      "bootstrap_bytes": 9506
+    },
+    "template_legacy_shared_unchanged": true,
+    "source_native_DEV_unchanged": true,
+    "names_helper_unchanged": true,
+    "firstcost_index_sha256": "21a8aa794e97943d32497a5bd6134bfdb79100b35d31bc7f8af5daf15a567e41",
+    "source_proof_sha256": "b36ff3df1ac291e27e37595e60520e2a7cc32db520702b66d1c3194ab11db934",
+    "firstcost_receipt_sha256": "de6e33bab7dc5668867f1194a7973cba1d7e0bccd7391df8455174fe0fa0f5df",
+    "raw_bootstrap_delta": -28,
+    "whole_delta": -2,
+    "source_spelling_code_traceback_identity_claimed": false,
+    "source_contract": "same calls and signal2 then15 order; fresh module loop target unused by later bootstrap; stop parameter is local; Popen/masks/group cleanup/private TMPDIR/fdexec/argv/stdin/environment expressions unchanged",
+    "generic_allocation_fault_instruction_trace_identity_claimed": false,
+    "optional_and_F8_product_reuse": "same shared legacy template, selected source, compiler, codec/header and artifact tuples; no new optional/F8 execution; F8 producing Fbuild closure pin synchronized separately",
+    "first_preparation_failure_preserved": true,
+    "normal_validation_pending": false,
+    "normal_validation": {
+      "status": "PASS",
+      "build_receipt": {
+        "path": "/home/stemxstudio/rove4k-f-bootstrap-handler-loops-promotion-20261022/normal/build/build.json",
+        "bytes": 243658,
+        "sha256": "4d06f4e12ee52d99ef4fda8b745b33757e2a193dbd4247ecc8ddd95225267145"
+      },
+      "runtime_receipt": {
+        "path": "/home/stemxstudio/rove4k-f-bootstrap-handler-loops-promotion-20261022/normal/runtime/runtime.json",
+        "bytes": 67847,
+        "sha256": "2df071c90e8e4a883810ef2509be1a2e23b985b095105fe1673bd3039af39917"
+      },
+      "normal_commands": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-bootstrap-handler-loops-promotion-20261022-evidence/normal-commands.json",
+        "bytes": 3421,
+        "sha256": "59a65780f4776939b3dbc4559e4fce99096bb0d94e3747aef4e2650324dac42e"
+      },
+      "producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-f-bootstrap-handler-loops-promotion-20261022/normal/build/inputs/recipe.json",
+        "bytes": 260710,
+        "sha256": "c32747e48df1848d37d39bafce40a1c855e6d7c99e7ab67adf192199daae7d2d"
+      },
+      "shipping_reproductions": 2,
+      "unchanged_DEV_reproductions": 2,
+      "wrapper_sessions": 2,
+      "legal_GO_results": 8,
+      "startup_TIDs": 3,
+      "source_native_DEV_entire_bytes_equal_to_qualified4447": true,
+      "bootstrap_whole_entire_bytes_equal_to_firstcost": true,
+      "source_before_names_three_outputs_same": [
+        {
+          "path": "/home/stemxstudio/rove4k-f-bootstrap-handler-loops-promotion-20261022/normal/build/source-before-names.c",
+          "bytes": 8538,
+          "sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
+        },
+        {
+          "path": "/home/stemxstudio/rove4k-f-bootstrap-handler-loops-promotion-20261022/normal/build/attempt-1/source-before-names.c",
+          "bytes": 8538,
+          "sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
+        },
+        {
+          "path": "/home/stemxstudio/rove4k-f-bootstrap-handler-loops-promotion-20261022/normal/build/attempt-2/source-before-names.c",
+          "bytes": 8538,
+          "sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
+        }
+      ],
+      "physical_process_group_exit": true,
+      "owned_handles": 0,
+      "normal_failures_retries": 0,
+      "new_optional_F8_executions": 0,
+      "cancellation_causality": "unproven"
     }
   }
 }

@@ -50,7 +50,8 @@
     "engines/compact/tiny-entry-a/shipping_history_depth.py": "ac37e86ddefa35458eb89068ad76777f8686160627f0155f49069c06787eaf23",
     "engines/scripts/shipping_lazy_fallback.py": "023b370e75df2d50f44641eac7d1b49091ef2424d9ed7983d6d6f3c7d700b2ce",
     "engines/compact/tiny-entry-a/shipping_evaluation.py": "6793983dadfcd699ad6530206bf69773c8436e37d9080e48ebd962d896282c68",
-    "engines/scripts/source_package.py": "55fa739e7c17fffdb3bf1191c7a26aa38d35e9e32473e4008c23ece3d5703d1f"
+    "engines/scripts/source_package.py": "55fa739e7c17fffdb3bf1191c7a26aa38d35e9e32473e4008c23ece3d5703d1f",
+    "engines/compact/tiny-entry-a/shipping_worker_epilogue.py": "d373aaddaab845c64a4fc4b865cb6180733c89aaafdc45d9d31cfa7ceccfabd0"
   },
   "fixed_renames": [
     [
@@ -384,18 +385,18 @@
   },
   "expected": {
     "readable_sha256": "a6aab57fffacc1900dbd9de133652d811d316b3823144ec2181c4f8dda581b6a",
-    "source_bytes": 8987,
-    "source_sha256": "4fd5231ace3db9f7d8aca8c2e26871895905cd3e77cb38e4b41117bdca4f31d8",
+    "source_bytes": 8965,
+    "source_sha256": "6230471043c6259016908792bc4b8ad58cf089503e7195ce8a4b6cc6d9886533",
     "native_bytes": 18576,
-    "native_sha256": "cb483c627d7ac747e95b9d1c804e08da1c02d586a91f5715872d4b9879d67334",
-    "whole_bytes": 4582,
-    "whole_sha256": "7695d824549f10139fa740709e04c8e56934e643dc739def9bb1239631c97347",
-    "bootstrap_sha256": "bc9a22d30693915db093e75467573b2bab415da1c6c05bc1f08748d5d3d2d425",
+    "native_sha256": "d97930cd8a93f6a0a38f87fbbeff79c453a1b402f8124b29de1c8c0169e53634",
+    "whole_bytes": 4580,
+    "whole_sha256": "373c3c6a3fb5d7b600bc9817b4549b0056a58b5d8c11882d000e10eba21d509b",
+    "bootstrap_sha256": "2cdeae94327790cb9c52d0032e5f048213a4ceb6284e308d0b19c5944fab7ec7",
     "dev_source_sha256": "d1f0ff322843a4210cb1cad574bc6726eef576c0fd398cb0e1cfbc12fdc81f01",
     "dev_native_sha256": "078df7141403841798e0bcb1545e59975492359b78d88b0637b99865a6bf72b9",
     "input_profile_readable_bytes": 27688,
     "input_profile_readable_sha256": "4af39bc6496c85281b322063245ee97a522b4d6c6df7c4844f71d981e733164a",
-    "bootstrap_bytes": 9951
+    "bootstrap_bytes": 9929
   },
   "local_input_sha256": {
     "engine.c": "a6aab57fffacc1900dbd9de133652d811d316b3823144ec2181c4f8dda581b6a",
@@ -403,7 +404,7 @@
     "launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
   },
   "qualified_receipt": {
-    "scope": "startup-only unsigned TT zero stores omitted after fresh calloc; explicit atomic_flag initialization retained; new whole/native require normal reproduction and selected execution",
+    "scope": "current A shared worker epilogue: ordinary shipping2 and unchangedDEV2 plus actual selected startup/repeatedGO/activequitEOF; private startup finished broadcasts2 to1 changes scheduling and native bytes; partial-create/epoch-wrap/forced-spurious cases remain source-only; older receipts retain their historical domains",
     "predecessor_A4762": {
       "expected": {
         "readable_sha256": "71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734",
@@ -1039,6 +1040,79 @@
       "normal_failures": 0,
       "normal_retries": 0,
       "metadata_only_after_execution": true
+    },
+    "shared_worker_epilogue": {
+      "status": "qualified locally: ordinary --dev shipping2/unchangedDEV2 and unchanged selected2 sessions8 GO epochs passed",
+      "predecessor_A4582_expected": {
+        "readable_sha256": "a6aab57fffacc1900dbd9de133652d811d316b3823144ec2181c4f8dda581b6a",
+        "source_bytes": 8987,
+        "source_sha256": "4fd5231ace3db9f7d8aca8c2e26871895905cd3e77cb38e4b41117bdca4f31d8",
+        "native_bytes": 18576,
+        "native_sha256": "cb483c627d7ac747e95b9d1c804e08da1c02d586a91f5715872d4b9879d67334",
+        "whole_bytes": 4582,
+        "whole_sha256": "7695d824549f10139fa740709e04c8e56934e643dc739def9bb1239631c97347",
+        "bootstrap_sha256": "bc9a22d30693915db093e75467573b2bab415da1c6c05bc1f08748d5d3d2d425",
+        "dev_source_sha256": "d1f0ff322843a4210cb1cad574bc6726eef576c0fd398cb0e1cfbc12fdc81f01",
+        "dev_native_sha256": "078df7141403841798e0bcb1545e59975492359b78d88b0637b99865a6bf72b9",
+        "input_profile_readable_bytes": 27688,
+        "input_profile_readable_sha256": "4af39bc6496c85281b322063245ee97a522b4d6c6df7c4844f71d981e733164a",
+        "bootstrap_bytes": 9951
+      },
+      "source_proof_sha256": "0c0e4a9713638611318ac3806e4c03c4c54465172d6799703bfc00f4f98ab8e9",
+      "first_cost_sha256": "2645402cb86626efbd7c279aaeb357e342f80510b6037d995c0aaf27b8960ca2",
+      "first_cost_index_sha256": "6d0aa26a93a178186b1754068564ec0264db6602d8ff3debd2ae96c99bca11f5",
+      "fixed_current_header_bytes": 73,
+      "source_delta": -22,
+      "whole_delta": -2,
+      "full_native_equality": false,
+      "startup_finished_broadcasts_old_new": [
+        2,
+        1
+      ],
+      "private_startup_scheduling_changed": true,
+      "canonical_DEV_unchanged": true,
+      "partial_create_epoch_wrap_spurious_wake": "source review only; not fault or wrap runtime evidence",
+      "first_cost_counts": {
+        "candidate_compile": 1,
+        "encode": 1,
+        "strict_Python": 2,
+        "CLI": 2,
+        "baseline_compile": 0,
+        "baseline_encode": 0,
+        "runtime": 0
+      },
+      "source_contract": "nonnull static worker argument; pointer marks startup independently of epoch; shared mutex covers pending decrement/result/wake; main drains before root/job reuse; partial-create shutdown joins only created threads",
+      "normal_validation": {
+        "final_index_sha256": "126bf6de6e37a3269e8d72affed206b1818c9748ec53965059df97101b501082",
+        "producing_manifest_sha256": "0bdd307464c5bc7fa1b83a2702f6c3c20d16dabb338f91c1cb24ad279d8b563d",
+        "producing_recipe_sha256": "a931b6da2cd1c2d65dd66bd0e47020cebaeaf60007b00a2f2c48b861b511eef5",
+        "producer_build_sha256": "a2ceb3096e1afd0985f91f35be6fdd46a7f2a582a28f560ce92e49cfc5242a86",
+        "selected_runtime_sha256": "c1c182308bd7d5bfce0fc4232c28f92a326dfd89f177d668b714d410701c2c2b",
+        "shipping_reproductions": 2,
+        "unchanged_DEV_reproductions": 2,
+        "source_native_bootstrap_whole_equal_to_first_cost": true,
+        "actual_selected_sessions": 2,
+        "legal_GO_epochs": 8,
+        "startup_TIDs_each": 3,
+        "stable_TIDs_across_completed_epochs": true,
+        "actual_restored_new_native_exact": true,
+        "active_quit_EOF_closing_legal_result_exactly_once": true,
+        "process_readers_helpers_private_path_exit": true,
+        "physical_lifetime_authority": "original owned command communicate/wait completion, terminal/group_absent/handles0; selected wait/process/readers/observed-descendant receipts, not later numeric lookup",
+        "forced_cleanup": false,
+        "cancellation_causality": "unproven",
+        "metadata_only_after_execution": true,
+        "firstcost_reruns": 0,
+        "DEV_runtime": 0,
+        "focused_fault_or_epochwrap_runs": 0,
+        "compiler_descendant_absence": "not separately observed by unchanged compile helper"
+      },
+      "runtime_limits": [
+        "partial thread-create failure, epoch wrap and forced spurious wakes source-reviewed only",
+        "no queued GO/active position reset or blocked result-output schedule run",
+        "no general race-freedom/many-core/strength/performance or final4KiB acceptance"
+      ],
+      "controlled_startup_fixture": "old perworker finished-broadcast arrival hook is not a valid unchanged observer after2 to1 notification change; historical fixture not rerun or promoted as fresh coverage"
     }
   },
   "provenance": {
@@ -1095,6 +1169,15 @@
       "unsigned_key_data_zero_by_calloc_atomic_flags_explicit": true,
       "same_canonical_DEV_flags_resources_bootstrap_codec": true,
       "runtime_and_cost_receipts_are_metadata_only": true
+    },
+    "shipping_worker_epilogue": {
+      "helper": "engines/compact/tiny-entry-a/shipping_worker_epilogue.py",
+      "stage": "last shipping-only stage after cached evaluation; DEV bypasses it",
+      "literal_regions": 1,
+      "protected_gaps": 2,
+      "full_inverse": true,
+      "ordinary_generation_inputs": "canonical/helper literals and fixed recipe; no experiment/report/fixture/runtime receipt input",
+      "observation_change": "intermediate startup finished wake omitted; final readiness wake and job result/drain contracts preserved; native bytes and scheduling timing change"
     }
   },
   "input_policy": {

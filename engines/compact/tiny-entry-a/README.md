@@ -1,3 +1,64 @@
+# Maintained A: shared worker epilogue — 2026-10-22
+
+The ordinary producer now reproduces **4580 B** complete,**8965 B** shipping C
+and**18576 B** native:22 source bytes and2 whole bytes below qualifiedA4582.
+The new native has SHA-256
+`d97930cd8a93f6a0a38f87fbbeff79c453a1b402f8124b29de1c8c0169e53634`;
+its length equals its predecessor but its bytes differ. Whole SHA-256:
+`373c3c6a3fb5d7b600bc9817b4549b0056a58b5d8c11882d000e10eba21d509b`.
+It remains484 B above4096. The current73-byte header,bootstrap envelope,
+compiler,codec,profile,search,learners,TT,rules and protocol remain in scope.
+
+The A-only final `shipping_worker_epilogue.py` shares startup arrival and
+completed-job reporting at the worker loop head. One308→286-byte region has
+exact input/output pins,full inverse and two protected gaps. The existing
+local worker pointer is null only at startup; every accepted dispatch sets it
+to the existing nonnull worker argument before think. It stays nonnull across
+completion and is independent of unsigned epoch wrap. Canonical/DEV retain
+their existing worker function and exact source/full-native identities.
+
+Startup finished broadcasts change2→1. The intermediate pending2→1 arrival no
+longer notifies main; final pending1→0 readiness still does. This changes private
+wake/interleaving timing. Job completion still decrements once per think; its
+last worker calls result under the mutex before the final wake and before main
+can pass its drain mutex. The original pending predicate,root/history lifetime,
+epoch publication and created-thread join contracts are retained by source
+review. This is not an identical-native or notification-count-preserving claim.
+
+One ordinary --dev builder reproduced shipping source/native/bootstrap/whole
+twice,exactly matching the first-cost candidate,and reproduced unchanged DEV
+source/full-native twice. The unchanged selected verifier ran the actual new
+wrapper in two fresh sessions. Each session observed3 startup TIDs,three
+completed white-zero/black-zero/bare-finite GO epochs with exactly one legal
+result and stable TIDs,then an observed-active epoch closed by quit or EOF.
+Both closing epochs produced exactly one legal result,exit0,reader EOF,absent
+process/observed descendants and removed restoration/helper paths. The original
+owned command receipts record communicate/wait completion,terminal state,
+group absence and handles0,with no forced cleanup. These own-lifetime receipts
+are the physical completion evidence; a later numeric PID lookup is not a gate.
+Build receipt SHA-256:
+`a2ceb3096e1afd0985f91f35be6fdd46a7f2a582a28f560ce92e49cfc5242a86`;
+runtime `c1c182308bd7d5bfce0fc4232c28f92a326dfd89f177d668b714d410701c2c2b`;
+final index `126bf6de6e37a3269e8d72affed206b1818c9748ec53965059df97101b501082`.
+
+Producing recipe `a931b6da2cd1c2d65dd66bd0e47020cebaeaf60007b00a2f2c48b861b511eef5` and all four
+producing files are preserved outside Git in
+`rove4k-a-worker-epilogue-promote-20261022-evidence/producing/`; this completion
+changes recipe/README annotations only. No first-cost reexecution or additional
+source search was performed. The original GAIN2 cost/source proof remains in
+`rove4k-a-worker-epilogue-20261022-evidence` with its original hashes.
+
+Partial thread creation failure,unsigned epoch wrap,forced spurious wake,
+blocked result output and join-failure schedules remain source-reviewed or
+unexercised,not fresh runtime coverage. The old controlled startup fixture
+infers each arrival from its perworker finished broadcast; that hook is
+unsuitable unchanged after the accepted notification change,so its historical
+result is not reused as a fresh run. Selected verification did not invoke
+queued-GO or active-position-reset scenarios. Cancellation causality remains
+unproven. DEV runtime,new fault/strength/performance/many-core campaigns0;
+the unchanged compile helper has no separate compiler-descendant lifetime
+record. Older sections below retain their predecessor evidence domains.
+
 # Maintained A: shared73-byte header — 2026-10-22
 
 The selected complete file is **4582 B**, four bytes below A4586 and486 B

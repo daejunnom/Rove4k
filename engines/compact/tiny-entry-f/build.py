@@ -189,6 +189,10 @@ def main():
             template=template.replace(b' e=dict(os.environ,TMPDIR=d)\n',b'',1)
             template=template.replace(b'cwd=d,env=e,stdin=subprocess.PIPE',
                                       b'cwd=d,env=dict(os.environ,TMPDIR=d),stdin=subprocess.PIPE',1)
+            template=template.replace(b'signal.signal(2,stop);signal.signal(15,stop)\n',
+                                      b'for s in 2,15:signal.signal(s,stop)\n',1)
+            template=template.replace(b'signal.signal(2,signal.SIG_DFL);signal.signal(15,signal.SIG_DFL)\n',
+                                      b'for s in 2,15:signal.signal(s,signal.SIG_DFL)\n',1)
             prefix=source_package.XZ_STDIN_HEADER
         if len(prefix)!=recipe['launcher']['bytes'] or sha(prefix)!=recipe['launcher']['sha256']:
             raise ValueError('fixed selected launcher changed')

@@ -50,3 +50,17 @@ Full F now applies its NVCompact-derived private-name spelling after the existin
 F8 retains exactly base8538/47353a15… and specialized8538/91162258…, native18576/33509091…, bootstrap9511/95d0410d…, whole4474/65a1ed9a…. Its six-role specialize helper, constructor/TT/history/search/resource behavior, legacy77-byte template/header, BT4 codec, builder and positive verifier are unchanged. The recipe updates only producer build provenance and adds shipping_names.py to its source closure. That helper belongs to the producer provenance; F8 does not apply it.
 
 The actual new ordinary producer's selected and two attempt pre-spelling files are read back against the unchanged F8 base identity, and existing source_closure() verifies the current ordinary inputs. Prior4474 independent reproduction and9-TID/8GO positive receipts remain exact raw-hash reuse, rather than a new F8 execution. No F8 compiler, encoder, source specialization or engine run is added by this consumer-path update. Final source/readbase evidence is external; root owns Git and exact-head CI.
+
+
+## Full-only handler-loop producer provenance — 2026-10-22
+
+The full F producer now emits handler registration/reset as two ordered
+`for s in 2,15` loops. This bootstrap-only choice does not change the shared
+legacy template, the explicit pre-spelling source, or any F8 packaging input.
+The producer's selected and two attempt source-before-names.c files still
+match8538/47353a15… exactly. Only the Fbuild pin is refreshed in the F8 recipe;
+all other recipe fields and F8 source/native/bootstrap/whole4474 identities,
+specialize helper, builder, positive verifier and CI input path are unchanged.
+The existing54-file source_closure() is checked against current source. Prior
+4474 reproduction and nine-TID positive evidence is reused by exact identity;
+no new F8 compilation, encoding, specialization or engine execution is claimed.
