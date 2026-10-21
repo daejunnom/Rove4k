@@ -5865,3 +5865,73 @@ demonstrates continued compression after size eligibility. All other family
 size gaps and D own-ELF eligibility remain open, as do final profiles and
 performance/strength evidence. No training/data collection, AWS/paid work,
 main/develop promotion or release is introduced.
+
+## Continued compression: response sharing and counter costs — 2026-10-21
+
+The material-state checkpoint0e716e0 passes both exact-head workflows:
+[C/Rust engines](https://github.com/daejunnom/Rove4k/actions/runs/39538184425)
+and [Node22/24 lifecycle](https://github.com/daejunnom/Rove4k/actions/runs/39538184251).
+Synthetic mergef1465092f72c2b03f5aa7b2bf45030afa8128731 has the same
+2e5b8459cd2f2b72b10f8d74b4bd4ee533e8508e tree, with develop56bfb5f and
+head0e716e0 parents. These successful checks precede the cost-only work below.
+
+One shared UCI response-body candidate computes the exact `uci` comparison
+once and selects `uciok` or `readyok` inside a common puts/fflush body. It
+preserves the null-token guard, full-string comparisons in the same order,
+one response/flush, and the later quit/position/go chain. The fresh block-local
+`ok` identifier has no previous binding in any input. Each source shrinks17B.
+Actual whole costs all grow, so every candidate is closed without promotion:
+
+| Policy | Current whole | Candidate whole | Change |
+|---|---:|---:|---:|
+| A |4652|4664|+12|
+| B |5219|5229|+10|
+| C |4992|5002|+10|
+| E |5076|5087|+11|
+| F full/default |4645|4656|+11|
+| F material/noise |4369|4382|+13|
+| F material/move-TT |4089|4102|+13|
+
+Each uses one candidate compilation and one encode under its existing fixed
+compiler/profile/codec/prefix. Existing controls are read in place, without
+recompilation or re-encoding. Exact inverse/complement and old/new strict
+restoration pass. Native lengths remain equal but complete bytes change;
+previous engine execution evidence is not transferred to those images.
+No function, protocol, engine, normal builder or game execution follows the
+losses. Six-policy receipt SHA:
+0976704c8c600f9d1220b3615810155cccc34385fa01fa072f77d30072b3aa22.
+Independent B receipt SHA:
+c92b343dd5f911c1cc8f1a15572572780779fd4d801330691bb4fd609c07a534.
+
+A separate full-F counter candidate groups the shipping node-phase counter
+with unsigned32 instead of uint64. Its only consumers reset, increment and
+test the low8 bits; unsigned32/64 wrap both preserve that phase. Canonical DEV
+node diagnostics remain separate. Source9109, native18576, bootstrap10100
+and whole4645 sizes all tie. Native/whole identities change, with no execution
+qualification. With neither source nor whole savings, the original counter
+is retained. This candidate also runs one compile/encode and strict restoration
+only; cost5262B SHA:
+7847ddd92240227fb7bf88fe7e38c2a93a0c79d97161a3190473fcb323ead7db.
+
+A full-F N+1 semaphore candidate also loses. It uses two private job semaphores
+and one shared done semaphore, with a main-owned active flag and an acq_rel
+pending chain. Startup done is consumed before input. The last worker calls
+the unchanged result printer, returns from fflush/funlockfile, then posts done;
+main consumes that completion before reusing job/root state. Prefix init/create
+cleanup, EINTR-only retry, fatal wait/post errors, and join-fatal before shared
+destroy/free are included. Eight literal edits preserve the entire actual
+TT/search/think/result/position bodies and8098 complementary bytes. Independent
+source review finds no blocker; that is not dynamic phase qualification.
+
+All added headers, wrappers, initialization and destruction count in source:
+9109→9029B(-80). Actual whole4645→4655B(+10), native18576B with new identity,
+text7073→7147B(+74), BSS171176→171104B(-72). This is distinct from the older
+N+2 TinyA semaphore gain and the separate F futex loss. One compile/encode and
+strict old/new restoration complete; no pool fixture or engine execution follows.
+The candidate is closed unadopted. Cost11507B SHA:
+47f76e9020a9d07a617f38a71b138d021878f2ee144f4fadf275fcb117162889.
+
+All producing inputs, candidate files, failures and terminal process receipts
+stay outside Git. The maintained size table is unchanged. Full/default F's
+549B gap remains the target; the optional4089B result does not satisfy it.
+Further common and per-family source work continues beyond size eligibility.
