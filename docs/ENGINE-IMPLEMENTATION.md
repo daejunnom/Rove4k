@@ -189,16 +189,17 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | --- | ---: | ---: | --- |
 | A | 4,592 B | 496 B | Unsigned64 number forms; one-state material classifier; main-owned token cursor and valid-0x88 promotion predicate; history length derived from immutable job length plus ply; existing full HCE/PVS/QS/TT/learners/SMP and fixed ALONE retained; fixed LP64 mixer literals; compact environment snapshot |
 | B | 5,122 B | 1,026 B | Worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained; made-child continuation row passed through PVS and same-position singular verification; literal include gaps and overlong-line drain compacted; clock-first SEE poll; cancellation timing changed; compact environment snapshot |
-| C | 4,924 B | 828 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners retained; child continuation slot and positive-only cutoff bonus compacted; fixed LP64 mixer literals; compact environment snapshot |
+| C | 4,908 B | 812 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners retained; history length derived from immutable job length plus ply; child continuation slot and positive-only cutoff bonus compacted; fixed LP64 mixer literals; compact environment snapshot |
 | D scalar / HQ | 5,908 / 6,123 B | 1,812 / 2,027 B | Exact clock/inc parsing and ordered K/Q castling branches shared; consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained |
 | E | 4,986 B | 890 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; child continuation slot and positive-only cutoff bonus compacted; literal include gaps and fixed ASCII compiler argv compacted; fixed LP64 mixer literals; compact environment snapshot |
 | F full (default) | 4,483 B | 387 B | Packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; history length derived from immutable job length plus ply; nonnegative QS depth, repetition-distance loop, fixed integer macros and plain-int keyword spelling compacted after the no-preadd hash, terminal, correction and source-form stages; compact environment snapshot; default size target remains open |
 | F material/noise (opt-in) | 4,319 B | 223 B | Unsigned64 number forms and two fixed TT18 casts omitted; one-state material classifier, fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted; literal include gaps compacted; fixed LP64 mixer literals; compact environment snapshot |
 | F material/move-TT (opt-in) | 4,045 B | 0 B (51 B spare) | Unsigned64 number forms; one-state material classifier, fixed material, main-owned token cursor, terminal-loop sharing and coherent atomic64 Move17/high46 plus index18; local size eligibility only, full F and strength acceptance remain open; fixed LP64 mixer literals; compact environment snapshot |
 
-The separate Rust D native images are 16,816 bytes each. Their independent
-packed experiment retains its own qualification state and does not silently
-replace this maintained table.
+The canonical Rust D native images are16,816 bytes each. The separate maintained
+finite Rust shipping entry also has16,816-byte natives with new identities and
+11,108/11,476-byte scalar/HQ own-ELFs. Its normal qualification below does not
+replace the C D table or establish4KiB eligibility.
 
 ## Reattached size analysis and next structural work: 2026-10-21
 
@@ -210,7 +211,7 @@ lexical reuse, and D's own context decoder. Historical byte savings cannot
 be added to the current table. Fixed engine-local declaration reuse also
 does not establish a general NVCompact block-scope allocator.
 
-The next Rust D structural candidate generates a separate finite shipping
+The separate Rust D structural path generates a finite shipping
 entry from the exact canonical seven-file closure. Canonical sources,
 builder, nonzero node/depth diagnostics and legacy infinite/stop trace keep
 their existing identities and assertions. The generated shipping path uses
@@ -242,6 +243,71 @@ also pass. However, actual search-phase attack calls increase from65,023 to
 search entries and six root correction guards. This finite work count is
 not a wall-time or strength measurement. The two-byte size gain remains
 unselected in this source context; normal production/SMP is not run for it.
+
+## C derived history length: 2026-10-21
+
+C removes its private cursor in five fixed shipping spans and derives length
+from immutable game_length plus existing ply. The prior repetition-end local
+holds that length; i>=max(0,length-1-half) becomes the same bounded parity
+scan with two conjuncts. Root, four child/re-search ports, balanced returns
+and job publication preserve the relation. SIMD/evaluation, canonical/DEV,
+model, existing stages and recursive arguments remain unchanged. Source
+10,032 to9,992 B gives whole4,924 to4,908 B, with a new26,368-byte native.
+
+One fatal ASan/UBSan compile/run passes51 actual old/new SIMD search pairs,
+retaining all31 prior search/special-child cases. Typed keys/three learners,
+Board and eight vector lanes, complete TT key/data/locks, score/witness/nodes
+and old-cursor restoration agree. Root lengths1/4096, repetition/parity,
+half99/100, ply127 and actual child slot4222 are covered. Private entry-ply
+adapters retain their domain; branch coverage is not inferred from nodes.
+The unchanged learner exhaustive proof is reused rather than rerun.
+
+One ordinary --dev builder reproduces shipping and unchanged DEV twice;
+the unchanged selected verifier passes quit/EOF sessions with eight legal
+GO results, native restoration, startup TIDs, private-path absence and
+physical process/reader exit. A parent preflight schema-key failure occurs
+before any builder/compiler/target execution; the original is preserved,
+and a one-line adapter correction precedes the single actual normal run.
+The external normal index is
+`rove4k-c-history-depth-normal-20261021-evidence/final-index.json`,20,391 B,
+SHA-256 `0c76e4521fde16c0be16417e760635970accef23932a2c8474001aecb7535d4a`;
+root checks its69 exact file-reference pins. C remains812 B above4096.
+
+## Maintained finite Rust D shipping: 2026-10-21
+
+[tiny-rust-d-shipping](../engines/compact/tiny-rust-d-shipping/README.md)
+specializes the exact canonical seven inputs using17 fixed spans and full
+inverse/gap guards. The original Rust D sources, builder, nonzero-budget
+diagnostics and legacy trace stay unchanged. Nine maintained source files
+provide generation, fixed2/18 scalar/HQ build/packing and a separate positive
+verifier, without external report inputs. Minimal finite protocol, global
+diagnostic observer removal and reset-job removal are explicit shipping
+contract choices. Worker-local deadline polling, Result.depth selection,
+TT/correction, publication and physical join remain.
+
+Whole costs are11,108/11,476 B,295/286 B below the same-model controls. Native
+lengths tie16,816 B with different identities; fixed data8 geometry and
+native/load/payload/whole pins are separately admitted without broadening
+the original packer's C class. The ordinary builder reproduces native and
+whole twice per form and passes unstripped/static/no-undefined audits.
+One positive verifier checks native/whole scalar/HQ with quit/EOF: eight
+sessions and64 GO/initial-position legal results, actual mapped image,
+three persistent TIDs, two guarded stacks, finite clocks/bare GO, bounded
+ASCII/replay and physical reader/group/TID exit. Sleeping idle workers,
+hard real-time deadlines, all loader conditions, many-core and strength
+are not established by this positive run. Existing legacy checks remain
+separate; no new ptrace/RIE/fault/negative campaign runs.
+
+The original first-cost linker resource failure and runner handler-shadowing
+error remain preserved. A separate corrected finite-AS attempt succeeds;
+that success does not diagnose the original linker's exact resource cause.
+The final normal index is
+`rove4k-rust-d-shipping-maintained-normal-20261021-evidence/final-index.json`,
+18,779 B/SHA-256 `07967b276ffbf6c9fe4c2fe08fa1c3c971cd478f872e523cf9c7b1fd38e5af46`;
+root checks38 exact file pins. An independent source-only review finds no
+actionable issue, including actual helper/oracle closure. The workflow now
+registers this new entry's ordinary build and positive verification beside
+the unchanged canonical Rust D checks; dispatch and success remain separate.
 
 ## Full F derived history length: 2026-10-21
 

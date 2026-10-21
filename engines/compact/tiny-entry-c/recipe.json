@@ -71,7 +71,8 @@
     "engines/scripts/shipping_includes.py": "d7c3ad6e7811d848b0d6bab7331c929ab2c3175cd030438ddc81d22ea8cdf4bc",
     "engines/scripts/shipping_mixer_literals.py": "7b25cb806a51cad9e867ebc588bcb99677c9e2f9d0a5df0b31d019e22bc6d114",
     "engines/scripts/shipping_clock.py": "46c19879deae1d056f4b059c6c7d9667a3e935110dfb33015b29fd0dec4d8c43",
-    "engines/compact/tiny-entry-c/shipping_search_context.py": "ad1d05a41e212dff3a386fa05fee56e5f8ded4cae4ddc4af6cbc70859564b62d"
+    "engines/compact/tiny-entry-c/shipping_search_context.py": "ad1d05a41e212dff3a386fa05fee56e5f8ded4cae4ddc4af6cbc70859564b62d",
+    "engines/compact/tiny-entry-c/shipping_history_depth.py": "7b45b89582b7c39e766af65a37015ef995ce4641cef88641d7f4487805e42d3d"
   },
   "compression": {
     "format": "lzma-alone",
@@ -88,16 +89,16 @@
   },
   "expected": {
     "readable_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
-    "source_bytes": 10032,
-    "source_sha256": "7612b83cb6a274c9b67c5217aa9c983c6271378df234b6d853e8985d97e46b12",
+    "source_bytes": 9992,
+    "source_sha256": "c7b8eeb2488e4ec0b9ebbdd721db311397dc5b29abc91dcb1f153046ceb2bebd",
     "native_bytes": 26368,
-    "native_sha256": "54d60a5d673a3315a120219fff89285570040a693f957244b83979a45c9b2639",
-    "whole_bytes": 4924,
-    "whole_sha256": "508b11f9f808af648f3c7a951d9d7eb347b2eb1b6a90006deacfc50f5c38c9c3",
-    "bootstrap_sha256": "07786addec5d3c27b099a10f0532bf8c7af3cd87df765b1208380e9211c1e1aa",
+    "native_sha256": "09edf1e3bb108a6d3d169e3c73d1eaa61b268771f4fd23c8090f6ea30a988057",
+    "whole_bytes": 4908,
+    "whole_sha256": "3ddbc4f1aada92762f27bb0429f97e5f94d2922a1c35b42f43d067ee7d14aa7b",
+    "bootstrap_sha256": "82fb98e44a115564956ff3f909aee639afa84a1c91ae9971a5a7a3186efd1aca",
     "dev_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
     "dev_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c",
-    "bootstrap_bytes": 11081
+    "bootstrap_bytes": 11041
   },
   "local_input_sha256": {
     "engine.c": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
@@ -105,7 +106,7 @@
     "launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
   },
   "qualified_receipt": {
-    "scope": "current C shipping caller-slot and positive-only learner equivalence; new native identity; unchanged SIMD/board/TT/parser/pool bodies protected by exact source gaps; canonical and DEV unchanged",
+    "scope": "current C derived history depth: typed actual old/new focused equivalence; new Worker layout/native identity; exact source complement; unchanged canonical/DEV and SIMD/model/TT/parser/pool code",
     "signed_vector": {
       "first_cost_sha256": "a2f271ae423855f6de7e448c85994aea3ce98acb3106b008962b09ca5798dbac",
       "focused_actual_shipping_sha256": "bfebab79e5f1658097f0938ea4099cc9ab907dbff2b725813840ad934202fa21",
@@ -1271,6 +1272,115 @@
         "ff9b2a",
         "45f0bd"
       ]
+    }
+  },
+  "history_depth": {
+    "scope": "pure C shipping after search_context; derive cursor from immutable game_length+ply, Worker layout and native identity change",
+    "predecessor_expected": {
+      "readable_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
+      "source_bytes": 10032,
+      "source_sha256": "7612b83cb6a274c9b67c5217aa9c983c6271378df234b6d853e8985d97e46b12",
+      "native_bytes": 26368,
+      "native_sha256": "54d60a5d673a3315a120219fff89285570040a693f957244b83979a45c9b2639",
+      "whole_bytes": 4924,
+      "whole_sha256": "508b11f9f808af648f3c7a951d9d7eb347b2eb1b6a90006deacfc50f5c38c9c3",
+      "bootstrap_sha256": "07786addec5d3c27b099a10f0532bf8c7af3cd87df765b1208380e9211c1e1aa",
+      "dev_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
+      "dev_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c",
+      "bootstrap_bytes": 11081
+    },
+    "source_plan": {
+      "bytes": 11125,
+      "sha256": "eaf486d51d133ce805394e5539127e28fabef34adef4d616809c4d0ec7f0805d"
+    },
+    "source_review": {
+      "bytes": 8767,
+      "sha256": "1cf6948258913c2994c2f76c3d6bff96ae90e4584fdc21985dafb51f7c744102"
+    },
+    "actual_first_cost": {
+      "bytes": 11865,
+      "sha256": "ea04ea6256edf643753fb8c7304602410e574843da9f7ed628c67863ee24b8bc"
+    },
+    "actual_focused": {
+      "bytes": 19079,
+      "sha256": "7147f77ba80f11c19ba3b45af92050fc9e0c8c69d355ee470e3be79c3d8dd8b2"
+    },
+    "focused_index": {
+      "bytes": 8890,
+      "sha256": "878655a17b0019dc61b204a4c6744ec975e1496d8055feb85e9ceb6da279384d"
+    },
+    "source_regions": 5,
+    "raw_source_delta": -40,
+    "whole_delta": -16,
+    "relation": "old entry cursor == game_length+n; game_length cannot change during think",
+    "Worker_layout_changed": true,
+    "old_full_native_equality_claimed": false,
+    "canonical_and_DEV_unchanged": true,
+    "runtime_retry_branch_coverage": "unmeasured; node counts are not branch witnesses",
+    "four_call_group_balanced_push_pop_source_induction": true,
+    "focused": "one fatal ASan/UBSan compiler and run; 51 typed actual old/new pairs, original31 preserved; full keys/learners/Board/vector/TT and cursor restore",
+    "normal_helper_reads_external_files_processes_codec_AST_network": false,
+    "fresh_discovery": "recipe helper_sha256 joins unchanged LOCAL and TESTS closure; no fresh invocation",
+    "normal_validation_pending": false,
+    "normal_validation": {
+      "scope": "one ordinary --dev reproduction and unchanged selected wrapper; local2-worker TT18 only",
+      "producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-c-history-depth-normal-20261021-v2/build/inputs/recipe.json",
+        "bytes": 73843,
+        "sha256": "a31ab5d4279a935025c275de9741d71280159333f51f2c7d8f53e43582962cc8"
+      },
+      "producing_sources": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-history-depth-normal-20261021-evidence/producing-sources.json",
+        "bytes": 2372,
+        "sha256": "1f00df6efbc8a40694e19e832cea4481ca8b4c3ce52ff66f5fa32367b02cd46e"
+      },
+      "build": {
+        "path": "/home/stemxstudio/rove4k-c-history-depth-normal-20261021-v2/build/build.json",
+        "bytes": 191366,
+        "sha256": "0597006e8aa6a7ffe7b34390000ee0c4de4792918699c834a6a9740ec6e20e49"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-c-history-depth-normal-20261021-v2/runtime/runtime.json",
+        "bytes": 36273,
+        "sha256": "982a77c6e424d63a9d4fd693b4a2998c7a293cbfcb3fc3b1a6a512a508737294"
+      },
+      "normal_commands": {
+        "path": "/home/stemxstudio/rove4k-c-history-depth-normal-20261021-v2/normal-commands.json",
+        "bytes": 2753,
+        "sha256": "ce2c2b8cd254dcd6fbb9eeddcc358b2526ac8a87f25dc36cbacc1c4ac13e188b"
+      },
+      "shipping_generations": 2,
+      "DEV_generations": 2,
+      "old_DEV_complete_source_native_exact": true,
+      "selected_verifier_invocations": 1,
+      "quit_EOF_sessions": 2,
+      "legal_GO_epochs": 8,
+      "new_native_full_image_observed": true,
+      "old_native_equality_claimed": false,
+      "startup_TIDs_per_session": 3,
+      "private_path_descriptors_physical_exit": true,
+      "cancellation_causality": "unproven",
+      "fresh_archive_games_strength_benchmark_CI_Git": 0,
+      "preflight_failure": {
+        "scope": "external A-to-C source-plan schema adapter failed before any builder/verifier/compiler/codec/target; original failure retained",
+        "first_parent": {
+          "path": "/home/stemxstudio/rove4k-c-history-depth-normal-20261021/normal-commands.json",
+          "bytes": 1005,
+          "sha256": "283326e75e7e4f1934da8176c030cbca3aa38707a71f093473dfb40b425016a3"
+        },
+        "first_failure": {
+          "path": "/home/stemxstudio/rove4k-c-history-depth-normal-20261021/failure.txt",
+          "bytes": 360,
+          "sha256": "8d5df824d3a1eae21e83082ba629d5bb42b5924812d57374b18fd58ac4e2563b"
+        },
+        "first_runner": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-history-depth-normal-20261021-evidence/normal-run-first-preflight.py",
+          "bytes": 8975,
+          "sha256": "fae7e7e251dffda5d3ac93c63dfab7e60efa35fcc86162c20f7ad3f593796b4f"
+        },
+        "fix": "source_plan[input_pins] changed only to actual C source_plan[inputs]; candidate/limits/budgets unchanged",
+        "builder_retry": 0
+      }
     }
   }
 }

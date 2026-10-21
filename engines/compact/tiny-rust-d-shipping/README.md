@@ -1,0 +1,24 @@
+# Tiny Rust D finite shipping
+
+This is a separate maintained shipping entry generated from the exact seven inputs in `../tiny-rust-d`. The canonical Rust sources, builder, legacy fixtures and trace paths are unchanged. `generator/specialize.py` applies the selected 17 exact spans and checks every unchanged gap plus a complete inverse. It does not use external research reports at build or runtime. The generated Rust source is 1,716 bytes longer because both build classes remain explicit; generated source length is separate from native and packed image cost.
+
+The only production profile is two search workers, TT bits18, PLY128, with scalar and HQ slider forms. `tiny_shipping` is explicit and cannot be combined with `tiny_dev`. Worker-local node/deadline cadence, `Result.depth` and result fields, TT, correction/frozen/epoch publication, SMP barriers, stacks and physical completion/join lifetimes remain in the generated entry. The shipping class removes the diagnostic global node observer and reset-job path; legacy nonshipping methods remain guarded intact. It exposes no public worker, memory, node, depth or movetime controls.
+
+The finite minimum protocol returns `uciok` without an identification line, and immediate `readyok`. `position` keeps bounded ASCII transactional replay. Bare go, opposite-side clock only and increment-only go receive 1000 ms. Own-side clock uses the original saturating allocation formula; a malformed/missing/overflowing own-side time becomes zero and clamps to1 ms. `infinite`, `stop`, `ucinewgame`, setoption, depth, nodes and movetime are consumed as unsupported input. In particular infinite does not remove the deadline, stop does not cancel, and newgame does not reset TT/learned correction. Next go, position, quit and EOF retain the internal finish and physical completion fence.
+
+Optional `+`, checked u64 parsing (including u64::MAX), numeric overflow, successful numeric lookahead consumption after every word, ASCII whitespace9..13/32, whole-line NUL/nonASCII rejection, the32768-byte line bound, EOF and position transaction semantics remain explicit. This is an intentional protocol specialization, not a claim that every legacy command has unchanged behavior.
+
+`recipe.json` pins the canonical/generated closure, generator, project-owned packaging sources, fixed E8/E9 BCJ and RFC1951 fixed-Huffman model, and new exact native/load/payload/whole identities. The selected scalar/HQ native images are each16,816 B with different byte identities from the legacy control. Their whole own-ELFs are11,108/11,476 B; first-cost comparisons against the same data8 model saved295/286 B. These remain above4096 B. The entry does not claim tournament qualification or all search/loader conditions from a normal positive run.
+
+The project-owned packer and loader/codec source copies retain their original bytes. The packer's existing C image admission remains unchanged. This builder has a separate literal Rust shipping admission: entry0x4000f0, exact RX extents, RW data8/BSS4, memcpy pointer0x400146, span16,392 B, RX4/RW1 pages, guard/reservation and payload identities. Unknown images are rejected; there is no generic raw-native or widened loader admission.
+
+Run on Linux x86-64 with Rust1.97.0, GCC13.3/binutils2.42 and Python3.12. All outputs must be in a new absolute directory outside the repository:
+
+```sh
+python3 -I -B engines/compact/tiny-rust-d-shipping/build.py --out /absolute/new-build
+python3 -I -B engines/compact/tiny-rust-d-shipping/verify.py --build /absolute/new-build --out /absolute/new-positive
+```
+
+The ordinary builder always builds scalar/HQ native and whole twice, verifies literal bytes and strict codec restoration, and runs one auxiliary unstripped/no-undefined/static artifact audit per form. It never executes an ELF. Build and verification receipts, source proofs, binaries and logs remain external. The source closure includes this subtree, canonical7 and the two existing project normal helper modules; no historical receipt is required. The verifier uses only their generic ownership/readers and strict result accounting, never the legacy infinite/stop/newgame campaign. It checks selected native and whole images, actual three-TID startup and guarded stacks, restored data8 image and finite protocol/position/readers/quit/EOF/physical exit. It adds no debugger, ptrace, personality, fault or negative campaign.
+
+Both tools use finite wall/CPU/output limits and own process-group cleanup. The selected address-space cap is4 GiB. Earlier external first-cost resource and runner failures are preserved as external evidence; they are not inputs of this maintained entry.

@@ -1,0 +1,181 @@
+{
+  "format": 1,
+  "class": "tiny-rust-d-finite-shipping-data8-v1",
+  "profile": {
+    "workers": 2,
+    "tt_bits": 18,
+    "ply": 128,
+    "shipping_cfg": "tiny_shipping"
+  },
+  "canonical7": {
+    "main.rs": {
+      "bytes": 4685,
+      "sha256": "e10e1b797085c1f032edcbfe28a828cf91e8cf2c71f3f11c063328744c34b8a3"
+    },
+    "board.rs": {
+      "bytes": 14328,
+      "sha256": "1a1ff1a0693a1b3f53ade2435d2996684a1bcd7b7eee333f28fe669645340b82"
+    },
+    "search.rs": {
+      "bytes": 9503,
+      "sha256": "da2583806efea022b1b3b1337557b896a373a561f11d665b1ca747c29e3aed81"
+    },
+    "runtime.rs": {
+      "bytes": 6349,
+      "sha256": "802b497371a409744ad231cd8f621ea3d8b7cd931627e0396f3ec92ad1345b2d"
+    },
+    "os.rs": {
+      "bytes": 4596,
+      "sha256": "892cc62e2c126ebcbc171eb6f8059aacf92cf255d85341487e46effe2b94986e"
+    },
+    "link.ld": {
+      "bytes": 444,
+      "sha256": "1e8f17bb2f06a6ddabf1f56d155bd7bdcd8c4406d140c22770bcfda96d459bbc"
+    },
+    "build.py": {
+      "bytes": 6904,
+      "sha256": "08f28ebdc45ad49c2a23f7eb8e28b086612ea9a33dbc39cb8ccbd66bfcf68e89"
+    }
+  },
+  "generated7": {
+    "main.rs": {
+      "bytes": 5556,
+      "sha256": "c9165374c3bac6c3e8d824043a071a979e37de5fd02bb1b1c12a07492ae4cd69"
+    },
+    "board.rs": {
+      "bytes": 14328,
+      "sha256": "1a1ff1a0693a1b3f53ade2435d2996684a1bcd7b7eee333f28fe669645340b82"
+    },
+    "search.rs": {
+      "bytes": 10015,
+      "sha256": "c0b9ccdca842fcdeec6cbe78a4b0ff0eb28e9906cc1d7397f6d73bc06b144bf7"
+    },
+    "runtime.rs": {
+      "bytes": 6682,
+      "sha256": "092e47969b1c1b9b63c731e20d159cf7b61322d87037add15c5ca95fa7635c9d"
+    },
+    "os.rs": {
+      "bytes": 4596,
+      "sha256": "892cc62e2c126ebcbc171eb6f8059aacf92cf255d85341487e46effe2b94986e"
+    },
+    "link.ld": {
+      "bytes": 444,
+      "sha256": "1e8f17bb2f06a6ddabf1f56d155bd7bdcd8c4406d140c22770bcfda96d459bbc"
+    },
+    "build.py": {
+      "bytes": 6963,
+      "sha256": "dc9e4435d137e07a23687d61855ac5ae7fa243c67bca5be265b71d362016fd89"
+    }
+  },
+  "generator_sha256": "555809b0ec5a36bd00762b7d86a5e6f9d9af28c4259b43f0b1dacc4d68390959",
+  "packaging_sha256": {
+    "packaging/packer.py": "bde43a9bb1a7ec21f93f21071461d79570cf9ae4af8a7733c33e294ecac5291b",
+    "packaging/loader/codec.py": "17165d1cb16eaba8916833741bfa229d196c3ad07ca391c14b94288a3cdc0866",
+    "packaging/loader/loader.c": "8a6a9cb93ae484400056852c5bc406be1cc15dc7b8df6b0a57e6d6330a2e4094",
+    "packaging/loader/image.ld": "93934099212b944b20c2f7840ee87e4817311c4f87fddbb2b3f91db28776cf99"
+  },
+  "forms": {
+    "scalar": {
+      "native": {
+        "bytes": 16816,
+        "sha256": "d4bdb100cf8fb22aab4912dca453d4927995cda356e029874067093a0bebdb1c"
+      },
+      "load": {
+        "bytes": 16392,
+        "sha256": "184ea2c8b52e3fe7775ecad48625e59b461208680a192f2b2b3321ea6ed12271"
+      },
+      "rx_bytes": 13765,
+      "whole": {
+        "bytes": 11108,
+        "sha256": "232ef293e8d8d9cdd2f04ba44d4591cfd3fc30950625203cce01fa4bb317f028"
+      },
+      "payload": {
+        "bytes": 9993,
+        "sha256": "fce913ff43e0c1b9c96e6ec7c2a586d9116ad5a99dc5da226d68f79257aa549f"
+      },
+      "loader_header_bytes": 1115
+    },
+    "hq": {
+      "native": {
+        "bytes": 16816,
+        "sha256": "1f325d2983d597ff292a1f7ed92bc3369bc0236635c0442b5cab007e0efe6b1c"
+      },
+      "load": {
+        "bytes": 16392,
+        "sha256": "6bd7c817bdfd466f2e6d4f270453b456a0d8275a0a2edb86ec325c7eb2c5c5f6"
+      },
+      "rx_bytes": 14197,
+      "whole": {
+        "bytes": 11476,
+        "sha256": "6ad231aa0a055e519727e7751f1d48f8f8b83d272c781798c53169a89cb58718"
+      },
+      "payload": {
+        "bytes": 10361,
+        "sha256": "ffcf00d6a682a4e810e32b339f1a1b629220e2c87998bd77b8bd0f949e6f126d"
+      },
+      "loader_header_bytes": 1115
+    }
+  },
+  "layout": {
+    "image_base": 4194304,
+    "image_size": 16392,
+    "image_pages": 20480,
+    "final_rx_pages": 16384,
+    "entry": 4194544,
+    "bss_base": 4210688,
+    "bss_pages": 4096,
+    "rw_filesz": 8,
+    "rw_memsz": 12,
+    "actual_bss_base": 4210696,
+    "actual_bss_size": 4,
+    "guard_base": 4190208,
+    "upper_guard": 4214784,
+    "reserve_size": 28672,
+    "loader_base": 268435456
+  },
+  "loader_flags": [
+    "-Oz",
+    "-flto",
+    "-nostdlib",
+    "-static",
+    "-no-pie",
+    "-fno-pie",
+    "-fno-pic",
+    "-fno-builtin",
+    "-fno-stack-protector",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-fno-ident",
+    "-fcf-protection=none",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-Wl,--gc-sections,--build-id=none,-s,-z,noexecstack"
+  ],
+  "codec": {
+    "bcj_version": "e8-e9-whole-image-add-next-offset-le32-v1",
+    "fixed_version": "rfc1951-one-final-fixed-zero-padding-v1"
+  },
+  "data_hex": "4601400000000000",
+  "protocol": {
+    "uci": "uciok only",
+    "isready": "immediate readyok",
+    "position": "unchanged bounded ASCII transactional replay and finish",
+    "go": "own-side clock existing allocation; no own clock1000ms; malformed own clockSome0=>1ms",
+    "infinite": "unsupported consume; no deadline suppression",
+    "stop": "consume; no cancellation",
+    "ucinewgame": "consume; no TT/learning reset",
+    "go_position_quit_EOF_fences": "original finish/publication/output/clearTID/join lifetime retained",
+    "numeric": "original optional plus, checked u64 and successful numeric lookahead consumption for all words",
+    "public_depth_nodes_movetime": "unsupported consume; shipping Limits has no node quota field"
+  },
+  "limits": {
+    "parent_as_bytes": 4294967296,
+    "child_as_bytes": 4294967296,
+    "parent_cpu_seconds": 180,
+    "child_cpu_seconds": 60,
+    "parent_wall_seconds": 240,
+    "child_wall_seconds": 90,
+    "output_bytes": 2097152
+  },
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)"
+}

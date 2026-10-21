@@ -168,6 +168,14 @@ jobs:
           done
           python3 -I -B engines/compact/tiny-rust-d/verify_board.py --out "$ROVE_TEST_OUT/tiny-rust-d/board"
           python3 -I -B engines/compact/tiny-rust-d/verify_search.py --unit-only --out "$ROVE_TEST_OUT/tiny-rust-d/search"
+      - name: Reproduce finite Rust D shipping entries and check their positive lifetimes
+        if: matrix.language == 'rust'
+        env:
+          RUSTUP_TOOLCHAIN: 1.97.0
+        run: |
+          mkdir -p "$ROVE_TEST_OUT/tiny-rust-d-shipping"
+          python3 -I -B engines/compact/tiny-rust-d-shipping/build.py --out "$ROVE_TEST_OUT/tiny-rust-d-shipping/build"
+          python3 -I -B engines/compact/tiny-rust-d-shipping/verify.py --build "$ROVE_TEST_OUT/tiny-rust-d-shipping/build" --out "$ROVE_TEST_OUT/tiny-rust-d-shipping/runtime"
       - name: Build all six real candidate paths
         env:
           RUSTUP_TOOLCHAIN: 1.97.0
@@ -201,6 +209,7 @@ jobs:
             ${{ env.ROVE_TEST_OUT }}/tiny-rust-contracts/**/*.jsonl
             ${{ env.ROVE_TEST_OUT }}/tiny-rust-layout/**/*.json
             ${{ env.ROVE_TEST_OUT }}/tiny-rust-d/**/*.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-rust-d-shipping/**/*.json
             ${{ env.ROVE_TEST_OUT }}/semaphore-pool/**/*.json
           if-no-files-found: ignore
           retention-days: 7

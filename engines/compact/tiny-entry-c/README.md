@@ -1,3 +1,52 @@
+# Maintained C: derive history depth from the immutable job — 2026-10-21
+
+Complete file **4908 B**, compact C **9992 B**: source40B and whole16B below
+the preceding4924B entry, still812B above4096. The pure shipping-only helper
+`shipping_history_depth.py` runs after `shipping_search_context.py`. It removes
+the private cursor and derives L=game_length+caller ply, keeps the same parity
+and reversible-window key scan, writes the identical child index, and removes
+the balanced pop/reset. Five exact spans, all gaps, full inverse and input/output
+pins admit only the qualified source. Worker layout and native identity change;
+old native/layout byte equality is not claimed. Canonical/DEV and SIMD/model,
+compiler/profile/template/prefix77/ALONE9e-lc2-nice64 remain unchanged.
+
+One fatal ASan/UBSan compile/run compared51 actual old/new SIMD search pairs:
+the original31 searches and22 special children with persistent learner seed,
+plus history/parity/half99-100/claim/TT/terminal/stop/cap boundary adapters. It
+compares typed Worker fields, all keys and three learners, Board/vector state,
+full TT key/data and clear locks, score/best/nodes and old cursor restoration.
+Production root lengths1/4096 and maximum child index4222 pass. Private nonzero
+ply adapters explicitly set base=L-ply; negative private bases do not expand
+the public history domain. The unchanged learner exhaustive loop was not rerun.
+The four recursive call groups retain the same n+1 push/pop relation by source
+induction. Runtime PVS retry coverage is unmeasured; node counts are not witnesses.
+Focused receipt SHA-256: `7147f77ba80f11c19ba3b45af92050fc9e0c8c69d355ee470e3be79c3d8dd8b2`.
+
+One ordinary --dev builder reproduced the exact shipping tuple twice and
+unchanged DEV source/native twice. One unchanged selected verifier passed two
+quit/EOF sessions and8 legal GO results, exact new native image,3 startup TIDs,
+private-path/descriptor cleanup and physical process/reader exit. Cancellation
+causality remains unproven. The helper is registered in the recipe-driven37-file
+source closure/fresh discovery; fresh/archive execution was not repeated.
+
+| Form | Bytes | SHA-256 |
+| --- | ---: | --- |
+| Shipping source | 9992 | `c7b8eeb2488e4ec0b9ebbdd721db311397dc5b29abc91dcb1f153046ceb2bebd` |
+| Native | 26368 | `09edf1e3bb108a6d3d169e3c73d1eaa61b268771f4fd23c8090f6ea30a988057` |
+| Bootstrap | 11041 | `82fb98e44a115564956ff3f909aee639afa84a1c91ae9971a5a7a3186efd1aca` |
+| Complete | 4908 | `3ddbc4f1aada92762f27bb0429f97e5f94d2922a1c35b42f43d067ee7d14aa7b` |
+
+Build receipt SHA-256: `0597006e8aa6a7ffe7b34390000ee0c4de4792918699c834a6a9740ec6e20e49`.
+Runtime receipt SHA-256: `982a77c6e424d63a9d4fd693b4a2998c7a293cbfcb3fc3b1a6a512a508737294`.
+Actual build is `/home/stemxstudio/rove4k-c-history-depth-normal-20261021-v2/build`;
+its exact producing recipea31ab5d4 remains in inputs. Final recipe/README only
+close result metadata. A first external parent preflight used A's source-plan
+key instead of C's and stopped before builder/verifier; the original failure is
+preserved. One lookup key was corrected before the sole actual normal sequence.
+No candidate or expected output was changed in response. Source/cost/focused/
+before/producing evidence remains outside Git; older sections retain their
+historical identities. No playing-strength or performance claim is made.
+
 # Maintained C: compact environment snapshot — 2026-10-21
 
 Complete file **4924 B**, compact C **10032 B**. The single
