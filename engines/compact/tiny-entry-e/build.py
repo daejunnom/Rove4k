@@ -89,6 +89,7 @@ def main():
         common=module('entry_shipping_common',frozen/'shipping_common.py')
         refine=module('entry_shipping_refinements',frozen/'shipping_refinements.py')
         dead_state=module('entry_material_state',frozen/'shipping_material_state.py')
+        integer_forms=module('entry_integer_forms',frozen/'shipping_integer_forms.py')
         alpha=module('entry_fixed_shipping_alpha',frozen/'fixed_shipping_alpha.py').transform_source
         scope=module('entry_fixed_scope_names',frozen/'shipping_scope.py').transform_source
         core=module('entry_fixed_shipping_core',frozen/'shipping_core.py').transform_source
@@ -123,6 +124,8 @@ def main():
                 common_metadata['refinements']=refinement
                 data,dead_state_metadata=dead_state.transform_source(data,family='E')
                 common_metadata['material_state']=dead_state_metadata
+                data,integer_metadata=integer_forms.transform_source(data,family='E')
+                common_metadata['integer_forms']=integer_metadata
             return data,observations,alpha_metadata,scope_metadata,core_metadata,input_metadata,model_metadata,type_metadata,global_names_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())

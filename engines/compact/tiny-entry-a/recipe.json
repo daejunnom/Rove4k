@@ -43,7 +43,8 @@
     "engines/compact/tiny-entry-a/shipping_continuation.py": "9cbde73dd9c355dcdafed1643422bf05a54271f3ece5a4933de02ff6141875db",
     "engines/scripts/shipping_common.py": "58f2cfdb37bbd0c010e82bc8d9c2118b00fe41ef6a556c18cc94db11455e2a15",
     "engines/scripts/shipping_refinements.py": "6ecb62499035cedaf6308539de0744a011f7b183ca768984462c4f0435406804",
-    "engines/scripts/shipping_material_state.py": "eded8d82eed40c383564603a51582e829ff9de2fc626bdc11eab26e6c424b380"
+    "engines/scripts/shipping_material_state.py": "eded8d82eed40c383564603a51582e829ff9de2fc626bdc11eab26e6c424b380",
+    "engines/scripts/shipping_integer_forms.py": "a989dc2fd2ea60d9ab786cf51874ea646363e6f5731a302e1335cbb283fbcd93"
   },
   "fixed_renames": [
     [
@@ -377,18 +378,18 @@
   },
   "expected": {
     "readable_sha256": "71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734",
-    "source_bytes": 9125,
-    "source_sha256": "e427db6e5697679c4765d4b0842dbfebe9637cffd1c2d1e48c3787f8fc43964b",
+    "source_bytes": 9082,
+    "source_sha256": "038ec565e9ad3ae339fe2830165ab0f621455024ab8aea5b2da861a925a78945",
     "native_bytes": 18576,
     "native_sha256": "ca24e8e88d15a81c635d7f762b972509443930cec19e1daa8b5e547458551c53",
-    "whole_bytes": 4652,
-    "whole_sha256": "fd7307213f35a16b111854125ec028e1fc4c07d0042bb0e5421976c8de244f20",
-    "bootstrap_sha256": "8d1361bf4692bea9b25fbce96d3c47ff77c89bca5d334135f068729c27087824",
+    "whole_bytes": 4628,
+    "whole_sha256": "6ef884d6d72c0bd46d8511e6843abd9fb006ce881c48cc6a06105a1ef60f71d8",
+    "bootstrap_sha256": "b9cf4282d92dbb374ceb0fd686981c156a6142d9a8f477d6e82bb034aa7634af",
     "dev_source_sha256": "41ab9f0f5d28183b76833d038c40e0bb6a2ee6ef9303766c293dd577680a4c9c",
     "dev_native_sha256": "8733dbf0814a2c2545251f6e0e17d243ecfd41fce7853fb325ca9720fedd1102",
     "input_profile_readable_bytes": 27687,
     "input_profile_readable_sha256": "63821a63cbf6507393e0617da9f611b778ada46c9a89b49fdefc8996bb461e2c",
-    "bootstrap_bytes": 10107
+    "bootstrap_bytes": 10064
   },
   "local_input_sha256": {
     "engine.c": "71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734",
@@ -1194,6 +1195,71 @@
         "bytes": 2140,
         "sha256": "c38b7cec15f18a4106b2e6f068c25bfc7a3780070609753fb92fe6182e7e9c7c"
       }
+    }
+  },
+  "integer_forms": {
+    "scope": "fixed unsigned64 number bound and final-header policy; full/material F also fixed two TT18 casts; normal validation recorded separately",
+    "previous_expected": {
+      "readable_sha256": "71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734",
+      "source_bytes": 9125,
+      "source_sha256": "e427db6e5697679c4765d4b0842dbfebe9637cffd1c2d1e48c3787f8fc43964b",
+      "native_bytes": 18576,
+      "native_sha256": "ca24e8e88d15a81c635d7f762b972509443930cec19e1daa8b5e547458551c53",
+      "whole_bytes": 4652,
+      "whole_sha256": "fd7307213f35a16b111854125ec028e1fc4c07d0042bb0e5421976c8de244f20",
+      "bootstrap_sha256": "8d1361bf4692bea9b25fbce96d3c47ff77c89bca5d334135f068729c27087824",
+      "dev_source_sha256": "41ab9f0f5d28183b76833d038c40e0bb6a2ee6ef9303766c293dd577680a4c9c",
+      "dev_native_sha256": "8733dbf0814a2c2545251f6e0e17d243ecfd41fce7853fb325ca9720fedd1102",
+      "input_profile_readable_bytes": 27687,
+      "input_profile_readable_sha256": "63821a63cbf6507393e0617da9f611b778ada46c9a89b49fdefc8996bb461e2c",
+      "bootstrap_bytes": 10107
+    },
+    "exact_source_replay": {
+      "stage": "fixed-shipping-integer-forms",
+      "family": "A",
+      "policy": "full",
+      "input_bytes": 9125,
+      "input_sha256": "e427db6e5697679c4765d4b0842dbfebe9637cffd1c2d1e48c3787f8fc43964b",
+      "output_bytes": 9082,
+      "output_sha256": "038ec565e9ad3ae339fe2830165ab0f621455024ab8aea5b2da861a925a78945",
+      "features": [
+        "unsigned64-number-local",
+        "high-bit-signed64-admission",
+        "sole-final-limits-header-removed"
+      ],
+      "literal_edits": 2,
+      "exact_inverse": true,
+      "unchanged_complement_bytes": 8970,
+      "unchanged_complement_sha256": "6d2346fcf24c079a71e3c920bdd41823ee95fd9c0ad570b687a4d8638e4a0849"
+    },
+    "native_full_byte_equal": true,
+    "whole_delta": -24,
+    "DEV_bypass": true,
+    "producing_cost_receipt": {
+      "path": "/home/stemxstudio/rove4k-number-bound-first-cost-20261021-v2/first-cost/results.json",
+      "bytes": 28107,
+      "sha256": "4b7cec0d6e7019a4a094a67925ea77bb5943acd4fb5cf0d40ec02fa0b9b9b26c"
+    },
+    "previous_normal_report": {
+      "path": "\\\\wsl.localhost\\Ubuntu\\home\\stemxstudio\\rove4k-material-state-normal-20261021\\A\\build\\build.json",
+      "bytes": 159559,
+      "sha256": "9688607b1d1d70a63df75763b4db5707f8eb8bdf01cabae4f7ca0b3aea41bb4a"
+    },
+    "normal_validation": "passed; receipt-only annotation follows producing recipe",
+    "normal_positive_metadata_only": {
+      "build": {
+        "path": "/home/stemxstudio/rove4k-integer-forms-normal-20261021/A/build/build.json",
+        "bytes": 161403,
+        "sha256": "bf7348151cadea8e9494346cb162fcd5046cfd95ea617eecf63b67208d367cbc"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-integer-forms-normal-20261021/A/runtime/runtime.json",
+        "bytes": 41534,
+        "sha256": "ae74de554102baae2ed069bf95bcc2cb2759a651aa10da62d17574be5986dc51"
+      },
+      "scope": "two exact shipping/DEV reproductions and new selected quit/EOF; local2-worker TT18 only",
+      "final_native_full_bytes_equal_material_state": true,
+      "producing_recipe_precedes_this_receipt_annotation": true
     }
   }
 }

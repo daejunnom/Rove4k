@@ -81,10 +81,10 @@ def main():
     if recipe['format']!=1 or recipe['family']!='F' or recipe['profile']!={'workers':2,'tt_bits':18,'ply':128,'dev_default':False}:
         raise ValueError('unsupported entry recipe/profile')
     if recipe['counter_schema']!=COUNTER_SCHEMA:raise ValueError('unsupported beta-only counter schema')
-    material_expected={'source_bytes': 8604, 'source_sha256': '4867a0fdc8376359464e3eeb64c2dc6d441b9d57eadc8d0c4b9b4257f179db1f', 'native_bytes': 18576, 'native_sha256': '24ae0622c5a0fd10191950f53e0f6ea5d3e3d05fbb1b20aaa72c2b5f2754873f', 'whole_bytes': 4369, 'whole_sha256': 'eff84e9b34ba121c7c17397252e2f61e832c6f2cfe0fcd51f182f99b677a3682', 'bootstrap_sha256': '3a8bbbc95c5e7d188e34b07a9eb08050249278489c7c4c7f924645f2039e1aa4'}
+    material_expected={'source_bytes': 8545, 'source_sha256': '918a6837918d83d692c816062063c4085e847efb897c74eea68ce850c77f6fd2', 'native_bytes': 18576, 'native_sha256': '24ae0622c5a0fd10191950f53e0f6ea5d3e3d05fbb1b20aaa72c2b5f2754873f', 'whole_bytes': 4343, 'whole_sha256': '1230de6a14f97d7d24b87cfbda8614a0b5f2880b31fb8e4408c0f44c6c2cf06c', 'bootstrap_sha256': 'e9d0f10d571b0ac494a04673ff193901a9dc95bac6a542e140e11d2307afc8ef', 'bootstrap_bytes': 9536}
     if recipe['alternate_policies']['material-noise']['expected_overrides']!=material_expected:
         raise ValueError('fixed MaterialNoise-v1 expectations differ')
-    move_tt_expected={'source_bytes': 7821, 'source_sha256': '8352665bca27f8c17c8ba1eeede04ddf0abaf70d88bebb5d70c6104c0c3481ec', 'native_bytes': 18576, 'native_sha256': '1a964e23bc8967b6eb74714389b4d94fd0e505d5d1eba3616775b7e4b0a522d5', 'whole_bytes': 4089, 'whole_sha256': 'ccb77b12ade5ef7dd367970edd4bfc3d97d4709a00fc9861570355785563d70c', 'bootstrap_sha256': 'c5921c298776aa90ffb68ffda7bb9cdc0b5008883f4dc24d26f10f8f8de45215'}
+    move_tt_expected={'source_bytes': 7778, 'source_sha256': 'e94399e7bec9ab24d6bc144986e38033bf0db92e89427bbea955a0839155517b', 'native_bytes': 18576, 'native_sha256': '1a964e23bc8967b6eb74714389b4d94fd0e505d5d1eba3616775b7e4b0a522d5', 'whole_bytes': 4067, 'whole_sha256': 'b7607ad7d1f1b1e353a4162fa0fdfe199f71f0ba7f07dc84f9bb8b4239e4ed21', 'bootstrap_sha256': '58c18654bef470bf86374b08be67a3d2dd225756f6bc7c34dab2c71fac9eed89', 'bootstrap_bytes': 8769}
     move_tt_compression={'format': 'lzma-alone', 'filter': 'LZMA1', 'preset': 9, 'extreme': True, 'lc': 0, 'lp': 0, 'pb': 0, 'check': 'NONE', 'mf': 'BT4', 'dictionary_bytes': 67108864, 'nice_len': 32}
     if recipe['alternate_policies']['material-move-tt']['expected_overrides']!=move_tt_expected or recipe['alternate_policies']['material-move-tt']['compression']!=move_tt_compression:
         raise ValueError('fixed MoveTT expectations/codec differ')
@@ -139,6 +139,8 @@ def main():
         common=module('entry_shipping_common',frozen/'shipping_common.py')
         refine=module('entry_shipping_refinements',frozen/'shipping_refinements.py')
         dead_state=module('entry_material_state',frozen/'shipping_material_state.py')
+        integer_forms=module('entry_integer_forms',frozen/'shipping_integer_forms.py')
+        terminal=module('entry_F_terminal',frozen/'shipping_terminal.py')
         alpha=module('entry_fixed_F_alpha',frozen/'shipping_alpha.py').transform_source
         storage=module('entry_fixed_F_storage',frozen/'shipping_storage.py').transform_source
         scope_module=module('entry_bound_F_scope',frozen/'shipping_scope.py')
@@ -205,6 +207,10 @@ def main():
                     full_common_metadata['refinements']=refinement
                     full_reference,dead_state_metadata=dead_state.transform_source(full_reference,family='F',policy='full')
                     full_common_metadata['material_state']=dead_state_metadata
+                    full_reference,integer_metadata=integer_forms.transform_source(full_reference,family='F',policy='full')
+                    full_common_metadata['integer_forms']=integer_metadata
+                    full_reference,terminal_metadata=terminal.transform_source(full_reference)
+                    full_common_metadata['terminal_shared_legal_loop']=terminal_metadata
                     if len(full_reference)!=full_expected['source_bytes'] or sha(full_reference)!=full_expected['source_sha256']:
                         raise ValueError('default full-F source generation changed')
                     data,policy_metadata=material_noise(data)
@@ -217,6 +223,8 @@ def main():
                         material_common_metadata['refinements']=refinement
                         material_cleaned,dead_state_metadata=dead_state.transform_source(material_cleaned,family='F',policy='material-noise')
                         material_common_metadata['material_state']=dead_state_metadata
+                        material_cleaned,integer_metadata=integer_forms.transform_source(material_cleaned,family='F',policy='material-noise')
+                        material_common_metadata['integer_forms']=integer_metadata
                         if len(material_cleaned)!=material_expected['source_bytes'] or sha(material_cleaned)!=material_expected['source_sha256']:
                             raise ValueError('existing material-noise source generation changed')
                         material_reference={'bytes':len(material_cleaned),'sha256':sha(material_cleaned),
@@ -236,6 +244,11 @@ def main():
                 common_metadata['refinements']=refinement
                 data,dead_state_metadata=dead_state.transform_source(data,family='F',policy=args.policy)
                 common_metadata['material_state']=dead_state_metadata
+                data,integer_metadata=integer_forms.transform_source(data,family='F',policy=args.policy)
+                common_metadata['integer_forms']=integer_metadata
+                if args.policy=='full':
+                    data,terminal_metadata=terminal.transform_source(data)
+                    common_metadata['terminal_shared_legal_loop']=terminal_metadata
             return data,observations,counters,alpha_metadata,storage_metadata,scope_metadata,member_metadata,semantic_metadata,input_metadata,declaration_metadata,hce_metadata,type_metadata,unit_bound_metadata,startup_metadata,global_names_metadata,capture_metadata,policy_metadata,material_names_metadata,material_capture_metadata,move_tt_metadata,move_tt_names_metadata,expressions_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())

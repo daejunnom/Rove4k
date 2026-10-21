@@ -172,7 +172,7 @@ The later PALS and hardware-CRC work below retains its own source and runtime
 boundaries; those earlier CI runs are not relabeled as results for new bytes.
 
 **F's opt-in material/move-TT file is locally reproduced and exercised at
-4,089 bytes; default full F is still 4,645 bytes.** This optional reduced-feature
+4,067 bytes; default full F is still 4,609 bytes.** This optional reduced-feature
 size result does not complete default F or the A–F portfolio. All twelve
 cores have functional evidence, but portfolio completion still requires source
 reduction, D's eligible own-ELF artifact, final candidate comparisons and games,
@@ -187,14 +187,14 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
-| A | 4,652 B | 556 B | One-state material classifier; main-owned token cursor and valid-0x88 promotion predicate; existing full HCE/PVS/QS/TT/learners/SMP and fixed ALONE retained |
-| B | 5,219 B | 1,123 B | One-state material classifier; main-owned token cursor, promotion predicate and make/SEE material-gain sharing; hybrid attackers/singular and full policy retained |
-| C | 4,992 B | 896 B | One-state material classifier; main-owned tokenizer and promotion predicate; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners and fixed ALONE retained |
+| A | 4,628 B | 532 B | Unsigned64 number forms; one-state material classifier; main-owned token cursor and valid-0x88 promotion predicate; existing full HCE/PVS/QS/TT/learners/SMP and fixed ALONE retained |
+| B | 5,196 B | 1,100 B | Unsigned64 number forms; one-state material classifier; main-owned token cursor, promotion predicate and make/SEE material-gain sharing; hybrid attackers/singular and full policy retained |
+| C | 4,976 B | 880 B | Unsigned64 number forms, late limits include retained; one-state material classifier; main-owned tokenizer and promotion predicate; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners and fixed ALONE retained |
 | D scalar / HQ | 5,966 / 6,175 B | 1,870 / 2,079 B | Capture-only Move bit3; full-key aligned atomic16 TT, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained |
-| E | 5,076 B | 980 B | One-state material classifier; main-owned tokenizer and promotion predicate; untrained E19 model/ordering, full search/learners and fixed ALONE retained |
-| F full (default) | 4,645 B | 549 B | One-state material classifier; main-owned tokenizer, mate-adjust expressions and promotion predicate; packed positional HCE, learners, full-bound full-key TT and full-depth MTD(f)/SMP retained; default size target remains open |
-| F material/noise (opt-in) | 4,369 B | 273 B | One-state material classifier, fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted |
-| F material/move-TT (opt-in) | 4,089 B | 0 B (7 B spare) | One-state material classifier, fixed material, main-owned token cursor, terminal-loop sharing and coherent atomic64 Move17/high46 plus index18; local size eligibility only, full F and strength acceptance remain open |
+| E | 5,056 B | 960 B | Unsigned64 number forms; one-state material classifier; main-owned tokenizer and promotion predicate; untrained E19 model/ordering, full search/learners and fixed ALONE retained |
+| F full (default) | 4,609 B | 513 B | Unsigned64 number forms, two fixed TT18 casts omitted and terminal legal-loop sharing with TT suppression; one-state material classifier; main-owned tokenizer, mate-adjust expressions and promotion predicate; packed positional HCE, learners, full-bound full-key TT and full-depth MTD(f)/SMP retained; default size target remains open |
+| F material/noise (opt-in) | 4,343 B | 247 B | Unsigned64 number forms and two fixed TT18 casts omitted; one-state material classifier, fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted |
+| F material/move-TT (opt-in) | 4,067 B | 0 B (29 B spare) | Unsigned64 number forms; one-state material classifier, fixed material, main-owned token cursor, terminal-loop sharing and coherent atomic64 Move17/high46 plus index18; local size eligibility only, full F and strength acceptance remain open |
 
 The separate Rust D native images are 16,816 bytes each. Their independent
 packed experiment retains its own qualification state and does not silently
@@ -5931,7 +5931,115 @@ strict old/new restoration complete; no pool fixture or engine execution follows
 The candidate is closed unadopted. Cost11507B SHA:
 47f76e9020a9d07a617f38a71b138d021878f2ee144f4fadf275fcb117162889.
 
+A distinct full-F TT candidate moves the try-lock into key bit0. The logical
+slot retains the omitted index bit, so masked-key equality plus equal slot
+still checks all64 key bits; the slot is selected before masking. Payload
+remains plain under ownership, and mismatched reads restore the previous key.
+This does not reuse the payload-bit63 result. Its three actual edits save14
+source bytes, but whole4645→4649B(+4) and text7073→7090B(+17) lose. The fetch_or
+again lowers to a lock-cmpxchg retry loop. One compile/encode, strict restoration
+and static native readback complete; no new TT/function/engine execution or
+promotion follows. Cost11580B SHA:
+1ae72a1e1a0d1666591125b17f3ccbd01bf8ac4c6ed2b0265abd8226d32c34e2.
+
 All producing inputs, candidate files, failures and terminal process receipts
 stay outside Git. The maintained size table is unchanged. Full/default F's
 549B gap remains the target; the optional4089B result does not satisfy it.
 Further common and per-family source work continues beyond size eligibility.
+
+## Shared integer forms and full-F terminal sharing — 2026-10-21
+
+The preceding source checkpointcc43e4d passes both
+[C/Rust engine CI](https://github.com/daejunnom/Rove4k/actions/runs/39540981556)
+and [Node22/24 lifecycle CI](https://github.com/daejunnom/Rove4k/actions/runs/39540981550).
+The new ordinary shipping_integer_forms.py replays fixed final integer forms
+on all seven material-state outputs, after shipping_refinements/material_state.
+It imports only hashlib and reads no external artifact or receipt during builds.
+
+The number helper retains its null/initial ASCII-digit guard, actual strtoull
+call, end-pointer rejection and all clock-token consumption. Its local uses
+the existing uint64_t alias, and `n>>63` replaces `n>LLONG_MAX`. On the fixed
+Linux x86-64 unsigned-long-long64/uint64_t64 domain, the assignment loses no
+value and the high-bit test rejects exactly2^63..2^64-1, including overflow's
+ULLONG_MAX. Signs, empty/missing values, suffixes, leading zeros and errno
+effects retain the previous policy. All budget clamps stay. Six now-unused
+final limits.h includes are removed; C keeps its include because an actual
+later immintrin.h lies outside that final-header premise. This is a fixed
+source decision rather than a header-removal sweep.
+
+Full/material F additionally omit two size_t casts at fixed positive TT18
+calloc/count roles. Their actual compositions are measured, not summed. The
+integer-only selected native is entire-byte identical to its preceding native
+for all seven cases. Standalone number whole savings are16..24B; the two F
+cast compositions save another3B each relative to their actual number outputs.
+Numeric cost28107B SHA:
+4b7cec0d6e7019a4a094a67925ea77bb5943acd4fb5cf0d40ec02fa0b9b9b26c.
+F numeric/cast composition13381B SHA:
+bc988d78c19ef8b458c93d6873aa023ec826bcc23bce19a634ece73a889ab086.
+
+Full/default F then uses its own shipping_terminal.py, after integer forms.
+It removes the separate terminal legal-make scan and shares the ordinary
+ordered legal loop. Draw/ply bits distinguish ordinary, draw, cap-only and
+draw+cap; the first successful make returns before QS/path/recursion/witness/
+learning/TT writes. Terminal sets F=0 instead of probing TT, so a cached bound
+cannot bypass terminal rules. With no legal move the original mate/stalemate
+return wins even at halfmove100 or the ply cap. Cap-only with a legal move
+sets stopped; draw+cap does not. Full HCE, all learners, full-key score/bound/
+exact-depth TT, full-depth MTD(f), completed-iteration witness and SMP remain.
+Terminal paths now perform existing pure scoring/sort work and may find a
+different first legal scratch child. Timing, work amount and strength equality
+are not claimed. Ordinary node ordering is unchanged.
+
+One actual ASan/UBSan fixture includes the unmodified candidate and an old U
+reference with only its declaration/two recursive callee names changed. Sixteen
+old/new cases agree on score, root, stopped and entire Worker/TT state. They
+cover draw/cap/mate/stalemate precedence, check escape, real threefold, dead
+material, prestop/expired claim and terminal full-bound TT poison. Independent
+full HCE gives quiet-root-10, depth1+12 and QS-10; material0 is not reused.
+Ordinary actual TT137 and quiet history/continuation/lower-bound publication
+are positive controls. Proof6084B SHA:
+3d3815c6dd155871b8ae2142b4aa5c6828f9073e795e4cb8b9c619dfb3320bf8.
+
+The final F8998 source contains the exact qualified1272B U and the entire
+terminal-only native. Its actual complete file is4609B, compared with original
+4645, integer-only4621 and terminal-only4633. Full-native identity to the original
+is not claimed. Both pure helpers pin exact source inputs/outputs, literal
+spans, inverse and protected complement. Canonical/DEV bypass both. F's
+separate full/material reference copies use the new late stages, while raw
+preimages continue into their older fixed policy transforms unchanged.
+
+| Policy | Previous whole | Current whole | Saved | Source delta | Above4096 |
+|---|---:|---:|---:|---:|---:|
+| A |4652|4628|24|-43|532|
+| B |5219|5196|23|-43|1100|
+| C |4992|4976|16|-23|880|
+| E |5076|5056|20|-43|960|
+| F |4645|4609|36|-111|513|
+| F-material |4369|4343|26|-59|247|
+| F-move |4089|4067|22|-43|0 (29 spare)|
+
+All seven ordinary --dev builds and unchanged selected verifiers pass in WSL
+Ubuntu. Shipping source/native/bootstrap/whole and full-reference DEV reproduce
+twice per policy. Fourteen actual quit/EOF wrappers observe exact restored
+native, stable3 TIDs, legal finite clock/bare GO, private-path/helper absence,
+one closing result, reader EOF and physical exit. Six final natives remain
+entire-byte equal to the preceding maintained images; full F uses the explicitly
+admitted terminal image. Component function qualification and final wrapper
+observations remain separate. These are local2-worker/TT18 results, not final
+resource, many-core, performance or strength acceptance. Normal producing-input
+readback precedes receipt-only annotations. Summary48143B SHA:
+1de4261cbd87622c9326fe8c72137b0d96148fb4e1514b2c81e8dbda4031a2a5.
+
+The number preparer's initial Markdown CRLF-fence failure and the compound
+cost preparer's incorrect assumed next-function delimiter both occurred before
+any C compilation/encoding. Their original failures are preserved; only those
+preparation boundaries were corrected. Successful compilations were not repeated
+to repair collection. Generated files, reports and third-party references stay
+outside Git. The current TCEC4k rules were refreshed at oldid7853 on2026-10-21:
+the4K minimum UCI subset, single4096B file, startup60s and script/ELF boundaries
+remain the relevant contract. No general-TCEC option expansion is added.
+
+Default full F still needs513B. The4067B reduced-feature opt-in has29B spare,
+and is further compression after prior eligibility; it does not complete full
+F. All other family size gaps and final profiles/comparisons remain open. No
+training/data collection, AWS/paid run, game, merge or release is introduced.

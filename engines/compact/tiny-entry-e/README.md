@@ -1,3 +1,31 @@
+# Maintained E: integer source compression — 2026-10-21
+
+The late fixed integer pass uses the existing unsigned64 alias and high-bit
+decimal bound, retaining digit/end-pointer checks, clock consumption and all
+budget clamps. The unused final limits header is removed except for C,
+which has a later intrinsic include. Full/material F also omit two fixed
+positive TT18 casts. Actual composed costs are used, not added deltas.
+
+The entire native remains byte-identical to the previous maintained image;
+no model, learner, search, rule, TT or worker feature is removed.
+
+| Policy | Previous whole | Current whole | Saved | Above4096 |
+|---|---:|---:|---:|---:|
+| E | 5076 | **5056** | 20 | 960 |
+
+Each normal --dev build reproduces shipping and full-reference DEV twice.
+The unchanged selected verifier passes new actual quit/EOF wrappers, exact
+restored native, stable3 TIDs, legal finite GO, private-path/helper absence,
+closing result, reader EOF and physical exit. Normal summary SHA-256:
+`1de4261cbd87622c9326fe8c72137b0d96148fb4e1514b2c81e8dbda4031a2a5`.
+The local2-worker/TT18 profile does not accept final resources or strength.
+
+| Policy | Source bytes | Native bytes | Whole SHA-256 |
+|---|---:|---:|---|
+| E | 10581 | 26400 | `dc7f107a4af3af441244a52f329b5f84f1fccd970eb24c59c9258f1795f6c6ec` |
+
+Older sections retain their original checkpoint identities.
+
 # Maintained E: shared material-state compression — 2026-10-21
 
 A shared late source pass replaces three material-classification accumulators

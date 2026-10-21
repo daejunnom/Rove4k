@@ -1,3 +1,44 @@
+# Maintained F: integer source compression — 2026-10-21
+
+The late fixed integer pass uses the existing unsigned64 alias and high-bit
+decimal bound, retaining digit/end-pointer checks, clock consumption and all
+budget clamps. The unused final limits header is removed except for C,
+which has a later intrinsic include. Full/material F also omit two fixed
+positive TT18 casts. Actual composed costs are used, not added deltas.
+
+Full/default F shares its terminal legal-make loop and suppresses terminal
+TT cutoff before that loop. Mate/stalemate precedence, draw/cap distinction,
+root witness and learning fences remain. Sixteen actual old/new full-HCE
+ASan/UBSan cases pass; terminal work order/timing changes are explicit.
+All full HCE, learners, score/bound full-key TT, MTD(f) and SMP are retained.
+The new full native matches the qualified terminal-only image exactly.
+The two optional natives remain byte-identical to their previous images.
+
+| Policy | Previous whole | Current whole | Saved | Above4096 |
+|---|---:|---:|---:|---:|
+| F | 4645 | **4609** | 36 | 513 |
+| F-material | 4369 | **4343** | 26 | 247 |
+| F-move | 4089 | **4067** | 22 | 0 (29 spare) |
+
+Each normal --dev build reproduces shipping and full-reference DEV twice.
+The unchanged selected verifier passes new actual quit/EOF wrappers, exact
+restored native, stable3 TIDs, legal finite GO, private-path/helper absence,
+closing result, reader EOF and physical exit. Normal summary SHA-256:
+`1de4261cbd87622c9326fe8c72137b0d96148fb4e1514b2c81e8dbda4031a2a5`.
+The local2-worker/TT18 profile does not accept final resources or strength.
+
+Default full F still needs513B. The optional MoveTT4067B has29B spare and
+remains a reduced-feature intermediate; further full/default and optional
+compression continue beyond the size threshold.
+
+| Policy | Source bytes | Native bytes | Whole SHA-256 |
+|---|---:|---:|---|
+| F | 8998 | 18576 | `9effff2ae4af6ac53ae8421effd91a62230b408a1c1a5b3f2a8d2588f62976d2` |
+| F-material | 8545 | 18576 | `1230de6a14f97d7d24b87cfbda8614a0b5f2880b31fb8e4408c0f44c6c2cf06c` |
+| F-move | 7778 | 18576 | `b7607ad7d1f1b1e353a4162fa0fdfe199f71f0ba7f07dc84f9bb8b4239e4ed21` |
+
+Older sections retain their original checkpoint identities.
+
 # Maintained F: shared material-state compression — 2026-10-21
 
 A shared late source pass replaces three material-classification accumulators
