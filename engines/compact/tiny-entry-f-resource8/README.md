@@ -1,3 +1,14 @@
+# F2 full nice16 producer provenance - 2026-10-22
+
+F2 changes its own full encoder nice24 ->16, with unchanged C/native/bootstrap.
+Only the current F2 build.py source-closure pin and this provenance annotation
+follow that producer change. F8 never invokes F2 compression and retains its
+own nice24 codec, preName8538/47353... input, source/native/bootstrap/whole4442,
+and all nine-TID conditions. Existing F8 qualification is reused by unchanged
+selected inputs; no new F8 compile/encode/runtime or inferred byte gain.
+New F2 ordinary pre-name8538/47353... matches the actual predecessor twice.
+Historical rank provenance and all preceding F8 execution receipts stay unchanged.
+
 # F2 HCE-rank producer provenance — 2026-10-22
 
 F2 adds one fixed local-HCE rank helper after its own names and two-worker

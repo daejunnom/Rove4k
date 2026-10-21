@@ -31,7 +31,7 @@
   "base_source_closure_sha256": {
     "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
     "engines/compact/tiny-entry-f/bootstrap.py.in": "159c5fe166f4b0804471e9d3a70d8f055a510858a6ae33f0ed6b4cfd17fca6f9",
-    "engines/compact/tiny-entry-f/build.py": "e346ebcd38274e7f219e73aec4dc17555448192c17761ea11d175f2ea2eb5abc",
+    "engines/compact/tiny-entry-f/build.py": "48a3c7e39ba1c0723a7c6540d2c5550e156a3e3515dc83dd207c36cc8ff48c01",
     "engines/compact/tiny-entry-f/engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
     "engines/compact/tiny-entry-f/launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
     "engines/compact/tiny-entry-f/shipping_alpha.py": "74abadbd79735e9f6b30c513b422245bae737f81d4e3bd04a7b8e597e61937e8",
@@ -470,6 +470,32 @@
       "rank_invocations_in_F8": 0,
       "new_F8_compile_runtime_encode": 0,
       "scope": "actual F2 exported pre-name bytes remain identical; existing F8 products and unchanged generic-helper bodies permit scoped prior positive reuse, not a new run"
+    }
+  },
+  "F2_full_nice16_producer_provenance": {
+    "F2_builder_LF_sha256": "48a3c7e39ba1c0723a7c6540d2c5550e156a3e3515dc83dd207c36cc8ff48c01",
+    "previous_builder_LF_sha256": "e346ebcd38274e7f219e73aec4dc17555448192c17761ea11d175f2ea2eb5abc",
+    "scope": "F2 full codec nice24->16 only; F8 hashes F2 builder as producer provenance and does not invoke its compression",
+    "F8_base_source_expected_codec_and_nine_TIDs_unchanged": true,
+    "new_F8_compile_encode_runtime": 0,
+    "ordinary_F2_pre_name_validation": {
+      "F2_build": {
+        "path": "/home/stemxstudio/rove4k-f-full-nice16-normal-20261022-v1/full/build/build.json",
+        "bytes": 257263,
+        "sha256": "e5b15d5f6290bafc4a4e67d3c6f1e2ff295e7dd2141a472a912a11ce5f63b783",
+        "LF_bytes": 257263,
+        "LF_sha256": "e5b15d5f6290bafc4a4e67d3c6f1e2ff295e7dd2141a472a912a11ce5f63b783"
+      },
+      "actual_pre_name": {
+        "path": "/home/stemxstudio/rove4k-f-full-nice16-normal-20261022-v1/full/build/source-before-names.c",
+        "bytes": 8538,
+        "sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0",
+        "LF_bytes": 8538,
+        "LF_sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
+      },
+      "byte_exact_predecessor": true,
+      "new_F8_compile_encode_runtime": 0,
+      "scope": "source-closure provenance only; unchanged selected F8 input and all codec/expected9TID conditions reused"
     }
   }
 }

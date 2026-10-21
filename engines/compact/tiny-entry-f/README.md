@@ -1,3 +1,25 @@
+# Maintained full F: nice16 codec selection - 2026-10-22
+
+The selected complete file is4437 B, one below the qualified rank4438.
+Only full_compression nice_len24 ->16 changes; ALONE6/BT2/16KiB/lc2/lp0/
+pb0/header73 and every other encoder input remain exact. C8509/a2d094c9...,
+native18576/ea471236... and bootstrap9441/8b92457e... are unchanged.
+The matched one-encode control restored exact full bootstrap bytes through
+strict Python EOF/unused0 and xz CLI. Controller structure remains unadopted
+and NVC accepted source steps remain0; this is a separate codec promotion.
+One ordinary full --dev reproduces shipping2 and unchanged DEV2; all source,
+native, bootstrap and pre-name bytes equal the actual rank4438 predecessor.
+One unchanged selected verifier passes actual4437 quit/EOF2 sessions,8 legal
+GO epochs, exact restored native, stable3 TIDs and physical readers/process exit.
+Active-search work is observed; cancellation causality remains unproven.
+Build receipt:e5b15d5f6290bafc4a4e67d3c6f1e2ff295e7dd2141a472a912a11ce5f63b783
+Runtime receipt:506a13c0d685ce331f5e49d6dca1380c2640cf697e2d0ef5e8031b37496ccc80
+Both original command handles are reaped rc0 with groups absent; forced
+cleanup/owned handles0. No late PID gate or new semantic/SAN campaign.
+Optional selected codecs/products and F8's own nice24/4442/9-TID profile
+are unchanged; F8 receives producer provenance only. Prior rank4438 and
+NVC/controller/matched-control receipts stay frozen separately.
+
 # Maintained F2: local HCE rank normalization — 2026-10-22
 
 The fixed first cost is **4438 B**, one below4439 and342 above4096.

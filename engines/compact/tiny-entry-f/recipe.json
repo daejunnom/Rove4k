@@ -258,7 +258,7 @@
     "check": "NONE",
     "mf": "BT2",
     "dictionary_bytes": 16384,
-    "nice_len": 24
+    "nice_len": 16
   },
   "expected": {
     "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
@@ -266,8 +266,8 @@
     "source_sha256": "a2d094c954ca7e0d02d38e0810c62c9fc8e754a536ee7770bc98214dee7d3142",
     "native_bytes": 18576,
     "native_sha256": "ea4712367d627b792021f17f4b2419895a67c002458e4151b1d1e9625afdf9c3",
-    "whole_bytes": 4438,
-    "whole_sha256": "9f8c7f3fc0c44d7d31f2169e1ef47e2ebdfa0e39c7c1e675785fc65e96bb26ca",
+    "whole_bytes": 4437,
+    "whole_sha256": "70ca8010621be6783020c50aed2f2ca326bc763231454ac824e0f3453e6f0d05",
     "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
     "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
     "bootstrap_sha256": "8b92457eccb00002aa505777b6fe2c8c2c3cb1987420d94f074f0764a747e040",
@@ -5648,6 +5648,111 @@
       "normal_failures": 0,
       "normal_retries": 0,
       "post_execution_changes": "F2/F8 recipe and README annotations only; helper/build/expected/codec remain producing bytes"
+    }
+  },
+  "full_nice16_codec": {
+    "status": "PASS ordinary full shipping2/unchangedDEV2 and unchanged selected nice16 whole quitEOF2sessions8GO",
+    "scope": "default full compression nice_len24->16 only; no source/native/bootstrap/model/TT/worker change",
+    "predecessor_whole": {
+      "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+      "source_bytes": 8509,
+      "source_sha256": "a2d094c954ca7e0d02d38e0810c62c9fc8e754a536ee7770bc98214dee7d3142",
+      "native_bytes": 18576,
+      "native_sha256": "ea4712367d627b792021f17f4b2419895a67c002458e4151b1d1e9625afdf9c3",
+      "whole_bytes": 4438,
+      "whole_sha256": "9f8c7f3fc0c44d7d31f2169e1ef47e2ebdfa0e39c7c1e675785fc65e96bb26ca",
+      "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
+      "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
+      "bootstrap_sha256": "8b92457eccb00002aa505777b6fe2c8c2c3cb1987420d94f074f0764a747e040",
+      "semantic_readable_bytes": 25720,
+      "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
+      "dev_source_bytes": 19488,
+      "dev_native_bytes": 26984,
+      "input_profile_readable_bytes": 28587,
+      "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
+      "bootstrap_bytes": 9441
+    },
+    "previous_compression": {
+      "format": "lzma-alone",
+      "filter": "LZMA1",
+      "preset": 6,
+      "extreme": false,
+      "lc": 2,
+      "lp": 0,
+      "pb": 0,
+      "check": "NONE",
+      "mf": "BT2",
+      "dictionary_bytes": 16384,
+      "nice_len": 24
+    },
+    "matched_control_index": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-controller-nvc060-corrected-run-20261022-evidence/final-index.json",
+      "bytes": 19585,
+      "sha256": "097bfd6938d9c3cc82d2fcada2eb48b6ff4f71bd9dd553cd8d55dc37be104a48",
+      "LF_bytes": 19585,
+      "LF_sha256": "097bfd6938d9c3cc82d2fcada2eb48b6ff4f71bd9dd553cd8d55dc37be104a48"
+    },
+    "matched_rank_bootstrap_bytes": 9441,
+    "matched_rank_whole_bytes": 4437,
+    "source_effect": "NVC accepted_steps0/controller not adopted; this promotion is only selected encoder setting",
+    "optional_selected_codec_and_outputs_unchanged": true,
+    "F8_selected_codec_and_outputs_unchanged": true,
+    "ordinary_validation": {
+      "build": {
+        "path": "/home/stemxstudio/rove4k-f-full-nice16-normal-20261022-v1/full/build/build.json",
+        "bytes": 257263,
+        "sha256": "e5b15d5f6290bafc4a4e67d3c6f1e2ff295e7dd2141a472a912a11ce5f63b783",
+        "LF_bytes": 257263,
+        "LF_sha256": "e5b15d5f6290bafc4a4e67d3c6f1e2ff295e7dd2141a472a912a11ce5f63b783"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-f-full-nice16-normal-20261022-v1/full/runtime/runtime.json",
+        "bytes": 76899,
+        "sha256": "506a13c0d685ce331f5e49d6dca1380c2640cf697e2d0ef5e8031b37496ccc80",
+        "LF_bytes": 76899,
+        "LF_sha256": "506a13c0d685ce331f5e49d6dca1380c2640cf697e2d0ef5e8031b37496ccc80"
+      },
+      "build_stage": {
+        "path": "/home/stemxstudio/rove4k-f-full-nice16-normal-20261022-v1/build-stage.json",
+        "bytes": 12258,
+        "sha256": "ab94e3e129ea2c509cfa51fd932f458b9401925954d4abadcfe0ec10eb413ad2",
+        "LF_bytes": 12258,
+        "LF_sha256": "ab94e3e129ea2c509cfa51fd932f458b9401925954d4abadcfe0ec10eb413ad2"
+      },
+      "selected_stage": {
+        "path": "/home/stemxstudio/rove4k-f-full-nice16-normal-20261022-v1/selected-stage.json",
+        "bytes": 3642,
+        "sha256": "0affcc81d5dc079e2f8e001a724ab2479ee548dc81c80082b005082b2d80ba98",
+        "LF_bytes": 3642,
+        "LF_sha256": "0affcc81d5dc079e2f8e001a724ab2479ee548dc81c80082b005082b2d80ba98"
+      },
+      "producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-f-full-nice16-normal-20261022-v1/full/build/inputs/recipe.json",
+        "bytes": 302352,
+        "sha256": "e5483606177427e1269efb445b5a43d8590109e43de7e4588fb6cf58a4c6cd69",
+        "LF_bytes": 302352,
+        "LF_sha256": "e5483606177427e1269efb445b5a43d8590109e43de7e4588fb6cf58a4c6cd69"
+      },
+      "shipping_reproductions": 2,
+      "unchanged_DEV_reproductions": 2,
+      "ordinary_full_dev_calls": 1,
+      "unchanged_selected_calls": 1,
+      "quit_EOF_sessions": 2,
+      "legal_GO_epochs_including_closing": 8,
+      "startup_TIDs": 3,
+      "source_native_bootstrap_pre_name_actual_predecessor_byte_exact": {
+        "main.c": true,
+        "native/x": true,
+        "bootstrap.py": true,
+        "source-before-names.c": true
+      },
+      "new_optional_F8_compile_encode_runtime": 0,
+      "source_or_model_policy_change": false,
+      "normal_failures": 0,
+      "normal_retries": 0,
+      "forced_cleanup": false,
+      "scope": "exact new4437 whole with same source/native/bootstrap; unchanged selected verifier physical quit/EOF exit and restored native; no new semantic/SAN/performance/strength campaign",
+      "active_search_cancellation_causality": "unproven; observed work and physical exit recorded separately"
     }
   }
 }

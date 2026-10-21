@@ -213,7 +213,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | C | 4,869 B | 773 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd followed by four signed32 lane sums, full search/learners retained; history length derived from immutable job length plus ply; child continuation slot and positive-only cutoff bonus compacted; fixed LP64 mixer literals; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero; capture-only Move bit3 reuses generator metadata with separate PROMO and unchanged quiet noise; terminal legality shares the ordered make loop with terminal TT probe and pruning suppressed |
 | D scalar / HQ | 5,836 / 6,037 B | 1,740 / 1,941 B | HQ-only history length derived from immutable job length plus ply; scalar and DEV retain their original history blocks; exact clock/inc parsing and ordered K/Q castling branches shared; consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT with a shared finite-stage asm body, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained; separate body232 class omits dormant internal ELF metadata from coding while preserving compiled native and body addresses |
 | E | 4,933 B | 837 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; child continuation slot and positive-only cutoff bonus compacted; literal include gaps and fixed ASCII compiler argv compacted; fixed LP64 mixer literals; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero; private history length derived from immutable published job base plus ply; capture-only Move bit3 reuses generator metadata with separate PROMO and unchanged quiet noise; ordering reuses generated mover side and omits a sign-only local; center feature shares its two symmetric axes |
-| F full (default) | 4,438 B | 342 B | Packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; history length derived from immutable job length plus ply; nonnegative QS depth, repetition-distance loop, fixed integer macros and plain-int keyword spelling compacted after the no-preadd hash, terminal, correction and source-form stages; compact environment snapshot; default size target remains open; lazy fallback and first-legal quiet-QS standpat cutoff; immutable global job-prefix keys shared while workers store only private path keys; fixed 73-byte stdin/xz header and BT2/16KiB ALONE; five fixed local binding spellings, compact handler-pair loops, fixed2 completion selector and positional wait timeout; pure HCE rank normalization shares advance/center rank |
+| F full (default) | 4,437 B | 341 B | Packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; history length derived from immutable job length plus ply; nonnegative QS depth, repetition-distance loop, fixed integer macros and plain-int keyword spelling compacted after the no-preadd hash, terminal, correction and source-form stages; compact environment snapshot; default size target remains open; lazy fallback and first-legal quiet-QS standpat cutoff; immutable global job-prefix keys shared while workers store only private path keys; fixed 73-byte stdin/xz header and BT2/16KiB ALONE with nice16; five fixed local binding spellings, compact handler-pair loops, fixed2 completion selector and positional wait timeout; pure HCE rank normalization shares advance/center rank |
 | F full (fixed8) | 4,442 B | 346 B | Separate eight-search-worker profile with nine startup TIDs; same full native as its4474 predecessor, strict private-name replay followed by six resource roles, shared full bootstrap with positional wait and73-byte BT2 packaging; retains its eight-worker selection loop; final hardware/profile selection remains open |
 | F material/noise (opt-in) | 4,319 B | 223 B | Unsigned64 number forms and two fixed TT18 casts omitted; one-state material classifier, fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted; literal include gaps compacted; fixed LP64 mixer literals; compact environment snapshot |
 | F material/move-TT (opt-in) | 4,045 B | 0 B (51 B spare) | Unsigned64 number forms; one-state material classifier, fixed material, main-owned token cursor, terminal-loop sharing and coherent atomic64 Move17/high46 plus index18; local size eligibility only, full F and strength acceptance remain open; fixed LP64 mixer literals; compact environment snapshot |
@@ -222,6 +222,54 @@ The canonical Rust D native images are16,816 bytes each. The separate maintained
 finite Rust shipping entry also has16,816-byte natives with new identities and
 11,108/11,476-byte scalar/HQ own-ELFs. Its normal qualification below does not
 replace the C D table or establish4KiB eligibility.
+
+## Full-F4437 codec and bounded NVCompact comparison: 2026-10-22
+
+Default full F changes only ALONE nice_len24 to16. Source8509 B, native18576 B,
+bootstrap9441 B and exported pre-name8538 B remain entirely byte-identical to
+the qualified rank-sharing predecessor. The complete file4438→4437 B has new
+SHA256 `70ca8010621be6783020c50aed2f2ca326bc763231454ac824e0f3453e6f0d05`.
+All other codec settings and73-byte header remain. This is an encoder-setting
+gain, not additional source compaction. Optional policies keep their own codecs
+and4319/4045 B outputs; F8 keeps its own nice24,4442 B and nine-TID contract.
+Its producer closure pin alone advances after exact pre-name byte comparison.
+
+One ordinary full --dev call reproduces shipping and unchanged DEV twice.
+The unchanged selected verifier passes quit/EOF two sessions and eight legal
+GO results with exact restored native, stable three TIDs, readers and physical
+process/group closure. No new semantic/SAN/strength campaign is implied.
+Final index `31a7c03fe0487ad1b8225e2c8fbcb1e6924e668462a942ed3199c8e70a11b3d7`;
+build `e5b15d5f6290bafc4a4e67d3c6f1e2ff295e7dd2141a472a912a11ce5f63b783`;
+runtime `506a13c0d685ce331f5e49d6dca1380c2640cf697e2d0ef5e8031b37496ccc80`.
+
+The bounded prepublication NVCompact0.6 controller experiment preserves its
+initial unsupported-frontend-flag validation error separately. The corrected
+run reaches60/64 evaluations and8/8 combinations with accepted_steps0;239
+nontrivial name subsets remain unvisited. It keeps the8415 B candidate and9347 B
+bootstrap unchanged. Its final codec portfolio selects nice16, yielding4444 B.
+Matched original-full and rank-full controls with that same setting yield4438
+and4437 B, so the source-shorter controller remains unselected. Actual codec
+calls total447 including two matched controls. No exhaustive source optimum or
+general controller impossibility is claimed. Corrected-run final index:
+`097bfd6938d9c3cc82d2fcada2eb48b6ff4f71bd9dd553cd8d55dc37be104a48`.
+
+Preceding committed checkpoint bde316a passes both language jobs in
+[Engine39660003941](https://github.com/daejunnom/Rove4k/actions/runs/39660003941)
+and Node22/24 in
+[Repository39660003831](https://github.com/daejunnom/Rove4k/actions/runs/39660003831).
+All four logs use actual mergeba5468a1a598d4207d35e22cdebf1bcc4fa5e8c1,
+parents develop761bdc0 plus bde316a, with tree22f742bc equal to the requested
+head. Current artifacts regenerate D5836/6037 with its separate full-zero232
+RX identities, audit/pre-entry2 and production4 sessions/12 GO; F4438 has fresh
+selected quit/EOF sessions. F8 regenerates4442 B from its explicit pre-name
+input with current57-file closure, nine stable TIDs and eight active workers.
+Fresh.py is not invoked in that workflow. This preceding CI does not qualify
+the later nice16 encoder setting. Frozen CI index:
+`4c2d706101e6a2155a5783e4c15568a158652aa59202d1eac69c36d4616685f3`.
+
+Default F still exceeds4096 B by341 B. Target resource profiles, compact policy
+comparison, scaling and game strength remain open; reduced-feature4045 B is
+not default-F completion. No scheduled follow-up, training or AWS is added.
 
 ## D body232 and full-F4438 rank sharing: 2026-10-22
 
