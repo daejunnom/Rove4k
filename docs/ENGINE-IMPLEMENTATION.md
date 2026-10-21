@@ -187,12 +187,12 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
-| A | 4,613 B | 517 B | Unsigned64 number forms; one-state material classifier; main-owned token cursor and valid-0x88 promotion predicate; existing full HCE/PVS/QS/TT/learners/SMP and fixed ALONE retained; fixed LP64 mixer literals |
-| B | 5,148 B | 1,052 B | Worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained; literal include gaps compacted; clock-first SEE poll; cancellation timing changed |
-| C | 4,954 B | 858 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners retained; literal include gaps compacted; fixed LP64 mixer literals |
+| A | 4,610 B | 514 B | Unsigned64 number forms; one-state material classifier; main-owned token cursor and valid-0x88 promotion predicate; existing full HCE/PVS/QS/TT/learners/SMP and fixed ALONE retained; fixed LP64 mixer literals |
+| B | 5,146 B | 1,050 B | Worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained; literal include gaps compacted; clock-first SEE poll; cancellation timing changed |
+| C | 4,952 B | 856 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners retained; literal include gaps compacted; fixed LP64 mixer literals |
 | D scalar / HQ | 5,947 / 6,169 B | 1,851 / 2,073 B | Consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained |
-| E | 5,014 B | 918 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; literal include gaps compacted; fixed LP64 mixer literals |
-| F full (default) | 4,553 B | 457 B | Explicit no-preadd hash policy with new repetition/context/TT/correction buckets; terminal legal-loop sharing and integer forms; packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; default size target remains open; literal forms, correction clamp, private piece-index calls and fixed history token compacted |
+| E | 5,011 B | 915 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; literal include gaps compacted; fixed LP64 mixer literals |
+| F full (default) | 4,548 B | 452 B | Explicit no-preadd hash policy with new repetition/context/TT/correction buckets; terminal legal-loop sharing and integer forms; packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; default size target remains open; literal forms, correction clamp, private piece-index calls and fixed history token compacted |
 | F material/noise (opt-in) | 4,325 B | 229 B | Unsigned64 number forms and two fixed TT18 casts omitted; one-state material classifier, fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted; literal include gaps compacted; fixed LP64 mixer literals |
 | F material/move-TT (opt-in) | 4,051 B | 0 B (45 B spare) | Unsigned64 number forms; one-state material classifier, fixed material, main-owned token cursor, terminal-loop sharing and coherent atomic64 Move17/high46 plus index18; local size eligibility only, full F and strength acceptance remain open; fixed LP64 mixer literals |
 
@@ -6472,3 +6472,62 @@ and normal intake are pending, so those costs are not in the current table.
 The all-family goal remains active beyond size passage. Final resources,
 target hardware/many-core behavior, strength/candidate acceptance and D's
 eligible own-ELF still require evidence. Training/data/AWS/paid runs stay out.
+
+## Common clock presence and E19 physical slots — 2026-10-21
+
+All five source-compiled default families encode absent own time as UINT64_MAX
+and use unsigned complement as the presence test. The actual parser admits only
+0..INT64_MAX; invalid/missing/overflow input still returns0 and a selected-time
+assignment still marks presence. Three fixed fragments remove12B per family.
+The pure tracked helper follows each family's last shipping stage. DEV bypasses
+it, and F's optional selection bypasses it while its separate full reference
+includes it. Earlier raw policy preimages remain unchanged.
+
+The V3 fixture ports clock_gettime only inside the actual included candidate TU;
+it does not define libc's real clock symbol or intercept sanitizer/runtime clocks.
+Actual old/new GO functions compare20 literal cases per family, including both
+sides, absent/zero/duplicate/malformed/high-bit/overflow values and budget caps.
+Actual token consumption, Board/history/worker storage preservation, legal
+fallback, deadline and idle publication fields match. Fatal ASan/UBSan passes
+five compiles/runs,100 comparisons, stderr empty, no timeout or remaining group.
+This explicit idle adapter starts no production main or worker and establishes
+no concurrent worker completion or timing equivalence. Receipt143004B SHA:
+5699d958dd4a0b41818a4967f0068884c3e04c8e0a5a912c3dfd14cdbac8ecc0.
+
+E separately inserts fixed int16 zero slots0/6 into its physical table and
+remaps four fixed source regions. The logical19 coefficients are extracted as
+physical[1:6]+physical[7:21], retaining signed16-LE SHA
+a5bb11099b62489aca43a011619e15076b0637b2f2e460d89772162965cd5424.
+There is no model/parameter increase: full nonlinear E19 and all five ordering
+features remain. Actual d callers supply nonzero signed1..6; zero/invalid d is
+not newly admitted. R handles victim0..6, EP and promotions through its actual
+caller contract. One fatal SAN fixture checks1536 piece operands,27 independent
+order cases,26 accepted make children and78 bounded numeric leaf cases, including
+both clamps and nonadditivity. Numeric cache seeds are not reachable-board
+claims. Receipt9628B SHA:
+584911f5c954f83d37ecd65bda002a17b10e0fbbf5d16a1cbe6d9ad2ff794e85.
+
+E's physical-slot stage follows clock presence and preserves all five gaps with
+an exact inverse. Solo clock costs5013B; solo slots5012B; actual composition5011B
+is1B below the measured solo minimum, with no additive saving assumption.
+Composition source10400B, native26400B has a new identity; first-cost receipt
+20469B SHA aafd59d7ef368f12d1934c627f3c976bb4053f008552a44087ed16f8a22ec9c6.
+Other whole results are A4610/B5146/C4952/fullF4548B. All resources/features and
+full DEV identities remain; natives have changed rather than being admitted
+under metadata exceptions. F optional4325/4051B outputs remain entire-byte equal.
+
+All seven ordinary --dev builders reproduce shipping/DEV twice and unchanged
+selected verifiers pass14 actual new quit/EOF sessions: exact restoration,
+stable3 TIDs, legal clocked/bare finite moves, private-path/helper absence,
+closing result, reader EOF and physical exit. Producing input readback and saved
+recipes precede receipt-only annotations. Summary15766B SHA:
+8e30da1a34a87d6f68cc8a42aafab4e43cb49049ef38510cfb008776095e01b9.
+
+The latest TCEC4k page was reread on2026-10-21 and still resolves to oldid7853:
+[4k-specific rules](https://wiki.chessdom.org/TCEC_4k_Rules#7._4k_specific_rules).
+Its4096B single-file, startup60s/cleanup, minimal UCI/toleration and separate
+self-contained own-ELF boundaries remain the applicable contracts. No ordinary
+league option inventory is added. External4ku/ice4 reference source stays outside
+Git. Full F still needs452B; the all-family goal continues beyond size passage.
+Final target resources, many-core behavior, strength/candidate acceptance and
+D's eligible own-ELF remain separate. Training/data/AWS/paid runs stay excluded.

@@ -45,7 +45,8 @@
     "engines/scripts/shipping_refinements.py": "6ecb62499035cedaf6308539de0744a011f7b183ca768984462c4f0435406804",
     "engines/scripts/shipping_material_state.py": "eded8d82eed40c383564603a51582e829ff9de2fc626bdc11eab26e6c424b380",
     "engines/scripts/shipping_integer_forms.py": "a989dc2fd2ea60d9ab786cf51874ea646363e6f5731a302e1335cbb283fbcd93",
-    "engines/scripts/shipping_mixer_literals.py": "7b25cb806a51cad9e867ebc588bcb99677c9e2f9d0a5df0b31d019e22bc6d114"
+    "engines/scripts/shipping_mixer_literals.py": "7b25cb806a51cad9e867ebc588bcb99677c9e2f9d0a5df0b31d019e22bc6d114",
+    "engines/scripts/shipping_clock.py": "46c19879deae1d056f4b059c6c7d9667a3e935110dfb33015b29fd0dec4d8c43"
   },
   "fixed_renames": [
     [
@@ -379,18 +380,18 @@
   },
   "expected": {
     "readable_sha256": "71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734",
-    "source_bytes": 9052,
-    "source_sha256": "d1d490074754c3468785b1cd7f8f3c841f3ed1115933003fcc06edc5314e452c",
+    "source_bytes": 9040,
+    "source_sha256": "624ad8a28a9d555fda37efa82b468fce09f98d4c5b86b20739ee2e6f589ff5a8",
     "native_bytes": 18576,
-    "native_sha256": "ca24e8e88d15a81c635d7f762b972509443930cec19e1daa8b5e547458551c53",
-    "whole_bytes": 4613,
-    "whole_sha256": "e342aa55609cbb4a50ad59bb982ff5e749fb06b7ab823bff3904cbaa492ae1d6",
-    "bootstrap_sha256": "893a4dab018ede44a381f469108d2265bc930dcd98f8cff51156187fbdd21ecf",
+    "native_sha256": "b8d29dd14f32a58c4e930630da18bb3c406a87ce9600dbf99ac925ffa1b94ee9",
+    "whole_bytes": 4610,
+    "whole_sha256": "aebb5005720b1793d1bc963c59b73ae481f857a3565172fe3946fae2b0f57bc0",
+    "bootstrap_sha256": "44d230691ff07d1738c8640edd28dc75fd32e9c51e4e69676337c448b0bd735d",
     "dev_source_sha256": "41ab9f0f5d28183b76833d038c40e0bb6a2ee6ef9303766c293dd577680a4c9c",
     "dev_native_sha256": "8733dbf0814a2c2545251f6e0e17d243ecfd41fce7853fb325ca9720fedd1102",
     "input_profile_readable_bytes": 27687,
     "input_profile_readable_sha256": "63821a63cbf6507393e0617da9f611b778ada46c9a89b49fdefc8996bb461e2c",
-    "bootstrap_bytes": 10022
+    "bootstrap_bytes": 10010
   },
   "local_input_sha256": {
     "engine.c": "71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734",
@@ -1394,6 +1395,74 @@
           "actual_quit_EOF_sessions": 2,
           "source_native_entire_bytes_unchanged": true
         }
+      },
+      "annotation_only": true
+    }
+  },
+  "clock_presence": {
+    "scope": "fixed full-profile selected-time presence sentinel; same numeric/token/budget rules; new native/whole, normal reproduction and selected execution pending",
+    "previous_expected": {
+      "readable_sha256": "71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734",
+      "source_bytes": 9052,
+      "source_sha256": "d1d490074754c3468785b1cd7f8f3c841f3ed1115933003fcc06edc5314e452c",
+      "native_bytes": 18576,
+      "native_sha256": "ca24e8e88d15a81c635d7f762b972509443930cec19e1daa8b5e547458551c53",
+      "whole_bytes": 4613,
+      "whole_sha256": "e342aa55609cbb4a50ad59bb982ff5e749fb06b7ab823bff3904cbaa492ae1d6",
+      "bootstrap_sha256": "893a4dab018ede44a381f469108d2265bc930dcd98f8cff51156187fbdd21ecf",
+      "dev_source_sha256": "41ab9f0f5d28183b76833d038c40e0bb6a2ee6ef9303766c293dd577680a4c9c",
+      "dev_native_sha256": "8733dbf0814a2c2545251f6e0e17d243ecfd41fce7853fb325ca9720fedd1102",
+      "input_profile_readable_bytes": 27687,
+      "input_profile_readable_sha256": "63821a63cbf6507393e0617da9f611b778ada46c9a89b49fdefc8996bb461e2c",
+      "bootstrap_bytes": 10022
+    },
+    "helper_sha256": "46c19879deae1d056f4b059c6c7d9667a3e935110dfb33015b29fd0dec4d8c43",
+    "component_first_cost": {
+      "receipt": {
+        "path": "/home/stemxstudio/rove4k-common-clock-presence-first-cost-20261021-v1/A/cost.json",
+        "bytes": 14658,
+        "sha256": "f537bd1f1e3cbb4d138bda4d3d297a0c08dbe3b7e64305a49b5b3c63f422d749"
+      },
+      "source_delta": -12,
+      "whole_delta": -3,
+      "native_same_full_bytes": false,
+      "metadata_exception_applied": false
+    },
+    "focused_idle_components": {
+      "receipt": {
+        "path": "/home/stemxstudio/rove4k-common-clock-presence-proof-run-20261021-v3/results.json",
+        "bytes": 143004,
+        "sha256": "5699d958dd4a0b41818a4967f0068884c3e04c8e0a5a912c3dfd14cdbac8ecc0"
+      },
+      "fixture": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-common-clock-presence-proof-source-20261021-v3/fixture.c",
+        "bytes": 15074,
+        "sha256": "8f6a560758e67f29f360e0b68df7ee77b60566f51df5a5de17493d11a768a39d"
+      },
+      "manifest": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-common-clock-presence-proof-source-20261021-v3/manifest.json",
+        "bytes": 28155,
+        "sha256": "9e895b57e0d50b1cb5d76f3f24851b89c178c92c44a8f713e8892360aa853f5e"
+      },
+      "status": "PASS first ASanUBSan run; all5 families,20 inputs each",
+      "this_family_inputs": 20,
+      "actual_production_main_calls": 0,
+      "real_workers": 0,
+      "scope": "actual GO/nt/numeric/fallback with defined idle-pool adapter; frozen1234ms clock; no real worker completion/concurrent-stop/elapsed/performance claim"
+    },
+    "declared_selected_time_state": "UINT64_MAX absent; numeric values0..INT64_MAX include invalid/missing0; selected time assignment present including0; ~time tests presence",
+    "DEV_stage": "bypass; existing exact old DEV source/native identities retained; clock metadata absent with common metadata None",
+    "normal_validation": {
+      "status": "PASS",
+      "summary": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-clock-zero-normal-20261021-evidence/summary.json",
+        "bytes": 15766,
+        "sha256": "8e30da1a34a87d6f68cc8a42aafab4e43cb49049ef38510cfb008776095e01b9"
+      },
+      "producing_recipe": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-clock-zero-normal-20261021-evidence/A-producing-recipe.json",
+        "bytes": 70309,
+        "sha256": "6fef8e2d5dab76b4785b8b6db4959f9af05e0de47815426492891d08eea1206c"
       },
       "annotation_only": true
     }

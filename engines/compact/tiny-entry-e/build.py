@@ -93,6 +93,8 @@ def main():
         late_forms=module('entry_late_forms',frozen/'shipping_compaction.py')
         include_forms=module('entry_include_forms',frozen/'shipping_includes.py')
         mixer_forms=module('entry_mixer_literals',frozen/'shipping_mixer_literals.py')
+        clock_forms=module('entry_clock_presence',frozen/'shipping_clock.py')
+        zero_slots=module('entry_E_model_zero_slots',frozen/'shipping_zero_slots.py')
         alpha=module('entry_fixed_shipping_alpha',frozen/'fixed_shipping_alpha.py').transform_source
         scope=module('entry_fixed_scope_names',frozen/'shipping_scope.py').transform_source
         core=module('entry_fixed_shipping_core',frozen/'shipping_core.py').transform_source
@@ -135,6 +137,10 @@ def main():
                 common_metadata['literal_include_forms']=include_metadata
                 data,final_metadata=mixer_forms.transform_source(data,family='E')
                 common_metadata['mixer_literals']=final_metadata
+                data,clock_metadata=clock_forms.transform_source(data,family='E')
+                common_metadata['clock_presence']=clock_metadata
+                data,zero_metadata=zero_slots.transform_source(data)
+                common_metadata['model_zero_slots']=zero_metadata
             return data,observations,alpha_metadata,scope_metadata,core_metadata,input_metadata,model_metadata,type_metadata,global_names_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())

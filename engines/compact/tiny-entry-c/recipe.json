@@ -69,7 +69,8 @@
     "engines/scripts/shipping_integer_forms.py": "a989dc2fd2ea60d9ab786cf51874ea646363e6f5731a302e1335cbb283fbcd93",
     "engines/scripts/shipping_compaction.py": "47977f6c944978675f1f37be733270c30ff39fc2f2c9f80c9e18243d496912c5",
     "engines/scripts/shipping_includes.py": "d7c3ad6e7811d848b0d6bab7331c929ab2c3175cd030438ddc81d22ea8cdf4bc",
-    "engines/scripts/shipping_mixer_literals.py": "7b25cb806a51cad9e867ebc588bcb99677c9e2f9d0a5df0b31d019e22bc6d114"
+    "engines/scripts/shipping_mixer_literals.py": "7b25cb806a51cad9e867ebc588bcb99677c9e2f9d0a5df0b31d019e22bc6d114",
+    "engines/scripts/shipping_clock.py": "46c19879deae1d056f4b059c6c7d9667a3e935110dfb33015b29fd0dec4d8c43"
   },
   "compression": {
     "format": "lzma-alone",
@@ -86,16 +87,16 @@
   },
   "expected": {
     "readable_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
-    "source_bytes": 10084,
-    "source_sha256": "ed5b5fba543a7ab3a208af466e14744d0339447b0b812448a5092a068cd9715b",
+    "source_bytes": 10072,
+    "source_sha256": "fc2209ce96c714d3828790cae882051f8cbf8980f4e874381954280f0c9d17a3",
     "native_bytes": 26368,
-    "native_sha256": "f3ab79485ca2f6dd50257cc36bba100b834fddbdebf33be84f0a363fb5b7c9c3",
-    "whole_bytes": 4954,
-    "whole_sha256": "f0ee42134a2d8604a3f363b0f9e9b350bf56f3de89ba166fadb35a0ce4f6b545",
-    "bootstrap_sha256": "c8eeba82b0c8c7f445c296e8d66f2dc3ef1a4d92857f1c01aa3442b8445d52be",
+    "native_sha256": "cffa6827915d2ee4c0dfcdc941e773c3157a07db6b153437c483d2f26e7c50f2",
+    "whole_bytes": 4952,
+    "whole_sha256": "824609ce753cb0e18d51db0532c0139e2a134113b7731393182bee4b537d78d0",
+    "bootstrap_sha256": "6492de5a54f86ee2287b06b724f8b290b13d3b8fcaac58ac42d93a7fd9969dda",
     "dev_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
     "dev_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c",
-    "bootstrap_bytes": 11139
+    "bootstrap_bytes": 11127
   },
   "local_input_sha256": {
     "engine.c": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
@@ -1099,6 +1100,72 @@
           "actual_quit_EOF_sessions": 2,
           "source_native_entire_bytes_unchanged": true
         }
+      },
+      "annotation_only": true
+    }
+  },
+  "clock_presence": {
+    "scope": "fixed full-profile selected-time presence sentinel; same numeric/token/budget rules; new native/whole, normal reproduction and selected execution pending",
+    "previous_expected": {
+      "readable_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
+      "source_bytes": 10084,
+      "source_sha256": "ed5b5fba543a7ab3a208af466e14744d0339447b0b812448a5092a068cd9715b",
+      "native_bytes": 26368,
+      "native_sha256": "f3ab79485ca2f6dd50257cc36bba100b834fddbdebf33be84f0a363fb5b7c9c3",
+      "whole_bytes": 4954,
+      "whole_sha256": "f0ee42134a2d8604a3f363b0f9e9b350bf56f3de89ba166fadb35a0ce4f6b545",
+      "bootstrap_sha256": "c8eeba82b0c8c7f445c296e8d66f2dc3ef1a4d92857f1c01aa3442b8445d52be",
+      "dev_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
+      "dev_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c",
+      "bootstrap_bytes": 11139
+    },
+    "helper_sha256": "46c19879deae1d056f4b059c6c7d9667a3e935110dfb33015b29fd0dec4d8c43",
+    "component_first_cost": {
+      "receipt": {
+        "path": "/home/stemxstudio/rove4k-common-clock-presence-first-cost-20261021-v1/C/cost.json",
+        "bytes": 15412,
+        "sha256": "70917b296215bb23d50f42b4ba4193d69af50a16211d863dca68e8dfa390bdf2"
+      },
+      "source_delta": -12,
+      "whole_delta": -2,
+      "native_same_full_bytes": false,
+      "metadata_exception_applied": false
+    },
+    "focused_idle_components": {
+      "receipt": {
+        "path": "/home/stemxstudio/rove4k-common-clock-presence-proof-run-20261021-v3/results.json",
+        "bytes": 143004,
+        "sha256": "5699d958dd4a0b41818a4967f0068884c3e04c8e0a5a912c3dfd14cdbac8ecc0"
+      },
+      "fixture": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-common-clock-presence-proof-source-20261021-v3/fixture.c",
+        "bytes": 15074,
+        "sha256": "8f6a560758e67f29f360e0b68df7ee77b60566f51df5a5de17493d11a768a39d"
+      },
+      "manifest": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-common-clock-presence-proof-source-20261021-v3/manifest.json",
+        "bytes": 28155,
+        "sha256": "9e895b57e0d50b1cb5d76f3f24851b89c178c92c44a8f713e8892360aa853f5e"
+      },
+      "status": "PASS first ASanUBSan run; all5 families,20 inputs each",
+      "this_family_inputs": 20,
+      "actual_production_main_calls": 0,
+      "real_workers": 0,
+      "scope": "actual GO/nt/numeric/fallback with defined idle-pool adapter; frozen1234ms clock; no real worker completion/concurrent-stop/elapsed/performance claim"
+    },
+    "declared_selected_time_state": "UINT64_MAX absent; numeric values0..INT64_MAX include invalid/missing0; selected time assignment present including0; ~time tests presence",
+    "DEV_stage": "bypass; existing exact old DEV source/native identities retained; clock metadata absent with common metadata None",
+    "normal_validation": {
+      "status": "PASS",
+      "summary": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-clock-zero-normal-20261021-evidence/summary.json",
+        "bytes": 15766,
+        "sha256": "8e30da1a34a87d6f68cc8a42aafab4e43cb49049ef38510cfb008776095e01b9"
+      },
+      "producing_recipe": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-clock-zero-normal-20261021-evidence/C-producing-recipe.json",
+        "bytes": 65532,
+        "sha256": "0c4c86d63555293246b9be37ceff2e15ef8409cc330b115f21ff2361f2fd6653"
       },
       "annotation_only": true
     }

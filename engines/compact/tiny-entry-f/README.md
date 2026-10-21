@@ -1,3 +1,32 @@
+# Maintained F: compact clock presence — 2026-10-21
+
+Complete file **4548 B**, compact C **8859 B**.
+Use UINT64_MAX for absent selected time and complement it for the presence
+test. Actual numeric acceptance remains0..INT64_MAX; invalid/missing values
+still become0 and count as a selected-time assignment. Token consumption,
+budget caps, fallback and epoch publication remain. This removes12 raw
+source bytes; the native has a new identity. DEV bypass remains exact.
+
+Full/default retains positional HCE, all learners, full-key bound TT,
+full-depth MTD(f), completion witness and SMP. The new clock stage also
+runs on separate full references; selected optional4325/4051B files are
+entire-byte unchanged. Default still needs452B.
+
+Fatal ASan/UBSan compares20 old/new idle GO transitions per family. E also
+checks1536 piece operands,27 order cases,26 legal children and78 nonlinear
+leaf cases. Actual production main/workers are excluded from those fixtures.
+Ordinary --dev regeneration then reproduces shipping/DEV twice for all seven
+selections; unchanged selected verifiers pass14 actual quit/EOF sessions.
+Normal summary SHA-256:
+`8e30da1a34a87d6f68cc8a42aafab4e43cb49049ef38510cfb008776095e01b9`.
+
+Current source SHA-256: `e868953700cc0a319b8293cde473d9c0fd44a29e5105f25e1cc114e601740f59`.
+Current whole SHA-256: `d4487fe3c04f12f5bb2f928891e0986a5b98c7ac8dd34a4ad511f3ee1e42e336`.
+
+Local two-worker/TT18 checks do not establish final target resources,
+many-core behavior or strength. The full A–F goal and compression beyond
+size passage remain active. Older sections retain their checkpoint identities.
+
 # Maintained F: fixed source forms — 2026-10-21
 
 Full/default whole **4553 B**, source **8871 B**. Inline the pure private

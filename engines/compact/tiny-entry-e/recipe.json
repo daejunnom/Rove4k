@@ -63,7 +63,9 @@
     "engines/scripts/shipping_integer_forms.py": "a989dc2fd2ea60d9ab786cf51874ea646363e6f5731a302e1335cbb283fbcd93",
     "engines/scripts/shipping_compaction.py": "47977f6c944978675f1f37be733270c30ff39fc2f2c9f80c9e18243d496912c5",
     "engines/scripts/shipping_includes.py": "d7c3ad6e7811d848b0d6bab7331c929ab2c3175cd030438ddc81d22ea8cdf4bc",
-    "engines/scripts/shipping_mixer_literals.py": "7b25cb806a51cad9e867ebc588bcb99677c9e2f9d0a5df0b31d019e22bc6d114"
+    "engines/scripts/shipping_mixer_literals.py": "7b25cb806a51cad9e867ebc588bcb99677c9e2f9d0a5df0b31d019e22bc6d114",
+    "engines/scripts/shipping_clock.py": "46c19879deae1d056f4b059c6c7d9667a3e935110dfb33015b29fd0dec4d8c43",
+    "engines/compact/tiny-entry-e/shipping_zero_slots.py": "f15f17881ab84eaee88f130b782b23b2019e15dd2d44302fb26bbe9e8ea2ec6c"
   },
   "compression": {
     "format": "lzma-alone",
@@ -81,18 +83,18 @@
   "expected": {
     "readable_bytes": 28001,
     "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
-    "source_bytes": 10440,
-    "source_sha256": "c65f0d610acbba9ad2dbfad230a18fb8c0a15d1eab995675a58ea71c5b5352e8",
+    "source_bytes": 10400,
+    "source_sha256": "431bdde48fd1f2d450bb92dd6c03e3309017158353de06bfe4fffd0bc96c839e",
     "native_bytes": 26400,
-    "native_sha256": "94dfc1c9c31e4e88f740b3b2d1f02e17ffe4fe03ab1360575049f50b91028bba",
-    "whole_bytes": 5014,
-    "whole_sha256": "1a17ea1f002459a3d03969165ad562ef24040ea78d0c587398590893b2f807f0",
-    "bootstrap_sha256": "54d25f13bd1962b321bb32398c0f946378591a3411c693bb1449d756be4b0480",
+    "native_sha256": "dd9015f8a5960a4595d2da5dfc09d6fae24bed1d2e7b1698b1e50245d42da0e0",
+    "whole_bytes": 5011,
+    "whole_sha256": "9bcc5310b5410f72da9cab0a1156d1079ad6cb9344914e77f68cccc5c2442f04",
+    "bootstrap_sha256": "252a230c584fc8a8d9ab92ae48d1df0fc63da2f2fd65ad439dfe81f6adaad4f9",
     "dev_source_bytes": 21314,
     "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
     "dev_native_bytes": 31376,
     "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
-    "bootstrap_bytes": 11485
+    "bootstrap_bytes": 11445
   },
   "local_input_sha256": {
     "engine.c": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
@@ -1042,6 +1044,113 @@
           "actual_quit_EOF_sessions": 2,
           "source_native_entire_bytes_unchanged": true
         }
+      },
+      "annotation_only": true
+    }
+  },
+  "clock_presence": {
+    "helper": "engines/scripts/shipping_clock.py",
+    "helper_sha256": "46c19879deae1d056f4b059c6c7d9667a3e935110dfb33015b29fd0dec4d8c43",
+    "input_source_bytes": 10440,
+    "input_source_sha256": "c65f0d610acbba9ad2dbfad230a18fb8c0a15d1eab995675a58ea71c5b5352e8",
+    "output_source_bytes": 10428,
+    "output_source_sha256": "072a0757878a53be119c9184f84ff8b2abe99d95ed702af2eaa15c53bc0350c9",
+    "fixed_regions": 3,
+    "cost": {
+      "path": "/home/stemxstudio/rove4k-common-clock-presence-first-cost-20261021-v1/E/cost.json",
+      "bytes": 15380,
+      "sha256": "b1b14aedf51a18e17df0d79fb1800aa0ea9c79743d701c39234b70d4ba867b2c"
+    },
+    "solo_whole_bytes": 5013,
+    "solo_whole_sha256": "20a73262154afa2a379c67386c6a9553f92489f5635784ce06b3ec7c36c0f89f",
+    "focused_clock_proof": {
+      "path": "/home/stemxstudio/rove4k-common-clock-presence-proof-run-20261021-v3/results.json",
+      "bytes": 143004,
+      "sha256": "5699d958dd4a0b41818a4967f0068884c3e04c8e0a5a912c3dfd14cdbac8ecc0"
+    },
+    "scope": "finite numeric-domain and idle parser/budget function proof; no actual main/worker/SMP or normal qualification is inferred by this annotation",
+    "normal_validation": {
+      "status": "PASS",
+      "summary": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-clock-zero-normal-20261021-evidence/summary.json",
+        "bytes": 15766,
+        "sha256": "8e30da1a34a87d6f68cc8a42aafab4e43cb49049ef38510cfb008776095e01b9"
+      },
+      "producing_recipe": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-clock-zero-normal-20261021-evidence/E-producing-recipe.json",
+        "bytes": 57501,
+        "sha256": "552edc1be3559d73af1cce407ee303149df9191e78b2f6ccb586bb8c03dc7000"
+      },
+      "annotation_only": true
+    }
+  },
+  "model_zero_slots": {
+    "helper": "shipping_zero_slots.py",
+    "helper_sha256": "f15f17881ab84eaee88f130b782b23b2019e15dd2d44302fb26bbe9e8ea2ec6c",
+    "input_source_bytes": 10428,
+    "input_source_sha256": "072a0757878a53be119c9184f84ff8b2abe99d95ed702af2eaa15c53bc0350c9",
+    "output_source_bytes": 10400,
+    "output_source_sha256": "431bdde48fd1f2d450bb92dd6c03e3309017158353de06bfe4fffd0bc96c839e",
+    "fixed_regions": 4,
+    "fixed_gaps": 5,
+    "full_inverse_and_byte_complement": true,
+    "model_id": "e-hand-quadratic-19-1",
+    "logical_coefficient_count": 19,
+    "physical_int16_elements": 21,
+    "fixed_nonparameter_zero_slots": [
+      0,
+      6
+    ],
+    "logical_extraction": "physical[1:6]+physical[7:21]",
+    "signed16_le_sha256": "a5bb11099b62489aca43a011619e15076b0637b2f2e460d89772162965cd5424",
+    "caller_domain": "d reached by H only for nonzero signed1..6; R moving1..6/victim0..6 incl EP/pseudo king and promotion2..5; no v0/invalid d extension",
+    "solo_cost": {
+      "path": "/home/stemxstudio/rove4k-e-material-zero-slots-first-cost-20261021/cost.json",
+      "bytes": 12756,
+      "sha256": "d4da79845630bfcc26bb422bf5e4b11e94f135f29adc59155e22c39ffbc26674"
+    },
+    "solo_whole_bytes": 5012,
+    "solo_whole_sha256": "736c734bf51973a7458f159c4291a96c073778fe45779c025494198055c95b02",
+    "composed_cost": {
+      "path": "/home/stemxstudio/rove4k-e-clock-zero-composition-first-cost-20261021-v1/cost.json",
+      "bytes": 20469,
+      "sha256": "aafd59d7ef368f12d1934c627f3c976bb4053f008552a44087ed16f8a22ec9c6"
+    },
+    "composed_whole_bytes": 5011,
+    "composed_whole_sha256": "9bcc5310b5410f72da9cab0a1156d1079ad6cb9344914e77f68cccc5c2442f04",
+    "composed_vs_actual_minimum_solo_bytes": -1,
+    "scope": "same19 logical model/5 ordering/nonlinear expression; pure composition cost versus actual solo minimum, no additive saving or new function/runtime/strength qualification. Component model proof and ordinary normal receipts are recorded separately by root.",
+    "component_validation": {
+      "status": "PASS first fatal ASanUBSan compile/run",
+      "receipt": {
+        "path": "/home/stemxstudio/rove4k-e-material-zero-slots-focused-run-20261021-v1/results.json",
+        "bytes": 9628,
+        "sha256": "584911f5c954f83d37ecd65bda002a17b10e0fbbf5d16a1cbe6d9ad2ff794e85"
+      },
+      "cases": {
+        "complete": true,
+        "logical_coefficients": 19,
+        "fixed_zero_slots": 2,
+        "piece_operand_cases": 1536,
+        "order_cases": 27,
+        "legal_children": 26,
+        "numeric_leaf_cases": 78,
+        "engine_main_calls": 0,
+        "worker_starts": 0
+      },
+      "scope": "actual standalone zero-slot d/S/R and make consumers versus old references; composition reuses unchanged four model regions with exact source inverse; no main/worker/TT/pool or strength claim"
+    },
+    "normal_validation": {
+      "status": "PASS",
+      "summary": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-clock-zero-normal-20261021-evidence/summary.json",
+        "bytes": 15766,
+        "sha256": "8e30da1a34a87d6f68cc8a42aafab4e43cb49049ef38510cfb008776095e01b9"
+      },
+      "producing_recipe": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-clock-zero-normal-20261021-evidence/E-producing-recipe.json",
+        "bytes": 57501,
+        "sha256": "552edc1be3559d73af1cce407ee303149df9191e78b2f6ccb586bb8c03dc7000"
       },
       "annotation_only": true
     }

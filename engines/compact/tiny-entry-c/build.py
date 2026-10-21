@@ -102,6 +102,7 @@ def main():
         signed_vector=module('entry_fixed_C_signed_vector',frozen/'shipping_signed_vector.py').transform_source
         types=module('entry_C_shipping_types',frozen/'shipping_types.py').transform_source
         global_names=module('entry_C_global_names',frozen/'shipping_global_names.py').transform_source
+        clock_form=module('entry_clock_sentinel',frozen/'shipping_clock.py')
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
         if template.count(marker)!=1 or len(prefix)!=77:raise ValueError('bootstrap recipe changed')
@@ -142,6 +143,8 @@ def main():
                 common_metadata['literal_include_forms']=include_metadata
                 data,final_metadata=mixer_forms.transform_source(data,family='C')
                 common_metadata['mixer_literals']=final_metadata
+                data,clock_metadata=clock_form.transform_source(data,family='C')
+                common_metadata['clock_presence']=clock_metadata
             return data,observations,alpha_metadata,scope_metadata,core_metadata,simd_metadata,input_metadata,material_metadata,incremental_metadata,signed_metadata,type_metadata,global_names_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())

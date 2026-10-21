@@ -1,3 +1,27 @@
+# Maintained B: compact clock presence — 2026-10-21
+
+Complete file **5146 B**, compact C **10565 B**.
+Use UINT64_MAX for absent selected time and complement it for the presence
+test. Actual numeric acceptance remains0..INT64_MAX; invalid/missing values
+still become0 and count as a selected-time assignment. Token consumption,
+budget caps, fallback and epoch publication remain. This removes12 raw
+source bytes; the native has a new identity. DEV bypass remains exact.
+
+Fatal ASan/UBSan compares20 old/new idle GO transitions per family. E also
+checks1536 piece operands,27 order cases,26 legal children and78 nonlinear
+leaf cases. Actual production main/workers are excluded from those fixtures.
+Ordinary --dev regeneration then reproduces shipping/DEV twice for all seven
+selections; unchanged selected verifiers pass14 actual quit/EOF sessions.
+Normal summary SHA-256:
+`8e30da1a34a87d6f68cc8a42aafab4e43cb49049ef38510cfb008776095e01b9`.
+
+Current source SHA-256: `6124424eff02466a28e900ca7abf0f8ff36f74d39de020e4c83b6909b95387cf`.
+Current whole SHA-256: `df570da8221bf92fe3f3f1d99df997955d24860ec1d4bf933ea3dd2dceda9c51`.
+
+Local two-worker/TT18 checks do not establish final target resources,
+many-core behavior or strength. The full A–F goal and compression beyond
+size passage remain active. Older sections retain their checkpoint identities.
+
 # Maintained B: smaller plain-Popen cleanup guard — 2026-10-21
 
 Whole **5148 B**. The current template/script loses12 raw bytes
