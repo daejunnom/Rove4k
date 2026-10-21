@@ -190,7 +190,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | A | 4,610 B | 514 B | Unsigned64 number forms; one-state material classifier; main-owned token cursor and valid-0x88 promotion predicate; existing full HCE/PVS/QS/TT/learners/SMP and fixed ALONE retained; fixed LP64 mixer literals |
 | B | 5,146 B | 1,050 B | Worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained; literal include gaps compacted; clock-first SEE poll; cancellation timing changed |
 | C | 4,952 B | 856 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners retained; literal include gaps compacted; fixed LP64 mixer literals |
-| D scalar / HQ | 5,947 / 6,169 B | 1,851 / 2,073 B | Consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained |
+| D scalar / HQ | 5,937 / 6,148 B | 1,841 / 2,052 B | Consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained |
 | E | 5,011 B | 915 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; literal include gaps compacted; fixed LP64 mixer literals |
 | F full (default) | 4,537 B | 441 B | Explicit no-preadd hash policy with new repetition/context/TT/correction buckets; terminal legal-loop sharing and integer forms; packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; default size target remains open; literal forms, correction clamp, private piece-index calls and fixed history token compacted |
 | F material/noise (opt-in) | 4,325 B | 229 B | Unsigned64 number forms and two fixed TT18 casts omitted; one-state material classifier, fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted; literal include gaps compacted; fixed LP64 mixer literals |
@@ -6578,3 +6578,42 @@ Full/default4537B still needs441B, retaining full HCE, all learners, coherent
 full-key bound TT, full-depth MTD(f), completion witness and SMP. A/B/C/E and D
 stay at their preceding maintained values. Goal and compression beyond size
 passage remain active; resources/many-core/strength/eligibility remain separate.
+
+## D packed HCE coefficient table — 2026-10-21
+
+Only board.c value()330→318B changes. A static seven-int table packs material,
+advance and biased center coefficients into disjoint10/3/4-bit fields. Encoding
+P=M+(A<<10)+((C+3)<<13) and decoding P&1023, (P>>10)&7, (P>>13)-3 preserve
+all original coefficients. P is signed nonnegative<=98624; empty24576 and king0
+are distinct. Board.v remains decoded signed int. Each value's abs<=910 and a
+conservative64 occupied valid squares bound58240 fits int32, while a legal32-piece
+position bound is29120. No packed cache or carry/unsigned/narrow16 policy appears.
+
+Actual old/new definition-name-only functions pass832 valid piece/square cases
+against a separate M/A/C oracle and bit unpack in one fatal host SAN compile/run.
+This component does not execute put/cache/Board/search/main/loader. Receipt11043B
+SHA8f81b48f0ff8be3a073ef5af80ba1e5e050a63d1e82f34af8b0ee1920174722d.
+Only the coefficient function changes; hash/update/full HCE/PVS/QS/learners,
+coherent full-key atomic16 TT, SMP and explicit SSE4.2/CX16 profile remain.
+
+Native scalar7740→7708B and HQ8128→8096B; text falls37B each. Fixed21 packet
+4810→4800B and5032→5011B, nonpacket1137B unchanged, whole5947→5937B and
+6169→6148B. Actual cost native2/encode2/shipping-loader2/control0 and Python
+old/new restoration4 pass. Cost34687B SHA:
+ce4028902b8334190fbe0db2a5fbc30f4c70c242b2595473d3d1bbc91f6ef953.
+Audit-loader discovery compiles two exact CHECKPOINT images without executing
+them. Root independently reads all eight files, raw ELF64/PHDR, entry offsets,
+RX/BSS/guard geometry and packet suffix. Exact identity/form/entry/model literals
+and verifier EXPECTED follow these bytes; inspection/lifecycle bodies are unchanged.
+
+One ordinary builder reproduces both native/whole twice and audit once. The
+selected positive verifier passes pre-entry2, quit/EOF4 sessions and12 legal GO,
+exact restored RX, zero BSS/padding, guards/NX, stable3 TIDs, stdio/no observed
+helper, reader EOF and physical settlement, with no forced cleanup. No negative
+decoder, RIE/ptrace/register/personality campaign or game is run. Producing21 and
+build-input17 readback precede README/recipe-only annotations. Final index SHA:
+8518028b77b41e4ae813ee3e3d2b7b47281f04ce838f9c7153f13c879a2e7f37.
+
+Full F remains4537B/441B over;
+all-family goal and compression beyond size passage remain active. Final target
+resources/many-core/strength and own-ELF4KiB eligibility remain separate.

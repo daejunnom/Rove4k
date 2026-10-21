@@ -11,11 +11,11 @@ uint64_t mix(uint64_t x){
     return x^(x>>31);
 }
 int value(int v,int q){
-    static const int material[7]={0,100,320,330,500,900,0};
-    int a=abs(v),rank=q>>4,file=q&7,advance=v>0?rank:7-rank;
+    static const int material[7]={24576,48228,98624,65866,27124,41860,0};
+    int a=material[abs(v)],rank=q>>4,file=q&7,advance=v>0?rank:7-rank;
     int center=7-abs(2*file-7)-abs(2*rank-7);
-    int score=material[a]+advance*(a==1?7:a==4?2:0)+
-        center*(a==2?9:a==3?5:a==6?-3:(a==1||a==5)*2);
+    int score=(a&1023)+advance*((a>>10)&7)+
+        center*((a>>13)-3);
     return v>0?score:-score;
 }
 static uint64_t piece(int v,int q){return mix((uint64_t)(q+(v+6)*128));}

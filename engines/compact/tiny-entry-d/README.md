@@ -1,3 +1,30 @@
+# Maintained D: packed HCE coefficient table — 2026-10-21
+
+Complete scalar/HQ **5937 / 6148 B**, remaining **1841 / 2052 B**.
+Only value()'s static coefficient representation changes: P=M+(A<<10)+
+((C+3)<<13), decoded by P&1023, (P>>10)&7, (P>>13)-3. Empty24576 and
+king0 remain distinct. P<=98624 is signed32/nonnegative. Board.v remains
+decoded signed int; no packed-field carry or Board/cache layout change occurs.
+Each value has abs<=910; even64 occupied valid squares fit signed32 cache.
+Full HCE/PVS/QS/learners, full-key atomic16 TT and SMP remain.
+
+Board source9080→9068B; native7708/8096B falls32B each, text falls37B each.
+Packet4800/5011B plus unchanged1137B loader/header yields actual whole−10/−21B.
+One fatal host SAN compile/run compares832 actual old/new VALUE cases with an
+independent coefficient oracle. Root independently reads actual eight native,
+packet, whole and audit files/ELF headers/geometry. Both forms then reproduce
+native/whole twice and audit once with the existing maintained builder.
+
+The unchanged positive verifier body passes pre-entry2 and quit/EOF4 sessions,
+12 legal GO results, RX/BSS/padding/guards/NX, stable3 TIDs, stdio/helper absence
+and physical reader/process settlement. No negative/fault campaign is run.
+Producing21 and build-input17 readback precede receipt-only annotations.
+Normal summary SHA-256: `8518028b77b41e4ae813ee3e3d2b7b47281f04ce838f9c7153f13c879a2e7f37`.
+
+This local two-worker/TT18 fixed ISA proof does not establish final resources,
+many-core behavior, strength or eligible4KiB entry. The full A–F goal and source
+compression beyond size passage remain active. Older sections retain history.
+
 # Maintained C D discarded sort-prefix own-ELF
 
 Selection keeps the winner in local `m` and copies the former slot `i` into
