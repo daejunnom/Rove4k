@@ -1,3 +1,38 @@
+# Maintained F: compact environment snapshot — 2026-10-21
+
+Complete file **4497 B**, compact C **8755 B**. The single
+env constructor expression saves6 template bytes and 8 actual whole-file
+bytes against the preceding 4505 B entry. `dict(os.environ,TMPDIR=d)`
+copies the environment and overrides TMPDIR at the original location. Runtime
+environment, compiler argv/C stdin, source/native/DEV, profile/model, signal
+mask, Popen publication, cleanup and deleted-file FD exec are retained.
+Source spelling/columns and failure-traceback bytes are not equality claims.
+
+The finite15-form comparison kept old and unselected signal/helper-composed
+forms. Although helper sharing removes39 raw bytes, env-only is actually
+smallest in every measured full context. No compressed deltas were added.
+
+One ordinary --dev build reproduces shipping and unchanged DEV twice. The
+unchanged selected verifier passes two quit/EOF sessions and8 legal GO epochs,
+exact native restoration,3 persistent startup TIDs, absent private paths and
+physical process/reader exit. Cancellation causality remains unproven. No
+new algorithm, strength, final hardware, game or performance result is claimed.
+
+Build receipt SHA-256: `cf6ea2029464d4073c2a5f229b37048d55687be998228b580612148d7d173739`.
+Runtime receipt SHA-256: `f6f6b6ca8cdbc537c15f26a9ab2aeebcd5c92165d6013713656917afa0048d10`.
+Current whole SHA-256: `c7e22ea0672d71ec0a432f4d4e74ec0e52bfb0222cd004c30b81f57c2a319c75`.
+
+The shared env template also reproduces material-noise4319 B and
+material/move-TT4045 B. Both optional builds reproduce shipping twice and
+generate the current full-reference source; optional DEV/runtime are not
+repeated. MoveTT keeps lc0, full/material keep lc2, and source/native
+expectations are unchanged. Full remains401 B above4096.
+
+The producing recipes, actual receipts and pre-annotation sources remain in
+`rove4k-bootstrap-env-normal-20261021-evidence`; original costs and source
+forms are preserved in the source/optional-cost evidence folders. Historical
+sections below retain their own images and scope.
+
 # Maintained F: saturated QS depth and repetition distance — 2026-10-21
 
 Full/default whole **4505 B**, compact source **8755 B**, remaining

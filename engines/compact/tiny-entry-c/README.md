@@ -1,3 +1,32 @@
+# Maintained C: compact environment snapshot — 2026-10-21
+
+Complete file **4924 B**, compact C **10032 B**. The single
+env constructor expression saves6 template bytes and 10 actual whole-file
+bytes against the preceding 4934 B entry. `dict(os.environ,TMPDIR=d)`
+copies the environment and overrides TMPDIR at the original location. Runtime
+environment, compiler argv/C stdin, source/native/DEV, profile/model, signal
+mask, Popen publication, cleanup and deleted-file FD exec are retained.
+Source spelling/columns and failure-traceback bytes are not equality claims.
+
+The finite15-form comparison kept old and unselected signal/helper-composed
+forms. Although helper sharing removes39 raw bytes, env-only is actually
+smallest in every measured full context. No compressed deltas were added.
+
+One ordinary --dev build reproduces shipping and unchanged DEV twice. The
+unchanged selected verifier passes two quit/EOF sessions and8 legal GO epochs,
+exact native restoration,3 persistent startup TIDs, absent private paths and
+physical process/reader exit. Cancellation causality remains unproven. No
+new algorithm, strength, final hardware, game or performance result is claimed.
+
+Build receipt SHA-256: `274ed41a1c050b2f7a9cc2aa3b2cb59b99c5ef908103edbf2cdcf6340f28f285`.
+Runtime receipt SHA-256: `e140e3c87df32f63e4b1e16e7d3fa8ed642568b7bdaf756394b1b81c221f8800`.
+Current whole SHA-256: `508b11f9f808af648f3c7a951d9d7eb347b2eb1b6a90006deacfc50f5c38c9c3`.
+
+The producing recipes, actual receipts and pre-annotation sources remain in
+`rove4k-bootstrap-env-normal-20261021-evidence`; original costs and source
+forms are preserved in the source/optional-cost evidence folders. Historical
+sections below retain their own images and scope.
+
 # Maintained C: child continuation slot and positive cutoff learner — 2026-10-21
 
 Complete file **4934 B**, compact C **10032 B**. The fixed shipping-only

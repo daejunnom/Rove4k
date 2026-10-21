@@ -172,7 +172,7 @@ The later PALS and hardware-CRC work below retains its own source and runtime
 boundaries; those earlier CI runs are not relabeled as results for new bytes.
 
 **F's opt-in material/move-TT file is locally reproduced and exercised at
-4,051 bytes; default full F is still 4,505 bytes.** This optional reduced-feature
+4,045 bytes; default full F is still 4,497 bytes.** This optional reduced-feature
 size result does not complete default F or the A–F portfolio. All twelve
 cores have functional evidence, but portfolio completion still requires source
 reduction, D's eligible own-ELF artifact, final candidate comparisons and games,
@@ -187,18 +187,69 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
-| A | 4,610 B | 514 B | Unsigned64 number forms; one-state material classifier; main-owned token cursor and valid-0x88 promotion predicate; existing full HCE/PVS/QS/TT/learners/SMP and fixed ALONE retained; fixed LP64 mixer literals |
-| B | 5,144 B | 1,048 B | Worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained; literal include gaps and overlong-line drain compacted; clock-first SEE poll; cancellation timing changed |
-| C | 4,934 B | 838 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners retained; child continuation slot and positive-only cutoff bonus compacted; fixed LP64 mixer literals |
+| A | 4,606 B | 510 B | Unsigned64 number forms; one-state material classifier; main-owned token cursor and valid-0x88 promotion predicate; existing full HCE/PVS/QS/TT/learners/SMP and fixed ALONE retained; fixed LP64 mixer literals; compact environment snapshot |
+| B | 5,138 B | 1,042 B | Worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained; literal include gaps and overlong-line drain compacted; clock-first SEE poll; cancellation timing changed; compact environment snapshot |
+| C | 4,924 B | 828 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners retained; child continuation slot and positive-only cutoff bonus compacted; fixed LP64 mixer literals; compact environment snapshot |
 | D scalar / HQ | 5,914 / 6,125 B | 1,818 / 2,029 B | Exact clock/inc parsing shared; consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained |
-| E | 5,010 B | 914 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; literal include gaps and fixed ASCII compiler argv compacted; fixed LP64 mixer literals |
-| F full (default) | 4,505 B | 409 B | Packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; nonnegative QS depth, repetition-distance loop and fixed integer macros compacted after the no-preadd hash, terminal, correction and source-form stages; default size target remains open |
-| F material/noise (opt-in) | 4,325 B | 229 B | Unsigned64 number forms and two fixed TT18 casts omitted; one-state material classifier, fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted; literal include gaps compacted; fixed LP64 mixer literals |
-| F material/move-TT (opt-in) | 4,051 B | 0 B (45 B spare) | Unsigned64 number forms; one-state material classifier, fixed material, main-owned token cursor, terminal-loop sharing and coherent atomic64 Move17/high46 plus index18; local size eligibility only, full F and strength acceptance remain open; fixed LP64 mixer literals |
+| E | 5,004 B | 908 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; literal include gaps and fixed ASCII compiler argv compacted; fixed LP64 mixer literals; compact environment snapshot |
+| F full (default) | 4,497 B | 401 B | Packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; nonnegative QS depth, repetition-distance loop and fixed integer macros compacted after the no-preadd hash, terminal, correction and source-form stages; compact environment snapshot; default size target remains open |
+| F material/noise (opt-in) | 4,319 B | 223 B | Unsigned64 number forms and two fixed TT18 casts omitted; one-state material classifier, fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted; literal include gaps compacted; fixed LP64 mixer literals; compact environment snapshot |
+| F material/move-TT (opt-in) | 4,045 B | 0 B (51 B spare) | Unsigned64 number forms; one-state material classifier, fixed material, main-owned token cursor, terminal-loop sharing and coherent atomic64 Move17/high46 plus index18; local size eligibility only, full F and strength acceptance remain open; fixed LP64 mixer literals; compact environment snapshot |
 
 The separate Rust D native images are 16,816 bytes each. Their independent
 packed experiment retains its own qualification state and does not silently
 replace this maintained table.
+
+## Shared environment snapshot: 2026-10-21
+
+The A/B/C/E/F bootstrap templates now construct `e=dict(os.environ,TMPDIR=d)`
+at the same point as the previous copy-and-assignment expression. The copy,
+TMPDIR override, compiler argv and stdin, signal masking, Popen ownership,
+cleanup, signal restoration and deleted-file FD exec retain their contracts.
+The six-byte source reduction leaves each compact C source, native image,
+DEV output, model and resource profile byte-identical. Source spelling,
+columns and failure-traceback bytes are outside this manual representation
+equivalence claim; this is not NVCompact compile-input-only admission.
+
+The fixed comparison measured three forms against each exact existing control;
+the following numbers include the complete launcher and compressed payload.
+Signal-helper sharing removes 39 raw bytes but loses in every measured context.
+The combined form also loses to env-only. All controls, transformations and
+unselected forms remain reconstructible in the external source-plan evidence.
+
+| Context | Existing | Signal helper | Environment only, selected | Both |
+| --- | ---: | ---: | ---: | ---: |
+| A | 4,610 | 4,618 | 4,606 | 4,611 |
+| B | 5,144 | 5,150 | 5,138 | 5,143 |
+| C | 4,934 | 4,937 | 4,924 | 4,930 |
+| E | 5,010 | 5,018 | 5,004 | 5,014 |
+| F full | 4,505 | 4,509 | 4,497 | 4,499 |
+
+The original codecs stay fixed per context, including A's existing encoder
+settings, C's nice_len 64, B/E/F's nice_len 32 and optional F MoveTT's lc0.
+Two additional fixed optional-F encodes measure 4,319 and 4,045 bytes; their
+source/native identities are unchanged. The shared F template's three policy
+expectations and both optional hardcoded consumer dictionaries are updated
+together. These optional results do not qualify default F.
+
+Each of the five ordinary default `--dev` builders reproduces shipping twice
+and unchanged DEV twice. Each unchanged selected verifier passes its two
+quit/EOF sessions and eight legal GO epochs, exact native restoration, three
+persistent startup TIDs, private-path absence and physical process/reader exit.
+Each optional F builder independently reproduces shipping twice and checks its
+new full-reference source path; optional DEV and runtime are not repeated.
+All seven builders and five verifiers finish at the first attempt with rc0.
+Cancellation causality, new strength and final hardware are not established.
+
+The final external index is
+`rove4k-bootstrap-env-normal-20261021-evidence/final-index.json`, 20,482 bytes,
+SHA-256 `31677eccefc1c3d51fa012efb4dd242076ad361fda1b69f04b87b273a93baa91`.
+It pins the actual raw receipts and producing recipes separately from later
+PASS annotations. Root independently verifies all 68 referenced file pins.
+This local qualification does not relabel earlier-head CI as a run of these
+new wrappers. Further source reduction, default F's remaining 401 bytes, D's
+eligible own-ELF and final many-core/resource and candidate-game comparisons
+remain active work; training and AWS remain excluded.
 
 ## Starting checkpoint: 2026-10-20
 
