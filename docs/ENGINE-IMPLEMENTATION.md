@@ -172,7 +172,7 @@ The later PALS and hardware-CRC work below retains its own source and runtime
 boundaries; those earlier CI runs are not relabeled as results for new bytes.
 
 **F's opt-in material/move-TT file is locally reproduced and exercised at
-4,045 bytes; default full F is still 4,497 bytes.** This optional reduced-feature
+4,045 bytes; default full F is still 4,495 bytes.** This optional reduced-feature
 size result does not complete default F or the A–F portfolio. All twelve
 cores have functional evidence, but portfolio completion still requires source
 reduction, D's eligible own-ELF artifact, final candidate comparisons and games,
@@ -192,13 +192,48 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | C | 4,924 B | 828 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners retained; child continuation slot and positive-only cutoff bonus compacted; fixed LP64 mixer literals; compact environment snapshot |
 | D scalar / HQ | 5,914 / 6,125 B | 1,818 / 2,029 B | Exact clock/inc parsing shared; consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained |
 | E | 5,004 B | 908 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; literal include gaps and fixed ASCII compiler argv compacted; fixed LP64 mixer literals; compact environment snapshot |
-| F full (default) | 4,497 B | 401 B | Packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; nonnegative QS depth, repetition-distance loop and fixed integer macros compacted after the no-preadd hash, terminal, correction and source-form stages; compact environment snapshot; default size target remains open |
+| F full (default) | 4,495 B | 399 B | Packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; nonnegative QS depth, repetition-distance loop, fixed integer macros and plain-int keyword spelling compacted after the no-preadd hash, terminal, correction and source-form stages; compact environment snapshot; default size target remains open |
 | F material/noise (opt-in) | 4,319 B | 223 B | Unsigned64 number forms and two fixed TT18 casts omitted; one-state material classifier, fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted; literal include gaps compacted; fixed LP64 mixer literals; compact environment snapshot |
 | F material/move-TT (opt-in) | 4,045 B | 0 B (51 B spare) | Unsigned64 number forms; one-state material classifier, fixed material, main-owned token cursor, terminal-loop sharing and coherent atomic64 Move17/high46 plus index18; local size eligibility only, full F and strength acceptance remain open; fixed LP64 mixer literals; compact environment snapshot |
 
 The separate Rust D native images are 16,816 bytes each. Their independent
 packed experiment retains its own qualification state and does not silently
 replace this maintained table.
+
+## Full F plain-int spelling: 2026-10-21
+
+A single fixed source form inserts `#define S int` after the seven includes
+and replaces 91 genuine plain-int keyword tokens with S. No S token existed
+in the admitted source or its directives. Headers, integer-width identifiers,
+literals and all 93 intervening gaps remain exact. The late pure helper
+checks the full 8,755-byte input, 8,587-byte output, 92 edits and complete
+inverse; it runs after fixed macro expansion in full shipping and the optional
+policies' separate full-reference generation. DEV and actual optional sources
+bypass it. Source locations and macro/source dumps are outside this manual
+fixed-source representation contract.
+
+Two actual fixed-compiler preprocessing runs have identical complete 87,169-byte
+output and 20,564-token sequence. One candidate compile reproduces the entire
+18,576-byte native with empty diagnostics. One unchanged-codec encode measures
+4,497 to 4,495 bytes; Python and independent CLI strict restoration pass. This
+is a two-byte complete-file gain, not the 168-byte raw-source delta.
+
+One ordinary full `--dev` builder reproduces shipping and unchanged DEV twice,
+and the unchanged selected verifier passes two quit/EOF sessions and eight
+legal GO results. Both optional builders reproduce their unchanged complete
+shipping files twice and actually check the new 8,587-byte full reference;
+optional DEV/runtime are not repeated. Normal commands finish with rc0 and
+no live owned process groups. No new core, strength or cancellation-causality
+claim is made under this full-native-identical change.
+
+The external normal index is
+`rove4k-full-f-int-token-normal-20261021-evidence/final-index.json`, 10,409 bytes,
+SHA-256 `979a69ce7dce6abdc6e8ecaad9e298fe4c163226b8801c9181d7cd60751cb02e`.
+Root checks all 33 referenced file pins, independently of the earlier 30-pin
+first-cost index. Producing sources and recipe precede the final PASS
+annotations. The first source-preparation offset assertion failure is kept
+separately; it occurred before candidate/compiler/codec output and is not
+overwritten by the successful fixed boundary.
 
 ## Shared environment snapshot: 2026-10-21
 
@@ -250,6 +285,37 @@ This local qualification does not relabel earlier-head CI as a run of these
 new wrappers. Further source reduction, default F's remaining 401 bytes, D's
 eligible own-ELF and final many-core/resource and candidate-game comparisons
 remain active work; training and AWS remain excluded.
+
+## Rust D source-sharing costs: 2026-10-21
+
+Two independent fixed proposals keep the maintained seven-source closure,
+compiler, two-worker/TT18 profile and archived data8 ASCII packing context.
+The first carries child continuation context and specializes the reachable
+positive learner. The second outlines the generic Linux syscall helper;
+raw_spawn and its new-stack assembly trampoline remain separate. Both shorten
+source but increase actual executable text and complete packed cost.
+
+| Fixed form | Scalar complete bytes | HQ complete bytes | Text delta scalar / HQ |
+| --- | ---: | ---: | ---: |
+| Reused control, independently re-encoded | 11,403 | 11,762 | 0 / 0 |
+| Search context and positive learner | 11,418 (+15) | 11,778 (+16) | +80 / +64 |
+| Outlined syscall | 11,435 (+32) | 11,793 (+31) | +48 / +48 |
+
+All complete native files stay at 16,816 bytes due to layout; that length tie
+does not hide the changed text or substitute for whole-file measurement.
+Four primary native links, six encodes and six loader links finish. Both
+control whole hashes reproduce exactly and all six fixed strict roundtrips
+and existing data8 geometry predicates pass without relaxing their guards.
+No engine, loader, trace, negative campaign, repeat or unstripped run occurs.
+Neither candidate is selected or runtime-qualified. Inputs, exact inverse,
+comparison conditions and unselected forms remain outside Git for later
+same-context comparison; these losses impose no permanent name-based ban.
+
+The actual first-cost receipt is
+`rove4k-rust-d-source-sharing-cost-20261021-v1/cost.json`, 91,218 bytes,
+SHA-256 `a4d5c97430ceb127a1d2e0722adf3c00d8f1ef69916bcdd29a1375fb5c243419`.
+These Rust packed costs do not replace the maintained C D pair or establish
+4KiB eligibility for either language.
 
 ## Starting checkpoint: 2026-10-20
 

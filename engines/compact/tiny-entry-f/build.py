@@ -150,6 +150,7 @@ def main():
         result_stream=module('entry_F_result_stream',frozen/'shipping_result_stream.py')
         depth_repetition=module('entry_F_depth_repetition',frozen/'shipping_depth_repetition.py')
         macro_literals=module('entry_F_macro_literals',frozen/'shipping_macro_literals.py')
+        int_token=module('entry_F_int_token',frozen/'shipping_int_token.py')
         alpha=module('entry_fixed_F_alpha',frozen/'shipping_alpha.py').transform_source
         storage=module('entry_fixed_F_storage',frozen/'shipping_storage.py').transform_source
         scope_module=module('entry_bound_F_scope',frozen/'shipping_scope.py')
@@ -238,6 +239,8 @@ def main():
                     full_common_metadata['depth_repetition']=depth_metadata
                     full_reference,macro_metadata=macro_literals.transform_source(full_reference,family='F')
                     full_common_metadata['fixed_macro_literals']=macro_metadata
+                    full_reference,int_metadata=int_token.transform_source(full_reference,family='F')
+                    full_common_metadata['plain_int_keyword_token']=int_metadata
                     if len(full_reference)!=full_expected['source_bytes'] or sha(full_reference)!=full_expected['source_sha256']:
                         raise ValueError('default full-F source generation changed')
                     data,policy_metadata=material_noise(data)
@@ -299,6 +302,8 @@ def main():
                     common_metadata['depth_repetition']=depth_metadata
                     data,macro_metadata=macro_literals.transform_source(data,family='F')
                     common_metadata['fixed_macro_literals']=macro_metadata
+                    data,int_metadata=int_token.transform_source(data,family='F')
+                    common_metadata['plain_int_keyword_token']=int_metadata
             return data,observations,counters,alpha_metadata,storage_metadata,scope_metadata,member_metadata,semantic_metadata,input_metadata,declaration_metadata,hce_metadata,type_metadata,unit_bound_metadata,startup_metadata,global_names_metadata,capture_metadata,policy_metadata,material_names_metadata,material_capture_metadata,move_tt_metadata,move_tt_names_metadata,expressions_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())

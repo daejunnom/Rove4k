@@ -1,3 +1,56 @@
+# Maintained F: fixed plain-int keyword source form — 2026-10-21
+
+Complete full/default file **4495 B**, compact C **8587 B**, remaining
+**399 B** above4096. Insert `#define S int` after all7 include lines and replace
+only91 genuine plain `int` tokens by the previously absent ordinary name `S`.
+The raw C/bootstrap reduction is168 B; the actual complete-file saving is2 B
+against the preceding env4497 B entry. All full HCE/learners/full-bound TT,
+full-depth MTD(f), rules, completion witnesses and SMP/resources remain.
+
+The pure `shipping_int_token.py` stage follows `shipping_macro_literals` in
+full shipping and separately generated optional full references. Each call
+checks exact input/output,92 edit literals/offsets, the complete inverse and
+93 equal gaps. Headers, integer-width names, strings and all other bytes remain
+exact. DEV and actual optional engines bypass this stage. The recipe helper
+map includes the new source in frozen inputs and the unchanged fresh archive
+closure. No fresh archive/extraction was executed for this promotion.
+
+The fixed actual GCC first cost has byte-identical old/new preprocessed output
+and20564-token sequences, and entire native18576-byte identity. This is exact
+owned-source evidence, not a general macro or source-location theorem. Existing
+historical fixtures retain their prior literal source/native scope; no fixture
+admission or expectation was weakened, and no new ASan/functional fixture ran.
+Canonical/DEV input and native are unchanged. Current normal and selected
+execution results are separately recorded below.
+
+One ordinary --dev builder call reproduced shipping twice and unchanged DEV
+twice. The unchanged selected verifier passed two quit/EOF sessions and8 legal
+GO epochs: exact restored native,3 persistent startup TIDs per session, absent
+private paths, physical process/reader exit. All6 observed TIDs are absent on
+close readback. Cancellation causality remains unproven. No new strength,
+game, benchmark or final-hardware result is claimed.
+
+Optional material-noise4319 B and material/move-TT4045 B each reproduced
+shipping twice with their entire old source/native/bootstrap/whole bytes.
+Both actually generated the new8587 B full-reference source through the new
+helper and checked its inverse/gaps. Optional DEV/runtime were not repeated.
+Their codecs, full lc2, compiler argv and profile/model remain unchanged.
+
+Actual full build receipt SHA-256:
+`7c6b36329e3a1964432209f3b567ec2677636eea08ca51aa039511cfbe09f782`.
+Actual selected runtime receipt SHA-256:
+`02d8bb4a054a6ab287f65c66c0da4103811de6b13d000dd40485559d23e0b389`.
+Current whole SHA-256:
+`0066dd3b47a998029ca8d959a0c06a8b0eaeb4129a2c0044fc16e577054c7886`.
+
+All4 outer normal commands terminated rc0 with empty diagnostics and absent
+owned groups; no cleanup/retry or live handle remains. The producing recipe,
+before files, command logs, helper and completed receipts are preserved in
+`rove4k-full-f-int-token-normal-20261021-evidence`; final recipe edits only
+annotate completed results. Original first-cost proof, including its initial
+source-preparation offset assertion failure, remains separately preserved.
+Historical sections below retain their own images and scope.
+
 # Maintained F: compact environment snapshot — 2026-10-21
 
 Complete file **4497 B**, compact C **8755 B**. The single
