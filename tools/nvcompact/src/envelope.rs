@@ -718,10 +718,16 @@ pub fn run(manifest_path: &Path, output: &Path, options: &EnvelopeOptions) -> Re
                     &summary["tool"],
                     portfolio_search,
                 )?;
-                summary["source_search_budget"] = json!({"strategies":searched.len(),
-                    "maximum_complete_payload_evaluations":searched.len()*search.max_evaluations,
-                    "maximum_combination_attempts":searched.len()*search.max_combinations,
-                    "total_scheduling_seconds":searched.len() as f64*search.max_seconds,
+                let strategy_count = searched
+                    .iter()
+                    .filter_map(|candidate| candidate.summary["strategy"].as_str())
+                    .collect::<std::collections::HashSet<_>>()
+                    .len();
+                summary["source_search_budget"] = json!({"strategies":strategy_count,
+                    "retained_source_seeds":searched.len(),
+                    "maximum_complete_payload_evaluations":strategy_count*search.max_evaluations,
+                    "maximum_combination_attempts":strategy_count*search.max_combinations,
+                    "total_scheduling_seconds":strategy_count as f64*search.max_seconds,
                     "scope":"separate per-strategy scheduling deadlines; bounded in-flight operation and final acceptance may complete afterward; codec scratch and final portfolio are separate",
                     "codec_cache":"shared across strategies and final comparison"});
                 let mut strategy_summaries = Vec::new();

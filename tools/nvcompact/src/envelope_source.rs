@@ -55,16 +55,21 @@ pub(crate) fn search(
         if fixed.is_none() && !portfolio_search {
             continue;
         }
+        let mut effective = options.clone();
+        effective.scheduling = if fixed.is_some() {
+            source_search::SchedulingPolicy::LegacyPriority
+        } else {
+            source_search::SchedulingPolicy::InterleavedOnline
+        };
         let mut view = CostView { objective, fixed };
         let searched = source_search::search_with_objective(
             payload,
-            options,
+            &effective,
             compiler,
             &output.join(name),
             Some(&context),
             &mut view,
         )?;
-        let id = format!("c-source-search-{}", &sha256(&searched.data)[..16]);
         let report_path = format!("{name}/source-search/report.json");
         let report_bytes = fs::read(output.join(&report_path))?;
         let mut report = searched.report;
@@ -75,15 +80,29 @@ pub(crate) fn search(
             .remove("records");
         report["detail"] = json!({"path":report_path,"sha256":sha256(&report_bytes),
             "bytes":report_bytes.len(),"records":records});
-        ensure!(
-            searched.recipe["final"]["payload_sha256"] == sha256(&searched.data),
-            "source-search output differs from its recorded recipe"
-        );
-        candidates.push(SourceCandidate { id: id.clone(), data: searched.data,
-            summary: json!({"strategy":name,"variant":id,"report":report,"recipe":searched.recipe,
-                "cost_codec":fixed,"cost_objective":context,
-                "cost_scope":"complete inspected header plus encoded whole payload",
-                "budget_scope":"this strategy has its own declared search limits; final codec comparison retains every strategy winner"}) });
+        let mut seeds = vec![(
+            "final-winner",
+            source_search::SearchSeed {
+                data: searched.data,
+                recipe: searched.recipe,
+            },
+        )];
+        if let Some(seed) = searched.priority_seed {
+            seeds.push(("legacy-priority-seed", seed));
+        }
+        for (role, seed) in seeds {
+            ensure!(
+                seed.recipe["final"]["payload_sha256"] == sha256(&seed.data),
+                "source-search output differs from its recorded recipe"
+            );
+            let id = format!("c-source-search-{}", &sha256(&seed.data)[..16]);
+            candidates.push(SourceCandidate { id: id.clone(), data: seed.data,
+                summary: json!({"strategy":name,"seed_role":role,"variant":id,
+                    "report":report,"recipe":seed.recipe,"scheduling":effective.scheduling,
+                    "cost_codec":fixed,"cost_objective":context,
+                    "cost_scope":"complete inspected header plus encoded whole payload",
+                    "budget_scope":"one declared budget per strategy, shared by its retained seeds; final codec comparison retains its final winner and distinct legacy priority seed"}) });
+        }
     }
     Ok(candidates)
 }
