@@ -1,3 +1,24 @@
+# Maintained B: job/startup and SEE source compaction — 2026-10-21
+
+Whole **5196→5162 B**, source **10702→10595 B**, gap **1066 B**. The
+shipping-only late pass combines TO127-equivalent SEE rank spelling, worker-owned
+unconditional job reset, checked-calloc-covered plain TT zero stores and fixed
+positive TT18 casts. Every atomic flag is still cleared. Full hybrid attackers,
+legal-LVA ordering, singular, search, learners and SMP are retained. DEV bypasses
+the pass. General TT-reset and arbitrary preseeded direct-think contracts are
+not inferred from the production startup/job path.
+
+The ordinary --dev builder reproduces shipping and DEV twice; its unchanged
+selected verifier passes actual quit/EOF sessions, exact restoration, legal
+finite clocks, stable3 TIDs and physical exit. Local2-worker/TT18 only; final
+resources and strength remain open. Normal summary SHA-256:
+`4b7b98ecc6cdb94d11a112e307d388633a03fb061d2000b08167b85ac70c72ca`.
+
+Current source SHA-256: `036d9c1aaec37b68508ec76ea335e77775d486bf4141dd7d4e94698a6313e33b`.
+Current whole SHA-256: `c3140e749c94bccb4a65842f09f823331b7023be5b9cd7c504a8802dd8d78b7f`.
+
+Older sections retain their original checkpoint identities.
+
 # Maintained B: integer source compression — 2026-10-21
 
 The late fixed integer pass uses the existing unsigned64 alias and high-bit

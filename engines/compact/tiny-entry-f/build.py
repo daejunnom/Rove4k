@@ -141,6 +141,7 @@ def main():
         dead_state=module('entry_material_state',frozen/'shipping_material_state.py')
         integer_forms=module('entry_integer_forms',frozen/'shipping_integer_forms.py')
         terminal=module('entry_F_terminal',frozen/'shipping_terminal.py')
+        hash_policy=module('entry_F_hash_policy',frozen/'shipping_hash_policy.py')
         alpha=module('entry_fixed_F_alpha',frozen/'shipping_alpha.py').transform_source
         storage=module('entry_fixed_F_storage',frozen/'shipping_storage.py').transform_source
         scope_module=module('entry_bound_F_scope',frozen/'shipping_scope.py')
@@ -211,6 +212,8 @@ def main():
                     full_common_metadata['integer_forms']=integer_metadata
                     full_reference,terminal_metadata=terminal.transform_source(full_reference)
                     full_common_metadata['terminal_shared_legal_loop']=terminal_metadata
+                    full_reference,hash_metadata=hash_policy.transform_source(full_reference,family='F')
+                    full_common_metadata['hash_policy']=hash_metadata
                     if len(full_reference)!=full_expected['source_bytes'] or sha(full_reference)!=full_expected['source_sha256']:
                         raise ValueError('default full-F source generation changed')
                     data,policy_metadata=material_noise(data)
@@ -249,6 +252,8 @@ def main():
                 if args.policy=='full':
                     data,terminal_metadata=terminal.transform_source(data)
                     common_metadata['terminal_shared_legal_loop']=terminal_metadata
+                    data,hash_metadata=hash_policy.transform_source(data,family='F')
+                    common_metadata['hash_policy']=hash_metadata
             return data,observations,counters,alpha_metadata,storage_metadata,scope_metadata,member_metadata,semantic_metadata,input_metadata,declaration_metadata,hce_metadata,type_metadata,unit_bound_metadata,startup_metadata,global_names_metadata,capture_metadata,policy_metadata,material_names_metadata,material_capture_metadata,move_tt_metadata,move_tt_names_metadata,expressions_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())

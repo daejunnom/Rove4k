@@ -172,7 +172,7 @@ The later PALS and hardware-CRC work below retains its own source and runtime
 boundaries; those earlier CI runs are not relabeled as results for new bytes.
 
 **F's opt-in material/move-TT file is locally reproduced and exercised at
-4,067 bytes; default full F is still 4,609 bytes.** This optional reduced-feature
+4,067 bytes; default full F is still 4,592 bytes.** This optional reduced-feature
 size result does not complete default F or the A–F portfolio. All twelve
 cores have functional evidence, but portfolio completion still requires source
 reduction, D's eligible own-ELF artifact, final candidate comparisons and games,
@@ -188,11 +188,11 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
 | A | 4,628 B | 532 B | Unsigned64 number forms; one-state material classifier; main-owned token cursor and valid-0x88 promotion predicate; existing full HCE/PVS/QS/TT/learners/SMP and fixed ALONE retained |
-| B | 5,196 B | 1,100 B | Unsigned64 number forms; one-state material classifier; main-owned token cursor, promotion predicate and make/SEE material-gain sharing; hybrid attackers/singular and full policy retained |
-| C | 4,976 B | 880 B | Unsigned64 number forms, late limits include retained; one-state material classifier; main-owned tokenizer and promotion predicate; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners and fixed ALONE retained |
+| B | 5,162 B | 1,066 B | Worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained |
+| C | 4,969 B | 873 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners retained |
 | D scalar / HQ | 5,966 / 6,175 B | 1,870 / 2,079 B | Capture-only Move bit3; full-key aligned atomic16 TT, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained |
-| E | 5,056 B | 960 B | Unsigned64 number forms; one-state material classifier; main-owned tokenizer and promotion predicate; untrained E19 model/ordering, full search/learners and fixed ALONE retained |
-| F full (default) | 4,609 B | 513 B | Unsigned64 number forms, two fixed TT18 casts omitted and terminal legal-loop sharing with TT suppression; one-state material classifier; main-owned tokenizer, mate-adjust expressions and promotion predicate; packed positional HCE, learners, full-bound full-key TT and full-depth MTD(f)/SMP retained; default size target remains open |
+| E | 5,028 B | 932 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained |
+| F full (default) | 4,592 B | 496 B | Explicit no-preadd hash policy with new repetition/context/TT/correction buckets; terminal legal-loop sharing and integer forms; packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; default size target remains open |
 | F material/noise (opt-in) | 4,343 B | 247 B | Unsigned64 number forms and two fixed TT18 casts omitted; one-state material classifier, fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted |
 | F material/move-TT (opt-in) | 4,067 B | 0 B (29 B spare) | Unsigned64 number forms; one-state material classifier, fixed material, main-owned token cursor, terminal-loop sharing and coherent atomic64 Move17/high46 plus index18; local size eligibility only, full F and strength acceptance remain open |
 
@@ -6043,3 +6043,123 @@ Default full F still needs513B. The4067B reduced-feature opt-in has29B spare,
 and is further compression after prior eligibility; it does not complete full
 F. All other family size gaps and final profiles/comparisons remain open. No
 training/data collection, AWS/paid run, game, merge or release is introduced.
+
+
+## Startup/job source sharing and explicit full-F hash policy — 2026-10-21
+
+The preceding source checkpoint8bc1abe passes both
+[C/Rust engine CI](https://github.com/daejunnom/Rove4k/actions/runs/39542751208)
+and [Node22/24 lifecycle CI](https://github.com/daejunnom/Rove4k/actions/runs/39542751181).
+This checkpoint adds pure late source replays from maintained readable inputs;
+external cost outputs and third-party source remain outside Git. The new
+shipping_compaction.py reads no external artifact and is bypassed by DEV.
+
+B/C/E's sole shipping TT-clear call immediately follows successful calloc,
+before board initialization, threads, input or TT access. Plain uint64 key/data
+therefore already equal0. Removing their repeated stores and loop braces keeps
+every atomic_flag_clear. No assumption is made about the flag's zero bit
+representation. This shipping helper is now an initial-flag pass, not a general
+reset API; canonical/DEV's real ucinewgame reset remains unchanged. B also omits
+the two remaining fixed positive TT18 size_t casts.
+
+B/E move best=0 into think's unconditional prefix and remove the GO four-field
+reset loop. Worker results are inspected only after every worker returns and
+the last pending decrement occurs under the existing mutex. Pre-stopped and
+late-starting workers still initialize before completion; the last-complete
+result, current-root fallback, history, learners, job publication and joins
+remain. A private direct-think caller that preseeded best without production
+GO now has a different contract. C already had this ownership and is unchanged
+by the reset part. This is a source/lifecycle ownership change, not a resource
+or scheduling-policy change.
+
+B's SEE replaces only its rank test with `!(yv+16&96)`. TO masks yv into0..127;
+the new and old predicates are identical on every such value, and the addition
+cannot overflow. Generated initial tactical moves, the h-first legality test,
+same occupied recursive target, queen recapture promotion, unknown guard and
+ordering-only consumption remain. It does not broaden arbitrary private raw
+untagged EP support or add QS SEE pruning.
+
+Full/default F's own shipping_hash_policy.py deletes only the32B pre-add from
+its pure by-value mixer. **This is an explicit hash-policy change.** Remaining
+64-bit XOR shifts and odd multipliers are bijective; all piece/state hashes,
+rolling history, full TT context and correction buckets nevertheless change.
+Individual-token bijection does not prove position-XOR collision quality or
+equal search/learning/strength. Black Ka1's individual piece token is now0;
+this neither implies whole-board hash0 nor adds a forbidden-zero key contract.
+Actual TT key0 store/load and same-slot nonmatching keys remain supported.
+Full HCE, history/continuation/correction, full-key bound/depth TT, full-depth
+MTD(f), completion witness, rules and SMP are retained. DEV keeps its previous
+policy; both optional F selections keep their own previous bytes, while their
+separate full-reference copy reproduces the new default policy.
+
+| Case | Previous whole | Current whole | Saved | Previous source | Current source | Above4096 |
+|---|---:|---:|---:|---:|---:|---:|
+| B |5196|5162|34|10702|10595|1066|
+| C |4976|4969|7|10151|10123|873|
+| E |5056|5028|28|10581|10477|932|
+| F full |4609|4592|17|8998|8966|496|
+| F-material |4343|4343|0|8545|8545|247|
+| F-move |4067|4067|0|7778|7778|0 (29 spare)|
+
+The B/E values are actual combined measurements, not sums of independent
+costs. Standalone TT-zero saves B10/C7/E9, reset B14/E19 and SEE-rank B8.
+The final native files for B/C/E/F have new identities despite unchanged file
+lengths. Both optional F files remain entire-byte equal. A4628 and D5966/6175
+are unchanged and their prior qualification is reused, not freshly executed.
+
+Focused ASan/UBSan fixtures use actual final candidate TUs. Startup checks
+observe all262144 slots through atomic operations and real TT key0/matching/
+same-index nonmatching access. B/E reset checks compare old GO-reset+old think
+against new think, using actual completed depth1 seeds, pre-stop/expired zero
+completion, successive root and current fallback output. A manual late-worker
+value boundary is not an actual SMP-schedule execution. The F proof compares
+978 mix,832 piece and288 state values to an independent modulo64 specification,
+then15 rule paths/39 states/24 transitions to independent board/legal/HCE/hash/
+history/context expectations. Its16 terminal cases use new helpers on both U
+bodies; old hash goldens are not reused. Hash quality and strength remain open.
+
+All six changed ordinary builders (B/C/E and three F selections) pass --dev and
+unchanged selected verifiers. Shipping source/native/bootstrap/whole and full
+DEV reproduce twice per selection. Twelve actual quit/EOF sessions verify
+restored native, legal finite GO, stable3 TIDs, private-path/helper absence,
+one closing result, reader EOF and physical exit. Producing recipe/source
+readback precedes receipt-only annotations. This is local2-worker/TT18 evidence,
+not final target resources, many-core performance, games or portfolio acceptance.
+Normal summary18106B SHA:
+4b7b98ecc6cdb94d11a112e307d388633a03fb061d2000b08167b85ac70c72ca.
+
+A further full-F worker pending-loop sharing candidate reduces source18B and
+native text6B, but its whole file ties4609B. It is closed without pool runtime
+or adoption; it was not combined with the hash policy. The new hash preparer's
+optional-field KeyError, B fixture producer's UTF-8 serialization failure and
+the first B SEE fixture's missing defended-promotion coverage are preserved as
+separate failures. The latter reached its positive-coverage assertion rather
+than establishing a successful whole fixture. Corrective coverage uses existing
+independent frozen cases; candidate source and expected scores stay unchanged.
+
+The latest [TCEC4k rules](https://wiki.chessdom.org/TCEC_4k_Rules), revision7853,
+were rechecked: whole4096B/single file, startup within60s/no leftover own files,
+4K minimum UCI and tolerance of unsupported tournament commands remain the
+basis. General TCEC options are not imported as minimum requirements. The pinned
+[ice4 search](https://github.com/MinusKelvin/ice4/blob/fabe3b1a805a1418e56899a3a143a955a399535c/src/search.cpp)
+and [4ku source/minifier](https://github.com/kz04px/4ku/blob/917a08741cef43d6ae00552df214cc66d0c46489/src/main.cpp)
+comparisons remain external references; no engine source is vendored. Passing
+the optional F size threshold remains an intermediate result. Full/default F
+still needs496B; A–F compression and feature work continue beyond size passage.
+
+
+The corrective B SEE input selection adds only the two omitted existing
+defended-promotion parents89/90. It preserves every C assertion and frozen
+score/state, and reuses the already successfully compiled ASan/UBSan binary;
+there is no second compile. The56 input rows produce54 actual old/new Q
+comparisons plus2 normalized-EP exclusions,128 rank checks,6 cancel/deadline
+guards and positive cross-promotion convergence4groups/2legal replies. One
+corrective runtime passes; the original v1 coverage failure remains intact.
+SEE proof12019B SHA:
+996b2dfec43f19e863e6a8bb96c002dbc7b8432fe3f86c1f31726d73299f96b6.
+Startup proof15219B SHA:
+545620380b18fc35287906631266a6b300ef159f4baf426ae473747cf7d7f826.
+Reset proof5013B SHA:
+af1c72e264e470481a7b3ae0204d4566ef07d82573b69e159d77a75c8d8b7357.
+New hash proof10988B SHA:
+62545d3a20037615dc645f1ca399e9f6c7f44058b5332336b964f1bea15d46b7.

@@ -66,7 +66,8 @@
     "engines/scripts/shipping_common.py": "58f2cfdb37bbd0c010e82bc8d9c2118b00fe41ef6a556c18cc94db11455e2a15",
     "engines/scripts/shipping_refinements.py": "6ecb62499035cedaf6308539de0744a011f7b183ca768984462c4f0435406804",
     "engines/scripts/shipping_material_state.py": "eded8d82eed40c383564603a51582e829ff9de2fc626bdc11eab26e6c424b380",
-    "engines/scripts/shipping_integer_forms.py": "a989dc2fd2ea60d9ab786cf51874ea646363e6f5731a302e1335cbb283fbcd93"
+    "engines/scripts/shipping_integer_forms.py": "a989dc2fd2ea60d9ab786cf51874ea646363e6f5731a302e1335cbb283fbcd93",
+    "engines/scripts/shipping_compaction.py": "47977f6c944978675f1f37be733270c30ff39fc2f2c9f80c9e18243d496912c5"
   },
   "compression": {
     "format": "lzma-alone",
@@ -83,16 +84,16 @@
   },
   "expected": {
     "readable_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
-    "source_bytes": 10151,
-    "source_sha256": "d9f1faf12264af8b16699ed7e2aeb2bea37363019d17586be1d62d638aa6692f",
+    "source_bytes": 10123,
+    "source_sha256": "0eeee8fd2c976cd5a0221365e1765ad01714c68609183381ea19eb8f4b3118ff",
     "native_bytes": 26368,
-    "native_sha256": "acb8b1a3526166eb4376f9ad0e071449ae3622b8b54cc12682781d99495324bd",
-    "whole_bytes": 4976,
-    "whole_sha256": "c3f1499270040319d71e6e775699358b2c25c50215f91793cf8c5aff0f97d06e",
-    "bootstrap_sha256": "74420a595b03f8b73051168f466caa9a47617eb75afe13ae05d7515214103629",
+    "native_sha256": "f3ab79485ca2f6dd50257cc36bba100b834fddbdebf33be84f0a363fb5b7c9c3",
+    "whole_bytes": 4969,
+    "whole_sha256": "e723a31bef3d0ab47d22bc50c5e22e2c0cd54f8b56f05776c7ab10bec2c85f96",
+    "bootstrap_sha256": "d731091e1d631ee6a944b5cc394f4b27a9f67345d17cc342e6a9e6d0808ffedc",
     "dev_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
     "dev_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c",
-    "bootstrap_bytes": 11218
+    "bootstrap_bytes": 11190
   },
   "local_input_sha256": {
     "engine.c": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
@@ -821,6 +822,80 @@
       "scope": "two exact shipping/DEV reproductions and new selected quit/EOF; local2-worker TT18 only",
       "final_native_full_bytes_equal_material_state": true,
       "producing_recipe_precedes_this_receipt_annotation": true
+    }
+  },
+  "job_startup_SEE_forms": {
+    "scope": "shipping-only worker reset ownership and startup calloc-covered plain TT fields; B adds TO127 SEE predicate and fixed TT18 casts; DEV retained",
+    "previous_expected": {
+      "readable_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
+      "source_bytes": 10151,
+      "source_sha256": "d9f1faf12264af8b16699ed7e2aeb2bea37363019d17586be1d62d638aa6692f",
+      "native_bytes": 26368,
+      "native_sha256": "acb8b1a3526166eb4376f9ad0e071449ae3622b8b54cc12682781d99495324bd",
+      "whole_bytes": 4976,
+      "whole_sha256": "c3f1499270040319d71e6e775699358b2c25c50215f91793cf8c5aff0f97d06e",
+      "bootstrap_sha256": "74420a595b03f8b73051168f466caa9a47617eb75afe13ae05d7515214103629",
+      "dev_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
+      "dev_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c",
+      "bootstrap_bytes": 11218
+    },
+    "exact_source_replay": {
+      "family": "C",
+      "stage": "fixed-shipping-job-startup-SEE-forms",
+      "input_bytes": 10151,
+      "input_sha256": "d9f1faf12264af8b16699ed7e2aeb2bea37363019d17586be1d62d638aa6692f",
+      "output_bytes": 10123,
+      "output_sha256": "0eeee8fd2c976cd5a0221365e1765ad01714c68609183381ea19eb8f4b3118ff",
+      "features": [
+        "startup-plain-TT-zero-covered-by-checked-calloc",
+        "per-entry-atomic-flag-clear-retained"
+      ],
+      "literal_spans": 1,
+      "exact_inverse": true,
+      "complement_bytes": 10041,
+      "complement_sha256": "d40c5d22cbe685e2a257048549367e85f56bf391aa8d473edc883cb88ea933e7",
+      "external_reads": 0,
+      "compiler_codec_engine_executed_by_transform": 0
+    },
+    "DEV_bypass": true,
+    "normal_validation": {
+      "status": "PASS ordinary --dev builder and unchanged selected verifier; no retry",
+      "summary": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-startup-hash-normal-20261021-evidence/summary.json",
+        "bytes": 18106,
+        "sha256": "4b7b98ecc6cdb94d11a112e307d388633a03fb061d2000b08167b85ac70c72ca"
+      },
+      "producing_recipe": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-startup-hash-normal-20261021-evidence/C-producing-recipe.json",
+        "bytes": 50704,
+        "sha256": "43cae098e00fdba421e303d9085881a14db70f19426e538cbf93397ee6379c9c"
+      },
+      "selections": {
+        "C": {
+          "build": {
+            "path": "/home/stemxstudio/rove4k-startup-hash-normal-20261021/C/build/build.json",
+            "bytes": 177108,
+            "sha256": "b04e517bdea8dd6cb33a2ff5cebec1ed65ced177a9a01007a5d5f6bbc9401810"
+          },
+          "runtime": {
+            "path": "/home/stemxstudio/rove4k-startup-hash-normal-20261021/C/runtime/runtime.json",
+            "bytes": 34672,
+            "sha256": "d444a697bbb5f33ca5797a453fa7c256f6e50c86df4a63ec41bcae120c1d1ddc"
+          },
+          "shipping_reproductions": 2,
+          "DEV_reproductions": 2,
+          "actual_quit_EOF_sessions": 2
+        }
+      },
+      "scope": "local2-worker TT18; not final resources/strength/target-hardware acceptance",
+      "annotation_only": true
+    },
+    "component_validation": {
+      "startup_TT": {
+        "path": "/home/stemxstudio/rove4k-bce-startup-tt-zero-proof-20261021/results.json",
+        "bytes": 15219,
+        "sha256": "545620380b18fc35287906631266a6b300ef159f4baf426ae473747cf7d7f826"
+      }
     }
   }
 }

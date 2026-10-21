@@ -63,7 +63,8 @@
     "engines/scripts/shipping_common.py": "58f2cfdb37bbd0c010e82bc8d9c2118b00fe41ef6a556c18cc94db11455e2a15",
     "engines/scripts/shipping_refinements.py": "6ecb62499035cedaf6308539de0744a011f7b183ca768984462c4f0435406804",
     "engines/scripts/shipping_material_state.py": "eded8d82eed40c383564603a51582e829ff9de2fc626bdc11eab26e6c424b380",
-    "engines/scripts/shipping_integer_forms.py": "a989dc2fd2ea60d9ab786cf51874ea646363e6f5731a302e1335cbb283fbcd93"
+    "engines/scripts/shipping_integer_forms.py": "a989dc2fd2ea60d9ab786cf51874ea646363e6f5731a302e1335cbb283fbcd93",
+    "engines/scripts/shipping_compaction.py": "47977f6c944978675f1f37be733270c30ff39fc2f2c9f80c9e18243d496912c5"
   },
   "compression": {
     "format": "lzma-alone",
@@ -80,16 +81,16 @@
   },
   "expected": {
     "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
-    "source_bytes": 10702,
-    "source_sha256": "e15c61670e2addc01fa66432c3066fabb7b01f509bd84d9baa1f2d45095d4790",
+    "source_bytes": 10595,
+    "source_sha256": "036d9c1aaec37b68508ec76ea335e77775d486bf4141dd7d4e94698a6313e33b",
     "native_bytes": 26304,
-    "native_sha256": "84116aabdd831e97fea3305b5ec8ce06ea5a156daa15e4432521e97bffbc5478",
-    "whole_bytes": 5196,
-    "whole_sha256": "db693ef304ec35e8584a6ee6f53c8be4bb93fe1626853c6456eae687f7deb6eb",
+    "native_sha256": "fa59a8b1564effd373821e2768c4a4b5bbfd9a60ac1576f3892bc9dc5c605a3f",
+    "whole_bytes": 5162,
+    "whole_sha256": "c3140e749c94bccb4a65842f09f823331b7023be5b9cd7c504a8802dd8d78b7f",
     "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
     "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
-    "bootstrap_sha256": "75cc7044d61a2961d145e220837c736de964a2b99cafb9d8fdf0b864781980d1",
-    "bootstrap_bytes": 11759
+    "bootstrap_sha256": "474e139d607869374bcb69f769ade69de263b635fcc4c7010300cad5a2bde5f6",
+    "bootstrap_bytes": 11652
   },
   "local_input_sha256": {
     "engine.c": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
@@ -876,6 +877,93 @@
       "scope": "two exact shipping/DEV reproductions and new selected quit/EOF; local2-worker TT18 only",
       "final_native_full_bytes_equal_material_state": true,
       "producing_recipe_precedes_this_receipt_annotation": true
+    }
+  },
+  "job_startup_SEE_forms": {
+    "scope": "shipping-only worker reset ownership and startup calloc-covered plain TT fields; B adds TO127 SEE predicate and fixed TT18 casts; DEV retained",
+    "previous_expected": {
+      "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+      "source_bytes": 10702,
+      "source_sha256": "e15c61670e2addc01fa66432c3066fabb7b01f509bd84d9baa1f2d45095d4790",
+      "native_bytes": 26304,
+      "native_sha256": "84116aabdd831e97fea3305b5ec8ce06ea5a156daa15e4432521e97bffbc5478",
+      "whole_bytes": 5196,
+      "whole_sha256": "db693ef304ec35e8584a6ee6f53c8be4bb93fe1626853c6456eae687f7deb6eb",
+      "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
+      "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
+      "bootstrap_sha256": "75cc7044d61a2961d145e220837c736de964a2b99cafb9d8fdf0b864781980d1",
+      "bootstrap_bytes": 11759
+    },
+    "exact_source_replay": {
+      "family": "B",
+      "stage": "fixed-shipping-job-startup-SEE-forms",
+      "input_bytes": 10702,
+      "input_sha256": "e15c61670e2addc01fa66432c3066fabb7b01f509bd84d9baa1f2d45095d4790",
+      "output_bytes": 10595,
+      "output_sha256": "036d9c1aaec37b68508ec76ea335e77775d486bf4141dd7d4e94698a6313e33b",
+      "features": [
+        "startup-plain-TT-zero-covered-by-checked-calloc",
+        "per-entry-atomic-flag-clear-retained",
+        "worker-owned-unconditional-job-reset",
+        "fixed-positive-TT18-casts",
+        "SEE-TO127-promotion-rank-equivalence"
+      ],
+      "literal_spans": 5,
+      "exact_inverse": true,
+      "complement_bytes": 10422,
+      "complement_sha256": "30084011e7e4336cccbe2bdad57d63267d4f8b94431fa9989f0724a5a0ec6b4a",
+      "external_reads": 0,
+      "compiler_codec_engine_executed_by_transform": 0
+    },
+    "DEV_bypass": true,
+    "normal_validation": {
+      "status": "PASS ordinary --dev builder and unchanged selected verifier; no retry",
+      "summary": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-startup-hash-normal-20261021-evidence/summary.json",
+        "bytes": 18106,
+        "sha256": "4b7b98ecc6cdb94d11a112e307d388633a03fb061d2000b08167b85ac70c72ca"
+      },
+      "producing_recipe": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-startup-hash-normal-20261021-evidence/B-producing-recipe.json",
+        "bytes": 51924,
+        "sha256": "63561e174ee97474d54c4e5652e7018f8438c4cd9b79f791018d2de3216c5992"
+      },
+      "selections": {
+        "B": {
+          "build": {
+            "path": "/home/stemxstudio/rove4k-startup-hash-normal-20261021/B/build/build.json",
+            "bytes": 152715,
+            "sha256": "379aa7aeb3da9f4c33dc0d82142be5c91c9a21e2c27370595455aa2ddde9fc8e"
+          },
+          "runtime": {
+            "path": "/home/stemxstudio/rove4k-startup-hash-normal-20261021/B/runtime/runtime.json",
+            "bytes": 37066,
+            "sha256": "1b3cf28abdf21d67656121c1a48245b2bf90a9675345602b59fb460ef3db19d4"
+          },
+          "shipping_reproductions": 2,
+          "DEV_reproductions": 2,
+          "actual_quit_EOF_sessions": 2
+        }
+      },
+      "scope": "local2-worker TT18; not final resources/strength/target-hardware acceptance",
+      "annotation_only": true
+    },
+    "component_validation": {
+      "startup_TT": {
+        "path": "/home/stemxstudio/rove4k-bce-startup-tt-zero-proof-20261021/results.json",
+        "bytes": 15219,
+        "sha256": "545620380b18fc35287906631266a6b300ef159f4baf426ae473747cf7d7f826"
+      },
+      "worker_reset": {
+        "path": "/home/stemxstudio/rove4k-be-worker-reset-focused-20261021/results.json",
+        "bytes": 5013,
+        "sha256": "af1c72e264e470481a7b3ae0204d4566ef07d82573b69e159d77a75c8d8b7357"
+      },
+      "SEE_rank": {
+        "path": "/home/stemxstudio/rove4k-b-see-promotion-rank-proof-20261021-v2/results.json",
+        "bytes": 12019,
+        "sha256": "996b2dfec43f19e863e6a8bb96c002dbc7b8432fe3f86c1f31726d73299f96b6"
+      }
     }
   }
 }

@@ -1,3 +1,23 @@
+# Maintained E: job/startup source compaction — 2026-10-21
+
+Whole **5056→5028 B**, source **10581→10477 B**, gap **932 B**. The
+late shipping pass moves best reset into unconditional worker think and removes
+the GO reset loop, then omits calloc-covered plain TT zero stores while keeping
+every flag clear. The production all-worker completion fence remains. DEV and
+learners stay unchanged; E19 coefficients remain untrained. Direct preseeded
+think and general TT-reset contracts are separate.
+
+The ordinary --dev builder reproduces shipping and DEV twice; its unchanged
+selected verifier passes actual quit/EOF sessions, exact restoration, legal
+finite clocks, stable3 TIDs and physical exit. Local2-worker/TT18 only; final
+resources and strength remain open. Normal summary SHA-256:
+`4b7b98ecc6cdb94d11a112e307d388633a03fb061d2000b08167b85ac70c72ca`.
+
+Current source SHA-256: `1bf5ca54da0a0ae5ae7c96deabf3830bace04db821c56fd9759c35e317da7436`.
+Current whole SHA-256: `f32e6d680fc09737a33e06c9a28fb739a5b3e4bf8c0e816988bfd1cdf55a9880`.
+
+Older sections retain their original checkpoint identities.
+
 # Maintained E: integer source compression — 2026-10-21
 
 The late fixed integer pass uses the existing unsigned64 alias and high-bit

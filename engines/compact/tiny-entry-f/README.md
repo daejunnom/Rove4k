@@ -1,3 +1,26 @@
+# Maintained F: explicit smaller hash policy — 2026-10-21
+
+Default/full F is **4592 B**, source **8966 B**, still **496 B** above4096.
+Deleting the pure mixer's initial32B addition changes all hashes, rolling
+context, TT and correction buckets. It retains the remaining modulo64 finalizer
+and every full HCE/learning/full-key bound-TT/MTD(f)/SMP feature. This is an
+explicit hash-policy change; collision quality, equal traces and strength are
+not asserted. The independent new-policy ASan/UBSan proof covers vectors,
+rules, repetition, incremental context, TT key0 and16 terminal cases. Both
+optional selected images keep their previous bytes (4343/4067 B), while their
+separate full reference follows the new default. DEV retains its old policy.
+
+The ordinary --dev builder reproduces shipping and DEV twice; its unchanged
+selected verifier passes actual quit/EOF sessions, exact restoration, legal
+finite clocks, stable3 TIDs and physical exit. Local2-worker/TT18 only; final
+resources and strength remain open. Normal summary SHA-256:
+`4b7b98ecc6cdb94d11a112e307d388633a03fb061d2000b08167b85ac70c72ca`.
+
+Current source SHA-256: `298f9b9670f7de293e99e56a6c9b7532b29e009fd7f38f90751845f9d675d85b`.
+Current whole SHA-256: `1ced93a91ae11b86a92c935d706ce06d3731d9c10c4ddc4973a57fe3bb97932f`.
+
+Older sections retain their original checkpoint identities.
+
 # Maintained F: integer source compression — 2026-10-21
 
 The late fixed integer pass uses the existing unsigned64 alias and high-bit

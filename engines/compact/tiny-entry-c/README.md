@@ -1,3 +1,22 @@
+# Maintained C: startup TT source compaction — 2026-10-21
+
+Whole **4976→4969 B**, source **10151→10123 B**, gap **873 B**. The
+late shipping pass omits plain key/data stores covered by checked calloc before
+all threads/input/TT use, while explicitly clearing every atomic flag. DEV's
+general reset remains. Full signed-net/SIMD, search, TT, learners and SMP stay.
+Current C already reset best inside think, so no extra reset saving is claimed.
+
+The ordinary --dev builder reproduces shipping and DEV twice; its unchanged
+selected verifier passes actual quit/EOF sessions, exact restoration, legal
+finite clocks, stable3 TIDs and physical exit. Local2-worker/TT18 only; final
+resources and strength remain open. Normal summary SHA-256:
+`4b7b98ecc6cdb94d11a112e307d388633a03fb061d2000b08167b85ac70c72ca`.
+
+Current source SHA-256: `0eeee8fd2c976cd5a0221365e1765ad01714c68609183381ea19eb8f4b3118ff`.
+Current whole SHA-256: `e723a31bef3d0ab47d22bc50c5e22e2c0cd54f8b56f05776c7ab10bec2c85f96`.
+
+Older sections retain their original checkpoint identities.
+
 # Maintained C: integer source compression — 2026-10-21
 
 The late fixed integer pass uses the existing unsigned64 alias and high-bit
