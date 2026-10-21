@@ -7,7 +7,7 @@ use std::io::{Cursor, Read, Write};
 pub const MAX_PAYLOAD: usize = 8 << 20;
 const DECODER_MEMORY: u64 = 256 << 20;
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Recipe {
     pub format: String,
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
@@ -149,6 +149,161 @@ pub fn refinements(records: &[(Recipe, usize)], thorough: bool) -> Vec<Recipe> {
         }
     }
     output
+}
+
+/// Whether measured initial costs choose a second, adaptive recipe set.
+/// `None` evaluates the declared initial set completely; `LegacyUnion` is a
+/// heuristic and never promises to enumerate every match-finder combination.
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum RefinementMode {
+    None,
+    LegacyUnion,
+}
+
+#[derive(Clone, Debug, Serialize)]
+#[serde(tag = "kind", rename_all = "snake_case")]
+enum PortfolioRecipes {
+    Legacy {
+        thorough: bool,
+        submitted: Option<Recipe>,
+    },
+    Fixed {
+        recipes: Vec<Recipe>,
+        declared_count: usize,
+    },
+}
+
+/// Owns one finite codec policy, independently of payload generation and
+/// compression. In particular an added submitted recipe cannot displace a
+/// refinement that the earlier legacy search would have measured.
+#[derive(Clone, Debug, Serialize)]
+pub struct CodecPortfolio {
+    recipes: PortfolioRecipes,
+    refinement_mode: RefinementMode,
+}
+
+#[derive(Clone, Debug)]
+pub struct PortfolioPlan {
+    pub initial: Vec<Recipe>,
+    legacy_initial_count: usize,
+}
+
+impl CodecPortfolio {
+    pub fn legacy(thorough: bool, submitted: Option<Recipe>) -> Self {
+        Self {
+            recipes: PortfolioRecipes::Legacy {
+                thorough,
+                submitted,
+            },
+            refinement_mode: RefinementMode::LegacyUnion,
+        }
+    }
+
+    /// Preserve declaration order while coalescing exactly identical recipes.
+    /// This declares the complete codec domain, suitable for a finite source ×
+    /// codec comparison without source-dependent refinement seed selection.
+    pub fn fixed(recipes: Vec<Recipe>) -> Result<Self> {
+        ensure!(
+            (1..=16_384).contains(&recipes.len()),
+            "fixed codec portfolio must contain 1..16384 recipes"
+        );
+        let declared_count = recipes.len();
+        let mut seen = std::collections::HashSet::new();
+        let recipes = recipes
+            .into_iter()
+            .filter(|recipe| seen.insert(recipe.clone()))
+            .collect();
+        Ok(Self {
+            recipes: PortfolioRecipes::Fixed {
+                recipes,
+                declared_count,
+            },
+            refinement_mode: RefinementMode::None,
+        })
+    }
+
+    pub fn with_refinement_mode(mut self, mode: RefinementMode) -> Self {
+        self.refinement_mode = mode;
+        self
+    }
+
+    pub fn plan(&self, payload_size: usize) -> PortfolioPlan {
+        match &self.recipes {
+            PortfolioRecipes::Legacy {
+                thorough,
+                submitted,
+            } => {
+                let mut initial = recipes(payload_size, *thorough);
+                let legacy_initial_count = initial.len();
+                if let Some(recipe) = submitted {
+                    if !initial.contains(recipe) {
+                        initial.push(recipe.clone());
+                    }
+                }
+                PortfolioPlan {
+                    initial,
+                    legacy_initial_count,
+                }
+            }
+            PortfolioRecipes::Fixed { recipes, .. } => PortfolioPlan {
+                initial: recipes.clone(),
+                legacy_initial_count: recipes.len(),
+            },
+        }
+    }
+
+    pub fn refinement_recipes(
+        &self,
+        plan: &PortfolioPlan,
+        complete_file_sizes: &[usize],
+    ) -> Result<Vec<Recipe>> {
+        ensure!(
+            plan.initial.len() == complete_file_sizes.len(),
+            "codec refinement costs do not match initial recipe domain"
+        );
+        ensure!(
+            plan.legacy_initial_count <= plan.initial.len(),
+            "legacy codec prefix exceeds initial domain"
+        );
+        if self.refinement_mode == RefinementMode::None {
+            return Ok(Vec::new());
+        }
+        let thorough = matches!(
+            self.recipes,
+            PortfolioRecipes::Legacy { thorough: true, .. }
+        );
+        let sizes: Vec<_> = plan
+            .initial
+            .iter()
+            .cloned()
+            .zip(complete_file_sizes.iter().copied())
+            .collect();
+        let mut output = refinements(&sizes[..plan.legacy_initial_count], thorough);
+        for recipe in refinements(&sizes, thorough) {
+            if !output.contains(&recipe) {
+                output.push(recipe);
+            }
+        }
+        Ok(output)
+    }
+
+    pub fn context(&self) -> serde_json::Value {
+        serde_json::json!({
+            "policy":self,
+            "domain":if self.refinement_mode == RefinementMode::None {
+                "all declared initial recipes; exact duplicates retain the first occurrence"
+            } else if matches!(&self.recipes, PortfolioRecipes::Fixed { .. }) {
+                "declared initial recipes followed by measured two-family match-finder refinements"
+            } else {
+                "legacy initial recipes plus submitted recipe, then union of legacy and augmented two-family refinements"
+            },
+            "adaptive_refinement":self.refinement_mode != RefinementMode::None,
+            "exhaustive_declared_recipe_domain":self.refinement_mode == RefinementMode::None,
+            "global_optimum":false,
+            "tie_order":"initial declaration order, followed by refinement declaration order"
+        })
+    }
 }
 
 fn read_bounded(reader: &mut impl Read, maximum: usize) -> Result<Vec<u8>> {

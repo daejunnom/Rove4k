@@ -1,9 +1,12 @@
 pub mod attempts;
+mod c_frontend;
 pub mod cflow;
 pub mod codec;
 pub mod csource;
 pub mod elf;
 pub mod envelope;
+pub mod envelope_cost;
+mod envelope_source;
 pub mod native;
 pub mod notation;
 pub mod pack;

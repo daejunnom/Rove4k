@@ -81,6 +81,7 @@ fn options(clang: &str, embedding: Value) -> source_search::SourceSearchOptions 
         conditions: false,
         max_rounds: 1,
         max_evaluations: 128,
+        max_combinations: 16384,
         max_seconds: 60.0,
         max_retained_source_bytes: 64 << 20,
         compile_limits: process::Limits {
@@ -238,6 +239,97 @@ fn whole_file_objective_retains_equal_length_name_improvements_and_replays() {
         !directory.path().join("current/x").exists(),
         "the bootstrap must never execute"
     );
+}
+
+#[test]
+fn losing_singles_remain_composable_and_fresh_cost_cannot_use_measurement_cache() {
+    let Some((clang, compiler)) = tools() else {
+        return;
+    };
+    const INPUT: &[u8] = b"int f(int alpha){return alpha+1;}int g(int beta){return beta+2;}int main(void){return f(1)!=g(0);}\n";
+    struct NonMonotoneCost {
+        fresh_calls: usize,
+        fail_fresh: bool,
+    }
+    impl source_search::CompleteFileObjective for NonMonotoneCost {
+        fn measure(&mut self, data: &[u8]) -> anyhow::Result<usize> {
+            let source = std::str::from_utf8(data)?;
+            Ok(match (source.contains("alpha"), source.contains("beta")) {
+                (true, true) => 100,
+                (false, false) => 90,
+                _ => 101,
+            })
+        }
+        fn fresh_measure(&mut self, data: &[u8]) -> anyhow::Result<usize> {
+            self.fresh_calls += 1;
+            Ok(self.measure(data)? + usize::from(self.fail_fresh))
+        }
+    }
+    let directory = tempfile::tempdir().unwrap();
+    let mut opts = options(&clang, Value::Null);
+    opts.embedding = None;
+    opts.embedding_contract = "opaque".into();
+    opts.candidates.max_candidates = 3;
+    opts.candidates.max_name_groups = 2;
+    opts.candidates.names_per_group = 1;
+    opts.max_combinations = 8;
+    opts.max_evaluations = 16;
+    let compile = compiler_argv(&compiler);
+    let mut objective = NonMonotoneCost {
+        fresh_calls: 0,
+        fail_fresh: false,
+    };
+    let searched = source_search::search_with_objective(
+        INPUT,
+        &opts,
+        &compile,
+        &directory.path().join("combinations"),
+        None,
+        &mut objective,
+    )
+    .unwrap();
+    assert_eq!(searched.report["selected_whole_file_bytes"], 90);
+    assert_eq!(objective.fresh_calls, 1);
+    let space = &searched.report["coverage"]["basis_spaces"][0];
+    assert_eq!(space["generated_choices"], 2);
+    assert_eq!(space["nontrivial_subsets"], "1");
+    assert_eq!(space["systematic_subsets_attempted"], 1);
+    assert_eq!(space["exhausted"], true);
+    assert_eq!(space["all_declared_costs_evaluated"], true);
+    let records = searched.report["records"].as_array().unwrap();
+    assert_eq!(
+        records
+            .iter()
+            .filter(|r| r["stage"] == "complete-file-cost" && r["whole_file_bytes"] == 101)
+            .count(),
+        2
+    );
+    assert!(records
+        .iter()
+        .any(|r| r["stage"] == "composition-admitted" && r["phase"] == "systematic"));
+    assert_eq!(
+        source_search::replay(
+            INPUT,
+            &searched.recipe,
+            &compile,
+            &directory.path().join("replay")
+        )
+        .unwrap(),
+        searched.data
+    );
+
+    let out = directory.path().join("fresh-failure");
+    let mut changed = NonMonotoneCost {
+        fresh_calls: 0,
+        fail_fresh: true,
+    };
+    let error =
+        source_search::search_with_objective(INPUT, &opts, &compile, &out, None, &mut changed)
+            .unwrap_err();
+    assert!(format!("{error:#}").contains("final complete-file cost is not reproducible"));
+    assert_eq!(changed.fresh_calls, 1);
+    let compared = attempts::compare(&[out.join("source-search/attempts")]).unwrap();
+    assert_eq!(compared["runs"][0]["status"], "failed");
 }
 
 #[test]

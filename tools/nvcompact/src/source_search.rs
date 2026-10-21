@@ -14,10 +14,12 @@ use crate::{sha256, write_json};
 use anyhow::{bail, ensure, Context, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::time::Instant;
+
+mod plan;
+mod runtime;
 
 const SCHEMA: &str = "nvcompact-source-search-v1";
 const MAX_RECORDS: usize = 32768;
@@ -32,6 +34,9 @@ pub struct SourceSearchOptions {
     pub conditions: bool,
     pub max_rounds: usize,
     pub max_evaluations: usize,
+    /// Composition attempts, including incompatible subsets. This is separate
+    /// from expensive whole-file measurements and never filters by source size.
+    pub max_combinations: usize,
     pub max_seconds: f64,
     /// Additional deduplicated source snapshots. Original inputs are retained
     /// separately under the existing 8 MiB per-input bound.
@@ -48,6 +53,7 @@ impl Default for SourceSearchOptions {
             conditions: true,
             max_rounds: 2,
             max_evaluations: 2048,
+            max_combinations: 16384,
             max_seconds: 300.0,
             max_retained_source_bytes: 64 << 20,
             compile_limits: Limits::default(),
@@ -65,6 +71,10 @@ impl SourceSearchOptions {
         ensure!(
             (1..=16384).contains(&self.max_evaluations),
             "max_evaluations must be 1..16384"
+        );
+        ensure!(
+            (1..=1_048_576).contains(&self.max_combinations),
+            "max_combinations must be 1..1048576"
         );
         ensure!(
             self.max_seconds.is_finite() && self.max_seconds > 0.0 && self.max_seconds <= 86400.0,
@@ -111,93 +121,64 @@ struct Score {
     payload_sha256: String,
 }
 
-struct Budget {
-    started: Instant,
-    evaluations: usize,
-    maximum: usize,
-    seconds: f64,
-    reason: Option<String>,
-    frontend_capacity_stop: Option<Value>,
-    records: Vec<Value>,
-    record_bytes: usize,
-    costs: HashMap<String, usize>,
-    archive: Archive,
-    retention_stop: Option<Value>,
+/// A caller owns the whole-file objective, including codec/header context.
+/// Fresh validation is a different operation from reusable cost measurement.
+pub trait CompleteFileObjective {
+    fn measure(&mut self, payload: &[u8]) -> Result<usize>;
+    fn fresh_measure(&mut self, payload: &[u8]) -> Result<usize>;
 }
 
-impl Budget {
+struct CallbackObjective<'a, F>(&'a mut F);
+impl<F: FnMut(&[u8]) -> Result<usize>> CompleteFileObjective for CallbackObjective<'_, F> {
+    fn measure(&mut self, payload: &[u8]) -> Result<usize> {
+        (self.0)(payload)
+    }
+    fn fresh_measure(&mut self, payload: &[u8]) -> Result<usize> {
+        (self.0)(payload)
+    }
+}
+
+/// Deferred systematic work owns immutable bases and derivations, never ASTs
+/// for every branch. Priority scheduling and eligibility are independent.
+struct RoundSpace {
+    source: Vec<u8>,
+    choices: Vec<Variant>,
+    prefix: Vec<Value>,
+    round: usize,
+}
+
+const MAX_PLAN_SOURCE_BYTES: usize = 64 << 20;
+
+/// One run wires independent owners together; scheduling does not own evidence,
+/// and evidence retention cannot silently turn a measured candidate into proof.
+struct SearchRun {
+    budget: runtime::RunBudget,
+    journal: runtime::EvidenceJournal,
+    costs: runtime::CostMemo,
+    frontend_capacity_stop: Option<Value>,
+}
+
+impl SearchRun {
     fn new(options: &SourceSearchOptions, archive: Archive) -> Self {
         Self {
-            started: Instant::now(),
-            evaluations: 0,
-            maximum: options.max_evaluations,
-            seconds: options.max_seconds,
-            reason: None,
+            budget: runtime::RunBudget::new(options),
+            journal: runtime::EvidenceJournal::new(archive),
+            costs: runtime::CostMemo::new(),
             frontend_capacity_stop: None,
-            records: Vec::new(),
-            record_bytes: 0,
-            costs: HashMap::new(),
-            archive,
-            retention_stop: None,
         }
     }
-
     fn cancelled(&self) -> Result<()> {
-        ensure!(!process::cancelled(), "source search cancelled");
-        Ok(())
+        self.budget.cancelled()
     }
-
     fn available(&mut self) -> Result<bool> {
-        self.cancelled()?;
-        if self.reason.is_none() && self.started.elapsed().as_secs_f64() >= self.seconds {
-            self.reason = Some("scheduling-time-budget".into());
-        }
-        Ok(self.reason.is_none())
+        self.budget.available()
     }
-
     fn verification_available(&mut self) -> Result<bool> {
-        self.cancelled()?;
-        if self.started.elapsed().as_secs_f64() >= self.seconds {
-            self.reason = Some("scheduling-time-budget".into());
-        }
-        Ok(self
-            .reason
-            .as_deref()
-            .is_none_or(|r| r == "complete-file-evaluation-budget"))
+        self.budget.verification_available()
     }
-
     fn record(&mut self, value: Value) -> Result<bool> {
-        self.cancelled()?;
-        let bytes = serde_json::to_vec(&value)?.len();
-        if self.records.len() >= MAX_RECORDS
-            || bytes > MAX_REPORT_BYTES.saturating_sub(self.record_bytes)
-        {
-            // Unlike exhaustion of new cost measurements, losing the ability
-            // to retain evidence also stops verification of measured singles.
-            self.reason = Some("report-memory-budget".into());
-            // Keep one bounded emergency receipt on disk. A large unretained
-            // derivation cannot be measured or admitted after this boundary.
-            if self.retention_stop.is_none() {
-                let detail = if bytes <= 65536 {
-                    value.clone()
-                } else {
-                    json!({"stage":value["stage"],"round":value["round"],
-                        "id":value["id"],"unretained_record_bytes":bytes,
-                        "unretained_record_sha256":sha256(&serde_json::to_vec(&value)?)})
-                };
-                let stop = json!({"stage":"retention-capacity-stop","reason":"report-memory-budget",
-                    "last_observation":detail,"candidate_not_admitted":true});
-                self.archive.append(&stop)?;
-                self.retention_stop = Some(stop);
-            }
-            return Ok(false);
-        }
-        self.archive.append(&value)?;
-        self.record_bytes += bytes;
-        self.records.push(value);
-        Ok(true)
+        self.journal.record(&mut self.budget, value)
     }
-
     fn candidate(
         &mut self,
         stage: &str,
@@ -205,24 +186,16 @@ impl Budget {
         base: &[u8],
         variant: &Variant,
     ) -> Result<bool> {
-        ensure!(
-            sha256(&variant.data) == variant.sha256 && variant.data.len() == variant.bytes,
-            "candidate snapshot differs from its derivation identity"
-        );
-        if !self.archive.source(base)? || !self.archive.source(&variant.data)? {
-            self.reason = Some("retained-source-byte-budget".into());
-            let stop = json!({"stage":"retention-capacity-stop","reason":self.reason,"round":round,
-                "id":variant.id,"source_sha256":variant.sha256,"source_bytes":variant.bytes,
-                "base_source_sha256":sha256(base),"unretained_candidate":true,
-                "retained":"last fully verified incumbent; remaining generated candidates not explored"});
-            self.retention_stop = Some(stop.clone());
-            self.record(stop)?;
-            return Ok(false);
-        }
-        self.record(json!({"stage":stage,"round":round,"variant":variant,
-            "base_source_sha256":sha256(base)}))
+        self.journal
+            .candidate(&mut self.budget, stage, round, base, variant)
     }
-
+    fn measure(
+        &mut self,
+        payload: &[u8],
+        measure: &mut impl FnMut(&[u8]) -> Result<usize>,
+    ) -> Result<Option<(usize, bool)>> {
+        self.costs.measure(&mut self.budget, payload, measure)
+    }
     fn stop_for_frontend_capacity(
         &mut self,
         error: &anyhow::Error,
@@ -231,6 +204,12 @@ impl Budget {
         id: &str,
     ) -> Result<bool> {
         self.cancelled()?;
+        ensure!(
+            error
+                .downcast_ref::<csource::FrontendContextChanged>()
+                .is_none(),
+            "source-search frontend context changed: {error:#}"
+        );
         let Some(capacity) = error.downcast_ref::<cflow::FrontendOutputLimit>() else {
             return Ok(false);
         };
@@ -238,36 +217,10 @@ impl Budget {
             "reason":format!("{error:#}"),"capture":capacity,"syntax_recheck":"passed",
             "frontend_proof":"incomplete","truncated_output_accepted":false,
             "retained":"last fully verified incumbent; unchanged C retains byte-identity proof"});
-        self.reason = Some("frontend-output-budget".into());
-        // Retain this bounded receipt even if the detailed-record budget fills
-        // at this point. No partial frontend output can become an accepted AST.
+        self.budget.reason = Some("frontend-output-budget".into());
         self.frontend_capacity_stop = Some(evidence.clone());
         self.record(evidence)?;
         Ok(true)
-    }
-
-    fn measure(
-        &mut self,
-        payload: &[u8],
-        measure: &mut impl FnMut(&[u8]) -> Result<usize>,
-    ) -> Result<Option<(usize, bool)>> {
-        let hash = sha256(payload);
-        if let Some(&cost) = self.costs.get(&hash) {
-            return Ok(Some((cost, true)));
-        }
-        if !self.available()? {
-            return Ok(None);
-        }
-        // Reserve the last allowed measurement for fresh final-cost readback.
-        // A one-evaluation request therefore returns the measured raw input.
-        if self.evaluations + 1 >= self.maximum {
-            self.reason = Some("complete-file-evaluation-budget".into());
-            return Ok(None);
-        }
-        self.evaluations += 1;
-        let cost = measure(payload)?;
-        self.costs.insert(hash, cost);
-        Ok(Some((cost, false)))
     }
 }
 
@@ -330,7 +283,7 @@ fn cflow_options(options: &SourceSearchOptions) -> cflow::CFlowOptions {
 }
 
 fn score_source(
-    budget: &mut Budget,
+    budget: &mut SearchRun,
     adapter: &PayloadAdapter,
     source: &[u8],
     id: &str,
@@ -385,17 +338,23 @@ fn admit(
     source: &[u8],
     variant: &Variant,
     spelling: bool,
+    prepared: Option<&csource::PreparedSource>,
     options: &SourceSearchOptions,
     compiler: &[String],
     native_dir: &Path,
     baseline: &Value,
     frontend: &Value,
-    budget: &mut Budget,
+    budget: &mut SearchRun,
     round: usize,
 ) -> Result<Value> {
     check_tool(&options.candidates.frontend.clang, frontend, "frontend")?;
     if spelling {
-        csource::verify_variant(source, variant, &options.candidates)?;
+        if let Some(prepared) = prepared {
+            ensure!(prepared.source() == source, "prepared source basis differs");
+            prepared.verify_variant(variant)?;
+        } else {
+            csource::verify_variant(source, variant, &options.candidates)?;
+        }
     }
     let native = native_fingerprint(&variant.data, compiler, native_dir, &options.compile_limits)?;
     ensure!(
@@ -447,6 +406,24 @@ pub fn search_with_cost_context(
     cost_objective: Option<&Value>,
     measure: &mut impl FnMut(&[u8]) -> Result<usize>,
 ) -> Result<SearchResult> {
+    search_with_objective(
+        payload,
+        options,
+        compiler,
+        out,
+        cost_objective,
+        &mut CallbackObjective(measure),
+    )
+}
+
+pub fn search_with_objective(
+    payload: &[u8],
+    options: &SourceSearchOptions,
+    compiler: &[String],
+    out: &Path,
+    cost_objective: Option<&Value>,
+    objective: &mut impl CompleteFileObjective,
+) -> Result<SearchResult> {
     options.validate()?;
     ensure!(
         !compiler.is_empty(),
@@ -463,24 +440,31 @@ pub fn search_with_cost_context(
         compiler,
         cost_objective,
     )?;
-    let mut budget = Budget::new(options, archive);
-    let mut result = search_inner(payload, options, compiler, &directory, measure, &mut budget);
+    let mut budget = SearchRun::new(options, archive);
+    let mut result = search_inner(
+        payload,
+        options,
+        compiler,
+        &directory,
+        objective,
+        &mut budget,
+    );
     let outcome = match &result {
         Ok(searched) => {
-            json!({"status":searched.report["status"],"exhaustion_reason":budget.reason,
-            "retention_stop":budget.retention_stop,"final":searched.recipe["final"]})
+            json!({"status":searched.report["status"],"exhaustion_reason":budget.budget.reason,
+            "retention_stop":budget.journal.retention_stop,"final":searched.recipe["final"]})
         }
         Err(error) => json!({"status":"failed","error":format!("{error:#}"),
-            "exhaustion_reason":budget.reason,"retention_stop":budget.retention_stop}),
+            "exhaustion_reason":budget.budget.reason,"retention_stop":budget.journal.retention_stop}),
     };
-    let attempts = match budget.archive.finish(outcome) {
+    let attempts = match budget.journal.archive.finish(outcome) {
         Ok(value) => value,
         Err(archive_error) => {
             let original_error = result.as_ref().err().map(|error| format!("{error:#}"));
             let receipt_error = write_json(&directory.join("failed-report.json"),
                 &json!({"schema":SCHEMA,"status":"failed","input_payload_sha256":sha256(payload),
                     "search_error":original_error,"evidence_error":format!("{archive_error:#}"),
-                    "records":budget.records,"evaluations":budget.evaluations,
+                    "records":budget.journal.records,"evaluations":budget.budget.evaluations,
                     "preserved":"existing source snapshots, event journal and any completed search files; not a completed evidence archive"}))
                 .err().map(|error|format!("{error:#}"));
             let detail = format!("retained-attempt finalization failed: {archive_error:#}; failed-receipt write error: {}",
@@ -499,8 +483,8 @@ pub fn search_with_cost_context(
             &directory.join("failed-report.json"),
             &json!({"schema":SCHEMA,"status":"failed",
             "error":format!("{error:#}"),"input_payload_sha256":sha256(payload),
-            "evaluations":budget.evaluations,"records":budget.records,"attempts":attempts,
-            "seconds":budget.started.elapsed().as_secs_f64()}),
+            "evaluations":budget.budget.evaluations,"records":budget.journal.records,"attempts":attempts,
+            "seconds":budget.budget.started.elapsed().as_secs_f64()}),
         ) {
             let original = result.expect_err("failed-report branch has a search failure");
             return Err(
@@ -516,15 +500,19 @@ fn search_inner(
     options: &SourceSearchOptions,
     compiler: &[String],
     directory: &Path,
-    measure: &mut impl FnMut(&[u8]) -> Result<usize>,
-    budget: &mut Budget,
+    objective: &mut impl CompleteFileObjective,
+    budget: &mut SearchRun,
 ) -> Result<SearchResult> {
+    let measure = &mut |data: &[u8]| objective.measure(data);
     budget.cancelled()?;
     let adapter = PayloadAdapter::new(payload, options.embedding.as_ref())?;
     let original_source = adapter.source().to_vec();
     let compiler_pin = tool_pin(&compiler[0])?;
     let frontend_pin = tool_pin(&options.candidates.frontend.clang)?;
-    budget.archive.input("original-source", &original_source)?;
+    budget
+        .journal
+        .archive
+        .input("original-source", &original_source)?;
     budget.record(
         json!({"stage":"search-context","input_source_sha256":sha256(&original_source),
         "compiler":compiler_pin,"frontend":frontend_pin}),
@@ -547,9 +535,9 @@ fn search_inner(
     budget.record(json!({"stage":"baseline-compile","attempt":2,"native":repeated}))?;
     same_native(&repeated, &baseline).context("original native compilation is not reproducible")?;
     check_tool(&compiler[0], &compiler_pin, "compiler")?;
-    budget.evaluations += 1;
+    budget.budget.evaluations += 1;
     let initial_cost = measure(payload).context("original complete-file cost failed")?;
-    budget.costs.insert(sha256(payload), initial_cost);
+    budget.costs.insert_baseline(payload, initial_cost);
     budget.record(json!({"stage":"baseline-cost","whole_file_bytes":initial_cost,"payload_bytes":payload.len(),"payload_sha256":sha256(payload)}))?;
     let initial_style = if options.embedding.is_some() {
         "original"
@@ -564,6 +552,10 @@ fn search_inner(
         payload_sha256: sha256(payload),
     };
     let mut steps = Vec::new();
+    let mut spaces = Vec::new();
+    let mut plan_bytes = 0usize;
+    let mut coverage = Vec::new();
+    let mut frontend_work = Vec::new();
 
     // Literal-envelope spelling alone can improve a submission. This is kept
     // separate from a C source edit and needs no fictitious source derivation.
@@ -597,8 +589,8 @@ fn search_inner(
             &frontend_pin,
             "frontend",
         )?;
-        let generated = match csource::generate_variants(&round_source, &options.candidates)
-            .context("C spelling candidate generation failed")
+        let prepared = match csource::PreparedSource::new(&round_source, &options.candidates)
+            .context("C spelling basis preparation failed")
         {
             Ok(value) => value,
             Err(error) => {
@@ -613,14 +605,19 @@ fn search_inner(
                 return Err(error);
             }
         };
+        let generated = prepared
+            .generate_variants()
+            .context("C spelling candidate generation failed")?;
         if !budget.record(
             json!({"stage":"generation-summary","family":"c-source","round":round,
             "variants_including_raw":generated.len(),"raw":generated.first()}),
         )? {
             break;
         }
+        let generation = generated.first().map(|v| v.contract["generation"].clone());
         let mut singles = Vec::new();
         let mut seen = HashSet::from([sha256(&round_source)]);
+        let mut choices = Vec::new();
         for variant in generated {
             if !seen.insert(variant.sha256.clone()) {
                 continue;
@@ -628,6 +625,7 @@ fn search_inner(
             if !budget.candidate("spelling-candidate", round, &round_source, &variant)? {
                 break;
             }
+            choices.push(variant.clone());
             // Generation is already bounded: preserve remaining candidates
             // after a scheduling/evaluation stop without running new work.
             if !budget.available()? {
@@ -646,6 +644,24 @@ fn search_inner(
                     singles.push((variant, score));
                 }
             }
+        }
+        let retained_bytes =
+            round_source.len() + choices.iter().map(|v| v.data.len()).sum::<usize>();
+        let scheduled = retained_bytes <= MAX_PLAN_SOURCE_BYTES.saturating_sub(plan_bytes);
+        coverage.push(json!({"round":round,"basis_source_sha256":sha256(&round_source),
+            "generated_choices":choices.len(),"nontrivial_subsets":plan::Combinations::cardinality(choices.len()),
+            "systematic_subsets_attempted":0,"incompatible_subsets":0,"duplicate_sources":0,
+            "scheduled":scheduled,"stop":if scheduled{Value::Null}else{json!("plan-source-memory-budget")},
+            "generation":generation,
+            "scope":"all subsets of generated spelling choices on this visited priority basis; compatible audited edits commute"}));
+        if scheduled {
+            plan_bytes += retained_bytes;
+            spaces.push(RoundSpace {
+                source: round_source.clone(),
+                choices,
+                prefix: steps.clone(),
+                round,
+            });
         }
         singles.sort_by(|a, b| (a.1.cost, &a.0.id).cmp(&(b.1.cost, &b.0.id)));
         let mut selected = Vec::<Variant>::new();
@@ -666,7 +682,7 @@ fn search_inner(
             let combined = if selected.is_empty() {
                 single
             } else {
-                match csource::compose_variants(&round_source, &proposed, &options.candidates) {
+                match prepared.compose_variants(&proposed) {
                     Ok(value) => value,
                     Err(error) => {
                         budget.record(json!({"stage":"composition-rejected","round":round,
@@ -707,6 +723,7 @@ fn search_inner(
                 &round_source,
                 &combined,
                 true,
+                Some(&prepared),
                 options,
                 compiler,
                 &native_dir,
@@ -756,8 +773,15 @@ fn search_inner(
 
         if options.conditions && budget.available()? {
             let flow_options = cflow_options(options);
-            let flows = match cflow::generate_variants(&source, &flow_options)
-                .context("typed C condition candidate generation failed")
+            let flows = match (|| {
+                if source == round_source {
+                    prepared.flow_variants(&flow_options)
+                } else {
+                    csource::PreparedSource::new(&source, &options.candidates)?
+                        .flow_variants(&flow_options)
+                }
+            })()
+            .context("typed C condition candidate generation failed")
             {
                 Ok(value) => value,
                 Err(error) => {
@@ -813,6 +837,7 @@ fn search_inner(
                     &source,
                     &variant,
                     false,
+                    None,
                     options,
                     compiler,
                     &native_dir,
@@ -836,6 +861,14 @@ fn search_inner(
                         break;
                     }
                     Err(error) => {
+                        if budget.stop_for_frontend_capacity(
+                            &error,
+                            "condition-admission",
+                            round,
+                            &variant.id,
+                        )? {
+                            break;
+                        }
                         budget.cancelled()?;
                         budget.record(
                             json!({"stage":"semantic-rejected","round":round,"id":variant.id,
@@ -846,9 +879,158 @@ fn search_inner(
                 }
             }
         }
+        frontend_work.push(
+            json!({"round":round,"phase":"priority","basis_source_sha256":sha256(&round_source),
+            "shared_analysis":prepared.statistics()}),
+        );
         if current.cost == before_cost {
             break;
         }
+    }
+
+    // Cost is not monotone under composition. The priority pass above is only
+    // an ordering policy; a losing or tied single remains eligible here.
+    let mut combination_attempts = 0usize;
+    for space in spaces {
+        let entry = coverage
+            .iter_mut()
+            .find(|v| v["round"] == space.round)
+            .unwrap();
+        if !budget.available()? {
+            entry["stop"] = json!(budget.budget.reason);
+            continue;
+        }
+        if space.choices.len() < 2 {
+            entry["exhausted"] = json!(true);
+            continue;
+        }
+        let prepared = match csource::PreparedSource::new(&space.source, &options.candidates) {
+            Ok(value) => value,
+            Err(error) => {
+                if budget.stop_for_frontend_capacity(
+                    &error,
+                    "combination-basis",
+                    space.round,
+                    "round-input",
+                )? {
+                    entry["stop"] = json!(budget.budget.reason);
+                    continue;
+                }
+                return Err(error);
+            }
+        };
+        let mut seen: HashSet<String> = space.choices.iter().map(|v| v.sha256.clone()).collect();
+        seen.insert(sha256(&space.source));
+        let mut attempted = 0usize;
+        let mut incompatible = 0usize;
+        let mut duplicate = 0usize;
+        let mut exhausted = true;
+        for indices in plan::Combinations::new(space.choices.len()) {
+            if !budget.available()? || combination_attempts >= options.max_combinations {
+                exhausted = false;
+                if budget.budget.reason.is_none() {
+                    budget.budget.reason = Some("combination-attempt-budget".into());
+                }
+                entry["stop"] = json!(budget
+                    .budget
+                    .reason
+                    .as_deref()
+                    .unwrap_or("combination-attempt-budget"));
+                break;
+            }
+            attempted += 1;
+            combination_attempts += 1;
+            let proposed: Vec<_> = indices.iter().map(|&i| space.choices[i].clone()).collect();
+            let combined = match prepared.compose_variants(&proposed) {
+                Ok(value) => value,
+                Err(error) => {
+                    incompatible += 1;
+                    budget.record(json!({"stage":"composition-rejected","round":space.round,
+                        "phase":"systematic","base_source_sha256":sha256(&space.source),
+                        "components":indices,"reason":format!("{error:#}"),
+                        "classification":"overlap or binding-contract inapplicability"}))?;
+                    continue;
+                }
+            };
+            if !seen.insert(combined.sha256.clone()) {
+                duplicate += 1;
+                continue;
+            }
+            if !budget.candidate("composed-candidate", space.round, &space.source, &combined)? {
+                exhausted = false;
+                entry["stop"] = json!(budget.budget.reason);
+                break;
+            }
+            let Some(score) = score_source(
+                budget,
+                &adapter,
+                &combined.data,
+                &combined.id,
+                space.round,
+                current.cost,
+                measure,
+            )?
+            else {
+                continue;
+            };
+            if score.cost >= current.cost || !budget.verification_available()? {
+                continue;
+            }
+            match admit(
+                &space.source,
+                &combined,
+                true,
+                Some(&prepared),
+                options,
+                compiler,
+                &native_dir,
+                &baseline,
+                &frontend_pin,
+                budget,
+                space.round,
+            ) {
+                Ok(native) => {
+                    let rendered = payload_for(&adapter, &combined.data, &score)?;
+                    if !budget.record(json!({"stage":"composition-admitted","round":space.round,
+                        "phase":"systematic","id":combined.id,"source_sha256":combined.sha256,
+                        "payload_sha256":score.payload_sha256,"whole_file_bytes":score.cost,"native":native}))? {
+                        exhausted = false;
+                        entry["stop"] = json!(budget.budget.reason);
+                        break;
+                    }
+                    steps = space.prefix.clone();
+                    steps.push(json!({"kind":"c-source","round":space.round,
+                        "input_source_sha256":sha256(&space.source),"variant":combined,"style":score.style,
+                        "payload_sha256":score.payload_sha256,"whole_file_bytes":score.cost,"native":native}));
+                    source = combined.data;
+                    current_payload = rendered;
+                    current = score;
+                }
+                Err(error) => {
+                    if budget.stop_for_frontend_capacity(
+                        &error,
+                        "combination-admission",
+                        space.round,
+                        &combined.id,
+                    )? {
+                        exhausted = false;
+                        entry["stop"] = json!(budget.budget.reason);
+                        break;
+                    }
+                    budget.cancelled()?;
+                    budget.record(json!({"stage":"semantic-rejected","round":space.round,
+                        "id":combined.id,"source_sha256":combined.sha256,"reason":format!("{error:#}"),
+                        "measured_whole_file_bytes":score.cost}))?;
+                }
+            }
+        }
+        entry["systematic_subsets_attempted"] = json!(attempted);
+        entry["incompatible_subsets"] = json!(incompatible);
+        entry["duplicate_sources"] = json!(duplicate);
+        entry["exhausted"] = json!(exhausted);
+        entry["all_declared_costs_evaluated"] = json!(exhausted && budget.budget.reason.is_none());
+        frontend_work.push(json!({"round":space.round,"phase":"systematic",
+            "basis_source_sha256":sha256(&space.source),"shared_analysis":prepared.statistics()}));
     }
 
     budget.cancelled()?;
@@ -876,12 +1058,12 @@ fn search_inner(
     );
     if current_payload != payload {
         ensure!(
-            budget.evaluations < options.max_evaluations,
+            budget.budget.evaluations < options.max_evaluations,
             "final complete-file measurement reservation lost"
         );
-        budget.evaluations += 1;
+        budget.budget.evaluations += 1;
         ensure!(
-            measure(&current_payload)? == current.cost,
+            objective.fresh_measure(&current_payload)? == current.cost,
             "final complete-file cost is not reproducible"
         );
     }
@@ -899,15 +1081,20 @@ fn search_inner(
         "compiler":compiler_pin,"frontend":frontend_pin,"input_payload_sha256":sha256(payload),
         "input_source_sha256":sha256(&original_source),"baseline_native":baseline,
         "baseline_whole_file_bytes":initial_cost,"steps":steps,"final":final_record});
-    let report = json!({"schema":SCHEMA,"status":if budget.reason.is_some(){"budget-exhausted"}else{"completed"},
-        "exhaustion_reason":budget.reason,"frontend_capacity_stop":budget.frontend_capacity_stop,
-        "retention_stop":budget.retention_stop,
-        "evaluations":budget.evaluations,"evaluation_limit":options.max_evaluations,
-        "seconds":budget.started.elapsed().as_secs_f64(),"time_limit_kind":"scheduling deadline between bounded operations; final acceptance completes separately",
+    let report = json!({"schema":SCHEMA,"status":if budget.budget.reason.is_some(){"budget-exhausted"}else{"completed"},
+        "exhaustion_reason":budget.budget.reason,"frontend_capacity_stop":budget.frontend_capacity_stop,
+        "retention_stop":budget.journal.retention_stop,
+        "evaluations":budget.budget.evaluations,"evaluation_limit":options.max_evaluations,
+        "seconds":budget.budget.started.elapsed().as_secs_f64(),"time_limit_kind":"scheduling deadline between bounded operations; final acceptance completes separately",
         "original_whole_file_bytes":initial_cost,"selected_whole_file_bytes":current.cost,
         "saved_whole_file_bytes":initial_cost-current.cost,"input_payload_sha256":sha256(payload),
         "input_source_sha256":sha256(&original_source),"final":final_record,"accepted_steps":steps.len(),
-        "records":budget.records,"engine_execution":"not performed","optimality":"bounded measured portfolio only",
+        "records":budget.journal.records,"engine_execution":"not performed","optimality":"bounded declared search space only",
+        "coverage":{"basis_spaces":coverage,"combination_attempts":combination_attempts,
+            "combination_limit":options.max_combinations,"plan_source_bytes":plan_bytes,
+            "plan_source_byte_limit":MAX_PLAN_SOURCE_BYTES,"priority":"legacy improving-incumbent rounds first",
+            "all_equivalent_programs_explored":false,"all_rewrite_sequences_explored":false},
+        "frontend_work":frontend_work,
         "embedding_contract":options.embedding_contract,
         "acceptance":"unchanged C bytes or applicable typed source proof; complete native and diagnostic identity; exact payload-adapter readback"});
     write_json(&directory.join("report.json"), &report)?;
