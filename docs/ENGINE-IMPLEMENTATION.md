@@ -192,7 +192,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | C | 4,954 B | 858 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners retained; literal include gaps compacted; fixed LP64 mixer literals |
 | D scalar / HQ | 5,966 / 6,175 B | 1,870 / 2,079 B | Capture-only Move bit3; full-key aligned atomic16 TT, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained |
 | E | 5,014 B | 918 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; literal include gaps compacted; fixed LP64 mixer literals |
-| F full (default) | 4,575 B | 479 B | Explicit no-preadd hash policy with new repetition/context/TT/correction buckets; terminal legal-loop sharing and integer forms; packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; default size target remains open; literal include gaps compacted; fixed LP64 mixer literals |
+| F full (default) | 4,574 B | 478 B | Explicit no-preadd hash policy with new repetition/context/TT/correction buckets; terminal legal-loop sharing and integer forms; packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; default size target remains open; literal include gaps, fixed LP64 mixer literals and local correction clamp compacted |
 | F material/noise (opt-in) | 4,325 B | 229 B | Unsigned64 number forms and two fixed TT18 casts omitted; one-state material classifier, fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted; literal include gaps compacted; fixed LP64 mixer literals |
 | F material/move-TT (opt-in) | 4,051 B | 0 B (45 B spare) | Unsigned64 number forms; one-state material classifier, fixed material, main-owned token cursor, terminal-loop sharing and coherent atomic64 Move17/high46 plus index18; local size eligibility only, full F and strength acceptance remain open; fixed LP64 mixer literals |
 
@@ -6361,3 +6361,54 @@ reduced-feature intermediate. D stays5966/6175B. The A–F goal and compression
 beyond size passage remain active; final target resources, many-core behavior,
 candidate/strength acceptance and D's eligible own-ELF still require evidence.
 Training/data collection, AWS, paid runs and new games stay excluded.
+
+## Full-F local correction clamp — 2026-10-21
+
+The plain, non-escaping local int clamp changes only
+`if(l>256)l=256;if(l< -256)l=-256;` to
+`l=l>256?256:l< -256?-256:l;`. For every representable int, both yield256
+above256, -256 below-256 and the original value otherwise. The additional
+same-value assignment in the last case has no observer. There are no calls,
+volatile/atomic accesses or overflowing operations in this expression.
+Initializer, quiet/capture/promotion/check/mate guards, correction bucket and
+EMA remain exact. Full positional HCE, history/continuation/correction, coherent
+full-key score/bound/depth TT, full-depth MTD(f), completion witness and SMP stay.
+
+Source8939→8933B, bootstrap9918→9912B and whole4575→4574B. The fresh18576B
+native is entire-byte equal to the preceding d7ce48d6... image; metadata
+exceptions are not used. One compile/one fixed encode and two Python/two CLI
+strict restorations pass. First-cost receipt4958B SHA:
+7b72e1af5e5a0b9135992a972aa6e5edf381cb3520fb508806dec8855bf45f5b.
+
+The tracked pure shipping helper follows mixer literals for selected full F and
+the separate full reference used by optional builds. Earlier raw policy inputs
+and every DEV path retain their prior bytes. Ordinary --dev regeneration and
+unchanged selected verifiers pass all three F selections: shipping/DEV reproduce
+twice, all natives/DEV and optional artifacts remain entire-byte equal, and six
+fresh actual quit/EOF sessions pass restoration, stable3 TIDs, legal finite GO,
+private-path/helper absence, closing result, reader EOF and physical exit.
+Producing recipe/source readback precedes receipt-only annotations. Normal
+summary6902B SHA:
+5e079fce09822966fcc5ca90789405eac2bc7c16bc81fbc93a2b5ed992af9270.
+Function evidence is reused under entire-native identity; this is no new fault,
+strength, target-resource or 4KiB acceptance. Full F still needs478B. Optional
+4325/4051B policies and D5966/6175B are separate. Compression continues after
+size passage; the all-family goal remains active.
+
+The latest [TCEC 4k rules](https://wiki.chessdom.org/TCEC_4k_Rules), reread on
+2026-10-21, still resolve to oldid7853. The minimum 4k UCI subset, tolerance of
+unsupported tournament commands, single4096B file, startup60s/cleanup and the
+separate self-contained own-ELF rule remain the applicable boundaries. No
+ordinary-league full UCI options are added as mandatory work.
+
+Source-only next candidates are the pure piece-index inline, single HISTORY
+macro inline and clock-presence sentinel. Their raw savings are not whole
+savings or adoption. The D prefix-discard proposal is also separate: current
+D consumers keep local m and never reread the consumed sort prefix.
+[4ku's fixed source](https://github.com/kz04px/4ku/blob/917a08741cef43d6ae00552df214cc66d0c46489/src/main.cpp#L697)
+similarly copies the suffix winner locally and uses a distinct evaluated-move
+array for learning. In contrast,
+[ice4's fixed source](https://github.com/MinusKelvin/ice4/blob/fabe3b1a805a1418e56899a3a143a955a399535c/src/search.cpp#L163)
+retains full swaps and later reads the prefix for history penalties. That
+difference must be checked per implementation. External engine sources remain
+outside this repository; no code or measured savings are imported from them.

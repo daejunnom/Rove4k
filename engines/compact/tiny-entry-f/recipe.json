@@ -72,7 +72,8 @@
     "engines/compact/tiny-entry-f/shipping_terminal.py": "6d60a1d32f5445c0e2c5ecfdf0f2b809349a739db675d08c7f1b34c7a0c571a1",
     "engines/compact/tiny-entry-f/shipping_hash_policy.py": "98b084bb25232a237f616629b25dc9fcde7ba1bedd8a48e67f3b4c9fd6587f04",
     "engines/scripts/shipping_includes.py": "d7c3ad6e7811d848b0d6bab7331c929ab2c3175cd030438ddc81d22ea8cdf4bc",
-    "engines/scripts/shipping_mixer_literals.py": "7b25cb806a51cad9e867ebc588bcb99677c9e2f9d0a5df0b31d019e22bc6d114"
+    "engines/scripts/shipping_mixer_literals.py": "7b25cb806a51cad9e867ebc588bcb99677c9e2f9d0a5df0b31d019e22bc6d114",
+    "engines/compact/tiny-entry-f/shipping_clamp.py": "54f7b75e3b5adfa4c012d1c7c8acf5b17013cff8ba848f0fbf39907d0dec64a7"
   },
   "resource_literals": [
     [
@@ -246,22 +247,22 @@
   },
   "expected": {
     "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
-    "source_bytes": 8939,
-    "source_sha256": "53f3326c9062601fa037212f853c91c34cd1b36a076a571d8e1f52624514e08c",
+    "source_bytes": 8933,
+    "source_sha256": "cc8ef7dab0e35e2a62fee66d427eab09698e6eeebfa6eed3abb0e20d20b1a0a1",
     "native_bytes": 18576,
     "native_sha256": "d7ce48d63be158372763a0797c380116d6c1b886d36e2a4a94b97d03b691bf16",
-    "whole_bytes": 4575,
-    "whole_sha256": "fc590adcbc1928f4ac692d6814529df6248fe8e5776983a89c538017ad26191a",
+    "whole_bytes": 4574,
+    "whole_sha256": "bcb86fda8ce426caa85cfe9fe72ceaab073c4bfef175a4db668b6f0ec3921ee1",
     "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
     "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
-    "bootstrap_sha256": "8ff94bba5806920ac1d2bb62691c873698eaa35bd1e83ed2640233511e7dcf54",
+    "bootstrap_sha256": "3cd0db3f29975465aa6915c5821be73cf80a9cc31f0292921e12e332ae8eff61",
     "semantic_readable_bytes": 25720,
     "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
     "dev_source_bytes": 19488,
     "dev_native_bytes": 26984,
     "input_profile_readable_bytes": 28587,
     "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
-    "bootstrap_bytes": 9918
+    "bootstrap_bytes": 9912
   },
   "local_input_sha256": {
     "engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
@@ -2995,6 +2996,27 @@
           "actual_quit_EOF_sessions": 2,
           "source_native_entire_bytes_unchanged": true
         }
+      },
+      "annotation_only": true
+    }
+  },
+  "correction_clamp": {
+    "scope": "full-default plain-int expression only; all feature guards/learners unchanged",
+    "cost": {
+      "path": "/home/stemxstudio/rove4k-full-f-correction-clamp-first-cost-20261021/cost.json",
+      "bytes": 4958,
+      "sha256": "7b72e1af5e5a0b9135992a972aa6e5edf381cb3520fb508806dec8855bf45f5b"
+    },
+    "source_proposal_sha256": "2921db4988496e5df85f1dadccd595724e9def002b0e087e77d0daac62bff3eb",
+    "raw_delta": -6,
+    "whole_delta": -1,
+    "native_entire_bytes_equal": true,
+    "normal_validation": {
+      "status": "PASS",
+      "summary": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-clamp-normal-20261021-evidence/summary.json",
+        "bytes": 6902,
+        "sha256": "5e079fce09822966fcc5ca90789405eac2bc7c16bc81fbc93a2b5ed992af9270"
       },
       "annotation_only": true
     }

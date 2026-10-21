@@ -144,6 +144,7 @@ def main():
         hash_policy=module('entry_F_hash_policy',frozen/'shipping_hash_policy.py')
         include_forms=module('entry_include_forms',frozen/'shipping_includes.py')
         mixer_forms=module('entry_mixer_literals',frozen/'shipping_mixer_literals.py')
+        clamp=module('entry_F_clamp',frozen/'shipping_clamp.py')
         alpha=module('entry_fixed_F_alpha',frozen/'shipping_alpha.py').transform_source
         storage=module('entry_fixed_F_storage',frozen/'shipping_storage.py').transform_source
         scope_module=module('entry_bound_F_scope',frozen/'shipping_scope.py')
@@ -220,6 +221,8 @@ def main():
                     full_common_metadata['literal_include_forms']=include_metadata
                     full_reference,mixer_metadata=mixer_forms.transform_source(full_reference,family='F',policy='full')
                     full_common_metadata['mixer_literals']=mixer_metadata
+                    full_reference,clamp_metadata=clamp.transform_source(full_reference)
+                    full_common_metadata['correction_clamp']=clamp_metadata
                     if len(full_reference)!=full_expected['source_bytes'] or sha(full_reference)!=full_expected['source_sha256']:
                         raise ValueError('default full-F source generation changed')
                     data,policy_metadata=material_noise(data)
@@ -268,6 +271,9 @@ def main():
                 common_metadata['literal_include_forms']=include_metadata
                 data,mixer_metadata=mixer_forms.transform_source(data,family='F',policy=args.policy)
                 common_metadata['mixer_literals']=mixer_metadata
+                if args.policy=='full':
+                    data,clamp_metadata=clamp.transform_source(data)
+                    common_metadata['correction_clamp']=clamp_metadata
             return data,observations,counters,alpha_metadata,storage_metadata,scope_metadata,member_metadata,semantic_metadata,input_metadata,declaration_metadata,hce_metadata,type_metadata,unit_bound_metadata,startup_metadata,global_names_metadata,capture_metadata,policy_metadata,material_names_metadata,material_capture_metadata,move_tt_metadata,move_tt_names_metadata,expressions_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())

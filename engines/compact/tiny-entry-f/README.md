@@ -1,3 +1,25 @@
+# Maintained F: local correction clamp — 2026-10-21
+
+Full/default whole **4574 B**, source **8933 B**. A plain local int's two
+conditional assignments become one nested conditional expression: raw−6 B,
+whole−1 B. The fresh native is entire-byte identical, including metadata.
+Initializer, guards, correction bucket/EMA and every full HCE/learning/TT/MTD/SMP
+feature remain. DEV and the optional selected outputs are unchanged; separate
+full references include the new stage without changing raw policy preimages.
+
+All three F selections regenerate shipping and DEV twice and pass unchanged
+actual quit/EOF verification (six fresh sessions). Function proofs are reused
+under entire-native identity. This is local2-worker/TT18 evidence; target
+resources, many-core behavior and strength remain open. Normal summary SHA-256:
+`5e079fce09822966fcc5ca90789405eac2bc7c16bc81fbc93a2b5ed992af9270`.
+
+Current source SHA-256: `cc8ef7dab0e35e2a62fee66d427eab09698e6eeebfa6eed3abb0e20d20b1a0a1`.
+Current whole SHA-256: `bcb86fda8ce426caa85cfe9fe72ceaab073c4bfef175a4db668b6f0ec3921ee1`.
+
+Default still needs **478 B**. Optional material/noise4325 B and MoveTT4051 B
+(45 B spare) have separate reduced policies. Source compression continues
+beyond a size pass. Older sections retain their checkpoint identities.
+
 # Maintained F: smaller plain-Popen cleanup guard — 2026-10-21
 
 Whole **4575 B**. The current template/script loses12 raw bytes
