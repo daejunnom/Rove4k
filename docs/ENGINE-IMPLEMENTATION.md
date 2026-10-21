@@ -188,7 +188,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
 | A | 4,610 B | 514 B | Unsigned64 number forms; one-state material classifier; main-owned token cursor and valid-0x88 promotion predicate; existing full HCE/PVS/QS/TT/learners/SMP and fixed ALONE retained; fixed LP64 mixer literals |
-| B | 5,146 B | 1,050 B | Worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained; literal include gaps compacted; clock-first SEE poll; cancellation timing changed |
+| B | 5,144 B | 1,048 B | Worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained; literal include gaps and overlong-line drain compacted; clock-first SEE poll; cancellation timing changed |
 | C | 4,952 B | 856 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners retained; literal include gaps compacted; fixed LP64 mixer literals |
 | D scalar / HQ | 5,937 / 6,148 B | 1,841 / 2,052 B | Consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained |
 | E | 5,011 B | 915 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; literal include gaps compacted; fixed LP64 mixer literals |
@@ -6617,3 +6617,40 @@ build-input17 readback precede README/recipe-only annotations. Final index SHA:
 Full F remains4537B/441B over;
 all-family goal and compression beyond size passage remain active. Final target
 resources/many-core/strength and own-ELF4KiB eligibility remain separate.
+
+## B overlong-line drain and retained-attempt policy — 2026-10-21
+
+B's full-shipping drain replaces an85-byte span with68 bytes while retaining
+getchar order, LF/EOF admission, and full discard when any nonterminal byte is
+present. The exact replay stage follows clock presence; DEV bypasses it.
+The actual complete file decreases5146→5144 B (1048 B above4096), with source
+10548 B/SHA-256 `d91416e56e2b7716b9df2bec5db22c1f9d3f6ded5598d80741d68487ecc09bbb`
+and whole SHA-256 `fa2196f2093d5701f946415260bb426b7f7f1feb6e6dc776b834bae5449fff21`.
+The entire native has a new identity; equal native length is not native equality.
+
+The measured selected wrapper passes three actual boundary sessions covering
+32767/32768-byte LF/EOF admission and recovery. Ordinary --dev regeneration
+then reproduces shipping and unchanged DEV twice. The unchanged selected
+verifier passes actual quit/EOF sessions, eight legal finite GO results,
+exact restored native, stable three startup TIDs, private-path/helper absence,
+closing result, reader EOF and physical exit. Its summary SHA-256 is
+`6f6111b89becb33e9a6a4a096bc03ae4896acd27a24d9280e8a7daa7a0edca7d`.
+Cancellation causality remains unproven. These local two-worker/TT18 observations
+do not establish final server resources, many-core behavior or strength.
+
+The first prepared helper used Python bytes literals that decoded backslash-n
+into LF. Static review caught the mismatch before its execution; the original
+helper and finding remain external evidence. Raw bytes literals correct the
+cause, and exact pure replay plus the ordinary build use the corrected helper.
+This preparation failure is distinct from the measured C candidate and is not
+erased by the successful normal run.
+
+PR13's retained-attempt rules apply to subsequent work: prior size losses remain
+context-specific observations, not permanent name exclusions. The same drain
+was larger for A/C/E/full F in this measured context, and B's two-pass piece
+updater was also a size loss; their inputs, derivations, costs and unqualified
+status remain preserved. Changed source/tool/codec conditions require a new
+measurement and the necessary current semantic/native/restoration checks.
+Recorded comparison does not revalidate or readmit an old candidate. The engine
+plan now states this boundary, and ordinary fixed-recipe builds remain replay
+of the selected construction rather than hidden research searches.

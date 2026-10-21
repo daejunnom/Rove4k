@@ -1,3 +1,57 @@
+# Maintained B: shared line drain — 2026-10-21
+
+Complete file **5144 B**, compact C **10548 B**, gap **1048 B** above4096.
+The pure B-only `shipping_line_drain.py` follows clock presence and replaces
+one85-byte missing-LF drain fragment with68 bytes. It combines the initial
+`getchar` and repeated drain loop while preserving every stream read, terminal
+LF/EOF admission, oversized-line discard and following-line recovery. The
+full input/output pins, sole old span, inverse and complementary bytes are
+checked. DEV bypass and every earlier source guard remain unchanged.
+
+The actual fixed first cost is whole5146→5144B, source10565→10548B and
+bootstrap11610→11593B. Native length stays26304B with a new full identity;
+no metadata exception or equal-native claim is used. The measured native is
+`456956420deddff56280323fdba19812256772929ab8179e9fc28233ddead5c7`.
+No engine model, SEE, singular, TT, learning, rules or worker feature is removed.
+
+The selected candidate first passed three actual boundary protocol sessions:
+one quit and two EOF paths, full-buffer LF/EOF admission, overlong discard,
+next-line recovery, exact responses and physical settlement. Receipt SHA-256:
+`3ce117e0199f7c12ac9795a661273e2fe388c76a20bf8d491aef94a70e7ae11d`.
+This remains separate from ordinary regeneration and selected verification.
+
+Root source review found a producer bug before any normal/helper import:
+ordinary Python bytes constants interpreted C backslash-n as LF, making the
+OLD/NEW values83/67B instead of85/68B. The original helper/recipe, earlier
+preparation error and static finding are retained outside Git. Only the two
+literal prefixes became raw bytes and their helper hash references changed;
+the measured C/native/bootstrap/whole expected values were not relaxed.
+One pure helper replay then reproduced the exact measured10548-byte source.
+Correction readback SHA-256:
+`23c30c9319c476b3017c95fde03ea1b266207eb48dc96fe97d681b8a33df183c`.
+
+One existing ordinary builder with `--dev` reproduced shipping source/native/
+bootstrap/whole twice and the unchanged old full-minimax DEV tuple twice.
+The unchanged selected verifier passed two actual quit/EOF sessions with8
+legal finite GO results, exact restored native, stable3 TIDs, absent private
+restoration paths/helpers, one closing result, reader EOF and physical exit0.
+Cancellation causality remains unproven. No extra boundary/negative campaign,
+game, strength, stack, scaling or final-target resource qualification was run.
+Normal summary SHA-256:
+`6f6111b89becb33e9a6a4a096bc03ae4896acd27a24d9280e8a7daa7a0edca7d`.
+
+Producing recipe70466B SHA-256
+`f192fdfbd98b0665f879c635d0a8fbeb02a8aae49d52b35fd3fcb0d9bca2e708`
+is preserved separately from the following recipe/README result annotations.
+No postannotation builder or verifier rerun is claimed. All generated outputs,
+logs and receipts remain outside Git; these local2-worker/TT18 checks do not
+establish final tournament strength or many-core/resource acceptance.
+
+Current source SHA-256: `d91416e56e2b7716b9df2bec5db22c1f9d3f6ded5598d80741d68487ecc09bbb`.
+Current whole SHA-256: `fa2196f2093d5701f946415260bb426b7f7f1feb6e6dc776b834bae5449fff21`.
+
+Older sections below retain their own checkpoint identities and evidence scope.
+
 # Maintained B: compact clock presence — 2026-10-21
 
 Complete file **5146 B**, compact C **10565 B**.

@@ -102,6 +102,7 @@ def main():
         include_forms=module('entry_include_forms',frozen/'shipping_includes.py')
         guard_form=module('entry_SEE_guard_clock_first',frozen/'shipping_guard.py')
         clock_form=module('entry_clock_sentinel',frozen/'shipping_clock.py')
+        line_drain=module('entry_B_line_drain',frozen/'shipping_line_drain.py').transform_source
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
         if template.count(marker)!=1 or len(prefix)!=77:raise ValueError('bootstrap recipe changed')
@@ -142,6 +143,8 @@ def main():
                 common_metadata['SEE_guard_clock_first']=final_metadata
                 data,clock_metadata=clock_form.transform_source(data,family='B')
                 common_metadata['clock_presence']=clock_metadata
+                data,line_drain_metadata=line_drain(data)
+                common_metadata['line_drain']=line_drain_metadata
             return data,observations,alpha_metadata,storage_metadata,scope_metadata,core_metadata,input_metadata,order_metadata,walk_metadata,tactical_metadata,type_metadata,global_names_metadata,recapture_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())

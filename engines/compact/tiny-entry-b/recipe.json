@@ -67,7 +67,8 @@
     "engines/scripts/shipping_compaction.py": "47977f6c944978675f1f37be733270c30ff39fc2f2c9f80c9e18243d496912c5",
     "engines/scripts/shipping_includes.py": "d7c3ad6e7811d848b0d6bab7331c929ab2c3175cd030438ddc81d22ea8cdf4bc",
     "engines/compact/tiny-entry-b/shipping_guard.py": "af47d979479a95026c8516d49b762d9db2175c0d39117d1ee89872bd3ad97048",
-    "engines/scripts/shipping_clock.py": "46c19879deae1d056f4b059c6c7d9667a3e935110dfb33015b29fd0dec4d8c43"
+    "engines/scripts/shipping_clock.py": "46c19879deae1d056f4b059c6c7d9667a3e935110dfb33015b29fd0dec4d8c43",
+    "engines/compact/tiny-entry-b/shipping_line_drain.py": "8f613988384235f8af8114ff39236cbf831f1aaccd5d9160a70d688e6d03bc01"
   },
   "compression": {
     "format": "lzma-alone",
@@ -84,16 +85,16 @@
   },
   "expected": {
     "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
-    "source_bytes": 10565,
-    "source_sha256": "6124424eff02466a28e900ca7abf0f8ff36f74d39de020e4c83b6909b95387cf",
+    "source_bytes": 10548,
+    "source_sha256": "d91416e56e2b7716b9df2bec5db22c1f9d3f6ded5598d80741d68487ecc09bbb",
     "native_bytes": 26304,
-    "native_sha256": "56b19e8e631d511adc0728e79fab2b5c986d5c3fcdd8a89951f5db83495f925e",
-    "whole_bytes": 5146,
-    "whole_sha256": "df570da8221bf92fe3f3f1d99df997955d24860ec1d4bf933ea3dd2dceda9c51",
+    "native_sha256": "456956420deddff56280323fdba19812256772929ab8179e9fc28233ddead5c7",
+    "whole_bytes": 5144,
+    "whole_sha256": "fa2196f2093d5701f946415260bb426b7f7f1feb6e6dc776b834bae5449fff21",
     "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
     "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
-    "bootstrap_sha256": "3ae749014c02e989f7cf6a3942027a2073752696c12b6916a44ace9c9756e983",
-    "bootstrap_bytes": 11610
+    "bootstrap_sha256": "af978801a0d6ef6b5d36b7c826c0aa1e5a0b56ee8ad47e72e23d02b2b178f77a",
+    "bootstrap_bytes": 11593
   },
   "local_input_sha256": {
     "engine.c": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
@@ -1240,6 +1241,67 @@
         "bytes": 67519,
         "sha256": "f14c4601e28b81e00a59146860b20b4bd992067ce92426c4476a295c69fe6200"
       },
+      "annotation_only": true
+    }
+  },
+  "line_drain": {
+    "scope": "B full-shipping one-span getchar drain composition after clock presence; input policy unchanged; new native identity; ordinary normal validation pending",
+    "previous_expected": {
+      "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+      "source_bytes": 10565,
+      "source_sha256": "6124424eff02466a28e900ca7abf0f8ff36f74d39de020e4c83b6909b95387cf",
+      "native_bytes": 26304,
+      "native_sha256": "56b19e8e631d511adc0728e79fab2b5c986d5c3fcdd8a89951f5db83495f925e",
+      "whole_bytes": 5146,
+      "whole_sha256": "df570da8221bf92fe3f3f1d99df997955d24860ec1d4bf933ea3dd2dceda9c51",
+      "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
+      "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
+      "bootstrap_sha256": "3ae749014c02e989f7cf6a3942027a2073752696c12b6916a44ace9c9756e983",
+      "bootstrap_bytes": 11610
+    },
+    "helper_sha256": "8f613988384235f8af8114ff39236cbf831f1aaccd5d9160a70d688e6d03bc01",
+    "component_first_cost": {
+      "receipt": {
+        "path": "/home/stemxstudio/rove4k-common-drain-first-cost-20261021/results.json",
+        "bytes": 34346,
+        "sha256": "fd9285fdb178e38f9a48289a9392af3b161fa17bee591969ff115575532fe41a"
+      },
+      "family": "B",
+      "source_delta": -17,
+      "bootstrap_delta": -17,
+      "whole_delta": -2,
+      "native_same_full_bytes": false,
+      "metadata_exception_applied": false
+    },
+    "boundary_protocol": {
+      "receipt": {
+        "path": "/home/stemxstudio/rove4k-b-drain-boundary-protocol-run-20261021/runtime.json",
+        "bytes": 5883,
+        "sha256": "3ce117e0199f7c12ac9795a661273e2fe388c76a20bf8d491aef94a70e7ae11d"
+      },
+      "status": "PASS actual selected input boundaries/recovery, one quit and two EOF sessions",
+      "sessions": 3,
+      "scope": "stdin full-buffer LF/EOF admission, oversized drain/recovery, exact responses and physical exit; broader ordinary regeneration and selected verifier pending"
+    },
+    "DEV_stage": "bypass; existing DEV source/native expected values and common metadata None guard unchanged",
+    "normal_validation": {
+      "status": "PASS ordinary --dev builder once and unchanged selected verifier once",
+      "summary": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-b-line-drain-normal-20261021-evidence/summary.json",
+        "bytes": 11710,
+        "sha256": "6f6111b89becb33e9a6a4a096bc03ae4896acd27a24d9280e8a7daa7a0edca7d"
+      },
+      "producing_recipe": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-b-line-drain-normal-20261021-evidence/B-producing-recipe.json",
+        "bytes": 70466,
+        "sha256": "f192fdfbd98b0665f879c635d0a8fbeb02a8aae49d52b35fd3fcb0d9bca2e708"
+      },
+      "shipping_reproductions": 2,
+      "unchanged_old_DEV_reproductions": 2,
+      "actual_quit_EOF_sessions": 2,
+      "legal_finite_GO_results": 8,
+      "native_identity_exact_to_measured_candidate": true,
+      "cancellation_causality": "unproven",
       "annotation_only": true
     }
   }
