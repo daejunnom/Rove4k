@@ -208,8 +208,8 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
-| A | 4,559 B | 463 B | Unsigned64 number forms; one-state material classifier; main-owned token cursor and valid-0x88 promotion predicate; history length derived from immutable job length plus ply; existing full HCE/PVS/QS/TT/learners/SMP retained; fixed LP64 mixer literals; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero; raw evaluation reused in correction error; shared startup/completion worker epilogue and terminal legal-move loop; one fixed destination binding and raw triple-double literal, with fixed BT2/16KiB ALONE |
-| B | 5,073 B | 977 B | Worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained; made-child continuation row passed through PVS and same-position singular verification; literal include gaps and overlong-line drain compacted; clock-first SEE poll; cancellation timing changed; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero; private history length derived from immutable published job base plus ply; private piece-plus-six helper inlined at its two consumers with complete native identity; singular-depth temporary and empty shipping instrumentation branch removed; adjacent HCE int declarations merged with complete native identity and no whole-size increase |
+| A | 4,550 B | 454 B | Unsigned64 number forms; one-state material classifier; main-owned token cursor and valid-0x88 promotion predicate; history length derived from immutable job length plus ply; existing full HCE/PVS/QS/TT/learners/SMP retained; fixed LP64 mixer literals; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero; raw evaluation reused in correction error; shared startup/completion worker epilogue and terminal legal-move loop; one fixed destination binding and raw triple-double literal, with fixed BT2/16KiB ALONE; two condition objects shared with all three broadcasts and both original predicates retained |
+| B | 5,042 B | 946 B | Worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained; made-child continuation row passed through PVS and same-position singular verification; literal include gaps and overlong-line drain compacted; clock-first SEE poll; cancellation timing changed; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero; private history length derived from immutable published job base plus ply; private piece-plus-six helper inlined at its two consumers with complete native identity; singular-depth temporary and empty shipping instrumentation branch removed; adjacent HCE int declarations merged; three walker forwarders removed with explicit full-mask/Boolean/count consumer domains |
 | C | 4,869 B | 773 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd followed by four signed32 lane sums, full search/learners retained; history length derived from immutable job length plus ply; child continuation slot and positive-only cutoff bonus compacted; fixed LP64 mixer literals; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero; capture-only Move bit3 reuses generator metadata with separate PROMO and unchanged quiet noise; terminal legality shares the ordered make loop with terminal TT probe and pruning suppressed |
 | D scalar / HQ | 5,836 / 6,037 B | 1,740 / 1,941 B | HQ-only history length derived from immutable job length plus ply; scalar and DEV retain their original history blocks; exact clock/inc parsing and ordered K/Q castling branches shared; consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT with a shared finite-stage asm body, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained; separate body232 class omits dormant internal ELF metadata from coding while preserving compiled native and body addresses |
 | E | 4,933 B | 837 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; child continuation slot and positive-only cutoff bonus compacted; literal include gaps and fixed ASCII compiler argv compacted; fixed LP64 mixer literals; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero; private history length derived from immutable published job base plus ply; capture-only Move bit3 reuses generator metadata with separate PROMO and unchanged quiet noise; ordering reuses generated mover side and omits a sign-only local; center feature shares its two symmetric axes |
@@ -222,6 +222,59 @@ The canonical Rust D native images are16,816 bytes each. The separate maintained
 finite Rust shipping entry also has16,816-byte natives with new identities and
 11,108/11,476-byte scalar/HQ own-ELFs. Its normal qualification below does not
 replace the C D table or establish4KiB eligibility.
+
+## A4550 shared condition and B5042 direct walker ports: 2026-10-22
+
+A shares its two condition objects under the existing mutex. All three notify
+sites remain broadcasts and both original while predicates remain. Completion
+flush precedes pending-zero publication; final startup arrival, GO epoch and
+shutdown publication preserve their order. Broadcasting all registered waiters
+avoids selecting only a waiter for the other predicate. Idle workers may wake
+and contend more often before rechecking the same epoch. Exact scheduling,
+timing, condition addresses and general partial-create/fault traces are not
+claimed. Source8914→8886 B, bootstrap9878→9850 B and whole4559→4550 B; native
+length18576 B stays but identity becomes e00da92c. The late pure helper and its
+literal adapter preserve all previous source/name guards: inverse to the old
+literal, call the unchanged names guard, then forward only the same three spans.
+
+B removes three forwarding definitions over the existing shared walker and
+ports seven consumers directly. Full64-bit SEE masks, explicit !! Boolean
+conversion at the int check consumer, generated count0..432 and move order
+remain. The runtime H output parameter is renamed locally to avoid shadowing
+the walker. Source10394→10270 B, bootstrap11433→11309 B, native26296→26248 B
+and whole5073→5042 B. The walker body, make/SEE/search/TT/learner and worker
+control are protected. Removed implementation symbols, general external C ABI,
+compiler frame/layout and timing are outside the equivalence claim.
+
+Each maintained --dev builder runs once, reproducing shipping twice and the
+unchanged DEV twice. Each unchanged selected verifier then passes quit/EOF two
+sessions and eight legal GO results with three startup TIDs, exact new native,
+private path cleanup, reader closure and physical process/group exit. A runs
+before B; original owned handles exit0 and are reaped with no forced cleanup or
+remaining handles. A's observer does not record a descriptor list; no FD-check
+success is inferred. New semantic/SAN/fault/game/performance campaigns are not
+added for these source-only condition and forwarding contracts.
+
+Final A index `648e05b4754f93558e48923b9b76cdce766f42cae99fc21b4674f7ab8b10dae2`;
+build `d5106d72123363df60c86330dde6eaabbffc3de85d0107083a60ace3ab2e6854`;
+runtime `2730e1c1ad22ea12db2a2c2a18ab8a126648a4cd5e2d2885fcb85ecae5ff17a5`.
+Final B index `3bed0007fe0416f57e587d583fa1d5fb96a3bdf7f3f6055e0b2a43893c2afad9`;
+build `fbd9e07ff22644fc9daac389a68ded5d1c6a5422f947b3b6cf5b31c0b76a9e5d`;
+runtime `1be703746643cb1539dcf2d14864eb006b3252f6dd208c520d9db1a72184bf95`.
+
+Preceding head6c1f1af passes C/Rust in
+[Engine39662222702](https://github.com/daejunnom/Rove4k/actions/runs/39662222702)
+and Node22/24 in
+[Repository39662222559](https://github.com/daejunnom/Rove4k/actions/runs/39662222559).
+All four actual checkouts use merge27034b7b30f72bf46db078c17514f516d2fe43f8,
+parents761bdc0 plus6c1f1af and tree6a2eee50 equal to the requested head. That CI
+regenerates F4437 and current F8 closure57/4442/nine-TID positives, but its
+A4559/B5073 artifacts precede these new local qualifications. Frozen CI index:
+`1d808e53b1df0be1817a60fa7e0261fba75d4b54f246e6879252262c3d1076ee`.
+
+Both default files still exceed4096 B. E terminal and common numeric/FD source
+proposals, F controller losses and D shared-first candidates retain separate
+external source/cost/qualification states; they are not included in this pair.
 
 ## Full-F4437 codec and bounded NVCompact comparison: 2026-10-22
 

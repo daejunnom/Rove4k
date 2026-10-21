@@ -53,7 +53,8 @@
     "engines/scripts/source_package.py": "55fa739e7c17fffdb3bf1191c7a26aa38d35e9e32473e4008c23ece3d5703d1f",
     "engines/compact/tiny-entry-a/shipping_worker_epilogue.py": "d373aaddaab845c64a4fc4b865cb6180733c89aaafdc45d9d31cfa7ceccfabd0",
     "engines/compact/tiny-entry-a/shipping_terminal.py": "dec4a29af9debb9e285c9311bfa8781604bef971f77da9638c5a4877dca9fcd6",
-    "engines/compact/tiny-entry-a/shipping_names.py": "58338725dd7e2003c8247b2be49ce29934aa91a7cea107e1bcdaf2d58f667095"
+    "engines/compact/tiny-entry-a/shipping_names.py": "58338725dd7e2003c8247b2be49ce29934aa91a7cea107e1bcdaf2d58f667095",
+    "engines/compact/tiny-entry-a/shipping_condition.py": "dbc0018057d0cb9affdeadb5dca571ff7fedd1cb8dc55eb5c4eb5cbe8130e2b1"
   },
   "fixed_renames": [
     [
@@ -389,18 +390,18 @@
   },
   "expected": {
     "readable_sha256": "a6aab57fffacc1900dbd9de133652d811d316b3823144ec2181c4f8dda581b6a",
-    "source_bytes": 8914,
-    "source_sha256": "5319dd376e8e7fe6c03c6b40f6fc81b571902d75a663148ffbae00b615059c18",
+    "source_bytes": 8886,
+    "source_sha256": "d4132c23d226fa5490c5f213b3954ba6a9ce6f3f5f1a5594877a4d910685fe96",
     "native_bytes": 18576,
-    "native_sha256": "7700f1164da1b1a7ea8a784969742d1cf6d38a1f298986e41f564648ceaddf0c",
-    "whole_bytes": 4559,
-    "whole_sha256": "ae756e0c014e32de6628ddeb54148d92e109731518a76a2eebb903daa96b27ce",
-    "bootstrap_sha256": "04c1cdce33231ec62791905ab5e52560cb14d75e563dec0a60636ba7d9da032a",
+    "native_sha256": "e00da92cdf1d6fdb7c7a6fbcaa5755bd6c1fd23942b28178f414716bd7e74471",
+    "whole_bytes": 4550,
+    "whole_sha256": "257903ecc2313685da8194ecacdc90896ba14d28adcfbb1a91893009bc0068bd",
+    "bootstrap_sha256": "5a40b94676ad5b1ba0046fdcee69815f2faf26ee798c86a86bdcbd3e88cca640",
     "dev_source_sha256": "d1f0ff322843a4210cb1cad574bc6726eef576c0fd398cb0e1cfbc12fdc81f01",
     "dev_native_sha256": "078df7141403841798e0bcb1545e59975492359b78d88b0637b99865a6bf72b9",
     "input_profile_readable_bytes": 27688,
     "input_profile_readable_sha256": "4af39bc6496c85281b322063245ee97a522b4d6c6df7c4844f71d981e733164a",
-    "bootstrap_bytes": 9878
+    "bootstrap_bytes": 9850
   },
   "local_input_sha256": {
     "engine.c": "a6aab57fffacc1900dbd9de133652d811d316b3823144ec2181c4f8dda581b6a",
@@ -2183,6 +2184,95 @@
       "canonical_DEV_unchanged": true,
       "scope": "new selected wrapper quit/EOF2 sessions8 legal GO,exact restored old native,3 startup TIDs,private-path/helper/process/readers exit; no new complete-core/strength proof",
       "own_lifetime_evidence": "original Popen.wait completion and group absence plus selected verifier physical-exit receipt; no late bare PID gate",
+      "metadata_only_after_producing_revision": true
+    }
+  },
+  "shared_condition": {
+    "scope": "A final two condition objects share one; current broadcast3/signal0, original mutex and two while predicates retained",
+    "predecessor_expected": {
+      "readable_sha256": "a6aab57fffacc1900dbd9de133652d811d316b3823144ec2181c4f8dda581b6a",
+      "source_bytes": 8914,
+      "source_sha256": "5319dd376e8e7fe6c03c6b40f6fc81b571902d75a663148ffbae00b615059c18",
+      "native_bytes": 18576,
+      "native_sha256": "7700f1164da1b1a7ea8a784969742d1cf6d38a1f298986e41f564648ceaddf0c",
+      "whole_bytes": 4559,
+      "whole_sha256": "ae756e0c014e32de6628ddeb54148d92e109731518a76a2eebb903daa96b27ce",
+      "bootstrap_sha256": "04c1cdce33231ec62791905ab5e52560cb14d75e563dec0a60636ba7d9da032a",
+      "dev_source_sha256": "d1f0ff322843a4210cb1cad574bc6726eef576c0fd398cb0e1cfbc12fdc81f01",
+      "dev_native_sha256": "078df7141403841798e0bcb1545e59975492359b78d88b0637b99865a6bf72b9",
+      "input_profile_readable_bytes": 27688,
+      "input_profile_readable_sha256": "4af39bc6496c85281b322063245ee97a522b4d6c6df7c4844f71d981e733164a",
+      "bootstrap_bytes": 9878
+    },
+    "selected_candidate": "one-condition only; make-own-side not applied",
+    "source_regions": 3,
+    "protected_gaps": 4,
+    "full_inverse": true,
+    "raw_source_delta": -28,
+    "whole_delta": -9,
+    "native_full_bytes_changed": true,
+    "source_proposals": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-structural-source-proposals-20261022-evidence/proposals.json",
+      "bytes": 17848,
+      "sha256": "dc3f49c356718ffdb89f9d3a4e1aa75f863d5d42ec382832d7f3b3d6fe4470c6"
+    },
+    "firstcost": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-one-condition-first-cost-20261022-evidence/firstcost.json",
+      "bytes": 19334,
+      "sha256": "fbbf3ca28e832bc35d59b8669b4c33d5e91e7cc8ea1445252e28f543706a8dc2"
+    },
+    "firstcost_final_index": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-one-condition-first-cost-20261022-evidence/final-index.json",
+      "bytes": 7618,
+      "sha256": "f8ada33b6da27d4658f7eb8b123a0d51373ae107ba532bcc432bdcf75a4a042b"
+    },
+    "firstcost_reexecuted": false,
+    "literal_adapter": "exact new C inverse -> existing unchanged names.transform_literal guard -> same3 source edits inside guarded raw-double body",
+    "previous_guard_code_and_input_output_pins_changed": false,
+    "notify_contract": "broadcast3 remains broadcast3, signal0; only final pending0 startup/completion notify; output and flush finish under qj before completion broadcast",
+    "liveness_argument": "intended predicate waiter is included in every broadcast; wrong-predicate waiters recheck their original while after atomic wait/reacquire under same mutex; signal substitution would be incorrect",
+    "changed_observations": "extra wrong-predicate wakeups, rechecks, mutex contention, scheduling/work/time and condition object/native storage/address",
+    "partial_create_epoch_wrap_and_fault_schedules": "source argument only, no new injected schedule/runtime claim",
+    "canonical_DEV_all_prior_helper_guards_compiler_codec_profile_unchanged": true,
+    "normal_validation": {
+      "producing_recipe": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-one-condition-promotion-20261022-evidence/producing/recipe.json",
+        "bytes": 113166,
+        "sha256": "29ca7b4718bd7d272f0fd68620f982b824261fed70db911b7ec2a746021477dc"
+      },
+      "producing_builder": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-one-condition-promotion-20261022-evidence/producing/build.py",
+        "bytes": 17464,
+        "sha256": "b48be5f8c06ce9d7b5a2dfd7724ec8f8e555ac2c496a25cc1acd6ab7a6eacab1"
+      },
+      "build": {
+        "path": "/home/stemxstudio/rove4k-a-one-condition-promotion-20261022/normal/build/build.json",
+        "bytes": 199433,
+        "sha256": "d5106d72123363df60c86330dde6eaabbffc3de85d0107083a60ace3ab2e6854"
+      },
+      "selected_runtime": {
+        "path": "/home/stemxstudio/rove4k-a-one-condition-promotion-20261022/normal/runtime/runtime.json",
+        "bytes": 57012,
+        "sha256": "2730e1c1ad22ea12db2a2c2a18ab8a126648a4cd5e2d2885fcb85ecae5ff17a5"
+      },
+      "outer_commands": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-one-condition-promotion-20261022-evidence/normal-commands.json",
+        "bytes": 5077,
+        "sha256": "f4bb2c87244971b0b1c5204a3ce978e5b28f5cfb7502d7d096a281abde2ee997"
+      },
+      "readback": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-one-condition-promotion-20261022-evidence/normal-readback.json",
+        "bytes": 11746,
+        "sha256": "7928752cc10ae4f28422abed177fd6681ebdca024f29f0579e594344961b12a6"
+      },
+      "ordinary_full_dev_calls": 1,
+      "shipping_reproductions": 2,
+      "unchanged_DEV_reproductions": 2,
+      "unchanged_selected_calls": 1,
+      "fixed_firstcost_source_native_bootstrap_whole_exact": true,
+      "existing_names_literal_guard_unchanged": true,
+      "current_actual_outputs": "/home/stemxstudio/rove4k-a-one-condition-promotion-20261022/normal/build",
+      "scope": "selected quit/EOF2sessions8legalGO,exact new native,3TID each,private-path/helper/readers physical exit; no new partial-create/fault/core/game/strength/performance claim",
       "metadata_only_after_producing_revision": true
     }
   }

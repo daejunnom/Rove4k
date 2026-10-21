@@ -1,4 +1,73 @@
-# Maintained A: private make binding and selected package — 2026-10-22
+# Maintained A: shared condition object — 2026-10-22
+
+The fixed complete candidate is **4550 B**, 9 B below A4559 and 454 B above
+4096. Shipping C is 8886 B (-28), bootstrap9850 B and native18576 B. Native
+length is unchanged but its full bytes differ; firstcost .text7346->7335.
+The final A-only pure `shipping_condition.py` follows the existing destination
+name stage. Three exact regions, four protected gaps and full inverse fix the
+input/result. Canonical/DEV, all earlier helper guards, search/learners/TT,
+two-worker/TT18 profile, no-pthread shipping compiler, implicit GNU17,73 B
+header and BT2/dict16KiB/nice24 codec stay unchanged.
+
+The two condition objects now share one. Actual notify3 sites remain
+`pthread_cond_broadcast`, with signal0 and both original qj-protected while
+predicates. Same mutex and while alone would not justify merging: broadcast
+must include the intended controller/worker waiters even when another
+predicate's waiter also wakes. A signal substitution could wake only an idle
+worker at completion and is not allowed. Startup2->1 does not notify in the
+current epilogue; only finalpending0 startup/completion broadcasts. Completion
+result/flush stays under qj before broadcast and the controller's reacquire.
+GO publishes pending/epoch under qj before broadcast; shutdown publishes
+quitting and broadcasts. Late partial-create workers read quitting before
+waiting; created-thread joins and epoch/null-startup marker stay unchanged.
+Additional idle wakes, predicate rechecks, mutex contention, work/scheduling/
+timing and condition-object address/native layout may differ. Partial-create,
+epoch-wrap and other fault schedules remain source arguments, not new runtime
+coverage or a many-core/performance/cancellation-causality claim.
+
+The prior names literal guard is preserved exactly. A pure adapter inverses
+the new raw-single source to its old fixed8914 source, invokes the unchanged
+names guard, then applies the same3 edits only inside the guarded raw-double
+body. Source/literal pins and full source inverse reject other inputs. No
+external report/artifact/AST/compiler/codec is a normal helper input. Earlier
+names-only native equality and source-token non-observation assumptions keep
+their historical scope; they do not qualify this new native or liveness.
+
+The ONE firstcost reused baseline compile0/encode0 and ran candidatecompile1/
+encode1 with strictPython2/CLI2 exact source/compiler/bootstrap EOF/trailing
+restoration. All original commands exited0 with empty stderr, reaped groups
+absent and handles0. Baseline full bootstrap matched before compile/encode.
+The source-only syntax preflight's report-brace typo was preserved separately
+and corrected before any runroot/product execution. No firstcost replay,
+make candidate composition, source/name/flag/codec search or new SAN ran.
+
+One ordinary full `--dev` call reproduced shipping C/native/bootstrap/whole
+twice, exactly matching the frozen firstcost tuple, and unchanged DEV source/
+entire native twice. One unchanged selected verifier passed quit/EOF2 sessions,
+8 legal GO, exact new native,3 startup TIDs each and private
+restoration/helper paths/readers physical exit. Original build/selected handles
+exited0, were reaped and left groups absent, with stderr0,forcedcleanup0 and
+ownedhandles0. No normal retry occurred. These positive fixed-profile sessions
+do not execute partial-create/epoch-wrap faults or prove cancellation causality,
+complete concurrency/core coverage, many-core behavior, strength or performance.
+Producing helper/build/expected/compiler/profile/header/codec remain unchanged;
+final recipe/README only annotate the completed receipts.
+
+| Form | Bytes | SHA-256 |
+| --- | ---: | --- |
+| Shipping C |8886|`d4132c23d226fa5490c5f213b3954ba6a9ce6f3f5f1a5594877a4d910685fe96`|
+| Native |18576|`e00da92cdf1d6fdb7c7a6fbcaa5755bd6c1fd23942b28178f414716bd7e74471`|
+| Bootstrap |9850|`5a40b94676ad5b1ba0046fdcee69815f2faf26ee798c86a86bdcbd3e88cca640`|
+| Complete |4550|`257903ecc2313685da8194ecacdc90896ba14d28adcfbb1a91893009bc0068bd`|
+
+Actual output: `/home/stemxstudio/rove4k-a-one-condition-promotion-20261022/normal/build`.
+Build receipt `d5106d72123363df60c86330dde6eaabbffc3de85d0107083a60ace3ab2e6854`;
+selected runtime `2730e1c1ad22ea12db2a2c2a18ab8a126648a4cd5e2d2885fcb85ecae5ff17a5`;
+producing recipe `29ca7b4718bd7d272f0fd68620f982b824261fed70db911b7ec2a746021477dc`.
+The unchanged fresh consumer discovers the extra helper from the recipe;
+no fresh archive, shared consumer edit or extraction was executed.
+
+# Historical A: private make binding and selected package — 2026-10-22
 
 The selected complete file is **4559 B**, 10 B below qualified A4569 and
 463 B above 4096. Shipping C remains 8914 B. `shipping_names.py` applies one

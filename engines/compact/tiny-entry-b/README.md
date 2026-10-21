@@ -1,3 +1,58 @@
+# Maintained B: direct shared-walker ports — 2026-10-22
+
+The fixed first-cost result is **5042 B**, down31 from5073. Compact C is
+**10270 B** (−124), native **26248 B** (−48), bootstrap **11309 B** (−124).
+Native identity is new1494a7d9...; this is not prior-native runtime reuse.
+The4096 B goal remains open with946 B remaining; no feature is removed.
+
+The pure shipping_forwarders.py follows shipping_declarations only in
+shipping. Nine exact regions remove l/e/v forwarding definitions and connect
+seven consumers directly to the unchanged c walker. Ten protected gaps,
+9945-byte complement and full inverse are checked. P's int check keeps !!c
+so high-bit-only uint64 attack masks become0/1; Q keeps the entire mask.
+Generation count remains0..432 within MOVES512. H's output parameter c is
+renamed to private j to avoid hiding the walker, preserving its h output use.
+Walker body/castle recursion, Move ordering, make/SEE/Board fields, HCE,
+PVS/QS/singular/correction/learners/full-key TT and worker publication/drain/
+join remain. Canonical, DEV and all earlier helper guards bypass this stage.
+General external C ABI, removed implementation symbols and native/frame/
+stack/timing equality are not claimed.
+
+The original control bootstrap11433 was reconstructed exactly before one
+candidate compile/encode with baseline compile/encode0. GCC13/C11/Os/pthread,
+workers2/TT18/PLY128/DEV0 and73-byte header/ALONE9e/BT4/64MiB/lc2/nice32
+are fixed. Python old/new2 and actual xzCLI old/new2 restored exact bootstrap
+and source, with EOF/trailing0. Original firstcost and prior LOSS remain
+outside Git. New fixture/SAN/NVC/search/codec sweep are not added.
+
+One ordinary --dev builder and one unchanged selected verifier passed.
+Shipping source/native/bootstrap/whole reproduced twice and match the fixed
+firstcost entire bytes; old DEV source/native reproduced twice and remain
+entire-byte equal to the actual qualified predecessor. The new native image
+1494a7d9... was observed during quit/EOF2 sessions and8 legal GO epochs,
+with3 stable startup TIDs per session, deleted exact restored image, absent
+private/compiler paths, finished readers and physical process/group exit.
+The two original command handles850/883 exit0/reap/group-absence at their
+settlement; cleanup0/owned0. No late bare PID/TID gate is added. Cancellation
+causality, timed-node equality, stack, performance and strength remain separate.
+
+A original ordinary/selected terminal receipts precede B; E was notified only
+after B's original full lifetime closed. Actual build198225 SHA-256:
+`fbd9e07ff22644fc9daac389a68ded5d1c6a5422f947b3b6cf5b31c0b76a9e5d`.
+Actual runtime49506 SHA-256:
+`1be703746643cb1539dcf2d14864eb006b3252f6dd208c520d9db1a72184bf95`.
+Producing recipe and source closure are frozen separately; only recipe/README
+completion annotations change after execution. Helper/build, expected bytes,
+all earlier guards/canonical/DEV/profile/codec remain producing bytes. No new
+semantic fixture/SAN/NVC/fault/game/benchmark or final4KiB acceptance is added.
+Only this helper/build/recipe/README are owned; rootdocs/Git/CI are separate.
+
+First-cost index SHA-256:
+`187a2a764613256ddedb1a1a152e0e61628d1c70198e6bc86465ecbc2f6377b9`.
+Source-only proof SHA-256:
+`5fe2b209e5fe3ca66d9f6b51afd086ee8b14b216a96209d3baee82ac35b481ee`.
+Historical sections retain their checkpoint identities and scope.
+
 # Maintained B: HCE declarations source −8, whole TIE, ordinary/selected PASS — 2026-10-22
 
 The maintained whole remains **5073 B**, while compact C is **10394 B** (−8)
