@@ -109,6 +109,7 @@ struct Budget {
     maximum: usize,
     seconds: f64,
     reason: Option<String>,
+    frontend_capacity_stop: Option<Value>,
     records: Vec<Value>,
     record_bytes: usize,
     costs: HashMap<String, usize>,
@@ -122,6 +123,7 @@ impl Budget {
             maximum: options.max_evaluations,
             seconds: options.max_seconds,
             reason: None,
+            frontend_capacity_stop: None,
             records: Vec::new(),
             record_bytes: 0,
             costs: HashMap::new(),
@@ -165,6 +167,29 @@ impl Budget {
         }
         self.record_bytes += bytes;
         self.records.push(value);
+        Ok(true)
+    }
+
+    fn stop_for_frontend_capacity(
+        &mut self,
+        error: &anyhow::Error,
+        phase: &str,
+        round: usize,
+        id: &str,
+    ) -> Result<bool> {
+        self.cancelled()?;
+        let Some(capacity) = error.downcast_ref::<cflow::FrontendOutputLimit>() else {
+            return Ok(false);
+        };
+        let evidence = json!({"stage":"frontend-capacity-stop","phase":phase,"round":round,"id":id,
+            "reason":format!("{error:#}"),"capture":capacity,"syntax_recheck":"passed",
+            "frontend_proof":"incomplete","truncated_output_accepted":false,
+            "retained":"last fully verified incumbent; unchanged C retains byte-identity proof"});
+        self.reason = Some("frontend-output-budget".into());
+        // Retain this bounded receipt even if the detailed-record budget fills
+        // at this point. No partial frontend output can become an accepted AST.
+        self.frontend_capacity_stop = Some(evidence.clone());
+        self.record(evidence)?;
         Ok(true)
     }
 
@@ -436,8 +461,22 @@ fn search_inner(
             &frontend_pin,
             "frontend",
         )?;
-        let generated = csource::generate_variants(&round_source, &options.candidates)
-            .context("C spelling candidate generation failed")?;
+        let generated = match csource::generate_variants(&round_source, &options.candidates)
+            .context("C spelling candidate generation failed")
+        {
+            Ok(value) => value,
+            Err(error) => {
+                if budget.stop_for_frontend_capacity(
+                    &error,
+                    "spelling-generation",
+                    round,
+                    "round-input",
+                )? {
+                    break;
+                }
+                return Err(error);
+            }
+        };
         if !budget.record(
             json!({"stage":"generation-summary","family":"c-source","round":round,
             "variants_including_raw":generated.len(),"raw":generated.first()}),
@@ -541,6 +580,14 @@ fn search_inner(
                     selected_best = Some((combined, score, native));
                 }
                 Err(error) => {
+                    if budget.stop_for_frontend_capacity(
+                        &error,
+                        "spelling-admission",
+                        round,
+                        &combined.id,
+                    )? {
+                        break;
+                    }
                     budget.cancelled()?;
                     budget.record(
                         json!({"stage":"semantic-rejected","round":round,"id":combined.id,
@@ -562,8 +609,22 @@ fn search_inner(
 
         if options.conditions && budget.available()? {
             let flow_options = cflow_options(options);
-            let flows = cflow::generate_variants(&source, &flow_options)
-                .context("typed C condition candidate generation failed")?;
+            let flows = match cflow::generate_variants(&source, &flow_options)
+                .context("typed C condition candidate generation failed")
+            {
+                Ok(value) => value,
+                Err(error) => {
+                    if budget.stop_for_frontend_capacity(
+                        &error,
+                        "condition-generation",
+                        round,
+                        "round-input",
+                    )? {
+                        break;
+                    }
+                    return Err(error);
+                }
+            };
             if !budget.record(
                 json!({"stage":"generation-summary","family":"c-flow","round":round,
                 "variants_including_raw":flows.len(),"raw":flows.first()}),
@@ -669,7 +730,14 @@ fn search_inner(
             "final complete-file cost is not reproducible"
         );
     }
+    let source_unchanged = source == original_source;
+    let source_proof = if source_unchanged {
+        "byte-identical-to-original"
+    } else {
+        "accepted-typed-derivations"
+    };
     let final_record = json!({"source_sha256":sha256(&source),"source_bytes":source.len(),
+        "source_unchanged":source_unchanged,"source_proof":source_proof,
         "payload_sha256":sha256(&current_payload),"payload_bytes":current_payload.len(),
         "style":current.style,"whole_file_bytes":current.cost,"native":final_native});
     let recipe = json!({"schema":SCHEMA,"options":options,"compiler_argv":compiler,
@@ -677,13 +745,15 @@ fn search_inner(
         "input_source_sha256":sha256(&original_source),"baseline_native":baseline,
         "baseline_whole_file_bytes":initial_cost,"steps":steps,"final":final_record});
     let report = json!({"schema":SCHEMA,"status":if budget.reason.is_some(){"budget-exhausted"}else{"completed"},
-        "exhaustion_reason":budget.reason,"evaluations":budget.evaluations,"evaluation_limit":options.max_evaluations,
+        "exhaustion_reason":budget.reason,"frontend_capacity_stop":budget.frontend_capacity_stop,
+        "evaluations":budget.evaluations,"evaluation_limit":options.max_evaluations,
         "seconds":budget.started.elapsed().as_secs_f64(),"time_limit_kind":"scheduling deadline between bounded operations; final acceptance completes separately",
         "original_whole_file_bytes":initial_cost,"selected_whole_file_bytes":current.cost,
         "saved_whole_file_bytes":initial_cost-current.cost,"input_payload_sha256":sha256(payload),
         "input_source_sha256":sha256(&original_source),"final":final_record,"accepted_steps":steps.len(),
         "records":budget.records,"engine_execution":"not performed","optimality":"bounded measured portfolio only",
-        "embedding_contract":options.embedding_contract,"acceptance":"typed source guards/readback, complete native and diagnostic identity, exact payload-adapter readback"});
+        "embedding_contract":options.embedding_contract,
+        "acceptance":"unchanged C bytes or applicable typed source proof; complete native and diagnostic identity; exact payload-adapter readback"});
     write_json(&directory.join("report.json"), &report)?;
     write_json(&directory.join("recipe.json"), &recipe)?;
     fs::write(directory.join("selected-payload"), &current_payload)?;

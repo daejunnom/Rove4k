@@ -299,3 +299,136 @@ fn search_replay_rejects_changed_contract_tools_and_recipe_edits() {
         "wrong rejection boundary: {error:#}"
     );
 }
+
+#[test]
+fn frontend_output_budget_preserves_verified_input_without_hiding_source_errors() {
+    let Some((clang, compiler)) = tools() else {
+        return;
+    };
+    let directory = tempfile::tempdir().unwrap();
+    // A small owned source can have a much larger typed JSON AST. The late
+    // conditional error also exercises the mandatory syntax-only recheck:
+    // filling the AST output budget must never hide an ordinary source error.
+    let mut source = String::new();
+    for index in 0..400 {
+        source.push_str(&format!("int declared_global_{index};\n"));
+    }
+    source.push_str("#ifdef NVCOMPACT_FRONTEND_REJECT\n#error NVCompact fixture frontend rejection\n#endif\nint main(void){return 0;}\n");
+    let source = source.into_bytes();
+    let mut opts = options(&clang, Value::Null);
+    opts.embedding = None;
+    opts.embedding_contract = "opaque".into();
+    opts.candidates.frontend.ast_bytes = 65536;
+    let compile = compiler_argv(&compiler);
+    let header = b"#!/bin/sh\ntail -n+3 \"$0\"|xz -d|cc -x c - -o x\n";
+    let submitted = [
+        header.as_slice(),
+        &codec::compress(&source, &compression()).unwrap(),
+    ]
+    .concat();
+    let make_fixture = |name: &str, search: bool| {
+        let input = directory.path().join(name);
+        fs::create_dir(&input).unwrap();
+        fs::write(input.join("original"), &submitted).unwrap();
+        let mut manifest = json!({"name":"owned-frontend-capacity","artifact":"original","category":"4k",
+            "sha256":sha256(&submitted),"payload_sha256":sha256(&source),"language":"c",
+            "notation":{"token_contract":"opaque"},"compile_argv":compile,
+            "envelope":{"header_bytes":header.len(),"header_sha256":sha256(header),
+                "decoder":"xz -d","payload_codec":compression()}});
+        if search {
+            manifest["source_search"] = serde_json::to_value(&opts).unwrap();
+        }
+        let path = input.join("manifest.json");
+        write_json(&path, &manifest).unwrap();
+        path
+    };
+    let envelope_options = envelope::EnvelopeOptions {
+        jobs: 1,
+        ..Default::default()
+    };
+    let old = envelope::run(
+        &make_fixture("legacy-input", false),
+        &directory.path().join("legacy"),
+        &envelope_options,
+    )
+    .unwrap();
+    let current_out = directory.path().join("current");
+    let new = envelope::run(
+        &make_fixture("current-input", true),
+        &current_out,
+        &envelope_options,
+    )
+    .unwrap();
+    assert!(new["winner"]["bytes"].as_u64().unwrap() <= old["winner"]["bytes"].as_u64().unwrap());
+    assert_eq!(new["winner"]["variant"], "raw");
+    assert_eq!(new["source_search"]["report"]["status"], "budget-exhausted");
+    assert_eq!(
+        new["source_search"]["report"]["exhaustion_reason"],
+        "frontend-output-budget"
+    );
+    let recipe = &new["source_search"]["recipe"];
+    assert!(recipe["steps"].as_array().unwrap().is_empty());
+    assert_eq!(recipe["final"]["source_sha256"], sha256(&source));
+    let report: Value = serde_json::from_slice(
+        &fs::read(
+            current_out.join(
+                new["source_search"]["report"]["detail"]["path"]
+                    .as_str()
+                    .unwrap(),
+            ),
+        )
+        .unwrap(),
+    )
+    .unwrap();
+    let exhausted = report["records"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|record| record["stage"] == "frontend-capacity-stop")
+        .expect("frontend capacity exhaustion must retain a receipt");
+    assert_eq!(exhausted["frontend_proof"], "incomplete");
+    assert_eq!(exhausted["syntax_recheck"], "passed");
+    assert_eq!(exhausted["truncated_output_accepted"], false);
+    let replayed = source_search::replay(
+        &source,
+        recipe,
+        &compile,
+        &directory.path().join("capacity-replay"),
+    )
+    .unwrap();
+    assert_eq!(replayed, source);
+
+    let mut measure = |data: &[u8]| -> anyhow::Result<usize> {
+        Ok(header.len() + codec::compress(data, &compression())?.len())
+    };
+    let mut invalid_frontend = opts.clone();
+    invalid_frontend
+        .candidates
+        .frontend
+        .compiler_args
+        .push("-DNVCOMPACT_FRONTEND_REJECT=1".into());
+    let error = source_search::search(
+        &source,
+        &invalid_frontend,
+        &compile,
+        &directory.path().join("frontend-error"),
+        &mut measure,
+    )
+    .unwrap_err();
+    assert!(
+        format!("{error:#}").contains("NVCompact fixture frontend rejection"),
+        "frontend syntax error must remain fatal even after output exhaustion: {error:#}"
+    );
+    let error = source_search::search(
+        b"int main( {\n",
+        &opts,
+        &compile,
+        &directory.path().join("native-baseline-error"),
+        &mut measure,
+    )
+    .unwrap_err();
+    assert!(
+        format!("{error:#}").contains("declared source compiler did not complete successfully"),
+        "native baseline failure must not be treated as optional exploration: {error:#}"
+    );
+}

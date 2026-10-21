@@ -800,7 +800,7 @@ pub fn run(manifest_path: &Path, output: &Path, options: &EnvelopeOptions) -> Re
                     variants.push(Payload {
                         id,
                         data: searched.data,
-                        equivalence: "reviewed C source derivation, typed binding checks, complete native and compiler diagnostic byte identity; declared embedding contract".into(),
+                        equivalence: "unchanged C bytes or verified typed source derivation; complete native and compiler diagnostic byte identity; exact payload readback under declared embedding contract".into(),
                     });
                 }
             }

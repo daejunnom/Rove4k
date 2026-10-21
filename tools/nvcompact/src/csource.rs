@@ -4,7 +4,7 @@
 //! spellings can compress better, so this module never chooses by source length.
 //! A caller must validate an improving candidate with `verify_variant` and its
 //! real compiler recipe before admitting it to a submission portfolio.
-use crate::cflow::{validate_args, CFlowOptions};
+use crate::cflow::{check_frontend_output, frontend_syntax_probe, validate_args, CFlowOptions};
 use crate::notation::{lex, literal_candidates, Token, Variant, MAX_SOURCE};
 use crate::{process, sha256};
 use anyhow::{ensure, Context, Result};
@@ -180,11 +180,30 @@ impl Frontend {
             file_bytes: maximum as u64,
         };
         let output = process::run(&command, input, &self.cwd, &limits)?;
-        output.check("Clang source spelling frontend")?;
         ensure!(
             sha256(&std::fs::read(&self.executable)?) == self.executable_sha256,
             "frontend changed during source analysis"
         );
+        if output.output_limited && !output.timed_out {
+            if let Some(probe) = frontend_syntax_probe(&command) {
+                // A truncated JSON stream proves neither syntax validity nor
+                // typed equivalence. Keep ordinary source errors fatal before
+                // reporting this specific output-capacity exhaustion.
+                let probe_limits = process::Limits {
+                    output_bytes: maximum.min(65536),
+                    file_bytes: maximum.min(65536) as u64,
+                    ..limits
+                };
+                let checked = process::run(&probe, input, &self.cwd, &probe_limits)?;
+                ensure!(
+                    sha256(&std::fs::read(&self.executable)?) == self.executable_sha256,
+                    "frontend changed during capacity syntax check"
+                );
+                checked.check("Clang source spelling syntax after output exhaustion")?;
+                return check_frontend_output(output, "Clang source spelling frontend", maximum);
+            }
+        }
+        output.check("Clang source spelling frontend")?;
         Ok(output.stdout)
     }
 

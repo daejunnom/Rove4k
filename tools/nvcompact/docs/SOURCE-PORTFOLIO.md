@@ -396,11 +396,23 @@ The envelope summary embeds the accepted recipe and a compact source-search
 report. Its `detail.path`, byte count and SHA-256 identify the detailed report
 under the owned output directory. Records include generator notes/assumptions,
 measured styles, native receipts, rejected candidates, accepted derivations and
-budget exhaustion. Invalid configuration, generation failure, measurement error
-or cancellation is not reported as successful baseline fallback. An individual
-candidate that fails its gate can be rejected while the earlier validated
-incumbent remains. Exhausting a budget does not prove that no better spelling
-exists.
+budget exhaustion. A frontend AST/preprocessing output cap has a specific bounded
+stop path: NVCompact first performs a syntax-only check with the same language,
+target and preprocessing arguments, finite limits, and executable identity. Only
+when that check succeeds does search report `frontend-output-budget` and retain
+its last fully verified incumbent. The record explicitly marks frontend proof
+as incomplete and states that truncated output was not accepted. Version/ABI
+probe failures do not take this path. A syntax-check failure remains an error.
+
+The final report distinguishes unchanged C byte identity from accepted typed
+derivations through `final.source_unchanged` and `final.source_proof`. An unchanged
+C source can still use a separately checked Python literal spelling; that does
+not claim a missing C AST proof passed. Ordinary generation/configuration errors,
+baseline compilation failures, measurement errors and cancellation remain
+failures. An individual candidate that fails its admission gate can be rejected
+while the earlier validated incumbent remains. Replay does not downgrade a
+required accepted-step proof to a capacity stop. Exhausting any budget does not
+prove that no better spelling exists.
 
 The current implementation intentionally has these boundaries:
 

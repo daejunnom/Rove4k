@@ -2,7 +2,7 @@
 //! pass is reparsed, unsupported constructs retain identity, and every final
 //! candidate still requires the application's real compile/verify contract.
 use crate::notation::{lex, Token, Variant, MAX_SOURCE};
-use crate::process::{run, Limits};
+use crate::process::{run, Limits, Output};
 use anyhow::{bail, Context, Result};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
@@ -213,16 +213,91 @@ fn resolve_executable(value: &str) -> Result<PathBuf> {
     }
     bail!("Clang frontend unavailable: {value}; provide a Clang path")
 }
+/// A bounded frontend capture is incomplete. This is not an AST, a successful
+/// parse, or evidence that no transformation applies. Callers only expose this
+/// error for AST/preprocessing stages after a separate syntax-only check passes.
+#[derive(Debug, Serialize)]
+pub(crate) struct FrontendOutputLimit {
+    label: String,
+    maximum_bytes: usize,
+    returncode: i32,
+    stdout_bytes: usize,
+    stderr_bytes: usize,
+    captured_stdout_sha256: String,
+    captured_stderr_sha256: String,
+    stderr_tail: String,
+    wall_seconds: f64,
+}
+
+impl std::fmt::Display for FrontendOutputLimit {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} exceeded its {}-byte output budget (captured stdout {}, stderr {}, exit {}); frontend proof is incomplete",
+            self.label, self.maximum_bytes, self.stdout_bytes, self.stderr_bytes, self.returncode)
+    }
+}
+impl std::error::Error for FrontendOutputLimit {}
+
+pub(crate) fn check_frontend_output(
+    output: Output,
+    label: &str,
+    maximum: usize,
+) -> Result<Vec<u8>> {
+    if crate::process::cancelled() {
+        bail!("cancelled during frontend capture");
+    }
+    if output.output_limited && !output.timed_out {
+        return Err(FrontendOutputLimit {
+            label: label.into(),
+            maximum_bytes: maximum,
+            returncode: output.code,
+            stdout_bytes: output.stdout.len(),
+            stderr_bytes: output.stderr.len(),
+            captured_stdout_sha256: crate::sha256(&output.stdout),
+            captured_stderr_sha256: crate::sha256(&output.stderr),
+            stderr_tail: String::from_utf8_lossy(
+                &output.stderr[output.stderr.len().saturating_sub(8192)..],
+            )
+            .into_owned(),
+            wall_seconds: output.wall_seconds,
+        }
+        .into());
+    }
+    output.check(label)?;
+    Ok(output.stdout)
+}
+
+/// Recognize only the two internally generated AST/preprocessing suffixes.
+/// Version/ABI commands and arbitrary argv never become optional capacity stops.
+pub(crate) fn frontend_syntax_probe(argv: &[String]) -> Option<Vec<String>> {
+    let n = argv.len();
+    let prefix = if n >= 4
+        && argv[n - 4] == "-fsyntax-only"
+        && argv[n - 3] == "-Xclang"
+        && argv[n - 2] == "-ast-dump=json"
+    {
+        n - 4
+    } else if n >= 3 && argv[n - 3] == "-E" && argv[n - 2] == "-dD" {
+        n - 3
+    } else {
+        return None;
+    };
+    let mut probe = argv[..prefix].to_vec();
+    probe.extend(["-fsyntax-only".into(), argv[n - 1].clone()]);
+    Some(probe)
+}
+
 struct Frontend {
     options: CFlowOptions,
     root: tempfile::TempDir,
     executable: PathBuf,
+    executable_sha256: String,
     cwd: PathBuf,
     info: Value,
 }
 impl Frontend {
     fn new(options: &CFlowOptions) -> Result<Self> {
         let executable = resolve_executable(&options.clang)?;
+        let executable_sha256 = crate::sha256(&std::fs::read(&executable)?);
         let cwd = if let Some(source_path) = &options.source_path {
             source_path
                 .canonicalize()?
@@ -236,6 +311,7 @@ impl Frontend {
             options: options.clone(),
             root: tempfile::tempdir()?,
             executable,
+            executable_sha256,
             cwd,
             info: Value::Null,
         };
@@ -250,7 +326,7 @@ impl Frontend {
         if !version.to_ascii_lowercase().contains("clang version") {
             bail!("--clang did not identify itself as Clang");
         }
-        result.info = json!({"executable":result.executable,"executable_sha256":crate::sha256(&std::fs::read(&result.executable)?),"version":version,"standard":options.standard,"compiler_args":options.compiler_args,"source_include_directory":result.cwd,"seconds_per_parse":options.frontend_seconds,"address_space_bytes":options.frontend_memory_bytes,"ast_output_bytes":options.ast_bytes});
+        result.info = json!({"executable":result.executable,"executable_sha256":result.executable_sha256,"version":version,"standard":options.standard,"compiler_args":options.compiler_args,"source_include_directory":result.cwd,"seconds_per_parse":options.frontend_seconds,"address_space_bytes":options.frontend_memory_bytes,"ast_output_bytes":options.ast_bytes});
         Ok(result)
     }
     fn execute(&self, argv: Vec<String>, bytes: usize) -> Result<Vec<u8>> {
@@ -262,6 +338,22 @@ impl Frontend {
             file_bytes: bytes as u64,
         };
         let output = run(&argv, b"", &self.cwd, &limits)?;
+        if crate::sha256(&std::fs::read(&self.executable)?) != self.executable_sha256 {
+            bail!("frontend changed during C condition analysis");
+        }
+        if output.output_limited && !output.timed_out {
+            if let Some(probe) = frontend_syntax_probe(&argv) {
+                let mut probe_limits = limits.clone();
+                probe_limits.output_bytes = bytes.min(65536);
+                probe_limits.file_bytes = probe_limits.output_bytes as u64;
+                let checked = run(&probe, b"", &self.cwd, &probe_limits)?;
+                if crate::sha256(&std::fs::read(&self.executable)?) != self.executable_sha256 {
+                    bail!("frontend changed during C condition capacity recheck");
+                }
+                checked.check("Clang syntax recheck after frontend output limit")?;
+                return check_frontend_output(output, "Clang frontend", bytes);
+            }
+        }
         output.check("Clang frontend")?;
         Ok(output.stdout)
     }
@@ -1362,6 +1454,58 @@ pub fn generate_variants(source: &[u8], options: &CFlowOptions) -> Result<Vec<Va
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn frontend_capacity_is_typed_and_only_recognized_commands_get_syntax_probes() {
+        let prefix = vec![
+            "clang".to_string(),
+            "-x".into(),
+            "c".into(),
+            "-mavx2".into(),
+            "-DVALUE=2".into(),
+        ];
+        let mut expected = prefix.clone();
+        expected.extend(["-fsyntax-only".into(), "translation.c".into()]);
+        let mut ast = prefix.clone();
+        ast.extend([
+            "-fsyntax-only".into(),
+            "-Xclang".into(),
+            "-ast-dump=json".into(),
+            "translation.c".into(),
+        ]);
+        assert_eq!(frontend_syntax_probe(&ast), Some(expected.clone()));
+        let mut macros = prefix;
+        macros.extend(["-E".into(), "-dD".into(), "translation.c".into()]);
+        assert_eq!(frontend_syntax_probe(&macros), Some(expected.clone()));
+        assert!(frontend_syntax_probe(&expected).is_none());
+        assert!(frontend_syntax_probe(&["clang".into(), "--version".into()]).is_none());
+
+        let output = |code, output_limited, timed_out| Output {
+            code,
+            stdout: b"partial".to_vec(),
+            stderr: b"diagnostic".to_vec(),
+            wall_seconds: 0.1,
+            timed_out,
+            output_limited,
+        };
+        let limited = check_frontend_output(output(125, true, false), "fixture", 17).unwrap_err();
+        assert!(limited.downcast_ref::<FrontendOutputLimit>().is_some());
+        for failed in [
+            output(1, false, false),
+            output(125, false, false),
+            output(124, true, true),
+        ] {
+            assert!(check_frontend_output(failed, "fixture", 17)
+                .unwrap_err()
+                .downcast_ref::<FrontendOutputLimit>()
+                .is_none());
+        }
+        assert_eq!(
+            check_frontend_output(output(0, false, false), "fixture", 17).unwrap(),
+            b"partial"
+        );
+    }
+
     fn options() -> Option<CFlowOptions> {
         let clang = std::env::var("NVCOMPACT_CLANG").unwrap_or_else(|_| "clang".into());
         if resolve_executable(&clang).is_err() {
