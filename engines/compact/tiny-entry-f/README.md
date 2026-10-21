@@ -1,3 +1,32 @@
+# Maintained F full direct walker4396 — 2026-10-22
+
+고정 ONEcost는 condition4410에서4396 B로14 B 줄었다. 새 shipping_walker
+순수 helper는 기존 shared_condition 직후 full source와 optional 별도
+full_reference에만 적용한다. 입력8469/350fdabc에서8410/0185b114로
+12 spans·13 gaps·full inverse를 확인한다. Attack6/gen2 forwarder를
+제거하고 실제 static walker에 기존 T 이름을 재사용해3 local g shadow를
+피한다. Query0/1과 generation 순서/count512/abort, Board·TT·MTD·learner·
+pool 소유권은 그대로다. 외부C ABI·frame·stack·timing 동일성은 주장하지 않는다.
+
+실측 native18576/c18d793b…는 이전851069e0…와 다르다. Bootstrap9332와
+whole4396은 ordinary full --dev에서 각각 두 번 재현됐고 DEV도 두 번 같다.
+새 unchanged full selected는 실제새 native로quit/EOF2sessions8GO/3TID와
+private deleted image·reader/process 물리종료를 통과했다.
+Canonical/DEV, optional 실제 whole4319/4045, F8 pre-name8538/47353…은
+우회한다. 기존 모든 stage guard와2workers/TT18/nice16/header73를 유지한다.
+F8의 e8 CI는 재현byte는PASS지만 기동FD 관측에서positive FAIL이므로
+새 CI성공으로 표시하지 않는다. 이후 새 startup관측 후보의 별도 로컬 F8
+build/positive2commands는 통과했고 자체payload4442/nice24는 두 번 같다.
+원 e8 FAIL과 FD3 정체unknown은 그대로 보존하며 새CI는 수행하지 않았다.
+Optional material4319/move4045 실제payload도두번전체같고 별도 full_reference는
+8410으로갱신됐다. Optional DEV각2는같으며새optionalselected는0이다.
+원6commands는terminal/reaped/groupabsent/forcedcleanup0/owned0이다.
+Fullbuild:1c8f8c4344652299b9e6324a32a3dbcd881c66fa48643fa81074e7983cf5d14e
+Fullruntime:f3251bd1884b5e136d2ee24ebd68590e695bf6526433cc48695a0d7e8cad7ea6
+
+외부 근거: rove4k-f-direct-walker-promotion-20261022-evidence.
+생산 snapshot과 실행 뒤 완료 주석은 분리하며 새 SAN/NVC/후보/codec 탐색은 없다.
+
 # Maintained F full4410: one condition object — 2026-10-22
 
 The fixed full candidate is **4410 B**,14 B below4424 and314 B above4096.

@@ -132,7 +132,16 @@ def native_identity(pid, expected):
             'private_executable_absent': True, 'private_parent_absent': True, 'private_parent': str(path.parent)}
 
 
-def startup(owned, expected, helper):
+def startup_states(pid):
+    """Startup phase observation only; no FD/children/resource acceptance."""
+    result = {}
+    for path in Path(f'/proc/{pid}/task').iterdir():
+        fields = (path/'stat').read_text().rsplit(')', 1)[1].split()
+        result[int(path.name)] = fields[0]
+    return result
+
+
+def startup(owned, expected, helper, waiting):
     end = time.monotonic() + owned.budget.left(30)
     last = None
     while time.monotonic() < end:
@@ -141,15 +150,28 @@ def startup(owned, expected, helper):
             link = os.readlink(f'/proc/{owned.process.pid}/exe')
             if link.endswith(' (deleted)') and Path(link[:-10]).name == 'x' and Path(link[:-10]).parent.name.startswith('r4-'):
                 native = native_identity(owned.process.pid, expected)
-                first = helper.tasks(owned.process.pid)
-                if len(first) == 9 and all(v['state'] == 'S' for v in first.values()):
+                pre_first = startup_states(owned.process.pid)
+                waiting['samples'].append({'phase': 'waiting-count-state-only-not-resource-acceptance',
+                                           'tasks': pre_first})
+                last = pre_first
+                if len(pre_first) == 9 and all(state == 'S' for state in pre_first.values()):
                     time.sleep(owned.budget.left(.05))
-                    second = helper.tasks(owned.process.pid)
-                    if set(second) == set(first) and all(v['state'] == 'S' for v in second.values()):
-                        return sorted(first), {'native': native, 'first_tasks': first, 'second_tasks': second,
-                                              'idle_worker_CPU_tick_delta': {str(t): second[t]['cpu_ticks']-first[t]['cpu_ticks']
-                                                                           for t in first if t != owned.process.pid}}
-                last = first
+                    pre_second = startup_states(owned.process.pid)
+                    waiting['samples'].append({'phase': 'waiting-count-state-only-not-resource-acceptance',
+                                               'tasks': pre_second})
+                    if set(pre_second) == set(pre_first) and all(state == 'S' for state in pre_second.values()):
+                        waiting['strict_tasks_started_after_stable_nine_idle'] = True
+                        first = helper.tasks(owned.process.pid)
+                        if len(first) == 9 and all(v['state'] == 'S' for v in first.values()):
+                            time.sleep(owned.budget.left(.05))
+                            second = helper.tasks(owned.process.pid)
+                            if set(second) == set(first) and all(v['state'] == 'S' for v in second.values()):
+                                return sorted(first), {'native': native, 'first_tasks': first, 'second_tasks': second,
+                                                      'pre_FD_count_state_first': pre_first,
+                                                      'pre_FD_count_state_second': pre_second,
+                                                      'idle_worker_CPU_tick_delta': {str(t): second[t]['cpu_ticks']-first[t]['cpu_ticks']
+                                                                                    for t in first if t != owned.process.pid}}
+                        last = first
         except FileNotFoundError:
             pass
         time.sleep(owned.budget.left(.005))
@@ -205,8 +227,10 @@ def qualify(image, whole, native, out, shutdown, budget, helper, oracle, row):
     q = Queue(owned)
     tids = [owned.process.pid]
     row.update(pid=owned.process.pid, shutdown=shutdown, passed=False, results=[])
+    row['startup_wait'] = {'scope': 'count/state only before strict FD/children inspection; not readiness acceptance',
+                           'samples': [], 'strict_tasks_started_after_stable_nine_idle': False}
     try:
-        tids, row['startup'] = startup(owned, native, helper)
+        tids, row['startup'] = startup(owned, native, helper, row['startup_wait'])
         row['startup_TIDs'] = tids
         row['startup_resources'] = observe(owned, tids, helper, out/'startup')
         q.send('uci\nisready\n')

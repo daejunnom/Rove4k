@@ -31,7 +31,7 @@
   "base_source_closure_sha256": {
     "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
     "engines/compact/tiny-entry-f/bootstrap.py.in": "159c5fe166f4b0804471e9d3a70d8f055a510858a6ae33f0ed6b4cfd17fca6f9",
-    "engines/compact/tiny-entry-f/build.py": "fbbb65b7a6a03f4729527bcbc3bf30a06898fa0ed020a5963f0f193747879197",
+    "engines/compact/tiny-entry-f/build.py": "04bcefd04801f516ef8eb06706251d14cba42ae003412529eb0378866d1122a4",
     "engines/compact/tiny-entry-f/engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
     "engines/compact/tiny-entry-f/launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
     "engines/compact/tiny-entry-f/shipping_alpha.py": "74abadbd79735e9f6b30c513b422245bae737f81d4e3bd04a7b8e597e61937e8",
@@ -80,7 +80,8 @@
     "engines/compact/tiny-entry-f/shipping_selector.py": "69bf3747d81455690c11abc95046e173c5a8915e2abd001ad6976bbe22c3e48d",
     "engines/compact/tiny-entry-f/shipping_rank.py": "0850ee61f108bc24fa48995f5f13b49d16a24c788f38cd070c9644e9e044c932",
     "engines/compact/tiny-entry-f/shipping_digit_fd.py": "ae396191f09c6738879d42d1cc62e2c54cda1165b89c91c9ef677b4985040960",
-    "engines/compact/tiny-entry-f/shipping_condition.py": "c6bf5e284c5648b305817a0da53e7d95566e856eb4a053ac281d88990a495e0f"
+    "engines/compact/tiny-entry-f/shipping_condition.py": "c6bf5e284c5648b305817a0da53e7d95566e856eb4a053ac281d88990a495e0f",
+    "engines/compact/tiny-entry-f/shipping_walker.py": "cacaeda593a77a8c4ea359351bab1b9b4d2561844f579a993c1875d7b20b208d"
   },
   "positive_helper_sha256": {
     "engines/compact/tiny-entry-d/verify.py": "3ae1f525e718f9cef90b4009ff415065587cf9552b82d2785911a672243fae33",
@@ -611,5 +612,109 @@
       "F8_new_compile_encode_runtime": 0,
       "scope": "producer provenance only; existing F8 selected4442 qualification reused by unchanged pre-name/pipeline/expected"
     }
+  },
+  "F2_direct_walker_producer_provenance": {
+    "status": "PASS local F2producer preName and F8newstartup build/positive; old e8CI FAIL preserved",
+    "F2_builder_LF_sha256": "04bcefd04801f516ef8eb06706251d14cba42ae003412529eb0378866d1122a4",
+    "previous_builder_LF_sha256": "fbbb65b7a6a03f4729527bcbc3bf30a06898fa0ed020a5963f0f193747879197",
+    "new_helper_path": "engines/compact/tiny-entry-f/shipping_walker.py",
+    "new_helper_LF_sha256": "cacaeda593a77a8c4ea359351bab1b9b4d2561844f579a993c1875d7b20b208d",
+    "base_source_closure_count": 53,
+    "positive_helpers": 2,
+    "own_files": 5,
+    "total_closure": 60,
+    "pre_name_input": [
+      8538,
+      "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
+    ],
+    "late_F2_walker_not_consumed": true,
+    "own_whole4442_nice24_nine_TIDs_unchanged": true,
+    "F8_new_builder_calls_pending": 0,
+    "F8_new_selected_calls_pending": 0,
+    "e8_CI_separate": "buildercomplete/native/wholeexact passed; startupstrictFD positive failed with0,1,2,3 before9TID gate; FD3identity unknown; oldFAIL preserved",
+    "normal_validation": {
+      "F2_build": {
+        "path": "/home/stemxstudio/rove4k-f-direct-walker-promotion-20261022-v1/full/build/build.json",
+        "bytes": 263361,
+        "sha256": "1c8f8c4344652299b9e6324a32a3dbcd881c66fa48643fa81074e7983cf5d14e"
+      },
+      "F2_pre_name": {
+        "path": "/home/stemxstudio/rove4k-f-direct-walker-promotion-20261022-v1/full/build/source-before-names.c",
+        "bytes": 8538,
+        "sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
+      },
+      "F2_attempt_pre_names": [
+        {
+          "path": "/home/stemxstudio/rove4k-f-direct-walker-promotion-20261022-v1/full/build/attempt-1/source-before-names.c",
+          "bytes": 8538,
+          "sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
+        },
+        {
+          "path": "/home/stemxstudio/rove4k-f-direct-walker-promotion-20261022-v1/full/build/attempt-2/source-before-names.c",
+          "bytes": 8538,
+          "sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
+        }
+      ],
+      "pre_names_three_entire_equal": true,
+      "F8_build": {
+        "path": "/home/stemxstudio/rove4k-f-direct-walker-promotion-20261022-v1/F8/build/build.json",
+        "bytes": 14986,
+        "sha256": "40237f748518d298b6fda00a906dbfcaa9afe294689893711d63a36d16ecc3d0"
+      },
+      "F8_runtime": {
+        "path": "/home/stemxstudio/rove4k-f-direct-walker-promotion-20261022-v1/F8/runtime/runtime.json",
+        "bytes": 68235,
+        "sha256": "a6445da7f4e8a6ed1a5c4c9555075083ae0e47f6ccea8b3e8bd854697c88bd67"
+      },
+      "F8_producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-f-direct-walker-promotion-20261022-v1/F8/build/inputs/engines/compact/tiny-entry-f-resource8/recipe.json",
+        "bytes": 34719,
+        "sha256": "936fcba5c0aa36529cbe11a6563f4f4285451d2909d149d740850a2895fe8ccf"
+      },
+      "F8_stage": {
+        "path": "/home/stemxstudio/rove4k-f-direct-walker-promotion-20261022-v1/F8-stage.json",
+        "bytes": 5929,
+        "sha256": "7c57553af39bcd76f259af1c197b8ac687f3e79134106702c4d30eb122d9fcab"
+      },
+      "F8_ordinary_calls": 1,
+      "F8_selected_calls": 1,
+      "F8_reproductions": 2,
+      "F8_quitEOF_sessions": 2,
+      "F8_legalGO": 8,
+      "native_TIDs": 9,
+      "own_payload_entire_predecessor_identity": true,
+      "new_CI_performed": false,
+      "scope": "newlocalcandidate only; exacte8FAIL stays separate"
+    }
+  },
+  "startup_observation_revision": {
+    "status": "PASS one newlocalordinary and positive after F4normal; no freshCI claim",
+    "scope": "only startup count/state phase before existing strict Dhelper.tasks FD/children checks",
+    "verify_before_LF_sha256": "2d3c99b6e25bc4a0cb58da237626b7ee7453de2facf787d5724d0a3c53ad67bd",
+    "verify_after_LF_sha256": "6f407b2795bf6c5c0b97065fe65c98ee981f836c314377129f01190912651f59",
+    "pre_FD_phase": "nativeidentity then9idleTIDs same set in two count/state-only snapshots; not resource readiness acceptance",
+    "strict_tasks_assertions_unchanged": true,
+    "Dhelper_unchanged": true,
+    "AssertionError_catch_or_skip": false,
+    "permanent_extra_FD_after_gate_must_fail": true,
+    "prior_e8_positive_failure_not_rewritten": true,
+    "newrace_negative_campaign": 0,
+    "new_local_runtime": {
+      "path": "/home/stemxstudio/rove4k-f-direct-walker-promotion-20261022-v1/F8/runtime/runtime.json",
+      "bytes": 68235,
+      "sha256": "a6445da7f4e8a6ed1a5c4c9555075083ae0e47f6ccea8b3e8bd854697c88bd67"
+    },
+    "new_local_build": {
+      "path": "/home/stemxstudio/rove4k-f-direct-walker-promotion-20261022-v1/F8/build/build.json",
+      "bytes": 14986,
+      "sha256": "40237f748518d298b6fda00a906dbfcaa9afe294689893711d63a36d16ecc3d0"
+    },
+    "actual_sessions": 2,
+    "actual_legal_GO": 8,
+    "actual_startup_TIDs_each": 9,
+    "actual_pre_strict_wait_recorded": true,
+    "strict_FD_children_two9S_samples_passed": true,
+    "physical_readers_process_group_exit": true,
+    "e8_failure_or_FD3_identity_resolved_claimed": false
   }
 }

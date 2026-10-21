@@ -111,6 +111,7 @@ def main():
         cached_evaluation=module('entry_B_cached_evaluation',frozen/'shipping_cached_evaluation.py').transform_source
         hce_declarations=module('entry_B_HCE_declarations',frozen/'shipping_declarations.py').transform_source
         forwarders=module('entry_B_walker_forwarders',frozen/'shipping_forwarders.py').transform_source
+        condition_sharing=module('entry_BCE_condition_sharing',frozen/'shipping_condition_bce.py').transform_source
         source_package=module('entry_B_source_package',frozen/'source_package.py')
         readonly_template=module('entry_readonly_template',frozen/'shipping_readonly.py').transform_template
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
@@ -174,6 +175,8 @@ def main():
                 common_metadata['hce_declarations']=declaration_metadata
                 data,forwarder_metadata=forwarders(data)
                 common_metadata['walker_forwarders']=forwarder_metadata
+                data,condition_metadata=condition_sharing(data,family='B')
+                common_metadata['condition_sharing']=condition_metadata
             return data,observations,alpha_metadata,storage_metadata,scope_metadata,core_metadata,input_metadata,order_metadata,walk_metadata,tactical_metadata,type_metadata,global_names_metadata,recapture_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())

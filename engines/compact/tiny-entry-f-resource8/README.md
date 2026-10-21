@@ -1,3 +1,28 @@
+# F direct-walker producer·새 기동 관측 로컬 통과 — 2026-10-22
+
+F2 producer closure는 builder pin과 shipping_walker helper만 더해 base53
++positive helpers2+own files5=전체60이다. F8은 변함없는 pre-name8538/
+47353… 이후 자체 names/sixroles를 사용하며 F2 late walker는 호출하지 않는다.
+자체 source/native/bootstrap/whole4442·nice24/header73·9TID 조건은 같다.
+
+e8 CI에서는 F8 재현 bytes가PASS지만 native exe일치 직후9TID 확인 전
+strict FD검사가0,1,2,3을 보아 positive FAIL했다. FD3 정체는 unknown이며
+이 실패는 보존한다. 새 startup는 FD/children을 읽지 않는 count/state
+snapshot 두 개로9개의 같은 idle TID 기동phase를 먼저 관측한 뒤, 기존
+Dhelper.tasks의 strict FD/children 및9TID/S 두샘플 검사를 그대로 실행한다.
+사전 snapshot은 resource readiness가 아니라 기동대기로 기록한다.
+AssertionError를 잡거나stdio조건을완화하지 않아9TID후영구FD누수는FAIL이다.
+
+BCE6normal→F4normal→F8build/positive 순서로 새 ordinary build1과
+positive1이 로컬에서 통과했다. 자체 C/native/bootstrap/whole4442 전체가
+이전정상본과두번같고 closure는60이다. 새 quit/EOF2sessions8GO/9TID 및
+8worker활동, pre-count/state기록 뒤원strictFD/children·9TID/S두샘플,
+reader/process/group 물리종료를 실제확인했다. 강제cleanup0/owned0이다.
+기존localpositive를새결과로상속하지않으며원 e8 FAIL과 FD3 unknown은보존한다.
+새 CI성공·원실패의재현/원인확정을주장하지않는다.
+Newlocalruntime:a6445da7f4e8a6ed1a5c4c9555075083ae0e47f6ccea8b3e8bd854697c88bd67
+새race/negative/SAN/NVC campaign이나 sharedDhelper 변경은 없다.
+
 # F2 condition producer provenance — 2026-10-22
 
 Only the F2 builder pin and new pure shipping_condition helper follow F2's

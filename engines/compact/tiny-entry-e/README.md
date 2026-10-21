@@ -1,3 +1,60 @@
+# Maintained E: one pool condition — 2026-10-22
+
+The fixed first-cost complete file is **4897 B**, source
+**10104 B**, native **26304 B** and bootstrap
+**11106 B**. Complete-file reduction is **17 B**
+from the actual FD0 baseline; source reduction is 38 B.
+The new entire native is `f080aff7aefd9dec8ba793ecf8cdd8b828c32ba2225933a4e7b9af52f0361099`.
+The shared pure `tiny-entry-a/shipping_condition_bce.py` is called with
+explicit family E after its original last shipping C stage. E uses a separate ready counter and pending0.
+Its exact 5 spans/6 gaps/full inverse preserve every other byte.
+
+All waits keep the same mutex and original while predicates; all four
+notifications remain broadcasts in their original positions. Startup each
+worker notification, pending2/epoch/seen, last result+printf/fflush before
+completion notify and drain before root/history reuse stay intact.
+Partial-create still skips normal drain and publishes quitting before
+joining only created workers, without an additional stop store. Physical
+termination relies on successful joins; the existing nonzero-join f2/free
+error policy is unchanged and not newly proven safe.
+
+One condition queue can additionally wake the wrong predicate class. Those
+waiters recheck while under the same mutex, but reacquisition/contend,
+scheduling/latency and deadline node/depth/result observations may differ.
+No exact timed trace, performance, RAM or strength equivalence is claimed.
+Canonical/DEV, all existing model/features/TT/learners/input/search bytes,
+compiler/profile/codec/73-byte header and FD0 template stage remain fixed.
+C keeps its own -mavx2 and nice64; B/E keep nice32.
+
+Firstcost reused actual frozen baseline bytes, compiled/encoded the sole
+candidate once and passed strict Python2/CLI2 bootstrap/source restoration
+with EOF/no trailing data. Baseline compile/encode0 and candidate runtime0.
+The original preparation syntax error and precompile B missing-FD0-context
+gate failure remain preserved separately; neither executed a candidate
+compiler/encoder. Corrected run uses the actual frozen readonly helper and
+unchanged package function. Firstcost index SHA-256 is
+`587a6416050d3616912a2194dc8f42533d3b8d22c0dc271dc2eac940fad0f7d0`.
+
+Ordinary --dev ran once and reproduced shipping twice and unchanged DEV
+twice. Entire source/native/bootstrap/whole matched the original firstcost
+bytes, and DEV source/native matched the actual previous FD0 baseline.
+The unchanged selected verifier ran once on the actual new wrapper: quit/
+EOF two sessions, eight GO calls and main+two worker TIDs per session.
+The new native image, private-path removal, finite input, closing bestmove,
+reader completion and physical exit were observed. Build receipt SHA is
+`219221779a499a412bc2c49f22f54aa677d001c3074dcc6c139c4397b9cf2fbe`; runtime SHA is
+`9808bec27c18a638446a7d4f465677aba7039d5eb9314ae47909c830ed001d05`.
+All original handles settled/reaped with groups absent at settlement, no
+forced cleanup and owned0. F4 original normal completed before the serial
+B->C->E ordinary/selected stream; F next normal was notified only after all
+BCE original handles closed. No late bare PID/TID probe or extra positive
+run is used. Producing recipe SHA is `e3b0ab6b094bbfa289d53fe1d865a194e60106df1e79fd3947c9c90249dbd901`;
+final recipe/README overlays are completion annotations only. Existing
+runtime ancestry is separate; this validates the new image in the narrow
+selected wrapper scope. No new SAN/NVC, codec/name sweep, optional consumer,
+feature deletion, training, performance/RAM/strength or new-head CI claim.
+The4096 B target and broader qualification remain open.
+
 # Maintained E: shared fixed readonly flag template — 2026-10-22
 
 The fixed first-cost file is **4914 B**, down10 from4924.
