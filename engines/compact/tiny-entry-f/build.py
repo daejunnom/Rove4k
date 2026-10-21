@@ -140,6 +140,7 @@ def main():
         lexer=module('entry_fixed_tokens',frozen/'rename_c.py')
         literal=module('entry_literal',frozen/'pack_stream.py').source_literal
         source_package=module('entry_source_package',frozen/'source_package.py')
+        full_bootstrap=module('entry_full_bootstrap',frozen/'bootstrap_full.py').prepare_template
         common=module('entry_shipping_common',frozen/'shipping_common.py')
         refine=module('entry_shipping_refinements',frozen/'shipping_refinements.py')
         dead_state=module('entry_material_state',frozen/'shipping_material_state.py')
@@ -186,13 +187,7 @@ def main():
         if args.policy=='full':
             # One fixed full-profile bootstrap choice; shared legacy consumers
             # retain the original template and its published artifacts.
-            template=template.replace(b' e=dict(os.environ,TMPDIR=d)\n',b'',1)
-            template=template.replace(b'cwd=d,env=e,stdin=subprocess.PIPE',
-                                      b'cwd=d,env=dict(os.environ,TMPDIR=d),stdin=subprocess.PIPE',1)
-            template=template.replace(b'signal.signal(2,stop);signal.signal(15,stop)\n',
-                                      b'for s in 2,15:signal.signal(s,stop)\n',1)
-            template=template.replace(b'signal.signal(2,signal.SIG_DFL);signal.signal(15,signal.SIG_DFL)\n',
-                                      b'for s in 2,15:signal.signal(s,signal.SIG_DFL)\n',1)
+            template=full_bootstrap(template)
             prefix=source_package.XZ_STDIN_HEADER
         if len(prefix)!=recipe['launcher']['bytes'] or sha(prefix)!=recipe['launcher']['sha256']:
             raise ValueError('fixed selected launcher changed')

@@ -1,4 +1,63 @@
-# Maintained C: shared73-byte header — 2026-10-22
+# Maintained C: signed32 lane sum — 2026-10-22
+
+The selected complete file is **4874 B**, 6 B below C4880 and 778 B above 4096.
+Shipping source is 9848 B (34 B smaller), native 26304 B and bootstrap 10897 B.
+`shipping_lane_sum.py` is a pure C-only late stage after capture metadata.
+One exact 194→160 B evaluator region, 2 protected gaps and full inverse keep the
+remaining source exact. Canonical `engine.c`, the older gather DEV reference,
+all 8 features, coefficients, Board updates, learners, search/profile, 73 B header,
+fixed ALONE codec and `-mavx2` compiler remain unchanged.
+
+The same two 16-byte loads feed the same 128-bit `_mm_madd_epi16`. Its 4 signed32
+lanes are summed through the fixed GCC13 `__v4si` value cast and constant lane
+indices, in place of 2 horizontal-add intrinsics and extract. No pointer alias
+cast or new ISA is introduced. With fixed coefficients 0,100,320,330,500,900,0,1,
+every intermediate absolute sum is at most 70483968 for initialized signed16
+lanes. This all-input mathematical bound is separate from finite execution.
+The original source proof remains frozen; an additive readback corrects its
+signed `__v4si` declaration citation to emmintrin.h:43 (line44 is unsigned).
+Native bytes change. Static readback ofthe exact selected native retains an
+XMM `vpmaddwd` in actual P; this is no performance or complete-core claim.
+
+The existing signed8 fixture was minimally adapted to the current shipping
+names and global history. Only U's definition name is changed (full inverse),
+retaining the actual old/new bodies. Each variant passed fatal GCC13 -O1
+ASan/UBSan execution of 80 widened one-term basis cases at INT16_MIN,-1,0,1,
+INT16_MAX and 8 mixed-extrema cases over both sides. Zero-weight lanes 0/6 and
+read-only Board behavior were checked. These synthetic vectors are private
+evaluator inputs, not reachable-mailbox assertions. The existing independent
+mailbox/hash/old16→signed8 rebuild checked 2674 states, 154 legal children,
+10816 ordering comparisons, and 1464 actual P→U calls,including both-color
+depth2 search. Both variants' complete stdout matched; SAN 2 compile/2 run
+commands exited 0 with empty stderr, reaped groups absent and active handles 0.
+Those finite checks do not replace the mathematical bound or prove all
+arithmetic, concurrency, game strength or performance.
+
+One ordinary `build.py --dev` invocation reproduced the new source/native/
+bootstrap/complete tuple twice and the unchanged DEV source/full native twice.
+One unchanged selected verifier passed quit/EOF 2 sessions and 8 legal GO, exact
+restored native, 3 startup TIDs each, stdio-only FDs and private-path/helper/
+reader physical exit. All outer commands exited 0, were reaped and left groups
+absent, with no timeout, retry or forced cleanup. The earlier firstcost is
+reused as firstcost only; it was not rerun for promotion.
+
+| Form | Bytes | SHA-256 |
+| --- | ---: | --- |
+| Shipping source | 9848 | `a661656a482be3ee8383443925c7c36114ce802e9d06ffed59f5479f7ccd37b9` |
+| Native | 26304 | `b2d04d7c74ac3801a61f5f5b967311ceac45cad4ad2a878fbbb0338eddd3502d` |
+| Bootstrap | 10897 | `992c6a573ddc40a08a2d64c7468dc5912e6bec02a6757d392326d5493f2628aa` |
+| Complete | 4874 | `f6084a865f399d55179ab02a347c94609787eb02cedf79674ee0d8748ab0c290` |
+
+Actual outputs: `/home/stemxstudio/rove4k-c-simd-lane-sum-promotion-20261022/normal/build`.
+Focused receipt `14eb604d804fe97cec5606f5c66abc892979cfc951d4f0c11e2e0394e76dbc78`;
+build `e27d7401fdd0caae2889a4ac10b86b5780e08e689dca9bb8c3756a942a3fecba`;
+runtime `f3abe20bbb34a1cdd8000be7ddd713afaf4e349ab26d7060c1dabd1aad62d81f`;
+producing recipe `639855a4ccb3248a4053a67795a7b952d907d47f2032fbd5d75b67a12ec2809a`.
+Final recipe/README only annotate receipts after the producing revision.
+No new fixture framework, firstcost/codec/ISA search, fresh archive, games,
+performance, training or AWS execution was added.
+
+# Historical C: shared73-byte header — 2026-10-22
 
 The selected complete file is **4880 B**, four bytes below C4884 and784 B
 above4096. Its9882 B C,26304 B native,10931 B bootstrap and exact DEV tuple

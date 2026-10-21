@@ -1,3 +1,50 @@
+# Maintained F8: current full-F spelling and packaging — 2026-10-22
+
+The selected complete file is **4445 B**,29 B below the qualified4474-byte
+legacy entry and349 B above4096. Source remains8538 B; native remains18576 B
+and exactly matches the old F8 image33509091…. The new source is
+`ad02fbb83d8c1012ab09f52da68cb019f8b9669a0a1fa9fe1ccfc93b892158f1`,
+bootstrap9478 B is `f55ad3a724457d8f6cac501c9bb02c12a444948221607ca65d38c5645e616d8c`,
+and whole is `264829a27fc14afe72aff41dd4bffe7d07e064e493944301d820a7026b071456`.
+
+The public producer input stays source-before-names.c8538/47353a15…. The
+original strict F2 shipping_names helper first produces400ad454… through its
+five binding groups/59 same-length edits. F8's strict specialize then accepts
+only that exact post-name source and makes the same six resource2->8 edits,
+producingad02fbb8…. Their proof receipts remain separate. No original guard
+is broadened and no fallback or new name/resource policy is added. The
+unchanged base-input stage and CI path distinguish this from final F2 main.c.
+
+F2 and F8 share bootstrap_full.prepare_template on the exact legacy988-byte
+template. It supplies the same direct environment argument and ordered
+registration/reset loops, without source/resource/codec input. source_package
+still owns only encoding/header. F8 selects the73-byte header and fixed
+ALONE preset6/BT2/dict16384/lc2/lp0/pb0/nice24. Existing marker/legacy-input
+validation, private compiler TMPDIR, signal-mask/PID publication, child cleanup,
+unlink/descriptor-exec and argv stay. Source/token/traceback non-observation is
+a declared spelling premise, separate from full-native equality.
+
+The fixed first-cost composition has native1/encode1 and old/new strict
+restoration PASS, not a projected sum of F2 gains. Its receipt is
+`4525e463424b39252bfe0a8bf2da7c483ffdb23a22d3574a615f18bceb77a8ce`.
+The ordinary builder reproduced source/native/bootstrap/whole twice with
+compile2/encode2/strict-restore2. Its55-file ordinary-source closure includes
+the shared template helper; the producing recipe is preserved separately
+from these post-run receipt annotations. Build receipt: `1733c94b8dc2c411dfef27899cd5e2946a68c16f688a4c27e2bfa479eaf83678`.
+
+The byte-unchanged positive verifier executed the actual4445-byte wrapper
+in quit and EOF sessions: eight legal GO results, fixed nine TIDs, activity
+from all eight search workers, the exact restored old F8 native, private
+unlinked image identity and position/completion fences. Both sessions
+finished with joined EOF readers and absent owned groups/TIDs; forced
+cleanup, failures and retries were0. Runtime receipt: `53307d4eb7539efa02dd0354bcf962de8b9946b3bdd3a10d643409d54ce2b926`.
+Actual outputs: `/home/stemxstudio/rove4k-f8-current-packaging-promote-20261022/normal/{build,runtime}`.
+Cancellation causality remains unproven. No new negative/fault campaign,
+stack-peak, speed/scaling, strength or final4k allocation claim follows.
+Old4474 receipts, failures and source freezes retain their historical scope.
+
+# Historical legacy F8 qualification
+
 > 2026-10-22 path-only Worker 후속 profile8: ordinary builder의 첫 성공 실행이 source/native/bootstrap/payload/whole을 각각2회 동일하게 재현했고, 기존 byte-unchanged positive verifier1회(quit/EOF2세션·8GO)가 통과했다. 실제 main+worker9TID, 검색8worker의 CPU 활동, native/private-path identity, position fence, reader·물리 group/TID 종료를 확인했다. 강제 cleanup과 실행 오류는0이다. Whole4474 B는 이전 fixed8의4478 B보다4 B 작다.
 >
 > VmSize74716kB, startupRSS7552kB, activeRSS8192/7936kB는 해당 시점 관측이다. Peak·속도·확장성·최종4k자원 수용은 검증하지 않았다. Producing recipe와 source freeze 및 초기 두 precompile 실패는 외부 원본으로 보존한다. 이 상태 블록과 recipe.local_normal_validation은 실행 이후 annotation이다. CI 등록·실행은 root가 별도로 관리한다.

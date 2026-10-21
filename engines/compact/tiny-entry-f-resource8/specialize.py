@@ -1,7 +1,7 @@
-"""One source-only full-F late resource profile: workers8/TT18, no file IO."""
+"""One post-name full-F resource profile: workers8/TT18, no file IO."""
 import hashlib
-INPUT = (8538, '47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0')
-OUTPUT = (8538, '911622580a6697be411eed8b39ece1b66d4ed8c585087ca7593ec512677e28d8')
+INPUT = (8538, '400ad454b0e3108814636bab4060f224ae4b2d28cdc7929c8c98590adb46c59d')
+OUTPUT = (8538, 'ad02fbb83d8c1012ab09f52da68cb019f8b9669a0a1fa9fe1ccfc93b892158f1')
 EDITS = ((560, 'worker_state_array', b'zc qr[2]', 554, b'zc qr[8]'), (5930, 'startup_ready_pending', b'static S qk=2,qm', 5918, b'static S qk=8,qm'), (6316, 'completed_result_depth_scan', b'for(S i=1;i<2;i++)if(qr[i].b', 6304, b'for(S i=1;i<8;i++)if(qr[i].b'), (7714, 'job_pending_publication', b'pthread_mutex_lock(&qj);qk=2;qd++', 7687, b'pthread_mutex_lock(&qj);qk=8;qd++'), (7801, 'thread_handle_array', b'pthread_t a[2]', 7789, b'pthread_t a[8]'), (7905, 'create_success_count_limit', b'for(;d<2;d++){qr[d].a=d;', 7898, b'for(;d<8;d++){qr[d].a=d;'))
 
 def _pin(source):return len(source),hashlib.sha256(source).hexdigest()

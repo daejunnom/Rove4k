@@ -75,7 +75,8 @@
     "engines/compact/tiny-entry-c/shipping_history_depth.py": "7b45b89582b7c39e766af65a37015ef995ce4641cef88641d7f4487805e42d3d",
     "engines/scripts/shipping_lazy_fallback.py": "023b370e75df2d50f44641eac7d1b49091ef2424d9ed7983d6d6f3c7d700b2ce",
     "engines/compact/tiny-entry-c/shipping_capture.py": "21cec8bfd363412ecb4ef82f45f16cfb8e85238f996ed30863e65b9dc14b67f4",
-    "engines/scripts/source_package.py": "55fa739e7c17fffdb3bf1191c7a26aa38d35e9e32473e4008c23ece3d5703d1f"
+    "engines/scripts/source_package.py": "55fa739e7c17fffdb3bf1191c7a26aa38d35e9e32473e4008c23ece3d5703d1f",
+    "engines/compact/tiny-entry-c/shipping_lane_sum.py": "8e5a0ea7fa7086b4da289f685480a49201387918b398b76a63e221f88102cbb9"
   },
   "compression": {
     "format": "lzma-alone",
@@ -92,16 +93,16 @@
   },
   "expected": {
     "readable_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
-    "source_bytes": 9882,
-    "source_sha256": "11b0c4ee8703d0feac9338ddf8b53e7225e92d644a57c3351be22585f28e538a",
+    "source_bytes": 9848,
+    "source_sha256": "a661656a482be3ee8383443925c7c36114ce802e9d06ffed59f5479f7ccd37b9",
     "native_bytes": 26304,
-    "native_sha256": "c1ee16765129309bb411535307b7499d98722ade405d76000b9dcea9898fb166",
-    "whole_bytes": 4880,
-    "whole_sha256": "660ce07e172134d1b1af3107dccfb4d1cdf4c858449f3b784d76b6a11c0d5e4e",
-    "bootstrap_sha256": "e0bda110133504a83f048966c321b2b42476c04fc683455d5513368ec1caf23d",
+    "native_sha256": "b2d04d7c74ac3801a61f5f5b967311ceac45cad4ad2a878fbbb0338eddd3502d",
+    "whole_bytes": 4874,
+    "whole_sha256": "f6084a865f399d55179ab02a347c94609787eb02cedf79674ee0d8748ab0c290",
+    "bootstrap_sha256": "992c6a573ddc40a08a2d64c7468dc5912e6bec02a6757d392326d5493f2628aa",
     "dev_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
     "dev_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c",
-    "bootstrap_bytes": 10931
+    "bootstrap_bytes": 10897
   },
   "local_input_sha256": {
     "engine.c": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
@@ -1598,6 +1599,119 @@
       "extra_SAN_PP_fresh_core_game_trace_negative_executions": 0,
       "stackpeak_timing_manycore_strength_model_readiness_claim": false,
       "producing_and_annotation_bytes_distinct": true
+    }
+  },
+  "signed_lane_sum": {
+    "scope": "C128-bit madd unchanged, signed32 vector result lane sum replaces hadd/extract; no coefficient/model/ISA policy change",
+    "predecessor_expected": {
+      "readable_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
+      "source_bytes": 9882,
+      "source_sha256": "11b0c4ee8703d0feac9338ddf8b53e7225e92d644a57c3351be22585f28e538a",
+      "native_bytes": 26304,
+      "native_sha256": "c1ee16765129309bb411535307b7499d98722ade405d76000b9dcea9898fb166",
+      "whole_bytes": 4880,
+      "whole_sha256": "660ce07e172134d1b1af3107dccfb4d1cdf4c858449f3b784d76b6a11c0d5e4e",
+      "bootstrap_sha256": "e0bda110133504a83f048966c321b2b42476c04fc683455d5513368ec1caf23d",
+      "dev_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
+      "dev_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c",
+      "bootstrap_bytes": 10931
+    },
+    "source_regions": 1,
+    "protected_gaps": 2,
+    "full_inverse": true,
+    "raw_source_delta": -34,
+    "whole_delta": -6,
+    "native_identity_changed": true,
+    "mathematical_bound": {
+      "all_initialized_i16_lanes": true,
+      "coefficients": [
+        0,
+        100,
+        320,
+        330,
+        500,
+        900,
+        0,
+        1
+      ],
+      "max_abs_partial_sum": 70483968,
+      "scope": "algebraic bound, separate from actual finite evaluator executions"
+    },
+    "source_proof": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-simd-lane-sum-20261022-evidence/source-proof.json",
+      "bytes": 7592,
+      "sha256": "1209ce0882223019e07808746a83fb767f5aee5032a49c77d041745dc6c131d1"
+    },
+    "header_citation_addendum": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-simd-lane-sum-20261022-evidence/source-proof-readback.json",
+      "bytes": 1034,
+      "sha256": "ae5a7912750c624e60d0b1dc7e91e0b26b3ed1a93906625654a3dd3af5facaec"
+    },
+    "firstcost": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-simd-lane-sum-20261022-evidence/firstcost.json",
+      "bytes": 7058,
+      "sha256": "61cc0ccba0560bc154e6d470b062b134be49d6ee07a276d7b96d21713b58bf64"
+    },
+    "firstcost_reexecuted": false,
+    "static_new_native_readback": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-simd-lane-sum-20261022-evidence/static-native-readback.json",
+      "bytes": 1490,
+      "sha256": "10fe831823caac1dca03605c7cf877610a65f5c6b850bb9613d76a6db4901de4"
+    },
+    "static_scope": "real XMM vpmaddwd in P, not target execution/performance/core qualification",
+    "canonical_DEV_Board_search_learners_thread_policy_unchanged": true,
+    "focused_validation": {
+      "receipt": {
+        "path": "/home/stemxstudio/rove4k-c-simd-lane-sum-promotion-20261022/focused/focused.json",
+        "bytes": 9893,
+        "sha256": "14eb604d804fe97cec5606f5c66abc892979cfc951d4f0c11e2e0394e76dbc78"
+      },
+      "driver": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-simd-lane-sum-promotion-20261022-evidence/focus.py",
+        "bytes": 8707,
+        "sha256": "69521e4942a88912514d686c86c784768e9928c4f1930dae45230f721655ee75"
+      },
+      "actual_U_definition_body_preserved": true,
+      "old_new_stdout_identical": true,
+      "instrumented_compiles": 2,
+      "fixture_runs": 2,
+      "private_numeric_basis_vectors_per_variant": 80,
+      "private_mixed_vectors_per_variant": 8,
+      "actual_K_mailbox_feature_scans_per_variant": 2674,
+      "actual_P_U_calls_per_variant": 1464,
+      "legal_children_per_variant": 154,
+      "ordering_checks_per_variant": 10816,
+      "scope": "GCC13 O1 fatal ASan+UBSan, finite actual old/new bodies and K/make/P states; not full arithmetic/concurrency/game/performance proof"
+    },
+    "normal_validation": {
+      "producing_recipe": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-simd-lane-sum-promotion-20261022-evidence/producing-recipe.json",
+        "bytes": 93747,
+        "sha256": "639855a4ccb3248a4053a67795a7b952d907d47f2032fbd5d75b67a12ec2809a"
+      },
+      "build": {
+        "path": "/home/stemxstudio/rove4k-c-simd-lane-sum-promotion-20261022/normal/build/build.json",
+        "bytes": 205890,
+        "sha256": "e27d7401fdd0caae2889a4ac10b86b5780e08e689dca9bb8c3756a942a3fecba"
+      },
+      "selected_runtime": {
+        "path": "/home/stemxstudio/rove4k-c-simd-lane-sum-promotion-20261022/normal/runtime/runtime.json",
+        "bytes": 42706,
+        "sha256": "f3abe20bbb34a1cdd8000be7ddd713afaf4e349ab26d7060c1dabd1aad62d81f"
+      },
+      "outer_commands": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-simd-lane-sum-promotion-20261022-evidence/normal-commands.json",
+        "bytes": 3291,
+        "sha256": "f87c476842a5bd3b6f2ed9e0cc4e68d134a50635fa273afbbdd665c0691afc30"
+      },
+      "ordinary_builder_calls": 1,
+      "shipping_reproductions": 2,
+      "unchanged_DEV_reproductions": 2,
+      "unchanged_selected_verifier_calls": 1,
+      "source_native_bootstrap_whole_exact_firstcost": true,
+      "final_metadata_scope": "only this normal_validation replaces pending flag; source-producing code/helper/expected unchanged",
+      "actual_outputs": "/home/stemxstudio/rove4k-c-simd-lane-sum-promotion-20261022/normal/build",
+      "runtime_scope": "fresh selected quit/EOF2 sessions8 legal GO, exact restored new native,3 startup TIDs,stdio-only descriptors,private-path/helper/readers physical exit; no performance/core/game proof"
     }
   }
 }

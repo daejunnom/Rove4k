@@ -37,7 +37,7 @@ def main():
     recipe_raw=normalized(HERE/'recipe.json');recipe=json.loads(recipe_raw)
     require(recipe['class']=='full-F-fixed-resource8-TT18-v1' and recipe['profile']=={'workers':8,'tt_bits':18,'ply':128,'native_TIDs':9},'one fixed resource profile only')
     require(recipe['compiler']==['cc','-Os','-pthread','-x','c','-','-o','x','-s'],'fixed compiler arguments differ')
-    require(recipe['compression']=={'format':'lzma-alone','filter':'LZMA1','preset':9,'extreme':True,'lc':2,'lp':0,'pb':0,'check':'NONE','mf':'BT4','dictionary_bytes':67108864,'nice_len':32},'fixed full-F codec differs')
+    require(recipe['compression']=={'format':'lzma-alone','filter':'LZMA1','preset':6,'extreme':False,'lc':2,'lp':0,'pb':0,'check':'NONE','mf':'BT2','dictionary_bytes':16384,'nice_len':24},'fixed full-F codec differs')
     base=args.base_source.read_bytes();require({'bytes':len(base),'sha256':sha(base)}==recipe['base_source'] and b'\r' not in base,'unknown ordinary full-F2 source')
     closure=source_closure();limits=recipe['limits'];out.mkdir()
     report={'complete':False,'class':recipe['class'],'profile':recipe['profile'],'base_profile':recipe['base_profile'],
@@ -82,14 +82,21 @@ def main():
             raw=normalized(REPO/name);require(sha(raw)==pinned,'source changed during freeze: '+name)
             target=frozen/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(raw)
         (out/'base-source.c').write_bytes(base);own=frozen/HERE.relative_to(REPO)
+        packaging={name:frozen/path for name,path in recipe['packaging_paths'].items()}
+        names=module('fixed_full_F_names',packaging['shipping_names.py'])
+        named,name_proof=names.transform_source(base)
+        (out/'source-names-proof.json').write_text(json.dumps(name_proof,indent=2)+'\n');report['source_names_proof']=identity(out/'source-names-proof.json')
         require(sha((own/'specialize.py').read_bytes())==recipe['specialize_sha256'],'pure six-role helper changed')
-        specialize=module('fixed_resource8_specialize',own/'specialize.py');source,proof=specialize.transform_source(base)
+        specialize=module('fixed_resource8_specialize',own/'specialize.py');source,proof=specialize.transform_source(named)
         require({'bytes':len(source),'sha256':sha(source)}=={'bytes':recipe['expected']['source_bytes'],'sha256':recipe['expected']['source_sha256']} and proof['full_inverse'] and proof['raw_delta']==0 and [x['role'] for x in proof['edits']]==recipe['source_roles'],'source/profile proof differs')
         (out/'source-proof.json').write_text(json.dumps(proof,indent=2)+'\n');report['source_proof']=identity(out/'source-proof.json')
-        packaging={name:frozen/path for name,path in recipe['packaging_paths'].items()}
         literal=module('fixed_resource8_literal',packaging['pack_stream.py']).source_literal
         common=module('fixed_resource8_common',packaging['shipping_common.py']);template=packaging['bootstrap.py.in'].read_bytes();prefix=packaging['launcher.sh'].read_bytes();marker=b'__ROVE_SOURCE_LITERAL__'
-        require(template.count(marker)==1 and len(prefix)==recipe['prefix_bytes']==77,'fixed marker/prefix differs')
+        require(template.count(marker)==1 and len(prefix)==77,'fixed legacy marker/prefix differs')
+        full_template=module('fixed_full_F_template',packaging['bootstrap_full.py'])
+        source_package=module('fixed_source_package',packaging['source_package.py'])
+        template=full_template.prepare_template(template);prefix=source_package.XZ_STDIN_HEADER
+        require(len(prefix)==recipe['prefix_bytes']==73,'fixed selected prefix differs')
         tools={'cc':run(['cc','--version']).decode().splitlines()[0],'ld':run(['ld','--version']).decode().splitlines()[0],'python':run([sys.executable,'--version']).decode().strip(),'lzma':run(['lzma','--version']).decode().splitlines()[0]}
         require(tools==recipe['tools'],'selected tool version differs');report['tools']=tools
         for label in ('first','repeat'):
@@ -98,10 +105,10 @@ def main():
             require(len(native)==expected['native_bytes'] and sha(native)==expected['native_sha256'],'literal resource8 native differs')
             expression,kind=common.source_literal(source,literal);script=template.replace(marker,expression.encode());ast.parse(script)
             require(len(script)==expected['bootstrap_bytes'] and sha(script)==expected['bootstrap_sha256'],'literal resource8 bootstrap differs')
-            report['counts']['candidate_encode']+=1;payload=lzma.compress(script,format=lzma.FORMAT_ALONE,check=lzma.CHECK_NONE,filters=[{'id':lzma.FILTER_LZMA1,'preset':9|lzma.PRESET_EXTREME,'lc':2,'lp':0,'pb':0,'mf':lzma.MF_BT4,'dict_size':67108864,'nice_len':32}])
+            report['counts']['candidate_encode']+=1;whole=source_package.package(script,recipe['compression'],prefix=prefix);payload=whole[len(prefix):]
             require(payload[:13].hex()==recipe['ALONE_header_hex'],'ALONE header changed');decoder=lzma.LZMADecompressor(format=lzma.FORMAT_ALONE);restored=decoder.decompress(payload,max_length=len(script)+1);report['counts']['strict_Python_restore']+=1
             require(restored==script and decoder.eof and not decoder.unused_data,'strict ALONE restoration failed')
-            whole=prefix+payload;require(len(whole)==expected['whole_bytes'] and sha(whole)==expected['whole_sha256'],'literal resource8 whole differs')
+            require(len(whole)==expected['whole_bytes'] and sha(whole)==expected['whole_sha256'],'literal resource8 whole differs')
             (local/'bootstrap.py').write_bytes(script);(local/'payload.lzma').write_bytes(payload);(local/'x').write_bytes(whole);(local/'x').chmod(0o755)
             report['attempts'].append({'source':identity(local/'main.c'),'native':identity(native_dir/'x'),'bootstrap':identity(local/'bootstrap.py'),'whole':identity(local/'x'),'payload':identity(local/'payload.lzma'),'literal_kind':kind,'strict_restore':True});save()
         first,repeat=report['attempts'];require(all(Path(first[k]['path']).read_bytes()==Path(repeat[k]['path']).read_bytes() for k in ('source','native','bootstrap','whole','payload')),'independent normal bytes differ')

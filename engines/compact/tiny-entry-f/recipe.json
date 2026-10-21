@@ -85,7 +85,8 @@
     "engines/compact/tiny-entry-f/shipping_qs_cutoff.py": "ae95c21527a235880a4e9f140537f488df71b99caec988a3c08cf710d7df4534",
     "engines/compact/tiny-entry-f/shipping_history_path.py": "d345e87322f6aa17f141861c9fa6f330ff2c3642d765d9c0e2d6dc32a597a70c",
     "engines/scripts/source_package.py": "55fa739e7c17fffdb3bf1191c7a26aa38d35e9e32473e4008c23ece3d5703d1f",
-    "engines/compact/tiny-entry-f/shipping_names.py": "b69d376bf2e206273b12344fe30fbddbce6d51396c01fab8d53fd8f25401d48b"
+    "engines/compact/tiny-entry-f/shipping_names.py": "b69d376bf2e206273b12344fe30fbddbce6d51396c01fab8d53fd8f25401d48b",
+    "engines/compact/tiny-entry-f/bootstrap_full.py": "6b4fb2b068d9574ce7068bf0bc5e577452b54fb64cd86a13b9c8c400af694a7d"
   },
   "resource_literals": [
     [
@@ -1160,6 +1161,16 @@
       "source_native_DEV_unchanged": true,
       "optional_F8_product_reuse": true,
       "new_optional_F8_executions": 0,
+      "metadata_only_after_execution": true
+    },
+    "bootstrap_full_helper": {
+      "status": "PASS one ordinary full --dev; shipping2 and unchanged DEV2",
+      "build_receipt_sha256": "437e82f457a1885c09d1ce0ac1a875ffd5ba3a7a40e617f64b38cb94ce62577c",
+      "producing_recipe_sha256": "e1fd267db5caee4c6ddfcb8edc44b2e99d5dd351d6b7fc9eef96e3148e3e7892",
+      "prior_selected_runtime_sha256": "2df071c90e8e4a883810ef2509be1a2e23b985b095105fe1673bd3039af39917",
+      "entire_artifact_DEV_pre_names_bytes_equal": true,
+      "new_runtime": 0,
+      "new_source_tree_CI_claimed": false,
       "metadata_only_after_execution": true
     }
   },
@@ -4977,6 +4988,50 @@
       "normal_failures_retries": 0,
       "new_optional_F8_executions": 0,
       "cancellation_causality": "unproven"
+    }
+  },
+  "bootstrap_full_helper": {
+    "scope": "pure shared fixed full template preparation; source insertion and encoding remain caller/source_package responsibilities",
+    "API": "bootstrap_full.prepare_template(template: bytes) -> bytes",
+    "legacy_template_bytes": 988,
+    "legacy_template_sha256": "159c5fe166f4b0804471e9d3a70d8f055a510858a6ae33f0ed6b4cfd17fca6f9",
+    "full_template_bytes": 955,
+    "full_template_sha256": "72a68a59089b54fca8472f9ee333bb6803910ccf799d9c62e3e6ae5a116052d4",
+    "expected_artifact_tuples_changed": false,
+    "legacy_optional_template_unchanged": true,
+    "helper_inputs": "immutable template bytes only; no file/environment/compiler/profile/artifact/report/network input",
+    "F8_consumer_registration": "owned by separate build_packaging agent",
+    "normal_validation_pending": false,
+    "new_firstcost_runtime_search": 0,
+    "predecessor_qualified_normal_index_sha256": "3d56a7ecee712852fe2cb21de6097f4848d53242cf447ed9af51f604bfff4e8d",
+    "normal_validation": {
+      "status": "PASS one ordinary full --dev; shipping2 and unchanged DEV2",
+      "build_receipt": {
+        "path": "/home/stemxstudio/rove4k-f-bootstrap-full-helper-promotion-20261022/normal/build/build.json",
+        "bytes": 244536,
+        "sha256": "437e82f457a1885c09d1ce0ac1a875ffd5ba3a7a40e617f64b38cb94ce62577c"
+      },
+      "producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-f-bootstrap-full-helper-promotion-20261022/normal/build/inputs/recipe.json",
+        "bytes": 264892,
+        "sha256": "e1fd267db5caee4c6ddfcb8edc44b2e99d5dd351d6b7fc9eef96e3148e3e7892"
+      },
+      "commands": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-bootstrap-full-helper-promotion-20261022-evidence/normal-commands.json",
+        "bytes": 1952,
+        "sha256": "7f6ad23829abf45ed560112b845f264a7bca341613ada939fc14331d248787c7"
+      },
+      "all_source_native_bootstrap_whole_DEV_pre_names_bytes_equal": true,
+      "owned_handles": 0,
+      "new_selected_runtime": 0,
+      "prior_selected_runtime_reused": {
+        "path": "/home/stemxstudio/rove4k-f-bootstrap-handler-loops-promotion-20261022/normal/runtime/runtime.json",
+        "bytes": 67847,
+        "sha256": "2df071c90e8e4a883810ef2509be1a2e23b985b095105fe1673bd3039af39917"
+      },
+      "runtime_reuse_basis": "entire source/native/bootstrap/whole are byte-identical to the qualified control; no new runtime execution",
+      "new_firstcost_search_fault": 0,
+      "failures_retries": 0
     }
   }
 }

@@ -1,4 +1,36 @@
-# Maintained F: inline handler pairs — 2026-10-22
+# Maintained F: shared full-template preparation — 2026-10-22
+
+The full/default file remains **4445 B**. `bootstrap_full.py` exposes one
+pure `prepare_template(template: bytes) -> bytes` operation shared with the
+separate F8 consumer. It takes the fixed988-byte legacy template and returns
+the same955-byte full template using the existing two environment and two
+handler expressions. Source insertion and fixed encoding remain the
+caller's and `source_package.py` responsibilities. The helper reads no
+file/environment/compiler/profile/artifact/report/network input.
+
+F2 calls the helper only for the full policy. The shared legacy template,
+canonical, names adapter, optional policies, compiler, model/profile and
+all expected source/native/bootstrap/whole/DEV tuples stay fixed. Optional
+full-reference generation is C-only and unchanged. F8 owns its helper import
+and source-closure registration in its separate recipe.
+
+One ordinary full `--dev` call reproduces shipping2 and unchanged DEV2. Its
+complete source/native/bootstrap/whole, DEV source/native and three pre-name
+outputs are byte-identical to qualified4445. Build receipt:
+`437e82f457a1885c09d1ce0ac1a875ffd5ba3a7a40e617f64b38cb94ce62577c`.
+Producing recipe:
+`e1fd267db5caee4c6ddfcb8edc44b2e99d5dd351d6b7fc9eef96e3148e3e7892`.
+The parent exits0, is reaped and leaves its group absent; failures/retries,
+cleanup and owned handles are0. The previous selected runtime
+`2df071c90e8e4a883810ef2509be1a2e23b985b095105fe1673bd3039af39917`
+applies to those exact artifact bytes. This refactoring adds no runtime,
+first-cost, search, fault or final-target execution and makes no claim that
+the new source tree itself ran in the predecessor CI. Producing snapshots
+and the separate final receipt annotations remain outside Git in
+`rove4k-f-bootstrap-full-helper-promotion-20261022-evidence`.
+Historical checkpoints and their scopes remain below.
+
+# Historical F: inline handler pairs — 2026-10-22
 
 The full/default selection is **4445 B**, two bytes below4447 and **349 B
 above4096**. Its emitted bootstrap is9478 B,28 below9506. Full-profile

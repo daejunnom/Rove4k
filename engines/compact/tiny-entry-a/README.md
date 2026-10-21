@@ -1,3 +1,64 @@
+# Maintained A: shared terminal legality loop — 2026-10-22
+
+현재 일반 생성 경로가 **4569 B whole**, **8914 B shipping C**, **18576 B native**를
+두 번 재현했다. qualified A4580 대비 소스51 B, 제출 파일11 B가 줄었으며 아직4096 B보다
+473 B 크다. native 길이는 같고 실제 바이트는 달라졌다. 현재73-byte header, compiler,
+ALONE codec와 profile은 이번 비용 비교의 고정 조건이다.
+
+- C SHA-256: `597d01d9cece4762880cc4a4c8c3a5329125ca76cb4b92eba6c31da3231c683a`
+- native SHA-256: `7700f1164da1b1a7ea8a784969742d1cf6d38a1f298986e41f564648ceaddf0c`
+- bootstrap9878 B SHA-256: `2291ecc835ddbb268d8e4ac12b5735610d8db519440e05ae77538a9e58b3f32c`
+- whole SHA-256: `484d8b81b24bf0c6b11427b3224aca91226417f7edc909a995c25753f04675cf`
+
+A 전용 마지막 `shipping_terminal.py`는 cached evaluation과 worker epilogue 뒤에서
+기존 draw/ply-cap의 별도 합법수 검색을 일반 정렬 루프와 공유한다. 네 개 고정 치환과
+다섯 보존 구간, 전체 inverse가 입력8965 B/출력8914 B를 고정한다. t=0/1/2/3은
+ordinary/draw/cap-only/both를 나타낸다. terminal은 TT probe를 억제하고 첫 make 성공
+직후 반환해 legal-count/path/root/재귀/learners/TT 쓰기에 도달하지 않는다. 기존
+claim-node 증가는 유지하며 cap-only만 stop을 설정한다. 합법수가 없으면 원래
+mate/stalemate가 draw/cap보다 먼저 결정된다. 기존 stop/deadline 검사가 먼저다.
+canonical과 DEV, 다른 가족의 구현 및 이전 단계는 보존한다.
+
+집중 검증은 실제 old/new h 본문을 사용했다. 새 full TU는 바꾸지 않았고 old h는 선언과
+네 개 자기 재귀 호출의 이름만 바꿨으며 전체 inverse와 본문 밖 동일성을 확인했다.
+한 번의 fatal ASan/UBSan compile/run에서18개 사례가 통과했다. draw/cap-only/both,
+합법 quiet/capture, mate/stalemate, dead/threefold, 기존 stop/deadline, terminal의
+poisoned exact/lower/upper TT escape를 확인했다. 일반 PVS는 독립 HCE/quiet-child
+oracle, exact TT, full HCE-QS, quiet learning cutoff를 확인했다. score/stop/root/node,
+typed board, 전체 path/job keys, 세 learner 배열과 full TT key/data/clear flags의
+old/new 비교 mask는0이었다. terminal의 초기 seed 대비 허용 변화는 claim-node 증가와
+명시적인 cap-only stop뿐이며 path/root/learners/TT 불변 assertion이 통과했다.
+
+terminal에서 이제 scoring/sort를 수행하므로 첫 private child, 추가 읽기와 keymix,
+공격 작업 순서·작업량·시간·stack peak는 달라질 수 있다. 이 private 작업은 비교 대상에
+넣지 않았고 외부 상태를 광범위 정규화하지 않았다. 동일 native, timed-node/성능,
+strength, peak RAM 또는 일반 race freedom을 주장하지 않는다. 실제 direct-call 집중
+검증과 아래 selected wrapper의 관측 범위도 구분한다.
+
+일반 `--dev` 빌더 한 번이 shipping tuple을 두 번 재현하고 기존 DEV source/native를
+두 번 동일하게 재현했다. unchanged selected 한 번은 새 native로 quit/EOF 두 세션,
+합법 GO8개를 마쳤다. 각 startup TID3개와 완료 GO 뒤 안정성, active quit/EOF의 합법
+종료 결과 각1개, wait return0/process 부재와 reader 종료가 원 영수증에 기록됐다.
+cancellation의 인과관계는 미증명이다. partial-create/epoch wrap/강제 wake/queued GO/
+active position 교체는 이번 추가 실행 범위가 아니며 해당 source 검토와 구분한다.
+DEV 엔진 runtime, first-cost 재실행, 추가 focused 실행은0이다.
+
+원 producing recipe는 `c2368b74eba756d2a523e6027b48692ea5809ed38eab5bd4c0b559ac221dda2e`다.
+생성에 사용한4파일을 외부 `producing/`에 보존한 뒤 recipe의 현재 receipt scope와
+terminal receipt, 이 README의 현재 섹션만 완료로 갱신했다. helper/build, expected,
+helper map과 generation input은 그대로다. 생성은 canonical/고정 helper/recipe만 읽고
+외부 보고서나 fixture를 읽지 않는다. 과거 실패와 이전 단계 영수증은 각 원래 범위로 남긴다.
+
+- focused final index: `C:/Users/강민수/Documents/Codex/rove4k-a-terminal-loop-focused-20261022-evidence/final-index.json`,5432 B / `f5dee98cefaf862dc1acd492980b01576e26d61a0e5cc87cbd45c23d69da8a80`
+- normal/selected final index: `C:/Users/강민수/Documents/Codex/rove4k-a-terminal-loop-promote-20261022-evidence/final-index.json`,7288 B / `1118be88dcfaadfc9d42e1cbae3402bc1a3c7f9ea8ed6a17e7204850b8bcfd5b`
+- actual build receipt:188698 B / `b8c45eb404085d66ad43737fddd241330018bc6129fcbcaeb75fd980a3127cf4`
+- actual selected receipt:50102 B / `8b13597a78fa65bdeada3ec79c24dc297d3730d2db85b72d63a4527bae643d7e`
+
+물리 종료는 원 owned command의 communicate/wait·terminal/reap·그 시점 그룹 부재와
+selected의 자체 수명 영수증에 근거한다. 늦은 숫자 PID/TID/PGID 재조회는0이다.
+변경하지 않은 compile helper에는 compiler 자손의 별도 수명 관측이 없다. 로컬 승격
+범위만 완료하며 현재 CI/main/release나 A–F 전체4096 B 달성을 주장하지 않는다.
+
 # Maintained A: shared worker epilogue — 2026-10-22
 
 The ordinary producer now reproduces **4580 B** complete,**8965 B** shipping C

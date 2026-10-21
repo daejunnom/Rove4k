@@ -108,6 +108,7 @@ def main():
         lazy_fallback=module('entry_lazy_fallback',frozen/'shipping_lazy_fallback.py')
         evaluation_cache=module('entry_evaluation_cache',frozen/'shipping_evaluation.py')
         worker_epilogue=module('entry_worker_epilogue',frozen/'shipping_worker_epilogue.py')
+        terminal_loop=module('entry_terminal_loop',frozen/'shipping_terminal.py')
         canonical=(frozen/'engine.c').read_bytes();reference=evaluation_cache.reference_readable(canonical)
         template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
@@ -157,6 +158,8 @@ def main():
                 common_metadata['evaluation_cache']=cache_metadata
                 data,worker_metadata=worker_epilogue.transform_source(data)
                 common_metadata['worker_epilogue']=worker_metadata
+                data,terminal_metadata=terminal_loop.transform_source(data)
+                common_metadata['terminal_shared_legal_loop']=terminal_metadata
             return data,observations,alpha_metadata,storage_metadata,scope_metadata,input_metadata,declaration_metadata,type_metadata,lexical_metadata,capture_metadata,startup_metadata,global_names_metadata,continuation_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())
