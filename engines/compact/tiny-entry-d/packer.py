@@ -56,6 +56,7 @@ def admit(data, expected, digest):
     fixed = {
         ('662b0eb10046d0b0ab105bba0f793371bb869eb61aa4419c8c2fa95f7d39c32d', 7612): (0, 4201533, (4194304, 8192, 4202496, 175092, 176128, 4190208, 192512, 4378624)),
         ('49fb8e2916ba394cda6665f287df7ff4bfcd7c76ef95dc613628f3513394c6b6', 8000): (1, 4201848, (4194304, 8192, 4202496, 175092, 176128, 4190208, 192512, 4378624)),
+        ('3c662941aa11af8521d3c601322e9aa38405a3bfbeb9332d55008907217a4b2e', 8000): (1, 4201846, (4194304, 8192, 4202496, 175064, 176128, 4190208, 192512, 4378624)),
     }.get((expected['native_sha256'], expected['native_bytes']))
     geometry = tuple(layout[key] for key in ('image_base', 'image_pages', 'bss_base', 'bss_size',
                       'bss_pages', 'guard_base', 'reserve_size', 'upper_guard'))
@@ -83,7 +84,7 @@ def stripped_loader(data):
 
 def compile_loader(directory, sources, payload, layout, flags, run, digest, *, model_wmask, checkpoint=False):
     # Native bytes/layout were admitted above; bind its private model literal.
-    fixed_model = {(7612, 4201533): 16847486, (8000, 4201848): 135274878}.get((layout['image_size'], layout['entry']))
+    fixed_model = {(7612, 4201533): 16847486, (8000, 4201848): 135274878, (8000, 4201846): 135274878}.get((layout['image_size'], layout['entry']))
     if type(model_wmask) is not int or model_wmask != fixed_model:
         raise ValueError('unsupported exact native/model mapping contract')
     directory.mkdir(parents=True)

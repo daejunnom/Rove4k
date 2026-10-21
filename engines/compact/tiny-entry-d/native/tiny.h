@@ -69,7 +69,11 @@ _Static_assert(sizeof(Entry)==16 && _Alignof(Entry)==16 &&
                offsetof(Entry,key)==0 && offsetof(Entry,data)==8,"atomic128 TT layout");
 typedef struct {
     int id,depth,score; Move best;
+#if D_HQ && !DEV
+    uint64_t nodes,keys[HISTORY+PLY];
+#else
     uint64_t nodes,keys[HISTORY+PLY]; int length;
+#endif
     int16_t history[128][128],continuation[13][13],correction[1024];
 #if DEV
     uint64_t pvs,qs,hits,hist_updates,cont_updates,corr_updates,corr_uses,ply_aborts;

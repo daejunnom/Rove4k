@@ -37,9 +37,16 @@ static int search(Worker *w,const Board *p,int depth,int alpha,int beta,int ply,
     int check=attacked(p,p->k[p->s<0],-p->s),draw=p->half>=100;
     /* Only positions since the last irreversible move may repeat. Current h
      * already ends the path. Two earlier occurrences make the third visit. */
+#if D_HQ && !DEV
+    int length=game_length+ply;
+    int repetitions=0,end=length-1-p->half;
+    if(end<0)end=0;
+    for(int i=length-3;i>=end;i-=2)repetitions+=w->keys[i]==p->h;
+#else
     int repetitions=0,end=w->length-1-p->half;
     if(end<0)end=0;
     for(int i=w->length-3;i>=end;i-=2)repetitions+=w->keys[i]==p->h;
+#endif
     draw|=repetitions>=2||dead(p);
     Move moves[MOVES],bestmove=0;
     int scores[MOVES],count=gen(p,moves),legal=0,old=alpha,best=-MATE;
@@ -82,7 +89,11 @@ static int search(Worker *w,const Board *p,int depth,int alpha,int beta,int ply,
         ++legal;
         int from=FROM(m),to=TO(m),tactical=(m&8)||PROMO(m);
         if(quiet&&(!tactical||alpha>=beta))continue;
+#if D_HQ && !DEV
+        w->keys[length]=q.h;
+#else
         w->keys[w->length++]=q.h;
+#endif
         int narrow=legal>1&&depth>0,reduce=0;
         if(narrow){
             COUNT(w,pvs);
@@ -94,7 +105,9 @@ static int search(Worker *w,const Board *p,int depth,int alpha,int beta,int ply,
             if(!narrow||score<=alpha||(!reduce&&score>=beta))break;
             if(reduce)reduce=0;else narrow=0;
         }
+#if !D_HQ || DEV
         --w->length;
+#endif
         if(atomic_load_explicit(&stopped,memory_order_relaxed))return 0;
         if(score>best){best=score;bestmove=m;if(root)*root=m;}
         if(score>alpha)alpha=score;
@@ -123,7 +136,9 @@ static int search(Worker *w,const Board *p,int depth,int alpha,int beta,int ply,
 }
 void think(Worker *w,const Board *p){
     w->nodes=0;w->depth=0;w->score=0;
+#if !D_HQ || DEV
     w->length=game_length;
+#endif
     memcpy(w->keys,game_keys,game_length*sizeof(uint64_t));
     /* Each worker explores a different move tie order; each completed PVS
      * iteration still covers the full root and publishes a legal witness. */

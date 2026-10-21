@@ -190,7 +190,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | A | 4,592 B | 496 B | Unsigned64 number forms; one-state material classifier; main-owned token cursor and valid-0x88 promotion predicate; history length derived from immutable job length plus ply; existing full HCE/PVS/QS/TT/learners/SMP and fixed ALONE retained; fixed LP64 mixer literals; compact environment snapshot |
 | B | 5,122 B | 1,026 B | Worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained; made-child continuation row passed through PVS and same-position singular verification; literal include gaps and overlong-line drain compacted; clock-first SEE poll; cancellation timing changed; compact environment snapshot |
 | C | 4,908 B | 812 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners retained; history length derived from immutable job length plus ply; child continuation slot and positive-only cutoff bonus compacted; fixed LP64 mixer literals; compact environment snapshot |
-| D scalar / HQ | 5,908 / 6,123 B | 1,812 / 2,027 B | Exact clock/inc parsing and ordered K/Q castling branches shared; consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained |
+| D scalar / HQ | 5,908 / 6,111 B | 1,812 / 2,015 B | HQ-only history length derived from immutable job length plus ply; scalar and DEV retain their original blocks; exact clock/inc parsing and ordered K/Q castling branches shared; consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained |
 | E | 4,986 B | 890 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; child continuation slot and positive-only cutoff bonus compacted; literal include gaps and fixed ASCII compiler argv compacted; fixed LP64 mixer literals; compact environment snapshot |
 | F full (default) | 4,483 B | 387 B | Packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; history length derived from immutable job length plus ply; nonnegative QS depth, repetition-distance loop, fixed integer macros and plain-int keyword spelling compacted after the no-preadd hash, terminal, correction and source-form stages; compact environment snapshot; default size target remains open |
 | F material/noise (opt-in) | 4,319 B | 223 B | Unsigned64 number forms and two fixed TT18 casts omitted; one-state material classifier, fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted; literal include gaps compacted; fixed LP64 mixer literals; compact environment snapshot |
@@ -243,6 +243,42 @@ also pass. However, actual search-phase attack calls increase from65,023 to
 search entries and six root correction guards. This finite work count is
 not a wall-time or strength measurement. The two-byte size gain remains
 unselected in this source context; normal production/SMP is not run for it.
+
+## D HQ-only derived history length: 2026-10-21
+
+The HQ shipping path removes its private Worker history cursor and derives
+the same length from immutable game_length plus ply. Scalar and every DEV
+branch retain the original declaration, repetition, push/pop and reset text.
+The scalar trial's5-byte size loss remains unselected; actual ordinary
+regeneration preserves the old scalar native, packet, whole and audit bytes.
+HQ changes6,123 to6,111 complete bytes with new8,000-byte native identity
+`3c662941aa11af8521d3c601322e9aa38405a3bfbeb9332d55008907217a4b2e`.
+
+The first static attempt stops at its old exact BSS contract: actual memsz
+is175,064 instead of175,092. That failure is preserved. A new literal HQ
+class binds the actual hash/size/entry and BSS175,064 while keeping RX2pages,
+BSS176,128-byte mapping, guard/reserve/NX and fixed21 model. Old identity
+classes stay admitted and the guard bodies are unchanged. This section-size
+change is not a Worker sizeof or physical RAM measurement.
+
+One fatal ASan/UBSan compile/run passes18 actual old/new HQ search pairs,
+typed keys/three learners/Board, full atomic16 TT, score/witness/nodes and
+old cursor restoration. It covers history1/4096, repetition/parity/half99/100,
+ply127/child4222 and claim/stop/TT/terminal/QS paths. Branch coverage is not
+inferred from nodes. A single compile-only CHECKPOINT identity discovery
+prepares the new6,134-byte audit; it does not execute the target.
+
+One ordinary builder reproduces both native/whole forms twice and one audit
+per form. The unchanged positive verifier passes two pre-entry observations,
+four quit/EOF sessions and12 legal GO results, actual RX/BSS/padding/guard/NX,
+persistent startup TIDs, stdio, child absence and physical reader/process
+exit. Only its EXPECTED data changes; root verifies the other29,214 bytes
+retain SHA-256 `389ac04925b5ab4597a34a9ac8b318de572da9b0d9b293b384eea785f10cc4fa`.
+The external normal index is
+`rove4k-d-hq-history-normal-promotion-20261021-evidence/final-index.json`,
+9,141 B/SHA-256 `5d71546fa5490c44960fbadd6b44c810cd968d257d4463d4c71a222908ce2158`;
+root checks26 exact file pins. No new trace/RIE/negative/fault campaign runs;
+4KiB, final target resources, many-core and strength remain open.
 
 ## C derived history length: 2026-10-21
 

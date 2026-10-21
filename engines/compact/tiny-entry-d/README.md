@@ -1,3 +1,36 @@
+# Maintained D: HQ-only derived history length — 2026-10-21
+
+Selected complete scalar/HQ **5908 / 6111 B**, remaining **1812 / 2015 B**.
+Only HQ shipping derives private history length from immutable game_length
+plus existing ply. Scalar and every DEV branch retain the original exact
+declaration/repetition/push/pop/reset text. Full HCE/PVS/QS/learners,
+coherent full-key atomic16 TT and SMP remain. No public protocol changes.
+
+The first scalar cost stops at its old exact BSS guard and remains preserved.
+An explicitly authorized new class has BSS175064, the same BSS_base/pages,
+RX2 pages/guards/NX/reserve and fixed21 models. Existing classes remain.
+The completed comparison gives scalar5913 (+5, unselected) and HQ6111
+(-12, selected for normal qualification), with changed native identities.
+The maintained scalar stays its old5908 file and native662b0e... pin.
+
+One fatal ASan/UBSan compile/run passes18 actual old/new HQ search pairs:
+typed full keys/three learners/Board/full atomic16 TT, score/best/nodes,
+old cursor restoration, root1/4096, parity/repetition, half99/100,
+ply127/child4222, stop/claim/TT/terminal and QS capture. Source induction
+covers retries; node counts do not establish runtime PVS/LMR coverage.
+Focused result: d41bbaca604ca2787d327d5c8a757dd4d7a829cc182f38062d09fc90eb03a94c.
+One new HQ CHECKPOINT1 compile-only discovery yields6134 bytes,
+50dd8d89b10b2fc7b09b11f5f21215f7e8035d1edac6948dd6b7ff0ef68153f9.
+Ordinary regeneration reproduces both native images and complete files twice,
+plus their CHECKPOINT images once. The existing positive verifier passes
+pre-entry2 and quit/EOF4 sessions with12 legal GO results, exact restored
+RX, zero initial BSS/padding, guards/NX, persistent3 startup TIDs, stdio-only
+descriptors, no child helpers and physical reader/process/group closure.
+Build receipt SHA-256: 24486ef52753b474d58ba03b02370443ab980d10fb19a8dda22e257c3651716b.
+Runtime receipt SHA-256: 711bf615bdd32b680bee281fb41bb7eb98b00090a75263b23c17f91824943378.
+The actual producing recipe is preserved separately from this receipt-only
+annotation. No normal failure or retry was needed.
+
 # Maintained D: standalone K/Q castle direction sharing — 2026-10-21
 
 Complete scalar/HQ **5908 / 6123 B**, remaining **1812 / 2027 B**.

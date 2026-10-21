@@ -8,9 +8,9 @@
   },
   "target": "Linux x86-64 with SSE4.2 CRC32 and CX16; raw syscall static native plus admitted fixed-layout own-ELF",
   "native_source_sha256": {
-    "native/tiny.h": "41daa4fbbf9581cc97eb3ca214425880e800e7f6422f57705f5102719333dd3e",
+    "native/tiny.h": "55a0a29dc2a5c378937443c4cc6c2067520a280793d7ecdd14a733941351e4ba",
     "native/board.c": "559e4589325152a493e565730581521d1c16ab5dea20cc8dc51ccc2505c30437",
-    "native/search.c": "ba4e6e2489c71a234e069fc64d0ed00300b370ef11f95cbcae231c99b01fa81a",
+    "native/search.c": "8ab07ac6fe92a69ae0fc24e604c72386a827813ddf74d09bc29ef4856472be77",
     "native/runtime.c": "2febf5acec5a3c74ab3a6dcb2fd2a1eb2ba44fab4d6892d9c354fcdcebfe4342",
     "native/hq.h": "ad66a03cef5288010c4377b81ee3661320195545aee6c664a42d3828bfc8b412",
     "native/hq.c": "50b246280ac1f0b9e1f20834f302b31e30221101abd979bbdc146fcae7c12b5f",
@@ -137,21 +137,21 @@
     "hq-shipping": {
       "hq": 1,
       "native_bytes": 8000,
-      "native_sha256": "49fb8e2916ba394cda6665f287df7ff4bfcd7c76ef95dc613628f3513394c6b6",
-      "whole_bytes": 6123,
-      "whole_sha256": "c7a10ed2a675ac5acc69569b8e8347e5680a63473b9c270647ebea42623cd513",
-      "payload_bytes": 4986,
-      "payload_sha256": "2ce85cf043ec82b3af14a3cdabb325933aa05971394221006435640bd0be0704",
+      "native_sha256": "3c662941aa11af8521d3c601322e9aa38405a3bfbeb9332d55008907217a4b2e",
+      "whole_bytes": 6111,
+      "whole_sha256": "9e4167c6b4bba2978d1b3685901bef89fd90ff9929f7991f8c39cbaa94819a62",
+      "payload_bytes": 4974,
+      "payload_sha256": "c0635ffd8a38b7e77d94bc24704caa29bd9f8be9fba4006dfc67fdd2a0a508ef",
       "loader_and_headers_bytes": 1137,
-      "audit_bytes": 6146,
-      "audit_sha256": "e25de7a7dcd2811bafff87569ecf8877ca8cf54b84567e95e843102ac45ee875",
+      "audit_bytes": 6134,
+      "audit_sha256": "50dd8d89b10b2fc7b09b11f5f21215f7e8035d1edac6948dd6b7ff0ef68153f9",
       "layout": {
         "image_base": 4194304,
         "image_size": 8000,
         "image_pages": 8192,
-        "entry": 4201848,
+        "entry": 4201846,
         "bss_base": 4202496,
-        "bss_size": 175092,
+        "bss_size": 175064,
         "bss_pages": 176128,
         "guard_base": 4190208,
         "upper_guard": 4378624,
@@ -178,7 +178,7 @@
             "vaddr": 4202496,
             "paddr": 4202496,
             "filesz": 0,
-            "memsz": 175092,
+            "memsz": 175064,
             "align": 4096
           },
           {
@@ -197,8 +197,8 @@
     }
   },
   "qualified_receipts_metadata_only": {
-    "current_selection": "standalone K/Q castle direction sharing over clock-only packed-HCE D; full HCE/PVS/QS/learners/fullkey atomic16/SMP/fixed ISA preserved",
-    "source_lineage": "Only board.c two adjacent castle branches255-to198 change, same common origin gate, K then Q after ordinary king moves, rights/emptiness/transit attack short-circuit order; runtime14885 clock-only and seven other native sources unchanged.",
+    "current_selection": "HQ-only derived history length over shared castling/clock packed-HCE D; scalar exact old image, full HCE/PVS/QS/learners/fullkey atomic16/SMP/fixed ISA preserved",
+    "source_lineage": "Only HQ&&!DEV selects derived game_length+ply; all scalar and DEV owned regions retain original exact text; header/search change, other native6 and loader/model/flags/protocol remain unchanged.",
     "fixed21_firstcost": {
       "final_index_sha256": "2f06d3ecc4d9e0f5fb294f6adfe533aa4559867fd31b4fad10604ed4060a5bf3",
       "cost_sha256": "0f08bb54783aef070a3d75eefeb28a005868156452243513da624bf7708d8137",
@@ -960,6 +960,76 @@
           "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-castle-direction-normal-promotion-20261021-evidence/producing/recipe.json",
           "bytes": 62487,
           "sha256": "f3b217b73139db6b640fae7efe154de9eea914db30686e95d3eba9bf6e64f883"
+        },
+        "native_reproductions_each": 2,
+        "whole_reproductions_each": 2,
+        "audit_reproductions_each": 1,
+        "positive_preentry_sessions": 2,
+        "production_quit_EOF_sessions": 4,
+        "legal_GO_results": 12,
+        "startup_TIDs_each": 3,
+        "forced_cleanup": false,
+        "scope": "exact restored native RX and zero initial BSS/padding/guards/NX; persistent TIDs/stdio/nochildren and physical readers/process/group settlement; no negative/fault campaign, game or strength claim"
+      }
+    },
+    "pre_history_current_selection": {
+      "current_selection": "standalone K/Q castle direction sharing over clock-only packed-HCE D; full HCE/PVS/QS/learners/fullkey atomic16/SMP/fixed ISA preserved",
+      "source_lineage": "Only board.c two adjacent castle branches255-to198 change, same common origin gate, K then Q after ordinary king moves, rights/emptiness/transit attack short-circuit order; runtime14885 clock-only and seven other native sources unchanged."
+    },
+    "hq_history_derived": {
+      "source_plan": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-hq-history-conditional-source-20261021-evidence/proposal.json",
+        "bytes": 7675,
+        "sha256": "6757d3a5314894656df7cbb8cb6c20704e4ca05a2e542a29e89b5e058e9eb0d5"
+      },
+      "focused": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-hq-history-focused-20261021-evidence/final-index.json",
+        "bytes": 10606,
+        "sha256": "98bf0e8f59c595593f0e3c2661758e5d5a7032397e7d36fca7e384417240c7d3"
+      },
+      "class_extension_cost": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-history-derived-layout-extension-20261021-evidence/final-index.json",
+        "bytes": 8512,
+        "sha256": "2cc2e777de4ddb25f27d1f449a0edfd31c0d411ff2782e3d1bffbbea040822d7"
+      },
+      "original_geometry_failure": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-history-derived-first-cost-20261021-evidence/final-index.json",
+        "bytes": 5822,
+        "sha256": "aa95a4a4ef5ae9a0386564df2c97f28419720217e182c246cb88b1046a2c660a"
+      },
+      "HQ_audit_discovery": {
+        "path": "/home/stemxstudio/rove4k-d-hq-history-audit-discovery-20261021-v1/discovery.json",
+        "bytes": 9075,
+        "sha256": "baa6092ea68feed3f575bff38231820d2319bbf9a1fa7adbf17d3b2a0cb05953"
+      },
+      "scalar_cost_unselected_delta": 5,
+      "HQ_cost_delta": -12,
+      "exact_new_HQ_BSS_bytes": 175064,
+      "same_RW_pages": 176128,
+      "old_classes_retained": true,
+      "raw_Worker_memcmp": false,
+      "runtime_PVS_LMR_coverage": false,
+      "normal_validation": {
+        "status": "PASS one ordinary builder and selected positive verifier",
+        "build": {
+          "path": "/home/stemxstudio/rove4k-d-hq-history-normal-20261021-v1/build.json",
+          "bytes": 93613,
+          "sha256": "24486ef52753b474d58ba03b02370443ab980d10fb19a8dda22e257c3651716b"
+        },
+        "runtime": {
+          "path": "/home/stemxstudio/rove4k-d-hq-history-normal-runtime-20261021-v1/results.json",
+          "bytes": 57991,
+          "sha256": "711bf615bdd32b680bee281fb41bb7eb98b00090a75263b23c17f91824943378"
+        },
+        "normal_wrapper": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-hq-history-normal-promotion-20261021-evidence/normal.json",
+          "bytes": 8621,
+          "sha256": "f1c06e97bff84a43abb09d5137f98418144a417e2d124f1789e261971225802a"
+        },
+        "producing_recipe": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-hq-history-normal-promotion-20261021-evidence/producing/recipe.json",
+          "bytes": 66324,
+          "sha256": "6cd54699817fd2f19e0e9de0fab3c3cfa4708bdd46698bf214d16de4def94404"
         },
         "native_reproductions_each": 2,
         "whole_reproductions_each": 2,
