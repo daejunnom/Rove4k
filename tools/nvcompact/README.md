@@ -188,9 +188,11 @@ before deferred spelling subsets. The full-codec strategy instead interleaves
 singletons and subsets, checks a measured improvement immediately, and gives
 initial round/family phases bounded shares before resuming their saved queues.
 It does not wait for every singleton and payload style to be scored before
-admission. A started candidate may finish bounded proof of its measured
-improvement after the scheduling deadline; cancellation and retention/frontend
-stops remain binding, and new candidates cannot start after the deadline.
+admission. An online candidate started before the scheduling deadline may finish
+its bounded payload-style scoring and proof afterward. Evaluation limits and
+fresh-verification reservations still bound scoring; cancellation and
+retention/frontend stops remain binding. New candidates cannot start after the
+deadline, and the legacy strategy retains its checks between payload costs.
 
 Losing or tied singles remain eligible for a combined gain. `max_combinations`
 defaults to 16384 per strategy, with a supported maximum of 1048576; generation,

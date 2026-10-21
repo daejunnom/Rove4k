@@ -75,9 +75,21 @@ refinement는 덮어쓸 옵션을 제외한 실제 recipe identity로 재료화 
 측정 입력·환경·분포·불리한 결과는 [첫 성능 기록](PERFORMANCE-ADVICE-RESULTS.ko.md)과
 [후속 성능 기록](DOMAIN-PERFORMANCE-RESULTS.ko.md)에서 확인한다.
 
+### 시작한 online 후보의 완료 권한
+
+배포 전 기존 PR 리뷰를 대조하면서, `InterleavedOnline` 후보를 마감 전에 시작해도
+합성·rendering 도중 마감이 지나면 평가 함수와 비용 cache의 새 작업 검사가 그 후보를
+버리는 문제를 확인했다. 시작할 때 받은 완료 권한을 scoring·memo·admission까지 전달해
+하나의 후보에 일관된 예산 정책을 적용한다. 새 후보의 시작은 마감 이후 허용하지 않는다.
+완료 권한은 취소·증거 보관 실패·실제 평가 횟수와 fresh 최종 확인의 예약분을 면제하지 않는다.
+기존 Systematic 탐색의 마감 정책은 유지한다.
+
+이 수정은 잠깐 sleep한 표본 대신 강제로 만료시킨 예산과 실제 평가 callback으로 회귀 검사한다.
+위 성능 표는 각 기록에 명시한 이전 source의 측정이며, 이 마감 처리 수정의 새 성능 캠페인은 아니다.
+
 ## 언어 의미 감사와 비교 입력
 
-다음은 0.6.0 준비 이전의 해당 구현에 대한 고정 source 검증이다. 버전만 바뀐 실행 파일의
+다음은 0.6.0 준비 이전의 해당 구현에 대한 고정 source 검증이다. 후속 실행 파일의
 설치·배포 결과와 구별하며, 전체 C++·Rust 언어에 대한 증명으로 확대하지 않는다.
 
 | 독립 native 검사 | 관측 결과 |
@@ -94,7 +106,8 @@ Rust 10개 단위 검사와 독립 native 비교로 다시 확인했다. 이 기
 대신 세지 않으며, 배포 workflow는 실제 최종 버전에서 전체 검사를 다시 수행한다.
 이후 언어 구현 commit `8184e4301bf03780957437ef5de7cb0834a018ec`의
 [NVCompact CI](https://github.com/daejunnom/Rove4k/actions/runs/39610883475)는 Node 22·24 양쪽에서
-전체 Rust 153개 검사, build·pack·설치 검사를 통과했다. 0.6.0 준비는 그 뒤의 버전·설치 게이트·문서 변경이며,
+전체 Rust 153개 검사, build·pack·설치 검사를 통과했다. 0.6.0 준비에는 그 뒤의 버전·설치 게이트·문서와
+위 online 후보 완료 권한 수정이 포함된다.
 C++ report의 보류 설명을 더 정확히 하는 문자열 변경 외에 언어 분석 알고리즘을 다시 바꾸지 않는다.
 상세 결과·해시·범위는 [언어 검증 기록](LANGUAGE-RESULTS.ko.md)과 그 evidence에 둔다.
 

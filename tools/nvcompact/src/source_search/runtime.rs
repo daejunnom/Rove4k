@@ -18,8 +18,9 @@ pub(super) struct RunBudget {
 }
 
 /// Created only at a scheduling boundary. It authorizes completion of that
-/// candidate's bounded proof, never the start of another candidate after a
-/// deadline. Retention failures and cancellation still revoke the permission.
+/// candidate's bounded scoring and proof, never the start of another candidate
+/// after a deadline. Cost limits, retention failures and cancellation remain
+/// binding.
 pub(super) struct StartedCandidate(());
 
 /// A scheduling quantum limits new work, not in-flight compiler/codec work.
@@ -90,6 +91,15 @@ impl RunBudget {
 
     pub(super) fn start_candidate(&mut self) -> Result<Option<StartedCandidate>> {
         Ok(self.available()?.then_some(StartedCandidate(())))
+    }
+
+    /// Online work carries its start permission through rendering and every
+    /// payload cost. Only the scheduling deadline can be crossed: exhaustion
+    /// of new evaluations or a stronger stop still ends scoring.
+    pub(super) fn scoring_available(&mut self, started: Option<&StartedCandidate>) -> Result<bool> {
+        let available = self.available()?;
+        Ok(available
+            || (started.is_some() && self.reason.as_deref() == Some("scheduling-time-budget")))
     }
 
     pub(super) fn completion_available(&self, _: &StartedCandidate) -> Result<bool> {
@@ -230,15 +240,16 @@ impl CostMemo {
     pub(super) fn measure(
         &mut self,
         budget: &mut RunBudget,
+        started: Option<&StartedCandidate>,
         payload: &[u8],
         measure: &mut impl FnMut(&[u8]) -> Result<usize>,
     ) -> Result<Option<(usize, bool)>> {
+        if !budget.scoring_available(started)? {
+            return Ok(None);
+        }
         let hash = sha256(payload);
         if let Some(&cost) = self.costs.get(&hash) {
             return Ok(Some((cost, true)));
-        }
-        if !budget.available()? {
-            return Ok(None);
         }
         // Reserve the last allowed measurement for fresh final-cost readback.
         // A one-evaluation request therefore returns the measured raw input.
@@ -274,6 +285,86 @@ mod tests {
             budget.reason = Some(reason.into());
             assert!(!budget.verification_available().unwrap());
             assert!(!budget.completion_available(&started).unwrap());
+            assert_eq!(budget.reason.as_deref(), Some(reason));
+        }
+    }
+
+    #[test]
+    fn started_scoring_preserves_cache_costs_and_stops_new_candidates() {
+        let mut budget = RunBudget::new(&SourceSearchOptions::default());
+        let started = budget.start_candidate().unwrap().unwrap();
+        budget.started = Instant::now() - Duration::from_secs(301);
+        let mut memo = CostMemo::new();
+        let mut calls = 0;
+        let mut measure = |payload: &[u8]| {
+            calls += 1;
+            Ok(payload.len())
+        };
+        assert_eq!(
+            memo.measure(&mut budget, Some(&started), b"candidate", &mut measure)
+                .unwrap(),
+            Some((9, false))
+        );
+        assert_eq!(
+            memo.measure(&mut budget, Some(&started), b"candidate", &mut measure)
+                .unwrap(),
+            Some((9, true))
+        );
+        // Systematic work has no completion permission, even for a cached cost.
+        assert!(memo
+            .measure(&mut budget, None, b"candidate", &mut measure)
+            .unwrap()
+            .is_none());
+        assert!(budget.start_candidate().unwrap().is_none());
+        assert_eq!(budget.evaluations, 1);
+        assert_eq!(calls, 1);
+    }
+
+    #[test]
+    fn started_scoring_cannot_spend_fresh_reservations_or_ignore_strong_stops() {
+        for (maximum, evaluations, reservations) in [(0, 0, 1), (1, 0, 1), (4, 2, 2)] {
+            let mut budget = RunBudget::new(&SourceSearchOptions::default());
+            let started = budget.start_candidate().unwrap().unwrap();
+            budget.maximum = maximum;
+            budget.evaluations = evaluations;
+            budget.fresh_reservations = reservations;
+            budget.started = Instant::now() - Duration::from_secs(301);
+            assert!(CostMemo::new()
+                .measure(&mut budget, Some(&started), b"uncached", &mut |_| {
+                    panic!("reserved or exhausted evaluation must not run")
+                })
+                .unwrap()
+                .is_none());
+            assert_eq!(budget.evaluations, evaluations);
+            assert_eq!(budget.fresh_reservations, reservations);
+            assert_eq!(
+                budget.reason.as_deref(),
+                Some("complete-file-evaluation-budget")
+            );
+            assert!(budget.completion_available(&started).unwrap());
+        }
+
+        for reason in [
+            "complete-file-evaluation-budget",
+            "report-memory-budget",
+            "retained-source-byte-budget",
+            "frontend-output-budget",
+        ] {
+            let mut budget = RunBudget::new(&SourceSearchOptions::default());
+            let started = budget.start_candidate().unwrap().unwrap();
+            budget.started = Instant::now() - Duration::from_secs(301);
+            budget.reason = Some(reason.into());
+            let mut memo = CostMemo::new();
+            memo.insert_baseline(b"cached", 7);
+            for payload in [b"cached".as_slice(), b"uncached"] {
+                assert!(memo
+                    .measure(&mut budget, Some(&started), payload, &mut |_| {
+                        panic!("strong stop must not run a cost callback")
+                    })
+                    .unwrap()
+                    .is_none());
+            }
+            assert_eq!(budget.evaluations, 0);
             assert_eq!(budget.reason.as_deref(), Some(reason));
         }
     }

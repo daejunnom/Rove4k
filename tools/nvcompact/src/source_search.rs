@@ -296,10 +296,12 @@ impl SearchRun {
     }
     fn measure(
         &mut self,
+        started: Option<&runtime::StartedCandidate>,
         payload: &[u8],
         measure: &mut impl FnMut(&[u8]) -> Result<usize>,
     ) -> Result<Option<(usize, bool)>> {
-        self.costs.measure(&mut self.budget, payload, measure)
+        self.costs
+            .measure(&mut self.budget, started, payload, measure)
     }
     /// None stops at a bounded frontend capacity; an ordinary error is
     /// returned to its consumer. Changed context is fatal and retains the
@@ -407,15 +409,16 @@ fn score_source(
     id: &str,
     round: usize,
     incumbent_cost: usize,
+    started: Option<&runtime::StartedCandidate>,
     measure: &mut impl FnMut(&[u8]) -> Result<usize>,
 ) -> Result<Option<Score>> {
+    if !budget.budget.scoring_available(started)? {
+        return Ok(None);
+    }
     let mut best: Option<Score> = None;
     for rendered in adapter.render(source)? {
-        if !budget.available()? {
-            break;
-        }
         let payload_hash = sha256(&rendered.data);
-        let measured = match budget.measure(&rendered.data, measure) {
+        let measured = match budget.measure(started, &rendered.data, measure) {
             Ok(value) => value,
             Err(error) => {
                 budget.record(json!({"stage":"complete-file-cost-failed","round":round,"id":id,
@@ -581,6 +584,7 @@ fn explore_space(
             &variant.id,
             space.round,
             incumbent.score.cost,
+            online.then_some(&started),
             measure,
         )?
         else {
@@ -996,6 +1000,7 @@ fn search_inner(
         "original-source",
         0,
         incumbent.score.cost,
+        None,
         measure,
     )? {
         if score.cost < incumbent.score.cost {
@@ -1070,6 +1075,7 @@ fn search_inner(
                 &variant.id,
                 round,
                 before_cost,
+                None,
                 measure,
             )? {
                 if score.cost < before_cost {
@@ -1173,6 +1179,7 @@ fn search_inner(
                         &combined.id,
                         round,
                         best_cost,
+                        None,
                         measure,
                     )?
                     else {
@@ -1360,6 +1367,7 @@ fn search_inner(
                         &variant.id,
                         round,
                         incumbent.score.cost,
+                        None,
                         measure,
                     )? {
                         if score.cost < incumbent.score.cost {
@@ -1531,7 +1539,8 @@ fn search_inner(
         "priority_seed":priority_seed.as_ref().map(|seed| json!({"role":"legacy-priority-seed",
             "final":seed.recipe["final"],"recipe_path":"priority-seed-recipe.json", "payload_path":"priority-seed-payload"})),
         "scheduling":options.scheduling,
-        "seconds":budget.budget.started.elapsed().as_secs_f64(),"time_limit_kind":"scheduling deadline between bounded operations; final acceptance completes separately",
+        "seconds":budget.budget.started.elapsed().as_secs_f64(),
+        "time_limit_kind":if online{"scheduling deadline for new candidate starts; started candidates may finish bounded scoring and proof within evaluation and operation limits; final acceptance completes separately"}else{"scheduling deadline between bounded operations; final acceptance completes separately"},
         "original_whole_file_bytes":initial_cost,"selected_whole_file_bytes":incumbent.score.cost,
         "saved_whole_file_bytes":initial_cost-incumbent.score.cost,"input_payload_sha256":sha256(payload),
         "input_source_sha256":sha256(&original_source),"final":final_record,"accepted_steps":incumbent.steps.len(),
@@ -1716,4 +1725,86 @@ pub fn replay(payload: &[u8], recipe: &Value, compiler: &[String], out: &Path) -
     )?;
     fs::write(directory.join("selected-payload"), &rendered.data)?;
     Ok(rendered.data)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::time::{Duration, Instant};
+
+    #[test]
+    fn started_scoring_finishes_rendered_styles_after_deadline_within_cost_limit() {
+        let payload = b"x=b'int x;'\n";
+        let source = b"int x=7;";
+        let embedding = json!({"kind":"python-bytes","start":2,"end":payload.len()-1,
+            "sha256":sha256(&payload[2..payload.len()-1])});
+        let adapter = PayloadAdapter::new(payload, Some(&embedding)).unwrap();
+        let rendered = adapter.render(source).unwrap();
+        assert_eq!(rendered.len(), 4);
+        let directory = tempfile::tempdir().unwrap();
+
+        for (online, maximum, expected_calls) in
+            [(false, 8, 0), (true, 8, 4), (true, 4, 2), (true, 2, 0)]
+        {
+            let options = SourceSearchOptions {
+                max_evaluations: maximum,
+                ..Default::default()
+            };
+            let archive = Archive::new(
+                &directory.path().join(format!("{online}-{maximum}")),
+                payload,
+                &options,
+                &[],
+                None,
+            )
+            .unwrap();
+            let mut run = SearchRun::new(&options, archive);
+            run.budget.evaluations = 1; // Original payload already measured.
+            let started = run.budget.start_candidate().unwrap().unwrap();
+            // Deterministically model composition using up the remaining time
+            // before score_source begins its real render/measure/record path.
+            run.budget.started = Instant::now() - Duration::from_secs(301);
+            let mut measured = Vec::new();
+            let score = score_source(
+                &mut run,
+                &adapter,
+                source,
+                "deadline-candidate",
+                1,
+                100,
+                online.then_some(&started),
+                &mut |data| {
+                    let index = rendered.iter().position(|item| item.data == data).unwrap();
+                    measured.push(index);
+                    Ok(99 - index)
+                },
+            )
+            .unwrap();
+            assert_eq!(measured, (0..expected_calls).collect::<Vec<_>>());
+            assert_eq!(run.budget.evaluations, 1 + expected_calls);
+            assert_eq!(run.budget.fresh_reservations, 1);
+            assert_eq!(run.journal.records.len(), expected_calls);
+            if expected_calls == 0 {
+                assert!(score.is_none());
+            } else {
+                let score = score.unwrap();
+                assert_eq!(score.cost, 100 - expected_calls);
+                assert_eq!(score.style, rendered[expected_calls - 1].style);
+                assert_eq!(
+                    payload_for(&adapter, source, &score).unwrap(),
+                    rendered[expected_calls - 1].data
+                );
+                assert!(run.budget.completion_available(&started).unwrap());
+            }
+            assert!(run.budget.start_candidate().unwrap().is_none());
+            assert_eq!(
+                run.budget.reason.as_deref(),
+                Some(if online && maximum <= 4 {
+                    "complete-file-evaluation-budget"
+                } else {
+                    "scheduling-time-budget"
+                })
+            );
+        }
+    }
 }

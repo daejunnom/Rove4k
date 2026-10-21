@@ -499,12 +499,14 @@ extend beyond the scheduling deadlines. Native/codec scratch memory is not
 covered by the retained-cache budgets.
 
 The time limit is checked between bounded operations. It is not a hard deadline
-that interrupts an arbitrary codec callback. Online phase quanta are checked
-before starting candidates; their payload styles are still measured only while
-the global exploration budget permits. A candidate started before the deadline
-may finish bounded admission of an already measured improvement afterward.
-This permission does not start another candidate or bypass cancellation,
-retention failure or frontend-capacity stops. Final acceptance can also finish
+that interrupts an arbitrary codec callback. Online phase quanta and the global
+scheduling deadline are checked before starting candidates. A started online
+candidate may finish rendering, scoring its bounded payload styles and admitting
+a measured improvement afterward. New payload evaluations still respect the
+evaluation limit and fresh-verification reservations. This permission does not
+start another candidate or bypass cancellation, retention failure or
+frontend-capacity stops. The legacy/systematic strategy continues to check the
+scheduling deadline between payload costs. Final acceptance can also finish
 after exploration stops. Compiler/frontend subprocesses have their own finite limits.
 Limits apply per process rather than as a hard cgroup reservation for an
 arbitrary process tree. Cancellation aborts the operation and reaps owned child
