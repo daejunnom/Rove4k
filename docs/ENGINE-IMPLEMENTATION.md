@@ -212,7 +212,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | B | 5,073 B | 977 B | Worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained; made-child continuation row passed through PVS and same-position singular verification; literal include gaps and overlong-line drain compacted; clock-first SEE poll; cancellation timing changed; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero; private history length derived from immutable published job base plus ply; private piece-plus-six helper inlined at its two consumers with complete native identity; singular-depth temporary and empty shipping instrumentation branch removed |
 | C | 4,874 B | 778 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd followed by four signed32 lane sums, full search/learners retained; history length derived from immutable job length plus ply; child continuation slot and positive-only cutoff bonus compacted; fixed LP64 mixer literals; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero; capture-only Move bit3 reuses generator metadata with separate PROMO and unchanged quiet noise |
 | D scalar / HQ | 5,908 / 6,111 B | 1,812 / 2,015 B | HQ-only history length derived from immutable job length plus ply; scalar and DEV retain their original history blocks; exact clock/inc parsing and ordered K/Q castling branches shared; consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT with a shared finite-stage asm body, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained; stage sharing changes source only, both current own-ELFs remain byte-identical |
-| E | 4,946 B | 850 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; child continuation slot and positive-only cutoff bonus compacted; literal include gaps and fixed ASCII compiler argv compacted; fixed LP64 mixer literals; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero; private history length derived from immutable published job base plus ply; capture-only Move bit3 reuses generator metadata with separate PROMO and unchanged quiet noise |
+| E | 4,935 B | 839 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; child continuation slot and positive-only cutoff bonus compacted; literal include gaps and fixed ASCII compiler argv compacted; fixed LP64 mixer literals; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero; private history length derived from immutable published job base plus ply; capture-only Move bit3 reuses generator metadata with separate PROMO and unchanged quiet noise; ordering reuses generated mover side and omits a sign-only local |
 | F full (default) | 4,439 B | 343 B | Packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; history length derived from immutable job length plus ply; nonnegative QS depth, repetition-distance loop, fixed integer macros and plain-int keyword spelling compacted after the no-preadd hash, terminal, correction and source-form stages; compact environment snapshot; default size target remains open; lazy fallback and first-legal quiet-QS standpat cutoff; immutable global job-prefix keys shared while workers store only private path keys; fixed 73-byte stdin/xz header and BT2/16KiB ALONE; five fixed local binding spellings, compact handler-pair loops, fixed2 completion selector and positional wait timeout |
 | F full (fixed8) | 4,442 B | 346 B | Separate eight-search-worker profile with nine startup TIDs; same full native as its4474 predecessor, strict private-name replay followed by six resource roles, shared full bootstrap with positional wait and73-byte BT2 packaging; retains its eight-worker selection loop; final hardware/profile selection remains open |
 | F material/noise (opt-in) | 4,319 B | 223 B | Unsigned64 number forms and two fixed TT18 casts omitted; one-state material classifier, fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted; literal include gaps compacted; fixed LP64 mixer literals; compact environment snapshot |
@@ -222,6 +222,55 @@ The canonical Rust D native images are16,816 bytes each. The separate maintained
 finite Rust shipping entry also has16,816-byte natives with new identities and
 11,108/11,476-byte scalar/HQ own-ELFs. Its normal qualification below does not
 replace the C D table or establish4KiB eligibility.
+
+## E4935 generated-mover side reuse: 2026-10-22
+
+Checkpointd26e503 passes terminal C/Rust and Node22/24 CI in
+[engine39649251081](https://github.com/daejunnom/Rove4k/actions/runs/39649251081)
+and [repository39649250778](https://github.com/daejunnom/Rove4k/actions/runs/39649250778).
+All four actual checkouts use merge91cc4118dbcc8130c7c32b406d41198d9e7d0c8f,
+parents761bdc0/d26e503, treeda17387b34158e66f5e74ab7eaa065d8d99dd6bf.
+That run regenerates A4559/F4439/F84442 and D's unchanged5908/6111 files from
+its new6317-byte source. Its E is4946, before the local change below. CI index:
+`f857c2c56f2bb176dd27f3267675589d51256f4771b55048d6d39386f1537e63`.
+
+E's ordering receives only moves generated on the same Board. Their nonzero
+origin piece belongs to p->s, so the pawn rank term reuses p->s instead of
+recomputing its sign. Removing the sign-only local makes two exact edits,
+source10210→10200 B and bootstrap11222→11212 B; whole4946→4935 B. The nineteen
+logical model coefficients and physical21 slots, remaining ordering features,
+evaluation/search/learners and DEV are unchanged. Native length26336 B stays
+the same but its complete identity changes to77a43ff9. Arbitrary empty or
+opponent-origin moves passed directly to R are outside the declared domain.
+
+One fatal ASan/UBSan compile/run includes the actual new TU unchanged and the
+actual old R body with its definition name alone aliased. Same-model old/new
+scores and typed full Board invariance pass for136 root/child boards and2472
+generated moves, including both-colour EP/promotion and all four castling wings.
+The existing generator/make catalog is reused without TT or search campaigns.
+External focused index:
+`a41c3ed9694f962b48eb79846484c3864f4d4845bfbcde7f6c5ca28559229cb3`.
+
+One ordinary --dev builder reproduces shipping/unchanged DEV twice and the
+unchanged selected verifier passes actual quit/EOF sessions with the new native.
+Complete source/native/bootstrap/whole match the preserved first cost. The
+preparation's M-call string check originally misidentified FROM and failed
+before compilation; that first error is retained separately, and only the
+inspection expression was corrected. No product failure is relabeled as success.
+This source-only expression change does not claim a new model, strength,
+timed-node equality, target resource profile or final4KiB acceptance.
+External E normal/selected index:
+`936193c25ad5a7c1471c5664045efdcb19d8e8595a9034e601ae7fd6b327ef8e`.
+
+A separate C zero-piece update proposal adds an explicit H(0) identity and
+shares K's old/new occupancy handling. The declared domain requires an already
+initialized private nonvolatile Board and separate full-expression H calls.
+Two exact spans remove7 raw bytes, but fixed first cost grows native26304→26312
+and whole4874→4875 B. One candidate compile/encode and strict restoration pass;
+no SAN, normal or engine runtime follows this size loss. It is not maintained,
+and the original source, contract addendum and actual candidate are preserved.
+This result is limited to the current C source/compiler/codec context. Index:
+`3c03c91b1b75e211c82db1e2420f4a943216d72641fca84d49dcd396f4b2e33b`.
 
 ## Further source and shared full-F reductions: 2026-10-22
 

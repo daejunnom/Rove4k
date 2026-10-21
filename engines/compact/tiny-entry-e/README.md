@@ -1,3 +1,64 @@
+# Maintained E: generated mover side reuse — 2026-10-22
+
+The fixed first-cost file is **4935 B**, compact C **10200 B**, native
+**26336 B**. Reusing the generated mover side in the pawn ordering feature
+removes10 source bytes and11 actual complete-file bytes from E4946.
+Native length stays the same but the entire image differs:
+`77a43ff91f24cd37b38923269ee9415e96aa6fb73c7fa5a985849d3f1aa53242`.
+First-cost, fatal ASan/UBSan actual-function validation, ordinary --dev
+reproduction and the unchanged selected wrapper verifier passed. The4096 B
+target remains open.
+
+The pure E-owned `shipping_ordering_side.py` follows capture metadata only
+in shipping. It replaces `i=p->b[d],a=abs(i)` with `a=abs(p->b[d])` and
+`*(i<0?-1:1)` with `*p->s`, preserving three gaps,10181-byte complement
+and a full inverse. R receives only moves generated from the same Board;
+nonzero own-side origins and side±1 prove the reused sign. EP and promotion
+read the original pawn before make. Root drain and private children preserve
+the Board during R; const spelling alone is not the ownership argument.
+The original int8-to-int promotion, all E19 coefficients, the other ordering
+features and search/learners/TT/input/pool bytes remain. Canonical and old
+DEV21 retain their existing readable/helper domain and bypass this stage.
+
+Actual frozen package/raw source envelope, GCC13 profile,73-byte header and
+ALONE9e/lc2lp0pb0/BT4/dict64MiB/nice32 remain fixed. Baseline bootstrap exact
+preceded candidate compile1/encode1; strict Python2/CLI2 full restoration
+passed with EOF and no trailing data. First-cost index SHA-256:
+`07f0dbd557bc6378a79c699282773ff7d76db78a826d4ed1bee0c2583e00bd22`.
+No cost rerun or past mate/halfmove composition is used. Original source,
+outputs and first receipts remain outside Git. Native byte identity, timed
+node equality, performance, strength and full qualification are not inferred.
+
+The focused fixture includes the unchanged actual new TU and the actual old
+R with only its definition name aliased, sharing the same model and globals.
+It compared2472 generated moves over136 root/legal-child Boards, including
+both EP colors, four castle wings and all four promotions for both sides;
+actual R results and every typed input Board field agreed. Fatal ASan/UBSan
+compiler1/function run1 finished with empty stderr and settled original
+handles. No engine main, worker, search, TT or learner campaign ran here.
+Its external focused index SHA-256 is `a41c3ed9694f962b48eb79846484c3864f4d4845bfbcde7f6c5ca28559229cb3`.
+The preserved preparation-only FROM substring guard error predates product
+compile/run and remains separate from this PASS. ASan retains64TiB virtual
+AS for shadow reservation, with sampled RSS/CPU/output/time supervision;
+this is no memory reduction or true peak-RSS claim.
+
+The maintained builder ran once with --dev, reproducing shipping twice and
+old DEV twice. Source/native/bootstrap/whole matched the fixed first-cost
+artifacts in their entirety, while old DEV21314/31376 source/native matched
+the previous control bytes. The unchanged selected verifier ran once against
+the actual4935 B wrapper, with quit and EOF sessions, each observing the
+restored native image, main+two worker TIDs, private-path removal, finite
+input completion and active-search physical exit/readers. Cancellation
+causality remains unproven. Build receipt SHA-256 is
+`841e7571b6e0fcc982dc61e3ae1bb80fa76ae91f0aff4ea3adb1d9cfd1c5ee22`; runtime receipt is
+`197876ce85d0afc15da3feabe9cb55db325dd216b4c1eab46741b065f23c65cd`.
+All original command handles settled with group absence at that settlement,
+no forced cleanup and owned handles0. No late bare numeric PID/TID gate or
+cost rerun was added. The producing recipe is frozen separately as
+`ff6151a935f20077b98b8419e4321a668537ddc46173bcb87aefe42812849341`; final recipe changes after
+that run are completion annotations only. Prior-head CI is separate from
+this new local E result.
+
 # Maintained E: shared73-byte header — 2026-10-22
 
 The selected complete file is **4946 B**, four bytes below E4950 and850 B
