@@ -1,0 +1,259 @@
+{
+  "schema": "nvcompact-advice-validation-v1",
+  "date": "2026-10-21",
+  "baseline_revision": "46cc1102390f3d973268efd87f0ba48a718b5063",
+  "source_sha256": {
+    "tools/nvcompact/src/advisor.rs": "ebd441d94e769f861c9e6b7b3d5b4294ca41b933f27899ed20484a5adb5092d7",
+    "tools/nvcompact/src/advisor/flow.rs": "d19494c53eecf8ea0b2eef713dd4b55a5a340bc7556e0fe349560c54010d1d15",
+    "tools/nvcompact/src/advisor/tests.rs": "b2a870f8a94b6393738b494ea7dea83ec492655bfebc71f1ffac2985ab596626",
+    "tools/nvcompact/src/advice_profile.rs": "9d9cb8b5f000a188871a376d3505f760c6728c81d412090ab9231393ec0c59f4",
+    "tools/nvcompact/src/artifact_advice.rs": "532afe1e849a797ff224b4b1ae5f364a80c5d4ddde90816f7f3e139567a5c795",
+    "tools/nvcompact/src/c_frontend.rs": "c27c4fd87e3a4eb71aaedc0f269268c276c3fb2c399f9e2441803c37135477fa",
+    "tools/nvcompact/src/codec.rs": "1fc72fd85dc51cbef603e5a0f3b21d620e7c00efa4978fde6f99649b72cda575",
+    "tools/nvcompact/src/envelope_cost.rs": "7271eb5fdb76da99e95e3d5403f905c541bda80d4ae788ffef01f3536352a0a4",
+    "tools/nvcompact/src/lib.rs": "a7f5825dd7cc71c5bbd3444e531b21a7bdf0309e8c5f204d5f58ecfe82241998",
+    "tools/nvcompact/src/main.rs": "271ba3524676dbe5b4206c1f9b45a1ad5b404b6d01f65b87cfbc917c132bc9a0",
+    "tools/nvcompact/tests/advice.rs": "22274e87224ca14b9f95ee0321c91b2fa3eb6ddf6d4eaec7df23c9e67e312041",
+    "tools/nvcompact/examples/advice/program.c": "77835c66199334e008bc15e7acadf82be5186794ed8fb948b1fb16db55796dc8"
+  },
+  "toolchain": {
+    "rust": "1.99.1",
+    "clang": "20",
+    "platform": "Linux x86_64 LP64"
+  },
+  "rust_workspace": {
+    "command": "cargo test --offline --locked --workspace -- --test-threads=2",
+    "passed": 113,
+    "failed": 0,
+    "counts": {
+      "library": 91,
+      "advice_integration": 2,
+      "packing": 10,
+      "source_search": 10
+    },
+    "log_sha256": "90b141727900ea0783c4e11dd836237601bb67b7c8e783226ef53f011ecfa4c1",
+    "scope": "all current workspace tests; explicit NVCOMPACT_CLANG and CARGO_BUILD_JOBS=2"
+  },
+  "node_checks": {
+    "launcher": {
+      "passed": 5,
+      "scope": "existing test-cli.mjs executed during this task; launcher unchanged"
+    },
+    "comparison": {
+      "passed": 1,
+      "scope": "existing compare-results.test.mjs executed during this task; report logic unchanged"
+    }
+  },
+  "independent_advisory_audit": {
+    "binary_sha256": "736bff8b5bf22bd2ad14e0597965309d5cee131a1a27165d9b7308b8c09f6db3",
+    "source_sha256": "56708dba8cc8745ce03156e8ae7b098b54f0f61a28d46f7fd6b370525456bd63",
+    "analysis_context_sha256": "846839d14d4dac896a281e74b55b604c7a8d8e03fb00e5f02c32a512ed87020e",
+    "checks": [
+      "source identity unchanged",
+      "advisory/report source hash",
+      "parenthesized evaluated read recorded",
+      "parenthesized int comparison admitted",
+      "unsigned comparison keeps int value result",
+      "unsigned truth-context comparison admitted",
+      "narrow potentially non-total expression retained",
+      "overflow potentially non-total expression retained",
+      "division potentially non-total expression retained",
+      "defined unsigned conversion constant comparison admitted",
+      "bounded unsigned remainder preserves type",
+      "int literal zero is not substituted for unsigned division",
+      "noncontiguous mask is not treated as redundant",
+      "contiguous mask admitted",
+      "unsigned ternary condition preserves int result",
+      "int Boolean ternary admitted",
+      "escaped local withheld",
+      "volatile reads withheld",
+      "vla_sizeof does not retain pre-bound zero",
+      "vla_decl does not retain pre-bound zero",
+      "vla_typedef does not retain pre-bound zero",
+      "mixed compound division uses unsigned computation",
+      "mixed compound remainder uses unsigned computation",
+      "unknown reachable ternary contribution retained",
+      "function address counts as use",
+      "simple destinations reported write-only",
+      "compound destination is a value use",
+      "every range site points to original identifier"
+    ],
+    "passed": 28,
+    "findings": 35,
+    "ranges": 36,
+    "scope": "Read-only analysis of owned focused fixtures; no engine executed, no whole-program proof."
+  },
+  "profile_integration": {
+    "threads": 4,
+    "quota": 37,
+    "records": 37,
+    "original_and_instrumented_stdout": "384\n",
+    "exit_codes": [
+      0,
+      0
+    ],
+    "fresh_context_equal": true,
+    "static_ranges_unchanged": true,
+    "original_source_unchanged": true,
+    "scope": "owned hosted C fixture only; no shipping/performance/whole-program equivalence claim"
+  },
+  "native_suggestion_comparison": {
+    "edits": 5,
+    "integer_interval": [
+      -100,
+      100
+    ],
+    "additional_boundary_inputs": 13,
+    "scope": "separate original/candidate own C functions compiled and executed"
+  },
+  "examples": [
+    {
+      "name": "owned-example-advice",
+      "source_sha256": "77835c66199334e008bc15e7acadf82be5186794ed8fb948b1fb16db55796dc8",
+      "report_sha256": "cb155a0744bf8b95f713b37bd69afd9608d4f81229fc1a452de7a9fb75d9c924",
+      "analysis_context_sha256": "5cc0ed98eb0ec0975046cf96029dd897f8d49b74e03e254641695d21772da8c0",
+      "statistics": {
+        "ast_nodes": 713,
+        "compression_candidates_created": 0,
+        "final_file_bytes_measured": false,
+        "findings_emitted": 6,
+        "findings_omitted": 0,
+        "frontend_work": {
+          "ast_parses": 1,
+          "commands": 5,
+          "context_rechecks": 0,
+          "preprocessing_runs": 2,
+          "scope": "one owned frontend session; counters include failed attempts; final native/cost/replay checks are separate"
+        },
+        "functions_analyzed": 5,
+        "functions_withheld": 0,
+        "range_sites_emitted": 9,
+        "range_sites_omitted": 0,
+        "source_modified": false
+      },
+      "finding_counts": {
+        "duplicate-constant": 1,
+        "no-reference": 2,
+        "boolean-domain-comparison": 1,
+        "constant-comparison": 2
+      },
+      "limitations": [
+        "Advice never edits source, enters compression search, or certifies a replacement. Recompile and measure the entire final file after manual review.",
+        "Constant reuse and no-reference diagnostics require scope/linkage/initializer review. Equal mathematical values with different C types remain separate groups.",
+        "Plain char, short, enum, __int128, floating point, memory objects and interprocedural relations have no range model; unsupported operations widen or withhold facts.",
+        "Ranges describe supported, defined C executions at individual read sites in this translation unit. Samples and whole-program facts are separate evidence."
+      ]
+    },
+    {
+      "name": "rove4k-f-advice",
+      "source_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+      "report_sha256": "b5e3607e8b181be385f77c160fcbc6e3cbac9a72a78b35937c20c078b43686af",
+      "analysis_context_sha256": "69d216187a15e9294bda51e5993f3dc05ff9123ec1a4ce2e630f0655f62a692b",
+      "statistics": {
+        "ast_nodes": 7641,
+        "compression_candidates_created": 0,
+        "final_file_bytes_measured": false,
+        "findings_emitted": 5,
+        "findings_omitted": 0,
+        "frontend_work": {
+          "ast_parses": 1,
+          "commands": 5,
+          "context_rechecks": 0,
+          "preprocessing_runs": 2,
+          "scope": "one owned frontend session; counters include failed attempts; final native/cost/replay checks are separate"
+        },
+        "functions_analyzed": 26,
+        "functions_withheld": 8,
+        "range_sites_emitted": 99,
+        "range_sites_omitted": 0,
+        "source_modified": false
+      },
+      "finding_counts": {
+        "duplicate-constant": 5
+      },
+      "limitations": [
+        "Advice never edits source, enters compression search, or certifies a replacement. Recompile and measure the entire final file after manual review.",
+        "Constant reuse and no-reference diagnostics require scope/linkage/initializer review. Equal mathematical values with different C types remain separate groups.",
+        "Plain char, short, enum, __int128, floating point, memory objects and interprocedural relations have no range model; unsupported operations widen or withhold facts.",
+        "Range analysis of claim withheld: unsupported AtomicExpr.",
+        "Range analysis of clear withheld: unsupported AtomicExpr.",
+        "Range analysis of go withheld: unsupported AtomicExpr.",
+        "Range analysis of main withheld: unsupported GotoStmt.",
+        "Range analysis of probe withheld: unsupported AtomicExpr.",
+        "Range analysis of search withheld: unsupported AtomicExpr.",
+        "Range analysis of think withheld: unsupported AtomicExpr.",
+        "Range analysis of wait withheld: unsupported AtomicExpr.",
+        "Ranges describe supported, defined C executions at individual read sites in this translation unit. Samples and whole-program facts are separate evidence."
+      ]
+    }
+  ],
+  "rove4k_input": {
+    "pr": 12,
+    "revision": "eb5e05b97284da5467733b03ef862826ea6f818c",
+    "path": "engines/compact/tiny-entry-f/engine.c",
+    "bytes": 25755,
+    "source_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+    "compiler_context": [
+      "-std=c11",
+      "-pthread"
+    ],
+    "kind": "maintained canonical C; not generated shipping payload",
+    "failed_preparation": {
+      "compiler_arg": "-Os",
+      "reason": "existing frontend explicitly rejects non-declared frontend/ABI arguments",
+      "status": "rejected; subsequent analysis uses the separately declared context without -Os"
+    }
+  },
+  "not_performed": [
+    "external engine execution",
+    "whole A-F shipping campaign rerun",
+    "engine strength or many-core qualification",
+    "PR merge",
+    "npm registry publication"
+  ],
+  "release_build": {
+    "status": "pass",
+    "command": "node tools/nvcompact/scripts/build.mjs",
+    "binary_sha256": "5b226f63d825b6d760186aa72187cce28cbbd33b552b3c5994733b4bc21f8584",
+    "binary_bytes": 11562568,
+    "source_fingerprint": "f47b6c47c0c4e738b0f1f2d1b66336efc43984fc020b219253a99940bca771f4",
+    "rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1",
+    "registry_publication": false
+  },
+  "npm_offline_package": {
+    "status": "pass",
+    "package_sha256": "a958f35c91d6205a1870081e3caa17f7242f0eb300368afe85fe163056ed2878",
+    "runtime_sha256": "5b226f63d825b6d760186aa72187cce28cbbd33b552b3c5994733b4bc21f8584",
+    "node": "v24.19.0",
+    "platform_key": "linux-x64",
+    "checks": [
+      "offline actual tarball installation",
+      "native --version and command discovery",
+      "Rust doctor without targets",
+      "raw ELF build with no verifier execution",
+      "independent exact native replay",
+      "explicit verification of 256 integer cases and 2 invalid cases",
+      "verified recipe still requires --verify for new execution",
+      "typed source notation",
+      "installed package bytes and modes unchanged; no external engine sources"
+    ],
+    "fixture_input_count": 256,
+    "fixture_invalid_count": 2,
+    "engine_tests": "none; owned tiny fixture only",
+    "registry_publication": false,
+    "commands_executed": 10,
+    "report_sha256": "a4d3a5324e15acbf73c86adfb63394d071048a2f86b7a215b1a63a8698fb7894"
+  },
+  "installed_advisory_commands": {
+    "status": "pass",
+    "entrypoint": "actual offline-installed Node wrapper and bundled release executable",
+    "advice_findings": 6,
+    "advice_ranges": 9,
+    "artifact_magic_offsets": [
+      3,
+      16
+    ],
+    "runtime_sha256": "5b226f63d825b6d760186aa72187cce28cbbd33b552b3c5994733b4bc21f8584",
+    "registry_publication": false
+  }
+}

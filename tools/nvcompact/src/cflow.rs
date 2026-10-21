@@ -1,14 +1,17 @@
 //! Bounded typed C source portfolios through Clang's JSON AST. Each changed
 //! pass is reparsed, unsupported constructs retain identity, and every final
 //! candidate still requires the application's real compile/verify contract.
+use crate::c_frontend::{FrontendConfig, FrontendSession, ParsedSource};
 use crate::notation::{lex, Token, Variant, MAX_SOURCE};
+#[cfg(test)]
 use crate::process::{run, Limits, Output};
-use anyhow::{bail, Context, Result};
-use regex::Regex;
+use anyhow::{bail, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::collections::{HashMap, HashSet};
-use std::path::{Path, PathBuf};
+#[cfg(test)]
+use std::path::Path;
+use std::path::PathBuf;
 
 pub const RULES: &[&str] = &[
     "if-return",
@@ -129,279 +132,51 @@ impl Default for CFlowOptions {
     }
 }
 
-pub fn validate_args(values: &[String]) -> Result<()> {
-    const PAIRED: &[&str] = &[
-        "-I",
-        "-isystem",
-        "-iquote",
-        "-D",
-        "-U",
-        "--target",
-        "-target",
-        "--sysroot",
-        "-isysroot",
-    ];
-    const FIXED: &[&str] = &[
-        "-m32",
-        "-m64",
-        "-mavx2",
-        "-msse4.2",
-        "-mcx16",
-        "-funsigned-char",
-        "-fsigned-char",
-        "-fshort-enums",
-        "-ffreestanding",
-        "-fno-builtin",
-        "-pthread",
-    ];
-    const PREFIX: &[&str] = &[
-        "-I",
-        "-D",
-        "-U",
-        "--target=",
-        "--sysroot=",
-        "-march=",
-        "-mcpu=",
-        "-mtune=",
-    ];
-    let mut i = 0;
-    while i < values.len() {
-        let v = &values[i];
-        if v.contains('\0') {
-            bail!("NUL in compiler argv");
-        }
-        if PAIRED.contains(&v.as_str()) {
-            let next = values
-                .get(i + 1)
-                .context("paired compiler option requires one literal operand")?;
-            if next.is_empty() || next.starts_with('-') || next.contains('\0') {
-                bail!("{v} requires one literal operand");
-            }
-            i += 2;
-        } else if FIXED.contains(&v.as_str())
-            || PREFIX.iter().any(|p| v.starts_with(p) && v.len() > p.len())
-        {
-            i += 1;
-        } else {
-            bail!("unsupported frontend argument {v:?}; only declared frontend/ABI inputs, no plugins/response files/output actions");
+pub use crate::c_frontend::validate_args;
+pub(crate) use crate::c_frontend::FrontendOutputLimit;
+#[cfg(test)]
+use crate::c_frontend::{check_frontend_output, frontend_syntax_probe};
+
+impl From<&CFlowOptions> for FrontendConfig {
+    fn from(options: &CFlowOptions) -> Self {
+        Self {
+            clang: options.clang.clone(),
+            standard: options.standard.clone(),
+            compiler_args: options.compiler_args.clone(),
+            source_path: options.source_path.clone(),
+            seconds: options.frontend_seconds,
+            memory_bytes: options.frontend_memory_bytes,
+            ast_bytes: options.ast_bytes,
         }
     }
-    Ok(())
-}
-fn resolve_executable(value: &str) -> Result<PathBuf> {
-    let p = Path::new(value);
-    if p.components().count() > 1 || p.is_absolute() {
-        let p = if p.is_absolute() {
-            p.to_owned()
-        } else {
-            std::env::current_dir()?.join(p)
-        };
-        if !p.is_file() {
-            bail!("Clang frontend unavailable: {}", p.display());
-        }
-        return Ok(p);
-    }
-    for dir in std::env::split_paths(&std::env::var_os("PATH").unwrap_or_default()) {
-        let p = dir.join(value);
-        if p.is_file() {
-            return Ok(if p.is_absolute() {
-                p
-            } else {
-                std::env::current_dir()?.join(p)
-            });
-        }
-    }
-    bail!("Clang frontend unavailable: {value}; provide a Clang path")
-}
-/// A bounded frontend capture is incomplete. This is not an AST, a successful
-/// parse, or evidence that no transformation applies. Callers only expose this
-/// error for AST/preprocessing stages after a separate syntax-only check passes.
-#[derive(Debug, Serialize)]
-pub(crate) struct FrontendOutputLimit {
-    label: String,
-    maximum_bytes: usize,
-    returncode: i32,
-    stdout_bytes: usize,
-    stderr_bytes: usize,
-    captured_stdout_sha256: String,
-    captured_stderr_sha256: String,
-    stderr_tail: String,
-    wall_seconds: f64,
 }
 
-impl std::fmt::Display for FrontendOutputLimit {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{} exceeded its {}-byte output budget (captured stdout {}, stderr {}, exit {}); frontend proof is incomplete",
-            self.label, self.maximum_bytes, self.stdout_bytes, self.stderr_bytes, self.returncode)
-    }
-}
-impl std::error::Error for FrontendOutputLimit {}
-
-pub(crate) fn check_frontend_output(
-    output: Output,
-    label: &str,
-    maximum: usize,
-) -> Result<Vec<u8>> {
-    if crate::process::cancelled() {
-        bail!("cancelled during frontend capture");
-    }
-    if output.output_limited && !output.timed_out {
-        return Err(FrontendOutputLimit {
-            label: label.into(),
-            maximum_bytes: maximum,
-            returncode: output.code,
-            stdout_bytes: output.stdout.len(),
-            stderr_bytes: output.stderr.len(),
-            captured_stdout_sha256: crate::sha256(&output.stdout),
-            captured_stderr_sha256: crate::sha256(&output.stderr),
-            stderr_tail: String::from_utf8_lossy(
-                &output.stderr[output.stderr.len().saturating_sub(8192)..],
-            )
-            .into_owned(),
-            wall_seconds: output.wall_seconds,
-        }
-        .into());
-    }
-    output.check(label)?;
-    Ok(output.stdout)
+fn analysis_from_snapshot(
+    source: &[u8],
+    snapshot: ParsedSource,
+    options: &CFlowOptions,
+    tokens: Vec<Token>,
+) -> Result<Analysis> {
+    Analysis::new(
+        std::str::from_utf8(source)?.to_owned(),
+        snapshot.tree,
+        snapshot.main_path,
+        snapshot.macros,
+        options.include_nonshrinking,
+        tokens,
+    )
 }
 
-/// Recognize only the two internally generated AST/preprocessing suffixes.
-/// Version/ABI commands and arbitrary argv never become optional capacity stops.
-pub(crate) fn frontend_syntax_probe(argv: &[String]) -> Option<Vec<String>> {
-    let n = argv.len();
-    let prefix = if n >= 4
-        && argv[n - 4] == "-fsyntax-only"
-        && argv[n - 3] == "-Xclang"
-        && argv[n - 2] == "-ast-dump=json"
-    {
-        n - 4
-    } else if n >= 3 && argv[n - 3] == "-E" && argv[n - 2] == "-dD" {
-        n - 3
-    } else {
-        return None;
-    };
-    let mut probe = argv[..prefix].to_vec();
-    probe.extend(["-fsyntax-only".into(), argv[n - 1].clone()]);
-    Some(probe)
-}
-
-struct Frontend {
-    options: CFlowOptions,
-    root: tempfile::TempDir,
-    executable: PathBuf,
-    executable_sha256: String,
-    cwd: PathBuf,
-    info: Value,
-}
-impl Frontend {
-    fn new(options: &CFlowOptions) -> Result<Self> {
-        let executable = resolve_executable(&options.clang)?;
-        let executable_sha256 = crate::sha256(&std::fs::read(&executable)?);
-        let cwd = if let Some(source_path) = &options.source_path {
-            source_path
-                .canonicalize()?
-                .parent()
-                .context("source has no parent")?
-                .to_owned()
-        } else {
-            std::env::current_dir()?
-        };
-        let mut result = Self {
-            options: options.clone(),
-            root: tempfile::tempdir()?,
-            executable,
-            executable_sha256,
-            cwd,
-            info: Value::Null,
-        };
-        let version = result.execute(
-            vec![
-                result.executable.to_string_lossy().into_owned(),
-                "--version".into(),
-            ],
-            65536,
-        )?;
-        let version = String::from_utf8_lossy(&version).trim().to_string();
-        if !version.to_ascii_lowercase().contains("clang version") {
-            bail!("--clang did not identify itself as Clang");
-        }
-        result.info = json!({"executable":result.executable,"executable_sha256":result.executable_sha256,"version":version,"standard":options.standard,"compiler_args":options.compiler_args,"source_include_directory":result.cwd,"seconds_per_parse":options.frontend_seconds,"address_space_bytes":options.frontend_memory_bytes,"ast_output_bytes":options.ast_bytes});
-        Ok(result)
-    }
-    fn execute(&self, argv: Vec<String>, bytes: usize) -> Result<Vec<u8>> {
-        let limits = Limits {
-            seconds: self.options.frontend_seconds,
-            memory_bytes: self.options.frontend_memory_bytes,
-            output_bytes: bytes,
-            cpu_seconds: self.options.frontend_seconds.ceil() as u64 + 1,
-            file_bytes: bytes as u64,
-        };
-        let output = run(&argv, b"", &self.cwd, &limits)?;
-        if crate::sha256(&std::fs::read(&self.executable)?) != self.executable_sha256 {
-            bail!("frontend changed during C condition analysis");
-        }
-        if output.output_limited && !output.timed_out {
-            if let Some(probe) = frontend_syntax_probe(&argv) {
-                let mut probe_limits = limits.clone();
-                probe_limits.output_bytes = bytes.min(65536);
-                probe_limits.file_bytes = probe_limits.output_bytes as u64;
-                let checked = run(&probe, b"", &self.cwd, &probe_limits)?;
-                if crate::sha256(&std::fs::read(&self.executable)?) != self.executable_sha256 {
-                    bail!("frontend changed during C condition capacity recheck");
-                }
-                checked.check("Clang syntax recheck after frontend output limit")?;
-                return check_frontend_output(output, "Clang frontend", bytes);
-            }
-        }
-        output.check("Clang frontend")?;
-        Ok(output.stdout)
-    }
-    fn parse(&self, source: &[u8]) -> Result<Analysis> {
-        let path = self.root.path().join("translation.c");
-        std::fs::write(&path, source)?;
-        let mut prefix = vec![
-            self.executable.to_string_lossy().into_owned(),
-            "-x".into(),
-            "c".into(),
-            format!("-std={}", self.options.standard),
-        ];
-        prefix.extend(self.options.compiler_args.clone());
-        prefix.extend(["-iquote".into(), self.cwd.to_string_lossy().into_owned()]);
-        let mut argv = prefix.clone();
-        argv.extend([
-            "-fsyntax-only".into(),
-            "-Xclang".into(),
-            "-ast-dump=json".into(),
-            path.to_string_lossy().into_owned(),
-        ]);
-        let tree: Value = serde_json::from_slice(&self.execute(argv, self.options.ast_bytes)?)
-            .context("Clang AST JSON is invalid or exceeds the supported nesting depth")?;
-        if tree["kind"] != "TranslationUnitDecl" {
-            bail!("unsupported Clang AST JSON shape");
-        }
-        prefix.extend([
-            "-E".into(),
-            "-dD".into(),
-            path.to_string_lossy().into_owned(),
-        ]);
-        let definitions = self.execute(prefix, self.options.ast_bytes)?;
-        let definitions = String::from_utf8_lossy(&definitions);
-        // Preserve every encountered macro, including a definition later
-        // undefined. Empty expansions and _Pragma effects may have no AST node.
-        let re = Regex::new(r"(?m)^\s*#\s*define\s+([A-Za-z_][A-Za-z_0-9]*)")?;
-        let macros = re
-            .captures_iter(&definitions)
-            .map(|c| c[1].to_string())
-            .collect();
-        Analysis::new(
-            std::str::from_utf8(source)?.to_owned(),
-            tree,
-            path.to_string_lossy().into_owned(),
-            macros,
-            self.options.include_nonshrinking,
-        )
-    }
+fn parse_analysis(
+    frontend: &FrontendSession,
+    source: &[u8],
+    options: &CFlowOptions,
+) -> Result<Analysis> {
+    let tokens = lex(std::str::from_utf8(source)?, "c")?
+        .into_iter()
+        .filter(|t| !matches!(t.kind, "space" | "comment"))
+        .collect();
+    analysis_from_snapshot(source, frontend.parse(source, true)?, options, tokens)
 }
 
 #[derive(Clone, Debug)]
@@ -432,11 +207,12 @@ struct Analysis {
     include_nonshrinking: bool,
 }
 fn flatten(mut value: Value, parent: Option<usize>, nodes: &mut Vec<Node>) -> usize {
-    let inner = value
-        .as_object_mut()
-        .and_then(|m| m.remove("inner"))
-        .and_then(|x| x.as_array().cloned())
-        .unwrap_or_default();
+    // The removed array is already owned. Cloning it here recursively copied
+    // every descendant again at each ancestor before flattening the same AST.
+    let inner = match value.as_object_mut().and_then(|m| m.remove("inner")) {
+        Some(Value::Array(inner)) => inner,
+        _ => Vec::new(),
+    };
     let id = nodes.len();
     nodes.push(Node {
         value,
@@ -486,11 +262,8 @@ impl Analysis {
         main_path: String,
         macros: HashSet<String>,
         include_nonshrinking: bool,
+        tokens: Vec<Token>,
     ) -> Result<Self> {
-        let tokens = lex(&source, "c")?
-            .into_iter()
-            .filter(|t| !matches!(t.kind, "space" | "comment"))
-            .collect();
         let mut result = Self {
             source,
             nodes: vec![],
@@ -1304,6 +1077,31 @@ fn apply_pass(analysis: &Analysis, enabled: &HashSet<&str>) -> Result<(Vec<u8>, 
 }
 
 pub fn generate_variants(source: &[u8], options: &CFlowOptions) -> Result<Vec<Variant>> {
+    generate_variants_inner(source, options, None)
+}
+
+fn undiscovered_coverage(options: &CFlowOptions, reason: &str) -> Value {
+    json!({"scope":"registered guarded C flow recipes","status":"inapplicable",
+        "reason":reason,"discovery":"not performed","generated_variants":1,
+        "max_variants":options.max_variants,"max_passes":options.max_passes,
+        "individual_edit_limit":options.individual_edits,"all_edit_combinations_explored":false})
+}
+
+pub(crate) fn generate_variants_with_snapshot(
+    source: &[u8],
+    options: &CFlowOptions,
+    frontend: &FrontendSession,
+    snapshot: &ParsedSource,
+    tokens: &[Token],
+) -> Result<Vec<Variant>> {
+    generate_variants_inner(source, options, Some((frontend, snapshot, tokens)))
+}
+
+fn generate_variants_inner(
+    source: &[u8],
+    options: &CFlowOptions,
+    prepared: Option<(&FrontendSession, &ParsedSource, &[Token])>,
+) -> Result<Vec<Variant>> {
     if source.len() > MAX_SOURCE {
         bail!("source exceeds {MAX_SOURCE} bytes");
     }
@@ -1313,24 +1111,13 @@ pub fn generate_variants(source: &[u8], options: &CFlowOptions) -> Result<Vec<Va
     ) {
         bail!("unknown source/token contract");
     }
-    if !matches!(options.standard.as_str(), "c11" | "c17" | "gnu11" | "gnu17") {
-        bail!("supported C standards: c11, c17, gnu11, gnu17");
-    }
     if !(1..=128).contains(&options.max_variants)
         || !(1..=8).contains(&options.max_passes)
         || options.individual_edits > 128
     {
         bail!("max_variants must be 1..128, max_passes 1..8 and individual_edits 0..128");
     }
-    if !options.frontend_seconds.is_finite()
-        || options.frontend_seconds <= 0.0
-        || options.frontend_seconds > 300.0
-        || options.frontend_memory_bytes < 64 << 20
-        || !(65536..=128 << 20).contains(&options.ast_bytes)
-    {
-        bail!("frontend budget outside supported bounds");
-    }
-    validate_args(&options.compiler_args)?;
+    FrontendConfig::from(options).validate()?;
     let mut contract = json!({"language":"c","token_contract":options.token_contract,"standard":options.standard,"source_sha256":crate::sha256(source),"compiler_args":options.compiler_args,"include_nonshrinking":options.include_nonshrinking,"individual_edits":options.individual_edits,"required_acceptance":"fixed compatible frontend/ABI, compilation and application verification; final submitted-file size selection","proof_scope":"guarded local C rules; not whole-program equivalence proof","implementation":"native Rust"});
     let mut result = vec![Variant::new(
         "raw",
@@ -1354,6 +1141,7 @@ pub fn generate_variants(source: &[u8], options: &CFlowOptions) -> Result<Vec<Va
     };
     if let Some(reason) = reason {
         result[0].notes.push(format!("identity only: {reason}"));
+        result[0].contract["generation"] = undiscovered_coverage(options, reason);
         return Ok(result);
     }
     let text = match std::str::from_utf8(source) {
@@ -1362,21 +1150,47 @@ pub fn generate_variants(source: &[u8], options: &CFlowOptions) -> Result<Vec<Va
             result[0]
                 .notes
                 .push("identity only: unsupported source encoding; UTF-8 required".into());
+            result[0].contract["generation"] =
+                undiscovered_coverage(options, "unsupported source encoding; UTF-8 required");
             return Ok(result);
         }
     };
-    let tokens = lex(text, "c")?;
+    let tokens = if let Some((_, _, tokens)) = prepared {
+        tokens.to_vec()
+    } else {
+        lex(text, "c")?
+            .into_iter()
+            .filter(|t| !matches!(t.kind, "space" | "comment"))
+            .collect()
+    };
     if tokens.iter().any(|t| {
         t.kind == "punct" && !C_PUNCT.contains(&t.text.as_str())
             || !matches!(t.kind, "quoted" | "comment" | "space" | "directive") && !t.text.is_ascii()
     }) {
         result[0].notes.push("identity only: unsupported preprocessing token/identifier spelling; ASCII identifier splice boundaries are required".into());
+        result[0].contract["generation"] = undiscovered_coverage(
+            options,
+            "unsupported preprocessing token/identifier spelling",
+        );
         return Ok(result);
     }
-    let frontend = Frontend::new(options)?;
+    let owned_frontend;
+    let (frontend, original) = if let Some((frontend, snapshot, _)) = prepared {
+        if !frontend.matches(&FrontendConfig::from(options)) {
+            bail!("flow frontend configuration differs from prepared snapshot");
+        }
+        (
+            frontend,
+            analysis_from_snapshot(source, snapshot.clone(), options, tokens)?,
+        )
+    } else {
+        owned_frontend = FrontendSession::new(FrontendConfig::from(options), false)?;
+        let original =
+            analysis_from_snapshot(source, owned_frontend.parse(source, true)?, options, tokens)?;
+        (&owned_frontend, original)
+    };
     contract["frontend"] = frontend.info.clone();
     result[0].contract = contract.clone();
-    let original = frontend.parse(source)?;
     let mut recipes = vec![(
         "c-all".to_string(),
         RULES.iter().copied().collect::<HashSet<_>>(),
@@ -1384,6 +1198,8 @@ pub fn generate_variants(source: &[u8], options: &CFlowOptions) -> Result<Vec<Va
     for rule in RULES {
         recipes.push((format!("c-{rule}"), HashSet::from([*rule])));
     }
+    let registered_recipes = recipes.len();
+    let selected_recipes = (options.max_variants - 1).min(registered_recipes);
     for (id, enabled) in recipes.into_iter().take(options.max_variants - 1) {
         let mut data = source.to_vec();
         let mut audits = vec![];
@@ -1395,7 +1211,7 @@ pub fn generate_variants(source: &[u8], options: &CFlowOptions) -> Result<Vec<Va
             if records.is_empty() {
                 break;
             }
-            let checked = frontend.parse(&changed)?;
+            let checked = parse_analysis(frontend, &changed, options)?;
             let affected: HashSet<_> = records
                 .iter()
                 .filter_map(|r| r["function"].as_str())
@@ -1433,6 +1249,12 @@ pub fn generate_variants(source: &[u8], options: &CFlowOptions) -> Result<Vec<Va
     individuals.sort_by(|a, b| {
         (a.start, a.end, &a.rule, &a.text).cmp(&(b.start, b.end, &b.rule, &b.text))
     });
+    let discovered_individual_edits = individuals.len();
+    let selected_individual_edits = options
+        .individual_edits
+        .min(options.max_variants - result.len())
+        .min(discovered_individual_edits);
+    let before_individuals = result.len();
     for (ordinal, e) in individuals
         .into_iter()
         .take(
@@ -1444,7 +1266,7 @@ pub fn generate_variants(source: &[u8], options: &CFlowOptions) -> Result<Vec<Va
     {
         let mut data = original.source.clone();
         data.replace_range(e.start..e.end, &e.text);
-        let checked = frontend.parse(data.as_bytes())?;
+        let checked = parse_analysis(frontend, data.as_bytes(), options)?;
         if !checked
             .functions
             .iter()
@@ -1462,6 +1284,15 @@ pub fn generate_variants(source: &[u8], options: &CFlowOptions) -> Result<Vec<Va
             contract.clone(),
         ));
     }
+    result[0].contract["generation"] = json!({
+        "scope":"registered greedy non-overlap rule recipes plus bounded individual edits; not the edit powerset",
+        "registered_rule_recipes":registered_recipes,"selected_rule_recipes":selected_recipes,
+        "discovered_individual_edits":discovered_individual_edits,"selected_individual_edits":selected_individual_edits,
+        "emitted_individual_variants":result.len()-before_individuals,"max_variants":options.max_variants,
+        "generated_variants":result.len(),
+        "individual_edit_limit":options.individual_edits,"max_passes":options.max_passes,
+        "source_ast_reused":prepared.is_some(),"registered_recipe_space_exhausted":selected_recipes==registered_recipes && selected_individual_edits==discovered_individual_edits,
+        "all_edit_combinations_explored":false});
     Ok(result)
 }
 
@@ -1522,7 +1353,7 @@ mod tests {
 
     fn options() -> Option<CFlowOptions> {
         let clang = std::env::var("NVCOMPACT_CLANG").unwrap_or_else(|_| "clang".into());
-        if resolve_executable(&clang).is_err() {
+        if crate::process::resolve_tool(&clang).is_err() {
             eprintln!("Clang-dependent fixture not executed: set NVCOMPACT_CLANG");
             return None;
         }

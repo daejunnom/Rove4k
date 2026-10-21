@@ -43,6 +43,23 @@ native executable과 package.json 외 파일의 동일성은 별도로 확인한
 공개 패키지 이름과 실행 명령은 모두 **`nvcompact`**다. 소스는 Rove4k의 내부
 도구로 관리하며, npm 공개 단위만 별도로 둔다. 루트 workspace는 계속 private다.
 
+### 현재 직접 OIDC 경로와 배포 이력
+
+2026-10-21 `nvcompact@0.5.0`을 `operation=publish`로 직접 OIDC 게시했다.
+source는 main `5d230828c211b2d8281932ae9f849db7783c55f0`이며,
+[release run 39564495923의 attempt 3](https://github.com/daejunnom/Rove4k/actions/runs/39564495923/attempts/3)에서
+package·publish job 성공, npm provenance와 실제 `+ nvcompact@0.5.0` 출력을 확인했다.
+그 전에 실패한 direct 권한 요청과 이후 설정 수정은 [PR #15](https://github.com/daejunnom/Rove4k/pull/15)에 보존한다.
+따라서 기존 연결을 사용하는 후속 배포는 아래 `publish` 경로를 사용할 수 있다.
+과거 stage 게시가 있었다는 이유로 별도 stage·2FA 단계를 후속 direct 배포의 필수 조건으로 만들지 않는다.
+
+0.6.0의 변경과 지원 경계는 [릴리스 노트](RELEASE-0.6.ko.md)에 둔다.
+실제 공개 완료 여부는 해당 버전의 registry와 정확한 main SHA로 실행한
+[NVCompact release](https://github.com/daejunnom/Rove4k/actions/workflows/nvcompact-publish.yml)의 결과를 대조한다.
+source version 갱신, PR 검사 통과, main 통합과 npm 공개는 각각 별도 상태다.
+
+### 이전 bootstrap 기록
+
 2026-10-19 최초 게시 후 `nvcompact@0.4.1`을 npm에 공개했다.
 0.4.1은 GitHub OIDC로 staged 게시하고 별도 npm 2FA 승인 후 공개했으며,
 공개 registry에서 tarball과 native runtime 식별을 확인했다.
@@ -214,15 +231,16 @@ job에만 그 권한을 둔다. GitHub가 발급한 OIDC 환경을 요구하고 
 확인한 뒤 전달한다. provenance도 함께 요청한다. 현재 공식 npm 지원 범위에서 public
 repository/public package의 GitHub OIDC 게시에는 provenance가 생성된다.
 
-예를 들어 GitHub CLI를 쓰는 경우 다음은 **사용자가 선택한 stage 요청**이다.
-`<MAIN_SHA>`는 검토한 현재 main 커밋으로 바꾼다. `prepare`를 선택하면 npm 업로드 없이
-동일한 빌드 산출물을 확인할 수 있다.
+기존 direct OIDC 연결을 사용하는 후속 배포 예시는 다음과 같다.
+`<MAIN_SHA>`는 검토와 PR 검사를 마쳐 병합한 현재 main의 40자리 SHA로 바꾼다.
+이 요청은 package job의 build/test/pack/설치 검사를 먼저 통과해야 게시 job으로 진행한다.
+`prepare`를 선택하면 npm 업로드 없이 동일한 빌드 산출물을 확인할 수 있다.
 
 ```sh
-gh workflow run nvcompact-publish.yml --ref main -f version=0.4.1 -f commit='<MAIN_SHA>' -f operation=stage
+gh workflow run nvcompact-publish.yml --repo daejunnom/Rove4k --ref main -f version=0.6.0 -f commit='<MAIN_SHA>' -f operation=publish
 ```
 
-stage 결과는 npm package 페이지 또는 `npm stage list nvcompact`로 검토하고,
+별도로 `stage`를 선택한 경우 그 결과는 npm package 페이지 또는 `npm stage list nvcompact`로 검토하고,
 출력된 stage ID를 대상으로 `npm stage approve <STAGE_ID>`에서 계정 2FA로 승인한다.
 최초 0.4.0을 수동 게시한 뒤에는 같은 0.4.0을 OIDC로 다시 게시하지 않는다.
 

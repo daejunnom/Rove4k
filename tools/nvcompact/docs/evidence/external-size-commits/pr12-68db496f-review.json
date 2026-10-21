@@ -1,0 +1,385 @@
+{
+  "schema": "nvcompact.pr12-pinned-source-review.v1",
+  "review_date": "2026-10-21",
+  "pr": 12,
+  "pinned_head": "68db496f478735411e2036231f03e3f35c76f088",
+  "historical_handoff_heads": [
+    "0e716e0b366272c66749f6e7194f64cb715e2d00",
+    "8abcbc3a4af0ef02435ca1ba52f10b43715bf99c"
+  ],
+  "scope": "Read-only source/diff/recipe review. No generation, compilation, codec, engine, loader, UCI or games executed. No later PR12 head used.",
+  "files": [
+    {
+      "path": "engines/scripts/shipping_clock.py",
+      "blob_oid": "257d505fdec4b18cb321b0e63cd0530414de628f",
+      "bytes": 8316,
+      "sha256": "46c19879deae1d056f4b059c6c7d9667a3e935110dfb33015b29fd0dec4d8c43",
+      "review_scope": "full new helper source",
+      "url": "https://github.com/daejunnom/Rove4k/blob/68db496f478735411e2036231f03e3f35c76f088/engines/scripts/shipping_clock.py"
+    },
+    {
+      "path": "engines/scripts/shipping_includes.py",
+      "blob_oid": "62b13a2e45110bf4194e95afecc354d726f4a6fb",
+      "bytes": 7186,
+      "sha256": "d7c3ad6e7811d848b0d6bab7331c929ab2c3175cd030438ddc81d22ea8cdf4bc",
+      "review_scope": "full new helper source",
+      "url": "https://github.com/daejunnom/Rove4k/blob/68db496f478735411e2036231f03e3f35c76f088/engines/scripts/shipping_includes.py"
+    },
+    {
+      "path": "engines/scripts/shipping_mixer_literals.py",
+      "blob_oid": "3ece20691a53f1e174467499e2892f32b56f24f4",
+      "bytes": 6026,
+      "sha256": "7b25cb806a51cad9e867ebc588bcb99677c9e2f9d0a5df0b31d019e22bc6d114",
+      "review_scope": "full new helper source",
+      "url": "https://github.com/daejunnom/Rove4k/blob/68db496f478735411e2036231f03e3f35c76f088/engines/scripts/shipping_mixer_literals.py"
+    },
+    {
+      "path": "engines/compact/tiny-entry-b/shipping_guard.py",
+      "blob_oid": "c4eb3b48212ce72dab2d75a4e5f64aa7a68ed856",
+      "bytes": 2895,
+      "sha256": "af47d979479a95026c8516d49b762d9db2175c0d39117d1ee89872bd3ad97048",
+      "review_scope": "full new helper source",
+      "url": "https://github.com/daejunnom/Rove4k/blob/68db496f478735411e2036231f03e3f35c76f088/engines/compact/tiny-entry-b/shipping_guard.py"
+    },
+    {
+      "path": "engines/compact/tiny-entry-b/shipping_line_drain.py",
+      "blob_oid": "2654127d3994878952d487627a7ab8481a3e2b4d",
+      "bytes": 2593,
+      "sha256": "8f613988384235f8af8114ff39236cbf831f1aaccd5d9160a70d688e6d03bc01",
+      "review_scope": "full new helper source",
+      "url": "https://github.com/daejunnom/Rove4k/blob/68db496f478735411e2036231f03e3f35c76f088/engines/compact/tiny-entry-b/shipping_line_drain.py"
+    },
+    {
+      "path": "engines/compact/tiny-entry-f/shipping_clamp.py",
+      "blob_oid": "4b875f6d4abeccccddcdee93517f55bc71cf4503",
+      "bytes": 2126,
+      "sha256": "54f7b75e3b5adfa4c012d1c7c8acf5b17013cff8ba848f0fbf39907d0dec64a7",
+      "review_scope": "full new helper source",
+      "url": "https://github.com/daejunnom/Rove4k/blob/68db496f478735411e2036231f03e3f35c76f088/engines/compact/tiny-entry-f/shipping_clamp.py"
+    },
+    {
+      "path": "engines/compact/tiny-entry-f/shipping_source_forms.py",
+      "blob_oid": "67f7afb9b3a768a980ec335ba5228d48efea1b0b",
+      "bytes": 3139,
+      "sha256": "54e34ccf0889a01b5603492081b3058bbfe98770b545ef9652b32250a5647697",
+      "review_scope": "full new helper source",
+      "url": "https://github.com/daejunnom/Rove4k/blob/68db496f478735411e2036231f03e3f35c76f088/engines/compact/tiny-entry-f/shipping_source_forms.py"
+    },
+    {
+      "path": "engines/compact/tiny-entry-f/shipping_result_stream.py",
+      "blob_oid": "ce5c39cdab1427cfd4145086b7fe14ed668e5887",
+      "bytes": 3463,
+      "sha256": "326921d09da32c97193f126c002815d72b475b067d77871f21fb49567e4ecaad",
+      "review_scope": "full new helper source",
+      "url": "https://github.com/daejunnom/Rove4k/blob/68db496f478735411e2036231f03e3f35c76f088/engines/compact/tiny-entry-f/shipping_result_stream.py"
+    },
+    {
+      "path": "engines/compact/tiny-entry-e/shipping_zero_slots.py",
+      "blob_oid": "ab0ac1336cb19ca0e2e99aa0f2c4f8b166ec0a87",
+      "bytes": 8167,
+      "sha256": "f15f17881ab84eaee88f130b782b23b2019e15dd2d44302fb26bbe9e8ea2ec6c",
+      "review_scope": "full new helper source",
+      "url": "https://github.com/daejunnom/Rove4k/blob/68db496f478735411e2036231f03e3f35c76f088/engines/compact/tiny-entry-e/shipping_zero_slots.py"
+    },
+    {
+      "path": "engines/compact/tiny-entry-d/native/board.c",
+      "blob_oid": "79793e7983b6814bb8c4458d417108a50beca2ee",
+      "bytes": 9068,
+      "sha256": "3a4c6f30c28581d576c4f0e40df7b4e6992027ab30edf00d384a76b763f9a935",
+      "review_scope": "diff against 8abcbc3a4af0ef02435ca1ba52f10b43715bf99c",
+      "url": "https://github.com/daejunnom/Rove4k/blob/68db496f478735411e2036231f03e3f35c76f088/engines/compact/tiny-entry-d/native/board.c"
+    },
+    {
+      "path": "engines/compact/tiny-entry-d/native/search.c",
+      "blob_oid": "a013bb52f4e2e2ca626c2c3647433926c81883ef",
+      "bytes": 6102,
+      "sha256": "ba4e6e2489c71a234e069fc64d0ed00300b370ef11f95cbcae231c99b01fa81a",
+      "review_scope": "diff against 8abcbc3a4af0ef02435ca1ba52f10b43715bf99c",
+      "url": "https://github.com/daejunnom/Rove4k/blob/68db496f478735411e2036231f03e3f35c76f088/engines/compact/tiny-entry-d/native/search.c"
+    },
+    {
+      "path": "engines/compact/tiny-entry-b/build.py",
+      "blob_oid": "929d72a8f831932763db2115f3981e33a098f817",
+      "bytes": 15932,
+      "sha256": "9abca2a4e5fc9659535a494c0c5448c9bc8f263dc89f4b2ff124618d71d579ca",
+      "review_scope": "diff against 8abcbc3a4af0ef02435ca1ba52f10b43715bf99c",
+      "url": "https://github.com/daejunnom/Rove4k/blob/68db496f478735411e2036231f03e3f35c76f088/engines/compact/tiny-entry-b/build.py"
+    },
+    {
+      "path": "engines/compact/tiny-entry-e/build.py",
+      "blob_oid": "6618754175d056db4b15f446ace91e0fa01c8218",
+      "bytes": 14566,
+      "sha256": "ea4164d9b84e9c7c79cb42eb745414673e0695bacdf88f8742ae6805a896c9df",
+      "review_scope": "diff against 8abcbc3a4af0ef02435ca1ba52f10b43715bf99c",
+      "url": "https://github.com/daejunnom/Rove4k/blob/68db496f478735411e2036231f03e3f35c76f088/engines/compact/tiny-entry-e/build.py"
+    },
+    {
+      "path": "engines/compact/tiny-entry-f/build.py",
+      "blob_oid": "e75942e87c23d070cd75a3ab7411d3a1c0766418",
+      "bytes": 30465,
+      "sha256": "cf77777532aee530743ca27cb088c4b63882ba2414f24e3164ac9a5f8a7b0ea7",
+      "review_scope": "diff against 8abcbc3a4af0ef02435ca1ba52f10b43715bf99c",
+      "url": "https://github.com/daejunnom/Rove4k/blob/68db496f478735411e2036231f03e3f35c76f088/engines/compact/tiny-entry-f/build.py"
+    },
+    {
+      "path": "engines/compact/tiny-entry-a/bootstrap.py.in",
+      "blob_oid": "268a092507a2c03965110c5d0e7652ad86d45a8c",
+      "bytes": 985,
+      "sha256": "3798a484339095f5b9da63abc4148fd860b11de59cfc66fb08b6c5a0a688c0b9",
+      "review_scope": "diff against 8abcbc3a4af0ef02435ca1ba52f10b43715bf99c",
+      "url": "https://github.com/daejunnom/Rove4k/blob/68db496f478735411e2036231f03e3f35c76f088/engines/compact/tiny-entry-a/bootstrap.py.in"
+    },
+    {
+      "path": "engines/compact/tiny-entry-b/bootstrap.py.in",
+      "blob_oid": "b36f86234d5a568c1e0a902f741e8bc1c6f43f10",
+      "bytes": 1060,
+      "sha256": "66cb9e8bfe64b1c1a7f10dff77ae5c83f51b535a81d5e4252fe5460ba4e64e2e",
+      "review_scope": "diff against 8abcbc3a4af0ef02435ca1ba52f10b43715bf99c",
+      "url": "https://github.com/daejunnom/Rove4k/blob/68db496f478735411e2036231f03e3f35c76f088/engines/compact/tiny-entry-b/bootstrap.py.in"
+    },
+    {
+      "path": "engines/compact/tiny-entry-a/recipe.json",
+      "blob_oid": "ac2f54292e7837c7238fc686ca91e40851a97417",
+      "bytes": 70754,
+      "sha256": "2808215e2bc4ab711661e9431405e26377540f215240b47b2903dc725b53a1ba",
+      "review_scope": "profile and expected identities; selected change metadata",
+      "url": "https://github.com/daejunnom/Rove4k/blob/68db496f478735411e2036231f03e3f35c76f088/engines/compact/tiny-entry-a/recipe.json"
+    },
+    {
+      "path": "engines/compact/tiny-entry-b/recipe.json",
+      "blob_oid": "32c2f786e5821c6ae0de7ca9351d2e8054959aff",
+      "bytes": 71240,
+      "sha256": "d2996ee9cceb9a04f6c4522ac39b1e6da5fd01a69c85828947b307df7fb0d454",
+      "review_scope": "profile and expected identities; selected change metadata",
+      "url": "https://github.com/daejunnom/Rove4k/blob/68db496f478735411e2036231f03e3f35c76f088/engines/compact/tiny-entry-b/recipe.json"
+    },
+    {
+      "path": "engines/compact/tiny-entry-c/recipe.json",
+      "blob_oid": "7962c77ef80e09e67e6042d04c92888d3c859f6f",
+      "bytes": 65977,
+      "sha256": "831610e82a5fd61748545dd50ae500bd5d0ee3f935e5d1e2d80451b40437d08b",
+      "review_scope": "profile and expected identities; selected change metadata",
+      "url": "https://github.com/daejunnom/Rove4k/blob/68db496f478735411e2036231f03e3f35c76f088/engines/compact/tiny-entry-c/recipe.json"
+    },
+    {
+      "path": "engines/compact/tiny-entry-d/recipe.json",
+      "blob_oid": "43a18d57c89e98a41dfc762ed296d92ebf74ada6",
+      "bytes": 56710,
+      "sha256": "e8071dee083fcd288b0f3e0ee5a70f0793104e9cff69ad58d69c81d26c0b7adf",
+      "review_scope": "profile and expected identities; selected change metadata",
+      "url": "https://github.com/daejunnom/Rove4k/blob/68db496f478735411e2036231f03e3f35c76f088/engines/compact/tiny-entry-d/recipe.json"
+    },
+    {
+      "path": "engines/compact/tiny-entry-e/recipe.json",
+      "blob_oid": "e5f3507f4f37b0d01de9e7c1bb23f8fcfcfa2c7b",
+      "bytes": 58757,
+      "sha256": "246a8f5a43c6382aba529103eedaeb74195fa4eb973baea5911dc9915d1ec2d4",
+      "review_scope": "profile and expected identities; selected change metadata",
+      "url": "https://github.com/daejunnom/Rove4k/blob/68db496f478735411e2036231f03e3f35c76f088/engines/compact/tiny-entry-e/recipe.json"
+    },
+    {
+      "path": "engines/compact/tiny-entry-f/recipe.json",
+      "blob_oid": "473488d1ac853597e85683fb900144efa929a44c",
+      "bytes": 174420,
+      "sha256": "a190898c9a4df5b3bbaa4704d23c1f3bade73ffbdd9a41b3923bd8c6c1b4e637",
+      "review_scope": "profile and expected identities; selected change metadata",
+      "url": "https://github.com/daejunnom/Rove4k/blob/68db496f478735411e2036231f03e3f35c76f088/engines/compact/tiny-entry-f/recipe.json"
+    },
+    {
+      "path": "docs/ENGINE-IMPLEMENTATION.md",
+      "blob_oid": "67fd9a4ebd94f2a9429e672546b51af73eda9f29",
+      "bytes": 426041,
+      "sha256": "03a539cb6e550b28c176df98d481a5c4c2ff88d87b1688f822a6ec59628a642a",
+      "review_scope": "late implementation sections and recorded qualification limits",
+      "url": "https://github.com/daejunnom/Rove4k/blob/68db496f478735411e2036231f03e3f35c76f088/docs/ENGINE-IMPLEMENTATION.md"
+    }
+  ],
+  "profiles": [
+    {
+      "family": "A",
+      "variant": "default",
+      "declared_profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev_default": false
+      },
+      "expected": {
+        "source_bytes": 9040,
+        "source_sha256": "624ad8a28a9d555fda37efa82b468fce09f98d4c5b86b20739ee2e6f589ff5a8",
+        "native_bytes": 18576,
+        "native_sha256": "b8d29dd14f32a58c4e930630da18bb3c406a87ce9600dbf99ac925ffa1b94ee9",
+        "whole_bytes": 4610,
+        "whole_sha256": "aebb5005720b1793d1bc963c59b73ae481f857a3565172fe3946fae2b0f57bc0"
+      },
+      "read_from": "engines/compact/tiny-entry-a/recipe.json",
+      "measured_in_this_review": false
+    },
+    {
+      "family": "B",
+      "variant": "default",
+      "declared_profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev_default": false
+      },
+      "expected": {
+        "source_bytes": 10548,
+        "source_sha256": "d91416e56e2b7716b9df2bec5db22c1f9d3f6ded5598d80741d68487ecc09bbb",
+        "native_bytes": 26304,
+        "native_sha256": "456956420deddff56280323fdba19812256772929ab8179e9fc28233ddead5c7",
+        "whole_bytes": 5144,
+        "whole_sha256": "fa2196f2093d5701f946415260bb426b7f7f1feb6e6dc776b834bae5449fff21"
+      },
+      "read_from": "engines/compact/tiny-entry-b/recipe.json",
+      "measured_in_this_review": false
+    },
+    {
+      "family": "C",
+      "variant": "default",
+      "declared_profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev_default": false
+      },
+      "expected": {
+        "source_bytes": 10072,
+        "source_sha256": "fc2209ce96c714d3828790cae882051f8cbf8980f4e874381954280f0c9d17a3",
+        "native_bytes": 26368,
+        "native_sha256": "cffa6827915d2ee4c0dfcdc941e773c3157a07db6b153437c483d2f26e7c50f2",
+        "whole_bytes": 4952,
+        "whole_sha256": "824609ce753cb0e18d51db0532c0139e2a134113b7731393182bee4b537d78d0"
+      },
+      "read_from": "engines/compact/tiny-entry-c/recipe.json",
+      "measured_in_this_review": false
+    },
+    {
+      "family": "D",
+      "variant": "scalar-shipping",
+      "declared_profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev": 0
+      },
+      "expected": {
+        "native_bytes": 7708,
+        "native_sha256": "515621f694c5fdefa325436ef25455fd581edbc694348415780983b47f2fb494",
+        "whole_bytes": 5937,
+        "whole_sha256": "bab0553b121cb926456d4b86dbeca24aaa4158455183f08d87bf14e006dd46b8",
+        "payload_bytes": 4800,
+        "loader_and_headers_bytes": 1137
+      },
+      "read_from": "engines/compact/tiny-entry-d/recipe.json",
+      "measured_in_this_review": false
+    },
+    {
+      "family": "D",
+      "variant": "hq-shipping",
+      "declared_profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev": 0
+      },
+      "expected": {
+        "native_bytes": 8096,
+        "native_sha256": "72d7483dca8ccb5bb8a9599a36ac863de4b561abbfd1aa5552faf1f3ace11e9b",
+        "whole_bytes": 6148,
+        "whole_sha256": "85f9450491df8002401eae8f97af1ec517a729767cdb9d5f9075b460f989fbac",
+        "payload_bytes": 5011,
+        "loader_and_headers_bytes": 1137
+      },
+      "read_from": "engines/compact/tiny-entry-d/recipe.json",
+      "measured_in_this_review": false
+    },
+    {
+      "family": "E",
+      "variant": "default",
+      "declared_profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev_default": false
+      },
+      "expected": {
+        "source_bytes": 10400,
+        "source_sha256": "431bdde48fd1f2d450bb92dd6c03e3309017158353de06bfe4fffd0bc96c839e",
+        "native_bytes": 26400,
+        "native_sha256": "dd9015f8a5960a4595d2da5dfc09d6fae24bed1d2e7b1698b1e50245d42da0e0",
+        "whole_bytes": 5011,
+        "whole_sha256": "9bcc5310b5410f72da9cab0a1156d1079ad6cb9344914e77f68cccc5c2442f04"
+      },
+      "read_from": "engines/compact/tiny-entry-e/recipe.json",
+      "measured_in_this_review": false
+    },
+    {
+      "family": "F",
+      "variant": "default",
+      "declared_profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev_default": false
+      },
+      "expected": {
+        "source_bytes": 8821,
+        "source_sha256": "00c48b5c6d74a45d68fe8280d45648e4405763c6c5742d8e11ed9736c71beb9c",
+        "native_bytes": 18576,
+        "native_sha256": "3554b0309d686aaeeb20b10454047dc21548c4533e08e552680554d0e20d972d",
+        "whole_bytes": 4537,
+        "whole_sha256": "89bade10f09691eefeab94149ed2fee94a36d6c1598c5da65ddb27e61771c2ad"
+      },
+      "read_from": "engines/compact/tiny-entry-f/recipe.json",
+      "measured_in_this_review": false
+    },
+    {
+      "family": "F",
+      "variant": "material-noise",
+      "declared_profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev_default": false
+      },
+      "expected": {
+        "source_bytes": 8508,
+        "source_sha256": "a7b50f5d084b558c1fb07f3c4c572afa29291a4982ddd00fd783f187a3f74c93",
+        "native_bytes": 18576,
+        "native_sha256": "24ae0622c5a0fd10191950f53e0f6ea5d3e3d05fbb1b20aaa72c2b5f2754873f",
+        "whole_bytes": 4325,
+        "whole_sha256": "34ca1a41f20ab5fa400eda498a1773ba82f28715a814458e1d6d6ef0d45c893d"
+      },
+      "read_from": "engines/compact/tiny-entry-f/recipe.json",
+      "measured_in_this_review": false
+    },
+    {
+      "family": "F",
+      "variant": "material-move-tt",
+      "declared_profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev_default": false
+      },
+      "expected": {
+        "source_bytes": 7741,
+        "source_sha256": "6d3fa3e0099285dd9efe8934f7b419fdd204f80ed4eaf502ad64a9f5b2e12122",
+        "native_bytes": 18576,
+        "native_sha256": "1a964e23bc8967b6eb74714389b4d94fd0e505d5d1eba3616775b7e4b0a522d5",
+        "whole_bytes": 4051,
+        "whole_sha256": "10b77cdc01cf577b37c85c7a5ead373e77f2b7e58a67fcec917b53572c966a56"
+      },
+      "read_from": "engines/compact/tiny-entry-f/recipe.json",
+      "measured_in_this_review": false
+    }
+  ],
+  "limits": [
+    "Recipe sizes and recorded checks are historical author evidence, not newly reproduced measurements.",
+    "The older PR13 minima were produced from another pinned source/recipe and are not additive improvements or a same-input regression baseline for this head.",
+    "Two-worker/TT18/PLY128 local receipts do not establish many-core server resources, strength or final TCEC eligibility.",
+    "Exact shipping preimage pins demonstrate replay identity; they do not prove the transformation for arbitrary C or Rust programs."
+  ]
+}
