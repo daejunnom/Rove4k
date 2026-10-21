@@ -46,7 +46,8 @@
     "engines/scripts/shipping_material_state.py": "eded8d82eed40c383564603a51582e829ff9de2fc626bdc11eab26e6c424b380",
     "engines/scripts/shipping_integer_forms.py": "a989dc2fd2ea60d9ab786cf51874ea646363e6f5731a302e1335cbb283fbcd93",
     "engines/scripts/shipping_mixer_literals.py": "7b25cb806a51cad9e867ebc588bcb99677c9e2f9d0a5df0b31d019e22bc6d114",
-    "engines/scripts/shipping_clock.py": "46c19879deae1d056f4b059c6c7d9667a3e935110dfb33015b29fd0dec4d8c43"
+    "engines/scripts/shipping_clock.py": "46c19879deae1d056f4b059c6c7d9667a3e935110dfb33015b29fd0dec4d8c43",
+    "engines/compact/tiny-entry-a/shipping_history_depth.py": "ac37e86ddefa35458eb89068ad76777f8686160627f0155f49069c06787eaf23"
   },
   "fixed_renames": [
     [
@@ -380,18 +381,18 @@
   },
   "expected": {
     "readable_sha256": "71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734",
-    "source_bytes": 9040,
-    "source_sha256": "624ad8a28a9d555fda37efa82b468fce09f98d4c5b86b20739ee2e6f589ff5a8",
+    "source_bytes": 9011,
+    "source_sha256": "4c9e83760ad39668239be2b6f8bcd8dd76f24d64bf8660ec2a95f7a4139c55ea",
     "native_bytes": 18576,
-    "native_sha256": "b8d29dd14f32a58c4e930630da18bb3c406a87ce9600dbf99ac925ffa1b94ee9",
-    "whole_bytes": 4606,
-    "whole_sha256": "0046ceec156bd67bac6ca29a32eda93a8b4a3bffbb8546faa1b398568b6cb900",
-    "bootstrap_sha256": "6018165c283e77cff2c1ffbc588a8184bd81c98588bdea4c98df5dc7d52decba",
+    "native_sha256": "26706cfedfc42a120c8e406c182818a1908d1940621eb2e5ce8d364dd24c1ed3",
+    "whole_bytes": 4592,
+    "whole_sha256": "8117ab93e0074558618374b1897cdf1a2a1903abbab4e395d22e078035643864",
+    "bootstrap_sha256": "09a0329ba1f5fc66a2396f4288124cb2054b646b9af2e1752ec2a0c8f924b2de",
     "dev_source_sha256": "41ab9f0f5d28183b76833d038c40e0bb6a2ee6ef9303766c293dd577680a4c9c",
     "dev_native_sha256": "8733dbf0814a2c2545251f6e0e17d243ecfd41fce7853fb325ca9720fedd1102",
     "input_profile_readable_bytes": 27687,
     "input_profile_readable_sha256": "63821a63cbf6507393e0617da9f611b778ada46c9a89b49fdefc8996bb461e2c",
-    "bootstrap_bytes": 10004
+    "bootstrap_bytes": 9975
   },
   "local_input_sha256": {
     "engine.c": "71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734",
@@ -1508,6 +1509,95 @@
         "b8286a",
         "ae5a20"
       ]
+    }
+  },
+  "history_depth": {
+    "scope": "pure A shipping after clock; derive cursor from immutable qh+ply, Worker layout and native identity change",
+    "predecessor_expected": {
+      "readable_sha256": "71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734",
+      "source_bytes": 9040,
+      "source_sha256": "624ad8a28a9d555fda37efa82b468fce09f98d4c5b86b20739ee2e6f589ff5a8",
+      "native_bytes": 18576,
+      "native_sha256": "b8d29dd14f32a58c4e930630da18bb3c406a87ce9600dbf99ac925ffa1b94ee9",
+      "whole_bytes": 4606,
+      "whole_sha256": "0046ceec156bd67bac6ca29a32eda93a8b4a3bffbb8546faa1b398568b6cb900",
+      "bootstrap_sha256": "6018165c283e77cff2c1ffbc588a8184bd81c98588bdea4c98df5dc7d52decba",
+      "dev_source_sha256": "41ab9f0f5d28183b76833d038c40e0bb6a2ee6ef9303766c293dd577680a4c9c",
+      "dev_native_sha256": "8733dbf0814a2c2545251f6e0e17d243ecfd41fce7853fb325ca9720fedd1102",
+      "input_profile_readable_bytes": 27687,
+      "input_profile_readable_sha256": "63821a63cbf6507393e0617da9f611b778ada46c9a89b49fdefc8996bb461e2c",
+      "bootstrap_bytes": 10004
+    },
+    "source_plan": {
+      "bytes": 8503,
+      "sha256": "aaddc1920c0091b41242cb82c8099c78c8edd41671a78385af78f5baab32b393"
+    },
+    "source_review": {
+      "bytes": 10241,
+      "sha256": "9391f6ba257bf19c1a077b52fa34d5cc470ce92fa4dd5ba596aab94b39a870de"
+    },
+    "actual_first_cost": {
+      "bytes": 11432,
+      "sha256": "ab25ab57c6e0e4c80fa0e2595cd842219a1e4f62d98c694bc5a03c9ea92f29f0"
+    },
+    "actual_focused": {
+      "bytes": 10020,
+      "sha256": "e3d7fd0bd3aeedca94922e6a3f4942f901cc2e636bbb50ffb1448234ef24dd23"
+    },
+    "focused_index": {
+      "bytes": 1896,
+      "sha256": "947acf3484ec19f586df7dd18e26d847261bb71a98011e0a06663a39c2d39472"
+    },
+    "source_regions": 6,
+    "raw_source_delta": -29,
+    "whole_delta": -14,
+    "relation": "old entry cursor == game length qh + caller ply d; qh cannot change during think",
+    "Worker_layout_changed": true,
+    "old_full_native_equality_claimed": false,
+    "canonical_and_DEV_unchanged": true,
+    "runtime_retry_branch_coverage": "unmeasured; node counts are not branch witnesses",
+    "four_call_group_balanced_push_pop_source_induction": true,
+    "focused": "one fatal ASan/UBSan compiler and run; typed actual old/new score/best/nodes/keys/learners/TT comparison",
+    "normal_helper_reads_external_files_processes_codec_AST_network": false,
+    "normal_validation_pending": false,
+    "normal_validation": {
+      "scope": "one ordinary --dev reproduction and unchanged newly executed selected wrapper; local2-worker TT18 only",
+      "producing_recipe": {
+        "bytes": 75291,
+        "sha256": "b5e7f9ae450ce67f3166271dceb35ca2c478be51abbcdb4b54bbb9f253e188bd"
+      },
+      "producing_sources": {
+        "bytes": 2518,
+        "sha256": "67271a68d3f9b9f5dada704c47477a9916f3cdb0a0faa1d6fdeb2b1d6db2d09f"
+      },
+      "build": {
+        "bytes": 170272,
+        "sha256": "17456fe64b6979b6760401d66a3c5942041e3c010b138d30a6c3476bd2b1420f"
+      },
+      "runtime": {
+        "bytes": 41533,
+        "sha256": "c17c63be4ad499dd9f9193644add32e2cb5c44051ddae76a5aac55689a99d2fc"
+      },
+      "normal_commands": {
+        "bytes": 2741,
+        "sha256": "49d673963bd8458994a3b2c3bda75eb047c134b03e56f0ffdc68a4326be5ba93"
+      },
+      "shipping_generations": 2,
+      "DEV_generations": 2,
+      "old_DEV_complete_source_native_exact": true,
+      "selected_verifier_invocations": 1,
+      "quit_EOF_sessions": 2,
+      "legal_GO_epochs": 8,
+      "new_native_full_image_observed": true,
+      "old_native_equality_claimed": false,
+      "startup_TIDs_each": 3,
+      "private_paths_helpers_absent_readers_finished_physical_exit0": true,
+      "all_outer_groups_terminal0_reaped_absent": true,
+      "normal_retries_or_forced_cleanup": 0,
+      "cancellation_causality": "unproven",
+      "runtime_retry_branch_coverage": "unmeasured",
+      "additional_fresh_core_ASAN_games_CI_Git": 0,
+      "metadata_only_after_execution": true
     }
   }
 }

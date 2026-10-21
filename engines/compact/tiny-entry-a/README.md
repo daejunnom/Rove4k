@@ -1,3 +1,36 @@
+# Maintained A: derived private history length — 2026-10-21
+
+Complete file **4592 B**, compact C **9011 B**. The final A-only shipping
+stage derives the private history cursor from immutable job length plus
+caller ply, removing the Worker field/reset/push-pop while retaining the
+same repetition indices and child key writes. Raw C saves29 B; actual
+whole saves14 B against4606. Worker layout and native identity change;
+old native equality is not claimed. Canonical and full-reference DEV
+sources remain unchanged. HCE/PVS/QS/full contextual TT/learners/SMP,
+rules, input, clock and resource policy stay in scope.
+
+One fatal ASan/UBSan compile/run compares actual old/new logical score,
+best, nodes, keys, all learners and TT fields through bounded history,
+window, cap, early-return and stop states. The four-call/push-pop
+relation is source-proved; runtime PVS retry branch coverage is
+unmeasured. Raw Worker padding/removed fields are not an oracle.
+
+One ordinary --dev build reproduces shipping twice and the unchanged
+full-reference DEV twice. The unchanged selected verifier passes the
+new actual wrapper through2 quit/EOF sessions and8 legal GO epochs,
+exact new native restoration,3 stable startup TIDs, absent private
+paths/helpers, closing result, reader EOF and physical exit0.
+Cancellation causality, runtime retry-branch coverage, final target
+resources/many-core behavior and strength remain unproven.
+
+Build receipt SHA-256: `17456fe64b6979b6760401d66a3c5942041e3c010b138d30a6c3476bd2b1420f`.
+Runtime receipt SHA-256: `c17c63be4ad499dd9f9193644add32e2cb5c44051ddae76a5aac55689a99d2fc`.
+Current whole SHA-256: `8117ab93e0074558618374b1897cdf1a2a1903abbab4e395d22e078035643864`.
+
+Producing/before sources and receipts remain outside Git in
+`rove4k-a-history-depth-*-20261021-evidence`. Older sections below
+retain their original checkpoints and validation scopes.
+
 # Maintained A: compact environment snapshot — 2026-10-21
 
 Complete file **4606 B**, compact C **9040 B**. The single

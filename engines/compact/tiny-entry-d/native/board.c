@@ -140,8 +140,8 @@ static int walk(const Board *p,Move *moves,int sq,int s){
         if(moves&&a==6){
             int home=s>0?4:116,shift=s>0?0:2;
             if(from==home&&!attacked(p,home,-s)){
-                if((p->c&(1<<shift))&&!p->b[home+1]&&!p->b[home+2]&&!attacked(p,home+1,-s))add(moves,&n,from,home+2,0);
-                if((p->c&(2<<shift))&&!p->b[home-1]&&!p->b[home-2]&&!p->b[home-3]&&!attacked(p,home-1,-s))add(moves,&n,from,home-2,0);
+                for(int d=1;d>=-1;d-=2)
+                    if((p->c&((d>0?1:2)<<shift))&&!p->b[home+d]&&!p->b[home+2*d]&&(d>0||!p->b[home-3])&&!attacked(p,home+d,-s))add(moves,&n,from,home+2*d,0);
                 }
         }
     }

@@ -9,7 +9,7 @@
   "target": "Linux x86-64 with SSE4.2 CRC32 and CX16; raw syscall static native plus admitted fixed-layout own-ELF",
   "native_source_sha256": {
     "native/tiny.h": "41daa4fbbf9581cc97eb3ca214425880e800e7f6422f57705f5102719333dd3e",
-    "native/board.c": "3a4c6f30c28581d576c4f0e40df7b4e6992027ab30edf00d384a76b763f9a935",
+    "native/board.c": "559e4589325152a493e565730581521d1c16ab5dea20cc8dc51ccc2505c30437",
     "native/search.c": "ba4e6e2489c71a234e069fc64d0ed00300b370ef11f95cbcae231c99b01fa81a",
     "native/runtime.c": "2febf5acec5a3c74ab3a6dcb2fd2a1eb2ba44fab4d6892d9c354fcdcebfe4342",
     "native/hq.h": "ad66a03cef5288010c4377b81ee3661320195545aee6c664a42d3828bfc8b412",
@@ -75,20 +75,20 @@
   "expected": {
     "scalar-shipping": {
       "hq": 0,
-      "native_bytes": 7676,
-      "native_sha256": "6776f704f3f2d6da97b860f82aaab0957997fbf6f0babb76979ee205f129a3ef",
-      "whole_bytes": 5914,
-      "whole_sha256": "ffa142c689e4b062fad86576d19ec2baa61deb1f67100bcf455e2e561e82599d",
-      "payload_bytes": 4777,
-      "payload_sha256": "04a708fe6aa369dd31a9f885252b0f96cf03297ea04774ebf45a5a7925488425",
+      "native_bytes": 7612,
+      "native_sha256": "662b0eb10046d0b0ab105bba0f793371bb869eb61aa4419c8c2fa95f7d39c32d",
+      "whole_bytes": 5908,
+      "whole_sha256": "d7a0b5fa3f5dcf96368630283f756fee4bf04034b58cd970700e6197c4471490",
+      "payload_bytes": 4771,
+      "payload_sha256": "c9127fa880b803d610246e97f9dd9000652b8bdcc2d11c5288cd4c08b8750578",
       "loader_and_headers_bytes": 1137,
-      "audit_bytes": 5937,
-      "audit_sha256": "0d973a7fb214a7eaf7d63a74b5f65f7734010b23694e15992f64c46e8de35627",
+      "audit_bytes": 5931,
+      "audit_sha256": "46ebc96c8e0fdd46a6f5b93668fd3b82b4ee746b9e44513d1532a3fc48963e90",
       "layout": {
         "image_base": 4194304,
-        "image_size": 7676,
+        "image_size": 7612,
         "image_pages": 8192,
-        "entry": 4201593,
+        "entry": 4201533,
         "bss_base": 4202496,
         "bss_size": 175092,
         "bss_pages": 176128,
@@ -106,8 +106,8 @@
             "offset": 0,
             "vaddr": 4194304,
             "paddr": 4194304,
-            "filesz": 7676,
-            "memsz": 7676,
+            "filesz": 7612,
+            "memsz": 7612,
             "align": 4096
           },
           {
@@ -136,20 +136,20 @@
     },
     "hq-shipping": {
       "hq": 1,
-      "native_bytes": 8032,
-      "native_sha256": "3fc3e6f283b2ae8afa375dabf1931c3bdc76fde378bba983e247bd1f4ee7255f",
-      "whole_bytes": 6125,
-      "whole_sha256": "5f19f4a3724a646526469327b18e8e5113691203342caf951cf46e910ababc63",
-      "payload_bytes": 4988,
-      "payload_sha256": "0dc8677cf08d47c7006fdde0e11ce77d3771137aaf6ee415e0e2cc9af94482a8",
+      "native_bytes": 8000,
+      "native_sha256": "49fb8e2916ba394cda6665f287df7ff4bfcd7c76ef95dc613628f3513394c6b6",
+      "whole_bytes": 6123,
+      "whole_sha256": "c7a10ed2a675ac5acc69569b8e8347e5680a63473b9c270647ebea42623cd513",
+      "payload_bytes": 4986,
+      "payload_sha256": "2ce85cf043ec82b3af14a3cdabb325933aa05971394221006435640bd0be0704",
       "loader_and_headers_bytes": 1137,
-      "audit_bytes": 6148,
-      "audit_sha256": "23202e389f3f30c9282b0a1d313c647e0ba5e6db45e1246b1918c7828d7d5d31",
+      "audit_bytes": 6146,
+      "audit_sha256": "e25de7a7dcd2811bafff87569ecf8877ca8cf54b84567e95e843102ac45ee875",
       "layout": {
         "image_base": 4194304,
-        "image_size": 8032,
+        "image_size": 8000,
         "image_pages": 8192,
-        "entry": 4201899,
+        "entry": 4201848,
         "bss_base": 4202496,
         "bss_size": 175092,
         "bss_pages": 176128,
@@ -167,8 +167,8 @@
             "offset": 0,
             "vaddr": 4194304,
             "paddr": 4194304,
-            "filesz": 8032,
-            "memsz": 8032,
+            "filesz": 8000,
+            "memsz": 8000,
             "align": 4096
           },
           {
@@ -197,8 +197,8 @@
     }
   },
   "qualified_receipts_metadata_only": {
-    "current_selection": "shared exact clock/inc parser branches over packed HCE; full HCE/PVS/QS/learners/fullkey atomic16/SMP and fixed SSE4.2+CX16 profile",
-    "source_lineage": "Only runtime.c clock359-to257 block changes: four exact words, one amount consumption including opponent, unchanged side/present/budget/job tail; reply remains256. Other native7 and loader6/model/profile/flags/resources/protocol unchanged.",
+    "current_selection": "standalone K/Q castle direction sharing over clock-only packed-HCE D; full HCE/PVS/QS/learners/fullkey atomic16/SMP/fixed ISA preserved",
+    "source_lineage": "Only board.c two adjacent castle branches255-to198 change, same common origin gate, K then Q after ordinary king moves, rights/emptiness/transit attack short-circuit order; runtime14885 clock-only and seven other native sources unchanged.",
     "fixed21_firstcost": {
       "final_index_sha256": "2f06d3ecc4d9e0f5fb294f6adfe533aa4559867fd31b4fad10604ed4060a5bf3",
       "cost_sha256": "0f08bb54783aef070a3d75eefeb28a005868156452243513da624bf7708d8137",
@@ -895,6 +895,71 @@
           "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-clock-normal-promotion-20261021-evidence/producing/recipe.json",
           "bytes": 58858,
           "sha256": "0907bbf42a5de70ebca8e81dfd96079d557ab5dac9c31062c026fac463bbac6a"
+        },
+        "native_reproductions_each": 2,
+        "whole_reproductions_each": 2,
+        "audit_reproductions_each": 1,
+        "positive_preentry_sessions": 2,
+        "production_quit_EOF_sessions": 4,
+        "legal_GO_results": 12,
+        "startup_TIDs_each": 3,
+        "forced_cleanup": false,
+        "scope": "exact restored native RX and zero initial BSS/padding/guards/NX; persistent TIDs/stdio/nochildren and physical readers/process/group settlement; no negative/fault campaign, game or strength claim"
+      }
+    },
+    "pre_castle_selection": "shared exact clock/inc parser branches over packed HCE; full HCE/PVS/QS/learners/fullkey atomic16/SMP and fixed SSE4.2+CX16 profile",
+    "pre_castle_source_lineage": "Only runtime.c clock359-to257 block changes: four exact words, one amount consumption including opponent, unchanged side/present/budget/job tail; reply remains256. Other native7 and loader6/model/profile/flags/resources/protocol unchanged.",
+    "castle_direction": {
+      "source_plan": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-castle-direction-cost-20261021-evidence/proposal.json",
+        "bytes": 15708,
+        "sha256": "74dc07c750aa9cdb11887967af5087818914eaadf0b2ed852e554688eaf30789"
+      },
+      "cost": {
+        "path": "/home/stemxstudio/rove4k-d-castle-direction-cost-20261021-v1/cost.json",
+        "bytes": 42542,
+        "sha256": "3ed0d96b4c0f6454358595906efa8632b8d9ed824803fc53e6c0ef31340d706c"
+      },
+      "focused": {
+        "path": "/home/stemxstudio/rove4k-d-castle-direction-focused-20261021-v1/results.json",
+        "bytes": 4402,
+        "sha256": "d32583e30a4298fd507f4cb4ff0a32dde88cb9b95b14668c15913321ab0a7008"
+      },
+      "audit_discovery": {
+        "path": "/home/stemxstudio/rove4k-d-castle-direction-audit-discovery-20261021-v1/discovery.json",
+        "bytes": 15542,
+        "sha256": "73bebb8311780a8c22c32f13f0048993136c092fbfb3958b2968cd470d048a07"
+      },
+      "board_before_sha256": "3a4c6f30c28581d576c4f0e40df7b4e6992027ab30edf00d384a76b763f9a935",
+      "board_after_sha256": "559e4589325152a493e565730581521d1c16ab5dea20cc8dc51ccc2505c30437",
+      "raw_delta": -57,
+      "whole_delta": [
+        -6,
+        -2
+      ],
+      "old_native_equality": false,
+      "scope": "first cost and scalar actual448root/9936orderedmove/592attack-calls-per-lane fatalSAN are separate; HQ common source independence only; physical normal validation below separate",
+      "normal_validation": {
+        "status": "PASS one ordinary builder and selected positive verifier",
+        "build": {
+          "path": "/home/stemxstudio/rove4k-d-castle-direction-normal-20261021-v1/build.json",
+          "bytes": 90158,
+          "sha256": "50d1d488d786048464d3b49049f95dcbf6a4434f16583035daad2d8431114244"
+        },
+        "runtime": {
+          "path": "/home/stemxstudio/rove4k-d-castle-direction-normal-runtime-20261021-v1/results.json",
+          "bytes": 58047,
+          "sha256": "d18a3a7e3756ae0657044568da5cf0bf75e7f093ca714c4f60bcc35b26362302"
+        },
+        "normal_wrapper": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-castle-direction-normal-promotion-20261021-evidence/normal.json",
+          "bytes": 8361,
+          "sha256": "14126604146d560bb25a108a0bfcd053a56e6ac4d23653bf81ae024d0337b90a"
+        },
+        "producing_recipe": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-castle-direction-normal-promotion-20261021-evidence/producing/recipe.json",
+          "bytes": 62487,
+          "sha256": "f3b217b73139db6b640fae7efe154de9eea914db30686e95d3eba9bf6e64f883"
         },
         "native_reproductions_each": 2,
         "whole_reproductions_each": 2,

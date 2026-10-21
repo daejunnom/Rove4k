@@ -1,3 +1,38 @@
+# Maintained D: standalone K/Q castle direction sharing — 2026-10-21
+
+Complete scalar/HQ **5908 / 6123 B**, remaining **1812 / 2027 B**.
+The common king-home/origin gate stays. A local direction1,-1 loop shares
+the two castle branches while retaining ordinary king moves before K/Q,
+rights masks, empty-square short-circuit and attacked call conditions/order.
+Queenside keeps its additional b-file empty check. add kind0 and destination
+king safety remain. No Board/Move policy, HCE/PVS/QS/learner/fullkey TT,
+pool/resource, scalar/HQ, model/ISA/guard/codec contract changes.
+
+Board9068→9011B gives native7612/8000B, text−60/−51B and whole−6/−2B.
+New native identities are distinct from the clock-only controls. Runtime
+remains14885B/2febf5; RX2pages/BSS175092, guard/NX/reserve and models stay.
+One fatal scalar ASan/UBSan compile/run compares actual old/new full board
+functions on448 roots,9936 ordered pseudo moves and592 attacked calls/lane,
+with complete Board/tail buffers unchanged. Both colors/all16rights,
+b/c/d/f/g obstruction, home/transit attacks and actual FEN-normalized rook
+absence/off-home king cases pass. HQ uses the same changed board fragment;
+its shipping physical proof is separate. Focused result SHA-256:
+d32583e30a4298fd507f4cb4ff0a32dde88cb9b95b14668c15913321ab0a7008.
+Two CHECKPOINT-only loader links discover exact new audit identities;
+full bytes/header/all PHDR/entire packet are statically checked, target0.
+
+Ordinary regeneration reproduces both native images and complete files twice,
+plus their CHECKPOINT images once. The existing positive verifier passes
+pre-entry2 and quit/EOF4 sessions with12 legal GO results, exact restored
+RX, zero initial BSS/padding, guards/NX, persistent3 startup TIDs, stdio-only
+descriptors, no child helpers and physical reader/process/group closure.
+Build receipt SHA-256: 50d1d488d786048464d3b49049f95dcbf6a4434f16583035daad2d8431114244.
+Runtime receipt SHA-256: d18a3a7e3756ae0657044568da5cf0bf75e7f093ca714c4f60bcc35b26362302.
+The actual producing recipe is preserved separately from this receipt-only
+annotation. No normal failure or retry was needed.
+No negative/RIE/ptrace/register/personality/fault campaign, extra SAN,
+game or benchmark. Final resources/many-core/strength/4KiB remain open.
+
 # Maintained D: shared exact clock/inc parser — 2026-10-21
 
 Complete scalar/HQ **5914 / 6125 B**, remaining **1818 / 2029 B**.

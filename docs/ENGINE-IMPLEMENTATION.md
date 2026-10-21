@@ -187,10 +187,10 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
-| A | 4,606 B | 510 B | Unsigned64 number forms; one-state material classifier; main-owned token cursor and valid-0x88 promotion predicate; existing full HCE/PVS/QS/TT/learners/SMP and fixed ALONE retained; fixed LP64 mixer literals; compact environment snapshot |
+| A | 4,592 B | 496 B | Unsigned64 number forms; one-state material classifier; main-owned token cursor and valid-0x88 promotion predicate; history length derived from immutable job length plus ply; existing full HCE/PVS/QS/TT/learners/SMP and fixed ALONE retained; fixed LP64 mixer literals; compact environment snapshot |
 | B | 5,138 B | 1,042 B | Worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained; literal include gaps and overlong-line drain compacted; clock-first SEE poll; cancellation timing changed; compact environment snapshot |
 | C | 4,924 B | 828 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners retained; child continuation slot and positive-only cutoff bonus compacted; fixed LP64 mixer literals; compact environment snapshot |
-| D scalar / HQ | 5,914 / 6,125 B | 1,818 / 2,029 B | Exact clock/inc parsing shared; consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained |
+| D scalar / HQ | 5,908 / 6,123 B | 1,812 / 2,027 B | Exact clock/inc parsing and ordered K/Q castling branches shared; consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained |
 | E | 4,986 B | 890 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; child continuation slot and positive-only cutoff bonus compacted; literal include gaps and fixed ASCII compiler argv compacted; fixed LP64 mixer literals; compact environment snapshot |
 | F full (default) | 4,495 B | 399 B | Packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; nonnegative QS depth, repetition-distance loop, fixed integer macros and plain-int keyword spelling compacted after the no-preadd hash, terminal, correction and source-form stages; compact environment snapshot; default size target remains open |
 | F material/noise (opt-in) | 4,319 B | 223 B | Unsigned64 number forms and two fixed TT18 casts omitted; one-state material classifier, fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted; literal include gaps compacted; fixed LP64 mixer literals; compact environment snapshot |
@@ -199,6 +199,74 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 The separate Rust D native images are 16,816 bytes each. Their independent
 packed experiment retains its own qualification state and does not silently
 replace this maintained table.
+
+## A derived history length: 2026-10-21
+
+The last shipping stage removes the private Worker cursor and derives its
+value from immutable job history length plus existing recursion ply. Root
+establishes that relation, all four child/re-search calls advance the same
+ply, and the old balanced push/pop restores it before cancellation handling.
+The production pool waits for prior work before publishing a new position,
+so job history length cannot change during think. The two repetition bounds
+and child key write retain their exact indices; no recursive argument is
+added. Six fixed spans, seven protected gaps and full inverse guard the
+9,040 to 9,011-byte source transform. Canonical/DEV and earlier stages remain
+unchanged. Worker layout and native identity change.
+
+One fixed compile/encode measures 4,606 to 4,592 complete bytes. A fatal
+ASan/UBSan compile/run compares 16 actual old/new search cases using typed
+logical fields, full key and three learner arrays, TT key/data and lock state,
+score/best/nodes and old-cursor restoration. It covers root history 1/4096,
+repetition windows and parity, terminal/TT/claim/stop paths and direct boundary
+entry at ply127 and maximum child slot4222. Raw Worker layout/padding is not
+the equality oracle. These direct boundary calls are not claimed reachable
+as a complete game; node counts do not establish runtime PVS/LMR coverage.
+
+One ordinary `--dev` builder reproduces shipping and unchanged DEV twice;
+the unchanged selected verifier passes two quit/EOF sessions and eight legal
+GO results, exact new-native restoration, stable startup TIDs, private-path
+absence and physical reader/process exit. No extra fresh/core/game/performance
+run occurs. The normal index is
+`rove4k-a-history-depth-normal-20261021-evidence/final-index.json`, 5,093 bytes,
+SHA-256 `7f101ee6d44a25507a1022e439895dd6ad62a0368e2b0c328db5bfccb3a5cff9`.
+The separate paths.json resolves its 28 reference pins to 27 exact files;
+root independently verifies all of them without changing the original index.
+
+## D ordered castling sharing: 2026-10-21
+
+Two independent K/Q castling branches become one +1/-1 direction loop in
+maintained native/board.c. Ordinary king moves still precede K then Q;
+rights masks, b/c/d/f/g emptiness, home/transit attack short-circuit order
+and raw Move values are preserved. The 255 to 198-byte fragment reduces the
+board source by57 bytes. Actual whole cost changes from 5,914/6,125 to
+5,908/6,123 scalar/HQ. Native sizes change to 7,612/8,000 with new identities.
+
+One fatal ASan/UBSan scalar compile/run compares actual old/new walk on448
+roots: both colors, all16 rights masks, blockers, home/transit attacks,
+rook absence and king away from home. Complete pseudo ordering,9,936 moves,
+512-slot tails, Board preservation and592 actual attacked calls per lane
+match, including call order/arguments/results and Board snapshots. The
+changed fragment is common to both slider backends; HQ SAN is not repeated.
+
+One ordinary builder reproduces each scalar/HQ native and complete file twice
+and each CHECKPOINT audit once. One unchanged positive verifier passes two
+pre-entry observations and four quit/EOF sessions with12 legal GO results,
+exact RX restoration, zero BSS/padding, guard/NX, three persistent startup
+TIDs, stdio-only descriptors, child absence and physical reader/process exit.
+Only the packer's two exact identity/model maps and verifier EXPECTED data
+change. Root confirms the other29,214 verifier bytes retain SHA-256
+`389ac04925b5ab4597a34a9ac8b318de572da9b0d9b293b384eea785f10cc4fa`.
+The runtime source, model/ISA/profile/codec, RX2-page/BSS175,092 geometry and
+guard logic stay fixed. No new negative, fault or trace campaign runs.
+
+The external normal index is
+`rove4k-d-castle-direction-normal-promotion-20261021-evidence/final-index.json`,
+7,677 bytes, SHA-256
+`e9b81b8594c769d21e3fd8b020c2bd251fa7352e0003a31edc7a2e7e6a3a8bf2`.
+Root verifies its21 exact file pins. Producing inputs and raw receipts remain
+separate from receipt-only annotations. Neither this fixed local result nor
+the reduced size establishes final target resources, many-core strength or
+4KiB eligibility.
 
 ## E continuation context and positive bonus: 2026-10-21
 
