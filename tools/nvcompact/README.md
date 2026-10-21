@@ -163,6 +163,22 @@ compare supported expression and control-flow forms. An integer-to-floating
 spelling such as `100000` to `1e5` is not accepted merely because the mathematical
 values match; type and context still matter.
 
+`spell-c` exposes bounded, unranked candidates for automatic local names and
+type-preserving integer/character spellings. The opt-in envelope `source_search`
+compares their **complete compressed submission cost**, including an explicitly
+inspected Python bytes embedding when present. Equal-length or longer source
+spellings can win. Accepted changes require binding/type checks and identical
+complete native output and compiler diagnostics under the declared recipe.
+`replay` reconstructs the accepted derivation without repeating the search.
+The [whole-file source portfolio guide](docs/SOURCE-PORTFOLIO.md) documents the
+contracts, configuration, bounds and unsupported cases. Engine-specific work
+is separated in the [PR #12 handoff](docs/PR12-HANDOFF.ko.md).
+
+`npm run test:comparison` checks the read-only regression reporter. Its
+`scripts/compare-results.mjs` command compares actual complete files against a
+separately pinned manifest roster and the previous NVCompact winner, preserving
+missing, failed and unexecuted cases rather than treating them as equivalent.
+
 Several different source expressions can produce identical ELF bytes because
 the compiler recognizes equivalent computations and optimizes them to the same
 machine code. The linker then combines the compiled inputs. Identical linked

@@ -24,6 +24,7 @@ pub const RULES: &[&str] = &[
     "increment",
     "leaf-braces",
     "forever",
+    "boolean-domain",
 ];
 const INTEGERS: &[&str] = &[
     "_Bool",
@@ -100,6 +101,11 @@ pub struct CFlowOptions {
     pub token_contract: String,
     pub max_variants: usize,
     pub max_passes: usize,
+    /// Include valid equal/longer source edits for an external whole-file cost
+    /// comparison. This never weakens the semantic or frontend guards.
+    pub include_nonshrinking: bool,
+    /// Emit bounded single-edit alternatives after the legacy rule portfolio.
+    pub individual_edits: usize,
     pub frontend_seconds: f64,
     pub frontend_memory_bytes: u64,
     pub ast_bytes: usize,
@@ -114,6 +120,8 @@ impl Default for CFlowOptions {
             token_contract: "opaque".into(),
             max_variants: 16,
             max_passes: 2,
+            include_nonshrinking: false,
+            individual_edits: 0,
             frontend_seconds: 30.0,
             frontend_memory_bytes: 1 << 30,
             ast_bytes: 32 << 20,
@@ -136,6 +144,9 @@ pub fn validate_args(values: &[String]) -> Result<()> {
     const FIXED: &[&str] = &[
         "-m32",
         "-m64",
+        "-mavx2",
+        "-msse4.2",
+        "-mcx16",
         "-funsigned-char",
         "-fsigned-char",
         "-fshort-enums",
@@ -296,6 +307,7 @@ impl Frontend {
             tree,
             path.to_string_lossy().into_owned(),
             macros,
+            self.options.include_nonshrinking,
         )
     }
 }
@@ -325,6 +337,7 @@ struct Analysis {
     macros: HashSet<String>,
     functions: Vec<(usize, usize)>,
     notes: Vec<String>,
+    include_nonshrinking: bool,
 }
 fn flatten(mut value: Value, parent: Option<usize>, nodes: &mut Vec<Node>) -> usize {
     let inner = value
@@ -380,6 +393,7 @@ impl Analysis {
         tree: Value,
         main_path: String,
         macros: HashSet<String>,
+        include_nonshrinking: bool,
     ) -> Result<Self> {
         let tokens = lex(&source, "c")?
             .into_iter()
@@ -394,6 +408,7 @@ impl Analysis {
             macros,
             functions: vec![],
             notes: vec![],
+            include_nonshrinking,
         };
         flatten(tree, None, &mut result.nodes);
         for (i, node) in result.nodes.iter().enumerate() {
@@ -494,6 +509,36 @@ impl Analysis {
                         self.op(n),
                         "==" | "!=" | "<" | ">" | "<=" | ">=" | "&&" | "||"
                     ))
+    }
+    /// Prove the evaluated source value belongs to {0, 1}; do not infer a range
+    /// from sampled outputs or from the destination of a later conversion.
+    fn boolean_domain(&self, n: usize) -> bool {
+        let n = self.unwrap(n);
+        if self.typ(n) == "_Bool" || self.boolean_result(n) {
+            return true;
+        }
+        if self.kind(n) == "IntegerLiteral"
+            && INTEGERS.contains(&self.typ(n))
+            && matches!(self.nodes[n].value["value"].as_str(), Some("0" | "1"))
+        {
+            return true;
+        }
+        // A signed one-bit field can hold -1 and therefore is not Boolean.
+        // Restrict this extension to C's standard unsigned-int bitfield form.
+        if self.kind(n) == "MemberExpr" && self.typ(n) == "unsigned int" {
+            return self.nodes[n].value["referencedMemberDecl"]
+                .as_str()
+                .and_then(|id| self.declarations.get(id))
+                .is_some_and(|&field| {
+                    self.kind(field) == "FieldDecl"
+                        && self.nodes[field].value["isBitfield"].as_bool() == Some(true)
+                        && self.nodes[field].inner.first().is_some_and(|&width| {
+                            matches!(self.kind(width), "ConstantExpr" | "IntegerLiteral")
+                                && self.nodes[width].value["value"].as_str() == Some("1")
+                        })
+                });
+        }
+        false
     }
     fn binding(&self, n: usize) -> Option<&str> {
         let n = self.unwrap(n);
@@ -782,7 +827,9 @@ impl Analysis {
         {
             return Ok(());
         }
-        if text.len() < end - start {
+        if text != self.source[start..end]
+            && (self.include_nonshrinking || text.len() < end - start)
+        {
             edits.push(Edit {
                 start,
                 end,
@@ -959,6 +1006,23 @@ impl Analysis {
                         if let Some(value) = value {
                             self.add(&mut edits, enabled, function, n, format!("{}{}", if self.op(n) == "==" { "!" } else { "!!" }, self.expression(value, 14)), "zero-test", "C logical-not/equality-to-zero correspondence; one scalar read; int result", None, Some(14))?;
                         }
+                        let value = if self.literal(right, "1", false) {
+                            Some(left)
+                        } else if self.literal(left, "1", false) {
+                            Some(right)
+                        } else {
+                            None
+                        };
+                        if let Some(value) = value.filter(|&v| self.boolean_domain(v)) {
+                            let (text, prec) = if self.op(n) == "!=" {
+                                (format!("!{}", self.expression(value, 14)), 14)
+                            } else if self.boolean_result(value) {
+                                (self.text(value), self.precedence(value))
+                            } else {
+                                (format!("!!{}", self.expression(value, 14)), 14)
+                            };
+                            self.add(&mut edits, enabled, function, n, text, "boolean-domain", "source value proven in {0,1} by _Bool, Boolean operator, integer literal, or unsigned-int one-bit field; evaluation once and int comparison result preserved", None, Some(prec))?;
+                        }
                     }
                     if self.op(n) == "="
                         && self.binding(left).is_some()
@@ -1107,8 +1171,8 @@ impl Analysis {
 fn apply_pass(analysis: &Analysis, enabled: &HashSet<&str>) -> Result<(Vec<u8>, Vec<Value>)> {
     let mut edits = analysis.find(enabled)?;
     edits.sort_by(|a, b| {
-        let saved_a = a.end - a.start - a.text.len();
-        let saved_b = b.end - b.start - b.text.len();
+        let saved_a = (a.end - a.start) as i64 - a.text.len() as i64;
+        let saved_b = (b.end - b.start) as i64 - b.text.len() as i64;
         saved_b
             .cmp(&saved_a)
             .then_with(|| (a.start, a.end, &a.rule).cmp(&(b.start, b.end, &b.rule)))
@@ -1126,7 +1190,7 @@ fn apply_pass(analysis: &Analysis, enabled: &HashSet<&str>) -> Result<(Vec<u8>, 
     let mut source = analysis.source.clone();
     let mut audit = vec![];
     for e in selected {
-        audit.push(json!({"start":e.start,"end":e.end,"before":&source[e.start..e.end],"after":e.text,"rule":e.rule,"proof":e.proof,"function":e.function,"source_bytes_saved":e.end-e.start-e.text.len()}));
+        audit.push(json!({"start":e.start,"end":e.end,"before":&source[e.start..e.end],"after":e.text,"rule":e.rule,"proof":e.proof,"function":e.function,"source_bytes_saved":(e.end-e.start) as i64-e.text.len() as i64}));
         source.replace_range(e.start..e.end, &e.text);
     }
     audit.reverse();
@@ -1146,8 +1210,11 @@ pub fn generate_variants(source: &[u8], options: &CFlowOptions) -> Result<Vec<Va
     if !matches!(options.standard.as_str(), "c11" | "c17" | "gnu11" | "gnu17") {
         bail!("supported C standards: c11, c17, gnu11, gnu17");
     }
-    if !(1..=32).contains(&options.max_variants) || !(1..=8).contains(&options.max_passes) {
-        bail!("max_variants must be 1..32 and max_passes 1..8");
+    if !(1..=128).contains(&options.max_variants)
+        || !(1..=8).contains(&options.max_passes)
+        || options.individual_edits > 128
+    {
+        bail!("max_variants must be 1..128, max_passes 1..8 and individual_edits 0..128");
     }
     if !options.frontend_seconds.is_finite()
         || options.frontend_seconds <= 0.0
@@ -1158,7 +1225,7 @@ pub fn generate_variants(source: &[u8], options: &CFlowOptions) -> Result<Vec<Va
         bail!("frontend budget outside supported bounds");
     }
     validate_args(&options.compiler_args)?;
-    let mut contract = json!({"language":"c","token_contract":options.token_contract,"standard":options.standard,"source_sha256":crate::sha256(source),"compiler_args":options.compiler_args,"required_acceptance":"fixed compatible frontend/ABI, compilation and application verification; final submitted-file size selection","proof_scope":"guarded local C rules; not whole-program equivalence proof","implementation":"native Rust"});
+    let mut contract = json!({"language":"c","token_contract":options.token_contract,"standard":options.standard,"source_sha256":crate::sha256(source),"compiler_args":options.compiler_args,"include_nonshrinking":options.include_nonshrinking,"individual_edits":options.individual_edits,"required_acceptance":"fixed compatible frontend/ABI, compilation and application verification; final submitted-file size selection","proof_scope":"guarded local C rules; not whole-program equivalence proof","implementation":"native Rust"});
     let mut result = vec![Variant::new(
         "raw",
         source,
@@ -1255,6 +1322,40 @@ pub fn generate_variants(source: &[u8], options: &CFlowOptions) -> Result<Vec<Va
             contract.clone(),
         ));
     }
+    let enabled = RULES.iter().copied().collect();
+    let mut individuals = original.find(&enabled)?;
+    individuals.sort_by(|a, b| {
+        (a.start, a.end, &a.rule, &a.text).cmp(&(b.start, b.end, &b.rule, &b.text))
+    });
+    for (ordinal, e) in individuals
+        .into_iter()
+        .take(
+            options
+                .individual_edits
+                .min(options.max_variants - result.len()),
+        )
+        .enumerate()
+    {
+        let mut data = original.source.clone();
+        data.replace_range(e.start..e.end, &e.text);
+        let checked = frontend.parse(data.as_bytes())?;
+        if !checked
+            .functions
+            .iter()
+            .any(|&(d, _)| checked.name(d) == e.function)
+        {
+            continue;
+        }
+        let audit = json!({"start":e.start,"end":e.end,"before":&original.source[e.start..e.end],"after":e.text,"rule":e.rule,"proof":e.proof,"function":e.function,"source_bytes_saved":(e.end-e.start) as i64-e.text.len() as i64,"pass":1});
+        result.push(Variant::new(
+            &format!("c-one-{ordinal:03}-{}", e.rule),
+            source,
+            data.into_bytes(),
+            vec![audit],
+            original.notes.clone(),
+            contract.clone(),
+        ));
+    }
     Ok(result)
 }
 
@@ -1333,6 +1434,7 @@ mod tests {
             "--target=x86_64-linux-gnu".into()
         ])
         .is_ok());
+        assert!(validate_args(&["-mavx2".into(), "-msse4.2".into(), "-mcx16".into()]).is_ok());
     }
     #[test]
     fn full_portfolio_preserves_independent_integer_and_nan_oracle() {
@@ -1351,12 +1453,13 @@ int compound(int c){c=c+3;return c;}
 int increment(int c){return c+=1;}
 int leaf(int c){if(c){return 2;}return 3;}
 int forever(int c){while(1){if(c--==0)break;}return c;}
+int domain(_Bool c){return c!=1;}
 unsigned long mixed(int c){if(c)return -1;else return 1U;}
 int nan_guard(double x){return !(x<0);}
-int main(void){for(int i=0;i<4;i++)printf("%d %d %d %d %d %d %d %d %d %d %d %d %d\n",choose(i),tail(i),assign(i),effect(i),guard(i),boolean(i),zero(i),truth(i),neg(i),compound(i),increment(i),leaf(i),forever(i));printf("%lu %d\n",mixed(1),nan_guard(__builtin_nan("")));}
+int main(void){for(int i=0;i<4;i++)printf("%d %d %d %d %d %d %d %d %d %d %d %d %d\n",choose(i),tail(i),assign(i),effect(i),guard(i),boolean(i),zero(i),truth(i),neg(i),compound(i),increment(i),leaf(i),forever(i));printf("%lu %d\n",mixed(1),nan_guard(__builtin_nan("")));printf("%d %d\n",domain(0),domain(1));}
 "#;
         let variants = generate_variants(source, &options).unwrap();
-        assert_eq!(variants.len(), 15);
+        assert_eq!(variants.len(), RULES.len() + 2);
         assert!(variants.iter().find(|v| v.id == "c-all").unwrap().bytes < source.len());
         let exercised: HashSet<_> = variants
             .iter()
@@ -1390,6 +1493,7 @@ int main(void){for(int i=0;i<4;i++)printf("%d %d %d %d %d %d %d %d %d %d %d %d %
             ));
         }
         expected.push_str(&format!("{} 1\n", u64::MAX));
+        expected.push_str("1 0\n");
         let directory = tempfile::tempdir().unwrap();
         for v in variants {
             assert_eq!(
@@ -1434,5 +1538,97 @@ int main(void){for(int i=0;i<4;i++)printf("%d %d %d %d %d %d %d %d %d %d %d %d %
         assert!(variants
             .iter()
             .all(|v| !String::from_utf8_lossy(&v.data).contains("elsecontinue")));
+    }
+
+    #[test]
+    fn boolean_domain_keeps_int_counterexample_signed_fields_and_effect_counts() {
+        let Some(options) = options() else { return };
+        let source = br#"#include <stdio.h>
+struct B{unsigned u:1;signed s:1;};
+int calls;
+int touch(int value){calls++;return value;}
+int plain(int a){return a!=1;}
+int boolean_not(_Bool a){return a!=1;}
+int boolean_equal(_Bool a){return 1==a;}
+int unsigned_field(struct B *p){return p->u!=1;}
+int signed_field(struct B *p){return p->s!=1;}
+int effect(int a){return (touch(a)>0)!=1;}
+unsigned long mixed(int c){if(c)return -1;else return 1U;}
+int main(void){struct B b;for(int a=-2;a<=2;a++){b.u=a!=0;b.s=a!=0?-1:0;calls=0;int x=effect(a);printf("%d %d %d %d %d %d %d\n",plain(a),boolean_not(a),boolean_equal(a),unsigned_field(&b),signed_field(&b),x,calls);}printf("%lu\n",mixed(1));}
+"#;
+        let variants = generate_variants(source, &options).unwrap();
+        let records: Vec<_> = variants.iter().flat_map(|v| &v.audit).collect();
+        for function in ["boolean_not", "boolean_equal", "unsigned_field", "effect"] {
+            assert!(
+                records
+                    .iter()
+                    .any(|r| { r["function"] == function && r["rule"] == "boolean-domain" }),
+                "expected a proven Boolean-domain rewrite for {function}"
+            );
+        }
+        for function in ["plain", "signed_field"] {
+            assert!(
+                !records
+                    .iter()
+                    .any(|r| { r["function"] == function && r["rule"] == "boolean-domain" }),
+                "unproved or signed range must remain unchanged for {function}"
+            );
+        }
+        let mut expected = String::new();
+        for a in -2..=2 {
+            expected.push_str(&format!(
+                "{} {} {} {} 1 {} 1\n",
+                i32::from(a != 1),
+                i32::from(a == 0),
+                i32::from(a != 0),
+                i32::from(a == 0),
+                i32::from(a <= 0),
+            ));
+        }
+        expected.push_str(&format!("{}\n", u64::MAX));
+        let directory = tempfile::tempdir().unwrap();
+        for v in variants {
+            assert_eq!(
+                compile_run(&options.clang, &v.data, directory.path(), &v.id),
+                expected.as_bytes(),
+                "variant {}",
+                v.id
+            );
+        }
+    }
+
+    #[test]
+    fn individual_portfolio_keeps_equal_and_growing_edits_when_requested() {
+        let Some(mut options) = options() else { return };
+        // A short compound spelling can become longer when logical operands
+        // need parentheses; individual alternatives must not be source-pruned.
+        let source = b"int f(int a,int b,int c){return !(a&&b||c);}int g(int x){return (x!=0)+1;}";
+        options.max_variants = 64;
+        options.individual_edits = 32;
+        options.include_nonshrinking = true;
+        let variants = generate_variants(source, &options).unwrap();
+        assert!(variants.iter().any(|v| {
+            v.audit
+                .iter()
+                .any(|r| r["source_bytes_saved"].as_i64().unwrap() <= 0)
+        }));
+        assert!(variants.iter().any(|v| v.id.starts_with("c-one-")));
+        assert_eq!(variants[0].data, source);
+        for variant in variants.iter().filter(|v| v.id.starts_with("c-one-")) {
+            assert_eq!(variant.audit.len(), 1);
+            let edit = &variant.audit[0];
+            let mut replay = source.to_vec();
+            replay.splice(
+                edit["start"].as_u64().unwrap() as usize..edit["end"].as_u64().unwrap() as usize,
+                edit["after"].as_str().unwrap().bytes(),
+            );
+            assert_eq!(replay, variant.data);
+        }
+        options.include_nonshrinking = false;
+        let shrinking = generate_variants(source, &options).unwrap();
+        assert!(shrinking.iter().all(|v| v
+            .audit
+            .iter()
+            .all(|r| { r["source_bytes_saved"].as_i64().unwrap() > 0 })));
     }
 }

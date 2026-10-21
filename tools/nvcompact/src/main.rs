@@ -1,6 +1,6 @@
 use anyhow::{bail, ensure, Context, Result};
 use clap::{Args, Parser, Subcommand};
-use nvcompact::{cflow, envelope, native, notation, process, resource, uci, write_json};
+use nvcompact::{cflow, csource, envelope, native, notation, process, resource, uci, write_json};
 use serde_json::{json, Value};
 use std::collections::BTreeMap;
 use std::fs;
@@ -29,6 +29,8 @@ enum Command {
     Notation(NotationArgs),
     /// Generate typed C expression/control-flow variants via Clang AST.
     RewriteC(RewriteArgs),
+    /// Generate unranked C local-name and typed literal candidates; no target execution.
+    SpellC(SpellArgs),
     /// Repack an explicitly described complete external submission file.
     Envelope(EnvelopeArgs),
     /// Reproduce one exact envelope result, without another compression search.
@@ -129,6 +131,10 @@ struct RewriteArgs {
     #[arg(long, default_value_t = 2)]
     max_passes: usize,
     #[arg(long)]
+    include_nonshrinking: bool,
+    #[arg(long, default_value_t = 0)]
+    individual_edits: usize,
+    #[arg(long)]
     portfolio: Option<PathBuf>,
     #[arg(long)]
     output: Option<PathBuf>,
@@ -144,6 +150,28 @@ struct RewriteArgs {
     run_contract: Option<String>,
     #[arg(long)]
     codec: Vec<String>,
+}
+#[derive(Args)]
+struct SpellArgs {
+    source: PathBuf,
+    #[arg(long, default_value = "clang")]
+    clang: String,
+    #[arg(long, default_value = "c11")]
+    standard: String,
+    #[arg(long = "compiler-arg", allow_hyphen_values = true)]
+    compiler_args: Vec<String>,
+    #[arg(long, default_value = "opaque")]
+    token_contract: String,
+    #[arg(long, default_value = "c11-lp64")]
+    target: String,
+    #[arg(long, default_value_t = 256)]
+    max_candidates: usize,
+    #[arg(long, default_value_t = 36)]
+    max_name_groups: usize,
+    #[arg(long, default_value_t = 4)]
+    names_per_group: usize,
+    #[arg(long)]
+    portfolio: Option<PathBuf>,
 }
 #[derive(Args)]
 struct EnvelopeArgs {
@@ -495,6 +523,8 @@ fn dispatch(command: Command) -> Result<(Value, bool)> {
                 token_contract: args.token_contract.clone(),
                 max_variants: args.max_variants,
                 max_passes: args.max_passes,
+                include_nonshrinking: args.include_nonshrinking,
+                individual_edits: args.individual_edits,
                 ..Default::default()
             };
             let variants = cflow::generate_variants(&original, &opts)?;
@@ -529,6 +559,33 @@ fn dispatch(command: Command) -> Result<(Value, bool)> {
             }
             Ok((
                 json!({"variants":variants,"source_sha256":nvcompact::sha256(&original)}),
+                true,
+            ))
+        }
+        Command::SpellC(args) => {
+            let original = source(&args.source)?;
+            let opts = csource::CSourceOptions {
+                frontend: cflow::CFlowOptions {
+                    clang: args.clang,
+                    standard: args.standard,
+                    compiler_args: args.compiler_args,
+                    source_path: Some(args.source.canonicalize()?),
+                    token_contract: args.token_contract,
+                    ..Default::default()
+                },
+                target: args.target,
+                max_candidates: args.max_candidates,
+                max_name_groups: args.max_name_groups,
+                names_per_group: args.names_per_group,
+                ..Default::default()
+            };
+            let variants = csource::generate_variants(&original, &opts)?;
+            if let Some(path) = &args.portfolio {
+                portfolio(path, &variants, "c")?;
+            }
+            Ok((
+                json!({"variants":variants,"source_sha256":nvcompact::sha256(&original),
+                "scope":"unranked candidates; envelope source_search adds whole-file cost and structural/native admission"}),
                 true,
             ))
         }

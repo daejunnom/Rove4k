@@ -63,5 +63,22 @@
     "-pthread",
     "-latomic"
   ],
-  "runtime_blocked": "Explicit resource plan required: original worker count follows host online CPUs, and the public script has an unconfirmed physical memory profile. Original decoder failure must be recorded separately from candidate execution."
+  "runtime_blocked": "Explicit resource plan required: original worker count follows host online CPUs, and the public script has an unconfirmed physical memory profile. Original decoder failure must be recorded separately from candidate execution.",
+  "source_search": {
+    "candidates": {
+      "frontend": {
+        "clang": "clang",
+        "standard": "gnu11",
+        "compiler_args": [
+          "-pthread"
+        ],
+        "token_contract": "no-token-observation"
+      },
+      "target": "c11-lp64"
+    },
+    "max_rounds": 2,
+    "max_evaluations": 2048,
+    "max_seconds": 300.0,
+    "conditions": true
+  }
 }

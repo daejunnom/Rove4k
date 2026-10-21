@@ -48,6 +48,8 @@ jobs:
         run: npm ci --ignore-scripts
       - name: Verify launcher ownership and argv
         run: npm test
+      - name: Verify complete-file regression reporting
+        run: npm run test:comparison
       - name: Verify release boundaries without publishing
         run: npm run test:release
       - name: Verify GitHub Packages mirror boundaries without publishing
