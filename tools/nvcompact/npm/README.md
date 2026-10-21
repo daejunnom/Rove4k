@@ -6,6 +6,11 @@ satisfies the selected contract. The Rust implementation is maintained inside
 [Rove4k](https://github.com/daejunnom/Rove4k/tree/main/tools/nvcompact).
 The npm package and executable are both named `nvcompact`.
 
+Version 0.5.0 adds bounded complete-file source search, retained source-search
+attempts and the read-only `compare-attempts` command. Typed C Boolean rewrites
+require a proved 0-or-1 value domain. The [0.5.0 release notes](https://github.com/daejunnom/Rove4k/blob/main/tools/nvcompact/docs/RELEASE-0.5.ko.md)
+describe the source contracts, measured results and supported platforms.
+
 ## Install and use
 
 ```sh
@@ -41,7 +46,7 @@ chess engine files or archived Python implementation.
 Install that tarball into another project:
 
 ```sh
-npm install --offline --ignore-scripts /absolute/path/nvcompact-0.4.1.tgz
+npm install --offline --ignore-scripts /absolute/path/nvcompact-0.5.0.tgz
 npm exec -- nvcompact --version
 npm exec -- nvcompact doctor --json
 ```
@@ -61,6 +66,13 @@ The active builder runs in Rust. A submitted general 4k loader or a user-declare
 verifier can explicitly require an interpreter; those are separate deployment
 and verification dependencies. ELF-only submission candidates do not use script
 loaders. `nvcompact --help` lists the current command surface.
+
+`spell-c` generates local-binding and typed literal alternatives. An inspected
+submission manifest can opt into `source_search` to compare their complete
+compressed file cost, preserving the previous portfolio and requiring native
+and compiler-diagnostic identity. `replay` reconstructs the selected derivation
+without repeating its search. See the [source portfolio guide](https://github.com/daejunnom/Rove4k/blob/main/tools/nvcompact/docs/SOURCE-PORTFOLIO.md)
+for the explicit C/Python observation contracts and bounded search settings.
 
 See the [maintainer publishing guide](https://github.com/daejunnom/Rove4k/blob/main/tools/nvcompact/docs/PUBLISHING.md)
 for the personal-account bootstrap, OIDC configuration and release workflow.
