@@ -1,4 +1,64 @@
-# Maintained C: signed32 lane sum — 2026-10-22
+# Maintained C: shared terminal legal loop — 2026-10-22
+
+The selected complete file is **4869 B**, 5 B below C4874 and 773 B above 4096.
+Shipping C is 9800 B (48 B smaller), native 26304 B and bootstrap 10849 B.
+The pure C-only `shipping_terminal.py` is last, after `shipping_lane_sum.py`.
+It fixes 4 exact regions, 5 unchanged gaps and the full inverse. Canonical
+`engine.c`, DEV, initialized signed8 Board state, all coefficients, actual
+128-bit madd and signed32 lane sum, learners, full search/SMP policies,
+fixed two-worker/TT18 profile, C11 `-mavx2`, 73 B header and C codec stay fixed.
+
+Draw/cap bits 0/1/2/3 share the ordered legal-make loop. The terminal path
+skips the whole TT atomic call and ordinary pruning, then returns immediately
+after its first legal private child, before root, child path, learner or TT
+writes. Cap-only stores stopped; draw+cap preserves draw precedence. No legal
+child retains checkmate/stalemate precedence. Entry stop/deadline claim stays
+first. Additional initialized own-worker ordering reads, local scratch and
+private child order/work/timing may differ. Their traces, cross-worker clock
+schedule and cancellation causality are not equated with the old scan.
+
+The actual new TU was included unchanged. Only the old P definition name was
+aliased, with exact inverse and all non-P source bytes protected. Every old
+call was established as entry-rejected or draw/cap terminal before execution;
+the residual recursive P references were never reached. One fatal GCC13 C11
+O1 ASan/UBSan compile and run passed 28 finite inputs: entry prestop/deadline,
+halfmove/reversible repetition/dead draw, cap-only/draw+cap, mate/stalemate
+precedence and both-color EP/promotion/both-wing castling legality. Typed Board,
+Worker/history/path/learners, root and job history stayed unchanged beyond
+the entry node claim, with actual old/new scores/stops/root/node counts equal.
+Full warm-TT payload/key and held-lock observations passed; zero transient
+atomic probe is a separate source argument, not inferred from final snapshots.
+Constructed cap/FEN/history boundaries are private initialized adapters,
+not full public-game reachability or complete engine/concurrency proofs.
+
+The SAN commands exited 0 with empty stderr, reaped groups absent and active
+handles 0; the firstcost was reused without a new compile/codec search.
+One ordinary `build.py --dev` call reproduced source/native/bootstrap/whole
+twice, exactly equal to the frozen firstcost tuple, plus the unchanged DEV
+source and entire native twice. One unchanged selected verifier passed quit/EOF
+2 sessions and 8 legal GO, exact restored native, 3 startup TIDs each, stdio-only
+FDs and private-path/helper/readers physical exit. Original build/selected
+handles exited 0, were reaped and left groups absent, with empty stderr, no
+retry, forced cleanup or active handle. Additional broad core/game/performance
+coverage and cancellation causality remain unproven.
+
+| Form | Bytes | SHA-256 |
+| --- | ---: | --- |
+| Shipping source | 9800 | `32861867de077f5d09eb631650b854164cd6f32369a57200337743a88f717103` |
+| Native | 26304 | `011e671f31d0fed3478087c9810a5fe6bef7a9ecb359d9ef1b929ab2c35defba` |
+| Bootstrap | 10849 | `b7be7214684f6f87dff7a19ecb7c9571e4711c53a901df2faba1ac06faa4f232` |
+| Complete | 4869 | `cbc770271bb9b71ae2e88ecbf13941de8e8a802211e08adbd68ff82123e011b8` |
+
+Actual output: `/home/stemxstudio/rove4k-c-terminal-shared-promotion-20261022/normal/build`.
+Focused receipt `03d493dd913b184bb5d33cf8debf33c16bb6cf1f4208c5bfac8a378520c45ac6`;
+normal build `3966dd974488bada4a269d1f4de0d0c7aecd8cbcc69f1f98eae7eff65f3b9cf9`;
+selected runtime `9575c719b395f452f9bc7e7828420948f60201484f8800b3aa9b350797d70125`;
+producing recipe `221629b75cfc750887ad9725ec394df85586caefd33dc0379a5a4a25d9a07907`.
+Only this README and recipe normal-validation annotation changed after the
+producing revision. Helper/build, expected artifact identities, compiler,
+canonical/DEV, profile, header and codec retain their producing bytes.
+
+# Historical C: signed32 lane sum — 2026-10-22
 
 The selected complete file is **4874 B**, 6 B below C4880 and 778 B above 4096.
 Shipping source is 9848 B (34 B smaller), native 26304 B and bootstrap 10897 B.

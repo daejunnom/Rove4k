@@ -76,7 +76,8 @@
     "engines/scripts/shipping_lazy_fallback.py": "023b370e75df2d50f44641eac7d1b49091ef2424d9ed7983d6d6f3c7d700b2ce",
     "engines/compact/tiny-entry-c/shipping_capture.py": "21cec8bfd363412ecb4ef82f45f16cfb8e85238f996ed30863e65b9dc14b67f4",
     "engines/scripts/source_package.py": "55fa739e7c17fffdb3bf1191c7a26aa38d35e9e32473e4008c23ece3d5703d1f",
-    "engines/compact/tiny-entry-c/shipping_lane_sum.py": "8e5a0ea7fa7086b4da289f685480a49201387918b398b76a63e221f88102cbb9"
+    "engines/compact/tiny-entry-c/shipping_lane_sum.py": "8e5a0ea7fa7086b4da289f685480a49201387918b398b76a63e221f88102cbb9",
+    "engines/compact/tiny-entry-c/shipping_terminal.py": "77d5beef9971b9676c729067d379a59c5be8da511494fcddeed89da3788e0a7a"
   },
   "compression": {
     "format": "lzma-alone",
@@ -93,16 +94,16 @@
   },
   "expected": {
     "readable_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
-    "source_bytes": 9848,
-    "source_sha256": "a661656a482be3ee8383443925c7c36114ce802e9d06ffed59f5479f7ccd37b9",
+    "source_bytes": 9800,
+    "source_sha256": "32861867de077f5d09eb631650b854164cd6f32369a57200337743a88f717103",
     "native_bytes": 26304,
-    "native_sha256": "b2d04d7c74ac3801a61f5f5b967311ceac45cad4ad2a878fbbb0338eddd3502d",
-    "whole_bytes": 4874,
-    "whole_sha256": "f6084a865f399d55179ab02a347c94609787eb02cedf79674ee0d8748ab0c290",
-    "bootstrap_sha256": "992c6a573ddc40a08a2d64c7468dc5912e6bec02a6757d392326d5493f2628aa",
+    "native_sha256": "011e671f31d0fed3478087c9810a5fe6bef7a9ecb359d9ef1b929ab2c35defba",
+    "whole_bytes": 4869,
+    "whole_sha256": "cbc770271bb9b71ae2e88ecbf13941de8e8a802211e08adbd68ff82123e011b8",
+    "bootstrap_sha256": "b7be7214684f6f87dff7a19ecb7c9571e4711c53a901df2faba1ac06faa4f232",
     "dev_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
     "dev_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c",
-    "bootstrap_bytes": 10897
+    "bootstrap_bytes": 10849
   },
   "local_input_sha256": {
     "engine.c": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
@@ -1712,6 +1713,114 @@
       "final_metadata_scope": "only this normal_validation replaces pending flag; source-producing code/helper/expected unchanged",
       "actual_outputs": "/home/stemxstudio/rove4k-c-simd-lane-sum-promotion-20261022/normal/build",
       "runtime_scope": "fresh selected quit/EOF2 sessions8 legal GO, exact restored new native,3 startup TIDs,stdio-only descriptors,private-path/helper/readers physical exit; no performance/core/game proof"
+    }
+  },
+  "shared_terminal": {
+    "scope": "C dedicated draw/plycap scan shares the ordinary ordered legal-make loop; full learners/SIMD/search/SMP retained",
+    "predecessor_expected": {
+      "readable_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
+      "source_bytes": 9848,
+      "source_sha256": "a661656a482be3ee8383443925c7c36114ce802e9d06ffed59f5479f7ccd37b9",
+      "native_bytes": 26304,
+      "native_sha256": "b2d04d7c74ac3801a61f5f5b967311ceac45cad4ad2a878fbbb0338eddd3502d",
+      "whole_bytes": 4874,
+      "whole_sha256": "f6084a865f399d55179ab02a347c94609787eb02cedf79674ee0d8748ab0c290",
+      "bootstrap_sha256": "992c6a573ddc40a08a2d64c7468dc5912e6bec02a6757d392326d5493f2628aa",
+      "dev_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
+      "dev_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c",
+      "bootstrap_bytes": 10897
+    },
+    "source_regions": 4,
+    "protected_gaps": 5,
+    "full_inverse": true,
+    "raw_source_delta": -48,
+    "whole_delta": -5,
+    "native_identity_changed": true,
+    "source_proof": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-terminal-shared-source-plan-20261022-evidence/source-proof.json",
+      "bytes": 7864,
+      "sha256": "5c2a61ccbeea59c4dca7398210bff1962b373698d59b7e0e020953082c694601"
+    },
+    "independent_source_review": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-terminal-shared-source-plan-20261022-evidence/independent-source-review.json",
+      "bytes": 1580,
+      "sha256": "4e5f851fbb5905dae70e67657543c66d653393ce0d09dbc112142d4a9bc729f0"
+    },
+    "firstcost": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-terminal-shared-first-cost-20261022-evidence/firstcost.json",
+      "bytes": 7342,
+      "sha256": "060695f8f663e640a6ce54b4a509772bd02e147f4fa95b87d4a63dc703d71918"
+    },
+    "firstcost_reexecuted": false,
+    "entry_claim_and_terminal_policies_unchanged": true,
+    "terminal_TT_atomic_probe_and_pruning": "entire J call and ordinary pruning skipped for terminal; source proof, not transient snapshot trace",
+    "additional_ordering_reads_local_scratch_child_work_timing": "may differ; initialized production ownWorker/Board/yb0..12 domain",
+    "canonical_DEV_SIMD_weights_ISA_and_profile_unchanged": true,
+    "focused_validation": {
+      "preparation": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-terminal-focused-20261022-evidence/preparation.json",
+        "bytes": 4477,
+        "sha256": "7980c676246b8dab06ea673e4421681a376a28f01ca81fc47ea1e212d17e620e"
+      },
+      "producer": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-terminal-focused-20261022-evidence/run.py",
+        "bytes": 8743,
+        "sha256": "8438e260b13c30cf70923e2fd09cadb0ff45dc56418f1b46c5efb6801f520c6e"
+      },
+      "receipt": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-terminal-focused-20261022-evidence/results.json",
+        "bytes": 11067,
+        "sha256": "03d493dd913b184bb5d33cf8debf33c16bb6cf1f4208c5bfac8a378520c45ac6"
+      },
+      "actual_old_P_definition_name_only_alias": true,
+      "new_TU_bytes_unchanged": true,
+      "old_new_non_P_complement_exact": true,
+      "terminal_only_no_recursive_alias_calls": true,
+      "instrumented_compiles": 1,
+      "fixture_runs": 1,
+      "actual_old_calls": 28,
+      "actual_new_calls": 28,
+      "scope": "GCC13 C11 O1 fatal ASan/UBSan; initialized private terminal boundaries and actual reversible cycles, typed state/root/job history and full TT payload/held-lock checks; no transient atomic trace, concurrency/core/game/strength/performance proof"
+    },
+    "normal_validation": {
+      "producing_recipe": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-terminal-focused-20261022-evidence/producing/recipe.json",
+        "bytes": 99408,
+        "sha256": "221629b75cfc750887ad9725ec394df85586caefd33dc0379a5a4a25d9a07907"
+      },
+      "producing_builder": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-terminal-focused-20261022-evidence/producing/build.py",
+        "bytes": 16751,
+        "sha256": "2d2a836f01063a492a3e481da29168bc50102b2394db9dae91d6989a6993377b"
+      },
+      "build": {
+        "path": "/home/stemxstudio/rove4k-c-terminal-shared-promotion-20261022/normal/build/build.json",
+        "bytes": 208441,
+        "sha256": "3966dd974488bada4a269d1f4de0d0c7aecd8cbcc69f1f98eae7eff65f3b9cf9"
+      },
+      "selected_runtime": {
+        "path": "/home/stemxstudio/rove4k-c-terminal-shared-promotion-20261022/normal/runtime/runtime.json",
+        "bytes": 42706,
+        "sha256": "9575c719b395f452f9bc7e7828420948f60201484f8800b3aa9b350797d70125"
+      },
+      "outer_commands": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-terminal-focused-20261022-evidence/normal-commands.json",
+        "bytes": 5097,
+        "sha256": "ed08ab2a127a3400be41a50bf5778ff46f95cf298ed46f5286d3aee4c4422cd3"
+      },
+      "readback": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-terminal-focused-20261022-evidence/normal-readback.json",
+        "bytes": 12261,
+        "sha256": "d7cc897a9e92f03bb5ce9ebfbdfc70fc831bfbc80f20051eed57e8ec58e55a96"
+      },
+      "ordinary_builder_calls": 1,
+      "shipping_reproductions": 2,
+      "unchanged_DEV_reproductions": 2,
+      "unchanged_selected_verifier_calls": 1,
+      "source_native_bootstrap_whole_exact_fixed_firstcost": true,
+      "final_metadata_scope": "normal receipt annotation only; helper/build/expected/compiler/codec unchanged from producer",
+      "actual_outputs": "/home/stemxstudio/rove4k-c-terminal-shared-promotion-20261022/normal/build",
+      "runtime_scope": "two selected quit/EOF sessions,8legalGO,exact restored native,3startupTIDs each,stdio-onlyFDs and privatepath/helper/readers physical exit; cancellation causality unproven, no game/strength/performance/core claim"
     }
   }
 }
