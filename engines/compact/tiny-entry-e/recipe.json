@@ -56,7 +56,8 @@
     "engines/compact/tiny-entry-e/shipping_model.py": "181c29b2744b7eca72b0514865e975a71f9f141f7ddeae4b60bab7743a4d39e4",
     "engines/compact/tiny-entry-e/model19.h": "3f7e2546c72ed4faf3f1257515777b0f0e530bf52c57b7901eae3f4497be26dc",
     "engines/compact/tiny-entry-e/shipping_types.py": "3d823cfd60985ec24226261b178294f10cc945a032ab5084fe9f3ec9f4781fe9",
-    "engines/compact/tiny-entry-e/shipping_global_names.py": "fdf0032237aa3b6825e8c697f028b2dfe82ed80e4bf04a14c372ded8ab8d51cd"
+    "engines/compact/tiny-entry-e/shipping_global_names.py": "fdf0032237aa3b6825e8c697f028b2dfe82ed80e4bf04a14c372ded8ab8d51cd",
+    "engines/scripts/shipping_common.py": "58f2cfdb37bbd0c010e82bc8d9c2118b00fe41ef6a556c18cc94db11455e2a15"
   },
   "compression": {
     "format": "lzma-alone",
@@ -74,18 +75,18 @@
   "expected": {
     "readable_bytes": 28001,
     "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
-    "source_bytes": 10755,
-    "source_sha256": "7577ff9c4e23393534cf396e12a88e64cf44a0c73014f78154d8d9fa791b97b1",
+    "source_bytes": 10723,
+    "source_sha256": "2d15040aa4f916f9f07c4f81eee1e56c59bc15944b55bd48952be02128804e72",
     "native_bytes": 26368,
     "native_sha256": "2882e45f06e6604bb50ab00269a04e1febca65f590a523c490b3f8267c400734",
-    "whole_bytes": 5118,
-    "whole_sha256": "3d90f959ae9a41cac62f7d8e5fb67c8a9e7f6dae4059df344f6c16a8b8b75df2",
-    "bootstrap_sha256": "b186b7533bc16987ad65699b48688a646afc207a820ee04f4df32f95057709ec",
+    "whole_bytes": 5104,
+    "whole_sha256": "a7bfd5cc75a6f05fa29b93ac3fe2b9effdabb4bc1d6f4788948a3468e4209475",
+    "bootstrap_sha256": "c2df11c7b60dc98822936866e99e27de5e4dd176a8c92e2e9b2195e8dde04305",
     "dev_source_bytes": 21314,
     "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
     "dev_native_bytes": 31376,
     "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
-    "bootstrap_bytes": 11820
+    "bootstrap_bytes": 11780
   },
   "local_input_sha256": {
     "engine.c": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
@@ -494,5 +495,28 @@
     "canonical_model_sha256": "4ff88c9f4dde9d51f69e32e8c9f57ce555361ea9d22086b41e8873bc06c72164",
     "evaluation": "16 exact weights and original clamp",
     "ordering": "5 exact weights, actual search ordering; original composed capture-material policy"
+  },
+  "shared_shipping": {
+    "scope": "late unused guard, fixed TT18 casts for A/C/E, ASCII raw-bytes envelope; entire native unchanged; fresh selected wrapper verification separate",
+    "previous_expected": {
+      "readable_bytes": 28001,
+      "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+      "source_bytes": 10755,
+      "source_sha256": "7577ff9c4e23393534cf396e12a88e64cf44a0c73014f78154d8d9fa791b97b1",
+      "native_bytes": 26368,
+      "native_sha256": "2882e45f06e6604bb50ab00269a04e1febca65f590a523c490b3f8267c400734",
+      "whole_bytes": 5118,
+      "whole_sha256": "3d90f959ae9a41cac62f7d8e5fb67c8a9e7f6dae4059df344f6c16a8b8b75df2",
+      "bootstrap_sha256": "b186b7533bc16987ad65699b48688a646afc207a820ee04f4df32f95057709ec",
+      "dev_source_bytes": 21314,
+      "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
+      "dev_native_bytes": 31376,
+      "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
+      "bootstrap_bytes": 11820
+    },
+    "guard_literal_cost_sha256": "5f59dcc89397f4c4934b17482dc89bda18a0d827247c083670247528d27177aa",
+    "guard_casts_literal_cost_sha256": "665b72e861fa9913e75a507ca9faa87693c85fc5310ca3202e1dc6979a737fed",
+    "entire_native_unchanged": true,
+    "DEV_bypass": true
   }
 }

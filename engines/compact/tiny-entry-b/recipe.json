@@ -59,7 +59,8 @@
     "engines/compact/tiny-entry-b/shipping_tactical.py": "3039a6a214276093e18cb13e9787fe810358acdc7475ad8f0542bc71bc5d1fd2",
     "engines/compact/tiny-entry-b/shipping_types.py": "1ec1ecc076bf3a037ad38b8c9b7ea701ff317d092e1c31e8f48f3dea285ed244",
     "engines/compact/tiny-entry-b/shipping_global_names.py": "9a4ef3465193b34cb5739adf2e2863cb09670422cb244ab16d29c4124abe1522",
-    "engines/compact/tiny-entry-b/shipping_recapture.py": "2dd0d4feadd5d51069de4030f58fb35b54a8ce277e3c36a585779aaf11229faf"
+    "engines/compact/tiny-entry-b/shipping_recapture.py": "2dd0d4feadd5d51069de4030f58fb35b54a8ce277e3c36a585779aaf11229faf",
+    "engines/scripts/shipping_common.py": "58f2cfdb37bbd0c010e82bc8d9c2118b00fe41ef6a556c18cc94db11455e2a15"
   },
   "compression": {
     "format": "lzma-alone",
@@ -76,16 +77,16 @@
   },
   "expected": {
     "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
-    "source_bytes": 10957,
-    "source_sha256": "c3a86dd9d442356dde5150588c396caf86deb53401c09d15572db4fd5973bec5",
+    "source_bytes": 10941,
+    "source_sha256": "c3b68e0957d7068abce346083785de8f8cabb8104eefead83a18fb15efa45488",
     "native_bytes": 26304,
     "native_sha256": "c895bf3d2802d12014869e13726dce9c29da732e75e6c476c50436c1f39ac6ca",
-    "whole_bytes": 5267,
-    "whole_sha256": "245a05f9d0656be4a1b79c63a884b06dcc526b4e78a9e5391c8b05c6489d3d76",
+    "whole_bytes": 5256,
+    "whole_sha256": "41a6057b9a4c5ed8445d96b2fa19263dcf436cf6a5b7a25948323e7b9570fe5e",
     "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
     "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
-    "bootstrap_sha256": "38f0d249685409b1e93cecd9e780a679e4da2e16f244f4240ad756450c995d50",
-    "bootstrap_bytes": 12022
+    "bootstrap_sha256": "eb2af535cd15ac8a468663d41819cae9a1a26ef9de8495c0dc84f1bfc26b78ae",
+    "bootstrap_bytes": 11998
   },
   "local_input_sha256": {
     "engine.c": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
@@ -683,5 +684,25 @@
       "full_inverse_and_protected_complement": true,
       "fixed_header_domain": "sole actual compiler entire native equality; only C fixed late immintrin inclusion admitted"
     }
+  },
+  "shared_shipping": {
+    "scope": "late unused guard, fixed TT18 casts for A/C/E, ASCII raw-bytes envelope; entire native unchanged; fresh selected wrapper verification separate",
+    "previous_expected": {
+      "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+      "source_bytes": 10957,
+      "source_sha256": "c3a86dd9d442356dde5150588c396caf86deb53401c09d15572db4fd5973bec5",
+      "native_bytes": 26304,
+      "native_sha256": "c895bf3d2802d12014869e13726dce9c29da732e75e6c476c50436c1f39ac6ca",
+      "whole_bytes": 5267,
+      "whole_sha256": "245a05f9d0656be4a1b79c63a884b06dcc526b4e78a9e5391c8b05c6489d3d76",
+      "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
+      "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
+      "bootstrap_sha256": "38f0d249685409b1e93cecd9e780a679e4da2e16f244f4240ad756450c995d50",
+      "bootstrap_bytes": 12022
+    },
+    "guard_literal_cost_sha256": "5f59dcc89397f4c4934b17482dc89bda18a0d827247c083670247528d27177aa",
+    "guard_casts_literal_cost_sha256": "665b72e861fa9913e75a507ca9faa87693c85fc5310ca3202e1dc6979a737fed",
+    "entire_native_unchanged": true,
+    "DEV_bypass": true
   }
 }

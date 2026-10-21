@@ -185,14 +185,14 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
-| A | 4,689 B | 593 B | Reuse the already computed continuation slot, global function aliases, capture-only private Move bit, calloc payload initialization sharing, lexical-scope names/types, shared startup/query and original ALONE |
-| B | 5,267 B | 1,171 B | Fixed-target recapture-promotion dominance, global function aliases, tactical Move metadata, shared geometry, legal-LVA ordering, hybrid attackers/singular and ALONE |
-| C | 5,036 B | 940 B | Global function aliases, signed-net eight-lane state, exact HCE, real 128-bit madd/hadd and fixed ALONE |
+| A | 4,674 B | 578 B | Shared final guard/literal/fixed-TT18 casts; Reuse the already computed continuation slot, global function aliases, capture-only private Move bit, calloc payload initialization sharing, lexical-scope names/types, shared startup/query and original ALONE |
+| B | 5,256 B | 1,160 B | Shared final guard/literal; Fixed-target recapture-promotion dominance, global function aliases, tactical Move metadata, shared geometry, legal-LVA ordering, hybrid attackers/singular and ALONE |
+| C | 5,020 B | 924 B | Shared final guard/literal/fixed-TT18 casts; Global function aliases, signed-net eight-lane state, exact HCE, real 128-bit madd/hadd and fixed ALONE |
 | D scalar / HQ | 5,987 / 6,194 B | 1,891 / 2,098 B | One-state dead classifier, EP trial shares make, full-key aligned atomic16 TT, explicit SSE4.2/CX16 profile, own fixed21 context ELF and guarded BCJ restoration |
-| E | 5,118 B | 1,022 B | Global function aliases, untrained E19 quadratic activity model, incremental material/activity, original ordering and ALONE |
-| F full (default) | 4,681 B | 585 B | Capture-only private Move bit, global function aliases, calloc payload initialization sharing, unit-window TT bound expression, full-key TT, full-depth MTD(f), packed HCE and fixed ALONE |
-| F material/noise (opt-in) | 4,386 B | 290 B | Capture-only private Move bit, policy-local function aliases, fixed material/stateless-order model, full-depth MTD(f)/full-key TT/SMP retained; optional positional HCE/learners omitted; strength comparison pending |
-| F material/move-TT (opt-in) | 4,174 B | 78 B | Bound-preserving declaration/expressions, object/type/member names, fixed material and16-byte full-key coherent move-only TT; MTD recomputes bounds, rules/history/witness/pool retained; strength comparison pending |
+| E | 5,104 B | 1,008 B | Shared final guard/literal/fixed-TT18 casts; Global function aliases, untrained E19 quadratic activity model, incremental material/activity, original ordering and ALONE |
+| F full (default) | 4,668 B | 572 B | Shared final guard/literal; Capture-only private Move bit, global function aliases, calloc payload initialization sharing, unit-window TT bound expression, full-key TT, full-depth MTD(f), packed HCE and fixed ALONE |
+| F material/noise (opt-in) | 4,374 B | 278 B | Shared final guard/literal; Capture-only private Move bit, policy-local function aliases, fixed material/stateless-order model, full-depth MTD(f)/full-key TT/SMP retained; optional positional HCE/learners omitted; strength comparison pending |
+| F material/move-TT (opt-in) | 4,162 B | 66 B | Shared final guard/literal; Bound-preserving declaration/expressions, object/type/member names, fixed material and16-byte full-key coherent move-only TT; MTD recomputes bounds, rules/history/witness/pool retained; strength comparison pending |
 
 The separate Rust D native images are 16,816 bytes each. Their independent
 packed experiment retains its own qualification state and does not silently
@@ -5499,3 +5499,76 @@ cost index SHA is
 `e1ab869cb227ca067e2174dc03d0f0c2c7e5aa624daa512079508ec8d294f1be`.
 The14-byte cost delta and later6-byte expression delta are not added; their
 composition is unmeasured. It does not replace the maintained4174 policy.
+
+## Shared final shipping reductions — 2026-10-21
+
+The maintained A/B/C/E/F entries consume their own fixed engine snapshots.
+Changing an ancestor common `main.c` alone does not reduce these submissions.
+The new `engines/scripts/shipping_common.py` therefore runs once after each
+existing fixed shipping chain, with one shared literal API during packaging.
+Historical helpers, maps, default `pack_stream.py` and canonical/DEV inputs
+remain unchanged. D uses its separate own-ELF path and is unchanged here.
+
+The source pass removes the sole empty, unused `TINY_H` definition. The old
+and guard-only preprocessed compiler text and entire native match for all
+seven policies. A/C/E additionally omit `(size_t)` in exactly two fixed TT18
+roles: calloc's count and a size_t-indexed clear-loop bound. On the pinned
+Linux x86-64 int32/size_t64 profile, `1<<18` is positive int262144 and both
+contexts convert to the same size_t value. Full role spans, contextual inverse,
+unchanged complement, current input and final output are pinned. This is not
+a general cast-elimination rule or a different memory profile.
+
+The packaging API emits `br` literals only when the unchanged previous API
+selected a raw ASCII string. It removes the redundant `.encode()` envelope
+without changing compiler-stdin bytes. Non-ASCII UTF8, invalid bytes, CRLF,
+NUL, delimiters and odd trailing backslashes retain their prior fallbacks.
+The 77-byte shell prefix, signal/mask/process-group handling, private TMPDIR,
+fd-exec, argv and all other bootstrap code remain unchanged. A shorter shell
+AND-list outline was rejected before encoding/execution because decoder
+failure could continue parsing the compressed binary tail.
+
+Every complete file below is directly encoded with its current fixed codec;
+individual candidate deltas are not added. Source decreases are32 bytes for
+A/C/E and16 for B/F; bootstrap decreases are40 and24 respectively.
+
+| Entry | Previous | New whole | Saved | Above4096 |
+|---|---:|---:|---:|---:|
+| A | 4689 | 4674 | 15 | 578 |
+| B | 5267 | 5256 | 11 | 1160 |
+| C | 5036 | 5020 | 16 | 924 |
+| E | 5118 | 5104 | 14 | 1008 |
+| F | 4681 | 4668 | 13 | 572 |
+| F-material | 4386 | 4374 | 12 | 278 |
+| F-move | 4174 | 4162 | 12 | 66 |
+
+All seven ordinary `--dev` builds and unchanged selected verifiers passed in
+WSL Ubuntu. Each build reproduced shipping source/native/bootstrap/whole and
+full-reference DEV twice. Every selected entire native is identical to the
+preceding maintained native, with no metadata exception. Fourteen fresh
+quit/EOF wrapper sessions observe exact native restoration, stable3 startup
+TIDs, legal finite GO, private-path/helper absence at UCI, one closing result,
+reader completion and physical exit. These checks do not establish strength,
+target tournament resources or universal compiler-descendant lifetime. The
+existing stop-causality evidence boundary is unchanged.
+
+The new compiler-stdin capture test passes all12 literal/fallback inputs;
+it runs a Python capture stub rather than an engine. Existing engine/core
+proofs are reused through full-native identity, not relabeled as fresh units.
+The normal producing-source readback matches every frozen build input.
+
+External normal summary: `4c2bc987c0947387ebe688ac76c7b91f41d1458149278e490638fb1428f7469f`.
+Guard/literal composition: `5f59dcc89397f4c4934b17482dc89bda18a0d827247c083670247528d27177aa`.
+Guard/casts/literal composition: `665b72e861fa9913e75a507ca9faa87693c85fc5310ca3202e1dc6979a737fed`.
+Preparation-only path/recipe-key failures remain preserved in the external
+cost roots; they are not engine failures or repaired success receipts.
+
+A separate common main-owned strtok cursor candidate removes104 raw bytes
+and measures A4689→4678/B5267→5253 with new native identities. Static ownership
+review found no interleaved worker tokenizer or parent-token resumption, but
+function/wrapper runs are zero. It remains cost-only and is not composed into
+the table above. A valid-0x88 promotion-rank predicate is a further source-only
+proposal; no complete-file savings are assigned to it.
+
+All six family size gaps remain. No training, games, AWS or paid execution,
+main/develop promotion or release was performed by this checkpoint. External
+reference engines and generated artifacts remain outside Git.

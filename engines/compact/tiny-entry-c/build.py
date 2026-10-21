@@ -83,6 +83,7 @@ def main():
         minifier=module('entry_minify',frozen/'minify.py');compact=minifier.compact_source
         strip=module('entry_counter_strip',frozen/'stitch.py').strip_dev_counters
         literal=module('entry_literal',frozen/'pack_stream.py').source_literal
+        common=module('entry_shipping_common',frozen/'shipping_common.py')
         reference=module('entry_fixed_shipping_alpha_reference',frozen/'fixed_shipping_alpha.py')
         alpha=module('entry_composition_shipping_alpha',frozen/'shipping_alpha.py').transform_source
         scope=module('entry_fixed_scope_names',frozen/'shipping_scope.py').transform_source
@@ -109,7 +110,7 @@ def main():
             if dev:preprocess_source,input_metadata=input_profile.transform_readable(canonical,family='C')
             active,observations=specialize({'main.c':preprocess_source},directory,recipe['preprocessor']+['-DDEV='+str(int(dev))],os.environ.copy())
             data=compact(active['main.c'],'c')
-            alpha_metadata=None;scope_metadata=None;core_metadata=None;simd_metadata=None;material_metadata=None;incremental_metadata=None;signed_metadata=None;type_metadata=None;global_names_metadata=None
+            alpha_metadata=None;scope_metadata=None;core_metadata=None;simd_metadata=None;material_metadata=None;incremental_metadata=None;signed_metadata=None;type_metadata=None;global_names_metadata=None;common_metadata=None
             if not dev:
                 data,_=strip(data)
                 data,alpha_metadata=alpha(data,family='C',lexer=lexer,reference=reference,readable=canonical)
@@ -122,9 +123,10 @@ def main():
                 data,signed_metadata=signed_vector(data)
                 data,type_metadata=types(data,readable=canonical,lexer=lexer)
                 data,global_names_metadata=global_names(data)
-            return data,observations,alpha_metadata,scope_metadata,core_metadata,simd_metadata,input_metadata,material_metadata,incremental_metadata,signed_metadata,type_metadata,global_names_metadata
+                data,common_metadata=common.transform_source(data,family='C')
+            return data,observations,alpha_metadata,scope_metadata,core_metadata,simd_metadata,input_metadata,material_metadata,incremental_metadata,signed_metadata,type_metadata,global_names_metadata,common_metadata
         def package(source):
-            expression,_=literal(source);script=template.replace(marker,expression.encode())
+            expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())
             ast.parse(script)
             data=prefix+lzma.compress(script,format=lzma.FORMAT_ALONE,check=lzma.CHECK_NONE,
                                      filters=[{'id':lzma.FILTER_LZMA1,'preset':9|lzma.PRESET_EXTREME,
@@ -134,7 +136,7 @@ def main():
         first=None;first_dev=None
         for index in (1,2):
             directory=out/('attempt-'+str(index));directory.mkdir()
-            source,observations,alpha_metadata,scope_metadata,core_metadata,simd_metadata,input_metadata,material_metadata,incremental_metadata,signed_metadata,type_metadata,global_names_metadata=generate(directory/'preprocess')
+            source,observations,alpha_metadata,scope_metadata,core_metadata,simd_metadata,input_metadata,material_metadata,incremental_metadata,signed_metadata,type_metadata,global_names_metadata,common_metadata=generate(directory/'preprocess')
             if len(source)!=expected['source_bytes'] or sha(source)!=expected['source_sha256']:raise ValueError('compact C identity mismatch')
             (directory/'main.c').write_bytes(source)
             native=compile_c(recipe['compiler'],source,directory/'native')
@@ -148,10 +150,10 @@ def main():
             elif current!=first:raise ValueError('independent generation did not reproduce bytes')
             row={'attempt':index,'source_bytes':len(source),'source_sha256':sha(source),'native_bytes':len(native),'native_sha256':sha(native),
                  'whole_bytes':len(whole),'whole_sha256':sha(whole),'bootstrap_sha256':sha(script),'preprocessor':observations,
-                 'shipping_alpha':alpha_metadata,'shipping_scope':scope_metadata,'shipping_core':core_metadata,'shipping_simd':simd_metadata,'shipping_input':input_metadata,'shipping_material':material_metadata,'shipping_incremental':incremental_metadata,'shipping_signed_vector':signed_metadata,'shipping_types':type_metadata,'shipping_global_names':global_names_metadata}
+                 'shipping_alpha':alpha_metadata,'shipping_scope':scope_metadata,'shipping_core':core_metadata,'shipping_simd':simd_metadata,'shipping_input':input_metadata,'shipping_material':material_metadata,'shipping_incremental':incremental_metadata,'shipping_signed_vector':signed_metadata,'shipping_types':type_metadata,'shipping_global_names':global_names_metadata,'shipping_common':common_metadata}
             if args.dev:
-                dev,dev_observations,dev_alpha,dev_scope,dev_core,dev_simd,dev_input,dev_material,dev_incremental,dev_signed,dev_types,dev_global_names=generate(directory/'preprocess-dev',True)
-                if dev_alpha is not None or dev_scope is not None or dev_core is not None or dev_simd is not None or dev_material is not None or dev_incremental is not None or dev_signed is not None or dev_types is not None or dev_global_names is not None:raise ValueError('diagnostic source entered a shipping-only stage')
+                dev,dev_observations,dev_alpha,dev_scope,dev_core,dev_simd,dev_input,dev_material,dev_incremental,dev_signed,dev_types,dev_global_names,dev_common=generate(directory/'preprocess-dev',True)
+                if dev_alpha is not None or dev_scope is not None or dev_core is not None or dev_simd is not None or dev_material is not None or dev_incremental is not None or dev_signed is not None or dev_types is not None or dev_global_names is not None or dev_common is not None:raise ValueError('diagnostic source entered a shipping-only stage')
                 if sha(dev)!=expected['dev_source_sha256']:raise ValueError('diagnostic C differs from qualified control')
                 dev_command=recipe['dev_compiler']
                 dev_native=compile_c(dev_command,dev,directory/'dev');(directory/'dev/main.c').write_bytes(dev)

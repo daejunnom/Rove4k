@@ -94,6 +94,7 @@ def main():
         types=module('entry_B_shipping_types',frozen/'shipping_types.py').transform_source
         global_names=module('entry_B_global_names',frozen/'shipping_global_names.py').transform_source
         recapture=module('entry_B_recapture_promotion',frozen/'shipping_recapture.py').transform_source
+        common=module('entry_shipping_common',frozen/'shipping_common.py')
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
         if template.count(marker)!=1 or len(prefix)!=77:raise ValueError('bootstrap recipe changed')
@@ -105,7 +106,7 @@ def main():
             if dev:preprocess_source,input_metadata=input_profile.transform_readable(canonical,family='B')
             active,observations=specialize({'main.c':preprocess_source},directory,recipe['preprocessor']+['-DDEV='+str(int(dev)),'main.c','-o','x'],os.environ.copy())
             data=compact(active['main.c'],'c')
-            alpha_metadata=None;storage_metadata=None;scope_metadata=None;core_metadata=None;order_metadata=None;walk_metadata=None;tactical_metadata=None;type_metadata=None;global_names_metadata=None;recapture_metadata=None
+            alpha_metadata=None;storage_metadata=None;scope_metadata=None;core_metadata=None;order_metadata=None;walk_metadata=None;tactical_metadata=None;type_metadata=None;global_names_metadata=None;recapture_metadata=None;common_metadata=None
             if not dev:
                 data,_=strip(data)
                 data,alpha_metadata=alpha(data,family='B',lexer=lexer)
@@ -119,9 +120,10 @@ def main():
                 data,type_metadata=types(data,readable=canonical,lexer=lexer)
                 data,global_names_metadata=global_names(data)
                 data,recapture_metadata=recapture(data)
-            return data,observations,alpha_metadata,storage_metadata,scope_metadata,core_metadata,input_metadata,order_metadata,walk_metadata,tactical_metadata,type_metadata,global_names_metadata,recapture_metadata
+                data,common_metadata=common.transform_source(data,family='B')
+            return data,observations,alpha_metadata,storage_metadata,scope_metadata,core_metadata,input_metadata,order_metadata,walk_metadata,tactical_metadata,type_metadata,global_names_metadata,recapture_metadata,common_metadata
         def package(source):
-            expression,_=literal(source);script=template.replace(marker,expression.encode())
+            expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())
             ast.parse(script)
             data=prefix+lzma.compress(script,format=lzma.FORMAT_ALONE,check=lzma.CHECK_NONE,
                                      filters=[{'id':lzma.FILTER_LZMA1,'preset':9|lzma.PRESET_EXTREME,
@@ -131,7 +133,7 @@ def main():
         first=None;first_dev=None
         for index in (1,2):
             directory=out/('attempt-'+str(index));directory.mkdir()
-            source,observations,alpha_metadata,storage_metadata,scope_metadata,core_metadata,input_metadata,order_metadata,walk_metadata,tactical_metadata,type_metadata,global_names_metadata,recapture_metadata=generate(directory/'preprocess')
+            source,observations,alpha_metadata,storage_metadata,scope_metadata,core_metadata,input_metadata,order_metadata,walk_metadata,tactical_metadata,type_metadata,global_names_metadata,recapture_metadata,common_metadata=generate(directory/'preprocess')
             if len(source)!=expected['source_bytes'] or sha(source)!=expected['source_sha256']:raise ValueError('compact C identity mismatch')
             (directory/'main.c').write_bytes(source)
             native=compile_c(recipe['compiler'],source,directory/'native')
@@ -145,10 +147,10 @@ def main():
             elif current!=first:raise ValueError('independent generation did not reproduce bytes')
             row={'attempt':index,'source_bytes':len(source),'source_sha256':sha(source),'native_bytes':len(native),'native_sha256':sha(native),
                  'whole_bytes':len(whole),'whole_sha256':sha(whole),'bootstrap_sha256':sha(script),'preprocessor':observations,
-                 'shipping_alpha':alpha_metadata,'shipping_storage':storage_metadata,'shipping_scope':scope_metadata,'shipping_core':core_metadata,'shipping_input':input_metadata,'shipping_order':order_metadata,'shipping_walk':walk_metadata,'shipping_tactical':tactical_metadata,'shipping_types':type_metadata,'shipping_global_names':global_names_metadata,'shipping_recapture':recapture_metadata}
+                 'shipping_alpha':alpha_metadata,'shipping_storage':storage_metadata,'shipping_scope':scope_metadata,'shipping_core':core_metadata,'shipping_input':input_metadata,'shipping_order':order_metadata,'shipping_walk':walk_metadata,'shipping_tactical':tactical_metadata,'shipping_types':type_metadata,'shipping_global_names':global_names_metadata,'shipping_recapture':recapture_metadata,'shipping_common':common_metadata}
             if args.dev:
-                dev,dev_observations,dev_alpha,dev_storage,dev_scope,dev_core,dev_input,dev_order,dev_walk,dev_tactical,dev_types,dev_global_names,dev_recapture=generate(directory/'preprocess-dev',True)
-                if dev_alpha is not None or dev_storage is not None or dev_scope is not None or dev_core is not None or dev_order is not None or dev_walk is not None or dev_tactical is not None or dev_types is not None or dev_global_names is not None or dev_recapture is not None:raise ValueError('diagnostic source entered shipping spelling/core stage')
+                dev,dev_observations,dev_alpha,dev_storage,dev_scope,dev_core,dev_input,dev_order,dev_walk,dev_tactical,dev_types,dev_global_names,dev_recapture,dev_common=generate(directory/'preprocess-dev',True)
+                if dev_alpha is not None or dev_storage is not None or dev_scope is not None or dev_core is not None or dev_order is not None or dev_walk is not None or dev_tactical is not None or dev_types is not None or dev_global_names is not None or dev_recapture is not None or dev_common is not None:raise ValueError('diagnostic source entered shipping spelling/core stage')
                 if sha(dev)!=expected['dev_source_sha256']:raise ValueError('diagnostic C differs from qualified control')
                 dev_command=recipe['dev_compiler']
                 dev_native=compile_c(dev_command,dev,directory/'dev');(directory/'dev/main.c').write_bytes(dev)

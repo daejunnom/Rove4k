@@ -1,4 +1,38 @@
-# Maintained minimal C entry
+# Maintained C: shared final shipping reductions
+
+The final `engines/scripts/shipping_common.py` pass removes the sole unused
+empty `TINY_H` definition after all existing family stages. A/C/E also omit
+two redundant fixed-TT18 casts. ASCII source uses a raw bytes literal in the
+unchanged bootstrap; every previous non-ASCII/CR/NUL/quote/backslash fallback
+and the historical `pack_stream.py` API remain unchanged.
+
+| Policy | Previous whole | Current whole | Saved | Above 4096 |
+|---|---:|---:|---:|---:|
+| C | 5036 | **5020** | 16 | 924 |
+
+These are actual composed complete-file measurements with each unchanged
+compiler/profile/codec, not sums of separate candidate savings. Entire native
+bytes match the previous maintained native for every policy; no metadata
+exception applies. Canonical engine, search/model/TT/input/worker contracts
+and full-reference DEV source/native are unchanged.
+
+One ordinary `--dev` builder invocation per policy reproduced shipping
+source/native/bootstrap/whole twice and DEV twice. The unchanged selected
+verifier then ran each new wrapper through quit/EOF: exact restored native,
+three stable startup TIDs, legal finite GO, private paths/helpers absent
+at UCI, one closing result, reader EOF and physical exit. Alternate F DEV
+is still the full-reference diagnostic, not alternate-model execution.
+
+| Policy | New source | Native | Bootstrap | Whole SHA-256 |
+|---|---:|---:|---:|---|
+| C | 10273 | 26336 | 11340 | `ee8265985e4330ae0ae90042ac9fa5301c355edf6b865ce7341790c236ee47df` |
+
+Exact source/bootstrap/native hashes remain in `recipe.json`. External normal
+summary SHA-256: `4c2bc987c0947387ebe688ac76c7b91f41d1458149278e490638fb1428f7469f`.
+Generated artifacts and reports remain outside Git. The following sections
+describe earlier checkpoints and retain their original validation scope.
+
+## Previous: Maintained minimal C entry
 
 The selected complete launcher is **5,036 bytes**, 42 below its
 preceding complete file and **940 bytes above4,096**. The final ordinary

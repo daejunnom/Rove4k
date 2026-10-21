@@ -1,4 +1,42 @@
-# Opt-in MaterialNoise+MoveTT fixed expressions4174
+# Maintained F: shared final shipping reductions
+
+The final `engines/scripts/shipping_common.py` pass removes the sole unused
+empty `TINY_H` definition after all existing family stages. A/C/E also omit
+two redundant fixed-TT18 casts. ASCII source uses a raw bytes literal in the
+unchanged bootstrap; every previous non-ASCII/CR/NUL/quote/backslash fallback
+and the historical `pack_stream.py` API remain unchanged.
+
+| Policy | Previous whole | Current whole | Saved | Above 4096 |
+|---|---:|---:|---:|---:|
+| full (default) | 4681 | **4668** | 13 | 572 |
+| material-noise (opt-in) | 4386 | **4374** | 12 | 278 |
+| material-move-tt (opt-in) | 4174 | **4162** | 12 | 66 |
+
+These are actual composed complete-file measurements with each unchanged
+compiler/profile/codec, not sums of separate candidate savings. Entire native
+bytes match the previous maintained native for every policy; no metadata
+exception applies. Canonical engine, search/model/TT/input/worker contracts
+and full-reference DEV source/native are unchanged.
+
+One ordinary `--dev` builder invocation per policy reproduced shipping
+source/native/bootstrap/whole twice and DEV twice. The unchanged selected
+verifier then ran each new wrapper through quit/EOF: exact restored native,
+three stable startup TIDs, legal finite GO, private paths/helpers absent
+at UCI, one closing result, reader EOF and physical exit. Alternate F DEV
+is still the full-reference diagnostic, not alternate-model execution.
+
+| Policy | New source | Native | Bootstrap | Whole SHA-256 |
+|---|---:|---:|---:|---|
+| F | 9226 | 18576 | 10217 | `c1901680d3d115a01e959d511e2c4304fadc6beefe93f097c3b698f06f01b78c` |
+| F-material | 8586 | 18576 | 9577 | `65f23ea21560feb632da99a75f3983a62eaaaa6c9d6d7581a805537289e2973d` |
+| F-move | 8114 | 18576 | 9105 | `6f8a48ea6ddbd61d6130831a9a968e5346f29a5710fcfa8e28d4ff658483036e` |
+
+Exact source/bootstrap/native hashes remain in `recipe.json`. External normal
+summary SHA-256: `4c2bc987c0947387ebe688ac76c7b91f41d1458149278e490638fb1428f7469f`.
+Generated artifacts and reports remain outside Git. The following sections
+describe earlier checkpoints and retain their original validation scope.
+
+## Previous: Opt-in MaterialNoise+MoveTT fixed expressions4174
 
 The explicit `--policy material-move-tt` branch now expects **4174bytes**,
 actual6 below4180 and **78 above4096**. Source8130/c63cf3d6, entire native18576/
