@@ -1,4 +1,72 @@
-# Maintained F full4424: ASCII digit guard + Linux readonly FD — 2026-10-22
+# Maintained F full4410: one condition object — 2026-10-22
+
+The fixed full candidate is **4410 B**,14 B below4424 and314 B above4096.
+C8497->8469 (-28), bootstrap9419->9391; native18576 length ties but full
+bytes change to851069e0... .text6998->6994. Pure `shipping_condition.py`
+follows digit_guard, with4 exact spans/5 protected gaps/full inverse. All prior
+helper guards, canonical/DEV, search/learners/coherent full-key TT, fixed
+2workers/TT18, implicit GNU17 `cc -Os -pthread -x c - -o x -s`,73 B header and
+full ALONE6/BT2/dict16KiB/lc2lp0pb0/nice16 stay unchanged.
+
+F has broadcast4/signal0/wait2, all original qj-protected epoch/quitting and
+pending while predicates. Unlike A, startup broadcasts EVERY arrival after
+one loop-external --pending. Wakes while pending1 or unchanged epoch re-wait;
+they do not repeat startup decrease or search. GO publishes pending/epoch
+under qj, and workers save their epoch before unlock/think. Each actual think
+has one completion decrement. Final pending0 executes y/strict greater-depth
+selector (worker0 ties), printf/flush then broadcast under qj before main's
+drain can reacquire. All notifications remain broadcast so the intended waiter
+is included even when other-predicate idle workers also wake. Signal could
+choose only an idle worker and leave main asleep and is not substituted.
+Partial creation still bypasses drain, publishes quitting under qj, wakes
+late workers before waiting and joins only created threads. Those fault/
+epoch-wrap schedules remain source arguments. Extra idle wakes/rechecks,
+mutex contention/work/scheduling/time and condition/native address/layout
+may differ; no schedule, many-core, resource or performance identity is claimed.
+
+The optional selected4319/4045 pipelines bypass this stage. Their separately
+generated full_reference explicitly applies it after digit_guard and checks
+new8469 against full_expected. Every optional selected decision/DEV remains
+the original exact tuple. F8 still consumes pre-name8538/47353... before all
+late F2 names/selector/rank/digit/condition stages, with its own4442/nice24/
+9-TID evidence; this change supplies code provenance only to F8.
+
+ONE firstcost used candidatecompile1/encode1, baseline0/0 and strictPython2/
+CLI2 complete source/compiler/bootstrap restoration/EOF/trailing checks. It
+reconstructed baseline9419 before encoding from frozen full-template937 and
+the actual literal/package functions. All original handles exited0 with empty
+diagnostics, were reaped/groups absent/owned0. Initial wrong helper source-path
+read was metadata-only and preserved before products. No firstcost replay,
+controller composition, NVC/codec search, SAN or new fault campaign ran.
+
+One full ordinary --dev reproduced shipping2 exactly to fixed firstcost and
+old DEV2; one unchanged selected verifier passed quit/EOF2 sessions8 legal GO,
+exact new native/private paths,stable3 TIDs and physical readers/process exit.
+Each optional ordinary --dev ran once: selected4319/4045 source/native/bootstrap/
+whole stayed entire-byte exact, each separate full_reference8469 reproduced
+twice through the new helper, and old full DEV2 each stayed exact. Optional
+selected runtime and F8 compile/encode/runtime are0. All4 original commands
+are reaped rc0/groups absent/forced0/owned0, with no product failure/retry.
+Actual F selected records no FD list, so no new FD-inspection claim is made.
+Partial-create/epoch-wrap/fault schedules and cancellation causality remain
+source arguments/unproven. Producing helper/build/expected/compiler/codec stay
+exact; final recipe/README only annotate the completed normal receipts.
+
+| Form |Bytes|SHA-256|
+|---|---:|---|
+|C|8469|`350fdabcac9809267bbb47a7f3a76e6029933e11455322e6306f705fb6554136`|
+|Native|18576|`851069e0d169f967003e48bbfcf76ddbedd3088e5aff883a7545b5ec8bf1ec52`|
+|Bootstrap|9391|`b60fff64517774ce9939f7e4ae865c588b0c72d941cea2f73a51f1ec6bbf76f1`|
+|Whole|4410|`ac85896abc9a5584b057c3664719def2cc1b7773bc6883e887fad075ea85338a`|
+
+Actual full output: `/home/stemxstudio/rove4k-f-one-condition-promotion-20261022-v1/full/build`.
+Full build `23f88092dde9bc9147510dda8b7634a3492eddaa5713c7c5498d275c08d74fc5`;
+selected runtime `d96585d63a88cd04e6faf53fef1c5467887a8d3fb118fa3c9edc07c690b9d920`;
+producing recipe `25f1a752a819dd4da2bae7d019cf44e0eeaedeb4c20f87ec045dc5f3bd4c00e5`.
+No firstcost replay, new SAN/fault/NVC/codec search, fresh archive, game,
+strength/performance/training/AWS or root Git operation was added.
+
+# Historical F full4424: ASCII digit guard + Linux readonly FD — 2026-10-22
 
 The explicit composition first-cost is4424 B,13 below qualified4437 and5 below
 best independent FD4429. New pure shipping_digit_fd.py owns two separate exact

@@ -1,3 +1,15 @@
+# F2 condition producer provenance — 2026-10-22
+
+Only the F2 builder pin and new pure shipping_condition helper follow F2's
+condition sharing. F8 still consumes pre-name8538/47353... before F2 late
+stages, retains both its own condition objects,4442 whole/nice24/header73 and
+9-TID conditions. Expected/base/specialize/build/verify and prior runtime
+receipts stay unchanged. No F8 compile/encode/runtime is added. Full producer
+root/attempt1/attempt2 pre-name8538/47353... all match the qualified original.
+The current52-file producer base closure matches named LF source bytes. This
+is provenance, not newly executed F8 qualification or an inferred F2 gain.
+Existing F8 selected4442/nice24/9-TID receipts retain their original scope.
+
 # F2 digit/FD producer provenance — validated 2026-10-22
 
 Only the F2 builder pin and new shipping_digit_fd helper are added to current

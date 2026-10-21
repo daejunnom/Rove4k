@@ -89,7 +89,8 @@
     "engines/compact/tiny-entry-f/bootstrap_full.py": "813eb1a9f0a31a54350e4df015c49d0a63e9d2d57923a4035e563aa7b95e222c",
     "engines/compact/tiny-entry-f/shipping_selector.py": "69bf3747d81455690c11abc95046e173c5a8915e2abd001ad6976bbe22c3e48d",
     "engines/compact/tiny-entry-f/shipping_rank.py": "0850ee61f108bc24fa48995f5f13b49d16a24c788f38cd070c9644e9e044c932",
-    "engines/compact/tiny-entry-f/shipping_digit_fd.py": "ae396191f09c6738879d42d1cc62e2c54cda1165b89c91c9ef677b4985040960"
+    "engines/compact/tiny-entry-f/shipping_digit_fd.py": "ae396191f09c6738879d42d1cc62e2c54cda1165b89c91c9ef677b4985040960",
+    "engines/compact/tiny-entry-f/shipping_condition.py": "c6bf5e284c5648b305817a0da53e7d95566e856eb4a053ac281d88990a495e0f"
   },
   "resource_literals": [
     [
@@ -263,22 +264,22 @@
   },
   "expected": {
     "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
-    "source_bytes": 8497,
-    "source_sha256": "08532c38268ecf4691890a13529d09227a76eadb039813d3bb6f886170966954",
+    "source_bytes": 8469,
+    "source_sha256": "350fdabcac9809267bbb47a7f3a76e6029933e11455322e6306f705fb6554136",
     "native_bytes": 18576,
-    "native_sha256": "ea4712367d627b792021f17f4b2419895a67c002458e4151b1d1e9625afdf9c3",
-    "whole_bytes": 4424,
-    "whole_sha256": "e8d83039a0e44b31bc1201ca9f17bf07036b0d405617cbe7bdcac2e8d1039d66",
+    "native_sha256": "851069e0d169f967003e48bbfcf76ddbedd3088e5aff883a7545b5ec8bf1ec52",
+    "whole_bytes": 4410,
+    "whole_sha256": "ac85896abc9a5584b057c3664719def2cc1b7773bc6883e887fad075ea85338a",
     "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
     "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
-    "bootstrap_sha256": "d98ea420c780f14359231fff0c6b66aea7c9c521be21ba65f3cf4606d6bb5d63",
+    "bootstrap_sha256": "b60fff64517774ce9939f7e4ae865c588b0c72d941cea2f73a51f1ec6bbf76f1",
     "semantic_readable_bytes": 25720,
     "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
     "dev_source_bytes": 19488,
     "dev_native_bytes": 26984,
     "input_profile_readable_bytes": 28587,
     "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
-    "bootstrap_bytes": 9419
+    "bootstrap_bytes": 9391
   },
   "local_input_sha256": {
     "engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
@@ -5886,6 +5887,136 @@
       "scope": "actual whole4424 new selected wrapper run; source/native model/search unchanged; no strength/performance/fault/TTstress proof",
       "timing_cancellation_causality": "unproven; actual work and physical exit recorded separately",
       "post_execution_changes": "recipe and README annotations only; builder/helper/expected/codec stay producing bytes"
+    }
+  },
+  "shared_condition": {
+    "scope": "late full selected and explicit optional separate full_reference only; actual selected optionals/DEV/F8 bypass",
+    "predecessor_expected": {
+      "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+      "source_bytes": 8497,
+      "source_sha256": "08532c38268ecf4691890a13529d09227a76eadb039813d3bb6f886170966954",
+      "native_bytes": 18576,
+      "native_sha256": "ea4712367d627b792021f17f4b2419895a67c002458e4151b1d1e9625afdf9c3",
+      "whole_bytes": 4424,
+      "whole_sha256": "e8d83039a0e44b31bc1201ca9f17bf07036b0d405617cbe7bdcac2e8d1039d66",
+      "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
+      "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
+      "bootstrap_sha256": "d98ea420c780f14359231fff0c6b66aea7c9c521be21ba65f3cf4606d6bb5d63",
+      "semantic_readable_bytes": 25720,
+      "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
+      "dev_source_bytes": 19488,
+      "dev_native_bytes": 26984,
+      "input_profile_readable_bytes": 28587,
+      "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
+      "bootstrap_bytes": 9419
+    },
+    "source_proof": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-one-condition-source-20261022-evidence/source-proof.json",
+      "bytes": 14517,
+      "sha256": "c7a51964e4e09b5713039032297c21c52c7157379caf449a34b364d119abf543"
+    },
+    "firstcost": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-one-condition-first-cost-20261022-evidence/firstcost.json",
+      "bytes": 19909,
+      "sha256": "8c1f3e22379924a0606ac51d3edd6c53c6e970d95ce05d76a64d39d84258437c"
+    },
+    "firstcost_index": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-one-condition-first-cost-20261022-evidence/final-index.json",
+      "bytes": 8429,
+      "sha256": "9d0c8ed713c93b107da69702013a5850b7c400c5ca68260c9e35fb792002e6f5"
+    },
+    "firstcost_reexecuted": false,
+    "source_regions": 4,
+    "protected_gaps": 5,
+    "full_inverse": true,
+    "raw_source_delta": -28,
+    "whole_delta": -14,
+    "native_full_bytes_changed": true,
+    "notify_contract": "F startup every arrival and final completion, GO,shutdown all remain broadcast4/signal0; original same-qj while predicates/epoch/one think-one completion decrement retained",
+    "result_fence": "strict qr1.depth>qr0.depth with first-worker tie; last think return/decrement then y printf/flush under qj before broadcast and controller reacquire",
+    "partial_create_epoch_wrap_faults": "source argument, not new fault runtime",
+    "changed_observations": "extra wrong-predicate wakeups/rechecks/mutex contention/work/scheduling/timing and condition/native object address/layout",
+    "optional_selected_sources_native_bootstrap_whole_and_DEV_unchanged": true,
+    "separate_full_reference_source_expected": {
+      "bytes": 8469,
+      "sha256": "350fdabcac9809267bbb47a7f3a76e6029933e11455322e6306f705fb6554136"
+    },
+    "pre_name_F8_input_unchanged": {
+      "bytes": 8538,
+      "sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
+    },
+    "old_helpers_guards_compiler_codec_header_resources_canonical_unchanged": true,
+    "normal_validation": {
+      "producing_recipe": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-one-condition-promotion-20261022-evidence/producing/tiny-entry-f/recipe.json",
+        "bytes": 315624,
+        "sha256": "25f1a752a819dd4da2bae7d019cf44e0eeaedeb4c20f87ec045dc5f3bd4c00e5"
+      },
+      "producing_builder": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-one-condition-promotion-20261022-evidence/producing/tiny-entry-f/build.py",
+        "bytes": 37062,
+        "sha256": "fbbb65b7a6a03f4729527bcbc3bf30a06898fa0ed020a5963f0f193747879197"
+      },
+      "full_build": {
+        "path": "/home/stemxstudio/rove4k-f-one-condition-promotion-20261022-v1/full/build/build.json",
+        "bytes": 261492,
+        "sha256": "23f88092dde9bc9147510dda8b7634a3492eddaa5713c7c5498d275c08d74fc5"
+      },
+      "full_selected_runtime": {
+        "path": "/home/stemxstudio/rove4k-f-one-condition-promotion-20261022-v1/full/runtime/runtime.json",
+        "bytes": 76899,
+        "sha256": "d96585d63a88cd04e6faf53fef1c5467887a8d3fb118fa3c9edc07c690b9d920"
+      },
+      "full_stage": {
+        "path": "/home/stemxstudio/rove4k-f-one-condition-promotion-20261022-v1/build-stage.json",
+        "bytes": 11640,
+        "sha256": "dfa27fe83334cd60fab5cf8f0d215d1e12fd70cec5efe2d9e2eb371639c59291"
+      },
+      "selected_stage": {
+        "path": "/home/stemxstudio/rove4k-f-one-condition-promotion-20261022-v1/selected-stage.json",
+        "bytes": 3672,
+        "sha256": "f3f3082f0312d63f50b535af189b48b6627ee871f2688894fd69c23d941cfa85"
+      },
+      "optional_stage": {
+        "path": "/home/stemxstudio/rove4k-f-one-condition-promotion-20261022-v1/optional-stage.json",
+        "bytes": 153258,
+        "sha256": "7680f2ced9dad9fc8ab337733aa39e2f94c5f34da6a11ec8cc2a2252ec7779b1"
+      },
+      "readback": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-one-condition-promotion-20261022-evidence/normal-readback.json",
+        "bytes": 29430,
+        "sha256": "8f807cee8825e304eed6d9d8b5631537ec0a2bb9ef7ffcac171cb3e45ffaa44d"
+      },
+      "ordinary_full_dev": 1,
+      "ordinary_optional_dev": 2,
+      "full_ship_reproductions": 2,
+      "old_DEV_reproductions_each_policy": 2,
+      "optional_selected_entirebytes_unchanged": true,
+      "optional_separate_full_reference8469": true,
+      "F8_pre_names8538_exact_three": [
+        {
+          "path": "/home/stemxstudio/rove4k-f-one-condition-promotion-20261022-v1/full/build/source-before-names.c",
+          "bytes": 8538,
+          "sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
+        },
+        {
+          "path": "/home/stemxstudio/rove4k-f-one-condition-promotion-20261022-v1/full/build/attempt-1/source-before-names.c",
+          "bytes": 8538,
+          "sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
+        },
+        {
+          "path": "/home/stemxstudio/rove4k-f-one-condition-promotion-20261022-v1/full/build/attempt-2/source-before-names.c",
+          "bytes": 8538,
+          "sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
+        }
+      ],
+      "F8_compile_encode_runtime": 0,
+      "full_selected_sessions": 2,
+      "legal_GO": 8,
+      "startup_TIDs_each": 3,
+      "source_native_bootstrap_whole_exact_firstcost": true,
+      "scope": "fixed full new native selected physical coverage; optional normal only; no fault/manycore/performance/strength/core completion claim",
+      "producing_final_annotation_distinct": true
     }
   }
 }

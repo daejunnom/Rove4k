@@ -213,7 +213,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | C | 4,860 B | 764 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd followed by four signed32 lane sums, full search/learners retained; history length derived from immutable job length plus ply; child continuation slot and positive-only cutoff bonus compacted; fixed LP64 mixer literals; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero; capture-only Move bit3 reuses generator metadata with separate PROMO and unchanged quiet noise; terminal legality shares the ordered make loop with terminal TT probe and pruning suppressed |
 | D scalar / HQ | 5,836 / 6,037 B | 1,740 / 1,941 B | HQ-only history length derived from immutable job length plus ply; scalar and DEV retain their original history blocks; exact clock/inc parsing and ordered K/Q castling branches shared; consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT with a shared finite-stage asm body, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained; separate body232 class omits dormant internal ELF metadata from coding while preserving compiled native and body addresses |
 | E | 4,914 B | 818 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; child continuation slot and positive-only cutoff bonus compacted; literal include gaps and fixed ASCII compiler argv compacted; fixed LP64 mixer literals; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero; private history length derived from immutable published job base plus ply; capture-only Move bit3 reuses generator metadata with separate PROMO and unchanged quiet noise; ordering reuses generated mover side and omits a sign-only local; center feature shares its two symmetric axes; terminal legality shares the ordered make loop with whole TT call and QS stand-pat suppressed |
-| F full (default) | 4,424 B | 328 B | Packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; history length derived from immutable job length plus ply; nonnegative QS depth, repetition-distance loop, fixed integer macros and plain-int keyword spelling compacted after the no-preadd hash, terminal, correction and source-form stages; compact environment snapshot; default size target remains open; lazy fallback and first-legal quiet-QS standpat cutoff; immutable global job-prefix keys shared while workers store only private path keys; fixed 73-byte stdin/xz header and BT2/16KiB ALONE with nice16; five fixed local binding spellings, compact handler-pair loops, fixed2 completion selector and positional wait timeout; pure HCE rank normalization shares advance/center rank; ASCII unsigned first-digit guard and Linux readonly-open flag spelling compacted |
+| F full (default) | 4,410 B | 314 B | Packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; history length derived from immutable job length plus ply; nonnegative QS depth, repetition-distance loop, fixed integer macros and plain-int keyword spelling compacted after the no-preadd hash, terminal, correction and source-form stages; compact environment snapshot; default size target remains open; lazy fallback and first-legal quiet-QS standpat cutoff; immutable global job-prefix keys shared while workers store only private path keys; fixed 73-byte stdin/xz header and BT2/16KiB ALONE with nice16; five fixed local binding spellings, compact handler-pair loops, fixed2 completion selector and positional wait timeout; pure HCE rank normalization shares advance/center rank; ASCII unsigned first-digit guard and Linux readonly-open flag spelling compacted |
 | F full (fixed8) | 4,442 B | 346 B | Separate eight-search-worker profile with nine startup TIDs; same full native as its4474 predecessor, strict private-name replay followed by six resource roles, shared full bootstrap with positional wait and73-byte BT2 packaging; retains its eight-worker selection loop; final hardware/profile selection remains open |
 | F material/noise (opt-in) | 4,319 B | 223 B | Unsigned64 number forms and two fixed TT18 casts omitted; one-state material classifier, fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted; literal include gaps compacted; fixed LP64 mixer literals; compact environment snapshot |
 | F material/move-TT (opt-in) | 4,045 B | 0 B (51 B spare) | Unsigned64 number forms; one-state material classifier, fixed material, main-owned token cursor, terminal-loop sharing and coherent atomic64 Move17/high46 plus index18; local size eligibility only, full F and strength acceptance remain open; fixed LP64 mixer literals; compact environment snapshot |
@@ -222,6 +222,51 @@ The canonical Rust D native images are16,816 bytes each. The separate maintained
 finite Rust shipping entry also has16,816-byte natives with new identities and
 11,108/11,476-byte scalar/HQ own-ELFs. Its normal qualification below does not
 replace the C D table or establish4KiB eligibility.
+
+## F4410 shares one condition object: 2026-10-22
+
+Four fixed spans share F's two condition objects after the digit guard,
+reducing source8497→8469 B, bootstrap9419→9391 B and whole4424→4410 B.
+Native stays18576 B with new SHA851069e0 and .text6998→6994 B. Unlike A,
+F notifies every startup arrival, including2→1. All four broadcasts, both
+while predicates and qj remain; GO epoch/pending publication, last-completion
+strict-depth/tie0 selection and flush-before-notify, and partial-create drain
+bypass/created-thread joins keep their original order. Extra unrelated wakes,
+mutex competition, timing and native storage differ. Fault schedules remain
+source arguments. The four-span/full-inverse source proof is separate from
+new selected execution.
+
+One full --dev build reproduces shipping twice and unchanged DEV twice.
+The unchanged selected verifier passes quit/EOF two sessions, eight legal GO,
+three startup TIDs, exact new native restoration and physical process/reader
+exit. Each optional --dev build retains its entire selected4319/4045 artifacts
+and DEV while its explicit separate full reference becomes8469 B. F8 bypasses
+this stage and keeps pre-name8538/47353a15, own4442/nice24/9-TID profile; only
+producer closure provenance adds one helper, base52+positive2+own5=unique59.
+No new local F8 execution is claimed. All four original commands return0,
+are reaped and close with group absence, forced cleanup0 and active handles0.
+Fixed first-cost index8429 B:
+`9d0c8ed713c93b107da69702013a5850b7c400c5ca68260c9e35fb792002e6f5`.
+Final six-file qualification index9603 B:
+`6fea8daeed2033cffe490b022d94555fd03970bad4c552f1cb4ebd6d8574a11d`;
+build `23f88092dde9bc9147510dda8b7634a3492eddaa5713c7c5498d275c08d74fc5`;
+runtime `d96585d63a88cd04e6faf53fef1c5467887a8d3fb118fa3c9edc07c690b9d920`.
+Helper and builder retain producing bytes; final recipe/README changes only
+complete the ordinary-validation annotations. Later external direct-walker
+and B/C/E condition candidates are outside this maintained checkpoint.
+The default remains314 B over4096, with final resources/scaling/strength open.
+
+Preceding head8466389 passed C/Rust in
+[Engine39670382405](https://github.com/daejunnom/Rove4k/actions/runs/39670382405)
+and Node22/24 in
+[Repository39670382392](https://github.com/daejunnom/Rove4k/actions/runs/39670382392).
+All four actual checkouts use e4003de03efe16c641e527d77c9f8f99f7b93f6b,
+parents develop761bdc0 plus8466389 and treebe08e53e identical to that head.
+Eight current A/B/C/E build/selected reports directly confirm4541/5032/4860/4914,
+original C/native/DEV controls and fresh two-session/eight-GO/three-TID exits.
+F8's internal nine-TID report is not reread at this checkpoint; F4410 is WIP
+outside it. CI index86876 B:
+`bce82fcec59e80e5af8275103ff1a5682c532f3a30a05b984e556b95daca426e`.
 
 ## A4541/B5032/C4860/E4914 common readonly template: 2026-10-22
 
