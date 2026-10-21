@@ -200,6 +200,15 @@ struct AdviceArgs {
     max_findings: usize,
     #[arg(long, default_value_t = 10_000)]
     max_ranges: usize,
+    /// Maximum retained pure expression sites for advisory n-version comparison.
+    #[arg(long, default_value_t = 64)]
+    max_nversion_targets: usize,
+    /// Shared scalar/memo work limit across static candidate comparisons.
+    #[arg(long, default_value_t = 16_000_000)]
+    max_nversion_work: usize,
+    /// Conservative node-work bound for finite-domain flow propagation.
+    #[arg(long, default_value_t = 8_000_000)]
+    max_finite_flow_work: usize,
     #[arg(long, default_value_t = 30.0)]
     frontend_seconds: f64,
     #[arg(long, default_value_t = 1_073_741_824u64)]
@@ -660,6 +669,9 @@ fn dispatch(command: Command) -> Result<(Value, bool)> {
                 ast_bytes: args.frontend_ast_bytes,
                 max_findings: args.max_findings,
                 max_ranges: args.max_ranges,
+                max_nversion_targets: args.max_nversion_targets,
+                max_nversion_work: args.max_nversion_work,
+                max_finite_flow_work: args.max_finite_flow_work,
                 ..Default::default()
             };
             let analysis = advisor::analyze(&original, &opts)?;

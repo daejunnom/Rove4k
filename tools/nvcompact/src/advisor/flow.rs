@@ -1,4 +1,7 @@
-use super::{Analysis, RangeSite};
+use super::{
+    domain::{Domain, FINITE_LIMIT},
+    expressions, nversion, Analysis, RangeSite,
+};
 use std::collections::{HashMap, HashSet};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -15,13 +18,6 @@ impl Range {
             lo: self.lo.min(other.lo),
             hi: self.hi.max(other.hi),
         }
-    }
-    fn intersect(self, other: Self) -> Option<Self> {
-        let r = Self {
-            lo: self.lo.max(other.lo),
-            hi: self.hi.min(other.hi),
-        };
-        (r.lo <= r.hi).then_some(r)
     }
     fn singleton(self) -> Option<i128> {
         (self.lo == self.hi).then_some(self.lo)
@@ -97,8 +93,22 @@ fn convert(r: Range, t: IntType) -> Range {
 }
 #[derive(Clone)]
 struct Fact {
-    range: Range,
+    domain: Domain,
     basis: String,
+}
+impl Fact {
+    fn new(range: Range, t: IntType, basis: String) -> Self {
+        Self {
+            domain: Domain::interval(range.lo, range.hi, t.bits, !t.unsigned),
+            basis,
+        }
+    }
+    fn range(&self) -> Range {
+        Range {
+            lo: self.domain.lo,
+            hi: self.domain.hi,
+        }
+    }
 }
 type Env = HashMap<String, Fact>;
 
@@ -219,10 +229,11 @@ pub(super) fn analyze(a: &mut Analysis<'_>) {
             if flow.a.kind(decl) == "ParmVarDecl" {
                 env.insert(
                     id.clone(),
-                    Fact {
-                        range: t.bounds,
-                        basis: "declared parameter type in a defined C execution".into(),
-                    },
+                    Fact::new(
+                        t.bounds,
+                        t,
+                        "declared parameter type in a defined C execution".into(),
+                    ),
                 );
             }
         }
@@ -242,6 +253,140 @@ struct Flow<'a, 'b> {
 }
 
 impl Flow<'_, '_> {
+    fn finite_evaluate(
+        &self,
+        lowered: &expressions::Lowered,
+        values: &[i128],
+    ) -> Option<Vec<nversion::TypedValue>> {
+        // eval also checks the IR and infers types recursively. Reserve a
+        // containing operation bound, rather than counting only input values.
+        let cost = values
+            .len()
+            .checked_mul((lowered.nodes + 1).checked_pow(2)?)?
+            .checked_mul(2)?;
+        let used = self.a.finite_flow_work.get();
+        if cost > self.a.options.max_finite_flow_work.saturating_sub(used) {
+            self.a.finite_flow_exhausted.set(true);
+            return None;
+        }
+        self.a.finite_flow_work.set(used + cost);
+        values
+            .iter()
+            .map(|&v| nversion::eval(&lowered.expression, v, lowered.variable_type).ok())
+            .collect()
+    }
+    fn lower(&self, n: usize) -> Option<expressions::Lowered> {
+        expressions::lower(self.a, n, &|id| self.tracked.contains_key(id))
+    }
+
+    /// Evaluate a pure, single-binding expression over its entire containing
+    /// input set. Failure loses precision; it never drops troublesome values.
+    fn image(&self, n: usize, env: &Env) -> Option<Vec<i128>> {
+        if !self.pure(n) {
+            return None;
+        }
+        let children = &self.a.nodes[n].children;
+        if let Some(value) = self.constant(n).and_then(Range::singleton) {
+            return Some(vec![value]);
+        }
+        if matches!(self.a.kind(n), "ParenExpr" | "ConstantExpr") && children.len() == 1 {
+            return self.image(children[0], env);
+        }
+        if matches!(self.a.kind(n), "ImplicitCastExpr" | "CStyleCastExpr") && children.len() == 1 {
+            let t = int_type(self.a.typ(n))?;
+            return self
+                .image(children[0], env)?
+                .into_iter()
+                .map(|v| convert(Range::one(v), t).singleton())
+                .collect();
+        }
+        if self.a.kind(n) == "ConditionalOperator" && children.len() == 3 {
+            // Branch-result union is the same abstract operation used for an
+            // if/else assignment. Do not convexify a sparse result merely
+            // because the source spells the control flow with ?:.
+            let mut values = Vec::new();
+            for (truth, branch) in [(true, children[1]), (false, children[2])] {
+                if let Some(branch_env) = self.refine(children[0], truth, env.clone()) {
+                    values.extend(self.image(branch, &branch_env)?);
+                }
+            }
+            values.sort_unstable();
+            values.dedup();
+            return (!values.is_empty() && values.len() <= FINITE_LIMIT).then_some(values);
+        }
+        let lowered = self.lower(n)?;
+        let values = env.get(&lowered.binding)?.domain.enumerate(FINITE_LIMIT)?;
+        Some(
+            self.finite_evaluate(&lowered, &values)?
+                .into_iter()
+                .map(|v| v.value)
+                .collect(),
+        )
+    }
+
+    fn assigned_fact(
+        &self,
+        range: Range,
+        t: IntType,
+        exact: Option<Vec<i128>>,
+        basis: String,
+    ) -> Fact {
+        let mut fact = Fact::new(range, t, basis);
+        if let Some(values) = exact {
+            let converted: Option<Vec<_>> = values
+                .into_iter()
+                .map(|v| convert(Range::one(v), t).singleton())
+                .collect();
+            if let Some(domain) =
+                converted.and_then(|v| Domain::from_values(v, t.bits, !t.unsigned))
+            {
+                fact.domain = domain;
+                fact.basis
+                    .push_str("; complete finite-domain image with C conversions");
+            }
+        }
+        fact
+    }
+
+    fn capture_expression(&mut self, n: usize, env: &Env) {
+        if !expressions::is_target(self.a, n) {
+            return;
+        }
+        let Some(lowered) = self.lower(n) else {
+            return;
+        };
+        let mut parent = self.a.nodes[n].parent;
+        while parent.is_some_and(|p| {
+            matches!(
+                self.a.kind(p),
+                "ParenExpr" | "ImplicitCastExpr" | "ConstantExpr"
+            )
+        }) {
+            parent = parent.and_then(|p| self.a.nodes[p].parent);
+        }
+        if let Some(parent) = parent {
+            if expressions::is_target(self.a, parent)
+                && !matches!(self.a.op(parent), "&&" | "||")
+                && self
+                    .lower(parent)
+                    .is_some_and(|p| p.binding == lowered.binding)
+            {
+                return;
+            }
+        }
+        let Some(fact) = env.get(&lowered.binding) else {
+            return;
+        };
+        expressions::capture(
+            self.a,
+            self.function,
+            n,
+            lowered,
+            fact.domain.clone(),
+            &fact.basis,
+        );
+    }
+
     fn unwrap(&self, mut n: usize) -> usize {
         while self.a.nodes[n].children.len() == 1
             && matches!(self.a.kind(n), "ParenExpr" | "ImplicitCastExpr")
@@ -297,10 +442,7 @@ impl Flow<'_, '_> {
     fn widen(&self, env: &mut Env, why: &str) {
         for (id, fact) in env.iter_mut() {
             if let Some((_, t)) = self.tracked.get(id) {
-                *fact = Fact {
-                    range: t.bounds,
-                    basis: why.into(),
-                };
+                *fact = Fact::new(t.bounds, *t, why.into());
             }
         }
     }
@@ -311,8 +453,8 @@ impl Flow<'_, '_> {
                 Some((
                     id.clone(),
                     Fact {
-                        range: l.range.union(r.range),
-                        basis: if l.range == r.range && l.basis == r.basis {
+                        domain: l.domain.union(&r.domain),
+                        basis: if l.domain == r.domain && l.basis == r.basis {
                             l.basis.clone()
                         } else {
                             "union of reachable branch states".into()
@@ -347,9 +489,12 @@ impl Flow<'_, '_> {
                 previous.minimum.parse::<i128>(),
                 previous.maximum.parse::<i128>(),
             ) {
-                let range = (Range { lo, hi }).union(fact.range);
+                let range = (Range { lo, hi }).union(fact.range());
                 previous.minimum = range.lo.to_string();
                 previous.maximum = range.hi.to_string();
+                // A repeated traversal may have a different state; do not keep
+                // a previously narrow bit/set summary beside a wider interval.
+                previous.domain = None;
             }
             return;
         }
@@ -382,9 +527,10 @@ impl Flow<'_, '_> {
             id: site_id, location,
             function: self.a.name(self.function).to_owned(), symbol: self.a.name(decl).to_owned(),
             expression, c_type: self.a.typ(decl).to_owned(),
-            minimum: fact.range.lo.to_string(), maximum: fact.range.hi.to_string(),
-            basis: vec![fact.basis.clone(), "supported-flow interval at this evaluated read; other sites may have different ranges".into()],
+            minimum: fact.domain.lo.to_string(), maximum: fact.domain.hi.to_string(),
+            basis: vec![fact.basis.clone(), "supported-flow interval, known bits and containing finite set at this evaluated read; other sites may have different domains".into()],
             operation, instrumentable: true,
+            domain: Some(fact.domain.summary()),
         });
     }
     fn proposal(&mut self, n: usize, kind: &str, text: String, evidence: String) {
@@ -460,18 +606,21 @@ impl Flow<'_, '_> {
                         .copied()
                         .find(|&c| !self.a.kind(c).ends_with("Attr"));
                     if let Some(init) = init {
+                        let exact = self.image(init, env);
                         let r = self.expression(init, env, false, true);
                         if let Some((_, t)) = self.tracked.get(&id) {
                             if let Some(r) = r {
                                 env.insert(
                                     id,
-                                    Fact {
-                                        range: convert(r, *t),
-                                        basis: format!(
+                                    self.assigned_fact(
+                                        convert(r, *t),
+                                        *t,
+                                        exact,
+                                        format!(
                                             "initializer at byte {} with typed interval transfer",
                                             self.a.location(init).map_or(0, |l| l.start)
                                         ),
-                                    },
+                                    ),
                                 );
                             }
                         }
@@ -586,6 +735,9 @@ impl Flow<'_, '_> {
         truth_context: bool,
         observe: bool,
     ) -> Option<Range> {
+        if observe {
+            self.capture_expression(n, env);
+        }
         let children = self.a.nodes[n].children.clone();
         let typ = int_type(self.a.typ(n));
         let op = self.a.op(n).to_owned();
@@ -610,7 +762,7 @@ impl Flow<'_, '_> {
                         && self.a.nodes[p].value["castKind"] == "LValueToRValue"
                 });
                 self.record(n, env, observe && is_read);
-                self.binding(n).and_then(|id| env.get(&id).map(|f| f.range))
+                self.binding(n).and_then(|id| env.get(&id).map(Fact::range))
             }
             "ParenExpr" | "ConstantExpr" if children.len() == 1 => {
                 self.expression(children[0], env, truth_context, observe)
@@ -642,16 +794,17 @@ impl Flow<'_, '_> {
                 }
                 if matches!(op.as_str(), "++" | "--") {
                     let id = self.binding(children[0]);
-                    let before = id.as_ref().and_then(|id| env.get(id)).map(|f| f.range);
+                    let before = id.as_ref().and_then(|id| env.get(id)).map(Fact::range);
                     if let (Some(id), Some(before), Some(t)) = (id, before, typ) {
                         let delta = if op == "++" { 1 } else { -1 };
                         let after = interval_binary("+", before, Range::one(delta), t);
                         env.insert(
                             id,
-                            Fact {
-                                range: after,
-                                basis: "increment/decrement with typed overflow widening".into(),
-                            },
+                            Fact::new(
+                                after,
+                                t,
+                                "increment/decrement with typed overflow widening".into(),
+                            ),
                         );
                         return Some(
                             if self.a.nodes[n].value["isPostfix"].as_bool() == Some(true) {
@@ -703,6 +856,11 @@ impl Flow<'_, '_> {
                 let right = children[1];
                 if op == "=" || self.a.kind(n) == "CompoundAssignOperator" {
                     let id = self.binding(left);
+                    let exact = if op == "=" {
+                        self.image(right, env)
+                    } else {
+                        None
+                    };
                     let rhs = self.expression(right, env, false, observe);
                     if let Some(id) = id {
                         let (_, t) = self.tracked[&id];
@@ -717,7 +875,7 @@ impl Flow<'_, '_> {
                                     .and_then(int_type)
                             };
                             env.get(&id)
-                                .map(|f| f.range)
+                                .map(Fact::range)
                                 .zip(rhs)
                                 .zip(computation_type("computeLHSType"))
                                 .zip(computation_type("computeResultType"))
@@ -736,13 +894,15 @@ impl Flow<'_, '_> {
                         let r = value.unwrap_or(t.bounds);
                         env.insert(
                             id,
-                            Fact {
-                                range: r,
-                                basis: format!(
+                            self.assigned_fact(
+                                r,
+                                t,
+                                exact,
+                                format!(
                                     "assignment at byte {} with typed interval transfer",
                                     self.a.location(n).map_or(0, |l| l.start)
                                 ),
-                            },
+                            ),
                         );
                         return Some(r);
                     }
@@ -965,6 +1125,25 @@ impl Flow<'_, '_> {
         if !self.pure(n) {
             return Some(env);
         }
+        if let Some(lowered) = self.lower(n) {
+            if let Some(fact) = env.get(&lowered.binding) {
+                if let Some(values) = fact.domain.enumerate(FINITE_LIMIT) {
+                    if let Some(evaluated) = self.finite_evaluate(&lowered, &values) {
+                        let values = values
+                            .into_iter()
+                            .zip(evaluated)
+                            .filter_map(|(v, result)| ((result.value != 0) == truth).then_some(v))
+                            .collect();
+                        let domain =
+                            Domain::from_values(values, fact.domain.bits, fact.domain.signed)?;
+                        env.insert(lowered.binding, Fact { domain, basis: format!(
+                            "{} branch at byte {}; exhaustive typed filtering of the incoming conservative finite domain",
+                            if truth { "true" } else { "false" }, self.a.location(n).map_or(0, |l| l.start)) });
+                        return Some(env);
+                    }
+                }
+            }
+        }
         let cs = &self.a.nodes[n].children;
         match self.a.kind(n) {
             "ParenExpr" | "ImplicitCastExpr" if cs.len() == 1 => {
@@ -983,6 +1162,61 @@ impl Flow<'_, '_> {
                 let mut op = self.a.op(n).to_owned();
                 if op == "&&" && truth || op == "||" && !truth {
                     return self.refine(cs[1], truth, self.refine(cs[0], truth, env)?);
+                }
+                if op == "&&" || op == "||" {
+                    let short = self.refine(cs[0], truth, env.clone());
+                    let long = self
+                        .refine(cs[0], !truth, env)
+                        .and_then(|e| self.refine(cs[1], truth, e));
+                    return match (short, long) {
+                        (Some(a), Some(b)) => Some(self.join(&a, &b)),
+                        (Some(a), None) | (None, Some(a)) => Some(a),
+                        _ => None,
+                    };
+                }
+                // A zero mask test fixes every masked bit. A nonzero test
+                // fixes a one bit only for a single-bit mask.
+                if op == "&" {
+                    if let Some((id, mask)) = self.mask_binding(n) {
+                        if !truth || mask.count_ones() == 1 {
+                            let fact = env.get_mut(&id)?;
+                            if !fact.domain.restrict_bits(
+                                if truth { 0 } else { mask },
+                                if truth { mask } else { 0 },
+                            ) {
+                                return None;
+                            }
+                            fact.basis =
+                                "controlling mask test intersected with the incoming domain".into();
+                            return Some(env);
+                        }
+                        if mask == 0 && truth {
+                            return None;
+                        }
+                    }
+                }
+                if op == "==" && truth || op == "!=" && !truth {
+                    let masked = self
+                        .mask_binding(cs[0])
+                        .zip(self.constant(cs[1]).and_then(Range::singleton))
+                        .or_else(|| {
+                            self.mask_binding(cs[1])
+                                .zip(self.constant(cs[0]).and_then(Range::singleton))
+                        });
+                    if let Some(((id, mask), value)) = masked {
+                        if value < 0 || value > u64::MAX as i128 || value as u64 & !mask != 0 {
+                            return None;
+                        }
+                        let value = value as u64;
+                        let fact = env.get_mut(&id)?;
+                        if !fact.domain.restrict_bits(mask & !value, value) {
+                            return None;
+                        }
+                        fact.basis =
+                            "masked equality intersected with the incoming interval and known bits"
+                                .into();
+                        return Some(env);
+                    }
                 }
                 let pair = self
                     .binding(cs[0])
@@ -1017,6 +1251,7 @@ impl Flow<'_, '_> {
                         .into();
                     }
                     if let Some(fact) = env.get_mut(&id) {
+                        let incoming = fact.range();
                         let range = match op.as_str() {
                             "<" => Range {
                                 lo: i128::MIN,
@@ -1035,17 +1270,19 @@ impl Flow<'_, '_> {
                                 hi: i128::MAX,
                             },
                             "==" => Range::one(value),
-                            "!=" if fact.range.lo == value => Range {
+                            "!=" if incoming.lo == value => Range {
                                 lo: value.checked_add(1)?,
-                                hi: fact.range.hi,
+                                hi: incoming.hi,
                             },
-                            "!=" if fact.range.hi == value => Range {
-                                lo: fact.range.lo,
+                            "!=" if incoming.hi == value => Range {
+                                lo: incoming.lo,
                                 hi: value.checked_sub(1)?,
                             },
-                            _ => fact.range,
+                            _ => incoming,
                         };
-                        fact.range = fact.range.intersect(range)?;
+                        if !fact.domain.restrict_interval(range.lo, range.hi) {
+                            return None;
+                        }
                         fact.basis = format!(
                             "{} branch at byte {}; intersected with incoming supported-flow range",
                             if truth { "true" } else { "false" },
@@ -1057,22 +1294,28 @@ impl Flow<'_, '_> {
             "DeclRefExpr" => {
                 if let Some(id) = self.binding(n) {
                     if let Some(fact) = env.get_mut(&id) {
+                        let incoming = fact.range();
                         let restriction = if !truth {
                             Range::one(0)
-                        } else if fact.range.lo == 0 {
+                        } else if incoming.lo == 0 {
                             Range {
                                 lo: 1,
-                                hi: fact.range.hi,
+                                hi: incoming.hi,
                             }
-                        } else if fact.range.hi == 0 {
+                        } else if incoming.hi == 0 {
                             Range {
-                                lo: fact.range.lo,
+                                lo: incoming.lo,
                                 hi: -1,
                             }
                         } else {
-                            fact.range
+                            incoming
                         };
-                        fact.range = fact.range.intersect(restriction)?;
+                        if !fact
+                            .domain
+                            .restrict_interval(restriction.lo, restriction.hi)
+                        {
+                            return None;
+                        }
                         fact.basis =
                             "intersection with the controlling expression's truth branch".into();
                     }
@@ -1081,6 +1324,28 @@ impl Flow<'_, '_> {
             _ => {}
         }
         Some(env)
+    }
+
+    fn mask_binding(&self, mut n: usize) -> Option<(String, u64)> {
+        while self.a.kind(n) == "ParenExpr" && self.a.nodes[n].children.len() == 1 {
+            n = self.a.nodes[n].children[0];
+        }
+        let cs = &self.a.nodes[n].children;
+        if self.a.kind(n) != "BinaryOperator" || self.a.op(n) != "&" || cs.len() != 2 {
+            return None;
+        }
+        let (id, mask) = self
+            .binding(cs[0])
+            .zip(self.constant(cs[1]).and_then(Range::singleton))
+            .or_else(|| {
+                self.binding(cs[1])
+                    .zip(self.constant(cs[0]).and_then(Range::singleton))
+            })?;
+        let (_, t) = self.tracked[&id];
+        // Do not carry bits across a narrowing or sign-changing conversion.
+        let result = int_type(self.a.typ(n))?;
+        (t.bits == result.bits && mask >= 0 && mask <= u64::MAX as i128)
+            .then_some((id, mask as u64))
     }
 }
 

@@ -190,7 +190,7 @@ impl FrontendSession {
         if require_lp64 {
             let mut probe = result.prefix();
             probe.extend(["-fsyntax-only".into(), "-".into()]);
-            result.execute(probe, b"_Static_assert(sizeof(int)==4 && sizeof(long)==8 && sizeof(long long)==8 && sizeof(void*)==8 && ~0U==4294967295U,\"NVCompact c11-lp64 model mismatch\");\n", 65536)?;
+            result.execute(probe, b"_Static_assert(sizeof(int)==4 && sizeof(long)==8 && sizeof(long long)==8 && sizeof(void*)==8 && ~0U==4294967295U && ~0UL==18446744073709551615UL && ~0ULL==18446744073709551615ULL && ~0==-1 && ~0L==-1L && ~0LL==-1LL,\"NVCompact C LP64 two's-complement integer model mismatch\");\n", 65536)?;
         }
         result.info = json!({"executable":result.executable,"executable_sha256":result.executable_sha256,
             "version":version,"standard":result.config.standard,"compiler_args":result.config.compiler_args,

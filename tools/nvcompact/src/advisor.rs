@@ -11,10 +11,16 @@ use crate::{notation::MAX_SOURCE, sha256};
 use anyhow::{ensure, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
+use std::cell::Cell;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use std::path::PathBuf;
 
+pub(crate) mod domain;
+mod expressions;
 mod flow;
+pub mod nversion;
+pub use domain::DomainSummary;
+pub use expressions::ExpressionSite;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(default)]
@@ -28,6 +34,9 @@ pub struct AdvisorOptions {
     pub ast_bytes: usize,
     pub max_findings: usize,
     pub max_ranges: usize,
+    pub max_nversion_targets: usize,
+    pub max_nversion_work: usize,
+    pub max_finite_flow_work: usize,
 }
 
 impl Default for AdvisorOptions {
@@ -42,6 +51,9 @@ impl Default for AdvisorOptions {
             ast_bytes: 32 << 20,
             max_findings: 1_000,
             max_ranges: 10_000,
+            max_nversion_targets: 64,
+            max_nversion_work: 16_000_000,
+            max_finite_flow_work: 8_000_000,
         }
     }
 }
@@ -89,6 +101,8 @@ pub struct RangeSite {
     /// Only direct, evaluated, non-volatile local scalar reads are eligible.
     #[serde(default)]
     pub instrumentable: bool,
+    #[serde(default)]
+    pub domain: Option<DomainSummary>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -101,6 +115,8 @@ pub struct AdviceReport {
     pub statistics: Value,
     pub findings: Vec<Finding>,
     pub ranges: Vec<RangeSite>,
+    #[serde(default)]
+    pub expressions: Vec<ExpressionSite>,
     pub limitations: Vec<String>,
     /// False when report budgets omit findings or range sites. True is not a
     /// claim to cover unsupported C or to prove whole-program equivalence.
@@ -113,6 +129,12 @@ pub fn analyze(source: &[u8], options: &AdvisorOptions) -> Result<AdviceReport> 
         (1..=100_000).contains(&options.max_findings)
             && (1..=100_000).contains(&options.max_ranges),
         "advisor finding/range budgets must be in 1..=100000"
+    );
+    ensure!(
+        (1..=512).contains(&options.max_nversion_targets)
+            && (1_000..=100_000_000).contains(&options.max_nversion_work)
+            && (1_000..=100_000_000).contains(&options.max_finite_flow_work),
+        "n-version targets must be 1..512 and work budgets 1000..100000000"
     );
     let source = std::str::from_utf8(source)?;
     let frontend = FrontendSession::new(
@@ -132,18 +154,25 @@ pub fn analyze(source: &[u8], options: &AdvisorOptions) -> Result<AdviceReport> 
         "source_sha256": sha256(source.as_bytes()),
         "frontend": frontend.info,
         "preprocessing_sha256": parsed.preprocessing.as_ref().and_then(|p| p.stable_sha256.as_ref()),
-        "analysis": "intraprocedural-c-lp64-v1"
+        "analysis": "intraprocedural-c-lp64-domains-nversion-v2",
+        "finite_flow_work_budget": options.max_finite_flow_work
     }))?);
     let mut analysis = Analysis::new(source, parsed, options);
     analysis.constants();
     analysis.unused();
     flow::analyze(&mut analysis);
+    expressions::finish(&mut analysis);
     analysis.findings.sort_by(|a, b| {
         (a.location.start, &a.kind, &a.id).cmp(&(b.location.start, &b.kind, &b.id))
     });
     analysis.ranges.sort_by_key(|r| r.location.start);
+    let incomplete_searches = analysis
+        .expressions
+        .iter()
+        .filter(|s| s.comparison.as_ref().is_some_and(|c| !c.complete))
+        .count();
     Ok(AdviceReport {
-        format_version: 1,
+        format_version: 2,
         advisory_only: true,
         source_sha256: sha256(source.as_bytes()),
         analysis_context_sha256: context,
@@ -156,6 +185,14 @@ pub fn analyze(source: &[u8], options: &AdvisorOptions) -> Result<AdviceReport> 
             "findings_omitted": analysis.findings_omitted,
             "range_sites_emitted": analysis.ranges.len(),
             "range_sites_omitted": analysis.ranges_omitted,
+            "expression_sites_emitted": analysis.expressions.len(),
+            "expression_sites_omitted": analysis.expressions_omitted,
+            "nversion_work_budget": options.max_nversion_work,
+            "nversion_scalar_evaluations": analysis.nversion_work,
+            "nversion_searches_incomplete": incomplete_searches,
+            "finite_flow_work_budget": options.max_finite_flow_work,
+            "finite_flow_reserved_work": analysis.finite_flow_work.get(),
+            "finite_flow_budget_exhausted": analysis.finite_flow_exhausted.get(),
             "frontend_work": frontend.statistics(),
             "source_modified": false,
             "compression_candidates_created": 0,
@@ -163,8 +200,13 @@ pub fn analyze(source: &[u8], options: &AdvisorOptions) -> Result<AdviceReport> 
         }),
         findings: analysis.findings,
         ranges: analysis.ranges,
+        expressions: analysis.expressions,
         limitations: analysis.notes.into_iter().collect(),
-        complete: analysis.findings_omitted == 0 && analysis.ranges_omitted == 0,
+        complete: analysis.findings_omitted == 0
+            && analysis.ranges_omitted == 0
+            && analysis.expressions_omitted == 0
+            && !analysis.finite_flow_exhausted.get()
+            && incomplete_searches == 0,
     })
 }
 
@@ -184,6 +226,9 @@ struct Analysis<'a> {
     function_of: Vec<Option<usize>>,
     findings: Vec<Finding>,
     ranges: Vec<RangeSite>,
+    expressions: Vec<ExpressionSite>,
+    expression_domains: HashMap<String, domain::Domain>,
+    expression_ids: HashMap<String, usize>,
     finding_ids: HashSet<String>,
     range_ids: HashMap<String, usize>,
     notes: BTreeSet<String>,
@@ -192,6 +237,10 @@ struct Analysis<'a> {
     functions_withheld: usize,
     findings_omitted: usize,
     ranges_omitted: usize,
+    expressions_omitted: usize,
+    nversion_work: usize,
+    finite_flow_work: Cell<usize>,
+    finite_flow_exhausted: Cell<bool>,
 }
 
 fn flatten(mut value: Value, parent: Option<usize>, nodes: &mut Vec<Node>) -> usize {
@@ -235,6 +284,9 @@ impl<'a> Analysis<'a> {
             declarations: HashMap::new(),
             findings: vec![],
             ranges: vec![],
+            expressions: vec![],
+            expression_domains: HashMap::new(),
+            expression_ids: HashMap::new(),
             finding_ids: HashSet::new(),
             range_ids: HashMap::new(),
             notes: BTreeSet::from([
@@ -248,6 +300,10 @@ impl<'a> Analysis<'a> {
             functions_withheld: 0,
             findings_omitted: 0,
             ranges_omitted: 0,
+            expressions_omitted: 0,
+            nversion_work: 0,
+            finite_flow_work: Cell::new(0),
+            finite_flow_exhausted: Cell::new(false),
         };
         for n in 0..result.nodes.len() {
             if result.kind(n).ends_with("Decl") {

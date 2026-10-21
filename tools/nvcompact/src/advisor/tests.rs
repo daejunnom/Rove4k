@@ -17,6 +17,196 @@ fn report(source: &str) -> Option<AdviceReport> {
 }
 
 #[test]
+fn nversion_uses_entry_domains_and_mask_guards_do_not_invent_bounds() {
+    let source = "int bounded(int to){if(to<0||to>127)return -1;return (to>>4)==0||(to>>4)==7;}\nint board(int to){if(to<0||to>127||(to&0x88))return -1;return (to>>4)==0||(to>>4)==7;}\nint mask_only(int to){if(to&0x88)return -1;return (to>>4)==0||(to>>4)==7;}";
+    let Some(r) = report(source) else {
+        return;
+    };
+    let target = |name| {
+        r.expressions
+            .iter()
+            .find(|s| s.function == name && s.original == "(to>>4)==0||(to>>4)==7")
+            .unwrap()
+    };
+    for (name, count) in [("bounded", 128), ("board", 64)] {
+        let site = target(name);
+        let comparison = site.comparison.as_ref().unwrap();
+        assert_eq!(comparison.domain.values.len(), count);
+        assert!(comparison
+            .candidates
+            .iter()
+            .any(|c| c.source == "!(to+16&96)" && c.evidence.equivalent && c.evidence.complete));
+        assert_eq!(
+            comparison.domain.provenance,
+            nversion::DomainProvenance::StaticConservative
+        );
+        let first_read = r
+            .ranges
+            .iter()
+            .find(|s| Some(&s.id) == site.entry_site_id.as_ref())
+            .unwrap();
+        assert_eq!(first_read.minimum, "0");
+        assert!(first_read.maximum.parse::<i128>().unwrap() <= 127);
+    }
+    let mask = target("mask_only");
+    assert!(mask.comparison.is_none());
+    assert!(mask.status.contains("too-large"));
+    assert!(mask.static_domain.maximum.parse::<i128>().unwrap() >= 256);
+}
+
+#[test]
+fn sparse_branch_results_survive_join_assignment_and_ternary_spelling() {
+    let source = "int joined(int c){int x;if(c)x=1;else x=9;return x==1||x==9;}\nint selected(int c){int x=c?1:9;return x==1||x==9;}\nint guarded(int x){if(x==1||x==9)return x&7;return -1;}\nint replaced(int c){int x=c?1:9;x=256;return (x>>4)==0||(x>>4)==7;}";
+    let Some(r) = report(source) else {
+        return;
+    };
+    for name in ["joined", "selected"] {
+        let site = r
+            .expressions
+            .iter()
+            .find(|s| s.function == name && s.original == "x==1||x==9")
+            .unwrap();
+        assert_eq!(
+            site.static_domain.values.as_deref(),
+            Some(["1".to_owned(), "9".to_owned()].as_slice())
+        );
+        assert!(site
+            .comparison
+            .as_ref()
+            .unwrap()
+            .candidates
+            .iter()
+            .any(|c| c.source == "1"));
+    }
+    let guarded = r
+        .expressions
+        .iter()
+        .find(|s| s.function == "guarded" && s.original == "x&7")
+        .unwrap();
+    assert_eq!(guarded.static_domain.finite_cardinality, Some(2));
+    let replaced = r
+        .expressions
+        .iter()
+        .find(|s| s.function == "replaced" && s.original == "(x>>4)==0||(x>>4)==7")
+        .unwrap();
+    assert_eq!(replaced.static_domain.values, Some(vec!["256".into()]));
+    assert!(!replaced
+        .comparison
+        .as_ref()
+        .unwrap()
+        .candidates
+        .iter()
+        .any(|c| c.source == "!(x+16&96)"));
+}
+
+#[test]
+fn finite_flow_and_search_budgets_are_explicit_and_never_narrow_by_sampling() {
+    let Some(mut options) = options() else {
+        return;
+    };
+    options.max_finite_flow_work = 1_000;
+    options.max_nversion_work = 1_000;
+    let source =
+        "int f(int x){if(x<0||x>127)return -1;if((x&7)==3)return (x>>4)==0||(x>>4)==7;return x;}";
+    let r = analyze(source.as_bytes(), &options).unwrap();
+    assert!(r.statistics["finite_flow_budget_exhausted"]
+        .as_bool()
+        .unwrap());
+    assert!(r.statistics["finite_flow_reserved_work"].as_u64().unwrap() <= 1_000);
+    assert!(
+        r.statistics["nversion_scalar_evaluations"]
+            .as_u64()
+            .unwrap()
+            <= 1_000
+    );
+    assert!(!r.complete);
+    assert_eq!(r.statistics["compression_candidates_created"], 0);
+    assert_eq!(r.source_sha256, sha256(source.as_bytes()));
+}
+
+#[test]
+fn profile_compares_full_entry_interval_and_keeps_outside_witnesses_conditional() {
+    let source = "int rank(int to){return (to>>4)==0||(to>>4)==7;}";
+    let Some(r) = report(source) else {
+        return;
+    };
+    let target = r
+        .expressions
+        .iter()
+        .find(|s| s.original == "(to>>4)==0||(to>>4)==7")
+        .unwrap();
+    let entry = target.entry_site_id.as_ref().unwrap();
+    let trace = |site: &str, values: &[i128]| {
+        values
+            .iter()
+            .map(|v| {
+                format!(
+                    "NVCOMPACT_ADVICE_V1\t{}\t{}\t{}\t{}\n",
+                    r.source_sha256, r.analysis_context_sha256, site, v
+                )
+            })
+            .collect::<String>()
+    };
+    let before = serde_json::to_vec(&r).unwrap();
+    let observations =
+        crate::advice_profile::observe(&r, trace(entry, &[0, 127]).as_bytes()).unwrap();
+    let row = observations["nversion"]["expressions"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|s| s["expression_id"] == target.id)
+        .unwrap();
+    assert_eq!(
+        row["comparison"]["domain"]["values"]
+            .as_array()
+            .unwrap()
+            .len(),
+        128
+    );
+    assert_eq!(
+        row["comparison"]["domain"]["provenance"],
+        "observed_closure"
+    );
+    assert!(row["comparison"]["candidates"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|c| c["source"] == "!(to+16&96)"));
+    let outside = row["outside_domain_checks"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|c| c["candidate"] == "!(to+16&96)")
+        .unwrap();
+    assert!(outside["counterexamples"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|c| c["input"] == "128"));
+    assert_eq!(before, serde_json::to_vec(&r).unwrap());
+    let wider =
+        crate::advice_profile::observe(&r, trace(entry, &[0, 135, 256]).as_bytes()).unwrap();
+    let wider = wider["nversion"]["expressions"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|s| s["expression_id"] == target.id)
+        .unwrap();
+    assert!(!wider["comparison"]["candidates"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|c| c["source"] == "!(to+16&96)"));
+    let rhs = target.read_site_ids.iter().find(|id| *id != entry).unwrap();
+    let rhs_only = crate::advice_profile::observe(&r, trace(rhs, &[16, 127]).as_bytes()).unwrap();
+    assert!(!rhs_only["nversion"]["expressions"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|s| s["expression_id"] == target.id));
+}
+
+#[test]
 fn constants_use_clang_types_and_unused_references_include_function_addresses() {
     let source = "unsigned long long f(void){return 0x5555555555555555ULL+6148914691236517205ULL;}\nunsigned long g(void){return 0xffffffff+4294967295;}\nstatic int callback(int x){return x;} int (*keep)(int)=callback; static int never(void){return 1;}\nextern int side(void);int h(void){int unused=side();return 0;}";
     let Some(r) = report(source) else {

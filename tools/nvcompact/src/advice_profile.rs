@@ -1,5 +1,9 @@
 //! Optional diagnostic instrumentation and sample-only observations.
 //! This module cannot create a compression candidate or admit a rewrite.
+use crate::advisor::{
+    domain::{Domain, FINITE_LIMIT},
+    nversion::{self, DomainProvenance, FiniteDomain, SearchBudget, SearchRequest},
+};
 use crate::advisor::{AdviceReport, RangeSite};
 use crate::sha256;
 use anyhow::{ensure, Context, Result};
@@ -67,6 +71,10 @@ fn check_report(report: &AdviceReport) -> Result<()> {
     for site in &report.ranges {
         ensure!(ids.insert(&site.id), "duplicate range site identity");
     }
+    ensure!(
+        report.expressions.len() <= 512,
+        "expression site count exceeds advisory limit"
+    );
     Ok(())
 }
 
@@ -229,9 +237,137 @@ struct Observation<'a> {
     minimum: String,
     maximum: String,
     outside_static_range: bool,
+    outside_static_domain: bool,
+    observed_known_zero: String,
+    observed_known_one: String,
+    distinct_values: Vec<String>,
+    distinct_values_complete: bool,
     assurance: &'static str,
     suggestion: Option<String>,
     requirements: Vec<&'static str>,
+}
+
+struct Samples {
+    count: usize,
+    min: i128,
+    max: i128,
+    zero: u64,
+    one: u64,
+    distinct: BTreeSet<i128>,
+    distinct_complete: bool,
+    outside_domain: bool,
+}
+
+fn domain_for_site(site: &RangeSite) -> Result<Domain> {
+    let (lo, hi, _) = integer_type(&site.c_type).context("unsupported observation integer type")?;
+    let bits = if site.c_type == "_Bool" {
+        1
+    } else if hi <= u32::MAX as i128 {
+        32
+    } else {
+        64
+    };
+    let signed = lo < 0;
+    let min = site
+        .minimum
+        .parse()
+        .context("invalid static range minimum")?;
+    let max = site
+        .maximum
+        .parse()
+        .context("invalid static range maximum")?;
+    ensure!(
+        min <= max && min >= lo && max <= hi,
+        "invalid static integer bounds"
+    );
+    if let Some(summary) = &site.domain {
+        let domain = Domain::from_summary(summary).context("invalid static domain summary")?;
+        ensure!(
+            (domain.bits, domain.signed, domain.lo, domain.hi) == (bits, signed, min, max),
+            "static domain/type mismatch"
+        );
+        Ok(domain)
+    } else {
+        Ok(Domain::interval(min, max, bits, signed))
+    }
+}
+
+fn observed_comparisons(
+    report: &AdviceReport,
+    observations: &BTreeMap<&str, Samples>,
+) -> Result<Value> {
+    let budget_total = report.statistics["nversion_work_budget"]
+        .as_u64()
+        .unwrap_or(16_000_000)
+        .min(100_000_000) as usize;
+    let mut work = 0;
+    let mut rows = Vec::new();
+    let mut sites: Vec<_> = report.expressions.iter().collect();
+    sites.sort_by_key(|s| (std::cmp::Reverse(s.original.len()), s.location.start));
+    for site in sites {
+        let Some(entry) = site.entry_site_id.as_deref() else {
+            continue;
+        };
+        let Some(samples) = observations.get(entry) else {
+            continue;
+        };
+        let domain = Domain::interval(
+            samples.min,
+            samples.max,
+            site.variable_type.bits(),
+            !site.variable_type.is_unsigned(),
+        );
+        let base = json!({"expression_id": site.id, "location":site.location, "original":site.original,
+            "entry_site_id":entry,"samples":samples.count,
+            "assurance":"conditional-observed-interval-closure", "outside_static_domain":samples.outside_domain,
+            "hypothesis":domain.summary(),
+            "closure":"Every integer between the observed minimum and maximum, including unobserved values. Observed fixed bits and sparse samples do not narrow this closure.",
+            "requirements":["Independently establish that all executions reaching this expression stay inside this hypothesis before shortening.",
+                "Finite profiling, passing outside probes and static containing-domain comparison have distinct evidence scopes.",
+                "Preserve types, stable ordinary reads, source observations and full submitted-file cost; never apply automatically."]});
+        let mut row = base;
+        if samples.outside_domain {
+            row["status"] = json!("withheld: observations contradict static domain; investigate the source/context or analysis");
+            rows.push(row);
+            continue;
+        }
+        let Some(values) = domain.enumerate(FINITE_LIMIT) else {
+            row["status"] = json!("observed interval closure exceeds finite-domain budget");
+            rows.push(row);
+            continue;
+        };
+        let remaining = budget_total.saturating_sub(work);
+        if remaining < 1000 {
+            row["status"] = json!("observed comparison work budget exhausted");
+            rows.push(row);
+            continue;
+        }
+        let mut budget = SearchBudget::default();
+        budget.max_evaluations = budget.max_evaluations.min(remaining);
+        let request = SearchRequest {
+            original: site.expression.clone(), original_source: site.original.clone(), symbol: site.symbol.clone(),
+            variable_type: site.variable_type, domain: FiniteDomain { values, provenance: DomainProvenance::ObservedClosure,
+                description: "Conditional full interval closure of expression-entry samples; no all-executions reachability claim.".into() }, budget,
+        };
+        let comparison = nversion::compare_and_suggest(&request).map_err(anyhow::Error::msg)?;
+        work += comparison.statistics.evaluation_steps;
+        let outside: Vec<_> = comparison.candidates.iter().filter(|c| c.bytes_saved > 0).take(8).map(|candidate| {
+            let witnesses = nversion::probe_outside_domain(&site.expression, &candidate.expression, site.variable_type, &request.domain, 32)
+                .map_err(anyhow::Error::msg)?;
+            Ok(json!({"candidate":candidate.source,"max_probes":32,"exhaustive":false,"counterexamples":witnesses,
+                "scope":"Outside-hypothesis diagnostics only; a witness prevents a universal claim, and no witness does not prove one."}))
+        }).collect::<Result<_>>()?;
+        row["status"] = json!("compared-conditionally; static facts unchanged");
+        row["comparison"] = serde_json::to_value(comparison)?;
+        row["outside_domain_checks"] = json!(outside);
+        rows.push(row);
+    }
+    Ok(
+        json!({"work_budget":budget_total,"evaluation_steps":work,"expressions":rows,
+        "outside_probe_limits":{"max_candidates_per_expression":8,"max_values_per_candidate":32,
+            "scope":"separately bounded diagnostics; excluded from synthesis evaluation-step counts"},
+        "static_facts_changed":false,"compression_candidates_created":0}),
+    )
 }
 
 /// Import bounded trace records. Values stay decimal strings in JSON so a
@@ -246,7 +382,11 @@ pub fn observe(report: &AdviceReport, trace: &[u8]) -> Result<Value> {
     let text = std::str::from_utf8(trace).context("observation trace must be UTF-8")?;
     let sites: BTreeMap<&str, &RangeSite> =
         report.ranges.iter().map(|s| (s.id.as_str(), s)).collect();
-    let mut observations: BTreeMap<&str, (usize, i128, i128)> = BTreeMap::new();
+    let domains: BTreeMap<&str, Domain> = sites
+        .iter()
+        .map(|(&id, site)| Ok((id, domain_for_site(site)?)))
+        .collect::<Result<_>>()?;
+    let mut observations: BTreeMap<&str, Samples> = BTreeMap::new();
     let mut ignored_lines = 0usize;
     let mut records = 0usize;
     for raw_line in text.split_inclusive('\n') {
@@ -290,16 +430,33 @@ pub fn observe(report: &AdviceReport, trace: &[u8]) -> Result<Value> {
         );
         records += 1;
         ensure!(records <= 1_000_000, "observation record limit exceeded");
-        let entry = observations
-            .entry(site.id.as_str())
-            .or_insert((0, value, value));
-        entry.0 += 1;
-        entry.1 = entry.1.min(value);
-        entry.2 = entry.2.max(value);
+        let entry = observations.entry(site.id.as_str()).or_insert(Samples {
+            count: 0,
+            min: value,
+            max: value,
+            zero: u64::MAX >> (64 - domains[site.id.as_str()].bits),
+            one: u64::MAX >> (64 - domains[site.id.as_str()].bits),
+            distinct: BTreeSet::new(),
+            distinct_complete: true,
+            outside_domain: false,
+        });
+        entry.count += 1;
+        entry.min = entry.min.min(value);
+        entry.max = entry.max.max(value);
+        entry.zero &= !(value as u64);
+        entry.one &= value as u64;
+        entry.outside_domain |= !domains[site.id.as_str()].contains(value);
+        if entry.distinct.len() < 256 {
+            entry.distinct.insert(value);
+        } else if !entry.distinct.contains(&value) {
+            entry.distinct_complete = false;
+        }
     }
     ensure!(records > 0, "no NVCompact observation records found");
+    let comparisons = observed_comparisons(report, &observations)?;
     let mut rows = Vec::new();
-    for (id, (samples, min, max)) in observations {
+    for (id, samples) in observations {
+        let (min, max) = (samples.min, samples.max);
         let site = sites[id];
         let static_min: i128 = site
             .minimum
@@ -310,7 +467,7 @@ pub fn observe(report: &AdviceReport, trace: &[u8]) -> Result<Value> {
             .parse()
             .context("invalid static range maximum")?;
         let outside = min < static_min || max > static_max;
-        let suggestion = if outside {
+        let suggestion = if samples.outside_domain {
             Some("Recorded values contradict the reported static interval. Check source, dependencies, instrumentation build and analysis assumptions before considering any rewrite.".into())
         } else if min >= 0 && max <= 1 {
             Some(format!("Samples at this use contain only 0/1. If that domain is established for every execution reaching the use, inspect `{0} == 1` -> `{0}` or `{0} != 1` -> `!{0}` in truth contexts, and redundant masks. Preserve result type in value contexts.", site.symbol))
@@ -326,10 +483,19 @@ pub fn observe(report: &AdviceReport, trace: &[u8]) -> Result<Value> {
             function: &site.function,
             c_type: &site.c_type,
             operation: &site.operation,
-            samples,
+            samples: samples.count,
             minimum: min.to_string(),
             maximum: max.to_string(),
             outside_static_range: outside,
+            outside_static_domain: samples.outside_domain,
+            observed_known_zero: format!("0x{:x}", samples.zero),
+            observed_known_one: format!("0x{:x}", samples.one),
+            distinct_values: samples
+                .distinct
+                .into_iter()
+                .map(|v| v.to_string())
+                .collect(),
+            distinct_values_complete: samples.distinct_complete,
             assurance: "observed-samples-only",
             suggestion,
             requirements: vec![
@@ -340,10 +506,11 @@ pub fn observe(report: &AdviceReport, trace: &[u8]) -> Result<Value> {
         });
     }
     Ok(
-        json!({"format_version":1,"advisory_only":true,"assurance":"observed-samples-only",
+        json!({"format_version":2,"advisory_only":true,"assurance":"observed-samples-only",
         "source_sha256":report.source_sha256,"analysis_context_sha256":report.analysis_context_sha256,
         "trace_sha256":sha256(trace),"records":records,"ignored_lines":ignored_lines,
         "observed_sites":rows,"unobserved_sites":report.ranges.len()-rows.len(),
+        "nversion":comparisons,
         "coverage_complete":false,"static_ranges_changed":false,
         "scope":"Finite diagnostic samples, potentially quota-limited or interrupted. No claim of all paths, all values, program equivalence, performance, or actual packed-byte savings."}),
     )
