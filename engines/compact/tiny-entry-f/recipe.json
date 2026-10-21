@@ -87,7 +87,8 @@
     "engines/scripts/source_package.py": "55fa739e7c17fffdb3bf1191c7a26aa38d35e9e32473e4008c23ece3d5703d1f",
     "engines/compact/tiny-entry-f/shipping_names.py": "b69d376bf2e206273b12344fe30fbddbce6d51396c01fab8d53fd8f25401d48b",
     "engines/compact/tiny-entry-f/bootstrap_full.py": "813eb1a9f0a31a54350e4df015c49d0a63e9d2d57923a4035e563aa7b95e222c",
-    "engines/compact/tiny-entry-f/shipping_selector.py": "69bf3747d81455690c11abc95046e173c5a8915e2abd001ad6976bbe22c3e48d"
+    "engines/compact/tiny-entry-f/shipping_selector.py": "69bf3747d81455690c11abc95046e173c5a8915e2abd001ad6976bbe22c3e48d",
+    "engines/compact/tiny-entry-f/shipping_rank.py": "0850ee61f108bc24fa48995f5f13b49d16a24c788f38cd070c9644e9e044c932"
   },
   "resource_literals": [
     [
@@ -261,22 +262,22 @@
   },
   "expected": {
     "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
-    "source_bytes": 8513,
-    "source_sha256": "9f2804e0bc9467ee5f831cf7e2f90bb27f54117a50228ffb3ad1681d4873a272",
+    "source_bytes": 8509,
+    "source_sha256": "a2d094c954ca7e0d02d38e0810c62c9fc8e754a536ee7770bc98214dee7d3142",
     "native_bytes": 18576,
-    "native_sha256": "926710668d5975d6972ca18d22bea985b2b4aa9153f41c946c03d5bbac71f876",
-    "whole_bytes": 4439,
-    "whole_sha256": "de4c6a8fe2298b2ebe142f2dadc5172ca9ed73533913bb82dccd8a10d94ae4da",
+    "native_sha256": "ea4712367d627b792021f17f4b2419895a67c002458e4151b1d1e9625afdf9c3",
+    "whole_bytes": 4438,
+    "whole_sha256": "9f8c7f3fc0c44d7d31f2169e1ef47e2ebdfa0e39c7c1e675785fc65e96bb26ca",
     "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
     "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
-    "bootstrap_sha256": "1c227f5be06fa2eabf64f0f772afea4e437c67d045593f07a28ec25a2103d703",
+    "bootstrap_sha256": "8b92457eccb00002aa505777b6fe2c8c2c3cb1987420d94f074f0764a747e040",
     "semantic_readable_bytes": 25720,
     "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
     "dev_source_bytes": 19488,
     "dev_native_bytes": 26984,
     "input_profile_readable_bytes": 28587,
     "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
-    "bootstrap_bytes": 9445
+    "bootstrap_bytes": 9441
   },
   "local_input_sha256": {
     "engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
@@ -1192,6 +1193,121 @@
       "prior4442_record_unchanged": true,
       "new_optional_SAN_firstcost_fault": 0,
       "metadata_only_after_execution": true
+    },
+    "local_HCE_rank": {
+      "status": "PASS maintained full4438: ordinary full shipping2/unchangedDEV2, optional full-reference2each and new selected quitEOF2sessions8GO",
+      "predecessor_full_expected": {
+        "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+        "source_bytes": 8513,
+        "source_sha256": "9f2804e0bc9467ee5f831cf7e2f90bb27f54117a50228ffb3ad1681d4873a272",
+        "native_bytes": 18576,
+        "native_sha256": "926710668d5975d6972ca18d22bea985b2b4aa9153f41c946c03d5bbac71f876",
+        "whole_bytes": 4439,
+        "whole_sha256": "de4c6a8fe2298b2ebe142f2dadc5172ca9ed73533913bb82dccd8a10d94ae4da",
+        "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
+        "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
+        "bootstrap_sha256": "1c227f5be06fa2eabf64f0f772afea4e437c67d045593f07a28ec25a2103d703",
+        "semantic_readable_bytes": 25720,
+        "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
+        "dev_source_bytes": 19488,
+        "dev_native_bytes": 26984,
+        "input_profile_readable_bytes": 28587,
+        "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
+        "bootstrap_bytes": 9445
+      },
+      "source_first_cost_index": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-local-hce-rank-first-cost-20261022-evidence/final-index.json",
+        "bytes": 9021,
+        "sha256": "721a8dbe0898b036ed1a5ac8719f25896ad59d94d01f71595c7a153c6e924b30",
+        "LF_bytes": 9021,
+        "LF_sha256": "721a8dbe0898b036ed1a5ac8719f25896ad59d94d01f71595c7a153c6e924b30"
+      },
+      "pure_actual_value832_index": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-local-hce-rank-values-20261022-evidence/final-index.json",
+        "bytes": 3098,
+        "sha256": "609b5bb08a1bd9f9a9465033c6166d07a90dbbd19af60bf9c30520216eba792c",
+        "LF_bytes": 3098,
+        "LF_sha256": "609b5bb08a1bd9f9a9465033c6166d07a90dbbd19af60bf9c30520216eba792c"
+      },
+      "helper_LF_sha256": "0850ee61f108bc24fa48995f5f13b49d16a24c788f38cd070c9644e9e044c932",
+      "source_raw_delta": -4,
+      "whole_delta": -1,
+      "native_entire_bytes_equal": false,
+      "source_scope": "one pure HCE function only; valid0x88/signedpiece includes empty EP target; full features and integer coefficients preserved",
+      "consumer_scope": "defaultfull and optional separate full_reference after selector; canonical/DEV/optional selected data bypass; pre-name F8 base8538 unchanged",
+      "runtime_scope": "new selected runtime required; old full runtime not reused for changed native",
+      "ordinary_validation": {
+        "full_build": {
+          "path": "/home/stemxstudio/rove4k-f-local-hce-rank-normal-20261022-v1/full/build/build.json",
+          "bytes": 253413,
+          "sha256": "a508392b2b9ea07545c6f69c6abccb2ac14127e351eac1802e0128062eca01af",
+          "LF_bytes": 253413,
+          "LF_sha256": "a508392b2b9ea07545c6f69c6abccb2ac14127e351eac1802e0128062eca01af"
+        },
+        "material_build": {
+          "path": "/home/stemxstudio/rove4k-f-local-hce-rank-normal-20261022-v1/material/build/build.json",
+          "bytes": 200060,
+          "sha256": "c18766af8fb9228c09fb1d3c289a66da2b7760412e297aec67d11bbbc5e71735",
+          "LF_bytes": 200060,
+          "LF_sha256": "c18766af8fb9228c09fb1d3c289a66da2b7760412e297aec67d11bbbc5e71735"
+        },
+        "move_build": {
+          "path": "/home/stemxstudio/rove4k-f-local-hce-rank-normal-20261022-v1/move/build/build.json",
+          "bytes": 222078,
+          "sha256": "fd47f44a43a64aeb17d41aa7161606c263305f1dc26827cebb71c6a66564588b",
+          "LF_bytes": 222078,
+          "LF_sha256": "fd47f44a43a64aeb17d41aa7161606c263305f1dc26827cebb71c6a66564588b"
+        },
+        "build_stage": {
+          "path": "/home/stemxstudio/rove4k-f-local-hce-rank-normal-20261022-v1/build-stage.json",
+          "bytes": 12474,
+          "sha256": "bcdc3104381f87f1556de925ceb7488409748d374617591abe72aec3ff87dee1",
+          "LF_bytes": 12474,
+          "LF_sha256": "bcdc3104381f87f1556de925ceb7488409748d374617591abe72aec3ff87dee1"
+        },
+        "selected_stage": {
+          "path": "/home/stemxstudio/rove4k-f-local-hce-rank-normal-20261022-v1/selected-stage.json",
+          "bytes": 3645,
+          "sha256": "bd29f02e1ee19798f8c3c03b48097668d43fe4b5cf96ef66bcbf9a3a57a9673e",
+          "LF_bytes": 3645,
+          "LF_sha256": "bd29f02e1ee19798f8c3c03b48097668d43fe4b5cf96ef66bcbf9a3a57a9673e"
+        },
+        "runtime": {
+          "path": "/home/stemxstudio/rove4k-f-local-hce-rank-normal-20261022-v1/full/runtime/runtime.json",
+          "bytes": 73017,
+          "sha256": "5b4e30964e7cde9b9c99eaa581c14bb739ebfd01320f378d2d26c0c6dc7b8137",
+          "LF_bytes": 73017,
+          "LF_sha256": "5b4e30964e7cde9b9c99eaa581c14bb739ebfd01320f378d2d26c0c6dc7b8137"
+        },
+        "producing_recipe": {
+          "path": "/home/stemxstudio/rove4k-f-local-hce-rank-normal-20261022-v1/full/build/inputs/recipe.json",
+          "bytes": 292387,
+          "sha256": "76073b0b342da01fb85734080c33fddb0bfbdb606de8473b167ac73acbb8a279",
+          "LF_bytes": 292387,
+          "LF_sha256": "76073b0b342da01fb85734080c33fddb0bfbdb606de8473b167ac73acbb8a279"
+        },
+        "full_shipping_reproductions": 2,
+        "unchanged_DEV_reproductions": 2,
+        "optional_shipping_reproductions_each": 2,
+        "optional_actual_byte_identity": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-local-hce-rank-promotion-20261022-evidence/optional-actual-identity.json",
+          "bytes": 7411,
+          "sha256": "baf92a732ce30a0a81cbcc56d6e49cb751dcb1e580e86f31ae26e07c07793e25",
+          "LF_bytes": 7411,
+          "LF_sha256": "baf92a732ce30a0a81cbcc56d6e49cb751dcb1e580e86f31ae26e07c07793e25"
+        },
+        "new_full_native_observed": true,
+        "quit_EOF_sessions": 2,
+        "legal_GO_epochs": 8,
+        "startup_TIDs": 3,
+        "new_optional_runtime": 0,
+        "new_F8_runtime": 0,
+        "scope": "new native runtime qualification; exact restored deleted image, legal clocked/bare results, persistent TIDs, finished readers/physical exit via unchanged verifier; no strength/performance/fault/TTstress claim",
+        "forced_cleanup": false,
+        "normal_failures": 0,
+        "normal_retries": 0,
+        "post_execution_changes": "F2/F8 recipe and README annotations only; helper/build/expected/codec remain producing bytes"
+      }
     }
   },
   "provenance": {
@@ -5417,6 +5533,121 @@
       "failures_retries": 0,
       "owned_handles": 0,
       "cancellation_causality": "unproven"
+    }
+  },
+  "local_HCE_rank": {
+    "status": "PASS maintained full4438: ordinary full shipping2/unchangedDEV2, optional full-reference2each and new selected quitEOF2sessions8GO",
+    "predecessor_full_expected": {
+      "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+      "source_bytes": 8513,
+      "source_sha256": "9f2804e0bc9467ee5f831cf7e2f90bb27f54117a50228ffb3ad1681d4873a272",
+      "native_bytes": 18576,
+      "native_sha256": "926710668d5975d6972ca18d22bea985b2b4aa9153f41c946c03d5bbac71f876",
+      "whole_bytes": 4439,
+      "whole_sha256": "de4c6a8fe2298b2ebe142f2dadc5172ca9ed73533913bb82dccd8a10d94ae4da",
+      "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
+      "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
+      "bootstrap_sha256": "1c227f5be06fa2eabf64f0f772afea4e437c67d045593f07a28ec25a2103d703",
+      "semantic_readable_bytes": 25720,
+      "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
+      "dev_source_bytes": 19488,
+      "dev_native_bytes": 26984,
+      "input_profile_readable_bytes": 28587,
+      "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
+      "bootstrap_bytes": 9445
+    },
+    "source_first_cost_index": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-local-hce-rank-first-cost-20261022-evidence/final-index.json",
+      "bytes": 9021,
+      "sha256": "721a8dbe0898b036ed1a5ac8719f25896ad59d94d01f71595c7a153c6e924b30",
+      "LF_bytes": 9021,
+      "LF_sha256": "721a8dbe0898b036ed1a5ac8719f25896ad59d94d01f71595c7a153c6e924b30"
+    },
+    "pure_actual_value832_index": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-local-hce-rank-values-20261022-evidence/final-index.json",
+      "bytes": 3098,
+      "sha256": "609b5bb08a1bd9f9a9465033c6166d07a90dbbd19af60bf9c30520216eba792c",
+      "LF_bytes": 3098,
+      "LF_sha256": "609b5bb08a1bd9f9a9465033c6166d07a90dbbd19af60bf9c30520216eba792c"
+    },
+    "helper_LF_sha256": "0850ee61f108bc24fa48995f5f13b49d16a24c788f38cd070c9644e9e044c932",
+    "source_raw_delta": -4,
+    "whole_delta": -1,
+    "native_entire_bytes_equal": false,
+    "source_scope": "one pure HCE function only; valid0x88/signedpiece includes empty EP target; full features and integer coefficients preserved",
+    "consumer_scope": "defaultfull and optional separate full_reference after selector; canonical/DEV/optional selected data bypass; pre-name F8 base8538 unchanged",
+    "runtime_scope": "new selected runtime required; old full runtime not reused for changed native",
+    "ordinary_validation": {
+      "full_build": {
+        "path": "/home/stemxstudio/rove4k-f-local-hce-rank-normal-20261022-v1/full/build/build.json",
+        "bytes": 253413,
+        "sha256": "a508392b2b9ea07545c6f69c6abccb2ac14127e351eac1802e0128062eca01af",
+        "LF_bytes": 253413,
+        "LF_sha256": "a508392b2b9ea07545c6f69c6abccb2ac14127e351eac1802e0128062eca01af"
+      },
+      "material_build": {
+        "path": "/home/stemxstudio/rove4k-f-local-hce-rank-normal-20261022-v1/material/build/build.json",
+        "bytes": 200060,
+        "sha256": "c18766af8fb9228c09fb1d3c289a66da2b7760412e297aec67d11bbbc5e71735",
+        "LF_bytes": 200060,
+        "LF_sha256": "c18766af8fb9228c09fb1d3c289a66da2b7760412e297aec67d11bbbc5e71735"
+      },
+      "move_build": {
+        "path": "/home/stemxstudio/rove4k-f-local-hce-rank-normal-20261022-v1/move/build/build.json",
+        "bytes": 222078,
+        "sha256": "fd47f44a43a64aeb17d41aa7161606c263305f1dc26827cebb71c6a66564588b",
+        "LF_bytes": 222078,
+        "LF_sha256": "fd47f44a43a64aeb17d41aa7161606c263305f1dc26827cebb71c6a66564588b"
+      },
+      "build_stage": {
+        "path": "/home/stemxstudio/rove4k-f-local-hce-rank-normal-20261022-v1/build-stage.json",
+        "bytes": 12474,
+        "sha256": "bcdc3104381f87f1556de925ceb7488409748d374617591abe72aec3ff87dee1",
+        "LF_bytes": 12474,
+        "LF_sha256": "bcdc3104381f87f1556de925ceb7488409748d374617591abe72aec3ff87dee1"
+      },
+      "selected_stage": {
+        "path": "/home/stemxstudio/rove4k-f-local-hce-rank-normal-20261022-v1/selected-stage.json",
+        "bytes": 3645,
+        "sha256": "bd29f02e1ee19798f8c3c03b48097668d43fe4b5cf96ef66bcbf9a3a57a9673e",
+        "LF_bytes": 3645,
+        "LF_sha256": "bd29f02e1ee19798f8c3c03b48097668d43fe4b5cf96ef66bcbf9a3a57a9673e"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-f-local-hce-rank-normal-20261022-v1/full/runtime/runtime.json",
+        "bytes": 73017,
+        "sha256": "5b4e30964e7cde9b9c99eaa581c14bb739ebfd01320f378d2d26c0c6dc7b8137",
+        "LF_bytes": 73017,
+        "LF_sha256": "5b4e30964e7cde9b9c99eaa581c14bb739ebfd01320f378d2d26c0c6dc7b8137"
+      },
+      "producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-f-local-hce-rank-normal-20261022-v1/full/build/inputs/recipe.json",
+        "bytes": 292387,
+        "sha256": "76073b0b342da01fb85734080c33fddb0bfbdb606de8473b167ac73acbb8a279",
+        "LF_bytes": 292387,
+        "LF_sha256": "76073b0b342da01fb85734080c33fddb0bfbdb606de8473b167ac73acbb8a279"
+      },
+      "full_shipping_reproductions": 2,
+      "unchanged_DEV_reproductions": 2,
+      "optional_shipping_reproductions_each": 2,
+      "optional_actual_byte_identity": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-local-hce-rank-promotion-20261022-evidence/optional-actual-identity.json",
+        "bytes": 7411,
+        "sha256": "baf92a732ce30a0a81cbcc56d6e49cb751dcb1e580e86f31ae26e07c07793e25",
+        "LF_bytes": 7411,
+        "LF_sha256": "baf92a732ce30a0a81cbcc56d6e49cb751dcb1e580e86f31ae26e07c07793e25"
+      },
+      "new_full_native_observed": true,
+      "quit_EOF_sessions": 2,
+      "legal_GO_epochs": 8,
+      "startup_TIDs": 3,
+      "new_optional_runtime": 0,
+      "new_F8_runtime": 0,
+      "scope": "new native runtime qualification; exact restored deleted image, legal clocked/bare results, persistent TIDs, finished readers/physical exit via unchanged verifier; no strength/performance/fault/TTstress claim",
+      "forced_cleanup": false,
+      "normal_failures": 0,
+      "normal_retries": 0,
+      "post_execution_changes": "F2/F8 recipe and README annotations only; helper/build/expected/codec remain producing bytes"
     }
   }
 }

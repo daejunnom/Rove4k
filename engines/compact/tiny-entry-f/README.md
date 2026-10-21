@@ -1,3 +1,37 @@
+# Maintained F2: local HCE rank normalization — 2026-10-22
+
+The fixed first cost is **4438 B**, one below4439 and342 above4096.
+One pure value function folds rank by piece color:196 ->192 B, C8513 ->8509 B.
+The packed coefficient table and every returned HCE value remain exact for all
+64 valid0x88 squares x13 signed piece values, including empty EP targets.
+Actual extracted C bodies passed832 pairs in one small libc fixture; no engine
+TU or SAN was added. Board/Move/hash/TT/learners are not color-oriented.
+
+Bootstrap9441 B uses the same header73, positional wait and BT2/16KiB context.
+Native18576 B has new SHAea471236..., qualified by one unchanged selected
+verifier on the actual new output: quit/EOF2 sessions,8 legal GO epochs,
+restored deleted native image,3 stable TIDs and physical readers/process/group
+exit pass. This does not reuse predecessor full-runtime execution as a new run.
+One ordinary full --dev call reproduces shipping source/native/bootstrap/whole
+twice and unchanged DEV source/native twice. Each existing optional builder runs
+once to reproduce its changed separate full-reference8509 branch; selected
+material-noise4319 and material-move-tt4045 source/native/bootstrap/whole bytes
+match their actual predecessors exactly. New optional runtime is zero.
+F8 still consumes actual unchanged pre-name8538/47353... before names/selector/
+rank; its own code, expected bytes and9-TID conditions receive no rank stage.
+
+Actual full build253413 B:
+`a508392b2b9ea07545c6f69c6abccb2ac14127e351eac1802e0128062eca01af`.
+Actual selected runtime73017 B:
+`5b4e30964e7cde9b9c99eaa581c14bb739ebfd01320f378d2d26c0c6dc7b8137`.
+All4 original ordinary/selected parent commands exit0, are reaped and have absent
+groups at settlement; forced cleanup/owned handles0. No late PID gate is used.
+No new SAN, NVC, fault/negative/TTstress, game or performance campaign is added.
+The original source-only/cost/value832 checkpoints remain frozen separately.
+Preparation's JSON-style and inherited F8 D-helper pin preflight failures are
+preserved before product execution. Producing source/recipe and final receipt
+annotations are separate; helper/build and measured expectations remain fixed.
+
 # Maintained F2: positional cleanup timeout — 2026-10-22
 
 The full/default file is **4439 B**, three below4442 and343 above4096.

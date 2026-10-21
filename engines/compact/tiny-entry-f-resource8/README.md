@@ -1,3 +1,15 @@
+# F2 HCE-rank producer provenance — 2026-10-22
+
+F2 adds one fixed local-HCE rank helper after its own names and two-worker
+selector. This updates the F2 builder pin and adds the helper to this profile's
+code provenance. F8 does not import or invoke the rank stage. Its producer
+exports the same pre-name8538/47353... before either late F2 transformation;
+F8 remains names -> six resource roles -> its own packaging. Base/expected,
+specialize/build/verify, model/codec/header and nine-TID assertions stay exact.
+The preceding4442 reproduction/positive records keep their original producing
+56-file closure. The current provenance closure adds one helper (57 files);
+this annotation is not a new F8 execution or a gain inherited from F2.
+
 # Maintained F8: positional timeout wait — 2026-10-22
 
 The selected full F8 file is **4442 B**,3 B below4445 and346 B above4096.
@@ -157,3 +169,17 @@ specialize helper, builder, positive verifier and CI input path are unchanged.
 The existing54-file source_closure() is checked against current source. Prior
 4474 reproduction and nine-TID positive evidence is reused by exact identity;
 no new F8 compilation, encoding, specialization or engine execution is claimed.
+
+D verifier source provenance also advances from55253875... to3ae1f525...
+for the separate D body-packet entry. Its13 shared generic definitions and
+OWNED initialization are byte-exact, including every F8-called function.
+Only that positive-helper fullfile pin changes here; D checkpoint/inspect/
+production/main changes are not F8 calls. The original closure rejection
+and old producing recipe are preserved; this adds no F8 execution evidence.
+
+F2 rank ordinary qualification later confirmed the exported pre-name file
+again at8538/47353..., while its separate late source became8509 and its own
+file4438. The two existing optional selected products also stay byte-exact.
+These are F2 producer observations; this F8 profile is not rebuilt or run again.
+The57-source provenance check passes with the exact unchanged shared helper
+bodies. Its prior4442 build/9-TID positive remain scoped reuse evidence.

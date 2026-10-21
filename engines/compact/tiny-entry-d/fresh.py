@@ -171,7 +171,7 @@ def main():
             for result in verified['results']:
                 require(len(result['production']) == 2 and {s['shutdown'] for s in result['production']} == {'quit', 'EOF'}, 'physical quit/EOF matrix differs')
                 require(all(s['passed'] and s['settled']['returncode'] == 0 and not s['cleanup']['forced_cleanup'] and not s['cleanup']['errors'] for s in result['production']), 'physical session did not settle')
-                require(result['pre_entry']['pre_entry_bss_padding_zero'] and result['pre_entry']['rx_matches_native'] and result['pre_entry']['resumed_original_entry'] and result['pre_entry']['settled']['returncode'] == 0, 'pre-entry checkpoint incomplete')
+                require(result['pre_entry']['pre_entry_bss_padding_zero'] and result['pre_entry']['rx_matches_restored_image'] and result['pre_entry']['resumed_original_entry'] and result['pre_entry']['settled']['returncode'] == 0, 'pre-entry checkpoint incomplete')
             row['verification_sha256'] = sha(receipt)
             row['native_whole_audit_repeat_match'] = True
             save()

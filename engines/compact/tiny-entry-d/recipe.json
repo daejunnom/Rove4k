@@ -18,9 +18,9 @@
     "native/image.ld": "38756c865914b52432572864446fcc58b791dfb508af8a33156d5c190c01044b"
   },
   "loader_source_sha256": {
-    "loader/loader.c": "ea574f09aefc0f910a64c683c7052482d3b2e0c52a10f09450233b155674a85c",
+    "loader/loader.c": "41aae27e0991b82eae46bcf6665dcf5fe1d18d8b56e72c82cc100fe5427deba0",
     "loader/image.ld": "93934099212b944b20c2f7840ee87e4817311c4f87fddbb2b3f91db28776cf99",
-    "loader/codec.py": "b8308c14a0bcf416af2546632a065c67562eab2c6b9eef189855d3850b3d84da",
+    "loader/codec.py": "1910bd89780be866afa7b333e1c0905cb0189a2f9d4c36c2b5d28de90681e85f",
     "loader/decoder.h": "162129fbc2e876252d7a3f58bda9672aff3a1a6170c35903b73624e571b60fd6",
     "loader/range_bits.py": "9c4f9a69b3655a1cd95969cd601193174a15894e35a92248cb3c7ccdd74d2854",
     "loader/models.json": "3101a5638551990cb2d5a33d6d28fbab436d04d301b676cc2e45afa63b7f6920"
@@ -71,19 +71,19 @@
     "hq.c",
     "start.S"
   ],
-  "codec": "rove4k-context-h24-base10-fixed21-replay-zero4-v2",
+  "codec": "rove4k-context-h24-base10-fixed21-body232-zero4-v3",
   "expected": {
     "scalar-shipping": {
       "hq": 0,
       "native_bytes": 7612,
       "native_sha256": "662b0eb10046d0b0ab105bba0f793371bb869eb61aa4419c8c2fa95f7d39c32d",
-      "whole_bytes": 5908,
-      "whole_sha256": "d7a0b5fa3f5dcf96368630283f756fee4bf04034b58cd970700e6197c4471490",
-      "payload_bytes": 4771,
-      "payload_sha256": "c9127fa880b803d610246e97f9dd9000652b8bdcc2d11c5288cd4c08b8750578",
+      "whole_bytes": 5836,
+      "whole_sha256": "e726848454c05ca42eefcc65877203f5a2812d51e9902e169c01859bd06c72f9",
+      "payload_bytes": 4699,
+      "payload_sha256": "fa26f297f155563091f0ce9abe56751667ed2fbeaec061325510d6e0ddd95ddd",
       "loader_and_headers_bytes": 1137,
-      "audit_bytes": 5931,
-      "audit_sha256": "46ebc96c8e0fdd46a6f5b93668fd3b82b4ee746b9e44513d1532a3fc48963e90",
+      "audit_bytes": 5859,
+      "audit_sha256": "419c47835f0db582e86a4a1d5c4b45876bb22768ab2152d6b159897a2eea180f",
       "layout": {
         "image_base": 4194304,
         "image_size": 7612,
@@ -132,19 +132,27 @@
           }
         ]
       },
-      "model_wmask": 16847486
+      "model_wmask": 16847486,
+      "image": {
+        "format": "rove4k-context-h24-base10-fixed21-body232-zero4-v3",
+        "zero_prefix_bytes": 232,
+        "compiled_native_bytes": 7612,
+        "compiled_native_sha256": "662b0eb10046d0b0ab105bba0f793371bb869eb61aa4419c8c2fa95f7d39c32d",
+        "restored_image_bytes": 7612,
+        "restored_image_sha256": "07b6754aabefd1171fbdfae84ce30e1b50cff8a527a124d99998e18170f0d07c"
+      }
     },
     "hq-shipping": {
       "hq": 1,
       "native_bytes": 8000,
       "native_sha256": "3c662941aa11af8521d3c601322e9aa38405a3bfbeb9332d55008907217a4b2e",
-      "whole_bytes": 6111,
-      "whole_sha256": "9e4167c6b4bba2978d1b3685901bef89fd90ff9929f7991f8c39cbaa94819a62",
-      "payload_bytes": 4974,
-      "payload_sha256": "c0635ffd8a38b7e77d94bc24704caa29bd9f8be9fba4006dfc67fdd2a0a508ef",
+      "whole_bytes": 6037,
+      "whole_sha256": "b7cf68ec898e6b550c89ebb2dd94fc9f7c1f215b3c24237096ea1c55f54a0262",
+      "payload_bytes": 4900,
+      "payload_sha256": "d974d3c9683cfd2bfdc271ce9405ec3f6cb46be24e1cfcd5d18c0bcf8b8e2cba",
       "loader_and_headers_bytes": 1137,
-      "audit_bytes": 6134,
-      "audit_sha256": "50dd8d89b10b2fc7b09b11f5f21215f7e8035d1edac6948dd6b7ff0ef68153f9",
+      "audit_bytes": 6060,
+      "audit_sha256": "6f2e808246e648f5c9fc65dd9fc103311375a87e4581946a89efacc70edb532e",
       "layout": {
         "image_base": 4194304,
         "image_size": 8000,
@@ -193,7 +201,15 @@
           }
         ]
       },
-      "model_wmask": 135274878
+      "model_wmask": 135274878,
+      "image": {
+        "format": "rove4k-context-h24-base10-fixed21-body232-zero4-v3",
+        "zero_prefix_bytes": 232,
+        "compiled_native_bytes": 8000,
+        "compiled_native_sha256": "3c662941aa11af8521d3c601322e9aa38405a3bfbeb9332d55008907217a4b2e",
+        "restored_image_bytes": 8000,
+        "restored_image_sha256": "f2b4804631d293ccb4742ed8718869a29736bfb46f840044659e44c8d0f95d4b"
+      }
     }
   },
   "qualified_receipts_metadata_only": {
@@ -1106,6 +1122,62 @@
         "scope": "Source reduction only. No new runtime/negative/fault/TTstress/ptrace/RIE/personality or DEV codegen qualification; no new concurrency/stack/performance/strength/4KiB claim. Only recipe/README changed after this producing normal."
       },
       "scope": "Source reduction only, not whole-file gain or a new concurrency/stack/performance/4KiB claim; original first-cost receipts remain frozen separately."
+    },
+    "body232_private_image": {
+      "scope": "new body-only packet v3; actual new full restored image and new own-ELF positive qualification, not legacy runtime reuse",
+      "scalar_first_cost": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-body-packet-first-cost-20261022-v2-evidence/cost.json",
+        "bytes": 9058,
+        "sha256": "02e325bf1c0920440d9f71f4db2997165cce667f7d758888135b6dfe4e2ad99b"
+      },
+      "hq_first_cost": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-body-packet-HQ-first-cost-20261022-evidence/cost.json",
+        "bytes": 9072,
+        "sha256": "15ea1d4d89d9ff4d62a686e2e0386689756ac9720728b6d2cd0270049ceba944"
+      },
+      "audit_discovery": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-body-packet-promotion-20261022-evidence/audit-discovery.json",
+        "bytes": 11046,
+        "sha256": "0ce82893a5d7e62f38b949c52c5b0d3e11ad243b5957e283cba8ac7e243f5ee1"
+      },
+      "final_class_DATA": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-body-packet-promotion-20261022-evidence/class-data-final.json",
+        "bytes": 716,
+        "sha256": "0c5fd33e15ce13a107361e09ded7183402e773a6c5c9cc79f62b42e1a35722e1"
+      },
+      "shared_helper_consumer_source_proof": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-body-packet-promotion-20261022-evidence/shared-helper-consumer-proof.json",
+        "bytes": 1919,
+        "sha256": "82b2370329646a4aab6e05155009255c73e4b1507b7871a124b647e0b4553bc1"
+      },
+      "producing_recipe": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-body-packet-promotion-20261022-evidence/producing-final/recipe.json",
+        "bytes": 77393,
+        "sha256": "697b583a960c71a32ff8a034c5276ed00e343da7b8d4d49101d45ef69566d0a2"
+      },
+      "ordinary_build": {
+        "path": "/home/stemxstudio/rove4k-d-body-packet-normal-20261022-v3/build/build.json",
+        "bytes": 106861,
+        "sha256": "12a27baceeafb6f0ada28f9ad8770851ce90805b72fe5d9ab89d7424ad97aff0"
+      },
+      "positive_runtime": {
+        "path": "/home/stemxstudio/rove4k-d-body-packet-normal-20261022-v3/runtime/results.json",
+        "bytes": 60049,
+        "sha256": "7c87119a6879ab30e59155a360c0903950e305bb7b2b9d1686b65c755f77ed02"
+      },
+      "actual_scope": {
+        "pre_entry": 2,
+        "production_sessions": 4,
+        "legal_GO_results": 12,
+        "persistent_TIDs": 3,
+        "physical_exit": "all return0, readers joined, original owned groups absent; forced cleanup0",
+        "fresh": 0,
+        "fault_negative_ptrace_RIE_personality_campaigns": 0,
+        "old_runtime_reused": false
+      },
+      "predecessors": "initial supervisor preexec CPU hard-limit failure preserved separately, actual product work0; three ordinary builds passed while two source-only API boundary findings were tightened; final products match first cost exactly",
+      "source_review": "analysis_reconcile SOURCE CLEAR; reviewer compile/codec/runtime0",
+      "context_format_annotation": "final v3 metadata corrects inherited v2 coded_length/packet-format wording; this dictionary is descriptive and not read by encoder/builder admission"
     }
   },
   "shipping_protocol": {
@@ -1123,17 +1195,169 @@
     "hash_bits": 24,
     "base_probability": 10,
     "table_bytes": 33554432,
-    "coded_length": "u32 IMAGE_SIZE*8+1, derived from the exact admitted native, no stream length field",
+    "coded_length": "u32 (IMAGE_SIZE-232)*8+1; IMAGE_SIZE remains full admitted native extent",
     "model_count": 21,
     "models": "unchanged loader/models.json, ordered21 mask bytes at packet front",
     "zero_tail_bytes": 4,
     "CRC": "software reflected CRC32C raw state, no initial/final XOR",
     "table_lifetime": "private anonymous kernel-zero RW; checked munmap before inverse BCJ and native entry",
-    "BCJ": "whole native file including header, E8/E9 rel32 modulo 2^32, file offset+5, skip four operand bytes",
+    "BCJ": "whole compiled native E8/E9 transform at original file offsets, encode bytes[232:]; inverse over zero232 plus decoded body, original file offset+5",
     "header_bytes": 21,
     "weightmask": "exact selected form literal passed as MODEL_WMASK, unsigned32 replay per coded bit",
     "model_schema_format": "rove4k-context-h24-base10-u32-zero4-v1",
-    "packet_format": "rove4k-context-h24-base10-fixed21-replay-zero4-v2"
+    "packet_format": "rove4k-context-h24-base10-fixed21-body232-zero4-v3",
+    "restored_prefix_bytes": 232
   },
-  "execution_isa": "linux-x86_64-sse4.2-cx16-crc32b-v1"
+  "execution_isa": "linux-x86_64-sse4.2-cx16-crc32b-v1",
+  "legacy_v2": {
+    "codec": "rove4k-context-h24-base10-fixed21-replay-zero4-v2",
+    "expected": {
+      "scalar-shipping": {
+        "hq": 0,
+        "native_bytes": 7612,
+        "native_sha256": "662b0eb10046d0b0ab105bba0f793371bb869eb61aa4419c8c2fa95f7d39c32d",
+        "whole_bytes": 5908,
+        "whole_sha256": "d7a0b5fa3f5dcf96368630283f756fee4bf04034b58cd970700e6197c4471490",
+        "payload_bytes": 4771,
+        "payload_sha256": "c9127fa880b803d610246e97f9dd9000652b8bdcc2d11c5288cd4c08b8750578",
+        "loader_and_headers_bytes": 1137,
+        "audit_bytes": 5931,
+        "audit_sha256": "46ebc96c8e0fdd46a6f5b93668fd3b82b4ee746b9e44513d1532a3fc48963e90",
+        "layout": {
+          "image_base": 4194304,
+          "image_size": 7612,
+          "image_pages": 8192,
+          "entry": 4201533,
+          "bss_base": 4202496,
+          "bss_size": 175092,
+          "bss_pages": 176128,
+          "guard_base": 4190208,
+          "upper_guard": 4378624,
+          "reserve_size": 192512,
+          "section_offset": 0,
+          "section_size": 0,
+          "section_count": 0,
+          "section_names": 0,
+          "segments": [
+            {
+              "type": 1,
+              "flags": 5,
+              "offset": 0,
+              "vaddr": 4194304,
+              "paddr": 4194304,
+              "filesz": 7612,
+              "memsz": 7612,
+              "align": 4096
+            },
+            {
+              "type": 1,
+              "flags": 6,
+              "offset": 0,
+              "vaddr": 4202496,
+              "paddr": 4202496,
+              "filesz": 0,
+              "memsz": 175092,
+              "align": 4096
+            },
+            {
+              "type": 1685382481,
+              "flags": 6,
+              "offset": 0,
+              "vaddr": 0,
+              "paddr": 0,
+              "filesz": 0,
+              "memsz": 0,
+              "align": 8
+            }
+          ]
+        },
+        "model_wmask": 16847486
+      },
+      "hq-shipping": {
+        "hq": 1,
+        "native_bytes": 8000,
+        "native_sha256": "3c662941aa11af8521d3c601322e9aa38405a3bfbeb9332d55008907217a4b2e",
+        "whole_bytes": 6111,
+        "whole_sha256": "9e4167c6b4bba2978d1b3685901bef89fd90ff9929f7991f8c39cbaa94819a62",
+        "payload_bytes": 4974,
+        "payload_sha256": "c0635ffd8a38b7e77d94bc24704caa29bd9f8be9fba4006dfc67fdd2a0a508ef",
+        "loader_and_headers_bytes": 1137,
+        "audit_bytes": 6134,
+        "audit_sha256": "50dd8d89b10b2fc7b09b11f5f21215f7e8035d1edac6948dd6b7ff0ef68153f9",
+        "layout": {
+          "image_base": 4194304,
+          "image_size": 8000,
+          "image_pages": 8192,
+          "entry": 4201846,
+          "bss_base": 4202496,
+          "bss_size": 175064,
+          "bss_pages": 176128,
+          "guard_base": 4190208,
+          "upper_guard": 4378624,
+          "reserve_size": 192512,
+          "section_offset": 0,
+          "section_size": 0,
+          "section_count": 0,
+          "section_names": 0,
+          "segments": [
+            {
+              "type": 1,
+              "flags": 5,
+              "offset": 0,
+              "vaddr": 4194304,
+              "paddr": 4194304,
+              "filesz": 8000,
+              "memsz": 8000,
+              "align": 4096
+            },
+            {
+              "type": 1,
+              "flags": 6,
+              "offset": 0,
+              "vaddr": 4202496,
+              "paddr": 4202496,
+              "filesz": 0,
+              "memsz": 175064,
+              "align": 4096
+            },
+            {
+              "type": 1685382481,
+              "flags": 6,
+              "offset": 0,
+              "vaddr": 0,
+              "paddr": 0,
+              "filesz": 0,
+              "memsz": 0,
+              "align": 8
+            }
+          ]
+        },
+        "model_wmask": 135274878
+      }
+    },
+    "context_format": {
+      "hash_bits": 24,
+      "base_probability": 10,
+      "table_bytes": 33554432,
+      "coded_length": "u32 IMAGE_SIZE*8+1, derived from the exact admitted native, no stream length field",
+      "model_count": 21,
+      "models": "unchanged loader/models.json, ordered21 mask bytes at packet front",
+      "zero_tail_bytes": 4,
+      "CRC": "software reflected CRC32C raw state, no initial/final XOR",
+      "table_lifetime": "private anonymous kernel-zero RW; checked munmap before inverse BCJ and native entry",
+      "BCJ": "whole native file including header, E8/E9 rel32 modulo 2^32, file offset+5, skip four operand bytes",
+      "header_bytes": 21,
+      "weightmask": "exact selected form literal passed as MODEL_WMASK, unsigned32 replay per coded bit",
+      "model_schema_format": "rove4k-context-h24-base10-u32-zero4-v1",
+      "packet_format": "rove4k-context-h24-base10-fixed21-replay-zero4-v2"
+    }
+  },
+  "image_contract": {
+    "class": "rove4k-context-h24-base10-fixed21-body232-zero4-v3",
+    "compiled_native": "unchanged complete ELF used for exact admission/layout",
+    "restored_image": "zero232 || compiled_native[232:] at original addresses; full N-byte SHA including zero prefix",
+    "decoded_bytes": "N-232 post-whole-offset-BCJ bytes",
+    "memory_extent": "original N, entry, RX pages, BSS, guards, reserve and model remain unchanged",
+    "legacy": "legacy_v2 retains previous exact native/payload/whole/audit admission; encode_native and compile_loader default stay full RX"
+  }
 }

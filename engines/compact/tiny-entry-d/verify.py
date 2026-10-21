@@ -6,8 +6,9 @@ closure. Mapping checks adapt the admitted-image helpers from the tracked
 experiments/tiny-d-loader/test_runtime.py. No historical receipt, generated
 helper, broad fault suite, compiler, or network service is used at runtime.
 
-/proc/PID/exe is the own-loader ELF, while restored RX is the native image.
-The two identities are deliberately pinned and checked separately.
+/proc/PID/exe is the own-loader ELF. V2 RX is the compiled native ELF;
+V3 RX is zero232 plus that ELF's unchanged body at its original offsets.
+Compiled native, full restored RX and own-ELF identities are checked separately.
 """
 import argparse
 import hashlib
@@ -31,9 +32,22 @@ SHIPPING_PROTOCOL = {
     'hard_wall_cap': False,
     'completion_fences': 'next go, position, quit, EOF acquire pending==0 after result output',
 }
-CODEC = 'rove4k-context-h24-base10-fixed21-replay-zero4-v2'
+V2_CODEC = 'rove4k-context-h24-base10-fixed21-replay-zero4-v2'
+CODEC = 'rove4k-context-h24-base10-fixed21-body232-zero4-v3'
 EXECUTION_ISA = 'linux-x86_64-sse4.2-cx16-crc32b-v1'
-EXPECTED = {'scalar-shipping': {'bytes': 5908, 'sha256': 'd7a0b5fa3f5dcf96368630283f756fee4bf04034b58cd970700e6197c4471490', 'native_bytes': 7612, 'native_sha256': '662b0eb10046d0b0ab105bba0f793371bb869eb61aa4419c8c2fa95f7d39c32d', 'audit_bytes': 5931, 'audit_sha256': '46ebc96c8e0fdd46a6f5b93668fd3b82b4ee746b9e44513d1532a3fc48963e90', 'entry': 4201533, 'layout': {'image_base': 4194304, 'image_size': 7612, 'image_pages': 8192, 'entry': 4201533, 'bss_base': 4202496, 'bss_size': 175092, 'bss_pages': 176128, 'guard_base': 4190208, 'upper_guard': 4378624, 'reserve_size': 192512, 'section_offset': 0, 'section_size': 0, 'section_count': 0, 'section_names': 0, 'segments': [{'type': 1, 'flags': 5, 'offset': 0, 'vaddr': 4194304, 'paddr': 4194304, 'filesz': 7612, 'memsz': 7612, 'align': 4096}, {'type': 1, 'flags': 6, 'offset': 0, 'vaddr': 4202496, 'paddr': 4202496, 'filesz': 0, 'memsz': 175092, 'align': 4096}, {'type': 1685382481, 'flags': 6, 'offset': 0, 'vaddr': 0, 'paddr': 0, 'filesz': 0, 'memsz': 0, 'align': 8}]}}, 'hq-shipping': {'bytes': 6111, 'sha256': '9e4167c6b4bba2978d1b3685901bef89fd90ff9929f7991f8c39cbaa94819a62', 'native_bytes': 8000, 'native_sha256': '3c662941aa11af8521d3c601322e9aa38405a3bfbeb9332d55008907217a4b2e', 'audit_bytes': 6134, 'audit_sha256': '50dd8d89b10b2fc7b09b11f5f21215f7e8035d1edac6948dd6b7ff0ef68153f9', 'entry': 4201846, 'layout': {'image_base': 4194304, 'image_size': 8000, 'image_pages': 8192, 'entry': 4201846, 'bss_base': 4202496, 'bss_size': 175064, 'bss_pages': 176128, 'guard_base': 4190208, 'upper_guard': 4378624, 'reserve_size': 192512, 'section_offset': 0, 'section_size': 0, 'section_count': 0, 'section_names': 0, 'segments': [{'type': 1, 'flags': 5, 'offset': 0, 'vaddr': 4194304, 'paddr': 4194304, 'filesz': 8000, 'memsz': 8000, 'align': 4096}, {'type': 1, 'flags': 6, 'offset': 0, 'vaddr': 4202496, 'paddr': 4202496, 'filesz': 0, 'memsz': 175064, 'align': 4096}, {'type': 1685382481, 'flags': 6, 'offset': 0, 'vaddr': 0, 'paddr': 0, 'filesz': 0, 'memsz': 0, 'align': 8}]}}}
+EXPECTED_V2 = {'scalar-shipping': {'bytes': 5908, 'sha256': 'd7a0b5fa3f5dcf96368630283f756fee4bf04034b58cd970700e6197c4471490', 'native_bytes': 7612, 'native_sha256': '662b0eb10046d0b0ab105bba0f793371bb869eb61aa4419c8c2fa95f7d39c32d', 'audit_bytes': 5931, 'audit_sha256': '46ebc96c8e0fdd46a6f5b93668fd3b82b4ee746b9e44513d1532a3fc48963e90', 'entry': 4201533, 'layout': {'image_base': 4194304, 'image_size': 7612, 'image_pages': 8192, 'entry': 4201533, 'bss_base': 4202496, 'bss_size': 175092, 'bss_pages': 176128, 'guard_base': 4190208, 'upper_guard': 4378624, 'reserve_size': 192512, 'section_offset': 0, 'section_size': 0, 'section_count': 0, 'section_names': 0, 'segments': [{'type': 1, 'flags': 5, 'offset': 0, 'vaddr': 4194304, 'paddr': 4194304, 'filesz': 7612, 'memsz': 7612, 'align': 4096}, {'type': 1, 'flags': 6, 'offset': 0, 'vaddr': 4202496, 'paddr': 4202496, 'filesz': 0, 'memsz': 175092, 'align': 4096}, {'type': 1685382481, 'flags': 6, 'offset': 0, 'vaddr': 0, 'paddr': 0, 'filesz': 0, 'memsz': 0, 'align': 8}]}}, 'hq-shipping': {'bytes': 6111, 'sha256': '9e4167c6b4bba2978d1b3685901bef89fd90ff9929f7991f8c39cbaa94819a62', 'native_bytes': 8000, 'native_sha256': '3c662941aa11af8521d3c601322e9aa38405a3bfbeb9332d55008907217a4b2e', 'audit_bytes': 6134, 'audit_sha256': '50dd8d89b10b2fc7b09b11f5f21215f7e8035d1edac6948dd6b7ff0ef68153f9', 'entry': 4201846, 'layout': {'image_base': 4194304, 'image_size': 8000, 'image_pages': 8192, 'entry': 4201846, 'bss_base': 4202496, 'bss_size': 175064, 'bss_pages': 176128, 'guard_base': 4190208, 'upper_guard': 4378624, 'reserve_size': 192512, 'section_offset': 0, 'section_size': 0, 'section_count': 0, 'section_names': 0, 'segments': [{'type': 1, 'flags': 5, 'offset': 0, 'vaddr': 4194304, 'paddr': 4194304, 'filesz': 8000, 'memsz': 8000, 'align': 4096}, {'type': 1, 'flags': 6, 'offset': 0, 'vaddr': 4202496, 'paddr': 4202496, 'filesz': 0, 'memsz': 175064, 'align': 4096}, {'type': 1685382481, 'flags': 6, 'offset': 0, 'vaddr': 0, 'paddr': 0, 'filesz': 0, 'memsz': 0, 'align': 8}]}}}
+# V2 retains its full-native RX comparison and exact historical admissions.
+# V3 has a separate full restored-image hash, including every zero prefix byte.
+EXPECTED_BODY = {
+    'scalar-shipping': dict(EXPECTED_V2['scalar-shipping'], bytes=5836,
+        sha256='e726848454c05ca42eefcc65877203f5a2812d51e9902e169c01859bd06c72f9',
+        audit_bytes=5859, audit_sha256='419c47835f0db582e86a4a1d5c4b45876bb22768ab2152d6b159897a2eea180f',
+        restored_image_sha256='07b6754aabefd1171fbdfae84ce30e1b50cff8a527a124d99998e18170f0d07c'),
+    'hq-shipping': dict(EXPECTED_V2['hq-shipping'], bytes=6037,
+        sha256='b7cf68ec898e6b550c89ebb2dd94fc9f7c1f215b3c24237096ea1c55f54a0262',
+        audit_bytes=6060, audit_sha256='6f2e808246e648f5c9fc65dd9fc103311375a87e4581946a89efacc70edb532e',
+        restored_image_sha256='f2b4804631d293ccb4742ed8718869a29736bfb46f840044659e44c8d0f95d4b'),
+}
 OWNED = set()
 
 
@@ -111,7 +125,7 @@ def covers(items, begin, length, permission):
     raise AssertionError("memory range absent/incomplete")
 
 
-def inspect(pid, layout, native_sha, executable_sha, *, initial=False):
+def inspect(pid, layout, native_sha, executable_sha, *, initial=False, restored_sha=None):
     items = mapping(pid)
     covers(items, layout["image_base"], layout["image_pages"], "r-x")
     covers(items, layout["bss_base"], layout["bss_pages"], "rw-")
@@ -131,15 +145,16 @@ def inspect(pid, layout, native_sha, executable_sha, *, initial=False):
     require(actual_exe == executable_sha, "/proc/PID/exe differs from admitted own ELF")
     with open(f"/proc/{pid}/mem", "rb", buffering=0) as memory:
         image = os.pread(memory.fileno(), layout["image_size"], layout["image_base"])
-        require(len(image) == layout["image_size"] and sha(image) == native_sha, "actual restored RX differs from pinned native")
+        require(len(image) == layout["image_size"] and sha(image) == (restored_sha or native_sha), "actual full restored RX differs from pinned image")
         padding_length = layout["image_pages"] - layout["image_size"]
         padding = os.pread(memory.fileno(), padding_length, layout["image_base"] + layout["image_size"])
         require(len(padding) == padding_length and not any(padding), "RX page padding not zero")
         if initial:
             bss = os.pread(memory.fileno(), layout["bss_pages"], layout["bss_base"])
             require(len(bss) == layout["bss_pages"] and not any(bss), "pre-entry BSS/padding not zero")
-    return {"own_executable_sha256": actual_exe, "mapped_native_sha256": sha(image),
-            "rx_matches_native": True, "rx_padding_zero": True,
+    return {"own_executable_sha256": actual_exe, "compiled_native_sha256": native_sha, "mapped_image_sha256": sha(image),
+            "mapped_native_sha256": sha(image) if restored_sha is None else None,
+            "rx_matches_native": sha(image) == native_sha, "rx_matches_restored_image": True, "rx_padding_zero": True,
             "pre_entry_bss_padding_zero": True if initial else None,
             "no_writable_executable_mapping": True, "nonexec_process_stack": True,
             "lower_upper_guards": True, "worker_guarded_nonexec_stacks": worker_guards, "maps": items}
@@ -319,7 +334,7 @@ def physical_active(owned, expected_tids, before):
     raise AssertionError("physical active state was not established within 3 seconds: " + repr(samples[-5:]))
 
 
-def checkpoint(candidate, layout, native_sha, directory, budget, evidence):
+def checkpoint(candidate, layout, native_sha, directory, budget, evidence, *, restored_sha=None):
     audit = candidate.get("audit")
     require(audit and "path" in audit and "sha256" in audit, "build must include the admitted CHECKPOINT image")
     path = Path(audit["path"])
@@ -338,7 +353,7 @@ def checkpoint(candidate, layout, native_sha, directory, budget, evidence):
             time.sleep(min(.005, budget.left(.005)))
         else:
             raise TimeoutError("pre-entry CHECKPOINT deadline")
-        evidence.update(inspect(owned.process.pid, layout, native_sha, audit["sha256"], initial=True))
+        evidence.update(inspect(owned.process.pid, layout, native_sha, audit["sha256"], initial=True, restored_sha=restored_sha))
         os.kill(owned.process.pid, signal.SIGCONT)
         owned.send(b"uci\nisready\nquit\n")
         owned.close_input()
@@ -353,7 +368,7 @@ def checkpoint(candidate, layout, native_sha, directory, budget, evidence):
             require(not evidence["cleanup"]["forced_cleanup"] and not evidence["cleanup"]["errors"], "audit cleanup required intervention")
 
 
-def production(candidate, layout, native_sha, directory, budget, oracle, shutdown, row):
+def production(candidate, layout, native_sha, directory, budget, oracle, shutdown, row, *, restored_sha=None):
     path = Path(candidate["path"])
     require(sha(path.read_bytes()) == candidate["sha256"], "own ELF changed before launch")
     owned = Owned(path, directory, budget)
@@ -361,7 +376,7 @@ def production(candidate, layout, native_sha, directory, budget, oracle, shutdow
     try:
         tids = stable_startup(owned)
         row["startup_tids"] = tids
-        row["before_uci"] = inspect(owned.process.pid, layout, native_sha, candidate["sha256"])
+        row["before_uci"] = inspect(owned.process.pid, layout, native_sha, candidate["sha256"], restored_sha=restored_sha)
         owned.send(b"uci\nisready\n")
         owned.wait_line(b"uciok")
         owned.wait_line(b"readyok")
@@ -393,7 +408,7 @@ def production(candidate, layout, native_sha, directory, budget, oracle, shutdow
             else:
                 row["active_before_shutdown"] = physical_active(owned, tids, before)
                 require(sum(s.startswith(b"bestmove ") for s in owned.stdout.bytes().splitlines()) == 2, "active search had already settled")
-                row["during_active_search"] = inspect(owned.process.pid, layout, native_sha, candidate["sha256"])
+                row["during_active_search"] = inspect(owned.process.pid, layout, native_sha, candidate["sha256"], restored_sha=restored_sha)
                 row["active_position"] = {"history": history, "side": "black"}
         if shutdown == "quit":
             owned.send(b"quit\n")
@@ -448,14 +463,18 @@ def main():
         oracle_bytes = args.oracle.read_bytes()
         report["oracle_sha256"] = sha(oracle_bytes)
         require(sha(oracle_bytes.replace(b"\r\n", b"\n")) == ORACLE_LF_SHA, "independent oracle LF-normalized source differs")
-        require(all(e["audit_bytes"] is not None and e["audit_sha256"] is not None for e in EXPECTED.values()), "context audit literals require explicit discovery and admission")
         build = json.loads(build_bytes)
+        codec = build.get('engines', [{}])[0].get('candidates', [{}])[0].get('codec')
+        require(codec in (V2_CODEC, CODEC), "unknown packet/image class")
+        expected_forms = EXPECTED_V2 if codec == V2_CODEC else EXPECTED_BODY
+        report['codec'] = codec
+        require(all(e["audit_bytes"] is not None and e["audit_sha256"] is not None for e in expected_forms.values()), "context audit literals require explicit discovery and admission")
         require(build.get("complete") is True, "build is incomplete")
         require(build.get("execution_isa") == EXECUTION_ISA, "build execution ISA declaration differs")
         require(not build.get("failure") and build["shipping_protocol"] == SHIPPING_PROTOCOL, "build protocol declaration differs or build failed")
         report["shipping_protocol"] = SHIPPING_PROTOCOL
         report["policy_scope"] = "declaration/exact-image binding; this run checks clocked play and quit/EOF, not ignored controls or default-budget arithmetic"
-        require(len(build["engines"]) == 2 and {e["id"] for e in build["engines"]} == set(EXPECTED), "expected exactly the scalar/HQ admitted images")
+        require(len(build["engines"]) == 2 and {e["id"] for e in build["engines"]} == set(expected_forms), "expected exactly the scalar/HQ admitted images")
         recipe = out / "recipe"
         recipe.mkdir()
         (recipe / "verify.py").write_bytes(validator_bytes)
@@ -467,7 +486,7 @@ def main():
         spec.loader.exec_module(oracle)
         for engine in build["engines"]:
             phase = engine["id"] + "/input-validation"
-            expected, layout = EXPECTED[engine["id"]], engine["layout"]
+            expected, layout = expected_forms[engine["id"]], engine["layout"]
             require(engine["input_sha256"] == expected["native_sha256"] and engine["input_bytes"] == expected["native_bytes"], "native image admission differs")
             native = engine.get("native") or engine.get("native_path")
             if isinstance(native, dict):
@@ -484,7 +503,23 @@ def main():
             require(len(engine["candidates"]) == 1, "expected exactly one selected context-codec own ELF")
             candidate = dict(engine["candidates"][0])
             candidate["path"] = str(resolve(candidate["path"], build_path.parent))
-            require(candidate.get("codec") == CODEC and candidate["sha256"] == expected["sha256"] and candidate["bytes"] == expected["bytes"], "selected own ELF admission differs")
+            require(candidate.get("codec") == codec and candidate["sha256"] == expected["sha256"] and candidate["bytes"] == expected["bytes"], "selected own ELF admission differs")
+            restored_sha = expected.get('restored_image_sha256')
+            if codec == CODEC:
+                image = {'format': CODEC, 'zero_prefix_bytes': 232,
+                         'compiled_native_bytes': expected['native_bytes'], 'compiled_native_sha256': expected['native_sha256'],
+                         'restored_image_bytes': expected['native_bytes'], 'restored_image_sha256': restored_sha}
+                require(engine.get('image') == image and candidate.get('image') == image
+                        and candidate['encoding']['image'] == image, 'body232 image identities differ')
+                require(candidate['encoding']['decoded_bytes'] == expected['native_bytes']-232
+                        and candidate['definitions']['IMAGE_SIZE'] == expected['native_bytes']
+                        and candidate['definitions']['DECODE_PREFIX'] == 232, 'body232 decode extent differs')
+                native_data = native_path.read_bytes()
+                require(sha(bytes(232)+native_data[232:]) == restored_sha, 'body232 full restored-image literal differs')
+                restored = engine['restored_image']
+                require(restored['bytes'] == expected['native_bytes'] and restored['sha256'] == restored_sha
+                        and sha(resolve(restored['path'], build_path.parent).read_bytes()) == restored_sha,
+                        'recorded whole restored image differs')
             program = Path(candidate["path"])
             require(program.stat().st_size == expected["bytes"] and sha(program.read_bytes()) == expected["sha256"], "actual own ELF file differs")
             if candidate.get("audit"):
@@ -502,12 +537,12 @@ def main():
             report["results"].append(row)
             phase = engine["id"] + "/pre-entry"
             row["pre_entry"] = {}
-            checkpoint(candidate, layout, expected["native_sha256"], out / engine["id"] / "checkpoint", budget, row["pre_entry"])
+            checkpoint(candidate, layout, expected["native_sha256"], out / engine["id"] / "checkpoint", budget, row["pre_entry"], restored_sha=restored_sha)
             for shutdown in ("quit", "EOF"):
                 phase = engine["id"] + "/active-" + shutdown
                 case = {}
                 row["production"].append(case)
-                production(candidate, layout, expected["native_sha256"], out / engine["id"] / shutdown, budget, oracle, shutdown, case)
+                production(candidate, layout, expected["native_sha256"], out / engine["id"] / shutdown, budget, oracle, shutdown, case, restored_sha=restored_sha)
         report["complete"] = True
     except BaseException as exc:
         report["complete"] = False

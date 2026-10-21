@@ -31,7 +31,7 @@
   "base_source_closure_sha256": {
     "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
     "engines/compact/tiny-entry-f/bootstrap.py.in": "159c5fe166f4b0804471e9d3a70d8f055a510858a6ae33f0ed6b4cfd17fca6f9",
-    "engines/compact/tiny-entry-f/build.py": "4e08b9f425cfbecad7169228bdd7cea3e7bf4309b2f0b16a43d5c4d195280533",
+    "engines/compact/tiny-entry-f/build.py": "e346ebcd38274e7f219e73aec4dc17555448192c17761ea11d175f2ea2eb5abc",
     "engines/compact/tiny-entry-f/engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
     "engines/compact/tiny-entry-f/launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
     "engines/compact/tiny-entry-f/shipping_alpha.py": "74abadbd79735e9f6b30c513b422245bae737f81d4e3bd04a7b8e597e61937e8",
@@ -77,10 +77,11 @@
     "engines/scripts/specialize.py": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d",
     "engines/compact/tiny-entry-f/shipping_names.py": "b69d376bf2e206273b12344fe30fbddbce6d51396c01fab8d53fd8f25401d48b",
     "engines/compact/tiny-entry-f/bootstrap_full.py": "813eb1a9f0a31a54350e4df015c49d0a63e9d2d57923a4035e563aa7b95e222c",
-    "engines/compact/tiny-entry-f/shipping_selector.py": "69bf3747d81455690c11abc95046e173c5a8915e2abd001ad6976bbe22c3e48d"
+    "engines/compact/tiny-entry-f/shipping_selector.py": "69bf3747d81455690c11abc95046e173c5a8915e2abd001ad6976bbe22c3e48d",
+    "engines/compact/tiny-entry-f/shipping_rank.py": "0850ee61f108bc24fa48995f5f13b49d16a24c788f38cd070c9644e9e044c932"
   },
   "positive_helper_sha256": {
-    "engines/compact/tiny-entry-d/verify.py": "552538753ca76684a520843f87aa790274eb0b81c9e174a34255dbfadc207afa",
+    "engines/compact/tiny-entry-d/verify.py": "3ae1f525e718f9cef90b4009ff415065587cf9552b82d2785911a672243fae33",
     "engines/tests/chess_oracle.py": "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8"
   },
   "compiler": [
@@ -422,5 +423,53 @@
     "template_sha256": "7719272010d58735a2768064ce4b30733b8eed4a96488864a111030da7cab533",
     "F2_selector_provenance": "producer helper only; not invoked by F8. Strict preName47353 -> names400ad -> resourcead02 remains unchanged",
     "status": "ordinary reproduction2 and unchanged positive2 sessions/8GO PASS"
+  },
+  "F2_local_HCE_rank_producer_provenance": {
+    "F2_builder_LF_sha256": "e346ebcd38274e7f219e73aec4dc17555448192c17761ea11d175f2ea2eb5abc",
+    "new_helper_LF_sha256": "0850ee61f108bc24fa48995f5f13b49d16a24c788f38cd070c9644e9e044c932",
+    "rank_invocations_in_F8": 0,
+    "base8538_pre_names_preserved": true,
+    "F8_source_native_bootstrap_whole_expected_unchanged": true,
+    "reuse_scope": "producer provenance only; no new F8 compile/runtime/codec qualification or byte gain inferred",
+    "generic_D_positive_helper": {
+      "old_LF_sha256": "552538753ca76684a520843f87aa790274eb0b81c9e174a34255dbfadc207afa",
+      "new_LF_sha256": "3ae1f525e718f9cef90b4009ff415065587cf9552b82d2785911a672243fae33",
+      "owner_proof": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-d-body-packet-promotion-20261022-evidence/shared-helper-consumer-proof.json",
+        "bytes": 1919,
+        "sha256": "82b2370329646a4aab6e05155009255c73e4b1507b7871a124b647e0b4553bc1",
+        "LF_bytes": 1919,
+        "LF_sha256": "82b2370329646a4aab6e05155009255c73e4b1507b7871a124b647e0b4553bc1"
+      },
+      "own_read_proof": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-local-hce-rank-promotion-20261022-evidence/F8-D-verifier-provenance.json",
+        "bytes": 1304,
+        "sha256": "b1b103f51d2ed1ddc76924c537771181322595a0af9dae3644c86eeb056e12dd",
+        "LF_bytes": 1304,
+        "LF_sha256": "b1b103f51d2ed1ddc76924c537771181322595a0af9dae3644c86eeb056e12dd"
+      },
+      "scope": "F8 consumes exact unchanged Owned/Reader/Budget/tasks/mapping and OWNED initialization; changed D constants/inspect/checkpoint/production/main are not F8 calls; fullfile pin sync only, no new F8 runtime"
+    },
+    "completed_F2_ordinary_pre_name": {
+      "F2_build": {
+        "path": "/home/stemxstudio/rove4k-f-local-hce-rank-normal-20261022-v1/full/build/build.json",
+        "bytes": 253413,
+        "sha256": "a508392b2b9ea07545c6f69c6abccb2ac14127e351eac1802e0128062eca01af",
+        "LF_bytes": 253413,
+        "LF_sha256": "a508392b2b9ea07545c6f69c6abccb2ac14127e351eac1802e0128062eca01af"
+      },
+      "actual_pre_name": {
+        "path": "/home/stemxstudio/rove4k-f-local-hce-rank-normal-20261022-v1/full/build/source-before-names.c",
+        "bytes": 8538,
+        "sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0",
+        "LF_bytes": 8538,
+        "LF_sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
+      },
+      "base_bytes": 8538,
+      "base_sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0",
+      "rank_invocations_in_F8": 0,
+      "new_F8_compile_runtime_encode": 0,
+      "scope": "actual F2 exported pre-name bytes remain identical; existing F8 products and unchanged generic-helper bodies permit scoped prior positive reuse, not a new run"
+    }
   }
 }

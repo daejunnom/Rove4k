@@ -1,3 +1,77 @@
+# Maintained D: body232 private restore image — 2026-10-22
+
+Selected complete scalar/HQ files are **5836 / 6037 B**, down **72 / 74 B**
+from5908/6111. They remain **1740 / 1941 B above4096**. The native files are
+unchanged7612/8000 B. Packets shrink4771→4699 and4974→4900 B; the measured
+nonpacket loader/header contribution remains1137 B in each form. Raw232 bytes
+omitted from model input do not imply232 bytes of complete-file saving.
+
+The new `rove4k-context-h24-base10-fixed21-body232-zero4-v3` class encodes
+`whole_BCJ(compiled_native)[232:]`. It restores **zero232 || native[232:]**
+at the same addresses. Those232 bytes are the dormant ELF64 header and three
+program headers in this admitted private image. This is an explicit image
+observation-contract change, not full native byte identity. The compiled ELF,
+full restored RX image (including every zero prefix byte), and own-ELF each
+have their own strict SHA-256. Header-consuming arbitrary programs are outside
+this exact two-image class.
+
+| Identity | Scalar | HQ |
+|---|---|---|
+| Compiled native |7612 / `662b0eb10046d0b0ab105bba0f793371bb869eb61aa4419c8c2fa95f7d39c32d`|8000 / `3c662941aa11af8521d3c601322e9aa38405a3bfbeb9332d55008907217a4b2e`|
+| Full restored image |7612 / `07b6754aabefd1171fbdfae84ce30e1b50cff8a527a124d99998e18170f0d07c`|8000 / `f2b4804631d293ccb4742ed8718869a29736bfb46f840044659e44c8d0f95d4b`|
+| Own-ELF |5836 / `e726848454c05ca42eefcc65877203f5a2812d51e9902e169c01859bd06c72f9`|6037 / `b7cf68ec898e6b550c89ebb2dd94fc9f7c1f215b3c24237096ea1c55f54a0262`|
+| CHECKPOINT |5859 / `419c47835f0db582e86a4a1d5c4b45876bb22768ab2152d6b159897a2eea180f`|6060 / `6f2e808246e648f5c9fc65dd9fc103311375a87e4581946a89efacc70edb532e`|
+
+The existing `encode_native` API/CLI, v2 full-RX/default loader path and exact
+native admission remain. `legacy_v2` and `EXPECTED_V2` preserve their old
+literal identities and full native comparison. Only the explicit new API
+`encode_body_native` selects body232. Actual whole-file BCJ scans visit232
+without an opcode/operand crossing; both full-offset forward/inverse checks
+pass. A crossing would reject this class. No prefix is ignored during the
+new verifier's full-N-byte RX comparison.
+
+The body descriptor and full native hash bind the original entry, RX pages,
+BSS extent, reserve and guards centrally in the packer. Decoder extent is
+N−232 while IMAGE_SIZE remainsN. Fixed21 models/WMASK, H24 zero32MiB state,
+base10 arithmetic, sentinel, ordered updates, checked unmap, zero4 tail,
+full-offset inverse BCJ, W^X, private stack/entry and syscall error fences
+remain. Native source, flags and the explicit SSE4.2/CX16 ISA profile do not
+change.
+
+First costs execute one encoder, one independent Python DATA inverse and one
+loader compile per form; baseline encode/native compile and target runs are0.
+Two compile-only CHECKPOINT discoveries then fix their literal identities.
+The first scalar supervisor failed in preexec while trying to exceed its
+inherited CPU hard limit; no encoder/loader product ran. That original failure
+and stdlib constructor-reap basis are preserved, without a late PID probe.
+The corrected supervisor is a separate receipt with actual managed child
+return0/reap/group-absence observations.
+
+Two ordinary calls passed while the packer's API guards were tightened from
+source-review findings (mixed legacy HQ layout, then an unspecified-HQ sentinel).
+The original passing producing runs are preserved. The final source's third
+ordinary call reproduces each native and selected whole twice plus
+each audit once; all three calls produce identical artifacts. Final build:
+`12a27baceeafb6f0ada28f9ad8770851ce90805b72fe5d9ab89d7424ad97aff0`.
+The final hq argument is mandatory and uses the original equality check.
+
+One new actual positive verifier call passes two pre-entry full restored RX,
+zero BSS/padding, guard/NX observations and resumes the original entries, then
+four scalar/HQ quit/EOF sessions with12 legal GO results, three persistent TIDs,
+stdio-only descriptors, no helper children, joined readers and physical
+return0/group closure without forced cleanup. New runtime:
+`7c87119a6879ab30e59155a360c0903950e305bb7b2b9d1686b65c755f77ed02`.
+The output reports `rx_matches_restored_image=true` and
+`rx_matches_native=false` for v3. No old runtime receipt qualifies this new
+class. The fresh consumer now reads the restored-image result; fresh is not run.
+
+The independent source review is CLEAR. Generic D verifier Owned/Reader/Budget,
+tasks and mapping bodies consumed by F8 are byte-identical; downstream full-file
+provenance changes are separate from a new F8 runtime claim. Producing recipe
+and final receipt/context-format annotations are separate. There are no new
+fault, negative, ptrace, RIE, personality, game, strength or performance runs.
+Historical sections below retain their original selected sizes and scope.
+
 # Maintained D: shared TT probe stages — 2026-10-22
 
 The maintained `probe` source shares its two `cmpxchg16b` statements in one

@@ -24,6 +24,7 @@ U32=(1<<32)-1
 U64=(1<<64)-1
 FORMAT='rove4k-context-h24-base10-u32-zero4-v1'
 PACKET_FORMAT='rove4k-context-h24-base10-fixed21-replay-zero4-v2'
+BODY_PACKET_FORMAT='rove4k-context-h24-base10-fixed21-body232-zero4-v3'
 TABLE_BYTES=1<<25
 
 def sha(data):return hashlib.sha256(data).hexdigest()
@@ -138,6 +139,45 @@ def encode_native(native,model):
     if bcj(transformed,True)!=native:raise AssertionError('BCJ inverse did not recover native')
     payload,report=encode_context(transformed,model)
     report.update(native_bytes=len(native),native_sha256=sha(native),bcj_sha256=sha(transformed))
+    return payload,report
+
+def body_image(native):
+    """Admit only the two fixed headerless private RX images, at full offsets.
+
+    The compiled ELF remains a distinct identity. Its dormant 232-byte
+    ELF/PHDR prefix is zero in the restored image, not an ignored hash range.
+    """
+    restored_sha={
+        (7612,'662b0eb10046d0b0ab105bba0f793371bb869eb61aa4419c8c2fa95f7d39c32d'):
+            '07b6754aabefd1171fbdfae84ce30e1b50cff8a527a124d99998e18170f0d07c',
+        (8000,'3c662941aa11af8521d3c601322e9aa38405a3bfbeb9332d55008907217a4b2e'):
+            'f2b4804631d293ccb4742ed8718869a29736bfb46f840044659e44c8d0f95d4b',
+    }.get((len(native),sha(native)))
+    if restored_sha is None:raise ValueError('unknown body232 compiled native')
+    at=0;cut_seen=False
+    while at+4<len(native):
+        if at==232:cut_seen=True
+        if native[at]&254==232:
+            if at<232<=at+4:raise ValueError('BCJ operand crosses body232 boundary')
+            at+=5
+        else:at+=1
+    if not cut_seen:raise ValueError('BCJ scan does not synchronize at body232')
+    transformed=bcj(native)
+    restored=bytes(232)+native[232:]
+    filtered=bytes(232)+transformed[232:]
+    if (bcj(transformed,True)!=native or bcj(filtered,True)!=restored or
+        bcj(restored)!=filtered or sha(restored)!=restored_sha):
+        raise ValueError('body232 full-offset inverse differs')
+    return transformed[232:],{'format':BODY_PACKET_FORMAT,'zero_prefix_bytes':232,
+        'compiled_native_bytes':len(native),'compiled_native_sha256':sha(native),
+        'restored_image_bytes':len(restored),'restored_image_sha256':restored_sha}
+
+def encode_body_native(native,model):
+    body,image=body_image(native)
+    payload,report=encode_context(body,model)
+    report.update(format=BODY_PACKET_FORMAT,range_grammar=PACKET_FORMAT,
+                  native_bytes=len(native),native_sha256=sha(native),
+                  bcj_sha256=sha(bcj(native)),decoded_body_sha256=sha(body),image=image)
     return payload,report
 
 def main():

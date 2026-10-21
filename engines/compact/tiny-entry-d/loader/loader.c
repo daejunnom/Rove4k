@@ -8,6 +8,12 @@ extern const unsigned char payload[], payload_end[];
 extern void enter(usize *, usize) __attribute__((noreturn));
 #include "decoder.h"
 #define CONTEXT_BYTES 33554432UL
+#ifndef DECODE_PREFIX
+#define DECODE_PREFIX 0
+#endif
+#if DECODE_PREFIX != 0 && DECODE_PREFIX != 232
+#error unsupported private image prefix
+#endif
 
 static long sys(long number, long a, long b, long c, long d, long e, long f) {
     register long r10 __asm__("r10") = d;
@@ -37,7 +43,7 @@ __attribute__((used, noreturn)) void restore(usize *stack) {
        It is separate from both RX images and released before native entry. */
     long context = sys(9, 0, CONTEXT_BYTES, 3, 0x22, -1, 0);
     if (!context || (usize)context >= (usize)-4095) bad();
-    if (context_decode(out, IMAGE_SIZE, payload, payload_end,
+    if (context_decode(out+DECODE_PREFIX, IMAGE_SIZE-DECODE_PREFIX, payload, payload_end,
                        (unsigned char *)context)) bad();
     if (sys(11, context, CONTEXT_BYTES, 0, 0, 0, 0)) bad();
     for (usize i = 0; i+4 < IMAGE_SIZE;) {

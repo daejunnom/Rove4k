@@ -211,9 +211,9 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | A | 4,559 B | 463 B | Unsigned64 number forms; one-state material classifier; main-owned token cursor and valid-0x88 promotion predicate; history length derived from immutable job length plus ply; existing full HCE/PVS/QS/TT/learners/SMP retained; fixed LP64 mixer literals; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero; raw evaluation reused in correction error; shared startup/completion worker epilogue and terminal legal-move loop; one fixed destination binding and raw triple-double literal, with fixed BT2/16KiB ALONE |
 | B | 5,073 B | 977 B | Worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained; made-child continuation row passed through PVS and same-position singular verification; literal include gaps and overlong-line drain compacted; clock-first SEE poll; cancellation timing changed; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero; private history length derived from immutable published job base plus ply; private piece-plus-six helper inlined at its two consumers with complete native identity; singular-depth temporary and empty shipping instrumentation branch removed; adjacent HCE int declarations merged with complete native identity and no whole-size increase |
 | C | 4,869 B | 773 B | Checked-calloc startup omits redundant plain TT zero stores, all flags explicitly cleared; unsigned64 numeric forms and limited dead classifier; signed-net eight-lane HCE and actual 128-bit madd followed by four signed32 lane sums, full search/learners retained; history length derived from immutable job length plus ply; child continuation slot and positive-only cutoff bonus compacted; fixed LP64 mixer literals; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero; capture-only Move bit3 reuses generator metadata with separate PROMO and unchanged quiet noise; terminal legality shares the ordered make loop with terminal TT probe and pruning suppressed |
-| D scalar / HQ | 5,908 / 6,111 B | 1,812 / 2,015 B | HQ-only history length derived from immutable job length plus ply; scalar and DEV retain their original history blocks; exact clock/inc parsing and ordered K/Q castling branches shared; consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT with a shared finite-stage asm body, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained; stage sharing changes source only, both current own-ELFs remain byte-identical |
+| D scalar / HQ | 5,836 / 6,037 B | 1,740 / 1,941 B | HQ-only history length derived from immutable job length plus ply; scalar and DEV retain their original history blocks; exact clock/inc parsing and ordered K/Q castling branches shared; consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT with a shared finite-stage asm body, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained; separate body232 class omits dormant internal ELF metadata from coding while preserving compiled native and body addresses |
 | E | 4,933 B | 837 B | Worker-owned job reset and calloc-covered plain TT zero stores omitted, all flags explicitly cleared; untrained E19 evaluation/ordering and full search/learners retained; child continuation slot and positive-only cutoff bonus compacted; literal include gaps and fixed ASCII compiler argv compacted; fixed LP64 mixer literals; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero; private history length derived from immutable published job base plus ply; capture-only Move bit3 reuses generator metadata with separate PROMO and unchanged quiet noise; ordering reuses generated mover side and omits a sign-only local; center feature shares its two symmetric axes |
-| F full (default) | 4,439 B | 343 B | Packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; history length derived from immutable job length plus ply; nonnegative QS depth, repetition-distance loop, fixed integer macros and plain-int keyword spelling compacted after the no-preadd hash, terminal, correction and source-form stages; compact environment snapshot; default size target remains open; lazy fallback and first-legal quiet-QS standpat cutoff; immutable global job-prefix keys shared while workers store only private path keys; fixed 73-byte stdin/xz header and BT2/16KiB ALONE; five fixed local binding spellings, compact handler-pair loops, fixed2 completion selector and positional wait timeout |
+| F full (default) | 4,438 B | 342 B | Packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; history length derived from immutable job length plus ply; nonnegative QS depth, repetition-distance loop, fixed integer macros and plain-int keyword spelling compacted after the no-preadd hash, terminal, correction and source-form stages; compact environment snapshot; default size target remains open; lazy fallback and first-legal quiet-QS standpat cutoff; immutable global job-prefix keys shared while workers store only private path keys; fixed 73-byte stdin/xz header and BT2/16KiB ALONE; five fixed local binding spellings, compact handler-pair loops, fixed2 completion selector and positional wait timeout; pure HCE rank normalization shares advance/center rank |
 | F full (fixed8) | 4,442 B | 346 B | Separate eight-search-worker profile with nine startup TIDs; same full native as its4474 predecessor, strict private-name replay followed by six resource roles, shared full bootstrap with positional wait and73-byte BT2 packaging; retains its eight-worker selection loop; final hardware/profile selection remains open |
 | F material/noise (opt-in) | 4,319 B | 223 B | Unsigned64 number forms and two fixed TT18 casts omitted; one-state material classifier, fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted; literal include gaps compacted; fixed LP64 mixer literals; compact environment snapshot |
 | F material/move-TT (opt-in) | 4,045 B | 0 B (51 B spare) | Unsigned64 number forms; one-state material classifier, fixed material, main-owned token cursor, terminal-loop sharing and coherent atomic64 Move17/high46 plus index18; local size eligibility only, full F and strength acceptance remain open; fixed LP64 mixer literals; compact environment snapshot |
@@ -222,6 +222,59 @@ The canonical Rust D native images are16,816 bytes each. The separate maintained
 finite Rust shipping entry also has16,816-byte natives with new identities and
 11,108/11,476-byte scalar/HQ own-ELFs. Its normal qualification below does not
 replace the C D table or establish4KiB eligibility.
+
+## D body232 and full-F4438 rank sharing: 2026-10-22
+
+D's new explicit v3 class codes whole_BCJ(native)[232:] and restores
+zero232||native[232:] at the original addresses. The unchanged compiled native
+ELFs remain7612/8000 B; their dormant internal ELF/PHDR metadata is no longer
+compression input. This changes the private restored-image observation
+contract. It does not assert full compiled-native/RX byte identity or apply to
+arbitrary header-consuming programs. Whole scalar5908→5836 and HQ6111→6037 B;
+packets4771→4699 and4974→4900 B, with the nonpacket contribution1137 B unchanged.
+
+Codec, packer, builder and verifier bind compiled native, complete restored RX
+including all232 zero bytes, and own ELF to separate strict identities. Full-N
+entry/pages/BSS/guards/model geometry remains; decode count isN−232. Actual
+BCJ scans synchronize at232 with no crossing operand. V2 encode/default APIs,
+old native admission and full-RX comparison remain. Source review closes the
+mixed old-HQ-layout/new-descriptor case through central class binding and keeps
+the original explicit-None HQ rejection. These are developer admission fixes,
+not relaxed runtime image checks or prefix exceptions.
+
+The final ordinary build regenerates both native/whole images twice and audit
+images once. Two earlier passing builds are preserved while those admission
+guards were corrected; all artifacts agree. One new positive verifier passes
+two pre-entry whole-RX/BSS/padding/guard/NX checks and four quit/EOF sessions,
+12 legal GO results, three persistent TIDs per session and physical reader/group
+exit. Existing old runtime is not relabeled as new-image evidence. Initial
+preexec limit failure ran no encoder/loader and is preserved separately. Total
+actual lane cost is12 native compiles,14 encodes,22 loader compiles and2 DATA
+inverses; no fresh/fault/negative/ptrace/RIE/personality or game campaign follows.
+D final index:
+`bff87a5dc74e3a13c3b6093401019486c289241dd661b32ee4294771c6b67acf`.
+
+Full F normalizes rank inside its pure packed-HCE value function. For rank0..7,
+XOR7 equals7-rank and the absolute center term is reflection invariant. This
+shares the advance/center rank and removes one local, source8513→8509 B and
+whole4439→4438 B. Board, Move, key, TT and learner orientation do not change.
+An actual C comparison covers all832 valid square/signed-piece pairs, including
+empty piece. Native remains18576 B long with new identityea471236, so new
+ordinary and selected execution are required rather than old-native reuse.
+
+One full --dev builder reproduces shipping and unchanged DEV twice. Existing
+optional builders each run once: selected4319/4045 artifacts stay byte-identical
+while their separate full-reference source becomes8509 B. The unchanged full
+selected verifier passes quit/EOF sessions with8 legal GO results, three startup
+TIDs, the new native and physical exit. F8 still consumes pre-name8538 B through
+its own specialization; new rank code is bypassed. Its provenance closure adds
+the new helper and synchronizes the D generic-positive-helper whole-file pin
+after exact consumed-body review. No new local F8 compile/codec/runtime is
+claimed. Full F final index:
+`38f3dbc87ed8d8729f62469ab3cac34760602f340879b4b9575357231344be7f`.
+
+Both changes remain above4096 B. No final target-resource, scaling, stack,
+strength or whole-plan acceptance is inferred.
 
 ## C4869 shared terminal legality loop: 2026-10-22
 

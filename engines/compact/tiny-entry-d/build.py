@@ -19,7 +19,7 @@ import time
 
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
-CODEC = 'rove4k-context-h24-base10-fixed21-replay-zero4-v2'
+CODEC = 'rove4k-context-h24-base10-fixed21-body232-zero4-v3'
 EXECUTION_ISA = 'linux-x86_64-sse4.2-cx16-crc32b-v1'
 SHIPPING_PROTOCOL = {
     'id': 'finite-minimum-v1', 'identification': False,
@@ -75,7 +75,7 @@ def main():
     frozen = out/'inputs'
     frozen.mkdir()
     started, deadline = time.monotonic(), time.monotonic()+180
-    report = {'complete': False, 'scope': 'maintained source regeneration of exact C D context own-ELFs; fixed independent encoder/decoder and literal native mapping classes; worker-owned reset, four-byte BCJ copy, residual leaper single-step and fixed21 WMASK replay with SSE4.2 CRC32; fixed explicit ISA profile/flags',
+    report = {'complete': False, 'scope': 'maintained body232 context own-ELFs; compiled native ELF, zero232 restored image and own-ELF have separate full identities; fixed model/ISA/layout/flags',
               'resources': recipe['profile'], 'execution_isa': EXECUTION_ISA, 'inputs': {}, 'engines': [], 'negative_decoder_controls': [],
               'shipping_protocol': recipe['shipping_protocol'],
               'qualified_receipt_reuse_metadata_only': recipe['qualified_receipts_metadata_only'],
@@ -161,17 +161,27 @@ def main():
             if Path(natives[0]['path']).read_bytes() != Path(natives[1]['path']).read_bytes():
                 raise ValueError('native independent repeats differ')
             native = Path(natives[0]['path']).read_bytes()
+            image = packer.body_image(expected)
+            if codec.body_image(native)[1] != image:
+                raise ValueError('codec/packer body232 image identities differ')
+            restored = bytes(image['zero_prefix_bytes']) + native[image['zero_prefix_bytes']:]
+            if (len(restored), sha(restored)) != (image['restored_image_bytes'], image['restored_image_sha256']):
+                raise ValueError('whole restored-image identity differs')
+            restored_path = directory/'restored-image.bin'
+            restored_path.write_bytes(restored)
             complete = []
             model = codec.load_models((frozen/'loader/models.json').read_bytes(), form)
             if model[0] != expected['model_wmask']:
                 raise ValueError('selected fixed21 WMASK differs')
             for attempt in ('context', 'context-repeat'):
-                payload, encoding = codec.encode_native(native, model)
+                payload, encoding = codec.encode_body_native(native, model)
                 if encoding['format'] != CODEC or encoding['header_bytes'] != 21:
                     raise ValueError('selected fixed21 packet format differs')
+                if encoding['image'] != image or encoding['decoded_bytes'] != len(native)-image['zero_prefix_bytes']:
+                    raise ValueError('body232 decoder extent or image identity differs')
                 if (len(payload), sha(payload)) != (expected['payload_bytes'], expected['payload_sha256']):
                     raise ValueError('independent encoder differs from selected context payload')
-                candidate = packer.compile_loader(directory/attempt, frozen/'loader', payload, layout, recipe['loader_flags'], run, sha, model_wmask=model[0])
+                candidate = packer.compile_loader(directory/attempt, frozen/'loader', payload, layout, recipe['loader_flags'], run, sha, model_wmask=model[0], image=image)
                 candidate['encoding'] = encoding
                 if (candidate['bytes'], candidate['sha256'], candidate['payload_bytes'], candidate['loader_and_headers_bytes']) != (
                     expected['whole_bytes'], expected['whole_sha256'], expected['payload_bytes'], expected['loader_and_headers_bytes']):
@@ -179,11 +189,12 @@ def main():
                 complete.append(candidate)
             if Path(complete[0]['path']).read_bytes() != Path(complete[1]['path']).read_bytes():
                 raise ValueError('independent complete-file repeats differ')
-            audit = packer.compile_loader(directory/'context-audit', frozen/'loader', payload, layout, recipe['loader_flags'], run, sha, model_wmask=model[0], checkpoint=True)
+            audit = packer.compile_loader(directory/'context-audit', frozen/'loader', payload, layout, recipe['loader_flags'], run, sha, model_wmask=model[0], checkpoint=True, image=image)
             if (audit['bytes'], audit['sha256']) != (expected['audit_bytes'], expected['audit_sha256']):
                 raise ValueError('same admitted CHECKPOINT image differs')
             complete[0].update(codec=CODEC, reproduction=complete[1], audit=audit, within4096=False)
             report['engines'].append({'id': form, 'input_bytes': len(native), 'input_sha256': sha(native), 'layout': layout,
+                                      'image': image, 'restored_image': {'path': str(restored_path), 'bytes': len(restored), 'sha256': sha(restored)},
                                       'native': natives[0]['path'], 'native_rebuilds': natives, 'native_reproduced': True,
                                       'candidates': [complete[0]], 'whole_reproduced': True})
             save()

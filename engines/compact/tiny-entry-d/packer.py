@@ -51,16 +51,20 @@ def admit(data, expected, digest):
     layout = expected['layout']
     if any(parsed[name] != layout[name] for name in parsed):
         raise ValueError('selected TinyD layout differs')
+    return _admit_mapping(expected['native_sha256'], expected['native_bytes'], layout, hq=expected['hq'])
+
+
+def _admit_mapping(native_sha256, native_bytes, layout, *, hq):
     # Bind each exact native identity to its own qualified private mapping ABI.
     # This is not a generic permission for arbitrary two/three-page images.
     fixed = {
         ('662b0eb10046d0b0ab105bba0f793371bb869eb61aa4419c8c2fa95f7d39c32d', 7612): (0, 4201533, (4194304, 8192, 4202496, 175092, 176128, 4190208, 192512, 4378624)),
         ('49fb8e2916ba394cda6665f287df7ff4bfcd7c76ef95dc613628f3513394c6b6', 8000): (1, 4201848, (4194304, 8192, 4202496, 175092, 176128, 4190208, 192512, 4378624)),
         ('3c662941aa11af8521d3c601322e9aa38405a3bfbeb9332d55008907217a4b2e', 8000): (1, 4201846, (4194304, 8192, 4202496, 175064, 176128, 4190208, 192512, 4378624)),
-    }.get((expected['native_sha256'], expected['native_bytes']))
+    }.get((native_sha256, native_bytes))
     geometry = tuple(layout[key] for key in ('image_base', 'image_pages', 'bss_base', 'bss_size',
                       'bss_pages', 'guard_base', 'reserve_size', 'upper_guard'))
-    if fixed != (expected['hq'], layout['entry'], geometry) or layout['image_size'] != expected['native_bytes']:
+    if fixed != (hq, layout['entry'], geometry) or layout['image_size'] != native_bytes:
         raise ValueError('unsupported exact identity/form mapping contract')
     return dict(layout)
 
@@ -82,11 +86,33 @@ def stripped_loader(data):
     return bytes(out)
 
 
-def compile_loader(directory, sources, payload, layout, flags, run, digest, *, model_wmask, checkpoint=False):
+def body_image(expected):
+    """Separate exact body232 class; admit() and the default loader stay full RX."""
+    restored = {
+        (7612, '662b0eb10046d0b0ab105bba0f793371bb869eb61aa4419c8c2fa95f7d39c32d'):
+            '07b6754aabefd1171fbdfae84ce30e1b50cff8a527a124d99998e18170f0d07c',
+        (8000, '3c662941aa11af8521d3c601322e9aa38405a3bfbeb9332d55008907217a4b2e'):
+            'f2b4804631d293ccb4742ed8718869a29736bfb46f840044659e44c8d0f95d4b',
+    }.get((expected['native_bytes'], expected['native_sha256']))
+    if restored is None:
+        raise ValueError('unknown body232 compiled native')
+    image = {'format': 'rove4k-context-h24-base10-fixed21-body232-zero4-v3', 'zero_prefix_bytes': 232,
+             'compiled_native_bytes': expected['native_bytes'], 'compiled_native_sha256': expected['native_sha256'],
+             'restored_image_bytes': expected['native_bytes'], 'restored_image_sha256': restored}
+    if expected.get('image') != image:
+        raise ValueError('body232 restored-image literal differs')
+    return image
+
+
+def compile_loader(directory, sources, payload, layout, flags, run, digest, *, model_wmask, checkpoint=False, image=None):
     # Native bytes/layout were admitted above; bind its private model literal.
     fixed_model = {(7612, 4201533): 16847486, (8000, 4201848): 135274878, (8000, 4201846): 135274878}.get((layout['image_size'], layout['entry']))
     if type(model_wmask) is not int or model_wmask != fixed_model:
         raise ValueError('unsupported exact native/model mapping contract')
+    if image is not None:
+        body_image({'native_bytes': layout['image_size'], 'native_sha256': image['compiled_native_sha256'], 'image': image})
+        _admit_mapping(image['compiled_native_sha256'], image['compiled_native_bytes'], layout,
+                       hq=0 if image['compiled_native_bytes'] == 7612 else 1)
     directory.mkdir(parents=True)
     payload_path = directory / 'payload.bin'
     payload_path.write_bytes(payload)
@@ -98,6 +124,8 @@ def compile_loader(directory, sources, payload, layout, flags, run, digest, *, m
                    'IMAGE_ENTRY': layout['entry'], 'BSS_BASE': layout['bss_base'], 'BSS_PAGES': layout['bss_pages'],
                    'GUARD_BASE': layout['guard_base'], 'RESERVE_SIZE': layout['reserve_size'],
                    'CHECKPOINT': int(checkpoint), 'MODEL_WMASK': model_wmask}
+    if image is not None:
+        definitions['DECODE_PREFIX'] = image['zero_prefix_bytes']
     command = ['cc', *flags, *[f'-D{name}={value}UL' for name, value in definitions.items()],
                str(sources/'loader.c'), str(assembly), '-Wl,-T,' + str(sources/'image.ld'), '-o', str(directory/'linked')]
     record = run(command)
@@ -106,5 +134,8 @@ def compile_loader(directory, sources, payload, layout, flags, run, digest, *, m
     target = directory/'x'
     target.write_bytes(data)
     target.chmod(0o755)
-    return {'path': str(target), 'bytes': len(data), 'sha256': digest(data), 'compile': record,
-            'definitions': definitions, 'payload_bytes': len(payload), 'loader_and_headers_bytes': len(data)-len(payload)}
+    result = {'path': str(target), 'bytes': len(data), 'sha256': digest(data), 'compile': record,
+              'definitions': definitions, 'payload_bytes': len(payload), 'loader_and_headers_bytes': len(data)-len(payload)}
+    if image is not None:
+        result['image'] = dict(image)
+    return result
