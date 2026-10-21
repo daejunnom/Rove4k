@@ -35,13 +35,14 @@ def main():
     if not args.base_source.is_absolute() or not args.out.is_absolute() or out.exists() or out==REPO or REPO in out.parents or any((p/'.git').exists() for p in (out,*out.parents)):
         parser.error('absolute base source and new external output required')
     recipe_raw=normalized(HERE/'recipe.json');recipe=json.loads(recipe_raw)
-    require(recipe['class']=='full-F-fixed-resource8-TT18-v1' and recipe['profile']=={'workers':8,'tt_bits':18,'ply':128,'native_TIDs':9},'one fixed resource profile only')
+    require(recipe['class']=='full-F-late-fixed-resource8-TT18-v2' and recipe['profile']=={'workers':8,'tt_bits':18,'ply':128,'native_TIDs':9},'one fixed resource profile only')
     require(recipe['compiler']==['cc','-Os','-pthread','-x','c','-','-o','x','-s'],'fixed compiler arguments differ')
     require(recipe['compression']=={'format':'lzma-alone','filter':'LZMA1','preset':6,'extreme':False,'lc':2,'lp':0,'pb':0,'check':'NONE','mf':'BT2','dictionary_bytes':16384,'nice_len':24},'fixed full-F codec differs')
+    require(recipe['base_stage']=='full-after-fixed_integer_expressions','fixed late producer stage differs')
     base=args.base_source.read_bytes();require({'bytes':len(base),'sha256':sha(base)}==recipe['base_source'] and b'\r' not in base,'unknown ordinary full-F2 source')
     closure=source_closure();limits=recipe['limits'];out.mkdir()
     report={'complete':False,'class':recipe['class'],'profile':recipe['profile'],'base_profile':recipe['base_profile'],
-        'base_source':identity(args.base_source),'source_closure':closure,'recipe_sha256':sha(recipe_raw),'limits':limits,
+        'base_source':identity(args.base_source),'base_stage':recipe['base_stage'],'source_closure':closure,'recipe_sha256':sha(recipe_raw),'limits':limits,
         'commands':[],'attempts':[],'counts':{'candidate_compile':0,'candidate_encode':0,'strict_Python_restore':0,'baseline_compile':0,'baseline_encode':0,'separate_PP':0,'ELF_execution':0},
         'runtime_qualified':False,'final_4k_allocation':'unknown','rules_eligibility':'unproven','authority':'exact base C and project code closure; no historical research JSON/native inputs'}
     active=None;deadline=time.monotonic()+limits['aggregate_wall'];env={**os.environ,'LC_ALL':'C','TZ':'UTC','PYTHONDONTWRITEBYTECODE':'1'}
@@ -83,12 +84,9 @@ def main():
             target=frozen/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(raw)
         (out/'base-source.c').write_bytes(base);own=frozen/HERE.relative_to(REPO)
         packaging={name:frozen/path for name,path in recipe['packaging_paths'].items()}
-        names=module('fixed_full_F_names',packaging['shipping_names.py'])
-        named,name_proof=names.transform_source(base)
-        (out/'source-names-proof.json').write_text(json.dumps(name_proof,indent=2)+'\n');report['source_names_proof']=identity(out/'source-names-proof.json')
-        require(sha((own/'specialize.py').read_bytes())==recipe['specialize_sha256'],'pure six-role helper changed')
-        specialize=module('fixed_resource8_specialize',own/'specialize.py');source,proof=specialize.transform_source(named)
-        require({'bytes':len(source),'sha256':sha(source)}=={'bytes':recipe['expected']['source_bytes'],'sha256':recipe['expected']['source_sha256']} and proof['full_inverse'] and proof['raw_delta']==0 and [x['role'] for x in proof['edits']]==recipe['source_roles'],'source/profile proof differs')
+        require(sha((own/'specialize.py').read_bytes())==recipe['specialize_sha256'],'pure late six-role helper changed')
+        specialize=module('fixed_resource8_specialize',own/'specialize.py');source,proof=specialize.transform_source(base)
+        require({'bytes':len(source),'sha256':sha(source)}=={'bytes':recipe['expected']['source_bytes'],'sha256':recipe['expected']['source_sha256']} and proof['full_inverse'] and proof['raw_delta']==25 and [x['role'] for x in proof['edits']]==recipe['source_roles'],'source/profile proof differs')
         (out/'source-proof.json').write_text(json.dumps(proof,indent=2)+'\n');report['source_proof']=identity(out/'source-proof.json')
         literal=module('fixed_resource8_literal',packaging['pack_stream.py']).source_literal
         common=module('fixed_resource8_common',packaging['shipping_common.py']);template=packaging['bootstrap.py.in'].read_bytes();prefix=packaging['launcher.sh'].read_bytes();marker=b'__ROVE_SOURCE_LITERAL__'

@@ -1,3 +1,39 @@
+# Maintained F8 v2 late-full source — 4399 B, 2026-10-22
+
+This explicit v2 consumes ordinary fullF2 final main.c8385/acae5c84... after
+all late guards, with no second names call. Six fixed roles/seven gaps/full
+inverse produce8410/c415265d... (+25 fromF2,-128 from oldF8). Arrays,startup/
+GO pending and create count are8; strict greater-depth scan0..7 keeps lowest
+index ties. One-condition startup every arrival/broadcast4/wait2, saved epoch,
+lastcompletion selector+printf+flush fence and partialcreate actuald joins stay.
+
+New literal identities are native18576/e735dae1..., bootstrap9342/fdf6da04...,
+whole4399/89f442dd... (-43 fromv1),303 B above4096. Own nice24/template947/
+header73/compiler-pthread/TT18/ply128 remain. The original firstcost completed
+compile1/encode1/strictPython2CLI2 and child cleanup, then its supervisor exited1
+when a metadata name shadowed the signal-handler dictionary. Originalscript/
+exit1/index remain immutable and distinct; no firstcost replay occurred.
+
+The new verifier adds only explicit v2 class/late-stage/frozen-base identity.
+Original count/state startup followed by strict9TID/FD/children/noWX/nonexec
+stack and8worker CPU/quitEOF/physical lifetime conditions are retained. Old
+v1's4442 tuple and all historical recipe/source/actual receipts remain in Git
+and the external before archive. Old positive results are not v2 evidence.
+Current61 CI success belongs to the previous profile; this v2 still needs
+a newcheckpoint CI. After the direct BCE owner notified original terminal/
+reap/groupabsence/owned0, one ordinary build reproduced native/whole twice
+exactly to firstcost and one new positive passed quit/EOF2,8legalGO,stable9
+TIDs,all8worker CPU activity,original strictFD/children/noWX/nonexecstack and
+physical reader/process/group exit. FullF rebuild/firstcost replay/SAN/NVC/
+negative/codec search are0. Both original normal commands exited0,reaped/
+groups absent/forced0/owned0. The original cost supervisor exit1 remains
+preserved separately. Producing code/expected/compiler/codec stay exact;
+only this README and completed normal annotation changed afterward.
+
+External evidence: rove4k-f-late-resource8-v2-promotion-20261022-evidence.
+
+# Historical F8 v1 notes and provenance
+
 # F2 integer-expression producer provenance — 2026-10-22
 
 F2's late integer-expression helper follows its existing walker guard;

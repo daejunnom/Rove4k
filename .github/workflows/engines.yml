@@ -90,7 +90,7 @@ jobs:
       - name: Reproduce the fixed eight-worker F profile and check its positive lifetime
         if: matrix.language == 'c'
         run: |
-          python3 -I -B engines/compact/tiny-entry-f-resource8/build.py --base-source "$ROVE_TEST_OUT/tiny-entry-f/source-before-names.c" --out "$ROVE_TEST_OUT/tiny-entry-f-resource8"
+          python3 -I -B engines/compact/tiny-entry-f-resource8/build.py --base-source "$ROVE_TEST_OUT/tiny-entry-f/main.c" --out "$ROVE_TEST_OUT/tiny-entry-f-resource8"
           python3 -I -B engines/compact/tiny-entry-f-resource8/verify.py --build "$ROVE_TEST_OUT/tiny-entry-f-resource8" --out "$ROVE_TEST_OUT/tiny-entry-f-resource8-runtime"
       - name: Check the semaphore pool through controlled real-runtime phases and faults
         if: matrix.language == 'c'

@@ -112,6 +112,7 @@ def main():
         lane_sum=module('entry_C_lane_sum',frozen/'shipping_lane_sum.py')
         terminal_form=module('entry_C_terminal_shared',frozen/'shipping_terminal.py')
         condition_sharing=module('entry_BCE_condition_sharing',frozen/'shipping_condition_bce.py').transform_source
+        output_sharing=module('entry_BCE_output_sharing',frozen/'shipping_output_bce.py').transform_source
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
         if template.count(marker)!=1 or len(prefix)!=77:raise ValueError('bootstrap recipe changed')
@@ -171,6 +172,8 @@ def main():
                 common_metadata['shared_terminal']=terminal_metadata
                 data,condition_metadata=condition_sharing(data,family='C')
                 common_metadata['condition_sharing']=condition_metadata
+                data,output_metadata=output_sharing(data,family='C')
+                common_metadata['output_sharing']=output_metadata
             return data,observations,alpha_metadata,scope_metadata,core_metadata,simd_metadata,input_metadata,material_metadata,incremental_metadata,signed_metadata,type_metadata,global_names_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())

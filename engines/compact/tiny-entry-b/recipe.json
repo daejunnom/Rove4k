@@ -79,7 +79,8 @@
     "engines/compact/tiny-entry-b/shipping_declarations.py": "120910570823339c73a005db9a315021e90d5dbdbaf51e6a82f382ae5b775acb",
     "engines/compact/tiny-entry-b/shipping_forwarders.py": "4b461982d613f39ecf94a856c7544cb74e2dcc466c415645e7c5d9814556ab64",
     "engines/compact/tiny-a/shipping_readonly.py": "6eefd6502149e620a2b681e15609ae01a4dbf41748dd2fe418c2eea84293d3a5",
-    "engines/compact/tiny-entry-a/shipping_condition_bce.py": "9ca7635a6ab95de61a88482d05e37bc926c340259ff53c1d032be622183bfdab"
+    "engines/compact/tiny-entry-a/shipping_condition_bce.py": "9ca7635a6ab95de61a88482d05e37bc926c340259ff53c1d032be622183bfdab",
+    "engines/compact/tiny-entry-a/shipping_output_bce.py": "267059f7837338231aeb4ad76608bfc84382493e0bc2de74e2ebb02e77eab687"
   },
   "compression": {
     "format": "lzma-alone",
@@ -96,16 +97,16 @@
   },
   "expected": {
     "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
-    "source_bytes": 10242,
-    "source_sha256": "c56359e16718822c0d2bc574a625309504b2a527d8c7005debd79a7f2b952216",
-    "native_bytes": 26224,
-    "native_sha256": "bc52f4a88573212b34e3365354cc257e1a63ddebf8499676cc9fc83784da87b5",
-    "whole_bytes": 5023,
-    "whole_sha256": "5ac6d19d31660cfe94e7fe86f8070420496836c6edb435d1e00f2e28bc2aa70a",
+    "source_bytes": 10179,
+    "source_sha256": "a757c25e1a94d4a9b8986683d3fad91611ec370e0b91c64b54ed0be3bba826e5",
+    "native_bytes": 26128,
+    "native_sha256": "e237a567db7c6140a11b26d38182b53f18891fed4701bf4556160f93902bb079",
+    "whole_bytes": 5006,
+    "whole_sha256": "03b66d965f749477e36d73a0881cd085d7ea96c68d1556b04d683c43fe22aba6",
     "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
     "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
-    "bootstrap_sha256": "b40362c96f05ee452d42d7c6cea56b7d60296f4c8375a8a0c14271b75c55de05",
-    "bootstrap_bytes": 11271
+    "bootstrap_sha256": "3ea407f1e874a920c982f7a220ba3ad48149b09cf1f08de210f1fed21afaa992",
+    "bootstrap_bytes": 11208
   },
   "local_input_sha256": {
     "engine.c": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
@@ -1252,6 +1253,183 @@
         "cost_reruns": 0,
         "SAN_NVC_optional_extra_runs": 0,
         "runtime_scope": "new fixed2/TT18 candidate wrapper startup, input/GO/drain/quit/EOF and physical exit only; extra wrong-predicate wakes/contend/timed nodes/depth/result can differ; no partial-create injected failure, timed equivalence, performance/RAM/strength/full qualification or new CI claim"
+      }
+    },
+    "output_sharing": {
+      "source_proof": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-result-output-source-20261022-evidence/B/source-proof.json",
+        "bytes": 9259,
+        "sha256": "5d8d424b677ee8f03677d6c5bc83a9599aed4ea2656dc4b7762101a36b0fc726"
+      },
+      "firstcost": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-result-output-first-cost-20261022-evidence/B/final-index.json",
+        "bytes": 25667,
+        "sha256": "3fe7116a7e3403c77c685bd9850c130adb363deb46aad2cc59519d8b4a8dd3c5"
+      },
+      "normal_status": "PASS",
+      "normal_validation": {
+        "status": "PASS one ordinary --dev and unchanged selected verifier",
+        "build": {
+          "path": "/home/stemxstudio/rove4k-bce-output-normal-20261022-v1/B/build/build.json",
+          "bytes": 227920,
+          "sha256": "893cb1b9d4154812fd160aeed2d52949c75cc207a7d61a19ce3defde251406cb"
+        },
+        "runtime": {
+          "path": "/home/stemxstudio/rove4k-bce-output-normal-20261022-v1/B/runtime/runtime.json",
+          "bytes": 67600,
+          "sha256": "e3aaab5a939ab49fb85413e67cd444930b334987590808f63d8a3862af24a81c"
+        },
+        "supervisor_results": {
+          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-output-promotion-20261022-evidence/B/normal-results.json",
+          "bytes": 27079,
+          "sha256": "bd33e965238707d6c4b22a85446d4b89727e05a9f23a7b49e6931c4fb1beb6c1"
+        },
+        "original_handle_exit": {
+          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-output-promotion-20261022-evidence/B/physical-exit.json",
+          "bytes": 604,
+          "sha256": "14344967646e4dd219b54d2328eed811664fc93fde6e6cfc0da368a0be258dc8"
+        },
+        "producing_recipe": {
+          "path": "/home/stemxstudio/rove4k-bce-output-normal-20261022-v1/B/build/inputs/recipe.json",
+          "bytes": 178690,
+          "sha256": "772631687fe957a8229c567dd9696aac03a9e0957e685f3c0fc9fdfc1f0af2a9"
+        },
+        "producing_readme": {
+          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-output-promotion-20261022-evidence/B/producing/engines/compact/tiny-entry-b/README.md",
+          "bytes": 78575,
+          "sha256": "2e8ff9903bcf68c45eb7e76f5578901fbdc8a1e53c972b7c352f68f6ca6c0087"
+        },
+        "builder_calls": 1,
+        "shipping_reproductions": 2,
+        "unchanged_DEV_reproductions": 2,
+        "selected_verifier_calls": 1,
+        "sessions": [
+          {
+            "termination": "quit",
+            "go_calls": 4,
+            "startup_TIDs": 3,
+            "native_image_sha256": "e237a567db7c6140a11b26d38182b53f18891fed4701bf4556160f93902bb079",
+            "image_observation": {
+              "exe": "/tmp/r4-tx446ggf/x (deleted)",
+              "image_sha256": "e237a567db7c6140a11b26d38182b53f18891fed4701bf4556160f93902bb079",
+              "private_path_absent": true,
+              "startup_tids": [
+                628,
+                644,
+                645
+              ],
+              "children_by_tid": {
+                "644": [],
+                "628": [],
+                "645": []
+              }
+            },
+            "private_path_absent": true,
+            "returncode": 0,
+            "process_absent_at_original_settlement": true,
+            "readers_finished": true,
+            "one_closing_bestmove": true,
+            "completed": [
+              {
+                "clock": "white zero",
+                "bestmove": "g1f3"
+              },
+              {
+                "clock": "black zero",
+                "bestmove": "a7a6"
+              },
+              {
+                "clock": "bare finite default",
+                "bestmove": "b1c3",
+                "wall_seconds": 1.0299597159998939,
+                "scope": "bounded completion, not a performance benchmark"
+              }
+            ],
+            "active_search_exit": {
+              "command": "go wtime 300000 btime 300000 winc 0 binc 0",
+              "development_infinite": false,
+              "phase_before_signal": "unfinished_with_observed_work",
+              "go_posted_seconds": 1.7172817979999309,
+              "observed_seconds": 0.04155939399993258,
+              "cpu_ticks_delta": 8,
+              "search_info_observed": false,
+              "active_before_signal": true,
+              "work_evidence_scope": "whole-process CPU or engine progress; search completion and cancellation causality are unproven",
+              "cancellation_coverage": "active_search_physical_exit_observed",
+              "signal": "quit",
+              "signal_posted_seconds": 1.7588508329999968,
+              "bestmove_received_seconds": 1.7589916760000506,
+              "cancellation_causality": "unproven"
+            }
+          },
+          {
+            "termination": "EOF",
+            "go_calls": 4,
+            "startup_TIDs": 3,
+            "native_image_sha256": "e237a567db7c6140a11b26d38182b53f18891fed4701bf4556160f93902bb079",
+            "image_observation": {
+              "exe": "/tmp/r4-za4gi2du/x (deleted)",
+              "image_sha256": "e237a567db7c6140a11b26d38182b53f18891fed4701bf4556160f93902bb079",
+              "private_path_absent": true,
+              "startup_tids": [
+                646,
+                658,
+                659
+              ],
+              "children_by_tid": {
+                "658": [],
+                "659": [],
+                "646": []
+              }
+            },
+            "private_path_absent": true,
+            "returncode": 0,
+            "process_absent_at_original_settlement": true,
+            "readers_finished": true,
+            "one_closing_bestmove": true,
+            "completed": [
+              {
+                "clock": "white zero",
+                "bestmove": "b1c3"
+              },
+              {
+                "clock": "black zero",
+                "bestmove": "a7a6"
+              },
+              {
+                "clock": "bare finite default",
+                "bestmove": "b1c3",
+                "wall_seconds": 1.0307099740000467,
+                "scope": "bounded completion, not a performance benchmark"
+              }
+            ],
+            "active_search_exit": {
+              "command": "go wtime 300000 btime 300000 winc 0 binc 0",
+              "development_infinite": false,
+              "phase_before_signal": "unfinished_with_observed_work",
+              "go_posted_seconds": 1.97290146499995,
+              "observed_seconds": 0.042111720000093555,
+              "cpu_ticks_delta": 8,
+              "search_info_observed": false,
+              "active_before_signal": true,
+              "work_evidence_scope": "whole-process CPU or engine progress; search completion and cancellation causality are unproven",
+              "cancellation_coverage": "active_search_physical_exit_observed",
+              "signal": "EOF",
+              "signal_posted_seconds": 2.015022062000071,
+              "bestmove_received_seconds": 2.015184868999995,
+              "cancellation_causality": "unproven"
+            }
+          }
+        ],
+        "total_GO_calls": 8,
+        "entire_source_native_bootstrap_whole_equal_to_firstcost": true,
+        "old_DEV_entire_source_native_equal": true,
+        "source_inputs_stable_during_original_commands": true,
+        "original_handles_terminal_reaped_group_absent": true,
+        "owned_handles": 0,
+        "cost_reruns": 0,
+        "SAN_NVC_optional_extra_runs": 0,
+        "runtime_scope": "new fixed2/TT18 candidate wrapper startup, input/GO/drain/quit/EOF and physical exit only; outer result-wide stdout exclusion/flush batching/schedules/timed nodes/results can differ; own flush before completion notify/drain remains; no injected failure, performance/RAM/strength/full qualification or new CI claim"
       }
     }
   },
@@ -3293,5 +3471,239 @@
       "SAN_NVC_optional_extra_runs": 0,
       "runtime_scope": "new fixed2/TT18 candidate wrapper startup, input/GO/drain/quit/EOF and physical exit only; extra wrong-predicate wakes/contend/timed nodes/depth/result can differ; no partial-create injected failure, timed equivalence, performance/RAM/strength/full qualification or new CI claim"
     }
+  },
+  "output_sharing": {
+    "helper": "engines/compact/tiny-entry-a/shipping_output_bce.py",
+    "helper_sha256": "267059f7837338231aeb4ad76608bfc84382493e0bc2de74e2ebb02e77eab687",
+    "metadata": {
+      "family": "B",
+      "stage": "late-shipping-fixed2-result-output",
+      "input_bytes": 10242,
+      "input_sha256": "c56359e16718822c0d2bc574a625309504b2a527d8c7005debd79a7f2b952216",
+      "output_bytes": 10179,
+      "output_sha256": "a757c25e1a94d4a9b8986683d3fad91611ec370e0b91c64b54ed0be3bba826e5",
+      "raw_delta": -63,
+      "selector_delta": -25,
+      "outer_stream_lock_delta": -38,
+      "owned_regions": 2,
+      "protected_gaps": 3,
+      "full_inverse": true,
+      "all_gaps_equal": true,
+      "protected_complement_bytes": 10151,
+      "protected_complement_sha256": "35c3624928984cacfcf8e308679863ba6ac555dbe4148a63f00084cde2bb21b4",
+      "fixed_domain": "actual shipping2/TT18/PLY128, last epoch completion under original pool mutex",
+      "actual_family_roles": {
+        "array": "qr",
+        "result": "d",
+        "search": "i",
+        "drain": "U",
+        "mutex": "qj",
+        "pending": "qk",
+        "root": "ql",
+        "fallback": "H",
+        "format": "T",
+        "move_type": "N=unsigned",
+        "number_type": "D=uint64_t"
+      },
+      "selector": "one strict int comparison chooses worker1 iff depth1>depth0; all ties choose worker0",
+      "publication_fence": "last search return -> lock pool mutex -> pending0 -> result selection/fallback/format -> one bestmove printf -> own fflush returns -> result returns -> completion broadcast -> pool mutex unlock -> drain can reacquire/return -> next GO or position root/history publication",
+      "line_atomicity_scope": "Relative to other stdio operations on this same FILE in this process, each complete printf/puts call retains internal stream locking. This is not one-syscall, raw-fd, external-process or entire printf-plus-flush transaction atomicity.",
+      "observation_delta": "outer result-wide stdout exclusion removed; main replies can interpose during result calculation or between printf and own fflush. Flush batching/visibility/stdio contention/schedules and timed search results may change. Each full same-FILE stdio line call and own flush before completion notify/drain remain.",
+      "IO_errors": "existing ignored stdio errors unchanged; no new successful-delivery guarantee on failure",
+      "canonical_DEV": "shipping-only late stage; earlier original source admission/guards and canonical DEV remain untouched; inverse recovers exact post-condition reference",
+      "native_entire_bytes_equal_to_predecessor": false,
+      "runtime_claimed_by_transform": false,
+      "external_reads": 0,
+      "compiler_codec_engine_executed_by_transform": 0
+    },
+    "predecessor_expected": {
+      "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+      "source_bytes": 10242,
+      "source_sha256": "c56359e16718822c0d2bc574a625309504b2a527d8c7005debd79a7f2b952216",
+      "native_bytes": 26224,
+      "native_sha256": "bc52f4a88573212b34e3365354cc257e1a63ddebf8499676cc9fc83784da87b5",
+      "whole_bytes": 5023,
+      "whole_sha256": "5ac6d19d31660cfe94e7fe86f8070420496836c6edb435d1e00f2e28bc2aa70a",
+      "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
+      "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
+      "bootstrap_sha256": "b40362c96f05ee452d42d7c6cea56b7d60296f4c8375a8a0c14271b75c55de05",
+      "bootstrap_bytes": 11271
+    },
+    "source_proof": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-result-output-source-20261022-evidence/B/source-proof.json",
+      "bytes": 9259,
+      "sha256": "5d8d424b677ee8f03677d6c5bc83a9599aed4ea2656dc4b7762101a36b0fc726"
+    },
+    "firstcost": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-result-output-first-cost-20261022-evidence/B/final-index.json",
+      "bytes": 25667,
+      "sha256": "3fe7116a7e3403c77c685bd9850c130adb363deb46aad2cc59519d8b4a8dd3c5"
+    },
+    "normal_status": "PASS",
+    "normal_validation": {
+      "status": "PASS one ordinary --dev and unchanged selected verifier",
+      "build": {
+        "path": "/home/stemxstudio/rove4k-bce-output-normal-20261022-v1/B/build/build.json",
+        "bytes": 227920,
+        "sha256": "893cb1b9d4154812fd160aeed2d52949c75cc207a7d61a19ce3defde251406cb"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-bce-output-normal-20261022-v1/B/runtime/runtime.json",
+        "bytes": 67600,
+        "sha256": "e3aaab5a939ab49fb85413e67cd444930b334987590808f63d8a3862af24a81c"
+      },
+      "supervisor_results": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-output-promotion-20261022-evidence/B/normal-results.json",
+        "bytes": 27079,
+        "sha256": "bd33e965238707d6c4b22a85446d4b89727e05a9f23a7b49e6931c4fb1beb6c1"
+      },
+      "original_handle_exit": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-output-promotion-20261022-evidence/B/physical-exit.json",
+        "bytes": 604,
+        "sha256": "14344967646e4dd219b54d2328eed811664fc93fde6e6cfc0da368a0be258dc8"
+      },
+      "producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-bce-output-normal-20261022-v1/B/build/inputs/recipe.json",
+        "bytes": 178690,
+        "sha256": "772631687fe957a8229c567dd9696aac03a9e0957e685f3c0fc9fdfc1f0af2a9"
+      },
+      "producing_readme": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-output-promotion-20261022-evidence/B/producing/engines/compact/tiny-entry-b/README.md",
+        "bytes": 78575,
+        "sha256": "2e8ff9903bcf68c45eb7e76f5578901fbdc8a1e53c972b7c352f68f6ca6c0087"
+      },
+      "builder_calls": 1,
+      "shipping_reproductions": 2,
+      "unchanged_DEV_reproductions": 2,
+      "selected_verifier_calls": 1,
+      "sessions": [
+        {
+          "termination": "quit",
+          "go_calls": 4,
+          "startup_TIDs": 3,
+          "native_image_sha256": "e237a567db7c6140a11b26d38182b53f18891fed4701bf4556160f93902bb079",
+          "image_observation": {
+            "exe": "/tmp/r4-tx446ggf/x (deleted)",
+            "image_sha256": "e237a567db7c6140a11b26d38182b53f18891fed4701bf4556160f93902bb079",
+            "private_path_absent": true,
+            "startup_tids": [
+              628,
+              644,
+              645
+            ],
+            "children_by_tid": {
+              "644": [],
+              "628": [],
+              "645": []
+            }
+          },
+          "private_path_absent": true,
+          "returncode": 0,
+          "process_absent_at_original_settlement": true,
+          "readers_finished": true,
+          "one_closing_bestmove": true,
+          "completed": [
+            {
+              "clock": "white zero",
+              "bestmove": "g1f3"
+            },
+            {
+              "clock": "black zero",
+              "bestmove": "a7a6"
+            },
+            {
+              "clock": "bare finite default",
+              "bestmove": "b1c3",
+              "wall_seconds": 1.0299597159998939,
+              "scope": "bounded completion, not a performance benchmark"
+            }
+          ],
+          "active_search_exit": {
+            "command": "go wtime 300000 btime 300000 winc 0 binc 0",
+            "development_infinite": false,
+            "phase_before_signal": "unfinished_with_observed_work",
+            "go_posted_seconds": 1.7172817979999309,
+            "observed_seconds": 0.04155939399993258,
+            "cpu_ticks_delta": 8,
+            "search_info_observed": false,
+            "active_before_signal": true,
+            "work_evidence_scope": "whole-process CPU or engine progress; search completion and cancellation causality are unproven",
+            "cancellation_coverage": "active_search_physical_exit_observed",
+            "signal": "quit",
+            "signal_posted_seconds": 1.7588508329999968,
+            "bestmove_received_seconds": 1.7589916760000506,
+            "cancellation_causality": "unproven"
+          }
+        },
+        {
+          "termination": "EOF",
+          "go_calls": 4,
+          "startup_TIDs": 3,
+          "native_image_sha256": "e237a567db7c6140a11b26d38182b53f18891fed4701bf4556160f93902bb079",
+          "image_observation": {
+            "exe": "/tmp/r4-za4gi2du/x (deleted)",
+            "image_sha256": "e237a567db7c6140a11b26d38182b53f18891fed4701bf4556160f93902bb079",
+            "private_path_absent": true,
+            "startup_tids": [
+              646,
+              658,
+              659
+            ],
+            "children_by_tid": {
+              "658": [],
+              "659": [],
+              "646": []
+            }
+          },
+          "private_path_absent": true,
+          "returncode": 0,
+          "process_absent_at_original_settlement": true,
+          "readers_finished": true,
+          "one_closing_bestmove": true,
+          "completed": [
+            {
+              "clock": "white zero",
+              "bestmove": "b1c3"
+            },
+            {
+              "clock": "black zero",
+              "bestmove": "a7a6"
+            },
+            {
+              "clock": "bare finite default",
+              "bestmove": "b1c3",
+              "wall_seconds": 1.0307099740000467,
+              "scope": "bounded completion, not a performance benchmark"
+            }
+          ],
+          "active_search_exit": {
+            "command": "go wtime 300000 btime 300000 winc 0 binc 0",
+            "development_infinite": false,
+            "phase_before_signal": "unfinished_with_observed_work",
+            "go_posted_seconds": 1.97290146499995,
+            "observed_seconds": 0.042111720000093555,
+            "cpu_ticks_delta": 8,
+            "search_info_observed": false,
+            "active_before_signal": true,
+            "work_evidence_scope": "whole-process CPU or engine progress; search completion and cancellation causality are unproven",
+            "cancellation_coverage": "active_search_physical_exit_observed",
+            "signal": "EOF",
+            "signal_posted_seconds": 2.015022062000071,
+            "bestmove_received_seconds": 2.015184868999995,
+            "cancellation_causality": "unproven"
+          }
+        }
+      ],
+      "total_GO_calls": 8,
+      "entire_source_native_bootstrap_whole_equal_to_firstcost": true,
+      "old_DEV_entire_source_native_equal": true,
+      "source_inputs_stable_during_original_commands": true,
+      "original_handles_terminal_reaped_group_absent": true,
+      "owned_handles": 0,
+      "cost_reruns": 0,
+      "SAN_NVC_optional_extra_runs": 0,
+      "runtime_scope": "new fixed2/TT18 candidate wrapper startup, input/GO/drain/quit/EOF and physical exit only; outer result-wide stdout exclusion/flush batching/schedules/timed nodes/results can differ; own flush before completion notify/drain remains; no injected failure, performance/RAM/strength/full qualification or new CI claim"
+    },
+    "scope": "Fixed exact two-region result output stage. Values and line/own-flush fence retained; grouped stdout exclusion/flush batches/timed traces intentionally not preserved. New native runtime qualification pending."
   }
 }

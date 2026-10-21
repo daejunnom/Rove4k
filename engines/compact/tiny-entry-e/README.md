@@ -1132,3 +1132,40 @@ Cancellation causality remains unproven. Runtime restored-image, persistent
 startup TID, absent helpers/private paths and physical exit were observed;
 normal compiler descendants were not separately observed by its unchanged
 compile helper. This is a new full native class with no metadata exception.
+
+
+## 고정 두 worker 결과 선택과 출력 잠금 축약
+
+이 단계는 기존 condition_sharing 뒤에서만 적용되는 shipping 전용 pure 변환이다.
+기존 guard와 원 참조 admission은 먼저 그대로 통과하며 전체 inverse는 정확한
+post-condition 소스를 복구한다. canonical·DEV와 A/D/F/F8은 이 단계를 사용하지 않는다.
+두 literal 영역/세 보호 gap 이외는 전체 bytes가 같고 raw 소스는 63B 감소한다.
+깊이 비교는 worker1이 엄격히 클 때만 선택하므로 동점은 원래처럼 worker0이다.
+양 worker의 검색 완료 게시와 동일 pool mutex 아래 결과 읽기는 그대로이다.
+각 printf/puts 한 호출의 같은 FILE 내부 잠금과 결과의 자체 fflush 완료 후
+completion notify·drain·다음 GO/position 게시 순서는 보존한다. 이는 한 OS write,
+외부 raw-fd 원자성 또는 printf+flush 전체 트랜잭션 동등성을 뜻하지 않는다.
+바깥 flockfile/funlockfile 제거로 main reply가 계산 중이나 printf와 flush 사이에
+끼어들 수 있다. flush batch·가시 시각·stdio 경합·스케줄과 시간제 검색 결과는
+달라질 수 있고, 기존 무시된 I/O 오류 정책도 바꾸지 않는다.
+
+고정 ONEcost 결과는 전체 4897→4880B,
+새 native SHA `6ddf569ffea8b4f9346fe10ddae94b99cb9d2fc1c5f31e9224a503348cdcfbe1`이며 원 native 전체 동일 주장은 없다.
+소스·native·bootstrap·전체 expected는 원 firstcost bytes에 명시적으로 고정했다.
+B/E nice32·C nice64 및 C -mavx2, GCC13·header73·FD0 literal/template는 그대로이다.
+원 reply LOSS9 후보와 합성하지 않았다. 비용 stream B→C→E 당시 별도 D/F8 비용
+stream이 겹쳤으며 wall time이나 성능·메모리·기력 개선을 주장하지 않는다.
+
+OUTPUT_NORMAL_PASS: ordinary --dev를 한 번 실행하여 shipping 두 번과 기존 DEV 두 번을
+재생성했다. 전체 source/native/bootstrap/whole은 원 firstcost bytes와 같고 DEV
+source/native는 실제 이전 condition baseline bytes와 같다. unchanged selected는
+새 실제 wrapper에서 quit/EOF 두 session, 합계 여덟 GO, 각 main+두 worker의 3TID를
+관찰했다. 새 native image·private-path 제거·closing bestmove·reader 완료·물리 종료가
+확인되었고 원 handle은 terminal0/reaped/당시 group 부재/강제정리0/owned0으로 닫혔다.
+B→C→E 순서로 각 ordinary+selected를 한 번씩 수행했으며 late PID 조회나 추가 양성
+재실행은 없다. Build SHA `61224dc00628966f5a10d2a45134fd056769ca756224326e52cb8338d73e0211`, runtime SHA
+`8e565bb346be59f62c066e0929f8d7e6b1952cbc431e6de8828abc9a37cefc09`이다. Producing recipe SHA는
+`fd09866193706f4abc78c142835532f1d02678063f269104b9efaeaaaf0113d9`이며 최종 recipe/README 차이는 완료 주석뿐이다.
+기존 runtime ancestry와 새 이미지 검증을 구분한다. 이 결과는 좁은 selected 경로의
+근거이며 grouped flush/timed trace 동일성, 성능·RAM·기력·전체 qualification이나 새 CI
+성공을 뜻하지 않는다. 추가 SAN/NVC/codec검색/fault campaign/학습/선택 소비자는0이다.

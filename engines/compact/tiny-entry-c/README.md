@@ -913,3 +913,40 @@ Packaging remains one fixed ALONE LZMA1 9-extreme/lc2/lp0/pb0/BT4/64MiB/nice64 s
 First-cost receipt `3e714590a5e5994b3f25b31a2a2401a8095120a7bcb73d9b9a9238d0433bfdc8` and focused receipt `2b52cd2d9ec912d3a74b90c61622eb886c616258c2bd0f9595e9ee5e78cb1046` are external. Earlier material-vector and other receipts in recipe are ancestry. Direct normal generation reproduced shipping twice and unchanged DEV twice. The unchanged verifier passed two selected quit/EOF sessions with eight legal GO results, exact new native image, three persistent startup TIDs, private-path/helper cleanup, stdio-only FDs and physical process/reader exit. Cancellation causality remains unproven. No games, strength or performance result is claimed.
 
 The current normal build receipt is `5b5f831b89629e605e725316f9d0bed316c186ce12cba1f64a7c535f8f2cb57e`; selected runtime receipt is `bed3061a619a0ab7f97fe1fee99ea2a4f61e33a66d7cffe06e780e151ff91648`. The exact producing recipe `6ac3689052c69be9fd418ba0d24050ddc690e09dc3ec148710e1ece11e85d67d` is preserved in the external normal inputs. Final recipe/README changes only close result metadata; they were not the producing recipe revision. No archive/fresh, games or benchmark ran for this promotion.
+
+
+## 고정 두 worker 결과 선택과 출력 잠금 축약
+
+이 단계는 기존 condition_sharing 뒤에서만 적용되는 shipping 전용 pure 변환이다.
+기존 guard와 원 참조 admission은 먼저 그대로 통과하며 전체 inverse는 정확한
+post-condition 소스를 복구한다. canonical·DEV와 A/D/F/F8은 이 단계를 사용하지 않는다.
+두 literal 영역/세 보호 gap 이외는 전체 bytes가 같고 raw 소스는 63B 감소한다.
+깊이 비교는 worker1이 엄격히 클 때만 선택하므로 동점은 원래처럼 worker0이다.
+양 worker의 검색 완료 게시와 동일 pool mutex 아래 결과 읽기는 그대로이다.
+각 printf/puts 한 호출의 같은 FILE 내부 잠금과 결과의 자체 fflush 완료 후
+completion notify·drain·다음 GO/position 게시 순서는 보존한다. 이는 한 OS write,
+외부 raw-fd 원자성 또는 printf+flush 전체 트랜잭션 동등성을 뜻하지 않는다.
+바깥 flockfile/funlockfile 제거로 main reply가 계산 중이나 printf와 flush 사이에
+끼어들 수 있다. flush batch·가시 시각·stdio 경합·스케줄과 시간제 검색 결과는
+달라질 수 있고, 기존 무시된 I/O 오류 정책도 바꾸지 않는다.
+
+고정 ONEcost 결과는 전체 4845→4827B,
+새 native SHA `04c2a2ea2a5ff34b86cec2cca766576d31a4da306821da1d583e33368b18cc36`이며 원 native 전체 동일 주장은 없다.
+소스·native·bootstrap·전체 expected는 원 firstcost bytes에 명시적으로 고정했다.
+B/E nice32·C nice64 및 C -mavx2, GCC13·header73·FD0 literal/template는 그대로이다.
+원 reply LOSS9 후보와 합성하지 않았다. 비용 stream B→C→E 당시 별도 D/F8 비용
+stream이 겹쳤으며 wall time이나 성능·메모리·기력 개선을 주장하지 않는다.
+
+OUTPUT_NORMAL_PASS: ordinary --dev를 한 번 실행하여 shipping 두 번과 기존 DEV 두 번을
+재생성했다. 전체 source/native/bootstrap/whole은 원 firstcost bytes와 같고 DEV
+source/native는 실제 이전 condition baseline bytes와 같다. unchanged selected는
+새 실제 wrapper에서 quit/EOF 두 session, 합계 여덟 GO, 각 main+두 worker의 3TID를
+관찰했다. 새 native image·private-path 제거·closing bestmove·reader 완료·물리 종료가
+확인되었고 원 handle은 terminal0/reaped/당시 group 부재/강제정리0/owned0으로 닫혔다.
+B→C→E 순서로 각 ordinary+selected를 한 번씩 수행했으며 late PID 조회나 추가 양성
+재실행은 없다. Build SHA `d983b4fa6fe03ea9ec47e8c6fff040428c97283126177dfeb7a6696987eadacf`, runtime SHA
+`df3e2a3ac6049dff8c7e28ef0ae90b17286d7bf622990d0d56e3bda429c1cf9e`이다. Producing recipe SHA는
+`c039f28538e735c14d9ce0da246ba787bd745b882d3c6abc620af24c51bec197`이며 최종 recipe/README 차이는 완료 주석뿐이다.
+기존 runtime ancestry와 새 이미지 검증을 구분한다. 이 결과는 좁은 selected 경로의
+근거이며 grouped flush/timed trace 동일성, 성능·RAM·기력·전체 qualification이나 새 CI
+성공을 뜻하지 않는다. 추가 SAN/NVC/codec검색/fault campaign/학습/선택 소비자는0이다.

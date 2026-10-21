@@ -316,6 +316,10 @@ def main():
         recorded = json.loads((built/'build.json').read_text())
         require(recorded['complete'] and recorded['source_closure'] == closure and recorded['recipe_sha256'] == sha(recipe_raw),
                 'ordinary builder/source/recipe identity differs')
+        require(recorded['class'] == recipe['class'] == 'full-F-late-fixed-resource8-TT18-v2' and
+                recorded['base_stage'] == recipe['base_stage'] == 'full-after-fixed_integer_expressions',
+                'fixed late resource8 v2 class/base stage differs')
+        identity(built/'base-source.c', recipe['base_source'])
         require(recorded['profile'] == recipe['profile'] == {'workers': 8, 'tt_bits': 18, 'ply': 128, 'native_TIDs': 9}, 'fixed resource8 profile differs')
         expected = recipe['expected']
         pins = {name: {'bytes': expected[name+'_bytes'], 'sha256': expected[name+'_sha256']}
