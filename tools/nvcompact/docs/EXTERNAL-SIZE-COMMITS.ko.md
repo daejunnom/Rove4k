@@ -13,7 +13,6 @@
 | [PR #12 고정 소스 확인](evidence/external-size-commits/pr12-68db496f-review.json) | `68db496f...`의 읽은 파일·blob·SHA-256, recipe의 기대 크기/identity |
 | [PR #12 후속 head 참고](evidence/external-size-commits/pr12-b65a7498-review.json) | `68db496f...`→`b65a7498...`의 실제 변경·채택 상태와 관측 계약; 이번 캠페인 미측정, 외부 355건과 별도 |
 | [PR #12 bootstrap 환경 복사 후속](evidence/external-size-commits/pr12-7a112cbf-review.json) | `b65a7498...`→`7a112cbf...` 1개 커밋·17개 파일 diff, 채택·크기 열세와 수동 wrapper 관측 계약; 비교 입력은 `68db496f...` 유지 |
-| [PR #12 담당자 인계](PR12-HANDOFF.ko.md) | 고정 비교 기준·역사적 표와 후속 head 참고를 분리한 엔진별 판단 |
 
 총 **355개 선택 커밋 diff 또는 실험 기록**을 검토했다. 기존 roster에 대응하는 **10개 엔진 계열 347건**과, 실제 참가가 확인되지 않은 **Pytteliten 8건**을 구분한다. 355건을 모두 성공한 무손실 절감이나 독립적인 최적화 355종으로 해석하지 않는다. 혼합 변경, 실패 수정, 문서 실험과 제목 검색의 false positive도 포함한다.
 
@@ -87,7 +86,7 @@ ice4 [084e1fbf](https://github.com/MinusKelvin/ice4/commit/084e1fbf3e3f4dedf5976
 
 ## 5. 엔진 쪽에서 보존할 아이디어
 
-상세 catalog는 현재 채택 여부와 무관하게 모든 검토 행을 유지한다. 다음 묶음은 탐색 출발점이며 전부 새 미구현 과제를 뜻하지 않는다. PR #12에서 이미 적용한 부분은 [고정 head 인계](PR12-HANDOFF.ko.md)의 반영 상태와 대조한다.
+상세 catalog는 현재 채택 여부와 무관하게 모든 검토 행을 유지한다. 다음 묶음은 탐색 출발점이며 전부 새 미구현 과제를 뜻하지 않는다. PR #12에서 이미 적용한 부분은 위 표의 고정 소스·후속 head metadata 및 [엔진 PR](https://github.com/daejunnom/Rove4k/pull/12)의 현재 코드와 대조한다.
 
 - 표현과 API: 내부 field 순서·AoS/SoA, 짧은 displacement에 hot field 배치, count-pointer 대 advancing output pointer, bitboard 직접 인자로 ctz→shift 왕복 제거, private helper와 literal 공유.
 - 순회와 상태: 두 색 평가를 공통 loop로, 이미 만든 child/best move/score 재사용, 증분 state와 기존 traversal 재계산의 교환, consumed sort prefix 쓰기 제거, 명시된 sentinel로 guard 삭제.

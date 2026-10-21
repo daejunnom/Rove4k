@@ -256,7 +256,7 @@ Evaluation count, result type, macro boundaries and volatile/atomic protections
 remain part of the rule's applicability checks.
 The [whole-file source portfolio guide](docs/SOURCE-PORTFOLIO.md) documents the
 contracts, configuration, bounds and unsupported cases. Engine-specific work
-is separated in the [PR #12 handoff](docs/PR12-HANDOFF.ko.md).
+is tracked separately in [PR #12](https://github.com/daejunnom/Rove4k/pull/12).
 The [external byte-saving commit review](docs/EXTERNAL-SIZE-COMMITS.ko.md) records
 upstream techniques, losses and semantic/deployment tradeoffs independently of
 whether Rove4k already uses them; historical upstream sizes are not new local

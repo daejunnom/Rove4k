@@ -338,7 +338,7 @@ location·traceback 비관측 전제를 기록한다. Masked AST나 native ident
 조합, 빌드 중간 결과 재사용과 실패 사례는 현재 설계 판단에 참고할 수 있다.
 Upstream의 당시 보고 크기와 이 변경의 실측은 같은 결과로 취급하지 않는다.
 
-엔진 전용 결정과 PR #12의 고정 head에서 이미 적용한 변경은
-[PR #12 핸드오프](PR12-HANDOFF.ko.md)에 둔다. 그 자료는 범용 변환의 적용 전제와
-분리한다. 외부 엔진 source·binary·전체 diff를 저장소에 벤더링하지 않으며,
+엔진 전용 결정은 [PR #12](https://github.com/daejunnom/Rove4k/pull/12)의 코드와
+해당 작업의 근거를 기준으로 판단하며 범용 변환의 적용 전제와 분리한다.
+외부 엔진 source·binary·전체 diff를 저장소에 벤더링하지 않으며,
 압축 도구의 구조 개선을 새로운 엔진 기력이나 바이트 절감의 실측 증거로 삼지 않는다.

@@ -325,7 +325,8 @@ TT 초기화 누락 등 실패 수정도 분류했다. 모든 근거의 full SHA
 [나머지 엔진](research/OTHER-ENGINE-SIZE-COMMITS.ko.md), 연결된 metadata에 있다.
 외부 원본·전체 patch·실행 파일·가중치는 벤더링하지 않았다.
 
-[PR #12 핸드오프](PR12-HANDOFF.ko.md)는 현재 채택 여부와 무관하게 아이디어를 보존한다.
+엔진 담당자용 인계 원문은 사용자 요청에 따라 별도 전달 파일로 보존하고 PR에서 제거했다.
+이 절과 연결된 연구·metadata는 당시 조사 결과를 보존한다.
 범용 후보와 엔진 불변식·기력 판단이 필요한 변경을 나누며, movegen/search API,
 field/table 배치, 공유 evaluation 순회, sentinel, TT·thread 정책과 loader/ABI 변경을
 이름별 예외 rewrite로 넣지 않는다.
@@ -338,7 +339,7 @@ field/table 배치, 공유 evaluation 순회, sentinel, TT·thread 정책과 loa
 
 최종 원격 확인에서 추가된 `7a112cbf`의 17개 변경 파일과 다섯 bootstrap 본문도 읽었다.
 환경 복사와 TMPDIR 대입을 `dict(os.environ,TMPDIR=d)`로 표현한 변경은 이미 채택된
-기술로 인계 제10절에 추가했다. 새 helper는 없으며, 후속 기록은 A 4606, B 5138,
+기술로 당시 인계 기록에 추가했다. 새 helper는 없으며, 후속 기록은 A 4606, B 5138,
 C 4924, E 5004, F full/material/move-TT 4497/4319/4045 B다. Signal helper와 결합
 후보의 크기 열세도 보존했다. 이는 수동 wrapper 관측 계약 아래의 후속 PR #12 기록이며
 이번 NVCompact 실측·현재 자동 embedding의 인수나 범용 Python rewrite로 취급하지 않는다.

@@ -7,8 +7,8 @@ The implementation is native Rust, with Clang as the typed C frontend and the
 manifest's actual compiler as a separate acceptance gate.
 
 The measured comparison results and their execution scope are recorded in
-[PR #13 results](PR13-RESULTS.ko.md). Engine-specific changes are separated in the
-[PR #12 handoff](PR12-HANDOFF.ko.md). This guide describes the implemented interface
+[PR #13 results](PR13-RESULTS.ko.md). Engine-specific changes are tracked in
+[PR #12](https://github.com/daejunnom/Rove4k/pull/12). This guide describes the implemented interface
 and its contracts; it does not establish a compression optimum or tournament
 qualification.
 Those PR #13 results are historical measurements. The current
