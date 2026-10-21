@@ -52,6 +52,10 @@ pub(crate) struct ParsedSource {
 #[derive(Clone)]
 pub(crate) struct PreprocessingObservation {
     pub sha256: String,
+    /// Cross-session identity normalizes only the owned translation-unit path
+    /// in preprocessor line markers. Expanded literals and header paths/content
+    /// remain exact; the raw sha256 above still guards all in-session reuse.
+    pub stable_sha256: Option<String>,
     pub utf8: bool,
 }
 
@@ -74,6 +78,7 @@ impl SourceContext {
         let bytes = frontend.preprocess(source)?;
         let observation = PreprocessingObservation {
             sha256: sha256(&bytes),
+            stable_sha256: None,
             utf8: std::str::from_utf8(&bytes).is_ok(),
         };
         Ok(Self {
@@ -303,6 +308,16 @@ impl FrontendSession {
     }
 
     pub fn parse(&self, source: &[u8], definitions: bool) -> Result<ParsedSource> {
+        self.parse_impl(source, definitions, false)
+    }
+
+    /// Advisory profiles need an identity across independently created sessions.
+    /// Ordinary compression/flow/spelling paths do not compute this extra hash.
+    pub fn parse_for_advice(&self, source: &[u8]) -> Result<ParsedSource> {
+        self.parse_impl(source, true, true)
+    }
+
+    fn parse_impl(&self, source: &[u8], definitions: bool, stable: bool) -> Result<ParsedSource> {
         let before = if definitions {
             Some(sha256(&self.preprocess(source)?))
         } else {
@@ -345,6 +360,8 @@ impl FrontendSession {
             }
             Some(PreprocessingObservation {
                 sha256: digest,
+                stable_sha256: stable
+                    .then(|| stable_preprocessing_digest(&bytes, &path.to_string_lossy())),
                 utf8,
             })
         } else {
@@ -357,6 +374,32 @@ impl FrontendSession {
             preprocessing,
         })
     }
+}
+
+/// Preserve everything except the session-owned source path inside Clang line
+/// directives. In particular, do not normalize an expanded __FILE__ literal:
+/// such a program observes the temporary frontend path and must not silently
+/// acquire cross-session equality. Hash incrementally instead of copying AST-
+/// sized preprocessor output into another buffer.
+fn stable_preprocessing_digest(bytes: &[u8], main_path: &str) -> String {
+    use sha2::{Digest, Sha256};
+    use std::sync::LazyLock;
+    static MARKER: LazyLock<Regex> = LazyLock::new(|| {
+        Regex::new(r#"^#\s+[0-9]+\s+\"([^\"]+)\""#).expect("fixed line marker pattern")
+    });
+    let mut hash = Sha256::new();
+    for line in bytes.split_inclusive(|&b| b == b'\n') {
+        if let Some(path) = MARKER.captures(line).and_then(|c| c.get(1)) {
+            if path.as_bytes() == main_path.as_bytes() {
+                hash.update(&line[..path.start()]);
+                hash.update(b"<nvcompact-owned-translation-unit>");
+                hash.update(&line[path.end()..]);
+                continue;
+            }
+        }
+        hash.update(line);
+    }
+    hex::encode(hash.finalize())
 }
 
 pub fn validate_args(values: &[String]) -> Result<()> {

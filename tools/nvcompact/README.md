@@ -257,6 +257,30 @@ remain part of the rule's applicability checks.
 The [whole-file source portfolio guide](docs/SOURCE-PORTFOLIO.md) documents the
 contracts, configuration, bounds and unsupported cases. Engine-specific work
 is tracked separately in [PR #12](https://github.com/daejunnom/Rove4k/pull/12).
+
+### Short-coding advice
+
+These commands are available in this branch's source build; they are not part of
+the already published npm 0.5.0 release.
+
+`nvcompact advise-c final.c --report advice.json` reports typed repeated
+constants, declarations with no translation-unit references, and integer ranges
+at evaluated read sites, with conditional shortening suggestions. It never feeds
+findings into compression or rewrites the input. `--instrument diagnostic`
+exports a separate, bounded C11 diagnostic copy; `--profile observations.log`
+imports its samples as observations, without turning them into static facts.
+
+`nvcompact inspect-binary submission --word-bytes 8` inventories exact repeated
+bytes in the final artifact. Matching bytes are not automatically semantic
+constants or measured savings. The [advisor design and usage](docs/SHORTCODE-ADVISOR.ko.md)
+explains type, side-effect, control-flow, profiling and resource boundaries.
+The small owned [example](examples/advice/program.c) exercises all three source
+diagnostics. Neither command starts the submitted program.
+
+The [performance and advisory follow-up](docs/PERFORMANCE-ADVICE-RESULTS.ko.md)
+records the streaming verifier, indexed FIFO cache, bounded worker scheduling,
+48 baseline/final measurements, complete test run and independent advisory audit.
+
 The [external byte-saving commit review](docs/EXTERNAL-SIZE-COMMITS.ko.md) records
 upstream techniques, losses and semantic/deployment tradeoffs independently of
 whether Rove4k already uses them; historical upstream sizes are not new local

@@ -1,3 +1,6 @@
+pub mod advice_profile;
+pub mod advisor;
+pub mod artifact_advice;
 pub mod attempts;
 mod c_frontend;
 pub mod cflow;

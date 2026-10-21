@@ -74,5 +74,14 @@ and compiler-diagnostic identity. `replay` reconstructs the selected derivation
 without repeating its search. See the [source portfolio guide](https://github.com/daejunnom/Rove4k/blob/main/tools/nvcompact/docs/SOURCE-PORTFOLIO.md)
 for the explicit C/Python observation contracts and bounded search settings.
 
+Source builds from the follow-up development PR also provide `advise-c` for
+typed constants, unused declarations and integer ranges at individual reads,
+plus `inspect-binary` for exact repeated-byte inventories. Advice does not enter
+the compressor or edit inputs. Optional `advise-c --instrument` exports a
+separate diagnostic copy without starting it; `--profile` attaches finite
+observations without promoting them to static facts. These additions are not a
+claim that the already-published 0.5.0 tarball includes the new commands.
+See the [advisor guide](https://github.com/daejunnom/Rove4k/blob/feature/nvcompact-search-architecture/tools/nvcompact/docs/SHORTCODE-ADVISOR.ko.md).
+
 See the [maintainer publishing guide](https://github.com/daejunnom/Rove4k/blob/main/tools/nvcompact/docs/PUBLISHING.md)
 for the personal-account bootstrap, OIDC configuration and release workflow.
