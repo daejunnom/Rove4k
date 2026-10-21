@@ -42,7 +42,7 @@
     "engines/compact/tiny-entry-a/shipping_global_names.py": "95ec821721750d2895404cad5882e80f90f8c0ae27bf7b6e7bfeaac13691e73e",
     "engines/compact/tiny-entry-a/shipping_continuation.py": "9cbde73dd9c355dcdafed1643422bf05a54271f3ece5a4933de02ff6141875db",
     "engines/scripts/shipping_common.py": "58f2cfdb37bbd0c010e82bc8d9c2118b00fe41ef6a556c18cc94db11455e2a15",
-    "engines/scripts/shipping_refinements.py": "62ac2fc6d1d8d7525d35d84cb6deeed0b2cff366e74604b0b7f9d219278fd685"
+    "engines/scripts/shipping_refinements.py": "6ecb62499035cedaf6308539de0744a011f7b183ca768984462c4f0435406804"
   },
   "fixed_renames": [
     [

@@ -61,7 +61,7 @@
     "engines/compact/tiny-entry-b/shipping_global_names.py": "9a4ef3465193b34cb5739adf2e2863cb09670422cb244ab16d29c4124abe1522",
     "engines/compact/tiny-entry-b/shipping_recapture.py": "2dd0d4feadd5d51069de4030f58fb35b54a8ce277e3c36a585779aaf11229faf",
     "engines/scripts/shipping_common.py": "58f2cfdb37bbd0c010e82bc8d9c2118b00fe41ef6a556c18cc94db11455e2a15",
-    "engines/scripts/shipping_refinements.py": "62ac2fc6d1d8d7525d35d84cb6deeed0b2cff366e74604b0b7f9d219278fd685"
+    "engines/scripts/shipping_refinements.py": "6ecb62499035cedaf6308539de0744a011f7b183ca768984462c4f0435406804"
   },
   "compression": {
     "format": "lzma-alone",

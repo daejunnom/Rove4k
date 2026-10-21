@@ -172,7 +172,7 @@ The later PALS and hardware-CRC work below retains its own source and runtime
 boundaries; those earlier CI runs are not relabeled as results for new bytes.
 
 **F's opt-in material/move-TT file is locally reproduced and exercised at
-4,093 bytes; default full F is still 4,667 bytes.** This optional reduced-feature
+4,093 bytes; default full F is still 4,654 bytes.** This optional reduced-feature
 size result does not complete default F or the A–F portfolio. All twelve
 cores have functional evidence, but portfolio completion still requires source
 reduction, D's eligible own-ELF artifact, final candidate comparisons and games,
@@ -189,10 +189,10 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | --- | ---: | ---: | --- |
 | A | 4,661 B | 565 B | Main-owned token cursor and valid-0x88 promotion predicate; existing full HCE/PVS/QS/TT/learners/SMP and fixed ALONE retained |
 | B | 5,229 B | 1,133 B | Main-owned token cursor, promotion predicate and make/SEE material-gain sharing; hybrid attackers/singular and full policy retained |
-| C | 5,016 B | 920 B | Promotion predicate; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners and fixed ALONE retained |
+| C | 5,001 B | 905 B | Main-owned tokenizer and promotion predicate; signed-net eight-lane HCE and actual 128-bit madd/hadd, full search/learners and fixed ALONE retained |
 | D scalar / HQ | 5,966 / 6,175 B | 1,870 / 2,079 B | Capture-only Move bit3; full-key aligned atomic16 TT, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained |
-| E | 5,101 B | 1,005 B | Promotion predicate; untrained E19 model/ordering, full search/learners and fixed ALONE retained |
-| F full (default) | 4,667 B | 571 B | Promotion predicate; packed positional HCE, learners, full-bound full-key TT and full-depth MTD(f)/SMP retained; default size target remains open |
+| E | 5,086 B | 990 B | Main-owned tokenizer and promotion predicate; untrained E19 model/ordering, full search/learners and fixed ALONE retained |
+| F full (default) | 4,654 B | 558 B | Main-owned tokenizer, mate-adjust expressions and promotion predicate; packed positional HCE, learners, full-bound full-key TT and full-depth MTD(f)/SMP retained; default size target remains open |
 | F material/noise (opt-in) | 4,374 B | 278 B | Fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted; unchanged at this checkpoint |
 | F material/move-TT (opt-in) | 4,093 B | 0 B (3 B spare) | Fixed material, main-owned token cursor, terminal-loop sharing and coherent atomic64 Move17/high46 plus index18; local size eligibility only, full F and strength acceptance remain open |
 
@@ -5692,3 +5692,100 @@ cost or runtime claim. External engine implementations remain outside Git.
 Each family's size gap, D eligible own-ELF, final resource profiles and their
 actual short-search/runtime/strength evidence remain open. Training/data
 collection, AWS/paid execution and release are outside this checkpoint.
+
+## Continued full-default source reduction — 2026-10-21
+
+Checkpoint364e316 passes both language jobs in
+[engine CI](https://github.com/daejunnom/Rove4k/actions/runs/39534488838)
+and [Node22/24 lifecycle CI](https://github.com/daejunnom/Rove4k/actions/runs/39534488793).
+Its PR synthetic merge676d284f15107d836fbcfa5b34e72195ce03d39e has the same
+c0afc04ade74f4007f885dbfbcb3eb3407e9dd81 tree as the head; parents are
+develop56bfb5f and head364e316. This is evidence for that exact checkpoint.
+
+Further full-source work now extends the main-owned tokenizer to full C/E/F.
+Current worker/parse/gen/make call paths have no tokenizer and the parent
+does not resume iteration after POSITION/GO. Actual old/new function fixtures
+compare74 GO/23 position cases per entry, including C's complete eight-lane
+state, E's v/activity model state and F's v/context state, entire history,
+fallback, budget, publication and worker bytes. First C fixture compilation
+failed because a helper collided with the real command condition variable;
+static review also caught a fallback variable comparing itself. Both causes
+are preserved. V2 changes only fresh fixture names and passes one ASan/UBSan
+compile/run per entry, with candidate/cases/reference bodies/flags unchanged.
+Function receipt:5be455c9e3ef668103913c1eb41b15feb0e0a351376c0779387ef67dfdb24a40.
+
+Full F additionally combines exclusive positive/negative mate-score adjustment
+branches. Decode operates on promoted int16 values and ply0..127; encoding
+uses the actual bounded production score domain. Exhaustive8388608 decode
+and7680128 store cases use the real full-key V. Actual U has99 threshold/cp/
+bound queries and old/new QS/mate-in-one score, complete payload and witness
+comparisons. The first fixture wrongly expected material-only QS0; its run
+failed and remains recorded. Independent full HCE97+9−101−15=−10 and actual
+old U comparisons resolve the premise, without changing production source.
+The corrected ASan/UBSan run passes; receipt:
+fa901776d08e97ddb5d6211b5a9ac59c76f28ec868acac53cdd9410247e81e47.
+
+| Full/default entry | Previous whole | New whole | New source | Above4096 |
+|---|---:|---:|---:|---:|
+| C |5016|5001|10156|905|
+| E |5101|5086|10606|990|
+| F |4667|4654|9091|558|
+
+F tokenizer alone measures4654B; mate alone4666B; their actual combination
+is4654B, so no separate1B is added. The composition has18 fewer source bytes
+than tokenizer alone and is selected for source minimization at equal whole
+cost, retaining every full-default feature. Exact V-through-U bytes match the
+mate-qualified TU. Full F still needs558B; the optional4093B F is a separate
+intermediate result. Defaults, full-bound TT, positional HCE/model/learners,
+rules/history, MTD convergence and persistent worker policy remain.
+
+Only three fixed rows of shipping_refinements change. Four other literal
+cases and every helper function body are exact. All seven source domains pass
+input/output/inverse/complement checks. The helper is16627B/SHA
+6ecb62499035cedaf6308539de0744a011f7b183ca768984462c4f0435406804.
+Each of the three ordinary --dev producers independently reproduces shipping
+source/native/bootstrap/whole twice and full-reference DEV twice. Unchanged
+selected verifiers execute six actual new-wrapper quit/EOF sessions: exact
+native restoration, stable3 startup TIDs, legal finite GO, no private paths/
+helpers at UCI, one closing result, reader EOF and physical exit. Normal
+producing-input readback matches, before receipt-only recipe annotations.
+Normal summary10409B/SHA:
+7820f2fe387eee0c1c42df6238b497c2d79efc648d0c6d0fac9aae1d8c7b27b6.
+These remain local2-worker/TT18 results, without strength/final-hardware claims.
+
+### Actual upstream sources and rejected compression paths
+
+Current primary sources are pinned outside Git: ice4
+fabe3b1a805a1418e56899a3a143a955a399535c and4ku
+917a08741cef43d6ae00552df214cc66d0c46489. Seven explicit UCI/search/eval/
+launcher/minifier files are read; trainers/weights are excluded. Source index
+ee8ce9866f3bf0bed0bdaa72d924a28eba0b6982710e5d6984b1f58eb8668237 and companion
+d6b511aa780f3e18b2e729fea4c2335e896f6b91a350554d41b7eae452afe56e retain
+raw-byte hashes and actual LF line numbers. Web text extraction has different
+blank-line numbering; blob links below use the downloaded file's LF lines.
+
+[4ku's search retry loop](https://github.com/kz04px/4ku/blob/917a08741cef43d6ae00552df214cc66d0c46489/src/main.cpp#L793-L829)
+and [ice4's reduced/null/full-window sequence](https://github.com/MinusKelvin/ice4/blob/fabe3b1a805a1418e56899a3a143a955a399535c/src/search.cpp#L245-L277)
+motivate sharing repeated child-search calls while retaining Rove's exact
+windows, singular extension, learning arguments, history and stop sequence.
+The actual current B adaptation shrinks source31B but measures5229→5248B,
+so it is rejected. This is separate from historical A4980→5000B. Neither is
+promoted or relabeled a win. B loss receipt:
+fc1c65c55db443c94e3a1bf250b6ba0496099f258544697313caa76dc26bcef1.
+
+[ice4's shipping UCI](https://github.com/MinusKelvin/ice4/blob/fabe3b1a805a1418e56899a3a143a955a399535c/src/uci.cpp)
+uses fixed clock positions and per-GO threads. Those choices and delayed
+pathname deletion in the launchers change current Rove input/lifetime contracts.
+[4ku's minifier](https://github.com/kz04px/4ku/blob/917a08741cef43d6ae00552df214cc66d0c46489/minifier/minify.py)
+has scope-frequency renaming but heuristic bindings and broad token filters;
+it does not replace the current binding/offset/inverse checks. Current E19 is
+distinguished from historical E21. No upstream implementation is vendored.
+
+A full F embedded payload-bit63 lock also shrinks source11B and requests4MiB
+instead of6MiB for TT, but actual whole4667→4673B and text7193→7218B lose.
+The fetch_or lowers to a cmpxchg loop. It is not promoted and has no function/
+engine execution claim; receipt:
+fcbc8120b8a666d5bc90b9faf97462f9f47f6e947394d4855d46484652cfb74c.
+Further shared material-classifier work remains a separately scoped candidate.
+Compression and full-default size work continue beyond eligibility; no
+training, AWS, paid execution, merge or release is added.

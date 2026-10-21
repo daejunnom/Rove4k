@@ -1,3 +1,31 @@
+# Maintained F: further full-source compression — 2026-10-21
+
+The full/default policy now shares the main-owned tokenizer. Its existing
+clock-key consumption and transactional position replay remain. Full F also
+combines the two exclusive mate-score adjustment branches. Full search,
+models, learning, full-bound full-key TT and persistent SMP are retained.
+
+| Policy | Previous whole | Current whole | Saved | Above4096 |
+|---|---:|---:|---:|---:|
+| F full/default | 4667 | **4654** | 13 | 558 |
+
+Source9091B, native18576B; whole SHA-256
+`79f5d5a237751829033fd9daf14a2e35b714755e343014f90330403ebe9258b9`.
+The ordinary --dev producer reproduces shipping/DEV twice. The unchanged
+selected verifier runs the new actual file through quit/EOF, exact restored
+native, stable3 TIDs, legal GO, private-path/helper absence and physical exit.
+The local two-worker TT18 profile does not establish tournament strength.
+Normal summary SHA:7820f2fe387eee0c1c42df6238b497c2d79efc648d0c6d0fac9aae1d8c7b27b6.
+Earlier sections below retain their original checkpoint identities.
+
+Default full F still needs558B. The4093B reduced-feature opt-in remains
+an intermediate result. Mate adjustment saves18 raw bytes beyond tokenizer
+alone while the actual whole stays4654B; no extra1B saving is added. The actual
+V/U bytes equal the mate-qualified TU. Exhaustive decode8388608/store7680128,
+99 actual cutoff queries and actual old/new QS/mate score/payload/witness
+comparisons pass ASan/UBSan. The initial material-only QS fixture expectation
+failed and is preserved; the full HCE arithmetic and actual old U resolve it.
+
 # Maintained F: qualified source refinements — 2026-10-21
 
 Default full F changes only the valid-0x88 promotion predicate and keeps positional HCE, learners and full-bound TT. Material/noise is an exact passthrough. The opt-in MoveTT policy also shares the main token cursor and terminal scan, packs a coherent full-key ordering record into atomic64 (implicit index18 plus stored high46, Move17), and omits two proven fixed-TT18 casts.

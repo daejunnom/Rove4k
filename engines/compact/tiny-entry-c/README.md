@@ -1,3 +1,23 @@
+# Maintained C: further full-source compression — 2026-10-21
+
+The full/default policy now shares the main-owned tokenizer. Its existing
+clock-key consumption and transactional position replay remain. Full F also
+combines the two exclusive mate-score adjustment branches. Full search,
+models, learning, full-bound full-key TT and persistent SMP are retained.
+
+| Policy | Previous whole | Current whole | Saved | Above4096 |
+|---|---:|---:|---:|---:|
+| C full/default | 5016 | **5001** | 15 | 905 |
+
+Source10156B, native26368B; whole SHA-256
+`8ce2685230f164cdc76059834fb116c8f5dce36ab3c8fd1c57e9d6ef9c11d28c`.
+The ordinary --dev producer reproduces shipping/DEV twice. The unchanged
+selected verifier runs the new actual file through quit/EOF, exact restored
+native, stable3 TIDs, legal GO, private-path/helper absence and physical exit.
+The local two-worker TT18 profile does not establish tournament strength.
+Normal summary SHA:7820f2fe387eee0c1c42df6238b497c2d79efc648d0c6d0fac9aae1d8c7b27b6.
+Earlier sections below retain their original checkpoint identities.
+
 # Maintained C: qualified source refinements — 2026-10-21
 
 Only the generator-admitted valid-0x88 promotion predicate is changed here. Actual signed eight-lane SIMD evaluation, full search, learners, TT and runtime retain their prior policy.
