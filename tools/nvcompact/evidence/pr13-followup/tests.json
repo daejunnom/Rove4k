@@ -1,0 +1,349 @@
+{
+  "format": "nvcompact.pr13.followup.tests.v1",
+  "date_utc": "2026-10-21",
+  "projection": true,
+  "source_commit": "83e8deda7cde105c57de697816b5b9eeffc93b34",
+  "scope": "Reviewed metadata projection of retained local test transcripts and collaborating-agent review receipts. Raw logs, generated programs, source snapshots and host paths are not vendored.",
+  "source_identity": {
+    "algorithm": "sha256 of exact file bytes",
+    "checked_in_files": 21,
+    "final_receipt_files_match_commit_and_working_tree": true,
+    "files": {
+      "tools/nvcompact/src/attempts.rs": "878b1535a84bd8f6eb4d2a8f720f2244e074fcb5bef902a240bca22b5e525fd5",
+      "tools/nvcompact/src/cflow.rs": "e0c32a8498832898e9bab4f65d9588d77e1b208534643a37fe7a0edd8c06608d",
+      "tools/nvcompact/src/codec.rs": "d0b223f50c9f35664917e00eccbfb5b4cbdf00bde07eb8de977e6e5e34d8579a",
+      "tools/nvcompact/src/csource.rs": "f359114ecd73fcd35771871a5fcbdec14e327dfee890c6a58f6d802cb6e48a4f",
+      "tools/nvcompact/src/elf.rs": "3279ffe573368de685b200202ca436508d5fea36441485fde41d08207d8efd97",
+      "tools/nvcompact/src/envelope.rs": "1ee24fcbe4dc68cd6b72fd846c1c33786c836dea2b5dda774947ea14489977b0",
+      "tools/nvcompact/src/lib.rs": "f9362c1cce715251cc0cdcf20ce4bf0f2478786fb2ff302e1de225fa447e994b",
+      "tools/nvcompact/src/main.rs": "41da6c4c040ea84dbb2119810c9435dc98151d06f9af505491157b3fcba59eac",
+      "tools/nvcompact/src/native.rs": "56f2713b4504b205721abd20d55bd3599d1448f132f5d6873c52e45379b72638",
+      "tools/nvcompact/src/notation.rs": "6f9422c4a58aa12cbb752cfcbc420fb9c3c3e227d975f12a54e2f84bfb76be23",
+      "tools/nvcompact/src/pack.rs": "b14c1308ad78ddf12e19420190e5fdad170e1ffb95802767af2214eb21ea901a",
+      "tools/nvcompact/src/process.rs": "f2679e62104c2682ae31e64f1f6befa685a2417b24721ef2aab92bb922d227ef",
+      "tools/nvcompact/src/resource.rs": "e7e37bb0ae97e1fcb0e5d3d15778ce48f27b7d54aec4d7a74dc9dc0ca6bc0e96",
+      "tools/nvcompact/src/source_payload.rs": "14eb5987b409943666676a619d7fd10dd2ffc581948f0101ed7f3cba9f1109f7",
+      "tools/nvcompact/src/source_search.rs": "f9eb8a416cf110e1172bd6b90cbc80a0f9416f7464ea4d1c504fadf8db2c4abc",
+      "tools/nvcompact/src/uci.rs": "2836d2898c7d5926785dd65a18007d4f23d47129ab2377f96747ddfd0d4024bd",
+      "tools/nvcompact/tests/packing.rs": "177e29003e1b0b409dabe0c287a2dc78632f8412910ac9285d547a69c284e2bc",
+      "tools/nvcompact/tests/source_search.rs": "973248fc9e95fc1f4c2a87600a66e7ae36583cd805d755387b4c0e43dab325d8",
+      "Cargo.toml": "71e674c54de487fd0fcd19bdb3f6d510f15866e281417c45c4cea48dac2fe438",
+      "tools/nvcompact/Cargo.toml": "70285ac9ce42600c48d43c6504d8d18099e4ff551e461aa203a6b8ca3842578c",
+      "Cargo.lock": "6a32ac2ef6cd9cbff08252662f2833558d00cc9898c45acd1c310b7cf570af54"
+    },
+    "full_suite_relation": {
+      "matches_final_files": 20,
+      "different_files": 1,
+      "path": "tools/nvcompact/src/source_search.rs",
+      "tested_sha256": "14155ea8c30dae8fefad24cae1534726efc63294ce661fbb69e6a937436c398c",
+      "final_sha256": "f9eb8a416cf110e1172bd6b90cbc80a0f9416f7464ea4d1c504fadf8db2c4abc",
+      "change": "The final wrapper preserves the original search error in the returned error chain when writing failed-report.json also fails after archive sealing. Candidate generation, scoring, admission and replay logic are unchanged by this last hunk.",
+      "verification": "Replacing only that final failed-report-write hunk with its preceding write_json(...)? form reproduces the full-suite receipt source hash exactly; all other 20 recorded files match the frozen commit.",
+      "reverse_hunk_hash_verified": true,
+      "affected_suite_rerun": "source-search-final",
+      "full_suite_on_exact_final_source_claimed": false
+    }
+  },
+  "runs": [
+    {
+      "id": "boolean-first-run",
+      "kind": "targeted Rust library tests",
+      "receipt": "boolean-review-receipt",
+      "command": [
+        "cargo",
+        "test",
+        "--manifest-path",
+        "tools/nvcompact/Cargo.toml",
+        "--offline",
+        "--locked",
+        "--lib",
+        "cflow::tests::",
+        "--",
+        "--test-threads=2"
+      ],
+      "exit_code": 101,
+      "passed": 7,
+      "failed": 1,
+      "log": "boolean-first-run-log",
+      "failed_test": "cflow::tests::stdbool_aliases_qualification_effects_and_reparsed_chains_keep_the_oracle",
+      "failure_preserved": true,
+      "cause": "The new test incorrectly required c-all to choose boolean-domain in the nested-chain second pass. The valid smaller equality-inversion rewrite may be selected instead. Production code did not change after this test failure.",
+      "status": "failed; retained as a separate observation, not replaced by the rerun"
+    },
+    {
+      "id": "boolean-corrected-rerun",
+      "kind": "targeted Rust library tests",
+      "receipt": "boolean-review-receipt",
+      "command": [
+        "cargo",
+        "test",
+        "--manifest-path",
+        "tools/nvcompact/Cargo.toml",
+        "--offline",
+        "--locked",
+        "--lib",
+        "cflow::tests::",
+        "--",
+        "--test-threads=2"
+      ],
+      "exit_code": 0,
+      "passed": 8,
+      "failed": 0,
+      "log": "boolean-rerun-log",
+      "correction": "Assert nested second-pass domain rewriting in the domain-only recipe; independently assert conditional normalization then domain rewriting in c-all.",
+      "production_logic_changed_to_satisfy_failed_assertion": false,
+      "production_logic_statement_basis": "Boolean reviewer receipt states that production code did not change after the first failure; the mistaken recipe-selection assertion was corrected while the independent semantic oracle was retained.",
+      "source_identity_boundary": "Exact pre-correction and pre-format targeted-run source hashes were not emitted in this receipt. Its final formatted cflow.rs hash matches the frozen commit; the later full suite executed that exact final cflow.rs.",
+      "final_formatted_cflow_sha256": "e0c32a8498832898e9bab4f65d9588d77e1b208534643a37fe7a0edd8c06608d",
+      "formatting_after_targeted_rerun": true,
+      "fixture_scope": "Owned finite C fixtures compiled at -O0 and executed against independent Rust oracles; no external chess engine or engine bootstrap executed.",
+      "recorded_frontend_selection": "Clang 20 via NVCOMPACT_CLANG; host-specific executable path omitted",
+      "build_jobs": 2
+    },
+    {
+      "id": "full-suite",
+      "kind": "Rust crate unit and integration tests",
+      "receipt": "full-suite-receipt",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--manifest-path",
+        "tools/nvcompact/Cargo.toml",
+        "--",
+        "--test-threads=2"
+      ],
+      "exit_code": 0,
+      "passed": 65,
+      "failed": 0,
+      "groups": [
+        {
+          "target": "library",
+          "passed": 51,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered_out": 0,
+          "reported_seconds": 52.59
+        },
+        {
+          "target": "binary",
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered_out": 0,
+          "reported_seconds": 0.0
+        },
+        {
+          "target": "packing integration",
+          "passed": 10,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered_out": 0,
+          "reported_seconds": 10.46
+        },
+        {
+          "target": "source_search integration",
+          "passed": 4,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered_out": 0,
+          "reported_seconds": 34.98
+        },
+        {
+          "target": "doc tests",
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered_out": 0,
+          "reported_seconds": 0.0
+        }
+      ],
+      "log": "full-suite-log",
+      "source_relation": "All final pinned files except the explicitly reconstructed final source_search.rs error-chain hunk.",
+      "execution_status": "completed successfully on the recorded pre-final-hunk snapshot"
+    },
+    {
+      "id": "source-search-final",
+      "kind": "affected integration-suite rerun on final source",
+      "receipt": "source-search-final-receipt",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--manifest-path",
+        "tools/nvcompact/Cargo.toml",
+        "--test",
+        "source_search",
+        "--",
+        "--test-threads=2"
+      ],
+      "exit_code": 0,
+      "passed": 4,
+      "failed": 0,
+      "log": "source-search-final-log",
+      "all_recorded_source_hashes_match_frozen_commit": true,
+      "coverage": [
+        "Whole-file source portfolio preservation and exact accepted-source/envelope replay on owned fixtures.",
+        "Evaluation and source-retention budget stops, including generated but unmeasured candidates.",
+        "Candidate measurement failure, baseline compiler failure, and retained archive comparison.",
+        "Archive-integrity failure preserving the original search error and its separate evidence error.",
+        "Changed contracts, tools and recipe-edit rejection; frontend-capacity fallback without hiding source errors."
+      ],
+      "final_hunk_coverage_boundary": "The affected source_search integration suite was rerun after the final error-chain patch. This does not claim that all 65 cases were rerun on that exact final source, or that the secondary failed-report write I/O failure was separately fault-injected."
+    }
+  ],
+  "retained_artifacts": {
+    "receipts": [
+      {
+        "id": "full-suite-receipt",
+        "name": "full-suite-receipt.json",
+        "bytes": 2845,
+        "sha256": "22c40799c13003de5f2af177c58d69651879eff525ca41f8dfe3ae60b553465a",
+        "storage": "retained outside repository"
+      },
+      {
+        "id": "source-search-final-receipt",
+        "name": "source-search-final-receipt.json",
+        "bytes": 3079,
+        "sha256": "b1213111847e64abd4a4e06b9eaf39a65d52b6fc4f1e668d8b5b5bfe89614e97",
+        "storage": "retained outside repository"
+      },
+      {
+        "id": "boolean-review-receipt",
+        "name": "review-receipt.json",
+        "bytes": 1797,
+        "sha256": "ee430ca93e40e158ad45ae1a095589c43ca6b534bd87e60b96c1b06bc6c60678",
+        "storage": "retained outside repository"
+      },
+      {
+        "id": "independent-archive-review",
+        "name": "archive-independent-review.json",
+        "bytes": 3519,
+        "sha256": "ba25d0663fdcb11a4b31ce0d9ad389f057e80beb3c959084e3bc17f473e87bbf",
+        "storage": "retained outside repository"
+      }
+    ],
+    "logs": [
+      {
+        "id": "full-suite-log",
+        "name": "full-suite.log",
+        "bytes": 6732,
+        "sha256": "63eef7cb200f5468b82381319a23b77c9ed3f6ce8aee5c12d8547ae868d4a774",
+        "storage": "retained outside repository"
+      },
+      {
+        "id": "source-search-final-log",
+        "name": "source-search-final.log",
+        "bytes": 731,
+        "sha256": "db5b731fb569b24c66da17ca9f2ca484f3daa3c146639319256eddc675cc45fc",
+        "storage": "retained outside repository"
+      },
+      {
+        "id": "boolean-first-run-log",
+        "name": "targeted-first-run.log",
+        "bytes": 1824,
+        "sha256": "85d3319934f7aa316cb15c5b83c6f3f354e8c355574283995e9c247e57355f02",
+        "storage": "retained outside repository"
+      },
+      {
+        "id": "boolean-rerun-log",
+        "name": "targeted-rerun.log",
+        "bytes": 1146,
+        "sha256": "a2a0c7a5ad5e58f3b586fe240786388fb636cc91231d166e89f975ec1cc17c52",
+        "storage": "retained outside repository"
+      }
+    ]
+  },
+  "independent_reviews": [
+    {
+      "reviewer": "nv13_bool_followup",
+      "receipt": "independent-archive-review",
+      "recorded_at_utc": "2026-10-21T05:28:09.279651+00:00",
+      "mode": "read-only independent review; no source edits, Cargo invocations or external engine execution during this review",
+      "reviewed_files": {
+        "tools/nvcompact/src/attempts.rs": "878b1535a84bd8f6eb4d2a8f720f2244e074fcb5bef902a240bca22b5e525fd5",
+        "tools/nvcompact/src/source_search.rs": "6dc63ff528b983b9820babfd31e531f20c9517622c6e67d9b6e714c3f7c76566",
+        "tools/nvcompact/src/envelope.rs": "1ee24fcbe4dc68cd6b72fd846c1c33786c836dea2b5dda774947ea14489977b0",
+        "tools/nvcompact/src/main.rs": "41da6c4c040ea84dbb2119810c9435dc98151d06f9af505491157b3fcba59eac"
+      },
+      "files_matching_frozen_commit": [
+        "tools/nvcompact/src/attempts.rs",
+        "tools/nvcompact/src/envelope.rs",
+        "tools/nvcompact/src/main.rs"
+      ],
+      "files_not_byte_identical_to_frozen_commit": [
+        {
+          "path": "tools/nvcompact/src/source_search.rs",
+          "reviewed_sha256": "6dc63ff528b983b9820babfd31e531f20c9517622c6e67d9b6e714c3f7c76566",
+          "final_sha256": "f9eb8a416cf110e1172bd6b90cbc80a0f9416f7464ea4d1c504fadf8db2c4abc"
+        }
+      ],
+      "version_boundary": "This receipt records an intermediate source_search.rs review and is not relabeled as an exact-final-source review. The attempt comparator, envelope wiring and CLI files in the receipt are byte-identical to the frozen commit.",
+      "findings": [
+        {
+          "issue": "Missing/null outcome and cost fields could satisfy null equality and imply historical selection or source identity.",
+          "resolution": "Known completed/budget-exhausted/failed outcome states and typed final/measurement/source identities are required; selection needs a valid successful final match and proven recorded status."
+        },
+        {
+          "issue": "Successful candidate-compile with no decision produced Some(null), which was mistakenly classified as recorded-verified; reachable at evidence-budget boundary.",
+          "resolution": "Only explicit admitted stages with native observation equal to reproduced baseline grant recorded-verified; native-only record remains not-checked. Meaningful fixture sets final metadata to native-only smaller candidate and requires selected=false."
+        },
+        {
+          "issue": "Producer candidate retention limit could exceed consumer aggregate read cap once mandatory/metadata/event overhead was included.",
+          "resolution": "Aggregate bounded reader cap increased to 1 GiB, covering maximum 512 MiB optional snapshots plus mandatory inputs and bounded metadata/journal."
+        },
+        {
+          "issue": "Cross-run key omitted baseline native/diagnostic identity and actual working directory.",
+          "resolution": "Key includes twice-reproduced native observation and canonical working directory; incomplete baseline stays run-local."
+        },
+        {
+          "issue": "Original/final/measured source references could lack retained objects; baseline selection only compared payload hash.",
+          "resolution": "Required source references resolve to hashed retained objects; final source length and baseline source/cost selection consistency are checked."
+        },
+        {
+          "issue": "Leaf symlink/FIFO race between path metadata and open could defeat bounded regular-file read.",
+          "resolution": "Open uses O_NOFOLLOW|O_NONBLOCK, then descriptor metadata verifies a bounded regular file."
+        }
+      ],
+      "preservation_review": "Exact content-addressed original/candidate source objects plus pinned context, journal, and derivation receipts reconstruct attempted source candidates. Snapshot budget stops exploration before unretained candidates are measured/admitted; original and current verified incumbent remain available. Existing paths are not overwritten.",
+      "comparison_review": "Comparison validates hashes and ranks historical measurements within matching contexts; no archive commands, compiler, target, loader or codec are executed and no archive comparison changes current semantic admission.",
+      "test_result_boundary": "Inspected malformed-null, source tamper, write-once, context split, incomplete/failed and native-only fixtures. Implementer reported full suite running; this independent reviewer has not claimed its final result.",
+      "remaining_blocking_findings_in_recorded_scope": []
+    },
+    {
+      "reviewer": "nv13_failure_contract_review",
+      "mode": "Read-only collaborating-agent source, documentation and receipt review; no new Cargo, compiler or engine executions for this evidence projection.",
+      "final_source_identity_check": "All 21 source/build/test hashes in the final affected-suite receipt were checked against both frozen commit contents and the working tree; every receipt log hash was recomputed.",
+      "reviewed_boundaries": [
+        "Canonical Boolean types are normalized after desugaring; ordinary integer typedefs do not acquire a Boolean-range proof, and evaluation count and int result are preserved.",
+        "Each rendered payload style retains the candidate source basis; source identity is not collapsed by native ELF equality.",
+        "Finite snapshot and aggregate reader bounds are compatible, and unretained candidates cannot be measured or admitted.",
+        "Signal termination is incomplete; failed compositions retain component identities; size-only and compile-only observations do not imply semantic admission.",
+        "Explicit admitted decisions require recorded native/diagnostic identity matching the reproduced baseline; malformed/null metadata cannot create selected status.",
+        "Final error paths preserve original search failures alongside archive-sealing or secondary failure-receipt write errors; the latter final hunk is distinguished from the earlier full-suite snapshot.",
+        "Archive comparison ranks retained historical measurements within declared contexts and does not import edits, execute recorded commands, or grant new acceptance."
+      ],
+      "review_result": "No remaining blocking finding in the reviewed scope; not a universal equivalence proof or a human PR approval."
+    }
+  ],
+  "interpretation": {
+    "counts_are_not_additive": "The 8-case Boolean rerun and 4-case final affected-suite rerun overlap the full suite; they are not 77 distinct tests or a 65-case execution on exact final source.",
+    "new_tests_executed_for_this_projection": false,
+    "engine_size_regression_or_tournament_acceptance_established_by_this_file": false,
+    "external_source_or_binary_included": false,
+    "review_is_collaborating_agent_review_not_external_approval": true,
+    "scope_exclusions": [
+      "External-engine compression campaign results",
+      "TCEC server or new UCI acceptance",
+      "Remote CI observation",
+      "npm publication"
+    ]
+  }
+}

@@ -188,6 +188,10 @@ is separated in the [PR #12 handoff](docs/PR12-HANDOFF.ko.md).
 The [PR #13 measurements](docs/PR13-RESULTS.ko.md) compare 26 pinned
 input/profile rows: seven smaller complete files and 19 byte-identical winners,
 with explicit replay, compiler-proof and unexecuted runtime boundaries.
+The [attempt-retention and Boolean follow-up](docs/PR13-ATTEMPTS-FOLLOWUP.ko.md)
+records the new comparison command and a fresh check against those PR #13
+winners: all 26 matching-condition rows remain byte-identical, with 22 fresh
+engine/profile replays and four independently verified owned examples.
 
 `npm run test:comparison` checks the read-only regression reporter. Its
 `scripts/compare-results.mjs` command compares actual complete files against a
