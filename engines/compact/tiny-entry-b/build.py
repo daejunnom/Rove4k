@@ -112,12 +112,15 @@ def main():
         hce_declarations=module('entry_B_HCE_declarations',frozen/'shipping_declarations.py').transform_source
         forwarders=module('entry_B_walker_forwarders',frozen/'shipping_forwarders.py').transform_source
         source_package=module('entry_B_source_package',frozen/'source_package.py')
+        readonly_template=module('entry_readonly_template',frozen/'shipping_readonly.py').transform_template
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
         if template.count(marker)!=1 or len(prefix)!=77:raise ValueError('bootstrap recipe changed')
         prefix=source_package.XZ_STDIN_HEADER
         compression={'format': 'lzma-alone', 'filter': 'LZMA1', 'preset': 9, 'extreme': True, 'lc': 2, 'lp': 0, 'pb': 0, 'check': 'NONE', 'mf': 'BT4', 'dictionary_bytes': 67108864, 'nice_len': 32}
         if recipe['compression']!=compression:raise ValueError('fixed LZMA1 recipe changed')
+        template,readonly_metadata=readonly_template(template,family='B')
+        report['readonly_template']=readonly_metadata
         expected=recipe['expected']
         def generate(directory,dev=False):
             preprocess_source=canonical;input_metadata=None

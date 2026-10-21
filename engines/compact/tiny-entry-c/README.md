@@ -1,3 +1,49 @@
+# Maintained C: shared fixed readonly flag template — 2026-10-22
+
+The fixed first-cost file is **4860 B**, down9 from4869.
+Bootstrap10849→10839 B removes10 bytes. Entire C,
+native and DEV bytes, compiler/resources and original codec/header73 remain.
+The4096 B target remains open. This is a Python template spelling change.
+
+The explicitly frozen shared tiny-a/shipping_readonly.py accepts only this
+family's fixed legacy template and one FD span, with two protected gaps,
+full inverse and one C marker. Existing local/helper/legacy marker/prefix
+guards run first; C also keeps its original Popen argv guard before this
+stage. C source insertion and all prior literal helpers remain unchanged.
+Standard Linux os.O_RDONLY equals0; open/path/FD/unlink/exec and exception
+control are retained. Generic OS, os monkeypatch, Python source/bytecode/
+traceback and timing equivalence are not claimed. F/F8/optional opt out;
+source_package and shared prepare code are not modified or auto-enrolled.
+
+Original four-family FD-only first-cost index:
+`a4cf965cfd83aeba97c6bb9f372f0283371093edebf47cb627fdc1421457f14f`.
+One candidate encode per family and strict Python/CLI restore passed, with
+baseline/candidate compile0 and baseline encode0. The actual current C and
+native were reused, not recompiled. Old sourceproof/preparation errors and
+other LOSS/candidate records remain separate outside Git.
+
+One ordinary --dev builder reproduced shipping source/native/bootstrap/whole
+twice and old DEV source/native twice. Actual C/native/DEV entire bytes equal
+their qualified predecessors; new bootstrap/whole equal the fixed firstcost
+artifacts. One unchanged selected verifier passed quit/EOF2 sessions8 legal
+GO epochs,3 stable startup TIDs each, the original exact restored deleted
+native, absent private/compiler paths, finished readers and physical exit.
+Cancellation causality, timed-node equality, performance and strength remain
+unproven. Normal calls ran serially A→B→C→E with original owned handles.
+
+Actual build SHA-256:
+`651236816a91de72e7155af2501e766a6c339bd38422c5bafb50d2560582f4eb`.
+Actual runtime SHA-256:
+`f28f9c849079d5ffe3ef7a1a1d0652837dd59c24a640675b805924ae3568a4b4`.
+All eight original command handles exited0, were reaped and had absent groups
+at settlement; forced cleanup/owned handles0. No late bare PID/TID probe or
+product retry is added. Producing recipe/source and final annotations remain
+separate. After execution only recipe/README completion notes changed;
+shared helper/builders/expected/profile/codecs stayed producing bytes.
+Only the shared helper and A/B/C/E build/recipe/README are owned. No new
+semantic fixture/SAN/NVC/game/codec search or rootdocs/Git/CI work is added.
+Historical sections below retain their own identities and scope.
+
 # Maintained C: shared terminal legal loop — 2026-10-22
 
 The selected complete file is **4869 B**, 5 B below C4874 and 773 B above 4096.

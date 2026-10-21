@@ -54,7 +54,8 @@
     "engines/compact/tiny-entry-a/shipping_worker_epilogue.py": "d373aaddaab845c64a4fc4b865cb6180733c89aaafdc45d9d31cfa7ceccfabd0",
     "engines/compact/tiny-entry-a/shipping_terminal.py": "dec4a29af9debb9e285c9311bfa8781604bef971f77da9638c5a4877dca9fcd6",
     "engines/compact/tiny-entry-a/shipping_names.py": "58338725dd7e2003c8247b2be49ce29934aa91a7cea107e1bcdaf2d58f667095",
-    "engines/compact/tiny-entry-a/shipping_condition.py": "dbc0018057d0cb9affdeadb5dca571ff7fedd1cb8dc55eb5c4eb5cbe8130e2b1"
+    "engines/compact/tiny-entry-a/shipping_condition.py": "dbc0018057d0cb9affdeadb5dca571ff7fedd1cb8dc55eb5c4eb5cbe8130e2b1",
+    "engines/compact/tiny-a/shipping_readonly.py": "6eefd6502149e620a2b681e15609ae01a4dbf41748dd2fe418c2eea84293d3a5"
   },
   "fixed_renames": [
     [
@@ -394,14 +395,14 @@
     "source_sha256": "d4132c23d226fa5490c5f213b3954ba6a9ce6f3f5f1a5594877a4d910685fe96",
     "native_bytes": 18576,
     "native_sha256": "e00da92cdf1d6fdb7c7a6fbcaa5755bd6c1fd23942b28178f414716bd7e74471",
-    "whole_bytes": 4550,
-    "whole_sha256": "257903ecc2313685da8194ecacdc90896ba14d28adcfbb1a91893009bc0068bd",
-    "bootstrap_sha256": "5a40b94676ad5b1ba0046fdcee69815f2faf26ee798c86a86bdcbd3e88cca640",
+    "whole_bytes": 4541,
+    "whole_sha256": "b94c8ca19cdd7ed420e33d9214e93a905a94f1ad32411e9ab2a7e0c276a0bacb",
+    "bootstrap_sha256": "a9c9b0567e2abb7b8a5271dd03002cd5a662975c260824a464b4e6aac2ae254f",
     "dev_source_sha256": "d1f0ff322843a4210cb1cad574bc6726eef576c0fd398cb0e1cfbc12fdc81f01",
     "dev_native_sha256": "078df7141403841798e0bcb1545e59975492359b78d88b0637b99865a6bf72b9",
     "input_profile_readable_bytes": 27688,
     "input_profile_readable_sha256": "4af39bc6496c85281b322063245ee97a522b4d6c6df7c4844f71d981e733164a",
-    "bootstrap_bytes": 9850
+    "bootstrap_bytes": 9840
   },
   "local_input_sha256": {
     "engine.c": "a6aab57fffacc1900dbd9de133652d811d316b3823144ec2181c4f8dda581b6a",
@@ -1280,6 +1281,113 @@
         "terminal private child/order/extra reads/keymix/worktime/stackpeak can differ; native bytes differ",
         "local qualification is not current CI/main/release or full-A-to-F size/strength acceptance"
       ]
+    },
+    "readonly_template": {
+      "status": "PASS maintained readonly template; one ordinary --dev and unchanged selected verifier",
+      "helper": "engines/compact/tiny-a/shipping_readonly.py",
+      "helper_sha256": "6eefd6502149e620a2b681e15609ae01a4dbf41748dd2fe418c2eea84293d3a5",
+      "fixed_transform": {
+        "family": "A",
+        "stage": "fixed-Linux-readonly-template",
+        "input_bytes": 979,
+        "input_sha256": "c66d3a5a8942539af1fe5eba1ad595a19c2337a1c07f5141e37b49c1c20cecc0",
+        "output_bytes": 969,
+        "output_sha256": "680d5cd1f6f5265e56d332417710d74c88fdd89e9174a129163ac1c535b0de68",
+        "raw_delta": -10,
+        "span_offset": 845,
+        "protected_gaps": 2,
+        "all_gaps_equal": true,
+        "full_inverse": true,
+        "source_marker_count": 1,
+        "Linux_readonly_flag": 0,
+        "embedded_C_compiler_resources_unchanged": true,
+        "attribute_monkeypatch_source_traceback_timing_equivalence_claimed": false,
+        "external_reads": 0
+      },
+      "predecessor_expected": {
+        "readable_sha256": "a6aab57fffacc1900dbd9de133652d811d316b3823144ec2181c4f8dda581b6a",
+        "source_bytes": 8886,
+        "source_sha256": "d4132c23d226fa5490c5f213b3954ba6a9ce6f3f5f1a5594877a4d910685fe96",
+        "native_bytes": 18576,
+        "native_sha256": "e00da92cdf1d6fdb7c7a6fbcaa5755bd6c1fd23942b28178f414716bd7e74471",
+        "whole_bytes": 4550,
+        "whole_sha256": "257903ecc2313685da8194ecacdc90896ba14d28adcfbb1a91893009bc0068bd",
+        "bootstrap_sha256": "5a40b94676ad5b1ba0046fdcee69815f2faf26ee798c86a86bdcbd3e88cca640",
+        "dev_source_sha256": "d1f0ff322843a4210cb1cad574bc6726eef576c0fd398cb0e1cfbc12fdc81f01",
+        "dev_native_sha256": "078df7141403841798e0bcb1545e59975492359b78d88b0637b99865a6bf72b9",
+        "input_profile_readable_bytes": 27688,
+        "input_profile_readable_sha256": "4af39bc6496c85281b322063245ee97a522b4d6c6df7c4844f71d981e733164a",
+        "bootstrap_bytes": 9850
+      },
+      "firstcost": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-common-fd0-first-cost-20261022-evidence/final-index.json",
+        "bytes": 32348,
+        "sha256": "a4cf965cfd83aeba97c6bb9f372f0283371093edebf47cb627fdc1421457f14f",
+        "LF_bytes": 32348,
+        "LF_sha256": "a4cf965cfd83aeba97c6bb9f372f0283371093edebf47cb627fdc1421457f14f"
+      },
+      "firstcost_case": {
+        "path": "/home/stemxstudio/rove4k-common-fd0-first-cost-20261022-v1/A/package.x",
+        "bytes": 4541,
+        "sha256": "b94c8ca19cdd7ed420e33d9214e93a905a94f1ad32411e9ab2a7e0c276a0bacb"
+      },
+      "source_native_DEV_bytes_unchanged": true,
+      "scope": "standard Linux readonly0 flag spelling only; original legacy guards then helper before source insertion; current source/argv/profile/model/codec/header retained; not generic OS or os monkeypatch/introspection equivalence",
+      "normal_validation": {
+        "status": "PASS first ordinary/selected calls, serial A then B then C then E",
+        "build": {
+          "path": "/home/stemxstudio/rove4k-common-fd0-normal-20261022-v1/A/build/build.json",
+          "bytes": 203315,
+          "sha256": "de45fc72cd6674589bd04903aa79275fadef2c9d4693dd8268c74cd894680d6f",
+          "LF_bytes": 203315,
+          "LF_sha256": "de45fc72cd6674589bd04903aa79275fadef2c9d4693dd8268c74cd894680d6f"
+        },
+        "runtime": {
+          "path": "/home/stemxstudio/rove4k-common-fd0-normal-20261022-v1/A/runtime/runtime.json",
+          "bytes": 59964,
+          "sha256": "ea596f92f20e723db6ca523b9f23b747ad7b7c7ceea0ab047d3749f9ac47abf7",
+          "LF_bytes": 59964,
+          "LF_sha256": "ea596f92f20e723db6ca523b9f23b747ad7b7c7ceea0ab047d3749f9ac47abf7"
+        },
+        "commands": {
+          "path": "/home/stemxstudio/rove4k-common-fd0-normal-20261022-v1/normal-commands.json",
+          "bytes": 23957,
+          "sha256": "b8fa0c7efabe29a297eb1c0b37bb87fe20944027060d48b15eaed5dd5de4fd3e",
+          "LF_bytes": 23957,
+          "LF_sha256": "b8fa0c7efabe29a297eb1c0b37bb87fe20944027060d48b15eaed5dd5de4fd3e"
+        },
+        "producing_recipe": {
+          "path": "/home/stemxstudio/rove4k-common-fd0-normal-20261022-v1/A/build/inputs/recipe.json",
+          "bytes": 121322,
+          "sha256": "789cdd7b6f298d696fe2a40cc29f488cc7a2475e0fc8b77a560916fd99248543",
+          "LF_bytes": 121322,
+          "LF_sha256": "789cdd7b6f298d696fe2a40cc29f488cc7a2475e0fc8b77a560916fd99248543"
+        },
+        "producing_manifest": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-common-fd0-promotion-20261022-evidence/producing-sources.json",
+          "bytes": 47057,
+          "sha256": "346d5ebfbdfc8f45f590ebb6ba876d40a77264b83a21d65e1474f5a6b710b37c",
+          "LF_bytes": 47057,
+          "LF_sha256": "346d5ebfbdfc8f45f590ebb6ba876d40a77264b83a21d65e1474f5a6b710b37c"
+        },
+        "shipping_reproductions": 2,
+        "unchanged_DEV_reproductions": 2,
+        "source_native_DEV_entire_bytes_equal_to_predecessor": true,
+        "bootstrap_whole_entire_bytes_equal_to_firstcost": true,
+        "selected_calls": 1,
+        "quit_EOF_sessions": 2,
+        "legal_GO_epochs": 8,
+        "startup_TIDs_per_session": 3,
+        "scope": "actual unchanged native restored by new wrapper, deleted image/private/compiler paths absent, stable TIDs and legal finite epochs plus physical process/readers exit; generic OS/source/bytecode/timing/strength equivalence not claimed",
+        "original_terminal_reaped_group_absent": true,
+        "owned_handles": 0,
+        "forced_cleanup": false,
+        "late_PID_TID_probe": false,
+        "normal_failures": 0,
+        "normal_retries": 0,
+        "new_SAN_semantic_fixture_NVC_fault_trace": 0,
+        "postnormal_changes": "recipe/README annotations only; helper/build/expected/profile/codecs remain producing bytes"
+      }
     }
   },
   "provenance": {
@@ -2274,6 +2382,113 @@
       "current_actual_outputs": "/home/stemxstudio/rove4k-a-one-condition-promotion-20261022/normal/build",
       "scope": "selected quit/EOF2sessions8legalGO,exact new native,3TID each,private-path/helper/readers physical exit; no new partial-create/fault/core/game/strength/performance claim",
       "metadata_only_after_producing_revision": true
+    }
+  },
+  "readonly_template": {
+    "status": "PASS maintained readonly template; one ordinary --dev and unchanged selected verifier",
+    "helper": "engines/compact/tiny-a/shipping_readonly.py",
+    "helper_sha256": "6eefd6502149e620a2b681e15609ae01a4dbf41748dd2fe418c2eea84293d3a5",
+    "fixed_transform": {
+      "family": "A",
+      "stage": "fixed-Linux-readonly-template",
+      "input_bytes": 979,
+      "input_sha256": "c66d3a5a8942539af1fe5eba1ad595a19c2337a1c07f5141e37b49c1c20cecc0",
+      "output_bytes": 969,
+      "output_sha256": "680d5cd1f6f5265e56d332417710d74c88fdd89e9174a129163ac1c535b0de68",
+      "raw_delta": -10,
+      "span_offset": 845,
+      "protected_gaps": 2,
+      "all_gaps_equal": true,
+      "full_inverse": true,
+      "source_marker_count": 1,
+      "Linux_readonly_flag": 0,
+      "embedded_C_compiler_resources_unchanged": true,
+      "attribute_monkeypatch_source_traceback_timing_equivalence_claimed": false,
+      "external_reads": 0
+    },
+    "predecessor_expected": {
+      "readable_sha256": "a6aab57fffacc1900dbd9de133652d811d316b3823144ec2181c4f8dda581b6a",
+      "source_bytes": 8886,
+      "source_sha256": "d4132c23d226fa5490c5f213b3954ba6a9ce6f3f5f1a5594877a4d910685fe96",
+      "native_bytes": 18576,
+      "native_sha256": "e00da92cdf1d6fdb7c7a6fbcaa5755bd6c1fd23942b28178f414716bd7e74471",
+      "whole_bytes": 4550,
+      "whole_sha256": "257903ecc2313685da8194ecacdc90896ba14d28adcfbb1a91893009bc0068bd",
+      "bootstrap_sha256": "5a40b94676ad5b1ba0046fdcee69815f2faf26ee798c86a86bdcbd3e88cca640",
+      "dev_source_sha256": "d1f0ff322843a4210cb1cad574bc6726eef576c0fd398cb0e1cfbc12fdc81f01",
+      "dev_native_sha256": "078df7141403841798e0bcb1545e59975492359b78d88b0637b99865a6bf72b9",
+      "input_profile_readable_bytes": 27688,
+      "input_profile_readable_sha256": "4af39bc6496c85281b322063245ee97a522b4d6c6df7c4844f71d981e733164a",
+      "bootstrap_bytes": 9850
+    },
+    "firstcost": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-common-fd0-first-cost-20261022-evidence/final-index.json",
+      "bytes": 32348,
+      "sha256": "a4cf965cfd83aeba97c6bb9f372f0283371093edebf47cb627fdc1421457f14f",
+      "LF_bytes": 32348,
+      "LF_sha256": "a4cf965cfd83aeba97c6bb9f372f0283371093edebf47cb627fdc1421457f14f"
+    },
+    "firstcost_case": {
+      "path": "/home/stemxstudio/rove4k-common-fd0-first-cost-20261022-v1/A/package.x",
+      "bytes": 4541,
+      "sha256": "b94c8ca19cdd7ed420e33d9214e93a905a94f1ad32411e9ab2a7e0c276a0bacb"
+    },
+    "source_native_DEV_bytes_unchanged": true,
+    "scope": "standard Linux readonly0 flag spelling only; original legacy guards then helper before source insertion; current source/argv/profile/model/codec/header retained; not generic OS or os monkeypatch/introspection equivalence",
+    "normal_validation": {
+      "status": "PASS first ordinary/selected calls, serial A then B then C then E",
+      "build": {
+        "path": "/home/stemxstudio/rove4k-common-fd0-normal-20261022-v1/A/build/build.json",
+        "bytes": 203315,
+        "sha256": "de45fc72cd6674589bd04903aa79275fadef2c9d4693dd8268c74cd894680d6f",
+        "LF_bytes": 203315,
+        "LF_sha256": "de45fc72cd6674589bd04903aa79275fadef2c9d4693dd8268c74cd894680d6f"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-common-fd0-normal-20261022-v1/A/runtime/runtime.json",
+        "bytes": 59964,
+        "sha256": "ea596f92f20e723db6ca523b9f23b747ad7b7c7ceea0ab047d3749f9ac47abf7",
+        "LF_bytes": 59964,
+        "LF_sha256": "ea596f92f20e723db6ca523b9f23b747ad7b7c7ceea0ab047d3749f9ac47abf7"
+      },
+      "commands": {
+        "path": "/home/stemxstudio/rove4k-common-fd0-normal-20261022-v1/normal-commands.json",
+        "bytes": 23957,
+        "sha256": "b8fa0c7efabe29a297eb1c0b37bb87fe20944027060d48b15eaed5dd5de4fd3e",
+        "LF_bytes": 23957,
+        "LF_sha256": "b8fa0c7efabe29a297eb1c0b37bb87fe20944027060d48b15eaed5dd5de4fd3e"
+      },
+      "producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-common-fd0-normal-20261022-v1/A/build/inputs/recipe.json",
+        "bytes": 121322,
+        "sha256": "789cdd7b6f298d696fe2a40cc29f488cc7a2475e0fc8b77a560916fd99248543",
+        "LF_bytes": 121322,
+        "LF_sha256": "789cdd7b6f298d696fe2a40cc29f488cc7a2475e0fc8b77a560916fd99248543"
+      },
+      "producing_manifest": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-common-fd0-promotion-20261022-evidence/producing-sources.json",
+        "bytes": 47057,
+        "sha256": "346d5ebfbdfc8f45f590ebb6ba876d40a77264b83a21d65e1474f5a6b710b37c",
+        "LF_bytes": 47057,
+        "LF_sha256": "346d5ebfbdfc8f45f590ebb6ba876d40a77264b83a21d65e1474f5a6b710b37c"
+      },
+      "shipping_reproductions": 2,
+      "unchanged_DEV_reproductions": 2,
+      "source_native_DEV_entire_bytes_equal_to_predecessor": true,
+      "bootstrap_whole_entire_bytes_equal_to_firstcost": true,
+      "selected_calls": 1,
+      "quit_EOF_sessions": 2,
+      "legal_GO_epochs": 8,
+      "startup_TIDs_per_session": 3,
+      "scope": "actual unchanged native restored by new wrapper, deleted image/private/compiler paths absent, stable TIDs and legal finite epochs plus physical process/readers exit; generic OS/source/bytecode/timing/strength equivalence not claimed",
+      "original_terminal_reaped_group_absent": true,
+      "owned_handles": 0,
+      "forced_cleanup": false,
+      "late_PID_TID_probe": false,
+      "normal_failures": 0,
+      "normal_retries": 0,
+      "new_SAN_semantic_fixture_NVC_fault_trace": 0,
+      "postnormal_changes": "recipe/README annotations only; helper/build/expected/profile/codecs remain producing bytes"
     }
   }
 }

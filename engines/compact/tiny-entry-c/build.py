@@ -84,6 +84,7 @@ def main():
         strip=module('entry_counter_strip',frozen/'stitch.py').strip_dev_counters
         literal=module('entry_literal',frozen/'pack_stream.py').source_literal
         source_package=module('entry_source_package',frozen/'source_package.py')
+        readonly_template=module('entry_readonly_template',frozen/'shipping_readonly.py').transform_template
         common=module('entry_shipping_common',frozen/'shipping_common.py')
         refine=module('entry_shipping_refinements',frozen/'shipping_refinements.py')
         dead_state=module('entry_material_state',frozen/'shipping_material_state.py')
@@ -119,6 +120,8 @@ def main():
                node.func.value.id=='subprocess' and node.func.attr=='Popen']
         if len(calls)!=1 or ast.literal_eval(calls[0].args[0])!=recipe['compiler']:
             raise ValueError('fixed C compiler argv differs between bootstrap and native recipe')
+        template,readonly_metadata=readonly_template(template,family='C')
+        report['readonly_template']=readonly_metadata
         expected=recipe['expected']
         def generate(directory,dev=False):
             preprocess_source=canonical;input_metadata=None
