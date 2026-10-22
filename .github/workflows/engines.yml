@@ -87,6 +87,11 @@ jobs:
           python3 -B engines/compact/tiny-entry-f/build.py --policy material-move-tt --out "$ROVE_TEST_OUT/tiny-entry-f-material-move-tt" --dev
           python3 -B "$ROVE_TEST_OUT/tiny-entry-f-material-move-tt/selected-verifier/engines/compact/tiny-entry-f/verify.py" --build "$ROVE_TEST_OUT/tiny-entry-f-material-move-tt" --out "$ROVE_TEST_OUT/tiny-entry-f-material-move-tt-runtime"
           python3 -B -m unittest discover -s engines/experiments/tiny-e-order -p 'test_*.py'
+      - name: Reproduce the optional fixed-two-worker A root-hint policy
+        if: matrix.language == 'c'
+        run: |
+          python3 -B engines/compact/tiny-entry-a/build.py --policy root-hint-leader-repair --out "$ROVE_TEST_OUT/tiny-entry-a-root-hint" --dev
+          python3 -B engines/compact/tiny-entry-a/verify.py --policy root-hint-leader-repair --build "$ROVE_TEST_OUT/tiny-entry-a-root-hint" --out "$ROVE_TEST_OUT/tiny-entry-a-root-hint-runtime"
       - name: Reproduce the fixed eight-worker F profile and check its positive lifetime
         if: matrix.language == 'c'
         run: |

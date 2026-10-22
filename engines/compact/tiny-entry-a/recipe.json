@@ -56,7 +56,8 @@
     "engines/compact/tiny-entry-a/shipping_names.py": "58338725dd7e2003c8247b2be49ce29934aa91a7cea107e1bcdaf2d58f667095",
     "engines/compact/tiny-entry-a/shipping_condition.py": "dbc0018057d0cb9affdeadb5dca571ff7fedd1cb8dc55eb5c4eb5cbe8130e2b1",
     "engines/compact/tiny-a/shipping_readonly.py": "6eefd6502149e620a2b681e15609ae01a4dbf41748dd2fe418c2eea84293d3a5",
-    "engines/compact/tiny-entry-a/shipping_output.py": "4e526e1a44f4231e1851950bfdf55b834459cc6fcf123c02e11abd91a3def2f3"
+    "engines/compact/tiny-entry-a/shipping_output.py": "4e526e1a44f4231e1851950bfdf55b834459cc6fcf123c02e11abd91a3def2f3",
+    "engines/compact/tiny-entry-a/shipping_root_hint.py": "362ac9430663fcf37eb2fca4272662471a7814d65be2b1f2d17522b8cb773e22"
   },
   "fixed_renames": [
     [
@@ -2728,6 +2729,211 @@
       "normal_retries": 0,
       "new_semantic_fixture_SAN_NVC_fault_trace": 0,
       "postnormal_changes": "recipe/README completion annotations only; helper/build/expected/pool/flags/codec stay producing bytes"
+    }
+  },
+  "policies": {
+    "root-hint-leader-repair": {
+      "label": "Optional fixed2 root-hint / leader Repair",
+      "profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev_default": false
+      },
+      "expected": {
+        "readable_sha256": "a6aab57fffacc1900dbd9de133652d811d316b3823144ec2181c4f8dda581b6a",
+        "source_bytes": 10873,
+        "source_sha256": "8f4d477449450fd97eab6efde608a0ce1c8065ec49363e5368a52779d6392499",
+        "native_bytes": 22672,
+        "native_sha256": "1128628d58cf59641ae8abb00a180389f1f84f77ba6afc0eb3db39810845f1d5",
+        "whole_bytes": 5151,
+        "whole_sha256": "012d5fad6e0a16d5a757565ac503aecb09ec6d0ba25789757d815335e8fc893b",
+        "bootstrap_sha256": "bdd7342011fb5e840a1f757a795390559a58b7de31ef6698da72ab45654b3dd1",
+        "dev_source_sha256": "d1f0ff322843a4210cb1cad574bc6726eef576c0fd398cb0e1cfbc12fdc81f01",
+        "dev_native_sha256": "078df7141403841798e0bcb1545e59975492359b78d88b0637b99865a6bf72b9",
+        "input_profile_readable_bytes": 27688,
+        "input_profile_readable_sha256": "4af39bc6496c85281b322063245ee97a522b4d6c6df7c4844f71d981e733164a",
+        "bootstrap_bytes": 11827
+      },
+      "default_policy": false,
+      "same_Loose_search_claimed": false,
+      "direct_compatible_NORMAL_reuse_complete": false,
+      "source_transform": {
+        "helper": "engines/compact/tiny-entry-a/shipping_root_hint.py",
+        "before_bytes": 8821,
+        "before_sha256": "c8efc687c503e9872e004431af9fd07c07867ebb19a996fb9c4c0f4d6508f529",
+        "after_bytes": 10873,
+        "after_sha256": "8f4d477449450fd97eab6efde608a0ce1c8065ec49363e5368a52779d6392499",
+        "regions": 10,
+        "protected_gaps": 11,
+        "full_inverse": true,
+        "raw_delta": 2052,
+        "helper_values_advisory_only": true,
+        "leader_authoritative_h_PVS": true,
+        "helper_TT_payload_store": false,
+        "fixed_roles_fresh_zero_TT": true
+      },
+      "qualified_receipt": {
+        "status": "bounded_actual_path_and_selected_wrapper_PASS",
+        "scope": "root-hint / leader Repair policy; default Loose native/runtime receipts do not qualify this policy",
+        "first_cost": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-fixed2-root-repair-first-cost-20261022-evidence/final-index.json",
+          "bytes": 11839,
+          "sha256": "7b5e2a2c3bb37a10a924eaaba7b017557c42dc44cf2d2ca932fcf9a14c5f6e39",
+          "whole_delta": 626,
+          "meaning": "incremental new-policy size cost, not equal-function compression or performance/strength loss"
+        },
+        "source_v2": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-fixed2-root-policy-v2-source-20261022-evidence/final-index.json",
+          "bytes": 3442,
+          "sha256": "3ed69eed7e0cb85dddffa4d6a5a5a070684ccf77b52681073445a8a8cfb834b8"
+        },
+        "source_context_limit": "v1 cross-worker selective bound compatibility not admitted; helper values now advisory, leader h/TT remains selective",
+        "functional_validation_pending": false,
+        "normal_validation": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-root-hint-maintained-20261022-evidence/normal.json",
+          "bytes": 4060,
+          "sha256": "4ec11ccfb23a36d03b54f3206e20e5050f3280ef19c86f7b0d1f017163b7b6e4"
+        },
+        "focused_validation": {
+          "path": "/home/stemxstudio/rove4k-a-fixed2-root-repair-focused-20261022-v1/results.json",
+          "bytes": 11710,
+          "sha256": "21a4f67b39686a6bf8cdeaa3a45aae5426d210006caf7f4e782528d19406d03a"
+        }
+      },
+      "normal_validation": {
+        "status": "PASS",
+        "scope": "one ordinary opt-in --dev plus one policy-matched selected verifier; original runtime assertions retained",
+        "producing_source_manifest": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-root-hint-maintained-20261022-evidence/producing-sources.json",
+          "bytes": 29270,
+          "sha256": "9740b777d0a067cd93eceeffe2814deca559af28783b235935d2cf828e9fd87c"
+        },
+        "producing_recipe": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-root-hint-maintained-20261022-evidence/producing/engines/compact/tiny-entry-a/recipe.json",
+          "bytes": 142351,
+          "sha256": "a23e4a0e1cb4b3d92a0d3b1e88ba3b4bf88e914c7a06721af117cb77a415fbd5"
+        },
+        "supervisor": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-root-hint-maintained-20261022-evidence/normal.json",
+          "bytes": 4060,
+          "sha256": "4ec11ccfb23a36d03b54f3206e20e5050f3280ef19c86f7b0d1f017163b7b6e4"
+        },
+        "build": {
+          "path": "/home/stemxstudio/rove4k-a-root-hint-maintained-20261022-v1/build/build.json",
+          "bytes": 153542,
+          "sha256": "e9f9dd26ee8ab0904cb33d76fdb3fc89cf5218bb2a5f6ec5f83f1ffe5a6844ce"
+        },
+        "selected": {
+          "path": "/home/stemxstudio/rove4k-a-root-hint-maintained-20261022-v1/runtime/runtime.json",
+          "bytes": 5208,
+          "sha256": "034c0326ab37e3e34e20c9f5f136336ca5e8068c187dcd79c69373ff1e0d5f6b"
+        },
+        "shipping_reproductions": 2,
+        "unchanged_DEV_reproductions": 2,
+        "entire_firstcost_four_tuple_equal": true,
+        "quit_EOF_sessions": 2,
+        "legal_GO_epochs": 8,
+        "startup_TIDs_per_session": 3,
+        "FD_list_observed": false,
+        "original_handles_terminal_reaped_group_absent": true,
+        "forced_cleanup": false,
+        "active_handles": 0,
+        "cancellation_causality": "unproven as retained original selected observer",
+        "fresh_executed": false,
+        "CI_executed": false
+      },
+      "focused_validation": {
+        "status": "PASS_on_observed_actual_path",
+        "scope": "one fatal UBSan compile and one observation-only copy of actual maintained h/R2/UCI main with unchanged algorithms and clocked protocol",
+        "result": {
+          "path": "/home/stemxstudio/rove4k-a-fixed2-root-repair-focused-20261022-v1/results.json",
+          "bytes": 11710,
+          "sha256": "21a4f67b39686a6bf8cdeaa3a45aae5426d210006caf7f4e782528d19406d03a"
+        },
+        "producer": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-fixed2-root-repair-focused-20261022-evidence/run.py",
+          "bytes": 30325,
+          "sha256": "2586a539b84fbe51e2ecfdcf583c08839b06551bbeeceee4f20f9d2b3c17c64b"
+        },
+        "source_proof": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-fixed2-root-repair-focused-20261022-evidence/source-proof.json",
+          "bytes": 15946,
+          "sha256": "9cb15b62d0f92ecc4f6e4e8bca84fdcbdc07b4894d40269ce4f329005268305e"
+        },
+        "input_plan": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-fixed2-root-repair-focused-20261022-evidence/input-plan.json",
+          "bytes": 4565,
+          "sha256": "c8cc7001c2afa7c3f87be667ec626ee6dc3530059036c5747b727a51e958f17c"
+        },
+        "observed_source": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-fixed2-root-repair-focused-20261022-evidence/observed.c",
+          "bytes": 14570,
+          "sha256": "a426a6b980847229fc796d4f2948d3d94cc542ebdd7cdfe8b1443902302fbc5c"
+        },
+        "observation": {
+          "R2_busy": 0,
+          "R2_done": 1,
+          "R2_open": 0,
+          "actual_main_rc": 0,
+          "avoid_true": 9,
+          "bad_commit": 0,
+          "bad_drain": 0,
+          "completed_commits": 8,
+          "drain_checks": 11,
+          "helper_h_entries": 25705,
+          "join_calls": 2,
+          "join_failures": 0,
+          "join_ok": 2,
+          "leader_live_ply1_after_ready": 216,
+          "leader_ply1_after_ready": 216,
+          "leader_ready_accepted": 216,
+          "leader_tt_return_after_ready": 49,
+          "payload_helper": 0,
+          "payload_total": 6178,
+          "payload_unknown": 0,
+          "qk": 0,
+          "quit_busy": 1,
+          "quit_count": 1,
+          "quit_leader_active": 1,
+          "quit_open": 1,
+          "quit_qk": 2,
+          "quitting": 1,
+          "ready_proposals": 216,
+          "suppressed_helper_store": 25094,
+          "worker0_depth": 2,
+          "worker1_depth": 0
+        },
+        "coverage": {
+          "active_quit": "observed",
+          "avoid_true": "observed",
+          "completed_commits": "observed",
+          "drain_checks": "observed",
+          "helper_h_entries": "observed",
+          "leader_entries_match_ready": true,
+          "leader_live_after_ready": "observed",
+          "leader_ready_accepted": "observed",
+          "leader_tt_return_after_ready": "observed",
+          "payload": "observed",
+          "ready_proposals": "observed",
+          "suppressed_helper_store": "observed"
+        },
+        "observed_source_full_inverse_to_maintained_control": true,
+        "original_deadline_stop_epoch_and_drains_retained": true,
+        "compile_count": 1,
+        "runtime_count": 1,
+        "retry_count": 0,
+        "injected_state": false,
+        "helper_TT_payload_writes_observed": 0,
+        "native_byte_or_Loose_score_equality_claimed": false,
+        "performance_or_strength_measured": false,
+        "all_schedules_race_freedom_claimed": false,
+        "partial_create_epoch_wrap_RUNTIME_observed": false,
+        "observer_timing_stack_and_scheduling_effects_possible": true,
+        "original_handles_reaped_group_session_absent": true,
+        "forced_cleanup": false,
+        "unresolved_owned_handles": 0
+      }
     }
   }
 }

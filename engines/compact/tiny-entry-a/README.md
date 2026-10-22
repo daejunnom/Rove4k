@@ -1,3 +1,64 @@
+# Optional fixed2 A root-hint / leader Repair
+
+The default remains qualified **Loose4525 B**, with the unchanged canonical
+source, DEV control and old output/condition/names guards. Build-time opt-in:
+
+```sh
+python3 -B engines/compact/tiny-entry-a/build.py --policy root-hint-leader-repair --dev --out /absolute/new/root-build
+python3 -B engines/compact/tiny-entry-a/verify.py --policy root-hint-leader-repair --build /absolute/new/root-build --out /absolute/new/root-runtime
+```
+
+This maintained optional policy is **5151 B**, source10873/native22672/
+bootstrap11827. Its +626 B is new-policy incremental size, not an equal-search
+compression result or a strength/performance verdict. One ordinary opt-in
+`--dev` reproduced two shipping tuples byte for byte against the fixed first
+cost and two unchanged Loose DEV controls. The policy-matched selected
+verifier retained its original runtime assertions and passed quit/EOF two
+sessions, eight legal GO epochs, three startup TIDs/session, actual new
+native identity, private-path/helper/readers and physical process exit.
+A's selected verifier has no FD-list observation. Cancellation causality
+remains unproven in that original observer.
+
+Helper proposals only steer a root-edge LMR exemption; the leader always
+uses its existing h/PVS/TT path for the accepted score. Helper TT payload
+writes are blocked. Compatible NORMAL cross-worker bound reuse remains
+unfinished. Both roles use the original deadline, job epoch and callback
+lifetime, with helper drain before completed-depth acceptance. Fixed profile:
+two workers/TT18/PLY128, three total engine TIDs, no new UCI option and no
+runtime policy switch; the TT starts empty and worker roles stay fixed.
+
+The pure late helper follows output only in selected shipping. Its ten exact
+regions/eleven gaps/full inverse preserve current8821 as preimage. The outer
+literal adapter inverses to the unchanged output→condition→names chain and
+forwards inside the guarded raw-double C body. FD0 template, no-pthread/
+implicit GNU17 compiler, ALONE6/BT2/dict16KiB/nice24/header73 remain. Default
+recipe values and the selected verifier's original assertion tail are intact.
+Fresh forwards the chosen policy through both archived rebuild commands;
+this was inspected as source only, with no fresh archive execution.
+
+One fatal UBSan compile/run observed a copy of the actual maintained h/R2
+and original UCI main on natural clocked startpos/replayed positions. It
+recorded 216 ready proposals, 216 corresponding leader ply1 entries,
+216 entries passing ay, and 216 actual leader scores passing the original
+post-search stop check. The proposal>alpha LMR exemption was observed
+(9), and leader-owned TT returns after a ready proposal were
+observed (49). These are direct counters, not node-count
+coverage inference. Helper store suppression reached 25094 completed search sites;
+actual TT payload writes by the helper were 0 (unknown role 0).
+Drain checks 11 and completed-depth commits 8 had no bad drain/commit
+tokens. Active quit was observed; final open/busy/pending were zero,
+done/quitting were set, and both original worker joins succeeded. Added
+atomics/TLS/observation code can affect scheduling, timing, stack and native
+bytes. This is bounded actual-path evidence, not a same-Loose score, full
+schedule/race, partial-create/epoch-wrap runtime or performance proof.
+
+The ordinary/selected and focused original command handles were reaped
+with their groups/sessions absent, no forced cleanup and no unresolved
+owned handle. There was no product retry, new fault/negative campaign,
+playing-strength/full-core benchmark, fresh execution or CI dispatch.
+Default Loose4525 and this separate opt-in5151 remain distinct; the4KiB
+target and compatible NORMAL reuse are not completed by this policy.
+
 # A fixed-two-worker output / individual stdio locking
 
 Current selected fixed cost is **4525 B** (predecessor4541, −16 B). One ordinary

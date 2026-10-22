@@ -223,6 +223,71 @@ finite Rust shipping entry also has16,816-byte natives with new identities and
 11,108/11,476-byte scalar/HQ own-ELFs. Its normal qualification below does not
 replace the C D table or establish4KiB eligibility.
 
+## e355078 CI, H30 resources and NORMAL contract review: 2026-10-22
+
+Checkpoint e355078304a13743327cea7fc2d4908833fede4b passes both language jobs in
+[engine CI39681953418](https://github.com/daejunnom/Rove4k/actions/runs/39681953418)
+and Node22/24 in
+[repository CI39681953443](https://github.com/daejunnom/Rove4k/actions/runs/39681953443).
+All four actual checkout logs name7e3a9712b0c9586687a514419ec9faa3f3e2c7ba,
+parents761bdc0+e355078, tree938738fe697b50eac582494d080925e671a4781c,
+identical to the requested head tree. Eight actual B/C/E/F8 build/runtime
+reports confirm5006/4827/4880/4399 B and their selected positive lifetimes.
+Frozen CI index23159 B:
+`c19dc611df4a0d8751fa693b380318fc5e28d1800375a491359ea1d3ea38ad96`.
+This success covers that checkpoint; later source and policy work needs its
+own qualification.
+
+The external D scalar H30 codec keeps the fixed21 model, native7612 B and
+zero232 restored image, but expands context scratch from32 MiB to2 GiB.
+Packet4699 to4629 B and loader1137 to1139 B give whole5836 to5768 B, gain68.
+It remains1672 B above4096 and is not the maintained H24/default profile.
+Two fresh ownELF sessions pass quit/EOF, eight legal GO, three persistent TIDs,
+restored RX identity, W^X/NX, guards, stdio/children and physical exit. Startup
+ready takes1.858862/1.260983 seconds. Kernel VmHWM reaches1623040/1623168 kB,
+about1.55 GiB. The exact2 GiB RW extent is absent after ready, but overlapping
+reused address ranges prevent a syscall-level scratch-unmap claim. Initial
+BSS-zero observation, HQ H30 and final target RAM/ISA eligibility remain open.
+No product rebuild or rerun was needed for this positive lane. A post-run
+collector dictionary comparison error is preserved separately; only metadata
+collection was repaired. Frozen positive index10621 B:
+`7ff5d432edc8054541bb9b2c1452c667ebb45f422fe9a553b7c2f39979ed2034`.
+
+A subsequent source review corrects the blanket private-state-equality premise
+in the earlier A root-policy rejection below. ENGINE-PLAN section4 permits
+independent worker state, ordering diversity and compatible NORMAL results.
+Canonical C NORMAL itself uses private history/continuation/killers/id and
+order-dependent LMR; its completion consumer checks generation, first, depth
+and applicable bound, not equality of all mutable learners. Rust freezes
+evaluation correction while retaining private ordering. F deliberately has
+stronger exact-depth/no-LMR semantics. Different evaluators, restricted replies,
+role-specific extra reductions and incomplete work still cannot be mixed as
+NORMAL bounds. A full-window completed selective NORMAL result is an engine
+bound classification, not fixed-depth minimax or equality with a later leader
+re-search. Opening helper work before the first child completes is a distinct
+speculative root schedule; the plan does not mandate strict YBWC. The old
+proposal, branch witness and rejection record remain preserved. This review
+does not qualify a direct compact NORMAL implementation or relabel the separate
+hint/leader-Repair policy. External contract audit9788 B:
+`d7477c4a064847063c26a2dc0e5fdc534c8b6e7325df7202ba1d31ce9202379c`.
+
+The separate optional A root-hint/leader-Repair policy is now produced by a
+maintained build-time selector. Default Loose4525 B and its DEV control stay
+unchanged. Selected source10873/native22672/bootstrap11827/whole5151 B adds
+626 B for the new policy. Ordinary --dev reproduces both shipping tuples and
+old DEV twice; the policy-matched selected verifier passes quit/EOF, eight
+legal GO, three TIDs and physical exit. One separately instrumented fatal
+UBSan build/run of the actual h/R2 records216 ready-hint leader entries and
+216 accepted leader scores,9 LMR exemptions and49 leader-owned TT returns.
+Helper TT payload writes are zero;11 drains and8 depth commits have no bad
+tokens. Active quit finishes with pending/open/busy zero and both worker joins.
+These observations do not establish same-Loose results, compatible NORMAL
+reuse, exhaustive schedules or strength. Fresh only forwards the policy in
+source; its archive path was not executed. Frozen local index11238 B:
+`6b5dd3fee179d9d63cb18f379d287188b59d634e3a46581957c11206b83b244c`.
+The workflow adds a distinct ordinary build/selected-runtime lane for this
+opt-in. New-head CI is pending; earlier e355078 success does not cover it.
+
 ## B5006/C4827/E4880 output and late full F8: 2026-10-22
 
 The A4525/F4385 checkpoint61b0d02 passes C/Rust in

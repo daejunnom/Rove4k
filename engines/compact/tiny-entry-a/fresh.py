@@ -28,6 +28,7 @@ def sha(data):return hashlib.sha256(data).hexdigest()
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out',required=True,type=Path)
+    parser.add_argument('--policy',choices=('loose','root-hint-leader-repair'),default='loose',help='forward the same build-time policy to both archived rebuilds')
     args=parser.parse_args();out=args.out.resolve()
     if not args.out.is_absolute() or out.exists() or out==REPO or REPO in out.parents or any((p/'.git').exists() for p in (out,*out.parents)):
         parser.error('a new absolute output outside any Git checkout is required')
@@ -36,7 +37,7 @@ def main():
     if len(paths)!=len(set(paths)):raise ValueError('duplicate source path')
     out.mkdir(parents=True);raw=out/'raw-inputs';tree=out/'source-git';tree.mkdir()
     report={'complete':False,'scope':'isolated Git source archive; no project index, commits or remote used',
-            'source_paths':paths,'inputs':{},'builds':[]}
+            'policy':args.policy,'source_paths':paths,'inputs':{},'builds':[]}
     def save():(out/'fresh.json').write_text(json.dumps(report,indent=2)+'\n')
     def run(command,cwd=None):
         result=subprocess.run(command,cwd=cwd,capture_output=True,text=True,timeout=180)
@@ -74,9 +75,10 @@ def main():
                 if sha(data)!=report['inputs'][relative]['LF_sha256']:raise ValueError('Git archive source changed: '+relative)
             build=out/('build-'+str(index))
             command=[sys.executable,'-B',str(extracted/ENTRY/'build.py'),'--out',str(build),'--dev']
+            if args.policy!='loose':command+=['--policy',args.policy]
             output=run(command)
             result=json.loads((build/'build.json').read_text())
-            if not result['complete'] or not result['diagnostic_exact_control']:raise ValueError('archived builder incomplete')
+            if not result['complete'] or not result['diagnostic_exact_control'] or result.get('policy','loose')!=args.policy:raise ValueError('archived builder incomplete/policy differs')
             payload=tuple((build/name).read_bytes() for name in ('main.c','native/x','x','dev/main.c','dev/x','bootstrap.py'))
             if first is None:first=payload
             elif payload!=first:raise ValueError('independent archived checkouts produced different bytes')

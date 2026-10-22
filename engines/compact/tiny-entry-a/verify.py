@@ -27,18 +27,23 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--build',type=Path,required=True)
     parser.add_argument('--out',type=Path,required=True)
+    parser.add_argument('--policy',choices=('loose','root-hint-leader-repair'),default='loose',help='must match the explicit build-time policy')
     args=parser.parse_args();build=args.build.resolve();out=args.out.resolve()
     if not args.out.is_absolute() or out.exists() or out==REPO or REPO in out.parents or any((p/'.git').exists() for p in (out,*out.parents)):
         parser.error('a new absolute output outside any Git checkout is required')
-    recipe=json.loads((HERE/'recipe.json').read_text());expected=recipe['expected']
+    recipe=json.loads((HERE/'recipe.json').read_text());policy=args.policy
+    decision=recipe['policies'][policy] if policy!='loose' else None
+    expected=decision['expected'] if decision else recipe['expected']
+    receipt=decision['qualified_receipt'] if decision else recipe['qualified_receipt']
     built=json.loads((build/'build.json').read_text())
+    if built.get('policy','loose')!=policy:raise ValueError('selected build policy differs')
     if not built['complete']:raise ValueError('build did not complete')
     for name,key in (('x','whole'),('native/x','native'),('main.c','source')):
         if sha((build/name).read_bytes())!=expected[key+'_sha256']:raise ValueError('selected build identity differs: '+name)
     out.mkdir(parents=True);inputs=out/'inputs';inputs.mkdir()
     report={'complete':False,'scope':'fresh selected restoration, legal clocked moves, startup TIDs, quit/EOF physical fences',
-            'whole_sha256':expected['whole_sha256'],'native_sha256':expected['native_sha256'],
-            'historical_receipt_reuse':recipe['qualified_receipt'],'fresh_sessions':[],'helpers':{}}
+            'policy':policy,'whole_sha256':expected['whole_sha256'],'native_sha256':expected['native_sha256'],
+            'historical_receipt_reuse':receipt,'fresh_sessions':[],'helpers':{}}
     def save():(out/'runtime.json').write_text(json.dumps(report,indent=2)+'\n')
     save()
     for relative,pin in PINS.items():

@@ -3,7 +3,8 @@
 
 There are no experiment-directory, old build.json or executable inputs. The
 single shipping profile and LZMA-alone transport are fixed; --dev adds the
-qualified ownership-source diagnostic form.
+qualified ownership-source diagnostic form. The optional root-hint/leader-Repair
+policy has a separate descriptor and keeps the same default Loose/DEV forms.
 """
 import argparse
 import ast
@@ -48,6 +49,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out',type=Path,required=True)
     parser.add_argument('--dev',action='store_true',help='also reproduce the qualified diagnostic C and ELF')
+    parser.add_argument('--policy',choices=('loose','root-hint-leader-repair'),default='loose',help='build-time shipping policy; DEV remains the qualified Loose control')
     args=parser.parse_args();out=args.out.resolve()
     if not args.out.is_absolute() or out.exists() or out==REPO or REPO in out.parents or any((p/'.git').exists() for p in (out,*out.parents)):
         parser.error('a new absolute output outside any Git checkout is required')
@@ -59,10 +61,14 @@ def main():
     if recipe['compression']!={'format':'lzma-alone','filter':'LZMA1','preset':6,'extreme':False,'lc':2,'lp':0,'pb':0,
                               'check':'NONE','mf':'BT2','dictionary_bytes':16384,'nice_len':24,'header_hex':'0200400000ffffffffffffffff'}:
         raise ValueError('unsupported fixed LZMA-alone recipe')
+    policy=args.policy;root_policy=policy=='root-hint-leader-repair'
+    decision=recipe['policies'][policy] if root_policy else None
+    if root_policy and decision['profile']!=recipe['profile']:raise ValueError('optional policy resource profile differs')
+    receipt=decision['qualified_receipt'] if root_policy else recipe['qualified_receipt']
     out.mkdir(parents=True);frozen=out/'inputs';frozen.mkdir()
     report={'complete':False,'scope':'canonical minimal A regeneration; fixed composed bytes, not 4KiB acceptance',
-            'resources':recipe['profile'],'inputs':{},'attempts':[],
-            'qualified_receipt_reuse':recipe['qualified_receipt'],
+            'policy':policy,'resources':recipe['profile'],'inputs':{},'attempts':[],
+            'qualified_receipt_reuse':receipt,
             'tools':{name:subprocess.check_output(command,text=True).splitlines()[0] for name,command in
                      {'cc':['cc','--version'],'ld':['ld','--version'],'python':['python3','--version'],
                       'xz':['xz','--version'],'lzma':['lzma','--version']}.items()}}
@@ -113,6 +119,7 @@ def main():
         fixed_names=module('entry_A_private_names',frozen/'shipping_names.py')
         condition_form=module('entry_A_one_condition',frozen/'shipping_condition.py')
         output_form=module('entry_A_fixed_output',frozen/'shipping_output.py')
+        root_hint=module('entry_A_root_hint',frozen/'shipping_root_hint.py')
         canonical=(frozen/'engine.c').read_bytes();reference=evaluation_cache.reference_readable(canonical)
         template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
@@ -120,7 +127,7 @@ def main():
         prefix=source_package.XZ_STDIN_HEADER
         template,readonly_metadata=readonly_template(template,family='A')
         report['readonly_template']=readonly_metadata
-        expected=recipe['expected']
+        expected=decision['expected'] if root_policy else recipe['expected']
         def generate(directory,dev=False):
             preprocess_source=reference;input_metadata=None
             if dev:
@@ -172,10 +179,16 @@ def main():
                 common_metadata['shared_condition']=condition_metadata
                 data,output_metadata=output_form.transform_source(data)
                 common_metadata['fixed_output']=output_metadata
+                if root_policy:
+                    data,root_metadata=root_hint.transform_source(data)
+                    common_metadata['root_hint_leader_repair']=root_metadata
             return data,observations,alpha_metadata,storage_metadata,scope_metadata,input_metadata,declaration_metadata,type_metadata,lexical_metadata,capture_metadata,startup_metadata,global_names_metadata,continuation_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal)
-            expression=output_form.transform_literal(expression,lambda original:condition_form.transform_literal(original,fixed_names.transform_literal))
+            if root_policy:
+                expression=root_hint.transform_literal(expression,lambda current:output_form.transform_literal(current,lambda original:condition_form.transform_literal(original,fixed_names.transform_literal)))
+            else:
+                expression=output_form.transform_literal(expression,lambda original:condition_form.transform_literal(original,fixed_names.transform_literal))
             script=template.replace(marker,expression.encode())
             ast.parse(script)
             whole=source_package.package(script,recipe['compression'],prefix=prefix)
@@ -229,7 +242,7 @@ def main():
                       actual={'command':[str(out/'x')],'native':str(out/'native/x'),'source':str(out/'main.c'),
                               'whole_sha256':sha(first[2]),'native_sha256':sha(first[1]),'source_sha256':sha(first[0])},
                       diagnostic_exact_control=bool(first_dev),under_4096_bytes=False)
-        save();print(json.dumps({'complete':True,'out':str(out),'whole_bytes':len(first[2]),'source_sha256':sha(first[0]),
+        save();print(json.dumps({'complete':True,'policy':policy,'out':str(out),'whole_bytes':len(first[2]),'source_sha256':sha(first[0]),
                                 'native_sha256':sha(first[1]),'whole_sha256':sha(first[2]),'diagnostic_exact_control':bool(first_dev)}),flush=True)
     except Exception as error:
         report['error']=repr(error);save();raise
