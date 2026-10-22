@@ -80,7 +80,8 @@
     "engines/compact/tiny-entry-b/shipping_forwarders.py": "4b461982d613f39ecf94a856c7544cb74e2dcc466c415645e7c5d9814556ab64",
     "engines/compact/tiny-a/shipping_readonly.py": "6eefd6502149e620a2b681e15609ae01a4dbf41748dd2fe418c2eea84293d3a5",
     "engines/compact/tiny-entry-a/shipping_condition_bce.py": "9ca7635a6ab95de61a88482d05e37bc926c340259ff53c1d032be622183bfdab",
-    "engines/compact/tiny-entry-a/shipping_output_bce.py": "267059f7837338231aeb4ad76608bfc84382493e0bc2de74e2ebb02e77eab687"
+    "engines/compact/tiny-entry-a/shipping_output_bce.py": "267059f7837338231aeb4ad76608bfc84382493e0bc2de74e2ebb02e77eab687",
+    "engines/compact/tiny-entry-a/shipping_worker_epilogue_bce.py": "e0ab883e0fec895b66b0ef01b5ede056e05fb0bc72472cd8ac64507f2fbf82ce"
   },
   "compression": {
     "format": "lzma-alone",
@@ -97,16 +98,16 @@
   },
   "expected": {
     "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
-    "source_bytes": 10179,
-    "source_sha256": "a757c25e1a94d4a9b8986683d3fad91611ec370e0b91c64b54ed0be3bba826e5",
-    "native_bytes": 26128,
-    "native_sha256": "e237a567db7c6140a11b26d38182b53f18891fed4701bf4556160f93902bb079",
-    "whole_bytes": 5006,
-    "whole_sha256": "03b66d965f749477e36d73a0881cd085d7ea96c68d1556b04d683c43fe22aba6",
+    "source_bytes": 10152,
+    "source_sha256": "ce8d99777f61c50e44eb4a7c29783bf80b13ca9cbaeac660992eb5ebaec829df",
+    "native_bytes": 26112,
+    "native_sha256": "d85d6141c133f4186cbcfad7db71cb055e4fbd35dd59e2884d4431cc721ee3f8",
+    "whole_bytes": 4997,
+    "whole_sha256": "5e6756ce518d05c7900b6445f108055d96590df5cd6d91a84510e615a86a71e3",
     "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
     "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
-    "bootstrap_sha256": "3ea407f1e874a920c982f7a220ba3ad48149b09cf1f08de210f1fed21afaa992",
-    "bootstrap_bytes": 11208
+    "bootstrap_sha256": "5ac43f4dafe4472cb1962f801012b2f3ffa4fb291e7a2848a92e1569c12bab52",
+    "bootstrap_bytes": 11181
   },
   "local_input_sha256": {
     "engine.c": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
@@ -1431,6 +1432,245 @@
         "SAN_NVC_optional_extra_runs": 0,
         "runtime_scope": "new fixed2/TT18 candidate wrapper startup, input/GO/drain/quit/EOF and physical exit only; outer result-wide stdout exclusion/flush batching/schedules/timed nodes/results can differ; own flush before completion notify/drain remains; no injected failure, performance/RAM/strength/full qualification or new CI claim"
       }
+    },
+    "worker_epilogue": {
+      "metadata": {
+        "family": "B",
+        "stage": "late-shipping-fixed2-worker-startup-completion-epilogue",
+        "input_bytes": 10179,
+        "input_sha256": "a757c25e1a94d4a9b8986683d3fad91611ec370e0b91c64b54ed0be3bba826e5",
+        "output_bytes": 10152,
+        "output_sha256": "ce8d99777f61c50e44eb4a7c29783bf80b13ca9cbaeac660992eb5ebaec829df",
+        "raw_delta": -27,
+        "owned_regions": 3,
+        "protected_gaps": 4,
+        "full_inverse": true,
+        "all_gaps_equal": true,
+        "protected_complement_bytes": 9819,
+        "protected_complement_sha256": "841efa54932c2bfc9f3fe9be31234082dbc587c20e7ac3c0f33ded63b7a3b57d",
+        "fixed_domain": "actual fixed2/TT18/PLY128 shipping after original condition and result-output stages",
+        "actual_family_roles": {
+          "worker": "s",
+          "think": "i",
+          "result": "d",
+          "pending": "qk",
+          "ready": "qn",
+          "mutex": "qj",
+          "cond": "qb",
+          "epoch": "qd",
+          "quit": "qm",
+          "position": "ql"
+        },
+        "phase_marker": "thread-local zd*w=0 during startup; w=p under original mutex before each admitted think; original nonnull static zd[2] argument",
+        "startup_readiness": "B/E fold separate ready counter into pending=2; direct startup mutex/while(pending)/unlock; no new drain stop-store",
+        "pending_ownership": "same mutex; one startup decrement per created callback and one decrement per completed think; spurious wakes remain in inner while",
+        "publication_fence": "last completed think -> same pool lock -> pending0 -> existing result/own fflush -> broadcast -> unlock -> producer drain can pass",
+        "epoch_wrap": "unsigned epoch values independent of null-pointer startup marker; saved epoch is prior admitted job after normal drain",
+        "partial_create": "unchanged goto shutdown skips normal ending drain; quitting/broadcast and actual-created-count join; positive unused pending startup remainder need not reach zero on failure",
+        "source_inverse_chain": "worker inverse returns exact post-output source; preceding output helper retains exact post-condition inverse and original guards; no prior helper admission relaxed",
+        "startup_broadcast_executions_before_after": [
+          2,
+          1
+        ],
+        "static_broadcast_sites_before_after": [
+          4,
+          3
+        ],
+        "static_wait_sites_before_after": [
+          3,
+          3
+        ],
+        "observation_delta": "startup broadcast/wake/lock-contention/scheduling may change; fixed-deadline visit order, nodes, bestmove and runtime trace equality are not claimed",
+        "canonical_DEV": "shipping-only stage after output; canonical DEV, feature logic, stop atomics and prior admissions unchanged",
+        "native_entire_bytes_equal_to_predecessor": false,
+        "runtime_claimed_by_transform": false,
+        "external_reads": 0,
+        "compiler_codec_engine_executed_by_transform": 0
+      },
+      "predecessor_expected": {
+        "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+        "source_bytes": 10179,
+        "source_sha256": "a757c25e1a94d4a9b8986683d3fad91611ec370e0b91c64b54ed0be3bba826e5",
+        "native_bytes": 26128,
+        "native_sha256": "e237a567db7c6140a11b26d38182b53f18891fed4701bf4556160f93902bb079",
+        "whole_bytes": 5006,
+        "whole_sha256": "03b66d965f749477e36d73a0881cd085d7ea96c68d1556b04d683c43fe22aba6",
+        "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
+        "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
+        "bootstrap_sha256": "3ea407f1e874a920c982f7a220ba3ad48149b09cf1f08de210f1fed21afaa992",
+        "bootstrap_bytes": 11208
+      },
+      "firstcost": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-worker-epilogue-first-cost-20261022-evidence/B/final-index.json",
+        "bytes": 26711,
+        "sha256": "b63dd99f81cd8970b083f8169402c0bbcc20ec172bfd050befb1e7639d9c213d"
+      },
+      "normal_status": "PASS",
+      "normal_validation": {
+        "status": "PASS one ordinary --dev and unchanged selected verifier",
+        "build": {
+          "path": "/home/stemxstudio/rove4k-bce-worker-epilogue-normal-20261022-v1/B/build/build.json",
+          "bytes": 246129,
+          "sha256": "475316ee431b69d14174638ade00bcc7e9d182600bc190db9a9c779ec4cee6b3"
+        },
+        "runtime": {
+          "path": "/home/stemxstudio/rove4k-bce-worker-epilogue-normal-20261022-v1/B/runtime/runtime.json",
+          "bytes": 79210,
+          "sha256": "f3794be822f65ed843883bc6ffb9d57068a744e77466a4c6ad94ea4f35b1461b"
+        },
+        "supervisor_results": {
+          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-worker-epilogue-promotion-20261022-evidence/B/normal-results.json",
+          "bytes": 27719,
+          "sha256": "0b32d5834ca819d9e1904a1d4f29e70a3854abd405601a874d60dd8270d88707"
+        },
+        "original_handle_exit": {
+          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-worker-epilogue-promotion-20261022-evidence/B/physical-exit.json",
+          "bytes": 699,
+          "sha256": "dca38bd386ce7a8f90500112a05747bfa0c0a15a20495a751b0a5e59bc14c418"
+        },
+        "producing_recipe": {
+          "path": "/home/stemxstudio/rove4k-bce-worker-epilogue-normal-20261022-v1/B/build/inputs/recipe.json",
+          "bytes": 201490,
+          "sha256": "aaa2cf9fd9847358f6ef672f06869d8a490e25e07b293f0dbc369adeaec8995f"
+        },
+        "producing_readme": {
+          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-worker-epilogue-promotion-20261022-evidence/B/producing/engines/compact/tiny-entry-b/README.md",
+          "bytes": 81486,
+          "sha256": "7d636223c1b9240f5f37749f0f912866526543f58b1e09b3b6fc7f20f9dfd822"
+        },
+        "builder_calls": 1,
+        "shipping_reproductions": 2,
+        "unchanged_DEV_reproductions": 2,
+        "selected_verifier_calls": 1,
+        "sessions": [
+          {
+            "termination": "quit",
+            "go_calls": 4,
+            "startup_TIDs": 3,
+            "native_image_sha256": "d85d6141c133f4186cbcfad7db71cb055e4fbd35dd59e2884d4431cc721ee3f8",
+            "image_observation": {
+              "exe": "/tmp/r4-fmpfb_d1/x (deleted)",
+              "image_sha256": "d85d6141c133f4186cbcfad7db71cb055e4fbd35dd59e2884d4431cc721ee3f8",
+              "private_path_absent": true,
+              "startup_tids": [
+                708,
+                720,
+                721
+              ],
+              "children_by_tid": {
+                "720": [],
+                "721": [],
+                "708": []
+              }
+            },
+            "private_path_absent": true,
+            "returncode": 0,
+            "process_absent_at_original_settlement": true,
+            "readers_finished": true,
+            "one_closing_bestmove": true,
+            "completed": [
+              {
+                "clock": "white zero",
+                "bestmove": "g1f3"
+              },
+              {
+                "clock": "black zero",
+                "bestmove": "g8f6"
+              },
+              {
+                "clock": "bare finite default",
+                "bestmove": "b1c3",
+                "wall_seconds": 1.0296093309998469,
+                "scope": "bounded completion, not a performance benchmark"
+              }
+            ],
+            "active_search_exit": {
+              "command": "go wtime 300000 btime 300000 winc 0 binc 0",
+              "development_infinite": false,
+              "phase_before_signal": "unfinished_with_observed_work",
+              "go_posted_seconds": 1.9154502310000225,
+              "observed_seconds": 0.04148265100002391,
+              "cpu_ticks_delta": 8,
+              "search_info_observed": false,
+              "active_before_signal": true,
+              "work_evidence_scope": "whole-process CPU or engine progress; search completion and cancellation causality are unproven",
+              "cancellation_coverage": "active_search_physical_exit_observed",
+              "signal": "quit",
+              "signal_posted_seconds": 1.9569414600000528,
+              "bestmove_received_seconds": 1.9570687679999992,
+              "cancellation_causality": "unproven"
+            }
+          },
+          {
+            "termination": "EOF",
+            "go_calls": 4,
+            "startup_TIDs": 3,
+            "native_image_sha256": "d85d6141c133f4186cbcfad7db71cb055e4fbd35dd59e2884d4431cc721ee3f8",
+            "image_observation": {
+              "exe": "/tmp/r4-40ywrc2e/x (deleted)",
+              "image_sha256": "d85d6141c133f4186cbcfad7db71cb055e4fbd35dd59e2884d4431cc721ee3f8",
+              "private_path_absent": true,
+              "startup_tids": [
+                722,
+                734,
+                735
+              ],
+              "children_by_tid": {
+                "722": [],
+                "734": [],
+                "735": []
+              }
+            },
+            "private_path_absent": true,
+            "returncode": 0,
+            "process_absent_at_original_settlement": true,
+            "readers_finished": true,
+            "one_closing_bestmove": true,
+            "completed": [
+              {
+                "clock": "white zero",
+                "bestmove": "g1f3"
+              },
+              {
+                "clock": "black zero",
+                "bestmove": "g8f6"
+              },
+              {
+                "clock": "bare finite default",
+                "bestmove": "g1f3",
+                "wall_seconds": 1.0297259680000934,
+                "scope": "bounded completion, not a performance benchmark"
+              }
+            ],
+            "active_search_exit": {
+              "command": "go wtime 300000 btime 300000 winc 0 binc 0",
+              "development_infinite": false,
+              "phase_before_signal": "unfinished_with_observed_work",
+              "go_posted_seconds": 1.8563443289999668,
+              "observed_seconds": 0.04147352399991178,
+              "cpu_ticks_delta": 8,
+              "search_info_observed": false,
+              "active_before_signal": true,
+              "work_evidence_scope": "whole-process CPU or engine progress; search completion and cancellation causality are unproven",
+              "cancellation_coverage": "active_search_physical_exit_observed",
+              "signal": "EOF",
+              "signal_posted_seconds": 1.8978243909998582,
+              "bestmove_received_seconds": 1.8979456299998674,
+              "cancellation_causality": "unproven"
+            }
+          }
+        ],
+        "total_GO_calls": 8,
+        "entire_source_native_bootstrap_whole_equal_to_firstcost": true,
+        "old_DEV_entire_source_native_equal": true,
+        "source_inputs_stable_during_original_commands": true,
+        "original_handles_terminal_reaped_group_absent": true,
+        "owned_handles": 0,
+        "cost_reruns": 0,
+        "SAN_NVC_optional_fault_fresh_extra_runs": 0,
+        "runtime_scope": "new fixed2/TT18 worker epilogue wrapper startup, input/GO/drain/quit/EOF and physical exit only. Startup wake/broadcast/scheduling and fixed-deadline trace may differ. Original final-result/own-flush-before-completion/drain fence remains. Partial-create/join fault injection, epoch-wrap injection, SAN, performance/RAM/strength/full-core/new CI are not claimed; cancellation causality remains unproven."
+      },
+      "scope": "Fresh same-recipe firstcost gain; normal --dev and unchanged selected pending; no partial-create/join fault/SAN/extra qualification claim"
     }
   },
   "provenance": {
@@ -3705,5 +3945,244 @@
       "runtime_scope": "new fixed2/TT18 candidate wrapper startup, input/GO/drain/quit/EOF and physical exit only; outer result-wide stdout exclusion/flush batching/schedules/timed nodes/results can differ; own flush before completion notify/drain remains; no injected failure, performance/RAM/strength/full qualification or new CI claim"
     },
     "scope": "Fixed exact two-region result output stage. Values and line/own-flush fence retained; grouped stdout exclusion/flush batches/timed traces intentionally not preserved. New native runtime qualification pending."
+  },
+  "worker_epilogue": {
+    "metadata": {
+      "family": "B",
+      "stage": "late-shipping-fixed2-worker-startup-completion-epilogue",
+      "input_bytes": 10179,
+      "input_sha256": "a757c25e1a94d4a9b8986683d3fad91611ec370e0b91c64b54ed0be3bba826e5",
+      "output_bytes": 10152,
+      "output_sha256": "ce8d99777f61c50e44eb4a7c29783bf80b13ca9cbaeac660992eb5ebaec829df",
+      "raw_delta": -27,
+      "owned_regions": 3,
+      "protected_gaps": 4,
+      "full_inverse": true,
+      "all_gaps_equal": true,
+      "protected_complement_bytes": 9819,
+      "protected_complement_sha256": "841efa54932c2bfc9f3fe9be31234082dbc587c20e7ac3c0f33ded63b7a3b57d",
+      "fixed_domain": "actual fixed2/TT18/PLY128 shipping after original condition and result-output stages",
+      "actual_family_roles": {
+        "worker": "s",
+        "think": "i",
+        "result": "d",
+        "pending": "qk",
+        "ready": "qn",
+        "mutex": "qj",
+        "cond": "qb",
+        "epoch": "qd",
+        "quit": "qm",
+        "position": "ql"
+      },
+      "phase_marker": "thread-local zd*w=0 during startup; w=p under original mutex before each admitted think; original nonnull static zd[2] argument",
+      "startup_readiness": "B/E fold separate ready counter into pending=2; direct startup mutex/while(pending)/unlock; no new drain stop-store",
+      "pending_ownership": "same mutex; one startup decrement per created callback and one decrement per completed think; spurious wakes remain in inner while",
+      "publication_fence": "last completed think -> same pool lock -> pending0 -> existing result/own fflush -> broadcast -> unlock -> producer drain can pass",
+      "epoch_wrap": "unsigned epoch values independent of null-pointer startup marker; saved epoch is prior admitted job after normal drain",
+      "partial_create": "unchanged goto shutdown skips normal ending drain; quitting/broadcast and actual-created-count join; positive unused pending startup remainder need not reach zero on failure",
+      "source_inverse_chain": "worker inverse returns exact post-output source; preceding output helper retains exact post-condition inverse and original guards; no prior helper admission relaxed",
+      "startup_broadcast_executions_before_after": [
+        2,
+        1
+      ],
+      "static_broadcast_sites_before_after": [
+        4,
+        3
+      ],
+      "static_wait_sites_before_after": [
+        3,
+        3
+      ],
+      "observation_delta": "startup broadcast/wake/lock-contention/scheduling may change; fixed-deadline visit order, nodes, bestmove and runtime trace equality are not claimed",
+      "canonical_DEV": "shipping-only stage after output; canonical DEV, feature logic, stop atomics and prior admissions unchanged",
+      "native_entire_bytes_equal_to_predecessor": false,
+      "runtime_claimed_by_transform": false,
+      "external_reads": 0,
+      "compiler_codec_engine_executed_by_transform": 0
+    },
+    "predecessor_expected": {
+      "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+      "source_bytes": 10179,
+      "source_sha256": "a757c25e1a94d4a9b8986683d3fad91611ec370e0b91c64b54ed0be3bba826e5",
+      "native_bytes": 26128,
+      "native_sha256": "e237a567db7c6140a11b26d38182b53f18891fed4701bf4556160f93902bb079",
+      "whole_bytes": 5006,
+      "whole_sha256": "03b66d965f749477e36d73a0881cd085d7ea96c68d1556b04d683c43fe22aba6",
+      "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
+      "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
+      "bootstrap_sha256": "3ea407f1e874a920c982f7a220ba3ad48149b09cf1f08de210f1fed21afaa992",
+      "bootstrap_bytes": 11208
+    },
+    "firstcost": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-worker-epilogue-first-cost-20261022-evidence/B/final-index.json",
+      "bytes": 26711,
+      "sha256": "b63dd99f81cd8970b083f8169402c0bbcc20ec172bfd050befb1e7639d9c213d"
+    },
+    "normal_status": "PASS",
+    "normal_validation": {
+      "status": "PASS one ordinary --dev and unchanged selected verifier",
+      "build": {
+        "path": "/home/stemxstudio/rove4k-bce-worker-epilogue-normal-20261022-v1/B/build/build.json",
+        "bytes": 246129,
+        "sha256": "475316ee431b69d14174638ade00bcc7e9d182600bc190db9a9c779ec4cee6b3"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-bce-worker-epilogue-normal-20261022-v1/B/runtime/runtime.json",
+        "bytes": 79210,
+        "sha256": "f3794be822f65ed843883bc6ffb9d57068a744e77466a4c6ad94ea4f35b1461b"
+      },
+      "supervisor_results": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-worker-epilogue-promotion-20261022-evidence/B/normal-results.json",
+        "bytes": 27719,
+        "sha256": "0b32d5834ca819d9e1904a1d4f29e70a3854abd405601a874d60dd8270d88707"
+      },
+      "original_handle_exit": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-worker-epilogue-promotion-20261022-evidence/B/physical-exit.json",
+        "bytes": 699,
+        "sha256": "dca38bd386ce7a8f90500112a05747bfa0c0a15a20495a751b0a5e59bc14c418"
+      },
+      "producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-bce-worker-epilogue-normal-20261022-v1/B/build/inputs/recipe.json",
+        "bytes": 201490,
+        "sha256": "aaa2cf9fd9847358f6ef672f06869d8a490e25e07b293f0dbc369adeaec8995f"
+      },
+      "producing_readme": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-worker-epilogue-promotion-20261022-evidence/B/producing/engines/compact/tiny-entry-b/README.md",
+        "bytes": 81486,
+        "sha256": "7d636223c1b9240f5f37749f0f912866526543f58b1e09b3b6fc7f20f9dfd822"
+      },
+      "builder_calls": 1,
+      "shipping_reproductions": 2,
+      "unchanged_DEV_reproductions": 2,
+      "selected_verifier_calls": 1,
+      "sessions": [
+        {
+          "termination": "quit",
+          "go_calls": 4,
+          "startup_TIDs": 3,
+          "native_image_sha256": "d85d6141c133f4186cbcfad7db71cb055e4fbd35dd59e2884d4431cc721ee3f8",
+          "image_observation": {
+            "exe": "/tmp/r4-fmpfb_d1/x (deleted)",
+            "image_sha256": "d85d6141c133f4186cbcfad7db71cb055e4fbd35dd59e2884d4431cc721ee3f8",
+            "private_path_absent": true,
+            "startup_tids": [
+              708,
+              720,
+              721
+            ],
+            "children_by_tid": {
+              "720": [],
+              "721": [],
+              "708": []
+            }
+          },
+          "private_path_absent": true,
+          "returncode": 0,
+          "process_absent_at_original_settlement": true,
+          "readers_finished": true,
+          "one_closing_bestmove": true,
+          "completed": [
+            {
+              "clock": "white zero",
+              "bestmove": "g1f3"
+            },
+            {
+              "clock": "black zero",
+              "bestmove": "g8f6"
+            },
+            {
+              "clock": "bare finite default",
+              "bestmove": "b1c3",
+              "wall_seconds": 1.0296093309998469,
+              "scope": "bounded completion, not a performance benchmark"
+            }
+          ],
+          "active_search_exit": {
+            "command": "go wtime 300000 btime 300000 winc 0 binc 0",
+            "development_infinite": false,
+            "phase_before_signal": "unfinished_with_observed_work",
+            "go_posted_seconds": 1.9154502310000225,
+            "observed_seconds": 0.04148265100002391,
+            "cpu_ticks_delta": 8,
+            "search_info_observed": false,
+            "active_before_signal": true,
+            "work_evidence_scope": "whole-process CPU or engine progress; search completion and cancellation causality are unproven",
+            "cancellation_coverage": "active_search_physical_exit_observed",
+            "signal": "quit",
+            "signal_posted_seconds": 1.9569414600000528,
+            "bestmove_received_seconds": 1.9570687679999992,
+            "cancellation_causality": "unproven"
+          }
+        },
+        {
+          "termination": "EOF",
+          "go_calls": 4,
+          "startup_TIDs": 3,
+          "native_image_sha256": "d85d6141c133f4186cbcfad7db71cb055e4fbd35dd59e2884d4431cc721ee3f8",
+          "image_observation": {
+            "exe": "/tmp/r4-40ywrc2e/x (deleted)",
+            "image_sha256": "d85d6141c133f4186cbcfad7db71cb055e4fbd35dd59e2884d4431cc721ee3f8",
+            "private_path_absent": true,
+            "startup_tids": [
+              722,
+              734,
+              735
+            ],
+            "children_by_tid": {
+              "722": [],
+              "734": [],
+              "735": []
+            }
+          },
+          "private_path_absent": true,
+          "returncode": 0,
+          "process_absent_at_original_settlement": true,
+          "readers_finished": true,
+          "one_closing_bestmove": true,
+          "completed": [
+            {
+              "clock": "white zero",
+              "bestmove": "g1f3"
+            },
+            {
+              "clock": "black zero",
+              "bestmove": "g8f6"
+            },
+            {
+              "clock": "bare finite default",
+              "bestmove": "g1f3",
+              "wall_seconds": 1.0297259680000934,
+              "scope": "bounded completion, not a performance benchmark"
+            }
+          ],
+          "active_search_exit": {
+            "command": "go wtime 300000 btime 300000 winc 0 binc 0",
+            "development_infinite": false,
+            "phase_before_signal": "unfinished_with_observed_work",
+            "go_posted_seconds": 1.8563443289999668,
+            "observed_seconds": 0.04147352399991178,
+            "cpu_ticks_delta": 8,
+            "search_info_observed": false,
+            "active_before_signal": true,
+            "work_evidence_scope": "whole-process CPU or engine progress; search completion and cancellation causality are unproven",
+            "cancellation_coverage": "active_search_physical_exit_observed",
+            "signal": "EOF",
+            "signal_posted_seconds": 1.8978243909998582,
+            "bestmove_received_seconds": 1.8979456299998674,
+            "cancellation_causality": "unproven"
+          }
+        }
+      ],
+      "total_GO_calls": 8,
+      "entire_source_native_bootstrap_whole_equal_to_firstcost": true,
+      "old_DEV_entire_source_native_equal": true,
+      "source_inputs_stable_during_original_commands": true,
+      "original_handles_terminal_reaped_group_absent": true,
+      "owned_handles": 0,
+      "cost_reruns": 0,
+      "SAN_NVC_optional_fault_fresh_extra_runs": 0,
+      "runtime_scope": "new fixed2/TT18 worker epilogue wrapper startup, input/GO/drain/quit/EOF and physical exit only. Startup wake/broadcast/scheduling and fixed-deadline trace may differ. Original final-result/own-flush-before-completion/drain fence remains. Partial-create/join fault injection, epoch-wrap injection, SAN, performance/RAM/strength/full-core/new CI are not claimed; cancellation causality remains unproven."
+    },
+    "scope": "Fresh same-recipe firstcost gain; normal --dev and unchanged selected pending; no partial-create/join fault/SAN/extra qualification claim"
   }
 }

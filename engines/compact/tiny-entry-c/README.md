@@ -950,3 +950,41 @@ B→C→E 순서로 각 ordinary+selected를 한 번씩 수행했으며 late PID
 기존 runtime ancestry와 새 이미지 검증을 구분한다. 이 결과는 좁은 selected 경로의
 근거이며 grouped flush/timed trace 동일성, 성능·RAM·기력·전체 qualification이나 새 CI
 성공을 뜻하지 않는다. 추가 SAN/NVC/codec검색/fault campaign/학습/선택 소비자는0이다.
+
+
+## 공통 worker 시작·완료 epilogue 공유
+
+새 pure `../tiny-entry-a/shipping_worker_epilogue_bce.py`를 기존 condition/output
+chain 뒤 shipping에만 연결했다. 현재 소스 9700→9666 B,
+native 26184→26184 B, 실제 73 B launcher를 포함한 whole
+4827→4825 B이다. Source SHA `8d589012454fa7810b11c58a3eeea870da0ae7c56f906e65c17be9c167ed25ee`,
+whole SHA `38ad8788abbef2fae1a83a7acc4950bec6a8d024168f77dbe5cca51aeebc3672`를 고정했다.
+
+worker local `w=0`이 startup만 표시하고 첫 epoch admission 전에 원래 static
+worker 인자 p를 같은 mutex 아래 대입한다. Startup과 완료의 pending 감소·마지막
+방송을 공유한다. B/E는 별도 ready 대신 pending=2와 직접 startup wait를 쓰며
+새 U() 호출과 stopped store는 추가하지 않는다. C의 기존 pending/V startup은 유지한다.
+Startup broadcast 2→1이므로 wake·lock 경합·고정 deadline의 탐색 순서는 달라질 수 있다.
+최종 완료의 기존 result/own fflush 뒤 broadcast와 drain fence를 보존한다.
+
+정확한 span/gap/complement hash와 full literal inverse가 post-output 소스로 돌아가며,
+그 앞 output/condition의 원래 가드·역변환 체인은 유지한다. Canonical/DEV, B SEE/singular,
+C 실제 SIMD, E untrained E19/model order, 공통 HCE/PVS/QS/full TT/learners/rules는
+변경 외 바이트다. 부분 생성 실패는 기존 shutdown jump로 ending drain을 건너뛰고 실제
+생성 수만 join한다는 소스 검토 범위이며 주입 실행은 하지 않았다.
+
+WORKER_EPILOGUE_NORMAL_PASS: ordinary --dev를 한 번 실행하여 shipping 두 번과 기존 DEV
+두 번을 재생성했다. Source/native/bootstrap/whole 전체는 고정 firstcost bytes와
+같고 DEV source/native 전체는 실제 이전 output baseline과 같다. Unchanged selected는
+새 실제 wrapper의 quit/EOF 두 session, 합계 여덟 GO, 각 main+두 worker의 3TID를
+확인했다. 새 native image·private-path 제거·closing bestmove·reader 완료·물리
+종료와 원 handle terminal0/reaped/당시 group 부재/강제정리0/owned0을 기록했다.
+B→C→E 순서로 ordinary+selected를 각 한 번 수행했으며 새 owner outer TERM/KILL
+grace는20초다. 원 runtime helper·verifier PINS/assertions는 그대로다. Build SHA
+`bd68321b335c6d9bb27881af46d97f9efca9bf480c169e8392c604350acd1f6f`, runtime SHA
+`19d82c48f5568988f4dc92a0b89db29000221ff4ef0619b99a708595aa0ce660`이다. Producing recipe SHA는
+`2c71aa748999690e259bbdede6196187c2731d56d71003226e8aca3cbbf16c24`이며 최종 recipe/README 차이는 완료 주석뿐이다.
+Startup broadcast/wake와 고정 deadline의 방문·결과 trace 동일성은 주장하지 않는다.
+cancellation causality는 unproven이며 partial-create/join fault·epoch wrap 주입,
+SAN·추가 fresh·학습·성능·RAM·기력·전체 core qualification·새 CI는 실행/주장하지 않았다.
+Firstcost는 family당 compile/encode 각1이며 baseline 재측정·추가 후보·cost 재실행은0이다.

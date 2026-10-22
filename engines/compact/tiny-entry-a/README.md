@@ -52,9 +52,9 @@ atomics/TLS/observation code can affect scheduling, timing, stack and native
 bytes. This is bounded actual-path evidence, not a same-Loose score, full
 schedule/race, partial-create/epoch-wrap runtime or performance proof.
 
-The ordinary/selected and focused original command handles were reaped
-with their groups/sessions absent, no forced cleanup and no unresolved
-owned handle. There was no product retry, new fault/negative campaign,
+The ordinary/selected original command handles were reaped with their
+groups absent. The focused handles also recorded session absence. Both
+phases had no forced cleanup or unresolved owned handle. There was no product retry, new fault/negative campaign,
 playing-strength/full-core benchmark, fresh execution or CI dispatch.
 Default Loose4525 and this separate opt-in5151 remain distinct; the4KiB
 target and compatible NORMAL reuse are not completed by this policy.

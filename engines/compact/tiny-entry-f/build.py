@@ -186,6 +186,7 @@ def main():
         condition_form=module('entry_F_one_condition',frozen/'shipping_condition.py')
         walker_form=module('entry_F_direct_walker',frozen/'shipping_walker.py')
         integer_expressions=module('entry_F_integer_expressions',frozen/'shipping_integer_expressions.py')
+        square_successor=module('entry_F_square_successor',frozen/'shipping_square_successor.py')
         # Keep this base for every unchanged shipping readable/spelling guard.
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
@@ -287,6 +288,8 @@ def main():
                     full_common_metadata['direct_walker']=walker_metadata
                     full_reference,integer_metadata=integer_expressions.transform_source(full_reference)
                     full_common_metadata['fixed_integer_expressions']=integer_metadata
+                    full_reference,successor_metadata=square_successor.transform_source(full_reference)
+                    full_common_metadata['valid_square_successor']=successor_metadata
                     if len(full_reference)!=full_expected['source_bytes'] or sha(full_reference)!=full_expected['source_sha256']:
                         raise ValueError('default full-F source generation changed')
                     data,policy_metadata=material_noise(data)
@@ -373,9 +376,14 @@ def main():
                     common_metadata['direct_walker']=walker_metadata
                     data,integer_metadata=integer_expressions.transform_source(data)
                     common_metadata['fixed_integer_expressions']=integer_metadata
+                    data,successor_metadata=square_successor.transform_source(data)
+                    common_metadata['valid_square_successor']=successor_metadata
             return data,observations,counters,alpha_metadata,storage_metadata,scope_metadata,member_metadata,semantic_metadata,input_metadata,declaration_metadata,hce_metadata,type_metadata,unit_bound_metadata,startup_metadata,global_names_metadata,capture_metadata,policy_metadata,material_names_metadata,material_capture_metadata,move_tt_metadata,move_tt_names_metadata,expressions_metadata,common_metadata,before_names
         def package(source):
-            expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())
+            previous_literal=lambda data:common.source_literal(data,literal)
+            expression,_=(square_successor.source_literal(source,previous_literal) if args.policy=='full'
+                          else previous_literal(source))
+            script=template.replace(marker,expression.encode())
             ast.parse(script)
             data=source_package.package(script,compression,prefix=prefix)
             return data,script

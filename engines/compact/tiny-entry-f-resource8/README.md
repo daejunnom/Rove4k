@@ -1,3 +1,41 @@
+# F8 v3: current full-F board-successor base, all eight search workers
+
+Class `full-F-late-fixed-resource8-TT18-v3` consumes exact ordinary full-F2
+C8360/b4e8f796... after the valid-square successor stage. Six resource roles,
+seven protected gaps and full inverse produce F8 C8385/a9237511... (+25 versus
+F2, -25 versus old F8v2). No names transform is replayed. Eight search workers
+plus main, TT18, full HCE/MTD/TT/learners/rules and existing protocol remain.
+
+One fixed candidate cost measured **4392 B**, versus v2 **4399 B** at the same
+F8 ALONE6/BT2/16KiB/lc2/lp0/pb0/nice24/header73. Native18576/d2bec657... and
+bootstrap9317/f80376e2... changed; old/new strict Python and CLI restoration
+passed. F2's nice16 size is a separate comparison. Fresh ordinary build
+(two reproductions) and strictpositive passed; v2 success remains historical.
+
+Verifier code changes only class/base-stage metadata and its error message.
+Original stable9 idle count/state wait precedes strict FD/children inspection;
+strict FD0/1/2, no children, global no-WX, nonexec main[stack], raw maps,
+8-worker active CPU, legal GO/result/drain and quit/EOF physical-exit checks
+remain. The actual F8 path DOES NOT assert eight worker guard-stack counts or
+sizes: that D-specific layout snapshot is not called. Raw maps are observations,
+not a positive eight-guard qualification. No assertion is relaxed or added.
+
+Original v2 first-cost handler-restoration supervisor exit1 and its artifacts
+remain preserved separately from its later successful normal run. This v3
+uses its own source/cost/normal evidence; no full4KiB/strength/scaling/peakstack
+or generic timing/cancellation-causality acceptance follows from these checks.
+
+<!-- F8_V3_COMPLETION:PASS -->
+One ordinary builder reproduced source/native/bootstrap/whole twice with all
+four entire artifacts equal to the fresh fixed cost. Strictpositive quit/EOF
+sessions observed8 legal GO,9 persistent TIDs and all8 workers active with
+positive CPU deltas. Stable idle count/state precedes strict FD/children checks;
+original global no-WX/mainstack nonexec, raw-map and physical-exit assertions
+passed. Eight worker guard-count/size remains unverified. Original owner2
+commands returned0/reaped/group-absent with no forced cleanup or late PID gate.
+This4392 B profile remains296 B above4096; source/resource/protocol checks do
+not establish tournament strength/scaling/peakstack or cancellation causality.
+
 # Maintained F8 v2 late-full source — 4399 B, 2026-10-22
 
 This explicit v2 consumes ordinary fullF2 final main.c8385/acae5c84... after

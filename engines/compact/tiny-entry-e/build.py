@@ -106,6 +106,7 @@ def main():
         terminal_sharing=module('entry_E_terminal_sharing',frozen/'newshipping_terminal.py').transform_source
         condition_sharing=module('entry_BCE_condition_sharing',frozen/'shipping_condition_bce.py').transform_source
         output_sharing=module('entry_BCE_output_sharing',frozen/'shipping_output_bce.py').transform_source
+        worker_epilogue=module('entry_BCE_worker_epilogue',frozen/'shipping_worker_epilogue_bce.py').transform_source
         alpha=module('entry_fixed_shipping_alpha',frozen/'fixed_shipping_alpha.py').transform_source
         scope=module('entry_fixed_scope_names',frozen/'shipping_scope.py').transform_source
         core=module('entry_fixed_shipping_core',frozen/'shipping_core.py').transform_source
@@ -173,6 +174,8 @@ def main():
                 common_metadata['condition_sharing']=condition_metadata
                 data,output_metadata=output_sharing(data,family='E')
                 common_metadata['output_sharing']=output_metadata
+                data,worker_metadata=worker_epilogue(data,family='E')
+                common_metadata['worker_epilogue']=worker_metadata
             return data,observations,alpha_metadata,scope_metadata,core_metadata,input_metadata,model_metadata,type_metadata,global_names_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())

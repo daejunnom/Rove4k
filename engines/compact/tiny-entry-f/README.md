@@ -1,3 +1,57 @@
+# Maintained F full4378 — ordered valid-square successor, 2026-10-22
+
+The fixed source candidate reduces full4385 to4378 B (-7),282 B above4096.
+Pure `shipping_square_successor.py` follows the unchanged integer-expression
+stage: C8385->8360 (-25), bootstrap9307->9282 (-25). Native18576 length ties
+but its bytes change to a9e5d648...; .text6985->6986 (+1). Source review and
+cost do not establish native equivalence, runtime qualification or performance.
+
+Exactly af and shared T outer traversal advance by `(index+9)&~8`.
+They visit the same ordered64 valid0x88 squares and exit128; the largest
+addition result is128. Two spans/three protected gaps/8304 complement bytes
+and full inverse retain all bodies, ray/offset paths, early returns, continue
+paths, emitters and castling recursion. Full HCE/learners/full-key score-bound
+TT/MTD/SMP/rules/parser/stop atomics/protocol remain byte-protected. The new
+literal adapter restores8385, consumes the previous common/pack literal path,
+then forwards only the source interior and verifies AST bytes and full inverse.
+The existing integer guard is still consumed first during source generation.
+
+ONE firstcost used candidatecompile1/encode1, baseline0/0, strictPython2 and
+actual xz CLI2 exact source/bootstrap/compiler/EOF/trailing restoration. The
+compiler remains implicit GNU17 cc -Os -pthread; fullnice16/BT2/dict16KiB/
+lc2lp0pb0, FD0 template937 and73-byte header are unchanged. The three original
+Popen handles settled naturally: terminal/reaped/group absent, forced0/owned0.
+DEV and selected optional4319/4045 bypass this stage; their declared expected
+tuples are unchanged. Separate optional full_reference explicitly advances
+through successor8360; no new optional normal/runtime validation is claimed.
+F8's maintained source is owned separately; this F change performs F8 execution
+or composition0, and its existing qualifications are not transferred.
+
+One ordinary full --dev reproduced shipping2 to the exact firstcost tuple and
+unchanged DEV2; root/attempt1/attempt2 pre-name8538/47353... stayed byte-exact.
+One unchanged selected verifier passed quit/EOF2 sessions8 legal GO, stable3
+TIDs, exact restored new native, private path/helper absence and physical
+reader/process exit. Original build PID611 and verifier PID654 both returned0,
+reaped with owned group absent, forced0/owned0. Runtime cancellation causality
+remains unproven; the existing verifier has no FD-list inspection. The two
+normal stages ran while root-authorized BCE work could use two other workers;
+this is not a performance comparison. F8runtime waited separately.
+
+Producing builder/helper/recipe/60-file input pins remain frozen externally.
+Final recipe and README only annotate these completed receipts; expected bytes
+and producing code do not change. Optional policy expected tuples and DEV
+controls remain unchanged, without new optional normal/runtime calls here.
+Fresh-extra/SAN/NVC/oldbaseline rerun/fault/product failure/retry are all0.
+No many-core, strength, performance or complete core acceptance is claimed.
+
+Actual full: /home/stemxstudio/rove4k-f-valid-square-successor-promotion-20261022-v1/full/build;
+build SHA f01f20dbd97a3dee4be4ec8b6e9736902e236e697700f6247547e40bf23be8b4;
+runtime SHA 6c45f08cdc7b61887983eca304daf79026b5b32d3dce064d3af8ba958d273294.
+
+External evidence: rove4k-f-valid-square-successor-source-20261022-evidence,
+rove4k-f-valid-square-successor-first-cost-20261022-evidence and
+rove4k-f-valid-square-successor-promotion-20261022-evidence.
+
 # Maintained F full4385 — fixed integer expressions, 2026-10-22
 
 The ONE fixed source candidate reduces4396->4385 B (-11),289 B above4096.
