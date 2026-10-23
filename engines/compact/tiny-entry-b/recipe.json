@@ -84,7 +84,8 @@
     "engines/compact/tiny-entry-a/shipping_worker_epilogue_bce.py": "e0ab883e0fec895b66b0ef01b5ede056e05fb0bc72472cd8ac64507f2fbf82ce",
     "engines/compact/tiny-entry-a/shipping_setter_phase_bce.py": "9d1985e0c798b59b553a6bee1176fb4f19f9b053da9ecf4243812370e64591d2",
     "engines/compact/tiny-entry-a/shipping_constants_bce.py": "02d0411887e7f04042e4ef94c876c32d2469b6d26f056c63dbf1235a93fc052c",
-    "engines/compact/tiny-entry-b/shipping_int_alias.py": "a4b7fb837adf9c4e9087577d60836f8b126733a15f8735ae16ee09f0df606164"
+    "engines/compact/tiny-entry-b/shipping_int_alias.py": "a4b7fb837adf9c4e9087577d60836f8b126733a15f8735ae16ee09f0df606164",
+    "engines/compact/tiny-entry-b/shipping_ep_maker.py": "b5a509c4c2179a6200c152401540f0af45d511bceedca2091a09e2124708cada"
   },
   "compression": {
     "format": "lzma-alone",
@@ -101,16 +102,16 @@
   },
   "expected": {
     "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
-    "source_bytes": 9797,
-    "source_sha256": "6a29540d10a0b1e50650e197d485165851dd6d6b882faa31be3ecdc690f7ec14",
+    "source_bytes": 9759,
+    "source_sha256": "1bc4d0f68300913c8bdf4edbe55b8d79082f9ac198b53619ab5d42169e094e87",
     "native_bytes": 26112,
-    "native_sha256": "274bf31cea5aced3f0c636c87c66bebc8845c64b2ddfa25dcc309314c2fa972d",
-    "whole_bytes": 4954,
-    "whole_sha256": "990559be5bd3ae96ebc9dff28d5780f65ec8e6184aa9fe6b326c3118229d7409",
+    "native_sha256": "962a7e2be52ee84d5ca3112b95a483fe62efe90a7f978f557d57cf870b86be73",
+    "whole_bytes": 4950,
+    "whole_sha256": "47fa3140f96eda35ac3048d72239b53ed344ae2e19397a3fa06904f1166d21de",
     "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
     "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
-    "bootstrap_sha256": "1ea8e7cd249c6b8648eeb579635fa5efc1ecc36467d98ed59d25b7d15919936a",
-    "bootstrap_bytes": 10826
+    "bootstrap_sha256": "9fce730960221db6c567821e12eca135a1e3b441d70cedb3d8401d4ce9bbe548",
+    "bootstrap_bytes": 10788
   },
   "local_input_sha256": {
     "engine.c": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
@@ -4671,6 +4672,51 @@
       "original_handles_terminal_reaped_anchored_group_absent_forced0_owned0": true,
       "source_closure_stable_during_commands": true,
       "scope": "Actual B4954 wrapper startup/GO/drain/quit/EOF and physical exit. Entire preceding native bytes retained. Existing legal-LVA shipping and distinct old full-minimax DEV model flags preserved; actual DEV reproduction is diagnostic reference only. No FD observer/cancellation causality/performance/RAM/strength/extra qualification claim."
+    }
+  },
+  "ep_maker": {
+    "helper": "engines/compact/tiny-entry-b/shipping_ep_maker.py",
+    "helper_sha256": "b5a509c4c2179a6200c152401540f0af45d511bceedca2091a09e2124708cada",
+    "metadata": {
+      "family": "B",
+      "stage": "late-shipping-EP-normalizer-reuses-legal-maker",
+      "input_bytes": 9797,
+      "input_sha256": "6a29540d10a0b1e50650e197d485165851dd6d6b882faa31be3ecdc690f7ec14",
+      "output_bytes": 9759,
+      "output_sha256": "1bc4d0f68300913c8bdf4edbe55b8d79082f9ac198b53619ab5d42169e094e87",
+      "raw_delta": -38,
+      "owned_regions": 1,
+      "protected_gaps": 2,
+      "full_inverse": true,
+      "actual_C_solecaller": "h after completed piece updates and king safety, before state-hash/context finalization",
+      "domain": "e>=0 follows a valid generated/legal double pawn push; empty EP target/victim pawn/half0; ownpawn filter",
+      "legal_EP_return": 101,
+      "nonzero_only": true,
+      "nested_termination": "inner EP h sets e=-1; nested C returns immediately",
+      "private_observation": "victim/own-pawn removal order changes; completed b/bb/k legality preserved; inner h/r/half/rights discarded",
+      "source_other_bytes_unchanged": true,
+      "canonical_DEV_guards_model_flags_unchanged": true,
+      "native_entire_equal": false,
+      "extra_time_atomic_TT_learner_callbacks": false,
+      "timed_trace_performance_stack_size_equivalence_claimed": false,
+      "literal_inverse_adapter_required": false
+    },
+    "first_cost": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-b-ep-maker-first-cost-20261024-evidence/final-index.json",
+      "bytes": 8162,
+      "sha256": "76cc3039ea4cd567c43ed4cd7212052f6499120eca06664e8e4ff23fce2a2290"
+    },
+    "source_proof": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-b-ep-maker-first-cost-20261024-evidence/source-proof.json",
+      "bytes": 2940,
+      "sha256": "3704e8f0e08303190c2324da22b284e12bff5a01dbc67ef61ac7880aecf08d67"
+    },
+    "source_other_bytes_unchanged": true,
+    "actual_native_changed": true,
+    "normal_validation": {
+      "status": "pending actual EP/legal-maker focused and ordinary --dev/unchanged selected",
+      "previous_DEV_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
+      "previous_DEV_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30"
     }
   }
 }

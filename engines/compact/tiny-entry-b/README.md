@@ -1,3 +1,38 @@
+# Maintained B: EP normalization reuses the legal maker — 2026-10-24
+
+기존 int alias 뒤 shipping 전용 `shipping_ep_maker.py`가 EP 정규화 C의
+Board 복사·세 setter 호출·왕 공격 검사를 실제 legal maker h로 공유한다.
+고정 source9797→9759 B, bootstrap10826→10788 B, 전체4954→4950 B(-4 B)다.
+Native는26112 B로 크기가 같고 SHA는
+`962a7e2be52ee84d5ca3112b95a483fe62efe90a7f978f557d57cf870b86be73`로 바뀌었다.
+`.text`는92 B 줄었으며 whole SHA는
+`47fa3140f96eda35ac3048d72239b53ed344ae2e19397a3fa06904f1166d21de`다.
+
+실제 C는 h의 king-safety 뒤, metadata hash/context 최종화 전에만 호출된다.
+e>=0이면 생성·검증된 double pawn push 뒤의 빈 EP target/victim pawn/half0이다.
+합법 EP의 h 반환101을 nonzero로 소비한다. Inner h는 EP에서 e=-1을 설정하므로
+nested C가 즉시 끝나며 half는0→1→0이다. B의 mailbox·bitboard·king 일치를
+유지해야 하며 다른 가족의 mailbox-only scratch 가정을 적용하지 않는다.
+이전 scratch는 own pawn→victim, 새 maker는 victim→own pawn 순서로 제거한다.
+서로 다른 세 칸과 완료된 공격 판정만 사용하므로 실제 도메인의 합산/XOR는 교환 가능하다.
+Inner scratch의 h/r/half/rights는 버리는 private 값이고 완성된 child/key로 게시하지 않는다.
+새 time/atomic/TT/learner 접점은 없으나 추가 maker 작업·stack·타이밍과 시간제
+nodes/depth/result 동일성·성능·기력 우월성은 주장하지 않는다.
+
+단일 exact span/두 보호 gap과 전체 inverse를 검증한다. SEE legal-LVA/incomplete
+stop·singular same-position/excluded·full-key TT·세 heuristic·SMP·promotion tactical
+bit·입력 처리의 다른 source bytes, 정본, 기존 guards와 DEV/model flags는 보존한다.
+기존 common literal은 새 C bytes를 그대로 소비하므로 별도 literal inverse adapter는
+필요 없다. Compiler/codec nice32·73 B header·FD0 template은 이전과 같다.
+ONE firstcost는 기준선 compile/encode0, 후보 각1과 strict Python2/CLI2 전체복원,
+EOF/trailing0을 통과했고 원 outer/child가 terminal/reaped/group 부재/forced0/owned0이다.
+
+EP_MAKER_VALIDATION_PENDING: actual old/new EP·legal-maker focused와 일반 --dev 재현,
+unchanged selected를 새 실제 native에서 확인할 예정이다. Native identity가 바뀌었으므로
+이전 성공을 새 image의 검증으로 상속하지 않는다.
+
+## 이전 단계 기록
+
 # Maintained B: one pool condition — 2026-10-22
 
 The fixed first-cost complete file is **5023 B**, source

@@ -117,6 +117,7 @@ def main():
         setter_phase=module('entry_BCE_setter_phase',frozen/'shipping_setter_phase_bce.py').transform_source
         constants=module('entry_BCE_constants',frozen/'shipping_constants_bce.py').transform_source
         int_alias=module('entry_B_int_alias',frozen/'shipping_int_alias.py').transform_source
+        ep_maker=module('entry_B_EP_maker',frozen/'shipping_ep_maker.py').transform_source
         source_package=module('entry_B_source_package',frozen/'source_package.py')
         readonly_template=module('entry_readonly_template',frozen/'shipping_readonly.py').transform_template
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
@@ -192,6 +193,8 @@ def main():
                 common_metadata['constants']=constants_metadata
                 data,int_alias_metadata=int_alias(data)
                 common_metadata['int_alias']=int_alias_metadata
+                data,ep_metadata=ep_maker(data)
+                common_metadata['ep_maker']=ep_metadata
             return data,observations,alpha_metadata,storage_metadata,scope_metadata,core_metadata,input_metadata,order_metadata,walk_metadata,tactical_metadata,type_metadata,global_names_metadata,recapture_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())
