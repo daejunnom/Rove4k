@@ -1,3 +1,44 @@
+# Maintained F full4353 — four fixed local spellings, 2026-10-24
+
+Pure `shipping_four_locals.py` follows the return-token stage. Only four
+bindings change: emitter zA→c (2 tokens), to→g (3), MTD yk→b (7), and fallback
+fb→b (2). Source8167→8153 (−14), bootstrap9089→9075, whole4369→4353 (−16).
+Entire native18576/a9e5d648... stays byte-identical. Whole4353 is257 B above4096.
+
+Existing project AST checks preserve all251 declaration shapes except these
+names and2310 reference edges. Three fixed MOVE/PROMO argument bridges retain
+the owned definitions without #/##. Other edits retain physical declaration
+ownership; fourteen edits/fifteen protected gaps/full inverse are closed.
+No allocator, upstream implementation, AST tool or report is a build input.
+
+Packaging restores8153→8167, consumes the actual return→successor→common→
+pack-stream literal chain, then forwards only the source interior. No guard
+is bypassed. Canonical/DEV, actual optional4319/4045, resources, compiler,
+bootstrap control flow, header73 and ALONE BT2/dict16KiB/nice16/lc2lp0pb0 stay
+unchanged. Optional full_reference now checks8153. F8 has a separately owned
+incoming-consumer revision and is not qualified by this full-F run.
+
+External source/cost index4e536ae786b5d518c9d5321a7e186faef48c21c374d5dcc5e80d3be4abf033bf.
+Actual /home/stemxstudio/rove4k-f-four-locals-{source,cost}-20261024.
+One full ordinary --dev invocation reproduced exact shipping2 and unchanged
+DEV2. The unchanged selected verifier passed new4353 quit/EOF2 sessions,
+8 legal GO epochs and stable3 startup TIDs, restored the exact native image,
+and observed private cleanup, finished readers and physical process exit0.
+Cancellation causality remains unproven; this verifier does not inspect FD lists.
+
+Each optional ordinary policy ran once without --dev. Selected4319/4045 source,
+native, bootstrap and whole stayed entirely predecessor-equal in both attempts;
+the separate full_reference8153 source reproduced twice for each. No optional
+selected/DEV runtime or F8 execution is attributed to this full-F run. All four
+original Popen commands exited0 and were settled/reaped only after other group
+members were absent; failures/forced cleanup/retries/owned handles0.
+Actual root: /home/stemxstudio/rove4k-f-four-locals-normal-20261024-v1.
+Build d2e1876b374cf08cd4fb0ec5f479d006b05f113ea6b70d1cc03d5a04363ded0c.
+Runtime326eabd2ad9f450908804fb04ac9365497ca434592459cf6d6486564785dd312.
+Producing helper/build remain exact; final recipe/README add annotations only.
+No new CPP/SAN/fresh/game, performance, strength or complete4KiB acceptance
+claim follows. Historical return-token receipts below keep their original scope.
+
 # Maintained F full4369 — fixed return token, 2026-10-24
 
 The selected single token dictionary adds `#define H return` (17 B) after

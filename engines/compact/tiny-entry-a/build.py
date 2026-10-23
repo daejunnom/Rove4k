@@ -50,7 +50,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out',type=Path,required=True)
     parser.add_argument('--dev',action='store_true',help='also reproduce the qualified diagnostic C and ELF')
-    parser.add_argument('--policy',choices=('loose','root-hint-leader-repair','root-normal-slots'),default='loose',help='build-time shipping policy; DEV remains the qualified Loose control')
+    parser.add_argument('--policy',choices=('loose','root-hint-leader-repair','root-normal-slots','root-pals-feedback'),default='loose',help='build-time shipping policy; DEV remains the qualified Loose control')
     args=parser.parse_args();out=args.out.resolve()
     if not args.out.is_absolute() or out.exists() or out==REPO or REPO in out.parents or any((p/'.git').exists() for p in (out,*out.parents)):
         parser.error('a new absolute output outside any Git checkout is required')
@@ -122,7 +122,8 @@ def main():
         output_form=module('entry_A_fixed_output',frozen/'shipping_output.py')
         root_hint=module('entry_A_root_hint',frozen/'shipping_root_hint.py')
         root_normal=module('entry_A_root_normal',frozen/'shipping_root_normal.py')
-        root_form=root_normal if policy=='root-normal-slots' else root_hint
+        root_pals=module('entry_A_root_pals',frozen/'shipping_root_pals.py')
+        root_form=root_normal if policy in ('root-normal-slots','root-pals-feedback') else root_hint
         canonical=(frozen/'engine.c').read_bytes();reference=evaluation_cache.reference_readable(canonical)
         template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
@@ -183,13 +184,21 @@ def main():
                 data,output_metadata=output_form.transform_source(data)
                 common_metadata['fixed_output']=output_metadata
                 if root_policy:
-                    data,root_metadata=root_form.transform_source(data)
-                    common_metadata['root_normal_slots' if policy=='root-normal-slots' else 'root_hint_leader_repair']=root_metadata
+                    if policy=='root-pals-feedback':
+                        data,root_metadata=root_pals.transform_source(data,root_normal.transform_source)
+                        common_metadata['root_pals_feedback']=root_metadata
+                    else:
+                        data,root_metadata=root_form.transform_source(data)
+                        common_metadata['root_normal_slots' if policy=='root-normal-slots' else 'root_hint_leader_repair']=root_metadata
             return data,observations,alpha_metadata,storage_metadata,scope_metadata,input_metadata,declaration_metadata,type_metadata,lexical_metadata,capture_metadata,startup_metadata,global_names_metadata,continuation_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal)
             if root_policy:
-                expression=root_form.transform_literal(expression,lambda current:output_form.transform_literal(current,lambda original:condition_form.transform_literal(original,fixed_names.transform_literal)))
+                previous=lambda current:output_form.transform_literal(current,lambda original:condition_form.transform_literal(original,fixed_names.transform_literal))
+                if policy=='root-pals-feedback':
+                    expression=root_pals.transform_literal(expression,lambda current:root_normal.transform_literal(current,previous))
+                else:
+                    expression=root_form.transform_literal(expression,previous)
             else:
                 expression=output_form.transform_literal(expression,lambda original:condition_form.transform_literal(original,fixed_names.transform_literal))
             script=template.replace(marker,expression.encode())

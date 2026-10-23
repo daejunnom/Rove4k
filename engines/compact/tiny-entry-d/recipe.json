@@ -20,7 +20,7 @@
   "loader_source_sha256": {
     "loader/loader.c": "41aae27e0991b82eae46bcf6665dcf5fe1d18d8b56e72c82cc100fe5427deba0",
     "loader/image.ld": "93934099212b944b20c2f7840ee87e4817311c4f87fddbb2b3f91db28776cf99",
-    "loader/codec.py": "1910bd89780be866afa7b333e1c0905cb0189a2f9d4c36c2b5d28de90681e85f",
+    "loader/codec.py": "d17394ec18c240555a401459576fa6caa097d7048af04cc35136fb4bc2cfbe9a",
     "loader/decoder.h": "162129fbc2e876252d7a3f58bda9672aff3a1a6170c35903b73624e571b60fd6",
     "loader/range_bits.py": "9c4f9a69b3655a1cd95969cd601193174a15894e35a92248cb3c7ccdd74d2854",
     "loader/models.json": "3101a5638551990cb2d5a33d6d28fbab436d04d301b676cc2e45afa63b7f6920"
@@ -75,26 +75,10 @@
   "expected": {
     "scalar-shipping": {
       "hq": 0,
-      "native_bytes": 7612,
-      "native_sha256": "662b0eb10046d0b0ab105bba0f793371bb869eb61aa4419c8c2fa95f7d39c32d",
-      "whole_bytes": 5836,
-      "whole_sha256": "e726848454c05ca42eefcc65877203f5a2812d51e9902e169c01859bd06c72f9",
-      "payload_bytes": 4699,
-      "payload_sha256": "fa26f297f155563091f0ce9abe56751667ed2fbeaec061325510d6e0ddd95ddd",
-      "loader_and_headers_bytes": 1137,
-      "audit_bytes": 5859,
-      "audit_sha256": "419c47835f0db582e86a4a1d5c4b45876bb22768ab2152d6b159897a2eea180f",
+      "native_bytes": 7388,
+      "native_sha256": "395fea4ddf80d155227700fa8da9b06437082837a1878a818605f268506de50c",
       "layout": {
-        "image_base": 4194304,
-        "image_size": 7612,
-        "image_pages": 8192,
-        "entry": 4201533,
-        "bss_base": 4202496,
-        "bss_size": 175092,
-        "bss_pages": 176128,
-        "guard_base": 4190208,
-        "upper_guard": 4378624,
-        "reserve_size": 192512,
+        "entry": 4201328,
         "section_offset": 0,
         "section_size": 0,
         "section_count": 0,
@@ -106,8 +90,8 @@
             "offset": 0,
             "vaddr": 4194304,
             "paddr": 4194304,
-            "filesz": 7612,
-            "memsz": 7612,
+            "filesz": 7388,
+            "memsz": 7388,
             "align": 4096
           },
           {
@@ -130,17 +114,33 @@
             "memsz": 0,
             "align": 8
           }
-        ]
+        ],
+        "image_base": 4194304,
+        "image_size": 7388,
+        "image_pages": 8192,
+        "bss_base": 4202496,
+        "bss_size": 175092,
+        "bss_pages": 176128,
+        "guard_base": 4190208,
+        "upper_guard": 4378624,
+        "reserve_size": 192512
       },
-      "model_wmask": 16847486,
       "image": {
         "format": "rove4k-context-h24-base10-fixed21-body232-zero4-v3",
         "zero_prefix_bytes": 232,
-        "compiled_native_bytes": 7612,
-        "compiled_native_sha256": "662b0eb10046d0b0ab105bba0f793371bb869eb61aa4419c8c2fa95f7d39c32d",
-        "restored_image_bytes": 7612,
-        "restored_image_sha256": "07b6754aabefd1171fbdfae84ce30e1b50cff8a527a124d99998e18170f0d07c"
-      }
+        "compiled_native_bytes": 7388,
+        "compiled_native_sha256": "395fea4ddf80d155227700fa8da9b06437082837a1878a818605f268506de50c",
+        "restored_image_bytes": 7388,
+        "restored_image_sha256": "b2982877c1c1bf97cafcfcd5b9dd210835a3eded07dcbf3c38e8c991c4d8943a"
+      },
+      "model_wmask": 16847486,
+      "whole_bytes": 5717,
+      "whole_sha256": "759f10c75724ca2151f38a84ba34ccbb1f5ace3dd158378e677b533c026a3200",
+      "payload_bytes": 4580,
+      "payload_sha256": "5cceeece8235c77550169061f7c7f287cd13dbef3f158979f3302923cb84d4c4",
+      "loader_and_headers_bytes": 1137,
+      "audit_bytes": 5740,
+      "audit_sha256": "dddc6a9214a1b39a2e47ef291aa3d58bfeccc52f7c401f5e5b2450ec389cc90d"
     },
     "hq-shipping": {
       "hq": 1,
@@ -213,8 +213,8 @@
     }
   },
   "qualified_receipts_metadata_only": {
-    "current_selection": "HQ-only derived history length over shared castling/clock packed-HCE D; scalar exact old image, full HCE/PVS/QS/learners/fullkey atomic16/SMP/fixed ISA preserved; TT probe stage sharing reduces maintained source 84 B with byte-identical scalar/HQ shipping outputs",
-    "source_lineage": "Only HQ&&!DEV selects derived game_length+ply; all scalar and DEV owned regions retain original exact text; header/search change, other native6 and loader/model/flags/protocol remain unchanged. Subsequent TT-stage source-only cleanup shares the two cmpxchg16b asm statements in one finite stage loop; selected shipping native/packet/whole/audit identities remain unchanged.",
+    "current_selection": "Scalar shipping fused mailbox rays; HQ6037 and all DEV select original canonical walker; full HCE/PVS/QS/learners/fullkey atomic16/SMP/fixed ISA retained. Scalar slider enumeration policy changes.",
+    "source_lineage": "Canonical native8 retained byte-exact; pure late shipping helper replaces one walker with #if D_HQ||DEV original / scalarshipping fused. Every HQ or DEV owned function remains original. Scalar slider order changes explicitly; exact old scalar remains in prior admissions/metadata. All fixed loader/model/flags/profile/ISA remain.",
     "fixed21_firstcost": {
       "final_index_sha256": "2f06d3ecc4d9e0f5fb294f6adfe533aa4559867fd31b4fad10604ed4060a5bf3",
       "cost_sha256": "0f08bb54783aef070a3d75eefeb28a005868156452243513da624bf7708d8137",
@@ -1178,7 +1178,192 @@
       "predecessors": "initial supervisor preexec CPU hard-limit failure preserved separately, actual product work0; three ordinary builds passed while two source-only API boundary findings were tightened; final products match first cost exactly",
       "source_review": "analysis_reconcile SOURCE CLEAR; reviewer compile/codec/runtime0",
       "context_format_annotation": "final v3 metadata corrects inherited v2 coded_length/packet-format wording; this dictionary is descriptive and not read by encoder/builder admission"
-    }
+    },
+    "previous_scalar_before_fused_rays": {
+      "hq": 0,
+      "native_bytes": 7612,
+      "native_sha256": "662b0eb10046d0b0ab105bba0f793371bb869eb61aa4419c8c2fa95f7d39c32d",
+      "whole_bytes": 5836,
+      "whole_sha256": "e726848454c05ca42eefcc65877203f5a2812d51e9902e169c01859bd06c72f9",
+      "payload_bytes": 4699,
+      "payload_sha256": "fa26f297f155563091f0ce9abe56751667ed2fbeaec061325510d6e0ddd95ddd",
+      "loader_and_headers_bytes": 1137,
+      "audit_bytes": 5859,
+      "audit_sha256": "419c47835f0db582e86a4a1d5c4b45876bb22768ab2152d6b159897a2eea180f",
+      "layout": {
+        "image_base": 4194304,
+        "image_size": 7612,
+        "image_pages": 8192,
+        "entry": 4201533,
+        "bss_base": 4202496,
+        "bss_size": 175092,
+        "bss_pages": 176128,
+        "guard_base": 4190208,
+        "upper_guard": 4378624,
+        "reserve_size": 192512,
+        "section_offset": 0,
+        "section_size": 0,
+        "section_count": 0,
+        "section_names": 0,
+        "segments": [
+          {
+            "type": 1,
+            "flags": 5,
+            "offset": 0,
+            "vaddr": 4194304,
+            "paddr": 4194304,
+            "filesz": 7612,
+            "memsz": 7612,
+            "align": 4096
+          },
+          {
+            "type": 1,
+            "flags": 6,
+            "offset": 0,
+            "vaddr": 4202496,
+            "paddr": 4202496,
+            "filesz": 0,
+            "memsz": 175092,
+            "align": 4096
+          },
+          {
+            "type": 1685382481,
+            "flags": 6,
+            "offset": 0,
+            "vaddr": 0,
+            "paddr": 0,
+            "filesz": 0,
+            "memsz": 0,
+            "align": 8
+          }
+        ]
+      },
+      "model_wmask": 16847486,
+      "image": {
+        "format": "rove4k-context-h24-base10-fixed21-body232-zero4-v3",
+        "zero_prefix_bytes": 232,
+        "compiled_native_bytes": 7612,
+        "compiled_native_sha256": "662b0eb10046d0b0ab105bba0f793371bb869eb61aa4419c8c2fa95f7d39c32d",
+        "restored_image_bytes": 7612,
+        "restored_image_sha256": "07b6754aabefd1171fbdfae84ce30e1b50cff8a527a124d99998e18170f0d07c"
+      }
+    },
+    "scalar_fused_rays": {
+      "status": "maintained ordinary and actual positive PASS",
+      "source_proposal_sha256": "09ff6dce3d5c9ef3843f3631957c9b7e159ae4c8a0891f4a7986b4c8a196aa0b",
+      "firstcost_index_sha256": "e51385d8aa3573afb74794b6935402acd44f4bab84e6d25ab07163b04af57bf9",
+      "policy_delta": "scalar slider destination-bit order becomes direction-major near-to-far; no equal-node/strength claim",
+      "canonical_native_unchanged": true,
+      "HQ_and_DEV_old_walker": true,
+      "prior_Board_proof": "402 states and three perft cases, actual old/new Move sets and semantic children, candidate fatal UBSan; external only",
+      "prior_runtime": "two actual5717 production sessions/six legal GO; does not substitute this new maintained normal",
+      "audit_discovery": {
+        "path": "\\\\wsl.localhost\\Ubuntu\\home\\stemxstudio\\rove4k-d-fused-ray-promotion-20261024-v1\\audit\\discovery.json",
+        "bytes": 3336,
+        "sha256": "cfe45bdcd5863d7eec93482649816d69757c26d80237aa03f2c9bc6fed9609e2",
+        "scope": "one CHECKPOINT1 compile; exact same4580 packet/source/flags/model/geometry, strictRX/nonexec-stack static admission; no execution"
+      },
+      "normal_build": {
+        "path": "\\\\wsl.localhost\\Ubuntu\\home\\stemxstudio\\rove4k-d-fused-ray-promotion-20261024-v1\\normal\\build\\build.json",
+        "bytes": 138354,
+        "sha256": "60a8af1828a49c1fb4d4754cc134f7b5b2d548e9eb2592aaaa4f431becfc8e38"
+      },
+      "positive_results": {
+        "path": "\\\\wsl.localhost\\Ubuntu\\home\\stemxstudio\\rove4k-d-fused-ray-promotion-20261024-v1\\positive\\runtime\\results.json",
+        "bytes": 60131,
+        "sha256": "a4781a55ae4612c2dcd3c0941b719c8ba75113a0fc50cfb9d1591d32e6a8b831"
+      },
+      "actual_outputs": {
+        "scalar-shipping": {
+          "native": {
+            "path": "\\\\wsl.localhost\\Ubuntu\\home\\stemxstudio\\rove4k-d-fused-ray-promotion-20261024-v1\\normal\\build\\scalar-shipping\\native-first\\x",
+            "bytes": 7388,
+            "sha256": "395fea4ddf80d155227700fa8da9b06437082837a1878a818605f268506de50c"
+          },
+          "packet": {
+            "path": "\\\\wsl.localhost\\Ubuntu\\home\\stemxstudio\\rove4k-d-fused-ray-promotion-20261024-v1\\normal\\build\\scalar-shipping\\context\\payload.bin",
+            "bytes": 4580,
+            "sha256": "5cceeece8235c77550169061f7c7f287cd13dbef3f158979f3302923cb84d4c4"
+          },
+          "own_ELF": {
+            "path": "\\\\wsl.localhost\\Ubuntu\\home\\stemxstudio\\rove4k-d-fused-ray-promotion-20261024-v1\\normal\\build\\scalar-shipping\\context\\x",
+            "bytes": 5717,
+            "sha256": "759f10c75724ca2151f38a84ba34ccbb1f5ace3dd158378e677b533c026a3200"
+          },
+          "audit": {
+            "path": "\\\\wsl.localhost\\Ubuntu\\home\\stemxstudio\\rove4k-d-fused-ray-promotion-20261024-v1\\normal\\build\\scalar-shipping\\context-audit\\x",
+            "bytes": 5740,
+            "sha256": "dddc6a9214a1b39a2e47ef291aa3d58bfeccc52f7c401f5e5b2450ec389cc90d"
+          },
+          "restored_image": {
+            "path": "\\\\wsl.localhost\\Ubuntu\\home\\stemxstudio\\rove4k-d-fused-ray-promotion-20261024-v1\\normal\\build\\scalar-shipping\\restored-image.bin",
+            "bytes": 7388,
+            "sha256": "b2982877c1c1bf97cafcfcd5b9dd210835a3eded07dcbf3c38e8c991c4d8943a"
+          },
+          "native_reproduced": true,
+          "whole_reproduced": true,
+          "compared_entire_bytes_to_prior": "\\\\wsl.localhost\\Ubuntu\\home\\stemxstudio\\rove4k-d-scalar-fused-ray-first-cost-20261023"
+        },
+        "hq-shipping": {
+          "native": {
+            "path": "\\\\wsl.localhost\\Ubuntu\\home\\stemxstudio\\rove4k-d-fused-ray-promotion-20261024-v1\\normal\\build\\hq-shipping\\native-first\\x",
+            "bytes": 8000,
+            "sha256": "3c662941aa11af8521d3c601322e9aa38405a3bfbeb9332d55008907217a4b2e"
+          },
+          "packet": {
+            "path": "\\\\wsl.localhost\\Ubuntu\\home\\stemxstudio\\rove4k-d-fused-ray-promotion-20261024-v1\\normal\\build\\hq-shipping\\context\\payload.bin",
+            "bytes": 4900,
+            "sha256": "d974d3c9683cfd2bfdc271ce9405ec3f6cb46be24e1cfcd5d18c0bcf8b8e2cba"
+          },
+          "own_ELF": {
+            "path": "\\\\wsl.localhost\\Ubuntu\\home\\stemxstudio\\rove4k-d-fused-ray-promotion-20261024-v1\\normal\\build\\hq-shipping\\context\\x",
+            "bytes": 6037,
+            "sha256": "b7cf68ec898e6b550c89ebb2dd94fc9f7c1f215b3c24237096ea1c55f54a0262"
+          },
+          "audit": {
+            "path": "\\\\wsl.localhost\\Ubuntu\\home\\stemxstudio\\rove4k-d-fused-ray-promotion-20261024-v1\\normal\\build\\hq-shipping\\context-audit\\x",
+            "bytes": 6060,
+            "sha256": "6f2e808246e648f5c9fc65dd9fc103311375a87e4581946a89efacc70edb532e"
+          },
+          "restored_image": {
+            "path": "\\\\wsl.localhost\\Ubuntu\\home\\stemxstudio\\rove4k-d-fused-ray-promotion-20261024-v1\\normal\\build\\hq-shipping\\restored-image.bin",
+            "bytes": 8000,
+            "sha256": "f2b4804631d293ccb4742ed8718869a29736bfb46f840044659e44c8d0f95d4b"
+          },
+          "native_reproduced": true,
+          "whole_reproduced": true,
+          "compared_entire_bytes_to_prior": "\\\\wsl.localhost\\Ubuntu\\home\\stemxstudio\\rove4k-d-body-packet-normal-20261022-v3\\build\\hq-shipping"
+        }
+      },
+      "counts": {
+        "ordinary_calls": 1,
+        "native_compiles": 4,
+        "encodes": 4,
+        "production_loader_compiles": 4,
+        "ordinary_audit_compiles": 2,
+        "prior_audit_discovery_compiles": 1,
+        "positive_calls": 1,
+        "pre_entry_sessions": 2,
+        "shipping_quit_EOF_sessions": 4,
+        "legal_GO": 12,
+        "persistent_TIDs_per_shipping_session": 3,
+        "fresh": 0,
+        "baseline_regeneration": 0,
+        "fault_negative_ptrace_RIE_personality_games_benchmarks": 0,
+        "product_failures": 0,
+        "product_retries": 0
+      },
+      "source_only_preparation_failures": {
+        "count": 2,
+        "cause": "terminal LF ownership of frozen function/c.in wrapper literals",
+        "before_products": true,
+        "preserved": "preparation-failure-v1.json and preparation-failure-v2.json"
+      },
+      "physical_ownership": "all original command handles rc0/reaped with pre-reap other members empty and group absent; forced0, cleanup[], owned0; no late PID signals",
+      "producing_final": "Only README and recipe completion metadata changed after successful producing source freeze; expected identities/code/guard logic unchanged",
+      "limitations": "scalar changed move order: no equal nodes/strength/SMP scaling/final resources or 4KiB acceptance; source preservation does not claim a new DEV binary run"
+    },
+    "previous_source_lineage_before_fused_rays": "Only HQ&&!DEV selects derived game_length+ply; all scalar and DEV owned regions retain original exact text; header/search change, other native6 and loader/model/flags/protocol remain unchanged. Subsequent TT-stage source-only cleanup shares the two cmpxchg16b asm statements in one finite stage loop; selected shipping native/packet/whole/audit identities remain unchanged."
   },
   "shipping_protocol": {
     "id": "finite-minimum-v1",
@@ -1359,5 +1544,11 @@
     "decoded_bytes": "N-232 post-whole-offset-BCJ bytes",
     "memory_extent": "original N, entry, RX pages, BSS, guards, reserve and model remain unchanged",
     "legacy": "legacy_v2 retains previous exact native/payload/whole/audit admission; encode_native and compile_loader default stay full RX"
+  },
+  "shipping_source_sha256": {
+    "shipping_fused_ray.py": "1d9d23699300c0d1ef3c27a06f4f705b2074bba2e5bc5b684716c11e02f4e54b"
+  },
+  "generated_native_source_sha256": {
+    "native/board.c": "53458b95da840708cf39c2b144f0d75bddcbd1c541d64b66cdbffba8d298a86a"
   }
 }

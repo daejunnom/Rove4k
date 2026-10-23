@@ -1,3 +1,85 @@
+# Maintained D scalar fused mailbox rays — 2026-10-24
+
+Selected scalar/HQ own-ELFs are **5717 / 6037 B**. Scalar falls119B from5836;
+HQ keeps its previous exact6037B product. Remaining gaps to4096 are1621/1941B.
+This scalar policy changes slider move enumeration to direction-major near-to-far
+rays; legal Move sets and rules stay the same, but search/LMR/TT/learning
+trajectories and strength need not be identical.
+
+`shipping_fused_ray.py` consumes the exact canonical9011B `native/board.c`
+(SHA559e4589…) and emits10371B (53458b95…). It owns one full walker
+replacement, both unchanged gaps and exact inverse. `#if D_HQ || DEV` selects
+the original1679B walker for every HQ or DEV build; only scalar shipping uses
+the1330B fused walker. Canonical native8 files are unchanged. The ordinary
+builder snapshots canonical inputs, generates its separate shipping-native
+source directory, and compiles from that directory. No experiment, archived
+product or external receipt is a regeneration input.
+
+The exact scalar compiled ELF7388/395fea4d… has entry4201328 and remains
+separate from full zero232 restored RX7388/b2982877… and own-ELF5717/759f10c7….
+The H24/fixed21 packet is4580/5cceeece…; loader/header contribution stays1137B.
+New exact class mappings bind native SHA/form/layout/model centrally; v2 and
+old body232 identity maps remain available with their original full-image
+checks. The fixed models, masks, weights, BCJ boundary/inverse, zero tail,
+whole RX/BSS/padding, W^X/NX, guards, private worker stacks, fullkey atomic16TT,
+HCE/PVS/QS/learners/resources/ISA and protocol/lifetime code are preserved.
+
+External prior evidence covers402 semantic Board states, all-square attacks,
+legal Move/child sets and three known perft counts, with fatal UBSan; it
+explicitly excludes equal move order. Two separate external5717 production
+sessions returned six legal GO results. Those receipts remain prior scoped
+evidence, not a new maintained build or fresh execution. CHECKPOINT1 identity
+5740 is now discovered by one compile-only command with the same packet and
+fixed loader; its exact hash is recorded in recipe and the positive class.
+Maintained reproduction and actual positive execution now pass as recorded below. The fresh archive includes the pure helper; no fresh
+extraction is run locally in this promotion.
+
+
+## FUSED_RAY_COMPLETION — maintained ordinary and actual positive PASS
+
+One ordinary invocation independently rebuilt each scalar/HQ native twice,
+encoded each packet twice and reproduced each production own-ELF twice.
+Scalar7388/395fea4d… → full restored b2982877… → whole5717/759f10c7…
+match the frozen external candidate as entire byte strings. HQ8000/3c662941…
+and whole6037/b7cf68ec… match the prior maintained products as entire bytes.
+The new scalar CHECKPOINT5740/dddc6a92… independently reproduces its actual
+compile-only discovery; HQ CHECKPOINT6060/6f2e8082… is unchanged.
+
+The existing positive function bodies run once with the explicit new scalar
+class: two CHECKPOINT sessions observe entire restored RX, RX padding and
+initial BSS/padding zero, guards, NX/W^X, then resume the original entry.
+Four scalar/HQ quit/EOF shipping sessions return12 legal GO results with
+stable3TIDs, actual active workers, stdio-only FDs, no children, guarded private
+worker stacks, joined readers and physical group settlement. These are new
+maintained-product observations, not relabeled prior external runtime results.
+
+Actual build: `/home/stemxstudio/rove4k-d-fused-ray-promotion-20261024-v1/normal/build/build.json`
+SHA256 `60a8af1828a49c1fb4d4754cc134f7b5b2d548e9eb2592aaaa4f431becfc8e38`.
+Actual positive: same root `/positive/runtime/results.json`, SHA256
+`a4781a55ae4612c2dcd3c0941b719c8ba75113a0fc50cfb9d1591d32e6a8b831`.
+Producing sources/recipe are preserved externally; final edits add only this
+README completion and recipe receipt metadata. No further product run follows.
+
+The builder now supervises tool children using their original unreaped leader
+through publication/unmasking/monitoring/cleanup. It waits for other group
+members to vanish before wait/reap and never signals a released identity.
+All12 ordinary tool commands and the discovery/ordinary/positive original
+supervisors close rc0/reaped/group absent/forced0/owned0. Publication cleanup
+is protected by the surrounding finally. Finite ordinary child AS2GiB,
+CPU40/45s, per-command wall60s, output1MiB and aggregate180s remain explicit;
+outer parent AS4GiB CPU240/260s, childAS2GiB CPU180/200s, wall190s and
+aggregate420s bound each externally managed phase. Times are diagnostic only.
+
+Two source-preparation assertions about the single terminal LF owned by the
+function span versus its c.in file were preserved before products and corrected
+to the frozen literals. Product failures/retries are0. Canonical native8,
+HQ/DEV original selection and all fixed models/profile/flags stay exact.
+Fresh archive includes the helper but local fresh/negative/fault/ptrace/RIE/
+personality/SAN/game/strength/benchmark/training/paid-resource runs are0.
+The remaining1621/1941B gaps and target resources/many-core/strength remain open.
+
+Historical maintained body232 stage follows unchanged.
+
 # Maintained D: body232 private restore image — 2026-10-22
 
 Selected complete scalar/HQ files are **5836 / 6037 B**, down **72 / 74 B**

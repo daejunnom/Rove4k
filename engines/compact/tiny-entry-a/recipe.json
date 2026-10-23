@@ -58,7 +58,8 @@
     "engines/compact/tiny-a/shipping_readonly.py": "6eefd6502149e620a2b681e15609ae01a4dbf41748dd2fe418c2eea84293d3a5",
     "engines/compact/tiny-entry-a/shipping_output.py": "4e526e1a44f4231e1851950bfdf55b834459cc6fcf123c02e11abd91a3def2f3",
     "engines/compact/tiny-entry-a/shipping_root_hint.py": "362ac9430663fcf37eb2fca4272662471a7814d65be2b1f2d17522b8cb773e22",
-    "engines/compact/tiny-entry-a/shipping_root_normal.py": "b6a4d1bd7d107f267ee437bbc36d9353664a119ad46592fb0cfca1f6985c2311"
+    "engines/compact/tiny-entry-a/shipping_root_normal.py": "b6a4d1bd7d107f267ee437bbc36d9353664a119ad46592fb0cfca1f6985c2311",
+    "engines/compact/tiny-entry-a/shipping_root_pals.py": "f69c925cd6f616090224edf926e115bc3b2f025981e0edee5b91a33d56a633e6"
   },
   "fixed_renames": [
     [
@@ -973,17 +974,17 @@
           "sha256": "24c67e8cee5dd46b734f4086d1ff3931a0b443e97b4183a96c7d1127819054c8"
         },
         "readback": {
-          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-continuation-slot-promotion-20261021-evidence/readback.json",
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-continuation-slot-promotion-20261021-evidence/readback.json",
           "bytes": 3607,
           "sha256": "e8ac4294ec021bc6428984f5a9555189bab08716be328b6579d26d0161680964"
         },
         "normal_commands": {
-          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-continuation-slot-promotion-20261021-evidence/normal-commands.json",
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-continuation-slot-promotion-20261021-evidence/normal-commands.json",
           "bytes": 3168,
           "sha256": "035d3cb5477bde4df4928b8adc9d5a05b6e385992c57f1285f7c91bb18077423"
         },
         "producing_source27": {
-          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-continuation-slot-promotion-20261021-evidence/producing-source27.json",
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-continuation-slot-promotion-20261021-evidence/producing-source27.json",
           "bytes": 4151,
           "sha256": "2e2f0e699bd2815a7e7788b5a1b64d7c1a440b771e676f656b5140d780c833cc"
         },
@@ -993,7 +994,7 @@
           "sha256": "3f61f492cc4d262eb8caa66cf121f581110ff79542f7a5f32a5dbf6d75c57e47"
         },
         "predecessor_source26": {
-          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-continuation-slot-promotion-20261021-evidence/predecessor-source26.json",
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-continuation-slot-promotion-20261021-evidence/predecessor-source26.json",
           "bytes": 3985,
           "sha256": "60b81cd154b9c26f5d98bccec5d6c03efedfbbca8642cd22929876e3230ebc21"
         },
@@ -1153,7 +1154,7 @@
       "firstcost_reruns": 0,
       "focused": {
         "final_index": {
-          "path": "C:/Users/강민수/Documents/Codex/rove4k-a-terminal-loop-focused-20261022-evidence/final-index.json",
+          "path": "C:/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-terminal-loop-focused-20261022-evidence/final-index.json",
           "bytes": 5432,
           "sha256": "f5dee98cefaf862dc1acd492980b01576e26d61a0e5cc87cbd45c23d69da8a80"
         },
@@ -1163,7 +1164,7 @@
           "sha256": "fbb8d388057481300cfd2f70999033225bae000a87bbb5c29fc8b31f2ec03316"
         },
         "preserved_receipt": {
-          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-terminal-loop-focused-20261022-evidence/results.json",
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-terminal-loop-focused-20261022-evidence/results.json",
           "bytes": 10472,
           "sha256": "fbb8d388057481300cfd2f70999033225bae000a87bbb5c29fc8b31f2ec03316"
         },
@@ -1192,14 +1193,14 @@
           "exact_inverse": true,
           "outside_h_bytes_equal": true
         },
-        "comparison": "score/stop/root/nodes/typedBoard/전체path·jobkeys/세learner/fullTTkeydata·clearflags oldnew exact; mask0",
-        "terminal_before_seed": "기존 claim-node 증가와 cap-only stop만 명시 허용; path/root/learners/TT 불변 assertion 통과",
+        "comparison": "score/stop/root/nodes/typedBoard/\uc804\uccb4path\u00b7jobkeys/\uc138learner/fullTTkeydata\u00b7clearflags oldnew exact; mask0",
+        "terminal_before_seed": "\uae30\uc874 claim-node \uc99d\uac00\uc640 cap-only stop\ub9cc \uba85\uc2dc \ud5c8\uc6a9; path/root/learners/TT \ubd88\ubcc0 assertion \ud1b5\uacfc",
         "controls": "draw/cap-only/both, legal quiet/capture, mate/stalemate, dead/threefold, pre-stop/deadline, poisoned exact/lower/upper terminal TT, ordinary PVS/HCE-QS/quiet learning and matching exact TT",
-        "private_terminal_work": "지역 child/order/공격작업량/시간·stackpeak는 비교대상이 아니며 외부상태 정규화로 숨기지 않음",
+        "private_terminal_work": "\uc9c0\uc5ed child/order/\uacf5\uaca9\uc791\uc5c5\ub7c9/\uc2dc\uac04\u00b7stackpeak\ub294 \ube44\uad50\ub300\uc0c1\uc774 \uc544\ub2c8\uba70 \uc678\ubd80\uc0c1\ud0dc \uc815\uaddc\ud654\ub85c \uc228\uae30\uc9c0 \uc54a\uc74c",
         "external_state_normalization_mask": 0,
         "production_main_pool_wrapper_codec_DEV_runs": 0,
         "owned_closure": {
-          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-terminal-loop-focused-20261022-evidence/owned-command-closure.json",
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-terminal-loop-focused-20261022-evidence/owned-command-closure.json",
           "bytes": 2130,
           "sha256": "548dcbca8367f8f6d78a0e4af44b1f00b5dbcce019763c5e0f92a325f7411fd6"
         },
@@ -1208,12 +1209,12 @@
       },
       "ordinary_and_selected": {
         "final_index": {
-          "path": "C:/Users/강민수/Documents/Codex/rove4k-a-terminal-loop-promote-20261022-evidence/final-index.json",
+          "path": "C:/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-terminal-loop-promote-20261022-evidence/final-index.json",
           "bytes": 7288,
           "sha256": "1118be88dcfaadfc9d42e1cbae3402bc1a3c7f9ea8ed6a17e7204850b8bcfd5b"
         },
         "producing_manifest": {
-          "path": "C:/Users/강민수/Documents/Codex/rove4k-a-terminal-loop-promote-20261022-evidence/producing-sources.json",
+          "path": "C:/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-terminal-loop-promote-20261022-evidence/producing-sources.json",
           "bytes": 14266,
           "sha256": "5d11fcd83d9ed4e61e4f26e4450e73df4365f6790479e4d8f7c2be43aeefd589"
         },
@@ -1225,7 +1226,7 @@
             "sha256": "b8c45eb404085d66ad43737fddd241330018bc6129fcbcaeb75fd980a3127cf4"
           },
           "preserved": {
-            "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-terminal-loop-promote-20261022-evidence/build.json",
+            "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-terminal-loop-promote-20261022-evidence/build.json",
             "bytes": 188698,
             "sha256": "b8c45eb404085d66ad43737fddd241330018bc6129fcbcaeb75fd980a3127cf4"
           }
@@ -1237,7 +1238,7 @@
             "sha256": "8b13597a78fa65bdeada3ec79c24dc297d3730d2db85b72d63a4527bae643d7e"
           },
           "preserved": {
-            "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-terminal-loop-promote-20261022-evidence/runtime.json",
+            "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-terminal-loop-promote-20261022-evidence/runtime.json",
             "bytes": 50102,
             "sha256": "8b13597a78fa65bdeada3ec79c24dc297d3730d2db85b72d63a4527bae643d7e"
           }
@@ -1264,7 +1265,7 @@
           "cancellation_causality": "unproven"
         },
         "owned_command_closure": {
-          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-terminal-loop-promote-20261022-evidence/owned-command-closure.json",
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-terminal-loop-promote-20261022-evidence/owned-command-closure.json",
           "bytes": 4958,
           "sha256": "cbda01b95c22db2a8bf7f56ded2b301768c54aff71e529a45053a97a8f64ba8b"
         },
@@ -1277,9 +1278,9 @@
         "retry": 0
       },
       "limitations": [
-        "direct-call 고정 사례와 실제 selected wrapper의 관측을 구분",
-        "many-core/strength/performance/peakRAM 또는 일반 race freedom은 미검증",
-        "partial-create/epochwrap/강제wake/queuedGO/activeposition 교체는 이번 추가실행하지 않음",
+        "direct-call \uace0\uc815 \uc0ac\ub840\uc640 \uc2e4\uc81c selected wrapper\uc758 \uad00\uce21\uc744 \uad6c\ubd84",
+        "many-core/strength/performance/peakRAM \ub610\ub294 \uc77c\ubc18 race freedom\uc740 \ubbf8\uac80\uc99d",
+        "partial-create/epochwrap/\uac15\uc81cwake/queuedGO/activeposition \uad50\uccb4\ub294 \uc774\ubc88 \ucd94\uac00\uc2e4\ud589\ud558\uc9c0 \uc54a\uc74c",
         "partial-create and epoch wrap retain source-review scope; no forced-failure/runtime claim",
         "terminal private child/order/extra reads/keymix/worktime/stackpeak can differ; native bytes differ",
         "local qualification is not current CI/main/release or full-A-to-F size/strength acceptance"
@@ -1323,7 +1324,7 @@
         "bootstrap_bytes": 9850
       },
       "firstcost": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-common-fd0-first-cost-20261022-evidence/final-index.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-common-fd0-first-cost-20261022-evidence/final-index.json",
         "bytes": 32348,
         "sha256": "a4cf965cfd83aeba97c6bb9f372f0283371093edebf47cb627fdc1421457f14f",
         "LF_bytes": 32348,
@@ -1367,7 +1368,7 @@
           "LF_sha256": "789cdd7b6f298d696fe2a40cc29f488cc7a2475e0fc8b77a560916fd99248543"
         },
         "producing_manifest": {
-          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-common-fd0-promotion-20261022-evidence/producing-sources.json",
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-common-fd0-promotion-20261022-evidence/producing-sources.json",
           "bytes": 47057,
           "sha256": "346d5ebfbdfc8f45f590ebb6ba876d40a77264b83a21d65e1474f5a6b710b37c",
           "LF_bytes": 47057,
@@ -1432,12 +1433,12 @@
         "bootstrap_bytes": 9840
       },
       "source_proof": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-fixed2-stdio-source-20261022-evidence/source-proof.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-fixed2-stdio-source-20261022-evidence/source-proof.json",
         "bytes": 12202,
         "sha256": "b4c469db77708ee708bee0a1863ca032ecb0c54704416912a553c7d405cca808"
       },
       "firstcost": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-fixed2-stdio-first-cost-20261022-evidence/final-index.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-fixed2-stdio-first-cost-20261022-evidence/final-index.json",
         "bytes": 20404,
         "sha256": "8df183a4d5498a243d3228937d1e514166edc7e8721e1967252b79440d140481"
       },
@@ -1479,7 +1480,7 @@
           "sha256": "44dc0678b4930d4b60256e73b5a94deb07e7d38b773dc0baba14fa0087d3e341"
         },
         "producing_source_closure": {
-          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-fixed2-stdio-promotion-20261022-evidence/producing-source-closure.json",
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-fixed2-stdio-promotion-20261022-evidence/producing-source-closure.json",
           "bytes": 11431,
           "sha256": "6afc99ca13562e77398584fd8f1deaf23af8497db4965a56989e570664e6c1c3"
         },
@@ -1837,12 +1838,12 @@
     "normal_validation": {
       "status": "PASS one ordinary --dev and unchanged selected verifier per selection",
       "summary": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-hex-guard-normal-20261021-evidence/summary.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-hex-guard-normal-20261021-evidence/summary.json",
         "bytes": 21274,
         "sha256": "af00002687cf6ed0d84f2e85f21169d381bb1cd8721005c05cc87a4fabe2bb96"
       },
       "producing_recipe": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-hex-guard-normal-20261021-evidence/A-producing-recipe.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-hex-guard-normal-20261021-evidence/A-producing-recipe.json",
         "bytes": 62277,
         "sha256": "86c8b47c826053192d6c4d126ec3f78a479307e2d1a2338df0dbe735505ca7ce"
       },
@@ -1901,12 +1902,12 @@
     "normal_validation": {
       "status": "PASS one ordinary --dev and unchanged selected verifier per selection",
       "summary": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bootstrap-guard-normal-20261021-evidence/summary.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bootstrap-guard-normal-20261021-evidence/summary.json",
         "bytes": 15346,
         "sha256": "90e45a020a55ef5a3ff6af78dfa42908eb8625395fe5c991d860bde8d34b2ff6"
       },
       "producing_recipe": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bootstrap-guard-normal-20261021-evidence/A-producing-recipe.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bootstrap-guard-normal-20261021-evidence/A-producing-recipe.json",
         "bytes": 65505,
         "sha256": "209e6457a831c58b6a1d627e4e2f54c2c4bdb8d77f0828d4c024f924acce3a28"
       },
@@ -1967,12 +1968,12 @@
         "sha256": "5699d958dd4a0b41818a4967f0068884c3e04c8e0a5a912c3dfd14cdbac8ecc0"
       },
       "fixture": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-common-clock-presence-proof-source-20261021-v3/fixture.c",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-common-clock-presence-proof-source-20261021-v3/fixture.c",
         "bytes": 15074,
         "sha256": "8f6a560758e67f29f360e0b68df7ee77b60566f51df5a5de17493d11a768a39d"
       },
       "manifest": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-common-clock-presence-proof-source-20261021-v3/manifest.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-common-clock-presence-proof-source-20261021-v3/manifest.json",
         "bytes": 28155,
         "sha256": "9e895b57e0d50b1cb5d76f3f24851b89c178c92c44a8f713e8892360aa853f5e"
       },
@@ -1987,12 +1988,12 @@
     "normal_validation": {
       "status": "PASS",
       "summary": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-clock-zero-normal-20261021-evidence/summary.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-clock-zero-normal-20261021-evidence/summary.json",
         "bytes": 15766,
         "sha256": "8e30da1a34a87d6f68cc8a42aafab4e43cb49049ef38510cfb008776095e01b9"
       },
       "producing_recipe": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-clock-zero-normal-20261021-evidence/A-producing-recipe.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-clock-zero-normal-20261021-evidence/A-producing-recipe.json",
         "bytes": 70309,
         "sha256": "6fef8e2d5dab76b4785b8b6db4959f9af05e0de47815426492891d08eea1206c"
       },
@@ -2144,17 +2145,17 @@
       "bootstrap_sha256": "09a0329ba1f5fc66a2396f4288124cb2054b646b9af2e1752ec2a0c8f924b2de"
     },
     "source_plan": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-common-lazy-fallback-first-cost-20261021-evidence/plan.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-common-lazy-fallback-first-cost-20261021-evidence/plan.json",
       "bytes": 45742,
       "sha256": "f306a0b5e77ba5237e7e538697a3ed986d3bb80a5a51b0876ddc9dfb528dbc3a"
     },
     "actual_first_cost": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-common-lazy-fallback-first-cost-20261021-evidence/actual-cost.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-common-lazy-fallback-first-cost-20261021-evidence/actual-cost.json",
       "bytes": 64088,
       "sha256": "b9613dd993cfab433a479a43b80d8f1b4457f9cbe6147418661f5ca876d2276a"
     },
     "source_preparation": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-common-lazy-fallback-first-cost-20261021-evidence/source/A/preparation.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-common-lazy-fallback-first-cost-20261021-evidence/source/A/preparation.json",
       "bytes": 7547,
       "sha256": "4cded41868a634256bf696c48e95db2a246232e7e7a2baaecda6341cccf95c59"
     },
@@ -2198,7 +2199,7 @@
         "sha256": "3b0f154c8ed3d30675e5262d0a964231eb2c0ac2f843dea96910e8d8db4ddbd6"
       },
       "data_readback": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-common-lazy-fallback-promotion-20261021-evidence/normal-readback.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-common-lazy-fallback-promotion-20261021-evidence/normal-readback.json",
         "bytes": 50184,
         "sha256": "1f36ca5a22a58f8155db9525a77c57ddfc9f0544e91a322a35a2247f484711d1"
       },
@@ -2242,22 +2243,22 @@
     "old_native_bytes_equal": false,
     "old_DEV_source_or_native_equal": false,
     "source_proof": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-nv060-source-20261022-evidence/source-proof-readback.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-nv060-source-20261022-evidence/source-proof-readback.json",
       "bytes": 7844,
       "sha256": "a10b667f5f5a48af2f52d54031367912809195d096722a03a06939172728ad47"
     },
     "actual_firstcost": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-nv060-source-20261022-evidence/firstcost.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-nv060-source-20261022-evidence/firstcost.json",
       "bytes": 5922,
       "sha256": "f86b5aa2cce9b73caaf0a7a6ba722dca38a8e2a3647a3335323f15e79f04a19d"
     },
     "focused": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-eval-cache-promote-20261022-evidence/qualification-trap.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-eval-cache-promote-20261022-evidence/qualification-trap.json",
       "bytes": 10138,
       "sha256": "88adec67adf9fc91996866ae4a1960b348c0b17459f7c2b4dc2f5c1fd4f56835"
     },
     "original_UBSan_runtime_link_failure": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-eval-cache-promote-20261022-evidence/qualification.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-eval-cache-promote-20261022-evidence/qualification.json",
       "bytes": 2079,
       "sha256": "b5cf285800a83d008b86b15407f73e9aa0e606f4ed924d15ffaa5fa8c51d9d8f"
     },
@@ -2269,7 +2270,7 @@
     "normal_validation": {
       "status": "PASS one ordinary --dev builder and unchanged selected verifier",
       "producing_recipe": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-eval-cache-promote-20261022-evidence/producing-recipe.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-eval-cache-promote-20261022-evidence/producing-recipe.json",
         "bytes": 85113,
         "sha256": "2173619e5c2d3edf2cab184c3ffd9751d714cd0848c9da848af0404dc84601f8"
       },
@@ -2284,7 +2285,7 @@
         "sha256": "1d16ccccf45a741b86d4d3c829c110ef6bd6ee249fea9d6481e82962ea1644d8"
       },
       "outer_commands": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-eval-cache-promote-20261022-evidence/normal-commands.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-eval-cache-promote-20261022-evidence/normal-commands.json",
         "bytes": 3204,
         "sha256": "71c4e3fa95835351d3cb618fc789a7fec954740d38cb6249f43edf5db427621c"
       },
@@ -2335,22 +2336,22 @@
       "header_hex": "0200000004ffffffffffffffff"
     },
     "source_proof": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-nvc060-private-bindings-plan-20261022-evidence/source-proof.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-nvc060-private-bindings-plan-20261022-evidence/source-proof.json",
       "bytes": 11772,
       "sha256": "e85f2abb94bcb93349623c45ffccf3ecfdd042ec8a079a4b7e40b9fb37844c0c"
     },
     "ONE_search_index": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-nvc060-private-bindings-plan-20261022-evidence/run-final-index.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-nvc060-private-bindings-plan-20261022-evidence/run-final-index.json",
       "bytes": 4668,
       "sha256": "f9330a2180035280611c0debe4981af2e551848ba9b0cdbc41baadde6de93c9c"
     },
     "intake": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-nvc060-private-bindings-plan-20261022-evidence/intake-proof.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-nvc060-private-bindings-plan-20261022-evidence/intake-proof.json",
       "bytes": 8256,
       "sha256": "fd98698a7a63872543d974a01e495605296a22de1c31134d44afe08b0ee60a23"
     },
     "original_tool_outer_receipt": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-nvc060-private-bindings-plan-20261022-evidence/one-run.receipt.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-nvc060-private-bindings-plan-20261022-evidence/one-run.receipt.json",
       "bytes": 4527,
       "sha256": "f64a6346679bf9753f6328e219be405defe010f56adcf40c5628971c4b74958b"
     },
@@ -2390,7 +2391,7 @@
     "qualification_scope": "existing source binding review and full native identity; selected new wrapper will be freshly verified, not a new complete-core/strength proof",
     "normal_validation": {
       "producing_recipe": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-private-binding-promote-20261022-evidence/producing-recipe.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-private-binding-promote-20261022-evidence/producing-recipe.json",
         "bytes": 108108,
         "sha256": "2691cf5f0974c01c6fccb4f0511e9544b536b09c39342c3226f727fd4e0d8e3c"
       },
@@ -2405,7 +2406,7 @@
         "sha256": "23e389a3c5db19d2f2211d31faf84b9d73f3f69eea8ce600470947b5a005c957"
       },
       "outer_commands": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-private-binding-promote-20261022-evidence/normal-commands.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-private-binding-promote-20261022-evidence/normal-commands.json",
         "bytes": 3245,
         "sha256": "e8797e95b52b8ec726639f233fb7a77ff7d0233afa7b3dffd72256f7b2d3cf24"
       },
@@ -2446,17 +2447,17 @@
     "whole_delta": -9,
     "native_full_bytes_changed": true,
     "source_proposals": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-structural-source-proposals-20261022-evidence/proposals.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-structural-source-proposals-20261022-evidence/proposals.json",
       "bytes": 17848,
       "sha256": "dc3f49c356718ffdb89f9d3a4e1aa75f863d5d42ec382832d7f3b3d6fe4470c6"
     },
     "firstcost": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-one-condition-first-cost-20261022-evidence/firstcost.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-one-condition-first-cost-20261022-evidence/firstcost.json",
       "bytes": 19334,
       "sha256": "fbbf3ca28e832bc35d59b8669b4c33d5e91e7cc8ea1445252e28f543706a8dc2"
     },
     "firstcost_final_index": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-one-condition-first-cost-20261022-evidence/final-index.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-one-condition-first-cost-20261022-evidence/final-index.json",
       "bytes": 7618,
       "sha256": "f8ada33b6da27d4658f7eb8b123a0d51373ae107ba532bcc432bdcf75a4a042b"
     },
@@ -2470,12 +2471,12 @@
     "canonical_DEV_all_prior_helper_guards_compiler_codec_profile_unchanged": true,
     "normal_validation": {
       "producing_recipe": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-one-condition-promotion-20261022-evidence/producing/recipe.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-one-condition-promotion-20261022-evidence/producing/recipe.json",
         "bytes": 113166,
         "sha256": "29ca7b4718bd7d272f0fd68620f982b824261fed70db911b7ec2a746021477dc"
       },
       "producing_builder": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-one-condition-promotion-20261022-evidence/producing/build.py",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-one-condition-promotion-20261022-evidence/producing/build.py",
         "bytes": 17464,
         "sha256": "b48be5f8c06ce9d7b5a2dfd7724ec8f8e555ac2c496a25cc1acd6ab7a6eacab1"
       },
@@ -2490,12 +2491,12 @@
         "sha256": "2730e1c1ad22ea12db2a2c2a18ab8a126648a4cd5e2d2885fcb85ecae5ff17a5"
       },
       "outer_commands": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-one-condition-promotion-20261022-evidence/normal-commands.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-one-condition-promotion-20261022-evidence/normal-commands.json",
         "bytes": 5077,
         "sha256": "f4bb2c87244971b0b1c5204a3ce978e5b28f5cfb7502d7d096a281abde2ee997"
       },
       "readback": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-one-condition-promotion-20261022-evidence/normal-readback.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-one-condition-promotion-20261022-evidence/normal-readback.json",
         "bytes": 11746,
         "sha256": "7928752cc10ae4f28422abed177fd6681ebdca024f29f0579e594344961b12a6"
       },
@@ -2548,7 +2549,7 @@
       "bootstrap_bytes": 9850
     },
     "firstcost": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-common-fd0-first-cost-20261022-evidence/final-index.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-common-fd0-first-cost-20261022-evidence/final-index.json",
       "bytes": 32348,
       "sha256": "a4cf965cfd83aeba97c6bb9f372f0283371093edebf47cb627fdc1421457f14f",
       "LF_bytes": 32348,
@@ -2592,7 +2593,7 @@
         "LF_sha256": "789cdd7b6f298d696fe2a40cc29f488cc7a2475e0fc8b77a560916fd99248543"
       },
       "producing_manifest": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-common-fd0-promotion-20261022-evidence/producing-sources.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-common-fd0-promotion-20261022-evidence/producing-sources.json",
         "bytes": 47057,
         "sha256": "346d5ebfbdfc8f45f590ebb6ba876d40a77264b83a21d65e1474f5a6b710b37c",
         "LF_bytes": 47057,
@@ -2657,12 +2658,12 @@
       "bootstrap_bytes": 9840
     },
     "source_proof": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-fixed2-stdio-source-20261022-evidence/source-proof.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-fixed2-stdio-source-20261022-evidence/source-proof.json",
       "bytes": 12202,
       "sha256": "b4c469db77708ee708bee0a1863ca032ecb0c54704416912a553c7d405cca808"
     },
     "firstcost": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-fixed2-stdio-first-cost-20261022-evidence/final-index.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-fixed2-stdio-first-cost-20261022-evidence/final-index.json",
       "bytes": 20404,
       "sha256": "8df183a4d5498a243d3228937d1e514166edc7e8721e1967252b79440d140481"
     },
@@ -2704,7 +2705,7 @@
         "sha256": "44dc0678b4930d4b60256e73b5a94deb07e7d38b773dc0baba14fa0087d3e341"
       },
       "producing_source_closure": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-fixed2-stdio-promotion-20261022-evidence/producing-source-closure.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-fixed2-stdio-promotion-20261022-evidence/producing-source-closure.json",
         "bytes": 11431,
         "sha256": "6afc99ca13562e77398584fd8f1deaf23af8497db4965a56989e570664e6c1c3"
       },
@@ -3218,6 +3219,74 @@
         "observer_timing_stack_scheduling_native_effects_possible": true,
         "source_transform_runtime_qualified_false_is_transform_scope_not_this_outer_validation": true
       }
+    },
+    "root-pals-feedback": {
+      "label": "Optional fixed2 full PALS feedback with compatible NORMAL reuse",
+      "profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev_default": false
+      },
+      "expected": {
+        "readable_sha256": "a6aab57fffacc1900dbd9de133652d811d316b3823144ec2181c4f8dda581b6a",
+        "source_bytes": 15535,
+        "source_sha256": "6361f0152a989520b89fa0cb49793bffc5a1796b87d5a2548fcf424bd196ebaf",
+        "native_bytes": 22672,
+        "native_sha256": "0767d28b6f87d9ac1cb2295db0dd406b9abb60b4af1474d03ffb72acbc84005a",
+        "whole_bytes": 6677,
+        "whole_sha256": "1e1568f956d6895f951330cb0a44147e639dd123c2f6834cbaefc18e20f0ee21",
+        "bootstrap_sha256": "5fb36ddbcb7de7c076bc4a4e0f0de13156656af1ea16e6b8f932e8ad183f74c3",
+        "dev_source_sha256": "d1f0ff322843a4210cb1cad574bc6726eef576c0fd398cb0e1cfbc12fdc81f01",
+        "dev_native_sha256": "078df7141403841798e0bcb1545e59975492359b78d88b0637b99865a6bf72b9",
+        "input_profile_readable_bytes": 27688,
+        "input_profile_readable_sha256": "4af39bc6496c85281b322063245ee97a522b4d6c6df7c4844f71d981e733164a",
+        "bootstrap_bytes": 16489
+      },
+      "default_policy": false,
+      "same_Loose_search_claimed": false,
+      "formal_minimax_or_same_private_total_function_claimed": false,
+      "compatible_completed_NORMAL_reuse": true,
+      "proposal_counterreply_same_first_Repair": true,
+      "source_transform": {
+        "helper": "engines/compact/tiny-entry-a/shipping_root_pals.py",
+        "base_source_bytes": 8821,
+        "base_source_sha256": "c8efc687c503e9872e004431af9fd07c07867ebb19a996fb9c4c0f4d6508f529",
+        "NORMAL_bytes": 10835,
+        "NORMAL_sha256": "bb15535fcedec21e16c7b1c83646dcda77248539022dfbbaa67c1c08821a6691",
+        "after_bytes": 15535,
+        "after_sha256": "6361f0152a989520b89fa0cb49793bffc5a1796b87d5a2548fcf424bd196ebaf",
+        "new_regions_after_NORMAL": 8,
+        "protected_gaps_after_NORMAL": 9,
+        "entire_inverse": true,
+        "raw_delta_after_NORMAL": 4700,
+        "helper_TT_payload_store": false,
+        "counterreply_is_root_bound": false,
+        "same_challenged_reply_rechecked_after_unrestricted_Repair": true,
+        "original_deadline_round_job_drain_preserved": true
+      },
+      "qualified_receipt": {
+        "status": "source_compile_fixed_cost_PASS_runtime_pending",
+        "scope": "new fullPALS policy; NORMAL/hint/Loose runtime receipts do not qualify its feedback execution",
+        "first_cost": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-full-pals-prototype-cost-20261024-evidence/cost.json",
+          "bytes": 5515,
+          "sha256": "9f082d87296a6adcf821d9e330ba20be0df81ebb066b7ff0dec5cbf272cf5f35"
+        },
+        "whole_delta_NORMAL": 1545,
+        "whole_delta_Loose": 2152,
+        "incremental_feature_cost_not_equal_function_compression_loss": true,
+        "functional_validation_pending": true
+      },
+      "normal_validation_pending": true,
+      "focused_validation_pending": true,
+      "source_policy_limits": [
+        "Diagnostic C contract permits ordinary unrestricted grandchild TT access; not Rust whole-clause TT isolation.",
+        "Persistent same-first recheck contradiction or incomplete feedback cancels the incomplete iteration/GO; it is not a root-move bound.",
+        "Original 256-node deadline polling remains; no hard deadline guarantee.",
+        "Private NORMAL ordering/history and ordinary LMR may differ under the declared NORMAL compatibility contract."
+      ],
+      "fresh_policy_forwarding_executed": false
     }
   }
 }

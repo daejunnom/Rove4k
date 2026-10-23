@@ -15,7 +15,7 @@
   "base_source_closure_sha256": {
     "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
     "engines/compact/tiny-entry-f/bootstrap.py.in": "159c5fe166f4b0804471e9d3a70d8f055a510858a6ae33f0ed6b4cfd17fca6f9",
-    "engines/compact/tiny-entry-f/build.py": "2be37c5e3821d608317bf0e0e523b06553a27564e1cb6c4c0bfb4e5f15959cf2",
+    "engines/compact/tiny-entry-f/build.py": "7598510c443857f3bd93529e7d31cabe93cae25aa132441d04df7d5460600617",
     "engines/compact/tiny-entry-f/engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
     "engines/compact/tiny-entry-f/launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
     "engines/compact/tiny-entry-f/shipping_alpha.py": "74abadbd79735e9f6b30c513b422245bae737f81d4e3bd04a7b8e597e61937e8",
@@ -68,10 +68,11 @@
     "engines/compact/tiny-entry-f/shipping_walker.py": "cacaeda593a77a8c4ea359351bab1b9b4d2561844f579a993c1875d7b20b208d",
     "engines/compact/tiny-entry-f/shipping_integer_expressions.py": "3857ecd6c4cdf6a32ce13d1052957aa9aca087455e4b0b47be42b159234cd47a",
     "engines/compact/tiny-entry-f/shipping_square_successor.py": "acf2a93e6680213090143ef2a71014616b65d28c8119718b93d7c867229fefcb",
-    "engines/compact/tiny-entry-f/shipping_return_token.py": "9dde8169a5574496de6c68460df35208e0997c907de84722a309b88fc2011680"
+    "engines/compact/tiny-entry-f/shipping_return_token.py": "9dde8169a5574496de6c68460df35208e0997c907de84722a309b88fc2011680",
+    "engines/compact/tiny-entry-f/shipping_four_locals.py": "d8add0cefb4cece78f278f1ce32405686bacf11584ea8dc1dc60f2ff930607e6"
   },
   "positive_helper_sha256": {
-    "engines/compact/tiny-entry-d/verify.py": "3ae1f525e718f9cef90b4009ff415065587cf9552b82d2785911a672243fae33",
+    "engines/compact/tiny-entry-d/verify.py": "5e04140bf5bca6662c65be3d6f7cd032e24c867ebb1adf560582736ae564eca9",
     "engines/tests/chess_oracle.py": "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8"
   },
   "compiler": [
@@ -131,23 +132,23 @@
   },
   "final_4k_allocation": "unknown",
   "scalability_or_tournament_acceptance": "unproven",
-  "class": "full-F-late-fixed-resource8-TT18-v4",
-  "base_stage": "full-after-return-token",
+  "class": "full-F-late-fixed-resource8-TT18-v5",
+  "base_stage": "full-after-four-locals",
   "base_source": {
-    "bytes": 8167,
-    "sha256": "d9cb34ee6302822ab5a1b399039809d10be74cf69d50cc0ba3a14ecbdac6e86a"
+    "bytes": 8153,
+    "sha256": "62784180e34291403f2ad32a314bd83fb9de9167d820960ffe0099402879a8dc"
   },
   "expected": {
-    "source_bytes": 8192,
-    "source_sha256": "100fcb8a115047554ccde6052caf7ee648e042668e650ca8fe2820d46d56619c",
+    "source_bytes": 8178,
+    "source_sha256": "070c54ea5e851fa37b7878e95d604a025b881c7901e491336ad260c4cf5613d2",
     "native_bytes": 18576,
     "native_sha256": "d2bec6575e27b840d24b9166d5b99fc61a22037adf3e9be59d410b1f67356dcf",
-    "bootstrap_bytes": 9124,
-    "bootstrap_sha256": "9429c105d0c8183e9d8662900ba5c1c963eb141aa7219c76738df4ee898fec71",
-    "whole_bytes": 4381,
-    "whole_sha256": "fd52d1e7a162ca0d272e017168bcb493859bbe0605e8d49c8aa61c53ec84ec72"
+    "bootstrap_bytes": 9110,
+    "bootstrap_sha256": "a1248dfd481fbb705da8279ec0a7bac1536e7d37a05de84f3c88205b9fc0caf2",
+    "whole_bytes": 4360,
+    "whole_sha256": "cc509ed98e9ba8d1808a57aeafe36d7d4b6bd1301e61dc0ac24251d17dc9811b"
   },
-  "specialize_sha256": "3849c5f9a9e1bec8c8e1a06724da61d12bb431d7d3f2e64bfeaa2df12be66141",
+  "specialize_sha256": "d95e269eac44cba6c12433e4730b9f11f93007f4d6915afbeff3ab91e93db5dc",
   "packaging_paths": {
     "pack_stream.py": "engines/compact/tiny-a/pack_stream.py",
     "shipping_common.py": "engines/scripts/shipping_common.py",
@@ -159,30 +160,30 @@
   "source_raw_delta": 25,
   "fixed_late_source": {
     "source_proof": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-return-token-source-20261024-evidence/source-proof.json",
-      "bytes": 6043,
-      "sha256": "6ba3e63ea96eaecfb3819fb4ea272a212357687d1977a171bbe0b8e109158cd9"
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-four-locals-source-20261024-evidence/source-proof.json",
+      "bytes": 4513,
+      "sha256": "5f466167496b1baaf1b8cef718e1b4101d024798827aa08911c005c45d2eaf14"
     },
-    "firstcost_index": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-return-token-first-cost-20261024-evidence/final-index.json",
-      "bytes": 15042,
-      "sha256": "8a83e053f8826cc861e7a24fe6b6e653cb8279ffff04d5d8ef775301b3869b0d"
+    "firstcost_receipt": {
+      "path": "/home/stemxstudio/rove4k-f8-four-locals-first-cost-20261024-v1/results.json",
+      "bytes": 7069,
+      "sha256": "2741514562bdb6c983733ad9b17c7596520629563bc7c5a9129f76e49d4b1112"
     },
     "source_spans_count": 6,
     "protected_gaps": 7,
     "full_inverse": true,
     "source_raw_delta_vs_new_F2": 25,
-    "source_delta_vs_previous_F8": -193,
-    "whole_delta_vs_previous_F8_same_nice24": -11,
+    "source_delta_vs_previous_F8": -14,
+    "whole_delta_vs_previous_F8_same_nice24": -21,
     "source_names_reapplied": false,
     "one_condition_broadcast4_signal0_wait2": true,
     "strict_first_max_depth_selector": true,
     "actual_created_join_count": true,
     "F2_nice16_effect_combined": false,
     "upstream_full_F_normal_source": {
-      "path": "/home/stemxstudio/rove4k-f-return-token-normal-20261024-v1/full/build/main.c",
-      "bytes": 8167,
-      "sha256": "d9cb34ee6302822ab5a1b399039809d10be74cf69d50cc0ba3a14ecbdac6e86a"
+      "path": "/home/stemxstudio/rove4k-f-four-locals-normal-20261024-v1/full/build/main.c",
+      "bytes": 8153,
+      "sha256": "62784180e34291403f2ad32a314bd83fb9de9167d820960ffe0099402879a8dc"
     }
   },
   "previous_v1": {
@@ -234,44 +235,40 @@
     "eight_worker_CPU_activity_and_physical_exit_checks_unchanged": true
   },
   "local_normal_validation": {
-    "status": "PASS local v4 ordinary1(two reproductions) and strictpositive1(quit/EOF2); checkpoint CI separate",
+    "status": "PASS local v5 ordinary1(two reproductions) and unchanged positive1(quit/EOF2); checkpoint CI separate",
     "producing_recipe": {
-      "path": "/home/stemxstudio/rove4k-f8-return-token-promotion-20261024-v1/F8/build/inputs/engines/compact/tiny-entry-f-resource8/recipe.json",
-      "bytes": 27240,
-      "sha256": "edad19278bdbe50331031e85ddcb0ad709f01f3f0e89287e062db0ba36304531"
+      "path": "/home/stemxstudio/rove4k-f8-four-locals-promotion-20261024-v1/F8/build/inputs/engines/compact/tiny-entry-f-resource8/recipe.json",
+      "bytes": 35085,
+      "sha256": "078456606abaca25b7a407fb1cf9e6fb0518cab4bb41c8cef45898bc6c4f9120"
     },
     "producing_manifest": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-return-token-promotion-20261024-evidence/producing-source-final.json",
-      "bytes": 1817,
-      "sha256": "a0933ede97e0da9eedfbc211dbb176adcbb4a3682ef87d934a9be2388310e408"
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-four-locals-promotion-20261024-evidence/producing-source-final.json",
+      "bytes": 9015,
+      "sha256": "eb1e5223570e239f0c111ddb33cef52600b23e38c2ca4d02eadb1ddc24e3d952"
     },
-    "producing_source_closure": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-return-token-promotion-20261024-evidence/producing-source-closure.json",
-      "bytes": 7578,
-      "sha256": "c6b1cf2ab08d98deb64a4a3ab18217943c7e7ff38583ae6972b0e74f12ca4244"
-    },
-    "firstcost_index": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-return-token-first-cost-20261024-evidence/final-index.json",
-      "bytes": 15042,
-      "sha256": "8a83e053f8826cc861e7a24fe6b6e653cb8279ffff04d5d8ef775301b3869b0d"
+    "firstcost": {
+      "path": "/home/stemxstudio/rove4k-f8-four-locals-first-cost-20261024-v1/results.json",
+      "bytes": 7069,
+      "sha256": "2741514562bdb6c983733ad9b17c7596520629563bc7c5a9129f76e49d4b1112"
     },
     "build": {
-      "path": "/home/stemxstudio/rove4k-f8-return-token-promotion-20261024-v1/F8/build/build.json",
-      "bytes": 20072,
-      "sha256": "ba38dad6aa04c65701bc8f8abbe2f45c5f09dbde2d6b1d598b99655c663d1252"
+      "path": "/home/stemxstudio/rove4k-f8-four-locals-promotion-20261024-v1/F8/build/build.json",
+      "bytes": 20169,
+      "sha256": "e943fc1a92178cce3abadce1de1d4d191dfde820b7d09b10d91a49c8311a4358"
     },
     "runtime": {
-      "path": "/home/stemxstudio/rove4k-f8-return-token-promotion-20261024-v1/F8/runtime/runtime.json",
-      "bytes": 71338,
-      "sha256": "1f34a6c93e2f8430282031284b3220c4d5fde68fa20c134528ea108f48d27af4"
+      "path": "/home/stemxstudio/rove4k-f8-four-locals-promotion-20261024-v1/F8/runtime/runtime.json",
+      "bytes": 71461,
+      "sha256": "92fa5d4ab119037335c7d805d4c8e2dd61d62ddc3512144133c476fbc419f540"
     },
     "original_owned_stage": {
-      "path": "/home/stemxstudio/rove4k-f8-return-token-promotion-20261024-v1/F8/normal.json",
-      "bytes": 4104,
-      "sha256": "365f9a77723d7564fd7b230a4d08abdfff4451a9e4d99c95b2058eae0aee62f3"
+      "path": "/home/stemxstudio/rove4k-f8-four-locals-promotion-20261024-v1/F8/normal.json",
+      "bytes": 4229,
+      "sha256": "c89ba62a08b34dcc624e320cb25ea6c972bed64137f3a15eb4fd3b2a782f3901"
     },
     "ordinary_calls": 1,
     "native_and_whole_reproductions": 2,
+    "all_entire_firstcost_tuples_exact": true,
     "positive_calls": 1,
     "quit_EOF_sessions": 2,
     "legal_GO": 8,
@@ -283,19 +280,17 @@
     "eight_worker_guard_count_size_assertion": false,
     "cancellation_causality": "unproven; no tracing performed",
     "performance_scaling_peakstack_target4KiB_acceptance": "unproven",
-    "all_entire_firstcost_tuples_exact": true,
+    "source_closure_count_observed_not_gate": 64,
+    "F2_recipe_README_not_in_base_source_closure": true,
+    "source_names_reapplied": false,
     "original_terminal_reaped_group_absent": true,
     "pre_reap_other_members_absent_while_original_identity_held": true,
-    "publication_unmask_monitor_cleanup_scope_fixed_before_first_product": true,
-    "preserved_pre_product_v1": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-return-token-promotion-20261024-evidence/producing",
+    "publication_unmask_monitor_cleanup_scope_preserved": true,
     "owned_handles": 0,
     "forced_cleanup": false,
-    "late_PID_TID_probe": false,
     "normal_failures": 0,
     "normal_retries": 0,
     "firstcost_replay_fullF_rebuild_PP_SAN_negative_NVC_codec_search": 0,
-    "source_closure_count_observed_not_gate": 63,
-    "F2_recipe_README_not_in_base_source_closure": true,
     "producing_to_final_annotations_only": true
   },
   "previous_v2": {
@@ -550,5 +545,146 @@
     "eight_worker_guard_count_size_assertion": false,
     "worker_guard_scope": "D layout-specific guard-count/size snapshot is not called by F8; no eight-guard positive result inferred from generic mapping/raw maps.",
     "eight_worker_CPU_activity_and_physical_exit_checks_unchanged": true
+  },
+  "previous_v4": {
+    "class": "full-F-late-fixed-resource8-TT18-v4",
+    "base_stage": "full-after-return-token",
+    "base_source": {
+      "bytes": 8167,
+      "sha256": "d9cb34ee6302822ab5a1b399039809d10be74cf69d50cc0ba3a14ecbdac6e86a"
+    },
+    "expected": {
+      "source_bytes": 8192,
+      "source_sha256": "100fcb8a115047554ccde6052caf7ee648e042668e650ca8fe2820d46d56619c",
+      "native_bytes": 18576,
+      "native_sha256": "d2bec6575e27b840d24b9166d5b99fc61a22037adf3e9be59d410b1f67356dcf",
+      "bootstrap_bytes": 9124,
+      "bootstrap_sha256": "9429c105d0c8183e9d8662900ba5c1c963eb141aa7219c76738df4ee898fec71",
+      "whole_bytes": 4381,
+      "whole_sha256": "fd52d1e7a162ca0d272e017168bcb493859bbe0605e8d49c8aa61c53ec84ec72"
+    },
+    "specialize_sha256": "3849c5f9a9e1bec8c8e1a06724da61d12bb431d7d3f2e64bfeaa2df12be66141",
+    "fixed_late_source": {
+      "source_proof": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-return-token-source-20261024-evidence/source-proof.json",
+        "bytes": 6043,
+        "sha256": "6ba3e63ea96eaecfb3819fb4ea272a212357687d1977a171bbe0b8e109158cd9"
+      },
+      "firstcost_index": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-return-token-first-cost-20261024-evidence/final-index.json",
+        "bytes": 15042,
+        "sha256": "8a83e053f8826cc861e7a24fe6b6e653cb8279ffff04d5d8ef775301b3869b0d"
+      },
+      "source_spans_count": 6,
+      "protected_gaps": 7,
+      "full_inverse": true,
+      "source_raw_delta_vs_new_F2": 25,
+      "source_delta_vs_previous_F8": -193,
+      "whole_delta_vs_previous_F8_same_nice24": -11,
+      "source_names_reapplied": false,
+      "one_condition_broadcast4_signal0_wait2": true,
+      "strict_first_max_depth_selector": true,
+      "actual_created_join_count": true,
+      "F2_nice16_effect_combined": false,
+      "upstream_full_F_normal_source": {
+        "path": "/home/stemxstudio/rove4k-f-return-token-normal-20261024-v1/full/build/main.c",
+        "bytes": 8167,
+        "sha256": "d9cb34ee6302822ab5a1b399039809d10be74cf69d50cc0ba3a14ecbdac6e86a"
+      }
+    },
+    "local_normal_validation": {
+      "status": "PASS local v4 ordinary1(two reproductions) and strictpositive1(quit/EOF2); checkpoint CI separate",
+      "producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-f8-return-token-promotion-20261024-v1/F8/build/inputs/engines/compact/tiny-entry-f-resource8/recipe.json",
+        "bytes": 27240,
+        "sha256": "edad19278bdbe50331031e85ddcb0ad709f01f3f0e89287e062db0ba36304531"
+      },
+      "producing_manifest": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-return-token-promotion-20261024-evidence/producing-source-final.json",
+        "bytes": 1817,
+        "sha256": "a0933ede97e0da9eedfbc211dbb176adcbb4a3682ef87d934a9be2388310e408"
+      },
+      "producing_source_closure": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-return-token-promotion-20261024-evidence/producing-source-closure.json",
+        "bytes": 7578,
+        "sha256": "c6b1cf2ab08d98deb64a4a3ab18217943c7e7ff38583ae6972b0e74f12ca4244"
+      },
+      "firstcost_index": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-return-token-first-cost-20261024-evidence/final-index.json",
+        "bytes": 15042,
+        "sha256": "8a83e053f8826cc861e7a24fe6b6e653cb8279ffff04d5d8ef775301b3869b0d"
+      },
+      "build": {
+        "path": "/home/stemxstudio/rove4k-f8-return-token-promotion-20261024-v1/F8/build/build.json",
+        "bytes": 20072,
+        "sha256": "ba38dad6aa04c65701bc8f8abbe2f45c5f09dbde2d6b1d598b99655c663d1252"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-f8-return-token-promotion-20261024-v1/F8/runtime/runtime.json",
+        "bytes": 71338,
+        "sha256": "1f34a6c93e2f8430282031284b3220c4d5fde68fa20c134528ea108f48d27af4"
+      },
+      "original_owned_stage": {
+        "path": "/home/stemxstudio/rove4k-f8-return-token-promotion-20261024-v1/F8/normal.json",
+        "bytes": 4104,
+        "sha256": "365f9a77723d7564fd7b230a4d08abdfff4451a9e4d99c95b2058eae0aee62f3"
+      },
+      "ordinary_calls": 1,
+      "native_and_whole_reproductions": 2,
+      "positive_calls": 1,
+      "quit_EOF_sessions": 2,
+      "legal_GO": 8,
+      "native_TIDs_each": 9,
+      "all_eight_worker_CPU_activity": true,
+      "stable9_idle_count_state_wait_before_strict_FD_children": true,
+      "strict_FD0_1_2_children_absent_global_noWX_mainstack_nonexec": true,
+      "raw_maps_collected": true,
+      "eight_worker_guard_count_size_assertion": false,
+      "cancellation_causality": "unproven; no tracing performed",
+      "performance_scaling_peakstack_target4KiB_acceptance": "unproven",
+      "all_entire_firstcost_tuples_exact": true,
+      "original_terminal_reaped_group_absent": true,
+      "pre_reap_other_members_absent_while_original_identity_held": true,
+      "publication_unmask_monitor_cleanup_scope_fixed_before_first_product": true,
+      "preserved_pre_product_v1": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-return-token-promotion-20261024-evidence/producing",
+      "owned_handles": 0,
+      "forced_cleanup": false,
+      "late_PID_TID_probe": false,
+      "normal_failures": 0,
+      "normal_retries": 0,
+      "firstcost_replay_fullF_rebuild_PP_SAN_negative_NVC_codec_search": 0,
+      "source_closure_count_observed_not_gate": 63,
+      "F2_recipe_README_not_in_base_source_closure": true,
+      "producing_to_final_annotations_only": true
+    },
+    "v4_startup_and_resource_contract": {
+      "verify_before_sha256": "791570493b40bcc381507c4e61bdbe13c8722b8ec6d9332c7e3e2a39f90c6406",
+      "verify_after_sha256": "d1aa5200f56496af2a89e9788c1e07d36dc98fabe39f0f071c22baf2fbf6851a",
+      "only_verifier_changes": "v4 class/base-stage literals and error text; all existing assertions and runtime body preserved",
+      "startup_stable9_count_state_wait_before_strict_tasks_FD_children": true,
+      "strict_FD0_1_2_and_children_absent": true,
+      "global_noWX_and_main_process_stack_nonexec": true,
+      "raw_maps_collected": true,
+      "eight_worker_guard_count_size_assertion": false,
+      "worker_guard_scope": "D layout-specific guard-count/size snapshot is not called by F8; no eight-guard positive result inferred from generic mapping/raw maps.",
+      "eight_worker_CPU_activity_and_physical_exit_checks_unchanged": true
+    }
+  },
+  "v5_startup_and_resource_contract": {
+    "verify_before_sha256": "d1aa5200f56496af2a89e9788c1e07d36dc98fabe39f0f071c22baf2fbf6851a",
+    "verify_after_sha256": "938f1012397c468dbca60b213018446c23d985631d7ed21fbbe6052f365919e5",
+    "only_verifier_changes": "v5 class/base-stage literals and error text; all positive assertions/body preserved",
+    "D_helper_before_sha256": "3ae1f525e718f9cef90b4009ff415065587cf9552b82d2785911a672243fae33",
+    "D_helper_after_sha256": "5e04140bf5bca6662c65be3d6f7cd032e24c867ebb1adf560582736ae564eca9",
+    "D_helper_scope": "only EXPECTED_FUSED_BODY and main source-policy admission; F8 consumed positive functions terminated-to-main exactly unchanged",
+    "D_positive_body_bytes": 19823,
+    "D_positive_body_sha256": "c372464a84055a87ab09dd62140daa90bbde267a755d9a9337421d2f25f1b4c9",
+    "startup_stable9_count_state_wait_before_strict_tasks_FD_children": true,
+    "strict_FD0_1_2_and_children_absent": true,
+    "global_noWX_and_main_process_stack_nonexec": true,
+    "raw_maps_collected": true,
+    "eight_worker_guard_count_size_assertion": false,
+    "eight_worker_CPU_activity_and_physical_exit_checks_unchanged": true,
+    "corrected_Popen_publication_unmask_monitor_finally_preserved": true
   }
 }

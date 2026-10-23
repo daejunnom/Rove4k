@@ -1,3 +1,37 @@
+# Optional compact A full PALS feedback — implementation in qualification, 2026-10-24
+
+`--policy root-pals-feedback` adds actual compatible completed NORMAL-slot reuse,
+proposal reply selection, a constrained COUNTERREPLY, and same-first unrestricted
+Repair with rechecking of the original challenged reply. It is a separate build
+policy. Default Loose4525, root NORMAL5132 and hint/leader-Repair5151 keep their
+existing descriptors and helper sources.
+
+The frozen prototype15535 is now reproduced through a pure eight-span helper
+following the actual maintained NORMAL transformation. Inverse/literal packaging
+runs the existing NORMAL -> output -> condition -> names guards on the real input.
+Initial actual cost is C15535, native22672/0767d28b..., bootstrap16489 and whole6677:
++1545B over NORMAL and +2152B over Loose for the additional policy, not an
+identical-function compression loss. This is2581B over4096; no 4KiB acceptance.
+
+Only unrestricted completed NORMAL or Repair scores can reach root acceptance.
+Counterreply is a same-first diagnostic, never a root bound or cache score. Repair
+keeps the challenged reply as an ordering hint and searches all legal replies;
+its normal result is checked against that same reply before root H/G changes.
+A persistent contradiction or incomplete review cancels the incomplete iteration
+and preserves the last completed depth. It does not declare the whole root or
+other first moves refuted. Original job, deadline, helper TT-write fence, stop,
+round drain and physical pool ownership remain. Private NORMAL history/order and
+ordinary LMR variation are allowed; this is not formal minimax or identical
+private-function equivalence. Diagnostic TT behavior follows C's unrestricted
+grandchild contract, not Rust's isolated whole clause.
+
+Shipping/DEV ordinary reproduction, actual selected wrapper and observed full
+feedback execution are pending below this source checkpoint. Source helper
+`runtime_qualified:false` describes the pure transform itself. No existing
+NORMAL/hint runtime result is relabeled as a PALS runtime test. Fresh forwarding
+has not been changed or executed in this lane; the named builder/verifier policy
+is the maintained execution entry. Shared test assertions remain unchanged.
+
 # Optional fixed2 A same-A NORMAL completed-slot reuse
 
 Separate build-time opt-in: **root-normal-slots**, first-cost **5132 B**.

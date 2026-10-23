@@ -12,9 +12,11 @@ import json
 import os
 from pathlib import Path
 import platform
+import resource
 import signal
 import subprocess
 import sys
+import tempfile
 import time
 
 sys.dont_write_bytecode = True
@@ -47,6 +49,56 @@ def module(name, path):
     result = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(result)
     return result
+
+
+owned = {}
+
+def exited_unreaped(child):
+    # Observe exit without releasing the original child's PID/group identity.
+    return os.waitid(os.P_PID, child.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT) is not None
+
+
+def group_absent(child):
+    try: os.killpg(child.pid, 0); return False
+    except ProcessLookupError: return True
+
+
+def group_others(child):
+    # The original leader is deliberately unreaped during this observation.
+    rows=[]
+    for path in Path('/proc').iterdir():
+        if not path.name.isdecimal() or int(path.name)==child.pid:continue
+        try:
+            fields=(path/'stat').read_text().rsplit(')',1)[1].split()
+            if int(fields[2])==child.pid:rows.append({'pid':int(path.name),'state':fields[0]})
+        except (FileNotFoundError,ProcessLookupError,PermissionError):pass
+    return rows
+
+def settle(child, row, force=False):
+    if not row.get('reaped'):
+        extras=group_others(child)
+        if force or not exited_unreaped(child) or extras:
+            row['forced_cleanup']=True
+            row['other_group_members_before_cleanup']=extras
+            for sig in (signal.SIGTERM,signal.SIGKILL):
+                # Identity remains reserved by the same unreaped Popen leader.
+                try:os.killpg(child.pid,sig)
+                except ProcessLookupError:pass
+                end=time.monotonic()+2
+                while time.monotonic()<end:
+                    if exited_unreaped(child) and not group_others(child):break
+                    time.sleep(.025)
+                if exited_unreaped(child) and not group_others(child):break
+        extras=group_others(child)
+        row['other_group_members_before_reap']=extras
+        if not exited_unreaped(child) or extras:
+            row['unsettled_before_reap']=True
+            raise RuntimeError('Owned original group did not settle while leader identity retained')
+        row['original_identity_retained_until_other_members_absent']=True
+        child.wait(timeout=3)
+        row.update(returncode=child.returncode,terminal=True,reaped=True)
+    row['group_absent_at_settlement']=group_absent(child)
+    if row['group_absent_at_settlement']:owned.pop(child,None)
 
 
 def main():
@@ -93,44 +145,57 @@ def main():
         remaining = min(timeout, deadline-time.monotonic())
         if remaining <= 0:
             raise TimeoutError('aggregate fixed-build deadline')
+        handled = {signal.SIGTERM, signal.SIGINT, signal.SIGALRM, signal.SIGXCPU}
+        row = {'command': command, 'forced_cleanup': False}
+        report.setdefault('commands', []).append(row)
         process = None
-        failed = None
-        try:
-            previous_mask = signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGTERM})
+        begin = time.monotonic()
+        with tempfile.TemporaryFile() as stdout_file, tempfile.TemporaryFile() as stderr_file:
             try:
-                process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, start_new_session=True,
-                                           preexec_fn=lambda: signal.pthread_sigmask(signal.SIG_SETMASK, previous_mask))
-            finally:
-                signal.pthread_sigmask(signal.SIG_SETMASK, previous_mask)
-            stdout, stderr = process.communicate(timeout=remaining)
-            record = {'command': command, 'returncode': process.returncode, 'stdout': stdout.decode(errors='replace'),
-                      'stderr': stderr.decode(errors='replace')}
-            if process.returncode:
-                (out/'failed-command.json').write_text(json.dumps(record, indent=2)+'\n')
-                raise RuntimeError('fixed command failed; see failed-command.json')
-            return record
-        except BaseException as error:
-            failed = {'type': type(error).__name__, 'message': str(error)}
-            raise
-        finally:
-            if process is not None:
+                mask = signal.pthread_sigmask(signal.SIG_BLOCK, handled)
+                def setup():
+                    resource.setrlimit(resource.RLIMIT_AS, (2 << 30, 2 << 30))
+                    resource.setrlimit(resource.RLIMIT_CPU, (40, 45))
+                    signal.pthread_sigmask(signal.SIG_SETMASK, mask)
                 try:
-                    os.killpg(process.pid, signal.SIGKILL)
-                except ProcessLookupError:
-                    pass
-                if process.poll() is None:
-                    process.wait(timeout=3)
-                if failed is not None:
-                    stdout, stderr = process.communicate(timeout=3)
-                    (out/'failed-command.json').write_text(json.dumps({'command': command, 'returncode': process.returncode,
-                        'stdout': stdout.decode(errors='replace'), 'stderr': stderr.decode(errors='replace'), 'failure': failed}, indent=2)+'\n')
+                    process = subprocess.Popen(command, stdin=subprocess.DEVNULL,
+                        stdout=stdout_file, stderr=stderr_file, start_new_session=True, preexec_fn=setup)
+                    owned[process] = row
+                    row['pid'] = process.pid
+                    save()
+                finally:
+                    signal.pthread_sigmask(signal.SIG_SETMASK, mask)
+                while not exited_unreaped(process):
+                    if time.monotonic()-begin > remaining:
+                        raise TimeoutError('fixed child wall deadline')
+                    if os.fstat(stdout_file.fileno()).st_size + os.fstat(stderr_file.fileno()).st_size > 1 << 20:
+                        raise RuntimeError('fixed child output budget')
+                    time.sleep(.025)
+            finally:
+                if process is not None:
+                    mask = signal.pthread_sigmask(signal.SIG_BLOCK, handled)
+                    try:
+                        settle(process, row, force=not exited_unreaped(process))
+                    finally:
+                        try:
+                            stdout_file.seek(0); stderr_file.seek(0)
+                            row['stdout'] = stdout_file.read((1 << 20)+1).decode(errors='replace')
+                            row['stderr'] = stderr_file.read((1 << 20)+1).decode(errors='replace')
+                            row['elapsed_diagnostic_seconds'] = time.monotonic()-begin
+                            save()
+                        finally:
+                            signal.pthread_sigmask(signal.SIG_SETMASK, mask)
+        if row['returncode'] or row['forced_cleanup'] or not row['group_absent_at_settlement']:
+            (out/'failed-command.json').write_text(json.dumps(row, indent=2)+'\n')
+            raise RuntimeError('fixed command failed; see failed-command.json')
+        return row
 
     save()
     try:
         expected_inputs = {**recipe['native_source_sha256'], **recipe['loader_source_sha256']}
-        for name in (*expected_inputs, 'build.py', 'packer.py', 'recipe.json'):
+        for name in (*expected_inputs, *recipe['shipping_source_sha256'], 'build.py', 'packer.py', 'recipe.json'):
             raw, data = normalized(HERE/name)
-            if name in expected_inputs and sha(data) != expected_inputs[name]:
+            if name in {**expected_inputs, **recipe['shipping_source_sha256']} and sha(data) != {**expected_inputs, **recipe['shipping_source_sha256']}[name]:
                 raise ValueError('maintained source differs from fixed recipe: '+name)
             target = frozen/name
             target.parent.mkdir(parents=True, exist_ok=True)
@@ -138,6 +203,21 @@ def main():
             report['inputs'][name] = {'bytes': len(data), 'sha256': sha(data), 'working_bytes_sha256': sha(raw), 'LF_normalization': raw != data}
         packer = module('entry_d_fixed_packer', frozen/'packer.py')
         codec = module('entry_d_context_codec', frozen/'loader/codec.py')
+        shipping = module('entry_d_shipping_fused_ray', frozen/'shipping_fused_ray.py')
+        generated_native = out/'shipping-native'
+        generated_native.mkdir()
+        for name in recipe['native_source_sha256']:
+            original = (frozen/name).read_bytes()
+            data = original
+            if name == 'native/board.c':
+                data, source_policy = shipping.transform_source(original)
+                if sha(data) != recipe['generated_native_source_sha256'][name]:
+                    raise ValueError('generated shipping Board differs')
+                report['source_policy'] = 'scalar-shipping-fused-rays-v1'
+                report['source_transform'] = source_policy
+            (generated_native/Path(name).name).write_bytes(data)
+        report['generated_native_sources'] = {p.name: {'bytes': p.stat().st_size, 'sha256': sha(p.read_bytes())}
+                                               for p in generated_native.iterdir()}
         report['tools'] = {'cc': run(['cc', '--version'])['stdout'], 'ld': run(['ld', '--version'])['stdout'],
                            'python': sys.version, 'platform': platform.platform()}
         for form, expected in recipe['expected'].items():
@@ -148,8 +228,8 @@ def main():
                 destination = directory/attempt
                 destination.mkdir()
                 command = ['cc', *recipe['native_flags'], f"-DD_HQ={expected['hq']}", '-DDEV=0',
-                           *[str(frozen/'native'/name) for name in recipe['native_units']],
-                           '-Wl,-T,'+str(frozen/'native/image.ld'), '-o', str(destination/'linked')]
+                           *[str(generated_native/name) for name in recipe['native_units']],
+                           '-Wl,-T,'+str(generated_native/'image.ld'), '-o', str(destination/'linked')]
                 compiled = run(command)
                 (destination/'compile.json').write_text(json.dumps(compiled, indent=2)+'\n')
                 native = packer.strip_native((destination/'linked').read_bytes())
@@ -205,9 +285,22 @@ def main():
         report['failure'] = {'type': type(error).__name__, 'message': str(error)}
         raise
     finally:
-        report['elapsed_seconds'] = time.monotonic()-started
-        save()
-        signal.signal(signal.SIGTERM, previous_term)
+        handled = {signal.SIGTERM, signal.SIGINT, signal.SIGALRM, signal.SIGXCPU}
+        mask = signal.pthread_sigmask(signal.SIG_BLOCK, handled)
+        try:
+            for child, row in list(owned.items()):
+                try:
+                    settle(child, row, force=not row.get('reaped', False))
+                except BaseException as error:
+                    report.setdefault('cleanup_errors', []).append({'type': type(error).__name__, 'message': str(error)})
+            report['owned_tool_handles'] = len(owned)
+            if owned or report.get('cleanup_errors'):
+                report['complete'] = False
+            report['elapsed_seconds'] = time.monotonic()-started
+            save()
+        finally:
+            signal.signal(signal.SIGTERM, previous_term)
+            signal.pthread_sigmask(signal.SIG_SETMASK, mask)
 
 
 if __name__ == '__main__':

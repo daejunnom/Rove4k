@@ -54,14 +54,22 @@ def admit(data, expected, digest):
     return _admit_mapping(expected['native_sha256'], expected['native_bytes'], layout, hq=expected['hq'])
 
 
-def _admit_mapping(native_sha256, native_bytes, layout, *, hq):
+def _native_mapping(native_sha256, native_bytes):
     # Bind each exact native identity to its own qualified private mapping ABI.
     # This is not a generic permission for arbitrary two/three-page images.
     fixed = {
         ('662b0eb10046d0b0ab105bba0f793371bb869eb61aa4419c8c2fa95f7d39c32d', 7612): (0, 4201533, (4194304, 8192, 4202496, 175092, 176128, 4190208, 192512, 4378624)),
         ('49fb8e2916ba394cda6665f287df7ff4bfcd7c76ef95dc613628f3513394c6b6', 8000): (1, 4201848, (4194304, 8192, 4202496, 175092, 176128, 4190208, 192512, 4378624)),
         ('3c662941aa11af8521d3c601322e9aa38405a3bfbeb9332d55008907217a4b2e', 8000): (1, 4201846, (4194304, 8192, 4202496, 175064, 176128, 4190208, 192512, 4378624)),
+        ('395fea4ddf80d155227700fa8da9b06437082837a1878a818605f268506de50c', 7388): (0, 4201328, (4194304, 8192, 4202496, 175092, 176128, 4190208, 192512, 4378624)),
     }.get((native_sha256, native_bytes))
+    if fixed is None:
+        raise ValueError('unknown exact compiled native identity')
+    return fixed
+
+
+def _admit_mapping(native_sha256, native_bytes, layout, *, hq):
+    fixed = _native_mapping(native_sha256, native_bytes)
     geometry = tuple(layout[key] for key in ('image_base', 'image_pages', 'bss_base', 'bss_size',
                       'bss_pages', 'guard_base', 'reserve_size', 'upper_guard'))
     if fixed != (hq, layout['entry'], geometry) or layout['image_size'] != native_bytes:
@@ -93,6 +101,8 @@ def body_image(expected):
             '07b6754aabefd1171fbdfae84ce30e1b50cff8a527a124d99998e18170f0d07c',
         (8000, '3c662941aa11af8521d3c601322e9aa38405a3bfbeb9332d55008907217a4b2e'):
             'f2b4804631d293ccb4742ed8718869a29736bfb46f840044659e44c8d0f95d4b',
+        (7388, '395fea4ddf80d155227700fa8da9b06437082837a1878a818605f268506de50c'):
+            'b2982877c1c1bf97cafcfcd5b9dd210835a3eded07dcbf3c38e8c991c4d8943a',
     }.get((expected['native_bytes'], expected['native_sha256']))
     if restored is None:
         raise ValueError('unknown body232 compiled native')
@@ -106,13 +116,13 @@ def body_image(expected):
 
 def compile_loader(directory, sources, payload, layout, flags, run, digest, *, model_wmask, checkpoint=False, image=None):
     # Native bytes/layout were admitted above; bind its private model literal.
-    fixed_model = {(7612, 4201533): 16847486, (8000, 4201848): 135274878, (8000, 4201846): 135274878}.get((layout['image_size'], layout['entry']))
+    fixed_model = {(7612, 4201533): 16847486, (8000, 4201848): 135274878, (8000, 4201846): 135274878, (7388, 4201328): 16847486}.get((layout['image_size'], layout['entry']))
     if type(model_wmask) is not int or model_wmask != fixed_model:
         raise ValueError('unsupported exact native/model mapping contract')
     if image is not None:
         body_image({'native_bytes': layout['image_size'], 'native_sha256': image['compiled_native_sha256'], 'image': image})
         _admit_mapping(image['compiled_native_sha256'], image['compiled_native_bytes'], layout,
-                       hq=0 if image['compiled_native_bytes'] == 7612 else 1)
+                       hq=_native_mapping(image['compiled_native_sha256'], image['compiled_native_bytes'])[0])
     directory.mkdir(parents=True)
     payload_path = directory / 'payload.bin'
     payload_path.write_bytes(payload)

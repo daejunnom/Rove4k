@@ -152,6 +152,8 @@ def body_image(native):
             '07b6754aabefd1171fbdfae84ce30e1b50cff8a527a124d99998e18170f0d07c',
         (8000,'3c662941aa11af8521d3c601322e9aa38405a3bfbeb9332d55008907217a4b2e'):
             'f2b4804631d293ccb4742ed8718869a29736bfb46f840044659e44c8d0f95d4b',
+        (7388,'395fea4ddf80d155227700fa8da9b06437082837a1878a818605f268506de50c'):
+            'b2982877c1c1bf97cafcfcd5b9dd210835a3eded07dcbf3c38e8c991c4d8943a',
     }.get((len(native),sha(native)))
     if restored_sha is None:raise ValueError('unknown body232 compiled native')
     at=0;cut_seen=False

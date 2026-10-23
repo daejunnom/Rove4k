@@ -94,7 +94,8 @@
     "engines/compact/tiny-entry-f/shipping_walker.py": "cacaeda593a77a8c4ea359351bab1b9b4d2561844f579a993c1875d7b20b208d",
     "engines/compact/tiny-entry-f/shipping_integer_expressions.py": "3857ecd6c4cdf6a32ce13d1052957aa9aca087455e4b0b47be42b159234cd47a",
     "engines/compact/tiny-entry-f/shipping_square_successor.py": "acf2a93e6680213090143ef2a71014616b65d28c8119718b93d7c867229fefcb",
-    "engines/compact/tiny-entry-f/shipping_return_token.py": "9dde8169a5574496de6c68460df35208e0997c907de84722a309b88fc2011680"
+    "engines/compact/tiny-entry-f/shipping_return_token.py": "9dde8169a5574496de6c68460df35208e0997c907de84722a309b88fc2011680",
+    "engines/compact/tiny-entry-f/shipping_four_locals.py": "d8add0cefb4cece78f278f1ce32405686bacf11584ea8dc1dc60f2ff930607e6"
   },
   "resource_literals": [
     [
@@ -268,22 +269,22 @@
   },
   "expected": {
     "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
-    "source_bytes": 8167,
-    "source_sha256": "d9cb34ee6302822ab5a1b399039809d10be74cf69d50cc0ba3a14ecbdac6e86a",
+    "source_bytes": 8153,
+    "source_sha256": "62784180e34291403f2ad32a314bd83fb9de9167d820960ffe0099402879a8dc",
     "native_bytes": 18576,
     "native_sha256": "a9e5d6484a04af89667b67f6fa14fb6bdb40171f4f9b68740d12230fd15b89e4",
-    "whole_bytes": 4369,
-    "whole_sha256": "c24fa55d79a5e03a7bfcdcf6a970307284ff3158effac575a23228f59e8ccd52",
+    "whole_bytes": 4353,
+    "whole_sha256": "957e04b4a998a786afdeae7a34b29a4770e7b9142204afa3025f7afe94d1637c",
     "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
     "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
-    "bootstrap_sha256": "479a1aa413cffd35220381b18c5a793e355ccfd331e4e436e304ee6987c198c3",
+    "bootstrap_sha256": "0387591f5d101b918dd93d657542c0a1e8c5931673301643a677a001e321f6db",
     "semantic_readable_bytes": 25720,
     "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
     "dev_source_bytes": 19488,
     "dev_native_bytes": 26984,
     "input_profile_readable_bytes": 28587,
     "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
-    "bootstrap_bytes": 9089
+    "bootstrap_bytes": 9075
   },
   "local_input_sha256": {
     "engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
@@ -6567,6 +6568,215 @@
       "FD_list_inspection": false,
       "cancellation_causality": "unproven",
       "post_execution_changes": "recipe and README completion annotations only; producing helper/build/expected/compiler/codec remain exact"
+    }
+  },
+  "four_local_spellings": {
+    "stage": "full after return_keyword_token; explicit optional full_reference applies; actual optional and DEV bypass",
+    "helper_API": "transform_source/restore_source/source_literal; no external generation input",
+    "helper_sha256": "d8add0cefb4cece78f278f1ce32405686bacf11584ea8dc1dc60f2ff930607e6",
+    "predecessor_expected": {
+      "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+      "source_bytes": 8167,
+      "source_sha256": "d9cb34ee6302822ab5a1b399039809d10be74cf69d50cc0ba3a14ecbdac6e86a",
+      "native_bytes": 18576,
+      "native_sha256": "a9e5d6484a04af89667b67f6fa14fb6bdb40171f4f9b68740d12230fd15b89e4",
+      "whole_bytes": 4369,
+      "whole_sha256": "c24fa55d79a5e03a7bfcdcf6a970307284ff3158effac575a23228f59e8ccd52",
+      "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
+      "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
+      "bootstrap_sha256": "479a1aa413cffd35220381b18c5a793e355ccfd331e4e436e304ee6987c198c3",
+      "semantic_readable_bytes": 25720,
+      "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
+      "dev_source_bytes": 19488,
+      "dev_native_bytes": 26984,
+      "input_profile_readable_bytes": 28587,
+      "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
+      "bootstrap_bytes": 9089
+    },
+    "expected_changes": {
+      "source_bytes": 8153,
+      "source_sha256": "62784180e34291403f2ad32a314bd83fb9de9167d820960ffe0099402879a8dc",
+      "bootstrap_bytes": 9075,
+      "bootstrap_sha256": "0387591f5d101b918dd93d657542c0a1e8c5931673301643a677a001e321f6db",
+      "whole_bytes": 4353,
+      "whole_sha256": "957e04b4a998a786afdeae7a34b29a4770e7b9142204afa3025f7afe94d1637c"
+    },
+    "bindings": [
+      [
+        "e",
+        "zA",
+        "c",
+        2
+      ],
+      [
+        "e",
+        "to",
+        "g",
+        3
+      ],
+      [
+        "i",
+        "yk",
+        "b",
+        7
+      ],
+      [
+        "y",
+        "fb",
+        "b",
+        2
+      ]
+    ],
+    "physical_edits": 14,
+    "macro_arguments": 3,
+    "raw_delta": -14,
+    "whole_delta": -16,
+    "AST_declarations": 251,
+    "AST_reference_edges": 2310,
+    "entire_reparse_binding_graph_equal": true,
+    "entire_native_bytes_equal": true,
+    "source_inverse_and_protected_gaps_exact": true,
+    "literal_consumer": "restore8153 to actual8167; call unchanged return/successor/common/pack literal guards; forward source interior; full AST byte restoration",
+    "actual_optional_expected_unchanged": [
+      4319,
+      4045
+    ],
+    "separate_full_reference": {
+      "bytes": 8153,
+      "sha256": "62784180e34291403f2ad32a314bd83fb9de9167d820960ffe0099402879a8dc"
+    },
+    "normal_validation_pending": false,
+    "normal_selected_runtime_here": true,
+    "F8_composition_execution_here": false,
+    "source_cost_index": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-four-locals-20261024-evidence/final-index.json",
+      "sha256": "4e536ae786b5d518c9d5321a7e186faef48c21c374d5dcc5e80d3be4abf033bf"
+    },
+    "normal_validation": {
+      "status": "PASS onefull--dev +unchangedselected +twooptionalordinary",
+      "actual_root": "/home/stemxstudio/rove4k-f-four-locals-normal-20261024-v1",
+      "normal_receipt": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-four-locals-20261024-evidence/normal.json",
+        "bytes": 174276,
+        "sha256": "9fedb3506aa28746a04f808ec95e1ef01f46900441fa52f1a9f29a5ca3387884"
+      },
+      "producing_recipe": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-four-locals-20261024-evidence/producing/recipe.json",
+        "bytes": 351044,
+        "sha256": "bec97739acb010d5c13e3bff9aca2227ffe05bfbd5585dd6c4562a5ca0cb371e"
+      },
+      "producing_build": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-four-locals-20261024-evidence/producing/build.py",
+        "bytes": 39571,
+        "sha256": "7598510c443857f3bd93529e7d31cabe93cae25aa132441d04df7d5460600617"
+      },
+      "producing_helper": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-four-locals-20261024-evidence/producing/shipping_four_locals.py",
+        "bytes": 3511,
+        "sha256": "d8add0cefb4cece78f278f1ce32405686bacf11584ea8dc1dc60f2ff930607e6"
+      },
+      "full_build": {
+        "path": "/home/stemxstudio/rove4k-f-four-locals-normal-20261024-v1/full/build/build.json",
+        "bytes": 271331,
+        "sha256": "d2e1876b374cf08cd4fb0ec5f479d006b05f113ea6b70d1cc03d5a04363ded0c"
+      },
+      "selected_runtime": {
+        "path": "/home/stemxstudio/rove4k-f-four-locals-normal-20261024-v1/full/runtime/runtime.json",
+        "bytes": 76897,
+        "sha256": "326eabd2ad9f450908804fb04ac9365497ca434592459cf6d6486564785dd312"
+      },
+      "full_shipping_reproductions": 2,
+      "unchanged_DEV_reproductions": 2,
+      "unchanged_selected_verifier": {
+        "path": "/home/stemxstudio/rove4k-f-four-locals-normal-20261024-v1/full/build/selected-verifier/engines/compact/tiny-entry-f/verify.py",
+        "bytes": 7012,
+        "sha256": "cc63a511446c35db54676356a9d885b95db7da994133147cda3e3ff1c4464b0c"
+      },
+      "quit_EOF_sessions": 2,
+      "legal_GO_epochs": 8,
+      "startup_TIDs": 3,
+      "native_image_private_cleanup_readerEOF_physical_exit0": true,
+      "FD_inspection_claimed": false,
+      "cancellation_causal_link": "unproven",
+      "optional_ordinary": [
+        {
+          "policy": "material-noise",
+          "build": {
+            "path": "/home/stemxstudio/rove4k-f-four-locals-normal-20261024-v1/material/build/build.json",
+            "bytes": 214691,
+            "sha256": "e5f9a57beb580d25577006fcc1d18c3c04ee4f1d12bc2b6bfb805d374daa9b99"
+          },
+          "actual_tuple": {
+            "main.c": {
+              "path": "/home/stemxstudio/rove4k-f-four-locals-normal-20261024-v1/material/build/main.c",
+              "bytes": 8508,
+              "sha256": "a7b50f5d084b558c1fb07f3c4c572afa29291a4982ddd00fd783f187a3f74c93"
+            },
+            "native/x": {
+              "path": "/home/stemxstudio/rove4k-f-four-locals-normal-20261024-v1/material/build/native/x",
+              "bytes": 18576,
+              "sha256": "24ae0622c5a0fd10191950f53e0f6ea5d3e3d05fbb1b20aaa72c2b5f2754873f"
+            },
+            "bootstrap.py": {
+              "path": "/home/stemxstudio/rove4k-f-four-locals-normal-20261024-v1/material/build/bootstrap.py",
+              "bytes": 9481,
+              "sha256": "d5154ad0ce7db5a9968cf0a80c3da36269aaa154af4831a57e0b5ad4b2585f7f"
+            },
+            "x": {
+              "path": "/home/stemxstudio/rove4k-f-four-locals-normal-20261024-v1/material/build/x",
+              "bytes": 4319,
+              "sha256": "dd9566fcb5b9373244703be1201715f286a2cde66db397dc0ef2e0372ac7be5f"
+            }
+          },
+          "selected_tuple_entire_predecessor_equal": true,
+          "full_reference_reproductions": 2,
+          "full_reference_bytes": 8153,
+          "full_reference_sha256": "62784180e34291403f2ad32a314bd83fb9de9167d820960ffe0099402879a8dc",
+          "DEV_runs": 0,
+          "selected_runtime_runs": 0
+        },
+        {
+          "policy": "material-move-tt",
+          "build": {
+            "path": "/home/stemxstudio/rove4k-f-four-locals-normal-20261024-v1/move/build/build.json",
+            "bytes": 236709,
+            "sha256": "7f922c7a93ae19d140576e516ad0df7431a2e103b7958e0178787c520462676c"
+          },
+          "actual_tuple": {
+            "main.c": {
+              "path": "/home/stemxstudio/rove4k-f-four-locals-normal-20261024-v1/move/build/main.c",
+              "bytes": 7741,
+              "sha256": "6d3fa3e0099285dd9efe8934f7b419fdd204f80ed4eaf502ad64a9f5b2e12122"
+            },
+            "native/x": {
+              "path": "/home/stemxstudio/rove4k-f-four-locals-normal-20261024-v1/move/build/native/x",
+              "bytes": 18576,
+              "sha256": "1a964e23bc8967b6eb74714389b4d94fd0e505d5d1eba3616775b7e4b0a522d5"
+            },
+            "bootstrap.py": {
+              "path": "/home/stemxstudio/rove4k-f-four-locals-normal-20261024-v1/move/build/bootstrap.py",
+              "bytes": 8714,
+              "sha256": "39d03ecca6211628b1748a72390a3bec71681cb8e2f0f0999481dc83ebc0dc5c"
+            },
+            "x": {
+              "path": "/home/stemxstudio/rove4k-f-four-locals-normal-20261024-v1/move/build/x",
+              "bytes": 4045,
+              "sha256": "825108ca4528301f091d3deb44aaaf890b0ae54ac81bbebfbd6ff7e170d65c29"
+            }
+          },
+          "selected_tuple_entire_predecessor_equal": true,
+          "full_reference_reproductions": 2,
+          "full_reference_bytes": 8153,
+          "full_reference_sha256": "62784180e34291403f2ad32a314bd83fb9de9167d820960ffe0099402879a8dc",
+          "DEV_runs": 0,
+          "selected_runtime_runs": 0
+        }
+      ],
+      "original_commands": 4,
+      "terminal_reaped_groups_absent": true,
+      "forced_cleanup_failures_retries_owned": 0,
+      "F8_runs": 0,
+      "post_execution_changes": "recipe/README annotations only; producing helper/build/expected unchanged"
     }
   }
 }

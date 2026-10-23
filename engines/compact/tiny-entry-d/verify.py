@@ -48,6 +48,7 @@ EXPECTED_BODY = {
         audit_bytes=6060, audit_sha256='6f2e808246e648f5c9fc65dd9fc103311375a87e4581946a89efacc70edb532e',
         restored_image_sha256='f2b4804631d293ccb4742ed8718869a29736bfb46f840044659e44c8d0f95d4b'),
 }
+EXPECTED_FUSED_BODY = dict(EXPECTED_BODY, **{'scalar-shipping': {'bytes': 5717, 'sha256': '759f10c75724ca2151f38a84ba34ccbb1f5ace3dd158378e677b533c026a3200', 'native_bytes': 7388, 'native_sha256': '395fea4ddf80d155227700fa8da9b06437082837a1878a818605f268506de50c', 'audit_bytes': 5740, 'audit_sha256': 'dddc6a9214a1b39a2e47ef291aa3d58bfeccc52f7c401f5e5b2450ec389cc90d', 'entry': 4201328, 'layout': {'entry': 4201328, 'section_offset': 0, 'section_size': 0, 'section_count': 0, 'section_names': 0, 'segments': [{'type': 1, 'flags': 5, 'offset': 0, 'vaddr': 4194304, 'paddr': 4194304, 'filesz': 7388, 'memsz': 7388, 'align': 4096}, {'type': 1, 'flags': 6, 'offset': 0, 'vaddr': 4202496, 'paddr': 4202496, 'filesz': 0, 'memsz': 175092, 'align': 4096}, {'type': 1685382481, 'flags': 6, 'offset': 0, 'vaddr': 0, 'paddr': 0, 'filesz': 0, 'memsz': 0, 'align': 8}], 'image_base': 4194304, 'image_size': 7388, 'image_pages': 8192, 'bss_base': 4202496, 'bss_size': 175092, 'bss_pages': 176128, 'guard_base': 4190208, 'upper_guard': 4378624, 'reserve_size': 192512}, 'restored_image_sha256': 'b2982877c1c1bf97cafcfcd5b9dd210835a3eded07dcbf3c38e8c991c4d8943a'}})
 OWNED = set()
 
 
@@ -466,7 +467,9 @@ def main():
         build = json.loads(build_bytes)
         codec = build.get('engines', [{}])[0].get('candidates', [{}])[0].get('codec')
         require(codec in (V2_CODEC, CODEC), "unknown packet/image class")
-        expected_forms = EXPECTED_V2 if codec == V2_CODEC else EXPECTED_BODY
+        require(build.get('source_policy') in (None, 'scalar-shipping-fused-rays-v1'), 'unknown Board source policy')
+        expected_forms = EXPECTED_V2 if codec == V2_CODEC else (EXPECTED_FUSED_BODY
+            if build.get('source_policy') == 'scalar-shipping-fused-rays-v1' else EXPECTED_BODY)
         report['codec'] = codec
         require(all(e["audit_bytes"] is not None and e["audit_sha256"] is not None for e in expected_forms.values()), "context audit literals require explicit discovery and admission")
         require(build.get("complete") is True, "build is incomplete")

@@ -27,7 +27,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--build',type=Path,required=True)
     parser.add_argument('--out',type=Path,required=True)
-    parser.add_argument('--policy',choices=('loose','root-hint-leader-repair','root-normal-slots'),default='loose',help='must match the explicit build-time policy')
+    parser.add_argument('--policy',choices=('loose','root-hint-leader-repair','root-normal-slots','root-pals-feedback'),default='loose',help='must match the explicit build-time policy')
     args=parser.parse_args();build=args.build.resolve();out=args.out.resolve()
     if not args.out.is_absolute() or out.exists() or out==REPO or REPO in out.parents or any((p/'.git').exists() for p in (out,*out.parents)):
         parser.error('a new absolute output outside any Git checkout is required')

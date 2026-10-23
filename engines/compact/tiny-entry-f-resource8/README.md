@@ -1,3 +1,56 @@
+# F8 v5: full-F four-locals source, eight search workers
+
+Class `full-F-late-fixed-resource8-TT18-v5` explicitly consumes ordinary full-F2
+C8153/62784180... after `shipping_four_locals.py`. It applies only the six
+resource roles, with independently recomputed offsets/seven protected gaps/full
+inverse, producing C8178/070c54ea... (+25 versus F2). It never reapplies names.
+The v4 source/helper/normal records remain preserved independently below.
+
+One fixed first cost is **4360 B**, 21 B below v4 4381 and264 B above4096.
+Native18576/d2bec657... is entire-byte equal to v4; bootstrap9110/a1248dfd...
+and whole4360/cc509ed9... are new. F8's unchanged ALONE6/BT2/dict16KiB/
+lc2lp0pb0/nice24/header73 is measured separately from fullF nice16; gains are
+not added. Compiler1, encode1, strict Python1/CLI1 all passed with exact source/
+argv/bootstrap restoration, terminal/reaped/pre-reap extras0/group absent and
+forced0/owned0. Baseline compile/encode and engine runtime at first cost were0.
+
+Eight persistent search workers plus main, TT18/PLY128/full HCE/full-key TT/
+MTD/learners/rules/protocol remain. Six-role protected gaps preserve condition
+predicates/broadcast4/wait2, strict greater-depth first-max selection, result
+publication/drain, and actual-created-count join on partial create failure.
+No UCI resource option or scheduling/model policy is added. The builder's
+corrected outer finally still covers Popen publication/save/unmask/monitor;
+original WNOWAIT leader identity stays reserved until other members settle,
+then reaping and a non-signalling group-absence observation follow.
+
+Verifier changes only v5 class/base-stage/error literals. Existing stable9 idle
+count/state before strict FD/children inspection, global no-WX/nonexec mainstack,
+raw maps, all8 active CPU deltas, legal GO/output fences and physical exit/readers
+assertions are unchanged. The D verifier code pin is explicitly updated for its
+new main-only source-policy table; consumed positive functions stay byte-exact.
+Eight worker guard-stack count/size, stack peak/scaling/strength/cancellation
+causality and final4KiB target eligibility are not established by this source step.
+
+<!-- F8_V5_COMPLETION:PASS -->
+After F2/D/A and the separate fullF codec-study original commands were terminal,
+one ordinary builder reproduced source/native/bootstrap/whole twice, entirely
+equal to the fixed first cost. Unchanged positive assertions passed quit/EOF2
+sessions8 legal GO,9 persistent idle TIDs and all8 worker CPU activity, strict
+FD/children/noWX/mainstack/rawmaps and physical reader/process/group exit.
+Original outer675/691 and all6 owned builder tool commands returned0 and were
+reaped only after pre-reap other-members[] with original identity retained;
+groups absent, stderr0, forced0/owned0. No product failure/retry or extra
+cost/PP/SAN/negative/NVC/fullF rebuild ran. Eight worker guard count/size,
+scaling/strength/peakstack/cancellation causality and final4KiB acceptance
+remain unverified. F2 recipe/README metadata are not base-closure inputs;
+stable F builder/new four-locals helper are. The64-file producing closure and
+operational recipe07845660... stay frozen; final recipe/README add completion
+annotations only. v4 execution remains historical, not new4360 evidence.
+Build: `e943fc1a92178cce3abadce1de1d4d191dfde820b7d09b10d91a49c8311a4358`.
+Runtime: `92fa5d4ab119037335c7d805d4c8e2dd61d62ddc3512144133c476fbc419f540`.
+Actual: /home/stemxstudio/rove4k-f8-four-locals-promotion-20261024-v1/F8.
+External source/cost: rove4k-f8-four-locals-{source,first-cost}-20261024-evidence.
+
 # F8 v4: full-F return-token source, eight search workers
 
 Class `full-F-late-fixed-resource8-TT18-v4` consumes exact ordinary full-F2
