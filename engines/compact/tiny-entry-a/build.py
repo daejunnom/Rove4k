@@ -122,6 +122,7 @@ def main():
         output_form=module('entry_A_fixed_output',frozen/'shipping_output.py')
         keyword_form=module('entry_A_keyword_scope',frozen/'shipping_keyword_scope.py')
         pool_state=module('entry_A_pool_state',frozen/'shipping_pool_state.py')
+        frequency=module('entry_A_frequency',frozen/'shipping_frequency.py')
         root_hint=module('entry_A_root_hint',frozen/'shipping_root_hint.py')
         root_normal=module('entry_A_root_normal',frozen/'shipping_root_normal.py')
         root_pals=module('entry_A_root_pals',frozen/'shipping_root_pals.py')
@@ -190,6 +191,8 @@ def main():
                     common_metadata['keyword_scope']=keyword_metadata
                     data,pool_metadata=pool_state.transform_source(data)
                     common_metadata['pool_state']=pool_metadata
+                    data,frequency_metadata=frequency.transform_source(data)
+                    common_metadata['frequency']=frequency_metadata
                 if root_policy:
                     if policy=='root-pals-feedback':
                         data,root_metadata=root_pals.transform_source(data,root_normal.transform_source)
@@ -207,7 +210,7 @@ def main():
                 else:
                     expression=root_form.transform_literal(expression,previous)
             else:
-                expression=pool_state.transform_literal(expression,lambda current:keyword_form.transform_literal(current,lambda original:output_form.transform_literal(original,lambda restored:condition_form.transform_literal(restored,fixed_names.transform_literal))))
+                expression=frequency.transform_literal(expression,lambda current:pool_state.transform_literal(current,lambda original:keyword_form.transform_literal(original,lambda restored:output_form.transform_literal(restored,lambda before:condition_form.transform_literal(before,fixed_names.transform_literal)))))
             script=template.replace(marker,expression.encode())
             ast.parse(script)
             whole=source_package.package(script,recipe['compression'],prefix=prefix)

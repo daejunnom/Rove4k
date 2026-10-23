@@ -1098,3 +1098,58 @@ readers 완료·물리 종료를 확인했다. 원 command 두 개는 terminal0/
 강제정리0/owned0으로 닫았다. Runtime SHA `edf7129beaee41fc052e308e174c12b1a7065ef241aba49077f1951d3e34b8a4`.
 Recipe constants.normal_validation에 build/runtime 영수증을 연결했다. 이후 변경은
 완료 주석뿐이며 causality는 unproven이다. 추가 SAN/fault/fresh/학습/기력/성능/새 CI는0이다.
+
+
+## C completed-depth pool token (4666-byte selection)
+
+The fixed worker's signed completed depth C now also owns job publication:
+static/calloc0 is idle, publisher sets both depths-1 under qj after j drains,
+and each own worker claims0 under qj before unlocking and entering think C.
+Think no longer repeats that reset; completed iterations publish1..126.
+The ai*w=NULL startup sentinel is retained with a distinct typed a=p pointer.
+The last worker still emits/flushes x before completion broadcast, and the
+existing drain, shutdown and partial pthread-create joins are unchanged.
+This contract is only the actual unique shipping A->C(w,&ql) domain. Future
+direct think fixtures must explicitly seed depth0; no general direct-entry
+API equivalence is claimed.
+
+shipping_pool_state.py is a pure six-role replay with seven protected gaps,
+literal input/output pins and full inverse. It follows the unchanged C cross
+stage. Packaging first restores9093, actually executes all existing C cross,
+readonly-template and common literal guards, then replaces only the new
+compact-source literal. The helper reads no AST, report, external experiment
+or executable. Canonical/DEV bypass it. Board, physical8xint16 features, SIMD128,
+model coefficients, move ordering, PVS/QS, coherent full-key TT and all three
+learning bodies are whole-byte protected. Compiler, ISA, codec and resources
+remain fixed. This reuses the already verified A/F ownership principle and
+the actual C caller/source-gap proof; no redundant projection unit is added.
+
+The one actual compile/encode cost is4672 -> **4666 B (-6)**, still **570 B
+above4096**. Compact C9075 SHAce9c91755d91ee8e9b58639d6d904e68ab6a4e4d65f45cb5a57b40b38093164b;
+native22672 SHA5c4470406b35f32f2be263a242d9613f201a4af176483dc7f087e7e52d99649f;
+bootstrap10036 SHA0b51f88fe6033b480c0429a41337e1ea100a82db05632d70d29f4678488b520a;
+whole4666 SHAa934ea13f9ea1b70c142fc4c8519f12bebb4e32b5f71ce31da0b7efd1d882591.
+The entire native differs, so the previous C execution receipt is ancestry,
+not this candidate's execution proof. Normal shipping/DEV reproduction and
+the unchanged selected verifier must close below before runtime qualification.
+
+
+The one normal ordinary `--dev` and unchanged selected invocation completed.
+Shipping source/native/bootstrap/whole exactly reproduced the fixed first-cost
+tuple twice; the diagnostic source and native reproduced twice and also match
+the preceding actual Ccross DEV bytes. The selected4666-byte wrapper passed
+two fresh quit/EOF sessions, eight legal GO epochs, three persistent startup
+TIDs, the restored newnative5c447..., reader completion and physical process
+exit. This tests the actual pool publication/claim/completion path. No extra
+projection unit, model/search matrix, SAN/fault/fresh/game/strength/NPS or C8
+test was added; the six-role/gaps/caller proof and A/F principle are reused.
+Cancellation causality is unproven and FD-list inspection is not claimed here.
+
+Actual root `/home/stemxstudio/rove4k-c-pool-token-normal-20261024-v1/`:
+build/build.json SHAe8d5f2c94c68429db25dbf0f4260816e949e77b89b94caf3aca5709635731ff0;
+runtime/runtime.json SHA9b04c164b3b7d254555b4e3298c33e3d5ecb08334ed6438504e08266cbfa048f.
+Outer and both original command leaders completed with empty pre-reap group
+members, reap/group-absence, forced0/failures0/owned0. Only recipe and README
+completion annotations followed execution. Code, helper, explicit expected
+tuple, compiler, codec, resources and the canonical/DEV input remain producing
+bytes. The current full C file is still570 B above4096.

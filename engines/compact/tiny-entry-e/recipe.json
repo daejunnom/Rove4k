@@ -78,7 +78,8 @@
     "engines/compact/tiny-entry-a/shipping_constants_bce.py": "02d0411887e7f04042e4ef94c876c32d2469b6d26f056c63dbf1235a93fc052c",
     "engines/compact/tiny-entry-e/shipping_cross_e.py": "0672f69ef3f2d3e7a1d97213cbe1ae572221354af0d69a4fbfbe85ec9fb34e3d",
     "engines/compact/tiny-entry-e/shipping_keyword_scope.py": "8d69bac1426f6ddf5bd0263046035804ce4752185ebb92ceb257379a08d2372b",
-    "engines/compact/tiny-entry-e/shipping_order_inline.py": "cdb00de2ab397cbfd4c57994d79e243a9e78656f7146a9c5b6338d685ec8f297"
+    "engines/compact/tiny-entry-e/shipping_order_inline.py": "cdb00de2ab397cbfd4c57994d79e243a9e78656f7146a9c5b6338d685ec8f297",
+    "engines/compact/tiny-entry-e/shipping_depth_token.py": "9aec653fbfb7d0120e726f7d74ab072f93ca102bed12ce05ae15a6ce97eeac78"
   },
   "compression": {
     "format": "lzma-alone",
@@ -96,18 +97,18 @@
   "expected": {
     "readable_bytes": 28001,
     "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
-    "source_bytes": 8616,
-    "source_sha256": "c03884ea1badbdb3357d39998b3e49973ffdc921ba122d99e14c8ea63a146b20",
+    "source_bytes": 8598,
+    "source_sha256": "d0f26c164efb52254fa947a47cf8bb66ed41085ab63706482e2212d9193e09da",
     "native_bytes": 22672,
-    "native_sha256": "722e744e95557e2d1031eeca611b30d216fc06dc2d9bcb0b5ce31074303f3519",
-    "whole_bytes": 4605,
-    "whole_sha256": "35011e59387ed542a1a0f4fe55223c5619dffcf3ea446b32ef21ef779d46b651",
-    "bootstrap_sha256": "0448cdb281d9cb37d7e448db18317b6db30f85a0db4bf676bf5ea83f28620dd3",
+    "native_sha256": "cbe2a52359e1d6f4ea5bb78e7c0ecc91b2e740edd13f616b2f12d7a6d32705c0",
+    "whole_bytes": 4599,
+    "whole_sha256": "01adc81e6bb90952ee86a33968c6dd5adc9a3fbf2c7c902be1c4ee52f3215d7b",
+    "bootstrap_sha256": "33633c7ac34e378a3024ffde8026fb12a436deaf49b08933b924cad7067559f1",
     "dev_source_bytes": 21314,
     "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
     "dev_native_bytes": 31376,
     "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
-    "bootstrap_bytes": 9570
+    "bootstrap_bytes": 9552
   },
   "local_input_sha256": {
     "engine.c": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
@@ -1961,6 +1962,114 @@
         "owned_handles": 0,
         "model_or_search_policy_change": false,
         "scope": "Current fixed E19 ordering inline new native image and unchanged selected verifier; prior native-equality receipts remain component ancestry. Actual focused model/fullrank fixture separate; no strength/timing/SAN/fault/fresh/CI claim."
+      }
+    },
+    "depth_token": {
+      "helper": "engines/compact/tiny-entry-e/shipping_depth_token.py",
+      "helper_sha256": "9aec653fbfb7d0120e726f7d74ab072f93ca102bed12ce05ae15a6ce97eeac78",
+      "metadata": {
+        "stage": "last-E-completed-depth-job-token",
+        "family": "E",
+        "input_bytes": 8616,
+        "input_sha256": "c03884ea1badbdb3357d39998b3e49973ffdc921ba122d99e14c8ea63a146b20",
+        "output_bytes": 8598,
+        "output_sha256": "d0f26c164efb52254fa947a47cf8bb66ed41085ab63706482e2212d9193e09da",
+        "raw_delta": -18,
+        "roles": 6,
+        "protected_gaps": 7,
+        "full_inverse": true,
+        "job_token": "ai.C -1 unclaimed,0 claimed/no finished depth,1..126 completed result",
+        "shipping_C_caller_domain": "Unique worker A claims0 underqj before C(w,&ql); direct private think callers must seed0",
+        "w_null_startup_and_stable_owner_preserved": true,
+        "GO_both_tokens_published_under_mutex_after_drain": true,
+        "qk_last_result_flush_and_partial_created_joins_preserved": true,
+        "model_ordering_TT_learner_PVS_bodies_unchanged": true,
+        "canonical_DEV_automatic_changes": false,
+        "private_direct_think_contract_changed": true,
+        "native_identity_claimed": false,
+        "runtime_claimed_by_transform": false,
+        "external_reads": 0
+      },
+      "bootstrap_metadata": {
+        "input_bytes": 9570,
+        "input_sha256": "0448cdb281d9cb37d7e448db18317b6db30f85a0db4bf676bf5ea83f28620dd3",
+        "output_bytes": 9552,
+        "output_sha256": "33633c7ac34e378a3024ffde8026fb12a436deaf49b08933b924cad7067559f1",
+        "owned_regions": 1,
+        "protected_gaps": 2,
+        "full_inverse": true,
+        "actual_previous_order_keyword_cross_literal_chain_consumed": true,
+        "source_AST_bytes_exact": true,
+        "compiler_codec_resources_unchanged": true,
+        "external_reads": 0
+      },
+      "source_proof": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-depth-token-20261024-evidence/source-proof.json",
+        "bytes": 4142,
+        "sha256": "aaee39d81efabeaa0d6f4f3967d6eb3f1297a09a2d17146a4c66ffd761ad616d"
+      },
+      "cost": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-depth-token-20261024-evidence/cost-final-index.json",
+        "bytes": 3120,
+        "sha256": "89fbe6edde132ccb1ef2753cc3dfb8ff9b2e2a5c18c4ee06fcedaaec7615ad60"
+      },
+      "A_pool_pattern_source": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-depth-token-20261024-evidence/frozen/A_shipping_pool_state.py",
+        "bytes": 4485,
+        "sha256": "87478a25e8b8e5f067230b2e0306dd3f4fbf88ee85d105da8c7cbd010544bf30"
+      },
+      "predecessor_expected": {
+        "readable_bytes": 28001,
+        "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+        "source_bytes": 8616,
+        "source_sha256": "c03884ea1badbdb3357d39998b3e49973ffdc921ba122d99e14c8ea63a146b20",
+        "native_bytes": 22672,
+        "native_sha256": "722e744e95557e2d1031eeca611b30d216fc06dc2d9bcb0b5ce31074303f3519",
+        "whole_bytes": 4605,
+        "whole_sha256": "35011e59387ed542a1a0f4fe55223c5619dffcf3ea446b32ef21ef779d46b651",
+        "bootstrap_sha256": "0448cdb281d9cb37d7e448db18317b6db30f85a0db4bf676bf5ea83f28620dd3",
+        "dev_source_bytes": 21314,
+        "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
+        "dev_native_bytes": 31376,
+        "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
+        "bootstrap_bytes": 9570
+      },
+      "whole_delta": -6,
+      "native_delta": 0,
+      "native_entire_bytes_equal": false,
+      "normal_status": "PASS",
+      "scope": "Standalone shipping E only. Completed-depth private caller boundary changes: direct think fixtures must seed0. Canonical/DEV/model/ordering/search/TT/learning unchanged. A/F pool lifetime representation and independent E role review reused; new selected runtime recorded separately.",
+      "normal_validation": {
+        "build": {
+          "path": "/home/stemxstudio/rove4k-e-depth-token-normal-20261024-v1/build/build.json",
+          "bytes": 299107,
+          "sha256": "ec58036c94f726d37a403097b25894d17ee94c1cc90ef2ec0fcd9005517edca6"
+        },
+        "runtime": {
+          "path": "/home/stemxstudio/rove4k-e-depth-token-normal-20261024-v1/runtime/runtime.json",
+          "bytes": 103141,
+          "sha256": "25ace32cbb90e4c3df043a3612105189d245de4041fbd81f54418b2084172876"
+        },
+        "shipping_reproductions": 2,
+        "actual_old_DEV_reproductions": 2,
+        "entire_firstcost_source_native_bootstrap_whole_equal": true,
+        "actual_previous_DEV_entire_source_native_equal": true,
+        "native_entire_equal_to_previous": false,
+        "native_delta": 0,
+        "new_native_identity_explicit": true,
+        "selected_sessions": 2,
+        "legal_GO_results": 8,
+        "startup_TIDs_per_session": 3,
+        "native_image_private_path_process_readers_fences": true,
+        "cancellation_causality": "unproven",
+        "original_command_count": 2,
+        "original_handles_terminal_reaped_groups_absent": true,
+        "forced_cleanup": false,
+        "owned_handles": 0,
+        "model_or_search_policy_change": false,
+        "private_direct_think_caller_requires_completed_depth_zero_seed": true,
+        "canonical_DEV_automatic_application": false,
+        "scope": "Same current E19 model/order/search bodies; six worker-pool state roles share completed depth as pending token. New native same length but different bytes; ordinary reproduction and unchanged selected new-image lifetime only. Prior model fixtures remain separate. No new strength/timing/SAN/fault/fresh/CI claim."
       }
     }
   },
@@ -4935,6 +5044,114 @@
       "owned_handles": 0,
       "model_or_search_policy_change": false,
       "scope": "Current fixed E19 ordering inline new native image and unchanged selected verifier; prior native-equality receipts remain component ancestry. Actual focused model/fullrank fixture separate; no strength/timing/SAN/fault/fresh/CI claim."
+    }
+  },
+  "depth_token": {
+    "helper": "engines/compact/tiny-entry-e/shipping_depth_token.py",
+    "helper_sha256": "9aec653fbfb7d0120e726f7d74ab072f93ca102bed12ce05ae15a6ce97eeac78",
+    "metadata": {
+      "stage": "last-E-completed-depth-job-token",
+      "family": "E",
+      "input_bytes": 8616,
+      "input_sha256": "c03884ea1badbdb3357d39998b3e49973ffdc921ba122d99e14c8ea63a146b20",
+      "output_bytes": 8598,
+      "output_sha256": "d0f26c164efb52254fa947a47cf8bb66ed41085ab63706482e2212d9193e09da",
+      "raw_delta": -18,
+      "roles": 6,
+      "protected_gaps": 7,
+      "full_inverse": true,
+      "job_token": "ai.C -1 unclaimed,0 claimed/no finished depth,1..126 completed result",
+      "shipping_C_caller_domain": "Unique worker A claims0 underqj before C(w,&ql); direct private think callers must seed0",
+      "w_null_startup_and_stable_owner_preserved": true,
+      "GO_both_tokens_published_under_mutex_after_drain": true,
+      "qk_last_result_flush_and_partial_created_joins_preserved": true,
+      "model_ordering_TT_learner_PVS_bodies_unchanged": true,
+      "canonical_DEV_automatic_changes": false,
+      "private_direct_think_contract_changed": true,
+      "native_identity_claimed": false,
+      "runtime_claimed_by_transform": false,
+      "external_reads": 0
+    },
+    "bootstrap_metadata": {
+      "input_bytes": 9570,
+      "input_sha256": "0448cdb281d9cb37d7e448db18317b6db30f85a0db4bf676bf5ea83f28620dd3",
+      "output_bytes": 9552,
+      "output_sha256": "33633c7ac34e378a3024ffde8026fb12a436deaf49b08933b924cad7067559f1",
+      "owned_regions": 1,
+      "protected_gaps": 2,
+      "full_inverse": true,
+      "actual_previous_order_keyword_cross_literal_chain_consumed": true,
+      "source_AST_bytes_exact": true,
+      "compiler_codec_resources_unchanged": true,
+      "external_reads": 0
+    },
+    "source_proof": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-depth-token-20261024-evidence/source-proof.json",
+      "bytes": 4142,
+      "sha256": "aaee39d81efabeaa0d6f4f3967d6eb3f1297a09a2d17146a4c66ffd761ad616d"
+    },
+    "cost": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-depth-token-20261024-evidence/cost-final-index.json",
+      "bytes": 3120,
+      "sha256": "89fbe6edde132ccb1ef2753cc3dfb8ff9b2e2a5c18c4ee06fcedaaec7615ad60"
+    },
+    "A_pool_pattern_source": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-depth-token-20261024-evidence/frozen/A_shipping_pool_state.py",
+      "bytes": 4485,
+      "sha256": "87478a25e8b8e5f067230b2e0306dd3f4fbf88ee85d105da8c7cbd010544bf30"
+    },
+    "predecessor_expected": {
+      "readable_bytes": 28001,
+      "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+      "source_bytes": 8616,
+      "source_sha256": "c03884ea1badbdb3357d39998b3e49973ffdc921ba122d99e14c8ea63a146b20",
+      "native_bytes": 22672,
+      "native_sha256": "722e744e95557e2d1031eeca611b30d216fc06dc2d9bcb0b5ce31074303f3519",
+      "whole_bytes": 4605,
+      "whole_sha256": "35011e59387ed542a1a0f4fe55223c5619dffcf3ea446b32ef21ef779d46b651",
+      "bootstrap_sha256": "0448cdb281d9cb37d7e448db18317b6db30f85a0db4bf676bf5ea83f28620dd3",
+      "dev_source_bytes": 21314,
+      "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
+      "dev_native_bytes": 31376,
+      "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
+      "bootstrap_bytes": 9570
+    },
+    "whole_delta": -6,
+    "native_delta": 0,
+    "native_entire_bytes_equal": false,
+    "normal_status": "PASS",
+    "scope": "Standalone shipping E only. Completed-depth private caller boundary changes: direct think fixtures must seed0. Canonical/DEV/model/ordering/search/TT/learning unchanged. A/F pool lifetime representation and independent E role review reused; new selected runtime recorded separately.",
+    "normal_validation": {
+      "build": {
+        "path": "/home/stemxstudio/rove4k-e-depth-token-normal-20261024-v1/build/build.json",
+        "bytes": 299107,
+        "sha256": "ec58036c94f726d37a403097b25894d17ee94c1cc90ef2ec0fcd9005517edca6"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-e-depth-token-normal-20261024-v1/runtime/runtime.json",
+        "bytes": 103141,
+        "sha256": "25ace32cbb90e4c3df043a3612105189d245de4041fbd81f54418b2084172876"
+      },
+      "shipping_reproductions": 2,
+      "actual_old_DEV_reproductions": 2,
+      "entire_firstcost_source_native_bootstrap_whole_equal": true,
+      "actual_previous_DEV_entire_source_native_equal": true,
+      "native_entire_equal_to_previous": false,
+      "native_delta": 0,
+      "new_native_identity_explicit": true,
+      "selected_sessions": 2,
+      "legal_GO_results": 8,
+      "startup_TIDs_per_session": 3,
+      "native_image_private_path_process_readers_fences": true,
+      "cancellation_causality": "unproven",
+      "original_command_count": 2,
+      "original_handles_terminal_reaped_groups_absent": true,
+      "forced_cleanup": false,
+      "owned_handles": 0,
+      "model_or_search_policy_change": false,
+      "private_direct_think_caller_requires_completed_depth_zero_seed": true,
+      "canonical_DEV_automatic_application": false,
+      "scope": "Same current E19 model/order/search bodies; six worker-pool state roles share completed depth as pending token. New native same length but different bytes; ordinary reproduction and unchanged selected new-image lifetime only. Prior model fixtures remain separate. No new strength/timing/SAN/fault/fresh/CI claim."
     }
   }
 }

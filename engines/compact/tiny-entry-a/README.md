@@ -1,3 +1,36 @@
+# 기본 Loose4499: 고정 binding 빈도 배정 — 2026-10-24
+
+기본 Loose의 pool 단계 뒤 `shipping_frequency.py`를 연결했다. qj→I13,
+qr→K8, ql→F7, qq→N7, ai→M7, qp→X8, X→qp4의 한 고정 배정이다.
+모든52 한 글자가 이미 쓰이므로 문자열 전체 치환을 하지 않았다. 실제 A의
+253 declaration·2441 reference graph를 대조해 h의 지역 I/K/F/N 가림과
+signature 뒤 지역 M, 동시 X/qp 교환의 binding을 확인했다. 실제 atomic store
+4곳과 flag-clear1곳은 expanded target과 정확한 physical 인자에만 대응한다.
+Jreturn/Lint·기존 directive/header/literal/member/local은 보존한다.
+
+54개 고정 span·55개 보호 gap과 전체 inverse로8397→8443을 복원한 뒤
+기존 pool→keyword→output→condition→names/common guard를 실제 소비한다.
+Source8443→8397(raw−46)과 whole4505→4499(−6B)는 별도 실측이며 native
+18576/35056c24… 전체 bytes는 이전과 같다. 원 compiler(no-pthread), FD0
+bootstrap·header73·ALONE6/BT2/16KiB/nice24 및 fixed2/TT18은 그대로다.
+이름/codec sweep은 없다. Native 동일성 gate를 통과한 뒤만 encode했다.
+
+FREQUENCY_NORMAL_PASS: ordinary --dev 한 번에서 shipping 두 사본의 source/
+native/bootstrap/whole은 first-cost 전체와 같고, DEV 두 사본은 실제 이전 DEV와
+전체 bytes가 같다. Unchanged selected 한 번에서 quit/EOF 두 sessions·여덟 GO·
+각3 startup TID·실제 native image·private path 제거·closing bestmove 한 번·
+reader 완료·물리 종료를 확인했다. 원 driver/build/selected 핸들은 WNOWAIT
+leader identity를 유지한 채 extras[] 확인 뒤 reap했고 종료 당시 group 부재·
+강제 정리0·owned0이다. Build SHA `827ceb40549d9d934d24295bdc14d3b48c04506db4bfb74abf54774f605fa375`,
+runtime SHA `1e4b58ba2d6aeee1a93b35e989cdb54953a6cd03ec837ec78b3fee676f8000ae`.
+코드 helper/builder는 생산 bytes 그대로이고 이후 차이는 완료 주석뿐이다.
+세 optional root 정책과 DEV는 마지막 단계를 완전히 우회하며 기존 tuple과
+원 guard를 유지한다. 해당 root 실행0이고 FD 관찰·cancellation causality·
+성능/기력·새 core/SAN/fresh/CI 자격을 주장하지 않는다. 아래4505와 이전 증거는
+각각의 원 scope로 남긴다.
+
+---
+
 # 기본 Loose4505: worker depth와 job token 소유권 공유 — 2026-10-24
 
 기본 Loose에만 keyword 단계 다음 `shipping_pool_state.py`를 적용한다.

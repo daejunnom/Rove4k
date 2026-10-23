@@ -120,6 +120,7 @@ def main():
         setter_phase=module('entry_BCE_setter_phase',frozen/'shipping_setter_phase_bce.py').transform_source
         constants=module('entry_BCE_constants',frozen/'shipping_constants_bce.py').transform_source
         cross=module('entry_C_common_SIMD_cross',frozen/'shipping_cross_c.py')
+        pool_state=module('entry_C_completed_depth_token',frozen/'shipping_pool_state.py')
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
         if template.count(marker)!=1 or len(prefix)!=77:raise ValueError('bootstrap recipe changed')
@@ -189,15 +190,20 @@ def main():
                 common_metadata['constants']=constants_metadata
                 data,cross_metadata=cross.transform_source(data,compact=compact)
                 common_metadata['cross']=cross_metadata
+                data,pool_metadata=pool_state.transform_source(data)
+                common_metadata['completed_depth_token']=pool_metadata
             return data,observations,alpha_metadata,scope_metadata,core_metadata,simd_metadata,input_metadata,material_metadata,incremental_metadata,signed_metadata,type_metadata,global_names_metadata,common_metadata
         def package(source):
-            before=cross.restore_source(source,compact=compact)
+            selected=pool_state.restore_source(source)
+            before=cross.restore_source(selected,compact=compact)
             old_expression,_=common.source_literal(before,literal)
             previous=template.replace(marker,old_expression.encode())
-            expression,_=common.source_literal(source,literal)
-            script,bootstrap_metadata=cross.transform_bootstrap(previous,before=before,source=source,
+            expression,_=common.source_literal(selected,literal)
+            script,bootstrap_metadata=cross.transform_bootstrap(previous,before=before,source=selected,
                 old_expression=old_expression,expression=expression,compact=compact)
             report['cross_bootstrap']=bootstrap_metadata
+            script,pool_metadata=pool_state.transform_bootstrap(script,source=source)
+            report['pool_bootstrap']=pool_metadata
             ast.parse(script)
             data=prefix+lzma.compress(script,format=lzma.FORMAT_ALONE,check=lzma.CHECK_NONE,
                                      filters=[{'id':lzma.FILTER_LZMA1,'preset':9|lzma.PRESET_EXTREME,

@@ -112,6 +112,7 @@ def main():
         cross=module('entry_E_mailbox_cross',frozen/'shipping_cross_e.py')
         keyword_scope=module('entry_E_keyword_scope',frozen/'shipping_keyword_scope.py')
         order_inline=module('entry_E_order_inline',frozen/'shipping_order_inline.py')
+        depth_token=module('entry_E_depth_token',frozen/'shipping_depth_token.py')
         alpha=module('entry_fixed_shipping_alpha',frozen/'fixed_shipping_alpha.py').transform_source
         scope=module('entry_fixed_scope_names',frozen/'shipping_scope.py').transform_source
         core=module('entry_fixed_shipping_core',frozen/'shipping_core.py').transform_source
@@ -191,9 +192,12 @@ def main():
                 common_metadata['keyword_scope']=keyword_metadata
                 data,order_metadata=order_inline.transform_source(data)
                 common_metadata['order_inline']=order_metadata
+                data,depth_metadata=depth_token.transform_source(data)
+                common_metadata['depth_token']=depth_metadata
             return data,observations,alpha_metadata,scope_metadata,core_metadata,input_metadata,model_metadata,type_metadata,global_names_metadata,common_metadata
         def package(source):
-            current=order_inline.restore_source(source)
+            prior=depth_token.restore_source(source)
+            current=order_inline.restore_source(prior)
             control=keyword_scope.restore_source(current)
             before=cross.restore_source(control,compact=compact)
             old_expression,_=common.source_literal(before,literal)
@@ -204,8 +208,10 @@ def main():
             report['cross_bootstrap']=bootstrap_metadata
             script,keyword_bootstrap=keyword_scope.transform_bootstrap(script,source=current)
             report['keyword_scope_bootstrap']=keyword_bootstrap
-            script,order_bootstrap=order_inline.transform_bootstrap(script,source=source)
+            script,order_bootstrap=order_inline.transform_bootstrap(script,source=prior)
             report['order_inline_bootstrap']=order_bootstrap
+            script,depth_bootstrap=depth_token.transform_bootstrap(script,source=source)
+            report['depth_token_bootstrap']=depth_bootstrap
             ast.parse(script)
             data=prefix+lzma.compress(script,format=lzma.FORMAT_ALONE,check=lzma.CHECK_NONE,
                                      filters=[{'id':lzma.FILTER_LZMA1,'preset':9|lzma.PRESET_EXTREME,

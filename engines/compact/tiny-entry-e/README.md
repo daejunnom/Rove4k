@@ -1331,3 +1331,28 @@ reaped/group 부재, forced cleanup0/owned handle0으로 닫혔다.
 Runtime SHA `b0d2db69858c863aed480df7febf7901bd37d6dcb8fabb63de4c34a7c1454cf5`.
 취소 인과관계는 unproven이고 새 기력·성능·SAN·fault·fresh·CI 검증은 아니다.
 생산 파일 핀과 완료 주석 후 핀은 외부 promotion 증거에서 구분한다.
+
+## E 완료 깊이 기반 작업 토큰
+
+별도 epoch qd와 worker local generation 대신 기존 signed ai.C를 작업 토큰으로 쓴다.
+C=-1은 미수령 작업,0은 claim 완료,1..126은 완료 깊이다. 시작 w=NULL과 별도
+ai*a=p를 유지하고, qj 아래 claim0 뒤 think를 호출한다. GO는 기존 j() drain
+후 qj 아래 qk=2와 두 worker의 C=-1을 함께 게시한 뒤 broadcast한다.
+마지막 qk감소→x()/fflush→broadcast, 부분생성실패와 실제 V개 join은 유지한다.
+Direct/private think fixture는호출전C=0을seed해야한다. 정본·DEV 자동적용은없다.
+모든19독립계수/physical21·5ordering·TT·learner·PVS 본문은 그대로다.
+Source8598/bootstrap9552/whole4599B로 기존4605보다6B 작고4096까지503B 남았다.
+Native는22672B로같지만 전체 SHA가cbe2a523…로바뀌므로native동등주장은없다.
+Packaging은pool inverse8616→이전order/keyword/cross inverse와literalguards→
+실제이전9570 script→pool9552 script를소비하며외부artifact를재생성입력으로읽지않는다.
+새행렬·fault·SAN을추가하지않고기존A/F pool패턴과E6role 소스수명검토를재사용한다.
+정식 ordinary --dev에서 두 shipping 사본의 source8598/native22672/bootstrap9552/
+whole4599 전체 bytes가 고정 firstcost와 같았고, 두 DEV도 실제 이전 DEV 전체
+source/native와 같았다. 새 nativecbe2a523…는 이전722e744e…와 크기는 같지만 bytes가 다르다.
+기존 selected의 quit·EOF 두 session/8 GO, 시작 TID3, native image와
+private path/reader/process 종료 fence를 통과했다. 원 두 명령은 terminal/
+reaped/group 부재, forced cleanup0/owned handle0으로 닫혔다.
+Runtime SHA `25ace32cbb90e4c3df043a3612105189d245de4041fbd81f54418b2084172876`.
+취소 인과관계는 unproven이다. 모델·정렬·검색 본문 변경은 없으며, private direct-think
+호출자는 완료 깊이0 seed가 필요하다. canonical/DEV에는 자동 적용하지 않는다.
+새 기력·성능·SAN·fault·fresh·CI 검증은 아니며 생산/완료 주석 핀은 구분한다.

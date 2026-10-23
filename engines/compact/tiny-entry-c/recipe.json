@@ -80,7 +80,8 @@
     "engines/compact/tiny-entry-a/shipping_worker_epilogue_bce.py": "e0ab883e0fec895b66b0ef01b5ede056e05fb0bc72472cd8ac64507f2fbf82ce",
     "engines/compact/tiny-entry-a/shipping_setter_phase_bce.py": "9d1985e0c798b59b553a6bee1176fb4f19f9b053da9ecf4243812370e64591d2",
     "engines/compact/tiny-entry-a/shipping_constants_bce.py": "02d0411887e7f04042e4ef94c876c32d2469b6d26f056c63dbf1235a93fc052c",
-    "engines/compact/tiny-entry-c/shipping_cross_c.py": "369614e0a4fe844f5100e742d4c0d09e90ed7ab187dfc433100fc83eb5d1ce3f"
+    "engines/compact/tiny-entry-c/shipping_cross_c.py": "369614e0a4fe844f5100e742d4c0d09e90ed7ab187dfc433100fc83eb5d1ce3f",
+    "engines/compact/tiny-entry-c/shipping_pool_state.py": "bfa63cd4446cc469e4f7efa1267adc4984c86168da8c388aacf8ba8d1619aaaf"
   },
   "compression": {
     "format": "lzma-alone",
@@ -97,16 +98,16 @@
   },
   "expected": {
     "readable_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
-    "source_bytes": 9093,
-    "source_sha256": "da74d1c079ad0abebbb5a63040ca6f3306943ffb271b00e0117267bce0ee2d93",
+    "source_bytes": 9075,
+    "source_sha256": "ce9c91755d91ee8e9b58639d6d904e68ab6a4e4d65f45cb5a57b40b38093164b",
     "native_bytes": 22672,
-    "native_sha256": "f35ec4454b87468519ea5d58d659bc6f90247b1d8736bfa6526cfa266fb2ae46",
-    "whole_bytes": 4672,
-    "whole_sha256": "cd66a664d90d862b9c557c7586d1d24613474115f9670fca427113b89fdb1176",
-    "bootstrap_sha256": "14405494f35ef3fcc40646d487adf57b35de10b0ef9e0182b5333e9be9be2d68",
+    "native_sha256": "5c4470406b35f32f2be263a242d9613f201a4af176483dc7f087e7e52d99649f",
+    "whole_bytes": 4666,
+    "whole_sha256": "a934ea13f9ea1b70c142fc4c8519f12bebb4e32b5f71ce31da0b7efd1d882591",
+    "bootstrap_sha256": "0b51f88fe6033b480c0429a41337e1ea100a82db05632d70d29f4678488b520a",
     "dev_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
     "dev_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c",
-    "bootstrap_bytes": 10054
+    "bootstrap_bytes": 10036
   },
   "local_input_sha256": {
     "engine.c": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
@@ -755,7 +756,7 @@
         "bootstrap_bytes": 10849
       },
       "firstcost": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-common-fd0-first-cost-20261022-evidence/final-index.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-common-fd0-first-cost-20261022-evidence/final-index.json",
         "bytes": 32348,
         "sha256": "a4cf965cfd83aeba97c6bb9f372f0283371093edebf47cb627fdc1421457f14f",
         "LF_bytes": 32348,
@@ -799,7 +800,7 @@
           "LF_sha256": "ac8ab56f1e0946cf8309fa4e1c7942d9e3f1c27d64d0c37797a4db55db4db948"
         },
         "producing_manifest": {
-          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-common-fd0-promotion-20261022-evidence/producing-sources.json",
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-common-fd0-promotion-20261022-evidence/producing-sources.json",
           "bytes": 47057,
           "sha256": "346d5ebfbdfc8f45f590ebb6ba876d40a77264b83a21d65e1474f5a6b710b37c",
           "LF_bytes": 47057,
@@ -827,12 +828,12 @@
     "condition_sharing": {
       "scope": "One condition-object source sharing; size/ELF/strict restoration complete. Extra wakes/contend/timed nodes/results may change; candidate runtime and physical-lifetime qualification pending, prior runtime not inherited.",
       "source_proof": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-one-condition-source-20261022-evidence/C/source-proof.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-one-condition-source-20261022-evidence/C/source-proof.json",
         "bytes": 6399,
         "sha256": "684e9ad021a8d7a180b55d51686429ae083e85c7d8161c084bc843df5142f89b"
       },
       "firstcost": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-one-condition-first-cost-corrected-20261022-evidence/C/final-index.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-one-condition-first-cost-corrected-20261022-evidence/C/final-index.json",
         "bytes": 28215,
         "sha256": "4c6b5e2470d02e381a32cc41ac51e73fe388c7302086f9a63beaf33067bb7d92"
       },
@@ -850,12 +851,12 @@
           "sha256": "366c393f36b5ca58f18782f8a630ba0fbde08fe11f70908c36e00d52a334eb2a"
         },
         "supervisor_results": {
-          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-one-condition-promotion-20261022-evidence/C/normal-results.json",
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-one-condition-promotion-20261022-evidence/C/normal-results.json",
           "bytes": 25272,
           "sha256": "9197b8c12e33e0183ed7945a079793d20f5b9c277d58876d4b532f5077932389"
         },
         "original_handle_exit": {
-          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-one-condition-promotion-20261022-evidence/C/physical-exit.json",
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-one-condition-promotion-20261022-evidence/C/physical-exit.json",
           "bytes": 604,
           "sha256": "8528b432c4e8f47173aaab2445dd4846247461d4682b79fe20e14d0682ff61ed"
         },
@@ -865,7 +866,7 @@
           "sha256": "fdb2caa7c9be3802540b49083121d7d092ac7cf8e383847afad1b8874ff963ab"
         },
         "producing_readme": {
-          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-one-condition-promotion-20261022-evidence/C/producing/engines/compact/tiny-entry-c/README.md",
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-one-condition-promotion-20261022-evidence/C/producing/engines/compact/tiny-entry-c/README.md",
           "bytes": 60305,
           "sha256": "5de3c98490ffb010648395b9964801b8402699133424f791e6b894630a449e71"
         },
@@ -1016,12 +1017,12 @@
     },
     "output_sharing": {
       "source_proof": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-result-output-source-20261022-evidence/C/source-proof.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-result-output-source-20261022-evidence/C/source-proof.json",
         "bytes": 9354,
         "sha256": "9a48f525d5743ed5c957ebfe923941927330e4d50b5680af8898d1b9cd01f354"
       },
       "firstcost": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-result-output-first-cost-20261022-evidence/C/final-index.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-result-output-first-cost-20261022-evidence/C/final-index.json",
         "bytes": 25697,
         "sha256": "e2c09e8fbda952ffa37268da9fa8cc9558ad2e4af9931f61588046c8c37d07a2"
       },
@@ -1039,12 +1040,12 @@
           "sha256": "df3e2a3ac6049dff8c7e28ef0ae90b17286d7bf622990d0d56e3bda429c1cf9e"
         },
         "supervisor_results": {
-          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-output-promotion-20261022-evidence/C/normal-results.json",
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-output-promotion-20261022-evidence/C/normal-results.json",
           "bytes": 25638,
           "sha256": "d8c9f0ea271a2f5d6f95169bc1809097c97e4442878e39eba17b842d5f5ac3b3"
         },
         "original_handle_exit": {
-          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-output-promotion-20261022-evidence/C/physical-exit.json",
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-output-promotion-20261022-evidence/C/physical-exit.json",
           "bytes": 604,
           "sha256": "e8e865f89197071adfa1a12858110a467db4d4729262d9d50a2cd845a2f2ddce"
         },
@@ -1054,7 +1055,7 @@
           "sha256": "c039f28538e735c14d9ce0da246ba787bd745b882d3c6abc620af24c51bec197"
         },
         "producing_readme": {
-          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-output-promotion-20261022-evidence/C/producing/engines/compact/tiny-entry-c/README.md",
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-output-promotion-20261022-evidence/C/producing/engines/compact/tiny-entry-c/README.md",
           "bytes": 63583,
           "sha256": "047b3291c79e013483e8bff8a806ea9564a02473bd435d3da761d6ff678250e3"
         },
@@ -1271,7 +1272,7 @@
         "bootstrap_bytes": 10739
       },
       "firstcost": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-worker-epilogue-first-cost-20261022-evidence/C/final-index.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-worker-epilogue-first-cost-20261022-evidence/C/final-index.json",
         "bytes": 26740,
         "sha256": "d96a63c0fdf90b4b983e1e5c3dbdc70751fc9299e1f8d30b310555762d3d4f02"
       },
@@ -1289,12 +1290,12 @@
           "sha256": "19d82c48f5568988f4dc92a0b89db29000221ff4ef0619b99a708595aa0ce660"
         },
         "supervisor_results": {
-          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-worker-epilogue-promotion-20261022-evidence/C/normal-results.json",
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-worker-epilogue-promotion-20261022-evidence/C/normal-results.json",
           "bytes": 26278,
           "sha256": "8c7bdb3ad209c76f97e0686e239afe8fedeec412088d5abac4013d4118d9dc6f"
         },
         "original_handle_exit": {
-          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-worker-epilogue-promotion-20261022-evidence/C/physical-exit.json",
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-worker-epilogue-promotion-20261022-evidence/C/physical-exit.json",
           "bytes": 699,
           "sha256": "1df3db32dd077ca0eb63aab42b8a9d8a53874de1afb583faacab7ebe80784b2d"
         },
@@ -1304,7 +1305,7 @@
           "sha256": "2c71aa748999690e259bbdede6196187c2731d56d71003226e8aca3cbbf16c24"
         },
         "producing_readme": {
-          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-worker-epilogue-promotion-20261022-evidence/C/producing/engines/compact/tiny-entry-c/README.md",
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-worker-epilogue-promotion-20261022-evidence/C/producing/engines/compact/tiny-entry-c/README.md",
           "bytes": 66492,
           "sha256": "1d6b81b0d6bc36712dcc2b95d0c8dc8b05ac3056de343370f2f6e9cc35f163c0"
         },
@@ -1478,7 +1479,7 @@
         "compiler_codec_engine_executed_by_transform": 0
       },
       "firstcost": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-setter-phase-first-cost-20261023-evidence/C/final-index.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-setter-phase-first-cost-20261023-evidence/C/final-index.json",
         "bytes": 26508,
         "sha256": "a3ed409f0afa8a609c5a05515d178269c098acf05055e0e7edca569b66a1d704"
       },
@@ -1530,12 +1531,12 @@
         "external_reads_compiler_codec_engine": 0
       },
       "source_proof": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c4ke-constant-inline-source-20261024-evidence/C/source-proof.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c4ke-constant-inline-source-20261024-evidence/C/source-proof.json",
         "bytes": 14925,
         "sha256": "6c9468873ae18bac92fe128970b91554b867da0fedb5b26ab799a661a900ff41"
       },
       "firstcost": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-c4ke-constants-first-cost-20261024-evidence/final-index.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-c4ke-constants-first-cost-20261024-evidence/final-index.json",
         "bytes": 11856,
         "sha256": "8797e4e0c46bc8934da1204a8b361e81d3cb2c995abc2a82dac0b6dcb0d576dc"
       },
@@ -1878,12 +1879,12 @@
     "normal_validation": {
       "status": "PASS ordinary --dev builder and unchanged selected verifier; no retry",
       "summary": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-startup-hash-normal-20261021-evidence/summary.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-startup-hash-normal-20261021-evidence/summary.json",
         "bytes": 18106,
         "sha256": "4b7b98ecc6cdb94d11a112e307d388633a03fb061d2000b08167b85ac70c72ca"
       },
       "producing_recipe": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-startup-hash-normal-20261021-evidence/C-producing-recipe.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-startup-hash-normal-20261021-evidence/C-producing-recipe.json",
         "bytes": 50704,
         "sha256": "43cae098e00fdba421e303d9085881a14db70f19426e538cbf93397ee6379c9c"
       },
@@ -1956,12 +1957,12 @@
     "normal_validation": {
       "status": "PASS one ordinary --dev and unchanged selected verifier per selection",
       "summary": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-include-forms-normal-20261021-evidence/summary.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-include-forms-normal-20261021-evidence/summary.json",
         "bytes": 18755,
         "sha256": "b6be10f54e68ea2c381ed85a5a8fce47253825bb5bafbd1639b5b9802e9c5137"
       },
       "producing_recipe": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-include-forms-normal-20261021-evidence/C-producing-recipe.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-include-forms-normal-20261021-evidence/C-producing-recipe.json",
         "bytes": 54367,
         "sha256": "c0402c804723bfa010dd88f196c469a66d50673c52917a06158cc33a1e17e5a6"
       },
@@ -2026,12 +2027,12 @@
     "normal_validation": {
       "status": "PASS one ordinary --dev and unchanged selected verifier per selection",
       "summary": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-hex-guard-normal-20261021-evidence/summary.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-hex-guard-normal-20261021-evidence/summary.json",
         "bytes": 21274,
         "sha256": "af00002687cf6ed0d84f2e85f21169d381bb1cd8721005c05cc87a4fabe2bb96"
       },
       "producing_recipe": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-hex-guard-normal-20261021-evidence/C-producing-recipe.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-hex-guard-normal-20261021-evidence/C-producing-recipe.json",
         "bytes": 57802,
         "sha256": "94078f49edca8a713a4e0c207973b2a7158ddd0a68e2ba68b02004738cfa99fc"
       },
@@ -2088,12 +2089,12 @@
     "normal_validation": {
       "status": "PASS one ordinary --dev and unchanged selected verifier per selection",
       "summary": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bootstrap-guard-normal-20261021-evidence/summary.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bootstrap-guard-normal-20261021-evidence/summary.json",
         "bytes": 15346,
         "sha256": "90e45a020a55ef5a3ff6af78dfa42908eb8625395fe5c991d860bde8d34b2ff6"
       },
       "producing_recipe": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bootstrap-guard-normal-20261021-evidence/C-producing-recipe.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bootstrap-guard-normal-20261021-evidence/C-producing-recipe.json",
         "bytes": 60879,
         "sha256": "0c10be0ff2be1b91e2254522dac2cc97fa316ccf4ec38ec77efccbea78870c02"
       },
@@ -2152,12 +2153,12 @@
         "sha256": "5699d958dd4a0b41818a4967f0068884c3e04c8e0a5a912c3dfd14cdbac8ecc0"
       },
       "fixture": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-common-clock-presence-proof-source-20261021-v3/fixture.c",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-common-clock-presence-proof-source-20261021-v3/fixture.c",
         "bytes": 15074,
         "sha256": "8f6a560758e67f29f360e0b68df7ee77b60566f51df5a5de17493d11a768a39d"
       },
       "manifest": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-common-clock-presence-proof-source-20261021-v3/manifest.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-common-clock-presence-proof-source-20261021-v3/manifest.json",
         "bytes": 28155,
         "sha256": "9e895b57e0d50b1cb5d76f3f24851b89c178c92c44a8f713e8892360aa853f5e"
       },
@@ -2172,12 +2173,12 @@
     "normal_validation": {
       "status": "PASS",
       "summary": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-clock-zero-normal-20261021-evidence/summary.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-clock-zero-normal-20261021-evidence/summary.json",
         "bytes": 15766,
         "sha256": "8e30da1a34a87d6f68cc8a42aafab4e43cb49049ef38510cfb008776095e01b9"
       },
       "producing_recipe": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-clock-zero-normal-20261021-evidence/C-producing-recipe.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-clock-zero-normal-20261021-evidence/C-producing-recipe.json",
         "bytes": 65532,
         "sha256": "0c4c86d63555293246b9be37ceff2e15ef8409cc330b115f21ff2361f2fd6653"
       },
@@ -2315,7 +2316,7 @@
         "sha256": "a31ab5d4279a935025c275de9741d71280159333f51f2c7d8f53e43582962cc8"
       },
       "producing_sources": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c-history-depth-normal-20261021-evidence/producing-sources.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-history-depth-normal-20261021-evidence/producing-sources.json",
         "bytes": 2372,
         "sha256": "1f00df6efbc8a40694e19e832cea4481ca8b4c3ce52ff66f5fa32367b02cd46e"
       },
@@ -2359,7 +2360,7 @@
           "sha256": "8d5df824d3a1eae21e83082ba629d5bb42b5924812d57374b18fd58ac4e2563b"
         },
         "first_runner": {
-          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c-history-depth-normal-20261021-evidence/normal-run-first-preflight.py",
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-history-depth-normal-20261021-evidence/normal-run-first-preflight.py",
           "bytes": 8975,
           "sha256": "fae7e7e251dffda5d3ac93c63dfab7e60efa35fcc86162c20f7ad3f593796b4f"
         },
@@ -2400,12 +2401,12 @@
       "bootstrap_or_engine_runs": 0
     },
     "cost_plan": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-common-lazy-fallback-first-cost-20261021-evidence/plan.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-common-lazy-fallback-first-cost-20261021-evidence/plan.json",
       "bytes": 45742,
       "sha256": "f306a0b5e77ba5237e7e538697a3ed986d3bb80a5a51b0876ddc9dfb528dbc3a"
     },
     "source_preparation": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-common-lazy-fallback-first-cost-20261021-evidence/source/C/preparation.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-common-lazy-fallback-first-cost-20261021-evidence/source/C/preparation.json",
       "bytes": 6384,
       "sha256": "eb6a4f1fd52c3590438b6926460199906fde718294529f6bb5e2a12ac173e876"
     },
@@ -2444,7 +2445,7 @@
         "sha256": "aac374531728fca975b466d242ad61ee0709ad23fae9d13ded85bc665d30154d"
       },
       "data_readback": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-common-lazy-fallback-promotion-20261021-evidence/normal-readback.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-common-lazy-fallback-promotion-20261021-evidence/normal-readback.json",
         "bytes": 50184,
         "sha256": "1f36ca5a22a58f8155db9525a77c57ddfc9f0544e91a322a35a2247f484711d1"
       },
@@ -2500,23 +2501,23 @@
       "scope": "algebraic bound, separate from actual finite evaluator executions"
     },
     "source_proof": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c-simd-lane-sum-20261022-evidence/source-proof.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-simd-lane-sum-20261022-evidence/source-proof.json",
       "bytes": 7592,
       "sha256": "1209ce0882223019e07808746a83fb767f5aee5032a49c77d041745dc6c131d1"
     },
     "header_citation_addendum": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c-simd-lane-sum-20261022-evidence/source-proof-readback.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-simd-lane-sum-20261022-evidence/source-proof-readback.json",
       "bytes": 1034,
       "sha256": "ae5a7912750c624e60d0b1dc7e91e0b26b3ed1a93906625654a3dd3af5facaec"
     },
     "firstcost": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c-simd-lane-sum-20261022-evidence/firstcost.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-simd-lane-sum-20261022-evidence/firstcost.json",
       "bytes": 7058,
       "sha256": "61cc0ccba0560bc154e6d470b062b134be49d6ee07a276d7b96d21713b58bf64"
     },
     "firstcost_reexecuted": false,
     "static_new_native_readback": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c-simd-lane-sum-20261022-evidence/static-native-readback.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-simd-lane-sum-20261022-evidence/static-native-readback.json",
       "bytes": 1490,
       "sha256": "10fe831823caac1dca03605c7cf877610a65f5c6b850bb9613d76a6db4901de4"
     },
@@ -2529,7 +2530,7 @@
         "sha256": "14eb604d804fe97cec5606f5c66abc892979cfc951d4f0c11e2e0394e76dbc78"
       },
       "driver": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c-simd-lane-sum-promotion-20261022-evidence/focus.py",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-simd-lane-sum-promotion-20261022-evidence/focus.py",
         "bytes": 8707,
         "sha256": "69521e4942a88912514d686c86c784768e9928c4f1930dae45230f721655ee75"
       },
@@ -2547,7 +2548,7 @@
     },
     "normal_validation": {
       "producing_recipe": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c-simd-lane-sum-promotion-20261022-evidence/producing-recipe.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-simd-lane-sum-promotion-20261022-evidence/producing-recipe.json",
         "bytes": 93747,
         "sha256": "639855a4ccb3248a4053a67795a7b952d907d47f2032fbd5d75b67a12ec2809a"
       },
@@ -2562,7 +2563,7 @@
         "sha256": "f3abe20bbb34a1cdd8000be7ddd713afaf4e349ab26d7060c1dabd1aad62d81f"
       },
       "outer_commands": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c-simd-lane-sum-promotion-20261022-evidence/normal-commands.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-simd-lane-sum-promotion-20261022-evidence/normal-commands.json",
         "bytes": 3291,
         "sha256": "f87c476842a5bd3b6f2ed9e0cc4e68d134a50635fa273afbbdd665c0691afc30"
       },
@@ -2598,17 +2599,17 @@
     "whole_delta": -5,
     "native_identity_changed": true,
     "source_proof": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c-terminal-shared-source-plan-20261022-evidence/source-proof.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-terminal-shared-source-plan-20261022-evidence/source-proof.json",
       "bytes": 7864,
       "sha256": "5c2a61ccbeea59c4dca7398210bff1962b373698d59b7e0e020953082c694601"
     },
     "independent_source_review": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c-terminal-shared-source-plan-20261022-evidence/independent-source-review.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-terminal-shared-source-plan-20261022-evidence/independent-source-review.json",
       "bytes": 1580,
       "sha256": "4e5f851fbb5905dae70e67657543c66d653393ce0d09dbc112142d4a9bc729f0"
     },
     "firstcost": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c-terminal-shared-first-cost-20261022-evidence/firstcost.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-terminal-shared-first-cost-20261022-evidence/firstcost.json",
       "bytes": 7342,
       "sha256": "060695f8f663e640a6ce54b4a509772bd02e147f4fa95b87d4a63dc703d71918"
     },
@@ -2619,17 +2620,17 @@
     "canonical_DEV_SIMD_weights_ISA_and_profile_unchanged": true,
     "focused_validation": {
       "preparation": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c-terminal-focused-20261022-evidence/preparation.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-terminal-focused-20261022-evidence/preparation.json",
         "bytes": 4477,
         "sha256": "7980c676246b8dab06ea673e4421681a376a28f01ca81fc47ea1e212d17e620e"
       },
       "producer": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c-terminal-focused-20261022-evidence/run.py",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-terminal-focused-20261022-evidence/run.py",
         "bytes": 8743,
         "sha256": "8438e260b13c30cf70923e2fd09cadb0ff45dc56418f1b46c5efb6801f520c6e"
       },
       "receipt": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c-terminal-focused-20261022-evidence/results.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-terminal-focused-20261022-evidence/results.json",
         "bytes": 11067,
         "sha256": "03d493dd913b184bb5d33cf8debf33c16bb6cf1f4208c5bfac8a378520c45ac6"
       },
@@ -2645,12 +2646,12 @@
     },
     "normal_validation": {
       "producing_recipe": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c-terminal-focused-20261022-evidence/producing/recipe.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-terminal-focused-20261022-evidence/producing/recipe.json",
         "bytes": 99408,
         "sha256": "221629b75cfc750887ad9725ec394df85586caefd33dc0379a5a4a25d9a07907"
       },
       "producing_builder": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c-terminal-focused-20261022-evidence/producing/build.py",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-terminal-focused-20261022-evidence/producing/build.py",
         "bytes": 16751,
         "sha256": "2d2a836f01063a492a3e481da29168bc50102b2394db9dae91d6989a6993377b"
       },
@@ -2665,12 +2666,12 @@
         "sha256": "9575c719b395f452f9bc7e7828420948f60201484f8800b3aa9b350797d70125"
       },
       "outer_commands": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c-terminal-focused-20261022-evidence/normal-commands.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-terminal-focused-20261022-evidence/normal-commands.json",
         "bytes": 5097,
         "sha256": "ed08ab2a127a3400be41a50bf5778ff46f95cf298ed46f5286d3aee4c4422cd3"
       },
       "readback": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c-terminal-focused-20261022-evidence/normal-readback.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-terminal-focused-20261022-evidence/normal-readback.json",
         "bytes": 12261,
         "sha256": "d7cc897a9e92f03bb5ce9ebfbdfc70fc831bfbc80f20051eed57e8ec58e55a96"
       },
@@ -2720,7 +2721,7 @@
       "bootstrap_bytes": 10849
     },
     "firstcost": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-common-fd0-first-cost-20261022-evidence/final-index.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-common-fd0-first-cost-20261022-evidence/final-index.json",
       "bytes": 32348,
       "sha256": "a4cf965cfd83aeba97c6bb9f372f0283371093edebf47cb627fdc1421457f14f",
       "LF_bytes": 32348,
@@ -2764,7 +2765,7 @@
         "LF_sha256": "ac8ab56f1e0946cf8309fa4e1c7942d9e3f1c27d64d0c37797a4db55db4db948"
       },
       "producing_manifest": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-common-fd0-promotion-20261022-evidence/producing-sources.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-common-fd0-promotion-20261022-evidence/producing-sources.json",
         "bytes": 47057,
         "sha256": "346d5ebfbdfc8f45f590ebb6ba876d40a77264b83a21d65e1474f5a6b710b37c",
         "LF_bytes": 47057,
@@ -2840,12 +2841,12 @@
       "bootstrap_bytes": 10839
     },
     "source_proof": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-one-condition-source-20261022-evidence/C/source-proof.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-one-condition-source-20261022-evidence/C/source-proof.json",
       "bytes": 6399,
       "sha256": "684e9ad021a8d7a180b55d51686429ae083e85c7d8161c084bc843df5142f89b"
     },
     "firstcost": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-one-condition-first-cost-corrected-20261022-evidence/C/final-index.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-one-condition-first-cost-corrected-20261022-evidence/C/final-index.json",
       "bytes": 28215,
       "sha256": "4c6b5e2470d02e381a32cc41ac51e73fe388c7302086f9a63beaf33067bb7d92"
     },
@@ -2865,12 +2866,12 @@
         "sha256": "366c393f36b5ca58f18782f8a630ba0fbde08fe11f70908c36e00d52a334eb2a"
       },
       "supervisor_results": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-one-condition-promotion-20261022-evidence/C/normal-results.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-one-condition-promotion-20261022-evidence/C/normal-results.json",
         "bytes": 25272,
         "sha256": "9197b8c12e33e0183ed7945a079793d20f5b9c277d58876d4b532f5077932389"
       },
       "original_handle_exit": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-one-condition-promotion-20261022-evidence/C/physical-exit.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-one-condition-promotion-20261022-evidence/C/physical-exit.json",
         "bytes": 604,
         "sha256": "8528b432c4e8f47173aaab2445dd4846247461d4682b79fe20e14d0682ff61ed"
       },
@@ -2880,7 +2881,7 @@
         "sha256": "fdb2caa7c9be3802540b49083121d7d092ac7cf8e383847afad1b8874ff963ab"
       },
       "producing_readme": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-one-condition-promotion-20261022-evidence/C/producing/engines/compact/tiny-entry-c/README.md",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-one-condition-promotion-20261022-evidence/C/producing/engines/compact/tiny-entry-c/README.md",
         "bytes": 60305,
         "sha256": "5de3c98490ffb010648395b9964801b8402699133424f791e6b894630a449e71"
       },
@@ -3087,12 +3088,12 @@
       "bootstrap_bytes": 10802
     },
     "source_proof": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-result-output-source-20261022-evidence/C/source-proof.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-result-output-source-20261022-evidence/C/source-proof.json",
       "bytes": 9354,
       "sha256": "9a48f525d5743ed5c957ebfe923941927330e4d50b5680af8898d1b9cd01f354"
     },
     "firstcost": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-result-output-first-cost-20261022-evidence/C/final-index.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-result-output-first-cost-20261022-evidence/C/final-index.json",
       "bytes": 25697,
       "sha256": "e2c09e8fbda952ffa37268da9fa8cc9558ad2e4af9931f61588046c8c37d07a2"
     },
@@ -3110,12 +3111,12 @@
         "sha256": "df3e2a3ac6049dff8c7e28ef0ae90b17286d7bf622990d0d56e3bda429c1cf9e"
       },
       "supervisor_results": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-output-promotion-20261022-evidence/C/normal-results.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-output-promotion-20261022-evidence/C/normal-results.json",
         "bytes": 25638,
         "sha256": "d8c9f0ea271a2f5d6f95169bc1809097c97e4442878e39eba17b842d5f5ac3b3"
       },
       "original_handle_exit": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-output-promotion-20261022-evidence/C/physical-exit.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-output-promotion-20261022-evidence/C/physical-exit.json",
         "bytes": 604,
         "sha256": "e8e865f89197071adfa1a12858110a467db4d4729262d9d50a2cd845a2f2ddce"
       },
@@ -3125,7 +3126,7 @@
         "sha256": "c039f28538e735c14d9ce0da246ba787bd745b882d3c6abc620af24c51bec197"
       },
       "producing_readme": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-output-promotion-20261022-evidence/C/producing/engines/compact/tiny-entry-c/README.md",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-output-promotion-20261022-evidence/C/producing/engines/compact/tiny-entry-c/README.md",
         "bytes": 63583,
         "sha256": "047b3291c79e013483e8bff8a806ea9564a02473bd435d3da761d6ff678250e3"
       },
@@ -3343,7 +3344,7 @@
       "bootstrap_bytes": 10739
     },
     "firstcost": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-worker-epilogue-first-cost-20261022-evidence/C/final-index.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-worker-epilogue-first-cost-20261022-evidence/C/final-index.json",
       "bytes": 26740,
       "sha256": "d96a63c0fdf90b4b983e1e5c3dbdc70751fc9299e1f8d30b310555762d3d4f02"
     },
@@ -3361,12 +3362,12 @@
         "sha256": "19d82c48f5568988f4dc92a0b89db29000221ff4ef0619b99a708595aa0ce660"
       },
       "supervisor_results": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-worker-epilogue-promotion-20261022-evidence/C/normal-results.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-worker-epilogue-promotion-20261022-evidence/C/normal-results.json",
         "bytes": 26278,
         "sha256": "8c7bdb3ad209c76f97e0686e239afe8fedeec412088d5abac4013d4118d9dc6f"
       },
       "original_handle_exit": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-worker-epilogue-promotion-20261022-evidence/C/physical-exit.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-worker-epilogue-promotion-20261022-evidence/C/physical-exit.json",
         "bytes": 699,
         "sha256": "1df3db32dd077ca0eb63aab42b8a9d8a53874de1afb583faacab7ebe80784b2d"
       },
@@ -3376,7 +3377,7 @@
         "sha256": "2c71aa748999690e259bbdede6196187c2731d56d71003226e8aca3cbbf16c24"
       },
       "producing_readme": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-worker-epilogue-promotion-20261022-evidence/C/producing/engines/compact/tiny-entry-c/README.md",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-worker-epilogue-promotion-20261022-evidence/C/producing/engines/compact/tiny-entry-c/README.md",
         "bytes": 66492,
         "sha256": "1d6b81b0d6bc36712dcc2b95d0c8dc8b05ac3056de343370f2f6e9cc35f163c0"
       },
@@ -3550,7 +3551,7 @@
       "compiler_codec_engine_executed_by_transform": 0
     },
     "firstcost": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-setter-phase-first-cost-20261023-evidence/C/final-index.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-setter-phase-first-cost-20261023-evidence/C/final-index.json",
       "bytes": 26508,
       "sha256": "a3ed409f0afa8a609c5a05515d178269c098acf05055e0e7edca569b66a1d704"
     },
@@ -3602,12 +3603,12 @@
       "external_reads_compiler_codec_engine": 0
     },
     "source_proof": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c4ke-constant-inline-source-20261024-evidence/C/source-proof.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c4ke-constant-inline-source-20261024-evidence/C/source-proof.json",
       "bytes": 14925,
       "sha256": "6c9468873ae18bac92fe128970b91554b867da0fedb5b26ab799a661a900ff41"
     },
     "firstcost": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-c4ke-constants-first-cost-20261024-evidence/final-index.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-bce-c4ke-constants-first-cost-20261024-evidence/final-index.json",
       "bytes": 11856,
       "sha256": "8797e4e0c46bc8934da1204a8b361e81d3cb2c995abc2a82dac0b6dcb0d576dc"
     },
@@ -3682,17 +3683,17 @@
     "DEV_preprocessor_unchanged": true,
     "codec_header_unchanged": true,
     "first_cost": {
-      "index": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c-cross-first-cost-20261024-evidence/final-index.json",
+      "index": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-cross-first-cost-20261024-evidence/final-index.json",
       "sha256": "b767a53fae67121b13e526657c13582aa6d1a18d170c9de5a81b0b334b128dba",
       "whole_delta": -106
     },
     "source_proposal": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c-cross-source-20261024-evidence/final-index.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-cross-source-20261024-evidence/final-index.json",
       "bytes": 1203,
       "sha256": "b8d94372b448fc89016edc6e25d22be7ffaf07c0faca52aeb58dafaea59beb4c"
     },
     "source_proof": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c-cross-source-20261024-evidence/source-proof.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-cross-source-20261024-evidence/source-proof.json",
       "bytes": 15461,
       "sha256": "4b54e1c6996268a6e7e95565a64fd95e59e77cb754835ae275ddf1984710d196"
     },
@@ -3703,7 +3704,7 @@
       "previous_DEV_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
       "previous_DEV_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c",
       "focused": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c-cross-focused-20261024-evidence/final-index.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-cross-focused-20261024-evidence/final-index.json",
         "bytes": 3143,
         "sha256": "8471526386d043c1ecb0e8c7e6ccbbdf3fad68028b36e5b6fbdd70fa20e38305"
       },
@@ -3718,12 +3719,12 @@
         "sha256": "fef67bcfd35093d4e37b7aa86c356019cb7ecacbad0f70f0c5a0b0109e32c695"
       },
       "normal": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c-cross-promotion-20261024-evidence/normal.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-cross-promotion-20261024-evidence/normal.json",
         "bytes": 41723,
         "sha256": "22e104c8773536b0b6a8d59d5777d3682874d37cc1210fd6300fee69990523a6"
       },
       "original_exit": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c-cross-promotion-20261024-evidence/physical-exit.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-cross-promotion-20261024-evidence/physical-exit.json",
         "bytes": 2232,
         "sha256": "d70c5b47fa853ad38a1fc27e110c2bd143f8ddec2c0e2e7240606e366c460ae0"
       },
@@ -3736,6 +3737,113 @@
       "startup_TIDs_per_session": 3,
       "original_handles_terminal_reaped_group_absent_forced0_owned0": true,
       "scope": "new C4672 wrapper plus finite C model oracle; oldC trace/strength/performance/stack-size equality not claimed"
+    }
+  },
+  "completed_depth_token": {
+    "stage": "fixed shipping six-role pool token after actual C SIMD cross",
+    "previous_expected": {
+      "readable_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
+      "source_bytes": 9093,
+      "source_sha256": "da74d1c079ad0abebbb5a63040ca6f3306943ffb271b00e0117267bce0ee2d93",
+      "native_bytes": 22672,
+      "native_sha256": "f35ec4454b87468519ea5d58d659bc6f90247b1d8736bfa6526cfa266fb2ae46",
+      "whole_bytes": 4672,
+      "whole_sha256": "cd66a664d90d862b9c557c7586d1d24613474115f9670fca427113b89fdb1176",
+      "bootstrap_sha256": "14405494f35ef3fcc40646d487adf57b35de10b0ef9e0182b5333e9be9be2d68",
+      "dev_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
+      "dev_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c",
+      "bootstrap_bytes": 10054
+    },
+    "explicit_selected_expected": {
+      "readable_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
+      "source_bytes": 9075,
+      "source_sha256": "ce9c91755d91ee8e9b58639d6d904e68ab6a4e4d65f45cb5a57b40b38093164b",
+      "native_bytes": 22672,
+      "native_sha256": "5c4470406b35f32f2be263a242d9613f201a4af176483dc7f087e7e52d99649f",
+      "whole_bytes": 4666,
+      "whole_sha256": "a934ea13f9ea1b70c142fc4c8519f12bebb4e32b5f71ce31da0b7efd1d882591",
+      "bootstrap_sha256": "0b51f88fe6033b480c0429a41337e1ea100a82db05632d70d29f4678488b520a",
+      "dev_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
+      "dev_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c",
+      "bootstrap_bytes": 10036
+    },
+    "helper_sha256": "bfa63cd4446cc469e4f7efa1267adc4984c86168da8c388aacf8ba8d1619aaaf",
+    "physical_roles": 6,
+    "protected_gaps": 7,
+    "source_raw_delta": -18,
+    "whole_actual_delta": -6,
+    "actual_call_domain": "shipping worker A->C(w,&ql) only; direct C users must seed C=0; no generic C-entry equality",
+    "publication": "underqj, after j drain, qk2 and both C=-1; own typed a claims C0 beforeunlock",
+    "completion": "C1..126 only after complete iterations; abort retains0; x/fflush before qk0 broadcast; startupwNULL/partialcreatejoin preserved",
+    "source_proof": {
+      "path": "/home/stemxstudio/rove4k-c-pool-token-source-20261024/proof.json",
+      "bytes": 2961,
+      "sha256": "2f2c9aa6585765bd41b5775cd9b0c4ac904bd1d66f13e69ea6d0b2e82aadfcd1"
+    },
+    "shared_principle_reused": "maintained A and F completed-depth tokens plus closed current C unique-caller/gaps review; no new projection fixture",
+    "board_SIMD8int16_model_ordering_PVS_TT_learner_bodies_unchanged": true,
+    "canonical_DEV_flags_codec_resources_unchanged": true,
+    "native_entire_bytes_changed": true,
+    "literal_consumer": "candidate inverse -> actual current C cross/readonly/common bootstrap guards -> exact source-literal forward",
+    "normal_validation_pending": false,
+    "new_focused_unit_runs": 0,
+    "runtime_claimed_before_selected": false,
+    "normal_validation": {
+      "normal": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-pool-token-20261024-evidence/normal.json",
+        "bytes": 41525,
+        "sha256": "b9fef6ed6983c2d8627a33587e3268a82cf41effefcdd3ad4fd48361994dda9d"
+      },
+      "physical_outer": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-pool-token-20261024-evidence/physical-exit.json",
+        "bytes": 2209,
+        "sha256": "81fba30f09d6259e5b1c20f20f1c32587e0d8413c77b992c1e7e1a56b3467797"
+      },
+      "build": {
+        "path": "/home/stemxstudio/rove4k-c-pool-token-normal-20261024-v1/build/build.json",
+        "bytes": 278123,
+        "sha256": "e8d5f2c94c68429db25dbf0f4260816e949e77b89b94caf3aca5709635731ff0"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-c-pool-token-normal-20261024-v1/runtime/runtime.json",
+        "bytes": 83619,
+        "sha256": "9b04c164b3b7d254555b4e3298c33e3d5ecb08334ed6438504e08266cbfa048f"
+      },
+      "producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-c-pool-token-normal-20261024-v1/build/inputs/recipe.json",
+        "bytes": 196857,
+        "sha256": "b44502f8b3d494788057f5435e2f8827ce20b29777891c97202aa3bacf3c2a33"
+      },
+      "shipping_reproductions": 2,
+      "unchanged_DEV_reproductions": 2,
+      "firstcost_entire_tuple_equal": true,
+      "old_actual_DEV_entire_equal": true,
+      "selected_verifier_source_unchanged": true,
+      "quit_EOF_sessions": 2,
+      "legal_GO_epochs": 8,
+      "startup_TIDs": 3,
+      "restored_new_native_image": true,
+      "own_readers_and_physical_process_exit": true,
+      "FD_inspection_claimed": false,
+      "cancellation_causalLink": "unproven",
+      "new_projection_or_unit_runs": 0,
+      "source_principle_reuse": "actual current C six roles/unique actor caller/gaps plus already qualified A/F ownership principle",
+      "all_outer_and_normal_original_handles_terminal_reaped": true,
+      "all_pre_reap_extras_empty": true,
+      "all_groups_absent": true,
+      "forced": 0,
+      "failures": 0,
+      "owned": 0,
+      "post_execution_changes": "recipe/README completion annotations only; code/helper/operational expected/compiler/codec/resources unchanged",
+      "not_run": [
+        "new board/search/model matrix",
+        "new fixture/projection unit",
+        "SAN/fault/negative",
+        "fresh archive",
+        "games",
+        "performance",
+        "C8 target"
+      ]
     }
   }
 }
