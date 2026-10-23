@@ -34,6 +34,7 @@ SHIPPING_PROTOCOL = {
 }
 V2_CODEC = 'rove4k-context-h24-base10-fixed21-replay-zero4-v2'
 CODEC = 'rove4k-context-h24-base10-fixed21-body232-zero4-v3'
+H28_CODEC = 'rove4k-context-h28-base10-fixed21-body232-zero4-v1'
 EXECUTION_ISA = 'linux-x86_64-sse4.2-cx16-crc32b-v1'
 EXPECTED_V2 = {'scalar-shipping': {'bytes': 5908, 'sha256': 'd7a0b5fa3f5dcf96368630283f756fee4bf04034b58cd970700e6197c4471490', 'native_bytes': 7612, 'native_sha256': '662b0eb10046d0b0ab105bba0f793371bb869eb61aa4419c8c2fa95f7d39c32d', 'audit_bytes': 5931, 'audit_sha256': '46ebc96c8e0fdd46a6f5b93668fd3b82b4ee746b9e44513d1532a3fc48963e90', 'entry': 4201533, 'layout': {'image_base': 4194304, 'image_size': 7612, 'image_pages': 8192, 'entry': 4201533, 'bss_base': 4202496, 'bss_size': 175092, 'bss_pages': 176128, 'guard_base': 4190208, 'upper_guard': 4378624, 'reserve_size': 192512, 'section_offset': 0, 'section_size': 0, 'section_count': 0, 'section_names': 0, 'segments': [{'type': 1, 'flags': 5, 'offset': 0, 'vaddr': 4194304, 'paddr': 4194304, 'filesz': 7612, 'memsz': 7612, 'align': 4096}, {'type': 1, 'flags': 6, 'offset': 0, 'vaddr': 4202496, 'paddr': 4202496, 'filesz': 0, 'memsz': 175092, 'align': 4096}, {'type': 1685382481, 'flags': 6, 'offset': 0, 'vaddr': 0, 'paddr': 0, 'filesz': 0, 'memsz': 0, 'align': 8}]}}, 'hq-shipping': {'bytes': 6111, 'sha256': '9e4167c6b4bba2978d1b3685901bef89fd90ff9929f7991f8c39cbaa94819a62', 'native_bytes': 8000, 'native_sha256': '3c662941aa11af8521d3c601322e9aa38405a3bfbeb9332d55008907217a4b2e', 'audit_bytes': 6134, 'audit_sha256': '50dd8d89b10b2fc7b09b11f5f21215f7e8035d1edac6948dd6b7ff0ef68153f9', 'entry': 4201846, 'layout': {'image_base': 4194304, 'image_size': 8000, 'image_pages': 8192, 'entry': 4201846, 'bss_base': 4202496, 'bss_size': 175064, 'bss_pages': 176128, 'guard_base': 4190208, 'upper_guard': 4378624, 'reserve_size': 192512, 'section_offset': 0, 'section_size': 0, 'section_count': 0, 'section_names': 0, 'segments': [{'type': 1, 'flags': 5, 'offset': 0, 'vaddr': 4194304, 'paddr': 4194304, 'filesz': 8000, 'memsz': 8000, 'align': 4096}, {'type': 1, 'flags': 6, 'offset': 0, 'vaddr': 4202496, 'paddr': 4202496, 'filesz': 0, 'memsz': 175064, 'align': 4096}, {'type': 1685382481, 'flags': 6, 'offset': 0, 'vaddr': 0, 'paddr': 0, 'filesz': 0, 'memsz': 0, 'align': 8}]}}}
 # V2 retains its full-native RX comparison and exact historical admissions.
@@ -49,6 +50,9 @@ EXPECTED_BODY = {
         restored_image_sha256='f2b4804631d293ccb4742ed8718869a29736bfb46f840044659e44c8d0f95d4b'),
 }
 EXPECTED_FUSED_BODY = dict(EXPECTED_BODY, **{'scalar-shipping': {'bytes': 5717, 'sha256': '759f10c75724ca2151f38a84ba34ccbb1f5ace3dd158378e677b533c026a3200', 'native_bytes': 7388, 'native_sha256': '395fea4ddf80d155227700fa8da9b06437082837a1878a818605f268506de50c', 'audit_bytes': 5740, 'audit_sha256': 'dddc6a9214a1b39a2e47ef291aa3d58bfeccc52f7c401f5e5b2450ec389cc90d', 'entry': 4201328, 'layout': {'entry': 4201328, 'section_offset': 0, 'section_size': 0, 'section_count': 0, 'section_names': 0, 'segments': [{'type': 1, 'flags': 5, 'offset': 0, 'vaddr': 4194304, 'paddr': 4194304, 'filesz': 7388, 'memsz': 7388, 'align': 4096}, {'type': 1, 'flags': 6, 'offset': 0, 'vaddr': 4202496, 'paddr': 4202496, 'filesz': 0, 'memsz': 175092, 'align': 4096}, {'type': 1685382481, 'flags': 6, 'offset': 0, 'vaddr': 0, 'paddr': 0, 'filesz': 0, 'memsz': 0, 'align': 8}], 'image_base': 4194304, 'image_size': 7388, 'image_pages': 8192, 'bss_base': 4202496, 'bss_size': 175092, 'bss_pages': 176128, 'guard_base': 4190208, 'upper_guard': 4378624, 'reserve_size': 192512}, 'restored_image_sha256': 'b2982877c1c1bf97cafcfcd5b9dd210835a3eded07dcbf3c38e8c991c4d8943a'}})
+EXPECTED_H28_BODY = dict(EXPECTED_FUSED_BODY, **{'scalar-shipping': dict(EXPECTED_FUSED_BODY['scalar-shipping'],
+    bytes=5649, sha256='b305f29b4cb19130269093f90ed520ee0ed643b23d9c19ed6ad28ee8513f5369',
+    audit_bytes=5672, audit_sha256='436b429ee3cd3368ea16b71ca883b7ba487324fcfcffe1ff9232d46274050a74')})
 OWNED = set()
 
 
@@ -217,6 +221,8 @@ class Owned:
     def __init__(self, path, directory, budget):
         self.directory, self.budget, self.sent, self.finished = directory, budget, bytearray(), False
         self.stdout, self.stderr, self.cleaned = None, None, None
+        self.reaped = False
+        self.pre_reap_other_members = []
         inherited = signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGTERM})
         try:
             # Restore the exact inherited signal mask in the child before exec.
@@ -248,8 +254,32 @@ class Owned:
     def wait_best(self, count):
         self.stdout.until(lambda data: sum(s.startswith(b"bestmove ") for s in data.splitlines()) >= count, self.budget)
 
+    def exited(self):
+        return os.waitid(os.P_PID, self.process.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT) is not None
+
+    def group_others(self):
+        rows = []
+        for path in Path('/proc').iterdir():
+            if not path.name.isdecimal() or int(path.name) == self.process.pid:
+                continue
+            try:
+                fields = (path/'stat').read_text().rsplit(')', 1)[1].split()
+                if int(fields[2]) == self.process.pid:
+                    rows.append({'pid': int(path.name), 'state': fields[0]})
+            except (FileNotFoundError, ProcessLookupError, PermissionError):
+                pass
+        return rows
+
     def finish(self):
-        self.process.wait(timeout=self.budget.left(10))
+        deadline = time.monotonic() + self.budget.left(10)
+        while not self.exited():
+            if time.monotonic() >= deadline:
+                raise TimeoutError('owned engine did not physically exit')
+            time.sleep(.005)
+        self.pre_reap_other_members = self.group_others()
+        require(not self.pre_reap_other_members, 'engine group has other members before reap')
+        self.process.wait(timeout=self.budget.left(3))
+        self.reaped = True
         for reader in (self.stdout, self.stderr):
             reader.thread.join(timeout=self.budget.left(3))
             require(not reader.thread.is_alive() and reader.done and not reader.error, "output reader did not join cleanly")
@@ -257,57 +287,77 @@ class Owned:
         require(not self.stderr.bytes(), "engine stderr: " + repr(self.stderr.bytes()))
         self.finished = True
         return {"returncode": 0, "readers_joined": True, "stdout_eof": self.stdout.done,
-                "stderr_eof": self.stderr.done, "forced_cleanup": False}
+                "stderr_eof": self.stderr.done, "forced_cleanup": False,
+                "pre_reap_other_members": self.pre_reap_other_members,
+                "original_identity_retained_until_other_members_absent": True, "reaped": True}
 
     def cleanup(self):
         if self.cleaned is not None:
             return self.cleaned
-        forced = False
-        errors = []
+        inherited = signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGTERM})
         try:
-            os.killpg(self.process.pid, signal.SIGKILL)
-            forced = True
-        except ProcessLookupError:
-            pass
-        try:
-            self.close_input()
-        except (BrokenPipeError, OSError):
-            pass
-        try:
-            self.process.wait(timeout=3)
-        except subprocess.TimeoutExpired:
-            errors.append("owned leader did not reap after SIGKILL")
-        readers = [r for r in (self.stdout, self.stderr) if r is not None]
-        for reader in readers:
-            reader.thread.join(timeout=3)
-        self.directory.mkdir(parents=True, exist_ok=True)
-        (self.directory / "stdin.bin").write_bytes(self.sent)
-        (self.directory / "stdout.bin").write_bytes(self.stdout.bytes() if self.stdout else b"")
-        (self.directory / "stderr.bin").write_bytes(self.stderr.bytes() if self.stderr else b"")
-        joined = not any(r.thread.is_alive() for r in readers)
-        if not joined:
-            errors.append("cleanup left output readers alive")
-        else:
-            self.process.stdout.close()
-            self.process.stderr.close()
-        try:
-            os.killpg(self.process.pid, 0)
-        except ProcessLookupError:
-            group_absent = True
-        else:
-            group_absent = False
-        if not group_absent:
-            errors.append("owned process group remains")
-        self.cleaned = {"owned_group_absent": group_absent, "readers_joined": joined,
-                        "forced_cleanup": forced, "settled_before_cleanup": self.finished, "errors": errors}
-        OWNED.discard(self)
-        return self.cleaned
+            forced = False
+            errors = []
+            if not self.reaped:
+                if not self.exited() or self.group_others():
+                    forced = True
+                    for sig in (signal.SIGTERM, signal.SIGKILL):
+                        # The original leader remains unreaped through cleanup.
+                        try:
+                            os.killpg(self.process.pid, sig)
+                        except ProcessLookupError:
+                            pass
+                        deadline = time.monotonic()+2
+                        while time.monotonic() < deadline:
+                            if self.exited() and not self.group_others():
+                                break
+                            time.sleep(.025)
+                        if self.exited() and not self.group_others():
+                            break
+                self.pre_reap_other_members = self.group_others()
+                require(self.exited() and not self.pre_reap_other_members,
+                        'owned group did not settle while original identity retained')
+                self.process.wait(timeout=3)
+                self.reaped = True
+            try:
+                self.close_input()
+            except (BrokenPipeError, OSError):
+                pass
+            readers = [r for r in (self.stdout, self.stderr) if r is not None]
+            for reader in readers:
+                reader.thread.join(timeout=3)
+            self.directory.mkdir(parents=True, exist_ok=True)
+            (self.directory / "stdin.bin").write_bytes(self.sent)
+            (self.directory / "stdout.bin").write_bytes(self.stdout.bytes() if self.stdout else b"")
+            (self.directory / "stderr.bin").write_bytes(self.stderr.bytes() if self.stderr else b"")
+            joined = not any(r.thread.is_alive() for r in readers)
+            if not joined:
+                errors.append("cleanup left output readers alive")
+            else:
+                self.process.stdout.close()
+                self.process.stderr.close()
+            # After reap, only an observation is allowed; no stale PGID signal.
+            try:
+                os.killpg(self.process.pid, 0)
+            except ProcessLookupError:
+                group_absent = True
+            else:
+                group_absent = False
+            if not group_absent:
+                errors.append("owned process group remains")
+            self.cleaned = {"owned_group_absent": group_absent, "readers_joined": joined,
+                            "forced_cleanup": forced, "settled_before_cleanup": self.finished, "errors": errors,
+                            "pre_reap_other_members": self.pre_reap_other_members, "reaped": self.reaped}
+            OWNED.discard(self)
+            return self.cleaned
+        finally:
+            signal.pthread_sigmask(signal.SIG_SETMASK, inherited)
 
 
-def stable_startup(owned):
-    deadline = time.monotonic() + owned.budget.left(10)
+def stable_startup(owned, seconds=10):
+    deadline = time.monotonic() + owned.budget.left(seconds)
     while time.monotonic() < deadline:
-        require(owned.process.poll() is None, "engine exited during startup")
+        require(not owned.exited(), "engine exited during startup")
         observed = tasks(owned.process.pid)
         if len(observed) == 3:
             time.sleep(min(.05, owned.budget.left(.05)))
@@ -344,13 +394,15 @@ def checkpoint(candidate, layout, native_sha, directory, budget, evidence, *, re
         require(path.stat().st_size == audit["bytes"], "audit size differs")
     owned = Owned(path, directory, budget)
     try:
-        deadline = time.monotonic() + budget.left(10)
+        deadline = time.monotonic() + budget.left(60 if candidate.get("codec") == H28_CODEC else 10)
         while time.monotonic() < deadline:
-            pid, status = os.waitpid(owned.process.pid, os.WNOHANG | os.WUNTRACED)
-            if pid:
-                require(os.WIFSTOPPED(status) and os.WSTOPSIG(status) == signal.SIGSTOP, "audit did not stop at pre-entry checkpoint")
+            status = os.waitid(os.P_PID, owned.process.pid,
+                               os.WSTOPPED | os.WEXITED | os.WNOHANG | os.WNOWAIT)
+            if status is not None:
+                require(status.si_code == os.CLD_STOPPED and status.si_status == signal.SIGSTOP,
+                        "audit did not stop at pre-entry checkpoint")
                 break
-            require(owned.process.poll() is None, "audit exited before pre-entry checkpoint")
+            require(not owned.exited(), "audit exited before pre-entry checkpoint")
             time.sleep(min(.005, budget.left(.005)))
         else:
             raise TimeoutError("pre-entry CHECKPOINT deadline")
@@ -375,7 +427,7 @@ def production(candidate, layout, native_sha, directory, budget, oracle, shutdow
     owned = Owned(path, directory, budget)
     row.update({"shutdown": shutdown, "passed": False, "searches": []})
     try:
-        tids = stable_startup(owned)
+        tids = stable_startup(owned, 60 if candidate.get("codec") == H28_CODEC else 10)
         row["startup_tids"] = tids
         row["before_uci"] = inspect(owned.process.pid, layout, native_sha, candidate["sha256"], restored_sha=restored_sha)
         owned.send(b"uci\nisready\n")
@@ -466,9 +518,10 @@ def main():
         require(sha(oracle_bytes.replace(b"\r\n", b"\n")) == ORACLE_LF_SHA, "independent oracle LF-normalized source differs")
         build = json.loads(build_bytes)
         codec = build.get('engines', [{}])[0].get('candidates', [{}])[0].get('codec')
-        require(codec in (V2_CODEC, CODEC), "unknown packet/image class")
+        require(codec in (V2_CODEC, CODEC, H28_CODEC), "unknown packet/image class")
         require(build.get('source_policy') in (None, 'scalar-shipping-fused-rays-v1'), 'unknown Board source policy')
-        expected_forms = EXPECTED_V2 if codec == V2_CODEC else (EXPECTED_FUSED_BODY
+        require(codec != H28_CODEC or build.get('context_source_policy') == 'scalar-H28-HQ-H24-v1', 'unknown H28 source policy')
+        expected_forms = EXPECTED_H28_BODY if codec == H28_CODEC else EXPECTED_V2 if codec == V2_CODEC else (EXPECTED_FUSED_BODY
             if build.get('source_policy') == 'scalar-shipping-fused-rays-v1' else EXPECTED_BODY)
         report['codec'] = codec
         require(all(e["audit_bytes"] is not None and e["audit_sha256"] is not None for e in expected_forms.values()), "context audit literals require explicit discovery and admission")
@@ -506,10 +559,11 @@ def main():
             require(len(engine["candidates"]) == 1, "expected exactly one selected context-codec own ELF")
             candidate = dict(engine["candidates"][0])
             candidate["path"] = str(resolve(candidate["path"], build_path.parent))
-            require(candidate.get("codec") == codec and candidate["sha256"] == expected["sha256"] and candidate["bytes"] == expected["bytes"], "selected own ELF admission differs")
+            engine_codec = CODEC if codec == H28_CODEC and engine['id'] == 'hq-shipping' else codec
+            require(candidate.get("codec") == engine_codec and candidate["sha256"] == expected["sha256"] and candidate["bytes"] == expected["bytes"], "selected own ELF admission differs")
             restored_sha = expected.get('restored_image_sha256')
-            if codec == CODEC:
-                image = {'format': CODEC, 'zero_prefix_bytes': 232,
+            if engine_codec in (CODEC, H28_CODEC):
+                image = {'format': engine_codec, 'zero_prefix_bytes': 232,
                          'compiled_native_bytes': expected['native_bytes'], 'compiled_native_sha256': expected['native_sha256'],
                          'restored_image_bytes': expected['native_bytes'], 'restored_image_sha256': restored_sha}
                 require(engine.get('image') == image and candidate.get('image') == image

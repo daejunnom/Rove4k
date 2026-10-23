@@ -4714,9 +4714,43 @@
     "source_other_bytes_unchanged": true,
     "actual_native_changed": true,
     "normal_validation": {
-      "status": "pending actual EP/legal-maker focused and ordinary --dev/unchanged selected",
+      "status": "PASS actual old/new EP maker focused, ONE ordinary --dev and unchanged selected",
       "previous_DEV_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
-      "previous_DEV_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30"
+      "previous_DEV_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
+      "focused": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-b-ep-maker-focused-20261024-evidence/final-index.json",
+        "bytes": 3895,
+        "sha256": "dc0005a3616909b30572e854dc64073f552a04d62cfc9058eeccf1a289205e73"
+      },
+      "build": {
+        "path": "/home/stemxstudio/rove4k-b-ep-maker-normal-20261024-v1/build/build.json",
+        "bytes": 275365,
+        "sha256": "06511c4a87c57b4db51bcb3cc7c96dd674b40a75a61a8a12522c1382d8eb56b3"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-b-ep-maker-normal-20261024-v1/runtime/runtime.json",
+        "bytes": 97203,
+        "sha256": "c0aa56941e39381918e4b6f9d79d5aa0ef6df122f7bd9dd43ae7dab0d12d8c8b"
+      },
+      "normal": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-b-ep-maker-promotion-20261024-evidence/normal.json",
+        "bytes": 44946,
+        "sha256": "5b34e7979456cc32c734c1b1bfe520edac9f07cf7d2f35b8cd615d5fc4c2fdf8"
+      },
+      "original_exit": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-b-ep-maker-promotion-20261024-evidence/physical-exit.json",
+        "bytes": 2247,
+        "sha256": "9dee07fdc249926008b4c2c759f29695b0bdf850a9fb48e3cee857cd37b4ead5"
+      },
+      "shipping_reproductions": 2,
+      "unchanged_DEV_reproductions": 2,
+      "entire_firstcost_tuple_equal": true,
+      "actual_previous_DEV_entire_equal": true,
+      "sessions": 2,
+      "GO_calls": 8,
+      "startup_TIDs_per_session": 3,
+      "original_handles_terminal_reaped_group_absent_forced0_owned0": true,
+      "scope": "actual EP/legal-maker and B4950 wrapper; old DEV separate, no timed trace/strength/performance/stack-size/minimumISA equality claim"
     }
   }
 }

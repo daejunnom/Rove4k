@@ -27,9 +27,27 @@ bit·입력 처리의 다른 source bytes, 정본, 기존 guards와 DEV/model fl
 ONE firstcost는 기준선 compile/encode0, 후보 각1과 strict Python2/CLI2 전체복원,
 EOF/trailing0을 통과했고 원 outer/child가 terminal/reaped/group 부재/forced0/owned0이다.
 
-EP_MAKER_VALIDATION_PENDING: actual old/new EP·legal-maker focused와 일반 --dev 재현,
-unchanged selected를 새 실제 native에서 확인할 예정이다. Native identity가 바뀌었으므로
-이전 성공을 새 image의 검증으로 상속하지 않는다.
+EP_MAKER_NORMAL_PASS: actual 새 TU는 그대로 include하고, 이전 C와 h 정의에
+정의 이름 두 곳·h의 C 호출 한 곳만 alias해 old normalizer 경로를 분리했다.
+기존 B focused FEN ingress와 양쪽 EP를 재사용하고 양쪽 file-pin/rank-discovery를
+최소 추가한 fatal GCC13 ASan/UBSan 1 compile/1 run을 통과했다. 실제 generated
+double-push6·EP6(합법101 두 개, king self-check 거절0 네 개), normalizer pair8,
+완료 Board20에서 old/new 반환·typed mailbox/14bb/k/HCE/hash/context/half와 부모
+bytes 보존을 확인했다. 완료 child의 S를 먼저 제거해 entry를 역투영한 검사는
+내부 C-entry observer나 모든 trace의 관측을 뜻하지 않는다. 주어진 entry의 h/r는
+미완성 값이며 normalizer의 e 외 caller-field 불변과 inner scratch 폐기만 확인한다.
+SAN은 가상 AS64TiB와 별도 hard RSS512MiB/CPU25초/wall30초를 사용했다.
+Fixture compiler에 기존 C runner의 불필요한 -mavx2가 남은 실제 argv를 보존했다.
+B source에 SIMD intrinsic은 없지만 이 SAN 결과로 B 최소 ISA 동일성을 주장하지 않는다.
+실제 ordinary/selected는 원 B의 no-mavx2 compiler 그대로이며 새 native/whole 전체가
+고정 firstcost와 같다. Ordinary --dev 한 번에서 shipping 두 사본과 실제 이전 DEV
+두 사본의 전체 bytes를 재현했다. Unchanged selected 한 번은 새 image에서
+quit/EOF 두 session·여덟 GO·3 startup TID·private-path 제거·closing bestmove 한 번·
+reader 완료와 물리 종료를 확인했다. 이전 성공을 새 native의 검증으로 상속하지 않았다.
+원 focused/normal outer와 child는 모두 terminal0/reaped/anchor 유지 중 extras0/
+당시 group 부재/강제정리0/owned0이다. 이후 helper/build/expected는 그대로이고
+recipe/README 완료 주석만 바꿨다. Cancellation causality는 unproven이며
+시간제 trace·stack 크기·기력/성능·모든 core qualification·새 CI는 주장하지 않는다.
 
 ## 이전 단계 기록
 

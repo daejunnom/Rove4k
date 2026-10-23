@@ -22,6 +22,7 @@ import time
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 CODEC = 'rove4k-context-h24-base10-fixed21-body232-zero4-v3'
+H28_CODEC = 'rove4k-context-h28-base10-fixed21-body232-zero4-v1'
 EXECUTION_ISA = 'linux-x86_64-sse4.2-cx16-crc32b-v1'
 SHIPPING_PROTOCOL = {
     'id': 'finite-minimum-v1', 'identification': False,
@@ -115,6 +116,8 @@ def main():
         raise ValueError('unsupported selected profile')
     if list(recipe['expected']) != ['scalar-shipping', 'hq-shipping']:
         raise ValueError('exactly the selected scalar/HQ images are required')
+    if recipe.get('form_codecs') != {'scalar-shipping': H28_CODEC, 'hq-shipping': CODEC}:
+        raise ValueError('unsupported per-form fixed context codecs')
     if recipe['codec'] != CODEC:
         raise ValueError('unsupported fixed context codec')
     if recipe.get('execution_isa') != EXECUTION_ISA:
@@ -204,6 +207,20 @@ def main():
         packer = module('entry_d_fixed_packer', frozen/'packer.py')
         codec = module('entry_d_context_codec', frozen/'loader/codec.py')
         shipping = module('entry_d_shipping_fused_ray', frozen/'shipping_fused_ray.py')
+        h28 = module('entry_d_scalar_H28', frozen/'shipping_context_h28.py')
+        h28_sources = out/'scalar-H28-sources'
+        h28_sources.mkdir()
+        prepared = h28.prepare_sources({name: (frozen/name).read_bytes() for name in h28.FIXED})
+        for name, data in prepared.items():
+            target = h28_sources/name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(data)
+        for name in ('loader/range_bits.py', 'loader/image.ld'):
+            (h28_sources/name).write_bytes((frozen/name).read_bytes())
+        h28_packer = module('entry_d_H28_packer', h28_sources/'packer.py')
+        h28_codec = module('entry_d_H28_codec', h28_sources/'loader/codec.py')
+        report['context_source_policy'] = 'scalar-H28-HQ-H24-v1'
+        report['context_sources'] = {name: {'bytes': len(data), 'sha256': sha(data)} for name, data in prepared.items()}
         generated_native = out/'shipping-native'
         generated_native.mkdir()
         for name in recipe['native_source_sha256']:
@@ -241,8 +258,11 @@ def main():
             if Path(natives[0]['path']).read_bytes() != Path(natives[1]['path']).read_bytes():
                 raise ValueError('native independent repeats differ')
             native = Path(natives[0]['path']).read_bytes()
-            image = packer.body_image(expected)
-            if codec.body_image(native)[1] != image:
+            selected_packer, selected_codec, selected_sources = ((h28_packer, h28_codec, h28_sources)
+                if form == 'scalar-shipping' else (packer, codec, frozen))
+            selected_format = recipe['form_codecs'][form]
+            image = selected_packer.body_image(expected)
+            if selected_codec.body_image(native)[1] != image:
                 raise ValueError('codec/packer body232 image identities differ')
             restored = bytes(image['zero_prefix_bytes']) + native[image['zero_prefix_bytes']:]
             if (len(restored), sha(restored)) != (image['restored_image_bytes'], image['restored_image_sha256']):
@@ -250,18 +270,18 @@ def main():
             restored_path = directory/'restored-image.bin'
             restored_path.write_bytes(restored)
             complete = []
-            model = codec.load_models((frozen/'loader/models.json').read_bytes(), form)
+            model = selected_codec.load_models((selected_sources/'loader/models.json').read_bytes(), form)
             if model[0] != expected['model_wmask']:
                 raise ValueError('selected fixed21 WMASK differs')
             for attempt in ('context', 'context-repeat'):
-                payload, encoding = codec.encode_body_native(native, model)
-                if encoding['format'] != CODEC or encoding['header_bytes'] != 21:
+                payload, encoding = selected_codec.encode_body_native(native, model)
+                if encoding['format'] != selected_format or encoding['header_bytes'] != 21:
                     raise ValueError('selected fixed21 packet format differs')
                 if encoding['image'] != image or encoding['decoded_bytes'] != len(native)-image['zero_prefix_bytes']:
                     raise ValueError('body232 decoder extent or image identity differs')
                 if (len(payload), sha(payload)) != (expected['payload_bytes'], expected['payload_sha256']):
                     raise ValueError('independent encoder differs from selected context payload')
-                candidate = packer.compile_loader(directory/attempt, frozen/'loader', payload, layout, recipe['loader_flags'], run, sha, model_wmask=model[0], image=image)
+                candidate = selected_packer.compile_loader(directory/attempt, selected_sources/'loader', payload, layout, recipe['loader_flags'], run, sha, model_wmask=model[0], image=image)
                 candidate['encoding'] = encoding
                 if (candidate['bytes'], candidate['sha256'], candidate['payload_bytes'], candidate['loader_and_headers_bytes']) != (
                     expected['whole_bytes'], expected['whole_sha256'], expected['payload_bytes'], expected['loader_and_headers_bytes']):
@@ -269,10 +289,10 @@ def main():
                 complete.append(candidate)
             if Path(complete[0]['path']).read_bytes() != Path(complete[1]['path']).read_bytes():
                 raise ValueError('independent complete-file repeats differ')
-            audit = packer.compile_loader(directory/'context-audit', frozen/'loader', payload, layout, recipe['loader_flags'], run, sha, model_wmask=model[0], checkpoint=True, image=image)
+            audit = selected_packer.compile_loader(directory/'context-audit', selected_sources/'loader', payload, layout, recipe['loader_flags'], run, sha, model_wmask=model[0], checkpoint=True, image=image)
             if (audit['bytes'], audit['sha256']) != (expected['audit_bytes'], expected['audit_sha256']):
                 raise ValueError('same admitted CHECKPOINT image differs')
-            complete[0].update(codec=CODEC, reproduction=complete[1], audit=audit, within4096=False)
+            complete[0].update(codec=selected_format, reproduction=complete[1], audit=audit, within4096=False)
             report['engines'].append({'id': form, 'input_bytes': len(native), 'input_sha256': sha(native), 'layout': layout,
                                       'image': image, 'restored_image': {'path': str(restored_path), 'bytes': len(restored), 'sha256': sha(restored)},
                                       'native': natives[0]['path'], 'native_rebuilds': natives, 'native_reproduced': True,

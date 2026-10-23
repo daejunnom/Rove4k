@@ -145,7 +145,7 @@ def startup(owned, expected, helper, waiting):
     end = time.monotonic() + owned.budget.left(30)
     last = None
     while time.monotonic() < end:
-        require(owned.process.poll() is None, 'whole script exited before native worker startup')
+        require(not owned.exited(), 'whole script exited before native worker startup')
         try:
             link = os.readlink(f'/proc/{owned.process.pid}/exe')
             if link.endswith(' (deleted)') and Path(link[:-10]).name == 'x' and Path(link[:-10]).parent.name.startswith('r4-'):
@@ -316,8 +316,8 @@ def main():
         recorded = json.loads((built/'build.json').read_text())
         require(recorded['complete'] and recorded['source_closure'] == closure and recorded['recipe_sha256'] == sha(recipe_raw),
                 'ordinary builder/source/recipe identity differs')
-        require(recorded['class'] == recipe['class'] == 'full-F-late-fixed-resource8-TT18-v6' and
-                recorded['base_stage'] == recipe['base_stage'] == 'full-after-tt-pool',
+        require(recorded['class'] == recipe['class'] == 'full-F-late-fixed-resource8-TT18-v7' and
+                recorded['base_stage'] == recipe['base_stage'] == 'full-after-frequency-format',
                 'fixed late resource8 v6 class/base stage differs')
         identity(built/'base-source.c', recipe['base_source'])
         require(recorded['profile'] == recipe['profile'] == {'workers': 8, 'tt_bits': 18, 'ply': 128, 'native_TIDs': 9}, 'fixed resource8 profile differs')

@@ -77,7 +77,8 @@
     "engines/compact/tiny-entry-a/shipping_setter_phase_bce.py": "9d1985e0c798b59b553a6bee1176fb4f19f9b053da9ecf4243812370e64591d2",
     "engines/compact/tiny-entry-a/shipping_constants_bce.py": "02d0411887e7f04042e4ef94c876c32d2469b6d26f056c63dbf1235a93fc052c",
     "engines/compact/tiny-entry-e/shipping_cross_e.py": "0672f69ef3f2d3e7a1d97213cbe1ae572221354af0d69a4fbfbe85ec9fb34e3d",
-    "engines/compact/tiny-entry-e/shipping_keyword_scope.py": "8d69bac1426f6ddf5bd0263046035804ce4752185ebb92ceb257379a08d2372b"
+    "engines/compact/tiny-entry-e/shipping_keyword_scope.py": "8d69bac1426f6ddf5bd0263046035804ce4752185ebb92ceb257379a08d2372b",
+    "engines/compact/tiny-entry-e/shipping_order_inline.py": "cdb00de2ab397cbfd4c57994d79e243a9e78656f7146a9c5b6338d685ec8f297"
   },
   "compression": {
     "format": "lzma-alone",
@@ -95,18 +96,18 @@
   "expected": {
     "readable_bytes": 28001,
     "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
-    "source_bytes": 8702,
-    "source_sha256": "eb34a717b3bdd6e5b96a13ecdbce224c6ac1c8ef7b56a057f6325e8619410af7",
-    "native_bytes": 18576,
-    "native_sha256": "802704e687a26e5072afe3af6a3c906d44aea7f636917237b1b1c355467ba5bc",
-    "whole_bytes": 4630,
-    "whole_sha256": "e34cc28bf0c9977f08a937f6811590c96996004ed73a18f235212e5986656609",
-    "bootstrap_sha256": "dcae86bcd4e6cb6fe324a09186e100920cf32f161fc39e610ebd005304feb8f0",
+    "source_bytes": 8616,
+    "source_sha256": "c03884ea1badbdb3357d39998b3e49973ffdc921ba122d99e14c8ea63a146b20",
+    "native_bytes": 22672,
+    "native_sha256": "722e744e95557e2d1031eeca611b30d216fc06dc2d9bcb0b5ce31074303f3519",
+    "whole_bytes": 4605,
+    "whole_sha256": "35011e59387ed542a1a0f4fe55223c5619dffcf3ea446b32ef21ef779d46b651",
+    "bootstrap_sha256": "0448cdb281d9cb37d7e448db18317b6db30f85a0db4bf676bf5ea83f28620dd3",
     "dev_source_bytes": 21314,
     "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
     "dev_native_bytes": 31376,
     "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
-    "bootstrap_bytes": 9656
+    "bootstrap_bytes": 9570
   },
   "local_input_sha256": {
     "engine.c": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
@@ -1850,6 +1851,116 @@
         "owned_handles": 0,
         "model_or_search_policy_change": false,
         "scope": "Current E19/common full A-PVS keyword presentation and actual existing selected verifier; no new model/search/strength/performance/SAN/fault/fresh/CI qualification."
+      }
+    },
+    "order_inline": {
+      "helper": "engines/compact/tiny-entry-e/shipping_order_inline.py",
+      "helper_sha256": "cdb00de2ab397cbfd4c57994d79e243a9e78656f7146a9c5b6338d685ec8f297",
+      "metadata": {
+        "stage": "last-E-sole-caller-order-inline",
+        "family": "E",
+        "input_bytes": 8702,
+        "input_sha256": "eb34a717b3bdd6e5b96a13ecdbce224c6ac1c8ef7b56a057f6325e8619410af7",
+        "output_bytes": 8616,
+        "output_sha256": "c03884ea1badbdb3357d39998b3e49973ffdc921ba122d99e14c8ea63a146b20",
+        "raw_delta": -86,
+        "owned_regions": 2,
+        "protected_gaps": 3,
+        "full_inverse": true,
+        "logical_coefficients": 19,
+        "physical_slots": 21,
+        "all_coefficients_independently_consumed": true,
+        "Q_S_setter_pool_and_model_fields_unchanged": true,
+        "ordering_features": 5,
+        "actual_sole_caller_role": "h generated own-side pseudo-move preordering before make",
+        "source_model_or_search_policy_change": false,
+        "native_entire_bytes_equal": false,
+        "native_bytes_before": 18576,
+        "native_bytes_after": 22672,
+        "native_codegen_or_timing_may_change": true,
+        "promotion_int_type_note": "PROMO unsigned expression becomes int local k; fixed generated promotion2..5 and score[-66476,1429040] prove same values",
+        "DEV": "caller bypasses all shipping transformations; old qualified diagnostic source/native remain distinct",
+        "external_reads": 0,
+        "runtime_claimed_by_transform": false
+      },
+      "bootstrap_metadata": {
+        "input_bytes": 9656,
+        "input_sha256": "dcae86bcd4e6cb6fe324a09186e100920cf32f161fc39e610ebd005304feb8f0",
+        "output_bytes": 9570,
+        "output_sha256": "0448cdb281d9cb37d7e448db18317b6db30f85a0db4bf676bf5ea83f28620dd3",
+        "owned_regions": 1,
+        "protected_gaps": 2,
+        "full_inverse": true,
+        "actual_previous_keyword_and_cross_literal_chain_consumed": true,
+        "source_AST_bytes_exact": true,
+        "compiler_codec_resources_unchanged": true,
+        "external_reads": 0
+      },
+      "source_proof": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-order-inline-20261024-evidence/source-proof.json",
+        "bytes": 3878,
+        "sha256": "c1a105abb32c361adb2fec95920278f00daf869175a09f1d76a1887f032c8290"
+      },
+      "cost": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-order-inline-20261024-evidence/cost-final-index.json",
+        "bytes": 3224,
+        "sha256": "0d71d2abc065101d88ef2919a2e1281f05b7ac67b03aa2398c20c691fffca27e"
+      },
+      "focused_model_score": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-order-inline-20261024-evidence/focused-fixture-v1/final-index.json",
+        "bytes": 16938,
+        "sha256": "0f23ced414b80c355d887fccfe833fd790407a5f0fca2a6f59804758d3b3b00a"
+      },
+      "predecessor_expected": {
+        "readable_bytes": 28001,
+        "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+        "source_bytes": 8702,
+        "source_sha256": "eb34a717b3bdd6e5b96a13ecdbce224c6ac1c8ef7b56a057f6325e8619410af7",
+        "native_bytes": 18576,
+        "native_sha256": "802704e687a26e5072afe3af6a3c906d44aea7f636917237b1b1c355467ba5bc",
+        "whole_bytes": 4630,
+        "whole_sha256": "e34cc28bf0c9977f08a937f6811590c96996004ed73a18f235212e5986656609",
+        "bootstrap_sha256": "dcae86bcd4e6cb6fe324a09186e100920cf32f161fc39e610ebd005304feb8f0",
+        "dev_source_bytes": 21314,
+        "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
+        "dev_native_bytes": 31376,
+        "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
+        "bootstrap_bytes": 9656
+      },
+      "whole_delta": -25,
+      "native_delta": 4096,
+      "native_entire_bytes_equal": false,
+      "normal_status": "PASS",
+      "scope": "Same current E19 independent19 coefficients/5ordering features and current common PVS policy. Native code/image changed; prior keyword native-equality records remain component ancestry. Exact old/new model and actual rank bodies focused fixture separate from selected runtime. No strength/timing claim.",
+      "normal_validation": {
+        "build": {
+          "path": "/home/stemxstudio/rove4k-e-order-inline-normal-20261024-v1/build/build.json",
+          "bytes": 290242,
+          "sha256": "78ba6b47093638c49a71e91d09e097c9e6a21f3392d6fcac77d759ae109d8edb"
+        },
+        "runtime": {
+          "path": "/home/stemxstudio/rove4k-e-order-inline-normal-20261024-v1/runtime/runtime.json",
+          "bytes": 97499,
+          "sha256": "b0d2db69858c863aed480df7febf7901bd37d6dcb8fabb63de4c34a7c1454cf5"
+        },
+        "shipping_reproductions": 2,
+        "actual_old_DEV_reproductions": 2,
+        "entire_firstcost_source_native_bootstrap_whole_equal": true,
+        "actual_previous_DEV_entire_source_native_equal": true,
+        "native_entire_equal_to_previous": false,
+        "native_delta": 4096,
+        "new_native_identity_explicit": true,
+        "selected_sessions": 2,
+        "legal_GO_results": 8,
+        "startup_TIDs_per_session": 3,
+        "native_image_private_path_process_readers_fences": true,
+        "cancellation_causality": "unproven",
+        "original_command_count": 2,
+        "original_handles_terminal_reaped_groups_absent": true,
+        "forced_cleanup": false,
+        "owned_handles": 0,
+        "model_or_search_policy_change": false,
+        "scope": "Current fixed E19 ordering inline new native image and unchanged selected verifier; prior native-equality receipts remain component ancestry. Actual focused model/fullrank fixture separate; no strength/timing/SAN/fault/fresh/CI claim."
       }
     }
   },
@@ -4714,6 +4825,116 @@
       "owned_handles": 0,
       "model_or_search_policy_change": false,
       "scope": "Current E19/common full A-PVS keyword presentation and actual existing selected verifier; no new model/search/strength/performance/SAN/fault/fresh/CI qualification."
+    }
+  },
+  "order_inline": {
+    "helper": "engines/compact/tiny-entry-e/shipping_order_inline.py",
+    "helper_sha256": "cdb00de2ab397cbfd4c57994d79e243a9e78656f7146a9c5b6338d685ec8f297",
+    "metadata": {
+      "stage": "last-E-sole-caller-order-inline",
+      "family": "E",
+      "input_bytes": 8702,
+      "input_sha256": "eb34a717b3bdd6e5b96a13ecdbce224c6ac1c8ef7b56a057f6325e8619410af7",
+      "output_bytes": 8616,
+      "output_sha256": "c03884ea1badbdb3357d39998b3e49973ffdc921ba122d99e14c8ea63a146b20",
+      "raw_delta": -86,
+      "owned_regions": 2,
+      "protected_gaps": 3,
+      "full_inverse": true,
+      "logical_coefficients": 19,
+      "physical_slots": 21,
+      "all_coefficients_independently_consumed": true,
+      "Q_S_setter_pool_and_model_fields_unchanged": true,
+      "ordering_features": 5,
+      "actual_sole_caller_role": "h generated own-side pseudo-move preordering before make",
+      "source_model_or_search_policy_change": false,
+      "native_entire_bytes_equal": false,
+      "native_bytes_before": 18576,
+      "native_bytes_after": 22672,
+      "native_codegen_or_timing_may_change": true,
+      "promotion_int_type_note": "PROMO unsigned expression becomes int local k; fixed generated promotion2..5 and score[-66476,1429040] prove same values",
+      "DEV": "caller bypasses all shipping transformations; old qualified diagnostic source/native remain distinct",
+      "external_reads": 0,
+      "runtime_claimed_by_transform": false
+    },
+    "bootstrap_metadata": {
+      "input_bytes": 9656,
+      "input_sha256": "dcae86bcd4e6cb6fe324a09186e100920cf32f161fc39e610ebd005304feb8f0",
+      "output_bytes": 9570,
+      "output_sha256": "0448cdb281d9cb37d7e448db18317b6db30f85a0db4bf676bf5ea83f28620dd3",
+      "owned_regions": 1,
+      "protected_gaps": 2,
+      "full_inverse": true,
+      "actual_previous_keyword_and_cross_literal_chain_consumed": true,
+      "source_AST_bytes_exact": true,
+      "compiler_codec_resources_unchanged": true,
+      "external_reads": 0
+    },
+    "source_proof": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-order-inline-20261024-evidence/source-proof.json",
+      "bytes": 3878,
+      "sha256": "c1a105abb32c361adb2fec95920278f00daf869175a09f1d76a1887f032c8290"
+    },
+    "cost": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-order-inline-20261024-evidence/cost-final-index.json",
+      "bytes": 3224,
+      "sha256": "0d71d2abc065101d88ef2919a2e1281f05b7ac67b03aa2398c20c691fffca27e"
+    },
+    "focused_model_score": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-order-inline-20261024-evidence/focused-fixture-v1/final-index.json",
+      "bytes": 16938,
+      "sha256": "0f23ced414b80c355d887fccfe833fd790407a5f0fca2a6f59804758d3b3b00a"
+    },
+    "predecessor_expected": {
+      "readable_bytes": 28001,
+      "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+      "source_bytes": 8702,
+      "source_sha256": "eb34a717b3bdd6e5b96a13ecdbce224c6ac1c8ef7b56a057f6325e8619410af7",
+      "native_bytes": 18576,
+      "native_sha256": "802704e687a26e5072afe3af6a3c906d44aea7f636917237b1b1c355467ba5bc",
+      "whole_bytes": 4630,
+      "whole_sha256": "e34cc28bf0c9977f08a937f6811590c96996004ed73a18f235212e5986656609",
+      "bootstrap_sha256": "dcae86bcd4e6cb6fe324a09186e100920cf32f161fc39e610ebd005304feb8f0",
+      "dev_source_bytes": 21314,
+      "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
+      "dev_native_bytes": 31376,
+      "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
+      "bootstrap_bytes": 9656
+    },
+    "whole_delta": -25,
+    "native_delta": 4096,
+    "native_entire_bytes_equal": false,
+    "normal_status": "PASS",
+    "scope": "Same current E19 independent19 coefficients/5ordering features and current common PVS policy. Native code/image changed; prior keyword native-equality records remain component ancestry. Exact old/new model and actual rank bodies focused fixture separate from selected runtime. No strength/timing claim.",
+    "normal_validation": {
+      "build": {
+        "path": "/home/stemxstudio/rove4k-e-order-inline-normal-20261024-v1/build/build.json",
+        "bytes": 290242,
+        "sha256": "78ba6b47093638c49a71e91d09e097c9e6a21f3392d6fcac77d759ae109d8edb"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-e-order-inline-normal-20261024-v1/runtime/runtime.json",
+        "bytes": 97499,
+        "sha256": "b0d2db69858c863aed480df7febf7901bd37d6dcb8fabb63de4c34a7c1454cf5"
+      },
+      "shipping_reproductions": 2,
+      "actual_old_DEV_reproductions": 2,
+      "entire_firstcost_source_native_bootstrap_whole_equal": true,
+      "actual_previous_DEV_entire_source_native_equal": true,
+      "native_entire_equal_to_previous": false,
+      "native_delta": 4096,
+      "new_native_identity_explicit": true,
+      "selected_sessions": 2,
+      "legal_GO_results": 8,
+      "startup_TIDs_per_session": 3,
+      "native_image_private_path_process_readers_fences": true,
+      "cancellation_causality": "unproven",
+      "original_command_count": 2,
+      "original_handles_terminal_reaped_groups_absent": true,
+      "forced_cleanup": false,
+      "owned_handles": 0,
+      "model_or_search_policy_change": false,
+      "scope": "Current fixed E19 ordering inline new native image and unchanged selected verifier; prior native-equality receipts remain component ancestry. Actual focused model/fullrank fixture separate; no strength/timing/SAN/fault/fresh/CI claim."
     }
   }
 }

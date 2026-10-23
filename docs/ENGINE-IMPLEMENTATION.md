@@ -4,6 +4,183 @@ The full implementation scope is recorded in [the accepted plan](ENGINE-PLAN.ko.
 The current user request excludes training and AWS connections. Frozen model
 inference and lossless model storage remain in scope; trained strength is not claimed.
 
+## Current compact A–F ring screen: 2026-10-24
+
+The actual A4505/B4950/C4672/D5649/E4605/F4304 files run six exchanged-color
+pairs on the A-B/B-C/C-D/D-E/E-F/F-A ring. At1500ms+10ms and at most80 searched
+plies per game, twelve games contain924 legal searched plies. One game ends
+with D mating C; eleven reach the ply cap and remain `*`, not draws. There are
+no flags, protocol failures or cleanup failures. All24 original entry processes
+exit naturally with both pipe EOF/readers joined, no extra owned group members
+before reap and forced0/owned0. D's own-ELF identity is checked separately from
+its previously qualified restored RX. This45.148s screen advances current-file
+legality/protocol/clock/lifetime evidence without a strength or Elo conclusion.
+The external final index29278 B has SHA256
+`4480742f90989903f52fc44df68ba8c5611461f37d0380d1dd999d0aceac4b92`.
+
+## F8 v7 consumes the actual smaller full source: 2026-10-24
+
+The separate eight-worker profile consumes final F7979/03fc7a4d and applies
+six fixed resource roles to produce8017/ea06bad1, raw+38 rather than the old
+v6+37. Under the existing renamed mutex J, GO marks all eight depth fields-1
+before broadcast. Startup, claim0, pending/flush, strict first-depth maximum
+and actual-created-count joins remain. New native18576/26182257 and the
+8949 B bootstrap use F8's own wrapper and unchanged nice24/header73 codec.
+The actual complete file is4316/e58e5302, gain11 and220 B above4096; F2's
+size or separate gains are not inherited.
+
+Ordinary regeneration reproduces shipping twice. Separate existing positive
+assertions pass quit/EOF, eight legal GO, nine stable TIDs, all eight workers'
+CPU activity, stdio-only FD/no children, maps/no-WX, nonexec main stack,
+native restoration, reader completion and physical exit. The shared D
+WNOWAIT owner is consumed, and F8 startup replaces its early poll with
+non-reaping exit observation. Guard counts/sizes, peak stack and target
+scaling remain unproven. Build runtime_qualified=false and the separate
+positive result retain their distinct scopes. Original groups settle before
+leader reap, with forced0/owned0. The actual producing source closure has68
+files; this observation is not a mandatory size/count gate.
+Its final corrected index6845 B has SHA256
+`6c11ac3107d39319dbedcca48a45582bdcc97a060aa39f6fe620ad4cb90a9abf`.
+The correction changes only README's F2 codec description to actual nice24;
+the original index, producing inputs and execution receipts remain preserved.
+
+## Current generic C/Rust twelve at target512: 2026-10-24
+
+The current canonical C/Rust/model/profile inputs are rebuilt into twelve
+original natives, with one sequential compiler per file and no compact forms,
+packaging or reproduction. Actual old/current source comparison finds changed
+search/parallel inputs; all twelve new native hashes differ from the historical
+de5676d files, so no old runtime row is relabeled as current.
+
+One bounded sequential cohort passes all twelve actual files with511 search
+workers plus main,512 stable startup TIDs, TT26/loose and DEV off. Each has two
+legal-result epochs, with six stop and six active quit paths across the cohort.
+Independent move legality, positive worker CPU activity, stdin/stdout/stderr
+EOF, saved worker-identity disappearance and group-others absence are checked
+before WNOWAIT final reap. All exit naturally0; retries/forced/owned are zero.
+The twelve native hashes remain unchanged after execution. A concurrent F8
+builder provenance edit does not affect the frozen runtime adapter or any
+canonical engine/model/profile input.
+
+This runs on eight affinity CPUs in WSL, not512 hardware threads. AS/DATA8 GiB,
+CPU60s and wall45s per process are finite; observed maximum sampled RSS is
+2176450560 B and virtual size6547410944 B. These samples, the two short epochs
+and thread counts do not prove a true peak, scaling, strength or compact-entry
+eligibility. The external runtime index3132 B has SHA256
+`1a72b39692c55e92c2de357afdd241478b606ff180aff9142187b7116a95c303`;
+the actual899068 B report has SHA256
+`30309d181f0a12676869eef44b138f79fd31a132257544ede4c4a5df90c3f48d`.
+
+## Full F combines frequency spelling and a shared formatter: 2026-10-24
+
+A fixed20-binding assignment gives shorter available names to frequent globals
+without changing local/member/header/API/string tokens. The existing Clang
+graph confirms247 declarations and2300 reference edges;124 physical edits,
+125 protected gaps and the full inverse preserve binding identity, including
+six explicit atomic macro-argument provenance cases. This stage alone makes
+source8094 become8020 B and whole4317 become4308 B. The entire native stays
+4a8d1329. No name or codec sweep is used in ordinary builds.
+
+The move formatter then shares four coordinate writes in a fixed loop with
+shifts0/4/7/11 and mask7. Capture bit3, promotion suffix/NUL and the final
+`0000` bytes remain. Actual old/new formatter checks cover40960 combinations
+with canaries,86 legal input/child comparisons and93 actual output records,
+including both-color EP and quiet/capture promotions. This stage alone gives
+4312 B; the actual combined file is4304 B, gain13 rather than the sum14.
+Combined source is7979 B, bootstrap8901 B and native18576/98818a94, entirely
+equal to the formatter-only native and different from the predecessor.
+Full F remains208 B above4096 with HCE, all three learners, full-key bound TT,
+MTD, persistent SMP and the root attaining-witness path intact.
+
+One ordinary --dev reproduces combined shipping twice and unchanged old DEV
+twice. The unchanged selected verifier passes quit/EOF, eight legal GO,
+three TIDs, new native restoration, reader completion and physical exit.
+Two optional ordinary builds also consume the new full-reference chain while
+their actual4319/4045 source/native/bootstrap/whole tuples remain unchanged in
+two reproductions each; those build checks are not new optional runtime.
+Original owned groups settle before leader reap, with forced0/owned0.
+The final F index13031 B has SHA256
+`661ed52c4af729fbf9260355474c34f61d33372c0051b39351b3d7f4ad1c092a`.
+
+## D scalar spends transient memory on a smaller packet: 2026-10-24
+
+The scalar own-ELF now stages an H28 context codec from the preserved H24
+producer sources. Sixteen exact edits across five producer files change only
+the format identity, table size and hash index. Native7388/395fea4d, the21
+coefficients, BCJ/body232 geometry and restored image b2982877 remain exact.
+The packet4580 becomes4512 B; loader/header1137 B is unchanged, giving whole
+5717 to5649 B, gain68 and1553 B above4096. HQ keeps its H24 source and6037 B
+file. Canonical native, original loader/packer and old H24 APIs remain stored.
+
+The tradeoff is a512 MiB temporary context table versus32 MiB. Ordinary builds
+reproduce scalar and HQ natives/files twice. Actual scalar quit/EOF startup
+takes0.4418/0.4510s, within the4K60s limit on this local host; kernel VmHWM is
+522624 KiB (510.375 MiB). At ready, VmSize is6504 KiB, and the original512 MiB
+extent is not retained. Some addresses are reused for small worker/TT mappings,
+so the stronger sampled no-overlap metric remains false. Checked munmap source
+and ready mappings support release without claiming a syscall trace or final
+target RAM eligibility.
+
+The production verifier passes two CHECKPOINTs and four quit/EOF sessions with
+twelve legal GO, full restored RX, separate initial BSS/padding, guards, no-WX,
+stdio/no-children, three TIDs, reader completion and physical exit. The validator
+also fixes its own process settlement to keep the original leader unreaped
+until other group members are absent. A later narrow fix replaces CHECKPOINT's
+potentially reaping waitpid with WNOWAIT waitid stop/exit observation. Only the
+two unchanged audit files are rerun for that final validator source; the four
+production sessions keep their original source identity. All original groups
+close with forced0/owned0. The final D index8750 B has SHA256
+`adb5f75196e0fb19b9b332d06ff961e3d70a2a9c071821652c0152f59c28241c`.
+
+## E shares ordering coordinates with its caller: 2026-10-24
+
+E's sole private ordering leaf is now inlined into the actual ranking loop.
+That caller already decodes origin, destination and mover-plus-six, so the
+five ordering terms reuse those values. Promotion additions share one term.
+All19 coefficients remain independent; the physical21 slots, model arithmetic,
+incremental Board and hash, TT, search and SMP bodies retain their contracts.
+Two owned regions/three protected gaps and the complete inverse reduce8702 to
+8616 B, bootstrap9656 to9570 B and whole4630 to4605 B, gain25 and509 B above
+4096. Native grows18576 to22672 B with new identity722e744e; smaller native,
+equal timing or stronger play is not claimed.
+
+The actual old/new ranking blocks pass1788 paired full-rank observations in
+three contexts against the independent E19 oracle and old actual leaf. The
+actual search hook also checks ordering; existing model/Board/refresh and
+both-color special-move fixtures pass. Ordinary --dev reproduces shipping
+twice and unchanged old DEV twice. The unchanged selected verifier passes
+quit/EOF, eight legal GO, three TIDs, new native restoration, readers and
+physical exit. Both original groups settle before leader reap, with forced0
+and owned0. The previous keyword/cross/source/literal guards remain consumed;
+old DEV is a separate diagnostic reference, not the E19 oracle.
+The final E index4664 B has SHA256
+`2c811075076e17a7fdf84dbccb254f8bfeb0e8626aeeaa71a2a56a5d2c7fc380`.
+
+## B reuses its legal maker for EP normalization: 2026-10-24
+
+B removes the duplicate three-square EP simulation from its private normalizer
+and consumes the existing maker's nonzero legality result. Actual nonempty EP
+input follows a double pawn push; the inner EP maker clears EP, so its nested
+normalizer returns immediately. Legal EP returns101. Completed mailbox,
+bitboard and king state are coherent, while the inner scratch hash/context is
+discarded. The two pawn-removal orders, extra stack/work and timing differ;
+native and timed-search equality are not claimed. SEE, singular exclusion,
+full-key TT, the three learners and persistent SMP remain connected.
+
+One source region/two protected gaps and the complete inverse reduce9797 to
+9759 B. Bootstrap10826 becomes10788 B and whole4954 becomes4950 B, gain4 and
+854 B above4096. Native remains26112 B with new identity962a7e2b and text92 B
+smaller. The focused actual-function old/new check passes six double pushes,
+six EP cases including four king-safety rejections, eight normalizer pairs and
+twenty complete Board comparisons. That sanitizer fixture also uses-mavx2;
+it is not a minimum-ISA proof. Ordinary B uses its unchanged compiler without
+that flag and reproduces shipping twice and unchanged old DEV twice. The
+unchanged selected verifier passes quit/EOF, eight legal GO, three TIDs,
+actual native restoration, readers and physical exit. Original owned groups
+settle before leader reap; forced cleanup and owned handles are zero.
+The final B index13594 B has SHA256
+`1dda106dcc7054a175cd0515484ab5f8f8a45348ea46bfcbf2ffd852da7ded2e`.
+
 ## Default A worker-state compression: 2026-10-24
 
 Default A transfers the same negative completed-depth job token principle to
@@ -360,6 +537,26 @@ still uses string/getline/stringstream, first-character command dispatch and
 fixed input-order assumptions. Rove's shipping paths already use C and a
 main-owned token cursor. Exact command matching, arbitrary clock-key order and
 existing input draining remain. No foreign engine source or scripts enter Git.
+
+A later fixed three-entry dictionary stores `static `, `pthread_` and
+`atomic_` as absent single-byte markers inside F's C literal, then restores
+them in the actual compiler-input expression. It preserves the complete8094 B
+C input and the surrounding bootstrap AST/control flow. Bootstrap9016 becomes
+8687 B, but the same complete-file codec gives4321 versus4317 B, LOSS4.
+Strict Python/CLI bootstrap restoration and complete C reconstruction pass;
+native compilation and engine execution are not run for this rejected form.
+The smaller raw representation is therefore not adopted. Its external final
+index4181 B has SHA256
+`cb0f08dde4e025194dae8dfcc35988b8456a704134fdc77fc8066b51421a2fde`.
+
+Sharing just the two exact `uci`/`isready` response output statements is also
+measured on the later7979 B F source. Both exact comparisons retain their
+short-circuit order; the leading character selects a response only after that
+exact match. Source becomes7957 B and bootstrap8879 B, but whole4304 becomes
+4313 B, LOSS9. Native changes and only compile/strict restoration run. This
+form is rejected rather than substituting c4ke's first-character dispatch.
+Its external final index10411 B has SHA256
+`8a853dbc650246ac167a8d0fde35a1c6332dc2fd92b291a74f2f0107a4b62501`.
 
 The4K-specific rules are rechecked on2026-10-24 at
 [TCEC4K Rules, revision7853](https://wiki.chessdom.org/index.php?title=TCEC_4k_Rules&oldid=7853):
@@ -739,12 +936,12 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
 | A | 4,505 B | 409 B | Default Loose reuses completed depth -1 as a mutex-published job token while preserving the null startup sentinel and shared epilogue; earlier J/return and L/int aliases retain their full-header CPP/native identity proof separately; full HCE/PVS/QS/full-key TT/history/continuation/correction/SMP and all three optional root policies remain; main-owned token cursor, fixed resources, guarded original literal chain, strict fixed2 depth selector and individual stdio locking |
-| B | 4,954 B | 858 B | Final I/int alias covers99 tokens with full-header CPP and entire native identity; worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained; made-child continuation row passed through PVS and same-position singular verification; literal include gaps and overlong-line drain compacted; clock-first SEE poll; cancellation timing changed; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero; private history length derived from immutable published job base plus ply; private piece-plus-six helper inlined at its two consumers with complete native identity; singular-depth temporary and empty shipping instrumentation branch removed; adjacent HCE int declarations merged; three walker forwarders removed with explicit full-mask/Boolean/count consumer domains |
+| B | 4,950 B | 854 B | EP normalizer reuses the actual legal maker with nonzero result101 and king-safety guards; preceding I/int alias covers99 tokens with full-header CPP and entire native identity; worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained; made-child continuation row passed through PVS and same-position singular verification; literal include gaps and overlong-line drain compacted; clock-first SEE poll; cancellation timing changed; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero; private history length derived from immutable published job base plus ply; private piece-plus-six helper inlined at its two consumers with complete native identity; singular-depth temporary and empty shipping instrumentation branch removed; adjacent HCE int declarations merged; three walker forwarders removed with explicit full-mask/Boolean/count consumer domains |
 | C | 4,672 B | 576 B | Current signed-net eight-lane HCE and actual128-bit madd/four signed32 sums combine with the smaller full common A-derived mailbox/PVS/runtime, explicit -mavx2 target; old-C trace/native identity is not claimed; exact incremental evaluation, king-capture/move-buffer/QS draw guards, full-key TT, three learners and persistent SMP remain; selected compiler/literal adapter consumes the original C package and old DEV is unchanged |
-| D scalar / HQ | 5,717 / 6,037 B | 1,621 / 1,941 B | Shipping scalar fused mailbox rays with direction-major near-to-far visitation; HQ/DEV original walker; HQ-only history length derived from immutable job length plus ply; exact clock/inc parsing and ordered K/Q castling branches shared; consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT with a shared finite-stage asm body, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained; exact fused-scalar body232 class restores dormant internal ELF metadata as zero while preserving body addresses |
-| E | 4,630 B | 534 B | Current exact untrained E19 logical19/physical21 model bodies and all five ordering features combine with the smaller full common A-derived mailbox/PVS/runtime; old-E search traces are not an equivalence claim; full-key-bound TT, exact model evaluation, history/continuation/correction, persistent SMP, terminal/draw guards and fixed resources retained; final int/return aliases retain the entire preceding native; previous E chain remains the guarded model/input authority and old DEV stays unchanged; selected compiler/literal adapter consumes the actual previous package before constructing the smaller bootstrap |
-| F full (default) | 4,317 B | 221 B | Packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; private TT depth/bound shares one byte with empty0 excluded, worker completed-depth -1 publishes jobs under the existing mutex; history length derived from immutable job length plus ply; nonnegative QS depth, repetition-distance loop, fixed integer macros and plain-int keyword spelling compacted after the no-preadd hash, terminal, correction and source-form stages; compact environment snapshot; default size target remains open; lazy fallback and first-legal quiet-QS standpat cutoff; immutable global job-prefix keys shared while workers store only private path keys; fixed 73-byte stdin/xz header and BT2/16KiB ALONE with nice24; four further local names shorten14 tokens with declaration/reference and macro-argument ownership preserved; compact handler-pair loops, fixed2 completion selector and positional wait timeout; pure HCE rank normalization shares advance/center rank; ASCII unsigned first-digit guard and Linux readonly-open flag spelling compacted |
-| F full (fixed8) | 4,327 B | 231 B | Separate eight-search-worker profile with nine startup TIDs; final full-F2 TT/pool source8094 is directly specialized through six resource roles to8131, including all-eight job-depth reset; full TT/MTD/HCE/learners and condition synchronization remain; new native18576/dba06bb3, fixed nice24/header73; strict task/mapping/activity/lifetime checks pass locally; eight-worker guard sizes are not asserted, final target profile remains open |
+| D scalar / HQ | 5,649 / 6,037 B | 1,553 / 1,941 B | Scalar H28 packet uses a transient512 MiB table, observed startup below0.46s and released before ready; HQ retains H24; shipping scalar fused mailbox rays with direction-major near-to-far visitation; HQ/DEV original walker; HQ-only history length derived from immutable job length plus ply; exact clock/inc parsing and ordered K/Q castling branches shared; consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT with a shared finite-stage asm body, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained; exact fused-scalar body232 class restores dormant internal ELF metadata as zero while preserving body addresses |
+| E | 4,605 B | 509 B | Actual ranking loop reuses decoded coordinates/mover and keeps five ordering features and19 independent coefficients; current exact untrained E19 logical19/physical21 model bodies and all five ordering features combine with the smaller full common A-derived mailbox/PVS/runtime; old-E search traces are not an equivalence claim; full-key-bound TT, exact model evaluation, history/continuation/correction, persistent SMP, terminal/draw guards and fixed resources retained; final int/return aliases retain the entire preceding native; previous E chain remains the guarded model/input authority and old DEV stays unchanged; selected compiler/literal adapter consumes the actual previous package before constructing the smaller bootstrap |
+| F full (default) | 4,304 B | 208 B | Fixed binding-frequency spelling and four-coordinate formatter sharing; packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; private TT depth/bound shares one byte with empty0 excluded, worker completed-depth -1 publishes jobs under the existing mutex; history length derived from immutable job length plus ply; nonnegative QS depth, repetition-distance loop, fixed integer macros and plain-int keyword spelling compacted after the no-preadd hash, terminal, correction and source-form stages; compact environment snapshot; default size target remains open; lazy fallback and first-legal quiet-QS standpat cutoff; immutable global job-prefix keys shared while workers store only private path keys; fixed 73-byte stdin/xz header and BT2/16KiB ALONE with nice24; four further local names shorten14 tokens with declaration/reference and macro-argument ownership preserved; compact handler-pair loops, fixed2 completion selector and positional wait timeout; pure HCE rank normalization shares advance/center rank; ASCII unsigned first-digit guard and Linux readonly-open flag spelling compacted |
+| F full (fixed8) | 4,316 B | 220 B | Separate eight-search-worker profile with nine startup TIDs; actual final F7979 frequency/formatter source specializes through six roles to8017, including all-eight job-depth reset; full TT/MTD/HCE/learners and condition synchronization remain; new native18576/26182257, fixed nice24/header73; WNOWAIT exit observation and strict task/mapping/activity/lifetime checks pass locally; guard sizes and final target profile remain open |
 | F material/noise (opt-in) | 4,319 B | 223 B | Unsigned64 number forms and two fixed TT18 casts omitted; one-state material classifier, fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted; literal include gaps compacted; fixed LP64 mixer literals; compact environment snapshot |
 | F material/move-TT (opt-in) | 4,045 B | 0 B (51 B spare) | Unsigned64 number forms; one-state material classifier, fixed material, main-owned token cursor, terminal-loop sharing and coherent atomic64 Move17/high46 plus index18; local size eligibility only, full F and strength acceptance remain open; fixed LP64 mixer literals; compact environment snapshot |
 

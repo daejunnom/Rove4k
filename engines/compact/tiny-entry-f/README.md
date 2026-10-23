@@ -2449,3 +2449,68 @@ Canonical/DEV bytes and old core evidence are reused by exact full native
 identity. This promotion performs no new generic AST, fresh archive extraction,
 core matrix, game or benchmark, and does not strengthen the recorded bootstrap
 compiler-group lifetime limit or prove cancellation causality.
+
+
+## Full F: fixed binding frequency plus formatter sharing (4304-byte selection)
+
+The current full profile keeps the exact startup2 workers, TT18, PLY128, HCE,
+history/continuation/correction, coherent full-key TT, exact-horizon MTD and its
+completed attaining witness. A fixed source-only binding replay follows the
+pool stage (8094 -> 8020); `shipping_format_loop.py` then shares the four
+coordinate writes of private `j` in a four-iteration loop (8020 -> 7979).
+Neither helper reads an AST, report, executable, or external experiment at
+ordinary build time. Complete inverse and protected source gaps are checked.
+
+The one measured composition is **4304 B**, 13 B below the qualified4317 B
+predecessor and **208 B above4096**. It is not the sum of the two independent
+savings. The standalone frequency candidate4308 B preserved the entire old
+native. The standalone formatter4312 B changed native bytes. Their actual
+composition has the formatter's entire native bytes, confirmed by a full byte
+comparison, and uses the unchanged compiler/ALONE nice24 recipe.
+
+The formatter's actual consumers are input query `qb` (previous spelling `u`)
+and bestmove output `y`; both own local char[6]. Shifts0/4/7/11 with mask7 keep
+capture bit3 outside coordinates, and unchanged suffix/terminator statements
+preserve N/B/R/Q promotions and0000. A single actual old/new function unit
+passed40960 formatter combinations, zero, buffer canaries/all6 bytes,86 legal
+query children and93 actual output lines, including both-color EP and all
+quiet/capture promotions, under UBSan. Product main/pool/search were not called
+by that unit. Existing board/search/core proofs remain tied to their original
+bodies; new native protocol execution is qualified separately below.
+
+The smaller-source ACK response-sharing candidate was measured once and lost:
+7957 B source produced4313 B whole, +9 B versus4304. Its helper is not adopted.
+Canonical readable source/DEV and optional material outputs are unchanged.
+Both optional builders still execute a separate full-reference generation
+through frequency+formatter and the new strict full source pin. Their actual
+selected artifacts remain4319 B and4045 B. F8 needs its own actual7979 consumer
+update and is not qualified by this full-profile build.
+
+Selected literals: compact C7979 SHA03fc7a4d8c3d99b1cdd633b47ef1939cb80247e72e0ef1acfbc5bc477155dd27;
+native18576 SHA98818a94330098bf1a574f2ce2bfccc52c0d2ca59774bc5cbb90213fd24d7cb6;
+bootstrap8901 SHA73e4308f83cdd310e6dfd1909a7ffb24b845533657c1879d0b783b044d2f4c73;
+whole4304 SHAa7cc46435170bd21a9893a9ef804d636e206475722d111b3305433f3797f658e.
+These are explicit first-cost expectations until the normal/selected receipt
+below closes. No strength, NPS, fault, or whole-A-F completion claim follows.
+
+
+The sole final normal owner completed: one ordinary `--dev` reproduced the full
+shipping tuple twice and the unchanged DEV tuple twice; the pre-name8538-byte
+source is also entire-byte identical. The unchanged selected verifier then ran
+the actual4304-byte wrapper in two fresh quit/EOF sessions and eight legal GO
+epochs with three startup TIDs. It checked restored native98818a..., finished
+readers, private-image cleanup and physical process exit. This is new native
+runtime evidence; cancellation causality remains unproven and FD-list inspection
+is not claimed by this verifier. Both optional ordinary policies reproduced
+twice, kept their complete old source/native/bootstrap/whole bytes, and actually
+passed the new7979-byte separate-full-reference source chain.
+
+Actual full build/runtime root:
+`/home/stemxstudio/rove4k-f-frequency-format-normal-20261024-v1/full/`.
+Full `build/build.json` SHA1f56d4ae3644d377a74098d6bc371cffb5c1e98105817bfd346f75d6f04929ac;
+`runtime/runtime.json` SHA72f68ef172dff0fb40b52140efc7e58e5f3e957dd44b4cc7f7317d0282edec34.
+All four original command leaders were retained through empty-group observation,
+reaped, and physically absent, with forced0/failures0/owned0. Producing code,
+helpers, explicit expectations and codec are unchanged by these completion
+annotations. New F8, game, performance, broad core, fault and fresh-archive
+validation are outside this receipt. The full profile remains208 B above4096.

@@ -1307,3 +1307,27 @@ session별 시작 TID3, image/private path/reader/process 종료 fence를 통과
 Runtime SHA `8e3cb5322601bf41d5ed09549ea50bef7569caeeca0c872b229d0741bee7a8d9`.
 취소 인과관계는 unproven이며 새 모델·검색·기력·성능·SAN·fault·fresh·CI 검증은 아니다.
 외부 promotion 증거에서 생산 당시 파일 핀과 완료 주석 후 핀을 구분한다.
+
+## E 정렬 leaf의 실제 단일 소비자 결합
+
+기존 static r은 h의 preordering 한 곳에서만 쓰였다. caller가 이미 계산한
+FROM/TO/sourcepiece+6을 재사용해 그 실제 다섯 ordering 항을 같은 loop로 옮겼다.
+qi physical21/logical19 독립 계수, Q/S/phase setter와 모델·검색 정책은 유지한다.
+Promotion base와 모델 promotion 가산을 한 if로 묶었고, unsigned PROMO식에서
+int local로 바뀐 지점은 고정 promotion2..5/점수범위로 값 동등성을 확인했다.
+Source8616/bootstrap9570/whole4605B로 이전4630보다25B 작고4096까지509B 남았다.
+Native는18576→22672B(+4096)이며 전체 bytes가 다르다. 모델/ordering focused
+fixture는 이전·새 actual ranking body와 독립 E19 oracle을 대조한다.
+Packaging은 inline inverse8702→keyword inverse9074→cross inverse9866→
+실제 이전 literal/template/cross/keyword guard9656→inline literal9570 순서다.
+이전 native 동등 영수증은 해당 keyword stage의 이력이며 이번 출력으로 확대하지 않는다.
+정본·old DEV 경로와 model/DEV false flags를 유지한다. 기력·속도 동등 주장은 없다.
+정식 ordinary --dev에서 두 shipping 사본의 source8616/native22672/bootstrap9570/
+whole4605 전체 bytes가 고정 firstcost와 같았고, 두 DEV도 실제 이전 DEV 전체
+source/native와 같았다. 새 native722e744e…는 이전802704e6…와 다름을 확인했다.
+기존 selected의 quit·EOF 두 session/8 GO, 시작 TID3, native image와
+private path/reader/process 종료 fence를 통과했다. 원 두 명령은 terminal/
+reaped/group 부재, forced cleanup0/owned handle0으로 닫혔다.
+Runtime SHA `b0d2db69858c863aed480df7febf7901bd37d6dcb8fabb63de4c34a7c1454cf5`.
+취소 인과관계는 unproven이고 새 기력·성능·SAN·fault·fresh·CI 검증은 아니다.
+생산 파일 핀과 완료 주석 후 핀은 외부 promotion 증거에서 구분한다.

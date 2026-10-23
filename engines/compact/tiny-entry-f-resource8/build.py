@@ -35,10 +35,10 @@ def main():
     if not args.base_source.is_absolute() or not args.out.is_absolute() or out.exists() or out==REPO or REPO in out.parents or any((p/'.git').exists() for p in (out,*out.parents)):
         parser.error('absolute base source and new external output required')
     recipe_raw=normalized(HERE/'recipe.json');recipe=json.loads(recipe_raw)
-    require(recipe['class']=='full-F-late-fixed-resource8-TT18-v6' and recipe['profile']=={'workers':8,'tt_bits':18,'ply':128,'native_TIDs':9},'one fixed resource profile only')
+    require(recipe['class']=='full-F-late-fixed-resource8-TT18-v7' and recipe['profile']=={'workers':8,'tt_bits':18,'ply':128,'native_TIDs':9},'one fixed resource profile only')
     require(recipe['compiler']==['cc','-Os','-pthread','-x','c','-','-o','x','-s'],'fixed compiler arguments differ')
     require(recipe['compression']=={'format':'lzma-alone','filter':'LZMA1','preset':6,'extreme':False,'lc':2,'lp':0,'pb':0,'check':'NONE','mf':'BT2','dictionary_bytes':16384,'nice_len':24},'fixed full-F codec differs')
-    require(recipe['base_stage']=='full-after-tt-pool','fixed late producer stage differs')
+    require(recipe['base_stage']=='full-after-frequency-format','fixed late producer stage differs')
     base=args.base_source.read_bytes();require({'bytes':len(base),'sha256':sha(base)}==recipe['base_source'] and b'\r' not in base,'unknown ordinary full-F2 source')
     closure=source_closure();limits=recipe['limits'];out.mkdir()
     report={'complete':False,'class':recipe['class'],'profile':recipe['profile'],'base_profile':recipe['base_profile'],
@@ -148,7 +148,7 @@ def main():
         packaging={name:frozen/path for name,path in recipe['packaging_paths'].items()}
         require(sha((own/'specialize.py').read_bytes())==recipe['specialize_sha256'],'pure late six-role TT/pool helper changed')
         specialize=module('fixed_resource8_specialize',own/'specialize.py');source,proof=specialize.transform_source(base)
-        require({'bytes':len(source),'sha256':sha(source)}=={'bytes':recipe['expected']['source_bytes'],'sha256':recipe['expected']['source_sha256']} and proof['full_inverse'] and proof['raw_delta']==37 and [x['role'] for x in proof['edits']]==recipe['source_roles'],'source/profile proof differs')
+        require({'bytes':len(source),'sha256':sha(source)}=={'bytes':recipe['expected']['source_bytes'],'sha256':recipe['expected']['source_sha256']} and proof['full_inverse'] and proof['raw_delta']==38 and [x['role'] for x in proof['edits']]==recipe['source_roles'],'source/profile proof differs')
         (out/'source-proof.json').write_text(json.dumps(proof,indent=2)+'\n');report['source_proof']=identity(out/'source-proof.json')
         literal=module('fixed_resource8_literal',packaging['pack_stream.py']).source_literal
         common=module('fixed_resource8_common',packaging['shipping_common.py']);template=packaging['bootstrap.py.in'].read_bytes();prefix=packaging['launcher.sh'].read_bytes();marker=b'__ROVE_SOURCE_LITERAL__'

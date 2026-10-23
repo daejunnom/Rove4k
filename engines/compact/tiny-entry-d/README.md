@@ -1,3 +1,80 @@
+# Maintained scalar H28 context — 2026-10-24
+
+Selected scalar/HQ own-ELFs are **5649 / 6037 B**, with4096 gaps1553/1941 B.
+Scalar falls68 B from5717: packet4580→4512 B and loader/header1137 B unchanged.
+HQ remains the exact H24 native/packet/whole. H28 is a deliberate resource
+tradeoff: temporary context state grows32→512 MiB and is released before
+native entry. Both forms remain above4096; target resources/many-core and
+strength acceptance remain open.
+
+`shipping_context_h28.py` owns16 exact edits over the preserved five H24
+producer sources, full inverse and unchanged gaps. It emits an isolated
+scalar staging directory with a distinct H28 model/packet/body class; the
+canonical H24 codec/default APIs, loader6, packer, native8 and models file
+remain byte-exact. Scalar uses the staged H28 sources; HQ uses the original
+sources. The ordinary builder and closed fresh archive consume this helper
+directly; no experiment/receipt/artifact is a build input. No local fresh
+extraction is run here. DEV source selection and the fused-ray Board policy
+are unchanged.
+
+H28 uses `(u32_hash>>4)*2` into536870912 bytes. The largest counter index is
+536870911, inside both the table and u32. LP64 mapping lengths are exact.
+The21 model masks/order/weights/WMASK, CRC32C, base10, byte counters, range
+math, zero4 and whole-offset BCJ232 inverse remain unchanged. Compiled native
+7388/395fea4d… and full zero232 restored image7388/b2982877… remain separate
+from new own-ELF5649/b305f29b…. Exact H24 metadata consumers reject the H28
+format; these are explicit producer/descriptor class IDs, not extra wire magic.
+
+## H28_COMPLETION — actual reproduction and positive PASS
+
+One ordinary invocation rebuilt each scalar/HQ native twice and independently
+encoded/rebuilt both whole files twice. Scalar5649 exactly matches its one
+external cost product; HQ6037 exactly matches the prior qualified whole.
+Scalar CHECKPOINT5672/436b429e… is a separate compile-only discovery, then
+independently reproduced by the ordinary builder. HQ CHECKPOINT6060 stays
+unchanged. Actual build receipt:
+`/home/stemxstudio/rove4k-d-h28-promotion-20261024-v1/normal/build/build.json`.
+
+The positive run used verifier39162/216cf1c6…: two CHECKPOINT observations
+proved full RX, initial BSS/padding, guards/NX/W^X and resumed the real entry;
+four scalar/HQ quit/EOF production sessions returned12 legal GO results,
+stable3TIDs, actual active workers, stdio-only FDs/no child, private guarded
+worker stacks and joined readers/physical settlement. Actual positive:
+`/home/stemxstudio/rove4k-d-h28-promotion-20261024-v1/positive/runtime/results.json`.
+Initial BSS zero is the CHECKPOINT observation, not a direct production trace.
+
+Parent-only samples of the two H28 production sessions observed ready after
+0.4418/0.4510 s, below60 s; kernel VmHWM522624 KiB (510.375 MiB), ready
+VmSize6504 KiB and VmRSS16 KiB. The sampled512 MiB RW extent is not retained:
+ready's entire address space is smaller than that extent. Its addresses are
+partly reused for small worker/TT mappings, so the stronger recorded
+`sampled_scratch_ranges_then_absent` no-overlap metric stays false. The
+checked munmap-before-entry source and small ready address space support
+release; this is not syscall tracing. RSS sample maxima are not upper bounds
+or tournament RAM admission; these observations do not establish target
+memory/strength eligibility. Raw samples remain in `startup-memory.json`,
+with a separate explanatory companion and no repeat execution.
+
+Verifier lifetime handling now retains its original unreaped leader through
+group-member settlement, then wait/reap; after reap it only observes signal0.
+Root found one remaining audit waitpid early-reap boundary after the successful
+positive. Final verifier39269/9f8a6a0f… uses waitid with WSTOPPED/WEXITED,
+WNOHANG/WNOWAIT and requires CLD_STOPPED/SIGSTOP. Only its two existing
+CHECKPOINT sessions were rechecked; compile/encode/new GO0 and shipping
+sessions were not repeated. Final checkpoint receipt:
+`/home/stemxstudio/rove4k-d-h28-promotion-20261024-v1/checkpoint-final/results.json`.
+Protocol/legal/image/FD/worker assertions are preserved.
+
+The original first-cost index is immutable. Two pre-product preparation
+errors are preserved: a wrong runner-hash argument failed before output/child
+creation, and a syntax typo was caught while compiling the external runner
+source before any product. Actual product failures/retries0. Discovery,
+ordinary, positive and final checkpoint handles all settle rc0/reaped,
+pre-reap other-members empty, group absent, forced0/owned0. No new fault,
+negative, ptrace/RIE/personality, SAN, game, benchmark, training or paid run.
+
+The preceding maintained fused-ray stage and its receipts follow unchanged.
+
 # Maintained D scalar fused mailbox rays — 2026-10-24
 
 Selected scalar/HQ own-ELFs are **5717 / 6037 B**. Scalar falls119B from5836;

@@ -1,3 +1,48 @@
+# F8 v7: final full F frequency and formatter source
+
+Class `full-F-late-fixed-resource8-TT18-v7` consumes the actual ordinary full-F2
+source7979/03fc7a4d... after frequency then format-loop stages. Six explicit
+resource roles produce C8017/ea06bad1... (+38B), with seven protected gaps and
+a full inverse. No name transform is repeated. Under J, GO publishes C=8 and
+all eight U[i].b=-1 before broadcast; the same worker b=0 claim, startup0,
+one-condition broadcasts and actual-created-count joins remain.
+
+One independent cost measured whole4316/e58e5302..., 11B below F8v6 and220B
+above4096. New native18576/26182257... and bootstrap8949/0d5ba10c... are exact
+new identities. F8 retains its own932B wrapper, ALONE6/BT2/dict16KiB/lc2lp0pb0/
+nice24/header73, cc -Os -pthread and implicitGNU17. The separate F2 wrapper,
+nice24 result4304 and individual stage gains are not added to this F8 result.
+Compile1/encode1 plus strict Python2/CLI2 passed; original tool handles all
+returned0/reaped after pre-reap extras[], group absence and forced0/owned0.
+No engine ran during cost. One ordinary builder and the existing positive assertions passed.
+
+The shared D helper advances to9f8a6a0f... for WNOWAIT lifetime handling. F8
+startup uses not owned.exited() instead of Popen.poll(), preserving the original
+unreaped leader through group settlement. The existing 30s startup budget,
+nine-TID/eight-worker activity, FD0/1/2, children, maps/noWX, mainstack and legal
+result assertions stay. D-only H28 admissions/checkpoints are not F8 calls.
+No guard-count/size, peak-stack, scaling, strength, cancellation causality or
+final4KiB acceptance is established here. Prior versions below are historical.
+
+<!-- F8_V7_COMPLETION:PASS -->
+After F4304 normal/selected/optional2 and root target512 original-handle closure,
+the actual final F7979 normal source fed one F8 builder with two independent
+C/native/bootstrap/whole reproductions, all entirely equal to first cost4316.
+Existing positive assertions passed quit/EOF2 sessions with8 legal GO, stable9
+TIDs, all8 active worker CPU, strict stdio/children/maps/noWX/mainstack and
+physical process/reader cleanup. Shared D WNOWAIT ownership was exercised;
+startup's one exit-observation change does not relax resource assertions.
+Original ordinary567/positive601 returned0/reaped with pre-reap extras[],
+group absence and forced0/owned0. The actual producing closure contains68
+files; that observation is not a size/count admission gate. Producing code and
+expected identities remain frozen; final recipe/README add completion only.
+No extra cost, fullF rebuild, PP, SAN, fault, negative, NVC or codec search ran.
+Guard-count/size, peak-stack, strength, scaling, cancellation causality,
+hardware allocation and final4KiB acceptance remain unproven.
+Build receipt: `41318892aea6aafe252a4312a9f90bdf0e10f464c184f81ae0a2edfcd5bcb92b`.
+Runtime receipt: `033c3af537e26e8badb753019260eb07ce54be73a7279c0ffa55585d76dc0007`.
+
+
 # F8 v6: full F TT/pool source with all-eight job publication
 
 Class `full-F-late-fixed-resource8-TT18-v6` consumes the exact current full-F2
