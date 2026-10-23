@@ -521,3 +521,21 @@ The57-source provenance check passes with the exact unchanged shared helper
 bodies. Its prior4442 build/9-TID positive remain scoped reuse evidence.
 
 V4 actual receipts: build/build.json ba38dad6...; runtime/runtime.json 1f34a6c9...; producing recipe preserved in the actual build inputs. Final recipe/README edits are completion metadata only.
+
+
+## F8 v7 D shared-refill verifier provenance — 2026-10-24
+
+The shared D verifier fullfile pin advances9f8a6a0f... to f5ed4ddb... for its
+explicit private-refill expected dictionary and D main decoder-policy selector.
+F8 directly consumes Budget, OWNED, Owned, mapping and tasks; their entire
+definitions, transitive Reader/require, imports and WNOWAIT lifetime body are
+byte-exact across these two files. D-specific main/admission paths are not F8
+calls. The new expected dictionary is constructed on import but not consumed by F8.
+
+Only the positive-helper provenance pin and this metadata change. F8 v7 source,
+specializer, builder, verifier assertions, compiler/codec/header and expected
+native/bootstrap/whole4316 remain exact. Existing ordinary2 reproductions and
+quit/EOF2/8GO/9TID/all8CPU/resources/lifetime receipts remain original9f8 evidence,
+reused here through identical consumed definitions. No new F8 compiler, encoder,
+wrapper or runtime ran, and no new fullfile execution or D main behavior is claimed.
+The original producing recipe/source closure and immutable v7 indexes remain.

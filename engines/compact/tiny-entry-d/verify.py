@@ -53,6 +53,9 @@ EXPECTED_FUSED_BODY = dict(EXPECTED_BODY, **{'scalar-shipping': {'bytes': 5717, 
 EXPECTED_H28_BODY = dict(EXPECTED_FUSED_BODY, **{'scalar-shipping': dict(EXPECTED_FUSED_BODY['scalar-shipping'],
     bytes=5649, sha256='b305f29b4cb19130269093f90ed520ee0ed643b23d9c19ed6ad28ee8513f5369',
     audit_bytes=5672, audit_sha256='436b429ee3cd3368ea16b71ca883b7ba487324fcfcffe1ff9232d46274050a74')})
+EXPECTED_H28_REFILL_BODY = dict(EXPECTED_H28_BODY, **{'scalar-shipping': dict(EXPECTED_H28_BODY['scalar-shipping'],
+    bytes=5581, sha256='1b8b3cc9842596475f9a3af60bc54f268157de540ce8a398bf2d42175470c223',
+    audit_bytes=5604, audit_sha256='8bef691ebf8735796c4ef266dcf58fabe72142b043ec982bb45c811719d3b817')})
 OWNED = set()
 
 
@@ -521,7 +524,10 @@ def main():
         require(codec in (V2_CODEC, CODEC, H28_CODEC), "unknown packet/image class")
         require(build.get('source_policy') in (None, 'scalar-shipping-fused-rays-v1'), 'unknown Board source policy')
         require(codec != H28_CODEC or build.get('context_source_policy') == 'scalar-H28-HQ-H24-v1', 'unknown H28 source policy')
-        expected_forms = EXPECTED_H28_BODY if codec == H28_CODEC else EXPECTED_V2 if codec == V2_CODEC else (EXPECTED_FUSED_BODY
+        require(build.get('decoder_policy') in (None, 'H28-private-shared-prefill-refill-v1'), 'unknown private decoder implementation')
+        require(build.get('decoder_policy') is None or codec == H28_CODEC, 'shared refill requires H28')
+        h28_expected = EXPECTED_H28_REFILL_BODY if build.get('decoder_policy') == 'H28-private-shared-prefill-refill-v1' else EXPECTED_H28_BODY
+        expected_forms = h28_expected if codec == H28_CODEC else EXPECTED_V2 if codec == V2_CODEC else (EXPECTED_FUSED_BODY
             if build.get('source_policy') == 'scalar-shipping-fused-rays-v1' else EXPECTED_BODY)
         report['codec'] = codec
         require(all(e["audit_bytes"] is not None and e["audit_sha256"] is not None for e in expected_forms.values()), "context audit literals require explicit discovery and admission")

@@ -1,3 +1,71 @@
+# Maintained scalar H28 shared refill — 2026-10-24
+
+Selected scalar/HQ own-ELFs are **5581 / 6037 B**, with4096 gaps1485/1941 B.
+Scalar falls68 B from5649 entirely in loader/startup text: `.text`961→893 B;
+ELF/PHDR176 B and packet4512 B are unchanged. Nonpacket1137→1069 B.
+HQ stays the exact original H24 product. The independently measured native
+terminal-loop candidate lost1 B and is not included; no gains are added.
+
+`shipping_refill.py` is a late pure stage after `shipping_context_h28.py`.
+It consumes exactly H28 decoder3422/7bd44a4a… and emits3375/0b531462… using
+three literal spans, complete inverse and four unchanged gaps. It merges the
+initial31-bit fill and later arithmetic normalization into one loop head.
+Initial range1 takes31 shifts; bits+1 iterations include the original final
+refill. The size guard gives bits+1<=0xfffffffa, inside u32. Valid fixed
+packets preserve decoded bytes, arithmetic/model state and total input cursor.
+
+This is the actual private H28 decoder domain, not arbitrary decoder API
+equivalence. Payload RX, output RW and private context are disjoint. On
+malformed input, private partial writes and internal return4/5 priority may
+differ; all failures still take `bad()`/exit_group126 before native entry.
+Input/output bounds, zero4, leading sentinel and exact output-size checks
+remain. The original H24/HQ/default sources and APIs are untouched. Native8,
+fullkey atomic16 TT, search/model21/ISA, full-image/BCJ232, mmap/checked munmap,
+guards/W^X/NX, stacks, entry and fixed resources remain unchanged.
+
+## SHARED_REFILL_COMPLETION — actual maintained PASS
+
+One external cost reused native7388/395fea4d…, full zero232 restored image
+b2982877… and H28 packet4512/f2a29b1d…; native compile0/encode0, DATAinverse1
+and production-loader compile1 yielded own-ELF5581/1b8b3cc9…. The candidate
+source and cost index remain frozen separately from this promotion.
+
+One CHECKPOINT-only compile admitted5604/8bef691e…, changing only the fixed
+CHECKPOINT1 option from the measured loader. One ordinary invocation then
+rebuilt both selected natives twice, encoded both fixed packets twice and
+reproduced both own-ELFs twice; scalar5581 and HQ6037 are entire-byte exact.
+The ordinary audit reproduces the separately discovered5604 and existingHQ6060.
+No external report/artifact is an ordinary build input. The fresh archive
+includes the helper but local fresh execution is0.
+
+One maintained positive invocation ran the actual new C decoder: two
+CHECKPOINT pre-entry full-RX/RX-padding/BSS-zero/guards/NX/W^X observations
+resumed the real entry; scalar/HQ quit/EOF four sessions returned12 legal GO
+results with persistent3TIDs, active workers, only stdio/no children, guarded
+worker stacks, joined readers and physical settlement. Initial BSS zero is
+the CHECKPOINT scope, not a direct production trace. Generic positive helper
+bodies are byte-exact from the preceding final waitid9f8a6a0f… version; only
+new expected literals and the explicit decoder-policy selector changed.
+
+Actual root: `/home/stemxstudio/rove4k-d-shared-refill-promotion-20261024-v1`.
+Named receipts are `normal/build/build.json`, `positive/runtime/results.json`
+and `audit/discovery.json`; full hashes are in recipe's
+`local_shared_refill_validation` and the external final index. Producing source
+and recipe are preserved before final receipt-only annotation. Product
+failures/retries0; original loader1054, audit1437, ordinary1475, positive1647
+and child groups close rc0/reaped/pre-reap others empty/group absent,
+forced0/owned0. Popen publication/unmasking/cleanup remains finally-protected.
+
+The H28 temporary table remains512 MiB. The strict positive command finished
+in2.70 s in total with its60 s startup maximum; this is an execution bound,
+not a performance comparison. Prior detailed RSS/address-reuse observations
+below retain their prior decoder/source scope; no fresh memory sampling or
+tournament RAM acceptance is claimed. Both files remain above4096 and target
+total resources/many-core/strength remain open. No new fault/negative,
+ptrace/RIE/personality/SAN/game/benchmark/training/paid campaign is run.
+
+The preceding H28 and fused-ray histories follow unchanged.
+
 # Maintained scalar H28 context — 2026-10-24
 
 Selected scalar/HQ own-ELFs are **5649 / 6037 B**, with4096 gaps1553/1941 B.

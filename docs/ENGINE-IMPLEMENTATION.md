@@ -4,6 +4,45 @@ The full implementation scope is recorded in [the accepted plan](ENGINE-PLAN.ko.
 The current user request excludes training and AWS connections. Frozen model
 inference and lossless model storage remain in scope; trained strength is not claimed.
 
+## D shares initial prefill and subsequent refill: 2026-10-24
+
+The scalar H28-private decoder starts range at1 and uses one loop-head
+normalization for both the initial31 input bits and subsequent refill. One
+extra loop-head visit preserves the final refill. Its three source spans
+shrink3422 to3375 B; the linked loader text shrinks961 to893 B. Packet4512,
+native7388/395fea4d and the entire zero232 restored image remain unchanged.
+Header/loader1137 becomes1069 B and whole5649 becomes5581 B, gain68 and
+1485 B above4096. HQ keeps its original H24 decoder and6037 B whole.
+
+Valid fixed packets retain decoded bytes and input cursor. Malformed packets
+can differ in private partial-write ordering and error4/5 priority; the actual
+loader still exits126 before native entry on either error. This specialization
+does not claim a generic decoder API's failure-state equivalence. The old
+H28 transient512 MiB allocation remains; previous startup/RSS observations
+are not relabeled as fresh measurements for this loader.
+
+Ordinary regeneration reproduces both shipping forms twice. The existing
+positive verifier passes two CHECKPOINT audit images, four production
+quit/EOF sessions and twelve legal GO, restored RX/initial BSS, guard/NX/W^X,
+stdio-only descriptors, no children, three TIDs, readers and physical exit.
+Original groups settle before leader reap with forced0/failures0/owned0.
+The final verifier adds exact decoder-policy/whole/audit selection and retains
+the shared process-owner bodies consumed by F8.
+The external promotion index7141 B is
+`6f080009ea4b96e39b56ff741bf4f7098d78ce82d412b3ba5b3bdf0389c1e80d`.
+F8 updates only recipe/README provenance for the new D verifier. Its actual
+direct and transitive helper definitions, imports and OWNED state are exact;
+the current source closure and source/native/bootstrap/whole pins are checked.
+No local F8 compile/encode/runtime repeats, and old v7 receipts retain their
+original verifier source identity. The external provenance index13828 B is
+`689c6672e6eec8fe422fbc8289c38a692e9ba7f72dbe72985054b742b8505e1f`.
+
+A separate native terminal-loop proposal shrinks source25 B, native64 B and
+linked text39 B, but H28 packet grows1 B and complete file5649 becomes5650 B.
+It is rejected before engine execution or combination with shared refill.
+Its external index3913 B is
+`cf02c1912503e8f281d58402d834993413711ac7a74e4527da62385f6bdadab9`.
+
 ## A scoped frequency names and C/E depth-token ownership: 2026-10-24
 
 Default A reuses names whose local reference scopes do not overlap the renamed
@@ -48,6 +87,15 @@ native26112 becomes26136 B and whole4950 becomes4954 B, LOSS4. Only its fixed
 compile/encode/strict restoration run; no engine runtime or maintained change
 is added. The external index8657 B is
 `2d91d05f28468ebfd0f7553585291132fd2d02837a9e0f2572d27093a1527742`.
+
+F's current154 B input-move matcher also has a source-only packed-input
+proposal. Preserving short-token bounds, all four coordinate ranges, exact
+length/promotion spelling, capture-bit-only masking, actual legal maker and
+NULL fallback requires299 B, raw+145. No candidate file, compile, codec or
+engine is run. The formatter remains necessary for bestmove output. A bare
+0x88 test is insufficient: invalid file q in q1a1 can alias a valid square
+after unchecked arithmetic. This is a source-priority decision, not a measured
+whole-file loss or performance result.
 
 ## Current compact A–F ring screen: 2026-10-24
 
@@ -983,7 +1031,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | A | 4,499 B | 403 B | Scoped fixed seven-binding frequency names preserve the entire preceding native; default Loose reuses completed depth -1 as a mutex-published job token while preserving the null startup sentinel and shared epilogue; earlier J/return and L/int aliases retain their full-header CPP/native identity proof separately; full HCE/PVS/QS/full-key TT/history/continuation/correction/SMP and all three optional root policies remain; main-owned token cursor, fixed resources, guarded original literal chain, strict fixed2 depth selector and individual stdio locking |
 | B | 4,950 B | 854 B | EP normalizer reuses the actual legal maker with nonzero result101 and king-safety guards; preceding I/int alias covers99 tokens with full-header CPP and entire native identity; worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained; made-child continuation row passed through PVS and same-position singular verification; literal include gaps and overlong-line drain compacted; clock-first SEE poll; cancellation timing changed; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero; private history length derived from immutable published job base plus ply; private piece-plus-six helper inlined at its two consumers with complete native identity; singular-depth temporary and empty shipping instrumentation branch removed; adjacent HCE int declarations merged; three walker forwarders removed with explicit full-mask/Boolean/count consumer domains |
 | C | 4,666 B | 570 B | Completed-depth tokens replace separate worker epoch state with the startup sentinel retained; current signed-net eight-lane HCE and actual128-bit madd/four signed32 sums combine with the smaller full common A-derived mailbox/PVS/runtime, explicit -mavx2 target; old-C trace/native identity is not claimed; exact incremental evaluation, king-capture/move-buffer/QS draw guards, full-key TT, three learners and persistent SMP remain; selected compiler/literal adapter consumes the original C package and old DEV is unchanged |
-| D scalar / HQ | 5,649 / 6,037 B | 1,553 / 1,941 B | Scalar H28 packet uses a transient512 MiB table, observed startup below0.46s and released before ready; HQ retains H24; shipping scalar fused mailbox rays with direction-major near-to-far visitation; HQ/DEV original walker; HQ-only history length derived from immutable job length plus ply; exact clock/inc parsing and ordered K/Q castling branches shared; consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT with a shared finite-stage asm body, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained; exact fused-scalar body232 class restores dormant internal ELF metadata as zero while preserving body addresses |
+| D scalar / HQ | 5,581 / 6,037 B | 1,485 / 1,941 B | Scalar H28-private decoder shares initial prefill and subsequent refill with unchanged packet/native/restored image; transient512 MiB table remains and old startup/RSS observations keep their prior scope; HQ retains H24; shipping scalar fused mailbox rays with direction-major near-to-far visitation; HQ/DEV original walker; HQ-only history length derived from immutable job length plus ply; exact clock/inc parsing and ordered K/Q castling branches shared; consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT with a shared finite-stage asm body, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained; exact fused-scalar body232 class restores dormant internal ELF metadata as zero while preserving body addresses |
 | E | 4,599 B | 503 B | Completed-depth tokens replace separate worker epoch state with the startup sentinel retained; actual ranking loop reuses decoded coordinates/mover and keeps five ordering features and19 independent coefficients; current exact untrained E19 logical19/physical21 model bodies and all five ordering features combine with the smaller full common A-derived mailbox/PVS/runtime; old-E search traces are not an equivalence claim; full-key-bound TT, exact model evaluation, history/continuation/correction, persistent SMP, terminal/draw guards and fixed resources retained; final int/return aliases retain the entire preceding native; previous E chain remains the guarded model/input authority and old DEV stays unchanged; selected compiler/literal adapter consumes the actual previous package before constructing the smaller bootstrap |
 | F full (default) | 4,304 B | 208 B | Fixed binding-frequency spelling and four-coordinate formatter sharing; packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; private TT depth/bound shares one byte with empty0 excluded, worker completed-depth -1 publishes jobs under the existing mutex; history length derived from immutable job length plus ply; nonnegative QS depth, repetition-distance loop, fixed integer macros and plain-int keyword spelling compacted after the no-preadd hash, terminal, correction and source-form stages; compact environment snapshot; default size target remains open; lazy fallback and first-legal quiet-QS standpat cutoff; immutable global job-prefix keys shared while workers store only private path keys; fixed 73-byte stdin/xz header and BT2/16KiB ALONE with nice24; four further local names shorten14 tokens with declaration/reference and macro-argument ownership preserved; compact handler-pair loops, fixed2 completion selector and positional wait timeout; pure HCE rank normalization shares advance/center rank; ASCII unsigned first-digit guard and Linux readonly-open flag spelling compacted |
 | F full (fixed8) | 4,316 B | 220 B | Separate eight-search-worker profile with nine startup TIDs; actual final F7979 frequency/formatter source specializes through six roles to8017, including all-eight job-depth reset; full TT/MTD/HCE/learners and condition synchronization remain; new native18576/26182257, fixed nice24/header73; WNOWAIT exit observation and strict task/mapping/activity/lifetime checks pass locally; guard sizes and final target profile remain open |

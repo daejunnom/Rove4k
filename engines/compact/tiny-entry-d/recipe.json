@@ -134,13 +134,13 @@
         "restored_image_sha256": "b2982877c1c1bf97cafcfcd5b9dd210835a3eded07dcbf3c38e8c991c4d8943a"
       },
       "model_wmask": 16847486,
-      "whole_bytes": 5649,
-      "whole_sha256": "b305f29b4cb19130269093f90ed520ee0ed643b23d9c19ed6ad28ee8513f5369",
+      "whole_bytes": 5581,
+      "whole_sha256": "1b8b3cc9842596475f9a3af60bc54f268157de540ce8a398bf2d42175470c223",
       "payload_bytes": 4512,
       "payload_sha256": "f2a29b1db74ebad1bf18224b7bd02963ffc74948698021ee81e3a6a50f45bf17",
-      "loader_and_headers_bytes": 1137,
-      "audit_bytes": 5672,
-      "audit_sha256": "436b429ee3cd3368ea16b71ca883b7ba487324fcfcffe1ff9232d46274050a74"
+      "loader_and_headers_bytes": 1069,
+      "audit_bytes": 5604,
+      "audit_sha256": "8bef691ebf8735796c4ef266dcf58fabe72142b043ec982bb45c811719d3b817"
     },
     "hq-shipping": {
       "hq": 1,
@@ -1547,7 +1547,8 @@
   },
   "shipping_source_sha256": {
     "shipping_fused_ray.py": "1d9d23699300c0d1ef3c27a06f4f705b2074bba2e5bc5b684716c11e02f4e54b",
-    "shipping_context_h28.py": "c0e019541075f80ba5d8f1315b5c5eb4a3cf18fd0dfa477c6063f0d27d098171"
+    "shipping_context_h28.py": "c0e019541075f80ba5d8f1315b5c5eb4a3cf18fd0dfa477c6063f0d27d098171",
+    "shipping_refill.py": "acfa96bea5faed7183d4226b3bfe0e1b13478e39dcd995d439eddf69055ed5e4"
   },
   "generated_native_source_sha256": {
     "native/board.c": "53458b95da840708cf39c2b144f0d75bddcbd1c541d64b66cdbffba8d298a86a"
@@ -1627,5 +1628,66 @@
     "pre_product_preparation_errors": 2,
     "final_small_source_fix": "checkpoint stop/exit observation uses WNOWAIT waitid; only two existing audit sessions rechecked; shipping4sessions not repeated",
     "resource_scope": "512MiB transient scratch, fixed2workers/TT18/PLY128, AS4GiB supervisor, actualready<60; targettotalmemory/manycore/4KiB/strength remain open"
+  },
+  "scalar_decoder_impl": {
+    "policy": "H28-private-shared-prefill-refill-v1",
+    "cost_index_sha256": "258ea3d2a0a13badf19b61e9658a32bd113da24c85e584d23a647fa29aeb81cc",
+    "qualification": "actual maintained ordinary and positive PASS"
+  },
+  "local_shared_refill_validation": {
+    "build": {
+      "path": "/home/stemxstudio/rove4k-d-shared-refill-promotion-20261024-v1/normal/build/build.json",
+      "bytes": 146322,
+      "sha256": "3096fb087991686b97fca4dfda5fc2cf9e8e2a896c952a336f1a0dcc17bfb9a8"
+    },
+    "runtime": {
+      "path": "/home/stemxstudio/rove4k-d-shared-refill-promotion-20261024-v1/positive/runtime/results.json",
+      "bytes": 61537,
+      "sha256": "e06b34f0d7e259fcb31073efa3ebf87c08613c2c9ecb19dd9898576b14c8caca"
+    },
+    "audit_discovery": {
+      "path": "/home/stemxstudio/rove4k-d-shared-refill-promotion-20261024-v1/audit/discovery.json",
+      "bytes": 4661,
+      "sha256": "4e9cf34ec8cd8344eca38055370178741cdc6afb2f5d84fbcdf707b5be6206e7"
+    },
+    "producing_recipe": {
+      "path": "/home/stemxstudio/rove4k-d-shared-refill-promotion-20261024-v1/normal/build/inputs/recipe.json",
+      "bytes": 95736,
+      "sha256": "b6b614f40443e981e1b3993d3e232fabaeea385f51e15b7e04254ec9014eab56"
+    },
+    "producing_source_pins": {
+      "path": "C:/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-shared-refill-promotion-20261024-evidence/normal-source-pins.json",
+      "bytes": 2805,
+      "sha256": "d444685a88a6e359297afeda16fde1cc1bf6bf04d538ea94c144a54c96c209de"
+    },
+    "verifier": {
+      "path": "C:/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-engines-af-20261020/engines/compact/tiny-entry-d/verify.py",
+      "bytes": 39962,
+      "sha256": "f5ed4ddbb90c985e45d5f3fc44f9f1a5a8ba35afd401c804ae42ecf6423ef2bd"
+    },
+    "generic_body_proof": {
+      "path": "C:/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-shared-refill-promotion-20261024-evidence/generic-body-proof.json",
+      "bytes": 480,
+      "sha256": "7bc5084f998cfeba6724ba0151edcae6e5de9d09fa1d42873dcb4a10e88917f0"
+    },
+    "actual_scope": "two native rebuilds and two packet/own-ELF reproductions per form; new real C decoder two CHECKPOINT plus scalar/HQ quitEOF four sessions,12 legal GO; full restored RX, initial BSS only in audit, guarded/NX/W^X/FD/children/3TID/physical exit",
+    "failures": 0,
+    "product_retries": 0,
+    "owned_handles": 0,
+    "forced_cleanup": 0,
+    "resource_scope": "H28 table remains512MiB; current strict startup uses60s maximum, actual complete positive command2.70s. Detailed RSS/map-reuse observations belong to prior H28 decoder; no fresh RSS sampling or target resource/strength acceptance claimed.",
+    "not_run": [
+      "fresh",
+      "negative",
+      "fault",
+      "ptrace",
+      "RIE",
+      "personality",
+      "SAN",
+      "game",
+      "benchmark",
+      "training",
+      "paid"
+    ]
   }
 }

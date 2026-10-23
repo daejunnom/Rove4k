@@ -76,7 +76,7 @@
     "engines/compact/tiny-entry-f/shipping_format_loop.py": "fd15f292d8e91c69f40bde4a955766701fde73920fc2432364070897c5a64144"
   },
   "positive_helper_sha256": {
-    "engines/compact/tiny-entry-d/verify.py": "9f8a6a0f73c116d981df3bb522986d9b8dae116a9853c710191c0cfdf7985332",
+    "engines/compact/tiny-entry-d/verify.py": "f5ed4ddbb90c985e45d5f3fc44f9f1a5a8ba35afd401c804ae42ecf6423ef2bd",
     "engines/tests/chess_oracle.py": "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8"
   },
   "compiler": [
@@ -1225,5 +1225,37 @@
       "shared_D_WNOWAIT_lifetime_exercised": true,
       "F8_startup_earlyexit_observation_no_reap": true
     }
+  },
+  "D_shared_refill_verifier_provenance": {
+    "source_proof": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-d-refill-provenance-20261024-evidence/source-proof.json",
+      "bytes": 2565,
+      "sha256": "a07765eeaa3b8b9ac0ef99f70991df72bf0caa102c76646912d77c137085ff09"
+    },
+    "before_fullfile_sha256": "9f8a6a0f73c116d981df3bb522986d9b8dae116a9853c710191c0cfdf7985332",
+    "after_fullfile_sha256": "f5ed4ddbb90c985e45d5f3fc44f9f1a5a8ba35afd401c804ae42ecf6423ef2bd",
+    "F8_direct_attributes": [
+      "Budget",
+      "OWNED",
+      "Owned",
+      "mapping",
+      "tasks"
+    ],
+    "all_direct_and_transitive_consumed_definition_bytes_equal": true,
+    "D_only_expected_and_main_change": true,
+    "F8_product_inputs_and_expected_unchanged": true,
+    "qualified_actual_index_reuse": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-frequency-format-promotion-20261024-evidence/final-index-v2.json",
+      "bytes": 6845,
+      "sha256": "6c11ac3107d39319dbedcca48a45582bdcc97a060aa39f6fe620ad4cb90a9abf"
+    },
+    "old_actual_positive_helper_sha256": "9f8a6a0f73c116d981df3bb522986d9b8dae116a9853c710191c0cfdf7985332",
+    "old_runtime_receipt_reused": {
+      "path": "/home/stemxstudio/rove4k-f8-frequency-format-promotion-20261024-v1/F8/runtime/runtime.json",
+      "bytes": 71102,
+      "sha256": "033c3af537e26e8badb753019260eb07ce54be73a7279c0ffa55585d76dc0007"
+    },
+    "new_F8_compile_encode_runtime": 0,
+    "runtime_scope": "Previous F8 v7 actual positive used9f8; reuse here is bounded to identical F8-called generic definitions, not a new f5ed fullfile execution or D main qualification."
   }
 }

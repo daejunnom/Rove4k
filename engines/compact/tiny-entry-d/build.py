@@ -211,6 +211,9 @@ def main():
         h28_sources = out/'scalar-H28-sources'
         h28_sources.mkdir()
         prepared = h28.prepare_sources({name: (frozen/name).read_bytes() for name in h28.FIXED})
+        refill = module('entry_d_H28_refill', frozen/'shipping_refill.py')
+        prepared['loader/decoder.h'] = refill.transform_source(prepared['loader/decoder.h'])
+        report['decoder_policy'] = refill.POLICY
         for name, data in prepared.items():
             target = h28_sources/name
             target.parent.mkdir(parents=True, exist_ok=True)
