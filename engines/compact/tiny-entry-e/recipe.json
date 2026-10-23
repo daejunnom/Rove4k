@@ -76,7 +76,8 @@
     "engines/compact/tiny-entry-a/shipping_worker_epilogue_bce.py": "e0ab883e0fec895b66b0ef01b5ede056e05fb0bc72472cd8ac64507f2fbf82ce",
     "engines/compact/tiny-entry-a/shipping_setter_phase_bce.py": "9d1985e0c798b59b553a6bee1176fb4f19f9b053da9ecf4243812370e64591d2",
     "engines/compact/tiny-entry-a/shipping_constants_bce.py": "02d0411887e7f04042e4ef94c876c32d2469b6d26f056c63dbf1235a93fc052c",
-    "engines/compact/tiny-entry-e/shipping_cross_e.py": "0672f69ef3f2d3e7a1d97213cbe1ae572221354af0d69a4fbfbe85ec9fb34e3d"
+    "engines/compact/tiny-entry-e/shipping_cross_e.py": "0672f69ef3f2d3e7a1d97213cbe1ae572221354af0d69a4fbfbe85ec9fb34e3d",
+    "engines/compact/tiny-entry-e/shipping_keyword_scope.py": "8d69bac1426f6ddf5bd0263046035804ce4752185ebb92ceb257379a08d2372b"
   },
   "compression": {
     "format": "lzma-alone",
@@ -94,18 +95,18 @@
   "expected": {
     "readable_bytes": 28001,
     "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
-    "source_bytes": 9074,
-    "source_sha256": "e818bf407f95d0d028da939d2e57fbda81195dd64ee58d539e72ce768cf2e73f",
+    "source_bytes": 8702,
+    "source_sha256": "eb34a717b3bdd6e5b96a13ecdbce224c6ac1c8ef7b56a057f6325e8619410af7",
     "native_bytes": 18576,
     "native_sha256": "802704e687a26e5072afe3af6a3c906d44aea7f636917237b1b1c355467ba5bc",
-    "whole_bytes": 4646,
-    "whole_sha256": "0394497e1994182144cffa9d81d22d948c2913cac37ad60202e9e0e9394a84bc",
-    "bootstrap_sha256": "8ee9afdc733bc350fbf58100a0e65b669ddc6d3abed09a890d771ad2bdf11a26",
+    "whole_bytes": 4630,
+    "whole_sha256": "e34cc28bf0c9977f08a937f6811590c96996004ed73a18f235212e5986656609",
+    "bootstrap_sha256": "dcae86bcd4e6cb6fe324a09186e100920cf32f161fc39e610ebd005304feb8f0",
     "dev_source_bytes": 21314,
     "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
     "dev_native_bytes": 31376,
     "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
-    "bootstrap_bytes": 10028
+    "bootstrap_bytes": 9656
   },
   "local_input_sha256": {
     "engine.c": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
@@ -1745,6 +1746,110 @@
         "forced_cleanup": false,
         "owned_handles": 0,
         "scope": "Current E19/common full A-PVS shipping variant only; old DEV is a preserved diagnostic reference, not E19 or strength qualification. No extra model fixture, SAN, fault, fresh, game, performance, or CI run."
+      }
+    },
+    "keyword_scope": {
+      "helper": "engines/compact/tiny-entry-e/shipping_keyword_scope.py",
+      "helper_sha256": "8d69bac1426f6ddf5bd0263046035804ce4752185ebb92ceb257379a08d2372b",
+      "metadata": {
+        "stage": "last-E-shipping-keyword-scope",
+        "family": "E",
+        "input_bytes": 9074,
+        "input_sha256": "e818bf407f95d0d028da939d2e57fbda81195dd64ee58d539e72ce768cf2e73f",
+        "output_bytes": 8702,
+        "output_sha256": "eb34a717b3bdd6e5b96a13ecdbce224c6ac1c8ef7b56a057f6325e8619410af7",
+        "raw_delta": -372,
+        "object_aliases": {
+          "J": "return",
+          "L": "int"
+        },
+        "keyword_counts": {
+          "return": 45,
+          "int": 89
+        },
+        "local_bindings": "h TT move J->j declaration/reference2 and depth L->k declaration/reference2; inner sorting j/k scopes begin after TT uses",
+        "owned_regions": 139,
+        "protected_gaps": 140,
+        "full_inverse": true,
+        "original_directives_and_literals_unchanged": true,
+        "actual_full_CPP_tokens_equal_after_four_local_reverse": true,
+        "entire_native_bytes_equal_to_previous_E4646": true,
+        "model_or_search_policy_change": false,
+        "macro_table_and_diagnostic_locations_equal": false,
+        "external_reads": 0,
+        "engine_runtime_claimed_by_transform": false,
+        "DEV": "caller bypasses shipping stage; previous DEV source/native unchanged"
+      },
+      "bootstrap_metadata": {
+        "input_bytes": 10028,
+        "input_sha256": "8ee9afdc733bc350fbf58100a0e65b669ddc6d3abed09a890d771ad2bdf11a26",
+        "output_bytes": 9656,
+        "output_sha256": "dcae86bcd4e6cb6fe324a09186e100920cf32f161fc39e610ebd005304feb8f0",
+        "owned_regions": 1,
+        "protected_gaps": 2,
+        "full_inverse": true,
+        "actual_previous_cross_literal_chain_consumed": true,
+        "source_AST_bytes_exact": true,
+        "compiler_codec_resources_unchanged": true,
+        "external_reads": 0
+      },
+      "source_proposal": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-keyword-scope-20261024-evidence/proposal.json",
+        "bytes": 40897,
+        "sha256": "55989a836a65547bcb0cfd2f9c6a34bb8c7f480c6679652f4001b82b28489e31"
+      },
+      "firstcost": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-keyword-scope-20261024-evidence/final-index.json",
+        "bytes": 4711,
+        "sha256": "2d3d8296c420b4718dbd2b9958cbc50a7a0f2acc2c322f2e9d509c437df810dc"
+      },
+      "predecessor_expected": {
+        "readable_bytes": 28001,
+        "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+        "source_bytes": 9074,
+        "source_sha256": "e818bf407f95d0d028da939d2e57fbda81195dd64ee58d539e72ce768cf2e73f",
+        "native_bytes": 18576,
+        "native_sha256": "802704e687a26e5072afe3af6a3c906d44aea7f636917237b1b1c355467ba5bc",
+        "whole_bytes": 4646,
+        "whole_sha256": "0394497e1994182144cffa9d81d22d948c2913cac37ad60202e9e0e9394a84bc",
+        "bootstrap_sha256": "8ee9afdc733bc350fbf58100a0e65b669ddc6d3abed09a890d771ad2bdf11a26",
+        "dev_source_bytes": 21314,
+        "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
+        "dev_native_bytes": 31376,
+        "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
+        "bootstrap_bytes": 10028
+      },
+      "whole_delta": -16,
+      "native_entire_bytes_equal": true,
+      "normal_status": "PASS",
+      "scope": "Exact current E19/common full A-PVS representation only; existing cross model/search/runtime policy, old DEV and all source/model false flags retained. Macro table and source diagnostic locations differ.",
+      "normal_validation": {
+        "build": {
+          "path": "/home/stemxstudio/rove4k-e-keyword-scope-normal-20261024-v1/build/build.json",
+          "bytes": 280898,
+          "sha256": "b4b784aad46784d4a19bc6a6ea1267fd0783d978806a1a75e6332f470ea397c5"
+        },
+        "runtime": {
+          "path": "/home/stemxstudio/rove4k-e-keyword-scope-normal-20261024-v1/runtime/runtime.json",
+          "bytes": 91792,
+          "sha256": "8e3cb5322601bf41d5ed09549ea50bef7569caeeca0c872b229d0741bee7a8d9"
+        },
+        "shipping_reproductions": 2,
+        "actual_old_DEV_reproductions": 2,
+        "entire_firstcost_source_native_bootstrap_whole_equal": true,
+        "actual_previous_DEV_entire_source_native_equal": true,
+        "entire_native_equal_to_previous_E4646": true,
+        "selected_sessions": 2,
+        "legal_GO_results": 8,
+        "startup_TIDs_per_session": 3,
+        "native_image_private_path_process_readers_fences": true,
+        "cancellation_causality": "unproven",
+        "original_command_count": 2,
+        "original_handles_terminal_reaped_groups_absent": true,
+        "forced_cleanup": false,
+        "owned_handles": 0,
+        "model_or_search_policy_change": false,
+        "scope": "Current E19/common full A-PVS keyword presentation and actual existing selected verifier; no new model/search/strength/performance/SAN/fault/fresh/CI qualification."
       }
     }
   },
@@ -4505,6 +4610,110 @@
       "forced_cleanup": false,
       "owned_handles": 0,
       "scope": "Current E19/common full A-PVS shipping variant only; old DEV is a preserved diagnostic reference, not E19 or strength qualification. No extra model fixture, SAN, fault, fresh, game, performance, or CI run."
+    }
+  },
+  "keyword_scope": {
+    "helper": "engines/compact/tiny-entry-e/shipping_keyword_scope.py",
+    "helper_sha256": "8d69bac1426f6ddf5bd0263046035804ce4752185ebb92ceb257379a08d2372b",
+    "metadata": {
+      "stage": "last-E-shipping-keyword-scope",
+      "family": "E",
+      "input_bytes": 9074,
+      "input_sha256": "e818bf407f95d0d028da939d2e57fbda81195dd64ee58d539e72ce768cf2e73f",
+      "output_bytes": 8702,
+      "output_sha256": "eb34a717b3bdd6e5b96a13ecdbce224c6ac1c8ef7b56a057f6325e8619410af7",
+      "raw_delta": -372,
+      "object_aliases": {
+        "J": "return",
+        "L": "int"
+      },
+      "keyword_counts": {
+        "return": 45,
+        "int": 89
+      },
+      "local_bindings": "h TT move J->j declaration/reference2 and depth L->k declaration/reference2; inner sorting j/k scopes begin after TT uses",
+      "owned_regions": 139,
+      "protected_gaps": 140,
+      "full_inverse": true,
+      "original_directives_and_literals_unchanged": true,
+      "actual_full_CPP_tokens_equal_after_four_local_reverse": true,
+      "entire_native_bytes_equal_to_previous_E4646": true,
+      "model_or_search_policy_change": false,
+      "macro_table_and_diagnostic_locations_equal": false,
+      "external_reads": 0,
+      "engine_runtime_claimed_by_transform": false,
+      "DEV": "caller bypasses shipping stage; previous DEV source/native unchanged"
+    },
+    "bootstrap_metadata": {
+      "input_bytes": 10028,
+      "input_sha256": "8ee9afdc733bc350fbf58100a0e65b669ddc6d3abed09a890d771ad2bdf11a26",
+      "output_bytes": 9656,
+      "output_sha256": "dcae86bcd4e6cb6fe324a09186e100920cf32f161fc39e610ebd005304feb8f0",
+      "owned_regions": 1,
+      "protected_gaps": 2,
+      "full_inverse": true,
+      "actual_previous_cross_literal_chain_consumed": true,
+      "source_AST_bytes_exact": true,
+      "compiler_codec_resources_unchanged": true,
+      "external_reads": 0
+    },
+    "source_proposal": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-keyword-scope-20261024-evidence/proposal.json",
+      "bytes": 40897,
+      "sha256": "55989a836a65547bcb0cfd2f9c6a34bb8c7f480c6679652f4001b82b28489e31"
+    },
+    "firstcost": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-keyword-scope-20261024-evidence/final-index.json",
+      "bytes": 4711,
+      "sha256": "2d3d8296c420b4718dbd2b9958cbc50a7a0f2acc2c322f2e9d509c437df810dc"
+    },
+    "predecessor_expected": {
+      "readable_bytes": 28001,
+      "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+      "source_bytes": 9074,
+      "source_sha256": "e818bf407f95d0d028da939d2e57fbda81195dd64ee58d539e72ce768cf2e73f",
+      "native_bytes": 18576,
+      "native_sha256": "802704e687a26e5072afe3af6a3c906d44aea7f636917237b1b1c355467ba5bc",
+      "whole_bytes": 4646,
+      "whole_sha256": "0394497e1994182144cffa9d81d22d948c2913cac37ad60202e9e0e9394a84bc",
+      "bootstrap_sha256": "8ee9afdc733bc350fbf58100a0e65b669ddc6d3abed09a890d771ad2bdf11a26",
+      "dev_source_bytes": 21314,
+      "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
+      "dev_native_bytes": 31376,
+      "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
+      "bootstrap_bytes": 10028
+    },
+    "whole_delta": -16,
+    "native_entire_bytes_equal": true,
+    "normal_status": "PASS",
+    "scope": "Exact current E19/common full A-PVS representation only; existing cross model/search/runtime policy, old DEV and all source/model false flags retained. Macro table and source diagnostic locations differ.",
+    "normal_validation": {
+      "build": {
+        "path": "/home/stemxstudio/rove4k-e-keyword-scope-normal-20261024-v1/build/build.json",
+        "bytes": 280898,
+        "sha256": "b4b784aad46784d4a19bc6a6ea1267fd0783d978806a1a75e6332f470ea397c5"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-e-keyword-scope-normal-20261024-v1/runtime/runtime.json",
+        "bytes": 91792,
+        "sha256": "8e3cb5322601bf41d5ed09549ea50bef7569caeeca0c872b229d0741bee7a8d9"
+      },
+      "shipping_reproductions": 2,
+      "actual_old_DEV_reproductions": 2,
+      "entire_firstcost_source_native_bootstrap_whole_equal": true,
+      "actual_previous_DEV_entire_source_native_equal": true,
+      "entire_native_equal_to_previous_E4646": true,
+      "selected_sessions": 2,
+      "legal_GO_results": 8,
+      "startup_TIDs_per_session": 3,
+      "native_image_private_path_process_readers_fences": true,
+      "cancellation_causality": "unproven",
+      "original_command_count": 2,
+      "original_handles_terminal_reaped_groups_absent": true,
+      "forced_cleanup": false,
+      "owned_handles": 0,
+      "model_or_search_policy_change": false,
+      "scope": "Current E19/common full A-PVS keyword presentation and actual existing selected verifier; no new model/search/strength/performance/SAN/fault/fresh/CI qualification."
     }
   }
 }

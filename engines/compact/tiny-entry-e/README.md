@@ -1287,3 +1287,23 @@ Runtime SHA `2242fddbb838a93d24423d38173ea64a2915f22298566cd19d1be75a43406892`.
 취소 인과관계는 unproven으로 두며, 이 재현을 기력·성능·SAN·fault·fresh·새 CI
 검증으로 확대하지 않는다. 생산 당시 recipe/README와 완료 주석 후 파일 핀은
 외부 promotion 증거에서 구분한다.
+
+## E shipping keyword와 TT 지역 이름 축약
+
+현재 cross9074 출력 뒤에서 int89/return45를 각각 L/J object macro로 표기하고,
+h의 TT move J/depth L 선언·참조 네 토큰만 j/k로 옮긴다. header 뒤에만
+정의를 넣으며 원 directive·literal·모델 qi/Q/S/r/phase와 PVS/TT/SMP 의미는 유지한다.
+새 source8702/native18576/bootstrap9656/whole4630B로 기존4646B보다16B 작다.
+4096까지534B 남았다. 실제 full-header CPP는 네 지역 이름 역변환 후 동일하고
+native 전체도 이전 E4646과 같다. 새 모델·검색 정책 변경이나 기력·성능 주장이 아니다.
+Packaging은 keyword 역변환9074→기존 cross 역변환9866→실제 oldliteral/template
+10868→기존 cross bootstrap10028 guard→keyword literal9656 순으로 소비한다.
+외부 파일을 런타임 재생성 입력으로 읽지 않으며 canonical/DEV는 이전 경로를 유지한다.
+정식 ordinary --dev에서 두 shipping 사본의 전체 source/native/bootstrap/whole이
+고정 firstcost와 일치했고, 두 DEV 사본도 실제 이전 DEV 전체 bytes와 같았다.
+Native 전체는 이전 E4646과 같다. 기존 selected의 quit·EOF 두 session/8 GO,
+session별 시작 TID3, image/private path/reader/process 종료 fence를 통과했다.
+원 두 명령은 terminal/reaped/group 부재, forced cleanup0/owned handle0이다.
+Runtime SHA `8e3cb5322601bf41d5ed09549ea50bef7569caeeca0c872b229d0741bee7a8d9`.
+취소 인과관계는 unproven이며 새 모델·검색·기력·성능·SAN·fault·fresh·CI 검증은 아니다.
+외부 promotion 증거에서 생산 당시 파일 핀과 완료 주석 후 핀을 구분한다.

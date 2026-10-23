@@ -110,6 +110,7 @@ def main():
         setter_phase=module('entry_BCE_setter_phase',frozen/'shipping_setter_phase_bce.py').transform_source
         constants=module('entry_BCE_constants',frozen/'shipping_constants_bce.py').transform_source
         cross=module('entry_E_mailbox_cross',frozen/'shipping_cross_e.py')
+        keyword_scope=module('entry_E_keyword_scope',frozen/'shipping_keyword_scope.py')
         alpha=module('entry_fixed_shipping_alpha',frozen/'fixed_shipping_alpha.py').transform_source
         scope=module('entry_fixed_scope_names',frozen/'shipping_scope.py').transform_source
         core=module('entry_fixed_shipping_core',frozen/'shipping_core.py').transform_source
@@ -185,15 +186,20 @@ def main():
                 common_metadata['constants']=constants_metadata
                 data,cross_metadata=cross.transform_source(data,compact=compact)
                 common_metadata['cross']=cross_metadata
+                data,keyword_metadata=keyword_scope.transform_source(data)
+                common_metadata['keyword_scope']=keyword_metadata
             return data,observations,alpha_metadata,scope_metadata,core_metadata,input_metadata,model_metadata,type_metadata,global_names_metadata,common_metadata
         def package(source):
-            before=cross.restore_source(source,compact=compact)
+            control=keyword_scope.restore_source(source)
+            before=cross.restore_source(control,compact=compact)
             old_expression,_=common.source_literal(before,literal)
             previous=template.replace(marker,old_expression.encode())
-            expression,_=common.source_literal(source,literal)
-            script,bootstrap_metadata=cross.transform_bootstrap(previous,before=before,source=source,
+            expression,_=common.source_literal(control,literal)
+            script,bootstrap_metadata=cross.transform_bootstrap(previous,before=before,source=control,
                 old_expression=old_expression,expression=expression,compact=compact)
             report['cross_bootstrap']=bootstrap_metadata
+            script,keyword_bootstrap=keyword_scope.transform_bootstrap(script,source=source)
+            report['keyword_scope_bootstrap']=keyword_bootstrap
             ast.parse(script)
             data=prefix+lzma.compress(script,format=lzma.FORMAT_ALONE,check=lzma.CHECK_NONE,
                                      filters=[{'id':lzma.FILTER_LZMA1,'preset':9|lzma.PRESET_EXTREME,
