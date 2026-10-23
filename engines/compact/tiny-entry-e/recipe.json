@@ -77,7 +77,8 @@
     "engines/compact/tiny-a/shipping_readonly.py": "6eefd6502149e620a2b681e15609ae01a4dbf41748dd2fe418c2eea84293d3a5",
     "engines/compact/tiny-entry-a/shipping_condition_bce.py": "9ca7635a6ab95de61a88482d05e37bc926c340259ff53c1d032be622183bfdab",
     "engines/compact/tiny-entry-a/shipping_output_bce.py": "267059f7837338231aeb4ad76608bfc84382493e0bc2de74e2ebb02e77eab687",
-    "engines/compact/tiny-entry-a/shipping_worker_epilogue_bce.py": "e0ab883e0fec895b66b0ef01b5ede056e05fb0bc72472cd8ac64507f2fbf82ce"
+    "engines/compact/tiny-entry-a/shipping_worker_epilogue_bce.py": "e0ab883e0fec895b66b0ef01b5ede056e05fb0bc72472cd8ac64507f2fbf82ce",
+    "engines/compact/tiny-entry-a/shipping_setter_phase_bce.py": "9d1985e0c798b59b553a6bee1176fb4f19f9b053da9ecf4243812370e64591d2"
   },
   "compression": {
     "format": "lzma-alone",
@@ -95,18 +96,18 @@
   "expected": {
     "readable_bytes": 28001,
     "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
-    "source_bytes": 10005,
-    "source_sha256": "e393fd41fbbfa63b98824552883ab8e9f0c650b1a7b7dd157e6f02c748edd0fd",
-    "native_bytes": 26192,
-    "native_sha256": "a5e53c7530a8b0dfab355ec20f3cc1152b8e6a07c9fe41c024f0730f0d8fdcd4",
-    "whole_bytes": 4869,
-    "whole_sha256": "da6bd7762275a3191eafdb10a3428aea78861d60924a3874e7a675d68d4d9be2",
-    "bootstrap_sha256": "759cd660a5cf6719bc6e56b194c71d6d26814096f13774eb7d2806c5ff6c9c60",
+    "source_bytes": 9951,
+    "source_sha256": "cb94c4c661bf00d37bfed7cd9bb0dfd61557fa6dbc5247c782298211ea9ecd4a",
+    "native_bytes": 26168,
+    "native_sha256": "f1f98d67b86272e143b9259657e16d3a15b607b20022361b8a4983cb9d0420f4",
+    "whole_bytes": 4865,
+    "whole_sha256": "8701a8573ef09e0dd192c30ab153bbaffa5c8bb7922ad74fc44bfa1f67351ab3",
+    "bootstrap_sha256": "34a86370a66a82b5763e03f27c792983c751f3c8b116d9164f641f36507ca54e",
     "dev_source_bytes": 21314,
     "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
     "dev_native_bytes": 31376,
     "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
-    "bootstrap_bytes": 11007
+    "bootstrap_bytes": 10953
   },
   "local_input_sha256": {
     "engine.c": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
@@ -1505,6 +1506,59 @@
         "runtime_scope": "new fixed2/TT18 worker epilogue wrapper startup, input/GO/drain/quit/EOF and physical exit only. Startup wake/broadcast/scheduling and fixed-deadline trace may differ. Original final-result/own-flush-before-completion/drain fence remains. Partial-create/join fault injection, epoch-wrap injection, SAN, performance/RAM/strength/full-core/new CI are not claimed; cancellation causality remains unproven."
       },
       "scope": "Fresh same-recipe firstcost gain; normal --dev and unchanged selected pending; no partial-create/join fault/SAN/extra qualification claim"
+    },
+    "setter_phase": {
+      "metadata": {
+        "family": "E",
+        "stage": "late-shipping-fixed2-setter-phase-fusion",
+        "input_bytes": 10005,
+        "input_sha256": "e393fd41fbbfa63b98824552883ab8e9f0c650b1a7b7dd157e6f02c748edd0fd",
+        "output_bytes": 9951,
+        "output_sha256": "cb94c4c661bf00d37bfed7cd9bb0dfd61557fa6dbc5247c782298211ea9ecd4a",
+        "raw_delta": -54,
+        "owned_regions": 2,
+        "protected_gaps": 3,
+        "full_inverse": true,
+        "all_gaps_equal": true,
+        "protected_complement_bytes": 9672,
+        "protected_complement_sha256": "0933c254f3269683c641c57b4f8e6138eca575c94a05ef537bd8188e5943e4bf",
+        "fixed_domain": "current post-worker shipping2/TT18/PLY128; valid 0x88 square and piece0 or signed1..6; private/local Board",
+        "phase_order": "nonzero old n=-1 update -> one int8 mailbox store -> nonzero new n=+1 update -> king binding",
+        "family_updates": "E19 material/position updates then hash; weights/order unchanged",
+        "timing_scope": "private leaf/call/loop structure changes; fixed-deadline search trace and performance equality not claimed",
+        "canonical_DEV": "shipping-only after original worker guard; canonical, DEV and earlier helper admission unchanged",
+        "external_reads": 0,
+        "compiler_codec_engine_executed_by_transform": 0
+      },
+      "firstcost": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-setter-phase-first-cost-20261023-evidence/E/final-index.json",
+        "bytes": 26474,
+        "sha256": "c906b38b849cb4c23057456deefa794ff15c9da59a9db4816e8ceed8f43df50e"
+      },
+      "predecessor_source_sha256": "e393fd41fbbfa63b98824552883ab8e9f0c650b1a7b7dd157e6f02c748edd0fd",
+      "predecessor_native_sha256": "a5e53c7530a8b0dfab355ec20f3cc1152b8e6a07c9fe41c024f0730f0d8fdcd4",
+      "predecessor_whole_bytes": 4869,
+      "normal_status": "PASS",
+      "normal_validation": {
+        "build": {
+          "path": "/home/stemxstudio/rove4k-bce-setter-phase-normal-20261023-v1/E/build/build.json",
+          "bytes": 257083,
+          "sha256": "22bb19870b675c7a51cf8a7037f9fa09bde428f996f481e4eca8c7aa44588014"
+        },
+        "runtime": {
+          "path": "/home/stemxstudio/rove4k-bce-setter-phase-normal-20261023-v1/E/runtime/runtime.json",
+          "bytes": 77561,
+          "sha256": "f453a0714c15a09f983cb8573fa7f0bd417abfa9950d92b7d7abb3bb46bfbb11"
+        },
+        "shipping_reproductions": 2,
+        "DEV_reproductions": 2,
+        "source_native_bootstrap_whole_equal_firstcost": true,
+        "DEV_fullbytes_equal_actual_previous_worker": true,
+        "sessions": 2,
+        "GO_calls": 8,
+        "original_handles_terminal0_reaped_groups_absent_owned0": true,
+        "scope": "selected new-native wrapper startup/GO/drain/quit/EOF only. Actual prior DEV reproduction is diagnostic reference, not shipping-model equivalence. Causality unproven; no extra fault/SAN/fresh/strength/performance/CI."
+      }
     }
   },
   "provenance": {
@@ -4023,5 +4077,58 @@
       "runtime_scope": "new fixed2/TT18 worker epilogue wrapper startup, input/GO/drain/quit/EOF and physical exit only. Startup wake/broadcast/scheduling and fixed-deadline trace may differ. Original final-result/own-flush-before-completion/drain fence remains. Partial-create/join fault injection, epoch-wrap injection, SAN, performance/RAM/strength/full-core/new CI are not claimed; cancellation causality remains unproven."
     },
     "scope": "Fresh same-recipe firstcost gain; normal --dev and unchanged selected pending; no partial-create/join fault/SAN/extra qualification claim"
+  },
+  "setter_phase": {
+    "metadata": {
+      "family": "E",
+      "stage": "late-shipping-fixed2-setter-phase-fusion",
+      "input_bytes": 10005,
+      "input_sha256": "e393fd41fbbfa63b98824552883ab8e9f0c650b1a7b7dd157e6f02c748edd0fd",
+      "output_bytes": 9951,
+      "output_sha256": "cb94c4c661bf00d37bfed7cd9bb0dfd61557fa6dbc5247c782298211ea9ecd4a",
+      "raw_delta": -54,
+      "owned_regions": 2,
+      "protected_gaps": 3,
+      "full_inverse": true,
+      "all_gaps_equal": true,
+      "protected_complement_bytes": 9672,
+      "protected_complement_sha256": "0933c254f3269683c641c57b4f8e6138eca575c94a05ef537bd8188e5943e4bf",
+      "fixed_domain": "current post-worker shipping2/TT18/PLY128; valid 0x88 square and piece0 or signed1..6; private/local Board",
+      "phase_order": "nonzero old n=-1 update -> one int8 mailbox store -> nonzero new n=+1 update -> king binding",
+      "family_updates": "E19 material/position updates then hash; weights/order unchanged",
+      "timing_scope": "private leaf/call/loop structure changes; fixed-deadline search trace and performance equality not claimed",
+      "canonical_DEV": "shipping-only after original worker guard; canonical, DEV and earlier helper admission unchanged",
+      "external_reads": 0,
+      "compiler_codec_engine_executed_by_transform": 0
+    },
+    "firstcost": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-setter-phase-first-cost-20261023-evidence/E/final-index.json",
+      "bytes": 26474,
+      "sha256": "c906b38b849cb4c23057456deefa794ff15c9da59a9db4816e8ceed8f43df50e"
+    },
+    "predecessor_source_sha256": "e393fd41fbbfa63b98824552883ab8e9f0c650b1a7b7dd157e6f02c748edd0fd",
+    "predecessor_native_sha256": "a5e53c7530a8b0dfab355ec20f3cc1152b8e6a07c9fe41c024f0730f0d8fdcd4",
+    "predecessor_whole_bytes": 4869,
+    "normal_status": "PASS",
+    "normal_validation": {
+      "build": {
+        "path": "/home/stemxstudio/rove4k-bce-setter-phase-normal-20261023-v1/E/build/build.json",
+        "bytes": 257083,
+        "sha256": "22bb19870b675c7a51cf8a7037f9fa09bde428f996f481e4eca8c7aa44588014"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-bce-setter-phase-normal-20261023-v1/E/runtime/runtime.json",
+        "bytes": 77561,
+        "sha256": "f453a0714c15a09f983cb8573fa7f0bd417abfa9950d92b7d7abb3bb46bfbb11"
+      },
+      "shipping_reproductions": 2,
+      "DEV_reproductions": 2,
+      "source_native_bootstrap_whole_equal_firstcost": true,
+      "DEV_fullbytes_equal_actual_previous_worker": true,
+      "sessions": 2,
+      "GO_calls": 8,
+      "original_handles_terminal0_reaped_groups_absent_owned0": true,
+      "scope": "selected new-native wrapper startup/GO/drain/quit/EOF only. Actual prior DEV reproduction is diagnostic reference, not shipping-model equivalence. Causality unproven; no extra fault/SAN/fresh/strength/performance/CI."
+    }
   }
 }

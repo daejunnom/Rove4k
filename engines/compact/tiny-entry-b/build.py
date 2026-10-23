@@ -114,6 +114,7 @@ def main():
         condition_sharing=module('entry_BCE_condition_sharing',frozen/'shipping_condition_bce.py').transform_source
         output_sharing=module('entry_BCE_output_sharing',frozen/'shipping_output_bce.py').transform_source
         worker_epilogue=module('entry_BCE_worker_epilogue',frozen/'shipping_worker_epilogue_bce.py').transform_source
+        setter_phase=module('entry_BCE_setter_phase',frozen/'shipping_setter_phase_bce.py').transform_source
         source_package=module('entry_B_source_package',frozen/'source_package.py')
         readonly_template=module('entry_readonly_template',frozen/'shipping_readonly.py').transform_template
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
@@ -183,6 +184,8 @@ def main():
                 common_metadata['output_sharing']=output_metadata
                 data,worker_metadata=worker_epilogue(data,family='B')
                 common_metadata['worker_epilogue']=worker_metadata
+                data,setter_metadata=setter_phase(data,family='B')
+                common_metadata['setter_phase']=setter_metadata
             return data,observations,alpha_metadata,storage_metadata,scope_metadata,core_metadata,input_metadata,order_metadata,walk_metadata,tactical_metadata,type_metadata,global_names_metadata,recapture_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())

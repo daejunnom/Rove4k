@@ -1207,3 +1207,34 @@ Startup broadcast/wake와 고정 deadline의 방문·결과 trace 동일성은 �
 cancellation causality는 unproven이며 partial-create/join fault·epoch wrap 주입,
 SAN·추가 fresh·학습·성능·RAM·기력·전체 core qualification·새 CI는 실행/주장하지 않았다.
 Firstcost는 family당 compile/encode 각1이며 baseline 재측정·추가 후보·cost 재실행은0이다.
+
+
+## Piece setter의 제거·삽입 phase 공유
+
+공통 pure `../tiny-entry-a/shipping_setter_phase_bce.py`를 기존 worker stage 뒤 shipping에만
+연결했다. Source 10005→9951 B, native 26192→26168 B,
+73 B launcher를 포함한 실제 whole 4869→4865 B이다. Whole SHA는
+`8701a8573ef09e0dd192c30ab153bbaffa5c8bb7922ad74fc44bfa1f67351ab3`다.
+
+setter에서만 쓰던 private hash/feature leaf를 합치고 n=-1/+1의 두 phase가 한 본문을
+사용한다. Nonzero piece guard와 remove→mailbox 한 번 저장→add→king 순서, C의 개별
+int16 대입 변환, B bitboard/HCE와 E19 feature식을 유지한다. 실제 square/piece domain의
+정수 범위와 local Board 소유권을 검토했다. 원 helper guard·정본·DEV·SEE/singular·SIMD·
+weights/order·full TT/learners/SMP/rules는 변경 외 영역이다. 두 spans/세 gaps/complement와
+전체 inverse가 정확한 post-worker source로 돌아가며 별도 literal adapter는 필요하지 않다.
+
+호출/loop/branch의 시간은 달라질 수 있어 고정 deadline의 방문 순서·TT interleaving·
+nodes·bestmove 동일성은 주장하지 않는다. F의 동형 setter 후보는 별도 LOSS6/미채택이며
+BCE의 gain을 F/F8에 일반화하거나 합성하지 않았다.
+
+SETTER_PHASE_NORMAL_PASS: ordinary --dev 한 번으로 shipping 두 사본과 DEV 두 사본을
+재생성했다. 새 source/native/bootstrap/whole 전체는 고정 firstcost와 같다. DEV
+source/native 전체는 실제 previous-worker 산출물과 대조해 같음을 확인했으며,
+이것은 진단 reference의 재현이고 새 shipping 모델의 동등성 증거를 대신하지 않는다.
+원 selected는 새 native image에서 quit/EOF 두 session·여덟 GO·3 startup TID,
+private-path 제거·closing bestmove 한 번·reader 완료·물리 종료를 확인했다.
+원 여섯 command handle은 가족직렬로 terminal0/reaped/당시 group 부재/강제정리0/
+owned0으로 마감했다. Runtime SHA는 `f453a0714c15a09f983cb8573fa7f0bd417abfa9950d92b7d7abb3bb46bfbb11`이며
+build/runtime 영수증은 recipe setter_phase.normal_validation에 연결했다.
+Producing 후 recipe/README 차이는 완료 주석뿐이다. Causality는 unproven이며
+추가 SAN/fault/epoch-wrap/fresh/학습/cost 재실행·성능/기력/새 CI는0이다.

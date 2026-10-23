@@ -114,6 +114,7 @@ def main():
         condition_sharing=module('entry_BCE_condition_sharing',frozen/'shipping_condition_bce.py').transform_source
         output_sharing=module('entry_BCE_output_sharing',frozen/'shipping_output_bce.py').transform_source
         worker_epilogue=module('entry_BCE_worker_epilogue',frozen/'shipping_worker_epilogue_bce.py').transform_source
+        setter_phase=module('entry_BCE_setter_phase',frozen/'shipping_setter_phase_bce.py').transform_source
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
         if template.count(marker)!=1 or len(prefix)!=77:raise ValueError('bootstrap recipe changed')
@@ -177,6 +178,8 @@ def main():
                 common_metadata['output_sharing']=output_metadata
                 data,worker_metadata=worker_epilogue(data,family='C')
                 common_metadata['worker_epilogue']=worker_metadata
+                data,setter_metadata=setter_phase(data,family='C')
+                common_metadata['setter_phase']=setter_metadata
             return data,observations,alpha_metadata,scope_metadata,core_metadata,simd_metadata,input_metadata,material_metadata,incremental_metadata,signed_metadata,type_metadata,global_names_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())
