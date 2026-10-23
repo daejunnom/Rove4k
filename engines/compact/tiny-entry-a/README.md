@@ -1,3 +1,40 @@
+# 기본 Loose4511: keyword와 지역 scope의 고정 축약 — 2026-10-24
+
+기본 Loose에만 마지막 shipping `shipping_keyword_scope.py`를 연결했다.
+TT move J와 depth L의 h 지역 선언/참조 네 토큰을 j/k로 바꿔 한 문자 이름을
+비운 뒤, 마지막 include 다음 `J=return`, `L=int` object macro로 실제 keyword
+43/88개를 공유한다. 뒤 inner j/k의 scope는 outer 사용 이후이며 macro 인수,
+문자열화/##, 기존 directive·literal·타입·평가 순서는 보존한다.
+고정136 spans/137 gaps와 전체 inverse는8461에서 이전8821로 돌아가 기존
+output→condition→names/common literal guard를 실제 소비한 뒤 한 번 전진한다.
+
+소스8821→8461(raw−360)와 실제 전체4525→4511(−14B)은 별도 측정이다.
+실제 GCC13 header 포함 CPP token은 네 local 이름의 정확한 위치 역대응 후
+같고 native18576/5fd8f877… 전체 bytes도 같다. Macro table과 진단 source 위치
+동일성을 주장하지 않는다. Compiler·FD0 template·header73·ALONE6/BT2/16KiB/
+nice24와 fixed2/TT18 자원은 그대로이며 codec/name sweep은 없다.
+
+기본 경로만 `not root_policy`에서 적용한다. root-hint/leader-Repair5151,
+root-normal-slots5132, root-pals-feedback6677 세 정책은 기존8821 입력과
+각각의 원 helper/literal pipeline·expected·생산/검증 metadata를 보존한다.
+아래의 Loose4525 비교는 그 정책들이 측정된 당시의 기준선이다. 세 정책의 새
+실행이나 새 변형을 주장하지 않는다. DEV도 새 shipping 단계를 우회한다.
+
+KEYWORD_SCOPE_NORMAL_PASS: default ordinary --dev 한 번에서 shipping 두 사본과
+기존 DEV 두 사본을 재현했다. Source/native/bootstrap/whole 전체는 원 firstcost와
+같고 DEV source/native도 실제 이전 default baseline과 같다. Unchanged selected
+한 번에서 quit/EOF 두 sessions·여덟 GO·3 startup TID·실제 native image·private-path
+제거·closing bestmove·reader 완료·물리 종료를 확인했다. 원 driver/build/selected
+핸들은 WNOWAIT leader identity 유지 상태의 extras[] 확인 후 reap했으며, 종료 당시
+group 부재·강제 정리0·owned0이다. Build SHA `a699b5c93eda7b7e8a5c3378ecdcdff7ba1b3599dfed9d3cd25c68151a536ec5`,
+runtime SHA `b9245b7b9e8b3e1ed61256b7340f9d0acdf030333ce8a3e65eba854c9a947d62`이다. Producing recipe SHA는
+`5cbfe6ace63986eb3b4c3bf8f6c311a0026774394cfcc58cc42f37dfcb7ab2c0`이며 최종 차이는 완료 주석뿐이다.
+세 root 정책은 재실행하지 않았고 원 metadata/expected/pipeline을 보존했다.
+FD 관찰·cancellation causality·시간제 동일성·성능/RAM/기력·추가 SAN/NVC/fault/
+fresh/학습·새 CI는 주장하지 않는다.
+
+---
+
 # Optional compact A full PALS feedback — bounded local execution recorded, 2026-10-24
 
 `--policy root-pals-feedback` adds actual compatible completed NORMAL-slot reuse,

@@ -1319,3 +1319,31 @@ readers 완료·물리 종료를 확인했다. 원 command 두 개는 terminal0/
 강제정리0/owned0으로 닫았다. Runtime SHA `479c096717156a7f4ce0dd0fa500d360e9821da53e8caf68c3cccefc8d924001`.
 Recipe constants.normal_validation에 build/runtime 영수증을 연결했다. 이후 변경은
 완료 주석뿐이며 causality는 unproven이다. 추가 SAN/fault/fresh/학습/기력/성능/새 CI는0이다.
+
+
+## Shipping 단일 int alias — 2026-10-24
+
+마지막 constants 단계 다음에 pure `shipping_int_alias.py`를 적용한다. 원래 독립
+I token이0인 고정 source에서 실제 int keyword99개만 I로 바꾸고 모든 include
+뒤에 `#define I int`14B를 둔다. Source9981→9797(raw−184), 실제 전체4955→4954
+(−1B)이며 둘은 별도 측정이다. 전체 CPP header/code token이 같고 native26112/
+274bf31c… 전체 bytes도 같다. Macro table과 진단 위치는 동일하다고 주장하지 않는다.
+100 spans/101 gaps/전체 inverse는 원9981을 복원하고 기존 constant/setter/earlier
+admission을 먼저 통과한다. DEV와 기존 모델 false flags는 그대로다. 실제 B package는
+고정 소스 hash literal guard 없이 기존 common.source_literal의 raw-bytes-single을
+소비하므로 literal inverse adapter를 추가하지 않았다. 실제 기존 package 함수와
+FD0 template·header73·GCC13 stdc11/Os/pthread·LZMA9e/BT4/64MiB/nice32를 그대로
+사용해 source/bootstrap/EOF/trailing의 Python/CLI 양쪽 복원을 확인했다.
+
+INT_ALIAS_NORMAL_PASS: ordinary --dev 한 번에서 shipping 두 사본과 기존 DEV
+두 사본을 재현했다. Source/native/bootstrap/whole 전체는 원 firstcost와 같고
+DEV source/native도 실제 이전 constants baseline과 같다. Unchanged selected
+한 번에서 quit/EOF 두 sessions·여덟 GO·3 startup TID·실제 native image·private-path
+제거·closing bestmove·reader 완료·물리 종료를 확인했다. 원 driver/build/selected
+핸들은 WNOWAIT leader identity 유지 상태의 extras[] 확인 뒤 reap했으며 종료 당시
+group 부재·강제 정리0·owned0이다. Build SHA `fc97c7435135ebfaa49d80838128093b52c37f5bccb51d0f4e091e67f50cc380`,
+runtime SHA `a45d47fed0632ef536dc2a9186d89da127712f4ccbdd03db535ae2ccb0b2a682`이다. Producing recipe SHA는
+`b3c137086c54f4da26e33c8e0b0665b131b84c78eaa4f4f9b08dc67e5d33775d`이며 최종 recipe/README는 완료 주석만 달라졌다.
+기존 모델 false flags와 DEV 진단 reference의 의미를 보존하며 DEV 재현을 새
+shipping 모델의 oracle로 쓰지 않는다. FD 관찰·cancellation causality·성능/RAM/
+기력·추가 후보/codec/framework/SAN/NVC/fault/fresh/학습·새 CI는0이다.

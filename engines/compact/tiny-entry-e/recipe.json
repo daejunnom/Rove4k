@@ -9,17 +9,13 @@
   },
   "compiler": [
     "cc",
-    "-std=c11",
     "-Os",
-    "-pthread",
-    "-DWORKERS=2",
-    "-DTT_BITS=18",
-    "-DDEV=0",
     "-x",
     "c",
     "-",
     "-o",
-    "x"
+    "x",
+    "-s"
   ],
   "dev_compiler": [
     "cc",
@@ -79,7 +75,8 @@
     "engines/compact/tiny-entry-a/shipping_output_bce.py": "267059f7837338231aeb4ad76608bfc84382493e0bc2de74e2ebb02e77eab687",
     "engines/compact/tiny-entry-a/shipping_worker_epilogue_bce.py": "e0ab883e0fec895b66b0ef01b5ede056e05fb0bc72472cd8ac64507f2fbf82ce",
     "engines/compact/tiny-entry-a/shipping_setter_phase_bce.py": "9d1985e0c798b59b553a6bee1176fb4f19f9b053da9ecf4243812370e64591d2",
-    "engines/compact/tiny-entry-a/shipping_constants_bce.py": "02d0411887e7f04042e4ef94c876c32d2469b6d26f056c63dbf1235a93fc052c"
+    "engines/compact/tiny-entry-a/shipping_constants_bce.py": "02d0411887e7f04042e4ef94c876c32d2469b6d26f056c63dbf1235a93fc052c",
+    "engines/compact/tiny-entry-e/shipping_cross_e.py": "0672f69ef3f2d3e7a1d97213cbe1ae572221354af0d69a4fbfbe85ec9fb34e3d"
   },
   "compression": {
     "format": "lzma-alone",
@@ -97,18 +94,18 @@
   "expected": {
     "readable_bytes": 28001,
     "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
-    "source_bytes": 9866,
-    "source_sha256": "51e1db47b52d2ec12f0573911a923e9fe400c809ac225270a7821137e72122b7",
-    "native_bytes": 26168,
-    "native_sha256": "f1f98d67b86272e143b9259657e16d3a15b607b20022361b8a4983cb9d0420f4",
-    "whole_bytes": 4825,
-    "whole_sha256": "f89a069fa58645bfc3f6411994f0048220ccd00c0624078345296f57a4b0a6b5",
-    "bootstrap_sha256": "3aba86632592b6644495515cfe281b5ebe47bd236d13641408707178877cd9a7",
+    "source_bytes": 9074,
+    "source_sha256": "e818bf407f95d0d028da939d2e57fbda81195dd64ee58d539e72ce768cf2e73f",
+    "native_bytes": 18576,
+    "native_sha256": "802704e687a26e5072afe3af6a3c906d44aea7f636917237b1b1c355467ba5bc",
+    "whole_bytes": 4646,
+    "whole_sha256": "0394497e1994182144cffa9d81d22d948c2913cac37ad60202e9e0e9394a84bc",
+    "bootstrap_sha256": "8ee9afdc733bc350fbf58100a0e65b669ddc6d3abed09a890d771ad2bdf11a26",
     "dev_source_bytes": 21314,
     "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
     "dev_native_bytes": 31376,
     "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
-    "bootstrap_bytes": 10868
+    "bootstrap_bytes": 10028
   },
   "local_input_sha256": {
     "engine.c": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
@@ -162,7 +159,7 @@
     "future_parameter_changes": "not admitted without rebinding source and rederiving integer bounds"
   },
   "qualified_receipt": {
-    "scope": "current fixed E19 continuation-slot and positive-bonus search form; prior full-native identity qualifications are historical ancestry, separate from focused current source semantics and selected normal runtime",
+    "scope": "current E19 selected common A-PVS/runtime variant; external representative model/Board and selected proof recorded separately; prior E19 records remain historical component ancestry, not whole-search/strength equivalence",
     "model19": {
       "first_cost_sha256": "235659d80b5ebc08f5829c1ce36b7e992b188bcbfcb4a57e42d9419d23d9865f",
       "focused_actual_shipping_sha256": "3b1531a9fb64cd0460f93288cb548c2d702d2e2d1f9529ba3b04f1234f7241b6",
@@ -1632,6 +1629,122 @@
         "GO_calls": 8,
         "original_handles_terminal0_reaped_groups_absent_owned0": true,
         "scope": "Unchanged selected current wrapper startup/GO/drain/quit/EOF. Actual DEV remains diagnostic reference; causality unproven. No extra SAN/fault/fresh/strength/performance/CI."
+      }
+    },
+    "cross": {
+      "metadata": {
+        "family": "E",
+        "stage": "e19-mailbox-common-PVS-runtime",
+        "input_bytes": 9866,
+        "input_sha256": "51e1db47b52d2ec12f0573911a923e9fe400c809ac225270a7821137e72122b7",
+        "output_bytes": 9074,
+        "output_sha256": "e818bf407f95d0d028da939d2e57fbda81195dd64ee58d539e72ce768cf2e73f",
+        "raw_delta": -792,
+        "model_id": "e-hand-quadratic-19-1",
+        "logical_coefficients": 19,
+        "physical_slots": 21,
+        "logical19_s16le_sha256": "a5bb11099b62489aca43a011619e15076b0637b2f2e460d89772162965cd5424",
+        "actual_input_model_regions": 5,
+        "model_body_roundtrip": true,
+        "full_inverse": true,
+        "canonical_DEV_unchanged": true,
+        "canonical_regions": 88,
+        "input_partition_gaps": 35,
+        "output_partition_gaps": 35,
+        "scope": "selected E19 Board/PVS/runtime composition; complete model bodies are rebound from the actual previous E output",
+        "policy_note": "E19 model and move ordering retained; selected common search/runtime presentation, not old-E whole search-trace equivalence",
+        "external_reads_compiler_codec_engine": 0,
+        "core_origin_source_sha256": "c8efc687c503e9872e004431af9fd07c07867ebb19a996fb9c4c0f4d6508f529",
+        "model_origin_source_sha256": "51e1db47b52d2ec12f0573911a923e9fe400c809ac225270a7821137e72122b7",
+        "search_policy": "selected full A-PVS common implementation with exact current E19 model; separate search variant"
+      },
+      "bootstrap_metadata": {
+        "input_bytes": 10868,
+        "input_sha256": "3aba86632592b6644495515cfe281b5ebe47bd236d13641408707178877cd9a7",
+        "output_bytes": 10028,
+        "output_sha256": "8ee9afdc733bc350fbf58100a0e65b669ddc6d3abed09a890d771ad2bdf11a26",
+        "actual_previous_literal_and_template_consumed": true,
+        "selected_literal": "triple-double raw bytes after actual common literal validation",
+        "owned_regions": 2,
+        "protected_gaps": 3,
+        "full_inverse": true,
+        "compiler_policy": "selected A flags; old E preprocessor and DEV compiler unchanged",
+        "external_reads_compiler_codec_engine": 0
+      },
+      "external_proof": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e19-mailbox-cross-20261024-evidence/final-index.json",
+        "bytes": 4815,
+        "sha256": "a6624376a08a8c5de853fc8fb44e34a0a853e51ee9bbffe9bea64514e70ae0f1"
+      },
+      "model_fixture": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e19-mailbox-cross-20261024-evidence/fixture-source/final-index.json",
+        "bytes": 11695,
+        "sha256": "c3456d4f609a4b9f0b190ba7d37c42d660ffe89ee03ba58235e681d050ac95b3"
+      },
+      "external_selected": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e19-mailbox-cross-20261024-evidence/selected-runtime/runtime.json",
+        "bytes": 5172,
+        "sha256": "fb770494ee164c986e091001286d7a4743be1359b5d6f6c027d6be747caf1fe6"
+      },
+      "predecessor_expected": {
+        "readable_bytes": 28001,
+        "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+        "source_bytes": 9866,
+        "source_sha256": "51e1db47b52d2ec12f0573911a923e9fe400c809ac225270a7821137e72122b7",
+        "native_bytes": 26168,
+        "native_sha256": "f1f98d67b86272e143b9259657e16d3a15b607b20022361b8a4983cb9d0420f4",
+        "whole_bytes": 4825,
+        "whole_sha256": "f89a069fa58645bfc3f6411994f0048220ccd00c0624078345296f57a4b0a6b5",
+        "bootstrap_sha256": "3aba86632592b6644495515cfe281b5ebe47bd236d13641408707178877cd9a7",
+        "dev_source_bytes": 21314,
+        "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
+        "dev_native_bytes": 31376,
+        "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
+        "bootstrap_bytes": 10868
+      },
+      "predecessor_compiler": [
+        "cc",
+        "-std=c11",
+        "-Os",
+        "-pthread",
+        "-DWORKERS=2",
+        "-DTT_BITS=18",
+        "-DDEV=0",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "x"
+      ],
+      "whole_delta": -179,
+      "normal_status": "PASS",
+      "scope": "Exact current E19 model/ordering with selected full A-PVS/QS/TT/learners/SMP runtime implementation; source/search variant, not lossless whole-engine E or strength equivalence.",
+      "normal_validation": {
+        "build": {
+          "path": "/home/stemxstudio/rove4k-e19-mailbox-cross-normal-20261024-v1/build/build.json",
+          "bytes": 272304,
+          "sha256": "23efd8abe0f789d4cc7fda00200e3e40b86c4664be87eda3d2a5870e68e7df62"
+        },
+        "runtime": {
+          "path": "/home/stemxstudio/rove4k-e19-mailbox-cross-normal-20261024-v1/runtime/runtime.json",
+          "bytes": 86635,
+          "sha256": "2242fddbb838a93d24423d38173ea64a2915f22298566cd19d1be75a43406892"
+        },
+        "shipping_reproductions": 2,
+        "old_DEV_reproductions": 2,
+        "source_native_bootstrap_whole_entire_bytes_equal_to_firstcost": true,
+        "actual_previous_DEV_entire_source_native_equal": true,
+        "selected_sessions": 2,
+        "legal_GO_results": 8,
+        "startup_TIDs_per_session": 3,
+        "native_image_exact": true,
+        "private_path_process_readers_physical_fences": true,
+        "cancellation_causality": "unproven",
+        "original_commands": 2,
+        "original_commands_terminal_reaped_group_absent": true,
+        "forced_cleanup": false,
+        "owned_handles": 0,
+        "scope": "Current E19/common full A-PVS shipping variant only; old DEV is a preserved diagnostic reference, not E19 or strength qualification. No extra model fixture, SAN, fault, fresh, game, performance, or CI run."
       }
     }
   },
@@ -4276,6 +4389,122 @@
       "GO_calls": 8,
       "original_handles_terminal0_reaped_groups_absent_owned0": true,
       "scope": "Unchanged selected current wrapper startup/GO/drain/quit/EOF. Actual DEV remains diagnostic reference; causality unproven. No extra SAN/fault/fresh/strength/performance/CI."
+    }
+  },
+  "cross": {
+    "metadata": {
+      "family": "E",
+      "stage": "e19-mailbox-common-PVS-runtime",
+      "input_bytes": 9866,
+      "input_sha256": "51e1db47b52d2ec12f0573911a923e9fe400c809ac225270a7821137e72122b7",
+      "output_bytes": 9074,
+      "output_sha256": "e818bf407f95d0d028da939d2e57fbda81195dd64ee58d539e72ce768cf2e73f",
+      "raw_delta": -792,
+      "model_id": "e-hand-quadratic-19-1",
+      "logical_coefficients": 19,
+      "physical_slots": 21,
+      "logical19_s16le_sha256": "a5bb11099b62489aca43a011619e15076b0637b2f2e460d89772162965cd5424",
+      "actual_input_model_regions": 5,
+      "model_body_roundtrip": true,
+      "full_inverse": true,
+      "canonical_DEV_unchanged": true,
+      "canonical_regions": 88,
+      "input_partition_gaps": 35,
+      "output_partition_gaps": 35,
+      "scope": "selected E19 Board/PVS/runtime composition; complete model bodies are rebound from the actual previous E output",
+      "policy_note": "E19 model and move ordering retained; selected common search/runtime presentation, not old-E whole search-trace equivalence",
+      "external_reads_compiler_codec_engine": 0,
+      "core_origin_source_sha256": "c8efc687c503e9872e004431af9fd07c07867ebb19a996fb9c4c0f4d6508f529",
+      "model_origin_source_sha256": "51e1db47b52d2ec12f0573911a923e9fe400c809ac225270a7821137e72122b7",
+      "search_policy": "selected full A-PVS common implementation with exact current E19 model; separate search variant"
+    },
+    "bootstrap_metadata": {
+      "input_bytes": 10868,
+      "input_sha256": "3aba86632592b6644495515cfe281b5ebe47bd236d13641408707178877cd9a7",
+      "output_bytes": 10028,
+      "output_sha256": "8ee9afdc733bc350fbf58100a0e65b669ddc6d3abed09a890d771ad2bdf11a26",
+      "actual_previous_literal_and_template_consumed": true,
+      "selected_literal": "triple-double raw bytes after actual common literal validation",
+      "owned_regions": 2,
+      "protected_gaps": 3,
+      "full_inverse": true,
+      "compiler_policy": "selected A flags; old E preprocessor and DEV compiler unchanged",
+      "external_reads_compiler_codec_engine": 0
+    },
+    "external_proof": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e19-mailbox-cross-20261024-evidence/final-index.json",
+      "bytes": 4815,
+      "sha256": "a6624376a08a8c5de853fc8fb44e34a0a853e51ee9bbffe9bea64514e70ae0f1"
+    },
+    "model_fixture": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e19-mailbox-cross-20261024-evidence/fixture-source/final-index.json",
+      "bytes": 11695,
+      "sha256": "c3456d4f609a4b9f0b190ba7d37c42d660ffe89ee03ba58235e681d050ac95b3"
+    },
+    "external_selected": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e19-mailbox-cross-20261024-evidence/selected-runtime/runtime.json",
+      "bytes": 5172,
+      "sha256": "fb770494ee164c986e091001286d7a4743be1359b5d6f6c027d6be747caf1fe6"
+    },
+    "predecessor_expected": {
+      "readable_bytes": 28001,
+      "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+      "source_bytes": 9866,
+      "source_sha256": "51e1db47b52d2ec12f0573911a923e9fe400c809ac225270a7821137e72122b7",
+      "native_bytes": 26168,
+      "native_sha256": "f1f98d67b86272e143b9259657e16d3a15b607b20022361b8a4983cb9d0420f4",
+      "whole_bytes": 4825,
+      "whole_sha256": "f89a069fa58645bfc3f6411994f0048220ccd00c0624078345296f57a4b0a6b5",
+      "bootstrap_sha256": "3aba86632592b6644495515cfe281b5ebe47bd236d13641408707178877cd9a7",
+      "dev_source_bytes": 21314,
+      "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
+      "dev_native_bytes": 31376,
+      "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
+      "bootstrap_bytes": 10868
+    },
+    "predecessor_compiler": [
+      "cc",
+      "-std=c11",
+      "-Os",
+      "-pthread",
+      "-DWORKERS=2",
+      "-DTT_BITS=18",
+      "-DDEV=0",
+      "-x",
+      "c",
+      "-",
+      "-o",
+      "x"
+    ],
+    "whole_delta": -179,
+    "normal_status": "PASS",
+    "scope": "Exact current E19 model/ordering with selected full A-PVS/QS/TT/learners/SMP runtime implementation; source/search variant, not lossless whole-engine E or strength equivalence.",
+    "normal_validation": {
+      "build": {
+        "path": "/home/stemxstudio/rove4k-e19-mailbox-cross-normal-20261024-v1/build/build.json",
+        "bytes": 272304,
+        "sha256": "23efd8abe0f789d4cc7fda00200e3e40b86c4664be87eda3d2a5870e68e7df62"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-e19-mailbox-cross-normal-20261024-v1/runtime/runtime.json",
+        "bytes": 86635,
+        "sha256": "2242fddbb838a93d24423d38173ea64a2915f22298566cd19d1be75a43406892"
+      },
+      "shipping_reproductions": 2,
+      "old_DEV_reproductions": 2,
+      "source_native_bootstrap_whole_entire_bytes_equal_to_firstcost": true,
+      "actual_previous_DEV_entire_source_native_equal": true,
+      "selected_sessions": 2,
+      "legal_GO_results": 8,
+      "startup_TIDs_per_session": 3,
+      "native_image_exact": true,
+      "private_path_process_readers_physical_fences": true,
+      "cancellation_causality": "unproven",
+      "original_commands": 2,
+      "original_commands_terminal_reaped_group_absent": true,
+      "forced_cleanup": false,
+      "owned_handles": 0,
+      "scope": "Current E19/common full A-PVS shipping variant only; old DEV is a preserved diagnostic reference, not E19 or strength qualification. No extra model fixture, SAN, fault, fresh, game, performance, or CI run."
     }
   }
 }

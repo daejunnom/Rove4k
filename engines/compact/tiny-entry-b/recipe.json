@@ -83,7 +83,8 @@
     "engines/compact/tiny-entry-a/shipping_output_bce.py": "267059f7837338231aeb4ad76608bfc84382493e0bc2de74e2ebb02e77eab687",
     "engines/compact/tiny-entry-a/shipping_worker_epilogue_bce.py": "e0ab883e0fec895b66b0ef01b5ede056e05fb0bc72472cd8ac64507f2fbf82ce",
     "engines/compact/tiny-entry-a/shipping_setter_phase_bce.py": "9d1985e0c798b59b553a6bee1176fb4f19f9b053da9ecf4243812370e64591d2",
-    "engines/compact/tiny-entry-a/shipping_constants_bce.py": "02d0411887e7f04042e4ef94c876c32d2469b6d26f056c63dbf1235a93fc052c"
+    "engines/compact/tiny-entry-a/shipping_constants_bce.py": "02d0411887e7f04042e4ef94c876c32d2469b6d26f056c63dbf1235a93fc052c",
+    "engines/compact/tiny-entry-b/shipping_int_alias.py": "a4b7fb837adf9c4e9087577d60836f8b126733a15f8735ae16ee09f0df606164"
   },
   "compression": {
     "format": "lzma-alone",
@@ -100,16 +101,16 @@
   },
   "expected": {
     "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
-    "source_bytes": 9981,
-    "source_sha256": "b6b3404cf790b64776c0d703af878e17e0ff90222143500c5dc77fab503df5e9",
+    "source_bytes": 9797,
+    "source_sha256": "6a29540d10a0b1e50650e197d485165851dd6d6b882faa31be3ecdc690f7ec14",
     "native_bytes": 26112,
     "native_sha256": "274bf31cea5aced3f0c636c87c66bebc8845c64b2ddfa25dcc309314c2fa972d",
-    "whole_bytes": 4955,
-    "whole_sha256": "bc21207f6f80ef68cce87e2440a299a72d169b607b326454f6ac3f401f5e8964",
+    "whole_bytes": 4954,
+    "whole_sha256": "990559be5bd3ae96ebc9dff28d5780f65ec8e6184aa9fe6b326c3118229d7409",
     "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
     "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
-    "bootstrap_sha256": "a52792c750da5cf7cc2835c80757a81f83bab4132b9dca23e58071850b8b6c4b",
-    "bootstrap_bytes": 11010
+    "bootstrap_sha256": "1ea8e7cd249c6b8648eeb579635fa5efc1ecc36467d98ed59d25b7d15919936a",
+    "bootstrap_bytes": 10826
   },
   "local_input_sha256": {
     "engine.c": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
@@ -1795,6 +1796,103 @@
         "GO_calls": 8,
         "original_handles_terminal0_reaped_groups_absent_owned0": true,
         "scope": "Unchanged selected current wrapper startup/GO/drain/quit/EOF. Actual DEV remains diagnostic reference; causality unproven. No extra SAN/fault/fresh/strength/performance/CI."
+      }
+    },
+    "int_alias": {
+      "firstcost": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-b-single-int-first-cost-20261024-evidence/final-index.json",
+        "bytes": 19708,
+        "sha256": "ab20d5a8db8fbc9a3bd4d5bbe82f8ac436274e33b9008f2d5fd64ccd1ee2e1f9"
+      },
+      "normal_status": "PASS",
+      "normal_validation": {
+        "status": "PASS one ordinary --dev and unchanged selected",
+        "build": {
+          "path": "/home/stemxstudio/rove4k-b-single-int-normal-20261024-v1/build/build.json",
+          "bytes": 268469,
+          "sha256": "fc97c7435135ebfaa49d80838128093b52c37f5bccb51d0f4e091e67f50cc380"
+        },
+        "runtime": {
+          "path": "/home/stemxstudio/rove4k-b-single-int-normal-20261024-v1/runtime/runtime.json",
+          "bytes": 93369,
+          "sha256": "a45d47fed0632ef536dc2a9186d89da127712f4ccbdd03db535ae2ccb0b2a682"
+        },
+        "supervisor": {
+          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-b-single-int-promotion-20261024-evidence/normal.json",
+          "bytes": 45615,
+          "sha256": "d83cdd2045ddec8a003d7e337319cce41402bd6dfaea03c6c7cd7679bd158718"
+        },
+        "original_exit": {
+          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-b-single-int-promotion-20261024-evidence/physical-exit.json",
+          "bytes": 2257,
+          "sha256": "a04869808c6d67127c7f6499fcef68d43e6486e95087a0113a22f7c02f7cb7fc"
+        },
+        "producing_recipe": {
+          "path": "/home/stemxstudio/rove4k-b-single-int-normal-20261024-v1/build/inputs/recipe.json",
+          "bytes": 232015,
+          "sha256": "b3c137086c54f4da26e33c8e0b0665b131b84c78eaa4f4f9b08dc67e5d33775d"
+        },
+        "producing_readme": {
+          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-b-single-int-promotion-20261024-evidence/producing/engines/compact/tiny-entry-b/README.md",
+          "bytes": 87870,
+          "sha256": "5f31c92565920e474929e563394227459afabf6a81ff7a09dbb9ac106d44d9ab"
+        },
+        "shipping_reproductions": 2,
+        "unchanged_DEV_reproductions": 2,
+        "full_firstcost_tuple_equal": true,
+        "actual_prior_DEV_entire_equal": true,
+        "selected_sessions": [
+          {
+            "termination": "quit",
+            "GO_calls": 4,
+            "image": {
+              "exe": "/tmp/r4-xi9gzxm8/x (deleted)",
+              "image_sha256": "274bf31cea5aced3f0c636c87c66bebc8845c64b2ddfa25dcc309314c2fa972d",
+              "private_path_absent": true,
+              "startup_tids": [
+                717,
+                729,
+                730
+              ],
+              "children_by_tid": {
+                "729": [],
+                "730": [],
+                "717": []
+              }
+            },
+            "returncode": 0,
+            "process_absent": true,
+            "readers_finished": true,
+            "one_closing_bestmove": true
+          },
+          {
+            "termination": "EOF",
+            "GO_calls": 4,
+            "image": {
+              "exe": "/tmp/r4-h7jls5dv/x (deleted)",
+              "image_sha256": "274bf31cea5aced3f0c636c87c66bebc8845c64b2ddfa25dcc309314c2fa972d",
+              "private_path_absent": true,
+              "startup_tids": [
+                731,
+                749,
+                750
+              ],
+              "children_by_tid": {
+                "731": [],
+                "749": [],
+                "750": []
+              }
+            },
+            "returncode": 0,
+            "process_absent": true,
+            "readers_finished": true,
+            "one_closing_bestmove": true
+          }
+        ],
+        "GO_calls": 8,
+        "original_handles_terminal_reaped_anchored_group_absent_forced0_owned0": true,
+        "source_closure_stable_during_commands": true,
+        "scope": "Actual B4954 wrapper startup/GO/drain/quit/EOF and physical exit. Entire preceding native bytes retained. Existing legal-LVA shipping and distinct old full-minimax DEV model flags preserved; actual DEV reproduction is diagnostic reference only. No FD observer/cancellation causality/performance/RAM/strength/extra qualification claim."
       }
     }
   },
@@ -4431,6 +4529,148 @@
       "GO_calls": 8,
       "original_handles_terminal0_reaped_groups_absent_owned0": true,
       "scope": "Unchanged selected current wrapper startup/GO/drain/quit/EOF. Actual DEV remains diagnostic reference; causality unproven. No extra SAN/fault/fresh/strength/performance/CI."
+    }
+  },
+  "int_alias": {
+    "helper": "engines/compact/tiny-entry-b/shipping_int_alias.py",
+    "helper_sha256": "a4b7fb837adf9c4e9087577d60836f8b126733a15f8735ae16ee09f0df606164",
+    "metadata": {
+      "family": "B",
+      "stage": "last-shipping-single-int-alias",
+      "input_bytes": 9981,
+      "input_sha256": "b6b3404cf790b64776c0d703af878e17e0ff90222143500c5dc77fab503df5e9",
+      "output_bytes": 9797,
+      "output_sha256": "6a29540d10a0b1e50650e197d485165851dd6d6b882faa31be3ecdc690f7ec14",
+      "raw_delta": -184,
+      "keyword": "int",
+      "alias": "I",
+      "keyword_occurrences": 99,
+      "new_definition_bytes": 14,
+      "owned_regions": 100,
+      "protected_gaps": 101,
+      "full_inverse": true,
+      "all_original_directives_literals_macro_arguments_protected": true,
+      "actual_full_header_code_CPP_tokens_equal": true,
+      "actual_entire_native_equal": true,
+      "macro_table_and_diagnostic_locations_equal": false,
+      "model_scope": "preceding shipping legal-LVA/full-key TT/search/learners unchanged; old DEV is the distinct diagnostic reference, not a new shipping equivalence oracle",
+      "DEV": "caller bypasses all shipping stages; earlier helper/admission flags preserved",
+      "literal": "original common.source_literal admits candidate raw bytes unchanged; no fixed-source literal guard exists in B package, so no literal inverse adapter is required",
+      "external_reads": 0,
+      "runtime_claimed_by_transform": false
+    },
+    "predecessor_expected": {
+      "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+      "source_bytes": 9981,
+      "source_sha256": "b6b3404cf790b64776c0d703af878e17e0ff90222143500c5dc77fab503df5e9",
+      "native_bytes": 26112,
+      "native_sha256": "274bf31cea5aced3f0c636c87c66bebc8845c64b2ddfa25dcc309314c2fa972d",
+      "whole_bytes": 4955,
+      "whole_sha256": "bc21207f6f80ef68cce87e2440a299a72d169b607b326454f6ac3f401f5e8964",
+      "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
+      "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
+      "bootstrap_sha256": "a52792c750da5cf7cc2835c80757a81f83bab4132b9dca23e58071850b8b6c4b",
+      "bootstrap_bytes": 11010
+    },
+    "source_proof": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-b-single-int-alias-source-20261024-evidence/source-proof.json",
+      "bytes": 38342,
+      "sha256": "97b936707126324ffcff94ad1c0c8b55cfc3e995bf47a48f87b36621eacbcc26"
+    },
+    "firstcost": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-b-single-int-first-cost-20261024-evidence/final-index.json",
+      "bytes": 19708,
+      "sha256": "ab20d5a8db8fbc9a3bd4d5bbe82f8ac436274e33b9008f2d5fd64ccd1ee2e1f9"
+    },
+    "normal_status": "PASS",
+    "normal_validation": {
+      "status": "PASS one ordinary --dev and unchanged selected",
+      "build": {
+        "path": "/home/stemxstudio/rove4k-b-single-int-normal-20261024-v1/build/build.json",
+        "bytes": 268469,
+        "sha256": "fc97c7435135ebfaa49d80838128093b52c37f5bccb51d0f4e091e67f50cc380"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-b-single-int-normal-20261024-v1/runtime/runtime.json",
+        "bytes": 93369,
+        "sha256": "a45d47fed0632ef536dc2a9186d89da127712f4ccbdd03db535ae2ccb0b2a682"
+      },
+      "supervisor": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-b-single-int-promotion-20261024-evidence/normal.json",
+        "bytes": 45615,
+        "sha256": "d83cdd2045ddec8a003d7e337319cce41402bd6dfaea03c6c7cd7679bd158718"
+      },
+      "original_exit": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-b-single-int-promotion-20261024-evidence/physical-exit.json",
+        "bytes": 2257,
+        "sha256": "a04869808c6d67127c7f6499fcef68d43e6486e95087a0113a22f7c02f7cb7fc"
+      },
+      "producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-b-single-int-normal-20261024-v1/build/inputs/recipe.json",
+        "bytes": 232015,
+        "sha256": "b3c137086c54f4da26e33c8e0b0665b131b84c78eaa4f4f9b08dc67e5d33775d"
+      },
+      "producing_readme": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-b-single-int-promotion-20261024-evidence/producing/engines/compact/tiny-entry-b/README.md",
+        "bytes": 87870,
+        "sha256": "5f31c92565920e474929e563394227459afabf6a81ff7a09dbb9ac106d44d9ab"
+      },
+      "shipping_reproductions": 2,
+      "unchanged_DEV_reproductions": 2,
+      "full_firstcost_tuple_equal": true,
+      "actual_prior_DEV_entire_equal": true,
+      "selected_sessions": [
+        {
+          "termination": "quit",
+          "GO_calls": 4,
+          "image": {
+            "exe": "/tmp/r4-xi9gzxm8/x (deleted)",
+            "image_sha256": "274bf31cea5aced3f0c636c87c66bebc8845c64b2ddfa25dcc309314c2fa972d",
+            "private_path_absent": true,
+            "startup_tids": [
+              717,
+              729,
+              730
+            ],
+            "children_by_tid": {
+              "729": [],
+              "730": [],
+              "717": []
+            }
+          },
+          "returncode": 0,
+          "process_absent": true,
+          "readers_finished": true,
+          "one_closing_bestmove": true
+        },
+        {
+          "termination": "EOF",
+          "GO_calls": 4,
+          "image": {
+            "exe": "/tmp/r4-h7jls5dv/x (deleted)",
+            "image_sha256": "274bf31cea5aced3f0c636c87c66bebc8845c64b2ddfa25dcc309314c2fa972d",
+            "private_path_absent": true,
+            "startup_tids": [
+              731,
+              749,
+              750
+            ],
+            "children_by_tid": {
+              "731": [],
+              "749": [],
+              "750": []
+            }
+          },
+          "returncode": 0,
+          "process_absent": true,
+          "readers_finished": true,
+          "one_closing_bestmove": true
+        }
+      ],
+      "GO_calls": 8,
+      "original_handles_terminal_reaped_anchored_group_absent_forced0_owned0": true,
+      "source_closure_stable_during_commands": true,
+      "scope": "Actual B4954 wrapper startup/GO/drain/quit/EOF and physical exit. Entire preceding native bytes retained. Existing legal-LVA shipping and distinct old full-minimax DEV model flags preserved; actual DEV reproduction is diagnostic reference only. No FD observer/cancellation causality/performance/RAM/strength/extra qualification claim."
     }
   }
 }

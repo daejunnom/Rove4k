@@ -56,13 +56,13 @@ def main():
     if recipe['format']!=1 or recipe['family']!='E' or recipe['profile']!={'workers':2,'tt_bits':18,'ply':128,'dev_default':False}:
         raise ValueError('unsupported E entry recipe/profile')
     flags=['cc','-std=c11','-Os','-pthread','-DWORKERS=2','-DTT_BITS=18']
-    if recipe['compiler']!=flags+['-DDEV=0','-x','c','-','-o','x'] or recipe['dev_compiler']!=flags+['-DDEV=1','-x','c','-','-o','x'] or recipe['preprocessor']!=flags:
+    if recipe['compiler']!=['cc','-Os','-x','c','-','-o','x','-s'] or recipe['dev_compiler']!=flags+['-DDEV=1','-x','c','-','-o','x'] or recipe['preprocessor']!=flags:
         raise ValueError('fixed E compiler or resource recipe changed')
     compression={'format': 'lzma-alone', 'filter': 'LZMA1', 'preset': 9, 'extreme': True, 'lc': 2, 'lp': 0, 'pb': 0, 'check': 'NONE', 'mf': 'BT4', 'dictionary_bytes': 67108864, 'nice_len': 32}
     if recipe['compression']!=compression:
         raise ValueError('fixed E compression recipe changed')
     out.mkdir(parents=True);frozen=out/'inputs';frozen.mkdir()
-    report={'complete':False,'scope':'maintained E19 shipping regeneration; unchanged DEV21 is reference ancestry, not E19 model proof',
+    report={'complete':False,'scope':'maintained E19 with selected full common A-PVS/runtime source; separate search variant; unchanged DEV21 is reference ancestry',
             'resources':recipe['profile'],'inputs':{},'attempts':[],
             'qualified_receipt_reuse':recipe['qualified_receipt'],'shipping_model':recipe['model'],'diagnostic_reference_model':recipe['diagnostic_reference_model'],
             'tools':{name:subprocess.check_output(command,text=True).splitlines()[0] for name,command in
@@ -109,6 +109,7 @@ def main():
         worker_epilogue=module('entry_BCE_worker_epilogue',frozen/'shipping_worker_epilogue_bce.py').transform_source
         setter_phase=module('entry_BCE_setter_phase',frozen/'shipping_setter_phase_bce.py').transform_source
         constants=module('entry_BCE_constants',frozen/'shipping_constants_bce.py').transform_source
+        cross=module('entry_E_mailbox_cross',frozen/'shipping_cross_e.py')
         alpha=module('entry_fixed_shipping_alpha',frozen/'fixed_shipping_alpha.py').transform_source
         scope=module('entry_fixed_scope_names',frozen/'shipping_scope.py').transform_source
         core=module('entry_fixed_shipping_core',frozen/'shipping_core.py').transform_source
@@ -182,9 +183,17 @@ def main():
                 common_metadata['setter_phase']=setter_metadata
                 data,constants_metadata=constants(data,family='E')
                 common_metadata['constants']=constants_metadata
+                data,cross_metadata=cross.transform_source(data,compact=compact)
+                common_metadata['cross']=cross_metadata
             return data,observations,alpha_metadata,scope_metadata,core_metadata,input_metadata,model_metadata,type_metadata,global_names_metadata,common_metadata
         def package(source):
-            expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())
+            before=cross.restore_source(source,compact=compact)
+            old_expression,_=common.source_literal(before,literal)
+            previous=template.replace(marker,old_expression.encode())
+            expression,_=common.source_literal(source,literal)
+            script,bootstrap_metadata=cross.transform_bootstrap(previous,before=before,source=source,
+                old_expression=old_expression,expression=expression,compact=compact)
+            report['cross_bootstrap']=bootstrap_metadata
             ast.parse(script)
             data=prefix+lzma.compress(script,format=lzma.FORMAT_ALONE,check=lzma.CHECK_NONE,
                                      filters=[{'id':lzma.FILTER_LZMA1,'preset':9|lzma.PRESET_EXTREME,

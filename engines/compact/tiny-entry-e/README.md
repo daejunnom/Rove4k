@@ -1258,3 +1258,32 @@ readers 완료·물리 종료를 확인했다. 원 command 두 개는 terminal0/
 강제정리0/owned0으로 닫았다. Runtime SHA `b4c0fb9d4b09d1ea5676a71e9bb9db4209d9ca1b116bb79fe8efbda8b458f2b8`.
 Recipe constants.normal_validation에 build/runtime 영수증을 연결했다. 이후 변경은
 완료 주석뿐이며 causality는 unproven이다. 추가 SAN/fault/fresh/학습/기력/성능/새 CI는0이다.
+
+## E19와 공통 mailbox PVS/runtime의 정식 결합
+
+현재 E도 mailbox이므로 bitboard 제거는 이 변경의 근거가 아니다. 새 pure
+shipping_cross_e.py는 기존9866B source까지 모든 guard를 먼저 소비하고, 실제
+weights/Q/phase-setter/S/R 다섯 영역을 재결합한다. 나머지 역할별 readable C
+정본은 복구한 full A-PVS/QS/TT/history/continuation/correction/persistent SMP
+구현이다. 이는 E19 모델·ordering을 유지하는 별도 검색 variant이며 기존 E
+전체 trace·기력의 동등성을 뜻하지 않는다. 정본 engine.c·model19.h와 old DEV21
+참조, 이전 guards는 유지한다. 외부 artifact와 A 모듈을 빌드 때 읽지 않는다.
+
+9074B source / 18576B native / 10028B bootstrap / 4646B whole이다.
+현재4825B보다179B 작으며4096까지550B 남았다. Whole SHA는
+`0394497e1994182144cffa9d81d22d948c2913cac37ad60202e9e0e9394a84bc`.
+Packaging은 실제 이전 source literal과 E template를 소비해 만든 old script에서
+컴파일 argv와 source literal 두 곳만 바꾸며 전체 역변환·보호 gap을 검사한다.
+Shipping compiler는 선택된 A flags, 전처리·DEV compiler·고정 자원·codec은 그대로다.
+외부 대표 fixture는 모델·Board·특수 move와 실제 model 소비를 통과했고, 별도
+외부 selected는 두 session/8 GO를 통과했다. 이는 이번 maintained 재현과 분리한다.
+정식 ordinary --dev에서 shipping 두 사본과 실제 이전 DEV 두 사본을 재현했다.
+9074B source/18576B native/10028B bootstrap/4646B whole 전체 바이트는
+고정 firstcost와 같고, DEV 전체 source/native는 실제 이전 DEV와 같다.
+기존 selected 검증의 quit·EOF 두 session/8 GO, session별 시작 TID 3개,
+native image·private path·reader·process 종료 fence를 통과했다.
+원 두 명령은 terminal/reaped/group 부재, forced cleanup 0/owned handle 0이다.
+Runtime SHA `2242fddbb838a93d24423d38173ea64a2915f22298566cd19d1be75a43406892`.
+취소 인과관계는 unproven으로 두며, 이 재현을 기력·성능·SAN·fault·fresh·새 CI
+검증으로 확대하지 않는다. 생산 당시 recipe/README와 완료 주석 후 파일 핀은
+외부 promotion 증거에서 구분한다.
