@@ -1,4 +1,4 @@
-# Optional compact A full PALS feedback — implementation in qualification, 2026-10-24
+# Optional compact A full PALS feedback — bounded local execution recorded, 2026-10-24
 
 `--policy root-pals-feedback` adds actual compatible completed NORMAL-slot reuse,
 proposal reply selection, a constrained COUNTERREPLY, and same-first unrestricted
@@ -25,12 +25,32 @@ ordinary LMR variation are allowed; this is not formal minimax or identical
 private-function equivalence. Diagnostic TT behavior follows C's unrestricted
 grandchild contract, not Rust's isolated whole clause.
 
-Shipping/DEV ordinary reproduction, actual selected wrapper and observed full
-feedback execution are pending below this source checkpoint. Source helper
-`runtime_qualified:false` describes the pure transform itself. No existing
-NORMAL/hint runtime result is relabeled as a PALS runtime test. Fresh forwarding
-has not been changed or executed in this lane; the named builder/verifier policy
-is the maintained execution entry. Shared test assertions remain unchanged.
+The new policy passed one ordinary `--dev` build (two identical shipping tuples
+and two unchanged DEV tuples) and the unchanged selected body in quit/EOF two
+sessions, eight legal GO epochs, actual three TIDs and physical native exit.
+The actual whole remains 6677 B. FD inspection was not performed by this verifier.
+
+One fatal UBSan compile and two bounded actual-main runs used an observational
+copy of the real policy, with no score, slot or TT injection. Aggregate direct
+NORMAL accepts=1154, completed bests from direct slots=12,
+actual counter searches=40, refutations=0,
+Repair searches=0, original-reply rechecks=0.
+The source contract for same-first unrestricted Repair is implemented; zero
+natural branches in these runs remain unobserved and are not qualified by source
+review or the earlier NORMAL observer. Helper TT payload writes and recorded
+drain/job-reuse violations were zero. Original process handles reached terminal,
+reap, pipe-reader EOF/join and group absence without forced cleanup.
+
+Producing recipe: `5e6ed43b69728d4c96ccc1bb28d21f10a0cee7e4e3c5658b246f4e3c6bebca04`.
+Normal receipt: `36949aa865ecfcda2bd6880eea4a87c479e34e264beff7fccd0aac1dfb4030aa`.
+Initial focused receipt: `101d47190c1bf2007ee89ece72758e93bfc8b17a60ad4dd95f0d76d2145812d4`.
+Final bounded followup: `772e8680526dfe270d3559ffe584bf027e491660cc8b7475a3df4aad9f793e92`.
+
+Source helper `runtime_qualified:false` still describes the pure transform.
+The observer can affect scheduling and layout; strength, performance, identical
+search and formal minimax are untested. Root separately owns fresh CLI and CI
+registration; no fresh run or CI success is claimed here. No further coverage
+search was run after this one fixed deeper followup. Shared assertions are unchanged.
 
 # Optional fixed2 A same-A NORMAL completed-slot reuse
 

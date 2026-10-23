@@ -265,7 +265,7 @@
     "check": "NONE",
     "mf": "BT2",
     "dictionary_bytes": 16384,
-    "nice_len": 16
+    "nice_len": 24
   },
   "expected": {
     "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
@@ -273,8 +273,8 @@
     "source_sha256": "62784180e34291403f2ad32a314bd83fb9de9167d820960ffe0099402879a8dc",
     "native_bytes": 18576,
     "native_sha256": "a9e5d6484a04af89667b67f6fa14fb6bdb40171f4f9b68740d12230fd15b89e4",
-    "whole_bytes": 4353,
-    "whole_sha256": "957e04b4a998a786afdeae7a34b29a4770e7b9142204afa3025f7afe94d1637c",
+    "whole_bytes": 4350,
+    "whole_sha256": "d08ec83a3cfe92ebc693f3782f9505a1a8a11c4aba12f98ec8e6f50ff407422d",
     "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
     "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
     "bootstrap_sha256": "0387591f5d101b918dd93d657542c0a1e8c5931673301643a677a001e321f6db",
@@ -6777,6 +6777,96 @@
       "forced_cleanup_failures_retries_owned": 0,
       "F8_runs": 0,
       "post_execution_changes": "recipe/README annotations only; producing helper/build/expected unchanged"
+    }
+  },
+  "fixed_nice24": {
+    "stage": "full fixed codec only; source/native/bootstrap/DEV/optional policies unchanged",
+    "previous_expected": {
+      "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+      "source_bytes": 8153,
+      "source_sha256": "62784180e34291403f2ad32a314bd83fb9de9167d820960ffe0099402879a8dc",
+      "native_bytes": 18576,
+      "native_sha256": "a9e5d6484a04af89667b67f6fa14fb6bdb40171f4f9b68740d12230fd15b89e4",
+      "whole_bytes": 4353,
+      "whole_sha256": "957e04b4a998a786afdeae7a34b29a4770e7b9142204afa3025f7afe94d1637c",
+      "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
+      "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
+      "bootstrap_sha256": "0387591f5d101b918dd93d657542c0a1e8c5931673301643a677a001e321f6db",
+      "semantic_readable_bytes": 25720,
+      "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
+      "dev_source_bytes": 19488,
+      "dev_native_bytes": 26984,
+      "input_profile_readable_bytes": 28587,
+      "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
+      "bootstrap_bytes": 9075
+    },
+    "comparison": [
+      {
+        "nice_len": 24,
+        "whole_bytes": 4350,
+        "whole_sha256": "d08ec83a3cfe92ebc693f3782f9505a1a8a11c4aba12f98ec8e6f50ff407422d",
+        "delta": -3
+      },
+      {
+        "nice_len": 32,
+        "whole_bytes": 4354,
+        "whole_sha256": "028fb0d225463570a2e52d62af8e8ff89791e9ff950dc81555922700b1b87b94",
+        "delta": 1
+      }
+    ],
+    "baseline_compile_encode_native_engine_runs": 0,
+    "encodes": 2,
+    "CLI_restorations": 2,
+    "strict_Python_fullbytes_EOF_unused0": true,
+    "firstcost_index": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-nice24-32-cost-20261024-evidence/final-index.json",
+      "sha256": "138b0dda118d8b6147335329af2e77db6efb3738d31a4eb1ccaede62f6c1f24f"
+    },
+    "normal_validation_pending": false,
+    "F8_incoming_builder_pin_impact": "builder code hash changes; separate F8 owner must explicitly readmit; its codec not automatically changed",
+    "normal_validation": {
+      "status": "PASS oneordinary--dev +oneunchangedselected",
+      "actual_root": "/home/stemxstudio/rove4k-f-nice24-normal-20261024-v1",
+      "normal_receipt": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-nice24-promotion-20261024-evidence/normal.json",
+        "bytes": 5981,
+        "sha256": "8e94e6349e1ba7b702eead264312f853b678cbc435c85474ce5b49199c5c8ada"
+      },
+      "producing_recipe": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-nice24-promotion-20261024-evidence/producing/recipe.json",
+        "bytes": 359405,
+        "sha256": "9ddf7e02400e398112962bcb856c9cb762bf2248e87112543d3766210ff9e6ba"
+      },
+      "producing_builder": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-nice24-promotion-20261024-evidence/producing/build.py",
+        "bytes": 39571,
+        "sha256": "db94730b5aa1ec60f1058f200671e6690bacb2ef23742aab70e9b1b22d45c6a2"
+      },
+      "build": {
+        "path": "/home/stemxstudio/rove4k-f-nice24-normal-20261024-v1/full/build/build.json",
+        "bytes": 271281,
+        "sha256": "57bc35cd5c65a39c52a5d3c865bcd16a7f675014941f7e2efb5e13035ac37d68"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-f-nice24-normal-20261024-v1/full/runtime/runtime.json",
+        "bytes": 76898,
+        "sha256": "a3efedfc6842f9cd16d2f16dfd9faf291ee09979e4d3edc752296e7230efd633"
+      },
+      "shipping_reproductions": 2,
+      "unchanged_DEV_reproductions": 2,
+      "source_native_bootstrap_entire_predecessor_equal": true,
+      "actual_whole_nice24_cost_exact": true,
+      "quit_EOF_sessions": 2,
+      "legal_GO_epochs": 8,
+      "startup_TIDs": 3,
+      "image_private_cleanup_readers_physical_exit0": true,
+      "FD_inspection_claimed": false,
+      "cancellation_causal_link": "unproven",
+      "optional_builds": 0,
+      "F8_runs": 0,
+      "commands_terminal0_originalgroup_settled_before_reap": 2,
+      "failures_forced_retries_owned": 0,
+      "post_execution_changes": "recipe and README completion annotations only; producing builder/expected/bootstrap/source/native unchanged"
     }
   }
 }

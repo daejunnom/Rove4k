@@ -1,3 +1,32 @@
+# Maintained F full4350 — fixed nice24 codec, 2026-10-24
+
+The one fixed full-profile LZMA1 nice length is24, replacing16. Two separately
+measured recipes on the exact9075-byte bootstrap gave4350 (nice24, −3) and
+4354 (nice32, +1 loss retained). Source8153/native18576/bootstrap9075/header73,
+preset6/BT2/dict16KiB/lc2lp0pb0 and all engine/resource/input contracts stay
+unchanged. No automatic codec portfolio or new runtime option is introduced.
+This whole4350 file is254 B above4096 and is not complete4KiB acceptance.
+
+Both cost candidates strictly restored all bootstrap bytes in Python and CLI.
+There was no baseline encode/native compilation/engine execution at cost.
+One ordinary --dev invocation reproduced shipping2 to the exact4350 firstcost
+and unchanged DEV2. Actual C8153, native18576 and bootstrap9075 remain entirely
+predecessor-byte-equal. The unchanged selected verifier passed new4350 quit/EOF
+2 sessions,8 legal GO epochs and stable3 startup TIDs; exact native image,
+private cleanup, reader completion and physical process exit0 were observed.
+Cancellation causality remains unproven; no FD-list inspection is claimed.
+Both original commands returned0 and were reaped after original-group members
+were absent; failures/forced cleanup/retries/owned handles0. No new optional
+build/runtime was run;4319/4045 expected bytes and source pipeline are unchanged.
+
+Actual root: /home/stemxstudio/rove4k-f-nice24-normal-20261024-v1.
+Build57bc35cd5c65a39c52a5d3c865bcd16a7f675014941f7e2efb5e13035ac37d68.
+Runtimea3efedfc6842f9cd16d2f16dfd9faf291ee09979e4d3edc752296e7230efd633.
+Producing builder remains exact; final recipe/README add completion metadata
+only. F8 receives a changed full-builder provenance pin and requires its own
+explicit admission; this stage does not change F8's codec or artifacts. No new
+CPP/SAN/fresh/game/performance or strength qualification is claimed.
+
 # Maintained F full4353 — four fixed local spellings, 2026-10-24
 
 Pure `shipping_four_locals.py` follows the return-token stage. Only four

@@ -15,7 +15,7 @@
   "base_source_closure_sha256": {
     "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
     "engines/compact/tiny-entry-f/bootstrap.py.in": "159c5fe166f4b0804471e9d3a70d8f055a510858a6ae33f0ed6b4cfd17fca6f9",
-    "engines/compact/tiny-entry-f/build.py": "7598510c443857f3bd93529e7d31cabe93cae25aa132441d04df7d5460600617",
+    "engines/compact/tiny-entry-f/build.py": "db94730b5aa1ec60f1058f200671e6690bacb2ef23742aab70e9b1b22d45c6a2",
     "engines/compact/tiny-entry-f/engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
     "engines/compact/tiny-entry-f/launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
     "engines/compact/tiny-entry-f/shipping_alpha.py": "74abadbd79735e9f6b30c513b422245bae737f81d4e3bd04a7b8e597e61937e8",
@@ -291,7 +291,21 @@
     "normal_failures": 0,
     "normal_retries": 0,
     "firstcost_replay_fullF_rebuild_PP_SAN_negative_NVC_codec_search": 0,
-    "producing_to_final_annotations_only": true
+    "producing_to_final_annotations_only": true,
+    "post_execution_base_builder_provenance": {
+      "old_sha256": "7598510c443857f3bd93529e7d31cabe93cae25aa132441d04df7d5460600617",
+      "new_sha256": "db94730b5aa1ec60f1058f200671e6690bacb2ef23742aab70e9b1b22d45c6a2",
+      "sole_change": "F2 full_compression.nice_len16->24; F8 never imports/calls the F2 builder",
+      "F2_normal_build": {
+        "path": "/home/stemxstudio/rove4k-f-nice24-normal-20261024-v1/full/build/build.json",
+        "bytes": 271281,
+        "sha256": "57bc35cd5c65a39c52a5d3c865bcd16a7f675014941f7e2efb5e13035ac37d68"
+      },
+      "same_F2_C_native_bootstrap_entire_bytes": true,
+      "F8_source_native_bootstrap_whole_argv_codec_template_positive_body_unchanged": true,
+      "F8_reruns": 0,
+      "qualification_scope": "original v5 producing closure remains frozen; this is a provenance-pin update only"
+    }
   },
   "previous_v2": {
     "scope": "Qualified v2 identity and original cost supervisor failure preserved; no v2 runtime success inherited by v3",

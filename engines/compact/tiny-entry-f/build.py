@@ -88,7 +88,7 @@ def main():
     if recipe['alternate_policies']['material-move-tt']['expected_overrides']!=move_tt_expected or recipe['alternate_policies']['material-move-tt']['compression']!=move_tt_compression:
         raise ValueError('fixed MoveTT expectations/codec differ')
     original_compression={'format': 'lzma-alone', 'filter': 'LZMA1', 'preset': 9, 'extreme': True, 'lc': 2, 'lp': 0, 'pb': 0, 'check': 'NONE', 'mf': 'BT4', 'dictionary_bytes': 67108864, 'nice_len': 32}
-    full_compression={'format': 'lzma-alone', 'filter': 'LZMA1', 'preset': 6, 'extreme': False, 'lc': 2, 'lp': 0, 'pb': 0, 'check': 'NONE', 'mf': 'BT2', 'dictionary_bytes': 16384, 'nice_len': 16}
+    full_compression={'format': 'lzma-alone', 'filter': 'LZMA1', 'preset': 6, 'extreme': False, 'lc': 2, 'lp': 0, 'pb': 0, 'check': 'NONE', 'mf': 'BT2', 'dictionary_bytes': 16384, 'nice_len': 24}
     if recipe['compression']!=full_compression:raise ValueError('fixed full/reference codec differs')
     if recipe['alternate_policies']['material-noise']['compression']!=original_compression:
         raise ValueError('fixed MaterialNoise-v1 codec differs')
