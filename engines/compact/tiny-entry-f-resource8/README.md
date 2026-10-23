@@ -1,3 +1,51 @@
+# F8 v8: final full F quiet-order inline source
+
+Class `full-F-late-fixed-resource8-TT18-v8` consumes actual fullF normal
+source7905/04e5472a... after the late quiet-order inline stage. The same six
+resource roles produce C7943/b060b00b... (+38B), with seven protected gaps and
+a full inverse. Names and quiet-order are not reapplied. C=8 and all eight
+U[i].b=-1 are published under J before broadcast; original startup0, b0 claim,
+completion/flush/drain, first-max-depth tie and created-prefix joins remain.
+
+The independent F8 cost is whole4286/83543638..., down30B from4316 and190B
+above4096. Full F separately gained28B; it is not added to this F8 result.
+Fresh F8 native18576/26182257... is entirely byte-identical to qualified v7,
+including its ELF/.text. New bootstrap8875/052c7b4b... retains the same932B
+F8 wrapper. Own ALONE6/BT2/dict16KiB/lc2lp0pb0/nice24/header73 and cc -Os
+-pthread implicitGNU17 remain. Compile1/encode1/Python2/CLI2 passed; all original
+tool handles returned0/reaped/pre-reap extras[]/group absent/forced0/owned0.
+No engine ran during cost. Ordinary and existing positive passed as recorded below.
+
+The fullF producer keeps quiet inverse7905-to7979 then its actual format,
+frequency, pool and older literal guards before forwarding once. F8 instead
+consumes one exact final main.c and its own exact six-role guard; it does not
+repeat producer spelling/source stages. DEV and selected optional F products
+remain owned by their original producer. Common bootstrap research is separate.
+Shared D helper remains f5ed4ddb..., including the WNOWAIT ownership body.
+Nine-TID/eight-worker CPU, FD/children/maps/noWX/mainstack, legal outputs and
+physical lifetime assertions are unchanged. Guard-count/size, peak-stack,
+scaling, strength, cancellation causality and final4KiB acceptance are unproven.
+Prior version records below remain historical evidence.
+
+<!-- F8_V8_COMPLETION:PASS -->
+After root A/D cost original-handle closure, one ordinary builder produced two
+source/native/bootstrap/whole tuples entirely equal to the frozen F8 cost4286.
+Native26182257... remains entirely identical to qualified v7; fresh wrapper
+positive nevertheless ran quit/EOF2 sessions8 legal GO with9 persistent TIDs,
+all8 active-worker CPU, strict stdio/children/maps/noWX/mainstack, actual deleted
+private native image and physical process/reader exit. D helper f5ed4ddb... was
+the actual imported fullfile; assertions were not relaxed.
+Original ordinary459/positive612 both returned0/reaped after pre-reap extras[],
+with group absence and forced0/owned0. Producing source closure69 is an observed
+file count, not a new admission gate. Producing code and literal expectations
+are unchanged; final recipe/README add completion only. No extra core, SAN,
+fault, matrix, NVC, codec search, fullF rebuild or cost replay ran.
+Guard count/size, peak-stack, strength, scaling, cancellation causality, final
+hardware allocation and final4KiB acceptance remain unproven.
+Build receipt: `e0c62f03c1f166cf0a2b57d3c8e6d58f4cabb7b86dece1c9d9a3dab83ddf53bb`.
+Runtime receipt: `748ed04b9cb73e42a9dc473a01cc6c6844454534a63ad8a3a567ef96e56db79c`.
+
+
 # F8 v7: final full F frequency and formatter source
 
 Class `full-F-late-fixed-resource8-TT18-v7` consumes the actual ordinary full-F2
