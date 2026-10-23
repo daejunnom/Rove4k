@@ -193,6 +193,7 @@ def main():
         pool_state=module('entry_F_pool_state',frozen/'shipping_pool_state.py')
         frequency=module('entry_F_frequency',frozen/'shipping_frequency.py')
         format_loop=module('entry_F_format_loop',frozen/'shipping_format_loop.py')
+        quiet_order=module('entry_F_quiet_order',frozen/'shipping_quiet_order.py')
         # Keep this base for every unchanged shipping readable/spelling guard.
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
@@ -308,6 +309,8 @@ def main():
                     full_common_metadata['frequency_spellings']=frequency_metadata
                     full_reference,format_metadata=format_loop.transform_source(full_reference)
                     full_common_metadata['format_loop']=format_metadata
+                    full_reference,order_metadata=quiet_order.transform_source(full_reference)
+                    full_common_metadata['quiet_order_inline']=order_metadata
                     if len(full_reference)!=full_expected['source_bytes'] or sha(full_reference)!=full_expected['source_sha256']:
                         raise ValueError('default full-F source generation changed')
                     data,policy_metadata=material_noise(data)
@@ -408,6 +411,8 @@ def main():
                     common_metadata['frequency_spellings']=frequency_metadata
                     data,format_metadata=format_loop.transform_source(data)
                     common_metadata['format_loop']=format_metadata
+                    data,order_metadata=quiet_order.transform_source(data)
+                    common_metadata['quiet_order_inline']=order_metadata
             return data,observations,counters,alpha_metadata,storage_metadata,scope_metadata,member_metadata,semantic_metadata,input_metadata,declaration_metadata,hce_metadata,type_metadata,unit_bound_metadata,startup_metadata,global_names_metadata,capture_metadata,policy_metadata,material_names_metadata,material_capture_metadata,move_tt_metadata,move_tt_names_metadata,expressions_metadata,common_metadata,before_names
         def package(source):
             previous_literal=lambda data:common.source_literal(data,literal)
@@ -417,7 +422,8 @@ def main():
             depth_literal=lambda data:depth_bound.source_literal(data,four_literal)
             pool_literal=lambda data:pool_state.source_literal(data,depth_literal)
             frequency_literal=lambda data:frequency.source_literal(data,pool_literal)
-            expression,_=(format_loop.source_literal(source,frequency_literal) if args.policy=='full'
+            format_literal=lambda data:format_loop.source_literal(data,frequency_literal)
+            expression,_=(quiet_order.source_literal(source,format_literal) if args.policy=='full'
                           else previous_literal(source))
             script=template.replace(marker,expression.encode())
             ast.parse(script)

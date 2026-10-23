@@ -1356,3 +1356,24 @@ Runtime SHA `25ace32cbb90e4c3df043a3612105189d245de4041fbd81f54418b2084172876`.
 취소 인과관계는 unproven이다. 모델·정렬·검색 본문 변경은 없으며, private direct-think
 호출자는 완료 깊이0 seed가 필요하다. canonical/DEV에는 자동 적용하지 않는다.
 새 기력·성능·SAN·fault·fresh·CI 검증은 아니며 생산/완료 주석 핀은 구분한다.
+
+## E 유효 mailbox 칸 직접 순회
+
+g와 ap의 invalid-square guard 대신 signed int successor `(q+9)&~8`를 쓴다.
+0..7,16..23,…112..119 순서와 마지막128 종료, continue·조기return 입력은 같다.
+두 구간과 세 보호 gap·전체 역변환만 다루며 E19 논리19/물리21, 정수 eval,
+5ordering·3learner·PVS·TT·SMP 본문과 정본/DEV는 바꾸지 않는다.
+Source8569/bootstrap9523/whole4586B로 기존4599보다13B 작고4096까지490B 남았다.
+Native22672B의 SHA0449f0ea…는 이전cbe2a523…와 다르며 기력·시간 동등 주장은 없다.
+포장은 square inverse8598→depth/order/keyword/cross 및 이전 literal guard 실제 소비→
+이전9552 script→square9523 script 순서이며 외부 artifact를 생성 입력으로 읽지 않는다.
+정식 ordinary --dev에서 두 shipping 사본의 source8569/native22672/bootstrap9523/
+whole4586 전체 bytes가 고정 firstcost와 같았고, 두 DEV도 실제 이전 DEV 전체
+source/native와 같았다. 새 native0449f0ea…는 이전cbe2a523…와 크기는 같지만 bytes가 다르다.
+기존 selected의 quit·EOF 두 session/8 GO, 시작 TID3, native image와
+private path/reader/process 종료 fence를 통과했다. 원 두 명령은 terminal/
+reaped/group 부재, forced cleanup0/owned handle0으로 닫혔다.
+Runtime SHA `2f34e6ce566d1349e14b2dea56007a93218b2411bc86431202dbbd41bd62dc4d`.
+취소 인과관계는 unproven이다. 모델·정렬·검색 본문 변경은 없으며, private direct-think
+호출자는 완료 깊이0 seed가 필요하다. canonical/DEV에는 자동 적용하지 않는다.
+새 기력·성능·SAN·fault·fresh·CI 검증은 아니며 생산/완료 주석 핀은 구분한다.

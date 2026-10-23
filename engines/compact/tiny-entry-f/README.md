@@ -2514,3 +2514,61 @@ reaped, and physically absent, with forced0/failures0/owned0. Producing code,
 helpers, explicit expectations and codec are unchanged by these completion
 annotations. New F8, game, performance, broad core, fault and fresh-archive
 validation are outside this receipt. The full profile remains208 B above4096.
+
+
+## Full F: single-caller quiet-order inline (4276-byte selection)
+
+A fixed late shipping stage follows the formatter and changes only two spans:
+remove the142-byte private `ap` definition and replace its single11-byte call
+with a79-byte expression using the caller's existing FROM/TO values L/M.
+Source7979 ->7905 saves74 raw bytes; the actual fixed-codec whole4304 ->4276
+saves28 bytes. The entire18576-byte native is identical to the qualified4304
+predecessor98818a...; no compiler/codec/resource or engine policy is changed.
+4276 remains180 bytes above4096 and is not complete4KiB acceptance.
+
+History, continuation, correction and unsigned worker-noise expressions all
+remain. The caller g is prior; the old helper's local g was correction and is
+now the explicit correction/64 term. The noncapture arm can include a quiet
+promotion: its continuation index still uses the parent piece at p->b[L].
+TT/capture priorities and the later promotion bonus remain. No search, TT,
+MTD convergence, learner update, deadline/stop, fallback or pool publication
+site changes. The private function/debug/source positions can differ; no
+timing or debugger equivalence is claimed. Source and full literal inverses
+protect all three complementary gaps. Ordinary generation has no AST, report
+or experiment input. Literal packaging inverses to7979 and invokes the actual
+formatter/frequency/pool/depth/four/return/successor/common/pack guards first.
+
+The default full source and the two independent optional full_reference paths
+use7905. Actual optional material-noise4319 and material-move-tt4045 source,
+codec, launcher and expected files remain unchanged; DEV/canonical also bypass
+the new stage. F8 needs a separate new-base admission and receives no success
+from this full-profile candidate. The shared bootstrap lifecycle is unchanged.
+
+Selected first-cost pins: C7905 SHA04e5472a5970a87ca784a71fa8a6ce483fa728e254ca45bc71e9de638b54bec7;
+native18576 SHA98818a94330098bf1a574f2ce2bfccc52c0d2ca59774bc5cbb90213fd24d7cb6;
+bootstrap8827 SHA39872369f69ab6de828572875a77578f37808382014683b678ac69775aef82f2;
+whole4276 SHA1db5a14035dadf40df70fc759c4c77d318c92f66fdee345e17ce8a2a0b701c40.
+The one candidate compile/encode plus strict Python/CLI restoration passed.
+One ordinary full --dev reproduced the selected7905/98818a.../8827/4276 tuple
+entirely equal to first cost twice, unchanged DEV twice and the unchanged
+pre-name8538-byte source. The unchanged selected verifier ran the actual4276
+wrapper in two fresh quit/EOF sessions with eight legal GO epochs and stable
+three startup TIDs. Restored native identity, private-image cleanup, reader
+completion and physical process exit0 passed. No FD-list inspection or causal
+cancellation proof is claimed. Both optional ordinary builders reproduced all
+old selected source/native/bootstrap/whole bytes twice and actually generated
+the new7905-byte full_reference twice each. Optional selected runtime is reused.
+
+All four original command leaders settled with no other group members before
+reap, returned0 and left groups absent; failures/forced cleanup/retries/owned0.
+No core/search/SAN fixture was rerun because the entire native is unchanged.
+There is no new F8, fresh archive, game, performance or bootstrap lifecycle
+validation in this scope. The full profile still exceeds4096 by180 bytes.
+
+Actual root: /home/stemxstudio/rove4k-f-quiet-order-inline-normal-20261024-v1.
+Full build741646c70e0e2c7b3ba12611646f66bd60c1347c913b748713f50d175993ffa3;
+runtime7de4f3664d0c374c60f765af98dca1bbf958bb48dc18e618985ca03d9f228740.
+The actual producing recipe381106/b6ac4a41... remains under full/build/inputs;
+final recipe/README add only these completion annotations. Helper and builder
+remain the producing c5d65ffb.../2ae00f6b... bytes. Canonical/DEV, compiler,
+codec, previous receipts and all selected expectations are unchanged.

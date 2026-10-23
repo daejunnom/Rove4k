@@ -79,7 +79,8 @@
     "engines/compact/tiny-entry-e/shipping_cross_e.py": "0672f69ef3f2d3e7a1d97213cbe1ae572221354af0d69a4fbfbe85ec9fb34e3d",
     "engines/compact/tiny-entry-e/shipping_keyword_scope.py": "8d69bac1426f6ddf5bd0263046035804ce4752185ebb92ceb257379a08d2372b",
     "engines/compact/tiny-entry-e/shipping_order_inline.py": "cdb00de2ab397cbfd4c57994d79e243a9e78656f7146a9c5b6338d685ec8f297",
-    "engines/compact/tiny-entry-e/shipping_depth_token.py": "9aec653fbfb7d0120e726f7d74ab072f93ca102bed12ce05ae15a6ce97eeac78"
+    "engines/compact/tiny-entry-e/shipping_depth_token.py": "9aec653fbfb7d0120e726f7d74ab072f93ca102bed12ce05ae15a6ce97eeac78",
+    "engines/compact/tiny-entry-e/shipping_square_walk.py": "c6914efca036e91da493a89b5672e9485e55bbfa57b480c1e56ce77329a5e1a4"
   },
   "compression": {
     "format": "lzma-alone",
@@ -97,18 +98,18 @@
   "expected": {
     "readable_bytes": 28001,
     "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
-    "source_bytes": 8598,
-    "source_sha256": "d0f26c164efb52254fa947a47cf8bb66ed41085ab63706482e2212d9193e09da",
+    "source_bytes": 8569,
+    "source_sha256": "80b854825d2909e2d3edc1eb2dee946952d492216f9ff91243cb6614b6d13853",
     "native_bytes": 22672,
-    "native_sha256": "cbe2a52359e1d6f4ea5bb78e7c0ecc91b2e740edd13f616b2f12d7a6d32705c0",
-    "whole_bytes": 4599,
-    "whole_sha256": "01adc81e6bb90952ee86a33968c6dd5adc9a3fbf2c7c902be1c4ee52f3215d7b",
-    "bootstrap_sha256": "33633c7ac34e378a3024ffde8026fb12a436deaf49b08933b924cad7067559f1",
+    "native_sha256": "0449f0eaa102b040a7b792b2adc7ebb50a335434d63e4d84b13326f56d85cd31",
+    "whole_bytes": 4586,
+    "whole_sha256": "7663928b378b28ca27e06aec309f73ab764c3c9a85742fa24ce6695fe240121b",
+    "bootstrap_sha256": "9dddd3ff1512a9b5a1864732b06b77cb40b63758613d460af68a552292de0e69",
     "dev_source_bytes": 21314,
     "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
     "dev_native_bytes": 31376,
     "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
-    "bootstrap_bytes": 9552
+    "bootstrap_bytes": 9523
   },
   "local_input_sha256": {
     "engine.c": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
@@ -2070,6 +2071,111 @@
         "private_direct_think_caller_requires_completed_depth_zero_seed": true,
         "canonical_DEV_automatic_application": false,
         "scope": "Same current E19 model/order/search bodies; six worker-pool state roles share completed depth as pending token. New native same length but different bytes; ordinary reproduction and unchanged selected new-image lifetime only. Prior model fixtures remain separate. No new strength/timing/SAN/fault/fresh/CI claim."
+      }
+    },
+    "square_walk": {
+      "helper": "engines/compact/tiny-entry-e/shipping_square_walk.py",
+      "helper_sha256": "c6914efca036e91da493a89b5672e9485e55bbfa57b480c1e56ce77329a5e1a4",
+      "metadata": {
+        "stage": "last-E-square-walk",
+        "family": "E",
+        "input_bytes": 8598,
+        "input_sha256": "d0f26c164efb52254fa947a47cf8bb66ed41085ab63706482e2212d9193e09da",
+        "output_bytes": 8569,
+        "output_sha256": "80b854825d2909e2d3edc1eb2dee946952d492216f9ff91243cb6614b6d13853",
+        "raw_delta": -29,
+        "owned_regions": 2,
+        "protected_gaps": 3,
+        "full_inverse": true,
+        "consumers": [
+          "ap insufficient-material scan",
+          "g move and attack origin scan"
+        ],
+        "iterator": "signed int0..119 legal mailbox origins, next=(q+9)&~8, final128",
+        "legal_square_order_and_continue_early_return_preserved": true,
+        "fixed_Linux_x86_64_int_domain": true,
+        "model_19_logical_21_physical_5ordering_3learners_PVS_TT_SMP_bodies_unchanged": true,
+        "canonical_DEV_automatic_changes": false,
+        "private_direct_think_contract_changed": false,
+        "native_identity_claimed": false,
+        "runtime_claimed_by_transform": false,
+        "external_reads": 0
+      },
+      "bootstrap_metadata": {
+        "input_bytes": 9552,
+        "input_sha256": "33633c7ac34e378a3024ffde8026fb12a436deaf49b08933b924cad7067559f1",
+        "output_bytes": 9523,
+        "output_sha256": "9dddd3ff1512a9b5a1864732b06b77cb40b63758613d460af68a552292de0e69",
+        "owned_regions": 1,
+        "protected_gaps": 2,
+        "full_inverse": true,
+        "actual_previous_depth_order_keyword_cross_literal_chain_consumed": true,
+        "source_AST_bytes_exact": true,
+        "compiler_codec_resources_unchanged": true,
+        "external_reads": 0
+      },
+      "source_proof": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-square-walk-source-20261024-evidence/source-proof.json",
+        "bytes": 6342,
+        "sha256": "674347ac9e38620dbae970b746109e9e415ff9aea1559a23632d15815438d441"
+      },
+      "cost": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-square-walk-first-cost-20261024-evidence/final-index.json",
+        "bytes": 3443,
+        "sha256": "ac99d8101727d647a37f3df327b03a593560234ab57b6e0ef380ffe73fbb2b1a"
+      },
+      "predecessor_expected": {
+        "readable_bytes": 28001,
+        "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+        "source_bytes": 8598,
+        "source_sha256": "d0f26c164efb52254fa947a47cf8bb66ed41085ab63706482e2212d9193e09da",
+        "native_bytes": 22672,
+        "native_sha256": "cbe2a52359e1d6f4ea5bb78e7c0ecc91b2e740edd13f616b2f12d7a6d32705c0",
+        "whole_bytes": 4599,
+        "whole_sha256": "01adc81e6bb90952ee86a33968c6dd5adc9a3fbf2c7c902be1c4ee52f3215d7b",
+        "bootstrap_sha256": "33633c7ac34e378a3024ffde8026fb12a436deaf49b08933b924cad7067559f1",
+        "dev_source_bytes": 21314,
+        "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
+        "dev_native_bytes": 31376,
+        "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
+        "bootstrap_bytes": 9552
+      },
+      "whole_delta": -13,
+      "native_delta": 0,
+      "native_entire_bytes_equal": false,
+      "normal_status": "PASS",
+      "scope": "Two g/ap iterator representations only; legal64square order and bodies preserved. Model, integer eval, five ordering features, three learners, PVS/TT/SMP and canonical/DEV unchanged. Invalid-square control flow removed; no strength/timing or native identity claim. Existing source review reused without new fixture/SAN matrix.",
+      "normal_validation": {
+        "build": {
+          "path": "/home/stemxstudio/rove4k-e-square-walk-normal-20261024-v1/build/build.json",
+          "bytes": 307760,
+          "sha256": "d48660dbb47abb2855474f8e405f5c39121602d7ab4fe4d1b081edfc95761c3d"
+        },
+        "runtime": {
+          "path": "/home/stemxstudio/rove4k-e-square-walk-normal-20261024-v1/runtime/runtime.json",
+          "bytes": 108680,
+          "sha256": "2f34e6ce566d1349e14b2dea56007a93218b2411bc86431202dbbd41bd62dc4d"
+        },
+        "shipping_reproductions": 2,
+        "actual_old_DEV_reproductions": 2,
+        "entire_firstcost_source_native_bootstrap_whole_equal": true,
+        "actual_previous_DEV_entire_source_native_equal": true,
+        "native_entire_equal_to_previous": false,
+        "native_delta": 0,
+        "new_native_identity_explicit": true,
+        "selected_sessions": 2,
+        "legal_GO_results": 8,
+        "startup_TIDs_per_session": 3,
+        "native_image_private_path_process_readers_fences": true,
+        "cancellation_causality": "unproven",
+        "original_command_count": 2,
+        "original_handles_terminal_reaped_groups_absent": true,
+        "forced_cleanup": false,
+        "owned_handles": 0,
+        "model_or_search_policy_change": false,
+        "private_direct_think_caller_requires_completed_depth_zero_seed": true,
+        "canonical_DEV_automatic_application": false,
+        "scope": "Same current E19 model/order/search bodies; two legal-square iterators replace invalid-origin skipping with the identical64square visit order. New native same length but different bytes; ordinary reproduction and unchanged selected new-image lifetime only. Prior model fixtures remain separate. No new strength/timing/SAN/fault/fresh/CI claim."
       }
     }
   },
@@ -5152,6 +5258,111 @@
       "private_direct_think_caller_requires_completed_depth_zero_seed": true,
       "canonical_DEV_automatic_application": false,
       "scope": "Same current E19 model/order/search bodies; six worker-pool state roles share completed depth as pending token. New native same length but different bytes; ordinary reproduction and unchanged selected new-image lifetime only. Prior model fixtures remain separate. No new strength/timing/SAN/fault/fresh/CI claim."
+    }
+  },
+  "square_walk": {
+    "helper": "engines/compact/tiny-entry-e/shipping_square_walk.py",
+    "helper_sha256": "c6914efca036e91da493a89b5672e9485e55bbfa57b480c1e56ce77329a5e1a4",
+    "metadata": {
+      "stage": "last-E-square-walk",
+      "family": "E",
+      "input_bytes": 8598,
+      "input_sha256": "d0f26c164efb52254fa947a47cf8bb66ed41085ab63706482e2212d9193e09da",
+      "output_bytes": 8569,
+      "output_sha256": "80b854825d2909e2d3edc1eb2dee946952d492216f9ff91243cb6614b6d13853",
+      "raw_delta": -29,
+      "owned_regions": 2,
+      "protected_gaps": 3,
+      "full_inverse": true,
+      "consumers": [
+        "ap insufficient-material scan",
+        "g move and attack origin scan"
+      ],
+      "iterator": "signed int0..119 legal mailbox origins, next=(q+9)&~8, final128",
+      "legal_square_order_and_continue_early_return_preserved": true,
+      "fixed_Linux_x86_64_int_domain": true,
+      "model_19_logical_21_physical_5ordering_3learners_PVS_TT_SMP_bodies_unchanged": true,
+      "canonical_DEV_automatic_changes": false,
+      "private_direct_think_contract_changed": false,
+      "native_identity_claimed": false,
+      "runtime_claimed_by_transform": false,
+      "external_reads": 0
+    },
+    "bootstrap_metadata": {
+      "input_bytes": 9552,
+      "input_sha256": "33633c7ac34e378a3024ffde8026fb12a436deaf49b08933b924cad7067559f1",
+      "output_bytes": 9523,
+      "output_sha256": "9dddd3ff1512a9b5a1864732b06b77cb40b63758613d460af68a552292de0e69",
+      "owned_regions": 1,
+      "protected_gaps": 2,
+      "full_inverse": true,
+      "actual_previous_depth_order_keyword_cross_literal_chain_consumed": true,
+      "source_AST_bytes_exact": true,
+      "compiler_codec_resources_unchanged": true,
+      "external_reads": 0
+    },
+    "source_proof": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-square-walk-source-20261024-evidence/source-proof.json",
+      "bytes": 6342,
+      "sha256": "674347ac9e38620dbae970b746109e9e415ff9aea1559a23632d15815438d441"
+    },
+    "cost": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-e-square-walk-first-cost-20261024-evidence/final-index.json",
+      "bytes": 3443,
+      "sha256": "ac99d8101727d647a37f3df327b03a593560234ab57b6e0ef380ffe73fbb2b1a"
+    },
+    "predecessor_expected": {
+      "readable_bytes": 28001,
+      "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+      "source_bytes": 8598,
+      "source_sha256": "d0f26c164efb52254fa947a47cf8bb66ed41085ab63706482e2212d9193e09da",
+      "native_bytes": 22672,
+      "native_sha256": "cbe2a52359e1d6f4ea5bb78e7c0ecc91b2e740edd13f616b2f12d7a6d32705c0",
+      "whole_bytes": 4599,
+      "whole_sha256": "01adc81e6bb90952ee86a33968c6dd5adc9a3fbf2c7c902be1c4ee52f3215d7b",
+      "bootstrap_sha256": "33633c7ac34e378a3024ffde8026fb12a436deaf49b08933b924cad7067559f1",
+      "dev_source_bytes": 21314,
+      "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
+      "dev_native_bytes": 31376,
+      "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
+      "bootstrap_bytes": 9552
+    },
+    "whole_delta": -13,
+    "native_delta": 0,
+    "native_entire_bytes_equal": false,
+    "normal_status": "PASS",
+    "scope": "Two g/ap iterator representations only; legal64square order and bodies preserved. Model, integer eval, five ordering features, three learners, PVS/TT/SMP and canonical/DEV unchanged. Invalid-square control flow removed; no strength/timing or native identity claim. Existing source review reused without new fixture/SAN matrix.",
+    "normal_validation": {
+      "build": {
+        "path": "/home/stemxstudio/rove4k-e-square-walk-normal-20261024-v1/build/build.json",
+        "bytes": 307760,
+        "sha256": "d48660dbb47abb2855474f8e405f5c39121602d7ab4fe4d1b081edfc95761c3d"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-e-square-walk-normal-20261024-v1/runtime/runtime.json",
+        "bytes": 108680,
+        "sha256": "2f34e6ce566d1349e14b2dea56007a93218b2411bc86431202dbbd41bd62dc4d"
+      },
+      "shipping_reproductions": 2,
+      "actual_old_DEV_reproductions": 2,
+      "entire_firstcost_source_native_bootstrap_whole_equal": true,
+      "actual_previous_DEV_entire_source_native_equal": true,
+      "native_entire_equal_to_previous": false,
+      "native_delta": 0,
+      "new_native_identity_explicit": true,
+      "selected_sessions": 2,
+      "legal_GO_results": 8,
+      "startup_TIDs_per_session": 3,
+      "native_image_private_path_process_readers_fences": true,
+      "cancellation_causality": "unproven",
+      "original_command_count": 2,
+      "original_handles_terminal_reaped_groups_absent": true,
+      "forced_cleanup": false,
+      "owned_handles": 0,
+      "model_or_search_policy_change": false,
+      "private_direct_think_caller_requires_completed_depth_zero_seed": true,
+      "canonical_DEV_automatic_application": false,
+      "scope": "Same current E19 model/order/search bodies; two legal-square iterators replace invalid-origin skipping with the identical64square visit order. New native same length but different bytes; ordinary reproduction and unchanged selected new-image lifetime only. Prior model fixtures remain separate. No new strength/timing/SAN/fault/fresh/CI claim."
     }
   }
 }
