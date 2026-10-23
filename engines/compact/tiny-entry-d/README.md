@@ -525,3 +525,21 @@ The source closure stays21local files plus oracle/LICENSE=23. No negative/
 RIE/ptrace/register/personality, game, benchmark, training or paid-resource
 campaign is part of this work. Earlier source/proof/failure boundaries remain
 explicit and are not retrospectively relabelled as runs of this EP image.
+
+
+## Unselected BCJ operand stream cost — 2026-10-24
+
+One external fixed packet representation splits the current scalar's post-BCJ
+7156B body into6588B opcode/control bytes and568B ordered rel32 operands
+(142 selections). Native7388/395fea4d… and complete zero232 restored RX/b2982877…
+stay identical; model21/H24/base10 and all engine features are unchanged.
+The new format needs7156B scratch after the32MiB decoder table, bounded merge
+and exact stream ends before checked whole-scratch unmap/RX transition.
+Packet4580→4621 (+41), loader/header1137→1224 (+87), so complete5717→5845 B
+(+128 LOSS). One fixed encoder, one independent Python DATA/full unfilter and
+one production loader compile finish with original handles rc0/reaped/
+pre-reap others[]/group absent/forced0/owned0; native/baseline regeneration,
+engine/runtime/fault/SAN and retries are0. The new loader is not executed or
+qualified. No stream/model variant is tried. Scalar5717/HQ6037 production code,
+exact expected identities and current qualification stay unchanged.
+Actual cost: `/home/stemxstudio/rove4k-d-bcj-operands-first-cost-20261024-v1/cost.json`.

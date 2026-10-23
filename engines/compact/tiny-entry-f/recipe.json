@@ -95,7 +95,9 @@
     "engines/compact/tiny-entry-f/shipping_integer_expressions.py": "3857ecd6c4cdf6a32ce13d1052957aa9aca087455e4b0b47be42b159234cd47a",
     "engines/compact/tiny-entry-f/shipping_square_successor.py": "acf2a93e6680213090143ef2a71014616b65d28c8119718b93d7c867229fefcb",
     "engines/compact/tiny-entry-f/shipping_return_token.py": "9dde8169a5574496de6c68460df35208e0997c907de84722a309b88fc2011680",
-    "engines/compact/tiny-entry-f/shipping_four_locals.py": "d8add0cefb4cece78f278f1ce32405686bacf11584ea8dc1dc60f2ff930607e6"
+    "engines/compact/tiny-entry-f/shipping_four_locals.py": "d8add0cefb4cece78f278f1ce32405686bacf11584ea8dc1dc60f2ff930607e6",
+    "engines/compact/tiny-entry-f/shipping_depth_bound.py": "03626404f5cd9fe1c986b9c1bed1e040d7339777f394b22a9e9cb228ab3656c9",
+    "engines/compact/tiny-entry-f/shipping_pool_state.py": "0bc1f73684f57569bfffc761ac854c6b07638c033b27c85f8d69d8e4f0424ed2"
   },
   "resource_literals": [
     [
@@ -269,22 +271,22 @@
   },
   "expected": {
     "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
-    "source_bytes": 8153,
-    "source_sha256": "62784180e34291403f2ad32a314bd83fb9de9167d820960ffe0099402879a8dc",
+    "source_bytes": 8094,
+    "source_sha256": "543b6469c4f5ec616cde0e5113fa15c1419651a414717b9e25c498044369a79e",
     "native_bytes": 18576,
-    "native_sha256": "a9e5d6484a04af89667b67f6fa14fb6bdb40171f4f9b68740d12230fd15b89e4",
-    "whole_bytes": 4350,
-    "whole_sha256": "d08ec83a3cfe92ebc693f3782f9505a1a8a11c4aba12f98ec8e6f50ff407422d",
+    "native_sha256": "4a8d13290ba8c6058d34ae96db8d1a5447cef73881e204e5554f8741d1378c7f",
+    "whole_bytes": 4317,
+    "whole_sha256": "1c352494e5163ac944b072142e94570fb27dda33a36b1b760872db57e103c9d5",
     "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
     "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
-    "bootstrap_sha256": "0387591f5d101b918dd93d657542c0a1e8c5931673301643a677a001e321f6db",
+    "bootstrap_sha256": "d885a5f117e2fb865073c640e973b7bde76decbdccbde467ce06b2215a5de3ee",
     "semantic_readable_bytes": 25720,
     "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
     "dev_source_bytes": 19488,
     "dev_native_bytes": 26984,
     "input_profile_readable_bytes": 28587,
     "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
-    "bootstrap_bytes": 9075
+    "bootstrap_bytes": 9016
   },
   "local_input_sha256": {
     "engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
@@ -6867,6 +6869,175 @@
       "commands_terminal0_originalgroup_settled_before_reap": 2,
       "failures_forced_retries_owned": 0,
       "post_execution_changes": "recipe and README completion annotations only; producing builder/expected/bootstrap/source/native unchanged"
+    }
+  },
+  "TT_metadata_pool_state": {
+    "stage": "full afterfourlocals: TT8117 thenpool8094; explicit optionalfull_reference; actualoptional/DEVbypass",
+    "predecessor_expected": {
+      "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+      "source_bytes": 8153,
+      "source_sha256": "62784180e34291403f2ad32a314bd83fb9de9167d820960ffe0099402879a8dc",
+      "native_bytes": 18576,
+      "native_sha256": "a9e5d6484a04af89667b67f6fa14fb6bdb40171f4f9b68740d12230fd15b89e4",
+      "whole_bytes": 4350,
+      "whole_sha256": "d08ec83a3cfe92ebc693f3782f9505a1a8a11c4aba12f98ec8e6f50ff407422d",
+      "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
+      "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
+      "bootstrap_sha256": "0387591f5d101b918dd93d657542c0a1e8c5931673301643a677a001e321f6db",
+      "semantic_readable_bytes": 25720,
+      "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
+      "dev_source_bytes": 19488,
+      "dev_native_bytes": 26984,
+      "input_profile_readable_bytes": 28587,
+      "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
+      "bootstrap_bytes": 9075
+    },
+    "TT_metadata": {
+      "family": "F",
+      "policy": "full-fixed2",
+      "stage": "TT-depth-bound-after-four-locals",
+      "input_bytes": 8153,
+      "input_sha256": "62784180e34291403f2ad32a314bd83fb9de9167d820960ffe0099402879a8dc",
+      "output_bytes": 8117,
+      "output_sha256": "47d50421842f00b4a4f78ed20d71a06b714b20924b6e8b227f16ae03c7ecf1f9",
+      "roles": 4,
+      "gaps": 5,
+      "full_inverse": true,
+      "raw_delta": -36,
+      "depth_range": [
+        0,
+        126
+      ],
+      "writer_bounds": [
+        2,
+        3
+      ],
+      "metadata_range": [
+        2,
+        255
+      ],
+      "empty0_excluded": true,
+      "Move17_score16_fullkey_lock_mate_witness_unchanged": true,
+      "new_private_TT_encoding": true,
+      "native_identity_claimed": false,
+      "canonical_DEV_actual_optional_changed": false,
+      "external_reads": 0
+    },
+    "pool_state": {
+      "family": "F",
+      "policy": "full-fixed2",
+      "stage": "worker-depth-token-after-TT-metadata",
+      "input_bytes": 8117,
+      "input_sha256": "47d50421842f00b4a4f78ed20d71a06b714b20924b6e8b227f16ae03c7ecf1f9",
+      "output_bytes": 8094,
+      "output_sha256": "543b6469c4f5ec616cde0e5113fa15c1419651a414717b9e25c498044369a79e",
+      "roles": 6,
+      "protected_gaps": 7,
+      "full_inverse": true,
+      "raw_delta": -23,
+      "actual_i_caller_domain": "unique shipping B; claim0 underqj before i; direct-i fixture must seed0",
+      "job_token": "worker.b -1 unclaimed,0 claimed,1..126 completed; job marks all underqj afterwait",
+      "qk_startup_flush_join_quit_guards_retained": true,
+      "native_identity_claimed": false,
+      "canonical_DEV_actual_optional_changed": false,
+      "external_reads": 0
+    },
+    "source_chaining_actual_full_inverse": true,
+    "private_TT_fresh_format_only": true,
+    "independent_source_review": "compact_d_core actualwriter/probe/depth/mate/rootwitness/fullkey CLEAR; poolowner uniqueBjobtoken scope CLEAR",
+    "focused_existing_MTD": {
+      "receipt": {
+        "path": "/home/stemxstudio/rove4k-f-depth-bound-focused-20261024/results.json",
+        "bytes": 10871,
+        "sha256": "1656fe25a16ce478a3a8766460e3d14cc8c6489b9e9fe8166e6c97a89f1f9c1d"
+      },
+      "projection": {
+        "path": "/home/stemxstudio/rove4k-f-depth-bound-focused-20261024/projection.json",
+        "bytes": 1155,
+        "sha256": "e9cf40a3cc7ca9d1c60ebc388d53aeb0fa3b638520d4d4760a868e1de6e579fa"
+      },
+      "old_new_each_O2unit": true,
+      "product_main_pool_executions": 0,
+      "actual_U_V_unchanged_by_projection": true,
+      "driver_projection": "only outerdepth127 to4; actualMTDallotherbytes unchanged",
+      "quiet_existing_corpus": 3,
+      "repeats_each": 2,
+      "independent_score_attaining_witness_and_exact_nodes_learning_logicalTT_parity": true,
+      "real_depth0_lower_upper_primes_probe": true,
+      "real_positive_negative_mate_primes_plies": [
+        1,
+        126
+      ],
+      "arbitrary_payload_injection": false,
+      "fullkey_actual_collision_miss": true,
+      "final_index": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-depth-bound-20261024-evidence/focused-index.json",
+        "bytes": 4358,
+        "sha256": "541317fd3cd2e0d3920b1a7bade2a20b654f066fe50949af6751c9924117af69"
+      }
+    },
+    "TT_only_firstcost_index": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-depth-bound-20261024-evidence/final-index.json",
+      "bytes": 6494,
+      "sha256": "a3b5359101bd7b7c7fcbc57219397875c6bf02f38b2e1e37fdcf97607729c896"
+    },
+    "combined_firstcost_index": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-tt-pool-composition-first-cost-20261024-evidence/final-index.json",
+      "bytes": 4616,
+      "sha256": "3548459ad521a3b8b4fc93ff0da6b87a5737e0e115042a84a2b2fb2a887c8540"
+    },
+    "pool_proposal": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-tt-pool-composition-source-20261024-evidence/proposal.json",
+      "bytes": 3793,
+      "sha256": "702fadb25abe62f4bceb427850ab54f9151a8ea2ceae3583b545e015cb6a28ff"
+    },
+    "pool_transform": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-tt-pool-composition-source-20261024-evidence/transform.py",
+      "bytes": 2571,
+      "sha256": "95f01027ff4d9d5f387d076d92f0fd819c920b0be1ddf2cee18b45d1d1b9a3b1"
+    },
+    "whole_delta_measured_vs4350": -33,
+    "standalone_gains_added": false,
+    "normal_validation_pending": false,
+    "F8_changed_base_requires_separate_explicit_admission": true,
+    "normal_validation": {
+      "status": "PASS finalcomposed ordinary--dev1+unchangedselected1",
+      "actual_root": "/home/stemxstudio/rove4k-f-tt-pool-normal-20261024-v1",
+      "normal_receipt": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-tt-pool-promotion-20261024-evidence/normal.json",
+        "bytes": 5997,
+        "sha256": "75c07586e8fd497b59c26db78e3d960bafdfcdc70000b8b1d0e79c3c1621b7a7"
+      },
+      "producing_recipe": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-tt-pool-promotion-20261024-evidence/producing/recipe.json",
+        "bytes": 367461,
+        "sha256": "2a3d4f0b3da026c88809bbba84feca34a3327793949dbce7aba0ab2f5bfb4393"
+      },
+      "build": {
+        "path": "/home/stemxstudio/rove4k-f-tt-pool-normal-20261024-v1/full/build/build.json",
+        "bytes": 275804,
+        "sha256": "3aa1b45746fac6bed6cea65d9411db7ba11f02d3b5232fa9f4ce2bb14bc1cd55"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-f-tt-pool-normal-20261024-v1/full/runtime/runtime.json",
+        "bytes": 76900,
+        "sha256": "fa5a11d65021b54bd0098bbf669218042f92b39db7beadd118a78a1bf7457e0b"
+      },
+      "actual_entire_composed_cost_tuple_reproduced": true,
+      "shipping_reproductions": 2,
+      "unchanged_DEV_reproductions": 2,
+      "pre_name8538_unchanged": true,
+      "quit_EOF_sessions": 2,
+      "legal_GO_epochs": 8,
+      "startup_TIDs": 3,
+      "restored_new_native_image_private_cleanup_readers_physical_exit0": true,
+      "FD_inspection_claimed": false,
+      "cancellation_causal_link": "unproven",
+      "actual_optional_runs": 0,
+      "F8_runs": 0,
+      "two_original_commands_terminal0_reaped_preextras_empty_group_absent": true,
+      "failures_retries_forced_owned": 0,
+      "post_execution_changes": "recipe and README completionmetadata only; producing code and expected exact"
     }
   }
 }

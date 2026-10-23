@@ -1,3 +1,40 @@
+# 기본 Loose4505: worker depth와 job token 소유권 공유 — 2026-10-24
+
+기본 Loose에만 keyword 단계 다음 `shipping_pool_state.py`를 적용한다.
+이전 job epoch `qd` 대신 각 worker의 완료 depth `C`에서 −1을 미수락 job,
+0을 수락한 job으로 사용한다. main은 이전 pending0과 결과 flush 뒤 `qj`
+아래 두 token을 게시하고 worker는 같은 잠금 아래 자기 depth0을 수락한다.
+A의 기존 `w=0` startup sentinel과 공통 startup/completion epilogue는 유지하고,
+별도 typed pointer `a=p`로 자기 worker의 predicate를 읽는다. Spurious wake와
+marker-before-wait는 중복 검색을 만들지 않는다. 마지막 pending0은 두 worker가
+반환하고 결과가 flush된 다음이며, partial-create의 wait 우회와 created-prefix
+join·quit/EOF는 그대로다. 실제 shipping의 유일한 `C()` caller가 claim0을
+소유하므로 `C()`의 중복 depth0 초기화만 제거한다. 직접 private `C()` 소비자는
+별도로 depth0을 넣어야 한다. Canonical/DEV 함수 계약 변화는 없다.
+
+6개 고정 span과 7개 보호 gap의 전체 inverse로 8443에서 이전8461을 복원한 뒤
+기존 keyword→output→condition→names/common literal guard를 실제 소비하고
+한 번 전진한다. Jreturn/Lint, TT j/k, 검색·보드·학습·parser 원문은 보호한다.
+Raw source8461→8443(−18B)와 실제 whole4511→4505(−6B)는 별도 실측이다.
+Native는18576/35056c24…로 바뀌며 이전 full-native 동일성을 주장하지 않는다.
+Compiler·FD0 template·header73·ALONE6/BT2/16KiB/nice24·fixed2/TT18은 같다.
+
+POOL_STATE_NORMAL_PASS: 기본 ordinary --dev 한 번에서 shipping 두 사본은
+실제 first-cost source/native/bootstrap/whole 전체와 같고, DEV 두 사본은 이전
+실제 DEV 전체와 같다. Unchanged selected 한 번에서 quit/EOF 두 sessions·여덟
+GO·각3 startup TID·새 native image·private path 제거·closing bestmove 한 번과
+reader 완료·물리 종료를 확인했다. 원 driver/build/selected 핸들은 WNOWAIT
+leader identity를 유지한 채 extras[] 확인 뒤 reap했고 종료 당시 group 부재·
+강제 정리0·owned0이다. 새 native의 실행 검증이며 이전 native 동등성은 아니다.
+Build receipt `e814b7df2cd7bbb1c5472d983ab4cd8ad2d566bd7f4f6f0fec611a1ab63d78cf`,
+runtime receipt `f321f2233c67878fb1b84df40c834fa589d989856876548f12dacc951c462dc4`.
+세 optional root policies는 이 마지막 단계를 완전히 우회하며 기존 소스·함수·
+expected·literal guards·생산/검증 metadata를 유지한다. 해당 정책의 새 실행은
+0이다. FD 관찰·cancellation causality·성능·기력·새 SAN/fault/fresh/CI를
+주장하지 않는다. 아래4511 기록과 과거 core 증거는 각각의 원 범위로 남긴다.
+
+---
+
 # 기본 Loose4511: keyword와 지역 scope의 고정 축약 — 2026-10-24
 
 기본 Loose에만 마지막 shipping `shipping_keyword_scope.py`를 연결했다.

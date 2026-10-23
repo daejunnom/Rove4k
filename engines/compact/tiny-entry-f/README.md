@@ -1,3 +1,51 @@
+# Maintained F full4317 — TT metadata and worker job token, 2026-10-24
+
+Two fixed shipping-only stages follow four-local names: TT depth/bound packing
+8153→8117 (−36), then worker job-token representation8117→8094 (−23).
+The composed actual whole is4317 (−33 vs4350), native18576/4a8d1329...,
+bootstrap9016/d885a5f1.... Standalone gains are not added: the composition was
+compiled/encoded once with the same compiler and nice24/BT2/dict16KiB/header73.
+4317 remains221 B above4096; this is not complete4KiB acceptance.
+
+`shipping_depth_bound.py` stores2*(depth+1)+upper in bits33..40. Move17,
+score16, fullkey/coherent lock, exact-depth admission and mate normalization
+remain. Actualwriters only emit LOWER/UPPER, depth0..126 givesmeta2..255, and
+empty0 cannotmatch. An independent actual-source review cleared this domain.
+Fresh startup/privateTT is required; mixed old payloads are not supported.
+Existing quiet3 minimax/MTD tests on actual old/new U/V bodies passed exact
+score/attainingmove/nodes/history/continuation/correction/logicalTT parity,
+including retainedTT. Actualdepth0 LOWER/UPPER primes/probes, fullkey collision
+miss and genuine±mate primes/probes atply1/126 passed. The unit projects only
+i's outer depth limit127→4; it does not run productmain/pool or fake payloads.
+
+`shipping_pool_state.py` marks each completed-depth field−1 for an unclaimed
+job underqj afterk() establishespending0/flush. Unique workerB claims0 underqj
+beforeunlock/think. Nonnegative values suppressspuriousduplicatejobs;1..126
+retaincompleteddepthmeaning. Only the admitted shippingB calls i, so removing
+i's redundantdepth0reset is restricted to that caller; direct-i fixtures must
+seed0. qk/startup/stop/outputflush/quit/join and search/TT/learning are protected.
+
+Both helpers are literalfixedmaps with fullinput/output/inverse/gap checks;
+ordinary generation has no AST/report/experiment dependency. Packaging restores
+8094→8117→8153 and calls the actual fourlocals→return→successor→common→pack
+literal guards before forwarding only the source literal. Canonical/DEV and
+actualoptional4319/4045 remain outside these stages; explicit full_reference
+now generates8094. F8 requires its separately owned incomingbase admission.
+One ordinary--dev invocation reproduced shipping2 to the entire actualcomposed
+source/native/bootstrap/whole tuple and unchanged DEV2/pre-name8538 bytes.
+The unchanged selected verifier passed new4317 quit/EOF2 sessions,8 legal GO
+epochs and stable3 startupTIDs; restored4a8d1329... native image, private path
+cleanup, readerEOF and physical process exit0 were observed. Both original
+commands returned0, settled withoutothergroupmembers beforeidentity release,
+reaped and leftgroupsabsent; failures/forcedcleanup/retries/owned0. Cancellation
+causality remainsunproven; no FD-list inspection isclaimed. No new optional
+selected/ordinary/F8/SAN/fresh/game/performance run isattributed tothis scope.
+
+Actual normal root: /home/stemxstudio/rove4k-f-tt-pool-normal-20261024-v1.
+Build3aa1b45746fac6bed6cea65d9411db7ba11f02d3b5232fa9f4ce2bb14bc1cd55.
+Runtimefa5a11d65021b54bd0098bbf669218042f92b39db7beadd118a78a1bf7457e0b.
+Producing3code remains exact; finalrecipe/README addcompletionmetadata only.
+
 # Maintained F full4350 — fixed nice24 codec, 2026-10-24
 
 The one fixed full-profile LZMA1 nice length is24, replacing16. Two separately

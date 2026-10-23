@@ -9,18 +9,14 @@
   },
   "compiler": [
     "cc",
-    "-std=c11",
     "-Os",
-    "-pthread",
-    "-DWORKERS=2",
-    "-DTT_BITS=18",
     "-mavx2",
-    "-DDEV=0",
     "-x",
     "c",
     "-",
     "-o",
-    "x"
+    "x",
+    "-s"
   ],
   "dev_compiler": [
     "cc",
@@ -83,7 +79,8 @@
     "engines/compact/tiny-entry-a/shipping_output_bce.py": "267059f7837338231aeb4ad76608bfc84382493e0bc2de74e2ebb02e77eab687",
     "engines/compact/tiny-entry-a/shipping_worker_epilogue_bce.py": "e0ab883e0fec895b66b0ef01b5ede056e05fb0bc72472cd8ac64507f2fbf82ce",
     "engines/compact/tiny-entry-a/shipping_setter_phase_bce.py": "9d1985e0c798b59b553a6bee1176fb4f19f9b053da9ecf4243812370e64591d2",
-    "engines/compact/tiny-entry-a/shipping_constants_bce.py": "02d0411887e7f04042e4ef94c876c32d2469b6d26f056c63dbf1235a93fc052c"
+    "engines/compact/tiny-entry-a/shipping_constants_bce.py": "02d0411887e7f04042e4ef94c876c32d2469b6d26f056c63dbf1235a93fc052c",
+    "engines/compact/tiny-entry-c/shipping_cross_c.py": "369614e0a4fe844f5100e742d4c0d09e90ed7ab187dfc433100fc83eb5d1ce3f"
   },
   "compression": {
     "format": "lzma-alone",
@@ -100,16 +97,16 @@
   },
   "expected": {
     "readable_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
-    "source_bytes": 9527,
-    "source_sha256": "38886cea518a700b7d6f209475dbd80055becce8e4599377a7de0966494f7796",
-    "native_bytes": 26152,
-    "native_sha256": "08042659b5579626697b60a6cc2b7fee860a0af15931c458aa895e904dc9e553",
-    "whole_bytes": 4778,
-    "whole_sha256": "bc2cddf33045d250cdeed20ec5cf473b726dfeb9071c8d88c561552b8319709d",
-    "bootstrap_sha256": "b0b1fffcbbef0d38b8d96c8fe7ec639a231f4738afed8a1929b4026bc3906391",
+    "source_bytes": 9093,
+    "source_sha256": "da74d1c079ad0abebbb5a63040ca6f3306943ffb271b00e0117267bce0ee2d93",
+    "native_bytes": 22672,
+    "native_sha256": "f35ec4454b87468519ea5d58d659bc6f90247b1d8736bfa6526cfa266fb2ae46",
+    "whole_bytes": 4672,
+    "whole_sha256": "cd66a664d90d862b9c557c7586d1d24613474115f9670fca427113b89fdb1176",
+    "bootstrap_sha256": "14405494f35ef3fcc40646d487adf57b35de10b0ef9e0182b5333e9be9be2d68",
     "dev_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
     "dev_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c",
-    "bootstrap_bytes": 10566
+    "bootstrap_bytes": 10054
   },
   "local_input_sha256": {
     "engine.c": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
@@ -3650,6 +3647,95 @@
       "GO_calls": 8,
       "original_handles_terminal0_reaped_groups_absent_owned0": true,
       "scope": "Unchanged selected current wrapper startup/GO/drain/quit/EOF. Actual DEV remains diagnostic reference; causality unproven. No extra SAN/fault/fresh/strength/performance/CI."
+    }
+  },
+  "cross": {
+    "stage": "after constants in sole not-dev shipping branch",
+    "input_source_bytes": 9527,
+    "input_source_sha256": "38886cea518a700b7d6f209475dbd80055becce8e4599377a7de0966494f7796",
+    "output_source_bytes": 9093,
+    "output_source_sha256": "da74d1c079ad0abebbb5a63040ca6f3306943ffb271b00e0117267bce0ee2d93",
+    "fixed_workers": 2,
+    "fixed_TT_bits": 18,
+    "physical_int16_lanes": 8,
+    "SIMD_load_bits": 128,
+    "target_ISA": "-mavx2",
+    "actual_C_model_body_binding": true,
+    "source_inverse": true,
+    "old_C_trace_equivalence_claimed": false,
+    "compiler_policy": "selected common A GNU17/Os/strip plus actual C -mavx2",
+    "previous_shipping_compiler": [
+      "cc",
+      "-std=c11",
+      "-Os",
+      "-pthread",
+      "-DWORKERS=2",
+      "-DTT_BITS=18",
+      "-mavx2",
+      "-DDEV=0",
+      "-x",
+      "c",
+      "-",
+      "-o",
+      "x"
+    ],
+    "DEV_preprocessor_unchanged": true,
+    "codec_header_unchanged": true,
+    "first_cost": {
+      "index": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c-cross-first-cost-20261024-evidence/final-index.json",
+      "sha256": "b767a53fae67121b13e526657c13582aa6d1a18d170c9de5a81b0b334b128dba",
+      "whole_delta": -106
+    },
+    "source_proposal": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c-cross-source-20261024-evidence/final-index.json",
+      "bytes": 1203,
+      "sha256": "b8d94372b448fc89016edc6e25d22be7ffaf07c0faca52aeb58dafaea59beb4c"
+    },
+    "source_proof": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c-cross-source-20261024-evidence/source-proof.json",
+      "bytes": 15461,
+      "sha256": "4b54e1c6996268a6e7e95565a64fd95e59e77cb754835ae275ddf1984710d196"
+    },
+    "model_contract": "signed net counts x[1..6], signed positional residual x[7], actual qm weights and scalar HCE; individual int16 stores retained; 128-bit unaligned loads/madd/four int32 sums",
+    "observation": "selected common search/runtime implementation; fixed-time nodes/depth/result/TT interleaving and old C trace equality not claimed",
+    "normal_validation": {
+      "status": "PASS focused model oracle, ONE ordinary --dev and unchanged selected",
+      "previous_DEV_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
+      "previous_DEV_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c",
+      "focused": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c-cross-focused-20261024-evidence/final-index.json",
+        "bytes": 3143,
+        "sha256": "8471526386d043c1ecb0e8c7e6ccbbdf3fad68028b36e5b6fbdd70fa20e38305"
+      },
+      "build": {
+        "path": "/home/stemxstudio/rove4k-c-cross-normal-20261024-v1/build/build.json",
+        "bytes": 275386,
+        "sha256": "f4b01430c7348ead5fd78b2f0d6a5836b4b72927d8d53e8db40c7b6c8419fd65"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-c-cross-normal-20261024-v1/runtime/runtime.json",
+        "bytes": 83606,
+        "sha256": "fef67bcfd35093d4e37b7aa86c356019cb7ecacbad0f70f0c5a0b0109e32c695"
+      },
+      "normal": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c-cross-promotion-20261024-evidence/normal.json",
+        "bytes": 41723,
+        "sha256": "22e104c8773536b0b6a8d59d5777d3682874d37cc1210fd6300fee69990523a6"
+      },
+      "original_exit": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c-cross-promotion-20261024-evidence/physical-exit.json",
+        "bytes": 2232,
+        "sha256": "d70c5b47fa853ad38a1fc27e110c2bd143f8ddec2c0e2e7240606e366c460ae0"
+      },
+      "shipping_reproductions": 2,
+      "unchanged_DEV_reproductions": 2,
+      "entire_firstcost_tuple_equal": true,
+      "actual_previous_DEV_entire_equal": true,
+      "sessions": 2,
+      "GO_calls": 8,
+      "startup_TIDs_per_session": 3,
+      "original_handles_terminal_reaped_group_absent_forced0_owned0": true,
+      "scope": "new C4672 wrapper plus finite C model oracle; oldC trace/strength/performance/stack-size equality not claimed"
     }
   }
 }

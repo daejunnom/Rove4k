@@ -1,3 +1,62 @@
+# Maintained C: common PVS/runtime with original signed-net SIMD — 2026-10-24
+
+현재 shipping은 C의 실제 `int16_t x[8]` signed-net 상태와 고정 8개 계수,
+scalar HCE·제거/삽입 setter·128비트 `_mm_madd_epi16` 평가를 공통 mailbox
+PVS/runtime에 연결한다. fixed2/TT18과 `-mavx2`를 유지하며 256비트 구현이나
+새 lane 수를 요구하지 않는다. 모델 계수·기능은 삭제하지 않았다.
+
+`shipping_cross_c.py`는 기존 constants 뒤의 shipping 분기에서만 호출된다.
+전달된 실제 C 모델 세 영역을 역할별로 bind하고 읽을 수 있는 C-owned 영역을
+기존 minifier로 조립한다. 원 C code도 같은 helper의 역변환 데이터로 남아
+기존 common literal과 FD0 template 소비자가 실제 원 source를 먼저 검증한다.
+부트스트랩은 compiler와 source literal 두 영역만 바꾸며 세 gap과 전체 inverse를
+검증한다. 정본·기존 guard/helper 체인과 DEV reference는 유지한다.
+
+선택한 compiler는 `cc -Os -mavx2 -x c - -o x -s`이다. 공통 A compiler 정책과
+C ISA를 함께 이식한 별도 source/compiler 변형이다. 기존 C의 `-std=c11 -pthread`
+shipping flags를 유지했다는 뜻은 아니며 이전 preprocessor와 DEV compiler는 그대로다.
+Full-key TT, PVS/LMR, history/continuation/correction, king-capture reject,
+draw/cap QS·TT guard, 512 move-buffer guard, pool drain/result/flush/join과 입력 규칙을
+보존하도록 검토했다. 이전 C의 실행 trace·시간제 nodes/depth/result·기력·성능
+동일성은 주장하지 않는다.
+
+완료된 setter 경계에서 x[1..6]은 색별 count 차이고 x[7]은 signed positional
+residual이다. 각 int16 저장과 remove→mailbox 한 번→add→king 순서를 유지한다.
+현재 HCE의 center j는 [-7,5]이고 residual은 보수적으로 기물당 절댓값63,
+32기물 합2016 이하라 int16에 안전하다. 실제 static HCE의 절댓값은29120 이하다.
+고정 weight의 임의 int16 입력도 dot 절댓값70483968 이하라 madd/int32 합에 안전하다.
+EP canonicalizer의 mailbox-only scratch는 lane이 일부러 갱신되지 않는 attack-only
+임시값이며 평가·setter·검색으로 넘기지 않는다. Empty EP victim의 HCE(0,q)=0도 유지한다.
+
+ONE firstcost는 source9527→9093 B, bootstrap10566→10054 B,
+native26152→22672 B, `.text`7556→7505 B, 전체4778→4672 B(-106 B)이다.
+73 B header와 기존 nice64/BT4/64MiB codec을 포함한다. Whole SHA는
+`cd66a664d90d862b9c557c7586d1d24613474115f9670fca427113b89fdb1176`이고
+new native SHA는 `f35ec4454b87468519ea5d58d659bc6f90247b1d8736bfa6526cfa266fb2ae46`다.
+기준선 재compile/encode0, 후보 각1, strict Python2/CLI2 전체 source/bootstrap 복원과
+EOF/trailing0을 통과했다. 원 outer/child 모두 terminal/reaped/group 부재/강제정리0/owned0이다.
+준비의 native 경로 assertion은 제품0에서 실제 build.json 경로로 정정했고 원 진단을 보존했다.
+
+CROSS_NORMAL_PASS: actual new TU를 바꾸지 않고 old C 고유 정의의 역할 이름만
+alias한 finite focused를 1 compile/1 run했다. Fatal GCC13 ASan/UBSan에서 독립 int64
+oracle·old scalar 합·actual old/new 8lane/SIMD·refresh·완료 put 사례2784·typed parent
+보존을 확인했다. Model scan2965/scalar값189760/signed16 basis·mixed88/EP scratch4와
+양side capture·EP·네 promotion·양쪽 castle을 포함한 legal child154가 통과했다.
+수치는 실제 관측 범위이고 별도 test-count 의무나 모든 C/search 동등성 증명이 아니다.
+ASan 가상주소64TiB와 별도 hard RSS512MiB/CPU25초/wall30초를 사용했으며 peak/stack
+최적성은 측정하지 않았다. `put_phases` 출력은 중간 store 계측이 아닌 완료 put 사례 수다.
+Ordinary --dev 한 번에서 shipping 두 사본의 source/native/bootstrap/whole 전체가
+firstcost와 같고 DEV 두 사본은 실제 이전 C source/native 전체와 같았다.
+Unchanged selected 한 번은 새 native에서 quit/EOF 두 session·여덟 GO·3 startup TID,
+FD0/1/2·private-path 제거·closing bestmove 한 번·reader 완료·물리 종료를 확인했다.
+원 focused와 normal outer/child 모두 terminal0/reaped/anchor 유지 중 extras0/
+당시 group 부재/강제정리0/owned0으로 마감했다. Producing 이후 recipe/README 차이는
+완료 주석뿐이며 helper/build/expected는 그대로다. 이전 성공을 새 image 성공으로 상속하지
+않았으며 cancellation causality는 unproven이다. Old C trace/TT interleaving·시간제 nodes·
+기력·성능·stack 크기·모든 core qualification·새 CI·학습/AWS는 주장하지 않는다.
+
+## 이전 단계 기록
+
 # Maintained C: one pool condition — 2026-10-22
 
 The fixed first-cost complete file is **4845 B**, source

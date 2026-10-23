@@ -189,6 +189,8 @@ def main():
         square_successor=module('entry_F_square_successor',frozen/'shipping_square_successor.py')
         return_token=module('entry_F_return_token',frozen/'shipping_return_token.py')
         four_locals=module('entry_F_four_locals',frozen/'shipping_four_locals.py')
+        depth_bound=module('entry_F_depth_bound',frozen/'shipping_depth_bound.py')
+        pool_state=module('entry_F_pool_state',frozen/'shipping_pool_state.py')
         # Keep this base for every unchanged shipping readable/spelling guard.
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
@@ -296,6 +298,10 @@ def main():
                     full_common_metadata['return_keyword_token']=return_metadata
                     full_reference,local_metadata=four_locals.transform_source(full_reference)
                     full_common_metadata['four_local_spellings']=local_metadata
+                    full_reference,depth_bound_metadata=depth_bound.transform_source(full_reference)
+                    full_common_metadata['depth_bound_metadata']=depth_bound_metadata
+                    full_reference,pool_metadata=pool_state.transform_source(full_reference)
+                    full_common_metadata['pool_depth_job_token']=pool_metadata
                     if len(full_reference)!=full_expected['source_bytes'] or sha(full_reference)!=full_expected['source_sha256']:
                         raise ValueError('default full-F source generation changed')
                     data,policy_metadata=material_noise(data)
@@ -388,12 +394,18 @@ def main():
                     common_metadata['return_keyword_token']=return_metadata
                     data,local_metadata=four_locals.transform_source(data)
                     common_metadata['four_local_spellings']=local_metadata
+                    data,depth_bound_metadata=depth_bound.transform_source(data)
+                    common_metadata['depth_bound_metadata']=depth_bound_metadata
+                    data,pool_metadata=pool_state.transform_source(data)
+                    common_metadata['pool_depth_job_token']=pool_metadata
             return data,observations,counters,alpha_metadata,storage_metadata,scope_metadata,member_metadata,semantic_metadata,input_metadata,declaration_metadata,hce_metadata,type_metadata,unit_bound_metadata,startup_metadata,global_names_metadata,capture_metadata,policy_metadata,material_names_metadata,material_capture_metadata,move_tt_metadata,move_tt_names_metadata,expressions_metadata,common_metadata,before_names
         def package(source):
             previous_literal=lambda data:common.source_literal(data,literal)
             successor_literal=lambda data:square_successor.source_literal(data,previous_literal)
             return_literal=lambda data:return_token.source_literal(data,successor_literal)
-            expression,_=(four_locals.source_literal(source,return_literal) if args.policy=='full'
+            four_literal=lambda data:four_locals.source_literal(data,return_literal)
+            depth_literal=lambda data:depth_bound.source_literal(data,four_literal)
+            expression,_=(pool_state.source_literal(source,depth_literal) if args.policy=='full'
                           else previous_literal(source))
             script=template.replace(marker,expression.encode())
             ast.parse(script)

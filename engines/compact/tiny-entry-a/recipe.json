@@ -60,7 +60,8 @@
     "engines/compact/tiny-entry-a/shipping_root_hint.py": "362ac9430663fcf37eb2fca4272662471a7814d65be2b1f2d17522b8cb773e22",
     "engines/compact/tiny-entry-a/shipping_root_normal.py": "b6a4d1bd7d107f267ee437bbc36d9353664a119ad46592fb0cfca1f6985c2311",
     "engines/compact/tiny-entry-a/shipping_root_pals.py": "f69c925cd6f616090224edf926e115bc3b2f025981e0edee5b91a33d56a633e6",
-    "engines/compact/tiny-entry-a/shipping_keyword_scope.py": "723a3b1892de8d9f528fb6d7b7567f8283c9bfd683065445da9b4263a32a7cd2"
+    "engines/compact/tiny-entry-a/shipping_keyword_scope.py": "723a3b1892de8d9f528fb6d7b7567f8283c9bfd683065445da9b4263a32a7cd2",
+    "engines/compact/tiny-entry-a/shipping_pool_state.py": "87478a25e8b8e5f067230b2e0306dd3f4fbf88ee85d105da8c7cbd010544bf30"
   },
   "fixed_renames": [
     [
@@ -396,18 +397,18 @@
   },
   "expected": {
     "readable_sha256": "a6aab57fffacc1900dbd9de133652d811d316b3823144ec2181c4f8dda581b6a",
-    "source_bytes": 8461,
-    "source_sha256": "a745a1e971034cd068ffeec4527b941b4607105cb229626753344cdc5187295c",
+    "source_bytes": 8443,
+    "source_sha256": "7e03415f6fd01167cb2bc50d02f7ee2fafbdd74a8862c4839c2cf8f87b7c5b3f",
     "native_bytes": 18576,
-    "native_sha256": "5fd8f877ed857acd6a0c5fe1f9818a66a66ba8a4b0dc60ffcb6b82fb050fb1fe",
-    "whole_bytes": 4511,
-    "whole_sha256": "a568185049fbdd22d1bb987550afc77a74a552f2319689c2650b8ed607771a97",
-    "bootstrap_sha256": "03a6535c0e99dc9161a38424c2d685a1305ccc3a3bbeed4ee4ee93514e1c7650",
+    "native_sha256": "35056c2466b0baa6a9840a8fdca484fd5bba271e7026a845865202c706007456",
+    "whole_bytes": 4505,
+    "whole_sha256": "0ae16d2d2def85dd9a48e08d608dcd5f10bd919b463dc596352bca7df805b899",
+    "bootstrap_sha256": "8fc54fd81b2d44624694a425833cb0cf72f679aa676daecd8c505b3fa70dbd1f",
     "dev_source_sha256": "d1f0ff322843a4210cb1cad574bc6726eef576c0fd398cb0e1cfbc12fdc81f01",
     "dev_native_sha256": "078df7141403841798e0bcb1545e59975492359b78d88b0637b99865a6bf72b9",
     "input_profile_readable_bytes": 27688,
     "input_profile_readable_sha256": "4af39bc6496c85281b322063245ee97a522b4d6c6df7c4844f71d981e733164a",
-    "bootstrap_bytes": 9415
+    "bootstrap_bytes": 9397
   },
   "local_input_sha256": {
     "engine.c": "a6aab57fffacc1900dbd9de133652d811d316b3823144ec2181c4f8dda581b6a",
@@ -3816,5 +3817,70 @@
       "scope": "Actual default Loose4511 wrapper startup/GO/drain/quit/EOF and physical exit. Exact preceding native bytes are preserved. Root-hint/NORMAL/PALS variants retain original production/qualification metadata and are not rerun or newly qualified. No FD observer, cancellation causality, timing/performance/RAM/strength/fresh/SAN/new-CI claim."
     },
     "scope": "default Loose only; three root policies and DEV bypass; actual CPP/native identity and size measured; new wrapper ordinary/selected pending"
+  },
+  "pool_state": {
+    "scope": "default Loose only; root3 and DEV bypass; no external experiment inputs",
+    "previous_expected": {
+      "readable_sha256": "a6aab57fffacc1900dbd9de133652d811d316b3823144ec2181c4f8dda581b6a",
+      "source_bytes": 8461,
+      "source_sha256": "a745a1e971034cd068ffeec4527b941b4607105cb229626753344cdc5187295c",
+      "native_bytes": 18576,
+      "native_sha256": "5fd8f877ed857acd6a0c5fe1f9818a66a66ba8a4b0dc60ffcb6b82fb050fb1fe",
+      "whole_bytes": 4511,
+      "whole_sha256": "a568185049fbdd22d1bb987550afc77a74a552f2319689c2650b8ed607771a97",
+      "bootstrap_sha256": "03a6535c0e99dc9161a38424c2d685a1305ccc3a3bbeed4ee4ee93514e1c7650",
+      "dev_source_sha256": "d1f0ff322843a4210cb1cad574bc6726eef576c0fd398cb0e1cfbc12fdc81f01",
+      "dev_native_sha256": "078df7141403841798e0bcb1545e59975492359b78d88b0637b99865a6bf72b9",
+      "input_profile_readable_bytes": 27688,
+      "input_profile_readable_sha256": "4af39bc6496c85281b322063245ee97a522b4d6c6df7c4844f71d981e733164a",
+      "bootstrap_bytes": 9415
+    },
+    "source_roles": 6,
+    "protected_gaps": 7,
+    "raw_delta": -18,
+    "whole_delta": -6,
+    "native_identity_equal_to_predecessor": false,
+    "first_cost": {
+      "path": "/home/stemxstudio/rove4k-a-depth-jobflag-pool-first-cost-20261024-v1/results.json",
+      "runtime_qualified": false
+    },
+    "normal_status": "PASS; ordinary --dev1 and unchanged selected1; source/native/bootstrap/whole first-cost entire tuple exact",
+    "normal_validation": {
+      "scope": "default Loose depth-jobflag representation only; no new root3 runs or inherited root runtime claims",
+      "ordinary_dev_calls": 1,
+      "shipping_reproductions": 2,
+      "actual_previous_DEV_reproductions": 2,
+      "first_cost_entire_tuple_equal": true,
+      "selected_calls": 1,
+      "sessions": 2,
+      "GO_calls": 8,
+      "startup_TIDs_per_session": 3,
+      "actual_native_image": "35056c2466b0baa6a9840a8fdca484fd5bba271e7026a845865202c706007456",
+      "build": {
+        "path": "/home/stemxstudio/rove4k-a-depth-jobflag-pool-normal-20261024-v1/build/build.json",
+        "bytes": 225471,
+        "sha256": "e814b7df2cd7bbb1c5472d983ab4cd8ad2d566bd7f4f6f0fec611a1ab63d78cf"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-a-depth-jobflag-pool-normal-20261024-v1/runtime/runtime.json",
+        "bytes": 73396,
+        "sha256": "f321f2233c67878fb1b84df40c834fa589d989856876548f12dacc951c462dc4"
+      },
+      "normal_receipt": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-depth-jobflag-pool-promotion-20261024-evidence/normal.json",
+        "bytes": 40155,
+        "sha256": "0dff4fb25d5f90d7f258390a47bc0c40408a2e2a25240f0d8595407e3785db58"
+      },
+      "physical_exit": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-a-depth-jobflag-pool-promotion-20261024-evidence/physical-exit.json",
+        "bytes": 2310,
+        "sha256": "5e0010aaedcbc8d1e63800b5dee54733438ec76757ca8793cd1408d718414400"
+      },
+      "root3_policy_dictionaries_and_pipeline_preserved": true,
+      "extra_core_SAN_fault_fresh_games": 0,
+      "FD012_observed": false,
+      "cancellation_causality": "unproven",
+      "owned_handles": 0
+    }
   }
 }

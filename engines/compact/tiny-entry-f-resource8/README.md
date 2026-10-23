@@ -1,3 +1,49 @@
+# F8 v6: full F TT/pool source with all-eight job publication
+
+Class `full-F-late-fixed-resource8-TT18-v6` consumes the exact current full-F2
+TT/pool compact source8094/543b6469... and specializes six fixed resource roles.
+It produces C8131/7245231f... (+37B), with seven protected gaps and a full inverse.
+The GO role sets qk8 and every worker b=-1 under the original job mutex before
+broadcast. Static startup b0, worker claim0, completion/flush/drain ordering and
+actual-created-count shutdown joins are preserved. All eight pending sentinels
+must be posted: changing qk alone would leave workers asleep and prevent drain.
+
+One fixed independent first cost is whole4327/8d37b5d...: -33B versus F8v5
+4360, and231B above4096. Native18576/dba06bb3... is a new full image, not the
+previous F8 native. Bootstrap9063/449b1973... is also new. F2 whole4317 and its
+separate source/codec changes are not summed into this measured F8 result.
+F8 keeps its own ALONE6/BT2/dict16KiB/lc2lp0pb0/nice24/header73 and compiler argv.
+Compiler1/encode1/strict Python1/CLI1 passed; all original handles reached
+terminal0/reap/pre-reap extras0/group absence, forced0/owned0. No engine ran in
+that first-cost phase. Full HCE, TT18/full-key TT, MTD, learners, rules and public
+protocol remain; no runtime resource option or reduced feature model is added.
+
+F2 producer code is frozen (builder c02fa474..., depth-bound helper03626404...,
+pool-state helper0bc1f736...). The base59 + positive2 + own5 source closure
+contains66 files. One ordinary builder and the unchanged positive assertions passed. Existing F8 source/normal/positive receipts below stay historical.
+Only class/base-stage identity text changes in the verifier; the positive body,
+stable9 idle prephase, strict FD/children/maps/noWX checks, all8 active worker
+CPU observations, legal outputs and physical cleanup remain unchanged.
+Guard count/size, peak stack, scaling, strength, cancellation causality and final
+4KiB acceptance are not established by this source registration.
+
+<!-- F8_V6_COMPLETION:PASS -->
+After E quiet-game release and F2 ordinary/selected original-handle closure,
+the actual F2 normal8094 source fed one F8 ordinary builder with two independent
+source/native/bootstrap/whole reproductions, entirely equal to the fixed first
+cost4327. Existing positive assertions passed quit/EOF2 sessions8 legal GO,
+stable9 idle TIDs and all8 active worker CPU observations, strict FD/children/
+noWX/raw maps/mainstack and physical process/reader cleanup. No assertion was
+relaxed; only v6 class/stage identity text changed in the verifier.
+Original outer692/710 and every owned builder tool returned0/reaped after
+pre-reap other-members[], with group absence and forced0/owned0.
+The producing66-file closure and recipe remain separate from final annotations.
+No additional cost, PP, SAN, fault, game, fresh or other-family runtime ran.
+Eight worker guard count/size, peak stack, scalability, strength, cancellation
+causality, final hardware allocation and final4KiB acceptance remain unproven.
+Build receipt: `1ef6d4e981cb204673308460209a71d17fc11d89d516b32cd1e799ea2fd2fd2a`.
+Runtime receipt: `3b9364a311f0d22b49e3eb68f0d69c8ad14e829de28ec9862f5faf1adf4ed9f6`.
+
 # F8 v5: full-F four-locals source, eight search workers
 
 Class `full-F-late-fixed-resource8-TT18-v5` explicitly consumes ordinary full-F2
