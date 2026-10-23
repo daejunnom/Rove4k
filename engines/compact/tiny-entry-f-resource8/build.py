@@ -35,48 +35,110 @@ def main():
     if not args.base_source.is_absolute() or not args.out.is_absolute() or out.exists() or out==REPO or REPO in out.parents or any((p/'.git').exists() for p in (out,*out.parents)):
         parser.error('absolute base source and new external output required')
     recipe_raw=normalized(HERE/'recipe.json');recipe=json.loads(recipe_raw)
-    require(recipe['class']=='full-F-late-fixed-resource8-TT18-v3' and recipe['profile']=={'workers':8,'tt_bits':18,'ply':128,'native_TIDs':9},'one fixed resource profile only')
+    require(recipe['class']=='full-F-late-fixed-resource8-TT18-v4' and recipe['profile']=={'workers':8,'tt_bits':18,'ply':128,'native_TIDs':9},'one fixed resource profile only')
     require(recipe['compiler']==['cc','-Os','-pthread','-x','c','-','-o','x','-s'],'fixed compiler arguments differ')
     require(recipe['compression']=={'format':'lzma-alone','filter':'LZMA1','preset':6,'extreme':False,'lc':2,'lp':0,'pb':0,'check':'NONE','mf':'BT2','dictionary_bytes':16384,'nice_len':24},'fixed full-F codec differs')
-    require(recipe['base_stage']=='full-after-valid-square-successor','fixed late producer stage differs')
+    require(recipe['base_stage']=='full-after-return-token','fixed late producer stage differs')
     base=args.base_source.read_bytes();require({'bytes':len(base),'sha256':sha(base)}==recipe['base_source'] and b'\r' not in base,'unknown ordinary full-F2 source')
     closure=source_closure();limits=recipe['limits'];out.mkdir()
     report={'complete':False,'class':recipe['class'],'profile':recipe['profile'],'base_profile':recipe['base_profile'],
         'base_source':identity(args.base_source),'base_stage':recipe['base_stage'],'source_closure':closure,'recipe_sha256':sha(recipe_raw),'limits':limits,
         'commands':[],'attempts':[],'counts':{'candidate_compile':0,'candidate_encode':0,'strict_Python_restore':0,'baseline_compile':0,'baseline_encode':0,'separate_PP':0,'ELF_execution':0},
         'runtime_qualified':False,'final_4k_allocation':'unknown','rules_eligibility':'unproven','authority':'exact base C and project code closure; no historical research JSON/native inputs'}
-    active=None;deadline=time.monotonic()+limits['aggregate_wall'];env={**os.environ,'LC_ALL':'C','TZ':'UTC','PYTHONDONTWRITEBYTECODE':'1'}
+    active=None;owned={};deadline=time.monotonic()+limits['aggregate_wall'];env={**os.environ,'LC_ALL':'C','TZ':'UTC','PYTHONDONTWRITEBYTECODE':'1'}
     def save():(out/'build.json').write_text(json.dumps(report,indent=2)+'\n')
     def stop(sig,frame):raise TimeoutError('bounded builder signal '+str(sig))
     handled=(signal.SIGTERM,signal.SIGINT,signal.SIGALRM,signal.SIGXCPU);saved_signal_handlers={sig:signal.signal(sig,stop) for sig in handled}
     resource.setrlimit(resource.RLIMIT_AS,(limits['parent_AS'],)*2);resource.setrlimit(resource.RLIMIT_CPU,(limits['parent_CPU'],)*2);signal.alarm(limits['aggregate_wall'])
+    def exited_unreaped(child):
+        # Observe exit without releasing the original child's PID/group identity.
+        return os.waitid(os.P_PID, child.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT) is not None
+
+
+    def group_absent(child):
+        try: os.killpg(child.pid, 0); return False
+        except ProcessLookupError: return True
+
+
+    def group_others(child):
+        # The original leader is deliberately unreaped during this observation.
+        rows=[]
+        for path in Path('/proc').iterdir():
+            if not path.name.isdecimal() or int(path.name)==child.pid:continue
+            try:
+                fields=(path/'stat').read_text().rsplit(')',1)[1].split()
+                if int(fields[2])==child.pid:rows.append({'pid':int(path.name),'state':fields[0]})
+            except (FileNotFoundError,ProcessLookupError,PermissionError):pass
+        return rows
+
+    def settle(child, row, force=False):
+        if not row.get('reaped'):
+            extras=group_others(child)
+            if force or not exited_unreaped(child) or extras:
+                row['forced_cleanup']=True
+                row['other_group_members_before_cleanup']=extras
+                for sig in (signal.SIGTERM,signal.SIGKILL):
+                    # Identity remains reserved by the same unreaped Popen leader.
+                    try:os.killpg(child.pid,sig)
+                    except ProcessLookupError:pass
+                    end=time.monotonic()+2
+                    while time.monotonic()<end:
+                        if exited_unreaped(child) and not group_others(child):break
+                        time.sleep(.025)
+                    if exited_unreaped(child) and not group_others(child):break
+            extras=group_others(child)
+            row['other_group_members_before_reap']=extras
+            if not exited_unreaped(child) or extras:
+                row['unsettled_before_reap']=True
+                raise RuntimeError('Owned original group did not settle while leader identity retained')
+            row['original_identity_retained_until_other_members_absent']=True
+            child.wait(timeout=3)
+            row.update(returncode=child.returncode,terminal=True,reaped=True)
+        row['group_absent_at_settlement']=group_absent(child)
+        if row['group_absent_at_settlement']:owned.pop(child,None)
+
     def run(command,cwd=out,data=None,kind='metadata'):
         nonlocal active
-        row={'kind':kind,'command':[str(x) for x in command],'cwd':str(cwd),'started':False};report['commands'].append(row);save()
-        mask=signal.pthread_sigmask(signal.SIG_BLOCK,set(handled))
-        def setup():
-            resource.setrlimit(resource.RLIMIT_AS,(limits['child_AS'],)*2);resource.setrlimit(resource.RLIMIT_CPU,(limits['child_CPU'],)*2);signal.pthread_sigmask(signal.SIG_SETMASK,mask)
-        try:
+        row={'kind':kind,'command':[str(x) for x in command],'cwd':str(cwd),'started':False,'forced_cleanup':False}
+        report['commands'].append(row);save()
+        stem='tool-'+str(len(report['commands']))+'-'+kind
+        output_path,error_path=out/(stem+'.stdout'),out/(stem+'.stderr')
+        input_path=out/(stem+'.stdin')
+        if data is not None:input_path.write_bytes(data)
+        with output_path.open('wb') as output_file,error_path.open('wb') as error_file, (input_path.open('rb') if data is not None else open(os.devnull,'rb')) as input_file:
+            child=None;begin=time.monotonic()
             try:
-                active=subprocess.Popen(row['command'],cwd=cwd,env=env,stdin=subprocess.PIPE if data is not None else subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,start_new_session=True,preexec_fn=setup)
-                row.update(started=True,pid=active.pid,pgid=active.pid);save()
-            finally:signal.pthread_sigmask(signal.SIG_SETMASK,mask)
-            output,error=active.communicate(data,timeout=min(limits['per_command_wall'],max(.1,deadline-time.monotonic())))
-            row.update(returncode=active.returncode,terminal=True,stdout_bytes=len(output),stdout_sha256=sha(output),stderr=error.decode(errors='replace'))
-            require(len(output)+len(error)<=limits['tool_output_bytes'],'tool output cap');require(active.returncode==0,'tool failed: '+kind);return output
-        finally:
-            if active is not None:
-                if active.poll() is None or active.returncode:
-                    try:os.killpg(active.pid,signal.SIGKILL)
-                    except ProcessLookupError:pass
-                    output,error=active.communicate(timeout=5);row.setdefault('stdout_bytes',len(output));row.setdefault('stdout_sha256',sha(output));row.setdefault('stderr',error.decode(errors='replace'))
-                row.update(returncode=active.returncode,terminal=active.poll() is not None)
-                try:os.killpg(active.pid,0);row['forced_group_cleanup']=True;os.killpg(active.pid,signal.SIGKILL)
-                except ProcessLookupError:pass
-                try:os.killpg(active.pid,0);row['owned_group_absent']=False
-                except ProcessLookupError:row['owned_group_absent']=True
-                active=None
-            save()
+                mask=signal.pthread_sigmask(signal.SIG_BLOCK,set(handled))
+                def setup():
+                    resource.setrlimit(resource.RLIMIT_AS,(limits['child_AS'],)*2)
+                    resource.setrlimit(resource.RLIMIT_CPU,(limits['child_CPU'],)*2)
+                    signal.pthread_sigmask(signal.SIG_SETMASK,mask)
+                try:
+                    active=subprocess.Popen(row['command'],cwd=cwd,env=env,stdin=input_file,stdout=output_file,stderr=error_file,start_new_session=True,preexec_fn=setup)
+                    child=active;owned[child]=row;row.update(started=True,pid=child.pid,pgid=child.pid);save()
+                finally:signal.pthread_sigmask(signal.SIG_SETMASK,mask)
+                while not exited_unreaped(child):
+                    if time.monotonic()-begin>limits['per_command_wall'] or time.monotonic()>deadline:raise TimeoutError('tool wall: '+kind)
+                    if output_path.stat().st_size+error_path.stat().st_size>limits['tool_output_bytes']:raise RuntimeError('tool output cap: '+kind)
+                    time.sleep(.025)
+                row['elapsed_diagnostic_seconds']=time.monotonic()-begin
+            finally:
+                # Covers constructor return, publication/save, unmask delivery and monitoring.
+                if child is not None:
+                    blocked=signal.pthread_sigmask(signal.SIG_BLOCK,set(handled))
+                    try:settle(child,row,force=not exited_unreaped(child))
+                    finally:
+                        try:
+                            row['owned_group_absent']=row.get('group_absent_at_settlement',False)
+                            row['forced_group_cleanup']=row['forced_cleanup']
+                            if child not in owned:active=None
+                            row['stdout_file']=identity(output_path);row['stderr_file']=identity(error_path);save()
+                        finally:signal.pthread_sigmask(signal.SIG_SETMASK,blocked)
+        output,error=output_path.read_bytes(),error_path.read_bytes()
+        row.update(stdout_bytes=len(output),stdout_sha256=sha(output),stderr=error.decode(errors='replace'))
+        save();require(len(output)+len(error)<=limits['tool_output_bytes'],'tool output cap')
+        require(row['returncode']==0 and row['owned_group_absent'] and not row['forced_group_cleanup'],'tool failed or unsettled: '+kind)
+        return output
     try:
         frozen=out/'inputs'
         for name,pinned in closure.items():
@@ -115,7 +177,7 @@ def main():
         report.update(complete=True,source_reproduced=True,native_reproduced=True,bootstrap_reproduced=True,whole_reproduced=True)
     except BaseException as error:report['first_failure']={'type':type(error).__name__,'message':str(error)};raise
     finally:
-        signal.alarm(0);report['owned_active_tool']=None if active is None else active.pid;save()
+        signal.alarm(0);report['owned_active_tool']=None if active is None else active.pid;report['owned_tool_handles']=len(owned);save()
         for sig,handler in saved_signal_handlers.items():signal.signal(sig,handler)
         print(json.dumps({'out':str(out),'complete':report['complete'],'counts':report['counts'],'first_failure':report.get('first_failure')}))
 

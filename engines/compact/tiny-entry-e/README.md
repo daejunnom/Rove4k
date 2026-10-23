@@ -1238,3 +1238,23 @@ owned0으로 마감했다. Runtime SHA는 `f453a0714c15a09f983cb8573fa7f0bd417ab
 build/runtime 영수증은 recipe setter_phase.normal_validation에 연결했다.
 Producing 후 recipe/README 차이는 완료 주석뿐이다. Causality는 unproven이며
 추가 SAN/fault/epoch-wrap/fresh/학습/cost 재실행·성능/기력/새 CI는0이다.
+
+
+## 고정 object macro 네 개의 직접 치환
+
+공통 pure `../tiny-entry-a/shipping_constants_bce.py`를 setter 뒤 shipping에만 연결했다.
+PLY=128, MOVES=512, HISTORY=4096, MATE=30000의 정의와 실제 code token만
+같은 unsuffixed int literal로 바꾼다. 고정 spans·보호 gaps·전체 inverse와 기존
+입출력 guard를 유지하며 정본·DEV·원 parser·codec·탐색 기능은 그대로다.
+Firstcost 전체 header CPP token과 native 전체 bytes가 원 baseline과 같다.
+Source 9951→9866 B, whole 4865→4825 B
+(73 B launcher 포함, delta -40 B), whole SHA `f89a069fa58645bfc3f6411994f0048220ccd00c0624078345296f57a4b0a6b5`.
+Macro-table와 진단 source 위치의 동일성은 주장하지 않는다.
+CONSTANTS_NORMAL_PASS: ordinary --dev 한 번으로 shipping 두 사본과 DEV 두 사본을
+재현했다. Source/native/bootstrap/whole 전체가 고정 firstcost와 같고 native와
+진단 DEV source/native는 실제 이전 setter 산출물 전체와 같다. 원 selected의
+quit/EOF 두 session·여덟 GO·3 startup TID·private-path 제거·closing bestmove 한 번·
+readers 완료·물리 종료를 확인했다. 원 command 두 개는 terminal0/reaped/group 부재/
+강제정리0/owned0으로 닫았다. Runtime SHA `b4c0fb9d4b09d1ea5676a71e9bb9db4209d9ca1b116bb79fe8efbda8b458f2b8`.
+Recipe constants.normal_validation에 build/runtime 영수증을 연결했다. 이후 변경은
+완료 주석뿐이며 causality는 unproven이다. 추가 SAN/fault/fresh/학습/기력/성능/새 CI는0이다.

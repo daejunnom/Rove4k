@@ -1,3 +1,63 @@
+# Maintained F full4369 — fixed return token, 2026-10-24
+
+The selected single token dictionary adds `#define H return` (17 B) after
+seven includes and replaces exactly42 return keywords. Full C8360->8167
+(-193), bootstrap9282->9089, and the actual first-cost whole4378->4369
+(-9). The other two measured dictionaries also won but produce larger
+whole files4372/4373; neither is included in this fixed producer. The
+native18576/a9e5d648... and actual CPP bytes remain entirely baseline-equal.
+The complete4369 file is273 B above4096; raw savings are not whole savings.
+
+Pure `shipping_return_token.py` follows `shipping_square_successor.py` in
+both default full shipping and explicit optional `full_reference` generation.
+Its43 physical edits/44 gaps retain8108 protected bytes and reverse exactly
+to the fixed8360 input. Seven includes, existing S/MOVE definitions, quoted
+bytes and all other code remain exact. H is absent throughout the admitted
+original source; target CPP/header-macro and fullnative equivalence were
+observed at first cost. Macro dumps, source locations and diagnostics differ;
+this is not a general keyword-macro or cross-environment equivalence claim.
+
+Packaging restores8167->8360 and calls the actual existing square_successor,
+common and pack-stream literal guards on that restored source, then forwards
+only the source literal interior. Python AST restoration and full byte inverse
+must recover the exact8167 output. No old source witness replaces the actual
+input and no original guard is disabled. Native/flags/resources/bootstrap
+control flow/header73/fullnice16 BT2/dict16KiB/lc2lp0pb0 remain unchanged.
+Actual optional4319/4045 outputs and all DEV/canonical bytes bypass this stage.
+Separate optional full_reference now checks8167. The helper's F8 bypass and
+changed=False fields describe this full-F producer's direct call only; they
+are not a claim that all subsequent F8 artifacts stay unchanged. The separately
+owned F8 v4 consumer explicitly specializes the full-F return output, with its
+own tuple and qualification. This F4 normal run performs no F8 product call.
+
+First-cost receipt: `59ae6e18cd320fca0b23b8091357298fc63a26a9339fb31aaf60e170109a6e33`.
+Final candidate index: `2213d178ca97766bf407754863146f3c861d2631de16f63474c372a2430c032d`.
+Actual root: /home/stemxstudio/rove4k-f-c4ke-return-first-cost-20261024-v1.
+One ordinary full --dev call reproduced shipping2 to the exact first-cost
+source/native/bootstrap/whole tuple and unchanged DEV2. Pre-name8538/47353...
+remained exact. The unchanged selected verifier passed quit/EOF2 sessions,
+8 legal GO epochs, stable3 startup TIDs, exact restored native, private path/
+helper absence, completed readers and physical process exit. Cancellation
+causality remains unproven and the existing verifier has no FD-list inspection.
+
+Each optional ordinary policy also ran once without --dev: selected4319/4045
+source/native/bootstrap/whole tuples stayed entirely predecessor-equal in both
+repetitions, while the separate full_reference8167 source reproduced twice for
+each. No new optional DEV or selected runtime execution is claimed. The four
+original Popen commands all returned0, reaped with their groups absent and no
+other members before reap; stderr0, forced0, owned0 and automatic retries0.
+No extra CPP/cost/SAN/fresh/game/benchmark/fault campaign was performed.
+
+Execution index: `c9bf754fd3a8162f19bb5b3d2862bee632d16eeae29713acc3c1445ea77c57dc`.
+Normal receipt: `4dab9ec0d8ea8204caaa01734b48c9b7384b8962e34ca6adfa0abccbbb2f253e`.
+Build: `4b41224678698479b5dd52d5bfdf84916cae45830848b4bc7fde4bf41c66102e`.
+Runtime: `cbf2162b1328f7f82ec87fbe2cd6bcc424cb7ea2febb12e4a4ad59700e86b24e`.
+Actual root: /home/stemxstudio/rove4k-f-return-token-normal-20261024-v1.
+Producing recipe343107/abd1b48d... and code2 remain frozen in the external
+execution handoff. Final recipe/README add completion annotations only; helper,
+builder and all expected bytes stay producing-exact. Previous4378 normal and
+runtime receipts below retain their original transport and input scope.
+
 # Maintained F full4378 — ordered valid-square successor, 2026-10-22
 
 The fixed source candidate reduces full4385 to4378 B (-7),282 B above4096.

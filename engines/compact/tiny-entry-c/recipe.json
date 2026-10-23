@@ -82,7 +82,8 @@
     "engines/compact/tiny-entry-a/shipping_condition_bce.py": "9ca7635a6ab95de61a88482d05e37bc926c340259ff53c1d032be622183bfdab",
     "engines/compact/tiny-entry-a/shipping_output_bce.py": "267059f7837338231aeb4ad76608bfc84382493e0bc2de74e2ebb02e77eab687",
     "engines/compact/tiny-entry-a/shipping_worker_epilogue_bce.py": "e0ab883e0fec895b66b0ef01b5ede056e05fb0bc72472cd8ac64507f2fbf82ce",
-    "engines/compact/tiny-entry-a/shipping_setter_phase_bce.py": "9d1985e0c798b59b553a6bee1176fb4f19f9b053da9ecf4243812370e64591d2"
+    "engines/compact/tiny-entry-a/shipping_setter_phase_bce.py": "9d1985e0c798b59b553a6bee1176fb4f19f9b053da9ecf4243812370e64591d2",
+    "engines/compact/tiny-entry-a/shipping_constants_bce.py": "02d0411887e7f04042e4ef94c876c32d2469b6d26f056c63dbf1235a93fc052c"
   },
   "compression": {
     "format": "lzma-alone",
@@ -99,16 +100,16 @@
   },
   "expected": {
     "readable_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
-    "source_bytes": 9612,
-    "source_sha256": "932ccb25ae6472c70f1fcb9bb118fb61f702866e7e5dab29ed10a84eef661f6b",
+    "source_bytes": 9527,
+    "source_sha256": "38886cea518a700b7d6f209475dbd80055becce8e4599377a7de0966494f7796",
     "native_bytes": 26152,
     "native_sha256": "08042659b5579626697b60a6cc2b7fee860a0af15931c458aa895e904dc9e553",
-    "whole_bytes": 4815,
-    "whole_sha256": "2091e679394672314e580f2d5fbb249c71873fbf7266284b57f28540f8458a77",
-    "bootstrap_sha256": "3ac86b059957196eb97af3b085adaa4cf1212bd82ec486c12720038a2064023f",
+    "whole_bytes": 4778,
+    "whole_sha256": "bc2cddf33045d250cdeed20ec5cf473b726dfeb9071c8d88c561552b8319709d",
+    "bootstrap_sha256": "b0b1fffcbbef0d38b8d96c8fe7ec639a231f4738afed8a1929b4026bc3906391",
     "dev_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
     "dev_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c",
-    "bootstrap_bytes": 10651
+    "bootstrap_bytes": 10566
   },
   "local_input_sha256": {
     "engine.c": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
@@ -1507,6 +1508,76 @@
         "GO_calls": 8,
         "original_handles_terminal0_reaped_groups_absent_owned0": true,
         "scope": "selected new-native wrapper startup/GO/drain/quit/EOF only. Actual prior DEV reproduction is diagnostic reference, not shipping-model equivalence. Causality unproven; no extra fault/SAN/fresh/strength/performance/CI."
+      }
+    },
+    "constants": {
+      "metadata": {
+        "family": "C",
+        "stage": "late-shipping-four-int-object-macros",
+        "input_bytes": 9612,
+        "input_sha256": "932ccb25ae6472c70f1fcb9bb118fb61f702866e7e5dab29ed10a84eef661f6b",
+        "output_bytes": 9527,
+        "output_sha256": "38886cea518a700b7d6f209475dbd80055becce8e4599377a7de0966494f7796",
+        "raw_delta": -85,
+        "constants": {
+          "PLY": "128",
+          "MOVES": "512",
+          "HISTORY": "4096",
+          "MATE": "30000"
+        },
+        "owned_regions": 29,
+        "protected_gaps": 30,
+        "full_inverse": true,
+        "scope": "fixed unsuffixed int tokens in shipping2; earlier guards/canonical/DEV unchanged",
+        "source_observation": "macro-table and diagnostic source locations change",
+        "external_reads_compiler_codec_engine": 0
+      },
+      "source_proof": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c4ke-constant-inline-source-20261024-evidence/C/source-proof.json",
+        "bytes": 14925,
+        "sha256": "6c9468873ae18bac92fe128970b91554b867da0fedb5b26ab799a661a900ff41"
+      },
+      "firstcost": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-c4ke-constants-first-cost-20261024-evidence/final-index.json",
+        "bytes": 11856,
+        "sha256": "8797e4e0c46bc8934da1204a8b361e81d3cb2c995abc2a82dac0b6dcb0d576dc"
+      },
+      "whole_delta": -37,
+      "full_header_CPP_tokens_equal": true,
+      "native_entire_equal_to_predecessor": true,
+      "predecessor_expected": {
+        "readable_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
+        "source_bytes": 9612,
+        "source_sha256": "932ccb25ae6472c70f1fcb9bb118fb61f702866e7e5dab29ed10a84eef661f6b",
+        "native_bytes": 26152,
+        "native_sha256": "08042659b5579626697b60a6cc2b7fee860a0af15931c458aa895e904dc9e553",
+        "whole_bytes": 4815,
+        "whole_sha256": "2091e679394672314e580f2d5fbb249c71873fbf7266284b57f28540f8458a77",
+        "bootstrap_sha256": "3ac86b059957196eb97af3b085adaa4cf1212bd82ec486c12720038a2064023f",
+        "dev_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
+        "dev_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c",
+        "bootstrap_bytes": 10651
+      },
+      "normal_status": "PASS",
+      "normal_validation": {
+        "build": {
+          "path": "/home/stemxstudio/rove4k-bce-c4ke-constants-normal-20261024-v1/C/build/build.json",
+          "bytes": 271583,
+          "sha256": "ae604f5bb094b4f2be8e285be23a891975ac9b74ac72f850312bbc243deab44a"
+        },
+        "runtime": {
+          "path": "/home/stemxstudio/rove4k-bce-c4ke-constants-normal-20261024-v1/C/runtime/runtime.json",
+          "bytes": 82561,
+          "sha256": "edf7129beaee41fc052e308e174c12b1a7065ef241aba49077f1951d3e34b8a4"
+        },
+        "shipping_reproductions": 2,
+        "DEV_reproductions": 2,
+        "source_native_bootstrap_whole_equal_firstcost": true,
+        "actual_previous_setter_DEV_and_native_entire_equal": true,
+        "sessions": 2,
+        "GO_calls": 8,
+        "original_handles_terminal0_reaped_groups_absent_owned0": true,
+        "scope": "Unchanged selected current wrapper startup/GO/drain/quit/EOF. Actual DEV remains diagnostic reference; causality unproven. No extra SAN/fault/fresh/strength/performance/CI."
       }
     }
   },
@@ -3509,6 +3580,76 @@
       "GO_calls": 8,
       "original_handles_terminal0_reaped_groups_absent_owned0": true,
       "scope": "selected new-native wrapper startup/GO/drain/quit/EOF only. Actual prior DEV reproduction is diagnostic reference, not shipping-model equivalence. Causality unproven; no extra fault/SAN/fresh/strength/performance/CI."
+    }
+  },
+  "constants": {
+    "metadata": {
+      "family": "C",
+      "stage": "late-shipping-four-int-object-macros",
+      "input_bytes": 9612,
+      "input_sha256": "932ccb25ae6472c70f1fcb9bb118fb61f702866e7e5dab29ed10a84eef661f6b",
+      "output_bytes": 9527,
+      "output_sha256": "38886cea518a700b7d6f209475dbd80055becce8e4599377a7de0966494f7796",
+      "raw_delta": -85,
+      "constants": {
+        "PLY": "128",
+        "MOVES": "512",
+        "HISTORY": "4096",
+        "MATE": "30000"
+      },
+      "owned_regions": 29,
+      "protected_gaps": 30,
+      "full_inverse": true,
+      "scope": "fixed unsuffixed int tokens in shipping2; earlier guards/canonical/DEV unchanged",
+      "source_observation": "macro-table and diagnostic source locations change",
+      "external_reads_compiler_codec_engine": 0
+    },
+    "source_proof": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-c4ke-constant-inline-source-20261024-evidence/C/source-proof.json",
+      "bytes": 14925,
+      "sha256": "6c9468873ae18bac92fe128970b91554b867da0fedb5b26ab799a661a900ff41"
+    },
+    "firstcost": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-bce-c4ke-constants-first-cost-20261024-evidence/final-index.json",
+      "bytes": 11856,
+      "sha256": "8797e4e0c46bc8934da1204a8b361e81d3cb2c995abc2a82dac0b6dcb0d576dc"
+    },
+    "whole_delta": -37,
+    "full_header_CPP_tokens_equal": true,
+    "native_entire_equal_to_predecessor": true,
+    "predecessor_expected": {
+      "readable_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
+      "source_bytes": 9612,
+      "source_sha256": "932ccb25ae6472c70f1fcb9bb118fb61f702866e7e5dab29ed10a84eef661f6b",
+      "native_bytes": 26152,
+      "native_sha256": "08042659b5579626697b60a6cc2b7fee860a0af15931c458aa895e904dc9e553",
+      "whole_bytes": 4815,
+      "whole_sha256": "2091e679394672314e580f2d5fbb249c71873fbf7266284b57f28540f8458a77",
+      "bootstrap_sha256": "3ac86b059957196eb97af3b085adaa4cf1212bd82ec486c12720038a2064023f",
+      "dev_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
+      "dev_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c",
+      "bootstrap_bytes": 10651
+    },
+    "normal_status": "PASS",
+    "normal_validation": {
+      "build": {
+        "path": "/home/stemxstudio/rove4k-bce-c4ke-constants-normal-20261024-v1/C/build/build.json",
+        "bytes": 271583,
+        "sha256": "ae604f5bb094b4f2be8e285be23a891975ac9b74ac72f850312bbc243deab44a"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-bce-c4ke-constants-normal-20261024-v1/C/runtime/runtime.json",
+        "bytes": 82561,
+        "sha256": "edf7129beaee41fc052e308e174c12b1a7065ef241aba49077f1951d3e34b8a4"
+      },
+      "shipping_reproductions": 2,
+      "DEV_reproductions": 2,
+      "source_native_bootstrap_whole_equal_firstcost": true,
+      "actual_previous_setter_DEV_and_native_entire_equal": true,
+      "sessions": 2,
+      "GO_calls": 8,
+      "original_handles_terminal0_reaped_groups_absent_owned0": true,
+      "scope": "Unchanged selected current wrapper startup/GO/drain/quit/EOF. Actual DEV remains diagnostic reference; causality unproven. No extra SAN/fault/fresh/strength/performance/CI."
     }
   }
 }

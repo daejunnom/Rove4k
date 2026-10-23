@@ -15,7 +15,7 @@
   "base_source_closure_sha256": {
     "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
     "engines/compact/tiny-entry-f/bootstrap.py.in": "159c5fe166f4b0804471e9d3a70d8f055a510858a6ae33f0ed6b4cfd17fca6f9",
-    "engines/compact/tiny-entry-f/build.py": "6a46e988740a07a64e768af2339373c1b69d77d39559f88cf142a89f8521d81e",
+    "engines/compact/tiny-entry-f/build.py": "2be37c5e3821d608317bf0e0e523b06553a27564e1cb6c4c0bfb4e5f15959cf2",
     "engines/compact/tiny-entry-f/engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
     "engines/compact/tiny-entry-f/launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
     "engines/compact/tiny-entry-f/shipping_alpha.py": "74abadbd79735e9f6b30c513b422245bae737f81d4e3bd04a7b8e597e61937e8",
@@ -67,7 +67,8 @@
     "engines/compact/tiny-entry-f/shipping_condition.py": "c6bf5e284c5648b305817a0da53e7d95566e856eb4a053ac281d88990a495e0f",
     "engines/compact/tiny-entry-f/shipping_walker.py": "cacaeda593a77a8c4ea359351bab1b9b4d2561844f579a993c1875d7b20b208d",
     "engines/compact/tiny-entry-f/shipping_integer_expressions.py": "3857ecd6c4cdf6a32ce13d1052957aa9aca087455e4b0b47be42b159234cd47a",
-    "engines/compact/tiny-entry-f/shipping_square_successor.py": "acf2a93e6680213090143ef2a71014616b65d28c8119718b93d7c867229fefcb"
+    "engines/compact/tiny-entry-f/shipping_square_successor.py": "acf2a93e6680213090143ef2a71014616b65d28c8119718b93d7c867229fefcb",
+    "engines/compact/tiny-entry-f/shipping_return_token.py": "9dde8169a5574496de6c68460df35208e0997c907de84722a309b88fc2011680"
   },
   "positive_helper_sha256": {
     "engines/compact/tiny-entry-d/verify.py": "3ae1f525e718f9cef90b4009ff415065587cf9552b82d2785911a672243fae33",
@@ -130,23 +131,23 @@
   },
   "final_4k_allocation": "unknown",
   "scalability_or_tournament_acceptance": "unproven",
-  "class": "full-F-late-fixed-resource8-TT18-v3",
-  "base_stage": "full-after-valid-square-successor",
+  "class": "full-F-late-fixed-resource8-TT18-v4",
+  "base_stage": "full-after-return-token",
   "base_source": {
-    "bytes": 8360,
-    "sha256": "b4e8f79615eb08c4d5dcb8db9e1cac76cecbef172f2096c64cafcebbc54cabf8"
+    "bytes": 8167,
+    "sha256": "d9cb34ee6302822ab5a1b399039809d10be74cf69d50cc0ba3a14ecbdac6e86a"
   },
   "expected": {
-    "source_bytes": 8385,
-    "source_sha256": "a9237511e92c83ee8a2d07b555cfca886733282b77eca2f0e74d74890d9df2e0",
+    "source_bytes": 8192,
+    "source_sha256": "100fcb8a115047554ccde6052caf7ee648e042668e650ca8fe2820d46d56619c",
     "native_bytes": 18576,
     "native_sha256": "d2bec6575e27b840d24b9166d5b99fc61a22037adf3e9be59d410b1f67356dcf",
-    "bootstrap_bytes": 9317,
-    "bootstrap_sha256": "f80376e2205e60b317eae0a52ea2173e687c12ac830ef7cebdef3810c102b53a",
-    "whole_bytes": 4392,
-    "whole_sha256": "a6224da138e3f8c34dd59b1daddd2e9bdd3d01cfaa7b74135a5435f1045ea5ac"
+    "bootstrap_bytes": 9124,
+    "bootstrap_sha256": "9429c105d0c8183e9d8662900ba5c1c963eb141aa7219c76738df4ee898fec71",
+    "whole_bytes": 4381,
+    "whole_sha256": "fd52d1e7a162ca0d272e017168bcb493859bbe0605e8d49c8aa61c53ec84ec72"
   },
-  "specialize_sha256": "7a074fb28b084eeded7e343eb207e6dffa151c8e77508a9436aa51c46c686388",
+  "specialize_sha256": "3849c5f9a9e1bec8c8e1a06724da61d12bb431d7d3f2e64bfeaa2df12be66141",
   "packaging_paths": {
     "pack_stream.py": "engines/compact/tiny-a/pack_stream.py",
     "shipping_common.py": "engines/scripts/shipping_common.py",
@@ -157,51 +158,31 @@
   },
   "source_raw_delta": 25,
   "fixed_late_source": {
-    "source_index": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-board-successor-v3-source-20261022-evidence/final-index.json",
-      "bytes": 3384,
-      "sha256": "58225ebc4142c839aa93592a711f5f90a31d305526d84e928d3e30a618596981"
-    },
     "source_proof": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-board-successor-v3-source-20261022-evidence/source-proof.json",
-      "bytes": 13048,
-      "sha256": "6fbc3bc2b2f7df71bfc52a5bf041f6e903c1bacd5d33fda98f2e22574307a18e"
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-return-token-source-20261024-evidence/source-proof.json",
+      "bytes": 6043,
+      "sha256": "6ba3e63ea96eaecfb3819fb4ea272a212357687d1977a171bbe0b8e109158cd9"
     },
     "firstcost_index": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-board-successor-v3-first-cost-20261022-evidence/final-index.json",
-      "bytes": 20032,
-      "sha256": "50d4c6baa57b3567008dfc953026ed840363184ca5be93e199eff9a5ab4a71f6"
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-return-token-first-cost-20261024-evidence/final-index.json",
+      "bytes": 15042,
+      "sha256": "8a83e053f8826cc861e7a24fe6b6e653cb8279ffff04d5d8ef775301b3869b0d"
     },
     "source_spans_count": 6,
     "protected_gaps": 7,
     "full_inverse": true,
     "source_raw_delta_vs_new_F2": 25,
-    "source_delta_vs_previous_F8": -25,
-    "whole_delta_vs_previous_F8_same_nice24": -7,
+    "source_delta_vs_previous_F8": -193,
+    "whole_delta_vs_previous_F8_same_nice24": -11,
     "source_names_reapplied": false,
     "one_condition_broadcast4_signal0_wait2": true,
     "strict_first_max_depth_selector": true,
     "actual_created_join_count": true,
     "F2_nice16_effect_combined": false,
     "upstream_full_F_normal_source": {
-      "path": "/home/stemxstudio/rove4k-f-valid-square-successor-promotion-20261022-v1/full/build/main.c",
-      "bytes": 8360,
-      "sha256": "b4e8f79615eb08c4d5dcb8db9e1cac76cecbef172f2096c64cafcebbc54cabf8"
-    },
-    "upstream_full_F_final_index": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-valid-square-successor-promotion-20261022-evidence/final-index.json",
-      "bytes": 10633,
-      "sha256": "943c4961a2e6ff54735c62b71a79fdf9fd4179ecaeb2308f7935a3f436951110"
-    },
-    "upstream_full_F_producing_closure": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-valid-square-successor-promotion-20261022-evidence/producing-sources.json",
-      "bytes": 14123,
-      "sha256": "b8aa9c0a1868f8f5af886128fcc3194252a87b43f7b0882494ee19406e885fbe"
-    },
-    "upstream_full_F_actual_producing_recipe": {
-      "path": "/home/stemxstudio/rove4k-f-valid-square-successor-promotion-20261022-v1/full/build/inputs/recipe.json",
-      "bytes": 335140,
-      "sha256": "54fbccd8f17fdee07bf9033f5f65e19e172ee425b142e7d4de1c582d2b70455b"
+      "path": "/home/stemxstudio/rove4k-f-return-token-normal-20261024-v1/full/build/main.c",
+      "bytes": 8167,
+      "sha256": "d9cb34ee6302822ab5a1b399039809d10be74cf69d50cc0ba3a14ecbdac6e86a"
     }
   },
   "previous_v1": {
@@ -223,12 +204,12 @@
     },
     "specialize_sha256": "46323d0325c866bbf4c63e23c136c1b2c100083d56dbd14408cd6fd9794af749",
     "recipe_archive": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-late-resource8-v2-promotion-20261022-evidence/before/engines/compact/tiny-entry-f-resource8/recipe.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-late-resource8-v2-promotion-20261022-evidence/before/engines/compact/tiny-entry-f-resource8/recipe.json",
       "bytes": 41608,
       "sha256": "4a28e483fe6d015cc701a5e440f63cf204ad7b704febacad926130bd92c0e929"
     },
     "qualified_actual_index": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-direct-walker-promotion-20261022-evidence/final-index.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-direct-walker-promotion-20261022-evidence/final-index.json",
       "bytes": 21437,
       "sha256": "14aa8984dfec76fe47ed0251ecba67ea5a3d092bcdeccc336f0b8a41ee605c1c"
     },
@@ -253,31 +234,41 @@
     "eight_worker_CPU_activity_and_physical_exit_checks_unchanged": true
   },
   "local_normal_validation": {
-    "status": "PASS local v3 ordinary1 plus strictpositive1; checkpoint CI separate",
+    "status": "PASS local v4 ordinary1(two reproductions) and strictpositive1(quit/EOF2); checkpoint CI separate",
     "producing_recipe": {
-      "path": "/home/stemxstudio/rove4k-f8-board-successor-v3-promotion-20261022-v1/F8/build/inputs/engines/compact/tiny-entry-f-resource8/recipe.json",
-      "bytes": 21229,
-      "sha256": "26b0e8b6bb5cbc8ff849e1da4d156f89ef7eebce564653497c876255342e3d97"
+      "path": "/home/stemxstudio/rove4k-f8-return-token-promotion-20261024-v1/F8/build/inputs/engines/compact/tiny-entry-f-resource8/recipe.json",
+      "bytes": 27240,
+      "sha256": "edad19278bdbe50331031e85ddcb0ad709f01f3f0e89287e062db0ba36304531"
     },
     "producing_manifest": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-board-successor-v3-promotion-20261022-evidence/producing-source-closure.json",
-      "bytes": 17824,
-      "sha256": "ed1dbb82068b601290342be6df8bc525320ad95e5c72ccfc8b734c64db9aa87b"
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-return-token-promotion-20261024-evidence/producing-source-final.json",
+      "bytes": 1817,
+      "sha256": "a0933ede97e0da9eedfbc211dbb176adcbb4a3682ef87d934a9be2388310e408"
+    },
+    "producing_source_closure": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-return-token-promotion-20261024-evidence/producing-source-closure.json",
+      "bytes": 7578,
+      "sha256": "c6b1cf2ab08d98deb64a4a3ab18217943c7e7ff38583ae6972b0e74f12ca4244"
+    },
+    "firstcost_index": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-return-token-first-cost-20261024-evidence/final-index.json",
+      "bytes": 15042,
+      "sha256": "8a83e053f8826cc861e7a24fe6b6e653cb8279ffff04d5d8ef775301b3869b0d"
     },
     "build": {
-      "path": "/home/stemxstudio/rove4k-f8-board-successor-v3-promotion-20261022-v1/F8/build/build.json",
-      "bytes": 15167,
-      "sha256": "1d068a66f9006893046858f79699bcaf8b5d9cfcf56dba46c3cc25f8326c4ef1"
+      "path": "/home/stemxstudio/rove4k-f8-return-token-promotion-20261024-v1/F8/build/build.json",
+      "bytes": 20072,
+      "sha256": "ba38dad6aa04c65701bc8f8abbe2f45c5f09dbde2d6b1d598b99655c663d1252"
     },
     "runtime": {
-      "path": "/home/stemxstudio/rove4k-f8-board-successor-v3-promotion-20261022-v1/F8/runtime/runtime.json",
-      "bytes": 68506,
-      "sha256": "8a73daadc229afd0b88984f4481bf167c302afae3231b8299599e21cf413af8a"
+      "path": "/home/stemxstudio/rove4k-f8-return-token-promotion-20261024-v1/F8/runtime/runtime.json",
+      "bytes": 71338,
+      "sha256": "1f34a6c93e2f8430282031284b3220c4d5fde68fa20c134528ea108f48d27af4"
     },
     "original_owned_stage": {
-      "path": "/home/stemxstudio/rove4k-f8-board-successor-v3-promotion-20261022-v1/F8-stage.json",
-      "bytes": 7361,
-      "sha256": "58af6db1b4591af5fd21a6fb8dbd2f0e9eb068d016621448c353c6f2506f7cff"
+      "path": "/home/stemxstudio/rove4k-f8-return-token-promotion-20261024-v1/F8/normal.json",
+      "bytes": 4104,
+      "sha256": "365f9a77723d7564fd7b230a4d08abdfff4451a9e4d99c95b2058eae0aee62f3"
     },
     "ordinary_calls": 1,
     "native_and_whole_reproductions": 2,
@@ -290,23 +281,21 @@
     "strict_FD0_1_2_children_absent_global_noWX_mainstack_nonexec": true,
     "raw_maps_collected": true,
     "eight_worker_guard_count_size_assertion": false,
-    "eight_worker_guard_scope": "Not verified by F8; D-specific guard-count/size snapshot is not called. Generic raw maps/mainstack checks do not establish eight guarded stacks.",
+    "cancellation_causality": "unproven; no tracing performed",
+    "performance_scaling_peakstack_target4KiB_acceptance": "unproven",
     "all_entire_firstcost_tuples_exact": true,
-    "old_v2_cost_supervisor_exit1_unchanged": true,
-    "old_v2_normal_not_inherited": true,
-    "new_original_owner_commands_exit0": true,
-    "source_closure_count_observed_not_gate": 62,
-    "source_closure_exact_paths_and_hashes": true,
-    "source_names_replayed": false,
     "original_terminal_reaped_group_absent": true,
+    "pre_reap_other_members_absent_while_original_identity_held": true,
+    "publication_unmask_monitor_cleanup_scope_fixed_before_first_product": true,
+    "preserved_pre_product_v1": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-return-token-promotion-20261024-evidence/producing",
     "owned_handles": 0,
     "forced_cleanup": false,
     "late_PID_TID_probe": false,
     "normal_failures": 0,
     "normal_retries": 0,
-    "firstcost_replay_fullF_rebuild_SAN_negative_NVC_codec_search": 0,
-    "cancellation_causality": "unproven; no tracing performed",
-    "performance_scaling_peakstack_target4KiB_acceptance": "unproven",
+    "firstcost_replay_fullF_rebuild_PP_SAN_negative_NVC_codec_search": 0,
+    "source_closure_count_observed_not_gate": 63,
+    "F2_recipe_README_not_in_base_source_closure": true,
     "producing_to_final_annotations_only": true
   },
   "previous_v2": {
@@ -330,17 +319,17 @@
     "specialize_sha256": "9964c7979ced12650c74ddda259e2939f18120076f0fbf788f43ae452c1a0b0b",
     "fixed_late_source": {
       "source_index": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-late-resource8-source-20261022-evidence/final-index.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-late-resource8-source-20261022-evidence/final-index.json",
         "bytes": 5767,
         "sha256": "6bda5eaedd03d0461f2d9ff001a340db04cc17eab5f7d88bf1578db296ee0a1b"
       },
       "source_spans": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-late-resource8-source-20261022-evidence/spans.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-late-resource8-source-20261022-evidence/spans.json",
         "bytes": 9747,
         "sha256": "e68722ebd36a2cbb3a90f2e2297fdcf38629d96d110fbbb655ff54bb424b29f4"
       },
       "firstcost_index": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-late-resource8-first-cost-20261022-evidence/final-index.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-late-resource8-first-cost-20261022-evidence/final-index.json",
         "bytes": 9617,
         "sha256": "b2285e68784f3408ef625c06caa1f1f9471f024e89011d3dc246eeb8b406c108"
       },
@@ -358,12 +347,12 @@
     "local_normal_validation": {
       "status": "PASS local v2 ordinary1 plus strictpositive1; newcheckpoint CI pending",
       "producing_recipe": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-late-resource8-v2-promotion-20261022-evidence/producing/engines/compact/tiny-entry-f-resource8/recipe.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-late-resource8-v2-promotion-20261022-evidence/producing/engines/compact/tiny-entry-f-resource8/recipe.json",
         "bytes": 13682,
         "sha256": "653286d35d42f14f450fe8c3d3e9ee216f0bb5879ccc29da6aa2050064ffb4d3"
       },
       "producing_manifest": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-late-resource8-v2-promotion-20261022-evidence/producing-sources.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-late-resource8-v2-promotion-20261022-evidence/producing-sources.json",
         "bytes": 1857,
         "sha256": "ddbaf17f62485597d541f57338eb66052a35220c0573b91d75b117a482a3ad5f"
       },
@@ -383,7 +372,7 @@
         "sha256": "b3ed31884a5ab09b78c3c072075f74b163f680c8f4d2c1aed222898f593ea03f"
       },
       "readback": {
-        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-late-resource8-v2-promotion-20261022-evidence/normal-readback.json",
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-late-resource8-v2-promotion-20261022-evidence/normal-readback.json",
         "bytes": 68405,
         "sha256": "167d34c404383a8003f9002db8a2a42a0ad3d4db9d9a3625de5d492b3e9aa56c"
       },
@@ -404,20 +393,156 @@
       "producing_to_final_annotations_only": true
     },
     "recipe_archive": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-board-successor-v3-promotion-20261022-evidence/before/recipe.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-board-successor-v3-promotion-20261022-evidence/before/recipe.json",
       "bytes": 15893,
       "sha256": "fe0b2a5729ea309036699b6c79903292194fe65f4d1e85e7e22bdef7cc1bfba6"
     },
     "qualified_final_index": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-late-resource8-v2-promotion-20261022-evidence/final-index.json",
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-late-resource8-v2-promotion-20261022-evidence/final-index.json",
       "bytes": 6901,
       "sha256": "75f5cb75e0b0439859eb852a5614279a6bb36bb97ac506fef455bdc2de69b075"
     }
   },
-  "v3_startup_and_resource_contract": {
-    "verify_before_sha256": "e7763ecd17281a0de89e6323193a50cd07aa9ccd89c45c95e5fa4191eed61df5",
-    "verify_after_sha256": "791570493b40bcc381507c4e61bdbe13c8722b8ec6d9332c7e3e2a39f90c6406",
-    "only_verifier_changes": "v3 class/base-stage literals and error text; all original assertions and runtime body preserved",
+  "previous_v3": {
+    "class": "full-F-late-fixed-resource8-TT18-v3",
+    "base_stage": "full-after-valid-square-successor",
+    "base_source": {
+      "bytes": 8360,
+      "sha256": "b4e8f79615eb08c4d5dcb8db9e1cac76cecbef172f2096c64cafcebbc54cabf8"
+    },
+    "expected": {
+      "source_bytes": 8385,
+      "source_sha256": "a9237511e92c83ee8a2d07b555cfca886733282b77eca2f0e74d74890d9df2e0",
+      "native_bytes": 18576,
+      "native_sha256": "d2bec6575e27b840d24b9166d5b99fc61a22037adf3e9be59d410b1f67356dcf",
+      "bootstrap_bytes": 9317,
+      "bootstrap_sha256": "f80376e2205e60b317eae0a52ea2173e687c12ac830ef7cebdef3810c102b53a",
+      "whole_bytes": 4392,
+      "whole_sha256": "a6224da138e3f8c34dd59b1daddd2e9bdd3d01cfaa7b74135a5435f1045ea5ac"
+    },
+    "specialize_sha256": "7a074fb28b084eeded7e343eb207e6dffa151c8e77508a9436aa51c46c686388",
+    "fixed_late_source": {
+      "source_index": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-board-successor-v3-source-20261022-evidence/final-index.json",
+        "bytes": 3384,
+        "sha256": "58225ebc4142c839aa93592a711f5f90a31d305526d84e928d3e30a618596981"
+      },
+      "source_proof": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-board-successor-v3-source-20261022-evidence/source-proof.json",
+        "bytes": 13048,
+        "sha256": "6fbc3bc2b2f7df71bfc52a5bf041f6e903c1bacd5d33fda98f2e22574307a18e"
+      },
+      "firstcost_index": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-board-successor-v3-first-cost-20261022-evidence/final-index.json",
+        "bytes": 20032,
+        "sha256": "50d4c6baa57b3567008dfc953026ed840363184ca5be93e199eff9a5ab4a71f6"
+      },
+      "source_spans_count": 6,
+      "protected_gaps": 7,
+      "full_inverse": true,
+      "source_raw_delta_vs_new_F2": 25,
+      "source_delta_vs_previous_F8": -25,
+      "whole_delta_vs_previous_F8_same_nice24": -7,
+      "source_names_reapplied": false,
+      "one_condition_broadcast4_signal0_wait2": true,
+      "strict_first_max_depth_selector": true,
+      "actual_created_join_count": true,
+      "F2_nice16_effect_combined": false,
+      "upstream_full_F_normal_source": {
+        "path": "/home/stemxstudio/rove4k-f-valid-square-successor-promotion-20261022-v1/full/build/main.c",
+        "bytes": 8360,
+        "sha256": "b4e8f79615eb08c4d5dcb8db9e1cac76cecbef172f2096c64cafcebbc54cabf8"
+      },
+      "upstream_full_F_final_index": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-valid-square-successor-promotion-20261022-evidence/final-index.json",
+        "bytes": 10633,
+        "sha256": "943c4961a2e6ff54735c62b71a79fdf9fd4179ecaeb2308f7935a3f436951110"
+      },
+      "upstream_full_F_producing_closure": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-valid-square-successor-promotion-20261022-evidence/producing-sources.json",
+        "bytes": 14123,
+        "sha256": "b8aa9c0a1868f8f5af886128fcc3194252a87b43f7b0882494ee19406e885fbe"
+      },
+      "upstream_full_F_actual_producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-f-valid-square-successor-promotion-20261022-v1/full/build/inputs/recipe.json",
+        "bytes": 335140,
+        "sha256": "54fbccd8f17fdee07bf9033f5f65e19e172ee425b142e7d4de1c582d2b70455b"
+      }
+    },
+    "local_normal_validation": {
+      "status": "PASS local v3 ordinary1 plus strictpositive1; checkpoint CI separate",
+      "producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-f8-board-successor-v3-promotion-20261022-v1/F8/build/inputs/engines/compact/tiny-entry-f-resource8/recipe.json",
+        "bytes": 21229,
+        "sha256": "26b0e8b6bb5cbc8ff849e1da4d156f89ef7eebce564653497c876255342e3d97"
+      },
+      "producing_manifest": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-board-successor-v3-promotion-20261022-evidence/producing-source-closure.json",
+        "bytes": 17824,
+        "sha256": "ed1dbb82068b601290342be6df8bc525320ad95e5c72ccfc8b734c64db9aa87b"
+      },
+      "build": {
+        "path": "/home/stemxstudio/rove4k-f8-board-successor-v3-promotion-20261022-v1/F8/build/build.json",
+        "bytes": 15167,
+        "sha256": "1d068a66f9006893046858f79699bcaf8b5d9cfcf56dba46c3cc25f8326c4ef1"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-f8-board-successor-v3-promotion-20261022-v1/F8/runtime/runtime.json",
+        "bytes": 68506,
+        "sha256": "8a73daadc229afd0b88984f4481bf167c302afae3231b8299599e21cf413af8a"
+      },
+      "original_owned_stage": {
+        "path": "/home/stemxstudio/rove4k-f8-board-successor-v3-promotion-20261022-v1/F8-stage.json",
+        "bytes": 7361,
+        "sha256": "58af6db1b4591af5fd21a6fb8dbd2f0e9eb068d016621448c353c6f2506f7cff"
+      },
+      "ordinary_calls": 1,
+      "native_and_whole_reproductions": 2,
+      "positive_calls": 1,
+      "quit_EOF_sessions": 2,
+      "legal_GO": 8,
+      "native_TIDs_each": 9,
+      "all_eight_worker_CPU_activity": true,
+      "stable9_idle_count_state_wait_before_strict_FD_children": true,
+      "strict_FD0_1_2_children_absent_global_noWX_mainstack_nonexec": true,
+      "raw_maps_collected": true,
+      "eight_worker_guard_count_size_assertion": false,
+      "eight_worker_guard_scope": "Not verified by F8; D-specific guard-count/size snapshot is not called. Generic raw maps/mainstack checks do not establish eight guarded stacks.",
+      "all_entire_firstcost_tuples_exact": true,
+      "old_v2_cost_supervisor_exit1_unchanged": true,
+      "old_v2_normal_not_inherited": true,
+      "new_original_owner_commands_exit0": true,
+      "source_closure_count_observed_not_gate": 62,
+      "source_closure_exact_paths_and_hashes": true,
+      "source_names_replayed": false,
+      "original_terminal_reaped_group_absent": true,
+      "owned_handles": 0,
+      "forced_cleanup": false,
+      "late_PID_TID_probe": false,
+      "normal_failures": 0,
+      "normal_retries": 0,
+      "firstcost_replay_fullF_rebuild_SAN_negative_NVC_codec_search": 0,
+      "cancellation_causality": "unproven; no tracing performed",
+      "performance_scaling_peakstack_target4KiB_acceptance": "unproven",
+      "producing_to_final_annotations_only": true
+    },
+    "v3_startup_and_resource_contract": {
+      "verify_before_sha256": "e7763ecd17281a0de89e6323193a50cd07aa9ccd89c45c95e5fa4191eed61df5",
+      "verify_after_sha256": "791570493b40bcc381507c4e61bdbe13c8722b8ec6d9332c7e3e2a39f90c6406",
+      "only_verifier_changes": "v3 class/base-stage literals and error text; all original assertions and runtime body preserved",
+      "startup_stable9_count_state_wait_before_strict_tasks_FD_children": true,
+      "strict_FD0_1_2_and_children_absent": true,
+      "global_noWX_and_main_process_stack_nonexec": true,
+      "raw_maps_collected": true,
+      "eight_worker_guard_count_size_assertion": false,
+      "worker_guard_scope": "D layout-specific guard-count/size snapshot is not called by F8; no eight-guard positive result inferred from generic mapping/raw maps.",
+      "eight_worker_CPU_activity_and_physical_exit_checks_unchanged": true
+    }
+  },
+  "v4_startup_and_resource_contract": {
+    "verify_before_sha256": "791570493b40bcc381507c4e61bdbe13c8722b8ec6d9332c7e3e2a39f90c6406",
+    "verify_after_sha256": "d1aa5200f56496af2a89e9788c1e07d36dc98fabe39f0f071c22baf2fbf6851a",
+    "only_verifier_changes": "v4 class/base-stage literals and error text; all existing assertions and runtime body preserved",
     "startup_stable9_count_state_wait_before_strict_tasks_FD_children": true,
     "strict_FD0_1_2_and_children_absent": true,
     "global_noWX_and_main_process_stack_nonexec": true,

@@ -1,3 +1,47 @@
+# F8 v4: full-F return-token source, eight search workers
+
+Class `full-F-late-fixed-resource8-TT18-v4` consumes exact ordinary full-F2
+C8167/d9cb34ee... after `shipping_return_token.py`. Its six resource roles
+produce C8192/100fcb8a... with new offsets, seven protected gaps and a complete
+inverse. The original v3 helper/source4392 records remain external and in the
+previous checkpoint. No generic fallback or second names stage is introduced.
+
+One actual fixed first cost is **4381 B**, 11 B below v3 4392 and 285 B over
+4096. Native18576/d2bec657... remains entire-byte equal to v3; bootstrap
+9124/9429c105... and whole4381/fd52d1e7... are new. The F8-specific ALONE6,
+BT2/dict16KiB/lc2/lp0/pb0/nice24/header73 and compiler arguments are retained.
+FullF nice16 results are separate. Python EOF/unused0 and independent CLI
+restore recovered the exact new bootstrap and embedded source in first cost.
+
+All eight workers, TT18/PLY128/HCE/MTD/fullTT/learners and the strict greater
+depth 8-way selector stay. Protected gaps retain startup/job publication,
+condition predicates/broadcasts, last arrival/result/output and actual-created
+join lifetime. Verifier edits are only v4 class/stage/error literals; original
+stable9 count/state startup before strict FD/children, no-WX/nonexec mainstack,
+raw maps, all8 CPU, legal GO and quit/EOF physical-exit assertions remain.
+Eight worker guard-stack count/size and cancellation causality are not asserted.
+
+The ordinary builder's unsafe communicate/reap-then-signal cleanup branch is
+replaced by the existing original-leader WNOWAIT/group-others settlement:
+other members must settle while the leader remains unreaped, then wait/reap
+and a non-signalling final group-absence observation. Compiler stdin/cwd and
+all product source/codec/expected-byte contracts are unchanged.
+
+<!-- F8_V4_COMPLETION:PASS -->
+One ordinary builder reproduced source/native/bootstrap/whole twice, each
+entirely equal to first cost. New strictpositive quit/EOF2 sessions passed
+8 legal GO,9 persistent idle TIDs and all8 worker CPU activity, original strict
+FD/children/noWX/mainstack/rawmaps and physical exit/readers/group assertions.
+Original outer552/599 and six owned builder tool commands all returned0,
+reaped only after pre-reap other-members[] with original identity held; groups
+were absent and forced cleanup/owned handles0. Publication/unmask cleanup was
+corrected before the first product; unexecuted v1 source remains preserved.
+No product failure/retry, extra cost/PP/SAN/negative/NVC or fullF rebuild ran.
+Eight guard-stack count/size, scaling/strength/peakstack/cancellation causality
+and final target4KiB acceptance remain unverified. Old v3 execution remains
+historical; this new4381 wrapper has its own positive result.
+First-cost/source records: rove4k-f8-return-token-{source,first-cost}-20261024-evidence.
+
 # F8 v3: current full-F board-successor base, all eight search workers
 
 Class `full-F-late-fixed-resource8-TT18-v3` consumes exact ordinary full-F2
@@ -331,3 +375,5 @@ file4438. The two existing optional selected products also stay byte-exact.
 These are F2 producer observations; this F8 profile is not rebuilt or run again.
 The57-source provenance check passes with the exact unchanged shared helper
 bodies. Its prior4442 build/9-TID positive remain scoped reuse evidence.
+
+V4 actual receipts: build/build.json ba38dad6...; runtime/runtime.json 1f34a6c9...; producing recipe preserved in the actual build inputs. Final recipe/README edits are completion metadata only.
