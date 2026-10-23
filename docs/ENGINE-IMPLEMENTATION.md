@@ -4,6 +4,48 @@ The full implementation scope is recorded in [the accepted plan](ENGINE-PLAN.ko.
 The current user request excludes training and AWS connections. Frozen model
 inference and lossless model storage remain in scope; trained strength is not claimed.
 
+## Direct A NORMAL reuse and new compression costs: 2026-10-23
+
+The optional maintained A `root-normal-slots` policy costs5132 B. It is an
+alternative to hint/leader-Repair5151, while default Loose4525 and its DEV
+control remain unchanged. A helper runs the same A NORMAL evaluator and
+ordinary selective policy at the requested child/depth/full window. A completed
+valid nonstopped slot supplies leader `l` directly; other slots retain local
+PVS. Private ordering/history/ordinary LMR variation is allowed. This does not
+claim identical private searches, formal minimax or equal strength. Helper TT
+payload writes remain blocked, and round/job callback drains precede reuse.
+
+One ordinary build reproduces two shipping tuples against the fixed first
+cost and two unchanged DEV controls. The unchanged selected verifier passes
+quit/EOF two sessions, eight legal GO, three startup TIDs, actual new native
+and physical exit. One fatal UBSan compile/runtime observes243 completed
+helper publications, direct leader consumptions, local-child bypasses and
+post-stop-gate acceptances. Direct values improve root score/move five times;
+three completed-depth commits retain a direct-slot best. Actual stopped
+state4 take/fallback/root-depth rejection is observed three times. Helper TT
+payload writes and handoff/drain/commit-value errors are zero. These local
+products used explicit WSL user root; unprivileged/permission acceptance is
+not established. Direct-ready/stop races and invalid/score-range rejection
+remain unobserved. The final external index is15879 B,
+SHA256 `3849f7ffa6d943529fa3f8e348656c1863ad52246fbd8fdaf0c46a4ee23e8728`.
+CI now includes this optional policy separately and logs its runner UID;
+registration is not a claim that this new checkpoint has passed CI.
+
+External first-cost candidates, before runtime promotion, are B4991 (-6),
+C4815 (-10), E4865 (-4), D scalar5717 (-119), and an eight-worker A NORMAL
+profile5122 (-10 versus fixed-two NORMAL). D changes slider visitation order;
+the A profile changes resources and callback accounting. Neither is an
+equal-search compression claim. Full F's setter-phase source shrinks41 B but
+whole grows4378 to4384 B, so it is not adopted. Native-payload deployment and
+the current full-F bootstrap's prepublication-NVCompact comparison are separate
+bounded experiments. No unmeasured combination gain is added to these costs.
+
+The full A-F objective remains open: each default family is above4096 B,
+compact PALS/groups/hybrid integration and final resource/strength comparisons
+remain. Reduced-feature F4045 is not acceptance of default full F. Generic
+C/Rust policies already exist; these compact integration gaps do not erase
+their implementation. Training, AWS, paid resources and schedules are excluded.
+
 ## Current acceptance state
 
 The original full twelve-core comparison used `de5676dcbc498d77477c66064aca926633c851ff`.

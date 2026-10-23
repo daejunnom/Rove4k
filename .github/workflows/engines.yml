@@ -92,6 +92,12 @@ jobs:
         run: |
           python3 -B engines/compact/tiny-entry-a/build.py --policy root-hint-leader-repair --out "$ROVE_TEST_OUT/tiny-entry-a-root-hint" --dev
           python3 -B engines/compact/tiny-entry-a/verify.py --policy root-hint-leader-repair --build "$ROVE_TEST_OUT/tiny-entry-a-root-hint" --out "$ROVE_TEST_OUT/tiny-entry-a-root-hint-runtime"
+      - name: Reproduce the optional fixed-two-worker A NORMAL-slot policy
+        if: matrix.language == 'c'
+        run: |
+          id -u
+          python3 -B engines/compact/tiny-entry-a/build.py --policy root-normal-slots --out "$ROVE_TEST_OUT/tiny-entry-a-root-normal" --dev
+          python3 -B engines/compact/tiny-entry-a/verify.py --policy root-normal-slots --build "$ROVE_TEST_OUT/tiny-entry-a-root-normal" --out "$ROVE_TEST_OUT/tiny-entry-a-root-normal-runtime"
       - name: Reproduce the fixed eight-worker F profile and check its positive lifetime
         if: matrix.language == 'c'
         run: |

@@ -1,3 +1,77 @@
+# Optional fixed2 A same-A NORMAL completed-slot reuse
+
+Separate build-time opt-in: **root-normal-slots**, first-cost **5132 B**.
+Default Loose4525 and the independent hint/leader-Repair5151 policy remain
+unchanged. This is a new search/parallel policy (+607 B versus Loose,
+-19 B versus hint), not an equal-search compression or performance verdict.
+
+```sh
+python3 -B engines/compact/tiny-entry-a/build.py --policy root-normal-slots --dev --out /absolute/new/normal-build
+python3 -B engines/compact/tiny-entry-a/verify.py --policy root-normal-slots --build /absolute/new/normal-build --out /absolute/new/normal-runtime
+```
+
+The helper performs the actual first move, appends the actual child key at
+job-history base, and calls the same unrestricted h at ply1/depth-1 with a
+full window. Both roles use fixed HCE and the same ordinary selective
+policy. Private ordering/history/id and normal-policy LMR variation are
+permitted; no role-only evaluator, extra pruning/reduction, excluded reply
+or reduced requested depth is admitted. NORMAL EXACT is the engine's normal
+selective classification, not formal minimax or identical private searches.
+
+Only completed valid nonstopped state3 results become leader l directly and
+skip its local child search. Other slots use the existing local PVS. The
+original stop check precedes H/G/root-result acceptance. Helper TT payload
+writes remain blocked; the same-normal leader TT may be read. Fixed roles
+start with empty TT. The root loop retains its aggregate/cutoff ownership;
+round callbacks drain before completed-depth commit, and the original job
+fence drains before root/history/epoch reuse. Queueing is speculative and
+may start helpers before the leader's first legal move finishes.
+
+The pure late source helper is an alternative to the hint helper after the
+same output stage, not a transform layered on the hint source. Ten regions,
+eleven protected gaps and full inverse bind source8821→10835. Its literal
+adapter goes through the unchanged output→condition→names guards. Compiler,
+FD0 template, header73, ALONE6/BT2/dict16KiB/nice24 and fixed2/TT18/PLY128 stay.
+DEV remains the unchanged Loose diagnostic control. Fresh forwards the
+selected policy; no fresh execution is claimed. Source/producer inputs were frozen before the local validations below.
+No strength, speed, many-core,4KiB or CI success is claimed here.
+
+<!-- A_ROOT_NORMAL_COMPLETION:PASS -->
+One ordinary --dev reproduced two shipping source/native/bootstrap/whole
+tuples exactly against firstcost5132 and two unchanged DEV controls. The
+policy selected verifier retained its original assertions and passed
+quit/EOF two sessions, eight legal GO, three startup TIDs/session, actual
+new native, private path, helper/readers and physical exit. A has no FD-list
+observer; the retained cancellation-causality field remains unproven.
+
+One fatal UBSan compile/runtime observed produced3/take3/direct l/local-h
+bypass/accepted 243/243/243/243/243. Direct values updated H/G/root move
+5/5/5 times, and 3 completed-depth commits retained a direct-slot
+best with exact move/score checks (total commits9). Actual helper ay qp/deadline
+early returns were22/2; stop state4 publications24 included
+23 after observed helper ay stop. Actual state4 take/rejection, original local
+fallback child entry and root/depth stop rejection were3/3/3/3.
+Actual payload writes were4516, helper0 and unknown role0;
+helper store gates suppressed108084 sites. Round reuse/drain checks
+were12/12, job drain/reuse checks8/3; all handoff, bypass,
+commit-value and drain/reuse error counters were zero. Active quit was
+observed, final pending/open/busy zero and both original worker joins passed.
+
+The completed-slot/stop race at direct-ready acceptance, invalid-move and
+score-range state4 rejection paths were unobserved in this run; they were
+not filled using injected values, retries or extra cases. Added observer
+atomics/TLS/arrays may affect scheduling, timing, stack and native bytes.
+This is actual normal-policy path evidence, not identical private searches,
+mathematical minimax, all pthread schedules, strength or speed evidence.
+
+Product commands used explicit local WSL user root. Their results do not
+establish unprivileged execution or file-permission acceptance. Ordinary/
+selected original handles were reaped with groups absent; focused handles
+also recorded session absence. Readers finished, forced cleanup and
+unresolved owned handles were zero. No product retry, extra codec cost,
+fresh archive execution, new fault campaign or CI dispatch was performed.
+Old source/cost/hint records remain unchanged.
+
 # Optional fixed2 A root-hint / leader Repair
 
 The default remains qualified **Loose4525 B**, with the unchanged canonical

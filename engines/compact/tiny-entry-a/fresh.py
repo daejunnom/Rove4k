@@ -28,7 +28,7 @@ def sha(data):return hashlib.sha256(data).hexdigest()
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out',required=True,type=Path)
-    parser.add_argument('--policy',choices=('loose','root-hint-leader-repair'),default='loose',help='forward the same build-time policy to both archived rebuilds')
+    parser.add_argument('--policy',choices=('loose','root-hint-leader-repair','root-normal-slots'),default='loose',help='forward the same build-time policy to both archived rebuilds')
     args=parser.parse_args();out=args.out.resolve()
     if not args.out.is_absolute() or out.exists() or out==REPO or REPO in out.parents or any((p/'.git').exists() for p in (out,*out.parents)):
         parser.error('a new absolute output outside any Git checkout is required')
