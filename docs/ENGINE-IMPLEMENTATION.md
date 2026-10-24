@@ -4,6 +4,44 @@ The full implementation scope is recorded in [the accepted plan](ENGINE-PLAN.ko.
 The current user request excludes training and AWS connections. Frozen model
 inference and lossless model storage remain in scope; trained strength is not claimed.
 
+## Wrapper and NVCompact design review: 2026-10-24
+
+The external Korean wrapper/NVCompact design document is reference material,
+not repository instructions. Its SHA256 is
+b36154eb6d24ef93e20c86e1e617339eff460b53499f6044b975d5d1464e5876.
+Its b459 baseline is checked against current e339: the common C compiler owner,
+F source/codec and NVCompact candidate logic discussed here remain unchanged.
+Full N/B/R/Q promotion stays the default; no search-policy reduction is made.
+
+W1 prepares the complete source in a private buffered regular file before
+spawn, then gives it to compiler FD0 with the existing stdin argv. One fixed
+control reproduces4640 B exactly; one candidate measures4596 B, GAIN44, with
+bootstrap9786→9702. Source7840/native18576, header73 and codec remain fixed.
+Strict restoration and the declared transport AST/full inverse pass. FD0
+seekability, private c-path observation and the masked preparation interval
+are explicit changed observations: pending cancellation can still arrive
+after publication. This first cost has compiler/engine/runtime/integration0.
+
+W2 separately shares wait predicates and per-entry deadlines. Its control,
+candidate and two-call clock combination measure4640/4634/4636 B. Source
+inverse and strict restoration pass; runtime/integration are0. Existing
+four-call clock4633 remains smaller than W2 alone. Costs are not summed, and
+the W1/W2 combination is a separate comparison. All finite inputs/candidates,
+tools and failed or unselected costs remain outside Git.
+
+NVCompact adds independent declaration/reference candidates for shadowed
+same-spelling locals and parameters. The previous whole-spelling batch and
+the complete legacy name→literal candidate prefix retain budget priority;
+new independent alternatives follow them. Fresh whole-function destinations,
+composition conflict checks, typed AST/binding, native and diagnostics gates
+remain. Reference lookup is indexed once per function. This is not general
+scope reuse, simultaneous swap, advisor mutation or domain-based rewriting.
+The first focused csource run uses actual Clang18 and passes12 tests,
+including three new binding/budget regressions. The separate existing
+source-search integration run passes10 tests for whole-file/native/diagnostics
+and replay boundaries. Both original managed handles terminate0 without
+restart. No whole-file engine saving is attributed to this extension.
+
 ## A unused score and E sole-GO boundary: 2026-10-24
 
 Default full A loose removes its unused published Worker score, reset/store

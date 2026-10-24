@@ -70,8 +70,17 @@ The current families are:
   resolved references together. Replacement identifiers are fresh within the
   function, resolved references and encountered macro names. Existing one-letter
   names are eligible, so equal-length frequency redistribution is explored.
-  Groups with more use sites are considered first; frequently occurring eligible
-  letters elsewhere in the translation unit are considered before other letters.
+  Shadowed declarations with the same spelling also have independent binding
+  candidates, including outer references in initializers before an inner
+  declaration. The previous same-spelling batch remains available and keeps its
+  budget priority; independent alternatives follow all legacy name and literal
+  alternatives under the global candidate/memory budget. Within
+  each lane, groups with more use sites are considered first, followed by stable
+  source offsets and spelling. Frequently occurring eligible letters elsewhere
+  in the translation unit are considered before other letters. This does not
+  yet allow scope-based destination reuse or simultaneous name swaps; composed
+  groups still require distinct destinations within a function and fresh typed
+  AST/binding verification before native/whole-file admission.
 - **Integer constants.** Decimal, hexadecimal, octal and supported suffix
   alternatives preserve the Clang-resolved value, signedness and rank in the
   declared C11 LP64 model. Same-value constants of different types are distinct.

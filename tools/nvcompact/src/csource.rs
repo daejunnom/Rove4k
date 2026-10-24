@@ -558,95 +558,110 @@ fn name_groups(
             continue;
         }
         let mut declarations: BTreeMap<String, Vec<&Value>> = BTreeMap::new();
+        let mut references: HashMap<&str, Vec<&Value>> = HashMap::new();
         for node in &nodes {
             if matches!(node["kind"].as_str(), Some("VarDecl" | "ParmVarDecl")) {
                 if let Some(name) = node["name"].as_str().filter(|s| !s.is_empty()) {
                     declarations.entry(name.into()).or_default().push(node);
                 }
+            } else if node["kind"] == "DeclRefExpr" {
+                if let Some(id) = node["referencedDecl"]["id"].as_str() {
+                    references.entry(id).or_default().push(node);
+                }
             }
         }
         for (old, declarations) in declarations {
-            if parsed.macros.contains(&old)
-                || declarations.iter().any(|n| {
-                    matches!(
-                        n["storageClass"].as_str(),
-                        Some("static" | "extern" | "private_extern")
-                    ) || n["tls"].as_str().is_some()
-                })
-            {
+            if parsed.macros.contains(&old) {
                 continue;
             }
-            let ids = declarations
-                .iter()
-                .filter_map(|n| n["id"].as_str())
-                .collect::<HashSet<_>>();
-            if ids.len() != declarations.len() {
-                continue;
-            }
-            let mut binding_ids = Vec::new();
-            let mut sites = BTreeSet::new();
-            let mut valid = true;
-            for node in declarations {
-                match direct_location(&node["loc"], &parsed.main_path, source.len()) {
-                    Some((a, b))
-                        if lo <= a && b <= hi && source.get(a..b) == Some(old.as_str()) =>
-                    {
-                        sites.insert((a, b));
-                        binding_ids.push(format!("declaration-at-{a}"));
-                    }
-                    _ => {
-                        valid = false;
-                        break;
-                    }
-                }
-            }
-            if !valid {
-                continue;
-            }
-            for node in &nodes {
-                if node["kind"] == "DeclRefExpr"
-                    && node["referencedDecl"]["id"]
-                        .as_str()
-                        .is_some_and(|id| ids.contains(id))
+            let mut ids = HashSet::new();
+            let mut bindings = Vec::new();
+            let mut complete = true;
+            for declaration in &declarations {
+                if matches!(
+                    declaration["storageClass"].as_str(),
+                    Some("static" | "extern" | "private_extern")
+                ) || declaration["tls"].as_str().is_some()
                 {
-                    match direct_span(node, &parsed.main_path, source.len()) {
-                        Some((a, b))
-                            if lo <= a && b <= hi && source.get(a..b) == Some(old.as_str()) =>
-                        {
-                            sites.insert((a, b));
-                        }
-                        _ => {
-                            valid = false;
-                            break;
-                        }
+                    complete = false;
+                    continue;
+                }
+                let binding = (|| {
+                    let id = declaration["id"].as_str()?;
+                    if !ids.insert(id) {
+                        return None;
                     }
+                    let (start, end) =
+                        direct_location(&declaration["loc"], &parsed.main_path, source.len())?;
+                    if !(lo <= start && end <= hi && source.get(start..end) == Some(old.as_str())) {
+                        return None;
+                    }
+                    let mut sites = BTreeSet::from([(start, end)]);
+                    for node in references.get(id).into_iter().flatten() {
+                        let (a, b) = direct_span(node, &parsed.main_path, source.len())?;
+                        if !(lo <= a && b <= hi && source.get(a..b) == Some(old.as_str())) {
+                            return None;
+                        }
+                        sites.insert((a, b));
+                    }
+                    Some((start, sites))
+                })();
+                if let Some(binding) = binding {
+                    bindings.push(binding);
+                } else {
+                    complete = false;
                 }
             }
-            if !valid || sites.len() < 2 {
-                continue;
+            // Preserve the old same-spelling batch and its budget priority.
+            // Per-declaration alternatives follow it, rather than replacing
+            // an existing multi-binding candidate with costly compositions.
+            if complete && !bindings.is_empty() {
+                let sites = bindings.iter().flat_map(|(_, sites)| sites.iter().copied()).collect::<BTreeSet<_>>();
+                if sites.len() >= 2 {
+                    let mut binding_ids = bindings.iter().map(|(start, _)| format!("declaration-at-{start}")).collect::<Vec<_>>();
+                    binding_ids.sort();
+                    available_choices += available_for_group;
+                    groups.push(Group { rule: "c-source-local-name", old:old.clone(), sites, choices: choices.clone(),
+                        proof: json!({"function":function["name"],"function_start":lo,"binding_ids":binding_ids,
+                            "scope":"automatic locals and parameters; declaration/reference identity; fresh in whole function, expanded references and encountered macros"}) });
+                }
             }
-            binding_ids.sort();
-            available_choices += available_for_group;
-            groups.push(Group { rule: "c-source-local-name", old, sites, choices: choices.clone(),
-                proof: json!({"function":function["name"],"function_start":lo,"binding_ids":binding_ids,
-                    "scope":"automatic locals and parameters; declaration/reference identity; fresh in whole function, expanded references and encountered macros"}) });
+            // A spelling is not a binding. Keep independently measurable
+            // shadowed declarations, using only their resolved references.
+            // Destinations remain fresh in the entire function: no scope
+            // reuse, simultaneous swap or lookup-conflict relaxation.
+            if declarations.len() > 1 {
+                for (start, sites) in bindings.into_iter().filter(|(_, sites)| sites.len() >= 2) {
+                    available_choices += available_for_group;
+                    groups.push(Group { rule: "c-source-local-name", old:old.clone(), sites, choices: choices.clone(),
+                        proof: json!({"function":function["name"],"function_start":lo,"declaration_start":start,
+                            "independent_binding":true,"binding_ids":[format!("declaration-at-{start}")],
+                            "scope":"one automatic declaration and its resolved references; fresh in whole function, expanded references and encountered macros"}) });
+                }
+            }
         }
     }
     groups.sort_by(|a, b| {
-        b.sites
-            .len()
-            .cmp(&a.sites.len())
+        a.proof["independent_binding"].as_bool().unwrap_or(false)
+            .cmp(&b.proof["independent_binding"].as_bool().unwrap_or(false))
+            .then_with(|| b.sites.len().cmp(&a.sites.len()))
             .then_with(|| {
                 a.proof["function_start"]
                     .as_u64()
                     .cmp(&b.proof["function_start"].as_u64())
             })
             .then_with(|| a.old.cmp(&b.old))
+            .then_with(|| {
+                a.proof["declaration_start"]
+                    .as_u64()
+                    .cmp(&b.proof["declaration_start"].as_u64())
+            })
     });
     let discovered_groups = groups.len();
     let choices_after_name_limit = groups.iter().map(|g| g.choices.len()).sum::<usize>();
     groups.truncate(options.max_name_groups);
-    let coverage = json!({"enabled":true,"scope":"eligible automatic binding groups and fresh ASCII letters a-z/A-Z",
+    let coverage = json!({"enabled":true,"scope":"eligible automatic declaration groups, preserved same-spelling batches and fresh ASCII letters a-z/A-Z",
+        "group_order":"legacy same-spelling groups first, then independent shadowed declarations; use count, function offset, spelling and declaration offset",
         "discovered_groups":discovered_groups,"available_choices":available_choices,
         "choices_after_names_per_group":choices_after_name_limit,"selected_groups":groups.len(),
         "selected_choices":groups.iter().map(|g|g.choices.len()).sum::<usize>(),
@@ -721,11 +736,15 @@ fn generate_prepared(prepared: &PreparedSource) -> Result<Vec<Variant>> {
     let mut visited = 0usize;
     let mut duplicates = 0usize;
     let mut stop_reason = None;
-    // Names first reserves useful one-letter redistribution even when a TU has
-    // thousands of literal groups; each family is bounded by the global cap.
+    // Preserve the existing name/literal portfolio prefix under the global
+    // candidate/memory budget. New binding alternatives follow it, so adding
+    // them does not silently evict a previously reachable literal spelling.
+    let (legacy_names, independent_names): (Vec<_>, Vec<_>) = names
+        .into_iter()
+        .partition(|g| g.proof["independent_binding"] != true);
     let mut seen = HashSet::from([sha256(source)]);
     let mut retained_bytes = source.len();
-    'groups: for group in names.into_iter().chain(literals) {
+    'groups: for group in legacy_names.into_iter().chain(literals).chain(independent_names) {
         for replacement in group.choices {
             if replacement == group.old {
                 continue;
@@ -1332,6 +1351,110 @@ mod tests {
             })
             .unwrap();
         assert!(compose_variants(source, &[rename.clone(), other.clone()], &options).is_err());
+    }
+
+    #[test]
+    fn shadowed_declarations_have_independent_replayable_binding_candidates() {
+        let Some(mut options) = options() else {
+            return;
+        };
+        options.integer_literals = false;
+        options.character_literals = false;
+        options.names_per_group = 2;
+        let source = b"int f(int value){int total=value;{int initial=value;int value=initial+1;total+=value;}return total+value;}\n";
+        let text = std::str::from_utf8(source).unwrap();
+        let parameter_at = text.find("value").unwrap();
+        let local_at = text.find("int value=initial").unwrap() + 4;
+        let prepared = PreparedSource::new(source, &options).unwrap();
+        let variants = prepared.generate_variants().unwrap();
+        let parameter = variants.iter().find(|v| {
+            v.audit.iter().any(|a| a["independent_binding"] == true
+                && a["declaration_start"].as_u64() == Some(parameter_at as u64))
+        }).unwrap();
+        let parameter_name = parameter.audit[0]["after"].as_str().unwrap();
+        let local = variants.iter().find(|v| {
+            v.audit.iter().any(|a| a["independent_binding"] == true
+                && a["declaration_start"].as_u64() == Some(local_at as u64)
+                && a["after"].as_str() != Some(parameter_name))
+        }).unwrap();
+        let local_name = local.audit[0]["after"].as_str().unwrap();
+        // The initializer before the inner declaration still resolves to the
+        // parameter. The later inner use must remain a different binding.
+        let expected_parameter = text
+            .replace("f(int value)", &format!("f(int {parameter_name})"))
+            .replace("total=value", &format!("total={parameter_name}"))
+            .replace("initial=value", &format!("initial={parameter_name}"))
+            .replace("return total+value", &format!("return total+{parameter_name}"));
+        let expected_local = text
+            .replace("int value=initial", &format!("int {local_name}=initial"))
+            .replace("total+=value", &format!("total+={local_name}"));
+        assert_eq!(parameter.data, expected_parameter.as_bytes());
+        assert_eq!(local.data, expected_local.as_bytes());
+        prepared.verify_variant(parameter).unwrap();
+        prepared.verify_variant(local).unwrap();
+        let combined = prepared.compose_variants(&[parameter.clone(), local.clone()]).unwrap();
+        prepared.verify_variant(&combined).unwrap();
+        let expected_both = expected_parameter
+            .replace("int value=initial", &format!("int {local_name}=initial"))
+            .replace("total+=value", &format!("total+={local_name}"));
+        assert_eq!(combined.data, expected_both.as_bytes());
+        let recorded: Variant = serde_json::from_slice(&serde_json::to_vec(&combined).unwrap()).unwrap();
+        assert_eq!(replay_variant(source, &recorded, &options).unwrap().data, combined.data);
+        let same_destination = variants.iter().find(|v| {
+            v.audit.iter().any(|a| a["independent_binding"] == true
+                && a["declaration_start"].as_u64() == Some(local_at as u64)
+                && a["after"].as_str() == Some(parameter_name))
+        }).unwrap();
+        assert!(prepared.compose_variants(&[parameter.clone(), same_destination.clone()]).is_err());
+    }
+
+    #[test]
+    fn legacy_shadowed_batch_keeps_its_bounded_candidate_priority() {
+        let Some(mut options) = options() else {
+            return;
+        };
+        options.integer_literals = false;
+        options.character_literals = false;
+        options.max_name_groups = 1;
+        options.names_per_group = 1;
+        options.max_candidates = 2;
+        let source = b"int f(int item){int sum=item;{int item=1;sum+=item;}{int item=2;sum+=item;}{int item=3;sum+=item;}return sum+item;}\n";
+        let prepared = PreparedSource::new(source, &options).unwrap();
+        let variants = prepared.generate_variants().unwrap();
+        let batch = variants.iter().find(|v| v.audit.iter().any(|a| a["before"] == "item")).unwrap();
+        let audit = &batch.audit[0];
+        assert_eq!(audit["binding_ids"].as_array().unwrap().len(), 4);
+        assert_ne!(audit["independent_binding"], true);
+        let replacement = audit["after"].as_str().unwrap();
+        assert_eq!(batch.data, std::str::from_utf8(source).unwrap().replace("item", replacement).as_bytes());
+        prepared.verify_variant(batch).unwrap();
+        assert!(variants[0].contract["generation"]["names"]["discovered_groups"].as_u64().unwrap() > 1);
+        assert_eq!(variants[0].contract["generation"]["names"]["selected_groups"], 1);
+    }
+
+    #[test]
+    fn independent_bindings_follow_the_legacy_name_and_literal_portfolio() {
+        let Some(mut options) = options() else {
+            return;
+        };
+        options.names_per_group = 1;
+        let source = b"int f(int value){int total=value;{int value=131071;total+=value;}return total+value;}\n";
+        let variants = generate_variants(source, &options).unwrap();
+        let first_independent = variants.iter().position(|v| {
+            v.audit.iter().any(|a| a["independent_binding"] == true)
+        }).unwrap();
+        let last_literal = variants.iter().rposition(|v| {
+            v.audit.iter().any(|a| a["rule"] == "c-source-integer")
+        }).unwrap();
+        assert!(last_literal < first_independent);
+        options.max_candidates = first_independent;
+        let bounded = generate_variants(source, &options).unwrap();
+        assert_eq!(bounded.len(), first_independent);
+        assert!(bounded.iter().all(|v| v.audit.iter().all(|a| a["independent_binding"] != true)));
+        for (before, after) in variants.iter().zip(bounded.iter()).skip(1) {
+            assert_eq!(before.id, after.id);
+            assert_eq!(before.data, after.data);
+        }
     }
 
     #[test]
