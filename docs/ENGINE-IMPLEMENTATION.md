@@ -4,6 +4,39 @@ The full implementation scope is recorded in [the accepted plan](ENGINE-PLAN.ko.
 The current user request excludes training and AWS connections. Frozen model
 inference and lossless model storage remain in scope; trained strength is not claimed.
 
+## C late object-constant inlining: 2026-10-24
+
+The compact C cross stage reintroduces PLY/MOVES/HISTORY/MATE definitions
+after the earlier common constant pass. A final fixed transform removes only
+these four definitions and expands24 code uses to the same unsuffixed integer
+tokens128/512/4096/30000. Its28 roles/29 protected gaps/full inverse retain
+all other directives, literals, function macros and code. Source9075 becomes
+8992 B, bootstrap10036 becomes9953 B and whole4666 becomes4628 B, gain38 and
+532 B above4096. Actual full-header CPP340501 tokens match (raw whitespace
+differs), and the22672/5c447040 native remains entire-byte equal.
+
+The producer restores8992 to9075, then consumes the real pool/cross/common
+source and bootstrap guards before applying this final representation.
+Canonical/DEV, eight-lane HCE/SIMD128, PVS/QS/TT/learners/pool, workers2/TT18,
+compiler/AVX2 target/codec/header remain. Ordinary --dev1 reproduces shipping
+twice exactly against first-cost and old DEV twice. Unchanged selected1
+passes quit/EOF, eight legal GO, three TIDs, the actual native/private path,
+readers and physical exit. Original commands settle before reap, with
+forced0/owned0; no new semantic/SAN/fault/game fixture is added. External final
+index6584 B:
+`fdb7cef81ce29c1b862c90ea2a5ee7bf197e276ad2cdfd2057caa0fe4aa5a5d3`.
+
+A separate candidate adds post-immintrin J/return and L/int aliases, renaming
+only four proven TT-local declaration/reference tokens. Source8992 becomes
+8826 B, raw-166, and bootstrap9787 B, but whole4628 grows to4650 B, LOSS22.
+The full-header340501 tokens match only after those four binding-owned token
+correspondences, and the entire native remains equal. Compile1/encode1 and
+strict Python/CLI restoration pass; no candidate engine/normal/adoption runs.
+Its original argv-AST preparation error precedes every product command and
+is preserved; the corrected runner retains the same candidate/argv. External
+cost index16270 B:
+`27817e63b785609c336d3bac93a0f12c9d336c43c3731ed7a979f74a6841dca3`.
+
 ## Full F exact FROM macro expansion: 2026-10-24
 
 The definition of FROM is removed and its three fixed unsigned-local-m calls
@@ -897,8 +930,9 @@ alone yields4383 B, LOSS5, and combined with return yields4375 B,6 B worse
 than the selected4369 B. These alternatives are unadopted. Shorter raw source
 does not imply a smaller compressed file, and individual gains are not summed.
 Fragile textual comment/arithmetic stripping is not imported as a general C
-transformation. Scope-aware frequency reassignment on the existing binding
-graph remains a possible later experiment, not an implemented optimization.
+transformation. Scope-aware frequency reassignment was still a proposal at
+this earlier checkpoint; the later maintained A/F mapping checkpoints above
+supersede that status.
 
 All original local commands close normally with retained leader identity until
 group members are absent, then reap; forced cleanup and remaining owned handles
@@ -908,8 +942,9 @@ behavior, not equal timed traces, strength or final hardware scaling. The prior
 [engine CI39924735357](https://github.com/daejunnom/Rove4k/actions/runs/39924735357)
 and Node22/24 in
 [repository CI39924735573](https://github.com/daejunnom/Rove4k/actions/runs/39924735573).
-That result predates these new source changes. Default full F remains273 B
-above4096, and the full A-F objective remains open.
+That result predates those source changes. The earlier4369 B full F file was
+273 B above4096; current sizes appear in the summary above. The full A-F
+objective remains open.
 
 ## Shared B/C/E setter and actual NVCompact replay: 2026-10-23
 
@@ -1212,7 +1247,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | --- | ---: | ---: | --- |
 | A | 4,489 B | 393 B | EP legality shares the existing maker on initialized legal doublepush states, with bounded nesting2 and provisional hash/context discarded; scoped fixed seven-binding names; default Loose reuses completed depth -1 as a mutex-published job token while preserving the null startup sentinel and shared epilogue; earlier J/return and L/int aliases retain their full-header CPP/native identity proof separately; full HCE/PVS/QS/full-key TT/history/continuation/correction/SMP and all three optional root policies remain; main-owned token cursor, fixed resources, guarded original literal chain, strict fixed2 depth selector and individual stdio locking |
 | B | 4,950 B | 854 B | EP normalizer reuses the actual legal maker with nonzero result101 and king-safety guards; preceding I/int alias covers99 tokens with full-header CPP and entire native identity; worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained; made-child continuation row passed through PVS and same-position singular verification; literal include gaps and overlong-line drain compacted; clock-first SEE poll; cancellation timing changed; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero; private history length derived from immutable published job base plus ply; private piece-plus-six helper inlined at its two consumers with complete native identity; singular-depth temporary and empty shipping instrumentation branch removed; adjacent HCE int declarations merged; three walker forwarders removed with explicit full-mask/Boolean/count consumer domains |
-| C | 4,666 B | 570 B | Completed-depth tokens replace separate worker epoch state with the startup sentinel retained; current signed-net eight-lane HCE and actual128-bit madd/four signed32 sums combine with the smaller full common A-derived mailbox/PVS/runtime, explicit -mavx2 target; old-C trace/native identity is not claimed; exact incremental evaluation, king-capture/move-buffer/QS draw guards, full-key TT, three learners and persistent SMP remain; selected compiler/literal adapter consumes the original C package and old DEV is unchanged |
+| C | 4,628 B | 532 B | Late inlining removes four integer macros reintroduced by the cross stage with full-header token and entire preceding-native identity; completed-depth tokens replace separate worker epoch state with the startup sentinel retained; current signed-net eight-lane HCE and actual128-bit madd/four signed32 sums combine with the smaller full common A-derived mailbox/PVS/runtime, explicit -mavx2 target; older architecture native identity is not claimed; exact incremental evaluation, king-capture/move-buffer/QS draw guards, full-key TT, three learners and persistent SMP remain; selected compiler/literal adapter consumes the original C package and old DEV is unchanged |
 | D scalar / HQ | 5,581 / 6,037 B | 1,485 / 1,941 B | Scalar H28-private decoder shares initial prefill and subsequent refill with unchanged packet/native/restored image; transient512 MiB table remains and old startup/RSS observations keep their prior scope; HQ retains H24; shipping scalar fused mailbox rays with direction-major near-to-far visitation; HQ/DEV original walker; HQ-only history length derived from immutable job length plus ply; exact clock/inc parsing and ordered K/Q castling branches shared; consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT with a shared finite-stage asm body, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained; exact fused-scalar body232 class restores dormant internal ELF metadata as zero while preserving body addresses |
 | E | 4,586 B | 490 B | Direct64-square successor preserves move/attack/material visit order and loop bodies; completed-depth tokens replace separate worker epoch state with the startup sentinel retained; actual ranking loop reuses decoded coordinates/mover and keeps five ordering features and19 independent coefficients; current exact untrained E19 logical19/physical21 model bodies and all five ordering features combine with the smaller full common A-derived mailbox/PVS/runtime; old-E search traces are not an equivalence claim; full-key-bound TT, exact model evaluation, history/continuation/correction, persistent SMP, terminal/draw guards and fixed resources retained; final int/return aliases retain the entire preceding native; previous E chain remains the guarded model/input authority and old DEV stays unchanged; selected compiler/literal adapter consumes the actual previous package before constructing the smaller bootstrap |
 | F full (default) | 4,275 B | 179 B | Exact expansion removes the three-use FROM definition with full-header CPP/native identity; unique quiet-order helper is inlined into its coordinate-owning caller with the entire native preserved; fixed binding-frequency spelling and four-coordinate formatter sharing; packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; private TT depth/bound shares one byte with empty0 excluded, worker completed-depth -1 publishes jobs under the existing mutex; history length derived from immutable job length plus ply; nonnegative QS depth, repetition-distance loop, fixed integer macros and plain-int keyword spelling compacted after the no-preadd hash, terminal, correction and source-form stages; compact environment snapshot; default size target remains open; lazy fallback and first-legal quiet-QS standpat cutoff; immutable global job-prefix keys shared while workers store only private path keys; fixed 73-byte stdin/xz header and BT2/16KiB ALONE with nice24; four further local names shorten14 tokens with declaration/reference and macro-argument ownership preserved; compact handler-pair loops, fixed2 completion selector and positional wait timeout; pure HCE rank normalization shares advance/center rank; ASCII unsigned first-digit guard and Linux readonly-open flag spelling compacted |

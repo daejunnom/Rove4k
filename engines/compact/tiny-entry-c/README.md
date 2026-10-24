@@ -1153,3 +1153,55 @@ members, reap/group-absence, forced0/failures0/owned0. Only recipe and README
 completion annotations followed execution. Code, helper, explicit expected
 tuple, compiler, codec, resources and the canonical/DEV input remain producing
 bytes. The current full C file is still570 B above4096.
+
+
+## Late four C object constants (4628-byte first cost; normal pending)
+
+The current Ccross had reintroduced PLY128, MOVES512, HISTORY4096 and MATE30000
+after the earlier BCE constant stage. The final shipping-only helper removes
+exactly these four project-owned definitions and expands their code-identifier
+uses to identical unsuffixed integer bodies:28 fixed spans,29 protected gaps,
+full inverse, raw9075->8992(-83). Function macros, other directives, strings,
+comments, canonical/DEV, the physical8xint16 model/SIMD, search/TT/learning,
+fixed resources, compiler/ISA and codec are unchanged.
+
+The single authorized cost ran old/new full-header CPP once each. Raw CPP
+whitespace differs, but all340501 tokens match. Candidatecompile1 reproduced
+the preceding22672-byte native5c447040... in its entirety. One original fixed
+encoding and strict Python plus CLI restoration gave4666->4628(-38), still532
+above4096. Source8992 SHAa82b3d17f132fba5e3949c9d2750ad2eeb5e2034db36d27daca2d8d3cdcd1329;
+bootstrap9953 SHAefc5e1c5156661dfe91386285b5fdedacebceb0eef8779f79ca22bf2f315a65c;
+whole4628 SHAe632d02ac220d995b9718e4726430d5f2e5ab2c0a708e66c0e9d08067fd9fb32.
+Macro-table introspection and source-location diagnostics are outside the
+identity claim. Packaging restores8992->9075->9093 and actually consumes the
+existing pool/cross/common/template guards before replacing this final source
+literal; no historical report or executable is a build input.
+
+This is the single constant-stage cost, not an addition of a J/L hypothesis.
+Ordinary shipping/DEV reproduction and unchanged selected quit/EOF verification
+remain pending the final joint source choice. No new runtime is claimed here.
+
+
+The final selection remains the constants-only4628-byte wrapper. A separately
+measured J/L joint source8826 produced4650 bytes:LOSS22 versus4628 despite
+entire-native identity, so it is preserved as an unselected experiment. Its raw
+or separate savings are not added to this selection.
+
+One ordinary --dev invocation reproduced the selected shipping tuple twice and
+the unchanged diagnostic tuple twice. All source/native/bootstrap/whole bytes
+match the fixed firstcost. DEV bytes also match the previous actual Cpool build.
+The unchanged selected verifier then passed two quit/EOF sessions, eight legal
+GO epochs, three persistent startup TIDs, the restored native5c447... image,
+private-path removal, reader completion and physical process exit. Original
+ordinary and selected leaders completed/reaped with no pre-reap group members,
+group absence, forced0/failures0/owned0. This is new wrapper/restoration execution
+proof; unchanged board/search/model/SIMD/TT/learning coverage is exact-native
+receipt reuse. No new unit, projection, SAN/fault/fresh/game/strength/NPS or C8
+campaign was run, and cancellation causality remains unproven.
+
+Actual normal root:/home/stemxstudio/rove4k-c-late-constants-normal-20261024-v1
+build/build.json SHAd4ee774d9d1cb0541310fc1b888b761672813cc9f4c101a5fe5ce3b562544404;
+runtime/runtime.json SHA991b8c5c8b0cd6c0f2897c3ddd376750f7ce04fd8d7720a5038d71a42a674cdf.
+Only recipe/README completion annotations followed execution. Producing code,
+fixed expected tuple, helpers, compiler, codec and resources are unchanged.
+The selected file remains532 bytes above4096.
