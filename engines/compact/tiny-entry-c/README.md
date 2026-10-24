@@ -1,3 +1,32 @@
+# Maintained C: terminal compiler stdin and shared wait — 2026-10-24
+
+Fixed W1+W2 first-cost winner: **4995→4948 B (-47 B)**; still 852 B above4096.
+Bootstrap 10947→10827 B. Whole SHA-256 is
+`6b7d44324a248caa9c38dac168298377ea45229f37ee25606eb9c656b6c69499`.
+
+The builder freezes the explicitly pinned `engines/scripts/compiler_stdin.py`
+and calls `transform_bootstrap(script, shared_wait=True)` after every existing
+literal/compiler-owner/late-bootstrap guard. The exact previous bootstrap
+length and hash remain an operational guard. The helper reconstructs the
+previous corrected owner, preserves opaque source/argv spelling and protected
+regions, and verifies its complete byte/AST inverse. DEV bypasses packaging.
+
+W1 writes, flushes and rewinds source in the existing private directory before
+spawn and passes that regular file as compiler FD0. The original UCI FD0 stays
+open. Compiler stdin becomes seekable, source preparation failures precede
+spawn, and pending cancellation can be delivered after publication/unmask;
+arbitrary source filesystem observations and preparation-cancel compiler0 are
+outside this compile-input-only contract. W2 shares the existing leader/group
+wait body while retaining WNOWAIT observation, deadline/KILL order, group drain
+before final reap and existing workspace-retention failure behavior.
+
+Source, native, canonical/DEV, model/search/TT/learners, fixed workers and codec
+expectations are unchanged. Firstcost proves source transformation and whole
+restoration only; ordinary --dev and selected runtime are pending. Historical
+receipts below retain their original inputs and qualification scope.
+
+## Previous maintained evidence
+
 # Maintained C: unused published score removed — 2026-10-24
 
 현재 full shipping의 전체 파일은 **4995 B**다. 동일한 compiler-owner 수정·73 B

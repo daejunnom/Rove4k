@@ -1,3 +1,39 @@
+# Maintained E: terminal W1/W2 input transport and shared wait - 2026-10-24
+
+The actual selected complete file is **4901 B**, down **45 B** from the
+corrected-owner4946 B predecessor at the same nice32 LZMA1 recipe and73 B
+header. Bootstrap10496->10376 B saves120 bytes. The full8526 B C source,
+18576 B native, E19 model21 physical coefficients, five ordering features,
+TT/three learners/search, two workers and unchanged DEV remain selected.
+The file is805 B above4096; no tournament eligibility is claimed.
+
+The explicitly frozen `engines/scripts/compiler_stdin.py` is applied only
+after all current cross/keyword/order/depth/square source/literal stages,
+compiler_group, dead-score BOOT and sole-GO BOOT guards have run. The exact
+10496 B/31b5296f predecessor is retained before this terminal stage, and the
+recipe preserves its4946 B/b7d135ec whole pin. No earlier guard or helper
+pin is weakened. The actual fixed-codec control reproduced the whole input,
+and the selected W1/W2 bytes and source/AST full inverse were verified.
+
+W1 changes only compiler input transport: the private source file is fully
+written/flushed/rewound before spawn, passed as child FD0 and closed before
+wait/settlement and engine exec. Compiler argv `-x c -`, source bytes and
+spelling, original parent UCI FD0 and engine FD execution remain. Compiler
+FD0 is now seekable and private cwd gains c; this exact E source uses only
+system angle headers and has no compiler-private file observations. General
+source/compiler equivalence is outside the admitted compile-input contract.
+The blocked signal interval includes source preparation; cancellation can
+be delivered after spawn publication/unmask, so compiler0-on-cancel is not
+claimed. W2 shares leader/group wait code with fresh per-call deadlines,
+retaining WNOWAIT before live-group settlement and reap/cleanFalse125 policy.
+
+Actual comparison receipt SHA-256:
+`0ff62844c4a0ea0250c579bcbda19ebf130e706db927f64fefe15126c6e5f464`.
+Actual source proof SHA-256:
+`a5c1764778f1290cb21735b3940e9f2c456f072d048737153d2acd88726dfb47`.
+Comparison compiled/executed no engine. Ordinary --dev and unchanged
+selected verification of this exact new wrapper are pending.
+
 # Maintained E: sole-GO function boundary - 2026-10-24
 
 The full shipping candidate is **4946 B**, down **7 B** from the actual

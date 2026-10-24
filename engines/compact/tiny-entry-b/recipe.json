@@ -86,7 +86,8 @@
     "engines/compact/tiny-entry-a/shipping_constants_bce.py": "02d0411887e7f04042e4ef94c876c32d2469b6d26f056c63dbf1235a93fc052c",
     "engines/compact/tiny-entry-b/shipping_int_alias.py": "a4b7fb837adf9c4e9087577d60836f8b126733a15f8735ae16ee09f0df606164",
     "engines/compact/tiny-entry-b/shipping_ep_maker.py": "b5a509c4c2179a6200c152401540f0af45d511bceedca2091a09e2124708cada",
-    "engines/scripts/compiler_group.py": "fe2fd6ce96b51251ec0d5e0f4b73c0742c50ca86932608b29f892ecee240974c"
+    "engines/scripts/compiler_group.py": "fe2fd6ce96b51251ec0d5e0f4b73c0742c50ca86932608b29f892ecee240974c",
+    "engines/scripts/compiler_stdin.py": "ee9ba2c938cfabf30261451961c424254d9f75a804d5c3e6d832b09bfcf4f247"
   },
   "compression": {
     "format": "lzma-alone",
@@ -107,12 +108,12 @@
     "source_sha256": "4b3412e3dddbe4cc9b40172be66d577aa998dc65e4ffa5876827f6b92654c5a8",
     "native_bytes": 26080,
     "native_sha256": "59eea719b15f84ef83dcdc1918e1037c234578df417a537f7997fa3593648e28",
-    "whole_bytes": 5337,
-    "whole_sha256": "8f3a296d682c1ea1db74288ed76d285de4582df3ebe4599078cae1c0f7b7b963",
+    "whole_bytes": 5285,
+    "whole_sha256": "30ff407e5b5d4d81c812814858e53e7c5d4810ac9f0ae5bc4f163facaafd4165",
     "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
     "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
-    "bootstrap_sha256": "efc80af6e4d6f1dcd2d93a3b05831a7d60b73362f9aff03785bdff3ea6386604",
-    "bootstrap_bytes": 11789
+    "bootstrap_sha256": "b8fd281caa3d9136de19a12d7b04b3a095b8313ba72537a9874445836cfa8e09",
+    "bootstrap_bytes": 11669
   },
   "local_input_sha256": {
     "engine.c": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
@@ -4956,5 +4957,41 @@
       "source_only_first_proposal_qn_correction_retained": true,
       "scope": "new B5337 fixed2/TT18 wrapper startup, legal GO, quit/EOF, physical exit only; no scheduling/performance/RAM/strength/causality/full qualification/CI claim"
     }
+  },
+  "terminal_compiler_stdin": {
+    "helper": "engines/scripts/compiler_stdin.py",
+    "helper_sha256": "ee9ba2c938cfabf30261451961c424254d9f75a804d5c3e6d832b09bfcf4f247",
+    "shared_wait": true,
+    "stage": "after all literal, compiler owner and late bootstrap guards; before AST parse and fixed codec",
+    "predecessor_bootstrap": {
+      "bytes": 11789,
+      "sha256": "efc80af6e4d6f1dcd2d93a3b05831a7d60b73362f9aff03785bdff3ea6386604"
+    },
+    "predecessor_whole_bytes": 5337,
+    "firstcost": {
+      "bootstrap.py": {
+        "path": "/home/stemxstudio/rove4k-wrapper-W1-W2-five-firstcost-20261024-v1/B/bootstrap.py",
+        "bytes": 11669,
+        "sha256": "b8fd281caa3d9136de19a12d7b04b3a095b8313ba72537a9874445836cfa8e09"
+      },
+      "whole": {
+        "path": "/home/stemxstudio/rove4k-wrapper-W1-W2-five-firstcost-20261024-v1/B/whole",
+        "bytes": 5285,
+        "sha256": "30ff407e5b5d4d81c812814858e53e7c5d4810ac9f0ae5bc4f163facaafd4165"
+      },
+      "cost.json": {
+        "path": "/home/stemxstudio/rove4k-wrapper-W1-W2-five-firstcost-20261024-v1/B/cost.json",
+        "bytes": 4342,
+        "sha256": "0b9367ceeedc1e291bc7a82b2011d1881a55982df51e30015314d42fb3b6f04b"
+      },
+      "source-proof.json": {
+        "path": "/home/stemxstudio/rove4k-wrapper-W1-W2-five-firstcost-20261024-v1/B/source-proof.json",
+        "bytes": 26270,
+        "sha256": "a40aefc45d91ce0144aedfbf88efb6a374eb788da19bfd99154ebe2b459be45a"
+      }
+    },
+    "change_scope": "W1 private regular-file compiler FD0 and W2 shared leader/group wait only; source/native/DEV/full engine semantics and compiler argv unchanged",
+    "normal_status": "PENDING ordinary --dev then unchanged selected; firstcost is not runtime qualification",
+    "new_helper_runtime_qualified_flag": false
   }
 }

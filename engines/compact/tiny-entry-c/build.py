@@ -87,6 +87,7 @@ def main():
         strip=module('entry_counter_strip',frozen/'stitch.py').strip_dev_counters
         literal=module('entry_literal',frozen/'pack_stream.py').source_literal
         compiler_group=module('entry_compiler_group',frozen/'compiler_group.py').transform_bootstrap
+        compiler_stdin=module('entry_compiler_stdin',frozen/'compiler_stdin.py').transform_bootstrap
         source_package=module('entry_source_package',frozen/'source_package.py')
         readonly_template=module('entry_readonly_template',frozen/'shipping_readonly.py').transform_template
         common=module('entry_shipping_common',frozen/'shipping_common.py')
@@ -219,6 +220,10 @@ def main():
             report['compiler_group']=group_metadata
             script,dead_score_bootstrap=dead_score.transform_bootstrap(script,source=source)
             report['dead_score_bootstrap']=dead_score_bootstrap
+            if len(script)!=10947 or sha(script)!='2f1dd8b4e6a12f0aa7f25705f63fea55c1775cc49c18b544ed5e0e211b2dc1b8':
+                raise ValueError('C terminal compiler-owner predecessor differs')
+            script,stdin_metadata=compiler_stdin(script,shared_wait=True)
+            report['compiler_stdin']=stdin_metadata
             ast.parse(script)
             data=prefix+lzma.compress(script,format=lzma.FORMAT_ALONE,check=lzma.CHECK_NONE,
                                      filters=[{'id':lzma.FILTER_LZMA1,'preset':9|lzma.PRESET_EXTREME,

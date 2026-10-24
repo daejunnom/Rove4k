@@ -78,7 +78,8 @@
     "engines/compact/tiny-entry-f/shipping_from.py": "6b8955f6f3d7fb9421a91a339719db26595793d4dc27ddbda9b2b5e5ffc2a510",
     "engines/compact/tiny-entry-f/shipping_mtd_state.py": "b93a93d5e50823f59f6ed77ced036b3c9427e7a1ebd031db233b8012e551b54c",
     "engines/compact/tiny-entry-f/shipping_go_boundary.py": "8efdcf32924a936bf5f6ed8ca5605b94f54fb219bc3cf7d339bca9eab8f1ce52",
-    "engines/scripts/compiler_group.py": "fe2fd6ce96b51251ec0d5e0f4b73c0742c50ca86932608b29f892ecee240974c"
+    "engines/scripts/compiler_group.py": "fe2fd6ce96b51251ec0d5e0f4b73c0742c50ca86932608b29f892ecee240974c",
+    "engines/scripts/compiler_stdin.py": "ee9ba2c938cfabf30261451961c424254d9f75a804d5c3e6d832b09bfcf4f247"
   },
   "positive_helper_sha256": {
     "engines/compact/tiny-entry-d/verify.py": "461f685a5ccd2b2b13682785c1b80637f45c334581660dfd21c6790f06b24482",
@@ -152,10 +153,10 @@
     "source_sha256": "ce54ace72c9c903ea555347ffab4a0bc4635b0c48c70c6c5409ecaa66b657373",
     "native_bytes": 18576,
     "native_sha256": "79681f350279c7d1b7528b54efec48af04fccb67888704694144018f8f5b77b4",
-    "bootstrap_bytes": 9834,
-    "bootstrap_sha256": "9d0510561ea9a202e5e36d5621e7358cee884c09d71980fa4bcd6e6c11435971",
-    "whole_bytes": 4652,
-    "whole_sha256": "805e013075e2953bb12264f02e75dba4539cb1a99cfee5ce7d457e8c15c2509f"
+    "bootstrap_bytes": 9714,
+    "bootstrap_sha256": "5d2ccacfbf48e4989f907c578a0cc861f8fdaf80d1c58b6cfe1fc5c2be1f7e6c",
+    "whole_bytes": 4607,
+    "whole_sha256": "637225c0edd8f69d166550a1eb59446c020808b2fefae134e6bdaace99145155"
   },
   "specialize_sha256": "c4ff7d03d649ef33198772f95ce3a6f1cff4b711e1aa5e5a00fdbc5ddbe34656",
   "packaging_paths": {
@@ -165,7 +166,8 @@
     "launcher.sh": "engines/compact/tiny-entry-f/launcher.sh",
     "bootstrap_full.py": "engines/compact/tiny-entry-f/bootstrap_full.py",
     "source_package.py": "engines/scripts/source_package.py",
-    "compiler_group.py": "engines/scripts/compiler_group.py"
+    "compiler_group.py": "engines/scripts/compiler_group.py",
+    "compiler_stdin.py": "engines/scripts/compiler_stdin.py"
   },
   "source_raw_delta": 38,
   "fixed_late_source": {
@@ -2350,5 +2352,33 @@
       "guard_stack_strength_scaling_cancellation_final4k_proven": false,
       "producing_to_final_annotations_only": true
     }
+  },
+  "compiler_stdin_terminal": {
+    "helper_path": "engines/scripts/compiler_stdin.py",
+    "helper_sha256": "ee9ba2c938cfabf30261451961c424254d9f75a804d5c3e6d832b09bfcf4f247",
+    "shared_wait": true,
+    "predecessor_bootstrap": {
+      "bytes": 9834,
+      "sha256": "9d0510561ea9a202e5e36d5621e7358cee884c09d71980fa4bcd6e6c11435971"
+    },
+    "previous_whole": {
+      "bytes": 4652,
+      "sha256": "805e013075e2953bb12264f02e75dba4539cb1a99cfee5ce7d457e8c15c2509f"
+    },
+    "stage_order": "existing six-role/source/literal/template/compiler_group guards, exact9834 predecessor, terminal W1 and W2 once, fixed own codec",
+    "compile_input_only_contract": "Only the fixed7878-byte C and fixed cc -Os -pthread -x c - input are admitted; no arbitrary include/filesystem observations. Compiler FD0 becomes a private seekable regular file; original UCI FD0 and engine model/search remain.",
+    "first_cost": {
+      "path": "/home/stemxstudio/rove4k-wrapper-W1-W2-five-firstcost-20261024-v1/F8/cost.json",
+      "bytes": 4352,
+      "sha256": "eb4513ae3fa16e4c920785f4887fcb96713266249410f3617d87567f6747dad6"
+    },
+    "source_proof": {
+      "path": "/home/stemxstudio/rove4k-wrapper-W1-W2-five-firstcost-20261024-v1/F8/source-proof.json",
+      "bytes": 22367,
+      "sha256": "93a6bb7bf54bf2b0e80d421d66c517c007e5454bbe53c2033edfe72150a7ff42"
+    },
+    "whole_delta": -45,
+    "raw_bootstrap_delta": -120,
+    "runtime_qualification": "separate ordinary and unchanged positive receipts; first cost alone is not runtime acceptance"
   }
 }

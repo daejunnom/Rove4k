@@ -87,6 +87,7 @@ def main():
         strip=module('entry_counter_strip',frozen/'stitch.py').strip_dev_counters
         literal=module('entry_literal',frozen/'pack_stream.py').source_literal
         compiler_group=module('entry_compiler_group',frozen/'compiler_group.py').transform_bootstrap
+        compiler_stdin=module('entry_compiler_stdin',frozen/'compiler_stdin.py').transform_bootstrap
         source_package=module('entry_source_package',frozen/'source_package.py')
         readonly_template=module('entry_readonly_template',frozen/'shipping_readonly.py').transform_template
         common=module('entry_shipping_common',frozen/'shipping_common.py')
@@ -233,6 +234,10 @@ def main():
             report['dead_score_bootstrap']=score_bootstrap
             script,GO_bootstrap=sole_GO.transform_bootstrap(script,source=source)
             report['sole_GO_bootstrap']=GO_bootstrap
+            if len(script)!=10496 or sha(script)!='31b5296ff8474490d9f07a27872823845e1e58487139fb84b7d122d74625b463':
+                raise ValueError('E compiler-owner/sole-GO predecessor differs')
+            script,stdin_metadata=compiler_stdin(script,shared_wait=True)
+            report['compiler_stdin']=stdin_metadata
             ast.parse(script)
             data=prefix+lzma.compress(script,format=lzma.FORMAT_ALONE,check=lzma.CHECK_NONE,
                                      filters=[{'id':lzma.FILTER_LZMA1,'preset':9|lzma.PRESET_EXTREME,

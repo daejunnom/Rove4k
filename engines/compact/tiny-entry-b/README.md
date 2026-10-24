@@ -1,3 +1,32 @@
+# Maintained B: terminal compiler stdin and shared wait — 2026-10-24
+
+Fixed W1+W2 first-cost winner: **5337→5285 B (-52 B)**; still 1189 B above4096.
+Bootstrap 11789→11669 B. Whole SHA-256 is
+`30ff407e5b5d4d81c812814858e53e7c5d4810ac9f0ae5bc4f163facaafd4165`.
+
+The builder freezes the explicitly pinned `engines/scripts/compiler_stdin.py`
+and calls `transform_bootstrap(script, shared_wait=True)` after every existing
+literal/compiler-owner/late-bootstrap guard. The exact previous bootstrap
+length and hash remain an operational guard. The helper reconstructs the
+previous corrected owner, preserves opaque source/argv spelling and protected
+regions, and verifies its complete byte/AST inverse. DEV bypasses packaging.
+
+W1 writes, flushes and rewinds source in the existing private directory before
+spawn and passes that regular file as compiler FD0. The original UCI FD0 stays
+open. Compiler stdin becomes seekable, source preparation failures precede
+spawn, and pending cancellation can be delivered after publication/unmask;
+arbitrary source filesystem observations and preparation-cancel compiler0 are
+outside this compile-input-only contract. W2 shares the existing leader/group
+wait body while retaining WNOWAIT observation, deadline/KILL order, group drain
+before final reap and existing workspace-retention failure behavior.
+
+Source, native, canonical/DEV, model/search/TT/learners, fixed workers and codec
+expectations are unchanged. Firstcost proves source transformation and whole
+restoration only; ordinary --dev and selected runtime are pending. Historical
+receipts below retain their original inputs and qualification scope.
+
+## Previous maintained evidence
+
 # Maintained B: completed-depth job token — 2026-10-24
 
 Current corrected-owner whole **5342→5337 B (-5 B)**, source9759→9744 B,

@@ -64,7 +64,8 @@
     "engines/compact/tiny-entry-a/shipping_pool_state.py": "87478a25e8b8e5f067230b2e0306dd3f4fbf88ee85d105da8c7cbd010544bf30",
     "engines/compact/tiny-entry-a/shipping_frequency.py": "ea26dae14aed9a570cc5c60c9bb0df5cb3a06332ad745f2030c09647e6d7dda0",
     "engines/compact/tiny-entry-a/shipping_ep.py": "5d44391eecbabf473cf08deebcc895bafc71380d157dc5eff66caca28117330c",
-    "engines/scripts/compiler_group.py": "fe2fd6ce96b51251ec0d5e0f4b73c0742c50ca86932608b29f892ecee240974c"
+    "engines/scripts/compiler_group.py": "fe2fd6ce96b51251ec0d5e0f4b73c0742c50ca86932608b29f892ecee240974c",
+    "engines/scripts/compiler_stdin.py": "ee9ba2c938cfabf30261451961c424254d9f75a804d5c3e6d832b09bfcf4f247"
   },
   "fixed_renames": [
     [
@@ -404,14 +405,14 @@
     "source_sha256": "2d077291e5615790206a43399d809b23aca5a2deec17623cd4c32f40fcb1ebf4",
     "native_bytes": 18576,
     "native_sha256": "9b0e162a4f8f4073d2d16b6d5da336baacaf5bb5bc9e38e07f851d2afa8004f2",
-    "whole_bytes": 4854,
-    "whole_sha256": "88e23a6a4f2894d6c3a58551444705c2cb5ef6e3f355bc8c5385873b92bd331e",
-    "bootstrap_sha256": "fb0e7c10dce6d4ce957e4c92e5bebbcf85b13bdcaf1cb034ed5d3d24771320f0",
+    "whole_bytes": 4810,
+    "whole_sha256": "9b791410dca97f8cf0d1e32965e419888561db1935c3be96c000ce2f79c91090",
+    "bootstrap_sha256": "1da24c94ea091b5a40bb1d23e30872a25d29733032181accfa3b06e9eaa626a6",
     "dev_source_sha256": "d1f0ff322843a4210cb1cad574bc6726eef576c0fd398cb0e1cfbc12fdc81f01",
     "dev_native_sha256": "078df7141403841798e0bcb1545e59975492359b78d88b0637b99865a6bf72b9",
     "input_profile_readable_bytes": 27688,
     "input_profile_readable_sha256": "4af39bc6496c85281b322063245ee97a522b4d6c6df7c4844f71d981e733164a",
-    "bootstrap_bytes": 10305
+    "bootstrap_bytes": 10185
   },
   "local_input_sha256": {
     "engine.c": "a6aab57fffacc1900dbd9de133652d811d316b3823144ec2181c4f8dda581b6a",
@@ -4298,5 +4299,69 @@
     "native_identity_claimed": false,
     "search_TT_learners_protocol_worker_lifetime_logic_changed": false,
     "historical_receipt_reuse": "kept in original source/native identity; no previous runtime promoted to new native"
+  },
+  "terminal_compiler_stdin": {
+    "policy": "loose",
+    "shared_wait": true,
+    "selected_stages": "W1+W2",
+    "helper": "engines/scripts/compiler_stdin.py",
+    "helper_sha256": "ee9ba2c938cfabf30261451961c424254d9f75a804d5c3e6d832b09bfcf4f247",
+    "predecessor": {
+      "readable_sha256": "a6aab57fffacc1900dbd9de133652d811d316b3823144ec2181c4f8dda581b6a",
+      "source_bytes": 8335,
+      "source_sha256": "2d077291e5615790206a43399d809b23aca5a2deec17623cd4c32f40fcb1ebf4",
+      "native_bytes": 18576,
+      "native_sha256": "9b0e162a4f8f4073d2d16b6d5da336baacaf5bb5bc9e38e07f851d2afa8004f2",
+      "whole_bytes": 4854,
+      "whole_sha256": "88e23a6a4f2894d6c3a58551444705c2cb5ef6e3f355bc8c5385873b92bd331e",
+      "bootstrap_sha256": "fb0e7c10dce6d4ce957e4c92e5bebbcf85b13bdcaf1cb034ed5d3d24771320f0",
+      "dev_source_sha256": "d1f0ff322843a4210cb1cad574bc6726eef576c0fd398cb0e1cfbc12fdc81f01",
+      "dev_native_sha256": "078df7141403841798e0bcb1545e59975492359b78d88b0637b99865a6bf72b9",
+      "input_profile_readable_bytes": 27688,
+      "input_profile_readable_sha256": "4af39bc6496c85281b322063245ee97a522b4d6c6df7c4844f71d981e733164a",
+      "bootstrap_bytes": 10305
+    },
+    "selected": {
+      "readable_sha256": "a6aab57fffacc1900dbd9de133652d811d316b3823144ec2181c4f8dda581b6a",
+      "source_bytes": 8335,
+      "source_sha256": "2d077291e5615790206a43399d809b23aca5a2deec17623cd4c32f40fcb1ebf4",
+      "native_bytes": 18576,
+      "native_sha256": "9b0e162a4f8f4073d2d16b6d5da336baacaf5bb5bc9e38e07f851d2afa8004f2",
+      "whole_bytes": 4810,
+      "whole_sha256": "9b791410dca97f8cf0d1e32965e419888561db1935c3be96c000ce2f79c91090",
+      "bootstrap_sha256": "1da24c94ea091b5a40bb1d23e30872a25d29733032181accfa3b06e9eaa626a6",
+      "dev_source_sha256": "d1f0ff322843a4210cb1cad574bc6726eef576c0fd398cb0e1cfbc12fdc81f01",
+      "dev_native_sha256": "078df7141403841798e0bcb1545e59975492359b78d88b0637b99865a6bf72b9",
+      "input_profile_readable_bytes": 27688,
+      "input_profile_readable_sha256": "4af39bc6496c85281b322063245ee97a522b4d6c6df7c4844f71d981e733164a",
+      "bootstrap_bytes": 10185
+    },
+    "insertion": "after all actual default source/literal/template/compiler-owner/dead-score fixed BOOT guards, before package encoding",
+    "measured_cost": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-wrapper-W1-W2-promotion-20261024-evidence/measured/cost.json",
+      "bytes": 4388,
+      "sha256": "a261ead9aec591e0e77838b7308ffe1d31d0bd904d222a889929849b0e934f68"
+    },
+    "measured_source_proof": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-wrapper-W1-W2-promotion-20261024-evidence/measured/source-proof.json",
+      "bytes": 23240,
+      "sha256": "47489fbb82743b1e1e35868dc94eea1c95e02fbe8b1853b3233e9ffb14e8b7a2"
+    },
+    "raw_bootstrap_delta": -120,
+    "whole_delta": -44,
+    "header_bytes": 73,
+    "source_expression_and_compiler_argv_byte_spelling_unchanged": true,
+    "selected_source_native_EXPECTATIONS_unchanged": true,
+    "compile_input_only_contract": "exact fixed A full source uses standard angle includes only; no FILE/relative include/incbin/private-cwd configuration observation; no arbitrary compiler-source equivalence",
+    "declared_transport_change": "compiler stdin becomes seekable private regular file c, written/flushed/rewound before spawn; parent UCI FD0 untouched",
+    "preparation_cancel_contract": "INT/TERM masked preparation can defer pending cancel through spawn/publication/unmask; compiler0 on preparation cancel is not guaranteed",
+    "retained_owner": "same outer ownership, CHLD normalization/restore, WNOWAIT leader, live-group settlement before reap, cleanFalse125 and workspace policy; W2 shares existing leader/group wait body",
+    "default_only": true,
+    "canonical_DEV_root3_changed": false,
+    "source_native_discovery_needed": false,
+    "normal_validation": {
+      "status": "pending one existing loose ordinary --dev and unchanged selected verifier"
+    },
+    "previous_receipts": "retain exact predecessor source/native/bootstrap/whole scope; no runtime success inherited"
   }
 }

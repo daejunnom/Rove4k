@@ -4,6 +4,67 @@ The full implementation scope is recorded in [the accepted plan](ENGINE-PLAN.ko.
 The current user request excludes training and AWS connections. Frozen model
 inference and lossless model storage remain in scope; trained strength is not claimed.
 
+## W1/W2 rollout to A/B/C/E/F8: 2026-10-24
+
+Each existing complete file is reproduced with its own current codec/header
+before one W1/W2 candidate is encoded. Control5/candidate5, strict Python5
+and CLI5 pass. The fixed current compiler_stdin helper ee9ba2c9 is unchanged.
+The candidate source bytes and literal spelling are exact, and complete
+byte/AST inverses restore each original compiler owner.
+
+| Default full path | Previous whole | Maintained local whole | Gain | Bootstrap |
+|---|---:|---:|---:|---:|
+| A loose, two workers | 4854 | 4810 | 44 | 10185 |
+| B, two workers | 5337 | 5285 | 52 | 11669 |
+| C, two workers | 4995 | 4948 | 47 | 10827 |
+| E, two workers | 4946 | 4901 | 45 | 10376 |
+| F full, eight workers | 4652 | 4607 | 45 | 9714 |
+
+Each bootstrap saves120 raw bytes. No resource/profile, engine source,
+native, DEV, TT, model, learners, search or N/B/R/Q promotion is removed.
+Old source/literal/owner and late BOOT guards execute first. A applies only
+to default loose, retaining the three optional root-policy bypasses. Each
+recipe explicitly freezes the common helper and records its own predecessor
+and measured tuple. Savings are independent observations, not sums.
+
+One ordinary --dev per A/B/C/E reproduces shipping twice and old DEV twice.
+Each unchanged selected verifier passes quit/EOF, eight legal GO, stable
+three TIDs, exact deleted native/private-child checks, readers and physical
+exit0. A/B do not enumerate live FDs; C/E observe stdio0/1/2. F8 separately
+reproduces twice and passes two positive sessions/eight legal GO, nine TIDs,
+positive CPU deltas for all eight workers, FD/children/native/maps and
+physical settlement. Runtime lanes are bounded, with the F8 positive alone;
+no game, NPS/Elo or target-hardware scaling conclusion is inferred.
+
+Production recipe/README bytes remain frozen after these runs. Their earlier
+pending wording is a producing-time record; completion is recorded here and
+in external receipts. All original command leaders settle before reap, with
+forced/owned0. The finite-cost index45092 B has SHA256
+2a35e93aa0bd3382a42ee7bb9147c1c88165be46113ec267936c1be3a232cb89.
+F8's successful local build/runtime consume the original D verify461f685a.
+A subsequent independent D source WIP changes that shared file in the
+working copy: this does not rewrite the successful receipt, and that D WIP
+is excluded from the wrapper checkpoint's Git tree. Its later integration
+requires an explicit F8 helper-pin refresh and fresh verification.
+
+The fresh archive collectors also include recipe.local_input_sha256 keys,
+not only the historical fixed LOCAL list. This repairs omitted late local
+generators instead of duplicating them into the shared-helper catalog.
+Identical paths with several input roles are archived once. A's actual
+fresh run makes two independent Git archive checkouts, each shipping2/DEV2,
+including its previously omitted dead-score helper and compiler_stdin with
+exact bytes. Both checkouts reproduce4810. Fresh22040 B has SHA256
+03fc9fdad02eb2d9a567848c2f1871c6a7eebca68f18d61d64ad795351501ad0.
+That extra archive execution is A-only; other updated collectors retain
+source-review scope. Current-head CI qualification is a subsequent step.
+
+Parallel additional costs remain separate: seek-implied flush F4595→4591,
+quiet nonpromotion continuation-index reuse F4595→4593 with a changed
+native, and scalar D dead-score projection5540→5527. Their regular-file,
+source/static or first-cost evidence is not current maintained integration,
+complete loader admission or actual-search equivalence. All full paths
+still exceed4096 and the full A–F objective remains unfinished.
+
 ## Wrapper and NVCompact design review: 2026-10-24
 
 The external Korean wrapper/NVCompact design document is reference material,

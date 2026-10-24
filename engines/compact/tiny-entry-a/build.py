@@ -94,6 +94,7 @@ def main():
         lexer=module('entry_fixed_tokens',frozen/'rename_c.py');replace=lexer._replace
         literal=module('entry_literal',frozen/'pack_stream.py').source_literal
         compiler_group=module('entry_compiler_group',frozen/'compiler_group.py').transform_bootstrap
+        compiler_stdin=module('entry_compiler_stdin',frozen/'compiler_stdin.py').transform_bootstrap
         source_package=module('entry_source_package',frozen/'source_package.py')
         readonly_template=module('entry_readonly_template',frozen/'shipping_readonly.py').transform_template
         alpha=module('entry_fixed_A_alpha',frozen/'shipping_alpha.py').transform_source
@@ -226,6 +227,14 @@ def main():
             if not root_policy:
                 script,dead_score_bootstrap=dead_score.transform_bootstrap(script,source=source)
                 report['dead_score_bootstrap']=dead_score_bootstrap
+                terminal=recipe['terminal_compiler_stdin']
+                if terminal['policy']!='loose' or terminal['shared_wait'] is not True:
+                    raise ValueError('unsupported default A terminal compiler recipe')
+                predecessor=terminal['predecessor']
+                if len(script)!=predecessor['bootstrap_bytes'] or sha(script)!=predecessor['bootstrap_sha256']:
+                    raise ValueError('default A terminal predecessor differs')
+                script,stdin_metadata=compiler_stdin(script,shared_wait=True)
+                report['terminal_compiler_stdin']=stdin_metadata
             ast.parse(script)
             whole=source_package.package(script,recipe['compression'],prefix=prefix)
             payload=whole[len(prefix):]

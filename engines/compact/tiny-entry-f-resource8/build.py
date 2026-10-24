@@ -156,6 +156,7 @@ def main():
         full_template=module('fixed_full_F_template',packaging['bootstrap_full.py'])
         source_package=module('fixed_source_package',packaging['source_package.py'])
         compiler_group=module('fixed_compiler_group',packaging['compiler_group.py']).transform_bootstrap
+        compiler_stdin=module('fixed_compiler_stdin',packaging['compiler_stdin.py']).transform_bootstrap
         template=full_template.prepare_template(template);prefix=source_package.XZ_STDIN_HEADER
         require(len(prefix)==recipe['prefix_bytes']==73,'fixed selected prefix differs')
         tools={'cc':run(['cc','--version']).decode().splitlines()[0],'ld':run(['ld','--version']).decode().splitlines()[0],'python':run([sys.executable,'--version']).decode().strip(),'lzma':run(['lzma','--version']).decode().splitlines()[0]}
@@ -165,7 +166,9 @@ def main():
             run(recipe['compiler'],native_dir,source,'candidate8-'+label);native=(native_dir/'x').read_bytes();expected=recipe['expected']
             require(len(native)==expected['native_bytes'] and sha(native)==expected['native_sha256'],'literal resource8 native differs')
             expression,kind=common.source_literal(source,literal);script=template.replace(marker,expression.encode())
-            script,group_metadata=compiler_group(script);report['compiler_group']=group_metadata;ast.parse(script)
+            script,group_metadata=compiler_group(script);report['compiler_group']=group_metadata
+            require(len(script)==9834 and sha(script)=='9d0510561ea9a202e5e36d5621e7358cee884c09d71980fa4bcd6e6c11435971','resource8 compiler-owner predecessor differs')
+            script,stdin_metadata=compiler_stdin(script,shared_wait=True);report['compiler_stdin']=stdin_metadata;ast.parse(script)
             require(len(script)==expected['bootstrap_bytes'] and sha(script)==expected['bootstrap_sha256'],'literal resource8 bootstrap differs')
             report['counts']['candidate_encode']+=1;whole=source_package.package(script,recipe['compression'],prefix=prefix);payload=whole[len(prefix):]
             require(payload[:13].hex()==recipe['ALONE_header_hex'],'ALONE header changed');decoder=lzma.LZMADecompressor(format=lzma.FORMAT_ALONE);restored=decoder.decompress(payload,max_length=len(script)+1);report['counts']['strict_Python_restore']+=1

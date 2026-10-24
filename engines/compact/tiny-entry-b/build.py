@@ -82,6 +82,7 @@ def main():
         strip=module('entry_b_counter_strip',frozen/'generate.py').strip_counters
         literal=module('entry_literal',frozen/'pack_stream.py').source_literal
         compiler_group=module('entry_compiler_group',frozen/'compiler_group.py').transform_bootstrap
+        compiler_stdin=module('entry_compiler_stdin',frozen/'compiler_stdin.py').transform_bootstrap
         reference=module('entry_fixed_shipping_alpha',frozen/'fixed_shipping_alpha.py')
         alpha=reference.transform_source
         storage=module('entry_B_storage_spelling',frozen/'shipping_storage.py').transform_source
@@ -207,6 +208,10 @@ def main():
             report['compiler_group']=group_metadata
             script,depth_bootstrap=depth_token.transform_bootstrap(script,source=source)
             report['depth_token_bootstrap']=depth_bootstrap
+            if len(script)!=11789 or sha(script)!='efc80af6e4d6f1dcd2d93a3b05831a7d60b73362f9aff03785bdff3ea6386604':
+                raise ValueError('B terminal compiler-owner predecessor differs')
+            script,stdin_metadata=compiler_stdin(script,shared_wait=True)
+            report['compiler_stdin']=stdin_metadata
             ast.parse(script)
             data=prefix+lzma.compress(script,format=lzma.FORMAT_ALONE,check=lzma.CHECK_NONE,
                                      filters=[{'id':lzma.FILTER_LZMA1,'preset':9|lzma.PRESET_EXTREME,

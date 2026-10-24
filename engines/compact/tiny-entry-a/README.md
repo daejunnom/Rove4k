@@ -1,3 +1,44 @@
+# Maintained A: terminal W1+W2 wrapper — 2026-10-24
+
+기본 `loose`의 full shipping 전체 파일은 **4810 B**다. 동일 source/native·73 B
+header·BT2/nice24/16KiB codec의 actual4854 B 기준에서44 B 줄었다. 4096 B까지
+714 B가 남으며, 크기 통과나 기력·검색 변경으로 보고하지 않는다.
+
+`compiler_stdin.py`25300 B/`ee9ba2c938cfabf30261451961c424254d9f75a804d5c3e6d832b09bfcf4f247`를
+recipe helper 목록에 고정해 복사한 뒤 로드한다. terminal 호출은 기본 정책의 모든
+source/literal/template/compiler-owner 및 dead-score BOOT guard 뒤에만 둔다.
+이전10305 B/`fb0e7c10dce6d4ce957e4c92e5bebbcf85b13bdcaf1cb034ed5d3d24771320f0`를
+별도 predecessor로 admission하고, 기존 guard 기대값은 바꾸지 않는다.
+DEV와 세 root 정책은 terminal 호출을 bypass하며 기존 expected/source flow를 유지한다.
+
+W1은 compiler 입력을 private cwd의 `c` regular file로 옮겨 buffered write·flush·seek0
+후 spawn한다. compiler argv와 정확한 C 표현은 유지하며 부모 UCI FD0은 바꾸지 않는다.
+compiler FD0의 seek 가능성과 named `c`의 존재는 선언된 관찰 차이다. 현재 고정 C는
+표준 angle include만 사용하고 FILE/상대 include/incbin/설정 파일 관찰이 없어 적용할 수
+있다. arbitrary source/compiler 동등성을 주장하지 않는다. 준비 중 INT/TERM mask는
+spawn/publication/unmask까지 pending cancel을 지연할 수 있으므로 준비 취소에서
+compiler0을 보장하지 않는다. 파일 handle은 compiler owning try 안의 with에서 닫는다.
+
+W2는 기존 leader/group wait 본체를 공유하며 WNOWAIT 원 leader, deadline·반복 KILL,
+live-group settlement 후 reap, CHLD와 mask 복원·cleanFalse125 workspace 정책을 유지한다.
+helper는 이전 corrected-owner scaffold를 정확히 재구성하고 선언된 구간 밖 byte/AST와
+전체 inverse를 검증한다. 기존 보호를 건너뛰기 위한 앞단 치환을 넣지 않았다.
+
+실제 control 재인코딩4854 B와 측정 W1+W2 candidate4810 B를 대조했다. 선택 whole은
+`9b791410dca97f8cf0d1e32965e419888561db1935c3be96c000ce2f79c91090`, bootstrap은
+10185 B/`1da24c94ea091b5a40bb1d23e30872a25d29733032181accfa3b06e9eaa626a6`다.
+이 단계 source8335 B/`2d077291e5615790206a43399d809b23aca5a2deec17623cd4c32f40fcb1ebf4`와
+native18576 B/`9b0e162a4f8f4073d2d16b6d5da336baacaf5bb5bc9e38e07f851d2afa8004f2` 기대값,
+DEV·root3 기대값 및 기존 source helper pin은 그대로다. 측정 결과를 명시적으로 선택했으며
+실패 뒤 actual을 expected로 자동 복사하지 않는다.
+
+현재 기존 loose `--dev` builder 한 번과 unchanged selected verifier 한 번은 실행 전이다.
+actual producing recipe와 이후 사실 주석은 외부
+`rove4k-a-wrapper-W1-W2-promotion-20261024-evidence`에서 구분해 보존한다. root3 local,
+새 CI·SAN·fault·game·matrix를 추가하지 않는다.
+
+## 이전 기본 및 선택 정책 단계의 기록
+
 # Maintained A: default Loose unused published score removed — 2026-10-24
 
 현재 기본 정책의 실제 CLI 이름은 `loose`이며 full shipping 전체 파일은 **4854 B**다.

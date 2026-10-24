@@ -33,8 +33,10 @@ def main():
     if not args.out.is_absolute() or out.exists() or out==REPO or REPO in out.parents or any((p/'.git').exists() for p in (out,*out.parents)):
         parser.error('a new absolute output outside any Git checkout is required')
     recipe=json.loads((HERE/'recipe.json').read_text())
-    paths=sorted([str(ENTRY/name) for name in LOCAL]+list(recipe['helper_sha256'])+list(TESTS))
-    if len(paths)!=len(set(paths)):raise ValueError('duplicate source path')
+    # The recipe owns late local generators as well as the shared helpers.
+    # A path may have several input roles; archive its bytes once.
+    local={str(ENTRY/name) for name in (*LOCAL,*recipe['local_input_sha256'])}
+    paths=sorted(local|set(recipe['helper_sha256'])|set(TESTS))
     out.mkdir(parents=True);raw=out/'raw-inputs';tree=out/'source-git';tree.mkdir()
     report={'complete':False,'scope':'isolated Git source archive; no project index, commits or remote used',
             'policy':args.policy,'source_paths':paths,'inputs':{},'builds':[]}

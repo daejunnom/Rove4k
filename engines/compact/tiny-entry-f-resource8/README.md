@@ -1,3 +1,43 @@
+# F8 terminal compiler input and shared wait: 2026-10-24
+
+The current full workers8/TT18 source profile remains class v10 and consumes
+F2 C7840/67279ef9... through the same six resource roles, seven protected gaps
+and full inverse. C7878/ce54ace7... and native18576/79681f35... are unchanged.
+F2's default4595, its producer and the core/model/search are not modified.
+
+The existing literal/template/compiler-group pipeline first reconstructs and
+checks exact bootstrap9834/9d051056... . A separate frozen compiler_stdin.py
+25300/ee9ba2c9... then applies W1 and W2 with explicit shared_wait=True once.
+Its full byte/AST inverse returns that exact predecessor; original owner
+metadata and terminal metadata are recorded separately. This fixed C/compiler
+input is compile-input-only: compiler FD0 becomes a private regular source
+file c, while original UCI FD0 is retained. Arbitrary include/filesystem
+observations are outside this producer contract. Live-group settlement before
+leader reap, mask/publication ownership and failed-cleanup workspace policy
+remain. Preparation failures precede compiler spawn; cancellation timing is
+not asserted equivalent.
+
+Actual independent fixed-codec first cost is bootstrap9714/5d2ccacf... and
+whole4607/637225c0..., a45-byte whole gain and120-byte raw wrapper reduction.
+4607 remains511 B above4096. Source/native/compiler/codec/header/pool stay
+fixed. Control whole4652 and candidate4607 were each encoded once with strict
+inverse; no engine or native compilation ran in that cost comparison. F2 gains
+are not added. The earlier v10 wrapper and runtime receipts below are historical
+4652-byte evidence and are not relabelled as qualification of4607.
+
+For this exact producer, ordinary build.py performs its existing two complete
+reproductions. Separate unchanged verify.py consumes that actual build and
+checks quit/EOF, eight legal GO, nine persistent TIDs, all eight workers' CPU,
+stdio/children/maps/native/private-path and physical reader/group settlement.
+Ordinary and positive status are separate report fields; the builder retains
+runtime_qualified=False. Fresh receipts are kept outside Git under the current
+rove4k-f8-W1-W2-normal-20261024-v1 build/runtime output and the external
+rove4k-f8-W1-W2-promotion-20261024-evidence index. Those actual receipts, not the
+first-cost decision or this description, establish whether execution passed.
+This README is frozen through ordinary and positive, so completion does not
+require changing the producer closure for a documentation-only annotation.
+No new game/strength/scaling/peak-stack/guard-count or final4KiB claim follows.
+
 # F8 v10: final MTD/sole-GO source and common compiler owner
 
 Class `full-F-late-fixed-resource8-TT18-v10` consumes qualified fullF

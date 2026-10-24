@@ -81,7 +81,8 @@
     "engines/compact/tiny-entry-e/shipping_order_inline.py": "cdb00de2ab397cbfd4c57994d79e243a9e78656f7146a9c5b6338d685ec8f297",
     "engines/compact/tiny-entry-e/shipping_depth_token.py": "9aec653fbfb7d0120e726f7d74ab072f93ca102bed12ce05ae15a6ce97eeac78",
     "engines/compact/tiny-entry-e/shipping_square_walk.py": "c6914efca036e91da493a89b5672e9485e55bbfa57b480c1e56ce77329a5e1a4",
-    "engines/scripts/compiler_group.py": "fe2fd6ce96b51251ec0d5e0f4b73c0742c50ca86932608b29f892ecee240974c"
+    "engines/scripts/compiler_group.py": "fe2fd6ce96b51251ec0d5e0f4b73c0742c50ca86932608b29f892ecee240974c",
+    "engines/scripts/compiler_stdin.py": "ee9ba2c938cfabf30261451961c424254d9f75a804d5c3e6d832b09bfcf4f247"
   },
   "compression": {
     "format": "lzma-alone",
@@ -103,14 +104,14 @@
     "source_sha256": "c0b01df4c8a330fce2fdfe28a15feb885ce1155e3dddf59b739c0c39f5652b75",
     "native_bytes": 18576,
     "native_sha256": "7d0529905678edfb35394ba654754ddd41985fe7c50c996463a514bd8440cc40",
-    "whole_bytes": 4946,
-    "whole_sha256": "b7d135ec1958df6caa8991844e4e416721f261df47ed3c07fe88c2660e480543",
-    "bootstrap_sha256": "31b5296ff8474490d9f07a27872823845e1e58487139fb84b7d122d74625b463",
+    "whole_bytes": 4901,
+    "whole_sha256": "2ff1e93e56fa4d5a7a1d4cb7e63f20d1aaf92301e769130bb565db6b5f35be2e",
+    "bootstrap_sha256": "86da8ff369348d65dc7de83f5d903ea895162e1e9706f025a8f357690a2fdcb9",
     "dev_source_bytes": 21314,
     "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
     "dev_native_bytes": 31376,
     "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
-    "bootstrap_bytes": 10496
+    "bootstrap_bytes": 10376
   },
   "local_input_sha256": {
     "engine.c": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
@@ -2343,6 +2344,47 @@
         "final_recipe_change": "normal completion annotation only",
         "README_is_builder_input": false
       }
+    },
+    "terminal_W1_W2": {
+      "scope": "actual fixed-codec selected E terminal W1 input transport and W2 shared wait; full existing source/owner/late BOOT guards consumed before terminal transform",
+      "previous_expected": {
+        "readable_bytes": 28001,
+        "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+        "source_bytes": 8526,
+        "source_sha256": "c0b01df4c8a330fce2fdfe28a15feb885ce1155e3dddf59b739c0c39f5652b75",
+        "native_bytes": 18576,
+        "native_sha256": "7d0529905678edfb35394ba654754ddd41985fe7c50c996463a514bd8440cc40",
+        "whole_bytes": 4946,
+        "whole_sha256": "b7d135ec1958df6caa8991844e4e416721f261df47ed3c07fe88c2660e480543",
+        "bootstrap_sha256": "31b5296ff8474490d9f07a27872823845e1e58487139fb84b7d122d74625b463",
+        "dev_source_bytes": 21314,
+        "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
+        "dev_native_bytes": 31376,
+        "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
+        "bootstrap_bytes": 10496
+      },
+      "shared_wait": true,
+      "helper_sha256": "ee9ba2c938cfabf30261451961c424254d9f75a804d5c3e6d832b09bfcf4f247",
+      "firstcost_cost_sha256": "0ff62844c4a0ea0250c579bcbda19ebf130e706db927f64fefe15126c6e5f464",
+      "firstcost_source_proof_sha256": "a5c1764778f1290cb21735b3940e9f2c456f072d048737153d2acd88726dfb47",
+      "firstcost_control_encode": 1,
+      "firstcost_candidate_encode": 1,
+      "firstcost_strict_Python_inverse": 1,
+      "firstcost_control_byteexact": true,
+      "whole_delta": -45,
+      "bootstrap_delta": -120,
+      "W1_applied": true,
+      "W2_applied": true,
+      "full_byte_inverse": true,
+      "whole_AST_inverse_equal": true,
+      "compile_input_only_domain": "exact8526-byte E source; system angle headers, no compiler-private cwd/file observations; arbitrary source/compiler observations outside this contract",
+      "source_native_model_ordering_TT_learners_DEV_unchanged": true,
+      "parent_UCI_FD0_preserved": true,
+      "transport_change": "compiler FD0 is seekable private regular file; full write/flush/rewind before published spawn; buffered input closed before wait/engine exec",
+      "wait_change": "same WNOWAIT leader and live-group settlement policy, shared wait function with call-local deadlines",
+      "ordinary_qualification": "pending",
+      "selected_qualification": "pending",
+      "engine_runtime": 0
     }
   },
   "provenance": {
