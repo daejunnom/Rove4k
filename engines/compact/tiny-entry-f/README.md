@@ -2650,3 +2650,25 @@ firstcost와 전체 bytes가 같았고, 두 DEV와 pre-name8538 source는 실제
 공유 세 형상의 기존 packaging suites는 stream5·ZIP4·restored-files5 tests 모두 통과했다(skipped0). 이 관측은 live same-group 정산이며 detached 작업이나 zombie를 포함한 문자 그대로의 group absence 일반 증명은 아니다.
 
 실제 producing/measurement/normal receipt는 recipe의 `compiler_group_ownership`에 명시했다. 공통 source helper에 대한 alias-only 후보 raw−389/whole+8 손실은 과거 미채택으로 남고 여기서 재실행하지 않았다.
+
+## Full F의 컴파일러 입력 파일화와 단계별 대기 공유
+
+기본 full 정책은 이전 compiler-owner bootstrap9786 B의 정확한 해시를 확인한 뒤,
+동결한 `engines/scripts/compiler_stdin.py`를 마지막 포장 단계에 적용한다.
+컴파일러를 만들기 전에 private `c` 파일에 source를 write/flush/rewind하고 FD0로
+연결한다. `-x c -`, compiler argv·환경, 원래 엔진의 stdin·argv·환경과 FD exec는
+유지한다. 준비 파일의 부모 FD는 publication 뒤 닫히며, 최종 엔진에 전달하지 않는다.
+
+컴파일러 FD0는 pipe에서 seek 가능한 regular file로 바뀐다. 준비는 기존 INT/TERM
+차단 구간 안에서 진행하므로 pending 취소가 spawn publication 뒤 전달될 수 있다.
+준비 실패 때 compiler가 시작되지 않는 것과 pending 취소의 전달 시점은 다른 계약이다.
+대기 본문은 leader와 live-group 조건을 공유하되 각 단계의 새 deadline, 최초와 반복
+KILL, 정상 무제한 대기, 원 leader를 정착 뒤 회수하는 순서와 실패125 workspace 보존을
+유지한다. Restored-files는 입력 pipe가 없어 W1을 적용하지 않는다.
+
+선정한 W1+W2 고정 비용은 bootstrap9786→9666, whole4640→4595 B이다. W1 단독은
+4596 B, W2 단독은4634 B로 각각 측정했고 감소량을 합산하지 않았다. Source7840 B,
+native18576 B, DEV, 전체 탐색·평가·TT·학습 상태와 네 종류의 승격은 그대로다.
+선정 tuple과 source helper는 recipe에 기록하며 정상 재현·실행 근거는 별도로 인수한다.
+MaterialNoise와 MoveTT는 이 새 full 전용 단계에 진입하지 않아 기존4697/4425 B를 유지한다.
+F8 역시 별도 생산 경로이므로 이45 B를 F8의 이득으로 계산하지 않는다.

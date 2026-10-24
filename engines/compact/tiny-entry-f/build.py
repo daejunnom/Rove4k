@@ -140,6 +140,7 @@ def main():
         lexer=module('entry_fixed_tokens',frozen/'rename_c.py')
         literal=module('entry_literal',frozen/'pack_stream.py').source_literal
         compiler_group=module('entry_compiler_group',frozen/'compiler_group.py').transform_bootstrap
+        compiler_stdin=module('entry_compiler_stdin',frozen/'compiler_stdin.py').transform_bootstrap
         source_package=module('entry_source_package',frozen/'source_package.py')
         full_bootstrap=module('entry_full_bootstrap',frozen/'bootstrap_full.py').prepare_template
         common=module('entry_shipping_common',frozen/'shipping_common.py')
@@ -447,6 +448,11 @@ def main():
             script=template.replace(marker,expression.encode())
             script,group_metadata=compiler_group(script)
             report['compiler_group']=group_metadata
+            if args.policy=='full':
+                if len(script)!=9786 or sha(script)!='0cf100bec81e83b3fd05fb8c3e9e61144e6d0aa75429e361573e6f44cfb38c58':
+                    raise ValueError('full-F compiler-owner predecessor differs')
+                script,stdin_metadata=compiler_stdin(script,shared_wait=True)
+                report['compiler_stdin']=stdin_metadata
             ast.parse(script)
             data=source_package.package(script,compression,prefix=prefix)
             return data,script

@@ -42,6 +42,75 @@ source-search integration run passes10 tests for whole-file/native/diagnostics
 and replay boundaries. Both original managed handles terminate0 without
 restart. No whole-file engine saving is attributed to this extension.
 
+## Full F prepared stdin and shared wait, local adoption: 2026-10-24
+
+The independently encoded W1+W2 combination measures4595 B, GAIN45 from
+4640; its bootstrap is9666 B. Strict restoration and the composed W2→W1
+inverse recover the exact old owner. The maintained pure compiler_stdin
+helper reconstructs that owner before applying declared transport/wait
+stages; it has no filesystem/environment/process operations. Stream and ZIP
+stdin receive W1, while restored-files explicitly skips W1. W2 is a separate
+stage with its own spans/gaps and per-call deadline. This is a declared
+transport contract, not general Python or arbitrary-compiler equivalence.
+
+The full F producer freezes this helper and applies it only after the exact
+old9786/0cf100be bootstrap guard. Its current source7840/native18576 and DEV
+remain unchanged. Optional policies bypass the new stage. F8 updates only
+the producing F builder's provenance pin; its actual separate source,
+packaging and4652 B expectations are unchanged. No F2 saving is attributed
+to F8 or other families without measuring their actual files.
+
+One fresh ordinary --dev reproduces shipping twice and old DEV twice, then
+its frozen selected verifier passes quit/EOF with eight legal GO, readers
+and physical exit0. Supplementary metadata observes both original child
+PIDs/start ticks: the initial UCI pipe inode matches the verifier's writable
+end and remains FD0 after native exec; FD set is0/1/2, private c/x/parent and
+all TID children are absent. No pipe content, signal, stop or extra wait is
+introduced by this observer. These samples do not prove every intermediate
+FD event. Both outer commands settle naturally before original-leader reap,
+pre-reap extras empty, forced/owned0. The final current-input build317081 B
+has SHA256
+df79156221a701eccc905986b7e8bc5ace5f69c7c50cff07823c0a248c6f722e;
+runtime83367 B has SHA256
+229239b97ea2e9f6c4b72c6deadd21c93a6568897787d8a93f53595c125df704.
+
+The frozen maintained helper also reproduces the exact measured F bootstrap
+without compiling. Six focused tests pass, including pre-spawn open/write/
+flush/seek fault subcases with compiler0, original exception, closed source
+FD, removed private directory and unchanged parent FD0. Existing stream5,
+ZIP4 and restored-files5 suites pass with their actual owner→terminal
+callback substituted, not merely the old callback. They cover fixture
+source bytes, codecs, argv/environment/stdin/FD exec, normal compiler failure,
+missing compiler and cooperative SIGTERM/group cleanup. Five original outer
+commands terminate0 with retained leaders, no extra/adopted children before
+reap, no forced cleanup and owned0. The original8810 session ends0 without
+restart. Rust lexical checks pass but their optional rustc compilation is
+not run because rustc is absent from that fixed fixture PATH. The actual
+packaging report8536 B has SHA256
+ae668829f2977784bc98ac5185d6c2cd852524efc9f21f90fbf1797886559390.
+That fixture run consumes helper d50b6f59. Cached diff-check then finds two
+extra EOF newlines, removed without changing any AST node or location. The
+complete AST including locations matches; these fixture results retain that
+explicit reuse scope. The final helper25300/ee9ba2c9 and its updated recipe
+pin receive a new ordinary/selected pair under original149321 (terminal0),
+not rewritten manifests or a restart of the successful earlier run. The old
+d50b6f59 normal/index remain preserved separately. Current source/native,
+whole and observed stdin/FD/physical-exit results remain unchanged.
+
+The preceding NVCompact source commit83ff21c passes automatic engine
+CI40081848402, repository40081848372 and NVCompact40081848393. Its merge
+tree28555a15755e2ae635beb7d96d438f402182441f matches that head. NV uses
+Ubuntu24.04/Node22+24/Rust1.99.1, workspace core tests, native build, local
+tarball and actual offline installed-bundle checks; no publication occurs.
+Tool-dependent CI assertions may early-return without frontend availability,
+so explicit local Clang12/source-search10 evidence stays separate. The
+external CI index12076 B has SHA256
+8fe987a2f52b02c5a13069f087d634fbc544ba1ceed7236ebd309938d901c09a.
+This precedes the new wrapper commit and does not qualify its source tree.
+Current full F is still499 B above4096. Further families, optional policy
+costs, forced TERM/KILL/125 and cancellation-boundary campaigns retain their
+separate scope; no strength or final tournament acceptance is inferred.
+
 ## A unused score and E sole-GO boundary: 2026-10-24
 
 Default full A loose removes its unused published Worker score, reset/store

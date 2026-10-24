@@ -104,6 +104,7 @@
     "engines/compact/tiny-entry-f/shipping_from.py": "6b8955f6f3d7fb9421a91a339719db26595793d4dc27ddbda9b2b5e5ffc2a510",
     "engines/compact/tiny-entry-f/shipping_mtd_state.py": "b93a93d5e50823f59f6ed77ced036b3c9427e7a1ebd031db233b8012e551b54c",
     "engines/compact/tiny-entry-f/shipping_go_boundary.py": "8efdcf32924a936bf5f6ed8ca5605b94f54fb219bc3cf7d339bca9eab8f1ce52",
+    "engines/scripts/compiler_stdin.py": "ee9ba2c938cfabf30261451961c424254d9f75a804d5c3e6d832b09bfcf4f247",
     "engines/scripts/compiler_group.py": "fe2fd6ce96b51251ec0d5e0f4b73c0742c50ca86932608b29f892ecee240974c"
   },
   "resource_literals": [
@@ -282,18 +283,18 @@
     "source_sha256": "67279ef99a5ade0b3b8c66564abc15e4ccd9bead3253ca18e4b88b6d87e14ca1",
     "native_bytes": 18576,
     "native_sha256": "e92b39f0c936634f09eee6465decf241ce35e0326e94dbc20f9869a90009d56c",
-    "whole_bytes": 4640,
-    "whole_sha256": "f166a5c46a651737285a8733a71fb628e8113347b12f6d0a9244fb0e10a79e9b",
+    "whole_bytes": 4595,
+    "whole_sha256": "8797a31843b242aa4f25c468341a4fb4dfa5e8217ce38d347ff7644cfce21467",
     "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
     "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
-    "bootstrap_sha256": "0cf100bec81e83b3fd05fb8c3e9e61144e6d0aa75429e361573e6f44cfb38c58",
+    "bootstrap_sha256": "d863caa5f1b85be7a9ea2e37da305d729e070cd7ca12074ab8689c531af358e8",
     "semantic_readable_bytes": 25720,
     "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
     "dev_source_bytes": 19488,
     "dev_native_bytes": 26984,
     "input_profile_readable_bytes": 28587,
     "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
-    "bootstrap_bytes": 9786
+    "bootstrap_bytes": 9666
   },
   "local_input_sha256": {
     "engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
@@ -7907,5 +7908,31 @@
     },
     "annotation_only_after_measurement": true,
     "historical_frozen_controls_changed": false
+  },
+  "compiler_stdin_stage": {
+    "scope": "full policy only; explicit runtime transport change after exact compiler-owner predecessor",
+    "source_helper": "engines/scripts/compiler_stdin.py",
+    "shared_wait": true,
+    "previous_bootstrap": {
+      "bytes": 9786,
+      "sha256": "0cf100bec81e83b3fd05fb8c3e9e61144e6d0aa75429e361573e6f44cfb38c58"
+    },
+    "previous_whole": {
+      "bytes": 4640,
+      "sha256": "f166a5c46a651737285a8733a71fb628e8113347b12f6d0a9244fb0e10a79e9b"
+    },
+    "changed_observations": [
+      "compiler stdin is a seekable private regular file",
+      "source preparation precedes spawn in the existing blocked INT/TERM interval",
+      "per-stage wait uses shared predicates with separate deadlines"
+    ],
+    "unchanged": [
+      "compiler argv/environment",
+      "source/native/DEV",
+      "original engine stdin/argv/environment/FD exec",
+      "retained original leader and live-group settlement before reap",
+      "125 workspace preservation"
+    ],
+    "first_cost_only_before_normal_runtime": true
   }
 }
