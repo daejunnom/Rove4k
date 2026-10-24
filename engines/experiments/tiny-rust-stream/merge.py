@@ -22,10 +22,10 @@ import types
 FILES = ("main.rs", "board.rs", "search.rs", "runtime.rs")
 MODULES = ("board", "search", "runtime")
 EXPECTED = {
-    "main.rs": "15807c8fa1a76b5876d1e276d2e9089ed5285a6b30b053e50f6e52521f1f6f27",
-    "board.rs": "d961a97bbf28995c8781fcfd6548ca819f23b822d7b846abdf8b18d77f3d9caf",
-    "search.rs": "4b75f63da79b258f5c94d1caca3b3c079e1674167c863e1b5e8b1df5ab92558f",
-    "runtime.rs": "f600cd89520c14851b205f6f9eab9310e574fedf76a430f8a0d277888c99a6a8",
+    "main.rs": "8c6a6b9f9789f7245df10c620723dde6d2f4287afc166d083c768c6e5bfacd0e",
+    "board.rs": "62d99b2aa5f628750152c4e0e627e2ecd681e54abd2db3c76c889c8ad3d7e57f",
+    "search.rs": "d24fd229bbddebc91146334ed66f39567ac9ec1deaee2c055e3eac4bd43c4cb8",
+    "runtime.rs": "aedb9ef9503bde3f5db392cd73cd6dbeecf30c82f006b836f09a8b3ad4a90344",
 }
 EXPECTED_SYNTAX = "54ff9e05cbcb099c6ee96e09014be3d2a80c21fb8bf21e508b0a03bda5114100"
 

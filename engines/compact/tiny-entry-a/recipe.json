@@ -50,7 +50,7 @@
     "engines/compact/tiny-entry-a/shipping_history_depth.py": "ac37e86ddefa35458eb89068ad76777f8686160627f0155f49069c06787eaf23",
     "engines/scripts/shipping_lazy_fallback.py": "023b370e75df2d50f44641eac7d1b49091ef2424d9ed7983d6d6f3c7d700b2ce",
     "engines/compact/tiny-entry-a/shipping_evaluation.py": "6793983dadfcd699ad6530206bf69773c8436e37d9080e48ebd962d896282c68",
-    "engines/scripts/source_package.py": "149f616c6e8d78b52dc88ccf0dd303d37ad2bcc513e16c40a54ac1daf09d7d2f",
+    "engines/scripts/source_package.py": "4c3775e713b093de39cb54e12abdef29793dd924731f1b3014c406d1df4e4f19",
     "engines/compact/tiny-entry-a/shipping_worker_epilogue.py": "d373aaddaab845c64a4fc4b865cb6180733c89aaafdc45d9d31cfa7ceccfabd0",
     "engines/compact/tiny-entry-a/shipping_terminal.py": "dec4a29af9debb9e285c9311bfa8781604bef971f77da9638c5a4877dca9fcd6",
     "engines/compact/tiny-entry-a/shipping_names.py": "58338725dd7e2003c8247b2be49ce29934aa91a7cea107e1bcdaf2d58f667095",

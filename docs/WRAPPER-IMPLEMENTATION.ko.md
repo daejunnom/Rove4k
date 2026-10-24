@@ -11,8 +11,9 @@ Draft PR #12를 재사용한다. 학습·AWS·유료 자원·예약 작업·npm 
 않는다. Full 엔진과 고정 worker/TT를 유지하는 기본판을 우선하며, 종료 유예나
 포장 계약을 바꾸는 후보는 별도 build 선택과 산출물로 식별한다.
 
-현재 후속 선택과 실행 상태는 [후속 압축과 엔진별 Bash 인수](#후속-압축과-엔진별-bash-인수)에
-기록한다. 아래 감사 기준과 시작 기준의 숫자는 각각 명시한 과거 source에 한정한다.
+이전 standalone 후속 선택과 실행 상태는
+[후속 압축과 엔진별 Bash 인수](#후속-압축과-엔진별-bash-인수)에 기록한다.
+아래 감사 기준과 시작 기준의 숫자는 각각 명시한 과거 source에 한정한다.
 Compiler ownership의 다음 후보 비교는
 [종료 소유 모델 후속 실험](#종료-소유-모델-후속-실험)에 별도로 기록한다.
 추가 사용자 지시에 따른 현재 출품 우선순위는
@@ -337,10 +338,76 @@ publication·완료 barrier를 유지한다. tiny_dev 진단 동작은 별도로
 Source 재생성·native·whole·protocol의 새 근거를 만든 후에만 선택값을 갱신하며
 기존8945 B를 새 입력의 통과로 승계하지 않는다.
 
-이 TCEC 단계는 진행 중이다. 위 header와 개별 runtime 비용을 단순 합산하지 않고
-실제 결합 파일을 재생성·실행해 채택한다. 프로모션·draw·검색 기능을 축소해 만든
-결과를 full 경로의 크기 성공으로 바꾸지 않는다. 외부 peer source는 비교에만
-읽고 저장소에는 포함하지 않는다.
+### 현재 full 출품 선택
+
+개별 runtime·header 이득을 단순 합산하지 않고 실제 결합 파일을 재생성한다.
+새 정본은 `engines/experiments/tcec-scope/`와 Rust stream의 `tcec_build.py`다.
+선택 literal recipe는 성공한 별도 비교와 실제 실행을 검토해 고정하며 빌더가
+실행 출력으로 기대값을 자동 갱신하지 않는다. 전체 비용은 다음과 같다.
+
+| Full 경로 | 이전 Bash/stream | TCEC whole | 절감 | 4096 B 기준 |
+|---|---:|---:|---:|---|
+| C A2 | 4232 | 3894 | 338 | 202 B 여유 |
+| C B2 | 4712 | 4265 | 447 | 169 B 초과 |
+| C C2 | 4375 | 4031 | 344 | 65 B 여유 |
+| C E2 | 4323 | 3980 | 343 | 116 B 여유 |
+| C F2 | 4018 | 3576 | 442 | 520 B 여유 |
+| C F8 | 4028 | 3591 | 437 | 505 B 여유 |
+| Rust A2 | 8945 | 7502 | 1443 | 3406 B 초과 |
+
+C A/B/C/E는 process-final immediate → valid-input → getline-word를 적용한다.
+B는 그 뒤 dead shipping score·재귀 전달 전용 SEE 인자·동등 상수/좌표/promotion
+표현과 return/static macro를 축약하고 struct member namespace를 별도로 줄였다.
+좌표와 promotion의 실제 유한 domain, 실제 원본/후보 c/h/Q/P의22 position·12검색·
+34SEE Board/learner digest를 대조했다. Field 단계는 전 단계 native25912 B와
+전체 bytes가 같으며 field 순서·타입·배열 폭을 바꾸지 않는다.
+
+F2/F8는 async per-GO → valid-input → atomic operators → getline을 적용한다.
+직접 atomic 대입·prefix decrement는 C11 seq_cst이며 정확히 W번의 감소와
+마지막 worker의 결과 공개를 유지한다. F2는 word, F8는 같은3591 B에서 추가
+타입 전제가 필요 없는 size_t를 택했다. Word는 실제 compiler의 size_t pointer
+호환 assertion과 assertion 포함/미포함 native 동일성을 요구한다.
+
+F2 source는7712→6901 B, F8는7868→7049 B, B는9744→8770 B다. Rust A는
+22981→20655 B이며 공유 quota/observer·선택 shipping UCI·미사용 formatter를
+제거했다. Native는339880→336960 B다. 읽기 전용 ELF 추출에서 Worker::search의
+공유 qword lock은2→0, Table::slot의 별도 byte lock은1→1임을 확인했다. NPS나
+기력 향상으로 확대하지 않는다. Tiny_dev의 quota·규칙·state·search·lifecycle·
+selfplay·EOF·quit와 Rust14개 unit은 수정된 실제 all suite에서 통과했다.
+
+Getline은 고정32KiB 배열과 oversized drain을 가장 긴 논리 줄까지 늘어나는
+재사용 버퍼 하나로 바꾼다. 기존6입력과 operator 합성2입력의 두 선언형을 실제
+검증해72compile/112실행이 모두0, stderr0이었다. 32767/32768/131073 B position과
+1MiB 미지원 명령, 마지막 LF 없는 EOF, ENOMEM/EIO의 NULL·poison·첫 정상 읽기 후
+실패를 포함하며 실패 버퍼를 검사하지 않는다. OOM은 API 실패 주입이며 호스트
+메모리 고갈을 일으킨 실험은 아니다. Search가 읽는 상태의 수명은 계속 보호한다.
+
+최소 wrapper는 정상 unlink를 유지하지만 실패 전 임시파일 잔존과 cleanup child
+별도 reap을 보장하지 않는다. 최종 quit/EOF는 진행 중인 마지막 GO 결과를 생략할
+수 있다. 다음 GO/position의 join·완료, learner 보존·게시와 active readyok는
+이 양보와 별개로 유지한다. Wrapper의 실패 포트는 valid ELF를 남긴 compiler33,
+tail 오류와 잘린 LZMA에서도 실행이 일어나지 않음을 실제 확인했다.
+
+새 verifier는 선택한 thread 수명과 native image를 검사한다. Per-GO에 예전
+stable TID·정확한 FD 집합·owner125를 자동 승계하지 않는다. F8는 로컬 CPU0–7을
+단독 사용해8 worker 각각의 실제 CPU 증가와 active9/between1 TID를 확인했다.
+이는128/256코어 확장성이나 기력의 근거가 아니다. Normal quit/EOF와 active
+quit/EOF의 실제 source-JIT 네 세션을 프로필마다 별도로 수행하며 CI 인수는 최종
+소스의 별도 run·artifact 결과로 기록한다.
+
+기존 실패도 보존한다. C-final의 immutable oracle/FEN fixture 오류, B checker의
+누락 minifier 경로, F8 외부 host AS2GiB와 기존 nested builder AS4GiB의 충돌은
+원인별 새 실행으로 확인했다. 최초 preflight 실패를 engine 실패/통과로 바꾸지
+않는다. Rust objcopy가 수정한 두 관측 복사본은 SHA gate에서 거절·격리하고 독립
+원본 해시로 복원해 읽기 전용 추출로 재검증했다. 이전 full-objdump 한도 실패도
+남겨 두었다. 이들은 정상 제품의 숨은 fallback이 아니다.
+
+프로모션·draw·검색 기능을 축소한 결과를 full 경로의 성공으로 바꾸지 않는다.
+외부 peer source는 비교에만 읽고 저장소에 포함하지 않는다. A/C/E/F가4KiB 안에
+들어온 뒤에도 getline·F operator·B namespace 같은 추가 축약을 실제 비교했다.
+B·Rust A의 남은 크기, 다른 A–F 후보와 D 경로, 실전 기력·대상 ISA·출전 적격성은
+후속 범위다. Strong standalone owner를4KiB에 넣는 일을 출품판의 기본 목표로
+되돌리지 않는다.
 
 ## 기준과 바로잡은 전제
 

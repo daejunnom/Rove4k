@@ -273,6 +273,7 @@ impl Board {
     }
 }
 
+#[cfg(any(tiny_dev,test))]
 pub fn uci(m: Move) -> String {
     if m == 0 { return "0000".into(); }
     let mut s = String::with_capacity(5);

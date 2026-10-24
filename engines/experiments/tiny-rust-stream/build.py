@@ -27,16 +27,16 @@ PRODUCTION = ("main.rs", "board.rs", "search.rs", "runtime.rs")
 # Exact source bytes stored by Git after the explicit CRLF-to-LF intake below.
 # The older local 9,074-byte receipt had one CRLF in search.rs's final test line.
 CANONICAL_SOURCE_BINDINGS = {
-    "main.rs": "c1d659cf38473d838505e3912effac0798841eb160d7033a21ab2dc5443ed56d",
-    "board.rs": "47e6289e06eff93484c50ef4218729b444eea7b4a8868362dd1d0d37eaaf06d9",
-    "search.rs": "646bb5b61bbd3335154b9f7c1142d775d61502d39a2e9d4d8d0eaeb202ca8eb2",
-    "runtime.rs": "2bf60847bf40c882ac16e0840f51fd24d9cf6dad5bb463e9dda0a83623ac6dec",
+    "main.rs": "2dda52b8a4c2e61a1db7be8f9fbcc8a80669151963f232a8d7419bd84208762d",
+    "board.rs": "17ee7adf4b8e03a23d414aae2cd623b4f5725f4de7418e8559dbab9a289e02bd",
+    "search.rs": "200ace31e89cfc3bcbaf10af76df62a46947bbbaab670842ab080e039768af85",
+    "runtime.rs": "bf7313d6382bf65e7f099dd56dbdb52808299e5cd16cda5f9a8090915ddeb877",
 }
 PRUNED_BINDINGS = {
-    "main.rs": "15807c8fa1a76b5876d1e276d2e9089ed5285a6b30b053e50f6e52521f1f6f27",
-    "board.rs": "d961a97bbf28995c8781fcfd6548ca819f23b822d7b846abdf8b18d77f3d9caf",
-    "search.rs": "4b75f63da79b258f5c94d1caca3b3c079e1674167c863e1b5e8b1df5ab92558f",
-    "runtime.rs": "f600cd89520c14851b205f6f9eab9310e574fedf76a430f8a0d277888c99a6a8",
+    "main.rs": "8c6a6b9f9789f7245df10c620723dde6d2f4287afc166d083c768c6e5bfacd0e",
+    "board.rs": "62d99b2aa5f628750152c4e0e627e2ecd681e54abd2db3c76c889c8ad3d7e57f",
+    "search.rs": "d24fd229bbddebc91146334ed66f39567ac9ec1deaee2c055e3eac4bd43c4cb8",
+    "runtime.rs": "aedb9ef9503bde3f5db392cd73cd6dbeecf30c82f006b836f09a8b3ad4a90344",
 }
 HELPER_BINDINGS = {
     "engines/compact/tiny-rust-d-shipping/build.py": "67a89639402d8e27cc9728c3ad690c049c01e17a42fedb63b9d53f0f92fd0db8",
@@ -211,7 +211,7 @@ def execute_frozen(args, frozen_root, inputs, compiler):
     raw = {name: inputs[SOURCE_PREFIX + name] for name in PRODUCTION}
     pruned, pruning = stable.specialize(raw, development=False)
     if {name: sha(data) for name, data in pruned.items()} != PRUNED_BINDINGS:
-        raise ValueError("stable pruned production files differ from the 9,074-byte checkpoint")
+        raise ValueError("stable pruned production files differ from the bound minimal TCEC source")
     merged_source, merging = merge.merge(pruned)
     if not isinstance(merged_source, bytes):
         raise ValueError("merge producer must return compiler-stdin bytes")
@@ -242,9 +242,12 @@ def execute_frozen(args, frozen_root, inputs, compiler):
         "origin": "1d2e3b7:engines/scripts/pack.py",
         "old_compiler_owner": True, "new_common_owner_qualification": False,
     }
-    reference_applies = (args.workers, args.tt_bits) == (2, 18)
-    if reference_applies and (len(baseline) != BASELINE_BYTES or sha(baseline) != BASELINE_SHA256):
-        raise ValueError("regenerated four-file ZIP differs from exact 9,074-byte baseline")
+    # The earlier full-UCI/observer source is a historical cost control.
+    # Current source remains closed by canonical/pruned pins and two reproductions.
+    reference_applies = ((args.workers, args.tt_bits) == (2, 18)
+                         and len(baseline) == BASELINE_BYTES and sha(baseline) == BASELINE_SHA256)
+    baseline_record["pre_TCEC_reference"] = {"bytes": BASELINE_BYTES, "sha256": BASELINE_SHA256,
+        "same_bytes": reference_applies, "source_scope": "prior optional UCI and shared node observer"}
     compiler_fixed = stream._guard(source, runtime_command, fixed,
                                    omit_resource_environment=args.omit_resource_environment)
     build = compile_stdin(stable, source, args.out / "stdin-native", command, compiler_fixed)
@@ -294,7 +297,9 @@ def execute_frozen(args, frozen_root, inputs, compiler):
         return {"id": label, "command": [artifact["path"]], "cwd": str(Path(artifact["path"]).parent),
                 "profile": "shipping", "workers": args.workers, "startup_threads": args.workers + 1,
                 "startup_timeout": 60, "expected_program_sha256": artifact["sha256"], "selected_artifact": artifact}
-    report = {"candidate": "Tiny Rust A module-inline compiler-stdin stream experiment", "development": False,
+    report = {"candidate": "Tiny Rust A finite TCEC module-inline compiler-stdin stream experiment",
+              "shipping_protocol": {"commands": ["uci", "isready", "position startpos moves", "go wtime btime winc binc", "quit"],
+                                    "bare_go_millis": 1000, "global_node_observer": False, "process_final": "exit without worker joins"}, "development": False,
               "workers": args.workers, "tt_bits": args.tt_bits, "startup_threads": args.workers + 1,
               "raw_source_sha256": {name: sha(data) for name, data in sorted(raw.items())},
               "recipe_sha256": {name: sha(data) for name, data in sorted(inputs.items())},

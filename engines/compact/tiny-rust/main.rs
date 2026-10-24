@@ -50,6 +50,7 @@ fn replay(mut board:Board,words:&[&str],mut at:usize)->Option<(Board,[u64;4096],
     }
     Some((board,keys,length))
 }
+#[cfg(tiny_dev)]
 fn limits(board:&Board,words:&[&str])->Limits {
     let mut limits=Limits {depth:(search::PLY-2)as u8,nodes:0,millis:None};
     let(mut clock,mut inc,mut infinite)=(None,0u64,false);
@@ -70,6 +71,21 @@ fn limits(board:&Board,words:&[&str])->Limits {
     }
     limits
 }
+#[cfg(not(tiny_dev))]
+fn limits(board:&Board,words:&[&str])->Limits {
+    let(mut clock,mut inc)=(None,0u64);
+    let mut i=1;
+    while i<words.len() {
+        let value=words.get(i+1).and_then(|v|v.parse::<u64>().ok());
+        match words[i] {
+            "wtime" if board.side>0=>clock=Some(value.unwrap_or(0)),"btime" if board.side<0=>clock=Some(value.unwrap_or(0)),
+            "winc" if board.side>0=>inc=value.unwrap_or(0),"binc" if board.side<0=>inc=value.unwrap_or(0),_=>{}
+        }
+        i+=if value.is_some() {2} else {1};
+    }
+    let millis=clock.map_or(1000,|t|(t/30).saturating_add(inc.min(86400000)*3/4).min(t/5).clamp(1,86400000));
+    Limits{depth:(search::PLY-2)as u8,millis:Some(millis)}
+}
 fn main() {
     assert!((1..=512).contains(&WORKERS) && (8..=26).contains(&TT_BITS));
     let mut board=Board::start(); let mut keys=[0;4096]; keys[0]=board.hash; let mut length=1;
@@ -83,9 +99,11 @@ fn main() {
         for word in line.split_whitespace() {tokens[count]=word;count+=1;}
         let words=&tokens[..count]; let Some(&command)=words.first() else {continue};
         match command {
-            "uci"=>{println!("id name Rove4k Tiny A Rust\nuciok");},
+            "uci"=>{#[cfg(tiny_dev)]{println!("id name Rove4k Tiny A Rust\nuciok");}#[cfg(not(tiny_dev))]{println!("uciok");}},
             "isready"=>println!("readyok"),
+            #[cfg(tiny_dev)]
             "stop"=>runtime.finish(),
+            #[cfg(tiny_dev)]
             "ucinewgame"=>runtime.reset(),
             "position"=>{runtime.finish();if let Some((b,k,n))=position(words) {board=b;keys=k;length=n;}},
             "go"=>runtime.start(&board,&keys[..length],limits(&board,words)),
@@ -97,5 +115,6 @@ fn main() {
         }
         io::stdout().flush().unwrap();
     }
-    runtime.finish();
+    #[cfg(tiny_dev)]{runtime.finish();}
+    #[cfg(not(tiny_dev))]{std::process::exit(0);}
 }

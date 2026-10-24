@@ -107,3 +107,74 @@ def package_shell(payload, compression, *, kind, compiler=None,
         raise ValueError('ELF admission is only used by the native policy')
     return package(payload, compression, prefix=shell_header(kind=kind,
         compiler=compiler, child_reaping=child_reaping))
+
+
+def _tcec_inputs(compiler, mode, environment):
+    if mode != 'pipe':
+        raise ValueError('an explicit supported TCEC pipe policy is required')
+    command = SHELL_COMPILER if compiler is None else tuple(compiler)
+    if (not command or any(type(arg) is not str or not arg or
+                           any(c in arg for c in '\x00\r\n') for arg in command)
+            or command.count('-o') != 1 or command[-1] == '-o'
+            or command[command.index('-o') + 1] != 'x' or command.count('-') != 1):
+        raise ValueError('closed compiler argv with stdin and output x required')
+    environment = {} if environment is None else environment
+    if type(environment) is not dict or any(
+            type(key) is not str or not key or not key.isascii()
+            or not key.replace('_', 'a').isalnum() or key[0].isdigit()
+            or type(value) is not str or any(c in value for c in '\x00\r\n')
+            for key, value in environment.items()):
+        raise ValueError('literal compiler environment assignments required')
+    return command, tuple(sorted(environment.items()))
+
+
+def tcec_header(*, compiler=None, mode='pipe', environment=None):
+    """Build the separate minimal normal-startup TCEC source policy.
+
+    Bash errexit and pipefail reject extraction or compiler failure before
+    executing the result. One mktemp file holds the executable; a child unlinks
+    it after one second without reading the engine's original stdin. This
+    target admits an unset or absolute TMPDIR without CR/LF in its pathname and
+    a compiler that writes an executable to an existing mktemp file. It retains
+    the caller's cwd and inherited environment, with optional literal compiler
+    assignments. The engine receives no forwarded arguments.
+
+    Failure before scheduling cleanup may leave the file. Cleanup-child reaping,
+    arbitrary compiler descendants, parent-only cancellation, argv0 and exact
+    failure statuses are outside this policy. The ordinary package and shell
+    policies retain their original separate contracts and bytes.
+    """
+    command, assignments = _tcec_inputs(compiler, mode, environment)
+    output = command.index('-o') + 1
+    invocation = ' '.join('"$f"' if index == output else shlex.quote(arg)
+                          for index, arg in enumerate(command))
+    if assignments:
+        invocation = ' '.join(key + '=' + shlex.quote(value)
+                              for key, value in assignments) + ' ' + invocation
+    lines = ['#!/bin/bash', 'set -eo pipefail', 'f=`mktemp`',
+             'tail -n+6 "$0"|xz -d|' + invocation,
+             '(sleep 1;python3 -c \'import os;os.unlink(input())\'<<<"$f")&exec "$f"']
+    return ('\n'.join(lines) + '\n').encode('utf-8')
+
+
+def tcec_contract(*, compiler=None, mode='pipe', environment=None):
+    """Describe this policy for development checks, never for the payload."""
+    command, assignments = _tcec_inputs(compiler, mode, environment)
+    return {'policy': 'tcec-source-pipe', 'mode': mode,
+            'dependencies': ['bash', 'mktemp', 'tail', 'xz', command[0], 'sleep', 'python3'],
+            'compiler_argv': list(command), 'compiler_environment': dict(assignments),
+            'temp_strategy': 'single-executable-file', 'remove_parent': False,
+            'parent_removed': False, 'cleanup_delay_seconds': 1, 'cleanup_seconds': 60,
+            'failure_temp_cleanup': False, 'decode_compile_failure_aborts': True,
+            'uci_stdin_preserved': True, 'arguments_forwarded': False,
+            'child_reaping': 'inherited-unspecified',
+            'tmpdir': 'unset-or-absolute-without-CR-LF',
+            'compiler_output': 'existing-mktemp-file-becomes-executable'}
+
+
+def package_tcec(source, compression, *, compiler=None, mode='pipe', environment=None):
+    """Encode raw source once with the explicit minimal TCEC header."""
+    if type(source) is not bytes or not source:
+        raise TypeError('nonempty immutable source bytes required')
+    return package(source, compression, prefix=tcec_header(
+        compiler=compiler, mode=mode, environment=environment))

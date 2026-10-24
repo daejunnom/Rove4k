@@ -94,6 +94,13 @@ jobs:
             python3 -B "engines/compact/tiny-entry-$family/build.py" --wrapper shell --out "$ROVE_TEST_OUT/tiny-entry-$family-shell"
             python3 -B "$ROVE_TEST_OUT/tiny-entry-$family-shell/selected-verifier/engines/scripts/verify_shell.py" --build "$ROVE_TEST_OUT/tiny-entry-$family-shell" --recipe "$ROVE_TEST_OUT/tiny-entry-$family-shell/selected-verifier/recipe.json" --out "$ROVE_TEST_OUT/tiny-entry-$family-shell-runtime"
           done
+      - name: Reproduce the full TCEC submissions and verify their declared runtime policies
+        if: matrix.language == 'c'
+        run: |
+          for entry in A B C E F F8; do
+            python3 -B engines/experiments/tcec-scope/build.py --entry "$entry" --out "$ROVE_TEST_OUT/tcec-$entry"
+            python3 -B engines/experiments/tcec-scope/verify.py --build "$ROVE_TEST_OUT/tcec-$entry" --out "$ROVE_TEST_OUT/tcec-$entry-runtime"
+          done
       - name: Reproduce the full F kill wrapper and check its selected strict contract
         if: matrix.language == 'c'
         run: |
@@ -167,7 +174,7 @@ jobs:
           mkdir -p "$ROVE_TEST_OUT"
           rustc --edition=2024 --test -O engines/rust/main.rs -o "$ROVE_TEST_OUT/rust-contracts"
           timeout 120 "$ROVE_TEST_OUT/rust-contracts"
-      - name: Check the independent tiny Rust core through actual rules and process contracts
+      - name: Check the independent tiny Rust units and development process contracts
         if: matrix.language == 'rust'
         env:
           RUSTUP_TOOLCHAIN: 1.97.0
@@ -186,8 +193,15 @@ jobs:
         env:
           RUSTUP_TOOLCHAIN: 1.97.0
         run: |
-          python3 -B engines/experiments/tiny-rust-stream/build.py --out "$ROVE_TEST_OUT/tiny-rust-layout/prepared-build" --reproduce --embody-resources --prepared-input --omit-resource-environment
+          python3 -B engines/experiments/tiny-rust-stream/build.py --out "$ROVE_TEST_OUT/tiny-rust-layout/prepared-build" --reproduce --embody-resources --prepared-input
           python3 -B engines/experiments/tiny-rust-stream/verify.py --build "$ROVE_TEST_OUT/tiny-rust-layout/prepared-build/build.json" --out "$ROVE_TEST_OUT/tiny-rust-layout/prepared-runtime"
+      - name: Reproduce the Rust A TCEC profile and verify the minimum shipping contract
+        if: matrix.language == 'rust'
+        env:
+          RUSTUP_TOOLCHAIN: 1.97.0
+        run: |
+          python3 -B engines/experiments/tiny-rust-stream/tcec_build.py --out "$ROVE_TEST_OUT/tiny-rust-layout/tcec-build"
+          python3 -B engines/experiments/tcec-scope/verify.py --build "$ROVE_TEST_OUT/tiny-rust-layout/tcec-build" --out "$ROVE_TEST_OUT/tiny-rust-layout/tcec-runtime"
       - name: Build independent no_std Rust D and check its real scalar and HQ paths
         if: matrix.language == 'rust'
         env:
@@ -266,6 +280,9 @@ jobs:
             ${{ env.ROVE_TEST_OUT }}/tiny-entry-f-shell/selected-verifier/engines/compact/tiny-entry-f/recipe.json
             ${{ env.ROVE_TEST_OUT }}/tiny-entry-f-resource8-shell/source-proof.json
             ${{ env.ROVE_TEST_OUT }}/tiny-entry-f-resource8-shell/selected-verifier/recipe.json
+            ${{ env.ROVE_TEST_OUT }}/tcec-*/build.json
+            ${{ env.ROVE_TEST_OUT }}/tcec-*/source-proof.json
+            ${{ env.ROVE_TEST_OUT }}/tcec-*-runtime/**/*.json
             ${{ env.ROVE_TEST_OUT }}/tiny-d/build.json
             ${{ env.ROVE_TEST_OUT }}/tiny-d-check/**/*.json
             ${{ env.ROVE_TEST_OUT }}/tiny-d-check/**/*.jsonl

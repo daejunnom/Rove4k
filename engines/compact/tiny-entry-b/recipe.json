@@ -75,7 +75,7 @@
     "engines/compact/tiny-entry-b/shipping_piece_index.py": "20e3b97e7a184bb0fa7806b331bf9f7e549f76a08fd602f5bbb186d881f38f85",
     "engines/compact/tiny-entry-b/shipping_singular_depth.py": "2da8d9cc70cad49970ae44ba8b92107affd9048408a1a98ebbe114ee3e5f62b3",
     "engines/compact/tiny-entry-b/shipping_cached_evaluation.py": "648170c3cbb58677ff782b2d239896aa810a869eb4283a6b0522e6198743afee",
-    "engines/scripts/source_package.py": "149f616c6e8d78b52dc88ccf0dd303d37ad2bcc513e16c40a54ac1daf09d7d2f",
+    "engines/scripts/source_package.py": "4c3775e713b093de39cb54e12abdef29793dd924731f1b3014c406d1df4e4f19",
     "engines/compact/tiny-entry-b/shipping_declarations.py": "120910570823339c73a005db9a315021e90d5dbdbaf51e6a82f382ae5b775acb",
     "engines/compact/tiny-entry-b/shipping_forwarders.py": "4b461982d613f39ecf94a856c7544cb74e2dcc466c415645e7c5d9814556ab64",
     "engines/compact/tiny-a/shipping_readonly.py": "6eefd6502149e620a2b681e15609ae01a4dbf41748dd2fe418c2eea84293d3a5",

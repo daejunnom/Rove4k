@@ -1,7 +1,9 @@
 """Compile and exercise Tiny Rust A without placing artifacts in the checkout.
 
-This runner tests real Rust programs and the existing independent process
-oracle. It makes no throughput, strength or target-machine scaling claim.
+This runner tests real Rust programs and the existing independent development
+process oracle. Production uses tiny-rust-stream/tcec_build.py and the explicit
+TCEC verifier class, whose finite protocol and process exit differ from the
+development lifecycle. No throughput, strength or target scaling is claimed.
 """
 from __future__ import annotations
 
@@ -265,7 +267,11 @@ def main():
     env = dict(os.environ, ROVE_WORKERS=str(args.workers), ROVE_TT_BITS=str(args.tt_bits))
     sources = {name: (HERE / name).read_bytes() for name in (*PRODUCTION, "dev.rs")}
     hashes = {name: digest(data) for name, data in sources.items()}
-    report = {"schema": 1, "scope": "actual Tiny Rust A semantic and process checks",
+    report = {"schema": 1, "scope": "actual Tiny Rust A builder, semantic units and tiny_dev process checks",
+              "production_process_validation": {"executed_here": False,
+                  "producer": "engines/experiments/tiny-rust-stream/tcec_build.py",
+                  "verifier": "engines/experiments/tcec-scope/verify.py",
+                  "class": "tcec-full-Rust-A-v1"},
               "excluded": ["strength", "NPS", "large-machine scaling", "4KiB eligibility"],
               "platform": sys.platform, "configuration": {"workers": args.workers, "tt_bits": args.tt_bits},
               "inputs": hashes, "checks": {}, "passed": False}
@@ -291,7 +297,9 @@ def main():
             report["checks"]["unit"] = {"passed": True, "program_sha256": digest(binary.read_bytes()),
                                           "stdout": execution["stdout"]}
         if args.suite in ("all", "process"):
-            for development in (False, True):
+            # Optional stop/reset/final-result contracts belong to tiny_dev.
+            # The separate production verifier exercises the minimum TCEC class.
+            for development in (True,):
                 name = "dev" if development else "shipping"
                 output_files, metadata = builder.specialize(sources, development=development)
                 assert ("dev.rs" in output_files) == development

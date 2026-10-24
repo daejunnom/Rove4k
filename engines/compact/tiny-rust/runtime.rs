@@ -1,23 +1,24 @@
 //! Fixed startup workers; a GO owns its position until every worker drains.
 use crate::{board::{self, Board}, search::{Control, Limits, Result, Table, Worker}};
-use std::{io::{self, Write}, sync::{Arc, Condvar, Mutex, RwLock, atomic::Ordering}, thread::{self, JoinHandle}};
+use std::{io::{self, Write}, sync::{Arc, Condvar, Mutex, RwLock, atomic::Ordering}, thread};
+#[cfg(tiny_dev)]use std::thread::JoinHandle;
 
-fn empty() -> Result { Result {best:0, score:0, depth:0, nodes:0} }
+fn empty() -> Result { Result {best:0, #[cfg(tiny_dev)]score:0, depth:0, #[cfg(tiny_dev)]nodes:0} }
 struct Job {
     board:Board, keys:[u64;4096], length:usize, frozen:[i16;1024], epoch:u64, limits:Limits,
 }
 struct State {
-    epoch:u64, ready:usize, pending:usize, quit:bool, reset:bool,
-    results:Vec<Result>, learned:[i16;1024], fallback:u32, last:Result,
+    epoch:u64, ready:usize, pending:usize, #[cfg(tiny_dev)]quit:bool, #[cfg(tiny_dev)]reset:bool,
+    results:Vec<Result>, learned:[i16;1024], fallback:u32, #[cfg(tiny_dev)]last:Result,
     #[cfg(tiny_dev)]
     stats:Vec<crate::search::Stats>,
 }
 struct Shared {state:Mutex<State>, job:RwLock<Job>, wake:Condvar, done:Condvar}
 pub struct Runtime {
-    shared:Arc<Shared>, table:Arc<Table>, pub control:Arc<Control>, handles:Vec<JoinHandle<()>>,
+    shared:Arc<Shared>, table:Arc<Table>, pub control:Arc<Control>, #[cfg(tiny_dev)]handles:Vec<JoinHandle<()>>,
 }
 
-fn output(result:Result, nodes:u64) {
+fn output(result:Result, #[cfg(tiny_dev)]nodes:u64) {
     let mut name=[b'0';5];
     let length=if result.best==0 {4} else {
         let (f,t)=(board::from(result.best),board::to(result.best));
@@ -38,7 +39,6 @@ fn output(result:Result, nodes:u64) {
         if result.best!=0 {write!(out," pv {text}").unwrap();}
         writeln!(out).unwrap();
     }
-    let _=nodes;
     writeln!(out,"bestmove {text}").unwrap(); out.flush().unwrap();
 }
 
@@ -46,33 +46,35 @@ impl Runtime {
     pub fn new(count:usize,bits:usize)->io::Result<Self> {
         let board=Board::start();
         let shared=Arc::new(Shared {
-            state:Mutex::new(State {epoch:0,ready:0,pending:0,quit:false,reset:false,results:vec![empty();count],learned:[0;1024],fallback:0,last:empty(),
+            state:Mutex::new(State {epoch:0,ready:0,pending:0,#[cfg(tiny_dev)]quit:false,#[cfg(tiny_dev)]reset:false,results:vec![empty();count],learned:[0;1024],fallback:0,#[cfg(tiny_dev)]last:empty(),
                 #[cfg(tiny_dev)]stats:vec![crate::search::Stats::default();count]}),
-            job:RwLock::new(Job {board,keys:[0;4096],length:0,frozen:[0;1024],epoch:0,limits:Limits {depth:1,nodes:0,millis:None}}),
+            job:RwLock::new(Job {board,keys:[0;4096],length:0,frozen:[0;1024],epoch:0,limits:Limits {depth:1,#[cfg(tiny_dev)]nodes:0,millis:None}}),
             wake:Condvar::new(),done:Condvar::new(),
         });
-        let mut runtime=Self {shared,table:Arc::new(Table::new(bits)),control:Arc::new(Control::new()),handles:Vec::with_capacity(count)};
+        let runtime=Self {shared,table:Arc::new(Table::new(bits)),control:Arc::new(Control::new()),#[cfg(tiny_dev)]handles:Vec::with_capacity(count)};
+        #[cfg(tiny_dev)]let mut runtime=runtime;
         // Initialize stdout before any search can emit a result.
         io::stdout().lock().flush()?;
         for id in 0..count {
             let (shared,table,control)=(runtime.shared.clone(),runtime.table.clone(),runtime.control.clone());
-            runtime.handles.push(thread::Builder::new().stack_size(1024*1024).spawn(move || {
+            let _handle=thread::Builder::new().stack_size(1024*1024).spawn(move || {
                 std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
                     let mut worker=Worker::new(id);
                     let mut seen=0;
                     let mut state=shared.state.lock().unwrap();
                     state.ready+=1; shared.done.notify_one();
                     loop {
-                        while !state.quit && state.epoch==seen {state=shared.wake.wait(state).unwrap();}
-                        if state.quit {break;}
-                        seen=state.epoch; let reset=state.reset; drop(state);
-                        let mut result=empty();
-                        if reset {worker.reset();} else {
+                        while state.epoch==seen {#[cfg(tiny_dev)]{if state.quit {break;}}state=shared.wake.wait(state).unwrap();}
+                        #[cfg(tiny_dev)]{if state.quit {break;}}
+                        seen=state.epoch; #[cfg(tiny_dev)]let reset=state.reset; drop(state);
+                        let result=(|| {
+                            #[cfg(tiny_dev)]{if reset {worker.reset();return empty();}}
                             let job=shared.job.read().unwrap();
-                            result=worker.think(&job.board,&job.keys[..job.length],&job.frozen,job.epoch,job.limits,&table,&control);
+                            let mut result=worker.think(&job.board,&job.keys[..job.length],&job.frozen,job.epoch,job.limits,&table,&control);
                             let legal=job.board.legal();
                             if !legal.a[..legal.n].contains(&result.best) {result.best=0;}
-                        }
+                            result
+                        })();
                         state=shared.state.lock().unwrap();
                         state.results[id]=result;
                         #[cfg(tiny_dev)]
@@ -80,18 +82,18 @@ impl Runtime {
                         if id==0 {state.learned=worker.correction;}
                         state.pending-=1;
                         if state.pending==0 {
-                            if !reset {
+                            #[cfg(tiny_dev)]{if reset {shared.done.notify_one();continue;}}
                                 let mut chosen=state.results[0];
                                 for value in &state.results[1..] {if value.depth>chosen.depth {chosen=*value;}}
                                 if chosen.best==0 {chosen.best=state.fallback;}
-                                state.last=chosen;
-                                output(chosen,control.nodes.load(Ordering::Relaxed));
-                            }
+                                #[cfg(tiny_dev)]{state.last=chosen;output(chosen,control.nodes.load(Ordering::Relaxed));}
+                                #[cfg(not(tiny_dev))]{output(chosen);}
                             shared.done.notify_one();
                         }
                     }
                 })).unwrap_or_else(|_|std::process::abort());
-            })?);
+            })?;
+            #[cfg(tiny_dev)]{runtime.handles.push(_handle);}
         }
         let mut state=runtime.shared.state.lock().unwrap();
         while state.ready<count {state=runtime.shared.done.wait(state).unwrap();}
@@ -113,16 +115,17 @@ impl Runtime {
             job.limits=limits;
         }
         let legal=board.legal(); state.fallback=legal.a[..legal.n].first().copied().unwrap_or(0);
-        state.results.fill(empty()); state.reset=false;
-        self.control.reset(limits.millis,limits.nodes);
-        state.pending=self.handles.len(); state.epoch=state.epoch.wrapping_add(1); self.shared.wake.notify_all();
+        state.results.fill(empty()); #[cfg(tiny_dev)]{state.reset=false;self.control.reset(limits.millis,limits.nodes);}
+        #[cfg(not(tiny_dev))]{self.control.reset(limits.millis);}
+        state.pending=state.results.len(); state.epoch=state.epoch.wrapping_add(1); self.shared.wake.notify_all();
     }
+    #[cfg(tiny_dev)]
     pub fn reset(&mut self) {
         self.finish(); self.table.clear();
         self.control.nodes.store(0,Ordering::Relaxed);
         let mut state=self.shared.state.lock().unwrap();
         state.learned.fill(0); state.last=empty(); state.reset=true;
-        state.pending=self.handles.len(); state.epoch=state.epoch.wrapping_add(1); self.shared.wake.notify_all();
+        state.pending=state.results.len(); state.epoch=state.epoch.wrapping_add(1); self.shared.wake.notify_all();
         while state.pending!=0 {state=self.shared.done.wait(state).unwrap();}
     }
     #[cfg(tiny_dev)]
@@ -146,6 +149,7 @@ impl Runtime {
         total
     }
 }
+#[cfg(tiny_dev)]
 impl Drop for Runtime {
     fn drop(&mut self) {
         self.finish(); self.shared.state.lock().unwrap().quit=true; self.shared.wake.notify_all();

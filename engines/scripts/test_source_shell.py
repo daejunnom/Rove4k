@@ -56,6 +56,28 @@ class SourceAdmissionTests(unittest.TestCase):
             source_package.package_shell(b'not an ELF', COMPRESSION,
                 kind='native', elf_admission=elf_loader._elf)
 
+    def test_tcec_is_an_explicit_separate_source_contract(self):
+        for kwargs in ({'mode': 'inherit'}, {'compiler': ['cc', '-o']},
+                       {'compiler': ['cc', '-', '-o', 'elsewhere']},
+                       {'compiler': ['cc', '-', '-', '-o', 'x']},
+                       {'environment': {'bad-key': 'value'}},
+                       {'environment': {'KEY': 'line\nbreak'}}):
+            with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
+                source_package.tcec_header(**kwargs)
+        with self.assertRaises(TypeError):
+            source_package.package_tcec(b'', COMPRESSION)
+        rust = ['rustc', '--edition=2024', '-', '-o', 'x']
+        header = source_package.tcec_header(compiler=rust,
+            environment={'LC_ALL': 'C'})
+        self.assertIn(b'LC_ALL=C rustc --edition=2024 - -o "$f"', header)
+        self.assertIn(b'tail -n+6 "$0"|xz -d|', header)
+        contract = source_package.tcec_contract()
+        self.assertEqual(contract['temp_strategy'], 'single-executable-file')
+        self.assertFalse(contract['remove_parent'])
+        self.assertFalse(contract['failure_temp_cleanup'])
+        self.assertEqual(contract['cleanup_delay_seconds'], 1)
+        self.assertEqual(contract['cleanup_seconds'], 60)
+
 
 @unittest.skipUnless(sys.platform == 'linux' and shutil.which('cc') and shutil.which('xz')
                      and Path('/bin/bash').is_file(),
@@ -279,6 +301,156 @@ if fault!='exec':
                 'claim': 'weaker cancellation; forced test cleanup is not product success'})
         finally:
             owned.cleanup()
+
+
+@unittest.skipUnless(sys.platform == 'linux' and shutil.which('cc') and shutil.which('xz')
+                     and Path('/bin/bash').is_file(),
+                     'Linux /proc, cc, xz and explicit Bash pipe policy required')
+class TcecRuntimeTests(unittest.TestCase):
+    """Normal TCEC startup and pipeline failure, without the old owner policy."""
+    observations = []
+    setUpClass = classmethod(ShellRuntimeTests.setUpClass.__func__)
+    settle = ShellRuntimeTests.settle
+
+    @classmethod
+    def tearDownClass(cls):
+        errors = []
+        for owned in tuple(cls.helper.OWNED):
+            try:
+                owned.cleanup()
+            except BaseException as error:
+                errors.append(repr(error))
+        output = os.environ.get('ROVE_TCEC_TEST_OUT')
+        if output:
+            target = Path(output)
+            if not target.is_absolute() or cls.repo == target or cls.repo in target.parents:
+                raise ValueError('focused TCEC evidence must be absolute and outside Git')
+            target.mkdir(parents=True, exist_ok=True)
+            (target/'observations.json').write_text(json.dumps({'cases': cls.observations,
+                'real_tiny_fixture_compiles': 1, 'owned_remaining': len(cls.helper.OWNED),
+                'cleanup_errors': errors}, indent=2) + '\n')
+        try:
+            if errors:
+                raise AssertionError(errors)
+        finally:
+            cls.temp.cleanup()
+
+    def start(self, name, *, fault=None, truncated=False):
+        directory = self.root/name
+        directory.mkdir()
+        # Spaces and non-ASCII are valid paths; only CR/LF are outside the target.
+        tmp = directory/'tmp space 한글'
+        tmp.mkdir()
+        binary = directory/'whole'
+        whole = source_package.package_tcec(SOURCE, COMPRESSION)
+        binary.write_bytes(whole[:-3] if truncated else whole)
+        binary.chmod(0o755)
+        log = directory/'stage.json'
+        bin_dir = directory/'bin'
+        bin_dir.mkdir()
+        if fault:
+            shim = '''#!/usr/bin/python3
+import hashlib,json,os,pathlib,shutil,sys
+stage=pathlib.Path(sys.argv[0]).name
+if stage=='tail':
+ raw=pathlib.Path(sys.argv[-1]).read_bytes().split(b'\\n',5)[5]
+else:raw=sys.stdin.buffer.read()
+pathlib.Path(os.environ['ROVE_TCEC_LOG']).write_text(json.dumps({
+ 'stage':stage,'argv':sys.argv[1:],'stdin_sha256':hashlib.sha256(raw).hexdigest()}))
+if stage=='tail':sys.stdout.buffer.write(raw);sys.stdout.buffer.flush()
+else:
+ output=sys.argv[sys.argv.index('-o')+1]
+ shutil.copyfile(os.environ['ROVE_TCEC_ELF'],output);os.chmod(output,0o755)
+sys.exit(31 if stage=='tail' else 33)
+'''
+            (bin_dir/fault).write_text(shim)
+            (bin_dir/fault).chmod(0o755)
+        overrides = {'PATH': str(bin_dir) + os.pathsep + os.environ['PATH'],
+            'TMPDIR': str(tmp), 'ROVE_SHELL_MARKER': 'tcec-marker',
+            'ROVE_TCEC_LOG': str(log), 'ROVE_TCEC_ELF': str(self.fixture/'x')}
+        proxy = directory/'proxy.py'
+        proxy.write_text('#!/usr/bin/python3\nimport os\ne=os.environ.copy();e.update(' +
+            repr(overrides) + ')\nos.execve(' + repr(str(binary)) + ',' +
+            repr([str(binary)]) + ',e)\n')
+        proxy.chmod(0o755)
+        owned = self.helper.Owned(proxy, directory, self.helper.Budget(25))
+        return directory, tmp, log, owned
+
+    def test_actual_compiler_keeps_uci_stdin_and_unlinks_file_while_native_runs(self):
+        directory, tmp, log, owned = self.start('normal')
+        try:
+            original_pipe = os.readlink('/proc/self/fd/' + str(owned.process.stdin.fileno()))
+            owned.send(b'reap\n')  # Queued before the actual compiler has started.
+            owned.wait_line(b'ready')
+            owned.stdout.until(lambda data: b'reaped ' in data, owned.budget)
+            image = Path('/proc')/str(owned.process.pid)/'exe'
+            self.assertEqual(image.read_bytes(), self.native)
+            self.assertEqual(os.readlink('/proc/' + str(owned.process.pid) + '/fd/0'),
+                             original_pipe)
+            executable = Path(os.readlink(image))
+            self.assertEqual(executable.parent, tmp)
+            self.assertTrue(executable.is_file())
+            deadline = time.monotonic() + 5
+            while executable.exists():
+                self.assertLess(time.monotonic(), deadline)
+                time.sleep(.01)
+            self.assertFalse(owned.exited())
+            self.assertEqual(image.read_bytes(), self.native)
+            self.assertEqual(list(tmp.iterdir()), [])
+            self.assertTrue(tmp.is_dir())
+            self.assertIn(b'marker tcec-marker\n', owned.stdout.bytes())
+            owned.send(b'quit\n')
+            result = self.settle(owned)
+            self.assertEqual(result['returncode'], 0)
+            self.assertEqual(result['stderr'], '')
+            self.observations.append({'case': 'actual-compiler-stdin-normal-unlink-quit',
+                'native_sha256': digest(self.native), 'original_stdin_preserved': True,
+                'file_unlinked_while_native_alive': True, 'parent_removed': False,
+                'observed': result})
+        finally:
+            owned.cleanup()
+
+    def test_eof_still_schedules_normal_unlink(self):
+        directory, tmp, log, owned = self.start('eof')
+        try:
+            owned.close_input()
+            owned.wait_line(b'ready')
+            result = self.settle(owned)
+            self.assertEqual(result['returncode'], 0)
+            self.assertEqual(result['stderr'], '')
+            self.assertEqual(list(tmp.iterdir()), [])
+            self.observations.append({'case': 'actual-compiler-eof', 'observed': result,
+                                      'normal_file_cleanup': True})
+        finally:
+            owned.cleanup()
+
+    def test_pipeline_failure_cannot_run_a_successfully_produced_native(self):
+        for fault in ('tail', 'truncated-xz', 'cc'):
+            with self.subTest(fault=fault):
+                directory, tmp, log, owned = self.start('failure-' + fault,
+                    fault=None if fault == 'truncated-xz' else fault,
+                    truncated=fault == 'truncated-xz')
+                try:
+                    result = self.settle(owned)
+                    self.assertNotEqual(result['returncode'], 0)
+                    self.assertEqual(result['stdout'], '')
+                    paths = list(tmp.iterdir())
+                    self.assertEqual(len(paths), 1)
+                    # The decoder/producer may emit all valid C, and the compiler
+                    # may even produce a valid native, before returning failure.
+                    self.assertEqual(paths[0].read_bytes(), self.native)
+                    self.observations.append({'case': fault, 'observed': result,
+                        'valid_native_present_but_not_executed': True,
+                        'failure_temp_cleanup_promised': False,
+                        'compiler_input_sha256': json.loads(log.read_text())['stdin_sha256']
+                            if fault == 'cc' else None})
+                    if fault == 'cc':
+                        self.assertEqual(json.loads(log.read_text())['stdin_sha256'], digest(SOURCE))
+                    # Developer cleanup follows physical group settlement; the
+                    # product deliberately promises normal-startup cleanup only.
+                    paths[0].unlink()
+                finally:
+                    owned.cleanup()
 
 
 if __name__ == '__main__':
