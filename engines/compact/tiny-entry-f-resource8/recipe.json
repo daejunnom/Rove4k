@@ -16,7 +16,7 @@
     "engines/compact/tiny-entry-f/engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
     "engines/compact/tiny-entry-f/bootstrap.py.in": "159c5fe166f4b0804471e9d3a70d8f055a510858a6ae33f0ed6b4cfd17fca6f9",
     "engines/compact/tiny-entry-f/launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
-    "engines/compact/tiny-entry-f/build.py": "459b15b0ee490d6c9047e7057fe9cce377418ccb3db40f08f4cb64dfa1f4c756",
+    "engines/compact/tiny-entry-f/build.py": "884179e149f8a7268d3c038ccbb0e944232749073ceb8776d45bbd1e43aebc45",
     "engines/scripts/specialize.py": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d",
     "engines/scripts/minify.py": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b",
     "engines/scripts/rename_c.py": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
@@ -58,7 +58,7 @@
     "engines/scripts/shipping_lazy_fallback.py": "023b370e75df2d50f44641eac7d1b49091ef2424d9ed7983d6d6f3c7d700b2ce",
     "engines/compact/tiny-entry-f/shipping_qs_cutoff.py": "ae95c21527a235880a4e9f140537f488df71b99caec988a3c08cf710d7df4534",
     "engines/compact/tiny-entry-f/shipping_history_path.py": "d345e87322f6aa17f141861c9fa6f330ff2c3642d765d9c0e2d6dc32a597a70c",
-    "engines/scripts/source_package.py": "55fa739e7c17fffdb3bf1191c7a26aa38d35e9e32473e4008c23ece3d5703d1f",
+    "engines/scripts/source_package.py": "149f616c6e8d78b52dc88ccf0dd303d37ad2bcc513e16c40a54ac1daf09d7d2f",
     "engines/compact/tiny-entry-f/shipping_names.py": "b69d376bf2e206273b12344fe30fbddbce6d51396c01fab8d53fd8f25401d48b",
     "engines/compact/tiny-entry-f/bootstrap_full.py": "813eb1a9f0a31a54350e4df015c49d0a63e9d2d57923a4035e563aa7b95e222c",
     "engines/compact/tiny-entry-f/shipping_selector.py": "69bf3747d81455690c11abc95046e173c5a8915e2abd001ad6976bbe22c3e48d",
@@ -78,16 +78,17 @@
     "engines/compact/tiny-entry-f/shipping_from.py": "6b8955f6f3d7fb9421a91a339719db26595793d4dc27ddbda9b2b5e5ffc2a510",
     "engines/compact/tiny-entry-f/shipping_mtd_state.py": "b93a93d5e50823f59f6ed77ced036b3c9427e7a1ebd031db233b8012e551b54c",
     "engines/compact/tiny-entry-f/shipping_go_boundary.py": "8efdcf32924a936bf5f6ed8ca5605b94f54fb219bc3cf7d339bca9eab8f1ce52",
-    "engines/scripts/compiler_group.py": "fe2fd6ce96b51251ec0d5e0f4b73c0742c50ca86932608b29f892ecee240974c",
-    "engines/scripts/compiler_stdin.py": "ee9ba2c938cfabf30261451961c424254d9f75a804d5c3e6d832b09bfcf4f247",
-    "engines/compact/tiny-entry-f/recipe.json": "d4c91f44e118aa4d4c01bed153ea80511d916cfb4fc1f47940be4e45a0165725",
+    "engines/scripts/compiler_group.py": "a245174aba2505493737dd87c2fd8943335346ae8ac419e79c1b203543695735",
+    "engines/scripts/compiler_stdin.py": "fc92bb6146fcfc5a6c73cd9f68929192a90d22a875bf591caf2cf3b32b87055b",
+    "engines/compact/tiny-entry-f/recipe.json": "207a268977acec523e513eb909cda95b940dca7ac4bb95d1320c7e0eee078779",
     "engines/compact/tiny-entry-f/shipping_quiet_slot.py": "05e27c7117497d9087e497e53f6b12cfbf3a067500bf2f29c40af38f1afc8c60",
-    "engines/compact/tiny-entry-f/README.md": "ecfd98c051101f568346c5a917e4f2c0a9579501204a019dc19bf2b2d1fcec6c",
+    "engines/compact/tiny-entry-f/README.md": "da6d9a6973bc95ae30aecea219ffcf91f7c4c669eb5c3e763848809226024edc",
     "engines/scripts/compiler_seek.py": "8ca5fd736f010cd9dd1e3b668065c0cf7d82f9e98653580b8f9b4c23e7d75a41"
   },
   "positive_helper_sha256": {
     "engines/compact/tiny-entry-d/verify.py": "18faa69aed5cb5dd85a054ef2e6830463f3d819f5f635d74d55550a877c81eae",
-    "engines/tests/chess_oracle.py": "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8"
+    "engines/tests/chess_oracle.py": "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8",
+    "engines/scripts/verify_shell.py": "f660c0766edb7f07dc185658690051451ab7b078653807757a8a27fdfa05bafb"
   },
   "compiler": [
     "cc",
@@ -146,7 +147,7 @@
   },
   "final_4k_allocation": "unknown",
   "scalability_or_tournament_acceptance": "unproven",
-  "class": "full-F-late-fixed-resource8-TT18-v11",
+  "class": "full-F-late-fixed-resource8-TT18-v12",
   "base_stage": "full-after-MTD-state-sole-GO-and-quiet-slot",
   "base_source": {
     "bytes": 7830,
@@ -157,10 +158,10 @@
     "source_sha256": "fb18e915ca1236a25c9c2969c8c2b45d8000e2a701aede3490306b6246eb4865",
     "native_bytes": 18576,
     "native_sha256": "8c98349f93aa31ca8be621deaa671cbbe0aa7bcadabf99699f901a3bfe3fa98d",
-    "bootstrap_bytes": 9694,
-    "bootstrap_sha256": "1eae53e23990ba682a96e33b89631de10a0022cbca1f9b9fdd18b078271ee980",
-    "whole_bytes": 4602,
-    "whole_sha256": "cbc79eca6a962fa88de8f456446b487886523d56d828ea94b9b38f706a903065"
+    "bootstrap_bytes": 9663,
+    "bootstrap_sha256": "8ec48640f7bbeb2432f2b5c5b9ba5539420b56101dbb171928d4658bd38b2708",
+    "whole_bytes": 4588,
+    "whole_sha256": "c2b45c62af011377be56462fbd2f050041cd6f9394e289a4de7ea2d03531571f"
   },
   "specialize_sha256": "c4ff7d03d649ef33198772f95ce3a6f1cff4b711e1aa5e5a00fdbc5ddbe34656",
   "packaging_paths": {
@@ -2458,5 +2459,116 @@
     "no_fallback": true,
     "outer_full_inverse_and_whole_protected_complement": true,
     "source_class": "v11 fixed quiet-input composition around unchanged v10 resource transform"
+  },
+  "previous_v11_terminal": {
+    "class": "full-F-late-fixed-resource8-TT18-v11",
+    "expected": {
+      "source_bytes": 7868,
+      "source_sha256": "fb18e915ca1236a25c9c2969c8c2b45d8000e2a701aede3490306b6246eb4865",
+      "native_bytes": 18576,
+      "native_sha256": "8c98349f93aa31ca8be621deaa671cbbe0aa7bcadabf99699f901a3bfe3fa98d",
+      "bootstrap_bytes": 9694,
+      "bootstrap_sha256": "1eae53e23990ba682a96e33b89631de10a0022cbca1f9b9fdd18b078271ee980",
+      "whole_bytes": 4602,
+      "whole_sha256": "cbc79eca6a962fa88de8f456446b487886523d56d828ea94b9b38f706a903065"
+    },
+    "producing_recipe_sha256": "7ace52df69aadc7c6141864c030ede46ca6b2aefac1e2fd0141c35a5447bbd18",
+    "scope": "immutable old9694/4602 baseline; new wrapper qualification is separate"
+  },
+  "wrapper_contracts": {
+    "default": "grace",
+    "engine_policy": "full, workers8/TT18/PLY128 unchanged; no UCI or runtime selector",
+    "predecessor": {
+      "class": "full-F-late-fixed-resource8-TT18-v11",
+      "expected": {
+        "source_bytes": 7868,
+        "source_sha256": "fb18e915ca1236a25c9c2969c8c2b45d8000e2a701aede3490306b6246eb4865",
+        "native_bytes": 18576,
+        "native_sha256": "8c98349f93aa31ca8be621deaa671cbbe0aa7bcadabf99699f901a3bfe3fa98d",
+        "bootstrap_bytes": 9694,
+        "bootstrap_sha256": "1eae53e23990ba682a96e33b89631de10a0022cbca1f9b9fdd18b078271ee980",
+        "whole_bytes": 4602,
+        "whole_sha256": "cbc79eca6a962fa88de8f456446b487886523d56d828ea94b9b38f706a903065"
+      },
+      "control": "old source/literal/9834 owner, W1/W2 and9694 seek guards are consumed first;4602 whole is checked once per ordinary invocation"
+    },
+    "selected": {
+      "grace": {
+        "class": "full-F-late-fixed-resource8-TT18-v12-grace",
+        "expected": {
+          "source_bytes": 7868,
+          "source_sha256": "fb18e915ca1236a25c9c2969c8c2b45d8000e2a701aede3490306b6246eb4865",
+          "native_bytes": 18576,
+          "native_sha256": "8c98349f93aa31ca8be621deaa671cbbe0aa7bcadabf99699f901a3bfe3fa98d",
+          "bootstrap_bytes": 9663,
+          "bootstrap_sha256": "8ec48640f7bbeb2432f2b5c5b9ba5539420b56101dbb171928d4658bd38b2708",
+          "whole_bytes": 4588,
+          "whole_sha256": "c2b45c62af011377be56462fbd2f050041cd6f9394e289a4de7ea2d03531571f"
+        },
+        "normalization": "canonical F-like identity before cleanup selection",
+        "contract": "state-only deletion authority, original compiler signal/grace and separate settlement budgets",
+        "qualification": "pending; fixed firstcost and common focused fixture are not this selected engine runtime"
+      },
+      "kill": {
+        "class": "full-F-late-fixed-resource8-TT18-v12-kill",
+        "expected": {
+          "source_bytes": 7868,
+          "source_sha256": "fb18e915ca1236a25c9c2969c8c2b45d8000e2a701aede3490306b6246eb4865",
+          "native_bytes": 18576,
+          "native_sha256": "8c98349f93aa31ca8be621deaa671cbbe0aa7bcadabf99699f901a3bfe3fa98d",
+          "bootstrap_bytes": 9596,
+          "bootstrap_sha256": "061e22fa4943203328efda9678f1eacaabdc02e4f3ec3c3c33a5bc767a0aa169",
+          "whole_bytes": 4565,
+          "whole_sha256": "6f3dd290a1f805f99c13451da67eb2c747b37214db24c25512aa36ebbafdab84"
+        },
+        "normalization": "canonical F-like identity before cleanup selection",
+        "contract": "state-only deletion authority, immediate compiler SIGKILL removes graceful handler opportunity; parent128+s/mask/SIGCHLD/unbounded normal compile/final reap and separate5s budgets retained",
+        "qualification": "pending; fixed firstcost and common focused fixture are not this selected engine runtime"
+      },
+      "legacy": {
+        "class": "full-F-late-fixed-resource8-TT18-v12-legacy",
+        "expected": {
+          "source_bytes": 7868,
+          "source_sha256": "fb18e915ca1236a25c9c2969c8c2b45d8000e2a701aede3490306b6246eb4865",
+          "native_bytes": 18576,
+          "native_sha256": "8c98349f93aa31ca8be621deaa671cbbe0aa7bcadabf99699f901a3bfe3fa98d",
+          "bootstrap_bytes": 9694,
+          "bootstrap_sha256": "1eae53e23990ba682a96e33b89631de10a0022cbca1f9b9fdd18b078271ee980",
+          "whole_bytes": 4602,
+          "whole_sha256": "cbc79eca6a962fa88de8f456446b487886523d56d828ea94b9b38f706a903065"
+        },
+        "normalization": "canonical F-like identity before cleanup selection",
+        "contract": "explicit v11 source wrapper bytes with new selected producer identity",
+        "qualification": "pending; fixed firstcost and common focused fixture are not this selected engine runtime"
+      },
+      "shell": {
+        "class": "full-F-late-fixed-resource8-TT18-v12-shell",
+        "expected": {
+          "source_bytes": 7868,
+          "source_sha256": "fb18e915ca1236a25c9c2969c8c2b45d8000e2a701aede3490306b6246eb4865",
+          "native_bytes": 18576,
+          "native_sha256": "8c98349f93aa31ca8be621deaa671cbbe0aa7bcadabf99699f901a3bfe3fa98d",
+          "shell_header_bytes": 316,
+          "shell_header_sha256": "a784b94f1099ab89161b084c127e84a480652953f9b16fabdb3b3e49d6f93973",
+          "whole_bytes": 4028,
+          "whole_sha256": "72a41ba1eb5cc889a2944d2de4d793d5e135be9be4a68fdc3d06e81874fbfaaf"
+        },
+        "normalization": "canonical F-like identity is predecessor admission only; the complete original C source is the compressed payload",
+        "contract": "source-shell-bash-ignore-after-compile-v1",
+        "details": "Bash source compiler in private directory; compile completes before ignoring SIGCHLD; delayed cleanup child; no original Python owner cancellation/group-settlement guarantee; fixed source has no process-child calls",
+        "qualification": "pending; whole4028 is cost and strict source inverse only, not fresh selected runtime or 4KiB eligibility"
+      }
+    },
+    "dependency_refresh": {
+      "status": "complete; final reviewed dependencies frozen before ordinary/positive qualification",
+      "paths": [],
+      "resolved_sha256": {
+        "engines/compact/tiny-entry-f/build.py": "884179e149f8a7268d3c038ccbb0e944232749073ceb8776d45bbd1e43aebc45",
+        "engines/compact/tiny-entry-f/recipe.json": "207a268977acec523e513eb909cda95b940dca7ac4bb95d1320c7e0eee078779",
+        "engines/compact/tiny-entry-f/README.md": "da6d9a6973bc95ae30aecea219ffcf91f7c4c669eb5c3e763848809226024edc",
+        "engines/scripts/verify_shell.py": "f660c0766edb7f07dc185658690051451ab7b078653807757a8a27fdfa05bafb"
+      },
+      "scope": "producer provenance only; no old full closure or runtime approval carried forward"
+    }
   }
 }

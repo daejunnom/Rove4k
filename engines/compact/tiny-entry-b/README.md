@@ -1534,3 +1534,40 @@ shipping 모델의 oracle로 쓰지 않는다. FD 관찰·cancellation causality
 공유 세 형상의 기존 packaging suites는 stream5·ZIP4·restored-files5 tests 모두 통과했다(skipped0). 이 관측은 live same-group 정산이며 detached 작업이나 zombie를 포함한 문자 그대로의 group absence 일반 증명은 아니다.
 
 실제 producing/measurement/normal receipt는 recipe의 `compiler_group_ownership`에 명시했다. 공통 source helper에 대한 alias-only 후보 raw−389/whole+8 손실은 과거 미채택으로 남고 여기서 재실행하지 않았다.
+
+
+## Prepared normalization and path-authority grace — producing checkpoint
+
+The default full source-script path consumes all previous source/literal/compiler-owner/late-BOOT,
+W1/W2 and seek admissions first. The exact previous prepared bootstrap
+11659 B/9645fc13ad80bb46b0ff791b75fd54bb2a066a743feb7b873f471f5c89d914ca is then admitted before
+calling the same frozen compiler_group.normalize_bootstrap and
+compact_cleanup(state=True, wait=False, termination='grace'). The compiler_group
+legacy emitter still returns the same bytes; its canonical cleanup renderer owns
+both representations. No extra UCI/runtime policy selector is introduced.
+
+Measured complete file 5281->5259 B saves22 B;
+bootstrap 11659->11595 B. The independent fixed-codec
+normalize+state+wait candidate is larger and is retained as an unselected cost.
+Source/native/readable/DEV, worker2/TT18, codec and complete header are unchanged.
+The recipe retains the full predecessor expected/helper/local-input closure and
+a separate selected tuple. Only the four whole/bootstrap expected fields change.
+
+Normalization moves compiler environment dict creation from before source-file
+write/seek to Popen argument evaluation. Current closed builtin values agree,
+but environment/audit hooks, concurrent mutation, allocation/source first-error
+ordering, private e/s snapshots and exact tracebacks are outside equivalence.
+INT/TERM registration/reset remains2 then15. State compaction invalidates d only
+at the two settlement125 exits, retaining the physical workspace; ordinary
+preparation/spawn/nonzero compiler failures keep their original cleanup and error.
+The original graceful signal, separate5s grace/post-KILL/group budgets, unbounded
+normal WNOWAIT, unreaped leader and last reap stay intact. Immediate KILL is not
+selected by this default path.
+
+Frozen common API SHA256 a245174aba2505493737dd87c2fd8943335346ae8ac419e79c1b203543695735; C-default stdin API
+fc92bb6146fcfc5a6c73cd9f68929192a90d22a875bf591caf2cf3b32b87055b preserves the prior C emission.
+The shared package helper is finally frozen at SHA256 149f616c6e8d78b52dc88ccf0dd303d37ad2bcc513e16c40a54ac1daf09d7d2f.
+No mismatch is silently accepted. PENDING: producing source qualification
+requires actual ordinary regeneration and the selected verifier. Old runtime
+receipts keep their original source scope. Completion is recorded separately
+without changing producing recipe/README after qualification.

@@ -58,6 +58,13 @@ def main():
         assert build['resources']['input_sha256']==build['pre_resource_source_sha256']
         assert build['resources']['output_sha256']==build['merged_source_sha256']
         assert sha((build_path.parent/'pre-resource.stdin.rs').read_bytes())==build['pre_resource_source_sha256']
+    compiler_keys=tuple(build['compiler_environment'])
+    five_keys=('ROVE_WORKERS','ROVE_TT_BITS','SOURCE_DATE_EPOCH','LC_ALL','TZ')
+    if build.get('resource_environment_overrides_omitted',False):
+        assert set(compiler_keys)==set(five_keys[2:]) and build.get('resources',{}).get('enabled')
+        assert source.stat().st_size==22981 and build['merged_source_sha256']=='516aab3e2f9085dd4a95503cc4ebc1a02670034a0a2daee8350081957f056e0b'
+    else:
+        assert set(compiler_keys)==set(five_keys)
     expected_native=build['stdin_native']['sha256']
     assert sha(Path(build['stdin_native']['path']).read_bytes())==expected_native
     captures=out/'compiler-captures';captures.mkdir();capture_bin=out/'capture-bin';capture_bin.mkdir()
@@ -67,7 +74,7 @@ def main():
       "data=sys.stdin.buffer.read();pid=os.getpid()\n"
       f"base=Path({str(captures)!r})\n"
       "(base/(str(pid)+'.stdin')).write_bytes(data)\n"
-      "record={'pid':pid,'group':os.getpgrp(),'argv':sys.argv,'cwd':os.getcwd(),'TMPDIR':os.environ['TMPDIR'],'mode':os.stat(os.getcwd()).st_mode&511,'source_sha256':hashlib.sha256(data).hexdigest(),'source_bytes':len(data),'environment':{key:os.environ.get(key) for key in ('ROVE_WORKERS','ROVE_TT_BITS','SOURCE_DATE_EPOCH','LC_ALL','TZ')}}\n"
+      "record={'pid':pid,'group':os.getpgrp(),'argv':sys.argv,'cwd':os.getcwd(),'TMPDIR':os.environ['TMPDIR'],'mode':os.stat(os.getcwd()).st_mode&511,'source_sha256':hashlib.sha256(data).hexdigest(),'source_bytes':len(data),'environment':{key:os.environ.get(key) for key in " + repr(compiler_keys) + "},'stdin_seekable':sys.stdin.buffer.seekable()}\n"
       "(base/(str(pid)+'.json')).write_text(json.dumps(record))\n"
       "input_file=tempfile.TemporaryFile();input_file.write(data);input_file.seek(0);os.dup2(input_file.fileno(),0)\n"
       f"os.execv({str(rustc)!r},[{str(rustc)!r},*sys.argv[1:]])\n",encoding='utf-8')
@@ -78,7 +85,7 @@ def main():
     transcript=[];events=queue.Queue()
     report={'passed':False,'build_json_sha256':sha(build_path.read_bytes()),'artifact_sha256':sha(artifact.read_bytes()),
             'merged_source_sha256':sha(source.read_bytes()),'expected_stdin_native_sha256':expected_native,
-            'scope':'selected actual stream; source stdin and live native image; independent shipping subprocess oracle',
+            'scope':'selected actual stream; source stdin and live native image; in-process chess oracle for two legal moves',
             'compiler_resolution':'transparent observing PATH shim then exec real compiler; artifact bytes unchanged'}
     process=None
     try:
@@ -120,6 +127,7 @@ def main():
         assert compiler['source_sha256']==build['merged_source_sha256'] and compiler['source_bytes']==source.stat().st_size
         assert (captures/(str(compiler['pid'])+'.stdin')).read_bytes()==source.read_bytes()
         assert compiler['environment']==build['compiler_environment']
+        if build.get('wrapper_policy')=='prepared-W1-W2-seek':assert compiler['stdin_seekable']
         assert compiler['argv'][1:]==build['runtime_compiler_command'][1:]
         assert compiler['cwd']==compiler['TMPDIR'] and Path(compiler['TMPDIR']).parent==scratch and compiler['mode']==0o700
         assert not Path(compiler['TMPDIR']).exists() and not list(scratch.iterdir())

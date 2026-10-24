@@ -4,6 +4,22 @@ The full implementation scope is recorded in [the accepted plan](ENGINE-PLAN.ko.
 The current user request excludes training and AWS connections. Frozen model
 inference and lossless model storage remain in scope; trained strength is not claimed.
 
+## Wrapper handoff implementation: 2026-10-24
+
+The user approved the complete external wrapper handoff in stages. Its scope,
+corrected premises, measured alternatives and current acceptance are recorded
+in [the wrapper implementation record](WRAPPER-IMPLEMENTATION.ko.md). The
+attachment remains reference material; repository contracts and the user's
+request govern implementation. This continues the full A–F objective.
+
+The first shared checkpoint cd79ffd reduces Rust D scalar/HQ whole files to
+11026/11384 B through exact body232 restoration, preserving native/load bytes,
+absolute BCJ, initialized data8, BSS4 and memory geometry. Both forms reproduce
+twice and the existing positive campaign passes eight sessions/64 legal GO.
+The common API, consumer wiring and separate shell/native policies continue
+in that linked record. Historical checkpoints below retain their original
+source and execution scopes; they are not automatically new-policy evidence.
+
 ## Further common and family source reductions: 2026-10-24
 
 The W1/W2 rollout below remains a separate accepted checkpoint. A further

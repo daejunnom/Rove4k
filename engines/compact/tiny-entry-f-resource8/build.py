@@ -27,21 +27,41 @@ def source_closure():
         path=HERE/name;result[str(path.relative_to(REPO))]=sha(normalized(path))
     return result
 
+WRAPPERS=('grace','kill','legacy','shell')
+RECIPE_CLASS='full-F-late-fixed-resource8-TT18-v12'
+
+def wrapper_contract(recipe,wrapper):
+    """Choose only a measured build-time wrapper; the engine profile is fixed."""
+    require(wrapper in WRAPPERS and recipe['class']==RECIPE_CLASS,'unknown fixed F8 wrapper recipe')
+    contract=recipe['wrapper_contracts']['selected'][wrapper]
+    require(contract['class']==RECIPE_CLASS+'-'+wrapper,'fixed selected F8 wrapper class differs')
+    predecessor=recipe['wrapper_contracts']['predecessor']['expected']
+    require(predecessor['bootstrap_bytes']==9694 and predecessor['bootstrap_sha256']=='1eae53e23990ba682a96e33b89631de10a0022cbca1f9b9fdd18b078271ee980' and
+            predecessor['whole_bytes']==4602 and predecessor['whole_sha256']=='cbc79eca6a962fa88de8f456446b487886523d56d828ea94b9b38f706a903065','fixed v11 predecessor differs')
+    require(all(contract['expected'][name]==predecessor[name] for name in ('source_bytes','source_sha256','native_bytes','native_sha256')),
+            'wrapper selection changed the engine source/native contract')
+    return contract
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--base-source',type=Path,required=True,help='exact full-F2/18 compact C from its ordinary producer')
+    parser.add_argument('--wrapper',choices=WRAPPERS,default='grace',help='build-only wrapper contract; no engine/UCI option')
     parser.add_argument('--out',type=Path,required=True);args=parser.parse_args();out=args.out.resolve()
     if sys.platform!='linux' or platform.machine()!='x86_64':parser.error('Linux x86-64 required')
     if not args.base_source.is_absolute() or not args.out.is_absolute() or out.exists() or out==REPO or REPO in out.parents or any((p/'.git').exists() for p in (out,*out.parents)):
         parser.error('absolute base source and new external output required')
     recipe_raw=normalized(HERE/'recipe.json');recipe=json.loads(recipe_raw)
-    require(recipe['class']=='full-F-late-fixed-resource8-TT18-v11' and recipe['profile']=={'workers':8,'tt_bits':18,'ply':128,'native_TIDs':9},'one fixed resource profile only')
+    contract=wrapper_contract(recipe,args.wrapper);expected=contract['expected']
+    predecessor=recipe['wrapper_contracts']['predecessor']['expected']
+    require(recipe['profile']=={'workers':8,'tt_bits':18,'ply':128,'native_TIDs':9},'one fixed resource profile only')
     require(recipe['compiler']==['cc','-Os','-pthread','-x','c','-','-o','x','-s'],'fixed compiler arguments differ')
     require(recipe['compression']=={'format':'lzma-alone','filter':'LZMA1','preset':6,'extreme':False,'lc':2,'lp':0,'pb':0,'check':'NONE','mf':'BT2','dictionary_bytes':16384,'nice_len':24},'fixed full-F codec differs')
     require(recipe['base_stage']=='full-after-MTD-state-sole-GO-and-quiet-slot','fixed late producer stage differs')
     base=args.base_source.read_bytes();require({'bytes':len(base),'sha256':sha(base)}==recipe['base_source'] and b'\r' not in base,'unknown ordinary full-F2 source')
     closure=source_closure();limits=recipe['limits'];out.mkdir()
-    report={'complete':False,'class':recipe['class'],'profile':recipe['profile'],'base_profile':recipe['base_profile'],
+    report={'complete':False,'class':contract['class'],'recipe_class':recipe['class'],'wrapper':args.wrapper,
+        'expected_contract':expected,'predecessor_expected':predecessor,
+        'profile':recipe['profile'],'base_profile':recipe['base_profile'],
         'base_source':identity(args.base_source),'base_stage':recipe['base_stage'],'source_closure':closure,'recipe_sha256':sha(recipe_raw),'limits':limits,
         'commands':[],'attempts':[],'counts':{'candidate_compile':0,'candidate_encode':0,'strict_Python_restore':0,'baseline_compile':0,'baseline_encode':0,'separate_PP':0,'ELF_execution':0},
         'runtime_qualified':False,'final_4k_allocation':'unknown','rules_eligibility':'unproven','authority':'exact base C and project code closure; no historical research JSON/native inputs'}
@@ -145,6 +165,23 @@ def main():
             raw=normalized(REPO/name);require(sha(raw)==pinned,'source changed during freeze: '+name)
             target=frozen/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(raw)
         (out/'base-source.c').write_bytes(base);own=frozen/HERE.relative_to(REPO)
+        if args.wrapper=='shell':
+            verifier=frozen/'engines/scripts/verify_shell.py'
+            selected=out/'selected-verifier';selected.mkdir()
+            effective={**recipe,'class':contract['class'],'recipe_class':recipe['class'],
+                       'wrapper':args.wrapper,'expected':expected,'wrapper_policy':contract['contract']}
+            effective_path=selected/'recipe.json';effective_raw=(json.dumps(effective,indent=2)+'\n').encode()
+            effective_path.write_bytes(effective_raw)
+            report['selected_verifier']={'path':str(verifier),'wrapper':args.wrapper,
+                'source_sha256':sha(verifier.read_bytes()),'recipe_path':str(effective_path),
+                'recipe_sha256':sha(effective_raw),'build_recipe_sha256':sha(recipe_raw),
+                'command':[sys.executable,'-I','-B',str(verifier),'--build',str(out/'first'),
+                           '--recipe',str(effective_path),'--out','<new absolute external output>']}
+        else:
+            report['selected_verifier']={'path':str(own/'verify.py'),'wrapper':args.wrapper,
+                'source_sha256':sha((own/'verify.py').read_bytes()),'recipe_sha256':sha(recipe_raw),
+                'command':[sys.executable,'-I','-B',str(own/'verify.py'),'--wrapper',args.wrapper,
+                           '--build',str(out),'--out','<new absolute external output>']}
         packaging={name:frozen/path for name,path in recipe['packaging_paths'].items()}
         require(sha((own/'specialize.py').read_bytes())==recipe['specialize_sha256'],'pure late six-role TT/pool helper changed')
         specialize=module('fixed_resource8_specialize',own/'specialize.py')
@@ -152,14 +189,14 @@ def main():
         quiet_source=module('fixed_resource8_quiet',own/'quiet_source.py')
         quiet_input=module('fixed_F2_quiet_input',packaging['shipping_quiet_slot.py'])
         source,proof=quiet_source.transform_source(base,quiet_input=quiet_input,resource_transform=specialize.transform_source)
-        require({'bytes':len(source),'sha256':sha(source)}=={'bytes':recipe['expected']['source_bytes'],'sha256':recipe['expected']['source_sha256']} and proof['full_inverse'] and proof['raw_delta']==38 and [x['role'] for x in proof['edits']]==recipe['source_roles'],'source/profile proof differs')
+        require({'bytes':len(source),'sha256':sha(source)}=={'bytes':expected['source_bytes'],'sha256':expected['source_sha256']} and proof['full_inverse'] and proof['raw_delta']==38 and [x['role'] for x in proof['edits']]==recipe['source_roles'],'source/profile proof differs')
         (out/'source-proof.json').write_text(json.dumps(proof,indent=2)+'\n');report['source_proof']=identity(out/'source-proof.json')
         literal=module('fixed_resource8_literal',packaging['pack_stream.py']).source_literal
         common=module('fixed_resource8_common',packaging['shipping_common.py']);template=packaging['bootstrap.py.in'].read_bytes();prefix=packaging['launcher.sh'].read_bytes();marker=b'__ROVE_SOURCE_LITERAL__'
         require(template.count(marker)==1 and len(prefix)==77,'fixed legacy marker/prefix differs')
         full_template=module('fixed_full_F_template',packaging['bootstrap_full.py'])
         source_package=module('fixed_source_package',packaging['source_package.py'])
-        compiler_group=module('fixed_compiler_group',packaging['compiler_group.py']).transform_bootstrap
+        group_owner=module('fixed_compiler_group',packaging['compiler_group.py']);compiler_group=group_owner.transform_bootstrap
         stdin_owner=module('fixed_compiler_stdin',packaging['compiler_stdin.py']);compiler_stdin=stdin_owner.transform_bootstrap
         compiler_seek=module('fixed_compiler_seek',packaging['compiler_seek.py']).transform_bootstrap
         template=full_template.prepare_template(template);prefix=source_package.XZ_STDIN_HEADER
@@ -168,7 +205,7 @@ def main():
         require(tools==recipe['tools'],'selected tool version differs');report['tools']=tools
         for label in ('first','repeat'):
             local=out/label;local.mkdir();(local/'main.c').write_bytes(source);native_dir=local/'native';native_dir.mkdir();report['counts']['candidate_compile']+=1
-            run(recipe['compiler'],native_dir,source,'candidate8-'+label);native=(native_dir/'x').read_bytes();expected=recipe['expected']
+            run(recipe['compiler'],native_dir,source,'candidate8-'+label);native=(native_dir/'x').read_bytes()
             require(len(native)==expected['native_bytes'] and sha(native)==expected['native_sha256'],'literal resource8 native differs')
             guarded_source=quiet_source.restore_source(source)
             expression,kind=common.source_literal(guarded_source,literal);script=template.replace(marker,expression.encode())
@@ -191,17 +228,45 @@ def main():
             script,stdin_metadata=compiler_stdin(script,shared_wait=True);report['compiler_stdin']=stdin_metadata
             script,seek_metadata=compiler_seek(script,owner_metadata=stdin_metadata,prepare_owner=compiler_stdin,restore_owner=stdin_owner.restore_bootstrap)
             report['compiler_seek']=seek_metadata;ast.parse(script)
-            require(len(script)==expected['bootstrap_bytes'] and sha(script)==expected['bootstrap_sha256'],'literal resource8 bootstrap differs')
-            report['counts']['candidate_encode']+=1;whole=source_package.package(script,recipe['compression'],prefix=prefix);payload=whole[len(prefix):]
-            require(payload[:13].hex()==recipe['ALONE_header_hex'],'ALONE header changed');decoder=lzma.LZMADecompressor(format=lzma.FORMAT_ALONE);restored=decoder.decompress(payload,max_length=len(script)+1);report['counts']['strict_Python_restore']+=1
-            require(restored==script and decoder.eof and not decoder.unused_data,'strict ALONE restoration failed')
+            require(len(script)==predecessor['bootstrap_bytes'] and sha(script)==predecessor['bootstrap_sha256'],'F8 v11 post-seek predecessor differs')
+            if not report['counts']['baseline_encode']:
+                baseline=source_package.package(script,recipe['compression'],prefix=prefix)
+                report['counts']['baseline_encode']+=1
+                require(len(baseline)==predecessor['whole_bytes'] and sha(baseline)==predecessor['whole_sha256'],'F8 v11 whole predecessor differs')
+                report['predecessor_whole']={'bytes':len(baseline),'sha256':sha(baseline)}
+            script,normalize_metadata=group_owner.normalize_bootstrap(script)
+            report['wrapper_normalization']=normalize_metadata
+            require(normalize_metadata['identity'],'F8 existing template must remain normalized identity')
+            if args.wrapper in ('grace','kill'):
+                script,cleanup_metadata=group_owner.compact_cleanup(script,state=True,wait=False,
+                    termination='kill' if args.wrapper=='kill' else 'grace')
+                report['wrapper_cleanup']=cleanup_metadata
+            else:
+                report['wrapper_cleanup']={'applied':False,'reason':'explicit legacy keeps the v11 wrapper bytes' if args.wrapper=='legacy' else 'separate Bash source policy; Python owner is consumed only as predecessor admission'}
+            if args.wrapper=='shell':
+                representation='shell_header';representation_path=local/'shell-header.sh'
+                representation_bytes=source_package.shell_header(kind='source',compiler=recipe['compiler'],child_reaping='ignore-after-compile')
+                require(len(representation_bytes)==expected['shell_header_bytes'] and sha(representation_bytes)==expected['shell_header_sha256'],'literal resource8 shell header differs')
+                report['counts']['candidate_encode']+=1
+                whole=source_package.package_shell(source,recipe['compression'],kind='source',compiler=recipe['compiler'],child_reaping='ignore-after-compile')
+                require(whole.startswith(representation_bytes),'shell prefix differs from explicit emitter')
+                payload=whole[len(representation_bytes):];restore_expected=source
+            else:
+                representation='bootstrap';representation_path=local/'bootstrap.py';representation_bytes=script
+                require(len(script)==expected['bootstrap_bytes'] and sha(script)==expected['bootstrap_sha256'],'literal resource8 bootstrap differs')
+                report['counts']['candidate_encode']+=1;whole=source_package.package(script,recipe['compression'],prefix=prefix);payload=whole[len(prefix):];restore_expected=script
+            require(payload[:13].hex()==recipe['ALONE_header_hex'],'ALONE header changed');decoder=lzma.LZMADecompressor(format=lzma.FORMAT_ALONE);restored=decoder.decompress(payload,max_length=len(restore_expected)+1);report['counts']['strict_Python_restore']+=1
+            require(restored==restore_expected and decoder.eof and not decoder.unused_data,'strict ALONE restoration failed')
             require(len(whole)==expected['whole_bytes'] and sha(whole)==expected['whole_sha256'],'literal resource8 whole differs')
-            (local/'bootstrap.py').write_bytes(script);(local/'payload.lzma').write_bytes(payload);(local/'x').write_bytes(whole);(local/'x').chmod(0o755)
-            report['attempts'].append({'source':identity(local/'main.c'),'native':identity(native_dir/'x'),'bootstrap':identity(local/'bootstrap.py'),'whole':identity(local/'x'),'payload':identity(local/'payload.lzma'),'literal_kind':kind,'strict_restore':True});save()
-        first,repeat=report['attempts'];require(all(Path(first[k]['path']).read_bytes()==Path(repeat[k]['path']).read_bytes() for k in ('source','native','bootstrap','whole','payload')),'independent normal bytes differ')
+            representation_path.write_bytes(representation_bytes);(local/'payload.lzma').write_bytes(payload);(local/'x').write_bytes(whole);(local/'x').chmod(0o755)
+            report['attempts'].append({'source':identity(local/'main.c'),'native':identity(native_dir/'x'),representation:identity(representation_path),
+                'representation':'source-shell-header' if args.wrapper=='shell' else 'Python-compiler-owner',
+                'whole':identity(local/'x'),'payload':identity(local/'payload.lzma'),'literal_kind':kind,'strict_restore':True});save()
+        first,repeat=report['attempts'];require(all(Path(first[k]['path']).read_bytes()==Path(repeat[k]['path']).read_bytes() for k in ('source','native',representation,'whole','payload')),'independent normal bytes differ')
         require(source_closure()==closure and args.base_source.read_bytes()==base,'source closure/base changed during build')
         require(all(c.get('terminal') and c.get('owned_group_absent') and not c.get('forced_group_cleanup',False) for c in report['commands']),'tool cleanup needed intervention')
-        report.update(complete=True,source_reproduced=True,native_reproduced=True,bootstrap_reproduced=True,whole_reproduced=True)
+        report.update(complete=True,source_reproduced=True,native_reproduced=True,whole_reproduced=True)
+        report[representation+'_reproduced']=True
     except BaseException as error:report['first_failure']={'type':type(error).__name__,'message':str(error)};raise
     finally:
         signal.alarm(0);report['owned_active_tool']=None if active is None else active.pid;report['owned_tool_handles']=len(owned);save()

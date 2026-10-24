@@ -20,6 +20,7 @@ import shutil
 import signal
 import subprocess
 import sys
+import tempfile
 import time
 
 HERE = Path(__file__).resolve().parent
@@ -28,6 +29,9 @@ FIXED = {"ROVE_WORKERS": "2", "ROVE_TT_BITS": "18", "SOURCE_DATE_EPOCH": "0", "L
 COMMAND = ["rustc", "-", "--crate-name", "r4_stream_fixture", "--edition=2024",
            "-Copt-level=z", "-Clto=fat", "-Ccodegen-units=1", "-Cpanic=abort",
            "-Cstrip=symbols", "-Clink-arg=-Wl,--build-id=none", "-o", "x"]
+PREPARED = False
+_HOST = None
+HOST_COMMANDS = []
 
 
 def sha(data):
@@ -48,7 +52,7 @@ def module():
 
 def emit(producer, directory, source, command, codec, fixed=FIXED):
     directory.mkdir(parents=True, exist_ok=False)
-    data, metadata = producer.make_stream(source, list(producer.COMMAND), codec, environment=fixed)
+    data, metadata = producer.make_stream(source, list(producer.COMMAND), codec, environment=fixed, prepared=PREPARED)
     path = directory / "launcher"
     path.write_bytes(data)
     path.chmod(0o755)
@@ -68,7 +72,62 @@ def emit(producer, directory, source, command, codec, fixed=FIXED):
     return path, scratch, env, metadata
 
 
+def host_owner():
+    global _HOST
+    if _HOST is None:
+        path=ROOT/'engines/compact/tiny-rust-d-shipping/build.py'
+        spec=importlib.util.spec_from_file_location('rust_stream_existing_host_owner',path)
+        _HOST=importlib.util.module_from_spec(spec);spec.loader.exec_module(_HOST)
+    return _HOST
+
+
+def start_owned(arguments, **options):
+    owner=host_owner();process=None
+    mask=signal.pthread_sigmask(signal.SIG_BLOCK,{signal.SIGINT,signal.SIGTERM})
+    try:
+        process=subprocess.Popen(arguments,start_new_session=True,
+            preexec_fn=lambda:signal.pthread_sigmask(signal.SIG_SETMASK,mask),**options)
+        row={'pid':process.pid,'forced_cleanup':False,'started':True}
+        owner.owned[process]=row;HOST_COMMANDS.append(row)
+        return process
+    finally:
+        signal.pthread_sigmask(signal.SIG_SETMASK,mask)
+
+
+def finish_owned(process, seconds):
+    owner=host_owner();deadline=time.monotonic()+seconds
+    while not owner.exited_unreaped(process):
+        if time.monotonic()>deadline:raise TimeoutError('Rust fixture wrapper did not settle')
+        time.sleep(.01)
+    row=owner.owned[process]
+    owner.settle(process,row)
+    assert not row['forced_cleanup'] and row['owned_group_absent']
+    return process.returncode
+
+
+def run_owned(arguments, *, env, timeout):
+    with tempfile.TemporaryFile() as stdout,tempfile.TemporaryFile() as stderr:
+        process=start_owned(arguments,env=env,stdin=subprocess.DEVNULL,stdout=stdout,stderr=stderr)
+        try:
+            code=finish_owned(process,timeout)
+            stdout.seek(0);stderr.seek(0)
+            return subprocess.CompletedProcess(arguments,code,stdout.read(),stderr.read())
+        finally:close(process)
+
+
 def close(process):
+    owner=_HOST
+    if owner is not None and process in owner.owned:
+        row=owner.owned[process]
+        mask=signal.pthread_sigmask(signal.SIG_BLOCK,{signal.SIGINT,signal.SIGTERM})
+        try:
+            if not owner.exited_unreaped(process):
+                # Ask the still-owned wrapper to drain its separately owned
+                # compiler group. Never signal a saved, post-reap compiler PGID.
+                os.kill(process.pid,signal.SIGTERM);end=time.monotonic()+12
+                while not owner.exited_unreaped(process) and time.monotonic()<end:time.sleep(.01)
+            owner.settle(process,row,force=not owner.exited_unreaped(process))
+        finally:signal.pthread_sigmask(signal.SIG_SETMASK,mask)
     if process.poll() is None:
         process.terminate()
         try:
@@ -174,6 +233,8 @@ def byte_contract(producer, out):
         except (ValueError,TypeError):rejected.append(label)
         else:raise AssertionError("unsafe producer input accepted: "+label)
     return {"passed": True, "complete_files": records, "exact_stdin_cases": captures,"rejected":rejected,
+            "complete_file_reproduction_policy":"legacy-pipe control for all three codecs",
+            "stdin_fixture_policy":"prepared-W1-W2-seek" if PREPARED else "legacy-pipe",
             "reap_contract":"all waitid use WNOWAIT; initial blocking exit observation precedes group drain; only p.wait follows drain; no communicate/poll"}
 
 
@@ -257,17 +318,16 @@ def failure_contract(producer, out, codec):
                        "raise SystemExit(23)\n")
     path,scratch,env,_=emit(producer,local/"launcher-test",b"fn main(){}",[sys.executable,str(compiler)],codec)
     try:
-        result=subprocess.run([str(path)],env=env,stdin=subprocess.DEVNULL,capture_output=True,timeout=12)
+        result=run_owned([str(path)],env=env,timeout=12)
         identity=json.loads(child_ready.read_text())
         stat=Path('/proc')/str(identity['pid'])/'stat'
         assert result.returncode==23 and (not stat.exists() or stat.read_text().rsplit(')',1)[1].split()[0]=='Z')
         assert not Path(identity['TMPDIR']).exists() and not list(scratch.iterdir())
         results.append({"case":"exited-leader-live-grandchild","returncode":result.returncode,"child":identity,"no_live_group_member_before_cleanup":True})
     finally:
-        if child_ready.exists():
-            identity=json.loads(child_ready.read_text())
-            try:os.killpg(identity['group'],signal.SIGKILL)
-            except ProcessLookupError:pass
+        # run_owned already settled the original wrapper before its final reap;
+        # its compiler-group assertion above is an observation, not kill authority.
+        pass
     return {"passed":True,"cases":results}
 
 
@@ -338,53 +398,66 @@ def signal_contract(producer, out, codec):
              f"Path({str(ready)!r}).write_text(json.dumps({{'pid':os.getpid(),'child':child.pid,'group':os.getpgrp(),'TMPDIR':os.environ['TMPDIR'],'cwd':os.getcwd(),'mode':os.stat(os.getcwd()).st_mode&511}}))\n"
              "while True:time.sleep(30)\n")
         path,scratch,env,_=emit(producer,local/"launcher-test",b"fn main(){}",[sys.executable,str(compiler)],codec)
-        process=subprocess.Popen([str(path)],env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        process=start_owned([str(path)],env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         identity=None
         try:
             until=time.monotonic()+8
-            while not ready.exists() and time.monotonic()<until and process.poll() is None:time.sleep(.01)
+            while not ready.exists() and time.monotonic()<until and not host_owner().exited_unreaped(process):time.sleep(.01)
             assert ready.exists(),"compiler group did not become ready"
             identity=json.loads(ready.read_text())
             assert identity['group']==identity['pid'] and os.getpgid(identity['child'])==identity['group']
             assert identity['cwd']==identity['TMPDIR'] and Path(identity['TMPDIR']).parent==scratch and identity['mode']==0o700
-            process.send_signal(sig)
-            assert process.wait(timeout=8)==128+int(sig)
+            os.kill(process.pid,sig)
+            assert finish_owned(process,8)==128+int(sig)
             assert parent_signal.read_text()==str(int(sig)) and child_signal.read_text()==str(int(sig)) and waited.read_text()=="0"
             assert not Path(identity['TMPDIR']).exists() and not list(scratch.iterdir())
             assert no_process(identity['pid']) and no_process(identity['child'])
             assert process.stderr.read()==b""
             results.append({"signal":int(sig),"returncode":process.returncode,"identity":identity,"passed_before_emergency_cleanup":True})
         finally:
-            if identity is not None:
-                try:os.killpg(identity['group'],signal.SIGKILL)
-                except ProcessLookupError:pass
             close(process)
     return {"passed":True,"scope":"cooperative compiler and grandchild group during compile; decoder stage is separate","cases":results}
 
 
 def main():
-    global COMMAND
+    global COMMAND,PREPARED
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out",type=Path,required=True)
     parser.add_argument("--codec",choices=("xz","gzip","bzip2"),default="xz")
     parser.add_argument("--rustc",default=os.environ.get("RUSTC","rustc"))
+    parser.add_argument("--prepared-input",action="store_true")
     args=parser.parse_args();out=args.out.resolve()
     if out==ROOT or ROOT in out.parents:parser.error("external output required")
     if sys.platform!="linux":parser.error("Linux /proc and shell lifecycle checks required")
     rustc=shutil.which(args.rustc)
     if rustc is None:parser.error("Rust compiler required")
-    out.mkdir(parents=True,exist_ok=False);producer=module();COMMAND=list(producer.COMMAND)
+    out.mkdir(parents=True,exist_ok=False);producer=module();COMMAND=list(producer.COMMAND);PREPARED=args.prepared_input
     report={"passed":False,"scope":"byte reproduction allcodecs; selectedcodec realRust and compilegroup lifecycle","checks":{}}
+    def interrupted(signum,frame):raise InterruptedError('Rust stream fixture signal '+str(signum))
+    saved={sig:signal.signal(sig,interrupted) for sig in (signal.SIGINT,signal.SIGTERM)}
+    previous_chld=signal.signal(signal.SIGCHLD,signal.SIG_DFL)
     try:
         report['checks']['bytes']=byte_contract(producer,out)
         report['checks']['rust']=actual_rust(producer,out,args.codec,rustc)
         report['checks']['inherited_sigchld']=inherited_sigchld_contract(producer,out,args.codec)
         report['checks']['failures']=failure_contract(producer,out,args.codec)
         report['checks']['signals']=signal_contract(producer,out,args.codec)
+        assert _HOST is not None and not _HOST.owned
+        assert all(row.get('terminal') and row.get('reaped') and row.get('owned_group_absent')
+                   and not row['forced_cleanup'] for row in HOST_COMMANDS)
         report['passed']=True
     except Exception as error:
         report['error']=f"{type(error).__name__}: {error}";raise
-    finally:save(out/'report.json',report)
+    finally:
+        try:
+            if _HOST is not None:
+                for process in list(_HOST.owned):close(process)
+                report['remaining_owned_handles']=len(_HOST.owned)
+            report['host_commands']=HOST_COMMANDS
+            save(out/'report.json',report)
+        finally:
+            signal.signal(signal.SIGCHLD,previous_chld)
+            for sig,handler in saved.items():signal.signal(sig,handler)
     print(out/'report.json')
 
 

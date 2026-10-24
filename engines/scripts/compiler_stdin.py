@@ -365,7 +365,75 @@ def restore_bootstrap(candidate, metadata):
     return previous
 
 
-def transform_bootstrap(script, *, shared_wait=True):
+def _admit_rust(script):
+    """Admit the separate, closed Rust stream envelope without widening C."""
+    _require(type(script) is bytes and b'\r' not in script, 'LF UTF-8 Rust bootstrap bytes required')
+    text = script.decode('utf-8')
+    tree = ast.parse(text)
+    popen = _one(tree, 'subprocess', 'Popen')
+    view = _view(tree)
+    command = _segment(text, popen.args[0]) if len(popen.args) == 1 else ''
+    wanted = ('rustc', '--edition=2024', '-C', 'opt-level=z', '-C', 'lto=fat',
+              '-C', 'codegen-units=1', '-C', 'panic=abort', '-C', 'strip=symbols',
+              '-C', 'debuginfo=0', '-C', 'link-arg=-Wl,--build-id=none',
+              '--check-cfg', 'cfg(tiny_dev)', '--crate-name', 'rove4k', '-', '-o', 'x')
+    _require(command == repr(list(wanted)), 'fixed Rust compiler argv differs')
+    _require([key.arg for key in popen.keywords] ==
+             ['cwd', 'env', 'stdin', 'bufsize', 'start_new_session', 'preexec_fn'],
+             'fixed Rust compiler options differ')
+    for key, expected in zip(popen.keywords, ('d', 'e', 'subprocess.PIPE', '0', 'True',
+            'lambda:signal.pthread_sigmask(signal.SIG_SETMASK,m)')):
+        _require(_dump(key.value) == _dump(_expression(expected)), 'fixed Rust Popen field differs')
+    expression = _segment(text, view.args[0])
+    value = view.args[0]
+    if isinstance(value, ast.Constant) and type(value.value) is bytes:
+        source = value.value
+    else:
+        _require(isinstance(value, ast.Call) and not value.args and not value.keywords
+                 and isinstance(value.func, ast.Attribute) and value.func.attr == 'encode'
+                 and isinstance(value.func.value, ast.Constant) and type(value.func.value.value) is str,
+                 'closed Rust source literal differs')
+        source = value.func.value.value.encode('utf-8')
+    update = _one(tree, 'e', 'update')
+    _require(len(update.args) == 1 and not update.keywords, 'closed Rust environment required')
+    fixed = ast.literal_eval(update.args[0])
+    names = ('ROVE_WORKERS', 'ROVE_TT_BITS', 'SOURCE_DATE_EPOCH', 'LC_ALL', 'TZ')
+    embodied = len(source) == 22981 and hashlib.sha256(source).hexdigest() == \
+        '516aab3e2f9085dd4a95503cc4ebc1a02670034a0a2daee8350081957f056e0b'
+    _require(type(fixed) is dict and tuple(fixed) in (names, names[2:])
+             and all(type(v) is str for v in fixed.values()), 'fixed Rust environment keys differ')
+    _require(tuple(fixed) != names[2:] or embodied, 'three-key environment requires fixed2/18 source')
+    for name, low, high in (('ROVE_WORKERS', 1, 512), ('ROVE_TT_BITS', 8, 26)):
+        if name in fixed:
+            v = fixed[name]
+            _require(v.isascii() and v.isdecimal() and str(int(v)) == v and low <= int(v) <= high,
+                     'fixed Rust resource value differs')
+    _require(all(fixed[k] == v for k, v in (('SOURCE_DATE_EPOCH', '0'), ('LC_ALL', 'C'), ('TZ', 'UTC'))),
+             'fixed Rust reproducible environment differs')
+    env_line = " e=os.environ.copy();e.update(" + repr(fixed) + ");e['TMPDIR']=d\n"
+    call = _segment(text, popen)
+    expected = ('import os,signal,subprocess,sys,tempfile,shutil,time\n' +
+        'p=None;q=15;d=None;clean=True\n' + _STOP + _GROUP + _REGISTER[0] +
+        'h=signal.signal(signal.SIGCHLD,signal.SIG_DFL)\nm=' + _MASK + '\ntry:\n' +
+        " d=tempfile.mkdtemp(prefix='r4s-')\n" + env_line +
+        ' try:\n  try:p=' + call + '\n  finally:' + _UNMASK + '\n' +
+        '  try:\n   v=memoryview(' + expression + ')\n   while v:v=v[os.write(p.stdin.fileno(),v):]\n' +
+        '  except BrokenPipeError:pass\n  finally:p.stdin.close()\n' +
+        '  os.waitid(os.P_PID,p.pid,os.WEXITED|os.WNOWAIT)\n finally:\n  ' + _MASK + '\n' +
+        '  if p is not None:\n   if not wait(0):kill(q)\n   if not wait(5):\n    kill(9)\n' +
+        '    if not wait(5):clean=False;raise SystemExit(125)\n' +
+        '   kill(9);t=time.monotonic()+5\n   while live():\n' +
+        '    if time.monotonic()>t:clean=False;raise SystemExit(125)\n' +
+        '    kill(9);time.sleep(.01)\n   p.wait()\n' +
+        ' if p.returncode:sys.exit(p.returncode if p.returncode>0 else 128-p.returncode)\n' +
+        " fd=os.open(d+'/x',os.O_RDONLY)\nfinally:\n if d is not None and clean:shutil.rmtree(d)\n" +
+        _RESET[0] + 'signal.signal(signal.SIGCHLD,h)\n' + _UNMASK + '\n' +
+        'os.execve(fd,sys.argv[1:],os.environ)\n').encode('utf-8')
+    _require(expected == script, 'Rust bootstrap contains an unknown owner scaffold change')
+    return text, tree, 'stdin-stream', command
+
+
+def transform_bootstrap(script, *, shared_wait=True, contract=None):
     """Apply W1 where applicable, then optional W2 (default True).
 
     Input must be the exact current compiler_group emission, including the
@@ -374,7 +442,8 @@ def transform_bootstrap(script, *, shared_wait=True):
     The caller must supply its established compile-input-only source contract.
     """
     _require(type(shared_wait) is bool, 'shared_wait must be an explicit bool')
-    admitted = _admit(script)
+    _require(contract in (None, 'rust-stream-v1'), 'unknown compiler-owner contract')
+    admitted = _admit(script) if contract is None else _admit_rust(script)
     shape = admitted[2]
     if shape in ('stdin-stream', 'stdin-ZIP'):
         data, file_metadata = _file_stdin(script, admitted)
@@ -399,6 +468,11 @@ def transform_bootstrap(script, *, shared_wait=True):
                 'exact_corrected_owner_reconstruction': True, 'W1': file_metadata, 'W2': wait_metadata,
                 'observational_contract': 'declared input transport and wait representation; no general Python or arbitrary compiler equivalence',
                 'runtime_qualified': False}
+    if contract is not None:
+        metadata['contract'] = contract
+        file_metadata.pop('compiler_argv_x_c_stdin_unchanged', None)
+        file_metadata['compiler_argv_unchanged'] = True
+        metadata['compiler_status_policy'] = 'positive unchanged; negative maps to 128+signal'
     inverse = restore_bootstrap(data, metadata)
     _require(inverse == script and _dump(ast.parse(inverse.decode('utf-8'))) == _dump(admitted[1]),
              'terminal whole byte/AST inverse differs')

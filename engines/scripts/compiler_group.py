@@ -17,6 +17,40 @@ _MASK = 'signal.pthread_sigmask(signal.SIG_BLOCK,{2,15})'
 _UNMASK = 'signal.pthread_sigmask(signal.SIG_SETMASK,m)'
 _DIRECTORY = "with tempfile.TemporaryDirectory(prefix='r4-') as d:\n"
 _RESTORE = " a=4\n for _ in range(struct.unpack_from('<I',b)[0]):\n  n,s=struct.unpack_from('<HI',b,a);a+=6;f=d+'/'+b[a:a+n].decode();a+=n\n  os.makedirs(os.path.dirname(f),exist_ok=True)\n  with open(f,'wb') as o:o.write(b[a:a+s])\n  a+=s\n"
+_WAIT = 'def wait(n):\n t=time.monotonic()+n\n while os.waitid(os.P_PID,p.pid,os.WEXITED|os.WNOWAIT|os.WNOHANG) is None:\n  if time.monotonic()>t:return False\n  time.sleep(.01)\n return True\n'
+_SHARED_WAIT = 'def wait(n,g=0):\n t=time.monotonic()+n\n while live() if g else os.waitid(os.P_PID,p.pid,os.WEXITED|os.WNOWAIT|os.WNOHANG) is None:\n  if time.monotonic()>t:return False\n  if g:kill(9)\n  time.sleep(.01)\n return True\n'
+_GROUP_SHARED = _GROUP.replace(_WAIT, _SHARED_WAIT, 1)
+_STOP_KILL = 'def stop(s,f):\n signal.pthread_sigmask(signal.SIG_BLOCK,{2,15})\n raise SystemExit(128+s)\n'
+
+
+def render_cleanup(*, state=False, wait=False, termination='grace', shared=False):
+    """Render one cleanup policy, shared by the legacy and compact producers.
+
+    These are build-time choices. ``state`` uses the path as deletion authority;
+    ``wait`` skips a redundant leader grace wait once waitable. Immediate kill
+    removes the compiler's graceful signal opportunity, not normal compile wait,
+    parent cancellation status, retained identity, group drain or final reap.
+    """
+    if any(type(value) is not bool for value in (state, wait, shared)):
+        raise ValueError('explicit cleanup Boolean choices required')
+    if termination not in ('grace', 'kill') or (termination == 'kill' and wait):
+        raise ValueError('unknown cleanup policy; wait applies only to grace')
+    fail = ('d=None' if state else 'clean=False') + ';raise SystemExit(125)\n'
+    initial = 'p=None;' + ('q=15;' if termination == 'grace' else '') + 'd=None' + ('' if state else ';clean=True') + '\n'
+    if termination == 'kill':
+        leader = '   kill(9)\n   if not wait(5):' + fail
+    elif wait:
+        leader = ('   if not wait(0):\n    kill(q)\n    if not wait(5):\n'
+                  '     kill(9)\n     if not wait(5):' + fail)
+    else:
+        leader = ('   if not wait(0):kill(q)\n   if not wait(5):\n'
+                  '    kill(9)\n    if not wait(5):' + fail)
+    drain = ('   kill(9)\n   if not wait(5,1):' + fail) if shared else (
+        '   kill(9);t=time.monotonic()+5\n   while live():\n'
+        '    if time.monotonic()>t:' + fail + '    kill(9);time.sleep(.01)\n')
+    cleanup = ' finally:\n  ' + _MASK + '\n  if p is not None:\n' + leader + drain + '   p.wait()\n'
+    directory = 'finally:\n if d is not None' + ('' if state else ' and clean') + ':shutil.rmtree(d)\n'
+    return initial, cleanup, directory
 
 
 def _pin(data):
@@ -160,19 +194,15 @@ def transform_bootstrap(script):
     if expected.encode('utf-8')!=script:
         raise ValueError('bootstrap contains an unrecognized change')
     imports=imports.rstrip('\n')+',shutil,time\n'
-    data=(imports+'p=None;q=15;d=None;clean=True\n'+_STOP+_GROUP+registration+archive+
+    initial,cleanup_owner,directory_owner=render_cleanup()
+    data=(imports+initial+_STOP+_GROUP+registration+archive+
         'h=signal.signal(signal.SIGCHLD,signal.SIG_DFL)\nm='+_MASK+'\ntry:\n'+
         " d=tempfile.mkdtemp(prefix='r4-')\n"+restore+env_line+
         ' try:\n  try:p='+new_call+'\n  finally:'+_UNMASK+'\n'+
         (('  try:\n   v=memoryview('+source+')\n   while v:v=v[os.write(p.stdin.fileno(),v):]\n'+
           '  except BrokenPipeError:pass\n  finally:p.stdin.close()\n') if source is not None else '')+
-        '  os.waitid(os.P_PID,p.pid,os.WEXITED|os.WNOWAIT)\n finally:\n  '+_MASK+'\n'+
-        '  if p is not None:\n   if not wait(0):kill(q)\n   if not wait(5):\n    kill(9)\n'+
-        '    if not wait(5):clean=False;raise SystemExit(125)\n'+
-        '   kill(9);t=time.monotonic()+5\n   while live():\n'+
-        '    if time.monotonic()>t:clean=False;raise SystemExit(125)\n'+
-        '    kill(9);time.sleep(.01)\n   p.wait()\n'+status+before_fd+' fd='+open_call+'\n'+
-        'finally:\n if d is not None and clean:shutil.rmtree(d)\n'+reset+
+        '  os.waitid(os.P_PID,p.pid,os.WEXITED|os.WNOWAIT)\n'+cleanup_owner+
+        status+before_fd+' fd='+open_call+'\n'+directory_owner+reset+
         'signal.signal(signal.SIGCHLD,h)\n'+_UNMASK+'\n'+exec_call+'\n').encode('utf-8')
     after=ast.parse(data.decode('utf-8'));newp=_call(after,'subprocess','Popen')
     old_fields=[_dump(x) for x in (popen.args[0],*popen.keywords)]
@@ -190,3 +220,218 @@ def transform_bootstrap(script):
                  'intentional_Popen_change':'bufsize=0 for os.write stdin loop' if source is not None else None,
                  'compiler_status_policy':'legacy sys.exit(compiler returncode)',
                  'original_wrapper_shape_exact':True}
+
+
+def _require(condition, message):
+    if not condition:
+        raise ValueError(message)
+
+
+def _prepared_parts(parts, *, state=False, wait=False, termination='grace'):
+    """Canonical current W1/shared-wait/seek owner, split at owned regions."""
+    initial, cleanup, directory = render_cleanup(state=state, wait=wait,
+        termination=termination, shared=True)
+    return [
+        ('imports', parts['imports']), ('initial', initial),
+        ('stop', _STOP if termination == 'grace' else _STOP_KILL),
+        ('helpers', _GROUP_SHARED), ('register', parts['register']),
+        ('directory_start', 'h=signal.signal(signal.SIGCHLD,signal.SIG_DFL)\nm='+_MASK+
+         "\ntry:\n d=tempfile.mkdtemp(prefix='r4-')\n"),
+        ('environment', parts['environment']),
+        ('source_start', " try:\n  with open(d+'/c','w+b') as f:\n   f.write("),
+        ('source', parts['source']),
+        ('publication_start', ');f.seek(0)\n   try:p='), ('call', parts['call']),
+        ('publication_end', '\n   finally:'+_UNMASK+
+         '\n  os.waitid(os.P_PID,p.pid,os.WEXITED|os.WNOWAIT)\n'),
+        ('cleanup', cleanup),
+        ('status_fd', ' if p.returncode:sys.exit(p.returncode)\n fd='+parts['open']+'\n'),
+        ('directory_cleanup', directory), ('reset', parts['reset']),
+        ('execute', 'signal.signal(signal.SIGCHLD,h)\n'+_UNMASK+'\n'+parts['exec']+'\n')]
+
+
+def _joined(parts):
+    return ''.join(value for _,value in parts).encode('utf-8')
+
+
+def _admit_prepared(script):
+    """Recognize the complete current prepared-file owner, not loose markers.
+
+    Scope is the closed C stream/ZIP W1+W2+seek owner. Restored-files and Rust's
+    separate environment/status contracts require their own explicit admission.
+    The consumer still checks its exact old bootstrap pin before calling us.
+    """
+    _require(type(script) is bytes and b'\r' not in script, 'LF UTF-8 owner required')
+    text=script.decode('utf-8');tree=ast.parse(text)
+    popen=_call(tree,'subprocess','Popen');write=_call(tree,'f','write')
+    opening=_call(tree,'os','open');execute=_call(tree,'os','execve')
+    _require(len(popen.args)==1 and not any(isinstance(n,ast.Name) for n in ast.walk(popen.args[0])),
+             'closed compiler argv required')
+    _require([k.arg for k in popen.keywords]==['cwd','env','stdin','start_new_session','preexec_fn'],
+             'prepared compiler fields differ')
+    fixed=('d',None,'f','True','lambda:signal.pthread_sigmask(signal.SIG_SETMASK,m)')
+    for keyword,expected in zip(popen.keywords,fixed):
+        if expected is not None:
+            _require(_dump(keyword.value)==_dump(_expression(expected)), 'prepared compiler field differs')
+    environment=''
+    if _dump(popen.keywords[1].value)==_dump(_expression('e')):
+        environment=next((line for line in (" e=dict(os.environ,TMPDIR=d)\n",
+            " e=os.environ.copy();e['TMPDIR']=d\n") if text.count(line)==1),None)
+        _require(environment is not None, 'prepared environment differs')
+    else:
+        _require(_dump(popen.keywords[1].value)==_dump(_expression('dict(os.environ,TMPDIR=d)')),
+                 'prepared inline environment differs')
+    _require(len(write.args)==1 and not write.keywords, 'one prepared source value required')
+    source=ast.get_source_segment(text,write.args[0]);call=ast.get_source_segment(text,popen)
+    zipped=source=="zipfile.ZipFile(sys.argv[0]).read('c')"
+    if not zipped:
+        try:value=ast.literal_eval(write.args[0])
+        except (ValueError,TypeError,SyntaxError) as error:raise ValueError('closed source bytes required') from error
+        _require(type(value) is bytes, 'closed source bytes required')
+    open_call=ast.get_source_segment(text,opening);exec_call=ast.get_source_segment(text,execute)
+    _require(open_call in ("os.open(d+'/x',0)","os.open(d+'/x',os.O_RDONLY)"), 'prepared result FD differs')
+    _require(exec_call in ('os.execve(fd,sys.argv[1:],os.environ)','os.execve(fd,sys.argv,os.environ)'),
+             'prepared FD execution differs')
+    registration=next((value for value in _REGISTER if text.count(value)==1),None)
+    reset=next((value for value in _RESET if text.count(value)==1),None)
+    _require(registration is not None and reset is not None, 'prepared signal pairs differ')
+    parts={'imports':'import os,signal,subprocess,sys,tempfile'+(',zipfile' if zipped else '')+',shutil,time\n',
+           'environment':environment,'source':source,'call':call,'open':open_call,'exec':exec_call,
+           'register':registration,'reset':reset}
+    _require(_joined(_prepared_parts(parts))==script, 'unknown prepared owner scaffold')
+    return parts
+
+
+def _rewrite_parts(before, after, kind, contract):
+    _require([tag for tag,_ in before]==[tag for tag,_ in after], 'owner region roles differ')
+    old=_joined(before);new=_joined(after);spans=[];gaps=[];a=b=left=right=0
+    for (tag,x),(_,y) in zip(before,after):
+        x,y=x.encode('utf-8'),y.encode('utf-8')
+        if x!=y:
+            gap=old[left:a]
+            _require(gap==new[right:b], 'protected owner gap differs')
+            gaps.append({'old_start':left,'new_start':right,**_pin(gap)})
+            spans.append({'role':tag,'old_start':a,'new_start':b,'old':x.decode(),'new':y.decode()})
+            left,right=a+len(x),b+len(y)
+        a+=len(x);b+=len(y)
+    _require(old[left:]==new[right:], 'protected owner suffix differs')
+    gaps.append({'old_start':left,'new_start':right,**_pin(old[left:])})
+    record={'kind':kind,'input':_pin(old),'output':_pin(new),'raw_delta':len(new)-len(old),
+            'spans':spans,'protected_gaps':gaps,'full_inverse':True,
+            'opaque_source_spelling_equal':True,'all_protected_gaps_equal':True,
+            'contract':contract,'runtime_qualified':False}
+    _require(restore_bootstrap(new,record)==old, 'complete owner inverse differs')
+    return new,record
+
+
+def restore_bootstrap(candidate, metadata):
+    """Restore one compact/normalized prepared owner, including identity."""
+    _require(type(candidate) is bytes and metadata.get('kind') in
+             ('compact-cleanup','normalized-prepared-template') and _pin(candidate)==metadata.get('output'),
+             'owner candidate pin differs')
+    result=candidate
+    for span in reversed(metadata['spans']):
+        at=span['new_start'];old,new=span['old'].encode('utf-8'),span['new'].encode('utf-8')
+        _require(result[at:at+len(new)]==new, 'owner inverse span differs')
+        result=result[:at]+old+result[at+len(new):]
+    _require(_pin(result)==metadata.get('input'), 'owner inverse input differs')
+    return result
+
+
+def _owners(tree):
+    outer=[node for node in tree.body if isinstance(node,ast.Try)]
+    _require(len(outer)==1, 'one directory owner required')
+    inner=[node for node in outer[0].body if isinstance(node,ast.Try)]
+    _require(len(inner)==1, 'one compiler owner required')
+    return outer[0],inner[0]
+
+
+def _compact_view(raw, *, state, wait, termination):
+    tree=ast.parse(raw);kill=termination=='kill'
+    hidden={'clean'} if state else set()
+    if kill:hidden.add('q')
+    tree.body=[node for node in tree.body if not (isinstance(node,ast.Assign) and len(node.targets)==1
+        and isinstance(node.targets[0],ast.Name) and node.targets[0].id in hidden)]
+    outer,inner=_owners(tree)
+    if state or wait or kill:inner.finalbody=[ast.Expr(value=ast.Name(id='__COMPILER_CLEANUP__',ctx=ast.Load()))]
+    if state:outer.finalbody=[ast.Expr(value=ast.Name(id='__DIRECTORY_CLEANUP__',ctx=ast.Load()))]
+    if kill:
+        stop=[node for node in tree.body if isinstance(node,ast.FunctionDef) and node.name=='stop']
+        _require(len(stop)==1, 'one cancellation handler required');stop[0].body=[ast.Pass()]
+    return _dump(tree)
+
+
+def compact_cleanup(script, *, state=True, wait=False, termination='grace'):
+    """Select a cleanup policy after the caller's exact old owner guards.
+
+    Grace preserves the original signal/grace contract. Kill deliberately removes
+    compiler graceful handling while preserving parent128+s, signal masking,
+    separate post-KILL/group budgets, unreaped leader and 125 workspace policy.
+    Unknown scaffolds and wait=True with kill are rejected. No engine policy or
+    runtime selector is added. An output is not a fresh input to this API.
+    """
+    parts=_admit_prepared(script)
+    before=_prepared_parts(parts)
+    after=_prepared_parts(parts,state=state,wait=wait,termination=termination)
+    data,record=_rewrite_parts(before,after,'compact-cleanup',{
+        'state_authority':'path' if state else 'flag','skip_waitable_leader_grace_wait':wait,
+        'termination':termination,'normal_compile_wait':'unbounded WNOWAIT',
+        'compiler_grace':termination=='grace','post_KILL_leader_seconds':5,'live_group_seconds':5,
+        'retained_leader_and_last_reap':True,'workspace_preserved_on_settlement125':True,
+        'parent_cancel_status':'SystemExit128+s','mask_SIGCHLD_and_final_FD_exec_preserved':True,
+        'observation_exclusions':['Python private cleanup variable snapshots','exact traceback locations',
+            *(['compiler INT/TERM handler logs and cleanup opportunity'] if termination=='kill' else [])]})
+    _require(_compact_view(script,state=state,wait=wait,termination=termination)==
+             _compact_view(data,state=state,wait=wait,termination=termination),
+             'AST outside declared cleanup regions differs')
+    record['outside_owned_AST_equal']=True
+    record['source_expression']=_pin(parts['source'].encode('utf-8'))
+    return data,record
+
+
+def _replace_environment(call):
+    tree=ast.parse(call,mode='eval');keyword=tree.body.keywords[1]
+    _require(keyword.arg=='env' and _dump(keyword.value)==_dump(_expression('e')), 'single-use environment differs')
+    lines=call.encode('utf-8').splitlines(keepends=True);starts=[0]
+    for line in lines:starts.append(starts[-1]+len(line))
+    node=keyword.value;a=starts[node.lineno-1]+node.col_offset;b=starts[node.end_lineno-1]+node.end_col_offset
+    raw=call.encode('utf-8');_require(raw[a:b]==b'e', 'environment byte span differs')
+    return (raw[:a]+b'dict(os.environ,TMPDIR=d)'+raw[b:]).decode('utf-8')
+
+
+def _normalize_view(raw, parts):
+    tree=ast.parse(raw);outer,_=_owners(tree)
+    outer.body=[node for node in outer.body if not (isinstance(node,ast.Assign) and len(node.targets)==1
+        and isinstance(node.targets[0],ast.Name) and node.targets[0].id=='e')]
+    _call(tree,'subprocess','Popen').keywords[1].value=ast.Constant(value='__ENVIRONMENT__')
+    for role,code in (('REGISTER',parts['register']),('RESET',parts['reset'])):
+        target=ast.parse(code).body;matches=[]
+        for i in range(len(tree.body)-len(target)+1):
+            if [_dump(n) for n in tree.body[i:i+len(target)]]==[_dump(n) for n in target]:matches.append(i)
+        _require(len(matches)==1, 'one signal pair required')
+        i=matches[0];tree.body[i:i+len(target)]=[ast.Expr(value=ast.Name(id='__'+role+'__',ctx=ast.Load()))]
+    return _dump(tree)
+
+
+def normalize_bootstrap(script):
+    """Inline the single-use environment and loop signal pairs, or identity.
+
+    The environment snapshot moves after source write/seek into Popen argument
+    evaluation. Allocation/audit-hook/failure trace ordering can differ; this is
+    not general Python trace equivalence. Private e disappears, loop s remains15.
+    """
+    parts=_admit_prepared(script);selected=dict(parts)
+    if parts['environment']:
+        selected['environment']='';selected['call']=_replace_environment(parts['call'])
+    selected['register']=_REGISTER[1];selected['reset']=_RESET[1]
+    data,record=_rewrite_parts(_prepared_parts(parts),_prepared_parts(selected),
+        'normalized-prepared-template',{
+            'environment':'same values under closed builtin preparation contract; snapshot moves to Popen args',
+            'signals':'same2,15 registration/reset order and points','private_names':'e omitted; loop s remains15',
+            'exclusions':['concurrent/custom environment mutation','audit-hook/allocation first-error ordering',
+                          'private Python namespace and exact tracebacks']})
+    _require(_normalize_view(script,parts)==_normalize_view(data,selected),
+             'AST outside declared environment/signal normalization differs')
+    _require(_admit_prepared(data)==selected, 'normalized owner replay differs')
+    record.update(identity=data==script,outside_owned_AST_equal=True,
+                  source_expression=_pin(parts['source'].encode('utf-8')))
+    return data,record

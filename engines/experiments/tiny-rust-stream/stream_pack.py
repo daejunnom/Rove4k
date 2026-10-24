@@ -20,6 +20,7 @@ import hashlib
 import io
 import lzma
 from pathlib import Path
+import types
 
 
 CODECS = ("xz", "gzip", "bzip2")
@@ -35,6 +36,12 @@ COMMAND = (
     "--check-cfg", "cfg(tiny_dev)", "--crate-name", "rove4k", "-", "-o", "x",
 )
 ENVIRONMENT = ("ROVE_WORKERS", "ROVE_TT_BITS", "SOURCE_DATE_EPOCH", "LC_ALL", "TZ")
+FIXED_RESOURCE_SOURCE = (22981, "516aab3e2f9085dd4a95503cc4ebc1a02670034a0a2daee8350081957f056e0b")
+# The ordinary builder freezes these shared producers alongside this module.
+OWNER_BINDINGS = {
+    "compiler_stdin.py": "fc92bb6146fcfc5a6c73cd9f68929192a90d22a875bf591caf2cf3b32b87055b",
+    "compiler_seek.py": "8ca5fd736f010cd9dd1e3b668065c0cf7d82f9e98653580b8f9b4c23e7d75a41",
+}
 
 
 def source_literal(source):
@@ -51,7 +58,7 @@ def source_literal(source):
     return repr(source), "bytes-repr"
 
 
-def _guard(source, command, environment):
+def _guard(source, command, environment, *, omit_resource_environment=False):
     if not isinstance(source, bytes):
         raise TypeError("Rust source must be bytes")
     if not isinstance(command, (list, tuple)) or tuple(command) != COMMAND:
@@ -66,11 +73,32 @@ def _guard(source, command, environment):
             raise ValueError("unsupported fixed resource value: " + key)
     if any(environment[key] != value for key, value in (("SOURCE_DATE_EPOCH", "0"), ("LC_ALL", "C"), ("TZ", "UTC"))):
         raise ValueError("the fixed reproducible compiler environment is required")
-    return {key: environment[key] for key in ENVIRONMENT}
+    if type(omit_resource_environment) is not bool:
+        raise ValueError("explicit resource environment policy required")
+    if omit_resource_environment and ((len(source), hashlib.sha256(source).hexdigest()) != FIXED_RESOURCE_SOURCE
+            or (environment["ROVE_WORKERS"], environment["ROVE_TT_BITS"]) != ("2", "18")):
+        raise ValueError("resource overrides may be omitted only for the exact embodied2/18 source")
+    return {key: environment[key] for key in (ENVIRONMENT[2:] if omit_resource_environment else ENVIRONMENT)}
 
 
-def bootstrap(source, command, *, environment):
-    fixed = _guard(source, command, environment)
+def _owner_modules():
+    result = {}
+    for filename, expected in OWNER_BINDINGS.items():
+        path = Path(__file__).resolve().parents[2] / "scripts" / filename
+        data = path.read_bytes().replace(b'\r\n', b'\n')
+        if hashlib.sha256(data).hexdigest() != expected:
+            raise ValueError("shared Rust owner producer changed: " + filename)
+        loaded = types.ModuleType("rust_stream_" + path.stem)
+        loaded.__file__ = str(path)
+        exec(compile(data, str(path), "exec"), loaded.__dict__)
+        result[path.stem] = loaded
+    return result
+
+
+def bootstrap(source, command, *, environment, prepared=False, omit_resource_environment=False):
+    if type(prepared) is not bool:
+        raise ValueError("explicit prepared-input policy required")
+    fixed = _guard(source, command, environment, omit_resource_environment=omit_resource_environment)
     literal, kind = source_literal(source)
     script = (
         "import os,signal,subprocess,sys,tempfile,shutil,time\n"
@@ -128,13 +156,22 @@ def bootstrap(source, command, *, environment):
         "signal.pthread_sigmask(signal.SIG_SETMASK,m)\n"
         "os.execve(fd,sys.argv[1:],os.environ)\n"
     ).encode("utf-8")
+    if prepared:
+        owners = _owner_modules()
+        stdin = owners['compiler_stdin']
+        def prepare(data, *, shared_wait=True):
+            return stdin.transform_bootstrap(data, shared_wait=shared_wait, contract='rust-stream-v1')
+        script, metadata = prepare(script)
+        script, _ = owners['compiler_seek'].transform_bootstrap(script, owner_metadata=metadata,
+            prepare_owner=prepare, restore_owner=stdin.restore_bootstrap)
     return script, kind
 
 
-def make_stream(source, command, codec="xz", *, environment):
+def make_stream(source, command, codec="xz", *, environment, prepared=False, omit_resource_environment=False):
     if codec not in CODECS:
         raise ValueError("unsupported codec")
-    script, kind = bootstrap(source, command, environment=environment)
+    script, kind = bootstrap(source, command, environment=environment, prepared=prepared,
+                             omit_resource_environment=omit_resource_environment)
     if codec == "xz":
         payload = lzma.compress(script, format=lzma.FORMAT_XZ, preset=9 | lzma.PRESET_EXTREME)
         module = "lzma"
@@ -164,6 +201,10 @@ def make_stream(source, command, codec="xz", *, environment):
         "payload_offset_1based": offset + 1, "payload_offset_0based": offset,
         "python_bytes": len(script), "source_bytes": len(source), "source_literal": kind,
         "source_sha256": hashlib.sha256(source).hexdigest(),
+        "wrapper_policy": "prepared-W1-W2-seek" if prepared else "legacy-pipe",
+        "compiler_environment": _guard(source, command, environment, omit_resource_environment=omit_resource_environment),
+        "resource_environment_overrides_omitted": omit_resource_environment,
+        "owner_helper_bindings": dict(OWNER_BINDINGS) if prepared else {},
         "sha256": hashlib.sha256(output).hexdigest(), "external_programs": programs,
         "allowlisted_programs_only": all(program in ALLOWED for program in programs),
         "upstream_helper": dict(ORIGIN), "upstream_helper_sha256": ORIGIN["sha256"],
@@ -179,13 +220,14 @@ def make_stream(source, command, codec="xz", *, environment):
     }
 
 
-def write_stream(source, destination, command, *, environment):
+def write_stream(source, destination, command, *, environment, prepared=False, omit_resource_environment=False):
     destination = Path(destination)
     if not destination.is_absolute():
         raise ValueError("absolute external output required")
     results = []
     for codec in CODECS:
-        data, record = make_stream(source, command, codec, environment=environment)
+        data, record = make_stream(source, command, codec, environment=environment,
+                                   prepared=prepared, omit_resource_environment=omit_resource_environment)
         path = destination / codec / "x"
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(data)

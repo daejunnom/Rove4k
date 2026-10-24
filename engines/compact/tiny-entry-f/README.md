@@ -2714,3 +2714,100 @@ native18576 B, DEV, 전체 탐색·평가·TT·학습 상태와 네 종류의 �
 선정 tuple과 source helper는 recipe에 기록하며 정상 재현·실행 근거는 별도로 인수한다.
 MaterialNoise와 MoveTT는 이 새 full 전용 단계에 진입하지 않아 기존4697/4425 B를 유지한다.
 F8 역시 별도 생산 경로이므로 이45 B를 F8의 이득으로 계산하지 않는다.
+## F compiler wrapper selectors (2026-10-24 source integration)
+
+`--policy` continues to choose the complete default engine or an explicitly reduced
+engine. `--wrapper grace|kill|legacy|shell` independently chooses a build-only compiler
+wrapper. The default is full F with grace. No UCI option or runtime resource
+selector is introduced; workers2, TT18, compiler argv, source and native identities,
+DEV and every engine policy remain fixed.
+
+| Engine policy | Legacy whole | Grace whole | Explicit KILL whole |
+|---|---:|---:|---:|
+| full | 4590 | 4576 | 4551 |
+| material-noise | 4697 | 4616 | 4591 |
+| material-move-tt | 4425 | 4342 | 4311 |
+
+These are measured complete files with each policy's original codec, not sums of
+individual savings. They are fixed-cost results and source proofs at this
+checkpoint; fresh ordinary regeneration, selected runtime and CI are separate
+pending gates. Full F remains larger than4096. The reduced rows do not qualify the
+full engine, and their earlier runtime receipts do not qualify these new wrappers.
+
+Every build first consumes the exact original source/literal/compiler-owner
+bootstrap and whole-file guards. Full F retains its source-only quiet-slot owner
+replacement, W1/W2 and seek chain. Each reduced policy first reproduces its own
+legacy988 template and owner, then regenerates the independently admitted prepared
+937 template, proves the complete owner inverse and applies W1/W2/seek. The source
+digit transform is never applied to reduced C. Final normalization must be
+identity before compact cleanup; both transformations retain full inverse metadata.
+Legacy controls remain directly selectable. A new wrapper encode also re-encodes
+and guards its old whole control, so ordinary shipping2 makes four package calls.
+
+Grace uses the private path as cleanup authority and preserves compiler INT/TERM
+grace. The explicit KILL choice removes that compiler grace opportunity while
+retaining normal unbounded WNOWAIT, the original unreaped leader until live group
+settlement, separate five-second post-KILL leader/group budgets, parent128+signal,
+last reap and exit125 with preserved workspace on settlement failure. It is a
+separate contract rather than an equivalence claim. Private regular compiler FD0,
+inline environment snapshot timing, implicit seek flush and Python namespace or
+traceback observations retain the stated transport exclusions.
+
+For every selected policy use the generated strict verifier and its effective
+recipe, especially for KILL, legacy and reduced products:
+
+```sh
+python3 -B engines/compact/tiny-entry-f/build.py --out "$OUT" --wrapper kill
+python3 -B "$OUT/selected-verifier/engines/compact/tiny-entry-f/verify.py" \
+  --build "$OUT" --out "$VERIFY_OUT"
+```
+
+The tracked strict verifier source and checks are unchanged. Historical engine
+receipts remain historical; `build.json` separates the predecessor guard,
+selected expected tuple and new wrapper proof. `--wrapper shell` is a separate full-only Bash source wrapper. It uses its own
+verifier under a different cleanup/argv0/SIGCHLD contract. The final source-package
+API is pinned149f and the separate verifier passed SOURCE CLEAR with pinf660c076.
+Ordinary production and selected runtime remain separate pending gates at this
+source freeze checkpoint.
+
+
+## Explicit full-F Bash source wrapper
+
+`--wrapper shell` accepts only the complete full engine. The exact source7830 and
+native18576 identities, compiler argv, resource profile and original full codec
+are unchanged. The complete submission is Bash header316 plus compressed C3710,
+whole4026 (`488cd3f627ee21537001bd9df1c2fab7aa07f8a962355d69bf4c5968df8d5fd0`).
+This size is a measured complete file under a separate wrapper contract; tournament
+eligibility and strength are not inferred from its size.
+
+The builder still consumes the full source/literal/compiler-owner/whole4590
+predecessor guards. It then packages the selected C directly. Each attempt and
+final output writes `shell-header.sh`; it does not create `bootstrap.py` or call
+a shell header a Python bootstrap. The effective recipe has explicit
+`shell_header_bytes` and `shell_header_sha256`, with no selected bootstrap fields.
+The default top-level recipe remains strict grace.
+
+The Bash wrapper extracts and compiles within a private directory, restores the
+original cwd/environment for the engine, and forwards argv1 onward. Its argv0 and
+`/proc/self/exe` are the private named executable. After compilation it ignores
+SIGCHLD, starts a separate one-second cleanup child, and execs the engine. This
+selected engine has no process-child API calls. A target with Bash/cc/xz/python3
+and unset or absolute TMPDIR is required. Shell extraction/compiler failure,
+compiler cancellation, delayed path visibility and cleanup child observations
+are recorded as separate behavior; Python owner grace/group settlement and
+unlink-before-exec guarantees are not attributed to it.
+
+A shell build generates only the separate verifier snapshot and records this
+explicit command in `build.json`:
+
+```sh
+python3 -B engines/compact/tiny-entry-f/build.py --out "$OUT" --wrapper shell
+python3 -B "$OUT/selected-verifier/engines/scripts/verify_shell.py" \
+  --build "$OUT" \
+  --recipe "$OUT/selected-verifier/engines/compact/tiny-entry-f/recipe.json" \
+  --out "$VERIFY_OUT"
+```
+
+The strict Python verifier source is unchanged and is not included in a selected
+shell snapshot. Source, native, whole and header expectations come from the
+explicit effective recipe. No expectation is filled from the produced output.

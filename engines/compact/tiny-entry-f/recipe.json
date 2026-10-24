@@ -84,7 +84,7 @@
     "engines/scripts/shipping_lazy_fallback.py": "023b370e75df2d50f44641eac7d1b49091ef2424d9ed7983d6d6f3c7d700b2ce",
     "engines/compact/tiny-entry-f/shipping_qs_cutoff.py": "ae95c21527a235880a4e9f140537f488df71b99caec988a3c08cf710d7df4534",
     "engines/compact/tiny-entry-f/shipping_history_path.py": "d345e87322f6aa17f141861c9fa6f330ff2c3642d765d9c0e2d6dc32a597a70c",
-    "engines/scripts/source_package.py": "55fa739e7c17fffdb3bf1191c7a26aa38d35e9e32473e4008c23ece3d5703d1f",
+    "engines/scripts/source_package.py": "149f616c6e8d78b52dc88ccf0dd303d37ad2bcc513e16c40a54ac1daf09d7d2f",
     "engines/compact/tiny-entry-f/shipping_names.py": "b69d376bf2e206273b12344fe30fbddbce6d51396c01fab8d53fd8f25401d48b",
     "engines/compact/tiny-entry-f/bootstrap_full.py": "813eb1a9f0a31a54350e4df015c49d0a63e9d2d57923a4035e563aa7b95e222c",
     "engines/compact/tiny-entry-f/shipping_selector.py": "69bf3747d81455690c11abc95046e173c5a8915e2abd001ad6976bbe22c3e48d",
@@ -106,8 +106,8 @@
     "engines/compact/tiny-entry-f/shipping_go_boundary.py": "8efdcf32924a936bf5f6ed8ca5605b94f54fb219bc3cf7d339bca9eab8f1ce52",
     "engines/compact/tiny-entry-f/shipping_quiet_slot.py": "05e27c7117497d9087e497e53f6b12cfbf3a067500bf2f29c40af38f1afc8c60",
     "engines/scripts/compiler_seek.py": "8ca5fd736f010cd9dd1e3b668065c0cf7d82f9e98653580b8f9b4c23e7d75a41",
-    "engines/scripts/compiler_stdin.py": "ee9ba2c938cfabf30261451961c424254d9f75a804d5c3e6d832b09bfcf4f247",
-    "engines/scripts/compiler_group.py": "fe2fd6ce96b51251ec0d5e0f4b73c0742c50ca86932608b29f892ecee240974c"
+    "engines/scripts/compiler_stdin.py": "fc92bb6146fcfc5a6c73cd9f68929192a90d22a875bf591caf2cf3b32b87055b",
+    "engines/scripts/compiler_group.py": "a245174aba2505493737dd87c2fd8943335346ae8ac419e79c1b203543695735"
   },
   "resource_literals": [
     [
@@ -318,18 +318,18 @@
     "source_sha256": "43bc67816e91077c4cfd182ec6ba44aed7d0223d012cff82f5366ad58da63582",
     "native_bytes": 18576,
     "native_sha256": "3aaaacf7891a2a4660f45d75b2b3e550ab40bf01c0c1766768517719cd1e63ec",
-    "whole_bytes": 4590,
-    "whole_sha256": "0582b96a9f0197108b5892fb6d3ab0705225ceefd3370e06314924735bc51899",
+    "whole_bytes": 4576,
+    "whole_sha256": "1c4be9d1dfbfbf38798fe00eda039f6c866dd3f6779c6c920c8c2ec40d02c6e1",
     "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
     "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
-    "bootstrap_sha256": "c5c42eb0522a499593f1233c0093bb44e964f1066b88fc2b84512c8e62c4fa12",
+    "bootstrap_sha256": "8bb9cf75ba9c7dd70b874769fe1f99129ce8cdd699858565b8d4ffdd87f576ad",
     "semantic_readable_bytes": 25720,
     "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
     "dev_source_bytes": 19488,
     "dev_native_bytes": 26984,
     "input_profile_readable_bytes": 28587,
     "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
-    "bootstrap_bytes": 9646
+    "bootstrap_bytes": 9615
   },
   "local_input_sha256": {
     "engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
@@ -7701,17 +7701,17 @@
       "bootstrap_bytes": 8762
     },
     "mtd_cost": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-mtd-local-state-first-cost-20261024-evidence/final-index.json",
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-mtd-local-state-first-cost-20261024-evidence/final-index.json",
       "bytes": 8068,
       "sha256": "011b5f4889fa3809f1309f830b03e5d538331e8105779d6e50cb1e28d814e1fc"
     },
     "mtd_focused": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-mtd-local-state-focused-20261024-evidence/final-index.json",
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-mtd-local-state-focused-20261024-evidence/final-index.json",
       "bytes": 5942,
       "sha256": "715197b452333b354138d7d8bf979b4914969fec04dac5c204ffb5c279b36b2c"
     },
     "soleGO_cost": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-go-boundary-first-cost-20261024-evidence/final-index.json",
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-go-boundary-first-cost-20261024-evidence/final-index.json",
       "bytes": 12414,
       "sha256": "14938d07ad32252978c90dc85a0e3d06c513889bc9126a2cd8513b4b3f4d22cc"
     },
@@ -7739,7 +7739,7 @@
     "normal_validation": {
       "complete": true,
       "readback": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-mtd-go-promotion-20261024-evidence/normal-readback.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-mtd-go-promotion-20261024-evidence/normal-readback.json",
         "bytes": 11707,
         "sha256": "0cd78dbe3713ee32ea0892ed222d7f78723c4964ad768e89dfabd021b45467ea"
       },
@@ -7871,7 +7871,7 @@
     "source_helper_sha256": "fe2fd6ce96b51251ec0d5e0f4b73c0742c50ca86932608b29f892ecee240974c",
     "contract": "same source/command/cwd/env/stdio/FD/argv and legacy returncode; SIGCHLD normalize/restore, full stdin/BrokenPipe/close, retained WNOWAIT compiler leader, live-group drain before final reap; no destructive signals to reaped PGID",
     "fixed_cost_index": {
-      "path": "C:\\Users\\\uac15\ubbfc\uc218\\Documents\\Codex\\rove4k-common-compiler-group-F-context-cost-20261024-evidence\\final-cost-index.json",
+      "path": "C:\\Users\\강민수\\Documents\\Codex\\rove4k-common-compiler-group-F-context-cost-20261024-evidence\\final-cost-index.json",
       "bytes": 7507,
       "sha256": "3725112ed072fcb1cbede1f1b09ef2bf1c5c8957d13e8fbed31cd57d39acff8e"
     },
@@ -7969,5 +7969,191 @@
       "125 workspace preservation"
     ],
     "first_cost_only_before_normal_runtime": true
+  },
+  "wrapper_contracts": {
+    "default": "grace",
+    "selection": "build-only --wrapper, independent from engine --policy; no UCI option",
+    "predecessor_expected": {
+      "full": {
+        "source_bytes": 7830,
+        "source_sha256": "43bc67816e91077c4cfd182ec6ba44aed7d0223d012cff82f5366ad58da63582",
+        "native_bytes": 18576,
+        "native_sha256": "3aaaacf7891a2a4660f45d75b2b3e550ab40bf01c0c1766768517719cd1e63ec",
+        "bootstrap_bytes": 9646,
+        "bootstrap_sha256": "c5c42eb0522a499593f1233c0093bb44e964f1066b88fc2b84512c8e62c4fa12",
+        "whole_bytes": 4590,
+        "whole_sha256": "0582b96a9f0197108b5892fb6d3ab0705225ceefd3370e06314924735bc51899"
+      },
+      "material-noise": {
+        "source_bytes": 8508,
+        "source_sha256": "a7b50f5d084b558c1fb07f3c4c572afa29291a4982ddd00fd783f187a3f74c93",
+        "native_bytes": 18576,
+        "native_sha256": "24ae0622c5a0fd10191950f53e0f6ea5d3e3d05fbb1b20aaa72c2b5f2754873f",
+        "whole_bytes": 4697,
+        "whole_sha256": "d764d8f31e561bd173f24980fdc64a9666154738eb6daedb4c21eb3912a2e1d2",
+        "bootstrap_sha256": "958ed7d9290a131eb2b9f8e96fde3dfeb27b4284e89fccd71aab27faa8a1169b",
+        "bootstrap_bytes": 10497
+      },
+      "material-move-tt": {
+        "source_bytes": 7741,
+        "source_sha256": "6d3fa3e0099285dd9efe8934f7b419fdd204f80ed4eaf502ad64a9f5b2e12122",
+        "native_bytes": 18576,
+        "native_sha256": "1a964e23bc8967b6eb74714389b4d94fd0e505d5d1eba3616775b7e4b0a522d5",
+        "whole_bytes": 4425,
+        "whole_sha256": "39d082412b24be71c6dd93402dfb2f649b22ef56c808a1c55837e283b55b92a4",
+        "bootstrap_sha256": "44c7a210177be3f5ed01c4f97fb30c9ca6a46bab34878121e9e6b7dd28974c8c",
+        "bootstrap_bytes": 9730
+      }
+    },
+    "selected_overrides": {
+      "grace": {
+        "full": {
+          "bootstrap_bytes": 9615,
+          "bootstrap_sha256": "8bb9cf75ba9c7dd70b874769fe1f99129ce8cdd699858565b8d4ffdd87f576ad",
+          "whole_bytes": 4576,
+          "whole_sha256": "1c4be9d1dfbfbf38798fe00eda039f6c866dd3f6779c6c920c8c2ec40d02c6e1"
+        },
+        "material-noise": {
+          "bootstrap_bytes": 10293,
+          "bootstrap_sha256": "9073fc78e4f19c3e3c872b2795784945a2080d075926ec92a836b4a100d1ea3e",
+          "whole_bytes": 4616,
+          "whole_sha256": "081326724a237f55c6e72c1590f3fbc51043fe03e8d0196ce6057874dc72bdd1"
+        },
+        "material-move-tt": {
+          "bootstrap_bytes": 9526,
+          "bootstrap_sha256": "f23373ba8da0153298f3e846acfe6713794870a8a3f8f5a2a89982167d7d67d3",
+          "whole_bytes": 4342,
+          "whole_sha256": "0387f9aad6cd1244f86d8c2bc1a5314a1c50fbb376826c7c7a1e04178618cd57"
+        }
+      },
+      "kill": {
+        "full": {
+          "bootstrap_bytes": 9548,
+          "bootstrap_sha256": "53041259a11d2f5cbdf4dfc7efbf3b5afea408ce3a378564ad69d168b56eb69a",
+          "whole_bytes": 4551,
+          "whole_sha256": "125e20e91a7562b3973008042ba3ece1c0ecbe41156390d2eda01a28d92b4a70"
+        },
+        "material-noise": {
+          "bootstrap_bytes": 10226,
+          "bootstrap_sha256": "cceeb116f6f62c404df3e026791eab2f48187d694908192236fe2dce12fac8de",
+          "whole_bytes": 4591,
+          "whole_sha256": "1e9ac418edd4677bb823deaeca2993abfa2c8d78e90b9ae4c41101e01d69e059"
+        },
+        "material-move-tt": {
+          "bootstrap_bytes": 9459,
+          "bootstrap_sha256": "51763c557f18d7a0ea0d3b52ed6ed018517026a5492350b02ecc1b0bfc834b9d",
+          "whole_bytes": 4311,
+          "whole_sha256": "b1a53dd8946e201d55659848f9b03a114a656b2ac53aa144e512c47abc0746e4"
+        }
+      },
+      "legacy": {
+        "full": {
+          "bootstrap_bytes": 9646,
+          "bootstrap_sha256": "c5c42eb0522a499593f1233c0093bb44e964f1066b88fc2b84512c8e62c4fa12",
+          "whole_bytes": 4590,
+          "whole_sha256": "0582b96a9f0197108b5892fb6d3ab0705225ceefd3370e06314924735bc51899"
+        },
+        "material-noise": {
+          "bootstrap_bytes": 10497,
+          "bootstrap_sha256": "958ed7d9290a131eb2b9f8e96fde3dfeb27b4284e89fccd71aab27faa8a1169b",
+          "whole_bytes": 4697,
+          "whole_sha256": "d764d8f31e561bd173f24980fdc64a9666154738eb6daedb4c21eb3912a2e1d2"
+        },
+        "material-move-tt": {
+          "bootstrap_bytes": 9730,
+          "bootstrap_sha256": "44c7a210177be3f5ed01c4f97fb30c9ca6a46bab34878121e9e6b7dd28974c8c",
+          "whole_bytes": 4425,
+          "whole_sha256": "39d082412b24be71c6dd93402dfb2f649b22ef56c808a1c55837e283b55b92a4"
+        }
+      },
+      "shell": {
+        "full": {
+          "whole_bytes": 4026,
+          "whole_sha256": "488cd3f627ee21537001bd9df1c2fab7aa07f8a962355d69bf4c5968df8d5fd0",
+          "shell_header_bytes": 316,
+          "shell_header_sha256": "a784b94f1099ab89161b084c127e84a480652953f9b16fabdb3b3e49d6f93973"
+        }
+      }
+    },
+    "grace_contract": {
+      "state_authority": "private path",
+      "waitable_leader_grace_skip": false,
+      "termination": "grace",
+      "normal_compile_wait": "unbounded WNOWAIT",
+      "leader_retained_until_live_group_settled": true,
+      "last_operation": "original leader reap",
+      "settlement_failure_exit": 125,
+      "preserve_workspace_on_settlement_failure": true
+    },
+    "kill_contract": {
+      "selection": "explicit build-only; never a UCI option",
+      "termination": "immediate KILL on cleanup",
+      "compiler_INT_TERM_grace_opportunity": false,
+      "normal_compile_wait": "unbounded WNOWAIT",
+      "post_KILL_leader_budget_seconds": 5,
+      "live_group_budget_seconds": 5,
+      "parent_cancel_exit": "128+signal",
+      "leader_retained_until_live_group_settled": true,
+      "last_operation": "original leader reap",
+      "settlement_failure_exit": 125,
+      "preserve_workspace_on_settlement_failure": true
+    },
+    "transport_observations": [
+      "Private regular compiler input file and seekable FD0; parent UCI input preserved.",
+      "Environment snapshot evaluated in Popen arguments after source preparation.",
+      "BufferedRandom seek performs flush; pending write error surfaces at seek.",
+      "Signal registration/reset preserve order; Python private namespace and exact tracebacks excluded."
+    ],
+    "full_cost_evidence": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-abce-f-owner-combined-cost-20261024-v1-evidence/final-index.json",
+      "bytes": 93984,
+      "sha256": "40cac292a11ed179d51da92607148060b033f279630719f3c0b4560be632ec30"
+    },
+    "reduced_cost_evidence": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-alternate-prepared-firstcost-20261024-evidence/cleanup-index.json",
+      "bytes": 26262,
+      "sha256": "948b76cf8ba345f8d35d2bf440d033867e7b5d7dee2e52c751add384643ef9cd"
+    },
+    "qualification": "source proof and exact fixed costs only; new ordinary/runtime/CI not yet run",
+    "shell_status": "source integrated with final SOURCE CLEAR verifier; selected ordinary/runtime pending at source freeze",
+    "shell_contract": {
+      "policy": "source-shell-bash-ignore-after-compile-v1",
+      "engine_policy": "full only",
+      "payload": "exact selected compact C source",
+      "compiler_argv": [
+        "cc",
+        "-Os",
+        "-pthread",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "x",
+        "-s"
+      ],
+      "shell": "/bin/bash",
+      "child_reaping": "ignore-after-compile",
+      "SIGCHLD": "ignored only after successful compiler completion; selected engine has no process-child APIs",
+      "cleanup": "separate child sleeps one second then removes the private directory",
+      "extraction_failure": "wrapper exits before compiler/native launch; shell exit conventions apply",
+      "compiler_failure": "shell exits with compiler status and EXIT trap attempts private-directory cleanup",
+      "compiler_cancellation": "separate shell signal semantics, no Python-owner graceful or retained-group settlement claim",
+      "argv": "argv1 onward preserved; argv0 and /proc/self/exe use the private named executable",
+      "cwd_environment": "engine inherits original cwd/environment; compiler cwd/TMPDIR are private directory",
+      "target": "Linux Bash/cc/xz/python3; TMPDIR unset or absolute; exact source/native/compiler/codec fixed",
+      "qualification": "fixed cost and narrow cancellation fixture; actual selected F2 positive pending separate canonical verifier",
+      "size_scope": "header316 + compressed source payload3710 = complete file4026; not a TCEC eligibility claim",
+      "ordinary_strict_verifier_reused": false
+    },
+    "shell_cost_evidence": {
+      "path": "/home/stemxstudio/rove4k-source-shell-final-20261024-v1/preflight.json",
+      "bytes": 6284,
+      "sha256": "ca7c2ab49be95ec7fa61f190b10cca65ef41dc2c405ecafff0689c1d69182f36"
+    }
+  },
+  "shell_verifier_snapshot_sha256": {
+    "engines/scripts/verify_shell.py": "f660c0766edb7f07dc185658690051451ab7b078653807757a8a27fdfa05bafb",
+    "engines/compact/tiny-entry-d/verify.py": "18faa69aed5cb5dd85a054ef2e6830463f3d819f5f635d74d55550a877c81eae",
+    "engines/tests/chess_oracle.py": "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8"
   }
 }

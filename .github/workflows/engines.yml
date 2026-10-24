@@ -87,6 +87,16 @@ jobs:
           python3 -B engines/compact/tiny-entry-f/build.py --policy material-move-tt --out "$ROVE_TEST_OUT/tiny-entry-f-material-move-tt" --dev
           python3 -B "$ROVE_TEST_OUT/tiny-entry-f-material-move-tt/selected-verifier/engines/compact/tiny-entry-f/verify.py" --build "$ROVE_TEST_OUT/tiny-entry-f-material-move-tt" --out "$ROVE_TEST_OUT/tiny-entry-f-material-move-tt-runtime"
           python3 -B -m unittest discover -s engines/experiments/tiny-e-order -p 'test_*.py'
+      - name: Reproduce the full F kill wrapper and check its selected strict contract
+        if: matrix.language == 'c'
+        run: |
+          python3 -B engines/compact/tiny-entry-f/build.py --out "$ROVE_TEST_OUT/tiny-entry-f-kill" --wrapper kill
+          python3 -B "$ROVE_TEST_OUT/tiny-entry-f-kill/selected-verifier/engines/compact/tiny-entry-f/verify.py" --build "$ROVE_TEST_OUT/tiny-entry-f-kill" --out "$ROVE_TEST_OUT/tiny-entry-f-kill-runtime"
+      - name: Reproduce the full F shell wrapper and check its selected shell contract
+        if: matrix.language == 'c'
+        run: |
+          python3 -B engines/compact/tiny-entry-f/build.py --out "$ROVE_TEST_OUT/tiny-entry-f-shell" --wrapper shell
+          python3 -B engines/scripts/verify_shell.py --build "$ROVE_TEST_OUT/tiny-entry-f-shell" --recipe "$ROVE_TEST_OUT/tiny-entry-f-shell/selected-verifier/engines/compact/tiny-entry-f/recipe.json" --out "$ROVE_TEST_OUT/tiny-entry-f-shell-runtime"
       - name: Reproduce the optional fixed-two-worker A root-hint policy
         if: matrix.language == 'c'
         run: |
@@ -108,6 +118,11 @@ jobs:
         run: |
           python3 -I -B engines/compact/tiny-entry-f-resource8/build.py --base-source "$ROVE_TEST_OUT/tiny-entry-f/main.c" --out "$ROVE_TEST_OUT/tiny-entry-f-resource8"
           python3 -I -B engines/compact/tiny-entry-f-resource8/verify.py --build "$ROVE_TEST_OUT/tiny-entry-f-resource8" --out "$ROVE_TEST_OUT/tiny-entry-f-resource8-runtime"
+      - name: Reproduce the fixed eight-worker F shell profile and check its selected shell contract
+        if: matrix.language == 'c'
+        run: |
+          python3 -I -B engines/compact/tiny-entry-f-resource8/build.py --base-source "$ROVE_TEST_OUT/tiny-entry-f/main.c" --wrapper shell --out "$ROVE_TEST_OUT/tiny-entry-f-resource8-shell"
+          python3 -I -B "$ROVE_TEST_OUT/tiny-entry-f-resource8-shell/inputs/engines/scripts/verify_shell.py" --build "$ROVE_TEST_OUT/tiny-entry-f-resource8-shell/first" --recipe "$ROVE_TEST_OUT/tiny-entry-f-resource8-shell/selected-verifier/recipe.json" --out "$ROVE_TEST_OUT/tiny-entry-f-resource8-shell-runtime"
       - name: Check the semaphore pool through controlled real-runtime phases and faults
         if: matrix.language == 'c'
         run: python3 -B engines/experiments/tiny-semaphore/pool-check.py --frozen engines/experiments/tiny-semaphore --out "$ROVE_TEST_OUT/semaphore-pool"
@@ -158,6 +173,14 @@ jobs:
           python3 -B engines/experiments/tiny-rust-stream/test_merge.py --out "$ROVE_TEST_OUT/tiny-rust-layout/merge"
           python3 -B engines/experiments/tiny-rust-stream/test_merge.py --resources-only --out "$ROVE_TEST_OUT/tiny-rust-layout/resources"
           python3 -B engines/experiments/tiny-rust-stream/test_stream.py --out "$ROVE_TEST_OUT/tiny-rust-layout/stream"
+          python3 -B engines/experiments/tiny-rust-stream/test_stream.py --out "$ROVE_TEST_OUT/tiny-rust-layout/stream-prepared" --prepared-input
+      - name: Reproduce the prepared Rust entry and verify its selected complete file
+        if: matrix.language == 'rust'
+        env:
+          RUSTUP_TOOLCHAIN: 1.97.0
+        run: |
+          python3 -B engines/experiments/tiny-rust-stream/build.py --out "$ROVE_TEST_OUT/tiny-rust-layout/prepared-build" --reproduce --embody-resources --prepared-input --omit-resource-environment
+          python3 -B engines/experiments/tiny-rust-stream/verify.py --build "$ROVE_TEST_OUT/tiny-rust-layout/prepared-build/build.json" --out "$ROVE_TEST_OUT/tiny-rust-layout/prepared-runtime"
       - name: Build independent no_std Rust D and check its real scalar and HQ paths
         if: matrix.language == 'rust'
         env:
@@ -231,6 +254,10 @@ jobs:
             ${{ env.ROVE_TEST_OUT }}/tiny-a-algorithms.json
             ${{ env.ROVE_TEST_OUT }}/tiny-entry-*/build.json
             ${{ env.ROVE_TEST_OUT }}/tiny-entry-*-runtime/**/*.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-entry-f-kill/selected-verifier/engines/compact/tiny-entry-f/recipe.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-entry-f-shell/selected-verifier/engines/compact/tiny-entry-f/recipe.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-entry-f-resource8-shell/source-proof.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-entry-f-resource8-shell/selected-verifier/recipe.json
             ${{ env.ROVE_TEST_OUT }}/tiny-d/build.json
             ${{ env.ROVE_TEST_OUT }}/tiny-d-check/**/*.json
             ${{ env.ROVE_TEST_OUT }}/tiny-d-check/**/*.jsonl

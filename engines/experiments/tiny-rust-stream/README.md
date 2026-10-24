@@ -1,5 +1,34 @@
 # Tiny Rust A compiler-stdin stream experiment
 
+## Explicit Rust prepared-input and fixed-source environment candidates
+
+The build-time `--prepared-input` candidate preserves the Rust envelope while
+sharing W1/W2 and seek producers. It retains `r4s-`, the fixed Rust command,
+positive compiler status and conventional128+signal mapping, SIGCHLD handling,
+parent UCI stdin and engine `sys.argv[1:]`. The shared C default admission and
+emitted bytes are unchanged; Rust uses the explicit `rust-stream-v1` contract.
+Compiler FD0 becomes a private seekable regular file prepared under the existing
+blocked INT/TERM interval. Pending cancellation can reach the parent after spawn
+publication; preparation cancellation does not promise compiler0. A pending
+buffered write failure can now arise at seek rather than explicit flush.
+
+`--omit-resource-environment` requires `--embody-resources` and the exact
+22981-byte/516aab3e source at workers2/TT18. It omits only the two resource
+overrides, retaining SOURCE_DATE_EPOCH0/LC_ALLC/TZUTC and caller environment.
+General/unembodied source still receives all five overrides. The native image
+must independently compare equal before this candidate can be qualified.
+
+The old9074-byte ZIP control and old9009-byte selected XZ stream remain distinct.
+The existing Python stdlib self-decoder is preserved, not counted as a new gain.
+New fixed-codec costs, independent native comparison and current runtime
+qualification are pending. Prior qualification below retains its original scope.
+
+The test host also removes unconditional post-reap signals to saved compiler
+PGIDs. New group-bearing fixtures retain their own wrapper leader with the
+existing Rust shipping host owner until settlement, then reap. On exceptional
+closure they first ask that still-owned wrapper to drain its own compiler group.
+No new fault campaign has run at this source checkpoint.
+
 This experiment measures a different source layout and complete-file launcher for
 the fixed Tiny Rust A production checkpoint. The stable four-file engine and its
 9,074-byte ZIP/LZMA artifact remain unchanged. The engine uses Rust's standard

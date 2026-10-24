@@ -1,3 +1,68 @@
+# F8 v12 explicit wrapper contracts: 2026-10-24
+
+<!-- F8_V12_COMPLETION:PENDING -->
+
+The full engine source7868/fb18e915... and native18576/8c98349f... remain
+unchanged. The v11 quiet-input/resource six-role chain, workers8/TT18/PLY128,
+all9TID/all8worker CPU checks and existing positive protocol/mapping/cleanup
+requirements stay intact. This is a build-time wrapper selection only:
+`--wrapper grace|kill|legacy|shell`, default grace. No UCI/runtime option is added.
+
+Every selection first consumes old source/literal/9834 owner/W1/W2/seek
+guards through exact9694/1eae53e2... . The ordinary invocation also encodes
+that predecessor once and checks whole4602/cbc79eca... before selecting a
+new output. Predecessor and selected expectations are separate. Frozen
+compiler_group.normalize_bootstrap must be identity for this existing F-like
+owner; compact_cleanup(state=True,wait=False) follows for grace/kill only.
+The legacy selection deliberately keeps all old v11 submission bytes.
+
+Measured fixed-codec candidates are grace4588/c2b45c62... with bootstrap9663/
+8ec48640..., and kill4565/6f3dd290... with bootstrap9596/061e22fa.... Grace
+uses d as cleanup authority and keeps the compiler's original signal/grace
+opportunity. Kill immediately sends SIGKILL during cleanup, losing the
+compiler's graceful log/cleanup opportunity. Parent128+s, additional signal
+masking, SIGCHLD handling, unbounded normal compile wait, separate post-KILL
+leader5s/group5s, retained leader and final reap, and125 workspace retention
+remain. They are different cancellation contracts, not interchangeable runs.
+
+Recipe classv12 and selected classesv12-grace/v12-kill/v12-legacy/v12-shell explicitly
+identify the wrapper. Each ordinary report carries selected expected values
+and a frozen selected_verifier.command. The Python-owner selections pass the
+same `--wrapper` argument. Use that command for positive qualification; a mismatched/default verifier
+must not approve another wrapper's file. The unchanged class/base/source
+resource ancestor remains separately recorded under previous_v11_terminal.
+
+The separate shell policy preserves the complete C7868 source and frozen
+compiler argv. Its first cost is whole4028/72a41ba1... = Bash header316/
+a784b94f... + source payload3712/632b5a8e..., a68-byte size margin. The
+emitter is source_package.package_shell(kind='source',
+child_reaping='ignore-after-compile'). Compilation finishes before ignored
+SIGCHLD is installed, and a delayed child removes the private directory.
+This changes compiler cancellation, cleanup timing, executable path and child
+observations from the Python owner. Fixed F8 pthread workers do not create or
+wait for process children; that is the narrow target for this SIGCHLD policy.
+The old Python owner guard chain and whole4602 are consumed before shell
+packaging. No shell bootstrap.py is produced: shell-header.sh and explicit
+shell_header expected values replace the Python bootstrap representation.
+The effective selected recipe identifies v12-shell, wrapper shell and the
+same workers8/TT18/full engine. Its selected command calls the frozen separate
+verify_shell.py with --build <OUT>/first --recipe
+<OUT>/selected-verifier/recipe.json. The original strict verifier explicitly
+rejects --wrapper shell and directs callers to this command; its9TID/all8CPU
+Python-owner observation functions stay unchanged. The shell verifier has its
+own delayed-cleanup/SIGCHLD contract and8worker CPU observations.
+
+The source-package producer is frozen at149f616c.... Final reviewed F2 producer
+pins are build621a4c7c..., recipe207a2689..., READMEda6d9a69...; the separate
+shell verifier is17666/f660c076.... This dependency refresh is source
+provenance. It does not carry prior producing closure or runtime approval
+into a newly selected output.
+No ordinary or8CPU positive execution ofv12 has occurred. Common focused
+fixtures and firstcosts do not qualify this selected engine. Producing source
+will freeze before runtime, with completion recorded externally rather than
+rewriting this PENDING record. Games/strength/scaling/peak/4KiB admission are
+separate. Existing v11 and earlier receipts below retain their own scope.
+
 # F8 v11 quiet-input composition and seek terminal: 2026-10-24
 
 <!-- F8_V11_COMPLETION:PENDING -->

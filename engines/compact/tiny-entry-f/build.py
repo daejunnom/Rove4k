@@ -2,7 +2,7 @@
 """Build the maintained minimal F entry from Git source and fixed decisions.
 
 There are no experiment-directory, old build.json or executable inputs. The
-resource/compiler profile is fixed. Full F is default; --policy material-noise or
+resource/compiler profile is fixed. Grace cleanup and Full F are default; --policy material-noise or
 --policy material-move-tt selects a declared alternate policy. --dev preserves the pinned full diagnostic form.
 """
 import argparse
@@ -65,12 +65,20 @@ def compile_c(command,source,directory):
     return (directory/'x').read_bytes()
 
 
+# Keep predecessor identities literal: selecting a wrapper never redefines its input.
+FULL_WRAPPER_PREDECESSOR={'source_bytes': 7830, 'source_sha256': '43bc67816e91077c4cfd182ec6ba44aed7d0223d012cff82f5366ad58da63582', 'native_bytes': 18576, 'native_sha256': '3aaaacf7891a2a4660f45d75b2b3e550ab40bf01c0c1766768517719cd1e63ec', 'bootstrap_bytes': 9646, 'bootstrap_sha256': 'c5c42eb0522a499593f1233c0093bb44e964f1066b88fc2b84512c8e62c4fa12', 'whole_bytes': 4590, 'whole_sha256': '0582b96a9f0197108b5892fb6d3ab0705225ceefd3370e06314924735bc51899'}
+WRAPPER_EXPECTED={'grace': {'full': {'bootstrap_bytes': 9615, 'bootstrap_sha256': '8bb9cf75ba9c7dd70b874769fe1f99129ce8cdd699858565b8d4ffdd87f576ad', 'whole_bytes': 4576, 'whole_sha256': '1c4be9d1dfbfbf38798fe00eda039f6c866dd3f6779c6c920c8c2ec40d02c6e1'}, 'material-noise': {'bootstrap_bytes': 10293, 'bootstrap_sha256': '9073fc78e4f19c3e3c872b2795784945a2080d075926ec92a836b4a100d1ea3e', 'whole_bytes': 4616, 'whole_sha256': '081326724a237f55c6e72c1590f3fbc51043fe03e8d0196ce6057874dc72bdd1'}, 'material-move-tt': {'bootstrap_bytes': 9526, 'bootstrap_sha256': 'f23373ba8da0153298f3e846acfe6713794870a8a3f8f5a2a89982167d7d67d3', 'whole_bytes': 4342, 'whole_sha256': '0387f9aad6cd1244f86d8c2bc1a5314a1c50fbb376826c7c7a1e04178618cd57'}}, 'kill': {'full': {'bootstrap_bytes': 9548, 'bootstrap_sha256': '53041259a11d2f5cbdf4dfc7efbf3b5afea408ce3a378564ad69d168b56eb69a', 'whole_bytes': 4551, 'whole_sha256': '125e20e91a7562b3973008042ba3ece1c0ecbe41156390d2eda01a28d92b4a70'}, 'material-noise': {'bootstrap_bytes': 10226, 'bootstrap_sha256': 'cceeb116f6f62c404df3e026791eab2f48187d694908192236fe2dce12fac8de', 'whole_bytes': 4591, 'whole_sha256': '1e9ac418edd4677bb823deaeca2993abfa2c8d78e90b9ae4c41101e01d69e059'}, 'material-move-tt': {'bootstrap_bytes': 9459, 'bootstrap_sha256': '51763c557f18d7a0ea0d3b52ed6ed018517026a5492350b02ecc1b0bfc834b9d', 'whole_bytes': 4311, 'whole_sha256': 'b1a53dd8946e201d55659848f9b03a114a656b2ac53aa144e512c47abc0746e4'}}, 'legacy': {'full': {'bootstrap_bytes': 9646, 'bootstrap_sha256': 'c5c42eb0522a499593f1233c0093bb44e964f1066b88fc2b84512c8e62c4fa12', 'whole_bytes': 4590, 'whole_sha256': '0582b96a9f0197108b5892fb6d3ab0705225ceefd3370e06314924735bc51899'}, 'material-noise': {'bootstrap_bytes': 10497, 'bootstrap_sha256': '958ed7d9290a131eb2b9f8e96fde3dfeb27b4284e89fccd71aab27faa8a1169b', 'whole_bytes': 4697, 'whole_sha256': 'd764d8f31e561bd173f24980fdc64a9666154738eb6daedb4c21eb3912a2e1d2'}, 'material-move-tt': {'bootstrap_bytes': 9730, 'bootstrap_sha256': '44c7a210177be3f5ed01c4f97fb30c9ca6a46bab34878121e9e6b7dd28974c8c', 'whole_bytes': 4425, 'whole_sha256': '39d082412b24be71c6dd93402dfb2f649b22ef56c808a1c55837e283b55b92a4'}}, 'shell': {'full': {'whole_bytes': 4026, 'whole_sha256': '488cd3f627ee21537001bd9df1c2fab7aa07f8a962355d69bf4c5968df8d5fd0', 'shell_header_bytes': 316, 'shell_header_sha256': 'a784b94f1099ab89161b084c127e84a480652953f9b16fabdb3b3e49d6f93973'}}}
+PRECOMPACT_BOOTSTRAP={'full': (9646, 'c5c42eb0522a499593f1233c0093bb44e964f1066b88fc2b84512c8e62c4fa12'), 'material-noise': (10324, '8f7622dda07bc4afe047aff82a4ebe23417c241f5d899abb52671a971f3a4741'), 'material-move-tt': (9557, '96d427e54c624dbd859ea2113434ca57c20eb61a20cb6e0649b7d0f5b40067a5')}
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out',type=Path,required=True)
     parser.add_argument('--dev',action='store_true',help='also reproduce the unchanged full-F semantic diagnostic C and ELF')
+    parser.add_argument('--wrapper',choices=('grace','kill','legacy','shell'),default='grace',help='build-only compiler cleanup contract; kill removes the compiler graceful signal opportunity')
     parser.add_argument('--policy',choices=('full','material-noise','material-move-tt'),default='full',help='development build selection only; no UCI option')
     args=parser.parse_args();out=args.out.resolve()
+    if args.wrapper=='shell' and args.policy!='full':parser.error('the measured source shell wrapper supports only full F')
     if not args.out.is_absolute() or out.exists() or out==REPO or REPO in out.parents or any((p/'.git').exists() for p in (out,*out.parents)):
         parser.error('a new absolute output outside any Git checkout is required')
     if platform.system()!='Linux' or platform.machine() not in ('x86_64','amd64'):
@@ -92,7 +100,14 @@ def main():
     if recipe['compression']!=full_compression:raise ValueError('fixed full/reference codec differs')
     if recipe['alternate_policies']['material-noise']['compression']!=original_compression:
         raise ValueError('fixed MaterialNoise-v1 codec differs')
-    full_expected=dict(recipe['expected'])
+    wrappers=recipe['wrapper_contracts']
+    if wrappers['default']!='grace' or wrappers['selected_overrides']!=WRAPPER_EXPECTED or wrappers['predecessor_expected']['full']!=FULL_WRAPPER_PREDECESSOR:
+        raise ValueError('fixed wrapper choices/predecessor differ')
+    if any(recipe['expected'][key]!=value for key,value in WRAPPER_EXPECTED['grace']['full'].items()):
+        raise ValueError('default full grace identity differs')
+    if wrappers['predecessor_expected']['material-noise']!=material_expected or wrappers['predecessor_expected']['material-move-tt']!=move_tt_expected:
+        raise ValueError('alternate wrapper predecessors differ')
+    full_expected=dict(recipe['expected']);full_expected.update(FULL_WRAPPER_PREDECESSOR)
     if args.policy!='full':
         selected=recipe['alternate_policies'][args.policy]
         recipe=json.loads(ordinary_recipe)
@@ -101,28 +116,45 @@ def main():
         recipe['launcher']=dict(selected['launcher'])
         recipe['full_reference_qualified_receipt']=recipe['qualified_receipt']
         recipe['qualified_receipt']=selected['qualified_receipt']
-    recipe['selected_policy']=args.policy
+    predecessor_expected=dict(wrappers['predecessor_expected'][args.policy])
+    if args.wrapper!='legacy':recipe['launcher']=dict(json.loads(ordinary_recipe)['launcher'])
+    recipe['expected'].update(WRAPPER_EXPECTED[args.wrapper][args.policy])
+    if args.wrapper=='shell':
+        for key in ('bootstrap_bytes','bootstrap_sha256'):del recipe['expected'][key]
+        recipe['launcher']={'kind':'source-shell-bash-ignore-after-compile-v1','bytes':316,
+            'sha256':'a784b94f1099ab89161b084c127e84a480652953f9b16fabdb3b3e49d6f93973'}
+    recipe['selected_policy']=args.policy;recipe['selected_wrapper']=args.wrapper
     effective_recipe=(json.dumps(recipe,indent=2)+'\n').encode()
     out.mkdir(parents=True);frozen=out/'inputs';frozen.mkdir()
     report={'complete':False,'family':'F','scope':'maintained F EP and shipping input pipeline; fixed reviewed identities, not 4KiB acceptance',
-            'resources':recipe['profile'],'policy':args.policy,'ordinary_recipe_sha256':sha(ordinary_recipe),
+            'resources':recipe['profile'],'policy':args.policy,'wrapper':args.wrapper,'ordinary_recipe_sha256':sha(ordinary_recipe),
             'effective_recipe_sha256':sha(effective_recipe),'expected_contract':recipe['expected'],'full_reference_expected':full_expected,
             'inputs':{},'attempts':[],
             'qualified_receipt_reuse':recipe['qualified_receipt'],
+            'wrapper_contract':{'selected':args.wrapper,'predecessor_expected':predecessor_expected,
+                'selected_expected':WRAPPER_EXPECTED[args.wrapper][args.policy],
+                'qualification':'fixed cost and source proof only until a fresh build/runtime receipt is recorded',
+                'historical_receipt_scope':'unchanged engine/search/native contract; no new wrapper runtime inferred'},
             'tools':{name:subprocess.check_output(command,text=True).splitlines()[0] for name,command in
                      {'cc':['cc','--version'],'ld':['ld','--version'],'python':['python3','--version'],'lzma':['lzma','--version']}.items()}}
     def save():(out/'build.json').write_text(json.dumps(report,indent=2)+'\n')
     save()
     try:
         verifier_root=out/'selected-verifier';verifier_entry=verifier_root/'engines/compact/tiny-entry-f'
-        for relative,pin in recipe['selected_verifier_snapshot_sha256'].items():
+        verifier_snapshot=recipe['shell_verifier_snapshot_sha256'] if args.wrapper=='shell' else recipe['selected_verifier_snapshot_sha256']
+        for relative,pin in verifier_snapshot.items():
             data=normalized(REPO/relative)
             if sha(data)!=pin:raise ValueError('selected verifier snapshot changed: '+relative)
             target=verifier_root/relative;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(data)
+        verifier_entry.mkdir(parents=True,exist_ok=True)
         (verifier_entry/'recipe.json').write_bytes(effective_recipe)
-        report['selected_verifier']={'path':str(verifier_entry/'verify.py'),'recipe':str(verifier_entry/'recipe.json'),
-                                     'unchanged_source':True,'policy':args.policy,'sources':recipe['selected_verifier_snapshot_sha256'],
-                                     'command':[sys.executable,'-B',str(verifier_entry/'verify.py'),'--build',str(out),'--out','<new absolute output>']}
+        verifier_path=verifier_root/'engines/scripts/verify_shell.py' if args.wrapper=='shell' else verifier_entry/'verify.py'
+        verifier_command=[sys.executable,'-B',str(verifier_path),'--build',str(out)]
+        if args.wrapper=='shell':verifier_command+=['--recipe',str(verifier_entry/'recipe.json')]
+        report['selected_verifier']={'path':str(verifier_path),'recipe':str(verifier_entry/'recipe.json'),
+                                     'unchanged_source':True,'policy':args.policy,'wrapper':args.wrapper,'sources':verifier_snapshot,
+                                     'contract':'separate Bash delayed cleanup' if args.wrapper=='shell' else 'strict Python compiler owner',
+                                     'command':verifier_command+['--out','<new absolute output>']}
         for name,expected in recipe['local_input_sha256'].items():
             data=normalized(HERE/name)
             if sha(data)!=expected:raise ValueError('entry input differs from qualified recipe: '+name)
@@ -139,9 +171,11 @@ def main():
         compact=module('entry_minify',frozen/'minify.py').compact_source
         lexer=module('entry_fixed_tokens',frozen/'rename_c.py')
         literal=module('entry_literal',frozen/'pack_stream.py').source_literal
-        compiler_group=module('entry_compiler_group',frozen/'compiler_group.py').transform_bootstrap
+        compiler_owner=module('entry_compiler_group',frozen/'compiler_group.py')
+        compiler_group=compiler_owner.transform_bootstrap
         compiler_stdin=module('entry_compiler_stdin',frozen/'compiler_stdin.py')
-        compiler_seek=module('entry_compiler_seek',frozen/'compiler_seek.py').transform_bootstrap
+        seek_owner=module('entry_compiler_seek',frozen/'compiler_seek.py')
+        compiler_seek=seek_owner.transform_bootstrap
         source_package=module('entry_source_package',frozen/'source_package.py')
         full_bootstrap=module('entry_full_bootstrap',frozen/'bootstrap_full.py').prepare_template
         common=module('entry_shipping_common',frozen/'shipping_common.py')
@@ -205,14 +239,16 @@ def main():
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
         if template.count(marker)!=1 or len(prefix)!=77:raise ValueError('bootstrap recipe changed')
-        if args.policy=='full':
-            # One fixed full-profile bootstrap choice; shared legacy consumers
+        legacy_template,legacy_prefix=template,prefix
+        if args.policy=='full' or args.wrapper!='legacy':
+            # One fixed marker-template choice; shared legacy consumers
             # retain the original template and its published artifacts.
             template=full_bootstrap(template)
             template,template_metadata=digit_fd.transform_template(template)
             report['digit_fd_template']=template_metadata
             prefix=source_package.XZ_STDIN_HEADER
-        if len(prefix)!=recipe['launcher']['bytes'] or sha(prefix)!=recipe['launcher']['sha256']:
+        selected_prefix=source_package.shell_header(kind='source',compiler=recipe['compiler'],child_reaping='ignore-after-compile') if args.wrapper=='shell' else prefix
+        if len(selected_prefix)!=recipe['launcher']['bytes'] or sha(selected_prefix)!=recipe['launcher']['sha256']:
             raise ValueError('fixed selected launcher changed')
         selected_compression={'full':full_compression,'material-noise':original_compression,
                               'material-move-tt':move_tt_compression}[args.policy]
@@ -452,7 +488,8 @@ def main():
             go_literal=lambda data:go_boundary.source_literal(data,mtd_literal)
             guarded_source=quiet_slot.restore_source(source) if args.policy=='full' else source
             expression,_=(go_literal(guarded_source) if args.policy=='full' else previous_literal(source))
-            script=template.replace(marker,expression.encode())
+            if ast.literal_eval(expression)!=guarded_source:raise ValueError('selected opaque C literal differs')
+            script=(template if args.policy=='full' else legacy_template).replace(marker,expression.encode())
             script,group_metadata=compiler_group(script)
             report['compiler_group']=group_metadata
             if args.policy=='full':
@@ -488,6 +525,68 @@ def main():
                 script,seek_metadata=compiler_seek(script,owner_metadata=stdin_metadata,
                     prepare_owner=compiler_stdin.transform_bootstrap,restore_owner=compiler_stdin.restore_bootstrap)
                 report['compiler_seek']=seek_metadata
+            # Consume the exact predecessor bootstrap and whole before applying
+            # any new template/transport/cleanup choice. No expected auto-fill.
+            if len(script)!=predecessor_expected['bootstrap_bytes'] or sha(script)!=predecessor_expected['bootstrap_sha256']:
+                raise ValueError('selected wrapper predecessor bootstrap differs')
+            predecessor_prefix=prefix if args.policy=='full' else legacy_prefix
+            control=source_package.package(script,compression,prefix=predecessor_prefix)
+            if len(control)!=predecessor_expected['whole_bytes'] or sha(control)!=predecessor_expected['whole_sha256']:
+                raise ValueError('selected wrapper predecessor whole differs')
+            report['wrapper_contract']['predecessor_guard_consumed']={'bootstrap':{'bytes':len(script),'sha256':sha(script)},
+                'whole':{'bytes':len(control),'sha256':sha(control)},'source_literal_value_equal':True}
+            if args.wrapper=='legacy':return control,script
+            if args.wrapper=='shell':
+                # The direct-source shell is a separate restoration contract.
+                # Keep the original full owner guards above, but do not label
+                # this shell header a Python bootstrap or reuse strict runtime.
+                header=source_package.shell_header(kind='source',compiler=recipe['compiler'],child_reaping='ignore-after-compile')
+                if len(header)!=expected['shell_header_bytes'] or sha(header)!=expected['shell_header_sha256']:
+                    raise ValueError('fixed shell header differs')
+                data=source_package.package_shell(source,compression,kind='source',compiler=recipe['compiler'],child_reaping='ignore-after-compile')
+                report['wrapper_contract'].update(representation='source-shell-header',contract=recipe['wrapper_contracts']['shell_contract'],
+                    shell_header={'bytes':len(header),'sha256':sha(header)},
+                    payload={'bytes':len(data)-len(header),'source_bytes':len(source),'source_sha256':sha(source)},
+                    compiler_owner_lifetime_equivalence_claimed=False)
+                return data,header
+            if args.policy!='full':
+                old_owner=script
+                script,group_metadata=compiler_group(template.replace(marker,expression.encode()))
+                inverse=script
+                for before,after in (
+                    (b" fd=os.open(d+'/x',0)\n",b" fd=os.open(d+'/x',os.O_RDONLY)\n"),
+                    (b'for s in 2,15:signal.signal(s,stop)\n',b'signal.signal(2,stop);signal.signal(15,stop)\n'),
+                    (b'for s in 2,15:signal.signal(s,signal.SIG_DFL)\n',b'signal.signal(2,signal.SIG_DFL);signal.signal(15,signal.SIG_DFL)\n'),
+                    (b'cwd=d,env=dict(os.environ,TMPDIR=d),stdin=',b'cwd=d,env=e,stdin='),
+                    (b" d=tempfile.mkdtemp(prefix='r4-')\n",b" d=tempfile.mkdtemp(prefix='r4-')\n e=dict(os.environ,TMPDIR=d)\n")):
+                    if inverse.count(before)!=1:raise ValueError('reduced prepared owner inverse span differs')
+                    inverse=inverse.replace(before,after,1)
+                if inverse!=old_owner or ast.dump(ast.parse(inverse),include_attributes=False)!=ast.dump(ast.parse(old_owner),include_attributes=False):
+                    raise ValueError('reduced prepared owner full inverse differs')
+                report['compiler_group']=group_metadata
+                report['reduced_prepared_template']={'old_owner_guard_consumed':True,'new_owner_metadata':True,
+                    'owner_complete_byte_and_AST_inverse':True,'source_expression_unchanged':True,
+                    'source_digit_transform_called':False,'template_helper_historical_policy_label':'full-fixed2',
+                    'selected_engine_policy':args.policy}
+                before_transport=script
+                script,stdin_metadata=compiler_stdin.transform_bootstrap(script,shared_wait=True)
+                report['compiler_stdin']=stdin_metadata
+                script,seek_metadata=compiler_seek(script,owner_metadata=stdin_metadata,
+                    prepare_owner=compiler_stdin.transform_bootstrap,restore_owner=compiler_stdin.restore_bootstrap)
+                if compiler_stdin.restore_bootstrap(seek_owner.restore_bootstrap(script,seek_metadata),stdin_metadata)!=before_transport:
+                    raise ValueError('reduced prepared W1/W2/seek inverse differs')
+                report['compiler_seek']=seek_metadata
+            if (len(script),sha(script))!=PRECOMPACT_BOOTSTRAP[args.policy]:
+                raise ValueError('fixed precompact bootstrap differs')
+            before_normalization=script
+            script,normalization=compiler_owner.normalize_bootstrap(script)
+            if not normalization['identity'] or compiler_owner.restore_bootstrap(script,normalization)!=before_normalization:
+                raise ValueError('prepared owner normalization is no longer identity')
+            before_cleanup=script
+            script,cleanup=compiler_owner.compact_cleanup(script,state=True,wait=False,termination=args.wrapper)
+            if compiler_owner.restore_bootstrap(script,cleanup)!=before_cleanup:
+                raise ValueError('compact cleanup full inverse differs')
+            report['wrapper_contract'].update(normalization=normalization,cleanup=cleanup)
             ast.parse(script)
             data=source_package.package(script,compression,prefix=prefix)
             return data,script
@@ -501,14 +600,16 @@ def main():
             native=compile_c(recipe['compiler'],source,directory/'native')
             if len(native)!=expected['native_bytes'] or sha(native)!=expected['native_sha256']:raise ValueError('native ELF identity mismatch')
             whole,script=package(source)
-            if len(whole)!=expected['whole_bytes'] or sha(whole)!=expected['whole_sha256'] or sha(script)!=expected['bootstrap_sha256']:
+            script_kind='shell_header' if args.wrapper=='shell' else 'bootstrap'
+            if len(whole)!=expected['whole_bytes'] or sha(whole)!=expected['whole_sha256'] or len(script)!=expected[script_kind+'_bytes'] or sha(script)!=expected[script_kind+'_sha256']:
                 raise ValueError('complete launcher identity mismatch')
-            (directory/'x').write_bytes(whole);(directory/'x').chmod(0o755);(directory/'bootstrap.py').write_bytes(script)
+            (directory/'x').write_bytes(whole);(directory/'x').chmod(0o755);(directory/('shell-header.sh' if args.wrapper=='shell' else 'bootstrap.py')).write_bytes(script)
             current=(source,native,whole,script,before_names)
             if first is None:first=current
             elif current!=first:raise ValueError('independent generation did not reproduce bytes')
             row={'attempt':index,'source_bytes':len(source),'source_sha256':sha(source),'native_bytes':len(native),'native_sha256':sha(native),
-                 'whole_bytes':len(whole),'whole_sha256':sha(whole),'bootstrap_sha256':sha(script),'preprocessor':observations,
+                 'whole_bytes':len(whole),'whole_sha256':sha(whole),script_kind+'_sha256':sha(script),'preprocessor':observations,
+                 'wrapper':args.wrapper,'representation':'source-shell-header' if args.wrapper=='shell' else 'Python-bootstrap',
                  'counter_removal':counters,'shipping_alpha':alpha_metadata,'shipping_storage':storage_metadata,
                  'shipping_scope':scope_metadata,'shipping_members':member_metadata,'shipping_semantics':semantic_metadata,'shipping_input':input_metadata,'shipping_declarations':declaration_metadata,'shipping_hce':hce_metadata,'shipping_types':type_metadata,'shipping_unit_bound':unit_bound_metadata,'shipping_startup':startup_metadata,'shipping_global_names':global_names_metadata,'shipping_capture':capture_metadata,'shipping_policy':policy_metadata,'shipping_material_names':material_names_metadata,'shipping_material_capture':material_capture_metadata,'shipping_move_tt':move_tt_metadata,'shipping_move_tt_names':move_tt_names_metadata,'shipping_material_expressions':expressions_metadata,'shipping_common':common_metadata,
                  'source_before_names':({'bytes':len(before_names),'sha256':sha(before_names),
@@ -537,7 +638,7 @@ def main():
             report['source_before_names']={'path':str(out/'source-before-names.c'),
                                           'bytes':len(first[4]),'sha256':sha(first[4]),
                                           'scope':'full shipping source immediately before fixed local-name replay; F8 consumer input'}
-        (out/'x').write_bytes(first[2]);(out/'x').chmod(0o755);(out/'bootstrap.py').write_bytes(first[3])
+        (out/'x').write_bytes(first[2]);(out/'x').chmod(0o755);(out/('shell-header.sh' if args.wrapper=='shell' else 'bootstrap.py')).write_bytes(first[3])
         if first_dev:
             (out/'dev').mkdir();(out/'dev/main.c').write_bytes(first_dev[0]);(out/'dev/x').write_bytes(first_dev[1]);(out/'dev/x').chmod(0o755)
         report.update(complete=True,source_reproduced=True,native_reproduced=True,whole_reproduced=True,

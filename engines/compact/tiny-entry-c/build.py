@@ -86,7 +86,8 @@ def main():
         minifier=module('entry_minify',frozen/'minify.py');compact=minifier.compact_source
         strip=module('entry_counter_strip',frozen/'stitch.py').strip_dev_counters
         literal=module('entry_literal',frozen/'pack_stream.py').source_literal
-        compiler_group=module('entry_compiler_group',frozen/'compiler_group.py').transform_bootstrap
+        group_owner=module('entry_compiler_group',frozen/'compiler_group.py')
+        compiler_group=group_owner.transform_bootstrap
         stdin_owner=module('entry_compiler_stdin',frozen/'compiler_stdin.py')
         compiler_stdin=stdin_owner.transform_bootstrap
         compiler_seek=module('entry_compiler_seek',frozen/'compiler_seek.py').transform_bootstrap
@@ -231,6 +232,16 @@ def main():
             script,seek_metadata=compiler_seek(script,owner_metadata=stdin_metadata,
                 prepare_owner=stdin_owner.transform_bootstrap,restore_owner=stdin_owner.restore_bootstrap)
             report['compiler_seek']=seek_metadata
+            cleanup=recipe['prepared_cleanup']
+            if cleanup['policy']!='normalized-path-authority-grace-v1' or cleanup['selected_expected']!=expected:
+                raise ValueError('unsupported C prepared cleanup policy')
+            predecessor=cleanup['predecessor']['expected']
+            if len(script)!=predecessor['bootstrap_bytes'] or sha(script)!=predecessor['bootstrap_sha256']:
+                raise ValueError('C prepared cleanup predecessor differs')
+            script,normalization=group_owner.normalize_bootstrap(script)
+            script,authority=group_owner.compact_cleanup(script,state=True,wait=False,termination='grace')
+            report['prepared_cleanup']={'normalization':normalization,'authority':authority,
+                                        'predecessor_bootstrap_guard_consumed':True}
             ast.parse(script)
             data=prefix+lzma.compress(script,format=lzma.FORMAT_ALONE,check=lzma.CHECK_NONE,
                                      filters=[{'id':lzma.FILTER_LZMA1,'preset':9|lzma.PRESET_EXTREME,

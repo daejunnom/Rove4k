@@ -287,7 +287,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--build', type=Path, required=True)
     parser.add_argument('--out', type=Path, required=True)
+    parser.add_argument('--wrapper', choices=('grace','kill','legacy','shell'), default='grace',
+                        help='must match the ordinary builder selected wrapper')
     args = parser.parse_args()
+    if args.wrapper == 'shell':
+        parser.error('shell has a separate contract: use build.json selected_verifier.command with verify_shell.py and its effective recipe')
     out, built = args.out.resolve(), args.build.resolve()
     require(sys.platform == 'linux' and args.build.is_absolute() and args.out.is_absolute() and not out.exists() and
             not any((part/'.git').exists() for part in (out, *out.parents)), 'new external absolute Linux output required')
@@ -313,15 +317,17 @@ def main():
         require(all(sha(builder.normalized(REPO/name)) == digest for name, digest in closure.items()), 'current source closure differs')
         recipe_raw = builder.normalized(HERE/'recipe.json')
         recipe = json.loads(recipe_raw)
+        contract = builder.wrapper_contract(recipe,args.wrapper)
         recorded = json.loads((built/'build.json').read_text())
         require(recorded['complete'] and recorded['source_closure'] == closure and recorded['recipe_sha256'] == sha(recipe_raw),
                 'ordinary builder/source/recipe identity differs')
-        require(recorded['class'] == recipe['class'] == 'full-F-late-fixed-resource8-TT18-v11' and
+        require(recorded['class'] == contract['class'] and recorded['recipe_class'] == recipe['class'] == 'full-F-late-fixed-resource8-TT18-v12' and
+                recorded['wrapper'] == args.wrapper and recorded['expected_contract'] == contract['expected'] and
                 recorded['base_stage'] == recipe['base_stage'] == 'full-after-MTD-state-sole-GO-and-quiet-slot',
-                'fixed late resource8 v11 class/base stage differs')
+                'fixed late resource8 v12 selected wrapper class/base stage differs')
         identity(built/'base-source.c', recipe['base_source'])
         require(recorded['profile'] == recipe['profile'] == {'workers': 8, 'tt_bits': 18, 'ply': 128, 'native_TIDs': 9}, 'fixed resource8 profile differs')
-        expected = recipe['expected']
+        expected = contract['expected']
         pins = {name: {'bytes': expected[name+'_bytes'], 'sha256': expected[name+'_sha256']}
                 for name in ('source', 'native', 'bootstrap', 'whole')}
         require(len(recorded['attempts']) == 2, 'ordinary builder must reproduce twice')
@@ -331,6 +337,7 @@ def main():
         helper = module('f_resource8_owned', HERE.parent/'tiny-entry-d/verify.py')
         oracle = module('f_resource8_oracle', REPO/'engines/tests/chess_oracle.py')
         report.update(source_closure=closure, recipe_sha256=sha(recipe_raw), profile=recorded['profile'],
+                      wrapper=args.wrapper,selected_class=contract['class'],selected_verifier=recorded['selected_verifier'],
                       actual_build=str(built/'build.json'), selected_artifacts=pins,
                       helpers={str(p.relative_to(REPO)): identity(p) for p in
                                (HERE.parent/'tiny-entry-d/verify.py', REPO/'engines/tests/chess_oracle.py')})

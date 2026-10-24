@@ -13,7 +13,10 @@ import os
 from pathlib import Path
 import platform
 import shutil
+import signal
+import subprocess
 import sys
+import time
 import traceback
 
 
@@ -34,6 +37,10 @@ PRUNED_BINDINGS = {
     "runtime.rs": "f600cd89520c14851b205f6f9eab9310e574fedf76a430f8a0d277888c99a6a8",
 }
 HELPER_BINDINGS = {
+    "engines/compact/tiny-rust-d-shipping/build.py": "67a89639402d8e27cc9728c3ad690c049c01e17a42fedb63b9d53f0f92fd0db8",
+    "engines/compact/tiny-entry-d/verify.py": "18faa69aed5cb5dd85a054ef2e6830463f3d819f5f635d74d55550a877c81eae",
+    "engines/scripts/compiler_stdin.py": "fc92bb6146fcfc5a6c73cd9f68929192a90d22a875bf591caf2cf3b32b87055b",
+    "engines/scripts/compiler_seek.py": "8ca5fd736f010cd9dd1e3b668065c0cf7d82f9e98653580b8f9b4c23e7d75a41",
     "engines/compact/tiny-rust/build.py": "cec8e9a93efba045ea43ac7e70208896fe3c448da1c7ad39cfd61e7bdf389b35",
     "engines/compact/rust/syntax.py": "54ff9e05cbcb099c6ee96e09014be3d2a80c21fb8bf21e508b0a03bda5114100",
     "engines/experiments/packaging-control/pack.py": "f95a9166f8fc018e4250999fa60c10568fa2ef3388b704a1fdfab9802bef5083",
@@ -43,6 +50,7 @@ HELPER_BINDINGS = {
 BASELINE_BYTES = 9074
 BASELINE_SHA256 = "35bc0d0f930da90ac4826659c60db5c3dcf805edba7047d85855d86d13cc8a72"
 _ACTIVE_OUTPUT = None
+_HOST_RUNTIME = None
 
 
 def sha(data):
@@ -71,13 +79,88 @@ def stdin_recipe(command, compiler):
     return [compiler, *command[1:-3], "--crate-name", "rove4k", "-", "-o", "x"]
 
 
+def run_host(command, *, cwd=None, env=None, timeout=180, data=None):
+    """Keep the stable call shape, using existing readers and original-owner settlement."""
+    global _HOST_RUNTIME
+    if _HOST_RUNTIME is None:
+        owner_path=ROOT/'engines/compact/tiny-rust-d-shipping/build.py'
+        readers_path=ROOT/'engines/compact/tiny-entry-d/verify.py'
+        for path in (owner_path,readers_path):
+            if sha(path.read_bytes())!=HELPER_BINDINGS[str(path.relative_to(ROOT))]:
+                raise ValueError('Rust stream host dependency changed: '+str(path))
+        _HOST_RUNTIME=(load('rust_stream_existing_tool_owner',owner_path),
+                       load('rust_stream_existing_tool_readers',readers_path))
+    owner,readers=_HOST_RUNTIME
+    started=time.monotonic();deadline=started+timeout;child=None;ports=[];failure=None
+    row={'command':list(map(str,command)),'started':False,'forced_cleanup':False}
+    def interrupted(signum,frame):raise InterruptedError('Rust stream host signal '+str(signum))
+    handlers={sig:signal.signal(sig,interrupted) for sig in (signal.SIGINT,signal.SIGTERM)}
+    previous_chld=signal.signal(signal.SIGCHLD,signal.SIG_DFL)
+    def check():
+        if time.monotonic()>deadline:raise TimeoutError('Rust stream tool deadline')
+        if any(port.error for port in ports):raise RuntimeError('Rust stream tool reader failure')
+    try:
+        try:
+            mask=signal.pthread_sigmask(signal.SIG_BLOCK,{signal.SIGINT,signal.SIGTERM})
+            try:
+                child=subprocess.Popen(row['command'],cwd=cwd,env=env,stdin=subprocess.PIPE,
+                    stdout=subprocess.PIPE,stderr=subprocess.PIPE,start_new_session=True,bufsize=0,
+                    preexec_fn=lambda:signal.pthread_sigmask(signal.SIG_SETMASK,mask))
+                row.update(started=True,pid=child.pid);owner.owned[child]=row
+                ports.append(readers.Reader(child.stdout,'rust-stream-tool-stdout'))
+                ports.append(readers.Reader(child.stderr,'rust-stream-tool-stderr'))
+            finally:signal.pthread_sigmask(signal.SIG_SETMASK,mask)
+            try:
+                if data is not None:
+                    os.set_blocking(child.stdin.fileno(),False);view=memoryview(data)
+                    while view:
+                        check()
+                        try:count=os.write(child.stdin.fileno(),view)
+                        except BrokenPipeError:break
+                        except BlockingIOError:time.sleep(.005);continue
+                        if not count:raise RuntimeError('zero Rust stream host write')
+                        view=view[count:]
+            finally:child.stdin.close()
+            while not owner.exited_unreaped(child):check();time.sleep(.01)
+        except BaseException as error:
+            failure=error
+        finally:
+            mask=signal.pthread_sigmask(signal.SIG_BLOCK,{signal.SIGINT,signal.SIGTERM})
+            try:
+                if child is not None:owner.settle(child,row,force=not owner.exited_unreaped(child))
+            finally:
+                try:
+                    for port in ports:
+                        port.thread.join(timeout=3)
+                        if port.thread.is_alive() or not port.done or port.error:
+                            raise RuntimeError('Rust stream tool reader did not join')
+                    if child is not None:
+                        for pipe in (child.stdin,child.stdout,child.stderr):
+                            if pipe is not None and not pipe.closed:pipe.close()
+                finally:signal.pthread_sigmask(signal.SIG_SETMASK,mask)
+        stdout=ports[0].bytes().decode(errors='replace') if ports else ''
+        stderr=ports[1].bytes().decode(errors='replace') if len(ports)>1 else ''
+        record={**row,'returncode':child.returncode if child is not None else None,
+                'wall_seconds':time.monotonic()-started,'stdout':stdout,'stderr':stderr,
+                'readers_joined':all(port.done and not port.thread.is_alive() for port in ports)}
+        if isinstance(failure,TimeoutError):raise RuntimeError('command timeout: '+repr(command)+'\n'+stderr) from failure
+        if failure is not None:raise failure
+        if record['returncode']:raise RuntimeError(json.dumps(record,indent=2))
+        if record['forced_cleanup'] or not record.get('owned_group_absent') or not record['readers_joined']:
+            raise RuntimeError('Rust stream tool required cleanup intervention: '+json.dumps(record,indent=2))
+        return record
+    finally:
+        signal.signal(signal.SIGCHLD,previous_chld)
+        for sig,handler in handlers.items():signal.signal(sig,handler)
+
+
 def compile_stdin(stable, source, directory, command, fixed):
     directory.mkdir(parents=True)
     (directory / "source.stdin.rs").write_bytes(source)
     environment = os.environ.copy()
     environment.update(fixed)
     actual = [command[0], "--remap-path-prefix", str(directory) + "=.", *command[1:]]
-    record = stable.run(actual, cwd=directory, env=environment, data=source)
+    record = run_host(actual, cwd=directory, env=environment, data=source)
     native = (directory / "x").read_bytes()
     if native[:4] != b"\x7fELF":
         raise ValueError("compiler-stdin class did not produce a Linux ELF")
@@ -129,8 +212,12 @@ def execute_frozen(args, frozen_root, inputs, compiler):
     reference_applies = (args.workers, args.tt_bits) == (2, 18)
     if reference_applies and (len(baseline) != BASELINE_BYTES or sha(baseline) != BASELINE_SHA256):
         raise ValueError("regenerated four-file ZIP differs from exact 9,074-byte baseline")
-    build = compile_stdin(stable, source, args.out / "stdin-native", command, fixed)
-    artifacts = stream.write_stream(source, args.out / "stream", runtime_command, environment=fixed)
+    compiler_fixed = stream._guard(source, runtime_command, fixed,
+                                   omit_resource_environment=args.omit_resource_environment)
+    build = compile_stdin(stable, source, args.out / "stdin-native", command, compiler_fixed)
+    artifacts = stream.write_stream(source, args.out / "stream", runtime_command, environment=fixed,
+                                   prepared=args.prepared_input,
+                                   omit_resource_environment=args.omit_resource_environment)
     if not artifacts or len(artifacts) != 3:
         raise ValueError("stream producer must return exactly three codec artifacts")
     if args.reproduce:
@@ -146,11 +233,13 @@ def execute_frozen(args, frozen_root, inputs, compiler):
         if baseline_second != baseline:
             raise RuntimeError("independent baseline complete-file reproduction differs")
         baseline_record["reproduced"] = True
-        repeated_native = compile_stdin(stable, source_second, args.out / "reproduction" / "stdin-native", command, fixed)
+        repeated_native = compile_stdin(stable, source_second, args.out / "reproduction" / "stdin-native", command, compiler_fixed)
         if Path(repeated_native["path"]).read_bytes() != Path(build["path"]).read_bytes():
             raise RuntimeError("independent compiler-stdin native class reproduction differs")
         build["reproduced"] = True
-        repeated_artifacts = stream.write_stream(source_second, args.out / "reproduction" / "stream", list(runtime_command), environment=dict(fixed))
+        repeated_artifacts = stream.write_stream(source_second, args.out / "reproduction" / "stream", list(runtime_command), environment=dict(fixed),
+                                                prepared=args.prepared_input,
+                                                omit_resource_environment=args.omit_resource_environment)
         if len(repeated_artifacts) != len(artifacts):
             raise RuntimeError("independent stream artifact count differs")
         for first, second in zip(artifacts, repeated_artifacts):
@@ -179,8 +268,10 @@ def execute_frozen(args, frozen_root, inputs, compiler):
               "pruning": pruning, "merge": merging, "resources": resources,
               "pre_resource_source_bytes": len(merged_source), "pre_resource_source_sha256": sha(merged_source),
               "merged_source_bytes": len(source), "merged_source_sha256": sha(source),
-              "compiler": stable.run([compiler, "--version", "--verbose"])["stdout"].strip(),
-              "host_compiler_command": command, "runtime_compiler_command": runtime_command, "compiler_environment": fixed,
+              "compiler": run_host([compiler, "--version", "--verbose"])["stdout"].strip(),
+              "host_compiler_command": command, "runtime_compiler_command": runtime_command, "compiler_environment": compiler_fixed,
+              "compiler_environment_input": fixed, "wrapper_policy": "prepared-W1-W2-seek" if args.prepared_input else "legacy-pipe",
+              "resource_environment_overrides_omitted": args.omit_resource_environment,
               "target_compiler_scope": {"command": "rustc", "resolution": "target caller PATH",
                                         "host_build_compiler": compiler, "controlled_verification_PATH": controlled_path,
                                         "host_path_embedded_in_runtime_recipe": False},
@@ -212,6 +303,8 @@ def main():
     parser.add_argument("--reproduce", action="store_true")
     parser.add_argument("--smoke-selected", action="store_true")
     parser.add_argument("--embody-resources", action="store_true", help="literal fixed resources in the bound source; only workers 2 / TT bits 18")
+    parser.add_argument("--prepared-input", action="store_true", help="Rust-specific prepared-file W1/W2/seek wrapper")
+    parser.add_argument("--omit-resource-environment", action="store_true", help="omit compiler resource overrides only after exact2/18 source embodiment")
     args = parser.parse_args()
     if sys.platform != "linux" or platform.machine().lower() not in ("x86_64", "amd64"):
         parser.error("run on Linux x86-64, including WSL Ubuntu")
@@ -224,6 +317,8 @@ def main():
         parser.error("workers 1..512; TT bits 8..26")
     if args.embody_resources and (args.workers, args.tt_bits) != (2, 18):
         parser.error("--embody-resources requires workers 2 and TT bits 18")
+    if args.omit_resource_environment and not args.embody_resources:
+        parser.error("--omit-resource-environment requires --embody-resources")
     compiler = shutil.which(args.rustc)
     if compiler is None:
         parser.error("Rust compiler is not executable: " + args.rustc)

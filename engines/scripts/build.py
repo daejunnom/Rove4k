@@ -199,6 +199,8 @@ def main():
     parser.add_argument("--reproduce", action="store_true", help="compile independent second copies and compare actual bytes")
     parser.add_argument("--self-elf", action="store_true", help="also build the syscall-only self-restoring ELF candidates")
     parser.add_argument("--no-pack", action="store_true", help="omit complete-file wrappers; still build every explicitly requested source form")
+    parser.add_argument("--native-backend", choices=("archive", "file", "memfd"), default="archive",
+                        help="native wrappers only: existing archive, single ELF file FD, or explicit executable memfd")
     parser.add_argument("--no-smoke", action="store_true", help="skip all execution, recorded as unverified")
     args = parser.parse_args()
     if sys.platform != "linux" or platform.machine() not in ("x86_64", "amd64"):
@@ -295,6 +297,10 @@ def main():
                "tools": {}, "engines": [], "complete": False,
                "execution_policy": "local profiles only; target profiles remain compile-only",
                "eligibility": "no tournament approval or playing-strength claim"}
+    summary["native_packaging"] = {"requested_backend": args.native_backend, "enabled": not args.no_pack,
+                                   "source_packages_changed": False,
+                                   "external_programs": ["python3"] if not args.no_pack else [],
+                                   "rules_eligibility": "unproven_requires_runtime_and_full_rules_review"}
     if root_source_contract is not None:
         summary["fixed_root_structural_source_contract"] = root_source_contract
     tooling_paths = [path for path in (ROOT / "engines/scripts").rglob("*")
@@ -317,10 +323,16 @@ def main():
     # Execute the preserved transformation/template bytes, so another worker's
     # later edit cannot silently change a long campaign halfway through.
     compact_source = load_module("rove_frozen_minify", recipe_root / "engines/scripts/minify.py").compact_source
-    write_launchers = load_module("rove_frozen_pack", recipe_root / "engines/scripts/pack.py").write_launchers
+    frozen_pack = load_module("rove_frozen_pack", recipe_root / "engines/scripts/pack.py")
+    write_launchers = frozen_pack.write_launchers
     specialize_c = load_module("rove_frozen_specialize", recipe_root / "engines/scripts/specialize.py").specialize_c
-    if args.self_elf:
-        pack_elf = load_module("rove_frozen_elf", recipe_root / "engines/scripts/elf_loader.py").pack_elf
+    native_elf_admission = None
+    if args.self_elf or (not args.no_pack and args.native_backend != "archive"):
+        frozen_elf = load_module("rove_frozen_elf", recipe_root / "engines/scripts/elf_loader.py")
+        if args.self_elf:
+            pack_elf = frozen_elf.pack_elf
+        if not args.no_pack and args.native_backend != "archive":
+            native_elf_admission = frozen_elf._elf
     if "E" in variants or args.model:
         frozen_model_directory = recipe_root / "engines/model"
         codec = load_module("codec", frozen_model_directory / "codec.py")
@@ -330,6 +342,8 @@ def main():
     summary["profile_input_sha256"] = digest(profile_bytes)
     summary["glibc"] = os.confstr("CS_GNU_LIBC_VERSION")
     try:
+        if not args.no_pack and args.native_backend == "memfd":
+            summary["native_packaging"]["host_support"] = frozen_pack.memfd_support()
         try:
             summary["git_head"] = run(["git", "rev-parse", "HEAD"], cwd=ROOT)["stdout"].strip()
             summary["git_engine_status"] = run(["git", "status", "--porcelain", "--", "engines"], cwd=ROOT)["stdout"]
@@ -519,7 +533,8 @@ def main():
                         packages = write_launchers(inputs, base / (form + "-source"), command=runtime_command, compiler_group=transform_bootstrap,
                                                    environment=fixed_env)
                         packages += write_launchers({"x": Path(native["path"]).read_bytes()},
-                                                    base / (form + "-native"))
+                                                    base / (form + "-native"), native_backend=args.native_backend,
+                                                    elf_admission=native_elf_admission)
                         if args.self_elf:
                             elf_output = base / (form + "-self-elf") / "x"
                             elf_output.parent.mkdir(parents=True, exist_ok=True)
@@ -536,7 +551,8 @@ def main():
                             repeated = write_launchers(inputs, base / (form + "-source-repeat"),
                                                        command=runtime_command, compiler_group=transform_bootstrap, environment=fixed_env)
                             repeated += write_launchers({"x": Path(other["path"]).read_bytes()},
-                                                        base / (form + "-native-repeat"))
+                                                        base / (form + "-native-repeat"), native_backend=args.native_backend,
+                                                        elf_admission=native_elf_admission)
                             if args.self_elf:
                                 repeated_elf = base / (form + "-self-elf-repeat") / "x"
                                 repeated_elf.parent.mkdir(parents=True, exist_ok=True)
