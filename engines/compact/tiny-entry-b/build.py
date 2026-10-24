@@ -48,6 +48,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out',type=Path,required=True)
     parser.add_argument('--dev',action='store_true',help='also reproduce the old full-minimax diagnostic reference C and ELF')
+    parser.add_argument('--wrapper',choices=('grace','shell'),default='grace',help='build-only wrapper contract; no engine/UCI option')
     args=parser.parse_args();out=args.out.resolve()
     if not args.out.is_absolute() or out.exists() or out==REPO or REPO in out.parents or any((p/'.git').exists() for p in (out,*out.parents)):
         parser.error('a new absolute output outside any Git checkout is required')
@@ -62,6 +63,8 @@ def main():
             'qualified_receipt_reuse':recipe['qualified_receipt'],
             'tools':{name:subprocess.check_output(command,text=True).splitlines()[0] for name,command in
                      {'cc':['cc','--version'],'ld':['ld','--version'],'python':['python3','--version'],'lzma':['lzma','--version']}.items()}}
+    report['wrapper']=args.wrapper
+    report['wrapper_contract']='strict Python compiler owner' if args.wrapper=='grace' else recipe['shell_wrapper']['contract']
     def save():(out/'build.json').write_text(json.dumps(report,indent=2)+'\n')
     save()
     try:
@@ -135,6 +138,26 @@ def main():
         template,readonly_metadata=readonly_template(template,family='B')
         report['readonly_template']=readonly_metadata
         expected=recipe['expected']
+        predecessor_expected={**expected,**recipe['private_owner']['predecessor_expected']}
+        selected_expected=dict(expected)
+        representation='bootstrap'
+        if args.wrapper=='shell':
+            for key in ('bootstrap_bytes','bootstrap_sha256'):del selected_expected[key]
+            selected_expected.update(recipe['shell_wrapper']['expected'])
+            representation='shell_header'
+            effective={**recipe,'family':'B','expected':selected_expected,'selected_wrapper':'shell'}
+            effective_raw=(json.dumps(effective,indent=2)+'\n').encode()
+            selected_root=out/'selected-verifier';selected_root.mkdir()
+            for relative,pin in recipe['shell_wrapper']['verifier_snapshot_sha256'].items():
+                data=normalized(REPO/relative)
+                if sha(data)!=pin:raise ValueError('shell selected verifier input changed: '+relative)
+                target=selected_root/relative;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(data)
+            selected_recipe=selected_root/'recipe.json';selected_recipe.write_bytes(effective_raw)
+            verifier=selected_root/'engines/scripts/verify_shell.py'
+            report['selected_verifier']={'path':str(verifier),'recipe_path':str(selected_recipe),
+                'recipe_sha256':sha(effective_raw),'sources':recipe['shell_wrapper']['verifier_snapshot_sha256'],
+                'command':[sys.executable,'-I','-B',str(verifier),'--build',str(out),'--recipe',str(selected_recipe),'--out','<new absolute external output>']}
+        report['expected_contract']=selected_expected
         def generate(directory,dev=False):
             preprocess_source=canonical;input_metadata=None
             if dev:preprocess_source,input_metadata=input_profile.transform_readable(canonical,family='B')
@@ -221,7 +244,7 @@ def main():
                 prepare_owner=stdin_owner.transform_bootstrap,restore_owner=stdin_owner.restore_bootstrap)
             report['compiler_seek']=seek_metadata
             cleanup=recipe['prepared_cleanup']
-            if cleanup['policy']!='normalized-path-authority-grace-v1' or cleanup['selected_expected']!=expected:
+            if cleanup['policy']!='normalized-path-authority-grace-v1' or cleanup['selected_expected']!=predecessor_expected:
                 raise ValueError('unsupported B prepared cleanup policy')
             predecessor=cleanup['predecessor']['expected']
             if len(script)!=predecessor['bootstrap_bytes'] or sha(script)!=predecessor['bootstrap_sha256']:
@@ -235,6 +258,27 @@ def main():
                                      filters=[{'id':lzma.FILTER_LZMA1,'preset':9|lzma.PRESET_EXTREME,
                                                'lc':2,'lp':0,'pb':0,'mf':lzma.MF_BT4,
                                                'dict_size':67108864,'nice_len':32}])
+            if len(data)!=predecessor_expected['whole_bytes'] or sha(data)!=predecessor_expected['whole_sha256'] or sha(script)!=predecessor_expected['bootstrap_sha256']:
+                raise ValueError('private-owner predecessor whole/bootstrap differs')
+            previous=script
+            script,private_metadata=group_owner.compact_private_owner(script)
+            if group_owner.restore_bootstrap(script,private_metadata)!=previous:
+                raise ValueError('complete private-owner inverse differs')
+            report['private_owner']=private_metadata
+            data=source_package.package(script,recipe['compression'],prefix=prefix)
+            if args.wrapper=='shell':
+                control=data
+                if len(control)!=expected['whole_bytes'] or sha(control)!=expected['whole_sha256'] or sha(script)!=expected['bootstrap_sha256']:
+                    raise ValueError('strict grace predecessor whole differs before shell selection')
+                header=source_package.shell_header(kind='source',compiler=recipe['compiler'],child_reaping='ignore-after-compile')
+                whole=source_package.package_shell(source,recipe['compression'],kind='source',compiler=recipe['compiler'],child_reaping='ignore-after-compile')
+                decoder=lzma.LZMADecompressor(format=lzma.FORMAT_ALONE)
+                if decoder.decompress(whole[len(header):])!=source or not decoder.eof or decoder.unused_data:
+                    raise ValueError('shell exact C source restoration mismatch')
+                if len(header)!=selected_expected['shell_header_bytes'] or sha(header)!=selected_expected['shell_header_sha256']:
+                    raise ValueError('fixed shell header changed')
+                report['shell_predecessor_whole']={'bytes':len(control),'sha256':sha(control),'exact_grace_guard_consumed':True}
+                return whole,header
             return data,script
         first=None;first_dev=None
         for index in (1,2):
@@ -245,14 +289,14 @@ def main():
             native=compile_c(recipe['compiler'],source,directory/'native')
             if len(native)!=expected['native_bytes'] or sha(native)!=expected['native_sha256']:raise ValueError('native ELF identity mismatch')
             whole,script=package(source)
-            if len(whole)!=expected['whole_bytes'] or sha(whole)!=expected['whole_sha256'] or sha(script)!=expected['bootstrap_sha256']:
+            if len(whole)!=selected_expected['whole_bytes'] or sha(whole)!=selected_expected['whole_sha256'] or sha(script)!=selected_expected[representation+'_sha256']:
                 raise ValueError('complete launcher identity mismatch')
-            (directory/'x').write_bytes(whole);(directory/'x').chmod(0o755);(directory/'bootstrap.py').write_bytes(script)
+            (directory/'x').write_bytes(whole);(directory/'x').chmod(0o755);(directory/('shell-header.sh' if args.wrapper=='shell' else 'bootstrap.py')).write_bytes(script)
             current=(source,native,whole,script)
             if first is None:first=current
             elif current!=first:raise ValueError('independent generation did not reproduce bytes')
             row={'attempt':index,'source_bytes':len(source),'source_sha256':sha(source),'native_bytes':len(native),'native_sha256':sha(native),
-                 'whole_bytes':len(whole),'whole_sha256':sha(whole),'bootstrap_sha256':sha(script),'preprocessor':observations,
+                 'whole_bytes':len(whole),'whole_sha256':sha(whole),representation+'_sha256':sha(script),'wrapper':args.wrapper,'preprocessor':observations,
                  'shipping_alpha':alpha_metadata,'shipping_storage':storage_metadata,'shipping_scope':scope_metadata,'shipping_core':core_metadata,'shipping_input':input_metadata,'shipping_order':order_metadata,'shipping_walk':walk_metadata,'shipping_tactical':tactical_metadata,'shipping_types':type_metadata,'shipping_global_names':global_names_metadata,'shipping_recapture':recapture_metadata,'shipping_common':common_metadata}
             if args.dev:
                 dev,dev_observations,dev_alpha,dev_storage,dev_scope,dev_core,dev_input,dev_order,dev_walk,dev_tactical,dev_types,dev_global_names,dev_recapture,dev_common=generate(directory/'preprocess-dev',True)
@@ -269,7 +313,7 @@ def main():
                             'shipping_model_equivalence':False}
             report['attempts'].append(row);save()
         (out/'main.c').write_bytes(first[0]);(out/'native').mkdir();(out/'native/x').write_bytes(first[1]);(out/'native/x').chmod(0o755)
-        (out/'x').write_bytes(first[2]);(out/'x').chmod(0o755);(out/'bootstrap.py').write_bytes(first[3])
+        (out/'x').write_bytes(first[2]);(out/'x').chmod(0o755);(out/('shell-header.sh' if args.wrapper=='shell' else 'bootstrap.py')).write_bytes(first[3])
         if first_dev:
             (out/'dev').mkdir();(out/'dev/main.c').write_bytes(first_dev[0]);(out/'dev/x').write_bytes(first_dev[1]);(out/'dev/x').chmod(0o755)
         report.update(complete=True,source_reproduced=True,native_reproduced=True,whole_reproduced=True,
@@ -282,7 +326,7 @@ def main():
                       shipping_geometry='shared forward occupied-BB source walker; full attacker masks',
                       shipping_Move_ABI='generated bit3 tactical, FROM119, unchanged TO/PROMO and17-bit TT',
                       shipping_ordering_policy='quiet promotions also receive capture tactical base tier')
-        save();print(json.dumps({'complete':True,'out':str(out),'whole_bytes':len(first[2]),'source_sha256':sha(first[0]),
+        save();print(json.dumps({'complete':True,'out':str(out),'wrapper':args.wrapper,'whole_bytes':len(first[2]),'source_sha256':sha(first[0]),
                                 'native_sha256':sha(first[1]),'whole_sha256':sha(first[2]),'diagnostic_exact_control':bool(first_dev)}),flush=True)
     except Exception as error:
         report['error']=repr(error);save();raise

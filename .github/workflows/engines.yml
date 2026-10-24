@@ -87,6 +87,13 @@ jobs:
           python3 -B engines/compact/tiny-entry-f/build.py --policy material-move-tt --out "$ROVE_TEST_OUT/tiny-entry-f-material-move-tt" --dev
           python3 -B "$ROVE_TEST_OUT/tiny-entry-f-material-move-tt/selected-verifier/engines/compact/tiny-entry-f/verify.py" --build "$ROVE_TEST_OUT/tiny-entry-f-material-move-tt" --out "$ROVE_TEST_OUT/tiny-entry-f-material-move-tt-runtime"
           python3 -B -m unittest discover -s engines/experiments/tiny-e-order -p 'test_*.py'
+      - name: Reproduce each full A B C E shell wrapper and check its selected shell contract
+        if: matrix.language == 'c'
+        run: |
+          for family in a b c e; do
+            python3 -B "engines/compact/tiny-entry-$family/build.py" --wrapper shell --out "$ROVE_TEST_OUT/tiny-entry-$family-shell"
+            python3 -B "$ROVE_TEST_OUT/tiny-entry-$family-shell/selected-verifier/engines/scripts/verify_shell.py" --build "$ROVE_TEST_OUT/tiny-entry-$family-shell" --recipe "$ROVE_TEST_OUT/tiny-entry-$family-shell/selected-verifier/recipe.json" --out "$ROVE_TEST_OUT/tiny-entry-$family-shell-runtime"
+          done
       - name: Reproduce the full F kill wrapper and check its selected strict contract
         if: matrix.language == 'c'
         run: |
@@ -255,6 +262,7 @@ jobs:
             ${{ env.ROVE_TEST_OUT }}/tiny-entry-*/build.json
             ${{ env.ROVE_TEST_OUT }}/tiny-entry-*-runtime/**/*.json
             ${{ env.ROVE_TEST_OUT }}/tiny-entry-f-kill/selected-verifier/engines/compact/tiny-entry-f/recipe.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-entry-*-shell/selected-verifier/recipe.json
             ${{ env.ROVE_TEST_OUT }}/tiny-entry-f-shell/selected-verifier/engines/compact/tiny-entry-f/recipe.json
             ${{ env.ROVE_TEST_OUT }}/tiny-entry-f-resource8-shell/source-proof.json
             ${{ env.ROVE_TEST_OUT }}/tiny-entry-f-resource8-shell/selected-verifier/recipe.json

@@ -1,4 +1,20 @@
-# Maintained A: terminal seek-implied flush — 2026-10-24
+# Maintained A: current full Loose wrapper choices
+
+Current 2026-10-25 full Loose selections fix workers2 / TT18 / PLY128:
+default `--wrapper grace` is **4,768 B**, and explicit `--wrapper shell` is
+**4,232 B**. Each reproduced twice and passed its own quit/EOF selected
+runtime checks (four sessions, 16 legal GO results across the two wrappers).
+Engine source8335/2d077291 and native18576/9b0e162a are unchanged.
+
+The new grace stage retains compiler-group ownership, final reap and125
+workspace preservation. Bash has separate cancellation and delayed-cleanup
+guarantees. Both remain above4096; neither result proves strength or tournament
+eligibility. A's optional root policies retain their prior path and explicitly
+reject shell. No UCI option is added. Current receipts and CI status are in
+[the acceptance record](../../../docs/WRAPPER-IMPLEMENTATION.ko.md#후속-압축과-엔진별-bash-인수).
+The source-freeze and first-cost records below retain their historical scope.
+
+## Historical terminal seek-implied flush record — 2026-10-24
 
 기본 `loose` full shipping의 측정 선택 파일은 **4807 B**다. actual W1+W2 전체
 4810 B와 같은 source/native·73 B header·BT2/nice24/16KiB codec에서3 B 줄었다.

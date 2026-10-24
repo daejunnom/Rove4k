@@ -121,8 +121,11 @@ def main():
     expected = recipe['expected']
     profile = recipe['profile']
     workers = profile['workers']
-    require(type(workers) is int and workers in (2, 8) and profile['tt_bits'] == 18,
-            'explicit F two/eight-worker, TT18 profile required')
+    family = recipe['family']
+    require(family in ('A', 'B', 'C', 'E', 'F') and type(workers) is int
+            and workers in ((2, 8) if family == 'F' else (2,))
+            and profile['tt_bits'] == 18 and profile['ply'] == 128,
+            'explicit maintained A/B/C/E two-worker or F two/eight-worker TT18/ply128 profile required')
     whole = (build/'x').read_bytes()
     for name, key in (('x', 'whole'), ('main.c', 'source'), ('native/x', 'native')):
         data = (build/name).read_bytes()
@@ -152,7 +155,7 @@ def main():
     report = {'complete': False, 'scope': 'new source/Bash shell whole, fixed recipe and actual native, delayed cleanup, legal GO and physical exit',
         'wrapper_policy': 'source-shell-bash-ignore-after-compile-v1',
         'recipe_sha256': sha(recipe_raw), 'expected_contract': expected,
-        'profile': profile, 'helper_inputs': helper_rows, 'sessions': [],
+        'family': family, 'profile': profile, 'helper_inputs': helper_rows, 'sessions': [],
         'actual_affinity': sorted(os.sched_getaffinity(0)),
         'workers_exceed_admitted_CPUs': workers > len(os.sched_getaffinity(0)),
         'resource_limits': {'AS_per_inheriting_process': 2147483648,

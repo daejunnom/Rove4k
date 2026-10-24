@@ -253,7 +253,7 @@ def _joined(parts):
     return ''.join(value for _,value in parts).encode('utf-8')
 
 
-def _admit_prepared(script):
+def _admit_prepared(script, *, cleanup=None):
     """Recognize the complete current prepared-file owner, not loose markers.
 
     Scope is the closed C stream/ZIP W1+W2+seek owner. Restored-files and Rust's
@@ -297,7 +297,7 @@ def _admit_prepared(script):
     parts={'imports':'import os,signal,subprocess,sys,tempfile'+(',zipfile' if zipped else '')+',shutil,time\n',
            'environment':environment,'source':source,'call':call,'open':open_call,'exec':exec_call,
            'register':registration,'reset':reset}
-    _require(_joined(_prepared_parts(parts))==script, 'unknown prepared owner scaffold')
+    _require(_joined(_prepared_parts(parts,**(cleanup or {})))==script, 'unknown prepared owner scaffold')
     return parts
 
 
@@ -326,7 +326,7 @@ def _rewrite_parts(before, after, kind, contract):
 def restore_bootstrap(candidate, metadata):
     """Restore one compact/normalized prepared owner, including identity."""
     _require(type(candidate) is bytes and metadata.get('kind') in
-             ('compact-cleanup','normalized-prepared-template') and _pin(candidate)==metadata.get('output'),
+             ('compact-cleanup','normalized-prepared-template','private-owner-spelling') and _pin(candidate)==metadata.get('output'),
              'owner candidate pin differs')
     result=candidate
     for span in reversed(metadata['spans']):
@@ -385,6 +385,55 @@ def compact_cleanup(script, *, state=True, wait=False, termination='grace'):
              'AST outside declared cleanup regions differs')
     record['outside_owned_AST_equal']=True
     record['source_expression']=_pin(parts['source'].encode('utf-8'))
+    return data,record
+
+
+def compact_private_owner(script, *, wait=False, termination='grace'):
+    """Shorten private truth consumers and helper names in the selected C owner.
+
+    This optional terminal stage admits only the complete state=True prepared
+    owner. The engine source, compiler fields, masks, deadlines, signal
+    order, retained leader, final reap and 125 preservation are untouched. Return
+    0/1 is consumed only by the closed wait/live conditions. Builtin Popen is
+    truthy and mkdtemp returns a nonempty path, or these owners remain None.
+    Linux procfs PID entries use ASCII decimal names; isdigit is scoped to that
+    fixed enumeration. Private helper names, value types, namespace snapshots,
+    exact exception traces and exotic procfs substitutions are not preserved.
+    This is not a general Python optimizer or an input to compact_cleanup.
+    """
+    _require(type(wait) is bool and termination in ('grace','kill') and not (wait and termination=='kill'),
+             'explicit private owner wait/termination required')
+    parts=_admit_prepared(script,cleanup={'state':True,'wait':wait,'termination':termination})
+    before=_prepared_parts(parts,state=True,wait=wait,termination=termination)
+    after=[]
+    for role,value in before:
+        if role=='helpers':
+            value=(value.replace('return False','return 0').replace('return True','return 1')
+                .replace('n.isdecimal()','n.isdigit()').replace('kill(','k(')
+                .replace('def wait(','def w(').replace('live(','l('))
+        elif role=='cleanup':
+            value=value.replace('if p is not None:','if p:').replace('kill(','k(').replace('not wait(','not w(')
+        elif role=='directory_cleanup':
+            value=value.replace('if d is not None:','if d:')
+        after.append((role,value))
+    data,record=_rewrite_parts(before,after,'private-owner-spelling',{
+        'termination':termination,'skip_waitable_leader_grace_wait':wait,
+        'scope':'closed selected C prepared owner; state=True',
+        'truth_contexts':'wait/live results become 0/1; builtin Popen and nonempty mkdtemp path guards',
+        'pid_names':'ASCII decimal PID entries of Linux /proc; no arbitrary directory input',
+        'helper_names':{'kill':'k','wait':'w','live':'l'},
+        'retained_leader_and_last_reap':True,'workspace_preserved_on_settlement125':True,
+        'signals_masks_deadlines_and_FD_exec_unchanged':True,
+        'observation_exclusions':['private helper names and control value types','private namespace snapshots',
+            'exact exception traces','substituted or exotic non-Linux procfs']})
+    for raw in (script,data):
+        tree=ast.parse(raw);outer,inner=_owners(tree)
+        inner.finalbody=[ast.Pass()];outer.finalbody=[ast.Pass()]
+        tree.body=[node for node in tree.body if not (isinstance(node,ast.FunctionDef) and
+            node.name in ('kill','wait','live','k','w','l'))]
+        if raw==script:original=_dump(tree)
+        else:_require(original==_dump(tree), 'AST outside private owner regions differs')
+    record.update(outside_owned_AST_equal=True,source_expression=_pin(parts['source'].encode('utf-8')))
     return data,record
 
 

@@ -11,7 +11,10 @@ Draft PR #12를 재사용한다. 학습·AWS·유료 자원·예약 작업·npm 
 않는다. Full 엔진과 고정 worker/TT를 유지하는 기본판을 우선하며, 종료 유예나
 포장 계약을 바꾸는 후보는 별도 build 선택과 산출물로 식별한다.
 
-## 현재 선택과 역사 기록의 구분
+현재 후속 선택과 실행 상태는 [후속 압축과 엔진별 Bash 인수](#후속-압축과-엔진별-bash-인수)에
+기록한다. 아래 감사 기준과 시작 기준의 숫자는 각각 명시한 과거 source에 한정한다.
+
+## 감사 기준 d8bdd0e1과 역사 기록
 
 2026-10-25의 외부 `Rove4k-Artifact-History-Audit.md`를 현재
 `d8bdd0e178ff7536db9875c316b0b8fb698c3729` 및 지목한 과거 Git 기록과
@@ -37,8 +40,8 @@ A/B/C/E/F 각각 20/15/22/43/55 B 작다. 과거 커밋 전체로 돌아가면 �
 잃으므로 현재 source에서 같은 계약의 후보끼리 비교한다.
 
 F의 4260 B는 `3069597` 안의 old-owner 중간값이고 그 커밋의 최종 기본값은
-4640 B다. 현재 `legacy`는 quiet/seek 직전 비교가 아닌 해당 축약을 포함한
-`3326f56b` 기준 F2 4590 B/F8 4602 B의 직접 predecessor다. Historical
+4640 B다. 현재 `legacy`는 quiet/seek 축약을 포함한 `3326f56b` 기준
+F2 4590 B/F8 4602 B의 직접 predecessor다. Historical
 old-owner 최소 4275/4284 B를 복원하는 옵션이 아니다. Reduced F의 현재
 grace 4616/4342 B 및 kill 4591/4311 B도 각각 원 기능 정책으로 비교한다.
 
@@ -53,6 +56,95 @@ README 첫머리와 stdout에 현재 선택을 명시하고, 실제 실행에는
 cleanup child 회수 조건 때문에 미선택이며, F2/F8 Bash의 70/68 B 여유는
 파일 크기 조건에 한정한다. Compiler cancellation, 호스트의 orphan 처리,
 시작·잔존 파일 조건과 출전 적격성은 대상에서 별도로 판단한다.
+
+## 후속 압축과 엔진별 Bash 인수
+
+2026-10-25 후속 source의 비용은 A/B/C/E grace 4768/5245/4906/4859 B,
+F2 full grace/kill/shell 4553/4529/4026 B, F8 full grace/kill/shell
+4571/4542/4028 B다. Reduced F noise grace/kill 4594/4566 B,
+move-TT 4325/4297 B다. 새 ordinary 재현과 selected 실행을 모두 마감했다.
+아래 실제 종료 결과와 해당 PR head의 CI를 별도로 인수하며 과거 통과로
+대체하지 않는다.
+
+| Full 엔진 | 감사 기준 grace | 새 grace | 절감 | 별도 Bash shell |
+|---|---:|---:|---:|---:|
+| A | 4785 | 4768 | 17 | 4232 |
+| B | 5259 | 5245 | 14 | 4712 |
+| C | 4924 | 4906 | 18 | 4375 |
+| E | 4878 | 4859 | 19 | 4323 |
+| F2 | 4576 | 4553 | 23 | 4026 |
+| F8 | 4588 | 4571 | 17 | 4028 |
+
+모두 같은 full 기능과 고정 자원을 유지한다. A/B/C/E/F8의 source/native는
+동일하고, F2 source 표기만 바뀌며 전처리/native 전체가 동일하다. F2 legacy는
+7830 source/4590 whole을 그대로 두고 새 alias를 적용하지 않는다.
+
+공통 `compact_private_owner`는 현재 state=True C prepared-owner의 닫힌
+구조를 인수한다. Private helper 이름과 truth 소비 전용 값·guard, Linux
+procfs의 ASCII PID 이름 검사만 줄인다. 완전 역변환과 외부 AST·source
+expression을 대조하고 WNOWAIT·group 정착·마지막 reap·125 보존은 유지한다.
+최종 frozen 공통 검사 15개가 skip 없이 통과했으며 original/new owner의
+20개 fixture에서 실제 손자 종료, 취소, 실패, FD exec와 상태 보존을 확인했다.
+
+F2의 순수 static alias는 source7830을7740으로 줄인다. 27개 keyword 사용과
+macro 삽입의 모든 구간·보호 complement·전체 역변환을 확인했다. 기존·static·
+static+const 세 입력의 전처리 전체64543 B 및 native18576 B가 각각 동일했다.
+Static+const는 더 짧은 source라도 shell이1 B 커져 미선택이다. F8 alias는
+shell이2 B 커져 미선택이며 현재 F8은 정확한 F2 alias 역변환 후 원래
+resource proof를 적용한다. 공통 owner와 F2 alias의 결합 whole4553 B는
+별도 인코딩한 실제 값이다. 독립 절감량을 합산하지 않는다.
+
+A/B/C/E에 명시 build-only `--wrapper shell`을 연결하고 공통 Bash verifier의
+입장 범위만 fixed A/B/C/E2 또는 F2/F8, TT18/PLY128로 넓혔다. 기존 실제
+native·stdio·TID·child·경로 정리·quit/EOF 검사를 그대로 사용한다. A root
+정책은 해당 선택을 거절하며 새 grace 축약도 기존 미적용 범위를 유지한다.
+Shell은 각 엔진 실제 실행 후에만 인수한다. Full 기능·고정 자원·기본 grace는
+유지하며 새 UCI 옵션은 추가하지 않는다.
+
+ABCE 후속 ordinary 8회와 selected 8회는 원 관리 session92085를 끝까지 유지해
+exit0으로 마감했다. 각 ordinary 독립2회 생성으로16회 재현,
+quit/EOF16세션·64 legal GO가 통과했다. Compile CPU2/runtime CPU2–3에서
+엔진별 native·TID·stdio·초기 named path와 같은 엔진이 살아 있는 동안의
+경로 삭제·cleanup child 소멸·SIGCHLD IGN·NX/no-WX를 확인했다. Source9와
+동결 input139가 실행 전후 같고 forced cleanup0/owned process0이다.
+현재 A/B/C/E shell은 비용만 확인한 후보를 넘어 해당 별도 계약의 실제 실행을
+확인했다. 모두4096 B보다 크며 기력·대회 적격성이나 CI 완료를 뜻하지 않는다.
+외부 final index SHA-256은
+`b6579e2f9c462a7e6554d4c3434c9e4a8d8ee298cae497db790cac9b1a1da07f`다.
+
+F2의 full grace/kill/shell과 reduced grace/kill 네 조합, F8 grace/kill/shell의
+총10개 선택도 원 session32432를 유지해 exit0으로 마감했다. Ordinary10회가
+각2회 재현했고 selected10회의 quit/EOF20세션·80 legal GO가 통과했다.
+Full F2 grace의 기존 DEV도2회 재현했다. F8 세 경로는 단독 CPU0–7에서
+9 TID와 모든8worker의 양수 CPU tick을 확인했다. 소스83과 producer4는
+동결 전후 동일하고 forced cleanup0/owned process0이다. ABCE와 합쳐
+18개 선택·36회 독립 생성·36세션·144 legal GO다. 보조 compiler fixture나
+과거 실행을 이 수에 합치지 않는다. 로컬 실행은 기력·스케일링 판정이 아니다.
+F 인수 final index SHA-256은
+`b1ef0f9602cf4f136c0e136499d1a358d8056351ac0d07f187e0012fcacb6313`다.
+
+새 full F2 shell은4026 B/
+`c0ba0e13d0c81d3f779996e1782d04d5c1f294cdb120192e749d480ddc8b372b`이며
+F8 shell은4028 B/`72a41ba1eb5cc889a2944d2de4d793d5e135be9be4a68fdc3d06e81874fbfaaf`다.
+두 제품과 manifest는 새 외부 인수 폴더의 submissions에 별도 복사·해시 확인했고
+이전 d8 제품을 덮어쓰지 않았다. F2는 이전4026 B와 크기만 같고 source와
+whole SHA는 다르다.
+
+중간 표시 정리 commit `0de220a5e285d1e16f75b0cdfb0c28223f827c89`의
+Engine CI40123885682는 F README 변경에 대한 F8 source closure pin을 함께
+갱신하지 못해 실패했다. 실제 C job120961062486의 F8 실행 전 입장에서
+`project source closure changed: engines/compact/tiny-entry-f/README.md`를
+확인했다. Rust·NVCompact·Repository는 통과했지만 중간 전체 CI는 실패다.
+원 실패와 로그를 보존하고, 후속 F8 dependency refresh와 최종 source CI를
+별도 확인한다. 실패를 단순 문서 변경이라는 이유로 성공 처리하지 않는다.
+
+최종 source의 workflow는 ABCE shell 네 실제 빌드·선택 검사를 추가한다.
+기존 F2 kill/shell, F8 shell 및 Rust 검사를 유지하며 duplicate-key YAML과
+33개 run block의 bash syntax가 통과했다. 현재 최종 CI 결과는 같은 Draft
+PR #12의 해당 head checks 및 외부 통합 인덱스에서 확인한다. 이 문서의
+로컬 통과로 CI 성공을 미리 기록하지 않는다. 남은 작업은 grace의4096 B,
+다른 A–F 경로의 축약과 full 기능, 대상 호스트의 시작·정리 조건 및 실전 비교다.
+기준선별 source·wrapper·기능을 구분하며 크기 목표 이후에도 유효한 축약을 찾는다.
 
 ## 기준과 바로잡은 전제
 

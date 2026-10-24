@@ -67,7 +67,8 @@ def compile_c(command,source,directory):
 
 # Keep predecessor identities literal: selecting a wrapper never redefines its input.
 FULL_WRAPPER_PREDECESSOR={'source_bytes': 7830, 'source_sha256': '43bc67816e91077c4cfd182ec6ba44aed7d0223d012cff82f5366ad58da63582', 'native_bytes': 18576, 'native_sha256': '3aaaacf7891a2a4660f45d75b2b3e550ab40bf01c0c1766768517719cd1e63ec', 'bootstrap_bytes': 9646, 'bootstrap_sha256': 'c5c42eb0522a499593f1233c0093bb44e964f1066b88fc2b84512c8e62c4fa12', 'whole_bytes': 4590, 'whole_sha256': '0582b96a9f0197108b5892fb6d3ab0705225ceefd3370e06314924735bc51899'}
-WRAPPER_EXPECTED={'grace': {'full': {'bootstrap_bytes': 9615, 'bootstrap_sha256': '8bb9cf75ba9c7dd70b874769fe1f99129ce8cdd699858565b8d4ffdd87f576ad', 'whole_bytes': 4576, 'whole_sha256': '1c4be9d1dfbfbf38798fe00eda039f6c866dd3f6779c6c920c8c2ec40d02c6e1'}, 'material-noise': {'bootstrap_bytes': 10293, 'bootstrap_sha256': '9073fc78e4f19c3e3c872b2795784945a2080d075926ec92a836b4a100d1ea3e', 'whole_bytes': 4616, 'whole_sha256': '081326724a237f55c6e72c1590f3fbc51043fe03e8d0196ce6057874dc72bdd1'}, 'material-move-tt': {'bootstrap_bytes': 9526, 'bootstrap_sha256': 'f23373ba8da0153298f3e846acfe6713794870a8a3f8f5a2a89982167d7d67d3', 'whole_bytes': 4342, 'whole_sha256': '0387f9aad6cd1244f86d8c2bc1a5314a1c50fbb376826c7c7a1e04178618cd57'}}, 'kill': {'full': {'bootstrap_bytes': 9548, 'bootstrap_sha256': '53041259a11d2f5cbdf4dfc7efbf3b5afea408ce3a378564ad69d168b56eb69a', 'whole_bytes': 4551, 'whole_sha256': '125e20e91a7562b3973008042ba3ece1c0ecbe41156390d2eda01a28d92b4a70'}, 'material-noise': {'bootstrap_bytes': 10226, 'bootstrap_sha256': 'cceeb116f6f62c404df3e026791eab2f48187d694908192236fe2dce12fac8de', 'whole_bytes': 4591, 'whole_sha256': '1e9ac418edd4677bb823deaeca2993abfa2c8d78e90b9ae4c41101e01d69e059'}, 'material-move-tt': {'bootstrap_bytes': 9459, 'bootstrap_sha256': '51763c557f18d7a0ea0d3b52ed6ed018517026a5492350b02ecc1b0bfc834b9d', 'whole_bytes': 4311, 'whole_sha256': 'b1a53dd8946e201d55659848f9b03a114a656b2ac53aa144e512c47abc0746e4'}}, 'legacy': {'full': {'bootstrap_bytes': 9646, 'bootstrap_sha256': 'c5c42eb0522a499593f1233c0093bb44e964f1066b88fc2b84512c8e62c4fa12', 'whole_bytes': 4590, 'whole_sha256': '0582b96a9f0197108b5892fb6d3ab0705225ceefd3370e06314924735bc51899'}, 'material-noise': {'bootstrap_bytes': 10497, 'bootstrap_sha256': '958ed7d9290a131eb2b9f8e96fde3dfeb27b4284e89fccd71aab27faa8a1169b', 'whole_bytes': 4697, 'whole_sha256': 'd764d8f31e561bd173f24980fdc64a9666154738eb6daedb4c21eb3912a2e1d2'}, 'material-move-tt': {'bootstrap_bytes': 9730, 'bootstrap_sha256': '44c7a210177be3f5ed01c4f97fb30c9ca6a46bab34878121e9e6b7dd28974c8c', 'whole_bytes': 4425, 'whole_sha256': '39d082412b24be71c6dd93402dfb2f649b22ef56c808a1c55837e283b55b92a4'}}, 'shell': {'full': {'whole_bytes': 4026, 'whole_sha256': '488cd3f627ee21537001bd9df1c2fab7aa07f8a962355d69bf4c5968df8d5fd0', 'shell_header_bytes': 316, 'shell_header_sha256': 'a784b94f1099ab89161b084c127e84a480652953f9b16fabdb3b3e49d6f93973'}}}
+PREVIOUS_WRAPPER_EXPECTED={'grace': {'full': {'bootstrap_bytes': 9615, 'bootstrap_sha256': '8bb9cf75ba9c7dd70b874769fe1f99129ce8cdd699858565b8d4ffdd87f576ad', 'whole_bytes': 4576, 'whole_sha256': '1c4be9d1dfbfbf38798fe00eda039f6c866dd3f6779c6c920c8c2ec40d02c6e1'}, 'material-noise': {'bootstrap_bytes': 10293, 'bootstrap_sha256': '9073fc78e4f19c3e3c872b2795784945a2080d075926ec92a836b4a100d1ea3e', 'whole_bytes': 4616, 'whole_sha256': '081326724a237f55c6e72c1590f3fbc51043fe03e8d0196ce6057874dc72bdd1'}, 'material-move-tt': {'bootstrap_bytes': 9526, 'bootstrap_sha256': 'f23373ba8da0153298f3e846acfe6713794870a8a3f8f5a2a89982167d7d67d3', 'whole_bytes': 4342, 'whole_sha256': '0387f9aad6cd1244f86d8c2bc1a5314a1c50fbb376826c7c7a1e04178618cd57'}}, 'kill': {'full': {'bootstrap_bytes': 9548, 'bootstrap_sha256': '53041259a11d2f5cbdf4dfc7efbf3b5afea408ce3a378564ad69d168b56eb69a', 'whole_bytes': 4551, 'whole_sha256': '125e20e91a7562b3973008042ba3ece1c0ecbe41156390d2eda01a28d92b4a70'}, 'material-noise': {'bootstrap_bytes': 10226, 'bootstrap_sha256': 'cceeb116f6f62c404df3e026791eab2f48187d694908192236fe2dce12fac8de', 'whole_bytes': 4591, 'whole_sha256': '1e9ac418edd4677bb823deaeca2993abfa2c8d78e90b9ae4c41101e01d69e059'}, 'material-move-tt': {'bootstrap_bytes': 9459, 'bootstrap_sha256': '51763c557f18d7a0ea0d3b52ed6ed018517026a5492350b02ecc1b0bfc834b9d', 'whole_bytes': 4311, 'whole_sha256': 'b1a53dd8946e201d55659848f9b03a114a656b2ac53aa144e512c47abc0746e4'}}, 'legacy': {'full': {'bootstrap_bytes': 9646, 'bootstrap_sha256': 'c5c42eb0522a499593f1233c0093bb44e964f1066b88fc2b84512c8e62c4fa12', 'whole_bytes': 4590, 'whole_sha256': '0582b96a9f0197108b5892fb6d3ab0705225ceefd3370e06314924735bc51899'}, 'material-noise': {'bootstrap_bytes': 10497, 'bootstrap_sha256': '958ed7d9290a131eb2b9f8e96fde3dfeb27b4284e89fccd71aab27faa8a1169b', 'whole_bytes': 4697, 'whole_sha256': 'd764d8f31e561bd173f24980fdc64a9666154738eb6daedb4c21eb3912a2e1d2'}, 'material-move-tt': {'bootstrap_bytes': 9730, 'bootstrap_sha256': '44c7a210177be3f5ed01c4f97fb30c9ca6a46bab34878121e9e6b7dd28974c8c', 'whole_bytes': 4425, 'whole_sha256': '39d082412b24be71c6dd93402dfb2f649b22ef56c808a1c55837e283b55b92a4'}}, 'shell': {'full': {'whole_bytes': 4026, 'whole_sha256': '488cd3f627ee21537001bd9df1c2fab7aa07f8a962355d69bf4c5968df8d5fd0', 'shell_header_bytes': 316, 'shell_header_sha256': 'a784b94f1099ab89161b084c127e84a480652953f9b16fabdb3b3e49d6f93973'}}}
+WRAPPER_EXPECTED={'grace': {'full': {'bootstrap_bytes': 9449, 'bootstrap_sha256': 'd8546d6bffb2c81856e6f54975f6121d97cf53948b16386793012088cb6991f6', 'whole_bytes': 4553, 'whole_sha256': '42d2cc763a891019d40550debcb29959c73179e89988bc44f6b94e9e15e94633', 'source_bytes': 7740, 'source_sha256': 'f99f1c48e8a77d1f9483b09d46f2d68f7b1e92ea94dd437d708cc3e5a10dcfa9'}, 'material-noise': {'bootstrap_bytes': 10217, 'bootstrap_sha256': 'da1bfa93e66d7e55aed0a66dcd9290f08449f7b0b8443b13dbdf9d041d1f8f5b', 'whole_bytes': 4594, 'whole_sha256': 'e26562b7d469639c715fa43254eac9fef1e4e87faf9c9ef0439a0d9b9cc11916'}, 'material-move-tt': {'bootstrap_bytes': 9450, 'bootstrap_sha256': '83f0b704c8084ec69f7fc8c224575854a9c41a24f39f42e0784f6166251e82c8', 'whole_bytes': 4325, 'whole_sha256': 'e6977187aa55326b984844de050a673c6b3b05c782e1a3d1809cdc100e8837b1'}}, 'kill': {'full': {'bootstrap_bytes': 9391, 'bootstrap_sha256': '1758a41818a25558cd8bd99e7ff0fd938678326fb9caf78bddc7cc87169f5e7a', 'whole_bytes': 4529, 'whole_sha256': '2a7e012769abd59740cb7e7cd4664d688064568924f3e404ed2adc626cda5f4d', 'source_bytes': 7740, 'source_sha256': 'f99f1c48e8a77d1f9483b09d46f2d68f7b1e92ea94dd437d708cc3e5a10dcfa9'}, 'material-noise': {'bootstrap_bytes': 10159, 'bootstrap_sha256': '35082c88bd3829f66d89d01597b56b56fd3cf11eacb4d38dd5f064ca6cc8fe22', 'whole_bytes': 4566, 'whole_sha256': '786b207ea92de9c37cc6687f58f1d96b3ad9dc89adf01716a76c5d438eef4269'}, 'material-move-tt': {'bootstrap_bytes': 9392, 'bootstrap_sha256': 'df013153b6c2debbb9589a215ff6b16d706b1ea2ac86773610ffca621a2455fc', 'whole_bytes': 4297, 'whole_sha256': '7d9b5778c8b7e695f6e29e92905067f5885bd121f19b8a79efdb56d0af451a44'}}, 'legacy': {'full': {'bootstrap_bytes': 9646, 'bootstrap_sha256': 'c5c42eb0522a499593f1233c0093bb44e964f1066b88fc2b84512c8e62c4fa12', 'whole_bytes': 4590, 'whole_sha256': '0582b96a9f0197108b5892fb6d3ab0705225ceefd3370e06314924735bc51899', 'source_bytes': 7830, 'source_sha256': '43bc67816e91077c4cfd182ec6ba44aed7d0223d012cff82f5366ad58da63582'}, 'material-noise': {'bootstrap_bytes': 10497, 'bootstrap_sha256': '958ed7d9290a131eb2b9f8e96fde3dfeb27b4284e89fccd71aab27faa8a1169b', 'whole_bytes': 4697, 'whole_sha256': 'd764d8f31e561bd173f24980fdc64a9666154738eb6daedb4c21eb3912a2e1d2'}, 'material-move-tt': {'bootstrap_bytes': 9730, 'bootstrap_sha256': '44c7a210177be3f5ed01c4f97fb30c9ca6a46bab34878121e9e6b7dd28974c8c', 'whole_bytes': 4425, 'whole_sha256': '39d082412b24be71c6dd93402dfb2f649b22ef56c808a1c55837e283b55b92a4'}}, 'shell': {'full': {'whole_bytes': 4026, 'whole_sha256': 'c0ba0e13d0c81d3f779996e1782d04d5c1f294cdb120192e749d480ddc8b372b', 'shell_header_bytes': 316, 'shell_header_sha256': 'a784b94f1099ab89161b084c127e84a480652953f9b16fabdb3b3e49d6f93973', 'source_bytes': 7740, 'source_sha256': 'f99f1c48e8a77d1f9483b09d46f2d68f7b1e92ea94dd437d708cc3e5a10dcfa9'}}}
 PRECOMPACT_BOOTSTRAP={'full': (9646, 'c5c42eb0522a499593f1233c0093bb44e964f1066b88fc2b84512c8e62c4fa12'), 'material-noise': (10324, '8f7622dda07bc4afe047aff82a4ebe23417c241f5d899abb52671a971f3a4741'), 'material-move-tt': (9557, '96d427e54c624dbd859ea2113434ca57c20eb61a20cb6e0649b7d0f5b40067a5')}
 
 
@@ -235,6 +236,7 @@ def main():
         mtd_state=module('entry_F_mtd_state',frozen/'shipping_mtd_state.py')
         go_boundary=module('entry_F_go_boundary',frozen/'shipping_go_boundary.py')
         quiet_slot=module('entry_F_quiet_slot',frozen/'shipping_quiet_slot.py')
+        static_alias=module('entry_F_static_alias',frozen/'shipping_static_alias.py')
         # Keep this base for every unchanged shipping readable/spelling guard.
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
@@ -472,8 +474,13 @@ def main():
                     common_metadata['sole_go_boundary']=go_metadata
                     data,slot_metadata=quiet_slot.transform_source(data)
                     common_metadata['quiet_continuation_slot']=slot_metadata
+                    if args.wrapper!='legacy':
+                        data,alias_metadata=static_alias.transform_source(data)
+                        common_metadata['static_keyword_alias']=alias_metadata
             return data,observations,counters,alpha_metadata,storage_metadata,scope_metadata,member_metadata,semantic_metadata,input_metadata,declaration_metadata,hce_metadata,type_metadata,unit_bound_metadata,startup_metadata,global_names_metadata,capture_metadata,policy_metadata,material_names_metadata,material_capture_metadata,move_tt_metadata,move_tt_names_metadata,expressions_metadata,common_metadata,before_names
         def package(source):
+            selected_source=source
+            if args.policy=='full' and args.wrapper!='legacy':source=static_alias.restore_source(source)
             previous_literal=lambda data:common.source_literal(data,literal)
             successor_literal=lambda data:square_successor.source_literal(data,previous_literal)
             return_literal=lambda data:return_token.source_literal(data,successor_literal)
@@ -543,10 +550,10 @@ def main():
                 header=source_package.shell_header(kind='source',compiler=recipe['compiler'],child_reaping='ignore-after-compile')
                 if len(header)!=expected['shell_header_bytes'] or sha(header)!=expected['shell_header_sha256']:
                     raise ValueError('fixed shell header differs')
-                data=source_package.package_shell(source,compression,kind='source',compiler=recipe['compiler'],child_reaping='ignore-after-compile')
+                data=source_package.package_shell(selected_source,compression,kind='source',compiler=recipe['compiler'],child_reaping='ignore-after-compile')
                 report['wrapper_contract'].update(representation='source-shell-header',contract=recipe['wrapper_contracts']['shell_contract'],
                     shell_header={'bytes':len(header),'sha256':sha(header)},
-                    payload={'bytes':len(data)-len(header),'source_bytes':len(source),'source_sha256':sha(source)},
+                    payload={'bytes':len(data)-len(header),'source_bytes':len(selected_source),'source_sha256':sha(selected_source)},
                     compiler_owner_lifetime_equivalence_claimed=False)
                 return data,header
             if args.policy!='full':
@@ -587,6 +594,22 @@ def main():
             if compiler_owner.restore_bootstrap(script,cleanup)!=before_cleanup:
                 raise ValueError('compact cleanup full inverse differs')
             report['wrapper_contract'].update(normalization=normalization,cleanup=cleanup)
+            previous=PREVIOUS_WRAPPER_EXPECTED[args.wrapper][args.policy]
+            if (len(script),sha(script))!=(previous['bootstrap_bytes'],previous['bootstrap_sha256']):
+                raise ValueError('private owner predecessor bootstrap differs')
+            if args.policy=='full':
+                old_script=script
+                aliased_expression,_=static_alias.source_literal(selected_source,lambda data:quiet_slot.source_literal(data,go_literal))
+                if script.count(next_expression.encode())!=1:raise ValueError('one full static alias source literal required')
+                script=script.replace(next_expression.encode(),aliased_expression.encode(),1)
+                if script.replace(aliased_expression.encode(),next_expression.encode(),1)!=old_script or opaque_tree(old_script,source)!=opaque_tree(script,selected_source):
+                    raise ValueError('static alias owner inverse/outside-source AST differs')
+                report['wrapper_contract']['static_alias']={'source_only':True,'full_inverse':True,'outside_source_AST_equal':True,
+                    'input_source':{'bytes':len(source),'sha256':sha(source)},'selected_source':{'bytes':len(selected_source),'sha256':sha(selected_source)}}
+            before_private=script
+            script,private_owner=compiler_owner.compact_private_owner(script,termination=args.wrapper)
+            if compiler_owner.restore_bootstrap(script,private_owner)!=before_private:raise ValueError('private owner full inverse differs')
+            report['wrapper_contract']['private_owner']=private_owner
             ast.parse(script)
             data=source_package.package(script,compression,prefix=prefix)
             return data,script
@@ -646,7 +669,8 @@ def main():
                               'whole_sha256':sha(first[2]),'native_sha256':sha(first[1]),'source_sha256':sha(first[0])},
                       diagnostic_exact_control=bool(first_dev),
                       diagnostic_identity_scope='current literal DEV source and ELF reproduced; prior EP diagnostic tuple compared exactly, not assumed',under_4096_bytes=len(first[2])<=4096)
-        save();print(json.dumps({'complete':True,'out':str(out),'whole_bytes':len(first[2]),'source_sha256':sha(first[0]),
+        save();print(json.dumps({'complete':True,'out':str(out),'policy':args.policy,'wrapper':args.wrapper,
+                                'resources':recipe['profile'],'whole_bytes':len(first[2]),'source_sha256':sha(first[0]),
                                 'native_sha256':sha(first[1]),'whole_sha256':sha(first[2]),'diagnostic_exact_control':bool(first_dev)}),flush=True)
     except Exception as error:
         report['error']=repr(error);save();raise

@@ -107,7 +107,8 @@
     "engines/compact/tiny-entry-f/shipping_quiet_slot.py": "05e27c7117497d9087e497e53f6b12cfbf3a067500bf2f29c40af38f1afc8c60",
     "engines/scripts/compiler_seek.py": "8ca5fd736f010cd9dd1e3b668065c0cf7d82f9e98653580b8f9b4c23e7d75a41",
     "engines/scripts/compiler_stdin.py": "fc92bb6146fcfc5a6c73cd9f68929192a90d22a875bf591caf2cf3b32b87055b",
-    "engines/scripts/compiler_group.py": "a245174aba2505493737dd87c2fd8943335346ae8ac419e79c1b203543695735"
+    "engines/scripts/compiler_group.py": "d859ccc460619102c27433e2476d6d5be2e8de4046e07d49f28c0944c7ff0a77",
+    "engines/compact/tiny-entry-f/shipping_static_alias.py": "811bb6e0e7f59115eba8fd1dfbde92fda0b8238ea6384e242bf6aa5b7fe679f1"
   },
   "resource_literals": [
     [
@@ -314,22 +315,22 @@
   },
   "expected": {
     "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
-    "source_bytes": 7830,
-    "source_sha256": "43bc67816e91077c4cfd182ec6ba44aed7d0223d012cff82f5366ad58da63582",
+    "source_bytes": 7740,
+    "source_sha256": "f99f1c48e8a77d1f9483b09d46f2d68f7b1e92ea94dd437d708cc3e5a10dcfa9",
     "native_bytes": 18576,
     "native_sha256": "3aaaacf7891a2a4660f45d75b2b3e550ab40bf01c0c1766768517719cd1e63ec",
-    "whole_bytes": 4576,
-    "whole_sha256": "1c4be9d1dfbfbf38798fe00eda039f6c866dd3f6779c6c920c8c2ec40d02c6e1",
+    "whole_bytes": 4553,
+    "whole_sha256": "42d2cc763a891019d40550debcb29959c73179e89988bc44f6b94e9e15e94633",
     "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
     "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
-    "bootstrap_sha256": "8bb9cf75ba9c7dd70b874769fe1f99129ce8cdd699858565b8d4ffdd87f576ad",
+    "bootstrap_sha256": "d8546d6bffb2c81856e6f54975f6121d97cf53948b16386793012088cb6991f6",
     "semantic_readable_bytes": 25720,
     "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
     "dev_source_bytes": 19488,
     "dev_native_bytes": 26984,
     "input_profile_readable_bytes": 28587,
     "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
-    "bootstrap_bytes": 9615
+    "bootstrap_bytes": 9449
   },
   "local_input_sha256": {
     "engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
@@ -8008,6 +8009,167 @@
     "selected_overrides": {
       "grace": {
         "full": {
+          "bootstrap_bytes": 9449,
+          "bootstrap_sha256": "d8546d6bffb2c81856e6f54975f6121d97cf53948b16386793012088cb6991f6",
+          "whole_bytes": 4553,
+          "whole_sha256": "42d2cc763a891019d40550debcb29959c73179e89988bc44f6b94e9e15e94633",
+          "source_bytes": 7740,
+          "source_sha256": "f99f1c48e8a77d1f9483b09d46f2d68f7b1e92ea94dd437d708cc3e5a10dcfa9"
+        },
+        "material-noise": {
+          "bootstrap_bytes": 10217,
+          "bootstrap_sha256": "da1bfa93e66d7e55aed0a66dcd9290f08449f7b0b8443b13dbdf9d041d1f8f5b",
+          "whole_bytes": 4594,
+          "whole_sha256": "e26562b7d469639c715fa43254eac9fef1e4e87faf9c9ef0439a0d9b9cc11916"
+        },
+        "material-move-tt": {
+          "bootstrap_bytes": 9450,
+          "bootstrap_sha256": "83f0b704c8084ec69f7fc8c224575854a9c41a24f39f42e0784f6166251e82c8",
+          "whole_bytes": 4325,
+          "whole_sha256": "e6977187aa55326b984844de050a673c6b3b05c782e1a3d1809cdc100e8837b1"
+        }
+      },
+      "kill": {
+        "full": {
+          "bootstrap_bytes": 9391,
+          "bootstrap_sha256": "1758a41818a25558cd8bd99e7ff0fd938678326fb9caf78bddc7cc87169f5e7a",
+          "whole_bytes": 4529,
+          "whole_sha256": "2a7e012769abd59740cb7e7cd4664d688064568924f3e404ed2adc626cda5f4d",
+          "source_bytes": 7740,
+          "source_sha256": "f99f1c48e8a77d1f9483b09d46f2d68f7b1e92ea94dd437d708cc3e5a10dcfa9"
+        },
+        "material-noise": {
+          "bootstrap_bytes": 10159,
+          "bootstrap_sha256": "35082c88bd3829f66d89d01597b56b56fd3cf11eacb4d38dd5f064ca6cc8fe22",
+          "whole_bytes": 4566,
+          "whole_sha256": "786b207ea92de9c37cc6687f58f1d96b3ad9dc89adf01716a76c5d438eef4269"
+        },
+        "material-move-tt": {
+          "bootstrap_bytes": 9392,
+          "bootstrap_sha256": "df013153b6c2debbb9589a215ff6b16d706b1ea2ac86773610ffca621a2455fc",
+          "whole_bytes": 4297,
+          "whole_sha256": "7d9b5778c8b7e695f6e29e92905067f5885bd121f19b8a79efdb56d0af451a44"
+        }
+      },
+      "legacy": {
+        "full": {
+          "bootstrap_bytes": 9646,
+          "bootstrap_sha256": "c5c42eb0522a499593f1233c0093bb44e964f1066b88fc2b84512c8e62c4fa12",
+          "whole_bytes": 4590,
+          "whole_sha256": "0582b96a9f0197108b5892fb6d3ab0705225ceefd3370e06314924735bc51899",
+          "source_bytes": 7830,
+          "source_sha256": "43bc67816e91077c4cfd182ec6ba44aed7d0223d012cff82f5366ad58da63582"
+        },
+        "material-noise": {
+          "bootstrap_bytes": 10497,
+          "bootstrap_sha256": "958ed7d9290a131eb2b9f8e96fde3dfeb27b4284e89fccd71aab27faa8a1169b",
+          "whole_bytes": 4697,
+          "whole_sha256": "d764d8f31e561bd173f24980fdc64a9666154738eb6daedb4c21eb3912a2e1d2"
+        },
+        "material-move-tt": {
+          "bootstrap_bytes": 9730,
+          "bootstrap_sha256": "44c7a210177be3f5ed01c4f97fb30c9ca6a46bab34878121e9e6b7dd28974c8c",
+          "whole_bytes": 4425,
+          "whole_sha256": "39d082412b24be71c6dd93402dfb2f649b22ef56c808a1c55837e283b55b92a4"
+        }
+      },
+      "shell": {
+        "full": {
+          "whole_bytes": 4026,
+          "whole_sha256": "c0ba0e13d0c81d3f779996e1782d04d5c1f294cdb120192e749d480ddc8b372b",
+          "shell_header_bytes": 316,
+          "shell_header_sha256": "a784b94f1099ab89161b084c127e84a480652953f9b16fabdb3b3e49d6f93973",
+          "source_bytes": 7740,
+          "source_sha256": "f99f1c48e8a77d1f9483b09d46f2d68f7b1e92ea94dd437d708cc3e5a10dcfa9"
+        }
+      }
+    },
+    "grace_contract": {
+      "state_authority": "private path",
+      "waitable_leader_grace_skip": false,
+      "termination": "grace",
+      "normal_compile_wait": "unbounded WNOWAIT",
+      "leader_retained_until_live_group_settled": true,
+      "last_operation": "original leader reap",
+      "settlement_failure_exit": 125,
+      "preserve_workspace_on_settlement_failure": true
+    },
+    "kill_contract": {
+      "selection": "explicit build-only; never a UCI option",
+      "termination": "immediate KILL on cleanup",
+      "compiler_INT_TERM_grace_opportunity": false,
+      "normal_compile_wait": "unbounded WNOWAIT",
+      "post_KILL_leader_budget_seconds": 5,
+      "live_group_budget_seconds": 5,
+      "parent_cancel_exit": "128+signal",
+      "leader_retained_until_live_group_settled": true,
+      "last_operation": "original leader reap",
+      "settlement_failure_exit": 125,
+      "preserve_workspace_on_settlement_failure": true
+    },
+    "transport_observations": [
+      "Private regular compiler input file and seekable FD0; parent UCI input preserved.",
+      "Environment snapshot evaluated in Popen arguments after source preparation.",
+      "BufferedRandom seek performs flush; pending write error surfaces at seek.",
+      "Signal registration/reset preserve order; Python private namespace and exact tracebacks excluded."
+    ],
+    "full_cost_evidence": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-abce-f-owner-combined-cost-20261024-v1-evidence/final-index.json",
+      "bytes": 93984,
+      "sha256": "40cac292a11ed179d51da92607148060b033f279630719f3c0b4560be632ec30"
+    },
+    "reduced_cost_evidence": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-alternate-prepared-firstcost-20261024-evidence/cleanup-index.json",
+      "bytes": 26262,
+      "sha256": "948b76cf8ba345f8d35d2bf440d033867e7b5d7dee2e52c751add384643ef9cd"
+    },
+    "qualification": "source proof and exact fixed costs only; new ordinary/runtime/CI not yet run",
+    "shell_status": "source integrated with final SOURCE CLEAR verifier; selected ordinary/runtime pending at source freeze",
+    "shell_contract": {
+      "policy": "source-shell-bash-ignore-after-compile-v1",
+      "engine_policy": "full only",
+      "payload": "exact selected compact C source",
+      "compiler_argv": [
+        "cc",
+        "-Os",
+        "-pthread",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "x",
+        "-s"
+      ],
+      "shell": "/bin/bash",
+      "child_reaping": "ignore-after-compile",
+      "SIGCHLD": "ignored only after successful compiler completion; selected engine has no process-child APIs",
+      "cleanup": "separate child sleeps one second then removes the private directory",
+      "extraction_failure": "wrapper exits before compiler/native launch; shell exit conventions apply",
+      "compiler_failure": "shell exits with compiler status and EXIT trap attempts private-directory cleanup",
+      "compiler_cancellation": "separate shell signal semantics, no Python-owner graceful or retained-group settlement claim",
+      "argv": "argv1 onward preserved; argv0 and /proc/self/exe use the private named executable",
+      "cwd_environment": "engine inherits original cwd/environment; compiler cwd/TMPDIR are private directory",
+      "target": "Linux Bash/cc/xz/python3; TMPDIR unset or absolute; exact source/native/compiler/codec fixed",
+      "qualification": "fixed cost and narrow cancellation fixture; actual selected F2 positive pending separate canonical verifier",
+      "size_scope": "header316 + compressed source payload3710 = complete file4026; not a TCEC eligibility claim",
+      "ordinary_strict_verifier_reused": false
+    },
+    "shell_cost_evidence": {
+      "path": "/home/stemxstudio/rove4k-source-shell-final-20261024-v1/preflight.json",
+      "bytes": 6284,
+      "sha256": "ca7c2ab49be95ec7fa61f190b10cca65ef41dc2c405ecafff0689c1d69182f36"
+    }
+  },
+  "shell_verifier_snapshot_sha256": {
+    "engines/scripts/verify_shell.py": "5c6795a53da29042dbab81534d6b25fe0c3e435f870d776d6ce72939cb729b04",
+    "engines/compact/tiny-entry-d/verify.py": "18faa69aed5cb5dd85a054ef2e6830463f3d819f5f635d74d55550a877c81eae",
+    "engines/tests/chess_oracle.py": "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8"
+  },
+  "private_owner_spelling": {
+    "scope": "terminal private-owner spelling after all exact previous owner and whole guards; full static keyword alias only in nonlegacy full F",
+    "previous_selected_overrides": {
+      "grace": {
+        "full": {
           "bootstrap_bytes": 9615,
           "bootstrap_sha256": "8bb9cf75ba9c7dd70b874769fe1f99129ce8cdd699858565b8d4ffdd87f576ad",
           "whole_bytes": 4576,
@@ -8075,85 +8237,15 @@
         }
       }
     },
-    "grace_contract": {
-      "state_authority": "private path",
-      "waitable_leader_grace_skip": false,
-      "termination": "grace",
-      "normal_compile_wait": "unbounded WNOWAIT",
-      "leader_retained_until_live_group_settled": true,
-      "last_operation": "original leader reap",
-      "settlement_failure_exit": 125,
-      "preserve_workspace_on_settlement_failure": true
+    "full_static_alias": {
+      "input_bytes": 7830,
+      "input_sha256": "43bc67816e91077c4cfd182ec6ba44aed7d0223d012cff82f5366ad58da63582",
+      "source_bytes": 7740,
+      "source_sha256": "f99f1c48e8a77d1f9483b09d46f2d68f7b1e92ea94dd437d708cc3e5a10dcfa9",
+      "raw_delta": -90,
+      "helper_sha256": "811bb6e0e7f59115eba8fd1dfbde92fda0b8238ea6384e242bf6aa5b7fe679f1",
+      "native_bytes_and_features_unchanged": true
     },
-    "kill_contract": {
-      "selection": "explicit build-only; never a UCI option",
-      "termination": "immediate KILL on cleanup",
-      "compiler_INT_TERM_grace_opportunity": false,
-      "normal_compile_wait": "unbounded WNOWAIT",
-      "post_KILL_leader_budget_seconds": 5,
-      "live_group_budget_seconds": 5,
-      "parent_cancel_exit": "128+signal",
-      "leader_retained_until_live_group_settled": true,
-      "last_operation": "original leader reap",
-      "settlement_failure_exit": 125,
-      "preserve_workspace_on_settlement_failure": true
-    },
-    "transport_observations": [
-      "Private regular compiler input file and seekable FD0; parent UCI input preserved.",
-      "Environment snapshot evaluated in Popen arguments after source preparation.",
-      "BufferedRandom seek performs flush; pending write error surfaces at seek.",
-      "Signal registration/reset preserve order; Python private namespace and exact tracebacks excluded."
-    ],
-    "full_cost_evidence": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-abce-f-owner-combined-cost-20261024-v1-evidence/final-index.json",
-      "bytes": 93984,
-      "sha256": "40cac292a11ed179d51da92607148060b033f279630719f3c0b4560be632ec30"
-    },
-    "reduced_cost_evidence": {
-      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-alternate-prepared-firstcost-20261024-evidence/cleanup-index.json",
-      "bytes": 26262,
-      "sha256": "948b76cf8ba345f8d35d2bf440d033867e7b5d7dee2e52c751add384643ef9cd"
-    },
-    "qualification": "source proof and exact fixed costs only; new ordinary/runtime/CI not yet run",
-    "shell_status": "source integrated with final SOURCE CLEAR verifier; selected ordinary/runtime pending at source freeze",
-    "shell_contract": {
-      "policy": "source-shell-bash-ignore-after-compile-v1",
-      "engine_policy": "full only",
-      "payload": "exact selected compact C source",
-      "compiler_argv": [
-        "cc",
-        "-Os",
-        "-pthread",
-        "-x",
-        "c",
-        "-",
-        "-o",
-        "x",
-        "-s"
-      ],
-      "shell": "/bin/bash",
-      "child_reaping": "ignore-after-compile",
-      "SIGCHLD": "ignored only after successful compiler completion; selected engine has no process-child APIs",
-      "cleanup": "separate child sleeps one second then removes the private directory",
-      "extraction_failure": "wrapper exits before compiler/native launch; shell exit conventions apply",
-      "compiler_failure": "shell exits with compiler status and EXIT trap attempts private-directory cleanup",
-      "compiler_cancellation": "separate shell signal semantics, no Python-owner graceful or retained-group settlement claim",
-      "argv": "argv1 onward preserved; argv0 and /proc/self/exe use the private named executable",
-      "cwd_environment": "engine inherits original cwd/environment; compiler cwd/TMPDIR are private directory",
-      "target": "Linux Bash/cc/xz/python3; TMPDIR unset or absolute; exact source/native/compiler/codec fixed",
-      "qualification": "fixed cost and narrow cancellation fixture; actual selected F2 positive pending separate canonical verifier",
-      "size_scope": "header316 + compressed source payload3710 = complete file4026; not a TCEC eligibility claim",
-      "ordinary_strict_verifier_reused": false
-    },
-    "shell_cost_evidence": {
-      "path": "/home/stemxstudio/rove4k-source-shell-final-20261024-v1/preflight.json",
-      "bytes": 6284,
-      "sha256": "ca7c2ab49be95ec7fa61f190b10cca65ef41dc2c405ecafff0689c1d69182f36"
-    }
-  },
-  "shell_verifier_snapshot_sha256": {
-    "engines/scripts/verify_shell.py": "f660c0766edb7f07dc185658690051451ab7b078653807757a8a27fdfa05bafb",
-    "engines/compact/tiny-entry-d/verify.py": "18faa69aed5cb5dd85a054ef2e6830463f3d819f5f635d74d55550a877c81eae",
-    "engines/tests/chess_oracle.py": "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8"
+    "qualification": "finite firstcost and source/native proof; fresh ordinary and selected receipt recorded externally"
   }
 }

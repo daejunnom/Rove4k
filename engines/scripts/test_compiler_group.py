@@ -74,10 +74,26 @@ class SourceContracts(unittest.TestCase):
         after,record=group.compact_cleanup(before)
         with self.assertRaises(ValueError):group.restore_bootstrap(after+b'\n',record)
 
+    def test_private_owner_stage_has_complete_inverse_and_rejects_unknown_scaffolds(self):
+        before=prepared()
+        for termination,wait in (('grace',False),('grace',True),('kill',False)):
+            selected,_=group.compact_cleanup(before,termination=termination,wait=wait)
+            after,record=group.compact_private_owner(selected,termination=termination,wait=wait)
+            self.assertEqual(group.restore_bootstrap(after,record),selected)
+            self.assertTrue(record['outside_owned_AST_equal'])
+            self.assertIn(repr(SOURCE).encode(),after)
+            with self.assertRaises(ValueError):group.compact_private_owner(after,termination=termination,wait=wait)
+            with self.assertRaises(ValueError):group.compact_private_owner(selected+b'pass\n',termination=termination,wait=wait)
+        selected,_=group.compact_cleanup(before)
+        for candidate in (before,selected.replace(b"'/proc'",b"'/tmp'")):
+            with self.assertRaises(ValueError):group.compact_private_owner(candidate)
+        for kwargs in ({'wait':1},{'wait':True,'termination':'kill'},{'termination':'other'}):
+            with self.assertRaises(ValueError):group.compact_private_owner(before,**kwargs)
+
 
 PORT=r'''import builtins,json,os,signal,subprocess,sys,time
 from pathlib import Path
-wrapper=Path(sys.argv[1]);mode=sys.argv[2];log=Path(sys.argv[3]);root=Path(sys.argv[4]);sys.argv=[str(wrapper),'engine','argument']
+wrapper=Path(sys.argv[1]);mode=sys.argv[2];log=Path(sys.argv[3]);root=Path(sys.argv[4]);wait_name=sys.argv[5];live_name=sys.argv[6];sys.argv=[str(wrapper),'engine','argument']
 real_waitid=os.waitid;real_killpg=os.killpg;real_wait=subprocess.Popen.wait;real_Popen=subprocess.Popen
 children=[];observed=[];namespace={};patched=False
 def emit(event,**values):
@@ -103,14 +119,14 @@ def killpg(pid,sig):
  return real_killpg(pid,sig)
 def trace(frame,event,arg):
  global patched
- if not patched and event=='line' and frame.f_code.co_filename==str(wrapper) and 'live' in frame.f_globals and 'wait' in frame.f_globals:
-  patched=True;original=frame.f_globals['wait']
+ if not patched and event=='line' and frame.f_code.co_filename==str(wrapper) and live_name in frame.f_globals and wait_name in frame.f_globals:
+  patched=True;original=frame.f_globals[wait_name]
   def wait(n,g=0):
    actual=original(0,g);emit('wait_port',seconds=n,group=g,actual_at_entry=actual)
    if mode=='leader125':return False
    if mode=='group125' and g:return False
    return original(n,g)
-  if mode in ('leader125','group125'):frame.f_globals['wait']=wait
+  if mode in ('leader125','group125'):frame.f_globals[wait_name]=wait
   if mode=='prepare_error':
    real_open=builtins.open
    def open_source(path,*args,**kwargs):
@@ -142,6 +158,7 @@ finally:
 
 @unittest.skipUnless(sys.platform=='linux' and shutil.which('cc'),'Linux tiny compiler fixture required')
 class RuntimeContracts(unittest.TestCase):
+    private_owner=False
     @classmethod
     def setUpClass(cls):
         parent=os.environ.get('ROVE_OWNER_TEST_OUT')
@@ -200,9 +217,11 @@ class RuntimeContracts(unittest.TestCase):
             'shutil.copyfile('+repr(str(self.engine))+',"x")\nos.chmod("x",0o700)\n'+compiler_body)
         before=prepared([sys.executable,str(compiler)] if command is None else command)
         selected,_=group.compact_cleanup(before,termination=termination,wait=wait)
+        if self.private_owner:selected,_=group.compact_private_owner(selected,termination=termination,wait=wait)
         wrapper=root/'bootstrap.py';wrapper.write_bytes(selected);port=root/'port.py';port.write_text(PORT)
         env={**os.environ,'TMPDIR':str(scratch),'R4_OWNER_TEST':'env'}
-        output=self.run_owned([sys.executable,'-B',str(port),str(wrapper),mode,str(log),str(root)],root/'run',
+        output=self.run_owned([sys.executable,'-B',str(port),str(wrapper),mode,str(log),str(root),
+            'w' if self.private_owner else 'wait','l' if self.private_owner else 'live'],root/'run',
             env=env,ready=ready if cancel else None,expected=expected if expected is not None else 143 if cancel else 125 if mode.endswith('125') else 17)
         rows=[json.loads(line) for line in log.read_text().splitlines()]
         return root,scratch,rows,output,ready,marker
@@ -259,6 +278,11 @@ class RuntimeContracts(unittest.TestCase):
             ports=[r for r in rows if r['event']=='wait_port']
             self.assertTrue(any(r['seconds']==5 and r['group']==(1 if mode=='group125' else 0) for r in ports))
             self.assertTrue(any(r['event']=='fixture_reap' for r in rows))
+
+
+class PrivateRuntimeContracts(RuntimeContracts):
+    """The same lifetime and error observations on the optional emitted owner."""
+    private_owner=True
 
 
 if __name__=='__main__':unittest.main()

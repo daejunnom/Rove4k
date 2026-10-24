@@ -1,5 +1,27 @@
 # Maintained full F8: current wrapper choices and historical producing records
 
+The current 2026-10-25 follow-up keeps full workers8 / TT18 / PLY128 and nine
+native TIDs. Its selected grace/kill/shell costs are **4,571 / 4,542 / 4,028 B**.
+Grace remains default; legacy retains4,602 B. Ordinary reproduction, selected
+eight-worker observations and CI are tracked in the
+[current acceptance record](../../../docs/WRAPPER-IMPLEMENTATION.ko.md#후속-압축과-엔진별-bash-인수).
+The old passed baseline below does not qualify the newly shortened owner.
+
+F8 retains source7868/fb18e915 and native18576/8c98349f. Applying F2's static
+alias to F8 would grow the minimum shell from4028 to4030, so it is not selected
+here. The current base input is F2's7740/f99f1c48 source. Its explicit, exact
+alias inverse restores7830/43bc6781 before the existing quiet/resource proof;
+the original six resource roles and protected gaps are retained. This is a
+declared profile-specific representation choice, not a hash fallback.
+
+Grace4588 to4571 and kill4565 to4542 come from the common private-owner stage.
+All engine functions and worker checks remain. Shell retains its prior complete
+file identity and separate Bash contract, while legacy preserves its exact
+predecessor. Its68-byte margin establishes size only; target-host eligibility,
+strength and scaling remain separate.
+
+## Historical reviewed d8bdd0e1 wrapper baseline
+
 The reviewed `d8bdd0e1` baseline fixes workers8 / TT18 / PLY128, with nine
 native TIDs. `--wrapper` is a build choice; grace remains the default and
 there is no worker-count or memory-size UCI option.

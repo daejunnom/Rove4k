@@ -1,5 +1,36 @@
 # Maintained F: current wrapper choices and historical producing records
 
+The current 2026-10-25 follow-up selects the costs below. Full F and grace
+remain the defaults. Workers2 / TT18 / PLY128 are fixed in every row. The
+[current acceptance record](../../../docs/WRAPPER-IMPLEMENTATION.ko.md#후속-압축과-엔진별-bash-인수)
+records ordinary reproduction, selected runtime and CI separately; the older
+passed rows below are not reused as proof of a newly changed wrapper.
+
+| Engine policy | Wrapper | Current whole bytes | Source bytes |
+|---|---|---:|---:|
+| full | grace (default) / kill | 4,553 / 4,529 | 7,740 |
+| full | shell | 4,026 | 7,740 |
+| full | legacy | 4,590 | 7,830 |
+| material-noise | grace / kill | 4,594 / 4,566 | 8,508 |
+| material-move-tt | grace / kill | 4,325 / 4,297 | 7,741 |
+
+The new full source replaces 27 repeated `static` keywords with one unoccupied
+macro alias. Its 90-byte source reduction preserves exact preprocessed and
+native bytes. Native remains18576/3aaaacf7. The combined private-owner and
+alias cost is measured directly: grace4576 to4553, rather than adding the
+independent savings. Shell still measures4026 but has a new whole hash; its
+old488cd3f6 artifact is not the current alias-source file. Legacy intentionally
+retains the literal predecessor, including its source7830 and whole4590.
+Reduced policies bypass the alias and retain their original feature contracts.
+
+The private-owner stage shortens only closed truth consumers and private
+helper names. Retained leader, group settlement, final reap, signals, deadlines
+and125 workspace preservation remain. Bash keeps its separate cancellation
+and delayed-cleanup contract; no tournament acceptance follows from its70-byte
+margin. Current identities and commands are in the effective build report.
+
+## Historical reviewed d8bdd0e1 wrapper baseline
+
 The maintained baseline below is the reviewed `d8bdd0e1` source checkpoint.
 Every row fixes workers2 / TT18 / PLY128; `--policy` and `--wrapper` are build
 choices, with no additional UCI option. Full F and `grace` remain the defaults.

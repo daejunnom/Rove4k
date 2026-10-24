@@ -188,7 +188,13 @@ def main():
         require(sha((own/'quiet_source.py').read_bytes())==recipe['quiet_source_sha256'],'fixed local quiet helper changed')
         quiet_source=module('fixed_resource8_quiet',own/'quiet_source.py')
         quiet_input=module('fixed_F2_quiet_input',packaging['shipping_quiet_slot.py'])
-        source,proof=quiet_source.transform_source(base,quiet_input=quiet_input,resource_transform=specialize.transform_source)
+        static_alias=module('fixed_F2_static_alias',packaging['shipping_static_alias.py'])
+        resource_base=static_alias.restore_source(base)
+        require({'bytes':len(resource_base),'sha256':sha(resource_base)}==recipe['base_source_before_static_alias'],
+                'static alias inverse differs from original resource base')
+        report['base_source_admission']={'selected':identity(args.base_source),'full_inverse':True,
+            'original_resource_base':{'bytes':len(resource_base),'sha256':sha(resource_base)},'resource_helper_unchanged':True}
+        source,proof=quiet_source.transform_source(resource_base,quiet_input=quiet_input,resource_transform=specialize.transform_source)
         require({'bytes':len(source),'sha256':sha(source)}=={'bytes':expected['source_bytes'],'sha256':expected['source_sha256']} and proof['full_inverse'] and proof['raw_delta']==38 and [x['role'] for x in proof['edits']]==recipe['source_roles'],'source/profile proof differs')
         (out/'source-proof.json').write_text(json.dumps(proof,indent=2)+'\n');report['source_proof']=identity(out/'source-proof.json')
         literal=module('fixed_resource8_literal',packaging['pack_stream.py']).source_literal
@@ -241,6 +247,13 @@ def main():
                 script,cleanup_metadata=group_owner.compact_cleanup(script,state=True,wait=False,
                     termination='kill' if args.wrapper=='kill' else 'grace')
                 report['wrapper_cleanup']=cleanup_metadata
+                previous=recipe['private_owner_spelling']['previous_selected'][args.wrapper]
+                require(len(script)==previous['bootstrap_bytes'] and sha(script)==previous['bootstrap_sha256'],
+                        'private owner predecessor bootstrap differs')
+                before_private=script
+                script,private_metadata=group_owner.compact_private_owner(script,termination=args.wrapper)
+                require(group_owner.restore_bootstrap(script,private_metadata)==before_private,'private owner full inverse differs')
+                report['wrapper_private_owner']=private_metadata
             else:
                 report['wrapper_cleanup']={'applied':False,'reason':'explicit legacy keeps the v11 wrapper bytes' if args.wrapper=='legacy' else 'separate Bash source policy; Python owner is consumed only as predecessor admission'}
             if args.wrapper=='shell':

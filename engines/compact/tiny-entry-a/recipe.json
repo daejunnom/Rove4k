@@ -64,7 +64,7 @@
     "engines/compact/tiny-entry-a/shipping_pool_state.py": "87478a25e8b8e5f067230b2e0306dd3f4fbf88ee85d105da8c7cbd010544bf30",
     "engines/compact/tiny-entry-a/shipping_frequency.py": "ea26dae14aed9a570cc5c60c9bb0df5cb3a06332ad745f2030c09647e6d7dda0",
     "engines/compact/tiny-entry-a/shipping_ep.py": "5d44391eecbabf473cf08deebcc895bafc71380d157dc5eff66caca28117330c",
-    "engines/scripts/compiler_group.py": "a245174aba2505493737dd87c2fd8943335346ae8ac419e79c1b203543695735",
+    "engines/scripts/compiler_group.py": "d859ccc460619102c27433e2476d6d5be2e8de4046e07d49f28c0944c7ff0a77",
     "engines/scripts/compiler_stdin.py": "fc92bb6146fcfc5a6c73cd9f68929192a90d22a875bf591caf2cf3b32b87055b",
     "engines/scripts/compiler_seek.py": "8ca5fd736f010cd9dd1e3b668065c0cf7d82f9e98653580b8f9b4c23e7d75a41"
   },
@@ -406,14 +406,14 @@
     "source_sha256": "2d077291e5615790206a43399d809b23aca5a2deec17623cd4c32f40fcb1ebf4",
     "native_bytes": 18576,
     "native_sha256": "9b0e162a4f8f4073d2d16b6d5da336baacaf5bb5bc9e38e07f851d2afa8004f2",
-    "whole_bytes": 4785,
-    "whole_sha256": "0f980009f04c26a71feb5b10ec02669f3d5a579c9b9232683d749bc70b0f49bf",
-    "bootstrap_sha256": "e8f9fba145af65de9154a71e6e5aa42933b93f760559b07c74dfc897ed6f6b27",
+    "whole_bytes": 4768,
+    "whole_sha256": "ec8fecd318f8c19f65f1bb4092c18931770d321d464530ee072f590f9a5a0f3f",
+    "bootstrap_sha256": "bacdcd43da49be4e5bc36ea710cc738548465e1f69dbbbfcdf24c811f50b9c63",
     "dev_source_sha256": "d1f0ff322843a4210cb1cad574bc6726eef576c0fd398cb0e1cfbc12fdc81f01",
     "dev_native_sha256": "078df7141403841798e0bcb1545e59975492359b78d88b0637b99865a6bf72b9",
     "input_profile_readable_bytes": 27688,
     "input_profile_readable_sha256": "4af39bc6496c85281b322063245ee97a522b4d6c6df7c4844f71d981e733164a",
-    "bootstrap_bytes": 10111
+    "bootstrap_bytes": 10035
   },
   "local_input_sha256": {
     "engine.c": "a6aab57fffacc1900dbd9de133652d811d316b3823144ec2181c4f8dda581b6a",
@@ -4537,5 +4537,42 @@
       ]
     },
     "qualification": "PENDING ordinary regeneration and selected runtime; prior receipts retain their original scopes"
+  },
+  "shell_wrapper": {
+    "policy": "source-shell-bash-ignore-after-compile-v1",
+    "expected": {
+      "whole_bytes": 4232,
+      "whole_sha256": "a412a36e0b5bcc955d2be2ea6b3a279c6b95ef3098b5f905941eabd2269dc9e9",
+      "shell_header_bytes": 307,
+      "shell_header_sha256": "31071276e6bbd8d63aebea3d257ec0d42f8bfb332721a8355ab6e99b38f2e4ac"
+    },
+    "default_wrapper": "grace",
+    "engine_source_native_unchanged": true,
+    "contract": "separate Bash delayed-cleanup shell; ignored SIGCHLD after compile; fixed engine has no process-child API calls; no compiler group grace cancellation guarantee",
+    "runtime_at_source_freeze": "pending new ordinary reproduction and per-family quit/EOF positive verification",
+    "firstcost_reference": "docs/WRAPPER-IMPLEMENTATION.ko.md",
+    "verifier_snapshot_sha256": {
+      "engines/scripts/verify_shell.py": "5c6795a53da29042dbab81534d6b25fe0c3e435f870d776d6ce72939cb729b04",
+      "engines/compact/tiny-entry-d/verify.py": "18faa69aed5cb5dd85a054ef2e6830463f3d819f5f635d74d55550a877c81eae",
+      "engines/tests/chess_oracle.py": "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8"
+    }
+  },
+  "private_owner": {
+    "policy": "prepared-private-owner-v1",
+    "predecessor_expected": {
+      "bootstrap_bytes": 10111,
+      "bootstrap_sha256": "e8f9fba145af65de9154a71e6e5aa42933b93f760559b07c74dfc897ed6f6b27",
+      "whole_bytes": 4785,
+      "whole_sha256": "0f980009f04c26a71feb5b10ec02669f3d5a579c9b9232683d749bc70b0f49bf"
+    },
+    "source_native_resources_unchanged": true,
+    "full_inverse_required": true,
+    "observation_exclusions": [
+      "private helper names and control value types",
+      "private namespace snapshots",
+      "exact exception traces",
+      "substituted or exotic non-Linux procfs"
+    ],
+    "runtime_at_source_freeze": "pending new ordinary reproduction and selected runtime"
   }
 }

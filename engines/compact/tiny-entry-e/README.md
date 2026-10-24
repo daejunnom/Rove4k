@@ -1,4 +1,20 @@
-# Maintained E: terminal seek-implied flush - 2026-10-24
+# Maintained E: current full wrapper choices
+
+Current 2026-10-25 selections fix workers2 / TT18 / PLY128: default
+`--wrapper grace` is **4,859 B**, and explicit `--wrapper shell` is **4,323 B**.
+Each reproduced twice and passed its own quit/EOF selected runtime checks
+(four sessions, 16 legal GO results across the two wrappers). Full engine
+source8526/c0b01df4 and native18576/7d052990 are unchanged.
+
+Grace retains compiler-group ownership, final reap and125 workspace
+preservation. Bash has separate cancellation and delayed-cleanup guarantees.
+Both remain above4096; strength and tournament eligibility are not established.
+No resource UCI option is added. See
+[the acceptance record](../../../docs/WRAPPER-IMPLEMENTATION.ko.md#후속-압축과-엔진별-bash-인수)
+for current receipts and CI. Historical source-freeze and first-cost records
+below are preserved rather than overwritten.
+
+## Historical terminal seek-implied flush record - 2026-10-24
 
 The actual cost candidate is **4897 B**, down **4 B** from the current4901 B
 W1/W2 full predecessor. Bootstrap10376->10366 B removes only10 B of explicit
