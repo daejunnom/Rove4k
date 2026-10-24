@@ -13,6 +13,11 @@ Draft PR #12를 재사용한다. 학습·AWS·유료 자원·예약 작업·npm 
 
 현재 후속 선택과 실행 상태는 [후속 압축과 엔진별 Bash 인수](#후속-압축과-엔진별-bash-인수)에
 기록한다. 아래 감사 기준과 시작 기준의 숫자는 각각 명시한 과거 source에 한정한다.
+Compiler ownership의 다음 후보 비교는
+[종료 소유 모델 후속 실험](#종료-소유-모델-후속-실험)에 별도로 기록한다.
+추가 사용자 지시에 따른 현재 출품 우선순위는
+[TCEC 필수 범위 전문화](#tcec-필수-범위-전문화)다. 강한 compiler owner의 축약을
+TCEC 제출판의 선행 조건으로 두지 않는다.
 
 ## 감사 기준 d8bdd0e1과 역사 기록
 
@@ -193,6 +198,149 @@ expression의 fresh 실행으로 재집계하지 않는다. 최종 CI는 최신 
 전체 필요한 경로를 다시 실행한다. 새로운 F2 shell4018/b559c980 제품은 새
 표현 인수 폴더의 submissions에 별도 복사하고 원 실행 파일의 해시와 대조했다.
 이전4026 제품과 실패·미채택 계측 기록은 보존한다.
+
+## 종료 소유 모델 후속 실험
+
+2026-10-25 사용자가 외부 `Rove4k-Compiler-Ownership-Review.md`의 동등 계약
+축약부터 별도 ownership 후보 실험까지 단계적으로 진행하도록 요청했다.
+첨부는 참고자료이며 SHA-256은
+`df5c540ec65f78fb162f391142d51841359b4ffc7a5a028d1ab86b6959e3f050`다.
+시작 source는`6ea43d441a6c5d3ac34003567e89d070777ce02e`, tree는
+`3f5cd24c130f407c43149d7f8a4919667a061558`다. 현재 full C7712/native18576,
+F2 grace4547/kill4519/shell4018과 F8 grace4571/shell4028을 대조군으로 둔다.
+
+공개 [TCEC 4k 규칙](https://wiki.chessdom.org/Rules#7._4k_specific_rules)을
+다시 읽었다. 단일4096 B, 시작60초·잔존 파일, 허용 의존성 및 최소 UCI 조건을
+지키되 현재 WNOWAIT/procfs/단계별5초/125 구현을 규칙 자체로 고정하지 않는다.
+실행 책임과 내부 구현을 구분하고, 강한 grace와 작은 full shell의 차이는 유지한다.
+
+| 별도 후보 | F2 whole | 기존4547 대비 | 비용·계약 판단 |
+|---|---:|---:|---|
+| 실패 결과 단일화 DeMorgan | 4547 | 0 | 같은 helper 호출·예외 순서, 실제 bootstrap40 B 감소 |
+| 실패 결과 단일화 short-or | 4548 | +1 | 같은 호출 순서, 실제 bootstrap45 B 감소 |
+| subreaper/유일 raw reaper | 4618 | +71 | PRCTL 설정·원상복구·status·새 소유 불변식 포함 |
+| group grace/KILL 두 단계 | 4549 | +2 | 원 leader waitability와 live group 모두 확인한 수정 후보 |
+| pidfd/poll leader 대기 | 4650 | +103 | 생성·등록·오류 정리·close와 기존 group drain 포함 |
+| 외부 host PGID + 기존 full Bash | 4018 | 제품 변화 없음 | host tool은 개발용 별도 책임이며 제출 크기 절감으로 합산하지 않음 |
+
+원문 fragment37 B와 실제 전체 bootstrap40/45 B를 섞지 않는다. 모든 비교는
+동일한 full source·compiler·codec·header의 완성 파일을 인코딩·복원한 값이다.
+더 작은 fragment를 whole 절감으로 계산하지 않는다. 기본판보다 작은 동등 계약
+승자가 아직 없어 기존 compiler owner와 제출 파일은 유지한다. 후보는
+`engines/experiments/compiler-ownership/`에 정본으로 보존하고 새로운 공개
+`--wrapper` 옵션으로 자동 승격하지 않는다.
+
+Group 정책의 초기4543 B 후보는 main thread가 Z이고 다른 thread가 살아 있는
+경우를 고려하지 않아 미인수로 보존했다. 수정 후보는 leader의 WNOWAIT 종료와
+live group을 함께 확인한다. Group 유예5초/KILL 후5초와 cleanup 오류의
+workspace 보존은 기존 grace의 세 단계와 다른 계약이다. 10초의 엄격한 wall
+상한이나 기존 grace와의 손실 없는 동일성으로 표시하지 않는다.
+
+Subreaper는 고정 PGID·유일 reaper·SIGCHLD DFL 아래에서만 다룬다.
+waitpid 결과0일 때만 group 신호 권한을 갖고 양수 PID 뒤에는 즉시 다시 wait,
+ECHILD 뒤에는 해당 PGID에 더 신호를 보내지 않는다. Raw compiler status와
+parent cancellation을 구분하며 C compiler -15의 기존 wrapper241을 parent143으로
+바꾸지 않는다. PR_GET으로 원 subreaper 상태를 보존해 engine exec 전에 복원한다.
+
+새 pidfd 예비실험은 일반 종료·TERM·FD1100에서 POLLIN, 반복 WNOWAIT의 동일
+identity/status, proc state Z와 실제 FD close를 확인했다. 첨부의 이전 S/Z 실패는
+재현하지 못했고 원인은 미확정으로 남긴다. Normal compile은 이미 blocking이므로
+NPS·정상 시작 성능 개선으로 표시하지 않는다. Group 정착은 별도 책임이다.
+
+로컬 WSL의 현재 `/init.scope`에는 `cgroup.kill/events`가 있지만 UID1000의
+쓰기 권한은 없다. 이후 읽기 전용 조사에서
+`user.slice/user-1000.slice/user@1000.service`의 directory/procs/subtree_control은
+현재 사용자에게 쓰기 가능함을 확인했다. 현재 group의 제한만으로 로컬 전체의
+위임 부재를 결론 내리지 않는다. 기존 user manager에서 시작하는 유한 transient
+job의 실제 권한과 compiler 하위 범위는 아래 별도 실험에서 검증했다. 시스템 설정
+변경·상시 서비스를 전제하지 않는다. Root에서 파일이 없는 현상도 API 미지원으로
+해석하지 않는다.
+[Kernel cgroup 문서](https://docs.kernel.org/admin-guide/cgroup-v2.html)의
+계층 종료·populated와 child status 회수·reader 종료를 구분한다. 호스트 PGID 실험은
+기존 Owned/Budget를 재사용해 job 종료를 소유하며 compile 직후의 별도 완료 fence나
+다른 PGID의 containment를 보증하지 않는다. 권한 변경이나 새 서비스를 가정하지 않는다.
+
+동등 fold는 두 표현 각각 모형6048조합과 실제14개 method/20개 compiler
+fixture를 통과했다. Group 정책은9개 method/12개 wrapper port를 통과했으며,
+주입125와 signal 오류는 외부 fixture가 회수한 경우를 artifact 정착 성공과
+구분한다. Subreaper는12개 lifetime/error 사례와2개 직접 FFI/native flag 검사를
+통과했고 directory cleanup9회가 terminal ECHILD 뒤인지 확인했다. Subreaper에는
+변환 byte-inverse API가 없으므로 source/Popen/exec 보호·codec 복원·반복 생성과
+실행 근거를 명시하며 다른 세 후보의 byte-inverse 증명을 승계하지 않는다.
+
+Pidfd는7개 method와 실제 wrapper9개, high FD 및 마지막 thread probe를
+통과했다. Main Z/2 TID 상태는 readable이 아니었고 마지막 thread 종료 뒤에만
+POLLIN/WNOWAIT가 성립했다. EMFILE/ENOMEM은 경로 주입이며 실제 자원 고갈
+재현으로 표시하지 않는다. 새 poll 오류가 이전 compiler7보다 먼저 보고되어
+exit1이 되는 반면, 이미 진행 중인 parent 취소143은 유지되는 오류 우선순위도
+별도 계약으로 기록한다.
+
+호스트 PGID 모델은 record-only INT/TERM과 취소를 확인하는 Budget checkpoint를
+사용해 setup/finally 중 비동기 예외를 던지지 않는다. 작은 고정 UCI 상호작용
+범위의 모델이며 임의 blocking IO/spawn의 엄격한 wall-time 감독기로 일반화하지
+않는다. 최신 canonical checker는7개 API 사례/6개 실제 job과 full Bash
+quit/EOF2세션·8 legal GO를 통과했다. 실제 compiler 취소·보고 IO·정리 오류의
+주 상태와 물리 정착을 구분했고 artifact4018/native identity는 그대로다.
+
+네 Python 후보의 별도 실제 full F2 실행도 마감했다. 최종 v2에서 각2회 생성과
+quit/EOF8세션·32 legal GO, 실제 GCC가 만든 native18576/3aaaacf7 및 source7712를
+확인했다. Worker2개의 runnable 상태와 합계 CPU 증가를 관찰했으며 개별 worker
+각각의 CPU 증가 증명으로 확대하지 않는다. Source/recipe 입력 연결이 약했던
+v1의 실제8세션·32 GO는 별도로 보존하고 강화한 v2 통과로 소급하지 않았다.
+
+Cgroup 실험은 기존 user manager가 시작한 고유 transient user service 안에서
+완료했다. 자신이 만든 compiler 하위 cgroup에 한정해 다른 PGID의 후손까지
+종료하고 populated0 → 원 자식 wait/reap → reader EOF/join → workspace 삭제를
+확인했다. 두 fence는 compiler7 및 -9 오류 경로이며 실제 Rove compile/engine
+성공 경로로 확대하지 않는다. Manager job-end cleanup과 launch 중 TERM143도
+확인했으며 정확한 생성 unit들은 종료/not-found 상태다. 영구 unit·시스템 설정을
+변경하지 않았다. 이는 toy compiler의 별도 호스트 기구 검증이며 현재 Bash
+제품이나 외부 TCEC runner가 이 기구를 요구·제공한다는 뜻은 아니다.
+
+동등 fold의 크기 동률과 나머지 후보의 크기 증가 때문에 현재 제출판에는 연결하지
+않았다. 모든 새 정본은 별도 실험 폴더에 보존하며 모델·source 검토·실제 kernel
+관측·full protocol 실행을 구분한다. 이후 TCEC 범위 축소 지시에 따라 이 실험들의
+우선순위를 낮추고 종료 상태를 고정했다. 개발 runner는 자기 프로세스와 실패
+근거를 계속 회수하지만 그 구현을 제출 payload에 싣는 의무를 만들지 않는다.
+
+## TCEC 필수 범위 전문화
+
+사용자가 2026-10-25 추가한 `Rove4k-TCEC-Scope-Audit.md`의 비필수 범위 축소를
+적용하도록 요청했다. 첨부 SHA-256은
+`c9bd1fd650b36472d61dd90cc98d299b454ef282382301dca1eaf35b9ac665c8`다.
+이후 대회판의 비교 기준은 full 엔진과 작은 wrapper다. Full/reduced 기능 정책과
+compiler·thread 실행 정책을 분리하고, N/B/R/Q 프로모션·합법수·반복·시간 관리와
+GO 사이 상태 재사용을 유지한다. R/B 제거와 50수 기능 축소는 적용하지 않는다.
+
+병렬 구현 범위는 최소 header, 프로세스 최종 종료 전용 join/free 제거, Rust A의
+미사용 공유 observer·선택 UCI 제거, 매 GO thread 생성 구조, valid 입력 전용
+parser다. Standalone grace와 개발 진단판은 기존 범위로 남기고 TCEC 출품에
+WNOWAIT/procfs/125·같은 TID·Python 오류 순서의 전체 계약을 승계하지 않는다.
+
+최소 header 동결 후 실제 비용은 기존 full source 그대로 A/B/C/E/F2/F8 각각
+4080/4527/4223/4171/3866/3876 B다. Header는155/170/162/155/164/164 B다.
+B는 사용되지 않는 -DWORKERS/-DTT_BITS/-DDEV만 제거했고 -std=c11은 유지했다.
+Old/new CPP 전체와 native가 같음을 확인했으며33 B를 source 변경과 별도 기록한다.
+해제·compiler 실패 시 실행 중단과 정상 지연 unlink는 유지하되 실패 전 임시파일
+보존·임의 compiler family 정착·cleanup child 회수 등은 이 header의 보장이 아니다.
+
+Process-final 후보는 종료 전용 flag·handle/created 복구·join/free를 묶어 제거한다.
+여전히 살아 있는 다음 GO나 position의 완료 동기화는 유지한다. Per-GO는 learner
+배열을 프로세스 동안 보존하고 thread만 생성·합류한다. 동기 후보의 ready 지연은
+공식 UCI 동등성으로 표시하지 않는다. 선택 후보는 main 입력을 유지하고 마지막
+worker의 atomic completion 뒤 결과를 내보내는 async 구조로 비교한다. 공식
+isready/readyok는 선택 삭제 대상이 아니다.
+
+Rust A는 shipping의 소비되지 않는 공유 nodes/quota·결과 복사와 선택 UCI를
+분리하고 local nodes의256단위 시계 확인, stop atomic·TT lock·job/result
+publication·완료 barrier를 유지한다. tiny_dev 진단 동작은 별도로 보존한다.
+Source 재생성·native·whole·protocol의 새 근거를 만든 후에만 선택값을 갱신하며
+기존8945 B를 새 입력의 통과로 승계하지 않는다.
+
+이 TCEC 단계는 진행 중이다. 위 header와 개별 runtime 비용을 단순 합산하지 않고
+실제 결합 파일을 재생성·실행해 채택한다. 프로모션·draw·검색 기능을 축소해 만든
+결과를 full 경로의 크기 성공으로 바꾸지 않는다. 외부 peer source는 비교에만
+읽고 저장소에는 포함하지 않는다.
 
 ## 기준과 바로잡은 전제
 
