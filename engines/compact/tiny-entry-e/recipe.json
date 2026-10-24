@@ -99,23 +99,24 @@
   "expected": {
     "readable_bytes": 28001,
     "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
-    "source_bytes": 8569,
-    "source_sha256": "80b854825d2909e2d3edc1eb2dee946952d492216f9ff91243cb6614b6d13853",
-    "native_bytes": 22672,
-    "native_sha256": "0449f0eaa102b040a7b792b2adc7ebb50a335434d63e4d84b13326f56d85cd31",
-    "whole_bytes": 4963,
-    "whole_sha256": "57832a4a705a8307a82e122121a46b97c44314718c4accd48ddb30e720c336d2",
-    "bootstrap_sha256": "3474857197bd6121020c0e2cb82fafce6112a571b2821a4ff1f782844c25071f",
+    "source_bytes": 8549,
+    "source_sha256": "3f007f6a38f36133fa7b54b0e2b0cc6ef051dcc19a1167c14529dca028c8b0b1",
+    "native_bytes": 18576,
+    "native_sha256": "7d0529905678edfb35394ba654754ddd41985fe7c50c996463a514bd8440cc40",
+    "whole_bytes": 4953,
+    "whole_sha256": "a66ff98c1d81105e57586e7ce7571584ce18ce65cab54d166eac6f7ac982758b",
+    "bootstrap_sha256": "b8ee01738e9eb029760306be342417d659f660dfd109d91ed8c56709a7489157",
     "dev_source_bytes": 21314,
     "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
     "dev_native_bytes": 31376,
     "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
-    "bootstrap_bytes": 10539
+    "bootstrap_bytes": 10519
   },
   "local_input_sha256": {
     "engine.c": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
     "bootstrap.py.in": "9d1d26c9c6b793d7ca921f61f09facfd3f724508faca97a48b23f3e48318bd50",
-    "launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
+    "launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
+    "shipping_dead_score.py": "4988b93e66252d8e593130265e7ff062213f2a884ec57639ff938c319521d90b"
   },
   "model": {
     "id": "e-hand-quadratic-19-1",
@@ -2177,6 +2178,100 @@
         "private_direct_think_caller_requires_completed_depth_zero_seed": true,
         "canonical_DEV_automatic_application": false,
         "scope": "Same current E19 model/order/search bodies; two legal-square iterators replace invalid-origin skipping with the identical64square visit order. New native same length but different bytes; ordinary reproduction and unchanged selected new-image lifetime only. Prior model fixtures remain separate. No new strength/timing/SAN/fault/fresh/CI claim."
+      }
+    },
+    "late_dead_score": {
+      "scope": "full-shipping unconsumed Worker score removal; fixed native discovery and actual ordinary/selected qualification completed; see normal for exact producing pins and scope",
+      "previous_expected": {
+        "readable_bytes": 28001,
+        "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+        "source_bytes": 8569,
+        "source_sha256": "80b854825d2909e2d3edc1eb2dee946952d492216f9ff91243cb6614b6d13853",
+        "native_bytes": 22672,
+        "native_sha256": "0449f0eaa102b040a7b792b2adc7ebb50a335434d63e4d84b13326f56d85cd31",
+        "whole_bytes": 4963,
+        "whole_sha256": "57832a4a705a8307a82e122121a46b97c44314718c4accd48ddb30e720c336d2",
+        "bootstrap_sha256": "3474857197bd6121020c0e2cb82fafce6112a571b2821a4ff1f782844c25071f",
+        "dev_source_bytes": 21314,
+        "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
+        "dev_native_bytes": 31376,
+        "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
+        "bootstrap_bytes": 10539
+      },
+      "source_spans": 4,
+      "protected_gaps": 5,
+      "full_inverse": true,
+      "first_cost_index_sha256": "b478a96550cfa3755c226c974dc5a4210c7ee954dd5fec0c4ed7d88a7dedb1a9",
+      "first_cost_whole_before": 4963,
+      "first_cost_whole_after": 4953,
+      "first_cost_whole_delta": -10,
+      "candidate_encode": 1,
+      "strict_Python_inverse": 1,
+      "strict_CLI_inverse": 1,
+      "baseline_encode": 0,
+      "fresh_native_discovery": {
+        "path": "/home/stemxstudio/rove4k-e-dead-score-promotion-20261024-v1/native/x",
+        "bytes": 18576,
+        "sha256": "7d0529905678edfb35394ba654754ddd41985fe7c50c996463a514bd8440cc40"
+      },
+      "native_same_as_predecessor": false,
+      "candidate_compile": 1,
+      "typed_layout": {
+        "old": {
+          "sizeof": 68976,
+          "alignof": 8,
+          "id": 0,
+          "C": 4,
+          "l": 8,
+          "H": 12,
+          "a5": 16,
+          "aA": 24,
+          "zC": 33816,
+          "an": 66584,
+          "ah": 66922
+        },
+        "new": {
+          "sizeof": 68976,
+          "alignof": 8,
+          "id": 0,
+          "C": 4,
+          "H": 8,
+          "a5": 16,
+          "aA": 24,
+          "zC": 33816,
+          "an": 66584,
+          "ah": 66922
+        }
+      },
+      "layout_probe_compile": 1,
+      "layout_probe_execution": 1,
+      "Worker_size_reduction": 0,
+      "engine_runtime": 2,
+      "ordinary_qualification": "passed",
+      "selected_qualification": "passed",
+      "canonical_DEV_automatic_changes": false,
+      "model_ordering_TT_learners_search_stop_bytes_unchanged": true,
+      "normal": {
+        "scope": "actual fresh E full shipping reproduction and unchanged selected wrapper verification; no performance/strength inference",
+        "producer_build_sha256": "f15c5d06823b7bcce2cf1b2de0627a01327135a3b58c49ef4d043f27c83890c1",
+        "selected_runtime_sha256": "d30161a5daafdcba1da139a4426adea2b84f24a6f53ffe7ccc8f988b6c362c93",
+        "producing_recipe_sha256": "6cc48a1982297876f55431cb87f58d7ea9ceaa9f98bb9249616dac0d4e413849",
+        "actual_shipping_reproductions": 2,
+        "actual_DEV_reference_reproductions": 2,
+        "DEV_source_native_equal_previous_qualified_reference": true,
+        "same_source_native_bootstrap_whole_as_first_cost_and_discovery": true,
+        "quit_EOF_sessions": 2,
+        "legal_GO_results": 8,
+        "startup_TIDs_per_session": 3,
+        "actual_native_private_paths_stdio_readers_exit_observed": true,
+        "original_owned_commands_terminal0_reaped_preextras_empty_groupabsent_forced0": true,
+        "owned_handles": 0,
+        "cancellation_causality": "unproven",
+        "new_HEAD_CI": "not claimed",
+        "Worker_size_reduction": 0,
+        "helper_build_bytes_equal_producing": true,
+        "final_recipe_change": "normal completion annotation only",
+        "README_is_builder_input": false
       }
     }
   },
@@ -5371,7 +5466,7 @@
     "source_helper_sha256": "fe2fd6ce96b51251ec0d5e0f4b73c0742c50ca86932608b29f892ecee240974c",
     "contract": "same source/command/cwd/env/stdio/FD/argv and legacy returncode; SIGCHLD normalize/restore, full stdin/BrokenPipe/close, retained WNOWAIT compiler leader, live-group drain before final reap; no destructive signals to reaped PGID",
     "fixed_cost_index": {
-      "path": "C:\\Users\\\uac15\ubbfc\uc218\\Documents\\Codex\\rove4k-common-compiler-group-context-cost-20261024-evidence\\final-cost-index.json",
+      "path": "C:\\Users\\강민수\\Documents\\Codex\\rove4k-common-compiler-group-context-cost-20261024-evidence\\final-cost-index.json",
       "bytes": 15519,
       "sha256": "d9a51fb548c401c52025d252b46f9570a672d219512c05c7707618668e024236"
     },

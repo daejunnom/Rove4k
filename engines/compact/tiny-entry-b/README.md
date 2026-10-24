@@ -1,4 +1,66 @@
-# Maintained B: EP normalization reuses the legal maker — 2026-10-24
+# Maintained B: completed-depth job token — 2026-10-24
+
+Current corrected-owner whole **5342→5337 B (-5 B)**, source9759→9744 B,
+bootstrap11804→11789 B. Candidate source SHA is
+`4b3412e3dddbe4cc9b40172be66d577aa998dc65e4ffa5876827f6b92654c5a8`;
+whole SHA is `8f3a296d682c1ea1db74288ed76d285de4582df3ebe4599078cae1c0f7b7b963`.
+One fresh fixed-argv native discovery compiled26080 B/
+`59eea719b15f84ef83dcdc1918e1037c234578df417a537f7997fa3593648e28`.
+Native/layout identity and RAM savings are not claimed. One ordinary `--dev`
+and the unchanged selected verifier passed for the actual new source/native.
+
+`shipping_depth_token.py` changes six owned roles with seven protected gaps and
+a full inverse. Signed worker depth uses -1 for published/unclaimed, 0 for
+claimed/no completed depth, and1..126 for completed results. GO keeps U drain,
+clock parsing and deadline order, then publishes pending2 and both -1 depths
+under qj. Each stable owner pointer claims its own depth0 under qj before
+think. Only think's earlier depth0 reset moves to that boundary; completed
+best/score/depth commits and all search bodies stay unchanged.
+
+Actual current B startup already folds readiness into qk=2 and the null-w
+loop-head epilogue; there is no separate qn. An earlier external source-only
+proposal incorrectly described old qn metadata as current. This candidate
+preserves the actual folded startup and changes no ready counter. Last
+pending0 retains result and own fflush before broadcast; the producer drains
+before reusing root/history or publishing another job. Main and its
+partial-create goto-shutdown/actual-created joins remain byte-identical.
+Partial-create behavior is currently a source argument, with no new fault
+injection or internal per-worker claim observation. Private direct-think
+callers must seed depth0; arbitrary-entry equivalence is not claimed.
+
+Legal-LVA/SEE incomplete handling, singular same-position/excluded TT and
+learning policy, PVS/QS, full-key TT, all three learners, HCE/bitboard/move
+rules and Worker score yl remain protected. Canonical/DEV source/native
+expectations and model distinctions are unchanged. Previous source stages
+and helper pins are preserved. Packaging restores9759, consumes the existing
+generic B literal envelope and corrected compiler owner, then replaces only
+the source bytes literal. B had no fixed prior literal-stage inverse guard;
+existing fixed source-generation guards still precede the new late stage.
+
+Finite firstcost used baseline encode0/candidate encode1, Python strict
+inverse1 and CLI inverse1, compile/runtime0. The separate native discovery
+compiled only the candidate once and ran no engine. Existing codec/header
+and73 B prefix are unchanged. Candidate5337 remains1241 B above4096.
+The ordinary command reproduced the shipping source/native/bootstrap/whole
+twice and the unchanged old-minimax DEV source/native twice. The unchanged
+selected verifier passed quit/EOF sessions with three stable startup TIDs
+each, eight total legal GO results, the exact deleted new native image,
+absent private path/helper children, one closing result and physical reader
+EOF/exit0. Original ordinary/selected leaders were retained WNOWAIT until
+other group members were absent, then reaped0; groups were absent with no
+forced cleanup or owned handles. Source closure stayed fixed. No internal
+per-worker claim observer or partial-create fault injection ran; their
+ownership explanation remains source evidence. Whole-process activity and
+physical exit do not prove cancellation causality or performance/strength.
+
+Producing recipe251378 B/7edf65e0672c83cc46a6a7ac99544b958dd13734c96291fed435e039361246f3
+contained pending-normal annotations. The final recipe only records the
+completed normal evidence; source, compiler/codec and expected tuples are
+unchanged by those annotations. Build receipt280405 B/
+d8c14d57cc68aa6786240662fdf09b76caf337a6bde27bda8ee5ac6fd39c5c82,
+runtime receipt97220 B/7547b839f2e74851d124f673ffa32872ac03aba9c426707cf5872b59a6daa95d.
+
+# Previous owner qualification: EP normalization reuses the legal maker — 2026-10-24
 
 기존 int alias 뒤 shipping 전용 `shipping_ep_maker.py`가 EP 정규화 C의
 Board 복사·세 setter 호출·왕 공격 검사를 실제 legal maker h로 공유한다.

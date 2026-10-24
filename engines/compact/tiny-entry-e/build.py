@@ -115,6 +115,7 @@ def main():
         order_inline=module('entry_E_order_inline',frozen/'shipping_order_inline.py')
         depth_token=module('entry_E_depth_token',frozen/'shipping_depth_token.py')
         square_walk=module('entry_E_square_walk',frozen/'shipping_square_walk.py')
+        dead_score=module('entry_E_dead_score',frozen/'shipping_dead_score.py')
         alpha=module('entry_fixed_shipping_alpha',frozen/'fixed_shipping_alpha.py').transform_source
         scope=module('entry_fixed_scope_names',frozen/'shipping_scope.py').transform_source
         core=module('entry_fixed_shipping_core',frozen/'shipping_core.py').transform_source
@@ -198,9 +199,12 @@ def main():
                 common_metadata['depth_token']=depth_metadata
                 data,square_metadata=square_walk.transform_source(data)
                 common_metadata['square_walk']=square_metadata
+                data,score_metadata=dead_score.transform_source(data)
+                common_metadata['dead_score']=score_metadata
             return data,observations,alpha_metadata,scope_metadata,core_metadata,input_metadata,model_metadata,type_metadata,global_names_metadata,common_metadata
         def package(source):
-            current_depth=square_walk.restore_source(source)
+            previous_source=dead_score.restore_source(source)
+            current_depth=square_walk.restore_source(previous_source)
             prior=depth_token.restore_source(current_depth)
             current=order_inline.restore_source(prior)
             control=keyword_scope.restore_source(current)
@@ -217,10 +221,12 @@ def main():
             report['order_inline_bootstrap']=order_bootstrap
             script,depth_bootstrap=depth_token.transform_bootstrap(script,source=current_depth)
             report['depth_token_bootstrap']=depth_bootstrap
-            script,square_bootstrap=square_walk.transform_bootstrap(script,source=source)
+            script,square_bootstrap=square_walk.transform_bootstrap(script,source=previous_source)
             report['square_walk_bootstrap']=square_bootstrap
             script,group_metadata=compiler_group(script)
             report['compiler_group']=group_metadata
+            script,score_bootstrap=dead_score.transform_bootstrap(script,source=source)
+            report['dead_score_bootstrap']=score_bootstrap
             ast.parse(script)
             data=prefix+lzma.compress(script,format=lzma.FORMAT_ALONE,check=lzma.CHECK_NONE,
                                      filters=[{'id':lzma.FILTER_LZMA1,'preset':9|lzma.PRESET_EXTREME,

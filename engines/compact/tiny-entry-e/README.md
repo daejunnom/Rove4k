@@ -1,3 +1,62 @@
+# Maintained E: remove unconsumed shipping score state - 2026-10-24
+
+The selected full shipping candidate is **4953 B**, down **10 B** from the
+actual **4963 B** complete file with the corrected compiler-group owner.
+The C input is **8549 B**, down20; bootstrap is **10519 B**, down20.
+The same nice32 LZMA1 recipe, 73-byte header, compiler argv and two-worker
+TT18 profile remain. This file is857 B above4096; eligibility remains open.
+
+The shipping Worker score `l` is only reset and stored. Result selection
+reads completed depth `C` and best move `H` or a legal fallback. The late
+`shipping_dead_score.py` removes that field, its two writes and the unused
+local return binding. The recursive `h` call and all arguments remain.
+Four exact spans, five protected gaps and a full inverse preserve all other
+TU bytes, including the E19 model's21 physical coefficients, five ordering
+features, three learners, TT, PVS/QS, stop handling and completed best/depth
+commit. Canonical and DEV source paths do not enter this stage.
+
+The builder freezes this helper through `local_input_sha256`. Packaging
+first restores the previous TU and consumes the actual square/depth/order/
+keyword/cross literal chain and current compiler-group transform in full.
+Only then does the new helper replace the sole source literal. Exact old
+bootstrap admission, non-source Python AST/bytes and argv/FD guards remain.
+
+Fresh fixed-argv native discovery compiled this candidate once and produced
+**18576 B**, SHA-256
+`7d0529905678edfb35394ba654754ddd41985fe7c50c996463a514bd8440cc40`.
+The predecessor was22672 B with a different hash. A separate typed layout
+probe compiled once and printed old/new `sizeof(Worker)=68976`, align8.
+`H` moves from offset12 to8; `a5=16`, `aA=24`, `zC=33816`, `an=66584` and
+`ah=66922` remain. No Worker RAM reduction or native identity is claimed.
+
+First-cost encoded this one candidate once. Strict Python inverse reached
+EOF with zero trailing bytes; the actual lzma CLI inverse was byte exact.
+Baseline compile/encode0 and engine runtime0. The three original native/
+layout discovery child leaders remained unreaped until other group members
+settled, then reaped with group absence, forced cleanup0 and owned0.
+First-cost index SHA-256:
+`b478a96550cfa3755c226c974dc5a4210c7ee954dd5fec0c4ed7d88a7dedb1a9`.
+One ordinary --dev run reproduced shipping source/native/bootstrap/whole
+twice and unchanged DEV source/native twice. The actual new wrapper passed
+one unchanged selected verifier: quit/EOF two sessions, eight legal GO
+results, three stable startup TIDs per session, the selected deleted native,
+stdio-only descriptors, absent private/compiler paths, finished readers
+and physical return0. Cancellation causality remains unproven; the active
+search and physical exit observations are retained in their own scope.
+Build receipt SHA-256:
+`f15c5d06823b7bcce2cf1b2de0627a01327135a3b58c49ef4d043f27c83890c1`.
+Selected runtime receipt SHA-256:
+`d30161a5daafdcba1da139a4426adea2b84f24a6f53ffe7ccc8f988b6c362c93`.
+
+The actual producing recipe SHA-256 was
+`6cc48a1982297876f55431cb87f58d7ea9ceaa9f98bb9249616dac0d4e413849`.
+The final recipe adds this normal completion annotation only; README is
+not a builder input. Helper and builder bytes are unchanged from the actual
+producer. Both original ordinary/selected leaders stayed unreaped until
+other group members settled, then reaped with group absence at settlement,
+forced cleanup0 and owned0. No new SAN, other profile, codec sweep, game,
+new-head CI, speed/strength or tournament eligibility claim is added.
+
 # Maintained E: one pool condition — 2026-10-22
 
 The fixed first-cost complete file is **4897 B**, source

@@ -100,21 +100,22 @@
   },
   "expected": {
     "readable_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
-    "source_bytes": 8992,
-    "source_sha256": "a82b3d17f132fba5e3949c9d2750ad2eeb5e2034db36d27daca2d8d3cdcd1329",
+    "source_bytes": 8970,
+    "source_sha256": "391944ca8e3fbe1c0064793232ad0664b8e282b812455c47d3047fcee9baec62",
     "native_bytes": 22672,
-    "native_sha256": "5c4470406b35f32f2be263a242d9613f201a4af176483dc7f087e7e52d99649f",
-    "whole_bytes": 5002,
-    "whole_sha256": "19da9998187ef8016b7b79e59adcf4f8278f0eb8752b3234deda53f2ff37de31",
-    "bootstrap_sha256": "7614e2609b15ecac010f3dfbf3bc99807139d8fc3ff4c9e4dd9a138d856132e5",
+    "native_sha256": "976a841110eaf44209d0e6dbf6393609ef49472c5c1fae4c4b7fcd63bcc4a846",
+    "whole_bytes": 4995,
+    "whole_sha256": "82dcd3a73718b5b50febc94f936ac46125426a937c07c8431617eda8f3fe40ae",
+    "bootstrap_sha256": "2f1dd8b4e6a12f0aa7f25705f63fea55c1775cc49c18b544ed5e0e211b2dc1b8",
     "dev_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
     "dev_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c",
-    "bootstrap_bytes": 10969
+    "bootstrap_bytes": 10947
   },
   "local_input_sha256": {
     "engine.c": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
     "bootstrap.py.in": "550de6230871e39a6d43be55b28832ee2958628268d2c328ff1bbfc01945bc56",
-    "launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
+    "launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
+    "shipping_dead_score.py": "5519502eb0695662035d98fa7d462e0d5c10f825c05afbfc1e32a1e3475e8d73"
   },
   "qualified_receipt": {
     "scope": "current C capture-only private Movebit3: typed actual old/new focused equivalence modulo capture metadata, independent generated capture classification, fresh separate TT domains; ordinary shipping2 plus exact old DEV2 and unchanged selected quit/EOF; older model/SIMD/core receipts remain ancestry",
@@ -3947,5 +3948,127 @@
     },
     "annotation_only_after_measurement": true,
     "historical_frozen_controls_changed": false
+  },
+  "dead_published_score": {
+    "stage": "shipping only, after late-four-constants; restore score before prior literal guards; substitute only actual source after compiler owner",
+    "source_helper": "shipping_dead_score.py",
+    "source_helper_sha256": "5519502eb0695662035d98fa7d462e0d5c10f825c05afbfc1e32a1e3475e8d73",
+    "previous_selected": {
+      "readable_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
+      "source_bytes": 8992,
+      "source_sha256": "a82b3d17f132fba5e3949c9d2750ad2eeb5e2034db36d27daca2d8d3cdcd1329",
+      "native_bytes": 22672,
+      "native_sha256": "5c4470406b35f32f2be263a242d9613f201a4af176483dc7f087e7e52d99649f",
+      "whole_bytes": 5002,
+      "whole_sha256": "19da9998187ef8016b7b79e59adcf4f8278f0eb8752b3234deda53f2ff37de31",
+      "bootstrap_sha256": "7614e2609b15ecac010f3dfbf3bc99807139d8fc3ff4c9e4dd9a138d856132e5",
+      "dev_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
+      "dev_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c",
+      "bootstrap_bytes": 10969
+    },
+    "selected": {
+      "readable_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
+      "source_bytes": 8970,
+      "source_sha256": "391944ca8e3fbe1c0064793232ad0664b8e282b812455c47d3047fcee9baec62",
+      "native_bytes": 22672,
+      "native_sha256": "976a841110eaf44209d0e6dbf6393609ef49472c5c1fae4c4b7fcd63bcc4a846",
+      "whole_bytes": 4995,
+      "whole_sha256": "82dcd3a73718b5b50febc94f936ac46125426a937c07c8431617eda8f3fe40ae",
+      "bootstrap_sha256": "2f1dd8b4e6a12f0aa7f25705f63fea55c1775cc49c18b544ed5e0e211b2dc1b8",
+      "dev_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
+      "dev_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c",
+      "bootstrap_bytes": 10947
+    },
+    "raw_delta": -22,
+    "whole_delta": -7,
+    "source_roles": 4,
+    "protected_gaps": 5,
+    "full_source_and_bootstrap_inverse": true,
+    "closure": "actual full C result/pool consume only depth C and best H; worker l has reset/commit writes and no reader; h return at think discarded, h body/local scores unchanged",
+    "first_cost": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-dead-score-firstcost-20261024-evidence/final-index.json",
+      "bytes": 4861,
+      "sha256": "9e89a8ad38df6a6d1831aaf1c1ead6fcdc06d802d1fd2e31de0e22c43bef5a6d"
+    },
+    "native_discovery": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-dead-score-promotion-20261024-evidence/discovery-results.json",
+      "bytes": 6816,
+      "sha256": "ac87f237ec1e8d666a9c4895265bab94910a48534245301ddd0d479d5209fb8d"
+    },
+    "native_discovery_scope": "one compile of actual candidate8970 with unchanged fixed selected cc argv, no baseline compile or engine execution; native differs despite equal file size",
+    "actual_compile_time_layout": {
+      "worker_size_before": 68976,
+      "worker_size_after": 68976,
+      "worker_alignment": 8,
+      "H_offset_before": 12,
+      "H_offset_after": 8,
+      "a5_offset_before_after": 16,
+      "following_array_offsets_unchanged": true,
+      "method": "two -fsyntax-only actual-prefix _Static_assert probes; no generated probe or engine executed",
+      "scope": "Linux x86-64 current cc ABI; not a peak RSS, stack or speed measurement"
+    },
+    "normal_validation": {
+      "status": "PASS one existing C ordinary --dev and one unchanged selected verifier",
+      "complete": true,
+      "ordinary_invocations": 1,
+      "selected_invocations": 1,
+      "shipping_reproductions": 2,
+      "DEV_reproductions": 2,
+      "selected_tuple_equals_firstcost_and_native_discovery": true,
+      "DEV_entire_source_native_equal_previous_control": true,
+      "build": {
+        "path": "/home/stemxstudio/rove4k-c-dead-score-normal-20261024-v1/build/build.json",
+        "bytes": 283842,
+        "sha256": "75f6f192e3fc54c2388a48b16dfe5b60b68aa4cab91ae0a43e5947573763d825"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-c-dead-score-normal-20261024-v1/runtime/runtime.json",
+        "bytes": 83605,
+        "sha256": "5252a931b4fab372a519962cf20b50bd994614135e4c191914482cfd38d55392"
+      },
+      "producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-c-dead-score-normal-20261024-v1/build/inputs/recipe.json",
+        "bytes": 208473,
+        "sha256": "6daac5714cf2679b0d313d597d0ed24716543aab339c613e04392339185139e2"
+      },
+      "README_at_execution": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-dead-score-promotion-20261024-evidence/pre-normal-source/README.md",
+        "bytes": 87861,
+        "sha256": "2ec6fa9867bfe635690072823ee1dbf8f335184f4600031f59588ad98583df3f"
+      },
+      "README_scope": "source annotation observed unchanged during products; README is not a builder input",
+      "quit_EOF_sessions": 2,
+      "legal_GO_results": 8,
+      "startup_TIDs": 3,
+      "restored_native_sha256": "976a841110eaf44209d0e6dbf6393609ef49472c5c1fae4c4b7fcd63bcc4a846",
+      "selected_native_private_path_stdio_compiler_children_readers_physical_exit": true,
+      "original_supervisor": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-c-dead-score-promotion-20261024-evidence/normal-results.json",
+        "bytes": 5193,
+        "sha256": "09a4c756aed1f3537a5161f1322f5afa14e3e9b6ca0fd9e7f64b60b181fd0c65"
+      },
+      "original_tool": {
+        "chunk_id": "dc38e5",
+        "exit_code": 0,
+        "session_id": null,
+        "actual_outer_children": [
+          604,
+          637
+        ],
+        "terminal_reaped": true,
+        "other_group_members_absent_before_reap": true,
+        "groups_absent_at_settlement": true,
+        "forced_cleanup": 0,
+        "owned_handles": 0
+      },
+      "causalLink": "unproven",
+      "trace_nodes_TT_interleaving_scores_speed_Elo_equivalence": false,
+      "additional_SAN_fault_games_matrix_CI_runs": 0,
+      "post_execution_annotation_only": "recipe normal_validation and README status; code helper/build and selected expected unchanged"
+    },
+    "canonical_DEV_resources_compiler_codec_changed": false,
+    "native_identity_claimed": false,
+    "unique_SIMD_PVS_TT_learners_protocol_and_worker_lifetime_logic_changed": false,
+    "historical_receipt_reuse": "kept with its original source/native identity; no previous runtime promoted to the new native"
   }
 }

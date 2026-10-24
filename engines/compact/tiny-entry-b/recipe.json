@@ -103,21 +103,22 @@
   },
   "expected": {
     "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
-    "source_bytes": 9759,
-    "source_sha256": "1bc4d0f68300913c8bdf4edbe55b8d79082f9ac198b53619ab5d42169e094e87",
-    "native_bytes": 26112,
-    "native_sha256": "962a7e2be52ee84d5ca3112b95a483fe62efe90a7f978f557d57cf870b86be73",
-    "whole_bytes": 5342,
-    "whole_sha256": "319a5727dc6ffe67f230fdcbacc31127e22bb60ce3f1f2e0ab59065278aaea25",
+    "source_bytes": 9744,
+    "source_sha256": "4b3412e3dddbe4cc9b40172be66d577aa998dc65e4ffa5876827f6b92654c5a8",
+    "native_bytes": 26080,
+    "native_sha256": "59eea719b15f84ef83dcdc1918e1037c234578df417a537f7997fa3593648e28",
+    "whole_bytes": 5337,
+    "whole_sha256": "8f3a296d682c1ea1db74288ed76d285de4582df3ebe4599078cae1c0f7b7b963",
     "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
     "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
-    "bootstrap_sha256": "2c9b90d862a88bb3bd20d7f6e42d2a8a7a463121ee07675f9ef6fac7c9b1c8c2",
-    "bootstrap_bytes": 11804
+    "bootstrap_sha256": "efc80af6e4d6f1dcd2d93a3b05831a7d60b73362f9aff03785bdff3ea6386604",
+    "bootstrap_bytes": 11789
   },
   "local_input_sha256": {
     "engine.c": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
     "bootstrap.py.in": "e73c535e70911a6d2dd9ede8740ced65156ec40acdcffc10953f189d576e0d42",
-    "launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
+    "launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
+    "shipping_depth_token.py": "530d04052b455adb9ffcbbc72dd0e8a98ca27f12468fcfe1eec7aeaf6de8e371"
   },
   "qualified_receipt": {
     "predecessor_B5279": {
@@ -4759,7 +4760,7 @@
     "source_helper_sha256": "fe2fd6ce96b51251ec0d5e0f4b73c0742c50ca86932608b29f892ecee240974c",
     "contract": "same source/command/cwd/env/stdio/FD/argv and legacy returncode; SIGCHLD normalize/restore, full stdin/BrokenPipe/close, retained WNOWAIT compiler leader, live-group drain before final reap; no destructive signals to reaped PGID",
     "fixed_cost_index": {
-      "path": "C:\\Users\\\uac15\ubbfc\uc218\\Documents\\Codex\\rove4k-common-compiler-group-context-cost-20261024-evidence\\final-cost-index.json",
+      "path": "C:\\Users\\강민수\\Documents\\Codex\\rove4k-common-compiler-group-context-cost-20261024-evidence\\final-cost-index.json",
       "bytes": 15519,
       "sha256": "d9a51fb548c401c52025d252b46f9570a672d219512c05c7707618668e024236"
     },
@@ -4812,5 +4813,148 @@
     },
     "annotation_only_after_measurement": true,
     "historical_frozen_controls_changed": false
+  },
+  "depth_token": {
+    "metadata": {
+      "family": "B",
+      "stage": "completed-depth-jobtoken-after-current-EP-int-alias",
+      "input_bytes": 9759,
+      "input_sha256": "1bc4d0f68300913c8bdf4edbe55b8d79082f9ac198b53619ab5d42169e094e87",
+      "output_bytes": 9744,
+      "output_sha256": "4b3412e3dddbe4cc9b40172be66d577aa998dc65e4ffa5876827f6b92654c5a8",
+      "raw_delta": -15,
+      "owned_roles": 6,
+      "protected_gaps": 7,
+      "full_inverse": true,
+      "job_token": "signed zB -1 published/unclaimed,0 claimed/no completed depth,1..126 completed",
+      "actual_startup": "pending qk=2/null w; separate qn already absent before this stage",
+      "stable_owner": "a=p; own zB predicate and claim0 under qj before unique s->i(w,&ql)",
+      "GO": "U drain then existing clock/deadline then qj pending2 and both depth-1 publication",
+      "fences": "last pending0 result/own fflush precedes broadcast; producer drains before reuse",
+      "partial_create": "unchanged goto shutdown bypasses startup wait/ending drain; actual-created joins",
+      "direct_private_think": "caller must seed depth0; arbitrary-entry equivalence not claimed",
+      "singular_PVS_exclusion_SEE_TT_learners_eval_main_unchanged": true,
+      "canonical_DEV_changed": false,
+      "native_layout_identity_claimed": false,
+      "runtime_claimed": false,
+      "external_reads": 0
+    },
+    "predecessor_expected": {
+      "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+      "source_bytes": 9759,
+      "source_sha256": "1bc4d0f68300913c8bdf4edbe55b8d79082f9ac198b53619ab5d42169e094e87",
+      "native_bytes": 26112,
+      "native_sha256": "962a7e2be52ee84d5ca3112b95a483fe62efe90a7f978f557d57cf870b86be73",
+      "whole_bytes": 5342,
+      "whole_sha256": "319a5727dc6ffe67f230fdcbacc31127e22bb60ce3f1f2e0ab59065278aaea25",
+      "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
+      "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
+      "bootstrap_sha256": "2c9b90d862a88bb3bd20d7f6e42d2a8a7a463121ee07675f9ef6fac7c9b1c8c2",
+      "bootstrap_bytes": 11804
+    },
+    "firstcost": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-b-depth-token-firstcost-20261024-evidence/final-index.json",
+      "bytes": 4393,
+      "sha256": "3e37d5042a4ed561edbebd5451a5dffe0a5d9c4d950ac7d0e1f01f2e491ea453"
+    },
+    "source_protocol_review": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-b-depth-token-firstcost-20261024-evidence/independent-review.ko.md",
+      "bytes": 1285,
+      "sha256": "da9b8c819a5797850559663462d8a48e93398b4c6f9d5ea6dac57d3c57d77292"
+    },
+    "correction": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-b-depth-token-firstcost-20261024-evidence/CORRECTION.ko.md",
+      "bytes": 1134,
+      "sha256": "420dd317172eddf7f5a24d34c46a79e3bfe266273e16ec294ea2ad3e789b9f8e"
+    },
+    "native_discovery": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-b-depth-token-promotion-20261024-evidence/native-results.json",
+      "bytes": 4204,
+      "sha256": "57623834dd4b957f45b1a534d27ca2b160dadd8dd3e39917c9af0b173e6a3dfb"
+    },
+    "pure_actual_previous_package_chain": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-b-depth-token-promotion-20261024-evidence/pure-chain-proof.json",
+      "bytes": 6459,
+      "sha256": "8a7efebffd867ba5f729f6114f0b54c34f53a56cdf738713bcb391dcb7d4cc7c"
+    },
+    "normal_status": "PASS one ordinary --dev and one unchanged selected verifier",
+    "normal_plan": "one ordinary --dev plus one unchanged selected verifier",
+    "runtime_scope": "selected startup3TID/8legalGO/quitEOF/physical exit; internal per-worker claims and partial-create fault injection not measured",
+    "partial_create": "actual unchanged main suffix/source ownership argument only; no new fault execution",
+    "native_layout_identity_claimed": false,
+    "whole_gain_same_corrected_owner": 5,
+    "literal_admission": "existing fixed source chain unchanged; restored9759 passes generic prior literal envelope then actual corrected owner, then sole source literal replacement; B had no fixed old literal-stage inverse guard",
+    "normal_validation": {
+      "build": {
+        "path": "/home/stemxstudio/rove4k-b-depth-token-normal-20261024-v1/build/build.json",
+        "bytes": 280405,
+        "sha256": "d8c14d57cc68aa6786240662fdf09b76caf337a6bde27bda8ee5ac6fd39c5c82"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-b-depth-token-normal-20261024-v1/runtime/runtime.json",
+        "bytes": 97220,
+        "sha256": "7547b839f2e74851d124f673ffa32872ac03aba9c426707cf5872b59a6daa95d"
+      },
+      "supervisor": {
+        "path": "/home/stemxstudio/rove4k-b-depth-token-normal-20261024-v1/results.json",
+        "bytes": 22053,
+        "sha256": "62a7cc84ca60588d3f7e65de76b65a129dd3cc1cbd07194dee8b1a93b05961c2"
+      },
+      "producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-b-depth-token-normal-20261024-v1/build/inputs/recipe.json",
+        "bytes": 251378,
+        "sha256": "7edf65e0672c83cc46a6a7ac99544b958dd13734c96291fed435e039361246f3"
+      },
+      "ordinary_calls": 1,
+      "selected_calls": 1,
+      "shipping_reproductions": 2,
+      "unchanged_DEV_reproductions": 2,
+      "source_native_bootstrap_whole_match_firstcost_and_discovery": true,
+      "DEV_diagnostic_distinct_old_minimax_reference": true,
+      "source_closure_before_after_equal": true,
+      "sessions": [
+        {
+          "termination": "quit",
+          "completed_GO": 3,
+          "closing_GO": 1,
+          "startup_TIDs": [
+            1113,
+            1125,
+            1126
+          ],
+          "native_sha256": "59eea719b15f84ef83dcdc1918e1037c234578df417a537f7997fa3593648e28",
+          "private_path_absent": true,
+          "returncode": 0,
+          "physical_exit_readers_finished": true,
+          "one_closing_result": true,
+          "active_observation_scope": "whole-process CPU or engine progress; search completion and cancellation causality are unproven",
+          "cancellation_causality": "unproven"
+        },
+        {
+          "termination": "EOF",
+          "completed_GO": 3,
+          "closing_GO": 1,
+          "startup_TIDs": [
+            1127,
+            1139,
+            1140
+          ],
+          "native_sha256": "59eea719b15f84ef83dcdc1918e1037c234578df417a537f7997fa3593648e28",
+          "private_path_absent": true,
+          "returncode": 0,
+          "physical_exit_readers_finished": true,
+          "one_closing_result": true,
+          "active_observation_scope": "whole-process CPU or engine progress; search completion and cancellation causality are unproven",
+          "cancellation_causality": "unproven"
+        }
+      ],
+      "total_GO": 8,
+      "all_original_commands_terminal0_reaped_preextras_empty_groupabsent_forced0_owned0": true,
+      "internal_perworker_claim_observer": false,
+      "partial_create_fault_injection": false,
+      "partial_create": "source argument on byte-identical actual main; no new fault execution",
+      "source_only_first_proposal_qn_correction_retained": true,
+      "scope": "new B5337 fixed2/TT18 wrapper startup, legal GO, quit/EOF, physical exit only; no scheduling/performance/RAM/strength/causality/full qualification/CI claim"
+    }
   }
 }

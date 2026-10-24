@@ -1,3 +1,56 @@
+# Maintained C: unused published score removed — 2026-10-24
+
+현재 full shipping의 전체 파일은 **4995 B**다. 동일한 compiler-owner 수정·73 B
+header·nice64/BT4/64MiB codec에서 실제 이전5002 B보다7 B 작다. 기존4628 B는
+이전 compiler-owner 조건의 기록이며 현재 비용 비교의 기준으로 사용하지 않는다.
+4096 B까지899 B가 남아 있고 출품 크기 통과나 기력 향상을 주장하지 않는다.
+
+`shipping_dead_score.py`는 late-four-constants 뒤의 정확한 full C source에만
+적용한다. Worker의 사용되지 않는 score 필드 `l`, reset/commit 두 store와
+think의 반환값 바인딩만 제거한다. 이 닫힌 shipping 경로에서 결과와 pool은
+완료 깊이 `C`와 best `H`만 소비한다. `h` 호출의 인수·부작용·내부 local score,
+고유 signed-net/SIMD, PVS/TT/learners, stop 확인·best/depth 게시와 worker
+drain/result/flush/join 순서는 그대로다. 정본과 DEV는 이 단계를 통과하지 않는다.
+
+생성기는 새 source를 원래8992 B로 역변환한 뒤 기존 constants→pool→cross와
+common literal·read-only template 보호를 실제 통과한다. compiler owner를
+적용한 실제10969 B bootstrap의 source literal만 마지막에 바꾸며 다른 바이트와
+argv를 유지한다. 네 source span·다섯 gap과 source/bootstrap 전체 inverse를
+검증한다. 이전 guard의 기대값은 변경하지 않았다. helper는 recipe의 local 입력으로
+해시를 고정해 복사한 뒤 로드한다. 생성 파일만 직접 수정하는 방식이 아니다.
+
+실제 firstcost: source8992→8970 B, bootstrap10969→10947 B, 전체5002→4995 B.
+Whole SHA-256은 `82dcd3a73718b5b50febc94f936ac46125426a937c07c8431617eda8f3fe40ae`다.
+후보 encode1·strict Python EOF/trailing0·CLI byte inverse1씩을 확인했다.
+이후 실제 후보를 동일 `cc -Os -mavx2 -x c - -o x -s`로 한 번 별도 컴파일해
+native22672 B/`976a841110eaf44209d0e6dbf6393609ef49472c5c1fae4c4b7fcd63bcc4a846`를
+새로 발견했다. 이전 native와 파일 크기는 같아도 바이트 동일성은 성립하지 않는다.
+
+실제 old/new 선언 prefix를 사용한 두 compile-time `sizeof`/`offsetof` probe는
+Linux x86-64 현재 ABI에서 Worker68976 B·align8 유지, `H` offset12→8,
+`a5`와 뒤 배열 offset 유지임을 확인했다. probe나 엔진을 실행하지 않았으며
+RSS·stack·속도 개선으로 확대하지 않는다. 모든 discovery 자식은 원 리더를
+reap하기 전 그룹 정착을 확인한 후 종료했고 강제 정리0·owned0으로 마감했다.
+
+DEAD_SCORE_NORMAL_PASS: 기존 ordinary `--dev` 한 번에서 shipping 두 사본의
+source/native/bootstrap/whole이 firstcost와 fresh-native discovery에 일치했다.
+DEV 두 사본은 기존 source/native 전체와 동일하다. 변경 없는 selected verifier 한 번은
+실제 새 native에서 quit/EOF 두 session·여덟 legal GO·3 startup TID·FD0/1/2,
+private path 삭제·compiler child 부재·closing bestmove 한 번·reader 완료·물리 종료를
+확인했다. 원 outer 두 개 모두 terminal0/reaped, reap 전 다른 group member0,
+group 부재·강제정리0·owned0으로 종료했다. cancellation causality는 unproven이다.
+
+이 실행이 소비한 recipe는208473 B/`6daac5714cf2679b0d313d597d0ed24716543aab339c613e04392339185139e2`로
+별도 보존했다. 실행 중 README87861 B/`2ec6fa9867bfe635690072823ee1dbf8f335184f4600031f59588ad98583df3f`도
+바뀌지 않았으나 README는 builder 입력이 아니다. 실행 뒤 recipe의 normal status와
+이 문단만 사실 주석으로 갱신했다. helper/build/selected 기대값·DEV 기대값은 동일하다.
+firstcost·fresh-native discovery·qualification과 producing/final annotation 해시는
+외부 `rove4k-c-dead-score-promotion-20261024-evidence`에서 구분한다. 이전 receipt의
+성공을 새 native의 성공으로 상속하지 않았다. 추가 SAN·fault·game·CI는 실행하지
+않았으며 시간제 node/TT interleaving·모든 score trace·기력/속도 동일성은 주장하지 않는다.
+
+## 이전 source/compiler 단계의 기록
+
 # Maintained C: common PVS/runtime with original signed-net SIMD — 2026-10-24
 
 현재 shipping은 C의 실제 `int16_t x[8]` signed-net 상태와 고정 8개 계수,

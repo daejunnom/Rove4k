@@ -119,6 +119,7 @@ def main():
         constants=module('entry_BCE_constants',frozen/'shipping_constants_bce.py').transform_source
         int_alias=module('entry_B_int_alias',frozen/'shipping_int_alias.py').transform_source
         ep_maker=module('entry_B_EP_maker',frozen/'shipping_ep_maker.py').transform_source
+        depth_token=module('entry_B_completed_depth_token',frozen/'shipping_depth_token.py')
         source_package=module('entry_B_source_package',frozen/'source_package.py')
         readonly_template=module('entry_readonly_template',frozen/'shipping_readonly.py').transform_template
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
@@ -196,11 +197,16 @@ def main():
                 common_metadata['int_alias']=int_alias_metadata
                 data,ep_metadata=ep_maker(data)
                 common_metadata['ep_maker']=ep_metadata
+                data,depth_metadata=depth_token.transform_source(data)
+                common_metadata['completed_depth_token']=depth_metadata
             return data,observations,alpha_metadata,storage_metadata,scope_metadata,core_metadata,input_metadata,order_metadata,walk_metadata,tactical_metadata,type_metadata,global_names_metadata,recapture_metadata,common_metadata
         def package(source):
-            expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())
+            previous=depth_token.restore_source(source)
+            expression,_=common.source_literal(previous,literal);script=template.replace(marker,expression.encode())
             script,group_metadata=compiler_group(script)
             report['compiler_group']=group_metadata
+            script,depth_bootstrap=depth_token.transform_bootstrap(script,source=source)
+            report['depth_token_bootstrap']=depth_bootstrap
             ast.parse(script)
             data=prefix+lzma.compress(script,format=lzma.FORMAT_ALONE,check=lzma.CHECK_NONE,
                                      filters=[{'id':lzma.FILTER_LZMA1,'preset':9|lzma.PRESET_EXTREME,

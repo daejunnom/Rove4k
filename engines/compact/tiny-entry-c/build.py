@@ -123,6 +123,7 @@ def main():
         cross=module('entry_C_common_SIMD_cross',frozen/'shipping_cross_c.py')
         pool_state=module('entry_C_completed_depth_token',frozen/'shipping_pool_state.py')
         late_constants=module('entry_C_late_four_constants',frozen/'shipping_late_constants.py')
+        dead_score=module('entry_C_dead_published_score',frozen/'shipping_dead_score.py')
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
         if template.count(marker)!=1 or len(prefix)!=77:raise ValueError('bootstrap recipe changed')
@@ -196,9 +197,12 @@ def main():
                 common_metadata['completed_depth_token']=pool_metadata
                 data,late_constants_metadata=late_constants.transform_source(data)
                 common_metadata['late_four_constants']=late_constants_metadata
+                data,dead_score_metadata=dead_score.transform_source(data)
+                common_metadata['dead_published_score']=dead_score_metadata
             return data,observations,alpha_metadata,scope_metadata,core_metadata,simd_metadata,input_metadata,material_metadata,incremental_metadata,signed_metadata,type_metadata,global_names_metadata,common_metadata
         def package(source):
-            pool_source=late_constants.restore_source(source)
+            scored_source=dead_score.restore_source(source)
+            pool_source=late_constants.restore_source(scored_source)
             selected=pool_state.restore_source(pool_source)
             before=cross.restore_source(selected,compact=compact)
             old_expression,_=common.source_literal(before,literal)
@@ -209,10 +213,12 @@ def main():
             report['cross_bootstrap']=bootstrap_metadata
             script,pool_metadata=pool_state.transform_bootstrap(script,source=pool_source)
             report['pool_bootstrap']=pool_metadata
-            script,constants_bootstrap=late_constants.transform_bootstrap(script,source=source)
+            script,constants_bootstrap=late_constants.transform_bootstrap(script,source=scored_source)
             report['late_constants_bootstrap']=constants_bootstrap
             script,group_metadata=compiler_group(script)
             report['compiler_group']=group_metadata
+            script,dead_score_bootstrap=dead_score.transform_bootstrap(script,source=source)
+            report['dead_score_bootstrap']=dead_score_bootstrap
             ast.parse(script)
             data=prefix+lzma.compress(script,format=lzma.FORMAT_ALONE,check=lzma.CHECK_NONE,
                                      filters=[{'id':lzma.FILTER_LZMA1,'preset':9|lzma.PRESET_EXTREME,

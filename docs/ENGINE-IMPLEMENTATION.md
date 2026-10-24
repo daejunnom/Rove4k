@@ -4,6 +4,56 @@ The full implementation scope is recorded in [the accepted plan](ENGINE-PLAN.ko.
 The current user request excludes training and AWS connections. Frozen model
 inference and lossless model storage remain in scope; trained strength is not claimed.
 
+## B completed-depth job token: 2026-10-24
+
+The full B shipping source represents job publication/claim with its signed
+completed depth: -1 published/unclaimed,0 claimed without a completed depth,
+1..126 completed. GO drains the old job before publishing both -1 values
+under the existing mutex; each stable owner claims0 there before think.
+The pending2/null-worker startup, result-before-notify, shutdown and actual
+created-thread joins remain. An early proposal mistakenly described a
+separate qn ready counter; the actual final source already had no qn, and
+its pending startup was preserved. This is a closed state-protocol change;
+private direct-think callers must seed depth0. It is not a general lexical
+or arbitrary-entry equivalence. Six exact roles/seven protected gaps retain
+singular/PVS/exclusion/SEE, TT, learners and evaluation source bytes.
+
+The regenerated complete file is5337 B,5 B below actual corrected-owner5342;
+source9759→9744 and bootstrap11804→11789. Fresh native26080 B differs from
+the previous26112 B image. One ordinary --dev build reproduces shipping
+twice and exact old DEV twice; the unchanged selected verifier passes
+quit/EOF, eight legal GO, three startup TIDs, selected deleted-native,
+private paths/readers and physical exit. Original leaders settle before
+reap with forced0/owned0. Internal claim instrumentation, per-worker CPU
+activity and partial-create fault injection were not performed; unchanged
+failure-path bytes and source ownership arguments have that limited scope.
+No speed, strength, RAM or target-hardware scaling improvement is inferred.
+
+## C/E unused shipping score state: 2026-10-24
+
+Two independent late transforms remove only the unconsumed Worker score,
+its reset/completed store and the unused return binding in think. Actual
+shipping result/pool consumers read completed depth and best move; canonical
+DEV still consumes score and bypasses these stages. Search calls/arguments,
+local scores, TT/learners, C signed-net SIMD and E's21 physical coefficients
+and five ordering features remain byte-identical outside four exact spans.
+Each transform retains five protected gaps and a complete inverse. Package
+generation restores the old source through all previous literal guards and
+the compiler owner, then substitutes only the final source literal.
+
+On the same repaired owner/codec/header, actual complete C5002→4995 B and
+E4963→4953 B save7 and10 B. Actual fresh native identities change in both
+families; C remains22672 B and E becomes18576 B. Typed current-ABI probes
+show Worker68976 B/align8 unchanged and best-move offset12→8, with following
+64-bit/array offsets unchanged. These are file/layout observations, not RAM,
+search-speed or strength improvements. Both existing ordinary --dev builds
+reproduce shipping twice and retain exact old DEV twice. Each unchanged
+selected verifier passes quit/EOF, eight legal GO, three startup TIDs,
+native/stdio/private-path/readers and physical termination. Original owned
+groups settle before reap; forced cleanup and remaining owned handles are0.
+Producing recipes are preserved separately from later result annotations.
+The new head still needs its own CI; these are local qualifications.
+
 ## Shared compiler-group ownership repair: 2026-10-24
 
 The source package producers share one late compiler-owner transformation
@@ -31,9 +81,18 @@ A hint/NORMAL/PALS are5528/5510/7135 and reduced F4697/4425 B. Every envelope
 passes strict Python/CLI restoration. Existing packaging suites pass all
 14 tests across the three compiler shapes. Current F ordinary --dev and
 unchanged selected verification reproduce shipping/DEV and pass quit/EOF,
-eight legal GO, native/FD/private-path/readers and physical exit. Other
-new envelopes have source/Data/cost proof here; their new ordinary/positive
-qualification is left to the automatic new-head CI rather than copied from F.
+eight legal GO, native/FD/private-path/readers and physical exit. The exact
+`306959720ec2ba432af584a4dc7a6cc3118f7667` automatic engine CI40051718880
+and repository CI40051718946 succeeded. The tested merge tree equals head
+tree6a8675685a9be2a6569d04c4d715ee7381728214. Actual C/Rust artifact ZIP
+digests and CRC checks pass; the ten common-owner profiles' frozen inputs
+match exact Git blobs, reproduce their recorded tuples and pass runtime.
+F8's separate positive receipt confirms eight worker CPU observations and
+physical settlement. Generic C/Rust A–F process checks also pass within
+their local-dev worker1/TT16 scope. D's25 unchanged source inputs retain
+the previous e8ccae48 detailed CI scope. This checkpoint does not qualify
+the subsequent B/C/E source changes above. The external CI index39410 B has
+SHA25699bc7d843df30af5bf0d59729d0c385d57ad580d055ac129c024fbe80b62d14d.
 
 On the same repaired wrapper, the old7885 B F source costs4654 B and the new
 7840 B source costs4640 B: a separately measured14 B compression gain.
