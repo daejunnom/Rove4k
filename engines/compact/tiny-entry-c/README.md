@@ -1,3 +1,31 @@
+# Maintained C: seek-implied compiler-source flush — 2026-10-24
+
+Fixed candidate whole **4948→4944 B (-4 B)**; bootstrap
+10827→10817 B. Whole SHA-256:
+`0cc1fe0f53eb862e76123b0f56b93778fca984ccdd81351cfc15ca4f5a6ca32f`.
+
+The final pure `compiler_seek.py` stage runs after every prior source/literal,
+oldBOOT and W1W2 guard, including the exact current W1W2 bootstrap pin. It
+receives that metadata plus the same frozen stdin-owner producer and inverse,
+restores/replays the owner exactly, and removes only `f.flush();` before
+`f.seek(0)`. One byte span, protected gaps and full byte/AST inverse are checked.
+
+This contract covers builtin regular `io.BufferedRandom` from `open(w+b)` and
+its direct seek0. Python3.12 specifies seek flushes its buffered writes.
+A pending write failure now surfaces at seek, still before compiler spawn;
+arbitrary filelikes, custom open, explicit flush hooks, syscall/traceback
+identity and identical cancellation timing are outside the contract. Descriptor
+ownership, original UCI FD0, source/argv spelling, masks/publication, WNOWAIT and
+group settlement remain protected. No extra prepared-error injection is added.
+
+Canonical/source/native/DEV, model/search/TT/learners, workers, codec and header
+are unchanged. Producing status: PENDING ordinary --dev and unchanged selected.
+These six producing files stay frozen; completion belongs to the external
+receipt. The transform runtime-qualified flag remains false. Earlier cost,
+normal and IO evidence below keep their original inputs and scope.
+
+## Earlier producing and maintained evidence
+
 # Maintained C: terminal compiler stdin and shared wait — 2026-10-24
 
 Fixed W1+W2 first-cost winner: **4995→4948 B (-47 B)**; still 852 B above4096.

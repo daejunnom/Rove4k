@@ -82,7 +82,8 @@
     "engines/compact/tiny-entry-e/shipping_depth_token.py": "9aec653fbfb7d0120e726f7d74ab072f93ca102bed12ce05ae15a6ce97eeac78",
     "engines/compact/tiny-entry-e/shipping_square_walk.py": "c6914efca036e91da493a89b5672e9485e55bbfa57b480c1e56ce77329a5e1a4",
     "engines/scripts/compiler_group.py": "fe2fd6ce96b51251ec0d5e0f4b73c0742c50ca86932608b29f892ecee240974c",
-    "engines/scripts/compiler_stdin.py": "ee9ba2c938cfabf30261451961c424254d9f75a804d5c3e6d832b09bfcf4f247"
+    "engines/scripts/compiler_stdin.py": "ee9ba2c938cfabf30261451961c424254d9f75a804d5c3e6d832b09bfcf4f247",
+    "engines/scripts/compiler_seek.py": "8ca5fd736f010cd9dd1e3b668065c0cf7d82f9e98653580b8f9b4c23e7d75a41"
   },
   "compression": {
     "format": "lzma-alone",
@@ -104,14 +105,14 @@
     "source_sha256": "c0b01df4c8a330fce2fdfe28a15feb885ce1155e3dddf59b739c0c39f5652b75",
     "native_bytes": 18576,
     "native_sha256": "7d0529905678edfb35394ba654754ddd41985fe7c50c996463a514bd8440cc40",
-    "whole_bytes": 4901,
-    "whole_sha256": "2ff1e93e56fa4d5a7a1d4cb7e63f20d1aaf92301e769130bb565db6b5f35be2e",
-    "bootstrap_sha256": "86da8ff369348d65dc7de83f5d903ea895162e1e9706f025a8f357690a2fdcb9",
+    "whole_bytes": 4897,
+    "whole_sha256": "8663491f41293aba53bc4856f1a85fb8be0c7a77d77e04e0c33791e454275f45",
+    "bootstrap_sha256": "e5caff86775563e8999876fe8fb9d86aaf2a877bc4499a38cf8bd856b731cbc3",
     "dev_source_bytes": 21314,
     "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
     "dev_native_bytes": 31376,
     "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
-    "bootstrap_bytes": 10376
+    "bootstrap_bytes": 10366
   },
   "local_input_sha256": {
     "engine.c": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
@@ -2384,6 +2385,45 @@
       "wait_change": "same WNOWAIT leader and live-group settlement policy, shared wait function with call-local deadlines",
       "ordinary_qualification": "pending",
       "selected_qualification": "pending",
+      "engine_runtime": 0
+    },
+    "terminal_seek": {
+      "scope": "exact E W1/W2 seek-implied flush terminal source transform, builtin BufferedRandom contract only; prior source and owner guards retained",
+      "previous_expected": {
+        "readable_bytes": 28001,
+        "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+        "source_bytes": 8526,
+        "source_sha256": "c0b01df4c8a330fce2fdfe28a15feb885ce1155e3dddf59b739c0c39f5652b75",
+        "native_bytes": 18576,
+        "native_sha256": "7d0529905678edfb35394ba654754ddd41985fe7c50c996463a514bd8440cc40",
+        "whole_bytes": 4901,
+        "whole_sha256": "2ff1e93e56fa4d5a7a1d4cb7e63f20d1aaf92301e769130bb565db6b5f35be2e",
+        "bootstrap_sha256": "86da8ff369348d65dc7de83f5d903ea895162e1e9706f025a8f357690a2fdcb9",
+        "dev_source_bytes": 21314,
+        "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
+        "dev_native_bytes": 31376,
+        "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
+        "bootstrap_bytes": 10376
+      },
+      "helper_sha256": "8ca5fd736f010cd9dd1e3b668065c0cf7d82f9e98653580b8f9b4c23e7d75a41",
+      "owner_helper_sha256": "ee9ba2c938cfabf30261451961c424254d9f75a804d5c3e6d832b09bfcf4f247",
+      "actual_cost_sha256": "77450bd11f963c258405609eaad936f91a182450cbd4f424bb97c0b74c6ef96a",
+      "actual_source_proof_sha256": "b1f88e0c2e42115e033f29dd49ea5953f91e12a565fdef4d2345a0767083a150",
+      "whole_delta": -4,
+      "bootstrap_delta": -10,
+      "firstcost_candidate_encode": 1,
+      "firstcost_strict_Python_inverse": 1,
+      "firstcost_CLI_inverse": 0,
+      "firstcost_baseline_encode": 0,
+      "exact_owner_restore_and_replay": true,
+      "full_byte_inverse": true,
+      "whole_AST_inverse_equal": true,
+      "source_native_model21_ordering5_DEV_TT_learners_unchanged": true,
+      "observable_contract": "builtin open regular w+b BufferedRandom; seek flushes before rewind/spawn; pending write failure surfaces at seek instead of explicit flush",
+      "excluded_observations": "explicit flush hooks, traceback identity, monkeypatched or arbitrary file-like objects",
+      "pre_spawn_source_preparation_parent_FD0_descriptor_mask_publication_WNOWAIT_settlement_unchanged": true,
+      "ordinary_qualification": "PENDING",
+      "selected_qualification": "PENDING",
       "engine_runtime": 0
     }
   },

@@ -1,3 +1,38 @@
+# Maintained E: terminal seek-implied flush - 2026-10-24
+
+The actual cost candidate is **4897 B**, down **4 B** from the current4901 B
+W1/W2 full predecessor. Bootstrap10376->10366 B removes only10 B of explicit
+`f.flush();`. The same nice32 LZMA1/73 B header and ALONE header bytes remain.
+The full C/native/DEV, E model21 physical coefficients, five ordering features,
+TT/learners/search, clocks and two-worker resources remain selected. The file
+is801 B above4096; eligibility and the full A-F goal remain open.
+
+The explicitly frozen compiler_seek.py runs only after every previous source,
+literal, compiler_group, dead-score and sole-GO guard, the old10496 B BOOT
+guard, W1/W2 with shared_wait=True and the exact10376 B/86da8ff3 guard. It
+receives owner metadata and transform/restore callbacks from the same frozen
+compiler_stdin.py. The helper inverses and replays that exact owner before
+removing one flush statement, protecting source spelling, all other bytes,
+the declared AST and full byte/AST inverse. Old whole/BOOT pins are retained.
+
+The contract is builtin `open(d+'/c','w+b')` regular BufferedRandom. Its seek
+flushes pending writes before rewind and compiler spawn. A pending write
+failure now surfaces at seek instead of explicit flush; explicit flush hooks,
+traceback identity, monkeypatches and arbitrary file-like objects are outside
+this contract. Source evaluation, pre-spawn preparation, descriptor ownership,
+parent UCI FD0, masks/spawn publication, WNOWAIT/group settlement remain.
+
+Actual comparison receipt SHA-256:
+`77450bd11f963c258405609eaad936f91a182450cbd4f424bb97c0b74c6ef96a`.
+Actual source proof SHA-256:
+`b1f88e0c2e42115e033f29dd49ea5953f91e12a565fdef4d2345a0767083a150`.
+First-cost encoded once, strict Python inverse reached EOF with zero trailing
+data and exact restored bytes. Baseline encode/inverse0, CLI inverse0 and
+compiler/engine0 are preserved as measured counts. Runtime is not inferred.
+PENDING: one existing ordinary --dev reproduction and unchanged selected
+verification of the new exact wrapper. Completion will be recorded outside
+Git while these actual producing inputs remain frozen; no source annotation.
+
 # Maintained E: terminal W1/W2 input transport and shared wait - 2026-10-24
 
 The actual selected complete file is **4901 B**, down **45 B** from the

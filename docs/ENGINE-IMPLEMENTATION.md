@@ -4,6 +4,108 @@ The full implementation scope is recorded in [the accepted plan](ENGINE-PLAN.ko.
 The current user request excludes training and AWS connections. Frozen model
 inference and lossless model storage remain in scope; trained strength is not claimed.
 
+## Further common and family source reductions: 2026-10-24
+
+The W1/W2 rollout below remains a separate accepted checkpoint. A further
+terminal compiler_seek stage removes only the explicit f.flush();10 B from
+the builtin regular BufferedRandom write/seek preparation. Python3.12 seek
+flushes the pending write before rewind and publication. A write failure can
+now surface at seek; arbitrary filelikes, custom open/flush hooks, exact
+tracebacks/syscalls or cancellation timing are outside that contract.
+The original compiler_stdin25300/ee9ba2c9 remains unchanged. New helper8813 B
+has SHA2568ca5fd736f010cd9dd1e3b668065c0cf7d82f9e98653580b8f9b4c23e7d75a41.
+It restores and replays the caller's exact frozen owner, deletes one AST
+flush expression with UTF8 byte offsets, and checks both gaps, opaque source
+spelling, declared AST change and complete byte/AST inverse. Five focused
+tests include real pending-write flush/rewind and seek-EFBIG before the next
+boundary. They do not qualify arbitrary error/close/exception observations.
+
+Each of A/B/C/E/F8 has its own candidate encode and strict Python inverse,
+reusing its exact173 control bytes and original strict-restoration receipt.
+The seek-only complete costs are4807/5281/4944/4897/4604, saving3/4/4/4/3 B;
+the raw10-byte saving is not a prediction of compressed savings. The finite
+five-cost index10957 B has SHA256
+96e36fede04328eaa2af9402e18fb454a80d34c82e126ba74c4e23acdc7079d6.
+Old source/literal/owner/W1/W2 bootstrap guards execute before the new stage.
+No original helper pins, source/native/DEV, codec or fixed resources change
+for A/B/C/E. Their expected changes are exactly whole/bootstrap bytes/hash.
+Each ordinary --dev reproduces shipping2/oldDEV2; each unchanged selected
+verifier passes quit/EOF2, eight legal GO, three TIDs, exact restored native,
+private-child cleanup, readers and physical exit0. A/B FD enumeration stays
+unobserved; C/E observe stdio0/1/2. Actual run lanes A0-1/E2-3/BC4-5 are
+bounded, all original owners settle before reap, forced0/owned0. Optional A
+root-policy and DEV generation bypass the terminal source change.
+
+Scalar D separately removes an unread Worker score field/reset/completion
+store and unused search-return binding. Scalar sources save42 B in four
+roles; search calls/scores, TT, learners, full promotions and publication
+remain. HQ/DEV source mappings bypass the projection. Actual Clang18 layout
+observes best12->8 while nodes16, later fields and sizeof68976/align8 stay
+equal, so no RAM gain is claimed. Native7324->7292/text6815->6808 plus the
+25-byte alignment-gap disappearance yield packet4471->4458 and complete
+5540->5527. Only the exact new native/layout/model/restored-image class is
+registered; old classes and generic mapping/owner/observer bodies remain.
+The actual audit5550/8e560ac0 is statically admitted, then ordinary reproduces
+scalar/HQ native2/whole2 and audit1 each. Default positive passes preentry2,
+quit/EOF4 and12 legal GO, exact RX/initial BSS/padding/guards/NX/stdio,
+persistent three TIDs, readers and physical settlement. Normal index5670 B
+SHA25659119e313b063bb7f740f3ad9902196109b8f79c4e4153a0d98339de4a9aa94b.
+The original audit driver NameError/exit1/completefalse is preserved; its
+actual completed tools/static companion and later normal success are
+separate evidence. No new DEV, fresh, fault or game campaign is inferred.
+
+Full F reuses the existing Q only in the quiet nonpromotion cutoff learner
+update. Successful make leaves the same piece at the child destination,
+including castling; recursive qr does not mutate that Board. Quiet ordering,
+which can include promotions, is unchanged. Source7840->7830 changes native
+bytes18576/e92b39->18576/3aaaacf7. Old/new actual compact qr ASan/UBSan runs
+compare36 cases, typed state3807540 B and successful-make trace247248 B
+byte-exact, covering quiet pieces, four castles, depth3, captures, quiet/capture
+NBRQ promotions and preset stop. Correction update, async cancel and SMP are
+not covered by that fixture. Quiet-only4593 and seek-only4591 combine to an
+actual4590, not their summed saving. Full ordinary shipping2/oldDEV2 and
+unchanged selected quit/EOF2/eight GO pass. Actual prior DEV files and the
+8538-byte pre-name source compare byte-equal. Production source4 is frozen;
+new full references do not change the two reduced policies' actual tuples.
+The old7840 literal and9786 owner guard execute before changing only the
+opaque source expression, exact new-owner replay, frozen stdin and seek.
+F followup index8829 B SHA256
+f5e4cd5afb20dfa477c090611b5d8bc0042fd1a2e2e88a5215be9aa28be9d3f8.
+
+F8 quiet+seek firstcost is4602, two bytes smaller than seek-only4604. It
+retains full8/TT18, source7868 and native18576/8c98349f. Its new declared
+producer composition first inverses F2 quiet7830 to exact old7840, consumes
+the unchanged six-role resource transform, admits old F87878, then applies
+the same quiet source reduction. New classv11/base-after-quiet is explicit
+in builder/validator; the original six-role helper stays byte-identical.
+Ordinary reproduces source/native/bootstrap/whole/payload2 and strict restore2,
+then a separate positive passes quit/EOF2, eight legal GO, nine TIDs, all-eight
+worker CPU activity, native/FD/children/maps/NX, readers and physical exit0.
+All other local lanes are closed before this eight-CPU qualification. Both
+actual reports consume the same79-source closure, new F producer and D
+verify18faa69a. Build48542 B SHA256
+0e24b4a1ce3c398b9e7d1a479084336679ff74a6c1242a5bcc9902fccc97f78d;
+runtime74771 B SHA256
+679153416875c4d056805d2873460dbb771c2db3a265b0664171514c1165e17a.
+Producing source5 stays frozen. The old173 F8 receipt retains its own closure.
+
+| Full maintained path | Before this followup | Locally reproduced and run | Gain | Over4096 |
+|---|---:|---:|---:|---:|
+| A loose2 | 4810 | 4807 | 3 | 711 |
+| B2 | 5285 | 5281 | 4 | 1185 |
+| C2 | 4948 | 4944 | 4 | 848 |
+| D scalar | 5540 | 5527 | 13 | 1431 |
+| E2 | 4901 | 4897 | 4 | 801 |
+| F full2 | 4595 | 4590 | 5 | 494 |
+| F full8 | 4607 | 4602 | 5 | 506 |
+
+All producing family files remain unchanged after their normal runs;
+completion records live here and in external receipts rather than rewriting
+their producing-time pending annotations. No features, model/TT/learner,
+promotion choice or fixed worker/memory profile is removed. All full paths
+still exceed4096. This followup's current-head CI, comparable strength and
+target-resource/tournament admission remain separate work.
+
 ## W1/W2 rollout to A/B/C/E/F8: 2026-10-24
 
 Each existing complete file is reproduced with its own current codec/header
@@ -56,7 +158,19 @@ including its previously omitted dead-score helper and compiler_stdin with
 exact bytes. Both checkouts reproduce4810. Fresh22040 B has SHA256
 03fc9fdad02eb2d9a567848c2f1871c6a7eebca68f18d61d64ad795351501ad0.
 That extra archive execution is A-only; other updated collectors retain
-source-review scope. Current-head CI qualification is a subsequent step.
+source-review scope. The wrapper checkpoint173c2c65/tree04363c7e is then
+qualified by engine40086797011 (C/Rust), NV40086797012 (Node22/24), and
+repository40086797045 (Node22/24), all success. Tested merge77770149 has the
+same tree. The actual C ZIP1077333 B/API digest/CRC and ten selected
+A/B/C/E/F8 build/runtime JSONs pass, binding Git173 inputs47/50/48/50 and
+F8 closure74, old guards, ee9 W1/W2/full inverse, both shipping/DEV attempts
+and actual runtime. F8 uses Git173 D verify461f, not mutable D WIP. The
+final index184564 B SHA256 is
+e519e5b2b4d436ccc7dc9b520856892406121202ee9ee1e7bf429707d2686588.
+Original engine/NV/data handles finish0, restart0/owned0. Generic catalog
+291 paths has10 changed pins, separately from unchanged generic producers;
+default/reduced F ordinary68 and snapshot3 stay exact. New fresh execution,
+new root-policy JSON intake and unchanged whole-closure claims are not added.
 
 Parallel additional costs remain separate: seek-implied flush F4595→4591,
 quiet nonpromotion continuation-index reuse F4595→4593 with a changed

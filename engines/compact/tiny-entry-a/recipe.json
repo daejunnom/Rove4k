@@ -65,7 +65,8 @@
     "engines/compact/tiny-entry-a/shipping_frequency.py": "ea26dae14aed9a570cc5c60c9bb0df5cb3a06332ad745f2030c09647e6d7dda0",
     "engines/compact/tiny-entry-a/shipping_ep.py": "5d44391eecbabf473cf08deebcc895bafc71380d157dc5eff66caca28117330c",
     "engines/scripts/compiler_group.py": "fe2fd6ce96b51251ec0d5e0f4b73c0742c50ca86932608b29f892ecee240974c",
-    "engines/scripts/compiler_stdin.py": "ee9ba2c938cfabf30261451961c424254d9f75a804d5c3e6d832b09bfcf4f247"
+    "engines/scripts/compiler_stdin.py": "ee9ba2c938cfabf30261451961c424254d9f75a804d5c3e6d832b09bfcf4f247",
+    "engines/scripts/compiler_seek.py": "8ca5fd736f010cd9dd1e3b668065c0cf7d82f9e98653580b8f9b4c23e7d75a41"
   },
   "fixed_renames": [
     [
@@ -405,14 +406,14 @@
     "source_sha256": "2d077291e5615790206a43399d809b23aca5a2deec17623cd4c32f40fcb1ebf4",
     "native_bytes": 18576,
     "native_sha256": "9b0e162a4f8f4073d2d16b6d5da336baacaf5bb5bc9e38e07f851d2afa8004f2",
-    "whole_bytes": 4810,
-    "whole_sha256": "9b791410dca97f8cf0d1e32965e419888561db1935c3be96c000ce2f79c91090",
-    "bootstrap_sha256": "1da24c94ea091b5a40bb1d23e30872a25d29733032181accfa3b06e9eaa626a6",
+    "whole_bytes": 4807,
+    "whole_sha256": "f3433444742ead94c7bb2ad2e06439dc468b7b575285faaa961bd0f2eb5fee78",
+    "bootstrap_sha256": "9caeb9a45554a46a7ff0dd87945e8792152cb74495a9b6326050dddaf322dfec",
     "dev_source_sha256": "d1f0ff322843a4210cb1cad574bc6726eef576c0fd398cb0e1cfbc12fdc81f01",
     "dev_native_sha256": "078df7141403841798e0bcb1545e59975492359b78d88b0637b99865a6bf72b9",
     "input_profile_readable_bytes": 27688,
     "input_profile_readable_sha256": "4af39bc6496c85281b322063245ee97a522b4d6c6df7c4844f71d981e733164a",
-    "bootstrap_bytes": 10185
+    "bootstrap_bytes": 10175
   },
   "local_input_sha256": {
     "engine.c": "a6aab57fffacc1900dbd9de133652d811d316b3823144ec2181c4f8dda581b6a",
@@ -4363,5 +4364,67 @@
       "status": "pending one existing loose ordinary --dev and unchanged selected verifier"
     },
     "previous_receipts": "retain exact predecessor source/native/bootstrap/whole scope; no runtime success inherited"
+  },
+  "terminal_compiler_seek": {
+    "policy": "loose",
+    "helper": "engines/scripts/compiler_seek.py",
+    "helper_sha256": "8ca5fd736f010cd9dd1e3b668065c0cf7d82f9e98653580b8f9b4c23e7d75a41",
+    "predecessor": {
+      "readable_sha256": "a6aab57fffacc1900dbd9de133652d811d316b3823144ec2181c4f8dda581b6a",
+      "source_bytes": 8335,
+      "source_sha256": "2d077291e5615790206a43399d809b23aca5a2deec17623cd4c32f40fcb1ebf4",
+      "native_bytes": 18576,
+      "native_sha256": "9b0e162a4f8f4073d2d16b6d5da336baacaf5bb5bc9e38e07f851d2afa8004f2",
+      "whole_bytes": 4810,
+      "whole_sha256": "9b791410dca97f8cf0d1e32965e419888561db1935c3be96c000ce2f79c91090",
+      "bootstrap_sha256": "1da24c94ea091b5a40bb1d23e30872a25d29733032181accfa3b06e9eaa626a6",
+      "dev_source_sha256": "d1f0ff322843a4210cb1cad574bc6726eef576c0fd398cb0e1cfbc12fdc81f01",
+      "dev_native_sha256": "078df7141403841798e0bcb1545e59975492359b78d88b0637b99865a6bf72b9",
+      "input_profile_readable_bytes": 27688,
+      "input_profile_readable_sha256": "4af39bc6496c85281b322063245ee97a522b4d6c6df7c4844f71d981e733164a",
+      "bootstrap_bytes": 10185
+    },
+    "selected": {
+      "readable_sha256": "a6aab57fffacc1900dbd9de133652d811d316b3823144ec2181c4f8dda581b6a",
+      "source_bytes": 8335,
+      "source_sha256": "2d077291e5615790206a43399d809b23aca5a2deec17623cd4c32f40fcb1ebf4",
+      "native_bytes": 18576,
+      "native_sha256": "9b0e162a4f8f4073d2d16b6d5da336baacaf5bb5bc9e38e07f851d2afa8004f2",
+      "whole_bytes": 4807,
+      "whole_sha256": "f3433444742ead94c7bb2ad2e06439dc468b7b575285faaa961bd0f2eb5fee78",
+      "bootstrap_sha256": "9caeb9a45554a46a7ff0dd87945e8792152cb74495a9b6326050dddaf322dfec",
+      "dev_source_sha256": "d1f0ff322843a4210cb1cad574bc6726eef576c0fd398cb0e1cfbc12fdc81f01",
+      "dev_native_sha256": "078df7141403841798e0bcb1545e59975492359b78d88b0637b99865a6bf72b9",
+      "input_profile_readable_bytes": 27688,
+      "input_profile_readable_sha256": "4af39bc6496c85281b322063245ee97a522b4d6c6df7c4844f71d981e733164a",
+      "bootstrap_bytes": 10175
+    },
+    "insertion": "exactly once after prior default source/literal/dead-score BOOT and W1+W2 output admission; root3 and DEV bypass",
+    "trusted_callbacks": "same frozen compiler_stdin module transform_bootstrap and restore_bootstrap, with its actual owner_metadata; dependency admission, not authentication",
+    "frozen_stdin_sha256": "ee9ba2c938cfabf30261451961c424254d9f75a804d5c3e6d832b09bfcf4f247",
+    "measured_cost": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-seek-flush-promotion-20261024-evidence/measured/cost.json",
+      "bytes": 2902,
+      "sha256": "2bd10908a1f5a31ff3046500c7eb210b086d409679782586b934f5db0b4fbbba"
+    },
+    "measured_source_proof": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-seek-flush-promotion-20261024-evidence/measured/source-proof.json",
+      "bytes": 1973,
+      "sha256": "db9f1a846d20ea26a0d2ed81f88d2456240f7437d66f5ddbe31f2b280f55d94e"
+    },
+    "root_firstcost_index": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-a-seek-flush-promotion-20261024-evidence/measured/root-firstcost-index.json",
+      "bytes": 10957,
+      "sha256": "96e36fede04328eaa2af9402e18fb454a80d34c82e126ba74c4e23acdc7079d6"
+    },
+    "raw_bootstrap_delta": -10,
+    "whole_delta": -3,
+    "declared_change": "remove only f.flush(); builtin open(w+b) regular BufferedRandom seek(0) writes pending buffer before rewind/spawn",
+    "error_boundary": "pending buffered write failure surfaces at seek instead of direct flush; explicit method hooks/traceback identity/monkeypatch and arbitrary file-like objects excluded",
+    "unchanged": "source expression/argv, parent UCI FD0, descriptor lifetime, mask/publication, WNOWAIT/group settlement, prefix/codec/source/native/DEV/root3",
+    "normal_validation": {
+      "status": "PENDING one existing default loose ordinary --dev and unchanged selected; completion recorded externally, producing inputs frozen"
+    },
+    "previous_stage_descriptors": "terminal_compiler_stdin remains its own exact 4810/10185 W1+W2 context; not rewritten to final seek output"
   }
 }

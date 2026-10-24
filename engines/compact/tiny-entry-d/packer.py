@@ -63,6 +63,7 @@ def _native_mapping(native_sha256, native_bytes):
         ('3c662941aa11af8521d3c601322e9aa38405a3bfbeb9332d55008907217a4b2e', 8000): (1, 4201846, (4194304, 8192, 4202496, 175064, 176128, 4190208, 192512, 4378624)),
         ('395fea4ddf80d155227700fa8da9b06437082837a1878a818605f268506de50c', 7388): (0, 4201328, (4194304, 8192, 4202496, 175092, 176128, 4190208, 192512, 4378624)),
         ('2456cedd1eea62d87b50423a24bbc321a84c5cdb86e64adeafb33bf9472d6af6', 7324): (0, 4201269, (4194304, 8192, 4202496, 4369412, 4370432, 4190208, 4386816, 8572928)),
+        ('34bb0c81cad09efb0febe32f38a58cd3b1aa1ccb20c2eae0dd854b4691719262', 7292): (0, 4201262, (4194304, 8192, 4202496, 4369412, 4370432, 4190208, 4386816, 8572928)),
     }.get((native_sha256, native_bytes))
     if fixed is None:
         raise ValueError('unknown exact compiled native identity')
@@ -106,6 +107,8 @@ def body_image(expected):
             'b2982877c1c1bf97cafcfcd5b9dd210835a3eded07dcbf3c38e8c991c4d8943a',
         (7324, '2456cedd1eea62d87b50423a24bbc321a84c5cdb86e64adeafb33bf9472d6af6'):
             '08e48273a79303ef363eefd26f043185d6f9de7aec66a23f29454f279e316d5d',
+        (7292, '34bb0c81cad09efb0febe32f38a58cd3b1aa1ccb20c2eae0dd854b4691719262'):
+            '2df2e0b4f8c6f6bc753c2427d0a0754e149b758d18d6361dfb5667e49d02361b',
     }.get((expected['native_bytes'], expected['native_sha256']))
     if restored is None:
         raise ValueError('unknown body232 compiled native')
@@ -119,7 +122,7 @@ def body_image(expected):
 
 def compile_loader(directory, sources, payload, layout, flags, run, digest, *, model_wmask, checkpoint=False, image=None):
     # Native bytes/layout were admitted above; bind its private model literal.
-    fixed_model = {(7612, 4201533): 16847486, (8000, 4201848): 135274878, (8000, 4201846): 135274878, (7388, 4201328): 16847486, (7324, 4201269): 16847486}.get((layout['image_size'], layout['entry']))
+    fixed_model = {(7612, 4201533): 16847486, (8000, 4201848): 135274878, (8000, 4201846): 135274878, (7388, 4201328): 16847486, (7324, 4201269): 16847486, (7292, 4201262): 16847486}.get((layout['image_size'], layout['entry']))
     if type(model_wmask) is not int or model_wmask != fixed_model:
         raise ValueError('unsupported exact native/model mapping contract')
     if image is not None:

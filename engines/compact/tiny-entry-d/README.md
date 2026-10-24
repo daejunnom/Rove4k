@@ -1,3 +1,39 @@
+# Scalar unread published score — source integration, execution pending
+
+The new scalar candidate is **5527 B** (native7292, H28 packet4458 plus current
+loader/header1069),13 B below the previous qualified5540 class. This is a
+first-cost measurement and source integration, not normal/positive or4K
+acceptance. HQ6037 retains its exact old source/native/whole. The historical
+5540 class and its actual runtime evidence remain below with their own scope.
+
+`shipping_dead_score.py` is a scalar-only pure late stage after static TT source
+placement. It changes only tiny.h/search.c's four roles: unread Worker.score,
+its reset/store and unused top-level return binding. Actual search arguments,
+recursive scores, TT/learners/Board/promotions/clock/threads/completion fence
+remain. HQ or DEV returns the original source mapping. Canonical native8 is
+unchanged. LP64 best12->8 while nodes16/later fields/Worker stride68976 stay;
+RAM gain is not claimed. The C record-layout tool was unavailable in first cost.
+
+Native SHA34bb0c81cad09efb0febe32f38a58cd3b1aa1ccb20c2eae0dd854b4691719262,
+whole SHA38c673e0484ae68823cecf1ed35d90b01a8ebdb7ebc4ee02d0804ea7201e3ca8.
+Full zero232 restored SHA2df2e0b4f8c6f6bc753c2427d0a0754e149b758d18d6361dfb5667e49d02361b
+is separate from compiled native identity. Entry401b2e, RX2 and current full
+zero-file BSS4369412/rounded4370432/guards/NX/reserve are explicit exact classes.
+The H28 stage rebinds the changed host packer/codec sources without changing
+their algorithms or model. Loader/decoder/range/models/linkers/flags are exact.
+
+One bounded native/encode/loader first cost and Python DATA inverse completed;
+no generated C/native/own-ELF execution, SAN, normal, HQ, games or CI ran.
+The separately linked CHECKPOINT5550/8e560ac0b5ef316f5f2a3382295121bfaa700b3916c0c618fc125656d1138982
+has root static admission before ordinary/positive. Actual clang18 syntax-only
+queries confirm best12->8, nodes16/later offsets and sizeof68976 unchanged.
+The discovery driver retained its postprocessing NameError/exit1/completefalse;
+a read-only companion confirms all original commands/ELF without product replay.
+Ordinary/positive remain unexecuted at this producing source freeze. These files
+are not annotated after execution; completion evidence is external. The old5563/
+9adc audit is not reused for this candidate. The finite first cost is external
+`rove4k-d-dead-score-first-cost-20261024-v1/cost.json`.
+
 # Maintained scalar TT in zero BSS — 2026-10-24
 
 Selected scalar/HQ own-ELFs are **5540 / 6037 B**, with4096 gaps1444/1941 B. Scalar falls41 B from5581: native7388→7324, fixed H28 packet4512→4471, and current shared-refill loader/header1069 unchanged. HQ native8000 and whole6037 retain their exact preceding bytes. These are complete-file measurements; no gains from unselected experiments are added.

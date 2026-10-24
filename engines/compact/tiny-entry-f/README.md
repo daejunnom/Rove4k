@@ -1,3 +1,45 @@
+# Maintained full F4590 candidate — quiet continuation slot and seek flush, 2026-10-24
+
+Full shipping now reuses the already computed child-piece slot Q only at the
+successful quiet cutoff's continuation update. Successful make and !P imply
+that the child destination holds the parent's source piece, including castling;
+promotion and capture retain their excluded update branch. This source invariant
+does not depend on worker count. Quiet ordering remains unchanged because its
+unmade moves can contain promotions. The pure fixed stage after sole GO reduces
+source7840/67279ef9 to7830/43bc6781 with one10B span, two protected gaps and a
+whole inverse. Canonical/DEV, optional actual sources and pre-name8538 bypass it;
+optional full_reference explicitly consumes the new7830 source.
+
+Packaging first restores7840 and consumes the entire old literal chain and exact
+compiler-group9786/0cf100be guard. Only the opaque C expression then changes;
+whole-byte inverse and the outside-source AST are checked. The group producer
+and frozen W1/W2 producer replay the new source to generate fresh exact owner
+metadata. The terminal compiler_seek stage removes only f.flush(); before the
+builtin regular BufferedRandom seek(0), which flushes before rewind/publication.
+Pending write errors can now surface at seek; explicit flush hooks and traceback
+identity are outside this declared contract. Source evaluation, private file/FD0,
+mask/publication, WNOWAIT, compiler-group settlement and125 preservation stay in
+the owner. Arbitrary file-like objects and include/filesystem observations are
+outside the existing compile-input-only transport contract.
+
+Actual fixed combined cost is whole4590/0582b96a, bootstrap9646/c5c42eb0,
+native18576/3aaaacf7. Baseline4595, quiet-only4593 and seek-only4591 were measured
+separately: their savings are not added. The combined first cost used one encode
+and a strict EOF/no-trailing-data Python inverse. The native differs from the
+predecessor; .text6960→6950 while file alignment keeps18576. Whole4590 remains
+494B above4096. No speed, strength or resource-equivalence gain is claimed.
+
+One old/new actual compact qr ASan/UBSan campaign compiled each source once and
+ran each fixture once:36 cases passed with equal score/move/node results, full
+typed Board/worker/three-learner/path/all-TT payload state and every successful
+make trace. Cases include both colors' quiet piece moves, four castles, depth3,
+capture and all NBRQ quiet/capture promotions, plus preset stop. Actual quiet
+history/continuation updates and excluded promotion/capture updates were checked.
+Correction was read and remained unchanged; its update path, asynchronous stop,
+SMP pool/wrapper execution, games and performance were not exercised. SAN's
+finite sparse virtual-address allowance is separate from physical memory.
+Normal regeneration and selected runtime for this candidate remain pending.
+
 # Maintained F4260 — job-local MTD state and sole GO block, 2026-10-24
 
 Shipping-only stages after FROM reduce current full source7885→7863→7840.

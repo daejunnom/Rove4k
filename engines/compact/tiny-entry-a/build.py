@@ -94,7 +94,9 @@ def main():
         lexer=module('entry_fixed_tokens',frozen/'rename_c.py');replace=lexer._replace
         literal=module('entry_literal',frozen/'pack_stream.py').source_literal
         compiler_group=module('entry_compiler_group',frozen/'compiler_group.py').transform_bootstrap
-        compiler_stdin=module('entry_compiler_stdin',frozen/'compiler_stdin.py').transform_bootstrap
+        compiler_stdin_owner=module('entry_compiler_stdin',frozen/'compiler_stdin.py')
+        compiler_stdin=compiler_stdin_owner.transform_bootstrap
+        compiler_seek=module('entry_compiler_seek',frozen/'compiler_seek.py').transform_bootstrap
         source_package=module('entry_source_package',frozen/'source_package.py')
         readonly_template=module('entry_readonly_template',frozen/'shipping_readonly.py').transform_template
         alpha=module('entry_fixed_A_alpha',frozen/'shipping_alpha.py').transform_source
@@ -235,6 +237,13 @@ def main():
                     raise ValueError('default A terminal predecessor differs')
                 script,stdin_metadata=compiler_stdin(script,shared_wait=True)
                 report['terminal_compiler_stdin']=stdin_metadata
+                seek_predecessor=recipe['terminal_compiler_seek']['predecessor']
+                if len(script)!=seek_predecessor['bootstrap_bytes'] or sha(script)!=seek_predecessor['bootstrap_sha256']:
+                    raise ValueError('default A seek predecessor differs')
+                script,seek_metadata=compiler_seek(script,owner_metadata=stdin_metadata,
+                    prepare_owner=compiler_stdin_owner.transform_bootstrap,
+                    restore_owner=compiler_stdin_owner.restore_bootstrap)
+                report['terminal_compiler_seek']=seek_metadata
             ast.parse(script)
             whole=source_package.package(script,recipe['compression'],prefix=prefix)
             payload=whole[len(prefix):]

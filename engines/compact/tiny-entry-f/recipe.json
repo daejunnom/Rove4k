@@ -104,6 +104,8 @@
     "engines/compact/tiny-entry-f/shipping_from.py": "6b8955f6f3d7fb9421a91a339719db26595793d4dc27ddbda9b2b5e5ffc2a510",
     "engines/compact/tiny-entry-f/shipping_mtd_state.py": "b93a93d5e50823f59f6ed77ced036b3c9427e7a1ebd031db233b8012e551b54c",
     "engines/compact/tiny-entry-f/shipping_go_boundary.py": "8efdcf32924a936bf5f6ed8ca5605b94f54fb219bc3cf7d339bca9eab8f1ce52",
+    "engines/compact/tiny-entry-f/shipping_quiet_slot.py": "05e27c7117497d9087e497e53f6b12cfbf3a067500bf2f29c40af38f1afc8c60",
+    "engines/scripts/compiler_seek.py": "8ca5fd736f010cd9dd1e3b668065c0cf7d82f9e98653580b8f9b4c23e7d75a41",
     "engines/scripts/compiler_stdin.py": "ee9ba2c938cfabf30261451961c424254d9f75a804d5c3e6d832b09bfcf4f247",
     "engines/scripts/compiler_group.py": "fe2fd6ce96b51251ec0d5e0f4b73c0742c50ca86932608b29f892ecee240974c"
   },
@@ -277,24 +279,57 @@
     "dictionary_bytes": 16384,
     "nice_len": 24
   },
+  "quiet_slot_seek_candidate": {
+    "scope": "full shipping and optional full_reference source only; canonical/DEV/optional actual/pre-name bypass; ordinary regeneration and selected runtime pending",
+    "source_helper": "engines/compact/tiny-entry-f/shipping_quiet_slot.py",
+    "source_delta": -10,
+    "source_spans": 1,
+    "source_protected_gaps": 2,
+    "source_inverse": "7830 -> 7840 before the entire previous literal/owner guard chain",
+    "compiler_owner": "consume old 9786/0cf100 guard, replace only opaque C expression, replay group and frozen W1/W2 metadata, then terminal seek stage",
+    "terminal_helper": "engines/scripts/compiler_seek.py",
+    "combined_cost": {
+      "path": "/home/stemxstudio/rove4k-f-quiet-slot-followup-20261024-v2/combined/results.json",
+      "sha256": "57b9c635d06df2ef56c0ba2ac9d824c6c01b1db8a629fed20238d98f2eec0453",
+      "baseline_whole_bytes": 4595,
+      "quiet_only_whole_bytes": 4593,
+      "seek_only_whole_bytes": 4591,
+      "combined_whole_bytes": 4590,
+      "candidate_encodes": 1,
+      "strict_Python_inverse": 1,
+      "standalone_savings_added": false
+    },
+    "bounded_actual_qr_SAN": {
+      "path": "/home/stemxstudio/rove4k-f-quiet-slot-qr-san-20261024-v1/results.json",
+      "sha256": "824cbb2f031286780c788758072e76dbadead1ffa2b0a66651f9651e3d6476a0ff",
+      "compiles": 2,
+      "runners": 2,
+      "cases_each": 36,
+      "typed_state_bytes_each": 3807540,
+      "successful_make_trace_bytes_each": 247248,
+      "complete_byte_comparison_equal": true,
+      "diagnostics": 0,
+      "scope_limits": "correction update, asynchronous stop, SMP pool/wrapper, games, strength, speed and resource equivalence not exercised or claimed"
+    }
+  },
   "expected": {
     "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
-    "source_bytes": 7840,
-    "source_sha256": "67279ef99a5ade0b3b8c66564abc15e4ccd9bead3253ca18e4b88b6d87e14ca1",
+    "source_bytes": 7830,
+    "source_sha256": "43bc67816e91077c4cfd182ec6ba44aed7d0223d012cff82f5366ad58da63582",
     "native_bytes": 18576,
-    "native_sha256": "e92b39f0c936634f09eee6465decf241ce35e0326e94dbc20f9869a90009d56c",
-    "whole_bytes": 4595,
-    "whole_sha256": "8797a31843b242aa4f25c468341a4fb4dfa5e8217ce38d347ff7644cfce21467",
+    "native_sha256": "3aaaacf7891a2a4660f45d75b2b3e550ab40bf01c0c1766768517719cd1e63ec",
+    "whole_bytes": 4590,
+    "whole_sha256": "0582b96a9f0197108b5892fb6d3ab0705225ceefd3370e06314924735bc51899",
     "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
     "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
-    "bootstrap_sha256": "d863caa5f1b85be7a9ea2e37da305d729e070cd7ca12074ab8689c531af358e8",
+    "bootstrap_sha256": "c5c42eb0522a499593f1233c0093bb44e964f1066b88fc2b84512c8e62c4fa12",
     "semantic_readable_bytes": 25720,
     "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
     "dev_source_bytes": 19488,
     "dev_native_bytes": 26984,
     "input_profile_readable_bytes": 28587,
     "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
-    "bootstrap_bytes": 9666
+    "bootstrap_bytes": 9646
   },
   "local_input_sha256": {
     "engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",

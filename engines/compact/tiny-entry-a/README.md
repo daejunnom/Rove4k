@@ -1,3 +1,46 @@
+# Maintained A: terminal seek-implied flush — 2026-10-24
+
+기본 `loose` full shipping의 측정 선택 파일은 **4807 B**다. actual W1+W2 전체
+4810 B와 같은 source/native·73 B header·BT2/nice24/16KiB codec에서3 B 줄었다.
+Bootstrap은10185→10175 B이며 4096 B까지711 B가 남는다. full 기능을 줄이지 않았고
+출품 크기 통과나 검색·기력 개선으로 해석하지 않는다.
+
+`compiler_seek.py`8813 B/`8ca5fd736f010cd9dd1e3b668065c0cf7d82f9e98653580b8f9b4c23e7d75a41`을
+recipe helper catalog에 고정해 복사 후 로드한다. 기존 `compiler_stdin.py` ee9 바이트는
+그대로다. source/literal/template/compiler-owner 및 dead-score의10305 B BOOT를
+먼저 admission하고, 기존 W1+W2를 수행해10185 B/
+`1da24c94ea091b5a40bb1d23e30872a25d29733032181accfa3b06e9eaa626a6`를 다시 확인한 뒤
+seek terminal을 정확히 한 번 호출한다. 원 W1+W2 descriptor는 이 중간 단계의 selected
+tuple로 유지하며, 새 terminal에 predecessor와 최종 tuple을 별도로 적는다.
+
+Callback은 그 W1+W2를 만든 동일 frozen module의 transform/restore 함수와 실제
+owner metadata다. 새 helper는 owner inverse와 재생성을 실제 대조한 뒤 explicit
+`f.flush();` 한 구간만 제거한다. 두 바이트 gap과 전체 byte/AST inverse를 보존한다.
+trusted callback은 admission 의존성이지 인증 경계가 아니다. 임의 callback이나
+손상된 파일 객체의 의미 보존을 주장하지 않는다. root3와 DEV는 이 stage를 bypass한다.
+
+적용 계약은 builtin `open(d+'/c','w+b')`가 반환하는 regular BufferedRandom이다.
+`seek(0)`가 pending buffer를 raw stream에 기록한 뒤 되감으므로 compile 준비와
+rewind가 spawn 전에 끝난다. Pending write error는 explicit flush 대신 seek에서
+드러난다. Direct flush method hook, traceback 위치/동일성, monkeypatch와 임의
+file-like 객체는 계약 범위 밖이다. source 표현·compiler argv·부모 UCI FD0·descriptor
+소유권·mask/publication·WNOWAIT/group settlement는 바꾸지 않는다.
+
+Root actual firstcost의 전체 파일은
+`f3433444742ead94c7bb2ad2e06439dc468b7b575285faaa961bd0f2eb5fee78`, bootstrap은
+10175 B/`9caeb9a45554a46a7ff0dd87945e8792152cb74495a9b6326050dddaf322dfec`다.
+Source8335 B/2d077...와 native18576 B/9b0e162... 및 DEV/root3 기대값은 그대로이며
+top-level expected의 bootstrap/whole 네 필드만 측정 literal로 바꿨다. 오류 뒤 실제
+출력으로 기대값을 자동 갱신하는 경로는 없다.
+
+PENDING: 기존 default builder `--dev --policy loose` 한 번과 변경 없는 selected
+verifier 한 번을 CPU0 compile/CPU0–1 runtime lane에서 실행할 예정이다. 생성 소스는
+그대로 동결하며 사후 repo 주석을 쓰지 않는다. 완료·실패·실제 producing 핀은 외부
+`rove4k-a-seek-flush-promotion-20261024-evidence`에 기록한다. 새 game/benchmark/CI나
+다른 profile 검증을 이번 결과에 섞지 않는다.
+
+## 이전 기본 및 선택 정책 단계의 기록
+
 # Maintained A: terminal W1+W2 wrapper — 2026-10-24
 
 기본 `loose`의 full shipping 전체 파일은 **4810 B**다. 동일 source/native·73 B

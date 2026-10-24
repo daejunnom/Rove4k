@@ -16,7 +16,7 @@
     "engines/compact/tiny-entry-f/engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
     "engines/compact/tiny-entry-f/bootstrap.py.in": "159c5fe166f4b0804471e9d3a70d8f055a510858a6ae33f0ed6b4cfd17fca6f9",
     "engines/compact/tiny-entry-f/launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
-    "engines/compact/tiny-entry-f/build.py": "f7fa43f7ff7184b3a767730c3d556dc2bf8c142f5d48ffa4f898ddc81aeca72c",
+    "engines/compact/tiny-entry-f/build.py": "459b15b0ee490d6c9047e7057fe9cce377418ccb3db40f08f4cb64dfa1f4c756",
     "engines/scripts/specialize.py": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d",
     "engines/scripts/minify.py": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b",
     "engines/scripts/rename_c.py": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
@@ -79,10 +79,14 @@
     "engines/compact/tiny-entry-f/shipping_mtd_state.py": "b93a93d5e50823f59f6ed77ced036b3c9427e7a1ebd031db233b8012e551b54c",
     "engines/compact/tiny-entry-f/shipping_go_boundary.py": "8efdcf32924a936bf5f6ed8ca5605b94f54fb219bc3cf7d339bca9eab8f1ce52",
     "engines/scripts/compiler_group.py": "fe2fd6ce96b51251ec0d5e0f4b73c0742c50ca86932608b29f892ecee240974c",
-    "engines/scripts/compiler_stdin.py": "ee9ba2c938cfabf30261451961c424254d9f75a804d5c3e6d832b09bfcf4f247"
+    "engines/scripts/compiler_stdin.py": "ee9ba2c938cfabf30261451961c424254d9f75a804d5c3e6d832b09bfcf4f247",
+    "engines/compact/tiny-entry-f/recipe.json": "d4c91f44e118aa4d4c01bed153ea80511d916cfb4fc1f47940be4e45a0165725",
+    "engines/compact/tiny-entry-f/shipping_quiet_slot.py": "05e27c7117497d9087e497e53f6b12cfbf3a067500bf2f29c40af38f1afc8c60",
+    "engines/compact/tiny-entry-f/README.md": "ecfd98c051101f568346c5a917e4f2c0a9579501204a019dc19bf2b2d1fcec6c",
+    "engines/scripts/compiler_seek.py": "8ca5fd736f010cd9dd1e3b668065c0cf7d82f9e98653580b8f9b4c23e7d75a41"
   },
   "positive_helper_sha256": {
-    "engines/compact/tiny-entry-d/verify.py": "461f685a5ccd2b2b13682785c1b80637f45c334581660dfd21c6790f06b24482",
+    "engines/compact/tiny-entry-d/verify.py": "18faa69aed5cb5dd85a054ef2e6830463f3d819f5f635d74d55550a877c81eae",
     "engines/tests/chess_oracle.py": "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8"
   },
   "compiler": [
@@ -142,21 +146,21 @@
   },
   "final_4k_allocation": "unknown",
   "scalability_or_tournament_acceptance": "unproven",
-  "class": "full-F-late-fixed-resource8-TT18-v10",
-  "base_stage": "full-after-MTD-state-and-sole-GO",
+  "class": "full-F-late-fixed-resource8-TT18-v11",
+  "base_stage": "full-after-MTD-state-sole-GO-and-quiet-slot",
   "base_source": {
-    "bytes": 7840,
-    "sha256": "67279ef99a5ade0b3b8c66564abc15e4ccd9bead3253ca18e4b88b6d87e14ca1"
+    "bytes": 7830,
+    "sha256": "43bc67816e91077c4cfd182ec6ba44aed7d0223d012cff82f5366ad58da63582"
   },
   "expected": {
-    "source_bytes": 7878,
-    "source_sha256": "ce54ace72c9c903ea555347ffab4a0bc4635b0c48c70c6c5409ecaa66b657373",
+    "source_bytes": 7868,
+    "source_sha256": "fb18e915ca1236a25c9c2969c8c2b45d8000e2a701aede3490306b6246eb4865",
     "native_bytes": 18576,
-    "native_sha256": "79681f350279c7d1b7528b54efec48af04fccb67888704694144018f8f5b77b4",
-    "bootstrap_bytes": 9714,
-    "bootstrap_sha256": "5d2ccacfbf48e4989f907c578a0cc861f8fdaf80d1c58b6cfe1fc5c2be1f7e6c",
-    "whole_bytes": 4607,
-    "whole_sha256": "637225c0edd8f69d166550a1eb59446c020808b2fefae134e6bdaace99145155"
+    "native_sha256": "8c98349f93aa31ca8be621deaa671cbbe0aa7bcadabf99699f901a3bfe3fa98d",
+    "bootstrap_bytes": 9694,
+    "bootstrap_sha256": "1eae53e23990ba682a96e33b89631de10a0022cbca1f9b9fdd18b078271ee980",
+    "whole_bytes": 4602,
+    "whole_sha256": "cbc79eca6a962fa88de8f456446b487886523d56d828ea94b9b38f706a903065"
   },
   "specialize_sha256": "c4ff7d03d649ef33198772f95ce3a6f1cff4b711e1aa5e5a00fdbc5ddbe34656",
   "packaging_paths": {
@@ -167,7 +171,9 @@
     "bootstrap_full.py": "engines/compact/tiny-entry-f/bootstrap_full.py",
     "source_package.py": "engines/scripts/source_package.py",
     "compiler_group.py": "engines/scripts/compiler_group.py",
-    "compiler_stdin.py": "engines/scripts/compiler_stdin.py"
+    "compiler_stdin.py": "engines/scripts/compiler_stdin.py",
+    "compiler_seek.py": "engines/scripts/compiler_seek.py",
+    "shipping_quiet_slot.py": "engines/compact/tiny-entry-f/shipping_quiet_slot.py"
   },
   "source_raw_delta": 38,
   "fixed_late_source": {
@@ -2354,31 +2360,103 @@
     }
   },
   "compiler_stdin_terminal": {
-    "helper_path": "engines/scripts/compiler_stdin.py",
-    "helper_sha256": "ee9ba2c938cfabf30261451961c424254d9f75a804d5c3e6d832b09bfcf4f247",
-    "shared_wait": true,
-    "predecessor_bootstrap": {
+    "ancestor_predecessor_bootstrap": {
       "bytes": 9834,
       "sha256": "9d0510561ea9a202e5e36d5621e7358cee884c09d71980fa4bcd6e6c11435971"
     },
-    "previous_whole": {
-      "bytes": 4652,
-      "sha256": "805e013075e2953bb12264f02e75dba4539cb1a99cfee5ce7d457e8c15c2509f"
-    },
-    "stage_order": "existing six-role/source/literal/template/compiler_group guards, exact9834 predecessor, terminal W1 and W2 once, fixed own codec",
-    "compile_input_only_contract": "Only the fixed7878-byte C and fixed cc -Os -pthread -x c - input are admitted; no arbitrary include/filesystem observations. Compiler FD0 becomes a private seekable regular file; original UCI FD0 and engine model/search remain.",
+    "helper_path": "engines/scripts/compiler_stdin.py",
+    "helper_sha256": "ee9ba2c938cfabf30261451961c424254d9f75a804d5c3e6d832b09bfcf4f247",
+    "shared_wait": true,
+    "seek_helper": "engines/scripts/compiler_seek.py",
+    "seek_helper_sha256": "8ca5fd736f010cd9dd1e3b668065c0cf7d82f9e98653580b8f9b4c23e7d75a41",
+    "stage_order": "old7878 literal/9834 owner guard, opaque quiet C replacement and owner replay, W1/W2 with fresh metadata, seek terminal, fixed codec",
+    "compile_input_only_contract": "Fixed full C and cc -Os -pthread -x c - only; original UCI FD0 unchanged; builtin regular BufferedRandom seek flush contract with write failure at seek and method-hook/traceback identity excluded.",
     "first_cost": {
-      "path": "/home/stemxstudio/rove4k-wrapper-W1-W2-five-firstcost-20261024-v1/F8/cost.json",
-      "bytes": 4352,
-      "sha256": "eb4513ae3fa16e4c920785f4887fcb96713266249410f3617d87567f6747dad6"
+      "path": "/home/stemxstudio/rove4k-f8-quiet-seek-firstcost-20261024-v1/results.json",
+      "bytes": 8357,
+      "sha256": "e21090c6a52a461457a55420285d1bdc55aaa3f077975be6db16c7b2421010f1"
     },
-    "source_proof": {
-      "path": "/home/stemxstudio/rove4k-wrapper-W1-W2-five-firstcost-20261024-v1/F8/source-proof.json",
-      "bytes": 22367,
-      "sha256": "93a6bb7bf54bf2b0e80d421d66c517c007e5454bbe53c2033edfe72150a7ff42"
+    "whole_delta_to_v10": -5,
+    "raw_bootstrap_delta": -20,
+    "runtime_qualification": "PENDING separate fresh ordinary and unchanged observations after all five sources freeze"
+  },
+  "previous_v10_terminal": {
+    "class": "full-F-late-fixed-resource8-TT18-v10",
+    "base_stage": "full-after-MTD-state-and-sole-GO",
+    "base_source": {
+      "bytes": 7840,
+      "sha256": "67279ef99a5ade0b3b8c66564abc15e4ccd9bead3253ca18e4b88b6d87e14ca1"
     },
-    "whole_delta": -45,
-    "raw_bootstrap_delta": -120,
-    "runtime_qualification": "separate ordinary and unchanged positive receipts; first cost alone is not runtime acceptance"
+    "expected": {
+      "source_bytes": 7878,
+      "source_sha256": "ce54ace72c9c903ea555347ffab4a0bc4635b0c48c70c6c5409ecaa66b657373",
+      "native_bytes": 18576,
+      "native_sha256": "79681f350279c7d1b7528b54efec48af04fccb67888704694144018f8f5b77b4",
+      "bootstrap_bytes": 9714,
+      "bootstrap_sha256": "5d2ccacfbf48e4989f907c578a0cc861f8fdaf80d1c58b6cfe1fc5c2be1f7e6c",
+      "whole_bytes": 4607,
+      "whole_sha256": "637225c0edd8f69d166550a1eb59446c020808b2fefae134e6bdaace99145155"
+    },
+    "positive_helper_sha256": {
+      "engines/compact/tiny-entry-d/verify.py": "461f685a5ccd2b2b13682785c1b80637f45c334581660dfd21c6790f06b24482",
+      "engines/tests/chess_oracle.py": "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8"
+    },
+    "F2_builder_sha256": "f7fa43f7ff7184b3a767730c3d556dc2bf8c142f5d48ffa4f898ddc81aeca72c",
+    "terminal_contract": {
+      "helper_path": "engines/scripts/compiler_stdin.py",
+      "helper_sha256": "ee9ba2c938cfabf30261451961c424254d9f75a804d5c3e6d832b09bfcf4f247",
+      "shared_wait": true,
+      "predecessor_bootstrap": {
+        "bytes": 9834,
+        "sha256": "9d0510561ea9a202e5e36d5621e7358cee884c09d71980fa4bcd6e6c11435971"
+      },
+      "previous_whole": {
+        "bytes": 4652,
+        "sha256": "805e013075e2953bb12264f02e75dba4539cb1a99cfee5ce7d457e8c15c2509f"
+      },
+      "stage_order": "existing six-role/source/literal/template/compiler_group guards, exact9834 predecessor, terminal W1 and W2 once, fixed own codec",
+      "compile_input_only_contract": "Only the fixed7878-byte C and fixed cc -Os -pthread -x c - input are admitted; no arbitrary include/filesystem observations. Compiler FD0 becomes a private seekable regular file; original UCI FD0 and engine model/search remain.",
+      "first_cost": {
+        "path": "/home/stemxstudio/rove4k-wrapper-W1-W2-five-firstcost-20261024-v1/F8/cost.json",
+        "bytes": 4352,
+        "sha256": "eb4513ae3fa16e4c920785f4887fcb96713266249410f3617d87567f6747dad6"
+      },
+      "source_proof": {
+        "path": "/home/stemxstudio/rove4k-wrapper-W1-W2-five-firstcost-20261024-v1/F8/source-proof.json",
+        "bytes": 22367,
+        "sha256": "93a6bb7bf54bf2b0e80d421d66c517c007e5454bbe53c2033edfe72150a7ff42"
+      },
+      "whole_delta": -45,
+      "raw_bootstrap_delta": -120,
+      "runtime_qualification": "separate ordinary and unchanged positive receipts; first cost alone is not runtime acceptance"
+    },
+    "qualified_index": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-W1-W2-promotion-20261024-evidence/final-index.json",
+      "sha256": "9d0456e2d8100301042aae489ce68439f902a0d50a9b8107b2c06662b3847848"
+    }
+  },
+  "quiet_source_sha256": "6a5dbdaa9d01c277e2bac8ab40c53a0d06f72cca31b962c6cd109c02706fd94f",
+  "quiet_input_composition": {
+    "input": {
+      "bytes": 7830,
+      "sha256": "43bc67816e91077c4cfd182ec6ba44aed7d0223d012cff82f5366ad58da63582"
+    },
+    "restored_F2_ancestor": {
+      "bytes": 7840,
+      "sha256": "67279ef99a5ade0b3b8c66564abc15e4ccd9bead3253ca18e4b88b6d87e14ca1"
+    },
+    "unchanged_resource_helper_sha256": "c4ff7d03d649ef33198772f95ce3a6f1cff4b711e1aa5e5a00fdbc5ddbe34656",
+    "resource_ancestor_output": {
+      "bytes": 7878,
+      "sha256": "ce54ace72c9c903ea555347ffab4a0bc4635b0c48c70c6c5409ecaa66b657373"
+    },
+    "old_resource_base_stage": "full-after-MTD-state-and-sole-GO",
+    "local_quiet_output": {
+      "bytes": 7868,
+      "sha256": "fb18e915ca1236a25c9c2969c8c2b45d8000e2a701aede3490306b6246eb4865"
+    },
+    "no_fallback": true,
+    "outer_full_inverse_and_whole_protected_complement": true,
+    "source_class": "v11 fixed quiet-input composition around unchanged v10 resource transform"
   }
 }

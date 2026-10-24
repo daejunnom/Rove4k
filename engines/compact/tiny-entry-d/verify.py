@@ -58,6 +58,8 @@ EXPECTED_H28_REFILL_BODY = dict(EXPECTED_H28_BODY, **{'scalar-shipping': dict(EX
     audit_bytes=5604, audit_sha256='8bef691ebf8735796c4ef266dcf58fabe72142b043ec982bb45c811719d3b817')})
 EXPECTED_STATIC_TT_BODY = dict(EXPECTED_H28_REFILL_BODY, **{'scalar-shipping': {'bytes': 5540, 'sha256': '309ab681eecb98383a001d0c657262b46a54299fc47433fd2f56931014823a21', 'native_bytes': 7324, 'native_sha256': '2456cedd1eea62d87b50423a24bbc321a84c5cdb86e64adeafb33bf9472d6af6', 'audit_bytes': 5563, 'audit_sha256': '9adc8a26dc213c47ba72719f0a4d5b3c7a4c835af4a259cc05a32bdb3328a8ae', 'entry': 4201269, 'layout': {'entry': 4201269, 'section_offset': 0, 'section_size': 0, 'section_count': 0, 'section_names': 0, 'segments': [{'type': 1, 'flags': 5, 'offset': 0, 'vaddr': 4194304, 'paddr': 4194304, 'filesz': 7324, 'memsz': 7324, 'align': 4096}, {'type': 1, 'flags': 6, 'offset': 0, 'vaddr': 4202496, 'paddr': 4202496, 'filesz': 0, 'memsz': 4369412, 'align': 4096}, {'type': 1685382481, 'flags': 6, 'offset': 0, 'vaddr': 0, 'paddr': 0, 'filesz': 0, 'memsz': 0, 'align': 8}], 'image_base': 4194304, 'image_size': 7324, 'image_pages': 8192, 'bss_base': 4202496, 'bss_size': 4369412, 'bss_pages': 4370432, 'guard_base': 4190208, 'upper_guard': 8572928, 'reserve_size': 4386816}, 'restored_image_sha256': '08e48273a79303ef363eefd26f043185d6f9de7aec66a23f29454f279e316d5d'}})
 STATIC_TT_POLICY = 'scalar-loader-owned-static-TT-v1'
+DEAD_SCORE_POLICY = 'scalar-unread-published-score-v1'
+EXPECTED_DEAD_SCORE_BODY = dict(EXPECTED_STATIC_TT_BODY, **{'scalar-shipping': {'bytes': 5527, 'sha256': '38c673e0484ae68823cecf1ed35d90b01a8ebdb7ebc4ee02d0804ea7201e3ca8', 'native_bytes': 7292, 'native_sha256': '34bb0c81cad09efb0febe32f38a58cd3b1aa1ccb20c2eae0dd854b4691719262', 'audit_bytes': 5550, 'audit_sha256': '8e560ac0b5ef316f5f2a3382295121bfaa700b3916c0c618fc125656d1138982', 'entry': 4201262, 'layout': {'entry': 4201262, 'section_offset': 0, 'section_size': 0, 'section_count': 0, 'section_names': 0, 'segments': [{'type': 1, 'flags': 5, 'offset': 0, 'vaddr': 4194304, 'paddr': 4194304, 'filesz': 7292, 'memsz': 7292, 'align': 4096}, {'type': 1, 'flags': 6, 'offset': 0, 'vaddr': 4202496, 'paddr': 4202496, 'filesz': 0, 'memsz': 4369412, 'align': 4096}, {'type': 1685382481, 'flags': 6, 'offset': 0, 'vaddr': 0, 'paddr': 0, 'filesz': 0, 'memsz': 0, 'align': 8}], 'image_base': 4194304, 'image_size': 7292, 'image_pages': 8192, 'bss_base': 4202496, 'bss_size': 4369412, 'bss_pages': 4370432, 'guard_base': 4190208, 'upper_guard': 8572928, 'reserve_size': 4386816}, 'restored_image_sha256': '2df2e0b4f8c6f6bc753c2427d0a0754e149b758d18d6361dfb5667e49d02361b'}})
 
 OWNED = set()
 
@@ -537,6 +539,11 @@ def main():
             require(codec == H28_CODEC and build.get('decoder_policy') == 'H28-private-shared-prefill-refill-v1'
                     and build.get('source_policy') == 'scalar-shipping-fused-rays-v1', 'static TT requires exact scalar H28/fused/refill source policy')
             h28_expected = EXPECTED_STATIC_TT_BODY
+        if 'native_score_policy' in build:
+            require(build['native_score_policy'] == DEAD_SCORE_POLICY
+                    and build.get('native_storage_policy') == STATIC_TT_POLICY
+                    and codec == H28_CODEC, 'unknown published-score source policy')
+            h28_expected = EXPECTED_DEAD_SCORE_BODY
         expected_forms = h28_expected if codec == H28_CODEC else EXPECTED_V2 if codec == V2_CODEC else (EXPECTED_FUSED_BODY
             if build.get('source_policy') == 'scalar-shipping-fused-rays-v1' else EXPECTED_BODY)
         report['codec'] = codec

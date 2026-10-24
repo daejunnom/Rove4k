@@ -82,7 +82,9 @@ def main():
         strip=module('entry_b_counter_strip',frozen/'generate.py').strip_counters
         literal=module('entry_literal',frozen/'pack_stream.py').source_literal
         compiler_group=module('entry_compiler_group',frozen/'compiler_group.py').transform_bootstrap
-        compiler_stdin=module('entry_compiler_stdin',frozen/'compiler_stdin.py').transform_bootstrap
+        stdin_owner=module('entry_compiler_stdin',frozen/'compiler_stdin.py')
+        compiler_stdin=stdin_owner.transform_bootstrap
+        compiler_seek=module('entry_compiler_seek',frozen/'compiler_seek.py').transform_bootstrap
         reference=module('entry_fixed_shipping_alpha',frozen/'fixed_shipping_alpha.py')
         alpha=reference.transform_source
         storage=module('entry_B_storage_spelling',frozen/'shipping_storage.py').transform_source
@@ -212,6 +214,11 @@ def main():
                 raise ValueError('B terminal compiler-owner predecessor differs')
             script,stdin_metadata=compiler_stdin(script,shared_wait=True)
             report['compiler_stdin']=stdin_metadata
+            if len(script)!=11669 or sha(script)!='b8fd281caa3d9136de19a12d7b04b3a095b8313ba72537a9874445836cfa8e09':
+                raise ValueError('B W1W2 predecessor before seek stage differs')
+            script,seek_metadata=compiler_seek(script,owner_metadata=stdin_metadata,
+                prepare_owner=stdin_owner.transform_bootstrap,restore_owner=stdin_owner.restore_bootstrap)
+            report['compiler_seek']=seek_metadata
             ast.parse(script)
             data=prefix+lzma.compress(script,format=lzma.FORMAT_ALONE,check=lzma.CHECK_NONE,
                                      filters=[{'id':lzma.FILTER_LZMA1,'preset':9|lzma.PRESET_EXTREME,

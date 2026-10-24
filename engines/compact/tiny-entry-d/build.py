@@ -128,6 +128,8 @@ def main():
         raise ValueError('unsupported selected shipping protocol')
     if recipe.get('native_storage_policy', {}).get('id') != 'scalar-loader-owned-static-TT-v1':
         raise ValueError('unsupported scalar native storage policy')
+    if recipe.get('native_score_policy', {}).get('id') != 'scalar-unread-published-score-v1':
+        raise ValueError('unsupported scalar published-score source policy')
     out.mkdir(parents=True)
     frozen = out/'inputs'
     frozen.mkdir()
@@ -210,6 +212,8 @@ def main():
         codec = module('entry_d_context_codec', frozen/'loader/codec.py')
         shipping = module('entry_d_shipping_fused_ray', frozen/'shipping_fused_ray.py')
         static_tt = module('entry_d_static_TT', frozen/'shipping_static_tt.py')
+        dead_score = module('entry_d_dead_score', frozen/'shipping_dead_score.py')
+        report['native_score_policy'] = dead_score.POLICY
         report['native_storage_policy'] = static_tt.POLICY
         h28 = module('entry_d_scalar_H28', frozen/'shipping_context_h28.py')
         h28_sources = out/'scalar-H28-sources'
@@ -256,6 +260,12 @@ def main():
                 report['native_storage_transform'] = storage_proof
                 for path in generated_native.iterdir():
                     (form_native/path.name).write_bytes(overrides.get('native/'+path.name, path.read_bytes()))
+            score_sources, score_proof = dead_score.transform_sources({name: (form_native/name).read_bytes()
+                for name in ('tiny.h', 'search.c')}, hq=expected['hq'], dev=0)
+            report.setdefault('native_score_transforms', {})[form] = score_proof
+            if score_proof['applied']:
+                for name, data in score_sources.items():
+                    (form_native/name).write_bytes(data)
             actual_sources = {path.name: {'bytes': path.stat().st_size, 'sha256': sha(path.read_bytes())}
                               for path in form_native.iterdir()}
             if {name: value['sha256'] for name, value in actual_sources.items()} != recipe['form_generated_native_source_sha256'][form]:

@@ -140,7 +140,8 @@ def main():
         lexer=module('entry_fixed_tokens',frozen/'rename_c.py')
         literal=module('entry_literal',frozen/'pack_stream.py').source_literal
         compiler_group=module('entry_compiler_group',frozen/'compiler_group.py').transform_bootstrap
-        compiler_stdin=module('entry_compiler_stdin',frozen/'compiler_stdin.py').transform_bootstrap
+        compiler_stdin=module('entry_compiler_stdin',frozen/'compiler_stdin.py')
+        compiler_seek=module('entry_compiler_seek',frozen/'compiler_seek.py').transform_bootstrap
         source_package=module('entry_source_package',frozen/'source_package.py')
         full_bootstrap=module('entry_full_bootstrap',frozen/'bootstrap_full.py').prepare_template
         common=module('entry_shipping_common',frozen/'shipping_common.py')
@@ -199,6 +200,7 @@ def main():
         from_inline=module('entry_F_from_inline',frozen/'shipping_from.py')
         mtd_state=module('entry_F_mtd_state',frozen/'shipping_mtd_state.py')
         go_boundary=module('entry_F_go_boundary',frozen/'shipping_go_boundary.py')
+        quiet_slot=module('entry_F_quiet_slot',frozen/'shipping_quiet_slot.py')
         # Keep this base for every unchanged shipping readable/spelling guard.
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
@@ -322,6 +324,8 @@ def main():
                     full_common_metadata['mtd_local_state']=mtd_metadata
                     full_reference,go_metadata=go_boundary.transform_source(full_reference)
                     full_common_metadata['sole_go_boundary']=go_metadata
+                    full_reference,slot_metadata=quiet_slot.transform_source(full_reference)
+                    full_common_metadata['quiet_continuation_slot']=slot_metadata
                     if len(full_reference)!=full_expected['source_bytes'] or sha(full_reference)!=full_expected['source_sha256']:
                         raise ValueError('default full-F source generation changed')
                     data,policy_metadata=material_noise(data)
@@ -430,6 +434,8 @@ def main():
                     common_metadata['mtd_local_state']=mtd_metadata
                     data,go_metadata=go_boundary.transform_source(data)
                     common_metadata['sole_go_boundary']=go_metadata
+                    data,slot_metadata=quiet_slot.transform_source(data)
+                    common_metadata['quiet_continuation_slot']=slot_metadata
             return data,observations,counters,alpha_metadata,storage_metadata,scope_metadata,member_metadata,semantic_metadata,input_metadata,declaration_metadata,hce_metadata,type_metadata,unit_bound_metadata,startup_metadata,global_names_metadata,capture_metadata,policy_metadata,material_names_metadata,material_capture_metadata,move_tt_metadata,move_tt_names_metadata,expressions_metadata,common_metadata,before_names
         def package(source):
             previous_literal=lambda data:common.source_literal(data,literal)
@@ -443,16 +449,45 @@ def main():
             quiet_literal=lambda data:quiet_order.source_literal(data,format_literal)
             from_literal=lambda data:from_inline.source_literal(data,quiet_literal)
             mtd_literal=lambda data:mtd_state.source_literal(data,from_literal)
-            expression,_=(go_boundary.source_literal(source,mtd_literal) if args.policy=='full'
-                          else previous_literal(source))
+            go_literal=lambda data:go_boundary.source_literal(data,mtd_literal)
+            guarded_source=quiet_slot.restore_source(source) if args.policy=='full' else source
+            expression,_=(go_literal(guarded_source) if args.policy=='full' else previous_literal(source))
             script=template.replace(marker,expression.encode())
             script,group_metadata=compiler_group(script)
             report['compiler_group']=group_metadata
             if args.policy=='full':
                 if len(script)!=9786 or sha(script)!='0cf100bec81e83b3fd05fb8c3e9e61144e6d0aa75429e361573e6f44cfb38c58':
                     raise ValueError('full-F compiler-owner predecessor differs')
-                script,stdin_metadata=compiler_stdin(script,shared_wait=True)
+                # Consume every old source/literal/owner guard before forwarding
+                # only the new opaque C expression into that unchanged owner.
+                guarded_script=script
+                next_expression,_=quiet_slot.source_literal(source,go_literal)
+                old_literal,new_literal=expression.encode(),next_expression.encode()
+                if script.count(old_literal)!=1 or ast.literal_eval(next_expression)!=source:
+                    raise ValueError('full-F quiet source expression differs')
+                script=script.replace(old_literal,new_literal,1)
+                if script.replace(new_literal,old_literal,1)!=guarded_script:
+                    raise ValueError('full-F quiet bootstrap full inverse differs')
+                def opaque_tree(data,expected_source):
+                    tree=ast.parse(data)
+                    matches=[node for node in ast.walk(tree) if isinstance(node,ast.Constant) and node.value==expected_source]
+                    if len(matches)!=1:raise ValueError('one opaque full-F C literal required')
+                    matches[0].value=b'__OWNED_FULL_F_SOURCE__'
+                    return ast.dump(tree,include_attributes=False)
+                if opaque_tree(guarded_script,guarded_source)!=opaque_tree(script,source):
+                    raise ValueError('full-F owner outside source AST differs')
+                replayed,group_metadata=compiler_group(template.replace(marker,new_literal))
+                if replayed!=script:raise ValueError('full-F owner replay with quiet source differs')
+                report['compiler_group']=group_metadata
+                report['quiet_slot_bootstrap']={'old_owner_guard_consumed':True,'old_owner_bytes':len(guarded_script),
+                    'old_owner_sha256':sha(guarded_script),'new_owner_bytes':len(script),'new_owner_sha256':sha(script),
+                    'source_expression_only':True,'full_inverse':True,'outside_source_AST_equal':True,
+                    'fresh_owner_metadata':True}
+                script,stdin_metadata=compiler_stdin.transform_bootstrap(script,shared_wait=True)
                 report['compiler_stdin']=stdin_metadata
+                script,seek_metadata=compiler_seek(script,owner_metadata=stdin_metadata,
+                    prepare_owner=compiler_stdin.transform_bootstrap,restore_owner=compiler_stdin.restore_bootstrap)
+                report['compiler_seek']=seek_metadata
             ast.parse(script)
             data=source_package.package(script,compression,prefix=prefix)
             return data,script

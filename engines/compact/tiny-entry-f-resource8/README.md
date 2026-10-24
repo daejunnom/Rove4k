@@ -1,3 +1,43 @@
+# F8 v11 quiet-input composition and seek terminal: 2026-10-24
+
+<!-- F8_V11_COMPLETION:PENDING -->
+
+The incoming fullF source is7830/43bc6781... from the actual qualified F2
+quiet+seek ordinary producer. Its declared quiet inverse restores exact7840.
+The unchanged specialize.py then applies the original six roles and seven
+protected gaps to exact7878/ce54ace7.... One local quiet continuation edit
+produces7868/fb18e915.... The new outer proof retains the original resource
+ancestor separately and proves the actual incoming-to-output six roles,
+complete protected complement and full inverse. No old offset/input guard is
+automatically changed, and the quiet optimization is not discarded as fallback.
+The source class is explicitly v11, full-after-MTD-state-sole-GO-and-quiet-slot;
+workers8/TT18/PLY128 and full features stay fixed.
+
+Packaging first consumes the old7878 literal and exact9834/9d051056... owner
+guard, replaces only the opaque C expression and replays that owner. Frozen
+W1/W2 ee9ba2c9... with fresh metadata then precedes frozen seek terminal
+8ca5fd73.... Regular BufferedRandom seek prepares the source before spawn;
+a pending write error is observed at seek rather than explicit flush. Original
+UCI FD0 and owner/group lifetime source stay protected. Arbitrary compiler
+filesystem observations, file-like hooks and traceback identity are excluded.
+
+One actual CPU3 combined first cost compiled native once and encoded once,
+with one strict Python inverse, no control/seek-only encode, codec search,
+engine or SAN. Whole4602/cbc79eca... is5 B below v10's4607 and506 B above4096;
+bootstrap9694/1eae53e2... is20 B smaller. Native18576/8c98349f... differs from
+the old79681f35... image. The fixed current full C semantics have independent
+source review; typed C AST/SAN/runtime are not claimed by this first cost.
+F2 byte gains are not added. The v10 receipts below remain their own context.
+
+The five owned producer/qualification files are frozen before fresh ordinary
+and positive. Existing positive observations are unchanged; only exact v11
+class/base-stage admission literals change. D helper43691/18faa69a..., F2's
+final producer/recipe/quiet-helper/README and the seek helper are explicit
+closure inputs. Actual ordinary/positive completion facts will be kept in the
+external RESULT/index and root implementation document; this PENDING source
+README is not rewritten after qualification. No current-file game, strength,
+scaling, peak-stack, worker-guard-count or final4KiB acceptance is implied.
+
 # F8 terminal compiler input and shared wait: 2026-10-24
 
 The current full workers8/TT18 source profile remains class v10 and consumes

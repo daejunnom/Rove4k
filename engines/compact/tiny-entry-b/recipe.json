@@ -87,7 +87,8 @@
     "engines/compact/tiny-entry-b/shipping_int_alias.py": "a4b7fb837adf9c4e9087577d60836f8b126733a15f8735ae16ee09f0df606164",
     "engines/compact/tiny-entry-b/shipping_ep_maker.py": "b5a509c4c2179a6200c152401540f0af45d511bceedca2091a09e2124708cada",
     "engines/scripts/compiler_group.py": "fe2fd6ce96b51251ec0d5e0f4b73c0742c50ca86932608b29f892ecee240974c",
-    "engines/scripts/compiler_stdin.py": "ee9ba2c938cfabf30261451961c424254d9f75a804d5c3e6d832b09bfcf4f247"
+    "engines/scripts/compiler_stdin.py": "ee9ba2c938cfabf30261451961c424254d9f75a804d5c3e6d832b09bfcf4f247",
+    "engines/scripts/compiler_seek.py": "8ca5fd736f010cd9dd1e3b668065c0cf7d82f9e98653580b8f9b4c23e7d75a41"
   },
   "compression": {
     "format": "lzma-alone",
@@ -108,12 +109,12 @@
     "source_sha256": "4b3412e3dddbe4cc9b40172be66d577aa998dc65e4ffa5876827f6b92654c5a8",
     "native_bytes": 26080,
     "native_sha256": "59eea719b15f84ef83dcdc1918e1037c234578df417a537f7997fa3593648e28",
-    "whole_bytes": 5285,
-    "whole_sha256": "30ff407e5b5d4d81c812814858e53e7c5d4810ac9f0ae5bc4f163facaafd4165",
+    "whole_bytes": 5281,
+    "whole_sha256": "810657db271fe536605bf4c92d1b9bf4b5a60a1d7bf2cc96d8153c5fde5f8480",
     "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
     "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
-    "bootstrap_sha256": "b8fd281caa3d9136de19a12d7b04b3a095b8313ba72537a9874445836cfa8e09",
-    "bootstrap_bytes": 11669
+    "bootstrap_sha256": "9645fc13ad80bb46b0ff791b75fd54bb2a066a743feb7b873f471f5c89d914ca",
+    "bootstrap_bytes": 11659
   },
   "local_input_sha256": {
     "engine.c": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
@@ -4993,5 +4994,42 @@
     "change_scope": "W1 private regular-file compiler FD0 and W2 shared leader/group wait only; source/native/DEV/full engine semantics and compiler argv unchanged",
     "normal_status": "PENDING ordinary --dev then unchanged selected; firstcost is not runtime qualification",
     "new_helper_runtime_qualified_flag": false
+  },
+  "terminal_seek_flush": {
+    "helper": "engines/scripts/compiler_seek.py",
+    "helper_sha256": "8ca5fd736f010cd9dd1e3b668065c0cf7d82f9e98653580b8f9b4c23e7d75a41",
+    "owner_helper": "engines/scripts/compiler_stdin.py",
+    "owner_helper_sha256": "ee9ba2c938cfabf30261451961c424254d9f75a804d5c3e6d832b09bfcf4f247",
+    "stage": "after all previous source/literal/oldBOOT/W1W2 guards; exact current W1W2 bootstrap guard precedes seek",
+    "predecessor_bootstrap": {
+      "bytes": 11669,
+      "sha256": "b8fd281caa3d9136de19a12d7b04b3a095b8313ba72537a9874445836cfa8e09"
+    },
+    "firstcost": {
+      "bootstrap.py": {
+        "path": "/home/stemxstudio/rove4k-seek-flush-five-firstcost-20261024-v2/B/bootstrap.py",
+        "bytes": 11659,
+        "sha256": "9645fc13ad80bb46b0ff791b75fd54bb2a066a743feb7b873f471f5c89d914ca"
+      },
+      "whole": {
+        "path": "/home/stemxstudio/rove4k-seek-flush-five-firstcost-20261024-v2/B/whole",
+        "bytes": 5281,
+        "sha256": "810657db271fe536605bf4c92d1b9bf4b5a60a1d7bf2cc96d8153c5fde5f8480"
+      },
+      "cost.json": {
+        "path": "/home/stemxstudio/rove4k-seek-flush-five-firstcost-20261024-v2/B/cost.json",
+        "bytes": 2856,
+        "sha256": "8053dd4de80562d6ce6a8a7a8dace7617ed3c559ce5126772efd722e51512f09"
+      }
+    },
+    "source_proof": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-seek-flush-five-firstcost-20261024-v2-evidence/inputs/B/source-proof.json",
+      "bytes": 1977,
+      "sha256": "c105bd6cf33102a344e9dc5450ee895446aac641bf9e8b3e9a5e44c6f3aec6a0"
+    },
+    "contract": "builtin regular BufferedRandom from open(w+b) and direct seek0 flush before spawn; pending write error at seek; arbitrary filelikes/custom open/hooks/syscall or traceback/cancel timing equivalence excluded",
+    "normal_status": "PRODUCING: PENDING ordinary --dev and unchanged selected; source6 will stay frozen afterward",
+    "source_native_DEV_unchanged": true,
+    "runtime_qualified_transform_flag": false
   }
 }

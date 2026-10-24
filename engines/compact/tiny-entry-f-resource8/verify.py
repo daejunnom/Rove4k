@@ -316,9 +316,9 @@ def main():
         recorded = json.loads((built/'build.json').read_text())
         require(recorded['complete'] and recorded['source_closure'] == closure and recorded['recipe_sha256'] == sha(recipe_raw),
                 'ordinary builder/source/recipe identity differs')
-        require(recorded['class'] == recipe['class'] == 'full-F-late-fixed-resource8-TT18-v10' and
-                recorded['base_stage'] == recipe['base_stage'] == 'full-after-MTD-state-and-sole-GO',
-                'fixed late resource8 v10 class/base stage differs')
+        require(recorded['class'] == recipe['class'] == 'full-F-late-fixed-resource8-TT18-v11' and
+                recorded['base_stage'] == recipe['base_stage'] == 'full-after-MTD-state-sole-GO-and-quiet-slot',
+                'fixed late resource8 v11 class/base stage differs')
         identity(built/'base-source.c', recipe['base_source'])
         require(recorded['profile'] == recipe['profile'] == {'workers': 8, 'tt_bits': 18, 'ply': 128, 'native_TIDs': 9}, 'fixed resource8 profile differs')
         expected = recipe['expected']
