@@ -1,4 +1,35 @@
-# F8 v12 explicit wrapper contracts: 2026-10-24
+# Maintained full F8: current wrapper choices and historical producing records
+
+The reviewed `d8bdd0e1` baseline fixes workers8 / TT18 / PLY128, with nine
+native TIDs. `--wrapper` is a build choice; grace remains the default and
+there is no worker-count or memory-size UCI option.
+
+| Full F8 wrapper | Whole bytes | Reproduction and selected runtime |
+|---|---:|---|
+| grace (default) | 4,588 | Ordinary and strict selected checks passed |
+| kill | 4,565 | Ordinary and strict selected checks passed |
+| shell | 4,028 | Ordinary and separate Bash selected checks passed |
+| legacy | 4,602 | Retained quiet/resource predecessor; no new wrapper qualification implied |
+
+The three newly qualified selections each reproduced twice. Their six
+quit/EOF sessions covered 24 legal GO results, stable nine-TID identity and
+positive CPU ticks in all eight workers. These observations do not establish
+many-core scaling or strength. All wrappers retain full source7868/fb18e915
+and native18576/8c98349f. Shell's 68-byte size margin has its own Bash,
+delayed-cleanup and post-compilation SIGCHLD contract; it does not inherit
+grace's compiler-group cancellation guarantee or prove tournament eligibility.
+
+Use the ordinary report's frozen `selected_verifier.command` for the selected
+wrapper. `legacy` refers to the `3326f56b` quiet/resource predecessor, not the
+historical 4,284-byte old-owner minimum. F2's two-worker results do not qualify
+F8: [the wrapper implementation record](../../../docs/WRAPPER-IMPLEMENTATION.ko.md)
+links the separate F8 normal/selected receipts and final `d8bdd0e1` CI results.
+
+The PENDING markers and no-execution statements below describe their source
+freeze. They are retained as historical producing records; the current
+acceptance overlay above links subsequent evidence without changing them.
+
+## Historical F8 v12 explicit wrapper contracts: 2026-10-24
 
 <!-- F8_V12_COMPLETION:PENDING -->
 

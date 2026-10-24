@@ -13,6 +13,38 @@ build report records measured files and individual runtime checks without
 turning missing evidence into completion. Frozen E inference is included; model
 training and AWS execution are outside the current implementation task.
 
+## Maintained compact submissions
+
+The reviewed `d8bdd0e1` checkpoint separates the default compiler-owner
+contract from explicit smaller packaging choices. The table reports complete
+files, including header and payload; it is not a tournament eligibility or
+strength ranking. These compact entries are separate from the generic build
+examples below.
+
+| Engine / policy | Default grace | Explicit Bash shell | Evidence scope |
+|---|---:|---:|---|
+| A / full | 4,785 B | 4,232 B | Grace reproduced/executed; shell cost measurement only |
+| B / full | 5,259 B | 4,712 B | Grace reproduced/executed; shell cost measurement only |
+| C / full | 4,924 B | 4,375 B | Grace reproduced/executed; shell cost measurement only |
+| E / full | 4,878 B | 4,323 B | Grace reproduced/executed; shell cost measurement only |
+| [F2 / full](compact/tiny-entry-f/README.md) | 4,576 B | 4,026 B | Each reproduced and passed its own selected runtime contract |
+| [F8 / full](compact/tiny-entry-f-resource8/README.md) | 4,588 B | 4,028 B | Separate eight-worker reproduction and selected runtime |
+| F2 / material-noise | 4,616 B | Unsupported | Reduced evaluation/learners; separate feature policy |
+| F2 / material-move-tt | 4,342 B | Unsupported | Reduced evaluation/learners/TT; separate feature policy |
+
+Full F remains the default feature policy. Its Bash selections preserve full
+features but change compiler cancellation and delayed cleanup. The measured
+4,011-byte sh/inherit candidate was rejected for its cleanup-child condition.
+F2/F8's 70/68-byte margins therefore establish file size only. Current `legacy`
+choices preserve immediate predecessors, rather than restoring historical
+old-owner minima. C D's 5,527/6,037-byte scalar/HQ own-ELF files and Rust paths
+have separate packaging contracts and are not grace/shell rows in this table.
+
+For complete source/native/whole identities, wrapper differences and execution
+receipt scopes, read [the wrapper implementation record](../docs/WRAPPER-IMPLEMENTATION.ko.md).
+Source-freeze PENDING notes in entry histories are not overwritten by later
+results; current summaries link the later evidence explicitly.
+
 ## Build on Linux, including WSL Ubuntu
 
 The build tool uses Python 3 standard library, a C11 compiler and Rust 2024

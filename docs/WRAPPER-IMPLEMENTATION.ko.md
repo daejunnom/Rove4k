@@ -11,6 +11,49 @@ Draft PR #12를 재사용한다. 학습·AWS·유료 자원·예약 작업·npm 
 않는다. Full 엔진과 고정 worker/TT를 유지하는 기본판을 우선하며, 종료 유예나
 포장 계약을 바꾸는 후보는 별도 build 선택과 산출물로 식별한다.
 
+## 현재 선택과 역사 기록의 구분
+
+2026-10-25의 외부 `Rove4k-Artifact-History-Audit.md`를 현재
+`d8bdd0e178ff7536db9875c316b0b8fb698c3729` 및 지목한 과거 Git 기록과
+대조했다. 참고 파일 SHA-256은
+`99eca0e3433ece103dcbb01e1c0b7c8a3cac0605377fe916443c61016a541d81`다.
+첨부의 권고는 참고자료이며, 사용자가 별도로 요청한 표시 정리와 후속 압축·검증을
+단계적으로 진행한다. 이 대조 자체는 새 바이너리 계측이나 기력 검사가 아니다.
+
+| Full 엔진 | 과거 기본 최소 | 현재 기본 grace | 현재 Bash shell | 현재 shell 상태 |
+|---|---:|---:|---:|---|
+| A | 4489 | 4785 | 4232 | 비용 계측, 엔진별 실행 인수 전 |
+| B | 4950 | 5259 | 4712 | 비용 계측, 엔진별 실행 인수 전 |
+| C | 4628 | 4924 | 4375 | 비용 계측, 엔진별 실행 인수 전 |
+| E | 4586 | 4878 | 4323 | 비용 계측, 엔진별 실행 인수 전 |
+| F2 | 4275 | 4576 | 4026 | 별도 Bash 계약의 재현·선택 실행 완료 |
+| F8 | 4284 | 4588 | 4028 | 별도 8-worker 재현·선택 실행 완료 |
+
+과거 최소의 compiler owner와 현재 grace는 종료 계약이 다르다. 주된 증가점인
+`3069597`에서 A/B/C/E의 source·native·compiler·codec은 그대로이고
+bootstrap이 각 1016 B, whole이 374/392/374/377 B 늘었다. 이후 같은 계약의
+축약으로 일부를 회수했다. 최신 shipping source는 과거 최소보다
+A/B/C/E/F 각각 20/15/22/43/55 B 작다. 과거 커밋 전체로 돌아가면 이 축약도
+잃으므로 현재 source에서 같은 계약의 후보끼리 비교한다.
+
+F의 4260 B는 `3069597` 안의 old-owner 중간값이고 그 커밋의 최종 기본값은
+4640 B다. 현재 `legacy`는 quiet/seek 직전 비교가 아닌 해당 축약을 포함한
+`3326f56b` 기준 F2 4590 B/F8 4602 B의 직접 predecessor다. Historical
+old-owner 최소 4275/4284 B를 복원하는 옵션이 아니다. Reduced F의 현재
+grace 4616/4342 B 및 kill 4591/4311 B도 각각 원 기능 정책으로 비교한다.
+
+F ordinary `build.json`은 이미 policy/wrapper override 이후의
+`expected_contract`와 별도 `wrapper_contract.predecessor_expected`를 기록한다.
+감사 권고에서 보고서의 잘못된 선택값 출력을 가정한 부분은 확인되지 않았다.
+README 첫머리와 stdout에 현재 선택을 명시하고, 실제 실행에는 저장된
+`selected_verifier.command`와 effective recipe를 사용하도록 안내한다.
+
+기존 producing 기록의 PENDING·실패는 동결 당시 상태로 남긴다. 후속 성공은
+아래 인수 기록과 엔진 README 상단에서 연결한다. 4011 B sh/inherit는
+cleanup child 회수 조건 때문에 미선택이며, F2/F8 Bash의 70/68 B 여유는
+파일 크기 조건에 한정한다. Compiler cancellation, 호스트의 orphan 처리,
+시작·잔존 파일 조건과 출전 적격성은 대상에서 별도로 판단한다.
+
 ## 기준과 바로잡은 전제
 
 - Full A/B/C/E/F2/F8의 완성 파일은 4807/5281/4944/4897/4590/4602 B다.

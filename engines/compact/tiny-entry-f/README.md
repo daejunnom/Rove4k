@@ -1,4 +1,45 @@
-# Maintained full F4590 candidate — quiet continuation slot and seek flush, 2026-10-24
+# Maintained F: current wrapper choices and historical producing records
+
+The maintained baseline below is the reviewed `d8bdd0e1` source checkpoint.
+Every row fixes workers2 / TT18 / PLY128; `--policy` and `--wrapper` are build
+choices, with no additional UCI option. Full F and `grace` remain the defaults.
+
+| Engine policy | Wrapper | Whole bytes | Reproduction and selected runtime |
+|---|---|---:|---|
+| full | grace (default) | 4,576 | Ordinary and strict selected checks passed |
+| full | kill | 4,551 | Ordinary and strict selected checks passed |
+| full | shell | 4,026 | Ordinary and separate Bash selected checks passed |
+| full | legacy | 4,590 | Retained quiet/seek predecessor; no new wrapper qualification implied |
+| material-noise | grace / kill | 4,616 / 4,591 | Each reproduced and passed its strict selected checks |
+| material-move-tt | grace / kill | 4,342 / 4,311 | Each reproduced and passed its strict selected checks |
+
+The full wrappers share source7830/43bc6781 and native18576/3aaaacf7.
+The 550-byte grace-to-shell difference comes from packaging and the execution
+contract, rather than removal of evaluation, MTD(f), TT, learners or N/B/R/Q
+promotions. Shell is full-only and uses Bash, a named executable, delayed
+cleanup and SIGCHLD ignored after compilation. Its compiler cancellation and
+child cleanup guarantees differ from grace. Its 70-byte size margin is not
+target-host or tournament acceptance. The 4,011-byte sh/inherit measurement
+was rejected because its cleanup-child reaping condition did not hold.
+
+`legacy` means the immediate `3326f56b` quiet/seek predecessor (4,590 bytes),
+not the historical old-owner minimum of 4,275 bytes. Reduced `legacy` is
+4,697 / 4,425 bytes, not the historical 4,319 / 4,045-byte minima.
+
+The ordinary `build.json` already applies policy and wrapper overrides before
+recording `expected_contract`; `wrapper_contract.predecessor_expected` is a
+separate comparison. Use its `selected_verifier.command` and frozen effective
+recipe to verify the actual selection. Do not summarize a build using only
+`alternate_policies.*.expected_overrides` from the ordinary recipe.
+
+Detailed producing hashes, normal/selected receipt scopes and the final
+`d8bdd0e1` CI results are linked in
+[the wrapper implementation record](../../../docs/WRAPPER-IMPLEMENTATION.ko.md).
+The source-freeze pending statements below retain their original historical
+meaning; subsequent acceptance is recorded there without rewriting those
+snapshots. Games, strength, scaling and full A–F acceptance remain open.
+
+## Historical quiet continuation slot and seek flush record, 2026-10-24
 
 Full shipping now reuses the already computed child-piece slot Q only at the
 successful quiet cutoff's continuation update. Successful make and !P imply
