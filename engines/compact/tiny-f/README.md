@@ -3,7 +3,7 @@
 This independent F candidate reuses TinyA's admitted generated mailbox board and
 persistent startup pool through a strict frozen overlay. It owns its search and
 does not modify the canonical A–F implementations, TinyA or shared producers.
-The smallest qualified complete source launcher is **5,551 bytes**, including its shell
+The previous-owner qualification below measured **5,551 bytes**, including its shell
 prefix, compressed Python compiler bootstrap, complete C source and fixed
 compiler argv. It remains **1,455 bytes above 4,096**. No 4K entry, playing
 strength, target-hardware scaling or portfolio completion follows from this.
@@ -11,6 +11,13 @@ strength, target-hardware scaling or portfolio completion follows from this.
 The measured toolchain is WSL Ubuntu 24.04.4, x86-64 GCC 13.3.0, glibc 2.39 and
 Python 3.12.3. The qualified local profile has two fixed search workers, three
 total startup threads and TT bits 18. Training and AWS are outside this work.
+
+The current encoder and qualifier additionally bind the shared
+`engines/scripts/compiler_group.py` as a frozen input and apply its compiler
+owner after the source/argv representation. Current input admission therefore
+includes `compiler_group.py`; the five-input receipts and 5,551-byte result
+below retain their historical producer and validation scope. They do not
+qualify a newly generated repaired-owner envelope or supply its size.
 
 ## F's actual search contract
 

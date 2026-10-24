@@ -12,7 +12,7 @@ HERE = Path(__file__).resolve().parent
 BASE_FILES = ("tiny.h", "board-generated.c.in", "search.c", "main.c",
               "stitch.py", "pack_single.py", "pack_stream.py")
 OWN_FILES = ("build.py", "generate.py", "attackers.c.in", "search.c", "check.py", "contract.c", "qualify.py", "test_generate.py", "README.md")
-SCRIPTS = ("minify.py", "specialize.py", "pack.py")
+SCRIPTS = ("minify.py", "specialize.py", "pack.py", "compiler_group.py")
 
 
 def sha(data):
@@ -48,6 +48,10 @@ def main():
     inputs = {"engines/compact/tiny-b/" + name: (HERE / name).read_bytes() for name in OWN_FILES}
     inputs.update({"engines/compact/tiny-b/base/" + name: (HERE / "base" / name).read_bytes() for name in BASE_FILES})
     inputs.update({"engines/scripts/" + name: (HERE.parents[1] / "scripts" / name).read_bytes() for name in SCRIPTS})
+    # Keep base packers as historical generator preimages; current packaging
+    # consumes the canonical packers plus its explicit frozen owner.
+    inputs.update({"engines/compact/tiny-a/" + name: (HERE.parent / "tiny-a" / name).read_bytes()
+                   for name in ("pack_single.py", "pack_stream.py")})
     for relative, data in inputs.items():
         target = args.out / "recipe" / relative
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -57,8 +61,9 @@ def main():
     minify = load("tiny_b_minify", frozen.parents[1] / "scripts" / "minify.py")
     specialize = load("tiny_b_specialize", frozen.parents[1] / "scripts" / "specialize.py")
     pack = load("tiny_b_pack", frozen.parents[1] / "scripts" / "pack.py")
-    single = load("tiny_b_single", frozen / "base" / "pack_single.py")
-    stream = load("tiny_b_stream", frozen / "base" / "pack_stream.py")
+    owner = load("tiny_b_compiler_group", frozen.parents[1] / "scripts/compiler_group.py")
+    single = load("tiny_b_single", frozen.parent / "tiny-a/pack_single.py")
+    stream = load("tiny_b_stream", frozen.parent / "tiny-a/pack_stream.py")
     sources = overlay.sources()
     combined, layout = stitch.stitch(sources, ("tiny.h", "board-generated.c.in", "search.c", "main.c"), True)
     (args.out / "combined.c").write_bytes(combined)
@@ -91,12 +96,12 @@ def main():
                  "compile": command, "native_reproduced": True}
         if not dev and not args.no_pack:
             stdin_recipe = [args.cc, *flags, "-DDEV=0", "-x", "c", "-", "-o", "x"]
-            entry["launchers"] = pack.write_launchers({"main.c": source}, directory / "packed", command=recipe)
-            entry["launchers"] += single.write_single(source, directory / "single", stdin_recipe)
-            entry["launchers"] += stream.write_stream(source, directory / "stream", stdin_recipe)
-            repeated = pack.write_launchers({"main.c": source}, directory / "repeated", command=recipe)
-            repeated += single.write_single(source, directory / "single-repeated", stdin_recipe)
-            repeated += stream.write_stream(source, directory / "stream-repeated", stdin_recipe)
+            entry["launchers"] = pack.write_launchers({"main.c": source}, directory / "packed", command=recipe, compiler_group=owner.transform_bootstrap)
+            entry["launchers"] += single.write_single(source, directory / "single", stdin_recipe, compiler_group=owner.transform_bootstrap)
+            entry["launchers"] += stream.write_stream(source, directory / "stream", stdin_recipe, compiler_group=owner.transform_bootstrap)
+            repeated = pack.write_launchers({"main.c": source}, directory / "repeated", command=recipe, compiler_group=owner.transform_bootstrap)
+            repeated += single.write_single(source, directory / "single-repeated", stdin_recipe, compiler_group=owner.transform_bootstrap)
+            repeated += stream.write_stream(source, directory / "stream-repeated", stdin_recipe, compiler_group=owner.transform_bootstrap)
             for first, other in zip(entry["launchers"], repeated):
                 if Path(first["path"]).read_bytes() != Path(other["path"]).read_bytes():
                     raise RuntimeError("complete launcher reproduction differs")

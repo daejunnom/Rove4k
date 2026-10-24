@@ -12,6 +12,9 @@ import unittest
 
 from minify import compact_source
 from pack import make_launcher
+from compiler_group import transform_bootstrap
+from functools import partial
+make_launcher=partial(make_launcher, compiler_group=transform_bootstrap)
 
 
 class PackagingTests(unittest.TestCase):

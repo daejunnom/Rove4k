@@ -93,6 +93,7 @@ def main():
         strip=module('entry_counter_strip',frozen/'stitch.py').strip_dev_counters
         lexer=module('entry_fixed_tokens',frozen/'rename_c.py');replace=lexer._replace
         literal=module('entry_literal',frozen/'pack_stream.py').source_literal
+        compiler_group=module('entry_compiler_group',frozen/'compiler_group.py').transform_bootstrap
         source_package=module('entry_source_package',frozen/'source_package.py')
         readonly_template=module('entry_readonly_template',frozen/'shipping_readonly.py').transform_template
         alpha=module('entry_fixed_A_alpha',frozen/'shipping_alpha.py').transform_source
@@ -216,6 +217,8 @@ def main():
                 previous=lambda current:frequency.transform_literal(current,lambda current:pool_state.transform_literal(current,lambda original:keyword_form.transform_literal(original,lambda restored:output_form.transform_literal(restored,lambda before:condition_form.transform_literal(before,fixed_names.transform_literal)))))
                 expression=ep_form.transform_literal(expression,previous)
             script=template.replace(marker,expression.encode())
+            script,group_metadata=compiler_group(script)
+            report['compiler_group']=group_metadata
             ast.parse(script)
             whole=source_package.package(script,recipe['compression'],prefix=prefix)
             payload=whole[len(prefix):]

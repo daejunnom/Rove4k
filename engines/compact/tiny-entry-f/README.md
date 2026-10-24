@@ -1,3 +1,45 @@
+# Maintained F4260 — job-local MTD state and sole GO block, 2026-10-24
+
+Shipping-only stages after FROM reduce current full source7885→7863→7840.
+The MTD change removes the private stored score and carries score/witness as
+same-typed locals across completed depths; the coordinator consumes only
+completed depth/best after drain. Incomplete/stopped probes do not publish.
+The sole GO function's unchanged399B body moves into its exact branch.
+Canonical/DEV, selected optional4319/4045 and pre-name8538 remain outside the
+stages; each optional's independent full_reference now consumes7840.
+
+Actual fixed first costs are4275→4264→4260; the latter native is entire-byte
+equal to local7863's new native e92b39f0..., not to the predecessor98818a...
+image. Source7840/67279ef9..., bootstrap8762/11d9a989..., whole4260/034d3114...
+use unchanged cc-Os-pthread and ALONE BT2/dict16KiB/nice24/header73.
+4260 remains164B above4096. This is the legacy-wrapper context; the separate
+common compiler-group lifetime change is not applied by these stages.
+
+The actual old/new MTD driver was projected only from depth127 to4, with
+completed-q receipt and a controlled stop event. Fatal UBSan units passed
+six fresh/retained quiet jobs with independent minimax/attaining witnesses,
+typed full path/three learners/Board/history/all262144 TT key/data/clearflags,
+prestop/deadline fallback, interrupted next depth preserving depth1, and a
+retained-state restart. The ten typed snapshots were compared in full.
+Actual depth0 bounds, full-key collision and positive/negative mate cases
+remain. Worker sizeof stayed36208 while best offset changed12→8; padding
+and the deleted score field were excluded from comparison. Product pool,
+wrapper and asynchronous scheduling were not run by this focused fixture.
+
+Packaging inverses GO/local and consumes every actual prior source/literal
+guard before forwarding only C bytes. The canonical pack_stream callable
+API changed separately; its raw source_literal/bootstrap function segments
+are unchanged and the new encoding API is not used here. One ordinary--dev
+invocation reproduced the entire shipping tuple twice and old DEV twice;
+the unchanged selected verifier passed quit/EOF two sessions, eight legal
+GO epochs, stable3TIDs, restored native/private cleanup and own physical
+process/reader exit. FD inspection is not claimed. Each optional builder
+reproduced its original4319/4045 tuple twice with new7840 full_reference;
+no optional selected runtime or F8 product was run. All four original
+commands and the outer owner exited0/reaped/preextras[]/groupabsent,
+forced0/owned0. These ordinary observations are separate from the MTD
+unit, native identity reuse and the unmodified prior evidence.
+
 # Maintained F full4317 — TT metadata and worker job token, 2026-10-24
 
 Two fixed shipping-only stages follow four-local names: TT depth/bound packing
@@ -2591,3 +2633,20 @@ firstcost와 전체 bytes가 같았고, 두 DEV와 pre-name8538 source는 실제
 초기 outer source추출 중단은 child0 prelaunch로 별도 보존하며 제품 명령 재실행은 없다.
 취소 인과관계는 unproven이고 optional selected·F8·새 semantic/SAN/fault/games·기력·시간·CI는
 이번 검증에 포함하지 않는다. producing과 완료 annotation 핀은 외부 증거에서 구분한다.
+
+## Compiler-group ownership adoption
+
+현재 생산자는 기존 source/literal/argv 검사를 마친 뒤 `engines/scripts/compiler_group.py`를 encoding 직전에 적용한다. 컴파일러 원 leader를 `WNOWAIT`로 보존한 채 살아 있는 같은 process-group 작업을 정산한 뒤 마지막에 reap한다. Python 진입 시 SIGCHLD disposition을 저장·정규화하고 native exec 전에 복원한다. 원 C/source·compiler argv/env/cwd·stdio·읽기 FD exec·legacy exitstatus는 유지하며, 단순 크기 손실로 이 수명 수정을 숨기지 않는다.
+
+| 현재 생산 context | 이전 whole | 새 measured whole | 새 bootstrap |
+|---|---:|---:|---:|
+| F | 4260 | 4640 | 9786 |
+| F-material | 4319 | 4697 | 10497 |
+| F-move | 4045 | 4425 | 9730 |
+
+위 값은 각 actual 기존 입력에서 고정 codec 한 번과 strict Python/CLI 복원으로 먼저 측정한 값이다. source/native/compiler/header/codec의 변경이나 다른 문맥 delta의 가산은 없다. 기존 frozen control과 과거 qualified receipts는 당시 범위로 보존한다.
+
+이 F 기본형은 새 whole4640의 ordinary `--dev` 1회(독립 shipping2/DEV2 재현)와 변경 없는 selected verifier 1회(quit/EOF 2 sessions, 합계8 legal GO, 3TID/native/FD/private-path/physical-exit)를 실제로 통과했다. optional 두 프로필은 local source/Data proof까지만 수행했으며 새 HEAD CI ordinary/positive 결과가 필요하다.
+공유 세 형상의 기존 packaging suites는 stream5·ZIP4·restored-files5 tests 모두 통과했다(skipped0). 이 관측은 live same-group 정산이며 detached 작업이나 zombie를 포함한 문자 그대로의 group absence 일반 증명은 아니다.
+
+실제 producing/measurement/normal receipt는 recipe의 `compiler_group_ownership`에 명시했다. 공통 source helper에 대한 alias-only 후보 raw−389/whole+8 손실은 과거 미채택으로 남고 여기서 재실행하지 않았다.

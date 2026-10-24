@@ -291,6 +291,7 @@ def main():
     inputs["engines/compact/tiny-rust/build.py"] = Path(__file__).read_bytes()
     inputs["engines/compact/rust/syntax.py"] = (HERE.parent / "rust" / "syntax.py").read_bytes()
     inputs["engines/scripts/pack.py"] = (ROOT / "engines" / "scripts" / "pack.py").read_bytes()
+    inputs["engines/scripts/compiler_group.py"] = (ROOT / "engines/scripts/compiler_group.py").read_bytes()
     # All later imports and builds consume the frozen producer/helper/input bytes.
     frozen_root = args.out / "recipe"
     write_files(inputs, frozen_root)
@@ -298,6 +299,7 @@ def main():
     frozen_build = load("tiny_rust_frozen_build", frozen_here / "build.py")
     SYNTAX = frozen_build.SYNTAX
     pack = load("tiny_rust_frozen_pack", frozen_root / "engines" / "scripts" / "pack.py")
+    owner = load("tiny_rust_compiler_group", frozen_root / "engines/scripts/compiler_group.py")
     transformed, observations = frozen_build.specialize(source, development=args.dev)
     source_forms = {"original": source, "lexical": frozen_build.lexical(source)}
     if not args.dev:
@@ -352,10 +354,10 @@ def main():
             entry["source_reproduced"] = True
             entry["native_reproduced"] = True
         if not args.no_pack and form in ("shipping", "dev-specialized"):
-            entry["launchers"] = pack.write_launchers(files, directory / "packed-source", command=runtime_command, environment=fixed)
+            entry["launchers"] = pack.write_launchers(files, directory / "packed-source", command=runtime_command, environment=fixed, compiler_group=owner.transform_bootstrap)
             entry["native_launchers"] = pack.write_launchers({"x": native}, directory / "packed-native")
             if args.reproduce:
-                repeated = pack.write_launchers(files, args.out / "reproduction" / form / "packed-source", command=runtime_command, environment=fixed)
+                repeated = pack.write_launchers(files, args.out / "reproduction" / form / "packed-source", command=runtime_command, environment=fixed, compiler_group=owner.transform_bootstrap)
                 repeated += pack.write_launchers({"x": native}, args.out / "reproduction" / form / "packed-native")
                 for first, other in zip([*entry["launchers"], *entry["native_launchers"]], repeated):
                     if Path(first["path"]).read_bytes() != Path(other["path"]).read_bytes():

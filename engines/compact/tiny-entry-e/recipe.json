@@ -45,7 +45,7 @@
     "engines/scripts/rename_c.py": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
     "engines/scripts/fixed_shipping_alpha.py": "92b351d537c1da0f346f072df2ca4b0be713d0e286e039b30efa9f758519c806",
     "engines/compact/tiny-a/stitch.py": "2b0d25b4855a3ed4ddd9e24b8e4b0e081439baa2ed8f744dba0215a700023f23",
-    "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
+    "engines/compact/tiny-a/pack_stream.py": "8e601c6a1d2c80478dc71f47d4cc7cee350cd388d430937a4953eae407234e25",
     "engines/compact/tiny-entry-e/shipping_scope.py": "0cf6528760d8c5b2bbc3ef56ea8dfccdd67af619b671a82927287a2f1ce18fa5",
     "engines/compact/tiny-entry-e/shipping_core.py": "efaf9d647d012fe70b8d4a659e9faad7cfd5ced61f7ce73240b0c246fe05673e",
     "engines/scripts/fixed_input_profile_bce.py": "cc3c82d2e4f77f7231d4bafaac5f446a9aa5c0320762e0902a6f32ecc5a7209e",
@@ -80,7 +80,8 @@
     "engines/compact/tiny-entry-e/shipping_keyword_scope.py": "8d69bac1426f6ddf5bd0263046035804ce4752185ebb92ceb257379a08d2372b",
     "engines/compact/tiny-entry-e/shipping_order_inline.py": "cdb00de2ab397cbfd4c57994d79e243a9e78656f7146a9c5b6338d685ec8f297",
     "engines/compact/tiny-entry-e/shipping_depth_token.py": "9aec653fbfb7d0120e726f7d74ab072f93ca102bed12ce05ae15a6ce97eeac78",
-    "engines/compact/tiny-entry-e/shipping_square_walk.py": "c6914efca036e91da493a89b5672e9485e55bbfa57b480c1e56ce77329a5e1a4"
+    "engines/compact/tiny-entry-e/shipping_square_walk.py": "c6914efca036e91da493a89b5672e9485e55bbfa57b480c1e56ce77329a5e1a4",
+    "engines/scripts/compiler_group.py": "fe2fd6ce96b51251ec0d5e0f4b73c0742c50ca86932608b29f892ecee240974c"
   },
   "compression": {
     "format": "lzma-alone",
@@ -102,14 +103,14 @@
     "source_sha256": "80b854825d2909e2d3edc1eb2dee946952d492216f9ff91243cb6614b6d13853",
     "native_bytes": 22672,
     "native_sha256": "0449f0eaa102b040a7b792b2adc7ebb50a335434d63e4d84b13326f56d85cd31",
-    "whole_bytes": 4586,
-    "whole_sha256": "7663928b378b28ca27e06aec309f73ab764c3c9a85742fa24ce6695fe240121b",
-    "bootstrap_sha256": "9dddd3ff1512a9b5a1864732b06b77cb40b63758613d460af68a552292de0e69",
+    "whole_bytes": 4963,
+    "whole_sha256": "57832a4a705a8307a82e122121a46b97c44314718c4accd48ddb30e720c336d2",
+    "bootstrap_sha256": "3474857197bd6121020c0e2cb82fafce6112a571b2821a4ff1f782844c25071f",
     "dev_source_bytes": 21314,
     "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
     "dev_native_bytes": 31376,
     "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094",
-    "bootstrap_bytes": 9523
+    "bootstrap_bytes": 10539
   },
   "local_input_sha256": {
     "engine.c": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
@@ -5364,5 +5365,64 @@
       "canonical_DEV_automatic_application": false,
       "scope": "Same current E19 model/order/search bodies; two legal-square iterators replace invalid-origin skipping with the identical64square visit order. New native same length but different bytes; ordinary reproduction and unchanged selected new-image lifetime only. Prior model fixtures remain separate. No new strength/timing/SAN/fault/fresh/CI claim."
     }
+  },
+  "compiler_group_ownership": {
+    "source_helper": "engines/scripts/compiler_group.py",
+    "source_helper_sha256": "fe2fd6ce96b51251ec0d5e0f4b73c0742c50ca86932608b29f892ecee240974c",
+    "contract": "same source/command/cwd/env/stdio/FD/argv and legacy returncode; SIGCHLD normalize/restore, full stdin/BrokenPipe/close, retained WNOWAIT compiler leader, live-group drain before final reap; no destructive signals to reaped PGID",
+    "fixed_cost_index": {
+      "path": "C:\\Users\\\uac15\ubbfc\uc218\\Documents\\Codex\\rove4k-common-compiler-group-context-cost-20261024-evidence\\final-cost-index.json",
+      "bytes": 15519,
+      "sha256": "d9a51fb548c401c52025d252b46f9570a672d219512c05c7707618668e024236"
+    },
+    "measured_contexts": {
+      "E": {
+        "policy": "default",
+        "previous_whole_bytes": 4586,
+        "whole_bytes": 4963,
+        "whole_sha256": "57832a4a705a8307a82e122121a46b97c44314718c4accd48ddb30e720c336d2",
+        "bootstrap_bytes": 10539,
+        "bootstrap_sha256": "3474857197bd6121020c0e2cb82fafce6112a571b2821a4ff1f782844c25071f",
+        "raw_delta": 1016,
+        "source_native_compiler_codec_prefix_unchanged": true,
+        "strict_Python_CLI_inverse": true
+      }
+    },
+    "normal_validation": {
+      "status": "local data/source proof only; new-HEAD CI ordinary/positive pending",
+      "shared_representative_validation": {
+        "status": "PASS existing three packaging suites (14 tests, skipped0), one F ordinary --dev and unchanged selected verifier",
+        "supervisor": {
+          "path": "/home/stemxstudio/rove4k-common-compiler-group-local-validation-20261024-v1/results.json",
+          "bytes": 7332,
+          "sha256": "38d00bb720eaad6f023cae52776ff3d2e5f702edc8407486120783d134618bf5"
+        },
+        "build": {
+          "path": "/home/stemxstudio/rove4k-common-compiler-group-local-validation-20261024-v1/full/build/build.json",
+          "bytes": 294363,
+          "sha256": "7ff05c597d8a0cfdd3d2194eef74b2bb09f7e6b0fbbc6dd5594bed2366f10d12"
+        },
+        "runtime": {
+          "path": "/home/stemxstudio/rove4k-common-compiler-group-local-validation-20261024-v1/full/runtime/runtime.json",
+          "bytes": 83373,
+          "sha256": "de113cdd5851fb2e6f88cfdf549242dccf99e81adb6e2ea7d525ed58640411a1"
+        },
+        "producing_recipe": {
+          "path": "/home/stemxstudio/rove4k-common-compiler-group-local-validation-20261024-v1/full/build/inputs/recipe.json",
+          "bytes": 407490,
+          "sha256": "0dd2cdcfe98f6f6bfa5e776c5d8fd7d96c50127d42ec18f8405c321fc2622198"
+        },
+        "shipping_reproductions": 2,
+        "DEV_reproductions": 2,
+        "selected_quit_EOF_sessions": 2,
+        "legal_GO_results": 8,
+        "source_native_unchanged_by_compiler_owner": true,
+        "terminal0_reaped_preextras_empty_groupabsent_forced0_owned0": true,
+        "other_context_local_normal_executed": false,
+        "scope": "actual current F full wrapper plus three shared shape suites; other measured ABCE/Aroot/Foptional contexts await new-HEAD ordinary/positive CI; prior F3 source-trace results keep their original input scope"
+      }
+    },
+    "annotation_only_after_measurement": true,
+    "historical_frozen_controls_changed": false
   }
 }

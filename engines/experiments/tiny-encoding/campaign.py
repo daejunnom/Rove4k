@@ -34,10 +34,11 @@ def sha(data):
 def argument(script, owner, method):
     tree = ast.parse(script)
     matches = [node for node in ast.walk(tree) if isinstance(node, ast.Call) and node.args
-               and isinstance(node.func, ast.Attribute) and node.func.attr == method
-               and isinstance(node.func.value, ast.Name) and node.func.value.id == owner]
+               and ((owner is None and isinstance(node.func, ast.Name) and node.func.id == method)
+                    or (owner is not None and isinstance(node.func, ast.Attribute) and node.func.attr == method
+                        and isinstance(node.func.value, ast.Name) and node.func.value.id == owner))]
     if len(matches) != 1:
-        raise ValueError("expected one bootstrap call: " + owner + "." + method)
+        raise ValueError("expected one bootstrap call: " + str(owner) + "." + method)
     return matches[0].args[0]
 
 
@@ -126,18 +127,20 @@ def main():
     frozen = args.out / "frozen"
     frozen.mkdir()
     helpers = {"pack_stream.py": ROOT / "engines/compact/tiny-a/pack_stream.py",
+               "compiler_group.py": ROOT / "engines/scripts/compiler_group.py",
                "rename_c.py": ROOT / "engines/scripts/rename_c.py", "literal.py": HERE / "literal.py",
                "campaign.py": Path(__file__)}
     for name, path in helpers.items():
         (frozen / name).write_bytes(path.read_bytes())
     producer = module("encoding_frozen_stream", frozen / "pack_stream.py")
+    compiler_group = module("encoding_frozen_compiler_group", frozen / "compiler_group.py").transform_bootstrap
     literal = module("encoding_frozen_literal", frozen / "literal.py")
     lexer = module("encoding_frozen_lexer", frozen / "rename_c.py")
     source = args.source.read_bytes()
     (frozen / "main.c").write_bytes(source)
     (frozen / "reference-wrapper").write_bytes(args.baseline_wrapper.read_bytes())
     command = ["cc", "-std=c11", "-Os", "-pthread", "-DWORKERS=2", "-DTT_BITS=18", "-DDEV=0", "-x", "c", "-", "-o", "x"]
-    baseline_data, baseline_record = producer.make_stream(source, command, "xz")
+    baseline_data, baseline_record = producer.make_stream(source, command, "xz", compiler_group=compiler_group)
     if baseline_data != args.baseline_wrapper.read_bytes():
         raise ValueError("source/producer/command does not reproduce the declared baseline wrapper")
     compile_dir = args.out / "gate"
@@ -222,10 +225,11 @@ def main():
             raise ValueError("restored C bytes changed: " + name)
         if list(value(argument(script, "subprocess", "Popen"))) != list(argv):
             raise ValueError("actual compiler arguments changed: " + name)
-        (directory / "bootstrap.py").write_bytes(script)
+        encoded_script, _ = compiler_group(script)
+        (directory / "bootstrap.py").write_bytes(encoded_script)
         producer.bootstrap = lambda _source, _command, chosen=script, label=name: (chosen, "experiment-" + label)
-        artifacts = producer.write_stream(data, directory / "packed", argv)
-        repeated = producer.write_stream(data, directory / "repeated", argv)
+        artifacts = producer.write_stream(data, directory / "packed", argv, compiler_group=compiler_group)
+        repeated = producer.write_stream(data, directory / "repeated", argv, compiler_group=compiler_group)
         for first, second in zip(artifacts, repeated):
             if Path(first["path"]).read_bytes() != Path(second["path"]).read_bytes():
                 raise ValueError("complete wrapper repetition differed")
@@ -233,7 +237,7 @@ def main():
         record.update(accepted=minimum["bytes"] <= baseline_record["bytes"],
                       reason="whole_file_improved" if minimum["bytes"] < baseline_record["bytes"] else
                              "whole_file_equal" if minimum["bytes"] == baseline_record["bytes"] else "whole_file_increased",
-                      bootstrap_sha256=sha(script), source_restored_exactly=True, artifacts=artifacts, minimum=minimum)
+                      bootstrap_sha256=sha(encoded_script), source_restored_exactly=True, artifacts=artifacts, minimum=minimum)
         records.append(record)
         print(json.dumps({"case": name, "class": identity, "bytes": minimum["bytes"], "accepted": record["accepted"]}), flush=True)
     producer.bootstrap = canonical_bootstrap

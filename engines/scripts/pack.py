@@ -33,7 +33,7 @@ def archive_files(files):
     return bytes(result)
 
 
-def make_launcher(files, *, command, binary="x", environment=None, codec="zlib", transport="base85"):
+def make_launcher(files, *, command, binary="x", environment=None, codec="zlib", transport="base85", compiler_group=None):
     raw = archive_files(files)
     codecs = {"zlib": lambda: zlib.compress(raw, 9),
               "bz2": lambda: bz2.compress(raw, 9),
@@ -84,6 +84,11 @@ def make_launcher(files, *, command, binary="x", environment=None, codec="zlib",
         "signal.signal(2,signal.SIG_DFL);signal.signal(15,signal.SIG_DFL)\n"
         "os.execve(fd,sys.argv,os.environ)\n"
     ).encode()
+    ownership = None
+    if command:
+        if compiler_group is None:
+            raise ValueError("source packaging requires the frozen compiler-group owner")
+        script, ownership = compiler_group(script)
     output = script
     format_name = "python3-source" if command else "python3-native"
     payload_bytes, encoded_bytes = len(compressed), len(blob)
@@ -112,7 +117,7 @@ def make_launcher(files, *, command, binary="x", environment=None, codec="zlib",
         encoded_bytes = payload_bytes
     elif transport != "base85":
         raise ValueError("unknown launcher transport")
-    return output, {"format": format_name,
+    return output, {"format": format_name, "compiler_group": ownership,
                     "codec": codec, "payload_bytes": payload_bytes,
                     "launcher_bytes": len(output) - encoded_bytes,
                     "encoded_payload_bytes": encoded_bytes, "bytes": len(output),
@@ -123,7 +128,7 @@ def make_launcher(files, *, command, binary="x", environment=None, codec="zlib",
                     "rules_eligibility": "unproven_requires_runtime_and_full_rules_review"}
 
 
-def write_launchers(files, destination, *, command=None, binary="x", environment=None):
+def write_launchers(files, destination, *, command=None, binary="x", environment=None, compiler_group=None):
     destination = Path(destination)
     if not destination.is_absolute():
         raise ValueError("output directory must be absolute")
@@ -133,7 +138,8 @@ def write_launchers(files, destination, *, command=None, binary="x", environment
             output = destination / (transport + "-" + codec) / "x"
             output.parent.mkdir(parents=True, exist_ok=True)
             data, record = make_launcher(files, command=command, binary=binary,
-                                         environment=environment, codec=codec, transport=transport)
+                                         environment=environment, codec=codec, transport=transport,
+                                         compiler_group=compiler_group)
             output.write_bytes(data)
             output.chmod(0o755)
             record["path"] = str(output)

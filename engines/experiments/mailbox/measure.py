@@ -5,6 +5,7 @@ The decoder, executable header, metadata and payload all count. This measures
 the canonical A recipe and does not claim a 4096-byte submission or fair speed.
 """
 import argparse
+import importlib.util
 import json
 from pathlib import Path
 import subprocess
@@ -27,8 +28,15 @@ def main():
     if not args.out.is_absolute() or args.out.exists() or ROOT == args.out or ROOT in args.out.parents:
         parser.error("--out must be new, absolute, outside the checkout")
     args.out.mkdir(parents=True)
+    owner_path = args.out / "compiler_group.py"
+    owner_path.write_bytes((ROOT / "engines/scripts/compiler_group.py").read_bytes())
+    owner_spec = importlib.util.spec_from_file_location("mailbox_measure_compiler_group", owner_path)
+    owner = importlib.util.module_from_spec(owner_spec)
+    owner_spec.loader.exec_module(owner)
+    compiler_group = owner.transform_bootstrap
     build = json.loads(args.build.read_text())
     report = {"build_sha256": digest(args.build.read_bytes()), "measurements": [], "selected": [],
+              "compiler_group_sha256": digest(owner_path.read_bytes()),
               "eligible_4k": False, "scope": "complete file costs plus actual packaged runtime; no strength/speed claim"}
     for row in build["engines"]:
         if row["form"] == "dev":
@@ -52,8 +60,10 @@ def main():
                                             "path": str(stripped), "bytes": stripped.stat().st_size,
                                             "sha256": digest(stripped.read_bytes()), "command": command})
         for kind, payload, command in kinds:
-            first = write_launchers(payload, directory / kind / "first", command=command)
-            second = write_launchers(payload, directory / kind / "second", command=command)
+            first = write_launchers(payload, directory / kind / "first", command=command,
+                                    compiler_group=compiler_group if command else None)
+            second = write_launchers(payload, directory / kind / "second", command=command,
+                                     compiler_group=compiler_group if command else None)
             for one, two in zip(first, second):
                 data = Path(one["path"]).read_bytes()
                 if data != Path(two["path"]).read_bytes():

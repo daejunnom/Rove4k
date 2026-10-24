@@ -18,6 +18,7 @@ sys.path.insert(0, str(HERE.parents[1] / "scripts"))
 from minify import compact_source
 from specialize import specialize_c
 from pack import write_launchers
+from compiler_group import transform_bootstrap
 single_spec = importlib.util.spec_from_file_location("rove_tiny_a_pack_single", HERE / "pack_single.py")
 single_module = importlib.util.module_from_spec(single_spec)
 single_spec.loader.exec_module(single_module)
@@ -92,15 +93,15 @@ def main():
                  "source_bytes": len(source), "source_sha256": sha(source),
                  "compile": command, "native_reproduced": True}
         if not dev and not args.no_pack:
-            entry["launchers"] = write_launchers({"main.c": source}, directory / "packed", command=recipe)
+            entry["launchers"] = write_launchers({"main.c": source}, directory / "packed", command=recipe, compiler_group=transform_bootstrap)
             single_recipe = [args.cc, *flags, "-DDEV=0", "-x", "c", "-", "-o", "x"]
-            entry["launchers"] += write_single(source, directory / "single", single_recipe)
-            entry["launchers"] += write_stream(source, directory / "stream", single_recipe)
+            entry["launchers"] += write_single(source, directory / "single", single_recipe, compiler_group=transform_bootstrap)
+            entry["launchers"] += write_stream(source, directory / "stream", single_recipe, compiler_group=transform_bootstrap)
             # Regenerate complete wrappers in a separate tree and compare bytes,
             # including shebang, archive metadata and compiler recipe.
-            repeated = write_launchers({"main.c": source}, directory / "repeated", command=recipe)
-            repeated += write_single(source, directory / "single-repeated", single_recipe)
-            repeated += write_stream(source, directory / "stream-repeated", single_recipe)
+            repeated = write_launchers({"main.c": source}, directory / "repeated", command=recipe, compiler_group=transform_bootstrap)
+            repeated += write_single(source, directory / "single-repeated", single_recipe, compiler_group=transform_bootstrap)
+            repeated += write_stream(source, directory / "stream-repeated", single_recipe, compiler_group=transform_bootstrap)
             for first, other in zip(entry["launchers"], repeated):
                 if Path(first["path"]).read_bytes() != Path(other["path"]).read_bytes():
                     raise RuntimeError("complete launcher reproduction differs")
@@ -112,7 +113,7 @@ def main():
               "eligible_4k": False, "source_sha256": {name: sha(data) for name, data in sources.items()},
               "recipe_sha256": {str(path.relative_to(HERE.parents[2])): sha(path.read_bytes()) for path in
                                   (HERE / "build.py", HERE / "pack_single.py", HERE / "pack_stream.py", HERE / "stitch.py", HERE.parents[1] / "scripts/minify.py",
-                                   HERE.parents[1] / "scripts/specialize.py", HERE.parents[1] / "scripts/pack.py")},
+                                   HERE.parents[1] / "scripts/specialize.py", HERE.parents[1] / "scripts/pack.py", HERE.parents[1] / "scripts/compiler_group.py")},
               "compiler": subprocess.check_output([args.cc, "--version"], text=True).splitlines()[0],
               "preprocessor": observations, "engines": records}
     (args.out / "build.json").write_text(json.dumps(report, indent=2) + "\n")

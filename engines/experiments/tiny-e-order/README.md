@@ -1,8 +1,8 @@
 # TinyE model-only capture ordering
 
 This is one explicit search-ordering policy experiment over the qualified
-`tiny-e-state` cache-removal candidate. The control reproduces that candidate's
-actual source, native images and selected complete files. The new policy removes
+`tiny-e-state` cache-removal candidate. The historical qualified control reproduced
+that candidate's actual source, native images and selected complete files. The new policy removes
 the duplicated legacy HCE/PST contribution from capture priority:
 
 ```c
@@ -34,19 +34,35 @@ maintains the independent HCE cache and verifies it after transitions. The
 shipping `Board` has no HCE cache. No C/Rust canonical source is modified.
 
 An independent agent reviewed the consumers and policy before implementation,
-and reviewed the implementation separately. The authoritative generator binds
-24 upstream inputs before importing them: the existing 23-input TinyE catalog
-and the exact state overlay. The original catalog's narrowly admitted LF/CRLF
+and reviewed the implementation separately. The authoritative generator retains
+24 upstream input identities: the existing 23-input TinyE catalog and the exact
+state overlay. Four historical build/packaging identities are admitted from the
+explicit `engines/experiments/packaging-control/` copies of `tiny-ce-build.py`,
+`pack.py`, `pack_single.py` and `pack_stream.py`. Their original logical catalog
+keys and expected hashes are unchanged; `input_admission` records each actual
+control source path. The original catalog's narrowly admitted LF/CRLF
 provenance JSON encodings are retained; other input bytes remain literal.
 Missing/duplicate overlay sites and altered model/leaf/ordering consumers are
 rejected. The actual admitted raw bytes and producer/checker sources are copied
-into the external recipe before use. Saved recipes replay without consulting
-the mutable checkout.
+into the external recipe before use. Current `engines/scripts/pack.py`,
+`engines/compact/tiny-a/pack_single.py`, `engines/compact/tiny-a/pack_stream.py`
+and `engines/scripts/compiler_group.py` are frozen separately at their canonical
+recipe paths. These current producers create the new wrappers; historical
+catalog admission does not select an old wrapper producer. Saved recipes retain
+both explicit path sets and replay without consulting the mutable checkout.
 
-The measured fixed build uses Ubuntu 24.04.4, GCC 13.3.0 and Python 3.12.3, with
+The historical measured fixed build used Ubuntu 24.04.4, GCC 13.3.0 and Python 3.12.3, with
 `-std=c11 -Os -pthread -DWORKERS=2 -DTT_BITS=18 -DDEV=0`. There is one existing XZ
 source-stream recipe and one existing LZMA native-ZIP recipe, with no new flags,
 codec presets, models, names or representation search.
+
+The following sizes, wrapper hashes and v3 qualification results describe the
+preserved historical wrappers. The current compiler-group owning wrappers have
+not been produced or qualified under this adapter update, so those results do
+not establish their byte identity, size or runtime behavior. New reports record
+`packaging.historical_wrapper_identity_claimed=false` and
+`packaging.current_wrapper_qualification="not_yet_executed"`, alongside the
+historical control paths and the actual frozen current-producer byte/hash pairs.
 
 | Object | Cache-removal control | Model-only capture prior | Change |
 | --- | ---: | ---: | ---: |
@@ -73,7 +89,11 @@ An independent subsequent full producer invocation reproduced all three source
 forms, all native images and the selected wrappers for each policy. The control
 also matches the historical qualified cache-removal candidate by actual hashes.
 
-Reproduce on Linux using new absolute directories outside Git:
+Use the current producer CLI on Linux with new absolute directories outside Git.
+It freezes and uses the current compiler-group owner while keeping the historical
+catalog identities separate; it does not claim to reproduce the old wrapper
+hashes. The commands below are the current production and qualification path,
+not a record of new executions:
 
 ```sh
 python3 -I -B engines/experiments/tiny-e-order/test_generate.py
@@ -83,6 +103,9 @@ python3 -I -B /absolute/new/model/recipe/engines/experiments/tiny-e-order/check.
 python3 -B /absolute/new/model/recipe/engines/tests/verify.py --manifest /absolute/new/model/build.json --out /absolute/new/model-blackbox --quick
 python3 -I -B /absolute/new/model/recipe/engines/compact/tiny-ce/restoration.py --build /absolute/new/model/build.json --out /absolute/new/model-restoration
 ```
+
+The remaining result paragraphs summarize preserved historical v3 evidence;
+they are not new qualification of the current owning wrappers.
 
 The model consumer runs hand-computed evaluation, capture, promotion and EP
 fixtures and 2,007 dense/random positions against the independent frozen scalar

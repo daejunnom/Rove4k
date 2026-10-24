@@ -86,6 +86,7 @@ def main():
         minifier=module('entry_minify',frozen/'minify.py');compact=minifier.compact_source
         strip=module('entry_counter_strip',frozen/'stitch.py').strip_dev_counters
         literal=module('entry_literal',frozen/'pack_stream.py').source_literal
+        compiler_group=module('entry_compiler_group',frozen/'compiler_group.py').transform_bootstrap
         source_package=module('entry_source_package',frozen/'source_package.py')
         readonly_template=module('entry_readonly_template',frozen/'shipping_readonly.py').transform_template
         common=module('entry_shipping_common',frozen/'shipping_common.py')
@@ -218,6 +219,8 @@ def main():
             report['depth_token_bootstrap']=depth_bootstrap
             script,square_bootstrap=square_walk.transform_bootstrap(script,source=source)
             report['square_walk_bootstrap']=square_bootstrap
+            script,group_metadata=compiler_group(script)
+            report['compiler_group']=group_metadata
             ast.parse(script)
             data=prefix+lzma.compress(script,format=lzma.FORMAT_ALONE,check=lzma.CHECK_NONE,
                                      filters=[{'id':lzma.FILTER_LZMA1,'preset':9|lzma.PRESET_EXTREME,

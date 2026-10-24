@@ -32,6 +32,14 @@ def main():
     source=args.baseline.read_bytes();(frozen/'baseline.c').write_bytes(source)
     for name in ('pack.py','pack_single.py','pack_stream.py','specialize.py','minify.py','stitch.py'):
         (frozen/name).write_bytes((args.reference.parent/'frozen'/name).read_bytes())
+    compiler_kwargs={}
+    reference=json.loads(args.reference.read_text())
+    owner_hash=reference.get('recipe_sha256',{}).get('engines/scripts/compiler_group.py')
+    if owner_hash is not None:
+        owner_data=(args.reference.parent/'frozen/compiler_group.py').read_bytes()
+        if sha(owner_data)!=owner_hash:raise ValueError('reference compiler owner changed')
+        (frozen/'compiler_group.py').write_bytes(owner_data)
+        compiler_kwargs['compiler_group']=module('stream_compiler_group',frozen/'compiler_group.py').transform_bootstrap
     (frozen/'rename_c.py').write_bytes((args.rename.parent/'frozen/rename_c.py').read_bytes())
     (frozen/'transform.py').write_bytes((HERE/'transform.py').read_bytes())
     transform=module('stream_transform',frozen/'transform.py').transform
@@ -68,9 +76,9 @@ def main():
         (directory/'uncontracted.c').write_bytes(compacted)
         dev=directory/'dev';dev.mkdir();(dev/'main.c').write_bytes(combined)
         subprocess.run(['cc','-std=c11','-Os','-pthread','-DWORKERS=2','-DTT_BITS=18','-DDEV=1','main.c','-o','x'],cwd=dev,check=True,timeout=30)
-        packages=generic({'main.c':renamed},directory/'generic',command=file_command)
-        packages+=single(renamed,directory/'single',stdin_command)
-        packages+=stream(renamed,directory/'stream',stdin_command)
+        packages=generic({'main.c':renamed},directory/'generic',command=file_command,**compiler_kwargs)
+        packages+=single(renamed,directory/'single',stdin_command,**compiler_kwargs)
+        packages+=stream(renamed,directory/'stream',stdin_command,**compiler_kwargs)
         best=min(packages,key=lambda r:r['bytes'])
         if name=='baseline' and (sha(renamed)!=prior['selected']['source_sha256'] or best['sha256']!=prior['minimum_complete']['sha256']):
             raise ValueError('actual 5419 B reference did not reproduce')

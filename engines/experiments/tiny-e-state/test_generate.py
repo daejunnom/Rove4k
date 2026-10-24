@@ -67,7 +67,7 @@ class StateContract(unittest.TestCase):
         bindings=json.loads((HERE/"inputs.json").read_bytes())
         for name,expected in bindings.items():
             if name==producer.EOL_EQUIVALENT_INPUT:continue
-            data=(HERE.parents[2]/name).read_bytes()
+            data=(HERE.parents[2]/producer.HISTORICAL_INPUTS.get(name,name)).read_bytes()
             self.assertEqual(producer.admit_input(name,data,expected)["admission"],"literal")
             with self.subTest(name=name),self.assertRaises(ValueError):producer.admit_input(name,data.replace(b"\n",b"\r\n"),expected)
 

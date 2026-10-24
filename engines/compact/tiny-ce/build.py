@@ -44,7 +44,7 @@ def main():
     # and all producer bytes survive without reading a later mutable checkout.
     paths = [HERE / name for name in ("build.py", "generate.py", "c-eval.c.in", "e-eval.c.in", "frozen.json", "core/provenance.json")]
     paths += [HERE / "core" / name for name in ("tiny.h", "board.c", "search.c", "main.c")]
-    paths += [ENGINES / "scripts" / name for name in ("minify.py", "specialize.py", "pack.py")]
+    paths += [ENGINES / "scripts" / name for name in ("minify.py", "specialize.py", "pack.py", "compiler_group.py")]
     paths += [HERE.parent / "tiny-a" / name for name in ("stitch.py", "pack_single.py", "pack_stream.py")]
     frozen = {str(path.relative_to(ROOT)): path.read_bytes() for path in paths}
     recipe_root = args.out / "recipe"
@@ -58,6 +58,7 @@ def main():
     minifier = load("tiny_ce_minify", recipe_engines / "scripts/minify.py")
     specializer = load("tiny_ce_specialize", recipe_engines / "scripts/specialize.py")
     packer = load("tiny_ce_pack", recipe_engines / "scripts/pack.py")
+    owner = load("tiny_ce_compiler_group", recipe_engines / "scripts/compiler_group.py")
     single = load("tiny_ce_single", recipe_engines / "compact/tiny-a/pack_single.py")
     stream = load("tiny_ce_stream", recipe_engines / "compact/tiny-a/pack_stream.py")
     stitch = load("tiny_ce_stitch", recipe_engines / "compact/tiny-a/stitch.py")
@@ -112,13 +113,13 @@ def main():
             stdin_binary = (directory / "x.stdin").read_bytes()
             if stdin_binary != (directory / "x.stdin.second").read_bytes():
                 raise RuntimeError("stdin compiler recipe reproduction differs")
-            launchers = packer.write_launchers({"main.c": source}, directory / "packed", command=recipe)
-            launchers += single.write_single(source, directory / "single", stdin_recipe)
-            launchers += stream.write_stream(source, directory / "stream", stdin_recipe)
+            launchers = packer.write_launchers({"main.c": source}, directory / "packed", command=recipe, compiler_group=owner.transform_bootstrap)
+            launchers += single.write_single(source, directory / "single", stdin_recipe, compiler_group=owner.transform_bootstrap)
+            launchers += stream.write_stream(source, directory / "stream", stdin_recipe, compiler_group=owner.transform_bootstrap)
             launchers += packer.write_launchers({"x": binary.read_bytes()}, directory / "native-packed")
-            repeated = packer.write_launchers({"main.c": source}, directory / "packed-repeat", command=recipe)
-            repeated += single.write_single(source, directory / "single-repeat", stdin_recipe)
-            repeated += stream.write_stream(source, directory / "stream-repeat", stdin_recipe)
+            repeated = packer.write_launchers({"main.c": source}, directory / "packed-repeat", command=recipe, compiler_group=owner.transform_bootstrap)
+            repeated += single.write_single(source, directory / "single-repeat", stdin_recipe, compiler_group=owner.transform_bootstrap)
+            repeated += stream.write_stream(source, directory / "stream-repeat", stdin_recipe, compiler_group=owner.transform_bootstrap)
             repeated += packer.write_launchers({"x": binary.read_bytes()}, directory / "native-packed-repeat")
             for first, other in zip(launchers, repeated):
                 if Path(first["path"]).read_bytes() != Path(other["path"]).read_bytes():

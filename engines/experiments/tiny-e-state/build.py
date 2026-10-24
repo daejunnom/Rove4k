@@ -13,6 +13,14 @@ HERE = Path(__file__).resolve().parent
 ENGINES = HERE.parents[1]
 ROOT = HERE.parents[2]
 EOL_EQUIVALENT_INPUT = "engines/compact/tiny-ce/core/provenance.json"
+HISTORICAL_INPUTS = {
+    "engines/compact/tiny-ce/build.py": "engines/experiments/packaging-control/tiny-ce-build.py",
+    "engines/scripts/pack.py": "engines/experiments/packaging-control/pack.py",
+    "engines/compact/tiny-a/pack_single.py": "engines/experiments/packaging-control/pack_single.py",
+    "engines/compact/tiny-a/pack_stream.py": "engines/experiments/packaging-control/pack_stream.py",
+}
+CURRENT_PACKAGING = ("engines/scripts/pack.py", "engines/compact/tiny-a/pack_single.py",
+                     "engines/compact/tiny-a/pack_stream.py", "engines/scripts/compiler_group.py")
 
 
 def load(name, path):
@@ -71,18 +79,22 @@ def main():
     if not 1 <= args.workers <= 512 or not 8 <= args.tt_bits <= 28:
         parser.error("workers 1..512; TT bits 8..28")
     args.out.mkdir(parents=True)
-    # Freeze the exact recipe tree before importing helpers. Both input hashes
-    # and all producer bytes survive without reading a later mutable checkout.
+    # Keep the old catalog's producer controls separate from the current API.
+    # Both sets are explicit frozen inputs; there is no fallback between them.
     bindings = json.loads((HERE / "inputs.json").read_bytes())
     frozen = {}
     input_admission = {}
     for name, expected in bindings.items():
-        data = (ROOT / name).read_bytes()
+        origin = HISTORICAL_INPUTS.get(name, name)
+        data = (ROOT / origin).read_bytes()
         input_admission[name] = admit_input(name, data, expected)
-        frozen[name] = data
+        input_admission[name]["source"] = origin
+        frozen[origin] = data
     for name in ("build.py", "generate.py", "inputs.json", "check.py", "contract.c", "test_generate.py"):
         path = HERE / name
         frozen[str(path.relative_to(ROOT))] = path.read_bytes()
+    for name in CURRENT_PACKAGING:
+        frozen[name] = (ROOT / name).read_bytes()
     recipe_root = args.out / "recipe"
     for name, data in frozen.items():
         dest = recipe_root / name
@@ -95,6 +107,7 @@ def main():
     minifier = load("tiny_ce_minify", recipe_engines / "scripts/minify.py")
     specializer = load("tiny_ce_specialize", recipe_engines / "scripts/specialize.py")
     packer = load("tiny_ce_pack", recipe_engines / "scripts/pack.py")
+    compiler_group = load("tiny_ce_compiler_group", recipe_engines / "scripts/compiler_group.py")
     single = load("tiny_ce_single", recipe_engines / "compact/tiny-a/pack_single.py")
     stream = load("tiny_ce_stream", recipe_engines / "compact/tiny-a/pack_stream.py")
     stitch = load("tiny_ce_stitch", recipe_engines / "compact/tiny-a/stitch.py")
@@ -152,13 +165,19 @@ def main():
             stdin_binary = (directory / "x.stdin").read_bytes()
             if stdin_binary != (directory / "x.stdin.second").read_bytes():
                 raise RuntimeError("stdin compiler recipe reproduction differs")
-            launchers = packer.write_launchers({"main.c": source}, directory / "packed", command=recipe)
-            launchers += single.write_single(source, directory / "single", stdin_recipe)
-            launchers += stream.write_stream(source, directory / "stream", stdin_recipe)
+            launchers = packer.write_launchers({"main.c": source}, directory / "packed", command=recipe,
+                                               compiler_group=compiler_group.transform_bootstrap)
+            launchers += single.write_single(source, directory / "single", stdin_recipe,
+                                             compiler_group=compiler_group.transform_bootstrap)
+            launchers += stream.write_stream(source, directory / "stream", stdin_recipe,
+                                             compiler_group=compiler_group.transform_bootstrap)
             launchers += packer.write_launchers({"x": binary.read_bytes()}, directory / "native-packed")
-            repeated = packer.write_launchers({"main.c": source}, directory / "packed-repeat", command=recipe)
-            repeated += single.write_single(source, directory / "single-repeat", stdin_recipe)
-            repeated += stream.write_stream(source, directory / "stream-repeat", stdin_recipe)
+            repeated = packer.write_launchers({"main.c": source}, directory / "packed-repeat", command=recipe,
+                                              compiler_group=compiler_group.transform_bootstrap)
+            repeated += single.write_single(source, directory / "single-repeat", stdin_recipe,
+                                            compiler_group=compiler_group.transform_bootstrap)
+            repeated += stream.write_stream(source, directory / "stream-repeat", stdin_recipe,
+                                            compiler_group=compiler_group.transform_bootstrap)
             repeated += packer.write_launchers({"x": binary.read_bytes()}, directory / "native-packed-repeat")
             for first, other in zip(launchers, repeated):
                 if Path(first["path"]).read_bytes() != Path(other["path"]).read_bytes():
@@ -174,6 +193,12 @@ def main():
               "source_layout": layout, "counter_recipe": counter_recipe,
               "input_sha256": {name: sha(data) for name, data in frozen.items()},
               "input_admission": input_admission,
+              "packaging": {"historical_control_sources": HISTORICAL_INPUTS,
+                            "current_source_producers": {name: {"bytes": len(frozen[name]),
+                                                                 "sha256": sha(frozen[name])}
+                                                         for name in CURRENT_PACKAGING},
+                            "historical_wrapper_identity_claimed": False,
+                            "current_wrapper_qualification": "not_yet_executed"},
               "compiler": subprocess.check_output([args.cc, "--version"], text=True).splitlines()[0],
               "preprocessor": observations, "engines": records, "eligible_4k": False}
     candidates = [(engine, artifact) for engine in records for artifact in engine.get("launchers", [])]

@@ -12,6 +12,13 @@ The recorded profile is GCC 13.3, C11 `-Os -pthread`, `WORKERS=2`, `TT_BITS=18`,
 `DEV=0`, default `PLY=128`, generated board and the POSIX startup pool. Development
 validation uses `DEV=1`; the explicit cap fixture uses `PLY=4`.
 
+For the three exact historical packer hashes, the driver reads the declared
+project-owned sources in `../packaging-control/` and preserves the reference
+hashes and old compiler-owner scope. A new reference that records
+`engines/scripts/compiler_group.py` supplies that exact frozen helper explicitly
+to its current source packers. Historical measurements below do not qualify the
+new common compiler owner.
+
 The best measured and qualified composition is **5,419 bytes**, including the
 shell prefix, compressed Python compiler bootstrap and complete C source. It is
 still **1,323 bytes above 4 KiB**. It uses the same Python/compiler/runtime

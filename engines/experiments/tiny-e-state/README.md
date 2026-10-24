@@ -23,7 +23,7 @@ PVS/QS, full-key locked TT, history, continuation, correction, legal EP,
 third-visit repetition, reversible-path/halfmove TT context, dead material,
 ply abort, fixed persistent startup workers and the shipping protocol.
 
-The builder rejects drift in 23 upstream inputs before importing any helper.
+The builder rejects drift in the 23 catalog inputs before importing any helper.
 Twenty-two retain literal byte bindings. The single exception is
 `engines/compact/tiny-ce/core/provenance.json`: its audited Windows copy has
 1,503 bytes, 41 CRLF pairs and SHA-256
@@ -41,6 +41,15 @@ sources into the external `recipe/` tree. `input_sha256` continues to bind the
 actual snapshots, while `input_admission` separately records raw byte count,
 hash, CRLF/lone-CR counts, admission mode and normalized content identity.
 The saved producer replays without reading the checkout.
+The catalog's old `tiny-ce/build.py`, `pack.py`, `pack_single.py` and
+`pack_stream.py` identities now bind the explicit original blobs in
+`engines/experiments/packaging-control/`. `input_admission` names each actual
+control source, and the recipe freezes those files at their control paths.
+These historical inputs are not an API fallback. The supported producer
+separately freezes the current canonical packers and `compiler_group.py`, loads
+those current snapshots and passes the frozen owner to every source wrapper.
+The ordinary `input_sha256` closure binds both sets. Native-only packaging is
+unchanged.
 The overlay additionally rejects missing/duplicate update sites, new cache
 readers and changed leaf/residual/ordering consumer shapes. This is a fixed
 TinyE transformation, not a general C dead-state optimizer.
@@ -49,7 +58,7 @@ relative, `..` and symlink output-boundary rejection cases pass without writes.
 The focused generator suite has five groups, including LF/CRLF admission,
 content-drift/lone-CR/mixed-EOL rejection and the other 22 literal bindings.
 
-The actual complete-file comparison on WSL Ubuntu, GCC 13.3.0, Python 3.12.3,
+The historical complete-file comparison on WSL Ubuntu, GCC 13.3.0, Python 3.12.3,
 `-std=c11 -Os -pthread -DWORKERS=2 -DTT_BITS=18 -DDEV=0` is:
 
 | Measured object | Frozen TinyE baseline | Cache removal | Change |
@@ -68,6 +77,10 @@ separate producer invocation also reproduced all three native forms and both
 selected wrappers. The state source wrapper SHA-256 is
 `283f639687c80ddfc5859178ed1a3ce19d4b42b4a9ed5e488d96420811759167`.
 This candidate remains **1,999 B above 4,096 B**, with `eligible_4k: false`.
+Those sizes, wrapper hashes and completed qualifications describe the preserved
+producer baseline. New CLI source wrappers use the current compiler-group
+owner and need their own complete-file reproduction and runtime qualification;
+this adapter update does not claim their bytes or results equal that baseline.
 
 Reproduce using new absolute output directories outside Git:
 

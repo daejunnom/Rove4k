@@ -11,7 +11,7 @@ from pathlib import Path
 import zipfile
 
 
-def make_single(source, command, codec="lzma"):
+def make_single(source, command, codec="lzma", *, compiler_group):
     if codec not in ("zlib", "bz2", "lzma"):
         raise ValueError("unsupported codec")
     script = (
@@ -40,6 +40,7 @@ def make_single(source, command, codec="lzma"):
         "signal.signal(2,signal.SIG_DFL);signal.signal(15,signal.SIG_DFL)\n"
         "os.execve(fd,sys.argv,os.environ)\n"
     ).encode()
+    script, ownership = compiler_group(script)
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w") as archive:
         for name, data, compression in (("__main__.py", script, zipfile.ZIP_DEFLATED),
@@ -54,19 +55,19 @@ def make_single(source, command, codec="lzma"):
         payload = archive.getinfo("c").compress_size
     output = b"#!/usr/bin/python3\n" + buffer.getvalue()
     return output, {"format": "python3-source-zipapp-single", "codec": codec, "bytes": len(output),
-                    "payload_bytes": payload, "launcher_bytes": len(output) - payload,
+                    "compiler_group": ownership, "payload_bytes": payload, "launcher_bytes": len(output) - payload,
                     "sha256": hashlib.sha256(output).hexdigest(), "external_programs": ["python3", command[0]],
                     "under_4096_bytes": len(output) <= 4096, "category": "general-4k",
                     "rules_eligibility": "unproven_requires_runtime_and_full_rules_review"}
 
 
-def write_single(source, destination, command):
+def write_single(source, destination, command, *, compiler_group):
     destination = Path(destination)
     if not destination.is_absolute():
         raise ValueError("absolute external output required")
     results = []
     for codec in ("zlib", "bz2", "lzma"):
-        data, record = make_single(source, command, codec)
+        data, record = make_single(source, command, codec, compiler_group=compiler_group)
         path = destination / codec / "x"
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(data)

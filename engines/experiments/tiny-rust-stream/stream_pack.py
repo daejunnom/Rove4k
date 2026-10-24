@@ -24,7 +24,7 @@ from pathlib import Path
 
 CODECS = ("xz", "gzip", "bzip2")
 ORIGIN = {
-    "path": "engines/compact/tiny-a/pack_stream.py",
+    "path": "engines/experiments/packaging-control/pack_stream.py",
     "sha256": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
 }
 ALLOWED = frozenset(("sh", "python3", "rustc"))

@@ -67,7 +67,12 @@ def main():
     renamed=json.loads(args.rename.read_text());record=renamed['minimum_complete']
     source=(args.rename.parent/'selected/main.c').read_bytes()
     pack=module('tiny_selected_pack_repeat',args.rename.parent/'frozen/pack_stream.py')
-    repeated,metadata=pack.make_stream(source,renamed['compiler_stdin'],'xz')
+    compiler_kwargs={}
+    if 'compiler_group_sha256'in renamed:
+        owner_path=args.rename.parent/'frozen/compiler_group.py'
+        if sha(owner_path.read_bytes())!=renamed['compiler_group_sha256']:raise ValueError('selected compiler owner changed')
+        compiler_kwargs['compiler_group']=module('tiny_selected_compiler_group',owner_path).transform_bootstrap
+    repeated,metadata=pack.make_stream(source,renamed['compiler_stdin'],'xz',**compiler_kwargs)
     if repeated!=Path(record['path']).read_bytes():raise ValueError('selected complete artifact does not reproduce')
     (args.out/'x.repeated').write_bytes(repeated)
     repeated_native=subprocess.run(renamed['compiler_stdin'],input=source,cwd=args.out,capture_output=True,timeout=30)

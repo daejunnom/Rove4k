@@ -71,6 +71,16 @@ length and SHA-256
 must match the existing qualified artifact. The builder does not rerun a
 Cartesian matrix of baseline codecs or optimization flags.
 
+The baseline packer is the explicit project-owned historical control
+`engines/experiments/packaging-control/pack.py`, copied byte-for-byte from
+`1d2e3b7:engines/scripts/pack.py` (`f95a9166...`). This ZIP retains that old
+compiler owner's known boundary; it is comparison data, not qualification of
+the new common compiler owner. The current stable Rust helper is consumed only
+through unchanged specialization/recipe/run/smoke definitions, and the current
+Tiny A helper's raw `source_literal`/`bootstrap` definitions remain byte-exact.
+The qualified `stream_pack.py` runtime body and the 9,074-byte reference are
+unchanged. Current generic Rust source packages use the stable Tiny Rust builder.
+
 With `--reproduce`, the builder separately repeats pruning, merging and the
 requested resource embodiment, compiles
 the stdin source in a second directory with identical path remapping, compares

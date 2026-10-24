@@ -34,10 +34,11 @@ PRUNED_BINDINGS = {
     "runtime.rs": "f600cd89520c14851b205f6f9eab9310e574fedf76a430f8a0d277888c99a6a8",
 }
 HELPER_BINDINGS = {
-    "engines/compact/tiny-rust/build.py": "c614604f570e32b7d816c340f3ff0ba067a74f4826705f660bc29dcf6093ffbf",
+    "engines/compact/tiny-rust/build.py": "cec8e9a93efba045ea43ac7e70208896fe3c448da1c7ad39cfd61e7bdf389b35",
     "engines/compact/rust/syntax.py": "54ff9e05cbcb099c6ee96e09014be3d2a80c21fb8bf21e508b0a03bda5114100",
-    "engines/scripts/pack.py": "f95a9166f8fc018e4250999fa60c10568fa2ef3388b704a1fdfab9802bef5083",
-    "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
+    "engines/experiments/packaging-control/pack.py": "f95a9166f8fc018e4250999fa60c10568fa2ef3388b704a1fdfab9802bef5083",
+    "engines/experiments/packaging-control/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
+    "engines/compact/tiny-a/pack_stream.py": "8e601c6a1d2c80478dc71f47d4cc7cee350cd388d430937a4953eae407234e25",
 }
 BASELINE_BYTES = 9074
 BASELINE_SHA256 = "35bc0d0f930da90ac4826659c60db5c3dcf805edba7047d85855d86d13cc8a72"
@@ -90,7 +91,7 @@ def execute_frozen(args, frozen_root, inputs, compiler):
     stable = load("tiny_rust_stream_frozen_stable", frozen_root / "engines/compact/tiny-rust/build.py")
     merge = load("tiny_rust_stream_frozen_merge", frozen_root / "engines/experiments/tiny-rust-stream/merge.py")
     stream = load("tiny_rust_stream_frozen_pack", frozen_root / "engines/experiments/tiny-rust-stream/stream_pack.py")
-    pack = load("tiny_rust_stream_frozen_zip", frozen_root / "engines/scripts/pack.py")
+    pack = load("tiny_rust_stream_historical_zip", frozen_root / "engines/experiments/packaging-control/pack.py")
     raw = {name: inputs[SOURCE_PREFIX + name] for name in PRODUCTION}
     pruned, pruning = stable.specialize(raw, development=False)
     if {name: sha(data) for name, data in pruned.items()} != PRUNED_BINDINGS:
@@ -119,6 +120,12 @@ def execute_frozen(args, frozen_root, inputs, compiler):
     baseline_path.write_bytes(baseline)
     baseline_path.chmod(0o755)
     baseline_record["path"] = str(baseline_path)
+    baseline_record["historical_control"] = {
+        "producer": "engines/experiments/packaging-control/pack.py",
+        "sha256": HELPER_BINDINGS["engines/experiments/packaging-control/pack.py"],
+        "origin": "1d2e3b7:engines/scripts/pack.py",
+        "old_compiler_owner": True, "new_common_owner_qualification": False,
+    }
     reference_applies = (args.workers, args.tt_bits) == (2, 18)
     if reference_applies and (len(baseline) != BASELINE_BYTES or sha(baseline) != BASELINE_SHA256):
         raise ValueError("regenerated four-file ZIP differs from exact 9,074-byte baseline")

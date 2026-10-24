@@ -40,6 +40,13 @@ def main():
     frozen=args.out/'frozen';frozen.mkdir()
     for name in ('pack_single.py','pack_stream.py','pack.py'):
         (frozen/name).write_bytes((args.measure.parent/'frozen'/name).read_bytes())
+    compiler_kwargs={}
+    owner_hash=report.get('recipe_sha256',{}).get('engines/scripts/compiler_group.py')
+    if owner_hash is not None:
+        owner_data=(args.measure.parent/'frozen/compiler_group.py').read_bytes()
+        if sha(owner_data)!=owner_hash:raise ValueError('measured compiler owner changed')
+        (frozen/'compiler_group.py').write_bytes(owner_data)
+        compiler_kwargs['compiler_group']=module('tiny_rename_compiler_group',frozen/'compiler_group.py').transform_bootstrap
     rename_source=(ROOT/'engines/scripts/rename_c.py').read_bytes()
     (frozen/'rename_c.py').write_bytes(rename_source)
     rename=module('tiny_rename',frozen/'rename_c.py').compact_identifiers
@@ -59,7 +66,7 @@ def main():
         binary=(gate/'x').read_bytes();digest=sha(binary)
         if baseline is None:baseline=digest
         if digest==baseline:
-            wrapper,record=stream.make_stream(data,command,'xz')
+            wrapper,record=stream.make_stream(data,command,'xz',**compiler_kwargs)
             path=args.out/f'trial-{trial}.c';path.write_bytes(data)
             qualified.append({'trial':trial,'source_bytes':len(data),'source_sha256':sha(data),
                               'complete_xz_bytes':len(wrapper),'native_sha256':digest,'source':str(path)})
@@ -75,13 +82,14 @@ def main():
     (directory/'main.c').write_bytes(chosen)
     run=subprocess.run(command,input=chosen,cwd=directory,capture_output=True,timeout=30)
     if run.returncode or sha((directory/'x').read_bytes())!=baseline:raise ValueError('selected candidate changed program identity')
-    packages=generic.write_launchers({'main.c':chosen},directory/'generic',command=flags+['main.c','-o','x'])
-    packages+=single.write_single(chosen,directory/'single',command)
-    packages+=stream.write_stream(chosen,directory/'stream',command)
+    packages=generic.write_launchers({'main.c':chosen},directory/'generic',command=flags+['main.c','-o','x'],**compiler_kwargs)
+    packages+=single.write_single(chosen,directory/'single',command,**compiler_kwargs)
+    packages+=stream.write_stream(chosen,directory/'stream',command,**compiler_kwargs)
     report={'input_measure':str(args.measure),'input_form':args.form,'rename_helper_sha256':sha(rename_source),
             'compiler_stdin':command,'baseline_program_sha256':baseline,'qualified':qualified,
             'rename':metadata,'selected':best,'artifacts':packages,'minimum_complete':min(packages,key=lambda p:p['bytes']),
             'no_NPS_comparison':True}
+    if owner_hash is not None:report['compiler_group_sha256']=owner_hash
     (args.out/'results.json').write_text(json.dumps(report,indent=2)+'\n')
     print(json.dumps({'selected':best,'minimum_complete':report['minimum_complete']}),flush=True)
 

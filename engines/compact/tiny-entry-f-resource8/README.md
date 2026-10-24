@@ -1,3 +1,52 @@
+# F8 v10: final MTD/sole-GO source and common compiler owner
+
+Class `full-F-late-fixed-resource8-TT18-v10` consumes qualified fullF
+C7840/67279ef9... and applies six exact resource roles with raw +38 to
+C7878/ce54ace7.... GO publication moved into main's nested branch, so the
+sorted role order is arrays/startup/selector/thread-handles/create/GO.
+Seven protected gaps/full inverse retain the other source bytes. Nested GO
+locals do not change the outer create-success join count. Startup0, worker0
+claim, J-protected pending8/all8 depth -1 publication, flush-before-notify,
+strict first-max tie and broadcast4/wait2/signal0 remain.
+
+Existing literal/source/template guards run before the common compiler-group
+owner, applied once. Its raw wrapper delta is +1024B; compiler source/argv,
+environment and FD/exec expressions are guarded, with bufsize0/write-loop
+intentional. Final own bootstrap9834/9d051056... and whole4652/805e0130...
+are independently measured. This is +368B from old F8 whole4284 and556B above
+4096. New native18576/79681f35... differs from old26182257...; F2 native/size
+gains and prior wrapper success are not inherited as F8 qualification.
+Own ALONE6/BT2/dict16KiB/lc2lp0pb0/nice24/header73 and cc -Os -pthread
+implicitGNU17 remain. ONEcost compile1/encode1/Python2/CLI2 passed, diagnostics0,
+original handles terminal0/reaped/preextras[]/groupabsent/forced0/owned0.
+No engine ran during cost. Ordinary and existing positive passed as recorded below.
+
+Current D verifier is42137/461f685a.... Its actual consumed Owned/Reader and
+generic22664/f871f614... body remains identical to old39962/f5ed; BSS gates
+scalar4370432/HQ176128 are Dmain-only. Old actual f5ed runtime receipts remain
+historical. Nine-TID/all8CPU, strict FD/children/maps/noWX/mainstack/native and
+physical lifetime assertions remain. No new core/SAN/fault/matrix/NVC/codec
+search was added. Guard-count/size, peak-stack, strength, scaling, cancellation
+and final4KiB acceptance remain unproven. Earlier records remain below.
+
+<!-- F8_V10_COMPLETION:PASS -->
+One ordinary call produced two complete source/native/bootstrap/whole tuples
+byte-exact to the fixed cost4652. Fresh wrapper positive passed quit/EOF2
+sessions8 legal GO, persistent9TID/all8CPU and strict stdio/children/maps/noWX/
+mainstack/native/private-path/reader physical exit. Actual D42137/461f685a...
+was imported; its consumed generic body and main import-time signature/order
+are unchanged. Previous actual f5ed receipts were not relabelled.
+Original ordinary564/positive594 returned0/reaped after pre-reap extras[],
+groupabsent/forced0/owned0. Build8c392204... and runtime772354cf... record the
+executions. Source closure73 is observed, not an added gate. New native79681f35
+differs from old26182257; whole4652 is +368B/over4096 by556B. The source/core
+changes and common-owner size cost stay separate from F2 gains.
+Producing code and exact expectations are unchanged; final recipe/README add
+completion annotations only. No extra core/SAN/fault/PP/NVC/matrix/codec search,
+full F rebuild or firstcost replay ran. Final4KiB eligibility, guard-count/size,
+peak-stack, strength/scaling and cancellation causality remain unproven.
+
+
 # F8 v9: final full F FROM exact-inline source
 
 Class `full-F-late-fixed-resource8-TT18-v9` consumes actual fullF normal

@@ -58,6 +58,7 @@ def main():
     frozen.mkdir()
     helpers = {"stitch.py": ROOT / "engines/compact/tiny-a/stitch.py",
                "pack_stream.py": ROOT / "engines/compact/tiny-a/pack_stream.py",
+               "compiler_group.py": ROOT / "engines/scripts/compiler_group.py",
                "minify.py": ROOT / "engines/scripts/minify.py",
                "specialize.py": ROOT / "engines/scripts/specialize.py",
                "rename_c.py": ROOT / "engines/scripts/rename_c.py",
@@ -69,6 +70,7 @@ def main():
     minify = module("sentinel_frozen_minify", frozen / "minify.py")
     specialize = module("sentinel_frozen_specialize", frozen / "specialize.py")
     pack = module("sentinel_frozen_stream", frozen / "pack_stream.py")
+    compiler_group = module("semaphore_frozen_compiler_group", frozen / "compiler_group.py")
     lexer = module("sentinel_frozen_lexer", frozen / "rename_c.py")
     encoding = module("sentinel_frozen_encoding", frozen / "encoding_campaign.py")
     canonical_bootstrap = pack.bootstrap
@@ -152,12 +154,15 @@ def main():
                 script = encoding.replace_argument(script, "subprocess", "Popen", repr(" ".join(command)) + ".split()")
             assert encoding.value(encoding.argument(script, "p", "communicate")) == encoded
             assert encoding.value(encoding.argument(script, "subprocess", "Popen")) == command
-            (target / "bootstrap.py").write_bytes(script)
+            packed_script, _ = compiler_group.transform_bootstrap(script)
+            (target / "bootstrap.py").write_bytes(packed_script)
             pack.bootstrap = lambda _source, _command, selected=script: (selected, "fixed-argv-" + args.argv_form)
             artifacts = []
             for codec in ("xz", "gzip", "bzip2"):
-                whole, metadata = pack.make_stream(encoded, command, codec)
-                repeated, _ = pack.make_stream(encoded, command, codec)
+                whole, metadata = pack.make_stream(encoded, command, codec,
+                                                   compiler_group=compiler_group.transform_bootstrap)
+                repeated, _ = pack.make_stream(encoded, command, codec,
+                                               compiler_group=compiler_group.transform_bootstrap)
                 if whole != repeated:
                     raise ValueError("complete source launcher reproduction failed")
                 path = target / codec / "x"
@@ -191,7 +196,7 @@ def main():
             chosen = min(artifacts, key=lambda item: item["bytes"])
             entry["encoding"] = {"source_bytes": len(encoded), "source_sha256": sha(encoded), "resources": resources,
                                  "manual_function_spellings": spellings, "compiler": command,
-                                 "compiler_argv_representation": args.argv_form, "bootstrap_sha256": sha(script),
+                                 "compiler_argv_representation": args.argv_form, "bootstrap_sha256": sha(packed_script),
                                  "stripped_native_sha256": sha(reference), "stripped_native_bytes": len(reference),
                                  "artifacts": artifacts, "selected": chosen}
         records.append(entry)

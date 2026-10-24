@@ -81,6 +81,7 @@ def main():
         compact=module('entry_minify',frozen/'minify.py').compact_source
         strip=module('entry_b_counter_strip',frozen/'generate.py').strip_counters
         literal=module('entry_literal',frozen/'pack_stream.py').source_literal
+        compiler_group=module('entry_compiler_group',frozen/'compiler_group.py').transform_bootstrap
         reference=module('entry_fixed_shipping_alpha',frozen/'fixed_shipping_alpha.py')
         alpha=reference.transform_source
         storage=module('entry_B_storage_spelling',frozen/'shipping_storage.py').transform_source
@@ -198,6 +199,8 @@ def main():
             return data,observations,alpha_metadata,storage_metadata,scope_metadata,core_metadata,input_metadata,order_metadata,walk_metadata,tactical_metadata,type_metadata,global_names_metadata,recapture_metadata,common_metadata
         def package(source):
             expression,_=common.source_literal(source,literal);script=template.replace(marker,expression.encode())
+            script,group_metadata=compiler_group(script)
+            report['compiler_group']=group_metadata
             ast.parse(script)
             data=prefix+lzma.compress(script,format=lzma.FORMAT_ALONE,check=lzma.CHECK_NONE,
                                      filters=[{'id':lzma.FILTER_LZMA1,'preset':9|lzma.PRESET_EXTREME,

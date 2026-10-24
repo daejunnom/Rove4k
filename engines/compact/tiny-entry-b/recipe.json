@@ -49,7 +49,7 @@
     "engines/scripts/rename_c.py": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
     "engines/scripts/fixed_shipping_alpha.py": "92b351d537c1da0f346f072df2ca4b0be713d0e286e039b30efa9f758519c806",
     "engines/compact/tiny-b/generate.py": "c2cc1fd68d05d66f5525dfabc2368fdb0ddff2716bbf65ecb2033614b113aa59",
-    "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
+    "engines/compact/tiny-a/pack_stream.py": "8e601c6a1d2c80478dc71f47d4cc7cee350cd388d430937a4953eae407234e25",
     "engines/compact/tiny-entry-b/shipping_storage.py": "5663d0b8bbf494354cebe4cce3a709fc05dc32d88407a6b367277dfac0830662",
     "engines/compact/tiny-entry-b/shipping_scope.py": "239bd0bdf0506e9f3334f75b5deb871479d59599e44bbb0d4ed3ecd881f13c0e",
     "engines/compact/tiny-entry-b/shipping_core.py": "02806d5c811bb1c5964c691751c69ad1a48585308d1edbd7e2eff47fe96784f3",
@@ -85,7 +85,8 @@
     "engines/compact/tiny-entry-a/shipping_setter_phase_bce.py": "9d1985e0c798b59b553a6bee1176fb4f19f9b053da9ecf4243812370e64591d2",
     "engines/compact/tiny-entry-a/shipping_constants_bce.py": "02d0411887e7f04042e4ef94c876c32d2469b6d26f056c63dbf1235a93fc052c",
     "engines/compact/tiny-entry-b/shipping_int_alias.py": "a4b7fb837adf9c4e9087577d60836f8b126733a15f8735ae16ee09f0df606164",
-    "engines/compact/tiny-entry-b/shipping_ep_maker.py": "b5a509c4c2179a6200c152401540f0af45d511bceedca2091a09e2124708cada"
+    "engines/compact/tiny-entry-b/shipping_ep_maker.py": "b5a509c4c2179a6200c152401540f0af45d511bceedca2091a09e2124708cada",
+    "engines/scripts/compiler_group.py": "fe2fd6ce96b51251ec0d5e0f4b73c0742c50ca86932608b29f892ecee240974c"
   },
   "compression": {
     "format": "lzma-alone",
@@ -106,12 +107,12 @@
     "source_sha256": "1bc4d0f68300913c8bdf4edbe55b8d79082f9ac198b53619ab5d42169e094e87",
     "native_bytes": 26112,
     "native_sha256": "962a7e2be52ee84d5ca3112b95a483fe62efe90a7f978f557d57cf870b86be73",
-    "whole_bytes": 4950,
-    "whole_sha256": "47fa3140f96eda35ac3048d72239b53ed344ae2e19397a3fa06904f1166d21de",
+    "whole_bytes": 5342,
+    "whole_sha256": "319a5727dc6ffe67f230fdcbacc31127e22bb60ce3f1f2e0ab59065278aaea25",
     "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
     "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
-    "bootstrap_sha256": "9fce730960221db6c567821e12eca135a1e3b441d70cedb3d8401d4ce9bbe548",
-    "bootstrap_bytes": 10788
+    "bootstrap_sha256": "2c9b90d862a88bb3bd20d7f6e42d2a8a7a463121ee07675f9ef6fac7c9b1c8c2",
+    "bootstrap_bytes": 11804
   },
   "local_input_sha256": {
     "engine.c": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
@@ -4752,5 +4753,64 @@
       "original_handles_terminal_reaped_group_absent_forced0_owned0": true,
       "scope": "actual EP/legal-maker and B4950 wrapper; old DEV separate, no timed trace/strength/performance/stack-size/minimumISA equality claim"
     }
+  },
+  "compiler_group_ownership": {
+    "source_helper": "engines/scripts/compiler_group.py",
+    "source_helper_sha256": "fe2fd6ce96b51251ec0d5e0f4b73c0742c50ca86932608b29f892ecee240974c",
+    "contract": "same source/command/cwd/env/stdio/FD/argv and legacy returncode; SIGCHLD normalize/restore, full stdin/BrokenPipe/close, retained WNOWAIT compiler leader, live-group drain before final reap; no destructive signals to reaped PGID",
+    "fixed_cost_index": {
+      "path": "C:\\Users\\\uac15\ubbfc\uc218\\Documents\\Codex\\rove4k-common-compiler-group-context-cost-20261024-evidence\\final-cost-index.json",
+      "bytes": 15519,
+      "sha256": "d9a51fb548c401c52025d252b46f9570a672d219512c05c7707618668e024236"
+    },
+    "measured_contexts": {
+      "B": {
+        "policy": "default",
+        "previous_whole_bytes": 4950,
+        "whole_bytes": 5342,
+        "whole_sha256": "319a5727dc6ffe67f230fdcbacc31127e22bb60ce3f1f2e0ab59065278aaea25",
+        "bootstrap_bytes": 11804,
+        "bootstrap_sha256": "2c9b90d862a88bb3bd20d7f6e42d2a8a7a463121ee07675f9ef6fac7c9b1c8c2",
+        "raw_delta": 1016,
+        "source_native_compiler_codec_prefix_unchanged": true,
+        "strict_Python_CLI_inverse": true
+      }
+    },
+    "normal_validation": {
+      "status": "local data/source proof only; new-HEAD CI ordinary/positive pending",
+      "shared_representative_validation": {
+        "status": "PASS existing three packaging suites (14 tests, skipped0), one F ordinary --dev and unchanged selected verifier",
+        "supervisor": {
+          "path": "/home/stemxstudio/rove4k-common-compiler-group-local-validation-20261024-v1/results.json",
+          "bytes": 7332,
+          "sha256": "38d00bb720eaad6f023cae52776ff3d2e5f702edc8407486120783d134618bf5"
+        },
+        "build": {
+          "path": "/home/stemxstudio/rove4k-common-compiler-group-local-validation-20261024-v1/full/build/build.json",
+          "bytes": 294363,
+          "sha256": "7ff05c597d8a0cfdd3d2194eef74b2bb09f7e6b0fbbc6dd5594bed2366f10d12"
+        },
+        "runtime": {
+          "path": "/home/stemxstudio/rove4k-common-compiler-group-local-validation-20261024-v1/full/runtime/runtime.json",
+          "bytes": 83373,
+          "sha256": "de113cdd5851fb2e6f88cfdf549242dccf99e81adb6e2ea7d525ed58640411a1"
+        },
+        "producing_recipe": {
+          "path": "/home/stemxstudio/rove4k-common-compiler-group-local-validation-20261024-v1/full/build/inputs/recipe.json",
+          "bytes": 407490,
+          "sha256": "0dd2cdcfe98f6f6bfa5e776c5d8fd7d96c50127d42ec18f8405c321fc2622198"
+        },
+        "shipping_reproductions": 2,
+        "DEV_reproductions": 2,
+        "selected_quit_EOF_sessions": 2,
+        "legal_GO_results": 8,
+        "source_native_unchanged_by_compiler_owner": true,
+        "terminal0_reaped_preextras_empty_groupabsent_forced0_owned0": true,
+        "other_context_local_normal_executed": false,
+        "scope": "actual current F full wrapper plus three shared shape suites; other measured ABCE/Aroot/Foptional contexts await new-HEAD ordinary/positive CI; prior F3 source-trace results keep their original input scope"
+      }
+    },
+    "annotation_only_after_measurement": true,
+    "historical_frozen_controls_changed": false
   }
 }

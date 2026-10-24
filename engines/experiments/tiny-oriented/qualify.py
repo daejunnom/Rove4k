@@ -72,6 +72,15 @@ def literal_value(node):
     raise ValueError("unapproved nonliteral source or compiler expression")
 
 
+def source_argument(script):
+    tree = ast.parse(script)
+    calls = [node for node in ast.walk(tree) if isinstance(node, ast.Call)
+             and isinstance(node.func, ast.Name) and node.func.id == "memoryview"]
+    require(len(calls) == 1 and len(calls[0].args) == 1 and not calls[0].keywords,
+            "expected one literal compiler source memoryview")
+    return calls[0].args[0]
+
+
 def decoded_wrapper(data, codec):
     prefix = re.match(
         rb'#!/bin/sh\np=\$\(tail -c\+([0-9]+) "\$0"\|(xz|gzip|bzip2) -dc\)\|\|exit\n'
@@ -122,6 +131,7 @@ def main():
     try:
         report_bytes = args.build.read_bytes()
         build = json.loads(report_bytes)
+        grouped = "compiler_group.py" in build.get("helpers_sha256", {})
         require(build.get("workers") == 2 and build.get("tt_bits") == 18, "qualifier requires the measured two-worker TT18 profile")
         choices = [record for record in build["records"] if record["name"] == args.form]
         require(len(choices) == 1, "expected one selected form")
@@ -136,7 +146,7 @@ def main():
         require(sha(source) == encoding["source_sha256"] and len(source) == encoding["source_bytes"], "encoded C differs from build record")
         prefix, decoded = decoded_wrapper(whole, artifact["codec"])
         require(decoded == script, "selected wrapper does not contain the exact recorded Python bootstrap")
-        restored = literal_value(argument(script, "p", "communicate"))
+        restored = literal_value(source_argument(script) if grouped else argument(script, "p", "communicate"))
         argv = literal_value(argument(script, "subprocess", "Popen"))
         require(isinstance(restored, bytes) and restored == source, "compiler stdin differs from encoded C bytes")
         require(isinstance(argv, (tuple, list)) and list(argv) == encoding["compiler"], "compiler argv differs from build record")
@@ -146,7 +156,10 @@ def main():
                      "encoded-main.c": source, "bootstrap.py": script, "selected-wrapper": whole,
                      "verify.py": (ROOT / "engines/tests/verify.py").read_bytes(),
                      "chess_oracle.py": (ROOT / "engines/tests/chess_oracle.py").read_bytes()}
-        for name in ("pack_stream.py", "encoding_campaign.py"):
+        helper_names = ["pack_stream.py", "encoding_campaign.py"]
+        if grouped:
+            helper_names.append("compiler_group.py")
+        for name in helper_names:
             data = (args.build.parent / "frozen" / name).read_bytes()
             require(sha(data) == build["helpers_sha256"][name], "frozen producer/helper hash mismatch: " + name)
             snapshots[name] = data
@@ -160,10 +173,20 @@ def main():
         campaign = module("oriented_frozen_expression_helper", frozen / "encoding_campaign.py")
         producer = module("oriented_frozen_stream_producer", frozen / "pack_stream.py")
         control, _ = producer.bootstrap(source, encoding["compiler"])
-        def skeleton(body):
-            body = campaign.replace_argument(body, "p", "communicate", "b'SOURCE'")
-            return campaign.replace_argument(body, "subprocess", "Popen", "['COMMAND']")
-        require(skeleton(script) == skeleton(control), "signal/wait/cleanup/fd-exec bootstrap skeleton changed")
+        if grouped:
+            compiler_group = module("oriented_frozen_compiler_group", frozen / "compiler_group.py")
+            argv_form = encoding["compiler_argv_representation"]
+            require(argv_form in ("list", "split"), "unknown recorded compiler argv representation")
+            if argv_form == "split":
+                control = campaign.replace_argument(control, "subprocess", "Popen",
+                                                    repr(" ".join(encoding["compiler"])) + ".split()")
+            control, _ = compiler_group.transform_bootstrap(control)
+            require(script == control, "signal/wait/cleanup/fd-exec bootstrap skeleton changed")
+        else:
+            def skeleton(body):
+                body = campaign.replace_argument(body, "p", "communicate", "b'SOURCE'")
+                return campaign.replace_argument(body, "subprocess", "Popen", "['COMMAND']")
+            require(skeleton(script) == skeleton(control), "signal/wait/cleanup/fd-exec bootstrap skeleton changed")
         result.update(artifact_path=str(path), execution_path=str(executable), artifact_sha256=sha(whole),
                       whole_bytes=len(whole), launcher_bytes=len(prefix), decoded_sha256=sha(decoded),
                       source_sha256=sha(source), source_restored_exactly=True, compiler_argv=list(argv),

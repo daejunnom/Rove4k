@@ -32,6 +32,7 @@ def main():
         parser.error("new absolute external output required")
     args.out.mkdir(parents=True)
     report = json.loads(args.report.read_text())
+    grouped = "compiler_group.py" in report["helper_sha256"]
     chosen = report["selected"]
     artifact = chosen["minimum"]
     path = Path(artifact["path"])
@@ -40,7 +41,8 @@ def main():
     source = (directory / "main.c").read_bytes()
     script = (directory / "bootstrap.py").read_bytes()
     assert campaign.sha(source) == chosen["source_sha256"]
-    assert campaign.value(campaign.argument(script, "p", "communicate")) == source
+    assert campaign.value(campaign.argument(script, None, "memoryview") if grouped
+                          else campaign.argument(script, "p", "communicate")) == source
     assert list(campaign.value(campaign.argument(script, "subprocess", "Popen"))) == chosen["command"]
     if args.wrapper:
         recompress = campaign.module("qualified_xz_recipe", HERE / "recompress.py")
@@ -55,8 +57,13 @@ def main():
     original = (args.report.parent / "frozen/main.c").read_bytes()
     baseline_command = report["compiler_stdin_classes"]["unstripped"]["command"]
     baseline, _ = producer.bootstrap(original, baseline_command)
+    if grouped:
+        owner_path = args.report.parent / "frozen/compiler_group.py"
+        assert campaign.sha(owner_path.read_bytes()) == report["helper_sha256"]["compiler_group.py"]
+        baseline, _ = campaign.module("qualified_frozen_compiler_group", owner_path).transform_bootstrap(baseline)
     def skeleton(body):
-        body = campaign.replace_argument(body, "p", "communicate", "b'SOURCE'")
+        body = (campaign.replace_argument(body, None, "memoryview", "b'SOURCE'") if grouped
+                else campaign.replace_argument(body, "p", "communicate", "b'SOURCE'"))
         return campaign.replace_argument(body, "subprocess", "Popen", "['COMMAND']")
     assert skeleton(script) == skeleton(baseline)
     engine_spec = {"id": "encoded-actual", "command": [str(path)], "profile": "shipping", "workers": 2,

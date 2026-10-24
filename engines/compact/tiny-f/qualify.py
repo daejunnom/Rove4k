@@ -70,7 +70,7 @@ def owned_children():
 
 def admit_encoding(build_bytes,encoding):
     build=json.loads(build_bytes);record=json.loads(encoding.read_bytes())
-    if set(record["input_hashes"])!={"encode.py","rename_c.py","pack_stream.py","main.c","input-build.json"}:
+    if set(record["input_hashes"])!={"encode.py","rename_c.py","pack_stream.py","compiler_group.py","main.c","input-build.json"}:
         raise ValueError("unknown frozen encoding input set")
     compact=next(item for item in build["engines"] if item["id"]=="tiny-F-compact")
     if record["input_hashes"].get("input-build.json")!=sha(build_bytes):

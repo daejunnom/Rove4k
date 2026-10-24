@@ -109,6 +109,7 @@ def main():
     sys.path.insert(0,str(recipe/"engines/scripts"))
     build=module("matched_cost_build",recipe/"engines/scripts/build.py")
     pack=module("matched_cost_pack",recipe/"engines/scripts/pack.py")
+    compiler_group=module("matched_cost_compiler_group",recipe/"engines/scripts/compiler_group.py").transform_bootstrap
     elf=module("matched_cost_elf",recipe/"engines/scripts/elf_loader.py")
     minify=module("matched_cost_minify",recipe/"engines/scripts/minify.py")
     specialize=module("matched_cost_specialize",recipe/"engines/scripts/specialize.py")
@@ -165,8 +166,10 @@ def main():
                     native.update({"role":"native-elf","form":form,"reproduction_sha256":repeat["sha256"],"reproduced":True})
                     entry["artifacts"].append(native);payloads[native["path"]]={"native_sha256":native["sha256"]}
                     for role,encoded,compile_command in(("source-general",inputs,runtime_command),("native-general",{"x":Path(native["path"]).read_bytes()},None)):
-                        records=pack.write_launchers(encoded,base/(form+"-"+role),command=compile_command,environment=environment if compile_command else None)
-                        duplicates=pack.write_launchers(encoded,base/(form+"-"+role+"-repeat"),command=compile_command,environment=environment if compile_command else None)
+                        records=pack.write_launchers(encoded,base/(form+"-"+role),command=compile_command,environment=environment if compile_command else None,
+                                                     compiler_group=compiler_group if compile_command else None)
+                        duplicates=pack.write_launchers(encoded,base/(form+"-"+role+"-repeat"),command=compile_command,environment=environment if compile_command else None,
+                                                        compiler_group=compiler_group if compile_command else None)
                         for record,duplicate in zip(records,duplicates):
                             require(record["sha256"]==duplicate["sha256"],"independent whole-file launcher differs")
                             record.update({"role":role,"form":form,"reproduced":True,"reproduction_sha256":duplicate["sha256"]})

@@ -20,6 +20,7 @@ import time
 
 from minify import compact_source
 from pack import write_launchers
+from compiler_group import transform_bootstrap
 from specialize import specialize_c
 
 
@@ -515,7 +516,7 @@ def main():
                         # independent from this workstation's installation path.
                         runtime_command = list(command)
                         runtime_command[0] = "cc" if language == "c" else "rustc"
-                        packages = write_launchers(inputs, base / (form + "-source"), command=runtime_command,
+                        packages = write_launchers(inputs, base / (form + "-source"), command=runtime_command, compiler_group=transform_bootstrap,
                                                    environment=fixed_env)
                         packages += write_launchers({"x": Path(native["path"]).read_bytes()},
                                                     base / (form + "-native"))
@@ -533,7 +534,7 @@ def main():
                             packages.append(packed)
                         if args.reproduce:
                             repeated = write_launchers(inputs, base / (form + "-source-repeat"),
-                                                       command=runtime_command, environment=fixed_env)
+                                                       command=runtime_command, compiler_group=transform_bootstrap, environment=fixed_env)
                             repeated += write_launchers({"x": Path(other["path"]).read_bytes()},
                                                         base / (form + "-native-repeat"))
                             if args.self_elf:

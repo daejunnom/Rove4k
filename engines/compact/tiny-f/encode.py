@@ -75,11 +75,12 @@ def fixed_source(source,lexer,profile):
 
 def execute(args):
     frozen=args.out/"frozen";inputs=json.loads((frozen/"inputs.json").read_text())
-    if set(inputs)!={"encode.py","rename_c.py","pack_stream.py","main.c","input-build.json"}:
+    if set(inputs)!={"encode.py","rename_c.py","pack_stream.py","compiler_group.py","main.c","input-build.json"}:
         raise ValueError("unknown frozen encoding input set")
     for name,digest in inputs.items():
         if sha((frozen/name).read_bytes())!=digest:raise ValueError("frozen encoding input changed: "+name)
     source=(frozen/"main.c").read_bytes();build=json.loads((frozen/"input-build.json").read_text())
+    owner=module("tiny_f_encoding_compiler_group",frozen/"compiler_group.py")
     stream=module("tiny_f_encoding_stream",frozen/"pack_stream.py");lexer=module("tiny_f_encoding_lexer",frozen/"rename_c.py")
     flags=build["fixed_flags"];profile={name:int(next(flag.split("=",1)[1] for flag in flags if flag.startswith("-D"+name+"=")))
                                           for name in ("WORKERS","TT_BITS","PLY")}
@@ -99,11 +100,13 @@ def execute(args):
     if actual["sha256"]!=reference["sha256"]:raise RuntimeError("fixed encoding changed complete stripped native bytes")
     (frozen/"fixed-main.c").write_bytes(changed)
     script,kind=stream.bootstrap(changed,reduced);script=compact_argv(script,reduced)
+    old_script=script
+    script,_ownership=owner.transform_bootstrap(script)
     (frozen/"bootstrap.py").write_bytes(script)
     old=stream.bootstrap
-    stream.bootstrap=lambda content,argv:(script,"tiny-f-fixed-representation")
-    artifacts=stream.write_stream(changed,args.out/"packed",reduced)
-    repeated=stream.write_stream(changed,args.out/"repeated",reduced)
+    stream.bootstrap=lambda content,argv:(old_script,"tiny-f-fixed-representation")
+    artifacts=stream.write_stream(changed,args.out/"packed",reduced,compiler_group=owner.transform_bootstrap)
+    repeated=stream.write_stream(changed,args.out/"repeated",reduced,compiler_group=owner.transform_bootstrap)
     for first,second in zip(artifacts,repeated):
         if Path(first["path"]).read_bytes()!=Path(second["path"]).read_bytes():raise RuntimeError("whole-file encoding reproduction differs")
         first["reproduced"]=True
@@ -125,7 +128,7 @@ def execute(args):
             "input_hashes":inputs,"input_source_sha256":sha(source),"transformed_source_sha256":sha(changed),
             "transformed_source_bytes":len(changed),"representation":policy,"reference_native":reference,"actual_native":actual,
             "compiler":subprocess.check_output([args.cc,"--version"],text=True).splitlines()[0],"bootstrap_sha256":sha(script),
-            "bootstrap_operations":"unchanged signal blocking/forwarding/wait/cleanup/private TMPDIR/fd-exec",
+            "bootstrap_operations":"compiler-group settlement before reap; preserved command/source/private TMPDIR/fd-exec",
             "artifacts":artifacts,"selected":selected,"eligible_4k":selected["bytes"]<=4096,"runtime_qualified":False}
     (args.out/"results.json").write_text(json.dumps(report,indent=2)+"\n")
     validation={"engines":[{"id":"tiny-F-encoding-selected","profile":"shipping","command":[selected["path"]],
@@ -153,7 +156,8 @@ def main():
     source=(Path(record["cwd"])/"main.c").read_bytes()
     if sha(source)!=record["source_sha256"]:parser.error("build compact source changed")
     files={"encode.py":Path(__file__).read_bytes(),"rename_c.py":(ROOT/"engines/scripts/rename_c.py").read_bytes(),
-           "pack_stream.py":(ROOT/"engines/compact/tiny-a/pack_stream.py").read_bytes(),"main.c":source,"input-build.json":build_data}
+           "pack_stream.py":(ROOT/"engines/compact/tiny-a/pack_stream.py").read_bytes(),
+           "compiler_group.py":(ROOT/"engines/scripts/compiler_group.py").read_bytes(),"main.c":source,"input-build.json":build_data}
     frozen=args.out/"frozen";frozen.mkdir(parents=True)
     for name,content in files.items():(frozen/name).write_bytes(content)
     (frozen/"inputs.json").write_text(json.dumps({name:sha(content) for name,content in files.items()},indent=2)+"\n")

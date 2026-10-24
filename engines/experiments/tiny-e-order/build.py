@@ -13,6 +13,18 @@ HERE = Path(__file__).resolve().parent
 ENGINES = HERE.parents[1]
 ROOT = HERE.parents[2]
 EOL_EQUIVALENT_INPUT = "engines/compact/tiny-ce/core/provenance.json"
+HISTORICAL_INPUTS = {
+    "engines/compact/tiny-ce/build.py": "engines/experiments/packaging-control/tiny-ce-build.py",
+    "engines/scripts/pack.py": "engines/experiments/packaging-control/pack.py",
+    "engines/compact/tiny-a/pack_single.py": "engines/experiments/packaging-control/pack_single.py",
+    "engines/compact/tiny-a/pack_stream.py": "engines/experiments/packaging-control/pack_stream.py",
+}
+CURRENT_PACKAGING = (
+    "engines/scripts/pack.py",
+    "engines/compact/tiny-a/pack_single.py",
+    "engines/compact/tiny-a/pack_stream.py",
+    "engines/scripts/compiler_group.py",
+)
 
 
 def load(name, path):
@@ -77,12 +89,16 @@ def main():
     frozen = {}
     input_admission = {}
     for name, expected in bindings.items():
-        data = (ROOT / name).read_bytes()
+        origin = HISTORICAL_INPUTS.get(name, name)
+        data = (ROOT / origin).read_bytes()
         input_admission[name] = admit_input(name, data, expected)
-        frozen[name] = data
+        input_admission[name]["source"] = origin
+        frozen[origin] = data
     for name in ("build.py", "generate.py", "inputs.json", "check.py", "contract.c", "test_generate.py"):
         path = HERE / name
         frozen[str(path.relative_to(ROOT))] = path.read_bytes()
+    for name in CURRENT_PACKAGING:
+        frozen[name] = (ROOT / name).read_bytes()
     recipe_root = args.out / "recipe"
     for name, data in frozen.items():
         dest = recipe_root / name
@@ -96,6 +112,7 @@ def main():
     minifier = load("tiny_ce_minify", recipe_engines / "scripts/minify.py")
     specializer = load("tiny_ce_specialize", recipe_engines / "scripts/specialize.py")
     packer = load("tiny_ce_pack", recipe_engines / "scripts/pack.py")
+    compiler_group = load("tiny_ce_compiler_group", recipe_engines / "scripts/compiler_group.py")
     single = load("tiny_ce_single", recipe_engines / "compact/tiny-a/pack_single.py")
     stream = load("tiny_ce_stream", recipe_engines / "compact/tiny-a/pack_stream.py")
     stitch = load("tiny_ce_stitch", recipe_engines / "compact/tiny-a/stitch.py")
@@ -158,7 +175,8 @@ def main():
                 raise RuntimeError("stdin compiler recipe reproduction differs")
             def fixed_wrappers(destination):
                 outputs=[]
-                for label, result in (("source",stream.make_stream(source,stdin_recipe,"xz")),
+                for label, result in (("source",stream.make_stream(source,stdin_recipe,"xz",
+                                      compiler_group=compiler_group.transform_bootstrap)),
                     ("native",packer.make_launcher({"x":binary.read_bytes()},command=None,codec="lzma",transport="zip"))):
                     data,record=result
                     path=destination/label/"x";path.parent.mkdir(parents=True,exist_ok=True)
@@ -180,6 +198,13 @@ def main():
               "state_overlay_scope": "intermediate input before the ordering-policy overlay",
               "final_shipping_legacy_hce_function": args.form == "control",
               "fixed_packaging": "existing XZ source stream and LZMA native ZIP, no codec/flag sweep",
+              "packaging": {
+                  "historical_control_sources": dict(HISTORICAL_INPUTS),
+                  "current_source_producers": {
+                      name: {"bytes": len(frozen[name]), "sha256": sha(frozen[name])}
+                      for name in CURRENT_PACKAGING},
+                  "historical_wrapper_identity_claimed": False,
+                  "current_wrapper_qualification": "not_yet_executed"},
               "core_provenance": provenance,
               "source_layout": layout, "counter_recipe": counter_recipe,
               "input_sha256": {name: sha(data) for name, data in frozen.items()},

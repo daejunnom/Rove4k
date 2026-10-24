@@ -1377,3 +1377,18 @@ Runtime SHA `2f34e6ce566d1349e14b2dea56007a93218b2411bc86431202dbbd41bd62dc4d`.
 취소 인과관계는 unproven이다. 모델·정렬·검색 본문 변경은 없으며, private direct-think
 호출자는 완료 깊이0 seed가 필요하다. canonical/DEV에는 자동 적용하지 않는다.
 새 기력·성능·SAN·fault·fresh·CI 검증은 아니며 생산/완료 주석 핀은 구분한다.
+
+## Compiler-group ownership adoption
+
+현재 생산자는 기존 source/literal/argv 검사를 마친 뒤 `engines/scripts/compiler_group.py`를 encoding 직전에 적용한다. 컴파일러 원 leader를 `WNOWAIT`로 보존한 채 살아 있는 같은 process-group 작업을 정산한 뒤 마지막에 reap한다. Python 진입 시 SIGCHLD disposition을 저장·정규화하고 native exec 전에 복원한다. 원 C/source·compiler argv/env/cwd·stdio·읽기 FD exec·legacy exitstatus는 유지하며, 단순 크기 손실로 이 수명 수정을 숨기지 않는다.
+
+| 현재 생산 context | 이전 whole | 새 measured whole | 새 bootstrap |
+|---|---:|---:|---:|
+| E | 4586 | 4963 | 10539 |
+
+위 값은 각 actual 기존 입력에서 고정 codec 한 번과 strict Python/CLI 복원으로 먼저 측정한 값이다. source/native/compiler/header/codec의 변경이나 다른 문맥 delta의 가산은 없다. 기존 frozen control과 과거 qualified receipts는 당시 범위로 보존한다.
+
+이 entry는 local source/Data proof 및 fixed-cost 측정까지 수행했다. 새 HEAD의 ordinary/positive CI 검증은 별도로 필요하며, F 기본형 양성 결과를 이 프로필의 새 runtime 결과로 재라벨하지 않는다.
+공유 세 형상의 기존 packaging suites는 stream5·ZIP4·restored-files5 tests 모두 통과했다(skipped0). 이 관측은 live same-group 정산이며 detached 작업이나 zombie를 포함한 문자 그대로의 group absence 일반 증명은 아니다.
+
+실제 producing/measurement/normal receipt는 recipe의 `compiler_group_ownership`에 명시했다. 공통 source helper에 대한 alias-only 후보 raw−389/whole+8 손실은 과거 미채택으로 남고 여기서 재실행하지 않았다.

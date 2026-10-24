@@ -18,6 +18,14 @@ import itertools
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 TINY = ROOT / 'engines/compact/tiny-a'
+HISTORICAL_PACKERS = {
+    'engines/scripts/pack.py': ('f95a9166f8fc018e4250999fa60c10568fa2ef3388b704a1fdfab9802bef5083',
+                               'engines/experiments/packaging-control/pack.py'),
+    'engines/compact/tiny-a/pack_single.py': ('0d7463f7b7ea4b6ff411ad81ea5efdc70828a24a6f9a305f5bf7be3c9d43b5ff',
+                                           'engines/experiments/packaging-control/pack_single.py'),
+    'engines/compact/tiny-a/pack_stream.py': ('b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e',
+                                           'engines/experiments/packaging-control/pack_stream.py'),
+}
 
 
 def sha(data):
@@ -59,20 +67,26 @@ def main():
             raise ValueError('canonical source changed since audited baseline: ' + name)
         sources[name] = data
         (frozen / name).write_bytes(data)
-    recipes = {}
+    recipes, recipe_input_paths = {}, {}
     for name, expected in reference['recipe_sha256'].items():
         # build.py is provenance of the reference, not an executed dependency
         # of this independent driver. Its owner may add unrelated build forms.
         if Path(name).name == 'build.py' or Path(name).name == 'stitch.py' and not reference.get('counter_recipe'):
             continue
-        data = (ROOT / name).read_bytes()
+        historical = HISTORICAL_PACKERS.get(name)
+        origin = historical[1] if historical and expected == historical[0] else name
+        data = (ROOT / origin).read_bytes()
         if sha(data) != expected:
             raise ValueError('recipe changed since audited baseline: ' + name)
         recipes[name] = sha(data)
+        recipe_input_paths[name] = origin
         (frozen / Path(name).name).write_bytes(data)
     (frozen / 'represent.py').write_bytes((HERE / 'represent.py').read_bytes())
     (frozen / 'pvs_loop.c.in').write_bytes((HERE / 'pvs_loop.c.in').read_bytes())
     (frozen / 'state.py').write_bytes((HERE / 'state.py').read_bytes())
+    compiler_kwargs = {}
+    if 'engines/scripts/compiler_group.py' in recipes:
+        compiler_kwargs['compiler_group'] = module('tiny_search_compiler_group', frozen / 'compiler_group.py').transform_bootstrap
     representation = module('tiny_search_represent', frozen / 'represent.py')
     state = module('tiny_search_state', frozen / 'state.py')
     specialize = module('tiny_search_specialize', frozen / 'specialize.py').specialize_c
@@ -95,7 +109,8 @@ def main():
         for operations in itertools.combinations(state.OPERATIONS, size):
             configs['state-' + '-'.join(operations)] = tuple('state:' + item for item in operations)
     report = {'baseline': str(args.baseline), 'source_sha256': reference['source_sha256'],
-              'recipe_sha256': recipes, 'compiler': subprocess.check_output(['cc', '--version'], text=True).splitlines()[0],
+              'recipe_sha256': recipes, 'recipe_input_paths': recipe_input_paths,
+              'compiler': subprocess.check_output(['cc', '--version'], text=True).splitlines()[0],
               'policy': 'same search expressions/order, unless explicit per-form deviation; no NPS campaign',
               'records': []}
     flags = ['-std=c11', '-Os', '-pthread', '-DWORKERS=2', '-DTT_BITS=18']
@@ -152,9 +167,10 @@ def main():
         dev.mkdir()
         (dev / 'main.c').write_bytes(combined)
         run(['cc', *flags, '-DDEV=1', 'main.c', '-o', 'x'], dev)
-        packages = generic({'main.c': source}, directory / 'generic', command=file_recipe)
-        packages += single(source, directory / 'single', stdin_recipe)
-        packages += stream(source, directory / 'stream', stdin_recipe)
+        packages = generic({'main.c': source}, directory / 'generic', command=file_recipe,
+                           **compiler_kwargs)
+        packages += single(source, directory / 'single', stdin_recipe, **compiler_kwargs)
+        packages += stream(source, directory / 'stream', stdin_recipe, **compiler_kwargs)
         best = min(packages, key=lambda record: record['bytes'])
         record = {'name': name, 'choices': choices, 'source_bytes': len(source), 'source_sha256': sha(source),
                   'combined_sha256': sha(combined), 'native_bytes': len(binary), 'native_sha256': sha(binary),

@@ -68,7 +68,8 @@ def main():
         shutil.copyfile(HERE / name, source / name)
     packer = ENGINE / "scripts/elf_loader.py"
     dependencies = [packer, ENGINE / "scripts/elf-loader/loader.c", ENGINE / "scripts/elf-loader/loader.ld",
-                    ENGINE / "scripts/pack.py", ENGINE / "scripts/minify.py"]
+                    ENGINE / "scripts/pack.py", ENGINE / "scripts/minify.py",
+                    ENGINE / "scripts/compiler_group.py"]
     if not args.no_pack:
         for path in dependencies:
             target = args.out / "recipe/engines" / path.relative_to(ENGINE)
@@ -83,6 +84,7 @@ def main():
             spec.loader.exec_module(result)
             return result
         source_packer, minifier = load("pack"), load("minify")
+        compiler_group = load("compiler_group")
     flags = ["-Oz", "-flto", "-std=c11", "-nostdlib", "-static", "-no-pie", "-fno-pie", "-fno-pic",
              "-fno-stack-protector", "-fno-builtin", "-fno-asynchronous-unwind-tables", "-fno-unwind-tables",
              "-fno-ident", "-fcf-protection=none", "-ffunction-sections", "-fdata-sections",
@@ -139,8 +141,10 @@ def main():
                     raise RuntimeError("lexical source compaction changed whole native ELF bytes")
                 source_command = [args.cc, *flags, f"-DD_HQ={hq}", "-DDEV=0", "board.c", "search.c", "runtime.c", "hq.c", "start.S",
                                   "-Wl,-T,image.ld", "-o", "x"]
-                wrappers = source_packer.write_launchers(files, directory / "source-packages", command=source_command)
-                again = source_packer.write_launchers(files, directory / "source-packages-repeated", command=source_command)
+                wrappers = source_packer.write_launchers(files, directory / "source-packages", command=source_command,
+                                                        compiler_group=compiler_group.transform_bootstrap)
+                again = source_packer.write_launchers(files, directory / "source-packages-repeated", command=source_command,
+                                                     compiler_group=compiler_group.transform_bootstrap)
                 for one, two in zip(wrappers, again):
                     if Path(one["path"]).read_bytes() != Path(two["path"]).read_bytes():
                         raise RuntimeError("complete source package reproduction differs")

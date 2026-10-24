@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Build the complete C A 2x2, pinning every canonical input before mutation."""
 import argparse
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -39,6 +40,12 @@ def main():
     pinned.mkdir()
     for name, data in inputs.items():
         (pinned / name).write_bytes(data)
+    owner_path = pinned / "compiler_group.py"
+    owner_path.write_bytes((ROOT / "engines/scripts/compiler_group.py").read_bytes())
+    owner_spec = importlib.util.spec_from_file_location("mailbox_frozen_compiler_group", owner_path)
+    owner = importlib.util.module_from_spec(owner_spec)
+    owner_spec.loader.exec_module(owner)
+    compiler_group = owner.transform_bootstrap
     records = []
     flags = ["-std=c11", "-Os", "-pthread", "-DROVE_VARIANT=1", "-DROVE_PARALLEL=0",
              f"-DROVE_WORKERS={args.workers}", f"-DROVE_TT_BITS={args.tt_bits}"]
@@ -73,8 +80,10 @@ def main():
                          "generated_sha256": {name: digest(data) for name, data in selected.items()},
                          "compile": command, "native_reproduced": True}
                 if not dev and not args.no_pack and not args.sanitize:
-                    launchers = write_launchers(selected, directory / "packed", command=recipe)
-                    again = write_launchers(selected, directory / "repeated", command=recipe)
+                    launchers = write_launchers(selected, directory / "packed", command=recipe,
+                                                compiler_group=compiler_group)
+                    again = write_launchers(selected, directory / "repeated", command=recipe,
+                                            compiler_group=compiler_group)
                     for first, second in zip(launchers, again):
                         if Path(first["path"]).read_bytes() != Path(second["path"]).read_bytes():
                             raise RuntimeError("complete launcher reproduction differs")
@@ -86,6 +95,7 @@ def main():
               "timing_fairness": "no throughput claim; host shared with other verification",
               "input_sha256": {name: digest(data) for name, data in inputs.items()},
               "generator_sha256": digest((HERE / "generate.py").read_bytes()),
+              "compiler_group_sha256": digest(owner_path.read_bytes()),
               "compiler": subprocess.check_output([args.cc, "--version"], text=True).splitlines()[0],
               "workers": args.workers, "tt_bits": args.tt_bits,
               "engines": records}

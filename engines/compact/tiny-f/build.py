@@ -19,7 +19,7 @@ INPUTS = (
     "engines/compact/tiny-f/build.py", "engines/compact/tiny-f/overlay.py", "engines/compact/tiny-f/search.c",
     "engines/compact/tiny-a/tiny.h", "engines/compact/tiny-a/board-generated.c.in", "engines/compact/tiny-a/main.c",
     "engines/compact/tiny-a/stitch.py", "engines/compact/tiny-a/pack_single.py", "engines/compact/tiny-a/pack_stream.py",
-    "engines/scripts/minify.py", "engines/scripts/specialize.py", "engines/scripts/pack.py",
+    "engines/scripts/minify.py", "engines/scripts/specialize.py", "engines/scripts/pack.py", "engines/scripts/compiler_group.py",
 )
 
 
@@ -61,6 +61,7 @@ def run(args):
     minify = load("tiny_f_minify", ROOT / "engines/scripts/minify.py")
     specialize = load("tiny_f_specialize", ROOT / "engines/scripts/specialize.py")
     stream = load("tiny_f_pack_stream", ROOT / "engines/compact/tiny-a/pack_stream.py")
+    owner = load("tiny_f_compiler_group", ROOT / "engines/scripts/compiler_group.py")
     original = {name: (ROOT / "engines/compact/tiny-a" / name).read_bytes() for name in overlay.EXPECTED}
     source = overlay.transform(original, (HERE / "search.c").read_bytes())
     structure=None
@@ -96,8 +97,8 @@ def run(args):
                   "compile": command, "native_reproduced": True}
         if not dev and not args.no_pack:
             recipe = [args.cc, *flags, "-DDEV=0", "-x", "c", "-", "-o", "x"]
-            record["launchers"] = stream.write_stream(content, directory / "stream", recipe)
-            repeated = stream.write_stream(content, directory / "stream-repeated", recipe)
+            record["launchers"] = stream.write_stream(content, directory / "stream", recipe, compiler_group=owner.transform_bootstrap)
+            repeated = stream.write_stream(content, directory / "stream-repeated", recipe, compiler_group=owner.transform_bootstrap)
             for first, second in zip(record["launchers"], repeated):
                 if Path(first["path"]).read_bytes() != Path(second["path"]).read_bytes():
                     raise RuntimeError("complete launcher reproduction differs")

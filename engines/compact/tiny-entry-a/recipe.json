@@ -29,7 +29,7 @@
     "engines/scripts/minify.py": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b",
     "engines/scripts/rename_c.py": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
     "engines/compact/tiny-a/stitch.py": "2b0d25b4855a3ed4ddd9e24b8e4b0e081439baa2ed8f744dba0215a700023f23",
-    "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
+    "engines/compact/tiny-a/pack_stream.py": "8e601c6a1d2c80478dc71f47d4cc7cee350cd388d430937a4953eae407234e25",
     "engines/compact/tiny-entry-a/shipping_alpha.py": "bcc2c28ad8b51a5c3eec6752e157f5de8c46e960333ad1a24fbd0ad328d8597d",
     "engines/scripts/fixed_shipping_storage.py": "3f4f05b0b3fee71ee8876b22653c9b7481b5af207b7e023c27b0832e4e734d71",
     "engines/compact/tiny-entry-a/shipping_scope.py": "d73f8539fae3fdac62048e937f12de1c4f0ec336a9f2ad31fdb08d1cc46b8524",
@@ -63,7 +63,8 @@
     "engines/compact/tiny-entry-a/shipping_keyword_scope.py": "723a3b1892de8d9f528fb6d7b7567f8283c9bfd683065445da9b4263a32a7cd2",
     "engines/compact/tiny-entry-a/shipping_pool_state.py": "87478a25e8b8e5f067230b2e0306dd3f4fbf88ee85d105da8c7cbd010544bf30",
     "engines/compact/tiny-entry-a/shipping_frequency.py": "ea26dae14aed9a570cc5c60c9bb0df5cb3a06332ad745f2030c09647e6d7dda0",
-    "engines/compact/tiny-entry-a/shipping_ep.py": "5d44391eecbabf473cf08deebcc895bafc71380d157dc5eff66caca28117330c"
+    "engines/compact/tiny-entry-a/shipping_ep.py": "5d44391eecbabf473cf08deebcc895bafc71380d157dc5eff66caca28117330c",
+    "engines/scripts/compiler_group.py": "fe2fd6ce96b51251ec0d5e0f4b73c0742c50ca86932608b29f892ecee240974c"
   },
   "fixed_renames": [
     [
@@ -403,14 +404,14 @@
     "source_sha256": "74235dccfe91308f60559595bc15cde36dc5eaba9f9a3ff314827b2e460b73bd",
     "native_bytes": 18576,
     "native_sha256": "f99afdba753c6e2628fc53442b4f29dd9cab6246f64413bfb23e417baa0faf86",
-    "whole_bytes": 4489,
-    "whole_sha256": "e505ad665f4501ea7d0aa4548238812af5b87e8d1456e0fd2cd79ce595107037",
-    "bootstrap_sha256": "406c1e4d3f187cff83bfe7ae627850f2feba431f17e1c4f38804ce7ea7217842",
+    "whole_bytes": 4863,
+    "whole_sha256": "2fb74f166dea0015c8f018b3f609b068f82d92cfbfb1f0ac51e269e1b5f4f7b2",
+    "bootstrap_sha256": "bf5166b17fd6ab727c17565ac1070d8058888df9062a566638a8deae64c1d36d",
     "dev_source_sha256": "d1f0ff322843a4210cb1cad574bc6726eef576c0fd398cb0e1cfbc12fdc81f01",
     "dev_native_sha256": "078df7141403841798e0bcb1545e59975492359b78d88b0637b99865a6bf72b9",
     "input_profile_readable_bytes": 27688,
     "input_profile_readable_sha256": "4af39bc6496c85281b322063245ee97a522b4d6c6df7c4844f71d981e733164a",
-    "bootstrap_bytes": 9309
+    "bootstrap_bytes": 10325
   },
   "local_input_sha256": {
     "engine.c": "a6aab57fffacc1900dbd9de133652d811d316b3823144ec2181c4f8dda581b6a",
@@ -2851,14 +2852,14 @@
         "source_sha256": "8f4d477449450fd97eab6efde608a0ce1c8065ec49363e5368a52779d6392499",
         "native_bytes": 22672,
         "native_sha256": "1128628d58cf59641ae8abb00a180389f1f84f77ba6afc0eb3db39810845f1d5",
-        "whole_bytes": 5151,
-        "whole_sha256": "012d5fad6e0a16d5a757565ac503aecb09ec6d0ba25789757d815335e8fc893b",
-        "bootstrap_sha256": "bdd7342011fb5e840a1f757a795390559a58b7de31ef6698da72ab45654b3dd1",
+        "whole_bytes": 5528,
+        "whole_sha256": "04543733baaf68c85611fb12a2404f71dcf4fc281ff0453c6551293232324305",
+        "bootstrap_sha256": "0aca2ae069f30baa25ea96f27cc0a38e455019df8b8b7472384c9695bbaa604e",
         "dev_source_sha256": "d1f0ff322843a4210cb1cad574bc6726eef576c0fd398cb0e1cfbc12fdc81f01",
         "dev_native_sha256": "078df7141403841798e0bcb1545e59975492359b78d88b0637b99865a6bf72b9",
         "input_profile_readable_bytes": 27688,
         "input_profile_readable_sha256": "4af39bc6496c85281b322063245ee97a522b4d6c6df7c4844f71d981e733164a",
-        "bootstrap_bytes": 11827
+        "bootstrap_bytes": 12843
       },
       "default_policy": false,
       "same_Loose_search_claimed": false,
@@ -3054,14 +3055,14 @@
         "source_sha256": "bb15535fcedec21e16c7b1c83646dcda77248539022dfbbaa67c1c08821a6691",
         "native_bytes": 22672,
         "native_sha256": "b3700269e0f35ed4ef89b2c45a3fa5b47438d716dcd0aa96d14c5503eae02287",
-        "whole_bytes": 5132,
-        "whole_sha256": "3b719799ff7ca5e6e47e1626faa5085eda42d432e071d4c34cf4d16602b57325",
-        "bootstrap_sha256": "20b213243d21d9a4af7bb8e76e22df784879c748c6c261110af8daaedc36cd79",
+        "whole_bytes": 5510,
+        "whole_sha256": "8c008916edd34826001eb7e9fffc2fed2941ed4a2d692a1b48bcb2fd0fb397ba",
+        "bootstrap_sha256": "8a989c42eb25bb4872e13870d75cd4f0557497ccc25cce84b89e0788243601e3",
         "dev_source_sha256": "d1f0ff322843a4210cb1cad574bc6726eef576c0fd398cb0e1cfbc12fdc81f01",
         "dev_native_sha256": "078df7141403841798e0bcb1545e59975492359b78d88b0637b99865a6bf72b9",
         "input_profile_readable_bytes": 27688,
         "input_profile_readable_sha256": "4af39bc6496c85281b322063245ee97a522b4d6c6df7c4844f71d981e733164a",
-        "bootstrap_bytes": 11789
+        "bootstrap_bytes": 12805
       },
       "default_policy": false,
       "same_Loose_search_claimed": false,
@@ -3337,14 +3338,14 @@
         "source_sha256": "6361f0152a989520b89fa0cb49793bffc5a1796b87d5a2548fcf424bd196ebaf",
         "native_bytes": 22672,
         "native_sha256": "0767d28b6f87d9ac1cb2295db0dd406b9abb60b4af1474d03ffb72acbc84005a",
-        "whole_bytes": 6677,
-        "whole_sha256": "1e1568f956d6895f951330cb0a44147e639dd123c2f6834cbaefc18e20f0ee21",
-        "bootstrap_sha256": "5fb36ddbcb7de7c076bc4a4e0f0de13156656af1ea16e6b8f932e8ad183f74c3",
+        "whole_bytes": 7135,
+        "whole_sha256": "f4c70f18f43aaf4e3e8ff7c64c69fd4a623a868a1a9308ec9c66e1d858d3c625",
+        "bootstrap_sha256": "0f17e0edc3789b90ec7d95278a39b55d95c92559bbb1a825080c1cdef1d58284",
         "dev_source_sha256": "d1f0ff322843a4210cb1cad574bc6726eef576c0fd398cb0e1cfbc12fdc81f01",
         "dev_native_sha256": "078df7141403841798e0bcb1545e59975492359b78d88b0637b99865a6bf72b9",
         "input_profile_readable_bytes": 27688,
         "input_profile_readable_sha256": "4af39bc6496c85281b322063245ee97a522b4d6c6df7c4844f71d981e733164a",
-        "bootstrap_bytes": 16489
+        "bootstrap_bytes": 17505
       },
       "default_policy": false,
       "same_Loose_search_claimed": false,
@@ -4069,5 +4070,97 @@
       "owned_handles": 0,
       "outer_stdout_capture_scope": "Capture reused the outer child label path; final text may overlap child and outer summaries. Named normal/physical/build/runtime reports are intact; no immutable child stdout or standalone JSON claim."
     }
+  },
+  "compiler_group_ownership": {
+    "source_helper": "engines/scripts/compiler_group.py",
+    "source_helper_sha256": "fe2fd6ce96b51251ec0d5e0f4b73c0742c50ca86932608b29f892ecee240974c",
+    "contract": "same source/command/cwd/env/stdio/FD/argv and legacy returncode; SIGCHLD normalize/restore, full stdin/BrokenPipe/close, retained WNOWAIT compiler leader, live-group drain before final reap; no destructive signals to reaped PGID",
+    "fixed_cost_index": {
+      "path": "C:\\Users\\\uac15\ubbfc\uc218\\Documents\\Codex\\rove4k-common-compiler-group-context-cost-20261024-evidence\\final-cost-index.json",
+      "bytes": 15519,
+      "sha256": "d9a51fb548c401c52025d252b46f9570a672d219512c05c7707618668e024236"
+    },
+    "measured_contexts": {
+      "A": {
+        "policy": "default",
+        "previous_whole_bytes": 4489,
+        "whole_bytes": 4863,
+        "whole_sha256": "2fb74f166dea0015c8f018b3f609b068f82d92cfbfb1f0ac51e269e1b5f4f7b2",
+        "bootstrap_bytes": 10325,
+        "bootstrap_sha256": "bf5166b17fd6ab727c17565ac1070d8058888df9062a566638a8deae64c1d36d",
+        "raw_delta": 1016,
+        "source_native_compiler_codec_prefix_unchanged": true,
+        "strict_Python_CLI_inverse": true
+      },
+      "A-root-hint": {
+        "policy": "root-hint-leader-repair",
+        "previous_whole_bytes": 5151,
+        "whole_bytes": 5528,
+        "whole_sha256": "04543733baaf68c85611fb12a2404f71dcf4fc281ff0453c6551293232324305",
+        "bootstrap_bytes": 12843,
+        "bootstrap_sha256": "0aca2ae069f30baa25ea96f27cc0a38e455019df8b8b7472384c9695bbaa604e",
+        "raw_delta": 1016,
+        "source_native_compiler_codec_prefix_unchanged": true,
+        "strict_Python_CLI_inverse": true
+      },
+      "A-root-normal": {
+        "policy": "root-normal-slots",
+        "previous_whole_bytes": 5132,
+        "whole_bytes": 5510,
+        "whole_sha256": "8c008916edd34826001eb7e9fffc2fed2941ed4a2d692a1b48bcb2fd0fb397ba",
+        "bootstrap_bytes": 12805,
+        "bootstrap_sha256": "8a989c42eb25bb4872e13870d75cd4f0557497ccc25cce84b89e0788243601e3",
+        "raw_delta": 1016,
+        "source_native_compiler_codec_prefix_unchanged": true,
+        "strict_Python_CLI_inverse": true
+      },
+      "A-root-pals": {
+        "policy": "root-pals-feedback",
+        "previous_whole_bytes": 6677,
+        "whole_bytes": 7135,
+        "whole_sha256": "f4c70f18f43aaf4e3e8ff7c64c69fd4a623a868a1a9308ec9c66e1d858d3c625",
+        "bootstrap_bytes": 17505,
+        "bootstrap_sha256": "0f17e0edc3789b90ec7d95278a39b55d95c92559bbb1a825080c1cdef1d58284",
+        "raw_delta": 1016,
+        "source_native_compiler_codec_prefix_unchanged": true,
+        "strict_Python_CLI_inverse": true
+      }
+    },
+    "normal_validation": {
+      "status": "local data/source proof only; new-HEAD CI ordinary/positive pending",
+      "shared_representative_validation": {
+        "status": "PASS existing three packaging suites (14 tests, skipped0), one F ordinary --dev and unchanged selected verifier",
+        "supervisor": {
+          "path": "/home/stemxstudio/rove4k-common-compiler-group-local-validation-20261024-v1/results.json",
+          "bytes": 7332,
+          "sha256": "38d00bb720eaad6f023cae52776ff3d2e5f702edc8407486120783d134618bf5"
+        },
+        "build": {
+          "path": "/home/stemxstudio/rove4k-common-compiler-group-local-validation-20261024-v1/full/build/build.json",
+          "bytes": 294363,
+          "sha256": "7ff05c597d8a0cfdd3d2194eef74b2bb09f7e6b0fbbc6dd5594bed2366f10d12"
+        },
+        "runtime": {
+          "path": "/home/stemxstudio/rove4k-common-compiler-group-local-validation-20261024-v1/full/runtime/runtime.json",
+          "bytes": 83373,
+          "sha256": "de113cdd5851fb2e6f88cfdf549242dccf99e81adb6e2ea7d525ed58640411a1"
+        },
+        "producing_recipe": {
+          "path": "/home/stemxstudio/rove4k-common-compiler-group-local-validation-20261024-v1/full/build/inputs/recipe.json",
+          "bytes": 407490,
+          "sha256": "0dd2cdcfe98f6f6bfa5e776c5d8fd7d96c50127d42ec18f8405c321fc2622198"
+        },
+        "shipping_reproductions": 2,
+        "DEV_reproductions": 2,
+        "selected_quit_EOF_sessions": 2,
+        "legal_GO_results": 8,
+        "source_native_unchanged_by_compiler_owner": true,
+        "terminal0_reaped_preextras_empty_groupabsent_forced0_owned0": true,
+        "other_context_local_normal_executed": false,
+        "scope": "actual current F full wrapper plus three shared shape suites; other measured ABCE/Aroot/Foptional contexts await new-HEAD ordinary/positive CI; prior F3 source-trace results keep their original input scope"
+      }
+    },
+    "annotation_only_after_measurement": true,
+    "historical_frozen_controls_changed": false
   }
 }

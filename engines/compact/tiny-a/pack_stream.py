@@ -65,7 +65,7 @@ def bootstrap(source, command):
     return script, kind
 
 
-def make_stream(source, command, codec="xz"):
+def make_stream(source, command, codec="xz", *, compiler_group):
     if not isinstance(source, bytes):
         raise TypeError("C source must be bytes")
     if not isinstance(command, (list, tuple)) or not command or not all(isinstance(part, str) and part and "\0" not in part for part in command):
@@ -73,6 +73,7 @@ def make_stream(source, command, codec="xz"):
     if codec not in CODECS:
         raise ValueError("unsupported codec")
     script, kind = bootstrap(source, command)
+    script, ownership = compiler_group(script)
     if codec == "xz":
         payload = lzma.compress(script, format=lzma.FORMAT_XZ, preset=9 | lzma.PRESET_EXTREME)
     elif codec == "bzip2":
@@ -95,7 +96,7 @@ def make_stream(source, command, codec="xz"):
         "format": "sh-python3-source-stream-single", "codec": codec, "bytes": len(output),
         "payload_bytes": len(payload), "stub_bytes": len(prefix), "launcher_bytes": len(prefix),
         "payload_scope": "shared compressed Python bootstrap and source literal", "payload_offset_1based": offset,
-        "python_bytes": len(script), "source_bytes": len(source), "source_literal": kind,
+        "compiler_group": ownership, "python_bytes": len(script), "source_bytes": len(source), "source_literal": kind,
         "sha256": hashlib.sha256(output).hexdigest(), "external_programs": programs,
         "allowlisted_programs_only": all(program in ALLOWED for program in programs),
         "rules_reference": "https://wiki.chessdom.org/index.php?title=TCEC_4k_Rules&oldid=7853",
@@ -104,13 +105,13 @@ def make_stream(source, command, codec="xz"):
     }
 
 
-def write_stream(source, destination, command):
+def write_stream(source, destination, command, *, compiler_group):
     destination = Path(destination)
     if not destination.is_absolute():
         raise ValueError("absolute external output required")
     results = []
     for codec in CODECS:
-        data, record = make_stream(source, command, codec)
+        data, record = make_stream(source, command, codec, compiler_group=compiler_group)
         path = destination / codec / "x"
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(data)

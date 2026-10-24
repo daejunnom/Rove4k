@@ -4,6 +4,137 @@ The full implementation scope is recorded in [the accepted plan](ENGINE-PLAN.ko.
 The current user request excludes training and AWS connections. Frozen model
 inference and lossless model storage remain in scope; trained strength is not claimed.
 
+## Shared compiler-group ownership repair: 2026-10-24
+
+The source package producers share one late compiler-owner transformation
+after their existing source/argv/literal guards and before encoding. It
+admits the project's stdin stream, stdin ZIP and restored-files shapes by
+exact reconstruction, preserves their source/command/env/FD/exitstatus, and
+retains the original leader with WNOWAIT until live members of that process
+group have settled. Manual unbuffered stdin feed handles partial writes and
+BrokenPipe; the outer finally covers publication and unmask. SIGCHLD is
+normalized during compilation and restored before FD exec. Failed settlement
+returns125 with the private workspace preserved. The readable-/proc Linux
+profile and live-member scope do not establish detached-descendant or
+zombie-inclusive group absence.
+
+All current source consumers receive the frozen helper explicitly, including
+A's three optional root policies, F's two reduced policies, generic C/Rust
+source packers and F8. Native-only launchers and D's own-ELF do not run a
+compiler. Historical comparison producers use explicit frozen copies of
+Rove's previous packers; their old outputs and known ownership limitation
+remain historical controls. No external engine source is copied into Git.
+
+This correctness repair has a real size cost. Exact source/native/codec
+inputs give measured whole A4863, B5342, C5002, E4963 and full F4640 B;
+A hint/NORMAL/PALS are5528/5510/7135 and reduced F4697/4425 B. Every envelope
+passes strict Python/CLI restoration. Existing packaging suites pass all
+14 tests across the three compiler shapes. Current F ordinary --dev and
+unchanged selected verification reproduce shipping/DEV and pass quit/EOF,
+eight legal GO, native/FD/private-path/readers and physical exit. Other
+new envelopes have source/Data/cost proof here; their new ordinary/positive
+qualification is left to the automatic new-head CI rather than copied from F.
+
+On the same repaired wrapper, the old7885 B F source costs4654 B and the new
+7840 B source costs4640 B: a separately measured14 B compression gain.
+The previous-owner source changes4275→4260 are recorded below in their own
+context. Five declared repaired-wrapper codecs are compared once each;
+current preset6/BT2/16KiB/lc2/nice24 costs4654 B, three BT4 variants cost
+4655/4655/4658 and BZip2 costs4918 including its decoder prefix. No global
+codec optimum or measured startup/strength benefit is inferred.
+
+F8 v10 consumes the actual7840 B full source and the same six resource roles
+with their new source order. Its7878 B C retains raw+38, new18576/79681f35
+native,9834 B repaired-owner bootstrap and4652 B whole. The old4284 B tuple
+uses the previous owner and is not a compression baseline for the repaired
+envelope; the actual complete-file change is+368 B and556 B above4096.
+Ordinary independently reproduces twice, and unchanged substantive positive
+assertions pass quit/EOF, eight legal GO, nine TIDs/all-eight CPU activity,
+stdio-only FD/no children, native/maps/NX/no-WX/main stack, readers and
+physical exit. Its actual D helper is461f685a; oldf5ed runtime receipts and
+the old v9 producing recipe remain historical. No F2 gain is added to F8.
+Original ordinary/positive handles settle before reap with forced0/owned0.
+The external local final index7732 B has SHA256
+`49abfb5b87ed90d92c9326ffd859f0c283f16c7c9eb0ab859b7c668cd7aa9f6d`.
+
+## D scalar TT in loader-owned zero BSS: 2026-10-24
+
+A scalar-only late transform replaces the fixed4 MiB TT pointer/allocation
+with an uninitialized Entry[1<<18] array. The three exact source fragments
+retain a full inverse and all unaffected bytes; canonical native inputs,
+HQ/DEV, full64-key/payload CAS, search, learners, worker stacks and joins
+remain. Scalar gets a separate generated-source directory so HQ keeps its
+previous actual native and package. The readable-source delta is-46 B.
+
+Actual scalar native7388 becomes7324 B, text6874 becomes6815 B and entry is
+0x401b35. Its new exact PHDR class has RX400000/7324 B, zero-file RW402000
+with memsz0x42ac04 and rounded BSS0x42b000(1067 pages), plus NX stack.
+Lower/upper guards are3ff000/82d000 and reservation is42f000. The packer and
+independent verifier bind that complete identity/layout; no accepted BSS
+range is widened. The unchanged H28 codec/shared-refill loader makes packet
+4512 become4471 B and whole5581 become5540 B, gain41 including all1069 B
+loader/header overhead. Strict DATA restoration reconstructs the exact
+new native and zero232 image. A separately discovered exact5563 B audit
+loader is admitted before execution.
+
+Ordinary reproduces scalar5540 and unchanged HQ6037. Existing positive
+verification scoped to scalar completes the production and pre-entry
+checks, including the larger zero BSS and strict guards. This is the new
+scalar layout's runtime evidence; old TT-mmap fault evidence is not reused.
+The shared Owned/function interval consumed by F8 stays byte-identical.
+
+Allocation timing intentionally changes: the larger BSS reservation exists
+while the512 MiB decoder context is alive, increasing transient virtual
+reservation by about4 MiB. This is not a measured RSS increase. Reserve,
+context allocation or final BSS protection can now fail before native entry
+through bad126 instead of the old TT mmap's native status2. The direct native
+ELF has its separate kernel mapping-failure behavior. Capacity remains
+262144 aligned16 B entries. Whole5540 still exceeds4096 by1444 B; neither
+this checkpoint nor unchanged HQ constitutes a completed4K submission.
+
+Commit e8ccae48 passes [C/Rust engine CI40049947759](https://github.com/daejunnom/Rove4k/actions/runs/40049947759)
+and [Node22/24 repository CI40049947566](https://github.com/daejunnom/Rove4k/actions/runs/40049947566).
+The actual merge f20534ce and head share tree52f17d48. API ZIP size/digest,
+two selected D build/runtime members and actual producer/verifier blobs
+match. Both scalar/HQ reproduce and pass two pre-entry checks, four quit/EOF
+sessions and twelve legal GO results with natural physical settlement.
+The external CI final index7430 B has SHA256
+`ea34eaf9041ad69ed2a385aaad8a555fc7ad4aa0871c1c731a62cf0916b8a8e0`.
+
+## Full F local MTD state and sole GO body: 2026-10-24
+
+The completed MTD score seed and attaining witness stay local to one worker
+job instead of storing/reloading an otherwise unread Worker score field.
+The public completed-depth/best stores keep their original boundaries; stop,
+conflict and incomplete convergence leave the last completed result intact.
+Four fixed edits shrink7885 to7863 B. A second transform moves the sole
+399 B GO function body unchanged into a nested block at its sole exact-go
+call, removing only the definition/call. Clock-key ordering, numeric checks,
+drain, deadline and pool publication remain. Two edits shrink7863 to7840 B.
+Both transforms retain protected complements and complete inverses, then
+consume the real FROM and earlier literal guards before forward emission.
+
+The first change makes a different18576/e92b39f0 native and reduces whole4275
+to4264 B. Existing actual-source MTD fixtures, minimally adapted for typed
+logical state rather than Worker padding or the deleted field, pass old/new
+fatal-UBSan runs. Completed score/best/depth, nodes, paths, all three learners
+and the logical full TT match, including pre-stop, expired deadline,
+last-completed cancellation and restart cases. The second change preserves
+that entire native and reduces whole4264 to4260 B, a separate measured gain4.
+
+Ordinary --dev1 reproduces shipping twice and old DEV twice; unchanged
+selected1 passes quit/EOF, eight legal GO, three TIDs, restored native,
+private-path removal, readers and physical exit. Two optional ordinary
+builds retain their4319/4045 selected tuples and consume the new7840 full
+reference. The original managed cohort41433 finishes rc0 with failures[]
+and owned0. No additional SAN, game or performance campaign is run.
+
+These4260 B measurements use the previous compiler-owner wrapper. They are
+not the final cost of the separate common compiler-group repair, and its
+cost must not be hidden by carrying this tuple into the repaired wrapper.
+F8 needs its own source/profile and package measurements. Source-only
+c4ke reference comparisons remain external; no foreign source is adopted.
+
 ## C late object-constant inlining: 2026-10-24
 
 The compact C cross stage reintroduces PLY/MOVES/HISTORY/MATE definitions

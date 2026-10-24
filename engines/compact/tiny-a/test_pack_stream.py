@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import re
 import selectors
+import select
 import shutil
 import signal
 import subprocess
@@ -18,6 +19,11 @@ import time
 import unittest
 
 from pack_stream import CODECS, make_stream, write_stream
+from functools import partial
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
+from compiler_group import transform_bootstrap
+make_stream=partial(make_stream, compiler_group=transform_bootstrap)
+write_stream=partial(write_stream, compiler_group=transform_bootstrap)
 
 
 COMMAND = ["cc", "-O2", "-xc", "-", "-o", "x"]
@@ -50,7 +56,7 @@ def cleanup(process):
     if process.poll() is None:
         process.terminate()
         try:
-            process.wait(timeout=8)
+            process.wait(timeout=18)
         except subprocess.TimeoutExpired:
             process.kill()
             process.wait(timeout=5)
@@ -228,13 +234,15 @@ int main(int n,char **v){char s[80];
                                                           [sys.executable, str(compiler)], codec)
                     process = subprocess.Popen([str(path)], env=environment, stdin=subprocess.PIPE,
                                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                    identities = None
+                    identities = None; retained=[]
                     try:
                         deadline = time.monotonic() + 5
                         while not parent_ready.exists() and time.monotonic() < deadline and process.poll() is None:
                             time.sleep(.01)
                         self.assertTrue(parent_ready.exists(), "compiler and grandchild did not become ready")
                         identities = json.loads(parent_ready.read_text())
+                        for name in ("pid","child"):
+                            retained.append(os.pidfd_open(identities[name]))
                         self.assertEqual(identities["group"], identities["pid"])
                         self.assertEqual(os.getpgid(identities["child"]), identities["group"])
                         self.assertEqual(Path(identities["tmpdir"]).parent, scratch)
@@ -247,15 +255,15 @@ int main(int n,char **v){char s[80];
                         self.assertEqual(list(scratch.iterdir()), [])
                         self.assertFalse(Path(identities["tmpdir"]).exists())
                         self.assertEqual(process.stderr.read(), b"")
-                        for pid in (identities["pid"], identities["child"]):
-                            with self.assertRaises(ProcessLookupError):
-                                os.kill(pid, 0)
+                        for fd in retained:
+                            self.assertTrue(select.select([fd], [], [], 0)[0], "owned compiler identity still live")
                     finally:
-                        if identities is not None:
+                        for fd in retained:
                             try:
-                                os.killpg(identities["group"], signal.SIGKILL)
-                            except ProcessLookupError:
-                                pass
+                                if not select.select([fd], [], [], 0)[0]:
+                                    signal.pidfd_send_signal(fd, signal.SIGKILL)
+                            finally:
+                                os.close(fd)
                         cleanup(process)
 
 

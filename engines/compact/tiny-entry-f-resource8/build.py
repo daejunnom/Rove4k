@@ -35,10 +35,10 @@ def main():
     if not args.base_source.is_absolute() or not args.out.is_absolute() or out.exists() or out==REPO or REPO in out.parents or any((p/'.git').exists() for p in (out,*out.parents)):
         parser.error('absolute base source and new external output required')
     recipe_raw=normalized(HERE/'recipe.json');recipe=json.loads(recipe_raw)
-    require(recipe['class']=='full-F-late-fixed-resource8-TT18-v9' and recipe['profile']=={'workers':8,'tt_bits':18,'ply':128,'native_TIDs':9},'one fixed resource profile only')
+    require(recipe['class']=='full-F-late-fixed-resource8-TT18-v10' and recipe['profile']=={'workers':8,'tt_bits':18,'ply':128,'native_TIDs':9},'one fixed resource profile only')
     require(recipe['compiler']==['cc','-Os','-pthread','-x','c','-','-o','x','-s'],'fixed compiler arguments differ')
     require(recipe['compression']=={'format':'lzma-alone','filter':'LZMA1','preset':6,'extreme':False,'lc':2,'lp':0,'pb':0,'check':'NONE','mf':'BT2','dictionary_bytes':16384,'nice_len':24},'fixed full-F codec differs')
-    require(recipe['base_stage']=='full-after-FROM-exact-inline','fixed late producer stage differs')
+    require(recipe['base_stage']=='full-after-MTD-state-and-sole-GO','fixed late producer stage differs')
     base=args.base_source.read_bytes();require({'bytes':len(base),'sha256':sha(base)}==recipe['base_source'] and b'\r' not in base,'unknown ordinary full-F2 source')
     closure=source_closure();limits=recipe['limits'];out.mkdir()
     report={'complete':False,'class':recipe['class'],'profile':recipe['profile'],'base_profile':recipe['base_profile'],
@@ -155,6 +155,7 @@ def main():
         require(template.count(marker)==1 and len(prefix)==77,'fixed legacy marker/prefix differs')
         full_template=module('fixed_full_F_template',packaging['bootstrap_full.py'])
         source_package=module('fixed_source_package',packaging['source_package.py'])
+        compiler_group=module('fixed_compiler_group',packaging['compiler_group.py']).transform_bootstrap
         template=full_template.prepare_template(template);prefix=source_package.XZ_STDIN_HEADER
         require(len(prefix)==recipe['prefix_bytes']==73,'fixed selected prefix differs')
         tools={'cc':run(['cc','--version']).decode().splitlines()[0],'ld':run(['ld','--version']).decode().splitlines()[0],'python':run([sys.executable,'--version']).decode().strip(),'lzma':run(['lzma','--version']).decode().splitlines()[0]}
@@ -163,7 +164,8 @@ def main():
             local=out/label;local.mkdir();(local/'main.c').write_bytes(source);native_dir=local/'native';native_dir.mkdir();report['counts']['candidate_compile']+=1
             run(recipe['compiler'],native_dir,source,'candidate8-'+label);native=(native_dir/'x').read_bytes();expected=recipe['expected']
             require(len(native)==expected['native_bytes'] and sha(native)==expected['native_sha256'],'literal resource8 native differs')
-            expression,kind=common.source_literal(source,literal);script=template.replace(marker,expression.encode());ast.parse(script)
+            expression,kind=common.source_literal(source,literal);script=template.replace(marker,expression.encode())
+            script,group_metadata=compiler_group(script);report['compiler_group']=group_metadata;ast.parse(script)
             require(len(script)==expected['bootstrap_bytes'] and sha(script)==expected['bootstrap_sha256'],'literal resource8 bootstrap differs')
             report['counts']['candidate_encode']+=1;whole=source_package.package(script,recipe['compression'],prefix=prefix);payload=whole[len(prefix):]
             require(payload[:13].hex()==recipe['ALONE_header_hex'],'ALONE header changed');decoder=lzma.LZMADecompressor(format=lzma.FORMAT_ALONE);restored=decoder.decompress(payload,max_length=len(script)+1);report['counts']['strict_Python_restore']+=1

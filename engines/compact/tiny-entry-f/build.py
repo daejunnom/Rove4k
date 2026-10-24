@@ -80,10 +80,10 @@ def main():
     if recipe['format']!=1 or recipe['family']!='F' or recipe['profile']!={'workers':2,'tt_bits':18,'ply':128,'dev_default':False}:
         raise ValueError('unsupported entry recipe/profile')
     if recipe['counter_schema']!=COUNTER_SCHEMA:raise ValueError('unsupported beta-only counter schema')
-    material_expected={'source_bytes': 8508, 'source_sha256': 'a7b50f5d084b558c1fb07f3c4c572afa29291a4982ddd00fd783f187a3f74c93', 'native_bytes': 18576, 'native_sha256': '24ae0622c5a0fd10191950f53e0f6ea5d3e3d05fbb1b20aaa72c2b5f2754873f', 'whole_bytes': 4319, 'whole_sha256': 'dd9566fcb5b9373244703be1201715f286a2cde66db397dc0ef2e0372ac7be5f', 'bootstrap_sha256': 'd5154ad0ce7db5a9968cf0a80c3da36269aaa154af4831a57e0b5ad4b2585f7f', 'bootstrap_bytes': 9481}
+    material_expected={'source_bytes': 8508, 'source_sha256': 'a7b50f5d084b558c1fb07f3c4c572afa29291a4982ddd00fd783f187a3f74c93', 'native_bytes': 18576, 'native_sha256': '24ae0622c5a0fd10191950f53e0f6ea5d3e3d05fbb1b20aaa72c2b5f2754873f', 'whole_bytes': 4697, 'whole_sha256': 'd764d8f31e561bd173f24980fdc64a9666154738eb6daedb4c21eb3912a2e1d2', 'bootstrap_sha256': '958ed7d9290a131eb2b9f8e96fde3dfeb27b4284e89fccd71aab27faa8a1169b', 'bootstrap_bytes': 10497}
     if recipe['alternate_policies']['material-noise']['expected_overrides']!=material_expected:
         raise ValueError('fixed MaterialNoise-v1 expectations differ')
-    move_tt_expected={'source_bytes': 7741, 'source_sha256': '6d3fa3e0099285dd9efe8934f7b419fdd204f80ed4eaf502ad64a9f5b2e12122', 'native_bytes': 18576, 'native_sha256': '1a964e23bc8967b6eb74714389b4d94fd0e505d5d1eba3616775b7e4b0a522d5', 'whole_bytes': 4045, 'whole_sha256': '825108ca4528301f091d3deb44aaaf890b0ae54ac81bbebfbd6ff7e170d65c29', 'bootstrap_sha256': '39d03ecca6211628b1748a72390a3bec71681cb8e2f0f0999481dc83ebc0dc5c', 'bootstrap_bytes': 8714}
+    move_tt_expected={'source_bytes': 7741, 'source_sha256': '6d3fa3e0099285dd9efe8934f7b419fdd204f80ed4eaf502ad64a9f5b2e12122', 'native_bytes': 18576, 'native_sha256': '1a964e23bc8967b6eb74714389b4d94fd0e505d5d1eba3616775b7e4b0a522d5', 'whole_bytes': 4425, 'whole_sha256': '39d082412b24be71c6dd93402dfb2f649b22ef56c808a1c55837e283b55b92a4', 'bootstrap_sha256': '44c7a210177be3f5ed01c4f97fb30c9ca6a46bab34878121e9e6b7dd28974c8c', 'bootstrap_bytes': 9730}
     move_tt_compression={'format': 'lzma-alone', 'filter': 'LZMA1', 'preset': 9, 'extreme': True, 'lc': 0, 'lp': 0, 'pb': 0, 'check': 'NONE', 'mf': 'BT4', 'dictionary_bytes': 67108864, 'nice_len': 32}
     if recipe['alternate_policies']['material-move-tt']['expected_overrides']!=move_tt_expected or recipe['alternate_policies']['material-move-tt']['compression']!=move_tt_compression:
         raise ValueError('fixed MoveTT expectations/codec differ')
@@ -139,6 +139,7 @@ def main():
         compact=module('entry_minify',frozen/'minify.py').compact_source
         lexer=module('entry_fixed_tokens',frozen/'rename_c.py')
         literal=module('entry_literal',frozen/'pack_stream.py').source_literal
+        compiler_group=module('entry_compiler_group',frozen/'compiler_group.py').transform_bootstrap
         source_package=module('entry_source_package',frozen/'source_package.py')
         full_bootstrap=module('entry_full_bootstrap',frozen/'bootstrap_full.py').prepare_template
         common=module('entry_shipping_common',frozen/'shipping_common.py')
@@ -195,6 +196,8 @@ def main():
         format_loop=module('entry_F_format_loop',frozen/'shipping_format_loop.py')
         quiet_order=module('entry_F_quiet_order',frozen/'shipping_quiet_order.py')
         from_inline=module('entry_F_from_inline',frozen/'shipping_from.py')
+        mtd_state=module('entry_F_mtd_state',frozen/'shipping_mtd_state.py')
+        go_boundary=module('entry_F_go_boundary',frozen/'shipping_go_boundary.py')
         # Keep this base for every unchanged shipping readable/spelling guard.
         canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
@@ -314,6 +317,10 @@ def main():
                     full_common_metadata['quiet_order_inline']=order_metadata
                     full_reference,from_metadata=from_inline.transform_source(full_reference)
                     full_common_metadata['from_macro_inline']=from_metadata
+                    full_reference,mtd_metadata=mtd_state.transform_source(full_reference)
+                    full_common_metadata['mtd_local_state']=mtd_metadata
+                    full_reference,go_metadata=go_boundary.transform_source(full_reference)
+                    full_common_metadata['sole_go_boundary']=go_metadata
                     if len(full_reference)!=full_expected['source_bytes'] or sha(full_reference)!=full_expected['source_sha256']:
                         raise ValueError('default full-F source generation changed')
                     data,policy_metadata=material_noise(data)
@@ -418,6 +425,10 @@ def main():
                     common_metadata['quiet_order_inline']=order_metadata
                     data,from_metadata=from_inline.transform_source(data)
                     common_metadata['from_macro_inline']=from_metadata
+                    data,mtd_metadata=mtd_state.transform_source(data)
+                    common_metadata['mtd_local_state']=mtd_metadata
+                    data,go_metadata=go_boundary.transform_source(data)
+                    common_metadata['sole_go_boundary']=go_metadata
             return data,observations,counters,alpha_metadata,storage_metadata,scope_metadata,member_metadata,semantic_metadata,input_metadata,declaration_metadata,hce_metadata,type_metadata,unit_bound_metadata,startup_metadata,global_names_metadata,capture_metadata,policy_metadata,material_names_metadata,material_capture_metadata,move_tt_metadata,move_tt_names_metadata,expressions_metadata,common_metadata,before_names
         def package(source):
             previous_literal=lambda data:common.source_literal(data,literal)
@@ -429,9 +440,13 @@ def main():
             frequency_literal=lambda data:frequency.source_literal(data,pool_literal)
             format_literal=lambda data:format_loop.source_literal(data,frequency_literal)
             quiet_literal=lambda data:quiet_order.source_literal(data,format_literal)
-            expression,_=(from_inline.source_literal(source,quiet_literal) if args.policy=='full'
+            from_literal=lambda data:from_inline.source_literal(data,quiet_literal)
+            mtd_literal=lambda data:mtd_state.source_literal(data,from_literal)
+            expression,_=(go_boundary.source_literal(source,mtd_literal) if args.policy=='full'
                           else previous_literal(source))
             script=template.replace(marker,expression.encode())
+            script,group_metadata=compiler_group(script)
+            report['compiler_group']=group_metadata
             ast.parse(script)
             data=source_package.package(script,compression,prefix=prefix)
             return data,script

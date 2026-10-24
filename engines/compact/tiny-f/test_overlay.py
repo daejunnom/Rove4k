@@ -43,7 +43,8 @@ class EncodingBindingTests(unittest.TestCase):
         source=b"f source";build=json.dumps({"engines":[{"id":"tiny-F-compact","source_sha256":sha(source)}]}).encode()
         frozen=directory/"frozen";frozen.mkdir();native=directory/"native";native.mkdir()
         files={"input-build.json":build,"main.c":source,"encode.py":b"encode helper",
-               "rename_c.py":b"rename helper","pack_stream.py":b"stream helper"}
+               "rename_c.py":b"rename helper","pack_stream.py":b"stream helper",
+               "compiler_group.py":b"compiler owner helper"}
         for name,data in files.items():(frozen/name).write_bytes(data)
         (frozen/"fixed-main.c").write_bytes(b"fixed source")
         for name in ("reference","fixed"):(native/(name+".elf")).write_bytes(b"native image")
