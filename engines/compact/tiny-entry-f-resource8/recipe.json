@@ -78,7 +78,7 @@
     "engines/compact/tiny-entry-f/shipping_from.py": "6b8955f6f3d7fb9421a91a339719db26595793d4dc27ddbda9b2b5e5ffc2a510"
   },
   "positive_helper_sha256": {
-    "engines/compact/tiny-entry-d/verify.py": "f5ed4ddbb90c985e45d5f3fc44f9f1a5a8ba35afd401c804ae42ecf6423ef2bd",
+    "engines/compact/tiny-entry-d/verify.py": "461f685a5ccd2b2b13682785c1b80637f45c334581660dfd21c6790f06b24482",
     "engines/tests/chess_oracle.py": "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8"
   },
   "compiler": [

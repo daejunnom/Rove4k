@@ -126,6 +126,8 @@ def main():
         raise ValueError('context audit literals require explicit discovery and admission')
     if recipe['shipping_protocol'] != SHIPPING_PROTOCOL:
         raise ValueError('unsupported selected shipping protocol')
+    if recipe.get('native_storage_policy', {}).get('id') != 'scalar-loader-owned-static-TT-v1':
+        raise ValueError('unsupported scalar native storage policy')
     out.mkdir(parents=True)
     frozen = out/'inputs'
     frozen.mkdir()
@@ -207,6 +209,8 @@ def main():
         packer = module('entry_d_fixed_packer', frozen/'packer.py')
         codec = module('entry_d_context_codec', frozen/'loader/codec.py')
         shipping = module('entry_d_shipping_fused_ray', frozen/'shipping_fused_ray.py')
+        static_tt = module('entry_d_static_TT', frozen/'shipping_static_tt.py')
+        report['native_storage_policy'] = static_tt.POLICY
         h28 = module('entry_d_scalar_H28', frozen/'shipping_context_h28.py')
         h28_sources = out/'scalar-H28-sources'
         h28_sources.mkdir()
@@ -243,13 +247,27 @@ def main():
         for form, expected in recipe['expected'].items():
             directory = out/form
             directory.mkdir()
+            form_native = generated_native
+            if form == 'scalar-shipping':
+                form_native = out/(form+'-native')
+                form_native.mkdir()
+                overrides, storage_proof = static_tt.transform_sources({name: (frozen/name).read_bytes()
+                    for name in ('native/tiny.h', 'native/runtime.c')}, hq=expected['hq'], dev=0)
+                report['native_storage_transform'] = storage_proof
+                for path in generated_native.iterdir():
+                    (form_native/path.name).write_bytes(overrides.get('native/'+path.name, path.read_bytes()))
+            actual_sources = {path.name: {'bytes': path.stat().st_size, 'sha256': sha(path.read_bytes())}
+                              for path in form_native.iterdir()}
+            if {name: value['sha256'] for name, value in actual_sources.items()} != recipe['form_generated_native_source_sha256'][form]:
+                raise ValueError('per-form native source differs: '+form)
+            report.setdefault('form_generated_native_sources', {})[form] = actual_sources
             natives = []
             for attempt in ('native-first', 'native-repeat'):
                 destination = directory/attempt
                 destination.mkdir()
                 command = ['cc', *recipe['native_flags'], f"-DD_HQ={expected['hq']}", '-DDEV=0',
-                           *[str(generated_native/name) for name in recipe['native_units']],
-                           '-Wl,-T,'+str(generated_native/'image.ld'), '-o', str(destination/'linked')]
+                           *[str(form_native/name) for name in recipe['native_units']],
+                           '-Wl,-T,'+str(form_native/'image.ld'), '-o', str(destination/'linked')]
                 compiled = run(command)
                 (destination/'compile.json').write_text(json.dumps(compiled, indent=2)+'\n')
                 native = packer.strip_native((destination/'linked').read_bytes())

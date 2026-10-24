@@ -56,6 +56,9 @@ EXPECTED_H28_BODY = dict(EXPECTED_FUSED_BODY, **{'scalar-shipping': dict(EXPECTE
 EXPECTED_H28_REFILL_BODY = dict(EXPECTED_H28_BODY, **{'scalar-shipping': dict(EXPECTED_H28_BODY['scalar-shipping'],
     bytes=5581, sha256='1b8b3cc9842596475f9a3af60bc54f268157de540ce8a398bf2d42175470c223',
     audit_bytes=5604, audit_sha256='8bef691ebf8735796c4ef266dcf58fabe72142b043ec982bb45c811719d3b817')})
+EXPECTED_STATIC_TT_BODY = dict(EXPECTED_H28_REFILL_BODY, **{'scalar-shipping': {'bytes': 5540, 'sha256': '309ab681eecb98383a001d0c657262b46a54299fc47433fd2f56931014823a21', 'native_bytes': 7324, 'native_sha256': '2456cedd1eea62d87b50423a24bbc321a84c5cdb86e64adeafb33bf9472d6af6', 'audit_bytes': 5563, 'audit_sha256': '9adc8a26dc213c47ba72719f0a4d5b3c7a4c835af4a259cc05a32bdb3328a8ae', 'entry': 4201269, 'layout': {'entry': 4201269, 'section_offset': 0, 'section_size': 0, 'section_count': 0, 'section_names': 0, 'segments': [{'type': 1, 'flags': 5, 'offset': 0, 'vaddr': 4194304, 'paddr': 4194304, 'filesz': 7324, 'memsz': 7324, 'align': 4096}, {'type': 1, 'flags': 6, 'offset': 0, 'vaddr': 4202496, 'paddr': 4202496, 'filesz': 0, 'memsz': 4369412, 'align': 4096}, {'type': 1685382481, 'flags': 6, 'offset': 0, 'vaddr': 0, 'paddr': 0, 'filesz': 0, 'memsz': 0, 'align': 8}], 'image_base': 4194304, 'image_size': 7324, 'image_pages': 8192, 'bss_base': 4202496, 'bss_size': 4369412, 'bss_pages': 4370432, 'guard_base': 4190208, 'upper_guard': 8572928, 'reserve_size': 4386816}, 'restored_image_sha256': '08e48273a79303ef363eefd26f043185d6f9de7aec66a23f29454f279e316d5d'}})
+STATIC_TT_POLICY = 'scalar-loader-owned-static-TT-v1'
+
 OWNED = set()
 
 
@@ -495,6 +498,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--build", required=True, type=Path)
     parser.add_argument("--out", required=True, type=Path)
+    parser.add_argument("--form", choices=("scalar-shipping", "hq-shipping"), help="focus one existing exact admitted form; default verifies both")
     parser.add_argument("--oracle", type=Path, default=HERE.parents[1] / "tests" / "chess_oracle.py")
     parser.add_argument("--budget", type=int, default=120)
     args = parser.parse_args()
@@ -527,6 +531,12 @@ def main():
         require(build.get('decoder_policy') in (None, 'H28-private-shared-prefill-refill-v1'), 'unknown private decoder implementation')
         require(build.get('decoder_policy') is None or codec == H28_CODEC, 'shared refill requires H28')
         h28_expected = EXPECTED_H28_REFILL_BODY if build.get('decoder_policy') == 'H28-private-shared-prefill-refill-v1' else EXPECTED_H28_BODY
+        storage_policy = build.get('native_storage_policy')
+        require(storage_policy in (None, STATIC_TT_POLICY), 'unknown native storage policy')
+        if storage_policy is not None:
+            require(codec == H28_CODEC and build.get('decoder_policy') == 'H28-private-shared-prefill-refill-v1'
+                    and build.get('source_policy') == 'scalar-shipping-fused-rays-v1', 'static TT requires exact scalar H28/fused/refill source policy')
+            h28_expected = EXPECTED_STATIC_TT_BODY
         expected_forms = h28_expected if codec == H28_CODEC else EXPECTED_V2 if codec == V2_CODEC else (EXPECTED_FUSED_BODY
             if build.get('source_policy') == 'scalar-shipping-fused-rays-v1' else EXPECTED_BODY)
         report['codec'] = codec
@@ -546,7 +556,10 @@ def main():
         oracle = importlib.util.module_from_spec(spec)
         sys.modules[spec.name] = oracle
         spec.loader.exec_module(oracle)
-        for engine in build["engines"]:
+        selected_engines = [engine for engine in build["engines"] if args.form is None or engine["id"] == args.form]
+        require(selected_engines, "selected admitted form is absent")
+        report["selected_forms"] = [engine["id"] for engine in selected_engines]
+        for engine in selected_engines:
             phase = engine["id"] + "/input-validation"
             expected, layout = expected_forms[engine["id"]], engine["layout"]
             require(engine["input_sha256"] == expected["native_sha256"] and engine["input_bytes"] == expected["native_bytes"], "native image admission differs")
@@ -560,7 +573,7 @@ def main():
             require(sha(native_path.read_bytes()) == expected["native_sha256"] and native_path.stat().st_size == expected["native_bytes"], "actual native file differs")
             require(layout["image_size"] == expected["native_bytes"] and layout["image_base"] == 0x400000, "native mapping layout differs")
             require(layout == expected["layout"], "literal identity/form layout differs")
-            require(layout["image_pages"] == (layout["image_size"] + 4095) // 4096 * 4096 and layout["bss_pages"] == 176128, "native page sizing differs")
+            require(layout["image_pages"] == (layout["image_size"] + 4095) // 4096 * 4096 and layout["bss_pages"] == expected["layout"]["bss_pages"], "native page sizing differs")
             require(layout["guard_base"] == layout["image_base"] - 4096 and layout["bss_base"] == layout["image_base"] + layout["image_pages"] and layout["upper_guard"] == layout["bss_base"] + layout["bss_pages"], "native guard/BSS layout differs")
             require(len(engine["candidates"]) == 1, "expected exactly one selected context-codec own ELF")
             candidate = dict(engine["candidates"][0])

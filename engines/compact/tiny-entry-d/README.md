@@ -1,4 +1,12 @@
-# Maintained scalar H28 shared refill — 2026-10-24
+# Maintained scalar TT in zero BSS — 2026-10-24
+
+Selected scalar/HQ own-ELFs are **5540 / 6037 B**, with4096 gaps1444/1941 B. Scalar falls41 B from5581: native7388→7324, fixed H28 packet4512→4471, and current shared-refill loader/header1069 unchanged. HQ native8000 and whole6037 retain their exact preceding bytes. These are complete-file measurements; no gains from unselected experiments are added.
+
+One ordinary `build.py --out` invocation reproduced both forms' native and own-ELF bytes twice and their admitted CHECKPOINT images. It froze21 ordinary build inputs; the maintained local closure is25 files, and fresh membership is27 with oracle/LICENSE. No local fresh extraction/runtime campaign was run. One existing `verify.py --build ... --out ... --form scalar-shipping` invocation then ran the new scalar audit plus quit/EOF production sessions: six legal GO results, persistent two-worker pool, active search before shutdown, exact restored RX, full4370432-byte pre-entry zero BSS/padding including TT storage, guards, NX/W^X, stdio/no children, joined readers and natural physical settlement. HQ reproduction is current; its prior runtime evidence retains its original scope.
+
+Actual root: `/home/stemxstudio/rove4k-d-static-tt-normal-20261024-v1`; build receipt `build/build.json` SHA53abe23ebdd474f8043999beae0455f8093e2283e226ff93a06df94ebe7c005a and focused receipt `positive/results.json` SHAd813ace82ab9977a03a0a738214812ed5592252b3604494ce75bc0602b4a38a8. All12 builder commands and all observed target lifetimes settle naturally, with forced cleanup0 and owned handles0. Generic observer/Owned bodies, and the entire22,664-byte OWNED→main interval, are byte-exact to the preceding verifier; main uses separate exact scalar4370432/HQ176128 BSS classes. Final README/recipe annotations are post-execution metadata, distinct from the frozen producing source25. The new reserve/context/protection failure policy below is not fault-tested or relabelled as old TT mmap coverage.
+
+## Predecessor: scalar H28 shared refill — 2026-10-24
 
 Selected scalar/HQ own-ELFs are **5581 / 6037 B**, with4096 gaps1485/1941 B.
 Scalar falls68 B from5649 entirely in loader/startup text: `.text`961→893 B;
@@ -688,3 +696,12 @@ engine/runtime/fault/SAN and retries are0. The new loader is not executed or
 qualified. No stream/model variant is tried. Scalar5717/HQ6037 production code,
 exact expected identities and current qualification stay unchanged.
 Actual cost: `/home/stemxstudio/rove4k-d-bcj-operands-first-cost-20261024-v1/cost.json`.
+
+
+## Scalar TT in loader-owned BSS — qualified maintained source
+
+The scalar-only `shipping_static_tt.py` late stage applies three fixed fragments to canonical tiny.h/runtime.c after the common fused-ray source stage. Canonical native8, HQ/DEV inputs, flags/unit order, HCE/PVS/QS/full-key TT/learners/SMP and loader/codec math remain unchanged. The ordinary producer pins separate scalar/HQ generated source sets; scalar uses Entry[262144] align16 in zero BSS, removing only the dedicated runtime TT mmap/pointer/error branch. HQ retains the original pointer/mmap path and exact6037 image.
+
+The accepted external first cost is scalar whole5540/native7324/packet4471/current loader1069. New BSS memsz4369412, rounded4370432 (1067 pages), adds4MiB+16B compared with prior175092; RX stays2pages, lower3ff000/upper82d000/reserve42f000. Every value is an exact identity class, not a permitted size range. The new scalar CHECKPOINT1 identity is5563 B/9adc8a26dc213c47ba72719f0a4d5b3c7a4c835af4a259cc05a32bdb3328a8ae, discovered by one build-only compile and independent full static readback; the producing checkpoint was frozen before the normal and focused positive runs described above. Existing inspect/checkpoint/production/Owned observer bodies stay unchanged; `--form scalar-shipping` selects the focused current literal for positive checks, while default still verifies both forms.
+
+The TT has moved into loader-owned zero BSS before context allocation. Transient loader virtual reservation increases about4MiB while H28 context512MiB is live; this is not a context-size change or measured RSS claim. Reserve/context mmap/final BSS mprotect failures may now exit126 before entry instead of old runtime TT mmap status2. Prior TT mmap-failure coverage is not inherited; native-direct ELF mapping failures are separate. Worker stack/guard/partial-clone/clear-TID joins remain source-identical. Old source/image receipts remain ancestry only for their actual unchanged consumers. No new fault campaign, fresh-runtime matrix, games, benchmark or4KiB readiness claim is part of this integration.
