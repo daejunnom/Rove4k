@@ -1,3 +1,40 @@
+# 기본 Loose4489: EP 정규화가 actual maker 재사용 — 2026-10-24
+
+기본 frequency 뒤 `shipping_ep.py`만 추가한다. 기존 D200B를 새 D140B로
+바꾸고 unchanged v 뒤로 이동하는 전방선언18B를 포함해 source8397→8355
+(raw−42), 실제 완성4499→4489(−10B)다. Native18576/f99afd…는 새 신원이다.
+Literal은8355→8397 inverse 뒤 actual frequency/pool/keyword/output/condition/
+names guard를 소비한 다음 forward한다. Canonical/DEV와 root3는 우회한다.
+
+Nonempty EP는 정상 legal Board의 doublepush 뒤 half0·valid king/HCE cache에서만
+도착한다. Trial pawn15/17/PROMO0은 child.e=-1을 유지하여 nested D가 즉시 반환하고
+v/D nesting은 최대2다. Fully initialized trial의 provisional uint64 h/r은 버리고
+boolean own-king legality만 쓴다. Arbitrary poisoned HCE/high-half Board API
+동등성이나 속도/stack 이득은 주장하지 않는다.
+
+Actual8355 TU+oldD/unchangedv name-only reference의 optimized/fatalUBSan 각1회에서
+각각12root/21legal replay/122legal child의 독립64-square legalset·전체 named
+Board/hash/HCE/context·부모불변을 확인했다. 양색 legalEP/filepin/rank discovery,
+두 origin/인접없음과 actual startpos EP replay를 포함한다. 기존 F/D 실행 자격을
+이식하지 않는다. 원문/기능 증거와 새 normal/wrapper 실행은 구분한다.
+
+EP_NORMAL_PASS: ordinary --dev1에서 shipping2의 source/native/bootstrap/whole은
+실제 firstcost 전체와 같고, DEV2는 이전 qualified DEV와 전체 bytes가 같다.
+Unchanged selected1의 quit/EOF2sessions·8GO·각3TID·새 f99afd… native image·
+private path 제거·closing bestmove 한 번·reader EOF·물리 종료가 통과했다.
+원 outer/ordinary/selected leader는 WNOWAIT identity를 보유한 채 extras[] 확인 뒤
+reap했고 group 부재·forced0·owned0으로 종료됐다. 코드 helper/builder는 producing
+bytes 그대로이며 이후 차이는 recipe/README 완료 문구뿐이다.
+Build SHA a07e597b4dfeec19aa95253615a2553118ffdaaad05c589338f5a16c6f4d0257,
+runtime SHA c03df5cdc9bef7bf84b39c0026120ccc5ab7a01a969ff767b15190d61fa4fd51.
+외부 stdout capture는 outer child label과 파일명이 겹쳐 summary 텍스트 일부가
+겹칠 수 있다. 원 named normal/physical/build/runtime 영수증은 온전하며 capture를
+독립 JSON/immutable child stdout 증거로 주장하지 않는다. 재실행은 없다.
+기존 root3 dictionary/source pipeline과 qualified DEV bytes를 보존하며 optional
+runtime·새 core/SAN/fresh/game/performance·CI 주장은 없다. 아래4499는 역사적 증거다.
+
+---
+
 # 기본 Loose4499: 고정 binding 빈도 배정 — 2026-10-24
 
 기본 Loose의 pool 단계 뒤 `shipping_frequency.py`를 연결했다. qj→I13,

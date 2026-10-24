@@ -4,6 +4,32 @@ The full implementation scope is recorded in [the accepted plan](ENGINE-PLAN.ko.
 The current user request excludes training and AWS connections. Frozen model
 inference and lossless model storage remain in scope; trained strength is not claimed.
 
+## Default A EP-maker sharing: 2026-10-24
+
+After scoped frequency names, default Loose A shares EP legality with its
+existing move maker. Removing the duplicate three-square trial and adding
+one forward declaration changes source8397 to8355 B, bootstrap9351 to9309 B
+and whole4499 to4489 B, gain10 and393 B above4096. The new18576/f99afdba
+native differs. The only nonempty shipping input follows a legal doublepush,
+with half0 and initialized bounded HCE/king cache. Trial15/17/PROMO0 leaves
+child EP empty, so the nested normalizer returns immediately; maximum v/D
+nesting is2. Fully initialized provisional unsigned hash/context is discarded
+and only own-king legality is consumed. Arbitrary poisoned/high-half Board
+equivalence, timing and stack improvements are not claimed. Canonical/DEV
+and all three root-policy dictionaries/source pipelines bypass this stage.
+
+Actual candidate TU with old-D/name-only reference and an independent
+64-square oracle passes the same12 roots,21 legal replay states and122 legal
+children in one optimized and one fatal-UBSan execution. Ordinary --dev
+reproduces shipping twice and old DEV twice; unchanged selected passes
+quit/EOF, eight legal GO, three TIDs, the actual new image, private path
+removal, readers and physical exit. Original commands settle before reap,
+with forced0/owned0. Named reports remain intact after an outer stdout
+capture/child-label filename collision; the capture is not independent child
+stdout evidence and the original is preserved without rerun. External final
+index6515 B is
+`b6fc93cf58bb81bd3eb7fb52cdcb79af69fa0fe99246c2772db371aed7c5b15c`.
+
 ## Full F quiet ordering, F8 and E legal-square walks: 2026-10-24
 
 Full F removes its unique private quiet-order helper and reuses the caller's
@@ -60,6 +86,15 @@ Only native1/encode1/loader1 and exact DATA inverse run. No entry, syscall,
 worker, audit or normal runtime is claimed; current D remains5581/HQ6037.
 All original tools end naturally with forced0/owned0. External index3417 B:
 `e097890b47dcb6c59abe4e417b54455a1fdd41dc4f4192bd1c6bd8ca41b78a13`.
+
+B's two nonzero-ctz bit-index expressions are separately folded from
+(i&7)+(i&56)*2 to i+(i&56), equal for all64 indices. Source9759 becomes9747 B
+and bootstrap10788 becomes10776 B, but whole4950 ties4950 with changed bytes.
+Native26112 keeps its length but differs, and linked text grows1 B. Candidate
+compile1/encode1 and strict restoration pass; no engine/normal/adoption runs.
+Current B remains its prior4950 tuple. Original driver/five children end
+naturally, forced0/owned0. External index11893 B:
+`1d5da5d10c757d871d323b374729533fd6a6408369e3215767d26d26d2eebb20`.
 
 ## Compact A PALS bounded deeper observation: 2026-10-24
 
@@ -1104,7 +1139,7 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 
 | Family | Complete file | Remaining above 4,096 B | Current source decision |
 | --- | ---: | ---: | --- |
-| A | 4,499 B | 403 B | Scoped fixed seven-binding frequency names preserve the entire preceding native; default Loose reuses completed depth -1 as a mutex-published job token while preserving the null startup sentinel and shared epilogue; earlier J/return and L/int aliases retain their full-header CPP/native identity proof separately; full HCE/PVS/QS/full-key TT/history/continuation/correction/SMP and all three optional root policies remain; main-owned token cursor, fixed resources, guarded original literal chain, strict fixed2 depth selector and individual stdio locking |
+| A | 4,489 B | 393 B | EP legality shares the existing maker on initialized legal doublepush states, with bounded nesting2 and provisional hash/context discarded; scoped fixed seven-binding names; default Loose reuses completed depth -1 as a mutex-published job token while preserving the null startup sentinel and shared epilogue; earlier J/return and L/int aliases retain their full-header CPP/native identity proof separately; full HCE/PVS/QS/full-key TT/history/continuation/correction/SMP and all three optional root policies remain; main-owned token cursor, fixed resources, guarded original literal chain, strict fixed2 depth selector and individual stdio locking |
 | B | 4,950 B | 854 B | EP normalizer reuses the actual legal maker with nonzero result101 and king-safety guards; preceding I/int alias covers99 tokens with full-header CPP and entire native identity; worker-owned job reset, calloc-covered plain TT zero stores omitted with explicit atomic flag initialization; TO127 SEE promotion predicate and fixed TT18 casts; existing hybrid attackers/singular, full search/learners retained; made-child continuation row passed through PVS and same-position singular verification; literal include gaps and overlong-line drain compacted; clock-first SEE poll; cancellation timing changed; compact environment snapshot; fallback queried from the immutable completed root only when selected best is zero; private history length derived from immutable published job base plus ply; private piece-plus-six helper inlined at its two consumers with complete native identity; singular-depth temporary and empty shipping instrumentation branch removed; adjacent HCE int declarations merged; three walker forwarders removed with explicit full-mask/Boolean/count consumer domains |
 | C | 4,666 B | 570 B | Completed-depth tokens replace separate worker epoch state with the startup sentinel retained; current signed-net eight-lane HCE and actual128-bit madd/four signed32 sums combine with the smaller full common A-derived mailbox/PVS/runtime, explicit -mavx2 target; old-C trace/native identity is not claimed; exact incremental evaluation, king-capture/move-buffer/QS draw guards, full-key TT, three learners and persistent SMP remain; selected compiler/literal adapter consumes the original C package and old DEV is unchanged |
 | D scalar / HQ | 5,581 / 6,037 B | 1,485 / 1,941 B | Scalar H28-private decoder shares initial prefill and subsequent refill with unchanged packet/native/restored image; transient512 MiB table remains and old startup/RSS observations keep their prior scope; HQ retains H24; shipping scalar fused mailbox rays with direction-major near-to-far visitation; HQ/DEV original walker; HQ-only history length derived from immutable job length plus ply; exact clock/inc parsing and ordered K/Q castling branches shared; consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT with a shared finite-stage asm body, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained; exact fused-scalar body232 class restores dormant internal ELF metadata as zero while preserving body addresses |
