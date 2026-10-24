@@ -1,6 +1,6 @@
 {
   "format": 1,
-  "class": "tiny-rust-d-finite-shipping-data8-v1",
+  "class": "tiny-rust-d-finite-shipping-result-data8-v2",
   "profile": {
     "workers": 2,
     "tt_bits": 18,
@@ -47,8 +47,8 @@
       "sha256": "1a1ff1a0693a1b3f53ade2435d2996684a1bcd7b7eee333f28fe669645340b82"
     },
     "search.rs": {
-      "bytes": 10015,
-      "sha256": "c0b9ccdca842fcdeec6cbe78a4b0ff0eb28e9906cc1d7397f6d73bc06b144bf7"
+      "bytes": 10119,
+      "sha256": "c2b2b8944a0e489947c279054b0e33609640f9184c4313bfab0ad7cd2ce84df3"
     },
     "runtime.rs": {
       "bytes": 6682,
@@ -67,7 +67,7 @@
       "sha256": "dc9e4435d137e07a23687d61855ac5ae7fa243c67bca5be265b71d362016fd89"
     }
   },
-  "generator_sha256": "555809b0ec5a36bd00762b7d86a5e6f9d9af28c4259b43f0b1dacc4d68390959",
+  "generator_sha256": "017a9fb4f2b37b9e4438acea3f1e423eb54595cb5163bfc669d337e67b007547",
   "packaging_sha256": {
     "packaging/packer.py": "bde43a9bb1a7ec21f93f21071461d79570cf9ae4af8a7733c33e294ecac5291b",
     "packaging/loader/codec.py": "17165d1cb16eaba8916833741bfa229d196c3ad07ca391c14b94288a3cdc0866",
@@ -78,40 +78,40 @@
     "scalar": {
       "native": {
         "bytes": 16816,
-        "sha256": "d4bdb100cf8fb22aab4912dca453d4927995cda356e029874067093a0bebdb1c"
+        "sha256": "22679b4ec76f785555fb4303c23cfb1b4ef0c9bb06cc577b03eafd082219c479"
       },
       "load": {
         "bytes": 16392,
-        "sha256": "184ea2c8b52e3fe7775ecad48625e59b461208680a192f2b2b3321ea6ed12271"
+        "sha256": "a5e0d3814d1dd432bbb2b0145f222726a86a80f93333f28c455ea22946afd74d"
       },
-      "rx_bytes": 13765,
+      "rx_bytes": 13701,
       "whole": {
-        "bytes": 11108,
-        "sha256": "232ef293e8d8d9cdd2f04ba44d4591cfd3fc30950625203cce01fa4bb317f028"
+        "bytes": 11080,
+        "sha256": "64fed0d235f326f7b98d85de07ea8cc83af52237beecf802466cb124b59e6e5d"
       },
       "payload": {
-        "bytes": 9993,
-        "sha256": "fce913ff43e0c1b9c96e6ec7c2a586d9116ad5a99dc5da226d68f79257aa549f"
+        "bytes": 9965,
+        "sha256": "c1a094cc08b3127c8fd22f9b8003e630f41414b6c810d0dda0649ceb766f16ba"
       },
       "loader_header_bytes": 1115
     },
     "hq": {
       "native": {
         "bytes": 16816,
-        "sha256": "1f325d2983d597ff292a1f7ed92bc3369bc0236635c0442b5cab007e0efe6b1c"
+        "sha256": "9db8d9bd1b9c529d9ea2e36171c730192138dc5f3e730b02a1a9d96d8143d68e"
       },
       "load": {
         "bytes": 16392,
-        "sha256": "6bd7c817bdfd466f2e6d4f270453b456a0d8275a0a2edb86ec325c7eb2c5c5f6"
+        "sha256": "3cfdfd2748e31525da832555069c2b5cabf056ebd0527ae22d52ebbc93be94d2"
       },
-      "rx_bytes": 14197,
+      "rx_bytes": 14133,
       "whole": {
-        "bytes": 11476,
-        "sha256": "6ad231aa0a055e519727e7751f1d48f8f8b83d272c781798c53169a89cb58718"
+        "bytes": 11440,
+        "sha256": "fbbc78507cd82c352ac4fc2d947c18e4ce97c78c9582a88c6cb8ff0517a19350"
       },
       "payload": {
-        "bytes": 10361,
-        "sha256": "ffcf00d6a682a4e810e32b339f1a1b629220e2c87998bd77b8bd0f949e6f126d"
+        "bytes": 10325,
+        "sha256": "1ea59976af65b69c1a4044e08e51cb92fc2de52fd781a93c2067fbc4c19a8825"
       },
       "loader_header_bytes": 1115
     }
@@ -177,5 +177,73 @@
     "child_wall_seconds": 90,
     "output_bytes": 2097152
   },
-  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)"
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)",
+  "qualification": {
+    "state": "Literal expectations fixed from separate scalar first cost and HQ discovery; normal/runtime results belong to external receipts",
+    "scalar_result_projection": {
+      "native_links": 1,
+      "encodes": 1,
+      "loader_links": 1,
+      "engine_execution": 0,
+      "native_text_delta": -64,
+      "whole_delta": -28,
+      "source_proof_sha256": "29a995e018105896c183695a622d8c95c70775555b0a56c0b007dd5b5804e681",
+      "cost_sha256": "5f2a136949a894101f54ffbd5de46a33febca37e9c65955f5c05b21d5bb84a36"
+    },
+    "hq_result_projection": {
+      "native_links": 1,
+      "encodes": 1,
+      "loader_links": 1,
+      "engine_execution": 0,
+      "native_text_delta": -64,
+      "whole_delta": -36,
+      "discovery_sha256": "eff9d0b6e1b52460a266c1d95f8f0abe72003d682fff452f2d31dfde7acc5f1e"
+    },
+    "hq_expected_identity": "Measured discovery tuple; not the previous control",
+    "ordinary_or_runtime_results_embedded": false
+  },
+  "previous_control_metadata_only": {
+    "class": "tiny-rust-d-finite-shipping-data8-v1",
+    "scalar": {
+      "native": {
+        "bytes": 16816,
+        "sha256": "d4bdb100cf8fb22aab4912dca453d4927995cda356e029874067093a0bebdb1c"
+      },
+      "load": {
+        "bytes": 16392,
+        "sha256": "184ea2c8b52e3fe7775ecad48625e59b461208680a192f2b2b3321ea6ed12271"
+      },
+      "rx_bytes": 13765,
+      "whole": {
+        "bytes": 11108,
+        "sha256": "232ef293e8d8d9cdd2f04ba44d4591cfd3fc30950625203cce01fa4bb317f028"
+      },
+      "payload": {
+        "bytes": 9993,
+        "sha256": "fce913ff43e0c1b9c96e6ec7c2a586d9116ad5a99dc5da226d68f79257aa549f"
+      },
+      "loader_header_bytes": 1115
+    },
+    "hq": {
+      "native": {
+        "bytes": 16816,
+        "sha256": "1f325d2983d597ff292a1f7ed92bc3369bc0236635c0442b5cab007e0efe6b1c"
+      },
+      "load": {
+        "bytes": 16392,
+        "sha256": "6bd7c817bdfd466f2e6d4f270453b456a0d8275a0a2edb86ec325c7eb2c5c5f6"
+      },
+      "rx_bytes": 14197,
+      "whole": {
+        "bytes": 11476,
+        "sha256": "6ad231aa0a055e519727e7751f1d48f8f8b83d272c781798c53169a89cb58718"
+      },
+      "payload": {
+        "bytes": 10361,
+        "sha256": "ffcf00d6a682a4e810e32b339f1a1b629220e2c87998bd77b8bd0f949e6f126d"
+      },
+      "loader_header_bytes": 1115
+    },
+    "scope": "Historical controls; never accepted as Result-projection expectations"
+  }
 }

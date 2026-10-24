@@ -15,6 +15,7 @@ import signal
 import struct
 import subprocess
 import sys
+import tempfile
 import time
 
 sys.dont_write_bytecode = True
@@ -60,6 +61,58 @@ def sections(data):
 def allocated(data):
     return {(s['name'],s['address']):(s['type'],s['bytes'],s['content']) for s in sections(data) if s['flags']&2}
 
+owned = {}
+
+
+def exited_unreaped(child):
+    # Retain the original leader's PID/group identity until its members settle.
+    return os.waitid(os.P_PID, child.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT) is not None
+
+
+def group_absent(child):
+    try: os.killpg(child.pid, 0); return False
+    except ProcessLookupError: return True
+
+
+def group_others(child):
+    rows=[]
+    for path in Path('/proc').iterdir():
+        if not path.name.isdecimal() or int(path.name)==child.pid:continue
+        try:
+            fields=(path/'stat').read_text().rsplit(')',1)[1].split()
+            if int(fields[2])==child.pid:rows.append({'pid':int(path.name),'state':fields[0]})
+        except (FileNotFoundError,ProcessLookupError,PermissionError):pass
+    return rows
+
+
+def settle(child, row, force=False):
+    if not row.get('reaped'):
+        extras=group_others(child)
+        if force or not exited_unreaped(child) or extras:
+            row['forced_cleanup']=True
+            row['other_group_members_before_cleanup']=extras
+            for sig in (signal.SIGTERM,signal.SIGKILL):
+                # Destructive signals are sent only while this leader is unreaped.
+                try:os.killpg(child.pid,sig)
+                except ProcessLookupError:pass
+                end=time.monotonic()+2
+                while time.monotonic()<end:
+                    if exited_unreaped(child) and not group_others(child):break
+                    time.sleep(.025)
+                if exited_unreaped(child) and not group_others(child):break
+        extras=group_others(child)
+        row['other_group_members_before_reap']=extras
+        if not exited_unreaped(child) or extras:
+            row['unsettled_before_reap']=True
+            raise RuntimeError('Owned original group did not settle while leader identity retained')
+        row['original_identity_retained_until_other_members_absent']=True
+        child.wait(timeout=3)
+        row.update(returncode=child.returncode,terminal=True,reaped=True)
+    row['group_absent_at_settlement']=group_absent(child)
+    row['owned_group_absent']=row['group_absent_at_settlement']
+    if row['group_absent_at_settlement']:owned.pop(child,None)
+
+
 def admit(data, mode, recipe, packer):
     """New literal Rust shipping class; existing packer C class remains unchanged."""
     expected = recipe['forms'][mode]; native = expected['native']; layout=recipe['layout']
@@ -98,56 +151,67 @@ def main():
     rustc=shutil.which(a.rustc)
     if not rustc:ap.error('Rust compiler unavailable')
     recipe=json.loads((HERE/'recipe.json').read_bytes());limits=recipe['limits']
-    require(recipe['class']=='tiny-rust-d-finite-shipping-data8-v1' and recipe['profile']=={'workers':2,'tt_bits':18,'ply':128,'shipping_cfg':'tiny_shipping'},'selected class/profile only')
+    require(recipe['class']=='tiny-rust-d-finite-shipping-result-data8-v2' and recipe['profile']=={'workers':2,'tt_bits':18,'ply':128,'shipping_cfg':'tiny_shipping'},'selected class/profile only')
+    require(all(recipe['forms'].get(mode) is not None for mode in ('scalar','hq')),'Both literal Result-projection forms require discovery before an ordinary build')
     closure=source_closure();out.mkdir()
     report={'complete':False,'class':recipe['class'],'source_closure':closure,'recipe_sha256':sha((HERE/'recipe.json').read_bytes()),
         'profile':recipe['profile'],'forms':[],'commands':[],'limits':limits,'counts':{'native_links':0,'audit_links':0,'whole_encodes':0,'loader_links':0,'ELF_execution':0},
         'runtime_qualified':False,'rules_eligibility':'unproven'}
-    active=None;deadline=time.monotonic()+limits['parent_wall_seconds'];fixed={'LC_ALL':'C','TZ':'UTC','SOURCE_DATE_EPOCH':'0'}
+    deadline=time.monotonic()+limits['parent_wall_seconds'];fixed={'LC_ALL':'C','TZ':'UTC','SOURCE_DATE_EPOCH':'0'}
     env=os.environ.copy();env.update(fixed);report['fixed_environment']=fixed
     def record():save(out/'build.json',report)
     def stop(signum,frame):raise InterruptedError('builder signal '+str(signum))
     handled=(signal.SIGTERM,signal.SIGINT,signal.SIGALRM,signal.SIGXCPU)
-    saved_signal_handlers={sig:signal.signal(sig,stop) for sig in handled}
-    resource.setrlimit(resource.RLIMIT_AS,(limits['parent_as_bytes'],)*2)
-    resource.setrlimit(resource.RLIMIT_CPU,(limits['parent_cpu_seconds'],)*2)
-    signal.alarm(limits['parent_wall_seconds'])
+    saved_signal_handlers={}
+    previous_chld=signal.getsignal(signal.SIGCHLD)
     def run(command,cwd=out,environment=env):
-        nonlocal active
-        row={'command':[str(x) for x in command],'cwd':str(cwd),'started':False};report['commands'].append(row);record()
-        mask=signal.pthread_sigmask(signal.SIG_BLOCK,set(handled))
-        def setup():
-            resource.setrlimit(resource.RLIMIT_AS,(limits['child_as_bytes'],)*2)
-            resource.setrlimit(resource.RLIMIT_CPU,(limits['child_cpu_seconds'],)*2)
-            signal.pthread_sigmask(signal.SIG_SETMASK,mask)
-        try:
+        remaining=min(limits['child_wall_seconds'],deadline-time.monotonic())
+        if remaining<=0:raise TimeoutError('aggregate fixed-build deadline')
+        row={'command':[str(x) for x in command],'cwd':str(cwd),'started':False,'forced_cleanup':False}
+        report['commands'].append(row);record()
+        process=None;begin=time.monotonic()
+        with tempfile.TemporaryFile() as stdout_file,tempfile.TemporaryFile() as stderr_file:
             try:
-                active=subprocess.Popen(row['command'],cwd=cwd,env=environment,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,
-                    text=True,start_new_session=True,preexec_fn=setup)
-                row.update(started=True,pid=active.pid,pgid=active.pid);record()
-            finally:signal.pthread_sigmask(signal.SIG_SETMASK,mask)
-            stdout,stderr=active.communicate(timeout=min(limits['child_wall_seconds'],max(.1,deadline-time.monotonic())))
-            row.update(returncode=active.returncode,stdout=stdout,stderr=stderr,terminal=True)
-            require(len(stdout.encode())+len(stderr.encode())<=limits['output_bytes'],'tool output cap')
-            require(active.returncode==0,'tool failed: '+str(command[0]))
-            return row
-        finally:
-            if active is not None:
-                if active.poll() is None or active.returncode:
-                    try:os.killpg(active.pid,signal.SIGKILL)
-                    except ProcessLookupError:pass
-                    tail_out,tail_err=active.communicate(timeout=5)
-                    row.setdefault('stdout',tail_out);row.setdefault('stderr',tail_err)
-                row.update(returncode=active.returncode,terminal=active.poll() is not None)
+                mask=signal.pthread_sigmask(signal.SIG_BLOCK,set(handled))
+                def setup():
+                    resource.setrlimit(resource.RLIMIT_AS,(limits['child_as_bytes'],)*2)
+                    resource.setrlimit(resource.RLIMIT_CPU,(limits['child_cpu_seconds'],)*2)
+                    signal.pthread_sigmask(signal.SIG_SETMASK,mask)
                 try:
-                    os.killpg(active.pid,0);row['owned_group_cleanup_needed']=True
-                    os.killpg(active.pid,signal.SIGKILL)
-                except ProcessLookupError:pass
-                try:os.killpg(active.pid,0);row['owned_group_absent']=False
-                except ProcessLookupError:row['owned_group_absent']=True
-                active=None
-            record()
+                    process=subprocess.Popen(row['command'],cwd=cwd,env=environment,stdin=subprocess.DEVNULL,
+                        stdout=stdout_file,stderr=stderr_file,start_new_session=True,preexec_fn=setup)
+                    owned[process]=row
+                    row.update(started=True,pid=process.pid,pgid=process.pid);record()
+                finally:signal.pthread_sigmask(signal.SIG_SETMASK,mask)
+                while not exited_unreaped(process):
+                    if time.monotonic()-begin>remaining:raise TimeoutError('fixed child wall deadline')
+                    if os.fstat(stdout_file.fileno()).st_size+os.fstat(stderr_file.fileno()).st_size>limits['output_bytes']:
+                        raise RuntimeError('fixed child output budget')
+                    time.sleep(.025)
+            finally:
+                if process is not None:
+                    mask=signal.pthread_sigmask(signal.SIG_BLOCK,set(handled))
+                    try:
+                        settle(process,row,force=not exited_unreaped(process))
+                    finally:
+                        try:
+                            row['output_bytes']=os.fstat(stdout_file.fileno()).st_size+os.fstat(stderr_file.fileno()).st_size
+                            stdout_file.seek(0);stderr_file.seek(0)
+                            row['stdout']=stdout_file.read(limits['output_bytes']+1).decode(errors='replace')
+                            row['stderr']=stderr_file.read(limits['output_bytes']+1).decode(errors='replace')
+                            row['elapsed_diagnostic_seconds']=time.monotonic()-begin;record()
+                        finally:signal.pthread_sigmask(signal.SIG_SETMASK,mask)
+        require(row['output_bytes']<=limits['output_bytes'],'final tool output cap')
+        require(row['returncode']==0 and not row['forced_cleanup'] and row['owned_group_absent'],'tool failed: '+str(command[0]))
+        return row
     try:
+        for sig in handled:
+            saved_signal_handlers[sig]=signal.getsignal(sig)
+            signal.signal(sig,stop)
+        signal.signal(signal.SIGCHLD,signal.SIG_DFL)
+        resource.setrlimit(resource.RLIMIT_AS,(limits['parent_as_bytes'],)*2)
+        resource.setrlimit(resource.RLIMIT_CPU,(limits['parent_cpu_seconds'],)*2)
+        signal.alarm(limits['parent_wall_seconds'])
         frozen=out/'source'
         for name,pinned in closure.items():
             raw=(ROOT/name).read_bytes();require(sha(raw)==pinned,'source changed during freeze: '+name)
@@ -204,8 +268,21 @@ def main():
         report['first_failure']={'type':type(error).__name__,'message':str(error)}
         raise
     finally:
-        signal.alarm(0);report['owned_active_tool']=None if active is None else active.pid;record()
-        for sig,handler in saved_signal_handlers.items():signal.signal(sig,handler)
+        mask=signal.pthread_sigmask(signal.SIG_BLOCK,set(handled))
+        try:
+            signal.alarm(0)
+            for child,row in list(owned.items()):
+                try:settle(child,row,force=not row.get('reaped',False))
+                except BaseException as error:
+                    report.setdefault('cleanup_errors',[]).append({'type':type(error).__name__,'message':str(error)})
+            report['owned_tool_handles']=len(owned)
+            if owned or report.get('cleanup_errors'):report['complete']=False
+            report['SIGCHLD_restored_after_settlement']=not owned
+            record()
+        finally:
+            if not owned:signal.signal(signal.SIGCHLD,previous_chld)
+            for sig,handler in saved_signal_handlers.items():signal.signal(sig,handler)
+            signal.pthread_sigmask(signal.SIG_SETMASK,mask)
         print(json.dumps({'out':str(out),'complete':report['complete'],'counts':report['counts'],'first_failure':report.get('first_failure')}))
 
 if __name__=='__main__':main()

@@ -32,7 +32,7 @@ compiler-child absence, readers and physical exit0. E observes stdio-only
 live FDs; A's selected verifier does not enumerate live FDs. Original leaders
 settle before reap; forced cleanup/remaining owned handles are0. Producing
 recipes are separate from later normal-result annotations. These are local
-qualifications; the new head needs its own CI. A remains758 B and E850 B
+qualifications; exact9f134646 CI qualification is recorded below. A remains758 B and E850 B
 above4096. No speed, strength or hardware scaling gain is inferred.
 
 The preceding bbc999b177c77babde5e172139694baa85e7f3e9 automatic engine
@@ -46,6 +46,127 @@ pass; their expanded provenance catalog is not a changed runtime producer,
 and no new generic native-byte equality is claimed. The external final CI
 index25360 B has SHA256
 6dc2dcafbdf151307df67213d88a1b6599a2ff9df3458c77036aefcc7ae45c38.
+
+Exact9f134646379c1b60c0419a86ab8a7c6f6a6fae34 engine CI40055663531
+and repository CI40055663533 succeed for C/Rust and Node22/24. Tested merge
+04adac3bc51967054288a1dd18bc750badcba23a has the head tree
+baf6388186ff3c1347cc4124e1c7852f2ce5547d. Actual C ZIP API digest/CRC and ten
+A/E/A-root build/runtime JSON pass. A/E source/bootstrap chains, two shipping
+attempts, exact old DEV and current Git-frozen inputs match recipes. A root
+hint/NORMAL/PALS are fresh reports with their new input catalogs, not reused
+old closures: complete files5528/5510/7135 and selected quit/EOF pass while
+the default-only transform is bypassed. B/C/F/F8/D retain their earlier
+detailed scope through actual consumed-source comparison. Generic catalog
+286→288 metadata changes are distinct from unchanged actual native producers;
+new generic native-byte equality is not asserted. Original watch/intake
+handles terminate0 without restart; remaining owned handles are0. The final
+index35096 B has SHA256
+464cbf65899d01910c0a4fee73be36dbc3a0581d10a6687da06721762a991a6c.
+
+## Additional finite costs, not maintained entries: 2026-10-24
+
+The C D9-bit sentinel reservoir keeps the actual packet4471/native7324 B
+and the same production loader argv, but one loader link measures whole
+5540→5541, text893→894: LOSS1, unadopted. C-width Python shadow fixtures
+and source/inverse checks preserve bit/cursor/refill/output data, including
+actual body restoration; they are not execution of the generated C decoder.
+Native compile/encode/engine/normal/HQ/CI are0. Its final index2207 B has
+SHA256875b8057d7e4076e7b52fbb572faeb57f4c138283216a69045d5fd1a79584382.
+
+A separate scalar target-centered attack query retains geometric attacks
+and the old ordered generation by two exact source spans and three gaps.
+The actual source grows476 B, native7324→7452 and text6815→6949. One native
+link/encode/loader link makes packet4471→4555 and whole5540→5624: LOSS84,
+unadopted. Loader/header1069 B remains. DATA/BCJ/body restoration matches
+the exact new native; behavior fixture/engine/normal/HQ/CI remain0. This
+does not establish the source candidate's behavioral correctness by run.
+The reservoir candidate is not combined. Current D stays5540/6037 B.
+
+Rust D removes only shipping Result.score/nodes declarations and completed
+initialization through cfg attributes in two exact spans. Worker.nodes,
+all search scores, TT, learners, stop/deadline and best/depth publication
+remain. One scalar link/codec/loader link measures text13257→13193 and
+whole11108→11080, GAIN28; native16816 B remains the same length. Actual Child
+stride56→40 and two-child allocation request112→80 differ, but both fit one
+page and no RSS gain is inferred. Think is inlined; standalone return ABI
+is unobserved. HQ/normal/engine/CI and maintained integration are0 at this
+first-cost checkpoint. The separate native admission record contains unused
+old whole/HQ metadata and is not a release recipe. The final index13773 B
+has SHA256663457cea72afa7800b9a863610218b84f1f88aa3d1e5cb3f0b9132170b32ba2.
+
+The corrected common owner has four time.monotonic calls across wait and
+group-drain scopes. Binding c=time.monotonic once and replacing just those
+four callable references retains the original timestamps, time.sleep,
+WNOWAIT/mask/publication/settlement and failure125 flow. Five exact spans,
+six protected gaps, AST binding and complete byte/AST inverse preserve the
+entire embedded C literal. One actual F2 encode with its unchanged73 B
+header/codec measures bootstrap9786→9751 and whole4640→4633, GAIN7. Strict
+Python EOF/unused0 and CLI inverse pass. Other profiles, integration, compile,
+engine, normal and CI are0; this is not the maintained F size. Original
+handles terminate0, forced/owned0. The final index5704 B has SHA256
+43b82a65497b282f26e6c7615a45b19553e2e0de26fc7ef894847adf3ca13eb9.
+
+## Rust D Result projection, maintained local qualification: 2026-10-24
+
+The shipping generator appends the two reviewed Result cfg spans to its
+original17 edits, preserving canonical7 and every previous inverse/gap guard.
+Both literal scalar/HQ tuples are discovered separately: whole11108→11080
+and11476→11440 save28/36 B, text decreases64 B each and native remains16816 B.
+The packaging/codec/loader and nonshipping Rust sources are unchanged. No
+gain is inferred from standalone ABI, RSS, throughput or playing strength.
+
+The host builder's former communicate/poll→reap→killpg flow is separately
+repaired with regular-file output, retained original WNOWAIT identity,
+mask/spawn/publication/unmask under finally, pre-reap empty-group settlement,
+final output cap and SIGCHLD restoration only after owned handles settle.
+This development-tool repair does not contribute to the engine file gain.
+One actual ordinary build reproduces native/whole twice per form, adds one
+unstripped static audit per form and passes all gates. All23 actual tools
+exit0 with pre-reap extras empty, forced0/reaped/group absent/owned0.
+The preceding CLI PATH preflight failure occurs before output creation or
+compiler execution; it remains preserved. The corrected command explicitly
+selects the same measured Rust compiler through the existing --rustc option.
+
+The unchanged positive verifier passes eight sessions and64 legal GO across
+scalar/HQ native/whole and quit/EOF. Actual three TIDs, two guarded stacks,
+restored data8/five-page image, stdio, readers, replacement fence and physical
+termination pass. Negative/fault/ptrace campaigns are not run, and positive
+admission is not full loader/rules qualification. All four maintained source
+files are byte-identical to the ordinary/runtime producing snapshots; later
+result annotations are in this checkpoint. Build470838 B has SHA256
+7d49f8d93a8fbbea76c417aaf1a53b11538a3bc8fc54ca2fc3ef73fb49f87c06;
+runtime217031 B has SHA256
+c2977282bfb66d59a38461a898e9bad933a4e4c291de46d2d6d0b4bfd5bbc9c7.
+The newly integrated head requires its own CI;9f134646 precedes this change.
+
+## Full F2/F8 paired resource games: 2026-10-24
+
+The actual maintained full C files4640/4652 B play four fixed openings with
+colors exchanged, eight games at5000ms+25ms. Both inherit the same CPUs0–7
+on WSL's eight exposed logical CPUs/four core IDs; the observer sharesCPU0.
+One GO is active at a time, with fresh two-player pools per game. Timestamp
+and complete-newline publication share a lock before log I/O; queued results
+accepted by expiry remain valid after consumer delay. Cumulative clocks,
+independent legality, terminal-before-cap and late-result accounting are
+checked. The240 searched-ply cap is an unfinished*, not a draw.
+
+Seven games finish by mate: F8 wins6, F2 wins1. The eighth reaches240 plies
+unfinished; draw/flag/protocol/physical failures are0. Actual1180 searched
+and36 opening plies replay with the pinned referee. All16 source entries
+complete their internal startup compilation outside the game clock, restore
+the expected natives, keep3/9 TIDs and affinity, and terminate naturally with
+both reader EOFs. Original unreaped leaders retain identity through empty
+pre-reap groups; forced cleanup/owned handles are0. Input pins before/after
+and post-replay match. The one original managed session99680 ends0 in107.986s.
+
+Per-turn /proc brackets total F2 CPU96.74s for clocked48.941s(1.977CPUs),
+F8 CPU384.09s for49.070s(7.827CPUs). Observed max VmRSS is8126464/8912896 B,
+VmSize25935872/76509184 B. These are sampled native-process resources, not
+compiler peak, simultaneous memory peak, per-position speed, NPS or stack
+high-water proof. Eight games do not establish Elo, final profile choice or
+target512-core scaling. Both full files still exceed4096. The final
+index42412 B has SHA256
+029b40a4bcc555f5977595003a8fc77bf638ac92c09fcf433032a60f2c0d891c.
 
 ## B completed-depth job token: 2026-10-24
 
