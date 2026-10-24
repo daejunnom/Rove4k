@@ -24,10 +24,12 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 SOURCE_PREFIX = "engines/compact/tiny-rust/"
 PRODUCTION = ("main.rs", "board.rs", "search.rs", "runtime.rs")
-RAW_BINDINGS = {
+# Exact source bytes stored by Git after the explicit CRLF-to-LF intake below.
+# The older local 9,074-byte receipt had one CRLF in search.rs's final test line.
+CANONICAL_SOURCE_BINDINGS = {
     "main.rs": "c1d659cf38473d838505e3912effac0798841eb160d7033a21ab2dc5443ed56d",
     "board.rs": "47e6289e06eff93484c50ef4218729b444eea7b4a8868362dd1d0d37eaaf06d9",
-    "search.rs": "4573947933c348cff4fa371f656dc5cdc21560ea09ca95d98dfaf0667ce6b981",
+    "search.rs": "646bb5b61bbd3335154b9f7c1142d775d61502d39a2e9d4d8d0eaeb202ca8eb2",
     "runtime.rs": "2bf60847bf40c882ac16e0840f51fd24d9cf6dad5bb463e9dda0a83623ac6dec",
 }
 PRUNED_BINDINGS = {
@@ -71,6 +73,37 @@ def write_files(files, directory):
         target = directory / name
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(data)
+
+
+def canonical_inputs(raw_inputs):
+    """Admit one Git-LF identity for the closed source/helper text closure."""
+    required = {*(SOURCE_PREFIX + name for name in PRODUCTION), *HELPER_BINDINGS,
+                "engines/experiments/tiny-rust-stream/build.py",
+                "engines/experiments/tiny-rust-stream/merge.py",
+                "engines/experiments/tiny-rust-stream/stream_pack.py"}
+    optional = "engines/experiments/tiny-rust-stream/resources.py"
+    if type(raw_inputs) is not dict or set(raw_inputs) not in (required, required | {optional}):
+        raise ValueError("the closed Rust source/helper text inputs are required")
+    inputs, entries = {}, {}
+    for name, raw in sorted(raw_inputs.items()):
+        if type(raw) is not bytes:
+            raise TypeError("immutable Rust source/helper text bytes required")
+        raw.decode("utf-8")
+        canonical = raw.replace(b"\r\n", b"\n")
+        if b"\r" in canonical:
+            raise ValueError("lone CR is outside the canonical-LF text contract: " + name)
+        inputs[name] = canonical
+        entries[name] = {"raw_bytes": len(raw), "raw_sha256": sha(raw),
+                         "canonical_bytes": len(canonical), "canonical_sha256": sha(canonical),
+                         "CRLF_pairs": raw.count(b"\r\n"), "EOL_changed": raw != canonical}
+    for name, expected in CANONICAL_SOURCE_BINDINGS.items():
+        if sha(inputs[SOURCE_PREFIX + name]) != expected:
+            raise ValueError("canonical-LF production source differs from the exact Git checkpoint: " + name)
+    for name, expected in HELPER_BINDINGS.items():
+        if sha(inputs[name]) != expected:
+            raise ValueError("canonical-LF helper differs from the bound recipe: " + name)
+    return inputs, {"policy": "git-canonical-LF-v1", "normalization": "CRLF to LF before exact SHA-256 admission; lone CR rejected",
+                    "entries": entries, "changed_paths": [name for name, entry in entries.items() if entry["EOL_changed"]]}
 
 
 def stdin_recipe(command, compiler):
@@ -329,16 +362,11 @@ def main():
              "engines/experiments/tiny-rust-stream/stream_pack.py"]
     if args.embody_resources:
         paths.append("engines/experiments/tiny-rust-stream/resources.py")
-    inputs = {name: (ROOT / name).read_bytes() for name in paths}
-    for name, expected in RAW_BINDINGS.items():
-        if sha(inputs[SOURCE_PREFIX + name]) != expected:
-            raise ValueError("raw production source differs from exact 9,074-byte checkpoint: " + name)
-    for name, expected in HELPER_BINDINGS.items():
-        if sha(inputs[name]) != expected:
-            raise ValueError("stable helper differs from exact 9,074-byte checkpoint: " + name)
+    inputs, intake = canonical_inputs({name: (ROOT / name).read_bytes() for name in paths})
     # No engine producer/helper has been imported until every byte is frozen.
     frozen = args.out / "recipe"
     write_files(inputs, frozen)
+    (args.out / "input-canonicalization.json").write_text(json.dumps(intake, indent=2) + "\n", encoding="utf-8")
     producer = load("tiny_rust_stream_frozen_builder", frozen / "engines/experiments/tiny-rust-stream/build.py")
     producer.execute_frozen(args, frozen, inputs, compiler)
 

@@ -72,7 +72,15 @@ module/main token identity and restoration of every other token. The board,
 search and worker-runtime bodies remain unchanged. Omitting the flag retains
 the general compile-time resource parser and produces a separate source class.
 
-Before importing any producer, the builder freezes the four raw production
+Before importing any producer, the builder normalizes CRLF to LF in the closed
+source/helper text input list, rejects lone CR, and checks one exact Git-LF
+identity per bound input. `CANONICAL_SOURCE_BINDINGS` identifies those source
+bytes. `input-canonicalization.json` records each checkout input's original
+size/hash, canonical size/hash, CRLF count and whether its EOL bytes changed.
+The old local checkpoint's `search.rs` ended with one CRLF in a test declaration;
+its historical raw hash is distinct from the current Git-LF input identity.
+
+The builder then freezes the four canonical LF production
 files, the stable source-pruning builder, Rust lexical helper, original general
 ZIP packer, Tiny A stream helper and this directory's builder/merge/stream
 producers under `out/recipe`. Every later producer import uses that frozen tree.
@@ -80,7 +88,7 @@ The optional `resources.py` producer is frozen and imported only when its flag i
 requested. The report retains the pre-resource merge hash and saves
 `pre-resource.stdin.rs`; `merged.stdin.rs` and `merged_source_sha256` identify the
 actual final source sent to the compiler and packed into the selected artifact.
-DEV and unit files are absent from the explicit runtime input list. Unknown raw
+DEV and unit files are absent from the explicit runtime input list. Unknown canonical
 source, pruned source or stable helper bindings fail rather than being silently
 assigned the old checkpoint's identity.
 
@@ -119,7 +127,7 @@ The stdin/inline-module native class is distinct from the four-file native
 class: source file and line locations in panic metadata can change. Its native
 hash is reported independently, without requiring cross-class binary identity.
 
-The report records raw and pruned input hashes, every recipe hash, compiler
+The report records canonical pre-pruning and pruned input hashes, every recipe hash, compiler
 version, exact commands/environment, merge metadata and full artifact sizes and
 hashes. `validation-manifest.json` identifies the stdin native, original four-file
 ZIP baseline and smallest complete stream for subsequent external verification.

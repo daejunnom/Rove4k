@@ -30,13 +30,13 @@ Draft PR #12를 재사용한다. 학습·AWS·유료 자원·예약 작업·npm 
 
 | 단위 | 구현과 판단 기준 | 시작 상태 |
 |---|---|---|
-| 공통 owner | 정리 권한 단일화, waitable leader의 중복 대기, 별도 immediate-KILL 생성 | 정식 API와 focused 통과, 소비자 연결 중 |
-| A/B/C/E template | environment 인라인·signal loop와 owner 축약의 개별/결합 비용 | 결합 16개 비용 완료, grace 승자 연결 중 |
-| Reduced F | 각 원래 source/native/codec으로 최신 template·W1/W2/seek 연결 | grace/kill 각각 측정 완료, 정식 연결 중 |
+| 공통 owner | 정리 권한 단일화, waitable leader의 중복 대기, 별도 immediate-KILL 생성 | 정식 API·focused·소비자 연결 및 실행 통과 |
+| A/B/C/E template | environment 인라인·signal loop와 owner 축약의 개별/결합 비용 | 결합 16개 비용 후 grace 승자 정식 재현·실행 통과 |
+| Reduced F | 각 원래 source/native/codec으로 최신 template·W1/W2/seek 연결 | grace/kill 각각 정식 재현·실행 통과 |
 | 단일 native | archive 일반성을 제거한 filesystem FD 정책 | API·실제 ELF fixture·generic CLI 전달 통과, source 포장보다 큼 |
 | Python memfd | 유효 ELF, 명시 executable flag, target 정책, 완전 기록과 FD exec | 별도 API·실행 검증 통과, 기존 source 포장보다 큼 |
-| 최소 shell | 동일 source/native, 확인된 복원·compile 실패, 지연 삭제와 취소 차이 | Dash SIGCHLD 실패 보존, 명시 Bash 정책 검증 중 |
-| Rust stream | 명시 Rust envelope의 W1/W2/seek, 고정 source의 resource env 제거 | 8945 B 재현·선택 실행·prepared fixture 통과 |
+| 최소 shell | 동일 source/native, 확인된 복원·compile 실패, 지연 삭제와 취소 차이 | F2/F8 명시 Bash 정책 재현·실행 통과, 출전 대상 미확정 |
+| Rust stream | 명시 Rust envelope의 W1/W2/seek, 고정 source의 resource env 제거 | Git LF 입장 경계 수정 후 8945 B 재현·선택 실행 통과 |
 | Rust D body | exact prefix232/restored image/absolute BCJ/decoder bound | 두 형식 normal/positive 통과, 첫 공유 묶음 |
 
 ## 소유권과 연결
@@ -63,22 +63,22 @@ signal을 보내지 않도록 실제 소유 경계를 고친 후 실패 검사�
 
 | 후보 | 대조 whole | 후보 whole | 해석 |
 |---|---:|---:|---|
-| Full F2 정리 권한 단일화 | 4590 | 4576 | -14 B, 아직 runtime 채택 전 |
+| Full F2 정리 권한 단일화 | 4590 | 4576 | -14 B, 정식 ordinary/selected 통과 |
 | Full F2 중복 leader wait 재구성 | 4590 | 4591 | +1 B, 별도 후보로 보존 |
 | Full F2 위 두 변경 결합 | 4590 | 4577 | -13 B, state-only보다 1 B 큼 |
 | A template + state | 4807 | 4785 | -22 B, 정식 ordinary/selected 통과 |
 | B template + state | 5281 | 5259 | -22 B, 정식 ordinary/selected 통과 |
 | C template + state | 4944 | 4924 | -20 B, 정식 ordinary/selected 통과 |
 | E template + state | 4897 | 4878 | -19 B, 정식 ordinary/selected 통과 |
-| Full F8 state | 4602 | 4588 | -14 B, 정식 소비자 실행 전 |
+| Full F8 state | 4602 | 4588 | -14 B, 정식 ordinary/selected 통과 |
 | Rust D scalar body232 | 11080 | 11026 | -54 B, 아래 normal/positive 인수 완료 |
 | Rust D HQ body232 | 11440 | 11384 | -56 B, 별도 형식으로 측정 |
 | Rust fixed2/18 prepared + resource env 생략 | 9009 | 8945 | -64 B, native 전체 동일, 선택 실행·fixture 통과 |
-| F material-noise aligned73 + state/grace | 4697 | 4616 | 원래 reduced 기능·codec 유지, runtime 전 |
-| F material-move-TT aligned73 + state/grace | 4425 | 4342 | 원래 reduced 기능·codec 유지, runtime 전 |
+| F material-noise aligned73 + state/grace | 4697 | 4616 | 원래 reduced 기능·codec 유지, ordinary/selected 통과 |
+| F material-move-TT aligned73 + state/grace | 4425 | 4342 | 원래 reduced 기능·codec 유지, ordinary/selected 통과 |
 | F full2 최소 source shell/inherit | 4590 | 4011 | SIGCHLD 기본 상태의 child 회수 조건 미충족, 미선택 |
-| F full2 Bash source shell/ignore-after-compile | 4590 | 4026 | header316 + source payload3710, 정식 실행 전 |
-| F full8 Bash source shell/ignore-after-compile | 4602 | 4028 | header316 + source payload3712, 정식 실행 전 |
+| F full2 Bash source shell/ignore-after-compile | 4590 | 4026 | header316 + source payload3710, 정식 재현·실행 통과 |
+| F full8 Bash source shell/ignore-after-compile | 4602 | 4028 | header316 + source payload3712, 정식 재현·실행 통과 |
 
 이는 고정 입력·codec·header의 실제 완성 파일 첫 비용이다. 단독 절감량을
 합산하지 않는다. 실패 원본과 비교 입력, 실제 제품·보고서는 저장소 밖에
@@ -218,8 +218,35 @@ group의 물리 정착은 다른 결과다. Grace owner의 신호 mapping·group
 
 동일 원 source/compiler/codec으로 비교한 Bash whole은 A4232/B4712/C4375/E4323,
 F2/F8은4026/4028 B다. ABCE는 아직4096 B를 넘는다. 각각의 header와 payload를
-실제 측정했으며 F의 이득을 다른 엔진에서 단순 차감하지 않았다. 새 선택은
-정식 producer 재생성과 전용 `verify_shell.py` 실행을 마친 뒤 채택한다.
+실제 측정했으며 F의 이득을 다른 엔진에서 단순 차감하지 않았다. ABCE shell은
+첫 비용으로 보존하며 runtime 채택은 하지 않는다.
+
+F2는 full/material-noise/material-move-tt 세 기능 정책과 grace/kill의 여섯 조합, full shell 한
+조합을 각각 두 번 재현했다. 요청한 grace 세 조합의 변경 없는 DEV도 두 번씩
+생성했다. Strict 12세션48 legal GO와 별도 shell 2세션8 legal GO를 통과했다.
+최초 shell snapshot parent 생성 누락은 compile 전에 실패했고 원 결과를 보존한
+뒤 mkdir 한 줄로 수정했다. 기존 여섯 producer의 source snapshot과 후속 수정
+builder를 한 closure로 거짓 표기하지 않고 정확한 한 줄 inverse와 새 shell
+ordinary로 연결한다. 통합 인덱스20019 B의 SHA-256은
+`8544749bec79b6a29a844c7b5e9fa5afdec92f8fd6c29e228bd38f8c43b7737d`다.
+
+F2 shell의 정식 4026 B whole은 quit/EOF 두 세션에서 초기 named executable과
+cleanup child를 관측하고, 같은 native와 TID가 살아 있는 동안 경로·child가
+사라졌음을 확인했다. 원 stdin pipe·FD012·SIGCHLD IGN·NX/no-WX와 closing result,
+reader EOF·물리 종료를 확인했다. 정리 관측은 약2초이며 target의 보장 시간으로
+일반화하지 않는다. Runtime23274 B의 SHA-256은
+`7d048716f11e18d4b884eabce352128edfdcf112cb5a4bc97e0291bef173da57`다.
+
+F8도 grace/kill/shell ordinary와 각 selected를 순차 실행했다. Whole은 각각
+4588/4565/4028 B를 두 번 재현했고 native6 compile·shipping6 encode·control3
+encode·strict restore6을 기록했다. 총6세션24 legal GO에서 동일9 TID,
+main S·모든8 worker R와 개별 CPU tick 증가, native identity·stdio·NX/no-WX와
+정착 후 reap을 확인했다. Shell은 초기 경로·child와 약2초 후 삭제·자동 회수를
+추가로 확인했다. Source4와 closure80은 전후 같다. Compile CPU0, selected는
+CPU0–7 단독이었다. Ordinary의 원 parentAS4/childAS1 GiB, strict의AS4 GiB,
+shell의AS2 GiB를 구별해 유지했다. 모든 원 owner가 forced0/owned0으로 닫혔다.
+F8 최종 인덱스41184 B의 SHA-256은
+`762d88a0550d60aaff9be763cfa3b240a348f4ed0dd1f560bc9ee3bd70f38a80`다.
 
 ## 대상과 외부 근거
 
@@ -248,20 +275,47 @@ launcher 원문 길이를 Rove4k 공동 압축 bootstrap 비용에서 직접 차
 출전 target 지원의 증명이 아니다. 이름 있는 삭제 파일에서 memfd로 바뀌는
 `/proc/self/exe` 관측은 명시한다.
 
-## 남은 인수
+## 공유 상태와 남은 인수
 
 F2와 F8에는 build-only `--wrapper grace|kill|legacy|shell`을 연결했다. 기본은
 grace이며 engine 기능 `--policy`와 별개다. Shell은 full 기능에만 노출하고
 header와 Python bootstrap을 다른 산출물로 기록한다. F2의 처음 여섯 ordinary는
 통과했지만 새 shell snapshot의 recipe parent 생성 누락으로 일곱 번째가 compile
 전에 실패했다. Parent mkdir 한 줄로 원인을 수정했고 원 실패와 앞선 여섯
-producing snapshot을 보존한다. 현재 후속 shell ordinary와 strict 실행, F2/F8
-shell 전용 positive 및 F8 세 정책의 단독 인수가 진행 중이다. 새 source의 CI와
-이 로컬 인수는 완료 전까지 별도 pending이다.
+producing snapshot을 보존했다. 후속 shell ordinary와 strict 실행, F2/F8 shell
+전용 positive 및 F8 세 정책의 단독 인수는 위 범위대로 완료했다.
 
-현재 첫 비용의 runtime·취소·정리 검증, 각 엔진의 독립 결합 비용과 재현,
-새 compiler/codec/loader 정책의 소비자 pin 연결을 순서대로 진행한다.
-관련 위험을 다루는 기존 검사와 작은 보완을 사용하며 새 의무 schema나
-고정 검사 수를 만들지 않는다. 소스 동일성, 실제 실행, CI, PR 통합과
-최종 출전 적격성은 각각 기록한다. 이 묶음의 완료가 전체 A–F의 4 KiB·기력·
-대상 하드웨어 인수를 대신하지 않는다.
+구현 커밋 `d0d67dfb4d65256879ded738a074b1a2acbc0a68`의 자동
+[engine CI](https://github.com/daejunnom/Rove4k/actions/runs/40106422656)는 C job이
+성공하고 Rust job은 source stream의 LF 입력 경계에서 실패했다. 새 C actual22개는
+기본 여섯 경로와 reduced F grace 두 개, full F kill/shell, F8 shell의 각 재현·
+선택 실행을 포함한다. [NVCompact](https://github.com/daejunnom/Rove4k/actions/runs/40106422653)와
+[repository](https://github.com/daejunnom/Rove4k/actions/runs/40106422649)는 성공했다.
+Rust의 prepared fixture는 통과했지만 해당 run의 ordinary/selected와 뒤 단계는
+성공으로 승계하지 않는다. 실패 인덱스100114 B의 SHA-256은
+`b01127eade35d8f6842ceb39da4a5229bc151cbfaf420e84b1fc405516709935`다.
+
+원인은 Windows raw `search.rs`의 마지막 DEV test 선언 뒤 CRLF 한 바이트를
+원래 checkpoint가 고정했던 것이다. Git 정본9047 B와 작업사본9048 B는 해당
+CRLF→LF 한 곳 외 전체가 같고, specialize/prune·merge·resource embodiment·
+bootstrap 생성 결과가 각각 전체 동일하다. 이 확인은 pure source 경로이며
+새 native/whole 재현을 대신하지 않는다. 후속 builder는 known source/helper
+텍스트를 CRLF→LF로 정규화하고 lone CR을 거절한 뒤 Git LF 단일 SHA를 검사한다.
+원 raw와 canonical bytes·SHA, EOL 변경 여부를 별도 input manifest에 보존한다.
+Canonical Rust 엔진 원문과 `.gitattributes`, stable TinyRust builder는 바꾸지
+않았고 raw 해시 예외 목록을 늘리지 않았다.
+
+Windows 원 raw를 그대로 둔 새 ordinary `--reproduce`와 selected가 다시 통과했다.
+LF canonical intake와 Windows CRLF intake가 같은 frozen closure를 만들며 단일
+변조는 hash guard에서 거절한다. ZIP9074 B, stream8945 B, native339880 B의 전체
+기존 identity와 반복 재현이 유지된다. 이전 실패 run은 보존하며, 이후 원격
+CI의 정확한 commit·결과·actual intake는 같은 Draft PR #12와 외부 인덱스에
+기록한다. 로컬 통과를 원격 CI 통과로 바꾸지 않는다.
+
+이번 여덟 단위의 구현·고정 비용 비교·관련 로컬 인수는 완료했다. 더 큰 native,
+wait 결합과 sh/inherit 후보는 미선택 근거를 보존한다. 다음 작업은 ABCE와 D의
+full 파일 축약, F의 grace 계약을 유지하는 추가 축약 및 Bash 경로의 여유 확대,
+대상 환경·ISA·시작/정리·기력과 비교 대국이다. 관련 위험을 다루는 기존 검사와
+작은 보완을 사용하며 새 의무 schema나 고정 검사 수를 만들지 않는다. 소스
+동일성, 실제 실행, CI, PR 통합과 최종 출전 적격성은 각각 기록한다. 이 묶음의
+완료가 전체 A–F의 4 KiB·기력·대상 하드웨어 인수를 대신하지 않는다.
