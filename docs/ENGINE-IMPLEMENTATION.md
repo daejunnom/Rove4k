@@ -106,6 +106,21 @@ engine, normal and CI are0; this is not the maintained F size. Original
 handles terminate0, forced/owned0. The final index5704 B has SHA256
 43b82a65497b282f26e6c7615a45b19553e2e0de26fc7ef894847adf3ca13eb9.
 
+The pure terminal prototype is also measured on five actual default inputs:
+A4854→4853, B5337→5329, C4995→4992, E4946→4945 and F84652→4648 B. Each
+bootstrap saves35 raw bytes. Current encoder controls reproduce all five
+predecessor payloads/whole files byte-exact before candidate encoding. This
+adds five control encodes to the original finite plan because old reports
+did not freeze historical executable/_lzma/liblzma SHA identities. Current
+tool pins/version strings are recorded; historical binary identity remains
+unproven. Candidate strict Python EOF/unused0 and CLI inverses pass. Actual
+F prototype bytes equal its already measured9751/8241893b candidate with
+new F encodes0. Total new control/candidate encodes10; native/compile/engine,
+normal/common-API integration/CI are0. All original12 child commands settle
+before leader reap, forced/owned0. These remain first costs, not maintained
+sizes. The final index27401 B has SHA256
+75e049ef2fb5b83f1b322ddb993bf42f74410aa44a08c7c7db528d36e0c9453c.
+
 ## Rust D Result projection, maintained local qualification: 2026-10-24
 
 The shipping generator appends the two reviewed Result cfg spans to its
@@ -137,7 +152,57 @@ result annotations are in this checkpoint. Build470838 B has SHA256
 7d49f8d93a8fbbea76c417aaf1a53b11538a3bc8fc54ca2fc3ef73fb49f87c06;
 runtime217031 B has SHA256
 c2977282bfb66d59a38461a898e9bad933a4e4c291de46d2d6d0b4bfd5bbc9c7.
-The newly integrated head requires its own CI;9f134646 precedes this change.
+The subsequent exactb459c8158a511ef2d092562eb4f0fc30ad63a22e automatic
+engine CI40057648188 and repository CI40057648190 succeed for C/Rust and
+Node22/24. Tested merge05179a49ddbef435ca84cd8b4fcb49149fc8a457 has the
+head tree48d0ceb6d3cf107c2b5bfa40b87cc3f1045f8216. The actual Rust ZIP's
+API SHA256 and full CRC pass. New shipping build/source-proof/runtime JSON
+bind18 Git-frozen inputs,19 spans/26 gaps/full inverse, two attempts per
+form,23 owned tools and eight sessions/64 legal GO/16 mapping observations.
+Runtime admission/all-loader booleans remain false. C maintained closures
+and canonical Rust D actual producers retain earlier scope through Git-byte
+comparison; generic catalog288 stays the same size with two Python pin
+changes, separate from unchanged actual generic producers. No new C ZIP or
+generic executable-byte equality is asserted. Original watch/intake close0,
+restart/remaining handles0. The final index45779 B has SHA256
+709305d87715cc4e0d652b3a380d19d007da9de5a4c9e1f374fdcf93999f67b4.
+This proof uses b459 Git bytes and excludes subsequent waiter-source WIP.
+
+## Rust D response waiter ownership repair: 2026-10-24
+
+The shipping Queue.until previously delegated to the legacy response waiter,
+whose Popen.poll could reap the original leader before Owned recorded it.
+The existing cleanup then refused the missing WNOWAIT identity before its
+destructive group signal. The observed defect is interrupted ownership and
+cleanup/error reporting; a post-reap destructive signal is not claimed.
+The replacement observes exit with waitid(WNOWAIT), retaining the existing
+queue/prefix/pump/timeout ordering and leaving reap to the original owner.
+
+The focused regression uses the actual Queue, Reader, Owned and Budget with
+two small external fixtures. Missing readyok after natural exit17 preserves
+the expected AssertionError and original leader until cleanup. A queued
+readyok after natural exit0 also preserves that leader until finish/cleanup.
+Both readers join and groups disappear without force or remaining handles.
+The first error path intentionally records settled_before_cleanup=false.
+The test is a separate validation input, not a new production dependency;
+the engine workflow runs it before the existing shipping build and verifier.
+
+A fresh ordinary build and positive verifier consume the changed verifier
+and identical actual production source sets. All23 tools settle before reap,
+with return0, no pre-reap extra members, forced0 and owned0; scalar/HQ native,
+load and whole files reproduce twice and remain11080/11440 B. Eight fresh
+sessions pass64 GO/64 legal results, observed mappings/stacks/stdio, joined
+readers and natural physical exit. Both original managed sessions terminate0
+without restart. The focused and ordinary/runtime receipts are preserved
+separately. Build471367 B has SHA256
+06ee90e0cedaab70a30ce1b1999ddafc4e341bb4fe297dc4e0766c7aa505d19e;
+runtime216745 B has SHA256
+c060baf46afaf512917572f5925e6dbd704272ffe434700cd749dab6676325ee.
+The combined local index32142 B has SHA256
+693bdd7221796d5eff7f34bca565fbee07133fe598d4389513d80239974f7b96.
+This is local qualification; the next exact-head CI is pending. Runtime
+admission/all-loader booleans remain false and no engine size gain is
+attributed to this validator repair.
 
 ## Full F2/F8 paired resource games: 2026-10-24
 

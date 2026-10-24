@@ -78,7 +78,24 @@ class Queue:
         self.owned.send(raw)
 
     def until(self, prefix, timeout=8):
-        return self.strict.Session.until(self, prefix, timeout)
+        def exit_status():
+            if self.owned.reaped:
+                return self.process.returncode
+            status = os.waitid(os.P_PID, self.process.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+            if status is None:
+                return None
+            return status.si_status if status.si_code == os.CLD_EXITED else -status.si_status
+
+        end = time.monotonic() + timeout
+        while time.monotonic() < end:
+            while self.queued:
+                text = self.queued.pop(0)
+                if text.startswith(prefix):
+                    return text
+            self.pump(min(.05, max(0, end-time.monotonic())))
+            if exit_status() is not None and not self.queued:
+                break
+        raise AssertionError(f"missing {prefix!r}; exit={exit_status()}, tail={self.lines[-8:]}, stderr={self.error!r}")
 
     def counts(self, expected):
         self.pump()

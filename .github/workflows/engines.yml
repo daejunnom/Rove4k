@@ -195,6 +195,7 @@ jobs:
           RUSTUP_TOOLCHAIN: 1.97.0
         run: |
           mkdir -p "$ROVE_TEST_OUT/tiny-rust-d-shipping"
+          python3 -I -B engines/compact/tiny-rust-d-shipping/test_queue.py --out "$ROVE_TEST_OUT/tiny-rust-d-shipping/queue-boundary"
           python3 -I -B engines/compact/tiny-rust-d-shipping/build.py --out "$ROVE_TEST_OUT/tiny-rust-d-shipping/build"
           python3 -I -B engines/compact/tiny-rust-d-shipping/verify.py --build "$ROVE_TEST_OUT/tiny-rust-d-shipping/build" --out "$ROVE_TEST_OUT/tiny-rust-d-shipping/runtime"
       - name: Compile the fixed A root source forms
