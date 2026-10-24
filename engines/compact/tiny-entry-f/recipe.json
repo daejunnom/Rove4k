@@ -108,7 +108,8 @@
     "engines/scripts/compiler_seek.py": "8ca5fd736f010cd9dd1e3b668065c0cf7d82f9e98653580b8f9b4c23e7d75a41",
     "engines/scripts/compiler_stdin.py": "fc92bb6146fcfc5a6c73cd9f68929192a90d22a875bf591caf2cf3b32b87055b",
     "engines/scripts/compiler_group.py": "d859ccc460619102c27433e2476d6d5be2e8de4046e07d49f28c0944c7ff0a77",
-    "engines/compact/tiny-entry-f/shipping_static_alias.py": "811bb6e0e7f59115eba8fd1dfbde92fda0b8238ea6384e242bf6aa5b7fe679f1"
+    "engines/compact/tiny-entry-f/shipping_static_alias.py": "811bb6e0e7f59115eba8fd1dfbde92fda0b8238ea6384e242bf6aa5b7fe679f1",
+    "engines/compact/tiny-entry-f/shipping_expression.py": "a2b678c5c5000d1d1acf9be19cbe5c31b33994bdcd4ad9c9aba8192ba9187b58"
   },
   "resource_literals": [
     [
@@ -315,22 +316,22 @@
   },
   "expected": {
     "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
-    "source_bytes": 7740,
-    "source_sha256": "f99f1c48e8a77d1f9483b09d46f2d68f7b1e92ea94dd437d708cc3e5a10dcfa9",
+    "source_bytes": 7712,
+    "source_sha256": "546df93f9d7f6e6f8b8bdf76b8e3d5e7f9c92913f33db7bd77deec8d50bef20e",
     "native_bytes": 18576,
     "native_sha256": "3aaaacf7891a2a4660f45d75b2b3e550ab40bf01c0c1766768517719cd1e63ec",
-    "whole_bytes": 4553,
-    "whole_sha256": "42d2cc763a891019d40550debcb29959c73179e89988bc44f6b94e9e15e94633",
+    "whole_bytes": 4547,
+    "whole_sha256": "92231fe356dc332983c2d95a5bb6e4580afac2a27fbee036fc92cac7a4666a17",
     "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
     "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
-    "bootstrap_sha256": "d8546d6bffb2c81856e6f54975f6121d97cf53948b16386793012088cb6991f6",
+    "bootstrap_sha256": "4cc341ab941290a551c7396094491ecac4a90448a0554e5c37a0a787855d610b",
     "semantic_readable_bytes": 25720,
     "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
     "dev_source_bytes": 19488,
     "dev_native_bytes": 26984,
     "input_profile_readable_bytes": 28587,
     "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
-    "bootstrap_bytes": 9449
+    "bootstrap_bytes": 9421
   },
   "local_input_sha256": {
     "engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
@@ -8009,12 +8010,12 @@
     "selected_overrides": {
       "grace": {
         "full": {
-          "bootstrap_bytes": 9449,
-          "bootstrap_sha256": "d8546d6bffb2c81856e6f54975f6121d97cf53948b16386793012088cb6991f6",
-          "whole_bytes": 4553,
-          "whole_sha256": "42d2cc763a891019d40550debcb29959c73179e89988bc44f6b94e9e15e94633",
-          "source_bytes": 7740,
-          "source_sha256": "f99f1c48e8a77d1f9483b09d46f2d68f7b1e92ea94dd437d708cc3e5a10dcfa9"
+          "bootstrap_bytes": 9421,
+          "bootstrap_sha256": "4cc341ab941290a551c7396094491ecac4a90448a0554e5c37a0a787855d610b",
+          "whole_bytes": 4547,
+          "whole_sha256": "92231fe356dc332983c2d95a5bb6e4580afac2a27fbee036fc92cac7a4666a17",
+          "source_bytes": 7712,
+          "source_sha256": "546df93f9d7f6e6f8b8bdf76b8e3d5e7f9c92913f33db7bd77deec8d50bef20e"
         },
         "material-noise": {
           "bootstrap_bytes": 10217,
@@ -8031,12 +8032,12 @@
       },
       "kill": {
         "full": {
-          "bootstrap_bytes": 9391,
-          "bootstrap_sha256": "1758a41818a25558cd8bd99e7ff0fd938678326fb9caf78bddc7cc87169f5e7a",
-          "whole_bytes": 4529,
-          "whole_sha256": "2a7e012769abd59740cb7e7cd4664d688064568924f3e404ed2adc626cda5f4d",
-          "source_bytes": 7740,
-          "source_sha256": "f99f1c48e8a77d1f9483b09d46f2d68f7b1e92ea94dd437d708cc3e5a10dcfa9"
+          "bootstrap_bytes": 9363,
+          "bootstrap_sha256": "dacb9c87891665e3d94b5eca27c5a4d9c639dad555dbf02c1dda1ae4682082b0",
+          "whole_bytes": 4519,
+          "whole_sha256": "c795fa68961db06dc87f1d0d93aac28644b23f4f8fd2183c2001162a9db149c3",
+          "source_bytes": 7712,
+          "source_sha256": "546df93f9d7f6e6f8b8bdf76b8e3d5e7f9c92913f33db7bd77deec8d50bef20e"
         },
         "material-noise": {
           "bootstrap_bytes": 10159,
@@ -8075,12 +8076,12 @@
       },
       "shell": {
         "full": {
-          "whole_bytes": 4026,
-          "whole_sha256": "c0ba0e13d0c81d3f779996e1782d04d5c1f294cdb120192e749d480ddc8b372b",
+          "whole_bytes": 4018,
+          "whole_sha256": "b559c980e3146bd76ac62d2ad4d6176240e8a284b186a22b592f9be8b8877d8e",
           "shell_header_bytes": 316,
           "shell_header_sha256": "a784b94f1099ab89161b084c127e84a480652953f9b16fabdb3b3e49d6f93973",
-          "source_bytes": 7740,
-          "source_sha256": "f99f1c48e8a77d1f9483b09d46f2d68f7b1e92ea94dd437d708cc3e5a10dcfa9"
+          "source_bytes": 7712,
+          "source_sha256": "546df93f9d7f6e6f8b8bdf76b8e3d5e7f9c92913f33db7bd77deec8d50bef20e"
         }
       }
     },
@@ -8247,5 +8248,47 @@
       "native_bytes_and_features_unchanged": true
     },
     "qualification": "finite firstcost and source/native proof; fresh ordinary and selected receipt recorded externally"
+  },
+  "scalar_expression_terminal": {
+    "scope": "full nonlegacy only, after static alias and exact closed-cdbf owner/bootstrap/whole guards; reduced and legacy outputs unchanged",
+    "input": {
+      "source_bytes": 7740,
+      "source_sha256": "f99f1c48e8a77d1f9483b09d46f2d68f7b1e92ea94dd437d708cc3e5a10dcfa9"
+    },
+    "output": {
+      "source_bytes": 7712,
+      "source_sha256": "546df93f9d7f6e6f8b8bdf76b8e3d5e7f9c92913f33db7bd77deec8d50bef20e"
+    },
+    "raw_delta": -28,
+    "helper_sha256": "a2b678c5c5000d1d1acf9be19cbe5c31b33994bdcd4ad9c9aba8192ba9187b58",
+    "previous_selected_full": {
+      "grace": {
+        "bootstrap_bytes": 9449,
+        "bootstrap_sha256": "d8546d6bffb2c81856e6f54975f6121d97cf53948b16386793012088cb6991f6",
+        "whole_bytes": 4553,
+        "whole_sha256": "42d2cc763a891019d40550debcb29959c73179e89988bc44f6b94e9e15e94633",
+        "source_bytes": 7740,
+        "source_sha256": "f99f1c48e8a77d1f9483b09d46f2d68f7b1e92ea94dd437d708cc3e5a10dcfa9"
+      },
+      "kill": {
+        "bootstrap_bytes": 9391,
+        "bootstrap_sha256": "1758a41818a25558cd8bd99e7ff0fd938678326fb9caf78bddc7cc87169f5e7a",
+        "whole_bytes": 4529,
+        "whole_sha256": "2a7e012769abd59740cb7e7cd4664d688064568924f3e404ed2adc626cda5f4d",
+        "source_bytes": 7740,
+        "source_sha256": "f99f1c48e8a77d1f9483b09d46f2d68f7b1e92ea94dd437d708cc3e5a10dcfa9"
+      },
+      "shell": {
+        "whole_bytes": 4026,
+        "whole_sha256": "c0ba0e13d0c81d3f779996e1782d04d5c1f294cdb120192e749d480ddc8b372b",
+        "shell_header_bytes": 316,
+        "shell_header_sha256": "a784b94f1099ab89161b084c127e84a480652953f9b16fabdb3b3e49d6f93973",
+        "source_bytes": 7740,
+        "source_sha256": "f99f1c48e8a77d1f9483b09d46f2d68f7b1e92ea94dd437d708cc3e5a10dcfa9"
+      }
+    },
+    "semantics": "redundant scalar expression grouping, equivalent unsigned typedef cast, 32-bit bounded TT clear index; full native bytes equal",
+    "target": "Linux x86-64 admitted compiler unsigned32, TT clear index0..262143 terminates262144",
+    "qualification": "fixed source/native and actual whole firstcost proof; fresh ordinary and selected receipts recorded externally"
   }
 }

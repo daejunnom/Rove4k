@@ -189,10 +189,15 @@ def main():
         quiet_source=module('fixed_resource8_quiet',own/'quiet_source.py')
         quiet_input=module('fixed_F2_quiet_input',packaging['shipping_quiet_slot.py'])
         static_alias=module('fixed_F2_static_alias',packaging['shipping_static_alias.py'])
-        resource_base=static_alias.restore_source(base)
+        source_expression=module('fixed_F2_source_expression',packaging['shipping_expression.py'])
+        static_base=source_expression.restore_source(base)
+        require({'bytes':len(static_base),'sha256':sha(static_base)}==recipe['base_source_before_expression'],
+                'source expression inverse differs from static alias base')
+        resource_base=static_alias.restore_source(static_base)
         require({'bytes':len(resource_base),'sha256':sha(resource_base)}==recipe['base_source_before_static_alias'],
                 'static alias inverse differs from original resource base')
         report['base_source_admission']={'selected':identity(args.base_source),'full_inverse':True,
+            'static_alias_base':{'bytes':len(static_base),'sha256':sha(static_base)},'source_expression_inverse':True,
             'original_resource_base':{'bytes':len(resource_base),'sha256':sha(resource_base)},'resource_helper_unchanged':True}
         source,proof=quiet_source.transform_source(resource_base,quiet_input=quiet_input,resource_transform=specialize.transform_source)
         require({'bytes':len(source),'sha256':sha(source)}=={'bytes':expected['source_bytes'],'sha256':expected['source_sha256']} and proof['full_inverse'] and proof['raw_delta']==38 and [x['role'] for x in proof['edits']]==recipe['source_roles'],'source/profile proof differs')

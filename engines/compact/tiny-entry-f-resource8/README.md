@@ -9,8 +9,9 @@ The old passed baseline below does not qualify the newly shortened owner.
 
 F8 retains source7868/fb18e915 and native18576/8c98349f. Applying F2's static
 alias to F8 would grow the minimum shell from4028 to4030, so it is not selected
-here. The current base input is F2's7740/f99f1c48 source. Its explicit, exact
-alias inverse restores7830/43bc6781 before the existing quiet/resource proof;
+here. The current base input is F2's7712/546df93f source. Its explicit expression
+inverse restores7740/f99f1c48, then the exact static-alias inverse restores
+7830/43bc6781 before the existing quiet/resource proof;
 the original six resource roles and protected gaps are retained. This is a
 declared profile-specific representation choice, not a hash fallback.
 

@@ -59,6 +59,14 @@ cleanup child 회수 조건 때문에 미선택이며, F2/F8 Bash의 70/68 B 여
 
 ## 후속 압축과 엔진별 Bash 인수
 
+추가 유한 source 탐색에서 full F2의 source를7740에서7712 B로 더 줄였다.
+현재 선택 비용은 full F2 grace/kill/shell **4547/4519/4018 B**이며 Bash
+여유는78 B다. A/B/C/E와 F8 비용, reduced F 및 legacy 출력은 아래 첫 통합
+값을 유지한다. 이 표현 단계의 실제 ordinary/selected 인수는 아래 별도
+기록으로 구분하며 cdbf49a의 실행 통과를 자동으로 승계하지 않는다.
+
+### 첫 통합 cdbf49a: 공통 owner와 static alias
+
 2026-10-25 후속 source의 비용은 A/B/C/E grace 4768/5245/4906/4859 B,
 F2 full grace/kill/shell 4553/4529/4026 B, F8 full grace/kill/shell
 4571/4542/4028 B다. Reduced F noise grace/kill 4594/4566 B,
@@ -145,6 +153,46 @@ PR #12의 해당 head checks 및 외부 통합 인덱스에서 확인한다. 이
 로컬 통과로 CI 성공을 미리 기록하지 않는다. 남은 작업은 grace의4096 B,
 다른 A–F 경로의 축약과 full 기능, 대상 호스트의 시작·정리 조건 및 실전 비교다.
 기준선별 source·wrapper·기능을 구분하며 크기 목표 이후에도 유효한 축약을 찾는다.
+
+### 추가 표현 축약: source7712 / shell4018
+
+첫 통합의 4026 B 통과 뒤에도 source 탐색을 계속했다. 유한6개 계측에서
+각 initializer의 mask 괄호, 기존 unsigned typedef cast, 고정 TT clear
+index 타입, 단일 MTD 대입문의 braces, continuation subscript의 괄호를
+줄이는 결합이 source28 B/whole8 B를 더 줄였다. `shipping_expression.py`는
+정확한7740 입력을 받아7712로 변환하고7구간·8개 보호 complement·전체
+역변환을 검사한다. Static helper와 이전 producing 기록은 바꾸지 않았다.
+
+현재 GCC13.3.0에서 unsigned/int4 B, size_t/pointer8 B를 확인했다. `Y`는
+정확히 unsigned이고 TT index는0..262143만 사용해262144에서 종료한다.
+세 mask는 순수 식별자의 scalar initializer이고, 단일 대입문의 else binding과
+subscript expression 경계는 유지된다. 같은 명령의 old/new native 전체는
+18576 B/`3aaaacf7891a2a4660f45d75b2b3e550ab40bf01c0c1766768517719cd1e63ec`로
+동일하다. 전처리 bytes 동일성은 앞선 static-only 단계의 근거이며 이 표현
+단계까지 그대로 확대하지 않는다.
+
+실제 cdbf full grace/kill/shell의 old whole4553/4529/4026를 먼저 다시
+재현한 뒤 새 C literal을 넣어4547/4519/4018를 별도 인코딩했다. 새 helper
+SHA는`a2b678c5c5000d1d1acf9be19cbe5c31b33994bdcd4ad9c9aba8192ba9187b58`,
+source SHA는`546df93f9d7f6e6f8b8bdf76b8e3d5e7f9c92913f33db7bd77deec8d50bef20e`,
+shell SHA는`b559c980e3146bd76ac62d2ad4d6176240e8a284b186a22b592f9be8b8877d8e`다.
+F8 입장은7712에서 expression inverse7740, static inverse7830를 거쳐
+기존 resource source7868을 생성한다. 이 단계의 native·source 증명은
+완료했고 별도 ordinary/selected runtime도 마감했다.
+
+원 session51021의 terminal exit0을 확인했다. Full F2 grace/kill/shell과
+F8 grace/kill/shell 총6개가 각각2회 재현됐으며, selected quit/EOF12세션·
+48 legal GO가 통과했다. F2 grace의 unchanged DEV2회도 포함한다. F8의
+6세션은 새 입력의 이중 역변환과 동일 native/TID, 전체8worker CPU tick을
+확인했다. Source84는 동결 전후 동일하고 forced cleanup0/owned process0이다.
+
+이 최신6개 실행과 ABCE8개·reduced F4개의 앞선 불변 산출물 근거를 구분한다.
+Current18개 선택의 coverage는36세션·144 legal GO이며, 이번 두 통합 단계에서
+실제로 수행한 주 엔진 실행은48세션·192 GO다. 이전 full F2/F8 통과를 새
+expression의 fresh 실행으로 재집계하지 않는다. 최종 CI는 최신 source의
+전체 필요한 경로를 다시 실행한다. 새로운 F2 shell4018/b559c980 제품은 새
+표현 인수 폴더의 submissions에 별도 복사하고 원 실행 파일의 해시와 대조했다.
+이전4026 제품과 실패·미채택 계측 기록은 보존한다.
 
 ## 기준과 바로잡은 전제
 
