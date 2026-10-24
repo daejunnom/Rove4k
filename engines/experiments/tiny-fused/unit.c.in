@@ -1,0 +1,135 @@
+/* Included after the frozen production translation unit. No worker is started. */
+#define CHECK(c) do { if(!(c)){fprintf(stderr,"check failed %s:%d: %s\n",__FILE__,__LINE__,#c);exit(1);} } while(0)
+static const Board *observed_root;
+static unsigned visits[1u<<17],sequence[MOVES],sequence_length;
+static void observe(Visit *x,Fact d){
+    if(x->p!=observed_root||!x->w)return;
+    CHECK(d.m<(1u<<17));CHECK(sequence_length<MOVES);
+    visits[d.m]++;sequence[sequence_length++]=d.m;
+}
+static int same(const Board *a,const Board *b){
+    return !memcmp(a->b,b->b,sizeof a->b)&&a->s==b->s&&a->c==b->c&&a->e==b->e&&
+        !memcmp(a->k,b->k,sizeof a->k)&&a->half==b->half&&a->v==b->v&&a->h==b->h&&a->r==b->r;
+}
+static void load(Board *b,const char *f){CHECK(fen(b,f));CHECK(verify_board(b));}
+static Worker *prepare(const Board *b){
+    clear();memset(workers,0,sizeof workers);Worker *w=workers;w->length=1;w->keys[0]=b->h;
+    atomic_store(&stopped,0);atomic_store(&searched,0);deadline=UINT64_MAX;limit=0;max_depth=4;
+    observed_root=0;return w;
+}
+static void begin_observation(const Board *b){
+    memset(visits,0,sizeof visits);sequence_length=0;observed_root=b;
+}
+static void exact_visits(const Board *b){
+    Move list[MOVES];int n=gen(b,list);unsigned expected[1u<<17]={0};
+    for(int i=0;i<n;i++){CHECK(!expected[list[i]]);expected[list[i]]=1;}
+    CHECK(sequence_length==(unsigned)n);
+    for(unsigned i=0;i<(1u<<17);i++)CHECK(visits[i]==expected[i]);
+}
+static void cap_cases(void){
+    static const char *dead_fens[]={"7k/8/8/8/8/8/8/K7 w - - 0 1","7k/8/8/8/8/8/8/K1B5 w - - 0 1"};
+    for(unsigned i=0;i<2;i++){
+        Board b,copy;load(&b,dead_fens[i]);copy=b;Worker *w=prepare(&b);Move best=0;
+        CHECK(search(w,&b,1,-MATE,MATE,PLY-1,6,&best)==0);
+        CHECK(!atomic_load(&stopped)&&!w->ply_aborts&&w->length==1&&same(&b,&copy));
+    }
+    Board b;start(&b);Worker *w=prepare(&b);Move best=0;
+    CHECK(search(w,&b,1,-MATE,MATE,PLY-1,6,&best)==0);
+    CHECK(atomic_load(&stopped)&&w->ply_aborts==1&&w->length==1);
+    load(&b,"7k/6Q1/5K2/8/8/8/8/8 b - - 100 1");w=prepare(&b);
+    CHECK(search(w,&b,1,-MATE,MATE,0,6,&best)==-MATE);
+    CHECK(!atomic_load(&stopped)&&!w->ply_aborts&&w->length==1);
+    puts("{\"case\":\"dead-cap-nondead-cap-mate-half100\",\"passed\":true}");fflush(stdout);
+}
+static void tt_cases(void){
+    Board b;load(&b,"6k1/1q6/8/8/8/8/1Q6/K7 w - - 0 1");Worker *w=prepare(&b);
+    Move quiet=MOVE(0,1,0),capture=MOVE(17,97,0),best=0;Board child;
+    CHECK(parse(&b,"a1b1",&child)==quiet);
+    probe(b.h^mix(b.r+(unsigned)b.half),quiet|((uint64_t)3<<41));
+    begin_observation(&b);int score=search(w,&b,0,-MATE,MATE,0,6,&best);observed_root=0;
+    CHECK(score>500&&visits[quiet]==1&&visits[capture]==1&&sequence[0]==quiet);
+    CHECK(!atomic_load(&stopped)&&w->length==1);
+    printf("{\"case\":\"qs-quiet-tt-then-queen-capture\",\"score\":%d,\"passed\":true}\n",score);fflush(stdout);
+    start(&b);w=prepare(&b);Move impossible=MOVE(20,68,0);best=0;
+    probe(b.h^mix(b.r+(unsigned)b.half),impossible|((uint64_t)1<<41));
+    begin_observation(&b);search(w,&b,1,-MATE,MATE,0,6,&best);observed_root=0;
+    exact_visits(&b);CHECK(!visits[impossible]&&best!=impossible&&!atomic_load(&stopped)&&w->length==1);
+    puts("{\"case\":\"impossible-tt-not-applied\",\"passed\":true}");fflush(stdout);
+}
+static void root_visits(Board *b,const char *label,int pinned,int king_capture){
+    Board copy=*b;Worker *w=prepare(b);Move best=0;
+    if(pinned)w->history[20][37]=32767;
+    begin_observation(b);search(w,b,1,-MATE,MATE,0,6,&best);observed_root=0;
+    exact_visits(b);CHECK(!atomic_load(&stopped)&&w->length==1&&same(b,&copy));
+    if(pinned){
+        Board q;CHECK(sequence_length>2&&sequence[0]==MOVE(20,35,0)&&sequence[1]==MOVE(20,37,0));
+        CHECK(!make(b,MOVE(20,35,0),&q)&&!make(b,MOVE(20,37,0),&q)&&best);
+    }
+    if(king_capture)CHECK(sequence[0]==MOVE(3,115,0)&&visits[MOVE(3,115,0)]==1&&best!=MOVE(3,115,0));
+    printf("{\"case\":\"root-exactly-once\",\"fixture\":\"%s\",\"raw_moves\":%u,\"passed\":true}\n",label,sequence_length);fflush(stdout);
+}
+static void query_parity(const Board *b){
+    Board copy=*b,q,r;Move list[MOVES];int n=gen(b,list);Move fallback=first(b);int fallback_seen=0;
+    for(int i=0;i<n;i++){
+        char name[6];text(list[i],name);int legal=make(b,list[i],&q);Move parsed=parse(b,name,&r);
+        CHECK(!!parsed==legal);
+        if(legal){
+            CHECK(parsed==list[i]&&same(&q,&r)&&verify_board(&q));
+            CHECK(q.r==(q.half?((b->r<<1)|(b->r>>63))^q.h:q.h));
+            if(list[i]==fallback)fallback_seen=1;
+        }
+    }
+    CHECK(fallback_seen&&same(b,&copy));
+}
+static void special_child(const Board *b,const char *name,int cell,int piece_value,int removed){
+    Board q;CHECK(parse(b,name,&q));CHECK(verify_board(&q)&&q.b[cell]==piece_value&&q.s==-b->s&&q.half==0);
+    if(removed>=0)CHECK(!q.b[removed]);
+}
+static void board_cases(void){
+    static const char *fens[]={
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1",
+        "7k/8/8/3pP3/8/8/8/K7 w - d6 0 1",
+        "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1",
+        "7k/P7/8/8/8/8/8/K7 w - - 0 1",
+        "1r5k/P7/8/8/8/8/8/K7 w - - 0 1"};
+    static const char *labels[]={"start","kiwipete","ep","castles","quiet-promotions","capture-promotions"};
+    for(unsigned i=0;i<6;i++){
+        Board b;load(&b,fens[i]);query_parity(&b);root_visits(&b,labels[i],0,0);
+        if(i==0){CHECK(perft(&b,1)==20&&perft(&b,2)==400&&perft(&b,3)==8902);}
+        if(i==1){CHECK(perft(&b,1)==48&&perft(&b,2)==2039);}
+        if(i==2)special_child(&b,"e5d6",83,1,67);
+        if(i==3){
+            Board q;CHECK(parse(&b,"e1g1",&q)&&q.b[6]==6&&q.b[5]==4&&!q.b[4]&&!q.b[7]&&!(q.c&3)&&verify_board(&q));
+            CHECK(parse(&b,"e1c1",&q)&&q.b[2]==6&&q.b[3]==4&&!q.b[4]&&!q.b[0]&&!(q.c&3)&&verify_board(&q));
+        }
+        if(i==4||i==5)for(int p=2;p<=5;p++){
+            char name[]="a7a8n";name[2]=i==4?'a':'b';name[4]="  nbrq"[p];special_child(&b,name,i==4?112:113,p,96);
+        }
+    }
+    Board b;load(&b,"4r2k/8/8/8/8/3p4/4B3/4K3 w - - 0 1");query_parity(&b);root_visits(&b,"illegal-tactical-and-quiet-prefixes",1,0);
+    load(&b,"3k4/8/8/8/8/8/8/K2Q4 w - - 0 1");query_parity(&b);root_visits(&b,"illegal-king-capture-prefix",0,1);
+    puts("{\"case\":\"published-perft-and-special-child-parity\",\"board_fixtures\":6,\"passed\":true}");fflush(stdout);
+}
+static void replay_cases(void){
+    char repeat[]="startpos moves g1f3 g8f6 f3g1 f6g8 g1f3 g8f6 f3g1 f6g8";set_position(repeat);
+    CHECK(game_length==9&&drawn());Board copy=position;uint64_t saved[HISTORY];memcpy(saved,game_keys,sizeof saved);
+    Worker *w=prepare(&position);w->length=game_length;memcpy(w->keys,game_keys,game_length*sizeof *game_keys);Move best=0;
+    CHECK(search(w,&position,1,-MATE,MATE,0,6,&best)==0&&!atomic_load(&stopped)&&w->length==9);
+    char invalid[]="startpos moves e2e4 e7e5 e1e3";set_position(invalid);
+    CHECK(game_length==9&&same(&position,&copy)&&!memcmp(saved,game_keys,sizeof saved));
+    puts("{\"case\":\"third-repeat-and-late-invalid-rollback\",\"passed\":true}");fflush(stdout);
+}
+static void feature_case(void){
+    Board b;start(&b);Board copy=b;game_length=1;game_keys[0]=b.h;Worker *w=prepare(&b);
+    think(w,&b);
+    CHECK(!atomic_load(&stopped)&&w->depth==4&&w->length==1&&w->keys[0]==b.h&&same(&b,&copy));
+    CHECK(w->pvs&&w->qs&&w->hits&&w->hist_updates&&w->cont_updates&&w->corr_updates&&w->corr_uses);
+    printf("{\"case\":\"natural-retained-depth4-features\",\"depth\":%d,\"nodes\":%llu,\"pvs\":%llu,\"qs\":%llu,\"hits\":%llu,\"history\":%llu,\"continuation\":%llu,\"correction\":%llu,\"correction_uses\":%llu,\"passed\":true}\n",w->depth,(unsigned long long)w->nodes,(unsigned long long)w->pvs,(unsigned long long)w->qs,(unsigned long long)w->hits,(unsigned long long)w->hist_updates,(unsigned long long)w->cont_updates,(unsigned long long)w->corr_updates,(unsigned long long)w->corr_uses);fflush(stdout);
+}
+int main(void){
+    printf("{\"case\":\"layout\",\"Fact\":%zu,\"Visit\":%zu,\"Board\":%zu,\"Worker\":%zu}\n",sizeof(Fact),sizeof(Visit),sizeof(Board),sizeof(Worker));fflush(stdout);
+    table=calloc((size_t)1<<TT_BITS,sizeof *table);CHECK(table);
+    cap_cases();tt_cases();board_cases();replay_cases();feature_case();
+    free(table);puts("{\"case\":\"targeted-complete\",\"passed\":true}");return 0;
+}

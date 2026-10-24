@@ -1,0 +1,21 @@
+enum { ATTACK,SURVEY,FIXED,TACTICAL,QUIET,FIRST,MATCH,COLLECT };
+/* Raw move plus facts from the immutable parent. x is the actual victim cell;
+ * r/u are the rook cells, or r=-1. No priority bits enter Move. */
+typedef struct { Move m;int f,t,v,c,x,r,u; } Fact;
+typedef struct {
+    const Board *p;Worker *w;Move *root;Board *out;const char *input;
+    int op,side,sq,rank[2],seen,minors,knights,colors,major;
+    Fact tt,pref[2];
+    int depth,a,b,ply,prior,check,quiet,legal,best,tactical;
+    Move move;
+#if DEV
+    Move *list;int count;
+#endif
+} Visit;
+static int walk(Visit *);
+static int offer(Visit *,Fact);
+static int search(Worker *,const Board *,int,int,int,int,int,Move *);
+static void text(Move,char *);
+int attacked(const Board *p,int sq,int side){
+    Visit x={0};x.op=ATTACK;x.p=p;x.sq=sq;x.side=side;return walk(&x);
+}

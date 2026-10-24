@@ -1,0 +1,111 @@
+/* Appended after a complete readable DEV translation unit whose main is renamed.
+ * Calls the real single-worker search, TT and learning code. These fixtures are
+ * deterministic policy comparisons, never timing or SMP scalability evidence.
+ */
+#include <assert.h>
+#if !DEV || WORKERS != 1 || TT_BITS != 18 || CONTROLLED != 1
+#error controlled comparison requires DEV=1 WORKERS=1 TT_BITS=18 CONTROLLED=1
+#endif
+
+static uint64_t compare_digest(uint64_t h,const void *p,size_t n){
+    const unsigned char *s=p;
+    while(n--)h=(h^*s++)*UINT64_C(1099511628211);
+    return h;
+}
+static int compare_square(int q){
+#if SENTINEL_COMPARE
+    return q>=21&&q<=98&&q%10>=1&&q%10<=8;
+#else
+    return !(q&0x88);
+#endif
+}
+static int compare_from_old(int q){
+#if SENTINEL_COMPARE
+    return 21+(q&7)+(q>>4)*10;
+#else
+    return q;
+#endif
+}
+static Move compare_move(Move m){
+    if(!m)return 0;
+    assert(compare_square(FROM(m))&&compare_square(TO(m)));
+#if SENTINEL_COMPARE
+    return MOVE(OLD_SQUARE(FROM(m)),OLD_SQUARE(TO(m)),PROMO(m));
+#else
+    return m;
+#endif
+}
+static int compare_piece_index(int old){
+#if SENTINEL_COMPARE
+    return old<6?12-old:old-6;
+#else
+    return old;
+#endif
+}
+int main(void){
+    static const struct {const char *fen;int depth;} cases[]={
+        {"startpos",4},
+        {"r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1",3},
+        {"6k1/8/8/3pP3/8/8/8/6K1 w - d6 0 1",4},
+        {"7k/8/8/8/8/8/1Q6/K7 w - - 99 1",3},
+        {"7k/8/8/8/8/8/1Q6/K7 w - - 0 1",3},
+        {"7k/8/8/8/8/8/P7/K7 w - - 0 1",4},
+        {"1r5k/P7/8/8/8/8/8/7K w - - 0 1",3},
+        {"6k1/5ppp/8/8/8/8/5PPP/6K1 w - - 0 1",4},
+        {"6k1/1q6/8/8/8/8/1Q6/K7 w - - 0 1",4},
+        {"7k/6Q1/6K1/8/8/8/8/8 b - - 100 1",4},
+        {"7k/5Q2/6K1/8/8/8/8/8 b - - 0 1",3},
+        {"startpos",4}
+    };
+    table=calloc((size_t)1<<TT_BITS,sizeof *table);if(!table)return 2;
+    clear();Worker *w=workers;
+    for(unsigned c=0;c<sizeof cases/sizeof *cases;c++){
+        Board b;if(!strcmp(cases[c].fen,"startpos"))start(&b);else if(!fen(&b,cases[c].fen))return 3;
+        assert(verify_board(&b));
+        game_length=1;game_keys[0]=b.h;max_depth=cases[c].depth;limit=0;deadline=UINT64_MAX;
+        atomic_store(&searched,0);atomic_store(&stopped,0);w->best=0;think(w,&b);
+
+        int16_t history[128][128]={0},continuation[13][13];
+        size_t extent=sizeof w->history/sizeof w->history[0];
+        for(size_t from=0;from<extent;from++)for(size_t to=0;to<extent;to++)
+            if(!compare_square((int)from)||!compare_square((int)to))assert(!w->history[from][to]);
+        for(int from=0;from<128;from++)if(!(from&0x88))
+            for(int to=0;to<128;to++)if(!(to&0x88))
+                history[from][to]=w->history[compare_from_old(from)][compare_from_old(to)];
+        for(int prior=0;prior<13;prior++)for(int piece=0;piece<13;piece++)
+            continuation[prior][piece]=w->continuation[compare_piece_index(prior)][compare_piece_index(piece)];
+
+        uint64_t seed=UINT64_C(1469598103934665603),learning=seed,tt=seed,ttkeys=seed,ttdata=seed;
+        uint64_t history_hash=compare_digest(seed,history,sizeof history);
+        uint64_t continuation_hash=compare_digest(seed,continuation,sizeof continuation);
+        uint64_t correction_hash=compare_digest(seed,w->correction,sizeof w->correction);
+        uint64_t path_hash=compare_digest(seed,w->keys,sizeof w->keys),entries=0;
+        learning=compare_digest(learning,history,sizeof history);
+        learning=compare_digest(learning,continuation,sizeof continuation);
+        learning=compare_digest(learning,w->correction,sizeof w->correction);
+        learning=compare_digest(learning,w->keys,sizeof w->keys);
+        for(size_t i=0;i<((size_t)1<<TT_BITS);i++){
+            uint64_t key=table[i].key,data=table[i].data;
+            data=(data&~UINT64_C(131071))|compare_move((Move)(data&131071));
+            entries+=!!(key||data);
+            tt=compare_digest(tt,&key,sizeof key);tt=compare_digest(tt,&data,sizeof data);
+            ttkeys=compare_digest(ttkeys,&key,sizeof key);ttdata=compare_digest(ttdata,&data,sizeof data);
+        }
+        char move[6];text(w->best,move);
+        printf("{\"case\":%u,\"best\":%u,\"best_uci\":\"%s\",\"score\":%d,\"depth\":%d,\"nodes\":%llu,\"atomic_nodes\":%llu,"
+               "\"root_hash\":\"%016llx\",\"root_context\":\"%016llx\",\"root_eval\":%d,\"root_halfmove\":%d,"
+               "\"learning_path\":\"%016llx\",\"history\":\"%016llx\",\"continuation\":\"%016llx\",\"correction\":\"%016llx\",\"path\":\"%016llx\","
+               "\"tt\":\"%016llx\",\"tt_keys\":\"%016llx\",\"tt_data\":\"%016llx\",\"tt_entries\":%llu,"
+               "\"pvs\":%llu,\"qs\":%llu,\"hits\":%llu,\"hist\":%llu,\"cont\":%llu,\"corr\":%llu,\"corr_use\":%llu,\"abort\":%llu,\"stopped\":%d}\n",
+               c,compare_move(w->best),move,w->score,w->depth,(unsigned long long)w->nodes,(unsigned long long)atomic_load(&searched),
+               (unsigned long long)b.h,(unsigned long long)b.r,b.v,b.half,
+               (unsigned long long)learning,(unsigned long long)history_hash,(unsigned long long)continuation_hash,
+               (unsigned long long)correction_hash,(unsigned long long)path_hash,
+               (unsigned long long)tt,(unsigned long long)ttkeys,(unsigned long long)ttdata,(unsigned long long)entries,
+               (unsigned long long)w->pvs,(unsigned long long)w->qs,(unsigned long long)w->hits,
+               (unsigned long long)w->hist_updates,(unsigned long long)w->cont_updates,
+               (unsigned long long)w->corr_updates,(unsigned long long)w->corr_uses,
+               (unsigned long long)w->ply_aborts,atomic_load(&stopped));
+    }
+    free(table);return 0;
+}

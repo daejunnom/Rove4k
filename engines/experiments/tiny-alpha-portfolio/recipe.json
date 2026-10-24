@@ -1,0 +1,314 @@
+{
+  "format": 1,
+  "source_checkpoint": "829f27d1338be6fd9f3f2a270239bdc6e3d89a27",
+  "scope": "fixed 89 private non-symbol shipping aliases and two fixed resource literals only",
+  "control_file_count": 35,
+  "control_files": {
+    "engines/compact/tiny-a/pack_stream.py": {
+      "bytes": 5444,
+      "sha256": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
+      "working_raw_bytes": 5444,
+      "working_raw_sha256": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
+      "LF_normalized": false
+    },
+    "engines/compact/tiny-a/stitch.py": {
+      "bytes": 3863,
+      "sha256": "2b0d25b4855a3ed4ddd9e24b8e4b0e081439baa2ed8f744dba0215a700023f23",
+      "working_raw_bytes": 3863,
+      "working_raw_sha256": "2b0d25b4855a3ed4ddd9e24b8e4b0e081439baa2ed8f744dba0215a700023f23",
+      "LF_normalized": false
+    },
+    "engines/compact/tiny-b/generate.py": {
+      "bytes": 5581,
+      "sha256": "c2cc1fd68d05d66f5525dfabc2368fdb0ddff2716bbf65ecb2033614b113aa59",
+      "working_raw_bytes": 5581,
+      "working_raw_sha256": "c2cc1fd68d05d66f5525dfabc2368fdb0ddff2716bbf65ecb2033614b113aa59",
+      "LF_normalized": false
+    },
+    "engines/compact/tiny-entry-b/.gitattributes": {
+      "bytes": 14,
+      "sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9",
+      "working_raw_bytes": 14,
+      "working_raw_sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9",
+      "LF_normalized": false
+    },
+    "engines/compact/tiny-entry-b/README.md": {
+      "bytes": 8761,
+      "sha256": "8561d5c249c4ae7d96fb458185d5cd97e6d03f37f80d7455a4e0f9ae94bcdab1",
+      "working_raw_bytes": 8761,
+      "working_raw_sha256": "8561d5c249c4ae7d96fb458185d5cd97e6d03f37f80d7455a4e0f9ae94bcdab1",
+      "LF_normalized": false
+    },
+    "engines/compact/tiny-entry-b/bootstrap.py.in": {
+      "bytes": 1072,
+      "sha256": "0402f63d44e66d57174079672762414a2324f8dd8c2b272fe34f49b68e45edbc",
+      "working_raw_bytes": 1072,
+      "working_raw_sha256": "0402f63d44e66d57174079672762414a2324f8dd8c2b272fe34f49b68e45edbc",
+      "LF_normalized": false
+    },
+    "engines/compact/tiny-entry-b/build.py": {
+      "bytes": 8866,
+      "sha256": "89271e0d7ce7b2056cfe0e82d70c21b8a9f29904c6443eaf693808d91493c2fc",
+      "working_raw_bytes": 8866,
+      "working_raw_sha256": "89271e0d7ce7b2056cfe0e82d70c21b8a9f29904c6443eaf693808d91493c2fc",
+      "LF_normalized": false
+    },
+    "engines/compact/tiny-entry-b/engine.c": {
+      "bytes": 28953,
+      "sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+      "working_raw_bytes": 28953,
+      "working_raw_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+      "LF_normalized": false
+    },
+    "engines/compact/tiny-entry-b/fresh.py": {
+      "bytes": 5360,
+      "sha256": "81df003f684e813d5f77b2667cb9994767ac18a2065b7e7d1c0ae1706fad8d17",
+      "working_raw_bytes": 5360,
+      "working_raw_sha256": "81df003f684e813d5f77b2667cb9994767ac18a2065b7e7d1c0ae1706fad8d17",
+      "LF_normalized": false
+    },
+    "engines/compact/tiny-entry-b/launcher.sh": {
+      "bytes": 75,
+      "sha256": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a",
+      "working_raw_bytes": 75,
+      "working_raw_sha256": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a",
+      "LF_normalized": false
+    },
+    "engines/compact/tiny-entry-b/recipe.json": {
+      "bytes": 3276,
+      "sha256": "be4a9a2dda5136ac7a89431fb93cbf9674a0bdac403a9e252e0835b82a0de681",
+      "working_raw_bytes": 3276,
+      "working_raw_sha256": "be4a9a2dda5136ac7a89431fb93cbf9674a0bdac403a9e252e0835b82a0de681",
+      "LF_normalized": false
+    },
+    "engines/compact/tiny-entry-b/verify.py": {
+      "bytes": 7012,
+      "sha256": "cc63a511446c35db54676356a9d885b95db7da994133147cda3e3ff1c4464b0c",
+      "working_raw_bytes": 7012,
+      "working_raw_sha256": "cc63a511446c35db54676356a9d885b95db7da994133147cda3e3ff1c4464b0c",
+      "LF_normalized": false
+    },
+    "engines/compact/tiny-entry-c/.gitattributes": {
+      "bytes": 14,
+      "sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9",
+      "working_raw_bytes": 14,
+      "working_raw_sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9",
+      "LF_normalized": false
+    },
+    "engines/compact/tiny-entry-c/README.md": {
+      "bytes": 9966,
+      "sha256": "5ad25eda4f4e92002be3ac8e456bb2ec627a9fc3a2895a8d56f79588a23d979e",
+      "working_raw_bytes": 9966,
+      "working_raw_sha256": "5ad25eda4f4e92002be3ac8e456bb2ec627a9fc3a2895a8d56f79588a23d979e",
+      "LF_normalized": false
+    },
+    "engines/compact/tiny-entry-c/bootstrap.py.in": {
+      "bytes": 1082,
+      "sha256": "68e4544370fdd2ca3d240963a0782004f955930187c3d8edfda78cc2f59b7f6a",
+      "working_raw_bytes": 1082,
+      "working_raw_sha256": "68e4544370fdd2ca3d240963a0782004f955930187c3d8edfda78cc2f59b7f6a",
+      "LF_normalized": false
+    },
+    "engines/compact/tiny-entry-c/build.py": {
+      "bytes": 9414,
+      "sha256": "4da53485f66fdd8abaa6090e2ca6bf141330fe3f96e8c05ba885655f4b8e3195",
+      "working_raw_bytes": 9414,
+      "working_raw_sha256": "4da53485f66fdd8abaa6090e2ca6bf141330fe3f96e8c05ba885655f4b8e3195",
+      "LF_normalized": false
+    },
+    "engines/compact/tiny-entry-c/engine.c": {
+      "bytes": 27003,
+      "sha256": "1f0f18ffee91ecddea3cb31e7553e1d1415e25b3f759cdec4e0f375fcd0b2298",
+      "working_raw_bytes": 27003,
+      "working_raw_sha256": "1f0f18ffee91ecddea3cb31e7553e1d1415e25b3f759cdec4e0f375fcd0b2298",
+      "LF_normalized": false
+    },
+    "engines/compact/tiny-entry-c/fresh.py": {
+      "bytes": 5360,
+      "sha256": "81df003f684e813d5f77b2667cb9994767ac18a2065b7e7d1c0ae1706fad8d17",
+      "working_raw_bytes": 5360,
+      "working_raw_sha256": "81df003f684e813d5f77b2667cb9994767ac18a2065b7e7d1c0ae1706fad8d17",
+      "LF_normalized": false
+    },
+    "engines/compact/tiny-entry-c/launcher.sh": {
+      "bytes": 75,
+      "sha256": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a",
+      "working_raw_bytes": 75,
+      "working_raw_sha256": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a",
+      "LF_normalized": false
+    },
+    "engines/compact/tiny-entry-c/recipe.json": {
+      "bytes": 3870,
+      "sha256": "b0ccd6366416b1edc1eccaf8718c6c348e2445e2e67b72cfa0333f36b29ff062",
+      "working_raw_bytes": 3870,
+      "working_raw_sha256": "b0ccd6366416b1edc1eccaf8718c6c348e2445e2e67b72cfa0333f36b29ff062",
+      "LF_normalized": false
+    },
+    "engines/compact/tiny-entry-c/verify.py": {
+      "bytes": 7328,
+      "sha256": "930baa1794b486fca9dce8829fa808bb2cae08da80d1d8c3ccb5609d30d41310",
+      "working_raw_bytes": 7328,
+      "working_raw_sha256": "930baa1794b486fca9dce8829fa808bb2cae08da80d1d8c3ccb5609d30d41310",
+      "LF_normalized": false
+    },
+    "engines/compact/tiny-entry-e/.gitattributes": {
+      "bytes": 14,
+      "sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9",
+      "working_raw_bytes": 14,
+      "working_raw_sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9",
+      "LF_normalized": false
+    },
+    "engines/compact/tiny-entry-e/README.md": {
+      "bytes": 8283,
+      "sha256": "43a9a4fddbba4044d2ac30c470b35b84f2d4dbedec27326b03c8606ce707323c",
+      "working_raw_bytes": 8283,
+      "working_raw_sha256": "43a9a4fddbba4044d2ac30c470b35b84f2d4dbedec27326b03c8606ce707323c",
+      "LF_normalized": false
+    },
+    "engines/compact/tiny-entry-e/bootstrap.py.in": {
+      "bytes": 1072,
+      "sha256": "0402f63d44e66d57174079672762414a2324f8dd8c2b272fe34f49b68e45edbc",
+      "working_raw_bytes": 1072,
+      "working_raw_sha256": "0402f63d44e66d57174079672762414a2324f8dd8c2b272fe34f49b68e45edbc",
+      "LF_normalized": false
+    },
+    "engines/compact/tiny-entry-e/build.py": {
+      "bytes": 9276,
+      "sha256": "9d95902c385b4d1cf4f5cbb7b658b5621a6969e84411d68645b3f168ca103a39",
+      "working_raw_bytes": 9276,
+      "working_raw_sha256": "9d95902c385b4d1cf4f5cbb7b658b5621a6969e84411d68645b3f168ca103a39",
+      "LF_normalized": false
+    },
+    "engines/compact/tiny-entry-e/engine.c": {
+      "bytes": 28001,
+      "sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+      "working_raw_bytes": 28001,
+      "working_raw_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+      "LF_normalized": false
+    },
+    "engines/compact/tiny-entry-e/fresh.py": {
+      "bytes": 5360,
+      "sha256": "81df003f684e813d5f77b2667cb9994767ac18a2065b7e7d1c0ae1706fad8d17",
+      "working_raw_bytes": 5360,
+      "working_raw_sha256": "81df003f684e813d5f77b2667cb9994767ac18a2065b7e7d1c0ae1706fad8d17",
+      "LF_normalized": false
+    },
+    "engines/compact/tiny-entry-e/launcher.sh": {
+      "bytes": 75,
+      "sha256": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a",
+      "working_raw_bytes": 75,
+      "working_raw_sha256": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a",
+      "LF_normalized": false
+    },
+    "engines/compact/tiny-entry-e/recipe.json": {
+      "bytes": 4478,
+      "sha256": "3d5f3753f012a044ecb100729ef96a41450ba486419cf1db493d8ed93f3461ff",
+      "working_raw_bytes": 4478,
+      "working_raw_sha256": "3d5f3753f012a044ecb100729ef96a41450ba486419cf1db493d8ed93f3461ff",
+      "LF_normalized": false
+    },
+    "engines/compact/tiny-entry-e/verify.py": {
+      "bytes": 7311,
+      "sha256": "890ab0379c24f70eca1e058ac25ad51dcb7f4f6d6e3ac0fea8dfc0a823e32af8",
+      "working_raw_bytes": 7311,
+      "working_raw_sha256": "890ab0379c24f70eca1e058ac25ad51dcb7f4f6d6e3ac0fea8dfc0a823e32af8",
+      "LF_normalized": false
+    },
+    "engines/scripts/minify.py": {
+      "bytes": 6624,
+      "sha256": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b",
+      "working_raw_bytes": 6624,
+      "working_raw_sha256": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b",
+      "LF_normalized": false
+    },
+    "engines/scripts/rename_c.py": {
+      "bytes": 12574,
+      "sha256": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
+      "working_raw_bytes": 12574,
+      "working_raw_sha256": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
+      "LF_normalized": false
+    },
+    "engines/scripts/specialize.py": {
+      "bytes": 2386,
+      "sha256": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d",
+      "working_raw_bytes": 2386,
+      "working_raw_sha256": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d",
+      "LF_normalized": false
+    },
+    "engines/tests/chess_oracle.py": {
+      "bytes": 10730,
+      "sha256": "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8",
+      "working_raw_bytes": 10730,
+      "working_raw_sha256": "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8",
+      "LF_normalized": false
+    },
+    "engines/tests/verify.py": {
+      "bytes": 45921,
+      "sha256": "9327ad01dd75bc17f04f400b57d5af3d6891a1abbb7f22aa6222389d50da138f",
+      "working_raw_bytes": 45921,
+      "working_raw_sha256": "9327ad01dd75bc17f04f400b57d5af3d6891a1abbb7f22aa6222389d50da138f",
+      "LF_normalized": false
+    }
+  },
+  "control_expected": {
+    "B": {
+      "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+      "source_bytes": 15566,
+      "source_sha256": "eea1fe5f60c56aa90d2d51f3fa5a1aa56a63318527943500aa02d0105668f910",
+      "native_bytes": 26592,
+      "native_sha256": "221a865e2712cb3e704128e0ae8353edd358343f564fe53093040f6515d522ec",
+      "whole_bytes": 6219,
+      "whole_sha256": "01261167253dd89a0e2d88aded2ee493fc0ffaec34cd2322459ddbc515f8aefd",
+      "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
+      "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
+      "bootstrap_sha256": "a4b430323614856d68fd59742c25d772459cc8de6cac601848f709dc67ce7c37"
+    },
+    "C": {
+      "readable_sha256": "1f0f18ffee91ecddea3cb31e7553e1d1415e25b3f759cdec4e0f375fcd0b2298",
+      "source_bytes": 14206,
+      "source_sha256": "dcbfb3e92b52e2ee902055aa7331c068b6b95226f00b1edfc4b63b789405105c",
+      "native_bytes": 26464,
+      "native_sha256": "c948e31aea9f413614881b8e8e6060e5aa70314dd84b2d9b544e3f20edb99df2",
+      "whole_bytes": 5947,
+      "whole_sha256": "76ed08f657398ac4b8cfbd0ff2230257ab18547f082b4c29af62428d802f33d3",
+      "bootstrap_sha256": "cc59eb95c78fad30a81da5a9c7bfec2706e48a8207058b855d2b839c77ec17e3",
+      "dev_source_sha256": "31415fddd3cf1ebd378e58ccc41cdb2b9382df646e41f002653734a5e4d746bf",
+      "dev_native_sha256": "5e9b05e55cba56c63b180c2dce1d9330d2f3a69d7563360e35484684ebb730ba"
+    },
+    "E": {
+      "readable_bytes": 28001,
+      "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+      "source_bytes": 14352,
+      "source_sha256": "392aba92dff47317243a7966f9aa1f725357c08b48b9b8072a1d753d6514ed46",
+      "native_bytes": 26408,
+      "native_sha256": "5429f2d80521f775bac6802ec4940e8e0ff1b344464ed8e9a0629ba6650eb675",
+      "whole_bytes": 5899,
+      "whole_sha256": "ccf1a0b4c2163b46c445d4ec1add03bcc75ba75d66cd1647ab9dc2ca556687f3",
+      "bootstrap_sha256": "7e9a4aa5daeab6f562c2488625e07301a5af428118e3255770701012812b4cfb",
+      "dev_source_bytes": 21314,
+      "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
+      "dev_native_bytes": 31376,
+      "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094"
+    }
+  },
+  "policy_files": {
+    "policy.py": "00de8fa0a3a845a4171599d6b84cba2db899614d9fc48ed27ce698e552450399",
+    "policy.json": "b3f08ba26b38dbce1e4b63d3eb98ab37f438295cfacff6037b1cfacbf7d5e5a0"
+  },
+  "live_canonical_dependencies": false,
+  "ordinary_source_files_per_family": [
+    ".gitattributes",
+    "README.md",
+    "bootstrap.py.in",
+    "build.py",
+    "engine.c",
+    "fresh.py",
+    "launcher.sh",
+    "recipe.json",
+    "verify.py"
+  ],
+  "historical_core_reuse_boundary": "candidate must retain the exact complete old native SHA-256; no broad core rerun or fresh core claim",
+  "native_mismatch_policy": "stop that family without changing names/flags/guards/expectations",
+  "whole_non_gain_policy": "stop that family without runtime",
+  "candidate_runtime_policy": "separate explicit literal pins and exactly two selected sessions only for full-native-identical whole-file gains"
+}

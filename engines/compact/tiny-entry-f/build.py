@@ -1,0 +1,554 @@
+#!/usr/bin/env python3
+"""Build the maintained minimal F entry from Git source and fixed decisions.
+
+There are no experiment-directory, old build.json or executable inputs. The
+resource/compiler profile is fixed. Full F is default; --policy material-noise or
+--policy material-move-tt selects a declared alternate policy. --dev preserves the pinned full diagnostic form.
+"""
+import argparse
+import ast
+import hashlib
+import importlib.util
+import json
+import os
+from pathlib import Path
+import platform
+import re
+import subprocess
+import sys
+
+sys.dont_write_bytecode=True
+HERE=Path(__file__).resolve().parent
+REPO=HERE.parents[2]
+
+
+def sha(data):return hashlib.sha256(data).hexdigest()
+
+
+def normalized(path):
+    data=path.read_bytes().replace(b'\r\n',b'\n')
+    if b'\r' in data:raise ValueError('lone CR in owned text input: '+str(path))
+    return data
+
+
+def module(name,path):
+    spec=importlib.util.spec_from_file_location(name,path)
+    result=importlib.util.module_from_spec(spec);spec.loader.exec_module(result);return result
+
+
+COUNTER_SCHEMA={'noop_definitions':1,'conditional_calls':{'hits':1,'qs':1,'corr_uses':1},
+                'unconditional_calls':['ply_aborts','hist_updates','cont_updates','corr_updates','f_probes',
+                                       'f_lower','f_upper','f_converged','f_conflicts'],
+                'shipping_pvs_calls':0,'total_calls_removed':12}
+
+
+def strip_counters(source):
+    """Admit exactly the qualified beta-only DEV=0 no-op counter schema."""
+    text=source.decode()
+    text,definitions=re.subn(r'(?m)^#define COUNT\(w,f\) \(\(void\)0\)\n','',text)
+    for statement in ('if(bound)COUNT(w,hits);','if(depth<=0)COUNT(w,qs);','if(correction)COUNT(w,corr_uses);'):
+        if text.count(statement)!=1:raise ValueError('beta-only conditional counter schema changed: '+statement)
+        text=text.replace(statement,'')
+    allowed=set(COUNTER_SCHEMA['unconditional_calls']);found=re.findall(r'COUNT\(w,(\w+)\);',text)
+    if set(found)!=allowed or len(found)!=len(allowed) or definitions!=1:
+        raise ValueError('beta-only shipping diagnostic schema changed')
+    text=re.sub(r'COUNT\(w,\w+\);','',text)
+    if 'COUNT(' in text:raise ValueError('unexpected diagnostic call remains')
+    return text.encode(),{'removed_noop_counter_calls':len(found)+3,'shipping_pvs_calls':0}
+
+
+def compile_c(command,source,directory):
+    directory.mkdir()
+    result=subprocess.run(command,input=source,cwd=directory,capture_output=True,timeout=90)
+    (directory/'compiler.stderr').write_bytes(result.stderr)
+    if result.returncode:raise RuntimeError('compiler failed; stderr preserved in '+str(directory))
+    return (directory/'x').read_bytes()
+
+
+def main():
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--out',type=Path,required=True)
+    parser.add_argument('--dev',action='store_true',help='also reproduce the unchanged full-F semantic diagnostic C and ELF')
+    parser.add_argument('--policy',choices=('full','material-noise','material-move-tt'),default='full',help='development build selection only; no UCI option')
+    args=parser.parse_args();out=args.out.resolve()
+    if not args.out.is_absolute() or out.exists() or out==REPO or REPO in out.parents or any((p/'.git').exists() for p in (out,*out.parents)):
+        parser.error('a new absolute output outside any Git checkout is required')
+    if platform.system()!='Linux' or platform.machine() not in ('x86_64','amd64'):
+        parser.error('the qualified fixed target is Linux x86-64')
+    ordinary_recipe=normalized(HERE/'recipe.json')
+    recipe=json.loads(ordinary_recipe)
+    if recipe['format']!=1 or recipe['family']!='F' or recipe['profile']!={'workers':2,'tt_bits':18,'ply':128,'dev_default':False}:
+        raise ValueError('unsupported entry recipe/profile')
+    if recipe['counter_schema']!=COUNTER_SCHEMA:raise ValueError('unsupported beta-only counter schema')
+    material_expected={'source_bytes': 8508, 'source_sha256': 'a7b50f5d084b558c1fb07f3c4c572afa29291a4982ddd00fd783f187a3f74c93', 'native_bytes': 18576, 'native_sha256': '24ae0622c5a0fd10191950f53e0f6ea5d3e3d05fbb1b20aaa72c2b5f2754873f', 'whole_bytes': 4697, 'whole_sha256': 'd764d8f31e561bd173f24980fdc64a9666154738eb6daedb4c21eb3912a2e1d2', 'bootstrap_sha256': '958ed7d9290a131eb2b9f8e96fde3dfeb27b4284e89fccd71aab27faa8a1169b', 'bootstrap_bytes': 10497}
+    if recipe['alternate_policies']['material-noise']['expected_overrides']!=material_expected:
+        raise ValueError('fixed MaterialNoise-v1 expectations differ')
+    move_tt_expected={'source_bytes': 7741, 'source_sha256': '6d3fa3e0099285dd9efe8934f7b419fdd204f80ed4eaf502ad64a9f5b2e12122', 'native_bytes': 18576, 'native_sha256': '1a964e23bc8967b6eb74714389b4d94fd0e505d5d1eba3616775b7e4b0a522d5', 'whole_bytes': 4425, 'whole_sha256': '39d082412b24be71c6dd93402dfb2f649b22ef56c808a1c55837e283b55b92a4', 'bootstrap_sha256': '44c7a210177be3f5ed01c4f97fb30c9ca6a46bab34878121e9e6b7dd28974c8c', 'bootstrap_bytes': 9730}
+    move_tt_compression={'format': 'lzma-alone', 'filter': 'LZMA1', 'preset': 9, 'extreme': True, 'lc': 0, 'lp': 0, 'pb': 0, 'check': 'NONE', 'mf': 'BT4', 'dictionary_bytes': 67108864, 'nice_len': 32}
+    if recipe['alternate_policies']['material-move-tt']['expected_overrides']!=move_tt_expected or recipe['alternate_policies']['material-move-tt']['compression']!=move_tt_compression:
+        raise ValueError('fixed MoveTT expectations/codec differ')
+    original_compression={'format': 'lzma-alone', 'filter': 'LZMA1', 'preset': 9, 'extreme': True, 'lc': 2, 'lp': 0, 'pb': 0, 'check': 'NONE', 'mf': 'BT4', 'dictionary_bytes': 67108864, 'nice_len': 32}
+    full_compression={'format': 'lzma-alone', 'filter': 'LZMA1', 'preset': 6, 'extreme': False, 'lc': 2, 'lp': 0, 'pb': 0, 'check': 'NONE', 'mf': 'BT2', 'dictionary_bytes': 16384, 'nice_len': 24}
+    if recipe['compression']!=full_compression:raise ValueError('fixed full/reference codec differs')
+    if recipe['alternate_policies']['material-noise']['compression']!=original_compression:
+        raise ValueError('fixed MaterialNoise-v1 codec differs')
+    full_expected=dict(recipe['expected'])
+    if args.policy!='full':
+        selected=recipe['alternate_policies'][args.policy]
+        recipe=json.loads(ordinary_recipe)
+        recipe['expected'].update(move_tt_expected if args.policy=='material-move-tt' else material_expected)
+        recipe['compression']=dict(selected['compression'])
+        recipe['launcher']=dict(selected['launcher'])
+        recipe['full_reference_qualified_receipt']=recipe['qualified_receipt']
+        recipe['qualified_receipt']=selected['qualified_receipt']
+    recipe['selected_policy']=args.policy
+    effective_recipe=(json.dumps(recipe,indent=2)+'\n').encode()
+    out.mkdir(parents=True);frozen=out/'inputs';frozen.mkdir()
+    report={'complete':False,'family':'F','scope':'maintained F EP and shipping input pipeline; fixed reviewed identities, not 4KiB acceptance',
+            'resources':recipe['profile'],'policy':args.policy,'ordinary_recipe_sha256':sha(ordinary_recipe),
+            'effective_recipe_sha256':sha(effective_recipe),'expected_contract':recipe['expected'],'full_reference_expected':full_expected,
+            'inputs':{},'attempts':[],
+            'qualified_receipt_reuse':recipe['qualified_receipt'],
+            'tools':{name:subprocess.check_output(command,text=True).splitlines()[0] for name,command in
+                     {'cc':['cc','--version'],'ld':['ld','--version'],'python':['python3','--version'],'lzma':['lzma','--version']}.items()}}
+    def save():(out/'build.json').write_text(json.dumps(report,indent=2)+'\n')
+    save()
+    try:
+        verifier_root=out/'selected-verifier';verifier_entry=verifier_root/'engines/compact/tiny-entry-f'
+        for relative,pin in recipe['selected_verifier_snapshot_sha256'].items():
+            data=normalized(REPO/relative)
+            if sha(data)!=pin:raise ValueError('selected verifier snapshot changed: '+relative)
+            target=verifier_root/relative;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(data)
+        (verifier_entry/'recipe.json').write_bytes(effective_recipe)
+        report['selected_verifier']={'path':str(verifier_entry/'verify.py'),'recipe':str(verifier_entry/'recipe.json'),
+                                     'unchanged_source':True,'policy':args.policy,'sources':recipe['selected_verifier_snapshot_sha256'],
+                                     'command':[sys.executable,'-B',str(verifier_entry/'verify.py'),'--build',str(out),'--out','<new absolute output>']}
+        for name,expected in recipe['local_input_sha256'].items():
+            data=normalized(HERE/name)
+            if sha(data)!=expected:raise ValueError('entry input differs from qualified recipe: '+name)
+            (frozen/name).write_bytes(data);report['inputs'][name]={'bytes':len(data),'sha256':sha(data)}
+        for name in ('recipe.json','build.py'):
+            data=normalized(HERE/name);(frozen/name).write_bytes(data)
+            report['inputs'][name]={'bytes':len(data),'sha256':sha(data)}
+        for relative,expected in recipe['helper_sha256'].items():
+            path=REPO/relative;raw=path.read_bytes();data=normalized(path)
+            if sha(data)!=expected:raise ValueError('tracked helper version changed: '+relative)
+            (frozen/path.name).write_bytes(data)
+            report['inputs'][relative]={'bytes':len(data),'sha256':sha(data),'working_bytes_sha256':sha(raw),'LF_normalization':raw!=data}
+        specialize=module('entry_specialize',frozen/'specialize.py').specialize_c
+        compact=module('entry_minify',frozen/'minify.py').compact_source
+        lexer=module('entry_fixed_tokens',frozen/'rename_c.py')
+        literal=module('entry_literal',frozen/'pack_stream.py').source_literal
+        compiler_group=module('entry_compiler_group',frozen/'compiler_group.py').transform_bootstrap
+        compiler_stdin=module('entry_compiler_stdin',frozen/'compiler_stdin.py')
+        compiler_seek=module('entry_compiler_seek',frozen/'compiler_seek.py').transform_bootstrap
+        source_package=module('entry_source_package',frozen/'source_package.py')
+        full_bootstrap=module('entry_full_bootstrap',frozen/'bootstrap_full.py').prepare_template
+        common=module('entry_shipping_common',frozen/'shipping_common.py')
+        refine=module('entry_shipping_refinements',frozen/'shipping_refinements.py')
+        dead_state=module('entry_material_state',frozen/'shipping_material_state.py')
+        integer_forms=module('entry_integer_forms',frozen/'shipping_integer_forms.py')
+        terminal=module('entry_F_terminal',frozen/'shipping_terminal.py')
+        hash_policy=module('entry_F_hash_policy',frozen/'shipping_hash_policy.py')
+        include_forms=module('entry_include_forms',frozen/'shipping_includes.py')
+        mixer_forms=module('entry_mixer_literals',frozen/'shipping_mixer_literals.py')
+        clamp=module('entry_F_clamp',frozen/'shipping_clamp.py')
+        source_forms=module('entry_F_source_forms',frozen/'shipping_source_forms.py')
+        clock_forms=module('entry_clock_presence',frozen/'shipping_clock.py')
+        result_stream=module('entry_F_result_stream',frozen/'shipping_result_stream.py')
+        depth_repetition=module('entry_F_depth_repetition',frozen/'shipping_depth_repetition.py')
+        macro_literals=module('entry_F_macro_literals',frozen/'shipping_macro_literals.py')
+        int_token=module('entry_F_int_token',frozen/'shipping_int_token.py')
+        history_depth=module('entry_F_history_depth',frozen/'shipping_history_depth.py')
+        lazy_fallback=module('entry_shared_lazy_fallback',frozen/'shipping_lazy_fallback.py')
+        qs_cutoff=module('entry_F_qs_cutoff',frozen/'shipping_qs_cutoff.py')
+        history_path=module('entry_F_history_path',frozen/'shipping_history_path.py')
+        alpha=module('entry_fixed_F_alpha',frozen/'shipping_alpha.py').transform_source
+        storage=module('entry_fixed_F_storage',frozen/'shipping_storage.py').transform_source
+        scope_module=module('entry_bound_F_scope',frozen/'shipping_scope.py')
+        scope=scope_module.transform_source;members=scope_module.transform_members
+        semantics=module('entry_fixed_F_semantics',frozen/'shipping_semantics.py')
+        input_profile=module('entry_fixed_F_input',frozen/'shipping_input.py')
+        declarations=module('entry_fixed_F_declarations',frozen/'shipping_declarations.py').transform_source
+        hce=module('entry_fixed_F_HCE',frozen/'shipping_hce.py').transform_source
+        types=module('entry_fixed_F_types',frozen/'shipping_types.py').transform_source
+        unit_bound=module('entry_fixed_F_unit_bound',frozen/'shipping_unit_bound.py').transform_source
+        startup=module('entry_fixed_F_startup',frozen/'shipping_startup.py').transform_source
+        global_names=module('entry_fixed_F_global_names',frozen/'shipping_global_names.py').transform_source
+        capture=module('entry_fixed_F_capture',frozen/'shipping_capture.py').transform_source
+        material_noise=module('entry_fixed_F_material_noise',frozen/'shipping_material_noise.py').transform_source
+        material_names=module('entry_fixed_F_material_names',frozen/'shipping_material_names.py').transform_source
+        material_capture=module('entry_fixed_F_material_capture',frozen/'shipping_material_capture.py').transform_source
+        move_tt=module('entry_fixed_F_move_TT',frozen/'shipping_move_tt.py').transform_source
+        move_tt_names=module('entry_fixed_F_move_TT_names',frozen/'shipping_move_tt_names.py').transform_source
+        expressions=module('entry_fixed_F_expressions',frozen/'shipping_material_expressions.py').transform_source
+        fixed_names=module('entry_fixed_F_names',frozen/'shipping_names.py').transform_source
+        fixed_selector=module('entry_fixed_F_selector',frozen/'shipping_selector.py').transform_source
+        local_rank=module('entry_fixed_F_rank',frozen/'shipping_rank.py').transform_source
+        digit_fd=module('entry_F_digit_fd',frozen/'shipping_digit_fd.py')
+        condition_form=module('entry_F_one_condition',frozen/'shipping_condition.py')
+        walker_form=module('entry_F_direct_walker',frozen/'shipping_walker.py')
+        integer_expressions=module('entry_F_integer_expressions',frozen/'shipping_integer_expressions.py')
+        square_successor=module('entry_F_square_successor',frozen/'shipping_square_successor.py')
+        return_token=module('entry_F_return_token',frozen/'shipping_return_token.py')
+        four_locals=module('entry_F_four_locals',frozen/'shipping_four_locals.py')
+        depth_bound=module('entry_F_depth_bound',frozen/'shipping_depth_bound.py')
+        pool_state=module('entry_F_pool_state',frozen/'shipping_pool_state.py')
+        frequency=module('entry_F_frequency',frozen/'shipping_frequency.py')
+        format_loop=module('entry_F_format_loop',frozen/'shipping_format_loop.py')
+        quiet_order=module('entry_F_quiet_order',frozen/'shipping_quiet_order.py')
+        from_inline=module('entry_F_from_inline',frozen/'shipping_from.py')
+        mtd_state=module('entry_F_mtd_state',frozen/'shipping_mtd_state.py')
+        go_boundary=module('entry_F_go_boundary',frozen/'shipping_go_boundary.py')
+        quiet_slot=module('entry_F_quiet_slot',frozen/'shipping_quiet_slot.py')
+        # Keep this base for every unchanged shipping readable/spelling guard.
+        canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
+        marker=b'__ROVE_SOURCE_LITERAL__'
+        if template.count(marker)!=1 or len(prefix)!=77:raise ValueError('bootstrap recipe changed')
+        if args.policy=='full':
+            # One fixed full-profile bootstrap choice; shared legacy consumers
+            # retain the original template and its published artifacts.
+            template=full_bootstrap(template)
+            template,template_metadata=digit_fd.transform_template(template)
+            report['digit_fd_template']=template_metadata
+            prefix=source_package.XZ_STDIN_HEADER
+        if len(prefix)!=recipe['launcher']['bytes'] or sha(prefix)!=recipe['launcher']['sha256']:
+            raise ValueError('fixed selected launcher changed')
+        selected_compression={'full':full_compression,'material-noise':original_compression,
+                              'material-move-tt':move_tt_compression}[args.policy]
+        if recipe['compression']!=selected_compression:raise ValueError('fixed selected LZMA1 recipe changed')
+        compression=recipe['compression']
+        expected=recipe['expected']
+        def generate(directory,dev=False):
+            preprocess_source=canonical;semantic_metadata=None;input_metadata=None;before_names=None
+            if dev:
+                preprocess_source,semantic_metadata=semantics.transform_readable(canonical)
+                preprocess_source,input_metadata=input_profile.transform_readable(preprocess_source)
+            active,observations=specialize({'main.c':preprocess_source},directory,recipe['preprocessor']+['-DDEV='+str(int(dev))],os.environ.copy())
+            data=compact(active['main.c'],'c')
+            counters=None;alpha_metadata=None;storage_metadata=None;scope_metadata=None;member_metadata=None;declaration_metadata=None;hce_metadata=None;type_metadata=None;unit_bound_metadata=None;startup_metadata=None;global_names_metadata=None;capture_metadata=None;policy_metadata=None;material_names_metadata=None;material_capture_metadata=None;move_tt_metadata=None;move_tt_names_metadata=None;expressions_metadata=None;common_metadata=None
+            if not dev:
+                data,counters=strip_counters(data);files={'main.c':data}
+                for old,new in recipe['resource_literals']:
+                    count=sum(token==old for _,_,token in lexer._identifier_spans(files['main.c'].decode()))
+                    if count!=recipe['resource_token_counts'][old]:raise ValueError('fixed resource token count changed: '+old)
+                    files=lexer._replace(files,old,new)
+                for old,new in recipe['function_spellings']:
+                    files=lexer._replace(files,old,new)
+                data=files['main.c']
+                data,alpha_metadata=alpha(data,family='F',lexer=lexer,readable=canonical)
+                data,storage_metadata=storage(data,family='F',readable=canonical)
+                data,scope_metadata=scope(data)
+                data,member_metadata=members(data)
+                data,semantic_metadata=semantics.transform_source(data,readable=canonical)
+                semantic_readable,_=semantics.transform_readable(canonical)
+                data,input_metadata=input_profile.transform_source(data,readable=semantic_readable)
+                data,declaration_metadata=declarations(data,readable=canonical)
+                data,hce_metadata=hce(data)
+                data,type_metadata=types(data,readable=canonical,lexer=lexer)
+                data,unit_bound_metadata=unit_bound(data)
+                data,startup_metadata=startup(data)
+                if args.policy in ('material-noise','material-move-tt'):
+                    full_reference,_=global_names(data);full_reference,_=capture(full_reference)
+                    raw_full_reference={'bytes':len(full_reference),'sha256':sha(full_reference)}
+                    full_reference,full_common_metadata=common.transform_source(full_reference,family='F',policy='full')
+                    full_reference,refinement=refine.transform_source(full_reference,family='F',policy='full')
+                    full_common_metadata['refinements']=refinement
+                    full_reference,dead_state_metadata=dead_state.transform_source(full_reference,family='F',policy='full')
+                    full_common_metadata['material_state']=dead_state_metadata
+                    full_reference,integer_metadata=integer_forms.transform_source(full_reference,family='F',policy='full')
+                    full_common_metadata['integer_forms']=integer_metadata
+                    full_reference,terminal_metadata=terminal.transform_source(full_reference)
+                    full_common_metadata['terminal_shared_legal_loop']=terminal_metadata
+                    full_reference,hash_metadata=hash_policy.transform_source(full_reference,family='F')
+                    full_common_metadata['hash_policy']=hash_metadata
+                    full_reference,include_metadata=include_forms.transform_source(full_reference,family='F',policy='full')
+                    full_common_metadata['literal_include_forms']=include_metadata
+                    full_reference,mixer_metadata=mixer_forms.transform_source(full_reference,family='F',policy='full')
+                    full_common_metadata['mixer_literals']=mixer_metadata
+                    full_reference,clamp_metadata=clamp.transform_source(full_reference)
+                    full_common_metadata['correction_clamp']=clamp_metadata
+                    full_reference,forms_metadata=source_forms.transform_source(full_reference)
+                    full_common_metadata['source_forms']=forms_metadata
+                    full_reference,clock_metadata=clock_forms.transform_source(full_reference,family='F')
+                    full_common_metadata['clock_presence']=clock_metadata
+                    full_reference,stream_metadata=result_stream.transform_source(full_reference)
+                    full_common_metadata['result_stream']=stream_metadata
+                    full_reference,depth_metadata=depth_repetition.transform_source(full_reference)
+                    full_common_metadata['depth_repetition']=depth_metadata
+                    full_reference,macro_metadata=macro_literals.transform_source(full_reference,family='F')
+                    full_common_metadata['fixed_macro_literals']=macro_metadata
+                    full_reference,int_metadata=int_token.transform_source(full_reference,family='F')
+                    full_common_metadata['plain_int_keyword_token']=int_metadata
+                    full_reference,history_metadata=history_depth.transform_source(full_reference,family='F')
+                    full_common_metadata['derived_history_depth']=history_metadata
+                    full_reference,lazy_metadata=lazy_fallback.transform_source(full_reference,family='F')
+                    full_common_metadata['lazy_fallback']=lazy_metadata
+                    full_reference,qs_metadata=qs_cutoff.transform_source(full_reference,family='F')
+                    full_common_metadata['qs_legal_cutoff']=qs_metadata
+                    full_reference,path_metadata=history_path.transform_source(full_reference,family='F')
+                    full_common_metadata['history_path']=path_metadata
+                    full_reference,names_metadata=fixed_names(full_reference)
+                    full_common_metadata['fixed_names']=names_metadata
+                    full_reference,selector_metadata=fixed_selector(full_reference,family='F')
+                    full_common_metadata['fixed2_selector']=selector_metadata
+                    full_reference,rank_metadata=local_rank(full_reference)
+                    full_common_metadata['local_HCE_rank']=rank_metadata
+                    full_reference,digit_metadata=digit_fd.transform_source(full_reference)
+                    full_common_metadata['digit_guard']=digit_metadata
+                    full_reference,condition_metadata=condition_form.transform_source(full_reference)
+                    full_common_metadata['shared_condition']=condition_metadata
+                    full_reference,walker_metadata=walker_form.transform_source(full_reference)
+                    full_common_metadata['direct_walker']=walker_metadata
+                    full_reference,integer_metadata=integer_expressions.transform_source(full_reference)
+                    full_common_metadata['fixed_integer_expressions']=integer_metadata
+                    full_reference,successor_metadata=square_successor.transform_source(full_reference)
+                    full_common_metadata['valid_square_successor']=successor_metadata
+                    full_reference,return_metadata=return_token.transform_source(full_reference)
+                    full_common_metadata['return_keyword_token']=return_metadata
+                    full_reference,local_metadata=four_locals.transform_source(full_reference)
+                    full_common_metadata['four_local_spellings']=local_metadata
+                    full_reference,depth_bound_metadata=depth_bound.transform_source(full_reference)
+                    full_common_metadata['depth_bound_metadata']=depth_bound_metadata
+                    full_reference,pool_metadata=pool_state.transform_source(full_reference)
+                    full_common_metadata['pool_depth_job_token']=pool_metadata
+                    full_reference,frequency_metadata=frequency.transform_source(full_reference)
+                    full_common_metadata['frequency_spellings']=frequency_metadata
+                    full_reference,format_metadata=format_loop.transform_source(full_reference)
+                    full_common_metadata['format_loop']=format_metadata
+                    full_reference,order_metadata=quiet_order.transform_source(full_reference)
+                    full_common_metadata['quiet_order_inline']=order_metadata
+                    full_reference,from_metadata=from_inline.transform_source(full_reference)
+                    full_common_metadata['from_macro_inline']=from_metadata
+                    full_reference,mtd_metadata=mtd_state.transform_source(full_reference)
+                    full_common_metadata['mtd_local_state']=mtd_metadata
+                    full_reference,go_metadata=go_boundary.transform_source(full_reference)
+                    full_common_metadata['sole_go_boundary']=go_metadata
+                    full_reference,slot_metadata=quiet_slot.transform_source(full_reference)
+                    full_common_metadata['quiet_continuation_slot']=slot_metadata
+                    if len(full_reference)!=full_expected['source_bytes'] or sha(full_reference)!=full_expected['source_sha256']:
+                        raise ValueError('default full-F source generation changed')
+                    data,policy_metadata=material_noise(data)
+                    data,material_names_metadata=material_names(data)
+                    data,material_capture_metadata=material_capture(data)
+                    if args.policy=='material-move-tt':
+                        raw_material_reference={'bytes':len(data),'sha256':sha(data)}
+                        material_cleaned,material_common_metadata=common.transform_source(data,family='F',policy='material-noise')
+                        material_cleaned,refinement=refine.transform_source(material_cleaned,family='F',policy='material-noise')
+                        material_common_metadata['refinements']=refinement
+                        material_cleaned,dead_state_metadata=dead_state.transform_source(material_cleaned,family='F',policy='material-noise')
+                        material_common_metadata['material_state']=dead_state_metadata
+                        material_cleaned,integer_metadata=integer_forms.transform_source(material_cleaned,family='F',policy='material-noise')
+                        material_common_metadata['integer_forms']=integer_metadata
+                        material_cleaned,include_metadata=include_forms.transform_source(material_cleaned,family='F',policy='material-noise')
+                        material_common_metadata['literal_include_forms']=include_metadata
+                        material_cleaned,mixer_metadata=mixer_forms.transform_source(material_cleaned,family='F',policy='material-noise')
+                        material_common_metadata['mixer_literals']=mixer_metadata
+                        if len(material_cleaned)!=material_expected['source_bytes'] or sha(material_cleaned)!=material_expected['source_sha256']:
+                            raise ValueError('existing material-noise source generation changed')
+                        material_reference={'bytes':len(material_cleaned),'sha256':sha(material_cleaned),
+                                            'stage':'after-shipping-common','raw_source':raw_material_reference,
+                                            'shipping_common':material_common_metadata}
+                        data,move_tt_metadata=move_tt(data)
+                        data,move_tt_names_metadata=move_tt_names(data)
+                        data,expressions_metadata=expressions(data)
+                        move_tt_metadata['separate_material_reference_source_generation']=material_reference
+                    policy_metadata['separate_full_reference_source_generation']={'bytes':len(full_reference),'sha256':sha(full_reference),
+                        'stage':'after-shipping-common','raw_source':raw_full_reference,'shipping_common':full_common_metadata}
+                else:
+                    data,global_names_metadata=global_names(data)
+                    data,capture_metadata=capture(data)
+                data,common_metadata=common.transform_source(data,family='F',policy=args.policy)
+                data,refinement=refine.transform_source(data,family='F',policy=args.policy)
+                common_metadata['refinements']=refinement
+                data,dead_state_metadata=dead_state.transform_source(data,family='F',policy=args.policy)
+                common_metadata['material_state']=dead_state_metadata
+                data,integer_metadata=integer_forms.transform_source(data,family='F',policy=args.policy)
+                common_metadata['integer_forms']=integer_metadata
+                if args.policy=='full':
+                    data,terminal_metadata=terminal.transform_source(data)
+                    common_metadata['terminal_shared_legal_loop']=terminal_metadata
+                    data,hash_metadata=hash_policy.transform_source(data,family='F')
+                    common_metadata['hash_policy']=hash_metadata
+                data,include_metadata=include_forms.transform_source(data,family='F',policy=args.policy)
+                common_metadata['literal_include_forms']=include_metadata
+                data,mixer_metadata=mixer_forms.transform_source(data,family='F',policy=args.policy)
+                common_metadata['mixer_literals']=mixer_metadata
+                if args.policy=='full':
+                    data,clamp_metadata=clamp.transform_source(data)
+                    common_metadata['correction_clamp']=clamp_metadata
+                    data,forms_metadata=source_forms.transform_source(data)
+                    common_metadata['source_forms']=forms_metadata
+                    data,clock_metadata=clock_forms.transform_source(data,family='F')
+                    common_metadata['clock_presence']=clock_metadata
+                    data,stream_metadata=result_stream.transform_source(data)
+                    common_metadata['result_stream']=stream_metadata
+                    data,depth_metadata=depth_repetition.transform_source(data)
+                    common_metadata['depth_repetition']=depth_metadata
+                    data,macro_metadata=macro_literals.transform_source(data,family='F')
+                    common_metadata['fixed_macro_literals']=macro_metadata
+                    data,int_metadata=int_token.transform_source(data,family='F')
+                    common_metadata['plain_int_keyword_token']=int_metadata
+                    data,history_metadata=history_depth.transform_source(data,family='F')
+                    common_metadata['derived_history_depth']=history_metadata
+                    data,lazy_metadata=lazy_fallback.transform_source(data,family='F')
+                    common_metadata['lazy_fallback']=lazy_metadata
+                    data,qs_metadata=qs_cutoff.transform_source(data,family='F')
+                    common_metadata['qs_legal_cutoff']=qs_metadata
+                    data,path_metadata=history_path.transform_source(data,family='F')
+                    common_metadata['history_path']=path_metadata
+                    before_names=data
+                    data,names_metadata=fixed_names(data)
+                    common_metadata['fixed_names']=names_metadata
+                    data,selector_metadata=fixed_selector(data,family='F')
+                    common_metadata['fixed2_selector']=selector_metadata
+                    data,rank_metadata=local_rank(data)
+                    common_metadata['local_HCE_rank']=rank_metadata
+                    data,digit_metadata=digit_fd.transform_source(data)
+                    common_metadata['digit_guard']=digit_metadata
+                    data,condition_metadata=condition_form.transform_source(data)
+                    common_metadata['shared_condition']=condition_metadata
+                    data,walker_metadata=walker_form.transform_source(data)
+                    common_metadata['direct_walker']=walker_metadata
+                    data,integer_metadata=integer_expressions.transform_source(data)
+                    common_metadata['fixed_integer_expressions']=integer_metadata
+                    data,successor_metadata=square_successor.transform_source(data)
+                    common_metadata['valid_square_successor']=successor_metadata
+                    data,return_metadata=return_token.transform_source(data)
+                    common_metadata['return_keyword_token']=return_metadata
+                    data,local_metadata=four_locals.transform_source(data)
+                    common_metadata['four_local_spellings']=local_metadata
+                    data,depth_bound_metadata=depth_bound.transform_source(data)
+                    common_metadata['depth_bound_metadata']=depth_bound_metadata
+                    data,pool_metadata=pool_state.transform_source(data)
+                    common_metadata['pool_depth_job_token']=pool_metadata
+                    data,frequency_metadata=frequency.transform_source(data)
+                    common_metadata['frequency_spellings']=frequency_metadata
+                    data,format_metadata=format_loop.transform_source(data)
+                    common_metadata['format_loop']=format_metadata
+                    data,order_metadata=quiet_order.transform_source(data)
+                    common_metadata['quiet_order_inline']=order_metadata
+                    data,from_metadata=from_inline.transform_source(data)
+                    common_metadata['from_macro_inline']=from_metadata
+                    data,mtd_metadata=mtd_state.transform_source(data)
+                    common_metadata['mtd_local_state']=mtd_metadata
+                    data,go_metadata=go_boundary.transform_source(data)
+                    common_metadata['sole_go_boundary']=go_metadata
+                    data,slot_metadata=quiet_slot.transform_source(data)
+                    common_metadata['quiet_continuation_slot']=slot_metadata
+            return data,observations,counters,alpha_metadata,storage_metadata,scope_metadata,member_metadata,semantic_metadata,input_metadata,declaration_metadata,hce_metadata,type_metadata,unit_bound_metadata,startup_metadata,global_names_metadata,capture_metadata,policy_metadata,material_names_metadata,material_capture_metadata,move_tt_metadata,move_tt_names_metadata,expressions_metadata,common_metadata,before_names
+        def package(source):
+            previous_literal=lambda data:common.source_literal(data,literal)
+            successor_literal=lambda data:square_successor.source_literal(data,previous_literal)
+            return_literal=lambda data:return_token.source_literal(data,successor_literal)
+            four_literal=lambda data:four_locals.source_literal(data,return_literal)
+            depth_literal=lambda data:depth_bound.source_literal(data,four_literal)
+            pool_literal=lambda data:pool_state.source_literal(data,depth_literal)
+            frequency_literal=lambda data:frequency.source_literal(data,pool_literal)
+            format_literal=lambda data:format_loop.source_literal(data,frequency_literal)
+            quiet_literal=lambda data:quiet_order.source_literal(data,format_literal)
+            from_literal=lambda data:from_inline.source_literal(data,quiet_literal)
+            mtd_literal=lambda data:mtd_state.source_literal(data,from_literal)
+            go_literal=lambda data:go_boundary.source_literal(data,mtd_literal)
+            guarded_source=quiet_slot.restore_source(source) if args.policy=='full' else source
+            expression,_=(go_literal(guarded_source) if args.policy=='full' else previous_literal(source))
+            script=template.replace(marker,expression.encode())
+            script,group_metadata=compiler_group(script)
+            report['compiler_group']=group_metadata
+            if args.policy=='full':
+                if len(script)!=9786 or sha(script)!='0cf100bec81e83b3fd05fb8c3e9e61144e6d0aa75429e361573e6f44cfb38c58':
+                    raise ValueError('full-F compiler-owner predecessor differs')
+                # Consume every old source/literal/owner guard before forwarding
+                # only the new opaque C expression into that unchanged owner.
+                guarded_script=script
+                next_expression,_=quiet_slot.source_literal(source,go_literal)
+                old_literal,new_literal=expression.encode(),next_expression.encode()
+                if script.count(old_literal)!=1 or ast.literal_eval(next_expression)!=source:
+                    raise ValueError('full-F quiet source expression differs')
+                script=script.replace(old_literal,new_literal,1)
+                if script.replace(new_literal,old_literal,1)!=guarded_script:
+                    raise ValueError('full-F quiet bootstrap full inverse differs')
+                def opaque_tree(data,expected_source):
+                    tree=ast.parse(data)
+                    matches=[node for node in ast.walk(tree) if isinstance(node,ast.Constant) and node.value==expected_source]
+                    if len(matches)!=1:raise ValueError('one opaque full-F C literal required')
+                    matches[0].value=b'__OWNED_FULL_F_SOURCE__'
+                    return ast.dump(tree,include_attributes=False)
+                if opaque_tree(guarded_script,guarded_source)!=opaque_tree(script,source):
+                    raise ValueError('full-F owner outside source AST differs')
+                replayed,group_metadata=compiler_group(template.replace(marker,new_literal))
+                if replayed!=script:raise ValueError('full-F owner replay with quiet source differs')
+                report['compiler_group']=group_metadata
+                report['quiet_slot_bootstrap']={'old_owner_guard_consumed':True,'old_owner_bytes':len(guarded_script),
+                    'old_owner_sha256':sha(guarded_script),'new_owner_bytes':len(script),'new_owner_sha256':sha(script),
+                    'source_expression_only':True,'full_inverse':True,'outside_source_AST_equal':True,
+                    'fresh_owner_metadata':True}
+                script,stdin_metadata=compiler_stdin.transform_bootstrap(script,shared_wait=True)
+                report['compiler_stdin']=stdin_metadata
+                script,seek_metadata=compiler_seek(script,owner_metadata=stdin_metadata,
+                    prepare_owner=compiler_stdin.transform_bootstrap,restore_owner=compiler_stdin.restore_bootstrap)
+                report['compiler_seek']=seek_metadata
+            ast.parse(script)
+            data=source_package.package(script,compression,prefix=prefix)
+            return data,script
+        first=None;first_dev=None
+        for index in (1,2):
+            directory=out/('attempt-'+str(index));directory.mkdir()
+            source,observations,counters,alpha_metadata,storage_metadata,scope_metadata,member_metadata,semantic_metadata,input_metadata,declaration_metadata,hce_metadata,type_metadata,unit_bound_metadata,startup_metadata,global_names_metadata,capture_metadata,policy_metadata,material_names_metadata,material_capture_metadata,move_tt_metadata,move_tt_names_metadata,expressions_metadata,common_metadata,before_names=generate(directory/'preprocess')
+            if len(source)!=expected['source_bytes'] or sha(source)!=expected['source_sha256']:raise ValueError('compact C identity mismatch')
+            (directory/'main.c').write_bytes(source)
+            if before_names is not None:(directory/'source-before-names.c').write_bytes(before_names)
+            native=compile_c(recipe['compiler'],source,directory/'native')
+            if len(native)!=expected['native_bytes'] or sha(native)!=expected['native_sha256']:raise ValueError('native ELF identity mismatch')
+            whole,script=package(source)
+            if len(whole)!=expected['whole_bytes'] or sha(whole)!=expected['whole_sha256'] or sha(script)!=expected['bootstrap_sha256']:
+                raise ValueError('complete launcher identity mismatch')
+            (directory/'x').write_bytes(whole);(directory/'x').chmod(0o755);(directory/'bootstrap.py').write_bytes(script)
+            current=(source,native,whole,script,before_names)
+            if first is None:first=current
+            elif current!=first:raise ValueError('independent generation did not reproduce bytes')
+            row={'attempt':index,'source_bytes':len(source),'source_sha256':sha(source),'native_bytes':len(native),'native_sha256':sha(native),
+                 'whole_bytes':len(whole),'whole_sha256':sha(whole),'bootstrap_sha256':sha(script),'preprocessor':observations,
+                 'counter_removal':counters,'shipping_alpha':alpha_metadata,'shipping_storage':storage_metadata,
+                 'shipping_scope':scope_metadata,'shipping_members':member_metadata,'shipping_semantics':semantic_metadata,'shipping_input':input_metadata,'shipping_declarations':declaration_metadata,'shipping_hce':hce_metadata,'shipping_types':type_metadata,'shipping_unit_bound':unit_bound_metadata,'shipping_startup':startup_metadata,'shipping_global_names':global_names_metadata,'shipping_capture':capture_metadata,'shipping_policy':policy_metadata,'shipping_material_names':material_names_metadata,'shipping_material_capture':material_capture_metadata,'shipping_move_tt':move_tt_metadata,'shipping_move_tt_names':move_tt_names_metadata,'shipping_material_expressions':expressions_metadata,'shipping_common':common_metadata,
+                 'source_before_names':({'bytes':len(before_names),'sha256':sha(before_names),
+                                         'path':str(directory/'source-before-names.c')} if before_names is not None else None)}
+            if args.dev:
+                dev,dev_observations,_,dev_alpha,dev_storage,dev_scope,dev_members,dev_semantics,dev_input,dev_declarations,dev_hce,dev_types,dev_unit_bound,dev_startup,dev_global_names,dev_capture,dev_policy,dev_material_names,dev_material_capture,dev_move_tt,dev_move_tt_names,dev_expressions,dev_common,dev_before_names=generate(directory/'preprocess-dev',True)
+                if dev_before_names is not None:raise ValueError('diagnostic source entered fixed names stage')
+                if dev_alpha is not None or dev_storage is not None or dev_scope is not None or dev_members is not None or dev_declarations is not None or dev_hce is not None or dev_types is not None or dev_unit_bound is not None or dev_startup is not None or dev_global_names is not None or dev_capture is not None or dev_policy is not None or dev_material_names is not None or dev_material_capture is not None or dev_move_tt is not None or dev_move_tt_names is not None or dev_expressions is not None or dev_common is not None:raise ValueError('diagnostic source entered shipping spelling stage')
+                if dev_semantics is None or dev_semantics['stage']!='readable-before-DEV-specialization':raise ValueError('diagnostic semantic stage missing')
+                if dev_input is None or dev_input['stage']!='readable-before-DEV-specialization' or dev_input['shipping_relation_checked']:
+                    raise ValueError('diagnostic input-profile stage differs')
+                if sha(dev)!=expected['dev_source_sha256']:raise ValueError('diagnostic C differs from current semantic recipe')
+                dev_command=recipe['dev_compiler']
+                dev_native=compile_c(dev_command,dev,directory/'dev');(directory/'dev/main.c').write_bytes(dev)
+                if sha(dev_native)!=expected['dev_native_sha256']:raise ValueError('diagnostic ELF differs from current semantic recipe')
+                if first_dev is None:first_dev=(dev,dev_native)
+                elif first_dev!=(dev,dev_native):raise ValueError('diagnostic bytes did not reproduce')
+                row['dev']={'source_sha256':sha(dev),'native_sha256':sha(dev_native),'command':dev_command,'preprocessor':dev_observations,
+                            'expected_identity_match':True,'old_DEV_identity_claimed':False,
+                            'policy_scope':'unchanged full-F reference diagnostics; not material-model DEV coverage','semantic':dev_semantics,
+                            'input_profile':dev_input,'prior_EP_DEV_identity_verified':True}
+            report['attempts'].append(row);save()
+        (out/'main.c').write_bytes(first[0]);(out/'native').mkdir();(out/'native/x').write_bytes(first[1]);(out/'native/x').chmod(0o755)
+        if first[4] is not None:
+            (out/'source-before-names.c').write_bytes(first[4])
+            report['source_before_names']={'path':str(out/'source-before-names.c'),
+                                          'bytes':len(first[4]),'sha256':sha(first[4]),
+                                          'scope':'full shipping source immediately before fixed local-name replay; F8 consumer input'}
+        (out/'x').write_bytes(first[2]);(out/'x').chmod(0o755);(out/'bootstrap.py').write_bytes(first[3])
+        if first_dev:
+            (out/'dev').mkdir();(out/'dev/main.c').write_bytes(first_dev[0]);(out/'dev/x').write_bytes(first_dev[1]);(out/'dev/x').chmod(0o755)
+        report.update(complete=True,source_reproduced=True,native_reproduced=True,whole_reproduced=True,
+                      actual={'command':[str(out/'x')],'native':str(out/'native/x'),'source':str(out/'main.c'),
+                              'whole_sha256':sha(first[2]),'native_sha256':sha(first[1]),'source_sha256':sha(first[0])},
+                      diagnostic_exact_control=bool(first_dev),
+                      diagnostic_identity_scope='current literal DEV source and ELF reproduced; prior EP diagnostic tuple compared exactly, not assumed',under_4096_bytes=len(first[2])<=4096)
+        save();print(json.dumps({'complete':True,'out':str(out),'whole_bytes':len(first[2]),'source_sha256':sha(first[0]),
+                                'native_sha256':sha(first[1]),'whole_sha256':sha(first[2]),'diagnostic_exact_control':bool(first_dev)}),flush=True)
+    except Exception as error:
+        report['error']=repr(error);save();raise
+
+
+if __name__=='__main__':main()

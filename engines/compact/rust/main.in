@@ -1,0 +1,31 @@
+mod board;mod eval;mod search;mod parallel;mod pool;
+use board::Board;
+use search::Limits;
+use std::io::{self,BufRead};
+use std::time::Duration;
+pub const DEV:bool=false;
+const VARIANT:u8=b'A';
+const WORKERS:usize=@WORKERS@;
+const TT_BITS:usize=@TT_BITS@;
+const PARALLEL:u8=0;
+@READ_COMMAND@
+@SET_POSITION@
+@GO_LIMITS@
+fn diagnostic(s:impl std::fmt::Display){let _=s;}
+fn main(){
+ let mut board=Board::start();
+ let mut runtime=pool::Runtime::new(VARIANT,WORKERS,TT_BITS,PARALLEL).expect("fixed worker/TT startup failed");
+ let stdin=io::stdin();let mut input=stdin.lock();
+ loop{
+  let line=match read_command(&mut input){Ok(Some(Ok(line)))=>line,Ok(Some(Err(())))=>continue,_=>break};
+  let w:Vec<_>=line.split_whitespace().collect();let Some(&cmd)=w.first()else{continue};
+  match cmd{
+   "uci"=>{println!("id name Rove4k {} Rust",VARIANT as char);println!("id author Rove4k");println!("uciok");},
+   "isready"=>println!("readyok"),
+   "position"=>{runtime.finish();match set_position(&board,&w){Ok(b)=>board=b,Err(e)=>diagnostic(e)}},
+   "ucinewgame"=>runtime.reset(),"stop"=>runtime.finish(),"quit"=>{runtime.finish();break;},
+   "go"=>runtime.start(&board,go_limits(&board,&w)),_=>{}
+  }
+ }
+ runtime.finish();
+}

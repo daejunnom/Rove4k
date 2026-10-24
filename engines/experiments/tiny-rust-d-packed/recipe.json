@@ -1,0 +1,77 @@
+{
+  "format": 1,
+  "class": "tiny-rust-d-sectionless-load-v1",
+  "profile": {
+    "workers": 2,
+    "tt_bits": 18,
+    "ply": 128
+  },
+  "source_sha256": {
+    "native/board.rs": "f27472ea055b67e61cdd82a3d7747feced50c899bef72365ffdc940043dedef3",
+    "native/build.py": "08f28ebdc45ad49c2a23f7eb8e28b086612ea9a33dbc39cb8ccbd66bfcf68e89",
+    "native/link.ld": "1e8f17bb2f06a6ddabf1f56d155bd7bdcd8c4406d140c22770bcfda96d459bbc",
+    "native/main.rs": "8b72a5561b85ae87177198f08257ddfeca0fe954c6ca20ac74756b39c199723c",
+    "native/os.rs": "892cc62e2c126ebcbc171eb6f8059aacf92cf255d85341487e46effe2b94986e",
+    "native/runtime.rs": "802b497371a409744ad231cd8f621ea3d8b7cd931627e0396f3ec92ad1345b2d",
+    "native/search.rs": "da2583806efea022b1b3b1337557b896a373a561f11d665b1ca747c29e3aed81",
+    "packaging/packer.py": "bde43a9bb1a7ec21f93f21071461d79570cf9ae4af8a7733c33e294ecac5291b",
+    "packaging/loader/codec.py": "17165d1cb16eaba8916833741bfa229d196c3ad07ca391c14b94288a3cdc0866",
+    "packaging/loader/image.ld": "93934099212b944b20c2f7840ee87e4817311c4f87fddbb2b3f91db28776cf99",
+    "packaging/loader/loader.c": "8a6a9cb93ae484400056852c5bc406be1cc15dc7b8df6b0a57e6d6330a2e4094"
+  },
+  "native_expected": {
+    "hq": {
+      "bytes": 16824,
+      "sha256": "2c84c684d840ad7e7f0567b2b76d9c28693a00f6f95779675fb45ff84c06d3b3",
+      "rx_filesz": 16091,
+      "load_sha256": "f149808a56b02a1a57fee53ab6305b50bc386a28f8e53bd6de785bcae923e724"
+    },
+    "scalar": {
+      "bytes": 16824,
+      "sha256": "0c364208165b79d95f146650ec8ae144f1e4cb6427197b80f37f0e97a90a4eb3",
+      "rx_filesz": 15643,
+      "load_sha256": "dac2b625877692cfb9036d8788b8466495a78250d80029487225705a788bf2c4"
+    }
+  },
+  "layout": {
+    "image_base": 4194304,
+    "image_size": 16400,
+    "image_pages": 20480,
+    "final_rx_pages": 16384,
+    "entry": 4194544,
+    "bss_base": 4210688,
+    "bss_pages": 4096,
+    "rw_filesz": 16,
+    "rw_memsz": 20,
+    "actual_bss_base": 4210704,
+    "actual_bss_size": 4,
+    "guard_base": 4190208,
+    "upper_guard": 4214784,
+    "reserve_size": 28672,
+    "loader_base": 268435456
+  },
+  "data_hex": "46014000000000008801400000000000",
+  "codec": {
+    "bcj_version": "e8-e9-whole-image-add-next-offset-le32-v1",
+    "fixed_version": "rfc1951-one-final-fixed-zero-padding-v1"
+  },
+  "loader_flags": [
+    "-Oz",
+    "-flto",
+    "-nostdlib",
+    "-static",
+    "-no-pie",
+    "-fno-pie",
+    "-fno-pic",
+    "-fno-builtin",
+    "-fno-stack-protector",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-fno-ident",
+    "-fcf-protection=none",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-Wl,--gc-sections,--build-id=none,-s,-z,noexecstack"
+  ],
+  "runtime_execution_authorized": false
+}

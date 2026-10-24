@@ -1,0 +1,34 @@
+/* C lookup experiment: signed-piece/square HCE, either constructed once at
+ * startup or inserted as an exact read-only table by the recipe generator. */
+#include <immintrin.h>
+@TABLE_DECL@
+#if DEV
+static atomic_uint_fast64_t tiny_leaf_calls,tiny_order_calls,tiny_init_calls;
+static int tiny_scalar(const Board *p){
+    int score=0;
+    for(int q=0;q<128;q++)if(!(q&0x88)&&p->b[q])score+=value(p->b[q],q);
+    return score;
+}
+#endif
+static void __attribute__((constructor)) tiny_eval_init(void){
+#if DEV
+    atomic_fetch_add_explicit(&tiny_init_calls,1,memory_order_relaxed);
+#endif
+    @TABLE_INIT@
+}
+static int tiny_raw(const Board *p){
+    __m256i sum=_mm256_setzero_si256(),base=_mm256_setr_epi32(384,385,386,387,388,389,390,391);
+#if DEV
+    atomic_fetch_add_explicit(&tiny_leaf_calls,1,memory_order_relaxed);
+#endif
+    for(int q=0;q<128;q+=16){
+        __m256i pieces=_mm256_cvtepi8_epi32(_mm_loadl_epi64((const __m128i *)(p->b+q)));
+        __m256i index=_mm256_add_epi32(base,_mm256_slli_epi32(pieces,6));
+        sum=_mm256_add_epi32(sum,_mm256_i32gather_epi32(tiny_table,index,4));
+        base=_mm256_add_epi32(base,_mm256_set1_epi32(8));
+    }
+    __m128i half=_mm_add_epi32(_mm256_castsi256_si128(sum),_mm256_extracti128_si256(sum,1));
+    half=_mm_hadd_epi32(half,half);
+    return _mm_cvtsi128_si32(_mm_hadd_epi32(half,half));
+}
+static int tiny_order(const Board *p,Move m){(void)p;(void)m;return 0;}

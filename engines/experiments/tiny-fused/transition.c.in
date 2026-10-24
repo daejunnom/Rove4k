@@ -1,0 +1,32 @@
+static Fact facts(const Board *p,Move m){
+    Fact d={0};d.m=m;d.f=FROM(m);d.t=TO(m);d.v=p->b[d.f];d.x=d.t;
+    if(abs(d.v)==1&&d.t==p->e&&!p->b[d.t])d.x-=p->s*16;
+    d.c=p->b[d.x];d.r=-1;
+    if(abs(d.v)==6&&abs(d.t-d.f)==2){
+        d.r=d.t>d.f?d.f+3:d.f-4;d.u=d.t>d.f?d.f+1:d.f-1;
+    }
+    return d;
+}
+/* Only offers produced by the real geometry walk reach apply. Copy children
+ * keep parent metadata, nested EP scratch and every stop return independent. */
+static int apply(const Board *p,Fact d,Board *t){
+    if(abs(d.c)==6)return 0;
+    int s=p->s,v=d.v;
+    *t=*p;t->h^=state(p);t->half++;t->e=-1;
+    if(abs(v)==1){
+        t->half=0;
+        if(d.x!=d.t)put(t,d.x,0);
+        if(abs(d.t-d.f)==32)t->e=d.f+s*16;
+        if(PROMO(d.m))v=s*(int)PROMO(d.m);
+    }
+    if(d.c)t->half=0;
+    if(d.r>=0){put(t,d.r,0);put(t,d.u,s*4);}
+    put(t,d.f,0);put(t,d.t,v);t->c&=~(rights(d.f)|rights(d.t));t->s=-s;
+    if(attacked(t,t->k[s<0],-s))return 0;
+    ep(t);t->h^=state(t);
+    t->r=t->half?((p->r<<1)|(p->r>>63))^t->h:t->h;
+    return 1;
+}
+#if DEV
+int make(const Board *p,Move m,Board *t){return apply(p,facts(p,m),t);}
+#endif

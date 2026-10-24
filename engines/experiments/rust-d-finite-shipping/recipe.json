@@ -1,0 +1,76 @@
+{
+  "class": "rust-d-tiny-shipping-node-counter-v1",
+  "profile": {
+    "workers": 2,
+    "tt_bits": 18,
+    "ply": 128
+  },
+  "control_native": {
+    "control-hq": {
+      "bytes": 16816,
+      "sha256": "f8581a68f09d4d9cdc3e1413aa45ffb385bafd8240f1432403629ec2a0e544f8",
+      "rx_filesz": 14688,
+      "load_sha256": "995e9464eb61e2a5894263f49da545767315f6616c405d9e01540a71b4fc8da0"
+    },
+    "control-scalar": {
+      "bytes": 16816,
+      "sha256": "bd0e3bd1567ae906d4ab9704603204d22302895df1f05679f6221d6445aef878",
+      "rx_filesz": 14240,
+      "load_sha256": "8498ceeabf31a8c688b2344585f126dad086193c2ffe5dc07fb7a994887b5b37"
+    }
+  },
+  "layout_reference_only_before_candidate_geometry_review": {
+    "image_base": 4194304,
+    "image_size": 16392,
+    "image_pages": 20480,
+    "final_rx_pages": 16384,
+    "entry": 4194544,
+    "bss_base": 4210688,
+    "bss_pages": 4096,
+    "rw_filesz": 8,
+    "rw_memsz": 12,
+    "actual_bss_base": 4210696,
+    "actual_bss_size": 4,
+    "guard_base": 4190208,
+    "upper_guard": 4214784,
+    "reserve_size": 28672,
+    "loader_base": 268435456
+  },
+  "data_hex_reference": "4601400000000000",
+  "codec": {
+    "bcj_version": "e8-e9-whole-image-add-next-offset-le32-v1",
+    "fixed_version": "rfc1951-one-final-fixed-zero-padding-v1"
+  },
+  "loader_flags": [
+    "-Oz",
+    "-flto",
+    "-nostdlib",
+    "-static",
+    "-no-pie",
+    "-fno-pie",
+    "-fno-pic",
+    "-fno-builtin",
+    "-fno-stack-protector",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-fno-ident",
+    "-fcf-protection=none",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-Wl,--gc-sections,--build-id=none,-s,-z,noexecstack"
+  ],
+  "control_whole": {
+    "control-hq": {
+      "bytes": 11762,
+      "sha256": "da6f203d2304311856509d5d8d803cb647e4bb7f3444caa3a2fb1710304607e5"
+    },
+    "control-scalar": {
+      "bytes": 11403,
+      "sha256": "c485ddc7cca0bbfa31605d6488113075879164802c89ccda48d29d49c7756bc6"
+    }
+  },
+  "native_cost_count": 4,
+  "extra_unstripped_links": 0,
+  "production_ELF_execution_authorized": false,
+  "policy_change_authorized": false
+}

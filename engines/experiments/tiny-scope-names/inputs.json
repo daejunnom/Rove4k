@@ -1,0 +1,48 @@
+{
+  "format": 1,
+  "family": "F",
+  "policy": "automatic-function-wide-reuse-v1",
+  "ordinary_inputs": {
+    "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
+    "engines/compact/tiny-entry-f/.gitattributes": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9",
+    "engines/compact/tiny-entry-f/README.md": "8c19a611508d8fda4d58d95be254fc3466c40a2e21e24bdf68d1f7f35cc59b72",
+    "engines/compact/tiny-entry-f/bootstrap.py.in": "84608782831299a6f7b1010dea89501eb10e6e34ee1cdc8f3804d448354cf4c6",
+    "engines/compact/tiny-entry-f/build.py": "02b78043434d4e0032b8c27b2a4cde88b8e4b2481e4f6f0409ab276084736423",
+    "engines/compact/tiny-entry-f/engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+    "engines/compact/tiny-entry-f/fresh.py": "81df003f684e813d5f77b2667cb9994767ac18a2065b7e7d1c0ae1706fad8d17",
+    "engines/compact/tiny-entry-f/launcher.sh": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a",
+    "engines/compact/tiny-entry-f/recipe.json": "a2c04c79ba7808455e6721d8ce08211d7823dfd6752b49027ebccc200097e370",
+    "engines/compact/tiny-entry-f/shipping_alpha.py": "74abadbd79735e9f6b30c513b422245bae737f81d4e3bd04a7b8e597e61937e8",
+    "engines/compact/tiny-entry-f/shipping_storage.py": "b8d1984c8585b3052f22b4f3713a7fb0a7107a5ad91a2951d91f9a852a36c3df",
+    "engines/compact/tiny-entry-f/verify.py": "cc63a511446c35db54676356a9d885b95db7da994133147cda3e3ff1c4464b0c",
+    "engines/scripts/minify.py": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b",
+    "engines/scripts/rename_c.py": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
+    "engines/scripts/specialize.py": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d",
+    "engines/tests/chess_oracle.py": "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8",
+    "engines/tests/verify.py": "9327ad01dd75bc17f04f400b57d5af3d6891a1abbb7f22aa6222389d50da138f"
+  },
+  "baseline": {
+    "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+    "source_bytes": 10477,
+    "source_sha256": "c63a450245ff4ca703a5abe2dc75d840c7c7e936bb2a30a726c30014e3a92e90",
+    "native_bytes": 22672,
+    "native_sha256": "757b9a14cd5174dad55754196cce098fd89018a8b0d7adcf08bcddb2e1fc092b",
+    "whole_bytes": 5051,
+    "whole_sha256": "ad4030ad32af47469ca067e4f10c4b60103eddcc6afdfefd22dedea1269052ce",
+    "dev_source_sha256": "84fbc9b3651494ce0ebabdc25b9a1fa7b3a334fa7394eee2631581682a804b58",
+    "dev_native_sha256": "6eb28892842bef969edff9295aae74b7edd71d61eb39ac01236f2adcd4785340",
+    "bootstrap_sha256": "3a6dc4c7c77c77b48f4b020cda1a4397af22eb2cdea97447bf97d7bae8a29162"
+  },
+  "clang_site_inputs": {
+    "clang/__init__.py": "961d8ad419dc7aa10d8d7b75e5fcd624cc681403a55ce99ad14ae4fe4a7be749",
+    "clang/cindex.py": "a66f9d25b3058b042fcd6d145268abde37886e6ed8666ca63aeb6ea3c4027156",
+    "clang/enumerations.py": "da8197921b63c923b09a990553d8678e19b2b96c6750f13186aa0e345a505c12",
+    "clang/native/libclang.so": "a8612b1c9a7125701277f63e5616f1d1eb9c91410c4bf195878067868c927f94"
+  },
+  "stdatomic_sha256": "4e4de7f617643a9f6e49c678866c05266b3d8d4145eb653066f1ca3f6e49b0be",
+  "clang_package": "18.1.1",
+  "Clang_resource_headers_package": "18.1.3-1ubuntu1",
+  "external_toolchain_only": true,
+  "native_compiler_options_unchanged": true,
+  "source_literal_and_codec_unchanged": true
+}

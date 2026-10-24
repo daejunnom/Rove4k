@@ -1,0 +1,29 @@
+static void set_position(char *input){
+    const char *cursor=input;Span token=scan(&cursor);
+    Board b,c;uint64_t keys[HISTORY];int n=1;
+#if DEV
+    int have_moves=0;
+#endif
+    if(word(token,"startpos"))start(&b);
+#if DEV
+    else if(word(token,"fen")){
+        const char *begin=cursor,*tail=cursor;Span marker=scan(&begin);
+        begin=marker.p;
+        while((marker=scan(&tail)).n&&!word(marker,"moves"));
+        if(marker.n){*(char *)marker.p=0;have_moves=1;}
+        if(!fen(&b,begin))return;
+        cursor=tail;
+    }
+#endif
+    else return;
+#if DEV
+    if(!have_moves)
+#endif
+    {token=scan(&cursor);if(token.n&&!word(token,"moves"))return;}
+    keys[0]=b.h;
+    while((token=scan(&cursor)).n){
+        if(n==HISTORY||!parse_apply(&b,token,&c))return;
+        b=c;keys[n++]=b.h;
+    }
+    position=b;game_length=n;memcpy(game_keys,keys,n*sizeof *keys);
+}

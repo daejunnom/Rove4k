@@ -1,0 +1,104 @@
+{
+  "format": 1,
+  "family": "B",
+  "scope": "ONE approximate geometric occupancy-swap SEE ordering policy, not legal-LVA equivalence",
+  "cost_authorized": true,
+  "compiler": [
+    "cc",
+    "-std=c11",
+    "-Os",
+    "-pthread",
+    "-DWORKERS=2",
+    "-DTT_BITS=18",
+    "-DDEV=0",
+    "-x",
+    "c",
+    "-",
+    "-o",
+    "x"
+  ],
+  "profile": {
+    "workers": 2,
+    "TT_BITS": 18,
+    "PLY": 128,
+    "DEV": false
+  },
+  "compression": {
+    "format": "ALONE",
+    "preset": 9,
+    "extreme": true,
+    "lc": 2,
+    "lp": 0,
+    "pb": 0,
+    "mf": "BT4",
+    "dict_size": 67108864,
+    "nice_len": 32
+  },
+  "prefix": "#!/bin/sh\np=$(tail -c+78 \"$0\"|lzma -dc)||exit\nexec python3 -c \"$p\" \"$0\" \"$@\"\n",
+  "ALONE_header13": "0200000004ffffffffffffffff",
+  "actual_cost_baseline": "/home/stemxstudio/rove4k-b-tactical-normal-20261021/build",
+  "actual_cost_baseline_pins": {
+    "main.c": {
+      "sha256": "54759113c9949f0f3d619d5eefe5e8ac4d6b562baf4c09da7e7743907d3f8a2a",
+      "bytes": 11430
+    },
+    "native/x": {
+      "sha256": "483a2b6c1f420a30d2f04f1acab9101f6b7dc44c06e1485117a2e8117f1365dd",
+      "bytes": 26360
+    },
+    "bootstrap.py": {
+      "sha256": "ac3cbb751445b451fecfb28d6b43ca711879b6c10797e52c35eb872a353ba523",
+      "bytes": 12495
+    },
+    "x": {
+      "sha256": "8b8c3b565974813aa2ea54383bcc19240c1dcf506157d2aa0b44c8b24fa3d5be",
+      "bytes": 5357
+    }
+  },
+  "accepted_baseline_receipt_metadata_only": {
+    "sha256": "f1882be151f244f59afa30a1020daeeec9366d6299096840f0ed9911d4d581e8",
+    "bytes": 100076
+  },
+  "output_pin": {
+    "sha256": "418b37627d4fb769bb6dd18a4659386e8fd07933fa95e0a1c9c9a70423d797f5",
+    "bytes": 11487
+  },
+  "source_only_proposal_metadata": {
+    "bytes": 14795,
+    "sha256": "cb505a179fd72834a55c817d60d27ed2db506dbb4a8c25aa079d1adb65d381f5",
+    "path": "C:/Users/강민수/Documents/Codex/rove4k-b-occupancy-swap-source-only-20261021-proposal.md"
+  },
+  "counter_scope": {
+    "control_copy_compile_compress": 0,
+    "engine_fixture_oracle_normal_shared_Git_DEV_PP_Clang_variants_retries": 0,
+    "strict_pure_decodes": 2,
+    "candidate_compile": 1,
+    "candidate_ALONE": 1
+  },
+  "policy": {
+    "functional_strength_stack_qualified": false,
+    "legal_LVA_equivalence": false,
+    "gain_capacity": 32,
+    "QS_SEE_pruning": false,
+    "scratch": "fixed-target l/walk queries only; never passed to make/search/HCE/hash/TT/learning",
+    "promotion": "all initial four preserved; queen weakly maximizes all four recaptures within target-invariant model",
+    "initial_actual_make": 1,
+    "recaptures": "geometric least kind then ctz; pins and nonking check evasion ignored",
+    "normal_promotion": false,
+    "king": "filter geometric destination after origin removal then terminate"
+  },
+  "owned_executable_pins": {
+    ".gitattributes": {
+      "sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9",
+      "bytes": 14
+    },
+    "transform.py": {
+      "sha256": "46ad1d6aaa75644df04270e81d84af0e4657ac1a4260192cb0eb17db5797a971",
+      "bytes": 6076
+    },
+    "cost.py": {
+      "sha256": "4c0a114c2c8e1a97ec72e53cee5d9eb2b672c4226628c124223298c63192b062",
+      "bytes": 8569
+    }
+  }
+}

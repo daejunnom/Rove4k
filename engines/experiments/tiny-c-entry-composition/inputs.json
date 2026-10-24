@@ -1,0 +1,168 @@
+{
+  "format": 1,
+  "family": "C",
+  "scope": "one fixed query/made-child + worker best reset + pending startup composition; first cost only",
+  "control_files": {
+    "engines/compact/tiny-a/pack_stream.py": {
+      "bytes": 5444,
+      "sha256": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e"
+    },
+    "engines/compact/tiny-a/stitch.py": {
+      "bytes": 3863,
+      "sha256": "2b0d25b4855a3ed4ddd9e24b8e4b0e081439baa2ed8f744dba0215a700023f23"
+    },
+    "engines/compact/tiny-entry-c/.gitattributes": {
+      "bytes": 14,
+      "sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9"
+    },
+    "engines/compact/tiny-entry-c/README.md": {
+      "bytes": 11956,
+      "sha256": "a8083a371bd5f94b6a139e6b50b56e9cfc95ba72e50ff17076e9f0bf964c94d0"
+    },
+    "engines/compact/tiny-entry-c/bootstrap.py.in": {
+      "bytes": 1082,
+      "sha256": "68e4544370fdd2ca3d240963a0782004f955930187c3d8edfda78cc2f59b7f6a"
+    },
+    "engines/compact/tiny-entry-c/build.py": {
+      "bytes": 9890,
+      "sha256": "0f30be8fb6cdf709bc99792d6be0527337a45560e99def6e4e89ac2011b0091e"
+    },
+    "engines/compact/tiny-entry-c/engine.c": {
+      "bytes": 27003,
+      "sha256": "1f0f18ffee91ecddea3cb31e7553e1d1415e25b3f759cdec4e0f375fcd0b2298"
+    },
+    "engines/compact/tiny-entry-c/fresh.py": {
+      "bytes": 5360,
+      "sha256": "81df003f684e813d5f77b2667cb9994767ac18a2065b7e7d1c0ae1706fad8d17"
+    },
+    "engines/compact/tiny-entry-c/launcher.sh": {
+      "bytes": 75,
+      "sha256": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a"
+    },
+    "engines/compact/tiny-entry-c/recipe.json": {
+      "bytes": 4624,
+      "sha256": "4374952d087b5cf3388f2396f2ebe8eb10419bc44e965770ab1a1aadcacbf3b8"
+    },
+    "engines/compact/tiny-entry-c/verify.py": {
+      "bytes": 7328,
+      "sha256": "930baa1794b486fca9dce8829fa808bb2cae08da80d1d8c3ccb5609d30d41310"
+    },
+    "engines/scripts/fixed_shipping_alpha.py": {
+      "bytes": 21999,
+      "sha256": "92b351d537c1da0f346f072df2ca4b0be713d0e286e039b30efa9f758519c806"
+    },
+    "engines/scripts/minify.py": {
+      "bytes": 6624,
+      "sha256": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b"
+    },
+    "engines/scripts/rename_c.py": {
+      "bytes": 12574,
+      "sha256": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5"
+    },
+    "engines/scripts/specialize.py": {
+      "bytes": 2386,
+      "sha256": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d"
+    },
+    "engines/tests/chess_oracle.py": {
+      "bytes": 10730,
+      "sha256": "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8"
+    },
+    "engines/tests/verify.py": {
+      "bytes": 45921,
+      "sha256": "9327ad01dd75bc17f04f400b57d5af3d6891a1abbb7f22aa6222389d50da138f"
+    }
+  },
+  "control_expected": {
+    "readable_sha256": "1f0f18ffee91ecddea3cb31e7553e1d1415e25b3f759cdec4e0f375fcd0b2298",
+    "source_bytes": 12526,
+    "source_sha256": "5b0bebf394c7774bcd6d0b677d11537a44e7dc0850cb6d38331bd4d97eb99bb3",
+    "native_bytes": 26464,
+    "native_sha256": "c948e31aea9f413614881b8e8e6060e5aa70314dd84b2d9b544e3f20edb99df2",
+    "whole_bytes": 5723,
+    "whole_sha256": "76662acd5eac4e907a5e29bacf8f252118c9bc97bf3aec0dc890bd815c6ecac0",
+    "bootstrap_sha256": "139eaf9570a82f878e959f442451f74b7006b7d558d8d745428076e5151da469",
+    "dev_source_sha256": "31415fddd3cf1ebd378e58ccc41cdb2b9382df646e41f002653734a5e4d746bf",
+    "dev_native_sha256": "5e9b05e55cba56c63b180c2dce1d9330d2f3a69d7563360e35484684ebb730ba"
+  },
+  "compiler": [
+    "cc",
+    "-std=c11",
+    "-Os",
+    "-pthread",
+    "-DWORKERS=2",
+    "-DTT_BITS=18",
+    "-mavx2",
+    "-DDEV=0",
+    "-x",
+    "c",
+    "-",
+    "-o",
+    "x"
+  ],
+  "preprocessor": [
+    "cc",
+    "-std=c11",
+    "-Os",
+    "-pthread",
+    "-DWORKERS=2",
+    "-DTT_BITS=18",
+    "-mavx2"
+  ],
+  "compression": {
+    "format": "xz",
+    "filter": "LZMA2",
+    "preset": 9,
+    "extreme": true,
+    "lc": 3,
+    "lp": 0,
+    "pb": 2,
+    "check": "CRC64"
+  },
+  "profile": {
+    "workers": 2,
+    "tt_bits": 18,
+    "ply": 128,
+    "dev_default": false
+  },
+  "candidate_readable": {
+    "bytes": 26692,
+    "sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b"
+  },
+  "transform_sha256": "3720fb7aa1c367309d9200f2db5b627bbf23eb3344707f7599cd1fa55b5b48c2",
+  "source_policy": "existing89 aliases/resources retained exactly; candidate counts separately literal-admitted; no variants/search",
+  "original_A_proof_status": "design reference only; no C execution inheritance",
+  "engine_execution_authorized": false,
+  "producer_files": {
+    "candidate.c": {
+      "bytes": 26692,
+      "sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b"
+    },
+    "transform.py": {
+      "bytes": 3007,
+      "sha256": "3720fb7aa1c367309d9200f2db5b627bbf23eb3344707f7599cd1fa55b5b48c2"
+    },
+    "policy.json": {
+      "bytes": 4538,
+      "sha256": "9ac6fdd907a114d6748268c5777e5ee3fa54a53ce56ae07bd1d7fae37d1202c5"
+    },
+    "policy.py": {
+      "bytes": 3625,
+      "sha256": "3f3200a595f819e6fbaa2533e30548b2ec40d6fdffb70bb8ce792b15216bbb79"
+    },
+    "support.py": {
+      "bytes": 9639,
+      "sha256": "10cffa19a48b3d604fe22dfff468af27f2e01d30d86a1e39e2b5e410cf9df30e"
+    },
+    "preprocess.py": {
+      "bytes": 1679,
+      "sha256": "17b2b5323e7dd0bc7c3b96924ed69c6e0a671e92e51a3a4146a8c0e2cf02387e"
+    }
+  },
+  "candidate_alpha": {
+    "source_bytes": 12224,
+    "source_sha256": "20f06b6ed9ada03db6f8719f05ecdf9cb52802ab0a1acc8999627999db899046",
+    "before_alpha_bytes": 13878,
+    "before_alpha_sha256": "df44d4246f2ab4145b525a79b9207f4ebe279c450a2cce723bfedbe4b2c5d1a9",
+    "policy_sha256": "9ac6fdd907a114d6748268c5777e5ee3fa54a53ce56ae07bd1d7fae37d1202c5"
+  }
+}

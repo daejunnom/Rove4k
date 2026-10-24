@@ -1,0 +1,126 @@
+{
+  "format": 1,
+  "family": "C",
+  "profile": {
+    "workers": 2,
+    "tt_bits": 18,
+    "ply": 128,
+    "dev_default": false
+  },
+  "compiler": [
+    "cc",
+    "-std=c11",
+    "-Os",
+    "-pthread",
+    "-DWORKERS=2",
+    "-DTT_BITS=18",
+    "-mavx2",
+    "-DDEV=0",
+    "-x",
+    "c",
+    "-",
+    "-o",
+    "x"
+  ],
+  "dev_compiler": [
+    "cc",
+    "-std=c11",
+    "-Os",
+    "-pthread",
+    "-DWORKERS=2",
+    "-DTT_BITS=18",
+    "-mavx2",
+    "-DDEV=1",
+    "-x",
+    "c",
+    "-",
+    "-o",
+    "x"
+  ],
+  "preprocessor": [
+    "cc",
+    "-std=c11",
+    "-Os",
+    "-pthread",
+    "-DWORKERS=2",
+    "-DTT_BITS=18",
+    "-mavx2"
+  ],
+  "helper_sha256": {
+    "engines/scripts/specialize.py": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d",
+    "engines/scripts/minify.py": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b",
+    "engines/scripts/rename_c.py": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
+    "engines/scripts/fixed_shipping_alpha.py": "92b351d537c1da0f346f072df2ca4b0be713d0e286e039b30efa9f758519c806",
+    "engines/compact/tiny-a/stitch.py": "2b0d25b4855a3ed4ddd9e24b8e4b0e081439baa2ed8f744dba0215a700023f23",
+    "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
+    "engines/compact/tiny-entry-c/shipping_alpha.py": "d220d7001a0e4119380d6bad466d39d10ba5d5c047a75e5fdb231b3bd8bd25c3"
+  },
+  "compression": {
+    "format": "xz",
+    "filter": "LZMA2",
+    "preset": 9,
+    "extreme": true,
+    "lc": 3,
+    "lp": 0,
+    "pb": 2,
+    "check": "CRC64"
+  },
+  "expected": {
+    "readable_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
+    "source_bytes": 12224,
+    "source_sha256": "20f06b6ed9ada03db6f8719f05ecdf9cb52802ab0a1acc8999627999db899046",
+    "native_bytes": 26424,
+    "native_sha256": "cc67f03a58f350a1bd0ab1f07e774c13cf8f6b628b469107834da6f505f7cf00",
+    "whole_bytes": 5687,
+    "whole_sha256": "0fc91619c63cd0fe163abc4825cc7badff3e8b19e4e88ad67cfec165223ab575",
+    "bootstrap_sha256": "f3f9ab2ce26f317d4c6e9d6c2ba7527fea88671297341a3cda008e613ca78047",
+    "dev_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
+    "dev_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c"
+  },
+  "local_input_sha256": {
+    "engine.c": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
+    "bootstrap.py.in": "68e4544370fdd2ca3d240963a0782004f955930187c3d8edfda78cc2f59b7f6a",
+    "launcher.sh": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a"
+  },
+  "qualified_receipt": {
+    "C_composition_final_index_sha256": "f3278861a28f37adfb2aead6f7ce2f8558caf261ff77f8f68c70380d996e0641",
+    "producer_build_sha256": "88e1dc9273c7231e33ff2783323b55353937c9a6c795b6727fc3fb31ba208932",
+    "query_receipt_sha256": "3e61db1688d7fa13a737c305a8426f507cc04c716aca6eef5ff7db5137f852b0",
+    "startup_receipt_sha256": "b9d0b24ee27aecdd0b9d60f1d1a7340e515972961284c31114b5ddb5994f8f7e",
+    "epoch_receipt_sha256": "e9a72614de8366ddc398d244ffc144f6a506a66a4225159bd151fb3b7096240b",
+    "selected_runtime_receipt_sha256": "a01bbfcdd0e3beb676984cbfb3aeac7071bf742e3774ecc8ad016e809b3788a2",
+    "shipping_policy_sha256": "9ac6fdd907a114d6748268c5777e5ee3fa54a53ce56ae07bd1d7fae37d1202c5",
+    "diagnostic_identity": {
+      "scope": "new DEV source/native generated twice from the exact qualified readable; old DEV identity not reused; no new DEV runtime claim",
+      "source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
+      "native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c"
+    },
+    "predecessor_C5723_ancestry": {
+      "final_evidence_index_sha256": "67d7dce0b1852f7227f62f87c9b9568c9ebbc365274d182a4515e707200f2d11",
+      "producer_build_sha256": "ab45382eaae131897e9cb113f11d984cd7205d2040696941fb019d29f3dcac68",
+      "focused_DEV0_state_core_receipt_sha256": "ec77e71a259b9017ef8bd893e5b77e26388ebc396cea55e98144db7546573765",
+      "selected_runtime_receipt_sha256": "9885005c404b06b5403b6f7ea71839446687d99f5458b2fbc425c99246c80cf6",
+      "predecessor_5955": {
+        "maintained_source_receipt_sha256": "6bf1a0b9a8c967618409a763f0531bdbe69f5a225c9d380c805245cba1f9a44c",
+        "portfolio_index_sha256": "71d1a8f86d09364fbe9f1f0a2138b5c87a8361a86b46e6756a182f754c9b9f9d",
+        "producer_build_sha256": "552db533349aa3f33fadeb7bfb3fe41ce6a02f91549788ceef1095ab038e63a1",
+        "core_SIMD_context_receipt_sha256": "2d1efcd44b98062f09d564d8ebbac828d25b9250a441cbfe25c67f053c9bebd3"
+      },
+      "shipping_alpha": {
+        "policy_sha256": "b3f08ba26b38dbce1e4b63d3eb98ab37f438295cfacff6037b1cfacbf7d5e5a0",
+        "fixed_mappings": 89,
+        "first_cost_sha256": "e0527b2c9c566150791f6095346694961b81dc007fb9f89e1c135755ab81a1d8",
+        "selected_runtime_sha256": "5fbd18434187219b571dfb962058298616d560c671485c32d320a368607df427",
+        "source_freeze_sha256": "436d7cbdc6ad7fa52b73d5b1e9075971b9249f64d8225b775585a4dbd5b0ad80"
+      },
+      "scope": "qualified5947 predecessor core/state and SIMD/math proof reused through exact readable/DEV/full-native identity; fixed shipping alpha policy, header-expansion inverse and selected wrapper receipts are separate hash metadata, never regeneration inputs"
+    },
+    "scope": "C-specific bounded query/startup/epoch/SIMD and selected-wrapper proof; receipt hashes are metadata, never regeneration inputs; old full-native and DEV identity are not claimed"
+  },
+  "provenance": {
+    "origin": "maintained readable C with qualified nullable query/made-child replay, think-owned best reset and pending startup arrival",
+    "representation_decisions": "unchanged shared89 mapping and resource literals through one new local exact C source/count domain; B/E shared admissions remain unchanged",
+    "stitch_helper": "only fixed strip_dev_counters consumed; actual expected bytes gate every result",
+    "unchanged": "Board/rules/AVX2/TT/search prefix, compiler/profile/codec/bootstrap/launcher; shipping HCE-cache removal preserved"
+  }
+}

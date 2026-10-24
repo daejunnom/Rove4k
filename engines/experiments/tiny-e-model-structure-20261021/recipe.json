@@ -1,0 +1,125 @@
+{
+  "format": 1,
+  "family": "E",
+  "actual_cost_baseline": "/home/stemxstudio/rove4k-bce-input-profile-normal-20261020-v1/E-build",
+  "actual_cost_baseline_pins": {
+    "main.c": {
+      "bytes": 11378,
+      "sha256": "761e301cdad7b1dcf15da6458959612606e93be8b863ba2072e2ba509cb857f9"
+    },
+    "native/x": {
+      "bytes": 26384,
+      "sha256": "58b4afd6642260e5fc327cc7ed9c30d59e2ac4f4fb33a5cb1ea64018d6e02a70"
+    },
+    "bootstrap.py": {
+      "bytes": 12443,
+      "sha256": "1e3d5f7730924b824e13de5d9ce9acc03678cc27c8b764a7c3edca57cc97709c"
+    },
+    "x": {
+      "bytes": 5281,
+      "sha256": "ece61373d390dbc2ea12ec83daaf8bb816a9f6570abd96bedda49374db9183cd"
+    }
+  },
+  "normal_recipe_metadata": {
+    "bytes": 15728,
+    "sha256": "5e6258e84955a0874c510ec2a16b25d64fd33e78b824a8d3d61828f9044010fd"
+  },
+  "compiler": [
+    "cc",
+    "-std=c11",
+    "-Os",
+    "-pthread",
+    "-DWORKERS=2",
+    "-DTT_BITS=18",
+    "-DDEV=0",
+    "-x",
+    "c",
+    "-",
+    "-o",
+    "x"
+  ],
+  "profile": {
+    "workers": 2,
+    "tt_bits": 18,
+    "ply": 128,
+    "dev_default": false
+  },
+  "compression": {
+    "format": "lzma-alone",
+    "filter": "LZMA1",
+    "preset": 9,
+    "extreme": true,
+    "lc": 2,
+    "lp": 0,
+    "pb": 0,
+    "check": "NONE",
+    "mf": "BT4",
+    "dictionary_bytes": 67108864,
+    "nice_len": 32
+  },
+  "prefix": "#!/bin/sh\np=$(tail -c+78 \"$0\"|lzma -dc)||exit\nexec python3 -c \"$p\" \"$0\" \"$@\"\n",
+  "ALONE_header13": "0200000004ffffffffffffffff",
+  "scope": "ONE declared E model19 quadratic residual + two incremental inputs; first cost before functional",
+  "cost_authorized": true,
+  "output_pin": {
+    "bytes": 11105,
+    "sha256": "b043eae2df9190c07beaad8c6528aa1a76db1173990eefc2f047875118991052"
+  },
+  "model": {
+    "id": "e-hand-quadratic-19-1",
+    "provenance": "hand-authored;untrained;no training data;declared feature/model architecture change",
+    "parameters": [
+      100,
+      320,
+      330,
+      500,
+      900,
+      3,
+      8,
+      5,
+      2,
+      1,
+      -3,
+      6,
+      10,
+      1,
+      16,
+      -1,
+      12,
+      2,
+      4
+    ],
+    "specification": {
+      "evaluation": "white material M + signed activity A + gain*A*abs(A)/128 + side*tempo; C integer division toward zero; clamp +/-20000",
+      "activity": "signed piece-specific center + pawn advance; original exact per-piece terms",
+      "removed_features": [
+        "doubled pawn excess",
+        "isolated pawns",
+        "bishop pair"
+      ],
+      "new_feature": "odd quadratic cross-piece/color activity interaction",
+      "storage": "exact static signed16; no quantization",
+      "ordering": "same exact existing 5 features and weights; index relocation only",
+      "new_private_state_bytes": 8,
+      "old_DEV_inherited": false
+    }
+  },
+  "owned_executable_pins": {
+    ".gitattributes": {
+      "bytes": 14,
+      "sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9"
+    },
+    "transform.py": {
+      "bytes": 3539,
+      "sha256": "ef4507f7e95a5e870548dc1941f4be29d11797b299ec0bb57e63197e1d999c81"
+    },
+    "cost.py": {
+      "bytes": 8431,
+      "sha256": "8b86fc6d3d6f2137fe1055842eedcd625d822a817927a5a332e1a8321817e1b3"
+    }
+  },
+  "source_proposal_metadata": {
+    "bytes": 1651,
+    "sha256": "609e3b17c13b0298cf3993b03da65658cafc9724cc70ac954b3ef7b9df227660"
+  }
+}

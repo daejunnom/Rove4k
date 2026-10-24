@@ -1,0 +1,43 @@
+{
+  "format": 1,
+  "scope": "explicit same-TU object-only ownership inventory, no type/member/function alias changes",
+  "external_linkage_same_TU_objects": [
+    "table",
+    "workers",
+    "stopped",
+    "deadline",
+    "game_keys",
+    "game_length",
+    "position"
+  ],
+  "file_static_objects": [
+    "steps",
+    "mutex",
+    "command",
+    "finished",
+    "epoch",
+    "pending",
+    "quitting",
+    "fallback",
+    "ready"
+  ],
+  "block_static_objects": [
+    "material",
+    "back"
+  ],
+  "F_only_object": "ready",
+  "policy_sha256": "e89afbf078f902a4cfc3c0ee8c1fba525966be76e4df14b18f50746c2d40cff3",
+  "preserved_macro_consumer": "Move in MOVE directive unchanged",
+  "linkage_types_storage_duration_initializers_and_all_uses_preserved": true,
+  "language_linkage_not_confused_with_external_consumer": "top7 have Cexternal linkage; actual baseline compiles sole Cstdin TU/no engine companion object, actualnative identity still mandatory",
+  "source_pins": {
+    "A": {
+      "bytes": 10606,
+      "sha256": "252d87ed58df8c86b2d7898fafcedc0bed1c3bab447846b484e5afbdd5b27ac3"
+    },
+    "F": {
+      "bytes": 11216,
+      "sha256": "5c4008afe4a0708558eb829c815a7a095c436df92a3a7685e8553e24efedb991"
+    }
+  }
+}

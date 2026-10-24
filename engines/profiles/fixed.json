@@ -1,0 +1,9 @@
+{
+  "local-dev": {"search_workers": 1, "expected_total_threads": 2, "tt_bits": 16, "development": true},
+  "local-smp": {"search_workers": 2, "expected_total_threads": 3, "tt_bits": 18, "development": true},
+  "local-study": {"search_workers": 4, "expected_total_threads": 5, "tt_bits": 18, "development": true},
+  "local-ship": {"search_workers": 2, "expected_total_threads": 3, "tt_bits": 18, "development": false},
+  "target256": {"search_workers": 255, "expected_total_threads": 256, "tt_bits": 26, "development": false},
+  "target509": {"search_workers": 508, "expected_total_threads": 509, "tt_bits": 26, "development": false},
+  "target512": {"search_workers": 511, "expected_total_threads": 512, "tt_bits": 26, "development": false}
+}

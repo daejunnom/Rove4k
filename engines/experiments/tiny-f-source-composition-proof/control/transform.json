@@ -1,0 +1,51 @@
+{
+  "baseline": {
+    "bytes": 26100,
+    "sha256": "dc065b98d99a147f862bd2d4cb0a1349ff79a2da7c1be873d906dff71cc9cd89"
+  },
+  "candidate": {
+    "bytes": 25755,
+    "sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd"
+  },
+  "sites": [
+    {
+      "old": "    w->nodes=0;w->depth=0;w->score=0;\n",
+      "new": "    w->nodes=0;w->depth=0;w->score=0;w->best=0;\n"
+    },
+    {
+      "old": "static int pending,ready,quitting;",
+      "new": "static int pending=WORKERS,quitting;"
+    },
+    {
+      "old": "static Move first(const Board *b){Move list[MOVES];Board c;int n=gen(b,list);for(int i=0;i<n;i++)if(make(b,list[i],&c))return list[i];return 0;}\nstatic Move parse(const Board *b,const char *s){\n    Move list[MOVES];Board c;char name[6];int n=gen(b,list);\n    for(int i=0;i<n;i++){text(list[i],name);if(!strcmp(s,name)&&make(b,list[i],&c))return list[i];}return 0;\n}",
+      "new": "static Move parse(const Board *b,const char *s,Board *c){\n    Move list[MOVES];char name[6];int n=gen(b,list);\n    for(int i=0;i<n;i++){text(list[i],name);if((!s||!strcmp(s,name))&&make(b,list[i],c))return list[i];}return 0;\n}"
+    },
+    {
+      "old": "pthread_mutex_lock(&mutex);ready++;pthread_cond_broadcast(&finished);",
+      "new": "pthread_mutex_lock(&mutex);--pending;pthread_cond_broadcast(&finished);"
+    },
+    {
+      "old": "Move m=parse(&b,t);if(!m||n==HISTORY||!make(&b,m,&c))return;b=c;keys[n++]=b.h;",
+      "new": "if(n==HISTORY||!parse(&b,t,&c))return;b=c;keys[n++]=b.h;"
+    },
+    {
+      "old": "    fallback=first(&position);atomic_store(&stopped,0);\n    for(int i=0;i<WORKERS;i++){workers[i].depth=workers[i].score=0;workers[i].best=0;workers[i].nodes=0;}\n",
+      "new": "    Board c;fallback=parse(&position,0,&c);atomic_store(&stopped,0);\n"
+    },
+    {
+      "old": "    pthread_mutex_lock(&mutex);while(ready<WORKERS)pthread_cond_wait(&finished,&mutex);pthread_mutex_unlock(&mutex);\n    for(;;){\n        int status=read_line(line);",
+      "new": "    wait();\n    for(;;){\n        int status=read_line(line);"
+    }
+  ],
+  "search_prefix": {
+    "bytes": 15340,
+    "sha256": "c3be7fdf0085a74173525f84d9cbb730304c27c70b20a66c853e4d2b72dd9ce2"
+  },
+  "MTD_driver_unchanged": true,
+  "new_aliases_selected": false,
+  "private_differences": [
+    "pre-first-GO stopped becomes1",
+    "direct think clears preseeded best; production GO already clears per job"
+  ],
+  "qualified": false
+}

@@ -1,0 +1,363 @@
+{
+  "format": 1,
+  "family": "F",
+  "profile": {
+    "workers": 2,
+    "tt_bits": 18,
+    "ply": 128,
+    "dev_default": false
+  },
+  "compiler": [
+    "cc",
+    "-Os",
+    "-pthread",
+    "-x",
+    "c",
+    "-",
+    "-o",
+    "x",
+    "-s"
+  ],
+  "dev_compiler": [
+    "cc",
+    "-std=c11",
+    "-Os",
+    "-pthread",
+    "-DWORKERS=2",
+    "-DTT_BITS=18",
+    "-DPLY=128",
+    "-DDEV=1",
+    "-x",
+    "c",
+    "-",
+    "-o",
+    "x"
+  ],
+  "preprocessor": [
+    "cc",
+    "-std=c11",
+    "-Os",
+    "-pthread",
+    "-DWORKERS=2",
+    "-DTT_BITS=18",
+    "-DPLY=128"
+  ],
+  "helper_sha256": {
+    "engines/scripts/specialize.py": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d",
+    "engines/scripts/minify.py": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b",
+    "engines/scripts/rename_c.py": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
+    "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
+    "engines/compact/tiny-entry-f/shipping_alpha.py": "beb86014c320d493af5c02e899a2eeca470abf9a262a09015293533c0a0e0794",
+    "engines/scripts/fixed_shipping_storage.py": "3f4f05b0b3fee71ee8876b22653c9b7481b5af207b7e023c27b0832e4e734d71"
+  },
+  "resource_literals": [
+    [
+      "WORKERS",
+      "2"
+    ],
+    [
+      "TT_BITS",
+      "18"
+    ],
+    [
+      "PLY",
+      "128"
+    ]
+  ],
+  "resource_token_counts": {
+    "WORKERS": 7,
+    "TT_BITS": 3,
+    "PLY": 8
+  },
+  "function_spellings": [
+    [
+      "attacked",
+      "aa"
+    ],
+    [
+      "make",
+      "ab"
+    ],
+    [
+      "think",
+      "ac"
+    ],
+    [
+      "value",
+      "ad"
+    ],
+    [
+      "start",
+      "ae"
+    ],
+    [
+      "dead",
+      "af"
+    ],
+    [
+      "mix",
+      "ag"
+    ],
+    [
+      "gen",
+      "ah"
+    ],
+    [
+      "now",
+      "ai"
+    ],
+    [
+      "search",
+      "aj"
+    ],
+    [
+      "probe",
+      "ak"
+    ],
+    [
+      "capture",
+      "al"
+    ],
+    [
+      "claim",
+      "am"
+    ],
+    [
+      "learn",
+      "an"
+    ],
+    [
+      "piece_index",
+      "ao"
+    ],
+    [
+      "quiet_score",
+      "ap"
+    ],
+    [
+      "first",
+      "aq"
+    ],
+    [
+      "parse",
+      "ar"
+    ],
+    [
+      "go",
+      "as"
+    ],
+    [
+      "result",
+      "at"
+    ],
+    [
+      "read_line",
+      "au"
+    ],
+    [
+      "set_position",
+      "av"
+    ],
+    [
+      "number",
+      "aw"
+    ],
+    [
+      "work",
+      "ax"
+    ],
+    [
+      "wait",
+      "ay"
+    ],
+    [
+      "clear",
+      "az"
+    ],
+    [
+      "text",
+      "aA"
+    ],
+    [
+      "rights",
+      "aB"
+    ],
+    [
+      "piece",
+      "aC"
+    ],
+    [
+      "state",
+      "aD"
+    ],
+    [
+      "ep",
+      "aE"
+    ],
+    [
+      "put",
+      "aF"
+    ],
+    [
+      "walk",
+      "aG"
+    ],
+    [
+      "add",
+      "aH"
+    ]
+  ],
+  "compression": {
+    "format": "xz",
+    "filter": "LZMA2",
+    "preset": 9,
+    "extreme": true,
+    "lc": 2,
+    "lp": 0,
+    "pb": 0,
+    "check": "CRC64"
+  },
+  "expected": {
+    "readable_sha256": "dc065b98d99a147f862bd2d4cb0a1349ff79a2da7c1be873d906dff71cc9cd89",
+    "source_bytes": 10745,
+    "source_sha256": "fa03bfe65508b5fd72097940cea869c79744a8d3d2fa3bd09f8cd60b90173dc2",
+    "native_bytes": 22664,
+    "native_sha256": "ef10962ff16e5158e0cb18cbf96b944404bd1c4db301bfbb47a0faed33466c22",
+    "whole_bytes": 5083,
+    "whole_sha256": "c4308bd1173d93a5ae83055ae0dd535264d4fec0c938dc4a78ccc2536e25ff02",
+    "dev_source_sha256": "9528b0e97f71d2d07d60a63956fc19a9156f778b30088b34f62e4eb445260ece",
+    "dev_native_sha256": "bd71ff07625fa9891a4b4ef79c50b5215fa4169f18d83f15d9378fe833872a2d",
+    "bootstrap_sha256": "27140179b5d628d1458cc79936f5c541512ecf6a191b1754a5ce760d3245484d"
+  },
+  "local_input_sha256": {
+    "engine.c": "dc065b98d99a147f862bd2d4cb0a1349ff79a2da7c1be873d906dff71cc9cd89",
+    "bootstrap.py.in": "84608782831299a6f7b1010dea89501eb10e6e34ee1cdc8f3804d448354cf4c6",
+    "launcher.sh": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a"
+  },
+  "qualified_receipt": {
+    "scope": "historical exact-hash beta-only proof and artifact identity reuse; not executed or inferred by this builder",
+    "beta_only_cost": {
+      "historical_path": "/home/stemxstudio/rove4k-tiny-f-zero-first-v2-20261020/cost.json",
+      "sha256": "b951f2e1e1696967a767a3dcee9fd7ae12e1d56cfb6af18f2bff655a456c572a"
+    },
+    "beta_only_core_runtime": {
+      "historical_path": "/home/stemxstudio/rove4k-tiny-f-zero-proof-v2-20261020/proof.json",
+      "sha256": "96678ed411e4fea4fcd0b176fe5cd707f073d49166e541dd9112b3d1bfa49e12",
+      "shipping_window_cases": 51,
+      "comparison_pairs": 5,
+      "actual_mtd_minimax_witness_cases": 12,
+      "original_widewindow_fixtures_reused": false
+    },
+    "candidate_receipt_sha256": "5a2b74d7f7a6408e4d10a8a610f968ac9b42364f70cd684742a2d10c99f40880",
+    "dev_identity_binding": {
+      "historical_path": "/home/stemxstudio/rove4k-tiny-entry-f-zero-promotion-20261020/new-dev/binding.json",
+      "sha256": "f4aec8e5a4d138b74590bc846e1161395046b2f88662bd5eca991e716a9943d7",
+      "scope": "two independent DEV generations/compilations from literal-pinned qualified readable; not a new core proof"
+    },
+    "unchanged_body_identity": {
+      "prefix_sha256": "bf2987fbb88959945d6ab827a0f685bdba6128be377128cbadaf341b16beda3d",
+      "driver_runtime_except_api_call_sha256": "5b4b3a38584391fd345cd80cd34e8cd4369b476d7e920212fd04830e70bdb017",
+      "scope": "board, TT primitive, leaf helpers and runtime body identity only; new beta API uses its own proof"
+    },
+    "predecessor_5479": {
+      "producer_build_sha256": "e38e0bcfc3a2ee5acba0cfd36e4f06520528aa359564604b952c4fda17a08c87",
+      "runtime_and_core": {
+        "minimal_policy_runtime": {
+          "historical_path": "/home/stemxstudio/rove4k-tiny-uci-portfolio-runtime-20261020/results.json",
+          "sha256": "6f26a3c46bff4d9b3dfe531eaac9a43b9a02eff52d5bda1c1bc2ca9624a84b09"
+        },
+        "minimal_family_core": {
+          "historical_path": "/home/stemxstudio/rove4k-tiny-uci-bf-proof-20261020/F/results.json",
+          "sha256": "6fe9500aa943baab38c119926c696e911d590f952f4d4b8deb694f808e51592f"
+        }
+      },
+      "predecessor_reports": {
+        "build": {
+          "path": "/home/stemxstudio/rove4k-tiny-f-structural-20261020/build.json",
+          "sha256": "efd7f328b8839a9d2a1025268c349224f3269bba83f2f11b42afbde3d33518fa"
+        },
+        "encoding": {
+          "path": "/home/stemxstudio/rove4k-tiny-f-encoding-v2-20261020/results.json",
+          "sha256": "6dcc89d8d11303181e5fad38e7a5d9187d7c3ca2b6e05e7a57ba7676e2b5cc7d"
+        },
+        "qualification": {
+          "path": "/home/stemxstudio/rove4k-tiny-f-final-proof-v3-20261020/results.json",
+          "sha256": "62b04e0c5eddaf6d1adcf25b18315dfad43437d20efb6fd0d06b37cde600e173"
+        }
+      },
+      "scope": "historical exact-hash receipts only; not executed or inferred by this builder",
+      "final_portfolio_freeze_sha256": "71d1a8f86d09364fbe9f1f0a2138b5c87a8361a86b46e6756a182f754c9b9f9d",
+      "portfolio_cost_sha256": "f4833f5922dcdddad9abcdbd82f588d1d1e51a5a0e6c63f46b7693fdcbae6455"
+    },
+    "shipping_alpha": {
+      "original_AF_policy_sha256": "4bf1b189e9073aa994c29c07f64bcf05b1b3e749a0a172150cac68c1971d7d92",
+      "fixed_mappings": 73,
+      "mapping_used": 73,
+      "source_edits": 517,
+      "source_saved_bytes": 1506,
+      "resource_edits": 0,
+      "cost_sha256": "c474362b40ad2dba9e4039a7b3505821bb9b896cb40674e495b852db7d4ba6fc",
+      "selected_runtime_sha256": "35035034d8ff8eaff387a57863a9c2ce4e6f7f4178b1ebb75a3c63e388419a9e",
+      "selected_runtime_verifier_sha256": "8c42b1c55df191ed80aa99a1354592a86afc699c304e9b8f0e2a3037e2960647",
+      "scope": "historical F actual2-session runtime, full native identity, original raw header-expansion alias-only inverse and final macro-state equality; metadata only; original A strict-PP failure remains outside admitted F-only policy",
+      "final_AF_index_sha256": "6a955eae59e558c67ca4902ef1e75f18ee3d13a8372ef039105ff9887688e837",
+      "final_AF_source_inventory_sha256": "5c229b58af6104f8b0995648d5da425b86f08604a4d0f534703fba95fde17228"
+    },
+    "shipping_storage": {
+      "scope": "historical exact input/candidate PP inverse, final macro and actual-header freshness; unchanged whole-native/core identity; fresh maintained generation/runtime are separate external receipts, not normal build inputs",
+      "policy_sha256": "e89afbf078f902a4cfc3c0ee8c1fba525966be76e4df14b18f50746c2d40cff3",
+      "fixed_mappings": 18,
+      "input_source_bytes": 11216,
+      "input_source_sha256": "5c4008afe4a0708558eb829c815a7a095c436df92a3a7685e8553e24efedb991",
+      "source_edits": 99,
+      "mapping_used": 18,
+      "source_saved_bytes": 471,
+      "whole_saved_bytes": 96,
+      "storage_FINAL44_index_sha256": "2824e102ceb29316a522982fb8c249c0f8fd8588a2cfa0e4b6b4d5fb9649074c",
+      "cost_sha256": "505932407b3b306c8a9122cf7da11f1200a75a4f39cb821101afffbca095106d",
+      "selected_runtime_sha256": "304b37c55065752cb1c723ad73e9d713f6681c32fc8ad91616a2ac340afc7ea1",
+      "family_selected_runtime_sha256": "9e13940ecbe5a89c6978e535ea69f95aa633c2005ffd42a3f897397bd528510d",
+      "full_native_identity": true,
+      "DEV_not_transformed": true,
+      "other_family_runtime_source_input": false
+    }
+  },
+  "provenance": {
+    "origin": "qualified production integer-unit-window beta-only specialization of maintained5479 full-depth MTD(f) entry",
+    "readable_has_structural_decisions": true,
+    "no_structural_transform_at_build": true,
+    "counter_removal": "owned build.py strict beta-only schema: definition1, conditional3, unconditional9, shipping pvs0; no shared overlay consumed",
+    "encoding": "unchanged fixed resource counts then34 selected function spellings; final fixed shipping-only73 private-name aliases with exact counts, independent opaque preservation and canonical F freshness; no token or codec search",
+    "expected_pin_policy": "literal reviewed identities only; mismatch fails, no automatic refresh",
+    "shipping_storage": "one final storage18 spelling stage after unchanged local alpha; self-contained pinned ordinary helper receives only currentfamily source andcanonical bytes; no structural, resource, compiler or codec changes; DEV bypass"
+  },
+  "counter_schema": {
+    "noop_definitions": 1,
+    "conditional_calls": {
+      "hits": 1,
+      "qs": 1,
+      "corr_uses": 1
+    },
+    "unconditional_calls": [
+      "ply_aborts",
+      "hist_updates",
+      "cont_updates",
+      "corr_updates",
+      "f_probes",
+      "f_lower",
+      "f_upper",
+      "f_converged",
+      "f_conflicts"
+    ],
+    "shipping_pvs_calls": 0,
+    "total_calls_removed": 12
+  },
+  "private_search_contract": {
+    "api": "search(w,p,depth,beta,ply,prior,root)",
+    "admission": "production MTD integer unit windows only; child threshold is 1-beta",
+    "bounds": "lower=2 iff best>=beta, otherwise upper=3; exact reader compatibility retained",
+    "tt": "unchanged coherent full-key single-bound Entry; MTD driver retains lower/upper interval",
+    "policy": "fixed full depth and stable leaves; exact-horizon context, learning, root attaining witness, abort and last-completed behavior preserved",
+    "widewindow_fixtures_reused": false
+  }
+}

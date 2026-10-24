@@ -1,0 +1,24 @@
+{
+  "captured_HEAD": "71a0791c1a2a52c42537ef5e39788f617e1f1de8",
+  "baseline": {
+    "bytes": 28953,
+    "sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6"
+  },
+  "upstream_source_manifest_sha256": "0938fe5c12767c26f9cea013a53cabd3965284c410c261f9c8f7b7164e53a132",
+  "comparison_sha256": "ea5672341e0b73952e49b96ebeb3d3c9311dad46a1497554f6830ec163ad8056",
+  "external_upstream_files_are_not_normal_build_inputs": true,
+  "upstream_implementation_copied": false,
+  "baseline_C_only_not_complete_build_closure": true,
+  "original_shared_and_Blocal_policies_unmodified": true,
+  "future_policy": "Retain exact89+18 mappings/resource/function decisions; new candidate literal count domain required; never weaken old guards",
+  "execution_counts": {
+    "project_import": 0,
+    "PP": 0,
+    "native": 0,
+    "whole": 0,
+    "DEV": 0,
+    "engine": 0,
+    "game": 0,
+    "benchmark": 0
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "engine.c": "49dd54bbbb1ecd6acd2374ebe5431dd7c188636ebbbd15ff78a643d92f2210b2",
+  "recipe.json": "3d9ddd6e9fd017fbaaefb9f8aa915b40673c735dddcd4dc9af2397f20a7deaf6",
+  "bootstrap.py.in": "84608782831299a6f7b1010dea89501eb10e6e34ee1cdc8f3804d448354cf4c6",
+  "launcher.sh": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a",
+  "upstream-build.py": "c241a2b3b7d3ffc33dd19982b5a0b9b0c841c0a67795db404fec9d19adf5d1f6",
+  "specialize.py": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d",
+  "minify.py": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b",
+  "rename_c.py": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
+  "overlay.py": "3e7dca38adba4d5a079f72727c85c08fe8a95397f1a7cbf06c4a279c41f6c500",
+  "pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e"
+}

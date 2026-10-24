@@ -1,0 +1,19 @@
+{
+  "format": 1,
+  "baseline": {
+    "bytes": 28953,
+    "sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6"
+  },
+  "candidate": {
+    "bytes": 28930,
+    "sha256": "6f1102dfe23ce0d733494539a6bd7cc05507c5fc151edfa87071d03d70c5b36f"
+  },
+  "old_fragment": "        q=sq+steps[i+8];if(!(q&0x88))result|=p->bb[c][6]&bit(q);\n        for(q=sq+steps[i+8];!(q&0x88);q+=steps[i+8]){\n            uint64_t b=bit(q);\n            if(occupied&b){result|=b&(p->bb[c][5]|p->bb[c][i<4?4:3]);break;}\n        }",
+  "new_fragment": "        for(int q=sq+steps[i+8],first=1;!(q&0x88);q+=steps[i+8],first=0){\n            uint64_t b=bit(q);\n            if(occupied&b){result|=b&(p->bb[c][5]|p->bb[c][i<4?4:3]|(first?p->bb[c][6]:0));break;}\n        }",
+  "exact_replacement_sites": 1,
+  "raw_saved_bytes": 23,
+  "admitted_invariant": "bb[c][6] subset (bb[0][0] | bb[1][0]); all production Board and EP temporary writes via put",
+  "intended_behavior": "same geometric attackers bitset and SEE ctz order; only local read/OR order and first flag change",
+  "unchanged": "pawn/knight, Board updates/legalchild/h/r/v, SEE tree/guard, singular/excluded learning+TT fences, coherent fullkey TT, SMP/resources/profile/codec",
+  "native_or_runtime_qualification": false
+}

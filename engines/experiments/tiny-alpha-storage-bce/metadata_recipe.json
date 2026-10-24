@@ -1,0 +1,320 @@
+{
+  "format": 1,
+  "family": "B",
+  "scope": "separate onefixed B newimage metadataqualification +fixedcost; oldfullnativefailure immutable",
+  "original_producer_recipe_sha256": "bd0e4c69d6ccc9a5789683e340de9c80747e466a61e3b7282a6c0f1b05c492b5",
+  "original_source_files": {
+    ".gitattributes": {
+      "bytes": 14,
+      "sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9"
+    },
+    "README.md": {
+      "bytes": 5941,
+      "sha256": "570932427c2110a4c84c6c578212ebbd14eda6c032daedd5f8ba97a64e93d9e1"
+    },
+    "build.py": {
+      "bytes": 8280,
+      "sha256": "ff367d232fbe26a5f9bd764f2776807850f11c29a81f5b4d154a002450047744"
+    },
+    "control/engines/compact/tiny-a/pack_stream.py": {
+      "bytes": 5444,
+      "sha256": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e"
+    },
+    "control/engines/compact/tiny-a/stitch.py": {
+      "bytes": 3863,
+      "sha256": "2b0d25b4855a3ed4ddd9e24b8e4b0e081439baa2ed8f744dba0215a700023f23"
+    },
+    "control/engines/compact/tiny-b/generate.py": {
+      "bytes": 5581,
+      "sha256": "c2cc1fd68d05d66f5525dfabc2368fdb0ddff2716bbf65ecb2033614b113aa59"
+    },
+    "control/engines/compact/tiny-entry-b/.gitattributes": {
+      "bytes": 14,
+      "sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9"
+    },
+    "control/engines/compact/tiny-entry-b/README.md": {
+      "bytes": 10809,
+      "sha256": "4261f0da99297484b1cf5acab8779e0c77dca6fc5ea4f15da526213d7b044359"
+    },
+    "control/engines/compact/tiny-entry-b/bootstrap.py.in": {
+      "bytes": 1072,
+      "sha256": "0402f63d44e66d57174079672762414a2324f8dd8c2b272fe34f49b68e45edbc"
+    },
+    "control/engines/compact/tiny-entry-b/build.py": {
+      "bytes": 9342,
+      "sha256": "09ea3a4bde200cf95d54a0722cf1888387f21dbc311f47f54a21b35a4b625969"
+    },
+    "control/engines/compact/tiny-entry-b/engine.c": {
+      "bytes": 28953,
+      "sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6"
+    },
+    "control/engines/compact/tiny-entry-b/fresh.py": {
+      "bytes": 5360,
+      "sha256": "81df003f684e813d5f77b2667cb9994767ac18a2065b7e7d1c0ae1706fad8d17"
+    },
+    "control/engines/compact/tiny-entry-b/launcher.sh": {
+      "bytes": 75,
+      "sha256": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a"
+    },
+    "control/engines/compact/tiny-entry-b/recipe.json": {
+      "bytes": 4164,
+      "sha256": "5106cdb7ef0dcbcf2ba7786aa55f4c235677c1e680796de936456eb0096941eb"
+    },
+    "control/engines/compact/tiny-entry-b/verify.py": {
+      "bytes": 7012,
+      "sha256": "cc63a511446c35db54676356a9d885b95db7da994133147cda3e3ff1c4464b0c"
+    },
+    "control/engines/compact/tiny-entry-c/.gitattributes": {
+      "bytes": 14,
+      "sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9"
+    },
+    "control/engines/compact/tiny-entry-c/README.md": {
+      "bytes": 11956,
+      "sha256": "a8083a371bd5f94b6a139e6b50b56e9cfc95ba72e50ff17076e9f0bf964c94d0"
+    },
+    "control/engines/compact/tiny-entry-c/bootstrap.py.in": {
+      "bytes": 1082,
+      "sha256": "68e4544370fdd2ca3d240963a0782004f955930187c3d8edfda78cc2f59b7f6a"
+    },
+    "control/engines/compact/tiny-entry-c/build.py": {
+      "bytes": 9890,
+      "sha256": "0f30be8fb6cdf709bc99792d6be0527337a45560e99def6e4e89ac2011b0091e"
+    },
+    "control/engines/compact/tiny-entry-c/engine.c": {
+      "bytes": 27003,
+      "sha256": "1f0f18ffee91ecddea3cb31e7553e1d1415e25b3f759cdec4e0f375fcd0b2298"
+    },
+    "control/engines/compact/tiny-entry-c/fresh.py": {
+      "bytes": 5360,
+      "sha256": "81df003f684e813d5f77b2667cb9994767ac18a2065b7e7d1c0ae1706fad8d17"
+    },
+    "control/engines/compact/tiny-entry-c/launcher.sh": {
+      "bytes": 75,
+      "sha256": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a"
+    },
+    "control/engines/compact/tiny-entry-c/recipe.json": {
+      "bytes": 4624,
+      "sha256": "4374952d087b5cf3388f2396f2ebe8eb10419bc44e965770ab1a1aadcacbf3b8"
+    },
+    "control/engines/compact/tiny-entry-c/verify.py": {
+      "bytes": 7328,
+      "sha256": "930baa1794b486fca9dce8829fa808bb2cae08da80d1d8c3ccb5609d30d41310"
+    },
+    "control/engines/compact/tiny-entry-e/.gitattributes": {
+      "bytes": 14,
+      "sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9"
+    },
+    "control/engines/compact/tiny-entry-e/README.md": {
+      "bytes": 10227,
+      "sha256": "99e5097ad3e4df1c12d92bd47981b26185705a93ca517510ef38b4cff113254a"
+    },
+    "control/engines/compact/tiny-entry-e/bootstrap.py.in": {
+      "bytes": 1072,
+      "sha256": "0402f63d44e66d57174079672762414a2324f8dd8c2b272fe34f49b68e45edbc"
+    },
+    "control/engines/compact/tiny-entry-e/build.py": {
+      "bytes": 9752,
+      "sha256": "2f558277494914b99340559f81ea3c0ce7e13c6fa63a72da00cdcbe1e9bc6e61"
+    },
+    "control/engines/compact/tiny-entry-e/engine.c": {
+      "bytes": 28001,
+      "sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712"
+    },
+    "control/engines/compact/tiny-entry-e/fresh.py": {
+      "bytes": 5360,
+      "sha256": "81df003f684e813d5f77b2667cb9994767ac18a2065b7e7d1c0ae1706fad8d17"
+    },
+    "control/engines/compact/tiny-entry-e/launcher.sh": {
+      "bytes": 75,
+      "sha256": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a"
+    },
+    "control/engines/compact/tiny-entry-e/recipe.json": {
+      "bytes": 5348,
+      "sha256": "d6469e8786a0019f36f015714f708cbdbd8cabc39862b04f884793eae0e046f7"
+    },
+    "control/engines/compact/tiny-entry-e/verify.py": {
+      "bytes": 7311,
+      "sha256": "890ab0379c24f70eca1e058ac25ad51dcb7f4f6d6e3ac0fea8dfc0a823e32af8"
+    },
+    "control/engines/scripts/fixed_shipping_alpha.py": {
+      "bytes": 21999,
+      "sha256": "92b351d537c1da0f346f072df2ca4b0be713d0e286e039b30efa9f758519c806"
+    },
+    "control/engines/scripts/minify.py": {
+      "bytes": 6624,
+      "sha256": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b"
+    },
+    "control/engines/scripts/rename_c.py": {
+      "bytes": 12574,
+      "sha256": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5"
+    },
+    "control/engines/scripts/specialize.py": {
+      "bytes": 2386,
+      "sha256": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d"
+    },
+    "control/engines/tests/chess_oracle.py": {
+      "bytes": 10730,
+      "sha256": "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8"
+    },
+    "control/engines/tests/verify.py": {
+      "bytes": 45921,
+      "sha256": "9327ad01dd75bc17f04f400b57d5af3d6891a1abbb7f22aa6222389d50da138f"
+    },
+    "elf_observe.py": {
+      "bytes": 4385,
+      "sha256": "68ac5c5897cbed34b603e40bce46f3f1fb0ab78ee5874d089363fbefcec15bd8"
+    },
+    "ownership.json": {
+      "bytes": 1528,
+      "sha256": "cf95948942e779ba274c5a2488ab42109f76983a60ed4950c03c235160180539"
+    },
+    "policy.json": {
+      "bytes": 8368,
+      "sha256": "1256f5017753b43a3fd78a16bdc766a21b86f19ebf400ad61d72a35c4169a84d"
+    },
+    "policy.py": {
+      "bytes": 4308,
+      "sha256": "4aef9cde28a80bcaf680397af40d57094ed62d4b39b386b179fba66592c4e167"
+    },
+    "prepare.py": {
+      "bytes": 1511,
+      "sha256": "6f17977565aeb0dc490dfe531385a2d49b53bde11626eb91516f5da22f3ac413"
+    },
+    "recipe.json": {
+      "bytes": 16606,
+      "sha256": "bd0e4c69d6ccc9a5789683e340de9c80747e466a61e3b7282a6c0f1b05c492b5"
+    },
+    "reference/README.md": {
+      "bytes": 12004,
+      "sha256": "1dee2134970b2868014ad5dce75d7febb06a9b35d4f0c488653be1fbe8864509"
+    },
+    "reference/build.py": {
+      "bytes": 16992,
+      "sha256": "741ea8127ad46620f9984cd98734a2050175237f520d979c2626ca5d4591e57a"
+    },
+    "reference/policy.json": {
+      "bytes": 11577,
+      "sha256": "b3f08ba26b38dbce1e4b63d3eb98ab37f438295cfacff6037b1cfacbf7d5e5a0"
+    },
+    "reference/policy.py": {
+      "bytes": 10445,
+      "sha256": "00de8fa0a3a845a4171599d6b84cba2db899614d9fc48ed27ce698e552450399"
+    },
+    "reference/test_policy.py": {
+      "bytes": 7952,
+      "sha256": "675e9f19761a18d6eb1f576e56e8a25fb15da7fd9969ccc795496951569830fe"
+    },
+    "support.py": {
+      "bytes": 9449,
+      "sha256": "e10ec8227160ef22d3e933f00991cdd4ce8568bb8a13b3f00ef6fcf2d9e8c0de"
+    },
+    "test_policy.py": {
+      "bytes": 5650,
+      "sha256": "2978da702136315ee3ac9e73202c7ed3bffd8ef630accedaccd34366f469a190"
+    }
+  },
+  "producer_input_file_count": 55,
+  "compiler": [
+    "cc",
+    "-std=c11",
+    "-Os",
+    "-pthread",
+    "-DWORKERS=2",
+    "-DTT_BITS=18",
+    "-DDEV=0",
+    "-x",
+    "c",
+    "-",
+    "-o",
+    "x"
+  ],
+  "compression": {
+    "format": "xz",
+    "filter": "LZMA2",
+    "preset": 9,
+    "extreme": true,
+    "lc": 3,
+    "lp": 0,
+    "pb": 2,
+    "check": "CRC64"
+  },
+  "candidate_source": {
+    "bytes": 13071,
+    "sha256": "96e6e330e5289d1c404dac0402e8b672a89c52e193a9d4f9aebb02e0c9042ffa"
+  },
+  "new_input_sha256": {
+    "metadata.py": "34d9f3b47db87793594d259f066ca4e1a152f6698111c22e7ce0d96137aed917",
+    "metadata_build.py": "d51bc878b497faed48aaf853f7f12a397f7929e63184f71a0ef88060e07952f6"
+  },
+  "candidate_native_limit": 2,
+  "candidate_codec_limit": 2,
+  "engine_run_limit": 0,
+  "C_candidate_native_limit": 0,
+  "E_candidate_native_limit": 0,
+  "no_historical_artifact_report_or_live_canonical_input": true,
+  "historical_provenance_only": {
+    "original_FINAL52_sha256": "0bf7fa1b7fc6d74b40a0d59c30bf91c5bca7c6f729a90330d5129851c6193e66",
+    "original_native_gate_failed": true,
+    "original_receipt_sha256": "adb6cfee3699bef82b786d953deb558d441168b733e0bf9b18e5083f53e9aed4"
+  },
+  "qualification": {
+    "control": {
+      "bytes": 26592,
+      "sha256": "221a865e2712cb3e704128e0ae8353edd358343f564fe53093040f6515d522ec"
+    },
+    "candidate": {
+      "bytes": 26496,
+      "sha256": "5a315a66f86ff81f9b0feb679b25f919c5aaf63bb9db2d157040a5b7ce6bbb4b"
+    },
+    "allowed_layout": {
+      "e_shoff": [
+        24608,
+        24512
+      ],
+      "strtab_size": [
+        1305,
+        1210
+      ],
+      "shstrtab_offset": [
+        24321,
+        24226
+      ],
+      "tail_padding": {
+        "control": {
+          "offset": 24603,
+          "hex": "0000000000"
+        },
+        "candidate": {
+          "offset": 24508,
+          "hex": "00000000"
+        }
+      }
+    },
+    "build_id": {
+      "control": "78c8243916f127510516042f4f9954b4dcdbed92",
+      "candidate": "834fda18251c790cf3a58bdc3e2813f0f3aa3508"
+    },
+    "symbol_name_pairs": {
+      "back.0": "qa.0",
+      "command": "qb",
+      "deadline": "qc",
+      "epoch": "qd",
+      "fallback": "qe",
+      "finished": "qf",
+      "game_keys": "qg",
+      "game_length": "qh",
+      "material": "qi",
+      "material.1": "qi.1",
+      "mutex": "qj",
+      "pending": "qk",
+      "position": "ql",
+      "quitting": "qm",
+      "ready": "qn",
+      "steps": "qo",
+      "stopped": "qp",
+      "table": "qq",
+      "workers": "qr"
+    },
+    "symbol_count": 103
+  }
+}

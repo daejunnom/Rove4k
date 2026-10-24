@@ -1,0 +1,123 @@
+{
+  "format": 1,
+  "scope": "one exact A castle emission composition; same original31+storage18 maps, new literal counts only",
+  "readable": {
+    "bytes": 24722,
+    "sha256": "554d0700bffeda11850f1168b90dc25228382453683b7a962d522d29044dc2ff"
+  },
+  "original_alpha_policy_sha256": "e1d5daf3636851711d08309b772edf7a3546bfffeb402d745d33eaaf80560244",
+  "original_storage_policy_sha256": "e89afbf078f902a4cfc3c0ee8c1fba525966be76e4df14b18f50746c2d40cff3",
+  "alpha": {
+    "source": {
+      "bytes": 10755,
+      "sha256": "27f1e43cfd7eb3abb7552792dc6ad97c2cd48698772d9fd2d687b9b5baee3dd8"
+    },
+    "candidate": {
+      "bytes": 10515,
+      "sha256": "cc3b2f0bca9c220f713ef276761f611ae1a04fee9e843d5c226eea0ee7a6c60e"
+    },
+    "alpha_counts": {
+      "Entry": 3,
+      "advance": 2,
+      "bad": 3,
+      "cell": 3,
+      "center": 2,
+      "colors": 3,
+      "draw": 4,
+      "end": 4,
+      "file": 2,
+      "history": 3,
+      "inc": 4,
+      "knights": 3,
+      "last": 2,
+      "lock": 4,
+      "move": 3,
+      "name": 3,
+      "next": 5,
+      "old": 6,
+      "pawn": 2,
+      "present": 3,
+      "prior": 3,
+      "prom": 3,
+      "quiet": 3,
+      "rank": 4,
+      "rook": 2,
+      "root": 3,
+      "seen": 3,
+      "shift": 0,
+      "threads": 3,
+      "transit": 2,
+      "ttdepth": 2
+    },
+    "resource_counts": {
+      "WORKERS": 0,
+      "TT_BITS": 0
+    },
+    "mapping_used": 30,
+    "source_edits_count": 92,
+    "alpha_saved_bytes": 240,
+    "resource_saved_bytes": 0,
+    "source_saved_bytes": 240,
+    "retained_directive_bytes": 432,
+    "opaque_regions_preserved": 53,
+    "preserved_PLY_code_uses": 8
+  },
+  "storage": {
+    "source": {
+      "bytes": 10515,
+      "sha256": "cc3b2f0bca9c220f713ef276761f611ae1a04fee9e843d5c226eea0ee7a6c60e"
+    },
+    "candidate": {
+      "bytes": 10093,
+      "sha256": "069691392089b072ce5b389ab0a3320002c2412a9838d7d09ec564295d764e2f"
+    },
+    "alpha_counts": {
+      "back": 3,
+      "command": 4,
+      "deadline": 3,
+      "epoch": 4,
+      "fallback": 3,
+      "finished": 4,
+      "game_keys": 4,
+      "game_length": 5,
+      "material": 2,
+      "mutex": 13,
+      "pending": 5,
+      "position": 8,
+      "quitting": 4,
+      "ready": 0,
+      "steps": 2,
+      "stopped": 8,
+      "table": 9,
+      "workers": 6
+    },
+    "resource_counts": {},
+    "mapping_used": 17,
+    "source_edits_count": 87,
+    "alpha_saved_bytes": 422,
+    "resource_saved_bytes": 0,
+    "source_saved_bytes": 422,
+    "retained_directive_bytes": 432,
+    "opaque_regions_preserved": 53,
+    "preserved_PLY_code_uses": 8
+  },
+  "new_readable_words": [],
+  "algorithm": {
+    "baseline_readable_sha256": "71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734",
+    "candidate_readable_sha256": "554d0700bffeda11850f1168b90dc25228382453683b7a962d522d29044dc2ff",
+    "old_region_bytes": 525,
+    "new_region_bytes": 427,
+    "protected_complement_bytes": 24295,
+    "protected_complement_sha256": "b10fc139d8af7f1def0e42d0e710fb79488003d44046e05e4db844b8d42d1517",
+    "protected_complement_identical": true,
+    "scope": "share castle emission with ordinary king horizontal geometry",
+    "private_policy_changes": [
+      "king generated move order, hence possible tied search order",
+      "origin attack queries may repeat for the two eligible castle paths"
+    ],
+    "full_behavior_preservation_claim": false,
+    "exact_legal_child_and_rule_preservation_pending_runtime": true,
+    "native_identity_expected_to_change": true,
+    "candidate_runtime_qualified": false
+  }
+}

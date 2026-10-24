@@ -1,0 +1,52 @@
+/* The 21 signed-16 coefficients are inserted from the frozen hand-authored,
+ * UNTRAINED model. This is exact static storage, with no quantization. */
+static const int16_t tiny_weights[21]={@WEIGHTS@};
+#if DEV
+static atomic_uint_fast64_t tiny_leaf_calls,tiny_order_calls;
+#endif
+static int tiny_center(int q){
+    int f=q&7,r=q>>4;
+    return (f<4?f:7-f)+(r<4?r:7-r);
+}
+/* White perspective before the search's normal-score clamp. Counts and the
+ * entire conservative promoted-material polynomial fit signed int32_t. */
+static int tiny_white(const Board *p){
+    int pawns[2][10]={{0}},bishops[2]={0},score=p->s*tiny_weights[15];
+    for(int q=0;q<128;q++)if(!(q&0x88)&&p->b[q]){
+        int v=p->b[q],black=v<0,a=abs(v),sign=black?-1:1;
+        score+=sign*((a<6?tiny_weights[a-1]:0)+tiny_weights[a+4]*tiny_center(q));
+        if(a==1){
+            pawns[black][(q&7)+1]++;
+            score+=sign*tiny_weights[11]*((black?7-(q>>4):q>>4)-1);
+        }
+        if(a==3)bishops[black]++;
+    }
+    for(int black=0;black<2;black++){
+        int s=bishops[black]>1?tiny_weights[14]:0;
+        for(int f=1;f<9;f++){
+            int n=pawns[black][f];
+            if(n){s+=tiny_weights[12]*(n-1);
+                if(!pawns[black][f-1]&&!pawns[black][f+1])s+=tiny_weights[13]*n;}
+        }
+        score+=black?-s:s;
+    }
+    return score;
+}
+static int tiny_raw(const Board *p){
+#if DEV
+    atomic_fetch_add_explicit(&tiny_leaf_calls,1,memory_order_relaxed);
+#endif
+    int s=tiny_white(p);return s>20000?20000:s< -20000?-20000:s;
+}
+static int tiny_order(const Board *p,Move m){
+#if DEV
+    atomic_fetch_add_explicit(&tiny_order_calls,1,memory_order_relaxed);
+#endif
+    int from=FROM(m),to=TO(m),piece=p->b[from],a=abs(piece),v=abs(p->b[to]),prom=PROMO(m);
+    if(a==1&&to==p->e&&!v)v=1;
+    int s=tiny_weights[19]*(tiny_center(to)-tiny_center(from));
+    if(v)s+=tiny_weights[16]*(v<6?tiny_weights[v-1]:0)+tiny_weights[17]*(a<6?tiny_weights[a-1]:0);
+    if(prom)s+=tiny_weights[18]*(tiny_weights[prom-1]-tiny_weights[0]);
+    if(a==1)s+=tiny_weights[20]*((to>>4)-(from>>4))*(piece<0?-1:1);
+    return s;
+}

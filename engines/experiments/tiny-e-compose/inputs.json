@@ -1,0 +1,22 @@
+{
+  "engines/experiments/tiny-uci-portfolio/build.py": {
+    "bytes": 12371,
+    "sha256": "bf92844002a0cdd4ebd901764be7f488597bc9a465ce8c88cf735bf14c9b6491"
+  },
+  "engines/experiments/tiny-uci-portfolio/transform.py": {
+    "bytes": 5724,
+    "sha256": "1f6782447ae303784278a198f3e846400d8481f2199d658cb6f8551be4a3d220"
+  },
+  "engines/experiments/tiny-uci-portfolio/family_ce.py": {
+    "bytes": 12772,
+    "sha256": "5d189c6bc545763dc04b9a795afef964264d3b8d016e34a47cdfe2165bf2ef22"
+  },
+  "engines/experiments/tiny-uci-portfolio/verify.py": {
+    "bytes": 7500,
+    "sha256": "61884fa44cea4841f25bbfb4e49ebc57ad5e46031031a856b944027176f7966e"
+  },
+  "engines/experiments/tiny-e-order/generate.py": {
+    "bytes": 1862,
+    "sha256": "eaaa35cc1f9a45c0e71124027f003e00922d01ab95b9b02f2f14e406bb01c095"
+  }
+}

@@ -1,0 +1,143 @@
+{
+  "entry_lf_sha256": {
+    ".gitattributes": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9",
+    "README.md": "9d43b8b14c1097c43fe589e65d9334bef2c319c8d4427d9b7c7380a6d8f8be3e",
+    "build.py": "4822d6fe5a9f5aa72e3f7be5decfcbdb13ea5b851f03a13a52fb94465590d203",
+    "fresh.py": "60617a49b0316453b4c238e0cb233432f745b295b6e0d29e7ae3ac2caf24d86b",
+    "packer.py": "bde43a9bb1a7ec21f93f21071461d79570cf9ae4af8a7733c33e294ecac5291b",
+    "recipe.json": "32de0baa8141bed4d1a7c51542083f1c860c767be26b9a80ef592d2428191890",
+    "verify.py": "045550ae095457923343fd5a462b47296f3749abf621a936329863cd5c69d252",
+    "native/tiny.h": "43df781e2a86d353d5ec1d64fc8dc6390065d8640b6c9775eb9d7535868397c0",
+    "native/board.c": "3f04fedb7e449e69b47ac6f2b36eb89ebe193726ac5970b0ae3a4b28008e12dc",
+    "native/search.c": "87bec413c4dcbccafd1b9c48e2a4ae878caae11747caf942f36a1036e88c7fb8",
+    "native/runtime.c": "ec9ba6fce84fac501a25a3317a326bc62c9e420002a81303475230702ae1c773",
+    "native/hq.h": "ad66a03cef5288010c4377b81ee3661320195545aee6c664a42d3828bfc8b412",
+    "native/hq.c": "50b246280ac1f0b9e1f20834f302b31e30221101abd979bbdc146fcae7c12b5f",
+    "native/start.S": "4a6021518cfe67bee9e42806b596f4f0837e3e93487b1acfa115158ea019ba5b",
+    "native/image.ld": "38756c865914b52432572864446fcc58b791dfb508af8a33156d5c190c01044b",
+    "loader/loader.c": "8a6a9cb93ae484400056852c5bc406be1cc15dc7b8df6b0a57e6d6330a2e4094",
+    "loader/image.ld": "93934099212b944b20c2f7840ee87e4817311c4f87fddbb2b3f91db28776cf99",
+    "loader/codec.py": "17165d1cb16eaba8916833741bfa229d196c3ad07ca391c14b94288a3cdc0866"
+  },
+  "old_expected": {
+    "scalar-shipping": {
+      "hq": 0,
+      "native_bytes": 8476,
+      "native_sha256": "ba2d42473ca25a944b85da18f74f32eae18e68112010948a0e7c2dc0c69a7c5c",
+      "whole_bytes": 7640,
+      "whole_sha256": "2147bd4e56915196ade254c05b587cffd2cbc5c5355ad1f9f1daeda3df4d575f",
+      "payload_bytes": 6525,
+      "loader_and_headers_bytes": 1115,
+      "audit_bytes": 7663,
+      "audit_sha256": "9e2b89a0663bc74d544bc796f5794c7293eec0284b627d1682a675942fbe4905",
+      "layout": {
+        "entry": 4202377,
+        "section_offset": 0,
+        "section_size": 0,
+        "section_count": 0,
+        "section_names": 0,
+        "segments": [
+          {
+            "type": 1,
+            "flags": 5,
+            "offset": 0,
+            "vaddr": 4194304,
+            "paddr": 4194304,
+            "filesz": 8476,
+            "memsz": 8476,
+            "align": 4096
+          },
+          {
+            "type": 1,
+            "flags": 6,
+            "offset": 0,
+            "vaddr": 4206592,
+            "paddr": 4206592,
+            "filesz": 0,
+            "memsz": 175092,
+            "align": 4096
+          },
+          {
+            "type": 1685382481,
+            "flags": 6,
+            "offset": 0,
+            "vaddr": 0,
+            "paddr": 0,
+            "filesz": 0,
+            "memsz": 0,
+            "align": 8
+          }
+        ],
+        "image_base": 4194304,
+        "image_size": 8476,
+        "image_pages": 12288,
+        "bss_base": 4206592,
+        "bss_size": 175092,
+        "bss_pages": 176128,
+        "guard_base": 4190208,
+        "reserve_size": 196608,
+        "upper_guard": 4382720
+      }
+    },
+    "hq-shipping": {
+      "hq": 1,
+      "native_bytes": 8864,
+      "native_sha256": "09917666d5862c4f17ed77e33453000f608a7d83aa47f16f8726a063ec5f31ce",
+      "whole_bytes": 7881,
+      "whole_sha256": "051ec52baaac55fd1fd8f80af6bea0d74a1e852f8672ef52237bb06a7d994c0a",
+      "payload_bytes": 6766,
+      "loader_and_headers_bytes": 1115,
+      "audit_bytes": 7904,
+      "audit_sha256": "578bc144a533521ed29a4a39943cf7971d21be2f813b20ab2aa72b138ca50f9a",
+      "layout": {
+        "entry": 4202694,
+        "section_offset": 0,
+        "section_size": 0,
+        "section_count": 0,
+        "section_names": 0,
+        "segments": [
+          {
+            "type": 1,
+            "flags": 5,
+            "offset": 0,
+            "vaddr": 4194304,
+            "paddr": 4194304,
+            "filesz": 8864,
+            "memsz": 8864,
+            "align": 4096
+          },
+          {
+            "type": 1,
+            "flags": 6,
+            "offset": 0,
+            "vaddr": 4206592,
+            "paddr": 4206592,
+            "filesz": 0,
+            "memsz": 175092,
+            "align": 4096
+          },
+          {
+            "type": 1685382481,
+            "flags": 6,
+            "offset": 0,
+            "vaddr": 0,
+            "paddr": 0,
+            "filesz": 0,
+            "memsz": 0,
+            "align": 8
+          }
+        ],
+        "image_base": 4194304,
+        "image_size": 8864,
+        "image_pages": 12288,
+        "bss_base": 4206592,
+        "bss_size": 175092,
+        "bss_pages": 176128,
+        "guard_base": 4190208,
+        "reserve_size": 196608,
+        "upper_guard": 4382720
+      }
+    }
+  },
+  "prechange_freeze_sha256": "fd0644307bf090dde7b93ac98ee3fce8d3b16328a5245a26c52cf4b725f89549"
+}

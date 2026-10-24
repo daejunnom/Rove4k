@@ -1,0 +1,112 @@
+/* Test-only translation unit: include an EXACT production DEV=0 source,
+ * expose its existing static functions, and replace only the entry point.
+ * None of the engine functions, callbacks or data layouts is rewritten. */
+#define main original_shipping_main
+#include "engine.c"
+#undef main
+#define HC(x) do{if(!(x)){fprintf(stderr,"contract line %d: %s\n",__LINE__,#x);exit(71);}}while(0)
+static uint64_t hc_positions,hc_moves;
+static int hc_maximum;
+static int hc_board(const Board *p){
+    Board t={0};t.s=p->s;t.c=p->c;t.e=p->e;t.k[0]=t.k[1]=-1;
+    int counts[2]={0},kings[2]={0};
+    HC(p->s==1||p->s==-1);HC(p->c>=0&&p->c<=15);HC(p->half>=0);
+    for(int q=0;q<128;q++){
+        int v=p->b[q];HC(abs(v)<=6);HC(!(q&0x88)||!v);
+        if(v){HC(++counts[v<0]<=16);if(abs(v)==6)kings[v<0]++;put(&t,q,v);}
+    }
+    HC(kings[0]==1&&kings[1]==1);HC(t.k[0]==p->k[0]&&t.k[1]==p->k[1]);
+    HC(t.v==p->v);HC((t.h^state(p))==p->h);
+    /* This invariant is inherited from legal startpos transitions: the side
+     * that just moved cannot have left its own king attacked. It is NOT
+     * asserted for arbitrary DEV FEN positions. */
+    HC(!attacked(p,p->k[p->s>0],p->s));
+    for(int i=0;i<4;i++)if(p->c&(1<<i)){
+        int home=i<2?4:116,rook=(i&1)?home-4:home+3,side=i<2?1:-1;
+        HC(p->b[home]==side*6&&p->b[rook]==side*4);
+    }
+    HC(p->e==-1||(!(p->e&0x88)&&(p->e>>4)==(p->s>0?5:2)&&!p->b[p->e]&&p->b[p->e-p->s*16]==-p->s));
+    if(p->e>=0){Board copy=*p;ep(&copy);HC(copy.e==p->e);}
+    hc_positions++;return 1;
+}
+static int hc_gen(const Board *p,Move *out){
+    struct {uint64_t before[2];Move moves[MOVES];uint64_t after[2];} guarded;
+    guarded.before[0]=guarded.before[1]=guarded.after[0]=guarded.after[1]=UINT64_C(0xa239ff108de372b4);
+    int n=gen(p,guarded.moves),per_piece[128]={0};
+    HC(guarded.before[0]==UINT64_C(0xa239ff108de372b4)&&guarded.before[1]==guarded.before[0]);
+    HC(guarded.after[0]==guarded.before[0]&&guarded.after[1]==guarded.before[0]);
+    /* At most 15 non-kings*27 + one king*(8 adjacent+2 castles). */
+    HC(n>=0&&n<=415&&n<MOVES);if(n>hc_maximum)hc_maximum=n;
+    for(int i=0;i<n;i++){
+        Move m=guarded.moves[i];int from=FROM(m),to=TO(m),z=PROMO(m);
+        HC(!(from&0x88)&&!(to&0x88)&&from!=to);
+        int v=p->b[from],a=abs(v),target=p->b[to];HC(v*p->s>0);HC(target*p->s<=0);HC(abs(target)!=6);
+        HC(++per_piece[from]<=(a==6?10:27));HC(z==0||(z>=2&&z<=5));
+        if(a==1){
+            HC(!!z==((to>>4)==0||(to>>4)==7));
+            if(to==p->e){HC(!target&&p->b[to-p->s*16]==-p->s);HC(abs((to&7)-(from&7))==1);}
+            if(abs(to-from)==32){HC((from>>4)==(p->s>0?1:6));HC(!target&&!p->b[from+p->s*16]);}
+        }else HC(!z);
+        if(a==6&&abs(to-from)==2){
+            int home=p->s>0?4:116,rook=to>from?home+3:home-4,shift=p->s>0?0:2;
+            HC(from==home&&p->b[rook]==p->s*4);
+            HC(p->c&((to>from?1:2)<<shift));HC(!attacked(p,from,-p->s));
+            HC(!attacked(p,from+(to>from?1:-1),-p->s));
+        }
+        out[i]=m;
+    }
+    return n;
+}
+static void hc_transition(const Board *p,Move m,const Board *q){
+    HC(hc_board(q));int irreversible=abs(p->b[FROM(m)])==1||capture(p,m);
+    HC(q->s==-p->s&&q->half==(irreversible?0:p->half+1));
+    HC(q->r==(q->half?((p->r<<1)|(p->r>>63))^q->h:q->h));HC(!(q->c&~p->c));hc_moves++;
+}
+static void hc_snapshot(void){
+    HC(game_length>=1&&game_length<=HISTORY&&game_keys[game_length-1]==position.h);HC(hc_board(&position));
+    Move list[MOVES];int n=hc_gen(&position,list);Board child;
+    printf("{\"cells\":\"");for(int q=0;q<128;q++)if(!(q&0x88))putchar("kqrbnp.PNBRQK"[position.b[q]+6]);
+    printf("\",\"side\":%d,\"castle\":%d,\"ep\":%d,\"half\":%d,\"eval\":%d,\"hash\":\"%016llx\",\"context\":\"%016llx\",\"keys\":[",position.s,position.c,position.e,position.half,position.v,(unsigned long long)position.h,(unsigned long long)position.r);
+    for(int i=0;i<game_length;i++)printf("%s\"%016llx\"",i?",":"",(unsigned long long)game_keys[i]);
+    printf("],\"pseudo\":[");for(int i=0;i<n;i++){char name[6];text(list[i],name);printf("%s\"%s\"",i?",":"",name);}
+    printf("],\"legal\":[");int k=0;
+    for(int i=0;i<n;i++)if(make(&position,list[i],&child)){hc_transition(&position,list[i],&child);char name[6];text(list[i],name);printf("%s\"%s\"",k++?",":"",name);}
+    printf("],\"count\":%d}\n",n);
+}
+static uint64_t hc_tree(const Board *p,int d){
+    HC(hc_board(p));if(!d)return 1;
+    Move list[MOVES];int n=hc_gen(p,list);uint64_t nodes=0;
+    for(int i=0;i<n;i++){Board q;if(make(p,list[i],&q)){hc_transition(p,list[i],&q);nodes+=hc_tree(&q,d-1);}}
+    return nodes;
+}
+static uint64_t hc_digest(Worker *w){
+    uint64_t h=0;for(int a=0;a<128;a++)for(int b=0;b<128;b++)h=mix(h+(uint16_t)w->history[a][b]);
+    for(int a=0;a<13;a++)for(int b=0;b<13;b++)h=mix(h+(uint16_t)w->continuation[a][b]);
+    for(int a=0;a<1024;a++)h=mix(h+(uint16_t)w->correction[a]);return h;
+}
+static void hc_search(int depth,int callback){
+    Board prior;memcpy(&prior,&position,sizeof prior);uint64_t old_keys[HISTORY];memcpy(old_keys,game_keys,game_length*sizeof(uint64_t));
+    clear();Worker *w=workers;memset(w,0,sizeof *w);w->length=game_length;memcpy(w->keys,game_keys,game_length*sizeof(uint64_t));
+    atomic_store(&stopped,0);deadline=now()+3000;Move root=first(&position);int score;
+    if(callback){w->best=first(&position);think(w,&position);root=w->best;score=w->score;}
+    else score=search(w,&position,depth,-MATE,MATE,0,6,&root);
+    HC(!memcmp(&prior,&position,sizeof prior));HC(!memcmp(old_keys,game_keys,game_length*sizeof(uint64_t)));
+    HC(w->length==game_length);HC(hc_board(&position));
+    char name[6];text(root,name);if(root)HC(parse(&position,name)==root);
+    printf("{\"score\":%d,\"best\":\"%s\",\"nodes\":%llu,\"stopped\":%d,\"depth\":%d,\"length\":%d,\"heuristics\":\"%016llx\"}\n",score,name,(unsigned long long)w->nodes,atomic_load(&stopped),w->depth,w->length,(unsigned long long)hc_digest(w));
+}
+int main(void){
+    setvbuf(stdout,NULL,_IOLBF,0);table=calloc((size_t)1<<TT_BITS,sizeof *table);HC(table);clear();
+    char initial[]="startpos";set_position(initial);char line[32768];
+    while(fgets(line,sizeof line,stdin)){
+        size_t length=strlen(line);HC(length&&line[length-1]=='\n');line[length-1]=0;
+        if(!strncmp(line,"P ",2)){set_position(line+2);hc_snapshot();}
+        else if(!strcmp(line,"V"))hc_snapshot();
+        else if(!strncmp(line,"F ",2)){int d=atoi(line+2);HC(d>=0&&d<=4);uint64_t p0=hc_positions,m0=hc_moves,n=hc_tree(&position,d);printf("{\"perft\":%llu,\"positions\":%llu,\"transitions\":%llu,\"max_pseudo\":%d}\n",(unsigned long long)n,(unsigned long long)(hc_positions-p0),(unsigned long long)(hc_moves-m0),hc_maximum);}
+        else if(!strncmp(line,"S ",2)){int depth=atoi(line+2);HC(depth>=1&&depth<=4);hc_search(depth,0);}
+        else if(!strcmp(line,"T"))hc_search(0,1);
+        else if(!strcmp(line,"Q"))break;
+        else HC(0);
+    }
+    free(table);return 0;
+}

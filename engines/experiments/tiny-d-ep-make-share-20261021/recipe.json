@@ -1,0 +1,123 @@
+{
+  "scope": "one EP trial delegation to make; current dd6c5fb atomic16 baseline",
+  "execution_isa_required": "linux-x86_64-sse4.2-cx16-crc32b-v1",
+  "profile": {
+    "workers": 2,
+    "tt_bits": 18,
+    "ply": 128,
+    "dev": 0
+  },
+  "source_sha256": {
+    "tiny.h": "8bd51aece52f94cfe61f452d80c910357128c3ca4905ef610600dbc252a6cd6b",
+    "board.c": "d412aa04f0609c0b10217d021f18fc2a888b863ece09064ffd9ad02a337963db",
+    "search.c": "0a07b27600630b0278f802bbb59e2bbfa4ea3efef8357562ced2b4d571130a52",
+    "runtime.c": "bd090ab06be2997e5bfb8c7cae37b6efef9443188925df84eb64a9bda7ea0eec",
+    "hq.h": "ad66a03cef5288010c4377b81ee3661320195545aee6c664a42d3828bfc8b412",
+    "hq.c": "50b246280ac1f0b9e1f20834f302b31e30221101abd979bbdc146fcae7c12b5f",
+    "start.S": "4a6021518cfe67bee9e42806b596f4f0837e3e93487b1acfa115158ea019ba5b",
+    "image.ld": "38756c865914b52432572864446fcc58b791dfb508af8a33156d5c190c01044b"
+  },
+  "reference_packer_sha256": "bef35757058d15bff04f37aa20e91006e68058d7e83bb05b6372eb168aec3bfb",
+  "changes": [
+    {
+      "file": "board.c",
+      "old": "            Board t=*p;t.b[q]=t.b[p->e-p->s*16]=0;t.b[p->e]=(int8_t)p->s;\n            if(!attacked(&t,p->k[p->s<0],-p->s))return;",
+      "new": "            Board t;if(make(p,MOVE(q,p->e,0),&t))return;"
+    },
+    {
+      "file": "board.c",
+      "old": " * destination attacks are intentionally filtered only after applying a move. */",
+      "new": " * destination attacks are intentionally filtered only after applying a move.\n * ep may also request a boolean-only trial from a provisional parent: valid\n * side/king, empty target on the EP rank, opposing victim, and adjacent own\n * pawn prove a nonpromoting EP capture. Its h/r may be unfinished. Discard\n * the child; legality reads no h/r/v, and its e=-1 ends nested ep immediately. */"
+    }
+  ],
+  "candidate_source_expected": {
+    "tiny.h": {
+      "bytes": 2849,
+      "sha256": "8bd51aece52f94cfe61f452d80c910357128c3ca4905ef610600dbc252a6cd6b"
+    },
+    "board.c": {
+      "bytes": 9007,
+      "sha256": "64ccfa2f3084e470612969e8686d15af86eca359c7b1110f55ba58f943df5c70"
+    },
+    "search.c": {
+      "bytes": 6268,
+      "sha256": "0a07b27600630b0278f802bbb59e2bbfa4ea3efef8357562ced2b4d571130a52"
+    },
+    "runtime.c": {
+      "bytes": 14978,
+      "sha256": "bd090ab06be2997e5bfb8c7cae37b6efef9443188925df84eb64a9bda7ea0eec"
+    },
+    "hq.h": {
+      "bytes": 463,
+      "sha256": "ad66a03cef5288010c4377b81ee3661320195545aee6c664a42d3828bfc8b412"
+    },
+    "hq.c": {
+      "bytes": 1488,
+      "sha256": "50b246280ac1f0b9e1f20834f302b31e30221101abd979bbdc146fcae7c12b5f"
+    },
+    "start.S": {
+      "bytes": 845,
+      "sha256": "4a6021518cfe67bee9e42806b596f4f0837e3e93487b1acfa115158ea019ba5b"
+    },
+    "image.ld": {
+      "bytes": 446,
+      "sha256": "38756c865914b52432572864446fcc58b791dfb508af8a33156d5c190c01044b"
+    }
+  },
+  "raw_native_input_delta": 237,
+  "native_flags": [
+    "-Oz",
+    "-std=c11",
+    "-nostdlib",
+    "-static",
+    "-no-pie",
+    "-fno-pie",
+    "-fno-pic",
+    "-fno-stack-protector",
+    "-fno-builtin",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-fno-ident",
+    "-fcf-protection=none",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-Wl,--gc-sections,--build-id=none,-s,-z,noexecstack",
+    "-DWORKERS=2",
+    "-DTT_BITS=18",
+    "-flto"
+  ],
+  "native_units": [
+    "board.c",
+    "search.c",
+    "runtime.c",
+    "hq.c",
+    "start.S"
+  ],
+  "normal_native_source_path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-engines-af-20261020/engines/compact/tiny-entry-d/native",
+  "baseline_build_receipt_path": "/home/stemxstudio/rove4k-tiny-entry-d-atomic128-normal-build-20261021/build.json",
+  "baseline_build_receipt_sha256": "12c7096e312e4ed3d6761da81569eb222b54f8c99556eef3bef566c203bcf1a8",
+  "controls": {
+    "scalar-shipping": {
+      "native_path": "/home/stemxstudio/rove4k-tiny-entry-d-atomic128-normal-build-20261021/scalar-shipping/native-first/x",
+      "linked_path": "/home/stemxstudio/rove4k-tiny-entry-d-atomic128-normal-build-20261021/scalar-shipping/native-first/linked",
+      "whole_path": "/home/stemxstudio/rove4k-tiny-entry-d-atomic128-normal-build-20261021/scalar-shipping/context/x",
+      "native_bytes": 7932,
+      "native_sha256": "890cf9a47918f3525ae8340999d5f1d0a9a34f51f9f4ed21b01fd6472fe2f96b",
+      "whole_bytes": 6064,
+      "whole_sha256": "ef992be19acbf77b8942c19bf98cd81f92a310be03e5d4ee290595ae3886ef88",
+      "model_wmask": 16847486
+    },
+    "hq-shipping": {
+      "native_path": "/home/stemxstudio/rove4k-tiny-entry-d-atomic128-normal-build-20261021/hq-shipping/native-first/x",
+      "linked_path": "/home/stemxstudio/rove4k-tiny-entry-d-atomic128-normal-build-20261021/hq-shipping/native-first/linked",
+      "whole_path": "/home/stemxstudio/rove4k-tiny-entry-d-atomic128-normal-build-20261021/hq-shipping/context/x",
+      "native_bytes": 8288,
+      "native_sha256": "84261c1153d1e0d71b3241375423cf8a6ffc386a6058380a1b14abfc6d757efe",
+      "whole_bytes": 6253,
+      "whole_sha256": "a03667db1839b238c217968a35883bf99d2b32fb82f9f475c2e8c8dd8814222c",
+      "model_wmask": 135274878
+    }
+  },
+  "native_links": 2,
+  "target_executions": 0
+}

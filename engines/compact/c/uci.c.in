@@ -1,0 +1,153 @@
+#include "rove.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+/* Shipping-only template. The generator replaces @VARIANT@ with one A-F
+ * letter. Session owns the current position and history: main changes them
+ * only after stop_search observes coordinator completion. This avoids a duplicate
+ * position/history and the copy before every search. */
+static Session session={.mutex=PTHREAD_MUTEX_INITIALIZER,.control=PTHREAD_MUTEX_INITIALIZER,
+    .command=PTHREAD_COND_INITIALIZER,.finished=PTHREAD_COND_INITIALIZER};
+static pthread_t thread;
+
+static void stop_search(void){
+    atomic_store_explicit(&session.stop,1,memory_order_relaxed);
+    pthread_mutex_lock(&session.control);
+    while(session.pending||session.active)
+        pthread_cond_wait(&session.finished,&session.control);
+    pthread_mutex_unlock(&session.control);
+}
+static void *coordinator(void *unused){
+    (void)unused;
+    pthread_mutex_lock(&session.control);
+    for(;;){
+        while(!session.pending&&!session.quitting)
+            pthread_cond_wait(&session.command,&session.control);
+        if(session.quitting)break;
+        session.pending=0;session.active=1;
+        pthread_mutex_unlock(&session.control);
+        session_run(&session);
+        pthread_mutex_lock(&session.control);
+        session.active=0;
+        pthread_cond_broadcast(&session.finished);
+    }
+    pthread_mutex_unlock(&session.control);
+    return 0;
+}
+static void reply(const char *line){
+    pthread_mutex_lock(&session.mutex);
+    puts(line);fflush(stdout);
+    pthread_mutex_unlock(&session.mutex);
+}
+static unsigned first_legal(void){
+    Move moves[MAXMOVES];
+    int n=generate(&session.board,moves,0);
+    for(int i=0;i<n;i++){
+        Board next;
+        if(make_move(&session.board,moves[i].m,&next))return moves[i].m;
+    }
+    return 0;
+}
+static void position(char *args){
+    char *moves=strstr(args," moves ");
+    if(moves){*moves=0;moves+=7;}
+    if(strcmp(args,"startpos"))return;
+    Board board;
+    board_start(&board);
+    uint64_t history[MAXHISTORY];
+    int count=1;
+    history[0]=board.key;
+    if(moves){
+        char *save;
+        for(char *text=strtok_r(moves," \t\r\n",&save);text;
+                text=strtok_r(0," \t\r\n",&save)){
+            unsigned move=parse_move(&board,text);
+            Board next;
+            if(!move||!make_move(&board,move,&next)||count>=MAXHISTORY)return;
+            board=next;history[count++]=board.key;
+        }
+    }
+    session.board=board;session.history_len=count;
+    memcpy(session.history,history,(size_t)count*sizeof(uint64_t));
+}
+static void go(char *args){
+    stop_search();
+    session.completed_depth=session.score=0;
+    session.best=first_legal();session.start=now_ms();session.generation++;
+    session.assigned=session.reassigned=session.reused=0;
+    session.shared_bounds=session.clauses=session.repairs=0;
+    session.parallel_mode=ROVE_PARALLEL;session.groups=1;
+    uint64_t clock=0,increment=0;
+    int present=0;
+    char *save;
+    for(char *token=strtok_r(args," \t",&save);token;
+            token=strtok_r(0," \t",&save)){
+        int side=*token=='w'?1:*token=='b'?-1:0;
+        if(side&&(!strcmp(token+1,"time")||!strcmp(token+1,"inc"))){
+            char *value=strtok_r(0," \t",&save);
+            uint64_t number=value&&*value!='-'?strtoull(value,0,10):0;
+            if(side==session.board.side){
+                if(token[1]=='t'){clock=number;present=1;}
+                else increment=number;
+            }
+        }
+    }
+    session.deadline=0;
+    if(present){
+        uint64_t budget=clock/30+(increment>86400000?86400000:increment)*3/4;
+        if(budget>clock/5)budget=clock/5;
+        if(!budget)budget=1;
+        if(budget>86400000)budget=86400000;
+        session.deadline=session.start+budget;
+    }
+    atomic_store_explicit(&session.stop,0,memory_order_relaxed);
+    atomic_store_explicit(&session.nodes,0,memory_order_relaxed);
+    pthread_mutex_lock(&session.control);
+    session.pending=1;pthread_cond_signal(&session.command);
+    pthread_mutex_unlock(&session.control);
+}
+int main(void){
+    session.depth=MAXPLY-2;
+    board_init();evaluate_init();
+    rove_tt=calloc((size_t)1<<ROVE_TT_BITS,sizeof(TTEntry));
+    if(!rove_tt)return 2;
+    tt_clear();board_start(&session.board);
+    session.history[0]=session.board.key;session.history_len=1;
+    session.workers=calloc(ROVE_WORKERS,sizeof(Worker));
+    int status=2;
+    if(session.workers&&parallel_init()){
+        if(pthread_create(&thread,0,coordinator,0))goto pool;
+        status=0;
+        char line[32768];
+        while(fgets(line,sizeof line,stdin)){
+            size_t length=strlen(line);
+            if(length&&line[length-1]!='\n'&&!feof(stdin)){
+                int ch;while((ch=getchar())!='\n'&&ch!=EOF){}
+                continue;
+            }
+            while(length&&(line[length-1]=='\r'||line[length-1]=='\n'||
+                    line[length-1]==' '))line[--length]=0;
+            if(!strcmp(line,"uci"))
+                reply("id name Rove4k C-@VARIANT@\nid author Rove4k\nuciok");
+            else if(!strcmp(line,"isready"))reply("readyok");
+            else if(!strcmp(line,"quit"))break;
+            else if(!strcmp(line,"stop"))stop_search();
+            else if(!strcmp(line,"ucinewgame")){stop_search();tt_clear();}
+            else if(!strncmp(line,"position ",9)){stop_search();position(line+9);}
+            else if(!strcmp(line,"go")||!strncmp(line,"go ",3))go(line+2);
+        }
+        stop_search();
+        pthread_mutex_lock(&session.control);
+        session.quitting=1;pthread_cond_signal(&session.command);
+        pthread_mutex_unlock(&session.control);
+        if(pthread_join(thread,0))abort();
+pool:
+        parallel_shutdown();
+    }
+    free(session.workers);free(rove_tt);
+    pthread_mutex_destroy(&session.mutex);
+    pthread_mutex_destroy(&session.control);
+    pthread_cond_destroy(&session.command);pthread_cond_destroy(&session.finished);
+    return status;
+}

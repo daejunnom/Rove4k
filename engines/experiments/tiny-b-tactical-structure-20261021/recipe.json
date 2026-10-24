@@ -1,0 +1,157 @@
+{
+  "format": 1,
+  "family": "B",
+  "compiler": [
+    "cc",
+    "-std=c11",
+    "-Os",
+    "-pthread",
+    "-DWORKERS=2",
+    "-DTT_BITS=18",
+    "-DDEV=0",
+    "-x",
+    "c",
+    "-",
+    "-o",
+    "x"
+  ],
+  "profile": {
+    "workers": 2,
+    "TT_BITS": 18,
+    "PLY": 128,
+    "DEV": false
+  },
+  "compression": {
+    "format": "ALONE",
+    "preset": 9,
+    "extreme": true,
+    "lc": 2,
+    "lp": 0,
+    "pb": 0,
+    "mf": "BT4",
+    "dict_size": 67108864,
+    "nice_len": 32
+  },
+  "prefix": "#!/bin/sh\np=$(tail -c+78 \"$0\"|lzma -dc)||exit\nexec python3 -c \"$p\" \"$0\" \"$@\"\n",
+  "ALONE_header13": "0200000004ffffffffffffffff",
+  "counter_scope": {
+    "candidate_compile": 1,
+    "candidate_ALONE": 1,
+    "baseline_compile_compress_copy": 0,
+    "engine_AST_standalonePP_DEV_games_benchmarks_variants_retries": 0
+  },
+  "scope": "ONE private Move tactical-classification source/ABI and quiet-promotion ordering policy candidate",
+  "cost_authorized": true,
+  "actual_cost_baseline": "/home/stemxstudio/rove4k-b-shared-walk-normal-20261021/build",
+  "actual_cost_baseline_pins": {
+    "main.c": {
+      "bytes": 11532,
+      "sha256": "3fca96ff1a913ed74edaed69d74794a433a9013e4a6cd88dc0e3dfe5e35d0b6f"
+    },
+    "native/x": {
+      "bytes": 26384,
+      "sha256": "7b9503f99d7e71eb26522501eaa89caaefbd3000d38ef0637688378aa62b9423"
+    },
+    "bootstrap.py": {
+      "bytes": 12597,
+      "sha256": "88af0a7d1ba13e4de0bf1f1ddfeff487f76bc9e0361e234e6cc4f1dd38c94789"
+    },
+    "x": {
+      "bytes": 5371,
+      "sha256": "0b6642824ca291faceb774fe8c7a15af97fbce844f1b889903ddfa353e9c13b1"
+    }
+  },
+  "accepted_baseline_receipt_metadata_only": {
+    "bytes": 83513,
+    "sha256": "b17212d6914e3d0e02a4b0488a6aab27e34b55bf471bdce1274a04444ba8305d"
+  },
+  "output_pin": {
+    "bytes": 11430,
+    "sha256": "54759113c9949f0f3d619d5eefe5e8ac4d6b562baf4c09da7e7743907d3f8a2a"
+  },
+  "source_only_proposal_receipt_metadata": {
+    "status": "this candidate source is frozen before one cost; no prior runtime/stack inheritance"
+  },
+  "owned_executable_pins": {
+    ".gitattributes": {
+      "bytes": 14,
+      "sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9"
+    },
+    "transform.py": {
+      "bytes": 4547,
+      "sha256": "09eef9947fe98640eb920759d2564f4a7d38ca2405a4832a4269599a70bd3828"
+    },
+    "cost.py": {
+      "bytes": 8567,
+      "sha256": "5dc700c11bbeeabbe20966c41f1cc77437ec220310ebd49a4a902d430020a3ca"
+    }
+  },
+  "cost_result_metadata_only": {
+    "receipt": {
+      "bytes": 8763,
+      "sha256": "d1e616ba562bea295bfbb96dce03de9c7440980143a805199af00a91b9907848"
+    },
+    "source": {
+      "bytes": 11430,
+      "sha256": "54759113c9949f0f3d619d5eefe5e8ac4d6b562baf4c09da7e7743907d3f8a2a"
+    },
+    "native": {
+      "bytes": 26360,
+      "sha256": "483a2b6c1f420a30d2f04f1acab9101f6b7dc44c06e1485117a2e8117f1365dd"
+    },
+    "bootstrap": {
+      "bytes": 12495,
+      "sha256": "ac3cbb751445b451fecfb28d6b43ca711879b6c10797e52c35eb872a353ba523"
+    },
+    "whole": {
+      "bytes": 5357,
+      "sha256": "8b8c3b565974813aa2ea54383bcc19240c1dcf506157d2aa0b44c8b24fa3d5be"
+    },
+    "source_delta": -102,
+    "whole_delta_from_B5371": -14,
+    "gap_to_4096": 1261,
+    "candidate_compile": 1,
+    "candidate_ALONE": 1,
+    "strict_pure_decodes": 2,
+    "full_baseline_native_equal": false,
+    "metadata_exception_applied": false,
+    "normal_promotion": false
+  },
+  "focused_qualification_metadata_only": {
+    "receipt": {
+      "bytes": 1936,
+      "sha256": "4a27c68d86ed32d65c71d9f909e69a9d244bf26ea2f6ae8adae332850ac6110e"
+    },
+    "fixture": {
+      "bytes": 9838,
+      "sha256": "676b53bbd18e53d9cf0f7a19e591365a5bb94834378ddd8a7bd00982d47eb238"
+    },
+    "observer_source": {
+      "bytes": 11470,
+      "sha256": "95fe445f237af2ca0d4e7a555628549d2c692afce05d7f0786cbdce59d371a6b"
+    },
+    "freeze": {
+      "bytes": 3245,
+      "sha256": "257304dd4391c6f5edad7f78cd1e6941e031a99dfaf915d790d105124c739d9b"
+    },
+    "scope": "ONE actual candidate diagnostic TU with two admitted observation-only P ports and fixture-only external clock; not selected normal shipping execution",
+    "board_rows": 99,
+    "legal_LVA_score_rows": 85,
+    "illegal_LVA_rows": 2,
+    "normalized_EP_exclusions": 2,
+    "cancel_deadline_guards": 6,
+    "independent_tactical_tags": 294,
+    "independent_legal_child_states": 1281,
+    "quiet_promotion_moves": 96,
+    "qualified_singular_calls": 1,
+    "taken_extension_calls": 1,
+    "learning_positive_correction": "64 -> 63",
+    "excluded_root_TT_learning_board_activepath_deadline_preserved": true,
+    "tagged_capture_move": 12441,
+    "actual_TT_bits": 18,
+    "child_fullkey_read": "miss0, recorded; no inherited20-bit childdepth gate",
+    "normal_wrapper_runs": 0,
+    "strength_performance_stack_equivalence": false,
+    "candidate_and_cost_unchanged": true
+  }
+}

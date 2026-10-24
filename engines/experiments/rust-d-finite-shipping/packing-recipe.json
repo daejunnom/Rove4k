@@ -1,0 +1,78 @@
+{
+  "class": "rust-d-tiny-shipping-node-counter-data8-v1",
+  "native_expected": {
+    "candidate-scalar": {
+      "bytes": 16816,
+      "sha256": "df1945b23cbe3d7d6a4af5f775cc98ef6675758814feafa4ce56194541d78c7d",
+      "rx_filesz": 14256,
+      "load_sha256": "8a0c5f96b2b488572c82a7f44e82338bb73bc2a01a2ccb5b4619d0ab00fa4bbc"
+    },
+    "candidate-hq": {
+      "bytes": 16816,
+      "sha256": "b92d57e68d33c92fdc367ec7bfc339cbe7f53f0911082371ea5031ad8759f646",
+      "rx_filesz": 14704,
+      "load_sha256": "890fa0fe2ff8be62ae1fa2685b38651ba7ef3e700718ede9b011e99dd2bfe1f3"
+    }
+  },
+  "layout": {
+    "image_base": 4194304,
+    "image_size": 16392,
+    "image_pages": 20480,
+    "final_rx_pages": 16384,
+    "entry": 4194544,
+    "bss_base": 4210688,
+    "bss_pages": 4096,
+    "rw_filesz": 8,
+    "rw_memsz": 12,
+    "actual_bss_base": 4210696,
+    "actual_bss_size": 4,
+    "guard_base": 4190208,
+    "upper_guard": 4214784,
+    "reserve_size": 28672,
+    "loader_base": 268435456
+  },
+  "data_hex": "4601400000000000",
+  "loader_flags": [
+    "-Oz",
+    "-flto",
+    "-nostdlib",
+    "-static",
+    "-no-pie",
+    "-fno-pie",
+    "-fno-pic",
+    "-fno-builtin",
+    "-fno-stack-protector",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-fno-ident",
+    "-fcf-protection=none",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-Wl,--gc-sections,--build-id=none,-s,-z,noexecstack"
+  ],
+  "codec": {
+    "bcj_version": "e8-e9-whole-image-add-next-offset-le32-v1",
+    "fixed_version": "rfc1951-one-final-fixed-zero-padding-v1"
+  },
+  "packaging_sha256": {
+    "packaging/loader/codec.py": "17165d1cb16eaba8916833741bfa229d196c3ad07ca391c14b94288a3cdc0866",
+    "packaging/loader/image.ld": "93934099212b944b20c2f7840ee87e4817311c4f87fddbb2b3f91db28776cf99",
+    "packaging/loader/loader.c": "8a6a9cb93ae484400056852c5bc406be1cc15dc7b8df6b0a57e6d6330a2e4094",
+    "packaging/packer.py": "bde43a9bb1a7ec21f93f21071461d79570cf9ae4af8a7733c33e294ecac5291b"
+  },
+  "native_cost_report_sha256": "ecf641645bf3ae0b9f143ae3b1542623dd68708bc87395bbf6629d4f12623c9e",
+  "control_whole": {
+    "control-hq": {
+      "bytes": 11762,
+      "sha256": "da6f203d2304311856509d5d8d803cb647e4bb7f3444caa3a2fb1710304607e5"
+    },
+    "control-scalar": {
+      "bytes": 11403,
+      "sha256": "c485ddc7cca0bbfa31605d6488113075879164802c89ccda48d29d49c7756bc6"
+    }
+  },
+  "source_proof_only_zero_fill": true,
+  "production_ELF_execution_authorized": false,
+  "codec_loader_variant": false,
+  "admit_function_body_sha256": "bf151a97c89066ee072d6b8706f9d71871211a75e88010d09eb426bfc96ad700"
+}

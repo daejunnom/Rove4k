@@ -1,0 +1,50 @@
+{
+  "stage": "F5051-scope-names-plus-one-fixed-codec",
+  "producer_sha256": "be547b4f4b4a1522f3169b7ce1e388a1e78174a221012b2e786c1aeee8e25810",
+  "API": {
+    "build.py": "7f5d2d3a52b5f3b4b3410cfad5919a7ec28b94baae8a331cbbf8c102b5adaa90",
+    "decode.py": "c43303b6524321b24dfba069afc9a135998e408503740ea8d9fbcfb9bb5e9f5a",
+    "launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
+  },
+  "base_F5051": {
+    "source_sha256": "c63a450245ff4ca703a5abe2dc75d840c7c7e936bb2a30a726c30014e3a92e90",
+    "whole_bytes": 5051
+  },
+  "compiler_argv": ["cc", "-Os", "-pthread", "-x", "c", "-", "-o", "x", "-s"],
+  "nice_len": 32,
+  "repetitions": 2,
+  "inputs": {
+    "source": {
+      "path": "/home/stemxstudio/rove4k-tiny-scope-names-F-first-20261020/selected/main.c",
+      "bytes": 10011,
+      "sha256": "4e7a2a76ea753ebc3ccbcb4371ea76810c06b193e45b2f6ca70e66bd79112e9a"
+    },
+    "bootstrap": {
+      "path": "/home/stemxstudio/rove4k-tiny-scope-names-F-first-20261020/selected/bootstrap.py",
+      "bytes": 11010,
+      "sha256": "661d404fa9388b07820de6b24ae4a55a8087fd739ab4e8082c04ccf73aa4ee02"
+    },
+    "scope_whole_1": {
+      "path": "/home/stemxstudio/rove4k-tiny-scope-names-F-first-20261020/attempt-1/x",
+      "bytes": 4891,
+      "sha256": "9f5ae04500b634c0b8fa5fcb9697749996261fe20c6107c2ac7e995297931d1d"
+    },
+    "scope_whole_2": {
+      "path": "/home/stemxstudio/rove4k-tiny-scope-names-F-first-20261020/attempt-2/x",
+      "bytes": 4891,
+      "sha256": "9f5ae04500b634c0b8fa5fcb9697749996261fe20c6107c2ac7e995297931d1d"
+    },
+    "names_receipt": {
+      "path": "/home/stemxstudio/rove4k-tiny-scope-names-F-first-20261020/results.json",
+      "bytes": 8369,
+      "sha256": "c858ab3fb39d3515064b383d3fa93049ef05a145600a97ecc6d741263e3e3f81"
+    }
+  },
+  "prior_native_identity_provenance": {
+    "full_old_native_equal": true,
+    "native_bytes": 22672,
+    "native_sha256": "757b9a14cd5174dad55754196cce098fd89018a8b0d7adcf08bcddb2e1fc092b",
+    "role": "names owner qualification referenced only; no duplicate native build or engine execution"
+  },
+  "scope": "one actual F scope-name+fixed ALONE transport composition, no additive savings assumption, no normal promotion"
+}

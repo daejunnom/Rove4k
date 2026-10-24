@@ -1,0 +1,77 @@
+{
+  "policy": "fixed adjacent int declarations plus one worker completion comma expression; no generic parser or copied upstream implementation",
+  "families": {
+    "A": {
+      "source_sha256": "1f4097d43c5f6e84d7cbd17906100354da25be205d44ca08fbf52732e63b624c",
+      "expected_delta": -26,
+      "spans": [
+        {
+          "role": "HCE-value",
+          "old": "int a=abs(v),d=q>>4,f=q&7,g=v>0?d:7-d;int i=7-abs(2*f-7)-abs(2*d-7);int l=qi[a]+g*(a==1?7:a==4?2:0)+i*(a==2?9:a==3?5:a==6?-3:(a==1||a==5)*2);",
+          "new": "int a=abs(v),d=q>>4,f=q&7,g=v>0?d:7-d,i=7-abs(2*f-7)-abs(2*d-7),l=qi[a]+g*(a==1?7:a==4?2:0)+i*(a==2?9:a==3?5:a==6?-3:(a==1||a==5)*2);"
+        },
+        {
+          "role": "make-locals",
+          "old": "int o=FROM(m),a=TO(m),d=PROMO(m),s=p->s;int v=p->b[o],f=p->b[a];",
+          "new": "int o=FROM(m),a=TO(m),d=PROMO(m),s=p->s,v=p->b[o],f=p->b[a];"
+        },
+        {
+          "role": "walk-direction-range",
+          "old": "int j=a==1?(s>0?12:14):a==2?0:a==3?12:8;int m=a==1?j+2:a==2?8:a==4?12:16;",
+          "new": "int j=a==1?(s>0?12:14):a==2?0:a==3?12:8,m=a==1?j+2:a==2?8:a==4?12:16;"
+        },
+        {
+          "role": "search-draw-locals",
+          "old": "int n=aa(p,p->k[p->s<0],-p->s),t=p->aI>=100;int u=0,x=w->at-1-p->aI;",
+          "new": "int n=aa(p,p->k[p->s<0],-p->s),t=p->aI>=100,u=0,x=w->at-1-p->aI;"
+        },
+        {
+          "role": "search-score-locals",
+          "old": "int y[MOVES],z=ar(p,B),A=0,D=G,H=-MATE;int F=p->s*p->v;",
+          "new": "int y[MOVES],z=ar(p,B),A=0,D=G,H=-MATE,F=p->s*p->v;"
+        },
+        {
+          "role": "worker-completion-sequence",
+          "old": "if(!--qk){aP();pthread_cond_broadcast(&qf);}",
+          "new": "if(!--qk)aP(),pthread_cond_broadcast(&qf);"
+        }
+      ]
+    },
+    "F": {
+      "source_sha256": "845f731a0f1fabd62bae629ad191aadd39525d0db7d59628224e315f09c0519d",
+      "expected_delta": -26,
+      "spans": [
+        {
+          "role": "HCE-value",
+          "old": "int a=abs(v),d=q>>4,f=q&7,g=v>0?d:7-d;int i=7-abs(2*f-7)-abs(2*d-7);int j=qi[a]+g*(a==1?7:a==4?2:0)+i*(a==2?9:a==3?5:a==6?-3:(a==1||a==5)*2);",
+          "new": "int a=abs(v),d=q>>4,f=q&7,g=v>0?d:7-d,i=7-abs(2*f-7)-abs(2*d-7),j=qi[a]+g*(a==1?7:a==4?2:0)+i*(a==2?9:a==3?5:a==6?-3:(a==1||a==5)*2);"
+        },
+        {
+          "role": "make-locals",
+          "old": "int a=FROM(m),d=TO(m),f=PROMO(m),s=p->s;int v=p->b[a],g=p->b[d];",
+          "new": "int a=FROM(m),d=TO(m),f=PROMO(m),s=p->s,v=p->b[a],g=p->b[d];"
+        },
+        {
+          "role": "walk-direction-range",
+          "old": "int m=a==1?(s>0?12:14):a==2?0:a==3?12:8;int o=a==1?m+2:a==2?8:a==4?12:16;",
+          "new": "int m=a==1?(s>0?12:14):a==2?0:a==3?12:8,o=a==1?m+2:a==2?8:a==4?12:16;"
+        },
+        {
+          "role": "search-draw-locals",
+          "old": "int n=aa(p,p->k[p->s<0],-p->s),o=p->a>=100;int t=0,u=w->g-1-p->a;",
+          "new": "int n=aa(p,p->k[p->s<0],-p->s),o=p->a>=100,t=0,u=w->g-1-p->a;"
+        },
+        {
+          "role": "search-score-locals",
+          "old": "int z[MOVES],A=ah(p,x),B=0,C=-MATE;int D=p->s*p->v;",
+          "new": "int z[MOVES],A=ah(p,x),B=0,C=-MATE,D=p->s*p->v;"
+        },
+        {
+          "role": "worker-completion-sequence",
+          "old": "if(!--qk){at();pthread_cond_broadcast(&qf);}",
+          "new": "if(!--qk)at(),pthread_cond_broadcast(&qf);"
+        }
+      ]
+    }
+  }
+}

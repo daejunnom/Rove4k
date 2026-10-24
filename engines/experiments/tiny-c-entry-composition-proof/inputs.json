@@ -1,0 +1,159 @@
+{
+  "format": 1,
+  "scope": "bounded C composition functional qualification; old A sources are fixture design references, never reused C execution evidence",
+  "composition_source_freeze_sha256": "577c1eda9a2529f335309924369d1bcec5903b621ad4a5f567f7c9b4756b424b",
+  "control_files": {
+    ".gitattributes": {
+      "bytes": 14,
+      "sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9"
+    },
+    ".gitignore": {
+      "bytes": 19,
+      "sha256": "862263fa1f46c20f0d1e4dac5ffcc75abd55c08211b2c3864c5f8764b9d87793"
+    },
+    "build.py": {
+      "bytes": 7621,
+      "sha256": "b8d5fbbec2eaa6c623b3d441897162b5c91032188acbaf3474297e9b8a02e2c6"
+    },
+    "candidate.c": {
+      "bytes": 26692,
+      "sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b"
+    },
+    "control/engines/compact/tiny-a/pack_stream.py": {
+      "bytes": 5444,
+      "sha256": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e"
+    },
+    "control/engines/compact/tiny-a/stitch.py": {
+      "bytes": 3863,
+      "sha256": "2b0d25b4855a3ed4ddd9e24b8e4b0e081439baa2ed8f744dba0215a700023f23"
+    },
+    "control/engines/compact/tiny-entry-c/.gitattributes": {
+      "bytes": 14,
+      "sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9"
+    },
+    "control/engines/compact/tiny-entry-c/bootstrap.py.in": {
+      "bytes": 1082,
+      "sha256": "68e4544370fdd2ca3d240963a0782004f955930187c3d8edfda78cc2f59b7f6a"
+    },
+    "control/engines/compact/tiny-entry-c/build.py": {
+      "bytes": 9890,
+      "sha256": "0f30be8fb6cdf709bc99792d6be0527337a45560e99def6e4e89ac2011b0091e"
+    },
+    "control/engines/compact/tiny-entry-c/engine.c": {
+      "bytes": 27003,
+      "sha256": "1f0f18ffee91ecddea3cb31e7553e1d1415e25b3f759cdec4e0f375fcd0b2298"
+    },
+    "control/engines/compact/tiny-entry-c/fresh.py": {
+      "bytes": 5360,
+      "sha256": "81df003f684e813d5f77b2667cb9994767ac18a2065b7e7d1c0ae1706fad8d17"
+    },
+    "control/engines/compact/tiny-entry-c/launcher.sh": {
+      "bytes": 75,
+      "sha256": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a"
+    },
+    "control/engines/compact/tiny-entry-c/README.md": {
+      "bytes": 11956,
+      "sha256": "a8083a371bd5f94b6a139e6b50b56e9cfc95ba72e50ff17076e9f0bf964c94d0"
+    },
+    "control/engines/compact/tiny-entry-c/recipe.json": {
+      "bytes": 4624,
+      "sha256": "4374952d087b5cf3388f2396f2ebe8eb10419bc44e965770ab1a1aadcacbf3b8"
+    },
+    "control/engines/compact/tiny-entry-c/verify.py": {
+      "bytes": 7328,
+      "sha256": "930baa1794b486fca9dce8829fa808bb2cae08da80d1d8c3ccb5609d30d41310"
+    },
+    "control/engines/scripts/fixed_shipping_alpha.py": {
+      "bytes": 21999,
+      "sha256": "92b351d537c1da0f346f072df2ca4b0be713d0e286e039b30efa9f758519c806"
+    },
+    "control/engines/scripts/minify.py": {
+      "bytes": 6624,
+      "sha256": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b"
+    },
+    "control/engines/scripts/rename_c.py": {
+      "bytes": 12574,
+      "sha256": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5"
+    },
+    "control/engines/scripts/specialize.py": {
+      "bytes": 2386,
+      "sha256": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d"
+    },
+    "control/engines/tests/chess_oracle.py": {
+      "bytes": 10730,
+      "sha256": "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8"
+    },
+    "control/engines/tests/verify.py": {
+      "bytes": 45921,
+      "sha256": "9327ad01dd75bc17f04f400b57d5af3d6891a1abbb7f22aa6222389d50da138f"
+    },
+    "inputs.json": {
+      "bytes": 5802,
+      "sha256": "9a31b95172c24c2b68d8a887a5795aa8bd7d1d46c96b0c03100b9fc86de27d8a"
+    },
+    "policy.json": {
+      "bytes": 4538,
+      "sha256": "9ac6fdd907a114d6748268c5777e5ee3fa54a53ce56ae07bd1d7fae37d1202c5"
+    },
+    "policy.py": {
+      "bytes": 3625,
+      "sha256": "3f3200a595f819e6fbaa2533e30548b2ec40d6fdffb70bb8ce792b15216bbb79"
+    },
+    "preprocess.py": {
+      "bytes": 1679,
+      "sha256": "17b2b5323e7dd0bc7c3b96924ed69c6e0a671e92e51a3a4146a8c0e2cf02387e"
+    },
+    "README.md": {
+      "bytes": 4398,
+      "sha256": "09c6800a57c7a24997398314296b0f825dcd446b27b967923f81e02c50412c3f"
+    },
+    "support.py": {
+      "bytes": 9639,
+      "sha256": "10cffa19a48b3d604fe22dfff468af27f2e01d30d86a1e39e2b5e410cf9df30e"
+    },
+    "transform.py": {
+      "bytes": 3007,
+      "sha256": "3720fb7aa1c367309d9200f2db5b627bbf23eb3344707f7599cd1fa55b5b48c2"
+    }
+  },
+  "reference_files": {
+    "engines/experiments/tiny-a-ownership/query-contract.c": {
+      "bytes": 10149,
+      "sha256": "e1df5fdf558ed01e912d26e31089232dfc8d893ba7b73bb6193e37d0d6141997"
+    },
+    "engines/experiments/tiny-a-ownership/query-check.py": {
+      "bytes": 15194,
+      "sha256": "24913b6757861d8f73e3c757c967072e3866e15ce2e3888d28146a280c9e6c26"
+    },
+    "engines/experiments/tiny-a-startup/phase-contract.c": {
+      "bytes": 14210,
+      "sha256": "7b2cc56148c5de5f71f27c162235dcace03617f2b508d1a34dbb8404a1d8620e"
+    },
+    "engines/experiments/tiny-a-startup/phase-check.py": {
+      "bytes": 17791,
+      "sha256": "5ff17cf735d6b8eb273860f2419d269fcc958edd9a8a5def3ffeda7af2290f69"
+    },
+    "engines/experiments/tiny-c-state/adapter.c.in": {
+      "bytes": 4636,
+      "sha256": "6a6a32b134df6285267e280d9751a1d1bf444d3b0d81643d2c6ed3b2bddeef9f"
+    },
+    "engines/experiments/tiny-c-state/qualify.py": {
+      "bytes": 6999,
+      "sha256": "925f84c92e6b54bd045fc77f8d8be51b1fcd67f638110379bb0ca11c07279209"
+    },
+    "engines/experiments/tiny-c-state/state_contract.c": {
+      "bytes": 11969,
+      "sha256": "b11a11f3424ad4b0304dcd2593707d329a63ef27461bc9af77c8b996856f89d6"
+    },
+    "engines/experiments/tiny-c-state/state_contract.h": {
+      "bytes": 981,
+      "sha256": "65328007dd434e09b406c93354dced28aa66f8fe24ecf9257ac4ee9095561041"
+    }
+  },
+  "C_readable_old_sha256": "1f0f18ffee91ecddea3cb31e7553e1d1415e25b3f759cdec4e0f375fcd0b2298",
+  "C_readable_new_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
+  "source28_frozen": true,
+  "additional_clamp_or_variant_allowed": false,
+  "actual_wrapper_sessions_limit": 2,
+  "actual_wrapper_command_source": "candidate-1/x or candidate-2/x mode0755, never selected/x0644"
+}

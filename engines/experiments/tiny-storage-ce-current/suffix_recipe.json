@@ -1,0 +1,364 @@
+{
+  "format": 1,
+  "class": "current-C5687-storage18-tiny_table-suffix-qq-1",
+  "mode": "explicit prior-stage reuse only; not a claim of artifact-free normalgeneration",
+  "scope": "root reviews separate exactC suffixsource+knownfirstimage; onceauthorized Cfirstreused/repeat1 +Eoriginaldirectfirst/repeat2; whole0engine0",
+  "original_source_files": {
+    ".gitattributes": {
+      "bytes": 14,
+      "sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9"
+    },
+    "README.md": {
+      "bytes": 8488,
+      "sha256": "42af80f42dccc46fa298430e0990313d14bac6032369fe611a864b4415789a96"
+    },
+    "build.py": {
+      "bytes": 9217,
+      "sha256": "1fb75f192ed72b2ea3f3309a47e9a175ea703b7ebb518b47aef3f4e68894c7f8"
+    },
+    "control/engines/compact/tiny-a/pack_stream.py": {
+      "bytes": 5444,
+      "sha256": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e"
+    },
+    "control/engines/compact/tiny-a/stitch.py": {
+      "bytes": 3863,
+      "sha256": "2b0d25b4855a3ed4ddd9e24b8e4b0e081439baa2ed8f744dba0215a700023f23"
+    },
+    "control/engines/compact/tiny-entry-c/.gitattributes": {
+      "bytes": 14,
+      "sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9"
+    },
+    "control/engines/compact/tiny-entry-c/README.md": {
+      "bytes": 6698,
+      "sha256": "e4aeca9aa04bbfe19a3b8369c99b0c5be9a76b76c1d9091ab9b80548fdf4700b"
+    },
+    "control/engines/compact/tiny-entry-c/bootstrap.py.in": {
+      "bytes": 1082,
+      "sha256": "68e4544370fdd2ca3d240963a0782004f955930187c3d8edfda78cc2f59b7f6a"
+    },
+    "control/engines/compact/tiny-entry-c/build.py": {
+      "bytes": 10027,
+      "sha256": "263fb4f179bdeaf83568bd55cd6749067f8ee795827b6509f547938efc08ae03"
+    },
+    "control/engines/compact/tiny-entry-c/engine.c": {
+      "bytes": 26692,
+      "sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b"
+    },
+    "control/engines/compact/tiny-entry-c/fresh.py": {
+      "bytes": 5360,
+      "sha256": "81df003f684e813d5f77b2667cb9994767ac18a2065b7e7d1c0ae1706fad8d17"
+    },
+    "control/engines/compact/tiny-entry-c/launcher.sh": {
+      "bytes": 75,
+      "sha256": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a"
+    },
+    "control/engines/compact/tiny-entry-c/recipe.json": {
+      "bytes": 6144,
+      "sha256": "72a907d2a236fa7b281f50b56f9b33fb4ab751f932cd76325e3e654661588edc"
+    },
+    "control/engines/compact/tiny-entry-c/shipping_alpha.py": {
+      "bytes": 11618,
+      "sha256": "d220d7001a0e4119380d6bad466d39d10ba5d5c047a75e5fdb231b3bd8bd25c3"
+    },
+    "control/engines/compact/tiny-entry-c/verify.py": {
+      "bytes": 7328,
+      "sha256": "930baa1794b486fca9dce8829fa808bb2cae08da80d1d8c3ccb5609d30d41310"
+    },
+    "control/engines/compact/tiny-entry-e/.gitattributes": {
+      "bytes": 14,
+      "sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9"
+    },
+    "control/engines/compact/tiny-entry-e/README.md": {
+      "bytes": 10227,
+      "sha256": "99e5097ad3e4df1c12d92bd47981b26185705a93ca517510ef38b4cff113254a"
+    },
+    "control/engines/compact/tiny-entry-e/bootstrap.py.in": {
+      "bytes": 1072,
+      "sha256": "0402f63d44e66d57174079672762414a2324f8dd8c2b272fe34f49b68e45edbc"
+    },
+    "control/engines/compact/tiny-entry-e/build.py": {
+      "bytes": 9752,
+      "sha256": "2f558277494914b99340559f81ea3c0ce7e13c6fa63a72da00cdcbe1e9bc6e61"
+    },
+    "control/engines/compact/tiny-entry-e/engine.c": {
+      "bytes": 28001,
+      "sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712"
+    },
+    "control/engines/compact/tiny-entry-e/fresh.py": {
+      "bytes": 5360,
+      "sha256": "81df003f684e813d5f77b2667cb9994767ac18a2065b7e7d1c0ae1706fad8d17"
+    },
+    "control/engines/compact/tiny-entry-e/launcher.sh": {
+      "bytes": 75,
+      "sha256": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a"
+    },
+    "control/engines/compact/tiny-entry-e/recipe.json": {
+      "bytes": 5348,
+      "sha256": "d6469e8786a0019f36f015714f708cbdbd8cabc39862b04f884793eae0e046f7"
+    },
+    "control/engines/compact/tiny-entry-e/verify.py": {
+      "bytes": 7311,
+      "sha256": "890ab0379c24f70eca1e058ac25ad51dcb7f4f6d6e3ac0fea8dfc0a823e32af8"
+    },
+    "control/engines/scripts/fixed_shipping_alpha.py": {
+      "bytes": 21999,
+      "sha256": "92b351d537c1da0f346f072df2ca4b0be713d0e286e039b30efa9f758519c806"
+    },
+    "control/engines/scripts/minify.py": {
+      "bytes": 6624,
+      "sha256": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b"
+    },
+    "control/engines/scripts/rename_c.py": {
+      "bytes": 12574,
+      "sha256": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5"
+    },
+    "control/engines/scripts/specialize.py": {
+      "bytes": 2386,
+      "sha256": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d"
+    },
+    "control/engines/tests/chess_oracle.py": {
+      "bytes": 10730,
+      "sha256": "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8"
+    },
+    "control/engines/tests/verify.py": {
+      "bytes": 45921,
+      "sha256": "9327ad01dd75bc17f04f400b57d5af3d6891a1abbb7f22aa6222389d50da138f"
+    },
+    "observe.py": {
+      "bytes": 18085,
+      "sha256": "d21d2b0f874970065db553d818830541acffa0438322e9487078e595cf7aaf60"
+    },
+    "ownership.json": {
+      "bytes": 1262,
+      "sha256": "9f5045c43a56a12db14ff51b54b4330eac5fb9bdc274568798afce60a0a7b542"
+    },
+    "policy.json": {
+      "bytes": 8248,
+      "sha256": "6ef55a89d7688a30cc339a1f27d36c6a7d912939e680389f00cbb373a6539fbb"
+    },
+    "policy.py": {
+      "bytes": 4346,
+      "sha256": "053bcad1a3f03fb0397fe3f99f900a2e92ede59eaafa46ecd26d2e0609eef8eb"
+    },
+    "prepare.py": {
+      "bytes": 1389,
+      "sha256": "302ec3db0e9d095f2e8afe29b969867eb6c85e778666ae79e6458c33b8386581"
+    },
+    "recipe.json": {
+      "bytes": 11478,
+      "sha256": "18be7fb0dfad47daa1f4cb3f6dee432f50f3aa6c070e79fd1407d3d6779b1fb9"
+    },
+    "support.py": {
+      "bytes": 9311,
+      "sha256": "960259c1112e56ef2487cdbb85f87d792d22eb2b8b1a792fb3bff9689b74d613"
+    },
+    "test_policy.py": {
+      "bytes": 5008,
+      "sha256": "5ec9e087fadfb748300d6dfcd8e29d539eafae2d9710b12a46925edcf23fe671"
+    }
+  },
+  "ordinary_input_file_count": 41,
+  "new_input_sha256": {
+    "observe_suffix.py": "deee1de864d195396ca5152cac817b6eddca8ea8abef4367858d775572b37371",
+    "suffix_stage.py": "704e6a3c15fd66fd4137d00c73a8966d5ea9eaf2cb124e8a0cfab397854fe905"
+  },
+  "prior_reuse_files": {
+    "results.json": {
+      "bytes": 14516,
+      "sha256": "dfa01b450ab9fefc1fe795ae8bf8b8f8d0211c364ab92779a1be7250683841e7"
+    },
+    "control-C/build.json": {
+      "bytes": 21810,
+      "sha256": "d0d3c8cfd5d161a6c10e21a1b7369553ea3227f1741e33438d0cd277c2bbb6e9"
+    },
+    "control-C/main.c": {
+      "bytes": 12224,
+      "sha256": "20f06b6ed9ada03db6f8719f05ecdf9cb52802ab0a1acc8999627999db899046"
+    },
+    "control-C/native/x": {
+      "bytes": 26424,
+      "sha256": "cc67f03a58f350a1bd0ab1f07e774c13cf8f6b628b469107834da6f505f7cf00"
+    },
+    "control-C/attempt-1/main.c": {
+      "bytes": 12224,
+      "sha256": "20f06b6ed9ada03db6f8719f05ecdf9cb52802ab0a1acc8999627999db899046"
+    },
+    "control-C/attempt-1/native/x": {
+      "bytes": 26424,
+      "sha256": "cc67f03a58f350a1bd0ab1f07e774c13cf8f6b628b469107834da6f505f7cf00"
+    },
+    "control-C/attempt-2/main.c": {
+      "bytes": 12224,
+      "sha256": "20f06b6ed9ada03db6f8719f05ecdf9cb52802ab0a1acc8999627999db899046"
+    },
+    "control-C/attempt-2/native/x": {
+      "bytes": 26424,
+      "sha256": "cc67f03a58f350a1bd0ab1f07e774c13cf8f6b628b469107834da6f505f7cf00"
+    },
+    "control-E/build.json": {
+      "bytes": 18864,
+      "sha256": "302cf120ffdc0cf9c3ce870212291ff162a7bef0bbd281c45ad2b54aef0160da"
+    },
+    "control-E/main.c": {
+      "bytes": 12641,
+      "sha256": "af0ab88d9f4ce25154b3fda909fc00b9eca0cda8d8784b4b07e4926015a2c330"
+    },
+    "control-E/native/x": {
+      "bytes": 26408,
+      "sha256": "5429f2d80521f775bac6802ec4940e8e0ff1b344464ed8e9a0629ba6650eb675"
+    },
+    "control-E/attempt-1/main.c": {
+      "bytes": 12641,
+      "sha256": "af0ab88d9f4ce25154b3fda909fc00b9eca0cda8d8784b4b07e4926015a2c330"
+    },
+    "control-E/attempt-1/native/x": {
+      "bytes": 26408,
+      "sha256": "5429f2d80521f775bac6802ec4940e8e0ff1b344464ed8e9a0629ba6650eb675"
+    },
+    "control-E/attempt-2/main.c": {
+      "bytes": 12641,
+      "sha256": "af0ab88d9f4ce25154b3fda909fc00b9eca0cda8d8784b4b07e4926015a2c330"
+    },
+    "control-E/attempt-2/native/x": {
+      "bytes": 26408,
+      "sha256": "5429f2d80521f775bac6802ec4940e8e0ff1b344464ed8e9a0629ba6650eb675"
+    },
+    "candidate-C/attempt-1/main.c": {
+      "bytes": 11802,
+      "sha256": "89a217a617e2839b8b54f94af1b9e7d99b6ba1fd59d28442b14bb4fd7551e87d"
+    },
+    "candidate-C/attempt-1/native/x": {
+      "bytes": 26344,
+      "sha256": "edf285f8ed67b6d180f1efc9aed7020e6f6dc3ea525bb2ad8b3ae19a287bcea0"
+    },
+    "candidate-C/header/control-expanded.txt": {
+      "bytes": 1889956,
+      "sha256": "df3bca02db2e7e195222ddd895679d68aff26644ce8103db64ec846941a0c7cf"
+    },
+    "candidate-C/header/candidate-expanded.txt": {
+      "bytes": 1889534,
+      "sha256": "3c69d0be9aad9e019ddacbc8303844cb317efda5b0e69de8ab7b045bd8be4f06"
+    },
+    "candidate-C/header/candidate-expanded-inverse.txt": {
+      "bytes": 1889956,
+      "sha256": "df3bca02db2e7e195222ddd895679d68aff26644ce8103db64ec846941a0c7cf"
+    },
+    "candidate-C/header/control-macros.txt": {
+      "bytes": 70236,
+      "sha256": "cd1acec1bdf71c442568d61b3ee6eb06568f5cf3a1be1159bc95a6de8e719016"
+    },
+    "candidate-C/header/candidate-macros.txt": {
+      "bytes": 70236,
+      "sha256": "fdb0a631f61796a80f57a236c92fadb9ee984e8042676333c7376efa02ebbc05"
+    },
+    "candidate-C/header/configured-profile-macros.txt": {
+      "bytes": 70265,
+      "sha256": "3b372757fb485cf5321dfb37a67c0ef45752fd82fcdf5becd38a73c51b57723c"
+    }
+  },
+  "prior_reuse_file_count": 23,
+  "new_native_compile_limits": {
+    "C": 1,
+    "E": 2
+  },
+  "candidate_codec_engine_limit": 0,
+  "compiler": {
+    "C": [
+      "cc",
+      "-std=c11",
+      "-Os",
+      "-pthread",
+      "-DWORKERS=2",
+      "-DTT_BITS=18",
+      "-mavx2",
+      "-DDEV=0",
+      "-x",
+      "c",
+      "-",
+      "-o",
+      "x"
+    ],
+    "E": [
+      "cc",
+      "-std=c11",
+      "-Os",
+      "-pthread",
+      "-DWORKERS=2",
+      "-DTT_BITS=18",
+      "-DDEV=0",
+      "-x",
+      "c",
+      "-",
+      "-o",
+      "x"
+    ]
+  },
+  "C_images": {
+    "control": {
+      "bytes": 26424,
+      "sha256": "cc67f03a58f350a1bd0ab1f07e774c13cf8f6b628b469107834da6f505f7cf00"
+    },
+    "candidate": {
+      "bytes": 26344,
+      "sha256": "edf285f8ed67b6d180f1efc9aed7020e6f6dc3ea525bb2ad8b3ae19a287bcea0"
+    }
+  },
+  "source_policy_sha256": "6ef55a89d7688a30cc339a1f27d36c6a7d912939e680389f00cbb373a6539fbb",
+  "original_phase_FINAL_provenance_only": {
+    "sha256": "83ca8460a6d06ddf5def9e6cbd470b3d8f182d6a25e630d1792a07c3034497ed",
+    "original_normalproducer_inputs": 34,
+    "original_source_inventory": 38,
+    "failure_preserved": true
+  },
+  "packing_witness_transcription_for_review": {
+    "tiny_table": "localSTT_OBJECT info1/other0/shndx26/value195808/size3328",
+    "table_to_qq": "globalSTT_OBJECT info17/other0/shndx26/value195584/size8",
+    "control": {
+      "tiny_table": {
+        "ordinal": 19,
+        "st_name": 125,
+        "stored_range_inclusive": [
+          125,
+          135
+        ]
+      },
+      "table": {
+        "ordinal": 66,
+        "st_name": 130,
+        "stored_range_inclusive": [
+          125,
+          135
+        ],
+        "suffix_offset": 5
+      }
+    },
+    "candidate": {
+      "tiny_table": {
+        "ordinal": 19,
+        "st_name": 102,
+        "stored_range_inclusive": [
+          102,
+          112
+        ]
+      },
+      "qq": {
+        "ordinal": 67,
+        "st_name": 818,
+        "stored_range_inclusive": [
+          818,
+          820
+        ]
+      }
+    },
+    "symbol_count": 98,
+    "local_count": 42,
+    "only_extra_complete_stored_entry": {
+      "qq": 1
+    },
+    "required_full_string_byte_coverage": true,
+    "no_unowned_ignored_bytes": true,
+    "old_counter_failure_remains": true
+  },
+  "E_boundary": "unchanged originalobserve.py D21 direct17; no C suffix exception",
+  "root_actual_E_class_review_required_before_whole": true
+}

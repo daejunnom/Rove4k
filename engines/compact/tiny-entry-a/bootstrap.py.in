@@ -1,0 +1,25 @@
+import os,signal,subprocess,sys,tempfile
+p=None;q=15
+def stop(s,f):
+ global q
+ q=s
+ signal.pthread_sigmask(signal.SIG_BLOCK,{2,15})
+ raise SystemExit(128+s)
+signal.signal(2,stop);signal.signal(15,stop)
+with tempfile.TemporaryDirectory(prefix='r4-') as d:
+ e=dict(os.environ,TMPDIR=d)
+ try:
+  m=signal.pthread_sigmask(signal.SIG_BLOCK,{2,15})
+  try:p=subprocess.Popen('cc -Os -x c - -o x -s'.split(),cwd=d,env=e,stdin=subprocess.PIPE,start_new_session=True,preexec_fn=lambda:signal.pthread_sigmask(signal.SIG_SETMASK,m))
+  finally:signal.pthread_sigmask(signal.SIG_SETMASK,m)
+  p.communicate(__ROVE_SOURCE_LITERAL__)
+ finally:
+  if p and p.poll() is None:
+   try:os.killpg(p.pid,q)
+   except ProcessLookupError:pass
+   try:p.wait(timeout=5)
+   except subprocess.TimeoutExpired:os.killpg(p.pid,9);p.wait()
+ if p.returncode:sys.exit(p.returncode)
+ fd=os.open(d+'/x',os.O_RDONLY)
+signal.signal(2,signal.SIG_DFL);signal.signal(15,signal.SIG_DFL)
+os.execve(fd,sys.argv[1:],os.environ)

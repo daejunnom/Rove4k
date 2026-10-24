@@ -1,0 +1,36 @@
+{
+  "format": 1,
+  "stage": "source-preparation-only; first cost requires separate root GO and F functional admission",
+  "profile_sha256": "2ac763843ac3098f989860464ee053cb41197cc0c888a318694346319c82d15c",
+  "F_policy_provenance_only": "f5a5a0bcaa1845c05c7189765cd4f81856a464532d406f5bc2a93287e531b894",
+  "canonical": {"bytes": 24820, "sha256": "71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734"},
+  "baseline": {
+    "main.c": {"bytes": 9910, "sha256": "a3414baa5034a62067f74f7f8fff9a1578827f37e6ca59b0db8e5bc1968df312"},
+    "bootstrap.py": {"bytes": 10900, "sha256": "d73d24f699811253492ad8bab152907835763a68d7a35962e83d14156840cb47"},
+    "native/x": {"bytes": 22672, "sha256": "84ce7fd107783474af8f39aeec7b95c244d475ab797eefd2627b9741b265210a"},
+    "x": {"bytes": 4846, "sha256": "1227e4ba99a986d52a33f6b901f3be117d1b522001f2f86f6da07e4c27a74c9d"}
+  },
+  "candidate": {
+    "readable": {"bytes": 27687, "sha256": "63821a63cbf6507393e0617da9f611b778ada46c9a89b49fdefc8996bb461e2c"},
+    "shipping": {"bytes": 9713, "sha256": "1f4097d43c5f6e84d7cbd17906100354da25be205d44ca08fbf52732e63b624c"}
+  },
+  "future_unchanged_A_cost_recipe": {
+    "compiler": ["cc", "-Os", "-x", "c", "-", "-o", "x", "-s"],
+    "bootstrap_template_sha256": "898bf1f24168f6e99a7ffb9b0ba9e805af0c7627ea115d47ac687c1389d015ba",
+    "prefix_bytes": 77,
+    "prefix_sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
+    "compression": {"format":"lzma-alone", "filter":"LZMA1", "preset":9, "extreme":true, "lc":2, "lp":0, "pb":0, "check":"NONE", "dictionary_bytes":67108864, "nice_len":"unchanged preset default, not F nice32"}
+  },
+  "policy": {
+    "input": "NUL-free bounded LF/CRLF text; final non-newline EOF admitted; max32767 bytes before LF including CR",
+    "overflow_line": "one-byte boundary lookahead; drain through LF/EOF then discard entire overlong line",
+    "numbers": "ASCII decimal 0..LLONG_MAX; first digit/full-token/unsigned-saturation check; invalid maps to0; no signed or scanf overflow",
+    "GO": "wtime/btime/winc/binc exact keys, any order, last duplicate; missing number consumes one following token as A/F; opposite-only is absent",
+    "time": "absent own clock1000ms; present zero/invalid min1; original clock/30+clampedinc*3/4 and clock/5/final86400000 caps",
+    "commands": "exact first command token; no-argument extra tokens ignored; unsupported stop/newgame/infinite tolerated without implementing them",
+    "position": "same legal membership/make child; scratch Board/history; commit only after complete replay; original A parse unchanged",
+    "lifetime": "unchanged fallback, startup pool, wait/result/pending/epoch/output fences, quit/EOF joins",
+    "non_equivalence": "NUL drain and some malformed extra/empty-command behavior differ; not general semantic-preserving compression"
+  },
+  "executions_authorized_here": {"compiler":0,"codec":0,"engine":0,"AST":0,"games":0,"benchmarks":0}
+}

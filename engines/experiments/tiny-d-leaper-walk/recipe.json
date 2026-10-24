@@ -1,0 +1,19 @@
+{
+  "format": 1,
+  "candidate": "one residual pawn-knight-king single-step walker; exact direction and emission order",
+  "normal_recipe_sha256": "373b6a06bea8b8761c4bdc4986dc20eed3d92af29f76108ac34f65281ad8ab90",
+  "normal_packer_sha256": "69d046138728a11218b8e8d52ac85151278d205ac60c5df36fa05c13f3ab78a7",
+  "normal_source21_set_metadata": "ad8a91c3f2cabbea01b592fbf2ab6866776141a4380062fa6f5f6a2f9fb08ff5",
+  "profile": {"workers": 2, "tt_bits": 18, "ply": 128, "dev": 0},
+  "controls": {
+    "scalar-shipping": {
+      "native": "/home/stemxstudio/rove4k-tiny-entry-d-reset-bcj-fresh-20261020-v1/build-1/scalar-shipping/native-first/x",
+      "whole": "/home/stemxstudio/rove4k-tiny-entry-d-reset-bcj-fresh-20261020-v1/build-1/scalar-shipping/context/x"
+    },
+    "hq-shipping": {
+      "native": "/home/stemxstudio/rove4k-tiny-entry-d-reset-bcj-fresh-20261020-v1/build-1/hq-shipping/native-first/x",
+      "whole": "/home/stemxstudio/rove4k-tiny-entry-d-reset-bcj-fresh-20261020-v1/build-1/hq-shipping/context/x"
+    }
+  },
+  "policy": "native2 once, then exact fixed context encode2 plus CHECKPOINT0 loader2 if strict geometry passes; no target/audit/fresh; no repeat/sweep/control copy or compile"
+}

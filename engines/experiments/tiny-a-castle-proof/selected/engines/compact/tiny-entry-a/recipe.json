@@ -1,0 +1,13 @@
+{
+  "scope": "raw-copy QA of exact castle candidate; no historical DEV or runtime receipt inherited",
+  "expected": {
+    "source_bytes": 10093,
+    "source_sha256": "069691392089b072ce5b389ab0a3320002c2412a9838d7d09ec564295d764e2f",
+    "native_bytes": 22672,
+    "native_sha256": "ff8c4c99d1410a57ff92701d71ddf953d66c03ca7a6d616fd3cce37c1dc7f1b8",
+    "whole_bytes": 4959,
+    "whole_sha256": "990fca211734b174c7b9eceaeb2fe35f4a997c81344de99093d49cf52a201e61",
+    "bootstrap_sha256": "c86c1f5b851e9ec3f91844da5c0183bc4ff98a38a325fb296635857efaf8b2e0"
+  },
+  "qualified_receipt": null
+}

@@ -1,0 +1,1988 @@
+{
+  "format": 1,
+  "profile": {
+    "workers": 2,
+    "tt_bits": 18,
+    "ply": 128,
+    "dev": 0
+  },
+  "target": "Linux x86-64 with SSE4.2 CRC32 and CX16; raw syscall static native plus admitted fixed-layout own-ELF",
+  "native_source_sha256": {
+    "native/tiny.h": "55a0a29dc2a5c378937443c4cc6c2067520a280793d7ecdd14a733941351e4ba",
+    "native/board.c": "559e4589325152a493e565730581521d1c16ab5dea20cc8dc51ccc2505c30437",
+    "native/search.c": "6f28dc49b1caf346ead734b4d054039418ce863d039a9ad18cd5b9477884f150",
+    "native/runtime.c": "2febf5acec5a3c74ab3a6dcb2fd2a1eb2ba44fab4d6892d9c354fcdcebfe4342",
+    "native/hq.h": "ad66a03cef5288010c4377b81ee3661320195545aee6c664a42d3828bfc8b412",
+    "native/hq.c": "50b246280ac1f0b9e1f20834f302b31e30221101abd979bbdc146fcae7c12b5f",
+    "native/start.S": "4a6021518cfe67bee9e42806b596f4f0837e3e93487b1acfa115158ea019ba5b",
+    "native/image.ld": "38756c865914b52432572864446fcc58b791dfb508af8a33156d5c190c01044b"
+  },
+  "loader_source_sha256": {
+    "loader/loader.c": "41aae27e0991b82eae46bcf6665dcf5fe1d18d8b56e72c82cc100fe5427deba0",
+    "loader/image.ld": "93934099212b944b20c2f7840ee87e4817311c4f87fddbb2b3f91db28776cf99",
+    "loader/codec.py": "7e57f503a26d20a5e1033a8d2f366d2315c4f407c98198167842ef53e4f74004",
+    "loader/decoder.h": "162129fbc2e876252d7a3f58bda9672aff3a1a6170c35903b73624e571b60fd6",
+    "loader/range_bits.py": "9c4f9a69b3655a1cd95969cd601193174a15894e35a92248cb3c7ccdd74d2854",
+    "loader/models.json": "3101a5638551990cb2d5a33d6d28fbab436d04d301b676cc2e45afa63b7f6920"
+  },
+  "native_flags": [
+    "-Oz",
+    "-std=c11",
+    "-nostdlib",
+    "-static",
+    "-no-pie",
+    "-fno-pie",
+    "-fno-pic",
+    "-fno-stack-protector",
+    "-fno-builtin",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-fno-ident",
+    "-fcf-protection=none",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-Wl,--gc-sections,--build-id=none,-s,-z,noexecstack",
+    "-DWORKERS=2",
+    "-DTT_BITS=18",
+    "-flto"
+  ],
+  "loader_flags": [
+    "-Oz",
+    "-flto",
+    "-nostdlib",
+    "-static",
+    "-no-pie",
+    "-fno-pie",
+    "-fno-pic",
+    "-fno-builtin",
+    "-fno-stack-protector",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-fno-ident",
+    "-fcf-protection=none",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-Wl,--gc-sections,--build-id=none,-s,-z,noexecstack"
+  ],
+  "native_units": [
+    "board.c",
+    "search.c",
+    "runtime.c",
+    "hq.c",
+    "start.S"
+  ],
+  "codec": "rove4k-context-h24-base10-fixed21-body232-zero4-v3",
+  "expected": {
+    "scalar-shipping": {
+      "hq": 0,
+      "native_bytes": 7292,
+      "native_sha256": "34bb0c81cad09efb0febe32f38a58cd3b1aa1ccb20c2eae0dd854b4691719262",
+      "layout": {
+        "entry": 4201262,
+        "section_offset": 0,
+        "section_size": 0,
+        "section_count": 0,
+        "section_names": 0,
+        "segments": [
+          {
+            "type": 1,
+            "flags": 5,
+            "offset": 0,
+            "vaddr": 4194304,
+            "paddr": 4194304,
+            "filesz": 7292,
+            "memsz": 7292,
+            "align": 4096
+          },
+          {
+            "type": 1,
+            "flags": 6,
+            "offset": 0,
+            "vaddr": 4202496,
+            "paddr": 4202496,
+            "filesz": 0,
+            "memsz": 4369412,
+            "align": 4096
+          },
+          {
+            "type": 1685382481,
+            "flags": 6,
+            "offset": 0,
+            "vaddr": 0,
+            "paddr": 0,
+            "filesz": 0,
+            "memsz": 0,
+            "align": 8
+          }
+        ],
+        "image_base": 4194304,
+        "image_size": 7292,
+        "image_pages": 8192,
+        "bss_base": 4202496,
+        "bss_size": 4369412,
+        "bss_pages": 4370432,
+        "guard_base": 4190208,
+        "upper_guard": 8572928,
+        "reserve_size": 4386816
+      },
+      "image": {
+        "format": "rove4k-context-h28-base10-fixed21-body232-zero4-v1",
+        "zero_prefix_bytes": 232,
+        "compiled_native_bytes": 7292,
+        "compiled_native_sha256": "34bb0c81cad09efb0febe32f38a58cd3b1aa1ccb20c2eae0dd854b4691719262",
+        "restored_image_bytes": 7292,
+        "restored_image_sha256": "2df2e0b4f8c6f6bc753c2427d0a0754e149b758d18d6361dfb5667e49d02361b"
+      },
+      "model_wmask": 16847486,
+      "whole_bytes": 5527,
+      "whole_sha256": "38c673e0484ae68823cecf1ed35d90b01a8ebdb7ebc4ee02d0804ea7201e3ca8",
+      "payload_bytes": 4458,
+      "payload_sha256": "efde2b57ca75d96488fc649741a61349ff36cf6c540aeb7800138333e3784bba",
+      "loader_and_headers_bytes": 1069,
+      "audit_bytes": 5550,
+      "audit_sha256": "8e560ac0b5ef316f5f2a3382295121bfaa700b3916c0c618fc125656d1138982"
+    },
+    "hq-shipping": {
+      "hq": 1,
+      "native_bytes": 8000,
+      "native_sha256": "3c662941aa11af8521d3c601322e9aa38405a3bfbeb9332d55008907217a4b2e",
+      "whole_bytes": 6037,
+      "whole_sha256": "b7cf68ec898e6b550c89ebb2dd94fc9f7c1f215b3c24237096ea1c55f54a0262",
+      "payload_bytes": 4900,
+      "payload_sha256": "d974d3c9683cfd2bfdc271ce9405ec3f6cb46be24e1cfcd5d18c0bcf8b8e2cba",
+      "loader_and_headers_bytes": 1137,
+      "audit_bytes": 6060,
+      "audit_sha256": "6f2e808246e648f5c9fc65dd9fc103311375a87e4581946a89efacc70edb532e",
+      "layout": {
+        "image_base": 4194304,
+        "image_size": 8000,
+        "image_pages": 8192,
+        "entry": 4201846,
+        "bss_base": 4202496,
+        "bss_size": 175064,
+        "bss_pages": 176128,
+        "guard_base": 4190208,
+        "upper_guard": 4378624,
+        "reserve_size": 192512,
+        "section_offset": 0,
+        "section_size": 0,
+        "section_count": 0,
+        "section_names": 0,
+        "segments": [
+          {
+            "type": 1,
+            "flags": 5,
+            "offset": 0,
+            "vaddr": 4194304,
+            "paddr": 4194304,
+            "filesz": 8000,
+            "memsz": 8000,
+            "align": 4096
+          },
+          {
+            "type": 1,
+            "flags": 6,
+            "offset": 0,
+            "vaddr": 4202496,
+            "paddr": 4202496,
+            "filesz": 0,
+            "memsz": 175064,
+            "align": 4096
+          },
+          {
+            "type": 1685382481,
+            "flags": 6,
+            "offset": 0,
+            "vaddr": 0,
+            "paddr": 0,
+            "filesz": 0,
+            "memsz": 0,
+            "align": 8
+          }
+        ]
+      },
+      "model_wmask": 135274878,
+      "image": {
+        "format": "rove4k-context-h24-base10-fixed21-body232-zero4-v3",
+        "zero_prefix_bytes": 232,
+        "compiled_native_bytes": 8000,
+        "compiled_native_sha256": "3c662941aa11af8521d3c601322e9aa38405a3bfbeb9332d55008907217a4b2e",
+        "restored_image_bytes": 8000,
+        "restored_image_sha256": "f2b4804631d293ccb4742ed8718869a29736bfb46f840044659e44c8d0f95d4b"
+      }
+    }
+  },
+  "qualified_receipts_metadata_only": {
+    "current_selection": "Scalar5540 loader-owned static full-key TT zero BSS; HQ6037 unchanged. H28 shared refill/fused rays and full HCE/PVS/QS/history/continuation/correction/SMP remain.",
+    "source_lineage": "Canonical native8 unchanged; scalar-only shipping_static_tt late stage applies exact3fragments to header/runtime after common generated-source staging; HQ/DEV return original bytes. Fixed source/flags/unit/model/loader contracts retained.",
+    "fixed21_firstcost": {
+      "final_index_sha256": "2f06d3ecc4d9e0f5fb294f6adfe533aa4559867fd31b4fad10604ed4060a5bf3",
+      "cost_sha256": "0f08bb54783aef070a3d75eefeb28a005868156452243513da624bf7708d8137",
+      "static_review_sha256": "243ffd8668a2365613dbdc39cc9260bf02dcc05a079bc5fef6fdacd024727c80",
+      "actual_review_sha256": "64a3c49e7bc22ddb81b4999a559a5af6d0f67132f1ea4dc2675ac7d21426aa2e",
+      "source6_freeze_sha256": "ae8b802d31e28b6f2d6de61a03df2ff88e11d806dfdf564ca78ff4cc7b70e2dd",
+      "scope": "one attempt, encoder2, positive libc diagnostic2compile2run, CHECKPOINT0loader2compile; actual BCJ and inverse fullnative exact, packetbody byteexact; static complete whole only, no shipping/audit/engine/initialBSS/physical restoration qualification"
+    },
+    "previous_selection_ancestry_only": {
+      "current_selection": "qualified residual pawn/knight/king single-step specialization over unchanged D reset+memcpy-BCJ context profile; exact two new native/whole/audit identities and one closed normal fresh",
+      "source_lineage": "board-only exact489B\u2192379B residual walker fragment; seven other native and all loader/encoder/model/decoder/linker/profile/flags are unchanged",
+      "first_cost": {
+        "receipt_sha256": "96e7eda66d500b312e93f47b42fe55896f8f0f10bbf14ebfd8da6b84b14bc443",
+        "final_index_sha256": "12c8df9bd8587757860a5f8a6030d5d339214619a5e8ec6c61275dd5d4f453e1",
+        "independent_readback_sha256": "91c82279ebe86cfc021d88c11d1c2ef3731beb7ff7596a216e8c290dfd6fe2ac",
+        "candidate_source8_set_sha256": "cc29db6beb8e0b6b7fab9852257163c7c9bee3e807066f86708f777d45c38aff",
+        "scope": "native2 once then fixed encode2 and shipping-loader2 only; no target/audit/fresh in first-cost"
+      },
+      "positive_Board_fixture": {
+        "receipt_sha256": "de12090b363ff09fd38ac786fbfca875b5eff2a2552ae46b30446fefaf09a736",
+        "final_index_sha256": "2301c040a74febc6a9c7fcc352752ab038d2c4697fd7e193ac0b8085cadf8af1",
+        "independent_readback_sha256": "b8053fe8118ebc5c9c6fe4a6a5e5c6bb564430d987487a8f6faace2f1c087ae7",
+        "scope": "one external actual Board/HQ harness, libc W1DEV1O2; candidate scalar/HQ2compiles2runs, each12roots177records22656recordedattacks; independent fullstate/HCE/hash/context/legalsets/attacks; not shipping/loader/SMP/search proof; kingcapture root is DEV-FEN guard not legalhistory; old/new order bridge static"
+      },
+      "previous_selection_ancestry_only": {
+        "current_selection": "qualified worker-owned reset runtime plus four-byte memcpy BCJ restore; fixed context codec/profile/flags, exact two mapping classes and one closed normal fresh",
+        "scope": "new runtime ownership receipt and new BCJ codegen/cost retained separately; new complete loader paths qualified by actual closed normal fresh shipping and positive initial-BSS/pre-entry audits; old fault/decoder receipts remain ancestry only",
+        "worker_reset": {
+          "runtime_sha256": "51902e800066562f7dbc5d240db57a6635b20c74ed8fede3a4cd71329fc62a38",
+          "source8_set_sha256": "23700202ce6574379cee0303e8da3a7f72080e1de5cbed741407ad5e83de7782",
+          "native_cost_sha256": "a7fea2a6950f6a5d93f15ea902b425839c63059b7aefb9f67bb4daa6e5d74f76",
+          "whole_cost_sha256": "c89c7ec1a595ded61c11844352e80f244149eb29088eaa62b3ec6499ce9d2063",
+          "actual_ownership_sha256": "bb01f2daf8960b73a2cb81b51776249d0ac25b5aca98c1d1f2754953d4894476",
+          "independent_readback_sha256": "3c41877ef872e84fa03c30ccfd05866f5904ac190ce2058eeef6a7733a8e79b8",
+          "scope": "actual six sessions/16 GO with prior loader; new native post-entry ownership only; no private zero-iteration or default bare-GO expiry claim"
+        },
+        "BCJ_restore": {
+          "loader_sha256": "ea574f09aefc0f910a64c683c7052482d3b2e0c52a10f09450233b155674a85c",
+          "cost_sha256": "86679cee87d5ac07b574b5da82c0edc65756e6fbbeddf53c1cd7ef90fc6dbb3c",
+          "summary_sha256": "fcb39f62db881a26cce05cfa985f477921312d66203277df35df7c4e5687b639",
+          "independent_codegen_sha256": "b0f802955407a970411b5ce423ab7c0fde66ad53d78c349b37f5f30d978de6af",
+          "scope": "exact four-byte inline gather/scatter and modulo correction static/codegen/cost evidence; no target/audit execution in that cost lane"
+        },
+        "previous_context_selection_ancestry_only": {
+          "current_selection": "qualified fixed independent context encoder/decoder C D own-ELFs over exact unchanged native images; one normal closed fresh invocation with two independent source extractions and positive context audits",
+          "context_firstcost_index_sha256": "199e5df9b91cce82ae81f19ab0fa4726bfe92bb5c8525e2c11177974cb44aa49",
+          "context_production_runtime_index_sha256": "d2e7d4802ffbbca2d9f3f49bdcd8da3732732bce4b733c6492b3f9393d38b269",
+          "context_production_runtime_sha256": "dad61bc39bc3ee777fcbef79081a78a786f7fdeb8e27990c3cd510ccd1d3bc82",
+          "context_source9_set_sha256": "b76e85ef19884fdf9d7a428315ba66952dcdf93c5287851faff9a9c2ce0cbe52",
+          "independent_encoder_summary_sha256": "22b968d719c56e7cb92da79a178263f627c0fed866567d276631dc27b666d4b8",
+          "independent_encoder_checks_sha256": "705e720ea01d5eb1f4254c6a8cda646e323d67bf9ffcc4653cb27841bae33b66",
+          "scope": "context production receipt and new normal fresh/pre-entry receipts are separate actual observations; prior fixed-Huffman decoder audits/faults below remain old-decoder ancestry and do not qualify this decoder fault behavior",
+          "previous_completion_latch_selection_ancestry_only": {
+            "current_selection": "exact qualified completion-latch C D over unchanged finite-minimum-v1 public policy and unchanged layout-phase board/search; two explicit native identity classes",
+            "source_lineage": "seven exact runtime fragments consolidate ready/pending/completed into pending latch; seven other native and loader/codec/profile/flags unchanged",
+            "layout_phase": {
+              "proof_final_index_sha256": "b05e3e344983c0bc340c28570b0229c8c5ab3cb1e579ca0e3bf290ac8a51cc83",
+              "proof_source40_set_sha256": "2b729bc31ef732ce8c1dbd38128e66b4ad597c9200f4f83d03910a018e7b89ba",
+              "combined_whole_cost_sha256": "4b0b4f62b4266c8e2e60c1d8b969fe28de0ff0970822c380a5d4156bd0716b83",
+              "normalized_search_contracts_sha256": "e06e27d4c8c42e4db819afe3b8ab702a4fe61f0d9636e102efd05a4ea5ab2539",
+              "independent_board_contracts_sha256": "c123692a26644738f31e0d3710161b44a37aaefb40517b5ec6843a88606110bb",
+              "physical_two_classes_sha256": "dfcebada0c43fee2dba85893385f261bc398b4c4808a90a6d90055ef1c922add",
+              "audit_build_sha256": "8ffc4989e946df66392143b000c590468fdcf486fe06e653d139a8c2b8d5a3ff",
+              "prepromotion_old18_freeze_sha256": "7e7e9c586a629fefef9698ec2364549e589f103f590cb586014edd9769878396",
+              "scope": "prior exact actual core W1DEV1 contracts reused only for unchanged Board/search/HQ source; old physical/audit images are ancestry, not current runtime identity; reduced beta-high dynamic0/unproven"
+            },
+            "previous_finite_selection_ancestry_only": {
+              "compose_summary_sha256": "d98218c08f05a9e39af40016e731aba1d1b02846524a2fb412e45e02868aa0fc",
+              "compose_build_sha256": "86ab399d8a2732a4527db0290e01101c9b783c4f87f608c3c8db8ff23ed7540c",
+              "compose_runtime_image_sha256": "3dd9ef4cdee98201d39d3eb51675a31574e84b849cdc32cbbe9c7b838d6167f8",
+              "compose_common_shipping_sha256": "d224fb32e158bad3fcf997810ad96f6225c9b099c0e80a3bb01627fef0e9687a",
+              "compose_shipping_groups": 10,
+              "compose_oracle_games": 2,
+              "source_lineage": "qualified finite policy over project-owned tiny-protocol D; seven other native and all loader/codec sources unchanged; fixed mapping class/flags/resources retained",
+              "separate_prior_evidence_classes": {
+                "native_board_search_HQ": {
+                  "source_identity": "seven non-runtime native files unchanged; runtime complement outside go/main and startup/publication/shutdown source ranges are byte-identical",
+                  "algorithms_sha256": "22ecdc467df28a847d0b286c9c3e4e88a09a336c2daa18c390fa7b5e6b2eaef5",
+                  "hq_kernel_sha256": "6052fc26d9f491eecc4d13f30b093adfd3cd7c877ab9a68dbdd6273859d192d0",
+                  "scope": "prior kernel/search proofs, not newly executed in maintained-entry work"
+                },
+                "protocol_runtime": {
+                  "campaign_sha256": "17d7e72ecb66440d84e96dcb2f7051873e2efcb3ee2d31df3c0fab4ecee52275",
+                  "qualification_sha256": "1598cbf17fad096f0acd3144017ad27ded2a154a9707bd1e9da6450b7dbd4a59",
+                  "scope": "prior raw runtime fault fixture provenance for unchanged source ranges only; old strong stop/newgame/infinite lifecycle is excluded from finite policy qualification"
+                },
+                "loader_fault_and_admission": {
+                  "loader_source_sha256": "8a6a9cb93ae484400056852c5bc406be1cc15dc7b8df6b0a57e6d6330a2e4094",
+                  "codec_source_sha256": "17165d1cb16eaba8916833741bfa229d196c3ad07ca391c14b94288a3cdc0866",
+                  "old_v3_image_and_four_negative_decoder_fixtures_sha256": "cf873ffcc25eefac78e5a4f06b430d836438e4b9c5c0d9f619f3c7733231ada1",
+                  "old_v3_admission_sha256": "44c8cb0af8a01ff21d0fb0bf3e72d3a80330505cf1c108b3ea4f71cc21cf4774",
+                  "scope": "unchanged loader/codec and fixed mapping class; old native negative fixtures remain separate prior evidence; new finite exact image hashes are separately qualified and explicitly admitted"
+                }
+              },
+              "current_selection": "qualified finite-minimum-v1 D; exact selected runtime/native/whole/audit promoted without optimization",
+              "compose_receipts_scope": "old strong-policy control ancestry only; not current shipping policy or image identity proof",
+              "finite_policy": {
+                "runtime_sha256": "82c62b57e500918827721553d67d9e23073c6cb5ca79dc22cdb8e38ab15f8e63",
+                "native_checkpoint_sha256": "1055c89f0f7bc042d33ad53ccad82fb9ca6a39368e6ed84dfd9e2a82fef24767",
+                "whole_cost_sha256": "53cb8a1fc1e9857d87e11c09bfc1ad0d61255784f427368f5940e0f4ab83a390",
+                "actual_dispatch_tt_arithmetic_sha256": "9d164b571a24181b1c93151e82a0ffe2472d77bb0635849409da7a65caf36756",
+                "own_elf_anonymous_native_physical_sha256": "69eafcbbdb6493eeccd903c903154402922441516d584e786cf378c3b4b12ea7",
+                "source_reuse_sha256": "9ce3fd141892e609e4963c5aff3c5a4f2d499f488da78478b570483ecc9e0250",
+                "ownership_reuse_sha256": "9b5ba3345badc4acbf1002973ad772415af7237411b4660d674560d95fdfcd25",
+                "prepromotion_old18_freeze_sha256": "a1a33d1838124fcf8bf3c6e3a209dc85921ae2bdeb1943e267a3a5797488f8ff",
+                "scope": "prior qualified finite source and images; 60 dispatch commands per form, TT sentinels/arithmetic with synthetic completion separate from actual physical worker proof; reused without rerunning those cases",
+                "prior_DEV_ancestry_only": {
+                  "preprocessed_runtime_sha256": "4205a736ef55e70f87128e45a207d8695a1451945265fb6a124682a8ae294d18",
+                  "scalar_native_bytes": 12860,
+                  "scalar_native_sha256": "0b013e8a55f1708b92af1aa4d08b44520c1ed345934db1ccf767c710b5c582ad",
+                  "hq_native_bytes": 13248,
+                  "hq_native_sha256": "1bcf5bb9ef4d1bc6f8d0d5e5d947f418db21419f38268207bdacd90bf300832e",
+                  "scope": "old finite checkpoint DEV equality only; neither native nor preprocessed hash is a current layout-phase DEV identity"
+                }
+              },
+              "scope": "previous finite source/image ancestry only; its unchanged claims and DEV identities describe that previous selection, not the new header/search pair"
+            },
+            "finite_policy_and_unchanged_runtime_ranges": {
+              "prior_runtime_sha256": "82c62b57e500918827721553d67d9e23073c6cb5ca79dc22cdb8e38ab15f8e63",
+              "current_runtime_sha256": "5b20d4e60d60b5edfb4b7b5a15217346098f0bd9ccdd155a7369c90743e81ed1",
+              "dispatch_tt_arithmetic_sha256": "9d164b571a24181b1c93151e82a0ffe2472d77bb0635849409da7a65caf36756",
+              "scope": "ancestry for exact unchanged finite parser/clock/TT-policy source outside seven runtime fragments; prior synthetic completed/ready observers are not current pending-latch observations"
+            },
+            "completion_latch": {
+              "runtime_sha256": "5b20d4e60d60b5edfb4b7b5a15217346098f0bd9ccdd155a7369c90743e81ed1",
+              "native_firstcost_sha256": "e8b23315a1f1a6756ec3b4a909d56de4b42ee01475fa9989b13c9b54c587b468",
+              "whole_firstcost_sha256": "628ea7e3eccae0c20ade39997836a838b03e60ed128dc1eadc8a0119fd556bca",
+              "cost_final_index_sha256": "05b027c5ec0e21da9ab6fdc91c8120984e2cea2e11b993edd5ceed1076748e0e",
+              "cost_source24_set_sha256": "596574b294ad7f2bc8f5459b47d321f0c3dd7cc7d662a2d778030cecceb1ce02",
+              "actual_shipping_publication_sha256": "99320b49fefaa20644a1261bbe82fd29984e6d9d674367b2a6a3643a0c5b28bc",
+              "publication_root_intake_sha256": "901012de7ebd790e8aea3e87ecae0a88c8bff96276fa3761822880df595b1857",
+              "static_complement_sha256": "f44e70893fda1cd16a10d3e6bfa5123a3125cc043329ab535dbbcfc72de54173",
+              "audit_literal_discovery_sha256": "a1244e951366749e0d3efe5220f903954050d6c89dc2d5d73423a8b2389038e0",
+              "prepromotion_old18_freeze_sha256": "e7052e36be4ce643157fc58c1225c0fb764b189fcaedd30e83f4331231ceeaab",
+              "publication_scope": "two exact actual shipping sessions/four GO epochs; real write backpressure pending1/main futex then ordered legal results and same word zero; no target code/memory/register/personality changes",
+              "lifecycle_reuse_scope": "source-only exact complement for partial-clone failure bypass, quitting/epoch, created-only kernel CLEARTID joins, main return and exit_group; no new startup fault execution or explicit stack/TT munmap",
+              "limits": "no new WORKERS2 DEV identity/equality, general race freedom, startup-fault execution, playing-strength/performance/scaling or 4k claim; fresh maintained audit observations are separate from publication"
+            }
+          },
+          "normal_context_identity_discovery_sha256": "393353335e870d9ef6580e82f1231cf71da0fe4d6c7f1c21586fa8b6d8b2a4b0",
+          "audit_scope": "new context CHECKPOINT exact identities observed four times across two closed extractions: restored native RX/hash/padding, initial BSS zero, guards/NX, original entry resume and natural reader/process cleanup; old decoder audits remain ancestry only",
+          "normal_closed_source_qualification": {
+            "producing_source21_set_sha256": "f32b345cdc1f5b031130dcfe8ca52a5778f310a132af772e7d2208e6390be5e0",
+            "producing_recipe_sha256": "76af9740e012235c48d4abd6880ef91c2a49c101a6300d9df5611bcae5dbb341",
+            "producing_source23_archive_sha256": "4a05643884df255f56e16e50da70c10cb9536b3af1ff7b316a7bf30be924e09f",
+            "independent_source_review_sha256": "a8acbd25821eb5552671b4f02a3d4dc2be0720601446b4b5c4e9ee6ce7d8e19d",
+            "fresh_sha256": "3e8ab7c220c5ed26da56dde77fa5b086d4f5f8165518181a10b7676f7611e35b",
+            "actual_readback_sha256": "26ced4a9aa2bdec75f1f16c7018401eec289d0b44b33eda95d59b86c2a098776",
+            "ordinary_members": 23,
+            "independent_extractions": 2,
+            "native_compiler_commands": 8,
+            "shipping_loader_compiler_commands": 8,
+            "audit_loader_compiler_commands": 4,
+            "metadata_commands": 4,
+            "shipping_sessions": 8,
+            "positive_pre_entry_sessions": 4,
+            "scope": "one unchanged fresh invocation, rc0 without retry; actual native/whole/audit repeats plus initial BSS/RX/padding/guards and natural cleanup; no RIE/ptrace/negative/game/strength/benchmark runs",
+            "postproof_metadata": "only README and qualified_receipts_metadata_only recipe fields changed after producing closure; actual producing recipe/source/archive retained separately; not a second fresh run"
+          }
+        },
+        "new_audit_identity_discovery": {
+          "receipt_sha256": "9e6f4a735a07c48da16ccb9d50ba070c66d9ee608879b1161850cc443adc5282",
+          "scope": "two CHECKPOINT1 compiler commands only, exact literal outer ELF static admission; no audit or engine execution, normal fresh pending"
+        },
+        "normal_fresh": {
+          "fresh_receipt_sha256": "e4838c7aeed82688983244a1fb91f85c570e35a51433570015f20d4d2aa20c0c",
+          "readback_sha256": "af3dc55b006c4bc1ad7bd3a09a63b2aeaf6c0f53a58d01edfcb6c2603607194a",
+          "independent_pre_fresh_review_sha256": "e602fc2760fb38385db008142e647e6cfd35ad41fa9c012a28ae7a57e097ca52",
+          "producing_source21_set_sha256": "222aaaf8a893e6c0fbec63039d0958357c780fc8b6d567337aed3eecedf31b11",
+          "producing_recipe_sha256": "74d179d61c96b33777054f5928384c4e30dfbbdf638fef17358aa11fe6450d54",
+          "producing_archive23_sha256": "f8a86aca8e0632d34f10d9a99d53b9ad6382e76420264853158b1b899ae010c6",
+          "independent_extractions": 2,
+          "native_compiler_commands": 8,
+          "shipping_loader_compiler_commands": 8,
+          "audit_loader_compiler_commands": 4,
+          "metadata_commands": 4,
+          "shipping_sessions": 8,
+          "shipping_GO_epochs": 24,
+          "positive_pre_entry_sessions": 4,
+          "target_forced_cleanup": 0,
+          "scope": "one unchanged fresh invocation terminal0 without retry; exact actual native/packet/whole/audit repeats, restored RX/BSS zero/padding/guards/NX and natural target cleanup; compiler descendant/group absence not separately observed by unchanged builder",
+          "postproof_metadata": "only README and this recipe qualification metadata changed after producing closure; actual producing recipe/source/archive retained; no second fresh run"
+        }
+      },
+      "scope": "new Board actual compiled positive fixture and new closed-source restoration/runtime qualification are separate actual evidence; prior exact runtime/loader/core complement receipts remain scoped ancestry only",
+      "audit_identity_discovery": {
+        "receipt_sha256": "3bf551469eeb974205fa188dd8e6807774140eff7c4bf861da0ff6f15d521f2b",
+        "scope": "CHECKPOINT1 loader2 only, no native compile/encode/target; literal full-byte/header static read before new normal positive execution"
+      },
+      "normal_fresh": {
+        "fresh_receipt_sha256": "3a32b4420c299c2f826cf90d7c8760578e275abb7da16179dc5c00936a2c82c5",
+        "readback_sha256": "1a23327828611fc264cb420089ec1298dfc23ec9d03604e58aa00a4945883ec0",
+        "independent_pre_fresh_review_sha256": "0b3d67488f6f4111ac1e6a1b32e84b8d42db266cb880a416f9d0e220e8f99984",
+        "independent_actual_readback_sha256": "cae11cc7c6893fb3e36484891041ef7a562d6dd84305bec73daa0f16437ca779",
+        "producing_source21_set_sha256": "98508ad3a56ae2732187a6eacba49d9bcd680c98303daef9984d617b4d2ff2b2",
+        "producing_recipe_sha256": "4f116a987b27901ae018478af7a2974af678bd1c3e5b4842e59623a338db5c37",
+        "producing_archive23_sha256": "6705c0c3e251d827b7bb33681b55276adb5622c1c670c0e512f9ad0734076cfc",
+        "ordinary_members": 23,
+        "independent_extractions": 2,
+        "native_compiler_commands": 8,
+        "shipping_loader_compiler_commands": 8,
+        "audit_loader_compiler_commands": 4,
+        "metadata_commands": 4,
+        "shipping_sessions": 8,
+        "shipping_GO_epochs": 24,
+        "positive_pre_entry_sessions": 4,
+        "target_forced_cleanup": 0,
+        "scope": "one unchanged fresh invocation terminal0 without retry; exact actual native/packet/whole/audit repeats, restored RX/BSS zero/padding/guards/NX and natural target cleanup; compiler descendant/group absence not separately observed by unchanged builder",
+        "postproof_metadata": "only README and qualified_receipts_metadata_only recipe fields changed after producing closure; actual producing recipe/source/archive retained separately; no second fresh run"
+      }
+    },
+    "scope": "Current static-TT scalar ordinary reproduction and focused positive preentry/quit/EOF only; older receipts preserve their own actual source/decoder/failure scope. No fresh/fault/strength/performance/4KiB acceptance.",
+    "audit_identity_discovery": {
+      "receipt_sha256": "9d886f3ce1ecedbd3b68d715a796d4c686cb9cf58b574dbe8caf9d65655dc6ce",
+      "independent_source_review_sha256": "a2e6cdd25c6dd48a97dff271fc3c9f39f6ec648fb61e65ef6f7c05e99c18f663",
+      "independent_actual_audit_review_sha256": "809310e27fbb8a0370b98279f9f7b4efee6cdd91526cf67db211d2eb8354bd44",
+      "root_specific_literal_admission": true,
+      "scope": "CHECKPOINT1 loader2 only, reused exact firstcostnative/packet; fullbyte/header/entirepacket static admission, no audit or engine execution"
+    },
+    "predecessor_software_decoder_normal_fresh": {
+      "fresh_receipt_sha256": "5c431c0417c82f2c579d198c27a754ba6a928a33c06b8ac33b4e7a977bf0e113",
+      "readback_sha256": "c76b705fce499646a46e938280e1b9fa340e57b252aaaffd2668f5351b081572",
+      "independent_actual_fresh_review_sha256": "afcad66db4848dfe11e2067abb7e4505495995fabc675ffc453e02d568c55882",
+      "independent_actual_audit_review_sha256": "809310e27fbb8a0370b98279f9f7b4efee6cdd91526cf67db211d2eb8354bd44",
+      "producing_source21_set_sha256": "99512203f9fa3136b3a845248efde9c96610a1e57b39b716c1b5337314d73a5a",
+      "producing_recipe_sha256": "dbc976c0092252b0eaeeb12cf4bd6313e5f48325a4986b25fe286f88ae6dc2d8",
+      "producing_archive23_sha256": "3fed6efd269a4f0a054cbb8b3637fda539e2136d9ae4ef45639e2acb64d63caa",
+      "ordinary_members": 23,
+      "independent_extractions": 2,
+      "native_compiler_commands": 8,
+      "shipping_loader_compiler_commands": 8,
+      "audit_loader_compiler_commands": 4,
+      "metadata_commands": 4,
+      "shipping_sessions": 8,
+      "shipping_GO_epochs": 24,
+      "positive_pre_entry_sessions": 4,
+      "target_forced_cleanup": 0,
+      "scope": "one unchangedfresh invocation terminal0 without retry; exact actual source/native/packet/whole/audit repeats, new restoredRX/BSSzero/padding/guards/NX and natural target/readergroup cleanup; compiler descendant/group absence not separately observed by unchanged normal builder",
+      "postproof_metadata": "only README and recipe qualified_receipts_metadata_only changed after actual producing closure; producingrecipe/source/archive retained separately; not a secondfresh execution"
+    },
+    "hardware_crc_firstcost": {
+      "actual_receipt_sha256": "b645ec13306c0f40ea7cd19be045fe140354482fa37f13434d0a2f6a7cd4b2c1",
+      "independent_actual_readback_sha256": "7276f3381506bf4c45d27d6aaf92e310418b561cb145090707468154abb5a7e7",
+      "CRC_comparisons": 5673,
+      "packet_full_BCJ_native_diagnostics": 2,
+      "whole_bytes": [
+        6108,
+        6288
+      ],
+      "whole_delta_bytes": [
+        -57,
+        -57
+      ],
+      "whole_engine_executions": 0,
+      "new_audit_identity": "pending actual CHECKPOINT1 discovery and root literal admission",
+      "new_shipping_preentry_fresh": "not executed",
+      "profile": "local SSE4.2 CRC32 mandatory; official wiki returned429, current tournament server ISA not verified"
+    },
+    "hardware_crc_audit_discovery": {
+      "raw_receipt_sha256": "6c489d538604d5e8e92fa529e9715f281494db2d04005edbefd8150cfe6e68ba",
+      "raw_complete_true_is_inaccurate_for_overall_run": true,
+      "overall_driver_returncode": 1,
+      "overall_discovery_pass": false,
+      "failure_companion_sha256": "b8d7dc74d6a707ec083afaf995df751ff522ba89dc6b4aab1fb9524aed3801dc",
+      "compiler_count": 2,
+      "compiler_returncodes": [
+        0,
+        0
+      ],
+      "compiler_groups_recorded_absent": true,
+      "forced_cleanup": 0,
+      "target_execution": 0,
+      "independent_source_review_sha256": "3c9b1a968a950a28dd1201e502fe946ccf49fe00cad16a6d692ecc095df3a901",
+      "independent_actual_static_review_sha256": "62bde41b08f31a52a674a213682759816b44b4c7946e30d1050412471b89e0f1",
+      "literal_admission": "root accepted only actual6131/6311 full identities after raw file/source/static/failure review",
+      "driver_retry_or_fix_execution": 0,
+      "new_normal_fresh": "separate unchanged tracked path authorized once; not yet executed at producing freeze"
+    },
+    "normal_fresh": {
+      "fresh_receipt_sha256": "96fa649d7b192addc135104313e2692121ec1df69acaf41666eb9bb796079d83",
+      "readback_sha256": "6129b0dfd350bf83c04fd0642631e7073cf513564b8241292564c3ab14bde5bf",
+      "independent_actual_fresh_review_sha256": "eabf22d41a00ff6a41f8be3d317f14d992a085b9feefc2c80fe0d72dfc33ac08",
+      "producing_source21_set_sha256": "e44f5d1a8a1b51a12d839121edcdc84f823263642723e27a5f49bd13ecaecdaa",
+      "producing_recipe_sha256": "2769b40e85320339f9ff1b058319b4d35381f7920de4cbfc9d340010aa21f9ce",
+      "producing_archive23_sha256": "7b61bc943e2f21c7273988e14007d4d9596498b0b1e5fe3b3d80539adcd4dfe3",
+      "execution_isa": "linux-x86_64-sse4.2-crc32b-v1",
+      "actual_CPU_preflight_observations": [
+        {
+          "attempt": 1,
+          "available_processors": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "profile": "linux-x86_64-sse4.2-crc32b-v1",
+          "scope": "local exposed feature admission; generic compatibility and current tournament CPU unverified",
+          "source": "/proc/cpuinfo and sched_getaffinity",
+          "sse4_2_all_available": true
+        },
+        {
+          "attempt": 2,
+          "available_processors": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "profile": "linux-x86_64-sse4.2-crc32b-v1",
+          "scope": "local exposed feature admission; generic compatibility and current tournament CPU unverified",
+          "source": "/proc/cpuinfo and sched_getaffinity",
+          "sse4_2_all_available": true
+        }
+      ],
+      "ordinary_members": 23,
+      "independent_extractions": 2,
+      "native_compiler_commands": 8,
+      "shipping_loader_compiler_commands": 8,
+      "audit_loader_compiler_commands": 4,
+      "metadata_commands": 4,
+      "fixed_encoder_calls": 8,
+      "shipping_sessions": 8,
+      "shipping_GO_epochs": 24,
+      "positive_pre_entry_sessions": 4,
+      "target_forced_cleanup": 0,
+      "scope": "one unchanged tracked fresh invocation terminal0 without retry, separate from failed discovery driver; actual bytes repeated and exact new RX/native identity/padding/BSSzero/guards/NX/originalentry + persistent threads/stdio/readers/groups observed; normal builder compiler rc0 only, no separate compiler-group observation",
+      "postproof_metadata": "only README and recipe qualified_receipts_metadata_only differ from producing; other19 and all producing profile/expected/source/flags/model fields unchanged; no second fresh run"
+    },
+    "existing_record_scope": "All pre-existing receipt fields describe their producing predecessor source/images. Atomic128 source proof applies only to unchanged TT code; its old images/runtime receipts are not executions of the new EP images.",
+    "atomic128_tt": {
+      "firstcost_native_sha256": "01dc548ca98de6578e838ddd7dce47c0fc4eb0c0e73d6ca2ff44be18216efab3",
+      "firstcost_whole_sha256": "22c86082262d1f3f3a6a0973bbf76e93a296d3e12e2a642aeb99f8b77d33a944",
+      "source25_final_index_sha256": "35f483aaab15ca4b88ffaf510fd53da008f2f968d60fbb230f81fa0952c26a16",
+      "positive_unit_sha256": "6f5a330994a54546cf1eea9a544f87b15ae34079eada191b62892877db378d2e",
+      "unit_final_index_sha256": "bf7059908a5fd1f7e51737795a3e00249b4400dd58c3f16fc487e6febe02a4f4",
+      "scope": "At the frozen first-cost/unit checkpoint: native2/encode2/shipping-loader2 and DATA-helper2 first-cost, then one ordinary positive TT unit compile/run; normal target/audit/fresh had not run. The later normal_positive receipt below is separate. Unit write attempts are not CAS acknowledgments and contention-drop causality remains unobserved.",
+      "preparation_failure_v1_sha256": "a4a9bea95c92cccdd558285ec26a69445e1c97310d613e624e9261647b7ed087",
+      "preparation_failure_scope": "Python driver SyntaxError before any C compile/run; separately preserved; corrected driver performed the sole actual C compile/run",
+      "root_audit_literal_intake": {
+        "audit_discovery_sha256": "5535a787a2f1a346512b3820a2e3de31ba737a2872d3abe7c420e9b357988665",
+        "scope": "Root independently read full discovery receipt, native/packet/shipping/audit files, audit ELF headers and native3/packer/verifier diff; exact two audit literals approved before sole normal build/positive verify; no other gate changed",
+        "actual_root_receipt_sha256": "c5d89d6a28d612c7f7b4d02ec5af8907c88d2b8a1c3d27d560c5420f883b07d2"
+      },
+      "normal_positive": {
+        "build_sha256": "12c7096e312e4ed3d6761da81569eb222b54f8c99556eef3bef566c203bcf1a8",
+        "verify_sha256": "f4536e49cf9276a123a8954c91a12a4bfe9060cb3cd4387b597006dda017059a",
+        "readback_sha256": "ff696c24deebd1758401ace9439f4897f93d2548b88e440d54496c23316105c3",
+        "producing_source23_index_sha256": "7cd4680e1e5a259b4864a85eed02a9fbd3c421e6740230ee9c28151ce6dd2880",
+        "producing_recipe_sha256": "c80654a02beae7e16cdb5a6311251a267409e1fc19150cdfc7eae23495ef402d",
+        "producing_verifier_sha256": "215ababe7abba67f29687b2a1da6e0e204a777f20c0712b95e6d86f91c7081df",
+        "scope": "sole builder1 terminal0 native4/shipping-loader4/audit-loader2 and encode4 exact; sole selected positive verifier1 terminal0 shipping4 sessions/12GO/pre-entry2; all affinity CPUs CX16 and SSE4.2; natural target reader/process/group settlement, forced0; no fresh",
+        "limits": "No general TT/SMP race freedom, contention-drop causality, strength/performance, ignored-control/default-budget timing, exact context table unmap causality or current tournament CPU claim. Unchanged builder does not separately observe compiler descendants/groups. First-cost DATA diagnostics, positive TT unit and predecessor failure records remain distinct."
+      },
+      "final_metadata_scope": "Only README and recipe qualification metadata changed after producing normal run; producing source snapshot and raw receipts remain immutable. No re-execution after this overlay."
+    },
+    "ep_make_share": {
+      "native_firstcost_sha256": "b19caeb5a30ec83bc278a72ad4ccc959c091a3101129c2d9d87f2a926faef52b",
+      "whole_firstcost_sha256": "908d98b6755c308fda9d1e902a811d38b913e7d0e37d6a78876367afb9dd57ce",
+      "focused_positive_unit_sha256": "2e21ea646a7dfddc3c55d7e95bccb6ba80278a5f44b8b72a025f2f11c446a69d",
+      "focused_unit_source_manifest_sha256": "179c8e26e5529461c9e02e1622f665d71f55e31ec753695814b00fc068cedad4",
+      "root_cost_intake_sha256": "b80d197c351b80ab89d74e6b25d241033763d647005d1557a3182c8cc6d02a38",
+      "audit_discovery_sha256": "b83f11fc3e10da3c1e155a25775da9db0e01933289e933f9a4977a5de04b8762",
+      "root_audit_intake_sha256": "cbc7027129819d0d806823e60a3a978984e889a4523f90a5d0a6e1f18c617cfe",
+      "scope": "At the frozen first-cost/focused-unit/producing checkpoint: native2/encode2/loader2/DATA-helper2 and separate scalar/HQ ordinary ASan/UBSan unit2; each unit20roots/150full-state-child records/26FEN-history observations with actual make/ep max depth2. Normal target verification had not run at that checkpoint. New exact audit literals had been admitted by root without relaxing gates; later normal_positive below is separate.",
+      "discard_contract": "EP boolean trial parent may have unfinished h/r; geometry proves nonpromoting EP; child is discarded, legality reads no h/r/v and child e=-1 ends nested EP.",
+      "normal_positive": {
+        "build_sha256": "fed982d44a7ec06641b442135751329043a205cf438d02518c762ea5a54a0d50",
+        "verify_sha256": "3786ac409f2c60e18b261d43fbbafdf07cc0a1d5ffc661770e33c47bca97382e",
+        "readback_sha256": "630e7b4842624fd77c22a05583b7331928deb0f4f9f9ad483bd4b5eded1817a9",
+        "producing_source23_sha256": "a7c4ad7442df2c8123691dbba9c45db936dd2421da2c228f9bdca36dee2a0b3f",
+        "producing_recipe_sha256": "ce5f08c746724861eee9bb4bd91585b3b786880595248af4cef249688f2c44ec",
+        "producing_verifier_sha256": "bc11ea494a6b812f15d0a957712086d1de211e76ccff046a8fb1339360b6a921",
+        "scope": "sole normal builder1 terminal0: native4/whole-loader4/audit-loader2/encode4 exact; sole selected positive verifier1 terminal0: shipping4sessions/12GO and pre-entry2, natural cleanup/forced0 and recorded TIDs absent. All affinity CPUs0..7 expose SSE4.2+CX16. No fresh invocation.",
+        "limits": "No general TT/SMP race freedom, contention-drop causality, strength/performance, ignored-control/default-budget timing, exact decoder-table unmap causality or tournament CPU claim. Unchanged builder does not separately observe compiler descendants/groups."
+      },
+      "final_metadata_scope": "Only README and recipe qualification metadata changed after actual producing run; all other sources and producing recipe fields remain exact, with no re-execution after overlay."
+    },
+    "dead_state": {
+      "cost": {
+        "path": "/home/stemxstudio/rove4k-tiny-d-dead-state-whole-20261021-v1/cost.json",
+        "bytes": 21135,
+        "sha256": "c6b1dd45fc2b89e24f63536fba7073d130e554b5d11f0131d883bd230946f9d0"
+      },
+      "positive_functions": {
+        "path": "/home/stemxstudio/rove4k-tiny-d-dead-state-function-20261021-v1/results.json",
+        "bytes": 4679,
+        "sha256": "b5c9ccbc47fd5fa72663638c398525f65c63bd64157fc65d14425a1d7c36a86f"
+      },
+      "scope": "one equivalent dead-material classifier; exact other7 source reused; no new full core/game/strength proof",
+      "normal_build_runtime": {
+        "actual_commands_complete": true,
+        "outer_driver_complete": false,
+        "outer_driver_returncode": 1,
+        "build": {
+          "path": "/home/stemxstudio/rove4k-tiny-entry-d-dead-state-normal-build-20261021-v1/build.json",
+          "bytes": 71195,
+          "sha256": "5f198f4a25d62c01c20ed689fd39072a8b7ddfac7e444431bfdb8bf49703b732"
+        },
+        "positive_verifier_results": {
+          "path": "/home/stemxstudio/rove4k-tiny-entry-d-dead-state-normal-runtime-20261021-v1/results.json",
+          "bytes": 58158,
+          "sha256": "ae352db6ae110f16c1f6c12e59f38d0bdb10a8a5da34bfa8507e3428264f3df3"
+        },
+        "outer_failure_report_preserved": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-entry-d-dead-state-promotion-20261021/normal-result.json",
+          "bytes": 2471,
+          "sha256": "ba13b1d6439d66c35964d6c36108842650991e73316b9396c847ac4a3bc332c2"
+        },
+        "read_only_actual_companion": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-entry-d-dead-state-promotion-20261021/actual-positive-companion.json",
+          "bytes": 5552,
+          "sha256": "5aecb6ffb239b7595383a383ca59a31852e76f4ea3554480869f5548eb92a59d"
+        },
+        "producing_source21": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-entry-d-dead-state-promotion-20261021/producing-source21.json",
+          "bytes": 2650,
+          "sha256": "acd5a0b3e7298e3fdb8035c5ef1e790d60ed6ebe1e014f9b8c7f28800763e1a4"
+        },
+        "producing_recipe": {
+          "path": "/home/stemxstudio/rove4k-tiny-entry-d-dead-state-normal-build-20261021-v1/inputs/recipe.json",
+          "bytes": 42816,
+          "sha256": "68f900f774ce7c2bb66de2d63dfb68058cb76b500d736555a1b694713d3324e3"
+        },
+        "native_repeats_per_form": 2,
+        "whole_repeats_per_form": 2,
+        "audit_per_form": 1,
+        "preentry_cases": 2,
+        "shipping_quit_EOF_sessions": 4,
+        "legal_GO_epochs": 12,
+        "scope": "actual normal source reproduction and positive exact restoredRX/initialBSS/guard/NX/persistentTID/stdio/reader/physicalexit; classification function unit separately reused",
+        "postread_failure": "external driver looked for runtime.json after successful verifier wrote results.json; no command replay or original-report replacement",
+        "old_negative_fresh_new_game_strength_bench_campaigns": 0,
+        "reruns": 0,
+        "forced_cleanup": 0,
+        "active_handles": 0
+      },
+      "audit_literals": {
+        "complete": true,
+        "discovery": {
+          "path": "/home/stemxstudio/rove4k-tiny-d-dead-state-audit-discovery-20261021-v1/discovery.json",
+          "bytes": 15454,
+          "sha256": "202d12b5cebbdf18ff82292802be6261dbb4eb097c5851db8164192c86be74bb"
+        },
+        "root_static_intake_sha256": "d4dd0b240ff8d61b2862002a3ed5ea366f3059f65b854f52aa0d2f06936e5bcc",
+        "scope": "two actual whole files/header/allPHDR/entirepacket suffix static admission only; target0 at discovery"
+      },
+      "fresh_and_negative_controls_executed": false
+    },
+    "capture_tag": {
+      "cost": {
+        "path": "/home/stemxstudio/rove4k-tiny-d-capture-tag-whole-20261021-v1/cost.json",
+        "bytes": 21325,
+        "sha256": "c6a21d6edd93cc8cd1e0d8d15157a263654df5730207c575cb5bbb0210287f76"
+      },
+      "focused_positive_functions": {
+        "path": "/home/stemxstudio/rove4k-tiny-d-capture-tag-functions-20261021-v1/results.json",
+        "bytes": 28021,
+        "sha256": "c618e8566df3d0d49b403ccc0e05fd6649cb505f498bdd104bb6c727264cb25a"
+      },
+      "source_regions": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-d-capture-tag-sourceonly-20261021/regions.json",
+        "bytes": 8564,
+        "sha256": "501c00ca94a43182e69d1a0d43a51f5f684beb9592c4956f8bab7bd72eb7b122"
+      },
+      "cost_final": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-d-capture-tag-sourceonly-20261021/cost-final-index.json",
+        "bytes": 982,
+        "sha256": "97141b0da9350cb4e218ec85e8cedf36458736f9c0db74f650bb0d372f781fd3"
+      },
+      "scope": "ten representation roles; quiet raw moves/noise and all required policy/features preserved; actual function DEV projection is separate from shipping/SMP qualification",
+      "normal_positive": {
+        "build": {
+          "path": "/home/stemxstudio/rove4k-tiny-d-capture-tag-normal-20261021-v1/build.json",
+          "bytes": 74791,
+          "sha256": "8820abbf8bb205231028999cecc49d057b007700811746ec33d8ab238112db2e"
+        },
+        "runtime": {
+          "path": "/home/stemxstudio/rove4k-tiny-d-capture-tag-normal-runtime-20261021-v1/results.json",
+          "bytes": 58054,
+          "sha256": "9d7ff8085c0c44c57fcfe35cc73ca5b7cacbae48bac74b644451b606c063aee8"
+        },
+        "audit_intake": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-qualified-composition-20261021-evidence/D-audit-intake.json",
+          "bytes": 589,
+          "sha256": "7a51c3d0260d190e7e8d66b4d3795e499fca1d0010aa841fa0a8cd1a6d1bd658"
+        },
+        "producing_recipe_precedes_this_receipt_annotation": true,
+        "scope": "existing ordinary producer and positive verifier; native/whole twice, audit once, pre-entry2 and quit/EOF4,12 legal GO; no negative campaign retry"
+      },
+      "audit_discovery": {
+        "path": "/home/stemxstudio/rove4k-tiny-d-capture-tag-audit-discovery-20261021-v1/discovery.json",
+        "sha256": "af8123a7606781d738dd24878a8dfff3ac818165be77d4fd3fc7876b1c5b7b4a",
+        "scope": "root reads exact full ELF/packet, RX/NX two PHDR and CHECKPOINT/model literals before admission; target execution separate"
+      },
+      "predecessor_recipe_sha256": "7c6f97a47dfd700bc4a13e6b615f8694ca130e1d99612a8207903186a0281ea8"
+    },
+    "sort_prefix": {
+      "source_proposal": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-selection-prefix-proposal-20261021-evidence/proposal.json",
+        "bytes": 25993,
+        "sha256": "8a6d93d7c97cdf9bd95854d00450f28b9fe2aff07930abfc53f8dee0bbe4d3c0"
+      },
+      "cost": {
+        "path": "/home/stemxstudio/rove4k-tiny-d-sort-prefix-cost-20261021-v1/cost.json",
+        "bytes": 34746,
+        "sha256": "806e1efe27fb2d5d59ad8267701bfe87e692bd4576fd19bf7a8b884313131b77"
+      },
+      "cost_final": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-d-sort-prefix-cost-20261021-evidence/final-index.json",
+        "bytes": 14230,
+        "sha256": "daba9a8acc2c673fd9b857bcbd45fe8d422c9b863b0a40d061bb55c9f2d7a9a6"
+      },
+      "audit_discovery": {
+        "path": "/home/stemxstudio/rove4k-tiny-d-sort-prefix-audit-discovery-20261021-v1/discovery.json",
+        "bytes": 16953,
+        "sha256": "71aa4c71b1a3ab0fe1dddd04b45c5ce41852f0965459dfc7a16a306e09a2eb8e"
+      },
+      "literal_manifest": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-d-sort-prefix-cost-20261021-evidence/normal-intake.json",
+        "bytes": 16784,
+        "sha256": "4eebae997c6bb13d7367c1cbafb22bb4646b22b243bff0cbe0688885646f389c"
+      },
+      "root_audit_intake": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-clamp-normal-20261021-evidence/D-audit-intake.json",
+        "bytes": 3771,
+        "sha256": "a7fbd1001f735a3b1547c617340b45fc6dd62156e943beceb5af313536bc2860"
+      },
+      "scope": "At the producing checkpoint: source suffix-induction and independent static review; native2/encode2/shipping-loader2 and encoder-independent Python old/new DATA restoration4; audit2 compile-only root-admitted identities. No target execution in those cost/discovery receipts. Subsequent ordinary positive receipts are separate.",
+      "normal_positive": {
+        "build": {
+          "path": "/home/stemxstudio/rove4k-tiny-d-sort-prefix-normal-20261021-v1/build.json",
+          "bytes": 77739,
+          "sha256": "9cd5c6748ec72de497957c7f6fc2ff20de4010b5f91ceb010df5153a27f23cc3"
+        },
+        "verify": {
+          "path": "/home/stemxstudio/rove4k-tiny-d-sort-prefix-normal-runtime-20261021-v1/results.json",
+          "bytes": 58050,
+          "sha256": "c7ef4b272d6252fb602a8edf1be0c8d99ec157021a4c4aa84b711a049d86b5d9"
+        },
+        "actual_readback": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-d-sort-prefix-normal-20261021-evidence/actual-readback.json",
+          "bytes": 11431,
+          "sha256": "f946379f0f04afebd069b24f314d3dcdca00ef8f2125931c5164abd90c622af4"
+        },
+        "producing_source21": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-d-sort-prefix-normal-20261021-evidence/producing.json",
+          "bytes": 8228,
+          "sha256": "30a1aaabdbbec56920a072a7d471202316783f0c3eb9629f5c3b3a57bfc5570a"
+        },
+        "producing_recipe": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-d-sort-prefix-normal-20261021-evidence/producing21/recipe.json",
+          "bytes": 50067,
+          "sha256": "cb824563e0ebe900f16636bbab5bbbfb88e29c8dc0fa8323f86ae496b5e20961"
+        },
+        "producing_verifier": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-d-sort-prefix-normal-20261021-evidence/producing21/verify.py",
+          "bytes": 31246,
+          "sha256": "6e26ada949f2d9d2b83a98b9ca7e8d5ff060fa8149e57849b3e870a3f80f857e"
+        },
+        "normal_run": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-d-sort-prefix-normal-20261021-evidence/normal-run.json",
+          "bytes": 2907,
+          "sha256": "cb6ccb33c08880cd604412ca24fdfaf0ef6a0fa6ceaa3a831a9f839073580674"
+        },
+        "preparation_failure_before_any_mutation_or_run": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-d-sort-prefix-normal-20261021-evidence/preparation-failure-v1.json",
+          "bytes": 625,
+          "sha256": "7b8766601ab879167d816319795bf30ff55b9c2c6f09e2caf122d0c338fd4dc0"
+        },
+        "scope": "sole ordinary builder1 terminal0: native4/encode4/shipping-loader4/audit-loader2 exact; sole selected positive verifier1 terminal0: preentry2 and scalar/HQ quit/EOF4sessions12legalGO, persistent3TIDs, only stdio/no child, exact restored RX/zero initial BSS+padding/guards/NX, readers joined and owned groups absent with forced0. All affinity0..7 expose SSE4.2+CX16. No fresh.py or negative/fault campaign.",
+        "limits": "Source equivalence argument and exact wrapper observations do not establish strength/performance, general SMP race freedom, contention-drop causality or ignored-control/default-budget timing. No extra function fixture/game/benchmark run."
+      },
+      "final_metadata_scope": "After actual producing-input17/current21 readback, only README and this recipe receipt annotation changed. Producing21/old21/cost/discovery/raw normal receipts remain immutable; no re-execution after overlay."
+    },
+    "packed_hce": {
+      "proposal": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-packed-hce-source-proposal-20261021-evidence/proposal.json",
+        "bytes": 16134,
+        "sha256": "7cbd66a33a8d44ff733de948b32bb1695356e3a38ae5ce8c0c5eb83eea5068d0"
+      },
+      "first_cost": {
+        "path": "/home/stemxstudio/rove4k-tiny-d-packed-hce-cost-20261021-v1/cost.json",
+        "bytes": 34687,
+        "sha256": "ce4028902b8334190fbe0db2a5fbc30f4c70c242b2595473d3d1bbc91f6ef953"
+      },
+      "cost_final": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-d-packed-hce-cost-20261021-evidence/final-index.json",
+        "bytes": 19150,
+        "sha256": "79c550a76f94e7c784f72224d1e49a7074099c6da6062e5f7bbb416d0eda828e"
+      },
+      "root_static_cost_readback": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-d-packed-hce-cost-20261021-evidence/root-static.json",
+        "bytes": 2261,
+        "sha256": "9aee9c81f1052cf59335dce73189d992613b6e4491a61b762a7bcc023ea35cc3"
+      },
+      "VALUE_component": {
+        "path": "/home/stemxstudio/rove4k-tiny-d-packed-hce-value-component-20261021-v1/results.json",
+        "bytes": 11043,
+        "sha256": "8f81b48f0ff8be3a073ef5af80ba1e5e050a63d1e82f34af8b0ee1920174722d"
+      },
+      "audit_discovery": {
+        "path": "/home/stemxstudio/rove4k-tiny-d-packed-hce-audit-discovery-20261021-v1/discovery.json",
+        "bytes": 16912,
+        "sha256": "4f694b88834ee0009db4316d51c96fe51f490e22b36cd8cffbedced8123fc80a"
+      },
+      "component_scope": "sole standardhost fatal ASAN/UBSAN compile1/run1, actual definition-name-only old330/new318 VALUE ports;832 admitted piece/square cases, independent M/A/C oracle and bit unpack exact; precompile/prerun/postrun raw pins unchanged. No executed Board/put/cache/search/main/SMP/loader qualification.",
+      "cost_scope": "native2/encode2/shipping-loader2, independent Python old/new DATA restore4. Fullnative and complete ownELF/layout/packet statically read by root; no generated engine/loader/decoder binary executed in cost.",
+      "representation": "P=M+(A<<10)+((C+3)<<13), disjoint10/3/4bit fields; signed int nonnegative P<=98624; decoded abs<=910. Cache remains signed int: legal32-piece bound29120; conservative64 occupied valid squares58240. Empty24576 versus king0; no unsigned/narrow16 cache changes.",
+      "audit_scope": "Exact audit identities statically read by root, then reproduced by ordinary builder and checked in two positive pre-entry sessions; no negative/fault campaign.",
+      "ordinary_normal_scope": {
+        "status": "PASS one existing normal builder and selected positive verifier",
+        "summary": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-d-packed-hce-normal-20261021-evidence/final-index.json",
+          "bytes": 1575,
+          "sha256": "8518028b77b41e4ae813ee3e3d2b7b47281f04ce838f9c7153f13c879a2e7f37"
+        },
+        "annotation_only": true
+      },
+      "root_static_audit_readback": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-tiny-d-packed-hce-cost-20261021-evidence/root-audit.json",
+        "bytes": 1659,
+        "sha256": "050eac416d03c6c9c8eaa8d53e77c6704db4cfb4fba9a05b1764a88fd6f06b4e"
+      }
+    },
+    "pre_clock_selection": "packed HCE coefficients over qualified discarded-sort-prefix/capture-only bit3; decoded signed Board.v/full HCE/PVS/QS/learners/fullkey atomic16 and fixed SSE4.2+CX16 profile",
+    "pre_clock_source_lineage": "Only value()330B\u2192318B at board.c offset454; static7int packed coefficients decode the exact original material/advance/center values. Other7 native and loader6/model/profile/flags/resources/clock/protocol unchanged. Board.v/type/layout/put consumers stay decoded signed int.",
+    "clock_shared": {
+      "cost": {
+        "path": "/home/stemxstudio/rove4k-d-runtime-clock-cost-20261021-v1/cost.json",
+        "bytes": 40943,
+        "sha256": "5da70ffdd0b55df7c4ad599b8f273134a1ca7c55a7a58f617d8c35a62798749a"
+      },
+      "source_plan": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-runtime-sharing-cost-prep-20261021-evidence/proposal.json",
+        "bytes": 26627,
+        "sha256": "90394fc5ba96a63c9ba0ff74dd1d3b33729c3cd347a30c3fcf48c1e0729a6ef4"
+      },
+      "focused": {
+        "path": "/home/stemxstudio/rove4k-d-clock-go-positive-20261021-v1/results.json",
+        "bytes": 2181,
+        "sha256": "ceb2b0f3492bb5a82438d4dcd7ab31ecff744b44c8935d4cde7f81f1ba750817"
+      },
+      "audit_discovery": {
+        "path": "/home/stemxstudio/rove4k-d-clock-audit-discovery-20261021-v1/discovery.json",
+        "bytes": 15432,
+        "sha256": "f102c5955a304829b22e2503d8fc7acfa883312d0a990c017c2d5b8c46164d70"
+      },
+      "source_old_sha256": "e58ede21b12db9feab7df32465f0be5ee526156b23e3b5c91ab67a2eccde24b0",
+      "source_new_sha256": "2febf5acec5a3c74ab3a6dcb2fd2a1eb2ba44fab4d6892d9c354fcdcebfe4342",
+      "runtime_raw_delta": -102,
+      "measured_costs": {
+        "clock": [
+          5914,
+          6125
+        ],
+        "reply": [
+          5936,
+          6150
+        ],
+        "combined": [
+          5928,
+          6129
+        ]
+      },
+      "selected": "clock-only",
+      "discarded_size_results_preserved": true,
+      "observation_scope": "actual helper/wait/go host projections DEV0/1,34cases; main/threads0; ordinary physical proof separate",
+      "normal_validation": {
+        "status": "PASS one ordinary builder and selected positive verifier",
+        "build": {
+          "path": "/home/stemxstudio/rove4k-d-clock-normal-20261021-v1/build.json",
+          "bytes": 85821,
+          "sha256": "2460e3cc44e722123733e973ea22cd1c9bf95dd55843f9126c027ed8d99544ad"
+        },
+        "runtime": {
+          "path": "/home/stemxstudio/rove4k-d-clock-normal-runtime-20261021-v1/results.json",
+          "bytes": 57942,
+          "sha256": "30929ddd6a8cfdce94222e535bd89f105098c4951d0cf406bfc561a4954ffeeb"
+        },
+        "normal_wrapper": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-clock-normal-promotion-20261021-evidence/normal.json",
+          "bytes": 8035,
+          "sha256": "8f28b8670018a57d0c7e0655251632a00ee60aeca678919819096657022e2ba0"
+        },
+        "producing_recipe": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-clock-normal-promotion-20261021-evidence/producing/recipe.json",
+          "bytes": 58858,
+          "sha256": "0907bbf42a5de70ebca8e81dfd96079d557ab5dac9c31062c026fac463bbac6a"
+        },
+        "native_reproductions_each": 2,
+        "whole_reproductions_each": 2,
+        "audit_reproductions_each": 1,
+        "positive_preentry_sessions": 2,
+        "production_quit_EOF_sessions": 4,
+        "legal_GO_results": 12,
+        "startup_TIDs_each": 3,
+        "forced_cleanup": false,
+        "scope": "exact restored native RX and zero initial BSS/padding/guards/NX; persistent TIDs/stdio/nochildren and physical readers/process/group settlement; no negative/fault campaign, game or strength claim"
+      }
+    },
+    "pre_castle_selection": "shared exact clock/inc parser branches over packed HCE; full HCE/PVS/QS/learners/fullkey atomic16/SMP and fixed SSE4.2+CX16 profile",
+    "pre_castle_source_lineage": "Only runtime.c clock359-to257 block changes: four exact words, one amount consumption including opponent, unchanged side/present/budget/job tail; reply remains256. Other native7 and loader6/model/profile/flags/resources/protocol unchanged.",
+    "castle_direction": {
+      "source_plan": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-castle-direction-cost-20261021-evidence/proposal.json",
+        "bytes": 15708,
+        "sha256": "74dc07c750aa9cdb11887967af5087818914eaadf0b2ed852e554688eaf30789"
+      },
+      "cost": {
+        "path": "/home/stemxstudio/rove4k-d-castle-direction-cost-20261021-v1/cost.json",
+        "bytes": 42542,
+        "sha256": "3ed0d96b4c0f6454358595906efa8632b8d9ed824803fc53e6c0ef31340d706c"
+      },
+      "focused": {
+        "path": "/home/stemxstudio/rove4k-d-castle-direction-focused-20261021-v1/results.json",
+        "bytes": 4402,
+        "sha256": "d32583e30a4298fd507f4cb4ff0a32dde88cb9b95b14668c15913321ab0a7008"
+      },
+      "audit_discovery": {
+        "path": "/home/stemxstudio/rove4k-d-castle-direction-audit-discovery-20261021-v1/discovery.json",
+        "bytes": 15542,
+        "sha256": "73bebb8311780a8c22c32f13f0048993136c092fbfb3958b2968cd470d048a07"
+      },
+      "board_before_sha256": "3a4c6f30c28581d576c4f0e40df7b4e6992027ab30edf00d384a76b763f9a935",
+      "board_after_sha256": "559e4589325152a493e565730581521d1c16ab5dea20cc8dc51ccc2505c30437",
+      "raw_delta": -57,
+      "whole_delta": [
+        -6,
+        -2
+      ],
+      "old_native_equality": false,
+      "scope": "first cost and scalar actual448root/9936orderedmove/592attack-calls-per-lane fatalSAN are separate; HQ common source independence only; physical normal validation below separate",
+      "normal_validation": {
+        "status": "PASS one ordinary builder and selected positive verifier",
+        "build": {
+          "path": "/home/stemxstudio/rove4k-d-castle-direction-normal-20261021-v1/build.json",
+          "bytes": 90158,
+          "sha256": "50d1d488d786048464d3b49049f95dcbf6a4434f16583035daad2d8431114244"
+        },
+        "runtime": {
+          "path": "/home/stemxstudio/rove4k-d-castle-direction-normal-runtime-20261021-v1/results.json",
+          "bytes": 58047,
+          "sha256": "d18a3a7e3756ae0657044568da5cf0bf75e7f093ca714c4f60bcc35b26362302"
+        },
+        "normal_wrapper": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-castle-direction-normal-promotion-20261021-evidence/normal.json",
+          "bytes": 8361,
+          "sha256": "14126604146d560bb25a108a0bfcd053a56e6ac4d23653bf81ae024d0337b90a"
+        },
+        "producing_recipe": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-castle-direction-normal-promotion-20261021-evidence/producing/recipe.json",
+          "bytes": 62487,
+          "sha256": "f3b217b73139db6b640fae7efe154de9eea914db30686e95d3eba9bf6e64f883"
+        },
+        "native_reproductions_each": 2,
+        "whole_reproductions_each": 2,
+        "audit_reproductions_each": 1,
+        "positive_preentry_sessions": 2,
+        "production_quit_EOF_sessions": 4,
+        "legal_GO_results": 12,
+        "startup_TIDs_each": 3,
+        "forced_cleanup": false,
+        "scope": "exact restored native RX and zero initial BSS/padding/guards/NX; persistent TIDs/stdio/nochildren and physical readers/process/group settlement; no negative/fault campaign, game or strength claim"
+      }
+    },
+    "pre_history_current_selection": {
+      "current_selection": "standalone K/Q castle direction sharing over clock-only packed-HCE D; full HCE/PVS/QS/learners/fullkey atomic16/SMP/fixed ISA preserved",
+      "source_lineage": "Only board.c two adjacent castle branches255-to198 change, same common origin gate, K then Q after ordinary king moves, rights/emptiness/transit attack short-circuit order; runtime14885 clock-only and seven other native sources unchanged."
+    },
+    "hq_history_derived": {
+      "source_plan": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-hq-history-conditional-source-20261021-evidence/proposal.json",
+        "bytes": 7675,
+        "sha256": "6757d3a5314894656df7cbb8cb6c20704e4ca05a2e542a29e89b5e058e9eb0d5"
+      },
+      "focused": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-hq-history-focused-20261021-evidence/final-index.json",
+        "bytes": 10606,
+        "sha256": "98bf0e8f59c595593f0e3c2661758e5d5a7032397e7d36fca7e384417240c7d3"
+      },
+      "class_extension_cost": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-history-derived-layout-extension-20261021-evidence/final-index.json",
+        "bytes": 8512,
+        "sha256": "2cc2e777de4ddb25f27d1f449a0edfd31c0d411ff2782e3d1bffbbea040822d7"
+      },
+      "original_geometry_failure": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-history-derived-first-cost-20261021-evidence/final-index.json",
+        "bytes": 5822,
+        "sha256": "aa95a4a4ef5ae9a0386564df2c97f28419720217e182c246cb88b1046a2c660a"
+      },
+      "HQ_audit_discovery": {
+        "path": "/home/stemxstudio/rove4k-d-hq-history-audit-discovery-20261021-v1/discovery.json",
+        "bytes": 9075,
+        "sha256": "baa6092ea68feed3f575bff38231820d2319bbf9a1fa7adbf17d3b2a0cb05953"
+      },
+      "scalar_cost_unselected_delta": 5,
+      "HQ_cost_delta": -12,
+      "exact_new_HQ_BSS_bytes": 175064,
+      "same_RW_pages": 176128,
+      "old_classes_retained": true,
+      "raw_Worker_memcmp": false,
+      "runtime_PVS_LMR_coverage": false,
+      "normal_validation": {
+        "status": "PASS one ordinary builder and selected positive verifier",
+        "build": {
+          "path": "/home/stemxstudio/rove4k-d-hq-history-normal-20261021-v1/build.json",
+          "bytes": 93613,
+          "sha256": "24486ef52753b474d58ba03b02370443ab980d10fb19a8dda22e257c3651716b"
+        },
+        "runtime": {
+          "path": "/home/stemxstudio/rove4k-d-hq-history-normal-runtime-20261021-v1/results.json",
+          "bytes": 57991,
+          "sha256": "711bf615bdd32b680bee281fb41bb7eb98b00090a75263b23c17f91824943378"
+        },
+        "normal_wrapper": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-hq-history-normal-promotion-20261021-evidence/normal.json",
+          "bytes": 8621,
+          "sha256": "f1c06e97bff84a43abb09d5137f98418144a417e2d124f1789e261971225802a"
+        },
+        "producing_recipe": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-hq-history-normal-promotion-20261021-evidence/producing/recipe.json",
+          "bytes": 66324,
+          "sha256": "6cd54699817fd2f19e0e9de0fab3c3cfa4708bdd46698bf214d16de4def94404"
+        },
+        "native_reproductions_each": 2,
+        "whole_reproductions_each": 2,
+        "audit_reproductions_each": 1,
+        "positive_preentry_sessions": 2,
+        "production_quit_EOF_sessions": 4,
+        "legal_GO_results": 12,
+        "startup_TIDs_each": 3,
+        "forced_cleanup": false,
+        "scope": "exact restored native RX and zero initial BSS/padding/guards/NX; persistent TIDs/stdio/nochildren and physical readers/process/group settlement; no negative/fault campaign, game or strength claim"
+      }
+    },
+    "tt_probe_stage_sharing": {
+      "source_proposal": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-tt-stage-source-proposal-20261022-evidence/final-index.json",
+        "bytes": 1428,
+        "sha256": "1fe6407ac5ca61d2da41d9869717be3509e11ba3a5332d55e32a97a1048b9b18"
+      },
+      "scalar_first_cost": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-tt-stage-scalar-first-cost-20261022-evidence/final-index.json",
+        "bytes": 13532,
+        "sha256": "2379835da95d82ef02e84cc634aa88159267ef3d7ae73d2dbed54edc8e874776"
+      },
+      "HQ_first_cost": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-tt-stage-hq-first-cost-20261022-evidence/final-index.json",
+        "bytes": 13665,
+        "sha256": "fe4c5ec926f1ea577576bf6dffbb85ff66dde78d6369f0721b3f706a790fb70c"
+      },
+      "source": {
+        "file": "native/search.c",
+        "old_bytes": 6401,
+        "old_sha256": "8ab07ac6fe92a69ae0fc24e604c72386a827813ddf74d09bc29ef4856472be77",
+        "new_bytes": 6317,
+        "new_sha256": "6f28dc49b1caf346ead734b4d054039418ce863d039a9ad18cd5b9477884f150",
+        "raw_delta": -84,
+        "spans": 1,
+        "full_inverse": true
+      },
+      "whole_delta_each": 0,
+      "native_packet_whole_all_byte_identical_each": true,
+      "guard_or_model_changes": 0,
+      "source_contract": "write==0 one stage; every nonzero int write two stages, same full key/payload expected pair and desired values, volatile/+m/+a/+d/b/c/cc/memory; failed writes remain best-effort drop without acknowledgement",
+      "DEV_scope": "same source-domain proof; ordinary selected builder compiles DEV0 only; no new DEV compile/runtime claim",
+      "normal_validation": {
+        "status": "PASS one unchanged ordinary builder; native/whole/audit bytes and ELF/BSS unchanged",
+        "build": {
+          "path": "/home/stemxstudio/rove4k-d-tt-stage-normal-20261022-v1/build.json",
+          "bytes": 97486,
+          "sha256": "7376bb3710b244032df7c871446419801faa1de612afdc410714b2fcef3a43e8"
+        },
+        "normal_wrapper": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-tt-stage-promotion-20261022-evidence/normal.json",
+          "bytes": 8161,
+          "sha256": "bb978aa4ccd092759b1ea86fa2a61557d1e77ee21ab618a3e9f4d069bef91b99"
+        },
+        "producing_recipe": {
+          "path": "/home/stemxstudio/rove4k-d-tt-stage-normal-20261022-v1/inputs/recipe.json",
+          "bytes": 70326,
+          "sha256": "05fe0ca04f90b2a2848f837abc2d50c64d305393d6300b18f64542362d43e76a"
+        },
+        "native_reproductions_each": 2,
+        "whole_reproductions_each": 2,
+        "audit_reproductions_each": 1,
+        "reused_selected_positive_runtime": {
+          "path": "/home/stemxstudio/rove4k-d-hq-history-normal-runtime-20261021-v1/results.json",
+          "bytes": 57991,
+          "sha256": "711bf615bdd32b680bee281fb41bb7eb98b00090a75263b23c17f91824943378"
+        },
+        "new_runtime_calls": 0,
+        "reuse_basis": "both selected native/whole/audit byte-for-byte identical to prior qualified images; layouts and unchanged verifier source identical",
+        "prior_positive_scope": "pre-entry2, quit/EOF4 sessions,12 legal GO, persistent3TIDs, exact restored RX/zero BSS/padding/guards/NX and physical readers/process/group cleanup",
+        "DEV_compile_calls": 0,
+        "forced_cleanup": false,
+        "scope": "Source reduction only. No new runtime/negative/fault/TTstress/ptrace/RIE/personality or DEV codegen qualification; no new concurrency/stack/performance/strength/4KiB claim. Only recipe/README changed after this producing normal."
+      },
+      "scope": "Source reduction only, not whole-file gain or a new concurrency/stack/performance/4KiB claim; original first-cost receipts remain frozen separately."
+    },
+    "body232_private_image": {
+      "scope": "new body-only packet v3; actual new full restored image and new own-ELF positive qualification, not legacy runtime reuse",
+      "scalar_first_cost": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-body-packet-first-cost-20261022-v2-evidence/cost.json",
+        "bytes": 9058,
+        "sha256": "02e325bf1c0920440d9f71f4db2997165cce667f7d758888135b6dfe4e2ad99b"
+      },
+      "hq_first_cost": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-body-packet-HQ-first-cost-20261022-evidence/cost.json",
+        "bytes": 9072,
+        "sha256": "15ea1d4d89d9ff4d62a686e2e0386689756ac9720728b6d2cd0270049ceba944"
+      },
+      "audit_discovery": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-body-packet-promotion-20261022-evidence/audit-discovery.json",
+        "bytes": 11046,
+        "sha256": "0ce82893a5d7e62f38b949c52c5b0d3e11ad243b5957e283cba8ac7e243f5ee1"
+      },
+      "final_class_DATA": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-body-packet-promotion-20261022-evidence/class-data-final.json",
+        "bytes": 716,
+        "sha256": "0c5fd33e15ce13a107361e09ded7183402e773a6c5c9cc79f62b42e1a35722e1"
+      },
+      "shared_helper_consumer_source_proof": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-body-packet-promotion-20261022-evidence/shared-helper-consumer-proof.json",
+        "bytes": 1919,
+        "sha256": "82b2370329646a4aab6e05155009255c73e4b1507b7871a124b647e0b4553bc1"
+      },
+      "producing_recipe": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-body-packet-promotion-20261022-evidence/producing-final/recipe.json",
+        "bytes": 77393,
+        "sha256": "697b583a960c71a32ff8a034c5276ed00e343da7b8d4d49101d45ef69566d0a2"
+      },
+      "ordinary_build": {
+        "path": "/home/stemxstudio/rove4k-d-body-packet-normal-20261022-v3/build/build.json",
+        "bytes": 106861,
+        "sha256": "12a27baceeafb6f0ada28f9ad8770851ce90805b72fe5d9ab89d7424ad97aff0"
+      },
+      "positive_runtime": {
+        "path": "/home/stemxstudio/rove4k-d-body-packet-normal-20261022-v3/runtime/results.json",
+        "bytes": 60049,
+        "sha256": "7c87119a6879ab30e59155a360c0903950e305bb7b2b9d1686b65c755f77ed02"
+      },
+      "actual_scope": {
+        "pre_entry": 2,
+        "production_sessions": 4,
+        "legal_GO_results": 12,
+        "persistent_TIDs": 3,
+        "physical_exit": "all return0, readers joined, original owned groups absent; forced cleanup0",
+        "fresh": 0,
+        "fault_negative_ptrace_RIE_personality_campaigns": 0,
+        "old_runtime_reused": false
+      },
+      "predecessors": "initial supervisor preexec CPU hard-limit failure preserved separately, actual product work0; three ordinary builds passed while two source-only API boundary findings were tightened; final products match first cost exactly",
+      "source_review": "analysis_reconcile SOURCE CLEAR; reviewer compile/codec/runtime0",
+      "context_format_annotation": "final v3 metadata corrects inherited v2 coded_length/packet-format wording; this dictionary is descriptive and not read by encoder/builder admission"
+    },
+    "previous_scalar_before_fused_rays": {
+      "hq": 0,
+      "native_bytes": 7612,
+      "native_sha256": "662b0eb10046d0b0ab105bba0f793371bb869eb61aa4419c8c2fa95f7d39c32d",
+      "whole_bytes": 5836,
+      "whole_sha256": "e726848454c05ca42eefcc65877203f5a2812d51e9902e169c01859bd06c72f9",
+      "payload_bytes": 4699,
+      "payload_sha256": "fa26f297f155563091f0ce9abe56751667ed2fbeaec061325510d6e0ddd95ddd",
+      "loader_and_headers_bytes": 1137,
+      "audit_bytes": 5859,
+      "audit_sha256": "419c47835f0db582e86a4a1d5c4b45876bb22768ab2152d6b159897a2eea180f",
+      "layout": {
+        "image_base": 4194304,
+        "image_size": 7612,
+        "image_pages": 8192,
+        "entry": 4201533,
+        "bss_base": 4202496,
+        "bss_size": 175092,
+        "bss_pages": 176128,
+        "guard_base": 4190208,
+        "upper_guard": 4378624,
+        "reserve_size": 192512,
+        "section_offset": 0,
+        "section_size": 0,
+        "section_count": 0,
+        "section_names": 0,
+        "segments": [
+          {
+            "type": 1,
+            "flags": 5,
+            "offset": 0,
+            "vaddr": 4194304,
+            "paddr": 4194304,
+            "filesz": 7612,
+            "memsz": 7612,
+            "align": 4096
+          },
+          {
+            "type": 1,
+            "flags": 6,
+            "offset": 0,
+            "vaddr": 4202496,
+            "paddr": 4202496,
+            "filesz": 0,
+            "memsz": 175092,
+            "align": 4096
+          },
+          {
+            "type": 1685382481,
+            "flags": 6,
+            "offset": 0,
+            "vaddr": 0,
+            "paddr": 0,
+            "filesz": 0,
+            "memsz": 0,
+            "align": 8
+          }
+        ]
+      },
+      "model_wmask": 16847486,
+      "image": {
+        "format": "rove4k-context-h24-base10-fixed21-body232-zero4-v3",
+        "zero_prefix_bytes": 232,
+        "compiled_native_bytes": 7612,
+        "compiled_native_sha256": "662b0eb10046d0b0ab105bba0f793371bb869eb61aa4419c8c2fa95f7d39c32d",
+        "restored_image_bytes": 7612,
+        "restored_image_sha256": "07b6754aabefd1171fbdfae84ce30e1b50cff8a527a124d99998e18170f0d07c"
+      }
+    },
+    "scalar_fused_rays": {
+      "status": "maintained ordinary and actual positive PASS",
+      "source_proposal_sha256": "09ff6dce3d5c9ef3843f3631957c9b7e159ae4c8a0891f4a7986b4c8a196aa0b",
+      "firstcost_index_sha256": "e51385d8aa3573afb74794b6935402acd44f4bab84e6d25ab07163b04af57bf9",
+      "policy_delta": "scalar slider destination-bit order becomes direction-major near-to-far; no equal-node/strength claim",
+      "canonical_native_unchanged": true,
+      "HQ_and_DEV_old_walker": true,
+      "prior_Board_proof": "402 states and three perft cases, actual old/new Move sets and semantic children, candidate fatal UBSan; external only",
+      "prior_runtime": "two actual5717 production sessions/six legal GO; does not substitute this new maintained normal",
+      "audit_discovery": {
+        "path": "\\\\wsl.localhost\\Ubuntu\\home\\stemxstudio\\rove4k-d-fused-ray-promotion-20261024-v1\\audit\\discovery.json",
+        "bytes": 3336,
+        "sha256": "cfe45bdcd5863d7eec93482649816d69757c26d80237aa03f2c9bc6fed9609e2",
+        "scope": "one CHECKPOINT1 compile; exact same4580 packet/source/flags/model/geometry, strictRX/nonexec-stack static admission; no execution"
+      },
+      "normal_build": {
+        "path": "\\\\wsl.localhost\\Ubuntu\\home\\stemxstudio\\rove4k-d-fused-ray-promotion-20261024-v1\\normal\\build\\build.json",
+        "bytes": 138354,
+        "sha256": "60a8af1828a49c1fb4d4754cc134f7b5b2d548e9eb2592aaaa4f431becfc8e38"
+      },
+      "positive_results": {
+        "path": "\\\\wsl.localhost\\Ubuntu\\home\\stemxstudio\\rove4k-d-fused-ray-promotion-20261024-v1\\positive\\runtime\\results.json",
+        "bytes": 60131,
+        "sha256": "a4781a55ae4612c2dcd3c0941b719c8ba75113a0fc50cfb9d1591d32e6a8b831"
+      },
+      "actual_outputs": {
+        "scalar-shipping": {
+          "native": {
+            "path": "\\\\wsl.localhost\\Ubuntu\\home\\stemxstudio\\rove4k-d-fused-ray-promotion-20261024-v1\\normal\\build\\scalar-shipping\\native-first\\x",
+            "bytes": 7388,
+            "sha256": "395fea4ddf80d155227700fa8da9b06437082837a1878a818605f268506de50c"
+          },
+          "packet": {
+            "path": "\\\\wsl.localhost\\Ubuntu\\home\\stemxstudio\\rove4k-d-fused-ray-promotion-20261024-v1\\normal\\build\\scalar-shipping\\context\\payload.bin",
+            "bytes": 4580,
+            "sha256": "5cceeece8235c77550169061f7c7f287cd13dbef3f158979f3302923cb84d4c4"
+          },
+          "own_ELF": {
+            "path": "\\\\wsl.localhost\\Ubuntu\\home\\stemxstudio\\rove4k-d-fused-ray-promotion-20261024-v1\\normal\\build\\scalar-shipping\\context\\x",
+            "bytes": 5717,
+            "sha256": "759f10c75724ca2151f38a84ba34ccbb1f5ace3dd158378e677b533c026a3200"
+          },
+          "audit": {
+            "path": "\\\\wsl.localhost\\Ubuntu\\home\\stemxstudio\\rove4k-d-fused-ray-promotion-20261024-v1\\normal\\build\\scalar-shipping\\context-audit\\x",
+            "bytes": 5740,
+            "sha256": "dddc6a9214a1b39a2e47ef291aa3d58bfeccc52f7c401f5e5b2450ec389cc90d"
+          },
+          "restored_image": {
+            "path": "\\\\wsl.localhost\\Ubuntu\\home\\stemxstudio\\rove4k-d-fused-ray-promotion-20261024-v1\\normal\\build\\scalar-shipping\\restored-image.bin",
+            "bytes": 7388,
+            "sha256": "b2982877c1c1bf97cafcfcd5b9dd210835a3eded07dcbf3c38e8c991c4d8943a"
+          },
+          "native_reproduced": true,
+          "whole_reproduced": true,
+          "compared_entire_bytes_to_prior": "\\\\wsl.localhost\\Ubuntu\\home\\stemxstudio\\rove4k-d-scalar-fused-ray-first-cost-20261023"
+        },
+        "hq-shipping": {
+          "native": {
+            "path": "\\\\wsl.localhost\\Ubuntu\\home\\stemxstudio\\rove4k-d-fused-ray-promotion-20261024-v1\\normal\\build\\hq-shipping\\native-first\\x",
+            "bytes": 8000,
+            "sha256": "3c662941aa11af8521d3c601322e9aa38405a3bfbeb9332d55008907217a4b2e"
+          },
+          "packet": {
+            "path": "\\\\wsl.localhost\\Ubuntu\\home\\stemxstudio\\rove4k-d-fused-ray-promotion-20261024-v1\\normal\\build\\hq-shipping\\context\\payload.bin",
+            "bytes": 4900,
+            "sha256": "d974d3c9683cfd2bfdc271ce9405ec3f6cb46be24e1cfcd5d18c0bcf8b8e2cba"
+          },
+          "own_ELF": {
+            "path": "\\\\wsl.localhost\\Ubuntu\\home\\stemxstudio\\rove4k-d-fused-ray-promotion-20261024-v1\\normal\\build\\hq-shipping\\context\\x",
+            "bytes": 6037,
+            "sha256": "b7cf68ec898e6b550c89ebb2dd94fc9f7c1f215b3c24237096ea1c55f54a0262"
+          },
+          "audit": {
+            "path": "\\\\wsl.localhost\\Ubuntu\\home\\stemxstudio\\rove4k-d-fused-ray-promotion-20261024-v1\\normal\\build\\hq-shipping\\context-audit\\x",
+            "bytes": 6060,
+            "sha256": "6f2e808246e648f5c9fc65dd9fc103311375a87e4581946a89efacc70edb532e"
+          },
+          "restored_image": {
+            "path": "\\\\wsl.localhost\\Ubuntu\\home\\stemxstudio\\rove4k-d-fused-ray-promotion-20261024-v1\\normal\\build\\hq-shipping\\restored-image.bin",
+            "bytes": 8000,
+            "sha256": "f2b4804631d293ccb4742ed8718869a29736bfb46f840044659e44c8d0f95d4b"
+          },
+          "native_reproduced": true,
+          "whole_reproduced": true,
+          "compared_entire_bytes_to_prior": "\\\\wsl.localhost\\Ubuntu\\home\\stemxstudio\\rove4k-d-body-packet-normal-20261022-v3\\build\\hq-shipping"
+        }
+      },
+      "counts": {
+        "ordinary_calls": 1,
+        "native_compiles": 4,
+        "encodes": 4,
+        "production_loader_compiles": 4,
+        "ordinary_audit_compiles": 2,
+        "prior_audit_discovery_compiles": 1,
+        "positive_calls": 1,
+        "pre_entry_sessions": 2,
+        "shipping_quit_EOF_sessions": 4,
+        "legal_GO": 12,
+        "persistent_TIDs_per_shipping_session": 3,
+        "fresh": 0,
+        "baseline_regeneration": 0,
+        "fault_negative_ptrace_RIE_personality_games_benchmarks": 0,
+        "product_failures": 0,
+        "product_retries": 0
+      },
+      "source_only_preparation_failures": {
+        "count": 2,
+        "cause": "terminal LF ownership of frozen function/c.in wrapper literals",
+        "before_products": true,
+        "preserved": "preparation-failure-v1.json and preparation-failure-v2.json"
+      },
+      "physical_ownership": "all original command handles rc0/reaped with pre-reap other members empty and group absent; forced0, cleanup[], owned0; no late PID signals",
+      "producing_final": "Only README and recipe completion metadata changed after successful producing source freeze; expected identities/code/guard logic unchanged",
+      "limitations": "scalar changed move order: no equal nodes/strength/SMP scaling/final resources or 4KiB acceptance; source preservation does not claim a new DEV binary run"
+    },
+    "previous_source_lineage_before_fused_rays": "Only HQ&&!DEV selects derived game_length+ply; all scalar and DEV owned regions retain original exact text; header/search change, other native6 and loader/model/flags/protocol remain unchanged. Subsequent TT-stage source-only cleanup shares the two cmpxchg16b asm statements in one finite stage loop; selected shipping native/packet/whole/audit identities remain unchanged.",
+    "previous_selection_before_static_tt": {
+      "current_selection": "Scalar shipping fused mailbox rays; HQ6037 and all DEV select original canonical walker; full HCE/PVS/QS/learners/fullkey atomic16/SMP/fixed ISA retained. Scalar slider enumeration policy changes.",
+      "source_lineage": "Canonical native8 retained byte-exact; pure late shipping helper replaces one walker with #if D_HQ||DEV original / scalarshipping fused. Every HQ or DEV owned function remains original. Scalar slider order changes explicitly; exact old scalar remains in prior admissions/metadata. All fixed loader/model/flags/profile/ISA remain.",
+      "scope": "new hardware-decoder production restoration/preentry/ISA admission observed in the sole normal fresh; predecessor stages retain their original boundaries, including outer discovery terminal1 failure; no generic x86/latest tournament CPU/strength/performance/4KiB claim"
+    },
+    "scalar_static_tt": {
+      "status": "PASS_ordinary_reproduction_and_focused_scalar_positive",
+      "build": {
+        "path": "/home/stemxstudio/rove4k-d-static-tt-normal-20261024-v1/build/build.json",
+        "bytes": 150146,
+        "sha256": "53abe23ebdd474f8043999beae0455f8093e2283e226ff93a06df94ebe7c005a"
+      },
+      "positive": {
+        "path": "/home/stemxstudio/rove4k-d-static-tt-normal-20261024-v1/positive/results.json",
+        "bytes": 31581,
+        "sha256": "d813ace82ab9977a03a0a738214812ed5592252b3604494ce75bc0602b4a38a8"
+      },
+      "producing_source25": {
+        "path": "C:\\Users\\\uac15\ubbfc\uc218\\Documents\\Codex\\rove4k-d-static-tt-cost-20261024-evidence\\normal-producing\\source25.json",
+        "bytes": 8330,
+        "sha256": "a9fb4ca48aab5bc30a4b6334ff4aba1461c018ace527828dde00d6c7b3190c2f"
+      },
+      "counts": {
+        "ordinary_builder": 1,
+        "native_compile": 4,
+        "shipping_loader_compile": 4,
+        "audit_loader_compile": 2,
+        "fixed_encode": 4,
+        "metadata_commands": 2,
+        "scalar_shipping_sessions": 2,
+        "scalar_GO": 6,
+        "scalar_preentry": 1,
+        "HQ_runtime": 0,
+        "fresh": 0,
+        "negative_fault_campaign": 0
+      },
+      "observed": "Exact new scalar zero232 RX and padding; full4370432-byte initial BSS/padding zero including TT storage; lower3ff000/upper82d000 guards, RW BSS, NX process/worker stacks, no WX; two persistent workers, legal clocked results, active search before quit/EOF, only stdio/no children, readers/group settled naturally. HQ native/whole/audit reproduction exact; no new HQ runtime run.",
+      "limits": "No old TT mmap-failure inheritance, new failure injection, general TT/SMP race or strength/scaling claim. No fresh archive runtime campaign; transient AS increase not measured RSS. Existing local exposed SSE4.2/CX16 admission only."
+    },
+    "before_dead_score": {
+      "scope": "Previous exact qualified scalar5540 class retained in packer/codec/validator; no new runtime claim",
+      "scalar": {
+        "hq": 0,
+        "native_bytes": 7324,
+        "native_sha256": "2456cedd1eea62d87b50423a24bbc321a84c5cdb86e64adeafb33bf9472d6af6",
+        "layout": {
+          "entry": 4201269,
+          "section_offset": 0,
+          "section_size": 0,
+          "section_count": 0,
+          "section_names": 0,
+          "segments": [
+            {
+              "type": 1,
+              "flags": 5,
+              "offset": 0,
+              "vaddr": 4194304,
+              "paddr": 4194304,
+              "filesz": 7324,
+              "memsz": 7324,
+              "align": 4096
+            },
+            {
+              "type": 1,
+              "flags": 6,
+              "offset": 0,
+              "vaddr": 4202496,
+              "paddr": 4202496,
+              "filesz": 0,
+              "memsz": 4369412,
+              "align": 4096
+            },
+            {
+              "type": 1685382481,
+              "flags": 6,
+              "offset": 0,
+              "vaddr": 0,
+              "paddr": 0,
+              "filesz": 0,
+              "memsz": 0,
+              "align": 8
+            }
+          ],
+          "image_base": 4194304,
+          "image_size": 7324,
+          "image_pages": 8192,
+          "bss_base": 4202496,
+          "bss_size": 4369412,
+          "bss_pages": 4370432,
+          "guard_base": 4190208,
+          "upper_guard": 8572928,
+          "reserve_size": 4386816
+        },
+        "image": {
+          "format": "rove4k-context-h28-base10-fixed21-body232-zero4-v1",
+          "zero_prefix_bytes": 232,
+          "compiled_native_bytes": 7324,
+          "compiled_native_sha256": "2456cedd1eea62d87b50423a24bbc321a84c5cdb86e64adeafb33bf9472d6af6",
+          "restored_image_bytes": 7324,
+          "restored_image_sha256": "08e48273a79303ef363eefd26f043185d6f9de7aec66a23f29454f279e316d5d"
+        },
+        "model_wmask": 16847486,
+        "whole_bytes": 5540,
+        "whole_sha256": "309ab681eecb98383a001d0c657262b46a54299fc47433fd2f56931014823a21",
+        "payload_bytes": 4471,
+        "payload_sha256": "2777d87d5aaf0f02a252620135cb0402e83d3b1036eea8fcf08651d56ea61387",
+        "loader_and_headers_bytes": 1069,
+        "audit_bytes": 5563,
+        "audit_sha256": "9adc8a26dc213c47ba72719f0a4d5b3c7a4c835af4a259cc05a32bdb3328a8ae"
+      }
+    }
+  },
+  "shipping_protocol": {
+    "id": "finite-minimum-v1",
+    "identification": false,
+    "stop": "consume",
+    "ucinewgame": "consume",
+    "infinite": "consume",
+    "default_budget_ms": 1000,
+    "own_clock_formula": "unchanged",
+    "hard_wall_cap": false,
+    "completion_fences": "next go, position, quit, EOF acquire pending==0 after result output"
+  },
+  "context_format": {
+    "hash_bits": 24,
+    "base_probability": 10,
+    "table_bytes": 33554432,
+    "coded_length": "u32 (IMAGE_SIZE-232)*8+1; IMAGE_SIZE remains full admitted native extent",
+    "model_count": 21,
+    "models": "unchanged loader/models.json, ordered21 mask bytes at packet front",
+    "zero_tail_bytes": 4,
+    "CRC": "software reflected CRC32C raw state, no initial/final XOR",
+    "table_lifetime": "private anonymous kernel-zero RW; checked munmap before inverse BCJ and native entry",
+    "BCJ": "whole compiled native E8/E9 transform at original file offsets, encode bytes[232:]; inverse over zero232 plus decoded body, original file offset+5",
+    "header_bytes": 21,
+    "weightmask": "exact selected form literal passed as MODEL_WMASK, unsigned32 replay per coded bit",
+    "model_schema_format": "rove4k-context-h24-base10-u32-zero4-v1",
+    "packet_format": "rove4k-context-h24-base10-fixed21-body232-zero4-v3",
+    "restored_prefix_bytes": 232
+  },
+  "execution_isa": "linux-x86_64-sse4.2-cx16-crc32b-v1",
+  "legacy_v2": {
+    "codec": "rove4k-context-h24-base10-fixed21-replay-zero4-v2",
+    "expected": {
+      "scalar-shipping": {
+        "hq": 0,
+        "native_bytes": 7612,
+        "native_sha256": "662b0eb10046d0b0ab105bba0f793371bb869eb61aa4419c8c2fa95f7d39c32d",
+        "whole_bytes": 5908,
+        "whole_sha256": "d7a0b5fa3f5dcf96368630283f756fee4bf04034b58cd970700e6197c4471490",
+        "payload_bytes": 4771,
+        "payload_sha256": "c9127fa880b803d610246e97f9dd9000652b8bdcc2d11c5288cd4c08b8750578",
+        "loader_and_headers_bytes": 1137,
+        "audit_bytes": 5931,
+        "audit_sha256": "46ebc96c8e0fdd46a6f5b93668fd3b82b4ee746b9e44513d1532a3fc48963e90",
+        "layout": {
+          "image_base": 4194304,
+          "image_size": 7612,
+          "image_pages": 8192,
+          "entry": 4201533,
+          "bss_base": 4202496,
+          "bss_size": 175092,
+          "bss_pages": 176128,
+          "guard_base": 4190208,
+          "upper_guard": 4378624,
+          "reserve_size": 192512,
+          "section_offset": 0,
+          "section_size": 0,
+          "section_count": 0,
+          "section_names": 0,
+          "segments": [
+            {
+              "type": 1,
+              "flags": 5,
+              "offset": 0,
+              "vaddr": 4194304,
+              "paddr": 4194304,
+              "filesz": 7612,
+              "memsz": 7612,
+              "align": 4096
+            },
+            {
+              "type": 1,
+              "flags": 6,
+              "offset": 0,
+              "vaddr": 4202496,
+              "paddr": 4202496,
+              "filesz": 0,
+              "memsz": 175092,
+              "align": 4096
+            },
+            {
+              "type": 1685382481,
+              "flags": 6,
+              "offset": 0,
+              "vaddr": 0,
+              "paddr": 0,
+              "filesz": 0,
+              "memsz": 0,
+              "align": 8
+            }
+          ]
+        },
+        "model_wmask": 16847486
+      },
+      "hq-shipping": {
+        "hq": 1,
+        "native_bytes": 8000,
+        "native_sha256": "3c662941aa11af8521d3c601322e9aa38405a3bfbeb9332d55008907217a4b2e",
+        "whole_bytes": 6111,
+        "whole_sha256": "9e4167c6b4bba2978d1b3685901bef89fd90ff9929f7991f8c39cbaa94819a62",
+        "payload_bytes": 4974,
+        "payload_sha256": "c0635ffd8a38b7e77d94bc24704caa29bd9f8be9fba4006dfc67fdd2a0a508ef",
+        "loader_and_headers_bytes": 1137,
+        "audit_bytes": 6134,
+        "audit_sha256": "50dd8d89b10b2fc7b09b11f5f21215f7e8035d1edac6948dd6b7ff0ef68153f9",
+        "layout": {
+          "image_base": 4194304,
+          "image_size": 8000,
+          "image_pages": 8192,
+          "entry": 4201846,
+          "bss_base": 4202496,
+          "bss_size": 175064,
+          "bss_pages": 176128,
+          "guard_base": 4190208,
+          "upper_guard": 4378624,
+          "reserve_size": 192512,
+          "section_offset": 0,
+          "section_size": 0,
+          "section_count": 0,
+          "section_names": 0,
+          "segments": [
+            {
+              "type": 1,
+              "flags": 5,
+              "offset": 0,
+              "vaddr": 4194304,
+              "paddr": 4194304,
+              "filesz": 8000,
+              "memsz": 8000,
+              "align": 4096
+            },
+            {
+              "type": 1,
+              "flags": 6,
+              "offset": 0,
+              "vaddr": 4202496,
+              "paddr": 4202496,
+              "filesz": 0,
+              "memsz": 175064,
+              "align": 4096
+            },
+            {
+              "type": 1685382481,
+              "flags": 6,
+              "offset": 0,
+              "vaddr": 0,
+              "paddr": 0,
+              "filesz": 0,
+              "memsz": 0,
+              "align": 8
+            }
+          ]
+        },
+        "model_wmask": 135274878
+      }
+    },
+    "context_format": {
+      "hash_bits": 24,
+      "base_probability": 10,
+      "table_bytes": 33554432,
+      "coded_length": "u32 IMAGE_SIZE*8+1, derived from the exact admitted native, no stream length field",
+      "model_count": 21,
+      "models": "unchanged loader/models.json, ordered21 mask bytes at packet front",
+      "zero_tail_bytes": 4,
+      "CRC": "software reflected CRC32C raw state, no initial/final XOR",
+      "table_lifetime": "private anonymous kernel-zero RW; checked munmap before inverse BCJ and native entry",
+      "BCJ": "whole native file including header, E8/E9 rel32 modulo 2^32, file offset+5, skip four operand bytes",
+      "header_bytes": 21,
+      "weightmask": "exact selected form literal passed as MODEL_WMASK, unsigned32 replay per coded bit",
+      "model_schema_format": "rove4k-context-h24-base10-u32-zero4-v1",
+      "packet_format": "rove4k-context-h24-base10-fixed21-replay-zero4-v2"
+    }
+  },
+  "image_contract": {
+    "class": "rove4k-context-h24-base10-fixed21-body232-zero4-v3",
+    "compiled_native": "unchanged complete ELF used for exact admission/layout",
+    "restored_image": "zero232 || compiled_native[232:] at original addresses; full N-byte SHA including zero prefix",
+    "decoded_bytes": "N-232 post-whole-offset-BCJ bytes",
+    "memory_extent": "original N, entry, RX pages, BSS, guards, reserve and model remain unchanged",
+    "legacy": "legacy_v2 retains previous exact native/payload/whole/audit admission; encode_native and compile_loader default stay full RX"
+  },
+  "shipping_source_sha256": {
+    "shipping_fused_ray.py": "1d9d23699300c0d1ef3c27a06f4f705b2074bba2e5bc5b684716c11e02f4e54b",
+    "shipping_context_h28.py": "1a09c497b04817276682d98ecbc3d8b1483dde4b79698764781c46c7694855e1",
+    "shipping_refill.py": "acfa96bea5faed7183d4226b3bfe0e1b13478e39dcd995d439eddf69055ed5e4",
+    "shipping_static_tt.py": "48ead4f5b283fc2f8d97a4bf87ec8d9ab29f723ce8736dfac126210529f83295",
+    "shipping_dead_score.py": "bc781192cdd899750ff607c63f054edae6bae84c3796b5556e7d7b907cb9438e"
+  },
+  "generated_native_source_sha256": {
+    "native/board.c": "53458b95da840708cf39c2b144f0d75bddcbd1c541d64b66cdbffba8d298a86a"
+  },
+  "form_codecs": {
+    "scalar-shipping": "rove4k-context-h28-base10-fixed21-body232-zero4-v1",
+    "hq-shipping": "rove4k-context-h24-base10-fixed21-body232-zero4-v3"
+  },
+  "scalar_context_resource": {
+    "hash_bits": 28,
+    "temporary_table_bytes": 536870912,
+    "released_before_native_entry": true,
+    "HQ_context_hash_bits": 24,
+    "first_cost": {
+      "path": "C:\\Users\\\uac15\ubbfc\uc218\\Documents\\Codex\\rove4k-d-h28-first-cost-20261024-evidence\\final-index.json",
+      "sha256": "2cd90e52f3b1c01de32ca3db75a80bc32a69b62bf526910d13d8042f6232fac4"
+    },
+    "runtime_qualification": "actual maintained ordinary and positive pass; target total-memory eligibility remains open"
+  },
+  "local_H28_validation": {
+    "ordinary_build": {
+      "path": "/home/stemxstudio/rove4k-d-h28-promotion-20261024-v1/normal/build/build.json",
+      "bytes": 144786,
+      "sha256": "7bdda219752eda0fb7c90ab2b09ebc6e9437ce34aeeb47f12cdc496b1d481a42"
+    },
+    "positive": {
+      "path": "/home/stemxstudio/rove4k-d-h28-promotion-20261024-v1/positive/runtime/results.json",
+      "bytes": 61353,
+      "sha256": "8d786c2a61a871111ad0ff9e0656b9e665f28377697b2113c1b857ba49e88b98"
+    },
+    "startup_memory": {
+      "path": "/home/stemxstudio/rove4k-d-h28-promotion-20261024-v1/positive/runtime/startup-memory.json",
+      "bytes": 124049,
+      "sha256": "963879bbdeb3468c0ded05e4f9949f2f2bdaee05c5a742cf72f39d7b4dd5493a"
+    },
+    "final_waitid_checkpoint": {
+      "path": "/home/stemxstudio/rove4k-d-h28-promotion-20261024-v1/checkpoint-final/results.json",
+      "bytes": 6741,
+      "sha256": "29dc0688eb55e1a935838ca5349fb4d3ae3a13af3249990b07d8607285815bad"
+    },
+    "source_during_production": {
+      "verify_bytes": 39162,
+      "verify_sha256": "216cf1c6a00c56ba1e4a12e0628f18c07ec2deca6a06dec56190af6770d86d8a"
+    },
+    "final_verify": {
+      "path": "C:\\Users\\\uac15\ubbfc\uc218\\Documents\\Codex\\rove4k-engines-af-20261020\\engines\\compact\\tiny-entry-d\\verify.py",
+      "bytes": 39269,
+      "sha256": "9f8a6a0f73c116d981df3bb522986d9b8dae116a9853c710191c0cfdf7985332"
+    },
+    "source_policy": "scalar-H28-HQ-H24-v1",
+    "startup": [
+      {
+        "directory": "/home/stemxstudio/rove4k-d-h28-promotion-20261024-v1/positive/runtime/scalar-shipping/quit",
+        "startup_seconds": 0.44175970700007383,
+        "ready_VmSize_kB": 6504,
+        "ready_VmRSS_kB": 16,
+        "kernel_VmHWM_kB": 522624,
+        "exact_512MiB_extent_observed": true,
+        "no_overlap_metric_preserved": false,
+        "whole_process_VmSize_smaller_than_old_scratch": true,
+        "interpretation": "The old 512MiB RW extent is not retained at ready. Some of its addresses are reused for small guarded worker/TT mappings; therefore the stronger no-overlap metric remains false. Checked munmap-before-entry source plus observed ready address space support release; no syscall trace."
+      },
+      {
+        "directory": "/home/stemxstudio/rove4k-d-h28-promotion-20261024-v1/positive/runtime/scalar-shipping/EOF",
+        "startup_seconds": 0.45100366699989536,
+        "ready_VmSize_kB": 6504,
+        "ready_VmRSS_kB": 16,
+        "kernel_VmHWM_kB": 522624,
+        "exact_512MiB_extent_observed": true,
+        "no_overlap_metric_preserved": false,
+        "whole_process_VmSize_smaller_than_old_scratch": true,
+        "interpretation": "The old 512MiB RW extent is not retained at ready. Some of its addresses are reused for small guarded worker/TT mappings; therefore the stronger no-overlap metric remains false. Checked munmap-before-entry source plus observed ready address space support release; no syscall trace."
+      }
+    ],
+    "production_failures": 0,
+    "production_retries": 0,
+    "pre_product_preparation_errors": 2,
+    "final_small_source_fix": "checkpoint stop/exit observation uses WNOWAIT waitid; only two existing audit sessions rechecked; shipping4sessions not repeated",
+    "resource_scope": "512MiB transient scratch, fixed2workers/TT18/PLY128, AS4GiB supervisor, actualready<60; targettotalmemory/manycore/4KiB/strength remain open"
+  },
+  "scalar_decoder_impl": {
+    "policy": "H28-private-shared-prefill-refill-v1",
+    "cost_index_sha256": "258ea3d2a0a13badf19b61e9658a32bd113da24c85e584d23a647fa29aeb81cc",
+    "qualification": "actual maintained ordinary and positive PASS"
+  },
+  "local_shared_refill_validation": {
+    "build": {
+      "path": "/home/stemxstudio/rove4k-d-shared-refill-promotion-20261024-v1/normal/build/build.json",
+      "bytes": 146322,
+      "sha256": "3096fb087991686b97fca4dfda5fc2cf9e8e2a896c952a336f1a0dcc17bfb9a8"
+    },
+    "runtime": {
+      "path": "/home/stemxstudio/rove4k-d-shared-refill-promotion-20261024-v1/positive/runtime/results.json",
+      "bytes": 61537,
+      "sha256": "e06b34f0d7e259fcb31073efa3ebf87c08613c2c9ecb19dd9898576b14c8caca"
+    },
+    "audit_discovery": {
+      "path": "/home/stemxstudio/rove4k-d-shared-refill-promotion-20261024-v1/audit/discovery.json",
+      "bytes": 4661,
+      "sha256": "4e9cf34ec8cd8344eca38055370178741cdc6afb2f5d84fbcdf707b5be6206e7"
+    },
+    "producing_recipe": {
+      "path": "/home/stemxstudio/rove4k-d-shared-refill-promotion-20261024-v1/normal/build/inputs/recipe.json",
+      "bytes": 95736,
+      "sha256": "b6b614f40443e981e1b3993d3e232fabaeea385f51e15b7e04254ec9014eab56"
+    },
+    "producing_source_pins": {
+      "path": "C:/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-shared-refill-promotion-20261024-evidence/normal-source-pins.json",
+      "bytes": 2805,
+      "sha256": "d444685a88a6e359297afeda16fde1cc1bf6bf04d538ea94c144a54c96c209de"
+    },
+    "verifier": {
+      "path": "C:/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-engines-af-20261020/engines/compact/tiny-entry-d/verify.py",
+      "bytes": 39962,
+      "sha256": "f5ed4ddbb90c985e45d5f3fc44f9f1a5a8ba35afd401c804ae42ecf6423ef2bd"
+    },
+    "generic_body_proof": {
+      "path": "C:/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-shared-refill-promotion-20261024-evidence/generic-body-proof.json",
+      "bytes": 480,
+      "sha256": "7bc5084f998cfeba6724ba0151edcae6e5de9d09fa1d42873dcb4a10e88917f0"
+    },
+    "actual_scope": "two native rebuilds and two packet/own-ELF reproductions per form; new real C decoder two CHECKPOINT plus scalar/HQ quitEOF four sessions,12 legal GO; full restored RX, initial BSS only in audit, guarded/NX/W^X/FD/children/3TID/physical exit",
+    "failures": 0,
+    "product_retries": 0,
+    "owned_handles": 0,
+    "forced_cleanup": 0,
+    "resource_scope": "H28 table remains512MiB; current strict startup uses60s maximum, actual complete positive command2.70s. Detailed RSS/map-reuse observations belong to prior H28 decoder; no fresh RSS sampling or target resource/strength acceptance claimed.",
+    "not_run": [
+      "fresh",
+      "negative",
+      "fault",
+      "ptrace",
+      "RIE",
+      "personality",
+      "SAN",
+      "game",
+      "benchmark",
+      "training",
+      "paid"
+    ]
+  },
+  "form_generated_native_source_sha256": {
+    "scalar-shipping": {
+      "tiny.h": "ca4e8777ce416f578b8b4f87cd1663bfb0074a968a50f28f7ee8e10459a517c9",
+      "board.c": "53458b95da840708cf39c2b144f0d75bddcbd1c541d64b66cdbffba8d298a86a",
+      "search.c": "c59adfc170c9e0b2abdae1ff3854fbc2997b3cf70b1c784616eab7fefb2526f0",
+      "runtime.c": "d4ce667c6e85cb919619fb8ce3f6358cbf7e1b1a1a1b5be506c955931adbcac6",
+      "hq.h": "ad66a03cef5288010c4377b81ee3661320195545aee6c664a42d3828bfc8b412",
+      "hq.c": "50b246280ac1f0b9e1f20834f302b31e30221101abd979bbdc146fcae7c12b5f",
+      "start.S": "4a6021518cfe67bee9e42806b596f4f0837e3e93487b1acfa115158ea019ba5b",
+      "image.ld": "38756c865914b52432572864446fcc58b791dfb508af8a33156d5c190c01044b"
+    },
+    "hq-shipping": {
+      "tiny.h": "55a0a29dc2a5c378937443c4cc6c2067520a280793d7ecdd14a733941351e4ba",
+      "board.c": "53458b95da840708cf39c2b144f0d75bddcbd1c541d64b66cdbffba8d298a86a",
+      "search.c": "6f28dc49b1caf346ead734b4d054039418ce863d039a9ad18cd5b9477884f150",
+      "runtime.c": "2febf5acec5a3c74ab3a6dcb2fd2a1eb2ba44fab4d6892d9c354fcdcebfe4342",
+      "hq.h": "ad66a03cef5288010c4377b81ee3661320195545aee6c664a42d3828bfc8b412",
+      "hq.c": "50b246280ac1f0b9e1f20834f302b31e30221101abd979bbdc146fcae7c12b5f",
+      "start.S": "4a6021518cfe67bee9e42806b596f4f0837e3e93487b1acfa115158ea019ba5b",
+      "image.ld": "38756c865914b52432572864446fcc58b791dfb508af8a33156d5c190c01044b"
+    }
+  },
+  "native_storage_policy": {
+    "id": "scalar-loader-owned-static-TT-v1",
+    "scope": "scalar shipping only; canonical/HQ/DEV retained",
+    "TT_BITS": 18,
+    "entries": 262144,
+    "Entry_bytes": 16,
+    "Entry_alignment": 16,
+    "TT_bytes": 4194304,
+    "old_scalar_expected": {
+      "hq": 0,
+      "native_bytes": 7388,
+      "native_sha256": "395fea4ddf80d155227700fa8da9b06437082837a1878a818605f268506de50c",
+      "layout": {
+        "entry": 4201328,
+        "section_offset": 0,
+        "section_size": 0,
+        "section_count": 0,
+        "section_names": 0,
+        "segments": [
+          {
+            "type": 1,
+            "flags": 5,
+            "offset": 0,
+            "vaddr": 4194304,
+            "paddr": 4194304,
+            "filesz": 7388,
+            "memsz": 7388,
+            "align": 4096
+          },
+          {
+            "type": 1,
+            "flags": 6,
+            "offset": 0,
+            "vaddr": 4202496,
+            "paddr": 4202496,
+            "filesz": 0,
+            "memsz": 175092,
+            "align": 4096
+          },
+          {
+            "type": 1685382481,
+            "flags": 6,
+            "offset": 0,
+            "vaddr": 0,
+            "paddr": 0,
+            "filesz": 0,
+            "memsz": 0,
+            "align": 8
+          }
+        ],
+        "image_base": 4194304,
+        "image_size": 7388,
+        "image_pages": 8192,
+        "bss_base": 4202496,
+        "bss_size": 175092,
+        "bss_pages": 176128,
+        "guard_base": 4190208,
+        "upper_guard": 4378624,
+        "reserve_size": 192512
+      },
+      "image": {
+        "format": "rove4k-context-h28-base10-fixed21-body232-zero4-v1",
+        "zero_prefix_bytes": 232,
+        "compiled_native_bytes": 7388,
+        "compiled_native_sha256": "395fea4ddf80d155227700fa8da9b06437082837a1878a818605f268506de50c",
+        "restored_image_bytes": 7388,
+        "restored_image_sha256": "b2982877c1c1bf97cafcfcd5b9dd210835a3eded07dcbf3c38e8c991c4d8943a"
+      },
+      "model_wmask": 16847486,
+      "whole_bytes": 5581,
+      "whole_sha256": "1b8b3cc9842596475f9a3af60bc54f268157de540ce8a398bf2d42175470c223",
+      "payload_bytes": 4512,
+      "payload_sha256": "f2a29b1db74ebad1bf18224b7bd02963ffc74948698021ee81e3a6a50f45bf17",
+      "loader_and_headers_bytes": 1069,
+      "audit_bytes": 5604,
+      "audit_sha256": "8bef691ebf8735796c4ef266dcf58fabe72142b043ec982bb45c811719d3b817"
+    },
+    "allocation_failure_policy": [
+      "TT virtual storage moves from post-context runtime mmap into loader-owned zero BSS",
+      "loader-stage virtual reservation increases about4MiB while fixed H28 context is live; no measured RSS claim",
+      "reserve/context mmap/finalBSS mprotect failure can exit126 before entry instead of old native TT mmap exit2; direct native loading separate"
+    ],
+    "qualification": {
+      "status": "PASS_ordinary_reproduction_and_focused_scalar_positive",
+      "build": {
+        "path": "/home/stemxstudio/rove4k-d-static-tt-normal-20261024-v1/build/build.json",
+        "bytes": 150146,
+        "sha256": "53abe23ebdd474f8043999beae0455f8093e2283e226ff93a06df94ebe7c005a"
+      },
+      "positive": {
+        "path": "/home/stemxstudio/rove4k-d-static-tt-normal-20261024-v1/positive/results.json",
+        "bytes": 31581,
+        "sha256": "d813ace82ab9977a03a0a738214812ed5592252b3604494ce75bc0602b4a38a8"
+      },
+      "producing_source25": {
+        "path": "C:\\Users\\\uac15\ubbfc\uc218\\Documents\\Codex\\rove4k-d-static-tt-cost-20261024-evidence\\normal-producing\\source25.json",
+        "bytes": 8330,
+        "sha256": "a9fb4ca48aab5bc30a4b6334ff4aba1461c018ace527828dde00d6c7b3190c2f"
+      },
+      "counts": {
+        "ordinary_builder": 1,
+        "native_compile": 4,
+        "shipping_loader_compile": 4,
+        "audit_loader_compile": 2,
+        "fixed_encode": 4,
+        "metadata_commands": 2,
+        "scalar_shipping_sessions": 2,
+        "scalar_GO": 6,
+        "scalar_preentry": 1,
+        "HQ_runtime": 0,
+        "fresh": 0,
+        "negative_fault_campaign": 0
+      },
+      "observed": "Exact new scalar zero232 RX and padding; full4370432-byte initial BSS/padding zero including TT storage; lower3ff000/upper82d000 guards, RW BSS, NX process/worker stacks, no WX; two persistent workers, legal clocked results, active search before quit/EOF, only stdio/no children, readers/group settled naturally. HQ native/whole/audit reproduction exact; no new HQ runtime run.",
+      "limits": "No old TT mmap-failure inheritance, new failure injection, general TT/SMP race or strength/scaling claim. No fresh archive runtime campaign; transient AS increase not measured RSS. Existing local exposed SSE4.2/CX16 admission only."
+    }
+  },
+  "native_score_policy": {
+    "id": "scalar-unread-published-score-v1",
+    "scope": "scalar shipping only; HQ and DEV identity bypass",
+    "roles": "Remove unread Worker.score declaration/reset/completed store and unused root-return binding; search invocation, internal scores and publication unchanged",
+    "source_ABI": "LP64 best12->8; nodes16 and subsequent fields/Worker68976 stride unchanged; no RAM gain claim",
+    "first_cost_status": "native1/encode1/loader1 plus DATA inverse only; new CHECKPOINT, normal and positive pending"
+  },
+  "local_dead_score_validation": {
+    "status": "FIRST_COST_AND_ROOT_STATIC_AUDIT_ADMITTED; ordinary/positive pending at producing freeze",
+    "firstcost": {
+      "path": "/home/stemxstudio/rove4k-d-dead-score-first-cost-20261024-v1/cost.json",
+      "bytes": 18148,
+      "sha256": "8d42c67d0e7c63d0bed5c1f80d1b05ac8fc55194d1cc9379749f163b0001674e"
+    },
+    "counts": {
+      "native_compile": 1,
+      "encode": 1,
+      "loader_compile": 1,
+      "engine": 0,
+      "normal": 0,
+      "HQ_runtime": 0,
+      "CI": 0,
+      "game": 0,
+      "ABI_static": 0
+    },
+    "new_audit": {
+      "bytes": 5550,
+      "sha256": "8e560ac0b5ef316f5f2a3382295121bfaa700b3916c0c618fc125656d1138982",
+      "root_static_admission": true,
+      "entry_executed": false,
+      "original_driver_complete": false,
+      "original_driver_exit": 1,
+      "original_driver_failure": "NameError: struct import omitted during postprocessing; no product replay",
+      "read_only_static_companion": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-d-dead-score-first-cost-20261024-evidence/audit-static-readback.json",
+        "bytes": 13315,
+        "sha256": "308477bd5fac6f0978d60707c1d047741986724ee751998ab528efc61aeb5104"
+      }
+    },
+    "ordinary": null,
+    "positive": null,
+    "retained_prior_loss_candidates": "reservoir+1, target-centered attack+84, syscall input arity+15; not combined or repeated"
+  }
+}

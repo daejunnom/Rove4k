@@ -1,0 +1,165 @@
+{
+  "format": 1,
+  "target": "Linux x86-64 independently authored context decoder and guarded restoration",
+  "scope": "experimental first-cost tool consumes exact explicit frozen native+stream data; not a maintained closed native/encoder producer",
+  "context_format": "rove4k-context-h24-base10-u32-zero4-v1",
+  "hash_bits": 24,
+  "base_probability": 10,
+  "table_bytes": 33554432,
+  "physical_zero_tail_bytes": 4,
+  "max_models": 21,
+  "max_weight": 9,
+  "loader_flags": [
+    "-Oz",
+    "-flto",
+    "-nostdlib",
+    "-static",
+    "-no-pie",
+    "-fno-pie",
+    "-fno-pic",
+    "-fno-builtin",
+    "-fno-stack-protector",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-fno-ident",
+    "-fcf-protection=none",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-Wl,--gc-sections,--build-id=none,-s,-z,noexecstack"
+  ],
+  "native_profile_metadata": {
+    "workers": 2,
+    "tt_bits": 18,
+    "ply": 128,
+    "dev": 0
+  },
+  "linker_sha256": "93934099212b944b20c2f7840ee87e4817311c4f87fddbb2b3f91db28776cf99",
+  "expected": {
+    "scalar-shipping": {
+      "native_bytes": 8092,
+      "native_sha256": "59829299f667cdb6682c5ed4a955fb50b76a5584209caf9e4bddf1c0ee2cd160",
+      "layout": {
+        "bss_base": 4202496,
+        "bss_pages": 176128,
+        "bss_size": 175092,
+        "entry": 4202024,
+        "guard_base": 4190208,
+        "image_base": 4194304,
+        "image_pages": 8192,
+        "image_size": 8092,
+        "reserve_size": 192512,
+        "section_count": 0,
+        "section_names": 0,
+        "section_offset": 0,
+        "section_size": 0,
+        "segments": [
+          {
+            "align": 4096,
+            "filesz": 8092,
+            "flags": 5,
+            "memsz": 8092,
+            "offset": 0,
+            "paddr": 4194304,
+            "type": 1,
+            "vaddr": 4194304
+          },
+          {
+            "align": 4096,
+            "filesz": 0,
+            "flags": 6,
+            "memsz": 175092,
+            "offset": 0,
+            "paddr": 4202496,
+            "type": 1,
+            "vaddr": 4202496
+          },
+          {
+            "align": 8,
+            "filesz": 0,
+            "flags": 6,
+            "memsz": 0,
+            "offset": 0,
+            "paddr": 0,
+            "type": 1685382481,
+            "vaddr": 0
+          }
+        ],
+        "upper_guard": 4378624
+      },
+      "old_whole_bytes_metadata": 7457,
+      "original_stream_bytes": 5028,
+      "original_stream_sha256": "163d043b61286db52ceb5ee90323127c22b4c0d5e23be397d375fd441498670d",
+      "original_length_bytes": 2,
+      "prepared_payload_bytes": 5034,
+      "prepared_payload_sha256": "1f3d35025cd61edbbcd3d6ca8b0243969b0a52e435fd4763071b4cf4e3e6b00d",
+      "weightmask": "0101127E",
+      "model_count": 21
+    },
+    "hq-shipping": {
+      "native_bytes": 8480,
+      "native_sha256": "f1d6558ec5a13e400c2d6df182b01b3236bf1ee1e99f686e47f144a32d222c5c",
+      "layout": {
+        "bss_base": 4206592,
+        "bss_pages": 176128,
+        "bss_size": 175092,
+        "entry": 4202330,
+        "guard_base": 4190208,
+        "image_base": 4194304,
+        "image_pages": 12288,
+        "image_size": 8480,
+        "reserve_size": 196608,
+        "section_count": 0,
+        "section_names": 0,
+        "section_offset": 0,
+        "section_size": 0,
+        "segments": [
+          {
+            "align": 4096,
+            "filesz": 8480,
+            "flags": 5,
+            "memsz": 8480,
+            "offset": 0,
+            "paddr": 4194304,
+            "type": 1,
+            "vaddr": 4194304
+          },
+          {
+            "align": 4096,
+            "filesz": 0,
+            "flags": 6,
+            "memsz": 175092,
+            "offset": 0,
+            "paddr": 4206592,
+            "type": 1,
+            "vaddr": 4206592
+          },
+          {
+            "align": 8,
+            "filesz": 0,
+            "flags": 6,
+            "memsz": 0,
+            "offset": 0,
+            "paddr": 0,
+            "type": 1685382481,
+            "vaddr": 0
+          }
+        ],
+        "upper_guard": 4382720
+      },
+      "old_whole_bytes_metadata": 7707,
+      "original_stream_bytes": 5243,
+      "original_stream_sha256": "0205c731dbc96a1a68dd5fc2f6a87d07a9b2af7fd17d54f633c8a64d2cac8450",
+      "original_length_bytes": 4,
+      "prepared_payload_bytes": 5247,
+      "prepared_payload_sha256": "5f03ce47b7039e15fcf85166dee04c1a09b929762d22de4709428159905aa197",
+      "weightmask": "0810217E",
+      "model_count": 21
+    }
+  },
+  "reference_only_provenance": {
+    "repository": "GediminasMasaitis/4k-dot-c",
+    "commit": "26e936860c8da80de73ea3041ccade96ba8112a3",
+    "compressor_sha256": "9010c1ca49f5852e966d768fc0da02099434ad67d7f18576a8889c9220b3c1a9",
+    "no_upstream_implementation_or_binary_dependency": true
+  }
+}

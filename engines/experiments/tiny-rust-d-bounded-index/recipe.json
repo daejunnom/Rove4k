@@ -1,0 +1,94 @@
+{
+  "scope": "ONE fixed castling three-mask candidate; two native links only; no codec or target execution",
+  "maintained_source_path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-engines-af-20261020/engines/compact/tiny-rust-d",
+  "source_sha256": {
+    "main.rs": "e10e1b797085c1f032edcbfe28a828cf91e8cf2c71f3f11c063328744c34b8a3",
+    "board.rs": "1a1ff1a0693a1b3f53ade2435d2996684a1bcd7b7eee333f28fe669645340b82",
+    "search.rs": "da2583806efea022b1b3b1337557b896a373a561f11d665b1ca747c29e3aed81",
+    "runtime.rs": "802b497371a409744ad231cd8f621ea3d8b7cd931627e0396f3ec92ad1345b2d",
+    "os.rs": "892cc62e2c126ebcbc171eb6f8059aacf92cf255d85341487e46effe2b94986e",
+    "link.ld": "1e8f17bb2f06a6ddabf1f56d155bd7bdcd8c4406d140c22770bcfda96d459bbc",
+    "build.py": "08f28ebdc45ad49c2a23f7eb8e28b086612ea9a33dbc39cb8ccbd66bfcf68e89"
+  },
+  "transform": {
+    "file": "board.rs",
+    "old": "self.cells[rook] == s * 4\n                            && self.cells[(home as i16 + d) as usize] == 0\n                            && self.cells[(home as i16 + d * 2) as usize] == 0",
+    "new": "self.cells[rook & 127] == s * 4\n                            && self.cells[(home as i16 + d) as usize & 127] == 0\n                            && self.cells[(home as i16 + d * 2) as usize & 127] == 0",
+    "candidate_bytes": 14346,
+    "candidate_sha256": "3f73e15f0d59ab90b54899a3c322b78cd4d33b9a0d844d348149f8e4c9715c71",
+    "raw_Rust_delta": 18
+  },
+  "profile": {
+    "workers": 2,
+    "tt_bits": 18
+  },
+  "compiler_command": "/home/stemxstudio/.cargo/bin/rustc",
+  "compiler_version": "rustc 1.97.0 (2d8144b78 2026-07-07)",
+  "compiler_actual_path": "/home/stemxstudio/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+  "compiler_actual_sha256": "df13f58759c0662831983e3a6501c63c1fc12ea60ec4e1d1ac35e5fe43c500c0",
+  "native_flags": [
+    "--edition=2024",
+    "-C",
+    "opt-level=z",
+    "-C",
+    "lto=fat",
+    "-C",
+    "codegen-units=1",
+    "-C",
+    "panic=abort",
+    "-C",
+    "force-unwind-tables=no",
+    "-C",
+    "relocation-model=static",
+    "-C",
+    "default-linker-libraries=no",
+    "-C",
+    "debuginfo=0",
+    "-C",
+    "strip=symbols",
+    "--check-cfg",
+    "cfg(tiny_dev)",
+    "-C",
+    "link-arg=-nostdlib",
+    "-C",
+    "link-arg=-static",
+    "-C",
+    "link-arg=-no-pie",
+    "-C",
+    "link-arg=-Wl,--build-id=none",
+    "-C",
+    "link-arg=-Wl,--no-dynamic-linker",
+    "-C",
+    "link-arg=-Wl,-T,link.ld",
+    "--crate-name",
+    "rove4k_tiny_d",
+    "main.rs",
+    "-o",
+    "x"
+  ],
+  "environment": {
+    "ROVE_WORKERS": "2",
+    "ROVE_TT_BITS": "18",
+    "LC_ALL": "C",
+    "TZ": "UTC",
+    "SOURCE_DATE_EPOCH": "0"
+  },
+  "control_native": {
+    "scalar": {
+      "path": "/home/stemxstudio/rove4k-tiny-rust-d-shared-query-native-20261021/control-scalar/x",
+      "bytes": 16816,
+      "sha256": "bd0e3bd1567ae906d4ab9704603204d22302895df1f05679f6221d6445aef878"
+    },
+    "hq": {
+      "path": "/home/stemxstudio/rove4k-tiny-rust-d-shared-query-native-20261021/control-hq/x",
+      "bytes": 16816,
+      "sha256": "f8581a68f09d4d9cdc3e1413aa45ffb385bafd8240f1432403629ec2a0e544f8"
+    }
+  },
+  "proposal_index_sha256": "185df4b1c37cf8ed25283bf933545d43bc58a777f7a604f6ea72f5f04b3fe8bc",
+  "approved_primary_links": 2,
+  "control_links": 0,
+  "extra_unstripped_or_repeat_links": 0,
+  "codec_calls": 0,
+  "target_execution": false
+}

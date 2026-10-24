@@ -1,0 +1,55 @@
+/* Include after the actual candidate, with the application main renamed. */
+static void next_pick(const Board *p,Pick *pick){
+    pick->move=0;pick->score=INT_MIN;walk(p,pick,0,p->s);
+}
+int main(void){
+    static const char *positions[]={
+        "startpos",
+        "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1",
+        "6k1/8/8/3pP3/8/8/8/6K1 w - d6 0 1",
+        "1r5k/P7/8/8/8/8/8/7K w - - 0 1",
+        "7k/6Q1/6K1/8/8/8/8/8 b - - 100 1"
+    };
+    Worker *w=workers;unsigned total=0;
+    atomic_store(&stopped,0);
+    for(unsigned c=0;c<sizeof positions/sizeof *positions;c++){
+        Board b;Move list[MOVES];unsigned char selected[MOVES]={0};
+        if(c){if(!fen(&b,positions[c]))return 2;}else start(&b);
+        int count=gen(&b,list),observed=0;Pick pick={.w=w,.prior=6};
+        for(;;){
+            next_pick(&b,&pick);if(!pick.move)break;
+            if(pick.index<0||pick.index>=count||selected[pick.index]||pick.move!=list[pick.index])return 3;
+            selected[pick.index]=1;observed++;
+            pick.seen[pick.index>>6]|=UINT64_C(1)<<(pick.index&63);
+            /* Deliberately change live ranks of every unvisited move in both
+             * directions. Coverage must depend on ordinal identity, not ranks. */
+            for(int j=0;j<count;j++)if(!selected[j])w->history[FROM(list[j])][TO(list[j])]=(observed*71+j*113)%16385;
+            for(int j=0;j<13;j++)w->continuation[6][j]=(observed*37+j*101)%16385;
+        }
+        if(observed!=count)return 4;
+        total+=observed;
+    }
+    Board b;Move list[MOVES];start(&b);int n=gen(&b,list);
+    memset(w,0,sizeof *w);
+    Pick tt={.w=w,.prior=6,.tt=list[n-1]};next_pick(&b,&tt);
+    if(tt.move!=list[n-1])return 5;
+    Move learned=0;for(int i=0;i<n;i++)if(b.b[FROM(list[i])]==1){learned=list[i];break;}
+    if(!learned)return 6;
+    w->history[FROM(learned)][TO(learned)]=16384;
+    Pick history={.w=w,.prior=6};next_pick(&b,&history);
+    if(history.move!=learned)return 7;
+    memset(w,0,sizeof *w);w->continuation[6][piece_index(2)]=16384;
+    Pick continuation={.w=w,.prior=6};next_pick(&b,&continuation);
+    if(b.b[FROM(continuation.move)]!=2)return 8;
+    if(!fen(&b,"6k1/8/8/8/8/3p4/2P1P3/K7 w - - 0 1"))return 9;
+    memset(w,0,sizeof *w);for(int f=0;f<128;f++)for(int t=0;t<128;t++)w->history[f][t]=16384;
+    Pick tactical={.w=w,.prior=6};next_pick(&b,&tactical);
+    if(!capture(&b,tactical.move))return 10;
+    atomic_store(&stopped,1);Pick cancelled={.w=w,.prior=6};next_pick(&b,&cancelled);
+    if(cancelled.move)return 11;
+    /* Public generation must remain available during a stopped search. */
+    if(!gen(&b,list))return 12;
+    printf("{\"passed\":true,\"coverage_positions\":%u,\"pseudo_moves_exactly_once\":%u,\"TT_first\":true,\"capture_first\":true,\"history_ordering\":true,\"continuation_ordering\":true,\"cancelled_picker\":true,\"stopped_public_generation\":true}\n",
+           (unsigned)(sizeof positions/sizeof *positions),total);
+    return 0;
+}

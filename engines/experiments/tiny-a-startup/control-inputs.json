@@ -1,0 +1,113 @@
+{
+  "format": 1,
+  "scope": "raw immutable A5140 historical source closure; copied build/fresh/verify are provenance, not executable dependency on mutable canonical",
+  "head": "7d86a0783843d389f027bae6a891dbf5cd1047cd",
+  "setup_attempts": [
+    {
+      "complete": false,
+      "reason": "WSL git cannot resolve the Windows-format linked worktree gitdir; failed before copying inputs; host git HEAD used below."
+    },
+    {
+      "complete": true,
+      "head_origin": "host git rev-parse HEAD"
+    }
+  ],
+  "files": {
+    "control/.gitattributes": {
+      "origin": "engines/compact/tiny-entry-a/.gitattributes",
+      "raw_bytes": 14,
+      "raw_sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9",
+      "LF_sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9"
+    },
+    "control/README.md": {
+      "origin": "engines/compact/tiny-entry-a/README.md",
+      "raw_bytes": 12387,
+      "raw_sha256": "7ca6899a9322b725350350b47cb18066e259375092d72432d814d21b0fe619d7",
+      "LF_sha256": "7ca6899a9322b725350350b47cb18066e259375092d72432d814d21b0fe619d7"
+    },
+    "control/bootstrap.py.in": {
+      "origin": "engines/compact/tiny-entry-a/bootstrap.py.in",
+      "raw_bytes": 997,
+      "raw_sha256": "898bf1f24168f6e99a7ffb9b0ba9e805af0c7627ea115d47ac687c1389d015ba",
+      "LF_sha256": "898bf1f24168f6e99a7ffb9b0ba9e805af0c7627ea115d47ac687c1389d015ba"
+    },
+    "control/build.py": {
+      "origin": "engines/compact/tiny-entry-a/build.py",
+      "raw_bytes": 10089,
+      "raw_sha256": "fa76e1226753d3577aa0c6e228b7a3fff8d1211554018e228086f4860220ea12",
+      "LF_sha256": "fa76e1226753d3577aa0c6e228b7a3fff8d1211554018e228086f4860220ea12"
+    },
+    "control/engine.c": {
+      "origin": "engines/compact/tiny-entry-a/engine.c",
+      "raw_bytes": 24921,
+      "raw_sha256": "79284c72b64d087aa3127ea65b461aef8c7776355ea1c4ab9b2f81e59b4b48ed",
+      "LF_sha256": "79284c72b64d087aa3127ea65b461aef8c7776355ea1c4ab9b2f81e59b4b48ed"
+    },
+    "control/fresh.py": {
+      "origin": "engines/compact/tiny-entry-a/fresh.py",
+      "raw_bytes": 5360,
+      "raw_sha256": "81df003f684e813d5f77b2667cb9994767ac18a2065b7e7d1c0ae1706fad8d17",
+      "LF_sha256": "81df003f684e813d5f77b2667cb9994767ac18a2065b7e7d1c0ae1706fad8d17"
+    },
+    "control/launcher.sh": {
+      "origin": "engines/compact/tiny-entry-a/launcher.sh",
+      "raw_bytes": 77,
+      "raw_sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
+      "LF_sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
+    },
+    "control/recipe.json": {
+      "origin": "engines/compact/tiny-entry-a/recipe.json",
+      "raw_bytes": 7497,
+      "raw_sha256": "b07245b8b530c4da9163cf01c99f1f2e20f02c365eacf16ea8ef772ff348a9ca",
+      "LF_sha256": "b07245b8b530c4da9163cf01c99f1f2e20f02c365eacf16ea8ef772ff348a9ca"
+    },
+    "control/verify.py": {
+      "origin": "engines/compact/tiny-entry-a/verify.py",
+      "raw_bytes": 7012,
+      "raw_sha256": "cc63a511446c35db54676356a9d885b95db7da994133147cda3e3ff1c4464b0c",
+      "LF_sha256": "cc63a511446c35db54676356a9d885b95db7da994133147cda3e3ff1c4464b0c"
+    },
+    "helpers/specialize.py": {
+      "origin": "engines/scripts/specialize.py",
+      "raw_bytes": 2386,
+      "raw_sha256": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d",
+      "LF_sha256": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d"
+    },
+    "helpers/minify.py": {
+      "origin": "engines/scripts/minify.py",
+      "raw_bytes": 6624,
+      "raw_sha256": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b",
+      "LF_sha256": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b"
+    },
+    "helpers/rename_c.py": {
+      "origin": "engines/scripts/rename_c.py",
+      "raw_bytes": 12574,
+      "raw_sha256": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
+      "LF_sha256": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5"
+    },
+    "helpers/stitch.py": {
+      "origin": "engines/compact/tiny-a/stitch.py",
+      "raw_bytes": 3863,
+      "raw_sha256": "2b0d25b4855a3ed4ddd9e24b8e4b0e081439baa2ed8f744dba0215a700023f23",
+      "LF_sha256": "2b0d25b4855a3ed4ddd9e24b8e4b0e081439baa2ed8f744dba0215a700023f23"
+    },
+    "helpers/pack_stream.py": {
+      "origin": "engines/compact/tiny-a/pack_stream.py",
+      "raw_bytes": 5444,
+      "raw_sha256": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
+      "LF_sha256": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e"
+    },
+    "tests/verify.py": {
+      "origin": "engines/tests/verify.py",
+      "raw_bytes": 45921,
+      "raw_sha256": "9327ad01dd75bc17f04f400b57d5af3d6891a1abbb7f22aa6222389d50da138f",
+      "LF_sha256": "9327ad01dd75bc17f04f400b57d5af3d6891a1abbb7f22aa6222389d50da138f"
+    },
+    "tests/chess_oracle.py": {
+      "origin": "engines/tests/chess_oracle.py",
+      "raw_bytes": 10730,
+      "raw_sha256": "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8",
+      "LF_sha256": "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8"
+    }
+  }
+}
