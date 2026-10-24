@@ -116,6 +116,7 @@ def main():
         depth_token=module('entry_E_depth_token',frozen/'shipping_depth_token.py')
         square_walk=module('entry_E_square_walk',frozen/'shipping_square_walk.py')
         dead_score=module('entry_E_dead_score',frozen/'shipping_dead_score.py')
+        sole_GO=module('entry_E_sole_GO',frozen/'shipping_go_boundary.py')
         alpha=module('entry_fixed_shipping_alpha',frozen/'fixed_shipping_alpha.py').transform_source
         scope=module('entry_fixed_scope_names',frozen/'shipping_scope.py').transform_source
         core=module('entry_fixed_shipping_core',frozen/'shipping_core.py').transform_source
@@ -201,9 +202,12 @@ def main():
                 common_metadata['square_walk']=square_metadata
                 data,score_metadata=dead_score.transform_source(data)
                 common_metadata['dead_score']=score_metadata
+                data,GO_metadata=sole_GO.transform_source(data)
+                common_metadata['sole_GO_boundary']=GO_metadata
             return data,observations,alpha_metadata,scope_metadata,core_metadata,input_metadata,model_metadata,type_metadata,global_names_metadata,common_metadata
         def package(source):
-            previous_source=dead_score.restore_source(source)
+            dead_source=sole_GO.restore_source(source)
+            previous_source=dead_score.restore_source(dead_source)
             current_depth=square_walk.restore_source(previous_source)
             prior=depth_token.restore_source(current_depth)
             current=order_inline.restore_source(prior)
@@ -225,8 +229,10 @@ def main():
             report['square_walk_bootstrap']=square_bootstrap
             script,group_metadata=compiler_group(script)
             report['compiler_group']=group_metadata
-            script,score_bootstrap=dead_score.transform_bootstrap(script,source=source)
+            script,score_bootstrap=dead_score.transform_bootstrap(script,source=dead_source)
             report['dead_score_bootstrap']=score_bootstrap
+            script,GO_bootstrap=sole_GO.transform_bootstrap(script,source=source)
+            report['sole_GO_bootstrap']=GO_bootstrap
             ast.parse(script)
             data=prefix+lzma.compress(script,format=lzma.FORMAT_ALONE,check=lzma.CHECK_NONE,
                                      filters=[{'id':lzma.FILTER_LZMA1,'preset':9|lzma.PRESET_EXTREME,

@@ -125,6 +125,7 @@ def main():
         pool_state=module('entry_A_pool_state',frozen/'shipping_pool_state.py')
         frequency=module('entry_A_frequency',frozen/'shipping_frequency.py')
         ep_form=module('entry_A_EP_make',frozen/'shipping_ep.py')
+        dead_score=module('entry_A_default_dead_score',frozen/'shipping_dead_score.py')
         root_hint=module('entry_A_root_hint',frozen/'shipping_root_hint.py')
         root_normal=module('entry_A_root_normal',frozen/'shipping_root_normal.py')
         root_pals=module('entry_A_root_pals',frozen/'shipping_root_pals.py')
@@ -197,6 +198,8 @@ def main():
                     common_metadata['frequency']=frequency_metadata
                     data,ep_metadata=ep_form.transform_source(data)
                     common_metadata['ep_make']=ep_metadata
+                    data,dead_score_metadata=dead_score.transform_source(data)
+                    common_metadata['dead_published_score']=dead_score_metadata
                 if root_policy:
                     if policy=='root-pals-feedback':
                         data,root_metadata=root_pals.transform_source(data,root_normal.transform_source)
@@ -206,7 +209,8 @@ def main():
                         common_metadata['root_normal_slots' if policy=='root-normal-slots' else 'root_hint_leader_repair']=root_metadata
             return data,observations,alpha_metadata,storage_metadata,scope_metadata,input_metadata,declaration_metadata,type_metadata,lexical_metadata,capture_metadata,startup_metadata,global_names_metadata,continuation_metadata,common_metadata
         def package(source):
-            expression,_=common.source_literal(source,literal)
+            guarded_source=source if root_policy else dead_score.restore_source(source)
+            expression,_=common.source_literal(guarded_source,literal)
             if root_policy:
                 previous=lambda current:output_form.transform_literal(current,lambda original:condition_form.transform_literal(original,fixed_names.transform_literal))
                 if policy=='root-pals-feedback':
@@ -219,6 +223,9 @@ def main():
             script=template.replace(marker,expression.encode())
             script,group_metadata=compiler_group(script)
             report['compiler_group']=group_metadata
+            if not root_policy:
+                script,dead_score_bootstrap=dead_score.transform_bootstrap(script,source=source)
+                report['dead_score_bootstrap']=dead_score_bootstrap
             ast.parse(script)
             whole=source_package.package(script,recipe['compression'],prefix=prefix)
             payload=whole[len(prefix):]

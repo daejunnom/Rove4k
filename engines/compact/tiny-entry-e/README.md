@@ -1,3 +1,60 @@
+# Maintained E: sole-GO function boundary - 2026-10-24
+
+The full shipping candidate is **4946 B**, down **7 B** from the actual
+corrected-owner **4953 B** predecessor. Source8549->8526 B and bootstrap
+10519->10496 B each save23 bytes. The same nice32 LZMA1,73-byte header,
+compiler argv and two-worker TT18 profile remain. The file is850 B above4096.
+
+The actual static `w(void)` has one exact-go main caller. Its complete407 B
+body moves byte-identically into that caller's nested block; only function
+definition/call boundaries disappear. Two spans, three protected gaps and
+full inverse retain all other TU bytes. Inner a/d/S/t/n bindings stay local,
+including a/d shadowing main's thread array and exit status only inside the
+block. No return/goto/label, local static, VLA or location macro is moved.
+Clock token order, drain, budget/deadline, stop reset, mutex publication,
+both completed-depth tokens and broadcast/unlock order remain unchanged.
+E19 model21 physical coefficients, five ordering features, TT, three
+learners and search/stop logic remain. Canonical/DEV bypass the new stage.
+
+The helper is frozen through `local_input_sha256`. Packaging restores the
+previous source, consumes the actual dead-score/square/depth/order/keyword/
+cross source and literal inverse chain, current compiler-group owner and
+dead-score bootstrap guard, then replaces only the final source expression.
+Previous helper pins, whole-input guards, non-source bytes/AST, argv and
+FD contracts are retained; the new bootstrap has its own exact inverse.
+
+One fresh fixed-argv compile produced18576 B native SHA-256
+`7d0529905678edfb35394ba654754ddd41985fe7c50c996463a514bd8440cc40`.
+Actual entire native bytes equal the qualified4953 predecessor. No new
+layout/RAM/performance or strength improvement is claimed.
+First-cost encoded one candidate and passed strict Python EOF/zero trailing
+data and actual CLI byte-exact inverse; baseline encode/compile/runtime0.
+Its original two preparation assertion failures remain separate before any
+candidate writes/products; they are not codec retries or semantic failures.
+First-cost index SHA-256:
+`0b8af66a8baade03516cd60754f751ddac3057654ee15640a79e0dfd1b980778`.
+The fresh native original leader remained unreaped until other group
+members settled, then reaped with group absence, forced cleanup0 and owned0.
+One ordinary --dev run reproduced the new shipping source/native/bootstrap/
+whole twice and unchanged DEV source/native twice. One unchanged selected
+verifier passed quit/EOF two sessions and eight legal GO results, three
+stable startup TIDs per session, exact deleted native, stdio-only FDs,
+private/helper path absence, closing result, reader EOF and physical exit0.
+Cancellation causality remains unproven; active-search/physical-exit evidence
+is retained in its measured scope. Both original ordinary/selected leaders
+stayed unreaped until other group members settled, then reaped with group
+absence at settlement, forced cleanup0 and owned0.
+Build receipt SHA-256:
+`2cf99e4388718e19f1b3b0d835d44dd14951648804a999dd803e1704bad3e95d`.
+Selected runtime receipt SHA-256:
+`c5e875d754eab5a5ec1f0d98615faaef2739c660211e2bcc321624711f84446e`.
+The actual producing recipe SHA-256 was
+`c9307863ea18f3bd45a71c1e0fd63c9513256bce11e9e59850c994bfa345183e`.
+The final recipe adds this normal completion annotation only; helper/build
+bytes remain identical to the producer. README is not a builder input.
+No other profile, new-head CI, games, SAN, codec sweep, speed/strength or
+tournament eligibility claim is added. The4096-byte target remains open.
+
 # Maintained E: remove unconsumed shipping score state - 2026-10-24
 
 The selected full shipping candidate is **4953 B**, down **10 B** from the

@@ -1,3 +1,60 @@
+# Maintained A: default Loose unused published score removed — 2026-10-24
+
+현재 기본 정책의 실제 CLI 이름은 `loose`이며 full shipping 전체 파일은 **4854 B**다.
+동일 corrected compiler owner·73 B header·BT2/nice24/16KiB LZMA codec에서
+이전4863 B보다9 B 작다. 4096 B까지758 B가 남는다. 기존4489 B는 이전 owner의
+별도 조건이며 현재 비용 기준으로 사용하지 않는다. 크기 통과나 기력 개선을 주장하지 않는다.
+
+`shipping_dead_score.py`는 `not dev` 안의 `not root_policy` 분기에서 default EP
+뒤에만 적용한다. 실제 Worker `M.l`의 reset·completed store 두 쓰기와 이를 위한
+think 반환값 바인딩·필드만 제거한다. 결과와 pool은 완료 깊이 `C`와 best `H`만 읽는다.
+`h(...)` 호출과 인수·부작용·검색 내부 score/TT/learners, stop 확인·best/depth 게시,
+typed worker 전달·drain/result/flush/join은 그대로다. `L l=`는 int 매크로이므로
+원문 절감은20 B다. 정본/DEV와 root-hint/NORMAL/PALS 세 정책은 이 단계를 bypass한다.
+DEV result는 score를 읽으며 세 root 정책은 별도 score 의미와 literal guard를 유지한다.
+
+package는 candidate를 실제 이전8355 B로 역변환하고 기존 common literal과
+default EP→frequency→pool→keyword→output→condition→names 및 read-only template
+보호를 실제 소비한다. 현재 compiler owner를 적용한10325 B bootstrap에서 source
+literal만 교체한다. 네 source span·다섯 gap과 source/bootstrap 전체 inverse를
+검증하며 source 밖 bootstrap·argv·기존 helper pin을 바꾸지 않는다. 새 helper는
+recipe의 고정 local 입력으로 복사 후 로드한다. root3의 source 생성·기대 tuple과
+literal 경로는 별도로 그대로 두며 DEV source/native 기대값도 유지한다.
+
+실제 firstcost는 source8355→8335 B, bootstrap10325→10305 B, 전체4863→4854 B다.
+Whole SHA-256은 `88e23a6a4f2894d6c3a58551444705c2cb5ef6e3f355bc8c5385873b92bd331e`다.
+기준 encode0, 후보 encode1, strict Python EOF/trailing0·CLI byte inverse1씩과
+실제 13 B LZMA header 일치를 확인했다. 기존 actual CI의 A 소비 입력45개도
+현재 bbc999b HEAD Git blob과 동일함을 확인했지만 그 실행 성공을 후보에 상속하지 않았다.
+
+후보를 동일 `cc -Os -x c - -o x -s`로 한 번 별도 컴파일해 native18576 B/
+`9b0e162a4f8f4073d2d16b6d5da336baacaf5bb5bc9e38e07f851d2afa8004f2`를
+새로 발견했다. 이전 native와 크기는 같지만 바이트는 다르다. 실제 old/new 선언
+prefix의 compile-time probe 두 개로 Worker68976 B·align8 유지, H offset12→8,
+a5와 뒤 배열 offset 유지를 확인했다. probe 실행·RSS/stack/속도 측정은 하지 않았다.
+Discovery 원 그룹은 리더 identity를 유지한 채 정착을 확인하고 reap했으며 forced0/owned0다.
+
+A_DEFAULT_DEAD_SCORE_NORMAL_PASS: 명시 `--policy loose`로 기존 builder
+`--dev` 한 번을 실행해 shipping 두 사본의 source/native/bootstrap/whole을 실제
+firstcost 및 fresh-native discovery와 동일하게 재생성했다. DEV 두 사본은 기존
+source/native 전체와 동일하다. 변경 없는 selected verifier 한 번은 새 native의
+quit/EOF 두 session·여덟 legal GO·3 startup TID·정확한 deleted native 복원,
+private path 삭제·compiler child 부재·closing bestmove 한 번·reader 완료·물리 종료를
+확인했다. 기존 A verifier는 live FD 목록을 열거하지 않으므로 FD 실행 증명은 추가하지
+않는다. 원 outer592/632는 WNOWAIT로 identity를 유지한 채 other members0을 확인하고
+reap했으며 terminal0·group 부재·강제 정리0·owned0이다. cancellation causality는 unproven이다.
+
+이 실행이 소비한 recipe는213039 B/`f09dccc1f6bd573bbf9df6a2b2fda1c7caa37f2eab9d4e54d4f00a689a8a47c3`다.
+실행 중 README111601 B/`3f66f37d2d2ba44639be2ab3fc84cf683db4f7c298a126de3a8b94753a51dfcc`도
+바뀌지 않았으나 README는 builder 입력이 아니다. 실행 뒤 recipe의 normal status와
+이 문단만 사실 주석으로 갱신했으며 helper/build/selected 기대값·DEV 및 root3 기대값은
+동일하다. producing/final 해시는 외부 `rove4k-a-dead-score-promotion-20261024-evidence`에서
+구분한다. root3 local·SAN·fault·game·matrix·새 CI를 추가하지 않았으며 이전 CI의
+실행을 새 candidate 성공으로 상속하지 않았다. 시간제 score/TT interleaving·모든 검색
+trace·기력·속도 동일성은 주장하지 않는다.
+
+## 이전 기본 및 선택 정책 단계의 기록
+
 # 기본 Loose4489: EP 정규화가 actual maker 재사용 — 2026-10-24
 
 기본 frequency 뒤 `shipping_ep.py`만 추가한다. 기존 D200B를 새 D140B로

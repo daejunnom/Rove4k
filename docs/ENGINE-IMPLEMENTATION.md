@@ -4,6 +4,49 @@ The full implementation scope is recorded in [the accepted plan](ENGINE-PLAN.ko.
 The current user request excludes training and AWS connections. Frozen model
 inference and lossless model storage remain in scope; trained strength is not claimed.
 
+## A unused score and E sole-GO boundary: 2026-10-24
+
+Default full A loose removes its unused published Worker score, reset/store
+and unused think return binding. Four exact spans, five protected gaps and
+the full inverse retain the search call/arguments, internal scores, TT,
+learners, completed best/depth and pool ownership. The source is restored
+through the previous literal guards and compiler owner before the final
+literal replacement. Canonical/DEV and all three root policies bypass this
+stage. Worker size68976/align8 remain; best offset12 becomes8, with following
+arrays unchanged. This is not a RAM reduction. Source8355→8335, fresh native
+18576 B differs, bootstrap10325→10305 and whole4863→4854 B save9 B.
+
+Full E moves the byte-identical407 B sole-GO body into a nested block at its
+only call site. Two exact spans, three protected gaps and the full inverse
+retain token/clock parsing, drain/deadline/stop, mutex, pending2 publication,
+broadcast order, model, TT, learners and search. Packaging restores the old
+source through the previous dead-score and literal guards, compiler owner
+and dead-score bootstrap stage before replacing only the final literal.
+Source8549→8526, bootstrap10519→10496 and whole4953→4946 B save7 B. The newly
+compiled18576 B native is byte-identical to the qualified previous E image.
+
+Both existing ordinary --dev builds reproduce shipping twice and exact old
+DEV twice. Each unchanged selected verifier passes quit/EOF, eight legal
+GO, three startup TIDs, exact deleted-native restoration, private-path and
+compiler-child absence, readers and physical exit0. E observes stdio-only
+live FDs; A's selected verifier does not enumerate live FDs. Original leaders
+settle before reap; forced cleanup/remaining owned handles are0. Producing
+recipes are separate from later normal-result annotations. These are local
+qualifications; the new head needs its own CI. A remains758 B and E850 B
+above4096. No speed, strength or hardware scaling gain is inferred.
+
+The preceding bbc999b177c77babde5e172139694baa85e7f3e9 automatic engine
+CI40053782461 and repository CI40053782364 both succeeded. The tested merge
+tree equals head tree4abe5149e8fd25909505b9015a83d459da0ffedc. Actual C ZIP
+digest/CRC, B/C/E build/runtime JSON, complete late source/bootstrap chains,
+Git-frozen producing inputs, shipping reproduction and unchanged DEV pass.
+Unchanged A root/F/F8/D detailed proofs retain their earlier scope through
+actual consumed-source comparison. Generic C/Rust local-dev process checks
+pass; their expanded provenance catalog is not a changed runtime producer,
+and no new generic native-byte equality is claimed. The external final CI
+index25360 B has SHA256
+6dc2dcafbdf151307df67213d88a1b6599a2ff9df3458c77036aefcc7ae45c38.
+
 ## B completed-depth job token: 2026-10-24
 
 The full B shipping source represents job publication/claim with its signed
@@ -52,7 +95,8 @@ selected verifier passes quit/EOF, eight legal GO, three startup TIDs,
 native/stdio/private-path/readers and physical termination. Original owned
 groups settle before reap; forced cleanup and remaining owned handles are0.
 Producing recipes are preserved separately from later result annotations.
-The new head still needs its own CI; these are local qualifications.
+The subsequent bbc999b CI qualification is recorded above; that exact tree
+does not include the later A/E boundary changes.
 
 ## Shared compiler-group ownership repair: 2026-10-24
 
