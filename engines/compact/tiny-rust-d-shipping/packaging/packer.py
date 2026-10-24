@@ -77,7 +77,9 @@ def stripped_loader(data):
     return bytes(out)
 
 
-def compile_loader(directory, sources, payload, layout, flags, run, digest, checkpoint=False):
+def compile_loader(directory, sources, payload, layout, flags, run, digest, checkpoint=False, decode_prefix=0):
+    if type(decode_prefix) is not int or decode_prefix not in (0, 232) or layout['image_size'] <= decode_prefix:
+        raise ValueError('explicit full-load or body232 decoder bound required')
     directory.mkdir(parents=True)
     payload_path = directory / 'payload.bin'
     payload_path.write_bytes(payload)
@@ -88,7 +90,7 @@ def compile_loader(directory, sources, payload, layout, flags, run, digest, chec
     definitions = {'IMAGE_BASE': layout['image_base'], 'IMAGE_SIZE': layout['image_size'], 'IMAGE_PAGES': layout['image_pages'],
                    'IMAGE_ENTRY': layout['entry'], 'BSS_BASE': layout['bss_base'], 'BSS_PAGES': layout['bss_pages'],
                    'GUARD_BASE': layout['guard_base'], 'RESERVE_SIZE': layout['reserve_size'],
-                   'CODEC_FIXED': 1, 'CHECKPOINT': int(checkpoint)}
+                   'CODEC_FIXED': 1, 'CHECKPOINT': int(checkpoint), 'DECODE_PREFIX': decode_prefix}
     command = ['cc', *flags, *[f'-D{name}={value}UL' for name, value in definitions.items()],
                str(sources/'loader.c'), str(assembly), '-Wl,-T,' + str(sources/'image.ld'), '-o', str(directory/'linked')]
     record = run(command)

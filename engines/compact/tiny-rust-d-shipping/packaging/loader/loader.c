@@ -1,3 +1,6 @@
+#ifndef DECODE_PREFIX
+#define DECODE_PREFIX 0
+#endif
 /* Dedicated Linux x86-64 restore for the two build-time-admitted TinyD images.
  * No interpreter, libc, TLS, file creation, ELF parser or external program.
  * Runtime code is original to this experiment, except the internal LZ run
@@ -62,7 +65,7 @@ static void unpack(unsigned char *out) {
     for (;;) {
         unsigned code = symbol(&r);
         if (code < 256) {
-            if (n == IMAGE_SIZE) bad();
+            if (n == (IMAGE_SIZE-DECODE_PREFIX)) bad();
             out[n++] = code;
             continue;
         }
@@ -83,10 +86,10 @@ static void unpack(unsigned char *out) {
             unsigned extra = distance/2 - 1;
             distance = ((2 + (distance&1)) << extra) + 1 + bits(&r, extra);
         }
-        if (distance > n || count > IMAGE_SIZE-n) bad();
+        if (distance > n || count > (IMAGE_SIZE-DECODE_PREFIX)-n) bad();
         do { out[n] = out[n-distance]; n++; } while (--count);
     }
-    if (n != IMAGE_SIZE || r.next != r.end || r.bits) bad();
+    if (n != (IMAGE_SIZE-DECODE_PREFIX) || r.next != r.end || r.bits) bad();
 }
 #else
 static void unpack(unsigned char *out) {
@@ -96,18 +99,18 @@ static void unpack(unsigned char *out) {
         unsigned count = *p++;
         if (count < 128) {
             count++;
-            if ((usize)(payload_end-p) < count || count > IMAGE_SIZE-n) bad();
+            if ((usize)(payload_end-p) < count || count > (IMAGE_SIZE-DECODE_PREFIX)-n) bad();
             do { out[n++] = *p++; } while (--count);
         } else {
             count = (count&127)+3;
-            if (payload_end-p < 2 || count > IMAGE_SIZE-n) bad();
+            if (payload_end-p < 2 || count > (IMAGE_SIZE-DECODE_PREFIX)-n) bad();
             unsigned distance = (unsigned)p[0] | (unsigned)p[1] << 8;
             p += 2;
             if (!distance || distance > n) bad();
             do { out[n] = out[n-distance]; n++; } while (--count);
         }
     }
-    if (n != IMAGE_SIZE) bad();
+    if (n != (IMAGE_SIZE-DECODE_PREFIX)) bad();
 }
 #endif
 
@@ -123,8 +126,8 @@ __attribute__((used, noreturn)) void restore(usize *stack) {
     if ((usize)mapped != GUARD_BASE) bad();
     if (sys(10, IMAGE_BASE, IMAGE_PAGES, 3, 0, 0, 0)) bad();
     unsigned char *out = (unsigned char *)IMAGE_BASE;
-    unpack(out);
-    for (usize i = 0; i+4 < IMAGE_SIZE;) {
+    unpack(out+DECODE_PREFIX);
+    for (usize i = DECODE_PREFIX; i+4 < IMAGE_SIZE;) {
         if ((out[i]&254) == 232) {
             u32 value = (u32)out[i+1] | (u32)out[i+2] << 8 |
                         (u32)out[i+3] << 16 | (u32)out[i+4] << 24;

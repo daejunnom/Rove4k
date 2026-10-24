@@ -270,11 +270,16 @@ def main():
         report['source_closure'] = closure
         require(all(sha((REPO/name).read_bytes()) == digest for name, digest in closure.items()), 'current source closure differs')
         recipe_raw = (HERE/'recipe.json').read_bytes()
-        recipe = json.loads(recipe_raw)
+        base_recipe = json.loads(recipe_raw)
         recorded = json.loads((built/'build.json').read_text())
         require(recorded['complete'] and recorded['source_closure'] == closure and recorded['recipe_sha256'] == sha(recipe_raw),
                 'ordinary build/source/recipe identity differs')
+        recipe, image_policy = builder.select_recipe(base_recipe, recorded['selected_image_policy'])
+        require(recorded['class'] == recipe['class'] and recorded['image_policy'] == image_policy,
+                'selected Rust restoration class/policy differs')
         report['recipe_sha256'] = sha(recipe_raw)
+        report.update(selected_image_policy=recorded['selected_image_policy'], image_policy=image_policy,
+                      image_class=recipe['class'])
         helper = module('rust_d_shipping_owned', HERE.parent/'tiny-entry-d/verify.py')
         strict = module('rust_d_shipping_strict', HERE.parent/'tiny-rust-d/verify_runtime.py')
         report['helpers'] = {str(p.relative_to(REPO)): identity(p) for p in
@@ -287,18 +292,18 @@ def main():
             require(form['artifact_gates'] and all(form['artifact_gates'].values()) and len(form['attempts']) == 2,
                     'ordinary repeated build/static artifact gate failed')
             first, repeated = form['attempts']
-            for name in ('native', 'whole', 'load'):
+            for name in ('native', 'whole', 'load', 'restored'):
                 identity(first[name]['path'], recipe['forms'][mode][name])
                 identity(repeated[name]['path'], recipe['forms'][mode][name])
             native = Path(first['native']['path']).read_bytes()
-            load = Path(first['load']['path']).read_bytes()
+            restored = Path(first['restored']['path']).read_bytes()
             for kind in ('native', 'whole'):
                 path = Path(first[kind]['path'])
                 for shutdown in ('quit', 'EOF'):
                     row = {'form': mode, 'image': identity(path), 'shutdown': shutdown}
                     report['sessions'].append(row)
                     save()
-                    session(path, kind, recipe['forms'][mode][kind], native, load,
+                    session(path, kind, recipe['forms'][mode][kind], native, restored,
                             out/(mode+'-'+kind+'-'+shutdown), shutdown, budget, helper, strict, row)
                     save()
         require(len(report['sessions']) == 8 and all(row['passed'] for row in report['sessions']), 'selected session set incomplete')

@@ -7,12 +7,58 @@ The fixed-Huffman decoder is independently written from RFC 1951; no external
 decoder source is incorporated. zlib is used only by the build-time compressor.
 """
 from collections import deque
+import hashlib
 import zlib
 
 BCJ_VERSION = "e8-e9-whole-image-add-next-offset-le32-v1"
 LZ_VERSION = "rove4k-lz-runs-v1"
 FIXED_VERSION = "rfc1951-one-final-fixed-zero-padding-v1"
 MAX_IMAGE_BYTES = 256 * 1024 * 1024
+BODY_VERSION = 'tiny-rust-d-result-data8-body232-zero-prefix-v1'
+BODY_IMAGES = {
+    'a5e0d3814d1dd432bbb2b0145f222726a86a80f93333f28c455ea22946afd74d':
+        '9abcbf7accfcc919c046aaac7b134f479b58d81adf4e7195937601d12125e25f',
+    '3cfdfd2748e31525da832555069c2b5cabf056ebd0527ae22d52ebbc93be94d2':
+        '049504665155d8a5d498b9ba5e646a0efa1d42a440f8a279b091373251c049c8',
+}
+
+
+def restoration_image(load, prefix):
+    """Explicit full-load or exact Rust body232 image, before whole-offset BCJ.
+
+    The caller separately admits the compiled ELF and its sectionless load.
+    This is not an ELF image for kernel execution. Only the unused header
+    prefix is zeroed; entry240 and initialized data8 are preserved verbatim.
+    """
+    if type(load) is not bytes or type(prefix) is not int or prefix not in (0, 232):
+        raise ValueError('explicit full or body232 restoration policy required')
+    digest = lambda raw: hashlib.sha256(raw).hexdigest()
+    source = digest(load)
+    if prefix == 0:
+        return load, {'policy': 'legacy-full', 'prefix_zero_bytes': 0,
+                      'compiled_load_sha256': source, 'restored_image_sha256': source,
+                      'full_body_complement_equal': True}
+    expected = BODY_IMAGES.get(source)
+    if len(load) != 16392 or expected is None:
+        raise ValueError('unknown exact Rust Result data8 load image')
+    at, crossing = 0, []
+    while at+4 < len(load):
+        if load[at] in (232, 233):
+            if at < prefix < at+5:
+                crossing.append(at)
+            at += 5
+        else:
+            at += 1
+    if crossing:
+        raise ValueError('BCJ operand crosses declared header cut')
+    result = bytes(prefix) + load[prefix:]
+    if digest(result) != expected or result[prefix:] != load[prefix:] or result[0x4000:0x4008] != bytes.fromhex('4601400000000000'):
+        raise ValueError('Rust body232 image/data8 differs')
+    return result, {'policy': 'body232', 'format': BODY_VERSION, 'prefix_zero_bytes': prefix,
+                    'compiled_load_sha256': source, 'restored_image_sha256': expected,
+                    'BCJ_cross_cut': crossing, 'BCJ_offsets': 'full restored-image offsets',
+                    'full_body_complement_equal': True, 'initialized_data8_preserved': True,
+                    'entry_offset': 240, 'runtime_qualified': False}
 
 
 def _size(expected_size):

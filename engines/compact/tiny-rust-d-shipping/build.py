@@ -23,6 +23,12 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 CANONICAL = HERE.parent/'tiny-rust-d'
 HELPERS = ('engines/compact/tiny-entry-d/verify.py', 'engines/compact/tiny-rust-d/verify_runtime.py')
+BODY_CLASS = 'tiny-rust-d-finite-shipping-result-body232-data8-v3'
+LEGACY_CLASS = 'tiny-rust-d-finite-shipping-result-data8-v2'
+IMAGE_POLICIES = {
+    'body232': {'id': 'tiny-rust-d-result-data8-body232-zero-prefix-v1', 'decode_prefix': 232},
+    'legacy-full': {'id': 'tiny-rust-d-result-data8-full-image-v2', 'decode_prefix': 0},
+}
 
 
 def sha(data): return hashlib.sha256(data).hexdigest()
@@ -38,6 +44,23 @@ def module(name, path):
     sys.modules[name] = result
     spec.loader.exec_module(result)
     return result
+
+
+def select_recipe(base, name):
+    """Explicit build selection; legacy image bytes never stand in for body232."""
+    require(base['class'] == BODY_CLASS and base['image_policies'] == IMAGE_POLICIES,
+            'unknown Rust restoration class/policy')
+    require(name in IMAGE_POLICIES, 'unknown selected Rust image policy')
+    recipe = json.loads(json.dumps(base))
+    if name == 'legacy-full':
+        legacy = base['legacy_full_image']
+        require(legacy['class'] == LEGACY_CLASS and legacy['codec'] == base['codec'],
+                'legacy full-image contract differs')
+        recipe['class'] = LEGACY_CLASS
+        recipe['forms'] = json.loads(json.dumps(legacy['forms']))
+        for form in recipe['forms'].values():
+            form['restored'] = dict(form['load'])
+    return recipe, dict(IMAGE_POLICIES[name])
 
 def source_closure():
     """All build and selected positive-validator inputs, with no external reports."""
@@ -145,16 +168,20 @@ def admit(data, mode, recipe, packer):
 
 def main():
     ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--out',type=Path,required=True)
-    ap.add_argument('--rustc',default='rustc');a=ap.parse_args();out=a.out.resolve()
+    ap.add_argument('--rustc',default='rustc')
+    ap.add_argument('--image-policy',choices=tuple(IMAGE_POLICIES),default='body232',
+                    help='build-time restoration policy; no engine/UCI selector')
+    a=ap.parse_args();out=a.out.resolve()
     if sys.platform!='linux' or platform.machine()!='x86_64':ap.error('Linux x86-64 required')
     if not a.out.is_absolute() or out.exists() or out==ROOT or ROOT in out.parents:ap.error('new absolute external output required')
     rustc=shutil.which(a.rustc)
     if not rustc:ap.error('Rust compiler unavailable')
-    recipe=json.loads((HERE/'recipe.json').read_bytes());limits=recipe['limits']
-    require(recipe['class']=='tiny-rust-d-finite-shipping-result-data8-v2' and recipe['profile']=={'workers':2,'tt_bits':18,'ply':128,'shipping_cfg':'tiny_shipping'},'selected class/profile only')
+    recipe,image_policy=select_recipe(json.loads((HERE/'recipe.json').read_bytes()),a.image_policy);limits=recipe['limits']
+    require(recipe['profile']=={'workers':2,'tt_bits':18,'ply':128,'shipping_cfg':'tiny_shipping'},'selected profile only')
     require(all(recipe['forms'].get(mode) is not None for mode in ('scalar','hq')),'Both literal Result-projection forms require discovery before an ordinary build')
     closure=source_closure();out.mkdir()
-    report={'complete':False,'class':recipe['class'],'source_closure':closure,'recipe_sha256':sha((HERE/'recipe.json').read_bytes()),
+    report={'complete':False,'class':recipe['class'],'selected_image_policy':a.image_policy,'image_policy':image_policy,
+        'source_closure':closure,'recipe_sha256':sha((HERE/'recipe.json').read_bytes()),
         'profile':recipe['profile'],'forms':[],'commands':[],'limits':limits,'counts':{'native_links':0,'audit_links':0,'whole_encodes':0,'loader_links':0,'ELF_execution':0},
         'runtime_qualified':False,'rules_eligibility':'unproven'}
     deadline=time.monotonic()+limits['parent_wall_seconds'];fixed={'LC_ALL':'C','TZ':'UTC','SOURCE_DATE_EPOCH':'0'}
@@ -238,14 +265,21 @@ def main():
                 for name,raw in generated.items():(local/name).write_bytes(raw)
                 command=[rustc,'--remap-path-prefix',str(local)+'=.',*flags];report['counts']['native_links']+=1
                 compile_record=run(command,local,form_env);native=(local/'x').read_bytes();load,geometry=admit(native,mode,recipe,packer)
-                (local/'load.bin').write_bytes(load);report['counts']['whole_encodes']+=1;payload=codec.fixed_compress(codec.bcj(load))
-                require(codec.bcj(codec.fixed_decompress(payload,len(load)),inverse=True)==load,'strict fixed decode/inverse BCJ mismatch')
+                (local/'load.bin').write_bytes(load)
+                prefix=image_policy['decode_prefix'];restored,image_proof=codec.restoration_image(load,prefix)
+                (local/'restored-image.bin').write_bytes(restored)
+                require({'bytes':len(restored),'sha256':sha(restored)}==recipe['forms'][mode]['restored'],'literal restored image differs')
+                report['counts']['whole_encodes']+=1;payload=codec.fixed_compress(codec.bcj(restored)[prefix:])
+                decoded=bytes(prefix)+codec.fixed_decompress(payload,len(restored)-prefix)
+                require(codec.bcj(decoded,inverse=True)==restored,'strict fixed body decode/whole-offset inverse BCJ mismatch')
                 expected=recipe['forms'][mode];require(len(payload)==expected['payload']['bytes'] and sha(payload)==expected['payload']['sha256'],'literal fixed payload differs')
                 report['counts']['loader_links']+=1
-                whole=packer.compile_loader(local/'whole',own/'packaging/loader',payload,recipe['layout'],recipe['loader_flags'],lambda c:run(c),sha)
+                whole=packer.compile_loader(local/'whole',own/'packaging/loader',payload,recipe['layout'],recipe['loader_flags'],lambda c:run(c),sha,decode_prefix=prefix)
                 require(whole['bytes']==expected['whole']['bytes'] and whole['sha256']==expected['whole']['sha256'] and whole['loader_and_headers_bytes']==expected['loader_header_bytes'],'literal whole image differs')
-                row['attempts'].append({'native':identity(local/'x'),'load':identity(local/'load.bin'),'whole':whole,'compile':compile_record,'geometry':geometry});record()
-            first,repeat=row['attempts'];require(all(Path(first[k]['path']).read_bytes()==Path(repeat[k]['path']).read_bytes() for k in ('native','load','whole')),'independent native/load/whole bytes differ')
+                row['attempts'].append({'native':identity(local/'x'),'load':identity(local/'load.bin'),
+                    'restored':identity(local/'restored-image.bin'),'restoration':image_proof,
+                    'whole':whole,'compile':compile_record,'geometry':geometry});record()
+            first,repeat=row['attempts'];require(all(Path(first[k]['path']).read_bytes()==Path(repeat[k]['path']).read_bytes() for k in ('native','load','restored','whole')),'independent native/load/restored/whole bytes differ')
             audit_command=['strip=none' if x=='strip=symbols' else x for x in first['compile']['command']];audit_command[-1]='x.unstripped'
             report['counts']['audit_links']+=1;audit=run(audit_command,out/mode/'first',form_env);unstripped=out/mode/'first/x.unstripped'
             undefined=run(['nm','-u',str(unstripped)])['stdout'];audit.update(identity(unstripped));audit['undefined_symbols']=undefined
