@@ -4,6 +4,42 @@ The full implementation scope is recorded in [the accepted plan](ENGINE-PLAN.ko.
 The current user request excludes training and AWS connections. Frozen model
 inference and lossless model storage remain in scope; trained strength is not claimed.
 
+## Full F exact FROM macro expansion: 2026-10-24
+
+The definition of FROM is removed and its three fixed unsigned-local-m calls
+expand to the exact original ((m)&119) tokens. TO/PROMO/MOVE/atomic macros and
+all bodies remain. Source7905 becomes7885 B, bootstrap8827 becomes8807 B and
+whole4276 becomes4275 B, gain1 and179 B above4096. Both actual full-header CPP
+outputs are86599 B/67dbe911 and entire-byte equal, with20286 matching tokens;
+the18576/98818a94 native is entire-byte equal. The four edits/five protected
+gaps/full inverse consume the actual quiet/format/frequency/pool and earlier
+literal guards. Canonical/DEV and optional selected source pipelines bypass.
+
+Ordinary --dev1 reproduces shipping twice and old DEV twice; unchanged
+selected1 passes quit/EOF, eight legal GO, three TIDs, actual native/private
+path/readers and physical exit. The two optional ordinary builds reproduce
+their selected4319/4045 tuples twice each and consume the new7885 full
+reference. Original outer/four commands settle before reap, forced0/owned0.
+An initial source-extraction assertion stops before any child/product launch;
+its original failure is preserved separately from the single actual cohort.
+No new semantic/SAN/fault/game fixture is added. External final index7961 B:
+`02cf20dd605df9ed8e94361a93d7b8c5b17bf5c7171ac7dfce80cd894e4b673a`.
+
+F8 v9 consumes actual7885 and applies the same six resource roles to7923 B,
+still raw+38 relative to full fixed2. Its own8855 B bootstrap and nice24/header73
+whole4284 improve the prior4286 by2 B, independently of fixed2's gain1.
+The entire18576/26182257 native remains equal. Ordinary reproduces twice;
+unchanged positive assertions pass quit/EOF/eight legal GO/nine TIDs/all-eight
+activity, FD/maps/NX/no-WX/native/private path/readers and physical exit. Only
+class/stage literals change in build/verify; shared D f5ed stays exact. Build
+runtime_qualified=false remains separate from positive runtime. Original
+ordinary/positive commands settle with forced0/owned0. A legacy cost-index key
+was labeled normal although its path was cost; the original and correction
+are preserved and the actual independent normal tuple matches in full.
+External final-v3 index7581 B also corrects two stale external annotation
+domain labels without code/expected/product changes:
+`8ea4f1fa5acc63766c529462dd73d04548f795a10e59eb9915098992cc5469d6`.
+
 ## Default A EP-maker sharing: 2026-10-24
 
 After scoped frequency names, default Loose A shares EP legality with its
@@ -95,6 +131,41 @@ compile1/encode1 and strict restoration pass; no engine/normal/adoption runs.
 Current B remains its prior4950 tuple. Original driver/five children end
 naturally, forced0/owned0. External index11893 B:
 `1d5da5d10c757d871d323b374729533fd6a6408369e3215767d26d26d2eebb20`.
+
+## Common C compiler-group correction, external candidate: 2026-10-24
+
+The maintained C wrappers can reap an early-exiting compiler leader before
+its live same-group child is settled. Normal selected runs do not prove this
+case absent. A late transform preserves the actual compiler command, source
+expression, environment and FD exec, while normalizing/restoring SIGCHLD,
+handling partial stdin writes, covering masked Popen publication/unmask with
+the outer finally, and keeping the original leader unreaped through live
+same-group settlement. Only then does it reap and remove the private path.
+Unsettled cleanup exits125 and preserves the directory; readable /proc is a
+profile assumption. Non-zombie drain is not literal zombie/group absence or
+detached-descendant cleanup.
+
+One actual F4276 context grows bootstrap8827 to9851 B and whole4276 to4657 B,
+cost381 B. Encode1 and strict Python/CLI inverse pass. The actual whole with
+real cc restores the exact18576/98818a94 native, reaches uciok/readyok in the
+observed0.3859s, removes its path and exits on quit. Two separate direct-Python
+source-bound trace cases observe an early compiler exit/live child with
+inherited SIGCHLD_IGN, and pending TERM at the actual publication/unmask edge.
+They pass unreaped-leader/not-live-child/reap/cleanup/exec ordering and143
+termination respectively. These are three bounded paths, not a six-family
+fault matrix or general scheduler proof. Original handles/pidfds settle with
+forced0/owned0. Final index9470 B is
+`5c1815c7229928b393e617e54158b47dbe79375492252bcc557d4bd959c05923`.
+
+A separate notation-only candidate caches fresh module/private/attribute
+bindings while preserving all branches and alias-expanded AST. Its source
+shrinks9851 to9462 B, but complete4657 becomes4665 B, LOSS8. Encode1 and strict
+Python/CLI inverse pass; no candidate runtime or adoption occurs. Final
+index9605 B is
+`a73757440746529bd0a8be96c6cef2aae79facca9c68fc557bcaab90d842dc66`.
+Both prototypes and the six-consumer hook design remain outside Git. Current
+size rows and normal-runtime evidence retain their prior maintained wrappers;
+neither candidate resolves this limitation for those shipping files yet.
 
 ## Compact A PALS bounded deeper observation: 2026-10-24
 
@@ -1144,8 +1215,8 @@ plus the controller and TT_BITS=18. These are not final target profiles.
 | C | 4,666 B | 570 B | Completed-depth tokens replace separate worker epoch state with the startup sentinel retained; current signed-net eight-lane HCE and actual128-bit madd/four signed32 sums combine with the smaller full common A-derived mailbox/PVS/runtime, explicit -mavx2 target; old-C trace/native identity is not claimed; exact incremental evaluation, king-capture/move-buffer/QS draw guards, full-key TT, three learners and persistent SMP remain; selected compiler/literal adapter consumes the original C package and old DEV is unchanged |
 | D scalar / HQ | 5,581 / 6,037 B | 1,485 / 1,941 B | Scalar H28-private decoder shares initial prefill and subsequent refill with unchanged packet/native/restored image; transient512 MiB table remains and old startup/RSS observations keep their prior scope; HQ retains H24; shipping scalar fused mailbox rays with direction-major near-to-far visitation; HQ/DEV original walker; HQ-only history length derived from immutable job length plus ply; exact clock/inc parsing and ordered K/Q castling branches shared; consumed sort-prefix writebacks omitted; capture-only Move bit3; full-key aligned atomic16 TT with a shared finite-stage asm body, HCE/PVS/QS/learners, explicit SSE4.2/CX16 and fixed21 guarded own-ELF retained; exact fused-scalar body232 class restores dormant internal ELF metadata as zero while preserving body addresses |
 | E | 4,586 B | 490 B | Direct64-square successor preserves move/attack/material visit order and loop bodies; completed-depth tokens replace separate worker epoch state with the startup sentinel retained; actual ranking loop reuses decoded coordinates/mover and keeps five ordering features and19 independent coefficients; current exact untrained E19 logical19/physical21 model bodies and all five ordering features combine with the smaller full common A-derived mailbox/PVS/runtime; old-E search traces are not an equivalence claim; full-key-bound TT, exact model evaluation, history/continuation/correction, persistent SMP, terminal/draw guards and fixed resources retained; final int/return aliases retain the entire preceding native; previous E chain remains the guarded model/input authority and old DEV stays unchanged; selected compiler/literal adapter consumes the actual previous package before constructing the smaller bootstrap |
-| F full (default) | 4,276 B | 180 B | Unique quiet-order helper is inlined into its coordinate-owning caller with the entire native preserved; fixed binding-frequency spelling and four-coordinate formatter sharing; packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; private TT depth/bound shares one byte with empty0 excluded, worker completed-depth -1 publishes jobs under the existing mutex; history length derived from immutable job length plus ply; nonnegative QS depth, repetition-distance loop, fixed integer macros and plain-int keyword spelling compacted after the no-preadd hash, terminal, correction and source-form stages; compact environment snapshot; default size target remains open; lazy fallback and first-legal quiet-QS standpat cutoff; immutable global job-prefix keys shared while workers store only private path keys; fixed 73-byte stdin/xz header and BT2/16KiB ALONE with nice24; four further local names shorten14 tokens with declaration/reference and macro-argument ownership preserved; compact handler-pair loops, fixed2 completion selector and positional wait timeout; pure HCE rank normalization shares advance/center rank; ASCII unsigned first-digit guard and Linux readonly-open flag spelling compacted |
-| F full (fixed8) | 4,286 B | 190 B | Separate eight-search-worker profile with nine startup TIDs; actual final F7905 quiet-order source specializes through six roles to7943, including all-eight job-depth reset; full TT/MTD/HCE/learners and condition synchronization remain; unchanged native18576/26182257, fixed nice24/header73; WNOWAIT exit observation and strict task/mapping/activity/lifetime checks pass locally; guard sizes and final target profile remain open |
+| F full (default) | 4,275 B | 179 B | Exact expansion removes the three-use FROM definition with full-header CPP/native identity; unique quiet-order helper is inlined into its coordinate-owning caller with the entire native preserved; fixed binding-frequency spelling and four-coordinate formatter sharing; packed positional HCE, learners, full-key score/bound TT, full-depth MTD(f)/SMP retained; private TT depth/bound shares one byte with empty0 excluded, worker completed-depth -1 publishes jobs under the existing mutex; history length derived from immutable job length plus ply; nonnegative QS depth, repetition-distance loop, fixed integer macros and plain-int keyword spelling compacted after the no-preadd hash, terminal, correction and source-form stages; compact environment snapshot; default size target remains open; lazy fallback and first-legal quiet-QS standpat cutoff; immutable global job-prefix keys shared while workers store only private path keys; fixed 73-byte stdin/xz header and BT2/16KiB ALONE with nice24; four further local names shorten14 tokens with declaration/reference and macro-argument ownership preserved; compact handler-pair loops, fixed2 completion selector and positional wait timeout; pure HCE rank normalization shares advance/center rank; ASCII unsigned first-digit guard and Linux readonly-open flag spelling compacted |
+| F full (fixed8) | 4,284 B | 188 B | Separate eight-search-worker profile with nine startup TIDs; actual F7885 after exact FROM expansion specializes through six roles to7923, including all-eight job-depth reset; full TT/MTD/HCE/learners and condition synchronization remain; unchanged native18576/26182257, fixed nice24/header73; WNOWAIT exit observation and strict task/mapping/activity/lifetime checks pass locally; guard sizes and final target profile remain open |
 | F material/noise (opt-in) | 4,319 B | 223 B | Unsigned64 number forms and two fixed TT18 casts omitted; one-state material classifier, fixed material/stateless order and full-bound TT; optional positional HCE/learners omitted; literal include gaps compacted; fixed LP64 mixer literals; compact environment snapshot |
 | F material/move-TT (opt-in) | 4,045 B | 0 B (51 B spare) | Unsigned64 number forms; one-state material classifier, fixed material, main-owned token cursor, terminal-loop sharing and coherent atomic64 Move17/high46 plus index18; local size eligibility only, full F and strength acceptance remain open; fixed LP64 mixer literals; compact environment snapshot |
 

@@ -2572,3 +2572,22 @@ The actual producing recipe381106/b6ac4a41... remains under full/build/inputs;
 final recipe/README add only these completion annotations. Helper and builder
 remain the producing c5d65ffb.../2ae00f6b... bytes. Canonical/DEV, compiler,
 codec, previous receipts and all selected expectations are unchanged.
+
+## F FROM 고정 호출 직접 확장
+
+FROM 정의26B를 없애고 unsigned local m인 세 호출을 `((m)&119)`로 정확히 확장한다.
+4span/5gap/fullinverse로 source7905→7885(-20), bootstrap8827→8807이다.
+전체 헤더 CPP raw86599B·20286tokens와 native18576/98818a9433…는 이전과 같다.
+원 full codec preset6·BT2·16KiB·nice24로 whole4276→4275(-1),4096까지179B 남는다.
+literal은 FROM inverse7905→quiet/format/frequency/pool/depth/locals/return/square/common의
+이전 guard를 실제 소비한 후 같은 envelope 안의 C bytes만 확장한다.
+정본·DEV·optional4319/4045는 유지하고 optional의 독립 full-reference guard만7885를 쓴다.
+정식 full ordinary --dev1에서 source7885/native18576/bootstrap8807/whole4275의 두 shipping은
+firstcost와 전체 bytes가 같았고, 두 DEV와 pre-name8538 source는 실제 이전 파일과 같았다.
+기존 selected의 quit·EOF 두 session/8 GO/시작 TID3, native 복원·private path·reader·process
+종료 fence를 통과했다. optional ordinary2는 기존4319/4045의 전체 tuple을 각2회 재현하며
+독립 full-reference7885 guard도 통과했다. Runtime SHA `294c50071a2e9099f212107751552ccde4cdefc40608fa5c82ab04ed3a83d341`.
+원 네 명령과 outer driver는 terminal/reaped/preextras[]/group 부재·forced0·owned0으로 닫혔다.
+초기 outer source추출 중단은 child0 prelaunch로 별도 보존하며 제품 명령 재실행은 없다.
+취소 인과관계는 unproven이고 optional selected·F8·새 semantic/SAN/fault/games·기력·시간·CI는
+이번 검증에 포함하지 않는다. producing과 완료 annotation 핀은 외부 증거에서 구분한다.

@@ -16,7 +16,7 @@
     "engines/compact/tiny-entry-f/engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
     "engines/compact/tiny-entry-f/bootstrap.py.in": "159c5fe166f4b0804471e9d3a70d8f055a510858a6ae33f0ed6b4cfd17fca6f9",
     "engines/compact/tiny-entry-f/launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
-    "engines/compact/tiny-entry-f/build.py": "2ae00f6b29c02fe6053f9ff465dc3cb7c0d66449a271b19b4208f988d3984ede",
+    "engines/compact/tiny-entry-f/build.py": "181681f5cf3788547e1eb3c8496aa5b4fec110c27d308ce960e7847dff0940dd",
     "engines/scripts/specialize.py": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d",
     "engines/scripts/minify.py": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b",
     "engines/scripts/rename_c.py": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
@@ -74,7 +74,8 @@
     "engines/compact/tiny-entry-f/shipping_pool_state.py": "0bc1f73684f57569bfffc761ac854c6b07638c033b27c85f8d69d8e4f0424ed2",
     "engines/compact/tiny-entry-f/shipping_frequency.py": "ddc6a4c01a56d43fcc5d25901aabd49c02c75aa98e2d0b8c88a8b499026134dc",
     "engines/compact/tiny-entry-f/shipping_format_loop.py": "fd15f292d8e91c69f40bde4a955766701fde73920fc2432364070897c5a64144",
-    "engines/compact/tiny-entry-f/shipping_quiet_order.py": "c5d65ffb497f29ee63873eaf69cf177d12dfa37f3d6a2d128a22b58ebeb0debd"
+    "engines/compact/tiny-entry-f/shipping_quiet_order.py": "c5d65ffb497f29ee63873eaf69cf177d12dfa37f3d6a2d128a22b58ebeb0debd",
+    "engines/compact/tiny-entry-f/shipping_from.py": "6b8955f6f3d7fb9421a91a339719db26595793d4dc27ddbda9b2b5e5ffc2a510"
   },
   "positive_helper_sha256": {
     "engines/compact/tiny-entry-d/verify.py": "f5ed4ddbb90c985e45d5f3fc44f9f1a5a8ba35afd401c804ae42ecf6423ef2bd",
@@ -137,23 +138,23 @@
   },
   "final_4k_allocation": "unknown",
   "scalability_or_tournament_acceptance": "unproven",
-  "class": "full-F-late-fixed-resource8-TT18-v8",
-  "base_stage": "full-after-quiet-order-inline",
+  "class": "full-F-late-fixed-resource8-TT18-v9",
+  "base_stage": "full-after-FROM-exact-inline",
   "base_source": {
-    "bytes": 7905,
-    "sha256": "04e5472a5970a87ca784a71fa8a6ce483fa728e254ca45bc71e9de638b54bec7"
+    "bytes": 7885,
+    "sha256": "47419319e3bfa0eb0e43a9ced1705c7f6283218af8a92157bda47c49ac2dd852"
   },
   "expected": {
-    "source_bytes": 7943,
-    "source_sha256": "b060b00b9f389cf7a2917b828fa60856c2f07168d9d8fce0ccc944d1bb633a69",
+    "source_bytes": 7923,
+    "source_sha256": "c3a389c3ef46ccf23a7e56f8e27c806f0f1f7545cd1e28f99ad6278acef4d057",
     "native_bytes": 18576,
     "native_sha256": "261822576676e95f8e08b3a10ed5aeb4b4e9b7f00ffea51be9fa7e0b27b6e4a7",
-    "bootstrap_bytes": 8875,
-    "bootstrap_sha256": "052c7b4b284b9fd9486dda34b198be5adf2b7883b482c9590c50a0445684e488",
-    "whole_bytes": 4286,
-    "whole_sha256": "83543638d9af60bde84d901ded6f4fb70bf1e90075e5901d8fdf671ad64b0b72"
+    "bootstrap_bytes": 8855,
+    "bootstrap_sha256": "84a5d49099be4d38dadda86df17355ade29cd6544738aabfe6084749cfdd3bee",
+    "whole_bytes": 4284,
+    "whole_sha256": "9ffbda02cf022d610497a11ffbeced76b322f4d2bb141b77cb6f2186b5e9673a"
   },
-  "specialize_sha256": "81da0ff885d2a52b35a288512e4797205469c074daf219c7a15677319dcf9b4d",
+  "specialize_sha256": "140e7a74634772841c37afeb8dad09693f4326705aac18fc6c04b0cf0009052a",
   "packaging_paths": {
     "pack_stream.py": "engines/compact/tiny-a/pack_stream.py",
     "shipping_common.py": "engines/scripts/shipping_common.py",
@@ -165,58 +166,62 @@
   "source_raw_delta": 38,
   "fixed_late_source": {
     "source_proof": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-source-20261024-evidence/source-proof.json",
-      "bytes": 7238,
-      "sha256": "b3b3cfeb93519d4288b97e6da09f1b0333d2a8f6d05cff631bad6a2e89a4b1ed"
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-from-inline-source-20261024-evidence/source-proof.json",
+      "bytes": 7239,
+      "sha256": "743386a39372a4deef1bb7b2678cc8b080c11d9969c710d7618aac5e230632b0"
     },
     "source_index": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-source-20261024-evidence/final-index.json",
-      "bytes": 2134,
-      "sha256": "0b18a63a874ea7bf50f61e7805fd010d4010626d2fb0a9ad6f4417344aa1cee9"
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-from-inline-source-20261024-evidence/final-index.json",
+      "bytes": 1332,
+      "sha256": "3f5295218f4fc7ba1999097522905b1ee07f1e49b9745431dc81ce14db0a7322"
     },
-    "producer_readback": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-source-20261024-evidence/producer-readback.json",
-      "bytes": 1758,
-      "sha256": "0a23dfc286ded8d2cdcade2d3c54e8bbcb31b2e475c7cc55abb935f57d7ee8ba"
+    "upstream_normal_readback": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-from-inline-promotion-20261024-evidence/upstream-normal-readback.json",
+      "bytes": 1469,
+      "sha256": "fada12a70c75979543891b63dae27fd208082825a08af492293ab171c29aaf48"
     },
     "firstcost_index": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-first-cost-20261024-evidence/final-index.json",
-      "bytes": 6758,
-      "sha256": "fc386eeda96f0b767cb12ebc2d30d72c1cf537af57d7b2c1b4269a08ee0c7171"
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-from-inline-first-cost-20261024-evidence/final-index.json",
+      "bytes": 6748,
+      "sha256": "987bf535e6271b58a6d6bd1734782f201a5d9815be743493259a16f6e74e1d64"
     },
     "source_spans_count": 6,
     "protected_gaps": 7,
     "full_inverse": true,
     "source_raw_delta_vs_new_F2": 38,
-    "source_delta_vs_previous_F8": -74,
-    "whole_delta_vs_previous_F8_same_nice24": -30,
+    "source_delta_vs_previous_F8": -20,
+    "whole_delta_vs_previous_F8_same_nice24": -2,
     "source_names_reapplied": false,
+    "FROM_stage_reapplied": false,
+    "FROM_resource_transforms_commute_entire_bytes": true,
+    "FROM_three_unsigned_m_arguments_once_mask119": true,
+    "F2_existing_fullheader_CPP_equal_is_not_new_F8_PP": true,
     "one_condition_broadcast4_signal0_wait2": true,
     "all_eight_depth_sentinels_reset_under_job_mutex": true,
     "startup_b_zero_preserved": true,
     "strict_first_max_depth_selector": true,
     "actual_created_join_count": true,
     "F2_gain_addition_or_codec_effect_combined": false,
-    "F2_separately_measured_whole_gain": 28,
+    "F2_separately_measured_whole_gain": 1,
     "actual_upstream_normal_source": {
-      "path": "/home/stemxstudio/rove4k-f-quiet-order-inline-normal-20261024-v1/full/build/main.c",
-      "bytes": 7905,
-      "sha256": "04e5472a5970a87ca784a71fa8a6ce483fa728e254ca45bc71e9de638b54bec7"
+      "path": "/home/stemxstudio/rove4k-f-from-inline-normal-20261024-v1/full/build/main.c",
+      "bytes": 7885,
+      "sha256": "47419319e3bfa0eb0e43a9ced1705c7f6283218af8a92157bda47c49ac2dd852"
     },
     "actual_upstream_normal_build": {
-      "path": "/home/stemxstudio/rove4k-f-quiet-order-inline-normal-20261024-v1/full/build/build.json",
-      "bytes": 281865,
-      "sha256": "741646c70e0e2c7b3ba12611646f66bd60c1347c913b748713f50d175993ffa3"
+      "path": "/home/stemxstudio/rove4k-f-from-inline-normal-20261024-v1/full/build/build.json",
+      "bytes": 288003,
+      "sha256": "1fa3ae947aa22f3de150c58e2d21e5b55f4f45c07cae153e029badfbf6eeb4a3"
     },
     "actual_upstream_producing_recipe": {
-      "path": "/home/stemxstudio/rove4k-f-quiet-order-inline-normal-20261024-v1/full/build/inputs/recipe.json",
-      "bytes": 381106,
-      "sha256": "b6ac4a4196f837b870bdf8b072ac6dbbe49e44b6c666be662a9a4a85cc6935cd"
+      "path": "/home/stemxstudio/rove4k-f-from-inline-normal-20261024-v1/full/build/inputs/recipe.json",
+      "bytes": 392556,
+      "sha256": "b14e28af913d8d78170b19afc4d4aa368d31764c0850246147b0238f39c4ba50"
     },
     "upstream_qualified_index": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-quiet-order-inline-promotion-20261024-evidence/final-index.json",
-      "bytes": 7723,
-      "sha256": "5efb7f95898880afd9bf9881dd513d40fd21ab24dd2d5f4149a8c0bc4db9238d"
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-from-inline-promotion-20261024-evidence/final-index.json",
+      "bytes": 7961,
+      "sha256": "02cf20dd605df9ed8e94361a93d7b8c5b17bf5c7171ac7dfce80cd894e4b673a"
     }
   },
   "previous_v1": {
@@ -268,41 +273,41 @@
     "eight_worker_CPU_activity_and_physical_exit_checks_unchanged": true
   },
   "local_normal_validation": {
-    "status": "PASS local F8v8 ordinary1(two reproductions)+existingpositive1(quit/EOF8GO9TID); exact-head CI separate",
+    "status": "PASS local F8v9 ordinary1(two reproductions)+existingpositive1(quit/EOF8GO9TID); exact-head CI separate",
     "producing_manifest": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-promotion-20261024-evidence/producing-source-final.json",
-      "bytes": 11578,
-      "sha256": "9caae3f33e9b13a8fae84ff7dde7ca453685353ca16bd7dff855f33260d020b8"
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-from-inline-promotion-20261024-evidence/producing-source-final.json",
+      "bytes": 11667,
+      "sha256": "3b5775c3bbc2704da8d56943e57170e757f514db467d3f77da44ccfe2198a7d5"
     },
     "producing_recipe": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-promotion-20261024-evidence/producing-source/engines/compact/tiny-entry-f-resource8/recipe.json",
-      "bytes": 95238,
-      "sha256": "59d10e2f914c53be8d74b194025f204650f49421587d75d23208ae37e9b7df36"
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-from-inline-promotion-20261024-evidence/producing-source/engines/compact/tiny-entry-f-resource8/recipe.json",
+      "bytes": 118483,
+      "sha256": "547a19c6ec9d8e4c66ec34ecbb749438514ff5e895abcba0a858b30afca59120"
     },
     "firstcost": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-first-cost-20261024-evidence/final-index.json",
-      "bytes": 6758,
-      "sha256": "fc386eeda96f0b767cb12ebc2d30d72c1cf537af57d7b2c1b4269a08ee0c7171"
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-from-inline-first-cost-20261024-evidence/final-index.json",
+      "bytes": 6748,
+      "sha256": "987bf535e6271b58a6d6bd1734782f201a5d9815be743493259a16f6e74e1d64"
     },
     "normal": {
-      "path": "/home/stemxstudio/rove4k-f8-quiet-order-promotion-20261024-v1/F8/normal.json",
-      "bytes": 4106,
-      "sha256": "d917218a68aa4f41189d2c256c656ae556bdf44766efe8729965f7ce22bb1e9a"
+      "path": "/home/stemxstudio/rove4k-f8-from-inline-promotion-20261024-v1/F8/normal.json",
+      "bytes": 4158,
+      "sha256": "510b8df92650ad68716297a55d1c4d8de7baf6618d7a7aed0637c885588e9573"
     },
     "build": {
-      "path": "/home/stemxstudio/rove4k-f8-quiet-order-promotion-20261024-v1/F8/build/build.json",
-      "bytes": 20815,
-      "sha256": "e0c62f03c1f166cf0a2b57d3c8e6d58f4cabb7b86dece1c9d9a3dab83ddf53bb"
+      "path": "/home/stemxstudio/rove4k-f8-from-inline-promotion-20261024-v1/F8/build/build.json",
+      "bytes": 20946,
+      "sha256": "48901ec804779a3b3788d1c90aac310c9dd40e7b7397d2ea9e8f6f1e55720b3b"
     },
     "runtime": {
-      "path": "/home/stemxstudio/rove4k-f8-quiet-order-promotion-20261024-v1/F8/runtime/runtime.json",
-      "bytes": 71183,
-      "sha256": "748ed04b9cb73e42a9dc473a01cc6c6844454534a63ad8a3a567ef96e56db79c"
+      "path": "/home/stemxstudio/rove4k-f8-from-inline-promotion-20261024-v1/F8/runtime/runtime.json",
+      "bytes": 71588,
+      "sha256": "e613f24b763ab10317c84241a1cf1b9eda677496d5d94c6606cf4d10abb2863d"
     },
     "readback": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-promotion-20261024-evidence/normal-readback.json",
-      "bytes": 7312,
-      "sha256": "943945032afd344a349a0a5d9a253b4e33c432504862984742ba9a960b1129a7"
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-from-inline-promotion-20261024-evidence/normal-readback.json",
+      "bytes": 7314,
+      "sha256": "4c2a4b8475cb8fac88f2f3348f2c7797a3e824cd97170788dc578b5e36e94572"
     },
     "ordinary_calls": 1,
     "source_native_bootstrap_whole_reproductions": 2,
@@ -317,7 +322,7 @@
     "raw_maps_collected": true,
     "native_entire_same_previousF8": true,
     "D_shared_f5ed_actual_consumer": true,
-    "source_closure_count_observed_not_gate": 69,
+    "source_closure_count_observed_not_gate": 70,
     "original_terminal_reaped_preextras0_groupabsent": true,
     "original_readers_EOF_joined": true,
     "forced_cleanup": false,
@@ -1645,6 +1650,363 @@
       "native_entire_same_previousF8": true,
       "D_shared_f5ed_actual_consumer": true,
       "source_closure_count_observed_not_gate": 69,
+      "original_terminal_reaped_preextras0_groupabsent": true,
+      "original_readers_EOF_joined": true,
+      "forced_cleanup": false,
+      "owned_handles": 0,
+      "normal_failures": 0,
+      "normal_retries": 0,
+      "new_core_SAN_fault_PP_NVC_matrix_cost_replay": 0,
+      "guard_count_size_peakstack_strength_scaling_cancellation_final4k_proven": false,
+      "producing_to_final_annotations_only": true
+    }
+  },
+  "previous_v8": {
+    "class": "full-F-late-fixed-resource8-TT18-v8",
+    "base_stage": "full-after-quiet-order-inline",
+    "base_source": {
+      "bytes": 7905,
+      "sha256": "04e5472a5970a87ca784a71fa8a6ce483fa728e254ca45bc71e9de638b54bec7"
+    },
+    "expected": {
+      "source_bytes": 7943,
+      "source_sha256": "b060b00b9f389cf7a2917b828fa60856c2f07168d9d8fce0ccc944d1bb633a69",
+      "native_bytes": 18576,
+      "native_sha256": "261822576676e95f8e08b3a10ed5aeb4b4e9b7f00ffea51be9fa7e0b27b6e4a7",
+      "bootstrap_bytes": 8875,
+      "bootstrap_sha256": "052c7b4b284b9fd9486dda34b198be5adf2b7883b482c9590c50a0445684e488",
+      "whole_bytes": 4286,
+      "whole_sha256": "83543638d9af60bde84d901ded6f4fb70bf1e90075e5901d8fdf671ad64b0b72"
+    },
+    "specialize_sha256": "81da0ff885d2a52b35a288512e4797205469c074daf219c7a15677319dcf9b4d",
+    "fixed_late_source": {
+      "source_proof": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-source-20261024-evidence/source-proof.json",
+        "bytes": 7238,
+        "sha256": "b3b3cfeb93519d4288b97e6da09f1b0333d2a8f6d05cff631bad6a2e89a4b1ed"
+      },
+      "source_index": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-source-20261024-evidence/final-index.json",
+        "bytes": 2134,
+        "sha256": "0b18a63a874ea7bf50f61e7805fd010d4010626d2fb0a9ad6f4417344aa1cee9"
+      },
+      "producer_readback": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-source-20261024-evidence/producer-readback.json",
+        "bytes": 1758,
+        "sha256": "0a23dfc286ded8d2cdcade2d3c54e8bbcb31b2e475c7cc55abb935f57d7ee8ba"
+      },
+      "firstcost_index": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-first-cost-20261024-evidence/final-index.json",
+        "bytes": 6758,
+        "sha256": "fc386eeda96f0b767cb12ebc2d30d72c1cf537af57d7b2c1b4269a08ee0c7171"
+      },
+      "source_spans_count": 6,
+      "protected_gaps": 7,
+      "full_inverse": true,
+      "source_raw_delta_vs_new_F2": 38,
+      "source_delta_vs_previous_F8": -74,
+      "whole_delta_vs_previous_F8_same_nice24": -30,
+      "source_names_reapplied": false,
+      "one_condition_broadcast4_signal0_wait2": true,
+      "all_eight_depth_sentinels_reset_under_job_mutex": true,
+      "startup_b_zero_preserved": true,
+      "strict_first_max_depth_selector": true,
+      "actual_created_join_count": true,
+      "F2_gain_addition_or_codec_effect_combined": false,
+      "F2_separately_measured_whole_gain": 28,
+      "actual_upstream_normal_source": {
+        "path": "/home/stemxstudio/rove4k-f-quiet-order-inline-normal-20261024-v1/full/build/main.c",
+        "bytes": 7905,
+        "sha256": "04e5472a5970a87ca784a71fa8a6ce483fa728e254ca45bc71e9de638b54bec7"
+      },
+      "actual_upstream_normal_build": {
+        "path": "/home/stemxstudio/rove4k-f-quiet-order-inline-normal-20261024-v1/full/build/build.json",
+        "bytes": 281865,
+        "sha256": "741646c70e0e2c7b3ba12611646f66bd60c1347c913b748713f50d175993ffa3"
+      },
+      "actual_upstream_producing_recipe": {
+        "path": "/home/stemxstudio/rove4k-f-quiet-order-inline-normal-20261024-v1/full/build/inputs/recipe.json",
+        "bytes": 381106,
+        "sha256": "b6ac4a4196f837b870bdf8b072ac6dbbe49e44b6c666be662a9a4a85cc6935cd"
+      },
+      "upstream_qualified_index": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-quiet-order-inline-promotion-20261024-evidence/final-index.json",
+        "bytes": 7723,
+        "sha256": "5efb7f95898880afd9bf9881dd513d40fd21ab24dd2d5f4149a8c0bc4db9238d"
+      }
+    },
+    "local_normal_validation": {
+      "status": "PASS local F8v8 ordinary1(two reproductions)+existingpositive1(quit/EOF8GO9TID); exact-head CI separate",
+      "producing_manifest": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-promotion-20261024-evidence/producing-source-final.json",
+        "bytes": 11578,
+        "sha256": "9caae3f33e9b13a8fae84ff7dde7ca453685353ca16bd7dff855f33260d020b8"
+      },
+      "producing_recipe": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-promotion-20261024-evidence/producing-source/engines/compact/tiny-entry-f-resource8/recipe.json",
+        "bytes": 95238,
+        "sha256": "59d10e2f914c53be8d74b194025f204650f49421587d75d23208ae37e9b7df36"
+      },
+      "firstcost": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-first-cost-20261024-evidence/final-index.json",
+        "bytes": 6758,
+        "sha256": "fc386eeda96f0b767cb12ebc2d30d72c1cf537af57d7b2c1b4269a08ee0c7171"
+      },
+      "normal": {
+        "path": "/home/stemxstudio/rove4k-f8-quiet-order-promotion-20261024-v1/F8/normal.json",
+        "bytes": 4106,
+        "sha256": "d917218a68aa4f41189d2c256c656ae556bdf44766efe8729965f7ce22bb1e9a"
+      },
+      "build": {
+        "path": "/home/stemxstudio/rove4k-f8-quiet-order-promotion-20261024-v1/F8/build/build.json",
+        "bytes": 20815,
+        "sha256": "e0c62f03c1f166cf0a2b57d3c8e6d58f4cabb7b86dece1c9d9a3dab83ddf53bb"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-f8-quiet-order-promotion-20261024-v1/F8/runtime/runtime.json",
+        "bytes": 71183,
+        "sha256": "748ed04b9cb73e42a9dc473a01cc6c6844454534a63ad8a3a567ef96e56db79c"
+      },
+      "readback": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-promotion-20261024-evidence/normal-readback.json",
+        "bytes": 7312,
+        "sha256": "943945032afd344a349a0a5d9a253b4e33c432504862984742ba9a960b1129a7"
+      },
+      "ordinary_calls": 1,
+      "source_native_bootstrap_whole_reproductions": 2,
+      "all_entire_firstcost_tuples_exact": true,
+      "positive_calls": 1,
+      "quit_EOF_sessions": 2,
+      "legal_GO": 8,
+      "TIDs_each": 9,
+      "all_eight_worker_CPU_activity": true,
+      "stable9_idle_count_state_wait_before_strict_FD_children": true,
+      "strict_FD0_1_2_children_absent_noWX_maps_mainstack": true,
+      "raw_maps_collected": true,
+      "native_entire_same_previousF8": true,
+      "D_shared_f5ed_actual_consumer": true,
+      "source_closure_count_observed_not_gate": 69,
+      "original_terminal_reaped_preextras0_groupabsent": true,
+      "original_readers_EOF_joined": true,
+      "forced_cleanup": false,
+      "owned_handles": 0,
+      "normal_failures": 0,
+      "normal_retries": 0,
+      "new_core_SAN_fault_PP_NVC_matrix_cost_replay": 0,
+      "guard_count_size_peakstack_strength_scaling_cancellation_final4k_proven": false,
+      "producing_to_final_annotations_only": true
+    },
+    "base_source_closure_sha256": {
+      "engines/compact/tiny-entry-f/engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+      "engines/compact/tiny-entry-f/bootstrap.py.in": "159c5fe166f4b0804471e9d3a70d8f055a510858a6ae33f0ed6b4cfd17fca6f9",
+      "engines/compact/tiny-entry-f/launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
+      "engines/compact/tiny-entry-f/build.py": "2ae00f6b29c02fe6053f9ff465dc3cb7c0d66449a271b19b4208f988d3984ede",
+      "engines/scripts/specialize.py": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d",
+      "engines/scripts/minify.py": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b",
+      "engines/scripts/rename_c.py": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
+      "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
+      "engines/compact/tiny-entry-f/shipping_alpha.py": "74abadbd79735e9f6b30c513b422245bae737f81d4e3bd04a7b8e597e61937e8",
+      "engines/compact/tiny-entry-f/shipping_storage.py": "b8d1984c8585b3052f22b4f3713a7fb0a7107a5ad91a2951d91f9a852a36c3df",
+      "engines/compact/tiny-entry-f/shipping_scope.py": "40c88f75ca959f3b55c3a9d038d6ac9944f73d8de4d11e029b05cd4969d91e94",
+      "engines/compact/tiny-entry-f/shipping_semantics.py": "48c17a5b4998727189b4f5279ca0e526f6f6cef0fe5ff14e5b0bd13ea2b5112d",
+      "engines/compact/tiny-entry-f/shipping_input.py": "4a466b06c7f2578eea532da5cea0fba4c3b56ccb944e49677134242138247b4a",
+      "engines/compact/tiny-entry-f/shipping_declarations.py": "8a4d8426ce4d3e86d3d0cab9d6ad937194c868d8ac74a12013b6329d3f24ce3a",
+      "engines/compact/tiny-entry-f/shipping_hce.py": "f1d182a52ad83d93468ac92804ae4d28785aa4cb87a516afbf1920b01cf72a29",
+      "engines/compact/tiny-entry-f/shipping_types.py": "76f3888830f58f11990e09b96e35a2f84dddf1f4abc3ba865380e4a8a57443d8",
+      "engines/compact/tiny-entry-f/shipping_unit_bound.py": "5abf7974e6d5e615084a1301293da6e7dbb7da40ae9da0c9674a81634d11ee7e",
+      "engines/compact/tiny-entry-f/shipping_startup.py": "b6d300fe0d5bb30ffd9c64e0dac53a2c7874a955787ed38d7598dd58c6a66ae9",
+      "engines/compact/tiny-entry-f/shipping_global_names.py": "7fa5cd69acb97225030f2da886afb2abd3f560f430ff8defd64515332a54a6a1",
+      "engines/compact/tiny-entry-f/shipping_capture.py": "296a2213a1f9391b1aef0c2a3a82c08682892a607a49438a212f5748ecac8aac",
+      "engines/compact/tiny-entry-f/shipping_material_noise.py": "76b882092832d48488fd767189ebfe6cf8e445bb7a4ff74b261f1228c7527ad3",
+      "engines/compact/tiny-entry-f/shipping_material_names.py": "3d81326468dcd4c52647508aaaa47abf13ba1ddaee561f7c97448af4e4b40553",
+      "engines/compact/tiny-entry-f/shipping_material_capture.py": "e1d7960d71dce41e2f6694a76351d08d6dcf5e934f5693b8031dbfc1982b40dd",
+      "engines/compact/tiny-entry-f/shipping_move_tt.py": "70bbcae56adf94a93ab54ce5edfb7c8fea222fe5509ef8556c4262caf9400a81",
+      "engines/compact/tiny-entry-f/shipping_move_tt_names.py": "3ac359c6c41b97a9cbb6002c390aa415587cdb3e66f70bfdddccbc4584ea263a",
+      "engines/compact/tiny-entry-f/shipping_material_expressions.py": "53cd23cd38fa0351f4ebac6132c021a73359846a676051ca2a1127f3de4c2159",
+      "engines/scripts/shipping_common.py": "58f2cfdb37bbd0c010e82bc8d9c2118b00fe41ef6a556c18cc94db11455e2a15",
+      "engines/scripts/shipping_refinements.py": "6ecb62499035cedaf6308539de0744a011f7b183ca768984462c4f0435406804",
+      "engines/scripts/shipping_material_state.py": "eded8d82eed40c383564603a51582e829ff9de2fc626bdc11eab26e6c424b380",
+      "engines/scripts/shipping_integer_forms.py": "a989dc2fd2ea60d9ab786cf51874ea646363e6f5731a302e1335cbb283fbcd93",
+      "engines/compact/tiny-entry-f/shipping_terminal.py": "6d60a1d32f5445c0e2c5ecfdf0f2b809349a739db675d08c7f1b34c7a0c571a1",
+      "engines/compact/tiny-entry-f/shipping_hash_policy.py": "98b084bb25232a237f616629b25dc9fcde7ba1bedd8a48e67f3b4c9fd6587f04",
+      "engines/scripts/shipping_includes.py": "d7c3ad6e7811d848b0d6bab7331c929ab2c3175cd030438ddc81d22ea8cdf4bc",
+      "engines/scripts/shipping_mixer_literals.py": "7b25cb806a51cad9e867ebc588bcb99677c9e2f9d0a5df0b31d019e22bc6d114",
+      "engines/compact/tiny-entry-f/shipping_clamp.py": "54f7b75e3b5adfa4c012d1c7c8acf5b17013cff8ba848f0fbf39907d0dec64a7",
+      "engines/compact/tiny-entry-f/shipping_source_forms.py": "54e34ccf0889a01b5603492081b3058bbfe98770b545ef9652b32250a5647697",
+      "engines/scripts/shipping_clock.py": "46c19879deae1d056f4b059c6c7d9667a3e935110dfb33015b29fd0dec4d8c43",
+      "engines/compact/tiny-entry-f/shipping_result_stream.py": "326921d09da32c97193f126c002815d72b475b067d77871f21fb49567e4ecaad",
+      "engines/compact/tiny-entry-f/shipping_depth_repetition.py": "e719af113dcca4da8e4ad6d3b44e57a8a09a5985ec35ceaf7a44ae1b1e8e6753",
+      "engines/compact/tiny-entry-f/shipping_macro_literals.py": "8926a35c4d297a62ea433eb0923b06547e26f096f251c0b40c2642c7261bce10",
+      "engines/compact/tiny-entry-f/shipping_int_token.py": "adf509f08421f5c078660fd66bafb4879a4f9f2ca2ee72676de78a3b912004e5",
+      "engines/compact/tiny-entry-f/shipping_history_depth.py": "3197d492ee319e46f111ceff650e000ca3a6490c3c36fb4ffc82b4ea143f08c5",
+      "engines/scripts/shipping_lazy_fallback.py": "023b370e75df2d50f44641eac7d1b49091ef2424d9ed7983d6d6f3c7d700b2ce",
+      "engines/compact/tiny-entry-f/shipping_qs_cutoff.py": "ae95c21527a235880a4e9f140537f488df71b99caec988a3c08cf710d7df4534",
+      "engines/compact/tiny-entry-f/shipping_history_path.py": "d345e87322f6aa17f141861c9fa6f330ff2c3642d765d9c0e2d6dc32a597a70c",
+      "engines/scripts/source_package.py": "55fa739e7c17fffdb3bf1191c7a26aa38d35e9e32473e4008c23ece3d5703d1f",
+      "engines/compact/tiny-entry-f/shipping_names.py": "b69d376bf2e206273b12344fe30fbddbce6d51396c01fab8d53fd8f25401d48b",
+      "engines/compact/tiny-entry-f/bootstrap_full.py": "813eb1a9f0a31a54350e4df015c49d0a63e9d2d57923a4035e563aa7b95e222c",
+      "engines/compact/tiny-entry-f/shipping_selector.py": "69bf3747d81455690c11abc95046e173c5a8915e2abd001ad6976bbe22c3e48d",
+      "engines/compact/tiny-entry-f/shipping_rank.py": "0850ee61f108bc24fa48995f5f13b49d16a24c788f38cd070c9644e9e044c932",
+      "engines/compact/tiny-entry-f/shipping_digit_fd.py": "ae396191f09c6738879d42d1cc62e2c54cda1165b89c91c9ef677b4985040960",
+      "engines/compact/tiny-entry-f/shipping_condition.py": "c6bf5e284c5648b305817a0da53e7d95566e856eb4a053ac281d88990a495e0f",
+      "engines/compact/tiny-entry-f/shipping_walker.py": "cacaeda593a77a8c4ea359351bab1b9b4d2561844f579a993c1875d7b20b208d",
+      "engines/compact/tiny-entry-f/shipping_integer_expressions.py": "3857ecd6c4cdf6a32ce13d1052957aa9aca087455e4b0b47be42b159234cd47a",
+      "engines/compact/tiny-entry-f/shipping_square_successor.py": "acf2a93e6680213090143ef2a71014616b65d28c8119718b93d7c867229fefcb",
+      "engines/compact/tiny-entry-f/shipping_return_token.py": "9dde8169a5574496de6c68460df35208e0997c907de84722a309b88fc2011680",
+      "engines/compact/tiny-entry-f/shipping_four_locals.py": "d8add0cefb4cece78f278f1ce32405686bacf11584ea8dc1dc60f2ff930607e6",
+      "engines/compact/tiny-entry-f/shipping_depth_bound.py": "03626404f5cd9fe1c986b9c1bed1e040d7339777f394b22a9e9cb228ab3656c9",
+      "engines/compact/tiny-entry-f/shipping_pool_state.py": "0bc1f73684f57569bfffc761ac854c6b07638c033b27c85f8d69d8e4f0424ed2",
+      "engines/compact/tiny-entry-f/shipping_frequency.py": "ddc6a4c01a56d43fcc5d25901aabd49c02c75aa98e2d0b8c88a8b499026134dc",
+      "engines/compact/tiny-entry-f/shipping_format_loop.py": "fd15f292d8e91c69f40bde4a955766701fde73920fc2432364070897c5a64144",
+      "engines/compact/tiny-entry-f/shipping_quiet_order.py": "c5d65ffb497f29ee63873eaf69cf177d12dfa37f3d6a2d128a22b58ebeb0debd"
+    },
+    "positive_helper_sha256": {
+      "engines/compact/tiny-entry-d/verify.py": "f5ed4ddbb90c985e45d5f3fc44f9f1a5a8ba35afd401c804ae42ecf6423ef2bd",
+      "engines/tests/chess_oracle.py": "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8"
+    },
+    "v8_quiet_order_resource_contract": {
+      "normal_validation_pending": false,
+      "source_scope": "exact final fullF quiet-order7905 with only six resource edits; old producer guards remain its production boundary, F8 does not reapply upstream stages",
+      "worker_job_publication": "C=8 and all U[i].b=-1 under J before broadcast, same b0 claim/startup/completion/drain/join",
+      "own_wrapper932_preserved": true,
+      "own_nice24_header73_compiler_preserved": true,
+      "F8_native_entire_equal_previous_v7": true,
+      "F2_native_identity_is_separate": true,
+      "F2_gain28_is_not_F8_gain30": true,
+      "shared_D_fullfile_sha256": "f5ed4ddbb90c985e45d5f3fc44f9f1a5a8ba35afd401c804ae42ecf6423ef2bd",
+      "positive_assertions_relaxed": false,
+      "common_bootstrap_changes_combined": false,
+      "normal_validation": {
+        "status": "PASS local F8v8 ordinary1(two reproductions)+existingpositive1(quit/EOF8GO9TID); exact-head CI separate",
+        "producing_manifest": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-promotion-20261024-evidence/producing-source-final.json",
+          "bytes": 11578,
+          "sha256": "9caae3f33e9b13a8fae84ff7dde7ca453685353ca16bd7dff855f33260d020b8"
+        },
+        "producing_recipe": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-promotion-20261024-evidence/producing-source/engines/compact/tiny-entry-f-resource8/recipe.json",
+          "bytes": 95238,
+          "sha256": "59d10e2f914c53be8d74b194025f204650f49421587d75d23208ae37e9b7df36"
+        },
+        "firstcost": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-first-cost-20261024-evidence/final-index.json",
+          "bytes": 6758,
+          "sha256": "fc386eeda96f0b767cb12ebc2d30d72c1cf537af57d7b2c1b4269a08ee0c7171"
+        },
+        "normal": {
+          "path": "/home/stemxstudio/rove4k-f8-quiet-order-promotion-20261024-v1/F8/normal.json",
+          "bytes": 4106,
+          "sha256": "d917218a68aa4f41189d2c256c656ae556bdf44766efe8729965f7ce22bb1e9a"
+        },
+        "build": {
+          "path": "/home/stemxstudio/rove4k-f8-quiet-order-promotion-20261024-v1/F8/build/build.json",
+          "bytes": 20815,
+          "sha256": "e0c62f03c1f166cf0a2b57d3c8e6d58f4cabb7b86dece1c9d9a3dab83ddf53bb"
+        },
+        "runtime": {
+          "path": "/home/stemxstudio/rove4k-f8-quiet-order-promotion-20261024-v1/F8/runtime/runtime.json",
+          "bytes": 71183,
+          "sha256": "748ed04b9cb73e42a9dc473a01cc6c6844454534a63ad8a3a567ef96e56db79c"
+        },
+        "readback": {
+          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-promotion-20261024-evidence/normal-readback.json",
+          "bytes": 7312,
+          "sha256": "943945032afd344a349a0a5d9a253b4e33c432504862984742ba9a960b1129a7"
+        },
+        "ordinary_calls": 1,
+        "source_native_bootstrap_whole_reproductions": 2,
+        "all_entire_firstcost_tuples_exact": true,
+        "positive_calls": 1,
+        "quit_EOF_sessions": 2,
+        "legal_GO": 8,
+        "TIDs_each": 9,
+        "all_eight_worker_CPU_activity": true,
+        "stable9_idle_count_state_wait_before_strict_FD_children": true,
+        "strict_FD0_1_2_children_absent_noWX_maps_mainstack": true,
+        "raw_maps_collected": true,
+        "native_entire_same_previousF8": true,
+        "D_shared_f5ed_actual_consumer": true,
+        "source_closure_count_observed_not_gate": 69,
+        "original_terminal_reaped_preextras0_groupabsent": true,
+        "original_readers_EOF_joined": true,
+        "forced_cleanup": false,
+        "owned_handles": 0,
+        "normal_failures": 0,
+        "normal_retries": 0,
+        "new_core_SAN_fault_PP_NVC_matrix_cost_replay": 0,
+        "guard_count_size_peakstack_strength_scaling_cancellation_final4k_proven": false,
+        "producing_to_final_annotations_only": true
+      }
+    },
+    "qualified_final_index": {
+      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-promotion-20261024-evidence/final-index.json",
+      "bytes": 6728,
+      "sha256": "35051ca82a563df92ea18e6622480831cc1786c261c7e2f9aca1da173bfb3cb1"
+    }
+  },
+  "v9_FROM_inline_resource_contract": {
+    "normal_validation_pending": false,
+    "source_scope": "exact final fullF FROM7885 with only six resource edits; producer inverse FROM7885-to7905 then quiet/older literal guards stay at producer boundary; F8 never repeats name/FROM stages",
+    "worker_job_publication": "C=8 and all U[i].b=-1 under J before broadcast, same startup0/b0 claim/completion/drain/join",
+    "own_wrapper932_preserved": true,
+    "own_nice24_header73_compiler_preserved": true,
+    "F8_native_entire_equal_previous_v8": true,
+    "F2_native_identity_is_separate": true,
+    "F2_gain1_is_not_F8_gain2": true,
+    "shared_D_fullfile_sha256": "f5ed4ddbb90c985e45d5f3fc44f9f1a5a8ba35afd401c804ae42ecf6423ef2bd",
+    "positive_assertions_relaxed": false,
+    "common_bootstrap_changes_combined": false,
+    "normal_validation": {
+      "status": "PASS local F8v9 ordinary1(two reproductions)+existingpositive1(quit/EOF8GO9TID); exact-head CI separate",
+      "producing_manifest": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-from-inline-promotion-20261024-evidence/producing-source-final.json",
+        "bytes": 11667,
+        "sha256": "3b5775c3bbc2704da8d56943e57170e757f514db467d3f77da44ccfe2198a7d5"
+      },
+      "producing_recipe": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-from-inline-promotion-20261024-evidence/producing-source/engines/compact/tiny-entry-f-resource8/recipe.json",
+        "bytes": 118483,
+        "sha256": "547a19c6ec9d8e4c66ec34ecbb749438514ff5e895abcba0a858b30afca59120"
+      },
+      "firstcost": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-from-inline-first-cost-20261024-evidence/final-index.json",
+        "bytes": 6748,
+        "sha256": "987bf535e6271b58a6d6bd1734782f201a5d9815be743493259a16f6e74e1d64"
+      },
+      "normal": {
+        "path": "/home/stemxstudio/rove4k-f8-from-inline-promotion-20261024-v1/F8/normal.json",
+        "bytes": 4158,
+        "sha256": "510b8df92650ad68716297a55d1c4d8de7baf6618d7a7aed0637c885588e9573"
+      },
+      "build": {
+        "path": "/home/stemxstudio/rove4k-f8-from-inline-promotion-20261024-v1/F8/build/build.json",
+        "bytes": 20946,
+        "sha256": "48901ec804779a3b3788d1c90aac310c9dd40e7b7397d2ea9e8f6f1e55720b3b"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-f8-from-inline-promotion-20261024-v1/F8/runtime/runtime.json",
+        "bytes": 71588,
+        "sha256": "e613f24b763ab10317c84241a1cf1b9eda677496d5d94c6606cf4d10abb2863d"
+      },
+      "readback": {
+        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-from-inline-promotion-20261024-evidence/normal-readback.json",
+        "bytes": 7314,
+        "sha256": "4c2a4b8475cb8fac88f2f3348f2c7797a3e824cd97170788dc578b5e36e94572"
+      },
+      "ordinary_calls": 1,
+      "source_native_bootstrap_whole_reproductions": 2,
+      "all_entire_firstcost_tuples_exact": true,
+      "positive_calls": 1,
+      "quit_EOF_sessions": 2,
+      "legal_GO": 8,
+      "TIDs_each": 9,
+      "all_eight_worker_CPU_activity": true,
+      "stable9_idle_count_state_wait_before_strict_FD_children": true,
+      "strict_FD0_1_2_children_absent_noWX_maps_mainstack": true,
+      "raw_maps_collected": true,
+      "native_entire_same_previousF8": true,
+      "D_shared_f5ed_actual_consumer": true,
+      "source_closure_count_observed_not_gate": 70,
       "original_terminal_reaped_preextras0_groupabsent": true,
       "original_readers_EOF_joined": true,
       "forced_cleanup": false,

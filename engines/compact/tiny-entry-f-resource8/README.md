@@ -1,3 +1,54 @@
+# F8 v9: final full F FROM exact-inline source
+
+Class `full-F-late-fixed-resource8-TT18-v9` consumes actual fullF normal
+source7885/47419319... after the late FROM exact-inline stage. The same six
+resource roles produce C7923/c3a389c3... (+38B), with seven protected gaps and
+a full inverse. Applying FROM definition removal/three exact ((m)&119) uses
+to the old F8 source produces this same C byte-for-byte; all three arguments
+are unsigned local m read once. Resource edits introduce no FROM consumers.
+Names and FROM are not reapplied. C=8 and all eight U[i].b=-1 are published
+under J before broadcast; startup0, b0 claim, completion/flush/drain, strict
+first-max-depth tie and created-prefix joins remain.
+
+Independent F8 cost is whole4284/9ffbda02..., down2B from4286 and188B above4096.
+Full F separately gained1B, which is not added to the F8 result. Fresh F8
+native18576/26182257... is entirely byte-identical to qualified v8, including
+ELF/.text. Bootstrap8855/84a5d490... preserves the same932B wrapper. Own
+ALONE6/BT2/dict16KiB/lc2lp0pb0/nice24/header73 and cc -Os -pthread implicitGNU17
+remain. Compile1/encode1/Python2/CLI2 passed with diagnostics0 and original
+handles terminal0/reaped/pre-reap extras[]/groupabsent/forced0/owned0.
+No engine ran during cost. Ordinary and existing positive passed as recorded below.
+
+FullF retains inverse FROM7885-to7905 then quiet/format/frequency/pool and
+older exact literal guards before forwarding once. F8 consumes the final C
+and its own exact six-role guard, preserving the actual producer boundary.
+DEV and selected optional F products stay at their original producer. Existing
+F2 fullheader CPP bytes are equal; no new F8 PP or generic compiler claim is
+made. Common bootstrap research remains separate. Shared D helper f5ed4ddb...
+and existing nine-TID/eight-worker CPU, FD/children/maps/noWX/mainstack/legal
+output/physical lifetime assertions remain unchanged. Guard-count/size,
+peak-stack, scaling, strength, cancellation and final4KiB acceptance are unproven.
+Earlier records below remain historical evidence.
+
+<!-- F8_V9_COMPLETION:PASS -->
+After full F original normal closure and the conditional root GO, one ordinary builder produced two
+source/native/bootstrap/whole tuples entirely equal to the frozen F8 cost4284.
+Native26182257... remains entirely identical to qualified v8; fresh wrapper
+positive nevertheless ran quit/EOF2 sessions8 legal GO with9 persistent TIDs,
+all8 active-worker CPU, strict stdio/children/maps/noWX/mainstack, actual deleted
+private native image and physical process/reader exit. D helper f5ed4ddb... was
+the actual imported fullfile; assertions were not relaxed.
+Original ordinary1065/positive1080 both returned0/reaped after pre-reap extras[],
+with group absence and forced0/owned0. Producing source closure70 is an observed
+file count, not a new admission gate. Producing code and literal expectations
+are unchanged; final recipe/README add completion only. No extra core, SAN,
+fault, matrix, NVC, codec search, fullF rebuild or cost replay ran.
+Guard count/size, peak-stack, strength, scaling, cancellation causality, final
+hardware allocation and final4KiB acceptance remain unproven.
+Build receipt: `48901ec804779a3b3788d1c90aac310c9dd40e7b7397d2ea9e8f6f1e55720b3b`.
+Runtime receipt: `e613f24b763ab10317c84241a1cf1b9eda677496d5d94c6606cf4d10abb2863d`.
+
+
 # F8 v8: final full F quiet-order inline source
 
 Class `full-F-late-fixed-resource8-TT18-v8` consumes actual fullF normal

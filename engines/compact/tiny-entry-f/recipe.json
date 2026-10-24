@@ -100,7 +100,8 @@
     "engines/compact/tiny-entry-f/shipping_pool_state.py": "0bc1f73684f57569bfffc761ac854c6b07638c033b27c85f8d69d8e4f0424ed2",
     "engines/compact/tiny-entry-f/shipping_frequency.py": "ddc6a4c01a56d43fcc5d25901aabd49c02c75aa98e2d0b8c88a8b499026134dc",
     "engines/compact/tiny-entry-f/shipping_format_loop.py": "fd15f292d8e91c69f40bde4a955766701fde73920fc2432364070897c5a64144",
-    "engines/compact/tiny-entry-f/shipping_quiet_order.py": "c5d65ffb497f29ee63873eaf69cf177d12dfa37f3d6a2d128a22b58ebeb0debd"
+    "engines/compact/tiny-entry-f/shipping_quiet_order.py": "c5d65ffb497f29ee63873eaf69cf177d12dfa37f3d6a2d128a22b58ebeb0debd",
+    "engines/compact/tiny-entry-f/shipping_from.py": "6b8955f6f3d7fb9421a91a339719db26595793d4dc27ddbda9b2b5e5ffc2a510"
   },
   "resource_literals": [
     [
@@ -274,22 +275,22 @@
   },
   "expected": {
     "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
-    "source_bytes": 7905,
-    "source_sha256": "04e5472a5970a87ca784a71fa8a6ce483fa728e254ca45bc71e9de638b54bec7",
+    "source_bytes": 7885,
+    "source_sha256": "47419319e3bfa0eb0e43a9ced1705c7f6283218af8a92157bda47c49ac2dd852",
     "native_bytes": 18576,
     "native_sha256": "98818a94330098bf1a574f2ce2bfccc52c0d2ca59774bc5cbb90213fd24d7cb6",
-    "whole_bytes": 4276,
-    "whole_sha256": "1db5a14035dadf40df70fc759c4c77d318c92f66fdee345e17ce8a2a0b701c40",
+    "whole_bytes": 4275,
+    "whole_sha256": "9b42eefeb4d8961e54640bed005d665b76792783f7795d934edcba8af6894eb2",
     "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
     "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
-    "bootstrap_sha256": "39872369f69ab6de828572875a77578f37808382014683b678ac69775aef82f2",
+    "bootstrap_sha256": "cbdfb035554dc6c705d3e01aef0802b5265cf3d8d7390e1824f3b747727749e1",
     "semantic_readable_bytes": 25720,
     "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
     "dev_source_bytes": 19488,
     "dev_native_bytes": 26984,
     "input_profile_readable_bytes": 28587,
     "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
-    "bootstrap_bytes": 8827
+    "bootstrap_bytes": 8807
   },
   "local_input_sha256": {
     "engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
@@ -1319,6 +1320,139 @@
         "normal_failures": 0,
         "normal_retries": 0,
         "post_execution_changes": "F2/F8 recipe and README annotations only; helper/build/expected/codec remain producing bytes"
+      }
+    },
+    "from_macro_inline": {
+      "helper": "engines/compact/tiny-entry-f/shipping_from.py",
+      "helper_sha256": "6b8955f6f3d7fb9421a91a339719db26595793d4dc27ddbda9b2b5e5ffc2a510",
+      "metadata": {
+        "stage": "late-full-F-FROM-macro-exact-inline",
+        "input": [
+          7905,
+          "04e5472a5970a87ca784a71fa8a6ce483fa728e254ca45bc71e9de638b54bec7"
+        ],
+        "output": [
+          7885,
+          "47419319e3bfa0eb0e43a9ced1705c7f6283218af8a92157bda47c49ac2dd852"
+        ],
+        "raw_delta": -20,
+        "spans": 4,
+        "protected_gaps": 5,
+        "full_inverse": true,
+        "definition_removed": 1,
+        "exact_fixed_calls": 3,
+        "unsigned_local_m_single_evaluation": true,
+        "header_CPP_and_native_whole_identity_observed_separately": true,
+        "other_macros_and_atomics_unchanged": true,
+        "canonical_DEV_optional_outputs_untouched": true,
+        "runtime_qualified": false
+      },
+      "source_proof": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-from-inline-source-20261024-evidence/source-proof.json",
+        "bytes": 8753,
+        "sha256": "2b6450cb9caaf5c29be6f685e19b585eb05e1984851290d64d2c25a317ba4185"
+      },
+      "firstcost": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-from-inline-first-cost-20261024-evidence/final-index.json",
+        "bytes": 5735,
+        "sha256": "b5b20d0ee36ed2941afd6d24be57fdcf009337ee329ef530df47ae71c14257a7"
+      },
+      "CPP_gate": {
+        "raw_bytes_equal": true,
+        "tokens_equal": true,
+        "token_count": 20286,
+        "full_header": true,
+        "line_identity_excluded": true,
+        "tokenizer": {
+          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-from-inline-first-cost-20261024-evidence/frozen/minify.py",
+          "bytes": 6624,
+          "sha256": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b"
+        }
+      },
+      "raw_CPP_outputs": [
+        {
+          "path": "/home/stemxstudio/rove4k-f-from-inline-first-cost-20261024-v1/baseline_CPP.stdout",
+          "bytes": 86599,
+          "sha256": "67dbe9113d5cffd4cdf6a566645a258277b7b678900c025b2be3409a46941a70"
+        },
+        {
+          "path": "/home/stemxstudio/rove4k-f-from-inline-first-cost-20261024-v1/candidate_CPP.stdout",
+          "bytes": 86599,
+          "sha256": "67dbe9113d5cffd4cdf6a566645a258277b7b678900c025b2be3409a46941a70"
+        }
+      ],
+      "predecessor_expected": {
+        "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+        "source_bytes": 7905,
+        "source_sha256": "04e5472a5970a87ca784a71fa8a6ce483fa728e254ca45bc71e9de638b54bec7",
+        "native_bytes": 18576,
+        "native_sha256": "98818a94330098bf1a574f2ce2bfccc52c0d2ca59774bc5cbb90213fd24d7cb6",
+        "whole_bytes": 4276,
+        "whole_sha256": "1db5a14035dadf40df70fc759c4c77d318c92f66fdee345e17ce8a2a0b701c40",
+        "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
+        "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
+        "bootstrap_sha256": "39872369f69ab6de828572875a77578f37808382014683b678ac69775aef82f2",
+        "semantic_readable_bytes": 25720,
+        "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
+        "dev_source_bytes": 19488,
+        "dev_native_bytes": 26984,
+        "input_profile_readable_bytes": 28587,
+        "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
+        "bootstrap_bytes": 8827
+      },
+      "whole_delta": -1,
+      "native_entire_equal_at_firstcost": true,
+      "selected_optional_expected_unchanged": [
+        4319,
+        4045
+      ],
+      "normal_status": "PASS",
+      "scope": "Full default F only: exact FROM expansion, same header CPP tokens and native full bytes. Optional outputs and DEV bypass this new stage; optional independent full-reference guard uses new7885 source. No new model/search policy, semantic/SAN/fault/game matrix. Actual codec preset6/BT2/16KiB/nice24, source proposal older parenthetical corrected in cost preflight.",
+      "normal_validation": {
+        "full_build": {
+          "path": "/home/stemxstudio/rove4k-f-from-inline-normal-20261024-v1/full/build/build.json",
+          "bytes": 288003,
+          "sha256": "1fa3ae947aa22f3de150c58e2d21e5b55f4f45c07cae153e029badfbf6eeb4a3"
+        },
+        "runtime": {
+          "path": "/home/stemxstudio/rove4k-f-from-inline-normal-20261024-v1/full/runtime/runtime.json",
+          "bytes": 81157,
+          "sha256": "294c50071a2e9099f212107751552ccde4cdefc40608fa5c82ab04ed3a83d341"
+        },
+        "optional_builds": [
+          {
+            "path": "/home/stemxstudio/rove4k-f-from-inline-normal-20261024-v1/material/build/build.json",
+            "bytes": 228176,
+            "sha256": "73b35e75592b0a9fdad83838274496a3f919138b9fd3fd8dfda3120a934e4c27"
+          },
+          {
+            "path": "/home/stemxstudio/rove4k-f-from-inline-normal-20261024-v1/move/build/build.json",
+            "bytes": 250194,
+            "sha256": "b763321790d0d061b9c44512e15d389535cc82bf951f75813ec889a46ff4a515"
+          }
+        ],
+        "full_shipping_reproductions": 2,
+        "unchanged_DEV_reproductions": 2,
+        "unchanged_pre_name_source": {
+          "path": "/home/stemxstudio/rove4k-f-from-inline-normal-20261024-v1/full/build/source-before-names.c",
+          "bytes": 8538,
+          "sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
+        },
+        "full_tuple_entire_firstcost_equal": true,
+        "native_entire_baseline_equal_at_firstcost": true,
+        "selected_sessions": 2,
+        "GO_epochs": 8,
+        "startup_TIDs": 3,
+        "optional_entire_old_tuple_equal": true,
+        "optional_reproductions_each": 2,
+        "optional_new7885_full_reference_guard": true,
+        "commands": 4,
+        "original_outer_and_commands_terminal_reaped_preextras_empty_groups_absent": true,
+        "forced_cleanup": false,
+        "owned_handles": 0,
+        "cancellation_causality": "unproven",
+        "extra_fixture_SAN_fault_games_F8": 0,
+        "scope": "Current FROM representation and four existing maintained verification commands only. Optional selected runtime not rerun; no strength/timing/CI acceptance."
       }
     }
   },
@@ -7352,6 +7486,139 @@
         "new bootstrap lifecycle"
       ],
       "post_execution_changes": "recipe/README completion annotations only; helper/build/expected/codec remain producing bytes"
+    }
+  },
+  "from_macro_inline": {
+    "helper": "engines/compact/tiny-entry-f/shipping_from.py",
+    "helper_sha256": "6b8955f6f3d7fb9421a91a339719db26595793d4dc27ddbda9b2b5e5ffc2a510",
+    "metadata": {
+      "stage": "late-full-F-FROM-macro-exact-inline",
+      "input": [
+        7905,
+        "04e5472a5970a87ca784a71fa8a6ce483fa728e254ca45bc71e9de638b54bec7"
+      ],
+      "output": [
+        7885,
+        "47419319e3bfa0eb0e43a9ced1705c7f6283218af8a92157bda47c49ac2dd852"
+      ],
+      "raw_delta": -20,
+      "spans": 4,
+      "protected_gaps": 5,
+      "full_inverse": true,
+      "definition_removed": 1,
+      "exact_fixed_calls": 3,
+      "unsigned_local_m_single_evaluation": true,
+      "header_CPP_and_native_whole_identity_observed_separately": true,
+      "other_macros_and_atomics_unchanged": true,
+      "canonical_DEV_optional_outputs_untouched": true,
+      "runtime_qualified": false
+    },
+    "source_proof": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-from-inline-source-20261024-evidence/source-proof.json",
+      "bytes": 8753,
+      "sha256": "2b6450cb9caaf5c29be6f685e19b585eb05e1984851290d64d2c25a317ba4185"
+    },
+    "firstcost": {
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-from-inline-first-cost-20261024-evidence/final-index.json",
+      "bytes": 5735,
+      "sha256": "b5b20d0ee36ed2941afd6d24be57fdcf009337ee329ef530df47ae71c14257a7"
+    },
+    "CPP_gate": {
+      "raw_bytes_equal": true,
+      "tokens_equal": true,
+      "token_count": 20286,
+      "full_header": true,
+      "line_identity_excluded": true,
+      "tokenizer": {
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-from-inline-first-cost-20261024-evidence/frozen/minify.py",
+        "bytes": 6624,
+        "sha256": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b"
+      }
+    },
+    "raw_CPP_outputs": [
+      {
+        "path": "/home/stemxstudio/rove4k-f-from-inline-first-cost-20261024-v1/baseline_CPP.stdout",
+        "bytes": 86599,
+        "sha256": "67dbe9113d5cffd4cdf6a566645a258277b7b678900c025b2be3409a46941a70"
+      },
+      {
+        "path": "/home/stemxstudio/rove4k-f-from-inline-first-cost-20261024-v1/candidate_CPP.stdout",
+        "bytes": 86599,
+        "sha256": "67dbe9113d5cffd4cdf6a566645a258277b7b678900c025b2be3409a46941a70"
+      }
+    ],
+    "predecessor_expected": {
+      "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+      "source_bytes": 7905,
+      "source_sha256": "04e5472a5970a87ca784a71fa8a6ce483fa728e254ca45bc71e9de638b54bec7",
+      "native_bytes": 18576,
+      "native_sha256": "98818a94330098bf1a574f2ce2bfccc52c0d2ca59774bc5cbb90213fd24d7cb6",
+      "whole_bytes": 4276,
+      "whole_sha256": "1db5a14035dadf40df70fc759c4c77d318c92f66fdee345e17ce8a2a0b701c40",
+      "dev_source_sha256": "1fcf03f4ebbe9c85f7f20fdb43dae76818bca3c72fb6887c31950c52fce65ad2",
+      "dev_native_sha256": "6034086b0f6bf9de4ac252ec28c6bcd8152a4b6196c5d81e1c685d2a7e39ae33",
+      "bootstrap_sha256": "39872369f69ab6de828572875a77578f37808382014683b678ac69775aef82f2",
+      "semantic_readable_bytes": 25720,
+      "semantic_readable_sha256": "f9ca456f55ef34c83af9e2e605026415126c9ba0f6eedf10db479a6467c0b357",
+      "dev_source_bytes": 19488,
+      "dev_native_bytes": 26984,
+      "input_profile_readable_bytes": 28587,
+      "input_profile_readable_sha256": "fe1309f37fbc204844c8f2854d79bb891b9c996af214f28086ce64373701d530",
+      "bootstrap_bytes": 8827
+    },
+    "whole_delta": -1,
+    "native_entire_equal_at_firstcost": true,
+    "selected_optional_expected_unchanged": [
+      4319,
+      4045
+    ],
+    "normal_status": "PASS",
+    "scope": "Full default F only: exact FROM expansion, same header CPP tokens and native full bytes. Optional outputs and DEV bypass this new stage; optional independent full-reference guard uses new7885 source. No new model/search policy, semantic/SAN/fault/game matrix. Actual codec preset6/BT2/16KiB/nice24, source proposal older parenthetical corrected in cost preflight.",
+    "normal_validation": {
+      "full_build": {
+        "path": "/home/stemxstudio/rove4k-f-from-inline-normal-20261024-v1/full/build/build.json",
+        "bytes": 288003,
+        "sha256": "1fa3ae947aa22f3de150c58e2d21e5b55f4f45c07cae153e029badfbf6eeb4a3"
+      },
+      "runtime": {
+        "path": "/home/stemxstudio/rove4k-f-from-inline-normal-20261024-v1/full/runtime/runtime.json",
+        "bytes": 81157,
+        "sha256": "294c50071a2e9099f212107751552ccde4cdefc40608fa5c82ab04ed3a83d341"
+      },
+      "optional_builds": [
+        {
+          "path": "/home/stemxstudio/rove4k-f-from-inline-normal-20261024-v1/material/build/build.json",
+          "bytes": 228176,
+          "sha256": "73b35e75592b0a9fdad83838274496a3f919138b9fd3fd8dfda3120a934e4c27"
+        },
+        {
+          "path": "/home/stemxstudio/rove4k-f-from-inline-normal-20261024-v1/move/build/build.json",
+          "bytes": 250194,
+          "sha256": "b763321790d0d061b9c44512e15d389535cc82bf951f75813ec889a46ff4a515"
+        }
+      ],
+      "full_shipping_reproductions": 2,
+      "unchanged_DEV_reproductions": 2,
+      "unchanged_pre_name_source": {
+        "path": "/home/stemxstudio/rove4k-f-from-inline-normal-20261024-v1/full/build/source-before-names.c",
+        "bytes": 8538,
+        "sha256": "47353a15426e508cf2975d0bcba529052aac791b9461f952a88084b5e0e8d5a0"
+      },
+      "full_tuple_entire_firstcost_equal": true,
+      "native_entire_baseline_equal_at_firstcost": true,
+      "selected_sessions": 2,
+      "GO_epochs": 8,
+      "startup_TIDs": 3,
+      "optional_entire_old_tuple_equal": true,
+      "optional_reproductions_each": 2,
+      "optional_new7885_full_reference_guard": true,
+      "commands": 4,
+      "original_outer_and_commands_terminal_reaped_preextras_empty_groups_absent": true,
+      "forced_cleanup": false,
+      "owned_handles": 0,
+      "cancellation_causality": "unproven",
+      "extra_fixture_SAN_fault_games_F8": 0,
+      "scope": "Current FROM representation and four existing maintained verification commands only. Optional selected runtime not rerun; no strength/timing/CI acceptance."
     }
   }
 }
