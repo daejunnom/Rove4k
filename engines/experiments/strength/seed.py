@@ -91,10 +91,17 @@ def ordinary(path, *, limit=MAX_MEMBER):
     return raw
 
 
-def checked_input(value, *, limit=MAX_MEMBER):
+def input_descriptor(value, *, limit=MAX_MEMBER):
     require(isinstance(value, dict) and set(value) == {"path", "bytes", "sha256"}, "explicit path/byte/SHA input required")
-    require(type(value["bytes"]) is int and 0 <= value["bytes"] <= limit and SHA.fullmatch(str(value["sha256"])),
+    require(isinstance(value["path"], (str, Path)) and Path(value["path"]).is_absolute()
+            and type(value["bytes"]) is int and 0 <= value["bytes"] <= limit
+            and isinstance(value["sha256"], str) and SHA.fullmatch(value["sha256"]),
             "bounded exact input identity required")
+    return value
+
+
+def checked_input(value, *, limit=MAX_MEMBER):
+    input_descriptor(value, limit=limit)
     raw = ordinary(value["path"], limit=limit)
     require(pin(raw) == {key: value[key] for key in ("bytes", "sha256")}, "downloaded input differs from its declared pin")
     return raw
@@ -119,13 +126,17 @@ def new_external(path):
     return path
 
 
-def git(checkout, *arguments, limit=MAX_SEED):
+def git(checkout, *arguments, limit=MAX_SEED, input_bytes=None):
     env = os.environ.copy()
+    for name in list(env):
+        if name.startswith("GIT_"):
+            del env[name]
     env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull, GIT_OPTIONAL_LOCKS="0",
-               GIT_TERMINAL_PROMPT="0")
+               GIT_TERMINAL_PROMPT="0", GIT_NO_REPLACE_OBJECTS="1", GIT_NO_LAZY_FETCH="1",
+               GIT_ALLOW_PROTOCOL="")
     result = subprocess.run(["git", "-c", "core.fsmonitor=false", "-c", "core.untrackedCache=false", "-c",
-        "core.hooksPath=" + os.devnull, "--literal-pathspecs", "-C", str(checkout), *arguments],
-        capture_output=True, env=env, timeout=30,
+        "core.hooksPath=" + os.devnull, "-c", "protocol.allow=never", "--literal-pathspecs", "-C", str(checkout), *arguments],
+        capture_output=True, input=input_bytes, env=env, timeout=30,
         creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0)
     require(result.returncode == 0 and len(result.stdout) <= limit, "local pinned Git operation failed or exceeded its bound")
     return result.stdout
@@ -154,7 +165,7 @@ def exact_names(root, prefixes, tracked):
     require(seen == tracked, "selected committed source namespace is missing a file")
 
 
-def checkout_files(value, origin):
+def checkout_files(value, origin, *, byte_budget=None, member_budget=None):
     require(isinstance(value, dict) and set(value) == {"path", "commit", "paths"}, "explicit clean checkout/commit/paths required")
     root = Path(value["path"])
     require(root.is_absolute() and root.is_dir() and not root.is_symlink(), "ordinary explicit source checkout required")
@@ -177,6 +188,22 @@ def checkout_files(value, origin):
         blobs[name] = blob
         modes[name] = 0o700 if mode == "100755" else 0o600
     require(blobs, "selected source checkout is empty")
+    if member_budget is not None:
+        require(len(blobs) <= member_budget, "source metadata exceeds remaining seed member count")
+    if byte_budget is not None:
+        identities = list(blobs.values())
+        rows = git(root, "cat-file", "--batch-check=%(objectname) %(objecttype) %(objectsize)",
+                   input_bytes=("\n".join(identities) + "\n").encode()).decode().splitlines()
+        require(len(rows) == len(identities), "source object size metadata is incomplete")
+        sizes = []
+        for expected, row in zip(identities, rows):
+            fields = row.split()
+            require(len(fields) == 3 and fields[:2] == [expected, "blob"] and fields[2].isdigit(),
+                    "source object metadata differs from its selected Git blob")
+            size = int(fields[2])
+            require(size <= MAX_MEMBER, "source object metadata exceeds the per-member bound")
+            sizes.append(size)
+        require(sum(sizes) <= byte_budget, "source metadata exceeds remaining expanded seed bound")
     exact_names(root, prefixes, set(blobs))
     result = {}
     for name, blob in sorted(blobs.items()):
@@ -215,19 +242,28 @@ def checkout_files(value, origin):
     return result
 
 
-def archive_members(raw):
+def archive_members(raw, *, expanded_limit=None):
     require(len(raw) <= MAX_SEED, "source ZIP exceeds transport bound")
+    expanded_limit = MAX_SEED if expanded_limit is None else expanded_limit
+    require(type(expanded_limit) is int and 0 < expanded_limit <= runtime().JOINT_EXPANDED_SEED,
+            "bounded source ZIP expansion limit required")
     result = {}
     with zipfile.ZipFile(io.BytesIO(raw)) as archive:
-        total = 0
-        for info in archive.infolist():
+        infos = archive.infolist()
+        require(len(infos) <= runtime().MAX_SEED_MEMBERS,
+                "source ZIP exceeds the total member count bound")
+        total, seen = 0, set()
+        for info in infos:
             name = member(info.filename)
             mode = info.external_attr >> 16
             require(not info.is_dir() and not info.flag_bits & 1 and stat.S_IFMT(mode) in (0, stat.S_IFREG),
                     "source ZIP contains a link/directory/encrypted member")
             total += info.file_size
-            require(name not in result and info.file_size <= MAX_MEMBER and total <= MAX_SEED,
+            require(name not in seen and info.file_size <= MAX_MEMBER and total <= expanded_limit,
                     "source ZIP has duplicate or excessive members")
+            seen.add(name)
+        for info in infos:
+            name, mode = info.filename, info.external_attr >> 16
             result[name] = (archive.read(info), 0o700 if mode & 0o111 else 0o600)
     require(result, "source ZIP is empty")
     return result
@@ -306,6 +342,112 @@ def origin_check(value):
     return json.loads(ledger.canonical(value))
 
 
+def workflow_binding(config, content, origin, api_head):
+    """Bind a PR execution merge to pinned API originals and local Git objects.
+
+    The API workflow head is a PR branch head; GITHUB_SHA is its merge commit.
+    Unequal hashes require the actual run/PR/commit originals, never a waiver.
+    This reads local objects only and does not establish API authentication.
+    """
+    proof = config.get("workflow_provenance")
+    if proof is None:
+        require(api_head == origin["head_sha"], "unequal API/checkout heads require explicit PR provenance")
+        return {"kind": "artifact-head-equality", "api_head_sha": api_head,
+                "checkout_sha": origin["head_sha"], "inputs": {}}
+    require(isinstance(proof, dict) and set(proof) in ({"run", "commit"}, {"run", "commit", "pull_request"}),
+            "explicit run/commit and optional PR provenance members required")
+    require(all(isinstance(name, str) for name in proof.values()) and len(set(proof.values())) == len(proof),
+            "workflow provenance members must be distinct")
+    pins = {}
+
+    def document(key):
+        name = member(proof[key])
+        require(name in content, "pinned workflow provenance input is absent: " + key)
+        raw = content[name][0]
+        pins[name] = pin(raw)
+
+        def unique(pairs):
+            value = dict(pairs)
+            require(len(value) == len(pairs), "ambiguous duplicate workflow provenance field")
+            return value
+
+        value = json.loads(raw, object_pairs_hook=unique)
+        require(isinstance(value, dict), "workflow provenance must be a JSON object")
+        return value
+
+    run, commit = document("run"), document("commit")
+    repository = run.get("repository")
+    require(isinstance(repository, dict), "workflow repository must be an API object")
+    require(repository.get("full_name") == origin["repository"] and type(repository.get("id")) is int
+            and repository["id"] > 0 and str(run.get("id")) == str(origin["run_id"])
+            and str(run.get("run_attempt")) == str(origin["run_attempt"])
+            and run.get("head_sha") == api_head and run.get("status") == "completed"
+            and run.get("conclusion") == "success", "workflow API run differs from sealed source origin")
+    checkout = config["checkout"]["path"]
+    require(config["checkout"]["commit"] == origin["head_sha"]
+            and git(checkout, "rev-parse", "HEAD").decode().strip() == origin["head_sha"]
+            and not git(checkout, "status", "--porcelain=v1", "--untracked-files=no"),
+            "workflow provenance requires the exact clean execution checkout")
+    raw = git(checkout, "cat-file", "commit", origin["head_sha"])
+    algorithm = hashlib.sha1 if len(origin["head_sha"]) == 40 else hashlib.sha256
+    require(algorithm(b"commit " + str(len(raw)).encode() + b"\0" + raw).hexdigest() == origin["head_sha"],
+            "execution commit object differs from its canonical Git identity")
+    headers = raw.split(b"\n\n", 1)[0].splitlines()
+    trees = [line[5:].decode("ascii") for line in headers if line.startswith(b"tree ")]
+    parents = [line[7:].decode("ascii") for line in headers if line.startswith(b"parent ")]
+    require(isinstance(commit.get("tree"), dict), "API execution tree must be an object")
+    require(len(trees) == 1 and isinstance(commit.get("parents"), list)
+            and all(isinstance(row, dict) for row in commit["parents"])
+            and commit.get("sha") == origin["head_sha"]
+            and commit.get("tree", {}).get("sha") == trees[0]
+            and [row.get("sha") for row in commit.get("parents", [])] == parents,
+            "API execution commit/tree/ordered parents differ from actual local Git object")
+    tree = git(checkout, "cat-file", "tree", trees[0])
+    require(algorithm(b"tree " + str(len(tree)).encode() + b"\0" + tree).hexdigest() == trees[0],
+            "execution tree differs from its canonical Git identity")
+    result = {"kind": "workflow-head-equality", "event": run.get("event"),
+              "repository": origin["repository"], "repository_id": repository["id"],
+              "run_id": origin["run_id"], "run_attempt": origin["run_attempt"],
+              "api_head_sha": api_head, "checkout_sha": origin["head_sha"],
+              "execution_tree": trees[0], "execution_parents": parents, "inputs": pins}
+    if run.get("event") != "pull_request":
+        require(set(proof) == {"run", "commit"} and run.get("event") in ("push", "workflow_dispatch", "schedule")
+                and api_head == origin["head_sha"], "ordinary workflow head must equal its execution checkout")
+        return result
+    require("pull_request" in proof, "PR merge requires its pinned API snapshot")
+    pr = document("pull_request")
+    rows = run.get("pull_requests", [])
+    require(isinstance(rows, list) and len(rows) == 1 and isinstance(rows[0], dict)
+            and type(pr.get("number")) is int and pr["number"] > 0
+            and rows[0].get("number") == pr["number"] and pr.get("merge_commit_sha") == origin["head_sha"],
+            "workflow PR and execution merge snapshot differ")
+    base, head = pr.get("base", {}), pr.get("head", {})
+    run_pr = rows[0]
+    require(isinstance(base, dict) and isinstance(head, dict)
+            and all(isinstance(value.get("repo"), dict) for value in (base, head))
+            and isinstance(run.get("head_repository"), dict)
+            and all(isinstance(run_pr.get(side), dict) and isinstance(run_pr[side].get("repo"), dict)
+                    for side in ("base", "head")), "PR repository/ref snapshots must be API objects")
+    require(parents == [base.get("sha"), head.get("sha")] and head.get("sha") == api_head
+            and base.get("repo", {}).get("full_name") == origin["repository"]
+            and base.get("repo", {}).get("id") == repository["id"]
+            and type(head.get("repo", {}).get("id")) is int and head["repo"]["id"] > 0
+            and isinstance(head["repo"].get("full_name"), str) and head["repo"]["full_name"]
+            and head.get("repo", {}).get("id") == run.get("head_repository", {}).get("id")
+            and head.get("repo", {}).get("full_name") == run.get("head_repository", {}).get("full_name")
+            and isinstance(base.get("ref"), str) and base["ref"]
+            and isinstance(head.get("ref"), str) and head["ref"] and head["ref"] == run.get("head_branch")
+            and all(run_pr.get(side, {}).get("sha") == value.get("sha")
+                    and run_pr[side].get("ref") == value.get("ref")
+                    and run_pr[side].get("repo", {}).get("id") == value.get("repo", {}).get("id")
+                    for side, value in (("base", base), ("head", head))),
+            "PR repository/ref/base/head differ from the ordered execution merge parents")
+    result.update(kind="pull-request-merge", pull_request=pr["number"],
+                  ref="refs/pull/" + str(pr["number"]) + "/merge", inputs=dict(pins),
+                  head_branch=head["ref"], head_repository_id=head["repo"]["id"])
+    return result
+
+
 def runtime():
     import importlib
     name = (__package__ + ".cloud_runtime") if __package__ else "cloud_runtime"
@@ -357,25 +499,37 @@ def validate_runner(config, content, source_tree, checkout):
 def prepare(config, out):
     require(isinstance(config, dict) and config.get("format") == "rove4k-seed-prepare-v1", "explicit seed prepare configuration required")
     origin = origin_check(config["source_origin"])
+    consumer = runtime()
+    expanded_limit = consumer.seed_expansion_limit(config)
     target = new_external(out)
     source_tree = member(config.get("source_tree", "source"))
     content = {}
+    inputs = config.get("inputs", {})
+    require(isinstance(inputs, dict) and len(inputs) < consumer.MAX_SEED_MEMBERS,
+            "explicit bounded external input map required")
+    reserved = 0
+    for name, descriptor in inputs.items():
+        require(member(name) != "seed.json", "seed.json is reserved for the canonical manifest")
+        reserved += input_descriptor(descriptor)["bytes"]
+    require(reserved <= expanded_limit, "external input metadata exceeds expanded seed bound")
 
     def add(name, raw, mode=0o600):
         name = member(name)
         require(name != "seed.json" and name not in content and mode in (0o600, 0o700), "duplicate seed member or invalid mode")
-        require(len(raw) <= MAX_MEMBER and len(content) < 20000, "seed member/count exceeds bound")
+        require(len(raw) <= MAX_MEMBER and len(content) < consumer.MAX_SEED_MEMBERS - 1,
+                "seed member/count exceeds bound including seed.json")
         content[name] = (raw, mode)
-        require(sum(len(value[0]) for value in content.values()) <= MAX_SEED, "expanded seed exceeds bound")
+        require(sum(len(value[0]) for value in content.values()) <= expanded_limit, "expanded seed exceeds bound")
 
-    for name, (raw, mode) in checkout_files(config["checkout"], origin).items():
+    for name, (raw, mode) in checkout_files(config["checkout"], origin,
+            byte_budget=expanded_limit - reserved,
+            member_budget=consumer.MAX_SEED_MEMBERS - 1 - len(inputs)).items():
         add(source_tree + "/" + name, raw, mode)
-    inputs = config.get("inputs", {})
-    require(isinstance(inputs, dict), "explicit external input map required")
     for name, descriptor in sorted(inputs.items()):
         add(name, checked_input(descriptor, limit=MAX_MEMBER))
     rove = config.get("rove", [])
     require(isinstance(rove, list), "explicit Rove selection required")
+    workflow, artifact_pins = None, {}
     for selected in rove:
         bundle_name, seal_name = member(selected["source_bundle"]), member(selected["source_seal"])
         require(bundle_name in content and seal_name in content and PurePosixPath(bundle_name).name == "source-bundle.zip"
@@ -416,12 +570,25 @@ def prepare(config, out):
         metadata_name = member(selected["artifact_metadata"])
         require(metadata_name in content, "downloaded CI artifact metadata is absent")
         metadata = json.loads(content[metadata_name][0])
+        require(isinstance(metadata, dict) and isinstance(metadata.get("workflow_run"), dict),
+                "downloaded artifact metadata must contain its workflow object")
         run = metadata.get("workflow_run", {})
         require(type(metadata.get("id")) is int and metadata["id"] > 0 and str(run.get("id")) == str(origin["run_id"])
-                and run.get("head_sha") == origin["head_sha"], "downloaded artifact metadata differs from sealed origin")
+                and isinstance(run.get("head_sha"), str), "downloaded artifact metadata differs from sealed origin")
+        bound = workflow_binding(config, content, origin, run["head_sha"])
+        require(workflow is None or workflow == bound, "artifacts disagree on the verified workflow execution")
+        workflow = bound
+        if bound.get("repository_id") is not None:
+            require(run.get("repository_id") == bound["repository_id"], "artifact repository differs from verified workflow")
+        if bound["kind"] == "pull-request-merge":
+            require(run.get("head_repository_id") == bound["head_repository_id"]
+                    and run.get("head_branch") == bound["head_branch"], "artifact PR repository/ref differs from workflow")
+        artifact_pins[metadata_name] = pin(content[metadata_name][0])
     manifest = {"format": "rove4k-cloud-seed-v1", "source_origin": origin, "source_tree": source_tree,
         **{key: config[key] for key in ("rove", "peers", "runner", "bank", "bank_pgns")},
         "members": {name: {**pin(raw), "mode": mode} for name, (raw, mode) in sorted(content.items())}}
+    if workflow is not None:
+        manifest["workflow_provenance"] = {**workflow, "artifact_metadata": artifact_pins}
     roots = config.get("original_layout", {}).get("roots", [])
     require(isinstance(roots, list), "explicit original layout roots required")
     manifest["original_layout"] = {"format": "rove4k-original-layout-plan-v1", "roots": []}
@@ -430,7 +597,6 @@ def prepare(config, out):
         prefix = member(row["seed_prefix"])
         files = {name[len(prefix) + 1:]: pin(raw) for name, (raw, _) in content.items() if name.startswith(prefix + "/")}
         manifest["original_layout"]["roots"].append({**row, "files": files})
-    consumer = runtime()
     consumer.validate_seed_manifest(manifest)
     mappings = consumer.original_layout_plan(manifest)
     for selected in rove:
@@ -484,8 +650,9 @@ def prepare(config, out):
     for selected in manifest["peers"]:
         peer_originals(selected, content, source_tree)
     validate_runner(config, content, source_tree, config["checkout"]["path"])
-    raw_manifest = ledger.canonical(manifest)
-    require(sum(len(value[0]) for value in content.values()) + len(raw_manifest) <= MAX_SEED,
+    raw_manifest = ledger.canonical(manifest) + b"\n"
+    require(len(raw_manifest) <= consumer.MAX_SEED_MANIFEST, "seed manifest exceeds its 4 MiB bound")
+    require(sum(len(value[0]) for value in content.values()) + len(raw_manifest) <= expanded_limit,
             "seed including its manifest exceeds expansion bound")
     target.mkdir(parents=True)
     write_new(target / "seed.json", raw_manifest)
@@ -496,10 +663,11 @@ def prepare(config, out):
             info.create_system, info.external_attr = 3, (stat.S_IFREG | mode) << 16
             info.compress_type = zipfile.ZIP_DEFLATED
             archive.writestr(info, raw)
-    with archive_path.open("rb") as source:
+    with archive_path.open("r+b") as source:
         os.fsync(source.fileno())
     archive_pin = pin(ordinary(archive_path, limit=MAX_SEED))
     receipt = {"format": "rove4k-seed-prepare-receipt-v1", "source_origin": origin,
+        "workflow_provenance": manifest.get("workflow_provenance"),
         "seed_manifest": {"path": str(target / "seed.json"), **pin(raw_manifest)},
         "archive": {"path": str(archive_path), **archive_pin}, "members": len(content),
         "native_qualified": False, "engine_executed": False, "aws_calls_performed": False}
@@ -508,17 +676,17 @@ def prepare(config, out):
 
 
 def inspect_archive(raw):
-    files = archive_members(raw)
-    require("seed.json" in files, "archive omitted canonical seed.json")
-    manifest = json.loads(files["seed.json"][0])
+    require(isinstance(raw, bytes) and len(raw) <= MAX_SEED, "seed ZIP exceeds its wire bound")
     consumer = runtime()
-    consumer.validate_seed_manifest(manifest)
+    with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+        manifest, _raw_manifest, _infos = consumer.seed_archive_manifest(archive)
+    files = archive_members(raw, expanded_limit=consumer.seed_expansion_limit(manifest))
     consumer.original_layout_plan(manifest)
     require(set(files) == set(manifest["members"]) | {"seed.json"}, "archive has an unlisted/missing member")
     for name, expected in manifest["members"].items():
         value, mode = files[name]
         require({**pin(value), "mode": mode} == expected, "archive member differs from canonical manifest")
-    require(files["seed.json"][0] == ledger.canonical(manifest), "seed.json is not canonical JSON bytes")
+    require(files["seed.json"][0] == ledger.canonical(manifest) + b"\n", "seed.json is not canonical JSON with one LF")
     return {"manifest_sha256": pin(files["seed.json"][0])["sha256"], "members": len(manifest["members"])}
 
 
@@ -610,6 +778,8 @@ def example():
                   "engines/compact/tiny-entry-d", "engines/model"]},
         "source_tree": "source", "inputs": {"origin/A/source-bundle.zip": identity,
         "origin/A/source-seal.json": identity, "metadata/A-artifact.json": identity,
+        "metadata/workflow-run.json": identity, "metadata/pull-request.json": identity,
+        "metadata/execution-commit.json": identity,
         "origin/rules/A/probe/rules.json": identity, "origin/rules/A/probe/cases.json": identity,
         "origin/rules/A/probe/fixture.c": identity, "origin/rules/A/commands.json": identity,
         "runner/fastchess.bundle": identity, "runner/LICENSE": identity,
@@ -617,6 +787,8 @@ def example():
         "rove": [{"family": "A", "profile": "test-p4", "build": "origin/A/artifact",
             "source_bundle": "origin/A/source-bundle.zip", "source_seal": "origin/A/source-seal.json",
             "artifact_metadata": "metadata/A-artifact.json", "rules": "origin/rules/A/probe/rules.json"}], "peers": [],
+        "workflow_provenance": {"run": "metadata/workflow-run.json", "pull_request": "metadata/pull-request.json",
+                                "commit": "metadata/execution-commit.json"},
         "runner": {"checkout": "external/fastchess", "revision": FASTCHESS, "transport": "external-git-bundle",
             "bundle": "runner/fastchess.bundle", "patch": "source/engines/experiments/strength/patches/fastchess-rove.patch", "license": "runner/LICENSE"},
         "bank": "bank/bank.json", "bank_pgns": {"broad": "bank/broad.pgn", "high": "bank/high.pgn"},

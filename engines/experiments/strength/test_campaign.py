@@ -1,12 +1,16 @@
 """Short local lifecycle fault checks; fake AWS is never deployment evidence."""
 from dataclasses import replace
+import ast
 import base64
 import copy
 import hashlib
 import json
 import os
 import shutil
+import pathlib
 from pathlib import Path
+import re
+import stat
 import subprocess
 import tempfile
 from types import SimpleNamespace
@@ -442,9 +446,10 @@ class BootstrapTests(unittest.TestCase):
             target = root / "host"
             entry = "source/engines/experiments/strength/cloud_runtime.py"
             source = b"import pathlib,sys\nassert sys.flags.isolated == 1\npathlib.Path(__file__).parents[4].joinpath('local-check.txt').write_text('sealed')\n"
-            manifest = {"format": "rove4k-cloud-seed-v1", "source_tree": "source", "members": {
+            manifest = {"format": "rove4k-cloud-seed-v1", "source_tree": "source", "rove": [],
+                "peers": [{"family": "ice4", "profile": "test-p4"}], "members": {
                 entry: {"bytes": len(source), "sha256": hashlib.sha256(source).hexdigest(), "mode": 0o600}}}
-            manifest_raw = ledger.canonical(manifest)
+            manifest_raw = ledger.canonical(manifest) + b"\n"
             archive = root / "source.zip"
             with zipfile.ZipFile(archive, "w") as output:
                 output.writestr("seed.json", manifest_raw)
@@ -478,6 +483,290 @@ class BootstrapTests(unittest.TestCase):
                                     capture_output=True, timeout=10, env=environment)
             self.assertNotEqual(result.returncode, 0)
             self.assertFalse((root / "bad-host" / "seed" / "local-check.txt").exists())
+
+
+class BootstrapCapacityTests(unittest.TestCase):
+    """Run the generated loader's real ZIP block with small owned fixtures.
+
+    Large-boundary cases change only reported ZipInfo sizes, never allocate
+    large payloads. The admission predicate and pre-read ordering stay real.
+    """
+    JOINT = [{"family": family, "profile": profile} for family in "ABCDEF"
+             for profile in ("test-p4", "test-p28")]
+
+    @staticmethod
+    def inline_parts():
+        command = campaign.bootstrap_command({"host_job_id": "capacity-check"}, {}, {"source_tree": "source"})
+        source = command.split("<<'ROVE_CLOUD_BOOTSTRAP'\n", 1)[1].rsplit("ROVE_CLOUD_BOOTSTRAP\n", 1)[0]
+        tree = ast.parse(source)
+        predicate = next(node for node in tree.body if isinstance(node, ast.FunctionDef)
+                         and node.name == "seed_expansion_limit")
+        namespace = {}
+        exec(compile(ast.Module(body=[predicate], type_ignores=[]), "<actual-inline-predicate>", "exec"), namespace)
+        loader = next(node for node in tree.body if isinstance(node, ast.With))
+        return namespace["seed_expansion_limit"], compile(ast.Module(body=[loader], type_ignores=[]),
+                                                        "<actual-inline-ZIP-loader>", "exec")
+
+    def fixture(self, root, *, rove=None, peers=None, suffix=b"\n", payload_count=9, mutate=None):
+        names = ["source/engines/experiments/strength/cloud_runtime.py"]
+        names += ["payload-" + str(index) for index in range(payload_count - 1)]
+        contents = {name: b"small bounded fixture\n" for name in names}
+        manifest = {"format": "rove4k-cloud-seed-v1", "source_tree": "source",
+                    "rove": copy.deepcopy(self.JOINT if rove is None else rove),
+                    "peers": copy.deepcopy([] if peers is None else peers),
+                    "members": {name: {"bytes": len(data), "sha256": hashlib.sha256(data).hexdigest(),
+                                       "mode": 0o600} for name, data in contents.items()}}
+        if mutate is not None:
+            mutate(manifest)
+        raw = ledger.canonical(manifest) + suffix
+        archive = root / "source.zip"
+        with zipfile.ZipFile(archive, "w") as output:
+            output.writestr("seed.json", raw)
+            for name, data in contents.items():
+                output.writestr(name, data)
+        return manifest, raw, archive, contents
+
+    def load(self, root, raw, archive, *, total=None, member_size=None, manifest_size=None,
+             extra_infos=0, manifest_sha=None):
+        predicate, loader = self.inline_parts()
+        opened, sizes = [], []
+        original_zip = zipfile.ZipFile
+
+        class ObservedZip(original_zip):
+            def infolist(self):
+                rows = [copy.copy(info) for info in super().infolist()]
+                if total is not None:
+                    remaining = total - rows[0].file_size
+                    for row in rows[1:]:
+                        row.file_size = min(32 << 20, remaining)
+                        remaining -= row.file_size
+                    if remaining:
+                        raise AssertionError("fixture needs enough small metadata rows")
+                if member_size is not None:
+                    rows[1].file_size = member_size
+                if extra_infos:
+                    for index in range(extra_infos):
+                        rows.append(zipfile.ZipInfo("extra-" + str(index)))
+                sizes.extend(row.file_size for row in rows)
+                return rows
+
+            def getinfo(self, name):
+                info = copy.copy(super().getinfo(name))
+                if name == "seed.json" and manifest_size is not None:
+                    info.file_size = manifest_size
+                return info
+
+            def open(self, name, *args, **kwargs):
+                opened.append(name.filename if isinstance(name, zipfile.ZipInfo) else name)
+                return super().open(name, *args, **kwargs)
+
+        output = root / "materialized"
+        context = {"zipfile": zipfile, "hashlib": hashlib, "json": json, "pathlib": pathlib,
+                   "re": re, "stat": stat, "archive": archive, "out": output, "enc": ledger.canonical,
+                   "h": {"seed_manifest_sha256": manifest_sha or hashlib.sha256(raw).hexdigest()},
+                   "p": {"expires_at": __import__("time").time() + 100},
+                   "seed_expansion_limit": predicate}
+        context["h"]["aws_plan"] = {"deadline_epoch": __import__("time").time() + 100}
+        try:
+            with patch.object(zipfile, "ZipFile", ObservedZip):
+                exec(loader, context)
+        except Exception as error:
+            return error, opened, output, sizes
+        return None, opened, output, sizes
+
+    def test_inline_and_cloud_predicates_have_exact_same_cohort_policy(self):
+        try:
+            from . import cloud_runtime
+        except ImportError:
+            import cloud_runtime
+        inline, _ = self.inline_parts()
+        valid = [
+            ({"rove": self.JOINT, "peers": []}, 256 << 20),
+            ({"rove": self.JOINT, "peers": [{"family": "ice4", "profile": "test-p28"}]}, 256 << 20),
+            ({"rove": self.JOINT[:6], "peers": []}, 128 << 20),
+            ({"rove": [row for row in self.JOINT if row["profile"] == "test-p4"],
+              "peers": [{"family": "c4ke", "profile": "test-p28"}]}, 128 << 20),
+            ({"rove": [row for row in self.JOINT if row["profile"] == "test-p28"], "peers": []}, 128 << 20),
+            ({"rove": [], "peers": [{"family": "ice4", "profile": "test-p28"}]}, 128 << 20),
+        ]
+        invalid = [None, {}, {"rove": [], "peers": []}, {"rove": None, "peers": []},
+                   {"rove": self.JOINT, "peers": None}, {"rove": self.JOINT + [self.JOINT[0]], "peers": []},
+                   {"rove": self.JOINT, "peers": [{"family": "ice4", "profile": "submission"}]},
+                   {"rove": self.JOINT, "peers": [{"family": "ice4", "profile": "test-p4"}] * 2},
+                   {"rove": [{"family": [], "profile": "test-p4"}], "peers": []},
+                   {"rove": [{"family": "A", "profile": []}], "peers": []},
+                   {"rove": [{"family": "AB", "profile": "test-p4"}], "peers": []}]
+        for value, limit in valid:
+            with self.subTest(value=value):
+                self.assertEqual(inline(value), limit)
+                self.assertEqual(cloud_runtime.seed_expansion_limit(value), limit)
+        for value in invalid:
+            with self.subTest(value=value):
+                for predicate in (inline, cloud_runtime.seed_expansion_limit):
+                    with self.assertRaises(ValueError):
+                        predicate(value)
+
+    def test_real_small_joint_loader_materializes_only_after_all_checks(self):
+        with tempfile.TemporaryDirectory(prefix="rove-inline-small-") as directory:
+            root = Path(directory)
+            _, raw, archive, contents = self.fixture(root)
+            error, opened, out, _ = self.load(root, raw, archive)
+            self.assertIsNone(error)
+            self.assertEqual(opened[0], "seed.json")
+            self.assertEqual((out / "seed.json").read_bytes(), raw)
+            self.assertEqual({name: (out / name).read_bytes() for name in contents}, contents)
+
+    def test_actual_128_and_256_boundaries_precede_all_payload_reads(self):
+        for rove, limit in ((self.JOINT[:6], 128 << 20), (self.JOINT, 256 << 20)):
+            for delta in (0, 1):
+                with self.subTest(limit=limit, delta=delta), tempfile.TemporaryDirectory(prefix="rove-inline-size-") as directory:
+                    root = Path(directory)
+                    _, raw, archive, _ = self.fixture(root, rove=rove)
+                    error, opened, out, sizes = self.load(root, raw, archive, total=limit + delta)
+                    self.assertEqual(sum(sizes), limit + delta)
+                    self.assertIsInstance(error, AssertionError)
+                    self.assertIn("ZIP metadata differs" if delta == 0 else "ZIP expansion", str(error))
+                    self.assertEqual(opened, ["seed.json"])
+                    self.assertFalse(out.exists())
+
+    def test_member_32mib_and_manifest_4mib_limits_remain_independent(self):
+        for options, message, expected_reads in (({"member_size": (32 << 20) + 1}, "ZIP expansion", ["seed.json"]),
+                                                  ({"manifest_size": (4 << 20) + 1}, "bounded read", [])):
+            with self.subTest(options=options), tempfile.TemporaryDirectory(prefix="rove-inline-limits-") as directory:
+                root = Path(directory)
+                _, raw, archive, _ = self.fixture(root)
+                error, opened, out, _ = self.load(root, raw, archive, **options)
+                self.assertIsInstance(error, AssertionError)
+                self.assertIn(message, str(error))
+                self.assertEqual(opened, expected_reads)
+                self.assertFalse(out.exists())
+
+    def test_manifest_requires_controller_sha_and_exactly_one_lf(self):
+        for suffix, expected_sha, message in ((b"", None, "canonical"), (b"\n\n", None, "canonical"),
+                                               (b"\n", "0" * 64, "identity differs")):
+            with self.subTest(suffix=suffix, sha=expected_sha), tempfile.TemporaryDirectory(prefix="rove-inline-manifest-") as directory:
+                root = Path(directory)
+                _, raw, archive, _ = self.fixture(root, suffix=suffix)
+                error, opened, out, _ = self.load(root, raw, archive, manifest_sha=expected_sha)
+                self.assertIsInstance(error, AssertionError)
+                self.assertIn(message, str(error))
+                self.assertEqual(opened, ["seed.json"])
+                self.assertFalse(out.exists())
+
+    def test_total_20000_count_rejects_before_manifest_read(self):
+        with tempfile.TemporaryDirectory(prefix="rove-inline-count-") as directory:
+            root = Path(directory)
+            _, raw, archive, _ = self.fixture(root, payload_count=1)
+            error, opened, out, _ = self.load(root, raw, archive, extra_infos=19999)
+            self.assertIsInstance(error, AssertionError)
+            self.assertIn("excessive ZIP namespace", str(error))
+            self.assertEqual(opened, [])
+            self.assertFalse(out.exists())
+
+    def test_actual_count_guard_accepts_19999_payload_plus_manifest(self):
+        command = campaign.bootstrap_command({"host_job_id": "capacity-check"}, {}, {"source_tree": "source"})
+        tree = ast.parse(command.split("<<'ROVE_CLOUD_BOOTSTRAP'\n", 1)[1].rsplit("ROVE_CLOUD_BOOTSTRAP\n", 1)[0])
+        guard = next(node for node in ast.walk(tree) if isinstance(node, ast.Assert)
+                     and isinstance(node.msg, ast.Constant) and node.msg.value == "duplicate/excessive ZIP namespace")
+        code = compile(ast.Module(body=[guard], type_ignores=[]), "<actual-inline-count-guard>", "exec")
+        names = ["seed.json"] + ["payload-" + str(index) for index in range(19999)]
+        exec(code, {"names": names})
+        with self.assertRaisesRegex(AssertionError, "excessive ZIP namespace"):
+            exec(code, {"names": names + ["payload-19999"]})
+        with self.assertRaisesRegex(AssertionError, "duplicate"):
+            exec(code, {"names": names + ["seed.json"]})
+
+    def test_malformed_joint_cohort_stops_before_payload_read(self):
+        cases = [(self.JOINT + [self.JOINT[0]], []),
+                 (self.JOINT, [{"family": "ice4", "profile": "test-p4"}] * 2),
+                 (self.JOINT, [{"family": "ice4", "profile": "test-p400"}])]
+        for rove, peers in cases:
+            with self.subTest(peers=peers), tempfile.TemporaryDirectory(prefix="rove-inline-cohort-") as directory:
+                root = Path(directory)
+                _, raw, archive, _ = self.fixture(root, rove=rove, peers=peers)
+                error, opened, out, _ = self.load(root, raw, archive)
+                self.assertIsInstance(error, ValueError)
+                self.assertEqual(opened, ["seed.json"])
+                self.assertFalse(out.exists())
+
+    def test_wire_seed_descriptor_keeps_128mib_limit(self):
+        selected = plan()
+        descriptor = {"bucket": selected.artifact_bucket, "key": selected.campaign_id + "/seed.zip",
+                      "version_id": "v1", "sha256": "a" * 64, "bytes": 128 << 20}
+        self.assertEqual(campaign.seed_descriptor(descriptor, selected)["bytes"], 128 << 20)
+        with self.assertRaisesRegex(ValueError, "bounded"):
+            campaign.seed_descriptor({**descriptor, "bytes": (128 << 20) + 1}, selected)
+
+    def assert_manifest_refused_before_payload(self, mutate, message):
+        with tempfile.TemporaryDirectory(prefix="rove-inline-member-fault-") as directory:
+            root = Path(directory)
+            _, raw, archive, _ = self.fixture(root, mutate=mutate)
+            error, opened, out, _ = self.load(root, raw, archive)
+            self.assertIsInstance(error, AssertionError, repr(error))
+            self.assertIn(message, str(error))
+            self.assertEqual(opened, ["seed.json"])
+            self.assertFalse(out.exists())
+
+    def test_later_oversized_descriptor_precedes_all_payload_reads(self):
+        def mutate(manifest):
+            manifest["members"]["payload-7"]["bytes"] = (32 << 20) + 1
+        self.assert_manifest_refused_before_payload(mutate, "bounded manifest member descriptor")
+
+    def test_declared_aggregate_precedes_all_payload_reads(self):
+        def mutate(manifest):
+            for descriptor in manifest["members"].values():
+                descriptor["bytes"] = 32 << 20
+        self.assert_manifest_refused_before_payload(mutate, "declared seed expansion")
+
+    def test_later_zip_length_mismatch_precedes_all_payload_reads(self):
+        def mutate(manifest):
+            manifest["members"]["payload-7"]["bytes"] += 1
+        self.assert_manifest_refused_before_payload(mutate, "ZIP metadata differs")
+
+    def test_manifest_cannot_describe_or_descend_from_reserved_seed_file(self):
+        for name, message in (("seed.json", "unsafe manifest member path"),
+                              ("seed.json/child", "namespace collision")):
+            def mutate(manifest, name=name):
+                manifest["members"][name] = {"bytes": 0, "sha256": hashlib.sha256(b"").hexdigest(), "mode": 0o600}
+            with self.subTest(name=name):
+                self.assert_manifest_refused_before_payload(mutate, message)
+
+    def test_member_container_shape_and_count_precede_all_payload_reads(self):
+        for value in (None, [], "members", {}):
+            with self.subTest(value=value):
+                self.assert_manifest_refused_before_payload(lambda manifest: manifest.update(members=value),
+                                                            "explicit bounded member map")
+        def excessive(manifest):
+            descriptor = {"bytes": 0, "sha256": hashlib.sha256(b"").hexdigest(), "mode": 0o600}
+            manifest["members"] = {"member-" + str(index): descriptor for index in range(20000)}
+        self.assert_manifest_refused_before_payload(excessive, "explicit bounded member map")
+
+    def test_descriptor_exact_keys_types_and_modes_precede_all_payload_reads(self):
+        invalid = [None, [], {"bytes": 0},
+                   {"bytes": 0, "sha256": "a" * 64, "mode": 0o600, "extra": False},
+                   {"bytes": True, "sha256": "a" * 64, "mode": 0o600},
+                   {"bytes": -1, "sha256": "a" * 64, "mode": 0o600},
+                   {"bytes": 0, "sha256": "A" * 64, "mode": 0o600},
+                   {"bytes": 0, "sha256": int("1" * 64), "mode": 0o600},
+                   {"bytes": 0, "sha256": "a" * 64, "mode": 384.0},
+                   {"bytes": 0, "sha256": "a" * 64, "mode": 0o777}]
+        for descriptor in invalid:
+            with self.subTest(descriptor=descriptor):
+                self.assert_manifest_refused_before_payload(
+                    lambda manifest: manifest["members"].update({"payload-7": descriptor}),
+                    "bounded manifest member descriptor")
+
+    def test_member_paths_and_file_directory_collisions_precede_all_payload_reads(self):
+        for name, message in (("../escaped", "unsafe manifest member path"),
+                              ("a//b", "unsafe manifest member path"),
+                              ("a\\b", "unsafe manifest member path"),
+                              ("a\0b", "unsafe manifest member path"),
+                              ("protected/.env", "protected manifest member path"),
+                              ("source", "namespace collision")):
+            def mutate(manifest, name=name):
+                manifest["members"][name] = {"bytes": 0, "sha256": hashlib.sha256(b"").hexdigest(), "mode": 0o600}
+            with self.subTest(name=name):
+                self.assert_manifest_refused_before_payload(mutate, message)
 
 
 if __name__ == "__main__":

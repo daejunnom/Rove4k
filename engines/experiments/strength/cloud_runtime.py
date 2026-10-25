@@ -61,7 +61,10 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 SHA = re.compile(r"[0-9a-f]{64}\Z")
 MAX_SEED = 128 << 20
+MAX_SEED_MANIFEST = 4 << 20
+JOINT_EXPANDED_SEED = 256 << 20
 MAX_MEMBER = 32 << 20
+MAX_SEED_MEMBERS = 20000  # Includes seed.json, not just payload members.
 ORIGINAL_LAYOUT_BASE = PurePosixPath("/home/runner/work/_temp")
 _VALIDATED = object()
 COMPILER_ENV = ("GCC_EXEC_PREFIX", "COMPILER_PATH", "LIBRARY_PATH", "CPATH",
@@ -216,45 +219,64 @@ def fetch_seed(seed, s3, out):
     return out
 
 
+def seed_expansion_limit(value):
+    """Only the complete A--F/P4+P28 source cohort gets a larger expansion."""
+    require(isinstance(value, dict), "seed selection must be an object")
+    selected, rove = set(), set()
+    for kind in ("rove", "peers"):
+        rows = value.get(kind)
+        require(isinstance(rows, list), "explicit Rove and peer source lists required")
+        for row in rows:
+            require(isinstance(row, dict) and isinstance(row.get("family"), str)
+                    and isinstance(row.get("profile"), str)
+                    and row["family"] in (tuple("ABCDEF") if kind == "rove" else ("ice4", "c4ke"))
+                    and row["profile"] in ("test-p4", "test-p28"),
+                    "source seed admits only named full TEST inputs")
+            identity = row["family"], row["profile"]
+            require(identity not in selected, "duplicate seed family/profile")
+            selected.add(identity)
+            if kind == "rove":
+                rove.add(identity)
+    require(selected, "seed contains no explicit TEST source inputs")
+    joint = {(family, profile) for family in "ABCDEF" for profile in ("test-p4", "test-p28")}
+    return JOINT_EXPANDED_SEED if rove == joint else MAX_SEED
+
+
 def validate_seed_manifest(value):
     require(isinstance(value, dict) and value.get("format") == "rove4k-cloud-seed-v1",
             "explicit prequalification seed required")
     require(not any(key in value for key in ("qualified", "complete", "registry", "native_map", "scoring")),
             "seed transport cannot claim runtime qualification")
+    capacity = seed_expansion_limit(value)
     origin = value.get("source_origin", {})
-    require(set(origin) == {"repository", "head_sha", "run_id", "run_attempt"} and
+    require(isinstance(origin, dict) and set(origin) == {"repository", "head_sha", "run_id", "run_attempt"} and
             isinstance(origin["repository"], str) and re.fullmatch(r"[\w.-]+/[\w.-]+", origin["repository"]) and
             re.fullmatch(r"[0-9a-f]{40}(?:[0-9a-f]{24})?", str(origin["head_sha"])) and
             all(re.fullmatch(r"[1-9][0-9]*", str(origin[k])) for k in ("run_id", "run_attempt")),
             "sealed source origin must name its actual CI repository/head/run/attempt")
     members = value.get("members")
-    require(isinstance(members, dict) and members and len(members) <= 20000, "explicit bounded member map required")
+    require(isinstance(members, dict) and members and len(members) < MAX_SEED_MEMBERS,
+            "explicit bounded member map including seed.json required")
     total = 0
     for name, expected in members.items():
         member(name)
-        require(name != "seed.json" and isinstance(expected, dict) and
+        require(name != "seed.json" and not name.startswith("seed.json/") and isinstance(expected, dict) and
                 set(expected) == {"bytes", "sha256", "mode"} and type(expected["bytes"]) is int and
-                0 <= expected["bytes"] <= MAX_MEMBER and SHA.fullmatch(str(expected["sha256"])) and
+                0 <= expected["bytes"] <= MAX_MEMBER and isinstance(expected["sha256"], str) and
+                SHA.fullmatch(expected["sha256"]) and type(expected["mode"]) is int and
                 expected["mode"] in (0o600, 0o700), "bounded seed member pin/mode required")
         total += expected["bytes"]
-    require(total <= MAX_SEED, "uncompressed seed exceeds transport bound")
+    raw = ledger.canonical(value) + b"\n"
+    require(len(raw) <= MAX_SEED_MANIFEST, "seed manifest exceeds its bounded JSON size")
+    require(total + len(raw) <= capacity, "uncompressed seed including manifest exceeds expansion bound")
     for prefix in members:
         require(not any(parent in members for parent in (str(p) for p in PurePosixPath(prefix).parents)
                         if parent != "."), "seed file/directory namespace collision")
     tree = member(value.get("source_tree"))
     require(tree + "/engines/experiments/strength/cloud_runtime.py" in members,
             "seed must carry the exact host consumer source tree")
-    seen = set()
     for kind in ("rove", "peers"):
-        rows = value.get(kind, [])
-        require(isinstance(rows, list), "explicit source profile list required")
-        for row in rows:
-            require(isinstance(row, dict) and row.get("profile") in ("test-p4", "test-p28") and
-                    row.get("family") in (tuple("ABCDEF") if kind == "rove" else ("ice4", "c4ke")),
-                    "source seed admits only named full TEST inputs")
-            identity = row["family"], row["profile"]
-            require(identity not in seen, "duplicate seed family/profile")
-            seen.add(identity)
+        for row in value[kind]:
             if kind == "rove":
                 root = member(row.get("build"))
                 require(root + "/build.json" in members, "Rove source build omitted manifest")
@@ -263,7 +285,6 @@ def validate_seed_manifest(value):
             else:
                 prefix = member(row.get("source"))
                 require(any(name.startswith(prefix + "/") for name in members), "peer original source is empty")
-    require(seen, "seed contains no explicit TEST source inputs")
     require(member(value.get("bank")) in members and isinstance(value.get("runner"), dict),
             "seed requires its frozen opening bank and runner source declaration")
     pgns = value.get("bank_pgns", {})
@@ -278,7 +299,12 @@ def validate_seed_manifest(value):
 
 
 def load_seed_manifest(path, expected_sha=None):
-    return validate_seed_manifest(checked_json(path, expected_sha))
+    raw = ordinary(path, limit=MAX_SEED_MANIFEST)
+    require(expected_sha is None or (isinstance(expected_sha, str) and SHA.fullmatch(expected_sha)
+                                    and pin(raw)["sha256"] == expected_sha), "JSON input identity differs")
+    manifest = validate_seed_manifest(json.loads(raw))
+    require(raw == ledger.canonical(manifest) + b"\n", "seed manifest must use its exact canonical encoding")
+    return manifest
 
 
 def original_layout_plan(seed):
@@ -375,7 +401,8 @@ class OriginalLayout:
         record, manifest = self.to_record(), json.loads(self._manifest)
         root = Path(record["seed_root"])
         revalidate_seed(manifest, root)
-        require(pin(ordinary(root / "seed.json")) == record["seed_manifest"], "original-layout seed identity changed")
+        require(pin(ordinary(root / "seed.json", limit=MAX_SEED_MANIFEST)) == record["seed_manifest"],
+                "original-layout seed identity changed")
         for row in record["roots"]:
             destination = Path(row["original_root"])
             current = destination.stat()
@@ -444,9 +471,51 @@ def restore_original_layout(seed, seed_root):
             write_new(destination / relative, data, seed["members"][logical]["mode"])
         restored.append({**row, "device": current.st_dev, "inode": current.st_ino})
     token = OriginalLayout(_VALIDATED, {"format": "rove4k-original-layout-v1", "seed_root": str(Path(seed_root)),
-        "seed_manifest": pin(ordinary(Path(seed_root) / "seed.json")), "roots": restored,
+        "seed_manifest": pin(ordinary(Path(seed_root) / "seed.json", limit=MAX_SEED_MANIFEST)), "roots": restored,
         "scope": "exact transport correspondence; not source/runtime qualification"}, seed)
     return token.revalidate()
+
+
+def seed_archive_manifest(archive, *, expected_manifest_sha256=None):
+    """Inspect only the bounded manifest before any other ZIP member is read.
+
+    The caller owns an already-open ZipFile and separately bounds its wire
+    bytes.  Every entry's name/type/size and the derived aggregate expansion
+    limit are checked before the returned entries may be read or written.
+    """
+    require(type(archive) is zipfile.ZipFile and archive.fp is not None,
+            "an already-open standard seed ZipFile is required")
+    require(expected_manifest_sha256 is None or
+            (isinstance(expected_manifest_sha256, str) and SHA.fullmatch(expected_manifest_sha256)),
+            "controller-pinned seed manifest SHA required")
+    infos = archive.infolist()
+    require(0 < len(infos) <= MAX_SEED_MEMBERS, "seed archive member count exceeds bound")
+    names, total = {}, 0
+    for info in infos:
+        name = member(info.filename)
+        mode = info.external_attr >> 16
+        require(name not in names and not info.is_dir() and not info.flag_bits & 1 and
+                stat.S_IFMT(mode) in (0, stat.S_IFREG) and type(info.file_size) is int and
+                0 <= info.file_size <= (MAX_SEED_MANIFEST if name == "seed.json" else MAX_MEMBER),
+                "seed has duplicate/link/directory/encrypted/excessive member")
+        total += info.file_size
+        names[name] = info
+    require(total <= JOINT_EXPANDED_SEED, "seed expansion exceeds bound")
+    require("seed.json" in names, "seed archive omitted its bounded manifest")
+    with archive.open(names["seed.json"], "r") as source:
+        raw = source.read(MAX_SEED_MANIFEST + 1)
+    require(len(raw) == names["seed.json"].file_size and len(raw) <= MAX_SEED_MANIFEST,
+            "seed manifest size differs from bounded ZIP metadata")
+    require(expected_manifest_sha256 is None or pin(raw)["sha256"] == expected_manifest_sha256,
+            "seed manifest differs from controller pin")
+    manifest = validate_seed_manifest(json.loads(raw))
+    require(raw == ledger.canonical(manifest) + b"\n", "seed manifest must use its exact canonical encoding")
+    require(total <= seed_expansion_limit(manifest), "seed expansion exceeds selected cohort bound")
+    require(set(names) == {"seed.json", *manifest["members"]},
+            "seed archive differs from exact member allowlist")
+    require(all(names[name].file_size == expected["bytes"] for name, expected in manifest["members"].items()),
+            "seed member changed: archive member differs in length from manifest")
+    return manifest, raw, infos
 
 
 def materialize_seed_archive(path, out, *, expected_manifest_sha256):
@@ -458,26 +527,18 @@ def materialize_seed_archive(path, out, *, expected_manifest_sha256):
     data = ordinary(path, limit=MAX_SEED)
     require(isinstance(expected_manifest_sha256, str) and SHA.fullmatch(expected_manifest_sha256),
             "controller-pinned seed manifest SHA required")
-    files = {}
     with zipfile.ZipFile(io.BytesIO(data)) as archive:
-        require(len(archive.infolist()) <= 20001, "seed archive member count exceeds bound")
-        total = 0
-        for info in archive.infolist():
-            name = member(info.filename)
-            mode = info.external_attr >> 16
-            require(name not in files and not info.is_dir() and not info.flag_bits & 1 and
-                    (stat.S_IFMT(mode) in (0, stat.S_IFREG)) and info.file_size <= MAX_MEMBER,
-                    "seed has duplicate/link/directory/encrypted/excessive member")
-            total += info.file_size
-            require(total <= MAX_SEED, "seed expansion exceeds bound")
-            files[name] = archive.read(info)
-    raw = files.get("seed.json")
-    require(raw is not None and pin(raw)["sha256"] == expected_manifest_sha256, "seed manifest differs from controller pin")
-    manifest = validate_seed_manifest(json.loads(raw))
-    require(raw == ledger.canonical(manifest) + b"\n", "seed manifest must use its exact canonical encoding")
-    require(set(files) == {"seed.json", *manifest["members"]}, "seed archive differs from exact member allowlist")
-    for name, expected in manifest["members"].items():
-        require(pin(files[name]) == {k: expected[k] for k in ("bytes", "sha256")}, "seed member changed: " + name)
+        manifest, raw, infos = seed_archive_manifest(archive, expected_manifest_sha256=expected_manifest_sha256)
+        files = {"seed.json": raw}
+        for info in infos:
+            if info.filename == "seed.json":
+                continue
+            with archive.open(info, "r") as source:
+                body = source.read(MAX_MEMBER + 1)
+            expected = manifest["members"][info.filename]
+            require(pin(body) == {k: expected[k] for k in ("bytes", "sha256")},
+                    "seed member changed: " + info.filename)
+            files[info.filename] = body
     out = new_external(out)
     out.mkdir(parents=True, mode=0o700)
     for name, body in files.items():
@@ -487,7 +548,7 @@ def materialize_seed_archive(path, out, *, expected_manifest_sha256):
 
 def revalidate_seed(manifest, root):
     validate_seed_manifest(manifest)
-    require(ordinary(Path(root) / "seed.json") == ledger.canonical(manifest) + b"\n",
+    require(ordinary(Path(root) / "seed.json", limit=MAX_SEED_MANIFEST) == ledger.canonical(manifest) + b"\n",
             "materialized seed manifest changed")
     for name, expected in manifest["members"].items():
         require(pin(ordinary(Path(root) / name)) == {k: expected[k] for k in ("bytes", "sha256")},
@@ -719,7 +780,8 @@ def validate_cloud_runtime(admitted, build, compiler_receipt, *, seed, root, row
     require(admitted.expected == original, "cloud validation modified producer native expectation")
     record = {"format": "rove4k-cloud-runtime-reference-v1", "runtime_eligible": True,
               "factory_replayed_on_target": False, "source_origin": seed["source_origin"],
-              "seed_manifest": pin(ordinary(Path(root) / "seed.json")), "source_binding": binding.to_record(),
+              "seed_manifest": pin(ordinary(Path(root) / "seed.json", limit=MAX_SEED_MANIFEST)),
+              "source_binding": binding.to_record(),
               "consumer": consumer.to_record(), "source_build": {"path": str(build), **pin(ordinary(Path(build) / "build.json"))},
               "original_build_expected_contract": original, "native": compiled["native"],
               "compiler_context": compiled["compiler_context"], "compiler_inputs": compiled["compiler_inputs"],
@@ -790,7 +852,7 @@ def prepare_peer(row, *, seed, root, out, slot):
     out.mkdir(parents=True)
     # Fresh target producer receipts retain their real target absolute paths;
     # original source files are verified by the upstream literal blob pins.
-    built = peers.build_resource_tiny(row["family"], Path(root) / row["source"], out / "build", row["profile"],
+    built = peers.build_resource_tiny(row["family"], Path(root) / row["source"], out / "peer-build", row["profile"],
         run=lambda argv, cwd, **kw: peers.bounded_run(argv, cwd, cpu=slot.cpus[0], **kw))
     build = Path(built["path"])
     require(build.exists(), "peer producer did not emit its real build manifest")

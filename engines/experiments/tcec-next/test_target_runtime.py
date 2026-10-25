@@ -61,11 +61,18 @@ def dependency_fixture():
 
 class Fixture:
     """Synthetic, source-admission-stubbed transcript, never real evidence."""
-    def __init__(self, root, family="A", source_dependencies=None):
+    def __init__(self, root, family="A", source_dependencies=None, *, profile_id="test-p4",
+                 source_contract=None, wrapper_contract=None):
         self.root = root
         self.compiler = TARGET._compiler_module()
         self.ci = TARGET.CIContext("example/Rove4k", "a" * 40, "123", "1")
         self.family = family
+        self.profile_id = profile_id
+        self.profile = VERIFY.contracts().resource_profile(profile_id)
+        resources = self.profile.to_record(16 if family == "D" else 24)
+        source_contract = copy.deepcopy(source_contract) if source_contract is not None else {}
+        if source_dependencies is not None:
+            source_contract["source_dependencies"] = copy.deepcopy(source_dependencies)
         self.build = root / ("build-" + family)
         self.build.mkdir()
         source = b"int main(void){return 0;}\n"
@@ -78,27 +85,27 @@ class Fixture:
         expected = {prefix + "_" + key: value for prefix, data in values.items()
                     for key, value in TARGET.pin(data).items()}
         program = "D-source-jit" if family == "D" else "x"
-        self.admitted = VERIFY.AdmittedBuild(family, "test-p4", "source-jit", program,
+        self.admitted = VERIFY.AdmittedBuild(family, profile_id, "source-jit", program,
             None if family == "D" else "main.c", "native/x",
-            expected, {"id": "test-p4", "workers": 4}, {"mode": "per-go"}, {}, {},
-            {} if source_dependencies is None else {"source_dependencies": copy.deepcopy(source_dependencies)})
+            expected, resources, {"mode": "per-go"}, copy.deepcopy(wrapper_contract or {}), {}, source_contract)
         self.verify = SimpleNamespace(
             admit_c_build=lambda record, build: self.admitted,
             admit_d_build=lambda record, build, candidate: self.admitted,
             checked_artifact=VERIFY.checked_artifact, artifact_file=VERIFY.artifact_file,
             native_dependencies=VERIFY.native_dependencies, contracts=VERIFY.contracts)
         self.source = source
-        self.manifest = {"family": "A", "compiler": list(self.compiler.C_FLAGS["A"]),
+        self.manifest = {"family": family, "resources": copy.deepcopy(resources),
             "expected_contract": expected, "source_proofs": [{"target_type_assertions":
                 ['_Static_assert(sizeof(void*)==8,"unit ABI");']}],
             "complete": True, "reproducible": True}
+        if family != "D":
+            self.manifest["compiler"] = list(self.compiler.C_FLAGS[family])
         files = {"main.c": source}
         if family == "D":
             files.update({"start.S": b".global _start\n_start: ret\n", "image.ld": b"ENTRY(_start)\n"})
             builder = load("target_unit_D_flag_contract", TARGET.ROOT / "engines/experiments/tiny-d-submission/build.py")
-            profile = VERIFY.contracts().resource_profile("test-p4")
-            self.manifest.update(family="D", resource=profile.to_record(16),
-                flags=builder.native_flags(profile), units=["main.c", "start.S"],
+            self.manifest.update(resource=copy.deepcopy(resources),
+                flags=builder.native_flags(self.profile), units=["main.c", "start.S"],
                 shipping_inputs={name: TARGET.pin(data) for name, data in files.items()})
         self.manifest_raw = (json.dumps(self.manifest, sort_keys=True) + "\n").encode()
         (self.build / "build.json").write_bytes(self.manifest_raw)
@@ -116,12 +123,13 @@ class Fixture:
         with zipfile.ZipFile(self.bundle, "w") as archive:
             for name in ("build.json", program, "header.sh", "payload.lzma", "native/x",
                          *(source_prefix + n for n in files)):
-                archive.writestr("profiles/" + family + "-test-p4/" + name, (self.build / name).read_bytes())
+                archive.writestr("profiles/" + family + "-" + profile_id + "/" + name, (self.build / name).read_bytes())
         with patch.object(TARGET, "_source_host", return_value={"ID": "ubuntu", "VERSION_ID": "24.04"}), \
                 patch.object(TARGET, "_checkout_head", return_value=self.ci.head_sha), \
                 patch.dict(TARGET.os.environ, self.environment()):
             seal = TARGET.build_source_seal(self.bundle,
-                [(self.admitted, self.build, "profiles/" + family + "-test-p4")], verify=self.verify, ci_context=self.ci)
+                [(self.admitted, self.build, "profiles/" + family + "-" + profile_id)],
+                verify=self.verify, ci_context=self.ci)
         self.seal = root / "source-seal.json"
         self.seal.write_text(json.dumps(seal, sort_keys=True) + "\n")
         self.receipt_root = root / "compiler"
@@ -146,7 +154,7 @@ class Fixture:
                 [str(self.driver), "-print-prog-name=" + query], self.receipt_root,
                 stdout=(str(self.driver) + "\n").encode())
         selected = self.compiler.admit(self.build, self.verify)
-        self.directory = self.receipt_root / (family + "-test-p4")
+        self.directory = self.receipt_root / (family + "-" + profile_id)
         (self.directory / "source").mkdir(parents=True)
         for name, data in selected.files.items():
             (self.directory / "source" / name).write_bytes(data)
@@ -197,7 +205,7 @@ class Fixture:
                                   for query in ("cc1", "as", "ld", "collect2", "lto1")},
             "compiler_programs_rechecked": True,
             "source_provenance_tools": {name: TARGET.pin((TARGET.ROOT / name).read_bytes().replace(b"\r\n", b"\n")) for name in (TARGET.SELF, TARGET.INPUT_PATH)},
-            "tools": {}, "profiles": [{"family": family, "profile": "test-p4", "build": str(self.build),
+            "tools": {}, "profiles": [{"family": family, "profile": profile_id, "build": str(self.build),
                 "input_manifest": TARGET.pin(self.manifest_raw),
                 "sources": {name: TARGET.pin(data) for name, data in selected.files.items()},
                 "original_compiler_native": copy.deepcopy(expected),
@@ -537,6 +545,172 @@ class TargetReferenceBoundaries(unittest.TestCase):
         self.temporary = tempfile.TemporaryDirectory(prefix="rove4k-target-reference-unit-")
         self.addCleanup(self.temporary.cleanup)
         self.fixture = Fixture(Path(self.temporary.name))
+
+    def test_named_P4_and_P28_profiles_bind_every_family_and_original_CI_identity(self):
+        self.assertEqual(self.fixture.profile_id, "test-p4")
+        self.assertEqual(self.fixture.admitted.resources["workers"], 4)
+        for profile_id in ("test-p4", "test-p28"):
+            for family in "ABCDEF":
+                with self.subTest(profile=profile_id, family=family), \
+                        tempfile.TemporaryDirectory(prefix="rove4k-named-target-unit-") as temporary:
+                    fixture = Fixture(Path(temporary), family=family, profile_id=profile_id)
+                    reference = fixture.validate()
+                    record = reference.to_record()
+                    profile = VERIFY.contracts().resource_profile(profile_id)
+                    expected_resources = profile.to_record(16 if family == "D" else 24)
+                    self.assertEqual(fixture.admitted.resources, expected_resources)
+                    self.assertEqual(reference.family, family)
+                    self.assertEqual(reference.profile, profile_id)
+                    self.assertEqual(record["profile"], profile_id)
+                    self.assertEqual(record["ci_context"], fixture.ci.to_record())
+                    self.assertEqual(set(record["ci_context"]), {"repository", "head_sha", "run_id", "run_attempt"})
+                    self.assertEqual(fixture.report["source_profile"]["profile"], profile_id)
+                    self.assertEqual(record["execution_admission"],
+                                     TARGET.pin(TARGET._admission_snapshot(fixture.admitted).encode()))
+                    self.assertEqual(Path(record["target_native"]["path"]).parent.parent.name,
+                                     family + "-" + profile_id)
+                    self.assertEqual(record["flags"], fixture.report["profiles"][0]["flags"])
+                    if profile_id == "test-p28":
+                        self.assertEqual(expected_resources["workers"], 28)
+                        self.assertEqual(expected_resources["tt_bytes"],
+                                         (512 if family == "D" else 384) * (1 << 20))
+                    for key in ("factory_replayed_on_target", "runtime_executed", "runtime_qualified",
+                                "event_target_confirmed"):
+                        self.assertIs(record[key], False)
+                    self.assertIs(fixture.report["large_TT_allocated"], False)
+                    self.assertEqual(fixture.admitted.expected["native_sha256"],
+                                     record["original_build_expected_contract"]["native_sha256"])
+
+    def test_P4_and_P28_seals_compiler_profiles_and_admissions_cannot_be_spliced(self):
+        for profile_id, other_profile in (("test-p4", "test-p28"), ("test-p28", "test-p4")):
+            with self.subTest(profile=profile_id), \
+                    tempfile.TemporaryDirectory(prefix="rove4k-profile-splice-unit-") as temporary:
+                fixture = Fixture(Path(temporary), profile_id=profile_id)
+                original_report = copy.deepcopy(fixture.report)
+                for role in ("source_profile", "compiler_row"):
+                    fixture.report = copy.deepcopy(original_report)
+                    row = fixture.report["source_profile"] if role == "source_profile" else fixture.report["profiles"][0]
+                    row["profile"] = other_profile
+                    fixture.save()
+                    with self.subTest(role=role), self.assertRaises(ValueError):
+                        fixture.validate()
+                fixture.report = original_report
+                fixture.save()
+                original_seal = fixture.seal.read_bytes()
+                seal = json.loads(original_seal)
+                seal["profiles"][0]["profile"] = other_profile
+                fixture.seal.write_text(json.dumps(seal) + "\n")
+                with self.assertRaisesRegex(ValueError, "unique selected family/profile"):
+                    fixture.validate()
+                fixture.seal.write_bytes(original_seal)
+                resources = VERIFY.contracts().resource_profile(other_profile).to_record(24)
+                for changed in (replace(fixture.admitted, profile_id=other_profile),
+                                replace(fixture.admitted, profile_id=other_profile, resources=resources)):
+                    with self.assertRaisesRegex(ValueError, "fresh strict source admission"):
+                        fixture.validate(admitted=changed)
+                self.assertEqual(fixture.validate().profile, profile_id)
+
+    def test_P28_binds_every_admission_field_including_nested_compound_and_wrapper_policy(self):
+        # These nested policies are synthetic admission data, not a real compound proof.
+        compound = {"post_spelling": {"selection": "compound", "variant": "clock-atomic-launcher"},
+                    "compound_native_evidence": {"source": TARGET.pin(b"synthetic compound source"),
+                        "native_policy": {"id": "synthetic-policy", "full": True},
+                        "attempts": [{"directory": "synthetic-attempt", "terminal": True}]}}
+        wrapper = {"policy": "synthetic-wrapper-ownership", "cleanup": {"per_go": True, "owners": ["launcher"]}}
+        with tempfile.TemporaryDirectory(prefix="rove4k-P28-admission-unit-") as temporary:
+            fixture = Fixture(Path(temporary), family="F", profile_id="test-p28",
+                              source_contract=compound, wrapper_contract=wrapper)
+            original = fixture.admitted
+            reference = fixture.validate()
+            inputs = fixture.cloud_seed()
+            with patch.object(TARGET, "ORIGINAL_LAYOUT_PARENT", fixture.root), \
+                    patch.dict(TARGET.os.environ, {}, clear=True):
+                source = TARGET.sealed_source_binding(original, fixture.build, verify=fixture.verify, **inputs)
+                for field in fields(original):
+                    value = getattr(original, field.name)
+                    if isinstance(value, dict):
+                        changed = {**copy.deepcopy(value), "synthetic_changed": True}
+                    elif type(value) is bool:
+                        changed = not value
+                    elif value is None:
+                        changed = "synthetic_changed"
+                    else:
+                        changed = value + "-synthetic_changed"
+                    admission = replace(original, **{field.name: changed})
+                    with self.subTest(field=field.name), self.assertRaisesRegex(ValueError, "execution object differs"):
+                        source.assert_admission(admission, fixture.build)
+                    with self.subTest(field=field.name), self.assertRaisesRegex(ValueError, "execution admission differs"):
+                        reference.assert_admission(admission, fixture.build)
+            changes = []
+            for field, path, value in (
+                    ("source_contract", ("post_spelling", "variant"), "control"),
+                    ("source_contract", ("compound_native_evidence", "native_policy", "full"), False),
+                    ("source_contract", ("compound_native_evidence", "attempts", 0, "terminal"), 1),
+                    ("wrapper_contract", ("cleanup", "per_go"), False),
+                    ("resources", ("workers",), 4),
+                    ("resources", ("tt_bytes",), 96 * (1 << 20))):
+                changed = copy.deepcopy(getattr(original, field))
+                cursor = changed
+                for key in path[:-1]:
+                    cursor = cursor[key]
+                cursor[path[-1]] = value
+                changes.append((field + "/" + "/".join(map(str, path)), replace(original, **{field: changed})))
+            changes.append(("full", replace(original, full=False)))
+            for name, admission in changes:
+                with self.subTest(policy=name), self.assertRaises(ValueError):
+                    fixture.validate(admitted=admission)
+                with self.subTest(policy=name), self.assertRaisesRegex(ValueError, "execution admission differs"):
+                    reference.assert_admission(admission, fixture.build)
+            self.assertEqual(original.source_contract, compound)
+            self.assertEqual(original.wrapper_contract, wrapper)
+
+    def test_P28_typed_dependencies_bind_CI_and_original_layout_with_unchanged_origin(self):
+        with tempfile.TemporaryDirectory(prefix="rove4k-P28-dependencies-unit-") as temporary:
+            fixture = Fixture(Path(temporary), profile_id="test-p28", source_dependencies=dependency_fixture())
+            reference = fixture.validate()
+            facts, _, _ = TARGET._source_facts(fixture.admitted, fixture.build, fixture.verify, fixture.compiler)
+            self.assertEqual(TARGET._frozen_value(facts["source_dependencies"]),
+                             TARGET._frozen_value(dependency_fixture()))
+            self.assertEqual(reference.to_record()["ci_context"], fixture.ci.to_record())
+            original_report = copy.deepcopy(fixture.report)
+            for role in ("source_profile", "compiler_row"):
+                fixture.report = copy.deepcopy(original_report)
+                row = fixture.report["source_profile"] if role == "source_profile" else fixture.report["profiles"][0]
+                row["source_dependencies"]["declaration"]["required"] = 1
+                fixture.save()
+                with self.subTest(role=role), self.assertRaisesRegex(ValueError, "dependency proof/native/compiler stdin"):
+                    fixture.validate()
+            fixture.report = original_report
+            fixture.save()
+            inputs = fixture.cloud_seed()
+            with patch.object(TARGET, "ORIGINAL_LAYOUT_PARENT", fixture.root), \
+                    patch.dict(TARGET.os.environ, {}, clear=True):
+                source = TARGET.sealed_source_binding(fixture.admitted, fixture.build, verify=fixture.verify, **inputs)
+                source_record = source.to_record()
+                self.assertEqual(source_record["source_origin"], fixture.ci.to_record())
+                self.assertEqual(source_record["binding"]["source_context"], fixture.ci.to_record())
+                self.assertEqual(source_record["binding"]["source_profile"]["profile"], "test-p28")
+                self.assertIs(source_record["factory_replayed_on_consumer"], False)
+                self.assertEqual(TARGET._frozen_value(source_record["binding"]["source_profile"]["source_dependencies"]),
+                                 TARGET._frozen_value(dependency_fixture()))
+                for name in ("source_context", "source_bundle", "source_seal", "source_provenance_tools", "source_profile"):
+                    fixture.report.pop(name)
+                fixture.report["program_provenance"] = True
+                fixture.save()
+                with patch.object(TARGET, "current_system_context", return_value=fixture.context):
+                    compiled = TARGET.compiler_receipt_binding(fixture.admitted, fixture.build, fixture.receipt,
+                        verify=fixture.verify, source_binding=source)
+                    evidence = compiled.to_record()["evidence"]
+                    self.assertEqual(evidence["source_origin"], fixture.ci.to_record())
+                    self.assertEqual(TARGET._frozen_value(evidence["source_dependencies"]),
+                                     TARGET._frozen_value(dependency_fixture()))
+                    self.assertIs(evidence["engine_executed"], False)
+                    self.assertIs(evidence["runtime_qualified"], False)
+                    fixture.report["profiles"][0]["source_dependencies"]["compiler_commands"][0]["terminal"] = 1
+                    fixture.save()
+                    with self.assertRaisesRegex(ValueError, "dependency proof/native/compiler stdin"):
+                        TARGET.compiler_receipt_binding(fixture.admitted, fixture.build, fixture.receipt,
+                            verify=fixture.verify, source_binding=source)
 
     def test_non_CI_source_and_compiler_authority_use_original_layout_without_fake_environment(self):
         inputs = self.fixture.cloud_seed()
@@ -982,21 +1156,41 @@ class TargetReferenceBoundaries(unittest.TestCase):
             reference.assert_admission(other, self.fixture.build)
 
     def test_D_binds_both_units_linker_flags_and_original_absolute_layout(self):
-        with tempfile.TemporaryDirectory(prefix="rove4k-D-target-reference-unit-") as temporary:
-            fixture = Fixture(Path(temporary), family="D")
-            reference = fixture.validate()
-            self.assertEqual(reference.family, "D")
-            self.assertEqual(reference.to_record()["units"], ["main.c", "start.S"])
-            row = fixture.report["profiles"][0]
-            row["per_unit_dependency_discovery"] = ["main.c"]
-            fixture.save()
-            with self.assertRaisesRegex(ValueError, "every frozen compilation unit"):
-                fixture.validate()
-            row["per_unit_dependency_discovery"] = ["main.c", "start.S"]
-            fixture.save()
-            (fixture.directory / "source/image.ld").write_bytes(b"different linker input")
-            with self.assertRaisesRegex(ValueError, "frozen source differs"):
-                fixture.validate()
+        builder = load("target_unit_D_profile_flag_checks", TARGET.ROOT / "engines/experiments/tiny-d-submission/build.py")
+        for profile_id in ("test-p4", "test-p28"):
+            with self.subTest(profile=profile_id), \
+                    tempfile.TemporaryDirectory(prefix="rove4k-D-target-reference-unit-") as temporary:
+                fixture = Fixture(Path(temporary), family="D", profile_id=profile_id)
+                reference = fixture.validate()
+                record = reference.to_record()
+                self.assertEqual(reference.family, "D")
+                self.assertEqual(reference.profile, profile_id)
+                self.assertEqual(record["units"], ["main.c", "start.S"])
+                self.assertEqual(set(record["source_files"]), {"main.c", "start.S", "image.ld"})
+                self.assertEqual(record["flags"], builder.native_flags(fixture.profile))
+                self.assertEqual(record["source_build"]["path"], str(fixture.build))
+                self.assertEqual(record["ci_context"], fixture.ci.to_record())
+                self.assertIs(record["factory_replayed_on_target"], False)
+                self.assertIs(record["runtime_executed"], False)
+                self.assertEqual(fixture.admitted.resources["tt_bytes"],
+                                 (512 if profile_id == "test-p28" else 128) * (1 << 20))
+                row = fixture.report["profiles"][0]
+                original_flags = list(row["flags"])
+                other_profile = "test-p4" if profile_id == "test-p28" else "test-p28"
+                row["flags"] = builder.native_flags(VERIFY.contracts().resource_profile(other_profile))
+                fixture.save()
+                with self.assertRaisesRegex(ValueError, "original source/profile/flags/whole manifest"):
+                    fixture.validate()
+                row["flags"] = original_flags
+                row["per_unit_dependency_discovery"] = ["main.c"]
+                fixture.save()
+                with self.assertRaisesRegex(ValueError, "every frozen compilation unit"):
+                    fixture.validate()
+                row["per_unit_dependency_discovery"] = ["main.c", "start.S"]
+                fixture.save()
+                (fixture.directory / "source/image.ld").write_bytes(b"different linker input")
+                with self.assertRaisesRegex(ValueError, "frozen source differs"):
+                    fixture.validate()
 
 
 if __name__ == "__main__":

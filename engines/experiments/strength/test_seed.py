@@ -25,7 +25,10 @@ except ImportError:
 
 
 def git(root, *args):
-    row = subprocess.run(["git", "-c", "core.hooksPath=/dev/null", "-C", str(root), *args], capture_output=True, timeout=10)
+    env = os.environ.copy()
+    env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull, GIT_OPTIONAL_LOCKS="0", GIT_TERMINAL_PROMPT="0")
+    row = subprocess.run(["git", "-c", "core.hooksPath=" + os.devnull, "-C", str(root), *args],
+                         capture_output=True, timeout=10, env=env)
     if row.returncode:
         raise AssertionError(row.stderr.decode())
     return row.stdout
@@ -41,13 +44,13 @@ class Fixture:
         for name in names:
             path = self.repo / name
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text("# synthetic source transport fixture\n")
+            path.write_bytes(b"# synthetic source transport fixture\n")
         (self.repo / "engines/experiments/strength/seed.py").write_bytes(Path(seed.__file__).read_bytes())
-        (self.repo / seed.CORE_R[0]).write_text("INPUT_READER='engines/scripts/production_input.py'\n")
-        (self.repo / seed.CORE_R[1]).write_text("INPUT_PATH='engines/scripts/production_input.py'\n")
+        (self.repo / seed.CORE_R[0]).write_bytes(b"INPUT_READER='engines/scripts/production_input.py'\n")
+        (self.repo / seed.CORE_R[1]).write_bytes(b"INPUT_PATH='engines/scripts/production_input.py'\n")
         patch_path = self.repo / "engines/experiments/strength/patches/fastchess-rove.patch"
         patch_path.parent.mkdir()
-        patch_path.write_text("synthetic patch; never a runner build\n")
+        patch_path.write_bytes(b"synthetic patch; never a runner build\n")
         git(self.repo, "add", "--", "engines")
         git(self.repo, "-c", "user.name=Transport Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "synthetic fixture")
         commit = git(self.repo, "rev-parse", "HEAD").decode().strip()
@@ -160,6 +163,165 @@ class FakeS3:
         return {"ChecksumSHA256": base64.b64encode(bytes.fromhex(sha)).decode()}
 
 
+class WorkflowProvenanceTests(unittest.TestCase):
+    """Actual local commit DAGs; API JSON remains an explicit transport fixture."""
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix="rove-pr-origin-test-")
+        self.root = Path(self.temp.name)
+        self.fixture = Fixture(self.root)
+        repo = self.fixture.repo
+        self.base = git(repo, "rev-parse", "HEAD").decode().strip()
+        git(repo, "-c", "user.name=Transport Fixture", "-c", "user.email=fixture@example.invalid",
+            "commit", "--allow-empty", "-qm", "head")
+        self.head = git(repo, "rev-parse", "HEAD").decode().strip()
+        self.tree = git(repo, "rev-parse", "HEAD^{tree}").decode().strip()
+        self.merge = git(repo, "-c", "user.name=Transport Fixture", "-c", "user.email=fixture@example.invalid",
+            "commit-tree", self.tree, "-p", self.base, "-p", self.head, "-m", "execution merge").decode().strip()
+        git(repo, "checkout", "--detach", "-q", self.merge)
+        origin = self.fixture.config["source_origin"]
+        origin["head_sha"] = self.merge
+        self.fixture.config["checkout"]["commit"] = self.merge
+        seal = json.loads(Path(self.fixture.inputs["origin/A/source-seal.json"]["path"]).read_bytes())
+        seal["ci_context"] = origin
+        self.fixture.rewrite("origin/A/source-seal.json", seal)
+        repository = {"id": 17, "full_name": origin["repository"]}
+        self.pr = {"number": 12, "merge_commit_sha": self.merge,
+                   "base": {"sha": self.base, "ref": "develop", "repo": repository},
+                   "head": {"sha": self.head, "ref": "feature/fixture", "repo": repository}}
+        self.run = {"id": 123, "run_attempt": 1, "repository": repository, "head_repository": repository,
+                    "event": "pull_request", "head_sha": self.head, "head_branch": "feature/fixture",
+                    "status": "completed", "conclusion": "success", "pull_requests": [copy.deepcopy(self.pr)]}
+        self.commit = {"sha": self.merge, "tree": {"sha": self.tree},
+                       "parents": [{"sha": self.base}, {"sha": self.head}]}
+        for name, value in (("run", self.run), ("pull_request", self.pr), ("commit", self.commit)):
+            path = self.root / (name + ".json")
+            raw = ledger.canonical(value)
+            path.write_bytes(raw)
+            self.fixture.inputs["metadata/" + name + ".json"] = {"path": str(path), **seed.pin(raw)}
+        self.fixture.config["workflow_provenance"] = {key: "metadata/" + key + ".json"
+                                                     for key in ("run", "pull_request", "commit")}
+        self.fixture.rewrite("metadata/A-artifact.json", {"id": 11, "workflow_run": {"id": 123,
+            "head_sha": self.head, "repository_id": 17, "head_repository_id": 17, "head_branch": "feature/fixture"}})
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    def binding(self, *, run=None, pr=None, commit=None, config=None, head=None):
+        content = {name: (Path(value["path"]).read_bytes(), 0o600)
+                   for name, value in self.fixture.inputs.items()}
+        for key, value in (("run", run), ("pull_request", pr), ("commit", commit)):
+            if value is not None:
+                content["metadata/" + key + ".json"] = (ledger.canonical(value), 0o600)
+        return seed.workflow_binding(config or self.fixture.config, content,
+                                     self.fixture.config["source_origin"], head or self.head)
+
+    def test_real_ordered_merge_and_raw_api_head_are_separate_in_actual_seed(self):
+        receipt = self.fixture.prepare(self.root / "prepared")
+        value = json.loads(Path(receipt["seed_manifest"]["path"]).read_bytes())["workflow_provenance"]
+        self.assertEqual(value["api_head_sha"], self.head)
+        self.assertEqual(value["checkout_sha"], self.merge)
+        self.assertEqual(value["execution_parents"], [self.base, self.head])
+        self.assertEqual(value["execution_tree"], self.tree)
+        self.assertEqual(value["ref"], "refs/pull/12/merge")
+        self.assertEqual(set(value["inputs"]), {"metadata/run.json", "metadata/pull_request.json", "metadata/commit.json"})
+        self.assertEqual(set(value["artifact_metadata"]), {"metadata/A-artifact.json"})
+        self.assertEqual(receipt["workflow_provenance"], value)
+        # The API original was not rebound to the execution merge.
+        original = json.loads(Path(self.fixture.inputs["metadata/A-artifact.json"]["path"]).read_bytes())
+        self.assertEqual(original["workflow_run"]["head_sha"], self.head)
+
+    def test_ordinary_head_equality_never_accepts_an_unexplained_different_sha(self):
+        config = copy.deepcopy(self.fixture.config)
+        config.pop("workflow_provenance")
+        with self.assertRaisesRegex(ValueError, "explicit PR provenance"):
+            self.binding(config=config)
+        equal = self.binding(config=config, head=self.merge)
+        self.assertEqual(equal["kind"], "artifact-head-equality")
+        config["workflow_provenance"] = {"run": "metadata/run.json", "commit": "metadata/commit.json"}
+        run = {**self.run, "event": "push"}
+        with self.assertRaisesRegex(ValueError, "ordinary workflow head"):
+            self.binding(config=config, run=run)
+        self.assertEqual(self.binding(config=config, run={**run, "head_sha": self.merge}, head=self.merge)["kind"],
+                         "workflow-head-equality")
+
+    def test_wrong_run_repo_ref_parent_tree_and_snapshot_do_not_become_pr_waivers(self):
+        cases = [
+            {"run": {**self.run, "run_attempt": 2}},
+            {"run": {**self.run, "id": 999}},
+            {"run": {**self.run, "repository": {"id": 17, "full_name": "other/repository"}}},
+            {"run": {**self.run, "head_branch": "other/ref"}},
+            {"run": {**self.run, "conclusion": "failure"}},
+            {"run": {**self.run, "pull_requests": [self.pr, self.pr]}},
+            {"run": {**self.run, "repository": None}},
+            {"run": {**self.run, "pull_requests": [None]}},
+            {"run": {**self.run, "head_repository": []}},
+            {"pr": {**self.pr, "number": 13}},
+            {"pr": {**self.pr, "base": None}},
+            {"pr": {**self.pr, "head": {**self.pr["head"], "repo": []}}},
+            {"pr": {**self.pr, "merge_commit_sha": self.head}},
+            {"pr": {**self.pr, "base": {**self.pr["base"], "sha": self.head}}},
+            {"pr": {**self.pr, "head": {**self.pr["head"], "ref": "other/ref"}}},
+            {"commit": {**self.commit, "tree": {"sha": "0" * 40}}},
+            {"commit": {**self.commit, "tree": []}},
+            {"commit": {**self.commit, "parents": list(reversed(self.commit["parents"]))}},
+        ]
+        for change in cases:
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                self.binding(**change)
+
+    def test_duplicate_or_reused_provenance_documents_reject(self):
+        raw = ledger.canonical(self.run)[:-1] + b',"id":123}'
+        name = "metadata/run.json"
+        Path(self.fixture.inputs[name]["path"]).write_bytes(raw)
+        with self.assertRaisesRegex(ValueError, "duplicate"):
+            self.binding()
+        config = copy.deepcopy(self.fixture.config)
+        config["workflow_provenance"]["commit"] = name
+        with self.assertRaisesRegex(ValueError, "distinct"):
+            self.binding(config=config)
+
+    def test_local_replace_ref_cannot_change_the_execution_commit(self):
+        git(self.fixture.repo, "replace", self.merge, self.head)
+        self.assertEqual(self.binding()["execution_parents"], [self.base, self.head])
+        changed = {**self.commit, "parents": [{"sha": self.base}]}
+        with self.assertRaisesRegex(ValueError, "actual local Git object"):
+            self.binding(commit=changed)
+
+    def test_local_git_never_lazy_fetches_or_enables_transports(self):
+        original = subprocess.run
+        captured = []
+        def invoke(*args, **kwargs):
+            captured.append((args[0], kwargs["env"]))
+            return original(*args, **kwargs)
+        with patch.object(seed.subprocess, "run", side_effect=invoke):
+            self.binding()
+        self.assertTrue(captured)
+        for argv, env in captured:
+            self.assertIn("protocol.allow=never", argv)
+            self.assertEqual(env["GIT_NO_REPLACE_OBJECTS"], "1")
+            self.assertEqual(env["GIT_NO_LAZY_FETCH"], "1")
+            self.assertEqual(env["GIT_ALLOW_PROTOCOL"], "")
+            self.assertFalse(any(arg in ("fetch", "clone", "pull", "push") for arg in argv))
+
+    def test_inherited_git_repository_index_and_config_cannot_redirect_checkout(self):
+        injected = {"GIT_DIR": str(self.root / "unrelated-absent-repository"),
+                    "GIT_WORK_TREE": str(self.root / "unrelated-tree"),
+                    "GIT_INDEX_FILE": str(self.root / "unrelated-index"),
+                    "GIT_OBJECT_DIRECTORY": str(self.root / "unrelated-objects"),
+                    "GIT_ALTERNATE_OBJECT_DIRECTORIES": str(self.root / "unrelated-alternates"),
+                    "GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": "protocol.allow", "GIT_CONFIG_VALUE_0": "always",
+                    "GIT_CONFIG_PARAMETERS": "'protocol.allow'='always'"}
+        original, captured = subprocess.run, []
+        def invoke(*args, **kwargs):
+            captured.append(kwargs["env"])
+            return original(*args, **kwargs)
+        with patch.dict(os.environ, injected), patch.object(seed.subprocess, "run", side_effect=invoke):
+            result = self.binding()
+        self.assertEqual(result["execution_parents"], [self.base, self.head])
+        for env in captured:
+            self.assertFalse(set(injected) & set(env))
+
+
 class SeedTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix="rove-seed-test-")
@@ -168,6 +330,143 @@ class SeedTests(unittest.TestCase):
 
     def tearDown(self):
         self.temp.cleanup()
+
+    def joint_fixture(self):
+        """Twelve distinct synthetic sealed rows; never source/runtime admission."""
+        fixture = self.fixture
+        original_seal = json.loads(Path(fixture.inputs["origin/A/source-seal.json"]["path"]).read_bytes())
+        bundle = Path(fixture.inputs["origin/A/source-bundle.zip"]["path"]).read_bytes()
+        fixture.inputs = {name: value for name, value in fixture.inputs.items()
+                          if not name.startswith(("origin/", "metadata/"))}
+        fixture.config["inputs"] = fixture.inputs
+        fixture.config["rove"], roots = [], []
+        def add(name, raw):
+            path = self.root / "joint-downloaded" / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(raw)
+            fixture.inputs[name] = {"path": str(path), **seed.pin(raw)}
+        reader = "engines/scripts/production_input.py"
+        for number, (family, profile) in enumerate((f, p) for f in "ABCDEF" for p in ("test-p4", "test-p28")):
+            key, prefix = family + "-" + profile, "origin/" + family + "-" + profile
+            original = "/home/runner/work/_temp/export-" + key
+            seal = copy.deepcopy(original_seal)
+            seal["profiles"][0].update(family=family, profile=profile, build_root=original + "/artifact")
+            seal["restore_layout"] = {"runner_temp_root": "/home/runner/work/_temp", "output_root": original,
+                                      "builds": {"artifact": original + "/artifact"}}
+            add(prefix + "/source-bundle.zip", bundle)
+            add(prefix + "/source-seal.json", ledger.canonical(seal))
+            metadata = "metadata/" + key + ".json"
+            add(metadata, ledger.canonical({"id": 100 + number, "workflow_run": {
+                "id": 123, "head_sha": fixture.config["source_origin"]["head_sha"]}}))
+            rules = "origin/rules/" + key
+            add(rules + "/probe/rules.json", ledger.canonical({"family": family, "profile": profile,
+                "complete": True, "verifier_inputs": {reader: seed.pin((fixture.repo / reader).read_bytes())}}))
+            add(rules + "/probe/cases.json", b"[]")
+            add(rules + "/probe/fixture.c", b"/* unit fixture; never executed */")
+            add(rules + "/commands.json", b"{}")
+            fixture.config["rove"].append({"family": family, "profile": profile, "build": prefix + "/artifact",
+                "source_bundle": prefix + "/source-bundle.zip", "source_seal": prefix + "/source-seal.json",
+                "artifact_metadata": metadata, "rules": rules + "/probe/rules.json"})
+            roots += [{"original_root": original, "seed_prefix": prefix},
+                      {"original_root": "/home/runner/work/_temp/rules-" + key, "seed_prefix": rules}]
+        fixture.config["original_layout"] = {"roots": roots}
+        add("unit/filler", b"x" * (300 << 10))
+        return fixture
+
+    def test_real_producer_and_inspector_grant_joint_capacity_only_to_twelve_rows(self):
+        fixture, consumer = self.joint_fixture(), seed.runtime()
+        # Scale only fixed test constants; no configurable numeric limit is
+        # introduced. The real archive is small and no engine is executed.
+        with patch.object(seed, "MAX_SEED", 256 << 10), patch.object(consumer, "MAX_SEED", 256 << 10), \
+             patch.object(consumer, "JOINT_EXPANDED_SEED", 512 << 10):
+            receipt = fixture.prepare(self.root / "joint")
+            raw = Path(receipt["archive"]["path"]).read_bytes()
+            self.assertLess(len(raw), 256 << 10)
+            self.assertEqual(seed.inspect_archive(raw)["manifest_sha256"], receipt["seed_manifest"]["sha256"])
+            manifest_raw = Path(receipt["seed_manifest"]["path"]).read_bytes()
+            manifest = json.loads(manifest_raw)
+            expanded = sum(row["bytes"] for row in manifest["members"].values()) + len(manifest_raw)
+            self.assertGreater(expanded, 256 << 10)
+            with patch.object(consumer, "JOINT_EXPANDED_SEED", expanded):
+                fixture.prepare(self.root / "exact-joint-boundary")
+                seed.inspect_archive(raw)
+            with patch.object(consumer, "JOINT_EXPANDED_SEED", expanded - 1):
+                with self.assertRaisesRegex(ValueError, "expan|bound"):
+                    fixture.prepare(self.root / "over-joint-boundary")
+                self.assertFalse((self.root / "over-joint-boundary").exists())
+            fixture.config["rove"].pop()
+            fixture.config["expanded_limit"] = 512 << 10  # Ignored untrusted extra data, never authority.
+            with self.assertRaisesRegex(ValueError, "expanded"):
+                fixture.prepare(self.root / "missing-one-row")
+            self.assertFalse((self.root / "missing-one-row").exists())
+            self.assertFalse(receipt["native_qualified"] or receipt["engine_executed"])
+
+    def test_p4_plus_peer_p28_and_duplicate_joint_reject_before_source_collection(self):
+        consumer = seed.runtime()
+        self.fixture.config["peers"] = [{"family": "ice4", "profile": "test-p28"}]
+        self.assertEqual(consumer.seed_expansion_limit(self.fixture.config), 128 << 20)
+        self.fixture.config["rove"].append(copy.deepcopy(self.fixture.config["rove"][0]))
+        with patch.object(seed, "checkout_files", side_effect=AssertionError("no source collection for invalid cohort")), \
+             self.assertRaisesRegex(ValueError, "duplicate"):
+            self.fixture.prepare(self.root / "duplicate")
+        self.assertFalse((self.root / "duplicate").exists())
+
+    def test_external_input_metadata_rejects_count_size_and_identity_before_payload_reads(self):
+        good = {"path": str(self.root / "absent-input"), "bytes": seed.MAX_MEMBER, "sha256": "0" * 64}
+        variants = [
+            {"unit/" + str(i): dict(good) for i in range(5)},
+            {"unit/" + str(i): {**good, "bytes": 0} for i in range(20000)},
+            {"unit/numeric-sha": {**good, "bytes": 0, "sha256": int("1" * 64)}},
+        ]
+        for number, inputs in enumerate(variants):
+            self.fixture.config["inputs"] = inputs
+            out = self.root / ("invalid-metadata-" + str(number))
+            with patch.object(seed, "checkout_files", side_effect=AssertionError("source bytes must not be read")), \
+                 patch.object(seed, "checked_input", side_effect=AssertionError("input bytes must not be read")), \
+                 self.assertRaises(ValueError):
+                seed.prepare(self.fixture.config, out)
+            self.assertFalse(out.exists())
+
+    def test_git_source_sizes_reserve_external_budget_before_reading_any_blob(self):
+        identity = {"path": str(self.root / "absent-input"), "bytes": seed.MAX_MEMBER, "sha256": "0" * 64}
+        self.fixture.config["inputs"] = {"unit/" + str(i): dict(identity) for i in range(4)}
+        self.fixture.config["inputs"]["unit/3"]["bytes"] -= 1  # Leave one byte for the entire real source checkout.
+        original, calls = seed.git, []
+        def observed(checkout, *args, **kwargs):
+            calls.append(args)
+            return original(checkout, *args, **kwargs)
+        with patch.object(seed, "git", side_effect=observed), \
+             patch.object(seed, "checked_input", side_effect=AssertionError("external bytes must not be read")), \
+             self.assertRaisesRegex(ValueError, "source metadata.*expanded"):
+            seed.prepare(self.fixture.config, self.root / "source-budget")
+        self.assertTrue(any(args[:1] == ("cat-file",) and args[1].startswith("--batch-check") for args in calls))
+        self.assertFalse(any(args[:2] == ("cat-file", "blob") for args in calls))
+        self.assertFalse((self.root / "source-budget").exists())
+
+    def test_source_zip_preflights_all_metadata_before_any_member_read(self):
+        stream = io.BytesIO()
+        with zipfile.ZipFile(stream, "w") as archive:
+            archive.writestr("first", b"1234")
+            archive.writestr("last", b"5678")
+        with patch.object(zipfile.ZipFile, "read", side_effect=AssertionError("no payload before aggregate guard")), \
+             self.assertRaisesRegex(ValueError, "excessive"):
+            seed.archive_members(stream.getvalue(), expanded_limit=7)
+
+    def test_source_member_size_is_rejected_from_git_metadata_before_blob_read(self):
+        original, calls = seed.git, []
+        def oversized_metadata(checkout, *args, **kwargs):
+            calls.append(args)
+            if args[:1] == ("cat-file",) and args[1].startswith("--batch-check"):
+                rows = original(checkout, *args, **kwargs).decode().splitlines()
+                fields = rows[0].split()
+                rows[0] = " ".join(fields[:2] + [str(seed.MAX_MEMBER + 1)])
+                return ("\n".join(rows) + "\n").encode()
+            return original(checkout, *args, **kwargs)
+        with patch.object(seed, "git", side_effect=oversized_metadata), \
+             self.assertRaisesRegex(ValueError, "per-member bound"):
+            seed.prepare(self.fixture.config, self.root / "oversized-source")
+        self.assertFalse(any(args[:2] == ("cat-file", "blob") for args in calls))
+        self.assertFalse((self.root / "oversized-source").exists())
 
     def test_exact_zip_origin_and_original_layout_without_source_mutation(self):
         before = Path(self.fixture.inputs["origin/A/source-seal.json"]["path"]).read_bytes()

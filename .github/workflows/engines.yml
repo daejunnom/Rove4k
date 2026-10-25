@@ -234,11 +234,20 @@ jobs:
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_compiler.py
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_dependencies.py
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_spelling.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_compound.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_p28.py
           python -I -B engines/experiments/tcec-next/check_spelling_compound.py --self-test
           python -I -B engines/experiments/tiny-d-submission/test_storage.py
           python -I -B engines/experiments/tiny-d-submission/test_source_inputs.py
           python -I -B engines/experiments/tiny-d-submission/test_storage_inputs.py
           python -I -B engines/experiments/tiny-d-submission/test_qualify_owner.py
+          python -I -B engines/experiments/tiny-d-submission/test_search_admission.py
+          python -I -B engines/experiments/tiny-d-submission/test_search_runtime.py
+          python -I -B engines/experiments/tiny-d-submission/test_qualify_search.py
+          python -I -B engines/experiments/tiny-d-submission/test_native_operand_filter.py --self-test
+          python -I -B engines/experiments/tiny-d-submission/test_closed_tu_cleanup.py --self-test
+          python -I -B engines/experiments/tiny-d-submission/test_scalar_atomic_specialize.py --self-test
+          python -I -B engines/experiments/tiny-d-submission/test_profile_p28.py
       - name: Check actual E19 inference, corpus boundaries and optimizer step zero
         run: python -B -m unittest discover -s engines/training/e19 -p 'test_*.py'
       - name: Check evaluator placement, durable pairs and AWS service boundaries
@@ -251,12 +260,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - {family: A, spelling: best}
+          - {family: A, spelling: compound}
           - {family: B, spelling: best}
-          - {family: C, spelling: best}
+          - {family: C, spelling: compound}
           - {family: D, spelling: control}
-          - {family: E, spelling: best}
-          - {family: F, spelling: best}
+          - {family: E, spelling: compound}
+          - {family: F, spelling: compound}
     env:
       PYTHONDONTWRITEBYTECODE: '1'
     steps:
@@ -336,5 +345,101 @@ jobs:
         with:
           name: production-ubuntu22-${{ matrix.family }}-${{ github.sha }}
           path: ${{ runner.temp }}/rove4k-target22-${{ matrix.family }}-${{ github.run_attempt }}
+          include-hidden-files: true
+          retention-days: 7
+
+  production-profiles-p28:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {family: A, spelling: compound}
+          - {family: B, spelling: best}
+          - {family: C, spelling: compound}
+          - {family: D, spelling: control}
+          - {family: E, spelling: compound}
+          - {family: F, spelling: compound}
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Install pinned development-only oracle dependencies
+        run: python -m pip install --require-hashes -r engines/training/e19/requirements.txt
+      - name: Generate and verify the selected full TEST-P28 artifact
+        run: >-
+          python -I -B engines/scripts/production_ci.py
+          --family '${{ matrix.family }}'
+          --profile test-p28
+          --spelling-variant '${{ matrix.spelling }}'
+          --export-source-bundle
+          --out '${{ runner.temp }}/rove4k-production-${{ matrix.family }}-test-p28-${{ github.run_attempt }}'
+      - name: Transfer the exact sealed P28 source to the Ubuntu22 consumer
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: production-source-${{ matrix.family }}-test-p28-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/rove4k-production-${{ matrix.family }}-test-p28-${{ github.run_attempt }}/source-bundle.zip
+            ${{ runner.temp }}/rove4k-production-${{ matrix.family }}-test-p28-${{ github.run_attempt }}/source-seal.json
+          if-no-files-found: error
+          retention-days: 7
+      - name: Preserve owned P28 source-bound evidence and failures
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: production-${{ matrix.family }}-test-p28-${{ github.sha }}
+          path: ${{ runner.temp }}/rove4k-production-${{ matrix.family }}-test-p28-${{ github.run_attempt }}
+          include-hidden-files: true
+          retention-days: 7
+
+  production-ubuntu22-p28:
+    needs: production-profiles-p28
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        family: [A, B, C, D, E, F]
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: production-source-${{ matrix.family }}-test-p28-${{ github.sha }}
+          path: ${{ runner.temp }}/rove4k-source-download-${{ matrix.family }}-test-p28-${{ github.run_attempt }}
+      - name: Prepare the system Python oracle without redirecting the compiler
+        shell: bash
+        run: |
+          export PATH=/usr/bin:/bin
+          for compiler_env_name in ${!LD_@}; do unset "$compiler_env_name"; done
+          unset CC CXX CPP AS AR LD GCC_EXEC_PREFIX COMPILER_PATH LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH OBJC_INCLUDE_PATH CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
+          /usr/bin/python3 -m venv "$RUNNER_TEMP/rove4k-system22-p28-python"
+          "$RUNNER_TEMP/rove4k-system22-p28-python/bin/python3" -m pip install --require-hashes -r engines/training/e19/requirements.txt
+      - name: Compile, check actual rules and run the same P28 source on Ubuntu22
+        shell: bash
+        run: |
+          export PATH=/usr/bin:/bin
+          for compiler_env_name in ${!LD_@}; do unset "$compiler_env_name"; done
+          unset CC CXX CPP AS AR LD GCC_EXEC_PREFIX COMPILER_PATH LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH OBJC_INCLUDE_PATH CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
+          "$RUNNER_TEMP/rove4k-system22-p28-python/bin/python3" -I -B engines/scripts/production_ci.py \
+            --family '${{ matrix.family }}' --profile test-p28 --ubuntu22-target \
+            --source-bundle "$RUNNER_TEMP/rove4k-source-download-${{ matrix.family }}-test-p28-${{ github.run_attempt }}/source-bundle.zip" \
+            --source-seal "$RUNNER_TEMP/rove4k-source-download-${{ matrix.family }}-test-p28-${{ github.run_attempt }}/source-seal.json" \
+            --out "$RUNNER_TEMP/rove4k-production-${{ matrix.family }}-test-p28-ubuntu22-${{ github.run_attempt }}"
+      - name: Preserve independent P28 target evidence and failures
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: production-ubuntu22-${{ matrix.family }}-test-p28-${{ github.sha }}
+          path: ${{ runner.temp }}/rove4k-production-${{ matrix.family }}-test-p28-ubuntu22-${{ github.run_attempt }}
           include-hidden-files: true
           retention-days: 7

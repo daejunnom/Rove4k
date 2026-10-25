@@ -72,8 +72,8 @@ phase/B → E19(E만) → spelling → dependency cleanup이다. 역변환은 de
 입력·native·diagnostics를 새 체인에서 재검증한다. 공통화로 제거한 저장소 중복
 바이트와 제출 파일 절감량은 따로 보고한다.
 
-하위 생성기의 spelling 기본값은 control로 유지한다. 유지 CI는 ABCEF에 best,
-D에 control을 명시하며 generation 영수증의 선택과 dependency 정책이 요청과
+하위 생성기의 spelling 기본값은 control로 유지한다. 유지 CI는 ACEF에 compound,
+B에 best, D에 control을 명시하며 generation 영수증의 선택과 dependency 정책이 요청과
 정확히 같아야 다음 단계로 넘어간다. Ubuntu22 소비자는 봉인된 소스를 사용하며
 선택을 다시 하거나 그 호스트에서 source factory를 재실행하지 않는다.
 
@@ -83,17 +83,30 @@ full 후보의 전체 파일 비용은 다음과 같다. 각 셀을 두 번 재�
 
 | 계열 | TEST-P4 | TEST-P28 | TCEC 잠정 W256 |
 |---|---:|---:|---:|
-| A | 3811 B | 3818 B | 3809 B |
+| A | 3794 B | 3804 B | 3793 B |
 | B | 4071 B | 4081 B | 4072 B |
-| C | 3944 B | 3956 B | 3944 B |
-| E | 3894 B | 3909 B | 3896 B |
-| F full | 3610 B | 3622 B | 3610 B |
+| C | 3927 B | 3940 B | 3928 B |
+| E | 3882 B | 3894 B | 3883 B |
+| F full | 3590 B | 3602 B | 3590 B |
+
+compound는 기존 spelling 자리의 대안이며 best 뒤에 다시 적용하지 않는다.
+F의 실제 코드 변경은 별도 F-compound-clock-gcc13-v1 정책과 세 프로필의 새
+asserted-source/native gate로 검증한다. 이전 native 기대값을 바꾸지 않는다.
+다섯 P4의 실제 rules·초기화 장벽·source-JIT 종료 검사를 새 증거로 통과했고,
+물리 배치와 기력은 여전히 별도 자격이다.
 
 D의 새 공통 소스 P4 control은 5429 B다. process-owner 5373 B는 독립 규칙과
 전체 P4 기능 검사를 통과했지만 크기·물리 배치·선택은 통과하지 않았다. 새로
-재생성한 search 조합 5261 B는 별도 typed admission과 전체 P4 검증이 남아 있다.
-후속 native operand 필터도 전체 ELF의 정확한 역복원과 inverse/map을 포함한
-실제 비용으로 판단한다. 다른 계열에 적용할 수 있는지는 각 표현에서 재측정한다.
+재생성한 search 조합 5261 B도 별도 typed admission·새 CPP/native/package
+재생성·독립 규칙과 전체 P4 기능 검사를 통과했다. 이 경로의 active quit/EOF
+0–1개 마지막 출력은 로컬 최소 종료 계약이며 공식 이벤트 승인의 뜻이 아니다.
+기존 owner의 마지막 출력 1개 계약과 과거 실패는 그대로 유지한다. 5261 B는
+크기·물리 배치·기력·이벤트 자격·선택 모두 false이고, 4KiB까지 1165 B가 남는다.
+native operand 필터 네 경우와 typed scalar-atomic 두 경우는 전체 비용 손해로
+채택하지 않았다. 닫힌 TU의 미사용 선언·본문 1205 B 제거는 native를 GCC13과
+감사된 GCC11 SDK에서 그대로 유지하며 source-JIT 7004→6689 B로 줄였다.
+이는 아직 별도 미선택 source 경로이며 최저 native 포장 5261 B를 줄이지 않는다.
+다른 계열에 적용할 수 있는지는 각 표현의 실제 소비·전체 비용으로 재측정한다.
 
 ### 프로필
 
@@ -360,3 +373,19 @@ AWS 준비 완료로 해석하지 않는다. 별도 source seed와 EC2 소비자
 실제 lifecycle journal 인계, 입력·proof·최종 보고서의 원격 보존, watchdog 코드·배포
 동일성 연결을 구현한다. 기존 wave·ACK·pair·복구·종료 관측은 재사용한다.
 R 추정을12–24h로 조정했으며 D 분기가 아직 최장 경로라 전체 창은 약25–60h다.
+
+PR #18 이후 위 연결의 소스·서비스 포트 구현은 존재하지만, 실제 CI 원본으로
+전체 seed를 준비·소비하는 최초 검증은 진행 중이다. PR API의 branch head와
+실제 merge checkout, canonical manifest bytes, peer 출력 경로를 각각 검증하며
+원본 메타데이터를 고쳐 맞추지 않는다. 현재 14-job CI의 봉인된 Rove source는
+TEST-P4뿐이었다. 새 workflow는 P4의 기존 경로를 유지하면서 P28 source 6개와
+Ubuntu22 target 6개를 분리해 총26개 작업으로 확장한다. P28은 실제 W28과
+ABCEF384MiB/D512MiB를 사용하며, 전체 초기화·실제 main 장벽의 로컬 검사를
+통과했다. source-JIT와 target의 전체 기능·positive CPU·원격 CI 성공은 새
+작업에서 확인한다. P4 영수증이나 자원 필드를 P28로 변환할 수 없다.
+
+seed 전송 한도128MiB·개별32MiB·manifest4MiB·총항목20000은 유지한다.
+확장 합계만 정확한 A–F×P4/P28의12개 Rove 조합에서256MiB를 허용하며 그 밖의
+합법 cohort는128MiB다. peer P28은 이 권한을 만들지 않는다. producer·inspector·
+materializer·revalidator·bootstrap은 manifest와 전체 크기를 payload 읽기 전에
+대조한다. 실제 새26-job 원본으로 총량을 재측정한 뒤 seed를 준비해야 한다.

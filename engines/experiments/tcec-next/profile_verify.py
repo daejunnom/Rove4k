@@ -52,6 +52,21 @@ RSS_ACCOUNTING = "smaps_rollup"
 SPELLING = "engines/experiments/tcec-next/profile_spelling.py"
 SPELLING_SCHEMA = "rove4k.selected-spelling-experiment.v1"
 SPELLING_PIN = {"bytes": 9921, "sha256": "7ec393bc9c805ee8e1e6d715f40cb9883f829e3c6b01e2f71f31701e35136ea8"}
+COMPOUND = "engines/experiments/tcec-next/spelling_compound.py"
+COMPOUND_SCHEMA = "rove4k.selected-spelling-compound.v1"
+COMPOUND_PIN = {"bytes": 5522, "sha256": "4a4f6079341998fd2d0ef1ff5fc9b35a435751131b4687ce950ef1892820754b"}
+COMPOUND_DECLARATION = {"path": COMPOUND, "selection": "compound", "variant": "clock-atomic-launcher"}
+F_COMPOUND_POLICY = "F-compound-clock-gcc13-v1"
+F_COMPOUND_COMPILER = ["cc", "-Os", "-pthread", "-x", "c", "-", "-o", "x", "-s"]
+F_COMPOUND_COMPILER_VERSION = "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+F_COMPOUND_IDENTITIES = {
+    "test-p4": {"source": {"bytes": 7034, "sha256": "c89769c80c70722f2a610dbe9371edce9f4063abc15ed2fff6cdc637fec4bc6e"},
+                "native": {"bytes": 18568, "sha256": "5b4e662a29f7a989c8b7a81f8a41e46a96df5c3e805f4b7b29929b6a2725ae50"}},
+    "test-p28": {"source": {"bytes": 7067, "sha256": "ad730fee827851f5833e753eb55b60453ed009987211a65d4a7bc4426ca8b5f8"},
+                 "native": {"bytes": 18568, "sha256": "843bbc1ea78ef68c4cde578df93218f6d36b5f3c48cfa794ba6022b75e949262"}},
+    "tcec-provisional": {"source": {"bytes": 7036, "sha256": "752720efdcc97c32eb79ff4796e4a0bc4cdfe4f24790863a52b585c667c1497b"},
+                         "native": {"bytes": 18568, "sha256": "e536de10e8792573548864d6267e8ce3cde76102b6134552f9dbca0d2672437b"}},
+}
 BEST_SPELLING = {"A": "clock-type", "B": "atomic-assignment", "C": "clock-type",
                  "E": "clock-type", "F": "atomic-assignment"}
 TARGET_SUPPORT = ("engines/experiments/tcec-next/target_runtime.py",
@@ -374,7 +389,9 @@ def source_stages(family, post, proofs, *, post_spelling=None, source_dependenci
     if family == "E":
         expected.append("canonical-e19-physical-binding")
     if post_spelling is not None:
-        require(post_spelling == {"path": SPELLING, "selection": "best", "variant": BEST_SPELLING[family]},
+        best = {"path": SPELLING, "selection": "best", "variant": BEST_SPELLING[family]}
+        compound = family in "ACEF" and post_spelling == COMPOUND_DECLARATION
+        require(post_spelling == best or compound,
                 "final spelling requires its exact reviewed winner and helper")
         require(representation == "source-jit" and entry_cleanup == "private-path",
                 "final spelling requires full source-JIT/private-path")
@@ -382,7 +399,7 @@ def source_stages(family, post, proofs, *, post_spelling=None, source_dependenci
                                           "variant": "tcec-final-lf"}) or
                 (family in "ACEF" and kind == "phase"),
                 "final spelling requires selected phase-init ACEF or tcec-final-lf B")
-        expected.append(SPELLING_SCHEMA)
+        expected.append(COMPOUND_SCHEMA if compound else SPELLING_SCHEMA)
     if source_dependencies is not None:
         require(source_dependencies == {
             "path": "engines/experiments/tcec-next/profile_dependencies.py",
@@ -393,35 +410,160 @@ def source_stages(family, post, proofs, *, post_spelling=None, source_dependenci
     return kind
 
 
-def spelling_module(manifest, build, production_paths):
-    """Consume the exact reviewed helper bytes, including its production role."""
-    rows = [row for row in manifest["source_closure"]["inputs"] if row.get("path") == SPELLING]
-    require(SPELLING in production_paths and len(rows) == 1 and rows[0].get("role") == "tool"
-            and {key: rows[0].get(key) for key in SPELLING_PIN} == SPELLING_PIN
-            and manifest["inputs"].get(SPELLING) == SPELLING_PIN,
+def validate_spelling_request(manifest):
+    """A B compound request is an explicit duplicate of its existing best."""
+    if "spelling_request" in manifest:
+        request = manifest["spelling_request"]
+        require(isinstance(request, dict) and request == {
+            "requested": "compound", "effective": "best", "duplicate_best": True, "new_candidate_count": 0}
+            and type(request.get("duplicate_best")) is bool and type(request.get("new_candidate_count")) is int
+            and manifest.get("family") == "B" and manifest.get("post_spelling") == {
+                "path": SPELLING, "selection": "best", "variant": "atomic-assignment"}
+            and COMPOUND not in manifest.get("inputs", {})
+            and all(row.get("path") != COMPOUND for row in manifest.get("source_closure", {}).get("inputs", []))
+            and all(row.get("schema") != COMPOUND_SCHEMA for row in manifest.get("source_proofs", [])),
+            "only B's explicit compound request may normalize to its existing best")
+
+
+def _reviewed_spelling_module(manifest, build, production_paths, path, identity, schema, name):
+    rows = [row for row in manifest["source_closure"]["inputs"] if row.get("path") == path]
+    require(path in production_paths and len(rows) == 1 and rows[0].get("role") == "tool"
+            and {key: rows[0].get(key) for key in identity} == identity
+            and manifest["inputs"].get(path) == identity,
             "final spelling helper production role or frozen identity differs")
-    data = checked_artifact(build, "inputs/" + SPELLING, SPELLING_PIN)
-    require(source_bytes(SPELLING, SPELLING_PIN) == data, "current reviewed spelling helper differs")
-    path = ROOT / SPELLING
-    name = "profile_runtime_reviewed_spelling"
-    spec = importlib.util.spec_from_file_location(name, path)
+    data = checked_artifact(build, "inputs/" + path, identity)
+    require(source_bytes(path, identity) == data, "current reviewed spelling helper differs")
+    module_path = ROOT / path
+    spec = importlib.util.spec_from_file_location(name, module_path)
     module = importlib.util.module_from_spec(spec)
     sys.modules[name] = module
-    exec(compile(data, str(path), "exec", dont_inherit=True), module.__dict__)
-    require(module.SCHEMA == SPELLING_SCHEMA, "reviewed spelling schema differs")
+    exec(compile(data, str(module_path), "exec", dont_inherit=True), module.__dict__)
+    require(module.SCHEMA == schema, "reviewed spelling schema differs")
     return module
+
+
+def spelling_module(manifest, build, production_paths):
+    """Consume the exact reviewed helper bytes, including its production role."""
+    return _reviewed_spelling_module(manifest, build, production_paths, SPELLING, SPELLING_PIN,
+                                    SPELLING_SCHEMA, "profile_runtime_reviewed_spelling")
+
+
+def compound_module(manifest, build, production_paths):
+    individual = spelling_module(manifest, build, production_paths)
+    compound = _reviewed_spelling_module(manifest, build, production_paths, COMPOUND, COMPOUND_PIN,
+                                         COMPOUND_SCHEMA, "profile_runtime_reviewed_compound")
+    require(compound.HELPER == SPELLING and compound.HELPER_PIN == SPELLING_PIN,
+            "compound requires its authenticated individual helper binding")
+    return compound, individual
+
+
+def _compound_owned_command(manifest, build, kind, command, data, suffix):
+    matches = [(index, row) for index, row in enumerate(manifest["commands"], 1) if row.get("kind") == kind]
+    require(len(matches) == 1, "compound compiler command is missing or duplicated")
+    index, row = matches[0]
+    require(row.get("command") == command and type(row.get("returncode")) is int and row["returncode"] == 0
+            and all(row.get(key) is True for key in ("started", "terminal", "reaped", "owned_group_absent",
+                "original_identity_retained_until_other_members_absent"))
+            and row.get("forced_cleanup") is False and row.get("other_group_members_before_reap") == []
+            and type(row.get("pid")) is int and row["pid"] > 0 and row.get("pgid") == row["pid"],
+            "compound compiler command did not settle naturally with its original identity")
+    cwd = PurePosixPath(row.get("cwd", ""))
+    require(cwd.is_absolute() and ".." not in cwd.parts and str(cwd) == row.get("cwd")
+            and (not suffix or tuple(cwd.parts[-len(suffix):]) == tuple(suffix)), "compound compiler cwd differs")
+    original_root = cwd
+    for _ in suffix:
+        original_root = original_root.parent
+    pipes, outputs = {}, {}
+    for stream in ("stdout", "stderr"):
+        name = "tool-" + str(index) + "-" + kind + "." + stream
+        expected = row.get(stream, {})
+        require(expected.get("path") == str(original_root / name), "compound compiler pipe path differs")
+        identity = {key: expected.get(key) for key in ("bytes", "sha256")}
+        outputs[stream] = checked_artifact(build, name, identity)
+        pipes[stream] = {"name": name, **identity}
+    stdin = None
+    if data is not None:
+        name = "tool-" + str(index) + "-" + kind + ".stdin"
+        require(checked_artifact(build, name, pin(data)) == data, "compound compiler stdin differs")
+        stdin = {"name": name, **pin(data)}
+    return {"row": row, "stdin": stdin, "pipes": pipes}, outputs
+
+
+def compound_native_evidence(manifest, build, source, native, resource_proof, profile_id):
+    """Bind new compound codegen to actual appended assertions and owned stdin."""
+    selected = manifest.get("post_spelling") == COMPOUND_DECLARATION
+    if not selected:
+        require("native_policy" not in manifest, "named compound native policy is outside its finite route")
+        return None
+    family = manifest["family"]
+    require(family in "ACEF", "compound native evidence requires A/C/E/F")
+    compiler = manifest.get("compile_executor", manifest["compiler"])
+    policy = None
+    if family == "F":
+        require(profile_id in F_COMPOUND_IDENTITIES, "unknown F compound profile")
+        identities = F_COMPOUND_IDENTITIES[profile_id]
+        policy = {"kind": F_COMPOUND_POLICY, "family": "F", "profile_id": profile_id,
+                  "post_spelling": dict(COMPOUND_DECLARATION), "compiler": list(F_COMPOUND_COMPILER),
+                  "compiler_version": F_COMPOUND_COMPILER_VERSION, **identities}
+        require(_json_equal(manifest.get("native_policy"), policy) and manifest["compiler"] == compiler == F_COMPOUND_COMPILER
+                and manifest.get("compile_executor_version") == F_COMPOUND_COMPILER_VERSION
+                and pin(source) == identities["source"] and pin(native) == identities["native"],
+                "F compound requires its named GCC13 source/native policy without compiler substitution")
+        version, output = _compound_owned_command(manifest, build, "target-compiler-version", ["cc", "--version"], None, ())
+        require(output["stdout"].decode().splitlines()[:1] == [F_COMPOUND_COMPILER_VERSION],
+                "F compound actual compiler banner differs")
+    else:
+        require("native_policy" not in manifest, "only F compound may declare the named native policy")
+        version = None
+    assertions = resource_proof["target_type_assertions"]
+    require(isinstance(assertions, list) and assertions and all(isinstance(value, str) for value in assertions),
+            "compound target assertions must come from the admitted resource projection")
+    asserted = source + b"\n" + ("\n".join(assertions) + "\n").encode()
+    attempts = manifest["attempts"]
+    require([attempt.get("directory") for attempt in attempts] == ["first", "repeat"],
+            "two compound target assertion attempts required")
+    observed = []
+    for attempt in attempts:
+        directory = attempt["directory"]
+        gate = {"assertions": assertions, "source": pin(asserted), "native": pin(native), "image_identical": True}
+        if family == "F":
+            gate.update(directory="target-type-gate", source_file="asserted.c", policy=F_COMPOUND_POLICY)
+        require(_json_equal(attempt.get("target_type_gate"), gate) and attempt["target_type_gate"].get("image_identical") is True,
+                "compound target-type assertion record differs")
+        prefix = directory + "/target-type-gate/"
+        require(checked_artifact(build, prefix + "asserted.c", pin(asserted)) == asserted
+                and checked_artifact(build, prefix + "x", pin(native)) == native
+                and checked_artifact(build, directory + "/native/x", pin(native)) == native,
+                "compound appended assertions changed the actual shipping native")
+        asserted_command, _ = _compound_owned_command(manifest, build, directory + "-target-types", list(compiler),
+                                                     asserted, (directory, "target-type-gate"))
+        shipping_command, _ = _compound_owned_command(manifest, build, directory + "-compile", list(compiler),
+                                                     source, (directory, "native"))
+        observed.append({"directory": directory, "target_type_gate": gate,
+                         "asserted_command": asserted_command, "shipping_command": shipping_command})
+    return {"declaration": dict(COMPOUND_DECLARATION), "source": pin(source), "native": pin(native),
+            "native_policy": policy, "compiler_version_command": version, "attempts": observed}
 
 
 def inverse_source_stages(source, inverses):
     """Undo the actual shipping body, including E19 offsets, in reverse order."""
     restored = source
-    for module, proof, parent in reversed(inverses):
+    for stage in reversed(inverses):
+        require(len(stage) in (3, 4), "explicit source inverse stage required")
+        module, proof, parent = stage[:3]
+        binding = stage[3] if len(stage) == 4 else {}
+        if len(stage) == 4:
+            require(isinstance(binding, dict) and set(binding) == {"spelling"}
+                    and module is not None and module.SCHEMA == COMPOUND_SCHEMA
+                    and proof.get("schema") == COMPOUND_SCHEMA
+                    and binding["spelling"].SCHEMA == SPELLING_SCHEMA,
+                    "compound inverse requires its explicit authenticated individual helper")
         if module is None:
             offset, before, after = proof["table_value_offset"], proof["before"].encode(), proof["after"].encode()
             require(restored[offset:offset + len(after)] == after, "E19 inverse span differs")
             restored = restored[:offset] + before + restored[offset + len(after):]
         else:
-            restored = module.restore_source(restored, proof)
+            restored = module.restore_source(restored, proof, **binding)
         require(restored == parent, "complete reverse-order source stage inverse differs")
     return restored
 
@@ -479,6 +621,7 @@ def admit_c_build(manifest, build):
             "new profile generation/reproduction is incomplete")
     family = manifest["family"]
     require(family in "ABCEF" and manifest["entry"] == family, "invalid C profile family")
+    validate_spelling_request(manifest)
     profile, spec = _resource_record(manifest["resources"], family)
     api = contracts()
     plan = manifest["plan"]
@@ -594,13 +737,21 @@ def admit_c_build(manifest, build):
         inverses.append((None, model_proof, before_model))
         next_stage += 1
     if post_spelling is not None:
-        helper = spelling_module(manifest, build, production_paths)
+        if post_spelling == COMPOUND_DECLARATION:
+            helper, individual = compound_module(manifest, build, production_paths)
+            spelling_options = {"spelling": individual}
+        else:
+            helper = spelling_module(manifest, build, production_paths)
+            spelling_options = {"variant": post_spelling["variant"]}
         before_spelling = produced
         produced, spelling_proof = helper.transform_source(produced, family=family,
-            profile_id=profile.id, variant=post_spelling["variant"])
+            profile_id=profile.id, **spelling_options)
         require(spelling_proof == manifest["source_proofs"][next_stage],
                 "full final spelling proof/protected gaps differ")
-        inverses.append((helper, spelling_proof, before_spelling))
+        if post_spelling == COMPOUND_DECLARATION:
+            inverses.append((helper, spelling_proof, before_spelling, spelling_options))
+        else:
+            inverses.append((helper, spelling_proof, before_spelling))
         next_stage += 1
     before_dependencies = produced
     dependencies = None
@@ -624,6 +775,7 @@ def admit_c_build(manifest, build):
     require(produced == source, "full source projection chain does not reproduce the actual consumer")
     require(inverse_source_stages(source, inverses) == base,
             "complete final consumer inverse differs from its fresh control")
+    compound_evidence = compound_native_evidence(manifest, build, source, native, proof, profile.id)
     if representation == "source-jit":
         require(restore_payload(payload, len(source)) == source, "source package inverse differs")
         package = load("profile_runtime_package", ROOT / "engines/scripts/source_package.py")
@@ -662,6 +814,10 @@ def admit_c_build(manifest, build):
                          manifest["resources"], policy, manifest["wrapper_contract"], inputs,
                          {"kind": "exact-resource-projection", "proof": proof, "post_profile": post,
                           **({"post_spelling": post_spelling} if post_spelling is not None else {}),
+                          **({"spelling_request": manifest["spelling_request"]}
+                             if "spelling_request" in manifest else {}),
+                          **({"compound_native_evidence": compound_evidence}
+                             if compound_evidence is not None else {}),
                           **({"source_dependencies": dependencies} if dependencies is not None else {}),
                           "full_rules_generation": "pending-actual-emitted-consumer-fixture"})
 

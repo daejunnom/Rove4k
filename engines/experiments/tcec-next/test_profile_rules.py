@@ -453,6 +453,140 @@ class GeneratedRulesBoundaries(unittest.TestCase):
             [resource, {"schema": "rove4k.portable-phase-source.v1"}, model], "E", source))
         self.assertFalse(RULES._legacy_model_report({**report, "build": {}}, [resource, model], "E", source))
 
+    def test_compound_stage_is_finite_ACEF_only_and_precedes_dependencies(self):
+        resource = {"schema": "test-resource-projection", "entry_cleanup": "private-path"}
+        phase = {"schema": "rove4k.portable-phase-source.v1", "variant": "phase-init"}
+        b_post = {"schema": "rove4k.profile-b-source.v1", "variant": "tcec-final-lf"}
+        compound = {"schema": RULES.COMPOUND_SCHEMA, "variant": RULES.COMPOUND_VARIANT}
+        dependency = {"schema": "rove4k.profile-dependencies.v1"}
+        projection = SimpleNamespace(SCHEMA=resource["schema"],
+            transform_source=lambda *args, **kwargs: (b"resource", resource), restore_source=lambda *args: b"baseline")
+        examples = (("B", [resource, b_post, compound], "limited to A/C/E/F"),
+            ("A", [resource, compound], "final spelling requires selected"),
+            ("A", [resource, phase, {**compound, "variant": "unknown"}], "reviewed winner"),
+            ("A", [resource, phase, compound, compound], "explicit A/C/F proof chain"),
+            ("A", [resource, phase, dependency, compound], "explicit A/C/F proof chain"),
+            ("A", [resource, phase, compound, dependency, dependency], "explicit A/C/F proof chain"),
+            ("E", [resource, phase, compound], "explicit E proof chain"),
+            ("A", [resource, phase, {"schema": RULES.SPELLING_SCHEMA, "variant": RULES.COMPOUND_VARIANT}], "reviewed winner"))
+        for family, stages, detail in examples:
+            with self.subTest(family=family, stages=stages), patch.object(RULES, "load", return_value=projection):
+                with self.assertRaisesRegex(ValueError, detail):
+                    RULES.admit_source(b"body", b"baseline", stages, family, PRODUCTION.resource_profile("test-p4"))
+
+    def test_compound_requires_both_reviewed_helper_roles_and_consumes_their_pinned_bytes(self):
+        post = {"path": "engines/experiments/tcec-next/profile_phase.py", "variant": "phase-init"}
+        spelling = {"path": RULES.COMPOUND, "selection": "compound", "variant": RULES.COMPOUND_VARIANT}
+        stages = [{"schema": "resource"}, {"schema": "phase"}, {"schema": RULES.COMPOUND_SCHEMA}]
+        source_pins = {RULES.SPELLING: RULES.SPELLING_PIN, RULES.COMPOUND: RULES.COMPOUND_PIN}
+        helper_bytes = {name: RULES.normalized(RULES.ROOT / name) for name in source_pins}
+        with tempfile.TemporaryDirectory(prefix="rove4k-compound-tool-admission-") as temporary:
+            build = Path(temporary).resolve(); (build / "control").mkdir()
+            (build / "main.c").write_bytes(b"output"); (build / "control/main.c").write_bytes(b"baseline")
+            for name, data in helper_bytes.items():
+                path = build / "inputs" / name; path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(data)
+            def base_record():
+                return dict(format=1, family="A", entry="A", complete=True, reproducible=True,
+                    post_profile=post, post_spelling=spelling, source_proofs=stages,
+                    inputs={name: dict(value) for name, value in source_pins.items()},
+                    source_closure={"inputs": [{"path": name, "role": "tool", **value} for name, value in source_pins.items()]},
+                    plan=dict(family="A", full=True, representation="source-jit", entry_cleanup="private-path"),
+                    **{"class": "rove4k-production-profile-v1"})
+            def check(record, tools=tuple(source_pins)):
+                (build / "build.json").write_text(json.dumps(record))
+                return RULES._source_build_record(build, family="A", stages=stages, post_profile=post,
+                    post_spelling=spelling, main_source=b"output", baseline_source=b"baseline", tools=tools)
+            record = base_record(); self.assertEqual(check(record), record)
+            individual, compound = RULES.compound_modules(build)
+            self.assertEqual((individual.SCHEMA, compound.SCHEMA), (RULES.SPELLING_SCHEMA, RULES.COMPOUND_SCHEMA))
+            for name in source_pins:
+                with self.subTest(helper=name, failure="unlisted"), self.assertRaisesRegex(ValueError, "both exact reviewed"):
+                    check(base_record(), tuple(tool for tool in source_pins if tool != name))
+                for failure in ("missing", "duplicate", "engine-role", "frozen-tamper", "current-tamper"):
+                    record = base_record()
+                    row = next(row for row in record["source_closure"]["inputs"] if row["path"] == name)
+                    frozen = build / "inputs" / name
+                    if failure == "missing": record["source_closure"]["inputs"].remove(row)
+                    elif failure == "duplicate": record["source_closure"]["inputs"].append(dict(row))
+                    elif failure == "engine-role": row["role"] = "engine"
+                    elif failure == "frozen-tamper":
+                        frozen.write_bytes(helper_bytes[name] + b"\n")
+                        altered = RULES.pin(frozen.read_bytes()); record["inputs"][name] = altered; row.update(altered)
+                    original = RULES.normalized
+                    def current(path):
+                        value = original(path)
+                        return value + b"\n" if failure == "current-tamper" and path == RULES.ROOT / name else value
+                    with self.subTest(helper=name, failure=failure), patch.object(RULES, "normalized", side_effect=current):
+                        with self.assertRaises(ValueError): check(record)
+                        if failure in ("frozen-tamper", "current-tamper"):
+                            with self.assertRaisesRegex(ValueError, "consumed helper identity"):
+                                RULES.compound_modules(build)
+                    frozen.write_bytes(helper_bytes[name])
+
+    def test_compound_inverse_receives_authenticated_individual_after_dependency_undo(self):
+        baseline, resource_body, phase_body, model_body, compound_body, final_body = b"base", b"resource", b"pres", b"Pres", b"compoundPres", b"dependencyPres"
+        resource = {"schema": "test-resource-projection", "entry_cleanup": "private-path"}
+        phase = {"schema": "rove4k.portable-phase-source.v1", "variant": "phase-init"}
+        model = dict(stage="canonical-e19-physical-binding", source_model_id="e19-admitted-source-baseline",
+            table_value_offset=0, before="p", after="P")
+        compound = {"schema": RULES.COMPOUND_SCHEMA, "variant": RULES.COMPOUND_VARIANT}
+        dependency = {"schema": "rove4k.profile-dependencies.v1"}
+        calls = []; individual = SimpleNamespace(SCHEMA=RULES.SPELLING_SCHEMA)
+        def inverse(name, actual, expected, parent):
+            self.assertEqual(actual, expected); calls.append(name); return parent
+        projection = SimpleNamespace(SCHEMA=resource["schema"], transform_source=lambda *a, **kw: (resource_body, resource),
+            restore_source=lambda actual, proof: inverse("resource", actual, resource_body, baseline))
+        phase_module = SimpleNamespace(transform_source=lambda *a, **kw: (phase_body, phase),
+            restore_source=lambda actual, proof: inverse("phase", actual, phase_body, resource_body))
+        bound = SimpleNamespace(model_id="current", bind_physical_table=lambda *a, **kw: (model_body, model))
+        model_module = SimpleNamespace(Model=SimpleNamespace(load=lambda path: bound, from_physical_source=lambda *a, **kw: None))
+        def compound_forward(actual, *, family, profile_id, spelling):
+            self.assertIs(spelling, individual); self.assertEqual(actual, model_body); return compound_body, compound
+        def compound_inverse(actual, proof, *, spelling):
+            self.assertIs(spelling, individual); return inverse("compound", actual, compound_body, model_body)
+        compound_module = SimpleNamespace(SCHEMA=RULES.COMPOUND_SCHEMA, transform_source=compound_forward, restore_source=compound_inverse)
+        dependency_module = SimpleNamespace(transform_source=lambda actual: (final_body, dependency),
+            validate_receipt=lambda build, manifest, proof, source, **kw: compound_body,
+            restore_source=lambda actual, proof: inverse("dependency", actual, final_body, compound_body))
+        modules = {"production_rules_projection": projection, "production_rules_phase_projection": phase_module,
+            "production_rules_E19_model": model_module, "production_rules_dependencies": dependency_module}
+        stages = [resource, phase, model, compound, dependency]
+        manifest = {"attempts": [{"directory": name, "source_proofs": stages} for name in ("first", "repeat")]}
+        with patch.object(RULES, "load", side_effect=lambda name, path: modules[name]), \
+             patch.object(RULES, "compound_modules", return_value=(individual, compound_module)), \
+             patch.object(RULES, "_source_build_record", return_value=manifest) as source_record:
+            self.assertEqual(RULES.admit_source(final_body, baseline, stages, "E", PRODUCTION.resource_profile("test-p4"), build=Path("/named")), stages)
+        self.assertEqual(calls, ["dependency", "compound", "phase", "resource"])
+        self.assertEqual(source_record.call_args.kwargs["post_spelling"],
+            {"path": RULES.COMPOUND, "selection": "compound", "variant": RULES.COMPOUND_VARIANT})
+        self.assertTrue({RULES.COMPOUND, RULES.SPELLING} <= set(source_record.call_args.kwargs["tools"]))
+        altered = [resource, phase, model, {**compound, "components": ["unreviewed"]}, dependency]
+        altered_manifest = {"attempts": [{"directory": name, "source_proofs": altered} for name in ("first", "repeat")]}
+        with patch.object(RULES, "load", side_effect=lambda name, path: modules[name]), \
+             patch.object(RULES, "compound_modules", return_value=(individual, compound_module)), \
+             patch.object(RULES, "_source_build_record", return_value=altered_manifest):
+            with self.assertRaisesRegex(ValueError, "compound spelling proof/protected gaps"):
+                RULES.admit_source(final_body, baseline, altered, "E", PRODUCTION.resource_profile("test-p4"), build=Path("/named"))
+
+    def test_B_compound_request_is_only_the_exact_existing_best_normalization(self):
+        best = {"path": RULES.SPELLING, "selection": "best", "variant": "atomic-assignment"}
+        request = {"requested": "compound", "effective": "best", "duplicate_best": True, "new_candidate_count": 0}
+        self.assertIsNone(RULES.validate_spelling_request({"family": "B", "post_spelling": best}))
+        self.assertEqual(RULES.validate_spelling_request({"family": "B", "post_spelling": best, "spelling_request": request}), request)
+        examples = [{"family": "A", "post_spelling": best, "spelling_request": request},
+            {"family": "B", "post_spelling": None, "spelling_request": request},
+            {"family": "B", "post_spelling": best, "spelling_request": None},
+            {"family": "B", "post_spelling": best, "spelling_request": request, "inputs": {RULES.COMPOUND: RULES.COMPOUND_PIN}},
+            {"family": "B", "post_spelling": best, "spelling_request": request,
+                "source_closure": {"inputs": [{"path": RULES.COMPOUND, "role": "tool", **RULES.COMPOUND_PIN}]}},
+            {"family": "B", "post_spelling": best, "spelling_request": request, "source_proofs": [{"schema": RULES.COMPOUND_SCHEMA}]}]
+        for bad in ({**request, "duplicate_best": 1}, {**request, "new_candidate_count": False},
+                    {**request, "extra": False}, {**request, "effective": "compound"}, {**request, "requested": "best"}):
+            examples.append({"family": "B", "post_spelling": best, "spelling_request": bad})
+        for record in examples:
+            with self.subTest(record=record), self.assertRaisesRegex(ValueError, "exact B compound-to-best"):
+                RULES.validate_spelling_request(record)
+
 
 if __name__ == "__main__":
     unittest.main()

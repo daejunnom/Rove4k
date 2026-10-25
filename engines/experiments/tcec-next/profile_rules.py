@@ -26,6 +26,10 @@ SCHEMA = "rove4k.production-generated-rules.v1"
 SPELLING = "engines/experiments/tcec-next/profile_spelling.py"
 SPELLING_SCHEMA = "rove4k.selected-spelling-experiment.v1"
 SPELLING_PIN = {"bytes": 9921, "sha256": "7ec393bc9c805ee8e1e6d715f40cb9883f829e3c6b01e2f71f31701e35136ea8"}
+COMPOUND = "engines/experiments/tcec-next/spelling_compound.py"
+COMPOUND_SCHEMA = "rove4k.selected-spelling-compound.v1"
+COMPOUND_VARIANT = "clock-atomic-launcher"
+COMPOUND_PIN = {"bytes": 5522, "sha256": "4a4f6079341998fd2d0ef1ff5fc9b35a435751131b4687ce950ef1892820754b"}
 BEST_SPELLING = {"A": "clock-type", "B": "atomic-assignment", "C": "clock-type",
                  "E": "clock-type", "F": "atomic-assignment"}
 
@@ -152,6 +156,7 @@ def _source_build_record(build, *, family, stages, post_profile, main_source,
     require(build is not None, "named post-profile/model source build root required")
     build = Path(build)
     record = json.loads(_evidence_bytes(build / "build.json", name="build.json"))
+    validate_spelling_request(record)
     require(record.get("format") == 1 and record.get("class") == "rove4k-production-profile-v1" and
             record.get("family") == family and record.get("entry") == family and
             record.get("complete") is True and record.get("reproducible") is True and
@@ -161,6 +166,9 @@ def _source_build_record(build, *, family, stages, post_profile, main_source,
             _evidence_bytes(build / "main.c", name="main.c") == main_source and
             _evidence_bytes(build / "control/main.c", name="main.c") == baseline_source,
             family + " named frozen producer source/stages/post-profile identity differs")
+    if post_spelling is not None and post_spelling.get("path") == COMPOUND:
+        require(family in "ACEF" and post_spelling == {"path": COMPOUND, "selection": "compound", "variant": COMPOUND_VARIANT}
+                and {SPELLING, COMPOUND} <= set(tools), "compound spelling requires both exact reviewed helper tools")
     for relative in tools:
         frozen = _evidence_bytes(build / "inputs" / relative, name=Path(relative).name)
         expected = pin(frozen)
@@ -173,6 +181,9 @@ def _source_build_record(build, *, family, stages, post_profile, main_source,
         if relative == SPELLING:
             require(expected == SPELLING_PIN and pin(normalized(ROOT / relative)) == SPELLING_PIN,
                     "reviewed final spelling helper identity differs")
+        if relative == COMPOUND:
+            require(expected == COMPOUND_PIN and pin(normalized(ROOT / relative)) == COMPOUND_PIN,
+                    "reviewed compound spelling helper identity differs")
     if post_spelling is not None:
         plan = record.get("plan", {})
         require(plan.get("family") == family and plan.get("full") is True and
@@ -180,6 +191,47 @@ def _source_build_record(build, *, family, stages, post_profile, main_source,
                 plan.get("entry_cleanup") == "private-path",
                 "final spelling requires full source-JIT/private-path producer plan")
     return record
+
+
+def validate_spelling_request(record):
+    """Only B may report that a compound request resolved to its old winner."""
+    if "spelling_request" not in record:
+        return None
+    request = record["spelling_request"]
+    expected = {"requested": "compound", "effective": "best", "duplicate_best": True, "new_candidate_count": 0}
+    inputs = record.get("inputs", {})
+    closure = record.get("source_closure", {}).get("inputs", [])
+    proofs = record.get("source_proofs", [])
+    require(record.get("family") == "B" and record.get("post_spelling") == {
+        "path": SPELLING, "selection": "best", "variant": BEST_SPELLING["B"]}
+        and isinstance(request, dict) and request == expected
+        and type(request.get("duplicate_best")) is bool and type(request.get("new_candidate_count")) is int
+        and isinstance(inputs, dict) and COMPOUND not in inputs and isinstance(closure, list)
+        and not any(isinstance(row, dict) and row.get("path") == COMPOUND for row in closure)
+        and isinstance(proofs, list) and not any(isinstance(stage, dict) and stage.get("schema") == COMPOUND_SCHEMA for stage in proofs),
+        "spelling request must be the exact B compound-to-best normalization")
+    return dict(request)
+
+
+def compound_modules(build):
+    """Execute only the same authenticated bytes named by both tool roles."""
+    modules = []
+    for relative, expected, name in (
+        (SPELLING, SPELLING_PIN, "production_rules_compound_individual"),
+        (COMPOUND, COMPOUND_PIN, "production_rules_compound_projection")):
+        data = _evidence_bytes(Path(build) / "inputs" / relative, name=Path(relative).name)
+        require(pin(data) == expected and pin(normalized(ROOT / relative)) == expected,
+                "compound spelling consumed helper identity differs")
+        path = ROOT / relative
+        spec = importlib.util.spec_from_file_location(name, path)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[name] = module
+        exec(compile(data, str(path), "exec", dont_inherit=True), module.__dict__)
+        modules.append(module)
+    individual, compound = modules
+    require(individual.SCHEMA == SPELLING_SCHEMA and compound.SCHEMA == COMPOUND_SCHEMA
+            and compound.VARIANT == COMPOUND_VARIANT, "compound spelling helper schema differs")
+    return individual, compound
 
 
 def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dict,
@@ -206,7 +258,8 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
                         suffix[-1].get("schema") == "rove4k.profile-dependencies.v1" else None)
     if dependency_stage is not None:
         suffix = suffix[:-1]
-    has_spelling = bool(suffix) and suffix[-1].get("schema") == SPELLING_SCHEMA
+    has_compound = bool(suffix) and suffix[-1].get("schema") == COMPOUND_SCHEMA
+    has_spelling = bool(suffix) and suffix[-1].get("schema") in (SPELLING_SCHEMA, COMPOUND_SCHEMA)
     spelling_stage = suffix[-1] if has_spelling else None
     if has_spelling:
         suffix = suffix[:-1]
@@ -236,19 +289,25 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
     if model_stage:
         tools.extend(("engines/model/e19.py", "engines/model/e19.json"))
     if has_spelling:
-        variant = BEST_SPELLING[family]
+        if has_compound:
+            require(family in "ACEF", "compound spelling is limited to A/C/E/F; B uses its individual winner")
+        variant = COMPOUND_VARIANT if has_compound else BEST_SPELLING[family]
         require(cleanup == "private-path" and spelling_stage.get("variant") == variant and
                 ((has_b and suffix[0].get("variant") == "tcec-final-lf") or
                  (family in "ACEF" and has_phase)),
                 "final spelling requires selected phase-init ACEF or tcec-final-lf B and its reviewed winner")
-        post_spelling = {"path": SPELLING, "selection": "best", "variant": variant}
+        post_spelling = {"path": COMPOUND if has_compound else SPELLING,
+                         "selection": "compound" if has_compound else "best", "variant": variant}
         tools.append(SPELLING)
+        if has_compound:
+            tools.append(COMPOUND)
     if dependency_stage is not None:
         relative = "engines/experiments/tcec-next/profile_dependencies.py"
         source_dependencies = {"path": relative, "variant": "unused-includes"}
         tools.append(relative)
     if not suffix and not has_spelling and dependency_stage is None and build is not None:
         control = json.loads(_evidence_bytes(Path(build) / "build.json", name="build.json"))
+        validate_spelling_request(control)
         require(control.get("post_profile") is None and control.get("post_spelling") is None and
                 control.get("source_dependencies") is None and control.get("source_proofs") == stages,
                 family + " control build declares an unconsumed post-profile stage")
@@ -298,12 +357,20 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
         expected = projected
         replayed.append(proof)
     if has_spelling:
-        current = load("production_rules_spelling_projection", ROOT / SPELLING)
-        projected, proof = current.transform_source(expected, family=family,
-            profile_id=profile.id, variant=post_spelling["variant"])
-        require(current.SCHEMA == SPELLING_SCHEMA and spelling_stage == proof,
-                "full final spelling proof/protected gaps differ")
-        inverses.append(("full final spelling", current, proof, expected))
+        if has_compound:
+            individual, current = compound_modules(build)
+            projected, proof = current.transform_source(expected, family=family,
+                profile_id=profile.id, spelling=individual)
+            require(current.SCHEMA == COMPOUND_SCHEMA and spelling_stage == proof,
+                    "full compound spelling proof/protected gaps differ")
+            inverses.append(("full compound spelling", current, proof, expected, {"spelling": individual}))
+        else:
+            current = load("production_rules_spelling_projection", ROOT / SPELLING)
+            projected, proof = current.transform_source(expected, family=family,
+                profile_id=profile.id, variant=post_spelling["variant"])
+            require(current.SCHEMA == SPELLING_SCHEMA and spelling_stage == proof,
+                    "full final spelling proof/protected gaps differ")
+            inverses.append(("full final spelling", current, proof, expected))
         expected = projected
         replayed.append(proof)
     if dependency_stage is not None:
@@ -318,7 +385,7 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
                 "dependency compiler receipt requires both fresh full-chain attempts")
         def checked(root, name, value):
             root, relative = Path(root), Path(name)
-            require(not relative.is_absolute() and ".." not in relative.parts,
+            require(not relative.anchor and ".." not in relative.parts,
                     "dependency rules evidence must remain in its named build")
             data = _evidence_bytes(root / relative, name=relative.name)
             require(pin(data) == value, "dependency rules evidence identity differs: " + name)
@@ -333,13 +400,18 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
     # Undo the actual complete shipping body in the opposite order. In
     # particular dependencies precede spelling, then E19's table offsets apply.
     restored = main_source
-    for label, module, proof, parent in reversed(inverses):
+    for inverse in reversed(inverses):
+        require(len(inverse) in (4, 5), "unknown rules source inverse binding")
+        label, module, proof, parent = inverse[:4]
+        keywords = inverse[4] if len(inverse) == 5 else {}
+        require(len(inverse) == 4 or (proof.get("schema") == COMPOUND_SCHEMA and set(keywords) == {"spelling"}
+                and keywords["spelling"] is individual), "unknown compound inverse helper binding")
         if module is None:
             offset, before, after = proof["table_value_offset"], proof["before"].encode(), proof["after"].encode()
             require(restored[offset:offset + len(after)] == after, label + " inverse span differs")
             restored = restored[:offset] + before + restored[offset + len(after):]
         else:
-            restored = module.restore_source(restored, proof)
+            restored = module.restore_source(restored, proof, **keywords)
         require(restored == parent, label + " proof/inverse differs")
     require(b"rv_rule_" not in main_source, "rules fixture identifiers collide")
     return replayed if suffix or has_spelling or dependency_stage is not None else resource

@@ -38,6 +38,44 @@ class SpellingPolicy(unittest.TestCase):
             self.assertEqual(selected,{"path":build.SPELLING,"selection":"best","variant":variant})
             self.assertIn(variant,spelling.available(family))
 
+    def test_compound_is_an_alternative_slot_and_b_is_existing_best(self):
+        for family in "ABCEF":
+            selected=build.spelling_selection(family,"source-jit",
+                "tcec-final-lf" if family=="B" else "control",
+                "control" if family=="B" else "phase-init","compound")
+            expected=({"path":build.SPELLING,"selection":"best","variant":"atomic-assignment"}
+                      if family=="B" else build.COMPOUND_DECLARATION)
+            self.assertEqual(selected,expected)
+            if family=="B":self.assertNotEqual(selected["path"],build.COMPOUND)
+        parsed=build.argument_parser().parse_args(["--entry","F","--profile","test-p4",
+            "--out","/example/new","--phase-variant","phase-init","--spelling-variant","compound"])
+        self.assertEqual(parsed.spelling_variant,"compound")
+        self.assertEqual(parsed.source_dependencies,"unused-includes")
+
+    def test_compound_cannot_bypass_route_or_representation(self):
+        for family,b,phase,representation in (("A","control","control","source-jit"),
+            ("B","control","control","source-jit"),("F","control","phase-init","packed-native"),
+            ("C","control","phase-init","self-contained-elf")):
+            with self.assertRaises(ValueError):
+                build.spelling_selection(family,representation,b,phase,"compound")
+
+    def test_new_native_policy_is_only_for_f_compound(self):
+        self.assertIsNone(build.compound_native_policy("A","test-p4",build.COMPOUND_DECLARATION,
+            b"different",[],[],"other compiler"))
+        old=build.spelling_selection("F","source-jit","control","phase-init","best")
+        self.assertIsNone(build.compound_native_policy("F","test-p4",old,b"different",[],[],"other compiler"))
+
+    def test_f_compound_rejects_alternate_compiler_and_unpinned_final_source(self):
+        compiler=list(build.F_COMPOUND_COMPILER)
+        for executor,version in ((["/usr/bin/gcc-11",*compiler[1:]],build.F_COMPOUND_COMPILER_VERSION),
+                (compiler,"cc (different) 13.3.0")):
+            with self.assertRaisesRegex(ValueError,"named GCC13"):
+                build.compound_native_policy("F","test-p4",build.COMPOUND_DECLARATION,
+                    b"not the admitted source",compiler,executor,version)
+        with self.assertRaisesRegex(ValueError,"final source"):
+            build.compound_native_policy("F","test-p4",build.COMPOUND_DECLARATION,
+                b"not the admitted source",compiler,compiler,build.F_COMPOUND_COMPILER_VERSION)
+
     def test_non_source_representation_rejected(self):
         for representation in ("packed-native","self-contained-elf","unknown"):
             with self.assertRaises(ValueError):

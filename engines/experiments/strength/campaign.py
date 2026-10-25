@@ -432,9 +432,24 @@ def bootstrap_command(handoff, permit, manifest, *, systemd_run="/usr/bin/system
                                                "recipe": bootstrap_recipe()})).decode()
     # The inline loader verifies paths/types/lengths before extraction and
     # verifies *all* archive members before importing any campaign source.
-    script = '''import base64,hashlib,json,os,pathlib,stat,subprocess,sys,zipfile
+    script = '''import base64,hashlib,json,os,pathlib,re,stat,subprocess,sys,zipfile
 d=json.loads(base64.b64decode(PAYLOAD)); h=d['handoff']; p=d['permit']; s=h['seed']
 enc=lambda x:json.dumps(x,sort_keys=True,separators=(',',':'),ensure_ascii=False,allow_nan=False).encode()
+def seed_expansion_limit(value):
+ if not isinstance(value,dict): raise ValueError('explicit source profile lists required')
+ seen=set(); rove=set()
+ for kind,families in (('rove',tuple('ABCDEF')),('peers',('ice4','c4ke'))):
+  rows=value.get(kind)
+  if not isinstance(rows,list): raise ValueError('explicit source profile lists required')
+  for row in rows:
+   if not isinstance(row,dict) or not isinstance(row.get('family'),str) or not isinstance(row.get('profile'),str) or row['family'] not in families or row['profile'] not in ('test-p4','test-p28'): raise ValueError('invalid source family/profile')
+   identity=row['family'],row['profile']
+   if identity in seen: raise ValueError('duplicate seed family/profile')
+   seen.add(identity)
+   if kind=='rove': rove.add(identity)
+ if not seen: raise ValueError('seed contains no explicit TEST source inputs')
+ joint={(family,profile) for family in 'ABCDEF' for profile in ('test-p4','test-p28')}
+ return 268435456 if rove==joint else 134217728
 root=pathlib.Path(h['root'])
 assert not any(p.is_symlink() for p in (root,*root.parents)), 'bootstrap root must not follow links'
 root.mkdir(parents=True,exist_ok=False)
@@ -444,22 +459,40 @@ remaining=min(120,p['expires_at']-__import__('time').time(),h['aws_plan']['deadl
 assert remaining>0, 'bootstrap permit/deadline expired before seed transfer'
 subprocess.run(['aws','--region',h['aws_plan']['region'],'--no-cli-pager','s3api','get-object','--bucket',s['bucket'],'--key',s['key'],'--version-id',s['version_id'],str(archive)],env=env,check=True,timeout=remaining,stdout=subprocess.DEVNULL)
 assert archive.stat().st_size==s['bytes'] and hashlib.sha256(archive.read_bytes()).hexdigest()==s['sha256'], 'seed archive identity differs'
-out=root/'seed'; out.mkdir()
+out=root/'seed'
 with zipfile.ZipFile(archive) as z:
- names=z.namelist(); assert len(names)==len(set(names)) and len(names)<=20000, 'duplicate/excessive ZIP namespace'
- raw=z.read('seed.json'); assert len(raw)<=4194304 and hashlib.sha256(raw).hexdigest()==h['seed_manifest_sha256'], 'seed manifest identity differs'
- m=json.loads(raw); assert m['format']=='rove4k-cloud-seed-v1' and set(names)==set(m['members'])|{'seed.json'}, 'seed members differ'
- total=0
- for i in z.infolist():
+ infos=z.infolist(); names=[i.filename for i in infos]; assert len(names)==len(set(names)) and len(names)<=20000, 'duplicate/excessive ZIP namespace'
+ manifest_info=z.getinfo('seed.json'); assert 0<=manifest_info.file_size<=4194304 and not manifest_info.flag_bits&1, 'seed manifest exceeds bounded read'
+ with z.open(manifest_info) as f: raw=f.read(4194305)
+ assert len(raw)==manifest_info.file_size and len(raw)<=4194304 and hashlib.sha256(raw).hexdigest()==h['seed_manifest_sha256'], 'seed manifest identity differs'
+ m=json.loads(raw); assert isinstance(m,dict) and m.get('format')=='rove4k-cloud-seed-v1' and raw==enc(m)+b'\\n', 'seed manifest must be canonical JSON plus one LF'
+ expanded_limit=seed_expansion_limit(m)
+ members=m.get('members'); assert isinstance(members,dict) and members and len(members)<20000, 'explicit bounded member map required'
+ declared_total=len(raw)
+ blocked={'.git','.aws','.ssh','node_modules','dist','dist-server','coverage','models','checkpoints','.cache','inventory.json','package-lock.json'}
+ for n,v in members.items():
+  assert isinstance(n,str) and n and n!='seed.json' and '\\\\' not in n and ':' not in n and '\\0' not in n and not pathlib.PurePosixPath(n).is_absolute() and all(x not in ('','.','..') for x in n.split('/')), 'unsafe manifest member path'
+  assert not any(x.casefold() in blocked or x.casefold().startswith('.env') or re.search(r'credential|service[-_ ]?account|api[-_ ]?key|ssh[-_ ]?key|^id_(rsa|ed25519)$',x,re.I) for x in n.split('/')), 'protected manifest member path'
+  assert isinstance(v,dict) and set(v)=={'bytes','sha256','mode'} and type(v['bytes']) is int and 0<=v['bytes']<=33554432 and isinstance(v['sha256'],str) and re.fullmatch('[0-9a-f]{64}',v['sha256']) and type(v['mode']) is int and v['mode'] in (384,448), 'bounded manifest member descriptor required'
+  declared_total+=v['bytes']
+ assert declared_total<=expanded_limit, 'declared seed expansion exceeds bound'
+ namespace=set(members)|{'seed.json'}
+ assert not any(str(parent) in namespace for n in members for parent in pathlib.PurePosixPath(n).parents if str(parent)!='.'), 'seed file/directory namespace collision'
+ assert set(names)==set(members)|{'seed.json'}, 'seed members differ'
+ assert all(0<=i.file_size<=33554432 and not i.flag_bits&1 for i in infos) and sum(i.file_size for i in infos)<=expanded_limit, 'ZIP expansion/encryption unsupported'
+ for i in infos:
   assert __import__('time').time()<min(p['expires_at'],h['aws_plan']['deadline_epoch']-30), 'bootstrap deadline during extraction'
   n=i.filename; q=pathlib.PurePosixPath(n); mode=i.external_attr>>16
   assert n and not q.is_absolute() and '\\\\' not in n and ':' not in n and all(x not in ('','.','..') for x in n.split('/')) and not i.is_dir(), 'unsafe ZIP path'
   assert stat.S_IFMT(mode) in (0,stat.S_IFREG), 'ZIP member must be a regular file'
-  total+=i.file_size; assert total<=134217728 and i.file_size<=33554432 and not i.flag_bits&1, 'ZIP expansion/encryption unsupported'
   if n=='seed.json': continue
-  v=m['members'][n]; assert type(v['bytes']) is int and i.file_size==v['bytes'] and v['mode'] in (384,448), 'ZIP metadata differs'
-  data=z.read(i); assert hashlib.sha256(data).hexdigest()==v['sha256'], 'ZIP member bytes differ'
- for n,v in m['members'].items():
+  assert i.file_size==members[n]['bytes'], 'ZIP metadata differs'
+ for i in infos:
+  if i.filename=='seed.json': continue
+  assert __import__('time').time()<min(p['expires_at'],h['aws_plan']['deadline_epoch']-30), 'bootstrap deadline during payload verification'
+  data=z.read(i); assert hashlib.sha256(data).hexdigest()==members[i.filename]['sha256'], 'ZIP member bytes differ'
+ out.mkdir()
+ for n,v in members.items():
   target=out/n; target.parent.mkdir(parents=True,exist_ok=True)
   with target.open('xb') as f: f.write(z.read(n))
   target.chmod(v['mode'])

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import ast
 from contextlib import ExitStack
+from dataclasses import replace
 import importlib.util
 import io
 import json
@@ -37,8 +38,9 @@ VERIFY = load("source_transport_fixture_file_checks", ROOT / "engines/experiment
 
 class Fixture:
     """Dummy factory admission; archive, seal and layout validators stay real."""
-    def __init__(self, root, family="A"):
+    def __init__(self, root, family="A", profile="test-p4"):
         self.family = family
+        self.profile = profile
         self.runner = root / "runner"
         self.out = self.runner / ("source-" + family)
         self.build = self.out / "artifact"
@@ -58,15 +60,15 @@ class Fixture:
             **{"native_" + key: value for key, value in TARGET.pin(b"original-13-native-fixture").items()},
             "header_bytes": len(b"fixture-header\n")}
         api = VERIFY.contracts()
-        resource = api.resource_profile("test-p4").to_record(16 if family == "D" else 24)
-        self.admitted = VERIFY.AdmittedBuild(family, "test-p4", "source-jit", self.program,
+        resource = api.resource_profile(profile).to_record(16 if family == "D" else 24)
+        self.admitted = VERIFY.AdmittedBuild(family, profile, "source-jit", self.program,
             None if family == "D" else "main.c", "native/x", self.expected, resource,
             {"kind": "dummy-factory"}, {"kind": "dummy-wrapper"}, {}, {"fixture_only": True}, full=True)
         self.record = {"family": family, "fixture_only": True, "expected_contract": self.expected,
                        "source_proofs": [{"target_type_assertions": []}]}
         if family == "D":
             builder = load("source_transport_fixture_D_flags", ROOT / "engines/experiments/tiny-d-submission/build.py")
-            self.record.update(flags=builder.native_flags(api.resource_profile("test-p4")), units=["main.c", "start.S"])
+            self.record.update(flags=builder.native_flags(api.resource_profile(profile)), units=["main.c", "start.S"])
             source = self.build / "shipping-inputs"
             source.mkdir()
             files = {"main.c": self.main, "start.S": b"/* fixture only */\n", "image.ld": b"/* fixture only */\n"}
@@ -96,7 +98,7 @@ class Fixture:
                 path.parent.mkdir(parents=True)
                 path.write_text(json.dumps({"dummy_owned_stage": name}))
             rows.append({"name": name, "complete": True, "receipt": {"path": str(path), **TARGET.pin(path.read_bytes())}})
-        self.pipeline = {"format": "rove4k-production-ci-functional-v1", "family": family, "profile": "test-p4",
+        self.pipeline = {"format": "rove4k-production-ci-functional-v1", "family": family, "profile": profile,
             "backend": "ubuntu-24.04-gcc13-host-cc", "source_context": self.context.to_record(),
             "complete": True, "functional_complete": True, "host_cleanup": {"unsettled_commands": 0, "errors": []},
             "commands": [{"started": True, "terminal": True, "reaped": True, "owned_group_absent": True,
@@ -117,9 +119,13 @@ class Fixture:
         stack.enter_context(patch.object(TARGET, "_source_host", return_value={"ID": "ubuntu", "VERSION_ID": "24.04"}))
         return stack
 
-    def export(self):
-        return TRANSPORT.export_bundle(self.out, self.build, family=self.family, runner_temp=self.runner,
+    def export(self, **overrides):
+        keywords = dict(family=self.family, runner_temp=self.runner,
             verify=self.verify, target=TARGET, ci_context=self.context, pipeline_receipt=self.pipeline_path)
+        if self.profile != "test-p4":
+            keywords["profile"] = self.profile
+        keywords.update(overrides)
+        return TRANSPORT.export_bundle(self.out, self.build, **keywords)
 
     def hold_original(self):
         held = self.runner / "original-held"
@@ -130,6 +136,8 @@ class Fixture:
     def restore(self, **overrides):
         keywords = dict(family=self.family, runner_temp=self.runner, verify=self.verify,
             target=TARGET, ci_context=self.context, reserved_out=self.reserved)
+        if self.profile != "test-p4":
+            keywords["profile"] = self.profile
         keywords.update(overrides)
         return TRANSPORT.restore_bundle(self.bundle, self.seal, **keywords)
 
@@ -180,6 +188,89 @@ class SourceBundleTransport(unittest.TestCase):
                 self.assertTrue(restored["exact_original_paths"])
                 self.assertEqual(stat.S_IMODE((fixture.build / "x").stat().st_mode), 0o700)
                 self.assertEqual(restored["source_bundle"]["sha256"], exported["source_bundle"]["sha256"])
+
+    def test_both_named_profiles_roundtrip_every_family_without_relabeling(self):
+        for profile in ("test-p4", "test-p28"):
+            for family in "ABCDEF":
+                with self.subTest(profile=profile, family=family), \
+                        tempfile.TemporaryDirectory(prefix="rove-source-profile-") as directory:
+                    fixture = Fixture(Path(directory), family, profile)
+                    with fixture.context_patches():
+                        exported = fixture.export()
+                        before = TRANSPORT._snapshot(fixture.build, TARGET)[0]
+                        fixture.hold_original()
+                        sealed = json.loads(fixture.seal.read_bytes())
+                        selected = sealed["profiles"][0]
+                        self.assertEqual(selected["profile"], profile)
+                        self.assertEqual(sealed["ci_context"], fixture.context.to_record())
+                        self.assertEqual(set(sealed["ci_context"]),
+                                         {"repository", "head_sha", "run_id", "run_attempt"})
+                        restored = fixture.restore()
+                    self.assertEqual(TRANSPORT._snapshot(fixture.build, TARGET)[0], before)
+                    for record in (exported, restored):
+                        self.assertEqual(record["profile"], profile)
+                        self.assertEqual(record["source_context"], fixture.context.to_record())
+                    self.assertEqual(restored["build_root"], str(fixture.build))
+                    self.assertFalse(restored["factory_replayed_on_target"])
+                    self.assertFalse(exported["engine_executed_by_export"])
+                    resource = fixture.admitted.resources
+                    self.assertEqual(resource["workers"], 4 if profile == "test-p4" else 28)
+                    if profile == "test-p28":
+                        self.assertEqual(resource["tt_bytes"], (512 if family == "D" else 384) << 20)
+                    if family == "D":
+                        self.assertEqual((fixture.build / "build.json").read_bytes(), fixture.manifest)
+                        self.assertIn(str(fixture.build / "D-source-jit"), fixture.manifest.decode())
+                        self.assertIn(str(fixture.build / "native/x"), fixture.manifest.decode())
+
+    def test_mixed_profile_pipeline_or_admission_is_rejected_before_export(self):
+        for profile, other in (("test-p4", "test-p28"), ("test-p28", "test-p4")):
+            for role in ("pipeline", "admission"):
+                with self.subTest(profile=profile, role=role), \
+                        tempfile.TemporaryDirectory(prefix="rove-source-mixed-export-") as directory:
+                    fixture = Fixture(Path(directory), profile=profile)
+                    if role == "pipeline":
+                        fixture.pipeline["profile"] = other
+                        fixture.save_pipeline()
+                    else:
+                        fixture.admitted = replace(fixture.admitted, profile_id=other)
+                    with fixture.context_patches(), patch.object(TRANSPORT, "_snapshot") as snapshot:
+                        with self.assertRaises(ValueError):
+                            fixture.export()
+                        snapshot.assert_not_called()
+                    self.assertFalse((fixture.out / "source-bundle.zip").exists())
+                    self.assertFalse((fixture.out / "source-seal.json").exists())
+
+    def test_requested_profile_must_match_the_seal_before_restoration(self):
+        for profile, other in (("test-p4", "test-p28"), ("test-p28", "test-p4")):
+            with self.subTest(profile=profile), \
+                    tempfile.TemporaryDirectory(prefix="rove-source-mixed-restore-") as directory:
+                fixture = Fixture(Path(directory), profile=profile)
+                with fixture.context_patches():
+                    fixture.export()
+                    fixture.hold_original()
+                    with patch.object(TRANSPORT, "_create_root") as create:
+                        with self.assertRaisesRegex(ValueError, "one sealed full selected"):
+                            fixture.restore(profile=other)
+                        create.assert_not_called()
+                self.assertFalse(fixture.out.exists())
+                self.assertFalse(fixture.reserved.exists())
+
+    def test_invalid_profile_values_fail_before_any_transport_input_or_output(self):
+        for profile in (None, True, 4, 28.0, [], {}, b"test-p28", "TEST-P28", "tcec-provisional", ""):
+            with self.subTest(profile=profile), \
+                    tempfile.TemporaryDirectory(prefix="rove-source-invalid-profile-") as directory:
+                fixture = Fixture(Path(directory))
+                with patch.object(TRANSPORT, "_sources") as sources:
+                    with self.assertRaisesRegex(ValueError, "explicit TEST-P4 or TEST-P28"):
+                        fixture.export(profile=profile)
+                    with self.assertRaisesRegex(ValueError, "explicit TEST-P4 or TEST-P28"):
+                        TRANSPORT.restore_bundle(fixture.out / "missing.zip", fixture.out / "missing.json",
+                            family=fixture.family, runner_temp=fixture.runner, verify=fixture.verify, target=TARGET,
+                            ci_context=fixture.context, reserved_out=fixture.reserved, profile=profile)
+                    sources.assert_not_called()
+                self.assertFalse((fixture.out / "source-bundle.zip").exists())
+                self.assertFalse((fixture.out / "source-seal.json").exists())
+                self.assertFalse(fixture.reserved.exists())
 
     def test_shared_c_and_assembler_survive_the_sealed_roundtrip_for_every_family(self):
         api = VERIFY.contracts()

@@ -9,6 +9,7 @@ TT profile only compiles/packages it; no engine is executed by this command.
 from __future__ import annotations
 
 import argparse
+from hashlib import sha256
 import importlib.util
 import json
 import lzma
@@ -34,24 +35,59 @@ ELF = "engines/scripts/elf_loader.py"
 B_PROFILE = "engines/experiments/tcec-next/profile_b.py"
 PHASE = "engines/experiments/tcec-next/profile_phase.py"
 SPELLING = "engines/experiments/tcec-next/profile_spelling.py"
+COMPOUND = "engines/experiments/tcec-next/spelling_compound.py"
 DEPENDENCIES = "engines/experiments/tcec-next/profile_dependencies.py"
 BEST_SPELLING = {"A": "clock-type", "B": "atomic-assignment", "C": "clock-type",
                  "E": "clock-type", "F": "atomic-assignment"}
+COMPOUND_DECLARATION = dict(path=COMPOUND, selection="compound", variant="clock-atomic-launcher")
+SPELLING_PIN = dict(bytes=9921, sha256="7ec393bc9c805ee8e1e6d715f40cb9883f829e3c6b01e2f71f31701e35136ea8")
+COMPOUND_PIN = dict(bytes=5522, sha256="4a4f6079341998fd2d0ef1ff5fc9b35a435751131b4687ce950ef1892820754b")
+F_COMPOUND_COMPILER = ("cc", "-Os", "-pthread", "-x", "c", "-", "-o", "x", "-s")
+F_COMPOUND_COMPILER_VERSION = "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+F_COMPOUND_POLICY = "F-compound-clock-gcc13-v1"
+# This is a separately named three-profile policy. Existing control/best maps
+# are unchanged. A fresh build must still reproduce both real type/native gates.
+F_COMPOUND_IMAGES = {
+    "test-p4": (7034, "c89769c80c70722f2a610dbe9371edce9f4063abc15ed2fff6cdc637fec4bc6e",
+                "5b4e662a29f7a989c8b7a81f8a41e46a96df5c3e805f4b7b29929b6a2725ae50"),
+    "test-p28": (7067, "ad730fee827851f5833e753eb55b60453ed009987211a65d4a7bc4426ca8b5f8",
+                 "843bbc1ea78ef68c4cde578df93218f6d36b5f3c48cfa794ba6022b75e949262"),
+    "tcec-provisional": (7036, "752720efdcc97c32eb79ff4796e4a0bc4cdfe4f24790863a52b585c667c1497b",
+                         "e536de10e8792573548864d6267e8ce3cde76102b6134552f9dbca0d2672437b"),
+}
 
 
 def spelling_selection(family, representation, b_variant, phase_variant, selection):
     """Select only the measured final stage; controls acquire no new stage."""
-    if family not in BEST_SPELLING or selection not in ("control", "best"):
+    if family not in BEST_SPELLING or selection not in ("control", "best", "compound"):
         raise ValueError("explicit full C family and finite spelling selection required")
     if selection == "control":
         return None
     if representation != "source-jit":
-        raise ValueError("--spelling-variant best requires source-JIT/private-path")
+        raise ValueError("selected spelling requires source-JIT/private-path")
     selected = ((family == "B" and b_variant == "tcec-final-lf" and phase_variant == "control") or
                 (family in "ACEF" and b_variant == "control" and phase_variant == "phase-init"))
     if not selected:
-        raise ValueError("--spelling-variant best requires phase-init A/C/E/F or tcec-final-lf B")
+        raise ValueError("selected spelling requires phase-init A/C/E/F or tcec-final-lf B")
+    if selection == "compound" and family != "B":
+        return dict(COMPOUND_DECLARATION)
     return dict(path=SPELLING, selection="best", variant=BEST_SPELLING[family])
+
+
+def compound_native_policy(family, profile_id, declaration, source, compiler, compile_executor, version):
+    """Admit only the finite F compound images in their measured GCC13 context."""
+    if family != "F" or declaration != COMPOUND_DECLARATION:
+        return None
+    if (profile_id not in F_COMPOUND_IMAGES or tuple(compiler) != F_COMPOUND_COMPILER or
+            list(compile_executor) != list(compiler) or version != F_COMPOUND_COMPILER_VERSION):
+        raise ValueError("F compound requires its named GCC13 native policy; target compilers use sealed-source admission")
+    size, source_sha, native_sha = F_COMPOUND_IMAGES[profile_id]
+    if type(source) is not bytes or (len(source), sha256(source).hexdigest()) != (size, source_sha):
+        raise ValueError("F compound final source differs from its named profile policy")
+    return dict(kind=F_COMPOUND_POLICY, family="F", profile_id=profile_id,
+        post_spelling=dict(COMPOUND_DECLARATION), compiler=list(F_COMPOUND_COMPILER),
+        compiler_version=F_COMPOUND_COMPILER_VERSION,
+        source=dict(bytes=size, sha256=source_sha), native=dict(bytes=18568, sha256=native_sha))
 
 
 def load(name, path):
@@ -93,7 +129,7 @@ def argument_parser():
                         help="explicit reviewed B post-profile projection; default preserves the control")
     parser.add_argument("--phase-variant", choices=("control", "phase-init"), default="control",
                         help="explicit measured A/C/E/F lifecycle projection; default preserves the control")
-    parser.add_argument("--spelling-variant", choices=("control", "best"), default="control",
+    parser.add_argument("--spelling-variant", choices=("control", "best", "compound"), default="control",
                         help="explicit measured final source spelling on selected source-JIT routes only")
     parser.add_argument("--source-dependencies", choices=("control", "unused-includes"),
                         default="unused-includes",
@@ -181,6 +217,8 @@ def main():
             names.add(PHASE)
         if post_spelling is not None:
             names.add(SPELLING)
+            if post_spelling == COMPOUND_DECLARATION:
+                names.add(COMPOUND)
         if args.source_dependencies != "control":
             names.add(DEPENDENCIES)
         if args.representation in ("packed-native", "self-contained-elf"):
@@ -233,6 +271,9 @@ def main():
             if args.b_variant != "control" else dict(path=PHASE, variant=args.phase_variant)
             if args.phase_variant != "control" else None)
         report["post_spelling"] = post_spelling
+        if args.entry == "B" and args.spelling_variant == "compound":
+            report["spelling_request"] = dict(requested="compound", effective="best",
+                duplicate_best=True, new_candidate_count=0)
         dependencies = (load("profile_frozen_dependencies", own / DEPENDENCIES)
                         if args.source_dependencies != "control" else None)
         report["source_dependencies"] = dict(dependencies.DECLARATION) if dependencies else None
@@ -295,11 +336,20 @@ def main():
                     model_parameters_changed=model.coefficients != source_model.coefficients,
                     optimizer_executed_by_builder=False)
             if post_spelling is not None:
+                old.require(inputs[SPELLING] == SPELLING_PIN, "reviewed individual spelling helper differs")
                 spelling = load("profile_frozen_spelling_projection", own / SPELLING)
                 parent_source = source
-                source, spelling_proof = spelling.transform_source(source, family=args.entry,
-                    profile_id=profile.id, variant=post_spelling["variant"])
-                old.require(spelling.restore_source(source, spelling_proof) == parent_source,
+                if post_spelling == COMPOUND_DECLARATION:
+                    old.require(inputs[COMPOUND] == COMPOUND_PIN, "reviewed compound helper differs")
+                    compound = load("profile_frozen_compound_projection", own / COMPOUND)
+                    source, spelling_proof = compound.transform_source(source, family=args.entry,
+                        profile_id=profile.id, spelling=spelling)
+                    restored_spelling = compound.restore_source(source, spelling_proof, spelling=spelling)
+                else:
+                    source, spelling_proof = spelling.transform_source(source, family=args.entry,
+                        profile_id=profile.id, variant=post_spelling["variant"])
+                    restored_spelling = spelling.restore_source(source, spelling_proof)
+                old.require(restored_spelling == parent_source,
                             "final spelling source inverse differs before E19/phase/B inverses")
                 proofs.append(spelling_proof)
             dependency_gate = None
@@ -315,11 +365,21 @@ def main():
             gate = directory / "target-type-gate"
             gate.mkdir()
             asserted = source + b"\n" + ("\n".join(proof["target_type_assertions"]) + "\n").encode()
+            native_policy = compound_native_policy(args.entry, profile.id, post_spelling, source,
+                compiler, compile_executor, report["compile_executor_version"])
+            if post_spelling == COMPOUND_DECLARATION:
+                (gate / "asserted.c").write_bytes(asserted)
             host.run(compile_executor, cwd=gate, kind=attempt + "-target-types", data=asserted)
             host.run(compile_executor, cwd=native_dir, kind=attempt + "-compile", data=source)
             native = (native_dir / "x").read_bytes()
             old.require((gate / "x").read_bytes() == native,
                         "target type assertions changed the shipping native image")
+            if native_policy is not None:
+                old.require(old.pin(native) == native_policy["native"],
+                            "F compound native differs from its named three-profile policy")
+                old.require(report.get("native_policy", native_policy) == native_policy,
+                            "F compound native policy changed between attempts")
+                report["native_policy"] = native_policy
             if dependency_gate is not None:
                 old.require(dependency_gate["native"] == old.pin(native) and
                             (directory / "dependency-gate/x").read_bytes() == native,
@@ -387,6 +447,9 @@ def main():
                 target_type_gate=dict(assertions=proof["target_type_assertions"],
                     source=old.pin(asserted), native=old.pin(native), image_identical=True), loader=loader,
                 dependency_gate=dependency_gate))
+            if native_policy is not None:
+                report["attempts"][-1]["target_type_gate"].update(directory="target-type-gate",
+                    source_file="asserted.c", policy=F_COMPOUND_POLICY)
             if abi_gate is not None:
                 report["attempts"][-1]["target_abi_gate"] = abi_gate
             if dependencies:

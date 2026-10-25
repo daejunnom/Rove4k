@@ -27,6 +27,12 @@ def require(value, message):
         raise ValueError(message)
 
 
+def _profile(profile):
+    require(type(profile) is str and profile in ("test-p4", "test-p28"),
+            "explicit TEST-P4 or TEST-P28 transport profile required")
+    return profile
+
+
 def _source_identity(target):
     data = _read(Path(__file__), target).replace(b"\r\n", b"\n")
     require(compile(data, __file__, "exec", dont_inherit=True) == _EXECUTING_CODE,
@@ -184,13 +190,14 @@ def _write_new(path, data, target):
         os.close(parent)
 
 
-def _pipeline(path, out, family, context, target):
+def _pipeline(path, out, family, context, target, profile="test-p4"):
+    profile = _profile(profile)
     path = _path(path, existing=True)
     require(path == out / "pipeline-functional.json", "immutable named functional pipeline receipt required")
     raw = _read(path, target)
     record = json.loads(raw)
     require(record.get("format") == "rove4k-production-ci-functional-v1"
-            and record.get("family") == family and record.get("profile") == "test-p4"
+            and record.get("family") == family and record.get("profile") == profile
             and record.get("backend") == "ubuntu-24.04-gcc13-host-cc"
             and record.get("source_context") == context and record.get("complete") is True
             and record.get("functional_complete") is True and not record.get("failure")
@@ -215,23 +222,26 @@ def _pipeline(path, out, family, context, target):
     return raw
 
 
-def _admit(verify, build, family, target):
+def _admit(verify, build, family, target, profile="test-p4"):
+    profile = _profile(profile)
     record = json.loads(_read(build / "build.json", target, limit=8 << 20))
     admitted = (verify.admit_d_build(record, build, "D-source-jit") if family == "D"
                 else verify.admit_c_build(record, build))
-    require(admitted.family == family and admitted.profile_id == "test-p4"
+    require(admitted.family == family and admitted.profile_id == profile
             and admitted.representation == "source-jit" and admitted.full is True,
-            "one full selected TEST-P4 source-JIT admission required")
+            "one full selected " + profile.upper() + " source-JIT admission required")
     return admitted
 
 
-def export_bundle(source_out, build, *, family, runner_temp, verify, target, ci_context, pipeline_receipt):
+def export_bundle(source_out, build, *, family, runner_temp, verify, target, ci_context, pipeline_receipt,
+                  profile="test-p4"):
+    profile = _profile(profile)
     sources = _sources(target)
     require(family in tuple("ABCDEF"), "explicit active C family required")
     runner, out, build = _owned_roots(source_out, build, runner_temp)
     context = _live_context(target, ci_context)
-    pipeline = _pipeline(pipeline_receipt, out, family, context, target)
-    admitted = _admit(verify, build, family, target)
+    pipeline = _pipeline(pipeline_receipt, out, family, context, target, profile)
+    admitted = _admit(verify, build, family, target, profile)
     before = _snapshot(build, target)
     data = _zip_bytes(before[0], before[1])
     require(len(data) <= target.MAX_BUNDLE, "raw source bundle exceeds transport bound")
@@ -243,7 +253,7 @@ def export_bundle(source_out, build, *, family, runner_temp, verify, target, ci_
                                     ci_context=ci_context, restore_layout=layout)
     layout = target.validate_restore_layout(seal, runner_temp_root=str(runner))
     require(_snapshot(build, target) == before, "source artifact changed after collection/sealing")
-    require(_pipeline(pipeline_receipt, out, family, context, target) == pipeline,
+    require(_pipeline(pipeline_receipt, out, family, context, target, profile) == pipeline,
             "functional source receipt changed during export")
     require(_read(bundle, target, limit=target.MAX_BUNDLE) == data, "source bundle changed after creation")
     target._sealed_source(seal, data, _live_context(target, ci_context))
@@ -252,7 +262,7 @@ def export_bundle(source_out, build, *, family, runner_temp, verify, target, ci_
     require(_sources(target) == sources, "source transport or seal authority changed during export")
     _write_new(seal_path, raw, target)
     require(_read(seal_path, target) == raw, "source seal changed after creation")
-    return {"format": "rove4k.source-bundle-export.v1", "family": family, "profile": "test-p4",
+    return {"format": "rove4k.source-bundle-export.v1", "family": family, "profile": profile,
             "source_context": context, "restore_layout": layout,
             "source_bundle": {"path": str(bundle), **target.pin(data)},
             "source_seal": {"path": str(seal_path), **target.pin(raw)},
@@ -340,7 +350,9 @@ def _restore_files(root_fd, members, modes):
             os.close(descriptor)
 
 
-def restore_bundle(bundle, source_seal, *, family, runner_temp, verify, target, ci_context, reserved_out):
+def restore_bundle(bundle, source_seal, *, family, runner_temp, verify, target, ci_context, reserved_out,
+                   profile="test-p4"):
+    profile = _profile(profile)
     sources = _sources(target)
     require(family in tuple("ABCDEF"), "explicit active C family required")
     bundle, source_seal = _path(bundle, existing=True), _path(source_seal, existing=True)
@@ -353,9 +365,10 @@ def restore_bundle(bundle, source_seal, *, family, runner_temp, verify, target, 
     require(set(modes) == set(members), "restore member mode set differs from its seal")
     layout = target.validate_restore_layout(seal, runner_temp_root=str(_path(runner_temp, existing=True, directory=True)))
     profiles = seal.get("profiles", [])
-    require(len(profiles) == 1 and profiles[0].get("family") == family and profiles[0].get("profile") == "test-p4"
+    require(len(profiles) == 1 and profiles[0].get("family") == family and profiles[0].get("profile") == profile
             and profiles[0].get("representation") == "source-jit" and profiles[0].get("full") is True
-            and profiles[0].get("archive_prefix") == PREFIX, "one sealed full selected TEST-P4 source-JIT profile required")
+            and profiles[0].get("archive_prefix") == PREFIX,
+            "one sealed full selected " + profile.upper() + " source-JIT profile required")
     runner, out, build = _owned_roots(layout["output_root"], layout["builds"][PREFIX], runner_temp, new=True)
     reserved = _path(reserved_out)
     require(reserved != runner and reserved.is_relative_to(runner) and not reserved.exists()
@@ -377,11 +390,11 @@ def restore_bundle(bundle, source_seal, *, family, runner_temp, verify, target, 
     require(_read(bundle, target, limit=target.MAX_BUNDLE) == data and _read(source_seal, target) == raw,
             "transport evidence changed during restore")
     _live_context(target, ci_context)
-    admitted = _admit(verify, build, family, target)
+    admitted = _admit(verify, build, family, target, profile)
     target.source_bundle_binding(admitted, build, verify=verify, source_bundle=bundle,
                                  source_seal=source_seal, expected_ci=ci_context)
     require(_sources(target) == sources, "source transport or seal authority changed during restore")
-    return {"format": "rove4k.source-bundle-restoration.v1", "family": family, "profile": "test-p4",
+    return {"format": "rove4k.source-bundle-restoration.v1", "family": family, "profile": profile,
             "output_root": str(out), "build_root": str(build), "source_context": context,
             "restore_layout": layout, "source_bundle": {"path": str(bundle), **target.pin(data)},
             "source_seal": {"path": str(source_seal), **target.pin(raw)},

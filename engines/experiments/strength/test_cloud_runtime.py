@@ -1,5 +1,6 @@
 """Local transport and authority rejection tests; no engines or AWS sessions."""
 from dataclasses import dataclass, replace
+import copy
 import io
 import json
 import subprocess
@@ -163,6 +164,482 @@ class TransportTests(unittest.TestCase):
         for version in ("", "null"):
             with self.subTest(version=version), self.assertRaises(ValueError):
                 cloud.SeedObject("rove-artifacts", "campaign/seed.zip", version, "a" * 64, 4)
+
+
+class SeedCapacityTests(unittest.TestCase):
+    """Large expansion is declared as metadata; no large ZIP or payload is made."""
+    @staticmethod
+    def selection(*, joint=False):
+        profiles = ("test-p4", "test-p28") if joint else ("test-p4",)
+        return {"rove": [{"family": family, "profile": profile} for family in "ABCDEF" for profile in profiles],
+                "peers": []}
+
+    def manifest(self, *, joint=False, chunks=0):
+        seed, files = seed_fixture()
+        if joint:
+            original = seed["rove"][0]
+            seed["rove"] = [{**original, **row} for row in self.selection(joint=True)["rove"]]
+        for index in range(chunks):
+            name = "padding/chunk-" + str(index)
+            seed["members"][name] = {"bytes": cloud.MAX_MEMBER, "sha256": "0" * 64, "mode": 0o600}
+            files[name] = b""  # Metadata-only fixture, never actual payload admission.
+        return seed, files
+
+    def inspect_metadata(self, seed, files, expected=None):
+        raw, sha = archive_bytes(seed, files)
+        archive = zipfile.ZipFile(io.BytesIO(raw))
+        for name, value in seed["members"].items():
+            archive.getinfo(name).file_size = value["bytes"]
+        return archive, sha
+
+    def test_exact_joint_rove_keys_alone_grant_larger_capacity(self):
+        self.assertEqual(cloud.MAX_SEED, 128 << 20)
+        self.assertEqual(cloud.MAX_SEED_MANIFEST, 4 << 20)
+        self.assertEqual(cloud.JOINT_EXPANDED_SEED, 256 << 20)
+        self.assertEqual(cloud.MAX_MEMBER, 32 << 20)
+        self.assertEqual(cloud.MAX_SEED_MEMBERS, 20000)
+        cases = [(self.selection(), cloud.MAX_SEED), (self.selection(joint=True), cloud.JOINT_EXPANDED_SEED),
+                 ({"rove": [], "peers": [{"family": "ice4", "profile": "test-p28"}]}, cloud.MAX_SEED)]
+        joint = self.selection(joint=True)
+        joint["peers"] = [{"family": family, "profile": profile} for family in ("ice4", "c4ke")
+                          for profile in ("test-p4", "test-p28")]
+        cases += [(joint, cloud.JOINT_EXPANDED_SEED),
+                  ({**joint, "rove": joint["rove"][:-1]}, cloud.MAX_SEED),
+                  ({**joint, "rove": [row for row in joint["rove"] if row["profile"] == "test-p28"]}, cloud.MAX_SEED)]
+        for value, expected in cases:
+            with self.subTest(value=value):
+                self.assertEqual(cloud.seed_expansion_limit(value), expected)
+
+    def test_capacity_predicate_rejects_malformed_unknown_empty_and_duplicate_rows(self):
+        base = {"rove": [{"family": "A", "profile": "test-p4"}], "peers": []}
+        bad = [None, [], {}, {"rove": [], "peers": []}, {"rove": None, "peers": []},
+               {"rove": [], "peers": {}}, {"rove": [None], "peers": []},
+               {"rove": [{"family": [], "profile": "test-p4"}], "peers": []},
+               {"rove": [{"family": "A", "profile": ["test-p4"]}], "peers": []},
+               {"rove": [{"family": "G", "profile": "test-p4"}], "peers": []},
+               {"rove": [{"family": "A", "profile": "tcec-provisional"}], "peers": []},
+               {**base, "rove": base["rove"] * 2},
+               {**base, "peers": [{"family": "A", "profile": "test-p28"}]},
+               {**base, "peers": [{"family": "ice4", "profile": "test-p28"}] * 2}]
+        for value in bad:
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                cloud.seed_expansion_limit(value)
+
+    def test_member_plus_canonical_manifest_exact_capacity_boundary(self):
+        for joint, count in ((False, 4), (True, 8)):
+            seed, _ = self.manifest(joint=joint, chunks=count)
+            cap = cloud.seed_expansion_limit(seed)
+            last = seed["members"]["padding/chunk-" + str(count - 1)]
+            for _ in range(8):
+                total = sum(row["bytes"] for row in seed["members"].values()) + len(cloud.ledger.canonical(seed) + b"\n")
+                if total == cap:
+                    break
+                last["bytes"] += cap - total
+            self.assertEqual(sum(row["bytes"] for row in seed["members"].values()) +
+                             len(cloud.ledger.canonical(seed) + b"\n"), cap)
+            self.assertEqual(cloud.validate_seed_manifest(seed), seed)
+            last["bytes"] += 1
+            with self.assertRaisesRegex(ValueError, "including manifest exceeds"):
+                cloud.validate_seed_manifest(seed)
+
+    def test_total_entry_count_includes_the_manifest_metadata_only(self):
+        seed, _ = seed_fixture()
+        count = cloud.MAX_SEED_MEMBERS - 1 - len(seed["members"])
+        seed["members"].update({"padding/" + str(index): {**cloud.pin(b""), "mode": 0o600}
+                                for index in range(count)})
+        self.assertEqual(len(seed["members"]), 19999)
+        cloud.validate_seed_manifest(seed)
+        seed["members"]["padding/overflow"] = {**cloud.pin(b""), "mode": 0o600}
+        with self.assertRaisesRegex(ValueError, "including seed.json"):
+            cloud.validate_seed_manifest(seed)
+
+    def test_zip_aggregate_is_decided_after_manifest_and_before_any_payload_read(self):
+        for joint, chunks, allowed in ((False, 4, False), (True, 4, True), (True, 8, False)):
+            seed, files = self.manifest(joint=joint, chunks=chunks)
+            archive, sha = self.inspect_metadata(seed, files)
+            with archive:
+                opened = []
+                actual_open = archive.open
+                def recorded_open(info, *args, **kwargs):
+                    opened.append(info.filename)
+                    return actual_open(info, *args, **kwargs)
+                with patch.object(archive, "open", side_effect=recorded_open):
+                    if allowed:
+                        manifest, raw, infos = cloud.seed_archive_manifest(archive, expected_manifest_sha256=sha)
+                        self.assertEqual(manifest, seed)
+                        self.assertEqual(raw, cloud.ledger.canonical(seed) + b"\n")
+                        self.assertEqual(len(infos), len(files) + 1)
+                    else:
+                        with self.assertRaisesRegex(ValueError, "expansion bound|expansion exceeds"):
+                            cloud.seed_archive_manifest(archive, expected_manifest_sha256=sha)
+                self.assertEqual(opened, [] if joint and chunks == 8 else ["seed.json"])
+
+    def test_unsafe_zip_metadata_is_rejected_before_even_manifest_read(self):
+        seed, files = seed_fixture()
+        raw, sha = archive_bytes(seed, files)
+        for fault in ("encrypted", "link", "large-member", "large-manifest", "too-many", "protected"):
+            with self.subTest(fault=fault), zipfile.ZipFile(io.BytesIO(raw)) as archive:
+                info = archive.getinfo("bank/broad.pgn")
+                if fault == "encrypted":
+                    info.flag_bits |= 1
+                elif fault == "link":
+                    info.external_attr = (0o120777 << 16)
+                elif fault == "large-member":
+                    info.file_size = cloud.MAX_MEMBER + 1
+                elif fault == "large-manifest":
+                    archive.getinfo("seed.json").file_size = cloud.MAX_SEED_MANIFEST + 1
+                elif fault == "protected":
+                    info.filename = "protected/.env"
+                else:
+                    archive.filelist = [info] * (cloud.MAX_SEED_MEMBERS + 1)
+                with patch.object(archive, "open", side_effect=AssertionError("unsafe metadata must not be read")), \
+                     self.assertRaises(ValueError):
+                    cloud.seed_archive_manifest(archive, expected_manifest_sha256=sha)
+
+    def test_controller_sha_precedes_json_validation_and_member_lengths_precede_payload(self):
+        seed, files = seed_fixture()
+        raw, sha = archive_bytes(seed, files)
+        with zipfile.ZipFile(io.BytesIO(raw)) as archive, \
+             patch.object(cloud, "validate_seed_manifest", side_effect=AssertionError("untrusted manifest not parsed")):
+            with self.assertRaisesRegex(ValueError, "controller pin"):
+                cloud.seed_archive_manifest(archive, expected_manifest_sha256="f" * 64)
+        with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+            archive.getinfo("bank/broad.pgn").file_size += 1
+            original, opened = archive.open, []
+            def recorded_open(info, *args, **kwargs):
+                opened.append(info.filename)
+                return original(info, *args, **kwargs)
+            with patch.object(archive, "open", side_effect=recorded_open), \
+                 self.assertRaisesRegex(ValueError, "member differs in length"):
+                cloud.seed_archive_manifest(archive, expected_manifest_sha256=sha)
+            self.assertEqual(opened, ["seed.json"])
+
+    def test_manifest_read_load_and_revalidate_use_the_separate_manifest_bound(self):
+        seed, files = seed_fixture()
+        raw, sha = archive_bytes(seed, files)
+        manifest_raw = cloud.ledger.canonical(seed) + b"\n"
+        with tempfile.TemporaryDirectory(prefix="rove-seed-manifest-bound-") as tmp:
+            root = Path(tmp)
+            (root / "input.zip").write_bytes(raw)
+            cloud.materialize_seed_archive(root / "input.zip", root / "restored", expected_manifest_sha256=sha)
+            self.assertEqual(cloud.load_seed_manifest(root / "restored/seed.json", sha), seed)
+            with patch.object(cloud, "MAX_SEED_MANIFEST", len(manifest_raw) - 1):
+                with self.assertRaisesRegex(ValueError, "manifest exceeds"):
+                    cloud.validate_seed_manifest(seed)
+                with self.assertRaises(ValueError):
+                    cloud.load_seed_manifest(root / "restored/seed.json", sha)
+                with self.assertRaises(ValueError):
+                    cloud.revalidate_seed(seed, root / "restored")
+                with self.assertRaises(ValueError):
+                    cloud.materialize_seed_archive(root / "input.zip", root / "rejected", expected_manifest_sha256=sha)
+            self.assertFalse((root / "rejected").exists())
+
+    def test_member_schema_types_and_reserved_manifest_prefix_reject_before_payload_read(self):
+        for fault in ("numeric-sha", "float-mode", "string-mode", "reserved-prefix"):
+            with self.subTest(fault=fault):
+                seed, files = seed_fixture()
+                value = seed["members"]["bank/broad.pgn"]
+                if fault == "numeric-sha":
+                    value["sha256"] = int("1" * 64)
+                elif fault == "float-mode":
+                    value["mode"] = float(0o600)
+                elif fault == "string-mode":
+                    value["mode"] = str(0o600)
+                else:
+                    seed["members"]["seed.json/child"] = {**cloud.pin(b""), "mode": 0o600}
+                    files["seed.json/child"] = b""
+                with self.assertRaisesRegex(ValueError, "bounded seed member pin/mode"):
+                    cloud.validate_seed_manifest(seed)
+                raw, sha = archive_bytes(seed, files)
+                with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+                    actual_open, opened = archive.open, []
+                    def manifest_only(info, *args, **kwargs):
+                        opened.append(info.filename)
+                        self.assertEqual(info.filename, "seed.json", "invalid schema must stop before payload")
+                        return actual_open(info, *args, **kwargs)
+                    with patch.object(archive, "open", side_effect=manifest_only), \
+                         self.assertRaisesRegex(ValueError, "bounded seed member pin/mode"):
+                        cloud.seed_archive_manifest(archive, expected_manifest_sha256=sha)
+                    self.assertEqual(opened, ["seed.json"])
+
+    def test_secondary_manifest_rereads_bound_a_mutation_before_reading_bytes(self):
+        # Simulate a file growing after the earlier full validation.  The
+        # ordinary-file port rejects its metadata without allocating the body.
+        # Authority/restore checks are separate fake ports here; this test
+        # stops at the subsequent seed read and never issues a reference.
+        seed, _ = seed_fixture()
+        manifest_raw = cloud.ledger.canonical(seed) + b"\n"
+        with tempfile.TemporaryDirectory(prefix="rove-secondary-manifest-bound-") as tmp:
+            root = Path(tmp) / "seed"
+            build, native = root / "rove/A", root / "native"
+            reads = []
+            def ordinary_metadata(path, *, limit=cloud.MAX_MEMBER):
+                path = Path(path)
+                if path.name == "seed.json":
+                    reads.append((path, limit))
+                    if cloud.MAX_SEED_MANIFEST + 1 > limit:
+                        raise ValueError("oversized manifest rejected by metadata before read")
+                    self.fail("secondary seed read would admit the oversized manifest body")
+                self.assertEqual(path, native)
+                return b"native"
+            layout = cloud.OriginalLayout(cloud._VALIDATED,
+                {"seed_root": str(root), "seed_manifest": cloud.pin(manifest_raw), "roots": []}, seed)
+            with patch.object(cloud, "ordinary", side_effect=ordinary_metadata), \
+                 patch.object(cloud, "revalidate_seed"):
+                with self.assertRaisesRegex(ValueError, "before read"):
+                    layout.revalidate()
+                without_roots = {**seed, "rove": [], "original_layout": {
+                    "format": "rove4k-original-layout-plan-v1", "roots": []}}
+                with patch.object(cloud.sys, "platform", "linux"), \
+                     self.assertRaisesRegex(ValueError, "before read"):
+                    cloud.restore_original_layout(without_roots, root)
+                context = {"fixture": "bounded read port only"}
+                consumer = cloud.CloudConsumer(cloud._VALIDATED, {"compiler_context": context}, ())
+                admitted = cloud.types.SimpleNamespace(family="A", profile_id="test-p4",
+                    representation="source-jit", expected={"unchanged": True})
+                verify = Mock()
+                verify.cloud_runtime_supported.return_value = True
+                verify.cloud_compiler_binding.return_value = {"native_path": str(native),
+                    "native": cloud.pin(b"native"), "compiler_context": context,
+                    "compiler_inputs": {"fixture": True}, "evidence": {}}
+                with patch.object(cloud.CloudConsumer, "revalidate"), \
+                     patch.object(cloud.OriginalLayout, "revalidate"), \
+                     patch.object(cloud.OriginalLayout, "execution_path", return_value=build), \
+                     patch.object(cloud, "CloudRuntimeReference", side_effect=AssertionError("no fixture authority")), \
+                     self.assertRaisesRegex(ValueError, "before read"):
+                    cloud.validate_cloud_runtime(admitted, build, root / "compiler.json", seed=seed, root=root,
+                        row=seed["rove"][0], consumer=consumer, verify=verify, restored_layout=layout)
+            self.assertEqual(len(reads), 3)
+            self.assertEqual({limit for _, limit in reads}, {cloud.MAX_SEED_MANIFEST})
+
+
+class ProducerConsumerRoundTripTests(unittest.TestCase):
+    """Real producer/consumer byte contract; synthetic transport is not CI admission.
+
+    The existing producer fixture replaces only external Fastchess Git bundle
+    verification/list-heads. All manifest, archive, member and restore checks
+    remain the actual production functions. No engine or service is invoked.
+    """
+    def prepared(self, root):
+        try:
+            from . import seed as producer
+            from .test_seed import Fixture
+        except ImportError:
+            import seed as producer
+            from test_seed import Fixture
+        fixture = Fixture(root)
+        receipt = fixture.prepare(root / "prepared")
+        raw = Path(receipt["archive"]["path"]).read_bytes()
+        return producer, receipt, raw
+
+    @staticmethod
+    def rewritten(raw, *, seed_transform=None, member_transform=None):
+        output = io.BytesIO()
+        with zipfile.ZipFile(io.BytesIO(raw)) as original, zipfile.ZipFile(output, "w") as changed:
+            for item in original.infolist():
+                body = original.read(item)
+                if item.filename == "seed.json" and seed_transform is not None:
+                    body = seed_transform(body)
+                elif item.filename != "seed.json" and member_transform is not None:
+                    body = member_transform(item.filename, body)
+                changed.writestr(copy.copy(item), body)
+        return output.getvalue()
+
+    def test_actual_prepare_inspect_materialize_revalidate_uses_one_canonical_lf(self):
+        with tempfile.TemporaryDirectory(prefix="rove-producer-consumer-") as tmp:
+            root = Path(tmp)
+            producer, receipt, raw = self.prepared(root)
+            inspection = producer.inspect_archive(raw)
+            manifest_raw = Path(receipt["seed_manifest"]["path"]).read_bytes()
+            manifest = json.loads(manifest_raw)
+            self.assertEqual(manifest_raw, cloud.ledger.canonical(manifest) + b"\n")
+            self.assertFalse(manifest_raw.endswith(b"\n\n"))
+            self.assertEqual(inspection["manifest_sha256"], cloud.pin(manifest_raw)["sha256"])
+            self.assertEqual(inspection["manifest_sha256"], receipt["seed_manifest"]["sha256"])
+            restored = cloud.materialize_seed_archive(Path(receipt["archive"]["path"]), root / "restored",
+                expected_manifest_sha256=inspection["manifest_sha256"])
+            cloud.revalidate_seed(restored, root / "restored")
+            with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+                for name in archive.namelist():
+                    self.assertEqual((root / "restored" / name).read_bytes(), archive.read(name))
+            self.assertFalse(receipt["native_qualified"] or receipt["engine_executed"] or receipt["aws_calls_performed"])
+            self.assertNotIn("qualified", restored)
+
+    def test_actual_producer_archive_without_lf_or_with_double_lf_is_rejected(self):
+        with tempfile.TemporaryDirectory(prefix="rove-producer-canonical-fault-") as tmp:
+            root = Path(tmp)
+            producer, receipt, raw = self.prepared(root)
+            for label, transform in (("no-lf", lambda body: body[:-1]), ("double-lf", lambda body: body + b"\n")):
+                with self.subTest(fault=label):
+                    changed = self.rewritten(raw, seed_transform=transform)
+                    with zipfile.ZipFile(io.BytesIO(changed)) as archive:
+                        manifest_sha = cloud.pin(archive.read("seed.json"))["sha256"]
+                    with self.assertRaisesRegex(ValueError, "canonical"):
+                        producer.inspect_archive(changed)
+                    path, destination = root / (label + ".zip"), root / label
+                    path.write_bytes(changed)
+                    with self.assertRaisesRegex(ValueError, "canonical"):
+                        cloud.materialize_seed_archive(path, destination, expected_manifest_sha256=manifest_sha)
+                    self.assertFalse(destination.exists())
+
+    def test_changed_manifest_cannot_replace_the_original_controller_pin(self):
+        with tempfile.TemporaryDirectory(prefix="rove-producer-manifest-fault-") as tmp:
+            root = Path(tmp)
+            producer, receipt, raw = self.prepared(root)
+            def change(body):
+                value = json.loads(body)
+                value["source_origin"]["repository"] = "other/transport-fixture"
+                return cloud.ledger.canonical(value) + b"\n"
+            changed = self.rewritten(raw, seed_transform=change)
+            inspected = producer.inspect_archive(changed)
+            self.assertNotEqual(inspected["manifest_sha256"], receipt["seed_manifest"]["sha256"])
+            path = root / "changed.zip"
+            path.write_bytes(changed)
+            with self.assertRaisesRegex(ValueError, "controller pin"):
+                cloud.materialize_seed_archive(path, root / "restored",
+                    expected_manifest_sha256=receipt["seed_manifest"]["sha256"])
+            self.assertFalse((root / "restored").exists())
+
+    def test_changed_actual_archive_member_and_materialized_bytes_fail_real_validation(self):
+        with tempfile.TemporaryDirectory(prefix="rove-producer-member-fault-") as tmp:
+            root = Path(tmp)
+            producer, receipt, raw = self.prepared(root)
+            changed = self.rewritten(raw, member_transform=lambda name, body: body + b"changed" if name == "bank/broad.pgn" else body)
+            with self.assertRaisesRegex(ValueError, "member differs"):
+                producer.inspect_archive(changed)
+            path = root / "changed.zip"
+            path.write_bytes(changed)
+            with self.assertRaisesRegex(ValueError, "seed member changed"):
+                cloud.materialize_seed_archive(path, root / "rejected", expected_manifest_sha256=receipt["seed_manifest"]["sha256"])
+            self.assertFalse((root / "rejected").exists())
+            manifest = cloud.materialize_seed_archive(Path(receipt["archive"]["path"]), root / "restored",
+                expected_manifest_sha256=receipt["seed_manifest"]["sha256"])
+            (root / "restored/bank/broad.pgn").write_bytes(b"changed")
+            with self.assertRaisesRegex(ValueError, "materialized seed changed"):
+                cloud.revalidate_seed(manifest, root / "restored")
+            (root / "restored/bank/broad.pgn").write_bytes(b'[Result "*"]\n\n1. e4 e5 *\n')
+            cloud.revalidate_seed(manifest, root / "restored")
+            (root / "restored/seed.json").write_bytes(cloud.ledger.canonical(manifest))
+            with self.assertRaisesRegex(ValueError, "seed manifest changed"):
+                cloud.revalidate_seed(manifest, root / "restored")
+
+
+class PeerPreparationAdapterTests(unittest.TestCase):
+    @unittest.skipUnless(cloud.sys.platform == "linux", "Linux reference and qualification boundary")
+    def test_real_peer_producer_and_runtime_accept_owned_peer_build_path_without_engine_execution(self):
+        """Only fixture source pins and bounded compilation are simulated.
+
+        Actual source inverse/build validation, reference generation, ELF
+        validation and qualify_peer's pre-execution revalidation all run. A
+        topology sentinel stops before placement, artifact or engine creation;
+        no successful runtime/league qualification is manufactured.
+        """
+        try:
+            from .test_peer_runtime import elf_fixture
+        except ImportError:
+            from test_peer_runtime import elf_fixture
+        class EngineExecutionBlocked(RuntimeError):
+            pass
+        names = ("rove_cloud_peers", "rove_cloud_peer_runtime")
+        saved = {name: cloud.sys.modules.pop(name, None) for name in names}
+        try:
+            with tempfile.TemporaryDirectory(prefix="rove-cloud-peer-port-") as tmp:
+                root = Path(tmp)
+                source = root / "source"
+                # These exact files are the real peer runtime's frozen helper
+                # closure. No source tree or generated directory is globbed.
+                source_files = (
+                    "engines/experiments/strength/peer_runtime.py",
+                    "engines/experiments/strength/peers.py",
+                    "engines/experiments/strength/registry.py",
+                    "engines/experiments/strength/placement.py",
+                    "engines/experiments/strength/topology.py",
+                    "engines/scripts/production.py",
+                    "engines/compact/tiny-entry-d/verify.py",
+                    "engines/experiments/tcec-scope/verify.py",
+                    "engines/tests/chess_oracle.py",
+                )
+                for relative in source_files:
+                    destination = source / relative
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    destination.write_bytes((cloud.ROOT / relative).read_bytes())
+                peers = cloud.load_module(names[0], source / "engines/experiments/strength/peers.py")
+                runtime = cloud.load_module(names[1], source / "engines/experiments/strength/peer_runtime.py")
+                original = {
+                    "launcher.sh": b"#!/bin/sh\n# synthetic upstream source fixture only\n",
+                    "minifier/preprocess.rs": b'"THREADS" if tcec => "256"\n"DEFAULT_TT_BITS" if tcec => "35"\n',
+                }
+                upstream = root / "external/ice4"
+                for relative, data in original.items():
+                    path = upstream / relative
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    path.write_bytes(data)
+                payload = (b"#include<bits/stdc++.h>\nusing namespace std;struct E{long long x;};\n"
+                           b"E*table=(E*)calloc(1ull<<24,8);\n"
+                           b"int main(){thread c[4];for(thread&f:c)f=thread([]{});for(auto&f:c)f.join();}\n")
+                commands = []
+                def bounded_compile(argv, cwd, **kwargs):
+                    argv = list(map(str, argv))
+                    commands.append((argv, Path(cwd), dict(kwargs)))
+                    if argv in (["cargo", "--version"], ["c++", "--version"]):
+                        stdout = b"synthetic bounded compiler port; no program invoked\n"
+                    elif len(argv) == 2 and argv[-1] == "tcec" and argv[0].endswith("/release/minifier"):
+                        stdout = payload
+                    elif argv[:2] == ["cargo", "build"]:
+                        stdout = b""
+                    elif argv[0] == "c++" and "input_bytes" in kwargs:
+                        self.assertIn(kwargs["input_bytes"], (payload, payload + b"\nstatic_assert(sizeof(*table) == 8);\n"))
+                        target = Path(next(token[2:] for token in argv if token.startswith("-o")))
+                        target.write_bytes(elf_fixture(symbol_name=b"table"))
+                        stdout = b""
+                    else:
+                        self.fail("unexpected bounded command, never execute: " + repr(argv))
+                    return stdout, b"", {"exit_code": 0, "leader_reaped": True, "group_absent": True,
+                        "forced_cleanup": False, "stdout_sha256": peers.sha(stdout)}
+                class StopTopology:
+                    @staticmethod
+                    def snapshot():
+                        raise EngineExecutionBlocked("stop before actual placement and engine execution")
+                class TopologyPort:
+                    Topology = StopTopology
+                sibling = runtime.sibling
+                def sibling_port(name, *args, **kwargs):
+                    if name == "peers":
+                        return peers
+                    if name == "topology":
+                        return TopologyPort
+                    return sibling(name, *args, **kwargs)
+                fixture_pins = {name: peers.git_blob(data) for name, data in original.items()}
+                slot = cloud.topology.Slot("fixture-slot", (0, 1, 2, 3), ((0, 0), (0, 1), (0, 2), (0, 3)), (0,), 4, False)
+                output = root / "prepared-peer"
+                with patch.dict(peers.SOURCE_BLOBS, {"ice4": fixture_pins}), \
+                     patch.object(peers, "bounded_run", side_effect=bounded_compile), \
+                     patch.object(runtime, "sibling", side_effect=sibling_port), \
+                     patch.object(cloud.registry, "admit_to_test_league", side_effect=AssertionError("fixture must never claim admission")):
+                    with self.assertRaisesRegex(EngineExecutionBlocked, "before actual placement"):
+                        cloud.prepare_peer({"family": "ice4", "profile": "test-p4", "source": "external/ice4"},
+                            seed={"source_tree": "source"}, root=root, out=output, slot=slot)
+                    manifest = output / "peer-build/peer.json"
+                    admitted = runtime.validate_build(manifest)
+                    self.assertEqual(admitted["source"], payload)
+                    reference = json.loads((output / "reference/reference.json").read_bytes())
+                    self.assertTrue(reference["complete"])
+                    self.assertEqual(reference["engines_executed"], 0)
+                    self.assertEqual(Path(reference["build"]["path"]), manifest)
+                    self.assertEqual(len(reference["native_attempts"]), 3)
+                    self.assertFalse((output / "runtime").exists())
+                    self.assertFalse((output / "build").exists())
+                    self.assertEqual(len(commands), 10)
+                    self.assertEqual(sum("input_bytes" in kw for _, _, kw in commands), 3)
+                    # The safety restriction remains strict: reverting the
+                    # adapter to a literal build component must still reject.
+                    with self.assertRaisesRegex(ValueError, "non-source or secret-like"):
+                        runtime.ordinary(output / "build/peer.json")
+        finally:
+            for name, prior in saved.items():
+                cloud.sys.modules.pop(name, None)
+                if prior is not None:
+                    cloud.sys.modules[name] = prior
 
 
 class AuthorityTests(unittest.TestCase):

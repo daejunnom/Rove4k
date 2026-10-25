@@ -39,6 +39,46 @@ def resident_row(resident, approximate, pid=77):
             {"memory_snapshot_not_peak": {"VmRSS": str(approximate // 1024) + " kB"}})
 
 
+def compound_gate_fixture(build, family="A", profile="test-p4"):
+    source, native = b"int main(void){return 0;}\n", b"actual independently compiled image"
+    assertions = ["_Static_assert(sizeof(int)==4,\"integer\");"]
+    asserted = source + b"\n" + ("\n".join(assertions) + "\n").encode()
+    compiler = list(VERIFY.F_COMPOUND_COMPILER)
+    manifest = {"family": family, "post_spelling": dict(VERIFY.COMPOUND_DECLARATION), "compiler": compiler,
+                "compile_executor": compiler[:], "compile_executor_version": VERIFY.F_COMPOUND_COMPILER_VERSION,
+                "attempts": [], "commands": []}
+    original = "/original/compound-artifact"
+    def add(kind, data, suffix, output=b""):
+        index = len(manifest["commands"]) + 1
+        row = {"kind": kind, "command": ["cc", "--version"] if kind == "target-compiler-version" else compiler[:],
+               "cwd": original + suffix, "started": True, "returncode": 0, "terminal": True, "reaped": True,
+               "owned_group_absent": True, "original_identity_retained_until_other_members_absent": True,
+               "forced_cleanup": False, "other_group_members_before_reap": [], "pid": index + 100, "pgid": index + 100}
+        for stream, value in (("stdout", output), ("stderr", b"")):
+            name = "tool-" + str(index) + "-" + kind + "." + stream
+            (build / name).write_bytes(value)
+            row[stream] = {"path": original + "/" + name, **VERIFY.pin(value)}
+        if data is not None:
+            (build / ("tool-" + str(index) + "-" + kind + ".stdin")).write_bytes(data)
+        manifest["commands"].append(row)
+    if family == "F":
+        manifest["native_policy"] = {"kind": VERIFY.F_COMPOUND_POLICY, "family": "F", "profile_id": profile,
+            "post_spelling": dict(VERIFY.COMPOUND_DECLARATION), "compiler": compiler[:],
+            "compiler_version": VERIFY.F_COMPOUND_COMPILER_VERSION, "source": VERIFY.pin(source), "native": VERIFY.pin(native)}
+        add("target-compiler-version", None, "", (VERIFY.F_COMPOUND_COMPILER_VERSION + "\nmore compiler details\n").encode())
+    for directory in ("first", "repeat"):
+        gate = {"assertions": assertions[:], "source": VERIFY.pin(asserted), "native": VERIFY.pin(native), "image_identical": True}
+        if family == "F": gate.update(directory="target-type-gate", source_file="asserted.c", policy=VERIFY.F_COMPOUND_POLICY)
+        manifest["attempts"].append({"directory": directory, "target_type_gate": gate})
+        for name, data in (("target-type-gate/asserted.c", asserted), ("target-type-gate/x", native), ("native/x", native)):
+            path = build / directory / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(data)
+        add(directory + "-target-types", asserted, "/" + directory + "/target-type-gate")
+        add(directory + "-compile", source, "/" + directory + "/native")
+    return manifest, source, native, {"target_type_assertions": assertions}
+
+
 class ProfileRuntimeAdmission(unittest.TestCase):
     def setUp(self):
         if os.name != "posix":
@@ -462,6 +502,174 @@ class ProfileRuntimeAdmission(unittest.TestCase):
                               ([resource, model, dependency], {**declaration, "path": "other.py"})):
             with self.subTest(stages=stages, declaration=named), self.assertRaises(ValueError):
                 VERIFY.source_stages("E", None, stages, source_dependencies=named)
+
+    def test_compound_is_one_alternative_before_final_dependencies(self):
+        resource = {"schema": "rove4k.c-resource-projection.v1"}
+        phase = {"schema": "rove4k.portable-phase-source.v1"}
+        model = {"stage": "canonical-e19-physical-binding"}
+        compound = {"schema": VERIFY.COMPOUND_SCHEMA}
+        individual = {"schema": VERIFY.SPELLING_SCHEMA}
+        dependency = {"schema": "rove4k.profile-dependencies.v1"}
+        post = {"path": "engines/experiments/tcec-next/profile_phase.py", "variant": "phase-init"}
+        options = dict(post_spelling=dict(VERIFY.COMPOUND_DECLARATION),
+            source_dependencies={"path": "engines/experiments/tcec-next/profile_dependencies.py", "variant": "unused-includes"},
+            representation="source-jit", entry_cleanup="private-path")
+        for family in "ACEF":
+            proofs = [resource, phase, *([model] if family == "E" else []), compound, dependency]
+            self.assertEqual(VERIFY.source_stages(family, post, proofs, **options), "phase")
+            for invalid in (proofs[:-1], [*proofs[:-2], dependency, compound],
+                            [*proofs[:-2], individual, compound, dependency], proofs + [compound]):
+                with self.subTest(family=family, invalid=invalid), self.assertRaises(ValueError):
+                    VERIFY.source_stages(family, post, invalid, **options)
+        b = {"path": "engines/experiments/tcec-next/profile_b.py", "variant": "tcec-final-lf"}
+        with self.assertRaises(ValueError):
+            VERIFY.source_stages("B", b, [resource, {"schema": "rove4k.profile-b-source.v1"}, compound, dependency], **options)
+        for key, value in (("path", VERIFY.SPELLING), ("variant", "launcher-short"), ("selection", "best")):
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                VERIFY.source_stages("A", post, [resource, phase, compound, dependency],
+                    **{**options, "post_spelling": {**VERIFY.COMPOUND_DECLARATION, key: value}})
+
+    def test_compound_helper_requires_both_reviewed_tool_identities(self):
+        from copy import deepcopy
+        rows = [{"path": name, "role": "tool", **identity} for name, identity in
+                ((VERIFY.SPELLING, VERIFY.SPELLING_PIN), (VERIFY.COMPOUND, VERIFY.COMPOUND_PIN))]
+        manifest = {"inputs": {row["path"]: {key: row[key] for key in ("bytes", "sha256")} for row in rows},
+                    "source_closure": {"inputs": rows}}
+        paths = {VERIFY.SPELLING, VERIFY.COMPOUND}
+        with tempfile.TemporaryDirectory(prefix="rove4k-compound-helper-") as temporary:
+            build = Path(temporary)
+            for name in paths:
+                frozen = build / "inputs" / name
+                frozen.parent.mkdir(parents=True, exist_ok=True)
+                frozen.write_bytes((VERIFY.ROOT / name).read_bytes().replace(b"\r\n", b"\n"))
+            compound, individual = VERIFY.compound_module(manifest, build, paths)
+            self.assertEqual(compound.SCHEMA, VERIFY.COMPOUND_SCHEMA)
+            self.assertEqual(individual.SCHEMA, VERIFY.SPELLING_SCHEMA)
+            for name in paths:
+                for kind in ("role", "pin", "input", "duplicate", "missing", "outside"):
+                    altered = deepcopy(manifest)
+                    row = next(row for row in altered["source_closure"]["inputs"] if row["path"] == name)
+                    production = set(paths)
+                    if kind == "role": row["role"] = "engine"
+                    elif kind == "pin": row["sha256"] = "0" * 64
+                    elif kind == "input": altered["inputs"][name]["bytes"] += 1
+                    elif kind == "duplicate": altered["source_closure"]["inputs"].append(dict(row))
+                    elif kind == "missing": altered["source_closure"]["inputs"].remove(row)
+                    else: production.remove(name)
+                    with self.subTest(name=name, kind=kind), self.assertRaises(ValueError):
+                        VERIFY.compound_module(altered, build, production)
+                frozen = build / "inputs" / name
+                original = frozen.read_bytes()
+                frozen.write_bytes(original + b"\n")
+                with self.subTest(name=name, kind="frozen-tamper"), self.assertRaises(ValueError):
+                    VERIFY.compound_module(manifest, build, paths)
+                frozen.write_bytes(original)
+
+    def test_compound_inverse_restores_dependencies_then_bound_helper_before_E19(self):
+        calls = []
+        individual = types.SimpleNamespace(SCHEMA=VERIFY.SPELLING_SCHEMA)
+        def restore(data, proof, *, spelling):
+            self.assertIs(spelling, individual)
+            calls.append("compound")
+            VERIFY.require(data.startswith(b"S"), "compound inverse span differs")
+            return data[1:]
+        compound = types.SimpleNamespace(SCHEMA=VERIFY.COMPOUND_SCHEMA, restore_source=restore)
+        prior = types.SimpleNamespace(restore_source=lambda data, proof: calls.append(proof["name"]) or data[1:])
+        dependency = types.SimpleNamespace(restore_source=lambda data, proof: calls.append("dependency") or data + b";")
+        stages = [(prior, {"name": "resource"}, b"table=1;"),
+            (prior, {"name": "phase"}, b"Rtable=1;"),
+            (None, {"table_value_offset": 8, "before": "1", "after": "222"}, b"PRtable=1;"),
+            (compound, {"schema": VERIFY.COMPOUND_SCHEMA}, b"PRtable=222;", {"spelling": individual}),
+            (dependency, {}, b"SPRtable=222;")]
+        self.assertEqual(VERIFY.inverse_source_stages(b"SPRtable=222", stages), b"table=1;")
+        self.assertEqual(calls, ["dependency", "compound", "phase", "resource"])
+        for binding in ({}, {"spelling": individual, "variant": "hidden"},
+                        {"spelling": types.SimpleNamespace(SCHEMA="wrong")}):
+            with self.subTest(binding=binding), self.assertRaises(ValueError):
+                VERIFY.inverse_source_stages(b"SPRtable=222;", [(*stages[3][:3], binding)])
+
+    def test_compound_request_is_only_explicit_B_duplicate_best(self):
+        from copy import deepcopy
+        record = {"family": "B", "post_spelling": {"path": VERIFY.SPELLING, "selection": "best", "variant": "atomic-assignment"},
+            "spelling_request": {"requested": "compound", "effective": "best", "duplicate_best": True, "new_candidate_count": 0}}
+        VERIFY.validate_spelling_request(record)
+        VERIFY.validate_spelling_request({"family": "E"})
+        cases = []
+        for key, value in (("requested", "best"), ("effective", "compound"), ("duplicate_best", 1),
+                           ("new_candidate_count", False), ("extra", "unclassified")):
+            altered = deepcopy(record); altered["spelling_request"][key] = value; cases.append(altered)
+        cases.extend([{**record, "family": "E"}, {**record, "spelling_request": None},
+                      {**record, "post_spelling": dict(VERIFY.COMPOUND_DECLARATION)},
+                      {**record, "inputs": {VERIFY.COMPOUND: VERIFY.COMPOUND_PIN}},
+                      {**record, "source_closure": {"inputs": [{"path": VERIFY.COMPOUND, "role": "tool"}]}},
+                      {**record, "source_proofs": [{"schema": VERIFY.COMPOUND_SCHEMA}]}])
+        for altered in cases:
+            with self.subTest(altered=altered), self.assertRaises(ValueError):
+                VERIFY.validate_spelling_request(altered)
+
+    def test_compound_target_assertions_bind_actual_inputs_images_and_original_commands(self):
+        from copy import deepcopy
+        for defect in (None, "assertions", "marker-type", "asserted-file", "gate-native", "asserted-stdin", "shipping-stdin",
+                       "missing", "duplicate", "forced", "not-reaped", "pid", "cwd", "pipe-path", "pipe-bytes"):
+            with self.subTest(defect=defect), tempfile.TemporaryDirectory(prefix="rove4k-compound-gate-") as temporary:
+                build = Path(temporary)
+                manifest, source, native, proof = compound_gate_fixture(build)
+                row = manifest["commands"][0]
+                if defect == "assertions": manifest["attempts"][0]["target_type_gate"]["assertions"] = ["not the resource assertions"]
+                elif defect == "marker-type": manifest["attempts"][0]["target_type_gate"]["image_identical"] = 1
+                elif defect == "asserted-file": (build / "first/target-type-gate/asserted.c").write_bytes(source)
+                elif defect == "gate-native": (build / "first/target-type-gate/x").write_bytes(b"another native")
+                elif defect == "asserted-stdin": (build / "tool-1-first-target-types.stdin").write_bytes(source)
+                elif defect == "shipping-stdin": (build / "tool-2-first-compile.stdin").write_bytes(source + b"changed")
+                elif defect == "missing": manifest["commands"].remove(row)
+                elif defect == "duplicate": manifest["commands"].append(deepcopy(row))
+                elif defect == "forced": row["forced_cleanup"] = True
+                elif defect == "not-reaped": row["reaped"] = False
+                elif defect == "pid": row["pgid"] += 1
+                elif defect == "cwd": row["cwd"] = "/another/first/native"
+                elif defect == "pipe-path": row["stdout"]["path"] = "/another/tool-1-first-target-types.stdout"
+                elif defect == "pipe-bytes": (build / "tool-1-first-target-types.stderr").write_bytes(b"unrecorded warning")
+                if defect is None:
+                    evidence = VERIFY.compound_native_evidence(manifest, build, source, native, proof, "test-p4")
+                    self.assertEqual(len(evidence["attempts"]), 2)
+                    self.assertIsNone(evidence["native_policy"])
+                    self.assertEqual(evidence["source"], VERIFY.pin(source))
+                    self.assertEqual(evidence["attempts"][0]["asserted_command"]["stdin"]["sha256"],
+                                     manifest["attempts"][0]["target_type_gate"]["source"]["sha256"])
+                else:
+                    with self.assertRaises(ValueError):
+                        VERIFY.compound_native_evidence(manifest, build, source, native, proof, "test-p4")
+
+    def test_F_compound_has_one_named_finite_compiler_policy_and_no_other_route_waiver(self):
+        for profile in VERIFY.F_COMPOUND_IDENTITIES:
+            for defect in (None, "missing", "name", "source", "native", "float", "alternate-compiler", "version", "banner", "gate-policy"):
+                with self.subTest(profile=profile, defect=defect), tempfile.TemporaryDirectory(prefix="rove4k-F-compound-") as temporary:
+                    build = Path(temporary)
+                    manifest, source, native, proof = compound_gate_fixture(build, "F", profile)
+                    fixture_identity = {"source": VERIFY.pin(source), "native": VERIFY.pin(native)}
+                    if defect == "missing": del manifest["native_policy"]
+                    elif defect == "name": manifest["native_policy"]["kind"] = "generic-waiver"
+                    elif defect == "source": manifest["native_policy"]["source"]["sha256"] = "0" * 64
+                    elif defect == "native": manifest["native_policy"]["native"]["sha256"] = "0" * 64
+                    elif defect == "float": manifest["native_policy"]["native"]["bytes"] = float(len(native))
+                    elif defect == "alternate-compiler": manifest["compile_executor"][0] = "/usr/bin/gcc-11"
+                    elif defect == "version": manifest["compile_executor_version"] = "GCC 11.4"
+                    elif defect == "banner":
+                        row = manifest["commands"][0]
+                        data = b"not the admitted compiler banner\n"
+                        row["stdout"].update(VERIFY.pin(data))
+                        (build / "tool-1-target-compiler-version.stdout").write_bytes(data)
+                    elif defect == "gate-policy": manifest["attempts"][0]["target_type_gate"]["policy"] = "another-policy"
+                    with patch.dict(VERIFY.F_COMPOUND_IDENTITIES, {profile: fixture_identity}):
+                        if defect is None:
+                            evidence = VERIFY.compound_native_evidence(manifest, build, source, native, proof, profile)
+                            self.assertEqual(evidence["native_policy"], manifest["native_policy"])
+                        else:
+                            with self.assertRaises(ValueError):
+                                VERIFY.compound_native_evidence(manifest, build, source, native, proof, profile)
+        for declaration in (None, {"path": VERIFY.SPELLING, "selection": "best", "variant": "atomic-assignment"}):
+            with self.subTest(declaration=declaration), self.assertRaisesRegex(ValueError, "outside its finite route"):
+                VERIFY.compound_native_evidence({"post_spelling": declaration, "native_policy": {}}, Path("unread"), b"", b"", {}, "test-p4")
 
     def test_dependency_cleanup_follows_spelling_and_is_undone_first(self):
         resource = {"schema": "rove4k.c-resource-projection.v1"}
