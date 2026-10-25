@@ -20,7 +20,25 @@ class EngineRetirement(unittest.TestCase):
         self.assertEqual(len(exclusions), 6)
         self.assertEqual({row['variant'] for row in exclusions}, set('ABCDEF'))
         self.assertEqual(BUILD.select_implementations(['c'], ['A'], explicit_variants=True)[0], {'c': ['A']})
-        self.assertIn('default="c"', SCRIPT.read_text(encoding='utf-8'))
+
+    def test_source_snapshot_uses_c_and_model_headers_only(self):
+        with tempfile.TemporaryDirectory(prefix='rove4k-source-selection-') as temporary:
+            root = Path(temporary)
+            files = {'c/main.c': b'int main(void){return 0;}\n',
+                     'c/board.h': b'#define BOARD 1\n',
+                     'c/notes.json': b'{}',
+                     'rust/main.rs': b'fn main() {}\n',
+                     'model/frozen.h': b'#define MODEL 1\n',
+                     'model/frozen.rs': b'const MODEL:u8=1;\n',
+                     'model/test.c': b'int fixture(void){return 0;}\n'}
+            for name, data in files.items():
+                path = root / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(data)
+            self.assertEqual(BUILD.source_files('c', root),
+                             {name: files[name] for name in ('c/board.h', 'c/main.c', 'model/frozen.h')})
+            with self.assertRaisesRegex(ValueError, 'Rust engine paths are retired'):
+                BUILD.source_files('rust', root)
 
     def test_all_rust_backend_recipes_reject_before_profile_or_compiler(self):
         for variant in 'ABCDEF':
@@ -35,7 +53,7 @@ class EngineRetirement(unittest.TestCase):
         self.assertFalse(base==ROOT or ROOT in base.parents)
         with tempfile.TemporaryDirectory(prefix='rove4k-c-only-admission-',dir=base) as temporary:
             requests=[['--languages','rust','--variant',v] for v in 'ABCDEF']
-            requests += [['--languages','c,rust'], ['--rust-structural-compact']]
+            requests += [['--languages','c,rust'], ['--rust-structural-compact'], ['--rustc','not-a-compiler']]
             for index,args in enumerate(requests):
                 out=Path(temporary)/str(index)
                 with self.subTest(args=args):

@@ -1,5 +1,14 @@
 # Exact E storage candidates
 
+Current C production imports the pure `transform_sources` API below. Rust model
+formats remain covered by small representation fixtures; the retired Rust
+engines are preserved under `archive/engines` at the repository root. The
+dual-language `prepare.py`, `measure.py` and `verify.py` campaign commands below
+describe historical explicit snapshots. They require their original compatible
+builder and source inputs; the current C-only engine builder rejects Rust.
+See the [archive replay policy](../../../archive/README.md) before using those
+historical commands.
+
 These are explicit representation and code/data candidates for the same frozen,
 hand-authored, **untrained** E model. They do not fit, quantize, prune, round or
 change any of its 21 evaluation/ordering coefficients. `frozen.json` stays the
@@ -47,7 +56,7 @@ The central builder can call the pure API without touching the filesystem:
 
 ```python
 output, record = transform_sources(
-    files, representation="static16", language="rust", model=explicit_model_dict
+    files, representation="static16", language="c", model=explicit_model_dict
 )
 ```
 
@@ -79,7 +88,7 @@ python3 engines/model/representations/verify.py \
     --rustc /absolute/linux/rustc
 ```
 
-For current producer builds whose Rust test modules live outside production
+For historical producer builds whose Rust test modules live outside production
 sources, use `verify.py --build /absolute/build.json --fixtures-root
 /absolute/frozen/engines/tests/rust` instead of `--prepared`. It verifies actual
 producer source hashes, copies production Rust sources and explicitly supplied
