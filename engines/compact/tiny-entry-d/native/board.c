@@ -4,12 +4,7 @@
 /* D retains a readable mailbox as its authoritative position. Actual slider
  * attacks and generation use the selected scalar/HQ occupancy adapter. */
 static const int steps[16]={33,31,18,14,-14,-18,-31,-33,1,-1,16,-16,17,15,-15,-17};
-uint64_t mix(uint64_t x){
-    x+=UINT64_C(0x9e3779b97f4a7c15);
-    x=(x^(x>>30))*UINT64_C(0xbf58476d1ce4e5b9);
-    x=(x^(x>>27))*UINT64_C(0x94d049bb133111eb);
-    return x^(x>>31);
-}
+#include "rove-common/board/mix"
 int value(int v,int q){
     static const int material[7]={24576,48228,98624,65866,27124,41860,0};
     int a=material[abs(v)],rank=q>>4,file=q&7,advance=v>0?rank:7-rank;
@@ -18,19 +13,11 @@ int value(int v,int q){
         center*((a>>13)-3);
     return v>0?score:-score;
 }
-static uint64_t piece(int v,int q){return mix((uint64_t)(q+(v+6)*128));}
-static uint64_t state(const Board *p){
-    return mix(2048+p->c)^(p->s<0?mix(2064):0)^
-        (p->e<0?0:mix(2065+(p->e&7)));
-}
-static void put(Board *p,int q,int v){
-    int old=p->b[q];
-    if(old){p->h^=piece(old,q);p->v-=value(old,q);}
-    p->b[q]=(int8_t)v;
-    if(v){p->h^=piece(v,q);p->v+=value(v,q);if(abs(v)==6)p->k[v<0]=q;}
-}
+#include "rove-common/board/piece"
+#include "rove-common/board/state"
+#include "rove-common/board/put_scalar"
 static int walk(const Board *,Move *,int,int);
-int attacked(const Board *p,int sq,int side){return walk(p,0,sq,side);}
+#include "rove-common/move/attacked"
 int dead(const Board *p){
     int state=0;
     for(int q=0;q<128;q++)if(!(q&0x88)){
@@ -57,7 +44,7 @@ static void ep(Board *p){
     }
     p->e=-1;
 }
-static int rights(int q){return q==4?3:q==116?12:q==0?2:q==7?1:q==112?8:q==119?4:0;}
+#include "rove-common/board/rights"
 /* Internal contract: p came from start/FEN/a prior successful make, and m
  * belongs to gen(p). Both runtimes parse through gen+make; search, perft and
  * fallback only apply list members (a TT move only changes their ordering).
@@ -71,30 +58,7 @@ static int rights(int q){return q==4?3:q==116?12:q==0?2:q==7?1:q==112?8:q==119?4
  * side/king, empty target on the EP rank, opposing victim, and adjacent own
  * pawn prove a nonpromoting EP capture. Its h/r may be unfinished. Discard
  * the child; legality reads no h/r/v, and its e=-1 ends nested ep immediately. */
-int make(const Board *p,Move m,Board *t){
-    int from=FROM(m),to=TO(m),prom=PROMO(m),s=p->s;
-    int v=p->b[from],target=p->b[to];
-    if(abs(target)==6)return 0;
-    *t=*p;t->h^=state(p);t->half++;t->e=-1;
-    if(abs(v)==1){
-        t->half=0;
-        if(to==p->e&&!target)put(t,to-s*16,0);
-        if(abs(to-from)==32)t->e=from+s*16;
-        if(prom)v=s*prom;
-    }
-    if(target)t->half=0;
-    if(abs(v)==6&&abs(to-from)==2){
-        int rook=to>from?from+3:from-4,transit=to>from?from+1:from-1;
-        put(t,rook,0);put(t,transit,s*4);
-    }
-    put(t,from,0);put(t,to,v);t->c&=~(rights(from)|rights(to));t->s=-s;
-    if(attacked(t,t->k[s<0],-s))return 0;
-    ep(t);t->h^=state(t);
-    /* TT context retains the ordered reversible path. A pawn move or capture
-     * resets it; repeated boards reached along distinct paths stay distinct. */
-    t->r=t->half?((p->r<<1)|(p->r>>63))^t->h:t->h;
-    return 1;
-}
+#include "rove-common/move/make"
 static void add(Move *moves,int *n,int from,int to,int kind){
     int promotion=kind>1&&((to>>4)==0||(to>>4)==7);
     for(int z=promotion?2:0;z<=(promotion?5:0);z++){
@@ -147,59 +111,10 @@ static int walk(const Board *p,Move *moves,int sq,int s){
     }
     return n;
 }
-int gen(const Board *p,Move *moves){return walk(p,moves,0,p->s);}
-void start(Board *p){
-    static const int back[8]={4,2,3,5,6,3,2,4};
-    Board t={0};t.s=1;t.c=15;t.e=-1;
-    for(int f=0;f<8;f++){put(&t,f,back[f]);put(&t,16+f,1);put(&t,96+f,-1);put(&t,112+f,-back[f]);}
-    t.h^=state(&t);t.r=t.h;*p=t;
-}
+#include "rove-common/move/gen"
+#include "rove-common/board/start"
 #if DEV
-int fen(Board *p,const char *s){
-    static const char letters[]=" PNBRQK",castles[]="KQkq";
-    Board t={0};int rank=7,file=0,kings[2]={0},counts[2]={0};t.s=1;t.e=-1;
-    while(*s&&*s!=' '){
-        int ch=(unsigned char)*s++;
-        if(ch=='/'){if(file!=8||!rank)return 0;rank--;file=0;}
-        else if(ch>='1'&&ch<='8'){file+=ch-'0';if(file>8)return 0;}
-        else{
-            const char *x=strchr(letters,toupper(ch));if(!x||x==letters||file>=8)return 0;
-            int v=(int)(x-letters)*(isupper(ch)?1:-1);
-            if(++counts[v<0]>16)return 0;
-            if(abs(v)==6&&++kings[v<0]>1)return 0;
-            put(&t,rank*16+file++,v);
-        }
-    }
-    if(rank||file!=8||kings[0]!=1||kings[1]!=1||*s!=' ')return 0;
-    s++;
-    if(*s!='w'&&*s!='b')return 0;
-    t.s=*s++=='w'?1:-1;
-    if(*s!=' ')return 0;
-    s++;
-    if(*s=='-')s++;
-    else while(*s&&*s!=' '){const char *x=strchr(castles,*s++);if(!x)return 0;int b=1<<(x-castles);if(t.c&b)return 0;t.c|=b;}
-    if(*s!=' ')return 0;
-    s++;
-    if(*s=='-')s++;
-    else{
-        if(!s[0]||!s[1])return 0;
-        int f=s[0]-'a',r=s[1]-'1';
-        if(f<0||f>7||r!=(t.s>0?5:2))return 0;
-        t.e=r*16+f;s+=2;
-        if(t.b[t.e]||t.b[t.e-t.s*16]!=-t.s)return 0;
-    }
-    for(int i=0;i<2;i++){
-        if(*s!=' ')return 0;
-        char *end;errno=0;long n=strtol(++s,&end,10);
-        if(errno||end==s||n<(i?1:0)||n>1000000)return 0;
-        if(!i)t.half=(int)n;
-        s=end;
-    }
-    while(*s==' ')s++;
-    if(*s)return 0;
-    for(int i=0;i<4;i++){int home=i<2?4:116,rook=(i&1)?home-4:home+3,side=i<2?1:-1;if(t.b[home]!=side*6||t.b[rook]!=side*4)t.c&=~(1<<i);}
-    ep(&t);t.h^=state(&t);t.r=t.h;*p=t;return 1;
-}
+#include "rove-common/board/fen"
 int verify_board(const Board *p){
     if((p->s!=1&&p->s!=-1)||p->c<0||p->c>15||p->half<0||p->e<-1)return 0;
     Board t={0};t.s=p->s;t.c=p->c;t.e=p->e;t.k[0]=t.k[1]=-1;int kings[2]={0},counts[2]={0};

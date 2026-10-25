@@ -13,10 +13,10 @@
     "ply": 128
   },
   "base_source_closure_sha256": {
-    "engines/compact/tiny-entry-f/engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+    "engines/compact/tiny-entry-f/engine.c": "cb6bc0272149e80f7a2c057c3fa243728df3202ad2ce299aca635e9b88c770c2",
     "engines/compact/tiny-entry-f/bootstrap.py.in": "159c5fe166f4b0804471e9d3a70d8f055a510858a6ae33f0ed6b4cfd17fca6f9",
     "engines/compact/tiny-entry-f/launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
-    "engines/compact/tiny-entry-f/build.py": "98858933e25c073137971df0955ef707c7b455c64d6231f537c86934e86be846",
+    "engines/compact/tiny-entry-f/build.py": "7df1397656a4c9caf984dc57bcc18c3eac69f81ed857a485fb3d6aad10597958",
     "engines/scripts/specialize.py": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d",
     "engines/scripts/minify.py": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b",
     "engines/scripts/rename_c.py": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
@@ -80,12 +80,17 @@
     "engines/compact/tiny-entry-f/shipping_go_boundary.py": "8efdcf32924a936bf5f6ed8ca5605b94f54fb219bc3cf7d339bca9eab8f1ce52",
     "engines/scripts/compiler_group.py": "d859ccc460619102c27433e2476d6d5be2e8de4046e07d49f28c0944c7ff0a77",
     "engines/scripts/compiler_stdin.py": "fc92bb6146fcfc5a6c73cd9f68929192a90d22a875bf591caf2cf3b32b87055b",
-    "engines/compact/tiny-entry-f/recipe.json": "a6f2dd342b87940fbc01e5000d9ae187d4cbb0fad65388dd3c9d5d537726015b",
+    "engines/compact/tiny-entry-f/recipe.json": "2a5b637f39f7454de7b12ad328c62f65ba25ea75a6af94277f1eaf8d28a8a595",
     "engines/compact/tiny-entry-f/shipping_quiet_slot.py": "05e27c7117497d9087e497e53f6b12cfbf3a067500bf2f29c40af38f1afc8c60",
-    "engines/compact/tiny-entry-f/README.md": "eb4323c4f918af9bb01cbf4a25cb77be0475a74fe531ddfc0b4ed306ee426171",
+    "engines/compact/tiny-entry-f/README.md": "420a2cc668dab3834b4642b67e21d7ec99e0b44b5857d8dc4171892c86f8565a",
     "engines/scripts/compiler_seek.py": "8ca5fd736f010cd9dd1e3b668065c0cf7d82f9e98653580b8f9b4c23e7d75a41",
     "engines/compact/tiny-entry-f/shipping_static_alias.py": "811bb6e0e7f59115eba8fd1dfbde92fda0b8238ea6384e242bf6aa5b7fe679f1",
-    "engines/compact/tiny-entry-f/shipping_expression.py": "a2b678c5c5000d1d1acf9be19cbe5c31b33994bdcd4ad9c9aba8192ba9187b58"
+    "engines/compact/tiny-entry-f/shipping_expression.py": "a2b678c5c5000d1d1acf9be19cbe5c31b33994bdcd4ad9c9aba8192ba9187b58",
+    "engines/common/board.c": "7f231ee347a66f8117d15934bda4adb188309db433598b5634afc46bbb61d1e8",
+    "engines/common/move.c": "e01d84200956050c6c064acc9d6fe812a6ade6e934993a332db518ffd27f2e9c",
+    "engines/common/protocol.c": "e507eccbb84c4f32ca3c16e22f5002e91c9f4e17ef1051988332c6137317a974",
+    "engines/scripts/source_composition.py": "1422d3e97f6ab0dc969e0feee6a04e3c97d6677323b3e91c00f1383f8baaeadd",
+    "engines/common/search.c": "cd794f819390cf2d95b5ef8b54314f0f15a3a2ae62f3fc18a6ea595d2c0a9bf3"
   },
   "positive_helper_sha256": {
     "engines/compact/tiny-entry-d/verify.py": "18faa69aed5cb5dd85a054ef2e6830463f3d819f5f635d74d55550a877c81eae",
@@ -183,17 +188,17 @@
   "source_raw_delta": 38,
   "fixed_late_source": {
     "source_proof": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-common-owner-final-source-20261024-evidence/source-proof.json",
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-common-owner-final-source-20261024-evidence/source-proof.json",
       "bytes": 14963,
       "sha256": "d36acbc9a72c825a97ac962d64fd9e443d63463e4d696024b7fc0e9fe6f0d39c"
     },
     "source_index": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-common-owner-final-source-20261024-evidence/final-index.json",
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-common-owner-final-source-20261024-evidence/final-index.json",
       "bytes": 1064,
       "sha256": "2f8d178800041a893b81b61aab2d12da4dcc4fbd7264883fe642191af5a9cf7d"
     },
     "firstcost_index": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-common-owner-final-first-cost-20261024-evidence/final-index.json",
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-common-owner-final-first-cost-20261024-evidence/final-index.json",
       "bytes": 6867,
       "sha256": "af2e2cb235e175a14ac5ade141fe831f115cb9d8a6a697a7c32c372e35a8294a"
     },
@@ -249,12 +254,12 @@
     },
     "specialize_sha256": "46323d0325c866bbf4c63e23c136c1b2c100083d56dbd14408cd6fd9794af749",
     "recipe_archive": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-late-resource8-v2-promotion-20261022-evidence/before/engines/compact/tiny-entry-f-resource8/recipe.json",
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-late-resource8-v2-promotion-20261022-evidence/before/engines/compact/tiny-entry-f-resource8/recipe.json",
       "bytes": 41608,
       "sha256": "4a28e483fe6d015cc701a5e440f63cf204ad7b704febacad926130bd92c0e929"
     },
     "qualified_actual_index": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-direct-walker-promotion-20261022-evidence/final-index.json",
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-direct-walker-promotion-20261022-evidence/final-index.json",
       "bytes": 21437,
       "sha256": "14aa8984dfec76fe47ed0251ecba67ea5a3d092bcdeccc336f0b8a41ee605c1c"
     },
@@ -281,17 +286,17 @@
   "local_normal_validation": {
     "status": "PASS local F8v10 ordinary1(two reproductions)+existingpositive1(quit/EOF8GO9TID); exact HEAD CI separate",
     "producing_manifest": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-common-owner-final-promotion-20261024-evidence/producing-source-final.json",
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-common-owner-final-promotion-20261024-evidence/producing-source-final.json",
       "bytes": 12113,
       "sha256": "73c27b53f811988a2e3cd7208432b83604080b967a2c220434980840bc24c94c"
     },
     "producing_recipe": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-common-owner-final-promotion-20261024-evidence/producing-source/engines/compact/tiny-entry-f-resource8/recipe.json",
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-common-owner-final-promotion-20261024-evidence/producing-source/engines/compact/tiny-entry-f-resource8/recipe.json",
       "bytes": 139037,
       "sha256": "af7f6444b328f8b6365c234f7dc91126016d168b3d42cb21ad9b81e68eda3075"
     },
     "firstcost": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-common-owner-final-first-cost-20261024-evidence/final-index.json",
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-common-owner-final-first-cost-20261024-evidence/final-index.json",
       "bytes": 6867,
       "sha256": "af2e2cb235e175a14ac5ade141fe831f115cb9d8a6a697a7c32c372e35a8294a"
     },
@@ -311,7 +316,7 @@
       "sha256": "772354cf94c2e10eb0da21dd4ca3b0522e21d7dabac3e1f4c6bb0417b9f99a63"
     },
     "readback": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-common-owner-final-promotion-20261024-evidence/normal-readback.json",
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-common-owner-final-promotion-20261024-evidence/normal-readback.json",
       "bytes": 8554,
       "sha256": "23a76759c01892dd4c39e8a5b6262e4ed31cdaccaeb95b5c52e28729cb9bee55"
     },
@@ -329,12 +334,12 @@
     "native_entire_same_previousF8": false,
     "D_actual_consumer_sha256": "461f685a5ccd2b2b13682785c1b80637f45c334581660dfd21c6790f06b24482",
     "D_imported_generic_unchanged_source_proof": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-d-bss-provenance-intake-20261024-evidence/final-source-proof.json",
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-d-bss-provenance-intake-20261024-evidence/final-source-proof.json",
       "bytes": 4298,
       "sha256": "de90bef542364aeba12bd69575a032ce2d08c6bc845e75ce979d35fff703aec4"
     },
     "D_import_time_addendum": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-common-owner-final-promotion-20261024-evidence/D-import-time-addendum.json",
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-common-owner-final-promotion-20261024-evidence/D-import-time-addendum.json",
       "bytes": 691,
       "sha256": "0c79797309f2f0cd76b5415d273b03a4129cbc12fd40faa015fa5d96bf917cfd"
     },
@@ -374,17 +379,17 @@
     "specialize_sha256": "9964c7979ced12650c74ddda259e2939f18120076f0fbf788f43ae452c1a0b0b",
     "fixed_late_source": {
       "source_index": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-late-resource8-source-20261022-evidence/final-index.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-late-resource8-source-20261022-evidence/final-index.json",
         "bytes": 5767,
         "sha256": "6bda5eaedd03d0461f2d9ff001a340db04cc17eab5f7d88bf1578db296ee0a1b"
       },
       "source_spans": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-late-resource8-source-20261022-evidence/spans.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-late-resource8-source-20261022-evidence/spans.json",
         "bytes": 9747,
         "sha256": "e68722ebd36a2cbb3a90f2e2297fdcf38629d96d110fbbb655ff54bb424b29f4"
       },
       "firstcost_index": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-late-resource8-first-cost-20261022-evidence/final-index.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-late-resource8-first-cost-20261022-evidence/final-index.json",
         "bytes": 9617,
         "sha256": "b2285e68784f3408ef625c06caa1f1f9471f024e89011d3dc246eeb8b406c108"
       },
@@ -402,12 +407,12 @@
     "local_normal_validation": {
       "status": "PASS local v2 ordinary1 plus strictpositive1; newcheckpoint CI pending",
       "producing_recipe": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-late-resource8-v2-promotion-20261022-evidence/producing/engines/compact/tiny-entry-f-resource8/recipe.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-late-resource8-v2-promotion-20261022-evidence/producing/engines/compact/tiny-entry-f-resource8/recipe.json",
         "bytes": 13682,
         "sha256": "653286d35d42f14f450fe8c3d3e9ee216f0bb5879ccc29da6aa2050064ffb4d3"
       },
       "producing_manifest": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-late-resource8-v2-promotion-20261022-evidence/producing-sources.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-late-resource8-v2-promotion-20261022-evidence/producing-sources.json",
         "bytes": 1857,
         "sha256": "ddbaf17f62485597d541f57338eb66052a35220c0573b91d75b117a482a3ad5f"
       },
@@ -427,7 +432,7 @@
         "sha256": "b3ed31884a5ab09b78c3c072075f74b163f680c8f4d2c1aed222898f593ea03f"
       },
       "readback": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-late-resource8-v2-promotion-20261022-evidence/normal-readback.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-late-resource8-v2-promotion-20261022-evidence/normal-readback.json",
         "bytes": 68405,
         "sha256": "167d34c404383a8003f9002db8a2a42a0ad3d4db9d9a3625de5d492b3e9aa56c"
       },
@@ -448,12 +453,12 @@
       "producing_to_final_annotations_only": true
     },
     "recipe_archive": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-board-successor-v3-promotion-20261022-evidence/before/recipe.json",
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-board-successor-v3-promotion-20261022-evidence/before/recipe.json",
       "bytes": 15893,
       "sha256": "fe0b2a5729ea309036699b6c79903292194fe65f4d1e85e7e22bdef7cc1bfba6"
     },
     "qualified_final_index": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-late-resource8-v2-promotion-20261022-evidence/final-index.json",
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-late-resource8-v2-promotion-20261022-evidence/final-index.json",
       "bytes": 6901,
       "sha256": "75f5cb75e0b0439859eb852a5614279a6bb36bb97ac506fef455bdc2de69b075"
     }
@@ -478,17 +483,17 @@
     "specialize_sha256": "7a074fb28b084eeded7e343eb207e6dffa151c8e77508a9436aa51c46c686388",
     "fixed_late_source": {
       "source_index": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-board-successor-v3-source-20261022-evidence/final-index.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-board-successor-v3-source-20261022-evidence/final-index.json",
         "bytes": 3384,
         "sha256": "58225ebc4142c839aa93592a711f5f90a31d305526d84e928d3e30a618596981"
       },
       "source_proof": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-board-successor-v3-source-20261022-evidence/source-proof.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-board-successor-v3-source-20261022-evidence/source-proof.json",
         "bytes": 13048,
         "sha256": "6fbc3bc2b2f7df71bfc52a5bf041f6e903c1bacd5d33fda98f2e22574307a18e"
       },
       "firstcost_index": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-board-successor-v3-first-cost-20261022-evidence/final-index.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-board-successor-v3-first-cost-20261022-evidence/final-index.json",
         "bytes": 20032,
         "sha256": "50d4c6baa57b3567008dfc953026ed840363184ca5be93e199eff9a5ab4a71f6"
       },
@@ -509,12 +514,12 @@
         "sha256": "b4e8f79615eb08c4d5dcb8db9e1cac76cecbef172f2096c64cafcebbc54cabf8"
       },
       "upstream_full_F_final_index": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-valid-square-successor-promotion-20261022-evidence/final-index.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-valid-square-successor-promotion-20261022-evidence/final-index.json",
         "bytes": 10633,
         "sha256": "943c4961a2e6ff54735c62b71a79fdf9fd4179ecaeb2308f7935a3f436951110"
       },
       "upstream_full_F_producing_closure": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-valid-square-successor-promotion-20261022-evidence/producing-sources.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-valid-square-successor-promotion-20261022-evidence/producing-sources.json",
         "bytes": 14123,
         "sha256": "b8aa9c0a1868f8f5af886128fcc3194252a87b43f7b0882494ee19406e885fbe"
       },
@@ -532,7 +537,7 @@
         "sha256": "26b0e8b6bb5cbc8ff849e1da4d156f89ef7eebce564653497c876255342e3d97"
       },
       "producing_manifest": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-board-successor-v3-promotion-20261022-evidence/producing-source-closure.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-board-successor-v3-promotion-20261022-evidence/producing-source-closure.json",
         "bytes": 17824,
         "sha256": "ed1dbb82068b601290342be6df8bc525320ad95e5c72ccfc8b734c64db9aa87b"
       },
@@ -626,12 +631,12 @@
     "specialize_sha256": "3849c5f9a9e1bec8c8e1a06724da61d12bb431d7d3f2e64bfeaa2df12be66141",
     "fixed_late_source": {
       "source_proof": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-return-token-source-20261024-evidence/source-proof.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-return-token-source-20261024-evidence/source-proof.json",
         "bytes": 6043,
         "sha256": "6ba3e63ea96eaecfb3819fb4ea272a212357687d1977a171bbe0b8e109158cd9"
       },
       "firstcost_index": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-return-token-first-cost-20261024-evidence/final-index.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-return-token-first-cost-20261024-evidence/final-index.json",
         "bytes": 15042,
         "sha256": "8a83e053f8826cc861e7a24fe6b6e653cb8279ffff04d5d8ef775301b3869b0d"
       },
@@ -660,17 +665,17 @@
         "sha256": "edad19278bdbe50331031e85ddcb0ad709f01f3f0e89287e062db0ba36304531"
       },
       "producing_manifest": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-return-token-promotion-20261024-evidence/producing-source-final.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-return-token-promotion-20261024-evidence/producing-source-final.json",
         "bytes": 1817,
         "sha256": "a0933ede97e0da9eedfbc211dbb176adcbb4a3682ef87d934a9be2388310e408"
       },
       "producing_source_closure": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-return-token-promotion-20261024-evidence/producing-source-closure.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-return-token-promotion-20261024-evidence/producing-source-closure.json",
         "bytes": 7578,
         "sha256": "c6b1cf2ab08d98deb64a4a3ab18217943c7e7ff38583ae6972b0e74f12ca4244"
       },
       "firstcost_index": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-return-token-first-cost-20261024-evidence/final-index.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-return-token-first-cost-20261024-evidence/final-index.json",
         "bytes": 15042,
         "sha256": "8a83e053f8826cc861e7a24fe6b6e653cb8279ffff04d5d8ef775301b3869b0d"
       },
@@ -706,7 +711,7 @@
       "original_terminal_reaped_group_absent": true,
       "pre_reap_other_members_absent_while_original_identity_held": true,
       "publication_unmask_monitor_cleanup_scope_fixed_before_first_product": true,
-      "preserved_pre_product_v1": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-return-token-promotion-20261024-evidence/producing",
+      "preserved_pre_product_v1": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-return-token-promotion-20261024-evidence/producing",
       "owned_handles": 0,
       "forced_cleanup": false,
       "late_PID_TID_probe": false,
@@ -776,7 +781,7 @@
     "source_raw_delta": 25,
     "fixed_late_source": {
       "source_proof": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-four-locals-source-20261024-evidence/source-proof.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-four-locals-source-20261024-evidence/source-proof.json",
         "bytes": 4513,
         "sha256": "5f466167496b1baaf1b8cef718e1b4101d024798827aa08911c005c45d2eaf14"
       },
@@ -895,12 +900,12 @@
         "sha256": "3b9364a311f0d22b49e3eb68f0d69c8ad14e829de28ec9862f5faf1adf4ed9f6"
       },
       "producing_manifest": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-tt-pool-promotion-20261024-evidence/producing-source-final.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-tt-pool-promotion-20261024-evidence/producing-source-final.json",
         "bytes": 10230,
         "sha256": "bfdbe0ab803ad39d37a80e96433246d495386bb83cb20fdfca1f0e41a06bef89"
       },
       "producing_recipe": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-tt-pool-promotion-20261024-evidence/producing-source/engines/compact/tiny-entry-f-resource8/recipe.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-tt-pool-promotion-20261024-evidence/producing-source/engines/compact/tiny-entry-f-resource8/recipe.json",
         "bytes": 49595,
         "sha256": "673176e88ed3c734b04adf264e070f17d9c412bb99c76bdc5f7b4a3cf943bd4d"
       },
@@ -939,7 +944,7 @@
     "specialize_sha256": "2641e6bded677d0524d775b85c6d28e6cc31faeebf92484a99d67e504c9ce01c",
     "fixed_late_source": {
       "source_proof": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-tt-pool-source-20261024-evidence/source-proof.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-tt-pool-source-20261024-evidence/source-proof.json",
         "bytes": 7993,
         "sha256": "b66b9b169a0f46bdd90dc54f3f7c5d192ef7751e1ddcd9f2e94fced8eda738d2"
       },
@@ -982,7 +987,7 @@
         "sha256": "078456606abaca25b7a407fb1cf9e6fb0518cab4bb41c8cef45898bc6c4f9120"
       },
       "producing_manifest": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-four-locals-promotion-20261024-evidence/producing-source-final.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-four-locals-promotion-20261024-evidence/producing-source-final.json",
         "bytes": 9015,
         "sha256": "eb1e5223570e239f0c111ddb33cef52600b23e38c2ca4d02eadb1ddc24e3d952"
       },
@@ -1145,12 +1150,12 @@
           "sha256": "3b9364a311f0d22b49e3eb68f0d69c8ad14e829de28ec9862f5faf1adf4ed9f6"
         },
         "producing_manifest": {
-          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-tt-pool-promotion-20261024-evidence/producing-source-final.json",
+          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-tt-pool-promotion-20261024-evidence/producing-source-final.json",
           "bytes": 10230,
           "sha256": "bfdbe0ab803ad39d37a80e96433246d495386bb83cb20fdfca1f0e41a06bef89"
         },
         "producing_recipe": {
-          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-tt-pool-promotion-20261024-evidence/producing-source/engines/compact/tiny-entry-f-resource8/recipe.json",
+          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-tt-pool-promotion-20261024-evidence/producing-source/engines/compact/tiny-entry-f-resource8/recipe.json",
           "bytes": 49595,
           "sha256": "673176e88ed3c734b04adf264e070f17d9c412bb99c76bdc5f7b4a3cf943bd4d"
         },
@@ -1170,7 +1175,7 @@
       }
     },
     "qualified_final_index": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-tt-pool-promotion-20261024-evidence/final-index.json",
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-tt-pool-promotion-20261024-evidence/final-index.json",
       "bytes": 5602,
       "sha256": "05e4689dec300a72e2b72afc47ec2a098c0d85a8539a236e46aa1ebdac33d8fd"
     }
@@ -1189,17 +1194,17 @@
     "normal_validation": {
       "status": "PASS local v7 ordinary1(two reproductions) and strictpositive1(quit/EOF2); exact-head CI separate",
       "producing_manifest": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-frequency-format-promotion-20261024-evidence/producing-source-final.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-frequency-format-promotion-20261024-evidence/producing-source-final.json",
         "bytes": 11465,
         "sha256": "ef43b77e8cb0bf0a53e26d8af101131599956cbba953953580d9257e8482f971"
       },
       "producing_recipe": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-frequency-format-promotion-20261024-evidence/producing-source/engines/compact/tiny-entry-f-resource8/recipe.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-frequency-format-promotion-20261024-evidence/producing-source/engines/compact/tiny-entry-f-resource8/recipe.json",
         "bytes": 67511,
         "sha256": "1762fe8ad63c2a8c869631eb12dcee867ab5799f376de5efee04a795c4533b9c"
       },
       "firstcost": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-frequency-format-first-cost-20261024-evidence/final-index.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-frequency-format-first-cost-20261024-evidence/final-index.json",
         "bytes": 3781,
         "sha256": "6965ed62341037bc33d33e95aa09c0788c9f0156a9c2a85cb4f4a7ce09d3424f"
       },
@@ -1219,7 +1224,7 @@
         "sha256": "033c3af537e26e8badb753019260eb07ce54be73a7279c0ffa55585d76dc0007"
       },
       "readback": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-frequency-format-promotion-20261024-evidence/normal-readback.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-frequency-format-promotion-20261024-evidence/normal-readback.json",
         "bytes": 7256,
         "sha256": "2b69733aaa114f3d884104b30f86c34e94b3e1b8153bf3b620c7913ca7fd485e"
       },
@@ -1255,7 +1260,7 @@
   },
   "D_shared_refill_verifier_provenance": {
     "source_proof": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-d-refill-provenance-20261024-evidence/source-proof.json",
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-d-refill-provenance-20261024-evidence/source-proof.json",
       "bytes": 2565,
       "sha256": "a07765eeaa3b8b9ac0ef99f70991df72bf0caa102c76646912d77c137085ff09"
     },
@@ -1272,7 +1277,7 @@
     "D_only_expected_and_main_change": true,
     "F8_product_inputs_and_expected_unchanged": true,
     "qualified_actual_index_reuse": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-frequency-format-promotion-20261024-evidence/final-index-v2.json",
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-frequency-format-promotion-20261024-evidence/final-index-v2.json",
       "bytes": 6845,
       "sha256": "6c11ac3107d39319dbedcca48a45582bdcc97a060aa39f6fe620ad4cb90a9abf"
     },
@@ -1305,12 +1310,12 @@
     "specialize_sha256": "866b80a35909c36dd6290fe96cd1145696c8f7806055a6d6608e463fb32b8de4",
     "fixed_late_source": {
       "source_proof": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-frequency-format-source-20261024-evidence/source-proof.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-frequency-format-source-20261024-evidence/source-proof.json",
         "bytes": 4539,
         "sha256": "9203a50ec28befa4a4543bbf4e8bdf9dc5ef762d7cd15be98e4135fc7e79b155"
       },
       "firstcost_index": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-frequency-format-first-cost-20261024-evidence/final-index.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-frequency-format-first-cost-20261024-evidence/final-index.json",
         "bytes": 3781,
         "sha256": "6965ed62341037bc33d33e95aa09c0788c9f0156a9c2a85cb4f4a7ce09d3424f"
       },
@@ -1348,7 +1353,7 @@
         "sha256": "ec604606292a8bebbc72bf79f90b71d92b940dc5b25ec6faee1dd2ec8ee92848"
       },
       "upstream_qualified_index": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-frequency-format-promotion-20261024-evidence/final-index.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-frequency-format-promotion-20261024-evidence/final-index.json",
         "bytes": 13031,
         "sha256": "661ed52c4af729fbf9260355474c34f61d33372c0051b39351b3d7f4ad1c092a"
       }
@@ -1356,17 +1361,17 @@
     "local_normal_validation": {
       "status": "PASS local v7 ordinary1(two reproductions) and strictpositive1(quit/EOF2); exact-head CI separate",
       "producing_manifest": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-frequency-format-promotion-20261024-evidence/producing-source-final.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-frequency-format-promotion-20261024-evidence/producing-source-final.json",
         "bytes": 11465,
         "sha256": "ef43b77e8cb0bf0a53e26d8af101131599956cbba953953580d9257e8482f971"
       },
       "producing_recipe": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-frequency-format-promotion-20261024-evidence/producing-source/engines/compact/tiny-entry-f-resource8/recipe.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-frequency-format-promotion-20261024-evidence/producing-source/engines/compact/tiny-entry-f-resource8/recipe.json",
         "bytes": 67511,
         "sha256": "1762fe8ad63c2a8c869631eb12dcee867ab5799f376de5efee04a795c4533b9c"
       },
       "firstcost": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-frequency-format-first-cost-20261024-evidence/final-index.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-frequency-format-first-cost-20261024-evidence/final-index.json",
         "bytes": 3781,
         "sha256": "6965ed62341037bc33d33e95aa09c0788c9f0156a9c2a85cb4f4a7ce09d3424f"
       },
@@ -1386,7 +1391,7 @@
         "sha256": "033c3af537e26e8badb753019260eb07ce54be73a7279c0ffa55585d76dc0007"
       },
       "readback": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-frequency-format-promotion-20261024-evidence/normal-readback.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-frequency-format-promotion-20261024-evidence/normal-readback.json",
         "bytes": 7256,
         "sha256": "2b69733aaa114f3d884104b30f86c34e94b3e1b8153bf3b620c7913ca7fd485e"
       },
@@ -1500,17 +1505,17 @@
       "normal_validation": {
         "status": "PASS local v7 ordinary1(two reproductions) and strictpositive1(quit/EOF2); exact-head CI separate",
         "producing_manifest": {
-          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-frequency-format-promotion-20261024-evidence/producing-source-final.json",
+          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-frequency-format-promotion-20261024-evidence/producing-source-final.json",
           "bytes": 11465,
           "sha256": "ef43b77e8cb0bf0a53e26d8af101131599956cbba953953580d9257e8482f971"
         },
         "producing_recipe": {
-          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-frequency-format-promotion-20261024-evidence/producing-source/engines/compact/tiny-entry-f-resource8/recipe.json",
+          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-frequency-format-promotion-20261024-evidence/producing-source/engines/compact/tiny-entry-f-resource8/recipe.json",
           "bytes": 67511,
           "sha256": "1762fe8ad63c2a8c869631eb12dcee867ab5799f376de5efee04a795c4533b9c"
         },
         "firstcost": {
-          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-frequency-format-first-cost-20261024-evidence/final-index.json",
+          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-frequency-format-first-cost-20261024-evidence/final-index.json",
           "bytes": 3781,
           "sha256": "6965ed62341037bc33d33e95aa09c0788c9f0156a9c2a85cb4f4a7ce09d3424f"
         },
@@ -1530,7 +1535,7 @@
           "sha256": "033c3af537e26e8badb753019260eb07ce54be73a7279c0ffa55585d76dc0007"
         },
         "readback": {
-          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-frequency-format-promotion-20261024-evidence/normal-readback.json",
+          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-frequency-format-promotion-20261024-evidence/normal-readback.json",
           "bytes": 7256,
           "sha256": "2b69733aaa114f3d884104b30f86c34e94b3e1b8153bf3b620c7913ca7fd485e"
         },
@@ -1566,7 +1571,7 @@
     },
     "D_shared_refill_verifier_provenance": {
       "source_proof": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-d-refill-provenance-20261024-evidence/source-proof.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-d-refill-provenance-20261024-evidence/source-proof.json",
         "bytes": 2565,
         "sha256": "a07765eeaa3b8b9ac0ef99f70991df72bf0caa102c76646912d77c137085ff09"
       },
@@ -1583,7 +1588,7 @@
       "D_only_expected_and_main_change": true,
       "F8_product_inputs_and_expected_unchanged": true,
       "qualified_actual_index_reuse": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-frequency-format-promotion-20261024-evidence/final-index-v2.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-frequency-format-promotion-20261024-evidence/final-index-v2.json",
         "bytes": 6845,
         "sha256": "6c11ac3107d39319dbedcca48a45582bdcc97a060aa39f6fe620ad4cb90a9abf"
       },
@@ -1597,12 +1602,12 @@
       "runtime_scope": "Previous F8 v7 actual positive used9f8; reuse here is bounded to identical F8-called generic definitions, not a new f5ed fullfile execution or D main qualification."
     },
     "qualified_final_index": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-frequency-format-promotion-20261024-evidence/final-index-v2.json",
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-frequency-format-promotion-20261024-evidence/final-index-v2.json",
       "bytes": 6845,
       "sha256": "6c11ac3107d39319dbedcca48a45582bdcc97a060aa39f6fe620ad4cb90a9abf"
     },
     "D_provenance_index": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-d-refill-provenance-20261024-evidence/final-index.json",
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-d-refill-provenance-20261024-evidence/final-index.json",
       "bytes": 13828,
       "sha256": "689c6672e6eec8fe422fbc8289c38a692e9ba7f72dbe72985054b742b8505e1f"
     }
@@ -1622,17 +1627,17 @@
     "normal_validation": {
       "status": "PASS local F8v8 ordinary1(two reproductions)+existingpositive1(quit/EOF8GO9TID); exact-head CI separate",
       "producing_manifest": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-promotion-20261024-evidence/producing-source-final.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-quiet-order-promotion-20261024-evidence/producing-source-final.json",
         "bytes": 11578,
         "sha256": "9caae3f33e9b13a8fae84ff7dde7ca453685353ca16bd7dff855f33260d020b8"
       },
       "producing_recipe": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-promotion-20261024-evidence/producing-source/engines/compact/tiny-entry-f-resource8/recipe.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-quiet-order-promotion-20261024-evidence/producing-source/engines/compact/tiny-entry-f-resource8/recipe.json",
         "bytes": 95238,
         "sha256": "59d10e2f914c53be8d74b194025f204650f49421587d75d23208ae37e9b7df36"
       },
       "firstcost": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-first-cost-20261024-evidence/final-index.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-quiet-order-first-cost-20261024-evidence/final-index.json",
         "bytes": 6758,
         "sha256": "fc386eeda96f0b767cb12ebc2d30d72c1cf537af57d7b2c1b4269a08ee0c7171"
       },
@@ -1652,7 +1657,7 @@
         "sha256": "748ed04b9cb73e42a9dc473a01cc6c6844454534a63ad8a3a567ef96e56db79c"
       },
       "readback": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-promotion-20261024-evidence/normal-readback.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-quiet-order-promotion-20261024-evidence/normal-readback.json",
         "bytes": 7312,
         "sha256": "943945032afd344a349a0a5d9a253b4e33c432504862984742ba9a960b1129a7"
       },
@@ -1701,22 +1706,22 @@
     "specialize_sha256": "81da0ff885d2a52b35a288512e4797205469c074daf219c7a15677319dcf9b4d",
     "fixed_late_source": {
       "source_proof": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-source-20261024-evidence/source-proof.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-quiet-order-source-20261024-evidence/source-proof.json",
         "bytes": 7238,
         "sha256": "b3b3cfeb93519d4288b97e6da09f1b0333d2a8f6d05cff631bad6a2e89a4b1ed"
       },
       "source_index": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-source-20261024-evidence/final-index.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-quiet-order-source-20261024-evidence/final-index.json",
         "bytes": 2134,
         "sha256": "0b18a63a874ea7bf50f61e7805fd010d4010626d2fb0a9ad6f4417344aa1cee9"
       },
       "producer_readback": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-source-20261024-evidence/producer-readback.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-quiet-order-source-20261024-evidence/producer-readback.json",
         "bytes": 1758,
         "sha256": "0a23dfc286ded8d2cdcade2d3c54e8bbcb31b2e475c7cc55abb935f57d7ee8ba"
       },
       "firstcost_index": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-first-cost-20261024-evidence/final-index.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-quiet-order-first-cost-20261024-evidence/final-index.json",
         "bytes": 6758,
         "sha256": "fc386eeda96f0b767cb12ebc2d30d72c1cf537af57d7b2c1b4269a08ee0c7171"
       },
@@ -1750,7 +1755,7 @@
         "sha256": "b6ac4a4196f837b870bdf8b072ac6dbbe49e44b6c666be662a9a4a85cc6935cd"
       },
       "upstream_qualified_index": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-quiet-order-inline-promotion-20261024-evidence/final-index.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-quiet-order-inline-promotion-20261024-evidence/final-index.json",
         "bytes": 7723,
         "sha256": "5efb7f95898880afd9bf9881dd513d40fd21ab24dd2d5f4149a8c0bc4db9238d"
       }
@@ -1758,17 +1763,17 @@
     "local_normal_validation": {
       "status": "PASS local F8v8 ordinary1(two reproductions)+existingpositive1(quit/EOF8GO9TID); exact-head CI separate",
       "producing_manifest": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-promotion-20261024-evidence/producing-source-final.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-quiet-order-promotion-20261024-evidence/producing-source-final.json",
         "bytes": 11578,
         "sha256": "9caae3f33e9b13a8fae84ff7dde7ca453685353ca16bd7dff855f33260d020b8"
       },
       "producing_recipe": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-promotion-20261024-evidence/producing-source/engines/compact/tiny-entry-f-resource8/recipe.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-quiet-order-promotion-20261024-evidence/producing-source/engines/compact/tiny-entry-f-resource8/recipe.json",
         "bytes": 95238,
         "sha256": "59d10e2f914c53be8d74b194025f204650f49421587d75d23208ae37e9b7df36"
       },
       "firstcost": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-first-cost-20261024-evidence/final-index.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-quiet-order-first-cost-20261024-evidence/final-index.json",
         "bytes": 6758,
         "sha256": "fc386eeda96f0b767cb12ebc2d30d72c1cf537af57d7b2c1b4269a08ee0c7171"
       },
@@ -1788,7 +1793,7 @@
         "sha256": "748ed04b9cb73e42a9dc473a01cc6c6844454534a63ad8a3a567ef96e56db79c"
       },
       "readback": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-promotion-20261024-evidence/normal-readback.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-quiet-order-promotion-20261024-evidence/normal-readback.json",
         "bytes": 7312,
         "sha256": "943945032afd344a349a0a5d9a253b4e33c432504862984742ba9a960b1129a7"
       },
@@ -1899,17 +1904,17 @@
       "normal_validation": {
         "status": "PASS local F8v8 ordinary1(two reproductions)+existingpositive1(quit/EOF8GO9TID); exact-head CI separate",
         "producing_manifest": {
-          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-promotion-20261024-evidence/producing-source-final.json",
+          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-quiet-order-promotion-20261024-evidence/producing-source-final.json",
           "bytes": 11578,
           "sha256": "9caae3f33e9b13a8fae84ff7dde7ca453685353ca16bd7dff855f33260d020b8"
         },
         "producing_recipe": {
-          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-promotion-20261024-evidence/producing-source/engines/compact/tiny-entry-f-resource8/recipe.json",
+          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-quiet-order-promotion-20261024-evidence/producing-source/engines/compact/tiny-entry-f-resource8/recipe.json",
           "bytes": 95238,
           "sha256": "59d10e2f914c53be8d74b194025f204650f49421587d75d23208ae37e9b7df36"
         },
         "firstcost": {
-          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-first-cost-20261024-evidence/final-index.json",
+          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-quiet-order-first-cost-20261024-evidence/final-index.json",
           "bytes": 6758,
           "sha256": "fc386eeda96f0b767cb12ebc2d30d72c1cf537af57d7b2c1b4269a08ee0c7171"
         },
@@ -1929,7 +1934,7 @@
           "sha256": "748ed04b9cb73e42a9dc473a01cc6c6844454534a63ad8a3a567ef96e56db79c"
         },
         "readback": {
-          "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-promotion-20261024-evidence/normal-readback.json",
+          "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-quiet-order-promotion-20261024-evidence/normal-readback.json",
           "bytes": 7312,
           "sha256": "943945032afd344a349a0a5d9a253b4e33c432504862984742ba9a960b1129a7"
         },
@@ -1959,7 +1964,7 @@
       }
     },
     "qualified_final_index": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-quiet-order-promotion-20261024-evidence/final-index.json",
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-quiet-order-promotion-20261024-evidence/final-index.json",
       "bytes": 6728,
       "sha256": "35051ca82a563df92ea18e6622480831cc1786c261c7e2f9aca1da173bfb3cb1"
     }
@@ -1979,17 +1984,17 @@
     "normal_validation": {
       "status": "PASS local F8v9 ordinary1(two reproductions)+existingpositive1(quit/EOF8GO9TID); exact-head CI separate",
       "producing_manifest": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-from-inline-promotion-20261024-evidence/producing-source-final.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-from-inline-promotion-20261024-evidence/producing-source-final.json",
         "bytes": 11667,
         "sha256": "3b5775c3bbc2704da8d56943e57170e757f514db467d3f77da44ccfe2198a7d5"
       },
       "producing_recipe": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-from-inline-promotion-20261024-evidence/producing-source/engines/compact/tiny-entry-f-resource8/recipe.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-from-inline-promotion-20261024-evidence/producing-source/engines/compact/tiny-entry-f-resource8/recipe.json",
         "bytes": 118483,
         "sha256": "547a19c6ec9d8e4c66ec34ecbb749438514ff5e895abcba0a858b30afca59120"
       },
       "firstcost": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-from-inline-first-cost-20261024-evidence/final-index.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-from-inline-first-cost-20261024-evidence/final-index.json",
         "bytes": 6748,
         "sha256": "987bf535e6271b58a6d6bd1734782f201a5d9815be743493259a16f6e74e1d64"
       },
@@ -2009,7 +2014,7 @@
         "sha256": "e613f24b763ab10317c84241a1cf1b9eda677496d5d94c6606cf4d10abb2863d"
       },
       "readback": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-from-inline-promotion-20261024-evidence/normal-readback.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-from-inline-promotion-20261024-evidence/normal-readback.json",
         "bytes": 7314,
         "sha256": "4c2a4b8475cb8fac88f2f3348f2c7797a3e824cd97170788dc578b5e36e94572"
       },
@@ -2058,22 +2063,22 @@
     "specialize_sha256": "140e7a74634772841c37afeb8dad09693f4326705aac18fc6c04b0cf0009052a",
     "fixed_late_source": {
       "source_proof": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-from-inline-source-20261024-evidence/source-proof.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-from-inline-source-20261024-evidence/source-proof.json",
         "bytes": 7239,
         "sha256": "743386a39372a4deef1bb7b2678cc8b080c11d9969c710d7618aac5e230632b0"
       },
       "source_index": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-from-inline-source-20261024-evidence/final-index.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-from-inline-source-20261024-evidence/final-index.json",
         "bytes": 1332,
         "sha256": "3f5295218f4fc7ba1999097522905b1ee07f1e49b9745431dc81ce14db0a7322"
       },
       "upstream_normal_readback": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-from-inline-promotion-20261024-evidence/upstream-normal-readback.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-from-inline-promotion-20261024-evidence/upstream-normal-readback.json",
         "bytes": 1469,
         "sha256": "fada12a70c75979543891b63dae27fd208082825a08af492293ab171c29aaf48"
       },
       "firstcost_index": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-from-inline-first-cost-20261024-evidence/final-index.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-from-inline-first-cost-20261024-evidence/final-index.json",
         "bytes": 6748,
         "sha256": "987bf535e6271b58a6d6bd1734782f201a5d9815be743493259a16f6e74e1d64"
       },
@@ -2111,7 +2116,7 @@
         "sha256": "b14e28af913d8d78170b19afc4d4aa368d31764c0850246147b0238f39c4ba50"
       },
       "upstream_qualified_index": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-from-inline-promotion-20261024-evidence/final-index.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-from-inline-promotion-20261024-evidence/final-index.json",
         "bytes": 7961,
         "sha256": "02cf20dd605df9ed8e94361a93d7b8c5b17bf5c7171ac7dfce80cd894e4b673a"
       }
@@ -2201,17 +2206,17 @@
     "local_normal_validation": {
       "status": "PASS local F8v9 ordinary1(two reproductions)+existingpositive1(quit/EOF8GO9TID); exact-head CI separate",
       "producing_manifest": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-from-inline-promotion-20261024-evidence/producing-source-final.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-from-inline-promotion-20261024-evidence/producing-source-final.json",
         "bytes": 11667,
         "sha256": "3b5775c3bbc2704da8d56943e57170e757f514db467d3f77da44ccfe2198a7d5"
       },
       "producing_recipe": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-from-inline-promotion-20261024-evidence/producing-source/engines/compact/tiny-entry-f-resource8/recipe.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-from-inline-promotion-20261024-evidence/producing-source/engines/compact/tiny-entry-f-resource8/recipe.json",
         "bytes": 118483,
         "sha256": "547a19c6ec9d8e4c66ec34ecbb749438514ff5e895abcba0a858b30afca59120"
       },
       "firstcost": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-from-inline-first-cost-20261024-evidence/final-index.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-from-inline-first-cost-20261024-evidence/final-index.json",
         "bytes": 6748,
         "sha256": "987bf535e6271b58a6d6bd1734782f201a5d9815be743493259a16f6e74e1d64"
       },
@@ -2231,7 +2236,7 @@
         "sha256": "e613f24b763ab10317c84241a1cf1b9eda677496d5d94c6606cf4d10abb2863d"
       },
       "readback": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-from-inline-promotion-20261024-evidence/normal-readback.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-from-inline-promotion-20261024-evidence/normal-readback.json",
         "bytes": 7314,
         "sha256": "4c2a4b8475cb8fac88f2f3348f2c7797a3e824cd97170788dc578b5e36e94572"
       },
@@ -2265,7 +2270,7 @@
       "sha256": "547a19c6ec9d8e4c66ec34ecbb749438514ff5e895abcba0a858b30afca59120"
     },
     "qualified_final_index": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-from-inline-promotion-20261024-evidence/final-index-v3.json",
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-from-inline-promotion-20261024-evidence/final-index-v3.json",
       "bytes": 7581,
       "sha256": "8ea4f1fa5acc63766c529462dd73d04548f795a10e59eb9915098992cc5469d6"
     }
@@ -2280,7 +2285,7 @@
     "Ffull_gains_not_added": true,
     "D_final_verifier_sha256": "461f685a5ccd2b2b13682785c1b80637f45c334581660dfd21c6790f06b24482",
     "D_source_intake": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-d-bss-provenance-intake-20261024-evidence/final-source-proof.json",
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-d-bss-provenance-intake-20261024-evidence/final-source-proof.json",
       "bytes": 4298,
       "sha256": "de90bef542364aeba12bd69575a032ce2d08c6bc845e75ce979d35fff703aec4"
     },
@@ -2291,17 +2296,17 @@
     "normal_validation": {
       "status": "PASS local F8v10 ordinary1(two reproductions)+existingpositive1(quit/EOF8GO9TID); exact HEAD CI separate",
       "producing_manifest": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-common-owner-final-promotion-20261024-evidence/producing-source-final.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-common-owner-final-promotion-20261024-evidence/producing-source-final.json",
         "bytes": 12113,
         "sha256": "73c27b53f811988a2e3cd7208432b83604080b967a2c220434980840bc24c94c"
       },
       "producing_recipe": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-common-owner-final-promotion-20261024-evidence/producing-source/engines/compact/tiny-entry-f-resource8/recipe.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-common-owner-final-promotion-20261024-evidence/producing-source/engines/compact/tiny-entry-f-resource8/recipe.json",
         "bytes": 139037,
         "sha256": "af7f6444b328f8b6365c234f7dc91126016d168b3d42cb21ad9b81e68eda3075"
       },
       "firstcost": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-common-owner-final-first-cost-20261024-evidence/final-index.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-common-owner-final-first-cost-20261024-evidence/final-index.json",
         "bytes": 6867,
         "sha256": "af2e2cb235e175a14ac5ade141fe831f115cb9d8a6a697a7c32c372e35a8294a"
       },
@@ -2321,7 +2326,7 @@
         "sha256": "772354cf94c2e10eb0da21dd4ca3b0522e21d7dabac3e1f4c6bb0417b9f99a63"
       },
       "readback": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-common-owner-final-promotion-20261024-evidence/normal-readback.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-common-owner-final-promotion-20261024-evidence/normal-readback.json",
         "bytes": 8554,
         "sha256": "23a76759c01892dd4c39e8a5b6262e4ed31cdaccaeb95b5c52e28729cb9bee55"
       },
@@ -2339,12 +2344,12 @@
       "native_entire_same_previousF8": false,
       "D_actual_consumer_sha256": "461f685a5ccd2b2b13682785c1b80637f45c334581660dfd21c6790f06b24482",
       "D_imported_generic_unchanged_source_proof": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-d-bss-provenance-intake-20261024-evidence/final-source-proof.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-d-bss-provenance-intake-20261024-evidence/final-source-proof.json",
         "bytes": 4298,
         "sha256": "de90bef542364aeba12bd69575a032ce2d08c6bc845e75ce979d35fff703aec4"
       },
       "D_import_time_addendum": {
-        "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-common-owner-final-promotion-20261024-evidence/D-import-time-addendum.json",
+        "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-common-owner-final-promotion-20261024-evidence/D-import-time-addendum.json",
         "bytes": 691,
         "sha256": "0c79797309f2f0cd76b5415d273b03a4129cbc12fd40faa015fa5d96bf917cfd"
       },
@@ -2436,7 +2441,7 @@
       "runtime_qualification": "separate ordinary and unchanged positive receipts; first cost alone is not runtime acceptance"
     },
     "qualified_index": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f8-W1-W2-promotion-20261024-evidence/final-index.json",
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f8-W1-W2-promotion-20261024-evidence/final-index.json",
       "sha256": "9d0456e2d8100301042aae489ce68439f902a0d50a9b8107b2c06662b3847848"
     }
   },

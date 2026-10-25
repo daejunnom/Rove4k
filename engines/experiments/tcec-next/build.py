@@ -20,7 +20,7 @@ REPO=HERE.parents[2]
 SELF='engines/experiments/tcec-next/build.py'
 OLD='engines/experiments/tcec-scope/build.py'
 VERIFIER='engines/experiments/tcec-scope/verify.py'
-OLD_PIN='fc916e798952cff1c915a6846e758874bc2d858b3c59dec73870b95c7e3d4828'
+OLD_PIN='5fa10c6f8f032be374bf3a86bbe6ca558076630a2cc3170b41890f691688f563'
 
 
 def load(name,path):

@@ -1,5 +1,10 @@
 # Maintained F: current wrapper choices and historical producing records
 
+Shared C bodies are owned by [engines/common](../../common/README.md). The builder
+assembles the canonical template before the existing readable transformations;
+compile or inspect the composed source rather than feeding its named fragments
+directly to a C compiler.
+
 The current 2026-10-25 follow-up selects the costs below. Full F and grace
 remain the defaults. Workers2 / TT18 / PLY128 are fixed in every row. The
 [current acceptance record](../../../docs/WRAPPER-IMPLEMENTATION.ko.md#후속-압축과-엔진별-bash-인수)

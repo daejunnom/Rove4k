@@ -64,7 +64,7 @@ int max_depth;
 uint64_t deadline,game_keys[HISTORY];
 int game_length;
 Board position;
-uint64_t now(void){struct timespec t;clock_gettime(CLOCK_MONOTONIC,&t);return (uint64_t)t.tv_sec*1000+t.tv_nsec/1000000;}
+#include "rove-common/protocol/now"
 
 #if DEV
 #include <ctype.h>
@@ -74,57 +74,18 @@ uint64_t now(void){struct timespec t;clock_gettime(CLOCK_MONOTONIC,&t);return (u
 /* A's mailbox is the only board representation. No bitboard or hash table
  * initialization is required. Piece and state key domains do not overlap. */
 static const int steps[16]={33,31,18,14,-14,-18,-31,-33,1,-1,16,-16,17,15,-15,-17};
-uint64_t mix(uint64_t x){
-    x+=UINT64_C(0x9e3779b97f4a7c15);
-    x=(x^(x>>30))*UINT64_C(0xbf58476d1ce4e5b9);
-    x=(x^(x>>27))*UINT64_C(0x94d049bb133111eb);
-    return x^(x>>31);
-}
-int value(int v,int q){
-    static const int material[7]={0,100,320,330,500,900,0};
-    int a=abs(v),rank=q>>4,file=q&7,advance=v>0?rank:7-rank;
-    int center=7-abs(2*file-7)-abs(2*rank-7);
-    int score=material[a]+advance*(a==1?7:a==4?2:0)+
-        center*(a==2?9:a==3?5:a==6?-3:(a==1||a==5)*2);
-    return v>0?score:-score;
-}
-static uint64_t piece(int v,int q){return mix((uint64_t)(q+(v+6)*128));}
-static uint64_t state(const Board *p){
-    return mix(2048+p->c)^(p->s<0?mix(2064):0)^
-        (p->e<0?0:mix(2065+(p->e&7)));
-}
-static void put(Board *p,int q,int v){
-    int old=p->b[q];
-    if(old){p->h^=piece(old,q);p->v-=value(old,q);}
-    p->b[q]=(int8_t)v;
-    if(v){p->h^=piece(v,q);p->v+=value(v,q);if(abs(v)==6)p->k[v<0]=q;}
-}
+#include "rove-common/board/mix"
+#include "rove-common/board/value_scalar"
+#include "rove-common/board/piece"
+#include "rove-common/board/state"
+#include "rove-common/board/put_scalar"
 static int walk(const Board *,Move *,int,int);
-int attacked(const Board *p,int sq,int side){return walk(p,0,sq,side);}
-int dead(const Board *p){
-    int minors=0,knights=0,colors=0;
-    for(int q=0;q<128;q++)if(!(q&0x88)){
-        int a=abs(p->b[q]);
-        if(a==2){minors++;knights++;}
-        else if(a==3){minors++;colors|=1<<((q+(q>>4))&1);}
-        else if(a&&a<6)return 0;
-    }
-    return minors<2||(!knights&&colors!=3);
-}
+#include "rove-common/move/attacked"
+#include "rove-common/board/dead"
 /* Canonicalize EP before storing a position: an uncapturable target, including
  * one whose capture exposes the king, must not distinguish repetition keys. */
-static void ep(Board *p){
-    if(p->e<0)return;
-    for(int d=-1;d<=1;d+=2){
-        int q=p->e-p->s*16+d;
-        if(!(q&0x88)&&p->b[q]==p->s){
-            Board t=*p;t.b[q]=t.b[p->e-p->s*16]=0;t.b[p->e]=(int8_t)p->s;
-            if(!attacked(&t,p->k[p->s<0],-p->s))return;
-        }
-    }
-    p->e=-1;
-}
-static int rights(int q){return q==4?3:q==116?12:q==0?2:q==7?1:q==112?8:q==119?4:0;}
+#include "rove-common/board/ep"
+#include "rove-common/board/rights"
 /* Internal contract: p came from start/FEN/a prior successful make, and m
  * belongs to gen(p). Both runtimes parse through gen+make; search, perft and
  * fallback only apply list members (a TT move only changes their ordering).
@@ -172,93 +133,11 @@ static void add(Move *moves,int *n,int from,int to,int pawn){
 /* Both modes walk forward from pieces of side s. A null output list asks
  * whether any geometric attack reaches sq, even if sq holds a friendly piece.
  * Pawn pushes and castling belong only to move generation, never attacks. */
-static int walk(const Board *p,Move *moves,int sq,int s){
-    int n=0;
-    for(int from=0;from<128;from++){
-        if(from&0x88){from+=7;continue;}
-        int a=abs(p->b[from]);if(p->b[from]*s<=0)continue;
-        if(moves&&a==1){
-            int to=from+s*16;
-            if(!(to&0x88)&&!p->b[to]){
-                add(moves,&n,from,to,1);
-                if((from>>4)==(s>0?1:6)&&!p->b[to+s*16])add(moves,&n,from,to+s*16,0);
-            }
-        }
-        int first=a==1?(s>0?12:14):a==2?0:a==3?12:8;
-        int last=a==1?first+2:a==2?8:a==4?12:16;
-        for(int i=first;i<last;i++){
-            int d=steps[i];
-            for(int to=from+d;!(to&0x88);to+=d){
-                int target=p->b[to];
-                if(!moves&&to==sq)return 1;
-                if(target*s>0||(moves&&a==1&&!target&&to!=p->e))break;
-                if(moves)add(moves,&n,from,to,a==1);
-                if(target||a<3||a==6)break;
-            }
-        }
-        if(moves&&a==6){
-            int home=s>0?4:116,shift=s>0?0:2;
-            if(from==home&&!attacked(p,home,-s)){
-                if((p->c&(1<<shift))&&!p->b[home+1]&&!p->b[home+2]&&!attacked(p,home+1,-s))add(moves,&n,from,home+2,0);
-                if((p->c&(2<<shift))&&!p->b[home-1]&&!p->b[home-2]&&!p->b[home-3]&&!attacked(p,home-1,-s))add(moves,&n,from,home-2,0);
-                }
-        }
-    }
-    return n;
-}
-int gen(const Board *p,Move *moves){return walk(p,moves,0,p->s);}
-void start(Board *p){
-    static const int back[8]={4,2,3,5,6,3,2,4};
-    Board t={0};t.s=1;t.c=15;t.e=-1;
-    for(int f=0;f<8;f++){put(&t,f,back[f]);put(&t,16+f,1);put(&t,96+f,-1);put(&t,112+f,-back[f]);}
-    t.h^=state(&t);t.r=t.h;*p=t;
-}
+#include "rove-common/move/walk"
+#include "rove-common/move/gen"
+#include "rove-common/board/start"
 #if DEV
-int fen(Board *p,const char *s){
-    static const char letters[]=" PNBRQK",castles[]="KQkq";
-    Board t={0};int rank=7,file=0,kings[2]={0},counts[2]={0};t.s=1;t.e=-1;
-    while(*s&&*s!=' '){
-        int ch=(unsigned char)*s++;
-        if(ch=='/'){if(file!=8||!rank)return 0;rank--;file=0;}
-        else if(ch>='1'&&ch<='8'){file+=ch-'0';if(file>8)return 0;}
-        else{
-            const char *x=strchr(letters,toupper(ch));if(!x||x==letters||file>=8)return 0;
-            int v=(int)(x-letters)*(isupper(ch)?1:-1);
-            if(++counts[v<0]>16)return 0;
-            if(abs(v)==6&&++kings[v<0]>1)return 0;
-            put(&t,rank*16+file++,v);
-        }
-    }
-    if(rank||file!=8||kings[0]!=1||kings[1]!=1||*s!=' ')return 0;
-    s++;
-    if(*s!='w'&&*s!='b')return 0;
-    t.s=*s++=='w'?1:-1;
-    if(*s!=' ')return 0;
-    s++;
-    if(*s=='-')s++;
-    else while(*s&&*s!=' '){const char *x=strchr(castles,*s++);if(!x)return 0;int b=1<<(x-castles);if(t.c&b)return 0;t.c|=b;}
-    if(*s!=' ')return 0;
-    s++;
-    if(*s=='-')s++;
-    else{
-        if(!s[0]||!s[1])return 0;
-        int f=s[0]-'a',r=s[1]-'1';
-        if(f<0||f>7||r!=(t.s>0?5:2))return 0;
-        t.e=r*16+f;s+=2;
-        if(t.b[t.e]||t.b[t.e-t.s*16]!=-t.s)return 0;
-    }
-    for(int i=0;i<2;i++){
-        if(*s!=' ')return 0;
-        char *end;errno=0;long n=strtol(++s,&end,10);
-        if(errno||end==s||n<(i?1:0)||n>1000000)return 0;
-        if(!i)t.half=(int)n;
-        s=end;
-    }
-    while(*s==' ')s++;
-    if(*s)return 0;
-    for(int i=0;i<4;i++){int home=i<2?4:116,rook=(i&1)?home-4:home+3,side=i<2?1:-1;if(t.b[home]!=side*6||t.b[rook]!=side*4)t.c&=~(1<<i);}
-    ep(&t);t.h^=state(&t);t.r=t.h;*p=t;return 1;
-}
+#include "rove-common/board/fen"
 int verify_board(const Board *p){
     if((p->s!=1&&p->s!=-1)||p->c<0||p->c>15||p->half<0||p->e<-1)return 0;
     Board t={0};t.s=p->s;t.c=p->c;t.e=p->e;t.k[0]=t.k[1]=-1;int kings[2]={0},counts[2]={0};
@@ -288,32 +167,13 @@ int verify_board(const Board *p){
 
 /* A slot is acquired without waiting. Contention is a miss, never a torn
  * key/payload publication. Search workers share slots, not mutable heuristics. */
-static uint64_t probe(uint64_t key,uint64_t data){
-    Entry *e=table+(key&((1u<<TT_BITS)-1));
-    if(atomic_flag_test_and_set_explicit(&e->lock,memory_order_acquire))return 0;
-    if(data)e->key=key,e->data=data;
-    else data=e->key==key?e->data:0;
-    atomic_flag_clear_explicit(&e->lock,memory_order_release);
-    return data;
-}
-static int claim(Worker *w){
-    if(atomic_load_explicit(&stopped,memory_order_relaxed))return 0;
-    if(!(w->nodes&255)&&now()>=deadline){atomic_store(&stopped,1);return 0;}
-#if DEV
-    if(limit){
-        uint64_t n=atomic_load_explicit(&searched,memory_order_relaxed);
-        do{if(n>=limit){atomic_store(&stopped,1);return 0;}}
-        while(!atomic_compare_exchange_weak_explicit(&searched,&n,n+1,memory_order_relaxed,memory_order_relaxed));
-    }else atomic_fetch_add_explicit(&searched,1,memory_order_relaxed);
-#endif
-    ++w->nodes;return 1;
-}
+#include "rove-common/search/probe"
+#include "rove-common/search/claim"
 static void learn(int16_t *cell,int bonus){
     *cell+=(bonus-*cell*bonus/16384);
 }
-static int piece_index(int p){return p+6;}
-static int capture(const Board *p,Move m){return p->b[TO(m)]||
-    (abs(p->b[FROM(m)])==1&&TO(m)==p->e);}
+#include "rove-common/search/piece_index"
+#include "rove-common/move/capture"
 static int search(Worker *w,const Board *p,int depth,int alpha,int beta,int ply,int prior,Move *root){
     if(!claim(w))return 0;
     int check=attacked(p,p->k[p->s<0],-p->s),draw=p->half>=100;
@@ -426,98 +286,16 @@ static unsigned epoch;
 static int pending=WORKERS,quitting;
 static Move fallback;
 
-static void text(Move m,char *s){
-    if(!m){strcpy(s,"0000");return;}
-    s[0]='a'+(FROM(m)&7);s[1]='1'+(FROM(m)>>4);s[2]='a'+(TO(m)&7);s[3]='1'+(TO(m)>>4);
-    s[4]="  nbrq"[PROMO(m)];s[4+!!PROMO(m)]=0;
-}
-static Move parse(const Board *b,const char *s,Board *c){
-    Move list[MOVES];char name[6];int n=gen(b,list);
-    for(int i=0;i<n;i++){
-        if(s){text(list[i],name);if(strcmp(s,name))continue;}
-        if(make(b,list[i],c))return list[i];
-    }return 0;
-}
-static void result(void){
-    flockfile(stdout);
-    Worker *w=workers;for(int i=1;i<WORKERS;i++)if(workers[i].depth>w->depth)w=workers+i;
-    Move best=w->best?w->best:fallback;char move[6];text(best,move);
-#if DEV
-    int score=w->score;
-    if(abs(score)>=MATE-PLY)printf("info depth %d score mate %d",w->depth,score>0?(MATE-score+1)/2:-(MATE+score+1)/2);
-    else printf("info depth %d score cp %d",w->depth,score);
-    printf(" nodes %llu",(unsigned long long)atomic_load(&searched));if(best)printf(" pv %s",move);puts("");
-#endif
-    printf("bestmove %s\n",move);fflush(stdout);funlockfile(stdout);
-}
-static void *work(void *p){
-    Worker *w=p;unsigned seen=0;pthread_mutex_lock(&mutex);--pending;pthread_cond_broadcast(&finished);
-    for(;;){
-        while(seen==epoch&&!quitting)pthread_cond_wait(&command,&mutex);
-        if(quitting)break;
-        seen=epoch;pthread_mutex_unlock(&mutex);think(w,&position);pthread_mutex_lock(&mutex);
-        if(!--pending){result();pthread_cond_broadcast(&finished);}
-    }
-    pthread_mutex_unlock(&mutex);return NULL;
-}
-static void wait(void){atomic_store(&stopped,1);pthread_mutex_lock(&mutex);while(pending)pthread_cond_wait(&finished,&mutex);pthread_mutex_unlock(&mutex);}
-static void clear(void){for(size_t i=0;i<((size_t)1<<TT_BITS);i++){table[i].key=table[i].data=0;atomic_flag_clear(&table[i].lock);}}
-static void set_position(char *s){
-    Board b,c;uint64_t keys[HISTORY];int n=1;char *moves=strstr(s," moves "),*save;
-    if(moves){*moves=0;moves+=7;}
-    if(!strcmp(s,"startpos"))start(&b);
-#if DEV
-    else if(!strncmp(s,"fen ",4)){if(!fen(&b,s+4))return;}
-#endif
-    else return;
-    keys[0]=b.h;
-    if(moves)for(char *t=strtok_r(moves," \t",&save);t;t=strtok_r(NULL," \t",&save)){
-        if(n==HISTORY||!parse(&b,t,&c))return;b=c;keys[n++]=b.h;
-    }
-    position=b;game_length=n;memcpy(game_keys,keys,n*sizeof *keys);
-}
-static uint64_t number(const char *s){
-    uint64_t n=0;if(!s||!*s)return 0;
-    for(;*s;s++){unsigned d=(unsigned)(*s-'0');if(d>9||n>((uint64_t)LLONG_MAX-d)/10)return 0;n=n*10+d;}return n;
-}
-static int read_line(char *s){
-    int c,n=0,bad=0;
-    while((c=getchar())!=EOF&&c!='\n'){if(!c||n==32767)bad=1;else s[n++]=c;}
-    s[n]=0;return c==EOF&&!n?-1:!bad;
-}
-static void go(char *s){
-    wait();
-#if DEV
-    deadline=UINT64_MAX;
-#endif
-#if DEV
-    limit=0;max_depth=PLY-2;atomic_store(&searched,0);
-#endif
-#if DEV
-    uint64_t clock=0,inc=0,budget=0;int present=0,infinite=0;char *save;
-#else
-    uint64_t clock=0,inc=0,budget=0;int present=0;char *save;
-#endif
-    for(char *t=strtok_r(s," \t",&save);t;t=strtok_r(NULL," \t",&save)){
-        if(!strcmp(t,"wtime")||!strcmp(t,"btime")){int side=*t=='w'?1:-1;uint64_t n=number(strtok_r(NULL," \t",&save));if(side==position.s){clock=n;present=1;}}
-        else if(!strcmp(t,"winc")||!strcmp(t,"binc")){int side=*t=='w'?1:-1;uint64_t n=number(strtok_r(NULL," \t",&save));if(side==position.s)inc=n;}
-#if DEV
-        else if(!strcmp(t,"infinite"))infinite=1;
-        else if(!strcmp(t,"depth")){uint64_t n=number(strtok_r(NULL," \t",&save));if(n&&n<PLY-1)max_depth=n;}
-        else if(!strcmp(t,"nodes"))limit=number(strtok_r(NULL," \t",&save));
-        else if(!strcmp(t,"movetime")){budget=number(strtok_r(NULL," \t",&save));if(!budget)budget=1;}
-#endif
-    }
-#if DEV
-    if(!infinite){if(!budget&&present){budget=clock/30+(inc>86400000?86400000:inc)*3/4;if(budget>clock/5)budget=clock/5;if(!budget)budget=1;}if(budget)deadline=now()+(budget>86400000?86400000:budget);}
-#else
-    if(present){budget=clock/30+(inc>86400000?86400000:inc)*3/4;if(budget>clock/5)budget=clock/5;if(!budget)budget=1;}
-    else budget=1000;
-    deadline=now()+(budget>86400000?86400000:budget);
-#endif
-    Board c;fallback=parse(&position,0,&c);atomic_store(&stopped,0);
-    pthread_mutex_lock(&mutex);pending=WORKERS;epoch++;pthread_cond_broadcast(&command);pthread_mutex_unlock(&mutex);
-}
+#include "rove-common/protocol/text"
+#include "rove-common/protocol/parse_with_board"
+#include "rove-common/protocol/result"
+#include "rove-common/protocol/work_pending_start"
+#include "rove-common/protocol/wait"
+#include "rove-common/protocol/clear"
+#include "rove-common/protocol/set_position_with_board"
+#include "rove-common/protocol/number"
+#include "rove-common/protocol/read_line"
+#include "rove-common/protocol/go_with_board"
 #if DEV
 static uint64_t perft(const Board *b,int d){
     if(!d)return 1;

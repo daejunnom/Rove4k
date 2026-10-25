@@ -21,7 +21,7 @@ ROOT = HERE.parents[2]
 ORACLE = "engines/tests/chess_oracle.py"
 ORACLE_SHA = "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8"
 HOST = "engines/experiments/tcec-scope/build.py"
-HOST_SHA = "fc916e798952cff1c915a6846e758874bc2d858b3c59dec73870b95c7e3d4828"
+HOST_SHA = "5fa10c6f8f032be374bf3a86bbe6ca558076630a2cc3170b41890f691688f563"
 SCHEMA = "rove4k.production-generated-rules.v1"
 
 # These bindings refer to the complete baseline pins admitted by profile_source,

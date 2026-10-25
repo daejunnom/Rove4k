@@ -18,7 +18,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 CANONICAL = ROOT / "engines/compact/tiny-entry-d"
 HOST = "engines/experiments/tcec-scope/build.py"
-HOST_SHA = "fc916e798952cff1c915a6846e758874bc2d858b3c59dec73870b95c7e3d4828"
+HOST_SHA = "5fa10c6f8f032be374bf3a86bbe6ca558076630a2cc3170b41890f691688f563"
 UNITS = ("board.c", "search.c", "runtime.c", "start.S")
 FILES = ("tiny.h", *UNITS, "image.ld")
 
@@ -123,11 +123,20 @@ def prepare(profile, *, equivalent_edits=True):
             raise ValueError("maintained D source differs: " + name)
         files[name] = data
         inputs[logical] = pin(data)
+    composition_path = "engines/scripts/source_composition.py"
+    if pin(normalized(ROOT / composition_path))["sha256"] != recipe["helper_sha256"][composition_path]:
+        raise ValueError("maintained source composition helper differs")
+    composition = load("tiny_d_source_composition", ROOT / composition_path)
+    shared, _ = composition.read_shared(ROOT, recipe["shared_source_sha256"])
+    inputs.update({name: pin(data) for name, data in shared.items()})
+    files["board.c"] = composition.assemble(files["board.c"], shared,
+        expected_sha256=recipe["assembled_source_sha256"]["native/board.c"])
+    assembled_board = pin(files["board.c"])
     closure = api.SourceClosure.validate(spec, engine_inputs=tuple(inputs), tool_inputs=(
         "engines/compact/tiny-entry-d/recipe.json",
         "engines/compact/tiny-entry-d/shipping_fused_ray.py",
         "engines/experiments/tiny-d-submission/source.py",
-        "engines/scripts/production.py"))
+        "engines/scripts/production.py", composition_path))
     helper_path = CANONICAL / "shipping_fused_ray.py"
     helper_data = normalized(helper_path)
     # The maintained recipe is the authority for this existing pure transform.
@@ -137,6 +146,8 @@ def prepare(profile, *, equivalent_edits=True):
     files["board.c"], fused = helper.transform_source(files["board.c"])
     proof = {"family": "D", "input_sources": inputs,
              "recipe": pin(recipe_data), "fused": fused,
+             "composition": {"shared_inputs": {name: pin(data) for name, data in shared.items()},
+                             "assembled_board": assembled_board},
              "dynamic_TT": True, "cleanup_policy": "loader-owned-fd",
              "model": "scalar-full", "resource": profile.to_record(16),
              "source_edits": {}, "test_only": False, "equivalent_edits": equivalent_edits}

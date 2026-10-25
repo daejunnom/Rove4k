@@ -21,6 +21,7 @@ import time
 
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
+REPO = HERE.parents[2]
 CODEC = 'rove4k-context-h24-base10-fixed21-body232-zero4-v3'
 H28_CODEC = 'rove4k-context-h28-base10-fixed21-body232-zero4-v1'
 EXECUTION_ISA = 'linux-x86_64-sse4.2-cx16-crc32b-v1'
@@ -208,6 +209,15 @@ def main():
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(data)
             report['inputs'][name] = {'bytes': len(data), 'sha256': sha(data), 'working_bytes_sha256': sha(raw), 'LF_normalization': raw != data}
+        for logical, expected in recipe['helper_sha256'].items():
+            raw, data = normalized(REPO/logical)
+            if sha(data) != expected:
+                raise ValueError('composition helper differs from fixed recipe: '+logical)
+            (frozen/Path(logical).name).write_bytes(data)
+            report['inputs'][logical] = {'bytes': len(data), 'sha256': sha(data), 'working_bytes_sha256': sha(raw), 'LF_normalization': raw != data}
+        composition = module('entry_d_source_composition', frozen/'source_composition.py')
+        shared, shared_inputs = composition.freeze_shared(REPO, frozen, recipe['shared_source_sha256'])
+        report['inputs'].update(shared_inputs)
         packer = module('entry_d_fixed_packer', frozen/'packer.py')
         codec = module('entry_d_context_codec', frozen/'loader/codec.py')
         shipping = module('entry_d_shipping_fused_ray', frozen/'shipping_fused_ray.py')
@@ -238,6 +248,7 @@ def main():
             original = (frozen/name).read_bytes()
             data = original
             if name == 'native/board.c':
+                original = composition.assemble(original, shared, expected_sha256=recipe['assembled_source_sha256'][name])
                 data, source_policy = shipping.transform_source(original)
                 if sha(data) != recipe['generated_native_source_sha256'][name]:
                     raise ValueError('generated shipping Board differs')

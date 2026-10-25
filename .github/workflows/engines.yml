@@ -222,6 +222,7 @@ jobs:
       - name: Check production resource and source-closure contracts
         run: |
           python -B -m unittest discover -s engines/scripts -p test_production.py
+          python -B -m unittest discover -s engines/scripts -p test_source_composition.py
           python -B -m unittest discover -s engines/scripts -p test_retirement.py
           python -B -m unittest discover -s archive -p test_replay.py
           python -B -m unittest discover -s engines/scripts -p test_production_ci.py
