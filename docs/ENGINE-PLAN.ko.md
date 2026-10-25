@@ -119,8 +119,8 @@ native operand 필터 네 경우와 typed scalar-atomic 두 경우는 전체 비
 kernel TID 인자만 제거해 whole5261→5245 B를 측정했다. logical worker ID와
 clone thread/guarded stack/검색/학습기/TT128은 유지한다. 비복귀 callback 꼬리는
 추가 whole 이득이 없어 제외한다. 5245 B의 새 typed admission·독립 규칙·실제
-P4 실행은 별도 후속 작업이며, 이전5261 B native map이나 종료 계약을 변경해
-통과시키지 않는다. 비용 후보도4096 B보다1149 B 크므로 제출 적격은 아니다.
+P4 실행도 새 증거로 통과했다. 이전5261 B native map이나 종료 계약을 변경해
+통과시키지 않았다. 이 후보도4096 B보다1149 B 크므로 제출 적격은 아니다.
 F의 기법을 D의 정확한 clock-token 계약으로 옮긴 두 경우는 native가 작아져도
 whole5261→5273 B로 손해여서 미채택한다. source-JIT 두 경로도 각각21 B 커졌다.
 
@@ -469,6 +469,10 @@ seed 생성/복원0.25–1h, 공유 자원 대기0.5–1.5h, 감사0.5–1h다. 
 36개 원래 경로는 대응 계획을 검증했으며 GitHub 절대 경로로 실제 복원하지 않았다.
 오프라인 운송 완료와 실제 S3 게시·EC2 source/native·배치·리그 승인은 구분한다.
 
+현재0cd1324의 새26-job CI·NVCompact·repository도 모두 통과했다. 실제 foundation
+job121303838777은449+27+354=830개 검사를35개 suite에서 통과했다. 새 AWS 호출부의
+등록·로컬 검사와 실제 workflow dispatch·OIDC·배포 성공은 구분한다.
+
 E19 종료 가드 뒤 새 실제 말뭉치는48,189게임·740,062위치다. 이전 유지 게임124개가
 제외됐고 새로 추가된 게임/위치는 없다. 새 step0 준비의 전체 integrity walk와 현재
 COMPOUND E 추론 검사가 통과했고 초기 parameter/integer SHA 및 optimizer0을
@@ -483,9 +487,11 @@ false다. 일반 제출 W256에 P4 결과를 승계하지 않는다.
 
 추가 공통 축약은 실제 sparse-square 순회식을 A/B/C P4에서 각각 측정했다.
 A3794→3781 B와 C3927→3915 B만 유지하고 B4071→4072 B는 중단한다. 새 native는
-길이가 같아도 SHA가 달라 별도 정책을 요구한다. 다음 분기는 공통 pre-cleanup
-계약 준비→A/C별 P28/W256 compile-only 비용·타입 검사 병렬→공유 R/문법 통합 대기→
-새 P4 rules/메커니즘/runtime→새 선택 CI와 감사다. P28 소스는 실제 TEST cohort에서
+길이가 같아도 SHA가 달라 별도 정책을 요구한다. 새 pre-cleanup 여섯 프로필 실측은
+A P4/P28/W256=3781/3790/3782 B, C=3915/3926/3915 B로 모두11–14 B 줄었으며,
+전체 비용·타입·CPP·소스/역변환과 독립 증거 감사가 통과했다. 다음 분기는 공유
+R/문법의 새 유한 정책 통합→새 P4 rules/메커니즘/runtime→새 선택 CI와 감사다.
+아직 runtime·rules·선택을 이 비용 결과로 승격하지 않는다. P28 소스는 실제 TEST cohort에서
 읽을 수 있지만 W256은 seed에 없으므로 기존15-profile 고정 기록 또는 명시한
 fresh canonical factory의 별도 compile-only 생성으로 핀을 확정한다. 런타임이 임의
 입력 핀을 학습하게 하지 않는다. 기존 resource→phase→compound→scan→dependency
@@ -495,5 +501,46 @@ fresh canonical factory의 별도 compile-only 생성으로 핀을 확정한다.
 materializer·전체 journal·remote ownership 종료를 연결한다. 초기 private S3의
 seed/request는 검증한 bootstrap principal의 조건부1회 게시와 실제 VersionId·전체
 readback SHA로 준비할 수 있다. frozen seed.publish의 ControllerRole 검사를 완화하거나
-초기 게시를 그 publisher의 통과로 표시하지 않는다. 현재 로컬 세션이 만료되어 갱신이
-필요하며, 새 template의 서비스 API 검증·실제 Outputs/권한·게시·AWS 실행은 미완료다.
+초기 게시를 그 publisher의 통과로 표시하지 않는다. 첫 새 template 서비스 검증은
+로컬 세션 만료로 실패했다. 사용자 로그인 갱신 뒤 CLIv2 STS로 프로젝트292341339363을
+확인했으며 새 서비스 검증·실제 binding 조회를 진행 중이다. 이전 실패는 보존하고,
+실제 Outputs/권한·게시·AWS 실행은 미완료로 유지한다.
+
+### 0cd 이후 남은 작업과 병렬 실행
+
+아래는 위의28ae 이전 추정과 구분한 현재 의존성이다. E19 step0·D의 두 국소
+자격 검사·기준 cohort의 오프라인 seed는 완료됐다. A/C 새 순회식의 여섯 프로필
+비용 감사도 끝났으며 생산 검증기의 통합과 새 실제 실행이 진행 중이다. 다른
+분기와 공유하는 기존 R/build/rules/CI 파일은 한 writer가 순차 통합하고, D의 다음
+압축 분석과 AWS 읽기 전용 설정 조회는 그 작업과 병렬로 진행한다.
+
+```mermaid
+flowchart TD
+  P[공통 준비 완료: 0cd CI와 기준 seed] --> S[A/C 유한 정책·R·규칙·CI 통합]
+  P --> D[D full 기능의 다음 압축 가설 분석]
+  P --> B[AWS 갱신 세션·새 template·실제 binding 조회]
+  S --> V[새 A/C P4와 P28 규칙·초기화·실제 실행]
+  V --> C[새 정확한 CI와 독립 Ubuntu22 소비]
+  C --> T[새 선택 cohort 운송·전체 재검증]
+  B --> G{최신 Advisor 5% 미만과 비용·자원 gate}
+  T --> H[불변 캠페인·OIDC·조건부 seed 게시 준비]
+  G -->|충족한 경우| H
+  H --> N[Spot 실제 배치·NUMA·대용량 초기화]
+  N --> L[4KiB 적격 선수 TEST 부분 리그]
+  D --> A[최종 범위·실패·출처 감사]
+  T --> A
+  L --> A
+```
+
+다음 소스/CI 체크포인트의 추정은 공통 준비0.1–0.25h 후
+max(A/C 통합·국소 검증2–5h, D 가설 분석0.5–2h, AWS 설정 조회0.25–0.75h),
+공유 CPU·통합 대기0–0.5h, CI0.25–0.75h, 감사0.25–0.75h를 적용해 약2.6–7.3h다.
+새 cohort의 운송 재검증이 필요하면 별도0.25–1h를 마지막 경로에 반영한다.
+병렬 작업 시간을 합산하지 않으며 D4K 수렴·실제 리그 완주·외부 gate 대기는 이
+체크포인트 추정에 포함하지 않는다. 실제 API·컴파일·실행 실패가 나면 남은 경로와
+공유 자원 대기를 다시 추정한다.
+
+2026-10-25T22:18:13Z의 공식 Advisor 조건부 조회는304였고 객체 Last-Modified는
+여전히2026-03-20T23:38:55Z다. 새 데이터가 아니므로 과거15–20% 구간을 현재 위험도로
+확정하지 않으며 최신5% 미만 gate는 미충족으로 유지한다. 같은 상태의 반복 조회나
+승인 없는 SKU·리전·위험 기준 변경으로 이 대기를 해소하지 않는다.

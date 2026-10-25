@@ -9,11 +9,16 @@ zero and the initial model weights remain unchanged; trained strength is not cla
 
 ### Completed offline seed and local source-path follow-up
 
-Checkpoint28ae2fc also passes all three workflows: engine40232869570 (26/26),
+Checkpoint0cd1324 passes all three workflows: engine40238075060 (26/26),
+NVCompact40238074950 and repository40238074958. Exact foundation job121303838777
+passes449 contract,27 E19 and354 evaluator/service tests,830 across35 suites.
+This includes the new source-path qualification and AWS-caller tests. The
+dispatch-only AWS workflow has not been run, and its local tests do not prove
+live OIDC, deployment or EC2 operation.
+
+The earlier28ae2fc also passes all three workflows: engine40232869570 (26/26),
 NVCompact40232869750 and repository40232869553. Its foundation job121288129089
-passes386 contract,27 E19 and288 evaluator/service tests,701 in total. The next
-source checkpoint registers the new local qualification and AWS-caller tests;
-those registrations are not the same as their future exact-head CI success.
+passes386 contract,27 E19 and288 evaluator/service tests,701 in total.
 
 The actual canonical28ae producer succeeds through prepare, inspect, a new
 materialized directory and all6176 member revalidations. The seed has6177 ZIP
@@ -44,10 +49,12 @@ All these local classes remain size/placement/strength/event/selection false.
 The one-physical-core leases do not qualify P4 physical placement or scaling.
 
 The first sparse-square transfer costs A3794→3781B and C3927→3915B in P4; B4071→4072B
-loses and stops. Native lengths stay fixed but bytes change. Only cost/inverse
-and small visitation fixtures pass so far. A/C require finite pre-cleanup source
-policies, independent three-profile regeneration and actual rules/runtime before
-adoption; the default/old compound maps are not overwritten.
+loses and stops. A separate fresh pre-cleanup six-profile comparison now confirms
+A P4/P28/W256 costs3781/3790/3782B and C3915/3926/3915B, saving11–14 whole bytes
+in each case. Source/type/CPP/native/package reproduction and independent saved
+evidence audit pass. Native lengths stay fixed but all six byte identities change.
+Finite admission integration and actual rules/mechanism/runtime remain in progress;
+the default/old compound maps are not overwritten and these costs are unselected.
 
 The new dispatch-only AWS workflow supplies direct OIDC and executes the seed's
 frozen controller. Git environment/replace/lazy-fetch substitution, hidden
@@ -56,9 +63,11 @@ materializer executes. The controller keeps the full journal and observed remote
 ownership closure, and settles its owned process group before upload. No dispatch
 or AWS call is implied by its offline tests. Initial seed/request objects need
 an explicit verified bootstrap-principal publication route; the frozen
-ControllerRole-only publisher guard is unchanged. Local login has expired, so
-the new template's service ValidateTemplate attempt fails before API validation.
-Actual account/deployment/VersionId/NUMA and fresh Advisor<5% gates remain open.
+ControllerRole-only publisher guard is unchanged. The first new-template service
+ValidateTemplate attempt failed because local login had expired. The user has
+renewed login, and CLIv2 STS now confirms project292341339363. New service validation
+and real deployment bindings are being checked separately; the earlier failure
+is preserved. Deployment/VersionId/NUMA and fresh Advisor<5% gates remain open.
 
 PR #18 is merged into `feature/rove4k-engines-af` at2bed793. Its common C
 fragments remain engine inputs and its assembler remains a tool; archived paths
@@ -86,19 +95,19 @@ These inventory checks did not produce a successful seed. Actual prepare62981
 exits1 before output: generic recursive file checking treats60 target-reference
 `source_build` directory/build.json identities as files. The other1982 file
 references match. Raw receipts and the failed001800e cohort remain unchanged.
-The narrow fix must authenticate the existing target format, family/profile/CI
-context and selected sealed build before resolving that directory identity to
-its exact build.json. Ordinary file checks stay strict. A new committed source
-and CI cohort is required for actual prepare/inspect/materialize/revalidate;
-a patched helper cannot impersonate the old canonical checkout.
+The28ae fix authenticates the existing target format, family/profile/CI context
+and selected sealed build before resolving that directory identity to its exact
+build.json. Ordinary file checks stay strict. The successful new canonical
+cohort described above is separate from this failed0018 cohort; a patched helper
+does not impersonate the old canonical checkout.
 
 D's separately admitted5261B search candidate passes fresh P4 rules/runtime
 but remains oversized and unselected. A new no-TID source/ABI cost class removes
 unused kernel TID arguments under clone mask0x50f00 while preserving logical
 workers, guarded stacks, TT128, search and learners. Its repeated packed whole
 is5245B,16B smaller, still1149B above4KiB. Its independent cost/source/inverse
-audit passes, but fresh typed admission, actual raw-clone/P4 runtime and rules
-are separate work. The non-returning tail has no additional packed gain and is
+audit and subsequent fresh typed admission, actual raw-clone/P4 runtime and
+rules pass as described above. The non-returning tail has no additional packed gain and is
 not preferred. Existing5261B native maps and the stronger closing-reply owner
 contract are unchanged.
 
@@ -116,19 +125,19 @@ An unchanged checker compiles and executes it with UBSan:6999 position,4992
 setter,1970 order,1883 transition and13828 accumulator observations against an
 independent oracle. Those totals include synthetic states; only32 added FENs
 come from the real training batch. Initial parameters and optimizer step0 are
-unchanged. An independent intake audit additionally reproduces acceptance of
-play after automatic fivefold/75-move termination. A pre-move
-`is_game_over(claim_draw=False)` guard, boundary tests and a fresh immutable
-corpus/step0 replay are required. Claimable threefold/50-move continuation must
-remain optional. Old actual-data counts below are not a replay of that fix.
+unchanged. An independent intake audit reproduced acceptance of play after
+automatic fivefold/75-move termination. The committed pre-move
+`is_game_over(claim_draw=False)` guard,27 boundary/data tests and fresh immutable
+corpus/step0 replay close that issue. Claimable threefold/50-move continuation
+remains optional. Old actual-data counts below are not a replay of that fix.
 
 AWS PAID ACTIVE and100USD aggregate credit are confirmed; the Spot quota is
 actually192vCPU. The observed official Advisor object is still dated2026-03-20
 and its Sydney/Linux/m6a.48xlarge row is15–20%, so the fresh<5% launch gate fails.
 No instance, paid campaign or infrastructure deployment has run. The current
-repository also lacks the real GitHub OIDC execution workflow that supplies an
-ephemeral controller session; local profile login and service-port tests do not
-close that production caller. Source wiring, actual deployment and observed
+repository now includes the GitHub OIDC execution workflow that supplies an
+ephemeral controller session; its live dispatch remains untested. Local profile
+login and service-port tests do not close that live caller. Source wiring, actual deployment and observed
 termination remain distinct gates under the existing gross120USD/12-hour caps.
 The new reviewed template sets only ControllerRole.MaxSessionDuration to21600;
 its trust, permissions and other resources are unchanged. The future standard
