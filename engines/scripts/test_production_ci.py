@@ -32,14 +32,16 @@ class ProductionCIBoundaries(unittest.TestCase):
     def test_actual_pipeline_input_gate_admits_all_current_family_plans(self):
         own = CI.normalized(CI.ROOT / CI.SELF)
         for family in "ABCDEF":
-            with self.subTest(family=family):
-                plan = CI.pipeline_plan(family, Path(tempfile.gettempdir()).resolve() / ("ci-inputs-" + family))
-                inputs = CI.pipeline_inputs(plan, own)
-                self.assertEqual(inputs[CI.SELF], own)
-                self.assertEqual(CI.pin(inputs[CI.HOST])["sha256"], CI.HOST_SHA)
-                for stage in plan.stages:
-                    name = Path(stage.command[3]).relative_to(CI.ROOT).as_posix()
-                    self.assertEqual(inputs[name], CI.normalized(CI.ROOT / name))
+            for spelling in (("control",) if family == "D" else ("control", "best")):
+                with self.subTest(family=family, spelling=spelling):
+                    plan = CI.pipeline_plan(family, Path(tempfile.gettempdir()).resolve() / ("ci-inputs-" + family),
+                                            spelling_variant=spelling)
+                    inputs = CI.pipeline_inputs(plan, own)
+                    self.assertEqual(inputs[CI.SELF], own)
+                    self.assertEqual(CI.pin(inputs[CI.HOST])["sha256"], CI.HOST_SHA)
+                    for stage in plan.stages:
+                        name = Path(stage.command[3]).relative_to(CI.ROOT).as_posix()
+                        self.assertEqual(inputs[name], CI.normalized(CI.ROOT / name))
 
     def test_actual_pipeline_input_gate_rejects_stale_host_pin(self):
         own = CI.normalized(CI.ROOT / CI.SELF)
@@ -57,6 +59,8 @@ class ProductionCIBoundaries(unittest.TestCase):
             plans = (CI.pipeline_plan(family, root / ("ci-export-" + family)),
                      CI.target_plan(family, root / ("ci-target-" + family), root / "sealed/artifact",
                                     root / "source-bundle.zip", root / "source-seal.json"))
+            if family != "D":
+                plans += (CI.pipeline_plan(family, root / ("ci-export-best-" + family), spelling_variant="best"),)
             for plan in plans:
                 with self.subTest(family=family, plan=type(plan).__name__), \
                         patch.object(reader, "read_regular", wraps=reader.read_regular) as reads:
@@ -112,6 +116,8 @@ class ProductionCIBoundaries(unittest.TestCase):
             self.assertIn("--target-compiler-receipt", runtime)
             self.assertIn("--source-bundle", runtime)
             self.assertIn("--source-seal", runtime)
+            self.assertFalse(hasattr(plan, "spelling_variant"))
+            self.assertFalse(any("--spelling-variant" in stage.command for stage in plan.stages))
             if family == "D":
                 self.assertEqual(runtime[runtime.index("--candidate") + 1], "D-source-jit")
                 self.assertNotIn(CI.D_CANDIDATE, runtime)
@@ -207,12 +213,16 @@ class ProductionCIBoundaries(unittest.TestCase):
         for family in "ABCDEF":
             with self.subTest(family=family):
                 plan = CI.pipeline_plan(family, root / ("ci-" + family))
+                self.assertEqual(plan.spelling_variant, "control")
+                self.assertEqual(CI.Plan(family, plan.out, plan.stages).spelling_variant, "control")
                 self.assertEqual([stage.name for stage in plan.stages], ["generation", "mechanism", "rules", "runtime"])
                 self.assertTrue(all(stage.command[1:3] == ("-I", "-B") for stage in plan.stages))
                 generation, mechanism, rules, runtime = [stage.command for stage in plan.stages]
                 self.assertEqual(generation[generation.index("--profile") + 1], "test-p4")
                 self.assertNotIn("tcec-provisional", generation)
                 if family == "D":
+                    self.assertNotIn("--spelling-variant", generation)
+                    self.assertNotIn("--source-dependencies", generation)
                     self.assertEqual(generation[generation.index("--storage") + 1], "prefix")
                     self.assertIn("--build", mechanism)
                     self.assertEqual(runtime[runtime.index("--candidate") + 1], CI.D_CANDIDATE)
@@ -224,10 +234,116 @@ class ProductionCIBoundaries(unittest.TestCase):
                     self.assertIn("phase-init", generation)
                     self.assertIn("--build", mechanism)
                     self.assertNotIn("--entry", mechanism)
+                if family != "D":
+                    self.assertEqual(generation[generation.index("--spelling-variant") + 1], "control")
+                    self.assertEqual(generation[generation.index("--source-dependencies") + 1], "unused-includes")
                 self.assertEqual(runtime[runtime.index("--rules") + 1], str(plan.out / "rules/probe/rules.json"))
         for retired in ("F8", "Rust", "a", "", "../A"):
             with self.assertRaisesRegex(ValueError, "active C family"):
                 CI.pipeline_plan(retired, root / "no-read")
+
+    def test_best_plans_select_only_the_producer_and_keep_consumers_unchanged(self):
+        root = Path(tempfile.gettempdir()).resolve()
+        for family in "ABCEF":
+            control = CI.pipeline_plan(family, root / ("spelling-" + family))
+            best = CI.pipeline_plan(family, control.out, spelling_variant="best")
+            self.assertEqual(best.spelling_variant, "best")
+            generation = best.stages[0].command
+            self.assertEqual(generation[generation.index("--spelling-variant") + 1], "best")
+            self.assertEqual(generation[generation.index("--source-dependencies") + 1], "unused-includes")
+            self.assertEqual(best.stages[1:], control.stages[1:])
+        for family, selection in (("D", "best"), ("A", "clock-type"), ("F", None), ("A", True)):
+            with self.subTest(family=family, selection=selection), self.assertRaises(ValueError):
+                CI.pipeline_plan(family, root / "uncreated", spelling_variant=selection)
+        self.assertFalse((root / "uncreated").exists())
+
+    def test_producer_cli_defaults_to_control_and_forwards_explicit_best(self):
+        class PlanReached(Exception):
+            pass
+        with tempfile.TemporaryDirectory(prefix="rove-ci-policy-cli-") as temporary:
+            root = Path(temporary).resolve()
+            for option, expected in (([], "control"), (["--spelling-variant", "control"], "control"),
+                                     (["--spelling-variant", "best"], "best")):
+                argv = ["production_ci.py", "--family", "A", "--out", str(root / "out"), *option]
+                with self.subTest(expected=expected), patch.object(sys, "argv", argv), \
+                        patch.object(CI.sys, "platform", "linux"), \
+                        patch.object(CI.platform, "machine", return_value="x86_64"), \
+                        patch.object(CI.Path, "read_text", return_value='ID=ubuntu\nVERSION_ID="24.04"\n'), \
+                        patch.dict(CI.os.environ, {"RUNNER_TEMP": str(root)}), \
+                        patch.object(CI, "pipeline_plan", side_effect=PlanReached) as plan:
+                    with self.assertRaises(PlanReached):
+                        CI.main()
+                    plan.assert_called_once_with("A", root / "out", spelling_variant=expected)
+                self.assertFalse((root / "out").exists())
+
+    def test_d_best_and_explicit_target_policy_fail_before_output_or_context_reads(self):
+        with tempfile.TemporaryDirectory(prefix="rove-ci-policy-reject-") as temporary:
+            root = Path(temporary).resolve()
+            cases = [("D", ["--spelling-variant", "best"], "D supports only control")]
+            for selection in ("control", "best"):
+                cases.append(("A", ["--ubuntu22-target", "--source-bundle", str(root / "source-bundle.zip"),
+                    "--source-seal", str(root / "source-seal.json"), "--spelling-variant", selection], "producer-only"))
+            for family, options, error in cases:
+                argv = ["production_ci.py", "--family", family, "--out", str(root / "out"), *options]
+                with self.subTest(family=family, options=options), patch.object(sys, "argv", argv), \
+                        patch.object(CI, "admit_output") as output, patch.object(CI, "load") as load, \
+                        patch.object(CI.Path, "read_text") as read:
+                    with self.assertRaisesRegex(ValueError, error):
+                        CI.main()
+                    output.assert_not_called()
+                    load.assert_not_called()
+                    read.assert_not_called()
+                self.assertFalse((root / "out").exists())
+
+    def test_generation_cannot_substitute_another_spelling_or_dependency_policy(self):
+        variants = {"A": "clock-type", "B": "atomic-assignment", "C": "clock-type",
+                    "E": "clock-type", "F": "atomic-assignment"}
+        with tempfile.TemporaryDirectory(prefix="rove-ci-generation-policy-") as temporary:
+            root = Path(temporary).resolve()
+            (root / "artifact").mkdir()
+            path = root / "artifact/build.json"
+            for family, variant in variants.items():
+                for selection in ("control", "best"):
+                    plan = CI.pipeline_plan(family, root, spelling_variant=selection)
+                    expected = (None if selection == "control" else
+                        {"path": CI.NEXT + "profile_spelling.py", "selection": "best", "variant": variant})
+                    good = {**owner_report(), "family": family, "class": "rove4k-production-profile-v1",
+                        "reproducible": True, "resources": {"id": "test-p4", "workers": 4},
+                        "plan": {"representation": "source-jit"},
+                        "post_profile": {"path": CI.NEXT + ("profile_b.py" if family == "B" else "profile_phase.py"),
+                                         "variant": "tcec-final-lf" if family == "B" else "phase-init"},
+                        "post_spelling": expected,
+                        "source_dependencies": {"path": CI.NEXT + "profile_dependencies.py", "variant": "unused-includes"},
+                        "expected_contract": {"native_bytes": 32, "native_sha256": "a" * 64}}
+                    path.write_text(json.dumps(good))
+                    original = path.read_bytes()
+                    accepted = CI.check_stage(plan, plan.stages[0])
+                    self.assertEqual(accepted["requested_spelling_variant"], selection)
+                    self.assertEqual(path.read_bytes(), original)
+                    best = {"path": CI.NEXT + "profile_spelling.py", "selection": "best", "variant": variant}
+                    mutations = [("post_spelling", None if selection == "best" else best),
+                                 ("post_spelling", {**best, "variant": "atomic-assignment" if variant == "clock-type" else "clock-type"}),
+                                 ("post_spelling", {**best, "path": CI.NEXT + "profile_phase.py"}),
+                                 ("post_spelling", {**best, "selection": "control"}),
+                                 ("source_dependencies", None),
+                                 ("source_dependencies", {"path": CI.NEXT + "profile_dependencies.py", "variant": "control"}),
+                                 ("source_dependencies", {"path": "other.py", "variant": "unused-includes"}),
+                                 ("source_dependencies", {**good["source_dependencies"], "extra": True})]
+                    for key, value in mutations:
+                        with self.subTest(family=family, selection=selection, key=key, value=value):
+                            path.write_text(json.dumps({**good, key: value}))
+                            with self.assertRaisesRegex(ValueError, "requested producer policy"):
+                                CI.check_stage(plan, plan.stages[0])
+                    for key in ("post_spelling", "source_dependencies"):
+                        changed = dict(good)
+                        del changed[key]
+                        path.write_text(json.dumps(changed))
+                        with self.subTest(family=family, selection=selection, missing=key), \
+                                self.assertRaisesRegex(ValueError, "requested producer policy"):
+                            CI.check_stage(plan, plan.stages[0])
+            invalid = CI.Plan("F", root, plan.stages, "invalid")
+            with self.assertRaisesRegex(ValueError, "finite producer spelling"):
+                CI.check_stage(invalid, invalid.stages[0])
 
     def test_output_is_a_new_nonlinked_runner_temp_child_outside_checkouts(self):
         with tempfile.TemporaryDirectory(prefix="rove-ci-path-") as directory:

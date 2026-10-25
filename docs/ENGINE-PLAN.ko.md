@@ -72,6 +72,29 @@ phase/B → E19(E만) → spelling → dependency cleanup이다. 역변환은 de
 입력·native·diagnostics를 새 체인에서 재검증한다. 공통화로 제거한 저장소 중복
 바이트와 제출 파일 절감량은 따로 보고한다.
 
+하위 생성기의 spelling 기본값은 control로 유지한다. 유지 CI는 ABCEF에 best,
+D에 control을 명시하며 generation 영수증의 선택과 dependency 정책이 요청과
+정확히 같아야 다음 단계로 넘어간다. Ubuntu22 소비자는 봉인된 소스를 사용하며
+선택을 다시 하거나 그 호스트에서 source factory를 재실행하지 않는다.
+
+PR #18 통합 뒤 resource/phase/E19/spelling/dependency를 모두 재생성한 현재
+full 후보의 전체 파일 비용은 다음과 같다. 각 셀을 두 번 재생성했으며, W256은
+크기·타입·소스 계약 범위이고 실제 대용량 실행이나 대회 자원 확정은 아니다.
+
+| 계열 | TEST-P4 | TEST-P28 | TCEC 잠정 W256 |
+|---|---:|---:|---:|
+| A | 3811 B | 3818 B | 3809 B |
+| B | 4071 B | 4081 B | 4072 B |
+| C | 3944 B | 3956 B | 3944 B |
+| E | 3894 B | 3909 B | 3896 B |
+| F full | 3610 B | 3622 B | 3610 B |
+
+D의 새 공통 소스 P4 control은 5429 B다. process-owner 5373 B는 독립 규칙과
+전체 P4 기능 검사를 통과했지만 크기·물리 배치·선택은 통과하지 않았다. 새로
+재생성한 search 조합 5261 B는 별도 typed admission과 전체 P4 검증이 남아 있다.
+후속 native operand 필터도 전체 ELF의 정확한 역복원과 inverse/map을 포함한
+실제 비용으로 판단한다. 다른 계열에 적용할 수 있는지는 각 표현에서 재측정한다.
+
 ### 프로필
 
 | ID | 검색 worker | 엔진당 TT 상한 | 용도 |
@@ -322,8 +345,11 @@ Cloud는 기존 누적8–12instanceh 상한을 유지한다.
 크레딧을 우선 적용하고 부족·미적용 금액의 자동 청구를 기존 차감 전 총120USD
 한도 안에서 허용한다. EC2 생성20USD 등 다섯 활동의 조건부100USD는 모두
 NOT_STARTED이므로 가용 예산에 더하지 않는다. 개별 grant의 Spot 적용·만료 조회는
-관리형 SCP가 거부해 미확인이다. Standard Spot192vCPU 증액을 한 번 요청했고
-CASE_OPENED 상태이며, 실제 적용192와 최신 Advisor<5%는 여전히 실행 gate다.
+관리형 SCP가 거부해 미확인이다. 한 번 요청한 Standard Spot192vCPU 증액은
+2026-10-26 재조회에서 CASE_CLOSED·실제 적용192vCPU를 확인했다. 공식 Advisor
+객체는 여전히 2026-03-20자로 오래됐고 Sydney/Linux/m6a.48xlarge는 15–20%
+구간이므로 최신 Advisor<5% 실행 gate를 통과하지 못했다. 다른 SKU·리전·구매
+방식으로 자동 변경하지 않으며 실제 사용량·가격·capacity는 실행 직전에 확인한다.
 Standalone m6a의 실제 bootstrap·attestation·배치는 GitHub Ubuntu22 참조와
 별도 구현·검증하며 GITHUB 환경을 주입해 CI 호스트로 위장하지 않는다.
 

@@ -35,6 +35,8 @@ NEXT = "engines/experiments/tcec-next/"
 D_ROOT = "engines/experiments/tiny-d-submission/"
 SCHEMA = "rove4k-production-ci-functional-v1"
 D_CANDIDATE = "D-packed-xz-bcj"
+BEST_SPELLING = {"A": "clock-type", "B": "atomic-assignment", "C": "clock-type",
+                 "E": "clock-type", "F": "atomic-assignment"}
 TRANSPORT = "engines/scripts/production_source_bundle.py"
 COMPILER_REDIRECTION = ("CC", "CXX", "CPP", "AS", "AR", "LD", "GCC_EXEC_PREFIX", "COMPILER_PATH",
     "LIBRARY_PATH", "CPATH", "C_INCLUDE_PATH", "CPLUS_INCLUDE_PATH", "OBJC_INCLUDE_PATH",
@@ -95,6 +97,7 @@ class Plan:
     family: str
     out: Path
     stages: tuple[Stage, ...]
+    spelling_variant: str = "control"
 
 
 @dataclass(frozen=True)
@@ -111,6 +114,13 @@ def target_environment(environment):
     require(environment.get("PATH") == "/usr/bin:/bin" and
             not any(name.startswith("LD_") or name in COMPILER_REDIRECTION for name in environment),
             "Ubuntu22 target requires sanitized system PATH and no loader/compiler redirection variables")
+
+
+def producer_spelling_variant(family, selection):
+    require(family in tuple("ABCDEF"), "one active C family A through F is required")
+    require(type(selection) is str and selection in ("control", "best"), "finite producer spelling selection required")
+    require(family != "D" or selection == "control", "D supports only control spelling")
+    return selection
 
 
 def target_plan(family, out, build, bundle, seal, *, python=sys.executable, repo=ROOT):
@@ -135,8 +145,8 @@ def target_plan(family, out, build, bundle, seal, *, python=sys.executable, repo
         Stage("runtime", runtime, "runtime/runtime.json")))
 
 
-def pipeline_plan(family, out, *, python=sys.executable, repo=ROOT):
-    require(family in tuple("ABCDEF"), "one active C family A through F is required")
+def pipeline_plan(family, out, *, spelling_variant="control", python=sys.executable, repo=ROOT):
+    spelling_variant = producer_spelling_variant(family, spelling_variant)
     out, repo = Path(out), Path(repo)
     require(out.is_absolute() and repo.is_absolute(), "absolute pipeline roots required")
     artifact = out / "artifact"
@@ -151,7 +161,8 @@ def pipeline_plan(family, out, *, python=sys.executable, repo=ROOT):
     else:
         variant = ("--b-variant", "tcec-final-lf") if family == "B" else ("--phase-variant", "phase-init")
         generation = command(NEXT + "profile_build.py", "--entry", family, "--profile", "test-p4",
-                             *variant, "--out", artifact)
+                             *variant, "--spelling-variant", spelling_variant,
+                             "--source-dependencies", "unused-includes", "--out", artifact)
         mechanism = (command(NEXT + "check_profile_b.py", "--build", artifact, "--mode", "bound", "--out", out / "mechanism")
                      if family == "B" else command(NEXT + "check_profile_phase.py", "--build", artifact, "--out", out / "mechanism"))
         rules = command(NEXT + "profile_rules.py", "--source", artifact / "main.c", "--baseline", artifact / "control/main.c",
@@ -163,7 +174,7 @@ def pipeline_plan(family, out, *, python=sys.executable, repo=ROOT):
         Stage("generation", generation, "artifact/build.json"),
         Stage("mechanism", mechanism, "mechanism/result.json" if family == "B" else "mechanism/results.json"),
         Stage("rules", rules, "rules/commands.json"),
-        Stage("runtime", runtime, "runtime/runtime.json")))
+        Stage("runtime", runtime, "runtime/runtime.json")), spelling_variant)
 
 
 def evidence_bytes(out, relative, *, reader=None):
@@ -228,6 +239,7 @@ def check_stage(plan, stage, *, reader=None):
                     if stage.name == "mechanism" and family == "D" else None)
         owned_commands(report, expected_codes=negative)
     if stage.name == "generation":
+        spelling_variant = producer_spelling_variant(family, plan.spelling_variant)
         resources = report.get("resource" if family == "D" else "resources", {})
         require(report.get("family") == family and resources.get("id") == "test-p4" and resources.get("workers") == 4,
                 "generation did not produce this fixed TEST-P4 family")
@@ -241,6 +253,13 @@ def check_stage(plan, stage, *, reader=None):
             require(report.get("class") == "rove4k-production-profile-v1" and report.get("reproducible") is True
                     and report.get("post_profile") == post and report.get("plan", {}).get("representation") == "source-jit",
                     "generation is not the selected source-JIT class")
+            spelling = (None if spelling_variant == "control" else
+                        {"path": NEXT + "profile_spelling.py", "selection": "best", "variant": BEST_SPELLING[family]})
+            require("post_spelling" in report and report["post_spelling"] == spelling
+                    and report.get("source_dependencies") == {"path": NEXT + "profile_dependencies.py",
+                                                               "variant": "unused-includes"},
+                    "generation spelling/dependencies differ from the requested producer policy")
+        result["requested_spelling_variant"] = spelling_variant
     elif stage.name == "mechanism":
         require(report.get("source_bound") is True, "canonical/control mechanism is not selected-artifact evidence")
         build, build_pin = receipt(plan.out, "artifact/build.json", reader=reader)
@@ -447,7 +466,14 @@ def main():
                         help="restore the sealed source layout and observe system cc11.4 source-JIT runtime")
     parser.add_argument("--source-bundle", type=Path)
     parser.add_argument("--source-seal", type=Path)
+    parser.add_argument("--spelling-variant", choices=("control", "best"),
+                        help="producer-only source spelling selection (default: control); target consumes the sealed choice")
     args = parser.parse_args()
+    if args.ubuntu22_target:
+        require(args.spelling_variant is None, "spelling selection is producer-only; target consumes the sealed choice")
+    else:
+        spelling_variant = producer_spelling_variant(args.family,
+            "control" if args.spelling_variant is None else args.spelling_variant)
     require((args.source_bundle is not None) == (args.source_seal is not None), "source ZIP and seal must be supplied together")
     require(args.ubuntu22_target == (args.source_bundle is not None)
             and not (args.ubuntu22_target and args.export_source_bundle),
@@ -485,7 +511,7 @@ def main():
                 and admitted.representation == "source-jit", "sealed target source is not the requested fixed full TEST-P4 C-JIT profile")
         plan = target_plan(args.family, out, build, args.source_bundle, args.source_seal)
     else:
-        plan = pipeline_plan(args.family, out)
+        plan = pipeline_plan(args.family, out, spelling_variant=spelling_variant)
     inputs = pipeline_inputs(plan, own, verify=verify, reader=reader, transport=transport)
     out.mkdir(parents=True)
     for name, data in inputs.items():
@@ -502,6 +528,8 @@ def main():
         report["source_context"] = ci_context.to_record()
     if args.ubuntu22_target:
         report.update(factory_replayed_on_target=False, source_restore=restored, target_compiler_bound=False)
+    else:
+        report["requested_spelling_variant"] = plan.spelling_variant
     def save():
         (out / "pipeline.json").write_text(json.dumps(report, indent=2) + "\n")
     save()

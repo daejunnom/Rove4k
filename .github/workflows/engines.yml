@@ -250,7 +250,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        family: [A, B, C, D, E, F]
+        include:
+          - {family: A, spelling: best}
+          - {family: B, spelling: best}
+          - {family: C, spelling: best}
+          - {family: D, spelling: control}
+          - {family: E, spelling: best}
+          - {family: F, spelling: best}
     env:
       PYTHONDONTWRITEBYTECODE: '1'
     steps:
@@ -266,6 +272,7 @@ jobs:
         run: >-
           python -I -B engines/scripts/production_ci.py
           --family '${{ matrix.family }}'
+          --spelling-variant '${{ matrix.spelling }}'
           --export-source-bundle
           --out '${{ runner.temp }}/rove4k-production-${{ matrix.family }}-${{ github.run_attempt }}'
       - name: Transfer the exact sealed source to the Ubuntu22 consumer
