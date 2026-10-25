@@ -219,6 +219,43 @@ class Fixture:
     def save(self):
         self.receipt.write_text(json.dumps(self.report, sort_keys=True) + "\n")
 
+    def cloud_seed(self):
+        seed = self.root / "seed"
+        seed.mkdir()
+        members = {}
+        files = {}
+        for path in sorted(self.build.rglob("*")):
+            if path.is_file():
+                relative = path.relative_to(self.build).as_posix()
+                name = "artifact/" + relative
+                destination = seed / name
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                data = path.read_bytes()
+                destination.write_bytes(data)
+                members[name] = {**TARGET.pin(data), "mode": 0o600}
+                files[relative] = TARGET.pin(data)
+        for path in (self.bundle, self.seal):
+            data = path.read_bytes()
+            (seed / path.name).write_bytes(data)
+            members[path.name] = {**TARGET.pin(data), "mode": 0o600}
+        (seed / "rules.json").write_bytes(b'{"synthetic":true}\n')
+        members["rules.json"] = {**TARGET.pin((seed / "rules.json").read_bytes()), "mode": 0o600}
+        plan = {"original_root": str(self.build), "seed_prefix": "artifact", "files": files}
+        manifest = {"format": "rove4k-cloud-seed-v1", "source_origin": self.ci.to_record(),
+                    "members": members,
+                    "original_layout": {"format": "rove4k-original-layout-plan-v1", "roots": [plan]}}
+        raw = (json.dumps(manifest, sort_keys=True) + "\n").encode()
+        (seed / "seed.json").write_bytes(raw)
+        current = self.build.stat()
+        layout = {"format": "rove4k-original-layout-v1", "seed_root": str(seed),
+            "seed_manifest": TARGET.pin(raw),
+            "roots": [{**plan, "device": current.st_dev, "inode": current.st_ino}],
+            "scope": "exact transport correspondence; not source/runtime qualification"}
+        return {"source_bundle": seed / self.bundle.name, "source_seal": seed / self.seal.name,
+                "source_origin": self.ci.to_record(), "seed_root": seed,
+                "member_map": {name: {key: value[key] for key in ("bytes", "sha256")} for name, value in members.items()},
+                "restored_layout": layout}
+
     def environment(self):
         return {**{name: "" for name in (*TARGET.COMPILER_ENV, "CC", "CXX")},
                 "GITHUB_ACTIONS": "true", "GITHUB_REPOSITORY": self.ci.repository,
@@ -471,6 +508,125 @@ class TargetReferenceBoundaries(unittest.TestCase):
         self.temporary = tempfile.TemporaryDirectory(prefix="rove4k-target-reference-unit-")
         self.addCleanup(self.temporary.cleanup)
         self.fixture = Fixture(Path(self.temporary.name))
+
+    def test_non_CI_source_and_compiler_authority_use_original_layout_without_fake_environment(self):
+        inputs = self.fixture.cloud_seed()
+        with patch.object(TARGET, "ORIGINAL_LAYOUT_PARENT", self.fixture.root), \
+                patch.dict(TARGET.os.environ, {}, clear=True):
+            source = TARGET.sealed_source_binding(self.fixture.admitted, self.fixture.build,
+                verify=self.fixture.verify, **inputs)
+            self.assertIs(type(source), TARGET.ValidatedSourceEvidence)
+            self.assertEqual(source.assert_member(self.fixture.build / "main.c"), "artifact/main.c")
+            self.assertEqual(source.member_bytes(inputs["seed_root"] / "rules.json"), b'{"synthetic":true}\n')
+            self.assertEqual(source.to_record()["source_origin"], self.fixture.ci.to_record())
+            self.assertFalse(source.to_record()["factory_replayed_on_consumer"])
+            source.revalidate(verify=self.fixture.verify)
+            for name in ("source_context", "source_bundle", "source_seal", "source_provenance_tools", "source_profile"):
+                self.fixture.report.pop(name)
+            self.fixture.report["program_provenance"] = True
+            self.fixture.save()
+            with patch.object(TARGET, "current_system_context", return_value=self.fixture.context):
+                result = TARGET.compiler_receipt_binding(self.fixture.admitted, self.fixture.build,
+                    self.fixture.receipt, verify=self.fixture.verify, source_binding=source)
+            record = result.to_record()
+            self.assertEqual(set(record), {"native_path", "native", "compiler_context", "compiler_inputs", "evidence"})
+            self.assertEqual(record["native"], TARGET.pin(self.fixture.native))
+            self.assertFalse(record["evidence"]["runtime_qualified"])
+            self.assertEqual(set(record["evidence"]["source_provenance_tools"]), {TARGET.SELF, TARGET.INPUT_PATH})
+            self.assertEqual(self.fixture.admitted.expected["native_sha256"],
+                             self.fixture.report["profiles"][0]["original_compiler_native"]["native_sha256"])
+
+    def test_cloud_source_rejects_changed_origin_mapping_inode_and_members(self):
+        original = self.fixture.cloud_seed()
+        with patch.object(TARGET, "ORIGINAL_LAYOUT_PARENT", self.fixture.root), patch.dict(TARGET.os.environ, {}, clear=True):
+            for field in ("origin", "inode", "filemap", "seedpin"):
+                inputs = copy.deepcopy(original)
+                if field == "origin":
+                    inputs["source_origin"]["run_attempt"] = "2"
+                elif field == "inode":
+                    inputs["restored_layout"]["roots"][0]["inode"] += 1
+                elif field == "filemap":
+                    inputs["restored_layout"]["roots"][0]["files"]["main.c"]["sha256"] = "0" * 64
+                else:
+                    inputs["restored_layout"]["seed_manifest"]["sha256"] = "0" * 64
+                with self.subTest(field=field), self.assertRaises(ValueError):
+                    TARGET.sealed_source_binding(self.fixture.admitted, self.fixture.build, verify=self.fixture.verify, **inputs)
+            source = TARGET.sealed_source_binding(self.fixture.admitted, self.fixture.build, verify=self.fixture.verify, **original)
+            with self.assertRaises(ValueError):
+                source.assert_member(self.fixture.root / "unregistered")
+            (original["seed_root"] / "rules.json").write_bytes(b"changed")
+            with self.assertRaises(ValueError):
+                source.member_bytes(original["seed_root"] / "rules.json")
+            with self.assertRaises(ValueError):
+                source.assert_admission(replace(self.fixture.admitted, program="other"), self.fixture.build)
+
+    def test_cloud_compiler_rejects_naked_source_map_missing_program_flag_CI_claim_and_SDK(self):
+        inputs = self.fixture.cloud_seed()
+        with patch.object(TARGET, "ORIGINAL_LAYOUT_PARENT", self.fixture.root), patch.dict(TARGET.os.environ, {}, clear=True):
+            source = TARGET.sealed_source_binding(self.fixture.admitted, self.fixture.build, verify=self.fixture.verify, **inputs)
+            with self.assertRaisesRegex(ValueError, "validated source evidence"):
+                TARGET.compiler_receipt_binding(self.fixture.admitted, self.fixture.build, self.fixture.receipt,
+                    verify=self.fixture.verify, source_binding=source.to_record())
+            original = copy.deepcopy(self.fixture.report)
+            for field in ("program_flag", "CI_claim", "SDK"):
+                self.fixture.report = copy.deepcopy(original)
+                for name in ("source_context", "source_bundle", "source_seal", "source_provenance_tools", "source_profile"):
+                    self.fixture.report.pop(name)
+                self.fixture.report["program_provenance"] = True
+                if field == "program_flag":
+                    self.fixture.report["program_provenance"] = False
+                elif field == "CI_claim":
+                    self.fixture.report["source_context"] = self.fixture.ci.to_record()
+                else:
+                    self.fixture.report["compiler_context"]["kind"] = "audited-jammy-sdk"
+                self.fixture.save()
+                with self.subTest(field=field), patch.object(TARGET, "current_system_context", return_value=self.fixture.context), \
+                        self.assertRaisesRegex(ValueError, "program provenance|claim live CI|runtime eligible"):
+                    TARGET.compiler_receipt_binding(self.fixture.admitted, self.fixture.build, self.fixture.receipt,
+                        verify=self.fixture.verify, source_binding=source)
+
+    def test_cloud_D_preserves_both_units_linker_and_all_common_compiler_guards(self):
+        root = self.fixture.root / "cloud-D"
+        root.mkdir()
+        fixture = Fixture(root, family="D")
+        inputs = fixture.cloud_seed()
+        with patch.object(TARGET, "ORIGINAL_LAYOUT_PARENT", root), patch.dict(TARGET.os.environ, {}, clear=True):
+            source = TARGET.sealed_source_binding(fixture.admitted, fixture.build, verify=fixture.verify, **inputs)
+            self.assertEqual(source.member_bytes(fixture.build / "shipping-inputs/start.S"),
+                             b".global _start\n_start: ret\n")
+            self.assertEqual(set(source.to_record()["binding"]["source_profile"]["source_files"]),
+                             {"main.c", "start.S", "image.ld"})
+            for name in ("source_context", "source_bundle", "source_seal", "source_provenance_tools", "source_profile"):
+                fixture.report.pop(name)
+            fixture.report["program_provenance"] = True
+            fixture.save()
+            with patch.object(TARGET, "current_system_context", return_value=fixture.context):
+                compiled = TARGET.compiler_receipt_binding(fixture.admitted, fixture.build,
+                    fixture.receipt, verify=fixture.verify, source_binding=source)
+                self.assertEqual(compiled.to_record()["native"], TARGET.pin(fixture.native))
+                path = fixture.receipt_root / "D-test-p4/target-types/main.c"
+                path.write_bytes(b"int main(void){return 1;}\n")
+                with self.assertRaisesRegex(ValueError, "type-gate source"):
+                    TARGET.compiler_receipt_binding(fixture.admitted, fixture.build,
+                        fixture.receipt, verify=fixture.verify, source_binding=source)
+
+    def test_cloud_source_revalidation_rejects_replaced_original_root_and_retained_object_mutation(self):
+        inputs = self.fixture.cloud_seed()
+        with patch.object(TARGET, "ORIGINAL_LAYOUT_PARENT", self.fixture.root), patch.dict(TARGET.os.environ, {}, clear=True):
+            source = TARGET.sealed_source_binding(self.fixture.admitted, self.fixture.build, verify=self.fixture.verify, **inputs)
+            snapshot = source.to_record()
+            returned = source.to_record()
+            returned["binding"]["source_profile"]["program"] = "mutated-copy"
+            self.assertEqual(source.to_record(), snapshot)
+            self.fixture.admitted.source_contract["unexpected"] = True
+            with self.assertRaisesRegex(ValueError, "execution object"):
+                source.revalidate(verify=self.fixture.verify)
+            self.fixture.admitted.source_contract.pop("unexpected")
+            held = self.fixture.root / "held-original-build"
+            self.fixture.build.rename(held)
+            shutil.copytree(held, self.fixture.build)
+            with self.assertRaisesRegex(ValueError, "root inode"):
+                source.revalidate(verify=self.fixture.verify)
 
     def test_full_unit_contract_keeps_original_native_and_never_claims_execution(self):
         before = copy.deepcopy(self.fixture.admitted.expected)

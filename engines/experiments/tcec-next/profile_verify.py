@@ -18,6 +18,7 @@ import lzma
 import os
 from pathlib import Path, PurePosixPath
 import signal
+import stat
 import struct
 import sys
 import time
@@ -44,7 +45,15 @@ _CONSTRUCTING = False
 _DEFERRED = None
 _TARGET_HELPER = None
 _INPUT_HELPER = None
+_CLOUD_PROVIDER = None
 INPUT_READER = "engines/scripts/production_input.py"
+CLOUD_PROVIDER = "engines/experiments/strength/cloud_runtime.py"
+RSS_ACCOUNTING = "smaps_rollup"
+SPELLING = "engines/experiments/tcec-next/profile_spelling.py"
+SPELLING_SCHEMA = "rove4k.selected-spelling-experiment.v1"
+SPELLING_PIN = {"bytes": 9921, "sha256": "7ec393bc9c805ee8e1e6d715f40cb9883f829e3c6b01e2f71f31701e35136ea8"}
+BEST_SPELLING = {"A": "clock-type", "B": "atomic-assignment", "C": "clock-type",
+                 "E": "clock-type", "F": "atomic-assignment"}
 TARGET_SUPPORT = ("engines/experiments/tcec-next/target_runtime.py",
                   "engines/experiments/tcec-next/profile_compiler.py")
 
@@ -93,16 +102,20 @@ def _json_equal(left, right):
     return json.dumps(left, sort_keys=True) == json.dumps(right, sort_keys=True)
 
 
-def runtime_reader_required(qualifier_source):
-    """Derive helper ownership from the frozen qualifier, including old receipts."""
+def runtime_feature_required(qualifier_source, name, literal):
+    """Derive a new observation contract from its frozen qualifier source."""
     declarations = []
     for node in ast.parse(qualifier_source).body:
         if isinstance(node, ast.Assign) and any(isinstance(target, ast.Name)
-                and target.id == "INPUT_READER" for target in node.targets):
-            require(isinstance(node.value, ast.Constant), "frozen reader declaration must be literal")
+                and target.id == name for target in node.targets):
+            require(isinstance(node.value, ast.Constant), "frozen runtime feature declaration must be literal")
             declarations.append(node.value.value)
-    require(declarations in ([], [INPUT_READER]), "frozen runtime reader declaration differs")
+    require(declarations in ([], [literal]), "frozen runtime feature declaration differs")
     return bool(declarations)
+
+
+def runtime_reader_required(qualifier_source):
+    return runtime_feature_required(qualifier_source, "INPUT_READER", INPUT_READER)
 
 
 def artifact_file(root, name):
@@ -190,14 +203,121 @@ def target_module():
     return _TARGET_HELPER
 
 
+def cloud_bridge_available():
+    """Probe executable feature APIs before a controller can launch a host."""
+    helper = target_module()
+    if (not all(callable(getattr(helper, name, None)) for name in
+                ("sealed_source_binding", "compiler_receipt_binding", "_compiler_module")) or
+            not all(isinstance(getattr(helper, name, None), type) for name in
+                    ("ValidatedSourceEvidence", "ValidatedCompilerEvidence"))):
+        return False
+    compiler = helper._compiler_module()
+    mode = getattr(compiler, "program_provenance_enabled", None)
+    return (getattr(compiler, "SCHEMA", None) == "rove4k.profile-compiler.v1" and callable(mode)
+            and mode(True, False, system=True) is True and mode(False, False, system=True) is False)
+
+
+def cloud_runtime_supported(provider):
+    """Register only the compiled canonical EC2 provider from this source tree."""
+    global _CLOUD_PROVIDER
+    if not isinstance(provider, type(sys)) or not getattr(provider, "__file__", None):
+        return False
+    if (Path(provider.__file__).resolve() != ROOT / CLOUD_PROVIDER or
+            sys.modules.get("rove4k_cloud_runtime") is not provider or
+            getattr(provider, "CANONICAL_MODULE", None) != "rove4k_cloud_runtime"):
+        return False
+    data = source_bytes(CLOUD_PROVIDER)
+    require(compile(data, provider.__file__, "exec", dont_inherit=True) == provider._EXECUTING_CODE,
+            "cloud provider source changed after its module was compiled")
+    require(provider.canonical_provider() is provider,
+            "cloud provider canonical module identity differs")
+    if not cloud_bridge_available():
+        return False
+    _CLOUD_PROVIDER = provider
+    return True
+
+
+def cloud_provider():
+    require(_CLOUD_PROVIDER is not None and cloud_runtime_supported(_CLOUD_PROVIDER),
+            "canonical EC2 cloud provider has not been registered")
+    return _CLOUD_PROVIDER
+
+
+def reference_kind(reference):
+    if type(reference) is target_module().TargetRuntimeReference:
+        return "ci"
+    if _CLOUD_PROVIDER is not None and type(reference) is cloud_provider().CloudRuntimeReference:
+        return "cloud"
+    raise ValueError("runtime image requires a validated TargetRuntimeReference or canonical CloudRuntimeReference, not a native map")
+
+
+def cloud_source_binding(admitted, build, *, source_bundle, source_seal, source_origin,
+                         seed_root, member_map, restored_layout):
+    provider = cloud_provider()
+    require(type(restored_layout) is provider.OriginalLayout,
+            "cloud source requires a validated canonical OriginalLayout")
+    restored_layout.revalidate()
+    return target_module().sealed_source_binding(admitted, Path(build), verify=sys.modules[__name__],
+        source_bundle=Path(source_bundle), source_seal=Path(source_seal), source_origin=source_origin,
+        seed_root=Path(seed_root), member_map=member_map, restored_layout=restored_layout.to_record())
+
+
+def cloud_compiler_binding(admitted, build, compiler_receipt, *, source_binding):
+    helper = target_module()
+    require(type(source_binding) is helper.ValidatedSourceEvidence,
+            "cloud compiler requires validated source evidence, not a source map")
+    source_binding.assert_admission(admitted, Path(build))
+    source_binding.revalidate(verify=sys.modules[__name__])
+    result = helper.compiler_receipt_binding(admitted, Path(build), Path(compiler_receipt),
+        verify=sys.modules[__name__], source_binding=source_binding)
+    require(type(result) is helper.ValidatedCompilerEvidence,
+            "cloud compiler authority must retain its validated evidence type")
+    record = result.to_record()
+    require(set(record) == {"native_path", "native", "compiler_context", "compiler_inputs", "evidence"},
+            "cloud compiler authority record differs")
+    return record
+
+
+def cloud_rules_receipt(admitted, build, rules_path, *, source_binding):
+    helper = target_module()
+    require(type(source_binding) is helper.ValidatedSourceEvidence,
+            "cloud rules require validated source evidence, not a source map")
+    source_binding.assert_admission(admitted, Path(build))
+    source_binding.revalidate(verify=sys.modules[__name__])
+    original = source_binding.member_bytes(Path(rules_path))
+    rules_receipt(admitted, Path(build), Path(rules_path))
+    require(source_binding.member_bytes(Path(rules_path)) == original,
+            "sealed cloud rules changed during source-bound validation")
+    source_binding.revalidate(verify=sys.modules[__name__])
+    return Path(rules_path)
+
+
+def reference_support_pins(reference):
+    record = reference.to_record()
+    if reference_kind(reference) == "ci":
+        return {TARGET_SUPPORT[0]: record["reference_validator"]["sha256"],
+                TARGET_SUPPORT[1]: record["compiler_tools"][TARGET_SUPPORT[1]]["sha256"]}
+    provider = cloud_provider()
+    evidence = record["compiler_evidence"]
+    source = reference.source_evidence
+    require(type(source) is target_module().ValidatedSourceEvidence
+            and source.to_record() == record["source_binding"],
+            "cloud runtime support lost its exact typed source evidence")
+    sources = {**source.source_provenance_tools, **evidence["compiler_tools"]}
+    validator = evidence["reference_validator"]
+    sources[validator["path"]] = {key: validator[key] for key in ("bytes", "sha256")}
+    for name in provider.HOST_SOURCE_FILES:
+        require(name.startswith("engines/experiments/strength/"), "cloud support escaped its source domain")
+        sources[name] = pin(source_bytes(name))
+    return {name: value["sha256"] for name, value in sources.items()}
+
+
 def runtime_image(admitted, build, reference=None):
     """Select an image expectation without modifying the source build map."""
     if reference is None:
         expected = _field_pin(admitted.expected, "native")
         return expected, checked_artifact(build, admitted.native, expected)
-    helper = target_module()
-    require(type(reference) is helper.TargetRuntimeReference,
-            "runtime image requires a validated TargetRuntimeReference, not a native map")
+    kind = reference_kind(reference)
     record = reference.to_record()
     require(admitted.representation == "source-jit" and reference.family == admitted.family
             and reference.profile == admitted.profile_id and record.get("runtime_eligible") is True
@@ -207,6 +327,13 @@ def runtime_image(admitted, build, reference=None):
                 **pin(artifact_file(build, "build.json").read_bytes())},
             "validated target reference belongs to another source build/profile")
     reference.assert_admission(admitted, build)
+    if kind == "cloud":
+        source = reference.source_evidence
+        require(type(source) is target_module().ValidatedSourceEvidence,
+                "cloud runtime lost its typed source admission")
+        source.assert_admission(admitted, Path(build))
+        require(source.to_record() == record["source_binding"],
+                "cloud runtime source record differs from its typed evidence")
     path = Path(reference.native_path)
     expected = reference.native_pin
     return expected, checked_artifact(path.parent, path.name, expected)
@@ -214,11 +341,14 @@ def runtime_image(admitted, build, reference=None):
 
 def revalidate_target(reference):
     if reference is not None:
-        helper = target_module()
-        reference.revalidate(verify=sys.modules[__name__], expected_ci=helper.CIContext.from_environment())
+        if reference_kind(reference) == "cloud":
+            reference.revalidate(verify=sys.modules[__name__])
+        else:
+            helper = target_module()
+            reference.revalidate(verify=sys.modules[__name__], expected_ci=helper.CIContext.from_environment())
 
 
-def source_stages(family, post, proofs):
+def source_stages(family, post, proofs, post_spelling=None, *, representation=None, entry_cleanup=None):
     """Declare the complete finite stage grammar before loading a helper."""
     require(family in ("A", "B", "C", "E", "F") and isinstance(proofs, list)
             and all(isinstance(p, dict) for p in proofs),
@@ -242,9 +372,52 @@ def source_stages(family, post, proofs):
             expected.append("rove4k.portable-phase-source.v1")
     if family == "E":
         expected.append("canonical-e19-physical-binding")
+    if post_spelling is not None:
+        require(post_spelling == {"path": SPELLING, "selection": "best", "variant": BEST_SPELLING[family]},
+                "final spelling requires its exact reviewed winner and helper")
+        require(representation == "source-jit" and entry_cleanup == "private-path",
+                "final spelling requires full source-JIT/private-path")
+        require((family == "B" and post == {"path": "engines/experiments/tcec-next/profile_b.py",
+                                          "variant": "tcec-final-lf"}) or
+                (family in "ACEF" and kind == "phase"),
+                "final spelling requires selected phase-init ACEF or tcec-final-lf B")
+        expected.append(SPELLING_SCHEMA)
     require([p.get("schema", p.get("stage")) for p in proofs] == expected,
             "source proof stages are missing, extra, or out of order")
     return kind
+
+
+def spelling_module(manifest, build, production_paths):
+    """Consume the exact reviewed helper bytes, including its production role."""
+    rows = [row for row in manifest["source_closure"]["inputs"] if row.get("path") == SPELLING]
+    require(SPELLING in production_paths and len(rows) == 1 and rows[0].get("role") == "tool"
+            and {key: rows[0].get(key) for key in SPELLING_PIN} == SPELLING_PIN
+            and manifest["inputs"].get(SPELLING) == SPELLING_PIN,
+            "final spelling helper production role or frozen identity differs")
+    data = checked_artifact(build, "inputs/" + SPELLING, SPELLING_PIN)
+    require(source_bytes(SPELLING, SPELLING_PIN) == data, "current reviewed spelling helper differs")
+    path = ROOT / SPELLING
+    name = "profile_runtime_reviewed_spelling"
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    exec(compile(data, str(path), "exec", dont_inherit=True), module.__dict__)
+    require(module.SCHEMA == SPELLING_SCHEMA, "reviewed spelling schema differs")
+    return module
+
+
+def inverse_source_stages(source, inverses):
+    """Undo the actual shipping body, including E19 offsets, in reverse order."""
+    restored = source
+    for module, proof, parent in reversed(inverses):
+        if module is None:
+            offset, before, after = proof["table_value_offset"], proof["before"].encode(), proof["after"].encode()
+            require(restored[offset:offset + len(after)] == after, "E19 inverse span differs")
+            restored = restored[:offset] + before + restored[offset + len(after):]
+        else:
+            restored = module.restore_source(restored, proof)
+        require(restored == parent, "complete reverse-order source stage inverse differs")
+    return restored
 
 
 def _resource_record(record, family):
@@ -340,8 +513,11 @@ def admit_c_build(manifest, build):
                                                 entry_cleanup=plan["entry_cleanup"])
     require(proof == manifest["source_proofs"][0], "resource projection proof differs")
     require(projection.restore_source(produced, proof) == base, "profile inverse differs")
+    inverses = [(projection, proof, base)]
     post = manifest.get("post_profile")
-    post_kind = source_stages(family, post, manifest["source_proofs"])
+    post_spelling = manifest.get("post_spelling")
+    post_kind = source_stages(family, post, manifest["source_proofs"], post_spelling,
+                              representation=representation, entry_cleanup=plan["entry_cleanup"])
     next_stage = 1
     if post is not None:
         path = post["path"]
@@ -356,6 +532,7 @@ def admit_c_build(manifest, build):
         require(post_proof == manifest["source_proofs"][next_stage]
                 and helper.restore_source(produced, post_proof) == before_post,
                 "post-resource projection or complete inverse differs")
+        inverses.append((helper, post_proof, before_post))
         next_stage += 1
         abi_probe = post_proof.get("target_abi_probe")
         if abi_probe is not None:
@@ -377,12 +554,25 @@ def admit_c_build(manifest, build):
         module = load("profile_runtime_e19", ROOT / "engines/model/e19.py")
         model = module.Model.load()
         source_model = module.Model.from_physical_source(produced, model_id="e19-admitted-source-baseline")
+        before_model = produced
         produced, model_proof = model.bind_physical_table(produced, source_model=source_model)
         require(model_proof == manifest["source_proofs"][next_stage],
                 "actual final E19 consumer differs")
+        inverses.append((None, model_proof, before_model))
+        next_stage += 1
+    if post_spelling is not None:
+        helper = spelling_module(manifest, build, production_paths)
+        before_spelling = produced
+        produced, spelling_proof = helper.transform_source(produced, family=family,
+            profile_id=profile.id, variant=post_spelling["variant"])
+        require(spelling_proof == manifest["source_proofs"][next_stage],
+                "full final spelling proof/protected gaps differ")
+        inverses.append((helper, spelling_proof, before_spelling))
         next_stage += 1
     require(next_stage == len(manifest["source_proofs"]), "an admitted source stage was not consumed")
     require(produced == source, "full source projection chain does not reproduce the actual consumer")
+    require(inverse_source_stages(source, inverses) == base,
+            "complete final consumer inverse differs from its fresh control")
     if representation == "source-jit":
         require(restore_payload(payload, len(source)) == source, "source package inverse differs")
         package = load("profile_runtime_package", ROOT / "engines/scripts/source_package.py")
@@ -411,6 +601,7 @@ def admit_c_build(manifest, build):
     return AdmittedBuild(family, profile.id, representation, "x", "main.c", "native/x", expected,
                          manifest["resources"], policy, manifest["wrapper_contract"], inputs,
                          {"kind": "exact-resource-projection", "proof": proof, "post_profile": post,
+                          **({"post_spelling": post_spelling} if post_spelling is not None else {}),
                           "full_rules_generation": "pending-actual-emitted-consumer-fixture"})
 
 
@@ -660,6 +851,88 @@ def _rss_bytes(snapshot):
     return int(value[0]) * 1024
 
 
+def _proc_bytes(path, maximum):
+    """Read a bounded proc pseudo-file; its reported st_size is normally zero."""
+    descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | getattr(os, "O_CLOEXEC", 0))
+    try:
+        require(stat.S_ISREG(os.fstat(descriptor).st_mode), "ordinary proc observation required")
+        chunks, count = [], 0
+        while count <= maximum:
+            value = os.read(descriptor, min(65536, maximum + 1 - count))
+            if not value:
+                break
+            chunks.append(value)
+            count += len(value)
+        require(count <= maximum, "proc observation exceeds its byte bound")
+        return b"".join(chunks)
+    finally:
+        os.close(descriptor)
+
+
+def _process_identity(raw, pid):
+    prefix, fields = raw.decode("ascii").rsplit(")", 1)
+    require(prefix.startswith(str(pid) + " (") and len(fields.split()) >= 20,
+            "proc stat identity differs")
+    fields = fields.split()
+    start = int(fields[19])
+    require(start > 0 and fields[0] in ("R", "S", "D", "T", "t", "I", "W", "P"),
+            "startup process is no longer live")
+    return {"pid": pid, "start_ticks": start, "state": fields[0]}
+
+
+def rollup_rss_bytes(raw):
+    rows = [line.split() for line in raw.decode("ascii").splitlines() if line.startswith("Rss:")]
+    require(len(rows) == 1 and len(rows[0]) == 3 and rows[0][2] == "kB"
+            and rows[0][1].isdecimal(), "one exact smaps_rollup Rss in kB required")
+    value = int(rows[0][1]) * 1024
+    require(0 <= value < 1 << 63, "smaps_rollup Rss extent differs")
+    return value
+
+
+def resident_accounting(pid, *, proc=Path("/proc")):
+    """One exact resident-page walk per startup, retaining the original PID."""
+    require(type(pid) is int and pid > 0, "owned process PID required")
+    root = proc / str(pid)
+    before = _process_identity(_proc_bytes(root / "stat", 16384), pid)
+    raw = _proc_bytes(root / "smaps_rollup", 1 << 20)
+    after = _process_identity(_proc_bytes(root / "stat", 16384), pid)
+    require(before["start_ticks"] == after["start_ticks"], "process identity changed during resident accounting")
+    return {"source": RSS_ACCOUNTING, "before": before, "after": after,
+            "Rss_bytes": rollup_rss_bytes(raw), "raw": raw.decode("ascii"), "raw_pin": pin(raw)}
+
+
+def startup_residency(row, snapshot, tt_bytes, *, exact_required):
+    """Keep the threshold, using exact page accounting for new observations."""
+    approximate = _rss_bytes(snapshot)
+    if exact_required:
+        account = row.get("startup_resident_accounting")
+        require(isinstance(account, dict) and account.get("source") == RSS_ACCOUNTING
+                and row.get("startup_RSS_source") == RSS_ACCOUNTING,
+                "exact startup smaps_rollup accounting is unavailable")
+        raw = account.get("raw", "").encode("ascii")
+        require(len(raw) <= 1 << 20 and pin(raw) == account.get("raw_pin"),
+                "exact resident observation bytes differ")
+        resident = rollup_rss_bytes(raw)
+        before, after = account.get("before", {}), account.get("after", {})
+        require(type(before.get("start_ticks")) is int and before["start_ticks"] > 0
+                and type(after.get("start_ticks")) is int
+                and before.get("start_ticks") == after.get("start_ticks")
+                and type(row.get("pid")) is int and type(before.get("pid")) is int
+                and type(after.get("pid")) is int and before.get("pid") == after.get("pid") == row["pid"]
+                and before.get("state") in ("R", "S", "D", "T", "t", "I", "W", "P")
+                and after.get("state") in ("R", "S", "D", "T", "t", "I", "W", "P")
+                and type(account.get("Rss_bytes")) is int and account["Rss_bytes"] == resident
+                and row.get("startup_VmRSS_bytes_not_peak") == approximate,
+                "resident accounting identity/value or approximate telemetry differs")
+    else:
+        require("startup_resident_accounting" not in row and "startup_RSS_source" not in row,
+                "historical qualifier did not record exact resident accounting")
+        resident = approximate
+    require(row.get("startup_RSS_bytes_not_peak") == resident and resident >= tt_bytes - 8192,
+            "full startup TT writes were not reflected in resident pages")
+    return resident
+
+
 def _clean_live(scope, owned, snapshot, contract, started):
     if contract.get("entry_cleanup") == "loader-owned-fd":
         executable = Path("/proc") / str(owned.process.pid) / "exe"
@@ -739,8 +1012,7 @@ def run_runtime(admitted, build, out, limits, *, target_reference=None):
     report["runtime_support"] = support_inputs
     reference_support = {}
     if reference_record is not None:
-        reference_support = {TARGET_SUPPORT[0]: reference_record["reference_validator"]["sha256"],
-            TARGET_SUPPORT[1]: reference_record["compiler_tools"][TARGET_SUPPORT[1]]["sha256"]}
+        reference_support = reference_support_pins(target_reference)
         report["target_reference_support"] = reference_support
     for relative, digest in {**support_inputs, **reference_support}.items():
         data = source_bytes(relative)
@@ -789,9 +1061,11 @@ def run_runtime(admitted, build, out, limits, *, target_reference=None):
                         "restoration replaced or consumed the original UCI input pipe")
                 row["startup"] = snapshot
                 row["original_UCI_stdin_pipe_preserved"] = True
-                row["startup_RSS_bytes_not_peak"] = _rss_bytes(snapshot)
-                require(row["startup_RSS_bytes_not_peak"] >= admitted.resources["tt_bytes"] - 8192,
-                        "full startup TT writes were not reflected in resident pages")
+                row["startup_VmRSS_bytes_not_peak"] = _rss_bytes(snapshot)
+                row["startup_resident_accounting"] = resident_accounting(owned.process.pid)
+                row["startup_RSS_source"] = RSS_ACCOUNTING
+                row["startup_RSS_bytes_not_peak"] = row["startup_resident_accounting"]["Rss_bytes"]
+                startup_residency(row, snapshot, admitted.resources["tt_bytes"], exact_required=True)
                 row["normal_temporary_cleanup"] = _clean_live(scope, owned, snapshot,
                                                                admitted.wrapper_contract, started)
                 session = Session(owned, oracle, manifest, row, report)
@@ -890,6 +1164,22 @@ def run_runtime(admitted, build, out, limits, *, target_reference=None):
     return report
 
 
+def rules_receipt(admitted, build, rules_path):
+    """Replay the same source-bound actual rules receipt for either consumer."""
+    helper = load("profile_runtime_rules_receipt", HERE / "profile_rules.py")
+    manifest = json.loads(input_reader().read_regular(artifact_file(build, "build.json"), limit=8 << 20))
+    if admitted.family == "D":
+        main_source = checked_artifact(build, "shipping-inputs/main.c", manifest["shipping_inputs"]["main.c"])
+        baseline, source_proof = None, manifest["proof"]
+    else:
+        main_source = checked_artifact(build, admitted.source, _field_pin(admitted.expected, "source"))
+        baseline = input_reader().read_regular(artifact_file(build, "control/main.c"), limit=16 << 20)
+        source_proof = manifest["source_proofs"]
+    return helper.validate_rules_receipt(rules_path, family=admitted.family,
+        profile=contracts().resource_profile(admitted.profile_id), main_source=main_source,
+        source_proof=source_proof, baseline_source=baseline, build=build)
+
+
 def qualification_record(admitted, build, runtime_path, *, rules_path=None, artifact_id=None,
                          target_reference=None):
     """Bind measured evidence for registry intake; missing placement stays failed.
@@ -940,10 +1230,10 @@ def qualification_record(admitted, build, runtime_path, *, rules_path=None, arti
     # cannot omit the helper it actually executed from its support closure.
     require((INPUT_READER in support) == runtime_reader_required(frozen_qualifier),
             "runtime input reader support is missing or inconsistent with its frozen qualifier")
+    exact_rss = runtime_feature_required(frozen_qualifier, "RSS_ACCOUNTING", RSS_ACCOUNTING)
     reference_support = observed.get("target_reference_support", {})
     if reference_record is not None:
-        expected_support = {TARGET_SUPPORT[0]: reference_record["reference_validator"]["sha256"],
-            TARGET_SUPPORT[1]: reference_record["compiler_tools"][TARGET_SUPPORT[1]]["sha256"]}
+        expected_support = reference_support_pins(target_reference)
         require(reference_support == expected_support, "target reference support closure differs")
         for name, digest in reference_support.items():
             require(pin(artifact_file(runtime_root, "inputs/" + name).read_bytes())["sha256"] == digest,
@@ -979,10 +1269,9 @@ def qualification_record(admitted, build, runtime_path, *, rules_path=None, arti
         require(not pipes["stderr"], "runtime engine wrote stderr")
         snapshot = row["startup"]
         require(snapshot["native_sha256"] == image_pin["sha256"]
-                and len(snapshot["tasks"]) == admitted.runtime_policy["startup_threads"]
-                and row["startup_RSS_bytes_not_peak"] == _rss_bytes(snapshot)
-                and row["startup_RSS_bytes_not_peak"] >= admitted.resources["tt_bytes"] - 8192,
+                and len(snapshot["tasks"]) == admitted.runtime_policy["startup_threads"],
                 "runtime actual image/startup threads/resident TT differs")
+        startup_residency(row, snapshot, admitted.resources["tt_bytes"], exact_required=exact_rss)
         seconds = row["startup_wall_seconds"]
         require(type(seconds) in (int, float) and 0 <= seconds <= 60, "runtime startup exceeds 60 seconds")
         startup.append(seconds * 1000)
@@ -1044,18 +1333,7 @@ def qualification_record(admitted, build, runtime_path, *, rules_path=None, arti
     dependencies = dependencies and isa.get("sse4_2_all_available") is True and isa.get("cx16_all_available") is True
     rules = None
     if rules_path is not None:
-        helper = load("profile_runtime_rules_receipt", HERE / "profile_rules.py")
-        manifest = json.loads(artifact_file(build, "build.json").read_bytes())
-        if admitted.family == "D":
-            main_source = checked_artifact(build, "shipping-inputs/main.c", manifest["shipping_inputs"]["main.c"])
-            baseline, source_proof = None, manifest["proof"]
-        else:
-            main_source = checked_artifact(build, admitted.source, _field_pin(admitted.expected, "source"))
-            baseline = artifact_file(build, "control/main.c").read_bytes()
-            source_proof = manifest["source_proofs"]
-        rules = helper.validate_rules_receipt(rules_path, family=admitted.family,
-            profile=contracts().resource_profile(admitted.profile_id), main_source=main_source,
-            source_proof=source_proof, baseline_source=baseline, build=build)
+        rules = rules_receipt(admitted, build, rules_path)
     host = observed.get("execution_host", {})
     physical, logical = host.get("physical_cores_exposed"), len(host.get("affinity", []))
     needed = {"test-p4": 4, "test-p28": 28}.get(admitted.profile_id)

@@ -299,8 +299,11 @@ def template(project_region=None):
                 'PublicAccessBlockConfiguration': {key: True for key in (
                     'BlockPublicAcls', 'BlockPublicPolicy', 'IgnorePublicAcls', 'RestrictPublicBuckets')},
                 'OwnershipControls': {'Rules': [{'ObjectOwnership': 'BucketOwnerEnforced'}]},
+                'VersioningConfiguration': {'Status': 'Enabled'},
                 'LifecycleConfiguration': {'Rules': [{'Id': 'campaign-evidence-30-days',
                     'Status': 'Enabled', 'ExpirationInDays': 30,
+                    # This is age since becoming noncurrent, not creation age.
+                    'NoncurrentVersionExpiration': {'NoncurrentDays': 30},
                     'AbortIncompleteMultipartUpload': {'DaysAfterInitiation': 1}}]},
                 'Tags': campaign_tags}},
         'OwnershipTable': {
@@ -325,7 +328,9 @@ def template(project_region=None):
                                                 'Action': 'sts:AssumeRole'}]),
             'ManagedPolicyArns': [sub('arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore')],
             'Policies': [{'PolicyName': 'campaign-artifacts', 'PolicyDocument': policy([
-                allow(['s3:GetObject', 's3:PutObject', 's3:AbortMultipartUpload'], prefix),
+                # Explicit VersionId seed reads require GetObjectVersion on
+                # the same campaign object prefix, not bucket-wide access.
+                allow(['s3:GetObject', 's3:GetObjectVersion', 's3:PutObject', 's3:AbortMultipartUpload'], prefix),
                 allow('s3:ListBucket', arn('ArtifactBucket'),
                       {'StringLike': {'s3:prefix': [sub('${CampaignId}/*')]}}),
                 # The on-host runner verifies its immutable lease and safety
@@ -413,10 +418,20 @@ def template(project_region=None):
             # This is an account-plan preflight, not permission to upgrade it.
             allow('freetier:GetAccountPlanState', '*'),
             allow(['dynamodb:PutItem', 'dynamodb:GetItem', 'dynamodb:Query'], arn('OwnershipTable'), scoped_keys),
-            allow(['s3:GetObject', 's3:PutObject', 's3:AbortMultipartUpload', 's3:DeleteObject'], prefix),
+            allow(['s3:GetObject', 's3:GetObjectVersion', 's3:PutObject', 's3:AbortMultipartUpload', 's3:DeleteObject'], prefix),
             allow('s3:ListBucket', arn('ArtifactBucket'), {'StringLike': {'s3:prefix': [sub('${CampaignId}/*')]}}),
             allow('cloudformation:DescribeStacks', ref('AWS::StackId')),
+            # Deployment binding reads only this stack's original template and
+            # the deployed watchdog package's CodeSha256; it cannot update code.
+            allow('cloudformation:GetTemplate', ref('AWS::StackId'),
+                  {'StringEquals': {'aws:RequestedRegion': ref('AWS::Region')}}),
+            allow('lambda:GetFunctionConfiguration', arn('DeadlineFunction'),
+                  {'StringEquals': {'aws:RequestedRegion': ref('AWS::Region')}}),
             allow('scheduler:GetSchedule', schedule_arn),
+            # The exact-instance SSM readiness read has no resource-level ARN;
+            # keep its account-wide visibility inside this workload region.
+            allow('ssm:DescribeInstanceInformation', '*',
+                  {'StringEquals': {'aws:RequestedRegion': ref('AWS::Region')}}),
             allow('ssm:SendCommand', sub('arn:${AWS::Partition}:ssm:${AWS::Region}::document/AWS-RunShellScript')),
             allow('ssm:SendCommand', instance_arn, {'StringEquals': {
                 'ssm:resourceTag/RoveCampaign': ref('CampaignId'), 'ssm:resourceTag/RoveOwner': ref('OwnerNonce')}}),
@@ -424,7 +439,8 @@ def template(project_region=None):
         'Tags': campaign_tags}}
     return {'AWSTemplateFormatVersion': '2010-09-09',
         'Description': 'Rove4k single-instance Spot campaign safety and 30-day evidence; no EC2 instance is created by this stack',
-        'Metadata': {'Rove4k::DeploymentPrerequisites': {
+        'Metadata': {'AWSToolsMetrics': {'AWSAgentToolkit': 'aws-cloudformation@3'},
+            'Rove4k::DeploymentPrerequisites': {
             'AccountPlan': {
                 'Operation': 'freetier:GetAccountPlanState',
                 'Before': ['CreateStack', 'UpdateStack', 'RunInstances'],

@@ -411,6 +411,19 @@ class AWSTests(unittest.TestCase):
         self.assertEqual(captured['request'], {'DryRun': True})
         self.assertFalse(Path(captured['uri'].removeprefix('file://')).exists())
 
+    def test_non_idempotent_ssm_transport_forces_one_attempt_without_mutating_ambient(self):
+        import os
+        response = SimpleNamespace(returncode=0, stdout=b'{}', stderr=b'')
+        with patch.dict(os.environ, {'AWS_MAX_ATTEMPTS': '9'}):
+            with patch('subprocess.run', return_value=response) as invoke:
+                AWSCLI('ap-southeast-2', executable='aws-native-test.exe').call(
+                    'ssm', 'send-command', {'InstanceIds': ['i-1234567890abcdef0'],
+                                             'DocumentName': 'AWS-RunShellScript'})
+            self.assertEqual(invoke.call_count, 1)
+            self.assertEqual(invoke.call_args.kwargs['env']['AWS_MAX_ATTEMPTS'], '1')
+            self.assertEqual(os.environ['AWS_MAX_ATTEMPTS'], '9')
+            self.assertEqual(invoke.call_args.kwargs['timeout'], 30)
+
     def test_immutable_evidence_upload_reconciles_lost_ack_without_overwrite(self):
         class Store:
             def __init__(self):

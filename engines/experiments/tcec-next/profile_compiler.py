@@ -35,6 +35,9 @@ HOST_SHA = "fc916e798952cff1c915a6846e758874bc2d858b3c59dec73870b95c7e3d4828"
 SCHEMA = "rove4k.profile-compiler.v1"
 GLIBC_MAX = (2, 35)
 PROGRAM_ROLES = ("cc1", "as", "ld", "collect2", "lto1")
+COMPILER_ENV = ("GCC_EXEC_PREFIX", "COMPILER_PATH", "LIBRARY_PATH", "CPATH",
+                "C_INCLUDE_PATH", "CPLUS_INCLUDE_PATH", "OBJC_INCLUDE_PATH",
+                "LD_PRELOAD", "LD_LIBRARY_PATH")
 C_FLAGS = {
     "A": ("cc", "-Os", "-x", "c", "-", "-o", "x", "-s"),
     "B": ("cc", "-std=c11", "-Os", "-pthread", "-x", "c", "-", "-o", "x"),
@@ -182,6 +185,17 @@ def source_port_enabled(bundle, seal, *, system):
     return bundle is not None
 
 
+def program_provenance_enabled(explicit, source_port, *, system):
+    enabled = explicit or source_port
+    require(not enabled or system, "program provenance requires the explicit Ubuntu22 system context")
+    return enabled
+
+
+def require_compiler_environment():
+    require(not any(os.environ.get(name) for name in COMPILER_ENV),
+            "compiler provenance does not admit compiler redirection environment")
+
+
 def source_provenance(sources, verify, *, bundle, seal):
     """Bind the optional live-CI source port through its public validator.
 
@@ -198,8 +212,8 @@ def source_provenance(sources, verify, *, bundle, seal):
     module = load("profile_compiler_source_provenance", ROOT / SOURCE_PROVENANCE)
     require(compile(helper_source, str(module.__file__), "exec", dont_inherit=True) == module._EXECUTING_CODE,
             "source provenance helper changed after its executing module was compiled")
-    require(not any(os.environ.get(name) for name in module.COMPILER_ENV),
-            "source provenance does not admit compiler redirection environment")
+    require(module.COMPILER_ENV == COMPILER_ENV, "source compiler environment contract differs")
+    require_compiler_environment()
     expected_ci = module.CIContext.from_environment()
     for path in (bundle, seal):
         require(path.is_absolute() and not any(p.is_symlink() for p in (path, *path.parents)),
@@ -394,11 +408,17 @@ def main():
     parser.add_argument("--sdk-smoke", type=Path, help="legacy separate smoke receipt; relocated audit includes its own")
     parser.add_argument("--source-bundle", type=Path, help="optional paired live-CI source-bundle.zip for system22")
     parser.add_argument("--source-seal", type=Path, help="optional paired live-CI source-seal.json for system22")
+    parser.add_argument("--program-provenance", action="store_true",
+                        help="observe five compiler programs before/after compilation in system22; no CI source claim")
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
+    provenance_enabled = source_port_enabled(args.source_bundle, args.source_seal, system=args.ubuntu22_system)
+    program_enabled = program_provenance_enabled(args.program_provenance, provenance_enabled,
+                                                 system=args.ubuntu22_system)
+    if program_enabled:
+        require_compiler_environment()
     reader_source = INPUT.source_identity()
     executing = executing_source(normalized(Path(__file__)))
-    provenance_enabled = source_port_enabled(args.source_bundle, args.source_seal, system=args.ubuntu22_system)
     require(sys.platform == "linux" and platform.machine() == "x86_64", "Linux x86-64 compiler host required")
     out = args.out.resolve()
     require(args.out.is_absolute() and not out.exists() and
@@ -447,9 +467,11 @@ def main():
                        "cpu_affinity": sorted(os.sched_getaffinity(0))},
               "not_proven": ["Ubuntu 22.04 actual runtime", "event-specific compiler acceptance",
                              "source-JIT runtime cc identity", "many-core startup or engine strength"]}
+    if program_enabled:
+        report["program_provenance"] = True
+        report["compiler_programs_rechecked"] = False
     if provenance_enabled:
         report.update(provenance)
-        report["compiler_programs_rechecked"] = False
         report["source_provenance_rechecked"] = False
     def save():
         (out / "compiler.json").write_text(json.dumps(report, indent=2) + "\n")
@@ -464,12 +486,14 @@ def main():
     sdk_files = {row["path"]: {key: row[key] for key in ("bytes", "sha256")}
                  for row in (sdk["wrapper"], sdk["driver"])}
     try:
+        if program_enabled:
+            require_compiler_environment()
         version = host.run([compiler, "-dumpfullversion"], cwd=out, kind="compiler-version").decode().strip()
         require(version == "11.4.0", "actual target compiler is not GCC 11.4.0")
         report["compiler_version"] = host.run([compiler, "--version"], cwd=out, kind="compiler-banner").decode()
         programs = query_programs(compiler, host=host, cwd=out, system=args.ubuntu22_system,
                                   input_roots=input_roots, consumed=sdk_files)
-        if provenance_enabled:
+        if program_enabled:
             report["compiler_programs"] = programs
         for selected in sources:
             directory = out / (selected.family + "-" + selected.profile)
@@ -553,17 +577,21 @@ def main():
                 "SDK consumed input changed after compilation")
         require(current_context() == sdk,
                 "audited SDK descriptor changed during compilation")
-        if provenance_enabled:
+        if program_enabled:
+            require_compiler_environment()
             recheck_programs(compiler, expected=programs, host=host, cwd=out, system=True,
                              input_roots=input_roots, consumed=sdk_files)
+        if provenance_enabled:
             after_provenance, after_tools = source_provenance(sources, verify,
                 bundle=args.source_bundle, seal=args.source_seal)
             require(after_provenance == provenance and after_tools == provenance_tools,
                     "source provenance changed between before/post compilation")
+            report["source_provenance_rechecked"] = True
+        if program_enabled:
             require(all(pin(regular(Path(path), allow_hardlinks=True)) == expected for path, expected in sdk_files.items()),
                     "compiler consumed input changed during final provenance observation")
+            require_compiler_environment()
             report["compiler_programs_rechecked"] = True
-            report["source_provenance_rechecked"] = True
         report["compiler_consumed_inputs"] = sdk_files
         report["complete"] = True
         report["six_submission_profiles_compiled"] = {

@@ -105,9 +105,79 @@ exit0; legal-generation evidence includes the complete phase→E-model chain. B'
 selected artifact also has its own source-bound scaled callback and real W4 main
 gate, while D's prefix initialization tests now bind the actual selected build.
 No W28/W256 full-memory or scored-host acceptance is inferred from scaled fixtures.
-The next CI bridge will execute these selected contracts from clean runner output;
-target22 runtime consumes the fresh24 submission through a separate validated
-compiler reference, with `factory_replayed_on_target=false` recorded explicitly.
+At65835ee the CI bridge executes all six selected contracts from clean runner
+output. Target22 runtime remains a separate consumer of the fresh24 submission,
+with `factory_replayed_on_target=false`; its actual job is still pending.
+
+### Subsequent CI, funding and missing AWS integration
+
+At65835ee all three workflows pass, including all eight engine jobs and six
+production pipelines. Downloaded copies of their36 declared stage receipt pins
+match exact bytes/SHA-256; the outside-Git stage-verification index has SHA-256
+`83a57da75eb6f25635e27424914125b262ef1d4021fbee37512581933a339c2b`.
+This is functional/rules evidence, with D size and scored placement still failing
+their separate gates. Active quit/EOF permits no closing bestmove, explaining the
+144 GO/134 legal-result aggregate without counting an absent result as illegal.
+
+The optional Ubuntu22 source/compiler/native authority is committed ate07e89d.
+Its66 focused pure checks pass locally. At that head all six actual production
+pipelines and the C candidate job pass; foundation fails because setup-python's
+LD_LIBRARY_PATH preempts mocked source-port fixture conditions. The production
+environment guard is correct. The test-only b5e3987 fix isolates the guarded
+environment while preserving explicit rejection assertions and restoring the
+caller environment. With all nine guarded variables plus CC/CXX populated,26/26
+pass on Windows and WSL. Atb5e3987 engine run40204991267 passes all eight jobs,
+including foundation; repository40204991266 and NVCompact40204991269 also pass.
+Actual system22
+target execution, standalone AWS consumption and release qualification remain
+unproven; the live GitHub consumer cannot be reused by spoofing CI environment.
+
+After the dated FREE snapshot above, the user completed the PAID upgrade. Actual
+API reads confirm PAID ACTIVE and100USD remaining. Eligible credits apply first;
+cash fallback is authorized within the original gross120USD/12-instance-hour
+limits. Five20USD activities are NOT_STARTED, so their conditional100USD is not
+available campaign budget. Managed SCP denies per-grant product/purchase-type/
+expiry reads; exact m6a Spot credit eligibility and grant expiry remain unknown.
+The single192-vCPU quota request is CASE_OPENED, not approved/applied. Fresh
+Advisor<5%, capacity and the other execution gates still apply. No paid workload
+or infrastructure deployment has been performed.
+
+A production-path audit confirms the AWS lifecycle functions have no production
+caller, UserData only sets a deadline, and freeze_plan is a post-qualification
+bundle. Source seed/transport, actual EC2 consumer authority, bootstrap/native/
+peer qualification, lifecycle journal handoff, complete remote proof/results and
+watchdog deployed-code binding are being connected. Existing wave, ACK, pair,
+recovery and observed termination code is reused. Source and fake-port tests do
+not substitute for real host execution. The updated dependency graph and
+critical-path estimate remain in ENGINE-PLAN.ko.md.
+
+The next source checkpoint wires six actual Ubuntu22 consumers behind the six
+Ubuntu24 source jobs, using only source-bundle.zip/source-seal.json, the same live
+workflow/checkout and exact original artifact roots. The target uses system
+Python3.10 and system cc11 with compiler/loader environment redirection absent.
+Its shared POSIX reader and authority/orchestration boundaries pass118 focused
+checks; this is source/test evidence until the new jobs actually finish.
+
+The AWS caller/host consumer now has explicit versioned seed transport, one
+SSM command after exact managed-node readiness, same-instance Canonical-image
+bootstrap, journal handoff, broad/high evaluator calls and remote terminal proof.
+Deployment-template/watchdog-code observations and actual shutdown still remain
+required. No prepared AMI or extra setup instance is required. All208 current
+strength development tests pass locally; AWS service calls/bootstrap/native
+execution have not run. The four pure R cloud hooks and exact typed cloud-native
+consumption remain missing and block launch before compiler/engine execution.
+
+D's new source-owned finite portfolio reaches5285B P4 packed versus the selected
+5429B. Required syscall arity, shared wake, separate immediate-termination and
+bounded valid-input contracts preserve full search/learners. ASM's best9110B and
+installed Clang's best5705B lose and are unselected. The5373B owner control has
+independent source/native/package admission and actual105/2858 plain/UBSan rules,
+but its fourth full-P4 session fails the original approximate-RSS gate; the whole
+attempt remains failed. One subsequent no-GO diagnostic observes smaps Rss
+134348800B versus VmRSS134217728B on the same stable process. The129MiB merged
+anonymous region is not relabeled as an individual TT mapping. Accurate residency
+measurement and a separate fresh full-P4 qualification are pending; the5285B
+variant also lacks explicit full qualification and is still1189B above4KiB.
 
 ## Previous user scope: all engine Rust retired and work paused, 2026-10-25
 

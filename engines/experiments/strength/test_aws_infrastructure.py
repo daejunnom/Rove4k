@@ -384,6 +384,24 @@ class InfrastructureDefinition(unittest.TestCase):
         self.assertEqual(trust['Condition']['StringEquals']['token.actions.githubusercontent.com:sub'],
                          'repo:daejunnom/Rove4k:environment:aws-evaluation')
 
+    def test_seed_bucket_versions_and_noncurrent_expiry_preserve_existing_protections(self):
+        bucket = template()['Resources']['ArtifactBucket']
+        props = bucket['Properties']
+        self.assertEqual(props['VersioningConfiguration'], {'Status': 'Enabled'})
+        rule = props['LifecycleConfiguration']['Rules'][0]
+        self.assertEqual(rule['Status'], 'Enabled')
+        self.assertEqual(rule['ExpirationInDays'], 30)
+        self.assertEqual(rule['NoncurrentVersionExpiration'], {'NoncurrentDays': 30})
+        # No retained-version count floor may keep old seed payloads indefinitely.
+        self.assertNotIn('NewerNoncurrentVersions', rule['NoncurrentVersionExpiration'])
+        self.assertEqual(rule['AbortIncompleteMultipartUpload'], {'DaysAfterInitiation': 1})
+        self.assertEqual(bucket['DeletionPolicy'], 'Retain')
+        self.assertEqual(bucket['UpdateReplacePolicy'], 'Retain')
+        self.assertEqual(props['BucketEncryption']['ServerSideEncryptionConfiguration'],
+                         [{'ServerSideEncryptionByDefault': {'SSEAlgorithm': 'AES256'}}])
+        self.assertTrue(all(props['PublicAccessBlockConfiguration'].values()))
+        self.assertEqual(props['OwnershipControls'], {'Rules': [{'ObjectOwnership': 'BucketOwnerEnforced'}]})
+
     def test_controller_limits_instance_type_market_and_tags_without_invalid_ami_conditions(self):
         policies = template()['Resources']['ControllerRole']['Properties']['Policies'][0]['PolicyDocument']['Statement']
         runs = [row for row in policies if row['Action'] == 'ec2:RunInstances']
@@ -394,6 +412,49 @@ class InfrastructureDefinition(unittest.TestCase):
         self.assertEqual(scoped[0]['Condition']['StringEquals']['ec2:InstanceType'], 'm6a.48xlarge')
         self.assertEqual(scoped[0]['Condition']['StringEquals']['ec2:InstanceMarketType'], 'spot')
         self.assertIn('aws:RequestTag/RoveOwner', scoped[0]['Condition']['StringEquals'])
+
+    def test_immutable_version_reads_stay_on_campaign_object_prefix(self):
+        resources = template()['Resources']
+        for name in ('InstanceRole', 'ControllerRole', 'DeadlineRole', 'SchedulerRole'):
+            with self.subTest(role=name):
+                statements = resources[name]['Properties']['Policies'][0]['PolicyDocument']['Statement']
+                versions = [item for item in statements if 's3:GetObjectVersion' in
+                            (item['Action'] if isinstance(item['Action'], list) else [item['Action']])]
+                if name in ('InstanceRole', 'ControllerRole'):
+                    self.assertEqual(len(versions), 1)
+                    self.assertEqual(versions[0]['Resource'], {'Fn::Sub': '${ArtifactBucket.Arn}/${CampaignId}/*'})
+                    self.assertIn('s3:GetObject', versions[0]['Action'])
+                else:
+                    self.assertEqual(versions, [])
+
+    def test_controller_deployment_reads_are_exact_stack_and_function_only(self):
+        resources = template()['Resources']
+        expected = {'cloudformation:GetTemplate': {'Ref': 'AWS::StackId'},
+                    'lambda:GetFunctionConfiguration': {'Fn::GetAtt': ['DeadlineFunction', 'Arn']}}
+        for name in ('ControllerRole', 'InstanceRole', 'DeadlineRole', 'SchedulerRole'):
+            statements = resources[name]['Properties']['Policies'][0]['PolicyDocument']['Statement']
+            for action, resource in expected.items():
+                with self.subTest(role=name, action=action):
+                    matches = [item for item in statements if action in
+                               (item['Action'] if isinstance(item['Action'], list) else [item['Action']])]
+                    if name == 'ControllerRole':
+                        self.assertEqual(matches, [{'Effect': 'Allow', 'Action': action, 'Resource': resource,
+                            'Condition': {'StringEquals': {'aws:RequestedRegion': {'Ref': 'AWS::Region'}}}}])
+                    else:
+                        self.assertEqual(matches, [])
+
+    def test_controller_ssm_readiness_permission_is_regional_read_only(self):
+        resources = template()['Resources']
+        for name in ('ControllerRole', 'InstanceRole', 'DeadlineRole', 'SchedulerRole'):
+            with self.subTest(role=name):
+                statements = resources[name]['Properties']['Policies'][0]['PolicyDocument']['Statement']
+                matches = [item for item in statements if 'ssm:DescribeInstanceInformation' in
+                           (item['Action'] if isinstance(item['Action'], list) else [item['Action']])]
+                if name == 'ControllerRole':
+                    self.assertEqual(matches, [{'Effect': 'Allow', 'Action': 'ssm:DescribeInstanceInformation',
+                        'Resource': '*', 'Condition': {'StringEquals': {'aws:RequestedRegion': {'Ref': 'AWS::Region'}}}}])
+                else:
+                    self.assertEqual(matches, [])
 
     def test_watchdog_cannot_launch_or_rewrite_ownership(self):
         statements = template()['Resources']['DeadlineRole']['Properties']['Policies'][0]['PolicyDocument']['Statement']

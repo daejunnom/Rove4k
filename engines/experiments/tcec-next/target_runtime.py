@@ -36,6 +36,10 @@ MAX_BUNDLE = 128 << 20
 MAX_MEMBER = 16 << 20
 MAX_TOOL = 128 << 20
 _VALIDATED = object()
+_ENV_LAYOUT = object()
+_SOURCE_VALIDATED = object()
+_COMPILER_VALIDATED = object()
+ORIGINAL_LAYOUT_PARENT = Path("/home/runner/work/_temp")
 COMPILER_ENV = ("GCC_EXEC_PREFIX", "COMPILER_PATH", "LIBRARY_PATH", "CPATH",
                 "C_INCLUDE_PATH", "CPLUS_INCLUDE_PATH", "OBJC_INCLUDE_PATH",
                 "LD_PRELOAD", "LD_LIBRARY_PATH")
@@ -359,7 +363,7 @@ def build_source_seal(bundle, entries, *, verify, ci_context, restore_layout=Non
     return seal
 
 
-def _sealed_source(seal, bundle, expected_ci):
+def _sealed_source(seal, bundle, expected_ci, *, restore_root=_ENV_LAYOUT):
     require(seal.get("format") == SEAL_FORMAT and seal.get("ci_context") == expected_ci
             and seal.get("producer") == {"ID": "ubuntu", "VERSION_ID": "24.04"}
             and seal.get("bundle_format") == "zip", "source seal context/producer differs")
@@ -368,7 +372,8 @@ def _sealed_source(seal, bundle, expected_ci):
     require(seal.get("members") == {name: pin(value) for name, value in sorted(members.items())},
             "source-bundle members differ from its seal")
     if "restore_layout" in seal:
-        validate_restore_layout(seal, runner_temp_root=os.environ.get("RUNNER_TEMP"))
+        validate_restore_layout(seal, runner_temp_root=(os.environ.get("RUNNER_TEMP")
+            if restore_root is _ENV_LAYOUT else restore_root))
     return members
 
 
@@ -381,8 +386,9 @@ def current_system_context(compiler):
     return compiler.system_descriptor(Path(path).resolve())
 
 
-def _source_binding(admitted, build, *, verify, source_bundle, source_seal, expected_ci):
-    context = _ci(expected_ci)
+def _source_binding_core(admitted, build, *, verify, source_bundle, source_seal,
+                         source_origin, restore_root=_ENV_LAYOUT):
+    context = _origin_record(source_origin)
     reader_source = input_reader().source_identity()
     own_source = _regular(Path(__file__).resolve()).replace(b"\r\n", b"\n")
     require(compile(own_source, __file__, "exec", dont_inherit=True) == _EXECUTING_CODE,
@@ -390,7 +396,7 @@ def _source_binding(admitted, build, *, verify, source_bundle, source_seal, expe
     seal_raw = _named(source_seal, "source-seal.json")
     bundle_raw = _named(source_bundle, "source-bundle.zip", limit=MAX_BUNDLE)
     seal = json.loads(seal_raw)
-    members = _sealed_source(seal, bundle_raw, context)
+    members = _sealed_source(seal, bundle_raw, context, restore_root=restore_root)
     compiler = _compiler_module()
     facts, manifest_raw, selected = _source_facts(admitted, Path(build), verify, compiler)
     matches = [entry for entry in seal.get("profiles", []) if
@@ -412,11 +418,197 @@ def _source_binding(admitted, build, *, verify, source_bundle, source_seal, expe
             selected, manifest_raw, compiler)
 
 
+def _origin_record(value):
+    require(isinstance(value, dict) and set(value) == {"repository", "head_sha", "run_id", "run_attempt"},
+            "explicit original CI source origin required")
+    return CIContext(**value).to_record()
+
+
+def _source_binding(admitted, build, *, verify, source_bundle, source_seal, expected_ci):
+    return _source_binding_core(admitted, build, verify=verify, source_bundle=source_bundle,
+        source_seal=source_seal, source_origin=_ci(expected_ci))
+
+
 def source_bundle_binding(admitted, build, *, verify, source_bundle, source_seal, expected_ci):
     """Compiler-side source/context preflight; no target/native map is produced."""
     binding, _, _, _ = _source_binding(admitted, build, verify=verify,
         source_bundle=source_bundle, source_seal=source_seal, expected_ci=expected_ci)
     return binding
+
+
+def _transport_record(seed_root, member_map, restored_layout, source_origin):
+    """Validate transport correspondence; it grants no source/native authority."""
+    seed_root = Path(seed_root)
+    require(seed_root.is_absolute() and str(_absolute_layout_path(str(seed_root))) == str(seed_root),
+            "explicit normalized seed root required")
+    require(isinstance(member_map, dict) and 0 < len(member_map) <= 20000,
+            "explicit bounded seed member map required")
+    members = {_member(name): dict(_identity(value)) for name, value in member_map.items()}
+    raw = _named(seed_root / "seed.json", "seed.json")
+    seed = json.loads(raw)
+    require(seed.get("format") == "rove4k-cloud-seed-v1" and seed.get("source_origin") == source_origin
+            and isinstance(seed.get("members"), dict)
+            and {name: {key: value.get(key) for key in ("bytes", "sha256")}
+                 for name, value in seed["members"].items()} == members,
+            "seed source origin/member map differs from its actual manifest")
+    layout = restored_layout
+    require(isinstance(layout, dict) and set(layout) ==
+            {"format", "seed_root", "seed_manifest", "roots", "scope"}
+            and layout["format"] == "rove4k-original-layout-v1"
+            and layout["seed_root"] == str(seed_root) and layout["seed_manifest"] == pin(raw)
+            and layout["scope"] == "exact transport correspondence; not source/runtime qualification"
+            and isinstance(layout["roots"], list) and all(isinstance(row, dict) for row in layout["roots"]),
+            "explicit original-layout transport record required")
+    plan = seed.get("original_layout", {"format": "rove4k-original-layout-plan-v1", "roots": []})
+    require(isinstance(plan, dict) and set(plan) == {"format", "roots"}
+            and plan["format"] == "rove4k-original-layout-plan-v1"
+            and plan["roots"] == [{key: row.get(key) for key in ("original_root", "seed_prefix", "files")}
+                                   for row in layout["roots"]],
+            "restored original-layout map differs from the seed plan")
+    paths, prefixes = [], []
+    for row in layout["roots"]:
+        require(isinstance(row, dict) and set(row) ==
+                {"original_root", "seed_prefix", "files", "device", "inode"},
+                "exact original-layout root correspondence required")
+        root = Path(str(_absolute_layout_path(row["original_root"])))
+        prefix = _member(row["seed_prefix"])
+        require(ORIGINAL_LAYOUT_PARENT in root.parents
+                and not any(root == old or root in old.parents or old in root.parents for old in paths)
+                and not any(prefix == old or prefix.startswith(old + "/") or old.startswith(prefix + "/")
+                            for old in prefixes), "restored roots/prefixes overlap or escaped the approved root")
+        files = {name[len(prefix) + 1:]: value for name, value in members.items()
+                 if name.startswith(prefix + "/")}
+        require(files and row["files"] == files and type(row["device"]) is int
+                and row["device"] >= 0 and type(row["inode"]) is int and row["inode"] > 0,
+                "original-layout file map/inode differs from seed members")
+        descriptor = input_reader().open_directory(root)
+        try:
+            current = os.fstat(descriptor)
+            require((current.st_dev, current.st_ino) == (row["device"], row["inode"]),
+                    "restored original root inode changed")
+            input_reader().same_directory(root, descriptor)
+        finally:
+            os.close(descriptor)
+        paths.append(root)
+        prefixes.append(prefix)
+    return {"seed_root": str(seed_root), "member_map": members,
+            "restored_layout": json.loads(json.dumps(layout))}
+
+
+def _logical_member(path, transport):
+    path = Path(path)
+    require(path.is_absolute() and ".." not in path.parts, "absolute source evidence member required")
+    seed_root = Path(transport["seed_root"])
+    matches = []
+    if seed_root in path.parents:
+        matches.append(path.relative_to(seed_root).as_posix())
+    for row in transport["restored_layout"]["roots"]:
+        root = Path(row["original_root"])
+        if root in path.parents:
+            relative = path.relative_to(root).as_posix()
+            require(relative in row["files"], "path is outside restored source correspondence")
+            matches.append(row["seed_prefix"] + "/" + relative)
+    require(len(matches) == 1 and matches[0] in transport["member_map"],
+            "file has no unique declared seed member correspondence")
+    return _member(matches[0])
+
+
+def _transport_member(path, transport):
+    name = _logical_member(path, transport)
+    expected = transport["member_map"][name]
+    actual = _regular(path, limit=expected["bytes"])
+    seed = _regular(Path(transport["seed_root"]) / name, limit=expected["bytes"])
+    require(pin(actual) == expected and actual == seed, "actual/restored source member differs from its seed pin")
+    return actual
+
+
+@dataclass(frozen=True, init=False)
+class ValidatedSourceEvidence:
+    """An actual source admission bound to an original CI seal and seed transport."""
+    _record: str
+    _inputs: tuple
+    _admission: str
+    _admission_type: type
+
+    def __init__(self, token, record, inputs, admission):
+        require(token is _SOURCE_VALIDATED, "source evidence must pass original seal/source admission")
+        for name, value in (("_record", json.dumps(record, sort_keys=True)), ("_inputs", inputs),
+                            ("_admission", _admission_snapshot(admission)), ("_admission_type", type(admission))):
+            object.__setattr__(self, name, value)
+
+    def to_record(self):
+        return json.loads(self._record)
+
+    @property
+    def source_provenance_tools(self):
+        return self.to_record()["binding"]["source_provenance_tools"]
+
+    def assert_admission(self, admitted, build):
+        require(type(admitted) is self._admission_type and _admission_snapshot(admitted) == self._admission
+                and str(Path(build)) == self.to_record()["binding"]["source_profile"]["build_root"],
+                "execution object differs from validated source evidence")
+
+    def assert_member(self, path):
+        return _logical_member(path, self.to_record()["transport"])
+
+    def member_bytes(self, path):
+        return _transport_member(path, self.to_record()["transport"])
+
+    def _parts(self, verify):
+        admitted, build, bundle, seal = self._inputs
+        self.assert_admission(admitted, build)
+        record = self.to_record()
+        fresh, parts = _sealed_evidence_parts(admitted, build, verify=verify, source_bundle=bundle,
+            source_seal=seal, source_origin=record["source_origin"],
+            seed_root=record["transport"]["seed_root"], member_map=record["transport"]["member_map"],
+            restored_layout=record["transport"]["restored_layout"])
+        require(fresh == record, "source evidence changed before/post consumer validation")
+        return parts
+
+    def revalidate(self, *, verify):
+        self._parts(verify)
+        return self
+
+
+def _sealed_evidence_parts(admitted, build, *, verify, source_bundle, source_seal,
+                           source_origin, seed_root, member_map, restored_layout):
+    origin = _origin_record(source_origin)
+    transport = _transport_record(seed_root, member_map, restored_layout, origin)
+    seal_raw = _transport_member(source_seal, transport)
+    _transport_member(source_bundle, transport)
+    seal = json.loads(seal_raw)
+    restore_root = seal.get("restore_layout", {}).get("runner_temp_root")
+    parts = _source_binding_core(admitted, build, verify=verify, source_bundle=source_bundle,
+        source_seal=source_seal, source_origin=origin, restore_root=restore_root)
+    binding = parts[0]
+    profile = binding["source_profile"]
+    require(any(Path(row["original_root"]) in Path(build).parents or Path(row["original_root"]) == Path(build)
+                for row in transport["restored_layout"]["roots"]),
+            "source build lacks an original-layout restoration correspondence")
+    selected_prefixes = [entry["archive_prefix"] for entry in seal["profiles"]
+                        if (entry["family"], entry["profile"]) == (profile["family"], profile["profile"])]
+    require(len(selected_prefixes) == 1, "unique sealed source profile required")
+    prefix = selected_prefixes[0] + "/"
+    for name, expected in seal["members"].items():
+        if name.startswith(prefix):
+            require(pin(_transport_member(Path(build) / name[len(prefix):], transport)) == expected,
+                    "sealed source member has no exact seed/original-layout correspondence")
+    record = {"format": "rove4k.source-evidence.v1", "source_origin": origin,
+              "factory_replayed_on_consumer": False, "binding": binding, "transport": transport,
+              "scope": "sealed original source admission; not compiler/runtime qualification"}
+    require(profile["execution_admission"] == pin(_admission_snapshot(admitted).encode()),
+            "source execution admission changed during original-layout binding")
+    return record, parts
+
+
+def sealed_source_binding(admitted, build, *, verify, source_bundle, source_seal,
+                           source_origin, seed_root, member_map, restored_layout):
+    """Validate source CI origin and actual original-layout files without live CI."""
+    record, _ = _sealed_evidence_parts(admitted, Path(build), verify=verify,
+        source_bundle=Path(source_bundle), source_seal=Path(source_seal), source_origin=source_origin,
+        seed_root=seed_root, member_map=member_map, restored_layout=restored_layout)
+    return ValidatedSourceEvidence(_SOURCE_VALIDATED, record,
+        (admitted, Path(build), Path(source_bundle), Path(source_seal)), admitted)
 
 
 def _system_input(path):
@@ -514,20 +706,10 @@ class TargetRuntimeReference:
         return current
 
 
-def validate_target_runtime(admitted, build, compiler_receipt, *, verify, source_bundle,
-                            source_seal, expected_ci, compiler_argv=("cc",)):
-    """Validate a reference before execution, without compiling/running an engine.
-
-    A system22 compiler receipt additionally carries ``source_context`` (the
-    exact CIContext), ``source_bundle`` and ``source_seal`` file pins, captured
-    before compilation and checked unchanged by that future producer mode.
-    SDK or historical receipts missing those fields deliberately fail closed.
-    """
-    require(tuple(compiler_argv) == ("cc",), "runtime reference follows the source-JIT's exact cc command")
+def _compiler_authority(admitted, build, compiler_receipt, *, verify, binding, selected,
+                        manifest_raw, compiler, require_ci_provenance):
+    facts = binding["source_profile"]
     admission_snapshot = _admission_snapshot(admitted)
-    binding, selected, manifest_raw, compiler = _source_binding(admitted, build, verify=verify,
-        source_bundle=source_bundle, source_seal=source_seal, expected_ci=expected_ci)
-    facts, context = binding["source_profile"], binding["source_context"]
     raw = _named(compiler_receipt, "compiler.json", limit=64 << 20)
     report = json.loads(raw)
     require(report.get("format") == COMPILER_FORMAT and report.get("complete") is True
@@ -536,9 +718,18 @@ def validate_target_runtime(admitted, build, compiler_receipt, *, verify, source
             "actual completed compile-only target receipt required")
     target = report.get("compiler_context", {})
     require(target.get("kind") == "ubuntu22-system", "SDK/compiler-only context is not runtime eligible")
-    require(all(report.get(key) == binding[key] for key in
-                ("source_context", "source_bundle", "source_seal", "source_provenance_tools", "source_profile")),
-            "compiler receipt has no matching CI/source-bundle seal")
+    if require_ci_provenance:
+        require(all(report.get(key) == binding[key] for key in
+                    ("source_context", "source_bundle", "source_seal", "source_provenance_tools", "source_profile")),
+                "compiler receipt has no matching CI/source-bundle seal")
+    else:
+        require(report.get("program_provenance") is True,
+                "non-CI compiler receipt requires explicit program provenance")
+        require(not any(key in report for key in
+                    ("source_context", "source_bundle", "source_seal", "source_provenance_tools", "source_profile")),
+                "non-CI compiler receipt cannot claim live CI source provenance")
+    require(tuple(getattr(compiler, "COMPILER_ENV", COMPILER_ENV)) == COMPILER_ENV,
+            "compiler redirection policy differs from the source validator")
     require(json.loads(json.dumps(current_system_context(compiler))) == target
             and report.get("host", {}).get("libc") == ["glibc", "2.35"],
             "current source-JIT cc/host differs from the actual Ubuntu22 compiler context")
@@ -566,7 +757,7 @@ def validate_target_runtime(admitted, build, compiler_receipt, *, verify, source
         require(pin(data) == tools[name] and _normalized_source(ROOT / name) == data,
                 "compiler checker frozen/current source differs")
     require(tools[compiler.HOST_PATH]["sha256"] == compiler.HOST_SHA, "literal compiler command owner differs")
-    for name, expected in binding["source_provenance_tools"].items():
+    for name, expected in (binding["source_provenance_tools"].items() if require_ci_provenance else ()):
         require(pin(_regular(root / "tools" / name)) == expected
                 and pin(_normalized_source(ROOT / name)) == expected,
                 "optional compiler provenance helper changed before/post source capture")
@@ -693,6 +884,64 @@ def validate_target_runtime(admitted, build, compiler_receipt, *, verify, source
     require(facts["execution_admission"] == pin(admission_snapshot.encode())
             and _admission_snapshot(admitted) == admission_snapshot,
             "execution admission changed during target reference validation")
+    return {"native_path": str(native_path), "native": dict(row["native"]),
+            "compiler_context": target, "compiler_inputs": inputs,
+            "evidence": {"compiler_receipt": {"path": str(Path(compiler_receipt)), **pin(raw)},
+                "compiler_tools": tools, "source_provenance_tools": binding["source_provenance_tools"],
+                "reference_validator": {"path": SELF, **binding["source_provenance_tools"][SELF]},
+                "target_elf": row["elf"], "source_binding": pin(json.dumps(binding, sort_keys=True).encode()),
+                "program_provenance": report.get("program_provenance") is True,
+                "live_ci_provenance": require_ci_provenance,
+                "engine_executed": False, "runtime_qualified": False}}
+
+
+@dataclass(frozen=True, init=False)
+class ValidatedCompilerEvidence:
+    """Native authority from real system22 compiler evidence; never execution."""
+    _record: str
+
+    def __init__(self, token, record):
+        require(token is _COMPILER_VALIDATED, "compiler evidence must pass actual source/native authority")
+        object.__setattr__(self, "_record", json.dumps(record, sort_keys=True))
+
+    def to_record(self):
+        return json.loads(self._record)
+
+
+def compiler_receipt_binding(admitted, build, compiler_receipt, *, verify, source_binding):
+    """Combine strict original source evidence with non-CI system22 compiler proof."""
+    require(type(source_binding) is ValidatedSourceEvidence,
+            "validated source evidence required; a source/native map is not authority")
+    source_binding.assert_admission(admitted, build)
+    binding, selected, manifest_raw, compiler = source_binding._parts(verify)
+    record = _compiler_authority(admitted, build, compiler_receipt, verify=verify, binding=binding,
+        selected=selected, manifest_raw=manifest_raw, compiler=compiler, require_ci_provenance=False)
+    record["evidence"]["source_evidence"] = pin(json.dumps(source_binding.to_record(), sort_keys=True).encode())
+    record["evidence"]["source_origin"] = source_binding.to_record()["source_origin"]
+    return ValidatedCompilerEvidence(_COMPILER_VALIDATED, record)
+
+
+def validate_target_runtime(admitted, build, compiler_receipt, *, verify, source_bundle,
+                            source_seal, expected_ci, compiler_argv=("cc",)):
+    """Validate a reference before execution, without compiling/running an engine.
+
+    A system22 compiler receipt additionally carries ``source_context`` (the
+    exact CIContext), ``source_bundle`` and ``source_seal`` file pins, captured
+    before compilation and checked unchanged by that future producer mode.
+    SDK or historical receipts missing those fields deliberately fail closed.
+    """
+    require(tuple(compiler_argv) == ("cc",), "runtime reference follows the source-JIT's exact cc command")
+    admission_snapshot = _admission_snapshot(admitted)
+    binding, selected, manifest_raw, compiler = _source_binding(admitted, build, verify=verify,
+        source_bundle=source_bundle, source_seal=source_seal, expected_ci=expected_ci)
+    facts, context = binding["source_profile"], binding["source_context"]
+    compiled = _compiler_authority(admitted, build, compiler_receipt, verify=verify,
+        binding=binding, selected=selected, manifest_raw=manifest_raw, compiler=compiler,
+        require_ci_provenance=True)
+    native_path = Path(compiled["native_path"])
+    target = compiled["compiler_context"]
+    tools = compiled["evidence"]["compiler_tools"]
+    raw_pin = compiled["evidence"]["compiler_receipt"]
     record = {"format": FORMAT, "family": facts["family"], "profile": facts["profile"],
               "consumer_scope": "github-actions-ubuntu22-system",
               "representation": "source-jit", "full": True, "runtime_eligible": True,
@@ -705,15 +954,15 @@ def validate_target_runtime(admitted, build, compiler_receipt, *, verify, source
               "source_files": facts["source_files"], "flags": facts["flags"], "units": facts["units"],
               "original_build_expected_contract": facts["old_expected_contract"],
               "execution_admission": facts["execution_admission"],
-              "compiler_receipt": {"path": str(Path(compiler_receipt)), **pin(raw)},
+              "compiler_receipt": raw_pin,
               "compiler_context": target, "compiler_tools": tools,
               "source_provenance_tools": binding["source_provenance_tools"],
               "reference_validator": {"path": SELF, **binding["source_provenance_tools"][SELF]},
-              "target_native": {"path": str(native_path), **row["native"]}, "target_elf": row["elf"],
+              "target_native": {"path": str(native_path), **compiled["native"]}, "target_elf": compiled["evidence"]["target_elf"],
               "not_proven": ["engine execution", "startup/cleanup/protocol/resources", "physical placement",
                              "playing strength", "TCEC-specific hardware and compiler acceptance"]}
     return TargetRuntimeReference(_VALIDATED, family=facts["family"], profile=facts["profile"],
-        native_path=native_path, native_pin=row["native"], record=record,
+        native_path=native_path, native_pin=compiled["native"], record=record,
         inputs=(admitted, Path(build), Path(compiler_receipt), Path(source_bundle), Path(source_seal), tuple(compiler_argv)),
         admission_snapshot=admission_snapshot, build_root=str(Path(build)), admission_type=type(admitted))
 

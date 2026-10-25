@@ -216,6 +216,128 @@ class GeneratedRulesBoundaries(unittest.TestCase):
                 RULES._source_build_record(build, family="A", stages=stages, post_profile=post,
                     main_source=b"output", baseline_source=b"baseline", tools=(relative,))
 
+    def test_spelling_requires_selected_route_winner_and_final_position(self):
+        proof = {"schema": "test-resource-projection", "entry_cleanup": "private-path"}
+        projection = SimpleNamespace(SCHEMA=proof["schema"],
+            transform_source=lambda *args, **kwargs: (b"resource", proof),
+            restore_source=lambda *args: b"baseline")
+        phase = {"schema": "rove4k.portable-phase-source.v1", "variant": "phase-init"}
+        b_post = {"schema": "rove4k.profile-b-source.v1", "variant": "tcec-final-lf"}
+        spelling = {"schema": RULES.SPELLING_SCHEMA, "variant": "clock-type"}
+        model = {"stage": "canonical-e19-physical-binding"}
+        examples = (
+            ("A", [proof, spelling], "final spelling requires selected"),
+            ("A", [proof, phase, {**spelling, "variant": "atomic-assignment"}], "reviewed winner"),
+            ("A", [proof, phase, spelling, spelling], "explicit A/C/F proof chain"),
+            ("A", [proof, phase, spelling, {"schema": "unknown"}], "explicit A/C/F proof chain"),
+            ("E", [proof, phase, spelling, model], "explicit E proof chain"),
+            ("B", [proof, {**b_post, "variant": "phase"},
+                   {**spelling, "variant": "atomic-assignment"}], "final spelling requires selected"))
+        for family, stages, detail in examples:
+            with self.subTest(family=family, stages=stages), patch.object(RULES, "load", return_value=projection):
+                with self.assertRaisesRegex(ValueError, detail):
+                    RULES.admit_source(b"resource", b"baseline", stages, family,
+                        PRODUCTION.resource_profile("test-p4"))
+
+    def test_spelling_manifest_requires_exact_metadata_tool_pin_and_shipping_plan(self):
+        post = {"path": "engines/experiments/tcec-next/profile_phase.py", "variant": "phase-init"}
+        spelling = {"path": RULES.SPELLING, "selection": "best", "variant": "clock-type"}
+        stages = [{"schema": "resource"}, {"schema": "phase"}, {"schema": RULES.SPELLING_SCHEMA}]
+        frozen_bytes = RULES.normalized(HERE / "profile_spelling.py")
+        self.assertEqual(RULES.pin(frozen_bytes), RULES.SPELLING_PIN)
+        with tempfile.TemporaryDirectory(prefix="rove4k-spelling-tool-admission-") as temporary:
+            build = Path(temporary).resolve()
+            (build / "control").mkdir()
+            (build / "main.c").write_bytes(b"output")
+            (build / "control/main.c").write_bytes(b"baseline")
+            helper = build / "inputs" / RULES.SPELLING
+            helper.parent.mkdir(parents=True)
+            helper.write_bytes(frozen_bytes)
+            record = dict(format=1, family="A", entry="A", complete=True, reproducible=True,
+                post_profile=post, post_spelling=spelling, source_proofs=stages,
+                inputs={RULES.SPELLING: RULES.SPELLING_PIN},
+                source_closure={"inputs": [{"path": RULES.SPELLING, "role": "tool", **RULES.SPELLING_PIN}]},
+                plan=dict(family="A", full=True, representation="source-jit", entry_cleanup="private-path"))
+            record["class"] = "rove4k-production-profile-v1"
+            def check():
+                (build / "build.json").write_text(json.dumps(record))
+                return RULES._source_build_record(build, family="A", stages=stages, post_profile=post,
+                    post_spelling=spelling, main_source=b"output", baseline_source=b"baseline",
+                    tools=(RULES.SPELLING,))
+            self.assertEqual(check(), record)
+            for field, bad in (("path", "unreviewed.py"), ("selection", "control"),
+                               ("variant", "protocol-prefix")):
+                record["post_spelling"] = {**spelling, field: bad}
+                with self.subTest(field=field), self.assertRaisesRegex(ValueError, "named frozen producer"):
+                    check()
+            record["post_spelling"] = spelling
+            for field, bad in (("full", False), ("representation", "packed-native"),
+                               ("entry_cleanup", "none")):
+                original = record["plan"][field]
+                record["plan"][field] = bad
+                with self.subTest(field=field), self.assertRaisesRegex(ValueError, "full source-JIT/private-path"):
+                    check()
+                record["plan"][field] = original
+            record["source_closure"]["inputs"][0]["role"] = "engine"
+            with self.assertRaisesRegex(ValueError, "frozen named post-profile/model tool"):
+                check()
+            record["source_closure"]["inputs"][0]["role"] = "tool"
+            helper.write_bytes(frozen_bytes + b"\n")
+            changed = RULES.pin(helper.read_bytes())
+            record["inputs"][RULES.SPELLING] = changed
+            record["source_closure"]["inputs"][0].update(changed)
+            with self.assertRaisesRegex(ValueError, "reviewed final spelling helper identity"):
+                check()
+
+    def test_E_spelling_inverse_precedes_model_offsets_and_earlier_stages(self):
+        baseline, resource_body, phase_body, model_body, shipped = b"base", b"resource", b"pres", b"Pres", b"spellingPres"
+        resource = {"schema": "test-resource-projection", "entry_cleanup": "private-path"}
+        phase = {"schema": "rove4k.portable-phase-source.v1", "variant": "phase-init"}
+        model = dict(stage="canonical-e19-physical-binding", source_model_id="e19-admitted-source-baseline",
+                     table_value_offset=0, before="p", after="P")
+        spelling = {"schema": RULES.SPELLING_SCHEMA, "variant": "clock-type"}
+        inverses = []
+        def inverse(label, actual, expected, restored):
+            self.assertEqual(actual, expected)
+            inverses.append(label)
+            return restored
+        projection = SimpleNamespace(SCHEMA=resource["schema"],
+            transform_source=lambda *args, **kwargs: (resource_body, resource),
+            restore_source=lambda actual, proof: inverse("resource", actual, resource_body, baseline))
+        phase_module = SimpleNamespace(transform_source=lambda *args, **kwargs: (phase_body, phase),
+            restore_source=lambda actual, proof: inverse("phase", actual, phase_body, resource_body))
+        bound_model = SimpleNamespace(model_id="current-canonical-model",
+            bind_physical_table=lambda actual, **kwargs: (model_body, model))
+        model_module = SimpleNamespace(Model=SimpleNamespace(load=lambda path: bound_model,
+            from_physical_source=lambda actual, **kwargs: self.assertEqual(actual, phase_body)))
+        spelling_module = SimpleNamespace(SCHEMA=RULES.SPELLING_SCHEMA,
+            transform_source=lambda *args, **kwargs: (shipped, spelling),
+            restore_source=lambda actual, proof: inverse("spelling", actual, shipped, model_body))
+        modules = {"production_rules_projection": projection, "production_rules_phase_projection": phase_module,
+                   "production_rules_E19_model": model_module, "production_rules_spelling_projection": spelling_module}
+        stages = [resource, phase, model, spelling]
+        with patch.object(RULES, "load", side_effect=lambda name, path: modules[name]), \
+             patch.object(RULES, "_source_build_record") as record:
+            self.assertEqual(RULES.admit_source(shipped, baseline, stages, "E",
+                PRODUCTION.resource_profile("test-p4"), build=Path("/named-build")), stages)
+        self.assertEqual(inverses, ["spelling", "phase", "resource"])
+        self.assertEqual(record.call_args.kwargs["post_spelling"],
+            {"path": RULES.SPELLING, "selection": "best", "variant": "clock-type"})
+
+    def test_control_manifest_cannot_hide_an_unconsumed_spelling_stage(self):
+        proof = {"schema": "test-resource-projection", "entry_cleanup": "private-path"}
+        projection = SimpleNamespace(SCHEMA=proof["schema"],
+            transform_source=lambda *args, **kwargs: (b"resource", proof),
+            restore_source=lambda *args: b"baseline")
+        with tempfile.TemporaryDirectory(prefix="rove4k-unconsumed-spelling-") as temporary:
+            build = Path(temporary).resolve()
+            (build / "build.json").write_text(json.dumps(dict(source_proofs=[proof],
+                post_spelling={"path": RULES.SPELLING, "selection": "best", "variant": "clock-type"})))
+            with patch.object(RULES, "load", return_value=projection):
+                with self.assertRaisesRegex(ValueError, "unconsumed post-profile stage"):
+                    RULES.admit_source(b"resource", b"baseline", [proof], "A",
+                        PRODUCTION.resource_profile("test-p4"), build=build)
+
     def test_legacy_E_receipt_cannot_upgrade_phase_or_changed_model(self):
         source = b"already admitted complete source"
         resource = {"schema": "resource"}

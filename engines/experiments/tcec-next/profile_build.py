@@ -33,6 +33,24 @@ UNLINK = "engines/experiments/tcec-next/self_unlink.py"
 ELF = "engines/scripts/elf_loader.py"
 B_PROFILE = "engines/experiments/tcec-next/profile_b.py"
 PHASE = "engines/experiments/tcec-next/profile_phase.py"
+SPELLING = "engines/experiments/tcec-next/profile_spelling.py"
+BEST_SPELLING = {"A": "clock-type", "B": "atomic-assignment", "C": "clock-type",
+                 "E": "clock-type", "F": "atomic-assignment"}
+
+
+def spelling_selection(family, representation, b_variant, phase_variant, selection):
+    """Select only the measured final stage; controls acquire no new stage."""
+    if family not in BEST_SPELLING or selection not in ("control", "best"):
+        raise ValueError("explicit full C family and finite spelling selection required")
+    if selection == "control":
+        return None
+    if representation != "source-jit":
+        raise ValueError("--spelling-variant best requires source-JIT/private-path")
+    selected = ((family == "B" and b_variant == "tcec-final-lf" and phase_variant == "control") or
+                (family in "ACEF" and b_variant == "control" and phase_variant == "phase-init"))
+    if not selected:
+        raise ValueError("--spelling-variant best requires phase-init A/C/E/F or tcec-final-lf B")
+    return dict(path=SPELLING, selection="best", variant=BEST_SPELLING[family])
 
 
 def load(name, path):
@@ -74,11 +92,18 @@ def main():
                         help="explicit reviewed B post-profile projection; default preserves the control")
     parser.add_argument("--phase-variant", choices=("control", "phase-init"), default="control",
                         help="explicit measured A/C/E/F lifecycle projection; default preserves the control")
+    parser.add_argument("--spelling-variant", choices=("control", "best"), default="control",
+                        help="explicit measured final source spelling on selected source-JIT routes only")
     args = parser.parse_args()
     if args.b_variant != "control" and args.entry != "B":
         parser.error("--b-variant applies only to the independently owned B engine")
     if args.phase_variant != "control" and args.entry not in "ACEF":
         parser.error("--phase-variant applies only to A/C/E/F")
+    try:
+        post_spelling = spelling_selection(args.entry, args.representation, args.b_variant,
+                                           args.phase_variant, args.spelling_variant)
+    except ValueError as error:
+        parser.error(str(error))
     out = args.out.resolve()
     if (sys.platform != "linux" or platform.machine() != "x86_64" or
             not args.out.is_absolute() or out.exists() or
@@ -145,6 +170,8 @@ def main():
             names.add(B_PROFILE)
         if args.phase_variant != "control":
             names.add(PHASE)
+        if post_spelling is not None:
+            names.add(SPELLING)
         if args.representation in ("packed-native", "self-contained-elf"):
             names.add(ELF)
         if args.representation == "self-contained-elf":
@@ -194,6 +221,7 @@ def main():
         report["post_profile"] = (dict(path=B_PROFILE, variant=args.b_variant)
             if args.b_variant != "control" else dict(path=PHASE, variant=args.phase_variant)
             if args.phase_variant != "control" else None)
+        report["post_spelling"] = post_spelling
         if args.representation == "source-jit":
             report["wrapper_contract"] = wrapper.contract(packaging, unlink, compiler)
         elif args.representation == "packed-native":
@@ -252,6 +280,14 @@ def main():
                     bounds=model.bounds(), source_coefficient_sha256=source_model.coefficient_sha256(),
                     model_parameters_changed=model.coefficients != source_model.coefficients,
                     optimizer_executed_by_builder=False)
+            if post_spelling is not None:
+                spelling = load("profile_frozen_spelling_projection", own / SPELLING)
+                parent_source = source
+                source, spelling_proof = spelling.transform_source(source, family=args.entry,
+                    profile_id=profile.id, variant=post_spelling["variant"])
+                old.require(spelling.restore_source(source, spelling_proof) == parent_source,
+                            "final spelling source inverse differs before E19/phase/B inverses")
+                proofs.append(spelling_proof)
             (directory / "main.c").write_bytes(source)
             gate = directory / "target-type-gate"
             gate.mkdir()

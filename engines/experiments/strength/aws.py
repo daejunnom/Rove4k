@@ -114,6 +114,9 @@ class AWSCLI:
         environment = os.environ.copy()
         environment['AWS_PAGER'] = ''
         environment['AWS_CLI_AUTO_PROMPT'] = 'off'
+        # In particular SendCommand has no idempotency token. A transport
+        # timeout is unresolved; only the lifecycle owner may reconcile it.
+        environment['AWS_MAX_ATTEMPTS'] = '1'
         environment['AWS_SHARED_CREDENTIALS_FILE'] = os.devnull
         environment['AWS_CONFIG_FILE'] = os.devnull
         for name in ('AWS_PROFILE', 'AWS_DEFAULT_PROFILE', 'AWS_WEB_IDENTITY_TOKEN_FILE'):

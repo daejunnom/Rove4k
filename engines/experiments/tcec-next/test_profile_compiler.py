@@ -117,6 +117,125 @@ class TargetCompilerBoundaries(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "explicit Ubuntu22 system"):
             TARGET.source_port_enabled(Path("source-bundle.zip"), Path("source-seal.json"), system=False)
 
+    def test_program_port_is_independent_of_ci_and_rejects_sdk_context(self):
+        for system in (False, True):
+            self.assertFalse(TARGET.program_provenance_enabled(False, False, system=system))
+        for explicit, source in ((True, False), (False, True), (True, True)):
+            with self.subTest(explicit=explicit, source=source):
+                self.assertTrue(TARGET.program_provenance_enabled(explicit, source, system=True))
+                with self.assertRaisesRegex(ValueError, "explicit Ubuntu22 system"):
+                    TARGET.program_provenance_enabled(explicit, source, system=False)
+
+    def test_program_cli_rejects_sdk_before_reading_any_context_or_tool(self):
+        argv = ["profile_compiler.py", "--build", "unused", "--compiler", "unused",
+                "--sdk-audit", "unused", "--program-provenance", "--out", "unused"]
+        with patch.object(TARGET.sys, "argv", argv), \
+                patch.object(TARGET.INPUT, "source_identity") as tool, \
+                patch.object(TARGET, "regular") as read, \
+                patch.object(TARGET, "sdk_descriptor") as context:
+            with self.assertRaisesRegex(ValueError, "explicit Ubuntu22 system"):
+                TARGET.main()
+            tool.assert_not_called()
+            read.assert_not_called()
+            context.assert_not_called()
+
+    def compiler_main_fixture(self, base, *, program, changed_env_at=None):
+        """Exercise receipt flow with inert byte fixtures; never invoke a tool."""
+        self.clean_source_environment(SimpleNamespace(COMPILER_ENV=TARGET.COMPILER_ENV))
+        paths, _, _ = self.program_fixture(base)
+        compiler = base / "system/gcc"
+        compiler.write_bytes(b"inert compiler fixture")
+        build, out = base / "source-build", base / "out"
+        build.mkdir()
+        source, manifest = b"int main(void){return 0;}\n", b'{"fixture":true}\n'
+        (build / "main.c").write_bytes(source)
+        (build / "build.json").write_bytes(manifest)
+        selected = TARGET.SourceInput("A", "test-p4", build, manifest, {}, {"main.c": source},
+            TARGET.C_FLAGS["A"][1:], (), (), TARGET.pin(elf()))
+        binary = {"path": str(compiler), **TARGET.pin(compiler.read_bytes())}
+        context = {"kind": "ubuntu22-system", "input_roots": [str(base / "system")],
+                   "wrapper": binary, "driver": binary}
+        calls = []
+        class InertHost:
+            def __init__(self, *args):
+                pass
+            def run(self, command, *, cwd, kind, data=None):
+                calls.append(kind)
+                if kind == changed_env_at:
+                    TARGET.os.environ["CPATH"] = "/fixture-after-query"
+                if kind == "compiler-version":
+                    return b"11.4.0\n"
+                if kind == "compiler-banner":
+                    return b"inert GCC fixture 11.4.0\n"
+                if kind.startswith("compiler-program-"):
+                    return (str(paths[command[1].split("=", 1)[1]]) + "\n").encode()
+                if kind.startswith("A-"):
+                    (cwd / "x").write_bytes(elf())
+                    (cwd / "dependencies.d").write_bytes(b"x:\n")
+                    return b""
+                raise AssertionError("unexpected inert compiler command")
+            def close(self):
+                calls.append("close")
+        def fixture_load(name, path):
+            if name == "profile_compiler_verify":
+                return VERIFY
+            if name == "profile_compiler_host":
+                return SimpleNamespace(Host=InertHost, LIMITS={})
+            raise AssertionError("program-only mode loaded an unrelated helper")
+        argv = [str(HERE / "profile_compiler.py"), "--build", str(build), "--compiler", str(compiler),
+                "--ubuntu22-system", "--out", str(out)] + (["--program-provenance"] if program else [])
+        with patch.object(TARGET.sys, "argv", argv), patch.object(TARGET.sys, "platform", "linux"), \
+                patch.object(TARGET.platform, "machine", return_value="x86_64"), \
+                patch.object(TARGET.platform, "platform", return_value="inert unit fixture"), \
+                patch.object(TARGET.platform, "libc_ver", return_value=("glibc", "2.35")), \
+                patch.object(TARGET.os, "sched_getaffinity", return_value={0}, create=True), \
+                patch.object(TARGET.signal, "SIGCHLD", 17, create=True), \
+                patch.object(TARGET.signal, "signal", return_value=0), \
+                patch.object(TARGET, "load", side_effect=fixture_load), \
+                patch.object(TARGET, "admit", return_value=selected), \
+                patch.object(TARGET, "system_descriptor", return_value=context), \
+                patch.object(TARGET, "source_provenance") as ci_source, patch("builtins.print"):
+            TARGET.main()
+            ci_source.assert_not_called()
+        return json.loads((out / "compiler.json").read_bytes()), calls
+
+    def test_program_only_receipt_rechecks_roles_without_synthesizing_ci_fields(self):
+        with tempfile.TemporaryDirectory(prefix="rove4k-program-only-") as temporary:
+            report, calls = self.compiler_main_fixture(Path(temporary).resolve(), program=True)
+            self.assertTrue(report["complete"])
+            self.assertTrue(report["program_provenance"])
+            self.assertTrue(report["compiler_programs_rechecked"])
+            self.assertEqual(set(report["compiler_programs"]), set(TARGET.PROGRAM_ROLES))
+            self.assertEqual(set(report["tools"]), {TARGET.SELF, TARGET.VERIFY_PATH, TARGET.HOST_PATH, TARGET.INPUT_PATH})
+            self.assertTrue(all(row["path"] in report["compiler_consumed_inputs"]
+                                for row in report["compiler_programs"].values()))
+            self.assertEqual(calls[-6:-1], ["compiler-program-recheck-" + role for role in TARGET.PROGRAM_ROLES])
+            self.assertLess(calls.index("A-target-types"), calls.index("compiler-program-recheck-cc1"))
+            self.assertFalse(report["engine_executed"])
+            self.assertFalse(report["submission_qualified"])
+            for name in ("source_context", "source_bundle", "source_seal", "source_provenance_tools",
+                         "source_profile", "source_provenance_rechecked"):
+                self.assertNotIn(name, report)
+
+    def test_default_system_receipt_keeps_original_query_count_and_shape(self):
+        with tempfile.TemporaryDirectory(prefix="rove4k-program-default-") as temporary:
+            report, calls = self.compiler_main_fixture(Path(temporary).resolve(), program=False)
+            self.assertTrue(report["complete"])
+            self.assertEqual([kind for kind in calls if kind.startswith("compiler-program-")],
+                             ["compiler-program-" + role for role in TARGET.PROGRAM_ROLES])
+            for name in ("program_provenance", "compiler_programs", "compiler_programs_rechecked",
+                         "source_context", "source_bundle", "source_seal", "source_provenance_rechecked"):
+                self.assertNotIn(name, report)
+
+    def test_program_mode_cannot_succeed_after_postquery_environment_injection(self):
+        with tempfile.TemporaryDirectory(prefix="rove4k-program-env-race-") as temporary:
+            base = Path(temporary).resolve()
+            with self.assertRaisesRegex(ValueError, "compiler redirection environment"):
+                self.compiler_main_fixture(base, program=True, changed_env_at="compiler-program-recheck-lto1")
+            report = json.loads((base / "out/compiler.json").read_bytes())
+            self.assertFalse(report["complete"])
+            self.assertFalse(report["compiler_programs_rechecked"])
+
     def provenance_fixture(self, base):
         # The public validator has its own archive/admission tests. Here its
         # response is isolated to test this producer's live/raw binding port.
@@ -150,6 +269,16 @@ class TargetCompilerBoundaries(unittest.TestCase):
             binding.assert_called_once_with(selected.admission, selected.build, verify=verify,
                 source_bundle=bundle, source_seal=seal, expected_ci=ci)
 
+    def test_source_port_rejects_compiler_environment_contract_divergence(self):
+        with tempfile.TemporaryDirectory(prefix="rove4k-source-env-contract-") as temporary:
+            helper, ci, bundle, seal, record, selected = self.provenance_fixture(Path(temporary).resolve())
+            with patch.object(TARGET, "load", return_value=helper), \
+                    patch.object(helper, "COMPILER_ENV", ()), \
+                    patch.object(helper.CIContext, "from_environment") as live:
+                with self.assertRaisesRegex(ValueError, "compiler environment contract differs"):
+                    TARGET.source_provenance([selected], object(), bundle=bundle, seal=seal)
+                live.assert_not_called()
+
     def test_source_port_rejects_missing_live_context_before_reading_raw_artifacts(self):
         helper = TARGET.load("compiler_source_port_missing_context", HERE / "target_runtime.py")
         self.clean_source_environment(helper)
@@ -169,12 +298,13 @@ class TargetCompilerBoundaries(unittest.TestCase):
         helper_source = TARGET.normalized(HERE / "target_runtime.py")
         with patch.object(TARGET, "load", return_value=helper), \
                 patch.object(TARGET, "normalized", return_value=helper_source), \
-                patch.dict(TARGET.os.environ, {"CPATH": "/not-an-admitted-header-context"}), \
                 patch.object(TARGET, "regular") as read:
-            with self.assertRaisesRegex(ValueError, "compiler redirection environment"):
-                TARGET.source_provenance([SimpleNamespace()], object(),
-                    bundle=HERE / "source-bundle.zip", seal=HERE / "source-seal.json")
-            read.assert_not_called()
+            for name in TARGET.COMPILER_ENV:
+                with self.subTest(name=name), patch.dict(TARGET.os.environ, {name: "/not-an-admitted-context"}):
+                    with self.assertRaisesRegex(ValueError, "compiler redirection environment"):
+                        TARGET.source_provenance([SimpleNamespace()], object(),
+                            bundle=HERE / "source-bundle.zip", seal=HERE / "source-seal.json")
+                    read.assert_not_called()
 
     def test_source_port_cannot_rebind_raw_inputs_or_a_changed_ci_context(self):
         with tempfile.TemporaryDirectory(prefix="rove4k-compiler-source-port-reject-") as temporary:
