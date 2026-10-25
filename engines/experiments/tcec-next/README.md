@@ -31,7 +31,8 @@ diagnostics, the same recorded compiler and stdin, a full inverse, and no
 increase in the complete packaged artifact. Both attempts independently repeat
 these checks. `--source-dependencies control` reproduces the prior source stage
 without cleanup. Generic dependency/function candidate discovery belongs to
-NVCompact; this engine stage binds its reviewed candidate to production.
+NVCompact. This engine stage replays the separately reviewed production include
+edit through its actual compiler and packaging gates.
 
 With the existing `phase-init` projection and source-JIT wrapper, C changes from
 3,962 to 3,957 B (P4), 3,975 to 3,969 B (P28), and 3,963 to 3,957 B (provisional target).

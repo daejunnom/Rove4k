@@ -3,6 +3,7 @@ pub mod advisor;
 pub mod artifact_advice;
 pub mod attempts;
 mod c_frontend;
+pub mod ccleanup;
 pub mod cflow;
 pub mod codec;
 pub mod csource;

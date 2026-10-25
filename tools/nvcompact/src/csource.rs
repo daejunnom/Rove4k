@@ -226,6 +226,29 @@ impl PreparedSource {
             cflow::generate_variants(&self.source, options)
         }
     }
+
+    /// Cleanup owns its different proof obligation but shares this source's
+    /// frontend, immutable preprocessing observation and original AST.
+    pub fn cleanup_variants(
+        &self,
+        options: &crate::ccleanup::CleanupOptions,
+    ) -> Result<Vec<Variant>> {
+        ensure!(
+            options.language == "c"
+                && options.frontend.token_contract == self.options.frontend.token_contract,
+            "cleanup and spelling language/observation contracts differ"
+        );
+        if let Some(analysis) = &self.analysis {
+            crate::ccleanup::generate_variants_with_snapshot(
+                &self.source,
+                options,
+                &analysis.frontend,
+                &analysis.parsed,
+            )
+        } else {
+            crate::ccleanup::generate_variants(&self.source, options)
+        }
+    }
 }
 
 fn children(node: &Value) -> impl Iterator<Item = &Value> {

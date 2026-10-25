@@ -79,6 +79,7 @@ fn options(clang: &str, embedding: Value) -> source_search::SourceSearchOptions 
         embedding: Some(embedding),
         embedding_contract: "compile-input-only".into(),
         conditions: false,
+        cleanup: false,
         scheduling: source_search::SchedulingPolicy::LegacyPriority,
         max_rounds: 1,
         max_evaluations: 128,
@@ -1267,4 +1268,136 @@ fn frontend_output_budget_preserves_verified_input_without_hiding_source_errors(
         format!("{error:#}").contains("declared source compiler did not complete successfully"),
         "native baseline failure must not be treated as optional exploration: {error:#}"
     );
+}
+
+#[test]
+fn cleanup_reanalyzes_dead_dependencies_and_uses_native_cost_and_replay_gates() {
+    let Some((clang, compiler)) = tools() else {
+        return;
+    };
+    let directory = tempfile::tempdir().unwrap();
+    let header = "no_longer_required_after_function_cleanup.h";
+    fs::write(
+        directory.path().join(header),
+        "#define UNREFERENCED_FACTOR 139\n",
+    )
+    .unwrap();
+    let source = format!("#include \"{header}\"\nstatic int obsolete_helper(int n){{return n*UNREFERENCED_FACTOR+31;}}int main(void){{return 0;}}\n").into_bytes();
+    let path = directory.path().join("source.c");
+    fs::write(&path, &source).unwrap();
+    let mut opts = source_search::SourceSearchOptions {
+        candidates: CSourceOptions {
+            frontend: CFlowOptions {
+                clang,
+                source_path: Some(path),
+                token_contract: "no-token-observation".into(),
+                ..Default::default()
+            },
+            rename_locals: false,
+            integer_literals: false,
+            character_literals: false,
+            ..Default::default()
+        },
+        conditions: false,
+        cleanup: true,
+        max_rounds: 2,
+        max_evaluations: 32,
+        max_seconds: 60.0,
+        ..Default::default()
+    };
+    let mut compile = compiler_argv(&compiler);
+    compile.extend(["-I".into(), directory.path().to_string_lossy().into_owned()]);
+    let mut measure = |data: &[u8]| -> anyhow::Result<usize> {
+        Ok(32 + codec::compress(data, &compression())?.len())
+    };
+    let searched = source_search::search(
+        &source,
+        &opts,
+        &compile,
+        &directory.path().join("search"),
+        &mut measure,
+    )
+    .unwrap();
+    assert!(measure(&searched.data).unwrap() < measure(&source).unwrap());
+    assert!(!searched
+        .data
+        .windows(b"obsolete_helper".len())
+        .any(|w| w == b"obsolete_helper"));
+    assert!(!searched
+        .data
+        .windows(b"#include".len())
+        .any(|w| w == b"#include"));
+    assert!(searched.recipe["steps"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .all(|step| step["kind"] == "c-cleanup"));
+    assert_eq!(
+        source_search::replay(
+            &source,
+            &searched.recipe,
+            &compile,
+            &directory.path().join("replay")
+        )
+        .unwrap(),
+        searched.data
+    );
+    opts.scheduling = source_search::SchedulingPolicy::InterleavedOnline;
+    let online = source_search::search(
+        &source,
+        &opts,
+        &compile,
+        &directory.path().join("online"),
+        &mut measure,
+    )
+    .unwrap();
+    assert_eq!(online.data, searched.data);
+    assert_eq!(
+        source_search::replay(
+            &source,
+            &online.recipe,
+            &compile,
+            &directory.path().join("online-replay")
+        )
+        .unwrap(),
+        online.data
+    );
+    opts.scheduling = source_search::SchedulingPolicy::LegacyPriority;
+    let mut tampered = searched.recipe.clone();
+    tampered["options"]["cleanup"] = json!(false);
+    assert!(source_search::replay(
+        &source,
+        &tampered,
+        &compile,
+        &directory.path().join("disabled-replay")
+    )
+    .is_err());
+    opts.cleanup = false;
+    assert_eq!(
+        source_search::search(
+            &source,
+            &opts,
+            &compile,
+            &directory.path().join("disabled"),
+            &mut measure
+        )
+        .unwrap()
+        .data,
+        source
+    );
+
+    // A source proof does not authorize changing compiler diagnostics. Native
+    // bytes alone would miss the removed -Wunused-function warning.
+    opts.cleanup = true;
+    compile.push("-Wall".into());
+    let rejected = source_search::search(
+        &source,
+        &opts,
+        &compile,
+        &directory.path().join("diagnostics"),
+        &mut measure,
+    )
+    .unwrap();
+    assert_eq!(rejected.data, source);
+    assert!(rejected.report.to_string().contains("semantic-rejected"));
 }

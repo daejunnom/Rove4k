@@ -9,7 +9,7 @@ use crate::envelope::native_fingerprint;
 use crate::notation::Variant;
 use crate::process::{self, Limits};
 use crate::source_payload::PayloadAdapter;
-use crate::{attempts::Archive, cflow};
+use crate::{attempts::Archive, ccleanup, cflow};
 use crate::{sha256, write_json};
 use anyhow::{bail, ensure, Context, Result};
 use serde::{Deserialize, Serialize};
@@ -40,6 +40,8 @@ pub struct SourceSearchOptions {
     pub embedding: Option<Value>,
     pub embedding_contract: String,
     pub conditions: bool,
+    /// Explicit opt-in preserves the finite space/order of existing recipes.
+    pub cleanup: bool,
     /// Existing recipes retain their original ordering. The whole-codec
     /// envelope strategy explicitly opts into bounded online admission.
     pub scheduling: SchedulingPolicy,
@@ -62,6 +64,7 @@ impl Default for SourceSearchOptions {
             embedding: None,
             embedding_contract: "opaque".into(),
             conditions: true,
+            cleanup: false,
             scheduling: SchedulingPolicy::LegacyPriority,
             max_rounds: 2,
             max_evaluations: 2048,
@@ -152,6 +155,7 @@ struct Incumbent {
 enum ProofFamily {
     Spelling,
     Condition,
+    Cleanup,
 }
 
 impl ProofFamily {
@@ -159,6 +163,7 @@ impl ProofFamily {
         match self {
             Self::Spelling => "c-source",
             Self::Condition => "c-flow",
+            Self::Cleanup => "c-cleanup",
         }
     }
 }
@@ -402,6 +407,13 @@ fn cflow_options(options: &SourceSearchOptions) -> cflow::CFlowOptions {
     }
 }
 
+fn cleanup_options(options: &SourceSearchOptions) -> ccleanup::CleanupOptions {
+    ccleanup::CleanupOptions {
+        frontend: options.candidates.frontend.clone(),
+        ..Default::default()
+    }
+}
+
 fn score_source(
     budget: &mut SearchRun,
     adapter: &PayloadAdapter,
@@ -616,10 +628,10 @@ fn explore_space(
         ) {
             Ok(native) => {
                 let rendered = payload_for(adapter, &variant.data, &score)?;
-                let stage = if space.family == ProofFamily::Spelling {
-                    "composition-admitted"
-                } else {
-                    "condition-admitted"
+                let stage = match space.family {
+                    ProofFamily::Spelling => "composition-admitted",
+                    ProofFamily::Condition => "condition-admitted",
+                    ProofFamily::Cleanup => "cleanup-admitted",
                 };
                 if !budget.record(json!({"stage":stage,"round":space.round,
                     "phase":phase,"id":variant.id,"source_sha256":variant.sha256,
@@ -1115,8 +1127,8 @@ fn search_inner(
         }
         if online {
             if scheduled {
-                let remaining_phases =
-                    (options.max_rounds - round + 1) * (1 + usize::from(options.conditions));
+                let remaining_phases = (options.max_rounds - round + 1)
+                    * (1 + usize::from(options.conditions) + usize::from(options.cleanup));
                 let window = budget.budget.share(remaining_phases);
                 let space = spaces.last_mut().unwrap();
                 explore_space(
@@ -1323,7 +1335,10 @@ fn search_inner(
                         plan::Order::SinglesOnly,
                         coverage.len() - 1,
                     ));
-                    let remaining_phases = (options.max_rounds - round) * 2 + 1;
+                    let remaining_phases = (options.max_rounds - round)
+                        * (2 + usize::from(options.cleanup))
+                        + 1
+                        + usize::from(options.cleanup);
                     let window = budget.budget.share(remaining_phases);
                     let space = spaces.last_mut().unwrap();
                     explore_space(
@@ -1425,6 +1440,97 @@ fn search_inner(
                         }
                     }
                 }
+            }
+        }
+        if options.cleanup && budget.available()? {
+            let cleanup_options = cleanup_options(options);
+            let generated = (|| -> Result<(Vec<Variant>, Value)> {
+                if incumbent.source == round_source {
+                    Ok((prepared.cleanup_variants(&cleanup_options)?, Value::Null))
+                } else {
+                    let basis =
+                        csource::PreparedSource::new(&incumbent.source, &options.candidates)?;
+                    let variants = basis.cleanup_variants(&cleanup_options)?;
+                    Ok((variants, basis.statistics()))
+                }
+            })();
+            let (variants, work) = match generated {
+                Ok(value) => value,
+                Err(error) => {
+                    if let Some(error) = budget.classify_frontend_failure(
+                        error,
+                        "cleanup-generation",
+                        round,
+                        "round-input",
+                    )? {
+                        return Err(error);
+                    }
+                    break;
+                }
+            };
+            if !budget.record(
+                json!({"stage":"generation-summary","family":"c-cleanup","round":round,
+                "variants_including_raw":variants.len(),"raw":variants.first()}),
+            )? {
+                break;
+            }
+            if !work.is_null() {
+                frontend_work.push(json!({"round":round,"phase":"cleanup-generation",
+                    "basis_source_sha256":sha256(&incumbent.source),"shared_analysis":work}));
+            }
+            let generation = variants.first().map(|v| v.contract["generation"].clone());
+            let mut choices = Vec::new();
+            let mut seen = HashSet::from([sha256(&incumbent.source)]);
+            for variant in variants {
+                if !seen.insert(variant.sha256.clone()) {
+                    continue;
+                }
+                if !budget.candidate("cleanup-candidate", round, &incumbent.source, &variant)? {
+                    break;
+                }
+                choices.push(variant);
+            }
+            let retained_bytes =
+                incumbent.source.len() + choices.iter().map(|v| v.data.len()).sum::<usize>();
+            let scheduled = retained_bytes <= MAX_PLAN_SOURCE_BYTES.saturating_sub(plan_bytes);
+            coverage.push(json!({"round":round,"family":"c-cleanup","policy":options.scheduling,
+                "basis_source_sha256":sha256(&incumbent.source),"generated_choices":choices.len(),
+                "nontrivial_subsets":"0","singles_attempted":0,"systematic_subsets_attempted":0,
+                "unvisited_singles":choices.len(),"unvisited_nontrivial_subsets":"0",
+                "incompatible_subsets":0,"duplicate_sources":0,"generation":generation,
+                "exhausted":false,"all_declared_costs_evaluated":false,"scheduled":scheduled,
+                "stop":if scheduled{Value::Null}else{json!("plan-source-memory-budget")},
+                "scope":"proven declaration-group and include alternatives on this immutable basis; subsequent rounds reanalyze dependencies"}));
+            if scheduled {
+                plan_bytes += retained_bytes;
+                spaces.push(RoundSpace::new(
+                    incumbent.source.clone(),
+                    choices,
+                    incumbent.steps.clone(),
+                    round,
+                    ProofFamily::Cleanup,
+                    plan::Order::SinglesOnly,
+                    coverage.len() - 1,
+                ));
+                let remaining_phases =
+                    (options.max_rounds - round) * (2 + usize::from(options.conditions)) + 1;
+                let window = budget.budget.share(remaining_phases);
+                let space = spaces.last_mut().unwrap();
+                explore_space(
+                    space,
+                    None,
+                    options,
+                    &adapter,
+                    compiler,
+                    &native_dir,
+                    &baseline,
+                    budget,
+                    &mut incumbent,
+                    &mut combination_attempts,
+                    &mut coverage[space.coverage_index],
+                    online.then_some(&window),
+                    measure,
+                )?;
             }
         }
         frontend_work.push(
@@ -1574,7 +1680,7 @@ fn search_inner(
 
 /// Reconstruct the recorded accepted derivations, with no cost search. Each C
 /// spelling step replays audited offsets and typed AST/bindings; each condition
-/// step regenerates its bounded recorded rule recipe. Native bytes and compiler
+/// and cleanup steps regenerate their bounded recorded proofs. Native bytes and compiler
 /// diagnostics must match the original baseline at every accepted step.
 pub fn replay(payload: &[u8], recipe: &Value, compiler: &[String], out: &Path) -> Result<Vec<u8>> {
     ensure!(
@@ -1601,7 +1707,7 @@ pub fn replay(payload: &[u8], recipe: &Value, compiler: &[String], out: &Path) -
         .as_array()
         .context("source-search recipe steps missing")?;
     ensure!(
-        steps.len() <= options.max_rounds * 2,
+        steps.len() <= options.max_rounds * (2 + usize::from(options.cleanup)),
         "source-search recipe exceeds accepted-step bound"
     );
     ensure!(
@@ -1666,6 +1772,13 @@ pub fn replay(payload: &[u8], recipe: &Value, compiler: &[String], out: &Path) -
                         "recorded condition derivation changed"
                     );
                     selected
+                }
+                Some("c-cleanup") => {
+                    ensure!(
+                        options.cleanup,
+                        "recorded cleanup step is disabled by its contract"
+                    );
+                    ccleanup::replay_variant(&source, &recorded, &cleanup_options(&options))?
                 }
                 _ => bail!("unknown recorded source derivation"),
             })
