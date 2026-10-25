@@ -7,6 +7,59 @@ zero and the initial model weights remain unchanged; trained strength is not cla
 
 ## Current integration checkpoint, 2026-10-26
 
+### Completed offline seed and local source-path follow-up
+
+Checkpoint28ae2fc also passes all three workflows: engine40232869570 (26/26),
+NVCompact40232869750 and repository40232869553. Its foundation job121288129089
+passes386 contract,27 E19 and288 evaluator/service tests,701 in total. The next
+source checkpoint registers the new local qualification and AWS-caller tests;
+those registrations are not the same as their future exact-head CI success.
+
+The actual canonical28ae producer succeeds through prepare, inspect, a new
+materialized directory and all6176 member revalidations. The seed has6177 ZIP
+entries including its manifest,230379790 expanded bytes and62216321 wire bytes.
+ZIP SHA-256 is `b10796b4fd0e5a970d7cd2341a8086c0c42ba9c2b50c138da5dc80ae249e0f77`;
+the1952721B manifest is `42bb189eae7549a864f47de95b73309e0bc6f41f0603e6f4853b686c60bc7362`.
+Actual Git source is merge e2569cd4, distinct from API head28ae2fc. All36 original
+root mappings are validated as a plan; GitHub absolute paths were not physically
+restored. This is complete offline transport, not S3 publication, EC2 source/native
+qualification, physical placement or scoring. The older0018 failure is preserved.
+
+The guarded E19 corpus now retains48189 games/740062 positions. Exact ID comparison
+removes124 previously retained games, with no gained game/position and1820 lost
+positions;133 new rejection events also include prior rejection reclassifications.
+The new preparation walks every shard independently and executes the unchanged
+checker on current COMPOUND E. Production optimizer0 and both initial coefficient
+SHAs are unchanged. The previous48313/741882 figures below remain historical.
+
+The no-TID5245B packed candidate now has fresh typed source/native/package admission,
+new three-argument startup evidence, plain/UBSan105-case rules and four actual
+128MiB P4 groups:24 GO/22 legal replies, persistent five-task identity, all four
+workers active and exact134340608B RSS. A separate proper-alpha source class
+reduces C15781→14137B and ordinary/compressed source-JIT6832→6467/6689→6327B.
+Its actual file-input compiler mechanisms and eight unmodified source-wrapper
+groups pass:48 GO/44 legal replies, the same linked7488B image and natural cleanup.
+Stripped7136B is separately derived; it is not the source wrapper's live image.
+All these local classes remain size/placement/strength/event/selection false.
+The one-physical-core leases do not qualify P4 physical placement or scaling.
+
+The first sparse-square transfer costs A3794→3781B and C3927→3915B in P4; B4071→4072B
+loses and stops. Native lengths stay fixed but bytes change. Only cost/inverse
+and small visitation fixtures pass so far. A/C require finite pre-cleanup source
+policies, independent three-profile regeneration and actual rules/runtime before
+adoption; the default/old compound maps are not overwritten.
+
+The new dispatch-only AWS workflow supplies direct OIDC and executes the seed's
+frozen controller. Git environment/replace/lazy-fetch substitution, hidden
+worktree changes and Python cache/package shadowing are rejected before the
+materializer executes. The controller keeps the full journal and observed remote
+ownership closure, and settles its owned process group before upload. No dispatch
+or AWS call is implied by its offline tests. Initial seed/request objects need
+an explicit verified bootstrap-principal publication route; the frozen
+ControllerRole-only publisher guard is unchanged. Local login has expired, so
+the new template's service ValidateTemplate attempt fails before API validation.
+Actual account/deployment/VersionId/NUMA and fresh Advisor<5% gates remain open.
+
 PR #18 is merged into `feature/rove4k-engines-af` at2bed793. Its common C
 fragments remain engine inputs and its assembler remains a tool; archived paths
 retain their original Git bytes and modes. The later001800e source checkpoint

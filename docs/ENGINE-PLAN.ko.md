@@ -462,3 +462,38 @@ seed 생성/복원0.25–1h, 공유 자원 대기0.5–1.5h, 감사0.5–1h다. 
 앞선 약25–60h는 전체 다음 검증 창의 범위이며, 남은 D4K 수렴이나 외부 Advisor·
 대회 운영자 응답까지 완료된다는 약속이 아니다. 실제 AWS 실행은 최신<5% 조건이
 충족될 때까지 대기하며 대기 시간을 내부 구현 시간에 숨기지 않는다.
+
+28ae2fc 후속 상태: 새26-job CI·NVCompact·repository가 모두 통과했고 foundation은
+386+27+288=701개 검사를 통과했다. 실제 seed는6177 ZIP항목·230,379,790 B 확장·
+62,216,321 B wire로 prepare→inspect→새 materialize→전체 revalidate를 통과했다.
+36개 원래 경로는 대응 계획을 검증했으며 GitHub 절대 경로로 실제 복원하지 않았다.
+오프라인 운송 완료와 실제 S3 게시·EC2 source/native·배치·리그 승인은 구분한다.
+
+E19 종료 가드 뒤 새 실제 말뭉치는48,189게임·740,062위치다. 이전 유지 게임124개가
+제외됐고 새로 추가된 게임/위치는 없다. 새 step0 준비의 전체 integrity walk와 현재
+COMPOUND E 추론 검사가 통과했고 초기 parameter/integer SHA 및 optimizer0을
+유지한다. M의 이 준비 범위는 완료됐으며 학습된 기력이나 제출 승인은 아니다.
+
+D no-TID5245 B는 새 typed admission·실제64KiB 초기화 메커니즘·독립 규칙·실제
+128MiB P4 네 세션을 통과했다. proper-alpha의6467/6327 B source-JIT 두 경로도
+파일 입력 compiler 메커니즘과 계측 없는 실제 P4 여덟 세션을 통과했다. source
+wrapper의 live image는 linked7488 B이고 canonical stripped7136 B는 별도다.
+기본/old native map을 바꾸지 않으며 두 경로 모두 크기·물리 배치·기력·이벤트·선택은
+false다. 일반 제출 W256에 P4 결과를 승계하지 않는다.
+
+추가 공통 축약은 실제 sparse-square 순회식을 A/B/C P4에서 각각 측정했다.
+A3794→3781 B와 C3927→3915 B만 유지하고 B4071→4072 B는 중단한다. 새 native는
+길이가 같아도 SHA가 달라 별도 정책을 요구한다. 다음 분기는 공통 pre-cleanup
+계약 준비→A/C별 P28/W256 compile-only 비용·타입 검사 병렬→공유 R/문법 통합 대기→
+새 P4 rules/메커니즘/runtime→새 선택 CI와 감사다. P28 소스는 실제 TEST cohort에서
+읽을 수 있지만 W256은 seed에 없으므로 기존15-profile 고정 기록 또는 명시한
+fresh canonical factory의 별도 compile-only 생성으로 핀을 확정한다. 런타임이 임의
+입력 핀을 학습하게 하지 않는다. 기존 resource→phase→compound→scan→dependency
+순서와 old compound/default control을 보존한다. resolver 조합은 아직 포함하지 않는다.
+
+실제 AWS 호출부는 새 dispatch workflow·임시 direct OIDC·원본 Git blob/격리된
+materializer·전체 journal·remote ownership 종료를 연결한다. 초기 private S3의
+seed/request는 검증한 bootstrap principal의 조건부1회 게시와 실제 VersionId·전체
+readback SHA로 준비할 수 있다. frozen seed.publish의 ControllerRole 검사를 완화하거나
+초기 게시를 그 publisher의 통과로 표시하지 않는다. 현재 로컬 세션이 만료되어 갱신이
+필요하며, 새 template의 서비스 API 검증·실제 Outputs/권한·게시·AWS 실행은 미완료다.
