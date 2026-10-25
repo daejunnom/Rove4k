@@ -255,8 +255,48 @@ physical-core·memory lease로 제한하고 채택timing은quietwindow에서 수
 대기는 별도변수다. D포장양쪽초과·큰프로필구조변경·B등margin상실 시 실제남은
 DAG/최장경로를 다시 산정한다. 작업별시간을 단순합산하지 않는다.
 
-2026-10-25 구현재개 체크포인트:
-- P/G/R/M 담당을 실제배정하고 현재작업본·remotehead391fad6f를 확인했다.
-- 로컬8logical은4physical/SMT2이며15594MiB RAM이다. 큰TT실행을하지않는다.
-- 기존 Rust폐기와 미통합실험을 보존했다. 신규제출/TEST적격·AWS·학습준비의 완료는
-  아직 입증되지 않았다. 실제pass/실패/보류·소유handle·evidence를 다음체크포인트에 갱신한다.
+2026-10-25 12:20 UTC 실행 체크포인트(시작 후 약2h14m):
+- P 자원·closure·host gate, 실제 계열별 생산 경로와 축소 TT 초기화 검사를 구현했다.
+- G1 다섯 잠정 제출 whole은 A3836/B4087/C3981/E3928/F3645B다.
+  B는 명시적 tcec-final-lf 변환이며 TEST-P28은4095B로1B 여유다.
+- G2 D는 full 기능을 유지한 prefix packed5425B로 일반4K 미달이다. P4의
+  packed5429/JIT7812B는 실제 실행·규칙을 통과했으며, source-reduce6819B는 비용 후보다.
+- R 로컬 여섯 계열 기능·규칙과 평가기145 tests, 실제 Fastchess 실패 fixture,
+  두 외부 피어의4물리코어 P4 기능 검사가 통과했다. scored 입장·기력은 미확인이다.
+- M 실제 데이터·model·trainer·export와 production step0 준비가 완료됐다.
+  초기 정수 weight SHA와13개 소스 입력 일치는 재확인했다.
+- AWS Rove4k 프로젝트·CLI/MCP 인증은 확인했다. FREE 요금제와 오래된 Advisor
+  공개 객체 때문에 유료 m6a 실행 gate는 미충족이다. 자동 업그레이드·리전 변경은 없다.
+- 기본cc는 GCC13이고, 정확한 GCC11.4 SDK의 host-loader escape가 감사에서 거부됐다.
+  수정 SDK·Ubuntu22 실제 실행·TCEC 운영자 자원 확인을 서로 다른 gate로 유지한다.
+- 로컬8logical은4physical/SMT2/15594MiB이며 대용량 TT를 실행하지 않았다.
+  D의256-worker 검사는 TT12 계측 범위다. 상세 증거 범위는 ENGINE-IMPLEMENTATION.md에 있다.
+
+```mermaid
+flowchart TD
+  P[공통 계약·새 소스 통합] --> G1[ABCEF 후속 축약·목표 compiler]
+  P --> G2[D full 일반4K 축약]
+  P --> R[평가기·AWS 실제 preflight]
+  P --> M[E19 step0 CI·최종 결속]
+  R --> X{PAID·fresh Advisor·quota·capacity 충족}
+  X --> H[목표 호스트 TT startup·NUMA·S3·watchdog]
+  G1 --> H
+  H --> L[적격 TEST 선수의 병렬 wave]
+  G2 --> A[일반 제출6개·증거 최종 감사]
+  L --> A
+  M --> A
+  G1 -. 선택 ELF 초과 시 보류 .-> A
+```
+
+다음 통합·실측 창의 남은 추정은 P0.5–2h, G1 4–10h, G2 12–36h,
+R6–14h, M0.5–2h, 공유 자원 대기 Q1–4h, 최종 감사 A3–6h다.
+Cloud는 기존 누적8–12instanceh 상한을 유지한다.
+
+    G_remaining = max(G1_remaining,G2_remaining)
+    T_remaining = P_remaining + max(M_remaining,max(G_remaining,R_remaining)+Cloud) + Q + A
+    lower = 0.5+max(0.5,max(12,6)+8)+1+3 = 24.5h
+    upper = 2+max(2,max(36,14)+12)+4+6 = 60h
+
+약25–60h는 다음 검증 창의 추정이며 D4K 수렴 완료 약속이 아니다. 요금제,
+최신 Advisor·quota·capacity·TCEC 운영자 응답 같은 외부 대기는 별도 미정 변수다.
+부분 적격 TEST 리그는 D 후속 축약과 병렬화하고, 실제 공유 자원 wait를 다시 반영한다.

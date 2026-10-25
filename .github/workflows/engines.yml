@@ -261,3 +261,29 @@ jobs:
             ${{ env.ROVE_TEST_OUT }}/semaphore-pool/**/*.json
           if-no-files-found: ignore
           retention-days: 7
+
+  production-foundations:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Install pinned development-only data dependencies
+        run: python -m pip install --require-hashes -r engines/training/e19/requirements.txt
+      - name: Check production resource and source-closure contracts
+        run: |
+          python -B -m unittest discover -s engines/scripts -p test_production.py
+          python -B -m unittest discover -s engines/scripts -p test_retirement.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_verify.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_rules.py
+          python -I -B engines/experiments/tiny-d-submission/test_storage.py
+      - name: Check actual E19 inference, corpus boundaries and optimizer step zero
+        run: python -B -m unittest discover -s engines/training/e19 -p 'test_*.py'
+      - name: Check evaluator placement, durable pairs and AWS service boundaries
+        run: python -B -m unittest discover -s engines/experiments/strength -p 'test_*.py'

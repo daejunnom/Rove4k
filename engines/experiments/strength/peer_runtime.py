@@ -1,0 +1,817 @@
+#!/usr/bin/env python3
+"""Source-bound qualification of external peers' full resource-only tiny files.
+
+Reference compilation and engine execution are separate actions. Official
+W256/256GiB files and oversize/resource-unproven files cannot reach execution.
+The driver observes the actual native image, TT allocation and worker CPUs;
+source size, a package manifest, or an oversubscribed smoke test cannot admit a
+player. Peer queen-only generation is explicit; N/B/R/Q *input* replay is tested.
+"""
+from __future__ import annotations
+
+import argparse
+from functools import wraps
+import hashlib
+import importlib.util
+import json
+import lzma
+import os
+from pathlib import Path
+import re
+import shutil
+import signal
+import struct
+import sys
+import threading
+import time
+
+sys.dont_write_bytecode = True
+ROOT = Path(__file__).resolve().parents[3]
+SOURCE_FILES = (
+    "engines/experiments/strength/peer_runtime.py",
+    "engines/experiments/strength/peers.py",
+    "engines/experiments/strength/registry.py",
+    "engines/experiments/strength/placement.py",
+    "engines/experiments/strength/topology.py",
+    "engines/scripts/production.py",
+    "engines/compact/tiny-entry-d/verify.py",
+    "engines/experiments/tcec-scope/verify.py",
+    "engines/tests/chess_oracle.py",
+)
+HELPER_PINS = {
+    "engines/compact/tiny-entry-d/verify.py": "18faa69aed5cb5dd85a054ef2e6830463f3d819f5f635d74d55550a877c81eae",
+    "engines/tests/chess_oracle.py": "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8",
+}
+DEPENDENCIES = frozenset(("libstdc++.so.6", "libm.so.6", "libgcc_s.so.1", "libc.so.6",
+                          "libpthread.so.0", "librt.so.1", "libatomic.so.1"))
+CONSTRUCTING_OWNED = False
+DEFERRED_SIGNAL = None
+
+
+def require(value, message):
+    if not value:
+        raise ValueError(message)
+
+
+def bounded_signal(signum, frame):
+    global DEFERRED_SIGNAL
+    if CONSTRUCTING_OWNED:
+        DEFERRED_SIGNAL = signum
+        return
+    raise KeyboardInterrupt("peer preparation/qualification signal " + str(signum))
+
+
+def owned_signals(function):
+    @wraps(function)
+    def wrapped(*args, **kwargs):
+        global DEFERRED_SIGNAL
+        require(threading.current_thread() is threading.main_thread(), "owned process execution requires main-thread signal ownership")
+        DEFERRED_SIGNAL = None
+        previous = {number: signal.signal(number, bounded_signal) for number in (signal.SIGINT, signal.SIGTERM)}
+        try:
+            return function(*args, **kwargs)
+        finally:
+            for number, handler in previous.items():
+                signal.signal(number, handler)
+    return wrapped
+
+
+def construct_owned(helper, launcher, directory, budget):
+    global CONSTRUCTING_OWNED
+    CONSTRUCTING_OWNED = True
+    try:
+        owned = helper.Owned(launcher, directory, budget)
+    finally:
+        CONSTRUCTING_OWNED = False
+    if DEFERRED_SIGNAL is not None:
+        # The helper has already registered the original process and readers;
+        # outer cleanup also sees it when construction never returns a handle.
+        raise KeyboardInterrupt("peer constructor signal " + str(DEFERRED_SIGNAL))
+    return owned
+
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def load(name, path):
+    spec = importlib.util.spec_from_file_location(name, path)
+    result = importlib.util.module_from_spec(spec)
+    sys.modules[name] = result
+    spec.loader.exec_module(result)
+    return result
+
+
+def sibling(name, root=ROOT):
+    path = root / "engines/experiments/strength" / (name + ".py")
+    return load("peer_runtime_" + name + "_" + sha(str(root).encode())[:12], path)
+
+
+def ordinary(path, *, maximum=8 << 20):
+    path = Path(path)
+    forbidden = {"inventory.json", "package-lock.json", "node_modules", "dist", "dist-server", "build",
+                 "coverage", "models", "checkpoints", ".cache", ".ssh"}
+    require(not any(part in forbidden or part.startswith(".env") or re.search(
+        r"(?:credential|service[-_ ]?account|api[-_ ]?key|^id_(?:rsa|dsa|ecdsa|ed25519)$)", part, re.I) for part in path.parts),
+        "non-source or secret-like path is not an admitted qualification input")
+    require(path.is_absolute() and not path.is_symlink() and path.is_file(), "absolute ordinary input required")
+    require(path.stat().st_size <= maximum, "input exceeds explicit byte bound")
+    return path.read_bytes()
+
+
+def bound(path, expected):
+    data = ordinary(path)
+    require(len(data) == expected["bytes"] and sha(data) == expected["sha256"], "bound input bytes changed: " + str(path))
+    return data
+
+
+def read_record(path, expected_sha=None):
+    data = ordinary(path)
+    if expected_sha is not None:
+        require(sha(data) == expected_sha, "manifest SHA-256 differs")
+    return json.loads(data), sha(data)
+
+
+def durable_new(path, data):
+    with path.open("xb") as stream:
+        stream.write(data)
+        stream.flush()
+        os.fsync(stream.fileno())
+    descriptor = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY)
+    try:
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
+
+
+def process_identity(pid):
+    fields = Path(f"/proc/{pid}/stat").read_text().rsplit(")", 1)[1].split()
+    return {"pid": pid, "pgid": int(fields[2]), "session": int(fields[3]), "start_ticks": int(fields[19])}
+
+
+def _freeze(out):
+    pins = {}
+    for relative in SOURCE_FILES:
+        data = (ROOT / relative).read_bytes().replace(b"\r\n", b"\n")
+        require(relative not in HELPER_PINS or sha(data) == HELPER_PINS[relative], "owned helper changed: " + relative)
+        destination = out / "source-closure" / relative
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes(data)
+        pins[relative] = {"bytes": len(data), "sha256": sha(data)}
+    return pins
+
+
+def _verify_frozen(directory, pins):
+    require(set(pins) == set(SOURCE_FILES), "qualification source closure is incomplete")
+    for relative, pin in pins.items():
+        bound(directory / relative, pin)
+        require(relative not in HELPER_PINS or pin["sha256"] == HELPER_PINS[relative], "qualification helper pin differs")
+
+
+def tt_declaration(source, layout):
+    """Identify the single emitted allocation; never guess a renamed TT symbol."""
+    require(source.count(b"calloc(") == 1, "peer must have one identifiable TT allocation")
+    rows = re.findall(rb"([A-Za-z_]\w*)\s*=\s*\([^;()]+\*\)calloc\(1ull<<(\d+),(\d+)\)", source)
+    require(len(rows) == 1, "resource-only TT declaration cannot be identified")
+    name, bits, stride = rows[0]
+    require(int(bits) == layout["tt_bits"] and int(stride) == layout["entry_bytes"], "emitted TT allocation differs from TEST profile")
+    return name.decode("ascii")
+
+
+def worker_declaration(peer, source, workers):
+    """Admit the pinned minifiers' actual array and construction bounds."""
+    if peer == "ice4":
+        rows = re.findall(rb"thread\s+(\w+)\[(\d+)\];for\(thread&(\w+):\1\)\3=thread\(", source)
+        require(len(rows) == 1 and int(rows[0][1]) == workers, "emitted ice4 worker construction differs from TEST profile")
+    else:
+        require(peer == "c4ke", "unknown peer")
+        rows = re.findall(rb"jthread\s+(\w+)\[(\d+)\];for\(\w+\s+(\w+)=0;\3<(\d+);\3\+\+\)\1\[\3\]=jthread\(", source)
+        require(len(rows) == 1 and int(rows[0][1]) == int(rows[0][3]) == workers,
+                "emitted c4ke array/worker construction differs from TEST profile")
+    return {"workers": workers, "array_symbol": rows[0][0].decode("ascii"), "construction_bound_verified": True}
+
+
+def compile_argv(peer, output):
+    # These are the compiler argv in each pinned four-line launcher. Feeding
+    # stdin also preserves <stdin> in ELF STT_FILE; compiling a filename does not.
+    if peer == "ice4":
+        return ["c++", "-O3", "-pthread", "-xc++", "-o" + str(output), "-"]
+    require(peer == "c4ke", "unknown peer")
+    return ["g++", "-O3", "-std=c++23", "-pthread", "-march=native", "-xc++", "-o" + str(output), "-"]
+
+
+def validate_build(path, expected_sha=None):
+    peers = sibling("peers")
+    path = Path(path)
+    require(path.is_absolute() and not any((parent / ".git").exists() for parent in path.parents),
+            "peer build receipt must be external to Git")
+    record, digest = read_record(path, expected_sha)
+    name, profile = record.get("peer"), record.get("resources", {}).get("id")
+    peer, layout = peers.peer_spec(name), peers.resource_layout(profile)
+    require(record.get("artifact_kind") == "resource-tiny" and record.get("revision") == peer.revision,
+            "only pinned resource-only TEST peers are executable")
+    require(record.get("resources") == layout and record.get("complete") is True and record.get("reproducible") is True,
+            "two completed source/whole build attempts required")
+    require(record.get("feature_policy") == {"upstream_tiny": True, "generated_promotions": ["q"], "nbrq_replay_qualified": False},
+            "full upstream tiny feature policy differs")
+    require(len(record.get("attempts", [])) == 2, "two independent build attempts required")
+    producer = record.get("producer")
+    require(isinstance(producer, dict), "build lacks frozen producer source; rebuild rather than invent provenance")
+    require(producer.get("path") == str(path.parent / "peer-producer.py"), "producer path is outside bound build output")
+    bound(producer["path"], producer)
+    sources, wholes, observed = [], [], []
+    for index, row in enumerate(record["attempts"], 1):
+        attempt = Path(path).parent / ("attempt-" + str(index))
+        require(row["whole"]["path"] == str(attempt / peer.tiny_name), "whole path is outside bound build attempt")
+        source = bound(attempt / "main.cpp", row["source"])
+        whole = bound(row["whole"]["path"], row["whole"])
+        original = {}
+        proof, _ = read_record(attempt / "resource-proof.json")
+        require(sha(peers.canonical(proof)) == row["resource_proof_sha256"], "resource proof differs")
+        for relative in sorted(peers.SOURCE_BLOBS[name]):
+            data = ordinary(attempt / "source" / relative)
+            if relative == peer.resource_path:
+                data = peers.restore_resources(data, proof)
+            peers.verify_blob(name, relative, data)
+            original[relative] = data
+        changed, expected_proof = peers.resource_patch(name, original[peer.resource_path], profile)
+        require(proof == expected_proof and ordinary(attempt / "source" / peer.resource_path) == changed,
+                "resource proof permits something beyond exact W/TT substitutions")
+        header = original["launcher.sh"]
+        require(whole.startswith(header) and row["header"] == {"bytes": len(header), "sha256": sha(header)},
+                "whole file must use exact pinned launcher")
+        decoder = lzma.LZMADecompressor(format=lzma.FORMAT_ALONE, memlimit=1 << 30)
+        decoded = decoder.decompress(whole[len(header):], max_length=len(source) + 1)
+        require(decoded == source and decoder.eof and not decoder.unused_data, "whole source inverse has extra/truncated/changed data")
+        require(len(row.get("commands", [])) == 3 and all(command.get("exit_code") == 0
+                and command.get("leader_reaped") is True and command.get("group_absent") is True
+                and command.get("forced_cleanup") is False for command in row["commands"]), "producer command settlement evidence is incomplete")
+        require(row["commands"][-1]["stdout_sha256"] == sha(source), "minifier stdout does not bind actual source")
+        sources.append(source)
+        wholes.append(whole)
+        observed.append({"attempt": index, "source_inputs": len(original), "resource_proof_sha256": sha(peers.canonical(proof))})
+    require(sources[0] == sources[1] and wholes[0] == wholes[1], "independent build outputs differ")
+    require(record["whole"] == record["attempts"][0]["whole"], "selected whole is not the reproduced first attempt")
+    require(len(wholes[0]) <= 4096, "blocked_size: complete resource-tiny file exceeds 4096 bytes")
+    symbol = tt_declaration(sources[0], layout)
+    worker_source = worker_declaration(name, sources[0], layout["workers"])
+    return {"record": record, "manifest_sha256": digest, "peer": name, "layout": layout,
+            "source": sources[0], "whole": wholes[0], "tt_symbol": symbol, "worker_source": worker_source,
+            "input_observations": observed}
+
+
+class Elf64:
+    """Bounded ELF64 little-endian metadata reader; no external binary execution."""
+    def __init__(self, data):
+        self.data = data
+        require(data[:7] == b"\x7fELF\x02\x01\x01" and len(data) >= 64, "native must be ELF64 little-endian")
+        fields = self.unpack("HHIQQQIHHHHHH", 16)
+        self.kind, machine, version, _, phoff, shoff, _, _, phsize, phnum, shsize, shnum, _ = fields
+        require(self.kind in (2, 3) and machine == 62 and version == 1 and phsize == 56 and shsize == 64,
+                "unsupported ELF ABI or header geometry")
+        require(0 < phnum <= 256 and 0 < shnum <= 4096, "ELF table count exceeds bound")
+        self.programs = [self.unpack("IIQQQQQQ", phoff + index * phsize) for index in range(phnum)]
+        self.sections = [self.unpack("IIQQQQIIQQ", shoff + index * shsize) for index in range(shnum)]
+
+    def unpack(self, form, offset):
+        size = struct.calcsize("<" + form)
+        require(type(offset) is int and 0 <= offset <= len(self.data) - size, "ELF table is out of bounds")
+        return struct.unpack_from("<" + form, self.data, offset)
+
+    def segment(self, offset, length):
+        require(0 <= offset <= len(self.data) and 0 <= length <= len(self.data) - offset, "ELF segment is out of bounds")
+        return self.data[offset:offset + length]
+
+    @staticmethod
+    def string(data, offset):
+        require(0 <= offset < len(data), "ELF string index out of bounds")
+        end = data.find(b"\0", offset)
+        require(end >= 0, "unterminated ELF string")
+        return data[offset:end].decode("ascii")
+
+    def pointer_symbol(self, name):
+        matches = []
+        for section in self.sections:
+            if section[1] != 2:
+                continue
+            offset, length, link, stride = section[4], section[5], section[6], section[9]
+            require(stride == 24 and length % stride == 0 and link < len(self.sections), "invalid ELF symbol table")
+            strings = self.segment(self.sections[link][4], self.sections[link][5])
+            for index in range(length // stride):
+                symbol = self.unpack("IBBHQQ", offset + index * stride)
+                if self.string(strings, symbol[0]) == name and symbol[1] & 15 == 1 and symbol[3] != 0:
+                    require(symbol[5] == 8, "actual TT pointer symbol does not have pointer size")
+                    matches.append(symbol[4])
+        require(len(matches) == 1, "actual TT pointer has no unique ELF object symbol")
+        return matches[0]
+
+    def dependencies(self):
+        needed, interpreter = [], []
+        for program in self.programs:
+            if program[0] == 3:
+                interpreter.append(self.segment(program[2], program[5]).rstrip(b"\0").decode("ascii"))
+        for section in self.sections:
+            if section[1] != 6:
+                continue
+            require(section[9] == 16 and section[5] % 16 == 0 and section[6] < len(self.sections), "invalid ELF dynamic table")
+            strings = self.segment(self.sections[section[6]][4], self.sections[section[6]][5])
+            for offset in range(section[4], section[4] + section[5], 16):
+                tag, value = self.unpack("qQ", offset)
+                if tag == 1:
+                    needed.append(self.string(strings, value))
+        require(len(interpreter) == 1 and interpreter[0] in ("/lib64/ld-linux-x86-64.so.2", "/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2"),
+                "unexpected native interpreter")
+        require(needed and len(needed) == len(set(needed)) and set(needed) <= DEPENDENCIES, "undeclared native dependency")
+        return {"interpreter": interpreter[0], "needed": needed}
+
+
+@owned_signals
+def prepare_reference(build, out, *, manifest_sha=None, cpu=5, timeout=600):
+    """Compile exact payload stdin twice, without executing a produced engine."""
+    require(sys.platform == "linux", "reference compilation requires Linux")
+    peers = sibling("peers")
+    admitted = validate_build(build, manifest_sha)
+    out = peers.external_new(out)
+    out.mkdir(parents=True)
+    record = {"format": "rove4k-peer-reference-v1", "complete": False,
+              "build": {"path": str(build), "sha256": admitted["manifest_sha256"]},
+              "peer": admitted["peer"], "resources": admitted["layout"], "tt_symbol": admitted["tt_symbol"],
+              "worker_source": admitted["worker_source"],
+              "input_observations": admitted["input_observations"], "commands": [], "engines_executed": 0}
+    try:
+        record["source_inputs"] = _freeze(out)
+        (out / "main.cpp").write_bytes(admitted["source"])
+        record["source"] = {"bytes": len(admitted["source"]), "sha256": sha(admitted["source"])}
+        compiler = compile_argv(admitted["peer"], out / "unused")[0]
+        version, _, command = peers.bounded_run([compiler, "--version"], out, cpu=cpu, timeout=timeout)
+        record["commands"].append(command)
+        (out / "compiler.version").write_bytes(version)
+        record["compiler"] = {"command": compiler, "path": shutil.which(compiler), "version_sha256": sha(version)}
+        natives = []
+        for index in (1, 2, 3):
+            target = out / ("reference-" + str(index))
+            source = admitted["source"]
+            if index == 3:
+                source += ("\nstatic_assert(sizeof(*" + admitted["tt_symbol"] + ") == 8);\n").encode()
+            _, _, command = peers.bounded_run(compile_argv(admitted["peer"], target), out, cpu=cpu,
+                                               timeout=timeout, input_bytes=source)
+            record["commands"].append(command)
+            native = ordinary(target)
+            natives.append(native)
+            record.setdefault("native_attempts", []).append({"path": str(target), "bytes": len(native), "sha256": sha(native),
+                                                             "layout_assertion": index == 3})
+        require(natives[0] == natives[1], "two exact native reference compilations differ")
+        require(natives[0] == natives[2], "inert entry-size assertion changed emitted native image")
+        elf = Elf64(natives[0])
+        record.update(complete=True, native=record["native_attempts"][0], tt_symbol_value=elf.pointer_symbol(admitted["tt_symbol"]),
+                      entry_size_compile_assertion=True, dependencies=elf.dependencies())
+    except BaseException as error:
+        record["failure"] = {"type": type(error).__name__, "message": str(error)}
+        raise
+    finally:
+        digest = peers.write_json(out / "reference.json", record)
+    return {"path": str(out / "reference.json"), "sha256": digest, "record": record}
+
+
+def mappings(pid):
+    result = []
+    for line in Path(f"/proc/{pid}/maps").read_text().splitlines():
+        fields = line.split(maxsplit=5)
+        first, last = (int(value, 16) for value in fields[0].split("-"))
+        result.append({"start": first, "end": last, "permissions": fields[1], "offset": int(fields[2], 16),
+                       "device": fields[3], "inode": int(fields[4]), "path": fields[5] if len(fields) > 5 else ""})
+    return result
+
+
+def runtime_tt(pid, elf, symbol, tt_bytes):
+    """Read the actual pointer in the admitted image and verify its RW extent."""
+    image_stat = Path(f"/proc/{pid}/exe").stat()
+    rows = mappings(pid)
+    image_rows = [row for row in rows if row["inode"] == image_stat.st_ino
+                  and tuple(int(part, 16) for part in row["device"].split(":")) == (os.major(image_stat.st_dev), os.minor(image_stat.st_dev))]
+    loads = [program for program in elf.programs if program[0] == 1 and program[2] == 0]
+    require(len(loads) == 1, "native has no unique zero-offset load segment")
+    bases = {row["start"] - loads[0][3] for row in image_rows if row["offset"] == 0}
+    require(len(bases) == 1, "actual PIE image load bias is ambiguous")
+    bias = next(iter(bases))
+    address = bias + elf.pointer_symbol(symbol)
+    require(any(program[0] == 1 and bias + program[3] <= address and address + 8 <= bias + program[3] + program[6]
+                for program in elf.programs) and any(row["start"] <= address and address + 8 <= row["end"]
+                and "r" in row["permissions"] for row in rows),
+            "TT pointer symbol is outside actual readable engine load segments")
+    descriptor = os.open(f"/proc/{pid}/mem", os.O_RDONLY)
+    try:
+        value = os.pread(descriptor, 8, address)
+    finally:
+        os.close(descriptor)
+    require(len(value) == 8, "actual TT pointer read was incomplete")
+    pointer = int.from_bytes(value, "little")
+    require(pointer > 0 and pointer + tt_bytes < 1 << 63, "actual TT pointer/range is invalid")
+    coverage = pointer
+    mapped = []
+    for row in rows:
+        if row["end"] <= coverage or row["start"] > coverage:
+            continue
+        require("rw" == row["permissions"][:2] and row["permissions"][3] == "p", "TT allocation is not private readable writable memory")
+        mapped.append(row)
+        coverage = min(pointer + tt_bytes, row["end"])
+        if coverage == pointer + tt_bytes:
+            break
+    require(coverage == pointer + tt_bytes, "actual TT virtual mapping is smaller than the declared allocation")
+    return {"pointer_symbol_address": address, "pointer": pointer, "tt_bytes": tt_bytes, "entry_bytes": 8,
+            "mapping_extent_verified": True, "mappings": mapped,
+            "scope": "actual calloc pointer and virtual allocation; not resident/touched bytes or peak memory"}
+
+
+def validate_slot(topology, slot, layout, *, allow_functional=False):
+    cpus = slot.get("cpus")
+    require(isinstance(cpus, list) and cpus and len(cpus) == len(set(cpus)) and all(type(cpu) is int for cpu in cpus),
+            "explicit unique actual CPU IDs required")
+    by_id = {cpu.id: cpu for cpu in topology.cpus}
+    require(set(cpus) <= set(topology.allowed_cpus) and set(cpus) <= set(by_id), "slot is outside actual allowed topology")
+    actual = [by_id[cpu] for cpu in cpus]
+    physical = {cpu.physical for cpu in actual}
+    nodes = {cpu.node for cpu in actual}
+    require(set(slot.get("memory_nodes", [])) == nodes and nodes <= set(topology.allowed_nodes), "slot memory nodes differ from actual CPU nodes")
+    require(slot.get("workers") == layout["workers"] and slot.get("policy", "inherit") in ("inherit", "default", "interleave"), "slot resource/policy mismatch")
+    qualified = len(cpus) == len(physical) == layout["workers"] and slot.get("smt") is False
+    require(qualified or allow_functional, "actual one-sibling physical TEST placement is unavailable; explicit functional scope required")
+    if "physical_cores" in slot:
+        require({tuple(row) for row in slot["physical_cores"]} == physical, "declared physical cores differ from sysfs")
+    return {"physical_cores": len(physical), "logical_cpus": len(cpus), "cpu_ids": sorted(cpus),
+            "memory_nodes": sorted(nodes), "one_sibling_per_core": len(cpus) == len(physical), "qualified": qualified,
+            "scope": "physical TEST placement only; no W256 strength or scaling evidence"}
+
+
+def _write_launcher(path, whole, temporary, slot, placement_record, frozen_root, owner_record, release):
+    source = "#!/usr/bin/python3 -I\n" + "\n".join((
+        "import hashlib,json,os,resource,sys,time", "from pathlib import Path",
+        "release=Path(" + repr(str(release)) + ")", "deadline=time.monotonic()+30",
+        "while not release.exists():",
+        " if os.getppid()!=" + str(os.getpid()) + " or time.monotonic()>deadline: raise RuntimeError('owner gate not released')",
+        " time.sleep(.01)",
+        "owner_bytes=Path(" + repr(str(owner_record)) + ").read_bytes()",
+        "owner=json.loads(owner_bytes)",
+        "if hashlib.sha256(owner_bytes).hexdigest()!=release.read_text().strip() or owner['pid']!=os.getpid(): raise RuntimeError('owner gate identity differs')",
+        "fields=Path('/proc/self/stat').read_text().rsplit(')',1)[1].split()",
+        "if [owner['pgid'],owner['session'],owner['start_ticks']]!=[int(fields[2]),int(fields[3]),int(fields[19])]: raise RuntimeError('original owner process differs')",
+        "sys.path.insert(0," + repr(str(frozen_root / "engines/experiments/strength")) + ")",
+        "import placement", "def cap(kind,ceiling):",
+        " value=min([ceiling]+[v for v in resource.getrlimit(kind) if v!=resource.RLIM_INFINITY])",
+        " resource.setrlimit(kind,(value,value))",
+        "cap(resource.RLIMIT_AS,4<<30)", "cap(resource.RLIMIT_CPU,180)", "cap(resource.RLIMIT_FSIZE,64<<20)",
+        "slot=json.loads(Path(" + repr(str(slot)) + ").read_text())",
+        "record=placement.apply_slot(slot)", "p=Path(" + repr(str(placement_record)) + ")",
+        "with p.open('x') as stream:", " stream.write(json.dumps(record,sort_keys=True)+'\\n');stream.flush();os.fsync(stream.fileno())",
+        "os.environ['TMPDIR']=" + repr(str(temporary)), "os.execv(" + repr(str(whole)) + ",[" + repr(str(whole)) + "])", "",
+    ))
+    path.write_text(source)
+    path.chmod(0o700)
+
+
+def _finish_peer(owned, seconds=20):
+    # Permit upstream compiler diagnostics on stderr. Keep the original
+    # unreaped leader until its delayed cleanup child has physically settled.
+    deadline = time.monotonic() + owned.budget.left(seconds)
+    others_seen, exited_with_others = set(), False
+    while True:
+        exited, others = owned.exited(), owned.group_others()
+        others_seen.update(row["pid"] for row in others)
+        exited_with_others |= exited and bool(others)
+        if exited and not others:
+            break
+        require(time.monotonic() < deadline, "peer or delayed cleanup child did not physically settle")
+        time.sleep(.01)
+    owned.pre_reap_other_members = owned.group_others()
+    owned.process.wait(timeout=owned.budget.left(3))
+    owned.reaped = True
+    for reader in (owned.stdout, owned.stderr):
+        reader.thread.join(timeout=owned.budget.left(3))
+        require(not reader.thread.is_alive() and reader.done and not reader.error, "peer output reader did not join")
+    require(owned.process.returncode == 0, "peer exited unsuccessfully")
+    owned.finished = True
+    return {"returncode": 0, "readers_joined": True, "reaped": True, "forced_cleanup": False,
+            "original_identity_retained_until_other_members_absent": True,
+            "other_members_observed": sorted(others_seen), "leader_exited_with_other_members": exited_with_others,
+            "stderr_bytes": len(owned.stderr.bytes()), "stderr_sha256": sha(owned.stderr.bytes())}
+
+
+def _best_lines(owned):
+    return [line for line in owned.stdout.bytes().splitlines() if line.startswith(b"bestmove ")]
+
+
+def _replay(oracle, moves):
+    board = oracle.Board.from_fen()
+    for move in moves:
+        board = board.play(move)
+    return board
+
+
+def checked_best(line, board):
+    fields = line.split()
+    require(len(fields) in (2, 4) and fields[0] == b"bestmove", "malformed bestmove line")
+    move = fields[1].decode("ascii")
+    require(move in {str(value) for value in board.legal_moves()}, "peer emitted an illegal bestmove after full startpos replay")
+    if len(fields) == 4:
+        require(fields[2] == b"ponder" and fields[3].decode("ascii") in {str(value) for value in board.play(move).legal_moves()},
+                "malformed or illegal optional ponder move")
+    return move
+
+
+def _search(owned, scope, oracle, moves, label, *, workers=None, cpus=()):
+    board = _replay(oracle, moves)
+    legal = {str(move) for move in board.legal_moves()}
+    require(legal, "qualification fixture must have legal replies")
+    previous = len(_best_lines(owned))
+    owned.send(("position startpos" + (" moves " + " ".join(moves) if moves else "") + "\n").encode())
+    clock = 60000 if workers is not None else 1000
+    before = scope.task_snapshot(owned.process.pid)
+    owned.send(f"go wtime {clock} btime {clock} winc 0 binc 0\n".encode())
+    allowance = 35 if workers is not None else 5
+    started = time.monotonic()
+    deadline = started + owned.budget.left(allowance)
+    samples, positive, all_workers = [], set(), set()
+    while len(_best_lines(owned)) == previous:
+        require(time.monotonic() < deadline and not owned.exited(), "peer clocked search exceeded actual deadline")
+        current = scope.task_snapshot(owned.process.pid)
+        active = {tid: value for tid, value in current.items() if tid != owned.process.pid}
+        if workers is not None:
+            all_workers.update(active)
+            require(len(active) <= workers and len(all_workers) <= workers, "peer created more workers than TEST profile")
+            for tid, row in active.items():
+                try:
+                    actual_cpus = set(os.sched_getaffinity(tid))
+                except ProcessLookupError:
+                    continue
+                require(actual_cpus == set(cpus), "worker escaped inherited CPU slot")
+                if row["cpu_ticks"] > before.get(tid, {}).get("cpu_ticks", 0):
+                    positive.add(tid)
+            if len(samples) < 256:
+                samples.append({"elapsed_seconds": time.monotonic() - started, "tasks": current})
+        time.sleep(.02)
+    lines = _best_lines(owned)
+    require(len(lines) == previous + 1, "clocked search emitted duplicate bestmove")
+    move = checked_best(lines[-1], board)
+    ready_count = owned.stdout.bytes().splitlines().count(b"readyok") + 1
+    owned.send(b"isready\n")
+    owned.wait_line(b"readyok", ready_count)
+    require(owned.stdout.bytes().splitlines().count(b"readyok") == ready_count, "duplicate readyok response")
+    require(len(_best_lines(owned)) == previous + 1, "late duplicate bestmove after ready")
+    if workers is not None:
+        require(len(all_workers) == workers and len(positive) == workers, "not every declared worker used positive actual CPU")
+    return {"label": label, "moves": moves, "bestmove": move, "legal_reply_count": len(legal), "clock_ms": clock,
+            "worker_ids": sorted(all_workers), "positive_cpu_worker_ids": sorted(positive), "samples": samples}
+
+
+def _observe_image(owned, scope, native, elf, symbol, layout, tmpdir, *, wait_cleanup=True):
+    deadline = time.monotonic() + owned.budget.left(10)
+    while True:
+        snapshot = scope.image_snapshot(owned.process.pid, native["sha256"])
+        require(not owned.exited(), "peer exited while checking live cleanup")
+        require(Path(snapshot["path"]).parent == tmpdir, "JIT compiler escaped owned temporary directory")
+        if not snapshot["path_exists"] or not wait_cleanup:
+            break
+        require(time.monotonic() < deadline, "peer JIT temporary image was not unlinked while live")
+        time.sleep(.025)
+    if not snapshot["path_exists"]:
+        require(not list(tmpdir.iterdir()), "peer left unexpected temporary files while alive")
+    snapshot["tt"] = runtime_tt(owned.process.pid, elf, symbol, layout["tt_bytes"])
+    return snapshot
+
+
+def _dependencies_live(pid, needed):
+    expected = {name.split(".so", 1)[0] for name in needed}
+    rows = []
+    for row in mappings(pid):
+        path = row["path"].removesuffix(" (deleted)")
+        if "x" not in row["permissions"] or not path.startswith("/"):
+            continue
+        if path.startswith("/tmp/rove4k-peer-"):
+            continue
+        name = Path(path).name
+        require(name.startswith("ld-linux-") or name.split(".so", 1)[0] in expected, "unexpected executable dependency mapping")
+        resolved = Path(path).resolve(strict=True)
+        require(str(resolved).startswith(("/usr/lib/", "/lib/", "/lib64/")), "dependency is outside system runtime directories")
+        rows.append({"path": str(resolved), "sha256": sha(resolved.read_bytes())})
+    require(rows, "actual executable system dependencies not observed")
+    return rows
+
+
+@owned_signals
+def qualify_peer(reference, out, slot, *, reference_sha=None, allow_functional=False, wall_seconds=180):
+    require(sys.platform == "linux", "peer execution requires Linux")
+    require(not any(os.environ.get(name) for name in ("LD_PRELOAD", "LD_AUDIT", "LD_LIBRARY_PATH")),
+            "qualification requires the declared system loader without external interposition")
+    peers = sibling("peers")
+    reference = Path(reference)
+    require(reference.is_absolute() and not any((parent / ".git").exists() for parent in reference.parents),
+            "peer reference must be external to Git")
+    ref, ref_sha = read_record(reference, reference_sha)
+    require(ref.get("format") == "rove4k-peer-reference-v1" and ref.get("complete") is True and ref.get("engines_executed") == 0,
+            "completed engine-free reference preparation required")
+    reference_frozen = Path(reference).parent / "source-closure"
+    _verify_frozen(reference_frozen, ref["source_inputs"])
+    admitted = validate_build(ref["build"]["path"], ref["build"]["sha256"])
+    require(admitted["peer"] == ref["peer"] and admitted["layout"] == ref["resources"], "reference resource identity differs")
+    require(ref["native"]["path"] == str(reference.parent / "reference-1"), "native reference path is outside bound output")
+    native = bound(ref["native"]["path"], ref["native"])
+    require(ref["entry_size_compile_assertion"] is True and len(ref["native_attempts"]) == 3,
+            "two actual native reproductions and inert entry assertion required")
+    for index, attempt in enumerate(ref["native_attempts"], 1):
+        require(attempt["path"] == str(reference.parent / ("reference-" + str(index))), "native attempt path is outside bound output")
+        require(bound(attempt["path"], attempt) == native, "native reproduction changed")
+    elf = Elf64(native)
+    require(elf.dependencies() == ref["dependencies"] and elf.pointer_symbol(ref["tt_symbol"]) == ref["tt_symbol_value"],
+            "ELF reference metadata differs")
+    require(ref["tt_symbol"] == admitted["tt_symbol"] and bound(Path(reference).parent / "main.cpp", ref["source"]) == admitted["source"],
+            "exact native stdin source differs from decoded whole payload")
+    topology_module = sibling("topology")
+    topology = topology_module.Topology.snapshot()
+    placement = validate_slot(topology, slot, ref["resources"], allow_functional=allow_functional)
+    out = peers.external_new(out)
+    out.mkdir(parents=True)
+    runtime_inputs = _freeze(out)
+    frozen = out / "source-closure"
+    registry = sibling("registry", frozen)
+    record = admitted["record"]
+    artifact = registry.Artifact(id=f'{ref["peer"]}-{ref["resources"]["id"]}-{record["whole"]["sha256"][:8]}-{ref["native"]["sha256"][:8]}',
+        family=ref["peer"], path=Path(record["whole"]["path"]), purpose="test", profile=ref["resources"]["id"],
+        workers=ref["resources"]["workers"], tt_bytes=ref["resources"]["tt_bytes"], entry_bytes=8,
+        representation="source-jit", full=True, sha256=record["whole"]["sha256"], whole_bytes=record["whole"]["bytes"],
+        native_sha256=ref["native"]["sha256"])
+    artifact.verify_bytes()
+    artifact_record = {**artifact.identity(), "path": str(artifact.path)}
+    peers.write_json(out / "artifact.json", artifact_record)
+    report = {"format": "rove4k-qualification-v1", "division": "general4k", "complete": False,
+              "artifact": artifact.identity(), "reference": {"path": str(reference), "sha256": ref_sha},
+              "checks": {name: False for name in registry.CHECKS}, "observations": {}, "failures": [], "sessions": [],
+              "source_inputs": runtime_inputs, "reference_source_inputs": ref["source_inputs"],
+              "topology": topology.to_record(), "placement": placement,
+              "execution_context": {"host_only_functional_validation": True, "scored_envelope": False,
+                  "controller_reserve_validated": False,
+                  "unused_physical_cores_in_allowed_topology": len({cpu.physical for cpu in topology.cpus}) - placement["physical_cores"]},
+              "scope": "host-bound full TEST peer functional/resource qualification; no controller reserve, scored envelope, W256/256GiB, strength or scaling claim"}
+    report["checks"].update(reproduction=True, size=True)
+    owned_helper = load("peer_owned_helper", frozen / "engines/compact/tiny-entry-d/verify.py")
+    scope = load("peer_scope_helper", frozen / "engines/experiments/tcec-scope/verify.py")
+    oracle = load("peer_independent_oracle", frozen / "engines/tests/chess_oracle.py")
+    budget = owned_helper.Budget(wall_seconds)
+    slot_path = out / "slot.json"
+    peers.write_json(slot_path, slot)
+    temporary = []
+    try:
+        for label in ("cold", "warm", "active-quit", "active-eof"):
+            directory = out / label
+            directory.mkdir()
+            tmpdir = Path("/tmp") / ("rove4k-peer-" + sha(str(out).encode())[:16] + "-" + label)
+            require(not tmpdir.exists() and not tmpdir.is_symlink(), "owned temporary namespace already exists")
+            tmpdir.mkdir(mode=0o700)
+            identity = tmpdir.stat()
+            temporary.append((tmpdir, identity.st_dev, identity.st_ino))
+            whole = directory / "whole"
+            whole.write_bytes(admitted["whole"])
+            whole.chmod(0o700)
+            launcher = directory / "launch"
+            placement_record = directory / "placement.json"
+            owner_record, release = directory / "owner.json", directory / "owner-release"
+            _write_launcher(launcher, whole, tmpdir, slot_path, placement_record, frozen, owner_record, release)
+            session = {"label": label, "searches": []}
+            report["sessions"].append(session)
+            owned = None
+            try:
+                started = time.monotonic()
+                owned = construct_owned(owned_helper, launcher, directory, budget)
+                session["owner"] = {**process_identity(owned.process.pid), "whole_sha256": artifact.sha256,
+                                    "runtime_native_sha256": artifact.native_sha256, "role": "peer-qualification"}
+                require(session["owner"]["pgid"] == session["owner"]["session"] == owned.process.pid,
+                        "owned peer does not have an original isolated process group/session")
+                owner_bytes = (json.dumps(session["owner"], sort_keys=True) + "\n").encode()
+                durable_new(owner_record, owner_bytes)
+                durable_new(release, (sha(owner_bytes) + "\n").encode())
+                owned.send(b"uci\n")
+                owned.stdout.until(lambda data: b"uciok" in data.splitlines(), budget, seconds=60)
+                owned.send(b"isready\n")
+                owned.wait_line(b"readyok")
+                require(owned.stdout.bytes().splitlines().count(b"uciok") == 1
+                        and owned.stdout.bytes().splitlines().count(b"readyok") == 1 and not _best_lines(owned),
+                        "duplicate startup protocol response or unsolicited bestmove")
+                session["image"] = _observe_image(owned, scope, ref["native"], elf, ref["tt_symbol"], ref["resources"], tmpdir,
+                                                   wait_cleanup=label in ("cold", "warm"))
+                session["startup_ms"] = (time.monotonic() - started) * 1000
+                require(session["startup_ms"] <= 60000, "aggregate complete startup exceeds 60 seconds")
+                preexec, _ = read_record(placement_record)
+                require(preexec["effective_cpus"] == sorted(slot["cpus"]), "pre-exec placement did not take effect")
+                if slot.get("policy", "inherit") != "inherit":
+                    policy = preexec["observed_policy"]
+                    require(preexec["fallback"] is None and policy.get("available") is True
+                            and policy.get("mode") == {"default": 0, "interleave": 3}[slot["policy"]]
+                            and (slot["policy"] == "default" or set(policy.get("nodes", [])) == set(slot["memory_nodes"])),
+                            "explicit task-memory policy could not actually be applied/observed")
+                require(set(os.sched_getaffinity(owned.process.pid)) == set(slot["cpus"]), "actual engine CPU mask differs")
+                session["preexec_placement"] = preexec
+                session["startup_group_other_members"] = owned.group_others()
+                session["dependencies"] = _dependencies_live(owned.process.pid, ref["dependencies"]["needed"])
+                session["numa_maps_observation"] = Path(f"/proc/{owned.process.pid}/numa_maps").read_text()
+                session["multi_node_validated"] = False
+                if label == "cold":
+                    owned.send(b"ucinewgame\n")
+                    session["searches"].append(_search(owned, scope, oracle, [], "white-startpos",
+                        workers=artifact.workers, cpus=slot["cpus"]))
+                    session["searches"].append(_search(owned, scope, oracle, ["e2e4"], "black-startpos"))
+                    for fixture, moves, _board in scope.promotion_fixtures(oracle):
+                        session["searches"].append(_search(owned, scope, oracle, moves, fixture))
+                    before_idle = scope.task_snapshot(owned.process.pid)
+                    time.sleep(min(.1, budget.left(.1)))
+                    after_idle = scope.task_snapshot(owned.process.pid)
+                    require(set(after_idle) == {owned.process.pid} and set(before_idle) == {owned.process.pid}, "peer has active idle workers")
+                    require(after_idle[owned.process.pid]["cpu_ticks"] - before_idle[owned.process.pid]["cpu_ticks"] <= 1,
+                            "peer consumed search CPU without GO")
+                    session["idle"] = {"before": before_idle, "after": after_idle}
+                elif label == "warm":
+                    session["searches"].append(_search(owned, scope, oracle, [], "warm-white"))
+                else:
+                    owned.send(b"position startpos moves e2e4\ngo wtime 1000 btime 1000 winc 0 binc 0\n")
+                    time.sleep(min(.025, budget.left(.025)))
+                if label == "active-eof":
+                    owned.close_input()
+                else:
+                    owned.send(b"quit\n")
+                session["finish"] = _finish_peer(owned)
+                if label.startswith("active-"):
+                    board = _replay(oracle, ["e2e4"])
+                    lines = _best_lines(owned)
+                    require(len(lines) <= 1, "closing GO emitted duplicate bestmove")
+                    for line in lines:
+                        checked_best(line, board)
+                    session["closing_bestmove_count"] = len(lines)
+            finally:
+                if owned is not None:
+                    session["cleanup"] = owned.cleanup()
+                    require(session["cleanup"]["owned_group_absent"] and session["cleanup"]["readers_joined"]
+                            and not session["cleanup"]["errors"], "peer cleanup did not physically settle")
+        observations = report["observations"]
+        observations.update(startup_ms=max(row["startup_ms"] for row in report["sessions"]), workers=artifact.workers,
+            positive_cpu_workers=len(report["sessions"][0]["searches"][0]["positive_cpu_worker_ids"]),
+            tt_bytes=artifact.tt_bytes, runtime_native_sha256=artifact.native_sha256,
+            temporary_cleanup_while_live=all(not row["image"]["path_exists"] for row in report["sessions"][:2]),
+            nbrq_replay=True, promotion_generation_policy="queen-only", physical_cores=placement["physical_cores"],
+            logical_cpus=placement["logical_cpus"], multi_node_validated=False,
+            compiler=ref["compiler"], native_reference_host_scope="must regenerate and requalify for a different compiler/CPU host")
+        require(any(row["finish"]["leader_exited_with_other_members"] for row in report["sessions"] if row["label"].startswith("active-")),
+                "actual delayed cleanup child settlement after leader exit was not observed")
+        report["checks"].update({name: True for name in registry.CHECKS})
+        report["checks"]["placement"] = placement["qualified"]
+        report["checks"]["resources"] = placement["qualified"]
+        if not placement["qualified"]:
+            report["failures"].append({"scope": "placement", "message": "functional-only run lacks named physical TEST slot"})
+    except BaseException as error:
+        report["failures"].append({"type": type(error).__name__, "message": str(error)})
+        raise
+    finally:
+        for remaining in list(owned_helper.OWNED):
+            try:
+                result = remaining.cleanup()
+                report.setdefault("recovered_constructor_handles", []).append(result)
+            except BaseException as error:
+                report["failures"].append({"scope": "cleanup", "message": str(error)})
+        for path, device, inode in temporary:
+            try:
+                actual = path.stat()
+                require(not path.is_symlink() and (actual.st_dev, actual.st_ino) == (device, inode), "temporary directory identity changed")
+                path.rmdir()  # Only the exact empty directory owned by this run.
+            except (OSError, ValueError) as error:
+                report["failures"].append({"scope": "cleanup", "path": str(path), "message": str(error)})
+                report["checks"]["cleanup"] = False
+        report["complete"] = not report["failures"] and all(report["checks"].values())
+        digest = peers.write_json(out / "qualification.json", report)
+    admission = registry.admit_to_test_league(artifact, out / "qualification.json", digest) if report["complete"] else None
+    return {"path": str(out / "qualification.json"), "sha256": digest, "artifact": str(out / "artifact.json"),
+            "qualified": report["complete"], "admission": admission, "record": report}
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("action", choices=("prepare", "qualify"))
+    parser.add_argument("--build", type=Path)
+    parser.add_argument("--reference", type=Path)
+    parser.add_argument("--manifest-sha")
+    parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--slot", type=Path)
+    parser.add_argument("--cpu", type=int, default=5)
+    parser.add_argument("--wall-seconds", type=int, default=180)
+    parser.add_argument("--allow-functional", action="store_true")
+    args = parser.parse_args()
+    require(0 <= args.cpu and 0 < args.wall_seconds <= 600, "bounded CPU/wall configuration required")
+    if args.action == "prepare":
+        require(args.build is not None, "prepare requires --build")
+        result = prepare_reference(args.build, args.out, manifest_sha=args.manifest_sha, cpu=args.cpu, timeout=args.wall_seconds)
+    else:
+        require(args.reference is not None and args.slot is not None, "qualify requires --reference and --slot")
+        slot, _ = read_record(args.slot)
+        result = qualify_peer(args.reference, args.out, slot, reference_sha=args.manifest_sha,
+                              allow_functional=args.allow_functional, wall_seconds=args.wall_seconds)
+    print(json.dumps({key: value for key, value in result.items() if key != "record"}, sort_keys=True))
+
+
+if __name__ == "__main__":
+    main()

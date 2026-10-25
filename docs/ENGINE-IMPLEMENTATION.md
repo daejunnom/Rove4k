@@ -1,8 +1,9 @@
 # A–F engine implementation checkpoints
 
 The full implementation scope is recorded in [the accepted plan](ENGINE-PLAN.ko.md).
-The current user request excludes training and AWS connections. Frozen model
-inference and lossless model storage remain in scope; trained strength is not claimed.
+The current user request includes the complete C A–F implementation, AWS evaluation
+preparation and E19 data/trainer/export preparation. Production optimizer steps remain
+zero and the initial model weights remain unchanged; trained strength is not claimed.
 
 ## Current execution scope, 2026-10-25
 
@@ -15,6 +16,64 @@ campaign and real E19 preparation to production optimizer step0 are in scope.
 Earlier pause/exclusion statements below retain their original historical date.
 New source, size, startup, resource and runtime evidence is required; the old391
 receipts and experimental4088/5505 results are not new-profile acceptance.
+
+### Source integration checkpoint, 2026-10-25 12:20 UTC
+
+New family-specific producers derive fresh C from the admitted own source closures,
+with W4/W28/W256 and 64-bit TT consumers. ABCEF uses24-byte entries (192GiB at
+the provisional cap), D uses16-byte entries (256GiB). Actual scaled initialization
+fixtures cover disjoint parallel clear, poisoned storage, selectors and the
+before-UCI barrier; D also exercises256 actual workers and pending257 at small TT.
+These fixtures do not prove full-size startup or many-core performance.
+
+| Family | TEST-P4 whole | Provisional submission whole | Current evidence boundary |
+|---|---:|---:|---|
+| A | 3834B | 3836B | source-JIT functional/rules pass; target-host pending |
+| B `tcec-final-lf` | 4089B | 4087B | explicit selected variant, full semantics and actual JIT/rules pass |
+| C | 3982B | 3981B | incremental SIMD source retained, functional/rules pass |
+| D `prefix` | 5429B packed; 7812B JIT | 5425B packed | functional/rules pass; general4K blocked_size |
+| E | 3926B | 3928B | canonical E19 binding and actual consumer retained |
+| F | 3644B | 3645B | full MTD/witness/learner preserved, functional/rules pass |
+
+The selected P4 cohort has24 naturally settled engine groups,144 GO and134
+legal results. D's JIT alternative and B's actual W28/384MiB supplemental run
+also pass their functional scopes. Those runs used one physical core with SMT:
+zero entries are promoted to scored TEST or final TCEC qualification. Actual
+shipping move generators independently match plain/UBSan legal sets for105
+positions and2858 moves per family, including N/B/R/Q, castling and en passant.
+
+All five newly measured optional ELF files are above4096B (A11402, B13957,
+C11710, E11687, F11026) and deferred_size. D's optional ELF target remains
+separate from its mandatory general entry. No feature-reduced result replaces full F.
+
+E19's13 source inputs match the final step0 record. Real Jan/Feb2013 data yields
+48313 retained games and741882 positions after eligibility, split, duplicate and
+holdout checks. Integer weights retain SHA-256
+`a5bb11099b62489aca43a011619e15076b0637b2f2e460d89772162965cd5424`.
+The21 focused tests and actual C/UBSan consumer checks pass without a production
+optimizer update. This is preparation and inference evidence, not trained strength.
+
+The evaluator/AWS branch passes145 focused tests, actual patched Fastchess
+barrier/deadline/fault fixtures and two peers' local four-physical-core P4 checks.
+Peer sources and binaries remain outside Git. Local peer checks explicitly lack
+the scored-host controller reserve and NUMA/many-core acceptance. c4ke P28 is4098B
+and excluded; no configurable-native fallback is admitted.
+
+AWS project name Rove4k and ACTIVE state were read through the account API;
+the named CLI profile is rove4k, workload region ap-southeast-2. CLI2.38.5,
+uv0.13.5, the Toolkit catalog and the Codex MCP profile/STS smoke are verified.
+The project is FREE with100USD remaining credits. No workload resources or paid
+campaign were created. PAID, fresh Advisor<5%, quota/capacity, target AMI and actual
+S3/watchdog/NUMA validation remain launch gates. The public Advisor object observed
+onOct25 was last modifiedMar20 and is not accepted as fresh interruption evidence.
+
+GCC11.4 compatibility remains a distinct pending gate: the first external Jammy
+SDK audit found an absolute interpreter symlink escaping to the Noble host. The
+strict checker rejected it; a separately audited SDK revision is being prepared.
+The old7b95599 engine/NVCompact/repository CI runs passed. The new foundation CI
+registers the production, E19 and evaluator unit suites; new-profile generation,
+actual target runtime and final release qualification are separate follow-up jobs.
+All receipts, raw games, data, failures and generated files remain outside Git.
 
 ## Previous user scope: all engine Rust retired and work paused, 2026-10-25
 

@@ -1,0 +1,218 @@
+--- /dev/null
++++ b/app/src/core/rove_start_gate.hpp
+@@ -0,0 +1,127 @@
++#pragma once
++
++#include <atomic>
++#include <chrono>
++#include <cstdint>
++#include <cstdio>
++#include <cstdlib>
++#include <limits>
++#include <string>
++#include <json.hpp>
++#ifndef _WIN64
++#include <cerrno>
++#include <fcntl.h>
++#include <poll.h>
++#include <sys/socket.h>
++#include <sys/un.h>
++#include <unistd.h>
++#endif
++
++namespace fastchess::rove {
++inline int control_fd = -1;
++inline nlohmann::json job;
++inline std::atomic<bool> gate_used{false};
++
++inline bool fail(const char* why) {
++    std::fprintf(stderr, "ROVE_START_GATE_ABORT: %s\n", why);
++    std::fflush(stderr);
++    return false;
++}
++
++// Called in main, before any engine process can be spawned. pass_fds clears
++// CLOEXEC for the runner, so reapply it here before engines inherit anything.
++inline bool prepare() {
++    const char* raw = std::getenv("ROVE_START_FD");
++    const char* metadata = std::getenv("ROVE_START_JOB");
++    if (!raw) return metadata ? fail("job without control FD") : true;
++#ifdef _WIN64
++    return fail("the league start gate requires POSIX");
++#else
++    char* end = nullptr;
++    errno = 0;
++    const long fd = std::strtol(raw, &end, 10);
++    if (errno || !end || *end || end == raw || fd < 3 || fd > std::numeric_limits<int>::max())
++        return fail("invalid control FD");
++    control_fd = static_cast<int>(fd);
++    const int flags = fcntl(control_fd, F_GETFD);
++    if (flags < 0 || fcntl(control_fd, F_SETFD, flags | FD_CLOEXEC) < 0)
++        return fail("cannot protect control FD");
++    int type = 0;
++    socklen_t length = sizeof(type);
++    sockaddr_un address{};
++    socklen_t address_length = sizeof(address);
++    if (getsockopt(control_fd, SOL_SOCKET, SO_TYPE, &type, &length) || type != SOCK_STREAM ||
++        getsockname(control_fd, reinterpret_cast<sockaddr*>(&address), &address_length) ||
++        address.sun_family != AF_UNIX)
++        return fail("control FD must be a Unix stream socket");
++    if (!metadata || std::char_traits<char>::length(metadata) > 4096)
++        return fail("missing or excessive job metadata");
++    try {
++        job = nlohmann::json::parse(metadata);
++        if (!job.is_object()) return fail("job metadata must be an object");
++    } catch (...) {
++        return fail("invalid job JSON");
++    }
++    return true;
++#endif
++}
++
++#ifndef _WIN64
++inline int poll_left(std::chrono::steady_clock::time_point deadline) {
++    const auto now = std::chrono::steady_clock::now();
++    if (now >= deadline) return 0;
++    const auto left = std::chrono::ceil<std::chrono::milliseconds>(deadline - now).count();
++    return static_cast<int>(left > std::numeric_limits<int>::max() ?
++                            std::numeric_limits<int>::max() : left);
++}
++#endif
++
++inline bool await_start(int64_t white_clock, int64_t black_clock) {
++    if (control_fd < 0) return true;
++    if (gate_used.exchange(true)) return fail("one runner must own exactly one game");
++#ifdef _WIN64
++    return fail("the league start gate requires POSIX");
++#else
++    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(180);
++    const std::string message = nlohmann::json{{"event", "READY"}, {"job", job},
++        {"white_clock_ms", white_clock}, {"black_clock_ms", black_clock}}.dump() + "\n";
++    size_t sent = 0;
++    while (sent < message.size()) {
++        const auto count = send(control_fd, message.data() + sent, message.size() - sent,
++                                MSG_NOSIGNAL | MSG_DONTWAIT);
++        if (count > 0) { sent += static_cast<size_t>(count); continue; }
++        if (count < 0 && errno == EINTR) continue;
++        if (count < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
++            pollfd fd{control_fd, POLLOUT, 0};
++            const int left = poll_left(deadline);
++            if (left && poll(&fd, 1, left) > 0 && !(fd.revents & (POLLERR | POLLHUP))) continue;
++        }
++        return fail("READY delivery failed or timed out");
++    }
++    std::string command;
++    while (true) {
++        const int left = poll_left(deadline);
++        if (!left) return fail("controller start deadline expired");
++        pollfd fd{control_fd, POLLIN, 0};
++        const int ready = poll(&fd, 1, left);
++        if (ready < 0 && errno == EINTR) continue;
++        if (ready <= 0) return fail("controller start deadline expired or poll failed");
++        if (fd.revents & POLLIN) {
++            char buffer[32];
++            const auto count = recv(control_fd, buffer, sizeof(buffer), MSG_DONTWAIT);
++            if (count < 0 && (errno == EINTR || errno == EAGAIN)) continue;
++            if (count <= 0) return fail("controller disconnected");
++            for (ssize_t i = 0; i < count; ++i) {
++                command += buffer[i];
++                if (command.size() > 16) return fail("invalid controller command");
++                if (buffer[i] == '\n') {
++                    if (command == "GO\n") return true;
++                    return fail(command == "ABORT\n" ? "controller aborted wave" : "invalid controller command");
++                }
++            }
++        }
++        if (fd.revents & (POLLERR | POLLHUP | POLLNVAL)) return fail("controller disconnected");
++    }
++#endif
++}
++} // namespace fastchess::rove
+--- a/app/src/engine/process/process_posix.hpp
++++ b/app/src/engine/process/process_posix.hpp
+@@ -8,6 +8,7 @@
+ #    include <cassert>
+ #    include <chrono>
+ #    include <optional>
++#    include <limits>
+ #    include <string>
+ #    include <string_view>
+ #    include <thread>
+@@ -263,7 +264,12 @@
+         assert(is_initalized_);
+         lines.clear();
+ 
+-        const int poll_timeout_ms = normalize_poll_timeout_ms(threshold);
++        const bool bounded = threshold.count() > 0;
++        const auto began = std::chrono::steady_clock::now();
++        const auto max_wait = std::chrono::duration_cast<std::chrono::milliseconds>(
++            std::chrono::steady_clock::time_point::max() - began);
++        const auto deadline = bounded && threshold < max_wait ? began + threshold :
++                              std::chrono::steady_clock::time_point::max();
+ 
+         std::array<pollfd, 3> fds;
+         size_t fds_count = 0;
+@@ -286,10 +292,22 @@
+             // We prefer to use poll instead of select because
+             // poll is more efficient and select has a filedescriptor limit of 1024
+             // which can be a problem when running with a high concurrency
++            int poll_timeout_ms = -1;
++            if (bounded) {
++                const auto now = std::chrono::steady_clock::now();
++                if (now >= deadline) {
++                    flush_partials_on_timeout(lines);
++                    return Result{Status::TIMEOUT, "timeout"};
++                }
++                const auto left = std::chrono::ceil<std::chrono::milliseconds>(deadline - now).count();
++                poll_timeout_ms = static_cast<int>(left > std::numeric_limits<int>::max() ?
++                                                   std::numeric_limits<int>::max() : left);
++            }
+             const int ready = poll(fds.data(), static_cast<nfds_t>(fds_count), poll_timeout_ms);
+ 
+             if (ready == -1) return Result::Error("poll failed");
+             if (ready == 0) {
++                if (bounded && std::chrono::steady_clock::now() < deadline) continue;
+                 flush_partials_on_timeout(lines);
+                 return Result{Status::TIMEOUT, "timeout"};
+             }
+--- a/app/src/main.cpp
++++ b/app/src/main.cpp
+@@ -1,4 +1,5 @@
+ #include <cstdlib>
++#include <core/rove_start_gate.hpp>
+ 
+ #include <core/printing/printing.h>
+ #include <cli/cli.hpp>
+@@ -17,6 +18,7 @@
+ using namespace fastchess;
+ 
+ int main(int argc, char const* argv[]) {
++    if (!rove::prepare()) return EXIT_FAILURE;
+     setCtrlCHandler();
+ 
+     if (argc >= 3 && std::string(argv[1]) == "--compliance") {
+--- a/app/src/matchmaking/match/match.cpp
++++ b/app/src/matchmaking/match/match.cpp
+@@ -9,6 +9,7 @@
+ #include <chess.hpp>
+ #include <core/globals/globals.hpp>
+ #include <core/helper.hpp>
++#include <core/rove_start_gate.hpp>
+ #include <core/logger/logger.hpp>
+ #include <core/time/time.hpp>
+ #include <types/exception.hpp>
+@@ -371,6 +372,14 @@
+     // check connection
+     validConnection(white_player, black_player);
+ 
++    if (data_.termination == MatchTermination::None &&
++        !rove::await_start(white_player.getTimeControl().getTimeLeft(),
++                          black_player.getTimeControl().getTimeLeft())) {
++        atomic::abnormal_termination = true;
++        atomic::stop = true;
++        return;
++    }
++
+     auto& first  = board_.sideToMove() == Color::WHITE ? white_player : black_player;
+     auto& second = board_.sideToMove() == Color::WHITE ? black_player : white_player;
+ 
