@@ -34,6 +34,7 @@ def load(name, path):
 TRANSPORT = load("source_transport_test_subject", Path(__file__).with_name("production_source_bundle.py"))
 TARGET = load("source_transport_test_authority", ROOT / "engines/experiments/tcec-next/target_runtime.py")
 VERIFY = load("source_transport_fixture_file_checks", ROOT / "engines/experiments/tcec-next/profile_verify.py")
+CI = load("source_transport_pipeline_contract", Path(__file__).with_name("production_ci.py"))
 
 
 class Fixture:
@@ -90,7 +91,7 @@ class Fixture:
         self.verify = SimpleNamespace(admit_c_build=admit, admit_d_build=admit,
             checked_artifact=VERIFY.checked_artifact, artifact_file=VERIFY.artifact_file, contracts=VERIFY.contracts)
         rows = []
-        paths = ("artifact/build.json", "mechanism/result.json" if family == "B" else "mechanism/results.json",
+        paths = ("artifact/build.json", "mechanism/result.json" if family == "B" and profile == "test-p4" else "mechanism/results.json",
                  "rules/commands.json", "runtime/runtime.json")
         for name, relative in zip(("generation", "mechanism", "rules", "runtime"), paths):
             path = self.out / relative
@@ -157,6 +158,30 @@ class Fixture:
         seal["bundle"] = TARGET.pin(raw)
         seal["members"] = {name: TARGET.pin(data) for name, data, mode in entries}
         self.seal.write_text(json.dumps(seal))
+
+
+class PipelineReceiptContracts(unittest.TestCase):
+    def test_fixture_stage_receipts_match_real_pipeline_plans_for_both_profiles(self):
+        # Cross the transport fixture against the real producer plan; no CI
+        # environment or stage execution is needed to observe its contract.
+        for profile in ("test-p4", "test-p28"):
+            for family in "ABCDEF":
+                with self.subTest(profile=profile, family=family), \
+                        tempfile.TemporaryDirectory(prefix="rove-source-stage-contract-") as directory:
+                    fixture = Fixture(Path(directory), family=family, profile=profile)
+                    selectors = (("control",) if family == "D" else ("control", "best", "compound"))
+                    if profile == "test-p28":
+                        selectors = (("control",) if family == "D" else
+                                     ("best", "compound") if family == "B" else ("compound",))
+                    actual = [(row["name"], Path(row["receipt"]["path"]).relative_to(fixture.out).as_posix())
+                              for row in fixture.pipeline["stages"]]
+                    for selector in selectors:
+                        with self.subTest(selector=selector):
+                            plan = CI.pipeline_plan(family, fixture.out, profile=profile, spelling_variant=selector)
+                            self.assertEqual(actual, [(stage.name, stage.receipt) for stage in plan.stages])
+                            for row, stage in zip(fixture.pipeline["stages"], plan.stages):
+                                receipt = fixture.out / stage.receipt
+                                self.assertEqual(row["receipt"], {"path": str(receipt), **TARGET.pin(receipt.read_bytes())})
 
 
 @unittest.skipUnless(os.name == "posix", "real extraction requires POSIX no-follow directory handles")
@@ -239,6 +264,24 @@ class SourceBundleTransport(unittest.TestCase):
                         snapshot.assert_not_called()
                     self.assertFalse((fixture.out / "source-bundle.zip").exists())
                     self.assertFalse((fixture.out / "source-seal.json").exists())
+
+    def test_B_P28_rejects_the_legacy_singular_receipt_before_export(self):
+        with tempfile.TemporaryDirectory(prefix="rove-source-B-P28-receipt-") as directory:
+            fixture = Fixture(Path(directory), family="B", profile="test-p28")
+            mechanism = next(stage for stage in fixture.pipeline["stages"] if stage["name"] == "mechanism")
+            plural = fixture.out / "mechanism/results.json"
+            singular = fixture.out / "mechanism/result.json"
+            self.assertTrue(plural.is_file())
+            self.assertFalse(singular.exists())
+            singular.write_bytes(plural.read_bytes())
+            mechanism["receipt"] = {"path": str(singular), **TARGET.pin(singular.read_bytes())}
+            fixture.save_pipeline()
+            with fixture.context_patches(), patch.object(TRANSPORT, "_snapshot") as snapshot:
+                with self.assertRaisesRegex(ValueError, "actual owned receipt"):
+                    fixture.export()
+                snapshot.assert_not_called()
+            self.assertFalse((fixture.out / "source-bundle.zip").exists())
+            self.assertFalse((fixture.out / "source-seal.json").exists())
 
     def test_requested_profile_must_match_the_seal_before_restoration(self):
         for profile, other in (("test-p4", "test-p28"), ("test-p28", "test-p4")):

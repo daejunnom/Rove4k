@@ -1,5 +1,6 @@
 """Local transport and authority rejection tests; no engines or AWS sessions."""
 from dataclasses import dataclass, replace
+from contextlib import contextmanager
 import copy
 import io
 import json
@@ -525,8 +526,43 @@ class ProducerConsumerRoundTripTests(unittest.TestCase):
 
 
 class PeerPreparationAdapterTests(unittest.TestCase):
+    @staticmethod
+    @contextmanager
+    def system_loader_fixture():
+        # This fixture explicitly models the declared system toolchain. Hosted
+        # setup-python may add loader paths, which production must still reject.
+        # Restore the caller's environment when the fixture exits.
+        with patch.dict(cloud.os.environ):
+            for name in list(cloud.os.environ):
+                if name.startswith("LD_") or name in cloud.COMPILER_ENV:
+                    del cloud.os.environ[name]
+            yield
+
     @unittest.skipUnless(cloud.sys.platform == "linux", "Linux reference and qualification boundary")
     def test_real_peer_producer_and_runtime_accept_owned_peer_build_path_without_engine_execution(self):
+        with self.system_loader_fixture():
+            self.exercise_peer_adapter()
+
+    @unittest.skipUnless(cloud.sys.platform == "linux", "Linux reference and qualification boundary")
+    def test_ambient_loader_paths_are_scoped_and_production_guard_still_rejects(self):
+        injected = {"LD_LIBRARY_PATH": "/opt/hostedtoolcache/Python/3.12.15/x64/lib",
+                    "LD_PRELOAD": "/unit-fixture/not-a-real-preload.so", "LD_AUDIT": "/unit-fixture/not-a-real-audit.so",
+                    "LD_FIXTURE_SENTINEL": "preserve-ambient", "GCC_EXEC_PREFIX": "/unit-fixture/compiler/",
+                    "COMPILER_PATH": "/unit-fixture/compiler", "LIBRARY_PATH": "/unit-fixture/libraries",
+                    "CPATH": "/unit-fixture/includes"}
+        try:
+            from .test_peer_runtime import runtime
+        except ImportError:
+            from test_peer_runtime import runtime
+        with patch.dict(cloud.os.environ, injected):
+            self.test_real_peer_producer_and_runtime_accept_owned_peer_build_path_without_engine_execution()
+            for name, value in injected.items():
+                self.assertEqual(cloud.os.environ[name], value)
+            with patch.object(runtime, "sibling", side_effect=AssertionError("loader guard must precede helpers")), \
+                 self.assertRaisesRegex(ValueError, "system loader.*external interposition"):
+                runtime.qualify_peer("/unused/reference.json", "/unused/output", {})
+
+    def exercise_peer_adapter(self):
         """Only fixture source pins and bounded compilation are simulated.
 
         Actual source inverse/build validation, reference generation, ELF
@@ -579,6 +615,8 @@ class PeerPreparationAdapterTests(unittest.TestCase):
                            b"int main(){thread c[4];for(thread&f:c)f=thread([]{});for(auto&f:c)f.join();}\n")
                 commands = []
                 def bounded_compile(argv, cwd, **kwargs):
+                    self.assertFalse(any(name.startswith("LD_") or name in cloud.COMPILER_ENV
+                                         for name in cloud.os.environ))
                     argv = list(map(str, argv))
                     commands.append((argv, Path(cwd), dict(kwargs)))
                     if argv in (["cargo", "--version"], ["c++", "--version"]):

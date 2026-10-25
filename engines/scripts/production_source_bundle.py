@@ -213,7 +213,7 @@ def _pipeline(path, out, family, context, target, profile="test-p4"):
     stages = record.get("stages", [])
     require([row.get("name") for row in stages] == ["generation", "mechanism", "rules", "runtime"]
             and all(row.get("complete") is True for row in stages), "source pipeline stages are incomplete")
-    paths = ("artifact/build.json", "mechanism/result.json" if family == "B" else "mechanism/results.json",
+    paths = ("artifact/build.json", "mechanism/result.json" if family == "B" and profile == "test-p4" else "mechanism/results.json",
              "rules/commands.json", "runtime/runtime.json")
     for row, relative in zip(stages, paths):
         expected = out / relative
