@@ -95,7 +95,7 @@ def producer_closure(entry):
         add(directory / 'recipe.json')
         for name, expected in recipe['local_input_sha256'].items():
             add(directory / name, expected)
-        for key in ('helper_sha256', 'selected_verifier_snapshot_sha256', 'shell_verifier_snapshot_sha256'):
+        for key in ('shared_source_sha256', 'helper_sha256', 'selected_verifier_snapshot_sha256', 'shell_verifier_snapshot_sha256'):
             for name, expected in recipe.get(key, {}).items():
                 add(REPO / name, expected)
         for name, expected in recipe.get('shell_wrapper', {}).get('verifier_snapshot_sha256', {}).items():

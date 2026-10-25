@@ -109,7 +109,8 @@
     "engines/scripts/compiler_stdin.py": "fc92bb6146fcfc5a6c73cd9f68929192a90d22a875bf591caf2cf3b32b87055b",
     "engines/scripts/compiler_group.py": "d859ccc460619102c27433e2476d6d5be2e8de4046e07d49f28c0944c7ff0a77",
     "engines/compact/tiny-entry-f/shipping_static_alias.py": "811bb6e0e7f59115eba8fd1dfbde92fda0b8238ea6384e242bf6aa5b7fe679f1",
-    "engines/compact/tiny-entry-f/shipping_expression.py": "a2b678c5c5000d1d1acf9be19cbe5c31b33994bdcd4ad9c9aba8192ba9187b58"
+    "engines/compact/tiny-entry-f/shipping_expression.py": "a2b678c5c5000d1d1acf9be19cbe5c31b33994bdcd4ad9c9aba8192ba9187b58",
+    "engines/scripts/source_composition.py": "1422d3e97f6ab0dc969e0feee6a04e3c97d6677323b3e91c00f1383f8baaeadd"
   },
   "resource_literals": [
     [
@@ -334,7 +335,7 @@
     "bootstrap_bytes": 9421
   },
   "local_input_sha256": {
-    "engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+    "engine.c": "cb6bc0272149e80f7a2c057c3fa243728df3202ad2ce299aca635e9b88c770c2",
     "bootstrap.py.in": "159c5fe166f4b0804471e9d3a70d8f055a510858a6ae33f0ed6b4cfd17fca6f9",
     "launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
   },
@@ -8115,12 +8116,12 @@
       "Signal registration/reset preserve order; Python private namespace and exact tracebacks excluded."
     ],
     "full_cost_evidence": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-abce-f-owner-combined-cost-20261024-v1-evidence/final-index.json",
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-abce-f-owner-combined-cost-20261024-v1-evidence/final-index.json",
       "bytes": 93984,
       "sha256": "40cac292a11ed179d51da92607148060b033f279630719f3c0b4560be632ec30"
     },
     "reduced_cost_evidence": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-f-alternate-prepared-firstcost-20261024-evidence/cleanup-index.json",
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-f-alternate-prepared-firstcost-20261024-evidence/cleanup-index.json",
       "bytes": 26262,
       "sha256": "948b76cf8ba345f8d35d2bf440d033867e7b5d7dee2e52c751add384643ef9cd"
     },
@@ -8290,5 +8291,14 @@
     "semantics": "redundant scalar expression grouping, equivalent unsigned typedef cast, 32-bit bounded TT clear index; full native bytes equal",
     "target": "Linux x86-64 admitted compiler unsigned32, TT clear index0..262143 terminates262144",
     "qualification": "fixed source/native and actual whole firstcost proof; fresh ordinary and selected receipts recorded externally"
+  },
+  "assembled_source_sha256": {
+    "engine.c": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd"
+  },
+  "shared_source_sha256": {
+    "engines/common/board.c": "7f231ee347a66f8117d15934bda4adb188309db433598b5634afc46bbb61d1e8",
+    "engines/common/move.c": "e01d84200956050c6c064acc9d6fe812a6ade6e934993a332db518ffd27f2e9c",
+    "engines/common/protocol.c": "e507eccbb84c4f32ca3c16e22f5002e91c9f4e17ef1051988332c6137317a974",
+    "engines/common/search.c": "cd794f819390cf2d95b5ef8b54314f0f15a3a2ae62f3fc18a6ea595d2c0a9bf3"
   }
 }

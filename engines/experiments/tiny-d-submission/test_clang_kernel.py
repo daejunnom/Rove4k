@@ -11,8 +11,7 @@ import sys
 sys.dont_write_bytecode=True
 HERE=Path(__file__).resolve().parent
 ROOT=HERE.parents[2]
-NATIVE=("tiny.h","board.c","search.c","runtime.c","start.S","image.ld")
-OWN=("source.py","build.py","storage.py","publication.py","process_owner.py","syscall_arity.py",
+OWN=("build.py","storage.py","publication.py","process_owner.py","syscall_arity.py",
      "test_startup.py","test_process_owner.py","test_runtime_scaffold.py","packaging.py","clang_kernel.py","test_clang_kernel.py")
 
 
@@ -30,6 +29,19 @@ def load(name,path):
     sys.modules[name]=module;spec.loader.exec_module(module);return module
 
 
+def snapshot_inputs():
+    source_inputs=load("D_clang_source_inputs",HERE/"source_inputs.py")
+    recipe_data=normalized(ROOT/source_inputs.RECIPE)
+    recipe=json.loads(recipe_data)
+    names=source_inputs.source_names(recipe)+(
+        source_inputs.SELF,
+        "engines/compact/tiny-entry-d/packer.py","engines/experiments/tcec-scope/build.py"
+        )+tuple("engines/experiments/tiny-d-submission/"+n for n in OWN)
+    inputs={n:normalized(ROOT/n) for n in names}
+    inputs[source_inputs.RECIPE]=recipe_data
+    return inputs
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out",type=Path,required=True)
@@ -37,11 +49,7 @@ def main():
     if (sys.platform!="linux" or platform.machine()!="x86_64" or not args.out.is_absolute() or out.exists()
             or any((p/".git").exists() for p in (out,*out.parents))):
         parser.error("Linux x86-64 and new external output required")
-    names=tuple("engines/compact/tiny-entry-d/native/"+n for n in NATIVE)+(
-        "engines/compact/tiny-entry-d/recipe.json","engines/compact/tiny-entry-d/shipping_fused_ray.py",
-        "engines/compact/tiny-entry-d/packer.py","engines/experiments/tcec-scope/build.py",
-        "engines/scripts/production.py")+tuple("engines/experiments/tiny-d-submission/"+n for n in OWN)
-    inputs={n:normalized(ROOT/n) for n in names}
+    inputs=snapshot_inputs()
     out.mkdir()
     for n,d in inputs.items():
         path=out/"inputs"/n;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(d)

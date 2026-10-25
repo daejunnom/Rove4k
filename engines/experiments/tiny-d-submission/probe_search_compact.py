@@ -10,7 +10,7 @@ from hashlib import sha256
 from pathlib import Path
 import re
 
-STORAGE_FIXTURE_SHA = "22cc308b30b46f67c41362bb2f5324c5432cdd8e5e2c81d422ec170ae0fe038f"
+STORAGE_FIXTURE_SHA = "421eb4d5860d8ca95e3990b7e3a9de9c2367d47d67bc42fff887150b7670cbd8"
 FILES = {"tiny.h", "board.c", "search.c", "runtime.c", "start.S", "image.ld"}
 OPTION_NAMES = ("union-order", "previous-piece", "constant-start", "unsigned-history")
 MASK64 = (1 << 64) - 1

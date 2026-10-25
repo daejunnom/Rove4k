@@ -236,6 +236,21 @@ def _admission_snapshot(admitted):
     return json.dumps(record, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
 
 
+def _same_source_dependencies(actual, expected):
+    """Preserve optional evidence presence and every nested JSON value type."""
+    key = "source_dependencies"
+    return (isinstance(actual, dict) and isinstance(expected, dict)
+            and (key in actual) == (key in expected)
+            and (key not in expected or _frozen_value(actual[key]) == _frozen_value(expected[key])))
+
+
+def _source_dependency_copy(value):
+    copied = json.loads(json.dumps(value))
+    require(_frozen_value(copied) == _frozen_value(value),
+            "source dependency evidence must retain JSON-native value types")
+    return copied
+
+
 def _source_facts(admitted, build, verify, compiler):
     build = Path(build)
     require(build.is_absolute() and build.resolve() == build and not build.is_symlink(),
@@ -258,14 +273,19 @@ def _source_facts(admitted, build, verify, compiler):
         files = {name: "shipping-inputs/" + name for name in selected.files}
     else:
         files = {"main.c": "main.c"}
-    return {"family": actual.family, "profile": actual.profile_id, "full": True,
+    facts = {"family": actual.family, "profile": actual.profile_id, "full": True,
             "representation": "source-jit", "build_root": str(build), "input_manifest": pin(raw),
             "program": str(Path(actual.program).relative_to(build)) if Path(actual.program).is_absolute() else actual.program,
             "submission": pin(whole), "header": pin(whole[:boundary]), "payload": pin(whole[boundary:]),
             "source_files": {name: pin(value) for name, value in selected.files.items()},
             "source_paths": files, "flags": list(selected.flags), "units": list(selected.units),
             "assertions": list(selected.assertions), "old_expected_contract": dict(actual.expected),
-            "execution_admission": pin(admission.encode())}, raw, selected
+            "execution_admission": pin(admission.encode())}
+    if "source_dependencies" in actual.source_contract:
+        # This is the strict admission's validated final dependency receipt,
+        # including expanded source/native gates and owned compiler stdin.
+        facts["source_dependencies"] = _source_dependency_copy(actual.source_contract["source_dependencies"])
+    return facts, raw, selected
 
 
 def _source_host():
@@ -406,6 +426,8 @@ def _source_binding_core(admitted, build, *, verify, source_bundle, source_seal,
     prefix = _member(entry.get("archive_prefix"))
     require({key: value for key, value in entry.items() if key != "archive_prefix"} == facts,
             "source seal does not bind this exact admitted submission/header/source/flags/layout")
+    require(_same_source_dependencies(entry, facts),
+            "source seal dependency proof/native/compiler stdin evidence differs")
     required = {"build.json", facts["program"], *facts["source_paths"].values()}
     selected_members = {name[len(prefix) + 1:]: value for name, value in members.items()
                         if name.startswith(prefix + "/")}
@@ -722,6 +744,8 @@ def _compiler_authority(admitted, build, compiler_receipt, *, verify, binding, s
         require(all(report.get(key) == binding[key] for key in
                     ("source_context", "source_bundle", "source_seal", "source_provenance_tools", "source_profile")),
                 "compiler receipt has no matching CI/source-bundle seal")
+        require(_same_source_dependencies(report["source_profile"], facts),
+                "compiler source profile dependency proof/native/compiler stdin evidence differs")
     else:
         require(report.get("program_provenance") is True,
                 "non-CI compiler receipt requires explicit program provenance")
@@ -798,6 +822,8 @@ def _compiler_authority(admitted, build, compiler_receipt, *, verify, binding, s
             (row.get("family"), row.get("profile")) == (facts["family"], facts["profile"])]
     require(len(rows) == 1, "unique target compiler row required")
     row = rows[0]
+    require(_same_source_dependencies(row, facts),
+            "compiler dependency proof/native/compiler stdin evidence differs")
     directory = root / (facts["family"] + "-" + facts["profile"])
     require(row.get("build") == str(Path(build)) and row.get("input_manifest") == pin(manifest_raw)
             and _named(directory / "input-build.json", "input-build.json", limit=8 << 20) == manifest_raw
@@ -884,7 +910,7 @@ def _compiler_authority(admitted, build, compiler_receipt, *, verify, binding, s
     require(facts["execution_admission"] == pin(admission_snapshot.encode())
             and _admission_snapshot(admitted) == admission_snapshot,
             "execution admission changed during target reference validation")
-    return {"native_path": str(native_path), "native": dict(row["native"]),
+    evidence = {"native_path": str(native_path), "native": dict(row["native"]),
             "compiler_context": target, "compiler_inputs": inputs,
             "evidence": {"compiler_receipt": {"path": str(Path(compiler_receipt)), **pin(raw)},
                 "compiler_tools": tools, "source_provenance_tools": binding["source_provenance_tools"],
@@ -893,6 +919,9 @@ def _compiler_authority(admitted, build, compiler_receipt, *, verify, binding, s
                 "program_provenance": report.get("program_provenance") is True,
                 "live_ci_provenance": require_ci_provenance,
                 "engine_executed": False, "runtime_qualified": False}}
+    if "source_dependencies" in facts:
+        evidence["evidence"]["source_dependencies"] = _source_dependency_copy(facts["source_dependencies"])
+    return evidence
 
 
 @dataclass(frozen=True, init=False)

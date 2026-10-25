@@ -372,6 +372,7 @@ class ProfileRuntimeAdmission(unittest.TestCase):
             with self.subTest(family=family, post=declaration, proofs=proofs), self.assertRaises(ValueError):
                 VERIFY.source_stages(family, declaration, proofs)
 
+
     def test_spelling_is_an_explicit_selected_last_stage_after_E19(self):
         resource = {"schema": "rove4k.c-resource-projection.v1"}
         phase = {"schema": "rove4k.portable-phase-source.v1"}
@@ -380,11 +381,11 @@ class ProfileRuntimeAdmission(unittest.TestCase):
         post = {"path": "engines/experiments/tcec-next/profile_phase.py", "variant": "phase-init"}
         selected = {"path": VERIFY.SPELLING, "selection": "best", "variant": "clock-type"}
         options = {"representation": "source-jit", "entry_cleanup": "private-path"}
-        self.assertEqual(VERIFY.source_stages("E", post, [resource, phase, model, spelling], selected, **options), "phase")
+        self.assertEqual(VERIFY.source_stages("E", post, [resource, phase, model, spelling], post_spelling=selected, **options), "phase")
         b = {"path": "engines/experiments/tcec-next/profile_b.py", "variant": "tcec-final-lf"}
         self.assertEqual(VERIFY.source_stages("B", b,
             [resource, {"schema": "rove4k.profile-b-source.v1"}, spelling],
-            {**selected, "variant": "atomic-assignment"}, **options), "B")
+            post_spelling={**selected, "variant": "atomic-assignment"}, **options), "B")
         cases = [
             (post, [resource, phase, spelling, model], selected, options),
             (post, [resource, phase, model, spelling, spelling], selected, options),
@@ -399,7 +400,7 @@ class ProfileRuntimeAdmission(unittest.TestCase):
         ]
         for declaration, proofs, final, parameters in cases:
             with self.subTest(declaration=declaration, proofs=proofs, final=final, parameters=parameters), self.assertRaises(ValueError):
-                VERIFY.source_stages("E", declaration, proofs, final, **parameters)
+                VERIFY.source_stages("E", declaration, proofs, post_spelling=final, **parameters)
 
     def test_final_spelling_is_undone_before_model_offsets_and_prior_stages(self):
         calls = []
@@ -447,6 +448,77 @@ class ProfileRuntimeAdmission(unittest.TestCase):
             frozen.write_bytes(source + b"\n")
             with self.assertRaises(ValueError):
                 VERIFY.spelling_module(manifest, build, {VERIFY.SPELLING})
+
+    def test_dependency_stage_is_explicit_and_last(self):
+        resource = {"schema": "rove4k.c-resource-projection.v1"}
+        model = {"stage": "canonical-e19-physical-binding"}
+        dependency = {"schema": "rove4k.profile-dependencies.v1"}
+        declaration = {"path": "engines/experiments/tcec-next/profile_dependencies.py",
+                       "variant": "unused-includes"}
+        self.assertIsNone(VERIFY.source_stages("E", None, [resource, model, dependency], source_dependencies=declaration))
+        for stages, named in (([resource, dependency, model], declaration),
+                              ([resource, model], declaration),
+                              ([resource, model, dependency], None),
+                              ([resource, model, dependency], {**declaration, "path": "other.py"})):
+            with self.subTest(stages=stages, declaration=named), self.assertRaises(ValueError):
+                VERIFY.source_stages("E", None, stages, source_dependencies=named)
+
+    def test_dependency_cleanup_follows_spelling_and_is_undone_first(self):
+        resource = {"schema": "rove4k.c-resource-projection.v1"}
+        phase = {"schema": "rove4k.portable-phase-source.v1"}
+        model = {"stage": "canonical-e19-physical-binding"}
+        spelling = {"schema": VERIFY.SPELLING_SCHEMA}
+        dependency = {"schema": "rove4k.profile-dependencies.v1"}
+        post = {"path": "engines/experiments/tcec-next/profile_phase.py", "variant": "phase-init"}
+        selected = {"path": VERIFY.SPELLING, "selection": "best", "variant": "clock-type"}
+        declaration = {"path": "engines/experiments/tcec-next/profile_dependencies.py", "variant": "unused-includes"}
+        options = dict(post_spelling=selected, source_dependencies=declaration,
+                       representation="source-jit", entry_cleanup="private-path")
+        proofs = [resource, phase, model, spelling, dependency]
+        self.assertEqual(VERIFY.source_stages("E", post, proofs, **options), "phase")
+        for stages in ([resource, phase, model, dependency, spelling], proofs + [dependency], proofs[:-1]):
+            with self.subTest(stages=stages), self.assertRaises(ValueError):
+                VERIFY.source_stages("E", post, stages, **options)
+        with self.assertRaises(TypeError):
+            VERIFY.source_stages("E", post, proofs, declaration)
+        calls = []
+        spell = types.SimpleNamespace(restore_source=lambda source, proof: calls.append("spelling") or source[1:])
+        dep = types.SimpleNamespace(restore_source=lambda source, proof: calls.append("dependency") or source + b";")
+        self.assertEqual(VERIFY.inverse_source_stages(b"Stable=1", [
+            (spell, {}, b"table=1;"), (dep, {}, b"Stable=1;")]), b"table=1;")
+        self.assertEqual(calls, ["dependency", "spelling"])
+
+    def test_dependency_identity_still_binds_both_actual_shipping_stdins(self):
+        from copy import deepcopy
+        source = b"int main(void){return 0;}\n"
+        manifest = {"compiler": ["cc"], "attempts": [], "commands": []}
+        with tempfile.TemporaryDirectory(prefix="rove4k-dependency-evidence-") as temporary:
+            build = Path(temporary)
+            for index, directory in enumerate(("first", "repeat"), 1):
+                manifest["attempts"].append({"directory": directory,
+                    **{"native_" + key: value for key, value in VERIFY.pin(b"native").items()}})
+                path = build / f"tool-{index}-{directory}-compile.stdout"
+                path.with_suffix(".stdin").write_bytes(source)
+                manifest["commands"].append({"kind": directory + "-compile", "command": ["cc"],
+                                             "stdout": {"path": str(path)}})
+            record = VERIFY.dependency_evidence(manifest, build, {}, {}, source, source)
+            self.assertEqual([row["kind"] for row in record["compiler_commands"]], ["first-compile", "repeat-compile"])
+            self.assertTrue(all(row["stdin"]["sha256"] == VERIFY.pin(source)["sha256"]
+                                for row in record["compiler_commands"]))
+            for kind in ("missing", "duplicate", "argv"):
+                altered = deepcopy(manifest)
+                if kind == "missing":
+                    altered["commands"].pop()
+                elif kind == "duplicate":
+                    altered["commands"][1] = dict(altered["commands"][0])
+                else:
+                    altered["commands"][1]["command"] = ["other-compiler"]
+                with self.subTest(kind=kind), self.assertRaises(ValueError):
+                    VERIFY.dependency_evidence(altered, build, {}, {}, source, source)
+            (build / "tool-2-repeat-compile.stdin").write_bytes(b"wrong")
+            with self.assertRaises(ValueError):
+                VERIFY.dependency_evidence(manifest, build, {}, {}, source, source)
+
 
     def test_runtime_snapshot_matches_the_code_that_this_process_actually_compiled(self):
         source = PATH.read_bytes().replace(b"\r\n", b"\n")

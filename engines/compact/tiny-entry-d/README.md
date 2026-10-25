@@ -1,5 +1,10 @@
 # Scalar unread published score — source integration, execution pending
 
+Shared C bodies are owned by [engines/common](../../common/README.md). The builder
+assembles the canonical template before the existing readable transformations;
+compile or inspect the composed source rather than feeding its named fragments
+directly to a C compiler.
+
 The new scalar candidate is **5527 B** (native7292, H28 packet4458 plus current
 loader/header1069),13 B below the previous qualified5540 class. This is a
 first-cost measurement and source integration, not normal/positive or4K

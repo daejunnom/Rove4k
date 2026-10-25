@@ -169,6 +169,9 @@ def main():
             if sha(data)!=expected:raise ValueError('tracked helper version changed: '+relative)
             (frozen/path.name).write_bytes(data)
             report['inputs'][relative]={'bytes':len(data),'sha256':sha(data),'working_bytes_sha256':sha(raw),'LF_normalization':raw!=data}
+        composition=module('entry_source_composition',frozen/'source_composition.py')
+        shared,shared_inputs=composition.freeze_shared(REPO,frozen,recipe['shared_source_sha256'])
+        report['inputs'].update(shared_inputs)
         specialize=module('entry_specialize',frozen/'specialize.py').specialize_c
         compact=module('entry_minify',frozen/'minify.py').compact_source
         lexer=module('entry_fixed_tokens',frozen/'rename_c.py')
@@ -240,7 +243,7 @@ def main():
         static_alias=module('entry_F_static_alias',frozen/'shipping_static_alias.py')
         source_expression=module('entry_F_source_expression',frozen/'shipping_expression.py')
         # Keep this base for every unchanged shipping readable/spelling guard.
-        canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
+        canonical=composition.assemble((frozen/'engine.c').read_bytes(),shared,expected_sha256=recipe['assembled_source_sha256']['engine.c']);template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
         if template.count(marker)!=1 or len(prefix)!=77:raise ValueError('bootstrap recipe changed')
         legacy_template,legacy_prefix=template,prefix

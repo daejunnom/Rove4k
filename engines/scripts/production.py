@@ -24,6 +24,13 @@ _FORBIDDEN_PARTS = frozenset((".git", "node_modules", "dist", "dist-server",
                               ".cache", "__pycache__"))
 COMMON_RUNTIME_INPUTS = ("engines/scripts/elf-loader/loader.c",
                          "engines/scripts/elf-loader/loader.ld")
+# These C fragments own engine behavior. They are explicit canonical inputs,
+# never hidden in the Python helper/tool role or another family's source root.
+SHARED_ENGINE_INPUTS: Mapping[str, tuple[str, ...]] = MappingProxyType({
+    family: ("engines/common/board.c", "engines/common/move.c") +
+            (() if family == "D" else ("engines/common/protocol.c", "engines/common/search.c"))
+    for family in _FAMILIES
+})
 # Existing recipes explicitly reuse these transformations across family roots.
 # This is not permission to import another family's algorithm-emitting core.
 SHARED_COMPACT_TOOLS = frozenset((
@@ -213,7 +220,8 @@ class EngineSpec:
         if type(self.source_inputs) is not tuple or not self.source_inputs:
             raise ValueError("engine canonical source inputs must be an immutable tuple")
         for path in self.source_inputs:
-            if not _logical_path(path).startswith(root + "/"):
+            if (not _logical_path(path).startswith(root + "/")
+                    and path not in SHARED_ENGINE_INPUTS[self.family]):
                 raise ValueError("cross-family canonical source input")
         _integer(self.entry_bytes, "entry_bytes", minimum=1)
 
@@ -237,6 +245,7 @@ def _spec(family: str) -> EngineSpec:
         sources = (root + "/engine.c",)
         if family == "E":
             sources += (root + "/model19.h",)
+    sources += SHARED_ENGINE_INPUTS[family]
     return EngineSpec(family, root, sources, 16 if family == "D" else 24)
 
 

@@ -32,6 +32,14 @@ impl FrontendConfig {
         self.validate_limits()
     }
 
+    pub fn validate_cleanup(&self, language: &str) -> Result<()> {
+        ensure!(matches!((language, self.standard.as_str()),
+            ("c", "c11" | "c17" | "gnu11" | "gnu17") |
+            ("cpp", "c++17" | "c++20" | "gnu++17" | "gnu++20")),
+            "cleanup supports explicit C11/C17 or C++17/C++20 only; Rust, Python and other languages are unsupported");
+        self.validate_limits()
+    }
+
     fn validate_limits(&self) -> Result<()> {
         ensure!(
             self.seconds.is_finite()
@@ -193,6 +201,18 @@ impl FrontendSession {
         Self::create(config, true, language)
     }
 
+    /// Cleanup has a separately declared C/C++ subset. This constructor does
+    /// not widen spelling/control-flow transforms or make advice executable.
+    pub fn new_for_cleanup(config: FrontendConfig, language: &str) -> Result<Self> {
+        config.validate_cleanup(language)?;
+        let language = if language == "c" {
+            FrontendLanguage::C
+        } else {
+            FrontendLanguage::Cpp
+        };
+        Self::create(config, false, language)
+    }
+
     fn create(
         config: FrontendConfig,
         require_lp64: bool,
@@ -334,6 +354,23 @@ impl FrontendSession {
         command.extend([
             "-E".into(),
             "-dD".into(),
+            path.to_string_lossy().into_owned(),
+        ]);
+        self.preprocessing_runs
+            .set(self.preprocessing_runs.get() + 1);
+        self.execute(command, b"", self.config.ast_bytes)
+    }
+
+    /// Expanded compiler input for dependency cleanup. Unlike the context
+    /// observation, definitions and line markers are omitted; emitted pragmas,
+    /// expanded literals and all actual source tokens remain observable.
+    pub fn expanded_source(&self, source: &[u8]) -> Result<Vec<u8>> {
+        let path = self.root.path().join(self.language.translation_unit());
+        std::fs::write(&path, source)?;
+        let mut command = self.prefix();
+        command.extend([
+            "-E".into(),
+            "-P".into(),
             path.to_string_lossy().into_owned(),
         ]);
         self.preprocessing_runs
@@ -587,7 +624,7 @@ pub(crate) fn frontend_syntax_probe(argv: &[String]) -> Option<Vec<String>> {
         && argv[n - 2] == "-ast-dump=json"
     {
         n - 4
-    } else if n >= 3 && argv[n - 3] == "-E" && argv[n - 2] == "-dD" {
+    } else if n >= 3 && argv[n - 3] == "-E" && matches!(argv[n - 2].as_str(), "-dD" | "-P") {
         n - 3
     } else {
         return None;
@@ -617,6 +654,23 @@ mod tests {
             memory_bytes: 1 << 30,
             ast_bytes: 65536,
         })
+    }
+
+    #[test]
+    fn expanded_preprocessing_output_limit_is_incomplete_after_syntax_validation() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("main.c");
+        let source = format!("int values[]={{ {} }};\n", "1,".repeat(40_000));
+        std::fs::write(&path, &source).unwrap();
+        let Some(config) = real_config(path) else {
+            return;
+        };
+        let frontend = FrontendSession::new(config, false).unwrap();
+        let error = frontend.expanded_source(source.as_bytes()).unwrap_err();
+        assert!(
+            error.downcast_ref::<FrontendOutputLimit>().is_some(),
+            "{error:#}"
+        );
     }
 
     #[test]

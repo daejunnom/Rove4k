@@ -30,7 +30,7 @@ _EXECUTING_CODE = sys._getframe().f_code
 ROOT = Path(__file__).resolve().parents[2]
 SELF = "engines/scripts/production_ci.py"
 HOST = "engines/experiments/tcec-scope/build.py"
-HOST_SHA = "fc916e798952cff1c915a6846e758874bc2d858b3c59dec73870b95c7e3d4828"
+HOST_SHA = "5fa10c6f8f032be374bf3a86bbe6ca558076630a2cc3170b41890f691688f563"
 NEXT = "engines/experiments/tcec-next/"
 D_ROOT = "engines/experiments/tiny-d-submission/"
 SCHEMA = "rove4k-production-ci-functional-v1"
@@ -350,6 +350,21 @@ def execute_plan(plan, report, save, run_command, *, inspect_stage=check_stage):
         save()
 
 
+def pipeline_inputs(plan, own, *, verify=None, reader=None, transport=None):
+    """Admit the selected factory/target plan through its canonical input reader."""
+    names = {SELF, HOST, "engines/scripts/production.py", NEXT + "profile_verify.py",
+             NEXT + "profile_rules.py", *(str(Path(s.command[3]).relative_to(ROOT)).replace("\\", "/") for s in plan.stages)}
+    if transport is not None:
+        names.update((TRANSPORT, NEXT + "target_runtime.py", NEXT + "profile_compiler.py", verify.INPUT_READER))
+    inputs = {name: own if name == SELF else normalized(ROOT / name, reader=reader) for name in sorted(names)}
+    if reader is not None:
+        require(reader.source_identity() == inputs[verify.INPUT_READER],
+                "CI input reader snapshot differs from its executing source")
+        verify.executing_source(inputs[NEXT + "profile_verify.py"])
+    require(pin(inputs[HOST])["sha256"] == HOST_SHA, "bounded owned command helper differs")
+    return inputs
+
+
 def target_inspector(plan, verify, admitted, target, ci_context):
     """Keep the validated target reference object out of transport JSON."""
     reference = None
@@ -471,16 +486,7 @@ def main():
         plan = target_plan(args.family, out, build, args.source_bundle, args.source_seal)
     else:
         plan = pipeline_plan(args.family, out)
-    names = {SELF, HOST, "engines/scripts/production.py", NEXT + "profile_verify.py",
-             NEXT + "profile_rules.py", *(str(Path(s.command[3]).relative_to(ROOT)).replace("\\", "/") for s in plan.stages)}
-    if transport is not None:
-        names.update((TRANSPORT, NEXT + "target_runtime.py", NEXT + "profile_compiler.py", verify.INPUT_READER))
-    inputs = {name: own if name == SELF else normalized(ROOT / name, reader=reader) for name in sorted(names)}
-    if reader is not None:
-        require(reader.source_identity() == inputs[verify.INPUT_READER],
-                "CI input reader snapshot differs from its executing source")
-        verify.executing_source(inputs[NEXT + "profile_verify.py"])
-    require(pin(inputs[HOST])["sha256"] == HOST_SHA, "bounded owned command helper differs")
+    inputs = pipeline_inputs(plan, own, verify=verify, reader=reader, transport=transport)
     out.mkdir(parents=True)
     for name, data in inputs.items():
         path = out / "inputs" / name

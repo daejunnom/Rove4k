@@ -124,8 +124,10 @@ gcc -x c -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
 /tmp/rove4k-model-simd-check
 ```
 
-Rust's `eval::tests` compares scalar and SIMD model inference on played positions
-and dense inputs, in both baseline and cross-model builds. Representation and
+The retired Rust engine's `eval::tests` compared scalar and SIMD model inference
+on played positions and dense inputs; its source is preserved under
+`../../archive/engines/rust`. Generic model representation fixtures remain here.
+Representation and
 inference parity alone do not establish that this cross candidate is smaller,
 faster or stronger. Those claims require same-profile final-file and search
 measurements recorded separately.
@@ -133,15 +135,18 @@ measurements recorded separately.
 The development fixture uses `.c.in` so the build tool's shipping-source collector
 does not link its test-only `main` into the engine.
 
-After building complete baseline and `--model` campaigns with `--variant C` and
-the same shipping profile, record a bounded comparison outside the checkout:
+The historical C/Rust baseline-versus-model harness is preserved in
+[`archive/engines/model/compare_c.py`](../../archive/engines/model/compare_c.py).
+It requires both old language portfolios and is not a current C-only evaluation
+entry point. In an [original-path replay tree](../../archive/README.md), its
+historical command is:
 
 ```sh
 python3 engines/model/compare_c.py --baseline /absolute/baseline/build.json \
     --model /absolute/cross/build.json --out /absolute/evidence/cross-comparison.json
 ```
 
-The comparison rejects changed source bytes or fixed settings other than the
+That comparison rejects changed source bytes or fixed settings other than the
 model flag. It retains complete-file size records and runs three samples of three
 opening positions with equal UCI clocks, each in a fresh native process. It checks
 startup, one `bestmove` response, bounded completion and clean exit. These native

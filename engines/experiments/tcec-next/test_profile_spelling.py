@@ -12,6 +12,18 @@ build=load("spelling_policy_build",HERE/"profile_build.py")
 spelling=load("spelling_policy_helper",HERE/"profile_spelling.py")
 
 class SpellingPolicy(unittest.TestCase):
+    def test_merged_cli_keeps_independent_defaults(self):
+        parsed=build.argument_parser().parse_args(["--entry","C","--profile","test-p4","--out","/example/new"])
+        self.assertEqual(parsed.spelling_variant,"control")
+        self.assertEqual(parsed.source_dependencies,"unused-includes")
+
+    def test_merged_cli_allows_explicit_control_and_best_together(self):
+        parsed=build.argument_parser().parse_args(["--entry","C","--profile","test-p4","--out","/example/new",
+            "--phase-variant","phase-init","--spelling-variant","best","--source-dependencies","control"])
+        self.assertEqual(parsed.source_dependencies,"control")
+        self.assertEqual(build.spelling_selection(parsed.entry,parsed.representation,parsed.b_variant,
+            parsed.phase_variant,parsed.spelling_variant)["variant"],"clock-type")
+
     def test_controls_have_no_stage(self):
         for family in "ABCEF":
             for representation in ("source-jit","packed-native","self-contained-elf"):

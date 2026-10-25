@@ -31,7 +31,7 @@ VERIFY_PATH = "engines/experiments/tcec-next/profile_verify.py"
 HOST_PATH = "engines/experiments/tcec-scope/build.py"
 INPUT_PATH = "engines/scripts/production_input.py"
 SOURCE_PROVENANCE = "engines/experiments/tcec-next/target_runtime.py"
-HOST_SHA = "fc916e798952cff1c915a6846e758874bc2d858b3c59dec73870b95c7e3d4828"
+HOST_SHA = "5fa10c6f8f032be374bf3a86bbe6ca558076630a2cc3170b41890f691688f563"
 SCHEMA = "rove4k.profile-compiler.v1"
 GLIBC_MAX = (2, 35)
 PROGRAM_ROLES = ("cc1", "as", "ld", "collect2", "lto1")
@@ -508,6 +508,9 @@ def main():
                    "sources": {n: pin(d) for n, d in selected.files.items()},
                    "original_compiler_native": selected.old_native, "flags": list(selected.flags),
                    "attempts": [], "engine_executed": False}
+            if selected.admission is not None and "source_dependencies" in selected.admission.source_contract:
+                row["source_dependencies"] = json.loads(json.dumps(
+                    selected.admission.source_contract["source_dependencies"], allow_nan=False))
             report["profiles"].append(row)
             if selected.family == "D":
                 # GCC -MF shared by several source files is overwritten by the

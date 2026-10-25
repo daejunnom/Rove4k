@@ -182,9 +182,9 @@ class AuthorityTests(unittest.TestCase):
         script = ("import importlib.util,sys; p=sys.argv[1]; "
                   "s=importlib.util.spec_from_file_location('rove4k_cloud_runtime',p); "
                   "m=importlib.util.module_from_spec(s); sys.modules[s.name]=m; s.loader.exec_module(m); "
-                  "assert m.canonical_provider() is m; print('canonical-ok')")
+                  "assert m.canonical_provider() is m and sys.dont_write_bytecode; print('canonical-ok')")
         with tempfile.TemporaryDirectory(prefix="rove-cloud-absolute-import-") as tmp:
-            result = subprocess.run([cloud.sys.executable, "-I", "-c", script, str(Path(cloud.__file__).resolve())],
+            result = subprocess.run([cloud.sys.executable, "-I", "-B", "-c", script, str(Path(cloud.__file__).resolve())],
                                     cwd=tmp, capture_output=True, timeout=5)
         self.assertEqual(result.returncode, 0, result.stderr.decode())
         self.assertEqual(result.stdout.strip(), b"canonical-ok")
@@ -321,12 +321,16 @@ class DeploymentBindingTests(unittest.TestCase):
             self.validate(values)
 
     def test_changed_host_controller_source_never_reaches_aws_ports(self):
-        values = self.fixture()
-        seed = values[1]
-        seed["members"][seed["source_tree"] + "/" + cloud.HOST_SOURCE_FILES[0]]["sha256"] = "f" * 64
-        with self.assertRaisesRegex(ValueError, "differs from reviewed controller"):
-            self.validate(values)
-        self.assertEqual(values[-1].calls, [])
+        for source in (cloud.HOST_SOURCE_FILES[0], "engines/scripts/source_composition.py", "engines/common/board.c",
+                       "engines/experiments/tcec-next/profile_dependencies.py",
+                       "engines/experiments/tiny-d-submission/source_inputs.py"):
+            with self.subTest(source=source):
+                values = self.fixture()
+                seed = values[1]
+                seed["members"][seed["source_tree"] + "/" + source]["sha256"] = "f" * 64
+                with self.assertRaisesRegex(ValueError, "differs from reviewed controller"):
+                    self.validate(values)
+                self.assertEqual(values[-1].calls, [])
 
     def test_host_does_not_promote_incomplete_or_commandless_bootstrap_receipt(self):
         try:

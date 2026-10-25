@@ -17,7 +17,7 @@ sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 HOST = "engines/experiments/tcec-scope/build.py"
-HOST_SHA = "fc916e798952cff1c915a6846e758874bc2d858b3c59dec73870b95c7e3d4828"
+HOST_SHA = "5fa10c6f8f032be374bf3a86bbe6ca558076630a2cc3170b41890f691688f563"
 PROGRAM = {"bytes":5373,"sha256":"1f187ed7b618674e9b6be78fac83f46223631beb8af83c1dacf5f4ca49554450"}
 NATIVE = {"bytes":7360,"sha256":"cfa7b5d045d5f1e6e2232942e38d79cd8b8812e9e3ed7702fb4df50ab71296f4"}
 

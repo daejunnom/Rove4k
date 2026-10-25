@@ -16,7 +16,6 @@ import sys
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
-FILES = ("tiny.h", "board.c", "search.c", "runtime.c", "start.S", "image.ld")
 EXPECTED = {"linked": dict(bytes=7712, sha256="c80f6c4d3b7af14a96f47326c843abbabd7626a54c879ed21a376eca22d7eeca"),
             "stripped": dict(bytes=7360, sha256="cfa7b5d045d5f1e6e2232942e38d79cd8b8812e9e3ed7702fb4df50ab71296f4")}
 
@@ -118,12 +117,8 @@ def main():
             or not args.build.is_absolute() or out.exists() or any((p/".git").exists() for p in (out,*out.parents))):
         parser.error("new external output and absolute selected build on Linux x86-64 required")
     control = json.loads((selected/"build.json").read_bytes())
-    producer={"engines/compact/tiny-entry-d/native/"+name for name in FILES}|{
-        "engines/compact/tiny-entry-d/recipe.json", "engines/compact/tiny-entry-d/shipping_fused_ray.py",
-        "engines/compact/tiny-entry-d/packer.py", "engines/experiments/tcec-scope/build.py",
-        "engines/scripts/production.py", "engines/scripts/minify.py", "engines/scripts/rename_c.py",
-        "engines/experiments/tiny-d-submission/source.py", "engines/experiments/tiny-d-submission/build.py",
-        "engines/experiments/tiny-d-submission/packaging.py", "engines/experiments/tiny-d-submission/storage.py"}
+    source_inputs=load("D_scaffold_source_inputs",HERE/"source_inputs.py")
+    producer=set(source_inputs.producer_names(json.loads(normalized(ROOT/source_inputs.RECIPE))))
     if (control.get("storage") != "prefix" or control.get("source_reduced") is not False or
             control.get("family")!="D" or control.get("equivalent_edits") is not True or
             any(control.get(key) is not True for key in ("complete","frozen_execution","native_reproduced")) or
@@ -134,7 +129,7 @@ def main():
         if pin(data) != control["inputs"][name] or (selected/"inputs"/name).read_bytes() != data:
             raise ValueError("current/selected exact producer differs: "+name)
     for name in ("reduce.py", "publication.py", "process_owner.py", "test_startup.py", "test_process_owner.py",
-                 "compressed_bootstrap.py", "syscall_arity.py", "test_runtime_scaffold.py"):
+                 "compressed_bootstrap.py", "syscall_arity.py", "test_runtime_scaffold.py", "source_inputs.py"):
         logical = "engines/experiments/tiny-d-submission/"+name
         inputs[logical] = normalized(ROOT/logical)
     inputs["selection/build.json"] = (selected/"build.json").read_bytes()

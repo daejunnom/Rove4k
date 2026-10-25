@@ -22,10 +22,11 @@ SUPPORT = ("engines/experiments/tcec-next/profile_verify.py",
     "engines/experiments/tcec-next/profile_rules.py",
     "engines/experiments/tcec-scope/verify.py",
     "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py",
-    "engines/scripts/production.py")
+    "engines/scripts/production.py", "engines/scripts/production_input.py")
 LOGICAL = dict(source=D+"source.py", builder=D+"build.py", storage=D+"storage.py",
     publication=D+"publication.py", owner=D+"process_owner.py", startup=D+"test_startup.py",
     checker=D+"test_process_owner.py", reducer=D+"reduce.py", packaging=D+"packaging.py",
+    source_inputs=D+"source_inputs.py",
     lexical="engines/scripts/rename_c.py", minifier="engines/scripts/minify.py",
     packer="engines/compact/tiny-entry-d/packer.py")
 
@@ -43,6 +44,17 @@ def normalized(path):
     data = path.read_bytes().replace(b"\r\n", b"\n")
     require(b"\r" not in data, "lone CR in named qualification source")
     return data
+
+
+def support_inputs(root):
+    """Freeze the local runtime and actual rules consumers before imports."""
+    return {name: normalized(root/name) for name in SUPPORT}
+
+
+def require_support_closure(runtime, support):
+    required = set(runtime.SUPPORT) | {
+        SUPPORT[0], SUPPORT[1], "engines/scripts/production.py", runtime.INPUT_READER}
+    require(set(support) == required, "exact local owner runtime/rules support closure differs")
 
 
 def safe(root, name):
@@ -83,19 +95,22 @@ def main():
         args.out.is_absolute() and args.experiment.is_absolute() and
         not out.exists() and not any((p / ".git").exists() for p in (out, *out.parents)),
         "new absolute external output and absolute owner experiment on Linux x86-64 required")
-    tool_names = (D+"owner_admission.py", D+"owner_runtime.py", D+"qualify_owner.py")
+    tool_names = (D+"owner_admission.py", D+"owner_runtime.py", D+"qualify_owner.py", D+"source_inputs.py")
     tools = {name: normalized(ROOT/name) for name in tool_names}
     require(pin(tools[D+"owner_runtime.py"])["sha256"] == BRIDGE_SHA,
         "frozen reviewed owner runtime bridge differs")
     discovery = load("D_owner_qualification_input_grammar", ROOT/(D+"owner_admission.py"))
+    source_inputs = load("D_owner_qualification_source_inputs", ROOT/(D+"source_inputs.py"))
     original = safe(experiment, "results.json")
     record = json.loads(original)
-    inputs = {name: safe(experiment, "inputs/"+name) for name in discovery.input_names(record)}
-    products = {name: safe(experiment, name) for name in discovery.evidence_names(record)}
+    recipe = json.loads(safe(experiment, "inputs/"+source_inputs.RECIPE))
+    producer = source_inputs.producer_names(recipe)
+    inputs = {name: safe(experiment, "inputs/"+name) for name in discovery.input_names(record, producer)}
+    products = {name: safe(experiment, name) for name in discovery.evidence_names(record, producer)}
     current = {name: normalized(ROOT/name) for name in inputs if name.startswith("engines/")}
     require(all(current[name] == inputs[name] for name in current),
         "current producer differs from owner experiment before qualification")
-    support = {name: normalized(ROOT/name) for name in SUPPORT}
+    support = support_inputs(ROOT)
     out.mkdir()
     for name, data in {**inputs, **{"products/"+n:d for n,d in products.items()}}.items():
         write(out/"evidence", name, data)
@@ -115,6 +130,7 @@ def run_snapshot(out, experiment, current_root, record, original, inputs, produc
     bridge = load("D_owner_qualification_bridge", out/"tools"/(D+"owner_runtime.py"))
     runtime = load("D_owner_qualification_runtime", out/"support"/SUPPORT[0])
     shared = load("D_owner_qualification_rules", out/"support"/SUPPORT[1])
+    require_support_closure(runtime, support)
     logical = dict(LOGICAL)
     if admission.BOOTSTRAP in inputs:
         logical["bootstrap"] = admission.BOOTSTRAP

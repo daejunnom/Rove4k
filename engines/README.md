@@ -1,7 +1,9 @@
 # Rove4k engine portfolio
 
 The active engine implementations are C A–F. All engine Rust paths were retired
-on2026-10-25; their sources/receipts are historical. The user has resumed the
+on 2026-10-25; their sources and receipts are preserved in
+[`archive/engines`](../archive/README.md). Inactive experiments live there too,
+with their original bytes and a pinned original-path replay procedure. The user has resumed the
 complete plan in [the execution contract](../docs/ENGINE-PLAN.ko.md). General4K
 is mandatory for every family; ELF is a separate optional goal and is deferred
 above4096B. Submission W256/256GiB TT cap is distinct from TEST P4/P28.
@@ -19,6 +21,25 @@ build report records measured files and individual runtime checks without
 turning missing evidence into completion. Real E19 data/trainer/export preparation
 to production optimizer step0 and the bounded AWS evaluation campaign are in
 scope. Actual production training updates remain outside this stopping point.
+
+## Source ownership and navigation
+
+| Path | Responsibility |
+| --- | --- |
+| `c/` | Readable C A–F reference implementations used by the generic builder |
+| `compact/tiny-entry-a` through `tiny-entry-f` | Current family-specific production source and shipping transformations |
+| `common/` | Shared source components composed into production inputs without runtime abstraction overhead |
+| `compact/c`, `tiny-a`, `tiny-b`, `tiny-ce`, `tiny-d`, `tiny-f` | Retained structural producers and CI/reference contracts; these remain active dependencies |
+| `compact/tiny-entry-f-resource8` | Explicit retained F8 control |
+| `scripts/`, `profiles/` | Shared build, packaging, admission and resource-policy tools |
+| `model/`, `training/e19/` | Frozen model formats and current E19 training preparation |
+| `tests/` | Maintained engine, protocol, chess-oracle and runtime checks |
+| [`experiments/`](experiments/README.md) | Only experiment roots still consumed by current production, evaluation or CI |
+| [`../archive/`](../archive/README.md) | Retired Rust engines, inactive campaigns and old C/Rust comparison harnesses |
+
+Shared responsibilities belong in their source owner; family-specific search,
+evaluation and state semantics stay explicit. A directory move or common
+interface alone does not establish that two algorithms have the same behavior.
 
 ## Qualified small-resource TCEC controls
 
@@ -143,7 +164,7 @@ versions, Python/glibc/OS, profile and tooling hashes are written to `build.json
 `--optimize size` uses C `-Os`; `--optimize speed` uses C `-O2`.
 Neither choice is reported as the strongest playing engine.
 
-`--source-root /absolute/snapshot` reuses a tree containing `c/`, `rust/` and
+`--source-root /absolute/snapshot` reuses a tree containing `c/` and
 `model/`. Each campaign copies its exact admitted inputs to `sources/`; another
 campaign can use that directory to compare feature flags on identical source
 bytes. Source snapshots are taken before the first compilation. Development
@@ -162,8 +183,7 @@ or persistent thread identity. When selecting another artifact for verification,
 pin that artifact's actual SHA-256 and carry the same fixed thread requirements.
 
 `--c-lto on` adds C cross-translation-unit optimization as an explicit compiler
-experiment. The default is `off`; Rust's independently declared LTO recipe is
-unchanged. Compare final complete files and runtime behavior before choosing a
+experiment. The default is `off`. Compare final complete files and runtime behavior before choosing a
 compiler experiment.
 
 `--parallel loose|root|groups|pals|hybrid` sets `ROVE_PARALLEL=0..4`; the default
@@ -175,13 +195,12 @@ F currently requires `loose` to preserve complete-root MTD(f) semantics; an
 unsupported F/policy combination is rejected explicitly. `--hq auto` selects HQ
 sliding attacks only for D. For an explicit D scalar/HQ comparison, select
 `--variant D --hq scalar` or `--variant D --hq hq`; the effective compile-time
-`ROVE_HQ` value is recorded for both languages.
+`ROVE_HQ` value is recorded for the selected C engine.
 F also exposes compile-time `--f-tt paired|single` and
 `--f-guess previous|parity` experiments. Defaults retain paired bounds and the
 previous-depth guess. Nondefault choices require `--variant F`; structural
 overlays are rejected until those combinations are qualified. C receives
-`ROVE_F_SINGLE`/`ROVE_F_PARITY` macros; Rust receives the corresponding fixed
-environment and `--cfg rove_f_single` for single-bound storage. The manifest
+`ROVE_F_SINGLE`/`ROVE_F_PARITY` macros. The manifest
 records these as search/storage experiments rather than lossless notation
 changes.
 The cross flag requires `--variant C` explicitly. `--structural-compact` adds a
@@ -196,7 +215,7 @@ These are separately measured candidates; a source or native saving is not
 automatically an improvement to every complete-file format.
 
 `--rust-structural-compact` belonged to the retired Rust A path and is now
-rejected. Its [historical source and proof](compact/rust/README.md) remain
+rejected, as is `--rustc`. Its [historical source and proof](../archive/engines/compact/rust/README.md) remain
 available for provenance; they are not active B–F implementations or a reason
 to rebuild Rust A. The C structural options above remain supported.
 

@@ -72,20 +72,19 @@ def tool_version(command):
 
 
 def source_files(language, source_root=None):
-    directory = (source_root or ROOT / "engines") / language
-    extensions = (".c", ".h") if language == "c" else (".rs",)
+    if language != "c":
+        raise ValueError("Rove4k Rust engine paths are retired; select C A-F")
+    directory = (source_root or ROOT / "engines") / "c"
     files = {str(path.relative_to(directory.parent)).replace(os.sep, "/"): path.read_bytes()
-             for path in sorted(directory.rglob("*")) if path.is_file() and path.suffix in extensions}
+             for path in sorted(directory.rglob("*")) if path.is_file() and path.suffix in (".c", ".h")}
     shared = directory.parent / "model"
     if shared.exists():
         # Model production definitions are include/module inputs. Standalone C
         # translation units there are development fixtures, never engine mains.
-        shared_extensions = (".h",) if language == "c" else (".rs",)
         files.update({str(path.relative_to(directory.parent)).replace(os.sep, "/"): path.read_bytes()
-                      for path in sorted(shared.rglob("*")) if path.is_file() and path.suffix in shared_extensions})
-    required = any(name.endswith(".c") for name in files) if language == "c" else "rust/main.rs" in files
-    if not required:
-        raise ValueError(f"no complete {language} engine source in {directory}")
+                      for path in sorted(shared.rglob("*")) if path.is_file() and path.suffix == ".h"})
+    if not any(name.endswith(".c") for name in files):
+        raise ValueError(f"no complete C engine source in {directory}")
     return files
 
 
@@ -112,31 +111,22 @@ def compiler_recipe(language, variant, profile, optimize, *, compiler, files, pa
                    "SOURCE_DATE_EPOCH": "0", "LC_ALL": "C", "TZ": "UTC"}
     if variant == "F":
         environment.update({"ROVE_F_SINGLE": str(int(f_tt == "single")), "ROVE_F_PARITY": str(int(f_guess == "parity"))})
-    if language == "c":
-        flags = ["-std=c11", "-Os" if optimize == "size" else "-O2", "-pthread",
-                 f"-DROVE_VARIANT={ord(variant) - ord('A') + 1}",
-                 f"-DROVE_WORKERS={workers}", f"-DROVE_TT_BITS={bits}", f"-DROVE_DEV={development}",
-                 f"-DROVE_PARALLEL={parallel}", f"-DROVE_MODEL={int(model)}",
-                 f"-DROVE_HQ={int(hq)}",
-                 "-ffunction-sections", "-fdata-sections", "-fno-ident",
-                 "-fno-asynchronous-unwind-tables", "-fno-unwind-tables",
-                 "-Wl,--gc-sections,--build-id=none", "-s"]
-        if variant == "C":
-            flags.append("-mavx2")
-        if c_lto:
-            flags.append("-flto")
-        if variant == "F":
-            flags += ["-DROVE_F_SINGLE=" + environment["ROVE_F_SINGLE"], "-DROVE_F_PARITY=" + environment["ROVE_F_PARITY"]]
-        names = sorted(name for name in files if name.endswith(".c"))
-        return [compiler] + flags + names + ["-o", "x"], environment
-    flags = ["--edition=2024", "-C", "opt-level=" + ("z" if optimize == "size" else "2"),
-             "-C", "panic=abort", "-C", "lto=fat", "-C", "codegen-units=1",
-             "-C", "strip=symbols", "-C", "debuginfo=0", "-C", "link-arg=-Wl,--build-id=none"]
+    flags = ["-std=c11", "-Os" if optimize == "size" else "-O2", "-pthread",
+             f"-DROVE_VARIANT={ord(variant) - ord('A') + 1}",
+             f"-DROVE_WORKERS={workers}", f"-DROVE_TT_BITS={bits}", f"-DROVE_DEV={development}",
+             f"-DROVE_PARALLEL={parallel}", f"-DROVE_MODEL={int(model)}",
+             f"-DROVE_HQ={int(hq)}",
+             "-ffunction-sections", "-fdata-sections", "-fno-ident",
+             "-fno-asynchronous-unwind-tables", "-fno-unwind-tables",
+             "-Wl,--gc-sections,--build-id=none", "-s"]
     if variant == "C":
-        flags += ["-C", "target-feature=+avx2"]
-    if variant == "F" and f_tt == "single":
-        flags += ["--cfg", "rove_f_single"]
-    return [compiler] + flags + ["rust/main.rs", "-o", "x"], environment
+        flags.append("-mavx2")
+    if c_lto:
+        flags.append("-flto")
+    if variant == "F":
+        flags += ["-DROVE_F_SINGLE=" + environment["ROVE_F_SINGLE"], "-DROVE_F_PARITY=" + environment["ROVE_F_PARITY"]]
+    names = sorted(name for name in files if name.endswith(".c"))
+    return [compiler] + flags + names + ["-o", "x"], environment
 
 
 def compile_files(files, directory, command, fixed_env):
@@ -146,11 +136,8 @@ def compile_files(files, directory, command, fixed_env):
     # Compilers may encode source paths. Map each build root to the same logical
     # path; never erase a path mismatch after hashing the executable.
     options = list(command)
-    if "--edition=2024" in options:
-        options[1:1] = ["--remap-path-prefix", str(directory) + "=."]
-    else:
-        options[1:1] = ["-ffile-prefix-map=" + str(directory) + "=.",
-                        "-fmacro-prefix-map=" + str(directory) + "=."]
+    options[1:1] = ["-ffile-prefix-map=" + str(directory) + "=.",
+                    "-fmacro-prefix-map=" + str(directory) + "=."]
     record = run(options, cwd=directory, env=environment)
     native = directory / "x"
     if native.read_bytes()[:4] != b"\x7fELF":
@@ -196,11 +183,11 @@ def main():
     parser.add_argument("--languages", "--language", default="c")
     parser.add_argument("--optimize", choices=("size", "speed"), default="size")
     parser.add_argument("--cc", default="cc")
-    parser.add_argument("--rustc", default="rustc")
+    parser.add_argument("--rustc", help="retired Rust compiler option; rejected")
     parser.add_argument("--parallel", choices=("loose", "root", "groups", "pals", "hybrid"), default="loose")
     parser.add_argument("--model", action="store_true", help="explicit SIMD plus frozen-model cross candidate")
     parser.add_argument("--model-format", choices=("varint", "static16"), default="varint", help="explicit exact E-model representation candidate")
-    parser.add_argument("--source-root", type=Path, help="reuse an explicit c/rust/model source snapshot; hashes remain authoritative")
+    parser.add_argument("--source-root", type=Path, help="reuse an explicit c/model source snapshot; hashes remain authoritative")
     parser.add_argument("--structural-compact", action="store_true", help="also generate C structural source forms; fixed root requires A shipping workers2/TT18")
     parser.add_argument("--rust-structural-compact", action="store_true", help="retired Rust A option; rejected")
     parser.add_argument("--structural-search", action="store_true", help="also compare the separately generated C search layout; requires loose policy")
@@ -221,6 +208,8 @@ def main():
     args = parser.parse_args()
     if args.rust_structural_compact:
         parser.error("Rove4k Rust engine paths are retired; --rust-structural-compact is no longer available")
+    if args.rustc is not None:
+        parser.error("Rove4k Rust engine paths are retired; --rustc is no longer available")
     languages = args.languages.split(",")
     variants = list((args.variants if args.variants is not None else "ABCDEF").replace(",", ""))
     try:
@@ -252,14 +241,12 @@ def main():
         parser.error("F currently requires --parallel loose to preserve whole-root MTD(f); select another variant for other parallel policies")
     if args.hq != "auto" and variants != ["D"]:
         parser.error("explicit --hq scalar|hq is the D comparison; select --variant D")
-    fixed_root_structural = args.parallel == "root" and (args.structural_compact or args.rust_structural_compact)
+    fixed_root_structural = args.parallel == "root" and args.structural_compact
     if fixed_root_structural:
         if variants != ["A"] or profile["development"] or profile["search_workers"] != 2 or profile["tt_bits"] != 18 or profile["expected_total_threads"] != 3:
             parser.error("fixed root structural source requires --variant A, shipping, workers2, TT18 and three total engine threads")
         if args.structural_compact and "c" not in languages:
             parser.error("fixed root --structural-compact requires the C implementation")
-    if args.rust_structural_compact and ("rust" not in languages or variants != ["A"] or profile["development"] or args.parallel not in ("loose", "root")):
-        parser.error("--rust-structural-compact requires Rust, --variant A, shipping and loose or fixed root policy")
     if args.structural_search:
         args.structural_compact = True
         if args.parallel != "loose" or "c" not in languages:
@@ -283,20 +270,19 @@ def main():
             "scope": "current canonical fixed mode1 root scheduling and NORMAL reuse, specialized as A shipping source",
             "variant": "A", "parallel": "root", "search_workers": 2, "tt_bits": 18,
             "expected_total_threads": 3,
-            "normal_reuse": {"c": "completed NORMAL first/depth/generation with compatible bound/window",
-                             "rust": "exact first proposal seeds initial best and is skipped by first_job=1/finished=1; cache=None; PALS cache/Repair producers excluded"},
+            "normal_reuse": {"c": "completed NORMAL first/depth/generation with compatible bound/window"},
             "root_TT": "partial first-move results do not publish a whole-root exact entry; canonical child TT contracts retained",
             "completed_depth": "canonical aggregate completion; incomplete work retains last completed result or legal root fallback",
             "deadline": "one original job deadline and cancellation policy; reassignment does not reset the budget",
             "ownership": "immutable job root until callback drain; private worker search state; coherent shared TT; physical joins before release",
-            "language_semantics": "each canonical evaluator, correction, search and TT meaning retained; no language-only matched claim",
+            "language_semantics": "canonical C evaluator, correction, search and TT meaning retained",
             "excluded": ["groups", "PALS", "Repair", "hybrid", "F non-loose", "new UCI options"],
             "evidence": "source-generation contract only; no build/runtime/strength/scaling acceptance implied"}
     out.mkdir(parents=True, exist_ok=True)
     # A local script must never accidentally start a 255/508/511-worker profile.
     execute = not args.no_smoke and profile["expected_total_threads"] <= min(8, os.cpu_count() or 1)
     runtime_environment = os.environ.copy()
-    compiler_prefixes = [str(Path(tool).parent) for tool in (args.cc, args.rustc) if Path(tool).is_absolute()]
+    compiler_prefixes = [str(Path(args.cc).parent)] if Path(args.cc).is_absolute() else []
     if compiler_prefixes:
         runtime_environment["PATH"] = os.pathsep.join(compiler_prefixes + [runtime_environment.get("PATH", "")])
     summary = {"schema": 1, "source_root": str(ROOT), "profile_name": args.profile,
@@ -305,7 +291,6 @@ def main():
                "parallel": args.parallel, "model_cross_candidate": args.model,
                "model_format": args.model_format,
                "structural_compact": args.structural_compact, "structural_search": args.structural_search,
-               "rust_structural_compact": args.rust_structural_compact,
                "small_worker": args.small_worker, "identifier_compact": args.identifier_compact,
                "shipping_operations": args.shipping_operations,
                "d_sliding_attacks": args.hq,
@@ -377,7 +362,7 @@ def main():
         for inputs in frozen_sources.values():
             write_files(inputs, out / "sources")
         for language in languages:
-            compiler = args.cc if language == "c" else args.rustc
+            compiler = args.cc
             summary["tools"][language] = {"compiler": compiler, "version": tool_version(compiler)}
             canonical_files = frozen_sources[language]
             for variant in selected_variants[language]:
@@ -415,39 +400,19 @@ def main():
                                      "model_format": args.model_format if model_record else None,
                                      "optimize": args.optimize, "command": command, "fixed_environment": fixed_env,
                                      "structural_compact": args.structural_compact, "structural_search": args.structural_search,
-                                     "rust_structural_compact": args.rust_structural_compact,
                                      "small_worker": args.small_worker, "identifier_compact": args.identifier_compact,
                                      "shipping_operations": args.shipping_operations,
                                      "identifier_trials": args.identifier_trials if args.identifier_compact else None,
                                      "c_lto": args.c_lto,
                                      "f_tt": args.f_tt if variant == "F" else None, "f_guess": args.f_guess if variant == "F" else None,
                                      "compiler_version": summary["tools"][language]["version"]}
-                if root_source_contract is not None and ((language == "c" and args.structural_compact) or (language == "rust" and args.rust_structural_compact)):
+                if root_source_contract is not None:
                     generation_config["fixed_root_structural_source_contract"] = root_source_contract
                 record["generation_config"] = generation_config
                 record["generation_config_sha256"] = digest(json.dumps(generation_config, sort_keys=True, separators=(",", ":")).encode())
                 forms = [("original", files), ("compact", compact)]
                 repeated_forms = {"original": files, "compact": {name: compact_source(data, language) for name, data in files.items()}}
-                if language == "rust" and args.rust_structural_compact:
-                    generator_path = recipe_root / "engines/compact/rust/generate.py"
-                    generator = load_module("rove_frozen_rust_structural", generator_path)
-                    structured, changes = generator.specialize_rust(dict(files), configuration=dict(fixed_env))
-                    if fixed_root_structural and (not isinstance(changes, dict) or changes.get("producer") != "rust-A-fixed-root-structural-v1" or changes.get("guards", {}).get("parallel") != "root"):
-                        raise ValueError("fixed root Rust structural producer did not establish its source contract")
-                    rust_record_key = "rust_root_structural_compaction" if fixed_root_structural else "rust_structural_compaction"
-                    rust_form = "rust-root-structural-specialized" if fixed_root_structural else "rust-structural-specialized"
-                    record[rust_record_key] = {"preparation": changes,
-                        "generator_inputs": [{"path": str(path.relative_to(recipe_root)), "sha256": digest(path.read_bytes())}
-                                             for path in sorted(generator_path.parent.rglob("*"))
-                                             if path.is_file() and path.suffix in (".py", ".h", ".in")]}
-                    forms += [(rust_form, structured),
-                              (rust_form + "-compact", {name: compact_source(data, "rust") for name, data in structured.items()})]
-                    if args.reproduce:
-                        again, _ = generator.specialize_rust(dict(files), configuration=dict(fixed_env))
-                        record[rust_record_key]["source_reproduction_identical"] = structured == again
-                        repeated_forms[rust_form] = again
-                        repeated_forms[rust_form + "-compact"] = {name: compact_source(data, "rust") for name, data in again.items()}
-                if language == "c" and (not args.no_pack or args.identifier_compact):
+                if not args.no_pack or args.identifier_compact:
                     environment = os.environ.copy()
                     environment.update(fixed_env)
                     specialized, observations = specialize_c(files, base / "preprocessor", command, environment)
@@ -457,7 +422,7 @@ def main():
                     if args.reproduce:
                         again, _ = specialize_c(files, base / "preprocessor-repeat", command, environment)
                         repeated_forms["specialized"] = {name: compact_source(data, "c") for name, data in again.items()}
-                if language == "c" and args.structural_compact:
+                if args.structural_compact:
                     generator_path = recipe_root / "engines/compact/c/generate.py"
                     generator = load_module("rove_structural_compact", generator_path)
                     environment = os.environ.copy()
@@ -492,7 +457,7 @@ def main():
                         forms.append((label, structured))
                         if args.reproduce:
                             repeated_forms[label], _, _, _, _ = generate_structural(base / (label + "-preprocessor-repeat"))
-                if language == "c" and args.identifier_compact:
+                if args.identifier_compact:
                     renamer = load_module("rove_frozen_rename", recipe_root / "engines/scripts/rename_c.py")
                     input_label, identifier_inputs = forms[-1]
                     def identity_callback(destination):
@@ -549,7 +514,7 @@ def main():
                         # Runtime compiler resolves from the tournament PATH,
                         # independent from this workstation's installation path.
                         runtime_command = list(command)
-                        runtime_command[0] = "cc" if language == "c" else "rustc"
+                        runtime_command[0] = "cc"
                         packages = write_launchers(inputs, base / (form + "-source"), command=runtime_command, compiler_group=transform_bootstrap,
                                                    environment=fixed_env)
                         packages += write_launchers({"x": Path(native["path"]).read_bytes()},

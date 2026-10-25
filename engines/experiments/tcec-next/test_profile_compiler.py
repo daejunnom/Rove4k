@@ -139,7 +139,8 @@ class TargetCompilerBoundaries(unittest.TestCase):
             read.assert_not_called()
             context.assert_not_called()
 
-    def compiler_main_fixture(self, base, *, program, changed_env_at=None):
+    def compiler_main_fixture(self, base, *, program, changed_env_at=None,
+                              source_contract=None, after_command=None):
         """Exercise receipt flow with inert byte fixtures; never invoke a tool."""
         self.clean_source_environment(SimpleNamespace(COMPILER_ENV=TARGET.COMPILER_ENV))
         paths, _, _ = self.program_fixture(base)
@@ -151,7 +152,8 @@ class TargetCompilerBoundaries(unittest.TestCase):
         (build / "main.c").write_bytes(source)
         (build / "build.json").write_bytes(manifest)
         selected = TARGET.SourceInput("A", "test-p4", build, manifest, {}, {"main.c": source},
-            TARGET.C_FLAGS["A"][1:], (), (), TARGET.pin(elf()))
+            TARGET.C_FLAGS["A"][1:], (), (), TARGET.pin(elf()),
+            SimpleNamespace(source_contract=source_contract) if source_contract is not None else None)
         binary = {"path": str(compiler), **TARGET.pin(compiler.read_bytes())}
         context = {"kind": "ubuntu22-system", "input_roots": [str(base / "system")],
                    "wrapper": binary, "driver": binary}
@@ -161,6 +163,8 @@ class TargetCompilerBoundaries(unittest.TestCase):
                 pass
             def run(self, command, *, cwd, kind, data=None):
                 calls.append(kind)
+                if after_command is not None:
+                    after_command(kind)
                 if kind == changed_env_at:
                     TARGET.os.environ["CPATH"] = "/fixture-after-query"
                 if kind == "compiler-version":
@@ -219,13 +223,36 @@ class TargetCompilerBoundaries(unittest.TestCase):
 
     def test_default_system_receipt_keeps_original_query_count_and_shape(self):
         with tempfile.TemporaryDirectory(prefix="rove4k-program-default-") as temporary:
-            report, calls = self.compiler_main_fixture(Path(temporary).resolve(), program=False)
+            report, calls = self.compiler_main_fixture(Path(temporary).resolve(), program=False, source_contract={})
             self.assertTrue(report["complete"])
+            self.assertNotIn("source_dependencies", report["profiles"][0])
             self.assertEqual([kind for kind in calls if kind.startswith("compiler-program-")],
                              ["compiler-program-" + role for role in TARGET.PROGRAM_ROLES])
             for name in ("program_provenance", "compiler_programs", "compiler_programs_rechecked",
                          "source_context", "source_bundle", "source_seal", "source_provenance_rechecked"):
                 self.assertNotIn(name, report)
+
+    def test_source_dependency_receipt_is_an_exact_independent_json_copy(self):
+        record = {"declaration": {"name": "proof"}, "proof": {"complete": True, "scale": 1.0},
+                  "attempts": [{"directory": "first", "dependency_gate": {"checked": True},
+                                "native": {"bytes": 1, "sha256": "a" * 64}}],
+                  "compiler_commands": [{"terminal": True, "stdout": {"bytes": 0},
+                     "stderr": {"bytes": 0}, "stdin": {"name": "main.c", "bytes": 1, "sha256": "b" * 64}}]}
+        expected = json.loads(json.dumps(record))
+        def mutate_original(kind):
+            if kind == "A-first":
+                record["proof"]["complete"] = False
+                record["attempts"][0]["native"]["bytes"] = True
+                record["compiler_commands"][0]["stdin"]["name"] = "changed.c"
+        with tempfile.TemporaryDirectory(prefix="rove4k-source-dependencies-") as temporary:
+            report, _ = self.compiler_main_fixture(Path(temporary).resolve(), program=False,
+                source_contract={"source_dependencies": record}, after_command=mutate_original)
+        observed = report["profiles"][0]["source_dependencies"]
+        self.assertEqual(observed, expected)
+        self.assertIs(type(observed["proof"]["complete"]), bool)
+        self.assertIs(type(observed["proof"]["scale"]), float)
+        self.assertIs(type(observed["attempts"][0]["native"]["bytes"]), int)
+        self.assertEqual(observed["compiler_commands"][0]["stdin"]["name"], "main.c")
 
     def test_program_mode_cannot_succeed_after_postquery_environment_injection(self):
         with tempfile.TemporaryDirectory(prefix="rove4k-program-env-race-") as temporary:

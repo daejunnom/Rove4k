@@ -25,7 +25,7 @@ LOCAL = ('.gitattributes', 'README.md', 'build.py', 'fresh.py', 'packer.py', 're
          'native/tiny.h', 'native/board.c', 'native/search.c', 'native/runtime.c', 'native/hq.h',
          'native/hq.c', 'native/start.S', 'native/image.ld', 'loader/loader.c', 'loader/image.ld', 'loader/codec.py',
          'loader/decoder.h', 'loader/range_bits.py', 'loader/models.json')
-MEMBERS = tuple(PREFIX+name for name in LOCAL) + ('engines/tests/chess_oracle.py', 'LICENSE')
+LOCAL_MEMBERS = tuple(PREFIX+name for name in LOCAL) + ('engines/tests/chess_oracle.py', 'LICENSE')
 
 
 def sha(data):
@@ -43,6 +43,8 @@ def main():
     args = parser.parse_args()
     out = args.out.resolve()
     require(args.out.is_absolute() and not out.exists() and not any((p/'.git').exists() for p in (out, *out.parents)) and ROOT not in out.parents, 'new absolute external output required')
+    recipe = json.loads((HERE/'recipe.json').read_text())
+    members = tuple(sorted(set(LOCAL_MEMBERS) | set(recipe['shared_source_sha256']) | set(recipe['helper_sha256'])))
     out.mkdir(parents=True)
     started, deadline = time.monotonic(), time.monotonic()+300
     report = {'complete': False, 'scope': 'two explicit closed source extractions; independent selected native/own-ELF regeneration and narrow physical checks',
@@ -101,7 +103,7 @@ def main():
     save()
     try:
         blobs = {}
-        for name in MEMBERS:
+        for name in members:
             path = ROOT/name
             require(path.is_file() and not path.is_symlink(), 'source must be a regular declared file: '+name)
             raw = path.read_bytes()
@@ -111,7 +113,7 @@ def main():
             report['source_members'][name] = {'bytes': len(data), 'sha256': sha(data), 'working_bytes_sha256': sha(raw), 'LF_normalization': data != raw}
         archive = out/'source.tar'
         with tarfile.open(archive, 'w', format=tarfile.PAX_FORMAT) as tar:
-            for name in MEMBERS:
+            for name in members:
                 info = tarfile.TarInfo(name)
                 info.size = len(blobs[name])
                 info.mode = 0o644
@@ -125,7 +127,7 @@ def main():
             checkout.mkdir()
             with tarfile.open(archive) as tar:
                 entries = tar.getmembers()
-                require(len(entries) == len(MEMBERS) and {m.name for m in entries} == set(MEMBERS), 'archive member set differs')
+                require(len(entries) == len(members) and {m.name for m in entries} == set(members), 'archive member set differs')
                 for member in entries:
                     relative = PurePosixPath(member.name)
                     require(member.isfile() and not relative.is_absolute() and '..' not in relative.parts and '\\' not in member.name, 'unsafe archive member')
@@ -135,7 +137,7 @@ def main():
                     path.parent.mkdir(parents=True, exist_ok=True)
                     path.write_bytes(data)
             actual = {str(p.relative_to(checkout)) for p in checkout.rglob('*') if p.is_file()}
-            require(actual == set(MEMBERS), 'extraction is not the declared closed source set')
+            require(actual == set(members), 'extraction is not the declared closed source set')
             entry = checkout/PREFIX
             build_out, verify_out = out/f'build-{attempt}', out/f'verify-{attempt}'
             row = {'attempt': attempt, 'checkout': str(checkout), 'closed_source_members': len(actual), 'engines': []}
@@ -185,7 +187,7 @@ def main():
         report['elapsed_seconds'] = time.monotonic()-started
         save()
         signal.signal(signal.SIGTERM, previous_term)
-    print(json.dumps({'complete': True, 'closed_members': len(MEMBERS), 'independent_extractions': 2, 'out': str(out)}))
+    print(json.dumps({'complete': True, 'closed_members': len(members), 'independent_extractions': 2, 'out': str(out)}))
 
 
 if __name__ == '__main__':

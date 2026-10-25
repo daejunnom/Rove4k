@@ -348,7 +348,8 @@ def revalidate_target(reference):
             reference.revalidate(verify=sys.modules[__name__], expected_ci=helper.CIContext.from_environment())
 
 
-def source_stages(family, post, proofs, post_spelling=None, *, representation=None, entry_cleanup=None):
+def source_stages(family, post, proofs, *, post_spelling=None, source_dependencies=None,
+                  representation=None, entry_cleanup=None):
     """Declare the complete finite stage grammar before loading a helper."""
     require(family in ("A", "B", "C", "E", "F") and isinstance(proofs, list)
             and all(isinstance(p, dict) for p in proofs),
@@ -382,6 +383,11 @@ def source_stages(family, post, proofs, post_spelling=None, *, representation=No
                 (family in "ACEF" and kind == "phase"),
                 "final spelling requires selected phase-init ACEF or tcec-final-lf B")
         expected.append(SPELLING_SCHEMA)
+    if source_dependencies is not None:
+        require(source_dependencies == {
+            "path": "engines/experiments/tcec-next/profile_dependencies.py",
+            "variant": "unused-includes"}, "unrecognized dependency source stage")
+        expected.append("rove4k.profile-dependencies.v1")
     require([p.get("schema", p.get("stage")) for p in proofs] == expected,
             "source proof stages are missing, extra, or out of order")
     return kind
@@ -418,6 +424,32 @@ def inverse_source_stages(source, inverses):
             restored = module.restore_source(restored, proof)
         require(restored == parent, "complete reverse-order source stage inverse differs")
     return restored
+
+
+def dependency_evidence(manifest, build, declaration, proof, before, after):
+    """Expose the already verified final-stage native and stdin evidence."""
+    attempts, commands = [], []
+    selected = set()
+    for attempt in manifest["attempts"]:
+        directory = attempt["directory"]
+        attempts.append({"directory": directory, "dependency_gate": attempt.get("dependency_gate"),
+                         "native": _field_pin(attempt, "native")})
+        selected.add(directory + "-compile")
+        if before != after:
+            selected.update(directory + "-dependencies-" + label for label in ("before", "after", "native"))
+    for row in manifest["commands"]:
+        if row["kind"] not in selected:
+            continue
+        if row["kind"].endswith("-compile"):
+            require(row["command"] == manifest.get("compile_executor", manifest["compiler"]),
+                    "shipping dependency compiler argv differs")
+        data = after if row["kind"].endswith(("-after", "-compile")) else before
+        name = Path(row["stdout"]["path"]).with_suffix(".stdin").name
+        checked_artifact(build, name, pin(data))
+        commands.append({**row, "stdin": {"name": name, **pin(data)}})
+    require(len(commands) == len(selected) and {row["kind"] for row in commands} == selected,
+            "dependency compiler stdin evidence is incomplete")
+    return {"declaration": declaration, "proof": proof, "attempts": attempts, "compiler_commands": commands}
 
 
 def _resource_record(record, family):
@@ -516,8 +548,9 @@ def admit_c_build(manifest, build):
     inverses = [(projection, proof, base)]
     post = manifest.get("post_profile")
     post_spelling = manifest.get("post_spelling")
-    post_kind = source_stages(family, post, manifest["source_proofs"], post_spelling,
-                              representation=representation, entry_cleanup=plan["entry_cleanup"])
+    dependency_declaration = manifest.get("source_dependencies")
+    post_kind = source_stages(family, post, manifest["source_proofs"], post_spelling=post_spelling,
+        source_dependencies=dependency_declaration, representation=representation, entry_cleanup=plan["entry_cleanup"])
     next_stage = 1
     if post is not None:
         path = post["path"]
@@ -569,6 +602,24 @@ def admit_c_build(manifest, build):
                 "full final spelling proof/protected gaps differ")
         inverses.append((helper, spelling_proof, before_spelling))
         next_stage += 1
+    before_dependencies = produced
+    dependencies = None
+    if dependency_declaration is not None:
+        path = dependency_declaration["path"]
+        rows = [row for row in closure_record["inputs"] if row["path"] == path]
+        require(path in production_paths and len(rows) == 1 and rows[0]["role"] == "tool",
+                "dependency helper is outside the production tool closure")
+        helper = load("profile_runtime_dependencies", ROOT / path)
+        produced, dependency_proof = helper.transform_source(produced)
+        require(dependency_proof == manifest["source_proofs"][next_stage],
+                "final dependency projection differs")
+        require(helper.validate_receipt(build, manifest, dependency_proof, produced,
+                                        checked=checked_artifact) == before_dependencies,
+                "dependency compiler receipt does not bind its original source")
+        inverses.append((helper, dependency_proof, before_dependencies))
+        dependencies = dependency_evidence(manifest, build, dependency_declaration, dependency_proof,
+                                           before_dependencies, produced)
+        next_stage += 1
     require(next_stage == len(manifest["source_proofs"]), "an admitted source stage was not consumed")
     require(produced == source, "full source projection chain does not reproduce the actual consumer")
     require(inverse_source_stages(source, inverses) == base,
@@ -582,6 +633,15 @@ def admit_c_build(manifest, build):
                 "source-JIT command/dependency boundary differs")
         require(wrapper.contract(package, unlink, manifest["compiler"]) == manifest["wrapper_contract"],
                 "source-JIT file ownership contract differs")
+        if before_dependencies != source:
+            before_whole = wrapper.package(package, unlink, before_dependencies,
+                                           manifest["compression"], manifest["compiler"])
+            require(wrapper.package(package, unlink, source, manifest["compression"], manifest["compiler"])
+                    == whole and len(whole) <= len(before_whole),
+                    "dependency cleanup did not preserve or reduce the actual complete artifact")
+            require(all(row["dependency_gate"]["whole_cost"] ==
+                        {"before": len(before_whole), "after": len(whole)} for row in attempts),
+                    "dependency whole cost receipt differs from regenerated packaging")
     elif representation == "packed-native":
         require(restore_payload(payload, len(native)) == native, "native package inverse differs")
     else:
@@ -602,6 +662,7 @@ def admit_c_build(manifest, build):
                          manifest["resources"], policy, manifest["wrapper_contract"], inputs,
                          {"kind": "exact-resource-projection", "proof": proof, "post_profile": post,
                           **({"post_spelling": post_spelling} if post_spelling is not None else {}),
+                          **({"source_dependencies": dependencies} if dependencies is not None else {}),
                           "full_rules_generation": "pending-actual-emitted-consumer-fixture"})
 
 

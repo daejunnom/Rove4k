@@ -151,6 +151,21 @@ class ClosureContracts(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "production helpers"):
             self._closure(tool_inputs=("engines/scripts/elf-loader/loader.c",))
 
+    def test_common_c_is_required_engine_source_and_cannot_hide_as_a_tool(self):
+        for family in "ABCDEF":
+            spec = production.engine_spec(family)
+            shared = production.SHARED_ENGINE_INPUTS[family]
+            closure = self._closure(family)
+            self.assertTrue(set(shared).issubset(closure.engine_inputs))
+            with self.assertRaisesRegex(ValueError, "required model"):
+                production.SourceClosure.validate(spec, engine_inputs=tuple(
+                    path for path in spec.required_source_inputs if path not in shared))
+            with self.assertRaisesRegex(ValueError, "production helpers"):
+                self._closure(family, tool_inputs=("engines/common/other.c",))
+        d = production.engine_spec("D")
+        with self.assertRaisesRegex(ValueError, "this family's"):
+            production.SourceClosure.validate(d, engine_inputs=(*d.source_inputs, "engines/common/protocol.c"))
+
     def test_test_closure_is_distinct_and_protected_names_never_read(self):
         diagnostic = ("engines/tests/chess_oracle.py",)
         with self.assertRaisesRegex(ValueError, "cannot include test"):
@@ -172,13 +187,15 @@ class ClosureContracts(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="rove-source-closure-") as temporary:
             root = Path(temporary)
             path = root / logical
-            path.parent.mkdir(parents=True)
             raw = b"int main(void){return 0;}\r\n"
-            path.write_bytes(raw)
+            for name in closure.engine_inputs:
+                target = root / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(raw)
             observed = production.snapshot_closure(root, closure)
             self.assertEqual(observed.admission, "observed-only")
             self.assertEqual(observed.inputs[0].raw_bytes, len(raw))
-            expected = {logical: sha256(raw.replace(b"\r\n", b"\n")).hexdigest()}
+            expected = {name: sha256(raw.replace(b"\r\n", b"\n")).hexdigest() for name in closure.engine_inputs}
             verified = production.snapshot_closure(root, closure, expected=expected)
             self.assertEqual(verified.admission, "expected-pins-verified")
             with self.assertRaisesRegex(ValueError, "exactly cover"):

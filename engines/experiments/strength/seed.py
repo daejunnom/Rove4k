@@ -22,6 +22,14 @@ import subprocess
 import sys
 import zipfile
 
+# Default script and isolated entrypoints must not dirty the source checkout
+# while reading the exact committed closure below.
+sys.dont_write_bytecode = True
+if __package__ in (None, ""):
+    # Isolated Python omits the script directory from its import search path.
+    # Only this source-bound sibling directory is admitted for CLI modules.
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 try:
     from . import aws, ledger
 except ImportError:
@@ -37,7 +45,10 @@ HOST_MODULES = ("cloud_runtime", "campaign", "aws", "aws_infrastructure", "budge
                 "placement", "topology", "peer_runtime", "peers", "run", "wave", "collect", "durability", "fastchess", "seed")
 CORE_R = ("engines/experiments/tcec-next/profile_verify.py", "engines/experiments/tcec-next/profile_compiler.py",
           "engines/experiments/tcec-next/target_runtime.py", "engines/scripts/production.py",
-          "engines/scripts/production_input.py", "engines/scripts/production_source_bundle.py")
+          "engines/scripts/production_input.py", "engines/scripts/production_source_bundle.py",
+          "engines/scripts/source_composition.py", "engines/experiments/tiny-d-submission/source_inputs.py",
+          "engines/experiments/tcec-next/profile_dependencies.py", "engines/common/board.c",
+          "engines/common/move.c", "engines/common/protocol.c", "engines/common/search.c")
 
 
 def require(condition, detail):
@@ -99,6 +110,8 @@ def write_new(path, raw):
 def new_external(path):
     path = Path(path)
     require(path.is_absolute() and not path.exists(), "new absolute external staging directory required")
+    for part in path.parts[1:]:
+        member(part)
     for item in (path, *path.parents):
         require(not item.is_symlink() and not (hasattr(item, "is_junction") and item.is_junction())
                 and not (item / ".git").exists(), "staging must stay outside Git and links")
@@ -220,6 +233,69 @@ def archive_members(raw):
     return result
 
 
+def dependency_evidence(content, build, record, *, original_build=None):
+    """Preserve final dependency evidence bytes; never run or certify a compiler."""
+    if record.get("source_dependencies") is None:
+        return
+    require(record["source_dependencies"] == {"path": "engines/experiments/tcec-next/profile_dependencies.py",
+            "variant": "unused-includes"}, "unknown final dependency source declaration")
+
+    def checked(relative, expected):
+        logical = build + "/" + member(relative)
+        require(logical in content and pin(content[logical][0]) == expected,
+                "final dependency evidence is missing or changed: " + relative)
+        return content[logical][0]
+
+    def proofs(value):
+        if isinstance(value, dict):
+            name = value.get("path")
+            if isinstance(name, str) and {"bytes", "sha256"} <= set(value):
+                if original_build is not None and name.startswith(original_build + "/"):
+                    checked(name[len(original_build) + 1:], {key: value[key] for key in ("bytes", "sha256")})
+                elif not PurePosixPath(name).is_absolute():
+                    relative = member(name)
+                    if relative.startswith("engines/") and build + "/" + relative not in content:
+                        relative = "inputs/" + relative
+                    checked(relative, {key: value[key] for key in ("bytes", "sha256")})
+            for item in value.values():
+                proofs(item)
+        elif isinstance(value, list):
+            for item in value:
+                proofs(item)
+    proofs(record)
+
+    attempts = record.get("attempts")
+    require(isinstance(attempts, list) and attempts, "final dependency attempt evidence is absent")
+    for attempt in attempts:
+        gate = attempt.get("dependency_gate")
+        if gate is None:
+            continue  # Identity transforms have no compiler gate to transport.
+        require(isinstance(gate, dict), "dependency gate must be an exact evidence object")
+        directory = member(attempt["directory"])
+        gate_root = directory + "/dependency-gate/"
+        before = checked(gate_root + "before.c", gate["input"])
+        after = checked(gate_root + "after.c", gate["output"])
+        expanded = [checked(gate_root + label + ".i", gate["expanded"]) for label in ("before", "after")]
+        require(expanded[0] == expanded[1], "full dependency expanded input bytes differ")
+        native = {key: attempt["native_" + key] for key in ("bytes", "sha256")}
+        require(gate.get("native") == native and checked(gate_root + "x", native) ==
+                checked(directory + "/native/x", native), "full dependency native bytes differ")
+        for label, stdin in (("before", before), ("after", after), ("native", before), ("shipping", after)):
+            kind = directory + ("-compile" if label == "shipping" else "-dependencies-" + label)
+            rows = [row for row in record.get("commands", []) if row.get("kind") == kind]
+            require(len(rows) == 1, "final dependency command evidence is ambiguous or absent")
+            row = rows[0]
+            stdout_name = PurePosixPath(row["stdout"]["path"]).name
+            stdin_name = str(PurePosixPath(stdout_name).with_suffix(".stdin"))
+            checked(stdin_name, pin(stdin))
+            for stream in ("stdout", "stderr"):
+                observed = row[stream]
+                basename = PurePosixPath(observed["path"]).name
+                require(basename.startswith("tool-") and basename.endswith("." + stream),
+                        "final dependency stream has no owned basename")
+                checked(basename, {key: observed[key] for key in ("bytes", "sha256")})
+
+
 def origin_check(value):
     require(isinstance(value, dict) and set(value) == {"repository", "head_sha", "run_id", "run_attempt"},
             "exact source CI origin required")
@@ -336,6 +412,7 @@ def prepare(config, out):
                 add(logical, raw, mode)
         require(build + "/build.json" in content, "sealed build omitted its manifest")
         require(entry.get("input_manifest") == pin(content[build + "/build.json"][0]), "sealed build.json pin differs")
+        dependency_evidence(content, build, json.loads(content[build + "/build.json"][0]), original_build=entry["build_root"])
         metadata_name = member(selected["artifact_metadata"])
         require(metadata_name in content, "downloaded CI artifact metadata is absent")
         metadata = json.loads(content[metadata_name][0])
@@ -447,6 +524,9 @@ def inspect_archive(raw):
 
 def upload_identity(plan, archive, key):
     require(plan.region == plan.project_region == "ap-southeast-2", "seed publication requires explicit selected Sydney region")
+    require(not any((parent / ".git").exists() for parent in (Path(archive), *Path(archive).parents)),
+            "seed upload archive must remain outside Git")
+    require(re.fullmatch(r"[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]", plan.artifact_bucket), "explicit valid seed bucket required")
     raw = ordinary(archive, limit=MAX_SEED)
     inspect_archive(raw)
     identity = pin(raw)
@@ -454,7 +534,7 @@ def upload_identity(plan, archive, key):
     return {"bucket": plan.artifact_bucket, "key": key, **identity}
 
 
-def reconcile(client, plan, archive, key):
+def reconcile(client, plan, archive, key, *, expected_version=None):
     identity = upload_identity(plan, archive, key)
     aws.verify_caller(client, plan)
     try:
@@ -467,22 +547,45 @@ def reconcile(client, plan, archive, key):
     require(head.get("ContentLength") == identity["bytes"] and head.get("Metadata", {}).get("sha256") == identity["sha256"]
             and head.get("ChecksumSHA256") == checksum, "current seed object conflicts with the immutable local bytes")
     version = head.get("VersionId")
-    require(isinstance(version, str) and version not in ("", "null"), "actual immutable non-null S3 VersionId is required")
+    require(isinstance(version, str) and version not in ("", "null") and len(version) <= 1024,
+            "actual immutable non-null S3 VersionId is required")
+    require(expected_version is None or version == expected_version, "confirmed seed VersionId changed; do not rebind it")
     descriptor = {**identity, "version_id": version}
-    runtime().SeedObject(**descriptor)
     return {"state": "verified", "seed": descriptor, "verified": True, "upload_performed": False}
+
+
+def confirmed_version(rows, identity):
+    versions = set()
+    for row in rows:
+        if row["event"] != "seed.upload_confirmed" or row["data"].get("key") != identity["key"]:
+            continue
+        value = row["data"]
+        require({key: value.get(key) for key in identity} == identity, "confirmed seed identity differs from current archive")
+        version = value.get("version_id")
+        require(isinstance(version, str) and version not in ("", "null"), "journal has no exact confirmed VersionId")
+        versions.add(version)
+    require(len(versions) <= 1, "journal has conflicting confirmed seed versions")
+    return next(iter(versions), None)
 
 
 def publish(client, plan, archive, key, journal):
     identity = upload_identity(plan, archive, key)
     require(journal.campaign == plan.campaign_id, "upload journal belongs to another campaign")
     previous = [row for row in journal.rows if row["event"] == "seed.upload_requested" and row["data"].get("key") == key]
+    version = confirmed_version(journal.rows, identity)
     if previous:
         require(all(row["data"] == identity for row in previous), "prior upload intent differs; preserve its original bytes")
-        return reconcile(client, plan, archive, key)  # An uncertain outcome is never a resend permit.
-    observed = reconcile(client, plan, archive, key)
+        result = reconcile(client, plan, archive, key, expected_version=version)  # Never resend an uncertain request.
+        if result["state"] == "verified" and version is None:
+            journal.append("seed.upload_confirmed", result["seed"])
+        return result
+    observed = reconcile(client, plan, archive, key, expected_version=version)
     if observed["state"] == "verified":
+        if version is None:
+            journal.append("seed.upload_confirmed", observed["seed"])
         return observed
+    if version is not None:
+        return observed  # A missing current object cannot authorize replacing a confirmed version.
     aws.require_paid_account_plan(client, plan.account_id, __import__('time').time())
     journal.append("seed.upload_requested", identity)  # fsync before the first PutObject.
     publisher = aws.S3Evidence(client, plan, Path(archive).parent)
@@ -503,19 +606,22 @@ def example():
     return {"format": "rove4k-seed-prepare-v1", "source_origin": {"repository": "daejunnom/Rove4k", "head_sha": "0" * 40,
         "run_id": "1", "run_attempt": "1"}, "checkout": {"path": "/absolute/clean-checkout", "commit": "0" * 40,
         "paths": ["engines/experiments/strength", "engines/experiments/tcec-next", "engines/scripts", "engines/tests",
-                  "engines/experiments/tcec-scope", "engines/compact/tiny-entry-d", "engines/model"]},
+                  "engines/experiments/tcec-scope", "engines/experiments/tiny-d-submission", "engines/common",
+                  "engines/compact/tiny-entry-d", "engines/model"]},
         "source_tree": "source", "inputs": {"origin/A/source-bundle.zip": identity,
-        "origin/A/source-seal.json": identity, "origin/A/artifact.json": identity, "origin/rules/A.json": identity,
-        "runner/fastchess.bundle": identity, "runner/patch.diff": identity, "runner/LICENSE": identity,
+        "origin/A/source-seal.json": identity, "metadata/A-artifact.json": identity,
+        "origin/rules/A/probe/rules.json": identity, "origin/rules/A/probe/cases.json": identity,
+        "origin/rules/A/probe/fixture.c": identity, "origin/rules/A/commands.json": identity,
+        "runner/fastchess.bundle": identity, "runner/LICENSE": identity,
         "bank/bank.json": identity, "bank/broad.pgn": identity, "bank/high.pgn": identity},
         "rove": [{"family": "A", "profile": "test-p4", "build": "origin/A/artifact",
             "source_bundle": "origin/A/source-bundle.zip", "source_seal": "origin/A/source-seal.json",
-            "artifact_metadata": "origin/A/artifact.json", "rules": "origin/rules/A.json"}], "peers": [],
+            "artifact_metadata": "metadata/A-artifact.json", "rules": "origin/rules/A/probe/rules.json"}], "peers": [],
         "runner": {"checkout": "external/fastchess", "revision": FASTCHESS, "transport": "external-git-bundle",
-            "bundle": "runner/fastchess.bundle", "patch": "runner/patch.diff", "license": "runner/LICENSE"},
+            "bundle": "runner/fastchess.bundle", "patch": "source/engines/experiments/strength/patches/fastchess-rove.patch", "license": "runner/LICENSE"},
         "bank": "bank/bank.json", "bank_pgns": {"broad": "bank/broad.pgn", "high": "bank/high.pgn"},
         "original_layout": {"roots": [{"original_root": "/home/runner/work/_temp/EXACT-SEALED-OUTPUT", "seed_prefix": "origin/A"},
-                                       {"original_root": "/home/runner/work/_temp/EXACT-RULES-ROOT", "seed_prefix": "origin/rules"}]}}
+                                       {"original_root": "/home/runner/work/_temp/EXACT-RULES-ROOT", "seed_prefix": "origin/rules/A"}]}}
 
 
 def main(argv=None):
@@ -528,6 +634,8 @@ def main(argv=None):
         item = actions.add_parser(action)
         for key in ("aws-plan", "archive", "journal", "out"):
             item.add_argument("--" + key, type=Path, required=True)
+        item.add_argument("--seed-out", type=Path, required=True,
+                          help="new external exact SeedObject descriptor; created only after verified API observation")
         item.add_argument("--key", required=True)
     args = parser.parse_args(argv)
     if args.action == "example":
@@ -536,16 +644,26 @@ def main(argv=None):
         result = prepare(json.loads(ordinary(args.config)), args.out)
     else:
         new_external(args.out)
+        new_external(args.seed_out)
+        require(args.out.resolve() != args.seed_out.resolve(), "report and seed descriptor destinations must differ")
         plan = aws.AWSPlan.from_dict(json.loads(ordinary(args.aws_plan)))
         client = aws.AWSCLI(plan.region)
         if args.action == "reconcile":
-            result = reconcile(client, plan, args.archive, args.key)
+            identity = upload_identity(plan, args.archive, args.key)
+            rows = ledger.read_journal(args.journal, plan.campaign_id)
+            result = reconcile(client, plan, args.archive, args.key, expected_version=confirmed_version(rows, identity))
         else:
             with ledger.Journal(args.journal, plan.campaign_id) as journal:
                 result = publish(client, plan, args.archive, args.key, journal)
+        if result.get("state") == "verified":
+            descriptor = result["seed"]
+            require(set(descriptor) == {"bucket", "key", "version_id", "sha256", "bytes"},
+                    "verified seed result is not an exact consumer descriptor")
+            write_new(args.seed_out, ledger.canonical(descriptor))
+            result = {**result, "seed_descriptor_path": str(args.seed_out)}
         write_new(args.out, ledger.canonical(result))
     print(json.dumps(result, sort_keys=True, allow_nan=False))
-    return 0
+    return 2 if args.action in ("publish", "reconcile") and result.get("state") != "verified" else 0
 
 
 if __name__ == "__main__":

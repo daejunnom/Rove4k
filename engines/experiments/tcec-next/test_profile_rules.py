@@ -324,6 +324,105 @@ class GeneratedRulesBoundaries(unittest.TestCase):
         self.assertEqual(record.call_args.kwargs["post_spelling"],
             {"path": RULES.SPELLING, "selection": "best", "variant": "clock-type"})
 
+        # The merged dependency stage comes after spelling. Its compiler gate
+        # is additional evidence; its inverse must restore the spelling body
+        # before the model's offsets and earlier inverses are consumed.
+        dependency = {"schema": "rove4k.profile-dependencies.v1"}
+        dependency_body = b"dependencyPres"
+        inverses.clear()
+        stages = [*stages, dependency]
+        def compiler_gate(build, manifest, proof, source, *, checked):
+            self.assertEqual((proof, source), (dependency, dependency_body))
+            inverses.append("compiler-gate")
+            return shipped
+        modules["production_rules_dependencies"] = SimpleNamespace(
+            transform_source=lambda actual: (dependency_body, dependency),
+            restore_source=lambda actual, proof: inverse("dependency", actual, dependency_body, shipped),
+            validate_receipt=compiler_gate)
+        manifest = {"attempts": [{"directory": name, "source_proofs": stages}
+                                  for name in ("first", "repeat")]}
+        with patch.object(RULES, "load", side_effect=lambda name, path: modules[name]), \
+             patch.object(RULES, "_source_build_record", return_value=manifest) as record:
+            self.assertEqual(RULES.admit_source(dependency_body, baseline, stages, "E",
+                PRODUCTION.resource_profile("test-p4"), build=Path("/named-build")), stages)
+        self.assertEqual(inverses, ["compiler-gate", "dependency", "spelling", "phase", "resource"])
+        self.assertEqual(record.call_args.kwargs["source_dependencies"],
+            {"path": "engines/experiments/tcec-next/profile_dependencies.py", "variant": "unused-includes"})
+
+    def test_dependency_must_follow_spelling_and_cannot_be_duplicated(self):
+        resource = {"schema": "test-resource-projection", "entry_cleanup": "private-path"}
+        phase = {"schema": "rove4k.portable-phase-source.v1", "variant": "phase-init"}
+        spelling = {"schema": RULES.SPELLING_SCHEMA, "variant": "clock-type"}
+        dependency = {"schema": "rove4k.profile-dependencies.v1"}
+        projection = SimpleNamespace(SCHEMA=resource["schema"],
+            transform_source=lambda *args, **kwargs: (b"resource", resource),
+            restore_source=lambda *args: b"baseline")
+        for stages in ([resource, phase, dependency, spelling],
+                       [resource, phase, spelling, dependency, dependency],
+                       [resource, phase, spelling, dependency, {"schema": "unknown"}]):
+            with self.subTest(stages=stages), patch.object(RULES, "load", return_value=projection):
+                with self.assertRaisesRegex(ValueError, "explicit A/C/F proof chain"):
+                    RULES.admit_source(b"body", b"baseline", stages, "A",
+                        PRODUCTION.resource_profile("test-p4"))
+
+    def test_dependency_requires_both_full_attempts_and_actual_compiler_gate(self):
+        resource = {"schema": "test-resource-projection", "entry_cleanup": "private-path"}
+        dependency = {"schema": "rove4k.profile-dependencies.v1"}
+        stages = [resource, dependency]
+        gate_calls = []
+        projection = SimpleNamespace(SCHEMA=resource["schema"],
+            transform_source=lambda *args, **kwargs: (b"before", resource),
+            restore_source=lambda *args: b"baseline")
+        def compiler_gate(build, manifest, proof, source, *, checked):
+            gate_calls.append((proof, source))
+            raise ValueError("actual compiler receipt rejected")
+        helper = SimpleNamespace(transform_source=lambda source: (b"after", dependency),
+            validate_receipt=compiler_gate)
+        modules = {"production_rules_projection": projection, "production_rules_dependencies": helper}
+        attempts = [{"directory": name, "source_proofs": stages} for name in ("first", "repeat")]
+        for bad in ([], attempts[:1], [*attempts, attempts[0]],
+                    [{**attempts[0], "source_proofs": [resource]}, attempts[1]]):
+            with self.subTest(attempts=bad), \
+                 patch.object(RULES, "load", side_effect=lambda name, path: modules[name]), \
+                 patch.object(RULES, "_source_build_record", return_value={"attempts": bad}):
+                with self.assertRaisesRegex(ValueError, "both fresh full-chain attempts"):
+                    RULES.admit_source(b"after", b"baseline", stages, "A",
+                        PRODUCTION.resource_profile("test-p4"), build=Path("/named-build"))
+        self.assertEqual(gate_calls, [])
+        with patch.object(RULES, "load", side_effect=lambda name, path: modules[name]), \
+             patch.object(RULES, "_source_build_record", return_value={"attempts": attempts}):
+            with self.assertRaisesRegex(ValueError, "actual compiler receipt rejected"):
+                RULES.admit_source(b"after", b"baseline", stages, "A",
+                    PRODUCTION.resource_profile("test-p4"), build=Path("/named-build"))
+        self.assertEqual(gate_calls, [(dependency, b"after")])
+        for escaped in ("../other-build/native", "/other-build/native"):
+            def outside_receipt(build, manifest, proof, source, *, checked):
+                return checked(build, escaped, RULES.pin(b"outside"))
+            helper.validate_receipt = outside_receipt
+            with self.subTest(evidence=escaped), \
+                 patch.object(RULES, "load", side_effect=lambda name, path: modules[name]), \
+                 patch.object(RULES, "_source_build_record", return_value={"attempts": attempts}), \
+                 patch.object(RULES, "_evidence_bytes", side_effect=AssertionError("outside evidence read")):
+                with self.assertRaisesRegex(ValueError, "must remain in its named build"):
+                    RULES.admit_source(b"after", b"baseline", stages, "A",
+                        PRODUCTION.resource_profile("test-p4"), build=Path("/named-build"))
+
+    def test_dependency_declaration_cannot_be_silently_dropped(self):
+        stages = [{"schema": "resource"}]
+        declaration = {"path": "engines/experiments/tcec-next/profile_dependencies.py", "variant": "unused-includes"}
+        with tempfile.TemporaryDirectory(prefix="rove4k-unconsumed-dependency-") as temporary:
+            build = Path(temporary).resolve()
+            (build / "control").mkdir()
+            (build / "main.c").write_bytes(b"source")
+            (build / "control/main.c").write_bytes(b"baseline")
+            record = dict(format=1, family="A", entry="A", complete=True, reproducible=True,
+                post_profile=None, post_spelling=None, source_dependencies=declaration, source_proofs=stages)
+            record["class"] = "rove4k-production-profile-v1"
+            (build / "build.json").write_text(json.dumps(record))
+            with self.assertRaisesRegex(ValueError, "named frozen producer"):
+                RULES._source_build_record(build, family="A", stages=stages, post_profile=None,
+                    main_source=b"source", baseline_source=b"baseline")
+
     def test_control_manifest_cannot_hide_an_unconsumed_spelling_stage(self):
         proof = {"schema": "test-resource-projection", "entry_cleanup": "private-path"}
         projection = SimpleNamespace(SCHEMA=proof["schema"],

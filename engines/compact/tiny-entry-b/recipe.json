@@ -88,7 +88,8 @@
     "engines/compact/tiny-entry-b/shipping_ep_maker.py": "b5a509c4c2179a6200c152401540f0af45d511bceedca2091a09e2124708cada",
     "engines/scripts/compiler_group.py": "d859ccc460619102c27433e2476d6d5be2e8de4046e07d49f28c0944c7ff0a77",
     "engines/scripts/compiler_stdin.py": "fc92bb6146fcfc5a6c73cd9f68929192a90d22a875bf591caf2cf3b32b87055b",
-    "engines/scripts/compiler_seek.py": "8ca5fd736f010cd9dd1e3b668065c0cf7d82f9e98653580b8f9b4c23e7d75a41"
+    "engines/scripts/compiler_seek.py": "8ca5fd736f010cd9dd1e3b668065c0cf7d82f9e98653580b8f9b4c23e7d75a41",
+    "engines/scripts/source_composition.py": "1422d3e97f6ab0dc969e0feee6a04e3c97d6677323b3e91c00f1383f8baaeadd"
   },
   "compression": {
     "format": "lzma-alone",
@@ -117,7 +118,7 @@
     "bootstrap_bytes": 11519
   },
   "local_input_sha256": {
-    "engine.c": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+    "engine.c": "d9ad408d935deb2b9c2a7390a1de4e22e823b39c1cd7116f7700decb33dd1906",
     "bootstrap.py.in": "e73c535e70911a6d2dd9ede8740ced65156ec40acdcffc10953f189d576e0d42",
     "launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
     "shipping_depth_token.py": "530d04052b455adb9ffcbbc72dd0e8a98ca27f12468fcfe1eec7aeaf6de8e371"
@@ -5023,7 +5024,7 @@
       }
     },
     "source_proof": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-seek-flush-five-firstcost-20261024-v2-evidence/inputs/B/source-proof.json",
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-seek-flush-five-firstcost-20261024-v2-evidence/inputs/B/source-proof.json",
       "bytes": 1977,
       "sha256": "c105bd6cf33102a344e9dc5450ee895446aac641bf9e8b3e9a5e44c6f3aec6a0"
     },
@@ -5178,5 +5179,14 @@
       "substituted or exotic non-Linux procfs"
     ],
     "runtime_at_source_freeze": "pending new ordinary reproduction and selected runtime"
+  },
+  "assembled_source_sha256": {
+    "engine.c": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6"
+  },
+  "shared_source_sha256": {
+    "engines/common/board.c": "7f231ee347a66f8117d15934bda4adb188309db433598b5634afc46bbb61d1e8",
+    "engines/common/move.c": "e01d84200956050c6c064acc9d6fe812a6ade6e934993a332db518ffd27f2e9c",
+    "engines/common/protocol.c": "e507eccbb84c4f32ca3c16e22f5002e91c9f4e17ef1051988332c6137317a974",
+    "engines/common/search.c": "cd794f819390cf2d95b5ef8b54314f0f15a3a2ae62f3fc18a6ea595d2c0a9bf3"
   }
 }

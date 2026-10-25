@@ -41,7 +41,7 @@ def main():
     if (sys.platform!="linux" or platform.machine()!="x86_64" or not args.out.is_absolute() or not args.experiment.is_absolute()
             or out.exists() or any((p/".git").exists() for p in (out,*out.parents))):
         parser.error("absolute experiment and new external output on Linux x86-64 required")
-    raw={n:(HERE/n).read_bytes().replace(b"\r\n",b"\n") for n in ("owner_admission.py","test_owner_admission.py")}
+    raw={n:(HERE/n).read_bytes().replace(b"\r\n",b"\n") for n in ("owner_admission.py","test_owner_admission.py","source_inputs.py")}
     out.mkdir();(out/"tools").mkdir()
     for name,data in raw.items():(out/"tools"/name).write_bytes(data)
     frozen=load("D_owner_admission_focused_frozen",out/"tools/test_owner_admission.py")
@@ -50,9 +50,12 @@ def main():
 
 def run_snapshot(out,experiment,current_root,raw,pure):
     admission=load("D_owner_admission_under_test",out/"tools/owner_admission.py")
+    source_inputs=load("D_owner_admission_source_inputs",out/"tools/source_inputs.py")
     original=safe(experiment,"results.json");record=json.loads(original)
-    inputs={n:safe(experiment,"inputs/"+n) for n in admission.input_names(record)}
-    products={n:safe(experiment,n) for n in admission.evidence_names(record)}
+    recipe=json.loads(safe(experiment,"inputs/"+source_inputs.RECIPE))
+    producer=source_inputs.producer_names(recipe)
+    inputs={n:safe(experiment,"inputs/"+n) for n in admission.input_names(record,producer)}
+    products={n:safe(experiment,n) for n in admission.evidence_names(record,producer)}
     current={n:safe(current_root,n).replace(b"\r\n",b"\n") for n in inputs if n.startswith("engines/")}
     for name,data in {**inputs,**{"products/"+n:d for n,d in products.items()}}.items():
         path=out/"evidence"/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(data)
@@ -65,7 +68,8 @@ def run_snapshot(out,experiment,current_root,raw,pure):
         owner="engines/experiments/tiny-d-submission/process_owner.py",startup="engines/experiments/tiny-d-submission/test_startup.py",
         checker="engines/experiments/tiny-d-submission/test_process_owner.py",reducer="engines/experiments/tiny-d-submission/reduce.py",
         packaging="engines/experiments/tiny-d-submission/packaging.py",lexical="engines/scripts/rename_c.py",
-        minifier="engines/scripts/minify.py",packer="engines/compact/tiny-entry-d/packer.py")
+        minifier="engines/scripts/minify.py",packer="engines/compact/tiny-entry-d/packer.py",
+        source_inputs=source_inputs.SELF)
     if admission.BOOTSTRAP in inputs:logical["bootstrap"]=admission.BOOTSTRAP
     for name,path in logical.items():modules[name]=load("D_independent_owner_"+name,out/"evidence"/path)
     host_name="engines/experiments/tcec-scope/build.py"
@@ -107,7 +111,7 @@ def run_snapshot(out,experiment,current_root,raw,pure):
     try:
         for index in (0,3,15):
             bad=json.loads(json.dumps(record));bad["commands"][index]["returncode"]=2;bad["commands"][index]["expected_returncode"]=2
-            try:admission.command_scopes(bad)
+            try:admission.command_scopes(bad,producer)
             except ValueError:pass
             else:raise ValueError("blanket nonzero command exemption was admitted")
         report["typed_nonzero_mutations_rejected"]=True

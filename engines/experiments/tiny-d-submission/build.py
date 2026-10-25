@@ -92,6 +92,8 @@ def main():
         "engines/scripts/production.py", "engines/scripts/minify.py", "engines/scripts/rename_c.py",
         "engines/experiments/tiny-d-submission/source.py", "engines/experiments/tiny-d-submission/build.py",
         "engines/experiments/tiny-d-submission/packaging.py")
+    recipe = json.loads(normalized(ROOT / "engines/compact/tiny-entry-d/recipe.json"))
+    names += tuple(recipe["shared_source_sha256"]) + tuple(recipe["helper_sha256"])
     if args.storage != "none":
         names += ("engines/experiments/tiny-d-submission/storage.py",)
     if args.source_reduce:

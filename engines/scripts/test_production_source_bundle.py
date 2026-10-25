@@ -181,6 +181,38 @@ class SourceBundleTransport(unittest.TestCase):
                 self.assertEqual(stat.S_IMODE((fixture.build / "x").stat().st_mode), 0o700)
                 self.assertEqual(restored["source_bundle"]["sha256"], exported["source_bundle"]["sha256"])
 
+    def test_shared_c_and_assembler_survive_the_sealed_roundtrip_for_every_family(self):
+        api = VERIFY.contracts()
+        helper = "engines/scripts/source_composition.py"
+        for family in "ABCDEF":
+            with self.subTest(family=family), tempfile.TemporaryDirectory(prefix="rove-source-common-") as directory:
+                fixture = Fixture(Path(directory), family)
+                spec = api.engine_spec(family)
+                recipe_path = spec.source_root + "/recipe.json"
+                names = (*spec.required_source_inputs, helper, recipe_path)
+                expected = {name: (ROOT / name).read_bytes() for name in names}
+                for name, data in expected.items():
+                    path = fixture.build / "inputs" / name
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    path.write_bytes(data)
+                with fixture.context_patches():
+                    fixture.export()
+                    fixture.hold_original()
+                    with zipfile.ZipFile(fixture.bundle) as archive:
+                        for name in names:
+                            self.assertEqual(archive.read("artifact/inputs/" + name), expected[name])
+                    fixture.restore()
+                frozen = fixture.build / "inputs"
+                for name, data in expected.items():
+                    self.assertEqual((frozen / name).read_bytes(), data)
+                # Compose from the transported helper/template/fragments only;
+                # no source factory, compiler or engine executes on the target.
+                composition = load("transported_composition_" + family, frozen / helper)
+                recipe = json.loads((frozen / recipe_path).read_bytes())
+                local = "native/board.c" if family == "D" else "engine.c"
+                source = composition.read_source(frozen, spec.source_root + "/" + local)
+                self.assertEqual(TARGET.pin(source)["sha256"], recipe["assembled_source_sha256"][local])
+
     def test_D_roundtrip_never_rewrites_absolute_candidate_or_native_paths(self):
         with tempfile.TemporaryDirectory(prefix="rove-source-D-") as directory:
             fixture = Fixture(Path(directory), "D")

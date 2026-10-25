@@ -19,7 +19,7 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
 SOURCE_MODULE = 'engines/experiments/tcec-next/b_state.py'
 HOST_MODULE = 'engines/experiments/tcec-scope/build.py'
-HOST_PIN = 'fc916e798952cff1c915a6846e758874bc2d858b3c59dec73870b95c7e3d4828'
+HOST_PIN = '5fa10c6f8f032be374bf3a86bbe6ca558076630a2cc3170b41890f691688f563'
 CLOCK = b'D q(void){struct timespec t;clock_gettime(CLOCK_MONOTONIC,&t);l(D)t.tv_sec*1000+t.tv_nsec/1000000;}'
 HOOK_PREFIX = b'static unsigned fixture_clock_ticks,fixture_clock_trip=4294967295u,fixture_query_visits;static unsigned long long fixture_query_digest=1469598103934665603ULL;\n'
 HOOK_CLOCK = b'D q(void){++fixture_clock_ticks;l fixture_clock_ticks>=fixture_clock_trip?UINT64_MAX:0;}'

@@ -183,6 +183,65 @@ complete native output and compiler diagnostics under the declared recipe.
 The caller must establish the declared source/wrapper observation contract;
 masked AST and native identity do not establish traceback/location non-observation.
 
+`cleanup-source --language c|cpp` generates a separate, bounded portfolio for
+unused dependencies and functions. It shares the existing Clang process owner,
+budgets and original preprocessing observation. The read-only advisor remains
+read-only. For example:
+
+```sh
+npm exec -- nvcompact cleanup-source /absolute/source.c --language c \
+  --token-contract no-token-observation --portfolio /absolute/external/cleanup
+```
+
+The function pass groups Clang declarations by identity and redeclaration
+chain. It removes unreferenced ordinary top-level `static` free functions
+only after reparsing and comparing
+the complete surviving typed program and its bindings. Exported functions,
+global initializers, function addresses/callbacks, constructors and attributed
+declarations remain roots. Clang's `isUsed`/`isReferenced` flags are additional
+roots for **both C and C++**, independently of visible JSON edges: that JSON can
+omit calls inside C parameter/VLA bounds and C++ exception specifications or
+type-only expressions. Referenced recursive groups remain intact until a more
+complete frontend can prove every incoming edge; ordinary dead call chains can
+shrink across fresh rounds. It does not remove variables or their initializers.
+Macro-generated declarations are retained; assembly/string-named linkage and
+dependent/template/using/import C++ bindings disable that function pass.
+C++ methods, namespace functions and templates are outside this initial subset.
+The C++ function pass also explicitly excludes translation units containing
+compile-time/type-query, exception specification or default-argument constructs;
+its preflight checks expanded tokens and AST nodes so macros cannot hide them.
+Source-location builtins (`SourceLocExpr`, including `__builtin_LINE`,
+`__builtin_COLUMN` and `std::source_location`) disable **both** cleanup passes:
+neither a location-masked JSON tree nor `-E -P` tokens prove their values.
+Rust, Python and other languages are explicitly unsupported by cleanup.
+
+The include pass considers literal, single-line includes. An include is
+removable only if the **expanded compiler token stream, including emitted
+pragmas, is identical** without it. Used macros/types, header definitions,
+constructors and packing directives are therefore retained. This deliberately
+does not remove every header with unused declarations. Individually redundant
+headers are not assumed redundant as a group: their union is checked again.
+Every proof revalidates the original preprocessing context, including after a
+candidate parse failure. The original source, proof failures and bounded-space
+status are retained; no candidate is selected by raw source length.
+
+Set `"cleanup": true` inside the existing envelope `source_search` options to
+measure these C candidates through the **same whole-file objective, native and
+compiler-diagnostic identity gates, attempt archive and independent replay**.
+The default is `false`, preserving existing search recipes and their candidate
+space. Subsequent search rounds reanalyze dependencies after function removal;
+increase `max_rounds` within its existing bound when that second pass matters.
+A removed unused-function warning can reject an otherwise valid candidate under
+the strict diagnostic contract; cleanup does not suppress the warning or weaken
+that contract. The C++ CLI emits source-proven candidates only: full C++ source
+search, whole-program transformations and deployment acceptance are not claimed.
+`--output` requires an explicit `--variant`; it does not silently choose a winner.
+
+Large intrinsic headers can expand a small input into a very large Clang JSON
+tree. The existing 32 MiB default and 128 MiB maximum AST-output budgets remain
+enforced. Exhaustion reports an incomplete frontend proof and exports no cleanup
+portfolio; a truncated tree is never evidence that a declaration is unused.
+
 The submitted-codec strategy keeps the existing improving-incumbent rounds
 before deferred spelling subsets. The full-codec strategy instead interleaves
 singletons and subsets, checks a measured improvement immediately, and gives

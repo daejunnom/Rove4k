@@ -85,6 +85,9 @@ def main():
             if sha(data)!=expected:raise ValueError('tracked helper version changed: '+relative)
             (frozen/path.name).write_bytes(data)
             report['inputs'][relative]={'bytes':len(data),'sha256':sha(data),'working_bytes_sha256':sha(raw),'LF_normalization':raw!=data}
+        composition=module('entry_source_composition',frozen/'source_composition.py')
+        shared,shared_inputs=composition.freeze_shared(REPO,frozen,recipe['shared_source_sha256'])
+        report['inputs'].update(shared_inputs)
         specialize=module('entry_specialize',frozen/'specialize.py').specialize_c
         minifier=module('entry_minify',frozen/'minify.py');compact=minifier.compact_source
         strip=module('entry_counter_strip',frozen/'stitch.py').strip_dev_counters
@@ -134,7 +137,7 @@ def main():
         if recipe['model']['id']!=model_stage.MODEL_ID:raise ValueError('shipping model id differs')
         types=module('entry_E_shipping_types',frozen/'shipping_types.py').transform_source
         global_names=module('entry_E_global_names',frozen/'shipping_global_names.py').transform_source
-        canonical=(frozen/'engine.c').read_bytes();template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
+        canonical=composition.assemble((frozen/'engine.c').read_bytes(),shared,expected_sha256=recipe['assembled_source_sha256']['engine.c']);template=(frozen/'bootstrap.py.in').read_bytes();prefix=(frozen/'launcher.sh').read_bytes()
         marker=b'__ROVE_SOURCE_LITERAL__'
         if template.count(marker)!=1 or len(prefix)!=77:raise ValueError('bootstrap recipe changed')
         prefix=source_package.XZ_STDIN_HEADER

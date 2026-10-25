@@ -71,11 +71,18 @@ It verifies startup task counts/identity and physical termination for quit and
 EOF without searching. Those startup-only results do not replace the chess
 behavior checks here or establish target-hardware scalability.
 
-[target_search.py](target_search.py) is a separate opt-in search and memory gate
-for admitted larger fixed profiles. It bounds wall time, CPU and memory while
-checking clocked search, active stop/quit, legal results and persistent task
-identity. Its bounded search evidence remains separate from startup-only
-checks, throughput measurements and target-hardware scaling.
+The old paired C/Rust [target search harness](../../archive/engines/tests/target_search.py)
+and [parallel comparison harness](../../archive/engines/tests/compare_parallel.py)
+are preserved in the archive because their required portfolio includes retired
+Rust engines. Use the [original-path replay procedure](../../archive/README.md)
+when inspecting those historical campaigns. Current production resource and
+runtime checks are owned by `../experiments/tcec-next` and
+`../experiments/tiny-d-submission`; current league evaluation is owned by
+`../experiments/strength`.
+
+The F transposition-table fixture lives in `c/f_tt_contract.c`. CI compiles its
+paired-bound and single-bound modes against the current canonical C search and
+board implementation; the old dual-language F campaigns remain in the archive.
 
 The default checks cover:
 

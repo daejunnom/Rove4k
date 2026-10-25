@@ -32,14 +32,8 @@ BASELINE = dict(linked=dict(bytes=7792,sha256="e5d54f2f9b918316efcb171631cf4745b
     stripped=dict(bytes=7440,sha256="e06bce0d9998fa14cb85f135d3c5f54f9972d3dea533cede1f44ed28618e3337"))
 OWNER = dict(linked=dict(bytes=7712,sha256="c80f6c4d3b7af14a96f47326c843abbabd7626a54c879ed21a376eca22d7eeca"),
     stripped=dict(bytes=7360,sha256="cfa7b5d045d5f1e6e2232942e38d79cd8b8812e9e3ed7702fb4df50ab71296f4"))
-PRODUCER = tuple("engines/compact/tiny-entry-d/native/"+n for n in NATIVE)+(
-    "engines/compact/tiny-entry-d/recipe.json","engines/compact/tiny-entry-d/shipping_fused_ray.py",
-    "engines/compact/tiny-entry-d/packer.py","engines/experiments/tcec-scope/build.py",
-    "engines/scripts/production.py","engines/scripts/minify.py","engines/scripts/rename_c.py",
-    "engines/experiments/tiny-d-submission/source.py","engines/experiments/tiny-d-submission/build.py",
-    "engines/experiments/tiny-d-submission/packaging.py","engines/experiments/tiny-d-submission/storage.py")
 EXTRA = tuple("engines/experiments/tiny-d-submission/"+n for n in
-    ("reduce.py","publication.py","process_owner.py","test_startup.py","test_process_owner.py"))
+    ("reduce.py","publication.py","process_owner.py","test_startup.py","test_process_owner.py","source_inputs.py"))
 BOOTSTRAP = "engines/experiments/tiny-d-submission/compressed_bootstrap.py"
 RUNTIME = (
     ("w4-startup",4,0,"startup"),("w28-startup",28,0,"startup"),("w256-startup",256,0,"startup"),
@@ -81,15 +75,19 @@ def _settled(row,expected):
         "precise original owned PID/PGID required")
 
 
-def input_names(record):
-    """Exact finite input closure; return names without reading arbitrary paths."""
+def input_names(record,producer):
+    """Exact input names given source_inputs.producer_names(frozen recipe).
+
+    Discovery callers read only the fixed recipe path before asking for this
+    closure. Replay independently derives it again from the admitted bytes.
+    """
     require(record.get("kind")==EXPERIMENT_KIND and record.get("complete") is True and
         record.get("frozen_execution") is True and record.get("ownership_class")=="D-final-wait-own-exit-group-v1",
         "explicit completed D owner experiment required")
     require(all(record.get(k) is False for k in ("baseline_wired","old_native_R_guard_used","real_target_allocation",
         "locality_proof","strength_claim","per_worker_search_work_proof",
         "runtime_qualified","whole_artifact_qualified","selected")),"owner experiment qualification scope differs")
-    names={"selection/build.json",*PRODUCER,*EXTRA}
+    names={"selection/build.json",*producer,*EXTRA}
     names.update("selection/generated-readable/"+n for n in NATIVE)
     names.update("selection/shipping-inputs/"+n for n in ("main.c","start.S","image.ld"))
     if BOOTSTRAP in record.get("inputs",{}):names.add(BOOTSTRAP)
@@ -97,9 +95,9 @@ def input_names(record):
     return tuple(sorted(names))
 
 
-def command_scopes(record):
+def command_scopes(record,producer):
     """Assign statuses by exact typed command role, never blanket nonzero allow."""
-    input_names(record)
+    input_names(record,producer)
     specs=[("compiler-version",0,"generation/compiler")]
     for label in ("baseline","owner"):
         specs += [("preprocess-single-"+label,0,"generation/preprocess"),("preprocess-entry-"+label,0,"generation/preprocess")]
@@ -121,9 +119,9 @@ def command_scopes(record):
     return result
 
 
-def evidence_names(record):
+def evidence_names(record,producer):
     """Bounded relative product names for a caller's safe evidence reader."""
-    scopes=command_scopes(record);names=set()
+    scopes=command_scopes(record,producer);names=set()
     for label in ("baseline","owner"):
         names.update(label+"/generated-readable/"+n for n in NATIVE)
         names.update(label+"/shipping-inputs/"+n for n in ("main.c","start.S","image.ld"))
@@ -396,12 +394,14 @@ def replay_owner(record,frozen_inputs,products,modules,*,current_inputs,admissio
                  evidence_root,preprocess,compile_identity):
     """Return explicit generation-only owner admission after independent gates.
 
-    ``products`` uses exactly evidence_names(record)'s root-relative names.
+    ``products`` uses exactly evidence_names(record, producer)'s relative names.
     ``current_inputs`` covers the engine/tool logical names from input_names.
     ``admission_source`` holds equal current/frozen bytes for this new helper;
     its caller freezes and loads the same helper, outside the old experiment.
     """
-    names=input_names(record);scopes=command_scopes(record);root=_absolute(evidence_root)
+    source_inputs=modules["source_inputs"]
+    producer=source_inputs.producer_names(json.loads(frozen_inputs[source_inputs.RECIPE]))
+    names=input_names(record,producer);scopes=command_scopes(record,producer);root=_absolute(evidence_root)
     require(set(frozen_inputs)==set(names) and inventory(frozen_inputs)==record["inputs"],"frozen owner input bytes differ")
     logical={n for n in names if n.startswith("engines/")}
     require(set(current_inputs)==logical and inventory(current_inputs)=={n:record["inputs"][n] for n in sorted(logical)} and
@@ -409,7 +409,7 @@ def replay_owner(record,frozen_inputs,products,modules,*,current_inputs,admissio
     require(set(admission_source)=={"current","frozen"} and admission_source["current"]==admission_source["frozen"],
         "new owner admission helper must be frozen and current")
     admission_pin=pin(admission_source["frozen"])
-    require(set(products)==set(evidence_names(record)),"exact bounded owner evidence products required")
+    require(set(products)==set(evidence_names(record,producer)),"exact bounded owner evidence products required")
     _check_tool_bytes(record,products,root)
     source,builder,storage,owner,publication=(modules[n] for n in ("source","builder","storage","owner","publication"))
     startup,lexical,reducer,minifier,packer=(modules[n] for n in ("startup","lexical","reducer","minifier","packer"))
@@ -417,8 +417,8 @@ def replay_owner(record,frozen_inputs,products,modules,*,current_inputs,admissio
     require(record.get("selected_control_manifest")==pin(frozen_inputs["selection/build.json"]),"declared selected control manifest differs")
     require(all(selected.get(k) is True for k in ("complete","frozen_execution","native_reproduced")) and
         selected.get("family")=="D" and selected.get("source_reduced") is False and selected.get("equivalent_edits") is True and
-        selected.get("storage")=="prefix" and set(selected.get("inputs",{}))==set(PRODUCER),"exact unreduced prefix v8 control required")
-    require({n:record["inputs"][n] for n in PRODUCER}==selected["inputs"],"selected control producer pins differ")
+        selected.get("storage")=="prefix" and set(selected.get("inputs",{}))==set(producer),"exact unreduced prefix v8 control required")
+    require({n:record["inputs"][n] for n in producer}==selected["inputs"],"selected control producer pins differ")
     profile=source.production().resource_profile("test-p4");flags=builder.native_flags(profile)
     require(equal(selected.get("resource"),profile.to_record(16)) and selected.get("flags")==flags and
         selected.get("units")==list(UNITS) and equal(record.get("resource"),profile.to_record(16)),"exact P4 source/flag/resource contract required")

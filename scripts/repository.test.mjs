@@ -45,6 +45,9 @@ test('PR routing accepts integration and release paths, and rejects ordinary fea
   assert.equal(run(['pr-check', '--base', 'main', '--head', 'release/nvcompact-0.4']).allowed, true);
   assert.equal(run(['pr-check', '--base', 'main', '--head', 'develop']).allowed, true);
   assert.equal(run(['pr-check', '--base', 'develop', '--head', 'main']).allowed, true);
+  assert.equal(run(['pr-check', '--base', 'feature/engines', '--head', 'feature/source-ownership']).stacked, true);
+  assert.throws(() => run(['pr-check', '--base', 'feature/engines', '--head', 'feature/engines']), { code: 'invalid-pr-route' });
+  assert.throws(() => run(['pr-check', '--base', 'feature/engines', '--head', 'release/source-ownership']), { code: 'invalid-pr-route' });
   assert.throws(() => run(['pr-check', '--base', 'main', '--head', 'feature/compression']), { code: 'invalid-pr-route' });
   assert.throws(() => run(['pr-check', '--base', 'develop', '--head', 'develop']), { code: 'invalid-pr-route' });
 });
@@ -70,6 +73,28 @@ test('start previews without mutation, then creates one locked owned worktree at
   assert.equal(owner.branch, 'feature/example');
   assert.equal(git(b.worktree, 'for-each-ref', '--format=%(upstream)', 'refs/heads/feature/example'), '');
   assert.throws(() => run(b.args, f.repo), { code: 'path-exists' });
+});
+
+test('an explicit feature stack starts at its reviewed parent tip without changing the parent checkout', t => {
+  const f = fixture(t);
+  git(f.repo, 'switch', '--quiet', '-c', 'feature/parent');
+  fs.writeFileSync(path.join(f.repo, 'parent.txt'), 'unmerged parent implementation\n');
+  git(f.repo, 'add', 'parent.txt');
+  git(f.repo, 'commit', '--quiet', '-m', 'parent implementation');
+  git(f.repo, 'push', '--quiet', 'origin', 'feature/parent');
+  const parent = git(f.repo, 'rev-parse', 'HEAD');
+  const b = begin(f, 'feature/child');
+  const args = [...b.args, '--base', 'feature/parent'];
+  const preview = run(args, f.repo);
+  assert.equal(preview.base_sha, parent);
+  assert.notEqual(parent, f.base);
+  assert.throws(() => run([...args, '--execute', '--expected-base', f.base], f.repo), { code: 'base-changed' });
+  const created = run([...args, '--execute', '--expected-base', parent], f.repo);
+  assert.equal(git(b.worktree, 'rev-parse', 'HEAD'), parent);
+  assert.equal(git(f.repo, 'branch', '--show-current'), 'feature/parent');
+  assert.equal(JSON.parse(fs.readFileSync(created.ownership_record, 'utf8')).base_branch, 'feature/parent');
+  const invalid = begin(f, 'release/not-a-feature');
+  assert.throws(() => run([...invalid.args, '--base', 'feature/parent'], f.repo), { code: 'invalid-pr-route' });
 });
 
 test('start rejects stale remote base and protected or reused branches without modifying source or target', t => {

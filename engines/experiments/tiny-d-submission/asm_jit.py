@@ -294,6 +294,20 @@ def link_order(directory, map_data, compiler_log):
     return machine, order, ignored
 
 
+def snapshot_inputs():
+    """Freeze source preparation's complete recipe closure before execution."""
+    source_inputs = load("D_asm_source_inputs", HERE / "source_inputs.py")
+    recipe_data = (ROOT / source_inputs.RECIPE).read_bytes().replace(b"\r\n", b"\n")
+    recipe = json.loads(recipe_data)
+    names = source_inputs.source_names(recipe) + (
+        source_inputs.SELF, "engines/compact/tiny-entry-d/packer.py",
+        "engines/experiments/tcec-scope/build.py", *tuple("engines/experiments/tiny-d-submission/" + n for n in
+            ("asm_jit.py", "storage.py", "build.py", "packaging.py", "directives.py")))
+    frozen = {n: (ROOT / n).read_bytes().replace(b"\r\n", b"\n") for n in names}
+    frozen[source_inputs.RECIPE] = recipe_data
+    return frozen
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, required=True)
@@ -302,12 +316,7 @@ def main():
     if (sys.platform != "linux" or platform.machine() != "x86_64" or not args.out.is_absolute() or out.exists()
             or any((p / ".git").exists() for p in (out, *out.parents))):
         parser.error("new absolute output outside Git on Linux x86-64 required")
-    names = tuple("engines/compact/tiny-entry-d/native/" + n for n in ("tiny.h", "board.c", "search.c", "runtime.c", "start.S", "image.ld")) + (
-        "engines/compact/tiny-entry-d/recipe.json", "engines/compact/tiny-entry-d/shipping_fused_ray.py",
-        "engines/compact/tiny-entry-d/packer.py", "engines/scripts/production.py",
-        "engines/experiments/tcec-scope/build.py", *tuple("engines/experiments/tiny-d-submission/" + n for n in
-            ("asm_jit.py", "source.py", "storage.py", "build.py", "packaging.py", "directives.py")))
-    frozen = {n: (ROOT / n).read_bytes().replace(b"\r\n", b"\n") for n in names}
+    frozen = snapshot_inputs()
     out.mkdir()
     for name, data in frozen.items():
         path = out / "inputs" / name

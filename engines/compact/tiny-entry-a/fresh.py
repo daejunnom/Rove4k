@@ -36,7 +36,7 @@ def main():
     # The recipe owns late local generators as well as the shared helpers.
     # A path may have several input roles; archive its bytes once.
     local={str(ENTRY/name) for name in (*LOCAL,*recipe['local_input_sha256'])}
-    paths=sorted(local|set(recipe['helper_sha256'])|set(TESTS))
+    paths=sorted(local|set(recipe['helper_sha256'])|set(recipe['shared_source_sha256'])|set(TESTS))
     out.mkdir(parents=True);raw=out/'raw-inputs';tree=out/'source-git';tree.mkdir()
     report={'complete':False,'scope':'isolated Git source archive; no project index, commits or remote used',
             'policy':args.policy,'source_paths':paths,'inputs':{},'builds':[]}

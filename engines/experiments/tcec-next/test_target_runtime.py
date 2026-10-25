@@ -44,9 +44,24 @@ def native_fixture():
     return (header + load_segment + stack).ljust(200, b"\0") + b"\xc3"
 
 
+def dependency_fixture():
+    """A synthetic already-admitted record; not a real producer dependency proof."""
+    return {"declaration": {"format": "synthetic-dependency-contract", "required": True},
+            "proof": {"format": "synthetic-inverse-proof", "edits": 1},
+            "attempts": [{"directory": "attempt-" + str(index),
+                          "dependency_gate": {"expanded_source": TARGET.pin(b"synthetic expanded source"),
+                                              "inverse": True},
+                          "native": TARGET.pin(b"synthetic original native")}
+                         for index in range(2)],
+            "compiler_commands": [{"kind": "compile", "command": ["cc", "-x", "c", "-"],
+                "started": True, "terminal": True, "reaped": True, "returncode": 0,
+                "stdout": TARGET.pin(b""), "stderr": TARGET.pin(b""),
+                "stdin": {"name": "tool-1-compile.stdin", **TARGET.pin(b"synthetic expanded source")}}]}
+
+
 class Fixture:
     """Synthetic, source-admission-stubbed transcript, never real evidence."""
-    def __init__(self, root, family="A"):
+    def __init__(self, root, family="A", source_dependencies=None):
         self.root = root
         self.compiler = TARGET._compiler_module()
         self.ci = TARGET.CIContext("example/Rove4k", "a" * 40, "123", "1")
@@ -65,7 +80,8 @@ class Fixture:
         program = "D-source-jit" if family == "D" else "x"
         self.admitted = VERIFY.AdmittedBuild(family, "test-p4", "source-jit", program,
             None if family == "D" else "main.c", "native/x",
-            expected, {"id": "test-p4", "workers": 4}, {"mode": "per-go"}, {}, {}, {})
+            expected, {"id": "test-p4", "workers": 4}, {"mode": "per-go"}, {}, {},
+            {} if source_dependencies is None else {"source_dependencies": copy.deepcopy(source_dependencies)})
         self.verify = SimpleNamespace(
             admit_c_build=lambda record, build: self.admitted,
             admit_d_build=lambda record, build, candidate: self.admitted,
@@ -191,6 +207,8 @@ class Fixture:
                 "type_assertions_native_identical": True,
                 "dependency_discovery_precedes_two_fresh_compiles": True,
                 "cross_compiler_native_identity_required": False}]}
+        if "source_dependencies" in self.admitted.source_contract:
+            self.report["profiles"][0]["source_dependencies"] = copy.deepcopy(self.admitted.source_contract["source_dependencies"])
         if family == "D":
             self.report["profiles"][0]["per_unit_dependency_discovery"] = list(selected.units)
         for name in (self.compiler.SELF, self.compiler.VERIFY_PATH, self.compiler.HOST_PATH, TARGET.INPUT_PATH, TARGET.SELF):
@@ -272,6 +290,17 @@ class Fixture:
 
 
 class PureContext(unittest.TestCase):
+    def test_optional_source_dependency_presence_and_nested_types_are_exact(self):
+        self.assertTrue(TARGET._same_source_dependencies({}, {}))
+        for extra in ({}, None, False):
+            self.assertFalse(TARGET._same_source_dependencies({"source_dependencies": extra}, {}))
+            self.assertFalse(TARGET._same_source_dependencies({}, {"source_dependencies": extra}))
+        for left, right in ((True, 1), (1, 1.0), (False, 0)):
+            self.assertFalse(TARGET._same_source_dependencies(
+                {"source_dependencies": {"nested": [left]}}, {"source_dependencies": {"nested": [right]}}))
+        with self.assertRaisesRegex(ValueError, "JSON-native"):
+            TARGET._source_dependency_copy({"not_a_JSON_array": (1, 2)})
+
     def test_real_compiler_context_rejects_each_redirection_variable(self):
         for name in TARGET.COMPILER_ENV:
             with self.subTest(variable=name), patch.object(TARGET.sys, "platform", "linux"), \
@@ -596,6 +625,7 @@ class TargetReferenceBoundaries(unittest.TestCase):
                              b".global _start\n_start: ret\n")
             self.assertEqual(set(source.to_record()["binding"]["source_profile"]["source_files"]),
                              {"main.c", "start.S", "image.ld"})
+            self.assertNotIn("source_dependencies", source.to_record()["binding"]["source_profile"])
             for name in ("source_context", "source_bundle", "source_seal", "source_provenance_tools", "source_profile"):
                 fixture.report.pop(name)
             fixture.report["program_provenance"] = True
@@ -627,6 +657,82 @@ class TargetReferenceBoundaries(unittest.TestCase):
             shutil.copytree(held, self.fixture.build)
             with self.assertRaisesRegex(ValueError, "root inode"):
                 source.revalidate(verify=self.fixture.verify)
+
+    def test_final_source_dependency_record_binds_CI_and_cloud_proof_native_and_stdin(self):
+        root = self.fixture.root / "dependencies"
+        root.mkdir()
+        fixture = Fixture(root, source_dependencies=dependency_fixture())
+        reference = fixture.validate()
+        self.assertIs(type(reference), TARGET.TargetRuntimeReference)
+        facts, _, _ = TARGET._source_facts(fixture.admitted, fixture.build, fixture.verify, fixture.compiler)
+        self.assertEqual(facts["source_dependencies"], dependency_fixture())
+        facts["source_dependencies"]["attempts"][0]["native"]["bytes"] += 1
+        self.assertEqual(fixture.admitted.source_contract["source_dependencies"], dependency_fixture())
+        inputs = fixture.cloud_seed()
+        with patch.object(TARGET, "ORIGINAL_LAYOUT_PARENT", root), patch.dict(TARGET.os.environ, {}, clear=True):
+            source = TARGET.sealed_source_binding(fixture.admitted, fixture.build, verify=fixture.verify, **inputs)
+            self.assertEqual(source.to_record()["binding"]["source_profile"]["source_dependencies"], dependency_fixture())
+            for name in ("source_context", "source_bundle", "source_seal", "source_provenance_tools", "source_profile"):
+                fixture.report.pop(name)
+            fixture.report["program_provenance"] = True
+            fixture.save()
+            with patch.object(TARGET, "current_system_context", return_value=fixture.context):
+                compiled = TARGET.compiler_receipt_binding(fixture.admitted, fixture.build, fixture.receipt,
+                    verify=fixture.verify, source_binding=source)
+                self.assertEqual(compiled.to_record()["evidence"]["source_dependencies"], dependency_fixture())
+                fixture.report["profiles"][0]["source_dependencies"]["compiler_commands"][0]["stdin"]["sha256"] = "0" * 64
+                fixture.save()
+                with self.assertRaisesRegex(ValueError, "dependency proof/native/compiler stdin"):
+                    TARGET.compiler_receipt_binding(fixture.admitted, fixture.build, fixture.receipt,
+                        verify=fixture.verify, source_binding=source)
+
+    def test_dependency_row_presence_and_each_original_receipt_component_cannot_drift(self):
+        root = self.fixture.root / "dependencies"
+        root.mkdir()
+        fixture = Fixture(root, source_dependencies=dependency_fixture())
+        original = copy.deepcopy(fixture.report)
+        for field in ("omission", "attempt_order", "directory", "gate", "native", "stdout", "stderr", "stdin", "bool_as_int", "int_as_float"):
+            fixture.report = copy.deepcopy(original)
+            row = fixture.report["profiles"][0]
+            evidence = row["source_dependencies"]
+            if field == "omission":
+                row.pop("source_dependencies")
+            elif field == "attempt_order":
+                evidence["attempts"].reverse()
+            elif field == "directory":
+                evidence["attempts"][0]["directory"] = "another-directory"
+            elif field == "gate":
+                evidence["attempts"][0]["dependency_gate"]["inverse"] = False
+            elif field == "native":
+                evidence["attempts"][0]["native"]["sha256"] = "0" * 64
+            elif field in ("stdout", "stderr", "stdin"):
+                evidence["compiler_commands"][0][field]["sha256"] = "0" * 64
+            elif field == "bool_as_int":
+                evidence["compiler_commands"][0]["terminal"] = 1
+            else:
+                evidence["proof"]["edits"] = 1.0
+            fixture.save()
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError, "dependency proof/native/compiler stdin"):
+                fixture.validate()
+        for role in ("source_profile", "row"):
+            fixture.report = copy.deepcopy(original)
+            selected = fixture.report["source_profile"] if role == "source_profile" else fixture.report["profiles"][0]
+            selected["source_dependencies"]["declaration"]["required"] = 1
+            fixture.save()
+            with self.subTest(role=role), self.assertRaisesRegex(ValueError, "dependency proof/native/compiler stdin"):
+                fixture.validate()
+        fixture.report = copy.deepcopy(original)
+        fixture.save()
+        changed_seal = json.loads(fixture.seal.read_bytes())
+        changed_seal["profiles"][0]["source_dependencies"]["compiler_commands"][0]["terminal"] = 1
+        fixture.seal.write_text(json.dumps(changed_seal) + "\n")
+        with self.assertRaisesRegex(ValueError, "source seal dependency"):
+            fixture.validate()
+        for extra in ({}, None):
+            self.fixture.report["profiles"][0]["source_dependencies"] = extra
+            self.fixture.save()
+            with self.subTest(unexpected=extra), self.assertRaisesRegex(ValueError, "dependency proof/native/compiler stdin"):
+                self.fixture.validate()
 
     def test_full_unit_contract_keeps_original_native_and_never_claims_execution(self):
         before = copy.deepcopy(self.fixture.admitted.expected)

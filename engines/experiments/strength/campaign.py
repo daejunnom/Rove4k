@@ -23,6 +23,8 @@ import stat
 import sys
 import time
 
+sys.dont_write_bytecode = True
+
 try:
     from . import aws, budget, ledger
 except ImportError:

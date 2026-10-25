@@ -142,12 +142,8 @@ def main():
             or out.exists() or any((p/".git").exists() for p in (out,*out.parents))):
         parser.error("absolute selected build and new external output on Linux x86-64 required")
     raw = (build/"build.json").read_bytes(); selected = json.loads(raw)
-    producer = tuple("engines/compact/tiny-entry-d/native/"+n for n in NATIVE)+(
-        "engines/compact/tiny-entry-d/recipe.json","engines/compact/tiny-entry-d/shipping_fused_ray.py",
-        "engines/compact/tiny-entry-d/packer.py","engines/experiments/tcec-scope/build.py",
-        "engines/scripts/production.py","engines/scripts/minify.py","engines/scripts/rename_c.py",
-        "engines/experiments/tiny-d-submission/source.py","engines/experiments/tiny-d-submission/build.py",
-        "engines/experiments/tiny-d-submission/packaging.py","engines/experiments/tiny-d-submission/storage.py")
+    source_inputs = load("D_owner_source_inputs", HERE/"source_inputs.py")
+    producer = source_inputs.producer_names(json.loads(normalized(ROOT/source_inputs.RECIPE)))
     if (any(selected.get(k) is not True for k in ("complete","frozen_execution","native_reproduced")) or
             selected.get("family")!="D" or selected.get("source_reduced") is not False or
             selected.get("equivalent_edits") is not True or selected.get("storage")!="prefix" or
@@ -159,7 +155,7 @@ def main():
         if pin(data)!=selected["inputs"][name] or (build/"inputs"/name).read_bytes()!=data:
             raise ValueError("selected/current producer differs: "+name)
         frozen[name] = data
-    for name in ("reduce.py","publication.py","process_owner.py","test_startup.py","test_process_owner.py"):
+    for name in ("reduce.py","publication.py","process_owner.py","test_startup.py","test_process_owner.py","source_inputs.py"):
         logical = "engines/experiments/tiny-d-submission/"+name; frozen[logical] = normalized(ROOT/logical)
     if args.compressed_bootstrap:
         logical = "engines/experiments/tiny-d-submission/compressed_bootstrap.py"; frozen[logical] = normalized(ROOT/logical)

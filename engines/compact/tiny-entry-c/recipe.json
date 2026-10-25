@@ -85,7 +85,8 @@
     "engines/compact/tiny-entry-c/shipping_late_constants.py": "c89ada0aaf731cede3a7fb938f30d191d85c1794a67d6c77f951f97f12745534",
     "engines/scripts/compiler_group.py": "d859ccc460619102c27433e2476d6d5be2e8de4046e07d49f28c0944c7ff0a77",
     "engines/scripts/compiler_stdin.py": "fc92bb6146fcfc5a6c73cd9f68929192a90d22a875bf591caf2cf3b32b87055b",
-    "engines/scripts/compiler_seek.py": "8ca5fd736f010cd9dd1e3b668065c0cf7d82f9e98653580b8f9b4c23e7d75a41"
+    "engines/scripts/compiler_seek.py": "8ca5fd736f010cd9dd1e3b668065c0cf7d82f9e98653580b8f9b4c23e7d75a41",
+    "engines/scripts/source_composition.py": "1422d3e97f6ab0dc969e0feee6a04e3c97d6677323b3e91c00f1383f8baaeadd"
   },
   "compression": {
     "format": "lzma-alone",
@@ -114,7 +115,7 @@
     "bootstrap_bytes": 10677
   },
   "local_input_sha256": {
-    "engine.c": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
+    "engine.c": "c0fe31f79a2c0d738d8a33ffe1897e9f0ac7a7026be69fe963cc35abc44f3b2b",
     "bootstrap.py.in": "550de6230871e39a6d43be55b28832ee2958628268d2c328ff1bbfc01945bc56",
     "launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
     "shipping_dead_score.py": "5519502eb0695662035d98fa7d462e0d5c10f825c05afbfc1e32a1e3475e8d73"
@@ -4137,7 +4138,7 @@
       }
     },
     "source_proof": {
-      "path": "/mnt/c/Users/\uac15\ubbfc\uc218/Documents/Codex/rove4k-seek-flush-five-firstcost-20261024-v2-evidence/inputs/C/source-proof.json",
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-seek-flush-five-firstcost-20261024-v2-evidence/inputs/C/source-proof.json",
       "bytes": 1973,
       "sha256": "b41f573d1311e549917774cb544ee68261bed9336099204a911479b67b53fb2b"
     },
@@ -4290,5 +4291,14 @@
       "substituted or exotic non-Linux procfs"
     ],
     "runtime_at_source_freeze": "pending new ordinary reproduction and selected runtime"
+  },
+  "assembled_source_sha256": {
+    "engine.c": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b"
+  },
+  "shared_source_sha256": {
+    "engines/common/board.c": "7f231ee347a66f8117d15934bda4adb188309db433598b5634afc46bbb61d1e8",
+    "engines/common/move.c": "e01d84200956050c6c064acc9d6fe812a6ade6e934993a332db518ffd27f2e9c",
+    "engines/common/protocol.c": "e507eccbb84c4f32ca3c16e22f5002e91c9f4e17ef1051988332c6137317a974",
+    "engines/common/search.c": "cd794f819390cf2d95b5ef8b54314f0f15a3a2ae62f3fc18a6ea595d2c0a9bf3"
   }
 }

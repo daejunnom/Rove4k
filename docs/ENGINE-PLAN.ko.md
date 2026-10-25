@@ -59,6 +59,19 @@ tool dependency, test input을 분리한다. 다른 계열 helper의 재사용�
 실제 packer 입력·복원 bytes를 연결한다. DEV/학습/계측/다른 계열 코드는
 submission closure에서 제외한다.
 
+PR #18 통합에서는 계열 template과 `engines/common`의 선언된 C 조각을 engine
+입력으로, `source_composition.py`를 tool 입력으로 각각 고정한다. 조립 결과는
+기존 canonical C와 일치해야 하며 source factory·frozen snapshot·sealed transport·
+AWS seed 모두 같은 역할 경계를 유지한다. retired 경로의 archive 이동은 현재
+source authority나 실패 결과를 새 적격성으로 승격하지 않는다.
+
+선택형 spelling과 기본 unused-includes를 함께 사용할 때 순서는 resource →
+phase/B → E19(E만) → spelling → dependency cleanup이다. 역변환은 dependency를
+먼저 복원한 뒤 spelling/E19/phase/B/resource를 복원한다. 기존 pre-cleanup 입력
+핀을 최종 C에 맞춰 바꾸지 않으며 전체 파일 비용·실제 compiler stdin·expanded
+입력·native·diagnostics를 새 체인에서 재검증한다. 공통화로 제거한 저장소 중복
+바이트와 제출 파일 절감량은 따로 보고한다.
+
 ### 프로필
 
 | ID | 검색 worker | 엔진당 TT 상한 | 용도 |

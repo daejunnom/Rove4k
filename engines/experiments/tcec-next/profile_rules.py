@@ -21,7 +21,7 @@ ROOT = HERE.parents[2]
 ORACLE = "engines/tests/chess_oracle.py"
 ORACLE_SHA = "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8"
 HOST = "engines/experiments/tcec-scope/build.py"
-HOST_SHA = "fc916e798952cff1c915a6846e758874bc2d858b3c59dec73870b95c7e3d4828"
+HOST_SHA = "5fa10c6f8f032be374bf3a86bbe6ca558076630a2cc3170b41890f691688f563"
 SCHEMA = "rove4k.production-generated-rules.v1"
 SPELLING = "engines/experiments/tcec-next/profile_spelling.py"
 SPELLING_SCHEMA = "rove4k.selected-spelling-experiment.v1"
@@ -148,7 +148,7 @@ def fixture_cases(oracle=None) -> tuple[list[dict], dict]:
 
 
 def _source_build_record(build, *, family, stages, post_profile, main_source,
-                         baseline_source, tools=(), post_spelling=None):
+                         baseline_source, tools=(), post_spelling=None, source_dependencies=None):
     require(build is not None, "named post-profile/model source build root required")
     build = Path(build)
     record = json.loads(_evidence_bytes(build / "build.json", name="build.json"))
@@ -157,6 +157,7 @@ def _source_build_record(build, *, family, stages, post_profile, main_source,
             record.get("complete") is True and record.get("reproducible") is True and
             record.get("post_profile") == post_profile and record.get("post_spelling") == post_spelling and
             record.get("source_proofs") == stages and
+            record.get("source_dependencies") == source_dependencies and
             _evidence_bytes(build / "main.c", name="main.c") == main_source and
             _evidence_bytes(build / "control/main.c", name="main.c") == baseline_source,
             family + " named frozen producer source/stages/post-profile identity differs")
@@ -201,6 +202,10 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
     suffix = stages[1:] if stages and stages[0] == resource else None
     require(suffix is not None and all(isinstance(stage, dict) for stage in suffix),
             "ordered resource-first proof chain required")
+    dependency_stage = (suffix[-1] if suffix and
+                        suffix[-1].get("schema") == "rove4k.profile-dependencies.v1" else None)
+    if dependency_stage is not None:
+        suffix = suffix[:-1]
     has_spelling = bool(suffix) and suffix[-1].get("schema") == SPELLING_SCHEMA
     spelling_stage = suffix[-1] if has_spelling else None
     if has_spelling:
@@ -217,7 +222,7 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
     else:
         require(not suffix or (len(suffix) == 1 and has_phase),
                 "explicit A/C/F proof chain must be resource-only or ordered resource/phase")
-    post_profile, post_spelling, tools = None, None, []
+    post_profile, post_spelling, source_dependencies, tools = None, None, None, []
     if has_b:
         relative = "engines/experiments/tcec-next/profile_b.py"
         post_profile = {"path": relative, "variant": suffix[0].get("variant")}
@@ -238,15 +243,19 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
                 "final spelling requires selected phase-init ACEF or tcec-final-lf B and its reviewed winner")
         post_spelling = {"path": SPELLING, "selection": "best", "variant": variant}
         tools.append(SPELLING)
-    if not suffix and not has_spelling and build is not None:
+    if dependency_stage is not None:
+        relative = "engines/experiments/tcec-next/profile_dependencies.py"
+        source_dependencies = {"path": relative, "variant": "unused-includes"}
+        tools.append(relative)
+    if not suffix and not has_spelling and dependency_stage is None and build is not None:
         control = json.loads(_evidence_bytes(Path(build) / "build.json", name="build.json"))
         require(control.get("post_profile") is None and control.get("post_spelling") is None and
-                control.get("source_proofs") == stages,
+                control.get("source_dependencies") is None and control.get("source_proofs") == stages,
                 family + " control build declares an unconsumed post-profile stage")
-    if suffix or has_spelling:
-        _source_build_record(build, family=family, stages=stages, post_profile=post_profile,
-                             main_source=main_source, baseline_source=baseline_source, tools=tools,
-                             post_spelling=post_spelling)
+    if suffix or has_spelling or dependency_stage is not None:
+        source_record = _source_build_record(build, family=family, stages=stages, post_profile=post_profile,
+            main_source=main_source, baseline_source=baseline_source, tools=tools,
+            post_spelling=post_spelling, source_dependencies=source_dependencies)
     replayed = [resource]
     inverses = [("resource", projection, resource, baseline_source)]
     if has_b:
@@ -297,10 +306,32 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
         inverses.append(("full final spelling", current, proof, expected))
         expected = projected
         replayed.append(proof)
+    if dependency_stage is not None:
+        current = load("production_rules_dependencies", ROOT / source_dependencies["path"])
+        projected, proof = current.transform_source(expected)
+        require(dependency_stage == proof,
+                "final dependency proof/inverse differs")
+        attempts = source_record.get("attempts")
+        require(isinstance(attempts, list) and len(attempts) == 2 and
+                [attempt.get("directory") for attempt in attempts] == ["first", "repeat"] and
+                all(attempt.get("source_proofs") == stages for attempt in attempts),
+                "dependency compiler receipt requires both fresh full-chain attempts")
+        def checked(root, name, value):
+            root, relative = Path(root), Path(name)
+            require(not relative.is_absolute() and ".." not in relative.parts,
+                    "dependency rules evidence must remain in its named build")
+            data = _evidence_bytes(root / relative, name=relative.name)
+            require(pin(data) == value, "dependency rules evidence identity differs: " + name)
+            return data
+        require(current.validate_receipt(Path(build), source_record, proof, projected, checked=checked) == expected,
+                "dependency rules compiler gate differs")
+        inverses.append(("final dependency", current, proof, expected))
+        expected = projected
+        replayed.append(proof)
     require(main_source == expected,
             "actual profile source/proof does not replay from its admitted full baseline")
     # Undo the actual complete shipping body in the opposite order. In
-    # particular spelling must be restored before E19's table offsets apply.
+    # particular dependencies precede spelling, then E19's table offsets apply.
     restored = main_source
     for label, module, proof, parent in reversed(inverses):
         if module is None:
@@ -311,7 +342,7 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
             restored = module.restore_source(restored, proof)
         require(restored == parent, label + " proof/inverse differs")
     require(b"rv_rule_" not in main_source, "rules fixture identifiers collide")
-    return replayed if suffix or has_spelling else resource
+    return replayed if suffix or has_spelling or dependency_stage is not None else resource
 
 
 def render_fixture(main_source: bytes, family: str, cases: list[dict]) -> bytes:

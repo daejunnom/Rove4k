@@ -45,6 +45,11 @@ def json_equal(left, right):
     return json.dumps(left, sort_keys=True, separators=(",", ":")) == json.dumps(right, sort_keys=True, separators=(",", ":"))
 
 
+def composition_inputs():
+    recipe = json.loads(normalized(ROOT / "engines/compact/tiny-entry-d/recipe.json"))
+    return tuple(recipe["shared_source_sha256"]) + tuple(recipe["helper_sha256"])
+
+
 def require_execution(row, expected):
     if (row.get("returncode") != expected or not row.get("terminal") or not row.get("reaped") or
             not row.get("owned_group_absent") or row.get("forced_cleanup") or
@@ -60,6 +65,8 @@ def prepared(source, profile, equivalent, storage_tool, storage_mode):
     for name, record in proof["source_edits"].items():
         restored[name] = source.restore(base[name], record)
     canonical = {name:source.normalized(source.CANONICAL / "native" / name) for name in NATIVE}
+    composition = source.load("d_startup_source_composition", source.ROOT / "engines/scripts/source_composition.py")
+    canonical["board.c"] = composition.read_source(source.ROOT, "engines/compact/tiny-entry-d/native/board.c")
     fused = source.load("d_startup_fused_inverse", source.CANONICAL / "shipping_fused_ray.py")
     expected_board, _ = fused.transform_source(canonical["board.c"])
     if restored["board.c"] != expected_board:
@@ -214,6 +221,7 @@ def main():
         "engines/experiments/tiny-d-submission/source.py",
         "engines/experiments/tiny-d-submission/build.py",
         CHECKER_INPUT)
+    names += composition_inputs()
     selected = None
     if args.build is not None:
         if not args.build.is_absolute():
@@ -224,7 +232,7 @@ def main():
                 selected.get("family") != "D" or selected.get("source_reduced") is not False or
                 type(selected.get("equivalent_edits")) is not bool or selected.get("storage") not in STORAGE_MODES):
             raise ValueError("complete frozen unreduced D source selection required")
-        names = PRODUCER_INPUTS + ((STORAGE_INPUT,) if selected["storage"] != "none" else ())
+        names = PRODUCER_INPUTS + composition_inputs() + ((STORAGE_INPUT,) if selected["storage"] != "none" else ())
         if not isinstance(selected.get("inputs"), dict) or set(selected["inputs"]) != set(names):
             raise ValueError("selected producer input closure differs from explicit allowlist")
         names += (CHECKER_INPUT,)

@@ -3,9 +3,9 @@ name: Rove4k engines
 on:
   push:
     branches: [main, develop]
-    paths: ['engines/**', '.github/workflows/engines.yml']
+    paths: ['engines/**', 'archive/**', '.github/workflows/engines.yml']
   pull_request:
-    paths: ['engines/**', '.github/workflows/engines.yml']
+    paths: ['engines/**', 'archive/**', '.github/workflows/engines.yml']
   workflow_dispatch:
 
 permissions:
@@ -58,7 +58,7 @@ jobs:
         if: matrix.language == 'c'
         run: |
           for single in 0 1; do
-            cc -std=c11 -O2 -pthread -DROVE_VARIANT=6 -DROVE_F_SINGLE="$single" -DROVE_TT_BITS=8 -DROVE_WORKERS=1 -DROVE_DEV=0 engines/experiments/f/tt_contract.c engines/c/board.c -o "$ROVE_TEST_OUT/tt-contract-$single"
+            cc -std=c11 -O2 -pthread -DROVE_VARIANT=6 -DROVE_F_SINGLE="$single" -DROVE_TT_BITS=8 -DROVE_WORKERS=1 -DROVE_DEV=0 engines/tests/c/f_tt_contract.c engines/c/board.c -o "$ROVE_TEST_OUT/tt-contract-$single"
             timeout 60 "$ROVE_TEST_OUT/tt-contract-$single"
           done
       - name: Check the smaller A source architecture and actual complete launcher
@@ -160,58 +160,6 @@ jobs:
           python3 -B engines/compact/tiny-d/check.py --build "$ROVE_TEST_OUT/tiny-d/build.json" --out "$ROVE_TEST_OUT/tiny-d-check"
           python3 -B engines/compact/tiny-d/algorithms.py --build "$ROVE_TEST_OUT/tiny-d/build.json" --out "$ROVE_TEST_OUT/tiny-d-algorithms"
           python3 -B engines/compact/tiny-d/test_runtime.py --out "$ROVE_TEST_OUT/tiny-d-runtime"
-      - name: Check independent Rust rule and search contracts
-        if: matrix.language == 'rust'
-        env:
-          RUSTUP_TOOLCHAIN: 1.97.0
-          ROVE_DEV: '1'
-          ROVE_VARIANT: D
-          ROVE_WORKERS: '2'
-          ROVE_TT_BITS: '16'
-        run: |
-          mkdir -p "$ROVE_TEST_OUT"
-          rustc --edition=2024 --test -O engines/rust/main.rs -o "$ROVE_TEST_OUT/rust-contracts"
-          timeout 120 "$ROVE_TEST_OUT/rust-contracts"
-      - name: Build independent no_std Rust D and check its real scalar and HQ paths
-        if: matrix.language == 'rust'
-        env:
-          RUSTUP_TOOLCHAIN: 1.97.0
-        run: |
-          mkdir -p "$ROVE_TEST_OUT/tiny-rust-d"
-          for lane in hq scalar; do
-            python3 -I -B engines/compact/tiny-rust-d/build.py --out "$ROVE_TEST_OUT/tiny-rust-d/$lane" --hq "$lane" --workers 2 --tt-bits 18 --reproduce
-          done
-          python3 - <<'PY'
-          import hashlib, json, os
-          from pathlib import Path
-          root = Path(os.environ['ROVE_TEST_OUT']) / 'tiny-rust-d'
-          expected = {
-              'hq': 'f8581a68f09d4d9cdc3e1413aa45ffb385bafd8240f1432403629ec2a0e544f8',
-              'scalar': 'bd0e3bd1567ae906d4ab9704603204d22302895df1f05679f6221d6445aef878',
-          }
-          for lane, pin in expected.items():
-              report = json.loads((root / lane / 'build.json').read_text())
-              image = (root / lane / 'first/x').read_bytes()
-              assert len(image) == report['complete_native_bytes'] == 16816
-              assert hashlib.sha256(image).hexdigest() == report['complete_native_sha256'] == pin, lane
-              assert report['reproduced'] and all(report['artifact_gates'].values())
-              assert (report['workers'], report['tt_bits'], report['startup_threads'], report['hq']) == (2, 18, 3, lane)
-          PY
-          python3 -I -B engines/compact/tiny-rust-d/verify_runtime.py --hq "$ROVE_TEST_OUT/tiny-rust-d/hq/first/x" --scalar "$ROVE_TEST_OUT/tiny-rust-d/scalar/first/x" --out "$ROVE_TEST_OUT/tiny-rust-d/runtime"
-          for lane in hq scalar; do
-            python3 -I -B engines/compact/tiny-rust-d/tests/runtime_trace.py --image "$ROVE_TEST_OUT/tiny-rust-d/$lane/first/x" --out "$ROVE_TEST_OUT/tiny-rust-d/trace-$lane"
-          done
-          python3 -I -B engines/compact/tiny-rust-d/verify_board.py --out "$ROVE_TEST_OUT/tiny-rust-d/board"
-          python3 -I -B engines/compact/tiny-rust-d/verify_search.py --unit-only --out "$ROVE_TEST_OUT/tiny-rust-d/search"
-      - name: Reproduce finite Rust D shipping entries and check their positive lifetimes
-        if: matrix.language == 'rust'
-        env:
-          RUSTUP_TOOLCHAIN: 1.97.0
-        run: |
-          mkdir -p "$ROVE_TEST_OUT/tiny-rust-d-shipping"
-          python3 -I -B engines/compact/tiny-rust-d-shipping/test_queue.py --out "$ROVE_TEST_OUT/tiny-rust-d-shipping/queue-boundary"
-          python3 -I -B engines/compact/tiny-rust-d-shipping/build.py --out "$ROVE_TEST_OUT/tiny-rust-d-shipping/build"
-          python3 -I -B engines/compact/tiny-rust-d-shipping/verify.py --build "$ROVE_TEST_OUT/tiny-rust-d-shipping/build" --out "$ROVE_TEST_OUT/tiny-rust-d-shipping/runtime"
       - name: Compile the fixed A root source forms
         if: matrix.language == 'c'
         run: python3 -B engines/scripts/build.py --out "$ROVE_TEST_OUT/fixed-root" --profile local-ship --languages c --variant A --parallel root --structural-compact --no-pack
@@ -253,8 +201,6 @@ jobs:
             ${{ env.ROVE_TEST_OUT }}/tiny-d-algorithms/**/*.json
             ${{ env.ROVE_TEST_OUT }}/tiny-d-runtime/results.json
             ${{ env.ROVE_TEST_OUT }}/fixed-root/build.json
-            ${{ env.ROVE_TEST_OUT }}/tiny-rust-d/**/*.json
-            ${{ env.ROVE_TEST_OUT }}/tiny-rust-d-shipping/**/*.json
             ${{ env.ROVE_TEST_OUT }}/semaphore-pool/**/*.json
           if-no-files-found: ignore
           retention-days: 7
@@ -276,7 +222,9 @@ jobs:
       - name: Check production resource and source-closure contracts
         run: |
           python -B -m unittest discover -s engines/scripts -p test_production.py
+          python -B -m unittest discover -s engines/scripts -p test_source_composition.py
           python -B -m unittest discover -s engines/scripts -p test_retirement.py
+          python -B -m unittest discover -s archive -p test_replay.py
           python -B -m unittest discover -s engines/scripts -p test_production_ci.py
           python -B -m unittest discover -s engines/scripts -p test_production_input.py
           python -B -m unittest discover -s engines/scripts -p test_production_source_bundle.py
@@ -284,7 +232,13 @@ jobs:
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_target_runtime.py
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_rules.py
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_compiler.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_dependencies.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_spelling.py
+          python -I -B engines/experiments/tcec-next/check_spelling_compound.py --self-test
           python -I -B engines/experiments/tiny-d-submission/test_storage.py
+          python -I -B engines/experiments/tiny-d-submission/test_source_inputs.py
+          python -I -B engines/experiments/tiny-d-submission/test_storage_inputs.py
+          python -I -B engines/experiments/tiny-d-submission/test_qualify_owner.py
       - name: Check actual E19 inference, corpus boundaries and optimizer step zero
         run: python -B -m unittest discover -s engines/training/e19 -p 'test_*.py'
       - name: Check evaluator placement, durable pairs and AWS service boundaries

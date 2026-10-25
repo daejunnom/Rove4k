@@ -210,6 +210,18 @@ def instrument(source_tool, files):
     return result, proof
 
 
+def snapshot_inputs():
+    """Exact recipe source closure plus this fixture's executable tools."""
+    source = load("D_storage_snapshot_source", HERE / "source.py")
+    source_inputs = load("D_storage_snapshot_names", HERE / "source_inputs.py")
+    recipe = json.loads(source.normalized(ROOT / source_inputs.RECIPE))
+    names = (*source_inputs.source_names(recipe), source_inputs.SELF, source.HOST,
+             source_inputs.D + "storage.py", source_inputs.D + "check_storage.py")
+    if len(set(names)) != len(names):
+        raise ValueError("duplicate storage source/tool snapshot name")
+    return {name: source.normalized(ROOT / name) for name in names}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, required=True)
@@ -219,6 +231,18 @@ def main():
             not args.out.is_absolute() or out.exists() or
             any((p / ".git").exists() for p in (out, *out.parents))):
         parser.error("new absolute output outside Git on Linux x86-64 required")
+    inputs = snapshot_inputs()
+    out.mkdir()
+    for name, data in inputs.items():
+        frozen = out / "frozen-inputs" / name
+        frozen.parent.mkdir(parents=True, exist_ok=True)
+        frozen.write_bytes(data)
+    executing = load("D_storage_frozen_execution",
+        out / "frozen-inputs/engines/experiments/tiny-d-submission/check_storage.py")
+    executing.run_snapshot(out, inputs, ROOT)
+
+
+def run_snapshot(out, inputs, origin):
     source = load("D_storage_actual_source", HERE / "source.py")
     storage = load("D_storage_actual_projection", HERE / "storage.py")
     api = source.production()
@@ -230,27 +254,15 @@ def main():
     hostmod.LIMITS = {**hostmod.LIMITS, "aggregate_wall": 600, "per_command_wall": 90,
                       "parent_CPU": 240, "parent_CPU_hard": 270, "child_CPU": 75,
                       "tool_output_bytes": 4 << 20}
-    out.mkdir()
-    report = dict(kind="D-actual-C-search-storage-contract-v2", complete=False, commands=[],
+    report = dict(kind="D-actual-C-search-storage-contract-v3", complete=False, commands=[],
+                  frozen_execution=True,
                   source=source_proof, resource=profile.to_record(16), cases=[],
                   modes=["plain", "ubsan"],
                   actual_runtime=False, actual_target_allocation=False, strength_claim=False)
-    named_inputs = set(source_proof["input_sources"]) | {
-        "engines/compact/tiny-entry-d/recipe.json",
-        "engines/compact/tiny-entry-d/shipping_fused_ray.py",
-        "engines/scripts/production.py", source.HOST,
-        *(str((HERE / name).relative_to(ROOT)).replace("\\", "/")
-          for name in ("source.py", "storage.py", "check_storage.py"))}
-    report["inputs"] = {}
-    for logical in sorted(named_inputs):
-        data = source.normalized(ROOT / logical)
-        observed = source.pin(data)
-        if logical in source_proof["input_sources"] and observed != source_proof["input_sources"][logical]:
-            raise ValueError("canonical input changed before freezing: " + logical)
-        frozen = out / "frozen-inputs" / logical
-        frozen.parent.mkdir(parents=True, exist_ok=True)
-        frozen.write_bytes(data)
-        report["inputs"][logical] = observed
+    report["inputs"] = {name: source.pin(data) for name, data in inputs.items()}
+    if snapshot_inputs() != inputs or any(report["inputs"].get(name) != expected
+            for name, expected in source_proof["input_sources"].items()):
+        raise ValueError("frozen storage recipe closure or prepared source differs")
     prepared = out / "prepared"
     prepared.mkdir()
     for name, data in files.items():
@@ -299,7 +311,7 @@ def main():
             report["cases"].append(row)
             save()
         for logical, expected in report["inputs"].items():
-            if source.pin(source.normalized(ROOT / logical)) != expected:
+            if source.pin(source.normalized(origin / logical)) != expected:
                 raise ValueError("source changed during fixture")
         report["complete"] = True
         report["actual_functions_equal"] = True

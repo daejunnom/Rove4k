@@ -1,5 +1,10 @@
 # Maintained A: current full Loose wrapper choices
 
+Shared C bodies are owned by [engines/common](../../common/README.md). The builder
+assembles the canonical template before the existing readable transformations;
+compile or inspect the composed source rather than feeding its named fragments
+directly to a C compiler.
+
 Current 2026-10-25 full Loose selections fix workers2 / TT18 / PLY128:
 default `--wrapper grace` is **4,768 B**, and explicit `--wrapper shell` is
 **4,232 B**. Each reproduced twice and passed its own quit/EOF selected

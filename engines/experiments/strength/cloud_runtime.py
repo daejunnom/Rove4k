@@ -27,6 +27,7 @@ import types
 import urllib.request
 import zipfile
 
+sys.dont_write_bytecode = True
 _EXECUTING_CODE = sys._getframe().f_code
 
 if not __package__:
@@ -42,12 +43,13 @@ if not __package__:
         sys.modules[_package_name] = _package
     if list(_package.__path__) != [_package_path]:
         raise ValueError("cloud sibling package belongs to another source tree")
-    __package__ = _package_name
+    _SIBLING_PACKAGE = _package_name
+else:
+    _SIBLING_PACKAGE = __package__
 
-try:
-    from . import aws, budget, collect, ledger, registry, run, topology
-except ImportError:
-    import aws, budget, collect, ledger, registry, run, topology
+aws, budget, collect, ledger, registry, run, topology = (
+    importlib.import_module(_SIBLING_PACKAGE + "." + name)
+    for name in ("aws", "budget", "collect", "ledger", "registry", "run", "topology"))
 
 CANONICAL_MODULE = "rove4k_cloud_runtime"
 CANONICAL_AMI = "ami-0af9110f0ec0820e2"
@@ -68,7 +70,10 @@ COMPILER_ENV = ("GCC_EXEC_PREFIX", "COMPILER_PATH", "LIBRARY_PATH", "CPATH",
 HOST_SOURCE_FILES = tuple("engines/experiments/strength/" + name + ".py" for name in
     ("cloud_runtime", "campaign", "aws", "budget", "ledger", "registry", "placement", "topology",
      "peer_runtime", "peers", "run", "wave", "collect", "durability", "fastchess", "seed")) + (
-        "engines/scripts/production_input.py",)
+        "engines/scripts/production_input.py", "engines/scripts/source_composition.py",
+        "engines/experiments/tcec-next/profile_dependencies.py",
+        "engines/experiments/tiny-d-submission/source_inputs.py",
+        "engines/common/board.c", "engines/common/move.c", "engines/common/protocol.c", "engines/common/search.c")
 
 
 def require(value, detail):
@@ -528,7 +533,7 @@ def canonical_provider():
 
 
 def bootstrap_module():
-    module = importlib.import_module(__package__ + ".campaign")
+    module = importlib.import_module(_SIBLING_PACKAGE + ".campaign")
     require(Path(module.__file__).resolve() == HERE / "campaign.py", "bootstrap recipe module belongs to another source tree")
     return module
 
@@ -1029,20 +1034,14 @@ def rebase_bank(seed, root, out):
 
 
 def local_build_command(argv, cwd, cpu):
-    try:
-        from . import peers
-    except ImportError:
-        import peers
+    peers = importlib.import_module(_SIBLING_PACKAGE + ".peers")
     stdout, _stderr, _record = peers.bounded_run(argv, cwd, cpu=cpu, timeout=600, output_bytes=8 << 20)
     return stdout
 
 
 def prepare_runner(seed, root, out, *, cpu, execute_command=local_build_command):
     """Rebuild the pinned patched runner from a transported Git object bundle."""
-    try:
-        from . import fastchess
-    except ImportError:
-        import fastchess
+    fastchess = importlib.import_module(_SIBLING_PACKAGE + ".fastchess")
     out = new_external(out)
     out.mkdir(parents=True)
     checkout = out / "checkout"
@@ -1290,10 +1289,7 @@ def main(argv=None):
     else:
         # The campaign module validates and consumes the permit and the original
         # handoff journal. Never import or execute arbitrary seed code first.
-        try:
-            from . import campaign
-        except ImportError:
-            import campaign
+        campaign = bootstrap_module()
         require(callable(getattr(campaign, "run_host_handoff", None)),
                 "missing production campaign.run_host_handoff consumer")
         result = campaign.run_host_handoff(args.handoff, args.handoff_sha256, args.permit, args.permit_sha256)

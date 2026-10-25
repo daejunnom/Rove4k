@@ -8,6 +8,7 @@ import sys
 import tempfile
 from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
 sys.dont_write_bytecode = True
 SPEC = importlib.util.spec_from_file_location("production_ci_test_target", Path(__file__).with_name("production_ci.py"))
@@ -28,6 +29,48 @@ def owner_report(rows=None):
 
 
 class ProductionCIBoundaries(unittest.TestCase):
+    def test_actual_pipeline_input_gate_admits_all_current_family_plans(self):
+        own = CI.normalized(CI.ROOT / CI.SELF)
+        for family in "ABCDEF":
+            with self.subTest(family=family):
+                plan = CI.pipeline_plan(family, Path(tempfile.gettempdir()).resolve() / ("ci-inputs-" + family))
+                inputs = CI.pipeline_inputs(plan, own)
+                self.assertEqual(inputs[CI.SELF], own)
+                self.assertEqual(CI.pin(inputs[CI.HOST])["sha256"], CI.HOST_SHA)
+                for stage in plan.stages:
+                    name = Path(stage.command[3]).relative_to(CI.ROOT).as_posix()
+                    self.assertEqual(inputs[name], CI.normalized(CI.ROOT / name))
+
+    def test_actual_pipeline_input_gate_rejects_stale_host_pin(self):
+        own = CI.normalized(CI.ROOT / CI.SELF)
+        plan = CI.pipeline_plan("A", Path(tempfile.gettempdir()).resolve() / "ci-inputs-stale")
+        with patch.object(CI, "HOST_SHA", "0" * 64):
+            with self.assertRaisesRegex(ValueError, "bounded owned command helper differs"):
+                CI.pipeline_inputs(plan, own)
+
+    def test_bundle_and_target_input_gates_keep_the_executing_reader_boundary(self):
+        own = CI.normalized(CI.ROOT / CI.SELF)
+        verify = CI.load("production_ci_test_bundle_verify", CI.ROOT / CI.NEXT / "profile_verify.py")
+        reader = verify.input_reader()
+        root = Path(tempfile.gettempdir()).resolve()
+        for family in "ABCDEF":
+            plans = (CI.pipeline_plan(family, root / ("ci-export-" + family)),
+                     CI.target_plan(family, root / ("ci-target-" + family), root / "sealed/artifact",
+                                    root / "source-bundle.zip", root / "source-seal.json"))
+            for plan in plans:
+                with self.subTest(family=family, plan=type(plan).__name__), \
+                        patch.object(reader, "read_regular", wraps=reader.read_regular) as reads:
+                    inputs = CI.pipeline_inputs(plan, own, verify=verify, reader=reader, transport=object())
+                    self.assertTrue(reads.called)
+                    for name in (CI.TRANSPORT, CI.NEXT + "target_runtime.py",
+                                 CI.NEXT + "profile_compiler.py", verify.INPUT_READER):
+                        self.assertIn(name, inputs)
+                    self.assertEqual(inputs[verify.INPUT_READER], reader.source_identity())
+                    self.assertEqual(CI.pin(inputs[CI.HOST])["sha256"], CI.HOST_SHA)
+        with patch.object(reader, "source_identity", return_value=b"changed executing reader"):
+            with self.assertRaisesRegex(ValueError, "input reader snapshot differs"):
+                CI.pipeline_inputs(plans[0], own, verify=verify, reader=reader, transport=object())
+
     def test_requested_export_failure_retains_functional_evidence_but_fails_overall(self):
         with tempfile.TemporaryDirectory(prefix="rove-ci-export-failure-") as directory:
             root = Path(directory)

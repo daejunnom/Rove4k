@@ -50,12 +50,8 @@ def main():
             or not args.build.is_absolute() or out.exists() or any((p/".git").exists() for p in (out,*out.parents))):
         parser.error("new external output and absolute selected build on Linux x86-64 required")
     control = json.loads((selected/"build.json").read_bytes())
-    producer={"engines/compact/tiny-entry-d/native/"+name for name in FILES}|{
-        "engines/compact/tiny-entry-d/recipe.json", "engines/compact/tiny-entry-d/shipping_fused_ray.py",
-        "engines/compact/tiny-entry-d/packer.py", "engines/experiments/tcec-scope/build.py",
-        "engines/scripts/production.py", "engines/scripts/minify.py", "engines/scripts/rename_c.py",
-        "engines/experiments/tiny-d-submission/source.py", "engines/experiments/tiny-d-submission/build.py",
-        "engines/experiments/tiny-d-submission/packaging.py", "engines/experiments/tiny-d-submission/storage.py"}
+    source_inputs=load("D_recipe_snapshot_names",HERE/"source_inputs.py")
+    producer=set(source_inputs.producer_names(json.loads(normalized(ROOT/source_inputs.RECIPE))))
     if (control.get("storage") != "prefix" or control.get("source_reduced") is not False or
             control.get("family")!="D" or control.get("equivalent_edits") is not True or
             any(control.get(key) is not True for key in ("complete","frozen_execution","native_reproduced")) or
@@ -67,7 +63,7 @@ def main():
             raise ValueError("current/selected exact producer differs: "+name)
     for name in ("reduce.py", "publication.py", "process_owner.py", "test_startup.py", "test_process_owner.py",
                  "compressed_bootstrap.py", "syscall_arity.py", "test_runtime_scaffold.py", "valid_input.py",
-                 "search_compact.py", "test_search_compact.py", "probe_search_compact.py", "check_storage.py"):
+                 "search_compact.py", "test_search_compact.py", "probe_search_compact.py", "check_storage.py", "source_inputs.py"):
         logical = "engines/experiments/tiny-d-submission/"+name
         inputs[logical] = normalized(ROOT/logical)
     inputs["selection/build.json"] = (selected/"build.json").read_bytes()

@@ -47,7 +47,7 @@ function parseArgs(argv) {
   }
   const permitted = {
     status: ['remote', 'remote-check'],
-    start: ['branch', 'worktree', 'owner', 'remote', 'expected-base', 'execute'],
+    start: ['branch', 'worktree', 'owner', 'remote', 'base', 'expected-base', 'execute'],
     'share-plan': ['remote', 'remote-check'],
     'cleanup-plan': ['branch', 'owner', 'remote', 'remote-check'],
     storage: ['root', 'budget-bytes', 'max-entries'],
@@ -212,7 +212,12 @@ function start(ctx, options) {
   if (localRef(ctx, `refs/heads/${branch}`) || readOwner(ctx, branch)) fail('branch-exists', 'Reuse the existing branch and its recorded owner');
   const remote = remoteName(ctx, options);
   if (remoteHead(ctx, remote, branch)) fail('branch-exists', 'A remote branch already exists; inspect and reuse it');
-  const baseBranch = branch.startsWith('hotfix/') ? 'main' : 'develop';
+  const defaultBase = branch.startsWith('hotfix/') ? 'main' : 'develop';
+  const baseBranch = options.base ?? defaultBase;
+  if (baseBranch !== defaultBase && !(branch.startsWith('feature/') && featureBranch(baseBranch))) {
+    fail('invalid-pr-route', 'An explicit stacked base requires two distinct feature branches');
+  }
+  if (baseBranch === branch) fail('invalid-pr-route', 'A branch cannot be its own base');
   const base = remoteHead(ctx, remote, baseBranch);
   const tracking = localRef(ctx, `refs/remotes/${remote}/${baseBranch}`);
   if (!base || base !== tracking) fail('stale-base', `Fetch ${remote}/${baseBranch}; its local object and current remote tip must agree`);
@@ -223,7 +228,7 @@ function start(ctx, options) {
   const filename = ownerPath(ctx, branch);
   if (!entryExists(path.dirname(filename))) fs.mkdirSync(path.dirname(filename), { mode: 0o700 });
   realDirectory(path.dirname(filename));
-  const value = { version: 1, state: 'reserved', common: ctx.common, branch, worktree: target, owner, base, created: new Date().toISOString() };
+  const value = { version: 1, state: 'reserved', common: ctx.common, branch, worktree: target, owner, base, base_branch: baseBranch, created: new Date().toISOString() };
   const fd = fs.openSync(filename, 'wx', 0o600);
   try {
     fs.writeFileSync(fd, `${JSON.stringify(value, null, 2)}\n`);
@@ -275,7 +280,7 @@ function cleanupPlan(ctx, options) {
   const remote = remoteName(ctx, options);
   const checked = Boolean(options['remote-check']);
   const remoteTip = checked ? remoteHead(ctx, remote, branch) : null;
-  const baseBranch = branch.startsWith('hotfix/') ? 'main' : 'develop';
+  const baseBranch = owner?.base_branch ?? (branch.startsWith('hotfix/') ? 'main' : 'develop');
   const mergedTip = checked ? remoteHead(ctx, remote, baseBranch) : null;
   const mergedObjectPresent = mergedTip !== null && localRef(ctx, mergedTip) !== null;
   const merged = Boolean(tip && mergedObjectPresent && git(ctx.root, ['merge-base', '--is-ancestor', tip, mergedTip], [0, 1]).status === 0);
@@ -345,20 +350,26 @@ function storage(ctx, options) {
   };
 }
 
+function featureBranch(name) {
+  return /^feature\/[a-zA-Z0-9][a-zA-Z0-9._/-]*$/.test(name ?? '')
+    && !name.includes('..') && !name.includes('//') && !name.endsWith('/') && !name.endsWith('.lock');
+}
+
 export function run(argv, cwd = process.cwd()) {
   const { command, options } = parseArgs(argv);
   if (command === 'pr-check') {
     const { base, head } = options;
     const source = /^(feature|release|hotfix)\/[a-zA-Z0-9][a-zA-Z0-9._/-]*$/.test(head ?? '');
     const permitted = (base === 'develop' && (source || head === 'main'))
-      || (base === 'main' && (head === 'develop' || /^(release|hotfix)\/[a-zA-Z0-9][a-zA-Z0-9._/-]*$/.test(head ?? '')));
-    if (!permitted || base === head) fail('invalid-pr-route', 'Use feature/* → develop; promote develop/release/*/hotfix/* → main through a PR');
-    return { command, base, head, allowed: true, limitation: 'Route only; review, checks, authorization and release eligibility remain separate.' };
+      || (base === 'main' && (head === 'develop' || /^(release|hotfix)\/[a-zA-Z0-9][a-zA-Z0-9._/-]*$/.test(head ?? '')))
+      || (featureBranch(base) && featureBranch(head));
+    if (!permitted || base === head) fail('invalid-pr-route', 'Use feature/* → develop or an explicit feature stack; promote develop/release/*/hotfix/* → main through a PR');
+    return { command, base, head, allowed: true, stacked: featureBranch(base), limitation: 'Route only; review, checks, authorization and release eligibility remain separate.' };
   }
   if (command === 'help') return {
     commands: {
       status: '[--remote origin] [--remote-check]',
-      start: '--branch feature/topic --worktree /external/topic --owner task-id [--remote origin] [--execute --expected-base SHA]',
+      start: '--branch feature/topic --worktree /external/topic --owner task-id [--remote origin] [--base feature/parent] [--execute --expected-base SHA]',
       'share-plan': '[--remote origin] [--remote-check]',
       'cleanup-plan': '--branch feature/topic --owner task-id [--remote origin] [--remote-check]',
       storage: '--root /external/artifacts [--budget-bytes N] [--max-entries N]',
