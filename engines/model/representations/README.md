@@ -9,6 +9,12 @@ builder and source inputs; the current C-only engine builder rejects Rust.
 See the [archive replay policy](../../../archive/README.md) before using those
 historical commands.
 
+`fixtures/rust_consumer.rs.in` is a development-only consumer for the generic
+Rust representation transform. It exercises initialization and the three
+evaluation/SIMD-input/ordering weight access sites independently of the retired
+engine. The C transform test still reads its maintained production consumer.
+The `.rs.in` fixture is not a model header or a production source input.
+
 These are explicit representation and code/data candidates for the same frozen,
 hand-authored, **untrained** E model. They do not fit, quantize, prune, round or
 change any of its 21 evaluation/ordering coefficients. `frozen.json` stays the

@@ -13,6 +13,36 @@ inputs. Full N/B/R/Q, evaluation/search/learners, repetition and fifty-move
 handling are retained. This is a size/runtime checkpoint, not full A–F or
 tournament-strength acceptance.
 
+## Current production source ownership
+
+Readable A–F sources use the shared bodies in `engines/common`; the build-time
+assembler runs before the existing transformations and checks the original
+assembled canonical digest. Shared C bodies are engine inputs, independently
+frozen from the assembler tool. This layout introduces no runtime dispatch or
+submitted bytes. Different board, parser, TT and worker contracts retain their
+own implementations; see [the common-source boundary](../../common/README.md).
+
+`profile_build.py` now defaults to `--source-dependencies unused-includes`.
+The last source stage removes the reviewed literal `limits.h` include after
+its numeric-parser consumer has disappeared. The canonical development parser
+still needs that header. This stage does not infer liveness from a text search:
+it requires identical complete preprocessor output, identical native bytes and
+diagnostics, the same recorded compiler and stdin, a full inverse, and no
+increase in the complete packaged artifact. Both attempts independently repeat
+these checks. `--source-dependencies control` reproduces the prior source stage
+without cleanup. Generic dependency/function candidate discovery belongs to
+NVCompact; this engine stage binds its reviewed candidate to production.
+
+With the existing `phase-init` projection and source-JIT wrapper, C changes from
+3,962 to 3,957 B (P4), 3,975 to 3,969 B (P28), and 3,963 to 3,957 B (provisional target).
+These figures are complete-file source/packaging comparisons with equal native
+images on the same GCC13 host. They do not override the maintained recipe's
+compiler-specific native hash, qualify the startup/runtime gates, or establish
+TCEC/AWS acceptance. A/B/E/F and D are byte-identical after the shared-source
+layout change. The older W2/F8 selections below remain unchanged.
+
+## Preserved small-resource selections
+
 | Entry | Previous7f whole | Selected whole | Header + payload | Margin below4096 |
 |---|---:|---:|---:|---:|
 | A2 | 3894 B | **3731 B** | 94 +3637 B | 365 B |

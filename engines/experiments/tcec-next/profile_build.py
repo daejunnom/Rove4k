@@ -33,6 +33,7 @@ UNLINK = "engines/experiments/tcec-next/self_unlink.py"
 ELF = "engines/scripts/elf_loader.py"
 B_PROFILE = "engines/experiments/tcec-next/profile_b.py"
 PHASE = "engines/experiments/tcec-next/profile_phase.py"
+DEPENDENCIES = "engines/experiments/tcec-next/profile_dependencies.py"
 
 
 def load(name, path):
@@ -74,6 +75,9 @@ def main():
                         help="explicit reviewed B post-profile projection; default preserves the control")
     parser.add_argument("--phase-variant", choices=("control", "phase-init"), default="control",
                         help="explicit measured A/C/E/F lifecycle projection; default preserves the control")
+    parser.add_argument("--source-dependencies", choices=("control", "unused-includes"),
+                        default="unused-includes",
+                        help="reviewed final include cleanup with expanded-input/native/whole-cost gates")
     args = parser.parse_args()
     if args.b_variant != "control" and args.entry != "B":
         parser.error("--b-variant applies only to the independently owned B engine")
@@ -145,6 +149,8 @@ def main():
             names.add(B_PROFILE)
         if args.phase_variant != "control":
             names.add(PHASE)
+        if args.source_dependencies != "control":
+            names.add(DEPENDENCIES)
         if args.representation in ("packed-native", "self-contained-elf"):
             names.add(ELF)
         if args.representation == "self-contained-elf":
@@ -194,6 +200,9 @@ def main():
         report["post_profile"] = (dict(path=B_PROFILE, variant=args.b_variant)
             if args.b_variant != "control" else dict(path=PHASE, variant=args.phase_variant)
             if args.phase_variant != "control" else None)
+        dependencies = (load("profile_frozen_dependencies", own / DEPENDENCIES)
+                        if args.source_dependencies != "control" else None)
+        report["source_dependencies"] = dict(dependencies.DECLARATION) if dependencies else None
         if args.representation == "source-jit":
             report["wrapper_contract"] = wrapper.contract(packaging, unlink, compiler)
         elif args.representation == "packed-native":
@@ -252,6 +261,15 @@ def main():
                     bounds=model.bounds(), source_coefficient_sha256=source_model.coefficient_sha256(),
                     model_parameters_changed=model.coefficients != source_model.coefficients,
                     optimizer_executed_by_builder=False)
+            dependency_gate = None
+            before_dependencies = source
+            if dependencies:
+                source, dependency_proof = dependencies.transform_source(source)
+                proofs.append(dependency_proof)
+                if source != before_dependencies:
+                    dependency_gate = dependencies.compile_gate(before_dependencies, source,
+                        compiler=compile_executor, directory=directory / "dependency-gate",
+                        run=host.run, prefix=attempt)
             (directory / "main.c").write_bytes(source)
             gate = directory / "target-type-gate"
             gate.mkdir()
@@ -261,6 +279,10 @@ def main():
             native = (native_dir / "x").read_bytes()
             old.require((gate / "x").read_bytes() == native,
                         "target type assertions changed the shipping native image")
+            if dependency_gate is not None:
+                old.require(dependency_gate["native"] == old.pin(native) and
+                            (directory / "dependency-gate/x").read_bytes() == native,
+                            "include removal changed the native image")
             abi_gate = None
             if abi_probe is not None:
                 # ABI assertions are a separate translation unit. In particular,
@@ -307,6 +329,11 @@ def main():
                 old.require(restored == native, "actual self-contained payload restoration differs")
                 loader["actual_output_payload_restores_native"] = True
             old.require(whole.startswith(header), "package header differs")
+            if dependency_gate is not None:
+                before_whole = (wrapper.package(packaging, unlink, before_dependencies, compression, compiler)
+                                if args.representation == "source-jit" else whole)
+                old.require(len(whole) <= len(before_whole), "include removal grew the complete artifact")
+                dependency_gate["whole_cost"] = dict(before=len(before_whole), after=len(whole))
             for name, data in (("main.c", source), ("x", whole), (header_name, header),
                                (payload_name, payload)):
                 (directory / name).write_bytes(data)
@@ -317,9 +344,16 @@ def main():
                        ("header", header), ("payload", payload)) for key, value in old.pin(data).items()}
             report["attempts"].append(dict(directory=attempt, **actual, source_proofs=proofs,
                 target_type_gate=dict(assertions=proof["target_type_assertions"],
-                    source=old.pin(asserted), native=old.pin(native), image_identical=True), loader=loader))
+                    source=old.pin(asserted), native=old.pin(native), image_identical=True), loader=loader,
+                dependency_gate=dependency_gate))
             if abi_gate is not None:
                 report["attempts"][-1]["target_abi_gate"] = abi_gate
+            if dependencies:
+                def checked(root, name, expected):
+                    data = (root / name).read_bytes()
+                    old.require(old.pin(data) == expected, "dependency evidence identity differs: " + name)
+                    return data
+                dependencies.validate_receipt(out, report, dependency_proof, source, checked=checked)
             save()
         a, b = report["attempts"]
         # Loader command metadata contains its own output path; byte identity,
@@ -327,7 +361,7 @@ def main():
         same = lambda row: {k: v for k, v in row.items() if k not in ("directory", "loader")}
         old.require(same(a) == same(b), "independent profile reproduction differs")
         report["expected_contract"] = {key: value for key, value in a.items()
-            if key not in ("directory", "source_proofs", "target_type_gate", "target_abi_gate", "loader")}
+            if key not in ("directory", "source_proofs", "target_type_gate", "target_abi_gate", "loader", "dependency_gate")}
         report["source_proofs"] = a["source_proofs"]
         report["actual"] = dict(source="main.c", native="native/x", program="x")
         for name in ("main.c", "native/x", "x", header_name, payload_name, "source-proof.json"):

@@ -7,6 +7,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 sys.dont_write_bytecode = True
 SPEC = importlib.util.spec_from_file_location("production_ci_test_target", Path(__file__).with_name("production_ci.py"))
@@ -27,6 +28,25 @@ def owner_report(rows=None):
 
 
 class ProductionCIBoundaries(unittest.TestCase):
+    def test_actual_pipeline_input_gate_admits_all_current_family_plans(self):
+        own = CI.normalized(CI.ROOT / CI.SELF)
+        for family in "ABCDEF":
+            with self.subTest(family=family):
+                plan = CI.pipeline_plan(family, Path(tempfile.gettempdir()).resolve() / ("ci-inputs-" + family))
+                inputs = CI.pipeline_inputs(plan, own)
+                self.assertEqual(inputs[CI.SELF], own)
+                self.assertEqual(CI.pin(inputs[CI.HOST])["sha256"], CI.HOST_SHA)
+                for stage in plan.stages:
+                    name = Path(stage.command[3]).relative_to(CI.ROOT).as_posix()
+                    self.assertEqual(inputs[name], CI.normalized(CI.ROOT / name))
+
+    def test_actual_pipeline_input_gate_rejects_stale_host_pin(self):
+        own = CI.normalized(CI.ROOT / CI.SELF)
+        plan = CI.pipeline_plan("A", Path(tempfile.gettempdir()).resolve() / "ci-inputs-stale")
+        with patch.object(CI, "HOST_SHA", "0" * 64):
+            with self.assertRaisesRegex(ValueError, "bounded owned command helper differs"):
+                CI.pipeline_inputs(plan, own)
+
     def test_plans_keep_six_families_and_fixed_profiles_separate(self):
         root = Path(tempfile.gettempdir()).resolve()
         for family in "ABCDEF":

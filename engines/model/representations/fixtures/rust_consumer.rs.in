@@ -1,0 +1,30 @@
+// Development-only model consumer contract. This is not a chess engine.
+// The three readers exercise scalar evaluation, a SIMD input lane vector and
+// ordering weights without depending on retired engine sources or an ISA.
+use std::sync::OnceLock;
+
+#[path = "../model/frozen.rs"]
+mod frozen;
+
+static MODEL: OnceLock<[i16; 21]> = OnceLock::new();
+
+pub fn init_model() {
+    MODEL.get_or_init(frozen::model_weights);
+}
+
+pub fn evaluation(features: &[i16; 16]) -> i32 {
+    let weights = MODEL.get_or_init(frozen::model_weights);
+    features.iter().zip(&weights[..16])
+        .map(|(&value, &weight)| i32::from(value) * i32::from(weight)).sum()
+}
+
+pub fn simd_lanes() -> [i16; 16] {
+    let weights = MODEL.get_or_init(frozen::model_weights);
+    weights[..16].try_into().unwrap()
+}
+
+pub fn ordering(features: &[i16; 5]) -> i32 {
+    let weights = MODEL.get_or_init(frozen::model_weights);
+    features.iter().zip(&weights[16..])
+        .map(|(&value, &weight)| i32::from(value) * i32::from(weight)).sum()
+}

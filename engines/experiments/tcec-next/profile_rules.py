@@ -143,7 +143,7 @@ def fixture_cases(oracle=None) -> tuple[list[dict], dict]:
 
 
 def _source_build_record(build, *, family, stages, post_profile, main_source,
-                         baseline_source, tools=()):
+                         baseline_source, tools=(), source_dependencies=None):
     require(build is not None, "named post-profile/model source build root required")
     build = Path(build)
     record = json.loads(_evidence_bytes(build / "build.json", name="build.json"))
@@ -151,6 +151,7 @@ def _source_build_record(build, *, family, stages, post_profile, main_source,
             record.get("family") == family and record.get("entry") == family and
             record.get("complete") is True and record.get("reproducible") is True and
             record.get("post_profile") == post_profile and record.get("source_proofs") == stages and
+            record.get("source_dependencies") == source_dependencies and
             _evidence_bytes(build / "main.c", name="main.c") == main_source and
             _evidence_bytes(build / "control/main.c", name="main.c") == baseline_source,
             family + " named frozen producer source/stages/post-profile identity differs")
@@ -186,6 +187,10 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
     suffix = stages[1:] if stages and stages[0] == resource else None
     require(suffix is not None and all(isinstance(stage, dict) for stage in suffix),
             "ordered resource-first proof chain required")
+    dependency_stage = (suffix[-1] if suffix and
+                        suffix[-1].get("schema") == "rove4k.profile-dependencies.v1" else None)
+    if dependency_stage is not None:
+        suffix = suffix[:-1]
     has_b = bool(suffix) and suffix[0].get("schema") == b_schema
     has_phase = bool(suffix) and suffix[0].get("schema") == phase_schema
     model_stage = bool(suffix) and suffix[-1].get("stage") == "canonical-e19-physical-binding"
@@ -198,7 +203,7 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
     else:
         require(not suffix or (len(suffix) == 1 and has_phase),
                 "explicit A/C/F proof chain must be resource-only or ordered resource/phase")
-    post_profile, tools = None, []
+    post_profile, tools, source_dependencies = None, [], None
     if has_b:
         relative = "engines/experiments/tcec-next/profile_b.py"
         post_profile = {"path": relative, "variant": suffix[0].get("variant")}
@@ -211,13 +216,19 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
         tools.append(relative)
     if model_stage:
         tools.extend(("engines/model/e19.py", "engines/model/e19.json"))
-    if not suffix and build is not None:
+    if dependency_stage is not None:
+        relative = "engines/experiments/tcec-next/profile_dependencies.py"
+        source_dependencies = {"path": relative, "variant": "unused-includes"}
+        tools.append(relative)
+    if not suffix and dependency_stage is None and build is not None:
         control = json.loads(_evidence_bytes(Path(build) / "build.json", name="build.json"))
-        require(control.get("post_profile") is None and control.get("source_proofs") == stages,
+        require(control.get("post_profile") is None and control.get("source_dependencies") is None
+                and control.get("source_proofs") == stages,
                 family + " control build declares an unconsumed post-profile stage")
-    if suffix:
-        _source_build_record(build, family=family, stages=stages, post_profile=post_profile,
-                             main_source=main_source, baseline_source=baseline_source, tools=tools)
+    if suffix or dependency_stage is not None:
+        source_record = _source_build_record(build, family=family, stages=stages, post_profile=post_profile,
+            main_source=main_source, baseline_source=baseline_source, tools=tools,
+            source_dependencies=source_dependencies)
     replayed = [resource]
     if has_b:
         current = load("production_rules_B_projection", HERE / "profile_b.py")
@@ -256,10 +267,23 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
                 "old E source-model ID is limited to the byte-identical canonical control")
         expected = projected
         replayed.append(proof)
+    if dependency_stage is not None:
+        current = load("production_rules_dependencies", ROOT / source_dependencies["path"])
+        projected, proof = current.transform_source(expected)
+        require(dependency_stage == proof and current.restore_source(projected, proof) == expected,
+                "final dependency proof/inverse differs")
+        def checked(root, name, value):
+            data = _evidence_bytes(Path(root) / name, name=Path(name).name)
+            require(pin(data) == value, "dependency rules evidence identity differs: " + name)
+            return data
+        require(current.validate_receipt(Path(build), source_record, proof, projected, checked=checked) == expected,
+                "dependency rules compiler gate differs")
+        expected = projected
+        replayed.append(proof)
     require(main_source == expected,
             "actual profile source/proof does not replay from its admitted full baseline")
     require(b"rv_rule_" not in main_source, "rules fixture identifiers collide")
-    return replayed if suffix else resource
+    return replayed if suffix or dependency_stage is not None else resource
 
 
 def render_fixture(main_source: bytes, family: str, cases: list[dict]) -> bytes:

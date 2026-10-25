@@ -1,4 +1,5 @@
 import copy
+from pathlib import Path
 import random
 import unittest
 
@@ -72,8 +73,13 @@ class RepresentationTests(unittest.TestCase):
         model = load_model()
         for language, consumer in (("c", "c/model.h"), ("rust", "rust/eval.rs")):
             header = "frozen.h" if language == "c" else "frozen.rs"
+            # C remains a production integration check. The Rust transform is
+            # a generic model-format contract and owns a small independent
+            # fixture, rather than importing the retired Rust engine.
+            consumer_path = (MODEL_DIR.parent / consumer if language == "c" else
+                             Path(__file__).with_name("fixtures") / "rust_consumer.rs.in")
             files = {"model/" + header: sources("varint", model)[header].replace("\n", "\r\n").encode(),
-                     consumer: (MODEL_DIR.parent / consumer).read_bytes(),
+                     consumer: consumer_path.read_bytes(),
                      "unrelated/source": b"unchanged\r\n"}
             original = files.copy()
             baseline, base_metadata = transform_sources(files, representation="varint", language=language, model=model)

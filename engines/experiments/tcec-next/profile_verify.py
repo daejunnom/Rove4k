@@ -190,7 +190,7 @@ def revalidate_target(reference):
         reference.revalidate(verify=sys.modules[__name__], expected_ci=helper.CIContext.from_environment())
 
 
-def source_stages(family, post, proofs):
+def source_stages(family, post, proofs, dependencies=None):
     """Declare the complete finite stage grammar before loading a helper."""
     require(family in ("A", "B", "C", "E", "F") and isinstance(proofs, list)
             and all(isinstance(p, dict) for p in proofs),
@@ -214,6 +214,11 @@ def source_stages(family, post, proofs):
             expected.append("rove4k.portable-phase-source.v1")
     if family == "E":
         expected.append("canonical-e19-physical-binding")
+    if dependencies is not None:
+        require(dependencies == {
+            "path": "engines/experiments/tcec-next/profile_dependencies.py",
+            "variant": "unused-includes"}, "unrecognized dependency source stage")
+        expected.append("rove4k.profile-dependencies.v1")
     require([p.get("schema", p.get("stage")) for p in proofs] == expected,
             "source proof stages are missing, extra, or out of order")
     return kind
@@ -313,7 +318,8 @@ def admit_c_build(manifest, build):
     require(proof == manifest["source_proofs"][0], "resource projection proof differs")
     require(projection.restore_source(produced, proof) == base, "profile inverse differs")
     post = manifest.get("post_profile")
-    post_kind = source_stages(family, post, manifest["source_proofs"])
+    dependency_declaration = manifest.get("source_dependencies")
+    post_kind = source_stages(family, post, manifest["source_proofs"], dependency_declaration)
     next_stage = 1
     if post is not None:
         path = post["path"]
@@ -353,6 +359,18 @@ def admit_c_build(manifest, build):
         require(model_proof == manifest["source_proofs"][next_stage],
                 "actual final E19 consumer differs")
         next_stage += 1
+    before_dependencies = produced
+    if dependency_declaration is not None:
+        path = dependency_declaration["path"]
+        require(path in production_paths, "dependency helper is outside the production tool closure")
+        helper = load("profile_runtime_dependencies", ROOT / path)
+        produced, dependency_proof = helper.transform_source(produced)
+        require(dependency_proof == manifest["source_proofs"][next_stage],
+                "final dependency projection differs")
+        require(helper.validate_receipt(build, manifest, dependency_proof, produced,
+                                        checked=checked_artifact) == before_dependencies,
+                "dependency compiler receipt does not bind its original source")
+        next_stage += 1
     require(next_stage == len(manifest["source_proofs"]), "an admitted source stage was not consumed")
     require(produced == source, "full source projection chain does not reproduce the actual consumer")
     if representation == "source-jit":
@@ -364,6 +382,15 @@ def admit_c_build(manifest, build):
                 "source-JIT command/dependency boundary differs")
         require(wrapper.contract(package, unlink, manifest["compiler"]) == manifest["wrapper_contract"],
                 "source-JIT file ownership contract differs")
+        if before_dependencies != source:
+            before_whole = wrapper.package(package, unlink, before_dependencies,
+                                           manifest["compression"], manifest["compiler"])
+            require(wrapper.package(package, unlink, source, manifest["compression"], manifest["compiler"])
+                    == whole and len(whole) <= len(before_whole),
+                    "dependency cleanup did not preserve or reduce the actual complete artifact")
+            require(all(row["dependency_gate"]["whole_cost"] ==
+                        {"before": len(before_whole), "after": len(whole)} for row in attempts),
+                    "dependency whole cost receipt differs from regenerated packaging")
     elif representation == "packed-native":
         require(restore_payload(payload, len(native)) == native, "native package inverse differs")
     else:

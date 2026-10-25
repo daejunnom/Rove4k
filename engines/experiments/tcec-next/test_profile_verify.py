@@ -89,6 +89,20 @@ class ProfileRuntimeAdmission(unittest.TestCase):
             with self.subTest(family=family, post=declaration, proofs=proofs), self.assertRaises(ValueError):
                 VERIFY.source_stages(family, declaration, proofs)
 
+    def test_dependency_stage_is_explicit_and_last(self):
+        resource = {"schema": "rove4k.c-resource-projection.v1"}
+        model = {"stage": "canonical-e19-physical-binding"}
+        dependency = {"schema": "rove4k.profile-dependencies.v1"}
+        declaration = {"path": "engines/experiments/tcec-next/profile_dependencies.py",
+                       "variant": "unused-includes"}
+        self.assertIsNone(VERIFY.source_stages("E", None, [resource, model, dependency], declaration))
+        for stages, named in (([resource, dependency, model], declaration),
+                              ([resource, model], declaration),
+                              ([resource, model, dependency], None),
+                              ([resource, model, dependency], {**declaration, "path": "other.py"})):
+            with self.subTest(stages=stages, declaration=named), self.assertRaises(ValueError):
+                VERIFY.source_stages("E", None, stages, named)
+
     def test_runtime_snapshot_matches_the_code_that_this_process_actually_compiled(self):
         source = PATH.read_bytes().replace(b"\r\n", b"\n")
         self.assertEqual(VERIFY.executing_source(source), source)

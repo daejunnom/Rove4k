@@ -25,7 +25,7 @@ _EXECUTING_CODE = sys._getframe().f_code
 ROOT = Path(__file__).resolve().parents[2]
 SELF = "engines/scripts/production_ci.py"
 HOST = "engines/experiments/tcec-scope/build.py"
-HOST_SHA = "fc916e798952cff1c915a6846e758874bc2d858b3c59dec73870b95c7e3d4828"
+HOST_SHA = "5fa10c6f8f032be374bf3a86bbe6ca558076630a2cc3170b41890f691688f563"
 NEXT = "engines/experiments/tcec-next/"
 D_ROOT = "engines/experiments/tiny-d-submission/"
 SCHEMA = "rove4k-production-ci-functional-v1"
@@ -293,6 +293,15 @@ def execute_plan(plan, report, save, run_command, *, inspect_stage=check_stage):
         save()
 
 
+def pipeline_inputs(plan, own):
+    """Admit the actual plan's source closure before creating output or children."""
+    names = {SELF, HOST, "engines/scripts/production.py", NEXT + "profile_verify.py",
+             NEXT + "profile_rules.py", *(str(Path(s.command[3]).relative_to(ROOT)).replace("\\", "/") for s in plan.stages)}
+    inputs = {name: own if name == SELF else normalized(ROOT / name) for name in sorted(names)}
+    require(pin(inputs[HOST])["sha256"] == HOST_SHA, "bounded owned command helper differs")
+    return inputs
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--family", choices=tuple("ABCDEF"), required=True)
@@ -307,10 +316,7 @@ def main():
     plan = pipeline_plan(args.family, out)
     own = normalized(Path(__file__))
     require(compile(own, __file__, "exec", dont_inherit=True) == _EXECUTING_CODE, "CI driver changed after module compilation")
-    names = {SELF, HOST, "engines/scripts/production.py", NEXT + "profile_verify.py",
-             NEXT + "profile_rules.py", *(str(Path(s.command[3]).relative_to(ROOT)).replace("\\", "/") for s in plan.stages)}
-    inputs = {name: own if name == SELF else normalized(ROOT / name) for name in sorted(names)}
-    require(pin(inputs[HOST])["sha256"] == HOST_SHA, "bounded owned command helper differs")
+    inputs = pipeline_inputs(plan, own)
     out.mkdir(parents=True)
     for name, data in inputs.items():
         path = out / "inputs" / name

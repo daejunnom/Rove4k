@@ -229,6 +229,7 @@ jobs:
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_verify.py
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_rules.py
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_compiler.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_dependencies.py
           python -I -B engines/experiments/tiny-d-submission/test_storage.py
       - name: Check actual E19 inference, corpus boundaries and optimizer step zero
         run: python -B -m unittest discover -s engines/training/e19 -p 'test_*.py'
