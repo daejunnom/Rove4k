@@ -267,8 +267,10 @@ DAG/최장경로를 다시 산정한다. 작업별시간을 단순합산하지 �
   초기 정수 weight SHA와13개 소스 입력 일치는 재확인했다.
 - AWS Rove4k 프로젝트·CLI/MCP 인증은 확인했다. FREE 요금제와 오래된 Advisor
   공개 객체 때문에 유료 m6a 실행 gate는 미충족이다. 자동 업그레이드·리전 변경은 없다.
-- 기본cc는 GCC13이고, 정확한 GCC11.4 SDK의 host-loader escape가 감사에서 거부됐다.
-  수정 SDK·Ubuntu22 실제 실행·TCEC 운영자 자원 확인을 서로 다른 gate로 유지한다.
+- 기본cc는 GCC13이다. GCC11.4 SDK의 host-loader escape를 거부하고 별도v2를
+  감사한 뒤 원래 여섯 잠정 프로필의 실제 compile/type/ELF 검사가 통과했다.
+  후속phase·Ubuntu22 실제 실행·TCEC 운영자 자원 확인은 서로 다른 gate다.
+  D의 GCC11 packed5461B는 GCC13의5425B와 구분한다.
 - 로컬8logical은4physical/SMT2/15594MiB이며 대용량 TT를 실행하지 않았다.
   D의256-worker 검사는 TT12 계측 범위다. 상세 증거 범위는 ENGINE-IMPLEMENTATION.md에 있다.
 

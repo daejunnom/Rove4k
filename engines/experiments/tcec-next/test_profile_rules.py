@@ -176,6 +176,62 @@ class GeneratedRulesBoundaries(unittest.TestCase):
                 RULES.admit_source(b"control", b"baseline", [proof, {"schema": "unknown"}],
                     "B", PRODUCTION.resource_profile("test-p4"))
 
+    def test_portable_phase_has_exact_family_variant_and_stage_order(self):
+        proof = {"schema": "test-resource-projection", "entry_cleanup": "none"}
+        projection = SimpleNamespace(SCHEMA=proof["schema"],
+            transform_source=lambda *args, **kwargs: (b"resource", proof),
+            restore_source=lambda *args: b"baseline")
+        phase = {"schema": "rove4k.portable-phase-source.v1", "variant": "phase-init"}
+        model = {"stage": "canonical-e19-physical-binding"}
+        examples = (("A", [proof, {"schema": "unknown"}], "explicit A/C/F proof chain"),
+                    ("C", [proof, {**phase, "variant": "phase"}], "reviewed ACEF phase-init"),
+                    ("E", [proof, phase], "explicit E proof chain"),
+                    ("E", [proof, model, phase], "explicit E proof chain"),
+                    ("F", [proof, phase, model], "explicit A/C/F proof chain"))
+        for family, stages, detail in examples:
+            with self.subTest(family=family, stages=stages), patch.object(RULES, "load", return_value=projection):
+                with self.assertRaisesRegex(ValueError, detail):
+                    RULES.admit_source(b"resource", b"baseline", stages, family,
+                        PRODUCTION.resource_profile("test-p4"))
+
+    def test_named_phase_helper_must_have_a_matching_frozen_tool_role(self):
+        relative = "engines/experiments/tcec-next/profile_phase.py"
+        stages = [{"schema": "resource"}, {"schema": "phase"}]
+        post = {"path": relative, "variant": "phase-init"}
+        with tempfile.TemporaryDirectory(prefix="rove4k-phase-tool-admission-") as temporary:
+            build = Path(temporary).resolve()
+            (build / "control").mkdir()
+            (build / "main.c").write_bytes(b"output")
+            (build / "control/main.c").write_bytes(b"baseline")
+            frozen = build / "inputs" / relative
+            frozen.parent.mkdir(parents=True)
+            frozen.write_bytes(b"fixed helper snapshot")
+            expected = RULES.pin(frozen.read_bytes())
+            record = dict(format=1, family="A", entry="A", complete=True, reproducible=True,
+                post_profile=post, source_proofs=stages, inputs={relative: expected},
+                source_closure={"inputs": [{"path": relative, "role": "engine", **expected}]})
+            record["class"] = "rove4k-production-profile-v1"
+            (build / "build.json").write_text(json.dumps(record))
+            with self.assertRaisesRegex(ValueError, "frozen named post-profile/model tool"):
+                RULES._source_build_record(build, family="A", stages=stages, post_profile=post,
+                    main_source=b"output", baseline_source=b"baseline", tools=(relative,))
+
+    def test_legacy_E_receipt_cannot_upgrade_phase_or_changed_model(self):
+        source = b"already admitted complete source"
+        resource = {"schema": "resource"}
+        model = dict(stage="canonical-e19-physical-binding", model_parameters_changed=False,
+            full_inverse=True, consumer_code_changed=False, change_kind="model-input-binding",
+            source_sha256=RULES.pin(source)["sha256"], result_sha256=RULES.pin(source)["sha256"])
+        report = {"source_proof": RULES.pin(json.dumps(resource, sort_keys=True).encode())}
+        self.assertTrue(RULES._legacy_model_report(report, [resource, model], "E", source))
+        for changed in ({**model, "model_parameters_changed": True},
+                        {**model, "result_sha256": "0" * 64},
+                        {**model, "consumer_code_changed": True}):
+            self.assertFalse(RULES._legacy_model_report(report, [resource, changed], "E", source))
+        self.assertFalse(RULES._legacy_model_report(report,
+            [resource, {"schema": "rove4k.portable-phase-source.v1"}, model], "E", source))
+        self.assertFalse(RULES._legacy_model_report({**report, "build": {}}, [resource, model], "E", source))
+
 
 if __name__ == "__main__":
     unittest.main()

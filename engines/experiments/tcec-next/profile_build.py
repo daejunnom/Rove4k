@@ -32,6 +32,7 @@ WRAPPER = "engines/experiments/tcec-next/wrapper.py"
 UNLINK = "engines/experiments/tcec-next/self_unlink.py"
 ELF = "engines/scripts/elf_loader.py"
 B_PROFILE = "engines/experiments/tcec-next/profile_b.py"
+PHASE = "engines/experiments/tcec-next/profile_phase.py"
 
 
 def load(name, path):
@@ -71,9 +72,13 @@ def main():
     parser.add_argument("--compile-cc", help="final native/type-gate compiler only; runtime wrapper still uses admitted cc argv")
     parser.add_argument("--b-variant", default="control",
                         help="explicit reviewed B post-profile projection; default preserves the control")
+    parser.add_argument("--phase-variant", choices=("control", "phase-init"), default="control",
+                        help="explicit measured A/C/E/F lifecycle projection; default preserves the control")
     args = parser.parse_args()
     if args.b_variant != "control" and args.entry != "B":
         parser.error("--b-variant applies only to the independently owned B engine")
+    if args.phase_variant != "control" and args.entry not in "ACEF":
+        parser.error("--phase-variant applies only to A/C/E/F")
     out = args.out.resolve()
     if (sys.platform != "linux" or platform.machine() != "x86_64" or
             not args.out.is_absolute() or out.exists() or
@@ -138,6 +143,8 @@ def main():
             names.update(("engines/model/e19.py", "engines/model/e19.json"))
         if args.b_variant != "control":
             names.add(B_PROFILE)
+        if args.phase_variant != "control":
+            names.add(PHASE)
         if args.representation in ("packed-native", "self-contained-elf"):
             names.add(ELF)
         if args.representation == "self-contained-elf":
@@ -185,7 +192,8 @@ def main():
             compile_executor[0] = args.compile_cc
         report.update(compiler=compiler, compile_executor=compile_executor, compression=compression)
         report["post_profile"] = (dict(path=B_PROFILE, variant=args.b_variant)
-                                  if args.b_variant != "control" else None)
+            if args.b_variant != "control" else dict(path=PHASE, variant=args.phase_variant)
+            if args.phase_variant != "control" else None)
         if args.representation == "source-jit":
             report["wrapper_contract"] = wrapper.contract(packaging, unlink, compiler)
         elif args.representation == "packed-native":
@@ -225,6 +233,14 @@ def main():
                 old.require(abi_probe is None or
                             (isinstance(abi_probe, str) and abi_probe.strip() and "\0" not in abi_probe),
                             "B target ABI probe must be nonempty standalone C text")
+            if args.phase_variant != "control":
+                phase = load("profile_frozen_phase_projection", own / PHASE)
+                parent_source = source
+                source, phase_proof = phase.transform_source(source, family=args.entry,
+                    profile_id=profile.id, entry_cleanup=cleanup, variant=args.phase_variant)
+                old.require(phase.restore_source(source, phase_proof) == parent_source,
+                            "portable phase post-profile inverse differs")
+                proofs.append(phase_proof)
             if args.entry == "E":
                 model_module = load("profile_e19_canonical", own / "engines/model/e19.py")
                 model = model_module.Model.load(own / "engines/model/e19.json")

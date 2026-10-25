@@ -29,9 +29,6 @@ jobs:
           persist-credentials: false
       - name: Configure external artifacts
         run: printf 'ROVE_TEST_OUT=%s/rove4k-engines-%s\n' "$RUNNER_TEMP" '${{ matrix.language }}' >> "$GITHUB_ENV"
-      - name: Install the independent Rust compiler
-        if: matrix.language == 'rust'
-        run: rustup toolchain install 1.97.0 --profile minimal
       - name: Check the frozen model source and exact integer representation
         run: |
           python3 engines/model/codec.py check
@@ -280,10 +277,44 @@ jobs:
         run: |
           python -B -m unittest discover -s engines/scripts -p test_production.py
           python -B -m unittest discover -s engines/scripts -p test_retirement.py
+          python -B -m unittest discover -s engines/scripts -p test_production_ci.py
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_verify.py
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_rules.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_compiler.py
           python -I -B engines/experiments/tiny-d-submission/test_storage.py
       - name: Check actual E19 inference, corpus boundaries and optimizer step zero
         run: python -B -m unittest discover -s engines/training/e19 -p 'test_*.py'
       - name: Check evaluator placement, durable pairs and AWS service boundaries
         run: python -B -m unittest discover -s engines/experiments/strength -p 'test_*.py'
+
+  production-profiles:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        family: [A, B, C, D, E, F]
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Install pinned development-only oracle dependencies
+        run: python -m pip install --require-hashes -r engines/training/e19/requirements.txt
+      - name: Generate and verify the selected full TEST-P4 artifact
+        run: >-
+          python -I -B engines/scripts/production_ci.py
+          --family '${{ matrix.family }}'
+          --out '${{ runner.temp }}/rove4k-production-${{ matrix.family }}-${{ github.run_attempt }}'
+      - name: Preserve owned source-bound evidence and failures
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: production-${{ matrix.family }}-${{ github.sha }}
+          path: ${{ runner.temp }}/rove4k-production-${{ matrix.family }}-${{ github.run_attempt }}
+          include-hidden-files: true
+          retention-days: 7

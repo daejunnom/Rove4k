@@ -152,6 +152,34 @@ class AdmittedBuild:
     full: bool = True
 
 
+def source_stages(family, post, proofs):
+    """Declare the complete finite stage grammar before loading a helper."""
+    require(family in "ABCEF" and isinstance(proofs, list) and all(isinstance(p, dict) for p in proofs),
+            "explicit C family and ordered source proofs required")
+    expected = ["rove4k.c-resource-projection.v1"]
+    kind = None
+    if post is not None:
+        require(isinstance(post, dict) and set(post) == {"path", "variant"},
+                "unrecognized post-resource source stage")
+        if family == "B":
+            require(post["path"] == "engines/experiments/tcec-next/profile_b.py"
+                    and isinstance(post["variant"], str) and bool(post["variant"]),
+                    "B requires its explicit finite post-resource helper")
+            kind = "B"
+            expected.append("rove4k.profile-b-source.v1")
+        else:
+            require(family in "ACEF" and post == {
+                "path": "engines/experiments/tcec-next/profile_phase.py", "variant": "phase-init"},
+                "A/C/E/F post-resource stage requires the named phase-init helper")
+            kind = "phase"
+            expected.append("rove4k.portable-phase-source.v1")
+    if family == "E":
+        expected.append("canonical-e19-physical-binding")
+    require([p.get("schema", p.get("stage")) for p in proofs] == expected,
+            "source proof stages are missing, extra, or out of order")
+    return kind
+
+
 def _resource_record(record, family):
     api = contracts()
     spec = api.engine_spec(family)
@@ -246,19 +274,22 @@ def admit_c_build(manifest, build):
     require(proof == manifest["source_proofs"][0], "resource projection proof differs")
     require(projection.restore_source(produced, proof) == base, "profile inverse differs")
     post = manifest.get("post_profile")
+    post_kind = source_stages(family, post, manifest["source_proofs"])
+    next_stage = 1
     if post is not None:
-        path = "engines/experiments/tcec-next/profile_b.py"
-        require(family == "B" and set(post) == {"path", "variant"} and post["path"] == path
-                and path in production_paths and len(manifest["source_proofs"]) == 2,
-                "unrecognized post-resource source stage")
-        helper = load("profile_runtime_B_projection", ROOT / path)
-        require(post["variant"] in helper.VARIANTS, "B variant is outside the explicit finite transform set")
+        path = post["path"]
+        require(path in production_paths, "post-resource helper is outside the production tool closure")
+        helper = load("profile_runtime_post_projection", ROOT / path)
+        require(post["variant"] in helper.VARIANTS, "variant is outside the explicit finite transform set")
         before_post = produced
-        produced, post_proof = helper.transform_source(produced, profile_id=profile.id,
-            entry_cleanup=plan["entry_cleanup"], variant=post["variant"])
-        require(post_proof == manifest["source_proofs"][1]
+        options = dict(profile_id=profile.id, entry_cleanup=plan["entry_cleanup"], variant=post["variant"])
+        if post_kind == "phase":
+            options["family"] = family
+        produced, post_proof = helper.transform_source(produced, **options)
+        require(post_proof == manifest["source_proofs"][next_stage]
                 and helper.restore_source(produced, post_proof) == before_post,
-                "B post-resource projection or complete inverse differs")
+                "post-resource projection or complete inverse differs")
+        next_stage += 1
         abi_probe = post_proof.get("target_abi_probe")
         if abi_probe is not None:
             require(isinstance(abi_probe, str) and abi_probe.strip() and "\0" not in abi_probe,
@@ -272,19 +303,18 @@ def admit_c_build(manifest, build):
                 checked_artifact(build, directory + "probe.c", gate["source"])
                 checked_artifact(build, directory + "x", gate["object"])
                 commands = [row for row in manifest["commands"] if row.get("kind") == attempt["directory"] + "-target-abi"]
-                require(len(commands) == 1 and commands[0]["argv"] ==
+                require(len(commands) == 1 and commands[0].get("command") ==
                         [*manifest.get("compile_executor", manifest["compiler"]), "-c"],
                         "B ABI assertion command differs from the actual native compiler")
-    elif family == "E":
-        require(len(manifest["source_proofs"]) == 2, "E requires exactly resource and model binding stages")
+    if family == "E":
         module = load("profile_runtime_e19", ROOT / "engines/model/e19.py")
         model = module.Model.load()
         source_model = module.Model.from_physical_source(produced, model_id="e19-admitted-source-baseline")
         produced, model_proof = model.bind_physical_table(produced, source_model=source_model)
-        require(model_proof == manifest["source_proofs"][1],
+        require(model_proof == manifest["source_proofs"][next_stage],
                 "actual final E19 consumer differs")
-    else:
-        require(len(manifest["source_proofs"]) == 1, "unexpected profile source stage")
+        next_stage += 1
+    require(next_stage == len(manifest["source_proofs"]), "an admitted source stage was not consumed")
     require(produced == source, "full source projection chain does not reproduce the actual consumer")
     if representation == "source-jit":
         require(restore_payload(payload, len(source)) == source, "source package inverse differs")

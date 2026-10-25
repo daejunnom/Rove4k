@@ -142,70 +142,124 @@ def fixture_cases(oracle=None) -> tuple[list[dict], dict]:
     return cases, coverage
 
 
+def _source_build_record(build, *, family, stages, post_profile, main_source,
+                         baseline_source, tools=()):
+    require(build is not None, "named post-profile/model source build root required")
+    build = Path(build)
+    record = json.loads(_evidence_bytes(build / "build.json", name="build.json"))
+    require(record.get("format") == 1 and record.get("class") == "rove4k-production-profile-v1" and
+            record.get("family") == family and record.get("entry") == family and
+            record.get("complete") is True and record.get("reproducible") is True and
+            record.get("post_profile") == post_profile and record.get("source_proofs") == stages and
+            _evidence_bytes(build / "main.c", name="main.c") == main_source and
+            _evidence_bytes(build / "control/main.c", name="main.c") == baseline_source,
+            family + " named frozen producer source/stages/post-profile identity differs")
+    for relative in tools:
+        frozen = _evidence_bytes(build / "inputs" / relative, name=Path(relative).name)
+        expected = pin(frozen)
+        rows = [row for row in record.get("source_closure", {}).get("inputs", [])
+                if row.get("path") == relative]
+        require(record.get("inputs", {}).get(relative) == expected and len(rows) == 1 and
+                rows[0].get("role") == "tool" and
+                {key: rows[0].get(key) for key in expected} == expected,
+                family + " frozen named post-profile/model tool identity differs")
+    return record
+
+
 def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dict,
                  family: str, profile, *, build=None):
     require(family in BINDINGS, "explicit A/B/C/E/F production family required")
     projection = load("production_rules_projection", HERE / "profile_source.py")
     stages = baseline_proof if isinstance(baseline_proof, list) else [baseline_proof]
     if isinstance(baseline_proof, list):
-        # Other stages (such as E19's byte-identical canonical binding) have
-        # their own verifier. This fixture consumes exactly the resource proof
-        # and still requires its replay to produce the entire actual C source.
-        candidates = [proof for proof in baseline_proof
+        candidates = [proof for proof in stages
                       if isinstance(proof, dict) and proof.get("schema") == projection.SCHEMA]
         require(len(candidates) == 1, "one explicit resource projection proof required")
         baseline_proof = candidates[0]
     require(isinstance(baseline_proof, dict), "resource projection proof must be a mapping")
     cleanup = baseline_proof.get("entry_cleanup")
-    expected, proof = projection.transform_source(baseline_source, family=family,
-                                                  profile=profile, entry_cleanup=cleanup)
-    require(json.dumps(baseline_proof, sort_keys=True) == json.dumps(proof, sort_keys=True),
-            "actual profile resource proof does not replay from its admitted full baseline")
-    require(projection.restore_source(expected, baseline_proof) == baseline_source,
-            "profile source full inverse differs")
-    post = [stage for stage in stages if isinstance(stage, dict) and
-            stage.get("schema") == "rove4k.profile-b-source.v1"]
+    expected, resource = projection.transform_source(baseline_source, family=family,
+                                                     profile=profile, entry_cleanup=cleanup)
+    require(baseline_proof == resource and projection.restore_source(expected, resource) == baseline_source,
+            "actual profile resource proof/inverse does not replay from its admitted full baseline")
+    b_schema, phase_schema = "rove4k.profile-b-source.v1", "rove4k.portable-phase-source.v1"
+    suffix = stages[1:] if stages and stages[0] == resource else None
+    require(suffix is not None and all(isinstance(stage, dict) for stage in suffix),
+            "ordered resource-first proof chain required")
+    has_b = bool(suffix) and suffix[0].get("schema") == b_schema
+    has_phase = bool(suffix) and suffix[0].get("schema") == phase_schema
+    model_stage = bool(suffix) and suffix[-1].get("stage") == "canonical-e19-physical-binding"
     if family == "B":
-        require(stages == [baseline_proof] or
-                (len(stages) == 2 and stages[0] == baseline_proof and len(post) == 1 and stages[1] == post[0]),
+        require(not suffix or (len(suffix) == 1 and has_b),
                 "explicit B proof chain must be resource-only or ordered resource/B")
-        if not post and build is not None:
-            control_record = json.loads(_evidence_bytes(Path(build) / "build.json", name="build.json"))
-            require(control_record.get("post_profile") is None and
-                    control_record.get("source_proofs") == stages,
-                    "B control build declares an unconsumed post-profile stage")
-    if post:
-        require(family == "B" and len(stages) == 2 and stages == [baseline_proof, post[0]] and
-                build is not None, "explicit two-stage B source proof and build root required")
+    elif family == "E":
+        require(model_stage and (len(suffix) == 1 or (len(suffix) == 2 and has_phase)),
+                "explicit E proof chain must be resource/model or resource/phase/model")
+    else:
+        require(not suffix or (len(suffix) == 1 and has_phase),
+                "explicit A/C/F proof chain must be resource-only or ordered resource/phase")
+    post_profile, tools = None, []
+    if has_b:
         relative = "engines/experiments/tcec-next/profile_b.py"
-        build = Path(build)
-        record = json.loads(_evidence_bytes(build / "build.json", name="build.json"))
-        variant = post[0].get("variant")
-        require(record.get("format") == 1 and record.get("class") == "rove4k-production-profile-v1" and
-                record.get("family") == "B" and record.get("entry") == "B" and
-                record.get("complete") is True and record.get("reproducible") is True and
-                record.get("post_profile") == {"path": relative, "variant": variant} and
-                record.get("source_proofs") == stages and
-                _evidence_bytes(build / "main.c", name="main.c") == main_source and
-                _evidence_bytes(build / "control/main.c", name="main.c") == baseline_source,
-                "B named frozen producer source/stages/post-profile identity differs")
-        frozen = _evidence_bytes(build / "inputs" / relative, name="profile_b.py")
-        require(record.get("inputs", {}).get(relative) == pin(frozen),
-                "B frozen named post-profile tool identity differs")
-        # Execute the current trusted finite transform, never an arbitrary
-        # Python path supplied by the build. Full C/proof replay also permits
-        # older frozen metadata only when its entire effect is identical.
-        b_profile = load("production_rules_B_projection", HERE / "profile_b.py")
-        require(variant in b_profile.VARIANTS, "explicit finite B profile variant required")
-        projected, b_proof = b_profile.transform_source(expected, profile_id=profile.id,
+        post_profile = {"path": relative, "variant": suffix[0].get("variant")}
+        tools.append(relative)
+    if has_phase:
+        require(family in "ACEF" and suffix[0].get("variant") == "phase-init",
+                "explicit reviewed ACEF phase-init variant required")
+        relative = "engines/experiments/tcec-next/profile_phase.py"
+        post_profile = {"path": relative, "variant": "phase-init"}
+        tools.append(relative)
+    if model_stage:
+        tools.extend(("engines/model/e19.py", "engines/model/e19.json"))
+    if not suffix and build is not None:
+        control = json.loads(_evidence_bytes(Path(build) / "build.json", name="build.json"))
+        require(control.get("post_profile") is None and control.get("source_proofs") == stages,
+                family + " control build declares an unconsumed post-profile stage")
+    if suffix:
+        _source_build_record(build, family=family, stages=stages, post_profile=post_profile,
+                             main_source=main_source, baseline_source=baseline_source, tools=tools)
+    replayed = [resource]
+    if has_b:
+        current = load("production_rules_B_projection", HERE / "profile_b.py")
+        variant = suffix[0]["variant"]
+        require(variant in current.VARIANTS, "explicit finite B profile variant required")
+        projected, proof = current.transform_source(expected, profile_id=profile.id,
             entry_cleanup=cleanup, variant=variant)
-        require(post[0] == b_proof and b_profile.restore_source(projected, b_proof) == expected,
+        require(suffix[0] == proof and current.restore_source(projected, proof) == expected,
                 "B full post-profile proof/inverse differs")
-        expected, proof = projected, [proof, b_proof]
+        expected = projected
+        replayed.append(proof)
+    if has_phase:
+        current = load("production_rules_phase_projection", HERE / "profile_phase.py")
+        projected, proof = current.transform_source(expected, family=family, profile_id=profile.id,
+            entry_cleanup=cleanup, variant="phase-init")
+        require(suffix[0] == proof and current.restore_source(projected, proof) == expected,
+                "ACEF full phase-init proof/inverse differs")
+        expected = projected
+        replayed.append(proof)
+    if model_stage:
+        current = load("production_rules_E19_model", ROOT / "engines/model/e19.py")
+        model = current.Model.load(Path(build) / "inputs/engines/model/e19.json")
+        # The first canonical control used the canonical ID for its source
+        # model. Recover its values from the admitted source just as for fresh
+        # inputs; this old spelling is allowed only for the unchanged control.
+        old_model_id = (not has_phase and suffix[-1].get("source_model_id") ==
+                        model.model_id == "e-hand-quadratic-19-1")
+        source_id = model.model_id if old_model_id else "e19-admitted-source-baseline"
+        source_model = current.Model.from_physical_source(expected, model_id=source_id)
+        projected, proof = model.bind_physical_table(expected, source_model=source_model)
+        offset, before, after = proof["table_value_offset"], proof["before"].encode(), proof["after"].encode()
+        require(suffix[-1] == proof and projected[offset:offset + len(after)] == after and
+                projected[:offset] + before + projected[offset + len(after):] == expected,
+                "E full canonical model binding proof/inverse differs")
+        require(not old_model_id or (projected == expected and proof["model_parameters_changed"] is False),
+                "old E source-model ID is limited to the byte-identical canonical control")
+        expected = projected
+        replayed.append(proof)
     require(main_source == expected,
             "actual profile source/proof does not replay from its admitted full baseline")
     require(b"rv_rule_" not in main_source, "rules fixture identifiers collide")
-    return proof
+    return replayed if suffix else resource
 
 
 def render_fixture(main_source: bytes, family: str, cases: list[dict]) -> bytes:
@@ -304,7 +358,7 @@ def verify_generated_rules(main_source: bytes, baseline_proof: dict, family: str
               "not_proven": ["exhaustive chess correctness", "startup and real parallel TT initialization",
                              "search, protocol, resource or tournament qualification", "playing strength"],
               "TT_allocated": False, "original_entry_called": False}
-    if family == "B" and isinstance(proof, list):
+    if isinstance(proof, list):
         report["build"] = pin(_evidence_bytes(Path(build) / "build.json", name="build.json"))
     def save():
         (out / "rules.json").write_text(json.dumps(report, indent=2) + "\n")
@@ -334,6 +388,16 @@ def _evidence_bytes(path: Path, *, name: str | None = None) -> bytes:
             not any(p.is_symlink() for p in (path, *path.parents)) and path.is_file(),
             "explicit regular rules evidence file required")
     return path.read_bytes()
+
+
+def _legacy_model_report(report, proof, family, main_source):
+    """Metadata compatibility only, after full source/stage admission."""
+    return bool(family == "E" and isinstance(proof, list) and len(proof) == 2 and
+        "build" not in report and proof[1].get("stage") == "canonical-e19-physical-binding" and
+        proof[1].get("model_parameters_changed") is False and proof[1].get("full_inverse") is True and
+        proof[1].get("consumer_code_changed") is False and proof[1].get("change_kind") == "model-input-binding" and
+        proof[1].get("source_sha256") == proof[1].get("result_sha256") == pin(main_source)["sha256"] and
+        report.get("source_proof") == pin(json.dumps(proof[0], sort_keys=True).encode()))
 
 
 def validate_rules_receipt(report_path: Path, *, family: str, profile,
@@ -415,13 +479,18 @@ def validate_rules_receipt(report_path: Path, *, family: str, profile,
     else:
         require(isinstance(baseline_source, bytes), "fresh producer baseline bytes required")
         proof = admit_source(main_source, baseline_source, source_proof, family, profile, build=build)
+        full_pin = pin(json.dumps(proof, sort_keys=True).encode())
+        # Historical E controls recorded P0 only. Accept that exact old pin
+        # solely after the complete current/frozen E-model chain above replayed
+        # and proved a byte-identical binding. Fresh reports always bind all stages.
+        legacy_model = _legacy_model_report(report, proof, family, main_source)
         require(report.get("source") == pin(main_source) and
                 report.get("baseline") == pin(baseline_source) and
-                report.get("source_proof") == pin(json.dumps(proof, sort_keys=True).encode()),
+                (report.get("source_proof") == full_pin or legacy_model),
                 "rules source, baseline or full resource proof identity differs")
-        if family == "B" and isinstance(proof, list):
+        if isinstance(proof, list) and not legacy_model:
             require(report.get("build") == pin(_evidence_bytes(Path(build) / "build.json", name="build.json")),
-                    "B post-profile rules receipt build identity differs")
+                    "post-profile/model rules receipt build identity differs")
         fixture = render_fixture(main_source, family, cases)
     require(report.get("fixture") == pin(fixture) and
             _evidence_bytes(probe / "fixture.c", name="fixture.c") == fixture,
@@ -467,7 +536,7 @@ def main():
     parser.add_argument("--profile", choices=("test-p4", "test-p28", "tcec-provisional"), required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--cc", default="cc")
-    parser.add_argument("--build", type=Path, help="B post-profile frozen source artifact root")
+    parser.add_argument("--build", type=Path, help="named post-profile/model frozen source artifact root")
     args = parser.parse_args()
     require(sys.platform == "linux", "Linux bounded rules fixture host required")
     for path, names in ((args.source, ("main.c",)), (args.baseline, ("main.c",)),

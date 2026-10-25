@@ -8,6 +8,7 @@ It does not prove NUMA locality, real TT34 memory admission, playing strength,
 per-worker search work, throughput, or 4KiB qualification.
 """
 import argparse
+import hashlib
 import importlib.util
 import json
 from pathlib import Path
@@ -17,6 +18,66 @@ import sys
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
+NATIVE = ("tiny.h", "board.c", "search.c", "runtime.c", "start.S", "image.ld")
+PRODUCER_INPUTS = tuple("engines/compact/tiny-entry-d/native/" + name for name in NATIVE) + (
+    "engines/compact/tiny-entry-d/recipe.json", "engines/compact/tiny-entry-d/shipping_fused_ray.py",
+    "engines/compact/tiny-entry-d/packer.py", "engines/experiments/tcec-scope/build.py",
+    "engines/scripts/production.py", "engines/scripts/minify.py", "engines/scripts/rename_c.py",
+    "engines/experiments/tiny-d-submission/source.py", "engines/experiments/tiny-d-submission/build.py",
+    "engines/experiments/tiny-d-submission/packaging.py")
+STORAGE_INPUT = "engines/experiments/tiny-d-submission/storage.py"
+CHECKER_INPUT = "engines/experiments/tiny-d-submission/test_startup.py"
+STORAGE_MODES = ("none", "prefix", "dense", "prefix-dense")
+
+
+def pin(data):
+    return dict(bytes=len(data), sha256=hashlib.sha256(data).hexdigest())
+
+
+def normalized(path):
+    data = Path(path).read_bytes().replace(b"\r\n", b"\n")
+    if b"\r" in data:
+        raise ValueError("lone CR in named startup input: " + str(path))
+    return data
+
+
+def json_equal(left, right):
+    return json.dumps(left, sort_keys=True, separators=(",", ":")) == json.dumps(right, sort_keys=True, separators=(",", ":"))
+
+
+def require_execution(row, expected):
+    if (row.get("returncode") != expected or not row.get("terminal") or not row.get("reaped") or
+            not row.get("owned_group_absent") or row.get("forced_cleanup") or
+            row.get("other_group_members_before_reap") != [] or
+            not row.get("original_identity_retained_until_other_members_absent")):
+        raise ValueError("startup execute returncode or settlement differs")
+
+
+def prepared(source, profile, equivalent, storage_tool, storage_mode):
+    """Replay and invert the entire own-source projection, before instrumentation."""
+    base, proof = source.prepare(profile, equivalent_edits=equivalent)
+    restored = dict(base)
+    for name, record in proof["source_edits"].items():
+        restored[name] = source.restore(base[name], record)
+    canonical = {name:source.normalized(source.CANONICAL / "native" / name) for name in NATIVE}
+    fused = source.load("d_startup_fused_inverse", source.CANONICAL / "shipping_fused_ray.py")
+    expected_board, _ = fused.transform_source(canonical["board.c"])
+    if restored["board.c"] != expected_board:
+        raise ValueError("startup prepare Board inverse differs")
+    replacement = b"#if D_HQ || DEV\n" + fused.OLD + b"\n#else\n" + fused.SCALAR + b"\n#endif"
+    at = fused.OFFSET
+    if restored["board.c"][at:at + len(replacement)] != replacement:
+        raise ValueError("startup fused Board inverse role differs")
+    restored["board.c"] = restored["board.c"][:at] + fused.OLD + restored["board.c"][at + len(replacement):]
+    if restored != canonical:
+        raise ValueError("startup complete prepare inverse differs")
+    files = base
+    if storage_mode != "none":
+        files, storage_proof = storage_tool.transform(base, prefix="prefix" in storage_mode, dense="dense" in storage_mode)
+        if storage_tool.restore(files, storage_proof) != base:
+            raise ValueError("startup complete storage inverse differs")
+        proof["storage"] = storage_proof
+    return files, proof
 
 
 def load(name, path):
@@ -139,26 +200,46 @@ finally:
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--build", type=Path, help="bind to a complete unreduced D generated-readable source selection")
     args = parser.parse_args()
     out = args.out.resolve()
     if (sys.platform != "linux" or platform.machine() != "x86_64" or
             not args.out.is_absolute() or out.exists() or
             any((p / ".git").exists() for p in (out, *out.parents))):
         parser.error("new absolute external output on Linux x86-64 required")
-    names = tuple("engines/compact/tiny-entry-d/native/" + n for n in
-                  ("tiny.h", "board.c", "search.c", "runtime.c", "start.S", "image.ld")) + (
+    names = tuple("engines/compact/tiny-entry-d/native/" + n for n in NATIVE) + (
         "engines/compact/tiny-entry-d/recipe.json",
         "engines/compact/tiny-entry-d/shipping_fused_ray.py",
         "engines/experiments/tcec-scope/build.py", "engines/scripts/production.py",
         "engines/experiments/tiny-d-submission/source.py",
         "engines/experiments/tiny-d-submission/build.py",
-        "engines/experiments/tiny-d-submission/test_startup.py")
+        CHECKER_INPUT)
+    selected = None
+    if args.build is not None:
+        if not args.build.is_absolute():
+            parser.error("--build requires an absolute D build directory")
+        selected_root = args.build.resolve()
+        manifest = (selected_root / "build.json").read_bytes(); selected = json.loads(manifest)
+        if (any(selected.get(key) is not True for key in ("complete", "frozen_execution", "native_reproduced")) or
+                selected.get("family") != "D" or selected.get("source_reduced") is not False or
+                type(selected.get("equivalent_edits")) is not bool or selected.get("storage") not in STORAGE_MODES):
+            raise ValueError("complete frozen unreduced D source selection required")
+        names = PRODUCER_INPUTS + ((STORAGE_INPUT,) if selected["storage"] != "none" else ())
+        if not isinstance(selected.get("inputs"), dict) or set(selected["inputs"]) != set(names):
+            raise ValueError("selected producer input closure differs from explicit allowlist")
+        names += (CHECKER_INPUT,)
     frozen = {}
     for name in names:
-        data = (ROOT / name).read_bytes().replace(b"\r\n", b"\n")
-        if b"\r" in data:
-            raise ValueError("lone CR in named startup input: " + name)
+        data = normalized(ROOT / name)
+        if selected is not None and name != CHECKER_INPUT:
+            expected = selected["inputs"][name]
+            if pin(data) != expected or (selected_root / "inputs" / name).read_bytes() != data:
+                raise ValueError("selected producer current/frozen input differs: " + name)
         frozen[name] = data
+    if selected is not None:
+        frozen["selection/build.json"] = manifest
+        for name in NATIVE:
+            frozen["selection/generated-readable/" + name] = (selected_root / "generated-readable" / name).read_bytes()
     out.mkdir()
     for name, data in frozen.items():
         path = out / "inputs" / name
@@ -177,8 +258,14 @@ def run_snapshot(out, frozen):
         raise ValueError("original command owner differs")
     hostmod.LIMITS = {**hostmod.LIMITS, "aggregate_wall": 240, "per_command_wall": 35,
                       "parent_CPU": 90, "parent_CPU_hard": 100, "child_CPU": 20}
-    report = dict(kind="D-real-raw-clone-poisoned-TT-startup-and-W256-GO-v2",
+    selected = json.loads(frozen["selection/build.json"]) if "selection/build.json" in frozen else None
+    storage_mode = selected["storage"] if selected is not None else "none"
+    equivalent = selected["equivalent_edits"] if selected is not None else True
+    storage_tool = load("d_startup_selected_storage", HERE / "storage.py") if storage_mode != "none" else None
+    report = dict(kind="D-selected-source-poisoned-TT-startup-and-W256-GO-v3" if selected is not None else
+                      "D-real-raw-clone-poisoned-TT-startup-and-W256-GO-v2",
                   complete=False, commands=[], cases=[], frozen_execution=True,
+                  source_bound=False, runtime_qualified=False, native_qualified=False, whole_artifact_qualified=False,
                   inputs={name: source.pin(data) for name, data in frozen.items()},
                   real_target_allocation=False, locality_proof=False,
                   strength_claim=False, per_worker_search_work_proof=False)
@@ -187,6 +274,23 @@ def run_snapshot(out, frozen):
     save()
     host = hostmod.Host(out, report, save)
     try:
+        selected_pins = None
+        if selected is not None:
+            resource = selected.get("resource")
+            if not isinstance(resource, dict) or resource.get("id") not in ("test-p4", "test-p28", "tcec-provisional"):
+                raise ValueError("finite selected D resource profile required")
+            profile = api.resource_profile(resource["id"])
+            selected_files, selected_proof = prepared(source, profile, equivalent, storage_tool, storage_mode)
+            actual = {name:frozen["selection/generated-readable/" + name] for name in NATIVE}
+            if (not json_equal(profile.to_record(16), resource) or not json_equal(selected_proof, selected["proof"]) or
+                    selected_files != actual):
+                raise ValueError("selected D full proof/resource/generated-readable replay differs")
+            selected_pins = {name:source.pin(data) for name,data in sorted(actual.items())}
+            report.update(source_bound=True, selected_build_manifest=source.pin(frozen["selection/build.json"]),
+                selected_source=selected_pins, selected_build=dict(resource=resource, storage=storage_mode,
+                    equivalent_edits=equivalent, producer_inputs=selected["inputs"], proof=selected_proof,
+                    source_only=True, complete_inverse=True))
+            save()
         for workers, fail, omit, go in ((4, False, False, False), (28, False, False, False),
                                       (256, False, False, False), (256, False, False, True),
                                       (4, True, False, False), (4, False, True, False)):
@@ -195,7 +299,10 @@ def run_snapshot(out, frozen):
             directory.mkdir()
             # Explicit fixture profile, never relabelled as the production TT.
             profile = api.ResourceProfile(name, "test", workers, 16 << 12)
-            files, production_proof = source.prepare(profile)
+            files, production_proof = prepared(source, profile, equivalent, storage_tool, storage_mode)
+            before_instrumentation = {name:source.pin(data) for name,data in sorted(files.items())}
+            if selected_pins is not None and before_instrumentation != selected_pins:
+                raise ValueError("scaled fixture is not exact selected source before instrumentation")
             files, test_proof = instrument(files, fail=fail, omit_clear=omit, go=go)
             for filename, data in files.items():
                 (directory / filename).write_bytes(data)
@@ -227,6 +334,7 @@ def run_snapshot(out, frozen):
                 if (row.get("returncode") != expected or row.get("forced_cleanup") or not row.get("owned_group_absent")):
                     raise
                 output = Path(row["stdout"]["path"]).read_bytes()
+            require_execution(report["commands"][-1], expected)
             if expected == 0 and not all(token in output for token in (b"TEST_INITIALIZED\n", b"uciok\n", b"readyok\n")):
                 raise ValueError("startup/protocol output differs")
             if go:
@@ -245,12 +353,13 @@ def run_snapshot(out, frozen):
                 real_go=go, pending_after_production_store=257 if go else None,
                 think_completions=256 if go else None, before_result_pending=1 if go else None,
                 dialogue=dialogue, binary=source.pin(binary.read_bytes()),
+                source_before_instrumentation=before_instrumentation, selected_source_equal=selected_pins is not None,
                 flags=builder.native_flags(profile),
                 output=output.decode(), production=production_proof, instrumentation=test_proof))
             save()
         report["complete"] = True
-        print(json.dumps(dict(cases=len(report["cases"]), complete=True, real_target_allocation=False)))
     except BaseException as error:
+        report["complete"] = False
         report["failure"] = dict(type=type(error).__name__, message=str(error))
         raise
     finally:
@@ -265,6 +374,10 @@ def run_snapshot(out, frozen):
             if cleanup.get("errors") or cleanup.get("unsettled_commands"):
                 report["complete"] = False
             save()
+    if not report["complete"]:
+        raise ValueError("startup checker cleanup incomplete")
+    print(json.dumps(dict(cases=len(report["cases"]), complete=True, source_bound=report["source_bound"],
+                          real_target_allocation=False)))
 
 
 if __name__ == "__main__":

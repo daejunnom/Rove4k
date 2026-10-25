@@ -6,6 +6,8 @@ import base64
 import json
 import os
 from pathlib import Path
+import subprocess
+import sys
 import tempfile
 import threading
 import time
@@ -363,12 +365,31 @@ class RecoveryTests(unittest.TestCase):
 
     @unittest.skipUnless(Path("/proc/self/stat").is_file(), "Linux original-process identity")
     def test_live_original_owner_cannot_be_restarted(self):
-        observed = run.proc_identity(os.getpid())
-        rows = [{"event": "game.process", "game": "fixture-game", "attempt": 0,
-                 "data": {**observed, "instance_id": "i-fixture",
-                          "boot_id": Path("/proc/sys/kernel/random/boot_id").read_text().strip()}}]
-        with self.assertRaises(RuntimeError):
-            run.require_settled_prior_jobs(rows, "i-fixture", budget.CampaignBudget("fixture"))
+        child = subprocess.Popen([sys.executable, "-B", "-c", "import sys; sys.stdin.buffer.read(1)"],
+                                 stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                                 start_new_session=True)
+        observed = None
+        try:
+            observed = run.proc_identity(child.pid)
+            self.assertIsNotNone(observed)
+            self.assertEqual((observed["pid"], observed["pgid"], observed["session"]), (child.pid,) * 3)
+            self.assertNotEqual(child.pid, os.getpgrp())
+            self.assertIsNone(child.poll())
+            rows = [{"event": "game.process", "game": "fixture-game", "attempt": 0,
+                     "data": {**observed, "instance_id": "i-fixture",
+                              "boot_id": Path("/proc/sys/kernel/random/boot_id").read_text().strip()}}]
+            with self.assertRaisesRegex(RuntimeError, "original runner identity exists"):
+                run.require_settled_prior_jobs(rows, "i-fixture", budget.CampaignBudget("fixture"))
+        finally:
+            child.stdin.close()
+            try:
+                child.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                if observed is None or run.proc_identity(child.pid) != observed:
+                    raise RuntimeError("owned fixture child identity changed; refuse an unbound signal")
+                child.kill()  # Only this unreaped, identity-checked child; never the test process group.
+                child.wait(timeout=5)
+        self.assertEqual(child.returncode, 0)
 
     @unittest.skipUnless(Path("/proc/self/stat").is_file(), "Linux original-process identity")
     def test_reused_numeric_pid_and_groups_are_not_assigned_to_old_owner(self):

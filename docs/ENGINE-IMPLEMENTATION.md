@@ -31,7 +31,7 @@ These fixtures do not prove full-size startup or many-core performance.
 | A | 3834B | 3836B | source-JIT functional/rules pass; target-host pending |
 | B `tcec-final-lf` | 4089B | 4087B | explicit selected variant, full semantics and actual JIT/rules pass |
 | C | 3982B | 3981B | incremental SIMD source retained, functional/rules pass |
-| D `prefix` | 5429B packed; 7812B JIT | 5425B packed | functional/rules pass; general4K blocked_size |
+| D `prefix` | 5429B packed; 7812B JIT | 5425B GCC13 packed; 5461B GCC11 packed | functional/rules pass; general4K blocked_size |
 | E | 3926B | 3928B | canonical E19 binding and actual consumer retained |
 | F | 3644B | 3645B | full MTD/witness/learner preserved, functional/rules pass |
 
@@ -67,13 +67,47 @@ campaign were created. PAID, fresh Advisor<5%, quota/capacity, target AMI and ac
 S3/watchdog/NUMA validation remain launch gates. The public Advisor object observed
 onOct25 was last modifiedMar20 and is not accepted as fresh interruption evidence.
 
-GCC11.4 compatibility remains a distinct pending gate: the first external Jammy
-SDK audit found an absolute interpreter symlink escaping to the Noble host. The
-strict checker rejected it; a separately audited SDK revision is being prepared.
-The old7b95599 engine/NVCompact/repository CI runs passed. The new foundation CI
-registers the production, E19 and evaluator unit suites; new-profile generation,
-actual target runtime and final release qualification are separate follow-up jobs.
+The first Jammy SDK audit found an absolute interpreter symlink escaping to the
+Noble host, and the strict checker rejected it. Separately audited SDKv2 relocates
+11 internal links and verifies90 resolved paths. All six original provisional
+profiles now pass actual GCC11.4 compile/type/ELF checks:33 commands and179 pinned
+toolchain inputs, libc at mostGLIBC2.34 for ABCEF and no D dynamic dependencies.
+Seventeen boundary tests pass on Windows and WSL. This is compile-only evidence
+on Noble, not actual Ubuntu22 runtime or a post-phase compiler qualification.
+
+The old7b95599 engine/NVCompact/repository CI runs passed. At a3e723d the NVCompact
+and repository runs passed; the new foundation job passed production, E19 and
+rules tests but caught one evaluator fixture's inherited-process-group assumption.
+Its test-only repair uses a real dedicated child and passes35/145 tests in both
+leader and nonleader test processes, without changing the recovery guard. New
+exact-head CI remains required. New-profile generation, actual target runtime
+and final release qualification are separate follow-up jobs.
 All receipts, raw games, data, failures and generated files remain outside Git.
+
+### Selected shared-phase follow-up
+
+The explicit `--phase-variant phase-init` production route improves A/C/E/F
+without changing their full search/SIMD/MTD/learner bodies. The default controls
+remain reproducible. Fresh source/native/whole/type-gate builds are repeated twice
+for all three resource profiles; a phase-only alternative loses bytes and is not
+selected.
+
+| Family | TEST-P4 | TEST-P28 | Provisional submission |
+|---|---:|---:|---:|
+| A phase-init | 3824B | 3830B | 3821B |
+| C phase-init | 3962B | 3975B | 3963B |
+| E phase-init | 3906B | 3921B | 3907B |
+| F phase-init | 3623B | 3634B | 3622B |
+
+Each selected P4 artifact passes actual JIT/rules and a source-bound initialization
+mechanism fixture. Four engine supervisors and four later read-only rules bindings
+exit0; legal-generation evidence includes the complete phase→E-model chain. B's
+selected artifact also has its own source-bound scaled callback and real W4 main
+gate, while D's prefix initialization tests now bind the actual selected build.
+No W28/W256 full-memory or scored-host acceptance is inferred from scaled fixtures.
+The next CI bridge will execute these selected contracts from clean runner output;
+target22 runtime consumes the fresh24 submission through a separate validated
+compiler reference, with `factory_replayed_on_target=false` recorded explicitly.
 
 ## Previous user scope: all engine Rust retired and work paused, 2026-10-25
 

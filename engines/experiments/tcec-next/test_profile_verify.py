@@ -27,6 +27,23 @@ def admitted(profile_id="test-p4", family="A"):
 
 
 class ProfileRuntimeAdmission(unittest.TestCase):
+    def test_phase_and_model_proofs_have_exact_order_and_named_helper(self):
+        resource = {"schema": "rove4k.c-resource-projection.v1"}
+        phase = {"schema": "rove4k.portable-phase-source.v1"}
+        model = {"stage": "canonical-e19-physical-binding"}
+        post = {"path": "engines/experiments/tcec-next/profile_phase.py", "variant": "phase-init"}
+        self.assertEqual(VERIFY.source_stages("E", post, [resource, phase, model]), "phase")
+        self.assertEqual(VERIFY.source_stages("A", post, [resource, phase]), "phase")
+        self.assertIsNone(VERIFY.source_stages("E", None, [resource, model]))
+        for family, declaration, proofs in (
+            ("E", post, [resource, model, phase]), ("E", post, [resource, phase]),
+            ("A", None, [resource, phase]), ("B", post, [resource, phase]),
+            ("A", {**post, "path": "engines/other.py"}, [resource, phase]),
+            ("A", {**post, "variant": "phase"}, [resource, phase]),
+        ):
+            with self.subTest(family=family, post=declaration, proofs=proofs), self.assertRaises(ValueError):
+                VERIFY.source_stages(family, declaration, proofs)
+
     def test_runtime_snapshot_matches_the_code_that_this_process_actually_compiled(self):
         source = PATH.read_bytes().replace(b"\r\n", b"\n")
         self.assertEqual(VERIFY.executing_source(source), source)
