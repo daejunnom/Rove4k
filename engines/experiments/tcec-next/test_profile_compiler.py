@@ -50,6 +50,144 @@ def elf(*, version="GLIBC_2.34", load_flags=5, stack_flags=6,
 
 
 class TargetCompilerBoundaries(unittest.TestCase):
+    def test_source_port_is_opt_in_and_cannot_upgrade_an_sdk_receipt(self):
+        self.assertFalse(TARGET.source_port_enabled(None, None, system=False))
+        self.assertTrue(TARGET.source_port_enabled(Path("source-bundle.zip"), Path("source-seal.json"), system=True))
+        with self.assertRaisesRegex(ValueError, "supplied together"):
+            TARGET.source_port_enabled(Path("source-bundle.zip"), None, system=True)
+        with self.assertRaisesRegex(ValueError, "explicit Ubuntu22 system"):
+            TARGET.source_port_enabled(Path("source-bundle.zip"), Path("source-seal.json"), system=False)
+
+    def provenance_fixture(self, base):
+        # The public validator has its own archive/admission tests. Here its
+        # response is isolated to test this producer's live/raw binding port.
+        helper = TARGET.load("compiler_source_port_test_helper", HERE / "target_runtime.py")
+        ci = helper.CIContext("owner/repo", "a" * 40, "12", "1")
+        bundle, seal = base / "source-bundle.zip", base / "source-seal.json"
+        bundle.write_bytes(b"unit fixture source bundle")
+        seal.write_bytes(b"unit fixture source seal")
+        source = TARGET.normalized(HERE / "target_runtime.py")
+        record = {"source_context": ci.to_record(), "source_bundle": TARGET.pin(bundle.read_bytes()),
+                  "source_seal": TARGET.pin(seal.read_bytes()),
+                  "source_provenance_tools": {TARGET.SOURCE_PROVENANCE: TARGET.pin(source)},
+                  "source_profile": {"family": "A", "profile": "test-p4"}}
+        selected = SimpleNamespace(admission=object(), build=base / "source-build")
+        return helper, ci, bundle, seal, record, selected
+
+    def test_source_port_delegates_exact_admission_and_keeps_raw_helper_pins(self):
+        with tempfile.TemporaryDirectory(prefix="rove4k-compiler-source-port-") as temporary:
+            helper, ci, bundle, seal, record, selected = self.provenance_fixture(Path(temporary).resolve())
+            verify = object()
+            with patch.object(TARGET, "load", return_value=helper), \
+                    patch.object(helper.CIContext, "from_environment", return_value=ci), \
+                    patch.object(helper, "source_bundle_binding", return_value=record) as binding:
+                observed, sources = TARGET.source_provenance([selected], verify, bundle=bundle, seal=seal)
+            self.assertEqual(observed, record)
+            self.assertEqual(TARGET.pin(sources[TARGET.SOURCE_PROVENANCE]), record["source_provenance_tools"][TARGET.SOURCE_PROVENANCE])
+            binding.assert_called_once_with(selected.admission, selected.build, verify=verify,
+                source_bundle=bundle, source_seal=seal, expected_ci=ci)
+
+    def test_source_port_rejects_missing_live_context_before_reading_raw_artifacts(self):
+        helper = TARGET.load("compiler_source_port_missing_context", HERE / "target_runtime.py")
+        with patch.object(TARGET, "load", return_value=helper), \
+                patch.object(helper.CIContext, "from_environment", side_effect=ValueError("live GitHub Actions context required")), \
+                patch.object(TARGET, "regular") as read:
+            with self.assertRaisesRegex(ValueError, "live GitHub Actions"):
+                TARGET.source_provenance([SimpleNamespace()], object(),
+                    bundle=HERE / "source-bundle.zip", seal=HERE / "source-seal.json")
+            read.assert_not_called()
+
+    def test_source_port_rejects_compiler_redirection_before_artifact_read(self):
+        helper = TARGET.load("compiler_source_port_redirect", HERE / "target_runtime.py")
+        with patch.object(TARGET, "load", return_value=helper), \
+                patch.dict(TARGET.os.environ, {"CPATH": "/not-an-admitted-header-context"}), \
+                patch.object(TARGET, "regular") as read:
+            with self.assertRaisesRegex(ValueError, "compiler redirection environment"):
+                TARGET.source_provenance([SimpleNamespace()], object(),
+                    bundle=HERE / "source-bundle.zip", seal=HERE / "source-seal.json")
+            read.assert_not_called()
+
+    def test_source_port_cannot_rebind_raw_inputs_or_a_changed_ci_context(self):
+        with tempfile.TemporaryDirectory(prefix="rove4k-compiler-source-port-reject-") as temporary:
+            helper, ci, bundle, seal, record, selected = self.provenance_fixture(Path(temporary).resolve())
+            for field in ("source_bundle", "source_seal", "source_context"):
+                wrong = dict(record)
+                wrong[field] = {}  # Reaches this port's exact binding boundary.
+                with self.subTest(field=field), patch.object(TARGET, "load", return_value=helper), \
+                        patch.object(helper.CIContext, "from_environment", return_value=ci), \
+                        patch.object(helper, "source_bundle_binding", return_value=wrong):
+                    with self.assertRaisesRegex(ValueError, "live context/raw inputs/helper"):
+                        TARGET.source_provenance([selected], object(), bundle=bundle, seal=seal)
+            changed = helper.CIContext("owner/repo", "a" * 40, "12", "2")
+            with patch.object(TARGET, "load", return_value=helper), \
+                    patch.object(helper.CIContext, "from_environment", side_effect=[ci, changed]), \
+                    patch.object(helper, "source_bundle_binding", return_value=record):
+                with self.assertRaisesRegex(ValueError, "context changed during capture"):
+                    TARGET.source_provenance([selected], object(), bundle=bundle, seal=seal)
+
+    def test_raw_source_inputs_cannot_change_during_validator_capture(self):
+        for name in ("source-bundle.zip", "source-seal.json"):
+            with self.subTest(name=name), tempfile.TemporaryDirectory(prefix="rove4k-compiler-source-port-race-") as temporary:
+                helper, ci, bundle, seal, record, selected = self.provenance_fixture(Path(temporary).resolve())
+                def changed(*args, **kwargs):
+                    (bundle if name == bundle.name else seal).write_bytes(b"replacement raw input")
+                    return record
+                with patch.object(TARGET, "load", return_value=helper), \
+                        patch.object(helper.CIContext, "from_environment", return_value=ci), \
+                        patch.object(helper, "source_bundle_binding", side_effect=changed):
+                    with self.assertRaisesRegex(ValueError, "input/helper changed during capture"):
+                        TARGET.source_provenance([selected], object(), bundle=bundle, seal=seal)
+
+    def test_source_port_is_one_explicit_family_profile_per_runtime_reference(self):
+        with self.assertRaisesRegex(ValueError, "one explicit family/profile"):
+            TARGET.source_provenance([object(), object()], object(),
+                bundle=Path("source-bundle.zip"), seal=Path("source-seal.json"))
+
+    def program_fixture(self, base):
+        tools = base / "system"
+        tools.mkdir()
+        paths = {}
+        for role in TARGET.PROGRAM_ROLES:
+            path = tools / role
+            path.write_bytes(("fixture " + role).encode())
+            paths[role] = path
+        calls = []
+        def run(command, *, cwd, kind):
+            role = command[1].split("=", 1)[1]
+            calls.append((kind, tuple(command), cwd))
+            return (str(paths[role]) + "\n").encode()
+        return paths, calls, SimpleNamespace(run=run)
+
+    def test_program_roles_are_observed_before_post_and_all_consumed(self):
+        with tempfile.TemporaryDirectory(prefix="rove4k-compiler-role-port-") as temporary:
+            base = Path(temporary).resolve()
+            paths, calls, host = self.program_fixture(base)
+            consumed = {}
+            before = TARGET.query_programs(base / "gcc", host=host, cwd=base, system=True,
+                input_roots=(base,), consumed=consumed)
+            after = TARGET.recheck_programs(base / "gcc", expected=before, host=host, cwd=base,
+                system=True, input_roots=(base,), consumed=consumed)
+            self.assertEqual(after, before)
+            self.assertEqual(set(before), set(TARGET.PROGRAM_ROLES))
+            self.assertEqual(set(consumed), {str(p) for p in paths.values()})
+            self.assertEqual([c[0] for c in calls],
+                ["compiler-program-" + q for q in TARGET.PROGRAM_ROLES] +
+                ["compiler-program-recheck-" + q for q in TARGET.PROGRAM_ROLES])
+
+    def test_program_role_resolution_cannot_change_even_to_identical_bytes(self):
+        with tempfile.TemporaryDirectory(prefix="rove4k-compiler-role-change-") as temporary:
+            base = Path(temporary).resolve()
+            paths, _, host = self.program_fixture(base)
+            consumed = {}
+            before = TARGET.query_programs(base / "gcc", host=host, cwd=base, system=True,
+                input_roots=(base,), consumed=consumed)
+            replacement = base / "system/as-replacement"
+            replacement.write_bytes(paths["as"].read_bytes())
+            paths["as"] = replacement
+            with self.assertRaisesRegex(ValueError, "roles changed between before/post"):
+                TARGET.recheck_programs(base / "gcc", expected=before, host=host, cwd=base,
+                    system=True, input_roots=(base,), consumed=consumed)
+
     def test_imported_glibc_requirements_are_parsed_from_version_tables(self):
         result = TARGET.elf_abi(elf(version="GLIBC_2.35"), VERIFY)
         self.assertEqual(result["imported_versions"], [{"library": "libc.so.6", "version": "GLIBC_2.35"}])

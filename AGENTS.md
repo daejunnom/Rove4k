@@ -65,7 +65,11 @@ SRP는 이름·파일 수·계층 수가 아니라 상태의 소유자, 변경 �
 Project: Rove4k. CLI profile: rove4k. Selected Region: ap-southeast-2.
 AWS experience: new. help_level: MEDIUM.
 The accepted engine plan and this repository's existing rules take precedence.
-The current FREE plan does not satisfy the PAID campaign gate; do not upgrade it automatically.
+The user completed the PAID upgrade; require a fresh plan-state check before launch.
+Use eligible credits first. Cash fallback is authorized within the original gross
+EC2 USD100 + ancillary USD20 / total USD120 and 12 instance-hour campaign limits.
+Credits and unearned activity bonuses do not enlarge those limits. Do not upgrade
+plans, change Region/SKU or bypass quota/Advisor gates automatically.
 
 # AWS Guidance for the new AWS experience
 

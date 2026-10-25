@@ -41,6 +41,9 @@ SUPPORT = {
 }
 _CONSTRUCTING = False
 _DEFERRED = None
+_TARGET_HELPER = None
+TARGET_SUPPORT = ("engines/experiments/tcec-next/target_runtime.py",
+                  "engines/experiments/tcec-next/profile_compiler.py")
 
 
 def require(value, detail):
@@ -152,9 +155,45 @@ class AdmittedBuild:
     full: bool = True
 
 
+def target_module():
+    global _TARGET_HELPER
+    if _TARGET_HELPER is None:
+        _TARGET_HELPER = load("profile_validated_target_reference", HERE / "target_runtime.py")
+    return _TARGET_HELPER
+
+
+def runtime_image(admitted, build, reference=None):
+    """Select an image expectation without modifying the source build map."""
+    if reference is None:
+        expected = _field_pin(admitted.expected, "native")
+        return expected, checked_artifact(build, admitted.native, expected)
+    helper = target_module()
+    require(type(reference) is helper.TargetRuntimeReference,
+            "runtime image requires a validated TargetRuntimeReference, not a native map")
+    record = reference.to_record()
+    require(admitted.representation == "source-jit" and reference.family == admitted.family
+            and reference.profile == admitted.profile_id and record.get("runtime_eligible") is True
+            and record.get("factory_replayed_on_target") is False
+            and _json_equal(record.get("original_build_expected_contract"), admitted.expected)
+            and record.get("source_build") == {"path": str(Path(build)),
+                **pin(artifact_file(build, "build.json").read_bytes())},
+            "validated target reference belongs to another source build/profile")
+    reference.assert_admission(admitted, build)
+    path = Path(reference.native_path)
+    expected = reference.native_pin
+    return expected, checked_artifact(path.parent, path.name, expected)
+
+
+def revalidate_target(reference):
+    if reference is not None:
+        helper = target_module()
+        reference.revalidate(verify=sys.modules[__name__], expected_ci=helper.CIContext.from_environment())
+
+
 def source_stages(family, post, proofs):
     """Declare the complete finite stage grammar before loading a helper."""
-    require(family in "ABCEF" and isinstance(proofs, list) and all(isinstance(p, dict) for p in proofs),
+    require(family in ("A", "B", "C", "E", "F") and isinstance(proofs, list)
+            and all(isinstance(p, dict) for p in proofs),
             "explicit C family and ordered source proofs required")
     expected = ["rove4k.c-resource-projection.v1"]
     kind = None
@@ -637,11 +676,14 @@ def _profile_session(scope):
     return ProfileSession
 
 
-def run_runtime(admitted, build, out, limits):
+def run_runtime(admitted, build, out, limits, *, target_reference=None):
     global _CONSTRUCTING, _DEFERRED
     scope, owner, oracle = support_modules()
     own_path = "engines/experiments/tcec-next/profile_verify.py"
     own_source = executing_source(source_bytes(own_path))
+    revalidate_target(target_reference)
+    image_pin, image = runtime_image(admitted, build, target_reference)
+    reference_record = target_reference.to_record() if target_reference is not None else None
     Session = _profile_session(scope)
     fixtures = scope.promotion_fixtures(oracle)
     manifest = {"resources": admitted.resources, "runtime_policy": admitted.runtime_policy}
@@ -649,13 +691,14 @@ def run_runtime(admitted, build, out, limits):
               "profile": admitted.profile_id, "representation": admitted.representation,
               "complete": False, "resources": admitted.resources, "limits": limits,
               "expected_contract": admitted.expected, "source_contract": admitted.source_contract,
+              "runtime_native_contract": image_pin,
+              "target_runtime_reference": reference_record,
               "event_target_confirmed": False,
               "own_source_matches_executed_module": True,
               "build_sha256": pin(artifact_file(build, "build.json").read_bytes())["sha256"],
               "source_closure": admitted.input_pins,
               "execution_host": execution_host(admitted),
-              "dependencies": native_dependencies(checked_artifact(
-                  build, admitted.native, _field_pin(admitted.expected, "native"))),
+              "dependencies": native_dependencies(image),
               "ISA": owner.execution_profile(),
               "sessions": [], "counts": {"GO": 0, "legal_bestmoves": 0},
               "not_proven": ["event-specific compiler/allocation acceptance", "playing strength or scaling",
@@ -665,7 +708,12 @@ def run_runtime(admitted, build, out, limits):
     support_inputs = dict(SUPPORT)
     support_inputs[own_path] = pin(own_source)["sha256"]
     report["runtime_support"] = support_inputs
-    for relative, digest in support_inputs.items():
+    reference_support = {}
+    if reference_record is not None:
+        reference_support = {TARGET_SUPPORT[0]: reference_record["reference_validator"]["sha256"],
+            TARGET_SUPPORT[1]: reference_record["compiler_tools"][TARGET_SUPPORT[1]]["sha256"]}
+        report["target_reference_support"] = reference_support
+    for relative, digest in {**support_inputs, **reference_support}.items():
         data = source_bytes(relative)
         require(pin(data)["sha256"] == digest, "runtime support changed before execution")
         target = out / "inputs" / relative
@@ -704,7 +752,7 @@ def run_runtime(admitted, build, out, limits):
                                    owned.budget, seconds=60)
                 row["startup_wall_seconds"] = time.monotonic() - started
                 require(row["startup_wall_seconds"] <= 60, "combined startup exceeded 60 seconds")
-                snapshot = scope.image_snapshot(owned.process.pid, admitted.expected["native_sha256"])
+                snapshot = scope.image_snapshot(owned.process.pid, image_pin["sha256"])
                 require(len(snapshot["tasks"]) == admitted.runtime_policy["startup_threads"],
                         "startup search-worker lifetime differs")
                 actual_stdin = os.stat(Path("/proc") / str(owned.process.pid) / "fd/0")
@@ -793,6 +841,9 @@ def run_runtime(admitted, build, out, limits):
                     cleanup = owned.cleanup()
                     if not row["complete"]:
                         row["failed_session_cleanup"] = cleanup
+        revalidate_target(target_reference)
+        if target_reference is not None:
+            report["target_context_before_post_unchanged"] = True
         report["complete"] = True
     except BaseException as error:
         report["failure"] = {"type": type(error).__name__, "message": str(error)}
@@ -810,7 +861,8 @@ def run_runtime(admitted, build, out, limits):
     return report
 
 
-def qualification_record(admitted, build, runtime_path, *, rules_path=None, artifact_id=None):
+def qualification_record(admitted, build, runtime_path, *, rules_path=None, artifact_id=None,
+                         target_reference=None):
     """Bind measured evidence for registry intake; missing placement stays failed.
 
     This is an adapter for an already admitted artifact and an owned runtime
@@ -833,6 +885,16 @@ def qualification_record(admitted, build, runtime_path, *, rules_path=None, arti
             and _json_equal(observed.get("source_closure"), admitted.input_pins)
             and _json_equal(observed.get("resources"), admitted.resources),
             "runtime does not bind the admitted whole/native/source/resource identity")
+    revalidate_target(target_reference)
+    image_pin, image = runtime_image(admitted, build, target_reference)
+    reference_record = target_reference.to_record() if target_reference is not None else None
+    require(observed.get("target_runtime_reference") == reference_record,
+            "target runtime evidence requires the same explicit validated compiler reference")
+    require(observed.get("runtime_native_contract", _field_pin(admitted.expected, "native")) == image_pin,
+            "runtime native expectation differs from its admitted image authority")
+    if target_reference is not None:
+        require(observed.get("target_context_before_post_unchanged") is True,
+                "target compiler/source context was not revalidated after execution")
     support = observed.get("runtime_support", {})
     own = "engines/experiments/tcec-next/profile_verify.py"
     require(set(support) == set(SUPPORT) | {own}
@@ -842,6 +904,16 @@ def qualification_record(admitted, build, runtime_path, *, rules_path=None, arti
         contracts()._logical_path(name)
         data = artifact_file(runtime_root, "inputs/" + name).read_bytes()
         require(pin(data)["sha256"] == digest, "frozen runtime support differs: " + name)
+    reference_support = observed.get("target_reference_support", {})
+    if reference_record is not None:
+        expected_support = {TARGET_SUPPORT[0]: reference_record["reference_validator"]["sha256"],
+            TARGET_SUPPORT[1]: reference_record["compiler_tools"][TARGET_SUPPORT[1]]["sha256"]}
+        require(reference_support == expected_support, "target reference support closure differs")
+        for name, digest in reference_support.items():
+            require(pin(artifact_file(runtime_root, "inputs/" + name).read_bytes())["sha256"] == digest,
+                    "frozen target reference support differs")
+    else:
+        require(not reference_support, "default runtime cannot inherit a target support map")
     scope, _, oracle = support_modules()
     promotions = {"promotion-replay-" + label: board for label, _, board in scope.promotion_fixtures(oracle)}
     base_labels = ["white-own-zero", "black-own-zero", "bare-finite-go", "white-workers", "black-workers"]
@@ -870,7 +942,7 @@ def qualification_record(admitted, build, runtime_path, *, rules_path=None, arti
             require(pin(pipes[pipe])["sha256"] == row[pipe + "_sha256"], "runtime pipe identity differs")
         require(not pipes["stderr"], "runtime engine wrote stderr")
         snapshot = row["startup"]
-        require(snapshot["native_sha256"] == admitted.expected["native_sha256"]
+        require(snapshot["native_sha256"] == image_pin["sha256"]
                 and len(snapshot["tasks"]) == admitted.runtime_policy["startup_threads"]
                 and row["startup_RSS_bytes_not_peak"] == _rss_bytes(snapshot)
                 and row["startup_RSS_bytes_not_peak"] >= admitted.resources["tt_bytes"] - 8192,
@@ -930,8 +1002,7 @@ def qualification_record(admitted, build, runtime_path, *, rules_path=None, arti
             {"GO": requested, "legal_bestmoves": actual_bestmoves}, "runtime observation count differs")
     require(rows[0]["long_position"]["plies"] == 1024 and
             rows[0]["long_position"]["oracle_halfmove"] == 1024, "long replay was not observed")
-    actual_dependencies = native_dependencies(checked_artifact(build, admitted.native,
-                                               _field_pin(admitted.expected, "native")))
+    actual_dependencies = native_dependencies(image)
     dependencies = _json_equal(observed.get("dependencies"), actual_dependencies)
     isa = observed.get("ISA", {})
     dependencies = dependencies and isa.get("sse4_2_all_available") is True and isa.get("cx16_all_available") is True
@@ -966,16 +1037,20 @@ def qualification_record(admitted, build, runtime_path, *, rules_path=None, arti
                 "workers": profile.workers, "tt_bytes": admitted.resources["tt_bytes"],
                 "entry_bytes": admitted.resources["tt_entry_bytes"], "representation": admitted.representation,
                 "full": admitted.full, **{key: admitted.expected["whole_" + key] for key in ("bytes", "sha256")},
-                "native_sha256": admitted.expected["native_sha256"]}
+                "native_sha256": image_pin["sha256"]}
+    if target_reference is not None and artifact_id is None:
+        identity["id"] += "-t11-" + image_pin["sha256"][:8]
     identity["whole_bytes"] = identity.pop("bytes")
     return {"format": "rove4k-qualification-v1", "division": "general4k", "artifact": identity,
             "artifact_path": str(artifact_file(build, admitted.program)), "complete": not failures,
             "functional_runtime_complete": True, "test_qualified": not failures and profile.purpose == "test",
             "release_qualified": False, "event_target_confirmed": False,
+            "target_compiler_bound": target_reference is not None,
+            "target_runtime_reference": reference_record,
             "checks": checks, "failures": failures,
             "observations": {"startup_ms": max(startup), "workers": profile.workers,
                 "positive_cpu_workers": min(worker_counts), "tt_bytes": admitted.resources["tt_bytes"],
-                "runtime_native_sha256": admitted.expected["native_sha256"],
+                "runtime_native_sha256": image_pin["sha256"],
                 "temporary_cleanup_while_live": True, "nbrq_replay": True,
                 "nbrq_generation": rules is not None and rules.get("nbrq_generation") is True,
                 "physical_cores": physical, "logical_cpus": logical,
@@ -993,7 +1068,18 @@ def main():
     parser.add_argument("--rules", type=Path, help="actual source-bound rules.json; no replay-to-generation inference")
     parser.add_argument("--runtime", type=Path,
                         help="revalidate an existing owned runtime.json without launching an engine")
+    parser.add_argument("--target-compiler-receipt", type=Path,
+                        help="optional actual system-Ubuntu22/GCC11 compiler.json; SDK evidence is ineligible")
+    parser.add_argument("--source-bundle", type=Path, help="exact same-CI source-bundle.zip for target mode")
+    parser.add_argument("--source-seal", type=Path, help="matching source-seal.json for target mode")
+    parser.add_argument("--target-reference", type=Path,
+                        help="optional saved target-runtime.json, revalidated from the complete authority chain")
     args = parser.parse_args()
+    target_inputs = (args.target_compiler_receipt, args.source_bundle, args.source_seal)
+    require(not any(target_inputs) or all(target_inputs),
+            "target mode requires compiler receipt, source bundle and source seal together")
+    require(args.target_reference is None or all(target_inputs),
+            "a saved target reference requires all original authority inputs")
     require(sys.platform == "linux" and resource is not None, "Linux /proc runtime target required")
     build, out = args.build.resolve(), args.out.resolve()
     require(args.build.is_absolute() and args.out.is_absolute() and not out.exists()
@@ -1015,11 +1101,24 @@ def main():
     else:
         require(args.candidate is None, "C source-profile has one explicit selected artifact")
         admitted = admit_c_build(manifest, build)
+    reference = None
+    if all(target_inputs):
+        helper = target_module()
+        options = dict(verify=sys.modules[__name__], source_bundle=args.source_bundle,
+                       source_seal=args.source_seal, expected_ci=helper.CIContext.from_environment())
+        if args.target_reference is not None:
+            reference = helper.load_reference(args.target_reference, admitted, build,
+                                               args.target_compiler_receipt, **options)
+        else:
+            reference = helper.validate_target_runtime(admitted, build, args.target_compiler_receipt, **options)
     if args.runtime is not None:
         require(args.runtime.is_absolute() and args.runtime.name == "runtime.json",
                 "an existing absolute runtime.json is required for read-only revalidation")
-        qualification = qualification_record(admitted, build, args.runtime, rules_path=args.rules)
+        qualification = qualification_record(admitted, build, args.runtime, rules_path=args.rules,
+                                             target_reference=reference)
         out.mkdir()
+        if reference is not None:
+            (out / "target-runtime.json").write_text(json.dumps(reference.to_record(), indent=2) + "\n")
         (out / "qualification.json").write_text(json.dumps(qualification, indent=2) + "\n")
         print(json.dumps({"complete": qualification["complete"],
                           "functional_runtime_complete": qualification["functional_runtime_complete"],
@@ -1029,8 +1128,11 @@ def main():
         return
     # No output, process or TT allocation precedes this gate.
     limits = execution_limits(admitted, effective_available_bytes())
-    report = run_runtime(admitted, build, out, limits)
-    qualification = qualification_record(admitted, build, out / "runtime.json", rules_path=args.rules)
+    report = run_runtime(admitted, build, out, limits, target_reference=reference)
+    qualification = qualification_record(admitted, build, out / "runtime.json", rules_path=args.rules,
+                                         target_reference=reference)
+    if reference is not None:
+        (out / "target-runtime.json").write_text(json.dumps(reference.to_record(), indent=2) + "\n")
     (out / "qualification.json").write_text(json.dumps(qualification, indent=2) + "\n")
     print(json.dumps({"complete": report["complete"], "family": admitted.family,
                       "profile": admitted.profile_id, "whole_bytes": admitted.expected["whole_bytes"],

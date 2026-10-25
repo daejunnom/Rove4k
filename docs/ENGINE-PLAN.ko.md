@@ -302,3 +302,12 @@ Cloud는 기존 누적8–12instanceh 상한을 유지한다.
 약25–60h는 다음 검증 창의 추정이며 D4K 수렴 완료 약속이 아니다. 요금제,
 최신 Advisor·quota·capacity·TCEC 운영자 응답 같은 외부 대기는 별도 미정 변수다.
 부분 적격 TEST 리그는 D 후속 축약과 병렬화하고, 실제 공유 자원 wait를 다시 반영한다.
+
+후속 AWS 사용자 결정과 실제 조회: PAID ACTIVE·잔여100USD를 확인했다. 적격
+크레딧을 우선 적용하고 부족·미적용 금액의 자동 청구를 기존 차감 전 총120USD
+한도 안에서 허용한다. EC2 생성20USD 등 다섯 활동의 조건부100USD는 모두
+NOT_STARTED이므로 가용 예산에 더하지 않는다. 개별 grant의 Spot 적용·만료 조회는
+관리형 SCP가 거부해 미확인이다. Standard Spot192vCPU 증액을 한 번 요청했고
+CASE_OPENED 상태이며, 실제 적용192와 최신 Advisor<5%는 여전히 실행 gate다.
+Standalone m6a의 실제 bootstrap·attestation·배치는 GitHub Ubuntu22 참조와
+별도 구현·검증하며 GITHUB 환경을 주입해 CI 호스트로 위장하지 않는다.

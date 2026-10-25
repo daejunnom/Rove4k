@@ -29,9 +29,11 @@ ROOT = HERE.parents[2]
 SELF = "engines/experiments/tcec-next/profile_compiler.py"
 VERIFY_PATH = "engines/experiments/tcec-next/profile_verify.py"
 HOST_PATH = "engines/experiments/tcec-scope/build.py"
+SOURCE_PROVENANCE = "engines/experiments/tcec-next/target_runtime.py"
 HOST_SHA = "fc916e798952cff1c915a6846e758874bc2d858b3c59dec73870b95c7e3d4828"
 SCHEMA = "rove4k.profile-compiler.v1"
 GLIBC_MAX = (2, 35)
+PROGRAM_ROLES = ("cc1", "as", "ld", "collect2", "lto1")
 C_FLAGS = {
     "A": ("cc", "-Os", "-x", "c", "-", "-o", "x", "-s"),
     "B": ("cc", "-std=c11", "-Os", "-pthread", "-x", "c", "-", "-o", "x"),
@@ -170,6 +172,70 @@ def compiler_program(name, *, system):
     return path.resolve()
 
 
+def source_port_enabled(bundle, seal, *, system):
+    require((bundle is None) == (seal is None), "source bundle and seal must be supplied together")
+    require(bundle is None or system, "source provenance requires the explicit Ubuntu22 system context")
+    return bundle is not None
+
+
+def source_provenance(sources, verify, *, bundle, seal):
+    """Bind the optional live-CI source port through its public validator.
+
+    The validator owns archive/seal/checkout semantics. This producer captures
+    raw bytes and its executing helper separately from the default compiler
+    tool closure, and repeats this observation after compilation.
+    """
+    bundle, seal = Path(bundle), Path(seal)
+    require(len(sources) == 1, "runtime source provenance selects one explicit family/profile")
+    require(bundle.name == "source-bundle.zip" and seal.name == "source-seal.json",
+            "explicit source-bundle.zip and source-seal.json inputs required")
+    helper_source = normalized(ROOT / SOURCE_PROVENANCE)
+    module = load("profile_compiler_source_provenance", ROOT / SOURCE_PROVENANCE)
+    require(compile(helper_source, str(module.__file__), "exec", dont_inherit=True) == module._EXECUTING_CODE,
+            "source provenance helper changed after its executing module was compiled")
+    require(not any(os.environ.get(name) for name in module.COMPILER_ENV),
+            "source provenance does not admit compiler redirection environment")
+    expected_ci = module.CIContext.from_environment()
+    for path in (bundle, seal):
+        require(path.is_absolute() and not any(p.is_symlink() for p in (path, *path.parents)),
+                "absolute non-link source provenance input required")
+        require(path.stat().st_nlink == 1, "source provenance input cannot have a mutable hard-link alias")
+    raw_bundle, raw_seal = regular(bundle, limit=128 << 20), regular(seal, limit=16 << 20)
+    expected = {"source_context": expected_ci.to_record(), "source_bundle": pin(raw_bundle),
+                "source_seal": pin(raw_seal), "source_provenance_tools": {SOURCE_PROVENANCE: pin(helper_source)}}
+    for selected in sources:
+        require(selected.admission is not None, "source provenance requires the original strict admission")
+        observed = module.source_bundle_binding(selected.admission, selected.build, verify=verify,
+            source_bundle=bundle, source_seal=seal, expected_ci=expected_ci)
+        require(set(observed) == set(expected) | {"source_profile"}
+                and {key: observed[key] for key in expected} == expected,
+                "source provenance does not bind the live context/raw inputs/helper")
+    require(regular(bundle, limit=128 << 20) == raw_bundle and regular(seal, limit=16 << 20) == raw_seal
+            and normalized(ROOT / SOURCE_PROVENANCE) == helper_source,
+            "source provenance input/helper changed during capture")
+    require(module.CIContext.from_environment().to_record() == expected_ci.to_record(),
+            "live source CI context changed during capture")
+    return observed, {SOURCE_PROVENANCE: helper_source}
+
+
+def query_programs(compiler, *, host, cwd, system, input_roots, consumed, recheck=False):
+    result = {}
+    for query in PROGRAM_ROLES:
+        kind = "compiler-program-" + ("recheck-" if recheck else "") + query
+        answer = host.run([compiler, "-print-prog-name=" + query], cwd=cwd, kind=kind).decode().strip()
+        path = compiler_program(answer, system=system)
+        require(within(path, input_roots), "compiler program escaped its admitted context")
+        record_input(consumed, path)
+        result[query] = {"path": str(path), **consumed[str(path)]}
+    return result
+
+
+def recheck_programs(compiler, *, expected, **kwargs):
+    observed = query_programs(compiler, recheck=True, **kwargs)
+    require(observed == expected, "compiler program roles changed between before/post observations")
+    return observed
+
+
 @dataclass(frozen=True)
 class SourceInput:
     family: str
@@ -182,6 +248,7 @@ class SourceInput:
     units: tuple[str, ...]
     assertions: tuple[str, ...]
     old_native: dict
+    admission: object = None
 
 
 def admit(build, verify):
@@ -217,7 +284,7 @@ def admit(build, verify):
     require(accepted.profile_id in ("tcec-provisional", "test-p4", "test-p28"),
             "named immutable resource profile required")
     return SourceInput(accepted.family, accepted.profile_id, build, raw, record, files,
-                       flags, units, assertions, dict(accepted.expected))
+                       flags, units, assertions, dict(accepted.expected), accepted)
 
 
 def elf_abi(native, verify):
@@ -318,9 +385,12 @@ def main():
                          help="explicit real Ubuntu22/glibc2.35 context for target CI")
     parser.add_argument("--sdk-audit-sha256")
     parser.add_argument("--sdk-smoke", type=Path, help="legacy separate smoke receipt; relocated audit includes its own")
+    parser.add_argument("--source-bundle", type=Path, help="optional paired live-CI source-bundle.zip for system22")
+    parser.add_argument("--source-seal", type=Path, help="optional paired live-CI source-seal.json for system22")
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
     executing = executing_source(normalized(Path(__file__)))
+    provenance_enabled = source_port_enabled(args.source_bundle, args.source_seal, system=args.ubuntu22_system)
     require(sys.platform == "linux" and platform.machine() == "x86_64", "Linux x86-64 compiler host required")
     out = args.out.resolve()
     require(args.out.is_absolute() and not out.exists() and
@@ -348,8 +418,10 @@ def main():
     tools = {SELF: executing, **{name: normalized(ROOT / name) for name in (VERIFY_PATH, HOST_PATH)}}
     verify.executing_source(tools[VERIFY_PATH])
     require(pin(tools[HOST_PATH])["sha256"] == HOST_SHA, "bounded command owner differs")
+    provenance, provenance_tools = (source_provenance(sources, verify,
+        bundle=args.source_bundle, seal=args.source_seal) if provenance_enabled else ({}, {}))
     out.mkdir()
-    for name, data in tools.items():
+    for name, data in {**tools, **provenance_tools}.items():
         target = out / "tools" / name
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(data)
@@ -364,6 +436,10 @@ def main():
                        "cpu_affinity": sorted(os.sched_getaffinity(0))},
               "not_proven": ["Ubuntu 22.04 actual runtime", "event-specific compiler acceptance",
                              "source-JIT runtime cc identity", "many-core startup or engine strength"]}
+    if provenance_enabled:
+        report.update(provenance)
+        report["compiler_programs_rechecked"] = False
+        report["source_provenance_rechecked"] = False
     def save():
         (out / "compiler.json").write_text(json.dumps(report, indent=2) + "\n")
     owner = load("profile_compiler_host", out / "tools" / HOST_PATH)
@@ -380,12 +456,10 @@ def main():
         version = host.run([compiler, "-dumpfullversion"], cwd=out, kind="compiler-version").decode().strip()
         require(version == "11.4.0", "actual target compiler is not GCC 11.4.0")
         report["compiler_version"] = host.run([compiler, "--version"], cwd=out, kind="compiler-banner").decode()
-        for query in ("cc1", "as", "ld", "collect2", "lto1"):
-            name = host.run([compiler, "-print-prog-name=" + query], cwd=out,
-                            kind="compiler-program-" + query).decode().strip()
-            path = compiler_program(name, system=args.ubuntu22_system)
-            require(within(path, input_roots), "compiler program escaped its admitted context")
-            record_input(sdk_files, path)
+        programs = query_programs(compiler, host=host, cwd=out, system=args.ubuntu22_system,
+                                  input_roots=input_roots, consumed=sdk_files)
+        if provenance_enabled:
+            report["compiler_programs"] = programs
         for selected in sources:
             directory = out / (selected.family + "-" + selected.profile)
             directory.mkdir()
@@ -467,6 +541,17 @@ def main():
                 "SDK consumed input changed after compilation")
         require(current_context() == sdk,
                 "audited SDK descriptor changed during compilation")
+        if provenance_enabled:
+            recheck_programs(compiler, expected=programs, host=host, cwd=out, system=True,
+                             input_roots=input_roots, consumed=sdk_files)
+            after_provenance, after_tools = source_provenance(sources, verify,
+                bundle=args.source_bundle, seal=args.source_seal)
+            require(after_provenance == provenance and after_tools == provenance_tools,
+                    "source provenance changed between before/post compilation")
+            require(all(pin(regular(Path(path))) == expected for path, expected in sdk_files.items()),
+                    "compiler consumed input changed during final provenance observation")
+            report["compiler_programs_rechecked"] = True
+            report["source_provenance_rechecked"] = True
         report["compiler_consumed_inputs"] = sdk_files
         report["complete"] = True
         report["six_submission_profiles_compiled"] = {

@@ -8,6 +8,7 @@ from pathlib import Path
 import struct
 import sys
 import tempfile
+import types
 import unittest
 from unittest.mock import patch
 
@@ -27,6 +28,49 @@ def admitted(profile_id="test-p4", family="A"):
 
 
 class ProfileRuntimeAdmission(unittest.TestCase):
+    def test_target_image_is_separate_from_the_original_producer_expectation(self):
+        from dataclasses import replace
+        with tempfile.TemporaryDirectory(prefix="rove4k-target-image-") as temporary:
+            root = Path(temporary)
+            (root / "native").mkdir()
+            (root / "native/x").write_bytes(b"original compiler image")
+            (root / "target").mkdir()
+            target = root / "target/x"
+            target.write_bytes(b"independent target image")
+            (root / "build.json").write_bytes(b"{}")
+            old = {"native_" + k: v for k, v in VERIFY.pin((root / "native/x").read_bytes()).items()}
+            accepted = replace(admitted(), expected=dict(old))
+            expected_target = VERIFY.pin(target.read_bytes())
+            class Reference:
+                family, profile, native_path = "A", "test-p4", target
+                native_pin = expected_target
+                def assert_admission(self, value, build):
+                    VERIFY.require(value.program == "x", "reference execution object differs")
+                def to_record(self):
+                    return {"runtime_eligible": True, "factory_replayed_on_target": False,
+                            "original_build_expected_contract": dict(old),
+                            "source_build": {"path": str(root), **VERIFY.pin(b"{}")}}
+            self.assertEqual(VERIFY.runtime_image(accepted, root),
+                             (VERIFY.pin((root / "native/x").read_bytes()), b"original compiler image"))
+            with patch.object(VERIFY, "target_module", return_value=types.SimpleNamespace(TargetRuntimeReference=Reference)):
+                self.assertEqual(VERIFY.runtime_image(accepted, root, Reference()),
+                                 (expected_target, b"independent target image"))
+                with self.assertRaisesRegex(ValueError, "validated TargetRuntimeReference"):
+                    VERIFY.runtime_image(accepted, root, {"native_pin": expected_target})
+                with self.assertRaisesRegex(ValueError, "execution object differs"):
+                    VERIFY.runtime_image(replace(accepted, program="unadmitted-program"), root, Reference())
+            self.assertEqual(accepted.expected, old)
+
+    def test_reference_for_another_profile_cannot_choose_a_runtime_image(self):
+        from dataclasses import replace
+        class Reference:
+            family, profile = "A", "test-p28"
+            def to_record(self):
+                return {"runtime_eligible": True, "factory_replayed_on_target": False}
+        with patch.object(VERIFY, "target_module", return_value=types.SimpleNamespace(TargetRuntimeReference=Reference)):
+            with self.assertRaisesRegex(ValueError, "another source build/profile"):
+                VERIFY.runtime_image(replace(admitted(), expected={}), Path("not-read"), Reference())
+
     def test_phase_and_model_proofs_have_exact_order_and_named_helper(self):
         resource = {"schema": "rove4k.c-resource-projection.v1"}
         phase = {"schema": "rove4k.portable-phase-source.v1"}
@@ -40,6 +84,7 @@ class ProfileRuntimeAdmission(unittest.TestCase):
             ("A", None, [resource, phase]), ("B", post, [resource, phase]),
             ("A", {**post, "path": "engines/other.py"}, [resource, phase]),
             ("A", {**post, "variant": "phase"}, [resource, phase]),
+            ("", None, [resource]), ("AC", None, [resource]),
         ):
             with self.subTest(family=family, post=declaration, proofs=proofs), self.assertRaises(ValueError):
                 VERIFY.source_stages(family, declaration, proofs)
