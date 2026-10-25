@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 """First bounded actual no_std D startup/search/stop/quit, without a loader."""
+
+if __name__ == "__main__":
+    raise SystemExit("Rove4k Rust engine paths are retired; use C A-F")
+
 import argparse
 import hashlib
 import json

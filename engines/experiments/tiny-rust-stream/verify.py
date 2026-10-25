@@ -37,6 +37,7 @@ def load_oracle():
 
 
 def main():
+    raise SystemExit("Rust A is retired; this historical stream runtime CLI is disabled.")
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--build",type=Path,required=True)
     parser.add_argument("--out",type=Path,required=True)

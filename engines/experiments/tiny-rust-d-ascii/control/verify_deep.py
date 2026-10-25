@@ -6,6 +6,10 @@ The exact production search prefix receives one external qualification appendix.
 There is no std allocator or allocating container in this image. A syscall
 tracer may additionally verify that all mappings precede the deep-begin marker.
 """
+
+if __name__ == "__main__":
+    raise SystemExit("Rove4k Rust engine paths are retired; use C A-F")
+
 import argparse
 import hashlib
 import json

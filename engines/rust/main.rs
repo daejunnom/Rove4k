@@ -16,7 +16,8 @@ const fn number(v:Option<&str>,default:usize)->usize {
 }
 const fn letter(v:Option<&str>,default:u8)->u8 {match v{Some(s)if !s.is_empty()=>s.as_bytes()[0],_=>default}}
 pub const DEV:bool=letter(option_env!("ROVE_DEV"),b'0')==b'1';
-const VARIANT:u8=letter(option_env!("ROVE_VARIANT"),b'A');
+const VARIANT:u8=letter(option_env!("ROVE_VARIANT"),b'B');
+const _:()=assert!(false,"Rove4k Rust engine paths are retired; use C A-F");
 const WORKERS:usize=number(option_env!("ROVE_WORKERS"),2);
 const TT_BITS:usize=number(option_env!("ROVE_TT_BITS"),16);
 const PARALLEL:u8=number(option_env!("ROVE_PARALLEL"),0)as u8;

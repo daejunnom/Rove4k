@@ -1,5 +1,11 @@
 # Optional Rust shipping source specialization
 
+> **Rust A specialization retired on2026-10-25.** The generic build option and
+> this directory's cost CLI reject the retired candidate. Source templates and
+> earlier proofs remain for historical inspection; they are not active build
+> selections. `syntax.py` is still a shared helper and must remain available to
+> retained implementations. Generic Rust B–F and independent Rust D stay active.
+
 `generate.py` provides explicit A / shipping source candidates. It keeps
 the canonical independent Rust implementation in `engines/rust` intact. The
 generator removes inactive source before source archiving, where rustc's native

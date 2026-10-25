@@ -1,5 +1,11 @@
 # Next full TCEC submissions
 
+The literal W2/TT18 and F8 selections below remain qualified small-resource
+controls. The resumed [execution plan](../../../docs/ENGINE-PLAN.ko.md) separates
+TEST P4/P28 from submission W256/256GiB-TT-cap. New production profile builders
+and their independent qualification are being implemented; these control bytes
+do not establish new-profile size, startup or runtime acceptance.
+
 These selected profiles regenerate the exact maintained7f TCEC controls from
 frozen canonical source, then independently compose and compile the next
 projections twice. Historical generated source and native files are not build
@@ -72,10 +78,12 @@ Separate experiments remain available without changing the selected source:
   the local F/B fixture, but unmodified shipping-native throughput, target
   hardware and SMP remain separate. Selected profiles retain Os.
 
-The next-optimization attachment also discusses Rust prefix/fallback/zeroing,
-B exchange-only metadata and new TT/evaluation/resource policies. These remain
-separate implementation or strength-evaluation work. Rust A stays7502 B in its
-existing producer. AWS/Spot is planning-only: no account connection, resources,
-paid execution, workflow, training or scheduled task is introduced here. See
+The user retired all engine Rust paths on2026-10-25 and subsequently resumed
+the complete C implementation plan.
+Rust proposals are no longer active work or size blockers. B exchange-only metadata and new
+TT/evaluation/resource policies retain their separate implementation or
+strength-evaluation scope. Bounded AWS evaluation and E19 preparation to production
+optimizer step0 are now implementation scope. Existing historical receipts do
+not imply a new account connection, paid execution or production training. See
 the [implementation record](../../../docs/WRAPPER-IMPLEMENTATION.ko.md) for
 scope, failures, AWS-plan corrections and evidence boundaries.

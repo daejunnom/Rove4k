@@ -4,6 +4,10 @@
 Only the declared ASCII input policy and safe byte parser adapter differ.
 Independent source reviews are hash-bound before canonical builder invocations.
 """
+
+if __name__ == "__main__":
+    raise SystemExit("Rove4k Rust engine paths are retired; use C A-F")
+
 import argparse
 import difflib
 import hashlib

@@ -4,6 +4,10 @@
 This verifier does not build the production image. Syscall tracing and fault
 images are separate evidence classes in tests/runtime_trace.py/runtime_faults.py.
 """
+
+if __name__ == "__main__":
+    raise SystemExit("Rove4k Rust engine paths are retired; use C A-F")
+
 import argparse
 import hashlib
 import json

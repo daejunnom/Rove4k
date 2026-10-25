@@ -260,6 +260,7 @@ def smoke(path, environment=None):
 
 
 def main():
+    raise SystemExit("Rust A is retired; this historical producer no longer generates artifacts. Use retained Rust B-F or C A.")
     global SYNTAX, _ACTIVE_OUTPUT
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", required=True, type=Path)

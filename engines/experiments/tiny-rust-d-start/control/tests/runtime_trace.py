@@ -5,6 +5,10 @@ No ptrace attach, other process inspection, production hook or image rewrite.
 The tracer deliberately parks worker EXIT events until the main thread has
 entered shared clear-TID futex join. This schedule is recorded in the evidence.
 """
+
+if __name__ == "__main__":
+    raise SystemExit("Rove4k Rust engine paths are retired; use C A-F")
+
 import argparse
 import ctypes
 import errno

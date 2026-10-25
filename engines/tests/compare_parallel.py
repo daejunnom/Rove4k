@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Small, serial local C/Rust policy study; no rating or target scaling claim.
 
-Build the ten A / four-worker / TT-bits-18 development programs first. Supply
+Build the ten retained-family / four-worker / TT-bits-18 development programs first. Supply
 their build.py manifests, preserve the input sources, and run in a coordinated
 quiet window. Evidence, transcripts and ordinary PGN go outside the checkout.
+The earlier A study is historical; Rust A is no longer an active candidate.
 """
 import argparse
 from collections import Counter, defaultdict
@@ -170,7 +171,8 @@ def measured_search(engine, board, command, timeout, require_iteration=True):
             "resources_after": after, "counters": parallel_counters(lines, stats)}
 
 
-def load_programs(manifests):
+def load_programs(manifests, family="E"):
+    require(family in "BCDE" and len(family) == 1, "select one retained B/C/D/E family")
     specs, inputs = [], []
     for path in manifests:
         data = json.loads(path.read_text(encoding="utf-8-sig"))
@@ -179,10 +181,10 @@ def load_programs(manifests):
                        "git_head": data.get("git_head"), "engine_source_root": data.get("engine_source_root")})
         for candidate in data["engines"]:
             config = candidate["configuration"]
-            require(config["ROVE_VARIANT"] == "A" and int(config["ROVE_WORKERS"]) == 4 and
+            require(config["ROVE_VARIANT"] == family and int(config["ROVE_WORKERS"]) == 4 and
                     int(config["ROVE_TT_BITS"]) == 18 and int(config["ROVE_DEV"]) == 1 and
                     int(config.get("ROVE_MODEL", 0)) == 0 and int(config.get("ROVE_HQ", 0)) == 0,
-                    "comparison requires A, four workers, TT bits 18, development interface")
+                    f"comparison requires {family}, four workers, TT bits 18, development interface, no cross-model or HQ")
             language = candidate["id"].split("-")[1]
             mode = int(config["ROVE_PARALLEL"])
             require(language in ("c", "rust") and 0 <= mode <= 4, "unexpected language/policy")
@@ -191,7 +193,7 @@ def load_programs(manifests):
             require(sha(binary) == original["sha256"], "program hash differs from build record")
             sources = candidate["sources"]
             require(sources, "build record has no source hashes")
-            spec = {**candidate, "id": f"A-{language}-{POLICIES[mode]}", "language": language,
+            spec = {**candidate, "id": f"{family}-{language}-{POLICIES[mode]}", "language": language,
                     "policy": mode, "startup_threads": 5, "startup_timeout": 15,
                     "expected_program_sha256": original["sha256"], "manifest": str(path),
                     "program_bytes": binary.stat().st_size}
@@ -388,6 +390,7 @@ def games(specs, args, report, deadline, cpus):
 
 
 def summarize(report):
+    family = report["family"]
     grouped = defaultdict(list)
     for sample in report["benchmarks"]:
         grouped[sample["id"], sample["opening"], sample["work"]].append(sample)
@@ -400,8 +403,8 @@ def summarize(report):
     comparisons = []
     for opening, _ in OPENINGS:
         for work in ("depth", "nodes"):
-            pairs = [(f"A-c-{policy}", f"A-rust-{policy}", "C/Rust") for policy in POLICIES]
-            pairs += [(f"A-{language}-{policy}", f"A-{language}-loose", "policy/loose")
+            pairs = [(f"{family}-c-{policy}", f"{family}-rust-{policy}", "C/Rust") for policy in POLICIES]
+            pairs += [(f"{family}-{language}-{policy}", f"{family}-{language}-loose", "policy/loose")
                       for language in ("c", "rust") for policy in POLICIES[1:]]
             for numerator, denominator, comparison in pairs:
                 a, b = medians.get((numerator,opening,work)), medians.get((denominator,opening,work))
@@ -415,8 +418,10 @@ def summarize(report):
     report["game_results"] = dict(Counter(g["termination"] for g in report["games"]))
     report["remaining_work"] = {"benchmarks": max(0, report["expected_benchmarks"]-len(report["benchmarks"])),
                                 "games": max(0, report["expected_games"]-len(report["games"]))}
-    report["interpretation"] = ("Matched A feature families and fixed worker/TT-entry profiles, not identical evaluators or searched trees. "
-        "C/Rust A evaluation and search heuristics differ; ratios compare these implementations and do not isolate a language effect. "
+    model_scope = ("E uses the same frozen 21-coefficient evaluation/ordering model in both languages; surrounding search heuristics differ. "
+                   if family == "E" else "Canonical evaluators and search heuristics are not assumed identical. ")
+    report["interpretation"] = (f"Matched {family} feature families and fixed worker/TT-entry profiles, not identical searched trees. "
+        + model_scope + "Ratios compare these implementations and do not isolate a language effect. "
         "Wall time includes protocol delivery; CPU ticks are quantized. C/Rust slot layouts use different bytes. "
         "Startup includes the shared client's 10-ms thread-observer polling and handshake, so sub-poll startup differences are unresolved. "
         "Four workers yield one four-worker locality group, so this profile cannot measure cross-group scaling. "
@@ -425,6 +430,8 @@ def summarize(report):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--family", choices=("B", "C", "D", "E"), default="E",
+                        help="one retained C/Rust family; the earlier Rust A study is historical")
     parser.add_argument("--manifest", action="append", required=True, type=Path)
     parser.add_argument("--out", required=True, type=Path)
     parser.add_argument("--samples", type=int, default=3)
@@ -445,11 +452,11 @@ def main():
     require(1 <= args.samples <= 10 and 1 <= args.depth <= 8 and 1 <= args.nodes <= 1000000 and
             1 <= args.plies <= 256 and 1 <= args.base_ms <= 60000 and 0 <= args.increment_ms <= 1000 and
             0 < args.timeout <= 30 and 0 < args.wall_seconds <= 900, "comparison exceeds bounded local limits")
-    specs, manifests = load_programs(args.manifest)
+    specs, manifests = load_programs(args.manifest, args.family)
     cpus = set(sorted(os.sched_getaffinity(0))[:5])
     require(cpus, "no available CPU affinity")
     args.out.mkdir(parents=True)
-    report = {"complete": False, "input_manifests": manifests, "programs": specs,
+    report = {"complete": False, "family": args.family, "input_manifests": manifests, "programs": specs,
         "inputs": {"openings": OPENINGS, "seed": args.seed, "options": {k: str(v) if isinstance(v,Path) else v for k,v in vars(args).items() if k != "manifest"}},
         "environment": {"platform": platform.platform(), "machine": platform.machine(), "python": sys.version,
             "cpu_count": os.cpu_count(), "affinity": sorted(cpus), "cpu_tick_seconds": 1 / TICKS,
@@ -485,4 +492,4 @@ def main():
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit("All engine Rust paths are retired; this historical C/Rust comparison runner is disabled.")

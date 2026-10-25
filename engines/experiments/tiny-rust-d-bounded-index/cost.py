@@ -1,4 +1,8 @@
 """Two fixed candidate Rust links and static readback; never execute an ELF."""
+
+if __name__ == "__main__":
+    raise SystemExit("Rove4k Rust engine paths are retired; use C A-F")
+
 import argparse
 import hashlib
 import json

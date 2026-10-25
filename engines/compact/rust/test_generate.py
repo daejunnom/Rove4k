@@ -5,6 +5,10 @@ from Rust evaluation order. They do not claim proc-macro span/stringify!
 preservation or general name resolution for the canonical-only specializer.
 Temporary sources and executables are always outside the checkout.
 """
+
+if __name__ == "__main__":
+    raise SystemExit("Rove4k Rust engine paths are retired; use C A-F")
+
 import hashlib
 import importlib.util
 import os

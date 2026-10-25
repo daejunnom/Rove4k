@@ -5,6 +5,10 @@ The canonical legacy Rust qualifier is not invoked. Only its strict byte/GO
 accounting methods and the maintained Owned/Reader process helpers are reused.
 No compiler, checkpoint, debugger, fault image or tracing is used here.
 """
+
+if __name__ == "__main__":
+    raise SystemExit("Rove4k Rust engine paths are retired; use C A-F")
+
 import argparse
 import hashlib
 import importlib.util

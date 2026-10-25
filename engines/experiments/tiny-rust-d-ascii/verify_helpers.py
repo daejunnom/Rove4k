@@ -5,6 +5,10 @@ Candidate board and input helpers are exact frozen shipping-source bytes. Old
 position/limits and the old board are separate exact preserved source oracles.
 Only search::Limits/PLY are stubbed. This is not no_std/runtime/search/deep QA.
 """
+
+if __name__ == "__main__":
+    raise SystemExit("Rove4k Rust engine paths are retired; use C A-F")
+
 import argparse
 import hashlib
 import json

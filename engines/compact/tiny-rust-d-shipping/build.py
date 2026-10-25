@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 """Build the separate finite Rust D shipping entry; never execute an image."""
+
+if __name__ == "__main__":
+    raise SystemExit("Rove4k Rust engine paths are retired; use C A-F")
+
 import argparse
 import ast
 import hashlib

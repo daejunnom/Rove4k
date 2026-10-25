@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build all independent C/Rust A-F engines and measure complete deployment files.
+"""Build retained C A-F engines and measure complete deployment files.
 
 Run on Linux. --out must be an absolute directory outside this checkout. Large
 target profiles are compile-only here; a profile is not runtime validation.
@@ -99,6 +99,8 @@ def write_files(files, directory):
 
 def compiler_recipe(language, variant, profile, optimize, *, compiler, files, parallel=0, model=False, hq=None, c_lto=False,
                     f_tt="paired", f_guess="previous"):
+    if language != "c":
+        raise ValueError("Rove4k Rust engine paths are retired; select C A-F")
     if hq is None:
         hq = variant == "D"
     development = int(profile["development"])
@@ -171,13 +173,27 @@ def smoke(path, environment=None):
         return {"passed": False, "error": str(error), "startup_under_60s_observed": False}
 
 
+def select_implementations(languages, variants, *, explicit_variants):
+    """Admit only the six retained C engine implementations."""
+    if "rust" in languages:
+        raise ValueError("Rove4k Rust engine paths are retired; select C A-F")
+    if not languages or any(item != "c" for item in languages):
+        raise ValueError("--languages must be c; Rust engine paths are retired")
+    if not variants or any(item not in "ABCDEF" for item in variants) or len(set(variants)) != len(variants):
+        raise ValueError("--variants must contain distinct letters from A-F")
+    return {language: list(variants) for language in languages}, [
+        {"language": "rust", "variant": variant, "reason": "retired-by-user"}
+        for variant in "ABCDEF"]
+
+
 def main():
     global compact_source, write_launchers, specialize_c
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", required=True, type=Path)
     parser.add_argument("--profile", default="local-dev")
-    parser.add_argument("--variants", "--variant", default="ABCDEF")
-    parser.add_argument("--languages", "--language", default="c,rust")
+    parser.add_argument("--variants", "--variant", default=None,
+                        help="explicit retained variants; default is C A-F")
+    parser.add_argument("--languages", "--language", default="c")
     parser.add_argument("--optimize", choices=("size", "speed"), default="size")
     parser.add_argument("--cc", default="cc")
     parser.add_argument("--rustc", default="rustc")
@@ -186,7 +202,7 @@ def main():
     parser.add_argument("--model-format", choices=("varint", "static16"), default="varint", help="explicit exact E-model representation candidate")
     parser.add_argument("--source-root", type=Path, help="reuse an explicit c/rust/model source snapshot; hashes remain authoritative")
     parser.add_argument("--structural-compact", action="store_true", help="also generate C structural source forms; fixed root requires A shipping workers2/TT18")
-    parser.add_argument("--rust-structural-compact", action="store_true", help="also compare bound Rust A shipping structural forms for loose or fixed root workers2/TT18")
+    parser.add_argument("--rust-structural-compact", action="store_true", help="retired Rust A option; rejected")
     parser.add_argument("--structural-search", action="store_true", help="also compare the separately generated C search layout; requires loose policy")
     parser.add_argument("--small-worker", action="store_true", help="also compare compact C worker storage; requires structural-search and shipping")
     parser.add_argument("--shipping-operations", action="store_true", help="also compare specialized C shipping operations; requires small-worker, shipping and loose policy")
@@ -203,6 +219,15 @@ def main():
                         help="native wrappers only: existing archive, single ELF file FD, or explicit executable memfd")
     parser.add_argument("--no-smoke", action="store_true", help="skip all execution, recorded as unverified")
     args = parser.parse_args()
+    if args.rust_structural_compact:
+        parser.error("Rove4k Rust engine paths are retired; --rust-structural-compact is no longer available")
+    languages = args.languages.split(",")
+    variants = list((args.variants if args.variants is not None else "ABCDEF").replace(",", ""))
+    try:
+        selected_variants, retired_exclusions = select_implementations(
+            languages, variants, explicit_variants=args.variants is not None)
+    except ValueError as error:
+        parser.error(str(error))
     if sys.platform != "linux" or platform.machine() not in ("x86_64", "amd64"):
         parser.error("build this Linux x86-64 portfolio in Linux, including WSL Ubuntu")
     out = args.out
@@ -219,12 +244,6 @@ def main():
         parser.error("unknown fixed profile: " + args.profile)
     profile = profiles[args.profile]
     source_root = (args.source_root or ROOT / "engines").resolve()
-    languages = args.languages.split(",")
-    if not languages or any(item not in ("c", "rust") for item in languages):
-        parser.error("--languages must be c,rust, or either one")
-    variants = list(args.variants.replace(",", ""))
-    if not variants or any(item not in "ABCDEF" for item in variants) or len(set(variants)) != len(variants):
-        parser.error("--variants must contain distinct letters from A-F")
     if args.model and variants != ["C"]:
         parser.error("--model is the explicit C plus E cross candidate; select --variant C")
     if args.model_format != "varint" and not (variants == ["E"] or (args.model and variants == ["C"])):
@@ -295,6 +314,7 @@ def main():
                "platform": platform.platform(), "machine": platform.machine(),
                "python": sys.version, "rules": "https://wiki.chessdom.org/index.php?title=TCEC_4k_Rules&oldid=7853",
                "tools": {}, "engines": [], "complete": False,
+               "selected_variants": selected_variants, "retired_exclusions": retired_exclusions,
                "execution_policy": "local profiles only; target profiles remain compile-only",
                "eligibility": "no tournament approval or playing-strength claim"}
     summary["native_packaging"] = {"requested_backend": args.native_backend, "enabled": not args.no_pack,
@@ -360,7 +380,7 @@ def main():
             compiler = args.cc if language == "c" else args.rustc
             summary["tools"][language] = {"compiler": compiler, "version": tool_version(compiler)}
             canonical_files = frozen_sources[language]
-            for variant in variants:
+            for variant in selected_variants[language]:
                 files, model_record = canonical_files, None
                 if variant == "E" or args.model:
                     files, model_record = model_transform(canonical_files, representation=args.model_format,

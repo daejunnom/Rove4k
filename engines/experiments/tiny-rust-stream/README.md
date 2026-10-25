@@ -1,5 +1,11 @@
 # Tiny Rust A compiler-stdin stream experiment
 
+> **Retired by user request on2026-10-25.** The Rust A stream/prepared/TCEC
+> producers and their test/runtime CLIs are disabled before output creation.
+> The7502-byte selection below is historical and is no longer produced by CI.
+> Sources remain recoverable; shared compiler/packaging helpers and independent
+> Rust D consumers are retained. The rest of this document is historical.
+
 ## Explicit Rust prepared-input and fixed-source environment candidates
 
 The build-time `--prepared-input` candidate preserves the Rust envelope while

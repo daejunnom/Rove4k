@@ -171,6 +171,7 @@ def audit(files):
 
 
 def main():
+    raise SystemExit("Rust A is retired; this historical structural-cost CLI is disabled.")
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--revision", help="read immutable tracked Git blobs instead of the live source tree")
     parser.add_argument("--out", type=Path, help="optional external JSON evidence path")

@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 """Two fixed candidate loader links; reuse two literal old whole controls."""
+
+if __name__ == "__main__":
+    raise SystemExit("Rove4k Rust engine paths are retired; use C A-F")
+
 import argparse
 import ast
 import hashlib

@@ -247,6 +247,7 @@ def clock_contract(binary, out, env):
 
 
 def main():
+    raise SystemExit("Rust A is retired; this historical test CLI no longer builds or runs Rust A.")
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--rustc", default=os.environ.get("RUSTC", "rustc"))

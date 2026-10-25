@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 """One fixed-recipe runtime start-put first cost; never execute a production ELF."""
+
+if __name__ == "__main__":
+    raise SystemExit("Rove4k Rust engine paths are retired; use C A-F")
+
 import argparse
 import difflib
 import hashlib

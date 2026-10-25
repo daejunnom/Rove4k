@@ -22,10 +22,10 @@ in the generated program, with no worker-count or hash-size UCI option.
 | C E | 2 / 18 | 4,323 B | 3,980 B |
 | C F2 | 2 / 18 | 4,018 B | 3,576 B |
 | C F8 | 8 / 18 | 4,028 B | 3,591 B |
-| Rust A | 2 / 18 | 8,945 B source stream | 7,502 B |
 
-Every size includes header and compressed payload. B remains 169 B above
-4,096 B, and Rust A remains 3,406 B above. Size qualification, local runtime,
+Every size includes header and compressed payload. This historical B control
+is169 B above4096; the next selected B fits4092 B. All engine Rust paths were
+retired by the user on2026-10-25 and are not active size blockers. Size qualification, local runtime,
 exact-revision CI, playing strength and tournament eligibility are separate
 claims. The implementation record identifies current receipts and preserved
 failed or unselected experiments.
@@ -67,24 +67,14 @@ expression/macro edits and aliases struct members without changing their
 layout, the learner or search policy. The field-alias stage produces an exact
 native match to its declared predecessor.
 
-## Rust A
+## Retired engine Rust history
 
-```sh
-RUSTUP_TOOLCHAIN=1.97.0 python3 -I -B \
-  engines/experiments/tiny-rust-stream/tcec_build.py \
-  --out /tmp/rove4k-tcec-rust-A
-RUSTUP_TOOLCHAIN=1.97.0 python3 -I -B \
-  engines/experiments/tcec-scope/verify.py \
-  --build /tmp/rove4k-tcec-rust-A --out /tmp/rove4k-tcec-rust-A-runtime
-```
-
-The separate Rust class retains two persistent workers. Its local node counter
-and 256-node clock cadence, stop atomic, TT locks and job/result barrier remain;
-unused shared observer/quota, diagnostic result copies and optional shipping
-UCI are omitted. `tiny_dev` retains those diagnostics and its own process
-suite. The old fixed three-resource-environment bootstrap admission is not
-extended to the new source: the new TCEC producer has its own exact input,
-compiler argv and complete-file identities.
+The user discontinued all engine Rust paths on2026-10-25. The former7502-byte
+Rust A TCEC producer, prepared stream, structural path and independent Rust D
+are not active build/CI selections.
+Earlier receipts and source remain historical; their unused shared verifier
+class is not a recommendation to rebuild the retired candidate. Shared tools
+remain available for the C engines.
 
 ## Small wrapper contract
 

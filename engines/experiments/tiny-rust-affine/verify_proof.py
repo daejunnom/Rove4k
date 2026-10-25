@@ -5,6 +5,10 @@ Only Python integer arithmetic and explicit source reads are used. No Rust,
 compiler, engine, subprocess, or native image is executed. This is a proof on
 production consumers' valid 0x88 squares, not arbitrary usize square inputs.
 """
+
+if __name__ == "__main__":
+    raise SystemExit("Rove4k Rust engine paths are retired; use C A-F")
+
 import argparse
 import hashlib
 import importlib.util

@@ -1,27 +1,35 @@
 # Rove4k engine portfolio
 
-The readable engine sources are in `c/` and `rust/`. Each language compiles A–F
-independently. A build selects one family, one parallel policy, one resource
+The active engine implementations are C A–F. All engine Rust paths were retired
+on2026-10-25; their sources/receipts are historical. The user has resumed the
+complete plan in [the execution contract](../docs/ENGINE-PLAN.ko.md). General4K
+is mandatory for every family; ELF is a separate optional goal and is deferred
+above4096B. Submission W256/256GiB TT cap is distinct from TEST P4/P28.
+Rust-specific representation notes below describe historical interfaces or
+shared tool fixtures; they do not enable engine Rust builds or comparisons.
+A build selects one family, one parallel policy, one resource
 profile and any explicit cross feature. The executable has no runtime family,
 worker-count or hash-size selector. Development protocol commands are selected
 at compilation.
 
-The A–F implementation plan remains the scope. Building a variant does not prove
+The C A–F implementation plan remains the scope. Building a variant does not prove
 that its named algorithm, complete chess behavior, parallel semantics, playing
 strength or final 4,096-byte submission requirement has passed acceptance. The
 build report records measured files and individual runtime checks without
-turning missing evidence into completion. Frozen E inference is included; model
-training and AWS execution are outside the current implementation task.
+turning missing evidence into completion. Real E19 data/trainer/export preparation
+to production optimizer step0 and the bounded AWS evaluation campaign are in
+scope. Actual production training updates remain outside this stopping point.
 
-## Full TCEC submissions
+## Qualified small-resource TCEC controls
 
-The current tournament size work uses the full engine with the small TCEC
-wrapper as its submission baseline. General compiler recovery and development
+The existing W2/TT18 and F8 controls below preserve full engine features with
+the small TCEC wrapper. They do not qualify the new submission W256 profile.
+General compiler recovery and development
 diagnostics remain separate execution contracts. Full chess/search/evaluation
 and learner features, including N/B/R/Q promotions, are retained; fitting a
 reduced feature policy does not qualify the full path.
 
-| Full profile | Previous complete file | Current TCEC complete file |
+| Full control | Previous complete file | Selected W2/W8 control file |
 |---|---:|---:|
 | C A2 | 4,232 B Bash | 3,731 B |
 | C B2 | 4,712 B Bash | 4,092 B |
@@ -29,15 +37,13 @@ reduced feature policy does not qualify the full path.
 | C E2 | 4,323 B Bash | 3,817 B |
 | C F2 | 4,018 B Bash | 3,530 B |
 | C F8 | 4,028 B Bash | 3,548 B |
-| Rust A2 | 8,945 B source stream | 7,502 B |
 
-These values include header and payload. B has4 bytes of margin; Rust A
-remains3406 bytes above. Workers and TT18 are fixed at build time (two workers,
+These values include header and payload. B has4 bytes of margin.
+Workers and TT18 are fixed at build time (two workers,
 or eight for F8). The next C profiles use asynchronous per-GO workers with
 persistent learners, immutable shared game prefix and entry-owned temporary
 unlink. B uses side occupancy plus mailbox classification in the same legal-LVA
-order, saving96 bytes per Board. Full N/B/R/Q is retained. Rust A removes unused shared observer work while
-retaining local clock cadence and publication barriers. Active `isready`,
+order, saving96 bytes per Board. Full N/B/R/Q is retained. Active `isready`,
 memory reuse between GO/position and normal temporary cleanup remain required.
 
 Use the [next TCEC profile builder and commands](experiments/tcec-next/README.md)
@@ -47,7 +53,7 @@ eligibility have distinct evidence. Compression continues after a path fits
 4KiB. D and the remaining portfolio retain their separately declared paths;
 this table does not close full A–F acceptance.
 
-The [previous TCEC profiles](experiments/tcec-scope/README.md) remain exact
+The [previous C TCEC profiles](experiments/tcec-scope/README.md) remain exact
 source-produced controls. Query deferral/QS and dense history have independent
 semantic fixtures; compiler O2/O3 has a bounded fixed-work comparison. These
 experiments are not silently enabled in the current selected Os profiles.
@@ -76,8 +82,8 @@ features but change compiler cancellation and delayed cleanup. The measured
 4,011-byte sh/inherit candidate was rejected for its cleanup-child condition.
 F2/F8's 78/68-byte margins therefore establish file size only. Current `legacy`
 choices preserve immediate predecessors, rather than restoring historical
-old-owner minima. C D's 5,527/6,037-byte scalar/HQ own-ELF files and Rust paths
-have separate packaging contracts and are not grace/shell rows in this table.
+old-owner minima. C D's 5,527/6,037-byte scalar/HQ own-ELF files have a separate
+packaging contract and are not grace/shell rows in this table.
 
 F2's current full grace/kill/shell source is7712 bytes (118 fewer through a
 static-keyword alias and fixed expression edits), with exact native byte identity. Legacy
@@ -91,11 +97,15 @@ receipt scopes, read [the wrapper implementation record](../docs/WRAPPER-IMPLEME
 Source-freeze PENDING notes in entry histories are not overwritten by later
 results; current summaries link the later evidence explicitly.
 
-## Build on Linux, including WSL Ubuntu
+## Generic reference builds on Linux, including WSL Ubuntu
 
-The build tool uses Python 3 standard library, a C11 compiler and Rust 2024
-compiler. C SIMD candidates require AVX2. Linux x86-64, glibc and pthreads are the
-current target. On WSL, use Linux `cc` and Linux `rustc`, rather than Windows
+The following commands build the generic reference/dev implementation. They
+do not replace each family's separate compact production source closure or
+qualify the new production resource profiles.
+
+The active build tool uses Python 3 standard library and a C11 compiler.
+C SIMD candidates require the declared target ISA. Linux x86-64, glibc and pthreads are the
+current target. On WSL, use Linux `cc`, rather than Windows
 executables found through the inherited PATH. A normal Linux checkout gives Git
 revision metadata; a Windows managed worktree can still build through `/mnt/c`,
 but Git's Windows absolute worktree pointer may be unavailable to Linux Git.
@@ -107,7 +117,7 @@ Existing artifacts and failure records are preserved. For example:
 ```sh
 python3 engines/scripts/build.py \
   --out /tmp/rove4k-dev-build \
-  --profile local-dev --languages c,rust --variants ABCDEF \
+  --profile local-dev --languages c \
   --no-pack --reproduce
 
 python3 engines/tests/verify.py \
@@ -116,7 +126,7 @@ python3 engines/tests/verify.py \
 
 python3 engines/scripts/build.py \
   --out /tmp/rove4k-shipping-build \
-  --profile local-ship --languages c,rust --variants ABCDEF \
+  --profile local-ship --languages c \
   --self-elf --reproduce
 
 python3 engines/tests/verify.py \
@@ -124,12 +134,13 @@ python3 engines/tests/verify.py \
   --out /tmp/rove4k-shipping-verification --suite shipping
 ```
 
-`--language` and `--variant` are aliases for their plural forms. `--cc` and
-`--rustc` select build compilers, including an explicit Linux Rust installation
-path. Source launchers resolve `cc` or `rustc` from the target's PATH. The exact
+The default selects C A–F and records the retired engine Rust paths.
+Rust language requests are rejected before output creation. `--language` and
+`--variant` are aliases for their plural forms. `--cc` selects the Linux C
+compiler. Source launchers resolve `cc` from the target's PATH. The exact
 flags, fixed environment, source byte hashes, compaction hashes, compiler
 versions, Python/glibc/OS, profile and tooling hashes are written to `build.json`.
-`--optimize size` uses C `-Os` / Rust `z`; `--optimize speed` uses `-O2` / Rust `2`.
+`--optimize size` uses C `-Os`; `--optimize speed` uses C `-O2`.
 Neither choice is reported as the strongest playing engine.
 
 `--source-root /absolute/snapshot` reuses a tree containing `c/`, `rust/` and
@@ -184,22 +195,10 @@ form and requires structural search, a shipping profile and the loose policy.
 These are separately measured candidates; a source or native saving is not
 automatically an improvement to every complete-file format.
 
-`--rust-structural-compact` adds two separate Rust source forms: the guarded
-structural producer output and that output followed by lexical compaction.
-Both remain in the comparison because an extra lexical pass can increase the
-complete compressed file. This optional producer requires `--variant A`, a
-shipping profile and the loose policy. It binds the exact six canonical Rust
-production files from checkpoint `de5676d` and rejects changed source or
-unsupported configurations explicitly. The binding admits audited LF/CRLF
-equivalence, with actual raw input hashes/bytes, normalized binding hashes and
-CRLF counts recorded separately; other content changes and lone CR fail.
-The model input is omitted only within
-the admitted A/MODEL0 configuration. Original and lexical baselines remain in
-the build, and the manifest records all producer/helper/template hashes and
-input/output source hashes. `--reproduce` independently reruns the producer
-before the native and complete-file reproduction checks. The producer's
-[documented scope](compact/rust/README.md) and its original differential proof
-do not establish other-family support, large-machine scaling or 4K eligibility.
+`--rust-structural-compact` belonged to the retired Rust A path and is now
+rejected. Its [historical source and proof](compact/rust/README.md) remain
+available for provenance; they are not active B–F implementations or a reason
+to rebuild Rust A. The C structural options above remain supported.
 
 `--shipping-operations` adds another separate C form and requires the loose
 shipping profile, structural search and small-worker storage. It specializes

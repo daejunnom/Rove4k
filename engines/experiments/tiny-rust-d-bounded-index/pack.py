@@ -1,4 +1,8 @@
 """Fixed data8 whole costs: decode two old controls, pack two candidates; no ELF run."""
+
+if __name__ == "__main__":
+    raise SystemExit("Rove4k Rust engine paths are retired; use C A-F")
+
 import argparse
 import hashlib
 import importlib.util

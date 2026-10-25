@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 """One fixed Rust D own-ELF first cost; compile tools only, never run an ELF."""
+
+if __name__ == "__main__":
+    raise SystemExit("Rove4k Rust engine paths are retired; use C A-F")
+
 import argparse
 import hashlib
 import importlib.util

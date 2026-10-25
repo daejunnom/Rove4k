@@ -75,6 +75,7 @@ def load(name, path):
 
 
 def main():
+    raise SystemExit("Rust A is retired; the historical7502-byte TCEC producer is disabled.")
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--rustc', default='rustc')

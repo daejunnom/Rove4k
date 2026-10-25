@@ -5,6 +5,10 @@ The old native runtime helper is copied unchanged into external evidence and
 reused. Only its command-admission accounting is overridden for the declared
 ASCII policy. This runner builds no engine or diagnostic variant.
 """
+
+if __name__ == "__main__":
+    raise SystemExit("Rove4k Rust engine paths are retired; use C A-F")
+
 import argparse
 import hashlib
 import importlib.util

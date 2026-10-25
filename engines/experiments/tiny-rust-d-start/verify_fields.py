@@ -5,6 +5,10 @@ The frozen control/candidate Board bodies are compiled as separate modules.
 This standalone harness does not import a producer, another experiment, or the
 mutable maintained tree. Only ordinary runtime Board::start and Copy are used.
 """
+
+if __name__ == "__main__":
+    raise SystemExit("Rove4k Rust engine paths are retired; use C A-F")
+
 import argparse
 import hashlib
 import json

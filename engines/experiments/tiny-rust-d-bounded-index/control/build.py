@@ -4,6 +4,10 @@
 The complete ELF is the measured native artifact. No existing compressed-image
 loader is invoked or assigned to this new image class.
 """
+
+if __name__ == "__main__":
+    raise SystemExit("Rove4k Rust engine paths are retired; use C A-F")
+
 import argparse
 import hashlib
 import json

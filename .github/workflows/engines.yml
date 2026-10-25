@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [c, rust]
+        language: [c]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -163,13 +163,6 @@ jobs:
           python3 -B engines/compact/tiny-d/check.py --build "$ROVE_TEST_OUT/tiny-d/build.json" --out "$ROVE_TEST_OUT/tiny-d-check"
           python3 -B engines/compact/tiny-d/algorithms.py --build "$ROVE_TEST_OUT/tiny-d/build.json" --out "$ROVE_TEST_OUT/tiny-d-algorithms"
           python3 -B engines/compact/tiny-d/test_runtime.py --out "$ROVE_TEST_OUT/tiny-d-runtime"
-      - name: Check guarded Rust source specialization and native reproduction
-        if: matrix.language == 'rust'
-        env:
-          RUSTUP_TOOLCHAIN: 1.97.0
-        run: |
-          python3 -B -m unittest discover -s engines/compact/rust -p 'test_*.py'
-          python3 -B engines/scripts/build.py --out "$ROVE_TEST_OUT/rust-structural" --profile local-ship --languages rust --variants A --rust-structural-compact --no-pack --reproduce
       - name: Check independent Rust rule and search contracts
         if: matrix.language == 'rust'
         env:
@@ -182,34 +175,6 @@ jobs:
           mkdir -p "$ROVE_TEST_OUT"
           rustc --edition=2024 --test -O engines/rust/main.rs -o "$ROVE_TEST_OUT/rust-contracts"
           timeout 120 "$ROVE_TEST_OUT/rust-contracts"
-      - name: Check the independent tiny Rust units and development process contracts
-        if: matrix.language == 'rust'
-        env:
-          RUSTUP_TOOLCHAIN: 1.97.0
-        run: python3 -B engines/compact/tiny-rust/tests.py --out "$ROVE_TEST_OUT/tiny-rust-contracts" --workers 2 --tt-bits 12 --quick
-      - name: Check Rust single-source bindings and actual compiler bootstrap lifetimes
-        if: matrix.language == 'rust'
-        env:
-          RUSTUP_TOOLCHAIN: 1.97.0
-        run: |
-          python3 -B engines/experiments/tiny-rust-stream/test_merge.py --out "$ROVE_TEST_OUT/tiny-rust-layout/merge"
-          python3 -B engines/experiments/tiny-rust-stream/test_merge.py --resources-only --out "$ROVE_TEST_OUT/tiny-rust-layout/resources"
-          python3 -B engines/experiments/tiny-rust-stream/test_stream.py --out "$ROVE_TEST_OUT/tiny-rust-layout/stream"
-          python3 -B engines/experiments/tiny-rust-stream/test_stream.py --out "$ROVE_TEST_OUT/tiny-rust-layout/stream-prepared" --prepared-input
-      - name: Reproduce the prepared Rust entry and verify its selected complete file
-        if: matrix.language == 'rust'
-        env:
-          RUSTUP_TOOLCHAIN: 1.97.0
-        run: |
-          python3 -B engines/experiments/tiny-rust-stream/build.py --out "$ROVE_TEST_OUT/tiny-rust-layout/prepared-build" --reproduce --embody-resources --prepared-input
-          python3 -B engines/experiments/tiny-rust-stream/verify.py --build "$ROVE_TEST_OUT/tiny-rust-layout/prepared-build/build.json" --out "$ROVE_TEST_OUT/tiny-rust-layout/prepared-runtime"
-      - name: Reproduce the Rust A TCEC profile and verify the minimum shipping contract
-        if: matrix.language == 'rust'
-        env:
-          RUSTUP_TOOLCHAIN: 1.97.0
-        run: |
-          python3 -B engines/experiments/tiny-rust-stream/tcec_build.py --out "$ROVE_TEST_OUT/tiny-rust-layout/tcec-build"
-          python3 -B engines/experiments/tcec-scope/verify.py --build "$ROVE_TEST_OUT/tiny-rust-layout/tcec-build" --out "$ROVE_TEST_OUT/tiny-rust-layout/tcec-runtime"
       - name: Build independent no_std Rust D and check its real scalar and HQ paths
         if: matrix.language == 'rust'
         env:
@@ -251,19 +216,12 @@ jobs:
           python3 -I -B engines/compact/tiny-rust-d-shipping/build.py --out "$ROVE_TEST_OUT/tiny-rust-d-shipping/build"
           python3 -I -B engines/compact/tiny-rust-d-shipping/verify.py --build "$ROVE_TEST_OUT/tiny-rust-d-shipping/build" --out "$ROVE_TEST_OUT/tiny-rust-d-shipping/runtime"
       - name: Compile the fixed A root source forms
-        env:
-          RUSTUP_TOOLCHAIN: 1.97.0
+        if: matrix.language == 'c'
+        run: python3 -B engines/scripts/build.py --out "$ROVE_TEST_OUT/fixed-root" --profile local-ship --languages c --variant A --parallel root --structural-compact --no-pack
+      - name: Build retained C A-F paths
         run: |
-          if [ '${{ matrix.language }}' = c ]; then
-            structural=--structural-compact
-          else
-            structural=--rust-structural-compact
-          fi
-          python3 -B engines/scripts/build.py --out "$ROVE_TEST_OUT/fixed-root" --profile local-ship --languages '${{ matrix.language }}' --variant A --parallel root "$structural" --no-pack
-      - name: Build all six real candidate paths
-        env:
-          RUSTUP_TOOLCHAIN: 1.97.0
-        run: python3 engines/scripts/build.py --out "$ROVE_TEST_OUT/build" --profile local-dev --languages '${{ matrix.language }}' --variants ABCDEF --no-pack
+          variants=ABCDEF
+          python3 engines/scripts/build.py --out "$ROVE_TEST_OUT/build" --profile local-dev --languages '${{ matrix.language }}' --variants "$variants" --no-pack
       - name: Verify the engines through their actual process interfaces
         run: python3 engines/tests/verify.py --manifest "$ROVE_TEST_OUT/build/build.json" --out "$ROVE_TEST_OUT/verification"
       - name: Preserve bounded build and behavior evidence
@@ -297,11 +255,7 @@ jobs:
             ${{ env.ROVE_TEST_OUT }}/tiny-d-check/**/*.jsonl
             ${{ env.ROVE_TEST_OUT }}/tiny-d-algorithms/**/*.json
             ${{ env.ROVE_TEST_OUT }}/tiny-d-runtime/results.json
-            ${{ env.ROVE_TEST_OUT }}/rust-structural/build.json
             ${{ env.ROVE_TEST_OUT }}/fixed-root/build.json
-            ${{ env.ROVE_TEST_OUT }}/tiny-rust-contracts/**/*.json
-            ${{ env.ROVE_TEST_OUT }}/tiny-rust-contracts/**/*.jsonl
-            ${{ env.ROVE_TEST_OUT }}/tiny-rust-layout/**/*.json
             ${{ env.ROVE_TEST_OUT }}/tiny-rust-d/**/*.json
             ${{ env.ROVE_TEST_OUT }}/tiny-rust-d-shipping/**/*.json
             ${{ env.ROVE_TEST_OUT }}/semaphore-pool/**/*.json

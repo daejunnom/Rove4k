@@ -332,6 +332,7 @@ def execute_frozen(args, frozen_root, inputs, compiler):
 
 
 def main():
+    raise SystemExit("Rust A is retired; this historical stream producer no longer generates artifacts.")
     global _ACTIVE_OUTPUT
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", required=True, type=Path)

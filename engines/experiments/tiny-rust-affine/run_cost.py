@@ -5,6 +5,10 @@ This driver never executes an ELF. Its only precompile execution is the separate
 Python arithmetic/source proof. Production and candidate use the unchanged,
 frozen Tiny D builder, including its ELF audit and exact compiler/linker flags.
 """
+
+if __name__ == "__main__":
+    raise SystemExit("Rove4k Rust engine paths are retired; use C A-F")
+
 import argparse
 import difflib
 import hashlib

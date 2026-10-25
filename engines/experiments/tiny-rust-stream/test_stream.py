@@ -420,6 +420,7 @@ def signal_contract(producer, out, codec):
 
 
 def main():
+    raise SystemExit("Rust A is retired; this historical stream/compiler test CLI is disabled.")
     global COMMAND,PREPARED
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out",type=Path,required=True)

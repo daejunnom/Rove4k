@@ -1,5 +1,11 @@
 # Independent source-first Rust A candidate
 
+> **Retired by user request on2026-10-25.** This directory is historical source
+> and evidence, not an active candidate. Its build/test CLIs reject execution
+> before creating outputs. Use the retained C A or generic Rust B–F portfolio.
+> The distinct `tiny-rust-d` implementation and shared tools remain active.
+> The commands and measurements below describe the pre-retirement checkpoint.
+
 This directory is an optional Rust A implementation designed around small source
 structures. It uses Rust's standard library, has no external crates or C backend,
 and leaves the canonical `engines/rust` implementations unchanged. It is an A-only

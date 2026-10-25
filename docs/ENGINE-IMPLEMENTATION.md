@@ -4,6 +4,47 @@ The full implementation scope is recorded in [the accepted plan](ENGINE-PLAN.ko.
 The current user request excludes training and AWS connections. Frozen model
 inference and lossless model storage remain in scope; trained strength is not claimed.
 
+## Current execution scope, 2026-10-25
+
+The user resumed the complete accepted plan. The current contract, dependency
+graph and critical-path estimate are in ENGINE-PLAN.ko.md. General4K is mandatory
+for C A–F; ELF is optional for every family and deferred above4096B. Submission
+W256/256GiB-TT-cap is distinct from TEST P4/P28. Source/state encapsulation,
+64-bit resource consumers, real parallel TT initialization, the evaluator/AWS
+campaign and real E19 preparation to production optimizer step0 are in scope.
+Earlier pause/exclusion statements below retain their original historical date.
+New source, size, startup, resource and runtime evidence is required; the old391
+receipts and experimental4088/5505 results are not new-profile acceptance.
+
+## Previous user scope: all engine Rust retired and work paused, 2026-10-25
+
+The user first discontinued Rust A, then explicitly discontinued every engine
+Rust path and requested a pause. Active coverage is C A–F, six implementations.
+Generic Rust B–F, independent Rust D, Rust-specific packaging and comparisons
+are retired too. Historical sources/receipts and shared C tools are preserved;
+NVCompact's internal Rust tool is a separate scope. Earlier twelve-core
+checkpoints retain their historical scope and are not relabelled as C-only.
+New experiments, compilers and games stopped; existing owned work was settled.
+
+The latest accepted C checkpoint391fad6 reproduces full A/B/C/E/F2/F8 at
+3731/4092/3873/3817/3530/3548 B and passes exact-head CI with the declared
+runtime contract. Current commands and evidence are in the
+[next TCEC entry guide](../engines/experiments/tcec-next/README.md) and
+[wrapper implementation record](WRAPPER-IMPLEMENTATION.ko.md).
+This does not close D's mandatory4096-byte self-restoring ELF requirement,
+the remaining algorithm/parallel-policy evidence or final recommendations.
+The current work audits those plan requirements while extending B's small
+margin and reducing D without discarding their unique full features.
+
+At pause, selected B is still4092 B. The qualified4088-byte expression candidate
+is unintegrated: no new selected-source regeneration/JIT or recipe promotion
+was performed. D5505 B is a separately reproduced/runtime-checked experiment,
+not the maintained5527-byte selection and still1409 B above4096. C native
+packaging measured7244 B versus selected source3873, so source remains selected.
+C scalar/SIMD timing is prepared but unexecuted. The E five-policy C/Rust
+preparation completed before retirement; its10 programs/20 startup checks are
+historical. No new benchmark or26-game study was launched.
+
 ## Wrapper handoff implementation: 2026-10-24
 
 The user approved the complete external wrapper handoff in stages. Its scope,

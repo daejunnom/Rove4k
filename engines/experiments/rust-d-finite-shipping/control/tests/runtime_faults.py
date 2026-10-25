@@ -7,6 +7,10 @@ handling function bodies remain after a small syscall-return shim, except the
 second raw-clone fixture which returns -EAGAIN before the actual clone syscall.
 Own-child ptrace records real clone and exit_group cleanup of each fault image.
 """
+
+if __name__ == "__main__":
+    raise SystemExit("Rove4k Rust engine paths are retired; use C A-F")
+
 import argparse
 import difflib
 import hashlib

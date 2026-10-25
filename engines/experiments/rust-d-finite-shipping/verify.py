@@ -5,6 +5,10 @@ One tiny_dev unit image runs only three original exact tests. One separate std
 image compares old default search with candidate tiny_shipping search. No raw
 OS runtime, production ELF, launcher, codec, matrix or benchmark is executed.
 """
+
+if __name__ == "__main__":
+    raise SystemExit("Rove4k Rust engine paths are retired; use C A-F")
+
 import argparse
 import ast
 import hashlib

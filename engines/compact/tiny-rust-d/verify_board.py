@@ -4,6 +4,10 @@
 The two images include the same frozen production board.rs. They do not test
 the custom no_std entry/thread/syscall ABI or establish shipping acceptance.
 """
+
+if __name__ == "__main__":
+    raise SystemExit("Rove4k Rust engine paths are retired; use C A-F")
+
 import argparse
 import hashlib
 import importlib.util
