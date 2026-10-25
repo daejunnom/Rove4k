@@ -68,13 +68,35 @@ def _member(name):
     return name
 
 
+INPUT_PATH = "engines/scripts/production_input.py"
+
+
+def input_reader():
+    name = "rove4k_production_input"
+    module = sys.modules.get(name)
+    if module is None:
+        spec = importlib.util.spec_from_file_location(name, ROOT / INPUT_PATH)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[name] = module
+        spec.loader.exec_module(module)
+    module = module.cached_module()
+    require(Path(module.__file__).absolute() == (ROOT / INPUT_PATH).absolute(),
+            "production input reader is outside the named source closure")
+    return module
+
+
+def _read_file(path, *, limit, allow_hardlinks):
+    return input_reader().read_regular(path, limit=limit, allow_hardlinks=allow_hardlinks)
+
+
 def _regular(path, *, limit=MAX_MEMBER):
-    path = Path(path)
-    require(path.is_absolute() and not any(p.is_symlink() for p in (path, *path.parents)),
-            "absolute non-link evidence file required")
-    require(path.is_file() and path.stat().st_nlink == 1 and path.stat().st_size <= limit,
-            "bounded ordinary evidence file required")
-    return path.read_bytes()
+    return _read_file(path, limit=limit, allow_hardlinks=False)
+
+
+def _normalized_source(path):
+    data = _regular(path).replace(b"\r\n", b"\n")
+    require(b"\r" not in data, "lone CR in target authority source")
+    return data
 
 
 def _named(path, name, *, limit=MAX_MEMBER):
@@ -361,6 +383,7 @@ def current_system_context(compiler):
 
 def _source_binding(admitted, build, *, verify, source_bundle, source_seal, expected_ci):
     context = _ci(expected_ci)
+    reader_source = input_reader().source_identity()
     own_source = _regular(Path(__file__).resolve()).replace(b"\r\n", b"\n")
     require(compile(own_source, __file__, "exec", dont_inherit=True) == _EXECUTING_CODE,
             "target reference validator changed after its executing module was compiled")
@@ -385,7 +408,7 @@ def _source_binding(admitted, build, *, verify, source_bundle, source_seal, expe
         require(_regular(verify.artifact_file(Path(build), _member(name))) == value,
                 "sealed build member differs from actual input")
     return ({"source_context": context, "source_bundle": pin(bundle_raw), "source_seal": pin(seal_raw),
-             "source_provenance_tools": {SELF: pin(own_source)}, "source_profile": facts},
+             "source_provenance_tools": {SELF: pin(own_source), INPUT_PATH: pin(reader_source)}, "source_profile": facts},
             selected, manifest_raw, compiler)
 
 
@@ -404,11 +427,9 @@ def _system_input(path):
     require(resolved == path and any(root == path or root in path.parents for root in
                 (Path("/usr"), Path("/lib"), Path("/lib64"), Path("/bin"))),
             "target compiler input escaped installed system roots")
-    require(path.is_file(), "target compiler input is not a file")
     # Installed tool/library hard links are ordinary inputs, unlike mutable
     # evidence aliases.  Their exact resolved content is pinned before runtime.
-    require(path.stat().st_size <= MAX_TOOL, "target compiler input exceeds bound")
-    return path.read_bytes()
+    return _read_file(path, limit=MAX_TOOL, allow_hardlinks=True)
 
 
 def _command_records(report, root):
@@ -537,17 +558,17 @@ def validate_target_runtime(admitted, build, compiler_receipt, *, verify, source
                 == report.get("compiler_version") and "11.4.0" in report["compiler_version"],
             "actual target compiler banner differs from its owned output")
     tools = report.get("tools", {})
-    expected_tools = (compiler.SELF, compiler.VERIFY_PATH, compiler.HOST_PATH)
+    expected_tools = (compiler.SELF, compiler.VERIFY_PATH, compiler.HOST_PATH, INPUT_PATH)
     require(set(tools) == set(expected_tools), "target compiler checker tool closure differs")
     for name in expected_tools:
         _member(name)
         data = _regular(root / "tools" / name)
-        require(pin(data) == tools[name] and compiler.normalized(ROOT / name) == data,
+        require(pin(data) == tools[name] and _normalized_source(ROOT / name) == data,
                 "compiler checker frozen/current source differs")
     require(tools[compiler.HOST_PATH]["sha256"] == compiler.HOST_SHA, "literal compiler command owner differs")
     for name, expected in binding["source_provenance_tools"].items():
         require(pin(_regular(root / "tools" / name)) == expected
-                and pin(compiler.normalized(ROOT / name)) == expected,
+                and pin(_normalized_source(ROOT / name)) == expected,
                 "optional compiler provenance helper changed before/post source capture")
     inputs = report.get("compiler_consumed_inputs")
     require(isinstance(inputs, dict) and driver["path"] in inputs, "actual compiler consumed-input closure absent")

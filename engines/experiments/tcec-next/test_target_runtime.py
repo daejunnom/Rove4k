@@ -6,11 +6,14 @@ from dataclasses import fields, make_dataclass, replace
 import importlib.util
 import json
 import lzma
+import multiprocessing
+import os
 from pathlib import Path
 import shutil
 import struct
 import sys
 import tempfile
+import time
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
@@ -177,7 +180,7 @@ class Fixture:
             "compiler_programs": {query: {"path": str(self.driver), **TARGET.pin(self.driver.read_bytes())}
                                   for query in ("cc1", "as", "ld", "collect2", "lto1")},
             "compiler_programs_rechecked": True,
-            "source_provenance_tools": {TARGET.SELF: TARGET.pin((TARGET.ROOT / TARGET.SELF).read_bytes().replace(b"\r\n", b"\n"))},
+            "source_provenance_tools": {name: TARGET.pin((TARGET.ROOT / name).read_bytes().replace(b"\r\n", b"\n")) for name in (TARGET.SELF, TARGET.INPUT_PATH)},
             "tools": {}, "profiles": [{"family": family, "profile": "test-p4", "build": str(self.build),
                 "input_manifest": TARGET.pin(self.manifest_raw),
                 "sources": {name: TARGET.pin(data) for name, data in selected.files.items()},
@@ -190,7 +193,7 @@ class Fixture:
                 "cross_compiler_native_identity_required": False}]}
         if family == "D":
             self.report["profiles"][0]["per_unit_dependency_discovery"] = list(selected.units)
-        for name in (self.compiler.SELF, self.compiler.VERIFY_PATH, self.compiler.HOST_PATH, TARGET.SELF):
+        for name in (self.compiler.SELF, self.compiler.VERIFY_PATH, self.compiler.HOST_PATH, TARGET.INPUT_PATH, TARGET.SELF):
             data = self.compiler.normalized(TARGET.ROOT / name)
             path = self.receipt_root / "tools" / name
             path.parent.mkdir(parents=True, exist_ok=True)
@@ -217,7 +220,8 @@ class Fixture:
         self.receipt.write_text(json.dumps(self.report, sort_keys=True) + "\n")
 
     def environment(self):
-        return {"GITHUB_ACTIONS": "true", "GITHUB_REPOSITORY": self.ci.repository,
+        return {**{name: "" for name in (*TARGET.COMPILER_ENV, "CC", "CXX")},
+                "GITHUB_ACTIONS": "true", "GITHUB_REPOSITORY": self.ci.repository,
                 "GITHUB_SHA": self.ci.head_sha, "GITHUB_RUN_ID": self.ci.run_id,
                 "GITHUB_RUN_ATTEMPT": self.ci.run_attempt}
 
@@ -231,6 +235,14 @@ class Fixture:
 
 
 class PureContext(unittest.TestCase):
+    def test_real_compiler_context_rejects_each_redirection_variable(self):
+        for name in TARGET.COMPILER_ENV:
+            with self.subTest(variable=name), patch.object(TARGET.sys, "platform", "linux"), \
+                    patch.object(TARGET.platform, "machine", return_value="x86_64"), \
+                    patch.dict(TARGET.os.environ, {name: "synthetic-redirection"}, clear=True):
+                with self.assertRaisesRegex(ValueError, "redirection"):
+                    TARGET.current_system_context(SimpleNamespace())
+
     def test_restore_layout_keeps_exact_live_root_output_and_profile_paths(self):
         layout = {"runner_temp_root": "/home/runner/work/_temp",
             "output_root": "/home/runner/work/_temp/rove4k-production-A-1",
@@ -304,6 +316,152 @@ class PureContext(unittest.TestCase):
         with patch.dict(TARGET.os.environ, {"GITHUB_ACTIONS": "true"}, clear=True):
             with self.assertRaisesRegex(ValueError, "live workflow identity"):
                 TARGET._ci(context)
+
+
+@unittest.skipUnless(os.name == "posix" and hasattr(os, "O_NOFOLLOW"), "POSIX fd-relative reader required")
+class EvidenceReadBoundaries(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # Import capability checks before a child deliberately patches os.open.
+        TARGET.input_reader()
+
+    def run_bounded_reader(self, action):
+        """A regression that FIFO-blocks is killed through its original process handle."""
+        context = multiprocessing.get_context("fork")
+        received, sent = context.Pipe(duplex=False)
+        def worker():
+            received.close()
+            try:
+                sent.send(("returned", action()))
+            except BaseException as error:
+                sent.send(("rejected", type(error).__name__, str(error)))
+            finally:
+                sent.close()
+        process = context.Process(target=worker)
+        process.start()
+        sent.close()
+        try:
+            process.join(2)
+            if process.is_alive():
+                process.terminate()
+                process.join(1)
+                if process.is_alive():
+                    process.kill()
+                    process.join(1)
+                self.fail("target evidence read blocked beyond its original bounded process lifetime")
+            self.assertEqual(process.exitcode, 0)
+            self.assertTrue(received.poll(.5), "bounded reader did not return a result")
+            return received.recv()
+        finally:
+            if process.is_alive():
+                process.kill()
+                process.join(1)
+            received.close()
+            process.close()
+
+    def test_ordinary_byte_bound_empty_and_explicit_installed_hardlink_policy(self):
+        with tempfile.TemporaryDirectory(prefix="rove-target-file-bounds-") as temporary:
+            root = Path(temporary)
+            path = root / "evidence.json"
+            path.write_bytes(b"source")
+            self.assertEqual(TARGET._regular(path, limit=6), b"source")
+            with self.assertRaisesRegex(ValueError, "bounded ordinary"):
+                TARGET._regular(path, limit=5)
+            alias = root / "hardlink.json"
+            os.link(path, alias)
+            with self.assertRaisesRegex(ValueError, "bounded ordinary"):
+                TARGET._regular(path)
+            self.assertEqual(TARGET._read_file(path, limit=6, allow_hardlinks=True), b"source")
+            alias.unlink()
+            path.write_bytes(b"")
+            self.assertEqual(TARGET._regular(path, limit=0), b"")
+
+    def test_leaf_FIFO_swap_is_nonblocking_and_rejected(self):
+        with tempfile.TemporaryDirectory(prefix="rove-target-fifo-race-") as temporary:
+            root = Path(temporary)
+            path = root / "evidence.json"
+            path.write_bytes(b"original")
+            def action():
+                original_open = TARGET.os.open
+                changed = False
+                def swapping_open(name, flags, *args, **kwargs):
+                    nonlocal changed
+                    if name == path.name and kwargs.get("dir_fd") is not None and not changed:
+                        changed = True
+                        path.rename(root / "held.json")
+                        os.mkfifo(path)
+                    return original_open(name, flags, *args, **kwargs)
+                try:
+                    with patch.object(TARGET.os, "open", side_effect=swapping_open):
+                        return TARGET._regular(path)
+                except (ValueError, OSError):
+                    if changed:
+                        raise RuntimeError("swap-exercised-and-rejected")
+                    raise
+            started = time.monotonic()
+            result = self.run_bounded_reader(action)
+            self.assertEqual(result, ("rejected", "RuntimeError", "swap-exercised-and-rejected"))
+            self.assertLess(time.monotonic() - started, 2)
+
+    def test_ancestor_swap_cannot_follow_foreign_tree_before_or_after_parent_open(self):
+        for timing in ("before-parent-open", "after-parent-open"):
+            with self.subTest(timing=timing), tempfile.TemporaryDirectory(prefix="rove-target-ancestor-race-") as temporary:
+                root = Path(temporary)
+                owned, foreign = root / "owned", root / "foreign"
+                owned.mkdir()
+                foreign.mkdir()
+                path = owned / "evidence.json"
+                path.write_bytes(b"original")
+                (foreign / path.name).write_bytes(b"foreign")
+                def action():
+                    original_open = TARGET.os.open
+                    changed = False
+                    def swapping_open(name, flags, *args, **kwargs):
+                        nonlocal changed
+                        expected = owned.name if timing == "before-parent-open" else path.name
+                        if name == expected and kwargs.get("dir_fd") is not None and not changed:
+                            changed = True
+                            owned.rename(root / "held")
+                            owned.symlink_to(foreign, target_is_directory=True)
+                        return original_open(name, flags, *args, **kwargs)
+                    try:
+                        with patch.object(TARGET.os, "open", side_effect=swapping_open):
+                            return TARGET._regular(path)
+                    except (ValueError, OSError):
+                        if changed:
+                            raise RuntimeError("swap-exercised-and-rejected")
+                        raise
+                result = self.run_bounded_reader(action)
+                self.assertEqual(result, ("rejected", "RuntimeError", "swap-exercised-and-rejected"))
+
+    def test_same_inode_rewrite_during_bounded_read_is_rejected(self):
+        with tempfile.TemporaryDirectory(prefix="rove-target-rewrite-race-") as temporary:
+            path = Path(temporary) / "evidence.json"
+            path.write_bytes(b"a" * 100)
+            def action():
+                original_read = TARGET.os.read
+                changed = False
+                def rewriting_read(descriptor, size):
+                    nonlocal changed
+                    data = original_read(descriptor, size)
+                    if not changed:
+                        changed = True
+                        path.write_bytes(b"b" * 100)
+                        stamp = path.stat()
+                        os.utime(path, ns=(stamp.st_atime_ns, stamp.st_mtime_ns + 1000000000))
+                    return data
+                with patch.object(TARGET.os, "read", side_effect=rewriting_read):
+                    return TARGET._regular(path)
+            result = self.run_bounded_reader(action)
+            self.assertEqual(result[0], "rejected")
+
+    def test_target_system_inputs_do_not_fall_back_to_Path_read_bytes(self):
+        tool = shutil.which("true")
+        if tool is None:
+            self.skipTest("installed ordinary system tool needed")
+        path = Path(tool).resolve()
+        with patch.object(Path, "read_bytes", side_effect=AssertionError("unanchored read attempted")):
+            self.assertTrue(TARGET._system_input(path))
 
 
 @unittest.skipUnless(sys.platform == "linux" and shutil.which("true") and Path("/usr/include/stdint.h").is_file(),
@@ -428,6 +586,15 @@ class TargetReferenceBoundaries(unittest.TestCase):
             return original(path)
         with patch.object(TARGET, "_system_input", side_effect=guarded):
             with self.assertRaisesRegex(ValueError, "unrelated extra paths"):
+                self.fixture.validate()
+
+    def test_executed_shared_reader_must_be_bound_in_both_tool_roles(self):
+        original = copy.deepcopy(self.fixture.report)
+        for role in ("source_provenance_tools", "tools"):
+            self.fixture.report = copy.deepcopy(original)
+            self.fixture.report[role].pop(TARGET.INPUT_PATH)
+            self.fixture.save()
+            with self.subTest(role=role), self.assertRaisesRegex(ValueError, "matching CI/source|tool closure"):
                 self.fixture.validate()
 
     def test_post_compile_role_and_optional_helper_evidence_cannot_be_skipped(self):

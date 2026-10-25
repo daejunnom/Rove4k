@@ -278,7 +278,10 @@ jobs:
           python -B -m unittest discover -s engines/scripts -p test_production.py
           python -B -m unittest discover -s engines/scripts -p test_retirement.py
           python -B -m unittest discover -s engines/scripts -p test_production_ci.py
+          python -B -m unittest discover -s engines/scripts -p test_production_input.py
+          python -B -m unittest discover -s engines/scripts -p test_production_source_bundle.py
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_verify.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_target_runtime.py
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_rules.py
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_compiler.py
           python -I -B engines/experiments/tiny-d-submission/test_storage.py
@@ -309,12 +312,68 @@ jobs:
         run: >-
           python -I -B engines/scripts/production_ci.py
           --family '${{ matrix.family }}'
+          --export-source-bundle
           --out '${{ runner.temp }}/rove4k-production-${{ matrix.family }}-${{ github.run_attempt }}'
+      - name: Transfer the exact sealed source to the Ubuntu22 consumer
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: production-source-${{ matrix.family }}-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/rove4k-production-${{ matrix.family }}-${{ github.run_attempt }}/source-bundle.zip
+            ${{ runner.temp }}/rove4k-production-${{ matrix.family }}-${{ github.run_attempt }}/source-seal.json
+          if-no-files-found: error
+          retention-days: 7
       - name: Preserve owned source-bound evidence and failures
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: production-${{ matrix.family }}-${{ github.sha }}
           path: ${{ runner.temp }}/rove4k-production-${{ matrix.family }}-${{ github.run_attempt }}
+          include-hidden-files: true
+          retention-days: 7
+
+  production-ubuntu22:
+    needs: production-profiles
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        family: [A, B, C, D, E, F]
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: production-source-${{ matrix.family }}-${{ github.sha }}
+          path: ${{ runner.temp }}/rove4k-source-download-${{ matrix.family }}-${{ github.run_attempt }}
+      - name: Prepare the system Python oracle without redirecting the compiler
+        shell: bash
+        run: |
+          export PATH=/usr/bin:/bin
+          for compiler_env_name in ${!LD_@}; do unset "$compiler_env_name"; done
+          unset CC CXX CPP AS AR LD GCC_EXEC_PREFIX COMPILER_PATH LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH OBJC_INCLUDE_PATH CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
+          /usr/bin/python3 -m venv "$RUNNER_TEMP/rove4k-system22-python"
+          "$RUNNER_TEMP/rove4k-system22-python/bin/python3" -m pip install --require-hashes -r engines/training/e19/requirements.txt
+      - name: Compile, check actual rules and run the same source on Ubuntu22
+        shell: bash
+        run: |
+          export PATH=/usr/bin:/bin
+          for compiler_env_name in ${!LD_@}; do unset "$compiler_env_name"; done
+          unset CC CXX CPP AS AR LD GCC_EXEC_PREFIX COMPILER_PATH LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH OBJC_INCLUDE_PATH CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
+          "$RUNNER_TEMP/rove4k-system22-python/bin/python3" -I -B engines/scripts/production_ci.py \
+            --family '${{ matrix.family }}' --ubuntu22-target \
+            --source-bundle "$RUNNER_TEMP/rove4k-source-download-${{ matrix.family }}-${{ github.run_attempt }}/source-bundle.zip" \
+            --source-seal "$RUNNER_TEMP/rove4k-source-download-${{ matrix.family }}-${{ github.run_attempt }}/source-seal.json" \
+            --out "$RUNNER_TEMP/rove4k-target22-${{ matrix.family }}-${{ github.run_attempt }}"
+      - name: Preserve independent target evidence and failures
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: production-ubuntu22-${{ matrix.family }}-${{ github.sha }}
+          path: ${{ runner.temp }}/rove4k-target22-${{ matrix.family }}-${{ github.run_attempt }}
           include-hidden-files: true
           retention-days: 7
