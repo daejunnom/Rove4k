@@ -50,6 +50,16 @@ def elf(*, version="GLIBC_2.34", load_flags=5, stack_flags=6,
 
 
 class TargetCompilerBoundaries(unittest.TestCase):
+    def clean_source_environment(self, helper):
+        # Source-port fixtures control their compiler context independently of
+        # setup-python or a developer shell. Explicit injection tests run inside
+        # this scope; unrelated environment entries (including CC) are retained.
+        environment = {key: value for key, value in TARGET.os.environ.items()
+                       if key not in helper.COMPILER_ENV}
+        scoped = patch.dict(TARGET.os.environ, environment, clear=True)
+        scoped.start()
+        self.addCleanup(scoped.stop)
+
     def test_source_port_is_opt_in_and_cannot_upgrade_an_sdk_receipt(self):
         self.assertFalse(TARGET.source_port_enabled(None, None, system=False))
         self.assertTrue(TARGET.source_port_enabled(Path("source-bundle.zip"), Path("source-seal.json"), system=True))
@@ -62,6 +72,7 @@ class TargetCompilerBoundaries(unittest.TestCase):
         # The public validator has its own archive/admission tests. Here its
         # response is isolated to test this producer's live/raw binding port.
         helper = TARGET.load("compiler_source_port_test_helper", HERE / "target_runtime.py")
+        self.clean_source_environment(helper)
         ci = helper.CIContext("owner/repo", "a" * 40, "12", "1")
         bundle, seal = base / "source-bundle.zip", base / "source-seal.json"
         bundle.write_bytes(b"unit fixture source bundle")
@@ -89,6 +100,7 @@ class TargetCompilerBoundaries(unittest.TestCase):
 
     def test_source_port_rejects_missing_live_context_before_reading_raw_artifacts(self):
         helper = TARGET.load("compiler_source_port_missing_context", HERE / "target_runtime.py")
+        self.clean_source_environment(helper)
         with patch.object(TARGET, "load", return_value=helper), \
                 patch.object(helper.CIContext, "from_environment", side_effect=ValueError("live GitHub Actions context required")), \
                 patch.object(TARGET, "regular") as read:
@@ -99,6 +111,7 @@ class TargetCompilerBoundaries(unittest.TestCase):
 
     def test_source_port_rejects_compiler_redirection_before_artifact_read(self):
         helper = TARGET.load("compiler_source_port_redirect", HERE / "target_runtime.py")
+        self.clean_source_environment(helper)
         with patch.object(TARGET, "load", return_value=helper), \
                 patch.dict(TARGET.os.environ, {"CPATH": "/not-an-admitted-header-context"}), \
                 patch.object(TARGET, "regular") as read:

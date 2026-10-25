@@ -278,10 +278,12 @@ DAG/최장경로를 다시 산정한다. 작업별시간을 단순합산하지 �
 flowchart TD
   P[공통 계약·새 소스 통합] --> G1[ABCEF 후속 축약·목표 compiler]
   P --> G2[D full 일반4K 축약]
-  P --> R[평가기·AWS 실제 preflight]
+  P --> R[AWS source seed·bootstrap·실행 호출부]
   P --> M[E19 step0 CI·최종 결속]
-  R --> X{PAID·fresh Advisor·quota·capacity 충족}
-  X --> H[목표 호스트 TT startup·NUMA·S3·watchdog]
+  R --> S[EC2 소비 문맥·native·피어 qualification 연결 구현]
+  P --> X{PAID·fresh Advisor·quota·capacity 충족}
+  X --> H[실제 부팅·native·TT startup·NUMA·S3·watchdog]
+  S --> H
   G1 --> H
   H --> L[적격 TEST 선수의 병렬 wave]
   G2 --> A[일반 제출6개·증거 최종 감사]
@@ -291,13 +293,13 @@ flowchart TD
 ```
 
 다음 통합·실측 창의 남은 추정은 P0.5–2h, G1 4–10h, G2 12–36h,
-R6–14h, M0.5–2h, 공유 자원 대기 Q1–4h, 최종 감사 A3–6h다.
+R12–24h, M0.5–2h, 공유 자원 대기 Q1–4h, 최종 감사 A3–6h다.
 Cloud는 기존 누적8–12instanceh 상한을 유지한다.
 
     G_remaining = max(G1_remaining,G2_remaining)
     T_remaining = P_remaining + max(M_remaining,max(G_remaining,R_remaining)+Cloud) + Q + A
-    lower = 0.5+max(0.5,max(12,6)+8)+1+3 = 24.5h
-    upper = 2+max(2,max(36,14)+12)+4+6 = 60h
+    lower = 0.5+max(0.5,max(12,12)+8)+1+3 = 24.5h
+    upper = 2+max(2,max(36,24)+12)+4+6 = 60h
 
 약25–60h는 다음 검증 창의 추정이며 D4K 수렴 완료 약속이 아니다. 요금제,
 최신 Advisor·quota·capacity·TCEC 운영자 응답 같은 외부 대기는 별도 미정 변수다.
@@ -311,3 +313,11 @@ NOT_STARTED이므로 가용 예산에 더하지 않는다. 개별 grant의 Spot 
 CASE_OPENED 상태이며, 실제 적용192와 최신 Advisor<5%는 여전히 실행 gate다.
 Standalone m6a의 실제 bootstrap·attestation·배치는 GitHub Ubuntu22 참조와
 별도 구현·검증하며 GITHUB 환경을 주입해 CI 호스트로 위장하지 않는다.
+
+e07e89d 후속 소스 감사에서는 AWS lifecycle 포트에 production caller가 없고,
+UserData는 종료 시각만 예약하며, freeze_plan은 이미 적격인 registry를 소비하는
+후단 bundle임을 확인했다. 따라서 현재 평가기 테스트·개별 포트 구현을 end-to-end
+AWS 준비 완료로 해석하지 않는다. 별도 source seed와 EC2 소비자 결속, bootstrap,
+실제 lifecycle journal 인계, 입력·proof·최종 보고서의 원격 보존, watchdog 코드·배포
+동일성 연결을 구현한다. 기존 wave·ACK·pair·복구·종료 관측은 재사용한다.
+R 추정을12–24h로 조정했으며 D 분기가 아직 최장 경로라 전체 창은 약25–60h다.
