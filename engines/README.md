@@ -23,28 +23,34 @@ reduced feature policy does not qualify the full path.
 
 | Full profile | Previous complete file | Current TCEC complete file |
 |---|---:|---:|
-| C A2 | 4,232 B Bash | 3,894 B |
-| C B2 | 4,712 B Bash | 4,265 B |
-| C C2 | 4,375 B Bash | 4,031 B |
-| C E2 | 4,323 B Bash | 3,980 B |
-| C F2 | 4,018 B Bash | 3,576 B |
-| C F8 | 4,028 B Bash | 3,591 B |
+| C A2 | 4,232 B Bash | 3,731 B |
+| C B2 | 4,712 B Bash | 4,092 B |
+| C C2 | 4,375 B Bash | 3,873 B |
+| C E2 | 4,323 B Bash | 3,817 B |
+| C F2 | 4,018 B Bash | 3,530 B |
+| C F8 | 4,028 B Bash | 3,548 B |
 | Rust A2 | 8,945 B source stream | 7,502 B |
 
-These values include header and payload. B remains169 bytes above4KiB; Rust A
+These values include header and payload. B has4 bytes of margin; Rust A
 remains3406 bytes above. Workers and TT18 are fixed at build time (two workers,
-or eight for F8). The C profiles use process-final specialization, valid-input
-parsing and `getline`; full F additionally uses asynchronous per-GO workers
-with persistent learners. Rust A removes unused shared observer work while
+or eight for F8). The next C profiles use asynchronous per-GO workers with
+persistent learners, immutable shared game prefix and entry-owned temporary
+unlink. B uses side occupancy plus mailbox classification in the same legal-LVA
+order, saving96 bytes per Board. Full N/B/R/Q is retained. Rust A removes unused shared observer work while
 retaining local clock cadence and publication barriers. Active `isready`,
 memory reuse between GO/position and normal temporary cleanup remain required.
 
-Use the [TCEC profile builder and commands](experiments/tcec-scope/README.md)
+Use the [next TCEC profile builder and commands](experiments/tcec-next/README.md)
 for literal selected recipes and the separate production runtime verifier.
 Local reproduction/runtime, exact-revision CI, playing strength and tournament
 eligibility have distinct evidence. Compression continues after a path fits
 4KiB. D and the remaining portfolio retain their separately declared paths;
 this table does not close full A–F acceptance.
+
+The [previous TCEC profiles](experiments/tcec-scope/README.md) remain exact
+source-produced controls. Query deferral/QS and dense history have independent
+semantic fixtures; compiler O2/O3 has a bounded fixed-work comparison. These
+experiments are not silently enabled in the current selected Os profiles.
 
 ## Standalone compiler-owner submissions
 

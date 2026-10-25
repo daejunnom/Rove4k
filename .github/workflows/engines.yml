@@ -101,6 +101,14 @@ jobs:
             python3 -B engines/experiments/tcec-scope/build.py --entry "$entry" --out "$ROVE_TEST_OUT/tcec-$entry"
             python3 -B engines/experiments/tcec-scope/verify.py --build "$ROVE_TEST_OUT/tcec-$entry" --out "$ROVE_TEST_OUT/tcec-$entry-runtime"
           done
+      - name: Reproduce next full submissions with per-GO lifetime and entry-owned unlink
+        if: matrix.language == 'c'
+        run: |
+          for entry in A B C E F F8; do
+            python3 -B engines/experiments/tcec-next/build.py --entry "$entry" --out "$ROVE_TEST_OUT/tcec-next-$entry"
+            python3 -B engines/experiments/tcec-scope/verify.py --build "$ROVE_TEST_OUT/tcec-next-$entry" --out "$ROVE_TEST_OUT/tcec-next-$entry-runtime"
+          done
+          python3 -B engines/experiments/tcec-next/check_b_state.py --source "$ROVE_TEST_OUT/tcec-next-B/control/main.c" --out "$ROVE_TEST_OUT/tcec-next-B-state"
       - name: Reproduce the full F kill wrapper and check its selected strict contract
         if: matrix.language == 'c'
         run: |
@@ -283,6 +291,7 @@ jobs:
             ${{ env.ROVE_TEST_OUT }}/tcec-*/build.json
             ${{ env.ROVE_TEST_OUT }}/tcec-*/source-proof.json
             ${{ env.ROVE_TEST_OUT }}/tcec-*-runtime/**/*.json
+            ${{ env.ROVE_TEST_OUT }}/tcec-next-B-state/result.json
             ${{ env.ROVE_TEST_OUT }}/tiny-d/build.json
             ${{ env.ROVE_TEST_OUT }}/tiny-d-check/**/*.json
             ${{ env.ROVE_TEST_OUT }}/tiny-d-check/**/*.jsonl

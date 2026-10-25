@@ -1,7 +1,8 @@
 # Full TCEC submission profiles
 
-This is the current full-feature source-submission path for the TCEC 4k size
-work. It regenerates each maintained canonical producer before applying the
+These are the preserved7f full-feature controls for the TCEC 4k size work.
+The [next selected profiles](../tcec-next/README.md) regenerate these controls
+before their new source projections. This path regenerates each maintained canonical producer before applying the
 declared tournament specialization. The standalone grace/kill/shell contracts
 remain available in their original entry directories; their stronger compiler
 ownership is not a prerequisite for a small tournament submission.

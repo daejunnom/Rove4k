@@ -19,6 +19,97 @@ Compiler ownership의 다음 후보 비교는
 추가 사용자 지시에 따른 현재 출품 우선순위는
 [TCEC 필수 범위 전문화](#tcec-필수-범위-전문화)다. 강한 compiler owner의 축약을
 TCEC 제출판의 선행 조건으로 두지 않는다.
+그 이후 현재 선택은 [후속 로컬 최적화](#후속-로컬-최적화)에 기록한다.
+
+## 후속 로컬 최적화
+
+2026-10-25 첨부 `Rove4k-Next-Optimization-AWS-Plan.md`를 대조했다. SHA-256은
+`455b1e1f7362f7cdd056a4db1fe2d5bb9b428ad86b7c6189468090d02bcc7352`다.
+사용자는 문서 검토와 기존 범위 로컬 최적화를 승인했고 AWS는 계획 검토만 선택했다.
+시작 source는7f711448/tree ed2a65d4다. 첨부 자체를 새로운 유료 실행·학습·연결
+권한으로 읽지 않는다. 첨부 원문이나 다른 엔진 source는 Git에 넣지 않는다.
+
+새 `engines/experiments/tcec-next/`는 이전 TCEC 선택을 exact source-produced
+control로 재생성한 뒤 독립 두 시도에서 source 변환·native·포장을 반복한다.
+기존 tcec-scope·공통 wrapper·canonical C/Rust와 이전 literal은 바꾸지 않았다.
+
+| Full C | 이전7f | 후속 whole | Header/payload | 4096 B 여유 |
+|---|---:|---:|---:|---:|
+| A2 | 3894 | 3731 | 94/3637 | 365 |
+| B2 | 4265 | 4092 | 109/3983 | 4 |
+| C2 | 4031 | 3873 | 101/3772 | 223 |
+| E2 | 3980 | 3817 | 94/3723 | 279 |
+| F2 | 3576 | 3530 | 103/3427 | 566 |
+| F8 | 3591 | 3548 | 103/3445 | 548 |
+
+A/B/C/E에도 F의 async per-GO 수명을 이식하고 learner storage·active ready·
+atomic 완료·다음 GO/position 전 join을 유지했다. 불변 game prefix를 공유해 각
+worker의 keys4224→128을 줄였고 실제 의미 fixture는 qh4096/ply127와 B의 같은
+ply singular 호출을 포함했다. B는 side occupancy만 저장하고 mailbox로 종류를
+판별한다. Kind1..6/오름차순 origin·불법 pinned origin 뒤 재시도·EP·king safety·
+full N/B/R/Q·SEE_INCOMPLETE를 유지한다. 실제 Board는288→192 B다.
+
+B 최종 결합본은 원본과 actual c/h/Q/P의27 position·12검색·41SEE·102중단
+checkpoint digest가 `a3f7ad0427d41da6`로 같았고 UBSan도 통과했다. Public JIT의
+네 세션·24 GO/22 정상 합법 결과도 통과했다. 나머지5개 최종 C도 각각 같은
+public 검사 범위를 완료했다. 여섯 완성파일이4KiB 안에 들어온 사실은 full A–F
+기력·규칙 전부·대회 host 적격성의 완료가 아니다. B의4 B 여유는 계속 축약할 이유다.
+
+자기삭제는 wrapper private 절대 argv0에만 적용하며 main 진입 전 remove 실패는2다.
+원본 script/source/native를 삭제 대상으로 사용하지 않고 direct native는 disposable
+copy만 실행한다. Delayed sleep/Python 자식이 없어 header raw59 B를 줄였으나
+실제 이득은 source 증가까지 포함해 따로 측정했다. GCC의 -xc/-oPATH joined
+표기로 header2 B를 추가로 줄이고 source-JIT native 일치로 확인했다. B main의
+두 parameter는 본문·macro와 충돌하지 않는 이름으로만 축약해4 B 경계 뒤에도
+추가 절감을 적용했다. F2는 고정 codec lc0이1 B 작아 실제 복원·재현으로 선택했다.
+
+별도 TT query/QS35개 실제 함수 비교, history layout42개 compile/run 기록과
+per-GO learner/publication/partial-create/join 검사는 결과를 유지한다. Dense history,
+TT 전 gen/eval 지연과 QS 조기 종료는 최종 선택에 자동 포함하지 않았다.
+Compiler Os/O2/O3는 같은 전체 파일 길이로 각각 native를 두 번 만들었다.
+통제된 local 고정-depth fixture의 O3/Os 기하평균 속도비는 F1.302/B1.219였고
+iteration/work/learner/TT 결과가 같았다. 계측 fixture 결과이며 실제 shipping
+throughput·SMP·다른 target/Elo 근거로 확대하지 않아 기본 Os는 유지한다.
+
+개발 host의 nested CPU hard limit300이 기존 producer의 hard330을 막은 초기
+실패는 도구 자원 계층의 원인으로 기록했다. 바깥390/자식360으로 고쳐 기존
+330 한도를 바꾸지 않고 새 경로에서 재검증했다. 이전 실패 디렉터리는 보존했다.
+별도 agent usage-limit 후에는 원 handle 부재와 새 WSL 부팅을 확인하고 남은
+report/source를 회수했다. 완료된 원 기록은 유지하고 미완료 상태를 성공으로
+소급하지 않았다. 실제 재개한 실행은 새 명시적 output에 기록했다.
+
+### AWS와 대국 계획 검토만 수행한 범위
+
+공식 자료에서 C7a의 Spot 지원과 c7a.8xlarge32 physical cores/64GiB 예시는
+확인했다. 현재 지역 목록의 서울에는 C7a가 없고 Tokyo/Singapore에는 있다.
+제품 지원·지역 제공·계정 quota·특정 AZ 실시간 capacity를 구분하며 실제 계정과
+가격·확보 여부는 미조회다. [AWS 지역 목록](https://docs.aws.amazon.com/ec2/latest/instancetypes/ec2-instance-regions.html),
+[instance 사양](https://docs.aws.amazon.com/ec2/latest/instancetypes/co.html).
+
+Spot은 완료 pair별 결과 보존·중복 없는 재배정이 가능한 screening에 적합한
+계획이다. 2분 공지는 best effort이므로 경고만 기다려 결과를 저장하지 않는다.
+On-Demand 전환을 자동으로 추가하지 않는다. ExpiresAt 태그·Budgets 알림·GitHub
+timeout만 비용 hard stop으로 간주하지 않고 미래 실행 전에 실제 종료 actuator와
+instance-hours/금액 한도를 정한다. 이번에는 자원·역할·workflow·예약을 만들지
+않았다. [AWS 중단 공지](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-instance-termination-notices.html).
+
+Fastchess ebfd64cb의 getMaxAffinity는 Threads 부재1/다중 설정0을 반환하지만
+AffinityManager가 끄는 조건은 tpe>1이다. 따라서 "다중이면 자동 비활성" 설명은
+고치고, 내장 -use-affinity 없이 외부 cpuset/taskset의 concurrency1 shard를
+사용하는 계획으로 둔다. [실제 구현](https://github.com/Disservin/fastchess/blob/ebfd64cb7fac80d4822c50b07dca4fe934779d21/app/src/affinity/affinity_manager.hpp).
+
+표준 startpos PGN·실제 wire·restart=on을 확인하고 score 없는 shipping에는
+score adjudication을 쓰지 않는다. 완료 opening pair를 중앙 pentanomial/SPRT로
+집계하며 서로 다른 TC/CPU를 섞거나 예산 종료를 통과로 바꾸지 않는다. npm OIDC는
+AWS 역할 근거가 아니며 미래 AWS trust는 실제 subject/audience와 environment
+규칙으로 확인한다. GitHub의 immutable subject 변화도 추정하지 않는다.
+[GitHub 공식 OIDC 문서](https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-aws).
+
+로컬 WSL은 Intel Core5 210H의8 logical CPU/4core×2 SMT/1NUMA로 보고됐다.
+공식 season 환경과 실제 다음4k event의 compiler/자원은 별도 확인 대상이다.
+Rust1.97 재현을 공개 환경의 Rust1.85.1 성공으로 승계하지 않는다. Rust7502 B,
+D/Rust D의 별도 ELF 계약, B exchange metadata 최소화, 실제 target 성능·기력과
+many-core 확인은 남아 있다. 학습과 AWS 연결은 여전히 실행 범위에서 제외한다.
 
 ## 감사 기준 d8bdd0e1과 역사 기록
 
