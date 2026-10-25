@@ -215,6 +215,8 @@ def game_record(game, source_id: str, ordinal: int, seed: int, holdout: set[str]
     board = chess.Board()
     moves, candidates = [], []
     for ply, move in enumerate(game.mainline_moves(), 1):
+        if board.is_game_over(claim_draw=False):
+            return None, "move_after_automatic_terminal"
         if move not in board.legal_moves:
             return None, "illegal_move"
         board.push(move)

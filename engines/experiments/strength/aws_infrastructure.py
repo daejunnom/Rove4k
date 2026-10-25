@@ -390,6 +390,7 @@ def template(project_region=None):
         sub('arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:network-interface/*'),
         sub('arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:volume/*')]
     resources['ControllerRole'] = {'Type': 'AWS::IAM::Role', 'Properties': {
+        'MaxSessionDuration': 21600,
         'AssumeRolePolicyDocument': policy([{'Effect': 'Allow',
             'Principal': {'Federated': ref('GitHubOidcProviderArn')}, 'Action': 'sts:AssumeRoleWithWebIdentity',
             'Condition': {'StringEquals': {'token.actions.githubusercontent.com:aud': 'sts.amazonaws.com',

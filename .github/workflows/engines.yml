@@ -247,6 +247,8 @@ jobs:
           python -I -B engines/experiments/tiny-d-submission/test_native_operand_filter.py --self-test
           python -I -B engines/experiments/tiny-d-submission/test_closed_tu_cleanup.py --self-test
           python -I -B engines/experiments/tiny-d-submission/test_scalar_atomic_specialize.py --self-test
+          python -I -B engines/experiments/tiny-d-submission/test_no_tid_startup.py --self-test
+          python -I -B engines/experiments/tiny-d-submission/test_exact_clock_predicate.py --self-test
           python -I -B engines/experiments/tiny-d-submission/test_profile_p28.py
       - name: Check actual E19 inference, corpus boundaries and optimizer step zero
         run: python -B -m unittest discover -s engines/training/e19 -p 'test_*.py'

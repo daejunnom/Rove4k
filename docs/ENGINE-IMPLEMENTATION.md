@@ -5,6 +5,85 @@ The current user request includes the complete C A–F implementation, AWS evalu
 preparation and E19 data/trainer/export preparation. Production optimizer steps remain
 zero and the initial model weights remain unchanged; trained strength is not claimed.
 
+## Current integration checkpoint, 2026-10-26
+
+PR #18 is merged into `feature/rove4k-engines-af` at2bed793. Its common C
+fragments remain engine inputs and its assembler remains a tool; archived paths
+retain their original Git bytes and modes. The later001800e source checkpoint
+passes all three workflows: engine40228534420 (26/26 jobs), NVCompact40228534422
+and repository40228534427. The exact engine foundation job121275099286 passes
+372 contract,21 E19 and283 evaluator/service tests,676 in total. The twelve
+P4/P28 source jobs and twelve actual Ubuntu22/GCC11 consumers pass. This is
+functional/rules/resource evidence, not scored physical placement, strength or
+event approval. The current D CI source-JIT control is distinct from the lower
+cost packed search experiments.
+
+The current full ACEF compound/B best whole costs and the remaining dependency
+graph are in ENGINE-PLAN.ko.md. Full F is retained. Fifteen profile costs were
+reproduced independently; provisional W256 is compile/type/source evidence and
+has not allocated192/256GiB locally. General4K remains mandatory for every C
+family; ELF is optional for every family and deferred above4096B. Earlier dated
+size, FREE-plan, quota and execution exclusions below are historical snapshots.
+
+The actual001800e source/target input audit verifies24 artifact ZIPs,25,236,455B,
+all server digests and247 Git source paths against actual checkout103b8eb9.
+The planned seed inventory has6177 entries including its1,952,721B manifest and
+230,224,011B expanded bytes, within the exact twelve-profile256MiB class.
+These inventory checks did not produce a successful seed. Actual prepare62981
+exits1 before output: generic recursive file checking treats60 target-reference
+`source_build` directory/build.json identities as files. The other1982 file
+references match. Raw receipts and the failed001800e cohort remain unchanged.
+The narrow fix must authenticate the existing target format, family/profile/CI
+context and selected sealed build before resolving that directory identity to
+its exact build.json. Ordinary file checks stay strict. A new committed source
+and CI cohort is required for actual prepare/inspect/materialize/revalidate;
+a patched helper cannot impersonate the old canonical checkout.
+
+D's separately admitted5261B search candidate passes fresh P4 rules/runtime
+but remains oversized and unselected. A new no-TID source/ABI cost class removes
+unused kernel TID arguments under clone mask0x50f00 while preserving logical
+workers, guarded stacks, TT128, search and learners. Its repeated packed whole
+is5245B,16B smaller, still1149B above4KiB. Its independent cost/source/inverse
+audit passes, but fresh typed admission, actual raw-clone/P4 runtime and rules
+are separate work. The non-returning tail has no additional packed gain and is
+not preferred. Existing5261B native maps and the stronger closing-reply owner
+contract are unchanged.
+
+The two-case exact-clock transfer from F to D loses on all whole routes:
+6832→6853B ordinary source-JIT,6689→6710B compressed source-JIT,5261→5273B packed.
+GCC13/SDK11 native files shrink while the submitted file grows; the candidate
+is rejected. Conditional frontend/guard-page fixtures were not run after that
+cost stop, and are not semantic acceptance. Process-pool review also found no
+credible large whole-byte saving after accounting shared control, reaping and
+failure propagation; no fork runtime was implemented.
+
+The current sealed COMPOUND E main.c is7815B, SHA-256
+`198bccf29d1441f63e3fd07b5da9ab4164fe3c31393af7ad35ab72d4d3fe08ff`.
+An unchanged checker compiles and executes it with UBSan:6999 position,4992
+setter,1970 order,1883 transition and13828 accumulator observations against an
+independent oracle. Those totals include synthetic states; only32 added FENs
+come from the real training batch. Initial parameters and optimizer step0 are
+unchanged. An independent intake audit additionally reproduces acceptance of
+play after automatic fivefold/75-move termination. A pre-move
+`is_game_over(claim_draw=False)` guard, boundary tests and a fresh immutable
+corpus/step0 replay are required. Claimable threefold/50-move continuation must
+remain optional. Old actual-data counts below are not a replay of that fix.
+
+AWS PAID ACTIVE and100USD aggregate credit are confirmed; the Spot quota is
+actually192vCPU. The observed official Advisor object is still dated2026-03-20
+and its Sydney/Linux/m6a.48xlarge row is15–20%, so the fresh<5% launch gate fails.
+No instance, paid campaign or infrastructure deployment has run. The current
+repository also lacks the real GitHub OIDC execution workflow that supplies an
+ephemeral controller session; local profile login and service-port tests do not
+close that production caller. Source wiring, actual deployment and observed
+termination remain distinct gates under the existing gross120USD/12-hour caps.
+The new reviewed template sets only ControllerRole.MaxSessionDuration to21600;
+its trust, permissions and other resources are unchanged. The future standard
+direct-OIDC job must stop at least15 minutes before the hosted six-hour limit,
+keep the immutable plan deadline and record a conservative credential-use bound
+when actual STS expiration is not exposed. No credential broker or static profile
+is added. This template source change has no live IAM deployment yet.
+
 ## Current execution scope, 2026-10-25
 
 The user resumed the complete accepted plan. The current contract, dependency

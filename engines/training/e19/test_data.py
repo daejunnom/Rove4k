@@ -46,6 +46,122 @@ def parsed(game):
     return chess.pgn.read_game(io.StringIO(str(game)), Visitor=data._CorpusBuilder)
 
 
+# Fixed standard-start PGNs reproduced with chess 1.11.2, not corpus samples.
+QUIET_TO_FIFTY = """
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. d3 d6 5. Na3 Nge7 6. Bd5 Be6
+7. Nb1 Qd7 8. Bc4 Rf8 9. Bb3 Nd8 10. Ng5 Bg4 11. Ba4 Qb5
+12. Bd2 Ng6 13. Qe2 Nf4 14. Bc1 Bf3 15. Na3 Bg4 16. Bb3 Rb8
+17. Kd2 Kd7 18. Rg1 Kc6 19. Bd5+ Kd7 20. Ne6 Qa4 21. Nc4 Nc6
+22. Nd8 Rc8 23. Rh1 Nd4 24. Qd1 Bb6 25. Nc6 Be2 26. Re1 Qb5
+27. Rb1 Qb3 28. Be6+ Ke8 29. N6a5 Rh8 30. Nc6 Rb8 31. Bh3 Nde6
+32. Bf5 Qa4 33. Bh3 Nf8 34. N4a5 Rg8 35. Bc8 Nd5 36. Bh3 Qa3
+37. Nc4 Ne6 38. Nb4 Qb3 39. Na6 Nc3 40. Na5 Bc5 41. Rf1 Ra8
+42. Nc6 Nf4 43. Rg1 Rc8 44. Bg4 Bd4 45. Bh5 Kd7 46. Nd8 Qb5
+47. Nb8+ Ke8 48. Ra1 Qa5 49. Ne6 Qb6 50. Nf8 Ng6 51. Nc6 Nh4
+52. Rb1 Bf1 53. Ng6 Kd7 54. Nf4 Qc5 55. Nd8 Qd5
+"""
+QUIET_TO_SEVENTYFIVE = QUIET_TO_FIFTY.rstrip() + """
+56. Rh1 Qc6 57. Ne2 Ng6 58. Ng3 Ne2 59. Bf3 Nf8 60. Ke1 Ke8
+61. Nf5 Qc5 62. Ne7 Qd5 63. Bd2 Rb8 64. Bh5 Kd7 65. Bf3 Qe6
+66. Be3 Nf4 67. Be2 Bc5 68. Qc1 Nh3 69. Nf5 Qh6 70. Bd4 Qe3
+71. Nc6 Kc8 72. Na5 Ng5 73. Nb3 Kd7 74. Ne7 Bb6 75. Nc5+ Ke8
+76. Ng6 Nh3 77. Qd1 Ne6 78. Ne7 Neg5 79. Ra1 Nf4
+"""
+
+
+def terminal_game(movetext, result):
+    headers = ('[White "e19-white"]\n[Black "e19-black"]\n'
+               '[WhiteElo "1800"]\n[BlackElo "1800"]\n'
+               f'[TimeControl "180+0"]\n[Result "{result}"]\n\n')
+    game = chess.pgn.read_game(io.StringIO(headers + movetext.strip() + " " + result), Visitor=data._CorpusBuilder)
+    if game is None or game.errors:
+        raise AssertionError("terminal fixture must parse as a legal standard-start mainline")
+    return game
+
+
+def board_after(game, plies):
+    board = game.board()
+    for move in list(game.mainline_moves())[:plies]:
+        board.push(move)
+    return board
+
+
+class AutomaticTerminalIntake(unittest.TestCase):
+    def test_fivefold_then_legal_reset_is_rejected(self):
+        game = terminal_game("""
+1. Nf3 Nf6 2. Ng1 Ng8 3. Nf3 Nf6 4. Ng1 Ng8
+5. Nf3 Nf6 6. Ng1 Ng8 7. Nf3 Nf6 8. Ng1 Ng8
+9. e4 e5 10. Nf3 Nc6 11. Bc4 Bc5 12. d3 d6
+""", "1-0")
+        terminal = board_after(game, 16)
+        self.assertEqual(terminal.outcome(claim_draw=False).termination, chess.Termination.FIVEFOLD_REPETITION)
+        self.assertIn(list(game.mainline_moves())[16], terminal.legal_moves)
+        self.assertIsNone(game.end().board().outcome(claim_draw=False))
+        row, reason = data.game_record(game, "fixture", 1, data.SEED, set())
+        self.assertIsNone(row)
+        self.assertEqual(reason, "move_after_automatic_terminal")
+
+    def test_valid_fivefold_terminal_draw_is_retained(self):
+        game = terminal_game("""
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. d3 d6
+5. Ng1 Nb8 6. Nf3 Nc6 7. Ng1 Nb8 8. Nf3 Nc6
+9. Ng1 Nb8 10. Nf3 Nc6 11. Ng1 Nb8 12. Nf3 Nc6
+""", "1/2-1/2")
+        self.assertEqual(game.end().board().ply(), 24)
+        self.assertEqual(game.end().board().outcome(claim_draw=False).termination, chess.Termination.FIVEFOLD_REPETITION)
+        row, reason = data.game_record(game, "fixture", 1, data.SEED, set())
+        self.assertIsNone(reason)
+        self.assertEqual(row["white_label"], 0.5)
+        self.assertEqual(len(row["positions"]), 1)
+
+    def test_claimable_threefold_continuation_is_retained(self):
+        game = terminal_game("""
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. d3 d6
+5. Ng1 Nb8 6. Nf3 Nc6 7. Ng1 Nb8 8. Nf3 Nc6
+9. a3 a6 10. b3 b6 11. h3 h6 12. g3 g6
+""", "1-0")
+        claimable = board_after(game, 16)
+        self.assertTrue(claimable.can_claim_threefold_repetition())
+        self.assertFalse(claimable.is_game_over(claim_draw=False))
+        row, reason = data.game_record(game, "fixture", 1, data.SEED, set())
+        self.assertIsNone(reason)
+        self.assertEqual(row["white_label"], 1.0)
+        self.assertTrue(row["positions"])
+
+    def test_claimable_fifty_move_continuation_is_retained(self):
+        game = terminal_game(QUIET_TO_FIFTY, "1-0")
+        claimable = board_after(game, 108)
+        self.assertEqual(claimable.halfmove_clock, 100)
+        self.assertTrue(claimable.can_claim_fifty_moves())
+        self.assertFalse(claimable.is_game_over(claim_draw=False))
+        self.assertEqual(game.end().board().ply(), 110)
+        row, reason = data.game_record(game, "fixture", 1, data.SEED, set())
+        self.assertIsNone(reason)
+        self.assertEqual(row["white_label"], 1.0)
+        self.assertTrue(row["positions"])
+
+    def test_valid_seventyfive_move_terminal_draw_is_retained(self):
+        game = terminal_game(QUIET_TO_SEVENTYFIVE, "1/2-1/2")
+        terminal = game.end().board()
+        self.assertEqual(terminal.ply(), 158)
+        self.assertEqual(terminal.halfmove_clock, 150)
+        self.assertEqual(terminal.outcome(claim_draw=False).termination, chess.Termination.SEVENTYFIVE_MOVES)
+        row, reason = data.game_record(game, "fixture", 1, data.SEED, set())
+        self.assertIsNone(reason)
+        self.assertEqual(row["white_label"], 0.5)
+        self.assertEqual(len(row["positions"]), 16)
+
+    def test_seventyfive_move_then_pawn_reset_is_rejected(self):
+        game = terminal_game(QUIET_TO_SEVENTYFIVE + "80. fxe3", "1-0")
+        terminal = board_after(game, 158)
+        self.assertEqual(terminal.outcome(claim_draw=False).termination, chess.Termination.SEVENTYFIVE_MOVES)
+        self.assertIn(list(game.mainline_moves())[158], terminal.legal_moves)
+        self.assertIsNone(game.end().board().outcome(claim_draw=False))
+        row, reason = data.game_record(game, "fixture", 1, data.SEED, set())
+        self.assertIsNone(row)
+        self.assertEqual(reason, "move_after_automatic_terminal")
+
+
 class CorpusPreparation(unittest.TestCase):
     def test_bounded_concatenated_archive_with_multimegabyte_window(self):
         import zstandard

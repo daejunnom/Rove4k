@@ -616,6 +616,98 @@ class SeedTests(unittest.TestCase):
             self.assertEqual(client.puts, 1)
 
 
+class OriginalReferenceTests(unittest.TestCase):
+    """Real producer record shape; synthetic bytes are never CI authority."""
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix="rove-seed-reference-")
+        self.root = Path(self.temp.name)
+        self.fixture = Fixture(self.root)
+        self.original = "/home/runner/work/_temp/export-A/artifact"
+        self.reference = {"format": "rove4k.target-runtime-reference.v1", "family": "A", "profile": "test-p4",
+            "ci_context": copy.deepcopy(self.fixture.config["source_origin"]),
+            "consumer_scope": "github-actions-ubuntu22-system", "representation": "source-jit", "full": True,
+            "runtime_eligible": True, "factory_replayed_on_target": False,
+            "runtime_executed": False, "runtime_qualified": False, "event_target_confirmed": False,
+            "source_build": {"path": self.original, **seed.pin(b"{}\n")}}
+        self.name = "origin/rules/A/target-runtime.json"
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    def put(self, value):
+        path = self.root / "downloaded" / self.name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        raw = ledger.canonical(value)
+        path.write_bytes(raw)
+        self.fixture.inputs[self.name] = {"path": str(path), **seed.pin(raw)}
+        return raw
+
+    def test_actual_directory_manifest_contract_survives_prepare_without_rewriting(self):
+        value = {"stages": [{"target_runtime_reference": copy.deepcopy(self.reference)}],
+                 "target_runtime_reference": copy.deepcopy(self.reference)}
+        original = self.put(value)
+        prepared = self.fixture.prepare(self.root / "prepared")
+        with zipfile.ZipFile(prepared["archive"]["path"]) as archive:
+            self.assertEqual(archive.read(self.name), original)
+            self.assertEqual(json.loads(archive.read(self.name))["target_runtime_reference"]["source_build"],
+                             self.reference["source_build"])
+        self.assertEqual(seed.inspect_archive(Path(prepared["archive"]["path"]).read_bytes())["manifest_sha256"],
+                         prepared["seed_manifest"]["sha256"])
+
+    def test_unbound_reference_shapes_reject_before_any_output(self):
+        changes = [
+            {"format": "another.reference.v1"}, {"family": "B"}, {"family": ["A"]},
+            {"profile": "test-p28"}, {"profile": None},
+            {"ci_context": {**self.reference["ci_context"], "run_attempt": "2"}},
+            {"ci_context": {}}, {"consumer_scope": "ec2"}, {"representation": "native"},
+            {"full": 1}, {"runtime_eligible": 1}, {"factory_replayed_on_target": 0},
+            {"source_build": {**self.reference["source_build"], "path": self.original + "-other"}},
+            {"source_build": {**self.reference["source_build"], "path": self.original + "/build.json"}},
+            {"source_build": {**self.reference["source_build"], "sha256": "0" * 64}},
+            {"source_build": {**self.reference["source_build"], "bytes": True}},
+            {"source_build": {**self.reference["source_build"], "extra": "not the record contract"}},
+            {"source_build": None},
+        ]
+        for field in ("runtime_executed", "runtime_qualified", "event_target_confirmed"):
+            changes.extend({field: value} for value in (None, True, 0))
+        for index, change in enumerate(changes):
+            self.put({**copy.deepcopy(self.reference), **change})
+            out = self.root / ("rejected-" + str(index))
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                self.fixture.prepare(out)
+            self.assertFalse(out.exists())
+
+    def pure(self, value, *, build=b"{}\n", include_manifest=True, source_builds=None):
+        content = {"origin/A/artifact/main.c": (b"x", 0o600),
+                   self.name: (ledger.canonical(value), 0o600)}
+        if include_manifest:
+            content["origin/A/artifact/build.json"] = (build, 0o600)
+        mappings = self.fixture.config["original_layout"]["roots"]
+        sources = source_builds if source_builds is not None else {
+            ("A", "test-p4"): {"path": self.original, "member": "origin/A/artifact/build.json"}}
+        return seed.original_references(content, mappings, sources, self.fixture.config["source_origin"])
+
+    def test_missing_or_ambiguous_selected_manifest_is_not_a_directory_exception(self):
+        with self.assertRaisesRegex(ValueError, "omitted its exact build.json"):
+            self.pure(self.reference, include_manifest=False)
+        sources = {(family, "test-p4"): {"path": self.original, "member": "origin/A/artifact/build.json"}
+                   for family in "AB"}
+        with self.assertRaisesRegex(ValueError, "ambiguous"):
+            self.pure(self.reference, source_builds=sources)
+
+    def test_ordinary_file_pins_remain_strict_and_boolean_lengths_are_not_integers(self):
+        ordinary = {"path": self.original + "/main.c", **seed.pin(b"x")}
+        counts = self.pure({"reference": self.reference, "ordinary": ordinary})
+        self.assertEqual(counts, {"source_build_references": 1, "file_references": 1})
+        for change in ({"sha256": "0" * 64}, {"path": self.original}, {"bytes": True}):
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                self.pure({"reference": self.reference, "ordinary": {**ordinary, **change}})
+        value = copy.deepcopy(self.reference)
+        value["source_build"].update(seed.pin(b"1"), bytes=True)
+        with self.assertRaisesRegex(ValueError, "exact typed file pin"):
+            self.pure(value, build=b"1")
+
+
 class PublisherTests(unittest.TestCase):
     """Only the S3 lifecycle port is faked; no real service is contacted."""
     def setUp(self):

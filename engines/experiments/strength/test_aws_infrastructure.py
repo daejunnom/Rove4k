@@ -384,6 +384,16 @@ class InfrastructureDefinition(unittest.TestCase):
         self.assertEqual(trust['Condition']['StringEquals']['token.actions.githubusercontent.com:sub'],
                          'repo:daejunnom/Rove4k:environment:aws-evaluation')
 
+    def test_controller_oidc_session_duration_is_six_hours(self):
+        for region in (None, 'ap-southeast-2'):
+            with self.subTest(project_region=region):
+                resources = template(project_region=region)['Resources']
+                duration = resources['ControllerRole']['Properties']['MaxSessionDuration']
+                self.assertIs(type(duration), int)
+                self.assertEqual(duration, 21600)
+                for name in ('InstanceRole', 'DeadlineRole', 'SchedulerRole'):
+                    self.assertNotIn('MaxSessionDuration', resources[name]['Properties'])
+
     def test_seed_bucket_versions_and_noncurrent_expiry_preserve_existing_protections(self):
         bucket = template()['Resources']['ArtifactBucket']
         props = bucket['Properties']

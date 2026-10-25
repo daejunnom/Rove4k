@@ -496,6 +496,79 @@ def validate_runner(config, content, source_tree, checkout):
     require(any(line.split(" ", 1)[0] == FASTCHESS for line in heads), "runner bundle does not advertise the exact pinned revision")
 
 
+def original_references(content, mappings, source_builds, origin):
+    """Check file pins and the target reference's explicit build-directory pin.
+
+    A target-runtime reference names the original build *directory*, while its
+    byte/SHA pair identifies build.json.  Only that named record contract and
+    an already selected sealed source build may use this correspondence.
+    """
+    def original_member(path):
+        matched = [row for row in mappings if path.startswith(row["original_root"] + "/")]
+        require(len(matched) == 1, "original evidence path has no unique explicit transport root")
+        row = matched[0]
+        return row["seed_prefix"] + path[len(row["original_root"]):]
+
+    roots = set()
+    for key, selected in source_builds.items():
+        require(isinstance(key, tuple) and len(key) == 2 and all(type(item) is str for item in key)
+                and set(selected) == {"path", "member"} and type(selected["path"]) is str
+                and selected["path"] not in roots, "selected source build identity is ambiguous")
+        roots.add(selected["path"])
+        logical = member(selected["member"])
+        require(logical == original_member(selected["path"] + "/build.json") and logical in content,
+                "selected source build omitted its exact build.json")
+
+    counts = {"file_references": 0, "source_build_references": 0}
+
+    def expected_pin(value):
+        require(type(value.get("bytes")) is int and 0 <= value["bytes"] <= MAX_MEMBER
+                and type(value.get("sha256")) is str and SHA.fullmatch(value["sha256"]),
+                "original evidence requires an exact typed file pin")
+        return {key: value[key] for key in ("bytes", "sha256")}
+
+    def closure(value):
+        if isinstance(value, dict):
+            reference = value.get("format") == "rove4k.target-runtime-reference.v1"
+            if reference:
+                require(type(value.get("family")) is str and type(value.get("profile")) is str
+                        and (value["family"], value["profile"]) in source_builds
+                        and value.get("ci_context") == origin
+                        and value.get("consumer_scope") == "github-actions-ubuntu22-system"
+                        and value.get("representation") == "source-jit" and value.get("full") is True
+                        and value.get("runtime_eligible") is True
+                        and value.get("runtime_executed") is False and value.get("runtime_qualified") is False
+                        and value.get("event_target_confirmed") is False
+                        and value.get("factory_replayed_on_target") is False,
+                        "target reference differs from its selected sealed source identity")
+                selected = source_builds[(value["family"], value["profile"])]
+                build = value.get("source_build")
+                require(isinstance(build, dict) and set(build) == {"path", "bytes", "sha256"}
+                        and build["path"] == selected["path"],
+                        "target reference source_build differs from its exact sealed build directory")
+                require(pin(content[selected["member"]][0]) == expected_pin(build),
+                        "target reference source_build differs from its exact build.json pin")
+                counts["source_build_references"] += 1
+            path = value.get("path")
+            if isinstance(path, str) and path.startswith("/home/runner/work/_temp/") and {"bytes", "sha256"} <= set(value):
+                logical = original_member(path)
+                require(logical in content and pin(content[logical][0]) == expected_pin(value),
+                        "original rule/tool evidence omitted or changed a pinned file")
+                counts["file_references"] += 1
+            for key, item in value.items():
+                if not (reference and key == "source_build"):
+                    closure(item)
+        elif isinstance(value, list):
+            for item in value:
+                closure(item)
+
+    for row in mappings:
+        for name, (raw, _) in content.items():
+            if name.startswith(row["seed_prefix"] + "/") and name.endswith(".json"):
+                closure(json.loads(raw))
+    return counts
+
+
 def prepare(config, out):
     require(isinstance(config, dict) and config.get("format") == "rove4k-seed-prepare-v1", "explicit seed prepare configuration required")
     origin = origin_check(config["source_origin"])
@@ -529,7 +602,7 @@ def prepare(config, out):
         add(name, checked_input(descriptor, limit=MAX_MEMBER))
     rove = config.get("rove", [])
     require(isinstance(rove, list), "explicit Rove selection required")
-    workflow, artifact_pins = None, {}
+    workflow, artifact_pins, source_builds = None, {}, {}
     for selected in rove:
         bundle_name, seal_name = member(selected["source_bundle"]), member(selected["source_seal"])
         require(bundle_name in content and seal_name in content and PurePosixPath(bundle_name).name == "source-bundle.zip"
@@ -566,6 +639,9 @@ def prepare(config, out):
                 add(logical, raw, mode)
         require(build + "/build.json" in content, "sealed build omitted its manifest")
         require(entry.get("input_manifest") == pin(content[build + "/build.json"][0]), "sealed build.json pin differs")
+        key = (selected["family"], selected["profile"])
+        require(key not in source_builds, "selected source build family/profile is ambiguous")
+        source_builds[key] = {"path": entry["build_root"], "member": build + "/build.json"}
         dependency_evidence(content, build, json.loads(content[build + "/build.json"][0]), original_build=entry["build_root"])
         metadata_name = member(selected["artifact_metadata"])
         require(metadata_name in content, "downloaded CI artifact metadata is absent")
@@ -623,30 +699,7 @@ def prepare(config, out):
             logical = source_tree + "/" + member(path)
             require(logical in content and pin(content[logical][0].replace(b"\r\n", b"\n")) == expected,
                     "rules tool bytes differ from the selected CI checkout")
-    # Original command streams and rule evidence keep their exact absolute
-    # paths. Check every pinned temporary-path file reference without rewriting.
-    def original_member(path):
-        matched = [row for row in mappings if path.startswith(row["original_root"] + "/")]
-        require(len(matched) == 1, "original evidence path has no unique explicit transport root")
-        row = matched[0]
-        return row["seed_prefix"] + path[len(row["original_root"]):]
-
-    def closure(value):
-        if isinstance(value, dict):
-            path = value.get("path")
-            if isinstance(path, str) and path.startswith("/home/runner/work/_temp/") and {"bytes", "sha256"} <= set(value):
-                logical = original_member(path)
-                require(logical in content and pin(content[logical][0]) == {key: value[key] for key in ("bytes", "sha256")},
-                        "original rule/tool evidence omitted or changed a pinned file")
-            for item in value.values():
-                closure(item)
-        elif isinstance(value, list):
-            for item in value:
-                closure(item)
-    for row in mappings:
-        for name, (raw, _) in content.items():
-            if name.startswith(row["seed_prefix"] + "/") and name.endswith(".json"):
-                closure(json.loads(raw))
+    original_references(content, mappings, source_builds, origin)
     for selected in manifest["peers"]:
         peer_originals(selected, content, source_tree)
     validate_runner(config, content, source_tree, config["checkout"]["path"])

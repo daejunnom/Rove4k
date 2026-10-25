@@ -30,7 +30,8 @@
 의무화하지 않는다. book/ponder는 기본 비활성이다. ELF는 자체 포함과 외부
 프로그램 금지·허용 동적 라이브러리를 별도로 확인한다.
 
-- 규칙: https://wiki.chessdom.org/index.php?title=TCEC_4k_Rules&oldid=7853
+- 규칙: https://wiki.chessdom.org/Rules#TCEC_4k_rules
+  (2026-10-26 확인, Rules revision9524; 일반 리그의 UCI 요구와 구분한다.)
 - 공개 환경: https://wiki.chessdom.org/index.php?title=TCEC_Season_Further_information&oldid=8475
 
 파일명·설정에 코드나 모델을 숨기지 않는다. startup/사용 가능 상태에서
@@ -95,6 +96,12 @@ asserted-source/native gate로 검증한다. 이전 native 기대값을 바꾸�
 다섯 P4의 실제 rules·초기화 장벽·source-JIT 종료 검사를 새 증거로 통과했고,
 물리 배치와 기력은 여전히 별도 자격이다.
 
+001800e의 engine CI40228534420은26개 작업을 모두 통과했다. P4/P28 각각
+여섯 source factory와 여섯 독립 Ubuntu22/GCC11 소비자가 실제 실행을 끝냈고,
+foundation은 source 계약372·E19 21·평가기283개, 합계676개 검사를 통과했다.
+이는 해당 CI 프로필의 기능·규칙·worker CPU·자원 관측이며 실제 TCEC 배치나
+점수 리그 적격성의 대체물이 아니다. D의 CI 입력은 별도 source-JIT control이다.
+
 D의 새 공통 소스 P4 control은 5429 B다. process-owner 5373 B는 독립 규칙과
 전체 P4 기능 검사를 통과했지만 크기·물리 배치·선택은 통과하지 않았다. 새로
 재생성한 search 조합 5261 B도 별도 typed admission·새 CPP/native/package
@@ -107,6 +114,15 @@ native operand 필터 네 경우와 typed scalar-atomic 두 경우는 전체 비
 감사된 GCC11 SDK에서 그대로 유지하며 source-JIT 7004→6689 B로 줄였다.
 이는 아직 별도 미선택 source 경로이며 최저 native 포장 5261 B를 줄이지 않는다.
 다른 계열에 적용할 수 있는지는 각 표현의 실제 소비·전체 비용으로 재측정한다.
+
+후속 no-TID 비용 실험은 현재 즉시 thread-group 종료 경로에서 읽지 않는
+kernel TID 인자만 제거해 whole5261→5245 B를 측정했다. logical worker ID와
+clone thread/guarded stack/검색/학습기/TT128은 유지한다. 비복귀 callback 꼬리는
+추가 whole 이득이 없어 제외한다. 5245 B의 새 typed admission·독립 규칙·실제
+P4 실행은 별도 후속 작업이며, 이전5261 B native map이나 종료 계약을 변경해
+통과시키지 않는다. 비용 후보도4096 B보다1149 B 크므로 제출 적격은 아니다.
+F의 기법을 D의 정확한 clock-token 계약으로 옮긴 두 경우는 native가 작아져도
+whole5261→5273 B로 손해여서 미채택한다. source-JIT 두 경로도 각각21 B 커졌다.
 
 ### 프로필
 
@@ -366,6 +382,15 @@ NOT_STARTED이므로 가용 예산에 더하지 않는다. 개별 grant의 Spot 
 Standalone m6a의 실제 bootstrap·attestation·배치는 GitHub Ubuntu22 참조와
 별도 구현·검증하며 GITHUB 환경을 주입해 CI 호스트로 위장하지 않는다.
 
+새 OIDC 호출부는 dispatch 전용 aws-evaluation 환경과 direct web-identity 세션을
+사용한다. 새 IaC의 ControllerRole MaxSessionDuration은21600초이며 trust·권한은
+늘리지 않는다. hosted job은 최대6h이고 실제 캠페인 마감은 그보다 최소15분
+앞으로 제한한다. 이는 누적12instanceh/$120 상한을 늘리거나 초기화하지 않는다.
+자체 credential broker·static key·profile 파일은 추가하지 않는다. 표준 action의
+비밀 출력 없이 실제 STS 만료가 관측되지 않으면 관측값을 만들지 않고, 성공한
+직접21600초 요청과 실제 job/action 시작에 근거한 더 이른 안전 사용 시각을
+명시한다. 기존 불변 plan/stack 마감을 고쳐 맞추거나 자동으로 연장하지 않는다.
+
 e07e89d 후속 소스 감사에서는 AWS lifecycle 포트에 production caller가 없고,
 UserData는 종료 시각만 예약하며, freeze_plan은 이미 적격인 registry를 소비하는
 후단 bundle임을 확인했다. 따라서 현재 평가기 테스트·개별 포트 구현을 end-to-end
@@ -382,10 +407,58 @@ TEST-P4뿐이었다. 새 workflow는 P4의 기존 경로를 유지하면서 P28 
 Ubuntu22 target 6개를 분리해 총26개 작업으로 확장한다. P28은 실제 W28과
 ABCEF384MiB/D512MiB를 사용하며, 전체 초기화·실제 main 장벽의 로컬 검사를
 통과했다. source-JIT와 target의 전체 기능·positive CPU·원격 CI 성공은 새
-작업에서 확인한다. P4 영수증이나 자원 필드를 P28로 변환할 수 없다.
+26-job 작업001800e에서 확인했다. P4 영수증이나 자원 필드를 P28로 변환할 수 없다.
 
 seed 전송 한도128MiB·개별32MiB·manifest4MiB·총항목20000은 유지한다.
 확장 합계만 정확한 A–F×P4/P28의12개 Rove 조합에서256MiB를 허용하며 그 밖의
 합법 cohort는128MiB다. peer P28은 이 권한을 만들지 않는다. producer·inspector·
 materializer·revalidator·bootstrap은 manifest와 전체 크기를 payload 읽기 전에
 대조한다. 실제 새26-job 원본으로 총량을 재측정한 뒤 seed를 준비해야 한다.
+
+001800e 원본24개 artifact는25,236,455 B이며 서버 digest와 길이가 일치한다.
+실제 입력 inventory는 manifest 포함 예정6177항목·확장230,224,011 B·manifest
+1,952,721 B로 한도 이내다. 그러나 최초 seed.prepare는 directory+build.json pin인
+target reference의 source_build를 일반 파일 pin으로 오인해 출력 생성 전에
+실패했다. 실제 파일 참조1982개와 directory 참조60개를 구분하고, exact target
+format·계열·프로필·CI 문맥·봉인된 build root/manifest를 확인하는 좁은 수정이
+필요하다. 원본 영수증·경로·핀은 바꾸지 않는다. seed producer는 실제 Git 소스와
+결속하므로 수정 뒤 새 commit/CI 원본 cohort에서 prepare→inspect→materialize→
+revalidate를 다시 수행한다. 이전 cohort에 수정 helper를 끼워 넣지 않는다.
+
+현재 COMPOUND E의 봉인된 main.c7815 B는 기존 checker 그대로 새 UBSan/C
+추론 검사를 통과했다. 기존 실제 데이터의32 FEN과 합성 상태를 구분하며 optimizer
+step0·초기 float/integer SHA는 유지한다. 별도로 실제 parser 재현에서 자동5회
+반복·75수 종료 후 계속 두는 게임을 기존 intake가 수용함을 확인했다. 매 수 전에
+is_game_over(claim_draw=False)를 검사하는 수정·경계 테스트·새 immutable corpus와
+step0 준비를 수행한다. 청구 가능한3회 반복·50수를 자동 종료로 바꾸지 않는다.
+
+다음 실행 순서는 공통 원본/소스 동결 후 병렬 분기와 실제 공유 자원 대기를 따른다.
+
+```mermaid
+flowchart TD
+  P[001800e CI 원본·실패 입력 동결] --> R[seed typed source_build 수정·새 OIDC 호출부]
+  P --> D[D no-TID 새 admission·규칙·P4 실행과 후속 축약]
+  P --> M[E19 종료 가드·새 실제 corpus·step0]
+  R --> C[검토·통합 commit·새 정확한 CI cohort]
+  D --> C
+  M --> C
+  C --> S[실제 seed 생성·복원·재검증]
+  S --> G{Advisor·권한·AMI·가격·capacity gate}
+  G --> H[승인 범위 AWS preflight·NUMA·대용량 TT]
+  H --> L[적격 선수만 TEST 부분 리그]
+  D --> A[최종 감사]
+  L --> A
+  M --> A
+```
+
+CI 전 소스/국소 검증 창은 공통 준비 후 max(seed/호출부, D 검증, E19 재생성)와
+공유 CPU/통합 대기 및 최종 감사를 더해 산정한다. 각 작업 시간을 합산하지 않는다.
+다음 소스 통합과 seed 재시도만의 계획 범위는 공통 준비0.25–0.5h, 병렬 분기의
+seed/OIDC 호출부2–6h·no-TID 검증1–3h·E19 가드/재생성0.25–1h, 새 CI0.25–0.75h,
+seed 생성/복원0.25–1h, 공유 자원 대기0.5–1.5h, 감사0.5–1h다. 따라서 다음
+검증 체크포인트는0.25+max(2,1,0.25)+0.25+0.25+0.5+0.5=3.75h에서
+0.5+max(6,3,1)+0.75+1+1.5+1=10.75h, 약4–11h의 추정이다. 이는 D4K 달성·AWS
+실행·리그 완주 시간을 포함하지 않으며 새 실패의 실제 대기는 다시 반영한다.
+앞선 약25–60h는 전체 다음 검증 창의 범위이며, 남은 D4K 수렴이나 외부 Advisor·
+대회 운영자 응답까지 완료된다는 약속이 아니다. 실제 AWS 실행은 최신<5% 조건이
+충족될 때까지 대기하며 대기 시간을 내부 구현 시간에 숨기지 않는다.
