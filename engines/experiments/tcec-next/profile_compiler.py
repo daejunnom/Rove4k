@@ -29,6 +29,7 @@ ROOT = HERE.parents[2]
 SELF = "engines/experiments/tcec-next/profile_compiler.py"
 VERIFY_PATH = "engines/experiments/tcec-next/profile_verify.py"
 HOST_PATH = "engines/experiments/tcec-scope/build.py"
+INPUT_PATH = "engines/scripts/production_input.py"
 SOURCE_PROVENANCE = "engines/experiments/tcec-next/target_runtime.py"
 HOST_SHA = "5fa10c6f8f032be374bf3a86bbe6ca558076630a2cc3170b41890f691688f563"
 SCHEMA = "rove4k.profile-compiler.v1"
@@ -60,8 +61,14 @@ def load(name, path):
     return result
 
 
+INPUT = (sys.modules.get("rove4k_production_input") or
+         load("rove4k_production_input", ROOT / INPUT_PATH)).cached_module()
+require(Path(INPUT.__file__).absolute() == (ROOT / INPUT_PATH).absolute(),
+        "compiler input reader is outside the current source checkout")
+
+
 def normalized(path):
-    data = Path(path).read_bytes().replace(b"\r\n", b"\n")
+    data = regular(path, limit=16 << 20).replace(b"\r\n", b"\n")
     require(b"\r" not in data, "lone CR in named tool source")
     return data
 
@@ -72,11 +79,8 @@ def executing_source(data):
     return data
 
 
-def regular(path, *, limit=64 << 20):
-    path = Path(path)
-    require(path.is_absolute() and not path.is_symlink(), "absolute non-link input required")
-    require(path.is_file() and path.stat().st_size <= limit, "bounded regular input required")
-    return path.read_bytes()
+def regular(path, *, limit=64 << 20, allow_hardlinks=False):
+    return INPUT.read_regular(path, limit=limit, allow_hardlinks=allow_hardlinks)
 
 
 def sdk_descriptor(compiler, audit_raw, smoke_raw=None, *, audit_sha256):
@@ -95,7 +99,7 @@ def sdk_descriptor(compiler, audit_raw, smoke_raw=None, *, audit_sha256):
         for row in audit["providers"].values():
             path = Path(row["path"]).resolve()
             require(root in path.parents and str(path) == row["resolved"] and
-                    pin(regular(path))["sha256"] == row["sha256"],
+                    pin(regular(path, allow_hardlinks=True))["sha256"] == row["sha256"],
                     "relocated SDK provider changed or escaped")
         smoke = {"complete": audit.get("complete"), "wrapper": audit["wrapper"]["path"],
                  "wrapper_sha256": audit["wrapper"]["sha256"],
@@ -112,15 +116,15 @@ def sdk_descriptor(compiler, audit_raw, smoke_raw=None, *, audit_sha256):
     require(audit["wrapper"]["path"] == str(compiler) == smoke["wrapper"],
             "target compiler is outside the audited SDK context")
     require(audit["wrapper"]["sha256"] == smoke["wrapper_sha256"] ==
-            pin(regular(compiler))["sha256"], "SDK compiler wrapper identity differs")
+            pin(regular(compiler, allow_hardlinks=True))["sha256"], "SDK compiler wrapper identity differs")
     require("11.4.0" in smoke["wrapper_version"], "provisional GCC 11.4 SDK required")
     driver = Path(smoke["cc"]).resolve()
     require(root in driver.parents and driver.is_file(), "SDK compiler driver escaped its context")
     return {"kind": "audited-jammy-sdk", "audit": pin(audit_raw), "smoke": smoke_pin,
             "smoke_is_in_audit": combined,
             "root": str(root), "input_roots": [str(root)],
-            "wrapper": {"path": str(compiler), **pin(regular(compiler))},
-            "driver": {"path": str(driver), **pin(regular(driver))},
+            "wrapper": {"path": str(compiler), **pin(regular(compiler, allow_hardlinks=True))},
+            "driver": {"path": str(driver), **pin(regular(driver, allow_hardlinks=True))},
             "scope": "audited Jammy compiler/sysroot; actual host runtime recorded separately"}
 
 
@@ -132,7 +136,7 @@ def ubuntu22_host(fields, libc):
 
 def system_descriptor(compiler):
     release_path = Path("/etc/os-release").resolve()
-    release = regular(release_path, limit=16384)
+    release = regular(release_path, limit=16384, allow_hardlinks=True)
     fields = {}
     for line in release.decode().splitlines():
         if "=" in line:
@@ -145,7 +149,7 @@ def system_descriptor(compiler):
     ubuntu22_host(fields, libc)
     compiler = compiler.resolve()
     require(Path("/usr/bin") in compiler.parents, "system compiler must be an installed /usr/bin tool")
-    binary = {"path": str(compiler), **pin(regular(compiler))}
+    binary = {"path": str(compiler), **pin(regular(compiler, allow_hardlinks=True))}
     return {"kind": "ubuntu22-system", "root": "/", "input_roots": ["/usr", "/lib", "/lib64", "/bin"],
             "wrapper": binary, "driver": binary, "os_release": {**fields, **pin(release)},
             "libc": libc, "scope": "actual Ubuntu 22.04 system compiler; engine runtime remains separate"}
@@ -156,7 +160,7 @@ def within(path, roots):
 
 
 def record_input(inputs, path):
-    observed = pin(regular(path))
+    observed = pin(regular(path, allow_hardlinks=True))
     require(str(path) not in inputs or inputs[str(path)] == observed,
             "compiler input changed during discovery or compilation")
     inputs[str(path)] = observed
@@ -189,6 +193,7 @@ def source_provenance(sources, verify, *, bundle, seal):
     require(len(sources) == 1, "runtime source provenance selects one explicit family/profile")
     require(bundle.name == "source-bundle.zip" and seal.name == "source-seal.json",
             "explicit source-bundle.zip and source-seal.json inputs required")
+    reader_source = INPUT.source_identity()
     helper_source = normalized(ROOT / SOURCE_PROVENANCE)
     module = load("profile_compiler_source_provenance", ROOT / SOURCE_PROVENANCE)
     require(compile(helper_source, str(module.__file__), "exec", dont_inherit=True) == module._EXECUTING_CODE,
@@ -202,7 +207,8 @@ def source_provenance(sources, verify, *, bundle, seal):
         require(path.stat().st_nlink == 1, "source provenance input cannot have a mutable hard-link alias")
     raw_bundle, raw_seal = regular(bundle, limit=128 << 20), regular(seal, limit=16 << 20)
     expected = {"source_context": expected_ci.to_record(), "source_bundle": pin(raw_bundle),
-                "source_seal": pin(raw_seal), "source_provenance_tools": {SOURCE_PROVENANCE: pin(helper_source)}}
+                "source_seal": pin(raw_seal), "source_provenance_tools": {
+                    SOURCE_PROVENANCE: pin(helper_source), INPUT_PATH: pin(reader_source)}}
     for selected in sources:
         require(selected.admission is not None, "source provenance requires the original strict admission")
         observed = module.source_bundle_binding(selected.admission, selected.build, verify=verify,
@@ -211,11 +217,12 @@ def source_provenance(sources, verify, *, bundle, seal):
                 and {key: observed[key] for key in expected} == expected,
                 "source provenance does not bind the live context/raw inputs/helper")
     require(regular(bundle, limit=128 << 20) == raw_bundle and regular(seal, limit=16 << 20) == raw_seal
-            and normalized(ROOT / SOURCE_PROVENANCE) == helper_source,
+            and normalized(ROOT / SOURCE_PROVENANCE) == helper_source
+            and INPUT.source_identity() == reader_source,
             "source provenance input/helper changed during capture")
     require(module.CIContext.from_environment().to_record() == expected_ci.to_record(),
             "live source CI context changed during capture")
-    return observed, {SOURCE_PROVENANCE: helper_source}
+    return observed, {SOURCE_PROVENANCE: helper_source, INPUT_PATH: reader_source}
 
 
 def query_programs(compiler, *, host, cwd, system, input_roots, consumed, recheck=False):
@@ -389,6 +396,7 @@ def main():
     parser.add_argument("--source-seal", type=Path, help="optional paired live-CI source-seal.json for system22")
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
+    reader_source = INPUT.source_identity()
     executing = executing_source(normalized(Path(__file__)))
     provenance_enabled = source_port_enabled(args.source_bundle, args.source_seal, system=args.ubuntu22_system)
     require(sys.platform == "linux" and platform.machine() == "x86_64", "Linux x86-64 compiler host required")
@@ -415,11 +423,14 @@ def main():
     verify = load("profile_compiler_verify", ROOT / VERIFY_PATH)
     sources = [admit(path, verify) for path in args.build]
     require(len({(s.family, s.profile) for s in sources}) == len(sources), "duplicate family/profile compiler input")
-    tools = {SELF: executing, **{name: normalized(ROOT / name) for name in (VERIFY_PATH, HOST_PATH)}}
+    tools = {SELF: executing, **{name: normalized(ROOT / name) for name in (VERIFY_PATH, HOST_PATH)},
+             INPUT_PATH: reader_source}
     verify.executing_source(tools[VERIFY_PATH])
     require(pin(tools[HOST_PATH])["sha256"] == HOST_SHA, "bounded command owner differs")
     provenance, provenance_tools = (source_provenance(sources, verify,
         bundle=args.source_bundle, seal=args.source_seal) if provenance_enabled else ({}, {}))
+    require(all(name not in tools or tools[name] == data for name, data in provenance_tools.items()),
+            "source provenance reader differs from the compiler tool snapshot")
     out.mkdir()
     for name, data in {**tools, **provenance_tools}.items():
         target = out / "tools" / name
@@ -482,7 +493,7 @@ def main():
                     dep = directory / ("unit-" + name + ".d")
                     host.run([compiler, *selected.flags, "-M", "-MF", dep, frozen / name], cwd=directory,
                              kind="D-dependencies-" + name)
-                    for path in dependency_paths(dep.read_bytes(), owned_root=directory,
+                    for path in dependency_paths(regular(dep, limit=16 << 20), owned_root=directory,
                                                  input_roots=input_roots):
                         if within(path, input_roots):
                             record_input(sdk_files, path)
@@ -505,7 +516,7 @@ def main():
                 command += ["-MD", "-MF", str(target / "dependencies.d"), "-Wl,-t"]
                 trace = host.run(command, cwd=target, kind=selected.family + "-" + attempt, data=stdin)
                 image = regular(target / "x")
-                dependencies = dependency_paths((target / "dependencies.d").read_bytes(),
+                dependencies = dependency_paths(regular(target / "dependencies.d", limit=16 << 20),
                     input_roots=input_roots, owned_root=directory)
                 for line in trace.decode().splitlines():
                     candidate = Path(line.strip())
@@ -535,9 +546,10 @@ def main():
             for name, data in selected.files.items():
                 source_path = selected.build / ("shipping-inputs" if selected.family == "D" else "") / name
                 require(regular(source_path) == data, "actual production C input changed during compilation")
-        require(all(normalized(ROOT / name) == data for name, data in tools.items()),
+        require(INPUT.source_identity() == tools[INPUT_PATH] and
+                all(normalized(ROOT / name) == data for name, data in tools.items()),
                 "compiler verifier tools changed during execution")
-        require(all(pin(regular(Path(path))) == expected for path, expected in sdk_files.items()),
+        require(all(pin(regular(Path(path), allow_hardlinks=True)) == expected for path, expected in sdk_files.items()),
                 "SDK consumed input changed after compilation")
         require(current_context() == sdk,
                 "audited SDK descriptor changed during compilation")
@@ -548,7 +560,7 @@ def main():
                 bundle=args.source_bundle, seal=args.source_seal)
             require(after_provenance == provenance and after_tools == provenance_tools,
                     "source provenance changed between before/post compilation")
-            require(all(pin(regular(Path(path))) == expected for path, expected in sdk_files.items()),
+            require(all(pin(regular(Path(path), allow_hardlinks=True)) == expected for path, expected in sdk_files.items()),
                     "compiler consumed input changed during final provenance observation")
             report["compiler_programs_rechecked"] = True
             report["source_provenance_rechecked"] = True

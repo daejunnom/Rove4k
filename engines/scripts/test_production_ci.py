@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import sys
 import tempfile
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
@@ -46,6 +47,160 @@ class ProductionCIBoundaries(unittest.TestCase):
         with patch.object(CI, "HOST_SHA", "0" * 64):
             with self.assertRaisesRegex(ValueError, "bounded owned command helper differs"):
                 CI.pipeline_inputs(plan, own)
+
+    def test_bundle_and_target_input_gates_keep_the_executing_reader_boundary(self):
+        own = CI.normalized(CI.ROOT / CI.SELF)
+        verify = CI.load("production_ci_test_bundle_verify", CI.ROOT / CI.NEXT / "profile_verify.py")
+        reader = verify.input_reader()
+        root = Path(tempfile.gettempdir()).resolve()
+        for family in "ABCDEF":
+            plans = (CI.pipeline_plan(family, root / ("ci-export-" + family)),
+                     CI.target_plan(family, root / ("ci-target-" + family), root / "sealed/artifact",
+                                    root / "source-bundle.zip", root / "source-seal.json"))
+            for plan in plans:
+                with self.subTest(family=family, plan=type(plan).__name__), \
+                        patch.object(reader, "read_regular", wraps=reader.read_regular) as reads:
+                    inputs = CI.pipeline_inputs(plan, own, verify=verify, reader=reader, transport=object())
+                    self.assertTrue(reads.called)
+                    for name in (CI.TRANSPORT, CI.NEXT + "target_runtime.py",
+                                 CI.NEXT + "profile_compiler.py", verify.INPUT_READER):
+                        self.assertIn(name, inputs)
+                    self.assertEqual(inputs[verify.INPUT_READER], reader.source_identity())
+                    self.assertEqual(CI.pin(inputs[CI.HOST])["sha256"], CI.HOST_SHA)
+        with patch.object(reader, "source_identity", return_value=b"changed executing reader"):
+            with self.assertRaisesRegex(ValueError, "input reader snapshot differs"):
+                CI.pipeline_inputs(plans[0], own, verify=verify, reader=reader, transport=object())
+
+    def test_requested_export_failure_retains_functional_evidence_but_fails_overall(self):
+        with tempfile.TemporaryDirectory(prefix="rove-ci-export-failure-") as directory:
+            root = Path(directory)
+            raw = b'{"complete":true}\n'
+            report = {**owner_report(), "functional_complete": True}
+            calls = []
+            def write(*arguments):
+                calls.append("exclusive-preimage")
+                raise OSError("preimage creation failed")
+            transport = SimpleNamespace(_write_new=write,
+                export_bundle=lambda *a, **k: self.fail("failed preimage must prevent sealing"))
+            reader = SimpleNamespace(read_regular=lambda path, **k: raw)
+            with self.assertRaisesRegex(OSError, "preimage creation failed"):
+                CI.export_closed_pipeline(report, root, family="D", runner_temp=root.parent,
+                    verify=object(), target=object(), transport=transport, ci_context=object(),
+                    reader=reader, inputs={}, save=lambda: calls.append("saved-failure"))
+            self.assertEqual(calls, ["exclusive-preimage", "saved-failure"])
+            self.assertTrue(report["functional_complete"])
+            self.assertFalse(report["complete"])
+            self.assertEqual(report["export_failure"]["type"], "OSError")
+            self.assertNotIn("source_export", report)
+            report = {**owner_report(), "functional_complete": True,
+                      "host_cleanup": {"unsettled_commands": 1, "errors": []}}
+            with self.assertRaisesRegex(ValueError, "closed successful"):
+                CI.export_closed_pipeline(report, root, family="A", runner_temp=root.parent,
+                    verify=object(), target=object(), transport=transport, ci_context=object(),
+                    reader=reader, inputs={}, save=lambda: None)
+
+    def test_target_plan_consumes_sealed_source_without_running_factory_or_native13(self):
+        root = Path(tempfile.gettempdir()).resolve()
+        for family in "ABCDEF":
+            plan = CI.target_plan(family, root / "target", root / "original-source/artifact",
+                                  root / "download/source-bundle.zip", root / "download/source-seal.json")
+            self.assertEqual([stage.name for stage in plan.stages], ["compiler", "rules", "runtime"])
+            compiler, _, runtime = [stage.command for stage in plan.stages]
+            self.assertIn("--ubuntu22-system", compiler)
+            self.assertEqual(compiler[compiler.index("--compiler") + 1], "/usr/bin/cc")
+            self.assertFalse(any("profile_build.py" in part or "test_startup.py" in part for stage in plan.stages for part in stage.command))
+            self.assertIn("--target-compiler-receipt", runtime)
+            self.assertIn("--source-bundle", runtime)
+            self.assertIn("--source-seal", runtime)
+            if family == "D":
+                self.assertEqual(runtime[runtime.index("--candidate") + 1], "D-source-jit")
+                self.assertNotIn(CI.D_CANDIDATE, runtime)
+
+    def test_target_environment_requires_system_resolution_without_printing_values(self):
+        CI.target_environment({"PATH": "/usr/bin:/bin", "VIRTUAL_ENV": "/tmp/owned-venv"})
+        for environment in ({"PATH": "/tmp/venv/bin:/usr/bin:/bin"},
+                            {"PATH": "/usr/bin:/bin", "LD_AUDIT": ""},
+                            {"PATH": "/usr/bin:/bin", "CPATH": "not-printed"},
+                            {"PATH": "/usr/bin:/bin", "CC": "not-printed"}):
+            with self.assertRaisesRegex(ValueError, "sanitized system PATH") as error:
+                CI.target_environment(environment)
+            self.assertNotIn("not-printed", str(error.exception))
+
+    def test_target_system_compiler_gate_is_separate_from_default13(self):
+        banner = b"cc (Ubuntu 11.4.0-1ubuntu1) 11.4.0\n"
+        self.assertEqual(CI.target_compiler_record(banner, b"11.4.0\n")["full_version"], "11.4.0")
+        with self.assertRaisesRegex(ValueError, "separate pipeline"):
+            CI.compiler_record(banner, b"11.4.0\n")
+        with self.assertRaisesRegex(ValueError, "system cc11.4.0"):
+            CI.target_compiler_record(b"cc (Ubuntu 13.3.0) 13.3.0\n", b"13.3.0\n")
+
+    def test_owned_driver_and_tests_parse_with_python310_grammar(self):
+        import ast
+        for path in (Path(CI.__file__), Path(__file__)):
+            ast.parse(path.read_text(), filename=str(path), feature_version=(3, 10))
+
+    def test_target_inspector_keeps_cc11_image_separate_from_original_cc13_contract(self):
+        with tempfile.TemporaryDirectory(prefix="rove-ci-target-reference-") as directory:
+            root = Path(directory)
+            plan = CI.target_plan("A", root, root / "original/artifact",
+                                  root / "source-bundle.zip", root / "source-seal.json")
+            for child in (root / "compiler", root / "runtime"):
+                child.mkdir()
+            old = {"native_bytes": 32, "native_sha256": "a" * 64}
+            target_pin = {"bytes": 40, "sha256": "b" * 64}
+            record = {"family": "A", "profile": "test-p4", "factory_replayed_on_target": False,
+                      "target_native": target_pin}
+            calls = []
+            class Reference:
+                native_pin = target_pin
+                def to_record(self):
+                    return record
+                def revalidate(self, **keywords):
+                    calls.append("revalidate")
+            def validate(*arguments, **keywords):
+                calls.append("validated-object")
+                self.assertEqual(arguments[1], plan.build)
+                self.assertEqual(keywords["source_bundle"], plan.bundle)
+                self.assertEqual(keywords["source_seal"], plan.seal)
+                return Reference()
+            target = SimpleNamespace(COMPILER_FORMAT="compiler-fixture", validate_target_runtime=validate)
+            checks = dict.fromkeys(CI.QUALIFICATION_CHECKS, True)
+            checks["placement"] = False
+            qualified = {"functional_runtime_complete": True, "target_compiler_bound": True,
+                "target_runtime_reference": record, "checks": checks, "complete": False,
+                "failures": ["placement"], "artifact": {"native_sha256": target_pin["sha256"]}, "observations": {}}
+            def check(*arguments, **keywords):
+                self.assertIsInstance(keywords["target_reference"], Reference)
+                calls.append("runtime-rechecked")
+                return qualified
+            reads = []
+            def read_regular(path, *, limit):
+                reads.append((path, limit))
+                return path.read_bytes()
+            verify = SimpleNamespace(qualification_record=check,
+                                     input_reader=lambda: SimpleNamespace(read_regular=read_regular))
+            inspect = CI.target_inspector(plan, verify, SimpleNamespace(expected=old), target, object())
+            compiler = owner_report()
+            compiler.update(format="compiler-fixture", engine_executed=False, large_TT_allocated=False)
+            (root / "compiler/compiler.json").write_text(json.dumps(compiler))
+            runtime = {"target_runtime_reference": record, "target_context_before_post_unchanged": True,
+                       "expected_contract": old, "runtime_native_contract": target_pin,
+                       "counts": {"GO": 24, "legal_bestmoves": 22}}
+            (root / "runtime/runtime.json").write_text(json.dumps(runtime))
+            (root / "runtime/qualification.json").write_text(json.dumps(qualified))
+            inspect(plan, plan.stages[0])
+            accepted = inspect(plan, plan.stages[-1])
+            self.assertEqual(accepted["artifact"]["native_sha256"], target_pin["sha256"])
+            self.assertFalse(accepted["factory_replayed_on_target"])
+            self.assertIn("revalidate", calls)
+            self.assertTrue(reads)
+            self.assertTrue(all(limit == 64 << 20 for _, limit in reads))
+            for field, value in (("runtime_native_contract", {"bytes": old["native_bytes"], "sha256": old["native_sha256"]}),
+                                 ("expected_contract", {"native_bytes": 40, "native_sha256": target_pin["sha256"]})):
+                changed = {**runtime, field: value}
+                (root / "runtime/runtime.json").write_text(json.dumps(changed))
+                with self.subTest(field=field), self.assertRaisesRegex(ValueError, "original source"):
+                    inspect(plan, plan.stages[-1])
 
     def test_plans_keep_six_families_and_fixed_profiles_separate(self):
         root = Path(tempfile.gettempdir()).resolve()

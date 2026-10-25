@@ -4,6 +4,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import lzma
+import os
 from pathlib import Path
 import struct
 import sys
@@ -28,6 +29,41 @@ def admitted(profile_id="test-p4", family="A"):
 
 
 class ProfileRuntimeAdmission(unittest.TestCase):
+    def setUp(self):
+        if os.name != "posix":
+            # These are pure Windows admission fixtures, not a claim that the
+            # production POSIX no-follow transport runs on Windows.
+            def local_read(path, *, limit, allow_hardlinks=False):
+                data = Path(path).read_bytes()
+                VERIFY.require(len(data) <= limit, "fixture extent exceeds bound")
+                return data
+            fixture = patch.object(VERIFY, "input_reader", return_value=types.SimpleNamespace(
+                read_regular=local_read))
+            fixture.start()
+            self.addCleanup(fixture.stop)
+
+    def test_artifact_reader_receives_the_exact_admitted_extent(self):
+        with tempfile.TemporaryDirectory(prefix="rove4k-input-bound-") as temporary:
+            root = Path(temporary)
+            (root / "candidate").write_bytes(b"actual")
+            calls = []
+            def read(path, *, limit):
+                calls.append((path, limit))
+                return b"actual"
+            with patch.object(VERIFY, "input_reader", return_value=types.SimpleNamespace(read_regular=read)):
+                self.assertEqual(VERIFY.checked_artifact(root, "candidate", VERIFY.pin(b"actual")), b"actual")
+                self.assertEqual(calls, [(root / "candidate", 6)])
+                with self.assertRaisesRegex(ValueError, "artifact identity differs"):
+                    VERIFY.checked_artifact(root, "candidate", VERIFY.pin(b"fake!!"))
+
+    def test_reader_dependency_is_derived_from_the_frozen_qualifier(self):
+        self.assertFalse(VERIFY.runtime_reader_required(b'CLASS = "legacy"\n'))
+        self.assertTrue(VERIFY.runtime_reader_required(PATH.read_bytes()))
+        for source in (b'INPUT_READER = "different.py"\n', b'INPUT_READER = get_reader()\n',
+                       b'INPUT_READER = "engines/scripts/production_input.py"\nINPUT_READER = "again"\n'):
+            with self.subTest(source=source), self.assertRaises(ValueError):
+                VERIFY.runtime_reader_required(source)
+
     def test_target_image_is_separate_from_the_original_producer_expectation(self):
         from dataclasses import replace
         with tempfile.TemporaryDirectory(prefix="rove4k-target-image-") as temporary:

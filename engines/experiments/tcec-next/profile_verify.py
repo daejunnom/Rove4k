@@ -9,6 +9,7 @@ a large TT. Historical literal verifier admissions are not modified.
 from __future__ import annotations
 
 import argparse
+import ast
 from dataclasses import dataclass
 from hashlib import sha256
 import importlib.util
@@ -42,6 +43,8 @@ SUPPORT = {
 _CONSTRUCTING = False
 _DEFERRED = None
 _TARGET_HELPER = None
+_INPUT_HELPER = None
+INPUT_READER = "engines/scripts/production_input.py"
 TARGET_SUPPORT = ("engines/experiments/tcec-next/target_runtime.py",
                   "engines/experiments/tcec-next/profile_compiler.py")
 
@@ -73,8 +76,33 @@ def contracts():
     return load("profile_runtime_contracts", ROOT / "engines/scripts/production.py")
 
 
+def input_reader():
+    """One shared reader for the new artifact/target admission boundaries."""
+    global _INPUT_HELPER
+    if _INPUT_HELPER is None:
+        _INPUT_HELPER = sys.modules.get("rove4k_production_input")
+        if _INPUT_HELPER is None:
+            _INPUT_HELPER = load("rove4k_production_input", ROOT / INPUT_READER)
+        require(Path(_INPUT_HELPER.__file__).resolve() == ROOT / INPUT_READER,
+                "shared input reader came from another source path")
+        _INPUT_HELPER = _INPUT_HELPER.cached_module()
+    return _INPUT_HELPER
+
+
 def _json_equal(left, right):
     return json.dumps(left, sort_keys=True) == json.dumps(right, sort_keys=True)
+
+
+def runtime_reader_required(qualifier_source):
+    """Derive helper ownership from the frozen qualifier, including old receipts."""
+    declarations = []
+    for node in ast.parse(qualifier_source).body:
+        if isinstance(node, ast.Assign) and any(isinstance(target, ast.Name)
+                and target.id == "INPUT_READER" for target in node.targets):
+            require(isinstance(node.value, ast.Constant), "frozen reader declaration must be literal")
+            declarations.append(node.value.value)
+    require(declarations in ([], [INPUT_READER]), "frozen runtime reader declaration differs")
+    return bool(declarations)
 
 
 def artifact_file(root, name):
@@ -96,8 +124,8 @@ def checked_artifact(root, name, expected):
     path = artifact_file(root, name)
     require(type(expected.get("bytes")) is int and 0 <= expected["bytes"] <= 16 << 20,
             "artifact byte extent is not admitted")
-    require(path.stat().st_size == expected["bytes"], "artifact size differs: " + str(name))
-    data = path.read_bytes()
+    data = input_reader().read_regular(path, limit=expected["bytes"])
+    require(len(data) == expected["bytes"], "artifact size differs: " + str(name))
     require(pin(data) == expected, "artifact identity differs: " + str(name))
     return data
 
@@ -113,7 +141,7 @@ def source_bytes(relative, expected=None):
     logical = api._logical_path(relative)
     require(logical.startswith("engines/"), "verifier input must be an engine source")
     path = artifact_file(ROOT, logical)
-    data = path.read_bytes().replace(b"\r\n", b"\n")
+    data = input_reader().read_regular(path, limit=16 << 20).replace(b"\r\n", b"\n")
     require(b"\r" not in data, "lone CR in verifier source")
     if expected is not None:
         require(pin(data) == expected, "current source differs from frozen input: " + relative)
@@ -734,6 +762,7 @@ def run_runtime(admitted, build, out, limits, *, target_reference=None):
     out.mkdir()
     support_inputs = dict(SUPPORT)
     support_inputs[own_path] = pin(own_source)["sha256"]
+    support_inputs[INPUT_READER] = pin(input_reader().source_identity())["sha256"]
     report["runtime_support"] = support_inputs
     reference_support = {}
     if reference_record is not None:
@@ -924,13 +953,20 @@ def qualification_record(admitted, build, runtime_path, *, rules_path=None, arti
                 "target compiler/source context was not revalidated after execution")
     support = observed.get("runtime_support", {})
     own = "engines/experiments/tcec-next/profile_verify.py"
-    require(set(support) == set(SUPPORT) | {own}
+    require(set(support) in (set(SUPPORT) | {own}, set(SUPPORT) | {own, INPUT_READER})
             and all(support[name] == digest for name, digest in SUPPORT.items()),
             "runtime support contract differs")
+    frozen_qualifier = None
     for name, digest in support.items():
         contracts()._logical_path(name)
         data = artifact_file(runtime_root, "inputs/" + name).read_bytes()
         require(pin(data)["sha256"] == digest, "frozen runtime support differs: " + name)
+        if name == own:
+            frozen_qualifier = data
+    # Historical receipts retain their old qualifier source. A new qualifier
+    # cannot omit the helper it actually executed from its support closure.
+    require((INPUT_READER in support) == runtime_reader_required(frozen_qualifier),
+            "runtime input reader support is missing or inconsistent with its frozen qualifier")
     reference_support = observed.get("target_reference_support", {})
     if reference_record is not None:
         expected_support = {TARGET_SUPPORT[0]: reference_record["reference_validator"]["sha256"],

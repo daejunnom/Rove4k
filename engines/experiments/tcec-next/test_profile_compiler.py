@@ -50,6 +50,55 @@ def elf(*, version="GLIBC_2.34", load_flags=5, stack_flags=6,
 
 
 class TargetCompilerBoundaries(unittest.TestCase):
+    def setUp(self):
+        if TARGET.os.name != "posix":
+            # Windows exercises the pure compiler policies with trusted local
+            # fixtures only. The actual no-follow reader runs in POSIX tests.
+            def fixture_read(path, *, limit, allow_hardlinks=False):
+                with Path(path).open("rb") as stream:
+                    data = stream.read(limit + 1)
+                if len(data) > limit:
+                    raise ValueError("trusted fixture exceeds its explicit bound")
+                return data
+            scoped = patch.object(TARGET.INPUT, "read_regular", side_effect=fixture_read)
+            scoped.start()
+            self.addCleanup(scoped.stop)
+
+    def test_compiler_reads_delegate_exact_limits_and_hardlink_policy(self):
+        path = HERE / "fixture.c"
+        with patch.object(TARGET.INPUT, "read_regular", return_value=b"line\r\n") as read:
+            self.assertEqual(TARGET.regular(path), b"line\r\n")
+            read.assert_called_with(path, limit=64 << 20, allow_hardlinks=False)
+            self.assertEqual(TARGET.regular(path, limit=16384, allow_hardlinks=True), b"line\r\n")
+            read.assert_called_with(path, limit=16384, allow_hardlinks=True)
+            self.assertEqual(TARGET.normalized(path), b"line\n")
+            read.assert_called_with(path, limit=16 << 20, allow_hardlinks=False)
+            read.return_value = b"lone\r"
+            with self.assertRaisesRegex(ValueError, "lone CR"):
+                TARGET.normalized(path)
+
+    @unittest.skipUnless(TARGET.os.name == "posix", "actual POSIX input reader required")
+    def test_installed_hardlinks_are_explicit_and_never_tool_evidence(self):
+        with tempfile.TemporaryDirectory(prefix="rove4k-compiler-hardlink-") as temporary:
+            path = Path(temporary).resolve() / "installed-header.h"
+            path.write_bytes(b"installed input")
+            TARGET.os.link(path, path.with_name("second-name.h"))
+            with self.assertRaisesRegex(ValueError, "bounded ordinary"):
+                TARGET.regular(path)
+            with self.assertRaisesRegex(ValueError, "bounded ordinary"):
+                TARGET.normalized(path)
+            self.assertEqual(TARGET.regular(path, allow_hardlinks=True), b"installed input")
+            inputs = {}
+            TARGET.record_input(inputs, path)
+            self.assertEqual(inputs[str(path)], TARGET.pin(b"installed input"))
+
+    def test_shared_reader_source_is_bound_to_its_executing_code(self):
+        source = TARGET.INPUT.source_identity()
+        self.assertEqual(source, TARGET.normalized(TARGET.ROOT / TARGET.INPUT_PATH))
+        with patch.object(TARGET.INPUT, "read_regular", return_value=source + b"\nchanged = True\n"):
+            with self.assertRaisesRegex(ValueError, "source differs from its executing code"):
+                TARGET.INPUT.source_identity()
+
     def clean_source_environment(self, helper):
         # Source-port fixtures control their compiler context independently of
         # setup-python or a developer shell. Explicit injection tests run inside
@@ -80,7 +129,8 @@ class TargetCompilerBoundaries(unittest.TestCase):
         source = TARGET.normalized(HERE / "target_runtime.py")
         record = {"source_context": ci.to_record(), "source_bundle": TARGET.pin(bundle.read_bytes()),
                   "source_seal": TARGET.pin(seal.read_bytes()),
-                  "source_provenance_tools": {TARGET.SOURCE_PROVENANCE: TARGET.pin(source)},
+                  "source_provenance_tools": {TARGET.SOURCE_PROVENANCE: TARGET.pin(source),
+                      TARGET.INPUT_PATH: TARGET.pin(TARGET.INPUT.source_identity())},
                   "source_profile": {"family": "A", "profile": "test-p4"}}
         selected = SimpleNamespace(admission=object(), build=base / "source-build")
         return helper, ci, bundle, seal, record, selected
@@ -95,13 +145,17 @@ class TargetCompilerBoundaries(unittest.TestCase):
                 observed, sources = TARGET.source_provenance([selected], verify, bundle=bundle, seal=seal)
             self.assertEqual(observed, record)
             self.assertEqual(TARGET.pin(sources[TARGET.SOURCE_PROVENANCE]), record["source_provenance_tools"][TARGET.SOURCE_PROVENANCE])
+            self.assertEqual({name: TARGET.pin(data) for name, data in sources.items()},
+                             record["source_provenance_tools"])
             binding.assert_called_once_with(selected.admission, selected.build, verify=verify,
                 source_bundle=bundle, source_seal=seal, expected_ci=ci)
 
     def test_source_port_rejects_missing_live_context_before_reading_raw_artifacts(self):
         helper = TARGET.load("compiler_source_port_missing_context", HERE / "target_runtime.py")
         self.clean_source_environment(helper)
+        helper_source = TARGET.normalized(HERE / "target_runtime.py")
         with patch.object(TARGET, "load", return_value=helper), \
+                patch.object(TARGET, "normalized", return_value=helper_source), \
                 patch.object(helper.CIContext, "from_environment", side_effect=ValueError("live GitHub Actions context required")), \
                 patch.object(TARGET, "regular") as read:
             with self.assertRaisesRegex(ValueError, "live GitHub Actions"):
@@ -112,7 +166,9 @@ class TargetCompilerBoundaries(unittest.TestCase):
     def test_source_port_rejects_compiler_redirection_before_artifact_read(self):
         helper = TARGET.load("compiler_source_port_redirect", HERE / "target_runtime.py")
         self.clean_source_environment(helper)
+        helper_source = TARGET.normalized(HERE / "target_runtime.py")
         with patch.object(TARGET, "load", return_value=helper), \
+                patch.object(TARGET, "normalized", return_value=helper_source), \
                 patch.dict(TARGET.os.environ, {"CPATH": "/not-an-admitted-header-context"}), \
                 patch.object(TARGET, "regular") as read:
             with self.assertRaisesRegex(ValueError, "compiler redirection environment"):
