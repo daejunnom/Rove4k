@@ -73,8 +73,8 @@ phase/B → E19(E만) → spelling → dependency cleanup이다. 역변환은 de
 입력·native·diagnostics를 새 체인에서 재검증한다. 공통화로 제거한 저장소 중복
 바이트와 제출 파일 절감량은 따로 보고한다.
 
-하위 생성기의 spelling·scan 기본값은 control로 유지한다. 유지 CI는 ACEF에 compound,
-A/C에 추가 square-successor, B에 best, D에 control을 명시하며 generation 영수증의 선택과 dependency 정책이 요청과
+하위 생성기의 spelling·scan 기본값은 control로 유지한다. 유지 CI는 ACE에 compound,
+F에 compound-v2, A/C에 추가 square-successor, B에 best, D에 control을 명시하며 generation 영수증의 선택과 dependency 정책이 요청과
 정확히 같아야 다음 단계로 넘어간다. Ubuntu22 소비자는 봉인된 소스를 사용하며
 선택을 다시 하거나 그 호스트에서 source factory를 재실행하지 않는다.
 
@@ -190,9 +190,11 @@ full NBRQ/EP/castling/draw/PVS/QS/세 learner/atomic128 TT를 유지한다. mate
 
 unrenamed hosted-C 시제품은5869 B로4737 B보다1132 B 커서 해당 단일 형태를
 LOSS로 닫았다. 표기/CRT/linker가 다른 비교이므로 hosted 구조 전체의 결론은 아니다.
-32-bit move-effects 구조의 첫 bounded cost는 control native/SINGLE을 재현한 뒤
-candidate 전처리의 legacy-name-capture guard에서 중단됐다. 후보 native/whole은
-미측정이며 크기 LOSS로 표시하지 않는다. 두 helper는 production 선택이 아니다.
+32-bit move-effects 구조의 첫 bounded cost는 숫자 U 접미사를 식별자로 잘못 읽은
+외부 guard에서 중단됐고 그대로 보존했다. 같은 lexer owner를 쓰는 새 caller의
+수정 관측은 native6560/whole4825 B, 기준보다+96/+88 B로 LOSS 종료했다. 두 native/
+whole 재현·역변환·9개 명령의 자연 종료와 독립 감사를 확인했으며 후보 엔진/TT는
+실행하지 않았다. 두 helper는 production 선택이 아니다.
 D는 구조적 압축만 계속하고 기능 축소나 수백 바이트 절감의 미확인 약속으로 목표를
 대체하지 않는다. 기존144ad·fafeb 검토/실패는 자기 소스와 원본 근거로 보존한다.
 
@@ -620,9 +622,9 @@ Node22/24 lifecycle CI가 통과했으며 AWS dispatch는 아직0회다.
 
 ### 현재 체크포인트와 병렬 실행, 2026-10-27
 
-검증된 통합 cohort d954의 engine40332593495는26/26, NVCompact40332593448과
-repository40332593381도 통과했다. 원본 foundation121605606554는513+27+405=
-945개/38suite이며 별도 순수24검사와 native 실패 주입4개를 구분한다. 12개 source와
+검증된 현재 CI head68ae의 engine40351775828는26/26, NVCompact40351775843과
+repository40351775869도 통과했다. 원본 foundation121673457700은542+27+405=
+974개/39suite이며 별도 순수24검사와 native 실패 주입4개를 구분한다. 12개 source와
 12개 독립 Ubuntu22 소비자는 F compound-v2를 포함한다. 이 CI의 D는 유지된 이전
 producer이며 실험4737 B를 실행하거나 상위 인수한 결과가 아니다.
 
@@ -644,34 +646,43 @@ Advanced readiness 구현·실제 동일 프로젝트 읽기·서비스 Validate
 두 객체이며 campaign stack·versioned publication·실제 controller OIDC·EC2·리그는0회다.
 Sydney/단일m6a.48xlarge Spot/192vCPU/누적12instance-hour/총USD120 조건을 유지한다.
 
-새5개 실험 helper·pure29 workflow 연결을 이번 WIP source 체크포인트에 포함한다. 순수 검사의
-로컬 통과·CI 등록·해당 head의 실제 CI 성공은 구분한다. source만 추가한 이 단계는
-production D 선택이나 현재 seed의 source authority를 바꾸지 않는다. D 상위 실제
-검증을 마친 뒤 P28 등 영향 소비자별 인수 조건을 확인하고 생산 선택을 연결한다.
+68ae의5개 실험 helper·pure29는 현재 CI를 통과했다. 후속 P4-only D producer는
+독립 검토·순수7검사·AST32개를 통과했고, 실제 생성은 별도 실험 CI로 연결한다.
+이 workflow는 Ubuntu24에서 pure→단일 native/HC3/source-JIT 재현만 수행하며
+240s 작업+20s cleanup·전체 job10분 상한과 실패 로그/산출물을 보존한다. 기존
+engine26-job/seed 계약·D 기본 선택·상위 기능 자격을 바꾸지 않는다.
 
-compiler/codec는 처음 Windows free379292KiB(15:17UTC), 후속 physical1045776KiB/
-virtual887000KiB에서 대기했다. 이후 physical3338500KiB/virtual3965184KiB로 회복됐고,
-effects의 fresh prestart2254472KiB에서 한 번 실행했다. 첫 후보는 preprocessing guard에서
-중단돼 비용 미완료이며 원 실행·실패를 보존한다. 다른 프로그램·cache·WSL 설정은 변경하지
-않았다. effects 소유 실행을 완전히 반환하고 새 memory admission을 거쳐 upper를 시작한다.
-독립 source 검토·문서·클라우드 CI는 이 공유 실행 구간과 병렬로 진행한다.
+A/E는 실제 선택 payload에 terminal 합법수 owner 공유와 check/gen/eval 지연을
+적용한 별도 helper를 준비했다. 독립 source 검토·순수112검사/전체 역변환을 통과했고
+원시 source는+93/+94 B다. 전체 파일 비용·C 의미·강도는 아직 확인하지 않았다.
+기존 nullable/QS 손실을 이 조합의 성과로 재명명하지 않는다. 최초 pure caller의
+표준 라이브러리 guard 실패와 변환0회를 보존하고 새 caller 결과와 구분한다.
+
+로컬 compiler/codec는 host memory gate를 지키며 effects를 완료·반환했다. 이후
+physical1074384KiB/virtual2477112KiB에서 upper를 시작하지 않았고, 사용자가
+소스·CI 우선을 선택했다. 새 local upper는 보류하며 자동 memory polling/dispatch를
+하지 않는다. 동결된66 source/1163 data/900s 실행기 준비는 보존하고, 추후 새 지시와
+source·memory admission에서 다시 판단한다. 다른 프로그램·cache·WSL 설정은 변경하지
+않는다. 지금은 source 검토·작은 순수 검사·독립 클라우드 CI를 병렬로 진행한다.
 
 ~~~mermaid
 flowchart TD
-  DONE[완료: d954 CI·offline seed·F-v2·main/develop caller] --> PREP[공통 준비: 불변 source·소유자·예산]
-  PREP --> SP[D upper·move-effects 실행기 준비와 정적 검토]
-  PREP --> REUSE[A/B/C/E/F 구조 재사용 검토]
-  PREP --> WIP[실험 helper·pure29·문서 WIP 통합]
-  WIP --> CI[새 exact head CI]
-  SP --> MEM{fresh memory·공유 compiler admission}
-  MEM -->|대기 W| MEM
-  MEM -->|충족| COST[move-effects 단일 cost]
-  COST --> SETTLE[자연 종료·소유 실행 반환]
-  SETTLE --> UPPER[새 admission 후 D actual93명령+R]
-  UPPER --> AUDIT[새 source/기능·실패·범위 최종 감사]
+  DONE[완료: 68ae CI·별도 d954 seed·효과 후보 LOSS] --> PREP[공통 준비: 새 source·소유자·예산]
+  PREP --> D[D producer source·pure7·AST32 완료]
+  PREP --> AE[A/E source·pure112 완료]
+  PREP --> WIP[별도 실험 workflow·문서 공유]
+  D --> GEN[GitHub generation-only 단일 관측]
+  WIP --> GEN
+  WIP --> CI[새 exact head 유지 CI]
+  AE --> COST[A/E 비용 CI 접점 검토·후속 비용은 별도]
+  GEN --> AUDIT[현재 source·생성·실패·범위 최종 감사]
   CI --> AUDIT
-  REUSE --> AUDIT
-  AUDIT --> SELECT[프로필별 인수 후 생산 선택·새 CI/필요 cohort seal]
+  COST --> AUDIT
+  PREP -.-> HOLD[사용자 선택: local D upper 보류]
+  HOLD -.-> MEM[새 지시·source/memory admission]
+  MEM --> UPPER[D actual93명령+R]
+  UPPER --> SELECT[프로필별 기능 인수 후 생산 선택·새 CI/필요 seal]
+  AUDIT --> SELECT
   SELECT --> GATE{fresh Advisor·비용·권한·AMI·capacity gate}
   GATE -->|충족| LIVE[기한 배포·S3 VersionId·실제 OIDC/종료 확인]
   LIVE --> NUMA[Spot 배치·NUMA·대용량 초기화]
@@ -679,15 +690,14 @@ flowchart TD
   AUDIT -.-> SIZE[D 구조적4KiB 수렴: 별도 미정]
 ~~~
 
-다음 source/upper 체크포인트의 계획용 추정은 공통 준비0.15–0.3h →
-max(D 실행기·실제 관측/필요 수정1–3h, 구조 재사용 검토0.5–1.5h,
-WIP 통합·새 CI0.75–1.5h) + 공유 compiler·메모리 대기W → 최종 감사0.5–1h로
-약1.65–4.3h+W다. 실제 단일 cost의 hard wall180s와 upper900s는 한 번의 실행
-상한이며 이 작업창에는 source 검토·결함 수정·결과 인수도 포함한다. 두 실제 실행은
-같은 compiler 구간에서 순서대로 진행하고 나머지 분기는 병렬로 진행한다. 분기 시간을
-모두 더하지 않는다. W는 현재 미정이며 숫자로 숨기지 않는다. D 잔여641 B 수렴,
-프로필별 후속 생산 인수·필요 seed·외부 AWS gate·리그 완주는 이 유한 창의 완료 약속이
-아니다. 실패나 새 의존성이 생기면 남은 경로와 공유 대기를 다시 추정한다.
+사용자 선택 이후 다음 source/CI 체크포인트의 계획용 추정은 공통 공유·핀 확인
+0.1–0.2h → max(실험 생성·유지 CI와 결과 인수0.25–0.75h,
+A/E source/비용 접점 검토0.15–0.4h) + GitHub 공유 runner 대기Wci → 최종 감사
+0.25–0.5h로 약0.6–1.45h+Wci다. 분기 시간을 모두 더하지 않는다. generation의
+240s+20s는 단일 실행 상한이며 준비·검토·수정·인수는 별도 작업 시간이다.
+앞선 source/upper1.65–4.3h+메모리 대기 추정은 실제 local 실행이 보류되기 전의
+경로로 보존한다. D 잔여641 B 수렴·상위/프로필별 생산 인수·필요 seed·외부 AWS gate·
+리그 완주는 이번 source/CI 창의 완료 약속이 아니다. 새 실패나 의존성에 맞춰 갱신한다.
 
 Oct27 KST 공식 Advisor 조건부 조회는304/Last-Modified2026-03-20이었다. 현재 공식
 frontend 경로 조사도 끝났으나 검증된 새 데이터 URL은 없었다. HTML200의 Oct20 날짜는

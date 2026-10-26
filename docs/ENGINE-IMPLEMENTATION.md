@@ -9,16 +9,16 @@ zero and the initial model weights remain unchanged; trained strength is not cla
 
 ### Verified source, CI and offline transport
 
-The verified source cohort is d954f3b8ad9c8f1de7c637d85b5327f6b131faf4.
-Engine40332593495 passes26/26 jobs, including12 P4/P28 source producers and12
-independent Ubuntu22 consumers. NVCompact40332593448 and repository40332593381
-also pass. Original foundation121605606554 records513 contract +27 E19 +405
-evaluator/service tests:945 across38 suites. The separate24 pure structural
+The current verified CI head is68ae86cefd505eaf9ef234ba79a5a2ffb603e271.
+Engine40351775828 passes26/26 jobs, including12 P4/P28 source producers and12
+independent Ubuntu22 consumers. NVCompact40351775843 and repository40351775869
+also pass. Original foundation121673457700 records542 contract +27 E19 +405
+evaluator/service tests:974 across39 suites. The separate24 pure structural
 checks and four native fault injections also pass; injected failures retain
 return2 and clean ownership settlement. This CI selects F compound-v2, but its
 D producer remains the maintained predecessor, not the experimental4737B D.
 
-The corresponding new offline seed completes prepare, full ZIP inspection,
+The separate d954/CI40332593495 offline seed completes prepare, full ZIP inspection,
 fresh Linux materialization and all-member revalidation, with independent audit.
 Its62580403B ZIP has SHA-256
 `b788a3ea198a2ca7c1ae1ceb105e9fffecf5a527c32174089fe877e3153687ce`;
@@ -77,18 +77,35 @@ Spot/192vCPU/12 instance-hours/gross USD120 and fresh Advisor<5% stay mandatory.
 ### Experimental follow-up and resource admission
 
 The three Structural upper helpers pass29 local pure tests and source review;
-their self-test is registered in the foundation workflow. Actual93 source-owned
-commands plus generic R have not run. Their source and registration do not
-qualify the new D or change the selected production profile. The separately
-preserved hosted and move-effects source projections are experiments only.
-See the D checkpoint below and the plan's current dependency/resource graph.
+their self-test also passes in the68ae foundation job. Actual93 source-owned
+commands plus generic R have not run. The sealed launcher has20 synthetic guard
+checks and66 source/1163 named-data pins; this is preparation, not qualification.
+The user subsequently prioritizes source/CI work, so local upper execution stays
+deferred without memory polling or automatic dispatch.
+
+The new P4-only production adapter replays the reviewed finite source chain
+without minting StructuralAdmission from JSON. Independent source review and
+seven pure tests/32 Python3.10 AST checks pass with41 unchanged source/test pins.
+Its planned native/whole generation remains separate from that pure result.
+A standalone Experimental D generation workflow runs the pure tests and one
+generation-only observation on Ubuntu24, preserving output and early failures.
+Its outer limit is240 seconds work+20 seconds cleanup; no engine or TT executes.
+It leaves the existing26-job workflow and production selectors unchanged.
+
+The separate A/E terminal legality/query helper passes source review and112
+pure projection/inverse/proof checks. Raw source changes are A7595→7688B and
+E7815→7909B; whole cost and C semantics are unmeasured. The first pure caller
+failed on its own stdlib import guard before any transform; a new corrected
+caller passes without changing the helper or its authenticated owner. These
+source projections remain unselected experiments.
 
 Compiler/codec work initially waits for host memory:379292KiB free physical at
 15:17 UTC, then1045776KiB physical/887000KiB virtual at the later root snapshot.
-A subsequent admission observes3338500KiB physical/3965184KiB virtual; effects
-prestart observes2254472KiB physical and starts one cost attempt. No unrelated
-process, cache or WSL setting is changed. Upper qualification follows complete
-effects settlement and a fresh admission, not the historical memory readings.
+A subsequent admission observes3338500KiB physical/3965184KiB virtual. Effects
+executes only at admitted windows and settles fully. A later root check observes
+1074384KiB physical/2477112KiB virtual; upper is not dispatched. No unrelated
+process, cache or WSL setting is changed. Future local upper work requires new
+steering and fresh admission, not these historical readings.
 
 The Oct27 KST public Advisor check returns304 with Last-Modified2026-03-20.
 Current official frontend investigation finds no verified replacement data URL;
@@ -234,14 +251,16 @@ The named unrenamed hosted-C prototype closes at5869B:108B header+5761B payload,
 1132B above4737B. Two natives/wholes and complete inverses agree; no target or TT
 executes. Its lexical-only source/CRT/linker context differs from the selected
 native reducer, so this closes one prototype rather than all hosted architecture.
-The separate32-bit move-effects descriptor has source review/pure checks. Its
-first bounded cost attempt reproduces the fresh control native/SINGLE, then
-rejects candidate preprocessing at the frozen runner's legacy-name-capture guard
-before candidate native compilation or packaging. Original cell35 ends at
-chunk64c0cb/exit1; this is an incomplete cost observation, not a size loss.
-The failure and original source are preserved for ownership diagnosis; no rerun
-is implied. Neither experiment is selected production code. D continues
-structural changes only; full features and the unresolved641B gap stay explicit.
+The separate32-bit move-effects descriptor's first cost attempt reproduces the
+control, then stops before candidate generation: the runner mistakes numeric U
+suffixes for identifiers. Preserve cell35/chunk64c0cb/exit1 as a guard failure,
+not a size loss. A new caller uses the existing lexical identifier owner with
+unchanged candidate/source/flags/recipe. Its corrected single observation closes
+at native6560B/whole4825B, respectively96B/88B above control. Two candidate
+native/whole generations and three strict inverses agree; all nine commands
+settle naturally and known PIDs are absent. Independent audit is CLEAR. No
+candidate engine/TT runs. Neither prototype is selected production code; D
+continues structural changes only, with the maintained4737B/641B gap explicit.
 
 The first sparse-square transfer costs A3794→3781B and C3927→3915B in P4; B4071→4072B
 loses and stops. A separate fresh pre-cleanup six-profile comparison now confirms
