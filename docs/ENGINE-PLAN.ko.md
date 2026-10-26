@@ -622,8 +622,8 @@ Node22/24 lifecycle CI가 통과했으며 AWS dispatch는 아직0회다.
 
 ### 현재 체크포인트와 병렬 실행, 2026-10-27
 
-검증된 code head6e의 engine40360343892는26/26, NVCompact40360343882와
-repository40360343911 및 별도 Experimental D40360344120도 통과했다. foundation121703764624는542+27+405=
+마지막 전체 검증 code headedb의 engine40372403620는26/26, NVCompact40372403668와
+repository40372403567 및 별도 Experimental D40372404131도 통과했다. foundation121746308175는542+27+405=
 974개/39suite이며 별도 순수24검사와 native 실패 주입4개를 구분한다. 12개 source와
 12개 독립 Ubuntu22 소비자는 F compound-v2를 포함한다. 이 CI의 D는 유지된 이전
 producer이며 실험4737 B를 실행하거나 상위 인수한 결과가 아니다.
@@ -671,13 +671,15 @@ source·memory admission에서 다시 판단한다. 다른 프로그램·cache·
 
 ~~~mermaid
 flowchart TD
-  DONE[완료: 6e 네 CI·D 생성 감사 / d954 seed는 별도] --> PREP[공통 준비: 형식·입력·소유자]
+  DONE[완료: edb 네 CI / 이전 D 생성 감사·d954 seed는 별도] --> PREP[공통 준비: 소스 핀·검토·작은 pure 검사]
   PREP --> D[D strict format: AdmittedBuild·rules·startup·compiler·CI binding]
-  PREP --> AE[A/E cost CI controller·한정 비교]
-  PREP --> BSS[D kernel-zero·no-startup-join 구조: 조건부 source 검토]
+  PREP --> AE[A cost CI: fresh control → 단일 후보]
+  PREP --> E[E cost CI: fresh control → 단일 후보]
+  PREP --> BSS[D cost CI: strict control → BSS P4 → TT33 ELF 데이터]
   D --> JOIN[core helper 변경 시 upper join 재검토 / 이전 seal 보존]
   JOIN --> CI[새 exact source CI·binding 검증]
   AE --> CI
+  E --> CI
   BSS --> CI
   CI --> AUDIT[다음 source/CI 체크포인트 최종 감사]
   PREP -.-> HOLD[사용자 선택: local upper 보류 / 자동 polling 없음]
@@ -692,14 +694,20 @@ flowchart TD
   AUDIT -.-> SIZE[D 구조적4KiB 수렴: 별도 미정]
 ~~~
 
-다음 source 구현은 D의 새 strict format consumer와 A/E bounded cost CI controller를
-병렬로 진행한다. 두 접점은 아직 미구현이며 default OFF/P28 old를 유지한다. 소비하는
+다음 source 구현은 D의 새 strict format consumer와 D/A/E bounded cost CI를
+병렬로 진행한다. 세 비용 controller와 별도 Ubuntu24 workflow를 구현·독립 검토했고
+작은 pure 검사 뒤 실제 CI 비용을 확인한다. D pure15/AST35는 동일44개 source 핀과
+금지 호출0·정상 종료로 통과했고 A/E pure5/AST3도 동일 핀·금지 호출0으로 통과했다.
+default OFF/P28 old를 유지한다. 소비하는
 core helper가 바뀌면 기존 upper의 current-source join을 재검토·갱신하고 이전 seal을
 보존한다. BSS TT/no-startup-join은 기존 lazy-first-touch와 다른 조건부 source
 prototype으로 작성했고 독립 source 검토·순수18검사를 통과했다. TT8/23/33은 작은
 source text와 역변환만 확인했으며 assembler/linker·kernel zero·late-worker·비용은
-미확인이다. 기존 parallel-init admission을 바꾸지 않고 절감량·고코어/NUMA·첫 검색
-지연을 배정하지 않는다.
+미확인이다. D cost는 같은6464/4737/7072 control을 먼저 재현하고 BSS P4 두 번을
+고정 HC3로 비교한다. TT33은128GiB NOBITS와 TT-last 배치의 컴파일·ELF 데이터만
+확인하며 엔진·TT를 실행하지 않는다. A/E는 fresh production·strict verifier와
+source/native/header/payload/whole의 다섯 기준값 뒤 후보를 생성한다. 기존
+parallel-init admission을 바꾸지 않고 절감량·고코어/NUMA·첫 검색 지연을 배정하지 않는다.
 
 NUMA는 엔진 내부 설정 없이 운영자의 부모 task policy를 상속하는 조건부 경로를
 사용할 수 있다. ice4 v6.1/현재 HEAD와 c4ke v3.0/현재 HEAD의 실제 TCEC 입력·launcher는
@@ -710,10 +718,11 @@ thread에 상속한다. 실제 TCEC 실행 명령은 아직 확인하지 못했�
 근거와 고정 source 링크는 IMPLEMENTATION의 현재 NUMA 문단에 둔다. 외부 엔진 source는
 저장소에 복사하지 않는다.
 
-계획용 산식은 공통 준비0.1–0.2h → max(D consumer·구조 source 준비1–3h,
-A/E cost controller0.5–1.5h) + GitHub runner 대기Wci → 최종 감사0.5–1h로
-약1.6–4.2h+Wci다. 분기 시간을 합산하지 않는다. 앞선0.6–1.45h+Wci의 source/CI
-체크포인트는6e의 생성·유지 CI·감사로 완료됐다. generation의240s+20s는 단일 실행
+이번 비용 checkpoint의 남은 계획용 산식은 공통 pure·공유 준비0.1–0.2h →
+max(D 비용/TT33·A 비용·E 비용·유지 CI 각0.1–0.3h) + GitHub runner 대기Wci →
+최종 데이터 감사0.3–0.6h로 약0.5–1.1h+Wci다. source 구현과 독립 검토는 완료한
+준비이며 분기 시간을 합산하지 않는다. 앞선 source/CI 체크포인트의 완료와 이번
+미측정 비용을 구분한다. 각 비용 job의600s+30s 및 generation의240s+20s는 실행
 상한이며 source 검토·수정·인수 시간을 대신하지 않는다. D 잔여641 B 수렴·local upper·
 프로필별 생산 전환·필요 seed·외부 AWS gate·리그는 이 유한 창의 완료 약속이 아니다.
 

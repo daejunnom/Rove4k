@@ -1,7 +1,7 @@
 """Focused pure design tests for the inactive structural producer adapter.
 
 No compiler, encoder, native image, engine or TT is needed by these tests.
-The implementation-preparation task has not executed this test file.
+The shared-core extraction tests require a separately authorized pure run.
 """
 import importlib.util
 import lzma
@@ -54,6 +54,29 @@ class ReductionInverseTests(unittest.TestCase):
         proof = [{"main.c": {"input": producer.pin(b"x"), "output": producer.pin(b"x"), "removed": []}}]
         with self.assertRaisesRegex(ValueError, "output differs"):
             producer.restore_scalar_rounds({"main.c": b"x\n"}, proof)
+
+
+class GenerationBoundaryTests(unittest.TestCase):
+    def test_new_exported_generation_function_binding_is_authenticated(self):
+        raw = producer.normalized(producer.__file__)
+        with mock.patch.object(producer, "emit_native_generation", lambda *a, **k: {}):
+            with self.assertRaisesRegex(ValueError, "function binding differs"):
+                producer.authenticate_generation_source(raw)
+
+    def test_recipe_and_fixed_expectations_are_authenticated(self):
+        raw = producer.normalized(producer.__file__)
+        with mock.patch.dict(producer.CONFIG, {"pb": 1}):
+            with self.assertRaisesRegex(ValueError, "frozen constant differs"):
+                producer.authenticate_generation_source(raw)
+        with mock.patch.object(producer, "EXPECTED_NATIVE", (6464, "0"*64)):
+            with self.assertRaisesRegex(ValueError, "frozen constant differs"):
+                producer.authenticate_generation_source(raw)
+
+    def test_strict_production_has_no_expected_or_strict_bypass(self):
+        with self.assertRaises(TypeError):
+            producer.generate_fixed_p4(None, None, None, None, None, None, strict=False)
+        with self.assertRaises(TypeError):
+            producer.build_snapshot(None, None, None, None, expected=None)
 
 
 @unittest.skipUnless(sys.platform == "linux", "existing producer owners include Linux resource support")

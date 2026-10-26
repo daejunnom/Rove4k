@@ -30,6 +30,11 @@ UNITS = ("main.c", "start.S")
 PACKED = "D-packed-xz-bcj-hc3-unnamed"
 JIT = "D-source-jit"
 CONFIG = {"lc": 0, "lp": 0, "pb": 0, "mf": lzma.MF_HC3, "nice_len": 32, "depth": 64}
+MAX_ELF_BYTES = 256 << 10
+GENERATION_WALLS = (180, 600)
+GENERATION_LIMITS = {"per_command_wall": 45, "parent_AS": 4 << 30, "child_AS": 2 << 30,
+                     "nested_producer_AS": 4 << 30, "parent_CPU": 1200,
+                     "parent_CPU_hard": 1260, "child_CPU": 40, "tool_output_bytes": 8 << 20}
 _EXECUTING_CODE = sys._getframe().f_code
 
 # The existing LF owners and canonical inputs of this one reviewed class.
@@ -149,18 +154,45 @@ def normalized(path):
     return data
 
 
+def authenticate_generation_source(frozen_source):
+    """Authenticate this canonical module's code, functions and fixed constants."""
+    namespace = globals()
+    if type(frozen_source) is not bytes or b"\r" in frozen_source:
+        raise ValueError("canonical LF generation source required")
+    code = compile(frozen_source, __file__, "exec", dont_inherit=True)
+    if normalized(Path(__file__)) != frozen_source or code != _EXECUTING_CODE:
+        raise ValueError("generation source differs from executing module")
+    function_type = type(lambda: None)
+    for item in code.co_consts:
+        if type(item) is type(code) and item.co_flags & 2 and not item.co_name.startswith("<"):
+            function = namespace.get(item.co_name)
+            if (type(function) is not function_type or function.__code__ != item or
+                    function.__globals__ is not namespace):
+                raise ValueError("generation function binding differs: " + item.co_name)
+    reference = {"__name__": "D_generation_frozen_constant_reference", "__file__": __file__}
+    exec(code, reference)
+    constants = ("HERE", "ROOT", "D", "SELF", "FORMAT", "PROFILE", "VARIANT", "READABLE", "UNITS",
+                 "PACKED", "JIT", "CONFIG", "MAX_ELF_BYTES", "GENERATION_WALLS", "GENERATION_LIMITS",
+                 "REVIEWED_INPUTS", "MODULES")
+    names = set(constants) | {name for name in reference if name.startswith("EXPECTED_")}
+    if {name for name in namespace if name.startswith("EXPECTED_")} != {name for name in reference if name.startswith("EXPECTED_")}:
+        raise ValueError("generation expected-constant set differs")
+    for name in names:
+        if type(namespace.get(name)) is not type(reference[name]) or namespace[name] != reference[name]:
+            raise ValueError("generation frozen constant differs: " + name)
+
+
 def validate_inputs(inputs):
     require(type(inputs) is dict and set(inputs) == set(REVIEWED_INPUTS) | {SELF}, "exact producer input closure required")
     for name, identity in REVIEWED_INPUTS.items():
         require(type(inputs[name]) is bytes and b"\r" not in inputs[name] and pin(inputs[name]) == expected(identity),
                 "reviewed LF producer input differs: " + name)
     require(type(inputs[SELF]) is bytes and b"\r" not in inputs[SELF], "adapter LF source required")
-    require(normalized(Path(__file__)) == inputs[SELF] and
-            compile(inputs[SELF], __file__, "exec", dont_inherit=True) == _EXECUTING_CODE,
-            "producer adapter input differs from its executing source")
+    authenticate_generation_source(inputs[SELF])
 
 
 def capture_inputs(root=ROOT):
+    authenticate_generation_source(normalized(Path(__file__)))
     inputs = {name: normalized(Path(root) / name) for name in (*REVIEWED_INPUTS, SELF)}
     validate_inputs(inputs)
     require(compile(inputs[SELF], __file__, "exec", dont_inherit=True) == _EXECUTING_CODE,
@@ -199,6 +231,23 @@ def validate_modules(modules, inputs):
                 function = module.__dict__.get(item.co_name)
                 require(type(function) is FunctionType and function.__code__ == item and
                         function.__globals__ is module.__dict__, "executing producer function differs")
+            elif isinstance(item, CodeType) and item.co_name == "Host":
+                cls = module.__dict__.get("Host")
+                require(type(cls) is type and cls.__module__ == module.__name__, "actual command owner class required")
+                for method in item.co_consts:
+                    if isinstance(method, CodeType) and method.co_flags & 2 and not method.co_name.startswith("<"):
+                        function = cls.__dict__.get(method.co_name)
+                        if isinstance(function, (staticmethod, classmethod)):
+                            function = function.__func__
+                        require(type(function) is FunctionType and function.__code__ == method and
+                                function.__globals__ is module.__dict__, "executing command owner method differs")
+    for role, names in (("legacy", ("DRIVER", "LEGACY", "BANNER")),
+                        ("packaging", ("NATIVE_CODE", "SOURCE_CODE"))):
+        module, logical = modules[role], MODULES[role]
+        reference = {"__name__": "D_generation_owner_constant_reference", "__file__": module.__file__}
+        exec(compile(inputs[logical], module.__file__, "exec", dont_inherit=True), reference)
+        require(all(type(module.__dict__.get(name)) is type(reference[name]) and
+                    module.__dict__[name] == reference[name] for name in names), "frozen generation owner constants differ")
 
 
 def prepare_sources(modules, inputs, *, profile=PROFILE, variant=VARIANT):
@@ -294,8 +343,277 @@ def _save(out, report):
     (out / "build.json").write_text(json.dumps(report, indent=2) + "\n")
 
 
+def open_generation_host(out, report, save, modules, inputs, *, wall_seconds):
+    """Construct the existing owner; this does not admit a source or artifact."""
+    validate_inputs(inputs)
+    validate_modules(modules, inputs)
+    require(type(wall_seconds) is int and wall_seconds in GENERATION_WALLS, "finite generation wall required")
+    owner = modules["host"]
+    owner.LIMITS = {**owner.LIMITS, **GENERATION_LIMITS, "aggregate_wall": wall_seconds}
+    return owner.Host(out, report, save)
+
+
+def _run(host, arguments, *, cwd, kind, data=None):
+    output = host.run(arguments, cwd=cwd, kind=kind, data=data)
+    row = host.report["commands"][-1]
+    require(row["stdout"]["bytes"] + row["stderr"]["bytes"] <= GENERATION_LIMITS["tool_output_bytes"],
+            "combined final compiler output exceeds the owner cap")
+    return output
+
+
+def _stage_inputs(modules, inputs):
+    validate_inputs(inputs)
+    validate_modules(modules, inputs)
+
+
+def _flags(flags):
+    require(type(flags) in (tuple, list) and flags and all(type(v) is str and v.startswith("-") for v in flags),
+            "explicit compiler flag vector required")
+    return list(flags)
+
+
+def _image(path):
+    info = path.lstat()
+    require(stat.S_ISREG(info.st_mode) and info.st_nlink == 1 and 64 <= info.st_size <= MAX_ELF_BYTES,
+            "bounded regular ELF image required before reading")
+    data = path.read_bytes()
+    require(len(data) == info.st_size, "ELF changed during bounded read")
+    return data
+
+
+def _compile(contents, flags, directory, host, modules, kind):
+    directory.mkdir()
+    for name, data in contents.items():
+        (directory / name).write_bytes(data)
+    _run(host, ["cc", *flags, str(directory / "main.c"), str(directory / "start.S"),
+               "-Wl,-T,"+str(directory / "image.ld"), "-o", str(directory / "linked")], cwd=directory, kind=kind)
+    linked = _image(directory / "linked")
+    native = modules["packer"].strip_native(linked)
+    require(64 <= len(native) <= MAX_ELF_BYTES, "bounded stripped ELF required")
+    (directory / "native").write_bytes(native)
+    return linked, native
+
+
+def preprocess_source(files, flags, out, modules, inputs, host):
+    """CPP/minifier/legacy DATA only, with no fixed production-output waiver."""
+    _stage_inputs(modules, inputs)
+    require(type(files) is dict and set(files) == set(READABLE) and
+            all(type(v) is bytes and b"\r" not in v for v in files.values()), "complete LF six-source cohort required")
+    flags, out, m = _flags(flags), Path(out), modules
+    raw = out / "generated-readable"
+    raw.mkdir()
+    for name, data in files.items():
+        (raw / name).write_bytes(data)
+    banner = _run(host, ["cc", "--version"], cwd=out, kind="compiler-version").decode().splitlines()[0]
+    require(banner == m["legacy"].BANNER, "reviewed Ubuntu GCC13 compiler banner required")
+    cpp = _run(host, ["cc", "-E", "-P", *flags, "-I", str(raw), "-x", "c", "-"], cwd=raw,
+               kind="preprocess-single-TU", data=m["legacy"].DRIVER)
+    entry = _run(host, ["cc", "-E", "-P", "-x", "assembler-with-cpp", str(raw / "start.S")], cwd=raw, kind="preprocess-entry")
+    original = m["minifier"].compact_source(cpp, "c")
+    legacy = m["legacy"].LEGACY
+    require(len(set(legacy.values())) == len(legacy) and not set(legacy) & set(legacy.values()) and
+            not set(legacy.values()) & set(m["lexical"]._ANY_WORD.findall(original.decode())), "legacy identifier ownership/capture differs")
+    mapped = {"main.c": original}
+    for before, after in legacy.items():
+        mapped = m["lexical"]._replace(mapped, before, after)
+    inverse = dict(mapped)
+    for before, after in reversed(tuple(legacy.items())):
+        inverse = m["lexical"]._replace(inverse, after, before)
+    require(inverse["main.c"] == original, "complete legacy source inverse differs")
+    return {"out": str(out), "flags": flags, "shipping": {**mapped, "start.S": entry, "image.ld": files["image.ld"]},
+            "record": {"input": inventory(files), "compiler": banner, "legacy_inverse": True,
+                "before_reduction": pin(mapped["main.c"]), "single_TU": {"members": ["board.c", "search.c", "runtime.c"],
+                "driver": pin(m["legacy"].DRIVER), "preprocessed": pin(cpp)}}}
+
+
+def reduce_source(stage, modules, inputs, host):
+    """Replay the existing native-identity reducer and its source inverse."""
+    _stage_inputs(modules, inputs)
+    m, out, flags = modules, Path(stage["out"]), _flags(stage["flags"])
+    emitted, mapped = dict(stage["shipping"]), {"main.c": stage["shipping"]["main.c"]}
+    require(pin(mapped["main.c"]) == stage["record"]["before_reduction"], "pre-reduction DATA changed")
+    def digest(contents, trial):
+        return pin(_compile({**emitted, **contents}, flags, out / ("reduction-"+trial), host, m, "reduce-"+trial)[0])["sha256"]
+    reduced, reduction = m["reducer"].reduce_sources(mapped, digest, m["lexical"],
+        reserve=m["lexical"]._ANY_WORD.findall((emitted["start.S"]+emitted["image.ld"]).decode()))
+    require(reduction["baseline_native_sha256"] == reduction["final_native_sha256"], "native-identity reduction gate differs")
+    pruned, rounds = m["reducer"].prune_typedefs(mapped, m["lexical"])
+    typedefs = [r for r in reduction["stages"] if r["kind"] == "unused-scalar-typedefs"]
+    alpha = [r for r in reduction["stages"] if r["kind"] == "batch-alpha"]
+    require(len(typedefs) == bool(rounds) and len(alpha) == 1 and
+            all(r["kind"] in ("unused-scalar-typedefs", "batch-alpha") and
+                r["status"] in ("accepted", "rejected-native-differs") for r in reduction["stages"]), "finite owner reducer stages required")
+    before_alpha = pruned if typedefs and typedefs[0]["status"] == "accepted" else mapped
+    if typedefs:
+        require(typedefs[0]["rounds"] == rounds, "owner typedef removal records differ")
+    inverse = dict(reduced)
+    if alpha[0]["status"] == "accepted":
+        renames = alpha[0]["renames"]
+        require(len(set(renames.values())) == len(renames) and not set(renames.values()) & set(renames), "owner alpha inverse capture")
+        for before, after in reversed(tuple(renames.items())):
+            inverse = m["lexical"]._replace(inverse, after, before)
+    require(inverse == before_alpha, "complete accepted alpha inverse differs")
+    if typedefs and typedefs[0]["status"] == "accepted":
+        inverse = restore_scalar_rounds(inverse, rounds)
+    require(inverse == mapped, "complete accepted reduction inverse differs")
+    emitted.update(reduced)
+    shipping = out / "shipping-inputs"
+    shipping.mkdir()
+    for name, data in emitted.items():
+        (shipping / name).write_bytes(data)
+    record = {**stage["record"], "source_reduction": reduction, "reduction_full_inverse": True,
+              "identifier_composition": m["search_admission"]._composition(m["legacy"].LEGACY, reduction),
+              "shipping_inputs": inventory(emitted)}
+    return {"out": str(out), "flags": flags, "shipping": emitted, "record": record}
+
+
+def compile_source_once(stage, index, modules, inputs, host):
+    """One bounded actual image generation; return raw DATA without admission."""
+    _stage_inputs(modules, inputs)
+    require(type(index) is int and index in (0, 1), "one of two explicit generation indices required")
+    m, out, flags, emitted = modules, Path(stage["out"]), _flags(stage["flags"]), stage["shipping"]
+    require(inventory(emitted) == stage["record"]["shipping_inputs"], "shipping DATA changed")
+    directory = out / ("attempt-"+str(index))
+    linked, native = _compile(emitted, flags, directory, host, m, "compile-native-"+str(index))
+    require(host.report["commands"][-1]["stderr"]["bytes"] == 0 and
+            pin(linked)["sha256"] == stage["record"]["source_reduction"]["final_native_sha256"], "final compiler diagnostics/native-identity gate differs")
+    return {"image": (linked, native), "native": {"path": str(directory / "native"), **pin(native), "elf": m["packer"].elf(native)},
+            "linked": {"path": str(directory / "linked"), **pin(linked), "elf": m["packer"].elf(linked)}}
+
+
+def _join_generations(stage, compiled):
+    require(len(compiled) == 2, "two actual native generations required")
+    images = [row["image"] for row in compiled]
+    require(images[0] == images[1], "two actual linked/native generations differ")
+    record = {**stage["record"], "native_rebuilds": [row["native"] for row in compiled],
+              "linked_rebuilds": [row["linked"] for row in compiled],
+              "native_reproduced": True, "flags": stage["flags"], "units": list(UNITS)}
+    return {"out": stage["out"], "flags": stage["flags"], "shipping": stage["shipping"], "images": images, "record": record}
+
+
+def compile_repeated_source(stage, modules, inputs, host):
+    """Two actual linked/stripped generations and raw ELF DATA, never execution."""
+    _stage_inputs(modules, inputs)
+    return _join_generations(stage, [compile_source_once(stage, i, modules, inputs, host) for i in range(2)])
+
+
+def emit_native_generation(files, flags, out, modules, inputs, host):
+    """Shared generation DATA path; it creates no production/typed admission."""
+    _stage_inputs(modules, inputs)
+    stage = preprocess_source(files, flags, out, modules, inputs, host)
+    stage = reduce_source(stage, modules, inputs, host)
+    return compile_repeated_source(stage, modules, inputs, host)
+
+
+def _package_generation_once(generation, index, modules, route):
+    m, emitted, flags = modules, generation["shipping"], generation["flags"]
+    require(route in (PACKED, JIT) and type(index) is int and index in (0, 1) and
+            inventory(emitted) == generation["record"]["shipping_inputs"] and len(generation["images"]) == 2,
+            "complete repeated generation DATA required")
+    linked, native = generation["images"][index]
+    require(pin(native) == {k: generation["record"]["native_rebuilds"][index][k] for k in ("bytes", "sha256")} and
+            pin(linked) == {k: generation["record"]["linked_rebuilds"][index][k] for k in ("bytes", "sha256")}, "image DATA differs")
+    if route == PACKED:
+        require(len(native) <= 8192, "dict8192 native domain exceeded")
+        whole, detail = m["codec"].package(native, dict(CONFIG), m["packaging"], unnamed=True)
+        require(detail["config"] == CONFIG and detail["dict_size"] == 8192 and detail["check"] == "CRC64" and
+                detail["unnamed_memfd"] is True, "fixed HC3 recipe differs")
+        code = m["packaging"].NATIVE_CODE.replace('os.memfd_create("Rove4k-D",1)', 'os.memfd_create("",1)', 1)
+        wanted = native
+    else:
+        whole, detail = m["packaging"].package_source(emitted, flags, UNITS)
+        code = m["packaging"].SOURCE_CODE
+        wanted = json.dumps({"files": {n: emitted[n].decode() for n in sorted(emitted)},
+            "flags": flags, "units": list(UNITS)}, separators=(",", ":"), ensure_ascii=True).encode()
+    boundary = detail["header_bytes"]
+    require(type(boundary) is int and 0 < boundary < len(whole) and detail["payload_bytes"] == len(whole)-boundary,
+            "whole payload extent differs")
+    header, payload = whole[:boundary], whole[boundary:]
+    if route == PACKED:
+        require(pin(header) == expected(EXPECTED_HEADER), "fixed unnamed recipe bootstrap differs")
+    inverse = strict_decode(payload, wanted)
+    rebuilt, rebuilt_header = m["packaging"].envelope(code, payload)
+    require(rebuilt == whole and rebuilt_header == header, "complete header/offset/whole inverse differs")
+    return {"whole": whole, "detail": detail, "inverse": inverse}
+
+
+def _join_packages(generation, packages, route):
+    require(len(packages) == 2, "two independent package generations required")
+    wholes, details, inverses = ([row[name] for row in packages] for name in ("whole", "detail", "inverse"))
+    require(wholes[0] == wholes[1] and details[0] == details[1], "two independent whole generations differ")
+    program = Path(generation["out"]) / route
+    program.write_bytes(wholes[0])
+    program.chmod(0o755)
+    row = {"path": str(program), "representation": "packed-native" if route == PACKED else "source-jit",
+           "native": generation["record"]["native_rebuilds" if route == PACKED else "linked_rebuilds"][0],
+           **pin(wholes[0]), **details[0], "package_reproduced": True,
+           "package_rebuilds": [pin(d) for d in wholes], "inverse_rebuilds": inverses}
+    if route == PACKED:
+        row.update(cleanup="memfd-CLOEXEC", recipe={"codec": "xz-bcj", "check": "CRC64", "config": dict(CONFIG),
+            "dict_size": 8192, "unnamed_memfd": True})
+    return {"row": row, "whole": wholes[0]}
+
+
+def _package_generation(generation, modules, route):
+    return _join_packages(generation, [_package_generation_once(generation, i, modules, route) for i in range(2)], route)
+
+
+def package_native_generation(generation, modules, inputs):
+    _stage_inputs(modules, inputs)
+    return _package_generation(generation, modules, PACKED)
+
+
+def package_source_generation(generation, modules, inputs):
+    _stage_inputs(modules, inputs)
+    return _package_generation(generation, modules, JIT)
+
+
+def generate_fixed_p4(files, flags, out, modules, inputs, host):
+    """Strict production wrapper: every existing fixed gate remains mandatory."""
+    _stage_inputs(modules, inputs)
+    resource = modules["source"].production().resource_profile(PROFILE)
+    require(inventory(files) == {n: expected(v) for n, v in EXPECTED_READABLE.items()} and
+            _flags(flags) == modules["build"].native_flags(resource, "s"), "fixed production readable source/flags differ")
+    stage = preprocess_source(files, flags, out, modules, inputs, host)
+    require(stage["record"]["before_reduction"] == expected(EXPECTED_BEFORE_REDUCTION), "reviewed pre-reduction source differs")
+    stage = reduce_source(stage, modules, inputs, host)
+    reduction = stage["record"]["source_reduction"]
+    require(tuple((r["kind"], r["status"], r["native_sha256"]) for r in reduction["stages"]) == EXPECTED_REDUCTION_STAGES and
+            reduction["baseline_native_sha256"] == reduction["final_native_sha256"] == EXPECTED_LINKED[1], "reviewed finite reduction gate outcomes differ")
+    require(inventory(stage["shipping"]) == {n: expected(v) for n, v in EXPECTED_SHIPPING.items()}, "reviewed final shipping inputs differ")
+    native_rows, linked_rows, compiled = [], [], []
+    for index in range(2):
+        item = compile_source_once(stage, index, modules, inputs, host)
+        linked, native = item["image"]
+        require(pin(linked) == expected(EXPECTED_LINKED) and pin(native) == expected(EXPECTED_NATIVE), "reviewed final linked/native identity differs")
+        native_rows.append({k:v for k,v in item["native"].items() if k != "elf"})
+        linked_rows.append({k:v for k,v in item["linked"].items() if k != "elf"})
+        native_rows[-1]["geometry"] = modules["build"].kernel_geometry(modules["packer"], native, resource.workers)
+        linked_rows[-1]["geometry"] = modules["build"].kernel_geometry(modules["packer"], linked, resource.workers)
+        compiled.append(item)
+    generation = _join_generations(stage, compiled)
+    packages = {}
+    for route, identity in ((PACKED, EXPECTED_WHOLE), (JIT, EXPECTED_JIT)):
+        attempts = []
+        for index in range(2):
+            item = _package_generation_once(generation, index, modules, route)
+            require(pin(item["whole"]) == expected(identity), "reviewed fixed whole identity differs")
+            attempts.append(item)
+        packages[route] = _join_packages(generation, attempts, route)
+    packed, jit = packages[PACKED], packages[JIT]
+    packed["row"]["native"], jit["row"]["native"] = native_rows[0], linked_rows[0]
+    record = {k:v for k,v in generation["record"].items() if k not in ("native_rebuilds", "linked_rebuilds", "input", "before_reduction", "legacy_inverse", "reduction_full_inverse", "flags", "units")}
+    record.update(native=native_rows[0], native_rebuilds=native_rows, native_reproduced=True,
+        source_jit_native=linked_rows[0], source_jit_native_rebuilds=linked_rows,
+        source_jit_native_reuse={"source": inventory(generation["shipping"]), "flags": list(flags), "units": list(UNITS),
+            "compiler": record["compiler"], "postprocess": "none: source-JIT executes the same linked ELF; packed route alone strips it",
+            "linked_generations": [pin(image[0]) for image in generation["images"]]},
+        candidates=[packed["row"], jit["row"]])
+    return {"generation": generation, "record": record}
+
+
 def build_snapshot(out, snapshot, current_root, inputs):
-    """Execute the finite generation; caller supplies the whole-operation wall."""
+    """Execute only the strict production class; no generic bypass parameter."""
     validate_inputs(inputs)
     m = load_modules(snapshot, inputs)
     files, proof = prepare_sources(m, inputs)
@@ -305,121 +623,12 @@ def build_snapshot(out, snapshot, current_root, inputs):
               "complete": False, "frozen_execution": True, "inputs": inventory(inputs), "proof": proof,
               "flags": flags, "units": list(UNITS), "commands": [], "candidates": [],
               "scope": "finite source/proof generation and native/whole reproduction only; upper qualification is a separate adoption precondition"}
-    raw = out / "generated-readable"
-    raw.mkdir()
-    for name, data in files.items():
-        (raw / name).write_bytes(data)
     save = lambda: _save(out, report)
     save()
     host, body_error = None, None
-    owner = m["host"]
-    owner.LIMITS = {**owner.LIMITS, "aggregate_wall": 180, "per_command_wall": 45,
-                    "parent_CPU": 1200, "parent_CPU_hard": 1260, "child_CPU": 40, "tool_output_bytes": 8 << 20}
     try:
-        host = owner.Host(out, report, save)
-        report["compiler"] = host.run(["cc", "--version"], cwd=out, kind="compiler-version").decode().splitlines()[0]
-        require(report["compiler"] == m["legacy"].BANNER, "reviewed Ubuntu GCC13 compiler banner required")
-        cpp = host.run(["cc", "-E", "-P", *flags, "-I", str(raw), "-x", "c", "-"], cwd=raw,
-                       kind="preprocess-single-TU", data=m["legacy"].DRIVER)
-        entry = host.run(["cc", "-E", "-P", "-x", "assembler-with-cpp", str(raw / "start.S")], cwd=raw, kind="preprocess-entry")
-        emitted = {"main.c": m["minifier"].compact_source(cpp, "c"), "start.S": entry, "image.ld": files["image.ld"]}
-        report["single_TU"] = {"members": ["board.c", "search.c", "runtime.c"],
-                               "driver": pin(m["legacy"].DRIVER), "preprocessed": pin(cpp)}
-        legacy = m["legacy"].LEGACY
-        require(len(set(legacy.values())) == len(legacy) and not set(legacy) & set(legacy.values()) and
-                not set(legacy.values()) & set(m["lexical"]._ANY_WORD.findall(emitted["main.c"].decode())), "legacy identifier ownership/capture differs")
-        original = emitted["main.c"]
-        mapped = {"main.c": original}
-        for before, after in legacy.items():
-            mapped = m["lexical"]._replace(mapped, before, after)
-        inverse = dict(mapped)
-        for before, after in reversed(tuple(legacy.items())):
-            inverse = m["lexical"]._replace(inverse, after, before)
-        require(inverse["main.c"] == original and pin(mapped["main.c"]) == expected(EXPECTED_BEFORE_REDUCTION), "complete legacy inverse/pre-reduction source differs")
-        emitted.update(mapped)
-        def compile_files(contents, directory, kind):
-            directory.mkdir()
-            for name, data in contents.items():
-                (directory / name).write_bytes(data)
-            host.run(["cc", *flags, str(directory / "main.c"), str(directory / "start.S"),
-                      "-Wl,-T,"+str(directory / "image.ld"), "-o", str(directory / "linked")], cwd=directory, kind=kind)
-            linked = (directory / "linked").read_bytes()
-            native = m["packer"].strip_native(linked)
-            (directory / "native").write_bytes(native)
-            return linked, native
-        def digest(contents, trial):
-            return pin(compile_files({**emitted, **contents}, out / ("reduction-"+trial), "reduce-"+trial)[0])["sha256"]
-        reduced, reduction = m["reducer"].reduce_sources(mapped, digest, m["lexical"],
-            reserve=m["lexical"]._ANY_WORD.findall((entry + emitted["image.ld"]).decode()))
-        require(tuple((r["kind"], r["status"], r["native_sha256"]) for r in reduction["stages"]) == EXPECTED_REDUCTION_STAGES and
-                reduction["baseline_native_sha256"] == reduction["final_native_sha256"] == EXPECTED_LINKED[1], "reviewed finite reduction gate outcomes differ")
-        pruned, rounds = m["reducer"].prune_typedefs(mapped, m["lexical"])
-        require(pruned == reduced and rounds == reduction["stages"][0]["rounds"] and
-                restore_scalar_rounds(reduced, rounds) == mapped, "owner scalar reduction/full inverse differs")
-        emitted.update(reduced)
-        require(inventory(emitted) == {n: expected(v) for n, v in EXPECTED_SHIPPING.items()}, "reviewed final shipping inputs differ")
-        report["source_reduction"] = reduction
-        report["identifier_composition"] = m["search_admission"]._composition(legacy, reduction)
-        report["shipping_inputs"] = inventory(emitted)
-        shipping = out / "shipping-inputs"
-        shipping.mkdir()
-        for name, data in emitted.items():
-            (shipping / name).write_bytes(data)
-        native_rows, linked_rows, images = [], [], []
-        for index in range(2):
-            directory = out / ("attempt-"+str(index))
-            linked, native = compile_files(emitted, directory, "compile-native-"+str(index))
-            require(report["commands"][-1]["stderr"]["bytes"] == 0 and pin(linked) == expected(EXPECTED_LINKED) and
-                    pin(native) == expected(EXPECTED_NATIVE), "reviewed final linked/native identity or diagnostics differ")
-            geometry = m["build"].kernel_geometry(m["packer"], native, resource.workers)
-            native_rows.append({"path": str(directory / "native"), **pin(native), "geometry": geometry})
-            linked_rows.append({"path": str(directory / "linked"), **pin(linked),
-                                "geometry": m["build"].kernel_geometry(m["packer"], linked, resource.workers)})
-            images.append((linked, native))
-        require(images[0] == images[1], "two actual linked/native generations differ")
-        report.update(native=native_rows[0], native_rebuilds=native_rows, native_reproduced=True,
-                      source_jit_native=linked_rows[0], source_jit_native_rebuilds=linked_rows)
-        report["source_jit_native_reuse"] = {"source": inventory(emitted), "flags": flags, "units": list(UNITS),
-            "compiler": report["compiler"], "postprocess": "none: source-JIT executes the same linked ELF; packed route alone strips it",
-            "linked_generations": [pin(image[0]) for image in images]}
-        for route in (PACKED, JIT):
-            wholes, details, inverses = [], [], []
-            for _, native in images:
-                if route == PACKED:
-                    require(len(native) <= 8192, "dict8192 native domain exceeded")
-                    whole, detail = m["codec"].package(native, dict(CONFIG), m["packaging"], unnamed=True)
-                    require(detail["config"] == CONFIG and detail["dict_size"] == 8192 and detail["check"] == "CRC64" and
-                            detail["unnamed_memfd"] is True and pin(whole) == expected(EXPECTED_WHOLE), "fixed HC3 whole recipe differs")
-                    code = m["packaging"].NATIVE_CODE.replace('os.memfd_create("Rove4k-D",1)', 'os.memfd_create("",1)', 1)
-                    wanted = native
-                else:
-                    whole, detail = m["packaging"].package_source(emitted, flags, UNITS)
-                    code = m["packaging"].SOURCE_CODE
-                    wanted = json.dumps({"files": {n: emitted[n].decode() for n in sorted(emitted)},
-                        "flags": flags, "units": list(UNITS)}, separators=(",", ":"), ensure_ascii=True).encode()
-                    require(pin(whole) == expected(EXPECTED_JIT), "reviewed source-JIT sibling differs")
-                boundary = detail["header_bytes"]
-                require(type(boundary) is int and 0 < boundary < len(whole) and detail["payload_bytes"] == len(whole)-boundary, "whole payload extent differs")
-                header, payload = whole[:boundary], whole[boundary:]
-                if route == PACKED:
-                    require(pin(header) == expected(EXPECTED_HEADER), "reviewed empty-name bootstrap differs")
-                inverse = strict_decode(payload, wanted)
-                rebuilt, rebuilt_header = m["packaging"].envelope(code, payload)
-                require(rebuilt == whole and rebuilt_header == header, "complete header/offset/whole inverse differs")
-                wholes.append(whole)
-                details.append(detail)
-                inverses.append(inverse)
-            require(wholes[0] == wholes[1] and details[0] == details[1], "two independent whole generations differ")
-            program = out / route
-            program.write_bytes(wholes[0])
-            program.chmod(0o755)
-            row = {"path": str(program), "representation": "packed-native" if route == PACKED else "source-jit",
-                   "native": native_rows[0] if route == PACKED else linked_rows[0], **pin(wholes[0]), **details[0],
-                   "package_reproduced": True, "package_rebuilds": [pin(d) for d in wholes], "inverse_rebuilds": inverses}
-            if route == PACKED:
-                row.update(cleanup="memfd-CLOEXEC", recipe={"codec": "xz-bcj", "check": "CRC64", "config": dict(CONFIG),
-                    "dict_size": 8192, "unnamed_memfd": True})
-            report["candidates"].append(row)
+        host = open_generation_host(out, report, save, m, inputs, wall_seconds=180)
+        report.update(generate_fixed_p4(files, flags, out, m, inputs, host)["record"])
         require({n: normalized(Path(current_root) / n) for n in inputs} == inputs and
                 {n: normalized(Path(snapshot) / n) for n in inputs} == inputs, "producer source closure changed")
         validate_modules(m, inputs)

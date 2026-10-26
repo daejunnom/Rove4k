@@ -9,17 +9,17 @@ zero and the initial model weights remain unchanged; trained strength is not cla
 
 ### Verified source, CI and offline transport
 
-The current verified code head is6e855a3ee4c0fcdb375ea95967b30950a39428c7.
-Engine40360343892 passes26/26 jobs, including12 P4/P28 source producers and12
-independent Ubuntu22 consumers. NVCompact40360343882, repository40360343911 and
-standalone Experimental D40360344120 also pass. Foundation121703764624 records542 contract +27 E19 +405
+The last fully verified code head isedb747e8282401ae27537e65cbf21bbfa58b491b.
+Engine40372403620 passes26/26 jobs, including12 P4/P28 source producers and12
+independent Ubuntu22 consumers. NVCompact40372403668, repository40372403567 and
+standalone Experimental D40372404131 also pass. Foundation121746308175 records542 contract +27 E19 +405
 evaluator/service tests:974 across39 suites. The separate24 pure structural
 checks and four native fault injections also pass; injected failures retain
 return2 and clean ownership settlement. This CI selects F compound-v2, but its
 D producer remains the maintained predecessor, not the experimental4737B D.
-Actual experimental execution merge1b3fc19dc60057e405604b01f4aa01998171d0b3 has
-tree8021d479bac64f82ae5885138bd935a2971aa7ac and ordered parents949453a/6e855a3.
-Its source head and execution merge are distinct identities.
+The experimental artifact names execution merge761cdf479fc7200b2dc3125e40cd13226ae651d7,
+also returned as the PR merge ref. Its source head and execution merge remain
+distinct identities; the earlier6e actual Git tree/parent audit remains historical.
 
 The separate d954/CI40332593495 offline seed completes prepare, full ZIP inspection,
 fresh Linux materialization and all-member revalidation, with independent audit.
@@ -119,6 +119,30 @@ inverse helper; a future consumer must replay the canonical transform/profile.
 Assembler/linker acceptance, kernel-zero/late-worker behavior, cost and NUMA are
 unmeasured. It is not the author's barrier-retaining lazy claim or old4MiB BSS
 route, and it does not change the current parallel-initialization admission.
+
+The next source/CI cohort adds explicit opt-in cost controllers. D extracts
+shared generation DATA without changing the strict6464/4737/7072 gates or making
+an admission from data. It first reproduces that control, then builds one BSS P4
+candidate twice with the same HC3 recipe. A separate W256/TT33 compile-only case
+checks ELF NOBITS size137438953472, TT-last placement and linker assertions;
+generated programs and TT are never executed. A/E each use a fresh selected P4
+factory plus strict verifier and all five literal source/native/header/payload/whole
+controls before one terminal-query candidate. Two native/whole reproductions and
+complete inverses are required. Source-independent review is CLEAR for both
+controllers and workflows. D's one bounded local batch passes15 pure tests and
+35 Python3.10 AST checks with all44 source pins unchanged, zero forbidden calls
+and natural process settlement. A/E's separate bounded batch passes5 pure tests
+and3 Python3.10 AST checks with unchanged pins and zero forbidden calls.
+Hosted cost observations remain the next gate.
+None of these unmeasured candidates changes selected output.
+
+Hosted D/A/E jobs run on separate Ubuntu24 runners, each bounded by600 seconds
+including capture plus30 seconds for cleanup. Artifacts preserve original failures,
+stdio and reports outside the source tree. D sets compiler FSIZE to at most8MiB
+before launch. A/E enforce per-call factory4GiB/CPU480 and tool2GiB/CPU120 caps,
+restore owner limits, and count14 outer commands per family separately from nested
+factory commands. Caller/group completion, bytes and compiler layout observations
+do not establish C semantics, kernel first-touch, runtime, NUMA or strength.
 
 The current source review also checks the TCEC build inputs and launchers of
 [ice4 v6.1](https://github.com/MinusKelvin/ice4/tree/2bd7a54f9bb47a61a7cd97f3db9f52eadd4e2c19)

@@ -56,3 +56,40 @@ jobs:
           if-no-files-found: ignore
           include-hidden-files: true
           retention-days: 7
+
+  bss-cost-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Check fixed production gates and cost-only source contracts
+        run: |
+          python -I -B engines/experiments/tiny-d-submission/test_build_structural.py
+          python -I -B engines/experiments/tiny-d-submission/test_structural_bss_cost.py
+      - name: Compare one BSS candidate and inspect TT33 ELF layout without execution
+        # Includes source capture: 600 seconds work, then 30 seconds for cleanup.
+        run: |
+          set -o pipefail
+          timeout --signal=INT --kill-after=30s 600s \
+            python -I -B engines/experiments/tiny-d-submission/structural_bss_cost.py \
+            --out '${{ runner.temp }}/rove4k-D-bss-cost-${{ github.run_attempt }}' \
+            --execute --tt33-layout \
+            2>&1 | tee '${{ runner.temp }}/rove4k-D-bss-cost-${{ github.run_attempt }}.log'
+      - name: Preserve bounded cost and compile-only layout evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: experimental-D-bss-cost-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/rove4k-D-bss-cost-${{ github.run_attempt }}
+            ${{ runner.temp }}/rove4k-D-bss-cost-${{ github.run_attempt }}.log
+          if-no-files-found: ignore
+          include-hidden-files: true
+          retention-days: 7
