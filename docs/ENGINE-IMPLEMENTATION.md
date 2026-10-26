@@ -48,6 +48,13 @@ Stripped7136B is separately derived; it is not the source wrapper's live image.
 All these local classes remain size/placement/strength/event/selection false.
 The one-physical-core leases do not qualify P4 physical placement or scaling.
 
+A separate fresh no-TID square-successor cost class reduces source-JIT7114→7101B,
+compressed6972→6956B and packed5245→5233B. All15 tool commands, strict inverses,
+control identities and repeats pass independent evidence audit. Linked7456B and
+native7104B lengths stay fixed but their identities change. This5233B P4 candidate
+has not passed fresh typed/rules/runtime qualification and does not replace the
+qualified5245B class or the separate proper-alpha lineage.
+
 The first sparse-square transfer costs A3794→3781B and C3927→3915B in P4; B4071→4072B
 loses and stops. A separate fresh pre-cleanup six-profile comparison now confirms
 A P4/P28/W256 costs3781/3790/3782B and C3915/3926/3915B, saving11–14 whole bytes
@@ -64,6 +71,17 @@ compile/type/source-only and local placement/strength is unqualified.
 The cost-tools checkpoint7d2db44 passes all three workflows, including all26
 engine jobs at40239860838. That CI predates the new production integration and
 must not be presented as execution of its new A/C selection.
+
+The new2ea2015 engine run40285532382 fails:21 instantiated jobs include19 successes,
+one A/P28 callback-mechanism failure and one skipped P28 Ubuntu22 aggregate.
+Foundation job121448182588 passes857 tests across37 suites; NVCompact/repository
+also pass, but the engine cohort is failed and no new seed is prepared. The
+original native return2 has no diagnostic stderr;15 bounded local reproduction
+trials succeed, so its exact cause remains unknown. A shared failure-only logger
+now captures alloc/create/join rc/errno and bounded fixed kernel counters without
+changing shipping source, resource limits, normal output or error returns. Four
+injected native failures retain return2. The new actual local A/P28 CIPlan passes
+all four stages; new remote CI is still required.
 
 The new dispatch-only AWS workflow supplies direct OIDC and executes the seed's
 frozen controller. Git environment/replace/lazy-fetch substitution, hidden

@@ -5,7 +5,7 @@ No resource constant is reduced. The poisoned callback process checks complete
 key/data/flag initialization and actual page-unit owners, not entry padding or
 NUMA. A separate process executes the unmodified shipping main with a test-only
 last-initializer wrapper, a single 60-second startup deadline and two GO joins.
-P4 checkers, their output names and their pins are unchanged.
+Existing phase/compound P4 diagnostic helpers remain unchanged.
 """
 from __future__ import annotations
 import argparse
@@ -41,6 +41,68 @@ ENTRIES = 1 << BITS
 TT_BYTES = ENTRIES * ENTRY
 STARTUP_SECONDS = 60
 DIAGNOSTIC_PREAMBLE = b"#define main rv28_unused_shipping_main\nstatic _Atomic unsigned rv28_owner[32768];\n"
+LINK_FLAGS = ("-Wl,--wrap=pthread_create", "-Wl,--wrap=pthread_join", "-Wl,--wrap=aligned_alloc")
+# This is appended diagnostic code. The shipping prefix, successful output,
+# allocation/thread results and errno are unchanged. Reads are fixed, bounded
+# kernel counters only; unavailable counters are explicitly marked.
+FAILURE_DIAGNOSTICS = r'''
+#include<errno.h>
+#include<fcntl.h>
+#include<sys/resource.h>
+#include<unistd.h>
+static void rv28_write(const char*text,size_t size){
+ while(size){ssize_t n=write(2,text,size);if(n<0&&errno==EINTR)continue;if(n<=0)break;text+=n;size-=n;}
+}
+static void rv28_counter(const char*path){
+ char message[512],buffer[2048];int fd=open(path,O_RDONLY),error=errno;
+ int n=snprintf(message,sizeof message,"RV28_FILE path=%s available=%d errno=%d\n",path,fd>=0,fd>=0?0:error);
+ if(n>0)rv28_write(message,(size_t)n<sizeof message?(size_t)n:sizeof message-1);
+ if(fd<0)return;
+ size_t total=0;ssize_t got=0;
+ while(total<8192){size_t count=8192-total;if(count>sizeof buffer)count=sizeof buffer;
+  got=read(fd,buffer,count);if(got<0&&errno==EINTR)continue;
+  if(got<0){n=snprintf(message,sizeof message,"\nRV28_READ_ERROR errno=%d\n",errno);if(n>0)rv28_write(message,(size_t)n);break;}
+  if(!got)break;rv28_write(buffer,(size_t)got);total+=(size_t)got;
+ }
+ if(total==8192)rv28_write("\nRV28_FILE limit_reached=8192\n",sizeof "\nRV28_FILE limit_reached=8192\n"-1);
+ close(fd);rv28_write("\nRV28_FILE_END\n",sizeof "\nRV28_FILE_END\n"-1);
+}
+static void rv28_limit(const char*name,int which){
+ struct rlimit limit;char message[256];int ok=getrlimit(which,&limit)==0,error=errno;
+ int n=ok?snprintf(message,sizeof message,"RV28_LIMIT name=%s available=1 soft=%llu hard=%llu\n",name,
+  (unsigned long long)limit.rlim_cur,(unsigned long long)limit.rlim_max):
+  snprintf(message,sizeof message,"RV28_LIMIT name=%s available=0 errno=%d\n",name,error);
+ if(n>0)rv28_write(message,(size_t)n<sizeof message?(size_t)n:sizeof message-1);
+}
+static void rv28_failure(const char*stage,int result,int observed_errno,unsigned long long detail0,unsigned long long detail1){
+ int saved_errno=errno;char message[512];
+ int n=snprintf(message,sizeof message,"RV28_FAILURE stage=%s rc=%d errno=%d detail0=%llu detail1=%llu pid=%ld\n",
+  stage,result,observed_errno,detail0,detail1,(long)getpid());
+ if(n>0)rv28_write(message,(size_t)n<sizeof message?(size_t)n:sizeof message-1);
+ rv28_limit("AS",RLIMIT_AS);rv28_limit("STACK",RLIMIT_STACK);rv28_limit("CPU",RLIMIT_CPU);
+#ifdef RLIMIT_NPROC
+ rv28_limit("NPROC",RLIMIT_NPROC);
+#else
+ rv28_write("RV28_LIMIT name=NPROC available=0 unsupported=1\n",sizeof "RV28_LIMIT name=NPROC available=0 unsupported=1\n"-1);
+#endif
+ rv28_counter("/proc/self/status");rv28_counter("/proc/self/limits");rv28_counter("/proc/self/cgroup");
+ rv28_counter("/sys/fs/cgroup/pids.current");rv28_counter("/sys/fs/cgroup/pids.max");
+ errno=saved_errno;
+}
+extern void*__real_aligned_alloc(size_t,size_t);
+void*__wrap_aligned_alloc(size_t alignment,size_t size){
+ void*result=__real_aligned_alloc(alignment,size);int error=errno;
+ if(!result||!alignment||((uintptr_t)result)%alignment)
+  rv28_failure("aligned_alloc",!result?0:1,error,(unsigned long long)alignment,(unsigned long long)size);
+ errno=error;return result;
+}
+extern int __real_pthread_join(pthread_t,void**);
+int __wrap_pthread_join(pthread_t thread,void**result){
+ int code=__real_pthread_join(thread,result),error=errno;
+ if(code)rv28_failure("pthread_join",code,error,0,0);
+ errno=error;return code;
+}
+'''.encode()
 CONTEXT = {
     "A": dict(count="RVN", width="RVW", unit="RVU", table="N", key="aT", data="U", lock="zN",
               worker_type="M", workers="K", ident="id", depth="C", worker="A", launcher="rv", join="j", joined="qk", pending="I"),
@@ -145,6 +207,26 @@ def restore_trace(result, proof):
     return source
 
 
+def callback_launcher(family):
+    """The diagnostic launch wrapper also supplies the focused C fault cases."""
+    c = CONTEXT[family]
+    W = c["width"]
+    return f"""
+extern int __real_pthread_create(pthread_t*,const pthread_attr_t*,void*(*)(void*),void*);
+static atomic_int rv28_seen[{W}];
+typedef struct{{void*(*fn)(void*);void*arg;size_t id;}}rv28_launch;
+static void*rv28_observe(void*p){{rv28_launch v=*(rv28_launch*)p;free(p);
+ if(qh||atomic_fetch_add(&rv28_seen[v.id],1))exit(20);return v.fn(v.arg);}}
+int __wrap_pthread_create(pthread_t*t,const pthread_attr_t*a,void*(*fn)(void*),void*p){{
+ size_t n=(({c['worker_type']}*)p)->{c['ident']};
+ if(qh||fn!={c['worker']}||n>={W}){{rv28_failure("create-precondition",21,errno,n,{W});return 21;}}
+ rv28_launch*v=malloc(sizeof*v);if(!v){{rv28_failure("create-descriptor",22,errno,n,{W});return 22;}}v->fn=fn;v->arg=p;v->id=n;
+ int error=__real_pthread_create(t,a,rv28_observe,v),observed_errno=errno;
+ if(error){{rv28_failure("pthread_create",error,observed_errno,n,{W});free(v);}}errno=observed_errno;return error;
+}}
+""".encode()
+
+
 def full_callback_fixture(source, family, resource_proof):
     geo = geometry(resource_proof["resources"])
     c = CONTEXT[family]
@@ -157,17 +239,6 @@ def full_callback_fixture(source, family, resource_proof):
         pending_zero=True, join_count_zero=True, startup_history_zero=True)
     output = json.dumps(json.dumps(observation, separators=(",", ":")) + "\n")
     harness = f"""
-extern int __real_pthread_create(pthread_t*,const pthread_attr_t*,void*(*)(void*),void*);
-static atomic_int rv28_seen[{W}];
-typedef struct{{void*(*fn)(void*);void*arg;size_t id;}}rv28_launch;
-static void*rv28_observe(void*p){{rv28_launch v=*(rv28_launch*)p;free(p);
- if(qh||atomic_fetch_add(&rv28_seen[v.id],1))exit(20);return v.fn(v.arg);}}
-int __wrap_pthread_create(pthread_t*t,const pthread_attr_t*a,void*(*fn)(void*),void*p){{
- size_t n=(({c['worker_type']}*)p)->{c['ident']};
- if(qh||fn!={c['worker']}||n>={W})return 21;
- rv28_launch*v=malloc(sizeof*v);if(!v)return 22;v->fn=fn;v->arg=p;v->id=n;
- int error=__real_pthread_create(t,a,rv28_observe,v);if(error)free(v);return error;
-}}
 #undef main
 int main(void){{
  _Static_assert({W}==28&&{N}==((size_t)1<<24)&&{U}==512,"actual P28 constants");
@@ -192,13 +263,14 @@ int main(void){{
 }}
 """
     assertions = ("\n".join(resource_proof["target_type_assertions"]) + "\n").encode()
-    fixture = DIAGNOSTIC_PREAMBLE + traced + b"\n" + assertions + harness.encode()
+    fixture = (DIAGNOSTIC_PREAMBLE + traced + b"\n" + assertions + FAILURE_DIAGNOSTICS
+               + callback_launcher(family) + harness.encode())
     return fixture, observation, proof, geo
 
 
 def blocked_main(source, family, gate, arrived):
     c = CONTEXT[family]
-    return source + f"""
+    return source + b"\n" + FAILURE_DIAGNOSTICS + f"""
 #include<unistd.h>
 extern int __real_pthread_create(pthread_t*,const pthread_attr_t*,void*(*)(void*),void*);
 typedef struct{{void*(*fn)(void*);void*arg;}}rv28_block;
@@ -209,9 +281,11 @@ static void*rv28_wait(void*p){{rv28_block v=*(rv28_block*)p;free(p);
 }}
 int __wrap_pthread_create(pthread_t*t,const pthread_attr_t*a,void*(*fn)(void*),void*p){{
  if(!qh&&fn=={c['worker']}&&(({c['worker_type']}*)p)->{c['ident']}=={c['width']}-1){{
- rv28_block*v=malloc(sizeof*v);if(!v)return 25;v->fn=fn;v->arg=p;
- int error=__real_pthread_create(t,a,rv28_wait,v);if(error)free(v);return error;}}
- return __real_pthread_create(t,a,fn,p);
+ rv28_block*v=malloc(sizeof*v);if(!v){{rv28_failure("held-descriptor",25,errno,0,0);return 25;}}v->fn=fn;v->arg=p;
+ int error=__real_pthread_create(t,a,rv28_wait,v),observed_errno=errno;
+ if(error){{rv28_failure("pthread_create",error,observed_errno,{c['width']}-1,{c['width']});free(v);}}errno=observed_errno;return error;}}
+ int error=__real_pthread_create(t,a,fn,p),observed_errno=errno;
+ if(error)rv28_failure("pthread_create",error,observed_errno,0,{c['width']});errno=observed_errno;return error;
 }}
 """.encode()
 
@@ -229,7 +303,7 @@ def actual_barrier(host, runtime_module, lifecycle, directory, source, family, c
     require(fixture.startswith(source) and b"#define rv_spawn" not in fixture and b"#define RVW qW" not in fixture,
             "P28 actual main must be alias-free and unchanged")
     (directory / "fixture.c").write_bytes(fixture)
-    host.run([*compiler, "-Wl,--wrap=pthread_create"], cwd=directory, kind="selected-W28-last-initializer-compile", data=fixture)
+    host.run([*compiler, *LINK_FLAGS], cwd=directory, kind="selected-W28-last-initializer-compile", data=fixture)
     disposable = directory / "disposable-native"
     shutil.copyfile(directory / "x", disposable)
     disposable.chmod(0o700)
@@ -352,7 +426,7 @@ def run_bound(build, out):
         (directory / "fixture.c").write_bytes(fixture)
         (directory / "trace-proof.json").write_text(json.dumps(trace, indent=2) + "\n")
         compiler = manifest["compiler"]
-        host.run([*compiler, "-Wl,--wrap=pthread_create"], cwd=directory,
+        host.run([*compiler, *LINK_FLAGS], cwd=directory,
                  kind="selected-W28-full-callback-compile", data=fixture)
         raw = host.run([directory / "x"], cwd=directory, kind="selected-W28-full-callback-execute")
         require(raw == (json.dumps(expected, separators=(",", ":")) + "\n").encode(), "full P28 key/data/flag/owner callback audit differs")

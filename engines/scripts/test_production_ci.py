@@ -800,7 +800,7 @@ class ProductionCIBoundaries(unittest.TestCase):
         for row, dirname in zip(commands, ("selected-W28-full-callback", "selected-W28-full-callback", "selected-W28-last-initializer")):
             row["cwd"] = str(root / "mechanism" / dirname)
             row["command"] = ([str(root / "mechanism" / dirname / "x")] if row["kind"].endswith("execute") else
-                              [*build["compiler"], "-Wl,--wrap=pthread_create"])
+                              [*build["compiler"], *CI.P28_LINK_FLAGS])
         commands[1]["stdout"] = output_pin
         report = {**owner_report(commands), "class": "rove4k-bound-p28-mechanism-v1", "source_bound": True,
             "mode": "source-bound", "entry": family, "profile": "test-p28", "representation": "source-jit",
@@ -847,6 +847,8 @@ class ProductionCIBoundaries(unittest.TestCase):
             for keys, value, error in [( ("class",), "rove4k-bound-compound-mechanism-v1", "selected source/build"),
                     (("build", "path"), str(plan.out), "selected source/build"),
                     (("commands", 1, "command"), ["/different/native"], "compile/execute argv"),
+                    (("commands", 0, "command"), good["commands"][0]["command"][:-1], "compile/execute argv"),
+                    (("commands", 2, "command"), [part for part in good["commands"][2]["command"] if part != "-Wl,--wrap=pthread_join"], "compile/execute argv"),
                     (("resources", "tt_bytes"), 96 << 20, "selected source/build|exact actual"),
                     (("mechanisms", 0, "observation", "actual_workers"), 4, "full-resource callback"),
                     (("mechanisms", 0, "observation", "actual_workers"), 28.0, "full-resource callback"),

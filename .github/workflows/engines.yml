@@ -238,6 +238,7 @@ jobs:
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_scan.py
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_scan_mechanism.py
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_p28.py
+          python -I -B engines/experiments/tcec-next/test_profile_p28.py --c-faults --out "$RUNNER_TEMP/rove4k-p28-fault-observability"
           python -I -B engines/experiments/tcec-next/check_spelling_compound.py --self-test
           python -I -B engines/experiments/tiny-d-submission/test_storage.py
           python -I -B engines/experiments/tiny-d-submission/test_source_inputs.py

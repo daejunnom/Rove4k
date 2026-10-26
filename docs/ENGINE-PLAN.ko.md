@@ -132,6 +132,13 @@ P4 실행도 새 증거로 통과했다. 이전5261 B native map이나 종료 �
 F의 기법을 D의 정확한 clock-token 계약으로 옮긴 두 경우는 native가 작아져도
 whole5261→5273 B로 손해여서 미채택한다. source-JIT 두 경로도 각각21 B 커졌다.
 
+같은 유효 칸 순회식을 D에 전이한 별도 비용 실험은 현재 no-TID의 여섯 원본을
+재생성한 control과 비교했다. source7114→7101 B, compressed6972→6956 B,
+packed5245→5233 B로 세 경로 모두 줄었다. native7104/linked7456 B의 길이는 같지만
+바이트가 달라 별도 새 admission·규칙·실제 runtime을 준비한다. 5233 B는 아직
+비용 후보이며 qualified5245 B나 다른 proper-alpha 계보를 대체하지 않는다.
+P4 비용 후보의 차이1137 B를 W256 제출의 남은 차이로 표시하지 않는다.
+
 ### 프로필
 
 | ID | 검색 worker | 엔진당 TT 상한 | 용도 |
@@ -483,6 +490,18 @@ job121303838777은449+27+354=830개 검사를35개 suite에서 통과했다. 새
 후속 비용 도구 체크포인트7d2db44도 세 workflow와 engine26개 작업이 모두 통과했다.
 이는 아직 다음 A/C 생산 통합 소스의 CI 성공과 구분한다.
 
+생산 통합2ea2015의 실제 engine CI40285532382는21개 생성 작업 중19통과·1실패·
+1건너뜀으로 끝났다. A/P28의 callback fixture가 자연 return2로 종료해 P28 Ubuntu22
+aggregate가 건너뛰어졌다. foundation857개와 NVCompact·repository의 성공으로 이를
+대체하지 않으며 새 seed는 생성하지 않았다. 원래 실패 ZIP·중첩 영수증·소스는 보존했다.
+로컬 제한 재현15회는 성공해 원래 할당/스레드 실패 지점은 미확정이다.
+
+후속 공통 P28 진단 코드는 실패 때만 실제 alloc/create/join 반환값·errno·가능한
+커널 제한/VM 정보를 보존한다. 정상 출력, 원본 제출 prefix, 28worker·384MiB TT,
+AS2GiB·exit/join 계약은 바꾸지 않았다. 실패 주입4개는 원래 native return2를
+유지한 채 검증했고, 새 물리 경로의 실제 A/P28 CIPlan 전체 단계는 로컬에서 통과했다.
+이는 관측 누락의 수정이며 원래 CI 원인 확정이나 새 원격 CI 성공을 뜻하지 않는다.
+
 E19 종료 가드 뒤 새 실제 말뭉치는48,189게임·740,062위치다. 이전 유지 게임124개가
 제외됐고 새로 추가된 게임/위치는 없다. 새 step0 준비의 전체 integrity walk와 현재
 COMPOUND E 추론 검사가 통과했고 초기 parameter/integer SHA 및 optimizer0을
@@ -529,8 +548,16 @@ Advanced 전환은 준비만 수행했고 최종 활성화는 사용자가 직�
 콘솔을 작성하지 못했다. 공식 절차·확인/미확인값·전환 영향은 외부 인계에 기록했다.
 전환 후에도 실제 OIDC/정책·Outputs·버전 고정 게시·Advisor 등 gate를 다시 확인한다.
 
+별도의 GitHub 조회에서 기본 branch는 main이며 AWS workflow 조회는404였다.
+현재 파일은 feature 소스에만 있으므로 실제 dispatch 전에 표준 release→main PR을
+통한 등록이 필요하다. 이 등록의 runtime 최소 범위는 workflow와 stdlib controller
+두 파일이며 실제 엔진 source는 별도 검증된 SHA checkout으로 분리한다. 전체66개
+검사는 외부34파일 unit fixture를 사용하고, 이를 main 자동 CI나 production seed로
+표시하지 않는다. main 직접 push·등록 우회·자동 AWS 실행은 하지 않는다.
+
 - 관리형 정책: https://docs.aws.amazon.com/accounts/latest/reference/scps-and-rcps-for-projects.html
 - Advanced 전환: https://docs.aws.amazon.com/accounts/latest/reference/activate-advanced-features.html
+- 수동 workflow 등록: https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manually-run-a-workflow
 
 ### 0cd 이후 남은 작업과 병렬 실행
 

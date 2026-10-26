@@ -121,6 +121,8 @@ class ScanMechanism(unittest.TestCase):
             self.assertEqual(prepared["observation"]["actual_tt_bytes"],384<<20)
             self.assertNotIn("prefix",prepared)
             self.assertNotIn(b"#define rv_spawn",prepared["fixture"])
+            self.assertIn(self.p28.FAILURE_DIAGNOSTICS,prepared["fixture"])
+            self.assertEqual(self.p28.LINK_FLAGS,("-Wl,--wrap=pthread_create","-Wl,--wrap=pthread_join","-Wl,--wrap=aligned_alloc"))
             self.assertEqual(self.p28.restore_trace(
                 self.p28.trace_initialization(source,family)[0],prepared["trace"]),source)
 

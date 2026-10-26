@@ -1,7 +1,12 @@
 """Pure full-resource P28 geometry, trace-domain and startup deadline tests."""
 import copy
+import argparse
 import importlib.util
+import json
 from pathlib import Path
+import re
+import signal
+import sys
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
@@ -123,4 +128,101 @@ class P28Mechanism(unittest.TestCase):
             with self.assertRaises(ValueError):p28.wait_startup_line(runtime,b"uciok",65)
 
 
-if __name__ == "__main__":unittest.main()
+def fault_source(case):
+    """Actual shared wrappers with deterministic real-call stubs; no TT/thread."""
+    prefix=b'''#define _POSIX_C_SOURCE 200809L
+#include<stdio.h>
+#include<stdlib.h>
+#include<stdint.h>
+#include<stdatomic.h>
+#include<pthread.h>
+#include<errno.h>
+#define RVW 28
+typedef struct{size_t id;}M;
+static int qh;
+static void*A(void*p){return p;}
+void*__real_aligned_alloc(size_t alignment,size_t size){(void)alignment;(void)size;errno=ENOMEM;return 0;}
+int __real_pthread_join(pthread_t thread,void**result){(void)thread;(void)result;errno=EDOM;return EINVAL;}
+int __real_pthread_create(pthread_t*t,const pthread_attr_t*a,void*(*fn)(void*),void*p){(void)t;(void)a;(void)fn;(void)p;errno=EIO;return EAGAIN;}
+static void*rv28_fault_malloc(size_t size){(void)size;errno=ENOMEM;return 0;}
+'''+p28.FAILURE_DIAGNOSTICS
+    if case=="create-descriptor":prefix+=b"#define malloc rv28_fault_malloc\n"
+    prefix+=p28.callback_launcher("A")
+    if case=="create-descriptor":prefix+=b"#undef malloc\n"
+    bodies={
+        "allocation":"errno=0;void*p=__wrap_aligned_alloc(4096,402653184);if(p||errno!=ENOMEM)return 77;return 2;",
+        "create":"M worker={0};pthread_t thread;errno=0;int rc=__wrap_pthread_create(&thread,0,A,&worker);if(rc!=EAGAIN||errno!=EIO)return 77;return 2;",
+        "create-descriptor":"M worker={0};pthread_t thread;errno=0;int rc=__wrap_pthread_create(&thread,0,A,&worker);if(rc!=22||errno!=ENOMEM)return 77;return 2;",
+        "join":"errno=0;int rc=__wrap_pthread_join((pthread_t)0,0);if(rc!=EINVAL||errno!=EDOM)return 77;return 2;"}
+    return prefix+("int main(void){"+bodies[case]+"}\n").encode()
+
+
+def c_faults(out):
+    p28.require(sys.platform=="linux" and out.is_absolute() and not out.exists()
+        and p28.ROOT not in (out,*out.parents) and not any((parent/".git").exists() for parent in (out,*out.parents)),
+        "new absolute external Linux fault output required")
+    owner=p28.load("p28_fault_owned_host",p28.ROOT/p28.OWNER);out.mkdir()
+    report=dict(complete=False,commands=[],cases=[],engine_executed=False,TT_allocated=False,
+        source=p28.pin(Path(__file__).read_bytes().replace(b"\r\n",b"\n")),renderer=p28.pin(p28.normalized(p28.HERE/"check_profile_p28.py")))
+    def save():(out/"results.json").write_text(json.dumps(report,indent=2)+"\n")
+    owner.LIMITS.update(aggregate_wall=120,per_command_wall=20,parent_AS=4<<30,child_AS=2<<30,
+        parent_CPU=60,parent_CPU_hard=90,child_CPU=10)
+    previous=signal.signal(signal.SIGCHLD,signal.SIG_DFL);host=owner.Host(out,report,save)
+    try:
+        expected={"allocation":("aligned_alloc",0,12),"create":("pthread_create",11,5),
+                  "create-descriptor":("create-descriptor",22,12),"join":("pthread_join",22,33)}
+        for case,(stage,code,error) in expected.items():
+            directory=out/case;directory.mkdir();source=fault_source(case);(directory/"fault.c").write_bytes(source)
+            host.run(["cc","-std=c11","-Os","-x","c","-","-o","x"],cwd=directory,kind=case+"-compile",data=source)
+            try:host.run([directory/"x"],cwd=directory,kind=case+"-fault")
+            except ValueError:
+                row=report["commands"][-1]
+                p28.require(row.get("returncode")==2 and row.get("forced_cleanup") is False
+                    and all(row.get(k) is True for k in ("terminal","reaped","owned_group_absent")),"original fault return2/ownership changed")
+            else:raise ValueError("injected failure relabelled as native success")
+            stderr=Path(row["stderr"]["path"]).read_bytes();text=stderr.decode()
+            p28.require(Path(row["stdout"]["path"]).read_bytes()==b"" and len(stderr)<50000
+                and p28.pin(stderr)=={k:row["stderr"][k] for k in ("bytes","sha256")},"raw fault streams differ")
+            p28.require(text.splitlines()[0].startswith(f"RV28_FAILURE stage={stage} rc={code} errno={error} ")
+                and "RV28_LIMIT name=AS available=1 soft=2147483648 hard=2147483648" in text
+                and "RV28_LIMIT name=STACK available=" in text and "RV28_LIMIT name=NPROC available=" in text,
+                "fault rc/errno/limits not preserved")
+            files=re.findall(rb"RV28_FILE path=([^ ]+) available=([01]) errno=([0-9]+)",stderr)
+            p28.require([r[0].decode() for r in files]==["/proc/self/status","/proc/self/limits","/proc/self/cgroup",
+                "/sys/fs/cgroup/pids.current","/sys/fs/cgroup/pids.max"],"fault read outside fixed kernel counter list")
+            report["cases"].append(dict(case=case,source=p28.pin(source),native=p28.pin((directory/"x").read_bytes()),
+                original_returncode=2,expected_failure_observed=True,stderr=row["stderr"],stdout=row["stdout"],
+                errno_preserved=True,returned_error_preserved=True,kernel_files=[dict(path=p.decode(),available=a==b"1",errno=int(e)) for p,a,e in files]))
+            save()
+        report["complete"]=True
+    finally:host.close();save();signal.signal(signal.SIGCHLD,previous)
+    print(json.dumps(dict(complete=True,cases=4,native_returncodes=[2]*4,host_cleanup=report["host_cleanup"])))
+
+
+class P28FailureObservability(unittest.TestCase):
+    def test_shared_renderers_preserve_prefix_and_cover_each_return2_source(self):
+        self.assertEqual(p28.LINK_FLAGS,("-Wl,--wrap=pthread_create","-Wl,--wrap=pthread_join","-Wl,--wrap=aligned_alloc"))
+        for family in "ABCEF":
+            source=source_fixture(family)
+            fixture,_,trace,_=p28.full_callback_fixture(source,family,{"resources":resources(),"target_type_assertions":["_Static_assert(sizeof(void*)==8,\"ptr\");"]})
+            self.assertEqual(p28.restore_trace(p28.trace_initialization(source,family)[0],trace),source)
+            self.assertEqual(fixture.count(p28.FAILURE_DIAGNOSTICS),1)
+            self.assertIn(p28.callback_launcher(family),fixture)
+            blocked=p28.blocked_main(source,family,Path("/fixed/release"),Path("/fixed/arrived"))
+            self.assertTrue(blocked.startswith(source));self.assertEqual(blocked.count(p28.FAILURE_DIAGNOSTICS),1)
+            for stage in (b'"aligned_alloc"',b'"pthread_create"',b'"pthread_join"'):
+                self.assertIn(stage,fixture);self.assertIn(stage,blocked)
+        self.assertIn(b"errno=saved_errno;",p28.FAILURE_DIAGNOSTICS);self.assertIn(b"total<8192",p28.FAILURE_DIAGNOSTICS)
+
+    def test_fault_sources_use_shared_callback_and_do_not_allocate_TT(self):
+        for case in ("allocation","create","create-descriptor","join"):
+            source=fault_source(case);self.assertIn(p28.FAILURE_DIAGNOSTICS,source)
+            self.assertIn(p28.callback_launcher("A"),source);self.assertIn(b"return 2;",source)
+            self.assertNotIn(b"N=aligned_alloc",source)
+
+
+if __name__=="__main__":
+    if "--c-faults" in sys.argv:
+        parser=argparse.ArgumentParser();parser.add_argument("--c-faults",action="store_true");parser.add_argument("--out",type=Path,required=True)
+        args=parser.parse_args();c_faults(args.out)
+    else:unittest.main()

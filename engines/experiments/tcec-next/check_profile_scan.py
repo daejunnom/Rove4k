@@ -38,7 +38,7 @@ OWNER = "engines/experiments/tcec-scope/build.py"
 RUNTIME = "engines/compact/tiny-entry-d/verify.py"
 FIXED_INPUTS = {
     LIFECYCLE: dict(bytes=19493, sha256="4609990af40dbca225b610181f01c056cc6555921744b4e71983b180465f8fa1"),
-    P28: dict(bytes=24194, sha256="e0d0c3d5f7fff394615f7dcd62e8657438913cbe0c11f90e3556b27228d0e664"),
+    P28: dict(bytes=28483, sha256="a110b7381786bad7bd89d354b3fc9a2c103cf559732c4c4c0711e3f6ba5626da"),
     PHASE_CHECK: dict(bytes=30905, sha256="a0c0c0ff25dd2b935f281789e7842b2bf199f3167f80df27ac1ff3550c8f4c37"),
     SPELLING: dict(bytes=9921, sha256="7ec393bc9c805ee8e1e6d715f40cb9883f829e3c6b01e2f71f31701e35136ea8"),
     COMPOUND: dict(bytes=5522, sha256="4a4f6079341998fd2d0ef1ff5fc9b35a435751131b4687ce950ef1892820754b"),
@@ -209,7 +209,8 @@ def run_bound(build, out):
         else:
             (directory / "trace-proof.json").write_text(json.dumps(prepared["trace"], indent=2) + "\n")
         compiler = manifest["compiler"]
-        host.run([*compiler, "-Wl,--wrap=pthread_create"], cwd=directory, kind=stem + "-compile", data=fixture)
+        link_flags = p28.LINK_FLAGS if profile == "test-p28" else ("-Wl,--wrap=pthread_create",)
+        host.run([*compiler, *link_flags], cwd=directory, kind=stem + "-compile", data=fixture)
         raw = host.run([directory / "x"], cwd=directory, kind=stem + "-execute")
         if profile == "test-p4":
             lines = raw.decode("ascii").splitlines()

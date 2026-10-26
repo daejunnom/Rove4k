@@ -40,6 +40,7 @@ BEST_SPELLING = {"A": "clock-type", "B": "atomic-assignment", "C": "clock-type",
 COMPOUND_SPELLING = {"path": NEXT + "spelling_compound.py", "selection": "compound",
                      "variant": "clock-atomic-launcher"}
 SCAN_DECLARATION = {"path": NEXT + "profile_scan.py", "variant": "square-successor"}
+P28_LINK_FLAGS = ("-Wl,--wrap=pthread_create", "-Wl,--wrap=pthread_join", "-Wl,--wrap=aligned_alloc")
 PROFILE_WORKERS = {"test-p4": 4, "test-p28": 28}
 TRANSPORT = "engines/scripts/production_source_bundle.py"
 COMPILER_REDIRECTION = ("CC", "CXX", "CPP", "AS", "AR", "LD", "GCC_EXEC_PREFIX", "COMPILER_PATH",
@@ -539,9 +540,10 @@ def p28_abcef_mechanism(plan, report, build, build_pin, *, reader=None):
             "P28 selected compile argv is missing")
     callback_directory = plan.out / "mechanism/selected-W28-full-callback"
     startup_directory = plan.out / "mechanism/selected-W28-last-initializer"
-    expected_commands = (([*compiler, "-Wl,--wrap=pthread_create"], callback_directory),
+    require(tuple(renderer.LINK_FLAGS) == P28_LINK_FLAGS, "P28 diagnostic link wrapper policy differs")
+    expected_commands = (([*compiler, *P28_LINK_FLAGS], callback_directory),
         ([str(callback_directory / "x")], callback_directory),
-        ([*compiler, "-Wl,--wrap=pthread_create"], startup_directory))
+        ([*compiler, *P28_LINK_FLAGS], startup_directory))
     require(all(row.get("command") == argv and row.get("cwd") == str(directory)
             for row, (argv, directory) in zip(report["commands"], expected_commands)),
             "P28 compile/execute argv or owned working directory differs")
