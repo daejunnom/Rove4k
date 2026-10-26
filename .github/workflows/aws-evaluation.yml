@@ -1,0 +1,148 @@
+name: Rove4k AWS evaluation
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: Campaign operation
+        type: choice
+        options:
+          - inspect
+          - preflight
+          - execute
+          - terminate
+        default: inspect
+        required: true
+      campaign_id:
+        description: Exact reviewed campaign ID
+        type: string
+        required: true
+      request_key:
+        description: Exact private S3 request object key
+        type: string
+        required: true
+      request_version_id:
+        description: Immutable S3 request VersionId
+        type: string
+        required: true
+      request_sha256:
+        description: Reviewed request object SHA-256
+        type: string
+        required: true
+      request_bytes:
+        description: Reviewed request object byte length
+        type: number
+        required: true
+
+permissions:
+  contents: read
+  actions: read
+  id-token: write
+
+concurrency:
+  group: aws-evaluation-rove4k-292341339363-ap-southeast-2
+  cancel-in-progress: false
+
+jobs:
+  evaluation:
+    name: Rove4k AWS evaluation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    environment: aws-evaluation
+    env:
+      ROVE_ACTION: ${{ inputs.action }}
+      ROVE_CAMPAIGN_ID: ${{ inputs.campaign_id }}
+      ROVE_REQUEST_KEY: ${{ inputs.request_key }}
+      ROVE_REQUEST_VERSION_ID: ${{ inputs.request_version_id }}
+      ROVE_REQUEST_SHA256: ${{ inputs.request_sha256 }}
+      ROVE_REQUEST_BYTES: ${{ inputs.request_bytes }}
+      ROVE_BUCKET: ${{ vars.AWS_EVALUATION_BUCKET }}
+      EXPECTED_BUCKET: ${{ vars.AWS_EVALUATION_BUCKET }}
+      EXPECTED_ROLE_ARN: ${{ vars.AWS_EVALUATION_ROLE_ARN }}
+    steps:
+      - name: Check out orchestration
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          path: control-plane
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+
+      - name: Configure AWS controller OIDC
+        id: aws
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd
+        with:
+          aws-region: ap-southeast-2
+          role-to-assume: ${{ vars.AWS_EVALUATION_ROLE_ARN }}
+          role-duration-seconds: 21600
+          role-session-name: rove4k-${{ github.run_id }}-${{ github.run_attempt }}
+          allowed-account-ids: '292341339363'
+          output-env-credentials: true
+          output-credentials: false
+          translate-env-variables: false
+          unset-current-credentials: true
+          use-existing-credentials: false
+          role-chaining: false
+          disable-retry: true
+          action-timeout-s: 60
+
+      - name: Stage reviewed AWS campaign request
+        id: stage
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -I -B control-plane/engines/experiments/strength/campaign_ci.py stage \
+            --campaign-id "$ROVE_CAMPAIGN_ID" \
+            --bucket "$ROVE_BUCKET" \
+            --key "$ROVE_REQUEST_KEY" \
+            --version-id "$ROVE_REQUEST_VERSION_ID" \
+            --sha256 "$ROVE_REQUEST_SHA256" \
+            --bytes "$ROVE_REQUEST_BYTES" \
+            --out "$RUNNER_TEMP/rove4k-ci-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+
+      - name: Check out frozen source origin
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ steps.stage.outputs.source_sha }}
+          path: frozen-origin
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Run frozen-source campaign
+        env:
+          STAGE_PATH: ${{ steps.stage.outputs.stage_path }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -I -B control-plane/engines/experiments/strength/campaign_ci.py run \
+            --stage "$STAGE_PATH" \
+            --origin "$GITHUB_WORKSPACE/frozen-origin" \
+            --mode "$ROVE_ACTION"
+
+      - name: Settle owned AWS campaign
+        if: ${{ always() && steps.stage.outcome == 'success' && steps.stage.outputs.stage_path != '' }}
+        env:
+          STAGE_PATH: ${{ steps.stage.outputs.stage_path }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -I -B control-plane/engines/experiments/strength/campaign_ci.py cleanup \
+            --stage "$STAGE_PATH" \
+            --origin "$GITHUB_WORKSPACE/frozen-origin"
+
+      - name: Preserve owned campaign reports
+        if: ${{ always() && steps.stage.outputs.report_path != '' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: rove4k-aws-evaluation-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ steps.stage.outputs.report_path }}
+          if-no-files-found: error
+          include-hidden-files: false
+          retention-days: 30
