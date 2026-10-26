@@ -163,49 +163,38 @@ rodata176 B다. text는 보드/평가2147 B, search2103 B, 그 밖의 혼합 실
 작은 ABI 변경을 구조 해법으로 재명명하지 않고 보드·검색 소비·runtime의 전체 책임
 예산으로 후보를 고른다. 기능 제거로 목표를 통과시키지 않는다.
 
-공개된 [PR #21](https://github.com/daejunnom/Rove4k/pull/21)의 최초144ad16은
-full P4를5233→4937 B, 같은 native의 별도 codec으로4909 B라고 보고했다.
-부모의 별도 실제 profile 준비에서도 P28 5233→4949/4921 B, W256 5229→4929/4905 B가
-재현됐다. 두 profile은 비용·반복 native·strict codec 역변환만 확인했으며
-엔진 실행이나 대용량 TT 할당은0이다. 부모에서의
-qualified5233 B·함수 비용·소유권 기준은 새 기능 인수와 구분해 유지한다.
-보드/검색과 runtime 변환의 정적 검토를 마쳤고, 비용 도구의 실제 Git 경로 판정·
-cleanup 이후 완료 처리와 runtime 관찰기의 부분 Reader/신호 소유권을 수정했다.
-새 helper 순수24검사와 실제 Python 자식을 쓰는 관찰기13사례는 통과했으며,
-39개 실제 입력을 외부에 동결한144ad-safe-v1에서 control/full 비용은 재현됐다.
-7104/6656 B native와4937/4909 B 후보 전체 파일이 작성자 핀과 일치하며,
-두 번의 native 생성은 일치한다. 전체 패키지를 내부에서 두 번 생성했다는 주장은 아니다.
-별도6개 관찰기 의존성을 더한45개 동결 입력으로 첫 실제 기능 검증도 통과했다.
-control/full plain·UBSan 규칙105위치/2858합법 수, 검색1486run·1344취소·5129재탐색,
-보드418878상태와 helper 관측이 일치한다. 실제4909 B P4 두 세션은20 GO/18합법 응답,
-5개 지속 task·네 worker CPU 증가·비동기 isready·active quit/EOF 자연 종료를 확인했다.
-44개 tool 명령·88개 출력 stream·실제 runtime을 독립 감사했다. 물리 코어 배치 자격은
-아니다. no_RWX에 관한 앞선 감사 메모는 호출된 공통 owner.mapping()의 전역 W+X·
-실행/누락 stack 거부를 놓쳤다. 실제 호출 경로를 확인해 startup 관측이 뒷받침됨을
-정정한다. 원본 메모/receipt는 보존하고 별도 정정 기록을 두며, 현재 관찰기는 해당
-필드를 복원하고 향후 관측의 전체 startup map 행도 보존한다.
-새 native는 기존 Square 허용 목록에 넣지 않고 별도 StructuralAdmission과
-실제 규칙·검색·lifecycle·P4 runtime으로 인수한다. 일반4K/ELF 목표는 아직 미달이다.
+[PR #21](https://github.com/daejunnom/Rove4k/pull/21)의 최종87c78c5를
+2db714b에 통합했다. 같은 고정 HC3 SINGLE 레시피의 부모 실측은 P4/P28/W256
+whole4737/4745/4733 B, native6464/6480/6464 B다. 저자의 W2564729 B는 이 레시피에서
+재현되지 않았다. 같은 레시피 control 대비152/160/152 B를 줄였으며 4KiB 초과분은
+각각641/649/637 B다. 초기144ad의4909/4921/4905 B는 자기 codec 문맥으로 보존한다.
 
-후속fafeb3d WIP는 검색/worker/보드·codec·ELF·다른 엔진 전이 도구를 추가한다.
-기존144ad의 BEST와 기본 producer는 바꾸지 않는다. 보고된4865 B 등은 별도
-수동 조합이며 아직 부모 실측이 아니다. 새 비용 도구에도 경로·완료·정리 문제가
-있던 부분은 같은 공통 owner로 수정했고, 중복 material owner는 변환 전에 거부한다.
-독립 source 검토와 board19개 동일/8개 거부·packaging11개·cross-family10개 순수/fake
-검사를 통과했다. 실제 codec·C·engine 측정으로 승격하지 않는다. 첫 packaging fixture
-실행의 exit1/최종 receipt 부재는 원인 미확정으로 별도 보존한다. 최초 후보의 별도
-StructuralAdmission·전체 파일 두 번 재현·startup/R 인수와 후속 구조의 실제 비교는
-남아 있다. 예약/주기 작업은 만들지 않으며 AWS와 ABCE/F는 병렬로 계속한다.
+48개 LF Git blob을 동결해 control/fast native·DEFAULT·SINGLE을 각각 두 번 생성하고
+전체 역변환·EOF를 확인했다. P4 plain/UBSan 규칙105위치/2858합법 수, material418878,
+검색 및 packed 두 session의20 GO/18합법 응답·startup mapping을 독립 감사했다.
+이는 상위 자격·production 선택·물리 배치·기력은 아니다. 상세 recipe·실패 diagnostics·
+원본 보존 범위는 ENGINE-IMPLEMENTATION.md의 D 현재 체크포인트를 따른다.
 
-최종87c78c5는 fast-capacity의 P44737/P284745/W2564729 B를 추가로 보고했다.
-현재 부모에서 확인한4909/4921/4905 B와 섞지 않는다. sentinel·material-table·시작
-상태 선계산, TT 이후 gen/check,413용량, fixed worker/NUL 조합의 정적 검토는 통과했다.
-새 follow-up/benchmark/runtime 도구의 경로·정리·최종 저장·affinity 경계를 수정하고
-외부 fake17검사를 통과했으며 실제벤치마크가 아닌 범위를 유지한다. 실제 비교는
-48개 소비 소스+외부 launcher를 동결한 뒤 previous-full control/fast-capacity만 수행하고
-단일 알려진CRC64/HC3 recipe를 재현한다. 155개 codec 재탐색은 하지 않는다.
-일반4K 목표는641 B 초과라는 새 작성자 보고로도 아직 미달이며 새 비용·기능·상위
-자격·실제물리배치·강도는 각 새 근거를 연결한 뒤 판단한다.
+실제 선택 구조는 incremental material, sentinel/material-table/시작 상태 선계산,
+TT 이후 gen/check·413용량, fixed worker entry/NUL 파싱이다. parallel TT first-touch와
+full NBRQ/EP/castling/draw/PVS/QS/세 learner/atomic128 TT를 유지한다. material owner
+중복은 변환 전에 거부하며 no_RWX 관측의 앞선 감사 오류는 실제 공통 호출 경로로
+정정했다. 원 메모와 receipt는 덮어쓰지 않는다.
+
+새 Structural upper3file은 순수29검사·3.10 AST·source/data probe·독립 정적 검토를
+통과했다. 별도 실제93명령+generic R는 아직0회다. Search→NoTid→Square의 새 실제
+부모에서 initial-full과 fast-capacity를 같은 책임 안에 연결하고 native·whole·startup·
+구성요소·규칙을 확인한 뒤 R로 넘긴다. 기존 native 허용 목록 완화로 인수하지 않는다.
+실행 예산은 setup·R·정리 포함 총900s, parent CPU600/660·AS4GiB, child80CPU/
+90wall·2GiB이며 R은 남은 시간 중 최대300s를 쓴다. 런타임에서 예산을 초기화하지 않는다.
+
+unrenamed hosted-C 시제품은5869 B로4737 B보다1132 B 커서 해당 단일 형태를
+LOSS로 닫았다. 표기/CRT/linker가 다른 비교이므로 hosted 구조 전체의 결론은 아니다.
+32-bit move-effects 구조의 첫 bounded cost는 control native/SINGLE을 재현한 뒤
+candidate 전처리의 legacy-name-capture guard에서 중단됐다. 후보 native/whole은
+미측정이며 크기 LOSS로 표시하지 않는다. 두 helper는 production 선택이 아니다.
+D는 구조적 압축만 계속하고 기능 축소나 수백 바이트 절감의 미확인 약속으로 목표를
+대체하지 않는다. 기존144ad·fafeb 검토/실패는 자기 소스와 원본 근거로 보존한다.
 
 ### 프로필
 
@@ -629,131 +618,79 @@ Node22/24 lifecycle CI가 통과했으며 AWS dispatch는 아직0회다.
 - Advanced 전환: https://docs.aws.amazon.com/accounts/latest/reference/activate-advanced-features.html
 - 수동 workflow 등록: https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manually-run-a-workflow
 
-### 409 이후 남은 작업과 병렬 실행
+### 현재 체크포인트와 병렬 실행, 2026-10-27
 
-아래는 앞선 추정과 구분한 현재 의존성이다. E19 step0와 D5233 B의 새 P4
-기능 자격은 완료됐다. 409062f의 engine40293601820은26/26, NVCompact40293601777과
-repository40293601785도 통과했다. exact foundation121474194541의 실제 결과는
-478+27+354=859개/37suite이며 별도 native 실패 주입4개도 원래 return2를 유지했다.
-앞선2ea2015의 실패 원인은 미확정으로 보존한다.
+검증된 통합 cohort d954의 engine40332593495는26/26, NVCompact40332593448과
+repository40332593381도 통과했다. 원본 foundation121605606554는513+27+405=
+945개/38suite이며 별도 순수24검사와 native 실패 주입4개를 구분한다. 12개 source와
+12개 독립 Ubuntu22 소비자는 F compound-v2를 포함한다. 이 CI의 D는 유지된 이전
+producer이며 실험4737 B를 실행하거나 상위 인수한 결과가 아니다.
 
-후속 a69928f도 engine40302670246의26개 작업, NVCompact40302670026,
-repository40302670115를 모두 통과했다. 실제 foundation121504082563은
-494+27+354=875개/38suite이며 새 순수16검사가 실행됐다. native 실패 주입4개의
-return2·소유 종료0오류도 유지했다. 별도의 실제 D packed P4 실행을 CI로
-재수행한 것은 아니다.
+F-v2의 실제 P4/P28/W256 비용은3587/3602/3589 B다. native는 각 v1과 동일하고
+P4/P28은 생성·초기화 기전·규칙·runtime24 GO/22합법 응답/4그룹을 통과했다.
+W256은 compile/type/source-only로 대형 TT/엔진은 실행하지 않았다. ABCE resolver
+손실 후보는 미채택이며 D의 미세 축약으로 옮기지 않는다.
 
-A/C 새 선택의12개 source와12개 독립 Ubuntu22 소비자를 포함한 같은409 cohort에서
-새 seed도 prepare→inspect→새 Linux materialize→전체 재검증을 완료했다.
-ZIP은6182항목·230,926,297 B 확장·62,475,059 B wire이며 SHA-256은
-`665303cd807e87b01d16eaaf1bed311272969033ab70c7416561867f2283348f`다.
-manifest1,954,243 B의 SHA는
-`e3e2a8064c99666e465c3306b70259bf06b9970695adf21a6d500359ed9d66d2`다.
-canonical merge bdc6fccc/tree5e933d23, ordered parents develop761bdc0/head409062f를
-고정하며 source268파일/898assertion·원본24ZIP·36root 대응 계획을 확인했다.
-후속 develop 이동으로 이 원본 권한을 바꾸지 않는다. S3 게시·EC2·배치·리그는 별도다.
+d954 새 offline seed는 prepare→전체 inspect→새 Linux materialize→전체 재검증과
+독립 감사를 완료했다. ZIP62,580,403 B/manifest1,954,243 B/index42,558 B이며 정확한
+SHA·actual Git merge·원본24ZIP·268source/898assertion은 IMPLEMENTATION에 기록한다.
+원 CLI의 materialized-member 검증/semantic flag=false와 별도 trusted canonical
+workflow 재결합=true를 구분한다. 이전409 seed와 c800 API-base 실패를 덮어쓰지 않는다.
 
-사용자가 선택한 Advanced 전환과 이후 새 인증으로 실제 STS292341339363을
-확인했다. GitHub OIDC 제공자(URL·sts.amazonaws.com audience·소유 태그)와
-AWSServiceRoleForEC2Spot(service-only trust·공식 AWS managed policy)을 각각
-생성하고 exact GET으로 대조했다. 앞선 만료 세션과 관리 계정814650855198 선택은
-생성 전에 중단해 별도 보존했다. 두 IAM 객체 외 stack·S3·환경 변수·dispatch·
-인스턴스 변경은 없다. inherited SCP 전체나 Spot launch 허가를 이 결과로 추정하지 않는다.
+four-role caller는 PR22→main6af1eab, PR23→develop949453a에 병합됐고 두 exact-head
+Node22/24 CI를 통과했다. feature025b53b의 develop 병합은 d954와 같은 tree다.
+Advanced readiness 구현·실제 동일 프로젝트 읽기·서비스 ValidateTemplate도 완료했다.
+앞선 PAID/100USD는 현재 잔액이 아니다. 실제 변경은 OIDC provider와 Spot service role
+두 객체이며 campaign stack·versioned publication·실제 controller OIDC·EC2·리그는0회다.
+Sydney/단일m6a.48xlarge Spot/192vCPU/누적12instance-hour/총USD120 조건을 유지한다.
 
-새 Free Tier 계획 API는 ResourceNotFound, 현재 프로젝트의 GetCredits는 빈
-credits 배열이다. 기존100USD를 현재 잔액이나 크레딧 소멸로 단정하지 않는다.
-현재 frozen caller가 PAID API만 받는 전제를 수정해, 직접 사용자 전환 기록과
-검토된 project/org/management tuple에 결속한 명시적 Advanced readiness class를
-구현한다. fresh own STS·account ACTIVE·조직 ID/관리 ID/ALL을 확인하며 누락·
-오류·다른 계정은 차단한다. API 오류를 PAID 응답으로 바꾸거나 mode를 자동 선택하지 않는다.
-기존 managed-PAID class와 직렬화/digest는 보존하고 새 HOST/최소 IAM read 권한·
-실제 plan/template/launch 호출 경로를 함께 검증한다. 승인된 cash fallback과120USD는 유지한다.
+새5개 실험 helper·pure29 workflow 연결을 이번 WIP source 체크포인트에 포함한다. 순수 검사의
+로컬 통과·CI 등록·해당 head의 실제 CI 성공은 구분한다. source만 추가한 이 단계는
+production D 선택이나 현재 seed의 source authority를 바꾸지 않는다. D 상위 실제
+검증을 마친 뒤 P28 등 영향 소비자별 인수 조건을 확인하고 생산 선택을 연결한다.
 
-이 새8파일의 로컬 공동 검증은 WSL Python3.12.3에서384개가 통과했고 실행 전후
-소스 핀·자연 종료가 일치했다. 별도 native3.10 AWS38/publisher13/infrastructure33은
-이 범위와 겹치므로 더해 세지 않는다. 독립 source review는 CLEAR다. plan 없이 쓰는
-같은 observer의 실제 operator entry도 현재 프로젝트 STS·own ACTIVE·정확한 조직
-읽기를 통과했다. paid_plan_observed=false/account_plan_type=null을 유지한다.
-새 Advanced template29332 B의 실제 ValidateTemplate은8parameter/NamedIAM으로
-통과했다. 파일 SHA ccd414f4c479409cc830c1a81797a658a5309b3d3bd64a65a513d46013544ccb,
-마지막 LF를 제외한 canonical digest는 e083f2cad580549a2494f1bf6d4e187cc5ee703f7d2fae411a3dde3c9b006bdd다.
-이8파일의 c80041d 원격 CI는 engine40315781677의26/26, NVCompact40315781669,
-repository40315781454를 통과했다. 원본 foundation121547901502는
-494+27+384=905개/38suite이며 별도 native 실패 주입4개는 return2/cleanup0오류다.
-새 seed capture는 실제 merge188dbf5의 ordered parents901afce/c80041d와 원본
-PR/run API의 reported base761bdc0가 다르다는 기존 equality 전제에서 중단됐다.
-24ZIP 다운로드나 prepare 이전 실패이며 CI 실패가 아니다. 원본 API를 고치지 않고,
-실제 Git commit/tree와 execution base→reported base 경로를 운반해 검증하는
-execution-base-ancestor-v1을 한 stdlib worker로 생산·inspect·복원·재검증에 연결한다.
-문서 역할과 member 핀을 명시하고 위조/다른 repo/ref/parent/tree는 출력 생성 전에
-거부한다. 기존 v1과409 seed는 보존하며 새 source/CI/cohort가 필요하다.
-실제 stack·ControllerRole OIDC·게시·launch는 미수행이다.
+compiler/codec는 처음 Windows free379292KiB(15:17UTC), 후속 physical1045776KiB/
+virtual887000KiB에서 대기했다. 이후 physical3338500KiB/virtual3965184KiB로 회복됐고,
+effects의 fresh prestart2254472KiB에서 한 번 실행했다. 첫 후보는 preprocessing guard에서
+중단돼 비용 미완료이며 원 실행·실패를 보존한다. 다른 프로그램·cache·WSL 설정은 변경하지
+않았다. effects 소유 실행을 완전히 반환하고 새 memory admission을 거쳐 upper를 시작한다.
+독립 source 검토·문서·클라우드 CI는 이 공유 실행 구간과 병렬로 진행한다.
 
-계보 연결6파일은 로컬 WSL Python3.12 전체405검사와 겹치는 helper71검사를 통과했다.
-두 원본 실행의 자연 종료·그룹 부재·6개 source 핀을 독립 대조했다. 앞선 실제 실패와
-Python3.12 mock resolver 준비 결함은 별도 보존했다. CLI 기본 inspect는 manifest-only로
-범위를 표시하며 --members-root에서 실제 proof 의미를 재검증한다. 새 CI/cohort/seed와
-main 수동 controller의 좁은4-role pass-through 등록이 다음 단계다.
-
-공통 축약 P4 실측은62outer와 중첩 소유 명령을 자연 종료했다. ABCE resolver는
-각각3781→3785/4071→4075/3915→3919/3882→3885 B 손실로 종료했다. full F의
-괄호 축약만3590→3587 B로 이득이었다. 후속 F-only 비용 비교는 P28 3602→3602 B,
-W2563590→3589 B이며 native는 control과 같았다. W256 엔진/대용량 TT는 실행하지
-않았다. 이후 명시적compound-v2의 실제 로컬 P4/P28은 각각 생성·기전·규칙·runtime
-네 단계와24 GO/22합법 응답·4그룹 자연 종료를 통과했다. W256은3589 B/source7032 B와
-type/native 반복·전체 역변환만 통과했다. 세 profile의 CPP 전후6명령은 정확한 두
-괄호쌍4 B 차이·역변환·보호 구간을 확인했다. 기본 v1은 유지하며 CI의 F P4/P28
-선택만 v2로 바꾼다. 첫 RUNNER_TEMP 준비 실패는 도구 실행 전에, 첫 P28 diagnostic
-helper 핀 실패는 generation 이후 mechanism 컴파일 전에 중단됐고 별도 보존했다.
-검토된 현재 의존성 핀과 새 실행을 함께 인수하며,
-그 후속3경로를 소비하지 않은 P4의 기존 동결 결과는 그 문맥으로 유지한다.
-새 source/독립 Ubuntu22 CI·운송·실제 배치/강도는 다음 단계다.
-모든 후보 native는 control과 같았지만 전체 파일 비용은 같지 않았다. 앞선 도구
-핀·정수 예산·CRLF 사전검사 준비 실패와 실제 후보 결과를 구분해 보존한다.
-
-D qualification 도구만의 a699 통합은 기존 HOST/R·선택된 profile closure를 바꾸지
-않았다. 하지만 다음 Advanced HOST 수정은 별도 source/CI/cohort/seed를 필요로 한다.
-완성된409 seed를 덮어쓰거나 새 account readiness가 구현된 운송본으로 표시하지 않는다.
-공통 workflow/docs는 한 writer가 통합하고 AWS 구현·full D/공통 축약은 병렬로 진행한다.
-
-```mermaid
+~~~mermaid
 flowchart TD
-  P[공통 준비 완료: c800 CI·409 seed·단독 IAM·Advanced 읽기] --> S[원본 Git 계보 증명·공통 소비자·controller 연결]
-  P --> D[PR21 최초144ad: 정적 검토·harness 수정·동결]
-  D --> DR[control/full 실제 비용 재현]
-  DR --> DV[별도 StructuralAdmission·규칙/검색/lifecycle·실제 P4]
-  D --> DW[후속fafeb WIP: 조합 owner 충돌·harness 수정 후 별도 검토]
-  P --> B[F compound-v2·기존 v1 보존·세 프로필 연결]
-  B --> BV[실제 P4/P28 기능·규칙/runtime·W256 compile-only]
-  S --> C[통합 head의 정확한 CI]
-  DV --> C
-  BV --> C
-  C --> T[새 HOST cohort·seed 생성·전체 복원 감사]
-  S --> H[최소 IAM·종료 장치·불변 게시의 배포 검토]
-  H --> X[기한 고정 stack·S3 버전·실제 OIDC 검증]
-  T --> X
-  P --> G{최신 Advisor 5% 미만과 비용·자원 gate}
-  G -->|충족한 경우| X
-  X --> N[Spot 실제 배치·NUMA·대용량 초기화]
-  N --> L[4KiB 적격 선수 TEST 부분 리그]
-  DV --> A[최종 범위·실패·출처 감사]
-  BV --> A
-  DW --> A
-  C --> A
-  L --> A
-```
+  DONE[완료: d954 CI·offline seed·F-v2·main/develop caller] --> PREP[공통 준비: 불변 source·소유자·예산]
+  PREP --> SP[D upper·move-effects 실행기 준비와 정적 검토]
+  PREP --> REUSE[A/B/C/E/F 구조 재사용 검토]
+  PREP --> WIP[실험 helper·pure29·문서 WIP 통합]
+  WIP --> CI[새 exact head CI]
+  SP --> MEM{fresh memory·공유 compiler admission}
+  MEM -->|대기 W| MEM
+  MEM -->|충족| COST[move-effects 단일 cost]
+  COST --> SETTLE[자연 종료·소유 실행 반환]
+  SETTLE --> UPPER[새 admission 후 D actual93명령+R]
+  UPPER --> AUDIT[새 source/기능·실패·범위 최종 감사]
+  CI --> AUDIT
+  REUSE --> AUDIT
+  AUDIT --> SELECT[프로필별 인수 후 생산 선택·새 CI/필요 cohort seal]
+  SELECT --> GATE{fresh Advisor·비용·권한·AMI·capacity gate}
+  GATE -->|충족| LIVE[기한 배포·S3 VersionId·실제 OIDC/종료 확인]
+  LIVE --> NUMA[Spot 배치·NUMA·대용량 초기화]
+  NUMA --> LEAGUE[full4KiB 적격 선수의 점수 TEST 리그]
+  AUDIT -.-> SIZE[D 구조적4KiB 수렴: 별도 미정]
+~~~
 
-공개된 PR과 c800 결과를 기준으로 다음 소스/운송 체크포인트를 재산정한다.
-공통 준비0.15–0.3h → max(D 최초 구조 인수·실제 검증1.5–4h,
-F-v2 소비자·실제 P4/P28 검증1.5–3.5h, Git 계보 공통 구현·controller 검증1–3h)
-→ 공유 CPU·compiler·통합 대기0–0.5h → 새 CI0.25–0.75h·새 seed0.25–0.75h
-→ 최종 감사0.5–1h로 약2.65–7.3h다. 8논리 CPU는 순수 F0/1·관찰기2/3·AWS검사4/5·
-D비용6/7처럼 임시 배정하고 실제 엔진 단계는 완료/반환 뒤 재배정한다.
-이 로컬 배정은 물리 코어·scored placement 자격이 아니다. 분기 시간을 합산하지
-않으며 D4K 수렴·후속 WIP 전체 포트폴리오·실제 리그 완주·외부 gate 대기는 이
-체크포인트 추정에 포함하지 않는다. 새 실패가 나면 남은 경로와 공유 대기를 갱신한다.
+다음 source/upper 체크포인트의 계획용 추정은 공통 준비0.15–0.3h →
+max(D 실행기·실제 관측/필요 수정1–3h, 구조 재사용 검토0.5–1.5h,
+WIP 통합·새 CI0.75–1.5h) + 공유 compiler·메모리 대기W → 최종 감사0.5–1h로
+약1.65–4.3h+W다. 실제 단일 cost의 hard wall180s와 upper900s는 한 번의 실행
+상한이며 이 작업창에는 source 검토·결함 수정·결과 인수도 포함한다. 두 실제 실행은
+같은 compiler 구간에서 순서대로 진행하고 나머지 분기는 병렬로 진행한다. 분기 시간을
+모두 더하지 않는다. W는 현재 미정이며 숫자로 숨기지 않는다. D 잔여641 B 수렴,
+프로필별 후속 생산 인수·필요 seed·외부 AWS gate·리그 완주는 이 유한 창의 완료 약속이
+아니다. 실패나 새 의존성이 생기면 남은 경로와 공유 대기를 다시 추정한다.
 
-2026-10-25T22:18:13Z의 공식 Advisor 조건부 조회는304였고 객체 Last-Modified는
-여전히2026-03-20T23:38:55Z다. 새 데이터가 아니므로 과거15–20% 구간을 현재 위험도로
-확정하지 않으며 최신5% 미만 gate는 미충족으로 유지한다. 같은 상태의 반복 조회나
-승인 없는 SKU·리전·위험 기준 변경으로 이 대기를 해소하지 않는다.
+Oct27 KST 공식 Advisor 조건부 조회는304/Last-Modified2026-03-20이었다. 현재 공식
+frontend 경로 조사도 끝났으나 검증된 새 데이터 URL은 없었다. HTML200의 Oct20 날짜는
+데이터 freshness가 아니며 pricing iframe/bundle은403이다. 과거15–20%를 현재 위험도로
+확정하거나 fetch 시각을 freshness로 바꾸지 않는다. 최근7일/<5% gate는 미충족이다.
+같은 응답의 반복 polling·Codex 예약과 승인 없는 SKU/Region/위험 기준 변경은 하지 않는다.

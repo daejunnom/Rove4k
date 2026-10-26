@@ -5,125 +5,99 @@ The current user request includes the complete C A–F implementation, AWS evalu
 preparation and E19 data/trainer/export preparation. Production optimizer steps remain
 zero and the initial model weights remain unchanged; trained strength is not claimed.
 
-## Current integration checkpoint, 2026-10-26
+## Current integration checkpoint, 2026-10-27
 
-### Current CI, offline seed and local source-path follow-up
+### Verified source, CI and offline transport
 
-The initial PR21 integration0fabb98 passes engine40322556273 (26/26),
-NVCompact40322556284 and repository40322556309. Original foundation121570896933
-passes the same905 unit tests/38 suites and the separately reported24 pure
-structural-helper checks with engine_modules_loaded=false. The four injected
-native faults retain return2 and clean settlement. This CI does not run the
-new structural engine candidate or qualify the subsequent fafeb WIP.
+The verified source cohort is d954f3b8ad9c8f1de7c637d85b5327f6b131faf4.
+Engine40332593495 passes26/26 jobs, including12 P4/P28 source producers and12
+independent Ubuntu22 consumers. NVCompact40332593448 and repository40332593381
+also pass. Original foundation121605606554 records513 contract +27 E19 +405
+evaluator/service tests:945 across38 suites. The separate24 pure structural
+checks and four native fault injections also pass; injected failures retain
+return2 and clean ownership settlement. This CI selects F compound-v2, but its
+D producer remains the maintained predecessor, not the experimental4737B D.
 
-The c80041d Advanced-readiness source checkpoint passes engine40315781677
-(26/26), NVCompact40315781669 and repository40315781454. The original foundation
-job121547901502 records494 contract +27 E19 +384 evaluator/service tests,
-905 across38 suites, with the separate four native faults still returning2
-and no unsettled commands. These checks precede the new structural helpers.
-Its attempted new seed capture stops before ZIP download/prepare: the actual
-execution merge188dbf5 has ordered parents develop901afce/headc80041d, while the
-unmodified PR/run API originals still report base761bdc0. The existing equality
-assumption rejects it. Preserve this failure and the completed409 seed. A
-traveling raw Git ancestry proof and explicit document-role mapping now connect
-the shared stdlib producer, archive inspection, pre-mkdir materialization,
-revalidation and controller pass-through. Raw API snapshots are not rewritten.
-The six-file local joint passes405 tests under WSL Python3.12; the overlapping
-helper-only71 also passes and is not added to405. Original handles, six unchanged
-source pins and natural settlement pass independent audit. Earlier regex,
-manifest-only inspection and Python3.12 mock-resolver fixture failures remain
-separate. CLI inspection defaults to explicit manifest-only disclosure; semantic
-inspection requires actual members via --members-root. The source change still
-needs a new CI/cohort and actual transport, and the manual main controller needs
-its narrow pass-through registration before dispatch.
+The corresponding new offline seed completes prepare, full ZIP inspection,
+fresh Linux materialization and all-member revalidation, with independent audit.
+Its62580403B ZIP has SHA-256
+`b788a3ea198a2ca7c1ae1ceb105e9fffecf5a527c32174089fe877e3153687ce`;
+the1954243B manifest has SHA-256
+`0edd66110a9b629a0e75fc13b92107df0103666180fc3acb1deb2adb83155b27`.
+The42558B release index is
+`ce63b77a77e73ba6081cef1425696c8f2b9ac70d67359c30ea95c7142462cbd0`.
+Actual merge e3f0bb0788647b942d5b32f7a50c459063f363a4 has ordered parents
+develop901afce/head d954 and tree0aa8749e9b1155544d5ab52f0e34616ae4d9d7de.
+All24 original ZIPs,12 source seals,268 canonical sources and898 source
+assertions agree. ZIP expanded bytes231500673 and6182 entries remain inside
+the unchanged transport caps. The36 historical roots are a restoration plan.
 
-The later qualification-tools checkpoint a69928f passes engine40302670246
-(26/26), NVCompact40302670026 and repository40302670115. Exact foundation
-job121504082563 passes494 contract,27 E19 and354 evaluator/service tests,
-875 across38 suites, including the new16 pure square-qualification tests.
-The separate four native fault cases retain return2 and settle without errors.
-These CI tests do not rerun the separately completed actual D packed runtime.
+The actual CLI reports materialized-members/member_bytes_verified=true and
+workflow_proof_semantically_validated=false for the legacy merge representation.
+Preserve that result. A separate trusted canonical seed.workflow_binding call
+rebinds the materialized original API bytes and actual Git objects to the exact
+sealed result; independent_materialized_workflow_rebinding is true. Transported
+source is not imported. Neither result proves publication, engine execution or
+AWS readiness. The completed409 seed remains immutable. The c800 capture failure
+on actual-parent versus reported-API-base equality remains a distinct failure
+before ZIP download/prepare; the later proof implementation does not rewrite it.
 
-Checkpoint409062f passes all three workflows: engine40293601820 (26/26),
-NVCompact40293601777 and repository40293601785. Exact foundation job121474194541
-passes478 contract,27 E19 and354 evaluator/service tests,859 across37 suites.
-Four separately injected native faults retain return2. All twelve P4/P28 source
-jobs and twelve independent Ubuntu22/GCC11 consumers pass, including the new
-A/C selection. This does not establish the cause of the earlier2ea2015 failure.
+### F selection and live-caller preparation
 
-The new canonical409 cohort completes prepare, inspect, a fresh Linux materialize
-and every member revalidation. Its6182 ZIP entries contain230926297 expanded
-bytes and62475059 wire bytes. ZIP SHA-256 is
-`665303cd807e87b01d16eaaf1bed311272969033ab70c7416561867f2283348f`;
-the1954243B manifest is
-`e3e2a8064c99666e465c3306b70259bf06b9970695adf21a6d500359ed9d66d2`.
-Actual Git authority is merge bdc6fccc, tree5e933d23, with ordered parents
-develop761bdc0 and head409062f. Its268 source files and898 source assertions
-match, and all24 original ZIP digests match. The36 original absolute roots are
-validated as a restoration plan, not physically restored. This immutable source
-authority survives subsequent develop movement. Offline transport does not
-prove S3 publication, EC2 execution, physical placement or scoring.
+F's explicit compound-v2 preserves the default v1 path and produces P4/P28/W256
+whole3587/3602/3589B, with native bytes identical to their corresponding v1
+controls. P4/P28 each pass actual generation, initialization mechanisms, rules
+and four runtime groups:24 GO/22 legal replies. W256 is compile/type/source-only;
+no W256 engine or giant TT runs. Six actual CPP commands establish the exact two
+removed parenthesis pairs and the complete inverse. Initial RUNNER_TEMP and
+P28 diagnostic-pin failures stay preserved under their original run roots.
+The F-v2 P4/P28 source paths and independent Ubuntu22 consumers pass in d954 CI.
+Earlier ABCE resolver cost losses are not adopted and do not apply to D.
 
-PR #19 registers only the manual AWS workflow and controller helper on main at
-4fc00d9; PR #20 back-integrates the same bytes into develop at901afce. Exact-head
-Node22/24 lifecycle checks pass for both PRs. The AWS workflow is registered but
-has no dispatch. The user confirms Advanced activation with team daejunnom.
-Fresh same-project STS and provider reads succeed; after confirming both objects
-absent, the GitHub OIDC provider and AWSServiceRoleForEC2Spot are created and
-read back in project292341339363. URL/audience/tags and service-only role trust/
-AWS-managed policy match. Expired-session and wrong-management-account attempts
-stop before creation and are preserved separately. No campaign stack, S3 object,
-environment/variable, dispatch or instance is created by this preparation.
-Project Rove4k, profile rove4k, Sydney and the original caps remain unchanged.
-Fresh Advisor<5% is still an independent launch gate.
+PR19/20 initially registered the manual AWS workflow/controller. PR22 then
+merges the narrow four-role caller support into main6af1eab; PR23 brings it back
+to develop949453a. Both exact-head Node22/24 checks pass. The actual release
+helper's16 parser/pass-through tests are separate from the feature helper71
+and overlapping full405 tests. The +71B change preserves existing two/three-role
+requests and frozen-worker full-result comparison. Feature merge025b53b contains
+the reviewed develop ancestry with exactly the same tree as d954. Registration
+and ancestry do not establish a workflow dispatch or ControllerRole assumption.
 
-The current Free Tier plan API returns ResourceNotFound and project-scoped
-GetCredits returns an empty credits list. The previous PAID/100USD response is
-historical; neither credit loss nor the error's cause is inferred. The frozen
-AWS caller requires a PAID API response, so its current readiness model does not
-cover this explicitly confirmed Advanced transition. An explicit, reviewed
-member-project readiness class now connects the pre-stack observer, deployed
-preflight/launch, selected template/deployment validation and first seed publish.
-The frozen eight-file local joint passes384 tests under WSL Python3.12.3 with
-unchanged before/after source pins and natural process cleanup. Focused native
-Python3.10 AWS38/publisher13/infrastructure33 tests also pass; they overlap the
-joint scope and are not added to its count. Independent exact-source review is
-CLEAR. The legacy plan digest/default template and watchdog bytes are preserved.
-The source-only operator entry subsequently completes actual same-project STS,
-own ACTIVE account and exact organization reads without a future ControllerRole.
-Its report is allowed with paid_plan_observed=false and account_plan_type=null.
-The29332B rendered Advanced template passes actual service ValidateTemplate with
-eight parameters/CAPABILITY_NAMED_IAM. Its file SHA is
-`ccd414f4c479409cc830c1a81797a658a5309b3d3bd64a65a513d46013544ccb`;
-canonical JSON without the final LF has digest
-`e083f2cad580549a2494f1bf6d4e187cc5ee703f7d2fae411a3dde3c9b006bdd`.
-These metadata reads and template validation create no resources and do not
-establish ControllerRole assumption, deployment, publication or launch success.
-Unknown/error responses stay blocked and are never relabeled PAID. The complete
-409 seed remains immutable; this subsequent HOST change requires a new source,
-CI and seed cohort before live campaign execution. Authorized cash fallback stays inside120USD.
+Advanced readiness is implemented and tested. Its actual operator observation
+confirms the same project/own ACTIVE account/exact organization and retains
+paid_plan_observed=false/account_plan_type=null. The29332B Advanced template
+passes service ValidateTemplate; file SHA is
+`ccd414f4c479409cc830c1a81797a658a5309b3d3bd64a65a513d46013544ccb`.
+The historical PAID/100USD observation is not a current credit balance. Actual
+AWS changes remain only the GitHub OIDC provider and Spot service-linked role,
+both read back in project292341339363. Campaign stack, S3 publication, environment
+variables, OIDC dispatch, EC2 and league have not run. Sydney/single m6a.48xlarge
+Spot/192vCPU/12 instance-hours/gross USD120 and fresh Advisor<5% stay mandatory.
 
-The separate five-route P4 resolver/parenthesis cost trial completes62 outer
-commands, with all owned nested work naturally settled and no engine/TT action.
-ABCE resolver rewrites lose:3781→3785,4071→4075,3915→3919,3882→3885B. They stop.
-Full F's redundant-parenthesis change wins3590→3587B; all candidate native bytes
-match their controls, but only the actual whole measurements determine wins.
-The subsequent F-only costs are P28 3602→3602B and W2563590→3589B, again with
-identical native bytes to control. No W256 engine or giant TT runs. Production
-integration now preserves the default v1 path and adds explicit compound-v2.
-Actual local P4 and P28 each pass generation, initialization mechanisms, rules
-and runtime:24 GO/22 legal replies in four naturally settled groups per profile.
-W256 reproduces3589B with source/type/native checks only and no engine/TT run.
-Six actual CPP commands confirm that the full before/after output differs only
-by the two removed parenthesis pairs; inverse and protected gaps agree. The
-first caller preflight lacks RUNNER_TEMP and stops before output/tool work;
-the first P28 mechanism stops before its compilation on a stale diagnostic-helper
-pin. Preserve both failures, the corrected reviewed input-pin change and new
-run roots. The P4 frozen actual closure does not consume the three later P28
-diagnostic paths. CI now selects F-v2 explicitly in its P4/P28 matrix; fresh
-source/Ubuntu22 CI acceptance and transport remain separate work.
-Earlier caller pin/type/normalization preflight failures are preserved separately
-and are not candidate measurements. No such microtrial is applied to D.
+### Experimental follow-up and resource admission
+
+The three Structural upper helpers pass29 local pure tests and source review;
+their self-test is registered in the foundation workflow. Actual93 source-owned
+commands plus generic R have not run. Their source and registration do not
+qualify the new D or change the selected production profile. The separately
+preserved hosted and move-effects source projections are experiments only.
+See the D checkpoint below and the plan's current dependency/resource graph.
+
+Compiler/codec work initially waits for host memory:379292KiB free physical at
+15:17 UTC, then1045776KiB physical/887000KiB virtual at the later root snapshot.
+A subsequent admission observes3338500KiB physical/3965184KiB virtual; effects
+prestart observes2254472KiB physical and starts one cost attempt. No unrelated
+process, cache or WSL setting is changed. Upper qualification follows complete
+effects settlement and a fresh admission, not the historical memory readings.
+
+The Oct27 KST public Advisor check returns304 with Last-Modified2026-03-20.
+Current official frontend investigation finds no verified replacement data URL;
+the page's Oct20 HTML date is not interruption-data freshness, and the pricing
+iframe/bundle returns403. The fresh<5% gate remains unmet. No scheduled poll or
+automatic Region/SKU/risk fallback is introduced.
+
+Historical checkpoints below retain their original source and observation scope.
+Their counts, artifacts and passing state are not relabeled as the current head.
 
 Checkpoint0cd1324 passes all three workflows: engine40238075060 (26/26),
 NVCompact40238074950 and repository40238074958. Exact foundation job121303838777
@@ -190,6 +164,7 @@ This cost class stops without engine execution, TT allocation, semantic bridge
 or runtime qualification. The qualified5233B source stays unchanged.
 
 The subsequent user instruction restricts D to structural compression. The
+following attribution is the pre-PR21 Square checkpoint, not the6464B native. The
 rights-table microtrial stops before C/packing; no isolated spelling/type/table/
 local-expression/small-ABI trials continue. Exact native attribution is232B
 ELF/PHDR +6695B text +1B alignment +176B rodata. Board/evaluation helpers use2147B,
@@ -203,68 +178,70 @@ preserving full functionality; small ABI packing is a component, not a claimed
 solution. Runtime/library and board/search-consumption architectures are under
 read-only review, with no new structural implementation or savings claimed.
 
-[PR #21](https://github.com/daejunnom/Rove4k/pull/21) is now open. Its initial
-144ad16 reports full P4 whole5233→4937B, or4909B with a separate codec, and
-P28/W256 cost-only4921/4905B. Parent-side fresh profile-specific preparation
-subsequently reproduces P28 control5233→full4949/4921B and W256 control5229→
-full4929/4905B. Two native builds per case and strict codec inverses pass; no
-W28/W256 engine or TT allocation runs. Initial board/search/runtime static review passes;
-the parent's independent cost reproduction now matches control7104B native and
-5233B whole, full6656B native and4937/4909B whole, including the author's hashes.
-The39 actual inputs are frozen outside Git. Both native builds repeat; the tool
-does not internally generate every whole package twice. The qualified5233B
-identity stays distinct from the new bounded local observations. Local integration fixes
-resolved-output ancestry checks, completion after Host cleanup, partial Reader
-capture and signal/terminal observation ownership. Pure24 helper checks and13
-real-Python-child observer cases pass; these are harness evidence, not D engine
-qualification. Fresh control and full plain/UBSan observations subsequently
-agree for105 positions/2858 moves, actual search including1486 runs/1344
-cancellations/5129 re-searches, and418878 board states per mode. The helper
-probe also passes. Two actual4909B packed P4 sessions complete20 GO/18 legal
-replies with exact native restoration, five persistent tasks, all four workers
-showing positive CPU, asynchronous readiness and active quit/EOF natural exits.
-The45 frozen inputs,44 tool commands,88 tool streams and runtime streams pass
-independent final audit. These one-physical-core/SMT observations do not qualify
-physical P4 placement, target startup or strength. A later source trace corrects
-an audit caveat: the actual shared owner.mapping() already reads all maps and
-rejects W+X or an executable/missing process stack before returning. Thus the
-old no_RWX startup observation is supported, although the receipt retains only
-guard rows. Preserve the original audit note and its separate correction; the
-current observer restores that field and retains the complete startup map rows.
-New native/source/layout still needs a separate live-parent
-StructuralAdmission, twice-reproduced whole carrier, startup projection and
-generic R observations before upper qualification or selection.
+[PR #21](https://github.com/daejunnom/Rove4k/pull/21) is merged at2db714b;
+its final head is87c78c5. The parent's48 committed LF-source cohort reproduces
+the final composition without changing the selected production D. The exact
+common HC3 SINGLE recipe uses lc0/lp0/pb0, MF_HC3, nice32, depth64, CRC64,
+X86 BCJ/LZMA2, dict8192 and an unnamed-memfd205B header; tried=1, no155 sweep.
 
-The subsequent fafeb3d WIP adds search/worker/board, codec/ELF and cross-family
-experiments without changing initial144ad BEST or the default producer. Reported
-4865B and other new combinations are not parent measurements. Integration fixes
-the additional cost tools through the same resolved-output/settled-cost/final
-owner helpers, and rejects the overlapping by-move/fused-delta material owners
-before any transform. The resolver boundary supports plain and noinline forms.
-Independent source review and external pure/fake regressions pass:19 independent
-board outputs unchanged/eight conflict rejections,11 packaging cases and10
-cross-family harness cases. These tests execute no real codec/compiler/native
-or engine. The first mounted-fixture packaging test's exit1/no-final-receipt
-and a prior PowerShell startup memory error remain preserved separately with
-their causes unconfirmed. Initial candidate reproduction and follow-up WIP
-measurement stay separate. No automation is created; AWS and ABCE/F
-work continue in parallel. General4K/ELF size, target hardware and strength gates
-remain open.
+| Profile | Control native → fast | Same SINGLE control → fast | Above4096B |
+|---|---:|---:|---:|
+| P4 | 6656 →6464B | 4889 →4737B | 641B |
+| P28 | 6672 →6480B | 4905 →4745B | 649B |
+| W256 | 6656 →6464B | 4885 →4733B | 637B |
 
-PR21's final87c78c5 adds a separately selected fast-capacity composition with
-precomputed start,413 move capacity, deferred gen/check after TT and fixed worker
-entry/NUL tokens. It reports4737/4745/4729B for P4/P28/W256. Those new costs and
-the author's hosted timing are not parent measurements yet. Selected-source
-review passes; integration preserves the stronger upfront material-owner groups,
-the prior process owner and full startup maps. New follow-up/benchmark/runtime
-harness boundaries pass17 external fake tests and independent review. Benchmark
-state comparison now includes published Worker.score outside the timed interval.
-The next actual experiment freezes48 consumed sources plus its launcher, runs
-only previous-full control and fast-capacity, and reproduces one known CRC64
-HC3 recipe rather than a155-setting search. W28/W256 remain cost-only. The
-local initial-only Structural upper-route draft has21 pure tests and source review, but has
-not executed its80 source commands/R groups; its same-authority final variant
-will bind the new actual cohort after reproduction. No old native map is relaxed.
+The author's W2564729B is not reproduced by this fixed common recipe. No missing
+author-specific recipe is inferred or silently searched. Historical144ad
+4909/4921/4905B uses its own codec context; do not subtract these as a same-recipe
+structural saving. Each final case has two independent native generations,
+two DEFAULT and two SINGLE wholes, full inverse, strict EOF and no trailing data.
+
+Actual P4 plain/UBSan rules agree on105 positions/2858 legal moves; material
+lifecycle agrees on418878 positions/checksum8dd4cbfc86c94b6b per case/mode.
+Search agrees on1486 runs/1344 cancellations/5129 re-searches, including learner
+and ordering observations. The candidate's NUL helper is exercised under UBSan.
+Each control/candidate packed runtime completes two quit/EOF sessions with20 GO
+and18 legal replies, five persistent tasks and four positive-CPU workers,
+asynchronous readiness and natural active termination. All original identities,
+readers and groups settle without forced cleanup. Four retained post-ready
+startup snapshots contain52 full map entries; no_RWX/NX is limited to that scope.
+All78 inner Host commands and11 outer CLIs settle naturally. Six rejected
+reduce-batch-alpha diagnostics remain recorded; final native/function stderr is
+empty. These local observations are not physical placement, upper qualification,
+production selection, strength or size eligibility.
+
+The selected transformations retain full N/B/R/Q, EP, castling, draws, PVS/QS,
+three learners and coherent atomic128 TT. They include incremental material,
+sentinel/material-table/precomputed start, TT-before-gen/check, capacity413 and
+the actual two-argument nonreturning worker entry/NUL parsing. Parallel TT first
+touch stays selected. Upfront exclusive material owners reject unsafe mixtures.
+Follow-up/benchmark/runtime harness fixes pass17 fake checks and source review;
+Worker.score is compared outside the timed region. The earlier no_RWX review
+error is corrected by tracing owner.mapping(); original notes/receipts survive.
+
+The same three-file StructuralAdmission/carrier/qualifier now supports the finite
+initial-full and fast-capacity variants and passes29 pure tests, Python3.10 AST,
+source/data probes and independent source review. It keeps a genuinely fresh
+Search→NoTid→Square parent, then initial6656B and fast6464B identities. Archived
+raw-CRLF evidence stays separate from current LF Git blobs. Actual upper work is
+still pending:93 source commands (55 C compiles/13 CPP/25 fixture runs), twice
+reproduced selected wholes, startup/components/rules, then four generic R groups
+with24 GO/22 ordinary legal replies. The proposed total wall900s includes setup,
+R and cleanup; driver CPU600/660/AS4GiB and child80CPU/90wall/2GiB caps do not
+reset at runtime handoff. No old native map or JSON archive mints the authority.
+
+The named unrenamed hosted-C prototype closes at5869B:108B header+5761B payload,
+1132B above4737B. Two natives/wholes and complete inverses agree; no target or TT
+executes. Its lexical-only source/CRT/linker context differs from the selected
+native reducer, so this closes one prototype rather than all hosted architecture.
+The separate32-bit move-effects descriptor has source review/pure checks. Its
+first bounded cost attempt reproduces the fresh control native/SINGLE, then
+rejects candidate preprocessing at the frozen runner's legacy-name-capture guard
+before candidate native compilation or packaging. Original cell35 ends at
+chunk64c0cb/exit1; this is an incomplete cost observation, not a size loss.
+The failure and original source are preserved for ownership diagnosis; no rerun
+is implied. Neither experiment is selected production code. D continues
+structural changes only; full features and the unresolved641B gap stay explicit.
 
 The first sparse-square transfer costs A3794→3781B and C3927→3915B in P4; B4071→4072B
 loses and stops. A separate fresh pre-cleanup six-profile comparison now confirms
@@ -312,8 +289,8 @@ The user has completed Advanced activation with team daejunnom. It removes exist
 caps do not replace an AWS-enforced spend limit. UI initialization failed, so
 current spend limits, other project costs and the management email are unknown.
 The later standalone IAM setup is recorded above; it does not establish complete
-inherited SCP or Spot launch permissions. Deployment/VersionId/NUMA, Advanced
-readiness integration and fresh Advisor<5% gates remain open. No campaign resource
+inherited SCP or Spot launch permissions. Deployment/VersionId/NUMA and fresh Advisor<5% gates remain open.
+Advanced readiness integration is completed at the current checkpoint above. No campaign resource
 or instance was deployed by these source changes.
 
 PR #18 is merged into `feature/rove4k-engines-af` at2bed793. Its common C
@@ -378,9 +355,10 @@ automatic fivefold/75-move termination. The committed pre-move
 corpus/step0 replay close that issue. Claimable threefold/50-move continuation
 remains optional. Old actual-data counts below are not a replay of that fix.
 
-AWS PAID ACTIVE and100USD aggregate credit are confirmed; the Spot quota is
-actually192vCPU. The observed official Advisor object is still dated2026-03-20
-and its Sydney/Linux/m6a.48xlarge row is15–20%, so the fresh<5% launch gate fails.
+The historical pre-Advanced observation confirmed PAID ACTIVE and100USD,
+not a current balance. Applied Spot quota was192vCPU. The March20 Advisor
+row was15–20%; it is not a current risk observation. The current freshness
+gate and Advanced state are recorded above.
 No instance, paid campaign or infrastructure deployment has run. The current
 repository now includes the GitHub OIDC execution workflow that supplies an
 ephemeral controller session; its live dispatch remains untested. Local profile
