@@ -38,7 +38,7 @@ OWNER = "engines/experiments/tcec-scope/build.py"
 RUNTIME = "engines/compact/tiny-entry-d/verify.py"
 FIXED_INPUTS = {
     LIFECYCLE: dict(bytes=20823, sha256="1f3b9fc6ccd3796a8bbffd8c9ebd81db1a9fb5f38eb9752ec23f40d432b68168"),
-    P28: dict(bytes=28715, sha256="5b02ba580d79fe80c3f1e21a802f4761ad4f9c00db26d50bde9a0dcc336e6292"),
+    P28: dict(bytes=29400, sha256="b71da77276bea6e3461eb59ebd1f818bd830a17f4c4cefb32aabd3b1d267a79e"),
     PHASE_CHECK: dict(bytes=30905, sha256="a0c0c0ff25dd2b935f281789e7842b2bf199f3167f80df27ac1ff3550c8f4c37"),
     SPELLING: dict(bytes=9921, sha256="7ec393bc9c805ee8e1e6d715f40cb9883f829e3c6b01e2f71f31701e35136ea8"),
     COMPOUND: dict(bytes=9472, sha256="4e2a1599ab5b6f294b1cb59a10a1ec6667b5a2e0c993c1ce48895cddb7e55fce"),

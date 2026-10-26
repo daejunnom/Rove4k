@@ -143,6 +143,9 @@ class P28Mechanism(unittest.TestCase):
             with self.assertRaises(ValueError):p28.wait_startup_line(runtime,b"uciok",65)
 
 
+FAULT_CASES=("allocation","create","create-slot","create-bounds","held-slot","join")
+
+
 def fault_source(case):
     """Actual shared wrappers with deterministic real-call stubs; no TT/thread."""
     prefix=b'''#define _POSIX_C_SOURCE 200809L
@@ -159,15 +162,16 @@ static void*A(void*p){return p;}
 void*__real_aligned_alloc(size_t alignment,size_t size){(void)alignment;(void)size;errno=ENOMEM;return 0;}
 int __real_pthread_join(pthread_t thread,void**result){(void)thread;(void)result;errno=EDOM;return EINVAL;}
 int __real_pthread_create(pthread_t*t,const pthread_attr_t*a,void*(*fn)(void*),void*p){(void)t;(void)a;(void)fn;(void)p;errno=EIO;return EAGAIN;}
-static void*rv28_fault_malloc(size_t size){(void)size;errno=ENOMEM;return 0;}
-'''+p28.FAILURE_DIAGNOSTICS
-    if case=="create-descriptor":prefix+=b"#define malloc rv28_fault_malloc\n"
-    prefix+=p28.callback_launcher("A")
-    if case=="create-descriptor":prefix+=b"#undef malloc\n"
+'''
+    if case=="held-slot":
+        prefix+=p28.blocked_main(b"","A",Path("/fixed/release"),Path("/fixed/arrived"))
+    else:prefix+=p28.FAILURE_DIAGNOSTICS+p28.callback_launcher("A")
     bodies={
         "allocation":"errno=0;void*p=__wrap_aligned_alloc(4096,402653184);if(p||errno!=ENOMEM)return 77;return 2;",
-        "create":"M worker={0};pthread_t thread;errno=0;int rc=__wrap_pthread_create(&thread,0,A,&worker);if(rc!=EAGAIN||errno!=EIO)return 77;return 2;",
-        "create-descriptor":"M worker={0};pthread_t thread;errno=0;int rc=__wrap_pthread_create(&thread,0,A,&worker);if(rc!=22||errno!=ENOMEM)return 77;return 2;",
+        "create":"M worker={0};pthread_t thread;errno=0;int rc=__wrap_pthread_create(&thread,0,A,&worker);if(rc!=EAGAIN||errno!=EIO||atomic_load(rv28_claimed))return 77;return 2;",
+        "create-slot":"M worker={0};pthread_t thread;atomic_store(rv28_claimed,1);errno=EDOM;int rc=__wrap_pthread_create(&thread,0,A,&worker);if(rc!=22||errno!=EDOM)return 77;return 2;",
+        "create-bounds":"M worker={RVW};pthread_t thread;errno=EIO;int rc=__wrap_pthread_create(&thread,0,A,&worker);if(rc!=21||errno!=EIO)return 77;return 2;",
+        "held-slot":"M worker={RVW-1};pthread_t thread;atomic_store(&rv28_held_claimed,1);errno=EDOM;int rc=__wrap_pthread_create(&thread,0,A,&worker);if(rc!=25||errno!=EDOM)return 77;return 2;",
         "join":"errno=0;int rc=__wrap_pthread_join((pthread_t)0,0);if(rc!=EINVAL||errno!=EDOM)return 77;return 2;"}
     return prefix+("int main(void){"+bodies[case]+"}\n").encode()
 
@@ -185,7 +189,9 @@ def c_faults(out):
     previous=signal.signal(signal.SIGCHLD,signal.SIG_DFL);host=owner.Host(out,report,save)
     try:
         expected={"allocation":("aligned_alloc",0,12),"create":("pthread_create",11,5),
-                  "create-descriptor":("create-descriptor",22,12),"join":("pthread_join",22,33)}
+                  "create-slot":("create-slot",22,33),"create-bounds":("create-precondition",21,5),
+                  "held-slot":("held-slot",25,33),"join":("pthread_join",22,33)}
+        p28.require(tuple(expected)==FAULT_CASES,"explicit six diagnostic fault cases required")
         for case,(stage,code,error) in expected.items():
             directory=out/case;directory.mkdir();source=fault_source(case);(directory/"fault.c").write_bytes(source)
             host.run(["cc","-std=c11","-Os","-x","c","-","-o","x"],cwd=directory,kind=case+"-compile",data=source)
@@ -211,7 +217,7 @@ def c_faults(out):
             save()
         report["complete"]=True
     finally:host.close();save();signal.signal(signal.SIGCHLD,previous)
-    print(json.dumps(dict(complete=True,cases=4,native_returncodes=[2]*4,host_cleanup=report["host_cleanup"])))
+    print(json.dumps(dict(complete=True,cases=len(expected),native_returncodes=[2]*len(expected),host_cleanup=report["host_cleanup"])))
 
 
 class P28FailureObservability(unittest.TestCase):
@@ -230,10 +236,27 @@ class P28FailureObservability(unittest.TestCase):
         self.assertIn(b"errno=saved_errno;",p28.FAILURE_DIAGNOSTICS);self.assertIn(b"total<8192",p28.FAILURE_DIAGNOSTICS)
 
     def test_fault_sources_use_shared_callback_and_do_not_allocate_TT(self):
-        for case in ("allocation","create","create-descriptor","join"):
+        for case in FAULT_CASES:
             source=fault_source(case);self.assertIn(p28.FAILURE_DIAGNOSTICS,source)
-            self.assertIn(p28.callback_launcher("A"),source);self.assertIn(b"return 2;",source)
+            wrapper=(p28.blocked_main(b"","A",Path("/fixed/release"),Path("/fixed/arrived"))
+                     if case=="held-slot" else p28.callback_launcher("A"))
+            self.assertIn(wrapper,source);self.assertIn(b"return 2;",source)
             self.assertNotIn(b"N=aligned_alloc",source)
+
+    def test_diagnostic_slots_keep_default_attributes_and_real_failure_rollback(self):
+        for family in "ABCEF":
+            callback=p28.callback_launcher(family)
+            held=p28.blocked_main(b"",family,Path("/fixed/release"),Path("/fixed/arrived"))
+            for text in (callback,held):
+                self.assertNotIn(b"malloc(",text);self.assertNotIn(b"free(",text)
+                self.assertNotIn(b"pthread_attr_set",text)
+            self.assertIn(b"__real_pthread_create(t,a,rv28_observe,v)",callback)
+            self.assertLess(callback.index(b"n>="),callback.index(b"rv28_slots+n"))
+            self.assertIn(b'"create-slot",22,errno',callback)
+            self.assertIn(b"atomic_store_explicit(rv28_claimed+n,0,memory_order_release)",callback)
+            self.assertIn(b"__real_pthread_create(t,a,rv28_wait,&rv28_held_slot)",held)
+            self.assertIn(b'"held-slot",25,errno',held)
+            self.assertIn(b"atomic_store_explicit(&rv28_held_claimed,0,memory_order_release)",held)
 
 
 if __name__=="__main__":

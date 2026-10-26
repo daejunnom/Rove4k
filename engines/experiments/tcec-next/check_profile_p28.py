@@ -211,21 +211,29 @@ def restore_trace(result, proof):
 
 
 def callback_launcher(family):
-    """The diagnostic launch wrapper also supplies the focused C fault cases."""
+    """One-shot fixture slots stay immutable through joins; no child heap work.
+
+    A failed real create has no child and releases its claim for a retry.
+    Successful slots remain claimed until this callback-only process exits.
+    This same diagnostic wrapper supplies the focused C fault cases.
+    """
     c = CONTEXT[family]
     W = c["width"]
     return f"""
 extern int __real_pthread_create(pthread_t*,const pthread_attr_t*,void*(*)(void*),void*);
 static atomic_int rv28_seen[{W}];
 typedef struct{{void*(*fn)(void*);void*arg;size_t id;}}rv28_launch;
-static void*rv28_observe(void*p){{rv28_launch v=*(rv28_launch*)p;free(p);
+static rv28_launch rv28_slots[{W}];
+static atomic_int rv28_claimed[{W}];
+static void*rv28_observe(void*p){{rv28_launch v=*(rv28_launch*)p;
  if(qh||atomic_fetch_add(&rv28_seen[v.id],1))exit(20);return v.fn(v.arg);}}
 int __wrap_pthread_create(pthread_t*t,const pthread_attr_t*a,void*(*fn)(void*),void*p){{
  size_t n=(({c['worker_type']}*)p)->{c['ident']};
  if(qh||fn!={c['worker']}||n>={W}){{rv28_failure("create-precondition",21,errno,n,{W});return 21;}}
- rv28_launch*v=malloc(sizeof*v);if(!v){{rv28_failure("create-descriptor",22,errno,n,{W});return 22;}}v->fn=fn;v->arg=p;v->id=n;
+ if(atomic_exchange_explicit(rv28_claimed+n,1,memory_order_acq_rel)){{rv28_failure("create-slot",22,errno,n,{W});return 22;}}
+ rv28_launch*v=rv28_slots+n;v->fn=fn;v->arg=p;v->id=n;
  int error=__real_pthread_create(t,a,rv28_observe,v),observed_errno=errno;
- if(error){{rv28_failure("pthread_create",error,observed_errno,n,{W});free(v);}}errno=observed_errno;return error;
+ if(error){{atomic_store_explicit(rv28_claimed+n,0,memory_order_release);rv28_failure("pthread_create",error,observed_errno,n,{W});}}errno=observed_errno;return error;
 }}
 """.encode()
 
@@ -272,21 +280,25 @@ int main(void){{
 
 
 def blocked_main(source, family, gate, arrived):
+    """Own one held startup descriptor through the initializer's join."""
     c = CONTEXT[family]
     return source + b"\n" + FAILURE_DIAGNOSTICS + f"""
 #include<unistd.h>
 extern int __real_pthread_create(pthread_t*,const pthread_attr_t*,void*(*)(void*),void*);
 typedef struct{{void*(*fn)(void*);void*arg;}}rv28_block;
-static void*rv28_wait(void*p){{rv28_block v=*(rv28_block*)p;free(p);
+static rv28_block rv28_held_slot;
+static atomic_int rv28_held_claimed;
+static void*rv28_wait(void*p){{rv28_block v=*(rv28_block*)p;
  FILE*f=fopen({json.dumps(str(arrived))},"w");if(!f)exit(24);fclose(f);
  while(access({json.dumps(str(gate))},F_OK)){{struct timespec t={{0,1000000}};nanosleep(&t,0);}}
  return v.fn(v.arg);
 }}
 int __wrap_pthread_create(pthread_t*t,const pthread_attr_t*a,void*(*fn)(void*),void*p){{
  if(!qh&&fn=={c['worker']}&&(({c['worker_type']}*)p)->{c['ident']}=={c['width']}-1){{
- rv28_block*v=malloc(sizeof*v);if(!v){{rv28_failure("held-descriptor",25,errno,0,0);return 25;}}v->fn=fn;v->arg=p;
- int error=__real_pthread_create(t,a,rv28_wait,v),observed_errno=errno;
- if(error){{rv28_failure("pthread_create",error,observed_errno,{c['width']}-1,{c['width']});free(v);}}errno=observed_errno;return error;}}
+ if(atomic_exchange_explicit(&rv28_held_claimed,1,memory_order_acq_rel)){{rv28_failure("held-slot",25,errno,{c['width']}-1,{c['width']});return 25;}}
+ rv28_held_slot.fn=fn;rv28_held_slot.arg=p;
+ int error=__real_pthread_create(t,a,rv28_wait,&rv28_held_slot),observed_errno=errno;
+ if(error){{atomic_store_explicit(&rv28_held_claimed,0,memory_order_release);rv28_failure("pthread_create",error,observed_errno,{c['width']}-1,{c['width']});}}errno=observed_errno;return error;}}
  int error=__real_pthread_create(t,a,fn,p),observed_errno=errno;
  if(error)rv28_failure("pthread_create",error,observed_errno,0,{c['width']});errno=observed_errno;return error;
 }}

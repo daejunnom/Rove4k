@@ -21,6 +21,18 @@ The experimental artifact names execution merge761cdf479fc7200b2dc3125e40cd13226
 also returned as the PR merge ref. Its source head and execution merge remain
 distinct identities; the earlier6e actual Git tree/parent audit remains historical.
 
+The newer cost cohort9dd412a65baf271077a5c151255a666bfb86e8a9 passes Experimental
+D40380758642, terminal cost40380758820, repository40380759017 and NVCompact40380758744.
+Engine40380758712 has19 successful jobs, one E-P28 mechanism failure and one skipped
+P28 consumer matrix. Its foundation still passes974/39. The original E diagnostic
+returns2 naturally when pthread_create fails on initializer28: rc11/EAGAIN, observed
+errno12/ENOMEM, VmSize2085728KiB under a2GiB AS cap and16MiB default stack.
+The diagnostic descriptor source correction replaces child-side heap ownership
+with ID-bound immutable slots and real-create failure rollback, plus one held slot.
+Independent source review is CLEAR. Workers, TT, pthread attributes, assertions
+and the2GiB cap are unchanged. Actual six fault cases and P28 CI remain the next
+gate; the old four-fault receipt is historical. Preserve the original failure.
+
 The separate d954/CI40332593495 offline seed completes prepare, full ZIP inspection,
 fresh Linux materialization and all-member revalidation, with independent audit.
 Its62580403B ZIP has SHA-256
@@ -105,7 +117,10 @@ strength remain separate. Existing26-job/default/P28 selections stay unchanged.
 
 The separate A/E terminal legality/query helper passes source review and112
 pure projection/inverse/proof checks. Raw source changes are A7595→7688B and
-E7815→7909B; whole cost and C semantics are unmeasured. The first pure caller
+E7815→7909B. Its one exact hosted cost cohort loses: A whole3781→3812B(+31)
+and E3882→3911B(+29). Both native lengths remain18568B, with different candidate
+bytes. The hypothesis is closed without selection; C semantics remain unqualified.
+The first pure caller
 failed on its own stdlib import guard before any transform; a new corrected
 caller passes without changing the helper or its authenticated owner. These
 source projections remain unselected experiments.
@@ -116,8 +131,9 @@ seen=0 and normal job/output reservation. Independent source review and18 pure
 checks pass, including full inverses and short source rendering for TT8/23/33.
 TT33 is only decimal source text, not a128GiB allocation. Its restore API is an
 inverse helper; a future consumer must replay the canonical transform/profile.
-Assembler/linker acceptance, kernel-zero/late-worker behavior, cost and NUMA are
-unmeasured. It is not the author's barrier-retaining lazy claim or old4MiB BSS
+Hosted compiler/linker acceptance and the finite P4 cost are now measured below;
+kernel-zero/late-worker behavior and NUMA remain unmeasured. It is not the author's
+barrier-retaining lazy claim or old4MiB BSS
 route, and it does not change the current parallel-initialization admission.
 
 The next source/CI cohort adds explicit opt-in cost controllers. D extracts
@@ -133,8 +149,17 @@ controllers and workflows. D's one bounded local batch passes15 pure tests and
 35 Python3.10 AST checks with all44 source pins unchanged, zero forbidden calls
 and natural process settlement. A/E's separate bounded batch passes5 pure tests
 and3 Python3.10 AST checks with unchanged pins and zero forbidden calls.
-Hosted cost observations remain the next gate.
-None of these unmeasured candidates changes selected output.
+The hosted observations pass and remain nonselected. BSS P4 native6368B is96B
+below6464; fixed HC3 whole4689B is48B below4737, still593B over4096. TT33/W256
+linked6800/native6368B has137438953472B NOBITS at13508608, last in the zero-file
+RW extent. It is not loaded. The two independent DATA audits match the server ZIP
+hashes, actual source/native/whole files and command streams. D checks42 inputs,
+24 compiler commands and48 stdio files; A/E each checks14 outer plus separate
+profile6/control3 commands,80/84 inputs and14 support pins. ZIP transport decoding
+is the only local decoding; payload inverses are CI receipts bound to retained
+bytes, not independent local XZ/ALONE decompression. D audit5605B has SHA-256
+`a277b4b17257473d85226cef90ebf2ddf3ac7651c649decd50b39a3434498b1d`;
+A/E audit12884B has `890fecea696b41aa2c458a28040625109607a741d193f3fd400d3de2f44c80ac`.
 
 Hosted D/A/E jobs run on separate Ubuntu24 runners, each bounded by600 seconds
 including capture plus30 seconds for cleanup. Artifacts preserve original failures,

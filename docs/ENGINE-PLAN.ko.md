@@ -658,9 +658,43 @@ route별 최종 whole은1개씩 보존돼 감사자는 각각1회 decode했으�
 
 A/E는 실제 선택 payload에 terminal 합법수 owner 공유와 check/gen/eval 지연을
 적용한 별도 helper를 준비했다. 독립 source 검토·순수112검사/전체 역변환을 통과했고
-원시 source는+93/+94 B다. 전체 파일 비용·C 의미·강도는 아직 확인하지 않았다.
+원시 source는+93/+94 B다. 아래 한정 비용은 확인했지만 C 의미·강도는 미검증이다.
 기존 nullable/QS 손실을 이 조합의 성과로 재명명하지 않는다. 최초 pure caller의
 표준 라이브러리 guard 실패와 변환0회를 보존하고 새 caller 결과와 구분한다.
+
+이후9dd의 한정 비용 CI40380758820와 독립 DATA 감사에서 A whole3781→3812(+31),
+E3882→3911(+29)로 둘 다 손실을 확인해 이 조합을 미채택으로 종료했다. Native는
+18568 B 동률이나 bytes는 다르다. D CI40380758642는 같은4737 control 뒤 BSS P4
+native6368(-96)·whole4689(-48)을 재현했고, TT33의128GiB NOBITS/TT-last ELF
+데이터도 통과했다. 엔진·TT는 실행하지 않았으며 BSS 후보의4KiB 잔여는593 B다.
+독립 DATA 감사는42입력/24명령과 실제 바이트를 대조했으며 로컬 payload codec는
+실행하지 않았다. Kernel-zero/late-worker/첫GO·상위 소비자·채택은 별도 잔여다.
+
+BSS 후속은 다음 경계로 구현한다. generation DATA나 build.json에서 private
+Structural token을 재구성하지 않는다. 먼저 producer의 raw CPP·single compile/strip
+연산을 기존 fresh-admission callback 아래에서 공유한다. Upper의 기존 cumulative
+600/660 CPU·900s 실행 소유자는 유지하고 generation Host의1200/1260을 설치하지 않는다.
+기존 fast 경로는 dynamic-TT의 작은 RW geometry 검사를 유지한다. BSS 경로에만
+정확한 profile TT 크기·마지막 NOBITS/NOLOAD·작은 globals-before-TT·RX/RW/NX stack·
+linked→stripped 관계를 검사하는 variant consumer를 둔다.
+
+BSS startup component는 실제 kernel-zero TT를 확인하고 실제 worker 하나를 첫GO
+너머까지 지연한 뒤 첫/다음 job 완료와 output reservation을 확인해야 한다. 기존
+prefault barrier fixture나 initialization_join_before_uci=true를 재사용하지 않는다.
+TT12 search/UBSan fixture는 array/static_assert/ASM을 명시적 역변환 가능한 diagnostic
+projection으로 다루며 실제 TT23 kernel-zero 근거와 분리한다. 이후 persisted R·
+profile verifier·compiler·rules·source bundle·Ubuntu22가 같은 Structural artifact
+owner를 사용하도록 연결한다. Packed stripped native와 source-JIT linked image의
+계약은 별도로 고정하며 생성 명령·format 이름만 바꾸는 연결은 완료가 아니다.
+
+9dd의 repository/NVCompact/실험2워크플로는 통과했고 유지 engine CI는 E P28 진단
+fixture의28번째 pthread_create EAGAIN/관측ENOMEM으로 실패했다. 원본은 자연
+return2·강제정리0이며2GiB AS cap과16MiB default stack에서 VmSize2085728KiB였다.
+다른19 job은 통과했고 P28 소비자 matrix는 skip이다. Worker·TT·검사를 줄이거나
+상한을 올리지 않고 fixture의 descriptor를 id별 immutable 고정 slot과 단일 held slot으로
+수정했다. 실제 create 실패에는 claim을 복구하고 rc/errno를 보존한다. 독립 source
+검토를 통과했으며 순수 검사·실제6fault·P28 CI 결과는 다음 gate다. 원래4fault
+receipt를6개 통과로 재표시하지 않는다.
 
 로컬 compiler/codec는 host memory gate를 지키며 effects를 완료·반환했다. 이후
 physical1074384KiB/virtual2477112KiB에서 upper를 시작하지 않았고, 사용자가
@@ -671,43 +705,37 @@ source·memory admission에서 다시 판단한다. 다른 프로그램·cache·
 
 ~~~mermaid
 flowchart TD
-  DONE[완료: edb 네 CI / 이전 D 생성 감사·d954 seed는 별도] --> PREP[공통 준비: 소스 핀·검토·작은 pure 검사]
-  PREP --> D[D strict format: AdmittedBuild·rules·startup·compiler·CI binding]
-  PREP --> AE[A cost CI: fresh control → 단일 후보]
-  PREP --> E[E cost CI: fresh control → 단일 후보]
-  PREP --> BSS[D cost CI: strict control → BSS P4 → TT33 ELF 데이터]
+  DONE[완료: 9dd 비용·DATA 감사 / D4689 win·A/E loss] --> FIX[E28 fixture descriptor 소유권 수정·pure·review]
+  FIX --> RETAIN[동일28worker·TT·2GiB로 유지 CI]
+  RETAIN --> AUDIT[현재 source/CI 체크포인트 최종 감사]
+  DONE --> PREP[후속 공통 준비: source·representation·소유자]
+  PREP --> D[D raw callback 공유·persisted Structural 소비자]
+  PREP --> AE[A/B/C/E/F 다른 구조 후보·상호 적용성]
+  PREP --> BSS[D BSS variant geometry·kernel-zero·late-worker·첫GO]
   D --> JOIN[core helper 변경 시 upper join 재검토 / 이전 seal 보존]
   JOIN --> CI[새 exact source CI·binding 검증]
   AE --> CI
-  E --> CI
   BSS --> CI
-  CI --> AUDIT[다음 source/CI 체크포인트 최종 감사]
+  CI --> NEXTAUDIT[후속 기능·산출물·consumer 최종 감사]
   PREP -.-> HOLD[사용자 선택: local upper 보류 / 자동 polling 없음]
   HOLD -.-> MEM[새 지시·source/memory admission]
   MEM --> UPPER[D actual93명령+R]
   UPPER --> SELECT[실제 프로필 기능 인수 후 생산 선택·필요 CI/seal]
-  AUDIT --> SELECT
+  NEXTAUDIT --> SELECT
   SELECT --> GATE{fresh Advisor·비용·권한·AMI·capacity gate}
   GATE -->|충족| LIVE[기한 배포·S3 VersionId·실제 OIDC/종료 확인]
   LIVE --> NUMA[Spot 배치·NUMA·대용량 초기화]
   NUMA --> LEAGUE[full4KiB 적격 선수의 점수 TEST 리그]
-  AUDIT -.-> SIZE[D 구조적4KiB 수렴: 별도 미정]
+  NEXTAUDIT -.-> SIZE[D 구조적4KiB 수렴: 별도 미정]
 ~~~
 
-다음 source 구현은 D의 새 strict format consumer와 D/A/E bounded cost CI를
-병렬로 진행한다. 세 비용 controller와 별도 Ubuntu24 workflow를 구현·독립 검토했고
-작은 pure 검사 뒤 실제 CI 비용을 확인한다. D pure15/AST35는 동일44개 source 핀과
-금지 호출0·정상 종료로 통과했고 A/E pure5/AST3도 동일 핀·금지 호출0으로 통과했다.
-default OFF/P28 old를 유지한다. 소비하는
-core helper가 바뀌면 기존 upper의 current-source join을 재검토·갱신하고 이전 seal을
-보존한다. BSS TT/no-startup-join은 기존 lazy-first-touch와 다른 조건부 source
-prototype으로 작성했고 독립 source 검토·순수18검사를 통과했다. TT8/23/33은 작은
-source text와 역변환만 확인했으며 assembler/linker·kernel zero·late-worker·비용은
-미확인이다. D cost는 같은6464/4737/7072 control을 먼저 재현하고 BSS P4 두 번을
-고정 HC3로 비교한다. TT33은128GiB NOBITS와 TT-last 배치의 컴파일·ELF 데이터만
-확인하며 엔진·TT를 실행하지 않는다. A/E는 fresh production·strict verifier와
-source/native/header/payload/whole의 다섯 기준값 뒤 후보를 생성한다. 기존
-parallel-init admission을 바꾸지 않고 절감량·고코어/NUMA·첫 검색 지연을 배정하지 않는다.
+D/A/E 비용 controller·Ubuntu24 workflow의 구현·독립 검토·CI·DATA 감사를 완료했다.
+D pure15/AST35는 동일44개 source 핀·금지 호출0·정상 종료로 통과했고 A/E pure5/AST3도
+동일 핀·금지 호출0으로 통과했다. 기존 selected/P28 D는 유지하며 A/E 이번 조합은
+손실로 닫는다. BSS의48 B는 실제 비용 이득이며 kernel-zero·late-worker·NUMA·첫 검색
+지연의 근거가 아니다. 기존 parallel-init admission과 다른 초기화 계약을 구현한 뒤
+후속 기능 CI를 진행한다. 소비하는 core helper가 바뀌면 기존 upper의 current-source
+join을 재검토·갱신하고 이전 seal을 보존한다.
 
 NUMA는 엔진 내부 설정 없이 운영자의 부모 task policy를 상속하는 조건부 경로를
 사용할 수 있다. ice4 v6.1/현재 HEAD와 c4ke v3.0/현재 HEAD의 실제 TCEC 입력·launcher는
@@ -718,13 +746,15 @@ thread에 상속한다. 실제 TCEC 실행 명령은 아직 확인하지 못했�
 근거와 고정 source 링크는 IMPLEMENTATION의 현재 NUMA 문단에 둔다. 외부 엔진 source는
 저장소에 복사하지 않는다.
 
-이번 비용 checkpoint의 남은 계획용 산식은 공통 pure·공유 준비0.1–0.2h →
-max(D 비용/TT33·A 비용·E 비용·유지 CI 각0.1–0.3h) + GitHub runner 대기Wci →
-최종 데이터 감사0.3–0.6h로 약0.5–1.1h+Wci다. source 구현과 독립 검토는 완료한
-준비이며 분기 시간을 합산하지 않는다. 앞선 source/CI 체크포인트의 완료와 이번
-미측정 비용을 구분한다. 각 비용 job의600s+30s 및 generation의240s+20s는 실행
-상한이며 source 검토·수정·인수 시간을 대신하지 않는다. D 잔여641 B 수렴·local upper·
-프로필별 생산 전환·필요 seed·외부 AWS gate·리그는 이 유한 창의 완료 약속이 아니다.
+이번 비용 비교와 감사는 완료했다. 현재 E28 교정 체크포인트의 계획용 잔여는 공통
+pure·공유 준비0.1–0.2h → max(유지 CI·source 경계 검토0.1–0.3h) + GitHub runner
+대기Wci → 최종 감사0.1–0.3h로 약0.3–0.8h+Wci다. 이후 별도 consumer/BSS 기능
+연결의 소스·CI 창은 공통 준비0.1–0.2h → max(D consumer1–3h, BSS 기전1–3h,
+타 계열 구조 검토1–2h)+공유 runner/검토 대기 → 최종 감사0.5–1h로 약1.6–4.2h+
+공유 대기다. 분기 시간을 합산하지 않는다. 비용 job600s+30s와 generation240s+20s는
+단일 실행 상한이며 구현·인수 시간을 대신하지 않는다. D의 유지 기준641 B 및 미채택
+BSS 기준593 B의4KiB 수렴·local upper·프로필별 생산 전환·필요 seed·외부 AWS gate·
+리그는 이 유한 창의 완료 약속이 아니다.
 
 Oct27 KST 공식 Advisor 조건부 조회는304/Last-Modified2026-03-20이었다. 현재 공식
 frontend 경로 조사도 끝났으나 검증된 새 데이터 URL은 없었다. HTML200의 Oct20 날짜는
