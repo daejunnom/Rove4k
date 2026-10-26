@@ -164,8 +164,10 @@ rodata176 B다. text는 보드/평가2147 B, search2103 B, 그 밖의 혼합 실
 예산으로 후보를 고른다. 기능 제거로 목표를 통과시키지 않는다.
 
 공개된 [PR #21](https://github.com/daejunnom/Rove4k/pull/21)의 최초144ad16은
-full P4를5233→4937 B, 같은 native의 별도 codec으로4909 B라고 보고한다.
-P28/W256의4921/4905 B는 작성자 비용 결과이며 실행 자격은 아니다. 부모에서의
+full P4를5233→4937 B, 같은 native의 별도 codec으로4909 B라고 보고했다.
+부모의 별도 실제 profile 준비에서도 P28 5233→4949/4921 B, W256 5229→4929/4905 B가
+재현됐다. 두 profile은 비용·반복 native·strict codec 역변환만 확인했으며
+엔진 실행이나 대용량 TT 할당은0이다. 부모에서의
 qualified5233 B·함수 비용·소유권 기준은 새 기능 인수와 구분해 유지한다.
 보드/검색과 runtime 변환의 정적 검토를 마쳤고, 비용 도구의 실제 Git 경로 판정·
 cleanup 이후 완료 처리와 runtime 관찰기의 부분 Reader/신호 소유권을 수정했다.
@@ -173,15 +175,25 @@ cleanup 이후 완료 처리와 runtime 관찰기의 부분 Reader/신호 소유
 39개 실제 입력을 외부에 동결한144ad-safe-v1에서 control/full 비용은 재현됐다.
 7104/6656 B native와4937/4909 B 후보 전체 파일이 작성자 핀과 일치하며,
 두 번의 native 생성은 일치한다. 전체 패키지를 내부에서 두 번 생성했다는 주장은 아니다.
-별도 동결된 관찰기 의존성을 보완해 실제 기능 검증을 진행한다.
+별도6개 관찰기 의존성을 더한45개 동결 입력으로 첫 실제 기능 검증도 통과했다.
+control/full plain·UBSan 규칙105위치/2858합법 수, 검색1486run·1344취소·5129재탐색,
+보드418878상태와 helper 관측이 일치한다. 실제4909 B P4 두 세션은20 GO/18합법 응답,
+5개 지속 task·네 worker CPU 증가·비동기 isready·active quit/EOF 자연 종료를 확인했다.
+44개 tool 명령·88개 출력 stream·실제 runtime을 독립 감사했다. 물리 코어 배치 자격은
+아니며 old runtime receipt의 no_RWX 표시도 전역 map 검증 근거가 없어 제외한다.
+원본은 보존하고 현재 관찰기에서 해당 필드만 제거했다.
 새 native는 기존 Square 허용 목록에 넣지 않고 별도 StructuralAdmission과
 실제 규칙·검색·lifecycle·P4 runtime으로 인수한다. 일반4K/ELF 목표는 아직 미달이다.
 
 후속fafeb3d WIP는 검색/worker/보드·codec·ELF·다른 엔진 전이 도구를 추가한다.
 기존144ad의 BEST와 기본 producer는 바꾸지 않는다. 보고된4865 B 등은 별도
 수동 조합이며 아직 부모 실측이 아니다. 새 비용 도구에도 경로·완료·정리 문제가
-있어 공통 owner 수정 전에는 실행하지 않는다. 최초 후보를 먼저 재현하고 후속
-구조를 별도 감사한다. 예약/주기 작업은 만들지 않으며 AWS와 ABCE/F는 병렬로 계속한다.
+있던 부분은 같은 공통 owner로 수정했고, 중복 material owner는 변환 전에 거부한다.
+독립 source 검토와 board19개 동일/8개 거부·packaging11개·cross-family10개 순수/fake
+검사를 통과했다. 실제 codec·C·engine 측정으로 승격하지 않는다. 첫 packaging fixture
+실행의 exit1/최종 receipt 부재는 원인 미확정으로 별도 보존한다. 최초 후보의 별도
+StructuralAdmission·전체 파일 두 번 재현·startup/R 인수와 후속 구조의 실제 비교는
+남아 있다. 예약/주기 작업은 만들지 않으며 AWS와 ABCE/F는 병렬로 계속한다.
 
 ### 프로필
 

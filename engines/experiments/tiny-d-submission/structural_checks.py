@@ -21,6 +21,7 @@ def check(case, out, *, control=None):
     storage=h.load('structural_storage_probe',h.D/'check_storage.py')
     probe=h.load('structural_search_probe',h.D/'probe_search_compact.py')
     variants=h.transforms()
+    search_next=h.load('structural_search_next_checks',h.D/'structural_search_next.py')
     baseline=h.load_baseline()
     cases,coverage=rules.fixture_cases()
     out.mkdir()
@@ -29,7 +30,7 @@ def check(case, out, *, control=None):
             'input':h.inventory(files),'coverage':coverage,'commands':[],'rules':[],'search':[],
             'board_lifecycle':[], 'runtime_helpers':[],
             'runtime_qualified':False,'selected':False,
-            'tools':{str(Path(t.__file__).relative_to(h.ROOT)):h.pin(Path(t.__file__).read_bytes()) for t in (rules,storage,probe,*variants.values())}}
+            'tools':{str(Path(t.__file__).relative_to(h.ROOT)):h.pin(Path(t.__file__).read_bytes()) for t in (rules,storage,probe,search_next,*variants.values())}}
     def save(): (out/'checks.json').write_text(json.dumps(report,indent=2)+'\n')
     hostmod=m['host']
     hostmod.LIMITS={**hostmod.LIMITS,'aggregate_wall':300,'per_command_wall':90,'child_CPU':80,
@@ -82,6 +83,18 @@ def check(case, out, *, control=None):
         generated,driver,proof=probe.render(files,m['source'],storage,
             reference_board=baseline['board.c'],variant_proof=semantic,
             previous_index=True,unsigned_history=True)
+        driver=search_next.adapt_root_observer(driver,files)
+        # The terminal-query candidate calls the actual runtime resolver. Its
+        # measured definitions join the actual-search fixture before search.c;
+        # no duplicate test algorithm or fabricated resolver stands in for it.
+        dependencies=search_next.runtime_dependencies(files)
+        if dependencies:
+            marker=b'#include "search.c"'
+            if driver.count(marker)!=1:
+                raise ValueError('actual search fixture include boundary differs')
+            driver=driver.replace(marker,dependencies+b'\n'+marker,1)
+        report['runtime_search_dependencies']=h.pin(dependencies)
+        report['actual_search_driver']=h.pin(driver)
         testdir=out/'actual-search';testdir.mkdir()
         for name,data in generated.items(): (testdir/name).write_bytes(data)
         (testdir/'driver.c').write_bytes(driver)

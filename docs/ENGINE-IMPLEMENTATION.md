@@ -9,6 +9,13 @@ zero and the initial model weights remain unchanged; trained strength is not cla
 
 ### Current CI, offline seed and local source-path follow-up
 
+The initial PR21 integration0fabb98 passes engine40322556273 (26/26),
+NVCompact40322556284 and repository40322556309. Original foundation121570896933
+passes the same905 unit tests/38 suites and the separately reported24 pure
+structural-helper checks with engine_modules_loaded=false. The four injected
+native faults retain return2 and clean settlement. This CI does not run the
+new structural engine candidate or qualify the subsequent fafeb WIP.
+
 The c80041d Advanced-readiness source checkpoint passes engine40315781677
 (26/26), NVCompact40315781669 and repository40315781454. The original foundation
 job121547901502 records494 contract +27 E19 +384 evaluator/service tests,
@@ -179,24 +186,46 @@ read-only review, with no new structural implementation or savings claimed.
 
 [PR #21](https://github.com/daejunnom/Rove4k/pull/21) is now open. Its initial
 144ad16 reports full P4 whole5233→4937B, or4909B with a separate codec, and
-P28/W256 cost-only4921/4905B. Initial board/search/runtime static review passes;
+P28/W256 cost-only4921/4905B. Parent-side fresh profile-specific preparation
+subsequently reproduces P28 control5233→full4949/4921B and W256 control5229→
+full4929/4905B. Two native builds per case and strict codec inverses pass; no
+W28/W256 engine or TT allocation runs. Initial board/search/runtime static review passes;
 the parent's independent cost reproduction now matches control7104B native and
 5233B whole, full6656B native and4937/4909B whole, including the author's hashes.
 The39 actual inputs are frozen outside Git. Both native builds repeat; the tool
 does not internally generate every whole package twice. The qualified5233B
-identity stays distinct while fresh actual functionality is pending. Local integration fixes
+identity stays distinct from the new bounded local observations. Local integration fixes
 resolved-output ancestry checks, completion after Host cleanup, partial Reader
 capture and signal/terminal observation ownership. Pure24 helper checks and13
 real-Python-child observer cases pass; these are harness evidence, not D engine
-qualification. New native/source/layout needs a separate StructuralAdmission
-and fresh actual rules, search, lifecycle and P4 runtime before selection.
+qualification. Fresh control and full plain/UBSan observations subsequently
+agree for105 positions/2858 moves, actual search including1486 runs/1344
+cancellations/5129 re-searches, and418878 board states per mode. The helper
+probe also passes. Two actual4909B packed P4 sessions complete20 GO/18 legal
+replies with exact native restoration, five persistent tasks, all four workers
+showing positive CPU, asynchronous readiness and active quit/EOF natural exits.
+The45 frozen inputs,44 tool commands,88 tool streams and runtime streams pass
+independent final audit. These one-physical-core/SMT observations do not qualify
+physical P4 placement, target startup or strength. The old runtime receipt's
+no_RWX flag was not backed by a global map check; that claim is excluded, and
+the current observer removes only the unsupported field without rewriting the
+original receipt. New native/source/layout still needs a separate live-parent
+StructuralAdmission, twice-reproduced whole carrier, startup projection and
+generic R observations before upper qualification or selection.
 
 The subsequent fafeb3d WIP adds search/worker/board, codec/ELF and cross-family
 experiments without changing initial144ad BEST or the default producer. Reported
-4865B and other new combinations are not parent measurements. Those additional
-cost tools repeat output/cleanup/completion bugs and remain unexecuted here
-until their ownership boundary is fixed. Initial candidate reproduction and
-follow-up source review stay separate. No automation is created; AWS and ABCE/F
+4865B and other new combinations are not parent measurements. Integration fixes
+the additional cost tools through the same resolved-output/settled-cost/final
+owner helpers, and rejects the overlapping by-move/fused-delta material owners
+before any transform. The resolver boundary supports plain and noinline forms.
+Independent source review and external pure/fake regressions pass:19 independent
+board outputs unchanged/eight conflict rejections,11 packaging cases and10
+cross-family harness cases. These tests execute no real codec/compiler/native
+or engine. The first mounted-fixture packaging test's exit1/no-final-receipt
+and a prior PowerShell startup memory error remain preserved separately with
+their causes unconfirmed. Initial candidate reproduction and follow-up WIP
+measurement stay separate. No automation is created; AWS and ABCE/F
 work continue in parallel. General4K/ELF size, target hardware and strength gates
 remain open.
 
