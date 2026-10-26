@@ -343,109 +343,26 @@ def origin_check(value):
 
 
 def workflow_binding(config, content, origin, api_head):
-    """Bind a PR execution merge to pinned API originals and local Git objects.
-
-    The API workflow head is a PR branch head; GITHUB_SHA is its merge commit.
-    Unequal hashes require the actual run/PR/commit originals, never a waiver.
-    This reads local objects only and does not establish API authentication.
-    """
+    """Bind local clean Git objects and pinned originals using the common worker."""
     proof = config.get("workflow_provenance")
     if proof is None:
         require(api_head == origin["head_sha"], "unequal API/checkout heads require explicit PR provenance")
         return {"kind": "artifact-head-equality", "api_head_sha": api_head,
                 "checkout_sha": origin["head_sha"], "inputs": {}}
-    require(isinstance(proof, dict) and set(proof) in ({"run", "commit"}, {"run", "commit", "pull_request"}),
-            "explicit run/commit and optional PR provenance members required")
-    require(all(isinstance(name, str) for name in proof.values()) and len(set(proof.values())) == len(proof),
-            "workflow provenance members must be distinct")
-    pins = {}
-
-    def document(key):
-        name = member(proof[key])
-        require(name in content, "pinned workflow provenance input is absent: " + key)
-        raw = content[name][0]
-        pins[name] = pin(raw)
-
-        def unique(pairs):
-            value = dict(pairs)
-            require(len(value) == len(pairs), "ambiguous duplicate workflow provenance field")
-            return value
-
-        value = json.loads(raw, object_pairs_hook=unique)
-        require(isinstance(value, dict), "workflow provenance must be a JSON object")
-        return value
-
-    run, commit = document("run"), document("commit")
-    repository = run.get("repository")
-    require(isinstance(repository, dict), "workflow repository must be an API object")
-    require(repository.get("full_name") == origin["repository"] and type(repository.get("id")) is int
-            and repository["id"] > 0 and str(run.get("id")) == str(origin["run_id"])
-            and str(run.get("run_attempt")) == str(origin["run_attempt"])
-            and run.get("head_sha") == api_head and run.get("status") == "completed"
-            and run.get("conclusion") == "success", "workflow API run differs from sealed source origin")
+    consumer = runtime()
     checkout = config["checkout"]["path"]
     require(config["checkout"]["commit"] == origin["head_sha"]
             and git(checkout, "rev-parse", "HEAD").decode().strip() == origin["head_sha"]
             and not git(checkout, "status", "--porcelain=v1", "--untracked-files=no"),
             "workflow provenance requires the exact clean execution checkout")
     raw = git(checkout, "cat-file", "commit", origin["head_sha"])
-    algorithm = hashlib.sha1 if len(origin["head_sha"]) == 40 else hashlib.sha256
-    require(algorithm(b"commit " + str(len(raw)).encode() + b"\0" + raw).hexdigest() == origin["head_sha"],
-            "execution commit object differs from its canonical Git identity")
-    headers = raw.split(b"\n\n", 1)[0].splitlines()
-    trees = [line[5:].decode("ascii") for line in headers if line.startswith(b"tree ")]
-    parents = [line[7:].decode("ascii") for line in headers if line.startswith(b"parent ")]
-    require(isinstance(commit.get("tree"), dict), "API execution tree must be an object")
-    require(len(trees) == 1 and isinstance(commit.get("parents"), list)
-            and all(isinstance(row, dict) for row in commit["parents"])
-            and commit.get("sha") == origin["head_sha"]
-            and commit.get("tree", {}).get("sha") == trees[0]
-            and [row.get("sha") for row in commit.get("parents", [])] == parents,
-            "API execution commit/tree/ordered parents differ from actual local Git object")
-    tree = git(checkout, "cat-file", "tree", trees[0])
-    require(algorithm(b"tree " + str(len(tree)).encode() + b"\0" + tree).hexdigest() == trees[0],
-            "execution tree differs from its canonical Git identity")
-    result = {"kind": "workflow-head-equality", "event": run.get("event"),
-              "repository": origin["repository"], "repository_id": repository["id"],
-              "run_id": origin["run_id"], "run_attempt": origin["run_attempt"],
-              "api_head_sha": api_head, "checkout_sha": origin["head_sha"],
-              "execution_tree": trees[0], "execution_parents": parents, "inputs": pins}
-    if run.get("event") != "pull_request":
-        require(set(proof) == {"run", "commit"} and run.get("event") in ("push", "workflow_dispatch", "schedule")
-                and api_head == origin["head_sha"], "ordinary workflow head must equal its execution checkout")
-        return result
-    require("pull_request" in proof, "PR merge requires its pinned API snapshot")
-    pr = document("pull_request")
-    rows = run.get("pull_requests", [])
-    require(isinstance(rows, list) and len(rows) == 1 and isinstance(rows[0], dict)
-            and type(pr.get("number")) is int and pr["number"] > 0
-            and rows[0].get("number") == pr["number"] and pr.get("merge_commit_sha") == origin["head_sha"],
-            "workflow PR and execution merge snapshot differ")
-    base, head = pr.get("base", {}), pr.get("head", {})
-    run_pr = rows[0]
-    require(isinstance(base, dict) and isinstance(head, dict)
-            and all(isinstance(value.get("repo"), dict) for value in (base, head))
-            and isinstance(run.get("head_repository"), dict)
-            and all(isinstance(run_pr.get(side), dict) and isinstance(run_pr[side].get("repo"), dict)
-                    for side in ("base", "head")), "PR repository/ref snapshots must be API objects")
-    require(parents == [base.get("sha"), head.get("sha")] and head.get("sha") == api_head
-            and base.get("repo", {}).get("full_name") == origin["repository"]
-            and base.get("repo", {}).get("id") == repository["id"]
-            and type(head.get("repo", {}).get("id")) is int and head["repo"]["id"] > 0
-            and isinstance(head["repo"].get("full_name"), str) and head["repo"]["full_name"]
-            and head.get("repo", {}).get("id") == run.get("head_repository", {}).get("id")
-            and head.get("repo", {}).get("full_name") == run.get("head_repository", {}).get("full_name")
-            and isinstance(base.get("ref"), str) and base["ref"]
-            and isinstance(head.get("ref"), str) and head["ref"] and head["ref"] == run.get("head_branch")
-            and all(run_pr.get(side, {}).get("sha") == value.get("sha")
-                    and run_pr[side].get("ref") == value.get("ref")
-                    and run_pr[side].get("repo", {}).get("id") == value.get("repo", {}).get("id")
-                    for side, value in (("base", base), ("head", head))),
-            "PR repository/ref/base/head differ from the ordered execution merge parents")
-    result.update(kind="pull-request-merge", pull_request=pr["number"],
-                  ref="refs/pull/" + str(pr["number"]) + "/merge", inputs=dict(pins),
-                  head_branch=head["ref"], head_repository_id=head["repo"]["id"])
-    return result
+    tree, _parents = consumer.git_commit_fields(raw, origin["head_sha"])
+    tree_raw = git(checkout, "cat-file", "tree", tree)
+    def read(name):
+        require(name in content, "pinned workflow provenance input is absent: " + name)
+        return content[name][0]
+    return consumer.bind_workflow_provenance(origin, api_head, proof, read,
+                                             execution_commit=raw, execution_tree=tree_raw)
 
 
 def runtime():
@@ -656,7 +573,7 @@ def prepare(config, out):
         workflow = bound
         if bound.get("repository_id") is not None:
             require(run.get("repository_id") == bound["repository_id"], "artifact repository differs from verified workflow")
-        if bound["kind"] == "pull-request-merge":
+        if bound["kind"] in ("pull-request-merge", "execution-base-ancestor-v1"):
             require(run.get("head_repository_id") == bound["head_repository_id"]
                     and run.get("head_branch") == bound["head_branch"], "artifact PR repository/ref differs from workflow")
         artifact_pins[metadata_name] = pin(content[metadata_name][0])
@@ -674,6 +591,7 @@ def prepare(config, out):
         files = {name[len(prefix) + 1:]: pin(raw) for name, (raw, _) in content.items() if name.startswith(prefix + "/")}
         manifest["original_layout"]["roots"].append({**row, "files": files})
     consumer.validate_seed_manifest(manifest)
+    consumer.validate_workflow_provenance(manifest, lambda name: content[name][0])
     mappings = consumer.original_layout_plan(manifest)
     for selected in rove:
         seal = json.loads(content[selected["source_seal"]][0])
@@ -740,6 +658,7 @@ def inspect_archive(raw):
         value, mode = files[name]
         require({**pin(value), "mode": mode} == expected, "archive member differs from canonical manifest")
     require(files["seed.json"][0] == ledger.canonical(manifest) + b"\n", "seed.json is not canonical JSON with one LF")
+    consumer.validate_workflow_provenance(manifest, lambda name: files[name][0])
     return {"manifest_sha256": pin(files["seed.json"][0])["sha256"], "members": len(manifest["members"])}
 
 

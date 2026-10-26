@@ -459,7 +459,8 @@ def run(case, out):
                     owner.covers(mappings, guard['end'], 1 << 20, 'rw-')
                 row.update(startup_seconds=elapsed, persistent_TIDs=sorted(tids),
                            restored_native_exact=True, only_stdio=True, no_children=True,
-                           guarded_worker_stacks=guards,
+                           guarded_worker_stacks=guards, no_RWX=True,
+                           process_mappings=mappings,
                            local_startup_under_60_seconds=True)
                 session = session_type(protocol)(owned, oracle, manifest, row, report)
                 board = session.position()

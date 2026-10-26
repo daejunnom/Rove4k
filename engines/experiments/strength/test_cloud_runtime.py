@@ -1,7 +1,9 @@
 """Local transport and authority rejection tests; no engines or AWS sessions."""
 from dataclasses import dataclass, replace
 from contextlib import contextmanager
+import base64
 import copy
+import hashlib
 import io
 import json
 import subprocess
@@ -165,6 +167,288 @@ class TransportTests(unittest.TestCase):
         for version in ("", "null"):
             with self.subTest(version=version), self.assertRaises(ValueError):
                 cloud.SeedObject("rove-artifacts", "campaign/seed.zip", version, "a" * 64, 4)
+
+
+class WorkflowBytesFixture:
+    """Canonical Git bytes built without Git, network, or transported imports."""
+    def __init__(self):
+        self.seed, self.files = seed_fixture()
+        self.tree_raw = b""
+        self.tree = self.git_hash("tree", self.tree_raw)
+        self.reported_raw = self.commit_bytes(self.tree, (), "reported")
+        self.reported = self.git_hash("commit", self.reported_raw)
+        self.execution_raw = self.commit_bytes(self.tree, (self.reported,), "execution")
+        self.execution = self.git_hash("commit", self.execution_raw)
+        self.head_raw = self.commit_bytes(self.tree, (self.reported,), "head")
+        self.head = self.git_hash("commit", self.head_raw)
+        self.merge_raw = self.commit_bytes(self.tree, (self.execution, self.head), "merge")
+        self.merge = self.git_hash("commit", self.merge_raw)
+        self.documents = {role: "metadata/" + role + ".original.json" for role in
+                          ("run", "commit", "pull_request", "execution_base_proof")}
+        repository = {"id": 73, "full_name": "daejunnom/Rove4k"}
+        base = {"sha": self.reported, "ref": "develop", "repo": dict(repository)}
+        head = {"sha": self.head, "ref": "feature/base-proof", "repo": dict(repository)}
+        self.run = {"id": 123, "run_attempt": 1, "repository": dict(repository),
+                    "head_repository": dict(repository), "head_sha": self.head,
+                    "head_branch": head["ref"], "event": "pull_request", "status": "completed",
+                    "conclusion": "success", "pull_requests": [{"number": 20, "base": copy.deepcopy(base),
+                                                                    "head": copy.deepcopy(head)}]}
+        self.pr = {"number": 20, "merge_commit_sha": self.merge, "base": base, "head": head}
+        self.commit = {"sha": self.merge, "tree": {"sha": self.tree},
+                       "parents": [{"sha": self.execution}, {"sha": self.head}]}
+        self.proof = {"format": "rove4k-execution-base-ancestor-v1", "base_ref": "refs/heads/develop",
+                      "reported_base_sha": self.reported, "execution_base_sha": self.execution,
+                      "execution_commit_base64": self.encoded(self.merge_raw),
+                      "execution_tree_base64": self.encoded(self.tree_raw),
+                      "ancestry": [{"sha": self.execution, "raw_base64": self.encoded(self.execution_raw)},
+                                   {"sha": self.reported, "raw_base64": self.encoded(self.reported_raw)}]}
+        self.seed["source_origin"]["head_sha"] = self.merge
+        self.artifact_name = "metadata/source-artifact.original.json"
+        self.seed["rove"][0]["artifact_metadata"] = self.artifact_name
+        self.artifact = {"id": 17, "workflow_run": {"id": 123, "head_sha": self.head,
+                          "repository_id": 73, "head_repository_id": 73, "head_branch": head["ref"]}}
+        self.files[self.artifact_name] = cloud.ledger.canonical(self.artifact) + b"\n"
+        self.write_documents()
+        with patch.object(subprocess, "run", side_effect=AssertionError("pure binding must not invoke Git")), \
+             patch.object(subprocess, "Popen", side_effect=AssertionError("pure binding must not spawn")), \
+             patch.object(cloud.urllib.request, "urlopen", side_effect=AssertionError("pure binding must not use network")):
+            self.seed["workflow_provenance"] = self.binding()
+        self.seed["workflow_provenance"]["artifact_metadata"] = {self.artifact_name: cloud.pin(self.files[self.artifact_name])}
+        self.reseal()
+
+    @staticmethod
+    def git_hash(kind, raw):
+        return hashlib.sha1(kind.encode() + b" " + str(len(raw)).encode() + b"\0" + raw).hexdigest()
+
+    @staticmethod
+    def encoded(raw):
+        return base64.b64encode(raw).decode("ascii")
+
+    @staticmethod
+    def commit_bytes(tree, parents, message):
+        text = "tree " + tree + "\n" + "".join("parent " + parent + "\n" for parent in parents)
+        text += "author Fixture <fixture@example.invalid> 1 +0000\ncommitter Fixture <fixture@example.invalid> 1 +0000\n\n"
+        return (text + message + "\n").encode()
+
+    def reader(self, name):
+        return self.files[name]
+
+    def write_document(self, role, value=None, raw=None):
+        if raw is None:
+            value = value if value is not None else {"run": self.run, "commit": self.commit,
+                    "pull_request": self.pr, "execution_base_proof": self.proof}[role]
+            raw = cloud.ledger.canonical(value) + b"\n"
+        self.files[self.documents[role]] = raw
+
+    def write_documents(self):
+        for role in self.documents:
+            self.write_document(role)
+
+    def binding(self, **kwargs):
+        return cloud.bind_workflow_provenance(self.seed["source_origin"], self.head,
+                                              self.documents, self.reader, **kwargs)
+
+    def reseal(self):
+        """Re-pin every changed byte without recomputing semantic provenance."""
+        self.seed["members"] = {name: {**cloud.pin(data), "mode": 0o600} for name, data in self.files.items()}
+        provenance = self.seed.get("workflow_provenance")
+        if provenance is not None:
+            provenance["inputs"] = {name: cloud.pin(self.files[name]) for name in self.documents.values() if name in self.files}
+            provenance["artifact_metadata"] = {self.artifact_name: cloud.pin(self.files[self.artifact_name])}
+
+
+class WorkflowProvenanceConsumerTests(unittest.TestCase):
+    @contextmanager
+    def no_external_authority(self):
+        with patch.object(subprocess, "run", side_effect=AssertionError("consumer must not invoke Git/commands")), \
+             patch.object(subprocess, "Popen", side_effect=AssertionError("consumer must not spawn commands")), \
+             patch.object(cloud, "load_module", side_effect=AssertionError("consumer must not import transported source")), \
+             patch.object(cloud, "observe_consumer", side_effect=AssertionError("consumer must not call AWS")), \
+             patch.object(cloud.urllib.request, "urlopen", side_effect=AssertionError("consumer must not use network")):
+            yield
+
+    @staticmethod
+    def write_materialized(root, seed, files):
+        root.mkdir()
+        for name, body in files.items():
+            target = root / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(body)
+        raw = cloud.ledger.canonical(seed) + b"\n"
+        (root / "seed.json").write_bytes(raw)
+        return cloud.pin(raw)["sha256"]
+
+    def reject_all_consumers(self, fixture):
+        fixture.reseal()
+        raw, sha = archive_bytes(fixture.seed, fixture.files)
+        with tempfile.TemporaryDirectory(prefix="rove-provenance-resealed-") as temporary, self.no_external_authority():
+            root = Path(temporary)
+            archive = root / "input.zip"
+            archive.write_bytes(raw)
+            with self.assertRaises(ValueError):
+                cloud.materialize_seed_archive(archive, root / "rejected-output", expected_manifest_sha256=sha)
+            self.assertFalse((root / "rejected-output").exists())
+            materialized = root / "recanonicalized"
+            manifest_sha = self.write_materialized(materialized, fixture.seed, fixture.files)
+            self.assertEqual(manifest_sha, sha)
+            with self.assertRaises(ValueError):
+                cloud.main(["inspect", "--manifest", str(materialized / "seed.json"), "--manifest-sha256", sha,
+                            "--members-root", str(materialized)])
+            with self.assertRaises(ValueError):
+                cloud.revalidate_seed(fixture.seed, materialized)
+
+    def test_advanced_proof_roundtrip_preserves_original_bases_and_never_uses_external_authority(self):
+        fixture = WorkflowBytesFixture()
+        before = dict(fixture.files)
+        expected = fixture.seed["workflow_provenance"]
+        self.assertEqual(expected["kind"], "execution-base-ancestor-v1")
+        self.assertNotEqual(fixture.reported, fixture.execution)
+        self.assertEqual(expected["reported_base_sha"], fixture.reported)
+        self.assertEqual(expected["execution_base_sha"], fixture.execution)
+        with self.no_external_authority():
+            computed = cloud.validate_workflow_provenance(fixture.seed, fixture.reader)
+            self.assertEqual(computed, {key: value for key, value in expected.items() if key != "artifact_metadata"})
+            local_bound = fixture.binding(execution_commit=fixture.merge_raw, execution_tree=fixture.tree_raw)
+            self.assertEqual(local_bound, {key: value for key, value in expected.items() if key != "artifact_metadata"})
+            raw, sha = archive_bytes(fixture.seed, fixture.files)
+            with tempfile.TemporaryDirectory(prefix="rove-provenance-roundtrip-") as temporary:
+                root = Path(temporary)
+                archive = root / "input.zip"
+                archive.write_bytes(raw)
+                actual = cloud.materialize_seed_archive(archive, root / "out", expected_manifest_sha256=sha)
+                self.assertEqual(actual["workflow_provenance"], expected)
+                self.assertEqual(actual["source_origin"], fixture.seed["source_origin"])
+                self.assertEqual(cloud.revalidate_seed(actual, root / "out"), computed)
+                with patch("sys.stdout", new=io.StringIO()) as output:
+                    self.assertEqual(cloud.main(["inspect", "--manifest", str(root / "out/seed.json"),
+                                                 "--manifest-sha256", sha]), 0)
+                    disclosure = json.loads(output.getvalue())
+                self.assertEqual(disclosure["validation_scope"], "manifest-only")
+                self.assertIs(disclosure["member_bytes_verified"], False)
+                self.assertIs(disclosure["workflow_proof_semantically_validated"], False)
+                with patch("sys.stdout", new=io.StringIO()) as output:
+                    self.assertEqual(cloud.main(["inspect", "--manifest", str(root / "out/seed.json"),
+                        "--manifest-sha256", sha, "--members-root", str(root / "out")]), 0)
+                    verified = json.loads(output.getvalue())
+                self.assertIs(verified["member_bytes_verified"], True)
+                self.assertIs(verified["workflow_proof_semantically_validated"], True)
+                for name, body in before.items():
+                    self.assertEqual((root / "out" / name).read_bytes(), body)
+        self.assertEqual(fixture.files, before)
+
+    def test_default_inspect_discloses_unverified_bad_proof_and_member_inspect_rejects_it(self):
+        fixture = WorkflowBytesFixture()
+        fixture.proof["execution_tree_base64"] = fixture.encoded(b"wrong root tree")
+        fixture.write_document("execution_base_proof")
+        fixture.reseal()
+        with tempfile.TemporaryDirectory(prefix="rove-provenance-inspect-scope-") as temporary, self.no_external_authority():
+            root = Path(temporary) / "members"
+            sha = self.write_materialized(root, fixture.seed, fixture.files)
+            arguments = ["inspect", "--manifest", str(root / "seed.json"), "--manifest-sha256", sha]
+            with patch("sys.stdout", new=io.StringIO()) as output:
+                self.assertEqual(cloud.main(arguments), 0)
+                disclosure = json.loads(output.getvalue())
+            self.assertEqual(disclosure["validation_scope"], "manifest-only")
+            self.assertIs(disclosure["member_bytes_verified"], False)
+            self.assertIs(disclosure["workflow_proof_semantically_validated"], False)
+            self.assertEqual(disclosure["workflow_provenance"]["reported_base_sha"], fixture.reported)
+            self.assertEqual(disclosure["workflow_provenance"]["execution_base_sha"], fixture.execution)
+            with self.assertRaises(ValueError):
+                cloud.main([*arguments, "--members-root", str(root)])
+
+    def test_legacy_without_explicit_roles_is_not_promoted_to_new_semantic_evidence(self):
+        seed, files = seed_fixture()
+        with self.no_external_authority():
+            self.assertIsNone(cloud.validate_workflow_provenance(seed, files.__getitem__))
+            seed["workflow_provenance"] = {"kind": "artifact-head-equality", "api_head_sha": "a" * 40,
+                "checkout_sha": "a" * 40, "inputs": {}}
+            self.assertIsNone(cloud.validate_workflow_provenance(seed, files.__getitem__))
+
+    def test_new_kind_cannot_drop_roles_or_use_a_boolean_instead_of_proof(self):
+        for change in ("missing-roles", "boolean-proof", "missing-member"):
+            with self.subTest(change=change):
+                fixture = WorkflowBytesFixture()
+                if change == "missing-roles":
+                    fixture.seed["workflow_provenance"].pop("documents")
+                elif change == "boolean-proof":
+                    fixture.write_document("execution_base_proof", value={"ancestor": True, "verified": True})
+                else:
+                    del fixture.files[fixture.documents["execution_base_proof"]]
+                self.reject_all_consumers(fixture)
+
+    def test_resealed_raw_commit_tree_branch_and_role_faults_fail_every_consumer(self):
+        for change in ("raw-commit", "raw-tree", "base-ref", "role-alias", "source-origin", "artifact-repository"):
+            with self.subTest(change=change):
+                fixture = WorkflowBytesFixture()
+                if change == "raw-commit":
+                    fixture.proof["execution_commit_base64"] = fixture.encoded(fixture.merge_raw + b"changed")
+                    fixture.write_document("execution_base_proof")
+                elif change == "raw-tree":
+                    fixture.proof["execution_tree_base64"] = fixture.encoded(b"not the committed root tree")
+                    fixture.write_document("execution_base_proof")
+                elif change == "base-ref":
+                    fixture.proof["base_ref"] = "refs/heads/main"
+                    fixture.write_document("execution_base_proof")
+                elif change == "role-alias":
+                    fixture.seed["workflow_provenance"]["documents"]["commit"] = fixture.documents["run"]
+                elif change == "source-origin":
+                    fixture.seed["source_origin"]["head_sha"] = "f" * 40
+                else:
+                    fixture.artifact["workflow_run"]["repository_id"] = 999
+                    fixture.files[fixture.artifact_name] = cloud.ledger.canonical(fixture.artifact) + b"\n"
+                self.reject_all_consumers(fixture)
+
+    def test_resealed_original_api_mismatch_cannot_be_overridden_by_proof(self):
+        for change in ("run-attempt", "run-base-sha", "pr-base-ref", "commit-tree", "commit-parent-order"):
+            with self.subTest(change=change):
+                fixture = WorkflowBytesFixture()
+                if change == "run-attempt":
+                    fixture.run["run_attempt"] = 2
+                elif change == "run-base-sha":
+                    fixture.run["pull_requests"][0]["base"]["sha"] = fixture.execution
+                elif change == "pr-base-ref":
+                    fixture.pr["base"]["ref"] = "main"
+                elif change == "commit-tree":
+                    fixture.commit["tree"]["sha"] = "f" * 40
+                else:
+                    fixture.commit["parents"].reverse()
+                fixture.write_documents()
+                self.reject_all_consumers(fixture)
+
+    def test_raw_git_hashes_alone_do_not_prove_an_ancestry_edge(self):
+        fixture = WorkflowBytesFixture()
+        execution_raw = fixture.commit_bytes(fixture.tree, (fixture.head,), "not a descendant of reported")
+        execution = fixture.git_hash("commit", execution_raw)
+        merge_raw = fixture.commit_bytes(fixture.tree, (execution, fixture.head), "merge disconnected proof")
+        merge = fixture.git_hash("commit", merge_raw)
+        fixture.seed["source_origin"]["head_sha"] = merge
+        fixture.pr["merge_commit_sha"] = merge
+        fixture.commit.update(sha=merge, parents=[{"sha": execution}, {"sha": fixture.head}])
+        fixture.proof.update(execution_base_sha=execution, execution_commit_base64=fixture.encoded(merge_raw),
+            ancestry=[{"sha": execution, "raw_base64": fixture.encoded(execution_raw)},
+                      {"sha": fixture.reported, "raw_base64": fixture.encoded(fixture.reported_raw)}])
+        fixture.write_documents()
+        record = fixture.seed["workflow_provenance"]
+        record.update(checkout_sha=merge, execution_base_sha=execution, execution_parents=[execution, fixture.head])
+        self.reject_all_consumers(fixture)
+
+    def test_duplicate_proof_json_keys_fail_even_when_values_are_equal_and_repinned(self):
+        fixture = WorkflowBytesFixture()
+        raw = cloud.ledger.canonical(fixture.proof)
+        fixture.write_document("execution_base_proof", raw=raw[:-1] + b',"base_ref":"refs/heads/develop"}\n')
+        self.reject_all_consumers(fixture)
+
+    def test_oversized_proof_is_rejected_before_json_decoding(self):
+        fixture = WorkflowBytesFixture()
+        raw = fixture.files[fixture.documents["execution_base_proof"]]
+        fixture.write_document("execution_base_proof", raw=b" " * ((4 << 20) + 1 - len(raw)) + raw)
+        original = json.loads
+        def bounded_decode(value, *args, **kwargs):
+            if isinstance(value, (bytes, str)) and len(value) > 4 << 20:
+                self.fail("oversized provenance must be rejected before JSON decoding")
+            return original(value, *args, **kwargs)
+        with patch.object(cloud.json, "loads", side_effect=bounded_decode):
+            self.reject_all_consumers(fixture)
 
 
 class SeedCapacityTests(unittest.TestCase):

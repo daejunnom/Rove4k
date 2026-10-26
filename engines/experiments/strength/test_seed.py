@@ -201,6 +201,76 @@ class AdvancedFakeS3(FakeS3):
         return super().call(service, operation, request)
 
 
+class ExecutionBaseAncestorFixture(Fixture):
+    """Real local R->E and R->H graph; API/proof transport stays synthetic."""
+    def __init__(self, root):
+        super().__init__(root)
+        self.reported_base = git(self.repo, "rev-parse", "HEAD").decode().strip()
+        self.tree = git(self.repo, "rev-parse", "HEAD^{tree}").decode().strip()
+        self.execution_base = self.commit_object(self.tree, [self.reported_base], "execution base advanced from reported snapshot")
+        self.head = self.commit_object(self.tree, [self.reported_base], "PR head diverged from reported snapshot")
+        self.merge = self.commit_object(self.tree, [self.execution_base, self.head], "execution merge uses advanced base")
+        git(self.repo, "checkout", "--detach", "-q", self.merge)
+        origin = self.config["source_origin"]
+        origin["head_sha"] = self.merge
+        self.config["checkout"]["commit"] = self.merge
+        seal = json.loads(Path(self.inputs["origin/A/source-seal.json"]["path"]).read_bytes())
+        seal["ci_context"] = origin
+        self.rewrite("origin/A/source-seal.json", seal)
+        repository = {"id": 17, "full_name": origin["repository"]}
+        self.pr = {"number": 12, "merge_commit_sha": self.merge,
+            "base": {"sha": self.reported_base, "ref": "develop", "repo": repository},
+            "head": {"sha": self.head, "ref": "feature/fixture", "repo": repository}}
+        self.run = {"id": 123, "run_attempt": 1, "repository": repository, "head_repository": repository,
+            "event": "pull_request", "head_sha": self.head, "head_branch": "feature/fixture",
+            "status": "completed", "conclusion": "success", "pull_requests": [copy.deepcopy(self.pr)]}
+        self.commit = {"sha": self.merge, "tree": {"sha": self.tree},
+            "parents": [{"sha": self.execution_base}, {"sha": self.head}]}
+        self.proof = {"format": "rove4k-execution-base-ancestor-v1", "base_ref": "refs/heads/develop",
+            "reported_base_sha": self.reported_base, "execution_base_sha": self.execution_base,
+            "execution_commit_base64": self.encoded_object("commit", self.merge),
+            "execution_tree_base64": self.encoded_object("tree", self.tree),
+            "ancestry": [self.commit_row(self.execution_base), self.commit_row(self.reported_base)]}
+        self.documents = {key: "metadata/" + key + ".json"
+            for key in ("run", "pull_request", "commit", "execution_base_proof")}
+        self.config["workflow_provenance"] = self.documents
+        self.reset_documents()
+        self.rewrite("metadata/A-artifact.json", {"id": 11, "workflow_run": {"id": 123,
+            "head_sha": self.head, "repository_id": 17, "head_repository_id": 17, "head_branch": "feature/fixture"}})
+
+    def commit_object(self, tree, parents, message):
+        arguments = ["-c", "user.name=Transport Fixture", "-c", "user.email=fixture@example.invalid", "commit-tree", tree]
+        for parent in parents:
+            arguments.extend(("-p", parent))
+        return git(self.repo, *arguments, "-m", message).decode().strip()
+
+    def encoded_object(self, kind, sha):
+        return base64.b64encode(git(self.repo, "cat-file", kind, sha)).decode("ascii")
+
+    def commit_row(self, sha):
+        return {"sha": sha, "raw_base64": self.encoded_object("commit", sha)}
+
+    def set_document(self, role, value=None, *, raw=None):
+        raw = ledger.canonical(value) if raw is None else raw
+        path = self.root / "ancestry-originals" / (role + ".json")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(raw)
+        self.inputs[self.documents[role]] = {"path": str(path), **seed.pin(raw)}
+
+    def reset_documents(self):
+        for role, value in (("run", self.run), ("pull_request", self.pr), ("commit", self.commit), ("execution_base_proof", self.proof)):
+            self.set_document(role, value)
+
+    def content(self):
+        return {name: (Path(value["path"]).read_bytes(), 0o600) for name, value in self.inputs.items()}
+
+    def reader(self, name):
+        return Path(self.inputs[name]["path"]).read_bytes()
+
+    def binding(self):
+        return seed.workflow_binding(self.config, self.content(), self.config["source_origin"], self.head)
+
+
 class WorkflowProvenanceTests(unittest.TestCase):
     """Actual local commit DAGs; API JSON remains an explicit transport fixture."""
     def setUp(self):
@@ -267,6 +337,15 @@ class WorkflowProvenanceTests(unittest.TestCase):
         # The API original was not rebound to the execution merge.
         original = json.loads(Path(self.fixture.inputs["metadata/A-artifact.json"]["path"]).read_bytes())
         self.assertEqual(original["workflow_run"]["head_sha"], self.head)
+
+    def test_legacy_equal_base_binding_retains_its_exact_result_shape(self):
+        names = self.fixture.config["workflow_provenance"].values()
+        expected = {"kind": "pull-request-merge", "event": "pull_request", "repository": "fixture/Rove4k",
+            "repository_id": 17, "run_id": "123", "run_attempt": "1", "api_head_sha": self.head,
+            "checkout_sha": self.merge, "execution_tree": self.tree, "execution_parents": [self.base, self.head],
+            "inputs": {name: seed.pin(Path(self.fixture.inputs[name]["path"]).read_bytes()) for name in names},
+            "pull_request": 12, "ref": "refs/pull/12/merge", "head_branch": "feature/fixture", "head_repository_id": 17}
+        self.assertEqual(self.binding(), expected)
 
     def test_ordinary_head_equality_never_accepts_an_unexplained_different_sha(self):
         config = copy.deepcopy(self.fixture.config)
@@ -358,6 +437,119 @@ class WorkflowProvenanceTests(unittest.TestCase):
         self.assertEqual(result["execution_parents"], [self.base, self.head])
         for env in captured:
             self.assertFalse(set(injected) & set(env))
+
+
+class ExecutionBaseAncestorTests(unittest.TestCase):
+    """Actual local Git ancestry, never authenticated CI or engine acceptance."""
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix="rove-execution-base-ancestor-")
+        self.root = Path(self.temp.name)
+        self.fixture = ExecutionBaseAncestorFixture(self.root)
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    def refused_prepare(self, label, *, proof=None, raw=None, documents=None):
+        self.fixture.reset_documents()
+        if proof is not None or raw is not None:
+            self.fixture.set_document("execution_base_proof", proof, raw=raw)
+        for role, value in (documents or {}).items():
+            self.fixture.set_document(role, value)
+        out = self.root / ("rejected-" + label)
+        with self.assertRaises(ValueError):
+            self.fixture.prepare(out)
+        self.assertFalse(out.exists())
+
+    def test_actual_ancestor_binding_keeps_reported_and_execution_bases_separate(self):
+        fixture = self.fixture
+        value = fixture.binding()
+        self.assertEqual(value["kind"], "execution-base-ancestor-v1")
+        self.assertEqual(value["reported_base_sha"], fixture.reported_base)
+        self.assertEqual(value["execution_base_sha"], fixture.execution_base)
+        self.assertEqual(value["base_ref"], "refs/heads/develop")
+        self.assertEqual(value["execution_parents"], [fixture.execution_base, fixture.head])
+        self.assertEqual(value["execution_tree"], fixture.tree)
+        self.assertEqual(value["documents"], fixture.documents)
+        self.assertEqual(set(value["inputs"]), set(fixture.documents.values()))
+        self.assertEqual(json.loads(fixture.reader(fixture.documents["pull_request"]))["base"]["sha"], fixture.reported_base)
+        self.assertEqual(json.loads(fixture.reader("metadata/A-artifact.json"))["workflow_run"]["head_sha"], fixture.head)
+
+    def test_actual_producer_inspector_roundtrip_retains_original_proof_and_result(self):
+        fixture = self.fixture
+        receipt = fixture.prepare(self.root / "prepared-ancestor")
+        archive = Path(receipt["archive"]["path"]).read_bytes()
+        inspected = seed.inspect_archive(archive)
+        self.assertEqual(inspected["manifest_sha256"], receipt["seed_manifest"]["sha256"])
+        manifest = json.loads(Path(receipt["seed_manifest"]["path"]).read_bytes())
+        value = manifest["workflow_provenance"]
+        self.assertEqual(value["kind"], "execution-base-ancestor-v1")
+        self.assertEqual(value["documents"], fixture.documents)
+        self.assertEqual(value["reported_base_sha"], fixture.reported_base)
+        self.assertEqual(value["execution_base_sha"], fixture.execution_base)
+        self.assertEqual(receipt["workflow_provenance"], value)
+        with zipfile.ZipFile(io.BytesIO(archive)) as source:
+            self.assertEqual(source.read(fixture.documents["execution_base_proof"]), fixture.reader(fixture.documents["execution_base_proof"]))
+        self.assertFalse(receipt["native_qualified"] or receipt["engine_executed"] or receipt["aws_calls_performed"])
+
+    def test_unequal_base_without_explicit_proof_is_not_an_implicit_ancestry_exception(self):
+        self.fixture.config["workflow_provenance"] = {key: value for key, value in self.fixture.documents.items()
+            if key != "execution_base_proof"}
+        self.refused_prepare("missing-proof")
+
+    def test_forged_or_ambiguous_proof_fields_reject_before_output(self):
+        original = self.fixture.proof
+        cases = {}
+        for field, value in (("format", "another-proof"), ("base_ref", "refs/heads/other"),
+                             ("reported_base_sha", self.fixture.head), ("execution_base_sha", self.fixture.reported_base)):
+            cases[field] = {**copy.deepcopy(original), field: value}
+        cases["extra-field"] = {**copy.deepcopy(original), "allowed": True}
+        missing = copy.deepcopy(original); del missing["execution_tree_base64"]; cases["missing-field"] = missing
+        for field in ("execution_commit_base64", "execution_tree_base64"):
+            raw = base64.b64decode(original[field]) + b"\n"
+            cases[field] = {**copy.deepcopy(original), field: base64.b64encode(raw).decode("ascii")}
+        changed = copy.deepcopy(original)
+        changed["ancestry"][0]["raw_base64"] = base64.b64encode(base64.b64decode(changed["ancestry"][0]["raw_base64"]) + b"\n").decode("ascii")
+        cases["forged-commit-row"] = changed
+        changed = copy.deepcopy(original)
+        changed["ancestry"][0]["allowed"] = True
+        cases["extra-row-field"] = changed
+        cases["invalid-base64"] = {**copy.deepcopy(original), "execution_commit_base64": "invalid!!"}
+        cases["single-row"] = {**copy.deepcopy(original), "ancestry": original["ancestry"][:1]}
+        cases["reversed-path"] = {**copy.deepcopy(original), "ancestry": list(reversed(original["ancestry"]))}
+        cases["duplicate-row"] = {**copy.deepcopy(original), "ancestry": [original["ancestry"][0], original["ancestry"][0], original["ancestry"][1]]}
+        cases["too-many-rows"] = {**copy.deepcopy(original), "ancestry": [original["ancestry"][0]] * 1024 + [original["ancestry"][1]]}
+        for label, proof in cases.items():
+            with self.subTest(label=label):
+                self.refused_prepare(label, proof=proof)
+        duplicate = ledger.canonical(original)[:-1] + b',"base_ref":"refs/heads/develop"}'
+        self.refused_prepare("duplicate-json", raw=duplicate)
+        raw = ledger.canonical(original)
+        selected = b'"sha":"' + self.fixture.execution_base.encode() + b'"}'
+        duplicated = b'"sha":"' + self.fixture.execution_base.encode() + b'","sha":"' + self.fixture.execution_base.encode() + b'"}'
+        nested = raw.replace(selected, duplicated, 1)
+        self.assertNotEqual(nested, raw)
+        self.refused_prepare("duplicate-nested-json", raw=nested)
+        self.refused_prepare("oversize-proof", raw=ledger.canonical(original) + b" " * (4 << 20))
+
+    def test_real_diverged_or_unrelated_commit_rows_do_not_establish_parent_edges(self):
+        unrelated = self.fixture.commit_object(self.fixture.tree, [], "unrelated root with same tree")
+        for label, middle in (("diverged", self.fixture.head), ("unrelated", unrelated)):
+            with self.subTest(label=label):
+                proof = copy.deepcopy(self.fixture.proof)
+                proof["ancestry"] = [self.fixture.commit_row(self.fixture.execution_base),
+                    self.fixture.commit_row(middle), self.fixture.commit_row(self.fixture.reported_base)]
+                self.refused_prepare(label, proof=proof)
+
+    def test_merge_tree_parents_and_original_refs_stay_bound_to_raw_objects(self):
+        for label, changed in (("tree", {**self.fixture.commit, "tree": {"sha": "0" * 40}}),
+                               ("parents", {**self.fixture.commit, "parents": list(reversed(self.fixture.commit["parents"]))})):
+            with self.subTest(label=label):
+                self.refused_prepare(label, documents={"commit": changed})
+        pr, run = copy.deepcopy(self.fixture.pr), copy.deepcopy(self.fixture.run)
+        pr["base"]["ref"] = "another-base"
+        run["pull_requests"] = [copy.deepcopy(pr)]
+        self.refused_prepare("raw-base-ref", documents={"pull_request": pr, "run": run})
+        self.refused_prepare("different-event", documents={"run": {**self.fixture.run, "event": "push"}})
 
 
 class SeedTests(unittest.TestCase):

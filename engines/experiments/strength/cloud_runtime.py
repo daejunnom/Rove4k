@@ -9,6 +9,7 @@ The only runtime-image authority is the validated CloudRuntimeReference below.
 from __future__ import annotations
 
 import argparse
+import base64
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass, is_dataclass
 import hashlib
@@ -242,6 +243,196 @@ def seed_expansion_limit(value):
     return JOINT_EXPANDED_SEED if rove == joint else MAX_SEED
 
 
+def provenance_json(raw):
+    """Bounded original JSON, with duplicate keys and non-JSON numbers refused."""
+    require(type(raw) is bytes and len(raw) <= MAX_SEED_MANIFEST, "workflow proof JSON exceeds its bound")
+    def unique(pairs):
+        value = dict(pairs)
+        require(len(value) == len(pairs), "ambiguous duplicate workflow provenance field")
+        return value
+    def invalid(_value):
+        raise ValueError("non-JSON workflow provenance number")
+    value = json.loads(raw, object_pairs_hook=unique, parse_constant=invalid)
+    require(type(value) is dict, "workflow provenance must be a JSON object")
+    return value
+
+
+def git_commit_fields(raw, identity):
+    """Verify canonical Git object framing; no repository, process or network."""
+    require(type(raw) is bytes and len(raw) <= MAX_MEMBER and type(identity) is str and
+            re.fullmatch(r"[a-f0-9]{40}(?:[a-f0-9]{24})?", identity), "bounded canonical Git commit required")
+    algorithm = hashlib.sha1 if len(identity) == 40 else hashlib.sha256
+    require(algorithm(b"commit " + str(len(raw)).encode() + b"\0" + raw).hexdigest() == identity,
+            "execution/ancestry commit differs from its canonical Git identity")
+    headers = raw.split(b"\n\n", 1)[0].splitlines()
+    trees = [line[5:].decode("ascii") for line in headers if line.startswith(b"tree ")]
+    parents = [line[7:].decode("ascii") for line in headers if line.startswith(b"parent ")]
+    require(len(trees) == 1 and all(re.fullmatch(r"[a-f0-9]{" + str(len(identity)) + r"}", value)
+            for value in [*trees, *parents]), "canonical Git commit tree/parents required")
+    return trees[0], parents
+
+
+def execution_base_objects(value):
+    require(type(value) is dict and set(value) == {"format", "base_ref", "reported_base_sha", "execution_base_sha",
+            "execution_commit_base64", "execution_tree_base64", "ancestry"} and
+            value["format"] == "rove4k-execution-base-ancestor-v1", "explicit execution-base-ancestor-v1 proof required")
+    require(all(type(value[k]) is str and re.fullmatch(r"[a-f0-9]{40}", value[k])
+                for k in ("reported_base_sha", "execution_base_sha")), "SHA1 base identities required")
+    require(value["reported_base_sha"] != value["execution_base_sha"], "equal bases retain the legacy proof class")
+    def body(text):
+        require(type(text) is str, "raw Git object base64 must be a string")
+        try:
+            raw = base64.b64decode(text, validate=True)
+        except (ValueError, TypeError) as error:
+            raise ValueError("invalid raw Git object base64") from error
+        require(base64.b64encode(raw).decode("ascii") == text, "noncanonical raw Git object base64")
+        return raw
+    ancestry = value["ancestry"]
+    require(type(ancestry) is list and 2 <= len(ancestry) <= 1024, "bounded execution-base ancestry path required")
+    identities, objects = [], []
+    for row in ancestry:
+        require(type(row) is dict and set(row) == {"sha", "raw_base64"} and type(row["sha"]) is str
+                and re.fullmatch(r"[a-f0-9]{40}", row["sha"]), "exact raw ancestry object required")
+        raw = body(row["raw_base64"])
+        tree, parents = git_commit_fields(raw, row["sha"])
+        identities.append(row["sha"])
+        objects.append((raw, tree, parents))
+    require(len(set(identities)) == len(identities) and identities[0] == value["execution_base_sha"]
+            and identities[-1] == value["reported_base_sha"], "execution-base ancestry endpoints/cycle differ")
+    require(all(identities[i + 1] in objects[i][2] for i in range(len(identities) - 1)),
+            "reported base is not on the directed execution-base ancestry path")
+    return body(value["execution_commit_base64"]), body(value["execution_tree_base64"])
+
+
+def bind_workflow_provenance(origin, api_head, documents, reader, *, execution_commit=None, execution_tree=None):
+    """One data-only API/Git binding worker for producer and traveling proof.
+
+    Raw Git objects establish identity and directed ancestry. The pinned API
+    originals bind the merge to its repository/PR/base ref; this does not prove
+    mutable branch-ref history or authenticate an arbitrary supplied API file.
+    """
+    require(type(documents) is dict and set(documents) in ({"run", "commit"}, {"run", "commit", "pull_request"},
+            {"run", "commit", "pull_request", "execution_base_proof"}), "explicit workflow document roles required")
+    require(all(type(name) is str for name in documents.values()) and len(set(documents.values())) == len(documents),
+            "workflow provenance members must be distinct")
+    pins = {}
+    def document(role):
+        name = member(documents[role])
+        raw = reader(name)
+        value = provenance_json(raw)
+        pins[name] = pin(raw)
+        return value
+    run, commit = document("run"), document("commit")
+    proof = document("execution_base_proof") if "execution_base_proof" in documents else None
+    if proof is not None:
+        raw_commit, raw_tree = execution_base_objects(proof)
+        require((execution_commit is None or execution_commit == raw_commit) and
+                (execution_tree is None or execution_tree == raw_tree), "traveling execution objects differ from the local checkout")
+        execution_commit, execution_tree = raw_commit, raw_tree
+    repository = run.get("repository")
+    require(type(repository) is dict and repository.get("full_name") == origin["repository"]
+            and type(repository.get("id")) is int and repository["id"] > 0
+            and str(run.get("id")) == str(origin["run_id"]) and str(run.get("run_attempt")) == str(origin["run_attempt"])
+            and run.get("head_sha") == api_head and run.get("status") == "completed"
+            and run.get("conclusion") == "success", "workflow API run differs from sealed source origin")
+    tree, parents = git_commit_fields(execution_commit, origin["head_sha"])
+    require(type(commit.get("tree")) is dict and type(commit.get("parents")) is list
+            and all(type(row) is dict for row in commit["parents"]) and commit.get("sha") == origin["head_sha"]
+            and commit["tree"].get("sha") == tree and [row.get("sha") for row in commit["parents"]] == parents,
+            "API execution commit/tree/ordered parents differ from actual local Git object")
+    algorithm = hashlib.sha1 if len(origin["head_sha"]) == 40 else hashlib.sha256
+    require(type(execution_tree) is bytes and len(execution_tree) <= MAX_MEMBER and
+            algorithm(b"tree " + str(len(execution_tree)).encode() + b"\0" + execution_tree).hexdigest() == tree,
+            "execution tree differs from its canonical Git identity")
+    result = {"kind": "workflow-head-equality", "event": run.get("event"),
+        "repository": origin["repository"], "repository_id": repository["id"], "run_id": origin["run_id"],
+        "run_attempt": origin["run_attempt"], "api_head_sha": api_head, "checkout_sha": origin["head_sha"],
+        "execution_tree": tree, "execution_parents": parents, "inputs": pins}
+    if run.get("event") != "pull_request":
+        require(set(documents) == {"run", "commit"} and run.get("event") in ("push", "workflow_dispatch", "schedule")
+                and api_head == origin["head_sha"], "ordinary workflow head must equal its execution checkout")
+        return result
+    require("pull_request" in documents, "PR merge requires its pinned API snapshot")
+    pr = document("pull_request")
+    rows = run.get("pull_requests", [])
+    require(type(rows) is list and len(rows) == 1 and type(rows[0]) is dict and type(pr.get("number")) is int
+            and pr["number"] > 0 and rows[0].get("number") == pr["number"]
+            and pr.get("merge_commit_sha") == origin["head_sha"], "workflow PR and execution merge snapshot differ")
+    base, head, run_pr = pr.get("base", {}), pr.get("head", {}), rows[0]
+    require(type(base) is dict and type(head) is dict and all(type(value.get("repo")) is dict for value in (base, head))
+            and type(run.get("head_repository")) is dict and all(type(run_pr.get(side)) is dict
+            and type(run_pr[side].get("repo")) is dict for side in ("base", "head")), "PR repository/ref snapshots must be API objects")
+    require(len(parents) == 2 and parents[1] == head.get("sha") == api_head
+            and base["repo"].get("full_name") == origin["repository"] and base["repo"].get("id") == repository["id"]
+            and type(head["repo"].get("id")) is int and head["repo"]["id"] > 0
+            and type(head["repo"].get("full_name")) is str and head["repo"]["full_name"]
+            and head["repo"]["id"] == run["head_repository"].get("id")
+            and head["repo"]["full_name"] == run["head_repository"].get("full_name")
+            and type(base.get("ref")) is str and base["ref"] and type(head.get("ref")) is str and head["ref"]
+            and head["ref"] == run.get("head_branch") and all(run_pr[side].get("sha") == value.get("sha")
+                and run_pr[side].get("ref") == value.get("ref") and run_pr[side]["repo"].get("id") == value["repo"].get("id")
+                for side, value in (("base", base), ("head", head))), "PR repository/ref/base/head differ from execution merge")
+    result.update(kind="pull-request-merge", pull_request=pr["number"], ref="refs/pull/" + str(pr["number"]) + "/merge",
+                  inputs=dict(pins), head_branch=head["ref"], head_repository_id=head["repo"]["id"])
+    if proof is None:
+        require(parents == [base.get("sha"), head["sha"]], "PR base differs from execution merge without an ancestry proof")
+    else:
+        require(len(origin["head_sha"]) == 40 and origin["head_sha"] not in [row["sha"] for row in proof["ancestry"]]
+                and proof["reported_base_sha"] == base.get("sha") and proof["execution_base_sha"] == parents[0]
+                and proof["base_ref"] == "refs/heads/" + base["ref"], "execution-base proof differs from the original API branch/parents")
+        result.update(kind="execution-base-ancestor-v1", documents=dict(documents), reported_base_sha=base["sha"],
+                      execution_base_sha=parents[0], base_ref=proof["base_ref"])
+    return result
+
+
+def workflow_provenance_schema(manifest):
+    value = manifest.get("workflow_provenance")
+    if not isinstance(value, dict) or value.get("kind") != "execution-base-ancestor-v1":
+        require(not isinstance(value, dict) or not any(key in value for key in
+                ("documents", "reported_base_sha", "execution_base_sha", "base_ref")), "unknown traveling workflow proof class")
+        return None  # Historical v1 records have only pin validation, not new semantic reconstruction.
+    require(set(value) == {"kind", "event", "repository", "repository_id", "run_id", "run_attempt", "api_head_sha",
+            "checkout_sha", "execution_tree", "execution_parents", "inputs", "pull_request", "ref", "head_branch",
+            "head_repository_id", "documents", "reported_base_sha", "execution_base_sha", "base_ref", "artifact_metadata"},
+            "exact traveling workflow result required")
+    documents, pins = value["documents"], value["inputs"]
+    require(type(documents) is dict and set(documents) == {"run", "commit", "pull_request", "execution_base_proof"}
+            and all(type(name) is str for name in documents.values()) and len(set(documents.values())) == 4
+            and type(pins) is dict and set(pins) == set(documents.values()), "exact workflow document-role mapping required")
+    artifacts = value["artifact_metadata"]
+    require(type(artifacts) is dict and set(artifacts) == {row.get("artifact_metadata") for row in manifest["rove"]}
+            and not set(artifacts).intersection(pins), "workflow artifact metadata roles differ from selected Rove inputs")
+    for name, expected in {**pins, **artifacts}.items():
+        member(name)
+        actual = manifest["members"].get(name)
+        require(type(expected) is dict and set(expected) == {"bytes", "sha256"} and type(expected["bytes"]) is int
+                and actual is not None and expected == {k: actual[k] for k in ("bytes", "sha256")}
+                and expected["bytes"] <= MAX_SEED_MANIFEST, "workflow document pin differs from manifest")
+    return value
+
+
+def validate_workflow_provenance(manifest, reader):
+    value = workflow_provenance_schema(manifest)
+    if value is None:
+        return None
+    def checked(name):
+        raw = reader(name)
+        expected = manifest["members"][name]
+        require(type(raw) is bytes and pin(raw) == {k: expected[k] for k in ("bytes", "sha256")}, "workflow proof member changed")
+        return raw
+    result = bind_workflow_provenance(manifest["source_origin"], value["api_head_sha"], value["documents"], checked)
+    require(result == {k: v for k, v in value.items() if k != "artifact_metadata"}, "traveling workflow result differs from its original proof")
+    for name in value["artifact_metadata"]:
+        metadata = provenance_json(checked(name))
+        run = metadata.get("workflow_run", {})
+        require(type(metadata.get("id")) is int and metadata["id"] > 0 and type(run) is dict
+                and str(run.get("id")) == str(result["run_id"]) and run.get("head_sha") == result["api_head_sha"]
+                and run.get("repository_id") == result["repository_id"]
+                and run.get("head_repository_id") == result["head_repository_id"]
+                and run.get("head_branch") == result["head_branch"], "artifact PR identity differs from traveling workflow proof")
+    return result
+
+
 def validate_seed_manifest(value):
     require(isinstance(value, dict) and value.get("format") == "rove4k-cloud-seed-v1",
             "explicit prequalification seed required")
@@ -295,10 +486,16 @@ def validate_seed_manifest(value):
     require(runner.get("revision") == "ebfd64cb7fac80d4822c50b07dca4fe934779d21" and
             member(runner.get("checkout")) and runner.get("transport") == "external-git-bundle" and
             member(runner.get("bundle")) in members, "pinned external Fastchess Git bundle required")
+    workflow_provenance_schema(value)
     return json.loads(json.dumps(value))
 
 
 def load_seed_manifest(path, expected_sha=None):
+    """Load only the pinned manifest structure, not its absent sibling payload.
+
+    Call revalidate_seed with the materialized root to verify member bytes and
+    the traveling execution-base proof. Historical v1 remains pin-only.
+    """
     raw = ordinary(path, limit=MAX_SEED_MANIFEST)
     require(expected_sha is None or (isinstance(expected_sha, str) and SHA.fullmatch(expected_sha)
                                     and pin(raw)["sha256"] == expected_sha), "JSON input identity differs")
@@ -539,6 +736,7 @@ def materialize_seed_archive(path, out, *, expected_manifest_sha256):
             require(pin(body) == {k: expected[k] for k in ("bytes", "sha256")},
                     "seed member changed: " + info.filename)
             files[info.filename] = body
+    validate_workflow_provenance(manifest, lambda name: files[name])
     out = new_external(out)
     out.mkdir(parents=True, mode=0o700)
     for name, body in files.items():
@@ -553,6 +751,7 @@ def revalidate_seed(manifest, root):
     for name, expected in manifest["members"].items():
         require(pin(ordinary(Path(root) / name)) == {k: expected[k] for k in ("bytes", "sha256")},
                 "materialized seed changed: " + name)
+    return validate_workflow_provenance(manifest, lambda name: ordinary(Path(root) / name, limit=MAX_SEED_MANIFEST))
 
 
 def validate_host_source(manifest, source_root=ROOT):
@@ -1331,9 +1530,10 @@ def collect_host_result(*, plan, handoff, publisher):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     actions = parser.add_subparsers(dest="action", required=True)
-    inspect = actions.add_parser("inspect", help="validate a seed without API calls, engines, or imports from it")
+    inspect = actions.add_parser("inspect", help="validate manifest structure; --members-root also verifies local member/proof bytes")
     inspect.add_argument("--manifest", type=Path, required=True)
     inspect.add_argument("--manifest-sha256", required=True)
+    inspect.add_argument("--members-root", type=Path)
     unpack = actions.add_parser("materialize", help="verify an explicit local archive, without executing its code")
     unpack.add_argument("--archive", type=Path, required=True)
     unpack.add_argument("--manifest-sha256", required=True)
@@ -1345,8 +1545,17 @@ def main(argv=None):
     args = parser.parse_args(argv)
     if args.action == "inspect":
         seed = load_seed_manifest(args.manifest, args.manifest_sha256)
+        proof = revalidate_seed(seed, args.members_root) if args.members_root is not None else None
+        provenance = seed.get("workflow_provenance")
         result = {"source_origin": seed["source_origin"], "members": len(seed["members"]),
-                  "qualification": False, "engine_execution_performed": False, "aws_calls_performed": False}
+                  "qualification": False, "engine_execution_performed": False, "aws_calls_performed": False,
+                  "validation_scope": "manifest-only" if args.members_root is None else "materialized-members",
+                  "member_bytes_verified": args.members_root is not None,
+                  "workflow_proof_semantically_validated": proof is not None,
+                  "workflow_provenance": None if provenance is None else {
+                      "kind": provenance.get("kind"), "record_sha256": pin(ledger.canonical(provenance))["sha256"],
+                      "reported_base_sha": provenance.get("reported_base_sha"),
+                      "execution_base_sha": provenance.get("execution_base_sha")}}
     elif args.action == "materialize":
         seed = materialize_seed_archive(args.archive, args.out, expected_manifest_sha256=args.manifest_sha256)
         result = {"root": str(args.out), "qualification": False, "members": len(seed["members"])}

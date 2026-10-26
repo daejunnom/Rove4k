@@ -25,9 +25,17 @@ Its attempted new seed capture stops before ZIP download/prepare: the actual
 execution merge188dbf5 has ordered parents develop901afce/headc80041d, while the
 unmodified PR/run API originals still report base761bdc0. The existing equality
 assumption rejects it. Preserve this failure and the completed409 seed. A
-traveling raw Git ancestry proof and explicit document-role mapping are being
-implemented in the shared stdlib producer/consumer validator; raw API snapshots
-are not rewritten. This source change needs a new CI/cohort and actual transport.
+traveling raw Git ancestry proof and explicit document-role mapping now connect
+the shared stdlib producer, archive inspection, pre-mkdir materialization,
+revalidation and controller pass-through. Raw API snapshots are not rewritten.
+The six-file local joint passes405 tests under WSL Python3.12; the overlapping
+helper-only71 also passes and is not added to405. Original handles, six unchanged
+source pins and natural settlement pass independent audit. Earlier regex,
+manifest-only inspection and Python3.12 mock-resolver fixture failures remain
+separate. CLI inspection defaults to explicit manifest-only disclosure; semantic
+inspection requires actual members via --members-root. The source change still
+needs a new CI/cohort and actual transport, and the manual main controller needs
+its narrow pass-through registration before dispatch.
 
 The later qualification-tools checkpoint a69928f passes engine40302670246
 (26/26), NVCompact40302670026 and repository40302670115. Exact foundation
@@ -206,10 +214,13 @@ replies with exact native restoration, five persistent tasks, all four workers
 showing positive CPU, asynchronous readiness and active quit/EOF natural exits.
 The45 frozen inputs,44 tool commands,88 tool streams and runtime streams pass
 independent final audit. These one-physical-core/SMT observations do not qualify
-physical P4 placement, target startup or strength. The old runtime receipt's
-no_RWX flag was not backed by a global map check; that claim is excluded, and
-the current observer removes only the unsupported field without rewriting the
-original receipt. New native/source/layout still needs a separate live-parent
+physical P4 placement, target startup or strength. A later source trace corrects
+an audit caveat: the actual shared owner.mapping() already reads all maps and
+rejects W+X or an executable/missing process stack before returning. Thus the
+old no_RWX startup observation is supported, although the receipt retains only
+guard rows. Preserve the original audit note and its separate correction; the
+current observer restores that field and retains the complete startup map rows.
+New native/source/layout still needs a separate live-parent
 StructuralAdmission, twice-reproduced whole carrier, startup projection and
 generic R observations before upper qualification or selection.
 

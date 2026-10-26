@@ -102,6 +102,28 @@ class RequestTests(unittest.TestCase):
         value = request(); value["workflow_provenance"].pop("pull_request")
         self.assertEqual(self.parse(value)["workflow_provenance"], value["workflow_provenance"])
 
+    def test_execution_base_proof_is_an_explicit_fourth_original_member_role(self):
+        value = request()
+        value["workflow_provenance"]["execution_base_proof"] = "metadata/execution-base-proof.json"
+        before = copy.deepcopy(value)
+        self.assertEqual(self.parse(value), before)
+        self.assertEqual(value, before)
+
+    def test_execution_base_proof_never_replaces_a_required_original_or_adds_unknown_roles(self):
+        original = {**request()["workflow_provenance"], "execution_base_proof": "metadata/execution-base-proof.json"}
+        invalid = [{key: value for key, value in original.items() if key != removed}
+                   for removed in ("run", "commit", "pull_request")]
+        invalid += [{**original, "ancestor": True}, {"execution_base_proof": "metadata/proof.json"},
+                    {**original, "execution_base_proof": True},
+                    {**original, "execution_base_proof": original["run"]},
+                    {**original, "execution_base_proof": "../proof.json"},
+                    {**original, "execution_base_proof": "metadata/.env.proof"},
+                    {**original, "execution_base_proof": "metadata/credential.json"}]
+        for roles in invalid:
+            with self.subTest(roles=roles), self.assertRaises(ValueError):
+                value = request(); value["workflow_provenance"] = roles
+                self.parse(value)
+
     def test_seed_version_must_be_explicit_not_latest_or_null(self):
         for version in (None, "", "null"):
             with self.subTest(version=version):
@@ -177,6 +199,115 @@ class RequestTests(unittest.TestCase):
                 changed = copy.deepcopy(value); changed["journal"].pop(key)
                 with self.assertRaises(ValueError):
                     self.parse(changed)
+
+
+class WorkflowProvenancePassThroughTests(unittest.TestCase):
+    """Exercise the registered caller boundary, with the frozen worker as a port.
+
+    Git/object semantics are tested by the actual common worker's own suites.
+    These tests establish that this independent stdlib transport retains all
+    four roles and compares its complete result before any service access.
+    """
+    def fixture(self, root):
+        value = request()
+        value["workflow_provenance"]["execution_base_proof"] = "metadata/execution-base-proof.json"
+        ci.parse_request(value, campaign_id="campaign-a", role_arn=ROLE, bucket=BUCKET)
+        files = {name: ci.canonical({"fixture_role": role}) + b"\n"
+                 for role, name in value["workflow_provenance"].items()}
+        for name, body in files.items():
+            path = root / "seed" / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(body)
+        computed = {"kind": "execution-base-ancestor-v1", "event": "pull_request",
+            "repository": value["source_origin"]["repository"], "repository_id": 100,
+            "run_id": value["source_origin"]["run_id"], "run_attempt": value["source_origin"]["run_attempt"],
+            "api_head_sha": "d" * 40, "checkout_sha": value["source_origin"]["head_sha"],
+            "execution_tree": "e" * 40, "execution_parents": ["f" * 40, "d" * 40],
+            "inputs": {name: ci.pin(body) for name, body in files.items()}, "pull_request": 12,
+            "ref": "refs/pull/12/merge", "head_branch": "feature/fixture", "head_repository_id": 100,
+            "documents": copy.deepcopy(value["workflow_provenance"]), "reported_base_sha": "b" * 40,
+            "execution_base_sha": "f" * 40, "base_ref": "refs/heads/develop"}
+        manifest = {"source_origin": value["source_origin"],
+            "members": {name: {**ci.pin(body), "mode": 0o600} for name, body in files.items()},
+            "workflow_provenance": {**copy.deepcopy(computed), "artifact_metadata": {"transport-only": {"sha256": "0" * 64}}}}
+        source_root = root / "original-source"
+        source = SimpleNamespace(__file__=str(source_root / "engines/experiments/strength/seed.py"))
+        def bind(config, members, origin, api_head):
+            self.assertEqual(config["workflow_provenance"], value["workflow_provenance"])
+            self.assertEqual(config["checkout"], {"path": str(root / "origin"), "commit": value["source_origin"]["head_sha"]})
+            self.assertEqual(origin, value["source_origin"])
+            self.assertEqual(api_head, computed["api_head_sha"])
+            self.assertEqual({name: body for name, (body, mode) in members.items()}, files)
+            self.assertTrue(all(mode == 0o600 for body, mode in members.values()))
+            return copy.deepcopy(computed)
+        source.workflow_binding = Mock(side_effect=bind)
+        identity = Mock(return_value={"caller_arn": "arn:aws:sts::" + ACCOUNT + ":assumed-role/rove-controller/rove4k-77-2"})
+        cloud = SimpleNamespace(_SIBLING_PACKAGE="fixture_frozen", ROOT=source_root,
+            HERE=source_root / "engines/experiments/strength",
+            load_module=Mock(return_value=SimpleNamespace(template=Mock(return_value={
+                "Resources": {"ControllerRole": {"Properties": {"MaxSessionDuration": ci.DURATION}}}}))),
+            aws=SimpleNamespace(AWSPlan=aws.AWSPlan, AWSCLI=Mock(return_value=SimpleNamespace(region=REGION)), verify_caller=identity))
+        return value, computed, manifest, source, cloud
+
+    def invoke(self, root, value, manifest, source, cloud):
+        # Resolve the network target before the import mock also affects mock's resolver.
+        with patch.object(ci, "load_stage", return_value=({"root": str(root)}, value, {"run_id": "77", "run_attempt": "2"})), \
+             patch.object(ci, "load_frozen", return_value=(cloud, manifest)) as load, \
+             patch("urllib.request.urlopen", side_effect=AssertionError("no network in caller test")), \
+             patch.object(ci.importlib, "import_module", return_value=source) as imported, \
+             patch.object(ci, "aws_call", side_effect=AssertionError("no service call in caller test")):
+            result = ci.frozen_inputs(root / "stage.json", root / "origin")
+        load.assert_called_once_with(root / "seed", value["seed_manifest_sha256"], origin=root / "origin",
+                                     expected_source_origin=value["source_origin"])
+        imported.assert_called_once_with("fixture_frozen.seed")
+        return result
+
+    def test_four_roles_and_full_new_worker_result_pass_unchanged(self):
+        with tempfile.TemporaryDirectory(prefix="rove-ci-proof-pass-") as temporary:
+            root = Path(temporary)
+            value, computed, manifest, source, cloud = self.fixture(root)
+            before = copy.deepcopy((value, manifest))
+            result = self.invoke(root, value, manifest, source, cloud)
+            self.assertEqual((value, manifest), before)
+            self.assertIs(result[1], value)
+            self.assertIs(result[4], manifest)
+            self.assertEqual(source.workflow_binding.call_count, 1)
+            cloud.aws.verify_caller.assert_called_once()
+
+    def test_every_new_provenance_field_remains_in_the_exact_comparison(self):
+        for field in ("documents", "reported_base_sha", "execution_base_sha", "base_ref", "inputs", "execution_parents"):
+            with self.subTest(field=field), tempfile.TemporaryDirectory(prefix="rove-ci-proof-compare-") as temporary:
+                root = Path(temporary)
+                value, computed, manifest, source, cloud = self.fixture(root)
+                provenance = manifest["workflow_provenance"]
+                if field == "documents":
+                    provenance[field] = {key: val for key, val in provenance[field].items() if key != "execution_base_proof"}
+                elif field == "inputs":
+                    provenance[field][value["workflow_provenance"]["execution_base_proof"]]["sha256"] = "1" * 64
+                elif field == "execution_parents":
+                    provenance[field] = list(reversed(provenance[field]))
+                else:
+                    provenance[field] = "changed"
+                with self.assertRaisesRegex(ValueError, "original run/PR/Git binding differs"):
+                    self.invoke(root, value, manifest, source, cloud)
+                self.assertEqual(source.workflow_binding.call_count, 1)
+                cloud.load_module.assert_not_called()
+                cloud.aws.AWSCLI.assert_not_called()
+                cloud.aws.verify_caller.assert_not_called()
+
+    def test_missing_proof_member_or_wrong_source_module_never_reaches_identity(self):
+        for fault in ("missing-proof", "wrong-module"):
+            with self.subTest(fault=fault), tempfile.TemporaryDirectory(prefix="rove-ci-proof-source-") as temporary:
+                root = Path(temporary)
+                value, computed, manifest, source, cloud = self.fixture(root)
+                if fault == "missing-proof":
+                    (root / "seed" / value["workflow_provenance"]["execution_base_proof"]).unlink()
+                else:
+                    source.__file__ = str(root / "different-source.py")
+                with self.assertRaises((ValueError, FileNotFoundError)):
+                    self.invoke(root, value, manifest, source, cloud)
+                source.workflow_binding.assert_not_called()
+                cloud.aws.verify_caller.assert_not_called()
 
 
 class ContextTests(unittest.TestCase):

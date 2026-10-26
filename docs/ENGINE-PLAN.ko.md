@@ -180,8 +180,10 @@ control/full plain·UBSan 규칙105위치/2858합법 수, 검색1486run·1344취
 보드418878상태와 helper 관측이 일치한다. 실제4909 B P4 두 세션은20 GO/18합법 응답,
 5개 지속 task·네 worker CPU 증가·비동기 isready·active quit/EOF 자연 종료를 확인했다.
 44개 tool 명령·88개 출력 stream·실제 runtime을 독립 감사했다. 물리 코어 배치 자격은
-아니며 old runtime receipt의 no_RWX 표시도 전역 map 검증 근거가 없어 제외한다.
-원본은 보존하고 현재 관찰기에서 해당 필드만 제거했다.
+아니다. no_RWX에 관한 앞선 감사 메모는 호출된 공통 owner.mapping()의 전역 W+X·
+실행/누락 stack 거부를 놓쳤다. 실제 호출 경로를 확인해 startup 관측이 뒷받침됨을
+정정한다. 원본 메모/receipt는 보존하고 별도 정정 기록을 두며, 현재 관찰기는 해당
+필드를 복원하고 향후 관측의 전체 startup map 행도 보존한다.
 새 native는 기존 Square 허용 목록에 넣지 않고 별도 StructuralAdmission과
 실제 규칙·검색·lifecycle·P4 runtime으로 인수한다. 일반4K/ELF 목표는 아직 미달이다.
 
@@ -676,6 +678,12 @@ execution-base-ancestor-v1을 한 stdlib worker로 생산·inspect·복원·재�
 문서 역할과 member 핀을 명시하고 위조/다른 repo/ref/parent/tree는 출력 생성 전에
 거부한다. 기존 v1과409 seed는 보존하며 새 source/CI/cohort가 필요하다.
 실제 stack·ControllerRole OIDC·게시·launch는 미수행이다.
+
+계보 연결6파일은 로컬 WSL Python3.12 전체405검사와 겹치는 helper71검사를 통과했다.
+두 원본 실행의 자연 종료·그룹 부재·6개 source 핀을 독립 대조했다. 앞선 실제 실패와
+Python3.12 mock resolver 준비 결함은 별도 보존했다. CLI 기본 inspect는 manifest-only로
+범위를 표시하며 --members-root에서 실제 proof 의미를 재검증한다. 새 CI/cohort/seed와
+main 수동 controller의 좁은4-role pass-through 등록이 다음 단계다.
 
 공통 축약 P4 실측은62outer와 중첩 소유 명령을 자연 종료했다. ABCE resolver는
 각각3781→3785/4071→4075/3915→3919/3882→3885 B 손실로 종료했다. full F의
