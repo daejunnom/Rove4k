@@ -65,11 +65,25 @@ SRP는 이름·파일 수·계층 수가 아니라 상태의 소유자, 변경 �
 Project: Rove4k. CLI profile: rove4k. Selected Region: ap-southeast-2.
 AWS experience: new. help_level: MEDIUM.
 The accepted engine plan and this repository's existing rules take precedence.
-The user completed the PAID upgrade; require a fresh plan-state check before launch.
+The user completed the PAID upgrade and then directly activated Advanced features
+on 2026-10-26 with team daejunnom. The target project is 292341339363; management
+account 814650855198 is not the workload target. Check the actual STS account,
+not just the profile name, before project operations. Do not switch accounts or
+inspect credential files to repair a different selected console session.
+Fresh Free Tier GetAccountPlanState returned ResourceNotFound after activation,
+and project-scoped GetCredits returned an empty credits list. Neither response
+proves a PAID plan or loss of credits; the earlier USD100 is historical. Use an
+explicit reviewed Advanced readiness path with fresh project/account/org checks;
+never turn a missing/error response into a successful PAID observation.
 Use eligible credits first. Cash fallback is authorized within the original gross
 EC2 USD100 + ancillary USD20 / total USD120 and 12 instance-hour campaign limits.
 Credits and unearned activity bonuses do not enlarge those limits. Do not upgrade
 plans, change Region/SKU or bypass quota/Advisor gates automatically.
+
+The managed-experience guidance below remains reference context. Advanced changed
+service/governance capabilities; verify effective access rather than assuming
+the old managed Paid SCP still applies or that all inherited SCPs are removed.
+The selected workload Region and approved campaign limits remain unchanged.
 
 # AWS Guidance for the new AWS experience
 

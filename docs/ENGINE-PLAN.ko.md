@@ -144,6 +144,25 @@ packed5245→5233 B로 세 경로 모두 줄었다. native7104/linked7456 B의 �
 별도 확인한다. 이전5245 B 근거나 proper-alpha 계보를 새 결과로 바꾸지 않는다.
 이 P4 차이를 W256 제출의 남은 차이로 표시하지 않는다.
 
+후속 Move16은 promotion 표시·decode·정렬 jitter까지 보존하는 별도 비용 후보로
+측정했다. source7101→7140 B, compressed6956→7000 B, packed5233→5377 B로
+모두 손해였다. 실제 compiler output의 search frame은4376→3352 B로 줄고
+page probe가 없어졌지만 native는7104→7232 B로 커졌다. 원본 control·반복·inverse와
+15개 명령의 자연 종료를 검증하고 이 class를 종료했다. 엔진 실행·TT 할당·새
+규칙/semantic bridge는 수행하지 않았다. qualified5233 B는 유지한다.
+
+이후 사용자 결정으로 **D는 구조적 압축만 진행한다.** 작은 철자·타입·상수표·
+지역 수식·ABI 포장만의 독립 비용 실험은 중단한다. 준비했던 rights-table도 실제
+C/압축 실행 전에 중단했다. 다음 D 후보는 실제 코드 책임과 삭제·추가할 구조를
+먼저 제시한다. 현재 native7104 B는 ELF/PHDR232 B + text6695 B + 정렬1 B +
+rodata176 B다. text는 보드/평가2147 B, search2103 B, 그 밖의 혼합 실행 경로2445 B로
+나뉜다. 마지막 묶음에는 검색/게임 책임도 포함되므로 전부 제거 가능한 runtime으로
+계산하지 않는다. walker815 B는 attacked/gen이 이미 공유하고 Board176 B 복사는
+약13 B의 코드다. BSS/TT 용량이나 worker padding 감소를 payload 절감으로 세지 않는다.
+고정 bootstrap213 B 아래 payload5020→3883 B, 즉22.65%의 압축 payload 감소가 필요하다.
+작은 ABI 변경을 구조 해법으로 재명명하지 않고 보드·검색 소비·runtime의 전체 책임
+예산으로 후보를 고른다. 기능 제거로 목표를 통과시키지 않는다.
+
 ### 프로필
 
 | ID | 검색 worker | 엔진당 TT 상한 | 용도 |
@@ -574,6 +593,12 @@ repository40293601785도 통과했다. exact foundation121474194541의 실제 �
 478+27+354=859개/37suite이며 별도 native 실패 주입4개도 원래 return2를 유지했다.
 앞선2ea2015의 실패 원인은 미확정으로 보존한다.
 
+후속 a69928f도 engine40302670246의26개 작업, NVCompact40302670026,
+repository40302670115를 모두 통과했다. 실제 foundation121504082563은
+494+27+354=875개/38suite이며 새 순수16검사가 실행됐다. native 실패 주입4개의
+return2·소유 종료0오류도 유지했다. 별도의 실제 D packed P4 실행을 CI로
+재수행한 것은 아니다.
+
 A/C 새 선택의12개 source와12개 독립 Ubuntu22 소비자를 포함한 같은409 cohort에서
 새 seed도 prepare→inspect→새 Linux materialize→전체 재검증을 완료했다.
 ZIP은6182항목·230,926,297 B 확장·62,475,059 B wire이며 SHA-256은
@@ -584,33 +609,51 @@ canonical merge bdc6fccc/tree5e933d23, ordered parents develop761bdc0/head409062
 고정하며 source268파일/898assertion·원본24ZIP·36root 대응 계획을 확인했다.
 후속 develop 이동으로 이 원본 권한을 바꾸지 않는다. S3 게시·EC2·배치·리그는 별도다.
 
-다음은 D의 세 qualification 도구와 순수16검사의 CI 통합, full 기능 추가 축약,
-Advanced 이후 실제 권한·billing/credit·기존 binding 재조회다. 공통 workflow/docs는
-한 writer가 통합하고 읽기 전용 AWS 검토와 압축 분석은 병렬로 진행한다.
-새 qualification 도구만의 통합은 기존 HOST/R·선택된 profile closure를 바꾸지
-않으므로 완성된409 seed를 새 source 자격으로 재표시하거나 불필요하게 재생성하지 않는다.
+사용자가 선택한 Advanced 전환과 이후 새 인증으로 실제 STS292341339363을
+확인했다. GitHub OIDC 제공자(URL·sts.amazonaws.com audience·소유 태그)와
+AWSServiceRoleForEC2Spot(service-only trust·공식 AWS managed policy)을 각각
+생성하고 exact GET으로 대조했다. 앞선 만료 세션과 관리 계정814650855198 선택은
+생성 전에 중단해 별도 보존했다. 두 IAM 객체 외 stack·S3·환경 변수·dispatch·
+인스턴스 변경은 없다. inherited SCP 전체나 Spot launch 허가를 이 결과로 추정하지 않는다.
+
+새 Free Tier 계획 API는 ResourceNotFound, 현재 프로젝트의 GetCredits는 빈
+credits 배열이다. 기존100USD를 현재 잔액이나 크레딧 소멸로 단정하지 않는다.
+현재 frozen caller가 PAID API만 받는 전제를 수정해, 직접 사용자 전환 기록과
+검토된 project/org/management tuple에 결속한 명시적 Advanced readiness class를
+구현한다. fresh own STS·account ACTIVE·조직 ID/관리 ID/ALL을 확인하며 누락·
+오류·다른 계정은 차단한다. API 오류를 PAID 응답으로 바꾸거나 mode를 자동 선택하지 않는다.
+기존 managed-PAID class와 직렬화/digest는 보존하고 새 HOST/최소 IAM read 권한·
+실제 plan/template/launch 호출 경로를 함께 검증한다. 승인된 cash fallback과120USD는 유지한다.
+
+D qualification 도구만의 a699 통합은 기존 HOST/R·선택된 profile closure를 바꾸지
+않았다. 하지만 다음 Advanced HOST 수정은 별도 source/CI/cohort/seed를 필요로 한다.
+완성된409 seed를 덮어쓰거나 새 account readiness가 구현된 운송본으로 표시하지 않는다.
+공통 workflow/docs는 한 writer가 통합하고 AWS 구현·full D/공통 축약은 병렬로 진행한다.
 
 ```mermaid
 flowchart TD
-  P[공통 준비 완료: 409 CI·선택 source·seed 동결] --> S[D 새 qualification 도구·순수16검사 통합]
-  P --> D[D full 기능의 다음 압축 가설 분석]
-  P --> B[Advanced 완료 후 실제 권한·credit·binding 조회]
+  P[공통 준비 완료: a699 CI·409 seed·단독 IAM] --> S[명시적 Advanced readiness·IAC·소비자 구현]
+  P --> D[D full 구조 재설계·실제 코드 책임 예산]
+  P --> B[공통 resolver·F 순회식의 전체 비용 비교]
   S --> C[새 head의 정확한 CI]
-  B --> Q{실제 OIDC·정책·배포 binding 검토}
-  Q --> H[한정 IAM·종료 장치·조건부 seed 게시 준비]
-  Q --> G{최신 Advisor 5% 미만과 비용·자원 gate}
-  H --> N[Spot 실제 배치·NUMA·대용량 초기화]
-  G -->|충족한 경우| N
+  C --> T[새 HOST cohort·seed 생성·전체 복원 감사]
+  S --> H[최소 IAM·종료 장치·불변 게시의 배포 검토]
+  H --> X[기한 고정 stack·S3 버전·실제 OIDC 검증]
+  T --> X
+  P --> G{최신 Advisor 5% 미만과 비용·자원 gate}
+  G -->|충족한 경우| X
+  X --> N[Spot 실제 배치·NUMA·대용량 초기화]
   N --> L[4KiB 적격 선수 TEST 부분 리그]
   D --> A[최종 범위·실패·출처 감사]
+  B --> A
   C --> A
   L --> A
 ```
 
-다음 소스/권한 체크포인트의 추정은 공통 준비0.1–0.25h 후
-max(D 도구 통합·국소 검증0.25–0.75h, D 가설 분석0.5–2h,
-AWS 전환 후 권한·binding 검토0.5–1.5h), 공유 CPU·통합 대기0–0.25h,
-CI0.25–0.75h, 최종 감사0.25–0.5h를 적용해 약1.1–3.75h다.
+새 account-mode 전제로 다음 소스/운송 체크포인트 추정을 조정한다.
+공통 준비0.15–0.3h → max(Advanced source/IAC·호출부·검증1.5–4h,
+공통 축약 비교0.5–1.5h, D 구조 책임/코드비용 분석1–3h) → 공유 자원 대기0–0.5h
+→ 새 CI0.25–0.75h·새 seed0.25–1h → 최종 감사0.5–1h로 약2.65–7.55h다.
 병렬 작업 시간을 합산하지 않으며 D4K 수렴·실제 리그 완주·외부 gate 대기는 이
 체크포인트 추정에 포함하지 않는다. 실제 API·컴파일·실행 실패가 나면 남은 경로와
 공유 자원 대기를 다시 추정한다.

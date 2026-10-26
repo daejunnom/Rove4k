@@ -9,6 +9,13 @@ zero and the initial model weights remain unchanged; trained strength is not cla
 
 ### Current CI, offline seed and local source-path follow-up
 
+The later qualification-tools checkpoint a69928f passes engine40302670246
+(26/26), NVCompact40302670026 and repository40302670115. Exact foundation
+job121504082563 passes494 contract,27 E19 and354 evaluator/service tests,
+875 across38 suites, including the new16 pure square-qualification tests.
+The separate four native fault cases retain return2 and settle without errors.
+These CI tests do not rerun the separately completed actual D packed runtime.
+
 Checkpoint409062f passes all three workflows: engine40293601820 (26/26),
 NVCompact40293601777 and repository40293601785. Exact foundation job121474194541
 passes478 contract,27 E19 and354 evaluator/service tests,859 across37 suites.
@@ -32,10 +39,25 @@ prove S3 publication, EC2 execution, physical placement or scoring.
 PR #19 registers only the manual AWS workflow and controller helper on main at
 4fc00d9; PR #20 back-integrates the same bytes into develop at901afce. Exact-head
 Node22/24 lifecycle checks pass for both PRs. The AWS workflow is registered but
-has no dispatch. The user now confirms Advanced activation with team daejunnom;
-post-transition effective permissions and plan/billing state still need fresh
-read-only checks. Project Rove4k, profile rove4k, Sydney and the original campaign
-caps remain unchanged. Fresh Advisor<5% is still an independent launch gate.
+has no dispatch. The user confirms Advanced activation with team daejunnom.
+Fresh same-project STS and provider reads succeed; after confirming both objects
+absent, the GitHub OIDC provider and AWSServiceRoleForEC2Spot are created and
+read back in project292341339363. URL/audience/tags and service-only role trust/
+AWS-managed policy match. Expired-session and wrong-management-account attempts
+stop before creation and are preserved separately. No campaign stack, S3 object,
+environment/variable, dispatch or instance is created by this preparation.
+Project Rove4k, profile rove4k, Sydney and the original caps remain unchanged.
+Fresh Advisor<5% is still an independent launch gate.
+
+The current Free Tier plan API returns ResourceNotFound and project-scoped
+GetCredits returns an empty credits list. The previous PAID/100USD response is
+historical; neither credit loss nor the error's cause is inferred. The frozen
+AWS caller requires a PAID API response, so its current readiness model does not
+cover this explicitly confirmed Advanced transition. An explicit, reviewed
+member-project readiness class and its caller/IAM bindings are being implemented.
+Unknown/error responses stay blocked and are never relabeled PAID. The complete
+409 seed remains immutable; this subsequent HOST change requires a new source,
+CI and seed cohort before live use. Authorized cash fallback stays inside120USD.
 
 Checkpoint0cd1324 passes all three workflows: engine40238075060 (26/26),
 NVCompact40238074950 and repository40238074958. Exact foundation job121303838777
@@ -88,10 +110,32 @@ the same five-task identity persists. All53 owned commands settle naturally,
 with no forced cleanup or outstanding owner. The eight plain/UBSan PVS probes
 agree across original/search/no-TID/square lineages. Independent evidence audit
 checks499 named files and152 fresh source pins. The new three qualification
-helpers add16 pure admission/lifecycle self-tests to CI; registration is not a
-claim of execution by a new CI head. The candidate remains1137B above4KiB and
+helpers add16 pure admission/lifecycle self-tests, which pass in a69928f CI.
+The candidate remains1137B above4KiB and
 size/placement/strength/event/selection false. It does not relabel the original
 5245B evidence, qualify W28/W256, or compose the separate proper-alpha lineage.
+
+A fresh Move16 representation cost class preserves canonical move mapping and
+promotion jitter but loses on all whole routes:7101→7140B source-JIT,
+6956→7000B compressed source-JIT and5233→5377B packed. Native7104→7232B grows
+128B although the compiled search frame shrinks4376→3352B and loses its page
+probe. All15 tool commands settle and control/repeats reproduce exactly.
+This cost class stops without engine execution, TT allocation, semantic bridge
+or runtime qualification. The qualified5233B source stays unchanged.
+
+The subsequent user instruction restricts D to structural compression. The
+rights-table microtrial stops before C/packing; no isolated spelling/type/table/
+local-expression/small-ABI trials continue. Exact native attribution is232B
+ELF/PHDR +6695B text +1B alignment +176B rodata. Board/evaluation helpers use2147B,
+search2103B, and the mixed remaining execution path2445B; the last group includes
+game/search responsibilities and cannot all be counted as removable runtime.
+Attack detection and move generation already share one815B walker. Board176B
+copy uses about13B of code; BSS/TT/Worker padding is not file payload. Keeping
+the213B bootstrap requires5020→3883B payload, a22.65% reduction. Future D work
+must identify a substantial removed/replacement responsibility budget while
+preserving full functionality; small ABI packing is a component, not a claimed
+solution. Runtime/library and board/search-consumption architectures are under
+read-only review, with no new structural implementation or savings claimed.
 
 The first sparse-square transfer costs A3794→3781B and C3927→3915B in P4; B4071→4072B
 loses and stops. A separate fresh pre-cleanup six-profile comparison now confirms
@@ -133,13 +177,15 @@ ValidateTemplate attempt failed because local login had expired. After renewal,
 CLIv2 STS confirms project292341339363 and the new21600-second template passes
 actual service ValidateTemplate. The original failure is preserved. Read-only
 network/AMI/quota/price candidates are recorded, not deployment authorization.
-An actual OIDC-provider read is explicitly denied by SCP; the published managed
+An earlier OIDC-provider read was explicitly denied by SCP; the published managed
 Paid policy also denies provider operations and Spot requests/market launches.
 The user has completed Advanced activation with team daejunnom. It removes existing AWS spend limits; our campaign
 caps do not replace an AWS-enforced spend limit. UI initialization failed, so
 current spend limits, other project costs and the management email are unknown.
-Deployment/VersionId/NUMA, effective post-transition permissions and fresh
-Advisor<5% gates remain open. No AWS resource was deployed by these source changes.
+The later standalone IAM setup is recorded above; it does not establish complete
+inherited SCP or Spot launch permissions. Deployment/VersionId/NUMA, Advanced
+readiness integration and fresh Advisor<5% gates remain open. No campaign resource
+or instance was deployed by these source changes.
 
 PR #18 is merged into `feature/rove4k-engines-af` at2bed793. Its common C
 fragments remain engine inputs and its assembler remains a tool; archived paths
