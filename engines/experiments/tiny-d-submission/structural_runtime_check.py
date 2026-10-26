@@ -95,7 +95,7 @@ def session_type(protocol):
     return LocalSession
 
 
-def run(case, out):
+def run(case, out, *, codec_report=None):
     cost = load('structural_runtime_cost', HERE / 'structural_size.py')
     case, out = Path(case), Path(out)
     if not out.is_absolute() or out.exists() or any((p / '.git').exists() for p in (out, *out.parents)):
@@ -104,10 +104,25 @@ def run(case, out):
     if not record['complete'] or record.get('profile') != 'test-p4':
         raise ValueError('complete source-owned local P4 cost record required')
     native = (case / 'native/native').read_bytes()
-    package = case / 'packed-xz-bcj-pb0'
-    if cost.pin(native) != record['native_runs'][0]['native'] or cost.pin(package.read_bytes()) != {
-            key: record['packages'][package.name][key] for key in ('bytes', 'sha256')}:
-        raise ValueError('measured native/package bytes changed')
+    if cost.pin(native) != record['native_runs'][0]['native']:
+        raise ValueError('measured native bytes changed')
+    if codec_report is None:
+        package = case / 'packed-xz-bcj-pb0'
+        package_pin={key:record['packages'][package.name][key] for key in ('bytes','sha256')}
+    else:
+        codec_report=Path(codec_report)
+        encoded=json.loads(codec_report.read_text())
+        if (not encoded['complete'] or encoded['native']!=cost.pin(native) or
+                encoded['source_cost']!=cost.pin((case/'result.json').read_bytes())):
+            raise ValueError('codec portfolio belongs to a different measured native/cost')
+        codec=load('structural_runtime_codec',HERE/'structural_codec.py')
+        package=codec_report.parent/'best-unnamed'
+        expected,_=codec.package(native,encoded['unnamed']['config'],cost.modules()['packaging'],unnamed=True)
+        if package.read_bytes()!=expected:
+            raise ValueError('actual package differs from source-owned complete native inverse')
+        package_pin={key:encoded['unnamed'][key] for key in ('bytes','sha256')}
+    if cost.pin(package.read_bytes())!=package_pin:
+        raise ValueError('measured package bytes changed')
     package.chmod(0o755)
     root = HERE.parents[2]
     owner = load('structural_process_owner', root / 'engines/compact/tiny-entry-d/verify.py')
@@ -120,6 +135,7 @@ def run(case, out):
               'observer': cost.pin(Path(__file__).read_bytes()),
               'child_observation': 'visible process PPIDs and owned process group',
               'package': cost.pin(package.read_bytes()), 'native': cost.pin(native),
+              'codec_portfolio':cost.pin(codec_report.read_bytes()) if codec_report else None,
               'counts': {'GO': 0, 'legal_bestmoves': 0}, 'sessions': [],
               'target_qualified': False, 'strength_measured': False, 'selected': False,
               'tools': {str(Path(t.__file__).relative_to(root)): cost.pin(Path(t.__file__).read_bytes())
@@ -230,8 +246,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--case', type=Path, required=True)
     parser.add_argument('--out', type=Path, required=True)
+    parser.add_argument('--codec-report',type=Path,help='verified finite-codec report; observe its best unnamed package')
     args = parser.parse_args()
-    result = run(args.case, args.out)
+    result = run(args.case, args.out, codec_report=args.codec_report)
     print(json.dumps({'complete': result['complete'], 'counts': result['counts'],
         'sessions': [{key: row[key] for key in ('terminal', 'startup_seconds', 'passed', 'settled')}
                      for row in result['sessions']]}))

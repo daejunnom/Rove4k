@@ -6,6 +6,7 @@ alternative keeps non-executable stacks and separate RX/RW mappings. Allocation
 ownership and delayed first touch are explicit, so startup costs are not
 silently presented as search-speed improvements.
 """
+import re
 
 OPTIONS = {
     'stack-arena': 'one stack arena, retaining per-worker guard pages and TT first touch',
@@ -31,6 +32,114 @@ def replace(text, before, after):
     if text.count(before) != 1:
         raise ValueError('platform source applicability differs: ' + before[:72])
     return text.replace(before, after, 1)
+
+
+def _function(source,name):
+    match=re.search(r'^static [^\n]*\b'+re.escape(name)+r'\([^\n]*\)\{',source,re.M)
+    if match is None:raise ValueError('missing measured runtime helper: '+name)
+    begin=source.index('{',match.start());depth=1;end=begin+1
+    while depth and end<len(source):
+        depth+=(source[end]=='{')-(source[end]=='}');end+=1
+    if depth:raise ValueError('unclosed measured runtime helper')
+    return source[match.start():end]
+
+
+def render_token_probe(before,after):
+    """Actual old/new lexer, number and clock parsers; no engine execution.
+
+    Observe remaining logical tokens and resulting deadlines. Delimiter cursor
+    offsets and the private mutable buffer representation intentionally differ.
+    Clock dependencies are explicit fixed time/no-worker stubs; the actual P4
+    observer separately covers publication, replay and thread lifetime.
+    """
+    old='typedef struct{const char *p;unsigned n;} Span;'
+    new='typedef char *Span;'
+    sources=[before['runtime.c'].decode(),after['runtime.c'].decode()]
+    if sources[0].count(old)!=1 or sources[1].count(new)!=1:
+        raise ValueError('explicit Span-to-NUL token comparison required')
+    units=[]
+    for prefix,source,decl in zip(('before','after'),sources,(old,new)):
+        names=('Span','scan','word','number','amount','go','wait','first','wake','now',
+               'position','deadline','fallback','stopped','pending','epoch')
+        code=decl+'\n'+'\n'.join(_function(source,name) for name in ('scan','word','number','amount','go'))
+        code=re.sub(r'\b('+'|'.join(names)+r')\b',lambda match:prefix+'_'+match[0],code)
+        units.append(f'''static struct{{int s;}} {prefix}_position;
+static uint64_t {prefix}_deadline;
+static unsigned {prefix}_fallback;
+static atomic_int {prefix}_stopped,{prefix}_pending,{prefix}_epoch;
+static void {prefix}_wait(void){{}}
+static unsigned {prefix}_first(const void *p){{(void)p;return 1;}}
+static void {prefix}_wake(atomic_int *p){{(void)p;}}
+static uint64_t {prefix}_now(void){{return 1234567;}}
+'''+code)
+    driver=r'''
+static unsigned long long random_state=0x4f8a33210b1ULL;
+static unsigned long long random_value(void){
+ random_state^=random_state<<13;random_state^=random_state>>7;random_state^=random_state<<17;
+ return random_state;
+}
+static unsigned long numeric_cases,token_cases,clock_cases;
+static void failure(const char *what){fprintf(stderr,"token comparison failed: %s\n",what);exit(1);}
+static void numeric(char *text){
+ before_Span old={text,(unsigned)strlen(text)};
+ if(before_number(old)!=after_number(text))failure("number");
+ numeric_cases++;
+}
+static void tokens(const char *text){
+ char a[1024],b[1024];strcpy(a,text);strcpy(b,text);
+ const char *x=a;char *y=b;
+ for(unsigned step=0;step<1024;step++){
+  before_Span old=before_scan(&x);after_Span next=after_scan(&y);
+  if(old.n!=strlen(next)||memcmp(old.p,next,old.n))failure("remaining token sequence");
+  token_cases++;
+  if(!old.n)return;
+  if((step&1)==0&&before_amount(&x)!=after_amount(&y))failure("amount");
+ }
+ failure("token progress");
+}
+static void clock_line(const char *text,int side){
+ char a[1024],b[1024];strcpy(a,text);strcpy(b,text);
+ before_position.s=after_position.s=side;
+ before_go(a);after_go(b);
+ if(before_deadline!=after_deadline)failure("clock budget");
+ if(before_fallback!=after_fallback||atomic_load(&before_pending)!=atomic_load(&after_pending)||
+    atomic_load(&before_stopped)!=atomic_load(&after_stopped)||atomic_load(&before_epoch)!=atomic_load(&after_epoch))
+    failure("clock publication values");
+ clock_cases++;
+}
+int main(void){
+ char text[1024];
+ const char *edge[]={"","0","00","1","9","10","-1","+1","123x","x123",
+  "9223372036854775806","9223372036854775807","9223372036854775808",
+  "18446744073709551615","999999999999999999999999999999999999999999"};
+ for(unsigned i=0;i<sizeof edge/sizeof *edge;i++){strcpy(text,edge[i]);numeric(text);}
+ for(unsigned i=0;i<210000;i++){
+  snprintf(text,sizeof text,"%llu",random_value());numeric(text);
+  if(i<10000){text[random_value()%strlen(text)]='x';numeric(text);}
+ }
+ const char *lines[]={""," \t\r","wtime winc 123","wtime    winc 123",
+  "wtime -1 winc 123","wtime +1 winc 123","wtime 123x winc 456",
+  "wtime 9223372036854775808 winc 456","wtime btime 100 wtime 30",
+  "wtime\twinc\r123 btime 600000 binc 3000","w b white time inc winc 20",
+  "wtime 0 btime 0","wtime 9223372036854775807 winc 9223372036854775807"};
+ for(unsigned i=0;i<sizeof lines/sizeof *lines;i++){
+  tokens(lines[i]);clock_line(lines[i],1);clock_line(lines[i],-1);
+ }
+ for(unsigned i=0;i<60000;i++){
+  const char *missing=edge[random_value()%(sizeof edge/sizeof *edge)];
+  unsigned separator=1+(unsigned)(random_value()%32);
+  snprintf(text,sizeof text,"wtime%c%s%c%s %llu btime %llu wtime %llu winc %llu binc %llu%c",
+   separator,missing,separator,(i&1)?"winc":"btime",random_value(),random_value(),
+   random_value(),random_value(),random_value(),separator);
+  tokens(text);clock_line(text,(i&1)?1:-1);
+ }
+ printf("numeric=%lu tokens=%lu clocks=%lu\n",numeric_cases,token_cases,clock_cases);
+ return 0;
+}
+'''
+    return ('#include <stdint.h>\n#include <limits.h>\n#include <stdatomic.h>\n'
+            '#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n'
+            '#define DEV 0\n#define WORKERS 4\n'+'\n'.join(units)+driver).encode()
 
 
 def apply(files, options=()):
