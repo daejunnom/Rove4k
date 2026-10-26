@@ -622,8 +622,8 @@ Node22/24 lifecycle CI가 통과했으며 AWS dispatch는 아직0회다.
 
 ### 현재 체크포인트와 병렬 실행, 2026-10-27
 
-검증된 현재 CI head68ae의 engine40351775828는26/26, NVCompact40351775843과
-repository40351775869도 통과했다. 원본 foundation121673457700은542+27+405=
+검증된 code head6e의 engine40360343892는26/26, NVCompact40360343882와
+repository40360343911 및 별도 Experimental D40360344120도 통과했다. foundation121703764624는542+27+405=
 974개/39suite이며 별도 순수24검사와 native 실패 주입4개를 구분한다. 12개 source와
 12개 독립 Ubuntu22 소비자는 F compound-v2를 포함한다. 이 CI의 D는 유지된 이전
 producer이며 실험4737 B를 실행하거나 상위 인수한 결과가 아니다.
@@ -646,11 +646,15 @@ Advanced readiness 구현·실제 동일 프로젝트 읽기·서비스 Validate
 두 객체이며 campaign stack·versioned publication·실제 controller OIDC·EC2·리그는0회다.
 Sydney/단일m6a.48xlarge Spot/192vCPU/누적12instance-hour/총USD120 조건을 유지한다.
 
-68ae의5개 실험 helper·pure29는 현재 CI를 통과했다. 후속 P4-only D producer는
-독립 검토·순수7검사·AST32개를 통과했고, 실제 생성은 별도 실험 CI로 연결한다.
-이 workflow는 Ubuntu24에서 pure→단일 native/HC3/source-JIT 재현만 수행하며
-240s 작업+20s cleanup·전체 job10분 상한과 실패 로그/산출물을 보존한다. 기존
-engine26-job/seed 계약·D 기본 선택·상위 기능 자격을 바꾸지 않는다.
+P4-only D producer는 독립 검토·순수7검사·AST32개 이후 별도 Ubuntu24 실험 CI에서
+실제 native6464/packed4737/JIT7072 B를 생성했다. 원본 artifact12668410748는
+402960 B/SHA14e424d7cc9478f5df523f6ce5b5482416279cebb42d9d43cead09a841b46cd8다.
+독립 감사는40개 LF 입력·95 member/1222189 expanded B·8명령/16stdio·CPP1·
+10ELF·native2파일과 두 route를 대조해 CLEAR다. package 영수증2행은 있지만
+route별 최종 whole은1개씩 보존돼 감사자는 각각1회 decode했으며 재encode는0이다.
+240s 작업+20s cleanup/전체 job10분으로 생성만 확인했고 엔진·TT는 실행하지 않았다.
+기존 engine26-job/seed·D 기본/P28 선택·상위 기능 자격과 새 Ubuntu22 소비자 검증을
+이 generation 결과로 대체하지 않는다.
 
 A/E는 실제 선택 payload에 terminal 합법수 owner 공유와 check/gen/eval 지연을
 적용한 별도 helper를 준비했다. 독립 source 검토·순수112검사/전체 역변환을 통과했고
@@ -667,21 +671,19 @@ source·memory admission에서 다시 판단한다. 다른 프로그램·cache·
 
 ~~~mermaid
 flowchart TD
-  DONE[완료: 68ae CI·별도 d954 seed·효과 후보 LOSS] --> PREP[공통 준비: 새 source·소유자·예산]
-  PREP --> D[D producer source·pure7·AST32 완료]
-  PREP --> AE[A/E source·pure112 완료]
-  PREP --> WIP[별도 실험 workflow·문서 공유]
-  D --> GEN[GitHub generation-only 단일 관측]
-  WIP --> GEN
-  WIP --> CI[새 exact head 유지 CI]
-  AE --> COST[A/E 비용 CI 접점 검토·후속 비용은 별도]
-  GEN --> AUDIT[현재 source·생성·실패·범위 최종 감사]
-  CI --> AUDIT
-  COST --> AUDIT
-  PREP -.-> HOLD[사용자 선택: local D upper 보류]
+  DONE[완료: 6e 네 CI·D 생성 감사 / d954 seed는 별도] --> PREP[공통 준비: 형식·입력·소유자]
+  PREP --> D[D strict format: AdmittedBuild·rules·startup·compiler·CI binding]
+  PREP --> AE[A/E cost CI controller·한정 비교]
+  PREP --> BSS[D kernel-zero·no-startup-join 구조: 조건부 source 검토]
+  D --> JOIN[core helper 변경 시 upper join 재검토 / 이전 seal 보존]
+  JOIN --> CI[새 exact source CI·binding 검증]
+  AE --> CI
+  BSS --> CI
+  CI --> AUDIT[다음 source/CI 체크포인트 최종 감사]
+  PREP -.-> HOLD[사용자 선택: local upper 보류 / 자동 polling 없음]
   HOLD -.-> MEM[새 지시·source/memory admission]
   MEM --> UPPER[D actual93명령+R]
-  UPPER --> SELECT[프로필별 기능 인수 후 생산 선택·새 CI/필요 seal]
+  UPPER --> SELECT[실제 프로필 기능 인수 후 생산 선택·필요 CI/seal]
   AUDIT --> SELECT
   SELECT --> GATE{fresh Advisor·비용·권한·AMI·capacity gate}
   GATE -->|충족| LIVE[기한 배포·S3 VersionId·실제 OIDC/종료 확인]
@@ -690,14 +692,30 @@ flowchart TD
   AUDIT -.-> SIZE[D 구조적4KiB 수렴: 별도 미정]
 ~~~
 
-사용자 선택 이후 다음 source/CI 체크포인트의 계획용 추정은 공통 공유·핀 확인
-0.1–0.2h → max(실험 생성·유지 CI와 결과 인수0.25–0.75h,
-A/E source/비용 접점 검토0.15–0.4h) + GitHub 공유 runner 대기Wci → 최종 감사
-0.25–0.5h로 약0.6–1.45h+Wci다. 분기 시간을 모두 더하지 않는다. generation의
-240s+20s는 단일 실행 상한이며 준비·검토·수정·인수는 별도 작업 시간이다.
-앞선 source/upper1.65–4.3h+메모리 대기 추정은 실제 local 실행이 보류되기 전의
-경로로 보존한다. D 잔여641 B 수렴·상위/프로필별 생산 인수·필요 seed·외부 AWS gate·
-리그 완주는 이번 source/CI 창의 완료 약속이 아니다. 새 실패나 의존성에 맞춰 갱신한다.
+다음 source 구현은 D의 새 strict format consumer와 A/E bounded cost CI controller를
+병렬로 진행한다. 두 접점은 아직 미구현이며 default OFF/P28 old를 유지한다. 소비하는
+core helper가 바뀌면 기존 upper의 current-source join을 재검토·갱신하고 이전 seal을
+보존한다. BSS TT/no-startup-join은 기존 lazy-first-touch와 다른 조건부 source
+prototype으로 작성했고 독립 source 검토·순수18검사를 통과했다. TT8/23/33은 작은
+source text와 역변환만 확인했으며 assembler/linker·kernel zero·late-worker·비용은
+미확인이다. 기존 parallel-init admission을 바꾸지 않고 절감량·고코어/NUMA·첫 검색
+지연을 배정하지 않는다.
+
+NUMA는 엔진 내부 설정 없이 운영자의 부모 task policy를 상속하는 조건부 경로를
+사용할 수 있다. ice4 v6.1/현재 HEAD와 c4ke v3.0/현재 HEAD의 실제 TCEC 입력·launcher는
+직접 NUMA/affinity 정책을 설치하지 않으며, Linux는 task policy를 fork/exec·이후 생성
+thread에 상속한다. 실제 TCEC 실행 명령은 아직 확인하지 못했다. kernel BSS zero와
+물리 prefault/분포/첫 검색 지연은 다르며 허용 node mask만으로 interleave를 확정하지
+않는다. 제출 내부에 numactl을 추가하지 않고 운영 설정·TT numa_maps를 별도로 확인한다.
+근거와 고정 source 링크는 IMPLEMENTATION의 현재 NUMA 문단에 둔다. 외부 엔진 source는
+저장소에 복사하지 않는다.
+
+계획용 산식은 공통 준비0.1–0.2h → max(D consumer·구조 source 준비1–3h,
+A/E cost controller0.5–1.5h) + GitHub runner 대기Wci → 최종 감사0.5–1h로
+약1.6–4.2h+Wci다. 분기 시간을 합산하지 않는다. 앞선0.6–1.45h+Wci의 source/CI
+체크포인트는6e의 생성·유지 CI·감사로 완료됐다. generation의240s+20s는 단일 실행
+상한이며 source 검토·수정·인수 시간을 대신하지 않는다. D 잔여641 B 수렴·local upper·
+프로필별 생산 전환·필요 seed·외부 AWS gate·리그는 이 유한 창의 완료 약속이 아니다.
 
 Oct27 KST 공식 Advisor 조건부 조회는304/Last-Modified2026-03-20이었다. 현재 공식
 frontend 경로 조사도 끝났으나 검증된 새 데이터 URL은 없었다. HTML200의 Oct20 날짜는

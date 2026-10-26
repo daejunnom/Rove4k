@@ -9,14 +9,17 @@ zero and the initial model weights remain unchanged; trained strength is not cla
 
 ### Verified source, CI and offline transport
 
-The current verified CI head is68ae86cefd505eaf9ef234ba79a5a2ffb603e271.
-Engine40351775828 passes26/26 jobs, including12 P4/P28 source producers and12
-independent Ubuntu22 consumers. NVCompact40351775843 and repository40351775869
-also pass. Original foundation121673457700 records542 contract +27 E19 +405
+The current verified code head is6e855a3ee4c0fcdb375ea95967b30950a39428c7.
+Engine40360343892 passes26/26 jobs, including12 P4/P28 source producers and12
+independent Ubuntu22 consumers. NVCompact40360343882, repository40360343911 and
+standalone Experimental D40360344120 also pass. Foundation121703764624 records542 contract +27 E19 +405
 evaluator/service tests:974 across39 suites. The separate24 pure structural
 checks and four native fault injections also pass; injected failures retain
 return2 and clean ownership settlement. This CI selects F compound-v2, but its
 D producer remains the maintained predecessor, not the experimental4737B D.
+Actual experimental execution merge1b3fc19dc60057e405604b01f4aa01998171d0b3 has
+tree8021d479bac64f82ae5885138bd935a2971aa7ac and ordered parents949453a/6e855a3.
+Its source head and execution merge are distinct identities.
 
 The separate d954/CI40332593495 offline seed completes prepare, full ZIP inspection,
 fresh Linux materialization and all-member revalidation, with independent audit.
@@ -86,11 +89,19 @@ deferred without memory polling or automatic dispatch.
 The new P4-only production adapter replays the reviewed finite source chain
 without minting StructuralAdmission from JSON. Independent source review and
 seven pure tests/32 Python3.10 AST checks pass with41 unchanged source/test pins.
-Its planned native/whole generation remains separate from that pure result.
-A standalone Experimental D generation workflow runs the pure tests and one
-generation-only observation on Ubuntu24, preserving output and early failures.
-Its outer limit is240 seconds work+20 seconds cleanup; no engine or TT executes.
-It leaves the existing26-job workflow and production selectors unchanged.
+Its standalone Ubuntu24 generation now succeeds in job121703762291, producing
+native6464B/packed4737B/source-JIT7072B. The402960B original artifact12668410748
+has SHA-25614e424d7cc9478f5df523f6ce5b5482416279cebb42d9d43cead09a841b46cd8.
+Independent data audit is CLEAR:40 current LF inputs,95 regular ZIP members,
+1222189 expanded bytes,8 compiler/CPP commands/16 stdio files/one CPP stdin and
+10 parsed ELFs. Two native files agree. The two package-generation receipt rows
+match each retained final whole; the independent auditor decodes the one final
+whole per route once, without re-encoding. Rejected-alpha diagnostics are retained.
+Audit receipt6522B has SHA-256
+81f595c4cb970a1a4b621f17e28555b957696a48ed3ec15110b1898a82028daf.
+The generation limit is240 seconds work+20 seconds cleanup. No engine or TT runs;
+upper/runtime qualification, a new Ubuntu22 consumer, production selection and
+strength remain separate. Existing26-job/default/P28 selections stay unchanged.
 
 The separate A/E terminal legality/query helper passes source review and112
 pure projection/inverse/proof checks. Raw source changes are A7595→7688B and
@@ -98,6 +109,31 @@ E7815→7909B; whole cost and C semantics are unmeasured. The first pure caller
 failed on its own stdlib import guard before any transform; a new corrected
 caller passes without changing the helper or its authenticated owner. These
 source projections remain unselected experiments.
+
+The conditional bss_tt_runtime source prototype moves TT zero ownership to a
+dedicated ELF NOBITS region and removes only the startup arrival/join, preserving
+seen=0 and normal job/output reservation. Independent source review and18 pure
+checks pass, including full inverses and short source rendering for TT8/23/33.
+TT33 is only decimal source text, not a128GiB allocation. Its restore API is an
+inverse helper; a future consumer must replay the canonical transform/profile.
+Assembler/linker acceptance, kernel-zero/late-worker behavior, cost and NUMA are
+unmeasured. It is not the author's barrier-retaining lazy claim or old4MiB BSS
+route, and it does not change the current parallel-initialization admission.
+
+The current source review also checks the TCEC build inputs and launchers of
+[ice4 v6.1](https://github.com/MinusKelvin/ice4/tree/2bd7a54f9bb47a61a7cd97f3db9f52eadd4e2c19)
+and [c4ke v3.0](https://github.com/citrus610/c4ke/tree/22e318f59b3a9eed1d2b8161da832222d4a51033),
+as well as ice4 head fabe3b1 and c4ke head ca95d3a on2026-10-27.
+Those paths install no engine-side NUMA or
+CPU-affinity policy; they use calloc TT storage and standard C++ threads.
+[Linux task policy](https://www.kernel.org/doc/html/latest/admin-guide/mm/numa_memory_policy.html)
+survives fork/exec and is inherited by subsequently created threads. A parent
+operator policy can therefore serve an engine without NUMA code. This does not
+prove TCEC's actual launch policy, physical page distribution or first-search
+latency. VMA policy differs across exec; allowed node masks are not proof of
+interleave. Do not add numactl inside the submission based on this inference:
+operator launch settings and observed engine/TT numa_maps remain separate gates.
+No competitor source is copied into this repository.
 
 Compiler/codec work initially waits for host memory:379292KiB free physical at
 15:17 UTC, then1045776KiB physical/887000KiB virtual at the later root snapshot.
