@@ -73,20 +73,20 @@ phase/B → E19(E만) → spelling → dependency cleanup이다. 역변환은 de
 입력·native·diagnostics를 새 체인에서 재검증한다. 공통화로 제거한 저장소 중복
 바이트와 제출 파일 절감량은 따로 보고한다.
 
-하위 생성기의 spelling 기본값은 control로 유지한다. 유지 CI는 ACEF에 compound,
-B에 best, D에 control을 명시하며 generation 영수증의 선택과 dependency 정책이 요청과
+하위 생성기의 spelling·scan 기본값은 control로 유지한다. 유지 CI는 ACEF에 compound,
+A/C에 추가 square-successor, B에 best, D에 control을 명시하며 generation 영수증의 선택과 dependency 정책이 요청과
 정확히 같아야 다음 단계로 넘어간다. Ubuntu22 소비자는 봉인된 소스를 사용하며
 선택을 다시 하거나 그 호스트에서 source factory를 재실행하지 않는다.
 
 PR #18 통합 뒤 resource/phase/E19/spelling/dependency를 모두 재생성한 현재
-full 후보의 전체 파일 비용은 다음과 같다. 각 셀을 두 번 재생성했으며, W256은
+full 후보와 후속 A/C 순회식의 전체 파일 비용은 다음과 같다. 각 셀을 두 번 재생성했으며, W256은
 크기·타입·소스 계약 범위이고 실제 대용량 실행이나 대회 자원 확정은 아니다.
 
 | 계열 | TEST-P4 | TEST-P28 | TCEC 잠정 W256 |
 |---|---:|---:|---:|
-| A | 3794 B | 3804 B | 3793 B |
+| A compound+scan | 3781 B | 3790 B | 3782 B |
 | B | 4071 B | 4081 B | 4072 B |
-| C | 3927 B | 3940 B | 3928 B |
+| C compound+scan | 3915 B | 3926 B | 3915 B |
 | E | 3882 B | 3894 B | 3883 B |
 | F full | 3590 B | 3602 B | 3590 B |
 
@@ -95,6 +95,14 @@ F의 실제 코드 변경은 별도 F-compound-clock-gcc13-v1 정책과 세 프�
 asserted-source/native gate로 검증한다. 이전 native 기대값을 바꾸지 않는다.
 다섯 P4의 실제 rules·초기화 장벽·source-JIT 종료 검사를 새 증거로 통과했고,
 물리 배치와 기력은 여전히 별도 자격이다.
+
+A/C의 이전 compound 기준은 각각3794/3804/3793 B와3927/3940/3928 B였다.
+새 scan은 resource→phase→compound 뒤에만 적용하고 dependency cleanup은 마지막에
+유지한다. 여섯 새 source/native 문맥을 별도로 승인하고 old native map은 바꾸지 않았다.
+새 A/C P4/P28 네 실제 경로는 규칙·초기화 메커니즘·전체 source-JIT runtime을 통과했다.
+각 경로24 GO/22 합법 응답, 합계96 GO/88 응답이며16개 그룹이 자연 종료했다.
+이는 로컬 기능 자격이고 W256 실행·물리 배치·기력은 미검증이다. 새 선택을 사용하는
+정확한 CI·독립 Ubuntu22 소비자와 새 cohort 운송은 다음 감사 단계다.
 
 001800e의 engine CI40228534420은26개 작업을 모두 통과했다. P4/P28 각각
 여섯 source factory와 여섯 독립 Ubuntu22/GCC11 소비자가 실제 실행을 끝냈고,
@@ -472,6 +480,8 @@ seed 생성/복원0.25–1h, 공유 자원 대기0.5–1.5h, 감사0.5–1h다. 
 현재0cd1324의 새26-job CI·NVCompact·repository도 모두 통과했다. 실제 foundation
 job121303838777은449+27+354=830개 검사를35개 suite에서 통과했다. 새 AWS 호출부의
 등록·로컬 검사와 실제 workflow dispatch·OIDC·배포 성공은 구분한다.
+후속 비용 도구 체크포인트7d2db44도 세 workflow와 engine26개 작업이 모두 통과했다.
+이는 아직 다음 A/C 생산 통합 소스의 CI 성공과 구분한다.
 
 E19 종료 가드 뒤 새 실제 말뭉치는48,189게임·740,062위치다. 이전 유지 게임124개가
 제외됐고 새로 추가된 게임/위치는 없다. 새 step0 준비의 전체 integrity walk와 현재
@@ -491,7 +501,9 @@ A3794→3781 B와 C3927→3915 B만 유지하고 B4071→4072 B는 중단한다.
 A P4/P28/W256=3781/3790/3782 B, C=3915/3926/3915 B로 모두11–14 B 줄었으며,
 전체 비용·타입·CPP·소스/역변환과 독립 증거 감사가 통과했다. 다음 분기는 공유
 R/문법의 새 유한 정책 통합→새 P4 rules/메커니즘/runtime→새 선택 CI와 감사다.
-아직 runtime·rules·선택을 이 비용 결과로 승격하지 않는다. P28 소스는 실제 TEST cohort에서
+비용 결과만으로 runtime·rules·선택을 승격하지 않았다. 후속 생산 통합은 별도 새
+P4/P28 실제 규칙·초기화·runtime 증거로 통과했으며 새 선택 CI와 운송 검증이 남았다.
+관련 compiler/target/sealed/seed 소비자의 공동 회귀331개도 통과했다. P28 소스는 실제 TEST cohort에서
 읽을 수 있지만 W256은 seed에 없으므로 기존15-profile 고정 기록 또는 명시한
 fresh canonical factory의 별도 compile-only 생성으로 핀을 확정한다. 런타임이 임의
 입력 핀을 학습하게 하지 않는다. 기존 resource→phase→compound→scan→dependency
@@ -503,8 +515,22 @@ seed/request는 검증한 bootstrap principal의 조건부1회 게시와 실제 
 readback SHA로 준비할 수 있다. frozen seed.publish의 ControllerRole 검사를 완화하거나
 초기 게시를 그 publisher의 통과로 표시하지 않는다. 첫 새 template 서비스 검증은
 로컬 세션 만료로 실패했다. 사용자 로그인 갱신 뒤 CLIv2 STS로 프로젝트292341339363을
-확인했으며 새 서비스 검증·실제 binding 조회를 진행 중이다. 이전 실패는 보존하고,
-실제 Outputs/권한·게시·AWS 실행은 미완료로 유지한다.
+확인했고 새21600초 template의 실제 ValidateTemplate은 통과했다. 이전 실패를 보존하며
+이는 문법·파라미터·capability 검사로 한정한다. 실제 기본 VPC·세 subnet·DNS/IGW/NACL,
+Canonical Ubuntu22 AMI·192vCPU quota 한도·관측 시점 가격을 조회했지만 quota headroom,
+SSM/HTTPS 연결·capacity·개별 credit 만료/Spot 적용·배포 권한은 입증하지 않았다.
+
+새 차단 조건은 관리형 PAID의 SCP다. 실제 GitHub OIDC 제공자 조회가 명시적으로
+거부됐으며, 공식 PAID 정책도 `iam:*Provider*`와 Spot 요청/Spot market 실행을 제한한다.
+PAID·quota·가격 조회 성공으로 Spot 권한을 추정하지 않는다. 사용자에게 별도로 승인받은
+Advanced 전환은 준비만 수행했고 최종 활성화는 사용자가 직접 진행한다. 이 전환은
+되돌릴 수 없고 기존 AWS spend limit이 제거되므로 캠페인 로컬 상한과 구분한다.
+화면 제어 초기화 실패로 현재 spend limit·다른 프로젝트 비용·관리 이메일을 읽거나
+콘솔을 작성하지 못했다. 공식 절차·확인/미확인값·전환 영향은 외부 인계에 기록했다.
+전환 후에도 실제 OIDC/정책·Outputs·버전 고정 게시·Advisor 등 gate를 다시 확인한다.
+
+- 관리형 정책: https://docs.aws.amazon.com/accounts/latest/reference/scps-and-rcps-for-projects.html
+- Advanced 전환: https://docs.aws.amazon.com/accounts/latest/reference/activate-advanced-features.html
 
 ### 0cd 이후 남은 작업과 병렬 실행
 
@@ -522,7 +548,8 @@ flowchart TD
   S --> V[새 A/C P4와 P28 규칙·초기화·실제 실행]
   V --> C[새 정확한 CI와 독립 Ubuntu22 소비]
   C --> T[새 선택 cohort 운송·전체 재검증]
-  B --> G{최신 Advisor 5% 미만과 비용·자원 gate}
+  B --> Q{사용자 Advanced 전환·실제 OIDC 권한 확인}
+  Q --> G{최신 Advisor 5% 미만과 비용·자원 gate}
   T --> H[불변 캠페인·OIDC·조건부 seed 게시 준비]
   G -->|충족한 경우| H
   H --> N[Spot 실제 배치·NUMA·대용량 초기화]

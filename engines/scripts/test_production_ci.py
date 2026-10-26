@@ -480,7 +480,7 @@ class ProductionCIBoundaries(unittest.TestCase):
                         patch.object(CI, "pipeline_plan", side_effect=PlanReached) as plan:
                     with self.assertRaises(PlanReached):
                         CI.main()
-                    plan.assert_called_once_with("A", root / "out", spelling_variant=expected, profile="test-p4")
+                    plan.assert_called_once_with("A", root / "out", spelling_variant=expected, scan_variant="control", profile="test-p4")
                 self.assertFalse((root / "out").exists())
 
     def test_d_best_and_explicit_target_policy_fail_before_output_or_context_reads(self):
@@ -1246,6 +1246,55 @@ class ProductionCIBoundaries(unittest.TestCase):
                     write("runtime/qualification.json", bad)
                     with self.subTest(field=field), self.assertRaises(ValueError):
                         CI.check_stage(plan, plan.stages[-1])
+
+class SquareScanPlans(unittest.TestCase):
+    def test_explicit_AC_scan_routes_both_profiles_and_preserves_old_defaults(self):
+        root=Path("/scan-plan").resolve()
+        for family in "AC":
+            for profile in ("test-p4","test-p28"):
+                old=CI.pipeline_plan(family,root,spelling_variant="compound",profile=profile)
+                selected=CI.pipeline_plan(family,root,spelling_variant="compound",scan_variant="square-successor",profile=profile)
+                self.assertEqual(old.scan_variant,"control")
+                self.assertNotIn("--scan-variant",old.stages[0].command)
+                self.assertEqual(selected.scan_variant,"square-successor")
+                self.assertIn("--scan-variant",selected.stages[0].command)
+                self.assertEqual(Path(selected.stages[1].command[3]).name,"check_profile_scan.py")
+        for family,spelling,selection in (("B","best","square-successor"),("E","compound","square-successor"),
+            ("A","best","square-successor"),("C","compound",True),("D","control","square-successor")):
+            with self.assertRaises(ValueError):
+                CI.pipeline_plan(family,root,spelling_variant=spelling,scan_variant=selection)
+
+    def test_scan_guard_binds_current_checker_raw_proof_and_exact_resource_stages(self):
+        for profile,bits,workers in (("test-p4",22,4),("test-p28",24,28)):
+            with tempfile.TemporaryDirectory(prefix="rove-ci-scan-policy-") as temporary:
+                root=Path(temporary).resolve()
+                plan=CI.pipeline_plan("A",root,spelling_variant="compound",scan_variant="square-successor",profile=profile)
+                scanner=CI.NEXT+"profile_scan.py"
+                stages=[{"schema":"rove4k.c-resource-projection.v1","family":"A"},
+                    {"schema":"rove4k.portable-phase-source.v1","family":"A","profile_id":profile,"variant":"phase-init"},
+                    {"schema":"rove4k.selected-spelling-compound.v1","family":"A","profile_id":profile,"variant":"clock-atomic-launcher"},
+                    {"schema":"rove4k.selected-square-scan.v1","family":"A","profile_id":profile,"variant":"square-successor"},
+                    {"schema":"rove4k.profile-dependencies.v1"}]
+                build={"class":"rove4k-production-profile-v1","family":"A","entry":"A",
+                    "resources":{"id":profile,"workers":workers,"tt_bits":bits,"tt_entries":1<<bits,
+                        "tt_bytes":24*(1<<bits),"tt_entry_bytes":24,"tt_mask":(1<<bits)-1},
+                    "post_profile":{"path":CI.NEXT+"profile_phase.py","variant":"phase-init"},
+                    "post_spelling":CI.COMPOUND_SPELLING,"post_scan":CI.SCAN_DECLARATION,
+                    "source_dependencies":{"path":CI.NEXT+"profile_dependencies.py","variant":"unused-includes"},
+                    "plan":{"representation":"source-jit","entry_cleanup":"private-path"},"source_proofs":stages,
+                    "inputs":{scanner:{"bytes":10623,"sha256":"98eb3139bcbd745f08fbab2d8a738b428d4e668de2604ac3fc715de8c58b879f"}}}
+                raw=json.dumps(stages).encode();path=root/"artifact/source-proof.json";path.parent.mkdir();path.write_bytes(raw)
+                name=CI.NEXT+"check_profile_scan.py"
+                data=CI.normalized(CI.ROOT/name);path=root/"inputs"/name;path.parent.mkdir(parents=True);path.write_bytes(data)
+                report={"class":"rove4k-bound-scan-mechanism-v1","selected_post_scan":CI.SCAN_DECLARATION,
+                    "source_proofs":CI.pin(raw),"support_inputs":{name:CI.pin(data)}}
+                CI.scan_mechanism_policy(plan,report,build)
+                for bad in ({**report,"selected_post_scan":None},{**report,"source_proofs":{}},
+                            {**report,"class":"rove4k-bound-compound-mechanism-v1"}):
+                    with self.assertRaises(ValueError):CI.scan_mechanism_policy(plan,bad,build)
+                build["resources"]["workers"]=4 if workers==28 else 28
+                with self.assertRaises(ValueError):CI.scan_mechanism_policy(plan,report,build)
+
 
 if __name__ == "__main__":
     unittest.main()

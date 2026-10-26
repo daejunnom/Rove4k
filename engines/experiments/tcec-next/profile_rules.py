@@ -30,6 +30,10 @@ COMPOUND = "engines/experiments/tcec-next/spelling_compound.py"
 COMPOUND_SCHEMA = "rove4k.selected-spelling-compound.v1"
 COMPOUND_VARIANT = "clock-atomic-launcher"
 COMPOUND_PIN = {"bytes": 5522, "sha256": "4a4f6079341998fd2d0ef1ff5fc9b35a435751131b4687ce950ef1892820754b"}
+SCAN = "engines/experiments/tcec-next/profile_scan.py"
+SCAN_SCHEMA = "rove4k.selected-square-scan.v1"
+SCAN_DECLARATION = {"path": SCAN, "variant": "square-successor"}
+SCAN_PIN = {"bytes": 10623, "sha256": "98eb3139bcbd745f08fbab2d8a738b428d4e668de2604ac3fc715de8c58b879f"}
 BEST_SPELLING = {"A": "clock-type", "B": "atomic-assignment", "C": "clock-type",
                  "E": "clock-type", "F": "atomic-assignment"}
 
@@ -152,7 +156,7 @@ def fixture_cases(oracle=None) -> tuple[list[dict], dict]:
 
 
 def _source_build_record(build, *, family, stages, post_profile, main_source,
-                         baseline_source, tools=(), post_spelling=None, source_dependencies=None):
+                         baseline_source, tools=(), post_spelling=None, post_scan=None, source_dependencies=None):
     require(build is not None, "named post-profile/model source build root required")
     build = Path(build)
     record = json.loads(_evidence_bytes(build / "build.json", name="build.json"))
@@ -161,6 +165,7 @@ def _source_build_record(build, *, family, stages, post_profile, main_source,
             record.get("family") == family and record.get("entry") == family and
             record.get("complete") is True and record.get("reproducible") is True and
             record.get("post_profile") == post_profile and record.get("post_spelling") == post_spelling and
+            record.get("post_scan") == post_scan and
             record.get("source_proofs") == stages and
             record.get("source_dependencies") == source_dependencies and
             _evidence_bytes(build / "main.c", name="main.c") == main_source and
@@ -184,6 +189,9 @@ def _source_build_record(build, *, family, stages, post_profile, main_source,
         if relative == COMPOUND:
             require(expected == COMPOUND_PIN and pin(normalized(ROOT / relative)) == COMPOUND_PIN,
                     "reviewed compound spelling helper identity differs")
+        if relative == SCAN:
+            require(expected == SCAN_PIN and pin(normalized(ROOT / relative)) == SCAN_PIN,
+                    "reviewed valid-square helper identity differs")
     if post_spelling is not None:
         plan = record.get("plan", {})
         require(plan.get("family") == family and plan.get("full") is True and
@@ -234,6 +242,18 @@ def compound_modules(build):
     return individual, compound
 
 
+def scan_module(build):
+    data = _evidence_bytes(Path(build) / "inputs" / SCAN, name=Path(SCAN).name)
+    require(pin(data) == SCAN_PIN and normalized(ROOT / SCAN) == data,
+            "reviewed valid-square helper consumed bytes differ")
+    spec = importlib.util.spec_from_file_location("production_rules_scan_projection", ROOT / SCAN)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    exec(compile(data, str(ROOT / SCAN), "exec", dont_inherit=True), module.__dict__)
+    require(module.SCHEMA == SCAN_SCHEMA, "reviewed valid-square helper schema differs")
+    return module
+
+
 def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dict,
                  family: str, profile, *, build=None):
     require(family in BINDINGS, "explicit A/B/C/E/F production family required")
@@ -258,6 +278,9 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
                         suffix[-1].get("schema") == "rove4k.profile-dependencies.v1" else None)
     if dependency_stage is not None:
         suffix = suffix[:-1]
+    scan_stage = suffix[-1] if suffix and suffix[-1].get("schema") == SCAN_SCHEMA else None
+    if scan_stage is not None:
+        suffix = suffix[:-1]
     has_compound = bool(suffix) and suffix[-1].get("schema") == COMPOUND_SCHEMA
     has_spelling = bool(suffix) and suffix[-1].get("schema") in (SPELLING_SCHEMA, COMPOUND_SCHEMA)
     spelling_stage = suffix[-1] if has_spelling else None
@@ -275,7 +298,7 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
     else:
         require(not suffix or (len(suffix) == 1 and has_phase),
                 "explicit A/C/F proof chain must be resource-only or ordered resource/phase")
-    post_profile, post_spelling, source_dependencies, tools = None, None, None, []
+    post_profile, post_spelling, post_scan, source_dependencies, tools = None, None, None, None, []
     if has_b:
         relative = "engines/experiments/tcec-next/profile_b.py"
         post_profile = {"path": relative, "variant": suffix[0].get("variant")}
@@ -301,6 +324,12 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
         tools.append(SPELLING)
         if has_compound:
             tools.append(COMPOUND)
+    if scan_stage is not None:
+        require(family in ("A", "C") and has_phase and has_compound and cleanup == "private-path"
+                and scan_stage.get("variant") == "square-successor" and dependency_stage is not None,
+                "valid-square stage requires A/C phase-init/compound and final dependency cleanup")
+        post_scan = dict(SCAN_DECLARATION)
+        tools.append(SCAN)
     if dependency_stage is not None:
         relative = "engines/experiments/tcec-next/profile_dependencies.py"
         source_dependencies = {"path": relative, "variant": "unused-includes"}
@@ -309,12 +338,13 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
         control = json.loads(_evidence_bytes(Path(build) / "build.json", name="build.json"))
         validate_spelling_request(control)
         require(control.get("post_profile") is None and control.get("post_spelling") is None and
+                control.get("post_scan") is None and
                 control.get("source_dependencies") is None and control.get("source_proofs") == stages,
                 family + " control build declares an unconsumed post-profile stage")
     if suffix or has_spelling or dependency_stage is not None:
         source_record = _source_build_record(build, family=family, stages=stages, post_profile=post_profile,
             main_source=main_source, baseline_source=baseline_source, tools=tools,
-            post_spelling=post_spelling, source_dependencies=source_dependencies)
+            post_spelling=post_spelling, post_scan=post_scan, source_dependencies=source_dependencies)
     replayed = [resource]
     inverses = [("resource", projection, resource, baseline_source)]
     if has_b:
@@ -371,6 +401,15 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
             require(current.SCHEMA == SPELLING_SCHEMA and spelling_stage == proof,
                     "full final spelling proof/protected gaps differ")
             inverses.append(("full final spelling", current, proof, expected))
+        expected = projected
+        replayed.append(proof)
+    if scan_stage is not None:
+        current = scan_module(build)
+        projected, proof = current.transform_source(expected, family=family, profile_id=profile.id)
+        require(scan_stage == proof, "full valid-square proof/protected gaps differ")
+        # Restore the supplied proof, so its canonical typed JSON comparison
+        # also rejects bool/int substitutions accepted by Python dict equality.
+        inverses.append(("full valid-square", current, scan_stage, expected))
         expected = projected
         replayed.append(proof)
     if dependency_stage is not None:

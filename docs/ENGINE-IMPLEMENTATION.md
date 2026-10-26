@@ -53,8 +53,17 @@ loses and stops. A separate fresh pre-cleanup six-profile comparison now confirm
 A P4/P28/W256 costs3781/3790/3782B and C3915/3926/3915B, saving11–14 whole bytes
 in each case. Source/type/CPP/native/package reproduction and independent saved
 evidence audit pass. Native lengths stay fixed but all six byte identities change.
-Finite admission integration and actual rules/mechanism/runtime remain in progress;
-the default/old compound maps are not overwritten and these costs are unselected.
+The subsequent finite admission integration now passes actual A/C P4/P28 rules,
+source-bound initialization mechanisms and unmodified source-JIT runtime. Four
+profiles each complete24 GO/22 legal replies,96/88 across16 naturally settled
+groups. A separate331-test cross-consumer regression passes. Default control
+and old compound native maps remain unchanged. Exact new-selection CI, independent
+Ubuntu22 consumption and a new transport cohort are still required; W256 remains
+compile/type/source-only and local placement/strength is unqualified.
+
+The cost-tools checkpoint7d2db44 passes all three workflows, including all26
+engine jobs at40239860838. That CI predates the new production integration and
+must not be presented as execution of its new A/C selection.
 
 The new dispatch-only AWS workflow supplies direct OIDC and executes the seed's
 frozen controller. Git environment/replace/lazy-fetch substitution, hidden
@@ -64,10 +73,18 @@ ownership closure, and settles its owned process group before upload. No dispatc
 or AWS call is implied by its offline tests. Initial seed/request objects need
 an explicit verified bootstrap-principal publication route; the frozen
 ControllerRole-only publisher guard is unchanged. The first new-template service
-ValidateTemplate attempt failed because local login had expired. The user has
-renewed login, and CLIv2 STS now confirms project292341339363. New service validation
-and real deployment bindings are being checked separately; the earlier failure
-is preserved. Deployment/VersionId/NUMA and fresh Advisor<5% gates remain open.
+ValidateTemplate attempt failed because local login had expired. After renewal,
+CLIv2 STS confirms project292341339363 and the new21600-second template passes
+actual service ValidateTemplate. The original failure is preserved. Read-only
+network/AMI/quota/price candidates are recorded, not deployment authorization.
+An actual OIDC-provider read is explicitly denied by SCP; the published managed
+Paid policy also denies provider operations and Spot requests/market launches.
+Advanced-transition preparation is now explicitly authorized, with irreversible
+activation left to the user. It removes existing AWS spend limits; our campaign
+caps do not replace an AWS-enforced spend limit. UI initialization failed, so
+current spend limits, other project costs and the management email are unknown.
+Deployment/VersionId/NUMA, effective post-transition permissions and fresh
+Advisor<5% gates remain open. No resource or account activation was performed.
 
 PR #18 is merged into `feature/rove4k-engines-af` at2bed793. Its common C
 fragments remain engine inputs and its assembler remains a tool; archived paths

@@ -36,6 +36,18 @@ B_PROFILE = "engines/experiments/tcec-next/profile_b.py"
 PHASE = "engines/experiments/tcec-next/profile_phase.py"
 SPELLING = "engines/experiments/tcec-next/profile_spelling.py"
 COMPOUND = "engines/experiments/tcec-next/spelling_compound.py"
+SCAN = "engines/experiments/tcec-next/profile_scan.py"
+SCAN_DECLARATION = dict(path=SCAN, variant="square-successor")
+SCAN_PIN = dict(bytes=10623, sha256="98eb3139bcbd745f08fbab2d8a738b428d4e668de2604ac3fc715de8c58b879f")
+SCAN_COMPILER_VERSION = "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+SCAN_IMAGES = {
+    ("A", "test-p4"): (7595, "02faeb563c435c02321fc6d497f54a31de01d9093be33bff5e44206a93dfbdc6", "dc2dc95fe41fc3ecb8dde3b5ace90961fb691caba45484cb8b55f31ebdce0a9e"),
+    ("A", "test-p28"): (7628, "f1d5465716752b23c31d63035bbcb94b12818a984c9afbc4ce20c0c843f82006", "4303194fb29769c10fe0800377370cd6a64e94428e9b26123caee3aab2cd29c1"),
+    ("A", "tcec-provisional"): (7597, "f85fa3716aed39fe9b2ca973ac3d87650dbac95dfa9cedbaf800ada4f6375a23", "e5a644a334125a96e60f495fb24d40b00c8f7cc16a3a3dc7195494fc0a5dd4b7"),
+    ("C", "test-p4"): (8199, "86b7dd0e5f206d10086d098ce82083d4d12910df91a7f1215915727327f1d42a", "16031542896ac9d28cf6e7d70f32a8eef041baff2e65bcf030edea7eae689462"),
+    ("C", "test-p28"): (8232, "b3a968d2287a8418ce32b7b2f9f019c4695b55a32fd4f332eab89e16d012d2d0", "798beb0201c23da1de875be256d19626ee8a922c595c98588c5618a11d4a8544"),
+    ("C", "tcec-provisional"): (8201, "ae131e49609b34eefaa54499f79f2aa738d103cbc800c1d7a70cde359106b807", "3850273327e027346316df07b94c88f7e6b7df44da8dbbffbae69d777ed7c459"),
+}
 DEPENDENCIES = "engines/experiments/tcec-next/profile_dependencies.py"
 BEST_SPELLING = {"A": "clock-type", "B": "atomic-assignment", "C": "clock-type",
                  "E": "clock-type", "F": "atomic-assignment"}
@@ -90,6 +102,31 @@ def compound_native_policy(family, profile_id, declaration, source, compiler, co
         source=dict(bytes=size, sha256=source_sha), native=dict(bytes=18568, sha256=native_sha))
 
 
+def scan_selection(family, representation, phase_variant, post_spelling, dependencies, selection):
+    if selection == "control":
+        return None
+    if (selection != "square-successor" or family not in ("A", "C") or
+            representation != "source-jit" or phase_variant != "phase-init" or
+            post_spelling != COMPOUND_DECLARATION or dependencies != "unused-includes"):
+        raise ValueError("square-successor requires A/C source-JIT phase-init/compound and final unused-includes")
+    return dict(SCAN_DECLARATION)
+
+
+def scan_native_policy(family, profile_id, declaration, source, compiler, compile_executor, version):
+    if declaration is None:
+        return None
+    expected = ["cc", "-Os", *(["-mavx2"] if family == "C" else []), "-x", "c", "-", "-o", "x", "-s"]
+    if (declaration != SCAN_DECLARATION or (family, profile_id) not in SCAN_IMAGES or
+            list(compiler) != expected or list(compile_executor) != expected or version != SCAN_COMPILER_VERSION):
+        raise ValueError("square-successor requires its named six-context GCC13 policy")
+    size, source_sha, native_sha = SCAN_IMAGES[family, profile_id]
+    if type(source) is not bytes or (len(source), sha256(source).hexdigest()) != (size, source_sha):
+        raise ValueError("square-successor final source differs from its named profile policy")
+    return dict(kind="AC-square-successor-gcc13-v1", family=family, profile_id=profile_id,
+        post_scan=dict(SCAN_DECLARATION), compiler=expected, compiler_version=SCAN_COMPILER_VERSION,
+        source=dict(bytes=size, sha256=source_sha), native=dict(bytes=18568, sha256=native_sha))
+
+
 def load(name, path):
     spec = importlib.util.spec_from_file_location(name, path)
     module = importlib.util.module_from_spec(spec)
@@ -131,6 +168,8 @@ def argument_parser():
                         help="explicit measured A/C/E/F lifecycle projection; default preserves the control")
     parser.add_argument("--spelling-variant", choices=("control", "best", "compound"), default="control",
                         help="explicit measured final source spelling on selected source-JIT routes only")
+    parser.add_argument("--scan-variant", choices=("control", "square-successor"), default="control",
+                        help="explicit A/C valid-square projection after compound, before final include cleanup")
     parser.add_argument("--source-dependencies", choices=("control", "unused-includes"),
                         default="unused-includes",
                         help="reviewed final include cleanup with expanded-input/native/whole-cost gates")
@@ -147,6 +186,8 @@ def main():
     try:
         post_spelling = spelling_selection(args.entry, args.representation, args.b_variant,
                                            args.phase_variant, args.spelling_variant)
+        post_scan = scan_selection(args.entry, args.representation, args.phase_variant,
+                                   post_spelling, args.source_dependencies, args.scan_variant)
     except ValueError as error:
         parser.error(str(error))
     out = args.out.resolve()
@@ -219,6 +260,8 @@ def main():
             names.add(SPELLING)
             if post_spelling == COMPOUND_DECLARATION:
                 names.add(COMPOUND)
+        if post_scan is not None:
+            names.add(SCAN)
         if args.source_dependencies != "control":
             names.add(DEPENDENCIES)
         if args.representation in ("packed-native", "self-contained-elf"):
@@ -271,6 +314,8 @@ def main():
             if args.b_variant != "control" else dict(path=PHASE, variant=args.phase_variant)
             if args.phase_variant != "control" else None)
         report["post_spelling"] = post_spelling
+        if post_scan is not None:
+            report["post_scan"] = post_scan
         if args.entry == "B" and args.spelling_variant == "compound":
             report["spelling_request"] = dict(requested="compound", effective="best",
                 duplicate_best=True, new_candidate_count=0)
@@ -352,6 +397,14 @@ def main():
                 old.require(restored_spelling == parent_source,
                             "final spelling source inverse differs before E19/phase/B inverses")
                 proofs.append(spelling_proof)
+            if post_scan is not None:
+                old.require(inputs[SCAN] == SCAN_PIN, "reviewed valid-square helper differs")
+                scan = load("profile_frozen_scan_projection", own / SCAN)
+                before_scan = source
+                source, scan_proof = scan.transform_source(source, family=args.entry, profile_id=profile.id)
+                old.require(scan.restore_source(source, scan_proof) == before_scan,
+                            "valid-square inverse differs before compound inverse")
+                proofs.append(scan_proof)
             dependency_gate = None
             before_dependencies = source
             if dependencies:
@@ -367,6 +420,8 @@ def main():
             asserted = source + b"\n" + ("\n".join(proof["target_type_assertions"]) + "\n").encode()
             native_policy = compound_native_policy(args.entry, profile.id, post_spelling, source,
                 compiler, compile_executor, report["compile_executor_version"])
+            scan_policy = scan_native_policy(args.entry, profile.id, post_scan, source,
+                compiler, compile_executor, report["compile_executor_version"])
             if post_spelling == COMPOUND_DECLARATION:
                 (gate / "asserted.c").write_bytes(asserted)
             host.run(compile_executor, cwd=gate, kind=attempt + "-target-types", data=asserted)
@@ -380,6 +435,11 @@ def main():
                 old.require(report.get("native_policy", native_policy) == native_policy,
                             "F compound native policy changed between attempts")
                 report["native_policy"] = native_policy
+            if scan_policy is not None:
+                old.require(old.pin(native) == scan_policy["native"], "valid-square named native differs")
+                old.require(report.get("scan_native_policy", scan_policy) == scan_policy,
+                            "valid-square native policy changed between attempts")
+                report["scan_native_policy"] = scan_policy
             if dependency_gate is not None:
                 old.require(dependency_gate["native"] == old.pin(native) and
                             (directory / "dependency-gate/x").read_bytes() == native,

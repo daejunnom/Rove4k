@@ -588,5 +588,60 @@ class GeneratedRulesBoundaries(unittest.TestCase):
                 RULES.validate_spelling_request(record)
 
 
+class SquareScanRules(unittest.TestCase):
+    def test_scan_helper_consumes_only_frozen_reviewed_bytes(self):
+        with tempfile.TemporaryDirectory(prefix="rove4k-rules-scan-helper-") as temporary:
+            build=Path(temporary)
+            data=RULES.normalized(RULES.ROOT/RULES.SCAN)
+            path=build/"inputs"/RULES.SCAN;path.parent.mkdir(parents=True);path.write_bytes(data)
+            self.assertEqual(RULES.scan_module(build).SCHEMA,RULES.SCAN_SCHEMA)
+            path.write_bytes(data+b"#changed\n")
+            with self.assertRaisesRegex(ValueError,"consumed bytes"):
+                RULES.scan_module(build)
+            path.write_bytes(data)
+            with patch.object(RULES,"normalized",return_value=data+b"#changed\n"), self.assertRaisesRegex(ValueError,"consumed bytes"):
+                RULES.scan_module(build)
+
+    def test_scan_exact_chain_replays_and_reverses_before_compound(self):
+        base,resource_body,phase_body,compound_body,scan_body,final=b"base",b"resource",b"phase",b"compound",b"scan",b"final"
+        resource={"schema":"test-resource","entry_cleanup":"private-path"}
+        phase={"schema":"rove4k.portable-phase-source.v1","variant":"phase-init"}
+        compound={"schema":RULES.COMPOUND_SCHEMA,"variant":RULES.COMPOUND_VARIANT}
+        scan={"schema":RULES.SCAN_SCHEMA,"variant":"square-successor"}
+        dependency={"schema":"rove4k.profile-dependencies.v1"}
+        calls=[];individual=SimpleNamespace(SCHEMA=RULES.SPELLING_SCHEMA)
+        def module(label,parent,result,proof,**extra):
+            def forward(actual,*args,**kwargs):
+                self.assertEqual(actual,parent);return result,proof
+            def inverse(actual,observed,**kwargs):
+                self.assertEqual((actual,observed),(result,proof));calls.append(label);return parent
+            return SimpleNamespace(transform_source=forward,restore_source=inverse,**extra)
+        projection=module("resource",base,resource_body,resource,SCHEMA="test-resource")
+        phase_module=module("phase",resource_body,phase_body,phase)
+        compound_module=module("compound",phase_body,compound_body,compound,SCHEMA=RULES.COMPOUND_SCHEMA)
+        scan_module=module("scan",compound_body,scan_body,scan,SCHEMA=RULES.SCAN_SCHEMA)
+        dependency_module=module("dependency",scan_body,final,dependency,
+            validate_receipt=lambda *args,**kwargs:scan_body)
+        modules={"production_rules_projection":projection,"production_rules_phase_projection":phase_module,
+            "production_rules_scan_projection":scan_module,"production_rules_dependencies":dependency_module}
+        stages=[resource,phase,compound,scan,dependency]
+        record={"attempts":[{"directory":name,"source_proofs":stages} for name in ("first","repeat")]}
+        with patch.object(RULES,"load",side_effect=lambda name,path:modules[name]), \
+             patch.object(RULES,"compound_modules",return_value=(individual,compound_module)), \
+             patch.object(RULES,"scan_module",return_value=scan_module), \
+             patch.object(RULES,"_source_build_record",return_value=record) as captured:
+            self.assertEqual(RULES.admit_source(final,base,stages,"A",PRODUCTION.resource_profile("test-p4"),build=Path("/named")),stages)
+        self.assertEqual(calls,["dependency","scan","compound","phase","resource"])
+        self.assertEqual(captured.call_args.kwargs["post_scan"],RULES.SCAN_DECLARATION)
+        self.assertIn(RULES.SCAN,captured.call_args.kwargs["tools"])
+        invalid=(stages[:-1],stages+[scan],[resource,phase,scan,compound,dependency],
+            [resource,phase,compound,{**scan,"variant":"unknown"},dependency])
+        for proofs in invalid:
+            with patch.object(RULES,"load",return_value=projection), self.assertRaises(ValueError):
+                RULES.admit_source(final,base,proofs,"A",PRODUCTION.resource_profile("test-p4"),build=Path("/named"))
+        with patch.object(RULES,"load",return_value=projection), self.assertRaisesRegex(ValueError,"A/C"):
+            RULES.admit_source(final,base,stages,"F",PRODUCTION.resource_profile("test-p4"),build=Path("/named"))
+
+
 if __name__ == "__main__":
     unittest.main()

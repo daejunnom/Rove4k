@@ -56,6 +56,20 @@ COMPOUND = "engines/experiments/tcec-next/spelling_compound.py"
 COMPOUND_SCHEMA = "rove4k.selected-spelling-compound.v1"
 COMPOUND_PIN = {"bytes": 5522, "sha256": "4a4f6079341998fd2d0ef1ff5fc9b35a435751131b4687ce950ef1892820754b"}
 COMPOUND_DECLARATION = {"path": COMPOUND, "selection": "compound", "variant": "clock-atomic-launcher"}
+SCAN = "engines/experiments/tcec-next/profile_scan.py"
+SCAN_SCHEMA = "rove4k.selected-square-scan.v1"
+SCAN_DECLARATION = {"path": SCAN, "variant": "square-successor"}
+SCAN_PIN = {"bytes": 10623, "sha256": "98eb3139bcbd745f08fbab2d8a738b428d4e668de2604ac3fc715de8c58b879f"}
+SCAN_COMPILER_VERSION = "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+# Independent finite native admission; existing compound/control policies remain unchanged.
+SCAN_IMAGES = {
+    ("A", "test-p4"): (7595, "02faeb563c435c02321fc6d497f54a31de01d9093be33bff5e44206a93dfbdc6", "dc2dc95fe41fc3ecb8dde3b5ace90961fb691caba45484cb8b55f31ebdce0a9e"),
+    ("A", "test-p28"): (7628, "f1d5465716752b23c31d63035bbcb94b12818a984c9afbc4ce20c0c843f82006", "4303194fb29769c10fe0800377370cd6a64e94428e9b26123caee3aab2cd29c1"),
+    ("A", "tcec-provisional"): (7597, "f85fa3716aed39fe9b2ca973ac3d87650dbac95dfa9cedbaf800ada4f6375a23", "e5a644a334125a96e60f495fb24d40b00c8f7cc16a3a3dc7195494fc0a5dd4b7"),
+    ("C", "test-p4"): (8199, "86b7dd0e5f206d10086d098ce82083d4d12910df91a7f1215915727327f1d42a", "16031542896ac9d28cf6e7d70f32a8eef041baff2e65bcf030edea7eae689462"),
+    ("C", "test-p28"): (8232, "b3a968d2287a8418ce32b7b2f9f019c4695b55a32fd4f332eab89e16d012d2d0", "798beb0201c23da1de875be256d19626ee8a922c595c98588c5618a11d4a8544"),
+    ("C", "tcec-provisional"): (8201, "ae131e49609b34eefaa54499f79f2aa738d103cbc800c1d7a70cde359106b807", "3850273327e027346316df07b94c88f7e6b7df44da8dbbffbae69d777ed7c459"),
+}
 F_COMPOUND_POLICY = "F-compound-clock-gcc13-v1"
 F_COMPOUND_COMPILER = ["cc", "-Os", "-pthread", "-x", "c", "-", "-o", "x", "-s"]
 F_COMPOUND_COMPILER_VERSION = "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
@@ -363,7 +377,7 @@ def revalidate_target(reference):
             reference.revalidate(verify=sys.modules[__name__], expected_ci=helper.CIContext.from_environment())
 
 
-def source_stages(family, post, proofs, *, post_spelling=None, source_dependencies=None,
+def source_stages(family, post, proofs, *, post_spelling=None, post_scan=None, source_dependencies=None,
                   representation=None, entry_cleanup=None):
     """Declare the complete finite stage grammar before loading a helper."""
     require(family in ("A", "B", "C", "E", "F") and isinstance(proofs, list)
@@ -400,6 +414,14 @@ def source_stages(family, post, proofs, *, post_spelling=None, source_dependenci
                 (family in "ACEF" and kind == "phase"),
                 "final spelling requires selected phase-init ACEF or tcec-final-lf B")
         expected.append(COMPOUND_SCHEMA if compound else SPELLING_SCHEMA)
+    if post_scan is not None:
+        require(family in ("A", "C") and post_scan == SCAN_DECLARATION
+                and post_spelling == COMPOUND_DECLARATION and kind == "phase"
+                and representation == "source-jit" and entry_cleanup == "private-path"
+                and source_dependencies == {"path": "engines/experiments/tcec-next/profile_dependencies.py",
+                                            "variant": "unused-includes"},
+                "valid-square stage requires A/C phase-init/compound and final dependency cleanup")
+        expected.append(SCAN_SCHEMA)
     if source_dependencies is not None:
         require(source_dependencies == {
             "path": "engines/experiments/tcec-next/profile_dependencies.py",
@@ -457,6 +479,35 @@ def compound_module(manifest, build, production_paths):
     return compound, individual
 
 
+def scan_module(manifest, build, production_paths):
+    return _reviewed_spelling_module(manifest, build, production_paths, SCAN, SCAN_PIN,
+                                    SCAN_SCHEMA, "profile_runtime_reviewed_scan")
+
+
+def scan_native_evidence(manifest, build, source, native, profile_id):
+    declaration = manifest.get("post_scan")
+    if declaration is None:
+        require("scan_native_policy" not in manifest, "valid-square native policy is outside its finite route")
+        return None
+    family = manifest["family"]
+    require(declaration == SCAN_DECLARATION and (family, profile_id) in SCAN_IMAGES,
+            "valid-square native policy requires a named A/C profile")
+    size, source_sha, native_sha = SCAN_IMAGES[family, profile_id]
+    compiler = ["cc", "-Os", *(["-mavx2"] if family == "C" else []), "-x", "c", "-", "-o", "x", "-s"]
+    policy = dict(kind="AC-square-successor-gcc13-v1", family=family, profile_id=profile_id,
+        post_scan=dict(SCAN_DECLARATION), compiler=compiler, compiler_version=SCAN_COMPILER_VERSION,
+        source=dict(bytes=size, sha256=source_sha), native=dict(bytes=18568, sha256=native_sha))
+    require(_json_equal(manifest.get("scan_native_policy"), policy)
+            and manifest.get("compiler") == manifest.get("compile_executor") == compiler
+            and manifest.get("compile_executor_version") == SCAN_COMPILER_VERSION
+            and pin(source) == policy["source"] and pin(native) == policy["native"],
+            "valid-square source/native/compiler differs from the named six-context policy")
+    version, output = _compound_owned_command(manifest, build, "target-compiler-version", ["cc", "--version"], None, ())
+    require(output["stdout"].decode().splitlines()[:1] == [SCAN_COMPILER_VERSION],
+            "valid-square actual compiler banner differs")
+    return dict(policy=policy, compiler_version_command=version)
+
+
 def _compound_owned_command(manifest, build, kind, command, data, suffix):
     matches = [(index, row) for index, row in enumerate(manifest["commands"], 1) if row.get("kind") == kind]
     require(len(matches) == 1, "compound compiler command is missing or duplicated")
@@ -492,6 +543,7 @@ def _compound_owned_command(manifest, build, kind, command, data, suffix):
 def compound_native_evidence(manifest, build, source, native, resource_proof, profile_id):
     """Bind new compound codegen to actual appended assertions and owned stdin."""
     selected = manifest.get("post_spelling") == COMPOUND_DECLARATION
+    scan_evidence = scan_native_evidence(manifest, build, source, native, profile_id)
     if not selected:
         require("native_policy" not in manifest, "named compound native policy is outside its finite route")
         return None
@@ -542,7 +594,8 @@ def compound_native_evidence(manifest, build, source, native, resource_proof, pr
         observed.append({"directory": directory, "target_type_gate": gate,
                          "asserted_command": asserted_command, "shipping_command": shipping_command})
     return {"declaration": dict(COMPOUND_DECLARATION), "source": pin(source), "native": pin(native),
-            "native_policy": policy, "compiler_version_command": version, "attempts": observed}
+            "native_policy": policy, "compiler_version_command": version, "attempts": observed,
+            **({"scan_native_evidence": scan_evidence} if scan_evidence is not None else {})}
 
 
 def inverse_source_stages(source, inverses):
@@ -691,9 +744,11 @@ def admit_c_build(manifest, build):
     inverses = [(projection, proof, base)]
     post = manifest.get("post_profile")
     post_spelling = manifest.get("post_spelling")
+    post_scan = manifest.get("post_scan")
     dependency_declaration = manifest.get("source_dependencies")
     post_kind = source_stages(family, post, manifest["source_proofs"], post_spelling=post_spelling,
-        source_dependencies=dependency_declaration, representation=representation, entry_cleanup=plan["entry_cleanup"])
+        post_scan=post_scan, source_dependencies=dependency_declaration,
+        representation=representation, entry_cleanup=plan["entry_cleanup"])
     next_stage = 1
     if post is not None:
         path = post["path"]
@@ -752,6 +807,15 @@ def admit_c_build(manifest, build):
             inverses.append((helper, spelling_proof, before_spelling, spelling_options))
         else:
             inverses.append((helper, spelling_proof, before_spelling))
+        next_stage += 1
+    if post_scan is not None:
+        helper = scan_module(manifest, build, production_paths)
+        before_scan = produced
+        produced, scan_proof = helper.transform_source(produced, family=family, profile_id=profile.id)
+        require(_json_equal(scan_proof, manifest["source_proofs"][next_stage])
+                and helper.restore_source(produced, manifest["source_proofs"][next_stage]) == before_scan,
+                "full valid-square proof/protected gaps or inverse differs")
+        inverses.append((helper, scan_proof, before_scan))
         next_stage += 1
     before_dependencies = produced
     dependencies = None
@@ -814,6 +878,7 @@ def admit_c_build(manifest, build):
                          manifest["resources"], policy, manifest["wrapper_contract"], inputs,
                          {"kind": "exact-resource-projection", "proof": proof, "post_profile": post,
                           **({"post_spelling": post_spelling} if post_spelling is not None else {}),
+                          **({"post_scan": post_scan} if post_scan is not None else {}),
                           **({"spelling_request": manifest["spelling_request"]}
                              if "spelling_request" in manifest else {}),
                           **({"compound_native_evidence": compound_evidence}

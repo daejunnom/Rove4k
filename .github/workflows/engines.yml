@@ -235,6 +235,8 @@ jobs:
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_dependencies.py
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_spelling.py
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_compound.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_scan.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_scan_mechanism.py
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_p28.py
           python -I -B engines/experiments/tcec-next/check_spelling_compound.py --self-test
           python -I -B engines/experiments/tiny-d-submission/test_storage.py
@@ -266,12 +268,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - {family: A, spelling: compound}
-          - {family: B, spelling: best}
-          - {family: C, spelling: compound}
-          - {family: D, spelling: control}
-          - {family: E, spelling: compound}
-          - {family: F, spelling: compound}
+          - {family: A, spelling: compound, scan: square-successor}
+          - {family: B, spelling: best, scan: control}
+          - {family: C, spelling: compound, scan: square-successor}
+          - {family: D, spelling: control, scan: control}
+          - {family: E, spelling: compound, scan: control}
+          - {family: F, spelling: compound, scan: control}
     env:
       PYTHONDONTWRITEBYTECODE: '1'
     steps:
@@ -288,6 +290,7 @@ jobs:
           python -I -B engines/scripts/production_ci.py
           --family '${{ matrix.family }}'
           --spelling-variant '${{ matrix.spelling }}'
+          --scan-variant '${{ matrix.scan }}'
           --export-source-bundle
           --out '${{ runner.temp }}/rove4k-production-${{ matrix.family }}-${{ github.run_attempt }}'
       - name: Transfer the exact sealed source to the Ubuntu22 consumer
@@ -361,12 +364,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - {family: A, spelling: compound}
-          - {family: B, spelling: best}
-          - {family: C, spelling: compound}
-          - {family: D, spelling: control}
-          - {family: E, spelling: compound}
-          - {family: F, spelling: compound}
+          - {family: A, spelling: compound, scan: square-successor}
+          - {family: B, spelling: best, scan: control}
+          - {family: C, spelling: compound, scan: square-successor}
+          - {family: D, spelling: control, scan: control}
+          - {family: E, spelling: compound, scan: control}
+          - {family: F, spelling: compound, scan: control}
     env:
       PYTHONDONTWRITEBYTECODE: '1'
     steps:
@@ -384,6 +387,7 @@ jobs:
           --family '${{ matrix.family }}'
           --profile test-p28
           --spelling-variant '${{ matrix.spelling }}'
+          --scan-variant '${{ matrix.scan }}'
           --export-source-bundle
           --out '${{ runner.temp }}/rove4k-production-${{ matrix.family }}-test-p28-${{ github.run_attempt }}'
       - name: Transfer the exact sealed P28 source to the Ubuntu22 consumer

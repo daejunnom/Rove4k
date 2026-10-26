@@ -80,6 +80,75 @@ def compound_gate_fixture(build, family="A", profile="test-p4"):
 
 
 class ProfileRuntimeAdmission(unittest.TestCase):
+    def test_scan_stage_requires_exact_AC_compound_then_dependency(self):
+        resource={"schema":"rove4k.c-resource-projection.v1"}
+        phase={"schema":"rove4k.portable-phase-source.v1"}
+        compound={"schema":VERIFY.COMPOUND_SCHEMA}
+        scan={"schema":VERIFY.SCAN_SCHEMA}
+        dependency={"schema":"rove4k.profile-dependencies.v1"}
+        post={"path":"engines/experiments/tcec-next/profile_phase.py","variant":"phase-init"}
+        options=dict(post_spelling=VERIFY.COMPOUND_DECLARATION,post_scan=VERIFY.SCAN_DECLARATION,
+            source_dependencies={"path":"engines/experiments/tcec-next/profile_dependencies.py","variant":"unused-includes"},
+            representation="source-jit",entry_cleanup="private-path")
+        stages=[resource,phase,compound,scan,dependency]
+        for family in "AC":
+            self.assertEqual(VERIFY.source_stages(family,post,stages,**options),"phase")
+        for family,proofs,changes in (("F",stages,{}),("A",stages[:-1],{}),
+            ("A",[resource,phase,scan,compound,dependency],{}),("C",stages+[scan],{}),
+            ("A",stages,{"post_scan":{**VERIFY.SCAN_DECLARATION,"extra":True}}),
+            ("A",stages,{"source_dependencies":None}),("A",stages,{"entry_cleanup":"none"})):
+            with self.assertRaises(ValueError):
+                VERIFY.source_stages(family,post,proofs,**{**options,**changes})
+
+    def test_scan_helper_requires_exact_current_frozen_tool_and_full_inverse_order(self):
+        with tempfile.TemporaryDirectory(prefix="rove4k-scan-helper-") as temporary:
+            root=Path(temporary)
+            target=root/"inputs"/VERIFY.SCAN;target.parent.mkdir(parents=True)
+            data=(VERIFY.ROOT/VERIFY.SCAN).read_bytes().replace(b"\r\n",b"\n");target.write_bytes(data)
+            row={"path":VERIFY.SCAN,"role":"tool",**VERIFY.SCAN_PIN}
+            manifest={"source_closure":{"inputs":[row]},"inputs":{VERIFY.SCAN:VERIFY.SCAN_PIN}}
+            self.assertEqual(VERIFY.scan_module(manifest,root,{VERIFY.SCAN}).SCHEMA,VERIFY.SCAN_SCHEMA)
+            for rows in ([],[row,row],[{**row,"role":"engine"}]):
+                with self.assertRaises(ValueError):
+                    VERIFY.scan_module({**manifest,"source_closure":{"inputs":rows}},root,{VERIFY.SCAN})
+            target.write_bytes(data+b"#wrong\n")
+            with self.assertRaises(ValueError):VERIFY.scan_module(manifest,root,{VERIFY.SCAN})
+        calls=[]
+        def stage(name,parent):
+            def restore(actual,proof):
+                self.assertEqual(actual,parent+name.encode());calls.append(name);return parent
+            return types.SimpleNamespace(restore_source=restore)
+        stages=[];body=b"base"
+        for name in ("resource","phase","compound","scan","dependency"):
+            stages.append((stage(name,body),{},body));body+=name.encode()
+        self.assertEqual(VERIFY.inverse_source_stages(body,stages),b"base")
+        self.assertEqual(calls,["dependency","scan","compound","phase","resource"])
+
+    def test_scan_native_policy_is_finite_and_real_banner_bound(self):
+        self.assertEqual(len(VERIFY.SCAN_IMAGES),6)
+        for (family,profile),row in VERIFY.SCAN_IMAGES.items():
+            compiler=["cc","-Os",*(["-mavx2"] if family=="C" else []),"-x","c","-","-o","x","-s"]
+            source,native=b"admitted-fixture-source",b"x"*18568
+            identities=(len(source),VERIFY.pin(source)["sha256"],VERIFY.pin(native)["sha256"])
+            policy=dict(kind="AC-square-successor-gcc13-v1",family=family,profile_id=profile,
+                post_scan=VERIFY.SCAN_DECLARATION,compiler=compiler,compiler_version=VERIFY.SCAN_COMPILER_VERSION,
+                source=VERIFY.pin(source),native=VERIFY.pin(native))
+            manifest=dict(family=family,post_scan=VERIFY.SCAN_DECLARATION,scan_native_policy=policy,
+                compiler=compiler,compile_executor=compiler[:],compile_executor_version=VERIFY.SCAN_COMPILER_VERSION)
+            with patch.dict(VERIFY.SCAN_IMAGES,{(family,profile):identities}), \
+                 patch.object(VERIFY,"_compound_owned_command",return_value=({}, {"stdout":(VERIFY.SCAN_COMPILER_VERSION+"\n").encode()})):
+                self.assertEqual(VERIFY.scan_native_evidence(manifest,Path("unused"),source,native,profile)["policy"],policy)
+            with patch.dict(VERIFY.SCAN_IMAGES,{(family,profile):identities}), \
+                 patch.object(VERIFY,"_compound_owned_command",return_value=({}, {"stdout":b"wrong banner\n"})):
+                with self.assertRaisesRegex(ValueError,"banner"):
+                    VERIFY.scan_native_evidence(manifest,Path("unused"),source,native,profile)
+            for changes in ({"compile_executor":["gcc-11",*compiler[1:]]},{"scan_native_policy":{}},
+                            {"compile_executor_version":"wrong"},{"post_scan":{**VERIFY.SCAN_DECLARATION,"extra":0}}):
+                with self.assertRaises(ValueError):
+                    VERIFY.scan_native_evidence({**manifest,**changes},Path("unused"),source,native,profile)
+        with self.assertRaises(ValueError):
+            VERIFY.scan_native_evidence({"scan_native_policy":{}},Path("unused"),b"",b"","test-p4")
+
     def setUp(self):
         if os.name != "posix":
             # These are pure Windows admission fixtures, not a claim that the

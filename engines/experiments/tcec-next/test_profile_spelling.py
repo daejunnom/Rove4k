@@ -12,6 +12,35 @@ build=load("spelling_policy_build",HERE/"profile_build.py")
 spelling=load("spelling_policy_helper",HERE/"profile_spelling.py")
 
 class SpellingPolicy(unittest.TestCase):
+    def test_scan_default_preserves_controls_and_explicit_domain(self):
+        args=build.argument_parser().parse_args(["--entry","A","--profile","test-p4","--out","/new"])
+        self.assertEqual(args.scan_variant,"control")
+        self.assertIsNone(build.scan_selection("F","packed-native","control",None,"control","control"))
+        for family in "AC":
+            self.assertEqual(build.scan_selection(family,"source-jit","phase-init",build.COMPOUND_DECLARATION,
+                "unused-includes","square-successor"),build.SCAN_DECLARATION)
+        for family,representation,phase,spelling,dependencies in (
+            ("B","source-jit","phase-init",build.COMPOUND_DECLARATION,"unused-includes"),
+            ("A","packed-native","phase-init",build.COMPOUND_DECLARATION,"unused-includes"),
+            ("C","source-jit","control",build.COMPOUND_DECLARATION,"unused-includes"),
+            ("A","source-jit","phase-init",None,"unused-includes"),
+            ("C","source-jit","phase-init",build.COMPOUND_DECLARATION,"control")):
+            with self.assertRaises(ValueError):
+                build.scan_selection(family,representation,phase,spelling,dependencies,"square-successor")
+
+    def test_scan_policy_has_exact_six_contexts_without_changing_old_maps(self):
+        scan=load("spelling_policy_scan",HERE/"profile_scan.py")
+        self.assertEqual(set(build.SCAN_IMAGES),set(scan.POST_DEPENDENCY_OUTPUTS))
+        for key,row in build.SCAN_IMAGES.items():
+            self.assertEqual(row[:2],scan.POST_DEPENDENCY_OUTPUTS[key])
+        for family in "AC":
+            compiler=["cc","-Os",*(["-mavx2"] if family=="C" else []),"-x","c","-","-o","x","-s"]
+            with self.assertRaisesRegex(ValueError,"final source"):
+                build.scan_native_policy(family,"test-p4",build.SCAN_DECLARATION,b"wrong",compiler,compiler,build.SCAN_COMPILER_VERSION)
+            with self.assertRaisesRegex(ValueError,"six-context"):
+                build.scan_native_policy(family,"test-p4",build.SCAN_DECLARATION,b"wrong",compiler,["gcc-11",*compiler[1:]],build.SCAN_COMPILER_VERSION)
+        self.assertIsNone(build.scan_native_policy("F","test-p4",None,b"",[],[],""))
+
     def test_merged_cli_keeps_independent_defaults(self):
         parsed=build.argument_parser().parse_args(["--entry","C","--profile","test-p4","--out","/example/new"])
         self.assertEqual(parsed.spelling_variant,"control")

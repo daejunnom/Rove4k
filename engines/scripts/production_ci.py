@@ -39,6 +39,7 @@ BEST_SPELLING = {"A": "clock-type", "B": "atomic-assignment", "C": "clock-type",
                  "E": "clock-type", "F": "atomic-assignment"}
 COMPOUND_SPELLING = {"path": NEXT + "spelling_compound.py", "selection": "compound",
                      "variant": "clock-atomic-launcher"}
+SCAN_DECLARATION = {"path": NEXT + "profile_scan.py", "variant": "square-successor"}
 PROFILE_WORKERS = {"test-p4": 4, "test-p28": 28}
 TRANSPORT = "engines/scripts/production_source_bundle.py"
 COMPILER_REDIRECTION = ("CC", "CXX", "CPP", "AS", "AR", "LD", "GCC_EXEC_PREFIX", "COMPILER_PATH",
@@ -123,6 +124,7 @@ class Plan:
     stages: tuple[Stage, ...]
     spelling_variant: str = "control"
     profile: str = "test-p4"
+    scan_variant: str = "control"
 
     @property
     def effective_spelling_variant(self):
@@ -219,8 +221,16 @@ def target_plan(family, out, build, bundle, seal, *, profile="test-p4", python=s
         Stage("runtime", runtime, "runtime/runtime.json")), profile)
 
 
-def pipeline_plan(family, out, *, spelling_variant="control", profile="test-p4", python=sys.executable, repo=ROOT):
+def producer_scan_variant(family, spelling, selection):
+    require(type(selection) is str and selection in ("control", "square-successor"), "finite scan selection required")
+    require(selection == "control" or (family in ("A", "C") and spelling == "compound"),
+            "square-successor requires the explicit A/C compound route")
+    return selection
+
+
+def pipeline_plan(family, out, *, spelling_variant="control", scan_variant="control", profile="test-p4", python=sys.executable, repo=ROOT):
     spelling_variant = producer_spelling_variant(family, spelling_variant, profile=profile)
+    scan_variant = producer_scan_variant(family, spelling_variant, scan_variant)
     out, repo = Path(out), Path(repo)
     require(out.is_absolute() and repo.is_absolute(), "absolute pipeline roots required")
     artifact = out / "artifact"
@@ -237,8 +247,11 @@ def pipeline_plan(family, out, *, spelling_variant="control", profile="test-p4",
         variant = ("--b-variant", "tcec-final-lf") if family == "B" else ("--phase-variant", "phase-init")
         generation = command(NEXT + "profile_build.py", "--entry", family, "--profile", profile,
                              *variant, "--spelling-variant", spelling_variant,
+                             *(("--scan-variant", scan_variant) if scan_variant != "control" else ()),
                              "--source-dependencies", "unused-includes", "--out", artifact)
-        mechanism = (command(NEXT + "check_profile_p28.py", "--build", artifact, "--out", out / "mechanism")
+        mechanism = (command(NEXT + "check_profile_scan.py", "--build", artifact, "--out", out / "mechanism")
+                     if scan_variant != "control" else
+                     command(NEXT + "check_profile_p28.py", "--build", artifact, "--out", out / "mechanism")
                      if profile == "test-p28" else
                      command(NEXT + "check_profile_b.py", "--build", artifact, "--mode", "bound", "--out", out / "mechanism")
                      if family == "B" else command(NEXT + ("check_profile_compound.py"
@@ -253,7 +266,7 @@ def pipeline_plan(family, out, *, spelling_variant="control", profile="test-p4",
         Stage("generation", generation, "artifact/build.json"),
         Stage("mechanism", mechanism, "mechanism/result.json" if family == "B" and profile == "test-p4" else "mechanism/results.json"),
         Stage("rules", rules, "rules/commands.json"),
-        Stage("runtime", runtime, "runtime/runtime.json")), spelling_variant, profile)
+        Stage("runtime", runtime, "runtime/runtime.json")), spelling_variant, profile, scan_variant)
 
 
 def evidence_bytes(out, relative, *, reader=None):
@@ -309,6 +322,23 @@ def owned_commands(report, *, expected_codes=None):
             "required natural negative-control command is missing or duplicated")
 
 
+def scan_mechanism_policy(plan, report, build, *, reader=None):
+    require(producer_scan_variant(plan.family, plan.spelling_variant, plan.scan_variant) == "square-successor"
+            and report.get("class") == "rove4k-bound-scan-mechanism-v1"
+            and report.get("selected_post_scan") == build.get("post_scan") == SCAN_DECLARATION,
+            "scan mechanism differs from the explicit producer choice")
+    raw, _ = evidence_bytes(plan.out, "artifact/source-proof.json", reader=reader)
+    require(same_value(report.get("source_proofs"), pin(raw)) and
+            same_value(json.loads(raw), build.get("source_proofs")), "scan mechanism raw proof differs")
+    name = NEXT + "check_profile_scan.py"
+    captured, _ = evidence_bytes(plan.out, "inputs/" + name, reader=reader)
+    require(captured == normalized(ROOT / name, reader=reader) and
+            same_value(report.get("support_inputs", {}).get(name), pin(captured)),
+            "scan checker differs from its frozen current CI input")
+    checker = load_captured("production_ci_frozen_scan_policy", plan.out / "inputs" / name, captured)
+    require(checker.bound_selection(build) == plan.profile, "scan mechanism resource/stage grammar differs")
+
+
 def compound_mechanism(plan, report, build, *, reader=None):
     """Keep the named diagnostic alias separate from the actual startup source."""
     require(plan.family in "ACEF" and plan.effective_spelling_variant == "compound"
@@ -353,8 +383,9 @@ def compound_mechanism(plan, report, build, *, reader=None):
     require(report.get("diagnostic_alias") == alias
             and report.get("actual", {}).get("source") == {"path": "main.c", **source_pin},
             "compound diagnostic alias is not bound to the shipping source and launcher proof")
-    checker, _ = evidence_bytes(plan.out, "inputs/" + NEXT + "check_profile_compound.py", reader=reader)
-    require(report.get("support_inputs", {}).get(NEXT + "check_profile_compound.py") == pin(checker),
+    name = NEXT + ("check_profile_scan.py" if plan.scan_variant != "control" else "check_profile_compound.py")
+    checker, _ = evidence_bytes(plan.out, "inputs/" + name, reader=reader)
+    require(report.get("support_inputs", {}).get(name) == pin(checker),
             "compound diagnostic checker differs from the frozen CI input")
     rows, barriers = report.get("mechanisms", []), report.get("startup_barriers", [])
     require(len(rows) == len(barriers) == 1 and report.get("runtime_cleanup") ==
@@ -465,7 +496,8 @@ def p28_startup(plan, report, barrier, source, *, reader=None):
 
 def p28_abcef_mechanism(plan, report, build, build_pin, *, reader=None):
     """Use the frozen pure renderer to reconstruct diagnostic C; never run it."""
-    require(report.get("class") == "rove4k-bound-p28-mechanism-v1" and report.get("mode") == "source-bound"
+    require(report.get("class") == ("rove4k-bound-scan-mechanism-v1" if plan.scan_variant != "control"
+                                   else "rove4k-bound-p28-mechanism-v1") and report.get("mode") == "source-bound"
             and report.get("entry") == build.get("family") == plan.family and report.get("profile") == plan.profile
             and report.get("representation") == "source-jit" and same_value(report.get("build"),
                 {**build_pin, "path": str(Path(build_pin["path"]).parent)})
@@ -726,6 +758,10 @@ def check_stage(plan, stage, *, reader=None):
                     and report.get("source_dependencies") == {"path": NEXT + "profile_dependencies.py",
                                                                "variant": "unused-includes"},
                     "generation spelling/dependencies differ from the requested producer policy")
+            selected_scan = SCAN_DECLARATION if plan.scan_variant != "control" else None
+            require(report.get("post_scan") == selected_scan and
+                    (selected_scan is not None or "scan_native_policy" not in report),
+                    "generation scan differs from the requested producer policy")
             if family == "B" and spelling_variant == "compound":
                 request = report.get("spelling_request")
                 require(type(request) is dict and request == {"requested": "compound", "effective": "best",
@@ -741,6 +777,8 @@ def check_stage(plan, stage, *, reader=None):
         effective = effective_spelling(family, plan.spelling_variant, profile=plan.profile)
         require(report.get("source_bound") is True, "canonical/control mechanism is not selected-artifact evidence")
         build, build_pin = receipt(plan.out, "artifact/build.json", reader=reader)
+        if plan.scan_variant != "control":
+            scan_mechanism_policy(plan, report, build, reader=reader)
         if plan.profile == "test-p28":
             checker = p28_d_mechanism if family == "D" else p28_abcef_mechanism
             result["full_resource_mechanism"] = checker(plan, report, build, build_pin, reader=reader)
@@ -756,7 +794,8 @@ def check_stage(plan, stage, *, reader=None):
             require(len(cases) == 6 and all(row.get("passed") is True and row.get("tt_bits") == 12
                     and row.get("selected_source_equal") is True for row in cases), "D bounded selected mechanism cases are incomplete")
         else:
-            expected_class = ("rove4k-bound-B-mechanism-v1" if family == "B" else
+            expected_class = ("rove4k-bound-scan-mechanism-v1" if plan.scan_variant != "control" else
+                "rove4k-bound-B-mechanism-v1" if family == "B" else
                 "rove4k-bound-compound-mechanism-v1" if effective == "compound" else "rove4k-bound-phase-mechanism-v1")
             bound_build = {**build_pin, "path": build_pin["path"] if family == "B" else str(Path(build_pin["path"]).parent)}
             require(report.get("class") == expected_class and report.get("build") == bound_build,
@@ -861,6 +900,8 @@ def pipeline_inputs(plan, own, *, verify=None, reader=None, transport=None):
              NEXT + "profile_rules.py", *(str(Path(s.command[3]).relative_to(ROOT)).replace("\\", "/") for s in plan.stages)}
     if isinstance(plan, Plan) and plan.profile == "test-p28" and plan.family == "D":
         names.add(D_ROOT + "source.py")
+    if isinstance(plan, Plan) and plan.scan_variant != "control":
+        names.update((NEXT + "check_profile_compound.py", NEXT + "check_profile_p28.py"))
     if transport is not None:
         names.update((TRANSPORT, NEXT + "target_runtime.py", NEXT + "profile_compiler.py", verify.INPUT_READER))
     inputs = {name: own if name == SELF else normalized(ROOT / name, reader=reader) for name in sorted(names)}
@@ -959,13 +1000,18 @@ def main():
     parser.add_argument("--source-seal", type=Path)
     parser.add_argument("--spelling-variant", choices=("control", "best", "compound"),
                         help="producer-only source spelling selection (default: control); target consumes the sealed choice")
+    parser.add_argument("--scan-variant", choices=("control", "square-successor"),
+                        help="producer-only A/C compound scan selection; target consumes the sealed choice")
     args = parser.parse_args()
     profile_workers(args.profile)
     if args.ubuntu22_target:
         require(args.spelling_variant is None, "spelling selection is producer-only; target consumes the sealed choice")
+        require(args.scan_variant is None, "scan selection is producer-only; target consumes the sealed choice")
     else:
         spelling_variant = producer_spelling_variant(args.family,
             "control" if args.spelling_variant is None else args.spelling_variant, profile=args.profile)
+        scan_variant = producer_scan_variant(args.family, spelling_variant,
+            "control" if args.scan_variant is None else args.scan_variant)
     require((args.source_bundle is not None) == (args.source_seal is not None), "source ZIP and seal must be supplied together")
     require(args.ubuntu22_target == (args.source_bundle is not None)
             and not (args.ubuntu22_target and args.export_source_bundle),
@@ -1004,7 +1050,7 @@ def main():
                 and admitted.representation == "source-jit", "sealed target source is not the requested fixed full TEST C-JIT profile")
         plan = target_plan(args.family, out, build, args.source_bundle, args.source_seal, profile=args.profile)
     else:
-        plan = pipeline_plan(args.family, out, spelling_variant=spelling_variant, profile=args.profile)
+        plan = pipeline_plan(args.family, out, spelling_variant=spelling_variant, scan_variant=scan_variant, profile=args.profile)
     inputs = pipeline_inputs(plan, own, verify=verify, reader=reader, transport=transport)
     out.mkdir(parents=True)
     for name, data in inputs.items():
@@ -1023,6 +1069,8 @@ def main():
         report.update(factory_replayed_on_target=False, source_restore=restored, target_compiler_bound=False)
     else:
         report["requested_spelling_variant"] = plan.spelling_variant
+        if plan.scan_variant != "control":
+            report["requested_scan_variant"] = plan.scan_variant
         if plan.spelling_variant == "compound":
             report["effective_spelling_variant"] = plan.effective_spelling_variant
     def save():
