@@ -128,7 +128,8 @@ def parse_request(value, *, campaign_id, role_arn, bucket):
             and origin["repository"] == REPOSITORY and isinstance(origin["head_sha"], str) and COMMIT.fullmatch(origin["head_sha"])
             and all(re.fullmatch(r"[1-9][0-9]*", str(origin[key])) for key in ("run_id", "run_attempt")), "exact original source CI identity required")
     provenance = value["workflow_provenance"]
-    require(isinstance(provenance, dict) and set(provenance) in ({"run", "commit"}, {"run", "commit", "pull_request"})
+    require(isinstance(provenance, dict) and set(provenance) in ({"run", "commit"}, {"run", "commit", "pull_request"},
+            {"run", "commit", "pull_request", "execution_base_proof"})
             and all(isinstance(name, str) for name in provenance.values()) and len(set(provenance.values())) == len(provenance),
             "distinct original provenance member roles required")
     for name in provenance.values():
