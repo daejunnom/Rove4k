@@ -237,14 +237,142 @@ OPTIONS['E']['center-fold'] = dict(speed='neutral-or-faster-expected', edits=[(
     'static L Q(L q){q^=(q>>2&17)*7;J (q&7)+(q>>4);}')])
 
 
+# These whole-function alternatives were measured only on the exact replayed
+# full P4 A/F sources. Other families and changed source closures need their
+# own caller/hash/evaluation analysis; matching a fragment is not admission.
+BOARD_INPUTS = {
+    'A': dict(bytes=7595, sha256='02faeb563c435c02321fc6d497f54a31de01d9093be33bff5e44206a93dfbdc6'),
+    'F': dict(bytes=7034, sha256='c89769c80c70722f2a610dbe9371edce9f4063abc15ed2fff6cdc637fec4bc6e'),
+}
+
+
+def source_function(source, prefix):
+    require(source.count(prefix) == 1, 'one admitted function required: ' + prefix.decode())
+    start = source.index(prefix)
+    opening = source.index(b'{', start)
+    depth = 0
+    for end in range(opening, len(source)):
+        depth += (source[end] == 123) - (source[end] == 125)
+        if not depth:
+            return source[start:end + 1]
+    raise ValueError('unclosed admitted function')
+
+
+def admit_board_source(source, family):
+    require(family in BOARD_INPUTS and pin(source) == BOARD_INPUTS[family],
+            'only the exact replayed current full P4 A/F board sources are admitted')
+
+
+def sentinel_edits(source, family):
+    """Use a negative generation target; every attack target remains 0x88-valid."""
+    admit_board_source(source, family)
+    if family == 'A':
+        prefix = b'static L g(const E*p'
+        replacements = [
+            (b'if(B&&a==1)', b'if(f<0&&a==1)'),
+            (b'if(!B&&q==f)', b'if(q==f)'),
+            (b'(B&&a==1&&!t&&q!=p->e)', b'(f<0&&a==1&&!t&&q!=p->e)'),
+            (b'if(B)k(', b'if(f<0)k('),
+            (b'if(B&&a==6)', b'if(f<0&&a==6)'),
+        ]
+        calls = [(b'J g(p,B,0,p->s);', b'J g(p,B,-1,p->s);')]
+    else:
+        prefix = b'aa S T(const I*p'
+        replacements = [
+            (b'if(f&&a==1)', b'if(g<0&&a==1)'),
+            (b'if(!f&&q==g)', b'if(q==g)'),
+            (b'(f&&a==1&&!t&&q!=p->e)', b'(g<0&&a==1&&!t&&q!=p->e)'),
+            (b'if(f)e(', b'if(g<0)e('),
+            (b'if(f&&a==6)', b'if(g<0&&a==6)'),
+        ]
+        calls = [(b'T(p,x,0,p->s)', b'T(p,x,-1,p->s)'),
+                 (b'T(b,a,0,b->s)', b'T(b,a,-1,b->s)')]
+    old = source_function(source, prefix)
+    new = old
+    for before, after in replacements:
+        require(new.count(before) == 1, 'sentinel function consumer differs')
+        new = new.replace(before, after, 1)
+    return [(old, new), *calls], dict(
+        whole_input=BOARD_INPUTS[family],
+        mode='generation target -1; ordinary attacks retain valid 0x88 square',
+        generation_callers=len(calls), output_pointer_tests_replaced=5,
+        legal_order_and_nbrq_preserved=True)
+
+
+def start_precomputed_edits(source, family):
+    """Derive start state from the exact admitted family's hash and evaluation."""
+    admit_board_source(source, family)
+    mask = (1 << 64) - 1
+
+    def mix(x):
+        # F's shipping mix omits the Weyl increment present in A and D.
+        # The whole-source pin owns this distinction; D's key is not reused.
+        if family == 'A':
+            x = (x + 0x9e3779b97f4a7c15) & mask
+        x = ((x ^ (x >> 30)) * 0xbf58476d1ce4e5b9) & mask
+        x = ((x ^ (x >> 27)) * 0x94d049bb133111eb) & mask
+        return x ^ (x >> 31)
+
+    def value(v, q):
+        kind = abs(v)
+        rank, file = q >> 4, q & 7
+        center = 7 - abs(2 * file - 7) - abs(2 * rank - 7)
+        reflected = rank if v > 0 else 7 - rank
+        if family == 'A':
+            score = (0, 100, 320, 330, 500, 900, 0)[kind]
+            score += reflected * (7 if kind == 1 else 2 if kind == 4 else 0)
+            score += center * (9 if kind == 2 else 5 if kind == 3 else
+                               -3 if kind == 6 else 2 * (kind in (1, 5)))
+        else:
+            packed = (24576, 48228, 98624, 65866, 27124, 41860, 0)[kind]
+            score = ((packed & 1023) + reflected * ((packed >> 10) & 7) +
+                     center * ((packed >> 13) - 3))
+        return score if v > 0 else -score
+
+    board = [0] * 128
+    for f, v in enumerate((4, 2, 3, 5, 6, 3, 2, 4)):
+        board[f], board[16 + f], board[96 + f], board[112 + f] = v, 1, -1, -v
+    key, evaluation, kings = mix(2063), 0, [-1, -1]
+    for q, v in enumerate(board):
+        if not v:
+            continue
+        key ^= mix(q + (v + 6) * 128)
+        evaluation += value(v, q)
+        if abs(v) == 6:
+            kings[v < 0] = q
+    require(evaluation == 0 and kings == [4, 116], 'admitted start derivation differs')
+    typ, integer, storage, start = ('E', 'L', 'static', 'q') if family == 'A' else ('I', 'S', 'aa', 'o')
+    old = source_function(source, f'void {start}({typ}*p)'.encode())
+    after = (f'void {start}({typ}*p){{{storage} const {integer} qa[8]={{4,2,3,5,6,3,2,4}};'
+             f'*p=({typ}){{0}};p->s=1;p->c=15;p->e=-1;p->k[0]=4;p->k[1]=116;'
+             f'p->h=p->r=0x{key:016x};for({integer} f=0;f<8;f++){{p->b[f]=qa[f];'
+             'p->b[16+f]=1;p->b[96+f]=-1;p->b[112+f]=-qa[f];}}').encode()
+    return [(old, after)], dict(whole_input=BOARD_INPUTS[family], key=hex(key),
+        evaluation=evaluation, kings=kings, initialization_calls_removed=32,
+        board_layout_unchanged=True)
+
+
+for _family in ('A', 'F'):
+    OPTIONS[_family]['walk-sentinel'] = dict(speed='neutral-or-faster-expected',
+                                            derived_edits=sentinel_edits)
+    OPTIONS[_family]['start-precomputed'] = dict(speed='startup-only-work-reduction',
+                                                derived_edits=start_precomputed_edits)
+
+
 def transform(source, family, options):
     require(type(source) is bytes and family in OPTIONS, 'supported immutable full source required')
     require(len(options) == len(set(options)), 'repeated reuse option')
-    edits = []
+    require(not {'start-precomputed', 'material-loop'} <= set(options),
+            'precomputed start does not initialize the separate material-cache layout')
+    edits, derivations = [], {}
     for option in options:
         require(option in OPTIONS[family], 'unknown family reuse option: ' + option)
-        for before, after in OPTIONS[family][option]['edits']:
-            before, after = before.encode(), after.encode()
+        spec = OPTIONS[family][option]
+        if 'derived_edits' in spec:
+            pairs, derivations[option] = spec['derived_edits'](source, family)
+        else:
+            pairs = [(before.encode(), after.encode()) for before, after in spec['edits']]
+        for before, after in pairs:
             require(source.count(before) == 1, 'one exact source consumer required: ' + option)
             edits.append((source.index(before), before, after, option))
     edits.sort()
@@ -256,8 +384,31 @@ def transform(source, family, options):
     for at, before, after, _ in reversed(edits):
         candidate = candidate[:at] + after + candidate[at + len(before):]
     return candidate, dict(options=list(options), input=pin(source), output=pin(candidate),
+                           derivations=derivations,
                            edits=[dict(at=a, old=b.decode(), new=c.decode(), option=d)
                                   for a, b, c, d in edits])
+
+
+def render_board_fixture(rules, source, control, family, options, cases):
+    """Keep the measured A/F start-state and generation-caller observations."""
+    admit_board_source(control, family)
+    binding = dict(rules.BINDINGS[family])
+    typ, start, half = ('E', 'q', 'aI') if family == 'A' else ('I', 'o', 'a')
+    old = source_function(control, f'void {start}({typ}*p)'.encode())
+    ref = old.replace(f'void {start}('.encode(), b'static void rv_ref_start(', 1)
+    extra = b'\n' + ref
+    if family == 'F':
+        mode = -1 if 'walk-sentinel' in options else 0
+        extra += (f'\nstatic int rv_gen(const I*p,unsigned*out){{return T(p,out,{mode},p->s);}}').encode()
+        binding.update(generate='rv_gen', four_args=False)
+    extra += (f'\nstatic void rv_start_equal(const {typ}*p){{{typ} ref;rv_ref_start(&ref);'
+              f'if(memcmp(p->b,ref.b,sizeof p->b)||p->s!=ref.s||p->c!=ref.c||p->e!=ref.e||'
+              f'p->k[0]!=ref.k[0]||p->k[1]!=ref.k[1]||p->{half}!=ref.{half}||p->v!=ref.v||'
+              f'p->h!=ref.h||p->r!=ref.r)abort();}}\n').encode()
+    result = rules.render_bound_fixture(source, binding, cases, extra)
+    before = f'{typ} board;{start}(&board);char line[4096];'.encode()
+    require(result.count(before) == 1, 'start comparison fixture boundary differs')
+    return result.replace(before, before.replace(b'char line', b'rv_start_equal(&board);char line'))
 
 
 def main():
@@ -317,6 +468,8 @@ def main():
         rules = load('rules', HERE / 'profile_rules.py')
         cases, coverage = rules.fixture_cases() if args.rules else (None, None)
         compare_values = args.rules and any('center-fold' in case.split('+') for case in args.case)
+        compare_board = args.rules and args.entry in BOARD_INPUTS and any(
+            {'walk-sentinel', 'start-precomputed'} & set(case.split('+')) for case in args.case)
         value_control = None
         for name in ['control', *args.case]:
             options = () if name == 'control' else tuple(name.split('+'))
@@ -336,7 +489,8 @@ def main():
                        header=pin(header), proof=proof, rules=None)
             report['cases'].append(row)
             if args.rules:
-                fixture = rules.render_fixture(candidate, args.entry, cases)
+                fixture = (render_board_fixture(rules, candidate, source, args.entry, options, cases)
+                           if compare_board else rules.render_fixture(candidate, args.entry, cases))
                 (directory / 'rules.c').write_bytes(fixture)
                 observations = []
                 for mode, flags in [('plain', []), ('ubsan', ['-fsanitize=undefined', '-fno-sanitize-recover=all'])]:
@@ -348,6 +502,8 @@ def main():
                     observations.append(dict(mode=mode, **rules._compare_output(data, cases)))
                 row['rules'] = dict(observations=observations, coverage=coverage,
                                     fixture=pin(fixture), verifier=pin((HERE / 'profile_rules.py').read_bytes()))
+                if compare_board:
+                    row['rules']['all_start_fields_equal_original'] = True
                 if name != 'control':
                     expected = report['cases'][0]['rules']['observations']
                     require([r['stdout'] for r in observations] == [r['stdout'] for r in expected],

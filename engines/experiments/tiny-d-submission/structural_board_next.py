@@ -2,8 +2,9 @@
 
 These are explicit experiments, not selected production defaults. The input
 must contain the material-signature, range-table and shared-put projection.
-They preserve all move classes, their ordering, rule state and key values.
-Every complete-artifact result and execution observation belongs to the caller.
+Their declared contract retains all move classes, their ordering, rule state
+and key values; the caller must validate each selected composition. Every
+complete-artifact result and execution observation belongs to the caller.
 
 Reconstruction options deliberately trade additional work for less update code.
 Their temporary Board metadata is private to start/FEN/make; legality consumes
@@ -300,6 +301,142 @@ def mode_sign_sentinel(files):
     return result
 
 
+_START = b'''void start(Board *p){
+    static const int8_t back[8]={4,2,3,5,6,3,2,4};
+    Board t={0};t.s=1;t.c=15;t.e=-1;
+    for(int f=0;f<8;f++){put(&t,f,back[f]);put(&t,16+f,1);put(&t,96+f,-1);put(&t,112+f,-back[f]);}
+    t.h^=state(&t);t.r=t.h;*p=t;
+}'''
+_MIX = b'''uint64_t mix(uint64_t x){
+    x+=UINT64_C(0x9e3779b97f4a7c15);
+    x=(x^(x>>30))*UINT64_C(0xbf58476d1ce4e5b9);
+    x=(x^(x>>27))*UINT64_C(0x94d049bb133111eb);
+    return x^(x>>31);
+}'''
+_STATE = b'''static uint64_t state(const Board *p){
+    return mix(2048+p->c)^(p->s<0?mix(2064):0)^
+        (p->e<0?0:mix(2065+(p->e&7)));
+}'''
+_VALUE = b'''int value(int v,int q){
+    static const int material[7]={24576,48228,98624,65866,27124,41860,0};
+    int a=material[abs(v)];q^=v<0?112:0;
+    int rank=q>>4;q^=(q>>2&17)*7;
+    int center=2*(q&7)+(q>>3)-7;
+    int score=(a&1023)+rank*((a>>10)&7)+center*((a>>13)-3);
+    return v>0?score:-score;
+}'''
+_MATERIAL = b'''static unsigned material_piece(int v,int q){
+    int a=abs(v);
+    return a==6?0:1u<<(a==2?10:a==3?5*((q+(q>>4))&1):15);
+}'''
+_MATERIAL_TABLE = b'''static unsigned material_piece(int v,int q){
+    static const uint16_t weight[7]={0,32768,1024,0,32768,32768,0};
+    int a=abs(v);
+    return a==3?1u<<(5*((q+(q>>4))&1)):weight[a];
+}'''
+
+
+def _initial_state(files):
+    # These model bodies are guarded inside the canonical full-source cohort.
+    # The outer caller must also bind tiny.h and put; these local role checks
+    # alone are not a complete dependency proof for arbitrary C inputs.
+    data = files["board.c"]
+    for prefix, expected in (
+        (b"void start(", _START), (b"uint64_t mix(", _MIX),
+        (b"static uint64_t state(", _STATE), (b"int value(", _VALUE),
+        (b"static uint64_t piece(", b"static uint64_t piece(int v,int q){return mix((uint64_t)(q+(v+6)*128));}"),
+    ):
+        if _function(data, prefix) != expected:
+            raise ValueError("initial-state dependency changed: " + repr(prefix))
+    if _function(data, b"static unsigned material_piece(") not in (_MATERIAL, _MATERIAL_TABLE):
+        raise ValueError("initial material semantics changed")
+    mask = (1 << 64) - 1
+
+    def mix(x):
+        x = (x + 0x9e3779b97f4a7c15) & mask
+        x = ((x ^ (x >> 30)) * 0xbf58476d1ce4e5b9) & mask
+        x = ((x ^ (x >> 27)) * 0x94d049bb133111eb) & mask
+        return x ^ (x >> 31)
+
+    key, evaluation, material = mix(2048 + 15), 0, 0
+    kings = [-1, -1]
+    cells = [0] * 128
+    for f, v in enumerate((4, 2, 3, 5, 6, 3, 2, 4)):
+        cells[f], cells[16 + f], cells[96 + f], cells[112 + f] = v, 1, -1, -v
+    for q, v in enumerate(cells):
+        if not v:
+            continue
+        kind = abs(v)
+        key ^= mix(q + (v + 6) * 128)
+        if kind == 6:
+            kings[v < 0] = q
+        else:
+            material += 1 << (10 if kind == 2 else 5 * ((q + (q >> 4)) & 1) if kind == 3 else 15)
+        a = (24576, 48228, 98624, 65866, 27124, 41860, 0)[kind]
+        square = q ^ (112 if v < 0 else 0)
+        rank = square >> 4
+        square ^= ((square >> 2) & 17) * 7
+        center = 2 * (square & 7) + (square >> 3) - 7
+        score = (a & 1023) + rank * ((a >> 10) & 7) + center * ((a >> 13) - 3)
+        evaluation += score if v > 0 else -score
+    return key, evaluation, material, kings
+
+
+def start_precomputed(files):
+    """Construct the fixed standard position directly, with source-derived data."""
+    key, evaluation, material, kings = _initial_state(files)
+    after = ('''void start(Board *p){
+    static const int8_t back[8]={4,2,3,5,6,3,2,4};
+    *p=(Board){0};p->s=1;p->c=15;p->e=-1;
+    p->k[0]=%d;p->k[1]=%d;p->v=%d;p->material=%d;
+    p->h=p->r=UINT64_C(0x%016x);
+    for(int f=0;f<8;f++){p->b[f]=back[f];p->b[16+f]=1;p->b[96+f]=-1;p->b[112+f]=-back[f];}
+}''' % (kings[0], kings[1], evaluation, material, key)).encode()
+    return _replace_function(files, b"void start(", after)
+
+
+def packed_changes(files):
+    """Apply metadata deltas once, only after the mailbox move proves legal.
+
+    A leading sentinel plus four seven-bit indices fits uint32_t. A generated
+    move changes two cells, EP three, or castling four; their indices are
+    distinct valid 0x88 cells. The sentinel retains an a1/index-zero edit.
+    The king location is updated before legality. The remaining metadata stays
+    private and is completed before returning a successful child. As in the
+    existing make caller contract, a rejected child's fields are not consumed.
+    Start uses source-derived constants; DEV constructors rebuild independently.
+    """
+    result = start_precomputed(files)
+    result = _replace_function(result, b"static void put(", b'''static unsigned put(Board *p,int q,int v){
+    p->b[q]=(int8_t)v;
+    if(abs(v)==6)p->k[v<0]=q;
+    return (unsigned)q;
+}
+static void changed(const Board *p,Board *t,uint32_t cells){
+    t->h=p->h^state(p);
+    while(cells>1){
+        int q=cells&127;cells>>=7;
+        for(int old=p->b[q],sign=-1;sign<=1;sign+=2){
+            if(old){t->h^=piece(old,q);t->v+=sign*value(old,q);t->material+=sign*material_piece(old,q);}old=t->b[q];
+        }
+    }
+}''')
+    result = _edit(result, b"*t=*p;t->h^=state(p);", b"*t=*p;uint32_t changes=1;")
+    for before in (b"put(t,to-s*16,0);", b"put(t,rook,0);", b"put(t,transit,s*4);", b"put(t,from,0);", b"put(t,to,v);"):
+        result = _edit(result, before, b"changes=(changes<<7)|" + before)
+    result = _edit(result, b"ep(t);t->h^=state(t);", b"changed(p,t,changes);ep(t);t->h^=state(t);")
+    result = _edit(result, b"#if DEV\nint fen(", b'''#if DEV
+static void rebuild_dev(Board *p){
+    p->h=0;p->v=0;p->material=0;
+    for(int q=0;q<128;q=q+9&~8){int v=p->b[q];if(v){p->h^=piece(v,q);p->v+=value(v,q);p->material+=material_piece(v,q);}}
+}
+int fen(''')
+    result = _edit(result, b"    ep(&t);t.h^=state(&t);t.r=t.h;*p=t;return 1;", b"    rebuild_dev(&t);ep(&t);t.h^=state(&t);t.r=t.h;*p=t;return 1;")
+    result = _edit(result, b"    if(kings[0]!=1||kings[1]!=1||memcmp(p->k,t.k,sizeof t.k)||p->v!=t.v||p->material!=t.material)return 0;",
+                   b"    rebuild_dev(&t);\n    if(kings[0]!=1||kings[1]!=1||memcmp(p->k,t.k,sizeof t.k)||p->v!=t.v||p->material!=t.material)return 0;")
+    return result
+
+
 VARIANTS = {
     "piece-pair": piece_pair,
     "piece-pair-outlined": piece_pair_outlined,
@@ -319,17 +456,39 @@ VARIANTS = {
     "castle-empty-ray": castle_empty_ray,
     "mode-target-sentinel": mode_target_sentinel,
     "mode-sign-sentinel": mode_sign_sentinel,
+    "start-precomputed": start_precomputed,
+    "packed-changes": packed_changes,
 }
 
 
+BEST = ("mode-sign-sentinel", "material-table", "start-precomputed")
+
+# Ownership-changing alternatives cannot be layered as if independent: several
+# replace the same put/start responsibilities. Source-role guards additionally
+# reject unsupported orderings instead of silently dropping an earlier option.
+_EXCLUSIVE = (
+    frozenset(("piece-pair", "piece-pair-outlined", "rebuild-position",
+               "rebuild-hash", "rebuild-evaluation", "fused-walk-rebuild",
+               "fused-walk-delta", "material-by-move", "material-by-move-loop",
+               "material-put-flags", "packed-changes")),
+    frozenset(("piece-pair", "piece-pair-outlined", "material-table")),
+    frozenset(("ep-outlined", "ep-guarded-outlined")),
+    frozenset(("mode-target-sentinel", "mode-sign-sentinel")),
+    frozenset(("start-precomputed", "packed-changes")),
+)
+
+
 def apply(files, options):
-    if type(files) is not dict or not {"tiny.h", "board.c"} <= files.keys() or not all(type(data) is bytes for data in files.values()):
+    if (type(files) is not dict or not {"tiny.h", "board.c"} <= files.keys()
+            or not all(type(name) is str and type(data) is bytes for name, data in files.items())):
         raise ValueError("explicit immutable D source mapping required")
-    if type(options) not in (tuple, list) or len(set(options)) != len(options) or not set(options) <= VARIANTS.keys():
+    if type(options) not in (tuple, list) or not all(type(name) is str for name in options):
+        raise ValueError("explicit ordered board follow-up names required")
+    selected = set(options)
+    if len(selected) != len(options) or not selected <= VARIANTS.keys():
         raise ValueError("explicit nonrepeated board follow-up options required")
-    # These move-owned updates would be counted again by the delta walker.
-    if "fused-walk-delta" in options and {"material-by-move", "material-by-move-loop"}.intersection(options):
-        raise ValueError("choose one D material update owner")
+    if any(len(selected & group) > 1 for group in _EXCLUSIVE):
+        raise ValueError("board follow-up alternatives change the same owner")
     result = dict(files)
     for name in options:
         result = VARIANTS[name](result)

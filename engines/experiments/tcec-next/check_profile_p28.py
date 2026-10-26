@@ -28,11 +28,12 @@ SELF = NEXT + "check_profile_p28.py"
 SCHEMA = "rove4k-bound-p28-mechanism-v1"
 VERIFIER = NEXT + "profile_verify.py"
 LIFECYCLE = NEXT + "check_profile_compound.py"
-LIFECYCLE_PIN = dict(bytes=19493, sha256="4609990af40dbca225b610181f01c056cc6555921744b4e71983b180465f8fa1")
+LIFECYCLE_PIN = dict(bytes=20823, sha256="1f3b9fc6ccd3796a8bbffd8c9ebd81db1a9fb5f38eb9752ec23f40d432b68168")
 OWNER = "engines/experiments/tcec-scope/build.py"
 OWNER_SHA = "5fa10c6f8f032be374bf3a86bbe6ca558076630a2cc3170b41890f691688f563"
 RUNTIME = "engines/compact/tiny-entry-d/verify.py"
 COMPOUND = dict(path=NEXT + "spelling_compound.py", selection="compound", variant="clock-atomic-launcher")
+F_COMPOUND_DECLARATION = dict(path=NEXT + "spelling_compound.py", selection="compound-v2", variant="clock-atomic-launcher-parentheses")
 BEST_B = dict(path=NEXT + "profile_spelling.py", selection="best", variant="atomic-assignment")
 DEPENDENCIES = dict(path=NEXT + "profile_dependencies.py", variant="unused-includes")
 PROFILE = "test-p28"
@@ -158,7 +159,9 @@ def geometry(resources):
 def bound_selection(manifest):
     family = manifest.get("family")
     require(manifest.get("class") == "rove4k-production-profile-v1" and family in CONTEXT and
-        manifest.get("entry") == family and manifest.get("post_spelling") == (BEST_B if family == "B" else COMPOUND) and
+        manifest.get("entry") == family and
+        (manifest.get("post_spelling") == (BEST_B if family == "B" else COMPOUND) or
+         family == "F" and manifest.get("post_spelling") == F_COMPOUND_DECLARATION) and
         manifest.get("post_profile") == dict(path=NEXT + ("profile_b.py" if family == "B" else "profile_phase.py"),
                                               variant="tcec-final-lf" if family == "B" else "phase-init") and
         manifest.get("source_dependencies") == DEPENDENCIES and

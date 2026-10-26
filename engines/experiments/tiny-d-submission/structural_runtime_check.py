@@ -397,18 +397,41 @@ def session_type(protocol):
     return LocalSession
 
 
-def run(case, out):
+def run(case, out, *, codec_report=None):
     cost = load('structural_runtime_cost', HERE / 'structural_size.py')
     case, out = Path(case), cost.new_output(out)
-    record = json.loads((case / 'result.json').read_text())
+    cost_bytes = (case / 'result.json').read_bytes()
+    record = json.loads(cost_bytes)
     cost.require_settled_cost(record)
     if record.get('profile') != 'test-p4':
         raise ValueError('complete source-owned local P4 cost record required')
     native = (case / 'native/native').read_bytes()
-    package = case / 'packed-xz-bcj-pb0'
-    if cost.pin(native) != record['native_runs'][0]['native'] or cost.pin(package.read_bytes()) != {
-            key: record['packages'][package.name][key] for key in ('bytes', 'sha256')}:
-        raise ValueError('measured native/package bytes changed')
+    if cost.pin(native) != record['native_runs'][0]['native']:
+        raise ValueError('measured native bytes changed')
+    codec_bytes=None; codec_tools=()
+    if codec_report is None:
+        package = case / 'packed-xz-bcj-pb0'
+        package_pin={key:record['packages'][package.name][key] for key in ('bytes','sha256')}
+    else:
+        codec_report=Path(codec_report)
+        codec_bytes=codec_report.read_bytes()
+        encoded=json.loads(codec_bytes)
+        cost.require_settled_cost(encoded)
+        if (encoded['native']!=cost.pin(native) or encoded['source_cost']!=cost.pin(cost_bytes)):
+            raise ValueError('codec portfolio belongs to a different measured native/cost')
+        codec=load('structural_runtime_codec',HERE/'structural_codec.py')
+        packaging=cost.modules()['packaging']
+        codec_tools=(codec,packaging)
+        if encoded.get('tools')!={Path(t.__file__).name:cost.pin(Path(t.__file__).read_bytes())
+                                  for t in (codec,cost,packaging)}:
+            raise ValueError('codec portfolio tool pins differ from this observer')
+        package=codec_report.parent/'best-unnamed'
+        expected,_=codec.package(native,encoded['unnamed']['config'],packaging,unnamed=True)
+        if package.read_bytes()!=expected:
+            raise ValueError('actual package differs from source-owned complete native inverse')
+        package_pin={key:encoded['unnamed'][key] for key in ('bytes','sha256')}
+    if cost.pin(package.read_bytes())!=package_pin:
+        raise ValueError('measured package bytes changed')
     package.chmod(0o755)
     root = HERE.parents[2]
     owner = load('structural_process_owner', root / 'engines/compact/tiny-entry-d/verify.py')
@@ -421,10 +444,12 @@ def run(case, out):
               'observer': cost.pin(Path(__file__).read_bytes()),
               'child_observation': 'visible process PPIDs and owned process group',
               'package': cost.pin(package.read_bytes()), 'native': cost.pin(native),
+              'source_cost': cost.pin(cost_bytes),
+              'codec_portfolio':cost.pin(codec_bytes) if codec_bytes is not None else None,
               'counts': {'GO': 0, 'legal_bestmoves': 0}, 'sessions': [],
               'target_qualified': False, 'strength_measured': False, 'selected': False,
               'tools': {str(Path(t.__file__).relative_to(root)): cost.pin(Path(t.__file__).read_bytes())
-                        for t in (owner, protocol, rules, oracle)}}
+                        for t in (cost, owner, protocol, rules, oracle, *codec_tools)}}
     def save():
         (out / 'runtime.json').write_text(json.dumps(report, indent=2) + '\n')
     budget = owner.Budget(110)
@@ -522,8 +547,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--case', type=Path, required=True)
     parser.add_argument('--out', type=Path, required=True)
+    parser.add_argument('--codec-report',type=Path,help='verified finite-codec report; observe its best unnamed package')
     args = parser.parse_args()
-    result = run(args.case, args.out)
+    result = run(args.case, args.out, codec_report=args.codec_report)
     print(json.dumps({'complete': result['complete'], 'counts': result['counts'],
         'sessions': [{key: row[key] for key in ('terminal', 'startup_seconds', 'passed', 'settled')}
                      for row in result['sessions']]}))

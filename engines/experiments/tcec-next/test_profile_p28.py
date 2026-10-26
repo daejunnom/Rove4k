@@ -39,6 +39,16 @@ def selected(family):
 
 
 class P28Mechanism(unittest.TestCase):
+    def test_reviewed_lifecycle_pin_matches_bytes_and_mutation_stops_before_admission(self):
+        names=(p28.SELF,p28.VERIFIER,p28.LIFECYCLE,p28.OWNER,p28.RUNTIME)
+        observed={str(p28.ROOT/name):p28.normalized(p28.ROOT/name) for name in names}
+        self.assertEqual(p28.pin(observed[str(p28.ROOT/p28.LIFECYCLE)]),p28.LIFECYCLE_PIN)
+        changed=dict(observed);changed[str(p28.ROOT/p28.LIFECYCLE)]+=b"changed"
+        with patch.object(p28,"normalized",side_effect=lambda path:changed[str(path)]), \
+                patch.object(p28,"load",side_effect=AssertionError("admission must not start")):
+            with self.assertRaisesRegex(ValueError,"reviewed lifecycle"):
+                p28.run_bound(Path("/never-read-p28-build"),Path("/never-created-p28-output"))
+
     def test_actual_unequal_floor_geometry_and_independent_owner_oracle(self):
         geo = p28.geometry(resources())
         self.assertEqual(geo["tt_bytes"],402653184)
@@ -62,6 +72,11 @@ class P28Mechanism(unittest.TestCase):
 
     def test_only_named_full_p28_selections(self):
         for family in "ABCEF":p28.bound_selection(selected(family))
+        record=selected("F");record["post_spelling"]=dict(p28.F_COMPOUND_DECLARATION)
+        p28.bound_selection(record)
+        for family in "ABCDE":
+            record=selected(family);record["post_spelling"]=dict(p28.F_COMPOUND_DECLARATION)
+            with self.assertRaises(ValueError):p28.bound_selection(record)
         record=selected("B");record["spelling_request"]={"requested":"compound","effective":"best","duplicate_best":True,"new_candidate_count":0}
         p28.bound_selection(record)  # The exact optional record is separately authenticated by R.
         for family in "ACEF":

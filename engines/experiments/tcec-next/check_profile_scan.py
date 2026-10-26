@@ -37,11 +37,11 @@ COMMON = "engines/scripts/production.py"
 OWNER = "engines/experiments/tcec-scope/build.py"
 RUNTIME = "engines/compact/tiny-entry-d/verify.py"
 FIXED_INPUTS = {
-    LIFECYCLE: dict(bytes=19493, sha256="4609990af40dbca225b610181f01c056cc6555921744b4e71983b180465f8fa1"),
-    P28: dict(bytes=28483, sha256="a110b7381786bad7bd89d354b3fc9a2c103cf559732c4c4c0711e3f6ba5626da"),
+    LIFECYCLE: dict(bytes=20823, sha256="1f3b9fc6ccd3796a8bbffd8c9ebd81db1a9fb5f38eb9752ec23f40d432b68168"),
+    P28: dict(bytes=28715, sha256="5b02ba580d79fe80c3f1e21a802f4761ad4f9c00db26d50bde9a0dcc336e6292"),
     PHASE_CHECK: dict(bytes=30905, sha256="a0c0c0ff25dd2b935f281789e7842b2bf199f3167f80df27ac1ff3550c8f4c37"),
     SPELLING: dict(bytes=9921, sha256="7ec393bc9c805ee8e1e6d715f40cb9883f829e3c6b01e2f71f31701e35136ea8"),
-    COMPOUND: dict(bytes=5522, sha256="4a4f6079341998fd2d0ef1ff5fc9b35a435751131b4687ce950ef1892820754b"),
+    COMPOUND: dict(bytes=9472, sha256="4e2a1599ab5b6f294b1cb59a10a1ec6667b5a2e0c993c1ce48895cddb7e55fce"),
     SCAN: dict(bytes=10623, sha256="98eb3139bcbd745f08fbab2d8a738b428d4e668de2604ac3fc715de8c58b879f"),
 }
 COMPOUND_DECLARATION = dict(path=COMPOUND, selection="compound", variant="clock-atomic-launcher")

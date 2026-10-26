@@ -197,6 +197,16 @@ control/full plain·UBSan 규칙105위치/2858합법 수, 검색1486run·1344취
 StructuralAdmission·전체 파일 두 번 재현·startup/R 인수와 후속 구조의 실제 비교는
 남아 있다. 예약/주기 작업은 만들지 않으며 AWS와 ABCE/F는 병렬로 계속한다.
 
+최종87c78c5는 fast-capacity의 P44737/P284745/W2564729 B를 추가로 보고했다.
+현재 부모에서 확인한4909/4921/4905 B와 섞지 않는다. sentinel·material-table·시작
+상태 선계산, TT 이후 gen/check,413용량, fixed worker/NUL 조합의 정적 검토는 통과했다.
+새 follow-up/benchmark/runtime 도구의 경로·정리·최종 저장·affinity 경계를 수정하고
+외부 fake17검사를 통과했으며 실제벤치마크가 아닌 범위를 유지한다. 실제 비교는
+48개 소비 소스+외부 launcher를 동결한 뒤 previous-full control/fast-capacity만 수행하고
+단일 알려진CRC64/HC3 recipe를 재현한다. 155개 codec 재탐색은 하지 않는다.
+일반4K 목표는641 B 초과라는 새 작성자 보고로도 아직 미달이며 새 비용·기능·상위
+자격·실제물리배치·강도는 각 새 근거를 연결한 뒤 판단한다.
+
 ### 프로필
 
 | ID | 검색 worker | 엔진당 TT 상한 | 용도 |
@@ -689,7 +699,15 @@ main 수동 controller의 좁은4-role pass-through 등록이 다음 단계다.
 각각3781→3785/4071→4075/3915→3919/3882→3885 B 손실로 종료했다. full F의
 괄호 축약만3590→3587 B로 이득이었다. 후속 F-only 비용 비교는 P28 3602→3602 B,
 W2563590→3589 B이며 native는 control과 같았다. W256 엔진/대용량 TT는 실행하지
-않았다. 생산 통합과 실제 P4/P28 runtime 인수는 아직 남았다.
+않았다. 이후 명시적compound-v2의 실제 로컬 P4/P28은 각각 생성·기전·규칙·runtime
+네 단계와24 GO/22합법 응답·4그룹 자연 종료를 통과했다. W256은3589 B/source7032 B와
+type/native 반복·전체 역변환만 통과했다. 세 profile의 CPP 전후6명령은 정확한 두
+괄호쌍4 B 차이·역변환·보호 구간을 확인했다. 기본 v1은 유지하며 CI의 F P4/P28
+선택만 v2로 바꾼다. 첫 RUNNER_TEMP 준비 실패는 도구 실행 전에, 첫 P28 diagnostic
+helper 핀 실패는 generation 이후 mechanism 컴파일 전에 중단됐고 별도 보존했다.
+검토된 현재 의존성 핀과 새 실행을 함께 인수하며,
+그 후속3경로를 소비하지 않은 P4의 기존 동결 결과는 그 문맥으로 유지한다.
+새 source/독립 Ubuntu22 CI·운송·실제 배치/강도는 다음 단계다.
 모든 후보 native는 control과 같았지만 전체 파일 비용은 같지 않았다. 앞선 도구
 핀·정수 예산·CRLF 사전검사 준비 실패와 실제 후보 결과를 구분해 보존한다.
 

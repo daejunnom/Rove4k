@@ -22,6 +22,7 @@ def check(case, out, *, control=None):
     probe=h.load('structural_search_probe',h.D/'probe_search_compact.py')
     variants=h.transforms()
     search_next=h.load('structural_search_next_checks',h.D/'structural_search_next.py')
+    platform=h.load('structural_platform_checks',h.D/'structural_platform.py')
     baseline=h.load_baseline()
     cases,coverage=rules.fixture_cases()
     out.mkdir()
@@ -30,7 +31,7 @@ def check(case, out, *, control=None):
             'input':h.inventory(files),'coverage':coverage,'commands':[],'rules':[],'search':[],
             'board_lifecycle':[], 'runtime_helpers':[],
             'runtime_qualified':False,'selected':False,
-            'tools':{str(Path(t.__file__).relative_to(h.ROOT)):h.pin(Path(t.__file__).read_bytes()) for t in (rules,storage,probe,search_next,*variants.values())}}
+            'tools':{str(Path(t.__file__).relative_to(h.ROOT)):h.pin(Path(t.__file__).read_bytes()) for t in (rules,storage,probe,search_next,platform,*variants.values())}}
     def save(): (out/'checks.json').write_text(json.dumps(report,indent=2)+'\n')
     hostmod=m['host']
     hostmod.LIMITS={**hostmod.LIMITS,'aggregate_wall':300,'per_command_wall':90,'child_CPU':80,
@@ -133,7 +134,9 @@ def check(case, out, *, control=None):
             report['board_lifecycle'].append({'mode':mode,'output':h.pin(observed),'summary':observed.decode().strip(),'equal_to_control':True})
             save()
         if files['runtime.c'] != baseline['runtime.c']:
-            helper=variants['runtime'].render_helper_probe(baseline,files)
+            nul_tokens=b'typedef char *Span;' in files['runtime.c']
+            helper=(platform.render_token_probe(baseline,files) if nul_tokens else
+                    variants['runtime'].render_helper_probe(baseline,files))
             (out/'runtime-helpers.c').write_bytes(helper)
             binary=out/'runtime-helpers'
             # ASan's sparse shadow needs a separate large-virtual-address
@@ -141,7 +144,9 @@ def check(case, out, *, control=None):
             host.run(['cc','-std=c11','-O1','-fsanitize=undefined','-fno-sanitize-recover=all',
                       str(out/'runtime-helpers.c'),'-o',str(binary)],cwd=out,kind='runtime-helpers-compile')
             observed=host.run([str(binary)],cwd=out,kind='runtime-helpers-run')
-            report['runtime_helpers'].append({'source':h.pin(helper),'output':h.pin(observed),'summary':observed.decode().strip(),'sanitizer':'undefined'})
+            report['runtime_helpers'].append({'source':h.pin(helper),'output':h.pin(observed),
+                'summary':observed.decode().strip(),'sanitizer':'undefined',
+                'kind':'actual-token-number-clock' if nul_tokens else 'original-runtime-helpers'})
             if report['commands'][-1]['stderr']['bytes']:
                 raise ValueError('runtime helper sanitizer emitted diagnostics')
     except BaseException as error:

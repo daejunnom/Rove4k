@@ -36,9 +36,10 @@ VERIFIER = NEXT + "profile_verify.py"
 OWNER = "engines/experiments/tcec-scope/build.py"
 RUNTIME = "engines/compact/tiny-entry-d/verify.py"
 PHASE_CHECK_SHA = "a0c0c0ff25dd2b935f281789e7842b2bf199f3167f80df27ac1ff3550c8f4c37"
-COMPOUND_PIN = dict(bytes=5522, sha256="4a4f6079341998fd2d0ef1ff5fc9b35a435751131b4687ce950ef1892820754b")
+COMPOUND_PIN = dict(bytes=9472, sha256="4e2a1599ab5b6f294b1cb59a10a1ec6667b5a2e0c993c1ce48895cddb7e55fce")
 SPELLING_PIN = dict(bytes=9921, sha256="7ec393bc9c805ee8e1e6d715f40cb9883f829e3c6b01e2f71f31701e35136ea8")
 DECLARATION = dict(path=COMPOUND, selection="compound", variant="clock-atomic-launcher")
+F_COMPOUND_DECLARATION = dict(path=COMPOUND, selection="compound-v2", variant="clock-atomic-launcher-parentheses")
 DEPENDENCIES = dict(path=NEXT + "profile_dependencies.py", variant="unused-includes")
 
 
@@ -70,14 +71,33 @@ def bound_selection(manifest):
         manifest.get("family") in tuple("ACEF") and manifest.get("entry") == manifest.get("family") and
         manifest.get("resources", {}).get("id") == "test-p4" and
         manifest.get("post_profile") == dict(path=PHASE, variant="phase-init") and
-        manifest.get("post_spelling") == DECLARATION and manifest.get("source_dependencies") == DEPENDENCIES and
+        (manifest.get("post_spelling") == DECLARATION or
+         manifest.get("family") == "F" and manifest.get("post_spelling") == F_COMPOUND_DECLARATION) and
+        manifest.get("source_dependencies") == DEPENDENCIES and
         manifest.get("plan", {}).get("representation") == "source-jit" and
         manifest.get("plan", {}).get("entry_cleanup") == "private-path",
         "compound mechanisms require final A/C/E/F TEST-P4 phase-init/compound/dependencies source-JIT")
 
 
+def selected_compound_proof(manifest):
+    """Select the admitted compound stage even when a later scan precedes cleanup."""
+    stages = [proof for proof in manifest["source_proofs"] if proof.get("schema") in
+        ("rove4k.selected-spelling-compound.v1", "rove4k.selected-spelling-compound.v2")]
+    require(len(stages) == 1 and stages[0].get("variant") == manifest["post_spelling"]["variant"],
+            "one admitted selected compound source stage required")
+    return stages[0]
+
+
 def diagnostic_alias(source, proof):
-    """Derive one finite alias from the already admitted compound proof."""
+    """Derive one finite alias from the already admitted final shipping proof."""
+    if proof.get("schema") == "rove4k.selected-spelling-compound.v2":
+        base = proof.get("base")
+        require(type(source) is bytes and proof.get("variant") == F_COMPOUND_DECLARATION["variant"] and
+            proof.get("family") == "F" and proof.get("profile_id") == "test-p4" and
+            proof.get("output") == pin(source) and isinstance(base, dict) and
+            base.get("family") == "F" and base.get("profile_id") == "test-p4" and
+            base.get("input") == proof.get("input"), "named admitted F-v2 shipping/base proof required")
+        proof = base
     require(type(source) is bytes and proof.get("schema") == "rove4k.selected-spelling-compound.v1" and
         proof.get("variant") == "clock-atomic-launcher" and proof.get("family") in tuple("ACEF") and
         proof.get("profile_id") == "test-p4" and proof.get("helper") == dict(path=SPELLING, **SPELLING_PIN) and
@@ -251,7 +271,7 @@ def run_bound(build, out):
     require(not runtime_module.OWNED, "new compound runtime namespace is not empty")
     source = shipping["source"]
     resource_proof = manifest["source_proofs"][0]
-    compound_proof = manifest["source_proofs"][-2]
+    compound_proof = selected_compound_proof(manifest)
     prefix, alias = diagnostic_alias(source, compound_proof)
     require(resource_proof["family"] == admitted.family and resource_proof["resources"]["workers"] == 4 and
         resource_proof["resources"] == {key: admitted.resources[key] for key in resource_proof["resources"]},
@@ -292,7 +312,7 @@ def run_bound(build, out):
         lines = raw.decode("ascii").splitlines()
         require(len(lines) == 3 and lines[:2] == ["bestmove g1f3", "bestmove b1c3"] and
             json.loads(lines[2]) == expected, "actual compound callback/selector mechanism differs")
-        report["mechanisms"].append(dict(profile="test-p4", variant="clock-atomic-launcher",
+        report["mechanisms"].append(dict(profile="test-p4", variant=manifest["post_spelling"]["variant"],
             shipping_source=pin(source), diagnostic_prefix_source=pin(prefix), fixture_source=pin(fixture),
             native=pin((directory / "x").read_bytes()), observation=expected, output=pin(raw), selector_results=lines[:2],
             fixture_tt_entries=1 << phase_check.FIXTURE_BITS, shipping_worker_count_unchanged=True,
@@ -300,7 +320,7 @@ def run_bound(build, out):
         save()
         barrier = actual_barrier(host, owner, runtime_module, phase_check, out / "selected-W4-last-initializer",
             source, context, compiler, report)
-        report["startup_barriers"].append(dict(variant="clock-atomic-launcher", shipping_source=pin(source), **barrier))
+        report["startup_barriers"].append(dict(variant=manifest["post_spelling"]["variant"], shipping_source=pin(source), **barrier))
         require(verifier.artifact_file(build, "build.json").read_bytes() == manifest_raw and
             verifier.admit_c_build(manifest, build) == admitted, "actual compound build/admission changed")
         for role, path in (("source", admitted.source), ("native", admitted.native), ("whole", admitted.program)):

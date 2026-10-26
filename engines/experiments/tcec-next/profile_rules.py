@@ -29,7 +29,10 @@ SPELLING_PIN = {"bytes": 9921, "sha256": "7ec393bc9c805ee8e1e6d715f40cb9883f829e
 COMPOUND = "engines/experiments/tcec-next/spelling_compound.py"
 COMPOUND_SCHEMA = "rove4k.selected-spelling-compound.v1"
 COMPOUND_VARIANT = "clock-atomic-launcher"
-COMPOUND_PIN = {"bytes": 5522, "sha256": "4a4f6079341998fd2d0ef1ff5fc9b35a435751131b4687ce950ef1892820754b"}
+F_COMPOUND_SCHEMA = "rove4k.selected-spelling-compound.v2"
+F_COMPOUND_VARIANT = "clock-atomic-launcher-parentheses"
+F_COMPOUND_DECLARATION = {"path": COMPOUND, "selection": "compound-v2", "variant": F_COMPOUND_VARIANT}
+COMPOUND_PIN = {"bytes": 9472, "sha256": "4e2a1599ab5b6f294b1cb59a10a1ec6667b5a2e0c993c1ce48895cddb7e55fce"}
 SCAN = "engines/experiments/tcec-next/profile_scan.py"
 SCAN_SCHEMA = "rove4k.selected-square-scan.v1"
 SCAN_DECLARATION = {"path": SCAN, "variant": "square-successor"}
@@ -172,7 +175,8 @@ def _source_build_record(build, *, family, stages, post_profile, main_source,
             _evidence_bytes(build / "control/main.c", name="main.c") == baseline_source,
             family + " named frozen producer source/stages/post-profile identity differs")
     if post_spelling is not None and post_spelling.get("path") == COMPOUND:
-        require(family in "ACEF" and post_spelling == {"path": COMPOUND, "selection": "compound", "variant": COMPOUND_VARIANT}
+        require(((family in "ACEF" and post_spelling == {"path": COMPOUND, "selection": "compound", "variant": COMPOUND_VARIANT})
+                 or (family == "F" and post_spelling == F_COMPOUND_DECLARATION))
                 and {SPELLING, COMPOUND} <= set(tools), "compound spelling requires both exact reviewed helper tools")
     for relative in tools:
         frozen = _evidence_bytes(build / "inputs" / relative, name=Path(relative).name)
@@ -216,7 +220,7 @@ def validate_spelling_request(record):
         and type(request.get("duplicate_best")) is bool and type(request.get("new_candidate_count")) is int
         and isinstance(inputs, dict) and COMPOUND not in inputs and isinstance(closure, list)
         and not any(isinstance(row, dict) and row.get("path") == COMPOUND for row in closure)
-        and isinstance(proofs, list) and not any(isinstance(stage, dict) and stage.get("schema") == COMPOUND_SCHEMA for stage in proofs),
+        and isinstance(proofs, list) and not any(isinstance(stage, dict) and stage.get("schema") in (COMPOUND_SCHEMA, F_COMPOUND_SCHEMA) for stage in proofs),
         "spelling request must be the exact B compound-to-best normalization")
     return dict(request)
 
@@ -281,8 +285,9 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
     scan_stage = suffix[-1] if suffix and suffix[-1].get("schema") == SCAN_SCHEMA else None
     if scan_stage is not None:
         suffix = suffix[:-1]
-    has_compound = bool(suffix) and suffix[-1].get("schema") == COMPOUND_SCHEMA
-    has_spelling = bool(suffix) and suffix[-1].get("schema") in (SPELLING_SCHEMA, COMPOUND_SCHEMA)
+    has_f_compound = bool(suffix) and suffix[-1].get("schema") == F_COMPOUND_SCHEMA
+    has_compound = bool(suffix) and suffix[-1].get("schema") in (COMPOUND_SCHEMA, F_COMPOUND_SCHEMA)
+    has_spelling = bool(suffix) and suffix[-1].get("schema") in (SPELLING_SCHEMA, COMPOUND_SCHEMA, F_COMPOUND_SCHEMA)
     spelling_stage = suffix[-1] if has_spelling else None
     if has_spelling:
         suffix = suffix[:-1]
@@ -314,13 +319,16 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
     if has_spelling:
         if has_compound:
             require(family in "ACEF", "compound spelling is limited to A/C/E/F; B uses its individual winner")
-        variant = COMPOUND_VARIANT if has_compound else BEST_SPELLING[family]
+        if has_f_compound:
+            require(family == "F" and dependency_stage is not None and scan_stage is None,
+                    "F-only compound v2 requires final dependency cleanup and no scan stage")
+        variant = F_COMPOUND_VARIANT if has_f_compound else COMPOUND_VARIANT if has_compound else BEST_SPELLING[family]
         require(cleanup == "private-path" and spelling_stage.get("variant") == variant and
                 ((has_b and suffix[0].get("variant") == "tcec-final-lf") or
                  (family in "ACEF" and has_phase)),
                 "final spelling requires selected phase-init ACEF or tcec-final-lf B and its reviewed winner")
         post_spelling = {"path": COMPOUND if has_compound else SPELLING,
-                         "selection": "compound" if has_compound else "best", "variant": variant}
+                         "selection": "compound-v2" if has_f_compound else "compound" if has_compound else "best", "variant": variant}
         tools.append(SPELLING)
         if has_compound:
             tools.append(COMPOUND)
@@ -389,11 +397,17 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
     if has_spelling:
         if has_compound:
             individual, current = compound_modules(build)
+            keywords = {"spelling": individual}
+            if has_f_compound:
+                keywords["variant"] = F_COMPOUND_VARIANT
             projected, proof = current.transform_source(expected, family=family,
-                profile_id=profile.id, spelling=individual)
-            require(current.SCHEMA == COMPOUND_SCHEMA and spelling_stage == proof,
+                profile_id=profile.id, **keywords)
+            require(current.SCHEMA == COMPOUND_SCHEMA and
+                    (not has_f_compound or current.F_SCHEMA == F_COMPOUND_SCHEMA) and spelling_stage == proof,
                     "full compound spelling proof/protected gaps differ")
-            inverses.append(("full compound spelling", current, proof, expected, {"spelling": individual}))
+            # V2's helper checks typed JSON on the supplied proof, not a regenerated substitute.
+            inverses.append(("full compound spelling", current,
+                             spelling_stage if has_f_compound else proof, expected, {"spelling": individual}))
         else:
             current = load("production_rules_spelling_projection", ROOT / SPELLING)
             projected, proof = current.transform_source(expected, family=family,
@@ -443,7 +457,7 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
         require(len(inverse) in (4, 5), "unknown rules source inverse binding")
         label, module, proof, parent = inverse[:4]
         keywords = inverse[4] if len(inverse) == 5 else {}
-        require(len(inverse) == 4 or (proof.get("schema") == COMPOUND_SCHEMA and set(keywords) == {"spelling"}
+        require(len(inverse) == 4 or (proof.get("schema") in (COMPOUND_SCHEMA, F_COMPOUND_SCHEMA) and set(keywords) == {"spelling"}
                 and keywords["spelling"] is individual), "unknown compound inverse helper binding")
         if module is None:
             offset, before, after = proof["table_value_offset"], proof["before"].encode(), proof["after"].encode()

@@ -110,7 +110,18 @@ Full F's redundant-parenthesis change wins3590→3587B; all candidate native byt
 match their controls, but only the actual whole measurements determine wins.
 The subsequent F-only costs are P28 3602→3602B and W2563590→3589B, again with
 identical native bytes to control. No W256 engine or giant TT runs. Production
-integration and actual P4/P28 runtime qualification remain pending.
+integration now preserves the default v1 path and adds explicit compound-v2.
+Actual local P4 and P28 each pass generation, initialization mechanisms, rules
+and runtime:24 GO/22 legal replies in four naturally settled groups per profile.
+W256 reproduces3589B with source/type/native checks only and no engine/TT run.
+Six actual CPP commands confirm that the full before/after output differs only
+by the two removed parenthesis pairs; inverse and protected gaps agree. The
+first caller preflight lacks RUNNER_TEMP and stops before output/tool work;
+the first P28 mechanism stops before its compilation on a stale diagnostic-helper
+pin. Preserve both failures, the corrected reviewed input-pin change and new
+run roots. The P4 frozen actual closure does not consume the three later P28
+diagnostic paths. CI now selects F-v2 explicitly in its P4/P28 matrix; fresh
+source/Ubuntu22 CI acceptance and transport remain separate work.
 Earlier caller pin/type/normalization preflight failures are preserved separately
 and are not candidate measurements. No such microtrial is applied to D.
 
@@ -239,6 +250,21 @@ their causes unconfirmed. Initial candidate reproduction and follow-up WIP
 measurement stay separate. No automation is created; AWS and ABCE/F
 work continue in parallel. General4K/ELF size, target hardware and strength gates
 remain open.
+
+PR21's final87c78c5 adds a separately selected fast-capacity composition with
+precomputed start,413 move capacity, deferred gen/check after TT and fixed worker
+entry/NUL tokens. It reports4737/4745/4729B for P4/P28/W256. Those new costs and
+the author's hosted timing are not parent measurements yet. Selected-source
+review passes; integration preserves the stronger upfront material-owner groups,
+the prior process owner and full startup maps. New follow-up/benchmark/runtime
+harness boundaries pass17 external fake tests and independent review. Benchmark
+state comparison now includes published Worker.score outside the timed interval.
+The next actual experiment freezes48 consumed sources plus its launcher, runs
+only previous-full control and fast-capacity, and reproduces one known CRC64
+HC3 recipe rather than a155-setting search. W28/W256 remain cost-only. The
+local initial-only Structural upper-route draft has21 pure tests and source review, but has
+not executed its80 source commands/R groups; its same-authority final variant
+will bind the new actual cohort after reproduction. No old native map is relaxed.
 
 The first sparse-square transfer costs A3794→3781B and C3927→3915B in P4; B4071→4072B
 loses and stops. A separate fresh pre-cleanup six-profile comparison now confirms

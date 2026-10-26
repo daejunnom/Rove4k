@@ -53,7 +53,12 @@ BEST_SPELLING = {"A": "clock-type", "B": "atomic-assignment", "C": "clock-type",
                  "E": "clock-type", "F": "atomic-assignment"}
 COMPOUND_DECLARATION = dict(path=COMPOUND, selection="compound", variant="clock-atomic-launcher")
 SPELLING_PIN = dict(bytes=9921, sha256="7ec393bc9c805ee8e1e6d715f40cb9883f829e3c6b01e2f71f31701e35136ea8")
-COMPOUND_PIN = dict(bytes=5522, sha256="4a4f6079341998fd2d0ef1ff5fc9b35a435751131b4687ce950ef1892820754b")
+COMPOUND_V1_HISTORICAL_PIN = dict(bytes=5522, sha256="4a4f6079341998fd2d0ef1ff5fc9b35a435751131b4687ce950ef1892820754b")
+# Fresh v1/v2 builds use the reviewed current helper; old receipts retain the old pin.
+COMPOUND_PIN = dict(bytes=9472, sha256="4e2a1599ab5b6f294b1cb59a10a1ec6667b5a2e0c993c1ce48895cddb7e55fce")
+F_COMPOUND_SCHEMA = "rove4k.selected-spelling-compound.v2"
+F_COMPOUND_VARIANT = "clock-atomic-launcher-parentheses"
+F_COMPOUND_DECLARATION = dict(path=COMPOUND, selection="compound-v2", variant=F_COMPOUND_VARIANT)
 F_COMPOUND_COMPILER = ("cc", "-Os", "-pthread", "-x", "c", "-", "-o", "x", "-s")
 F_COMPOUND_COMPILER_VERSION = "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
 F_COMPOUND_POLICY = "F-compound-clock-gcc13-v1"
@@ -67,11 +72,21 @@ F_COMPOUND_IMAGES = {
     "tcec-provisional": (7036, "752720efdcc97c32eb79ff4796e4a0bc4cdfe4f24790863a52b585c667c1497b",
                          "e536de10e8792573548864d6267e8ce3cde76102b6134552f9dbca0d2672437b"),
 }
+F_COMPOUND_V2_POLICY = "F-compound-parentheses-gcc13-v2"
+F_COMPOUND_V2_IMAGES = {
+    "test-p4": (7030, "0aa062ec8440911d094a1b4eea48eceb96facfaa4ce94d654f46bfa19c83c7f0",
+                "5b4e662a29f7a989c8b7a81f8a41e46a96df5c3e805f4b7b29929b6a2725ae50"),
+    "test-p28": (7063, "5a016f252e8efb4faf356de92397964d19e6c5e95863e063a5179864988dcdc5",
+                 "843bbc1ea78ef68c4cde578df93218f6d36b5f3c48cfa794ba6022b75e949262"),
+    "tcec-provisional": (7032, "7701b38ad0957066d427bb085575f26b511691a6ea60e67f44835ce9359db9df",
+                         "e536de10e8792573548864d6267e8ce3cde76102b6134552f9dbca0d2672437b"),
+}
 
 
 def spelling_selection(family, representation, b_variant, phase_variant, selection):
     """Select only the measured final stage; controls acquire no new stage."""
-    if family not in BEST_SPELLING or selection not in ("control", "best", "compound"):
+    if (family not in BEST_SPELLING or selection not in ("control", "best", "compound", "compound-v2")
+            or selection == "compound-v2" and family != "F"):
         raise ValueError("explicit full C family and finite spelling selection required")
     if selection == "control":
         return None
@@ -81,6 +96,8 @@ def spelling_selection(family, representation, b_variant, phase_variant, selecti
                 (family in "ACEF" and b_variant == "control" and phase_variant == "phase-init"))
     if not selected:
         raise ValueError("selected spelling requires phase-init A/C/E/F or tcec-final-lf B")
+    if selection == "compound-v2":
+        return dict(F_COMPOUND_DECLARATION)
     if selection == "compound" and family != "B":
         return dict(COMPOUND_DECLARATION)
     return dict(path=SPELLING, selection="best", variant=BEST_SPELLING[family])
@@ -88,21 +105,25 @@ def spelling_selection(family, representation, b_variant, phase_variant, selecti
 
 def compound_native_policy(family, profile_id, declaration, source, compiler, compile_executor, version):
     """Admit only the finite F compound images in their measured GCC13 context."""
-    if family != "F" or declaration != COMPOUND_DECLARATION:
+    if family != "F" or declaration not in (COMPOUND_DECLARATION, F_COMPOUND_DECLARATION):
         return None
-    if (profile_id not in F_COMPOUND_IMAGES or tuple(compiler) != F_COMPOUND_COMPILER or
+    images, kind = ((F_COMPOUND_V2_IMAGES, F_COMPOUND_V2_POLICY)
+                    if declaration == F_COMPOUND_DECLARATION else (F_COMPOUND_IMAGES, F_COMPOUND_POLICY))
+    if (profile_id not in images or tuple(compiler) != F_COMPOUND_COMPILER or
             list(compile_executor) != list(compiler) or version != F_COMPOUND_COMPILER_VERSION):
         raise ValueError("F compound requires its named GCC13 native policy; target compilers use sealed-source admission")
-    size, source_sha, native_sha = F_COMPOUND_IMAGES[profile_id]
+    size, source_sha, native_sha = images[profile_id]
     if type(source) is not bytes or (len(source), sha256(source).hexdigest()) != (size, source_sha):
         raise ValueError("F compound final source differs from its named profile policy")
-    return dict(kind=F_COMPOUND_POLICY, family="F", profile_id=profile_id,
-        post_spelling=dict(COMPOUND_DECLARATION), compiler=list(F_COMPOUND_COMPILER),
+    return dict(kind=kind, family="F", profile_id=profile_id,
+        post_spelling=dict(declaration), compiler=list(F_COMPOUND_COMPILER),
         compiler_version=F_COMPOUND_COMPILER_VERSION,
         source=dict(bytes=size, sha256=source_sha), native=dict(bytes=18568, sha256=native_sha))
 
 
 def scan_selection(family, representation, phase_variant, post_spelling, dependencies, selection):
+    if post_spelling == F_COMPOUND_DECLARATION and (dependencies != "unused-includes" or selection != "control"):
+        raise ValueError("F compound-v2 requires no scan stage and final unused-includes")
     if selection == "control":
         return None
     if (selection != "square-successor" or family not in ("A", "C") or
@@ -166,7 +187,7 @@ def argument_parser():
                         help="explicit reviewed B post-profile projection; default preserves the control")
     parser.add_argument("--phase-variant", choices=("control", "phase-init"), default="control",
                         help="explicit measured A/C/E/F lifecycle projection; default preserves the control")
-    parser.add_argument("--spelling-variant", choices=("control", "best", "compound"), default="control",
+    parser.add_argument("--spelling-variant", choices=("control", "best", "compound", "compound-v2"), default="control",
                         help="explicit measured final source spelling on selected source-JIT routes only")
     parser.add_argument("--scan-variant", choices=("control", "square-successor"), default="control",
                         help="explicit A/C valid-square projection after compound, before final include cleanup")
@@ -258,7 +279,7 @@ def main():
             names.add(PHASE)
         if post_spelling is not None:
             names.add(SPELLING)
-            if post_spelling == COMPOUND_DECLARATION:
+            if post_spelling in (COMPOUND_DECLARATION, F_COMPOUND_DECLARATION):
                 names.add(COMPOUND)
         if post_scan is not None:
             names.add(SCAN)
@@ -384,11 +405,11 @@ def main():
                 old.require(inputs[SPELLING] == SPELLING_PIN, "reviewed individual spelling helper differs")
                 spelling = load("profile_frozen_spelling_projection", own / SPELLING)
                 parent_source = source
-                if post_spelling == COMPOUND_DECLARATION:
+                if post_spelling in (COMPOUND_DECLARATION, F_COMPOUND_DECLARATION):
                     old.require(inputs[COMPOUND] == COMPOUND_PIN, "reviewed compound helper differs")
                     compound = load("profile_frozen_compound_projection", own / COMPOUND)
                     source, spelling_proof = compound.transform_source(source, family=args.entry,
-                        profile_id=profile.id, spelling=spelling)
+                        profile_id=profile.id, spelling=spelling, variant=post_spelling["variant"])
                     restored_spelling = compound.restore_source(source, spelling_proof, spelling=spelling)
                 else:
                     source, spelling_proof = spelling.transform_source(source, family=args.entry,
@@ -422,7 +443,7 @@ def main():
                 compiler, compile_executor, report["compile_executor_version"])
             scan_policy = scan_native_policy(args.entry, profile.id, post_scan, source,
                 compiler, compile_executor, report["compile_executor_version"])
-            if post_spelling == COMPOUND_DECLARATION:
+            if post_spelling in (COMPOUND_DECLARATION, F_COMPOUND_DECLARATION):
                 (gate / "asserted.c").write_bytes(asserted)
             host.run(compile_executor, cwd=gate, kind=attempt + "-target-types", data=asserted)
             host.run(compile_executor, cwd=native_dir, kind=attempt + "-compile", data=source)
@@ -509,7 +530,7 @@ def main():
                 dependency_gate=dependency_gate))
             if native_policy is not None:
                 report["attempts"][-1]["target_type_gate"].update(directory="target-type-gate",
-                    source_file="asserted.c", policy=F_COMPOUND_POLICY)
+                    source_file="asserted.c", policy=native_policy["kind"])
             if abi_gate is not None:
                 report["attempts"][-1]["target_abi_gate"] = abi_gate
             if dependencies:

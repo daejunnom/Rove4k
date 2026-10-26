@@ -568,6 +568,113 @@ class GeneratedRulesBoundaries(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "compound spelling proof/protected gaps"):
                 RULES.admit_source(final_body, baseline, altered, "E", PRODUCTION.resource_profile("test-p4"), build=Path("/named"))
 
+    def test_F_compound_v2_replays_and_reverses_its_final_shipping_body(self):
+        baseline, resource_body, phase_body, compound_body, final_body = b"base", b"resource", b"phase", b"F-v2", b"final"
+        resource = {"schema": "test-resource", "entry_cleanup": "private-path"}
+        phase = {"schema": "rove4k.portable-phase-source.v1", "variant": "phase-init"}
+        base = {"schema": RULES.COMPOUND_SCHEMA, "variant": RULES.COMPOUND_VARIANT}
+        compound = {"schema": RULES.F_COMPOUND_SCHEMA, "variant": RULES.F_COMPOUND_VARIANT, "base": base}
+        dependency = {"schema": "rove4k.profile-dependencies.v1"}
+        calls = []; individual = object()
+        def inverse(name, actual, expected, parent):
+            self.assertEqual(actual, expected); calls.append(name); return parent
+        projection = SimpleNamespace(SCHEMA=resource["schema"], transform_source=lambda *a, **kw: (resource_body, resource),
+            restore_source=lambda actual, proof: inverse("resource", actual, resource_body, baseline))
+        phase_module = SimpleNamespace(transform_source=lambda *a, **kw: (phase_body, phase),
+            restore_source=lambda actual, proof: inverse("phase", actual, phase_body, resource_body))
+        def forward(actual, *, family, profile_id, spelling, variant):
+            self.assertEqual((actual, family, variant), (phase_body, "F", RULES.F_COMPOUND_VARIANT))
+            self.assertIs(spelling, individual); return compound_body, compound
+        def backward(actual, proof, *, spelling):
+            self.assertIs(spelling, individual); self.assertEqual(proof, compound)
+            return inverse("compound-v2", actual, compound_body, phase_body)
+        compound_module = SimpleNamespace(SCHEMA=RULES.COMPOUND_SCHEMA, F_SCHEMA=RULES.F_COMPOUND_SCHEMA,
+            transform_source=forward, restore_source=backward)
+        dependency_module = SimpleNamespace(transform_source=lambda actual: (final_body, dependency),
+            validate_receipt=lambda *a, **kw: compound_body,
+            restore_source=lambda actual, proof: inverse("dependency", actual, final_body, compound_body))
+        modules = {"production_rules_projection": projection, "production_rules_phase_projection": phase_module,
+                   "production_rules_dependencies": dependency_module}
+        stages = [resource, phase, compound, dependency]
+        record = {"attempts": [{"directory": name, "source_proofs": stages} for name in ("first", "repeat")]}
+        for profile_id in ("test-p4", "test-p28", "tcec-provisional"):
+            calls.clear()
+            with self.subTest(profile=profile_id), patch.object(RULES, "load", side_effect=lambda name, path: modules[name]), \
+                 patch.object(RULES, "compound_modules", return_value=(individual, compound_module)), \
+                 patch.object(RULES, "_source_build_record", return_value=record) as build:
+                self.assertEqual(RULES.admit_source(final_body, baseline, stages, "F",
+                    PRODUCTION.resource_profile(profile_id), build=Path("/named")), stages)
+            self.assertEqual(calls, ["dependency", "compound-v2", "phase", "resource"])
+            self.assertEqual(build.call_args.kwargs["post_spelling"], RULES.F_COMPOUND_DECLARATION)
+            self.assertIsNone(build.call_args.kwargs["post_scan"])
+
+    def test_F_compound_v2_rules_forwards_supplied_typed_proof_to_real_inverse(self):
+        compound = module("rules_actual_F_v2_projection", HERE / "spelling_compound.py")
+        baseline, resource_body = b"base", b"resource"
+        phase_body = b"clock atomic launcher for(S q=0;q<128;q=(q+9)&~8){}for(S j=0;j<128;j=(j+9)&~8){}"
+        replacements = {"clock-type": (b"clock", b"short"), "atomic-assignment": (b"atomic", b"plain"),
+                        "launcher-short": (b"launcher", b"J")}
+        def individual_forward(source, *, family, profile_id, variant):
+            before, after = replacements[variant]; at = source.index(before)
+            result = source[:at] + after + source[at + len(before):]
+            proof = dict(schema=RULES.SPELLING_SCHEMA, variant=variant, family=family, profile_id=profile_id,
+                input=RULES.pin(source), output=RULES.pin(result),
+                edits=[dict(input_begin=at, output_begin=at, before=before.decode(), after=after.decode(), role=variant)])
+            return result, proof
+        def individual_inverse(actual, proof):
+            row = proof["edits"][0]; at = row["output_begin"]
+            return actual[:at] + row["before"].encode() + actual[at + len(row["after"]):]
+        individual = SimpleNamespace(SCHEMA=RULES.SPELLING_SCHEMA,
+            INPUTS={("F", "test-p4"): (len(phase_body), RULES.pin(phase_body)["sha256"])},
+            available=lambda family: tuple(replacements), transform_source=individual_forward, restore_source=individual_inverse)
+        base = phase_body.replace(b"clock", b"short").replace(b"atomic", b"plain").replace(b"launcher", b"J")
+        final = base.replace(b"(q+9)", b"q+9").replace(b"(j+9)", b"j+9")
+        resource = {"schema": "test-resource", "entry_cleanup": "private-path"}
+        phase = {"schema": "rove4k.portable-phase-source.v1", "variant": "phase-init"}
+        dependency = {"schema": "rove4k.profile-dependencies.v1"}
+        projection = SimpleNamespace(SCHEMA=resource["schema"], transform_source=lambda *a, **kw: (resource_body, resource),
+            restore_source=lambda *a: baseline)
+        phase_module = SimpleNamespace(transform_source=lambda *a, **kw: (phase_body, phase), restore_source=lambda *a: resource_body)
+        dependency_module = SimpleNamespace(transform_source=lambda actual: (actual, dependency),
+            validate_receipt=lambda *a, **kw: final, restore_source=lambda actual, proof: actual)
+        modules = {"production_rules_projection": projection, "production_rules_phase_projection": phase_module,
+                   "production_rules_dependencies": dependency_module}
+        with patch.object(compound, "F_BASES", {"test-p4": (len(base), RULES.pin(base)["sha256"])}), \
+             patch.object(compound, "F_OUTPUTS", {"test-p4": (len(final), RULES.pin(final)["sha256"])}), \
+             patch.object(RULES, "load", side_effect=lambda name, path: modules[name]), \
+             patch.object(RULES, "compound_modules", return_value=(individual, compound)):
+            actual, proof = compound.transform_source(phase_body, family="F", profile_id="test-p4",
+                spelling=individual, variant=compound.F_VARIANT)
+            self.assertEqual(actual, final)
+            def consume(supplied):
+                stages = [resource, phase, supplied, dependency]
+                record = {"attempts": [{"directory": name, "source_proofs": stages} for name in ("first", "repeat")]}
+                with patch.object(RULES, "_source_build_record", return_value=record):
+                    return RULES.admit_source(actual, baseline, stages, "F", PRODUCTION.resource_profile("test-p4"), build=Path("/named"))
+            self.assertEqual(consume(proof)[2], proof)
+            for path, value in ((("full_inverse",), 1), (("base", "full_inverse"), 1),
+                    (("base", "duplicate_best"), 0), (("base", "new_candidate_count"), 1.0),
+                    (("protected_gaps", 0, "bytes"), float(proof["protected_gaps"][0]["bytes"]))):
+                supplied = json.loads(json.dumps(proof)); target = supplied
+                for key in path[:-1]: target = target[key]
+                target[path[-1]] = value
+                self.assertEqual(supplied, proof)  # Python equality is precisely the unsafe shortcut.
+                with self.subTest(path=path), self.assertRaisesRegex(ValueError, "F compound v2 inverse"):
+                    consume(supplied)
+
+    def test_F_compound_v2_rejects_foreign_family_missing_cleanup_or_scan(self):
+        resource = {"schema": "test-resource", "entry_cleanup": "private-path"}
+        projection = SimpleNamespace(SCHEMA=resource["schema"], transform_source=lambda *a, **kw: (b"resource", resource))
+        phase = {"schema": "rove4k.portable-phase-source.v1", "variant": "phase-init"}
+        compound = {"schema": RULES.F_COMPOUND_SCHEMA, "variant": RULES.F_COMPOUND_VARIANT}
+        dependency = {"schema": "rove4k.profile-dependencies.v1"}
+        scan = {"schema": RULES.SCAN_SCHEMA, "variant": "square-successor"}
+        for family, stages in (("A", [resource, phase, compound, dependency]),
+                ("F", [resource, phase, compound]), ("F", [resource, phase, compound, scan, dependency])):
+            with self.subTest(family=family, stages=stages), patch.object(RULES, "load", return_value=projection):
+                with self.assertRaisesRegex(ValueError, "F-only compound v2"):
+                    RULES.admit_source(b"body", b"baseline", stages, family, PRODUCTION.resource_profile("test-p4"))
+
     def test_B_compound_request_is_only_the_exact_existing_best_normalization(self):
         best = {"path": RULES.SPELLING, "selection": "best", "variant": "atomic-assignment"}
         request = {"requested": "compound", "effective": "best", "duplicate_best": True, "new_candidate_count": 0}
@@ -579,7 +686,8 @@ class GeneratedRulesBoundaries(unittest.TestCase):
             {"family": "B", "post_spelling": best, "spelling_request": request, "inputs": {RULES.COMPOUND: RULES.COMPOUND_PIN}},
             {"family": "B", "post_spelling": best, "spelling_request": request,
                 "source_closure": {"inputs": [{"path": RULES.COMPOUND, "role": "tool", **RULES.COMPOUND_PIN}]}},
-            {"family": "B", "post_spelling": best, "spelling_request": request, "source_proofs": [{"schema": RULES.COMPOUND_SCHEMA}]}]
+            {"family": "B", "post_spelling": best, "spelling_request": request, "source_proofs": [{"schema": RULES.COMPOUND_SCHEMA}]},
+            {"family": "B", "post_spelling": best, "spelling_request": request, "source_proofs": [{"schema": RULES.F_COMPOUND_SCHEMA}]}]
         for bad in ({**request, "duplicate_best": 1}, {**request, "new_candidate_count": False},
                     {**request, "extra": False}, {**request, "effective": "compound"}, {**request, "requested": "best"}):
             examples.append({"family": "B", "post_spelling": best, "spelling_request": bad})

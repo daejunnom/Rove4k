@@ -39,6 +39,8 @@ BEST_SPELLING = {"A": "clock-type", "B": "atomic-assignment", "C": "clock-type",
                  "E": "clock-type", "F": "atomic-assignment"}
 COMPOUND_SPELLING = {"path": NEXT + "spelling_compound.py", "selection": "compound",
                      "variant": "clock-atomic-launcher"}
+F_COMPOUND_SPELLING = {"path": NEXT + "spelling_compound.py", "selection": "compound-v2",
+                       "variant": "clock-atomic-launcher-parentheses"}
 SCAN_DECLARATION = {"path": NEXT + "profile_scan.py", "variant": "square-successor"}
 P28_LINK_FLAGS = ("-Wl,--wrap=pthread_create", "-Wl,--wrap=pthread_join", "-Wl,--wrap=aligned_alloc")
 PROFILE_WORKERS = {"test-p4": 4, "test-p28": 28}
@@ -176,12 +178,13 @@ def p28_resources(family, resources):
 def producer_spelling_variant(family, selection, *, profile="test-p4"):
     require(family in tuple("ABCDEF"), "one active C family A through F is required")
     profile_workers(profile)
-    require(type(selection) is str and selection in ("control", "best", "compound"), "finite producer spelling selection required")
+    require(type(selection) is str and selection in ("control", "best", "compound", "compound-v2"), "finite producer spelling selection required")
     require(family != "D" or selection == "control", "D supports only control spelling")
+    require(selection != "compound-v2" or family == "F", "compound-v2 requires the explicit F route")
     if profile == "test-p28":
-        require((family in "ACEF" and selection == "compound") or
+        require((family in "ACEF" and selection == "compound") or (family == "F" and selection == "compound-v2") or
                 (family == "B" and selection in ("best", "compound")) or (family == "D" and selection == "control"),
-                "TEST-P28 requires ACEF compound, B best/compound, or D control")
+                "TEST-P28 requires ACEF compound, F compound-v2, B best/compound, or D control")
     return selection
 
 
@@ -196,6 +199,8 @@ def spelling_declaration(family, selection, *, profile="test-p4"):
         return None
     if effective == "compound":
         return dict(COMPOUND_SPELLING)
+    if effective == "compound-v2":
+        return dict(F_COMPOUND_SPELLING)
     return {"path": NEXT + "profile_spelling.py", "selection": "best", "variant": BEST_SPELLING[family]}
 
 
@@ -256,7 +261,7 @@ def pipeline_plan(family, out, *, spelling_variant="control", scan_variant="cont
                      if profile == "test-p28" else
                      command(NEXT + "check_profile_b.py", "--build", artifact, "--mode", "bound", "--out", out / "mechanism")
                      if family == "B" else command(NEXT + ("check_profile_compound.py"
-                         if effective_spelling(family, spelling_variant) == "compound" else "check_profile_phase.py"),
+                         if effective_spelling(family, spelling_variant) in ("compound", "compound-v2") else "check_profile_phase.py"),
                          "--build", artifact, "--out", out / "mechanism"))
         rules = command(NEXT + "profile_rules.py", "--source", artifact / "main.c", "--baseline", artifact / "control/main.c",
                         "--proof", artifact / "source-proof.json", "--family", family, "--profile", profile,
@@ -342,11 +347,14 @@ def scan_mechanism_policy(plan, report, build, *, reader=None):
 
 def compound_mechanism(plan, report, build, *, reader=None):
     """Keep the named diagnostic alias separate from the actual startup source."""
-    require(plan.family in "ACEF" and plan.effective_spelling_variant == "compound"
+    selected = spelling_declaration(plan.family, plan.spelling_variant, profile=plan.profile)
+    variant = selected["variant"] if selected is not None else None
+    v2 = plan.effective_spelling_variant == "compound-v2"
+    require(plan.family in "ACEF" and plan.effective_spelling_variant in ("compound", "compound-v2")
             and report.get("entry") == build.get("family") == plan.family
             and report.get("profile") == "test-p4" and report.get("mode") == "source-bound"
             and report.get("representation") == "source-jit"
-            and report.get("selected_post_spelling") == build.get("post_spelling") == COMPOUND_SPELLING
+            and report.get("selected_post_spelling") == build.get("post_spelling") == selected
             and report.get("selected_post_profile") == build.get("post_profile") ==
                 {"path": NEXT + "profile_phase.py", "variant": "phase-init"}
             and report.get("source_dependencies") == build.get("source_dependencies") ==
@@ -368,14 +376,22 @@ def compound_mechanism(plan, report, build, *, reader=None):
     require(prefix.count(original_tt) == 1, "one fixed TEST-P4 TT declaration required for the scaled diagnostic")
     scaled_prefix = (b"#define main rv_unused_shipping_main\n" +
                      prefix.replace(original_tt, b"#define RVN ((size_t)1<<18)\n", 1))
-    proofs = [row for row in build.get("source_proofs", [])
-              if row.get("schema") == "rove4k.selected-spelling-compound.v1"]
+    schema = "rove4k.selected-spelling-compound.v2" if v2 else "rove4k.selected-spelling-compound.v1"
+    proofs = [row for row in build.get("source_proofs", []) if row.get("schema") == schema]
     require(len(proofs) == 1 and proofs[0].get("family") == plan.family
-            and proofs[0].get("profile_id") == "test-p4"
-            and proofs[0].get("variant") == "clock-atomic-launcher"
-            and proofs[0].get("components") == ["clock-type", "atomic-assignment", "launcher-short"],
+            and proofs[0].get("profile_id") == "test-p4" and proofs[0].get("variant") == variant,
             "one admitted compound mechanism proof required")
-    launchers = [row.get("proof") for row in proofs[0].get("individual", [])
+    base = proofs[0].get("base") if v2 else proofs[0]
+    require(type(base) is dict and base.get("schema") == "rove4k.selected-spelling-compound.v1"
+            and base.get("family") == plan.family and base.get("profile_id") == "test-p4"
+            and base.get("variant") == "clock-atomic-launcher"
+            and base.get("components") == ["clock-type", "atomic-assignment", "launcher-short"],
+            "one admitted compound mechanism base proof required")
+    if v2:
+        require(same_value(proofs[0].get("output"), source_pin) and type(base.get("input")) is dict
+                and same_value(base.get("input"), proofs[0].get("input")),
+                "F compound v2 shipping output or base input join differs")
+    launchers = [row.get("proof") for row in base.get("individual", [])
                  if row.get("variant") == "launcher-short"]
     require(len(launchers) == 1 and type(launchers[0]) is dict,
             "one authenticated diagnostic launcher component required")
@@ -393,7 +409,7 @@ def compound_mechanism(plan, report, build, *, reader=None):
             {"remaining_owned": 0, "drained": [], "errors": []},
             "compound mechanism and runtime cleanup are incomplete")
     scaled, barrier = rows[0], barriers[0]
-    for field, expected in (("profile", "test-p4"), ("variant", "clock-atomic-launcher"),
+    for field, expected in (("profile", "test-p4"), ("variant", variant),
             ("shipping_source", source_pin), ("diagnostic_prefix_source", pin(prefix)),
             ("fixture_tt_entries", 1 << 18), ("selector_results", ["bestmove g1f3", "bestmove b1c3"])):
         require(scaled.get(field) == expected, "compound scaled diagnostic identity differs")
@@ -426,7 +442,7 @@ def compound_mechanism(plan, report, build, *, reader=None):
             and type(observation["entries"]) is int and observation["entries"] == 1 << 18
             and all(observation[field] is True for field in flags) and scaled.get("observation") == observation,
             "compound scaled callbacks did not establish the declared state")
-    require(barrier.get("shipping_source") == source_pin and barrier.get("variant") == "clock-atomic-launcher"
+    require(barrier.get("shipping_source") == source_pin and barrier.get("variant") == variant
             and barrier.get("diagnostic_alias_applied") is False and barrier.get("shipping_identity_claimed") is False
             and barrier.get("actual_resource_profile") == "test-p4" and barrier.get("actual_tt_entries") == 1 << 22
             and all(barrier.get(field) is True for field in
@@ -773,7 +789,7 @@ def check_stage(plan, stage, *, reader=None):
             else:
                 require("spelling_request" not in report, "unexpected spelling request normalization metadata")
         result["requested_spelling_variant"] = spelling_variant
-        if spelling_variant == "compound":
+        if spelling_variant in ("compound", "compound-v2"):
             result["effective_spelling_variant"] = plan.effective_spelling_variant
     elif stage.name == "mechanism":
         effective = effective_spelling(family, plan.spelling_variant, profile=plan.profile)
@@ -798,7 +814,7 @@ def check_stage(plan, stage, *, reader=None):
         else:
             expected_class = ("rove4k-bound-scan-mechanism-v1" if plan.scan_variant != "control" else
                 "rove4k-bound-B-mechanism-v1" if family == "B" else
-                "rove4k-bound-compound-mechanism-v1" if effective == "compound" else "rove4k-bound-phase-mechanism-v1")
+                "rove4k-bound-compound-mechanism-v1" if effective in ("compound", "compound-v2") else "rove4k-bound-phase-mechanism-v1")
             bound_build = {**build_pin, "path": build_pin["path"] if family == "B" else str(Path(build_pin["path"]).parent)}
             require(report.get("class") == expected_class and report.get("build") == bound_build,
                     "selected mechanism build identity differs")
@@ -808,7 +824,7 @@ def check_stage(plan, stage, *, reader=None):
                         and row.get("no_uci_before_release") is True and row.get("uci_ready_after_release") is True
                         and row.get("legal_search_relaunches") == 2 for row in barriers),
                     "selected callbacks and real startup gate are not separately complete")
-            if effective == "compound":
+            if effective in ("compound", "compound-v2"):
                 result["diagnostic_alias"] = compound_mechanism(plan, report, build, reader=reader)
         result["scope"] = "source-bound scaled mechanism and explicit startup gate; no large target TT or NUMA claim"
     elif stage.name == "rules":
@@ -1000,7 +1016,7 @@ def main():
                         help="restore the sealed source layout and observe system cc11.4 source-JIT runtime")
     parser.add_argument("--source-bundle", type=Path)
     parser.add_argument("--source-seal", type=Path)
-    parser.add_argument("--spelling-variant", choices=("control", "best", "compound"),
+    parser.add_argument("--spelling-variant", choices=("control", "best", "compound", "compound-v2"),
                         help="producer-only source spelling selection (default: control); target consumes the sealed choice")
     parser.add_argument("--scan-variant", choices=("control", "square-successor"),
                         help="producer-only A/C compound scan selection; target consumes the sealed choice")
@@ -1073,7 +1089,7 @@ def main():
         report["requested_spelling_variant"] = plan.spelling_variant
         if plan.scan_variant != "control":
             report["requested_scan_variant"] = plan.scan_variant
-        if plan.spelling_variant == "compound":
+        if plan.spelling_variant in ("compound", "compound-v2"):
             report["effective_spelling_variant"] = plan.effective_spelling_variant
     def save():
         (out / "pipeline.json").write_text(json.dumps(report, indent=2) + "\n")

@@ -595,9 +595,9 @@ class ProductionCIBoundaries(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "unexpected spelling request"):
                     CI.check_stage(requested, requested.stages[0])
 
-    def compound_receipt_fixture(self, root, family="A"):
+    def compound_receipt_fixture(self, root, family="A", selection="compound"):
         """Inert owned files exercise receipt joins, never native/source admission."""
-        plan = CI.pipeline_plan(family, root, spelling_variant="compound")
+        plan = CI.pipeline_plan(family, root, spelling_variant=selection)
         replacement = "J" if family == "F" else "rv"
         source = ("#define RVN ((size_t)1<<22)\nvoid " + replacement + "(void){}\n").encode()
         text = "\n#define rv_spawn " + replacement + "\n"
@@ -613,14 +613,21 @@ class ProductionCIBoundaries(unittest.TestCase):
         scaled_output = b"bestmove g1f3\nbestmove b1c3\n" + json.dumps(observation).encode() + b"\n"
         component = {"schema": "rove4k.selected-spelling-experiment.v1", "variant": "launcher-short",
                      "family": family, "profile_id": "test-p4", "edits": [{"before": "rv_spawn", "after": replacement}]}
-        declaration = {"path": CI.NEXT + "spelling_compound.py", "selection": "compound", "variant": "clock-atomic-launcher"}
+        declaration = CI.spelling_declaration(family, selection)
+        base = {"schema": "rove4k.selected-spelling-compound.v1", "family": family,
+                "profile_id": "test-p4", "variant": "clock-atomic-launcher",
+                "components": ["clock-type", "atomic-assignment", "launcher-short"],
+                "individual": [{"variant": "launcher-short", "proof": component}]}
+        if selection == "compound-v2":
+            base.update(input=CI.pin(b"inert original phase source"), output=CI.pin(b"inert v1 compound body"))
+        proof = ({"schema": "rove4k.selected-spelling-compound.v2", "family": family,
+            "profile_id": "test-p4", "variant": declaration["variant"], "base": base,
+            "input": base["input"], "output": CI.pin(source)}
+            if selection == "compound-v2" else base)
         build = {"family": family, "post_profile": {"path": CI.NEXT + "profile_phase.py", "variant": "phase-init"},
                  "post_spelling": declaration,
                  "source_dependencies": {"path": CI.NEXT + "profile_dependencies.py", "variant": "unused-includes"},
-                 "source_proofs": [{"schema": "rove4k.selected-spelling-compound.v1", "family": family,
-                    "profile_id": "test-p4", "variant": "clock-atomic-launcher",
-                    "components": ["clock-type", "atomic-assignment", "launcher-short"],
-                    "individual": [{"variant": "launcher-short", "proof": component}]}]}
+                 "source_proofs": [proof]}
         def write(name, data):
             path = root / name
             path.parent.mkdir(parents=True, exist_ok=True)
@@ -654,12 +661,12 @@ class ProductionCIBoundaries(unittest.TestCase):
             **dict.fromkeys(("shipping_binary_executed", "large_submission_tt_executed", "derived_other_resource_profiles",
                             "timing_claimed", "production_adopted", "runtime_qualified"), False),
             "runtime_cleanup": {"remaining_owned": 0, "drained": [], "errors": []},
-            "mechanisms": [{"profile": "test-p4", "variant": "clock-atomic-launcher", "shipping_source": CI.pin(source),
+            "mechanisms": [{"profile": "test-p4", "variant": declaration["variant"], "shipping_source": CI.pin(source),
                 "diagnostic_prefix_source": CI.pin(prefix), "fixture_source": CI.pin(fixture), "native": CI.pin(native),
                 "observation": observation, "output": CI.pin(scaled_output), "fixture_tt_entries": 1 << 18,
                 "selector_results": ["bestmove g1f3", "bestmove b1c3"], "shipping_worker_count_unchanged": True,
                 **dict.fromkeys(("shipping_tt_executed", "shipping_binary_executed", "search_executed"), False)}],
-            "startup_barriers": [{"variant": "clock-atomic-launcher", "shipping_source": CI.pin(source),
+            "startup_barriers": [{"variant": declaration["variant"], "shipping_source": CI.pin(source),
                 "fixture_source": CI.pin(startup), "output": CI.pin(output), "physical": physical, "cleanup": cleanup,
                 "actual_resource_profile": "test-p4", "actual_workers": 4, "actual_tt_entries": 1 << 22,
                 "legal_search_relaunches": 2, "diagnostic_alias_applied": False, "shipping_identity_claimed": False,
@@ -670,6 +677,47 @@ class ProductionCIBoundaries(unittest.TestCase):
         path = root / "mechanism/results.json"
         path.write_text(json.dumps(report))
         return plan, report, path
+
+    def test_F_compound_v2_selects_existing_owners_and_keeps_old_defaults(self):
+        root = Path(tempfile.gettempdir()).resolve() / "ci-F-v2-plan"
+        for profile in ("test-p4", "test-p28"):
+            plan = CI.pipeline_plan("F", root, profile=profile, spelling_variant="compound-v2")
+            command = plan.stages[0].command
+            self.assertEqual(command[command.index("--spelling-variant") + 1], "compound-v2")
+            self.assertEqual(CI.spelling_declaration("F", "compound-v2", profile=profile), CI.F_COMPOUND_SPELLING)
+            checker = "check_profile_compound.py" if profile == "test-p4" else "check_profile_p28.py"
+            self.assertTrue(plan.stages[1].command[3].endswith("/" + checker))
+            self.assertEqual(plan.scan_variant, "control")
+        self.assertEqual(CI.pipeline_plan("F", root).spelling_variant, "control")
+        self.assertEqual(CI.spelling_declaration("F", "compound"), CI.COMPOUND_SPELLING)
+        for family in "ABCDE":
+            with self.subTest(family=family), self.assertRaises(ValueError):
+                CI.pipeline_plan(family, root, spelling_variant="compound-v2")
+        with self.assertRaises(ValueError):
+            CI.pipeline_plan("F", root, spelling_variant="compound-v2", scan_variant="square-successor")
+
+    def test_F_compound_v2_mechanism_joins_the_v1_base_launcher_proof(self):
+        with tempfile.TemporaryDirectory(prefix="rove-ci-F-v2-") as temporary:
+            plan, report, path = self.compound_receipt_fixture(Path(temporary).resolve(), "F", "compound-v2")
+            accepted = CI.check_stage(plan, plan.stages[1])
+            self.assertEqual(accepted["diagnostic_alias"], report["diagnostic_alias"])
+            build_path = plan.out / "artifact/build.json"
+            original = json.loads(build_path.read_bytes())
+            for key, value in (("schema", "unknown"), ("family", "A"), ("variant", "wrong")):
+                changed = json.loads(json.dumps(original)); changed["source_proofs"][0]["base"][key] = value
+                build_path.write_text(json.dumps(changed))
+                with self.subTest(key=key), self.assertRaisesRegex(ValueError, "base proof"):
+                    CI.compound_mechanism(plan, report, changed)
+            for target_name in ("shipping-output", "base-input"):
+                changed = json.loads(json.dumps(original)); outer = changed["source_proofs"][0]
+                target = outer["output"] if target_name == "shipping-output" else outer["base"]["input"]
+                target["sha256"] = "0" * 64
+                with self.subTest(join=target_name), self.assertRaisesRegex(ValueError, "output or base input join"):
+                    CI.compound_mechanism(plan, report, changed)
+            build_path.write_text(json.dumps(original))
+            changed = json.loads(json.dumps(report)); changed["startup_barriers"][0]["variant"] = "clock-atomic-launcher"
+            with self.assertRaisesRegex(ValueError, "startup did not retain"):
+                CI.compound_mechanism(plan, changed, original)
 
     def test_compound_mechanism_joins_alias_diagnostic_and_unaliased_startup_evidence(self):
         for family in "ACEF":
@@ -833,7 +881,7 @@ class ProductionCIBoundaries(unittest.TestCase):
         return plan, report, path
 
     def test_p28_full_callback_and_actual_main_receipts_are_separate_from_p4(self):
-        for family, selection in [(f, "compound") for f in "ABCEF"] + [("B", "best")]:
+        for family, selection in [(f, "compound") for f in "ABCEF"] + [("B", "best"), ("F", "compound-v2")]:
             with self.subTest(family=family, selection=selection), tempfile.TemporaryDirectory(prefix="rove-ci-p28-") as temporary:
                 plan, report, path = self.p28_receipt_fixture(Path(temporary).resolve(), family, selection)
                 accepted = CI.check_stage(plan, plan.stages[1])

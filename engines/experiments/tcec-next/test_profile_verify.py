@@ -39,12 +39,14 @@ def resident_row(resident, approximate, pid=77):
             {"memory_snapshot_not_peak": {"VmRSS": str(approximate // 1024) + " kB"}})
 
 
-def compound_gate_fixture(build, family="A", profile="test-p4"):
+def compound_gate_fixture(build, family="A", profile="test-p4", *, v2=False):
     source, native = b"int main(void){return 0;}\n", b"actual independently compiled image"
     assertions = ["_Static_assert(sizeof(int)==4,\"integer\");"]
     asserted = source + b"\n" + ("\n".join(assertions) + "\n").encode()
     compiler = list(VERIFY.F_COMPOUND_COMPILER)
-    manifest = {"family": family, "post_spelling": dict(VERIFY.COMPOUND_DECLARATION), "compiler": compiler,
+    declaration = VERIFY.F_COMPOUND_DECLARATION if v2 else VERIFY.COMPOUND_DECLARATION
+    kind = VERIFY.F_COMPOUND_V2_POLICY if v2 else VERIFY.F_COMPOUND_POLICY
+    manifest = {"family": family, "post_spelling": dict(declaration), "compiler": compiler,
                 "compile_executor": compiler[:], "compile_executor_version": VERIFY.F_COMPOUND_COMPILER_VERSION,
                 "attempts": [], "commands": []}
     original = "/original/compound-artifact"
@@ -62,13 +64,13 @@ def compound_gate_fixture(build, family="A", profile="test-p4"):
             (build / ("tool-" + str(index) + "-" + kind + ".stdin")).write_bytes(data)
         manifest["commands"].append(row)
     if family == "F":
-        manifest["native_policy"] = {"kind": VERIFY.F_COMPOUND_POLICY, "family": "F", "profile_id": profile,
-            "post_spelling": dict(VERIFY.COMPOUND_DECLARATION), "compiler": compiler[:],
+        manifest["native_policy"] = {"kind": kind, "family": "F", "profile_id": profile,
+            "post_spelling": dict(declaration), "compiler": compiler[:],
             "compiler_version": VERIFY.F_COMPOUND_COMPILER_VERSION, "source": VERIFY.pin(source), "native": VERIFY.pin(native)}
         add("target-compiler-version", None, "", (VERIFY.F_COMPOUND_COMPILER_VERSION + "\nmore compiler details\n").encode())
     for directory in ("first", "repeat"):
         gate = {"assertions": assertions[:], "source": VERIFY.pin(asserted), "native": VERIFY.pin(native), "image_identical": True}
-        if family == "F": gate.update(directory="target-type-gate", source_file="asserted.c", policy=VERIFY.F_COMPOUND_POLICY)
+        if family == "F": gate.update(directory="target-type-gate", source_file="asserted.c", policy=kind)
         manifest["attempts"].append({"directory": directory, "target_type_gate": gate})
         for name, data in (("target-type-gate/asserted.c", asserted), ("target-type-gate/x", native), ("native/x", native)):
             path = build / directory / name
@@ -598,6 +600,86 @@ class ProfileRuntimeAdmission(unittest.TestCase):
                 VERIFY.source_stages("A", post, [resource, phase, compound, dependency],
                     **{**options, "post_spelling": {**VERIFY.COMPOUND_DECLARATION, key: value}})
 
+    def test_F_compound_v2_is_one_nested_stage_before_final_dependencies(self):
+        resource = {"schema": "rove4k.c-resource-projection.v1"}
+        phase = {"schema": "rove4k.portable-phase-source.v1"}
+        compound = {"schema": VERIFY.F_COMPOUND_SCHEMA, "base": {"schema": VERIFY.COMPOUND_SCHEMA}}
+        dependency = {"schema": "rove4k.profile-dependencies.v1"}
+        post = {"path": "engines/experiments/tcec-next/profile_phase.py", "variant": "phase-init"}
+        options = dict(post_spelling=dict(VERIFY.F_COMPOUND_DECLARATION), post_scan=None,
+            source_dependencies={"path": "engines/experiments/tcec-next/profile_dependencies.py", "variant": "unused-includes"},
+            representation="source-jit", entry_cleanup="private-path")
+        stages = [resource, phase, compound, dependency]
+        self.assertEqual(VERIFY.source_stages("F", post, stages, **options), "phase")
+        for family, selected, proofs, changes in (
+                ("A", post, stages, {}), ("B", post, stages, {}), ("C", post, stages, {}), ("E", post, stages, {}),
+                ("F", None, [resource, compound, dependency], {}),
+                ("F", post, stages, {"representation": "packed-native"}),
+                ("F", post, stages, {"representation": "self-contained-elf"}),
+                ("F", post, stages, {"entry_cleanup": "none"}),
+                ("F", post, stages[:-1], {"source_dependencies": None}),
+                ("F", post, stages, {"post_scan": dict(VERIFY.SCAN_DECLARATION)}),
+                ("F", post, [resource, phase, {"schema": VERIFY.COMPOUND_SCHEMA}, dependency], {}),
+                ("F", post, [resource, phase, dependency, compound], {}),
+                ("F", post, [resource, phase, compound["base"], compound, dependency], {}),
+                ("F", post, stages, {"post_spelling": {**VERIFY.F_COMPOUND_DECLARATION, "extra": True}})):
+            with self.subTest(family=family, changes=changes, proofs=proofs), self.assertRaises(ValueError):
+                VERIFY.source_stages(family, selected, proofs, **{**options, **changes})
+
+    def test_F_compound_v2_builder_is_opt_in_and_keeps_v1_policies_separate(self):
+        spec = importlib.util.spec_from_file_location("profile_F_v2_builder_test", PATH.with_name("profile_build.py"))
+        builder = importlib.util.module_from_spec(spec)
+        sys.modules[spec.name] = builder
+        spec.loader.exec_module(builder)
+        self.assertEqual(builder.spelling_selection("F", "source-jit", "control", "phase-init", "compound-v2"),
+                         VERIFY.F_COMPOUND_DECLARATION)
+        for family in "ABCE":
+            with self.subTest(family=family), self.assertRaises(ValueError):
+                builder.spelling_selection(family, "source-jit", "control", "phase-init", "compound-v2")
+        for representation, b_variant, phase_variant in (("packed-native", "control", "phase-init"),
+                ("self-contained-elf", "control", "phase-init"), ("source-jit", "control", "control"),
+                ("source-jit", "tcec-final-lf", "phase-init")):
+            with self.subTest(representation=representation, phase=phase_variant), self.assertRaises(ValueError):
+                builder.spelling_selection("F", representation, b_variant, phase_variant, "compound-v2")
+        self.assertIsNone(builder.scan_selection("F", "source-jit", "phase-init", builder.F_COMPOUND_DECLARATION,
+                                                "unused-includes", "control"))
+        for dependencies, scan in (("control", "control"), ("unused-includes", "square-successor")):
+            with self.subTest(dependencies=dependencies, scan=scan), self.assertRaises(ValueError):
+                builder.scan_selection("F", "source-jit", "phase-init", builder.F_COMPOUND_DECLARATION, dependencies, scan)
+        defaults = builder.argument_parser().parse_args(["--entry", "F", "--profile", "test-p4", "--out", "unrun"])
+        self.assertEqual((defaults.spelling_variant, defaults.scan_variant), ("control", "control"))
+        self.assertEqual(builder.spelling_selection("F", "source-jit", "control", "phase-init", "compound"),
+                         VERIFY.COMPOUND_DECLARATION)
+        self.assertEqual(builder.COMPOUND_V1_HISTORICAL_PIN, VERIFY.COMPOUND_V1_HISTORICAL_PIN)
+        self.assertEqual(builder.COMPOUND_PIN, VERIFY.COMPOUND_PIN)
+        compiler = list(builder.F_COMPOUND_COMPILER)
+        for profile, identity in VERIFY.F_COMPOUND_V2_IDENTITIES.items():
+            size, source_sha, native_sha = builder.F_COMPOUND_V2_IMAGES[profile]
+            self.assertEqual({"source": {"bytes": size, "sha256": source_sha},
+                              "native": {"bytes": 18568, "sha256": native_sha}}, identity)
+            old_size, old_sha, old_native = builder.F_COMPOUND_IMAGES[profile]
+            self.assertEqual((old_size, old_sha, old_native),
+                (VERIFY.F_COMPOUND_IDENTITIES[profile]["source"]["bytes"],
+                 VERIFY.F_COMPOUND_IDENTITIES[profile]["source"]["sha256"], native_sha))
+            self.assertNotEqual(source_sha, old_sha)
+            self.assertEqual(size, old_size - 4)
+            fixture = b"finite source fixture"
+            fixture_pin = VERIFY.pin(fixture)
+            with patch.dict(builder.F_COMPOUND_V2_IMAGES, {profile: (len(fixture), fixture_pin["sha256"], native_sha)}):
+                policy = builder.compound_native_policy("F", profile, builder.F_COMPOUND_DECLARATION, fixture,
+                                                       compiler, compiler, builder.F_COMPOUND_COMPILER_VERSION)
+                self.assertEqual(policy["kind"], VERIFY.F_COMPOUND_V2_POLICY)
+                self.assertEqual(policy["post_spelling"], VERIFY.F_COMPOUND_DECLARATION)
+                with self.assertRaises(ValueError):
+                    builder.compound_native_policy("F", profile, builder.COMPOUND_DECLARATION, fixture,
+                                                   compiler, compiler, builder.F_COMPOUND_COMPILER_VERSION)
+                for changed_compiler, changed_executor, changed_version in ((compiler, ["other-cc", *compiler[1:]],
+                        builder.F_COMPOUND_COMPILER_VERSION), (["other-cc", *compiler[1:]], compiler,
+                        builder.F_COMPOUND_COMPILER_VERSION), (compiler, compiler, "different compiler")):
+                    with self.assertRaises(ValueError):
+                        builder.compound_native_policy("F", profile, builder.F_COMPOUND_DECLARATION, fixture,
+                                                       changed_compiler, changed_executor, changed_version)
+
     def test_compound_helper_requires_both_reviewed_tool_identities(self):
         from copy import deepcopy
         rows = [{"path": name, "role": "tool", **identity} for name, identity in
@@ -656,6 +738,26 @@ class ProfileRuntimeAdmission(unittest.TestCase):
                         {"spelling": types.SimpleNamespace(SCHEMA="wrong")}):
             with self.subTest(binding=binding), self.assertRaises(ValueError):
                 VERIFY.inverse_source_stages(b"SPRtable=222;", [(*stages[3][:3], binding)])
+
+    def test_F_compound_v2_inverse_binds_current_helper_and_v1_base(self):
+        calls = []
+        individual = types.SimpleNamespace(SCHEMA=VERIFY.SPELLING_SCHEMA)
+        proof = {"schema": VERIFY.F_COMPOUND_SCHEMA, "base": {"schema": VERIFY.COMPOUND_SCHEMA}}
+        def restore(data, supplied, *, spelling):
+            self.assertIs(supplied, proof)
+            self.assertIs(spelling, individual)
+            calls.extend(("parentheses", "base-v1"))
+            return data[2:]
+        helper = types.SimpleNamespace(SCHEMA=VERIFY.COMPOUND_SCHEMA, F_SCHEMA=VERIFY.F_COMPOUND_SCHEMA, restore_source=restore)
+        dependency = types.SimpleNamespace(restore_source=lambda data, supplied: calls.append("dependency") or b"PS" + data)
+        stages = [(helper, proof, b"resource-phase", {"spelling": individual}),
+                  (dependency, {}, b"PSresource-phase")]
+        self.assertEqual(VERIFY.inverse_source_stages(b"resource-phase", stages), b"resource-phase")
+        self.assertEqual(calls, ["dependency", "parentheses", "base-v1"])
+        for changed in (types.SimpleNamespace(SCHEMA=VERIFY.COMPOUND_SCHEMA, restore_source=restore),
+                        types.SimpleNamespace(SCHEMA=VERIFY.COMPOUND_SCHEMA, F_SCHEMA="wrong", restore_source=restore)):
+            with self.subTest(helper=changed), self.assertRaises(ValueError):
+                VERIFY.inverse_source_stages(b"PSresource-phase", [(changed, proof, b"resource-phase", {"spelling": individual})])
 
     def test_compound_request_is_only_explicit_B_duplicate_best(self):
         from copy import deepcopy
@@ -739,6 +841,41 @@ class ProfileRuntimeAdmission(unittest.TestCase):
         for declaration in (None, {"path": VERIFY.SPELLING, "selection": "best", "variant": "atomic-assignment"}):
             with self.subTest(declaration=declaration), self.assertRaisesRegex(ValueError, "outside its finite route"):
                 VERIFY.compound_native_evidence({"post_spelling": declaration, "native_policy": {}}, Path("unread"), b"", b"", {}, "test-p4")
+
+    def test_F_compound_v2_native_scope_rejects_v1_transplants_and_type_changes(self):
+        for profile in VERIFY.F_COMPOUND_V2_IDENTITIES:
+            for defect in (None, "missing", "v1-policy", "v1-source", "v1-declaration", "source", "native", "float", "bool",
+                           "alternate-compiler", "version", "banner", "gate-policy", "extra-declaration", "family"):
+                with self.subTest(profile=profile, defect=defect), tempfile.TemporaryDirectory(prefix="rove4k-F-compound-v2-") as temporary:
+                    build = Path(temporary)
+                    manifest, source, native, proof = compound_gate_fixture(build, "F", profile, v2=True)
+                    fixture_identity = {"source": VERIFY.pin(source), "native": VERIFY.pin(native)}
+                    if defect == "missing": del manifest["native_policy"]
+                    elif defect == "v1-policy": manifest["native_policy"]["kind"] = VERIFY.F_COMPOUND_POLICY
+                    elif defect == "v1-source": manifest["native_policy"]["source"] = VERIFY.F_COMPOUND_IDENTITIES[profile]["source"]
+                    elif defect == "v1-declaration": manifest["post_spelling"] = dict(VERIFY.COMPOUND_DECLARATION)
+                    elif defect == "source": manifest["native_policy"]["source"]["sha256"] = "0" * 64
+                    elif defect == "native": manifest["native_policy"]["native"]["sha256"] = "0" * 64
+                    elif defect == "float": manifest["native_policy"]["source"]["bytes"] = float(len(source))
+                    elif defect == "bool": manifest["native_policy"]["source"]["bytes"] = True
+                    elif defect == "alternate-compiler": manifest["compile_executor"][0] = "/usr/bin/gcc-11"
+                    elif defect == "version": manifest["compile_executor_version"] = "different compiler"
+                    elif defect == "banner":
+                        data = b"different actual compiler banner\n"
+                        manifest["commands"][0]["stdout"].update(VERIFY.pin(data))
+                        (build / "tool-1-target-compiler-version.stdout").write_bytes(data)
+                    elif defect == "gate-policy": manifest["attempts"][0]["target_type_gate"]["policy"] = VERIFY.F_COMPOUND_POLICY
+                    elif defect == "extra-declaration": manifest["post_spelling"]["extra"] = True
+                    elif defect == "family": manifest["family"] = "A"
+                    with patch.dict(VERIFY.F_COMPOUND_V2_IDENTITIES, {profile: fixture_identity}):
+                        if defect is None:
+                            evidence = VERIFY.compound_native_evidence(manifest, build, source, native, proof, profile)
+                            self.assertEqual(evidence["declaration"], VERIFY.F_COMPOUND_DECLARATION)
+                            self.assertEqual(evidence["native_policy"]["kind"], VERIFY.F_COMPOUND_V2_POLICY)
+                            self.assertEqual(len(evidence["attempts"]), 2)
+                        else:
+                            with self.assertRaises(ValueError):
+                                VERIFY.compound_native_evidence(manifest, build, source, native, proof, profile)
 
     def test_dependency_cleanup_follows_spelling_and_is_undone_first(self):
         resource = {"schema": "rove4k.c-resource-projection.v1"}
