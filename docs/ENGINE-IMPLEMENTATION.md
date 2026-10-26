@@ -9,6 +9,19 @@ zero and the initial model weights remain unchanged; trained strength is not cla
 
 ### Current CI, offline seed and local source-path follow-up
 
+The c80041d Advanced-readiness source checkpoint passes engine40315781677
+(26/26), NVCompact40315781669 and repository40315781454. The original foundation
+job121547901502 records494 contract +27 E19 +384 evaluator/service tests,
+905 across38 suites, with the separate four native faults still returning2
+and no unsettled commands. These checks precede the new structural helpers.
+Its attempted new seed capture stops before ZIP download/prepare: the actual
+execution merge188dbf5 has ordered parents develop901afce/headc80041d, while the
+unmodified PR/run API originals still report base761bdc0. The existing equality
+assumption rejects it. Preserve this failure and the completed409 seed. A
+traveling raw Git ancestry proof and explicit document-role mapping are being
+implemented in the shared stdlib producer/consumer validator; raw API snapshots
+are not rewritten. This source change needs a new CI/cohort and actual transport.
+
 The later qualification-tools checkpoint a69928f passes engine40302670246
 (26/26), NVCompact40302670026 and repository40302670115. Exact foundation
 job121504082563 passes494 contract,27 E19 and354 evaluator/service tests,
@@ -164,14 +177,28 @@ preserving full functionality; small ABI packing is a component, not a claimed
 solution. Runtime/library and board/search-consumption architectures are under
 read-only review, with no new structural implementation or savings claimed.
 
-The user now plans to share a separate D structural PR with a reported
-hundreds-of-bytes reduction into the4KiB range. Its code and qualification are
-not yet verified. Preserve the5233B/function-cost/ownership baseline and avoid
-competing D implementation before comparing that PR. At active work milestones,
-inspect open PRs, then review its body/diff, removed/replacement responsibilities,
-full functionality, actual whole cost and reproduction before applying it.
-No automation is created. AWS and ABCE/F work continue in parallel; D integration
-and validation estimates will be updated from the actual published scope.
+[PR #21](https://github.com/daejunnom/Rove4k/pull/21) is now open. Its initial
+144ad16 reports full P4 whole5233→4937B, or4909B with a separate codec, and
+P28/W256 cost-only4921/4905B. Initial board/search/runtime static review passes;
+the parent's independent cost reproduction now matches control7104B native and
+5233B whole, full6656B native and4937/4909B whole, including the author's hashes.
+The39 actual inputs are frozen outside Git. Both native builds repeat; the tool
+does not internally generate every whole package twice. The qualified5233B
+identity stays distinct while fresh actual functionality is pending. Local integration fixes
+resolved-output ancestry checks, completion after Host cleanup, partial Reader
+capture and signal/terminal observation ownership. Pure24 helper checks and13
+real-Python-child observer cases pass; these are harness evidence, not D engine
+qualification. New native/source/layout needs a separate StructuralAdmission
+and fresh actual rules, search, lifecycle and P4 runtime before selection.
+
+The subsequent fafeb3d WIP adds search/worker/board, codec/ELF and cross-family
+experiments without changing initial144ad BEST or the default producer. Reported
+4865B and other new combinations are not parent measurements. Those additional
+cost tools repeat output/cleanup/completion bugs and remain unexecuted here
+until their ownership boundary is fixed. Initial candidate reproduction and
+follow-up source review stay separate. No automation is created; AWS and ABCE/F
+work continue in parallel. General4K/ELF size, target hardware and strength gates
+remain open.
 
 The first sparse-square transfer costs A3794→3781B and C3927→3915B in P4; B4071→4072B
 loses and stops. A separate fresh pre-cleanup six-profile comparison now confirms

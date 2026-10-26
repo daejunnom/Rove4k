@@ -163,13 +163,25 @@ rodata176 B다. text는 보드/평가2147 B, search2103 B, 그 밖의 혼합 실
 작은 ABI 변경을 구조 해법으로 재명명하지 않고 보드·검색 소비·runtime의 전체 책임
 예산으로 후보를 고른다. 기능 제거로 목표를 통과시키지 않는다.
 
-사용자가 별도 구조 변경으로 수백 B를 줄여4KiB대에 도달했고 PR을 공유할 예정임을
-알렸다. 아직 공개되지 않은 후보의 크기·기능 자격을 확인된 결과로 승격하지 않는다.
-현재5233 B·함수 비용·소유권 분석은 비교 기준으로 보존한다. 겹치는 D 구현을 새로
-시작하지 않고, 진행 중인 체크포인트에서 open PR을 확인해 본문·diff·실제 source/전체
-파일 비용·재현·full 기능을 검토한 뒤 반영한다. 예약/주기 작업을 만들지 않는다.
-기존 AWS와 ABCE/F 공통 축약은 병렬로 계속한다. D의 실제 구현·검증 시간은 새 PR의
-공개 코드와 소비자 범위를 확인한 뒤 재산정한다.
+공개된 [PR #21](https://github.com/daejunnom/Rove4k/pull/21)의 최초144ad16은
+full P4를5233→4937 B, 같은 native의 별도 codec으로4909 B라고 보고한다.
+P28/W256의4921/4905 B는 작성자 비용 결과이며 실행 자격은 아니다. 부모에서의
+qualified5233 B·함수 비용·소유권 기준은 새 기능 인수와 구분해 유지한다.
+보드/검색과 runtime 변환의 정적 검토를 마쳤고, 비용 도구의 실제 Git 경로 판정·
+cleanup 이후 완료 처리와 runtime 관찰기의 부분 Reader/신호 소유권을 수정했다.
+새 helper 순수24검사와 실제 Python 자식을 쓰는 관찰기13사례는 통과했으며,
+39개 실제 입력을 외부에 동결한144ad-safe-v1에서 control/full 비용은 재현됐다.
+7104/6656 B native와4937/4909 B 후보 전체 파일이 작성자 핀과 일치하며,
+두 번의 native 생성은 일치한다. 전체 패키지를 내부에서 두 번 생성했다는 주장은 아니다.
+별도 동결된 관찰기 의존성을 보완해 실제 기능 검증을 진행한다.
+새 native는 기존 Square 허용 목록에 넣지 않고 별도 StructuralAdmission과
+실제 규칙·검색·lifecycle·P4 runtime으로 인수한다. 일반4K/ELF 목표는 아직 미달이다.
+
+후속fafeb3d WIP는 검색/worker/보드·codec·ELF·다른 엔진 전이 도구를 추가한다.
+기존144ad의 BEST와 기본 producer는 바꾸지 않는다. 보고된4865 B 등은 별도
+수동 조합이며 아직 부모 실측이 아니다. 새 비용 도구에도 경로·완료·정리 문제가
+있어 공통 owner 수정 전에는 실행하지 않는다. 최초 후보를 먼저 재현하고 후속
+구조를 별도 감사한다. 예약/주기 작업은 만들지 않으며 AWS와 ABCE/F는 병렬로 계속한다.
 
 ### 프로필
 
@@ -641,7 +653,17 @@ credits 배열이다. 기존100USD를 현재 잔액이나 크레딧 소멸로 �
 새 Advanced template29332 B의 실제 ValidateTemplate은8parameter/NamedIAM으로
 통과했다. 파일 SHA ccd414f4c479409cc830c1a81797a658a5309b3d3bd64a65a513d46013544ccb,
 마지막 LF를 제외한 canonical digest는 e083f2cad580549a2494f1bf6d4e187cc5ee703f7d2fae411a3dde3c9b006bdd다.
-새 source의 원격 CI·seed는 별도 다음 단계이며 실제 stack·ControllerRole OIDC·게시·launch는 미수행이다.
+이8파일의 c80041d 원격 CI는 engine40315781677의26/26, NVCompact40315781669,
+repository40315781454를 통과했다. 원본 foundation121547901502는
+494+27+384=905개/38suite이며 별도 native 실패 주입4개는 return2/cleanup0오류다.
+새 seed capture는 실제 merge188dbf5의 ordered parents901afce/c80041d와 원본
+PR/run API의 reported base761bdc0가 다르다는 기존 equality 전제에서 중단됐다.
+24ZIP 다운로드나 prepare 이전 실패이며 CI 실패가 아니다. 원본 API를 고치지 않고,
+실제 Git commit/tree와 execution base→reported base 경로를 운반해 검증하는
+execution-base-ancestor-v1을 한 stdlib worker로 생산·inspect·복원·재검증에 연결한다.
+문서 역할과 member 핀을 명시하고 위조/다른 repo/ref/parent/tree는 출력 생성 전에
+거부한다. 기존 v1과409 seed는 보존하며 새 source/CI/cohort가 필요하다.
+실제 stack·ControllerRole OIDC·게시·launch는 미수행이다.
 
 공통 축약 P4 실측은62outer와 중첩 소유 명령을 자연 종료했다. ABCE resolver는
 각각3781→3785/4071→4075/3915→3919/3882→3885 B 손실로 종료했다. full F의
@@ -658,13 +680,16 @@ D qualification 도구만의 a699 통합은 기존 HOST/R·선택된 profile clo
 
 ```mermaid
 flowchart TD
-  P[공통 준비 완료: a699 CI·409 seed·단독 IAM] --> S[명시적 Advanced readiness·IAC·소비자 구현]
-  P --> D[D 현재 비용·소유권 분석 보존]
-  D --> DP{사용자 구조 PR 공개}
-  DP --> DR[본문·diff·full 기능·실제 전체 비용 검토]
-  DR --> DV[D 개선 반영·새 소스/규칙/runtime 검증]
-  P --> B[공통 resolver·F 순회식의 전체 비용 비교]
-  S --> C[새 head의 정확한 CI]
+  P[공통 준비 완료: c800 CI·409 seed·단독 IAM·Advanced 읽기] --> S[원본 Git 계보 증명·공통 소비자·controller 연결]
+  P --> D[PR21 최초144ad: 정적 검토·harness 수정·동결]
+  D --> DR[control/full 실제 비용 재현]
+  DR --> DV[별도 StructuralAdmission·규칙/검색/lifecycle·실제 P4]
+  D --> DW[후속fafeb WIP: 조합 owner 충돌·harness 수정 후 별도 검토]
+  P --> B[F compound-v2·기존 v1 보존·세 프로필 연결]
+  B --> BV[실제 P4/P28 기능·규칙/runtime·W256 compile-only]
+  S --> C[통합 head의 정확한 CI]
+  DV --> C
+  BV --> C
   C --> T[새 HOST cohort·seed 생성·전체 복원 감사]
   S --> H[최소 IAM·종료 장치·불변 게시의 배포 검토]
   H --> X[기한 고정 stack·S3 버전·실제 OIDC 검증]
@@ -674,19 +699,21 @@ flowchart TD
   X --> N[Spot 실제 배치·NUMA·대용량 초기화]
   N --> L[4KiB 적격 선수 TEST 부분 리그]
   DV --> A[최종 범위·실패·출처 감사]
-  B --> A
+  BV --> A
+  DW --> A
   C --> A
   L --> A
 ```
 
-새 account-mode 전제로 다음 소스/운송 체크포인트 추정을 조정한다.
-공통 준비0.15–0.3h → max(Advanced source/IAC·호출부·검증1.5–4h,
-공통 축약 비교0.5–1.5h, D 구조 책임/코드비용 분석1–3h) → 공유 자원 대기0–0.5h
-→ 새 CI0.25–0.75h·새 seed0.25–1h → 최종 감사0.5–1h로 약2.65–7.55h다.
-병렬 작업 시간을 합산하지 않으며 D4K 수렴·실제 리그 완주·외부 gate 대기는 이
-체크포인트 추정에 포함하지 않는다. 실제 API·컴파일·실행 실패가 나면 남은 경로와
-공유 자원 대기를 다시 추정한다.
-공개 전 D PR의 대기·구현·재검증은 이 내부 체크포인트 창에 포함하지 않는다.
+공개된 PR과 c800 결과를 기준으로 다음 소스/운송 체크포인트를 재산정한다.
+공통 준비0.15–0.3h → max(D 최초 구조 인수·실제 검증1.5–4h,
+F-v2 소비자·실제 P4/P28 검증1.5–3.5h, Git 계보 공통 구현·controller 검증1–3h)
+→ 공유 CPU·compiler·통합 대기0–0.5h → 새 CI0.25–0.75h·새 seed0.25–0.75h
+→ 최종 감사0.5–1h로 약2.65–7.3h다. 8논리 CPU는 순수 F0/1·관찰기2/3·AWS검사4/5·
+D비용6/7처럼 임시 배정하고 실제 엔진 단계는 완료/반환 뒤 재배정한다.
+이 로컬 배정은 물리 코어·scored placement 자격이 아니다. 분기 시간을 합산하지
+않으며 D4K 수렴·후속 WIP 전체 포트폴리오·실제 리그 완주·외부 gate 대기는 이
+체크포인트 추정에 포함하지 않는다. 새 실패가 나면 남은 경로와 공유 대기를 갱신한다.
 
 2026-10-25T22:18:13Z의 공식 Advisor 조건부 조회는304였고 객체 Last-Modified는
 여전히2026-03-20T23:38:55Z다. 새 데이터가 아니므로 과거15–20% 구간을 현재 위험도로
