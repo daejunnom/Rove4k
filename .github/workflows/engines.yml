@@ -253,6 +253,7 @@ jobs:
           python -I -B engines/experiments/tiny-d-submission/test_no_tid_startup.py --self-test
           python -I -B engines/experiments/tiny-d-submission/test_exact_clock_predicate.py --self-test
           python -I -B engines/experiments/tiny-d-submission/test_no_tid_qualification.py
+          python -I -B engines/experiments/tiny-d-submission/qualify_square_successor.py --self-test
           python -I -B engines/experiments/tiny-d-submission/test_proper_alpha.py --self-test
           python -I -B engines/experiments/tiny-d-submission/test_proper_alpha_admission.py
           python -I -B engines/experiments/tcec-next/check_profile_square_successor.py --self-test

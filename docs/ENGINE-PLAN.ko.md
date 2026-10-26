@@ -102,7 +102,7 @@ A/C의 이전 compound 기준은 각각3794/3804/3793 B와3927/3940/3928 B였다
 새 A/C P4/P28 네 실제 경로는 규칙·초기화 메커니즘·전체 source-JIT runtime을 통과했다.
 각 경로24 GO/22 합법 응답, 합계96 GO/88 응답이며16개 그룹이 자연 종료했다.
 이는 로컬 기능 자격이고 W256 실행·물리 배치·기력은 미검증이다. 새 선택을 사용하는
-정확한 CI·독립 Ubuntu22 소비자와 새 cohort 운송은 다음 감사 단계다.
+정확한 CI·독립 Ubuntu22 소비자와 새 cohort 운송도409062f에서 통과했다.
 
 001800e의 engine CI40228534420은26개 작업을 모두 통과했다. P4/P28 각각
 여섯 source factory와 여섯 독립 Ubuntu22/GCC11 소비자가 실제 실행을 끝냈고,
@@ -135,9 +135,14 @@ whole5261→5273 B로 손해여서 미채택한다. source-JIT 두 경로도 각
 같은 유효 칸 순회식을 D에 전이한 별도 비용 실험은 현재 no-TID의 여섯 원본을
 재생성한 control과 비교했다. source7114→7101 B, compressed6972→6956 B,
 packed5245→5233 B로 세 경로 모두 줄었다. native7104/linked7456 B의 길이는 같지만
-바이트가 달라 별도 새 admission·규칙·실제 runtime을 준비한다. 5233 B는 아직
-비용 후보이며 qualified5245 B나 다른 proper-alpha 계보를 대체하지 않는다.
-P4 비용 후보의 차이1137 B를 W256 제출의 남은 차이로 표시하지 않는다.
+바이트가 달라 새 Search→NoTid→Square typed admission을 구성했다. 새3인자
+초기화 장벽, plain/UBSan 규칙105사례·2858합법 수와 실제128MiB P4 실행을
+통과했다. 네 그룹은24 GO/22합법 응답, 지속5TID·네 worker positive CPU와
+자연 종료를 확인했다. 전체53개 소유 명령과 독립499파일 감사도 통과했다.
+5233 B는 로컬 full P4 기능 검증 후보이며 여전히4KiB보다1137 B 크다.
+새 세 qualification helper의 순수16검사를 CI에 등록하며 새 head 실행 결과는
+별도 확인한다. 이전5245 B 근거나 proper-alpha 계보를 새 결과로 바꾸지 않는다.
+이 P4 차이를 W256 제출의 남은 차이로 표시하지 않는다.
 
 ### 프로필
 
@@ -542,15 +547,17 @@ SSM/HTTPS 연결·capacity·개별 credit 만료/Spot 적용·배포 권한은 �
 새 차단 조건은 관리형 PAID의 SCP다. 실제 GitHub OIDC 제공자 조회가 명시적으로
 거부됐으며, 공식 PAID 정책도 `iam:*Provider*`와 Spot 요청/Spot market 실행을 제한한다.
 PAID·quota·가격 조회 성공으로 Spot 권한을 추정하지 않는다. 사용자에게 별도로 승인받은
-Advanced 전환은 준비만 수행했고 최종 활성화는 사용자가 직접 진행한다. 이 전환은
+Advanced 전환은 사용자가 team `daejunnom`으로 활성화를 완료했다. 이 전환은
 되돌릴 수 없고 기존 AWS spend limit이 제거되므로 캠페인 로컬 상한과 구분한다.
 화면 제어 초기화 실패로 현재 spend limit·다른 프로젝트 비용·관리 이메일을 읽거나
 콘솔을 작성하지 못했다. 공식 절차·확인/미확인값·전환 영향은 외부 인계에 기록했다.
 전환 후에도 실제 OIDC/정책·Outputs·버전 고정 게시·Advisor 등 gate를 다시 확인한다.
 
-별도의 GitHub 조회에서 기본 branch는 main이며 AWS workflow 조회는404였다.
-현재 파일은 feature 소스에만 있으므로 실제 dispatch 전에 표준 release→main PR을
-통한 등록이 필요하다. 이 등록의 runtime 최소 범위는 workflow와 stdlib controller
+초기 GitHub 조회에서 기본 branch main의 AWS workflow는404였다. 이후 표준
+release PR #19의 두 파일을 main4fc00d9에 병합해 수동 workflow 등록을 확인했고,
+PR #20으로 같은 bytes를 develop901afce에 역통합했다. 두 PR의 exact-head
+Node22/24 lifecycle CI가 통과했으며 AWS dispatch는 아직0회다.
+이 등록의 runtime 최소 범위는 workflow와 stdlib controller
 두 파일이며 실제 엔진 source는 별도 검증된 SHA checkout으로 분리한다. 전체66개
 검사는 외부34파일 unit fixture를 사용하고, 이를 main 자동 CI나 production seed로
 표시하지 않는다. main 직접 push·등록 우회·자동 AWS 실행은 하지 않는다.
@@ -559,37 +566,51 @@ Advanced 전환은 준비만 수행했고 최종 활성화는 사용자가 직�
 - Advanced 전환: https://docs.aws.amazon.com/accounts/latest/reference/activate-advanced-features.html
 - 수동 workflow 등록: https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manually-run-a-workflow
 
-### 0cd 이후 남은 작업과 병렬 실행
+### 409 이후 남은 작업과 병렬 실행
 
-아래는 위의28ae 이전 추정과 구분한 현재 의존성이다. E19 step0·D의 두 국소
-자격 검사·기준 cohort의 오프라인 seed는 완료됐다. A/C 새 순회식의 여섯 프로필
-비용 감사도 끝났으며 생산 검증기의 통합과 새 실제 실행이 진행 중이다. 다른
-분기와 공유하는 기존 R/build/rules/CI 파일은 한 writer가 순차 통합하고, D의 다음
-압축 분석과 AWS 읽기 전용 설정 조회는 그 작업과 병렬로 진행한다.
+아래는 앞선 추정과 구분한 현재 의존성이다. E19 step0와 D5233 B의 새 P4
+기능 자격은 완료됐다. 409062f의 engine40293601820은26/26, NVCompact40293601777과
+repository40293601785도 통과했다. exact foundation121474194541의 실제 결과는
+478+27+354=859개/37suite이며 별도 native 실패 주입4개도 원래 return2를 유지했다.
+앞선2ea2015의 실패 원인은 미확정으로 보존한다.
+
+A/C 새 선택의12개 source와12개 독립 Ubuntu22 소비자를 포함한 같은409 cohort에서
+새 seed도 prepare→inspect→새 Linux materialize→전체 재검증을 완료했다.
+ZIP은6182항목·230,926,297 B 확장·62,475,059 B wire이며 SHA-256은
+`665303cd807e87b01d16eaaf1bed311272969033ab70c7416561867f2283348f`다.
+manifest1,954,243 B의 SHA는
+`e3e2a8064c99666e465c3306b70259bf06b9970695adf21a6d500359ed9d66d2`다.
+canonical merge bdc6fccc/tree5e933d23, ordered parents develop761bdc0/head409062f를
+고정하며 source268파일/898assertion·원본24ZIP·36root 대응 계획을 확인했다.
+후속 develop 이동으로 이 원본 권한을 바꾸지 않는다. S3 게시·EC2·배치·리그는 별도다.
+
+다음은 D의 세 qualification 도구와 순수16검사의 CI 통합, full 기능 추가 축약,
+Advanced 이후 실제 권한·billing/credit·기존 binding 재조회다. 공통 workflow/docs는
+한 writer가 통합하고 읽기 전용 AWS 검토와 압축 분석은 병렬로 진행한다.
+새 qualification 도구만의 통합은 기존 HOST/R·선택된 profile closure를 바꾸지
+않으므로 완성된409 seed를 새 source 자격으로 재표시하거나 불필요하게 재생성하지 않는다.
 
 ```mermaid
 flowchart TD
-  P[공통 준비 완료: 0cd CI와 기준 seed] --> S[A/C 유한 정책·R·규칙·CI 통합]
+  P[공통 준비 완료: 409 CI·선택 source·seed 동결] --> S[D 새 qualification 도구·순수16검사 통합]
   P --> D[D full 기능의 다음 압축 가설 분석]
-  P --> B[AWS 갱신 세션·새 template·실제 binding 조회]
-  S --> V[새 A/C P4와 P28 규칙·초기화·실제 실행]
-  V --> C[새 정확한 CI와 독립 Ubuntu22 소비]
-  C --> T[새 선택 cohort 운송·전체 재검증]
-  B --> Q{사용자 Advanced 전환·실제 OIDC 권한 확인}
+  P --> B[Advanced 완료 후 실제 권한·credit·binding 조회]
+  S --> C[새 head의 정확한 CI]
+  B --> Q{실제 OIDC·정책·배포 binding 검토}
+  Q --> H[한정 IAM·종료 장치·조건부 seed 게시 준비]
   Q --> G{최신 Advisor 5% 미만과 비용·자원 gate}
-  T --> H[불변 캠페인·OIDC·조건부 seed 게시 준비]
-  G -->|충족한 경우| H
   H --> N[Spot 실제 배치·NUMA·대용량 초기화]
+  G -->|충족한 경우| N
   N --> L[4KiB 적격 선수 TEST 부분 리그]
   D --> A[최종 범위·실패·출처 감사]
-  T --> A
+  C --> A
   L --> A
 ```
 
-다음 소스/CI 체크포인트의 추정은 공통 준비0.1–0.25h 후
-max(A/C 통합·국소 검증2–5h, D 가설 분석0.5–2h, AWS 설정 조회0.25–0.75h),
-공유 CPU·통합 대기0–0.5h, CI0.25–0.75h, 감사0.25–0.75h를 적용해 약2.6–7.3h다.
-새 cohort의 운송 재검증이 필요하면 별도0.25–1h를 마지막 경로에 반영한다.
+다음 소스/권한 체크포인트의 추정은 공통 준비0.1–0.25h 후
+max(D 도구 통합·국소 검증0.25–0.75h, D 가설 분석0.5–2h,
+AWS 전환 후 권한·binding 검토0.5–1.5h), 공유 CPU·통합 대기0–0.25h,
+CI0.25–0.75h, 최종 감사0.25–0.5h를 적용해 약1.1–3.75h다.
 병렬 작업 시간을 합산하지 않으며 D4K 수렴·실제 리그 완주·외부 gate 대기는 이
 체크포인트 추정에 포함하지 않는다. 실제 API·컴파일·실행 실패가 나면 남은 경로와
 공유 자원 대기를 다시 추정한다.

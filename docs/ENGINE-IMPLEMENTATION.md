@@ -7,7 +7,35 @@ zero and the initial model weights remain unchanged; trained strength is not cla
 
 ## Current integration checkpoint, 2026-10-26
 
-### Completed offline seed and local source-path follow-up
+### Current CI, offline seed and local source-path follow-up
+
+Checkpoint409062f passes all three workflows: engine40293601820 (26/26),
+NVCompact40293601777 and repository40293601785. Exact foundation job121474194541
+passes478 contract,27 E19 and354 evaluator/service tests,859 across37 suites.
+Four separately injected native faults retain return2. All twelve P4/P28 source
+jobs and twelve independent Ubuntu22/GCC11 consumers pass, including the new
+A/C selection. This does not establish the cause of the earlier2ea2015 failure.
+
+The new canonical409 cohort completes prepare, inspect, a fresh Linux materialize
+and every member revalidation. Its6182 ZIP entries contain230926297 expanded
+bytes and62475059 wire bytes. ZIP SHA-256 is
+`665303cd807e87b01d16eaaf1bed311272969033ab70c7416561867f2283348f`;
+the1954243B manifest is
+`e3e2a8064c99666e465c3306b70259bf06b9970695adf21a6d500359ed9d66d2`.
+Actual Git authority is merge bdc6fccc, tree5e933d23, with ordered parents
+develop761bdc0 and head409062f. Its268 source files and898 source assertions
+match, and all24 original ZIP digests match. The36 original absolute roots are
+validated as a restoration plan, not physically restored. This immutable source
+authority survives subsequent develop movement. Offline transport does not
+prove S3 publication, EC2 execution, physical placement or scoring.
+
+PR #19 registers only the manual AWS workflow and controller helper on main at
+4fc00d9; PR #20 back-integrates the same bytes into develop at901afce. Exact-head
+Node22/24 lifecycle checks pass for both PRs. The AWS workflow is registered but
+has no dispatch. The user now confirms Advanced activation with team daejunnom;
+post-transition effective permissions and plan/billing state still need fresh
+read-only checks. Project Rove4k, profile rove4k, Sydney and the original campaign
+caps remain unchanged. Fresh Advisor<5% is still an independent launch gate.
 
 Checkpoint0cd1324 passes all three workflows: engine40238075060 (26/26),
 NVCompact40238074950 and repository40238074958. Exact foundation job121303838777
@@ -52,8 +80,18 @@ A separate fresh no-TID square-successor cost class reduces source-JIT7114→710
 compressed6972→6956B and packed5245→5233B. All15 tool commands, strict inverses,
 control identities and repeats pass independent evidence audit. Linked7456B and
 native7104B lengths stay fixed but their identities change. This5233B P4 candidate
-has not passed fresh typed/rules/runtime qualification and does not replace the
-qualified5245B class or the separate proper-alpha lineage.
+now passes a fresh SearchAdmission→NoTidAdmission→SquareAdmission chain, a new
+four-worker three-argument startup barrier, plain/UBSan rules (105 cases/2858
+legal moves), and actual packed128MiB P4 runtime. Its four naturally settled
+groups complete24 GO/22 legal replies; all four workers show positive CPU and
+the same five-task identity persists. All53 owned commands settle naturally,
+with no forced cleanup or outstanding owner. The eight plain/UBSan PVS probes
+agree across original/search/no-TID/square lineages. Independent evidence audit
+checks499 named files and152 fresh source pins. The new three qualification
+helpers add16 pure admission/lifecycle self-tests to CI; registration is not a
+claim of execution by a new CI head. The candidate remains1137B above4KiB and
+size/placement/strength/event/selection false. It does not relabel the original
+5245B evidence, qualify W28/W256, or compose the separate proper-alpha lineage.
 
 The first sparse-square transfer costs A3794→3781B and C3927→3915B in P4; B4071→4072B
 loses and stops. A separate fresh pre-cleanup six-profile comparison now confirms
@@ -65,7 +103,7 @@ source-bound initialization mechanisms and unmodified source-JIT runtime. Four
 profiles each complete24 GO/22 legal replies,96/88 across16 naturally settled
 groups. A separate331-test cross-consumer regression passes. Default control
 and old compound native maps remain unchanged. Exact new-selection CI, independent
-Ubuntu22 consumption and a new transport cohort are still required; W256 remains
+Ubuntu22 consumption and transport now pass at409062f as recorded above; W256 remains
 compile/type/source-only and local placement/strength is unqualified.
 
 The cost-tools checkpoint7d2db44 passes all three workflows, including all26
@@ -81,7 +119,7 @@ trials succeed, so its exact cause remains unknown. A shared failure-only logger
 now captures alloc/create/join rc/errno and bounded fixed kernel counters without
 changing shipping source, resource limits, normal output or error returns. Four
 injected native failures retain return2. The new actual local A/P28 CIPlan passes
-all four stages; new remote CI is still required.
+all four stages; the later409062f remote cohort also passes, as recorded above.
 
 The new dispatch-only AWS workflow supplies direct OIDC and executes the seed's
 frozen controller. Git environment/replace/lazy-fetch substitution, hidden
@@ -97,12 +135,11 @@ actual service ValidateTemplate. The original failure is preserved. Read-only
 network/AMI/quota/price candidates are recorded, not deployment authorization.
 An actual OIDC-provider read is explicitly denied by SCP; the published managed
 Paid policy also denies provider operations and Spot requests/market launches.
-Advanced-transition preparation is now explicitly authorized, with irreversible
-activation left to the user. It removes existing AWS spend limits; our campaign
+The user has completed Advanced activation with team daejunnom. It removes existing AWS spend limits; our campaign
 caps do not replace an AWS-enforced spend limit. UI initialization failed, so
 current spend limits, other project costs and the management email are unknown.
 Deployment/VersionId/NUMA, effective post-transition permissions and fresh
-Advisor<5% gates remain open. No resource or account activation was performed.
+Advisor<5% gates remain open. No AWS resource was deployed by these source changes.
 
 PR #18 is merged into `feature/rove4k-engines-af` at2bed793. Its common C
 fragments remain engine inputs and its assembler remains a tool; archived paths
