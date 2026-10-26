@@ -622,7 +622,7 @@ Node22/24 lifecycle CI가 통과했으며 AWS dispatch는 아직0회다.
 
 ### 현재 체크포인트와 병렬 실행, 2026-10-27
 
-마지막 전체 검증 code headedb의 engine40372403620는26/26, NVCompact40372403668와
+보존된 edb 기준의 engine40372403620는26/26, NVCompact40372403668와
 repository40372403567 및 별도 Experimental D40372404131도 통과했다. foundation121746308175는542+27+405=
 974개/39suite이며 별도 순수24검사와 native 실패 주입4개를 구분한다. 12개 source와
 12개 독립 Ubuntu22 소비자는 F compound-v2를 포함한다. 이 CI의 D는 유지된 이전
@@ -693,8 +693,11 @@ return2·강제정리0이며2GiB AS cap과16MiB default stack에서 VmSize208572
 다른19 job은 통과했고 P28 소비자 matrix는 skip이다. Worker·TT·검사를 줄이거나
 상한을 올리지 않고 fixture의 descriptor를 id별 immutable 고정 slot과 단일 held slot으로
 수정했다. 실제 create 실패에는 claim을 복구하고 rc/errno를 보존한다. 독립 source
-검토를 통과했으며 순수 검사·실제6fault·P28 CI 결과는 다음 gate다. 원래4fault
-receipt를6개 통과로 재표시하지 않는다.
+검토 후644d5bb에서 local pure30/AST15가 동일14핀·금지호출0으로 통과했다. 새
+engine40383937622의 E28 job121787100175는 functional complete/24GO/22legal로
+성공했고 foundation121787099764는975/39 및6fault의 의도한return2·정상 정리를
+확인했다. 원래4fault receipt를6개 통과로 재표시하지 않는다. 전체 workflow·독립
+소비자 결론은 해당 source/run의 원본 상태와 PR12의 최신 체크포인트에서 확인한다.
 
 로컬 compiler/codec는 host memory gate를 지키며 effects를 완료·반환했다. 이후
 physical1074384KiB/virtual2477112KiB에서 upper를 시작하지 않았고, 사용자가

@@ -9,7 +9,7 @@ zero and the initial model weights remain unchanged; trained strength is not cla
 
 ### Verified source, CI and offline transport
 
-The last fully verified code head isedb747e8282401ae27537e65cbf21bbfa58b491b.
+The retained edb baseline isedb747e8282401ae27537e65cbf21bbfa58b491b.
 Engine40372403620 passes26/26 jobs, including12 P4/P28 source producers and12
 independent Ubuntu22 consumers. NVCompact40372403668, repository40372403567 and
 standalone Experimental D40372404131 also pass. Foundation121746308175 records542 contract +27 E19 +405
@@ -30,8 +30,14 @@ errno12/ENOMEM, VmSize2085728KiB under a2GiB AS cap and16MiB default stack.
 The diagnostic descriptor source correction replaces child-side heap ownership
 with ID-bound immutable slots and real-create failure rollback, plus one held slot.
 Independent source review is CLEAR. Workers, TT, pthread attributes, assertions
-and the2GiB cap are unchanged. Actual six fault cases and P28 CI remain the next
-gate; the old four-fault receipt is historical. Preserve the original failure.
+and the2GiB cap are unchanged. At code644d5bb24453add3a8edab274614d8c2061c3f72,
+the original E P28 producer succeeds in job121787100175 of engine40383937622:
+functional complete,24 GO/22 legal replies. Foundation121787099764 passes975/39
+and all six fault cases retain return2 with clean ownership settlement. Local
+pure30/AST15 passes on14 unchanged inputs with zero forbidden calls. The old
+four-fault receipt and9dd actual failure remain historical. Overall source-bound
+workflow/consumer conclusions are tracked in the linked PR, separately from
+these specific observations.
 
 The separate d954/CI40332593495 offline seed completes prepare, full ZIP inspection,
 fresh Linux materialization and all-member revalidation, with independent audit.
