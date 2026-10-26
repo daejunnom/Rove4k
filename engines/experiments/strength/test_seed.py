@@ -16,12 +16,12 @@ import zipfile
 
 try:
     from . import aws, ledger, seed
-    from .test_aws import plan as base_plan
+    from .test_aws import plan as base_plan, advanced_plan as base_advanced_plan
 except ImportError:
     import aws
     import ledger
     import seed
-    from test_aws import plan as base_plan
+    from test_aws import plan as base_plan, advanced_plan as base_advanced_plan
 
 
 def git(root, *args):
@@ -161,6 +161,44 @@ class FakeS3:
         if self.lose_response:
             raise aws.AwsError("ObservationTimeout", "s3api.put-object")
         return {"ChecksumSHA256": base64.b64encode(bytes.fromhex(sha)).decode()}
+
+
+class AdvancedFakeS3(FakeS3):
+    """Fresh project metadata and immutable S3 remain fake service ports."""
+    def __init__(self, plan, journal):
+        super().__init__(plan, journal)
+        configured = plan.account_readiness
+        self.caller_account = plan.account_id
+        self.account_information = {"AccountId": plan.account_id, "AccountState": "ACTIVE"}
+        self.organization = {"Organization": {"Id": configured.organization_id,
+            "MasterAccountId": configured.management_account_id,
+            "Arn": "arn:aws:organizations::" + configured.management_account_id + ":organization/" + configured.organization_id,
+            "FeatureSet": "ALL"}}
+        self.metadata_errors = {}
+        self.account_plan_reads = 0
+
+    def own_account_information(self):
+        return self.call("account", "get-account-information", {})
+
+    def organization_information(self):
+        return self.call("organizations", "describe-organization", {})
+
+    def account_plan_state(self):
+        self.account_plan_reads += 1
+        raise AssertionError("Advanced publishing must not infer or require observed PAID status")
+
+    def call(self, service, operation, request):
+        selected = (service, operation)
+        if selected in (("sts", "get-caller-identity"), ("account", "get-account-information"),
+                        ("organizations", "describe-organization")):
+            self.calls.append((service, operation, copy.deepcopy(request)))
+            if selected in self.metadata_errors:
+                raise self.metadata_errors[selected]
+            if service == "sts":
+                return {"Account": self.caller_account,
+                    "Arn": "arn:aws:sts::" + self.caller_account + ":assumed-role/rove-controller/test"}
+            return copy.deepcopy(self.account_information if service == "account" else self.organization)
+        return super().call(service, operation, request)
 
 
 class WorkflowProvenanceTests(unittest.TestCase):
@@ -728,6 +766,70 @@ class PublisherTests(unittest.TestCase):
         self.boundary.stop()
         self.journal.close()
         self.tmp.cleanup()
+
+    def advanced_client(self):
+        # Construct through the exact namespace used by the actual publisher;
+        # a structurally similar dataclass from another loader is not authority.
+        self.plan = seed.aws.AWSPlan.from_dict(base_advanced_plan().as_dict())
+        self.client = AdvancedFakeS3(self.plan, self.journal)
+        return self.client
+
+    def assert_no_publication_intent(self):
+        self.assertEqual(self.client.puts, 0)
+        self.assertEqual(self.client.objects, {})
+        self.assertEqual(self.journal.rows, [])
+        self.assertEqual(self.client.account_plan_reads, 0)
+
+    def test_advanced_first_publish_uses_fresh_metadata_without_getplan(self):
+        client = self.advanced_client()
+        result = seed.publish(client, self.plan, self.archive, self.key, self.journal)
+        self.assertTrue(result["verified"] and result["upload_performed"])
+        self.assertEqual(result["seed"]["version_id"], "version-one")
+        self.assertEqual(client.puts, 1)
+        self.assertEqual(client.account_plan_reads, 0)
+        operations = [(service, operation) for service, operation, _ in client.calls]
+        self.assertIn(("account", "get-account-information"), operations)
+        self.assertIn(("organizations", "describe-organization"), operations)
+        self.assertFalse(any(service == "freetier" for service, _, _ in client.calls))
+        self.assertEqual([row["event"] for row in self.journal.rows], ["seed.upload_requested", "seed.upload_confirmed"])
+
+    def test_advanced_unknown_account_or_organization_blocks_before_put_or_intent(self):
+        for unknown in ("account", "organization"):
+            with self.subTest(unknown=unknown):
+                client = self.advanced_client()
+                if unknown == "account":
+                    client.account_information = None
+                else:
+                    client.organization = {}
+                with self.assertRaisesRegex(ValueError, "fresh own-account|fresh organization"):
+                    seed.publish(client, self.plan, self.archive, self.key, self.journal)
+                self.assert_no_publication_intent()
+
+    def test_advanced_wrong_caller_account_metadata_or_state_blocks_before_put(self):
+        for changed in ("caller", "account-id", "account-state", "organization"):
+            with self.subTest(changed=changed):
+                client = self.advanced_client()
+                if changed == "caller":
+                    client.caller_account = "814650855198"
+                elif changed == "account-id":
+                    client.account_information["AccountId"] = "814650855198"
+                elif changed == "account-state":
+                    client.account_information["AccountState"] = "SUSPENDED"
+                else:
+                    client.organization["Organization"]["Id"] = "o-unreviewed"
+                with self.assertRaises(ValueError):
+                    seed.publish(client, self.plan, self.archive, self.key, self.journal)
+                self.assert_no_publication_intent()
+
+    def test_advanced_read_api_errors_never_create_publication_intent(self):
+        for service, operation in (("account", "get-account-information"), ("organizations", "describe-organization")):
+            for code in ("AccessDeniedException", "ResourceNotFoundException", "ObservationTimeout"):
+                with self.subTest(service=service, code=code):
+                    client = self.advanced_client()
+                    client.metadata_errors[service, operation] = seed.aws.AwsError(code, service + "." + operation)
+                    with self.assertRaisesRegex(ValueError, code):
+                        seed.publish(client, self.plan, self.archive, self.key, self.journal)
+                    self.assert_no_publication_intent()
 
     def test_normal_ack_and_confirmed_version_are_idempotent(self):
         result = seed.publish(self.client, self.plan, self.archive, self.key, self.journal)

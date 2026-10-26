@@ -23,6 +23,19 @@ import time
 import urllib.request
 import uuid
 
+if __name__ == '__main__' and not __package__:
+    # Isolated (-I) operator entry: import only this known sibling tree.
+    import sys
+    import types
+    sys.dont_write_bytecode = True
+    _package_name = 'rove4k_aws_operator_source'
+    _package_path = str(Path(__file__).resolve().parent)
+    _package = sys.modules.setdefault(_package_name, types.ModuleType(_package_name))
+    if hasattr(_package, '__path__') and list(_package.__path__) != [_package_path]:
+        raise ValueError('operator sibling package belongs to another source tree')
+    _package.__path__ = [_package_path]
+    __package__ = _package_name
+
 try:
     from .budget import CampaignBudget, decimal, timestamp
 except ImportError:
@@ -35,6 +48,9 @@ ADVISOR_URL = 'https://spot-bid-advisor.s3.amazonaws.com/spot-advisor-data.json'
 ADVISOR_MAX_SOURCE_AGE_SECONDS = 7 * 86400
 ACCOUNT_PLAN_REGION = 'us-east-1'
 ACCOUNT_PLAN_ENDPOINT = 'https://freetier.us-east-1.api.aws'
+GLOBAL_METADATA_REGION = 'us-east-1'
+ACCOUNT_INFORMATION_ENDPOINT = 'https://account.us-east-1.amazonaws.com'
+ORGANIZATION_INFORMATION_ENDPOINT = 'https://organizations.us-east-1.amazonaws.com'
 
 
 def canonical(value):
@@ -85,6 +101,18 @@ class AWSCLI:
         reader = AWSCLI(ACCOUNT_PLAN_REGION, executable=self.executable, timeout=self.timeout)
         return reader._execute('freetier', 'get-account-plan-state',
                                ['--endpoint-url', ACCOUNT_PLAN_ENDPOINT])
+
+    def own_account_information(self):
+        """Account Management is global; omit AccountId for the caller's account."""
+        reader = AWSCLI(GLOBAL_METADATA_REGION, executable=self.executable, timeout=self.timeout)
+        return reader._execute('account', 'get-account-information',
+                               ['--endpoint-url', ACCOUNT_INFORMATION_ENDPOINT])
+
+    def organization_information(self):
+        """Fixed commercial Organizations read/signing endpoint, never fallback."""
+        reader = AWSCLI(GLOBAL_METADATA_REGION, executable=self.executable, timeout=self.timeout)
+        return reader._execute('organizations', 'describe-organization',
+                               ['--endpoint-url', ORGANIZATION_INFORMATION_ENDPOINT])
 
     def command_prefix(self):
         executable = shutil.which(self.executable) or self.executable
@@ -139,6 +167,141 @@ class AWSCLI:
         return json.loads(result.stdout) if result.stdout.strip() else {}
 
 
+_ADVANCED_TRANSITION = (
+    'configured-advanced-member-project', 'daejunnom', 'Rove4k',
+    '292341339363', 'o-5bqojfsbnd', '814650855198',
+    'user-confirmed-advanced-2026-10-26',
+    'd2e6769eee3734f543b252c2fa9bba1e03563bbab022ae7b4689c3c0480913e4')
+ADVANCED_PROJECT_REGION = 'ap-southeast-2'
+
+
+class OperatorReadinessCLI:
+    """Explicit local-profile read-only adapter, separate from runtime AWSCLI.
+
+    It delegates authentication to the requested official CLI profile and never
+    opens/discovers a credential or config file. There is no arbitrary service
+    operation, resource-write method, account switch, or retry path.
+    """
+    def __init__(self, region, executable, profile, readiness_kind, timeout=30):
+        if (region != ADVANCED_PROJECT_REGION or type(profile) is not str or not profile or
+                not re.fullmatch(r'[A-Za-z0-9_.-]{1,64}', profile) or
+                type(executable) is not str or not Path(executable).is_absolute() or
+                readiness_kind not in ('freetier-paid', _ADVANCED_TRANSITION[0]) or
+                type(timeout) not in (int, float) or not math.isfinite(timeout) or not 0 < timeout <= 45):
+            raise ValueError('explicit operator region, absolute CLI, profile and readiness selector required')
+        self.region, self.executable, self.profile = region, executable, profile
+        self.readiness_kind, self.timeout = readiness_kind, timeout
+
+    def call(self, service, operation, request):
+        if (type(service) is not str or type(operation) is not str or
+                type(request) is not dict or request or
+                (service, operation) != ('sts', 'get-caller-identity')):
+            raise ValueError('operator adapter permits only explicit readiness reads')
+        return self._read(service, operation)
+
+    def account_plan_state(self):
+        return self._read('freetier', 'get-account-plan-state')
+
+    def own_account_information(self):
+        return self._read('account', 'get-account-information')
+
+    def organization_information(self):
+        return self._read('organizations', 'describe-organization')
+
+    def _read(self, service, operation):
+        if (service, operation) == ('sts', 'get-caller-identity'):
+            region, endpoint = self.region, 'https://sts.' + self.region + '.amazonaws.com'
+        elif self.readiness_kind == 'freetier-paid' and (service, operation) == ('freetier', 'get-account-plan-state'):
+            region, endpoint = ACCOUNT_PLAN_REGION, ACCOUNT_PLAN_ENDPOINT
+        elif self.readiness_kind == _ADVANCED_TRANSITION[0] and (service, operation) == ('account', 'get-account-information'):
+            region, endpoint = GLOBAL_METADATA_REGION, ACCOUNT_INFORMATION_ENDPOINT
+        elif self.readiness_kind == _ADVANCED_TRANSITION[0] and (service, operation) == ('organizations', 'describe-organization'):
+            region, endpoint = GLOBAL_METADATA_REGION, ORGANIZATION_INFORMATION_ENDPOINT
+        else:
+            raise ValueError('read is outside the explicitly selected operator readiness class')
+        command = [self.executable, '--profile', self.profile, '--region', region,
+            '--endpoint-url', endpoint, '--no-cli-pager', '--no-cli-auto-prompt', '--no-paginate',
+            '--cli-connect-timeout', '5', '--cli-read-timeout', '10', service, operation, '--output', 'json']
+        environment = os.environ.copy()
+        for name in ('AWS_PROFILE', 'AWS_DEFAULT_PROFILE', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY',
+                'AWS_SESSION_TOKEN', 'AWS_SECURITY_TOKEN', 'AWS_WEB_IDENTITY_TOKEN_FILE', 'AWS_ROLE_ARN',
+                'AWS_CONFIG_FILE', 'AWS_SHARED_CREDENTIALS_FILE',
+                'AWS_CONTAINER_CREDENTIALS_RELATIVE_URI', 'AWS_CONTAINER_CREDENTIALS_FULL_URI'):
+            environment.pop(name, None)
+        environment.update(AWS_PAGER='', AWS_CLI_AUTO_PROMPT='off', AWS_MAX_ATTEMPTS='1',
+                           AWS_EC2_METADATA_DISABLED='true')
+        try:
+            result = subprocess.run(command, capture_output=True, timeout=self.timeout, env=environment,
+                                    creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)
+        except FileNotFoundError as error:
+            raise AwsError('CLIUnavailable', service + '.' + operation) from error
+        except subprocess.TimeoutExpired as error:
+            raise AwsError('ObservationTimeout', service + '.' + operation) from error
+        if len(result.stdout) > 4 * 1024 * 1024 or len(result.stderr) > 256 * 1024:
+            raise AwsError('OutputLimit', service + '.' + operation)
+        if result.returncode:
+            match = re.search(rb'An error occurred \(([^)]+)\)', result.stderr)
+            raise AwsError(match.group(1).decode('ascii', 'replace') if match else 'CLIError',
+                           service + '.' + operation)
+        return json.loads(result.stdout) if result.stdout.strip() else {}
+
+
+@dataclass(frozen=True)
+class AdvancedTransitionConfirmation:
+    """Identity of the source-reviewed direct-user activation record.
+
+    The external record remains outside Git. Accepting any supplied JSON/hash
+    would not establish its authority; only this reviewed reference/pin is
+    supported. This is configuration authority, never a billing API response.
+    """
+    reference: str = _ADVANCED_TRANSITION[6]
+    sha256: str = _ADVANCED_TRANSITION[7]
+
+    def __post_init__(self):
+        if (type(self.reference) is not str or type(self.sha256) is not str or
+                (self.reference, self.sha256) != _ADVANCED_TRANSITION[6:]):
+            raise ValueError('Advanced transition confirmation is not source-reviewed')
+
+    @classmethod
+    def from_dict(cls, value):
+        if type(value) is not dict or set(value) != {'reference', 'sha256'}:
+            raise ValueError('exact reviewed Advanced transition confirmation required')
+        return cls(**value)
+
+
+@dataclass(frozen=True)
+class AdvancedMemberProjectReadiness:
+    """Explicit opt-in for the one reviewed Advanced member-project transition."""
+    kind: str = _ADVANCED_TRANSITION[0]
+    team: str = _ADVANCED_TRANSITION[1]
+    project: str = _ADVANCED_TRANSITION[2]
+    project_account_id: str = _ADVANCED_TRANSITION[3]
+    organization_id: str = _ADVANCED_TRANSITION[4]
+    management_account_id: str = _ADVANCED_TRANSITION[5]
+    transition_confirmation: AdvancedTransitionConfirmation = AdvancedTransitionConfirmation()
+
+    def __post_init__(self):
+        context = (self.kind, self.team, self.project, self.project_account_id,
+                   self.organization_id, self.management_account_id)
+        if (any(type(value) is not str for value in context) or
+                context != _ADVANCED_TRANSITION[:6] or
+                type(self.transition_confirmation) is not AdvancedTransitionConfirmation):
+            raise ValueError('Advanced member-project context is not source-reviewed')
+
+    def as_dict(self):
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, value):
+        names = {item.name for item in fields(cls)}
+        if type(value) is not dict or set(value) != names:
+            raise ValueError('exact configured Advanced member-project fields required')
+        converted = dict(value)
+        converted['transition_confirmation'] = AdvancedTransitionConfirmation.from_dict(
+            converted['transition_confirmation'])
+        return cls(**converted)
+
+
 @dataclass(frozen=True)
 class AWSPlan:
     campaign_id: str
@@ -161,6 +324,7 @@ class AWSPlan:
     root_volume_gib: int = 32
     max_hourly_usd: str = '8'
     project_region: str | None = None
+    account_readiness: AdvancedMemberProjectReadiness | None = None
 
     def __post_init__(self):
         checks = ((self.campaign_id, r'[a-z][a-z0-9-]{2,39}'),
@@ -190,6 +354,12 @@ class AWSPlan:
         if not all(isinstance(value, str) and value for value in (
                 self.watchdog_stack, self.ownership_table, self.schedule_name, self.artifact_bucket)):
             raise ValueError('deployed watchdog/storage outputs are required')
+        if self.account_readiness is not None:
+            if type(self.account_readiness) is not AdvancedMemberProjectReadiness:
+                raise ValueError('typed source-reviewed account readiness configuration required')
+            if (self.account_id != self.account_readiness.project_account_id or
+                    self.region != ADVANCED_PROJECT_REGION or self.project_region != self.region):
+                raise ValueError('Advanced readiness must bind the reviewed project account and Sydney region')
 
     def request(self):
         tags = [{'Key': 'RoveCampaign', 'Value': self.campaign_id},
@@ -231,7 +401,11 @@ class AWSPlan:
                 **({'project_region': self.project_region} if self.project_region is not None else {})}
 
     def as_dict(self):
-        return {**asdict(self), 'instance_type': INSTANCE_TYPE, 'request': self.request(),
+        configured = asdict(self)
+        if self.account_readiness is None:
+            # Preserve historical configuration bytes and their plan digest.
+            del configured['account_readiness']
+        return {**configured, 'instance_type': INSTANCE_TYPE, 'request': self.request(),
                 'request_sha256': digest(self.request()), 'paid_launch_performed': False,
                 'oidc_scope': 'AWS controller role; independent from npm trusted publishing'}
 
@@ -244,7 +418,11 @@ class AWSPlan:
         derived = {'instance_type', 'request', 'request_sha256', 'paid_launch_performed', 'oidc_scope'}
         if set(value) - names - derived:
             raise ValueError('unknown AWS plan fields')
-        plan = cls(**{key: item for key, item in value.items() if key in names})
+        configured = {key: item for key, item in value.items() if key in names}
+        if configured.get('account_readiness') is not None:
+            configured['account_readiness'] = AdvancedMemberProjectReadiness.from_dict(
+                configured['account_readiness'])
+        plan = cls(**configured)
         expected = plan.as_dict()
         if any(value[key] != expected[key] for key in derived & set(value)):
             raise ValueError('derived AWS plan fields differ from their canonical input')
@@ -350,6 +528,93 @@ def account_plan_preflight(client, account_id, now):
 
 def require_paid_account_plan(client, account_id, now):
     report = account_plan_preflight(client, account_id, now)
+    if not report['allowed']:
+        raise ValueError('; '.join(report['blockers']))
+    return report
+
+
+def own_account_identity(client, account_id):
+    """Observe the own-account identity without assuming a not-yet-created role."""
+    caller = client.call('sts', 'get-caller-identity', {})
+    if (type(caller) is not dict or caller.get('Account') != account_id or
+            type(caller.get('Arn')) is not str or not re.fullmatch(
+                r'arn:aws:(?:iam::' + re.escape(account_id) + r':(?:root|user/.+|role/.+)|sts::' +
+                re.escape(account_id) + r':(?:assumed-role/[^/]+/.+|federated-user/.+))', caller['Arn'])):
+        raise ValueError('fresh AWS identity does not belong to the configured own account')
+    return {'account_id': account_id, 'caller_arn': caller['Arn']}
+
+
+def observe_advanced_member_project(client, configured, now):
+    """One plan-free observer shared by pre-stack and deployed readiness.
+
+    Configuration is a source-reviewed direct-user transition, not observed
+    PAID status. Fresh own-account and organization reads bind it to the caller;
+    neither organization membership nor a missing Free Tier response opts in.
+    Action owners separately enforce their deployed ControllerRole authority.
+    """
+    report = {'format': 'rove4k-aws-account-readiness-v1',
+              'account_id': configured.project_account_id if type(configured) is AdvancedMemberProjectReadiness else None,
+              'checked_at': timestamp(now),
+              'readiness_basis': 'configured-advanced-member-project',
+              'allowed': False, 'blockers': [], 'account_plan_type': None,
+              'account_plan_status': None, 'paid_plan_observed': False,
+              'automatic_upgrade_performed': False}
+    try:
+        if type(configured) is not AdvancedMemberProjectReadiness:
+            raise ValueError('typed source-reviewed account readiness configuration required')
+        configured = AdvancedMemberProjectReadiness.from_dict(configured.as_dict())
+        if not callable(getattr(client, 'call', None)) or getattr(client, 'region', None) != ADVANCED_PROJECT_REGION:
+            raise ValueError('fresh same-project AWS read port required')
+        account_port = getattr(client, 'own_account_information', None)
+        organization_port = getattr(client, 'organization_information', None)
+        if not callable(account_port) or not callable(organization_port):
+            raise ValueError('explicit read-only global account and organization ports required')
+        report['configured_transition'] = configured.as_dict()
+        report['sources'] = {
+            'account': {'operation': 'GetAccountInformation', 'region': GLOBAL_METADATA_REGION,
+                        'endpoint': ACCOUNT_INFORMATION_ENDPOINT, 'scope': 'own account; AccountId omitted'},
+            'organization': {'operation': 'DescribeOrganization', 'region': GLOBAL_METADATA_REGION,
+                             'endpoint': ORGANIZATION_INFORMATION_ENDPOINT}}
+        report['identity'] = own_account_identity(client, configured.project_account_id)
+        account = account_port()
+        if (type(account) is not dict or account.get('AccountId') != configured.project_account_id or
+                account.get('AccountState') != 'ACTIVE'):
+            raise ValueError('fresh own-account information is missing, mismatched, or not ACTIVE')
+        report['account_response_sha256'] = digest(account)
+        report['account_observation'] = {key: account[key] for key in ('AccountId', 'AccountState')}
+        organization_response = organization_port()
+        organization = organization_response.get('Organization') if type(organization_response) is dict else None
+        expected_arn = ('arn:aws:organizations::' + configured.management_account_id +
+                        ':organization/' + configured.organization_id)
+        if (type(organization) is not dict or
+                organization.get('Id') != configured.organization_id or
+                organization.get('MasterAccountId') != configured.management_account_id or
+                organization.get('Arn') != expected_arn or organization.get('FeatureSet') != 'ALL'):
+            raise ValueError('fresh organization/member-project context is missing or differs')
+        report['organization_response_sha256'] = digest(organization_response)
+        report['organization_observation'] = {key: organization[key]
+            for key in ('Id', 'MasterAccountId', 'Arn', 'FeatureSet')}
+        report['allowed'] = True
+    except (AwsError, ValueError, TypeError, KeyError, AttributeError) as error:
+        report['blockers'].append(str(error))
+    return report
+
+
+def account_readiness_preflight(client, plan, now):
+    """Select a configured authority; a failed legacy read never changes class."""
+    if plan.account_readiness is None:
+        return account_plan_preflight(client, plan.account_id, now)
+    if (type(plan.account_readiness) is not AdvancedMemberProjectReadiness or
+            plan.account_readiness.project_account_id != plan.account_id or
+            plan.region != ADVANCED_PROJECT_REGION or plan.project_region != plan.region):
+        raise ValueError('Advanced readiness project/region binding changed')
+    return observe_advanced_member_project(client, plan.account_readiness, now)
+
+
+def require_account_readiness(client, plan, now):
+    if plan.account_readiness is None:
+        return require_paid_account_plan(client, plan.account_id, now)
+    report = account_readiness_preflight(client, plan, now)
     if not report['allowed']:
         raise ValueError('; '.join(report['blockers']))
     return report
@@ -465,7 +730,7 @@ def preflight(client, plan, advisor, now):
               'paid_launch_performed': False}
     try:
         result['identity'] = verify_caller(client, plan)
-        result['account_plan'] = account_plan_preflight(client, plan.account_id, now)
+        result['account_plan'] = account_readiness_preflight(client, plan, now)
         if not result['account_plan']['allowed']:
             raise ValueError('; '.join(result['account_plan']['blockers']))
         result['watchdog'] = verify_watchdog(client, plan, now)
@@ -603,7 +868,7 @@ def launch(client, plan, budget, receipt, now):
     if plan.deadline_epoch - now < budget.policy.termination_slack_seconds:
         raise ValueError('insufficient reconciliation lead time before the watchdog trigger')
     verify_caller(client, plan)
-    require_paid_account_plan(client, plan.account_id, now)
+    require_account_readiness(client, plan, now)
     verify_watchdog(client, plan, now)
     for reservation in pages(client, 'ec2', 'describe-instances', {'Filters': [
             {'Name': 'tag:RoveCampaign', 'Values': [plan.campaign_id]},
@@ -829,17 +1094,41 @@ class S3Evidence:
 def main():
     import argparse
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action', choices=('plan', 'preflight', 'template'))
+    parser.add_argument('action', choices=('plan', 'preflight', 'template', 'account-readiness'))
     parser.add_argument('--config', type=Path)
     parser.add_argument('--project-region', help='explicit template deployment binding; never inferred or changed')
+    parser.add_argument('--account-readiness', choices=('freetier-paid', _ADVANCED_TRANSITION[0]),
+                        help='explicit pre-stack observer class; never inferred from an API failure')
+    parser.add_argument('--account-id', help='expected own account for the read-only operator entry')
+    parser.add_argument('--profile', help='explicit local operator CLI profile; no profile file inspection')
+    parser.add_argument('--aws-cli', help='absolute official CLI entry for operator reads only')
     parser.add_argument('--out', type=Path, required=True)
     args = parser.parse_args()
-    if args.project_region is not None and args.action != 'template':
+    if args.project_region is not None and args.action not in ('template', 'account-readiness'):
         parser.error('--project-region applies to template; campaign plans bind project_region inside --config')
+    operator_options = (args.account_readiness, args.account_id, args.profile, args.aws_cli)
+    if args.action != 'account-readiness' and any(value is not None for value in operator_options):
+        parser.error('operator authentication/observer options apply only to account-readiness')
     output = args.out.resolve()
     if not args.out.is_absolute() or output.exists() or any((p / '.git').exists() for p in (output.parent, *output.parents)):
         parser.error('new absolute output outside any Git checkout required')
-    if args.action == 'template':
+    if args.action == 'account-readiness':
+        if (args.config is not None or any(value is None for value in operator_options) or
+                args.project_region != ADVANCED_PROJECT_REGION or
+                not re.fullmatch(r'\d{12}', args.account_id)):
+            parser.error('account-readiness requires explicit class/account/profile/absolute CLI/Sydney region and no deployed plan')
+        configured = AdvancedMemberProjectReadiness() if args.account_readiness == _ADVANCED_TRANSITION[0] else None
+        if configured is not None and args.account_id != configured.project_account_id:
+            parser.error('Advanced readiness account differs from the source-reviewed project')
+        client = OperatorReadinessCLI(args.project_region, args.aws_cli, args.profile, args.account_readiness)
+        if configured is not None:
+            result = observe_advanced_member_project(client, configured, time.time())
+        else:
+            # Preserve the legacy PAID observer while still checking the selected
+            # local profile's own account before its account-global billing read.
+            own_account_identity(client, args.account_id)
+            result = account_plan_preflight(client, args.account_id, time.time())
+    elif args.action == 'template':
         try:
             from .aws_infrastructure import template
         except ImportError:
@@ -855,7 +1144,7 @@ def main():
     with output.open('x', encoding='utf-8') as stream:
         json.dump(result, stream, indent=2, sort_keys=True, allow_nan=False)
         stream.write('\n')
-    return 2 if args.action == 'preflight' and not result.get('allowed') else 0
+    return 2 if args.action in ('preflight', 'account-readiness') and not result.get('allowed') else 0
 
 
 if __name__ == '__main__':

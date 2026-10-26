@@ -163,6 +163,14 @@ rodata176 B다. text는 보드/평가2147 B, search2103 B, 그 밖의 혼합 실
 작은 ABI 변경을 구조 해법으로 재명명하지 않고 보드·검색 소비·runtime의 전체 책임
 예산으로 후보를 고른다. 기능 제거로 목표를 통과시키지 않는다.
 
+사용자가 별도 구조 변경으로 수백 B를 줄여4KiB대에 도달했고 PR을 공유할 예정임을
+알렸다. 아직 공개되지 않은 후보의 크기·기능 자격을 확인된 결과로 승격하지 않는다.
+현재5233 B·함수 비용·소유권 분석은 비교 기준으로 보존한다. 겹치는 D 구현을 새로
+시작하지 않고, 진행 중인 체크포인트에서 open PR을 확인해 본문·diff·실제 source/전체
+파일 비용·재현·full 기능을 검토한 뒤 반영한다. 예약/주기 작업을 만들지 않는다.
+기존 AWS와 ABCE/F 공통 축약은 병렬로 계속한다. D의 실제 구현·검증 시간은 새 PR의
+공개 코드와 소비자 범위를 확인한 뒤 재산정한다.
+
 ### 프로필
 
 | ID | 검색 worker | 엔진당 TT 상한 | 용도 |
@@ -625,6 +633,24 @@ credits 배열이다. 기존100USD를 현재 잔액이나 크레딧 소멸로 �
 기존 managed-PAID class와 직렬화/digest는 보존하고 새 HOST/최소 IAM read 권한·
 실제 plan/template/launch 호출 경로를 함께 검증한다. 승인된 cash fallback과120USD는 유지한다.
 
+이 새8파일의 로컬 공동 검증은 WSL Python3.12.3에서384개가 통과했고 실행 전후
+소스 핀·자연 종료가 일치했다. 별도 native3.10 AWS38/publisher13/infrastructure33은
+이 범위와 겹치므로 더해 세지 않는다. 독립 source review는 CLEAR다. plan 없이 쓰는
+같은 observer의 실제 operator entry도 현재 프로젝트 STS·own ACTIVE·정확한 조직
+읽기를 통과했다. paid_plan_observed=false/account_plan_type=null을 유지한다.
+새 Advanced template29332 B의 실제 ValidateTemplate은8parameter/NamedIAM으로
+통과했다. 파일 SHA ccd414f4c479409cc830c1a81797a658a5309b3d3bd64a65a513d46013544ccb,
+마지막 LF를 제외한 canonical digest는 e083f2cad580549a2494f1bf6d4e187cc5ee703f7d2fae411a3dde3c9b006bdd다.
+새 source의 원격 CI·seed는 별도 다음 단계이며 실제 stack·ControllerRole OIDC·게시·launch는 미수행이다.
+
+공통 축약 P4 실측은62outer와 중첩 소유 명령을 자연 종료했다. ABCE resolver는
+각각3781→3785/4071→4075/3915→3919/3882→3885 B 손실로 종료했다. full F의
+괄호 축약만3590→3587 B로 이득이었다. 후속 F-only 비용 비교는 P28 3602→3602 B,
+W2563590→3589 B이며 native는 control과 같았다. W256 엔진/대용량 TT는 실행하지
+않았다. 생산 통합과 실제 P4/P28 runtime 인수는 아직 남았다.
+모든 후보 native는 control과 같았지만 전체 파일 비용은 같지 않았다. 앞선 도구
+핀·정수 예산·CRLF 사전검사 준비 실패와 실제 후보 결과를 구분해 보존한다.
+
 D qualification 도구만의 a699 통합은 기존 HOST/R·선택된 profile closure를 바꾸지
 않았다. 하지만 다음 Advanced HOST 수정은 별도 source/CI/cohort/seed를 필요로 한다.
 완성된409 seed를 덮어쓰거나 새 account readiness가 구현된 운송본으로 표시하지 않는다.
@@ -633,7 +659,10 @@ D qualification 도구만의 a699 통합은 기존 HOST/R·선택된 profile clo
 ```mermaid
 flowchart TD
   P[공통 준비 완료: a699 CI·409 seed·단독 IAM] --> S[명시적 Advanced readiness·IAC·소비자 구현]
-  P --> D[D full 구조 재설계·실제 코드 책임 예산]
+  P --> D[D 현재 비용·소유권 분석 보존]
+  D --> DP{사용자 구조 PR 공개}
+  DP --> DR[본문·diff·full 기능·실제 전체 비용 검토]
+  DR --> DV[D 개선 반영·새 소스/규칙/runtime 검증]
   P --> B[공통 resolver·F 순회식의 전체 비용 비교]
   S --> C[새 head의 정확한 CI]
   C --> T[새 HOST cohort·seed 생성·전체 복원 감사]
@@ -644,7 +673,7 @@ flowchart TD
   G -->|충족한 경우| X
   X --> N[Spot 실제 배치·NUMA·대용량 초기화]
   N --> L[4KiB 적격 선수 TEST 부분 리그]
-  D --> A[최종 범위·실패·출처 감사]
+  DV --> A[최종 범위·실패·출처 감사]
   B --> A
   C --> A
   L --> A
@@ -657,6 +686,7 @@ flowchart TD
 병렬 작업 시간을 합산하지 않으며 D4K 수렴·실제 리그 완주·외부 gate 대기는 이
 체크포인트 추정에 포함하지 않는다. 실제 API·컴파일·실행 실패가 나면 남은 경로와
 공유 자원 대기를 다시 추정한다.
+공개 전 D PR의 대기·구현·재검증은 이 내부 체크포인트 창에 포함하지 않는다.
 
 2026-10-25T22:18:13Z의 공식 Advisor 조건부 조회는304였고 객체 Last-Modified는
 여전히2026-03-20T23:38:55Z다. 새 데이터가 아니므로 과거15–20% 구간을 현재 위험도로

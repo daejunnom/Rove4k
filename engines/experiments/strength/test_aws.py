@@ -1,8 +1,12 @@
 """Actual AWS port logic with an in-memory service boundary, never an account."""
 from dataclasses import replace
 import base64
+import copy
 from datetime import datetime, timezone
 import json
+import os
+import subprocess
+import sys
 from types import SimpleNamespace
 from pathlib import Path
 import tempfile
@@ -11,11 +15,13 @@ from unittest.mock import patch
 
 try:
     from .aws import (ACCOUNT_PLAN_ENDPOINT, ACCOUNT_PLAN_REGION, ADVISOR_URL, AWSCLI, AWSPlan, AwsError,
+                      AdvancedMemberProjectReadiness, OperatorReadinessCLI, observe_advanced_member_project, account_readiness_preflight,
                       account_plan_preflight, digest, iso, launch,
                       observe_termination, close_ownership, recover_launch, S3Evidence, verify_owned_lease, pages, preflight, terminate, verify_watchdog)
     from .budget import CampaignBudget
 except ImportError:
     from aws import (ACCOUNT_PLAN_ENDPOINT, ACCOUNT_PLAN_REGION, ADVISOR_URL, AWSCLI, AWSPlan, AwsError,
+                     AdvancedMemberProjectReadiness, OperatorReadinessCLI, observe_advanced_member_project, account_readiness_preflight,
                      account_plan_preflight, digest, iso, launch,
                      observe_termination, close_ownership, recover_launch, S3Evidence, verify_owned_lease, pages, preflight, terminate, verify_watchdog)
     from budget import CampaignBudget
@@ -28,6 +34,16 @@ def plan():
         'arn:aws:iam::123456789012:role/rove-controller', 'rove-watchdog', 'rove-ownership',
         'rove-deadline', 'arn:aws:lambda:us-east-2:123456789012:function:rove-deadline',
         'rove-artifacts', 40000)
+
+
+def advanced_plan():
+    account = '292341339363'
+    return replace(plan(), account_id=account, region='ap-southeast-2',
+        project_region='ap-southeast-2',
+        instance_profile_arn='arn:aws:iam::' + account + ':instance-profile/rove-instance',
+        controller_role_arn='arn:aws:iam::' + account + ':role/rove-controller',
+        watchdog_arn='arn:aws:lambda:ap-southeast-2:' + account + ':function:rove-deadline',
+        account_readiness=AdvancedMemberProjectReadiness())
 
 
 class FakeAWS:
@@ -48,13 +64,30 @@ class FakeAWS:
         self.account_plan_response = {'accountId': self.plan.account_id,
             'accountPlanType': 'PAID', 'accountPlanStatus': 'ACTIVE'}
         self.account_plan_error = None
+        self.account_information = {'AccountId': self.plan.account_id, 'AccountName': 'Rove4k',
+                                    'AccountState': 'ACTIVE'}
+        self.organization = {'Organization': {'Id': 'o-5bqojfsbnd', 'MasterAccountId': '814650855198',
+            'Arn': 'arn:aws:organizations::814650855198:organization/o-5bqojfsbnd', 'FeatureSet': 'ALL'}}
+        self.metadata_errors = {}
 
     def account_plan_state(self):
         return self.call('freetier', 'get-account-plan-state', {})
 
+    def own_account_information(self):
+        return self.call('account', 'get-account-information', {})
+
+    def organization_information(self):
+        return self.call('organizations', 'describe-organization', {})
+
     def call(self, service, operation, request):
         self.calls.append((service, operation, request))
         p = self.plan
+        if (service, operation) in self.metadata_errors:
+            raise self.metadata_errors[service, operation]
+        if (service, operation) == ('account', 'get-account-information'):
+            return self.account_information
+        if (service, operation) == ('organizations', 'describe-organization'):
+            return self.organization
         if (service, operation) == ('freetier', 'get-account-plan-state'):
             if self.account_plan_error is not None:
                 raise self.account_plan_error
@@ -483,6 +516,346 @@ class AWSTests(unittest.TestCase):
                 evidence.publish(path, 'campaign-a/game-one/event-1.json')
             with self.assertRaisesRegex(ValueError, 'prefix'):
                 evidence.publish(path, 'other-campaign/event.json')
+
+
+class AdvancedReadinessTests(unittest.TestCase):
+    def configured_plan(self):
+        return advanced_plan()
+
+    def launch_values(self):
+        selected = self.configured_plan()
+        client = FakeAWS(selected)
+        advisor = AWSTests().advisor()
+        advisor['region'] = selected.region
+        receipt = preflight(client, selected, advisor, 1000)
+        self.assertTrue(receipt['allowed'], receipt)
+        budget = CampaignBudget(selected.campaign_id).apply('budget.launch_requested', {
+            'launch_token': selected.launch_token, 'max_hourly_usd': selected.max_hourly_usd}, 1000)
+        return selected, client, receipt, budget
+
+    def test_legacy_plan_serialization_and_digest_are_unchanged(self):
+        legacy = plan()
+        self.assertNotIn('account_readiness', legacy.as_dict())
+        self.assertEqual(digest(legacy.as_dict()),
+            '06c5fefee9ca5d6d136afaab5fba2ca5da3da27ed083ce84d39bfe26422c0d01')
+        self.assertEqual(AWSPlan.from_dict(legacy.as_dict()), legacy)
+        wire = legacy.as_dict()
+        wire['account_readiness'] = None
+        self.assertEqual(AWSPlan.from_dict(wire).as_dict(), legacy.as_dict())
+
+    def test_only_the_source_reviewed_context_and_confirmation_are_accepted(self):
+        approved = AdvancedMemberProjectReadiness()
+        wire = approved.as_dict()
+        self.assertEqual(AdvancedMemberProjectReadiness.from_dict(wire), approved)
+        variants = []
+        for key in ('kind', 'team', 'project', 'project_account_id', 'organization_id', 'management_account_id'):
+            changed = copy.deepcopy(wire)
+            changed[key] = 'unknown'
+            variants.append(changed)
+        for key, value in (('reference', 'another-user-record'), ('sha256', 'a' * 64)):
+            changed = copy.deepcopy(wire)
+            changed['transition_confirmation'][key] = value
+            variants.append(changed)
+        for key in ('transition_confirmation', 'organization_id'):
+            changed = copy.deepcopy(wire)
+            del changed[key]
+            variants.append(changed)
+        variants.extend([None, True, {**wire, 'advanced': True}, {**wire, 'team': True},
+                         {**wire, 'transition_confirmation': {'reference': 'missing-digest'}},
+                         {**wire, 'transition_confirmation': {**wire['transition_confirmation'], 'allow_paid': True}}])
+        for value in variants:
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                AdvancedMemberProjectReadiness.from_dict(value)
+        wire['transition_confirmation']['sha256'] = 'b' * 64
+        self.assertNotEqual(wire, approved.as_dict())
+        with self.assertRaises(AttributeError):
+            approved.team = 'changed'
+
+    def test_configuration_is_roundtripped_and_binds_the_plan_digest(self):
+        selected = self.configured_plan()
+        self.assertEqual(AWSPlan.from_dict(selected.as_dict()), selected)
+        self.assertNotEqual(digest(selected.as_dict()),
+                            digest(replace(selected, account_readiness=None).as_dict()))
+        for changed in ({'account_id': '814650855198'}, {'region': 'us-east-2'},
+                        {'project_region': None}, {'account_readiness': True},
+                        {'account_readiness': selected.account_readiness.as_dict()}):
+            with self.subTest(changed=changed), self.assertRaises(ValueError):
+                replace(selected, **changed)
+        wire = selected.as_dict()
+        wire['account_readiness']['transition_confirmation']['sha256'] = 'a' * 64
+        with self.assertRaises(ValueError):
+            AWSPlan.from_dict(wire)
+
+    def test_configured_readiness_uses_fresh_own_metadata_without_claiming_paid(self):
+        selected = self.configured_plan()
+        client = FakeAWS(selected)
+        client.account_plan_error = AwsError('ResourceNotFoundException', 'freetier.get-account-plan-state')
+        report = account_readiness_preflight(client, selected, 1000)
+        self.assertTrue(report['allowed'], report)
+        self.assertEqual(report['readiness_basis'], 'configured-advanced-member-project')
+        self.assertIsNone(report['account_plan_type'])
+        self.assertFalse(report['paid_plan_observed'])
+        self.assertFalse(report['automatic_upgrade_performed'])
+        self.assertEqual(client.calls, [('sts', 'get-caller-identity', {}),
+            ('account', 'get-account-information', {}), ('organizations', 'describe-organization', {})])
+        self.assertEqual(report['configured_transition'], selected.account_readiness.as_dict())
+
+    def test_missing_freetier_plan_never_selects_advanced_readiness(self):
+        client = FakeAWS()
+        client.account_plan_error = AwsError('ResourceNotFoundException', 'freetier.get-account-plan-state')
+        report = account_readiness_preflight(client, plan(), 1000)
+        self.assertFalse(report['allowed'])
+        self.assertNotIn('configured_transition', report)
+        self.assertEqual(client.calls, [('freetier', 'get-account-plan-state', {})])
+
+    def test_prestack_observer_accepts_own_operator_role_but_action_owner_still_rejects_it(self):
+        selected = self.configured_plan()
+        client = FakeAWS(selected)
+        client.caller_instance = True
+        report = observe_advanced_member_project(client, selected.account_readiness, 1000)
+        self.assertTrue(report['allowed'], report)
+        client.calls.clear()
+        advisor = AWSTests().advisor()
+        advisor['region'] = selected.region
+        report = preflight(client, selected, advisor, 1000)
+        self.assertFalse(report['allowed'], report)
+        self.assertIn('controller role/account', ' '.join(report['blockers']))
+        self.assertFalse(any(s in ('ec2', 'dynamodb') for s, _, _ in client.calls))
+
+    def test_wrong_account_is_rejected_before_other_metadata(self):
+        selected = self.configured_plan()
+        client = FakeAWS(selected)
+        client.caller_account = '814650855198'
+        report = account_readiness_preflight(client, selected, 1000)
+        self.assertFalse(report['allowed'], report)
+        self.assertEqual(client.calls, [('sts', 'get-caller-identity', {})])
+
+    def test_every_missing_or_changed_account_or_organization_field_blocks(self):
+        selected = self.configured_plan()
+        account_cases = [None, [], {}, {'AccountId': selected.account_id},
+            {'AccountId': '814650855198', 'AccountState': 'ACTIVE'},
+            {'AccountId': selected.account_id, 'AccountState': 'SUSPENDED'},
+            {'AccountId': selected.account_id, 'AccountState': True}]
+        for value in account_cases:
+            client = FakeAWS(selected)
+            client.account_information = value
+            report = account_readiness_preflight(client, selected, 1000)
+            self.assertFalse(report['allowed'], report)
+            self.assertEqual([(s, o) for s, o, _ in client.calls],
+                [('sts', 'get-caller-identity'), ('account', 'get-account-information')])
+        original = FakeAWS(selected).organization
+        organization_cases = [None, [], {}, {'Organization': None}]
+        for key, value in (('Id', 'o-anotherorg'), ('MasterAccountId', selected.account_id),
+                           ('Arn', 'arn:aws:organizations::814650855198:organization/o-anotherorg'),
+                           ('FeatureSet', 'CONSOLIDATED_BILLING')):
+            changed = copy.deepcopy(original)
+            changed['Organization'][key] = value
+            organization_cases.append(changed)
+        projected = copy.deepcopy(original)
+        projected['Organization']['ManagementAccountId'] = projected['Organization'].pop('MasterAccountId')
+        organization_cases.append(projected)
+        for value in organization_cases:
+            client = FakeAWS(selected)
+            client.organization = value
+            report = account_readiness_preflight(client, selected, 1000)
+            self.assertFalse(report['allowed'], report)
+            self.assertEqual(len(client.calls), 3)
+
+    def test_metadata_errors_and_missing_read_ports_remain_denied(self):
+        selected = self.configured_plan()
+        for service, operation in (('account', 'get-account-information'), ('organizations', 'describe-organization')):
+            for code in ('AccessDeniedException', 'ResourceNotFoundException', 'ObservationTimeout'):
+                client = FakeAWS(selected)
+                client.metadata_errors[service, operation] = AwsError(code, service + '.' + operation)
+                report = account_readiness_preflight(client, selected, 1000)
+                self.assertFalse(report['allowed'], report)
+                self.assertIn(code, ' '.join(report['blockers']))
+                self.assertFalse(any(s == 'freetier' or s == 'dynamodb' or s == 'ec2' for s, _, _ in client.calls))
+        self.assertFalse(account_readiness_preflight(object(), selected, 1000)['allowed'])
+        for missing in ('own_account_information', 'organization_information'):
+            client = FakeAWS(selected)
+            setattr(client, missing, None)
+            self.assertFalse(account_readiness_preflight(client, selected, 1000)['allowed'])
+            self.assertEqual(client.calls, [])  # No generic call or regional fallback.
+        client = FakeAWS(selected)
+        client.region = 'us-east-1'
+        self.assertFalse(observe_advanced_member_project(client, selected.account_readiness, 1000)['allowed'])
+        self.assertEqual(client.calls, [])
+
+    def test_launch_rechecks_advanced_context_before_intent_or_instance_requests(self):
+        for changed in ('caller', 'account-state', 'organization'):
+            selected, client, receipt, budget = self.launch_values()
+            client.calls.clear()
+            if changed == 'caller':
+                client.caller_account = '814650855198'
+            elif changed == 'account-state':
+                client.account_information['AccountState'] = 'SUSPENDED'
+            else:
+                client.organization['Organization']['Id'] = 'o-changed'
+            with self.subTest(changed=changed), self.assertRaises(ValueError):
+                launch(client, selected, budget, receipt, 1000)
+            self.assertEqual(client.records, {})
+            self.assertFalse(any(s == 'dynamodb' or (s == 'ec2' and o == 'run-instances')
+                                 for s, o, _ in client.calls))
+
+
+class ReadOnlyOperatorTests(unittest.TestCase):
+    def transport(self, kind='configured-advanced-member-project'):
+        return OperatorReadinessCLI('ap-southeast-2', str(Path(sys.executable).resolve()), 'rove4k', kind)
+
+    def test_runtime_global_metadata_ports_fix_endpoint_and_signing_without_changing_auth_or_workload_region(self):
+        client = AWSCLI('ap-southeast-2', executable='awscli.exe')
+        for method, service, operation, endpoint in (
+                ('own_account_information', 'account', 'get-account-information', 'https://account.us-east-1.amazonaws.com'),
+                ('organization_information', 'organizations', 'describe-organization', 'https://organizations.us-east-1.amazonaws.com')):
+            with self.subTest(method=method), patch('subprocess.run', return_value=SimpleNamespace(
+                    returncode=0, stdout=b'{}', stderr=b'')) as invoke:
+                self.assertEqual(getattr(client, method)(), {})
+            argv, environment = invoke.call_args.args[0], invoke.call_args.kwargs['env']
+            self.assertEqual(argv[argv.index('--region') + 1], 'us-east-1')
+            self.assertEqual(argv[argv.index('--endpoint-url') + 1], endpoint)
+            self.assertIn(service, argv)
+            self.assertIn(operation, argv)
+            self.assertNotIn('--account-id', argv)
+            self.assertNotIn('--profile', argv)
+            self.assertEqual(environment['AWS_SHARED_CREDENTIALS_FILE'], os.devnull)
+            self.assertEqual(environment['AWS_CONFIG_FILE'], os.devnull)
+            self.assertEqual(environment['AWS_MAX_ATTEMPTS'], '1')
+            self.assertEqual(client.region, 'ap-southeast-2')
+
+    def test_operator_only_delegates_explicit_class_reads_with_profile_and_fixed_global_endpoints(self):
+        client = self.transport()
+        completed = SimpleNamespace(returncode=0, stdout=b'{}', stderr=b'')
+        ambient = {'AWS_PROFILE': 'other', 'AWS_ACCESS_KEY_ID': 'fixture-access',
+                   'AWS_SECRET_ACCESS_KEY': 'fixture-secret', 'AWS_SESSION_TOKEN': 'fixture-token',
+                   'AWS_CONFIG_FILE': '/fixture/not-opened', 'AWS_SHARED_CREDENTIALS_FILE': '/fixture/not-opened',
+                   'AWS_MAX_ATTEMPTS': '9'}
+        with patch.dict(os.environ, ambient), patch('subprocess.run', return_value=completed) as invoke:
+            client.call('sts', 'get-caller-identity', {})
+            client.own_account_information()
+            client.organization_information()
+            self.assertEqual(os.environ['AWS_PROFILE'], 'other')
+        self.assertEqual(invoke.call_count, 3)
+        for call, region, endpoint in zip(invoke.call_args_list,
+                ('ap-southeast-2', 'us-east-1', 'us-east-1'),
+                ('https://sts.ap-southeast-2.amazonaws.com', 'https://account.us-east-1.amazonaws.com',
+                 'https://organizations.us-east-1.amazonaws.com')):
+            argv, environment = call.args[0], call.kwargs['env']
+            self.assertEqual(argv[argv.index('--profile') + 1], 'rove4k')
+            self.assertEqual(argv[argv.index('--region') + 1], region)
+            self.assertEqual(argv[argv.index('--endpoint-url') + 1], endpoint)
+            for name in ambient:
+                if name != 'AWS_MAX_ATTEMPTS':
+                    self.assertNotIn(name, environment)
+            self.assertEqual(environment['AWS_MAX_ATTEMPTS'], '1')
+            self.assertEqual(environment['AWS_EC2_METADATA_DISABLED'], 'true')
+            self.assertEqual(call.kwargs['timeout'], 30)
+        self.assertEqual(client.region, 'ap-southeast-2')
+        with patch('subprocess.run') as invoke:
+            for service, operation, request in (('ec2', 'run-instances', {}),
+                    ('s3api', 'put-object', {}), ('sts', 'get-caller-identity', {'other': True}),
+                    ('account', 'get-account-information', {})):
+                with self.subTest(operation=operation), self.assertRaises(ValueError):
+                    client.call(service, operation, request)
+            with self.assertRaises(ValueError):
+                client.account_plan_state()
+            with self.assertRaises(ValueError):
+                self.transport('freetier-paid').own_account_information()
+            self.assertEqual(invoke.call_count, 0)
+        self.assertFalse(hasattr(client, 'put_file'))
+
+    def test_operator_transport_errors_are_bounded_and_never_fallback_or_forward_diagnostics(self):
+        for result in (SimpleNamespace(returncode=255, stdout=b'', stderr=b'An error occurred (AccessDenied) private-fixture'),
+                       SimpleNamespace(returncode=0, stdout=b'x' * (4 * 1024 * 1024 + 1), stderr=b'')):
+            with patch('subprocess.run', return_value=result) as invoke, self.assertRaises(AwsError) as caught:
+                self.transport().own_account_information()
+            self.assertNotIn('private-fixture', str(caught.exception))
+            self.assertEqual(invoke.call_count, 1)
+        with patch('subprocess.run', side_effect=subprocess.TimeoutExpired('fixture', 30)) as invoke:
+            with self.assertRaises(AwsError) as caught:
+                self.transport().organization_information()
+            self.assertEqual(caught.exception.code, 'ObservationTimeout')
+            self.assertEqual(invoke.call_count, 1)
+
+    def test_actual_operator_entry_has_no_deployed_plan_and_uses_shared_observer(self):
+        module = sys.modules[AWSCLI.__module__]
+        selected = advanced_plan()
+        client = FakeAWS(selected)
+        responses = [client.call('sts', 'get-caller-identity', {}), client.account_information, client.organization]
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / 'readiness.json'
+            argv = ['aws.py', 'account-readiness', '--account-readiness', 'configured-advanced-member-project',
+                    '--project-region', 'ap-southeast-2', '--account-id', selected.account_id,
+                    '--profile', 'rove4k', '--aws-cli', str(Path(sys.executable).resolve()), '--out', str(output)]
+            completed = [SimpleNamespace(returncode=0, stdout=json.dumps(row).encode(), stderr=b'') for row in responses]
+            with patch.object(sys, 'argv', argv), patch('subprocess.run', side_effect=completed) as invoke:
+                self.assertEqual(module.main(), 0)
+            report = json.loads(output.read_text())
+            self.assertTrue(report['allowed'], report)
+            self.assertFalse(report['paid_plan_observed'])
+            self.assertEqual(invoke.call_count, 3)
+            self.assertEqual(report['configured_transition'], selected.account_readiness.as_dict())
+            self.assertNotIn('watchdog_stack', report)
+
+    def test_prestack_entry_denies_metadata_failure_without_a_second_class_or_write(self):
+        module = sys.modules[AWSCLI.__module__]
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / 'denied.json'
+            argv = ['aws.py', 'account-readiness', '--account-readiness', 'configured-advanced-member-project',
+                    '--project-region', 'ap-southeast-2', '--account-id', '292341339363',
+                    '--profile', 'rove4k', '--aws-cli', str(Path(sys.executable).resolve()), '--out', str(output)]
+            completed = SimpleNamespace(returncode=255, stdout=b'', stderr=b'An error occurred (AccessDenied) fixture')
+            with patch.object(sys, 'argv', argv), patch('subprocess.run', return_value=completed) as invoke:
+                self.assertEqual(module.main(), 2)
+            self.assertFalse(json.loads(output.read_text())['allowed'])
+            self.assertEqual(invoke.call_count, 1)
+
+    def test_explicit_legacy_operator_entry_retains_paid_expired_and_free_denial(self):
+        module = sys.modules[AWSCLI.__module__]
+        for plan_type, status, expected in (('PAID', 'ACTIVE', 0), ('PAID', 'EXPIRED', 0), ('FREE', 'ACTIVE', 2)):
+            with self.subTest(plan_type=plan_type, status=status), tempfile.TemporaryDirectory() as temporary:
+                output = Path(temporary) / 'legacy.json'
+                argv = ['aws.py', 'account-readiness', '--account-readiness', 'freetier-paid',
+                        '--project-region', 'ap-southeast-2', '--account-id', '292341339363',
+                        '--profile', 'rove4k', '--aws-cli', str(Path(sys.executable).resolve()), '--out', str(output)]
+                responses = [{'Account': '292341339363', 'Arn': 'arn:aws:iam::292341339363:user/operator'},
+                             {'accountId': '292341339363', 'accountPlanType': plan_type, 'accountPlanStatus': status}]
+                with patch.object(sys, 'argv', argv), patch('subprocess.run', side_effect=[SimpleNamespace(
+                        returncode=0, stdout=json.dumps(row).encode(), stderr=b'') for row in responses]) as invoke:
+                    self.assertEqual(module.main(), expected)
+                self.assertEqual(invoke.call_count, 2)
+                second = invoke.call_args_list[1].args[0]
+                self.assertIn('get-account-plan-state', second)
+                self.assertEqual(second[second.index('--endpoint-url') + 1], ACCOUNT_PLAN_ENDPOINT)
+                report = json.loads(output.read_text())
+                self.assertEqual(report['format'], 'rove4k-aws-account-plan-v1')
+                self.assertEqual(report['account_plan_status'], status)
+                self.assertNotIn('configured_transition', report)
+
+    def test_operator_entry_requires_explicit_selector_and_own_project_before_auth(self):
+        module = sys.modules[AWSCLI.__module__]
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / 'must-not-exist.json'
+            base = ['aws.py', 'account-readiness', '--project-region', 'ap-southeast-2',
+                    '--account-id', '292341339363', '--profile', 'rove4k', '--aws-cli',
+                    str(Path(sys.executable).resolve()), '--out', str(output)]
+            bad_account = list(base) + ['--account-readiness', 'configured-advanced-member-project']
+            bad_account[bad_account.index('--account-id') + 1] = '814650855198'
+            for argv in (base, bad_account, [*base, '--config', '/fixture/not-read.json',
+                                          '--account-readiness', 'configured-advanced-member-project']):
+                with self.subTest(argv=argv), patch.object(sys, 'argv', argv), patch('subprocess.run') as invoke:
+                    with patch('sys.stderr'), self.assertRaises(SystemExit) as caught:
+                        module.main()
+                    self.assertEqual(caught.exception.code, 2)
+                    self.assertEqual(invoke.call_count, 0)
+                    self.assertFalse(output.exists())
+
+    def test_isolated_operator_entry_help_imports_only_known_siblings_without_auth(self):
+        module = sys.modules[AWSCLI.__module__]
+        result = subprocess.run([sys.executable, '-I', '-B', module.__file__, '--help'],
+                                capture_output=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr.decode())
+        self.assertIn(b'account-readiness', result.stdout)
 
 
 if __name__ == '__main__':

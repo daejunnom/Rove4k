@@ -747,17 +747,19 @@ class AuthorityTests(unittest.TestCase):
 
 
 class DeploymentBindingTests(unittest.TestCase):
-    def fixture(self):
+    def fixture(self, advanced=False):
         try:
             from . import aws_infrastructure as infrastructure, campaign
             from .test_campaign import plan
-            from .test_aws import FakeAWS
+            from .test_aws import FakeAWS, advanced_plan
         except ImportError:
             import aws_infrastructure as infrastructure
             import campaign
             from test_campaign import plan
-            from test_aws import FakeAWS
-        selected = replace(plan(), ami_id=cloud.CANONICAL_AMI)
+            from test_aws import FakeAWS, advanced_plan
+        selected = replace(advanced_plan() if advanced else plan(), ami_id=cloud.CANONICAL_AMI)
+        template_options = ({"account_readiness": selected.account_readiness.as_dict()}
+                            if selected.account_readiness is not None else {})
         seed, _ = seed_fixture()
         for name in cloud.HOST_SOURCE_FILES:
             seed["members"][seed["source_tree"] + "/" + name] = {
@@ -766,7 +768,7 @@ class DeploymentBindingTests(unittest.TestCase):
                       "version_id": "v1", "sha256": "a" * 64, "bytes": 100}
         recipe = campaign.bootstrap_recipe()
         bootstrap = {"recipe_id": recipe["id"], "recipe_sha256": recipe["sha256"]}
-        reviewed = {"template_sha256": cloud.ledger.digest(infrastructure.template(selected.region)),
+        reviewed = {"template_sha256": cloud.ledger.digest(infrastructure.template(selected.region, **template_options)),
             "watchdog_source_sha256": cloud.pin(infrastructure.WATCHDOG_SOURCE.encode())["sha256"],
             "function_code_sha256": "actual-deployed-zip-checksum", "function_revision_id": "immutable-revision"}
         permit = {"bootstrap": bootstrap, "reviewed_deployment": reviewed,
@@ -775,7 +777,7 @@ class DeploymentBindingTests(unittest.TestCase):
         class Ports(FakeAWS):
             def __init__(self):
                 super().__init__(selected)
-                self.template = infrastructure.template(selected.region)
+                self.template = infrastructure.template(selected.region, **template_options)
                 self.code = reviewed["function_code_sha256"]
                 self.arch = "x86_64"
 
@@ -812,6 +814,30 @@ class DeploymentBindingTests(unittest.TestCase):
         self.assertIn(("lambda", "get-function-configuration"), operations)
         self.assertIn(("ec2", "describe-images"), operations)
         self.assertNotIn(("ec2", "run-instances"), operations)
+
+    def test_configured_advanced_context_binds_the_actual_selected_template(self):
+        values = self.fixture(advanced=True)
+        result = self.validate(values)
+        self.assertTrue(result["verified"])
+        selected = values[0]
+        self.assertEqual(result["plan_sha256"], cloud.aws.digest(selected.as_dict()))
+        metadata = values[-1].template["Metadata"]["Rove4k::DeploymentPrerequisites"]
+        self.assertIn("AccountReadiness", metadata)
+        self.assertNotIn("AccountPlan", metadata)
+
+    def test_advanced_request_cannot_use_a_legacy_or_repinned_template(self):
+        values = self.fixture(advanced=True)
+        infrastructure = cloud.load_module("rove_deployment_test_infrastructure", cloud.HERE / "aws_infrastructure.py")
+        values[-1].template = infrastructure.template(project_region=values[0].region)
+        with self.assertRaisesRegex(ValueError, "CloudFormation template"):
+            self.validate(values)
+        values = self.fixture(advanced=True)
+        legacy = infrastructure.template(project_region=values[0].region)
+        values[3]["reviewed_deployment"]["template_sha256"] = cloud.ledger.digest(legacy)
+        values[3]["deployment_receipt_sha256"] = cloud.ledger.digest({
+            "deployment": values[3]["reviewed_deployment"], "bootstrap": values[3]["bootstrap"]})
+        with self.assertRaisesRegex(ValueError, "reviewed template"):
+            self.validate(values)
 
     def test_changed_lambda_code_is_not_accepted_from_unchanged_stack(self):
         values = self.fixture()

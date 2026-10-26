@@ -5,12 +5,21 @@ deploys and verifies the one-time watchdog before EC2 RunInstances. Archive
 resources are retained on stack removal and have 30-day retention policies;
 their later explicit cleanup requires a verified local archive.
 
-The deployment caller must verify the matching account's PAID account plan
-before creating or updating this stack. CloudFormation cannot query that
-billing state itself; the prerequisite metadata does not claim to do so.
+The deployment caller must verify the selected account-readiness contract
+before creating or updating this stack. CloudFormation cannot perform those
+observations itself; the prerequisite metadata does not claim to do so.
 """
+import argparse
+import hashlib
+import importlib
 import json
+import os
+from pathlib import Path
 import re
+import sys
+import types
+
+sys.dont_write_bytecode = True
 
 
 WATCHDOG_SOURCE = '''"""Terminate only instances proven by immutable launch intents, never tags alone."""
@@ -264,7 +273,24 @@ def allow(actions, resources, condition=None):
     return row
 
 
-def template(project_region=None):
+def readiness_type():
+    """Load the approved sibling factory without using cwd or sys.path."""
+    directory = Path(__file__).resolve().parent
+    package_name = __package__ or 'rove4k_cloud_strength'
+    package = sys.modules.get(package_name)
+    if package is None:
+        package = types.ModuleType(package_name)
+        package.__path__ = [str(directory)]
+        sys.modules[package_name] = package
+    if list(getattr(package, '__path__', ())) != [str(directory)]:
+        raise ValueError('infrastructure sibling package belongs to another source tree')
+    module = importlib.import_module(package_name + '.aws')
+    if Path(module.__file__).resolve() != directory / 'aws.py':
+        raise ValueError('infrastructure readiness factory belongs to another source tree')
+    return module.AdvancedMemberProjectReadiness
+
+
+def template(project_region=None, account_readiness=None):
     """Construct source only; optionally bind this deployment to its project region.
 
     The default remains reusable. An explicit region pins the parameter and
@@ -276,6 +302,10 @@ def template(project_region=None):
     if project_region is not None and (not isinstance(project_region, str)
             or len(project_region) > 63 or re.fullmatch(region_pattern, project_region) is None):
         raise ValueError('project_region must be an explicit AWS region name or None')
+    readiness = (None if account_readiness is None else
+                 readiness_type().from_dict(account_readiness).as_dict())
+    if readiness is not None and project_region != 'ap-southeast-2':
+        raise ValueError('configured Advanced project requires explicit ap-southeast-2')
     region_parameter = {'Type': 'String', 'Default': project_region or '',
         'AllowedPattern': '^$|' + region_pattern, 'MaxLength': 63,
         'Description': 'Optional project workload region; when set it must equal the stack region. No region fallback.'}
@@ -438,7 +468,7 @@ def template(project_region=None):
                 'ssm:resourceTag/RoveCampaign': ref('CampaignId'), 'ssm:resourceTag/RoveOwner': ref('OwnerNonce')}}),
             allow(['ssm:GetCommandInvocation', 'ssm:ListCommandInvocations', 'ssm:CancelCommand'], '*')])}],
         'Tags': campaign_tags}}
-    return {'AWSTemplateFormatVersion': '2010-09-09',
+    value = {'AWSTemplateFormatVersion': '2010-09-09',
         'Description': 'Rove4k single-instance Spot campaign safety and 30-day evidence; no EC2 instance is created by this stack',
         'Metadata': {'AWSToolsMetrics': {'AWSAgentToolkit': 'aws-cloudformation@3'},
             'Rove4k::DeploymentPrerequisites': {
@@ -474,3 +504,84 @@ def template(project_region=None):
             'ScheduleName': {'Value': ref('DeadlineSchedule')}, 'WatchdogArn': {'Value': arn('DeadlineFunction')},
             'InstanceProfileArn': {'Value': arn('InstanceProfile')}, 'SecurityGroupId': {'Value': ref('SecurityGroup')},
             'ArtifactBucket': {'Value': ref('ArtifactBucket')}, 'ControllerRoleArn': {'Value': arn('ControllerRole')}}}
+    if readiness is not None:
+        account = readiness['project_account_id']
+        organization = readiness['organization_id']
+        management = readiness['management_account_id']
+        condition = {'StringEquals': {'aws:PrincipalAccount': account,
+                                      'aws:PrincipalOrgID': organization}}
+        statements = resources['ControllerRole']['Properties']['Policies'][0]['PolicyDocument']['Statement']
+        index = statements.index(allow('freetier:GetAccountPlanState', '*'))
+        statements[index:index + 1] = [
+            allow('account:GetAccountInformation',
+                  f'arn:aws:account::{management}:account/{organization}/{account}', condition),
+            allow('organizations:DescribeOrganization', '*', condition)]
+        prerequisites = value['Metadata']['Rove4k::DeploymentPrerequisites']
+        del prerequisites['AccountPlan']
+        prerequisites['AccountReadiness'] = {
+            'Kind': readiness['kind'],
+            'ReviewedConfiguration': readiness,
+            'Before': ['CreateStack', 'UpdateStack', 'RunInstances'],
+            'Operations': ['sts:GetCallerIdentity', 'account:GetAccountInformation',
+                           'organizations:DescribeOrganization'],
+            'RequiredFreshObservations': {
+                'Identity': {'Account': account},
+                'OwnAccount': {'Request': {}, 'AccountId': account, 'AccountState': 'ACTIVE'},
+                'Organization': {'Id': organization, 'MasterAccountId': management, 'FeatureSet': 'ALL'}},
+            'TrustSource': 'Explicit reviewed user-confirmed Advanced transition; not inferred from an API error or organization membership.',
+            'ReadOnlyGlobalEndpointException': 'Account and organization metadata only; never workload region fallback.',
+            'OnMissingOrUnverifiedEvidence': 'Refuse before resource creation; do not switch readiness classes.',
+            'Enforcement': 'External deployment preflight; CloudFormation does not perform these observations.',
+            'EvidenceMeaning': 'This configured class does not claim a Free Tier PAID API response or a current credit balance.'}
+    return value
+
+
+def output_path(value):
+    """Validate an explicit new external JSON destination without creating it."""
+    destination = Path(value)
+    if not destination.is_absolute() or destination.suffix.lower() != '.json':
+        raise ValueError('out must be an absolute new external JSON path')
+    if any(part.lower() in ('.aws', '.ssh', 'credentials', 'credential')
+           or part.lower() == '.env' or part.lower().startswith('.env.') for part in destination.parts):
+        raise ValueError('protected output path')
+    for ancestor in (destination, *destination.parents):
+        if ancestor.is_symlink():
+            raise ValueError('linked output path')
+        if ancestor.exists() and getattr(ancestor.stat(), 'st_file_attributes', 0) & 0x400:
+            raise ValueError('linked output path')
+    destination = destination.resolve()
+    if destination.is_relative_to(Path(__file__).resolve().parents[3]):
+        raise ValueError('out must stay outside the source workspace')
+    if destination.exists() or not destination.parent.is_dir():
+        raise ValueError('out must be new and its external parent must already exist')
+    return destination
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description='Render source-only campaign CloudFormation; never contact AWS.')
+    parser.add_argument('--project-region')
+    parser.add_argument('--account-readiness', required=True,
+                        choices=('freetier-paid', 'configured-advanced-member-project'))
+    parser.add_argument('--out', required=True)
+    args = parser.parse_args(argv)
+    try:
+        destination = output_path(args.out)
+        readiness = (readiness_type()().as_dict()
+                     if args.account_readiness == 'configured-advanced-member-project' else None)
+        value = template(args.project_region, readiness)
+        raw = (json.dumps(value, sort_keys=True, separators=(',', ':'), allow_nan=False) + '\n').encode('utf-8')
+        flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, 'O_NOFOLLOW', 0) | getattr(os, 'O_BINARY', 0)
+        with os.fdopen(os.open(destination, flags, 0o600), 'wb') as stream:
+            stream.write(raw)
+            stream.flush()
+            os.fsync(stream.fileno())
+    except (OSError, ValueError) as exc:
+        parser.error(str(exc))
+    print(json.dumps({'path': str(destination), 'bytes': len(raw),
+                      'sha256': hashlib.sha256(raw).hexdigest(),
+                      'account_readiness': args.account_readiness, 'source_only': True}, sort_keys=True))
+    return 0
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

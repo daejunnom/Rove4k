@@ -807,7 +807,7 @@ def publish(client, plan, archive, key, journal):
         return observed
     if version is not None:
         return observed  # A missing current object cannot authorize replacing a confirmed version.
-    aws.require_paid_account_plan(client, plan.account_id, __import__('time').time())
+    aws.require_account_readiness(client, plan, __import__('time').time())
     journal.append("seed.upload_requested", identity)  # fsync before the first PutObject.
     publisher = aws.S3Evidence(client, plan, Path(archive).parent)
     try:

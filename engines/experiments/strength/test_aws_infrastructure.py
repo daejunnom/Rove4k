@@ -1,16 +1,20 @@
 """Execute the deployed inline watchdog with fake AWS ports; never use AWS."""
 import copy
 from datetime import datetime, timezone
+import hashlib
 import io
 import json
+from pathlib import Path
 import re
+import subprocess
 import sys
+import tempfile
 from types import ModuleType, SimpleNamespace
 import unittest
 from unittest.mock import patch
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 
-from aws_infrastructure import WATCHDOG_SOURCE, template
+from aws_infrastructure import WATCHDOG_SOURCE, main, readiness_type, template
 
 
 DEADLINE_TEXT = '2026-10-25T12:00:00'
@@ -361,6 +365,119 @@ class InfrastructureDefinition(unittest.TestCase):
                 self.assertEqual(freetier, [{'Effect': 'Allow', 'Action': 'freetier:GetAccountPlanState', 'Resource': '*'}])
             else:
                 self.assertEqual(freetier, [])
+
+    def test_none_readiness_preserves_exact_legacy_template_and_watchdog_bytes(self):
+        expected = {None: 'ac21959e6095cf27eae17aacad43dae9951f9d8ecf43b875a6639860201436c4',
+                    'ap-southeast-2': 'f2d5a93adb6457201c8bf9c1653593b0c4c38df8958d36394539d3f49420be1c'}
+        for region, sha256 in expected.items():
+            with self.subTest(region=region):
+                for value in (template(region), template(region, account_readiness=None)):
+                    raw = json.dumps(value, sort_keys=True, separators=(',', ':')).encode()
+                    self.assertEqual(hashlib.sha256(raw).hexdigest(), sha256)
+        self.assertEqual(hashlib.sha256(WATCHDOG_SOURCE.encode()).hexdigest(),
+                         '84011ff05d5c88de01f8375ab84dcab9c8b52cebc92e4b5848ddc6c91a48de56')
+
+    def test_advanced_configuration_changes_only_readiness_metadata_and_two_controller_reads(self):
+        readiness = readiness_type()().as_dict()
+        value = template('ap-southeast-2', readiness)
+        legacy = template('ap-southeast-2')
+        prerequisites = value['Metadata']['Rove4k::DeploymentPrerequisites']
+        self.assertNotIn('AccountPlan', prerequisites)
+        gate = prerequisites.pop('AccountReadiness')
+        self.assertEqual(gate['Kind'], 'configured-advanced-member-project')
+        self.assertEqual(gate['ReviewedConfiguration'], readiness)
+        self.assertEqual(gate['RequiredFreshObservations'], {
+            'Identity': {'Account': '292341339363'},
+            'OwnAccount': {'Request': {}, 'AccountId': '292341339363', 'AccountState': 'ACTIVE'},
+            'Organization': {'Id': 'o-5bqojfsbnd', 'MasterAccountId': '814650855198', 'FeatureSet': 'ALL'}})
+        self.assertIn('does not claim a Free Tier PAID API response', gate['EvidenceMeaning'])
+        self.assertIn('not inferred', gate['TrustSource'])
+        self.assertIn('do not switch readiness classes', gate['OnMissingOrUnverifiedEvidence'])
+        self.assertEqual(gate['Before'], ['CreateStack', 'UpdateStack', 'RunInstances'])
+        prerequisites['AccountPlan'] = legacy['Metadata']['Rove4k::DeploymentPrerequisites']['AccountPlan']
+        statements = value['Resources']['ControllerRole']['Properties']['Policies'][0]['PolicyDocument']['Statement']
+        advanced = [row for row in statements if row['Action'] in
+                    ('account:GetAccountInformation', 'organizations:DescribeOrganization')]
+        condition = {'StringEquals': {'aws:PrincipalAccount': '292341339363',
+                                      'aws:PrincipalOrgID': 'o-5bqojfsbnd'}}
+        self.assertEqual(advanced, [
+            {'Effect': 'Allow', 'Action': 'account:GetAccountInformation',
+             'Resource': 'arn:aws:account::814650855198:account/o-5bqojfsbnd/292341339363',
+             'Condition': condition},
+            {'Effect': 'Allow', 'Action': 'organizations:DescribeOrganization',
+             'Resource': '*', 'Condition': condition}])
+        index = statements.index(advanced[0])
+        statements[index:index + 2] = [{'Effect': 'Allow', 'Action': 'freetier:GetAccountPlanState', 'Resource': '*'}]
+        # Every resource, trust, existing permission, enabled schedule, session
+        # duration, parameter, and rule must otherwise be exactly unchanged.
+        self.assertEqual(value, legacy)
+
+    def test_advanced_wire_is_factory_validated_and_region_is_explicit(self):
+        approved = readiness_type()().as_dict()
+        for region in (None, 'us-east-1', 'eu-west-1'):
+            with self.subTest(region=region), self.assertRaisesRegex(ValueError, 'explicit ap-southeast-2'):
+                template(region, approved)
+        invalid = [True, [], {}, {'kind': 'configured-advanced-member-project'},
+                   SimpleNamespace(as_dict=lambda: approved)]
+        for key in approved:
+            changed = copy.deepcopy(approved)
+            changed[key] = 'unreviewed'
+            invalid.append(changed)
+        changed = copy.deepcopy(approved)
+        changed['transition_confirmation']['sha256'] = 'f' * 64
+        invalid.append(changed)
+        changed = copy.deepcopy(approved)
+        changed['extra'] = True
+        invalid.append(changed)
+        for value in invalid:
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                template('ap-southeast-2', value)
+
+    def test_readiness_factory_does_not_widen_import_search_path(self):
+        before = list(sys.path)
+        factory = readiness_type()
+        self.assertEqual(factory.from_dict(factory().as_dict()).as_dict(), factory().as_dict())
+        self.assertEqual(sys.path, before)
+
+    def test_source_render_cli_isolated_entry_produces_new_external_exact_json(self):
+        entry = Path(__file__).with_name('aws_infrastructure.py').resolve()
+        with tempfile.TemporaryDirectory(prefix='rove4k-infrastructure-cli-') as directory:
+            for selector in ('freetier-paid', 'configured-advanced-member-project'):
+                with self.subTest(selector=selector):
+                    out = Path(directory) / (selector + '.json')
+                    result = subprocess.run([sys.executable, '-I', '-B', str(entry),
+                        '--project-region', 'ap-southeast-2', '--account-readiness', selector,
+                        '--out', str(out)], cwd=directory, capture_output=True, timeout=10)
+                    self.assertEqual(result.returncode, 0, result.stderr.decode())
+                    receipt = json.loads(result.stdout)
+                    self.assertTrue(receipt['source_only'])
+                    self.assertEqual(receipt['account_readiness'], selector)
+                    raw = out.read_bytes()
+                    self.assertEqual(len(raw), receipt['bytes'])
+                    self.assertEqual(hashlib.sha256(raw).hexdigest(), receipt['sha256'])
+                    readiness = readiness_type()().as_dict() if selector != 'freetier-paid' else None
+                    expected = template('ap-southeast-2', readiness)
+                    self.assertEqual(raw, (json.dumps(expected, sort_keys=True, separators=(',', ':')) + '\n').encode())
+                    self.assertEqual(json.loads(raw), expected)
+
+    def test_source_render_cli_refuses_existing_source_and_unselected_outputs(self):
+        with tempfile.TemporaryDirectory(prefix='rove4k-infrastructure-refusal-') as directory:
+            out = Path(directory) / 'template.json'
+            original = b'preserved original'
+            out.write_bytes(original)
+            arguments = ['--account-readiness', 'freetier-paid', '--out', str(out)]
+            with redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as raised:
+                main(arguments)
+            self.assertEqual(raised.exception.code, 2)
+            self.assertEqual(out.read_bytes(), original)
+            for args in ([ '--out', str(Path(directory) / 'unselected.json') ],
+                         ['--account-readiness', 'unknown', '--out', str(Path(directory) / 'unknown.json')],
+                         ['--account-readiness', 'freetier-paid', '--out',
+                          str(Path(__file__).with_name('forbidden-template.json').resolve())]):
+                with self.subTest(args=args), redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as raised:
+                    main(args)
+                self.assertEqual(raised.exception.code, 2)
+                self.assertFalse(Path(args[-1]).exists())
 
     def test_one_off_deadline_and_no_paid_instance_is_created(self):
         value = template()

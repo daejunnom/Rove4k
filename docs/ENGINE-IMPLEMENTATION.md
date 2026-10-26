@@ -54,10 +54,37 @@ GetCredits returns an empty credits list. The previous PAID/100USD response is
 historical; neither credit loss nor the error's cause is inferred. The frozen
 AWS caller requires a PAID API response, so its current readiness model does not
 cover this explicitly confirmed Advanced transition. An explicit, reviewed
-member-project readiness class and its caller/IAM bindings are being implemented.
+member-project readiness class now connects the pre-stack observer, deployed
+preflight/launch, selected template/deployment validation and first seed publish.
+The frozen eight-file local joint passes384 tests under WSL Python3.12.3 with
+unchanged before/after source pins and natural process cleanup. Focused native
+Python3.10 AWS38/publisher13/infrastructure33 tests also pass; they overlap the
+joint scope and are not added to its count. Independent exact-source review is
+CLEAR. The legacy plan digest/default template and watchdog bytes are preserved.
+The source-only operator entry subsequently completes actual same-project STS,
+own ACTIVE account and exact organization reads without a future ControllerRole.
+Its report is allowed with paid_plan_observed=false and account_plan_type=null.
+The29332B rendered Advanced template passes actual service ValidateTemplate with
+eight parameters/CAPABILITY_NAMED_IAM. Its file SHA is
+`ccd414f4c479409cc830c1a81797a658a5309b3d3bd64a65a513d46013544ccb`;
+canonical JSON without the final LF has digest
+`e083f2cad580549a2494f1bf6d4e187cc5ee703f7d2fae411a3dde3c9b006bdd`.
+These metadata reads and template validation create no resources and do not
+establish ControllerRole assumption, deployment, publication or launch success.
 Unknown/error responses stay blocked and are never relabeled PAID. The complete
 409 seed remains immutable; this subsequent HOST change requires a new source,
-CI and seed cohort before live use. Authorized cash fallback stays inside120USD.
+CI and seed cohort before live campaign execution. Authorized cash fallback stays inside120USD.
+
+The separate five-route P4 resolver/parenthesis cost trial completes62 outer
+commands, with all owned nested work naturally settled and no engine/TT action.
+ABCE resolver rewrites lose:3781→3785,4071→4075,3915→3919,3882→3885B. They stop.
+Full F's redundant-parenthesis change wins3590→3587B; all candidate native bytes
+match their controls, but only the actual whole measurements determine wins.
+The subsequent F-only costs are P28 3602→3602B and W2563590→3589B, again with
+identical native bytes to control. No W256 engine or giant TT runs. Production
+integration and actual P4/P28 runtime qualification remain pending.
+Earlier caller pin/type/normalization preflight failures are preserved separately
+and are not candidate measurements. No such microtrial is applied to D.
 
 Checkpoint0cd1324 passes all three workflows: engine40238075060 (26/26),
 NVCompact40238074950 and repository40238074958. Exact foundation job121303838777
@@ -136,6 +163,15 @@ must identify a substantial removed/replacement responsibility budget while
 preserving full functionality; small ABI packing is a component, not a claimed
 solution. Runtime/library and board/search-consumption architectures are under
 read-only review, with no new structural implementation or savings claimed.
+
+The user now plans to share a separate D structural PR with a reported
+hundreds-of-bytes reduction into the4KiB range. Its code and qualification are
+not yet verified. Preserve the5233B/function-cost/ownership baseline and avoid
+competing D implementation before comparing that PR. At active work milestones,
+inspect open PRs, then review its body/diff, removed/replacement responsibilities,
+full functionality, actual whole cost and reproduction before applying it.
+No automation is created. AWS and ABCE/F work continue in parallel; D integration
+and validation estimates will be updated from the actual published scope.
 
 The first sparse-square transfer costs A3794→3781B and C3927→3915B in P4; B4071→4072B
 loses and stops. A separate fresh pre-cleanup six-profile comparison now confirms

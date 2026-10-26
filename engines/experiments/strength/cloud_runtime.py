@@ -944,7 +944,9 @@ def validate_controller_inputs(*, plan, seed, manifest, manifest_sha256, permit,
     require(bootstrap == {"recipe_id": recipe["id"], "recipe_sha256": recipe["sha256"]},
             "execution permit does not bind the reviewed same-instance bootstrap recipe")
     infrastructure = load_module("rove_cloud_infrastructure", HERE / "aws_infrastructure.py")
-    expected_template = infrastructure.template(project_region=plan.region)
+    template_options = ({"account_readiness": plan.account_readiness.as_dict()}
+                        if plan.account_readiness is not None else {})
+    expected_template = infrastructure.template(project_region=plan.region, **template_options)
     require(reviewed.get("template_sha256") == ledger.digest(expected_template) and
             reviewed.get("watchdog_source_sha256") == pin(infrastructure.WATCHDOG_SOURCE.encode())["sha256"],
             "deployment receipt does not bind reviewed template and actual watchdog source")
