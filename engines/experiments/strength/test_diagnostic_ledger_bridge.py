@@ -10,7 +10,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 try:
-    from . import global_budget as g, wave, diagnostic_ledger_bridge as bridge_module
+    from . import global_budget as g, wave, run, diagnostic_ledger_bridge as bridge_module
     from .diagnostic_ledger_bridge import DiagnosticHost, DiagnosticLedgerMailbox, binding
     from .ledger import Journal
     from .shared_coordinator import SharedBudgetJournal
@@ -20,6 +20,7 @@ except ImportError:
     import diagnostic_ledger_bridge as bridge_module
     import global_budget as g
     import wave
+    import run
     from diagnostic_ledger_bridge import DiagnosticHost, DiagnosticLedgerMailbox, binding
     from ledger import Journal
     from shared_coordinator import SharedBudgetJournal
@@ -45,10 +46,16 @@ class DiagnosticBridgeTests(unittest.TestCase):
         self.script = self.root / 'toy.py'
         self.script.write_text(ASYNC_TOY)
         self.bridge = None
+        self.intent_owner = None
+        self.intent_main = None
 
     def tearDown(self):
         if self.bridge is not None:
             self.assertTrue(self.bridge.close(2), 'worker must finish before journal is closed')
+        if self.intent_owner is not None:
+            self.intent_owner.close()
+        if self.intent_main is not None:
+            self.intent_main.close()
         self.journal.close()
         self.directory.cleanup()
 
@@ -56,6 +63,17 @@ class DiagnosticBridgeTests(unittest.TestCase):
         self.bridge = DiagnosticLedgerMailbox(self.owner, self.host, read_boot=lambda: BOOT,
                                               now_utc=lambda: 1000, **kwargs)
         return self.bridge
+
+    def make_intent_owner(self):
+        """Use the real registered POSIX writer; it grants no GO authority."""
+        self.intent_main = Journal(self.root / 'wave-main.jsonl', 'test-campaign')
+        self.intent_owner = run.IntentJournalOwner(self.root / 'release-intents.jsonl', 'test-campaign', 'i-123')
+        marker = self.intent_main.append('campaign.intent_journal', {
+            'path': str(self.intent_owner.path), 'instance_id': self.intent_owner.instance_id,
+            'boot_id': self.intent_owner.boot_id, 'device': self.intent_owner.journal.identity[0],
+            'inode': self.intent_owner.journal.identity[1]})
+        self.intent_owner.bind_registration(self.intent_main, marker)
+        return self.intent_owner
 
     def job(self, identity='game-1', attempt='attempt-00000001', fence='diag-fence-1'):
         return wave.WaveJob(identity, (sys.executable, str(self.script), 'ok'), {},
@@ -74,9 +92,11 @@ class DiagnosticBridgeTests(unittest.TestCase):
         self.client.put_file_if_match = slow_store
         bridge = self.make_bridge()
         first = wave.WaveJob('game-0', (sys.executable, str(self.script), 'ok'), {},
-                             {'attempt_id': 'attempt-00000000'}, self.root / 'game-0')
+                             {'campaign': 'test-campaign', 'pair': 'pair-0', 'game': 'game-0',
+                              'attempt': 0, 'attempt_id': 'attempt-00000000'}, self.root / 'game-0')
         second = self.job()
         events, transports = [], []
+        intent_owner = self.make_intent_owner()
 
         class FixtureMailbox:
             """Test-only local approval for game-0; bridge itself always denies."""
@@ -103,13 +123,19 @@ class DiagnosticBridgeTests(unittest.TestCase):
         try:
             results = wave.WaveExecutor().run_wave([first, second], 5,
                 async_authorizer=FixtureMailbox(), observe_transport=lambda job, obs: transports.append((job.identity, obs['gate_transport'])),
-                on_drain=bridge.on_drain, on_event=on_event)
+                intent_owner=intent_owner, on_drain=bridge.on_drain, on_event=on_event)
         finally:
             release_store.set()
         self.assertTrue(worker_entered.is_set())
         self.assertIn(('completed', first.identity), events)
         self.assertEqual(results[0]['returncode'], 0)
         self.assertFalse(results[0]['cleanup_forced'])
+        self.assertTrue(results[0]['gate_intent_resolved'])
+        intent_rows = run.ledger.read_journal(self.root / 'release-intents.jsonl', 'test-campaign')
+        self.assertEqual(len(intent_rows), 1)
+        self.assertEqual(intent_rows[0]['event'], 'game.release_intent')
+        self.assertEqual(results[0]['gate_intent_sha256'], intent_rows[0]['sha256'])
+        self.assertEqual(intent_rows[0]['data']['intent']['identity'], first.identity)
         self.assertEqual(results[1]['status'], 'cancelled_before_go')
         self.assertEqual(results[1]['gate_transport'], 'not_attempted')
         self.assertEqual(transports, [('game-0', 'sent')])
@@ -125,9 +151,12 @@ class DiagnosticBridgeTests(unittest.TestCase):
     def test_uncertain_store_write_denies_without_retry_or_false_settlement(self):
         self.client.timeout_after_write = True
         bridge = self.make_bridge()
+        intent_owner = self.make_intent_owner()
         result = wave.WaveExecutor().run_wave([self.job()], 4, async_authorizer=bridge,
-                                              observe_transport=bridge.transport, on_drain=bridge.on_drain)[0]
+                                              intent_owner=intent_owner, observe_transport=bridge.transport,
+                                              on_drain=bridge.on_drain)[0]
         self.assertEqual(result['gate_transport'], 'not_attempted')
+        self.assertEqual(intent_owner.journal.rows, [])
         self.assertTrue(self.owner.blocked)
         self.assertEqual(bridge.records()[0]['status'], 'unresolved')
         version = self.client.seq
@@ -208,9 +237,12 @@ class DiagnosticBridgeTests(unittest.TestCase):
     def test_boot_change_is_quarantined_before_ledger_write(self):
         values = iter([BOOT, '00000000-0000-0000-0000-000000000000'])
         self.bridge = DiagnosticLedgerMailbox(self.owner, self.host, read_boot=lambda: next(values), now_utc=lambda: 1000)
+        intent_owner = self.make_intent_owner()
         result = wave.WaveExecutor().run_wave([self.job()], 4, async_authorizer=self.bridge,
-                                              observe_transport=self.bridge.transport, on_drain=self.bridge.on_drain)[0]
+                                              intent_owner=intent_owner, observe_transport=self.bridge.transport,
+                                              on_drain=self.bridge.on_drain)[0]
         self.assertEqual(result['gate_transport'], 'not_attempted')
+        self.assertEqual(intent_owner.journal.rows, [])
         self.assertEqual(self.client.seq, 1)
         self.assertEqual(self.bridge.records()[0]['status'], 'unresolved')
         self.assertFalse(self.owner.blocked)

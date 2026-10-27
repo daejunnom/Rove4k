@@ -219,14 +219,47 @@ def league_memory_admission(artifacts, slots, *, profile, host_available_bytes, 
             "capacity_scope": "caller-supplied bounds and digest only; no provenance, freshness, reservation or TT page claim"}
 
 
+class CgroupSetupFailure(RuntimeError):
+    """Keep original identities if delegated subtree setup needs reconciliation."""
+    def __init__(self, message, *, records, cleanup_errors, unrecorded_path=None, owner=None):
+        super().__init__(message)
+        self.records, self.cleanup_errors, self.unrecorded_path = records, cleanup_errors, unrecorded_path
+        self.owner = owner
+
+
+def _cgroup_at(directory_fd, name, *, value=None):
+    """Read/write a cgroup attribute relative to an already-open directory."""
+    if not re.fullmatch(r"[a-z]+(?:\.[a-z_]+)+", name):
+        raise ValueError("invalid cgroup attribute name")
+    flags = (os.O_RDONLY if value is None else os.O_WRONLY) | os.O_NOFOLLOW
+    fd = os.open(name, flags, dir_fd=directory_fd)
+    try:
+        if value is None:
+            data = os.read(fd, 65537)
+            if len(data) > 65536:
+                raise ValueError("cgroup attribute exceeds bound")
+            return data.decode("ascii")
+        raw = value.encode("ascii")
+        if os.write(fd, raw) != len(raw):
+            raise OSError("short cgroup attribute write")
+    finally:
+        os.close(fd)
+
+
 class CgroupSlots:
     """Create only beneath an explicitly delegated controller-owned root."""
-    def __init__(self, root, campaign):
+    def __init__(self, root, campaign, *, root_identity=None):
         self.root = Path(root).resolve(strict=True)
+        self._root_fd = self._parent_fd = None
+        self._removed = set()
+        self._closed = False
         if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,95}", campaign):
             raise ValueError("invalid campaign namespace")
         if self.root == Path("/sys/fs/cgroup"):
             raise ValueError("delegate a dedicated root, not the global cgroup root")
+        if root_identity is not None:
+            self._init_anchored(campaign, root_identity)
+            return
         controllers = set((self.root / "cgroup.controllers").read_text().split())
         if not {"cpuset", "memory"} <= controllers:
             raise ValueError("dedicated cgroup root must delegate cpuset and memory")
@@ -236,45 +269,211 @@ class CgroupSlots:
         # The caller has explicitly delegated this root. No global ancestor is edited.
         (self.root / "cgroup.subtree_control").write_text("+cpuset +memory")
         self.parent.mkdir()
-        stat = self.parent.stat()
+        try:
+            stat = self.parent.stat()
+        except BaseException as error:
+            # Without the original identity we must not delete a path that an
+            # external actor might already have replaced.
+            raise CgroupSetupFailure(str(error), records=[], cleanup_errors=[],
+                                     unrecorded_path=str(self.parent), owner=self) from error
         self.created = [(self.parent, stat.st_dev, stat.st_ino)]
         try:
             (self.parent / "cgroup.subtree_control").write_text("+cpuset +memory")
-        except BaseException:
-            self.close()
-            raise
+        except BaseException as error:
+            records = [{"path": str(path), "device": device, "inode": inode}
+                       for path, device, inode in self.created]
+            try:
+                errors = self.close()
+            except Exception as cleanup:
+                errors = [{"error": str(cleanup)}]
+            raise CgroupSetupFailure(str(error), records=records, cleanup_errors=errors, owner=self) from error
+
+    def _init_anchored(self, campaign, identity):
+        if (os.name != "posix" or not hasattr(os, "O_NOFOLLOW") or
+                not isinstance(identity, tuple) or len(identity) != 2 or
+                any(type(value) is not int or value < 0 for value in identity)):
+            raise ValueError("original Linux cgroup root identity is required")
+        flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+        self.parent, self.created = self.root / campaign, []
+        self._root_fd = os.open(self.root, flags)
+        made = False
+        try:
+            original = os.fstat(self._root_fd)
+            if (original.st_dev, original.st_ino) != identity:
+                raise ValueError("delegated root identity changed before setup")
+            if not {"cpuset", "memory"} <= set(_cgroup_at(self._root_fd, "cgroup.controllers").split()):
+                raise ValueError("dedicated cgroup root must delegate cpuset and memory")
+            _cgroup_at(self._root_fd, "cgroup.subtree_control", value="+cpuset +memory")
+            os.mkdir(campaign, dir_fd=self._root_fd)
+            made = True
+            self._parent_fd = os.open(campaign, flags, dir_fd=self._root_fd)
+            parent = os.fstat(self._parent_fd)
+            if parent.st_dev != original.st_dev:
+                raise ValueError("new cgroup parent belongs to a different filesystem")
+            self.created.append((self.parent, parent.st_dev, parent.st_ino))
+            _cgroup_at(self._parent_fd, "cgroup.subtree_control", value="+cpuset +memory")
+            current = os.stat(campaign, dir_fd=self._root_fd, follow_symlinks=False)
+            if (current.st_dev, current.st_ino) != (parent.st_dev, parent.st_ino):
+                raise ValueError("original cgroup parent identity changed during setup")
+            self._check_anchored_parent()
+        except BaseException as error:
+            records = [{"path": str(path), "device": device, "inode": inode}
+                       for path, device, inode in self.created]
+            try:
+                errors = self.close() if records else []
+            except Exception as cleanup:
+                errors = [{"error": str(cleanup)}]
+            if not records:
+                self._close_fds()
+            raise CgroupSetupFailure(str(error), records=records, cleanup_errors=errors,
+                unrecorded_path=str(self.parent) if made and not records else None, owner=self) from error
+
+    def _close_fds(self):
+        for field in ("_parent_fd", "_root_fd"):
+            fd = getattr(self, field, None)
+            if fd is not None:
+                os.close(fd)
+                setattr(self, field, None)
+
+    def _check_anchored_parent(self):
+        """Reject a detached or replaced path while keeping open handles."""
+        root_fd, parent_fd = os.fstat(self._root_fd), os.fstat(self._parent_fd)
+        if any(path.is_symlink() for path in (self.root, *self.root.parents)):
+            raise ValueError("delegated root path became a symlink")
+        root_path, parent_path = self.root.stat(), self.parent.stat()
+        parent_at = os.stat(self.parent.name, dir_fd=self._root_fd, follow_symlinks=False)
+        _, device, inode = self.created[0]
+        if (self.parent.is_symlink() or
+                (root_path.st_dev, root_path.st_ino) != (root_fd.st_dev, root_fd.st_ino) or
+                (parent_fd.st_dev, parent_fd.st_ino) != (device, inode) or
+                (parent_path.st_dev, parent_path.st_ino) != (device, inode) or
+                (parent_at.st_dev, parent_at.st_ino) != (device, inode)):
+            raise ValueError("original cgroup parent or root path changed")
 
     def create(self, slot, memory_bytes=4 << 30):
         if not re.fullmatch(r"slot-\d{3}", slot.id) or type(memory_bytes) is not int or memory_bytes <= 0:
             raise ValueError("invalid owned cgroup slot")
-        path = self.parent / slot.id
+        return self._create_leaf(slot.id, slot.cpus, slot.memory_nodes, memory_bytes)
+
+    def create_controller(self, *, cpus, memory_nodes, memory_bytes):
+        """Create the diagnostic controller as a sibling of the game slots.
+
+        This reserves no physical memory and does not establish exclusive
+        ownership against outside writers. The original identity remains in
+        ``created`` even if a kernel write or readback fails.
+        """
+        if type(memory_bytes) is not int or not 0 < memory_bytes < (1 << 63):
+            raise ValueError("invalid controller memory limit")
+        return self._create_leaf("controller", cpus, memory_nodes, memory_bytes)
+
+    def _create_leaf(self, name, cpus, memory_nodes, memory_bytes):
+        for values in (cpus, memory_nodes):
+            if (not isinstance(values, (list, tuple, set, frozenset)) or not values or
+                    any(type(value) is not int or value < 0 for value in values) or
+                    len(set(values)) != len(values)):
+                raise ValueError("owned cgroup needs distinct non-negative CPU and node masks")
+        if getattr(self, "_parent_fd", None) is not None:
+            return self._create_anchored_leaf(name, cpus, memory_nodes, memory_bytes)
+        parent = self.parent.stat()
+        if self.parent.is_symlink():
+            raise ValueError("original cgroup parent became a symlink")
+        if self.created and self.created[0][0] == self.parent:
+            _, device, inode = self.created[0]
+            if (parent.st_dev, parent.st_ino) != (device, inode):
+                raise ValueError("original cgroup parent identity changed")
+        path = self.parent / name
         path.mkdir()
         stat = path.stat()
         self.created.append((path, stat.st_dev, stat.st_ino))
-        (path / "cpuset.cpus").write_text(format_list(slot.cpus))
-        (path / "cpuset.mems").write_text(format_list(slot.memory_nodes))
+        (path / "cpuset.cpus").write_text(format_list(cpus))
+        (path / "cpuset.mems").write_text(format_list(memory_nodes))
         (path / "memory.max").write_text(str(memory_bytes))
-        cpus = parse_list((path / "cpuset.cpus.effective").read_text())
+        effective_cpus = parse_list((path / "cpuset.cpus.effective").read_text())
         mems = parse_list((path / "cpuset.mems.effective").read_text())
-        if cpus != set(slot.cpus) or mems != set(slot.memory_nodes):
+        if effective_cpus != set(cpus) or mems != set(memory_nodes):
             raise ValueError("kernel cgroup effective masks differ from the slot")
         # The cgroup file is kernel-owned, so do not report the value we sent
         # as an observed limit. Reject max, malformed or changed readback.
         memory_text = (path / "memory.max").read_text().strip()
         if not re.fullmatch(r"[0-9]+", memory_text) or int(memory_text) != memory_bytes:
             raise ValueError("kernel cgroup memory.max readback differs from the requested limit")
-        stat = path.stat()
+        current, current_parent = path.stat(), self.parent.stat()
+        if (path.is_symlink() or self.parent.is_symlink() or
+                (current.st_dev, current.st_ino) != (stat.st_dev, stat.st_ino) or
+                (current_parent.st_dev, current_parent.st_ino) != (parent.st_dev, parent.st_ino)):
+            raise ValueError("original cgroup identity changed during setup")
         return {"path": str(path), "device": stat.st_dev, "inode": stat.st_ino,
-                "cpus": sorted(cpus), "memory_nodes": sorted(mems), "memory_max": int(memory_text)}
+                "cpus": sorted(effective_cpus), "memory_nodes": sorted(mems), "memory_max": int(memory_text)}
+
+    def _create_anchored_leaf(self, name, cpus, memory_nodes, memory_bytes):
+        self._check_anchored_parent()
+        parent = os.fstat(self._parent_fd)
+        _, device, inode = self.created[0]
+        if (parent.st_dev, parent.st_ino) != (device, inode):
+            raise ValueError("original cgroup parent identity changed")
+        os.mkdir(name, dir_fd=self._parent_fd)
+        path = self.parent / name
+        try:
+            fd = os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=self._parent_fd)
+        except BaseException as error:
+            raise CgroupSetupFailure(str(error), records=[{"path": str(p), "device": d, "inode": i}
+                for p, d, i in self.created], cleanup_errors=[], unrecorded_path=str(path), owner=self) from error
+        try:
+            original = os.fstat(fd)
+            if original.st_dev != parent.st_dev:
+                raise CgroupSetupFailure("new cgroup leaf belongs to a different filesystem",
+                    records=[{"path": str(p), "device": d, "inode": i} for p, d, i in self.created],
+                    cleanup_errors=[], unrecorded_path=str(path), owner=self)
+            self.created.append((path, original.st_dev, original.st_ino))
+            _cgroup_at(fd, "cpuset.cpus", value=format_list(cpus))
+            _cgroup_at(fd, "cpuset.mems", value=format_list(memory_nodes))
+            _cgroup_at(fd, "memory.max", value=str(memory_bytes))
+            effective_cpus = parse_list(_cgroup_at(fd, "cpuset.cpus.effective"))
+            effective_nodes = parse_list(_cgroup_at(fd, "cpuset.mems.effective"))
+            actual_memory = _cgroup_at(fd, "memory.max").strip()
+            current = os.stat(name, dir_fd=self._parent_fd, follow_symlinks=False)
+            if (current.st_dev, current.st_ino) != (original.st_dev, original.st_ino):
+                raise ValueError("original cgroup leaf identity changed during setup")
+            self._check_anchored_parent()
+            if effective_cpus != set(cpus) or effective_nodes != set(memory_nodes):
+                raise ValueError("kernel cgroup effective masks differ from the slot")
+            if not re.fullmatch(r"[0-9]+", actual_memory) or int(actual_memory) != memory_bytes:
+                raise ValueError("kernel cgroup memory.max readback differs from the requested limit")
+            return {"path": str(path), "device": original.st_dev, "inode": original.st_ino,
+                    "cpus": sorted(effective_cpus), "memory_nodes": sorted(effective_nodes),
+                    "memory_max": int(actual_memory)}
+        finally:
+            os.close(fd)
 
     def parent_record(self):
         path, device, inode = self.created[0]
         return {"path": str(path), "device": device, "inode": inode}
 
     def close(self):
+        if getattr(self, "_closed", False):
+            return []
         records = [{"path": str(path), "device": device, "inode": inode}
                    for path, device, inode in self.created]
-        return [row for row in cleanup_owned_groups(records, root=self.root) if "error" in row]
+        outcomes = cleanup_owned_groups(records, root=self.root)
+        expected = {(row["path"], row["device"], row["inode"]) for row in records}
+        actual = [(row.get("path"), row.get("device"), row.get("inode")) for row in outcomes]
+        if len(actual) != len(expected) or set(actual) != expected:
+            return [{"error": "cleanup did not reconcile every original identity"}]
+        errors = []
+        removed = getattr(self, "_removed", set())
+        for row in outcomes:
+            key = (row["path"], row["device"], row["inode"])
+            if row.get("removed"):
+                removed.add(key)
+            elif row.get("already_absent") and getattr(self, "_parent_fd", None) is not None and key not in removed:
+                errors.append({**row, "error": "original group disappeared without verified removal"})
+            elif "error" in row:
+                errors.append(row)
+        self._removed = removed
+        if not errors:
+            self._close_fds()
+            self._closed = True
+        return errors
 
 
 def cleanup_owned_groups(records, *, root):
@@ -302,7 +501,8 @@ def cleanup_owned_groups(records, *, root):
             raise ValueError("recorded cgroup escapes the dedicated root") from error
         if (len(relative.parts) not in (1, 2) or any(part in (".", "..") for part in relative.parts) or
                 not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,95}", relative.parts[0]) or
-                (len(relative.parts) == 2 and not re.fullmatch(r"slot-\d{3}", relative.parts[1]))):
+                (len(relative.parts) == 2 and relative.parts[1] != "controller" and
+                 not re.fullmatch(r"slot-\d{3}", relative.parts[1]))):
             raise ValueError("recorded cgroup is outside a campaign/slot namespace")
         seen.add(path)
         owned.append((path, record["device"], record["inode"]))

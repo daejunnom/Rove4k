@@ -108,6 +108,279 @@ class PlacementTests(unittest.TestCase):
                     manager.create(slot, memory_bytes=memory)
             self.assertEqual(manager.created[-1][0], manager.parent / slot.id)
 
+    def test_controller_group_is_created_and_cleaned_with_its_original_identity(self):
+        # Attribute files and rmdir are fixtures, not evidence of real cgroups.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp).resolve()
+            manager = object.__new__(placement.CgroupSlots)
+            manager.root, manager.parent, manager.created = root, root / "campaign-fixture", []
+            manager.parent.mkdir()
+            stat = manager.parent.stat()
+            manager.created.append((manager.parent, stat.st_dev, stat.st_ino))
+            original_read = Path.read_text
+
+            def read_attributes(path, *args, **kwargs):
+                if path.name == "cpuset.cpus.effective":
+                    return original_read(path.parent / "cpuset.cpus", *args, **kwargs)
+                if path.name == "cpuset.mems.effective":
+                    return original_read(path.parent / "cpuset.mems", *args, **kwargs)
+                return original_read(path, *args, **kwargs)
+
+            with patch.object(Path, "read_text", autospec=True, side_effect=read_attributes):
+                record = manager.create_controller(cpus=[0, 1], memory_nodes=[0], memory_bytes=8192)
+            self.assertEqual(Path(record["path"]).name, "controller")
+            self.assertEqual((record["cpus"], record["memory_nodes"], record["memory_max"]), ([0, 1], [0], 8192))
+            controller = manager.parent / "controller"
+            for path in (controller, manager.parent):
+                (path / "cgroup.events").write_text("populated 0\n")
+            (controller / "cgroup.events").write_text("populated 1\n")
+            (manager.parent / "cgroup.events").write_text("populated 1\n")
+            with patch.object(Path, "rmdir", autospec=True) as remove:
+                errors = manager.close()
+            self.assertTrue(any("contains tasks" in error["error"] for error in errors))
+            remove.assert_not_called()
+            # A different, unrecorded child makes the kernel's parent rmdir
+            # fail even when the recorded controller is already empty.
+            (controller / "cgroup.events").write_text("populated 0\n")
+            (manager.parent / "cgroup.events").write_text("populated 0\n")
+            def busy_parent(path):
+                if path == manager.parent:
+                    raise OSError(16, "unrecorded child remains")
+            with patch.object(Path, "rmdir", autospec=True, side_effect=busy_parent):
+                errors = manager.close()
+            self.assertTrue(any("unrecorded child remains" in error["error"] for error in errors))
+            with patch.object(Path, "rmdir", autospec=True) as remove:
+                self.assertEqual(manager.close(), [])
+                self.assertEqual([call.args[0] for call in remove.call_args_list], [controller, manager.parent])
+                self.assertEqual(manager.close(), [])
+                self.assertEqual(remove.call_count, 2)
+            with self.assertRaises(ValueError):
+                placement.cleanup_owned_groups([{"path": str(manager.parent / "unrecorded"),
+                                                  "device": stat.st_dev, "inode": stat.st_ino}], root=root)
+
+    def test_controller_rejects_bad_masks_before_creating_any_leaf(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            manager = object.__new__(placement.CgroupSlots)
+            manager.parent, manager.created = Path(tmp), []
+            for cpus, nodes, memory in (([0, 0], [0], 4096), ([True], [0], 4096),
+                                        ([0], [], 4096), ([0], [0], True)):
+                with self.subTest(cpus=cpus, nodes=nodes, memory=memory), self.assertRaises(ValueError):
+                    manager.create_controller(cpus=cpus, memory_nodes=nodes, memory_bytes=memory)
+            self.assertEqual(manager.created, [])
+
+    def test_partial_parent_setup_reports_original_identity_and_cleanup_failure(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp).resolve()
+            (root / "cgroup.controllers").write_text("cpuset memory\n")
+            (root / "cgroup.subtree_control").write_text("")
+            original_write = Path.write_text
+
+            def write(path, *args, **kwargs):
+                if path == root / "fixture" / "cgroup.subtree_control":
+                    raise OSError("controller activation failed")
+                return original_write(path, *args, **kwargs)
+
+            with patch.object(Path, "write_text", autospec=True, side_effect=write):
+                with self.assertRaises(placement.CgroupSetupFailure) as caught:
+                    placement.CgroupSlots(root, "fixture")
+            self.assertEqual(caught.exception.records[0]["path"], str(root / "fixture"))
+            self.assertGreater(caught.exception.records[0]["inode"], 0)
+            self.assertTrue(caught.exception.cleanup_errors)
+            self.assertTrue((root / "fixture").is_dir())
+
+    def test_leaf_identity_drift_rejects_and_retains_original_record(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp).resolve()
+            manager = object.__new__(placement.CgroupSlots)
+            manager.parent, manager.created = root, []
+            original_read, original_stat = Path.read_text, Path.stat
+            leaf = root / "controller"
+            leaf_calls = 0
+
+            def read_attributes(path, *args, **kwargs):
+                if path.name == "cpuset.cpus.effective":
+                    return original_read(path.parent / "cpuset.cpus", *args, **kwargs)
+                if path.name == "cpuset.mems.effective":
+                    return original_read(path.parent / "cpuset.mems", *args, **kwargs)
+                return original_read(path, *args, **kwargs)
+
+            def observed_stat(path, *args, **kwargs):
+                nonlocal leaf_calls
+                value = original_stat(path, *args, **kwargs)
+                if path == leaf:
+                    leaf_calls += 1
+                    if leaf_calls == 2:
+                        return SimpleNamespace(st_dev=value.st_dev, st_ino=value.st_ino + 1)
+                return value
+
+            with patch.object(Path, "read_text", autospec=True, side_effect=read_attributes), \
+                 patch.object(Path, "stat", autospec=True, side_effect=observed_stat):
+                with self.assertRaisesRegex(ValueError, "identity changed during setup"):
+                    manager.create_controller(cpus=[0], memory_nodes=[0], memory_bytes=4096)
+            self.assertEqual(manager.created[0][0], leaf)
+            self.assertEqual(manager.created[0][2], leaf.stat().st_ino)
+
+    @unittest.skipUnless(os.name == "posix" and hasattr(os, "O_NOFOLLOW"), "Linux dir-fd support required")
+    def test_anchored_cohort_uses_original_directory_handles(self):
+        # Real openat/mkdir identities with simulated cgroup attribute I/O.
+        # This does not create or prove a kernel cgroup.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp).resolve()
+            root_stat = root.stat()
+            values = {}
+
+            def attr(fd, name, *, value=None):
+                inode = os.fstat(fd).st_ino
+                if value is not None:
+                    values[inode, name] = value
+                    return None
+                if name == "cgroup.controllers":
+                    return "cpuset memory"
+                if name.endswith(".effective"):
+                    return values[inode, name.removesuffix(".effective")]
+                return values[inode, name]
+
+            with patch.object(placement, "_cgroup_at", side_effect=attr), \
+                 patch.object(placement, "cleanup_owned_groups", side_effect=lambda rows, **_: [
+                     {**row, "removed": True} for row in rows]) as cleanup:
+                manager = placement.CgroupSlots(root, "fixture", root_identity=(root_stat.st_dev, root_stat.st_ino))
+                controller = manager.create_controller(cpus=[0, 1], memory_nodes=[0], memory_bytes=4096)
+                slot = manager.create(SimpleNamespace(id="slot-000", cpus=(0, 1), memory_nodes=(0,)), memory_bytes=8192)
+                self.assertEqual((controller["memory_max"], slot["memory_max"]), (4096, 8192))
+                self.assertEqual([path.name for path, _, _ in manager.created], ["fixture", "controller", "slot-000"])
+                root_fd, parent_fd = manager._root_fd, manager._parent_fd
+                self.assertEqual(manager.close(), [])
+                cleanup.assert_called_once()
+                for fd in (root_fd, parent_fd):
+                    with self.assertRaises(OSError):
+                        os.fstat(fd)
+
+    @unittest.skipUnless(os.name == "posix" and hasattr(os, "O_NOFOLLOW"), "Linux dir-fd support required")
+    def test_anchored_cleanup_preserves_handles_when_a_group_disappears(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp).resolve()
+            root_stat = root.stat()
+            def attr(_fd, name, *, value=None):
+                return "cpuset memory" if value is None and name == "cgroup.controllers" else None
+            with patch.object(placement, "_cgroup_at", side_effect=attr):
+                manager = placement.CgroupSlots(root, "fixture", root_identity=(root_stat.st_dev, root_stat.st_ino))
+            row = manager.parent_record()
+            root_fd, parent_fd = manager._root_fd, manager._parent_fd
+            try:
+                with patch.object(placement, "cleanup_owned_groups", return_value=[{**row, "already_absent": True}]):
+                    errors = manager.close()
+                self.assertIn("disappeared without verified removal", errors[0]["error"])
+                os.fstat(root_fd)
+                os.fstat(parent_fd)
+            finally:
+                manager._close_fds()
+
+    @unittest.skipUnless(os.name == "posix" and hasattr(os, "O_NOFOLLOW"), "Linux dir-fd support required")
+    def test_anchored_cohort_rejects_changed_root_before_mutation(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp).resolve()
+            stat = root.stat()
+            with patch.object(placement, "_cgroup_at") as attr:
+                with self.assertRaises(placement.CgroupSetupFailure) as caught:
+                    placement.CgroupSlots(root, "fixture", root_identity=(stat.st_dev, stat.st_ino + 1))
+                attr.assert_not_called()
+            self.assertEqual(caught.exception.records, [])
+            self.assertFalse((root / "fixture").exists())
+
+    @unittest.skipUnless(os.name == "posix" and hasattr(os, "O_NOFOLLOW"), "Linux dir-fd support required")
+    def test_anchored_leaf_open_failure_retains_unrecorded_path_and_owner(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp).resolve()
+            stat = root.stat()
+            def attr(_fd, name, *, value=None):
+                return "cpuset memory" if value is None and name == "cgroup.controllers" else None
+            with patch.object(placement, "_cgroup_at", side_effect=attr):
+                manager = placement.CgroupSlots(root, "fixture", root_identity=(stat.st_dev, stat.st_ino))
+            real_open = os.open
+            def opening(path, flags, *args, **kwargs):
+                if path == "controller" and kwargs.get("dir_fd") == manager._parent_fd:
+                    raise OSError("leaf open failed")
+                return real_open(path, flags, *args, **kwargs)
+            try:
+                with patch.object(placement.os, "open", side_effect=opening):
+                    with self.assertRaises(placement.CgroupSetupFailure) as caught:
+                        manager.create_controller(cpus=[0], memory_nodes=[0], memory_bytes=4096)
+                self.assertEqual(caught.exception.unrecorded_path, str(root / "fixture" / "controller"))
+                self.assertIs(caught.exception.owner, manager)
+                self.assertEqual(caught.exception.records, [manager.parent_record()])
+                self.assertTrue((root / "fixture" / "controller").is_dir())
+            finally:
+                manager._close_fds()
+
+    @unittest.skipUnless(os.name == "posix" and hasattr(os, "O_NOFOLLOW"), "Linux dir-fd support required")
+    def test_anchored_parent_rename_is_rejected_before_a_leaf_is_created(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp).resolve()
+            stat = root.stat()
+            def attr(_fd, name, *, value=None):
+                return "cpuset memory" if value is None and name == "cgroup.controllers" else None
+            with patch.object(placement, "_cgroup_at", side_effect=attr):
+                manager = placement.CgroupSlots(root, "fixture", root_identity=(stat.st_dev, stat.st_ino))
+            moved = root / "moved"
+            manager.parent.rename(moved)
+            try:
+                with self.assertRaises((OSError, ValueError)):
+                    manager.create_controller(cpus=[0], memory_nodes=[0], memory_bytes=4096)
+                self.assertFalse((moved / "controller").exists())
+                self.assertEqual(manager.created[0][2], moved.stat().st_ino)
+            finally:
+                manager._close_fds()
+
+    @unittest.skipUnless(os.name == "posix" and Path("/proc/self/fd").is_dir(), "Linux proc fd support required")
+    def test_anchored_groups_reject_other_device_before_attribute_writes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp).resolve()
+            root_stat = root.stat()
+            real_fstat = os.fstat
+            calls = []
+            def attr(fd, name, *, value=None):
+                calls.append((os.readlink(f"/proc/self/fd/{fd}"), name, value))
+                return "cpuset memory" if value is None and name == "cgroup.controllers" else None
+            def other_parent(fd):
+                value = real_fstat(fd)
+                if os.readlink(f"/proc/self/fd/{fd}") == str(root / "fixture"):
+                    return SimpleNamespace(st_dev=value.st_dev + 1, st_ino=value.st_ino)
+                return value
+            with patch.object(placement, "_cgroup_at", side_effect=attr), \
+                 patch.object(placement.os, "fstat", side_effect=other_parent):
+                with self.assertRaises(placement.CgroupSetupFailure) as caught:
+                    placement.CgroupSlots(root, "fixture", root_identity=(root_stat.st_dev, root_stat.st_ino))
+            self.assertEqual(caught.exception.unrecorded_path, str(root / "fixture"))
+            self.assertFalse(any(path == str(root / "fixture") for path, _, _ in calls))
+
+    @unittest.skipUnless(os.name == "posix" and Path("/proc/self/fd").is_dir(), "Linux proc fd support required")
+    def test_anchored_leaf_other_device_is_preserved_before_attribute_writes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp).resolve()
+            root_stat = root.stat()
+            real_fstat = os.fstat
+            calls = []
+            def attr(fd, name, *, value=None):
+                calls.append((os.readlink(f"/proc/self/fd/{fd}"), name, value))
+                return "cpuset memory" if value is None and name == "cgroup.controllers" else None
+            with patch.object(placement, "_cgroup_at", side_effect=attr):
+                manager = placement.CgroupSlots(root, "fixture", root_identity=(root_stat.st_dev, root_stat.st_ino))
+            def other_leaf(fd):
+                value = real_fstat(fd)
+                if os.readlink(f"/proc/self/fd/{fd}") == str(root / "fixture" / "controller"):
+                    return SimpleNamespace(st_dev=value.st_dev + 1, st_ino=value.st_ino)
+                return value
+            try:
+                with patch.object(placement, "_cgroup_at", side_effect=attr), \
+                     patch.object(placement.os, "fstat", side_effect=other_leaf):
+                    with self.assertRaises(placement.CgroupSetupFailure) as caught:
+                        manager.create_controller(cpus=[0], memory_nodes=[0], memory_bytes=4096)
+                self.assertEqual(caught.exception.unrecorded_path, str(root / "fixture" / "controller"))
+                self.assertIs(caught.exception.owner, manager)
+                self.assertFalse(any(path == str(root / "fixture" / "controller") for path, _, _ in calls))
+            finally:
+                manager._close_fds()
+
     @unittest.skipUnless(hasattr(os, "sched_getaffinity"), "Linux execution port")
     def test_preexec_rechecks_owned_memory_max_before_entering_cgroup(self):
         # Fake files and affinity stand in for cgroupfs and scheduler operations.

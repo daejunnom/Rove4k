@@ -18,11 +18,23 @@ import json
 import math
 import os
 from pathlib import Path
+import queue
 import re
 import shutil
 import sys
+import threading
 import time
 import uuid
+
+# When invoked as a script or with -m, Wave imports the controller by its
+# canonical name. Alias this exact module so the strict owner type is not
+# duplicated by a second import.
+if __name__ == "__main__":
+    alias = __spec__.name if __spec__ is not None and __spec__.name != "__main__" else "run"
+    existing = sys.modules.get(alias)
+    if existing is not None and existing is not sys.modules[__name__]:
+        raise RuntimeError("conflicting controller module prevents intent owner identity")
+    sys.modules[alias] = sys.modules[__name__]
 
 try:
     from . import budget, collect, durability, fastchess, ledger, placement, registry, topology
@@ -35,6 +47,209 @@ ID = ledger.valid_id
 SHA = re.compile(r"^[a-f0-9]{64}$")
 TEST_PROFILES = ("test-p4", "test-p28", "test-p16", "test-p192")
 BROAD_FOR_HIGH = {"test-p28": "test-p4", "test-p192": "test-p16"}
+
+
+def attempt_identity(campaign, pair, game, attempt, launch_id):
+    """Bounded non-secret identity for this one allocated launch attempt."""
+    if (any(not isinstance(value, str) or not value for value in (campaign, pair, game, launch_id))
+            or type(attempt) is not int or attempt < 0):
+        raise ValueError("explicit campaign, pair, game and launch attempt required")
+    return hashlib.sha256(ledger.canonical({"campaign": campaign, "pair": pair, "game": game,
+                                            "attempt": attempt, "launch_id": launch_id})).hexdigest()
+
+
+class IntentJournalOwner:
+    """Fsync pre-send intents away from the Wave selector thread.
+
+    This records only a local journal, not global authority or replicated
+    recovery. Its owner must register the sidecar with the main journal before
+    a wave starts and preserve both files on every recovery path.
+    """
+    def __init__(self, path, campaign, instance_id, *, queue_size=64):
+        if (os.name != "posix" or not isinstance(instance_id, str) or not instance_id
+                or type(queue_size) is not int or not 1 <= queue_size <= 256):
+            raise ValueError("bounded POSIX intent owner and instance identity required")
+        self.path = ledger.external(path)
+        self.campaign, self.instance_id = ledger.valid_id(campaign), instance_id
+        self.boot_id = Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+        self.journal = ledger.Journal(self.path, self.campaign)
+        if self.journal.rows:
+            self.journal.close()
+            raise ValueError("existing intent journal requires independent recovery before reuse")
+        # Persist the sidecar directory entry before its registration is used.
+        try:
+            fd = os.open(str(self.path.parent), os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
+            try:
+                os.fsync(fd)
+            finally:
+                os.close(fd)
+        except BaseException:
+            self.journal.close()
+            raise
+        self._requests, self._responses = queue.Queue(queue_size), queue.Queue(queue_size)
+        self._seen, self._tracked, self._failure, self._closed, self._registration = set(), set(), None, False, None
+        self._thread = threading.Thread(target=self._worker, name="rove-intent-journal", daemon=True)
+        self._thread.start()
+
+    def bind_registration(self, main_journal, row):
+        """Bind the already fsynced main-journal marker before a wave starts."""
+        if self._registration is not None or main_journal.campaign != self.campaign:
+            raise ValueError("intent owner registration already exists or campaign differs")
+        seq = row.get("seq") if isinstance(row, dict) else None
+        data = row.get("data") if isinstance(row, dict) else None
+        if (type(seq) is not int or seq < 0 or seq >= len(main_journal.rows)
+                or ledger.canonical(main_journal.rows[seq]) != ledger.canonical(row)
+                or row.get("event") != "campaign.intent_journal" or row.get("campaign") != self.campaign
+                or ledger.digest({name: value for name, value in row.items() if name != "sha256"}) != row.get("sha256")
+                or not isinstance(data, dict) or data.get("path") != str(self.path)
+                or data.get("instance_id") != self.instance_id or data.get("boot_id") != self.boot_id
+                or type(data.get("device")) is not int or type(data.get("inode")) is not int
+                or (data.get("device"), data.get("inode")) != self.journal.identity):
+            raise ValueError("durable main-journal registration differs")
+        self._registration = (main_journal, seq, row["sha256"], ledger.canonical(row))
+
+    def registered(self):
+        """Check in-memory ownership only; no file or network I/O here."""
+        if self._registration is None or self._closed or self._failure is not None:
+            return False
+        journal, seq, sha, canonical = self._registration
+        return (not journal.file.closed and seq < len(journal.rows)
+                and journal.rows[seq].get("sha256") == sha
+                and ledger.canonical(journal.rows[seq]) == canonical
+                and journal.rows[seq].get("event") == "campaign.intent_journal")
+
+    def track_wave(self, jobs):
+        """Track every local gate before spawn; this performs no I/O."""
+        identities = [job.identity for job in jobs]
+        if (not self.registered() or len(set(identities)) != len(identities)
+                or self._tracked.intersection(identities)):
+            raise ValueError("registered intent owner needs distinct wave identities")
+        self._tracked.update(identities)
+
+    def confirm(self, decision, job, observation):
+        """Check the worker's completed fsync receipt without filesystem I/O."""
+        if not self.registered() or type(decision.journal_seq) is not int:
+            return False
+        seq = decision.journal_seq
+        if seq < 0 or seq >= len(self.journal.rows):
+            return False
+        row = self.journal.rows[seq]
+        try:
+            from .wave import intent_payload
+        except ImportError:
+            from wave import intent_payload
+        expected = intent_payload(job, observation, boot_id=self.boot_id)
+        return (row.get("event") == "game.release_intent" and row.get("sha256") == decision.journal_sha256
+                and ledger.digest({name: value for name, value in row.items() if name != "sha256"}) == decision.journal_sha256
+                and row.get("campaign") == self.campaign and row.get("pair") == job.start_job.get("pair")
+                and row.get("game") == job.start_job.get("game") and row.get("attempt") == job.start_job.get("attempt")
+                and row.get("data", {}).get("instance_id") == self.instance_id
+                and ledger.canonical(row.get("data", {}).get("intent")) == ledger.canonical(expected)
+                and ledger.canonical(decision.intent) == ledger.canonical(expected))
+
+    def request(self, job, observation):
+        """Enqueue only; no file, network or fsync in the caller."""
+        if self._closed or self._failure is not None or job.identity in self._seen or job.identity not in self._tracked:
+            raise RuntimeError("intent owner is closed, failed or saw a duplicate job")
+        if (job.start_job.get("campaign") != self.campaign or
+                any(not isinstance(job.start_job.get(key), str) or not job.start_job[key] for key in ("pair", "game")) or
+                type(job.start_job.get("attempt")) is not int or job.start_job["attempt"] < 0):
+            raise ValueError("intent job identity differs from its owner")
+        try:
+            from .wave import intent_payload
+        except ImportError:
+            from wave import intent_payload
+        payload = intent_payload(job, observation, boot_id=self.boot_id)
+        if payload != observation.get("gate_intent_payload"):
+            raise ValueError("intent request binding changed")
+        request = (job.identity, payload, job.start_job["pair"], job.start_job["game"], job.start_job["attempt"])
+        self._requests.put_nowait(request)
+        self._seen.add(job.identity)
+
+    def _worker(self):
+        try:
+            from .wave import AsyncIntentDecision
+        except ImportError:
+            from wave import AsyncIntentDecision
+        while True:
+            request = self._requests.get()
+            if request is None:
+                return
+            identity, payload, pair, game, attempt = request
+            try:
+                row = self.journal.append("game.release_intent", {"intent": payload, "instance_id": self.instance_id},
+                                          pair=pair, game=game, attempt=attempt)
+                decision = AsyncIntentDecision(identity, payload, row["seq"], row["sha256"])
+                self._responses.put_nowait(decision)
+            except BaseException as error:
+                # A failed write/fsync or lost response may have committed; do
+                # not retry or issue a receipt. The journal is quarantined.
+                self._failure = error
+                return
+
+    def poll(self):
+        if self._failure is not None:
+            raise RuntimeError("intent journal write or receipt is uncertain") from self._failure
+        values = []
+        while True:
+            try:
+                values.append(self._responses.get_nowait())
+            except queue.Empty:
+                return values
+
+    def close(self, *, timeout=5):
+        """Close outside the Wave loop; preserve a live blocked writer."""
+        self._closed = True
+        if self._thread.is_alive():
+            self._requests.put_nowait(None)
+            self._thread.join(timeout)
+        if self._thread.is_alive():
+            raise RuntimeError("intent writer remains live; preserve its journal owner")
+        self.journal.close()
+
+
+def registered_intent_rows(rows, out, campaign, *, allow_open=False):
+    """Read a registered local sidecar, rejecting loss or ambiguous owners."""
+    markers = [row for row in rows if row.get("event") == "campaign.intent_journal"]
+    path = Path(out) / "release-intents.jsonl"
+    if markers:
+        if (len(markers) != 1 or not isinstance(markers[0].get("data"), dict)
+                or markers[0]["data"].get("path") != str(path) or not path.is_file()):
+            raise ValueError("registered intent journal missing or changed; preserve for recovery")
+        stat = ledger.external(path).stat()
+        if (type(markers[0]["data"].get("device")) is not int or type(markers[0]["data"].get("inode")) is not int
+                or (stat.st_dev, stat.st_ino) != (markers[0]["data"].get("device"), markers[0]["data"].get("inode"))):
+            raise ValueError("registered intent journal identity changed; preserve for recovery")
+        intents = ledger.read_journal(path, campaign)
+        closed = [row for row in rows if row.get("event") == "campaign.intent_journal_closed"]
+        if not closed:
+            if allow_open:
+                return intents
+            raise ValueError("open intent journal requires durable owner recovery before resume")
+        data = closed[0].get("data") if len(closed) == 1 else None
+        head = intents[-1]["sha256"] if intents else "0" * 64
+        if (not isinstance(data, dict) or type(closed[0].get("seq")) is not int
+                or type(markers[0].get("seq")) is not int or closed[0]["seq"] <= markers[0]["seq"]
+                or data.get("path") != str(path) or type(data.get("count")) is not int
+                or data.get("count") != len(intents) or data.get("head_sha256") != head
+                or type(data.get("device")) is not int or type(data.get("inode")) is not int
+                or data.get("device") != stat.st_dev or data.get("inode") != stat.st_ino):
+            raise ValueError("closed intent journal differs; preserve for recovery")
+        for row in rows:
+            event_data = row.get("data")
+            observation = event_data.get("observation") if isinstance(event_data, dict) else None
+            uses_intent = (row.get("event") == "game.released" and isinstance(event_data, dict)
+                           and event_data.get("gate_intent_required") is True) or (
+                row.get("event") == "game.gate_received" and isinstance(observation, dict)
+                and observation.get("gate_intent_required") is True)
+            if uses_intent and (type(row.get("seq")) is not int or row["seq"] >= closed[0]["seq"]):
+                raise ValueError("GO2 evidence after intent journal closure requires recovery")
+        return intents
+    if any(row.get("event") == "campaign.intent_journal_closed" for row in rows):
+        raise ValueError("closed intent journal lacks registration")
+    if path.exists() or path.is_symlink():
+        raise ValueError("unregistered intent journal requires recovery before resume")
+    return ()
 
 
 def league_placement(snapshot, profile):
@@ -89,7 +304,7 @@ def stage_profile_allowed(stage, profile):
     return stage in ("update1", "update2")
 
 
-def assert_no_unreconciled_releases(rows):
+def assert_no_unreconciled_releases(rows, intent_rows=()):
     # Reconciliation needs the durable global owner and is not yet implemented.
     # A locally settled process alone cannot prove no authorization committed.
     if any(row.get("event") in ("campaign.release_unreconciled", "campaign.game_evidence_unresolved") for row in rows):
@@ -97,7 +312,35 @@ def assert_no_unreconciled_releases(rows):
     # A controller may die after persisting a GO2 send but before persisting
     # its receipt (and hence before it can write an explicit quarantine row).
     # Do not infer reception from process exit or from the socket write alone.
-    pending, seen = {}, set()
+    pending, seen, intents = {}, set(), {}
+    previous, intent_campaign = "0" * 64, None
+    for expected_seq, row in enumerate(intent_rows):
+        if not isinstance(row, dict):
+            raise ValueError("invalid intent journal requires durable owner recovery")
+        claimed = row.get("sha256")
+        unsigned = {name: value for name, value in row.items() if name != "sha256"}
+        data = row.get("data")
+        intent = data.get("intent") if isinstance(data, dict) else None
+        job = intent.get("job") if isinstance(intent, dict) else None
+        if (row.get("event") != "game.release_intent" or type(row.get("seq")) is not int or row.get("seq") != expected_seq
+                or row.get("format") != "rove4k-campaign-v1" or row.get("previous_sha256") != previous
+                or not isinstance(claimed, str) or not SHA.fullmatch(claimed) or ledger.digest(unsigned) != claimed
+                or not isinstance(job, dict) or not isinstance(intent.get("identity"), str)
+                or type(row.get("attempt")) is not int or type(job.get("attempt")) is not int
+                or not isinstance(data.get("instance_id"), str) or not data["instance_id"]
+                or any(row.get(name) != job.get(name) for name in ("pair", "game", "attempt"))):
+            raise ValueError("invalid intent journal requires durable owner recovery")
+        if intent_campaign is None:
+            intent_campaign = row.get("campaign")
+        if row.get("campaign") != intent_campaign or job.get("campaign") != intent_campaign:
+            raise ValueError("intent journal campaign differs")
+        previous = claimed
+        key = (row.get("game"), row.get("attempt"), intent["identity"])
+        if key in intents:
+            raise ValueError("duplicate release intent requires durable owner recovery")
+        intents[key] = row
+    if intent_campaign is not None and any(row.get("campaign") != intent_campaign for row in rows):
+        raise ValueError("main and intent journal campaigns differ")
     for row in rows:
         event, data = row.get("event"), row.get("data", {})
         if event == "game.released" and (not isinstance(data, dict) or
@@ -110,6 +353,21 @@ def assert_no_unreconciled_releases(rows):
             key = (row.get("game"), row.get("attempt"), binding["launch_id"])
             if key in seen:
                 raise ValueError("duplicate GO2 release requires durable owner recovery before resume")
+            if type(data.get("gate_intent_required", False)) is not bool:
+                raise ValueError("invalid GO2 intent flag requires durable owner recovery")
+            if key in intents and data.get("gate_intent_required") is not True:
+                raise ValueError("GO2 release does not reference its durable pre-send intent")
+            if data.get("gate_intent_required") is True:
+                intent_row = intents.get(key)
+                expected = {"identity": binding["launch_id"], "job": binding["ready"]["job"],
+                            "ready": binding["ready"], "fence": binding["fence"], "receipt": binding["receipt"],
+                            "pid": binding["pid"], "start_ticks": binding["start_ticks"], "boot_id": binding["boot_id"]}
+                if (intent_row is None or ledger.canonical(intent_row["data"].get("intent")) != ledger.canonical(expected)
+                        or intent_row["data"].get("instance_id") != binding["instance_id"]
+                        or type(data.get("gate_intent_seq")) is not int
+                        or data.get("gate_intent_seq") != intent_row["seq"]
+                        or data.get("gate_intent_sha256") != intent_row["sha256"]):
+                    raise ValueError("GO2 release lacks its durable pre-send intent")
             seen.add(key)
             pending[key] = binding
         elif event == "game.gate_received":
@@ -124,8 +382,12 @@ def assert_no_unreconciled_releases(rows):
                     data.get("boot_id") != binding["boot_id"]):
                 raise ValueError("unmatched GO2 receipt requires durable owner recovery before resume")
             del pending[key]
+            if key in intents:
+                del intents[key]
     if pending:
         raise ValueError("unconfirmed GO2 receipt requires durable owner recovery before resume")
+    if intents:
+        raise ValueError("unsettled pre-send intent requires durable owner recovery before resume")
 
 
 def go2_local_binding(observation, *, received=False):
@@ -207,6 +469,9 @@ def release_unresolved(observation):
     """A local child result cannot resolve a possibly committed release."""
     return bool(observation.get("gate_transport") == "uncertain" or
                 observation.get("gate_authorization_unknown") is True or
+                (observation.get("gate_intent_requested") is True and
+                 (observation.get("gate_intent_resolved") is not True or
+                  observation.get("gate_transport") != "sent" or observation.get("gate_receipt") != "matched")) or
                 observation.get("gate_transport_observation_error") or
                 observation.get("gate_release_event_error") or
                 observation.get("gate_receipt_event_error") or
@@ -902,9 +1167,94 @@ class StageController:
         self.ready = {}
         self.unsettled = {}
         self.uncertain_releases = {}
+        self.intent_owner = None
         # Filled only by a future authenticated live-memory evidence owner.
         # The arithmetic helper alone cannot open P16/P192 execution.
         self.memory_preflight = None
+
+    def prepare_intent_owner(self):
+        """Register a local sidecar before entering the Wave selector loop.
+
+        The sidecar is not replicated by this method; a missing registered
+        file is therefore an explicit recovery failure, never a clean resume.
+        """
+        path = self.out / "release-intents.jsonl"
+        existing = [row for row in self.journal.rows if row.get("event") == "campaign.intent_journal"]
+        if existing or path.exists():
+            raise ValueError("existing intent owner requires independent recovery before reuse")
+        owner = IntentJournalOwner(path, self.plan["campaign"], self.instance_id)
+        try:
+            row = self.append("campaign.intent_journal", {"path": str(path), "instance_id": self.instance_id,
+                "boot_id": owner.boot_id, "device": owner.journal.identity[0], "inode": owner.journal.identity[1],
+                "scope": "local only; remote recovery requires the original sidecar"})
+            owner.bind_registration(self.journal, row)
+        except BaseException:
+            owner.close()
+            raise
+        self.intent_owner = owner
+        return owner
+
+    def close_intent_owner(self, owner, observations):
+        """Close only after every tracked local gate is physically settled.
+
+        This is called outside the Wave loop. It records local closure only;
+        remote/global authority and engine-go proof remain separate gates.
+        """
+        if owner is not self.intent_owner or not owner.registered() or not isinstance(observations, (list, tuple)):
+            raise ValueError("registered intent owner and complete observations required")
+        identities = [row.get("identity") for row in observations if isinstance(row, dict)]
+        if (len(identities) != len(observations) or len(set(identities)) != len(identities)
+                or set(identities) != owner._tracked or any(not physically_settled(row) or release_unresolved(row)
+                                                            for row in observations)):
+            raise ValueError("every tracked gate must be locally settled before intent closure")
+        for observation in observations:
+            identity = observation["identity"]
+            spec = self.job_specs.get(identity)
+            if not isinstance(spec, dict):
+                raise ValueError("tracked gate has no original controller job")
+            def matching(event):
+                return [row for row in self.journal.rows if row.get("event") == event
+                        and all(row.get(key) == spec.get(key) for key in ("pair", "game", "attempt"))]
+            if observation.get("pid") is None:
+                records = matching("campaign.game_not_started")
+                if (matching("game.process") or matching("game.process_completed")
+                        or len(records) != 1 or not isinstance(records[0].get("data"), dict)
+                        or ledger.canonical(records[0]["data"].get("runner_observation")) != ledger.canonical(observation)):
+                    raise ValueError("unstarted gate lacks its durable settlement observation")
+                continue
+            processes = matching("game.process")
+            completions = matching("game.process_completed")
+            fields = ("pid", "pgid", "session", "start_ticks")
+            if (len(processes) != 1 or len(completions) != 1
+                    or not isinstance(processes[0].get("data"), dict)
+                    or not isinstance(completions[0].get("data"), dict)
+                    or processes[0]["data"].get("identity") != identity
+                    or completions[0]["data"].get("identity") != identity
+                    or any(type(observation.get(key)) is not int or observation[key] <= 0
+                           for key in ("pid", "pgid", "session"))
+                    or observation["pid"] != observation["pgid"] or observation["pid"] != observation["session"]
+                    or type(observation.get("start_ticks")) is not int or observation["start_ticks"] < 0
+                    or type(processes[0].get("seq")) is not int or type(completions[0].get("seq")) is not int
+                    or processes[0]["seq"] >= completions[0]["seq"]
+                    or any(processes[0]["data"].get(key) != observation.get(key) for key in fields)
+                    or any(completions[0]["data"].get(key) != observation.get(key) for key in fields)
+                    or not physically_settled(completions[0]["data"])
+                    or completions[0]["data"].get("returncode") != observation.get("returncode")
+                    or processes[0]["data"].get("instance_id") != self.instance_id
+                    or processes[0]["data"].get("boot_id") != owner.boot_id):
+                raise ValueError("tracked gate lacks matching durable process settlement")
+        owner.close()
+        if owner._failure is not None:
+            raise ValueError("failed intent journal cannot be closed as reconciled")
+        intents = registered_intent_rows(self.journal.rows, self.out, self.plan["campaign"], allow_open=True)
+        assert_no_unreconciled_releases(self.journal.rows, intents)
+        stat = ledger.external(owner.path).stat()
+        if (stat.st_dev, stat.st_ino) != owner.journal.identity:
+            raise ValueError("intent journal identity changed before closure")
+        return self.append("campaign.intent_journal_closed", {"path": str(owner.path),
+            "device": stat.st_dev, "inode": stat.st_ino, "count": len(intents),
+            "head_sha256": intents[-1]["sha256"] if intents else "0" * 64,
+            "scope": "local closure only; not global authorization or remote recovery"})
 
     def record_unsettled(self, job, observation):
         if job.identity in self.unsettled:
@@ -1059,6 +1409,16 @@ class StageController:
                 if (binding["launch_id"] != job.identity or observation["ready"]["job"] != job.start_job or
                         any(binding[name] != spec[name] for name in ("pair", "game", "attempt"))):
                     raise ValueError("GO2 release changed the runner job")
+                if observation.get("gate_intent_required") is True:
+                    try:
+                        from .wave import AsyncIntentDecision
+                    except ImportError:
+                        from wave import AsyncIntentDecision
+                    owner = getattr(self, "intent_owner", None)
+                    receipt = AsyncIntentDecision(job.identity, observation.get("gate_intent_payload"),
+                                                  observation.get("gate_intent_seq"), observation.get("gate_intent_sha256"))
+                    if type(owner) is not IntentJournalOwner or not owner.confirm(receipt, job, observation):
+                        raise ValueError("GO2 release lacks its registered durable intent")
             self.append("game." + event, observation, **keys)
         elif event == "gate_received":
             # This records Wave's local receipt match, not authentication of
@@ -1174,7 +1534,8 @@ class StageController:
         if self.plan["profile"] in ("test-p16", "test-p192"):
             raise ValueError("P16/P192 execution awaits shared-budget, watchdog and live resource admission")
         assert_stage_binding(self.envelope, self.journal.rows)
-        assert_no_unreconciled_releases(self.journal.rows)
+        intent_rows = registered_intent_rows(self.journal.rows, self.out, self.plan["campaign"])
+        assert_no_unreconciled_releases(self.journal.rows, intent_rows)
         current = topology.Topology.snapshot()
         saved = topology.Topology.from_record(self.plan["topology"])
         if current.to_record() != saved.to_record():
@@ -1321,7 +1682,8 @@ class StageController:
                             "--record", str(self.out / f"placement-observed-{job_id}.json"), "--", *runner_argv)
                     start_job = {"campaign": self.plan["campaign"], "pair": pair["id"], "game": game,
                                  "attempt": attempt, "slot": slot.id, "wave": wave_number,
-                                 "artifacts": [white, black], "opening": pair["opening"]["id"], "launch_id": launch}
+                                 "artifacts": [white, black], "opening": pair["opening"]["id"], "launch_id": launch,
+                                 "attempt_id": attempt_identity(self.plan["campaign"], pair["id"], game, attempt, job_id)}
                     job = WaveJob(job_id, tuple(argv), {"TZ": "UTC", "LANG": "C.UTF-8"}, start_job, job_out)
                     jobs.append(job)
                     self.job_specs[job_id] = {"pair": pair["id"], "game": game, "attempt": attempt, "identity": identity,

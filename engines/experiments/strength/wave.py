@@ -119,6 +119,46 @@ class AsyncGateDecision:
             raise ValueError("an allowed decision requires its exact fence; denial must not have one")
 
 
+@dataclass(frozen=True)
+class AsyncIntentDecision:
+    """Local owner reports an intent append; it is not global authority.
+
+    ``journal_sha256`` identifies the owner-reported durable record. The
+    campaign recovery path must read and validate that journal independently.
+    """
+    identity: str
+    intent: dict
+    journal_seq: int
+    journal_sha256: str
+
+    def __post_init__(self):
+        if (not isinstance(self.identity, str) or not self.identity or not isinstance(self.intent, dict)
+                or type(self.journal_seq) is not int or self.journal_seq < 0
+                or not isinstance(self.journal_sha256, str)
+                or not re.fullmatch(r"[0-9a-f]{64}", self.journal_sha256)):
+            raise ValueError("bounded local durable intent receipt required")
+
+
+def _boot_id():
+    return Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+
+
+def intent_payload(job, observation, *, boot_id):
+    """Return the exact non-secret pre-send binding for an intent owner."""
+    if (not isinstance(boot_id, str) or not boot_id
+            or type(observation.get("pid")) is not int or observation["pid"] <= 0
+            or type(observation.get("start_ticks")) is not int or observation["start_ticks"] < 0
+            or not isinstance(observation.get("ready"), dict)
+            or not _same_json(observation["ready"].get("job"), job.start_job)
+            or not isinstance(observation.get("gate_fence"), dict)
+            or not isinstance(observation.get("gate_receipt_expected"), dict)):
+        raise ValueError("complete pre-send runner, job and fence binding required")
+    payload = {"identity": job.identity, "job": job.start_job, "ready": observation["ready"],
+               "fence": observation["gate_fence"], "receipt": observation["gate_receipt_expected"],
+               "pid": observation["pid"], "start_ticks": observation["start_ticks"], "boot_id": boot_id}
+    return json.loads(json.dumps(payload, allow_nan=False, separators=(",", ":")))
+
+
 @dataclass
 class _Channel:
     name: str
@@ -148,7 +188,8 @@ def _terminal_gate_class(observation):
     """Classify the gate only; no chess result or score is inferred."""
     if observation.get("gate_cancelled") is True:
         uncertain_auth = (observation.get("gate_authorized") is True or
-                          observation.get("gate_authorization_unknown") is True)
+                          observation.get("gate_authorization_unknown") is True or
+                          observation.get("gate_intent_requested") is True)
         return "cancelled", "cancelled_unreconciled" if uncertain_auth else "cancelled_before_go"
     if (observation.get("gate_receipt_required") and observation.get("gate_receipt") != "matched" or
             observation.get("gate_transport") == "uncertain" or
@@ -296,6 +337,14 @@ def _release_individually(children, snapshot, authorize_go, observe_transport, e
                         begin_drain(child, "release_fence_not_valid")
                         cancel(child)
                         continue
+                    if (obs.get("gate_intent_required") is True and
+                            (type(obs.get("gate_receipt_deadline")) not in (int, float)
+                             or send_started >= obs["gate_receipt_deadline"])):
+                        obs["gate_intent_error"] = "receipt window expired immediately before GO"
+                        obs["gate_cancelled"] = True
+                        begin_drain(child, "durable_intent_window_expired")
+                        cancel(child)
+                        continue
                     obs["gate_transport"] = "uncertain"
                     obs["gate_send_started_monotonic"] = send_started
                     try:
@@ -432,7 +481,7 @@ class WaveExecutor:
                  observe_transport: Callable[[WaveJob, dict], None] | None = None,
                  on_drain: Callable[[str, WaveJob, dict], None] | None = None,
                  release_fence: Callable[[WaveJob, dict], ReleaseFence] | None = None,
-                 async_authorizer=None) -> list[dict]:
+                 async_authorizer=None, intent_owner=None) -> list[dict]:
         """Run a wave; ``on_drain`` is an unverified, nonblocking owner signal.
 
         Supplying it neither seals other hosts' gates nor proves that its
@@ -446,8 +495,22 @@ class WaveExecutor:
         asynchronous = async_authorizer is not None
         if asynchronous and (authorize_go is not None or release_callback is not None or release_fence is not None
                 or not callable(getattr(async_authorizer, "request", None))
-                or not callable(getattr(async_authorizer, "poll", None)) or not callable(observe_transport)):
-            raise ValueError("async authorization needs nonblocking request, poll and transport callbacks only")
+                or not callable(getattr(async_authorizer, "poll", None)) or not callable(observe_transport)
+                or not callable(getattr(intent_owner, "request", None))
+                or not callable(getattr(intent_owner, "poll", None))):
+            raise ValueError("async authorization requires nonblocking durable intent owner callbacks")
+        if not asynchronous and intent_owner is not None:
+            raise ValueError("durable intent owner is reserved for async authorization")
+        if asynchronous:
+            # A caller-supplied object that merely returns a hash is not a
+            # durable journal. Only the registered local journal owner may
+            # supply these receipts. Global/remote authority remains separate.
+            try:
+                from .run import IntentJournalOwner
+            except ImportError:
+                from run import IntentJournalOwner
+            if type(intent_owner) is not IntentJournalOwner or not intent_owner.registered():
+                raise ValueError("async GO requires its registered durable intent journal owner")
         if not asynchronous and ((authorize_go is None) != (observe_transport is None) or (authorize_go is not None and
                 (not callable(authorize_go) or not callable(observe_transport)))):
             raise ValueError("per-game authorization and transport observer must be supplied together")
@@ -471,6 +534,8 @@ class WaveExecutor:
             if any((output / name).exists() or (output / name).is_symlink() for name in ("runner.stdout.log", "runner.stderr.log", "wave-observation.json",
                                                          "raw.log", "game.pgn", "config.json")):
                 raise ValueError("attempt evidence already exists; use a new attempt")
+        if asynchronous:
+            intent_owner.track_wave(jobs)
         started = time.monotonic()
         wall_deadline = started + wall_seconds
         ready_deadline = min(wall_deadline, started + self.ready_seconds)
@@ -494,6 +559,8 @@ class WaveExecutor:
         drain_notified = False
         async_draining = False
         async_seen_fences = set()
+        async_commands = {}
+        boot_id = _boot_id() if asynchronous else None
 
         def snapshot(child):
             observed = dict(child.observation)
@@ -533,6 +600,9 @@ class WaveExecutor:
                     continue
                 if obs.get("gate_authorization_requested") and not obs.get("gate_authorization_resolved"):
                     obs["gate_authorization_unknown"] = True
+                if obs.get("gate_intent_requested"):
+                    # A worker may have committed even when its reply is lost.
+                    obs["gate_authorization_unknown"] = True
                 obs.update(gate_cancelled=True, gate_transport="not_attempted",
                            gate_cancel_started_monotonic=time.monotonic())
                 if pending.control is not None:
@@ -556,6 +626,28 @@ class WaveExecutor:
                                      gate_receipt_expected=expected,
                                      gate_receipt_deadline=min(fence.expires_monotonic, time.monotonic() + 5))
             return f"GO2 {attempt} {fence.fence_id} {fence.job_sha256} {nonce}\n".encode("ascii")
+
+        def prepare_intent(child, fence):
+            """Prepare the exact GO2 bytes before the owner durably records intent."""
+            binding = json.dumps({"identity": child.job.identity, "start_job": child.expected},
+                                 sort_keys=True, allow_nan=False, separators=(",", ":")).encode("utf-8")
+            digest = hashlib.sha256(binding).hexdigest()
+            now = time.monotonic()
+            if (type(fence) is not ReleaseFence or fence.game_id != child.job.identity
+                    or fence.job_sha256 != digest or not fence.not_before_monotonic <= now < fence.expires_monotonic):
+                raise ValueError("exact, currently valid per-game fence required before intent")
+            child.observation["gate_fence_binding_sha256"] = digest
+            child.observation["gate_fence"] = {"game_id": fence.game_id, "fence_id": fence.fence_id,
+                "job_sha256": fence.job_sha256, "not_before_monotonic": fence.not_before_monotonic,
+                "expires_monotonic": fence.expires_monotonic}
+            command = go2_wire(child, fence)
+            payload = intent_payload(child.job, snapshot(child), boot_id=boot_id)
+            child.observation.update(gate_intent_required=True, gate_intent_requested=True,
+                                     gate_intent_resolved=False, gate_intent_payload=payload)
+            async_commands[child.job.identity] = (fence, command)
+            # This method is a local enqueue only. The owner does fsync or
+            # network operations in its own execution context, never here.
+            intent_owner.request(child.job, snapshot(child))
 
         def async_tick():
             """Poll only a local nonblocking mailbox; never perform remote I/O here."""
@@ -581,8 +673,10 @@ class WaveExecutor:
                     begin_async_drain(item, "pending_runner_exit")
                     return
             if time.monotonic() >= wall_deadline:
-                pending = next((item for item in children if not item.observation.get("gate_authorization_resolved")
-                                and not item.observation.get("gate_cancelled")), None)
+                pending = next((item for item in children if not item.observation.get("gate_cancelled")
+                                and (not item.observation.get("gate_authorization_resolved")
+                                     or (item.observation.get("gate_intent_requested")
+                                         and not item.observation.get("gate_intent_resolved")))), None)
                 if pending is not None:
                     begin_async_drain(pending, "async_authorization_deadline")
                     return
@@ -613,9 +707,52 @@ class WaveExecutor:
                     begin_async_drain(item, "duplicate_release_fence")
                     return
                 async_seen_fences.add(decision.fence.fence_id)
+                try:
+                    prepare_intent(item, decision.fence)
+                except Exception as error:
+                    item.observation["gate_intent_request_error"] = repr(error)
+                    item.observation["gate_authorization_unknown"] = True
+                    begin_async_drain(item, "durable_intent_request_failed")
+                    return
+            try:
+                intents = intent_owner.poll()
+                if not isinstance(intents, (list, tuple)) or len(intents) > len(children):
+                    raise ValueError("bounded durable intent response batch required")
+            except Exception as error:
+                children[0].observation["gate_intent_poll_error"] = repr(error)
+                begin_async_drain(children[0], "durable_intent_owner_failed")
+                return
+            for decision in intents:
+                matches = [item for item in children if item.job.identity == getattr(decision, "identity", None)]
+                if (type(decision) is not AsyncIntentDecision or len(matches) != 1
+                        or not matches[0].observation.get("gate_intent_requested")
+                        or matches[0].observation.get("gate_intent_resolved")):
+                    begin_async_drain(children[0], "invalid_or_duplicate_intent")
+                    return
+                item = matches[0]
+                obs = item.observation
+                try:
+                    confirmed = (_same_json(decision.intent, obs["gate_intent_payload"])
+                                 and _same_json(decision.intent, intent_payload(item.job, snapshot(item), boot_id=boot_id))
+                                 and intent_owner.confirm(decision, item.job, snapshot(item)))
+                except Exception as error:
+                    obs["gate_intent_error"] = repr(error)
+                    begin_async_drain(item, "durable_intent_validation_failed")
+                    return
+                if not confirmed:
+                    obs["gate_intent_error"] = "durable intent binding differs"
+                    begin_async_drain(item, "durable_intent_binding_changed")
+                    return
+                obs.update(gate_intent_resolved=True, gate_intent_seq=decision.journal_seq,
+                           gate_intent_sha256=decision.journal_sha256)
+                fence, command = async_commands[item.job.identity]
+                if time.monotonic() >= obs["gate_receipt_deadline"]:
+                    obs["gate_intent_error"] = "receipt window expired before GO"
+                    begin_async_drain(item, "durable_intent_window_expired")
+                    return
                 drained = _release_individually([item], snapshot, lambda job, obs: True, observe_transport, event,
                     deadline=wall_deadline, notify_drain=notify_drain,
-                    release_fence=lambda job, obs: decision.fence, wire_go=go2_wire)
+                    release_fence=lambda job, obs: fence, wire_go=lambda child, current: command)
                 if drained:
                     begin_async_drain(item, item.observation.get("drain_reason", "gate_release_failed"))
                     return
@@ -979,7 +1116,8 @@ class WaveExecutor:
                 for child in children:
                     child.observation.update(gate_authorized=False, gate_authorization_unknown=False,
                                              gate_authorization_requested=False, gate_authorization_resolved=False,
-                                             gate_transport="not_attempted", gate_cancelled=False)
+                                             gate_transport="not_attempted", gate_cancelled=False,
+                                             gate_intent_requested=False, gate_intent_resolved=False)
                 for child in children:
                     if async_draining:
                         break

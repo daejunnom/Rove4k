@@ -1017,7 +1017,8 @@ time.sleep(.1)
                 root = Path(folder).resolve()
                 script = root / "toy.py"
                 script.write_text(toy)
-                start_job = {"pair": "pair", "game": "game", "attempt": 0, "attempt_id": "attempt-00000001"}
+                start_job = {"campaign": "fixture", "pair": "pair", "game": "game", "attempt": 0,
+                             "attempt_id": "attempt-00000001"}
                 job = wave.WaveJob("launch-1", (sys.executable, str(script), mode), {}, start_job, root / "out")
                 identity = {"leg": 0, "white": "A", "black": "B", "opening_id": "open", "slot": "slot-0",
                             "profile": "test-p4", "artifact_sha256": {"A": "a" * 64, "B": "b" * 64},
@@ -1050,9 +1051,33 @@ time.sleep(.1)
                     controller.acknowledge_results = Mock()
                     controller.replicate = Mock()
                     controller.queue_result = Mock()
-                    with patch.object(run.placement, "observe_game_engines", return_value={"engines": []}):
-                        result = wave.WaveExecutor().run_wave([job], 5, async_authorizer=Mailbox(),
-                            observe_transport=lambda job, obs: None, on_event=controller.event)[0]
+                    owner = controller.prepare_intent_owner()
+                    try:
+                        with patch.object(run.placement, "observe_game_engines", return_value={"engines": []}):
+                            result = wave.WaveExecutor().run_wave([job], 5, async_authorizer=Mailbox(), intent_owner=owner,
+                                observe_transport=lambda job, obs: None, on_event=controller.event)[0]
+                        if mode == "ok":
+                            with self.assertRaisesRegex(ValueError, "durable process settlement"):
+                                controller.close_intent_owner(owner, [{**result, "pid": result["pid"] + 1}])
+                            process = next(row for row in journal.rows if row["event"] == "game.process")
+                            duplicate = json.loads(json.dumps(process))
+                            duplicate["data"]["identity"] = "different-launch"
+                            journal.rows.append(duplicate)
+                            try:
+                                with self.assertRaisesRegex(ValueError, "durable process settlement"):
+                                    controller.close_intent_owner(owner, [result])
+                            finally:
+                                journal.rows.pop()
+                            controller.close_intent_owner(owner, [result])
+                        else:
+                            with self.assertRaisesRegex(ValueError, "locally settled"):
+                                controller.close_intent_owner(owner, [result])
+                    finally:
+                        if not owner._closed:
+                            owner.close()
+                    intents = run.registered_intent_rows(journal.rows, root, "fixture", allow_open=mode != "ok")
+                    self.assertEqual(len(intents), 1)
+                    self.assertEqual(intents[0]["event"], "game.release_intent")
                     events = [row["event"] for row in journal.rows]
                     self.assertEqual(result["returncode"], 0)
                     self.assertFalse(result["cleanup_forced"])
@@ -1061,13 +1086,174 @@ time.sleep(.1)
                         self.assertEqual(result["gate_receipt"], "matched")
                         self.assertIn("game.gate_received", events)
                         self.assertLess(events.index("game.released"), events.index("game.gate_received"))
-                        run.assert_no_unreconciled_releases(journal.rows)
+                        run.assert_no_unreconciled_releases(journal.rows, intents)
                     else:
                         self.assertEqual(result["gate_receipt"], "unresolved")
                         self.assertNotIn("game.gate_received", events)
                         self.assertIn("campaign.release_unreconciled", events)
                         with self.assertRaisesRegex(ValueError, "durable owner recovery"):
-                            run.assert_no_unreconciled_releases(journal.rows)
+                            run.assert_no_unreconciled_releases(journal.rows, intents)
+
+                # Reopen both files, as a restarted process would. A durable
+                # intent remains uncertain even if the send/release row was
+                # never written; an ACK-less release is also quarantined.
+                main_rows = ledger.read_journal(root / "events.jsonl", "fixture")
+                intent_rows = run.registered_intent_rows(main_rows, root, "fixture", allow_open=mode != "ok")
+                if mode == "ok":
+                    release_index = next(i for i, row in enumerate(main_rows) if row["event"] == "game.released")
+                    receipt_index = next(i for i, row in enumerate(main_rows) if row["event"] == "game.gate_received")
+                    for prefix in (main_rows[:release_index], main_rows[:receipt_index]):
+                        with self.assertRaisesRegex(ValueError, "open intent journal"):
+                            run.registered_intent_rows(prefix, root, "fixture")
+                        with self.assertRaisesRegex(ValueError, "durable owner recovery"):
+                            run.assert_no_unreconciled_releases(prefix, intent_rows)
+                    closed_index = next(i for i, row in enumerate(main_rows) if row["event"] == "campaign.intent_journal_closed")
+                    with self.assertRaisesRegex(ValueError, "open intent journal"):
+                        run.registered_intent_rows(main_rows[:closed_index], root, "fixture")
+                    late = json.loads(json.dumps(main_rows[receipt_index]))
+                    late["seq"] = main_rows[closed_index]["seq"] + 1
+                    with self.assertRaisesRegex(ValueError, "evidence after intent journal closure"):
+                        run.registered_intent_rows(main_rows + [late], root, "fixture")
+                    run.assert_no_unreconciled_releases(main_rows, intent_rows)
+                    with self.assertRaisesRegex(ValueError, "durable pre-send intent"):
+                        run.assert_no_unreconciled_releases(main_rows, ())
+                    forged = json.loads(json.dumps(intent_rows))
+                    forged[0]["data"]["intent"]["receipt"]["nonce"] = "b" * 64
+                    forged[0]["sha256"] = ledger.digest({key: value for key, value in forged[0].items() if key != "sha256"})
+                    corrupted_main = json.loads(json.dumps(main_rows))
+                    corrupted_main[release_index]["data"]["gate_intent_sha256"] = forged[0]["sha256"]
+                    with self.assertRaisesRegex(ValueError, "durable pre-send intent"):
+                        run.assert_no_unreconciled_releases(corrupted_main, forged)
+
+    def test_attempt_identity_is_bounded_and_changes_with_launch(self):
+        one = run.attempt_identity("fixture", "pair", "g" * 96, 100000, "launch-1")
+        two = run.attempt_identity("fixture", "pair", "g" * 96, 100000, "launch-2")
+        self.assertRegex(one, r"^[a-f0-9]{64}$")
+        self.assertNotEqual(one, two)
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux process and socket ownership")
+    def test_script_entrypoint_uses_same_intent_owner_type_as_wave(self):
+        # Exercise __main__ loading, not only package imports. A duplicate
+        # local `run` module would cause Wave's exact owner check to reject it.
+        script = r'''import os, runpy, sys
+from pathlib import Path
+source, root, mode = Path(sys.argv[1]), Path(sys.argv[2]), sys.argv[3]
+sys.path.insert(0, str(source.parent if mode == 'script' else source.parents[3]))
+sys.argv = [str(source), '--help']
+try:
+    if mode == 'script': runpy.run_path(str(source), run_name='__main__')
+    else: runpy.run_module('engines.experiments.strength.run', run_name='__main__', alter_sys=True)
+except SystemExit as error:
+    assert error.code == 0
+if mode == 'script': import ledger, run, wave
+else: from engines.experiments.strength import ledger, run, wave
+with ledger.Journal(root/'main.jsonl', 'fixture') as main:
+    owner = run.IntentJournalOwner(root/'intent.jsonl', 'fixture', 'i-fixture')
+    row = main.append('campaign.intent_journal', {'path':str(owner.path), 'instance_id':owner.instance_id,
+        'boot_id':owner.boot_id, 'device':owner.journal.identity[0], 'inode':owner.journal.identity[1]})
+    owner.bind_registration(main, row)
+    try:
+        job = wave.WaveJob('launch-1', ('/bin/false',), {},
+            {'campaign':'fixture','pair':'pair','game':'game','attempt':0,'attempt_id':'attempt-00000001'}, root/'out')
+        class Mailbox:
+            def request(self, job, observation): pass
+            def poll(self): return []
+        wave.WaveExecutor().run_wave([job], 2, async_authorizer=Mailbox(), intent_owner=owner,
+                                     observe_transport=lambda job, obs: None)
+    finally:
+        owner.close()
+'''
+        for mode in ("script", "module"):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory(prefix="rove-cli-owner-") as folder:
+                result = subprocess.run([sys.executable, "-B", "-c", script, str(Path(run.__file__).resolve()), folder, mode],
+                                        capture_output=True, text=True, timeout=15)
+                self.assertEqual(result.returncode, 0, result.stderr)
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux process and socket ownership")
+    def test_intent_fsync_failure_never_sends_go(self):
+        toy = r'''import json, os, socket, sys
+s=socket.socket(fileno=int(os.environ['ROVE_START_FD']))
+j=json.loads(os.environ['ROVE_START_JOB'])
+s.sendall((json.dumps({'event':'READY','job':j,'white_clock_ms':1803000,'black_clock_ms':1803000})+'\n').encode())
+data=b''
+while b'\n' not in data:
+    part=s.recv(1024)
+    if not part: sys.exit(2)
+    data+=part
+if data.startswith(b'GO2 '): open(sys.argv[1], 'w').write('GO')
+'''
+        with tempfile.TemporaryDirectory(prefix="rove-intent-fsync-") as folder:
+            root = Path(folder).resolve()
+            script = root / "toy.py"
+            script.write_text(toy)
+            marker = root / "go-observed"
+            start_job = {"campaign": "fixture", "pair": "pair", "game": "game", "attempt": 0,
+                         "attempt_id": "attempt-00000001"}
+            job = wave.WaveJob("launch-1", (sys.executable, str(script), str(marker)), {}, start_job, root / "out")
+
+            class Mailbox:
+                def request(self, item, observation):
+                    binding = json.dumps({"identity": item.identity, "start_job": item.start_job},
+                                         sort_keys=True, allow_nan=False, separators=(",", ":")).encode()
+                    now = time.monotonic()
+                    self.value = wave.AsyncGateDecision(item.identity, True, wave.ReleaseFence(
+                        item.identity, "fence-1", hashlib.sha256(binding).hexdigest(), now, now + 3))
+                def poll(self):
+                    value, self.value = self.value, None
+                    return [value] if value else []
+
+            with ledger.Journal(root / "main.jsonl", "fixture") as main:
+                owner = run.IntentJournalOwner(root / "intent.jsonl", "fixture", "i-fixture")
+                row = main.append("campaign.intent_journal", {"path": str(owner.path), "instance_id": owner.instance_id,
+                    "boot_id": owner.boot_id, "device": owner.journal.identity[0], "inode": owner.journal.identity[1]})
+                owner.bind_registration(main, row)
+                try:
+                    with patch.object(owner.journal, "append", side_effect=OSError("fixture fsync failure")):
+                        result = wave.WaveExecutor().run_wave([job], 5, async_authorizer=Mailbox(), intent_owner=owner,
+                                                              observe_transport=lambda job, obs: None)[0]
+                finally:
+                    owner.close()
+            self.assertFalse(marker.exists())
+            self.assertEqual(result["gate_transport"], "not_attempted")
+            self.assertEqual(result["status"], "cancelled_unreconciled")
+            self.assertTrue(run.release_unresolved(result))
+
+    def test_registered_intent_journal_missing_or_unregistered_is_never_clean(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder).resolve()
+            path = root / "release-intents.jsonl"
+            marker = {"event": "campaign.intent_journal", "data": {"path": str(path)}}
+            with self.assertRaisesRegex(ValueError, "registered intent journal missing"):
+                run.registered_intent_rows([marker], root, "fixture")
+            with ledger.Journal(path, "fixture") as sidecar:
+                marker["data"].update(device=sidecar.identity[0], inode=sidecar.identity[1])
+            with self.assertRaisesRegex(ValueError, "unregistered intent journal"):
+                run.registered_intent_rows([], root, "fixture")
+            with self.assertRaisesRegex(ValueError, "open intent journal"):
+                run.registered_intent_rows([marker], root, "fixture")
+            self.assertEqual(run.registered_intent_rows([marker], root, "fixture", allow_open=True), [])
+            replacement = root / "replacement.jsonl"
+            replacement.write_bytes(b"")
+            os.replace(replacement, path)
+            with self.assertRaisesRegex(ValueError, "intent journal identity changed"):
+                run.registered_intent_rows([marker], root, "fixture")
+
+    @unittest.skipUnless(sys.platform == "linux", "POSIX journal ownership")
+    def test_restart_before_first_intent_record_remains_quarantined(self):
+        with tempfile.TemporaryDirectory(prefix="rove-intent-open-") as folder:
+            root = Path(folder).resolve()
+            with ledger.Journal(root / "events.jsonl", "fixture") as journal:
+                controller = object.__new__(run.StageController)
+                controller.plan, controller.out, controller.instance_id = {"campaign": "fixture"}, root, "i-fixture"
+                controller.journal = journal
+                controller.results = ledger.CampaignResults("fixture")
+                controller.budget = budget.CampaignBudget("fixture")
+                owner = controller.prepare_intent_owner()
+                owner.close()  # Simulate losing the controller before it can write a close record.
+            rows = ledger.read_journal(root / "events.jsonl", "fixture")
+            self.assertEqual([row["event"] for row in rows], ["campaign.intent_journal"])
+            with self.assertRaisesRegex(ValueError, "open intent journal"):
+                run.registered_intent_rows(rows, root, "fixture")
 
     def test_unavailable_ponder_setting_does_not_block_local_league_score(self):
         data = {"white": "A", "black": "B", "clock_tracking_complete": True, "ponder_uci": {
@@ -1199,6 +1385,12 @@ time.sleep(.1)
                 calls = 0
                 def run_wave(self, jobs, *, wall_seconds, release_callback, on_event):
                     self.calls += 1
+                    attempts = [job.start_job["attempt_id"] for job in jobs]
+                    testcase.assertEqual(len(attempts), len(set(attempts)))
+                    for job in jobs:
+                        data = job.start_job
+                        testcase.assertEqual(data["attempt_id"], run.attempt_identity(
+                            data["campaign"], data["pair"], data["game"], data["attempt"], job.identity))
                     if (spawn_fault or unsettled_spawn) and self.calls == 1:
                         result = []
                         for job in jobs:
