@@ -56,9 +56,9 @@ def image(length=512):
     return bytes(result)
 
 
-def packed():
+def packed(encoder=owner.DEFAULT_ENCODER):
     native = image()
-    payload = elf._compress(native)
+    payload = elf.compress_payload(native, encoder=encoder)
     # Give the outer LOAD the actual whole extent, while keeping payload last.
     prefix = bytearray(image(512)[:300])
     struct.pack_into("<QQ", prefix, 64 + 32, len(prefix) + len(payload), len(prefix) + len(payload))
@@ -71,6 +71,8 @@ def packed():
         input_bytes=len(native), input_sha256=sha256(native).hexdigest(), requested_filter="auto",
         filter_candidates=[selected, other], size_limit_bytes=4096, input_elf=elf._elf(native),
         runtime_external_tools=[], **{k: v for k, v in selected.items() if k != "within_size_limit"}, within_size_limit=True)
+    if encoder != owner.DEFAULT_ENCODER:
+        detail["encoder"] = encoder
     return whole, native, detail
 
 
@@ -241,6 +243,49 @@ class NativePolicyTests(unittest.TestCase):
                 owner.main(["produce", "--entry", "B", "--native-variant", variant, "--out", "/never-created"])
 
 
+class EncoderPolicyTests(unittest.TestCase):
+    def test_default_schema_and_compiler_policies_are_preserved(self):
+        for family in owner.FAMILIES:
+            for profile in owner.PROFILES:
+                for native in owner.NATIVE_VARIANTS:
+                    baseline = owner.plan(family, profile, native_variant=native)
+                    explicit = owner.plan(family, profile, native_variant=native, encoder="greedy64-v1")
+                    self.assertEqual(baseline, explicit)
+                    self.assertNotIn("encoder", baseline)
+                    optimal = owner.plan(family, profile, native_variant=native, encoder="optimal64-v1")
+                    self.assertEqual(optimal, {**baseline, "encoder": "optimal64-v1"})
+        self.assertEqual(owner.encoder_arguments("greedy64-v1"), [])
+        self.assertEqual(owner.encoder_arguments("optimal64-v1"), ["--encoder", "optimal64-v1"])
+        self.assertEqual(owner.record_encoder({}), "greedy64-v1")
+        self.assertEqual(owner.record_encoder({"encoder": "greedy64-v1"}), "greedy64-v1")
+
+    def test_encoder_choice_is_finite_and_independently_bound_before_capture(self):
+        for encoder in (None, True, "optimal", "external", "greedy64-v1 --filter bcj"):
+            with self.assertRaisesRegex(ValueError, "finite greedy64-v1/optimal64-v1"):
+                owner.plan("A", encoder=encoder)
+            with self.assertRaises(ValueError):
+                owner.record_encoder({"encoder": encoder})
+        manifest = dict(format=1, **{"class": owner.CLASS}, complete=True, reproducible=True,
+            source_closure_rechecked=True, family="A", profile="test-p4", native_variant="baseline",
+            policy=owner.plan("A"), actual={"source": "main.c", "native": "native/x", "program": "x"})
+        for field in ("manifest", "policy"):
+            changed = copy.deepcopy(manifest)
+            target = changed if field == "manifest" else changed["policy"]
+            target["encoder"] = "optimal64-v1"
+            with self.assertRaisesRegex(ValueError, "manifest and policy encoder choices differ"):
+                owner.admit_build(changed, Path("/never-read"))
+
+    def test_encoder_plan_CLI_is_read_only_and_execution_remains_explicit(self):
+        for encoder in owner.ENCODERS:
+            output = io.StringIO()
+            with redirect_stdout(output):
+                owner.main(["plan", "--entry", "F", "--native-variant", "lean", "--encoder", encoder])
+            self.assertEqual(json.loads(output.getvalue()), owner.plan("F", native_variant="lean", encoder=encoder))
+            with self.assertRaisesRegex(ValueError, "explicit --execute"):
+                owner.main(["produce", "--entry", "F", "--native-variant", "lean", "--encoder", encoder,
+                            "--out", "/never-created"])
+
+
 class PackedReaderTests(unittest.TestCase):
     def test_actual_payload_inverse_and_both_dependency_tables(self):
         whole, native, detail = packed()
@@ -251,12 +296,33 @@ class PackedReaderTests(unittest.TestCase):
         self.assertEqual(observed["outer"]["input"], owner.pin(whole))
         self.assertTrue(observed["native_policy"]["allowed"])
         self.assertTrue(observed["outer_policy"]["allowed"])
+        self.assertNotIn("encoder", detail)
+        self.assertEqual(payload, elf._compress(native))
+        explicit = dict(detail, encoder="greedy64-v1")
+        self.assertEqual(owner.packed_restore(whole, native, explicit, elf=elf, dependency=elf_dependencies),
+                         (observed, header, payload))
+
+    def test_optimal_payload_replay_requires_the_selected_encoder(self):
+        whole, native, detail = packed("optimal64-v1")
+        observed, header, payload = owner.packed_restore(whole, native, detail, elf=elf,
+            dependency=elf_dependencies, encoder="optimal64-v1")
+        self.assertEqual(header + payload, whole)
+        self.assertEqual(elf._decompress(payload, len(native)), native)
+        self.assertEqual(payload, elf.compress_payload(native, encoder="optimal64-v1"))
+        self.assertEqual(observed["native"]["input"], owner.pin(native))
+        with self.assertRaisesRegex(ValueError, "independent selected policy"):
+            owner.packed_restore(whole, native, detail, elf=elf, dependency=elf_dependencies)
+        missing = dict(detail)
+        del missing["encoder"]
+        with self.assertRaisesRegex(ValueError, "independent selected policy"):
+            owner.packed_restore(whole, native, missing, elf=elf, dependency=elf_dependencies, encoder="optimal64-v1")
 
     def test_metadata_flags_cannot_replace_actual_inverse(self):
         whole, native, detail = packed()
         for field, value in (("payload_bytes", True), ("within_size_limit", 1),
                              ("runtime_external_tools", ["sh"]), ("input_sha256", "0" * 64),
-                             ("filter", "external"), ("loader_and_headers_bytes", 0)):
+                             ("filter", "external"), ("loader_and_headers_bytes", 0),
+                             ("encoder", "external"), ("encoder", None), ("encoder", True)):
             changed = copy.deepcopy(detail)
             changed[field] = value
             with self.assertRaises(ValueError, msg=field):

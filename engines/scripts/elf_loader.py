@@ -26,6 +26,8 @@ _HERE = Path(__file__).resolve().parent
 _ROOT = _HERE.parent.parent
 _SOURCES = _HERE / "elf-loader"
 _MAX_INPUT = 256 * 1024 * 1024
+ENCODERS = ("greedy64-v1", "optimal64-v1")
+MAX_OPTIMAL_INPUT = 256 * 1024
 
 
 def _sha(data: bytes) -> str:
@@ -161,6 +163,151 @@ def _compress(data: bytes, *, deadline: float | None = None) -> bytes:
     return bytes(encoded)
 
 
+def _optimal_matches(data: bytes, *, deadline: float | None = None):
+    """The greedy encoder's same parse-independent, finite match candidates.
+
+    Every earlier byte is remembered regardless of the chosen tokens. A longest
+    match also supplies every shorter prefix at the same three-byte token cost.
+    Byte arrays retain one length and one LE16 distance per input position.
+    """
+    chains: dict[bytes, deque[int]] = {}
+    n = len(data)
+    lengths, distances = bytearray(n), bytearray(2*n)
+    for at in range(n):
+        if deadline is not None and at % 64 == 0 and time.monotonic() >= deadline:
+            raise TimeoutError("optimal ELF match search exceeded time bound")
+        best = distance = 0
+        if at+2 < n:
+            maximum = min(130, n-at)
+            for previous in reversed(chains.get(data[at:at+3], ())):
+                delta = at-previous
+                if delta > 65535:
+                    break
+                length = 3
+                while length < maximum and data[previous+length] == data[at+length]:
+                    length += 1
+                if length > best:
+                    best, distance = length, delta
+                    if best == maximum:
+                        break
+        lengths[at] = best
+        distances[2*at] = distance & 255
+        distances[2*at+1] = distance >> 8
+        expired = at-65535
+        if expired >= 0:
+            old_key = data[expired:expired+3]
+            old_positions = chains.get(old_key)
+            if old_positions and old_positions[0] == expired:
+                old_positions.popleft()
+                if not old_positions:
+                    del chains[old_key]
+        if at+2 < n:
+            chains.setdefault(data[at:at+3], deque(maxlen=64)).append(at)
+    return lengths, distances
+
+
+def _compress_optimal(data: bytes, *, deadline: float | None = None) -> bytes:
+    """Minimum byte cost within the same bounded match set and stream format.
+
+    The finite domain is 256 KiB. Match discovery has at most 64 candidates of
+    at most 130 bytes per position. The backward parse uses a monotone literal
+    queue and a 256-slot range-min tree: O(n log 256) parse work, O(n) byte-array
+    storage, and a fixed-size cost tree. No decoder or runtime tables are added.
+    Equal global cost returns the actual historical greedy bytes unchanged.
+    """
+    if len(data) > MAX_OPTIMAL_INPUT:
+        raise ValueError("optimal64-v1 input exceeds 256 KiB bound")
+    if deadline is not None and time.monotonic() >= deadline:
+        raise TimeoutError("optimal ELF compression exceeded time bound")
+    greedy = _compress(data, deadline=deadline)
+    lengths, distances = _optimal_matches(data, deadline=deadline)
+    n = len(data)
+    choices = bytearray(n)
+    infinity = (2*n+1, 0)
+    tree = [infinity] * 512
+
+    def remember_cost(position, cost):
+        node = 256 + position % 256
+        tree[node] = (cost, -position)  # Equal cost prefers the longer token.
+        while node > 1:
+            node //= 2
+            tree[node] = min(tree[2*node], tree[2*node+1])
+
+    def interval(first, last):
+        first, last = first+256, last+257
+        best = infinity
+        while first < last:
+            if first & 1:
+                best = min(best, tree[first])
+                first += 1
+            if last & 1:
+                last -= 1
+                best = min(best, tree[last])
+            first //= 2
+            last //= 2
+        return best
+
+    def match_cost(first, last):
+        first, last = first % 256, last % 256
+        return (interval(first, last) if first <= last else
+                min(interval(first, 255), interval(0, last)))
+
+    remember_cost(n, 0)
+    literals = deque()
+    next_cost = 0
+    for at in range(n-1, -1, -1):
+        if deadline is not None and at % 256 == 0 and time.monotonic() >= deadline:
+            raise TimeoutError("optimal ELF parse exceeded time bound")
+        value, position = next_cost+at+1, at+1
+        while literals and literals[-1][0] > value:
+            literals.pop()
+        literals.append((value, position))
+        while literals[0][1] > at+128:
+            literals.popleft()
+        value, position = literals[0]
+        cost, control = value+1-at, position-at-1
+        if lengths[at] >= 3:
+            suffix, negative_end = match_cost(at+3, at+lengths[at])
+            if suffix+3 < cost:
+                cost, control = suffix+3, 128-negative_end-at-3
+        choices[at] = control
+        remember_cost(at, cost)
+        next_cost = cost
+    if deadline is not None and time.monotonic() >= deadline:
+        raise TimeoutError("optimal ELF parse exceeded time bound")
+    if next_cost > len(greedy):
+        raise RuntimeError("optimal parse excluded the historical greedy tokenization")
+    if next_cost == len(greedy):
+        return greedy
+    encoded = bytearray()
+    at = 0
+    while at < n:
+        if deadline is not None and at % 4096 < 130 and time.monotonic() >= deadline:
+            raise TimeoutError("optimal ELF token emission exceeded time bound")
+        control = choices[at]
+        encoded.append(control)
+        if control < 128:
+            count = control+1
+            encoded.extend(data[at:at+count])
+        else:
+            count = (control & 127)+3
+            encoded.extend(distances[2*at:2*at+2])
+        at += count
+    if len(encoded) != next_cost:
+        raise RuntimeError("optimal token emission differs from its exact byte cost")
+    if deadline is not None and time.monotonic() >= deadline:
+        raise TimeoutError("optimal ELF token emission exceeded time bound")
+    return bytes(encoded)
+
+
+def compress_payload(data: bytes, *, encoder="greedy64-v1", deadline: float | None = None) -> bytes:
+    """Select an explicit encoder; both produce rove4k-lz-runs-v1 streams."""
+    if encoder not in ENCODERS:
+        raise ValueError("encoder must be greedy64-v1 or optimal64-v1")
+    return (_compress(data, deadline=deadline) if encoder == "greedy64-v1" else
+            _compress_optimal(data, deadline=deadline))
+
+
 def _decompress(data: bytes, expected: int) -> bytes:
     """Build-time inverse; exact native behavior is verified by execution too."""
     result = bytearray()
@@ -190,7 +337,7 @@ def _decompress(data: bytes, expected: int) -> bytes:
     return bytes(result)
 
 
-def pack_elf(input_path, output_path, *, cc="cc", timeout=120, filter="auto") -> dict:
+def pack_elf(input_path, output_path, *, cc="cc", timeout=120, filter="auto", encoder="greedy64-v1") -> dict:
     """Pack an ELF to an absolute path outside the repository; return metadata.
 
     Run on Linux x86-64 with a GCC/Clang compatible cc and GNU-compatible linker.
@@ -206,6 +353,8 @@ def pack_elf(input_path, output_path, *, cc="cc", timeout=120, filter="auto") ->
         raise ValueError("timeout must be positive")
     if filter not in ("none", "bcj", "auto"):
         raise ValueError("filter must be none, bcj or auto")
+    if encoder not in ENCODERS:
+        raise ValueError("encoder must be greedy64-v1 or optimal64-v1")
     source = Path(input_path).resolve(strict=True)
     target = Path(output_path)
     if not target.is_absolute():
@@ -219,6 +368,8 @@ def pack_elf(input_path, output_path, *, cc="cc", timeout=120, filter="auto") ->
         raise ValueError("privileged setuid/setgid ELF semantics are unsupported")
     if source.stat().st_size > _MAX_INPUT:
         raise ValueError("ELF input exceeds 256 MiB build bound")
+    if encoder == "optimal64-v1" and source.stat().st_size > MAX_OPTIMAL_INPUT:
+        raise ValueError("optimal64-v1 input exceeds 256 KiB bound")
     data = source.read_bytes()
     input_elf = _elf(data)
     source_files = [_SOURCES / "loader.c", _SOURCES / "loader.ld", Path(__file__).resolve()]
@@ -255,7 +406,7 @@ def pack_elf(input_path, output_path, *, cc="cc", timeout=120, filter="auto") ->
                             '.section .note.GNU-stack,"",@progbits\n', encoding="utf-8")
         for candidate_filter in ("none", "bcj"):
             filtered = data if candidate_filter == "none" else _bcj(data, deadline=started+timeout)
-            packed = _compress(filtered, deadline=started+timeout)
+            packed = compress_payload(filtered, encoder=encoder, deadline=started+timeout)
             decoded = _decompress(packed, len(data))
             restored = decoded if candidate_filter == "none" else _bcj(decoded, inverse=True, deadline=started+timeout)
             if restored != data:
@@ -289,6 +440,7 @@ def pack_elf(input_path, output_path, *, cc="cc", timeout=120, filter="auto") ->
             stream.write(built)
         target.chmod(0o755)
     return {"format": "elf64-x86_64-self-restoring", "codec": "rove4k-lz-runs-v1",
+            **({"encoder": encoder} if encoder != "greedy64-v1" else {}),
             "input": str(source), "input_bytes": len(data), "input_sha256": _sha(data),
             "output": str(target), "output_bytes": len(built), "output_sha256": _sha(built),
             "payload_bytes": selected["payload_bytes"],
@@ -313,9 +465,11 @@ def main() -> None:
     parser.add_argument("--cc", default="cc")
     parser.add_argument("--timeout", type=float, default=120)
     parser.add_argument("--filter", choices=("none", "bcj", "auto"), default="auto")
+    parser.add_argument("--encoder", choices=ENCODERS, default="greedy64-v1")
     options = parser.parse_args()
     print(json.dumps(pack_elf(options.input, options.output, cc=options.cc,
-                              timeout=options.timeout, filter=options.filter), indent=2))
+                               timeout=options.timeout, filter=options.filter,
+                               encoder=options.encoder), indent=2))
 
 
 if __name__ == "__main__":

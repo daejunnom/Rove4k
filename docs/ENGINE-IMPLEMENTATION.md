@@ -14,9 +14,39 @@ engine40499907270 with26/26 and994 tests/40 suites. EP40499907162 passes four
 P4/P28 producers and four independent sealed Ubuntu22 consumers; W256
 40499907296 passes five controls and both C/E EP preparation/export paths.
 Actual P28 C3920/E3882 and W256 C3908/E3871 bytes match prior repeated costs.
-This validates the selected variants; the new maintained workflow selection
-still receives its own CI. ELF remains a separately pinned original-control
+The maintained selection at e186336832feaf56e086ab4c5c4abf3ee68d9862 also passes
+all nine workflows: engine40501229684 passes26/26 and994 tests/40 suites;
+W25640501229443 passes the five selected preparations. ELF40501229677 passes27
+jobs. ELF remains a separately pinned original-control
 source path. No W256 runtime, event, league or strength qualification is added.
+
+The named DATA audit of the ten W256 ELF files from40494326732 confirms:
+
+| Family | Baseline whole | Lean whole | Delta |
+|---|---:|---:|---:|
+| A |11322 B|10318 B|-1004 B|
+| B |13769 B|11247 B|-2522 B|
+| C |11602 B|10572 B|-1030 B|
+| E |11622 B|10597 B|-1025 B|
+| F |10952 B|10045 B|-907 B|
+
+All selected BCJ payloads have875 B of loader/header. The audit compares actual
+first/repeat and public source/native/header/payload/whole, pack command stdout
+and ten settled outer commands per context. Payload decoding remains the hosted
+producer's evidence, not an extra locally executed audit. All ten files retain
+deferred_size and false runtime/event/ELF qualification. The first DATA collector
+incorrectly assumed twelve B commands; that failed collector report is preserved
+separately from the successful corrected ten-command audit and product results.
+
+The next source cohort adds finite B/F header comparisons on real GCC13/11,
+explicit optimal64-v1 packing with the unchanged decoder, and sealed delivery of
+the original lean P4 ELF to Ubuntu22. The encoder preserves the entire compiler
+image and never changes the dependency or R native contract. Its default stays
+greedy64-v1. Target22 does not regenerate source or compile a replacement engine;
+system GCC11 builds only existing source-bound rules probes. Five optimal lean
+P4 full contexts and five original-ELF Ubuntu22 contexts join the fifteen TEST
+controls and ten W256 prepare-only contexts. These new hosted results remain
+pending; source review, dispatch and successful execution are distinct.
 
 The latest user priority pauses new D compression. Preserve4737/4689 and all
 original evidence; the BSS cost job is explicitly suspended, without suspending

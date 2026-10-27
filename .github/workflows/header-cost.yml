@@ -1,0 +1,122 @@
+name: Experimental compiler header cost
+
+on:
+  pull_request:
+    paths:
+      - 'engines/**'
+      - '.github/workflows/header-cost.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: compiler-header-cost-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  source-contracts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Check finite header policies without compiling or launching an engine
+        run: python -I -B engines/experiments/tcec-next/test_header_cost.py
+
+  producer:
+    needs: source-contracts
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        entry: [B, F]
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Compare original and smaller headers against the fresh GCC13 source
+        # This lane compiles actual source and compares full CPP/native bytes.
+        # It never invokes a shipping engine or allocates its TT.
+        run: |
+          set -o pipefail
+          export PATH=/usr/bin:/bin
+          for compiler_env_name in ${!LD_@}; do unset "$compiler_env_name"; done
+          unset CC CXX CPP AS AR LD GCC_EXEC_PREFIX COMPILER_PATH LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH OBJC_INCLUDE_PATH CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
+          timeout --signal=TERM --kill-after=30s 600s \
+            /usr/bin/python3 -I -B engines/experiments/tcec-next/header_cost.py \
+            --entry '${{ matrix.entry }}' --mode producer \
+            --out '${{ runner.temp }}/rove4k-header-${{ matrix.entry }}-${{ github.run_attempt }}' --execute \
+            2>&1 | tee '${{ runner.temp }}/rove4k-header-${{ matrix.entry }}-${{ github.run_attempt }}.log'
+      - name: Transfer the exact producer data for the independent GCC11 comparison
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: compiler-header-${{ matrix.entry }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/rove4k-header-${{ matrix.entry }}-${{ github.run_attempt }}
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 7
+      - name: Preserve original results and failures
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: compiler-header-producer-log-${{ matrix.entry }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/rove4k-header-${{ matrix.entry }}-${{ github.run_attempt }}
+            ${{ runner.temp }}/rove4k-header-${{ matrix.entry }}-${{ github.run_attempt }}.log
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 7
+
+  ubuntu22:
+    needs: producer
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        entry: [B, F]
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: compiler-header-${{ matrix.entry }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/rove4k-header-${{ matrix.entry }}-${{ github.run_attempt }}
+      - name: Compare the same frozen source with the actual system GCC11
+        # Replay consumes the original GCC13 parent as DATA. It starts no factory
+        # or shipping engine and does not infer target payload identity.
+        run: |
+          set -o pipefail
+          export PATH=/usr/bin:/bin
+          for compiler_env_name in ${!LD_@}; do unset "$compiler_env_name"; done
+          unset CC CXX CPP AS AR LD GCC_EXEC_PREFIX COMPILER_PATH LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH OBJC_INCLUDE_PATH CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
+          timeout --signal=TERM --kill-after=30s 600s \
+            /usr/bin/python3 -I -B engines/experiments/tcec-next/header_cost.py \
+            --entry '${{ matrix.entry }}' --mode replay \
+            --producer '${{ runner.temp }}/rove4k-header-${{ matrix.entry }}-${{ github.run_attempt }}' \
+            --out '${{ runner.temp }}/rove4k-header22-${{ matrix.entry }}-${{ github.run_attempt }}' --execute \
+            2>&1 | tee '${{ runner.temp }}/rove4k-header22-${{ matrix.entry }}-${{ github.run_attempt }}.log'
+      - name: Preserve independent compiler evidence and original failures
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: compiler-header22-${{ matrix.entry }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/rove4k-header22-${{ matrix.entry }}-${{ github.run_attempt }}
+            ${{ runner.temp }}/rove4k-header22-${{ matrix.entry }}-${{ github.run_attempt }}.log
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 7

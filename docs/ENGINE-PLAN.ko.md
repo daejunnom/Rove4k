@@ -844,3 +844,18 @@ C/E만 legal-maker를 명시 선택한다. 공개 생성기 기본값과 과거 
 ELF Ubuntu22 소비자0.8–1.5h, 같은 ELF codec의 토큰 선택0.7–1.5h)+공유 runner 대기
 → 최종 감사0.2–0.5h로 약1.1–2.2h+대기다. ELF가4096 B를 넘으면 출품 보류를 유지한다.
 이 창은 D 자동 재개, W256 실행, AWS 유료 캠페인이나 점수 리그의 완료 약속이 아니다.
+
+유지 선택 e186336도9 workflow 모두 성공했다. Engine40501229684는26/26과994검사/
+40 suite, 선택된 W25640501229443은5계열 준비를 통과했다. ELF40501229677도27 job을
+통과했다. W256 ELF named DATA의 baseline→lean은 A11322→10318, B13769→11247,
+C11602→10572, E11622→10597, F10952→10045 B다. 모두 loader/header875 B이며
+4096 B 초과·runtime/event/ELF 미승인을 유지한다.
+
+다음 source cohort는 B/F P4 header의 원래 payload 재사용 비용과 실제 GCC13/11
+CPP·native 동일성을 비교한다. B의 -std=c11/-pthread, F의 -pthread만 후보로 제거하며
+생산 compiler whitelist는 바꾸지 않는다. ELF optimal64-v1은 입력256KiB·후보64개·
+거리65535·길이130의 같은 stream 형식에서 build-time 토큰 선택만 바꾼다. 원래 greedy와
+전체 native 복원을 보존하며 실제 이득은5계열 lean P4에서 측정한다. 독립 Ubuntu22의
+새 소비자는 같은 workflow의 봉인된 원래 ELF를 받으며 installed loader/DSO·GCC11·
+glibc2.35·native ABI 확인 뒤 기존 rules/runtime을 비점수로 관측한다. 새37개 ELF job과
+header5개 job은 등록·요청·성공을 구분하고 결과 전에는 개선량이나 출품 자격을 주장하지 않는다.

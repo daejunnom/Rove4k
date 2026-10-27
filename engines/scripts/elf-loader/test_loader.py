@@ -5,6 +5,8 @@ RUSTC can name the Linux Rust compiler if it is not on PATH. Generated source,
 executables and metadata live only in an owned temporary artifact directory.
 """
 import importlib.util
+from functools import lru_cache
+from itertools import product
 import json
 import os
 from pathlib import Path
@@ -13,6 +15,7 @@ import shutil
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
 
 _spec = importlib.util.spec_from_file_location("elf_loader", Path(__file__).resolve().parent.parent / "elf_loader.py")
 loader = importlib.util.module_from_spec(_spec)
@@ -20,6 +23,73 @@ _spec.loader.exec_module(loader)
 
 
 class Compression(unittest.TestCase):
+    def test_optimal_exact_cost_against_small_independent_token_oracle(self):
+        cases = [bytes(values) for size in range(9) for values in product(b"ab", repeat=size)]
+        cases.extend((b"abcXabcY", b"abcdXabcdYabcdZ", bytes(range(16))))
+        for data in cases:
+            @lru_cache(None)
+            def cost(at):
+                if at == len(data):
+                    return 0
+                best = min(length+1+cost(at+length)
+                           for length in range(1, min(128, len(data)-at)+1))
+                # These small cases have fewer than 64 prior candidates and no
+                # window expiry. Enumerate every valid token, independently of
+                # the production match table, ring tree and literal queue.
+                for previous in range(at):
+                    length = 0
+                    while length < min(130, len(data)-at) and data[previous+length] == data[at+length]:
+                        length += 1
+                    for count in range(3, length+1):
+                        best = min(best, 3+cost(at+count))
+                return best
+            with self.subTest(data=data):
+                packed = loader.compress_payload(data, encoder="optimal64-v1")
+                self.assertEqual(len(packed), cost(0))
+                self.assertEqual(loader._decompress(packed, len(data)), data)
+                self.assertEqual(loader.compress_payload(data, encoder="optimal64-v1"), packed)
+                self.assertLessEqual(len(packed), len(loader._compress(data)))
+        self.assertEqual(len(loader._compress(b"abcXabcY")), 10)
+        self.assertEqual(loader.compress_payload(b"abcXabcY", encoder="optimal64-v1"), b"\7abcXabcY")
+
+    def test_optimal_selector_global_ties_and_finite_domain(self):
+        for data in (b"", b"x", bytes(range(128)), b"a"*131):
+            greedy = loader._compress(data)
+            self.assertEqual(loader.compress_payload(data), greedy)
+            self.assertEqual(loader.compress_payload(data, encoder="greedy64-v1"), greedy)
+            self.assertEqual(loader.compress_payload(data, encoder="optimal64-v1"), greedy)
+        with self.assertRaises(ValueError):
+            loader.compress_payload(b"abc", encoder="unknown")
+        with patch.object(loader, "_compress", side_effect=AssertionError("oversize input reached codec")):
+            with self.assertRaisesRegex(ValueError, "256 KiB"):
+                loader.compress_payload(b"x"*(loader.MAX_OPTIMAL_INPUT+1), encoder="optimal64-v1")
+        with patch.object(loader.time, "monotonic", return_value=2):
+            with self.assertRaises(TimeoutError):
+                loader.compress_payload(b"abc", encoder="optimal64-v1", deadline=1)
+
+    def test_optimal_overlap_window_and_length_boundaries(self):
+        rng = random.Random(20261027)
+        block = rng.randbytes(65535)
+        cases = (b"a"*131073, b"abc"*2000, block+block[:130], bytes(range(256))*300)
+        for data in cases:
+            with self.subTest(size=len(data)):
+                greedy = loader._compress(data)
+                packed = loader.compress_payload(data, encoder="optimal64-v1")
+                self.assertEqual(loader._decompress(packed, len(data)), data)
+                self.assertLessEqual(len(packed), len(greedy))
+                self.assertEqual(loader.compress_payload(data, encoder="optimal64-v1"), packed)
+        packed = loader.compress_payload(block+block[:130], encoder="optimal64-v1")
+        at, distances = 0, []
+        while at < len(packed):
+            control = packed[at]
+            at += 1
+            if control < 128:
+                at += control+1
+            else:
+                distances.append(int.from_bytes(packed[at:at+2], "little"))
+                at += 2
+        self.assertIn(65535, distances)
+
     def test_bcj_scan_boundaries_and_random_roundtrips(self):
         for original, encoded in [(bytes.fromhex("e8fbffffff"), bytes.fromhex("e800000000")),
                                   (bytes.fromhex("e9ffffffff"), bytes.fromhex("e904000000")),
@@ -115,6 +185,7 @@ eprintln!("stderr-preserved");std::process::exit(17);}
                         self.assertEqual(record["filter"], filter_mode)
                         self.assertEqual(record["output_bytes"], sizes[filter_mode])
                     self.assertEqual(record["within_size_limit"], record["output_bytes"] <= 4096)
+                    self.assertNotIn("encoder", record)
                     record["runtime_validation"] = "exact_self_bytes_argv_env_stdio_threads_exit_pass"
                     records.append(record)
                 # The auto-selected image must reproduce across temp build dirs.
@@ -132,10 +203,27 @@ eprintln!("stderr-preserved");std::process::exit(17);}
                 rejected = subprocess.run([str(invalid)], capture_output=True, env=env, timeout=5)
                 self.assertEqual(rejected.returncode, 126)
                 self.assertEqual(rejected.stderr, b"Rove4k ELF restore failed\n")
+                if source.name == "c":
+                    # The bounded new encoder uses the unchanged native decoder
+                    # and must still expose every original compiler ELF byte.
+                    optimal_target = source.with_suffix(".optimal")
+                    optimal_record = loader.pack_elf(source, optimal_target, encoder="optimal64-v1")
+                    optimal_actual = subprocess.run([str(optimal_target), "argv-value"], input=b"stdin-value\n",
+                                                    capture_output=True, env=env, timeout=5)
+                    self.assertEqual((optimal_actual.stdout, optimal_actual.stderr, optimal_actual.returncode),
+                                     (expected.stdout, expected.stderr, expected.returncode))
+                    self.assertEqual(optimal_record["encoder"], "optimal64-v1")
+                    self.assertEqual(optimal_record["codec"], "rove4k-lz-runs-v1")
+                    self.assertLessEqual(optimal_record["output_bytes"], record["output_bytes"])
+                    self.assertEqual(optimal_record["output_bytes"],
+                                     min(row["output_bytes"] for row in optimal_record["filter_candidates"]))
+                    optimal_record["runtime_validation"] = "exact_self_bytes_argv_env_stdio_threads_exit_pass"
+                    records.append(optimal_record)
             print(json.dumps({"native_checks": [
-                {key: record[key] for key in ("input_bytes", "input_sha256", "output_bytes", "output_sha256",
+                {"encoder": record.get("encoder", "greedy64-v1"),
+                 **{key: record[key] for key in ("input_bytes", "input_sha256", "output_bytes", "output_sha256",
                                               "payload_bytes", "loader_and_headers_bytes", "filter", "requested_filter",
-                                              "within_size_limit", "runtime_validation", "filter_candidates")}
+                                               "within_size_limit", "runtime_validation", "filter_candidates")}}
                 for record in records]}, indent=2))
 
 

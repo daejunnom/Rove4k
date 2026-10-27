@@ -57,6 +57,8 @@ TEST_PROFILES = ("test-p4", "test-p28")
 PROFILES = (*TEST_PROFILES, "tcec-provisional")
 NATIVE_VARIANTS = ("baseline", "lean")
 LEAN_FLAGS = ("-fno-asynchronous-unwind-tables", "-fno-unwind-tables", "-Wl,--build-id=none")
+ENCODERS = ("greedy64-v1", "optimal64-v1")
+DEFAULT_ENCODER = "greedy64-v1"
 BANNER = "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
 MAX_FILE = 16 << 20
 FSIZE = 8 << 20
@@ -109,11 +111,26 @@ def canonical(value):
     return json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False)
 
 
-def plan(family, profile_id="test-p4", *, native_variant="baseline"):
+def encoder_arguments(encoder):
+    """Keep the legacy/default pack argv; only the named opt-in adds a flag."""
+    require(type(encoder) is str and encoder in ENCODERS, "finite greedy64-v1/optimal64-v1 encoder required")
+    return [] if encoder == DEFAULT_ENCODER else ["--encoder", encoder]
+
+
+def record_encoder(record):
+    """The old metadata schema omitted its sole greedy encoder."""
+    require(type(record) is dict, "encoder metadata record required")
+    encoder = record.get("encoder", DEFAULT_ENCODER)
+    encoder_arguments(encoder)
+    return encoder
+
+
+def plan(family, profile_id="test-p4", *, native_variant="baseline", encoder=DEFAULT_ENCODER):
     require(type(family) is str and family in FAMILIES and type(profile_id) is str
             and profile_id in PROFILES, "finite full ABCEF test or tcec-provisional profile required")
     require(type(native_variant) is str and native_variant in NATIVE_VARIANTS,
             "finite baseline/lean native compiler variant required")
+    encoder_arguments(encoder)
     control_compiler = ["cc", *(["-std=c11"] if family == "B" else []), "-Os",
                 *(["-pthread"] if family in ("B", "F") else []),
                 *(["-mavx2"] if family == "C" else []), "-x", "c", "-", "-o", "x",
@@ -124,7 +141,7 @@ def plan(family, profile_id="test-p4", *, native_variant="baseline"):
     # strip flag. The full compiler ELF remains the pack/restore/runtime image.
     extra = [*LEAN_FLAGS, *([] if "-s" in control_compiler else ["-s"])] if native_variant == "lean" else []
     compiler = [*control_compiler[:at], *extra, *control_compiler[at:]]
-    return dict(family=family, profile=profile_id, full=True, representation="self-contained-elf",
+    policy = dict(family=family, profile=profile_id, full=True, representation="self-contained-elf",
         purpose="test" if profile_id in TEST_PROFILES else "submission", execution_policy="compile-package-only",
         runtime_profile_supported=profile_id in TEST_PROFILES,
         entry_cleanup="none", native_variant=native_variant, control_compiler=control_compiler,
@@ -134,6 +151,9 @@ def plan(family, profile_id="test-p4", *, native_variant="baseline"):
         size_limit_bytes=4096, packing_filter="auto", loader_timeout_seconds=120,
         runtime_external_programs=[], runtime_qualified=False, submission_qualified=False,
         event_target_confirmed=False, selected=False)
+    if encoder != DEFAULT_ENCODER:
+        policy["encoder"] = encoder
+    return policy
 
 
 def require_test_profile(profile_id):
@@ -329,10 +349,12 @@ def derive_source(source, old_dependency, *, family, profile_id, entry, projecti
         canonical_cleanup_last=True, complete_parent_inverse=True)
 
 
-def packed_restore(whole, native, detail, *, elf, dependency):
+def packed_restore(whole, native, detail, *, elf, dependency, encoder=DEFAULT_ENCODER):
     """Consume real payload bytes and dependency tables, never metadata flags."""
     require(type(whole) is bytes and type(native) is bytes and len(whole) <= MAX_FILE
             and len(native) <= MAX_FILE and type(detail) is dict, "bounded actual ELF bytes and metadata required")
+    encoder_arguments(encoder)
+    require(record_encoder(detail) == encoder, "actual ELF encoder differs from its independent selected policy")
     count = detail.get("payload_bytes")
     require(type(count) is int and 0 < count < len(whole), "typed actual ELF payload extent required")
     selected_filter = detail.get("filter")
@@ -352,7 +374,7 @@ def packed_restore(whole, native, detail, *, elf, dependency):
         restored = elf._bcj(restored, inverse=True)
     require(restored == native, "complete restored native ELF differs")
     filtered = native if selected_filter == "none" else elf._bcj(native)
-    require(elf._compress(filtered) == payload, "selected actual codec payload does not reproduce")
+    require(elf.compress_payload(filtered, encoder=encoder) == payload, "selected actual codec payload does not reproduce")
     candidates = detail.get("filter_candidates")
     require(type(candidates) is list and len(candidates) == 2
             and [row.get("filter") for row in candidates] == ["none", "bcj"], "both finite loader candidates required")
@@ -411,9 +433,9 @@ def _bounded_host(out, report, save, files, started):
     return owner, previous, host
 
 
-def produce(family, out, *, profile_id="test-p4", native_variant="baseline", execute=False):
+def produce(family, out, *, profile_id="test-p4", native_variant="baseline", encoder=DEFAULT_ENCODER, execute=False):
     require(execute is True, "explicit --execute required before output creation or factory execution")
-    policy = plan(family, profile_id, native_variant=native_variant)
+    policy = plan(family, profile_id, native_variant=native_variant, encoder=encoder)
     require(sys.platform == "linux" and platform.machine() == "x86_64" and os.sysconf("SC_PAGE_SIZE") == 4096,
             "Linux x86-64 with actual 4096-byte base pages required")
     started, files = time.monotonic(), capture()
@@ -431,6 +453,8 @@ def produce(family, out, *, profile_id="test-p4", native_variant="baseline", exe
         execution_policy="compile-package-only", submission_qualified=False, event_target_confirmed=False,
         host_context=dict(python=sys.version, uname=list(os.uname()), load_page_bytes=os.sysconf("SC_PAGE_SIZE")),
         actual={"source": "main.c", "native": "native/x", "program": "x"})
+    if encoder != DEFAULT_ENCODER:
+        report["encoder"] = encoder
 
     def save():
         (out / "build.json").write_bytes(json_bytes(report))
@@ -497,12 +521,14 @@ def produce(family, out, *, profile_id="test-p4", native_variant="baseline", exe
                 cwd=directory, kind=attempt + "-CPP", data=cpp_source)
             write(directory, "expanded.i", expanded)
             raw = run_command(host, owner, [sys.executable, "-I", "-B", str(ROOT / ELF),
-                str(native_dir / "x"), str(directory / "x"), "--cc", compiler[0], "--timeout", "120", "--filter", "auto"],
+                str(native_dir / "x"), str(directory / "x"), "--cc", compiler[0], "--timeout", "120", "--filter", "auto",
+                *encoder_arguments(encoder)],
                 cwd=directory, kind=attempt + "-pack")
             detail = json.loads(raw)
             write(directory, "pack.json", raw)
             whole = R.input_reader().read_regular(directory / "x", limit=MAX_FILE)
-            dependency, header, payload = packed_restore(whole, native, detail, elf=m["elf"], dependency=m["elf_dependencies"])
+            dependency, header, payload = packed_restore(
+                whole, native, detail, elf=m["elf"], dependency=m["elf_dependencies"], encoder=encoder)
             write(directory, "header.bin", header)
             write(directory, "payload.bin", payload)
             report["attempts"].append(dict(directory=attempt,
@@ -607,8 +633,16 @@ def admit_build(manifest, build):
             and manifest.get("reproducible") is True and manifest.get("source_closure_rechecked") is True
             and "failure" not in manifest and "cleanup_failure" not in manifest, "complete fresh full-profile ELF build required")
     family, profile_id = manifest.get("family"), manifest.get("profile")
-    policy = plan(family, profile_id, native_variant=manifest.get("native_variant"))
-    require(canonical(manifest.get("policy")) == canonical(policy) and manifest.get("actual") ==
+    encoder = record_encoder(manifest)
+    policy = plan(family, profile_id, native_variant=manifest.get("native_variant"), encoder=encoder)
+    supplied_policy = manifest.get("policy")
+    require(record_encoder(supplied_policy) == encoder, "manifest and policy encoder choices differ")
+    # Explicit greedy metadata and its historical omission mean the same thing;
+    # no other policy field is normalized or given a default.
+    expected_policy = policy
+    if encoder == DEFAULT_ENCODER and "encoder" in supplied_policy:
+        expected_policy = {**policy, "encoder": DEFAULT_ENCODER}
+    require(canonical(supplied_policy) == canonical(expected_policy) and manifest.get("actual") ==
             {"source": "main.c", "native": "native/x", "program": "x"}, "finite ELF build policy/layout differs")
     files, build = capture(), Path(build)
     m, R = modules(files), None
@@ -688,7 +722,8 @@ def admit_build(manifest, build):
                 "actual rebuilt ELF executable mode differs")
         pack_raw = R.input_reader().read_regular(R.artifact_file(build, prefix + "pack.json"), limit=MAX_FILE)
         require(outputs[attempt + "-pack"] == pack_raw and json.loads(pack_raw) == row["pack"], "actual pack command receipt differs")
-        dependency, header, payload = packed_restore(whole, native, row["pack"], elf=m["elf"], dependency=m["elf_dependencies"])
+        dependency, header, payload = packed_restore(
+            whole, native, row["pack"], elf=m["elf"], dependency=m["elf_dependencies"], encoder=encoder)
         require(canonical(dependency) == canonical(row["dependencies"]), "actual restored-native/outer dependency DATA differs")
         for name, data, label in (("header.bin", header, "header"), ("payload.bin", payload, "payload")):
             require(R.checked_artifact(build, prefix + name, R._field_pin(expected_contract, label)) == data,
@@ -711,11 +746,12 @@ def admit_build(manifest, build):
                     "actual derived compiler working directory differs")
         require("target_abi_gate" not in row, "an ABI gate was fabricated outside the current finite policy")
         pack_command = commands[attempt + "-pack"]["command"]
-        require(len(pack_command) == 12 and pack_command[1:3] == ["-I", "-B"]
+        pack_tail = ["--cc", "cc", "--timeout", "120", "--filter", "auto", *encoder_arguments(encoder)]
+        require(len(pack_command) == 6 + len(pack_tail) and pack_command[1:3] == ["-I", "-B"]
                 and Path(pack_command[3]).parts[-3:] == ("engines", "scripts", "elf_loader.py")
                 and Path(pack_command[4]).parts[-3:] == (attempt, "native", "x")
                 and Path(pack_command[5]).parts[-2:] == (attempt, "x")
-                and pack_command[6:] == ["--cc", "cc", "--timeout", "120", "--filter", "auto"],
+                and pack_command[6:] == pack_tail,
                 "actual self-restoring pack invocation differs")
         require(Path(pack_command[4]) == original / attempt / "native/x"
                 and Path(pack_command[5]) == original / attempt / "x"
@@ -935,10 +971,12 @@ def main(argv=None):
     planner.add_argument("--entry", choices=FAMILIES, required=True)
     planner.add_argument("--profile", choices=PROFILES, default="test-p4")
     planner.add_argument("--native-variant", choices=NATIVE_VARIANTS, default="baseline")
+    planner.add_argument("--encoder", choices=ENCODERS, default=DEFAULT_ENCODER)
     producer = sub.add_parser("produce")
     producer.add_argument("--entry", choices=FAMILIES, required=True)
     producer.add_argument("--profile", choices=PROFILES, default="test-p4")
     producer.add_argument("--native-variant", choices=NATIVE_VARIANTS, default="baseline")
+    producer.add_argument("--encoder", choices=ENCODERS, default=DEFAULT_ENCODER)
     producer.add_argument("--out", type=Path, required=True)
     producer.add_argument("--execute", action="store_true")
     reader = sub.add_parser("admit")
@@ -955,11 +993,11 @@ def main(argv=None):
     qualifier.add_argument("--out", type=Path, required=True)
     args = parser.parse_args(argv)
     if args.action == "plan":
-        print(json.dumps(plan(args.entry, args.profile, native_variant=args.native_variant), sort_keys=True))
+        print(json.dumps(plan(args.entry, args.profile, native_variant=args.native_variant, encoder=args.encoder), sort_keys=True))
         return
     if args.action == "produce":
         result = produce(args.entry, args.out, profile_id=args.profile, native_variant=args.native_variant,
-                         execute=args.execute)
+                         encoder=args.encoder, execute=args.execute)
     elif args.action == "admit":
         manifest, admitted, _, _ = read_build(args.build)
         result = dict(class_name=CLASS, family=admitted.family, profile=admitted.profile_id,
