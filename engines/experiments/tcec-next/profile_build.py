@@ -26,6 +26,8 @@ SELF = "engines/experiments/tcec-next/profile_build.py"
 CLASS = "rove4k-production-profile-v1"
 BASELINE = "engines/experiments/tcec-next/build.py"
 COMMON = "engines/scripts/production.py"
+LEAGUE_PROFILES = "engines/scripts/league_resource_profiles.py"
+LEAGUE_PROFILE_IDS = ("test-p16", "test-p192")
 SOURCE = "engines/experiments/tcec-next/profile_source.py"
 VERIFIER = "engines/experiments/tcec-next/profile_verify.py"
 PACKAGE = "engines/scripts/source_package.py"
@@ -180,7 +182,7 @@ def _tool_path(path, family):
 def argument_parser():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--entry", choices=tuple("ABCEF"), required=True)
-    parser.add_argument("--profile", choices=("test-p4", "test-p28", "tcec-provisional"), required=True)
+    parser.add_argument("--profile", choices=("test-p4", "test-p28", "tcec-provisional", *LEAGUE_PROFILE_IDS), required=True)
     parser.add_argument("--representation", choices=("source-jit", "packed-native", "self-contained-elf"),
                         default="source-jit")
     parser.add_argument("--out", type=Path, required=True)
@@ -204,6 +206,13 @@ def argument_parser():
 def main():
     parser = argument_parser()
     args = parser.parse_args()
+    if args.profile in LEAGUE_PROFILE_IDS:
+        if args.representation != "source-jit":
+            parser.error("league profiles currently admit only source-JIT bootstrap")
+        if (args.b_variant != "control" or args.phase_variant != "control" or
+                args.spelling_variant != "control" or args.scan_variant != "control" or
+                args.ep_variant != "control"):
+            parser.error("league profile source optimizations require their own audited profile pins")
     if args.b_variant != "control" and args.entry != "B":
         parser.error("--b-variant applies only to the independently owned B engine")
     if args.phase_variant != "control" and args.entry not in "ACEF":
@@ -232,10 +241,13 @@ def main():
         parser.error("Linux x86-64 and a new absolute output outside every Git checkout are required")
     source_bytes = normalized(ROOT / SOURCE)
     common_bytes = normalized(ROOT / COMMON)
+    league_bytes = normalized(ROOT / LEAGUE_PROFILES) if args.profile in LEAGUE_PROFILE_IDS else None
     executing = normalized(Path(__file__))
     production = load("profile_build_contracts", ROOT / COMMON)
     projection = load("profile_build_projection", ROOT / SOURCE)
-    spec, profile = production.engine_spec(args.entry), production.resource_profile(args.profile)
+    league = load("profile_build_league_profiles", ROOT / LEAGUE_PROFILES) if league_bytes is not None else None
+    spec = production.engine_spec(args.entry)
+    profile = league.resource_profile(production, args.profile) if league else production.resource_profile(args.profile)
     cleanup = "none" if args.representation == "self-contained-elf" else "private-path"
     plan = production.ArtifactPlan(spec, profile, args.representation, cleanup)
     old = load("profile_build_owner", ROOT / "engines/experiments/tcec-scope/build.py")
@@ -283,8 +295,13 @@ def main():
         old.require(normalized(ROOT / SOURCE) == source_bytes and
                     normalized(ROOT / COMMON) == common_bytes and normalized(Path(__file__)) == executing,
                     "executing profile producer changed before input freeze")
+        if league_bytes is not None:
+            old.require(normalized(ROOT / LEAGUE_PROFILES) == league_bytes,
+                        "executing league profile owner changed before input freeze")
         names = set(control["control_source_closure"]) | set(control["inputs"])
         names.update((SELF, COMMON, SOURCE, PACKAGE, WRAPPER, UNLINK))
+        if league_bytes is not None:
+            names.add(LEAGUE_PROFILES)
         if args.entry == "E":
             names.update(("engines/model/e19.py", "engines/model/e19.json"))
         if args.b_variant != "control":
@@ -311,6 +328,8 @@ def main():
         inputs = {}
         for name in sorted(names):
             data = normalized(ROOT / name)
+            if name == LEAGUE_PROFILES:
+                old.require(data == league_bytes, "league profile owner changed during input freeze")
             expected = control["control_source_closure"].get(name, control["inputs"].get(name))
             old.require(expected is None or old.pin(data) == expected,
                         "tracked baseline input changed after regeneration: " + name)
@@ -338,7 +357,11 @@ def main():
         own = out / "inputs"
         projection = load("profile_frozen_projection", own / SOURCE)
         frozen_production = load("profile_frozen_contracts", own / COMMON)
-        profile = frozen_production.resource_profile(args.profile)
+        if league_bytes is not None:
+            frozen_league = load("profile_frozen_league_profiles", own / LEAGUE_PROFILES)
+            profile = frozen_league.resource_profile(frozen_production, args.profile)
+        else:
+            profile = frozen_production.resource_profile(args.profile)
         packaging = load("profile_frozen_package", own / PACKAGE)
         wrapper = load("profile_frozen_wrapper", own / WRAPPER)
         unlink = load("profile_frozen_unlink", own / UNLINK)

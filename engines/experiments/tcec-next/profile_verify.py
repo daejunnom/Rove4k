@@ -22,6 +22,7 @@ import stat
 import struct
 import sys
 import time
+import types
 
 try:
     import resource
@@ -47,6 +48,9 @@ _TARGET_HELPER = None
 _INPUT_HELPER = None
 _CLOUD_PROVIDER = None
 INPUT_READER = "engines/scripts/production_input.py"
+LEAGUE_PROFILE_OWNER = "engines/scripts/league_resource_profiles.py"
+LEAGUE_PROFILE_IDS = frozenset(("test-p16", "test-p192"))
+LEAGUE_PROFILE_OWNER_PIN = {"bytes": 952, "sha256": "1b6cae7f1829fb8c798d8f394f9d2c533191632444b66f9b572b8c233b30e258"}
 CLOUD_PROVIDER = "engines/experiments/strength/cloud_runtime.py"
 RSS_ACCOUNTING = "smaps_rollup"
 ELF_ENTRY_CLEANUP = "anonymous-memfd-v1"
@@ -734,10 +738,38 @@ def dependency_evidence(manifest, build, declaration, proof, before, after):
     return {"declaration": declaration, "proof": proof, "attempts": attempts, "compiler_commands": commands}
 
 
-def _resource_record(record, family):
+def profile_resource(profile_id, *, input_pins=None, build=None, source_closure=None):
+    """Resolve the two league profiles only from their frozen production owner."""
+    api = contracts()
+    if profile_id not in LEAGUE_PROFILE_IDS:
+        return api.resource_profile(profile_id)
+    require(isinstance(input_pins, dict) and LEAGUE_PROFILE_OWNER in input_pins,
+            "league resource owner is missing from the admitted input closure")
+    expected = input_pins[LEAGUE_PROFILE_OWNER]
+    require(expected == LEAGUE_PROFILE_OWNER_PIN, "league resource owner pin differs from reviewed source")
+    data = source_bytes(LEAGUE_PROFILE_OWNER, expected)
+    if build is not None:
+        require(checked_artifact(build, "inputs/" + LEAGUE_PROFILE_OWNER, expected) == data,
+                "frozen league resource owner differs from current reviewed source")
+        require(isinstance(source_closure, dict), "league resource source closure is missing")
+        rows = [row for row in source_closure.get("inputs", ())
+                if row.get("path") == LEAGUE_PROFILE_OWNER]
+        require(len(rows) == 1 and rows[0].get("role") == "tool"
+                and {key: rows[0].get(key) for key in ("bytes", "sha256")} == expected,
+                "league resource owner is not a pinned production tool")
+    module = types.ModuleType("profile_runtime_league_resources")
+    module.__file__ = str(ROOT / LEAGUE_PROFILE_OWNER)
+    exec(compile(data, module.__file__, "exec", dont_inherit=True), module.__dict__)
+    require(source_bytes(LEAGUE_PROFILE_OWNER, expected) == data,
+            "league resource owner changed while loading")
+    return module.resource_profile(api, profile_id)
+
+
+def _resource_record(record, family, *, input_pins=None, build=None, source_closure=None):
     api = contracts()
     spec = api.engine_spec(family)
-    profile = api.resource_profile(record["id"])
+    profile = profile_resource(record["id"], input_pins=input_pins, build=build,
+                               source_closure=source_closure)
     expected = profile.to_record(spec.entry_bytes)
     require(all(record.get(k) == value for k, value in expected.items()),
             "resource record differs from the selected immutable profile")
@@ -762,7 +794,8 @@ def admit_c_build(manifest, build):
     family = manifest["family"]
     require(family in "ABCEF" and manifest["entry"] == family, "invalid C profile family")
     validate_spelling_request(manifest)
-    profile, spec = _resource_record(manifest["resources"], family)
+    profile, spec = _resource_record(manifest["resources"], family, input_pins=manifest.get("inputs"),
+                                     build=build, source_closure=manifest.get("source_closure"))
     api = contracts()
     plan = manifest["plan"]
     representation = plan["representation"]
@@ -1181,29 +1214,92 @@ def effective_available_bytes(proc=Path("/proc"), cgroup_root=Path("/sys/fs/cgro
     return min([available, *limits])
 
 
+def _parse_linux_cpu_list(value):
+    """Parse a sysfs CPU list without silently accepting malformed evidence."""
+    result = set()
+    for item in value.strip().split(","):
+        fields = item.split("-")
+        require(len(fields) in (1, 2) and all(field.isdecimal() for field in fields),
+                "invalid sysfs CPU list")
+        first, last = int(fields[0]), int(fields[-1])
+        require(first <= last and last < 1 << 20, "invalid sysfs CPU range")
+        group = set(range(first, last + 1))
+        require(result.isdisjoint(group), "overlapping sysfs CPU list")
+        result.update(group)
+    return sorted(result)
+
+
+def _shared_test_topology(profile_id, cpus, topology, online_cpu_count):
+    """Report an observed host shape, never scored placement or policy proof."""
+    wanted = {"test-p16": (16, 8), "test-p192": (192, 96)}
+    require(profile_id in wanted, "not a shared SMT test profile")
+    logical, physical = wanted[profile_id]
+    rows = {row["cpu"]: row for row in topology}
+    valid_cpus = (len(cpus) == len(set(cpus)) == logical and len(rows) == len(topology) == logical
+                  and set(rows) == set(cpus))
+    groups = {}
+    nodes = set()
+    if valid_cpus:
+        for cpu in cpus:
+            row = rows[cpu]
+            node = row.get("node")
+            if type(node) is not int or node < 0:
+                valid_cpus = False
+                break
+            nodes.add(node)
+            groups.setdefault((row["socket"], row["core"]), []).append(cpu)
+    complete_pairs = valid_cpus and len(groups) == physical and all(
+        len(members) == 2 and len({rows[cpu]["node"] for cpu in members}) == 1
+        and all(rows[cpu].get("siblings") == sorted(members) for cpu in members)
+        for members in groups.values())
+    node_shape = len(nodes) == 1 if profile_id == "test-p16" else bool(nodes)
+    return {"profile": profile_id, "observed_logical_cpus": len(cpus),
+            "observed_physical_groups": len(groups), "observed_nodes": sorted(nodes),
+            "complete_smt_sibling_pairs": bool(complete_pairs),
+            "profile_cpu_node_shape_observed": bool(complete_pairs and node_shape),
+            "online_cpu_count": online_cpu_count,
+            "all_online_cpus_in_affinity": type(online_cpu_count) is int and online_cpu_count == len(cpus),
+            "worker_affinity_observed": False, "memory_policy_observed": False,
+            "tt_page_placement_observed": False, "scored_placement_confirmed": False}
+
+
 def execution_host(admitted):
     cpus = sorted(os.sched_getaffinity(0))
     topology = []
     for cpu in cpus:
         directory = Path("/sys/devices/system/cpu") / ("cpu" + str(cpu)) / "topology"
-        topology.append({"cpu": cpu,
-                         "socket": int((directory / "physical_package_id").read_text()),
-                         "core": int((directory / "core_id").read_text())})
+        row = {"cpu": cpu, "socket": int((directory / "physical_package_id").read_text()),
+               "core": int((directory / "core_id").read_text())}
+        if admitted.profile_id in ("test-p16", "test-p192"):
+            cpu_directory = directory.parent
+            nodes = [int(path.name[4:]) for path in cpu_directory.glob("node[0-9]*")
+                     if path.name[4:].isdecimal()]
+            row["node"] = nodes[0] if len(nodes) == 1 else None
+            try:
+                row["siblings"] = _parse_linux_cpu_list((directory / "thread_siblings_list").read_text())
+            except (OSError, ValueError):
+                row["siblings"] = None
+        topology.append(row)
     physical = {(row["socket"], row["core"]) for row in topology}
     required = {"test-p4": 4, "test-p28": 28}.get(admitted.profile_id)
     one_sibling = len(cpus) == len(physical)
     placement = required is not None and len(physical) == required and one_sibling
-    return {"affinity": cpus, "topology": topology, "physical_cores_exposed": len(physical),
+    result = {"affinity": cpus, "topology": topology, "physical_cores_exposed": len(physical),
             "one_sibling_per_physical_core": one_sibling,
             "test_physical_envelope_observed": placement,
             "scored_cloud_slot_confirmed": False,
             "role": "local functional observation; placement and target league preflight are separate",
             "oversubscribed_by_search_workers": admitted.resources["workers"] > len(cpus)}
+    if admitted.profile_id in ("test-p16", "test-p192"):
+        result["shared_smt_diagnostic"] = _shared_test_topology(
+            admitted.profile_id, cpus, topology, os.cpu_count())
+        result["worker_and_main_threads_exceed_affinity"] = admitted.resources["workers"] + 1 > len(cpus)
+    return result
 
 
 def execution_limits(admitted, available_bytes, *, wall_seconds=600):
     api = contracts()
-    profile = api.resource_profile(admitted.profile_id)
+    profile = profile_resource(admitted.profile_id, input_pins=admitted.input_pins)
     layout = profile.layout(admitted.resources["tt_entry_bytes"])
     other = max(768 * api.MiB, profile.workers * 16 * api.MiB)
     capacity = api.host_admission(profile, layout, available_bytes,
@@ -1707,7 +1803,7 @@ def rules_receipt(admitted, build, rules_path):
         baseline = input_reader().read_regular(artifact_file(build, "control/main.c"), limit=16 << 20)
         source_proof = manifest["source_proofs"]
     return helper.validate_rules_receipt(rules_path, family=admitted.family,
-        profile=contracts().resource_profile(admitted.profile_id), main_source=main_source,
+        profile=profile_resource(admitted.profile_id, input_pins=admitted.input_pins), main_source=main_source,
         source_proof=source_proof, baseline_source=baseline, build=build)
 
 
@@ -1895,7 +1991,7 @@ def qualification_record(admitted, build, runtime_path, *, rules_path=None, arti
               "legal_moves": rules is not None and rules.get("nbrq_generation") is True,
               "resources": True, "lifecycle": True, "placement": placement}
     failures = [name for name, passed in checks.items() if passed is not True]
-    profile = contracts().resource_profile(admitted.profile_id)
+    profile = profile_resource(admitted.profile_id, input_pins=admitted.input_pins)
     identity = {"id": artifact_id or ("rove-" + admitted.family.lower() + "-" + admitted.profile_id + "-" +
                  admitted.representation + "-" + admitted.expected["whole_sha256"][:12]),
                 "family": admitted.family, "purpose": profile.purpose, "profile": profile.id,

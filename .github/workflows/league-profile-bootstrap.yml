@@ -1,0 +1,202 @@
+name: Experimental P16 and P192 source profiles
+
+on:
+  pull_request:
+    paths:
+      - 'engines/**'
+      - '.github/workflows/league-profile-bootstrap.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: league-profile-bootstrap-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  source-contracts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Install pinned development-only rules oracle
+        run: python -m pip install --require-hashes -r engines/training/e19/requirements.txt
+      - name: Check league geometry and strict rules contracts without launching engines
+        run: |
+          set -o pipefail
+          python -B -m unittest discover -s engines/scripts -p test_league_resource_profiles.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_rules.py -k league -k new_test_profiles
+
+  generate:
+    needs: source-contracts
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        family: [A, B, C, E, F]
+        profile: [test-p16, test-p192]
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      FAMILY: ${{ matrix.family }}
+      PROFILE: ${{ matrix.profile }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Record actual host and tool identities
+        run: |
+          EVIDENCE_ROOT="$RUNNER_TEMP/rove4k-league-${FAMILY}-${PROFILE}-${{ github.run_attempt }}"
+          mkdir "$EVIDENCE_ROOT"
+          printf 'EVIDENCE_ROOT=%s\n' "$EVIDENCE_ROOT" >> "$GITHUB_ENV"
+          { uname -a; python --version; command -v cc; cc --version; } > "$EVIDENCE_ROOT/toolchain.txt" 2>&1
+      - name: Install pinned development-only rules oracle
+        run: |
+          set -o pipefail
+          python -m pip install --require-hashes -r engines/training/e19/requirements.txt \
+            2>&1 | tee "$EVIDENCE_ROOT/oracle-install.log"
+      - name: Generate and package the full control twice
+        # This is a fresh source-JIT control candidate. The producer performs
+        # compilation, strict payload inverse and two byte comparisons; it does
+        # not execute the original engine or allocate either large TT.
+        run: |
+          set -o pipefail
+          timeout --signal=TERM --kill-after=30s 1200s \
+            python -I -B engines/experiments/tcec-next/profile_build.py \
+              --entry "$FAMILY" --profile "$PROFILE" --representation source-jit \
+              --b-variant control --phase-variant control --spelling-variant control \
+              --scan-variant control --ep-variant control --source-dependencies control \
+              --out "$EVIDENCE_ROOT/build" 2>&1 | tee "$EVIDENCE_ROOT/build.log"
+      - name: Independently compare the actual five artifact parts and source inverse
+        run: |
+          python -I -B - <<'PY'
+          import hashlib
+          import json
+          import lzma
+          import os
+          from pathlib import Path
+
+          root = Path(os.environ['EVIDENCE_ROOT'])
+          build = root / 'build'
+          manifest = json.loads((build / 'build.json').read_text())
+          if manifest.get('family') != os.environ['FAMILY'] or manifest.get('complete') is not True or manifest.get('reproducible') is not True:
+              raise ValueError('producer did not complete the named reproducible build')
+          if manifest['resources']['id'] != os.environ['PROFILE']:
+              raise ValueError('resource profile differs from matrix input')
+          names = ('main.c', 'native/x', 'header.sh', 'payload.lzma', 'x')
+          evidence = {}
+          for name in names:
+              first = (build / 'first' / name).read_bytes()
+              repeat = (build / 'repeat' / name).read_bytes()
+              public = (build / name).read_bytes()
+              if first != repeat or first != public:
+                  raise ValueError('actual artifact parts differ: ' + name)
+              evidence[name] = {'bytes': len(first), 'sha256': hashlib.sha256(first).hexdigest()}
+          source = (build / 'main.c').read_bytes()
+          header = (build / 'header.sh').read_bytes()
+          payload = (build / 'payload.lzma').read_bytes()
+          whole = (build / 'x').read_bytes()
+          decoder = lzma.LZMADecompressor(format=lzma.FORMAT_ALONE)
+          if decoder.decompress(payload, max_length=len(source) + 1) != source or not decoder.eof or decoder.unused_data:
+              raise ValueError('source-JIT payload restoration differs')
+          if whole != header + payload or len(whole) != manifest['expected_contract']['whole_bytes']:
+              raise ValueError('whole artifact size or composition differs')
+          result = {'family': os.environ['FAMILY'], 'profile': os.environ['PROFILE'],
+                    'parts': evidence, 'actual_whole_bytes': len(whole),
+                    'whole_at_most_4096': len(whole) <= 4096,
+                    'original_engine_executed': False, 'runtime_qualified': False,
+                    'physical_placement_qualified': False, 'playing_strength_qualified': False}
+          (root / 'artifact-audit.json').write_text(json.dumps(result, indent=2) + '\n')
+          print(json.dumps(result, sort_keys=True))
+          PY
+      - name: Preserve the exact resource projection before any later source stage
+        run: |
+          python -I -B - <<'PY'
+          import hashlib
+          import importlib.util
+          import json
+          import os
+          import sys
+          from pathlib import Path
+
+          root = Path(os.environ['EVIDENCE_ROOT'])
+          build = root / 'build'
+          frozen = build / 'inputs'
+          def load(name, path):
+              spec = importlib.util.spec_from_file_location(name, path)
+              module = importlib.util.module_from_spec(spec)
+              sys.modules[name] = module
+              spec.loader.exec_module(module)
+              return module
+          api = load('league_ci_frozen_production', frozen / 'engines/scripts/production.py')
+          league = load('league_ci_frozen_resource_owner', frozen / 'engines/scripts/league_resource_profiles.py')
+          projection = load('league_ci_frozen_projection', frozen / 'engines/experiments/tcec-next/profile_source.py')
+          profile = league.resource_profile(api, os.environ['PROFILE'])
+          baseline = (build / 'control/main.c').read_bytes()
+          source, proof = projection.transform_source(baseline, family=os.environ['FAMILY'],
+                                                      profile=profile, entry_cleanup='private-path')
+          manifest = json.loads((build / 'build.json').read_text())
+          if proof != manifest['source_proofs'][0] or projection.restore_source(source, proof) != baseline:
+              raise ValueError('resource projection does not match the actual bound producer proof')
+          if proof['output'] != {'bytes': len(source), 'sha256': hashlib.sha256(source).hexdigest()}:
+              raise ValueError('resource projection output pin differs')
+          (root / 'resource-projection.c').write_bytes(source)
+          (root / 'resource-projection-proof.json').write_text(json.dumps(proof, indent=2) + '\n')
+          print(json.dumps({'family': os.environ['FAMILY'], 'profile': os.environ['PROFILE'],
+                            'projection': proof['output'], 'source_qualified': False}, sort_keys=True))
+          PY
+      - name: Run actual source-bound rules fixtures without the engine or TT
+        run: |
+          set -o pipefail
+          python -I -B engines/experiments/tcec-next/profile_rules.py \
+            --family "$FAMILY" --profile "$PROFILE" \
+            --source "$EVIDENCE_ROOT/build/main.c" \
+            --baseline "$EVIDENCE_ROOT/build/control/main.c" \
+            --proof "$EVIDENCE_ROOT/build/source-proof.json" \
+            --build "$EVIDENCE_ROOT/build" --out "$EVIDENCE_ROOT/rules" \
+            2>&1 | tee "$EVIDENCE_ROOT/rules.log"
+      - name: Strictly readmit the actual generated candidate without runtime
+        run: |
+          python -I -B - <<'PY'
+          import importlib.util
+          import json
+          import os
+          import sys
+          from pathlib import Path
+
+          root = Path(os.environ['EVIDENCE_ROOT'])
+          build = root / 'build'
+          path = Path('engines/experiments/tcec-next/profile_verify.py').resolve()
+          spec = importlib.util.spec_from_file_location('league_ci_profile_verify', path)
+          module = importlib.util.module_from_spec(spec)
+          sys.modules[spec.name] = module
+          spec.loader.exec_module(module)
+          admitted = module.admit_c_build(json.loads((build / 'build.json').read_text()), build)
+          if (admitted.family, admitted.profile_id) != (os.environ['FAMILY'], os.environ['PROFILE']):
+              raise ValueError('strict admission returned a different profile')
+          result = {'family': admitted.family, 'profile': admitted.profile_id,
+                    'strict_source_admission': True, 'engine_executed': False,
+                    'runtime_qualified': False, 'physical_placement_qualified': False,
+                    'playing_strength_qualified': False}
+          (root / 'admission.json').write_text(json.dumps(result, indent=2) + '\n')
+          print(json.dumps(result, sort_keys=True))
+          PY
+      - name: Preserve actual artifacts, bounded command logs and failures
+        if: always() && env.EVIDENCE_ROOT != ''
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: league-source-${{ matrix.family }}-${{ matrix.profile }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ env.EVIDENCE_ROOT }}
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7

@@ -6,7 +6,7 @@ import sys
 import tempfile
 from types import SimpleNamespace
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
@@ -69,6 +69,66 @@ class GeneratedRulesBoundaries(unittest.TestCase):
                     out=out, run_command=lambda *args, **kwargs: calls.append(args))
             self.assertFalse(out.exists())
             self.assertEqual(calls, [])
+
+    def test_new_test_profiles_do_not_admit_an_unknown_source_or_run_a_compiler(self):
+        # The added CLI profiles must still pass the real resource projection
+        # and source-identity boundary before any probe artifact is made.
+        calls = []
+        with tempfile.TemporaryDirectory(prefix="rove4k-new-profile-rules-admission-") as temporary:
+            for profile_id in ("test-p16", "test-p192"):
+                profile = RULES.resolve_resource_profile(PRODUCTION, profile_id)
+                for family in "ABCEF":
+                    with self.subTest(profile=profile_id, family=family):
+                        out = Path(temporary).resolve() / (profile_id + family)
+                        with self.assertRaisesRegex(ValueError, "exact selected full C portfolio source required"):
+                            RULES.verify_generated_rules(b"not production C", {"entry_cleanup": "private-path"},
+                                family, profile, baseline_source=b"not a qualified baseline", out=out,
+                                run_command=lambda *args, **kwargs: calls.append(args))
+                        self.assertFalse(out.exists())
+        self.assertEqual(calls, [])
+
+    def test_league_rules_use_reviewed_resource_owner_and_reject_redefinition(self):
+        expectations = {"test-p16": (16, 16 << 30, 12 << 30),
+                        "test-p192": (192, 192 << 30, 192 << 30)}
+        for profile_id, (workers, cap, actual) in expectations.items():
+            with self.subTest(profile=profile_id):
+                profile = RULES.resolve_resource_profile(PRODUCTION, profile_id)
+                record = profile.to_record(24)
+                self.assertEqual((record["workers"], record["tt_cap_bytes"], record["tt_bytes"]),
+                                 (workers, cap, actual))
+                forged = SimpleNamespace(id=profile_id, to_record=lambda _: {**record, "workers": workers + 1})
+                with self.assertRaisesRegex(ValueError, "league profile resources differ"):
+                    RULES.admit_source(b"not source", b"not baseline", {}, "A", forged)
+                changing = SimpleNamespace(id=profile_id, to_record=Mock(side_effect=[record, {}]))
+                canonical = RULES.canonical_rules_profile(changing, "A")
+                self.assertEqual(canonical.to_record(24), record)
+                self.assertEqual(changing.to_record.call_count, 1)
+                with self.assertRaisesRegex(ValueError, "A/B/C/E/F"):
+                    RULES.canonical_rules_profile(profile, "D")
+        with patch.object(RULES, "LEAGUE_OWNER_PIN", {"bytes": 0, "sha256": "0" * 64}):
+            with self.assertRaisesRegex(ValueError, "league profile owner identity differs"):
+                RULES.resolve_resource_profile(PRODUCTION, "test-p16")
+
+    def test_league_resource_only_proof_keeps_build_binding(self):
+        # A resource-only new profile still binds the frozen build manifest in
+        # both production reports and receipt validation via the proof list.
+        source, baseline = b"test-resource", b"test-baseline"
+        proof = {"schema": "test-projection", "entry_cleanup": "private-path"}
+        projection = SimpleNamespace(SCHEMA=proof["schema"],
+            transform_source=lambda *a, **kw: (source, proof),
+            restore_source=lambda actual, supplied: baseline)
+        original_load = RULES.load
+        def loaded(name, path):
+            return projection if name == "production_rules_projection" else original_load(name, path)
+        with tempfile.TemporaryDirectory(prefix="rove4k-league-rules-build-") as temporary:
+            build = Path(temporary)
+            (build / "build.json").write_text(json.dumps(dict(post_profile=None, post_spelling=None,
+                post_scan=None, post_ep=None, source_dependencies=None, source_proofs=[proof])))
+            with patch.object(RULES, "load", side_effect=loaded), \
+                 patch.object(RULES, "_source_build_record", return_value={}) as checked:
+                profile = RULES.resolve_resource_profile(PRODUCTION, "test-p16")
+                self.assertEqual(RULES.admit_source(source, baseline, proof, "A", profile, build=build), [proof])
+            self.assertIn(RULES.LEAGUE_OWNER, checked.call_args.kwargs["tools"])
 
     def test_D_manifest_cannot_inject_unreviewed_compiler_flags(self):
         rules = module("test_D_rules", HERE.parent / "tiny-d-submission/profile_rules.py")

@@ -16,7 +16,11 @@ Rust 엔진 경로는 폐기 상태다. 이 범위에서 목표는 A/B/C/E/F 각
 메모리는 한쪽이 쉬는 동안에도 동시에 존재한다. P192 상위 경기에서는 양쪽
 엔진 각각 192 worker로 같은 192 vCPU를 공유해 NUMA 효율을 관측한다. 별도
 전용 CPU가 없는 controller의 공유와 간섭을 계측한다. W256은 별도 잠정 제출
-프로필이다. P16/P192 프로필별 엔진당 TT 예산은 사용자 답변 전 미확정이다.
+프로필이다. 사용자가 지정한 엔진당 TT 상한은 P16 16 GiB, P192 192 GiB다.
+기존 24 B 항목과 2의 거듭제곱 entry 수를 적용한 P16 12 GiB를 허용한다.
+11개 P16 경기 양측 TT는 12 GiB 구현이면 합계 264 GiB이며, 16 GiB 상한을
+모두 쓸 경우 352 GiB다. P192 한 경기 양측 TT 상한은 합계 384 GiB다. 각
+프로세스·운영체제의 추가 메모리는 별도로 계산하고 실제 구현에서 확인한다.
 
 경기는 30분+3초의 TCEC 4K 경기 규칙을 적용한 예산 내 자체 리그다. 기존
 P4→P28 선발은 새 리그의 정본이 아니다. 11경기/16 vCPU/NUMA와 자체 리그
@@ -993,3 +997,21 @@ E10041/F9533 B로 기존보다563/608/567/565/516 B 작고 source/native는 실�
 기존 greedy15개·W256 준비10개를 보존한다. A/C/E의 별도 castle18명령 비용3개는
 표준105와 고정30 FEN의 실제 raw g 순서·전체 Board 불변·legal T/v를 plain/fatal UBSan으로
 비교한다. 원시33/31/33 B 감소는 실제 제출 이득이나 채택이 아니다.
+### NUMA 실행 소유권과 검증
+
+NUMA 정책의 소유자는 **엔진 실행기**다. P16은 실제 허용 CPU·노드·SMT 형제와
+각 노드의 메모리를 확인해 한 게임의 양 엔진이 공유하는 비중복 16 vCPU 슬롯을
+만들고, 각 슬롯이 하나의 NUMA 노드 안에 있는지 검사한다. 실행 전 CPU affinity와
+메모리 정책을 지정하고 초기화 전 자식 프로세스에 상속시킨다. 실제 배치가 11개
+슬롯과 양측 상주 메모리를 수용하지 못하면 11게임 가능으로 표시하지 않는다.
+P192는 양 엔진과 controller가 같은 192 vCPU를 사용하므로 controller 간섭을
+기록한다. 메모리 정책의 requested/effective 값과 실제 worker affinity, TT
+`numa_maps` 또는 동등한 페이지 관측을 기록해 설정과 실측을 구분한다.
+
+일반 TCEC 경기에서 운영자의 실행 명령 `numactl --all --localalloc ./stockfish`가
+기록된 사례는 [공식 PGN](https://github.com/TCEC-Chess/tcecgames/blob/3dd69a40b3cf6ccc74144df7411ef4e8e2140286/master-archive/TCEC_Season_28_-_Starting_Position_Vvltc_Bonus.pgn)으로 확인했다.
+이는 4K의 운영 명령을 증명하지 않는다. [4K VI 결승 PGN](https://github.com/TCEC-Chess/tcecgames/blob/3dd69a40b3cf6ccc74144df7411ef4e8e2140286/master-archive/TCEC_Season_29_-_4k_Vi_Minifinal.pgn)은
+스레드·해시만 기록하며 NUMA 명령을 밝히지 않는다. 또한 `--localalloc`은 CPU
+고정이나 균등 페이지 배치를 보장하지 않는다. TCEC 실제 4K 서버 설정은 별도
+확인 대상으로 남긴다. 제출 파일의 명시적 허용 명령 목록에는 `numactl`이 없으므로
+서버·테스트 실행기 쪽 설정과 제출 파일 내부 명령을 구분한다.

@@ -41,6 +41,9 @@ EP = "engines/experiments/tcec-next/profile_ep.py"
 EP_SCHEMA = "rove4k.profile-ep-source.v1"
 EP_DECLARATION = {"path": EP, "variant": "legal-maker"}
 EP_PIN = {"bytes": 8476, "sha256": "d80d1421ff9c921fae899198094488a88dab88bd35009f4f36a44ca77588c44a"}
+LEAGUE_OWNER = "engines/scripts/league_resource_profiles.py"
+LEAGUE_OWNER_PIN = {"bytes": 952, "sha256": "1b6cae7f1829fb8c798d8f394f9d2c533191632444b66f9b572b8c233b30e258"}
+LEAGUE_IDS = ("test-p16", "test-p192")
 BEST_SPELLING = {"A": "clock-type", "B": "atomic-assignment", "C": "clock-type",
                  "E": "clock-type", "F": "atomic-assignment"}
 
@@ -58,6 +61,28 @@ BINDINGS = {
 
 def pin(data: bytes) -> dict:
     return {"bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
+
+
+def resolve_resource_profile(production, profile_id):
+    """Resolve reviewed league test profiles without changing legacy ownership."""
+    if profile_id not in LEAGUE_IDS:
+        return production.resource_profile(profile_id)
+    path = ROOT / LEAGUE_OWNER
+    require(pin(normalized(path)) == LEAGUE_OWNER_PIN, "reviewed league profile owner identity differs")
+    league = load("production_rules_league_profiles", path)
+    return league.resource_profile(production, profile_id)
+
+
+def canonical_rules_profile(profile, family):
+    """Keep one reviewed resource geometry throughout league rules evidence."""
+    if getattr(profile, "id", None) not in LEAGUE_IDS:
+        return profile
+    require(family in BINDINGS, "league rules profiles require A/B/C/E/F")
+    production = load("production_rules_league_contract", ROOT / "engines/scripts/production.py")
+    canonical = resolve_resource_profile(production, profile.id)
+    require(profile.to_record(24) == canonical.to_record(24),
+            "league profile resources differ from reviewed owner")
+    return canonical
 
 
 def load(name: str, path: Path):
@@ -203,6 +228,9 @@ def _source_build_record(build, *, family, stages, post_profile, main_source,
         if relative == EP:
             require(expected == EP_PIN and pin(normalized(ROOT / relative)) == EP_PIN,
                     "reviewed full EP stage identity differs")
+        if relative == LEAGUE_OWNER:
+            require(expected == LEAGUE_OWNER_PIN and pin(normalized(ROOT / relative)) == LEAGUE_OWNER_PIN,
+                    "reviewed league profile owner identity differs")
     if post_spelling is not None:
         plan = record.get("plan", {})
         require(plan.get("family") == family and plan.get("full") is True and
@@ -286,6 +314,11 @@ def ep_modules(build):
 def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dict,
                  family: str, profile, *, build=None):
     require(family in BINDINGS, "explicit A/B/C/E/F production family required")
+    league_profile = getattr(profile, "id", None) in LEAGUE_IDS
+    if league_profile:
+        # The authenticated owner, not a caller's same-named methods, owns
+        # the geometry used for the actual projection.
+        profile = canonical_rules_profile(profile, family)
     projection = load("production_rules_projection", HERE / "profile_source.py")
     stages = baseline_proof if isinstance(baseline_proof, list) else [baseline_proof]
     if isinstance(baseline_proof, list):
@@ -332,6 +365,8 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
         require(not suffix or (len(suffix) == 1 and has_phase),
                 "explicit A/C/F proof chain must be resource-only or ordered resource/phase")
     post_profile, post_spelling, post_scan, post_ep, source_dependencies, tools = None, None, None, None, None, []
+    if league_profile:
+        tools.append(LEAGUE_OWNER)
     if has_b:
         relative = "engines/experiments/tcec-next/profile_b.py"
         post_profile = {"path": relative, "variant": suffix[0].get("variant")}
@@ -386,7 +421,7 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
                 control.get("post_ep") is None and
                 control.get("source_dependencies") is None and control.get("source_proofs") == stages,
                 family + " control build declares an unconsumed post-profile stage")
-    if suffix or has_spelling or dependency_stage is not None:
+    if suffix or has_spelling or dependency_stage is not None or league_profile:
         source_record = _source_build_record(build, family=family, stages=stages, post_profile=post_profile,
             main_source=main_source, baseline_source=baseline_source, tools=tools,
             post_spelling=post_spelling, post_scan=post_scan, post_ep=post_ep, source_dependencies=source_dependencies)
@@ -518,7 +553,7 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
             restored = module.restore_source(restored, proof, **keywords)
         require(restored == parent, label + " proof/inverse differs")
     require(b"rv_rule_" not in main_source, "rules fixture identifiers collide")
-    return replayed if suffix or has_spelling or dependency_stage is not None else resource
+    return replayed if suffix or has_spelling or dependency_stage is not None or league_profile else resource
 
 
 def render_fixture(main_source: bytes, family: str, cases: list[dict]) -> bytes:
@@ -591,6 +626,7 @@ def verify_generated_rules(main_source: bytes, baseline_proof: dict, family: str
                            profile, *, baseline_source: bytes, out: Path,
                            run_command, compiler: str = "cc", build=None) -> dict:
     """Use a caller-owned bounded runner with signature (argv,cwd=,kind=)."""
+    profile = canonical_rules_profile(profile, family)
     proof = admit_source(main_source, baseline_source, baseline_proof, family, profile, build=build)
     out = Path(out)
     require(out.is_absolute() and not out.exists() and
@@ -670,6 +706,7 @@ def validate_rules_receipt(report_path: Path, *, family: str, profile,
     on an old report: current source, complete C fixture and cases must reproduce.
     The result is a rules-consumer receipt, not tournament qualification.
     """
+    profile = canonical_rules_profile(profile, family)
     report_path = Path(report_path)
     report_bytes = _evidence_bytes(report_path, name="rules.json")
     report = json.loads(report_bytes)
@@ -792,7 +829,7 @@ def main():
     parser.add_argument("--baseline", type=Path, required=True)
     parser.add_argument("--proof", type=Path, required=True)
     parser.add_argument("--family", choices=tuple(BINDINGS), required=True)
-    parser.add_argument("--profile", choices=("test-p4", "test-p28", "tcec-provisional"), required=True)
+    parser.add_argument("--profile", choices=("test-p4", "test-p16", "test-p28", "test-p192", "tcec-provisional"), required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--cc", default="cc")
     parser.add_argument("--build", type=Path, help="named post-profile/model frozen source artifact root")
@@ -804,7 +841,7 @@ def main():
         require(not any(p.is_symlink() for p in (path, *path.parents)) and path.is_file(),
                 "rules fixture inputs must not follow filesystem links")
     production = load("production_rules_contract", ROOT / "engines/scripts/production.py")
-    profile = production.resource_profile(args.profile)
+    profile = resolve_resource_profile(production, args.profile)
     source, baseline = args.source.read_bytes(), args.baseline.read_bytes()
     proof = json.loads(args.proof.read_text())
     admit_source(source, baseline, proof, args.family, profile, build=args.build)

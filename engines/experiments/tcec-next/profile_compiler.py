@@ -302,7 +302,7 @@ def admit(build, verify):
                    "sha256": record["expected_contract"]["source_sha256"]})}
         flags, units = tuple(record["compiler"])[1:], ()
         assertions = tuple(record["source_proofs"][0]["target_type_assertions"])
-    require(accepted.profile_id in ("tcec-provisional", "test-p4", "test-p28"),
+    require(accepted.profile_id in ("tcec-provisional", "test-p4", "test-p28", "test-p16", "test-p192"),
             "named immutable resource profile required")
     return SourceInput(accepted.family, accepted.profile_id, build, raw, record, files,
                        flags, units, assertions, dict(accepted.expected), accepted)

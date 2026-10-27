@@ -8,6 +8,7 @@ from dataclasses import dataclass, replace
 from datetime import datetime
 from decimal import Decimal
 import math
+import re
 
 
 def decimal(value):
@@ -282,3 +283,231 @@ class CampaignBudget:
                 'ancillary_receipts': [[key, str(amount)] for key, amount in self.ancillary_receipts],
                 'last_at': self.last_at, 'admission': admission.as_dict(),
                 'terminate_trigger_epoch': self.deadline(now)}
+
+
+@dataclass(frozen=True)
+class SharedInstance:
+    """An independently billed instance and its immutable regional identity."""
+    region: str
+    charge: InstanceCharge
+    closing: bool = False
+
+
+@dataclass(frozen=True)
+class SharedGame:
+    """A game attempt with separate pre-GO reservation and release facts."""
+    game_id: str
+    pair_id: str
+    launch_token: str
+    release_authorized: bool = False
+    release_observed: bool = False
+    settled: bool = False
+
+
+@dataclass(frozen=True)
+class SharedCampaignBudget:
+    """V2 game-level budget reducer for a future shared, serialized ledger.
+
+    This object does not launch or stop anything. Its caller must serialize and
+    durably append the pre-GO release decision across all regions, and reconcile
+    an uncertain GO or child process before marking it settled. The
+    legacy CampaignBudget/controller/watchdog are deliberately not consumers
+    of this policy and must not be used to claim V2 campaign readiness.
+
+    The $20 ancillary reserve and $8 per-instance price ceiling remain from the
+    existing campaign. Once the conservative aggregate reaches $120, admission
+    closes permanently; in-flight games remain accounted until physical
+    settlement. It has no instance-hour or game wall-clock deadline.
+    """
+    campaign: str
+    instances: tuple[SharedInstance, ...] = ()
+    games: tuple[SharedGame, ...] = ()
+    ancillary_receipts: tuple[tuple[str, Decimal], ...] = ()
+    draining: bool = False
+    last_at: float = 0.0
+
+    @property
+    def active_instances(self):
+        return tuple(row for row in self.instances if row.charge.active)
+
+    @property
+    def unsettled_games(self):
+        return tuple(row for row in self.games if not row.settled)
+
+    def _find(self, token):
+        matches = [i for i, row in enumerate(self.instances) if row.charge.launch_token == token]
+        if len(matches) != 1:
+            raise ValueError('unknown or ambiguous shared launch token')
+        return matches[0]
+
+    def totals(self, now):
+        now = timestamp(now)
+        if now < self.last_at:
+            raise ValueError('budget observation precedes ledger time')
+        compute = sum((row.charge.cost(now) for row in self.instances), Decimal(0))
+        ancillary = sum((amount for _, amount in self.ancillary_receipts), Decimal(0))
+        return compute, compute + max(Decimal('20'), ancillary)
+
+    def can_admit_game(self, now, *, game_id, pair_id, launch_token):
+        """Read-only predicate, not an atomic reservation or a GO authority."""
+        _, total = self.totals(now)
+        if not all(isinstance(value, str) and value for value in (game_id, pair_id, launch_token)):
+            return False
+        if self.draining or total >= Decimal('120') or any(row.game_id == game_id for row in self.games):
+            return False
+        pairs = {row.pair_id for row in self.games}
+        if pair_id not in pairs and len(pairs) >= 128:
+            return False
+        matching = [row.charge for row in self.active_instances if row.charge.launch_token == launch_token and not row.closing]
+        return len(matching) == 1 and matching[0].instance_id is not None
+
+    def may_terminate(self, token):
+        """Do not free an owner while any admitted game may still be running."""
+        self._find(token)
+        return not any(row.launch_token == token and not row.settled for row in self.games)
+
+    def apply(self, event, data, at):
+        at = timestamp(at)
+        if at < self.last_at:
+            raise ValueError('ledger time regressed; do not lower accrued cost')
+        if not event.startswith('budget.'):
+            return self
+        if not event.startswith('budget.v2.'):
+            raise ValueError('legacy budget events need explicit migration and reconciliation')
+        _, total = self.totals(at)
+        state = replace(self, last_at=at, draining=self.draining or total >= Decimal('120'))
+        if event == 'budget.v2.launch_requested':
+            token, region = data['launch_token'], data['region']
+            rate = decimal(data['max_hourly_usd'])
+            if not isinstance(token, str) or not 8 <= len(token) <= 64 or not isinstance(region, str) or not re.fullmatch(r'[a-z]{2}(?:-gov)?-[a-z]+-\d+', region) or not 0 < rate <= 8:
+                raise ValueError('invalid scoped launch or price ceiling')
+            if state.draining:
+                raise ValueError('campaign is draining; no launch may be retried')
+            matches = [row for row in self.instances if row.charge.launch_token == token]
+            if matches:
+                if matches[0].region != region or matches[0].charge.hourly_usd != rate:
+                    raise ValueError('idempotent launch changed region or price')
+                if not matches[0].charge.active or matches[0].closing:
+                    raise ValueError('closed launch token cannot be reused')
+                return state
+            if state.draining or len(self.active_instances) >= 2:
+                raise ValueError('campaign is draining or both instance slots are occupied')
+            if total + rate / Decimal(60) >= Decimal('120'):
+                raise ValueError('campaign cannot admit minimum launch charge')
+            return replace(state, instances=self.instances + (SharedInstance(region, InstanceCharge(token, at, rate)),))
+        if event in ('budget.v2.instance_bound', 'budget.v2.launch_absent', 'budget.v2.instance_observed'):
+            index = self._find(data['launch_token'])
+            row, charge = self.instances[index], self.instances[index].charge
+            if event == 'budget.v2.instance_bound':
+                identity = data['instance_id']
+                if not isinstance(identity, str) or not identity.startswith('i-') or not charge.active or row.closing:
+                    raise ValueError('invalid instance binding')
+                if charge.instance_id not in (None, identity) or any(other.charge.instance_id == identity and other.charge.launch_token != charge.launch_token for other in self.instances):
+                    raise ValueError('instance identity is already bound or changed')
+                charge = replace(charge, instance_id=identity)
+            elif event == 'budget.v2.launch_absent':
+                evidence = data.get('evidence')
+                if (charge.instance_id or data.get('authoritative_absence') is not True
+                        or not isinstance(evidence, dict) or evidence.get('launch_token') != charge.launch_token
+                        or evidence.get('region') != row.region or evidence.get('state') != 'absent'
+                        or not isinstance(evidence.get('observation_id'), str) or not evidence['observation_id']):
+                    raise ValueError('absence requires unbound authoritative EC2 evidence')
+                charge = replace(charge, authoritative_absence=True)
+            else:
+                if charge.instance_id is None or charge.instance_id != data['instance_id'] or charge.authoritative_absence:
+                    raise ValueError('observation does not belong to the bound instance')
+                status = data['state']
+                if status not in ('pending', 'running', 'stopping', 'stopped', 'shutting-down', 'terminated'):
+                    raise ValueError('unknown EC2 state')
+                if status == 'terminated' and charge.terminated_at is None:
+                    evidence = data.get('evidence')
+                    if (not isinstance(evidence, dict) or evidence.get('launch_token') != charge.launch_token
+                            or evidence.get('region') != row.region or evidence.get('instance_id') != charge.instance_id
+                            or evidence.get('state') != 'terminated' or not isinstance(evidence.get('observation_id'), str)
+                            or not evidence['observation_id']):
+                        raise ValueError('termination requires an authoritative observation')
+                    charge = replace(charge, terminated_at=at)
+                elif charge.terminated_at is not None and status != 'terminated':
+                    raise ValueError('terminated instance cannot become active again')
+                if status in ('stopping', 'stopped', 'shutting-down', 'terminated'):
+                    row = replace(row, closing=True)
+            rows = list(self.instances)
+            rows[index] = replace(row, charge=charge)
+            return replace(state, instances=tuple(rows))
+        if event == 'budget.v2.game_admitted':
+            game_id, pair_id, token = data['game_id'], data['pair_id'], data['launch_token']
+            if not state.can_admit_game(at, game_id=game_id, pair_id=pair_id, launch_token=token):
+                raise ValueError('game admission denied: draining, duplicate, pair cap, or unbound instance')
+            return replace(state, games=self.games + (SharedGame(game_id, pair_id, token),))
+        if event in ('budget.v2.game_release_authorized', 'budget.v2.game_release_observed'):
+            matches = [i for i, row in enumerate(self.games) if row.game_id == data['game_id']]
+            if len(matches) != 1:
+                raise ValueError('unknown game release identity')
+            index, game = matches[0], self.games[matches[0]]
+            if game.settled:
+                raise ValueError('settled game cannot be released')
+            if event == 'budget.v2.game_release_authorized':
+                owner = self.instances[self._find(game.launch_token)]
+                if state.draining or owner.closing or not owner.charge.active or owner.charge.instance_id is None or game.release_authorized:
+                    raise ValueError('game release denied: draining, inactive owner, or duplicate authorization')
+                game = replace(game, release_authorized=True)
+            else:
+                owner = self.instances[self._find(game.launch_token)].charge
+                evidence = data.get('evidence')
+                if (not game.release_authorized or data.get('launch_token') != game.launch_token
+                        or not isinstance(evidence, dict) or evidence.get('game_id') != game.game_id
+                        or evidence.get('instance_id') != owner.instance_id or owner.instance_id is None
+                        or not isinstance(evidence.get('observation_id'), str) or not evidence['observation_id']):
+                    raise ValueError('release observation requires prior authorization and GO evidence')
+                game = replace(game, release_observed=True)
+            rows = list(self.games)
+            rows[index] = game
+            return replace(state, games=tuple(rows))
+        if event == 'budget.v2.game_settled':
+            matches = [i for i, row in enumerate(self.games) if row.game_id == data['game_id']]
+            if len(matches) != 1:
+                raise ValueError('game settlement requires identity and physical completion evidence')
+            game = self.games[matches[0]]
+            owner = self.instances[self._find(game.launch_token)].charge
+            receipt = data.get('evidence')
+            if (data.get('launch_token') != game.launch_token or data.get('physically_settled') is not True
+                    or not isinstance(receipt, dict) or receipt.get('game_id') != game.game_id
+                    or receipt.get('instance_id') != owner.instance_id or owner.instance_id is None
+                    or receipt.get('state') not in ('exited', 'cancelled_before_go')
+                    or (receipt.get('state') == 'cancelled_before_go' and game.release_authorized)
+                    or not isinstance(receipt.get('observation_id'), str) or not receipt['observation_id']):
+                raise ValueError('game settlement requires identity and physical completion evidence')
+            rows = list(self.games)
+            rows[matches[0]] = replace(rows[matches[0]], settled=True)
+            return replace(state, games=tuple(rows))
+        if event == 'budget.v2.terminate_requested':
+            token = data['launch_token']
+            index = self._find(token)
+            row = self.instances[index]
+            if row.charge.instance_id is None or row.charge.instance_id != data['instance_id'] or not self.may_terminate(token):
+                raise ValueError('termination requires the exact owner and settled games')
+            rows = list(self.instances)
+            rows[index] = replace(row, closing=True)
+            return replace(state, instances=tuple(rows))
+        if event == 'budget.v2.ancillary_charge':
+            receipt, amount = data['receipt_id'], decimal(data['usd'])
+            if not isinstance(receipt, str) or not receipt:
+                raise ValueError('receipt identity required')
+            previous = dict(self.ancillary_receipts)
+            if receipt in previous and previous[receipt] != amount:
+                raise ValueError('receipt identity changed its charge')
+            if receipt not in previous:
+                state = replace(state, ancillary_receipts=self.ancillary_receipts + ((receipt, amount),))
+            return replace(state, draining=state.draining or state.totals(at)[1] >= Decimal('120'))
+        if event == 'budget.v2.observe':
+            return state
+        raise ValueError('unknown shared budget event: ' + event)
+
+    @classmethod
+    def replay(cls, campaign, events):
+        state = cls(campaign)
+        for row in events:
+            if row.get('campaign') != campaign:
+                raise ValueError('ledger contains a different campaign')
+            state = state.apply(row['event'], row['data'], row['time_utc'])
+        return state

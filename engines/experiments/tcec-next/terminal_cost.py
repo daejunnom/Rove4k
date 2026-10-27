@@ -167,7 +167,7 @@ EP_FIXED = {
     PROJECTION: FIXED[PROJECTION],
     EP_HELPER: (7267, "42963c889070f29da4dc05d08d5fc4749afb7aec36b0d00735ccc9d271215c6c"),
     EP_TESTS: (5690, "5d7992480ef27f8488989df4d8c7e23f1aea0ac4549e18b6087d41b64f6026b6"),
-    RULES: (50230, "c90e8f41883bd5f667b79907eaef7303ca134699c70cbb2bc01ebb98379aa6f3"),
+    RULES: (52250, "a8a62133d594c6b8999cbff806fedf635ee62cfef6a5640eeb76cfd8622304b6"),
     ORACLE: (10730, "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8"),
 }
 CASTLE_CLASS = "rove4k-ACE-castle-cost-v1"
@@ -544,8 +544,8 @@ def measure(family, out, *, execute=False, experiment="terminal", variant=None, 
         baseline = out / "fresh-profile"
         run_command(host, owner, factory_argv(family, baseline, experiment=experiment, variant=variant, profile=profile),
                     cwd=out, kind="fresh-profile", factory=True)
-        raw = R.input_reader().read_regular(R.artifact_file(baseline, "build.json"), limit=MAX_FILE)
-        manifest = json.loads(raw)
+        factory_receipt = R.input_reader().read_regular(R.artifact_file(baseline, "build.json"), limit=MAX_FILE)
+        manifest = json.loads(factory_receipt)
         admitted = R.admit_c_build(manifest, baseline)
         control_raw = R.checked_artifact(baseline, "control/build.json", manifest["control"]["report"])
         control_manifest = json.loads(control_raw)
@@ -583,7 +583,7 @@ def measure(family, out, *, execute=False, experiment="terminal", variant=None, 
         assertions = proofs[0]["target_type_assertions"]
         require(type(assertions) is list and assertions and all(type(value) is str
                 and value.startswith("_Static_assert(") for value in assertions), "actual resource type assertions required")
-        report.update(factory_manifest=pin(raw), control_manifest=pin(control_raw), resources=admitted.resources,
+        report.update(factory_manifest=pin(factory_receipt), control_manifest=pin(control_raw), resources=admitted.resources,
             factory_inputs={name: pin(data) for name, data in inputs.items()},
             factory_profile_commands=manifest["commands"], factory_control_commands=control_manifest["commands"],
             compiler=manifest["compiler"], compression=manifest["compression"],
@@ -675,15 +675,15 @@ def measure(family, out, *, execute=False, experiment="terminal", variant=None, 
                                 command = policy["diagnostic_compilers"][mode]
                                 run_command(host, owner, command, cwd=directory,
                                             kind="castle-rules-" + mode + "-compile", data=fixture)
-                                raw = run_command(host, owner, [str(directory / "x")], cwd=directory,
-                                                  kind="castle-rules-" + mode + "-execute")
+                                diagnostic_stdout = run_command(host, owner, [str(directory / "x")], cwd=directory,
+                                                                kind="castle-rules-" + mode + "-execute")
                                 require(all(row["stderr"]["bytes"] == 0 for row in report["commands"][-2:]),
                                         "actual-source castle diagnostic emitted stderr: " + mode)
-                                observation = castle_check.check_output(raw, fixture_proof, rules=rules)
-                                write(directory, "result.stdout", raw)
+                                observation = castle_check.check_output(diagnostic_stdout, fixture_proof, rules=rules)
+                                write(directory, "result.stdout", diagnostic_stdout)
                                 modes.append(dict(mode=mode, compiler=command,
                                     native=pin(R.input_reader().read_regular(directory / "x", limit=MAX_FILE)),
-                                    output=pin(raw), observation=observation))
+                                    output=pin(diagnostic_stdout), observation=observation))
                                 save()
                             require(len(modes) == 2 and modes[0]["output"] == modes[1]["output"],
                                     "plain and fatal-UBSan castle output differs")
@@ -792,7 +792,7 @@ def measure(family, out, *, execute=False, experiment="terminal", variant=None, 
                         "case-internal repeated pre-cleanup source differs")
         require(len(report["commands"]) == policy["outer_commands"] and settled(report["commands"]),
                 "finite original outer commands did not settle cleanly")
-        require(R.input_reader().read_regular(R.artifact_file(baseline, "build.json"), limit=MAX_FILE) == raw,
+        require(R.input_reader().read_regular(R.artifact_file(baseline, "build.json"), limit=MAX_FILE) == factory_receipt,
                 "fresh factory receipt changed")
         R.admit_c_build(manifest, baseline)
         require(all((name not in inputs or

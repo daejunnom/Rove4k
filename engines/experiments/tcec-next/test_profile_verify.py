@@ -1110,6 +1110,66 @@ class ProfileRuntimeAdmission(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "selected immutable profile"):
             VERIFY._resource_record(record, "A")
 
+    def test_league_resources_bind_reviewed_owner_and_complete_closure(self):
+        owner = VERIFY.LEAGUE_PROFILE_OWNER
+        expected = VERIFY.LEAGUE_PROFILE_OWNER_PIN
+        pins = {owner: dict(expected)}
+        self.assertEqual(VERIFY.pin(VERIFY.source_bytes(owner)), expected)
+        with tempfile.TemporaryDirectory(prefix="rove4k-league-resource-") as temporary:
+            root = Path(temporary)
+            destination = root / "inputs" / owner
+            destination.parent.mkdir(parents=True)
+            destination.write_bytes(VERIFY.source_bytes(owner))
+            closure = {"inputs": [{"path": owner, "role": "tool", **expected}]}
+            for profile_id, workers, tt_bytes in (("test-p16", 16, 12 << 30),
+                                                   ("test-p192", 192, 192 << 30)):
+                with self.subTest(profile=profile_id):
+                    profile = VERIFY.profile_resource(profile_id, input_pins=pins, build=root,
+                                                      source_closure=closure)
+                    self.assertEqual(profile.workers, workers)
+                    self.assertEqual(profile.to_record(24)["tt_bytes"], tt_bytes)
+                    selected = VERIFY._resource_record(profile.to_record(24), "A", input_pins=pins,
+                                                       build=root, source_closure=closure)[0]
+                    self.assertEqual(selected.to_record(24), profile.to_record(24))
+                    forged = profile.to_record(24)
+                    forged["workers"] += 1
+                    with self.assertRaisesRegex(ValueError, "selected immutable profile"):
+                        VERIFY._resource_record(forged, "A", input_pins=pins, build=root,
+                                                source_closure=closure)
+            for invalid in ({"inputs": []}, {"inputs": [{"path": owner, "role": "engine", **expected}]},
+                            {"inputs": [{"path": owner, "role": "tool", **expected}] * 2}):
+                with self.subTest(closure=invalid), self.assertRaisesRegex(ValueError, "pinned production tool"):
+                    VERIFY.profile_resource("test-p16", input_pins=pins, build=root, source_closure=invalid)
+            destination.write_bytes(b"forged owner")
+            with self.assertRaisesRegex(ValueError, "artifact size differs|artifact identity differs"):
+                VERIFY.profile_resource("test-p16", input_pins=pins, build=root, source_closure=closure)
+        # Matching a malicious owner's self-claimed digest must be rejected before
+        # reading or executing even if a manifest supplies the same digest.
+        forged_pin = VERIFY.pin(b"malicious owner")
+        with patch.object(VERIFY, "source_bytes", side_effect=AssertionError("must not read owner")):
+            with self.assertRaisesRegex(ValueError, "pin differs from reviewed source"):
+                VERIFY.profile_resource("test-p16", input_pins={owner: forged_pin})
+        with self.assertRaisesRegex(ValueError, "missing from the admitted input closure"):
+            VERIFY.profile_resource("test-p16", input_pins={})
+
+    def test_league_runtime_headroom_rejects_before_execution(self):
+        from dataclasses import replace
+        pins = {VERIFY.LEAGUE_PROFILE_OWNER: dict(VERIFY.LEAGUE_PROFILE_OWNER_PIN)}
+        for profile_id, tt_bytes, cpus, available in (("test-p16", 12 << 30, 16, 16 << 30),
+                                                      ("test-p192", 192 << 30, 192, 196 << 30)):
+            with self.subTest(profile=profile_id):
+                profile = VERIFY.profile_resource(profile_id, input_pins=pins)
+                selected = replace(admitted(), profile_id=profile_id, resources=profile.to_record(24),
+                                   input_pins=pins)
+                with patch.object(VERIFY.os, "sched_getaffinity", return_value=set(range(cpus)), create=True):
+                    with self.assertRaisesRegex(ValueError, "insufficient effective headroom before allocation"):
+                        VERIFY.execution_limits(selected, tt_bytes)
+                    limits = VERIFY.execution_limits(selected, available)
+                self.assertEqual(limits["admission"]["tt_bytes"], tt_bytes)
+                self.assertEqual(limits["CPU_budget_effective_cpus"], cpus)
+                self.assertGreater(limits["address_space_bytes"], tt_bytes)
+                self.assertNotIn("qualified", limits)
+
     def test_small_test_budget_is_finite_and_does_not_use_large_submission_limit(self):
         limits = VERIFY.execution_limits(admitted(), 4 << 30, wall_seconds=300)
         self.assertEqual(limits["address_space_bytes"], 2 << 30)
@@ -1202,6 +1262,45 @@ class ProfileRuntimeAdmission(unittest.TestCase):
         self.assertEqual(small["CPU_budget_effective_cpus"], 5)
         self.assertEqual(large["wall_seconds"], small["wall_seconds"])
         self.assertGreater(large["CPU_seconds"][1], large["CPU_seconds"][0])
+
+    def test_shared_smt_shape_is_diagnostic_not_qualification(self):
+        def rows(cores):
+            return [{"cpu": cpu, "socket": 0, "core": cpu % 96,
+                     "node": (cpu % 96) // 24,
+                     "siblings": sorted([cpu % 96, cpu % 96 + 96])}
+                    for cpu in cores]
+        p16 = list(range(8)) + list(range(96, 104))
+        small = VERIFY._shared_test_topology("test-p16", p16, rows(p16), 192)
+        self.assertTrue(small["profile_cpu_node_shape_observed"])
+        self.assertEqual(small["observed_nodes"], [0])
+        self.assertFalse(small["all_online_cpus_in_affinity"])
+        self.assertFalse(small["scored_placement_confirmed"])
+        self.assertFalse(small["memory_policy_observed"])
+        self.assertFalse(small["worker_affinity_observed"])
+        self.assertFalse(small["tt_page_placement_observed"])
+        p192 = list(range(192))
+        large = VERIFY._shared_test_topology("test-p192", p192, rows(p192), 192)
+        self.assertTrue(large["profile_cpu_node_shape_observed"])
+        self.assertTrue(large["all_online_cpus_in_affinity"])
+        self.assertEqual(large["observed_physical_groups"], 96)
+        self.assertFalse(large["scored_placement_confirmed"])
+        tampered = rows(p16)
+        tampered[0]["siblings"] = [0]
+        self.assertFalse(VERIFY._shared_test_topology("test-p16", p16, tampered, 192)
+                         ["profile_cpu_node_shape_observed"])
+        tampered = rows(p16)
+        tampered[0]["node"] = None
+        self.assertFalse(VERIFY._shared_test_topology("test-p16", p16, tampered, 192)
+                         ["profile_cpu_node_shape_observed"])
+        split = list(range(4)) + list(range(24, 28)) + list(range(96, 100)) + list(range(120, 124))
+        self.assertFalse(VERIFY._shared_test_topology("test-p16", split, rows(split), 192)
+                         ["profile_cpu_node_shape_observed"])
+
+    def test_sysfs_cpu_list_parser_rejects_malformed_or_overlapping_ranges(self):
+        self.assertEqual(VERIFY._parse_linux_cpu_list("0-2,7,9-10\n"), [0, 1, 2, 7, 9, 10])
+        for value in ("", "2-1", "1,1", "1-2,2-3", "-1", "x", "0-1048576"):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                VERIFY._parse_linux_cpu_list(value)
 
     def test_native_dependency_gate_checks_executable_entry_and_stack(self):
         def native(load_flags=5, stack_flags=6, entry=0x4000C8):
