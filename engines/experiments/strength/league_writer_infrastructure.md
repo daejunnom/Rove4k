@@ -35,6 +35,25 @@ Lambda 실행 역할의 Put/Update 권한 자체는 IAM만으로 올바른 조�
 못한다. `PassRole`, 함수 코드·환경·역할·서명 설정을 바꿀 수 있는 다른 principal 및
 관리자의 통제와 IAM 실효 정책은 배포 전에 별도 검증해야 한다.
 
+환경값을 CloudFormation 파라미터로 따로 전달하지 않는다. 템플릿 생성기의 표준
+입력에 `campaign_id`, `epoch_table_name`, `genesis_json` 문자열만 담은 JSON 객체를
+제공하면 생성기는 세 값을 함수 환경과 IAM 범위에 직접 고정하고 환경 객체의 정규
+JSON SHA-256을 `WriterVersion.Description`에 넣는다. 매번 생성기를 실행해 템플릿을
+재생성해야 한다. 세 값 중 하나라도 변경하면 description이 변하므로 CloudFormation은
+버전을 교체한다. 수동으로 템플릿을 편집하거나 생성 과정이 변조되는 경우 이 연결은
+보장되지 않는다. 해시는 입력값의 연결을 위한 식별자이며 데이터의 진위를 보장하지
+않는다. `CodeSha256`은 코드만 확인하고 환경 설정의 동시 수정을 차단하지 않는다.
+
+`WriterVersion`의 함수 참조는 CloudFormation의 함수 업데이트 후 버전 생성 의존성을
+만든다. 함수의 설정 변경과 코드 변경은 순차 실행되므로 `$LATEST`의 중간 상태가
+노출될 수 있다. 버전 호출 정책을 사용해도 공유 역할 정책은 업데이트 중 이전 버전의
+권한에 영향을 주며, 호출자 정책 갱신·기존 호출 완료·버전 교체는 원자적이지 않다.
+따라서 업데이트 전 호출을 중지하고 진행 중 요청을 격리한 뒤, 업데이트 완료 후 게시된
+버전의 환경·코드 digest, 역할 정책, 호출자 권한을 독립적으로 조회·대조해야 한다.
+외부 principal의 동시 변경 및 이미 진행 중인 호출은 이 템플릿이 fence하지 못한다.
+실제 change set, 업데이트 및 게시 결과는 아직 검증하지 않았다. 환경 이외의 함수
+설정 변경 시에도 게시된 버전 일치 여부를 별도로 확인해야 한다.
+
 코드 object의 S3 version과 Lambda Version의 `CodeSha256`을 필수 입력으로 받고,
 지정한 AWS Signer profile version의 CodeSigningConfig를 `Enforce`로 생성한다. 서명
 profile의 실제 소유권과 CI 승인 경계는 별도 확인한다. `league_writer_package.py`는
@@ -58,4 +77,6 @@ Lambda의 비동기 호출은 오류 재시도와 중복 전달이 가능하며,
 참고: [DynamoDB 트랜잭션](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/transaction-apis.html),
 [Lambda 비동기 재시도](https://docs.aws.amazon.com/lambda/latest/dg/invocation-async-error-handling.html),
 [Lambda 코드 서명](https://docs.aws.amazon.com/lambda/latest/dg/configuration-codesigning.html),
+[Lambda Version 업데이트](https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-lambda-version.html),
+[Lambda 함수 업데이트 순서](https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-lambda-function.html),
 [Lambda 런타임 업데이트](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-update.html).

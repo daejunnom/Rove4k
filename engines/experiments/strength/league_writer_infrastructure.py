@@ -14,7 +14,11 @@ deployment approval. The entire stack is diagnostic only; in particular Lambda
 asynchronous delivery can retry or duplicate invocations independently of SDK
 retry configuration. Never use its response to start or settle a scored game.
 """
+import argparse
+import hashlib
 import json
+import re
+import sys
 
 
 def _ref(value):
@@ -33,9 +37,23 @@ def _policy(statements):
     return {"Version": "2012-10-17", "Statement": statements}
 
 
-def template():
-    campaign = _ref("CampaignId")
-    table = _sub("arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${EpochTableName}")
+def template(*, campaign_id, epoch_table_name, genesis_json):
+    # Bind environment values into the rendered template. CloudFormation has no
+    # hash intrinsic: caller-supplied digest parameters would permit stale versions.
+    if not isinstance(campaign_id, str) or not re.fullmatch(r"league-[A-Za-z0-9_.-]{0,89}", campaign_id):
+        raise ValueError("invalid campaign id")
+    if not isinstance(epoch_table_name, str) or not re.fullmatch(r"[A-Za-z0-9_.-]{3,255}", epoch_table_name):
+        raise ValueError("invalid table name")
+    if (not isinstance(genesis_json, str) or not 1 <= len(genesis_json) <= 1024
+            or not all(" " <= c <= "~" for c in genesis_json)):
+        raise ValueError("invalid genesis JSON environment value")
+    environment = {"ROVE_LEAGUE_CAMPAIGN": campaign_id,
+                   "ROVE_LEAGUE_EPOCH_TABLE": epoch_table_name,
+                   "ROVE_LEAGUE_GENESIS_JSON": genesis_json}
+    fingerprint = hashlib.sha256(json.dumps(environment, sort_keys=True, separators=(",", ":"),
+                                            ensure_ascii=True).encode("ascii")).hexdigest()
+    campaign = campaign_id
+    table = _sub("arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/" + epoch_table_name)
     data_scope = {"ForAllValues:StringEquals": {"dynamodb:LeadingKeys": [campaign]},
                   "Null": {"dynamodb:LeadingKeys": "false"}}
     function_name = _ref("FunctionName")
@@ -83,13 +101,10 @@ def template():
                          "Code SHA does not pin the managed runtime or its AWS SDK dependencies.",
                      ]}},
         "Parameters": {
-            "CampaignId": {"Type": "String", "AllowedPattern": "league-[A-Za-z0-9_.-]{0,89}", "MinLength": 7, "MaxLength": 96},
             "GitHubEnvironment": {"Type": "String", "AllowedPattern": "[A-Za-z0-9][A-Za-z0-9_.-]{0,63}", "MinLength": 1, "MaxLength": 64},
             "FunctionName": {"Type": "String", "AllowedPattern": "rove4k-league-[a-z0-9-]{1,40}",
                              "MinLength": 15, "MaxLength": 54,
                              "Description": "Unique diagnostic writer name; verify it does not collide with an existing function."},
-            "EpochTableName": {"Type": "String", "AllowedPattern": "[A-Za-z0-9_.-]{3,255}", "MinLength": 3, "MaxLength": 255,
-                               "Description": "Dedicated authority table name; verify it matches the foundation output."},
             "HomeRegion": {"Type": "String", "Default": "ap-southeast-2",
                            "AllowedPattern": "[a-z][a-z0-9]*(?:-[a-z0-9]+)+-[0-9]+", "MaxLength": 63},
             "CodeBucket": {"Type": "String", "AllowedPattern": "[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]", "MinLength": 3, "MaxLength": 63},
@@ -99,8 +114,6 @@ def template():
             "SigningProfileVersionArn": {"Type": "String",
                 "AllowedPattern": "arn:[a-z0-9-]+:signer:[a-z0-9-]+:[0-9]{12}:/signing-profiles/[A-Za-z0-9_]{2,64}/[A-Za-z0-9]{10}",
                 "Description": "Previously verified trusted AWS Signer profile version ARN."},
-            "GenesisJson": {"Type": "String", "AllowedPattern": "[ -~]+", "MinLength": 1, "MaxLength": 1024,
-                            "Description": "Canonical untrusted diagnostic genesis; separately authenticate before use."},
         },
         "Rules": {"AuthorityHomeRegion": {"Assertions": [{
             "Assert": {"Fn::Equals": [_ref("HomeRegion"), _ref("AWS::Region")]},
@@ -128,12 +141,12 @@ def template():
                     "Architectures": ["x86_64"], "Role": _arn("WriterRole"), "Timeout": 60, "MemorySize": 256,
                     "ReservedConcurrentExecutions": 1, "CodeSigningConfigArn": {"Fn::GetAtt": ["WriterSigningConfig", "CodeSigningConfigArn"]},
                     "Code": {"S3Bucket": _ref("CodeBucket"), "S3Key": _ref("CodeKey"), "S3ObjectVersion": _ref("CodeObjectVersion")},
-                    "Environment": {"Variables": {"ROVE_LEAGUE_CAMPAIGN": campaign,
-                        "ROVE_LEAGUE_EPOCH_TABLE": _ref("EpochTableName"), "ROVE_LEAGUE_GENESIS_JSON": _ref("GenesisJson")}}}},
+                    "Environment": {"Variables": environment}}},
             "WriterVersion": {"Type": "AWS::Lambda::Version",
                 "Metadata": {"com.aws.cloudformation.Context": {"why": "Pin the invoker to a published, SHA-checked writer version.",
                     "must": ["Code SHA proves package bytes, not source provenance or IAM isolation."]}},
-                "Properties": {"FunctionName": _ref("WriterFunction"), "CodeSha256": _ref("CodeSha256")}},
+                "Properties": {"FunctionName": _ref("WriterFunction"), "CodeSha256": _ref("CodeSha256"),
+                               "Description": "env-sha256:" + fingerprint}},
             "InvokerRole": {"Type": "AWS::IAM::Role",
                 "Metadata": {"com.aws.cloudformation.Context": {"why": "Allow one protected GitHub environment to invoke only the diagnostic version.",
                     "must": ["Never attach table writer or EC2 permissions to this role.",
@@ -156,4 +169,9 @@ def template():
 
 
 if __name__ == "__main__":
-    print(json.dumps(template(), indent=2, sort_keys=True))
+    parser = argparse.ArgumentParser(description="Render a diagnostic writer template from a JSON configuration on stdin")
+    parser.parse_args()
+    config = json.load(sys.stdin)
+    if not isinstance(config, dict) or set(config) != {"campaign_id", "epoch_table_name", "genesis_json"}:
+        raise ValueError("configuration must contain exactly campaign_id, epoch_table_name and genesis_json")
+    print(json.dumps(template(**config), indent=2, sort_keys=True))
