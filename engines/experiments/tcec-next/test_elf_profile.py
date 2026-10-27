@@ -79,7 +79,7 @@ class PolicyTests(unittest.TestCase):
                 self.assertFalse(policy["runtime_qualified"])
                 self.assertEqual(policy["entry_cleanup"], "none")
                 self.assertEqual(policy["representation"], "self-contained-elf")
-                self.assertEqual(policy["outer_commands"], 12 if family == "B" else 10)
+                self.assertEqual(policy["outer_commands"], 10)
                 command = owner.factory_argv(family, Path("/external/owned"), profile)
                 self.assertEqual(command[command.index("--representation") + 1], "source-jit")
                 self.assertEqual(command[command.index("--source-dependencies") + 1], "unused-includes")
@@ -122,6 +122,26 @@ class PolicyTests(unittest.TestCase):
         for field, value in (("returncode", True), ("forced_cleanup", True), ("reaped", False),
                              ("owned_group_absent", False), ("other_group_members_before_reap", [{"pid": 1}])):
             self.assertFalse(owner.settled([{**row, field: value}]), field)
+
+    def test_current_finite_ABI_absence_uses_its_semantic_owner(self):
+        resource = {"schema": "rove4k.c-resource-projection.v1"}
+        stage = {"schema": "rove4k.profile-b-source.v1", "variant": "tcec-final-lf"}
+        manifest = {"source_proofs": [resource, stage], "post_profile": {
+            "path": "engines/experiments/tcec-next/profile_b.py", "variant": "tcec-final-lf"}}
+        self.assertIsNone(owner.validate_target_abi_absence(manifest, "B"))
+        reordered = copy.deepcopy(manifest)
+        reordered["source_proofs"].reverse()
+        self.assertIsNone(owner.validate_target_abi_absence(reordered, "B"))
+        for bad in ({**manifest, "source_proofs": [resource]},
+                    {**manifest, "source_proofs": [resource, stage, dict(stage)]},
+                    {**manifest, "source_proofs": [{**resource, "target_abi_probe": "wrong owner"}, stage]},
+                    {**manifest, "source_proofs": [resource, {**stage, "target_abi_probe": "int main(void){return 0;}"}]},
+                    {**manifest, "source_proofs": [resource, {**stage, "target_abi_probe": None}]}):
+            with self.assertRaises(ValueError):
+                owner.validate_target_abi_absence(bad, "B")
+        self.assertIsNone(owner.validate_target_abi_absence({"source_proofs": [resource]}, "A"))
+        with self.assertRaises(ValueError):
+            owner.validate_target_abi_absence(manifest, "A")
 
 
 class PackedReaderTests(unittest.TestCase):
@@ -170,6 +190,7 @@ class RealSourceTests(unittest.TestCase):
                     raw = (root / "build.json").read_bytes()
                     self.assertLess(len(raw), owner.MAX_FILE)
                     manifest = json.loads(raw)
+                    self.assertIsNone(owner.validate_target_abi_absence(manifest, family))
                     old = manifest["source_proofs"][-1]
                     candidate, before, proof = owner.derive_source(source, old, family=family, profile_id=profile,
                         entry=entry, projection=projection, dependencies=dependencies)

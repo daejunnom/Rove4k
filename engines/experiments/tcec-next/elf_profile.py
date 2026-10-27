@@ -109,7 +109,7 @@ def plan(family, profile_id="test-p4"):
     return dict(family=family, profile=profile_id, full=True, representation="self-contained-elf",
         entry_cleanup="none", compiler=compiler, compiler_version=BANNER,
         work_seconds=WORK_SECONDS, cleanup_seconds=CLEANUP_SECONDS,
-        outer_commands=12 if family == "B" else 10,
+        outer_commands=10,
         size_limit_bytes=4096, packing_filter="auto", loader_timeout_seconds=120,
         runtime_external_programs=[], runtime_qualified=False, selected=False)
 
@@ -238,6 +238,30 @@ def parent_artifacts(manifest, build, family, profile_id, m):
         ("header", "header.sh"), ("payload", "payload.lzma"))}
     require(artifacts["whole"] == artifacts["header"] + artifacts["payload"], "five-part selected control differs")
     return admitted, artifacts
+
+
+def validate_target_abi_absence(manifest, family):
+    """Bind the current finite route's lack of an extra ABI probe to its owner.
+
+    B's selected tcec-final-lf preserves ordinary mmap spelling and emits no
+    mmap-abi probe. Another owning proof requires a separately reviewed finite
+    policy; this producer never invents assertions or a future compiler branch.
+    """
+    stages = manifest.get("source_proofs")
+    require(type(stages) is list and all(type(stage) is dict for stage in stages),
+            "strict parent source proof chain required before ABI lookup")
+    owners = [stage for stage in stages if stage.get("schema") == "rove4k.profile-b-source.v1"]
+    require(all("target_abi_probe" not in stage for stage in stages if stage not in owners),
+            "target ABI probe must belong to the B profile proof")
+    if family != "B":
+        require(not owners, "unexpected B ABI proof owner in another family")
+        return
+    post = manifest.get("post_profile")
+    require(len(owners) == 1 and type(post) is dict
+            and post.get("path") == PREFIX + "profile_b.py"
+            and owners[0].get("variant") == post.get("variant") == "tcec-final-lf",
+            "one matching admitted B profile proof owner required")
+    require("target_abi_probe" not in owners[0], "unexpected B target ABI probe requires a reviewed finite policy")
 
 
 def derive_source(source, old_dependency, *, family, profile_id, entry, projection, dependencies):
@@ -392,6 +416,7 @@ def produce(family, out, *, profile_id="test-p4", execute=False):
         parent_raw = R.input_reader().read_regular(R.artifact_file(parent, "build.json"), limit=MAX_FILE)
         parent_manifest = json.loads(parent_raw)
         admitted, artifacts = parent_artifacts(parent_manifest, parent, family, profile_id, m)
+        validate_target_abi_absence(parent_manifest, family)
         require(all(R.checked_artifact(parent, "inputs/" + name, admitted.input_pins[name]) == data
                     for name, data in files.items() if name in admitted.input_pins), "factory and captured support differ")
         inputs = {name: R.checked_artifact(parent, "inputs/" + name, identity)
@@ -436,15 +461,6 @@ def produce(family, out, *, profile_id="test-p4", execute=False):
             native = R.input_reader().read_regular(native_dir / "x", limit=MAX_FILE)
             require(R.input_reader().read_regular(type_dir / "x", limit=MAX_FILE) == native,
                     "pre-cleanup asserted native and final native differ")
-            abi_gate = None
-            if family == "B":
-                abi = parent_manifest["source_proofs"][1]["target_abi_probe"].encode()
-                abi_dir = directory / "abi"
-                abi_dir.mkdir()
-                write(abi_dir, "probe.c", abi)
-                run_command(host, owner, [*compiler, "-c"], cwd=abi_dir, kind=attempt + "-abi", data=abi)
-                abi_gate = dict(source=pin(abi), object=pin(R.input_reader().read_regular(abi_dir / "x", limit=MAX_FILE)),
-                                compile_only=True, production_source_modified=False)
             cpp_source = before if attempt == "first" else final
             expanded = run_command(host, owner, m["dependencies"].preprocess_command(compiler),
                 cwd=directory, kind=attempt + "-CPP", data=cpp_source)
@@ -463,11 +479,10 @@ def produce(family, out, *, profile_id="test-p4", execute=False):
                 pre_dependency=pin(before), asserted=pin(asserted), CPP=pin(expanded),
                 CPP_input=pin(cpp_source), CPP_stage="before-cleanup" if attempt == "first" else "final",
                 source_proof=proof, dependencies=dependency, pack=detail,
-                target_abi_gate=abi_gate,
                 target_type_gate=dict(image_identical=True, assertions=assertions)))
             save()
         first, repeat = report["attempts"]
-        for key in ("expected", "pre_dependency", "asserted", "CPP", "source_proof", "dependencies", "target_type_gate", "target_abi_gate"):
+        for key in ("expected", "pre_dependency", "asserted", "CPP", "source_proof", "dependencies", "target_type_gate"):
             require(canonical(first[key]) == canonical(repeat[key]), "complete derived source/native/CPP reproduction differs: " + key)
         stable_pack = lambda value: {key: child for key, child in value.items() if key not in ("input", "output")}
         require(canonical(stable_pack(first["pack"])) == canonical(stable_pack(repeat["pack"])),
@@ -574,6 +589,7 @@ def admit_build(manifest, build):
     require(pin(parent_raw) == manifest.get("parent_manifest"), "fresh parent receipt identity differs")
     parent_manifest = json.loads(parent_raw)
     admitted, artifacts = parent_artifacts(parent_manifest, parent.parent, family, profile_id, m)
+    validate_target_abi_absence(parent_manifest, family)
     for name, data in files.items():
         if name in admitted.input_pins:
             require(admitted.input_pins[name] == pin(data)
@@ -601,7 +617,7 @@ def admit_build(manifest, build):
             "derived closure, complete factory receipts or compiler/page context differs")
     commands, outputs, stdin_names = _command_evidence(manifest, build, R)
     kinds = ["fresh-profile", "compiler-version"] + [attempt + "-" + kind for attempt in ("first", "repeat")
-        for kind in (["types", "native", "abi", "CPP", "pack"] if family == "B" else ["types", "native", "CPP", "pack"])]
+        for kind in ("types", "native", "CPP", "pack")]
     require(list(commands) == kinds and len(manifest["commands"]) == policy["outer_commands"], "exact finite ELF command sequence differs")
     factory_command = commands["fresh-profile"]["command"]
     requested = factory_argv(family, Path("fresh-profile"), profile_id)
@@ -660,20 +676,7 @@ def admit_build(manifest, build):
             expected_tail = (attempt,) if kind == "CPP" else (attempt, "types" if kind == "types" else "native")
             require(Path(commands[attempt + "-" + kind]["cwd"]) == original.joinpath(*expected_tail),
                     "actual derived compiler working directory differs")
-        if family == "B":
-            abi = parent_manifest["source_proofs"][1]["target_abi_probe"].encode()
-            gate = row.get("target_abi_gate")
-            require(type(gate) is dict and set(gate) == {"source", "object", "compile_only", "production_source_modified"}
-                    and gate["source"] == pin(abi) and gate["compile_only"] is True
-                    and gate["production_source_modified"] is False, "actual derived B ABI object receipt differs")
-            R.checked_artifact(build, prefix + "abi/x", gate["object"])
-            require(commands[attempt + "-abi"]["command"] == [*policy["compiler"], "-c"]
-                    and R.checked_artifact(build, stdin_names[attempt + "-abi"], pin(abi)) == abi
-                    and R.checked_artifact(build, prefix + "abi/probe.c", pin(abi)) == abi
-                    and Path(commands[attempt + "-abi"]["cwd"]) == original / attempt / "abi",
-                    "actual derived B ABI gate differs")
-        else:
-            require(row.get("target_abi_gate") is None, "unexpected non-B ABI gate")
+        require("target_abi_gate" not in row, "an ABI gate was fabricated outside the current finite policy")
         pack_command = commands[attempt + "-pack"]["command"]
         require(len(pack_command) == 12 and pack_command[1:3] == ["-I", "-B"]
                 and Path(pack_command[3]).parts[-3:] == ("engines", "scripts", "elf_loader.py")
@@ -694,8 +697,6 @@ def admit_build(manifest, build):
             data = R.input_reader().read_regular(R.artifact_file(build, prefix + name), limit=MAX_FILE)
             require(R.checked_artifact(build, name, pin(data)) == data, "published/attempt derived bytes differ")
     require(cpp_values[0] == cpp_values[1], "actual before/final include expanded compiler input differs")
-    require(canonical(rows[0].get("target_abi_gate")) == canonical(rows[1].get("target_abi_gate")),
-            "independent B ABI object reproduction differs")
     require(R.artifact_file(build, "x").stat().st_mode & 0o7777 == 0o755,
             "published ELF submission must retain its reproduced executable mode")
     stable_pack = lambda value: {key: child for key, child in value.items() if key not in ("input", "output")}

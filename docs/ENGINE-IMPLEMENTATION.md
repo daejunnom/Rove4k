@@ -36,16 +36,51 @@ tables. The common runtime receives a public typed anonymous-memfd contract from
 the same verifier module instance. It preserves the outer submission file and
 observes the original live PID/start ticks and actual restored executable bytes.
 Final-source plain/UBSan rules and full runtime receipts have separate consumers.
-Independent source review is clear; production, cost and runtime execution of
-this cohort are pending hosted CI. Oversize remains deferred_size; physical TEST
-placement and event/release acceptance remain distinct from functional execution.
+At source a3dcfd886c85a1a9c7088b06288b1898f456f923, execution merge
+be8ba8e524ed8c4d414201c072c4592b8046e905, ELF40473264511 passes all eight
+A/C/E/F P4/P28 producer, readmission, rules and runtime jobs. Their qualification
+receipts retain size and placement failures. The workflow fails on both B jobs:
+the consumer wrongly required a target_abi_probe which the actual selected
+tcec-final-lf proof does not emit. The next source removes that invented branch,
+finds the semantic B proof owner after strict admission and requires the actual
+ten-command finite path. Unexpected probes remain unsupported. Resource/type,
+native, CPP and packing checks are unchanged. This repair is source-reviewed;
+fresh hosted B execution remains required.
 
 The new ELF workflow exercises ten ABCEF P4/P28 contexts, including unscored
 functional observations for oversize files. The source-compaction workflow
 separately compares eight ABCE folded/shared mate candidates and executes each
 actual-fragment exhaustive fatal-UBSan diagnostic. Existing default selections
-are unchanged. Targeted hosted cancellation diagnostics and a compile/package-only
-W256 submission endpoint are subsequent work, not completed capabilities here.
+are unchanged. The first P4 observations are:
+
+| Family | Mate folded / shared whole delta | ELF P4 / P28 whole bytes |
+|---|---:|---:|
+| A | +4 / +19 | 11317 / 11311 |
+| B | original closure failure, no cost | original ABI failure, no complete ELF |
+| C | +1 / +20 | 11612 / 11598 |
+| E | +1 / +21 | 11629 / 11625 |
+| F | already folded, not repeated | 10955 / 10946 |
+
+Mate40473264605 passes the six A/C/E observations, including repeated whole
+costs and actual-fragment exhaustive fatal-UBSan execution. The smaller raw C
+does not produce a whole-file win, so these six P4 hypotheses are unselected.
+B fails before cost because its best parent legitimately omits compound support.
+The repair preserves every strict parent input and adds captured experiment tools
+with identical-on-overlap checks and a full union recheck. Its original failure
+artifacts remain separate. These first costs do not establish P28/W256 gains.
+
+The existing five workflows pass at a3, including engine40473264501 with26/26
+jobs and foundation122085215432 with988 tests/40 suites plus the six intentional
+faults returning2 with settled ownership. The new R tests therefore have hosted
+execution evidence; the failed local Python launcher remains a zero-test failure.
+The new ELF and mate workflows themselves remain failed until the B repairs run.
+
+A targeted hosted cancellation diagnostic now has reviewed source for normal
+and TERM-ignoring compiler leaves in the actual A/P4 factory hierarchy. Only
+validated original pidfds may receive exceptional cleanup signals. Both builds
+remain intentionally incomplete; acceptance requires physical settlement within
+30 seconds without emergency cleanup. Actual execution is pending. The W256
+compile/package-only endpoint and ELF Ubuntu22 transfer remain subsequent work.
 
 ### Verified source, CI and offline transport
 

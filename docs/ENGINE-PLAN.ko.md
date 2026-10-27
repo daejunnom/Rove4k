@@ -772,3 +772,13 @@ ELF 전체 크기 초과에도 비점수 기능 관측은 수행할 수 있지�
 TEST placement 실패를 지우지 않는다. 기존 engine production 선택은 아직 바뀌지 않는다.
 W256은 TEST runtime에 추가하지 않고 별도 compile/package 준비 endpoint로 마무리한다.
 이 endpoint와 ELF Ubuntu22 전달·실행, 실제 cancellation 관측은 후속 잔여다.
+
+첫 실제 실행 a3/merge be8에서 기존5 workflow·engine26/26과988검사/40 suite가
+통과했다. 새 ELF는 A/C/E/F P4/P28의8개 실제 경로를 통과했으나 whole10946–11629 B로
+모두 deferred_size이고 named physical placement도 미확정이다. B2개는 선택된
+tcec-final-lf에 없는 ABI probe를 요구한 소비자 오류로 실패했다. 원래 실패는 보존하고
+strict parent 뒤 semantic proof owner를 확인하는 실제10명령 경로로 수정한다.
+Mate의 A/C/E 두 형태는 fatal UBSan·반복 비용을 통과했지만 whole이1–21 B 증가해
+P4에서는 미채택이다. B는 best parent에 없는 compound 도구를 필수로 요구한 closure
+오류를 수정한다. 부모 전체를 보존하고 추가 도구와 겹치는 모든 핀을 검사한다.
+두 B 수정과 실제 취소 진단의 소스 검토는 통과했으며 후속 CI 실행이 남아 있다.

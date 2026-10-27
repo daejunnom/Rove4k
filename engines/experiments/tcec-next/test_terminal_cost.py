@@ -168,6 +168,31 @@ class TerminalCostBoundaries(unittest.TestCase):
             with self.assertRaises(ValueError):
                 cost.semantic_observation(json.dumps(changed).encode(), family="C", variant="shared")
 
+    def test_mate_preserves_the_complete_factory_closure_and_checks_every_support_overlap(self):
+        support = {name: name.encode() for name in cost.SUPPORT if name != cost.HELPER}
+        support.update({name: name.encode() for name in (cost.MATE_HELPER, cost.MATE_SEMANTICS)})
+        # B's selected best stage has no spelling_compound production input.
+        parent = {name: data for name, data in support.items()
+                  if name not in (cost.SELF, cost.PROJECTION, cost.MATE_HELPER, cost.MATE_SEMANTICS)}
+        parent["parent-only.c"] = b"complete admitted parent input"
+        original_parent, original_support = dict(parent), dict(support)
+        closure = cost.merge_source_closure(parent, support, experiment="mate")
+        self.assertEqual(closure, {**parent, **support})
+        self.assertEqual(set(closure), set(parent) | set(support))
+        self.assertEqual(parent, original_parent)
+        self.assertEqual(support, original_support)
+        for name in (cost.PROJECTION, cost.BUILDER):
+            conflicting = {**parent, name: b"different frozen input"}
+            with self.assertRaisesRegex(ValueError, "factory/captured support differs"):
+                cost.merge_source_closure(conflicting, support, experiment="mate")
+        with self.assertRaisesRegex(ValueError, "mandatory factory/captured owner missing"):
+            cost.merge_source_closure({name: data for name, data in parent.items() if name != cost.BUILDER},
+                                      support, experiment="mate")
+        with self.assertRaisesRegex(ValueError, "mandatory factory/captured owner missing"):
+            cost.merge_source_closure(parent, support)
+        self.assertEqual(cost.merge_source_closure({**parent, cost.PROJECTION: support[cost.PROJECTION]}, support),
+                         closure)
+
     def test_outer_limit_cannot_be_raised_outside_the_two_finite_experiments(self):
         for limit in (17, 100, True, 16.0):
             host = SimpleNamespace(report=dict(commands=[], outer_command_limit=limit))

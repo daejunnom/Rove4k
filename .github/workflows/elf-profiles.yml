@@ -33,6 +33,41 @@ jobs:
           python -I -B engines/experiments/tcec-next/test_elf_entry_mode.py
           python -I -B engines/scripts/test_elf_dependencies.py
           python -I -B engines/experiments/tcec-next/test_elf_profile.py
+          python -I -B engines/experiments/tcec-next/test_elf_profile_cancel.py
+
+  cancellation:
+    needs: source-contracts
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Cancel the real A factory at ordinary and TERM-ignoring compiler leaves
+        # Uses the existing process owner. Both deliberately interrupted builds
+        # remain incomplete; only their observed physical settlement may pass.
+        run: |
+          set -o pipefail
+          timeout --signal=TERM --kill-after=30s 600s \
+            python -I -B engines/experiments/tcec-next/elf_profile_cancel.py \
+            --out '${{ runner.temp }}/rove4k-elf-cancel-${{ github.run_attempt }}' --execute \
+            2>&1 | tee '${{ runner.temp }}/rove4k-elf-cancel-${{ github.run_attempt }}.log'
+      - name: Preserve cancellation observations and original interrupted builds
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: experimental-elf-cancel-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/rove4k-elf-cancel-${{ github.run_attempt }}
+            ${{ runner.temp }}/rove4k-elf-cancel-${{ github.run_attempt }}.log
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 7
 
   full-profiles:
     needs: source-contracts

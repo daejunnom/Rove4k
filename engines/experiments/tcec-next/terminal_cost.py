@@ -208,6 +208,21 @@ def capture(*, experiment="terminal"):
     return files
 
 
+def merge_source_closure(factory_inputs, support, *, experiment="terminal"):
+    """Preserve every admitted parent input and reject conflicting derived owners."""
+    require(type(experiment) is str and experiment in ("terminal", "mate"), "finite source closure required")
+    mandatory = (BUILDER, VERIFIER, OWNER, DEPENDENCIES, WRAPPER, UNLINK, PACKAGE, PRODUCTION)
+    if experiment == "terminal":
+        mandatory += (PROJECTION,)
+    require(all(name in factory_inputs and name in support for name in mandatory),
+            "mandatory factory/captured owner missing")
+    closure = dict(factory_inputs)
+    for name, data in support.items():
+        require(name not in closure or closure[name] == data, "factory/captured support differs: " + name)
+        closure[name] = data
+    return closure
+
+
 def load_bytes(name, logical, data):
     spec = importlib.util.spec_from_file_location(name, ROOT / logical)
     module = importlib.util.module_from_spec(spec)
@@ -440,8 +455,7 @@ def measure(family, out, *, execute=False, experiment="terminal", variant=None):
                   for name, value in admitted.input_pins.items()}
         require(all(data == R.source_bytes(name, admitted.input_pins[name]) for name, data in inputs.items()),
                 "fresh frozen factory input is not current")
-        for name in (BUILDER, VERIFIER, OWNER, PROJECTION, DEPENDENCIES, WRAPPER, UNLINK, PACKAGE, PRODUCTION):
-            require(inputs.get(name) == files[name], "factory/captured support differs: " + name)
+        closure = merge_source_closure(inputs, files, experiment=experiment)
         dependencies = load_bytes("terminal_cost_dependencies", DEPENDENCIES, inputs[DEPENDENCIES])
         wrapper = load_bytes("terminal_cost_wrapper", WRAPPER, inputs[WRAPPER])
         package = load_bytes("terminal_cost_package", PACKAGE, inputs[PACKAGE])
@@ -466,6 +480,9 @@ def measure(family, out, *, execute=False, experiment="terminal", variant=None):
             compiler=manifest["compiler"], compression=manifest["compression"],
             nested_command_counts={"profile": len(manifest["commands"]), "selected_control": len(control_manifest["commands"]),
                                    "exhaustive_physical_process_count": False})
+        if not terminal:
+            report.update(source_closure={name: pin(data) for name, data in closure.items()},
+                derived_support={name: pin(data) for name, data in files.items() if name not in inputs})
         banner = run_command(host, owner, [compiler[0], "--version"], cwd=out, kind="compiler-version")
         actual_banner = banner.decode("utf-8", "strict").splitlines()[0]
         require(actual_banner == BANNER, "actual compiler banner differs")
@@ -588,11 +605,12 @@ def measure(family, out, *, execute=False, experiment="terminal", variant=None):
         require(R.input_reader().read_regular(R.artifact_file(baseline, "build.json"), limit=MAX_FILE) == raw,
                 "fresh factory receipt changed")
         R.admit_c_build(manifest, baseline)
-        require(all(R.checked_artifact(baseline, "inputs/" + name, admitted.input_pins[name]) == data
-                    == R.source_bytes(name, admitted.input_pins[name]) for name, data in inputs.items()),
-                "fresh frozen/current complete input closure changed")
-        require(all(read_source(ROOT / name) == data and read_source(out / "support" / name) == data
-                    for name, data in files.items()), "current/captured controller support changed")
+        require(all((name not in inputs or
+                     R.checked_artifact(baseline, "inputs/" + name, admitted.input_pins[name]) == data
+                     == R.source_bytes(name, admitted.input_pins[name])) and
+                    (name not in files or read_source(ROOT / name) == data
+                     and read_source(out / "support" / name) == data) for name, data in closure.items()),
+                "fresh frozen/current complete factory and derived source closure changed")
         rows = {row["case"]: row["artifacts"] for row in report["attempts"]}
         report.update(reproducible=True, CPP_identity=("two actual expansions within each case only" if terminal else
             "first pre-cleanup and repeated final expansion agree within each case only"),
