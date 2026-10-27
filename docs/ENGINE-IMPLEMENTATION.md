@@ -79,8 +79,22 @@ A targeted hosted cancellation diagnostic now has reviewed source for normal
 and TERM-ignoring compiler leaves in the actual A/P4 factory hierarchy. Only
 validated original pidfds may receive exceptional cleanup signals. Both builds
 remain intentionally incomplete; acceptance requires physical settlement within
-30 seconds without emergency cleanup. Actual execution is pending. The W256
-compile/package-only endpoint and ELF Ubuntu22 transfer remain subsequent work.
+30 seconds without emergency cleanup. At repaired source
+8d4613f2378e29d4298b0bb876dabad7c4d4275e all seven workflows pass. ELF40474533463
+passes source contracts, both actual cancellation cases and all ten full-profile
+paths. B ELF P4/P28 is13776/13763 B; all ELF outputs remain deferred_size with
+placement unconfirmed. Mate40474533478 passes all eight cases; B folded/shared
+costs+2/+25 B, so all eight P4 hypotheses are unselected. The original a3 errors
+remain failures. Existing engine40474533541 also passes26/26.
+
+The separate W256 preparation endpoint now has independently reviewed source.
+It consumes the existing selected full tcec-provisional source-JIT producer,
+strictly readmits it before and after copying exact whole/source/native artifacts,
+and records actual size decisions. It starts no W256 workers or TT and grants no
+runtime, event, league or strength qualification. Its strict admission can replay
+packaging; it does not start a new compiler or producer. A five-family hosted
+compile/package workflow and five pure policy tests are registered; actual fresh
+W256 execution of this endpoint is pending. ELF Ubuntu22 transfer remains open.
 
 ### Verified source, CI and offline transport
 

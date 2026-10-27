@@ -713,6 +713,7 @@ flowchart TD
   PREP --> ELF[ELF 생산·의존성·argv0 소유권·소비 경로]
   PREP --> MATE[A/B/C/E 공통 mate 정규화 두 형태 / F 이미 적용]
   PREP --> LEAGUEFIX[완전 동률의 고정 계열 ID 선발·실제 caller 연결]
+  PREP --> W256[별도 W256 compile/package 준비 / 대형 TT 실행 없음]
   ELF --> SIZE{실제 ELF 전체4096B 이하}
   SIZE -->|초과| DEFER[계열별 deferred_size·재측정 조건 보존]
   SIZE --> ELFR[실제 복원·startup·전체 기능·R·소유권 / 초과는 비점수 관측]
@@ -721,6 +722,7 @@ flowchart TD
   COST --> CI
   ELFR --> CI
   DEFER --> NEXTAUDIT[후속 기능·산출물·consumer 최종 감사]
+  W256 --> NEXTAUDIT
   CI --> NEXTAUDIT
   PREP -.-> DHOLD[사용자 선택: D 새 압축 정지·local upper 보류]
   DHOLD -.-> RESUME[새 사용자 지시 후 별도 재개 판단 / 자동 polling 없음]
@@ -782,3 +784,16 @@ Mate의 A/C/E 두 형태는 fatal UBSan·반복 비용을 통과했지만 whole�
 P4에서는 미채택이다. B는 best parent에 없는 compound 도구를 필수로 요구한 closure
 오류를 수정한다. 부모 전체를 보존하고 추가 도구와 겹치는 모든 핀을 검사한다.
 두 B 수정과 실제 취소 진단의 소스 검토는 통과했으며 후속 CI 실행이 남아 있다.
+
+이후8d4613f는7 workflow 모두 통과했다. ELF40474533463은10개 full P4/P28 경로와
+두 실제 취소 진단을 통과했으며 B ELF는13776/13763 B로 보류다. Mate40474533478의
+B도 실제+2/+25 B여서 P4의8개 가설 모두 미채택이다. 기존 engine40474533541도26/26이다.
+W256 준비 소비자와5계열 compile/package CI를 별도로 구현·등록하며 실제 새 endpoint의
+실행은 후속 CI에서 판정한다. 이미 지원한 profile_build를 유일 producer로 유지하고,
+내보내기 전후 strict admission·실제 바이트·선택·크기·의존성을 검사한다. TEST runtime에
+W256을 추가하지 않으며 일반/ELF/runtime/event/league/strength 승인으로 표시하지 않는다.
+후속 압축은 C/E EP 정규화의 기존 maker 공유와 내부 ELF의 불필요한 unwind/build-id·
+symbol metadata 축소를 각각 opt-in으로 구현·비교한다. 기본 선택과 D 정지는 유지한다.
+다음 한정 창은 공통 준비0.1–0.2h → max(C/E EP0.7–1.5h, ELF metadata0.7–1.5h,
+W256 준비0.3–0.5h)+공유 runner 대기 → 감사0.2–0.5h로 약1–2.2h+대기다. 이는 ELF4KiB
+수렴·독립 Ubuntu22 ELF·대회 자원·AWS gate·리그 등 전체 잔여의 완료 약속이 아니다.
