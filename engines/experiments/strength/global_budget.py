@@ -224,7 +224,7 @@ class S3SharedBudget:
         anchor = Anchor(len(rows) - 1, rows[-1]['sha256'] if rows else ZERO, self.authority, trusted.opening_sha256)
         return Snapshot(rows, doc['opening'], etag, version, anchor)
 
-    def append(self, *, trusted, request_id, event, data, at):
+    def append(self, *, trusted, request_id, event, data, at, expected_head=None):
         if not isinstance(request_id, str) or not REQUEST.fullmatch(request_id):
             raise ValueError('unique bounded request identity required')
         if not isinstance(event, str) or not event.startswith('budget.v2.') or not isinstance(data, dict):
@@ -238,6 +238,16 @@ class S3SharedBudget:
         except (TypeError, UnicodeError, json.JSONDecodeError) as error:
             raise ValueError('event data must be bounded canonical JSON') from error
         current = self.load(trusted)
+        # `trusted` is a rollback anchor and may name a prefix of the current
+        # log. A serialized caller can additionally demand an exact current
+        # head before submitting its event. If-Match then protects the
+        # observed ETag from ordinary changes between this read and PUT;
+        # it is not a fence against ABA or an independent single-writer proof.
+        if expected_head is not None:
+            if not isinstance(expected_head, Anchor):
+                raise ValueError('expected head must be an anchor')
+            if current.anchor != expected_head:
+                raise LedgerConflict('current ledger head differs from the expected head')
         if request_id in current.opening['prior_request_ids'] or any(row['request_id'] == request_id for row in current.rows):
             raise ValueError('request already exists; reconcile rather than replaying side effects')
         body = {'campaign': self.campaign, 'seq': len(current.rows), 'previous_sha256': current.anchor.sha256,

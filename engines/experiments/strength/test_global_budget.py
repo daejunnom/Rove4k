@@ -112,6 +112,33 @@ class SharedLedgerTests(unittest.TestCase):
         self.assertEqual(second.anchor.seq, 1)
         self.assertEqual(self.store.load(result.anchor).anchor, second.anchor)
 
+    def test_expected_head_rejects_extended_history_before_writing(self):
+        self.append_launch()
+        version = self.client.seq
+        # A trusted prefix remains a valid rollback anchor, but is no longer
+        # the precise snapshot this serialized owner is allowed to extend.
+        with self.assertRaises(g.LedgerConflict):
+            self.store.append(trusted=self.genesis, expected_head=self.genesis,
+                request_id='unique-request-002', event='budget.v2.observe', data={}, at=1001)
+        self.assertEqual(self.client.seq, version)
+        self.assertEqual(len(self.store.load(self.genesis).rows), 1)
+
+    def test_expected_head_conditional_put_rejects_a_racing_writer(self):
+        original = self.client.put_file_if_match
+        def interleave(bucket, key, path, sha, etag, *, expected_owner):
+            # A different writer updates the same object after our exact head
+            # read; the original ETag conditional must reject our PUT.
+            self.client.put_file_if_match = original
+            self.store.append(trusted=self.genesis, request_id='external-request-01',
+                              event='budget.v2.observe', data={}, at=1000)
+            return original(bucket, key, path, sha, etag, expected_owner=expected_owner)
+        self.client.put_file_if_match = interleave
+        with self.assertRaises(g.LedgerConflict):
+            self.store.append(trusted=self.genesis, expected_head=self.genesis,
+                              request_id='unique-request-001', event='budget.v2.observe', data={}, at=1000)
+        rows = self.store.load(self.genesis).rows
+        self.assertEqual([row['request_id'] for row in rows], ['external-request-01'])
+
     def test_temporary_upper_limit_can_recover_after_launch_absence(self):
         first = self.append_launch()
         observed = self.store.append(trusted=first.anchor, request_id='unique-request-002',
