@@ -11,7 +11,7 @@ import tempfile
 import time
 from types import SimpleNamespace
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
@@ -132,6 +132,9 @@ class PeerRuntimeTests(unittest.TestCase):
                                  tuple(range(8)), (0,), {"0": [10]}, "test")
         slot = {"cpus": [0, 1, 2, 3], "memory_nodes": [0], "workers": 4, "smt": False}
         self.assertTrue(runtime.validate_slot(host, slot, peers.resource_layout("test-p4"))["qualified"])
+        actual_slot = topology.Slot("slot-000", (0, 1, 2, 3), tuple((0, core) for core in range(4)),
+                                    (0,), 4, False).to_record()
+        self.assertTrue(runtime.validate_slot(host, actual_slot, peers.resource_layout("test-p4"))["qualified"])
         slot.update(cpus=[0, 4, 1, 5], smt=True)
         with self.assertRaisesRegex(ValueError, "physical TEST"):
             runtime.validate_slot(host, slot, peers.resource_layout("test-p4"))
@@ -141,6 +144,196 @@ class PeerRuntimeTests(unittest.TestCase):
         slot["cpus"] = [0, 9]
         with self.assertRaisesRegex(ValueError, "outside"):
             runtime.validate_slot(host, slot, peers.resource_layout("test-p4"), allow_functional=True)
+
+    def test_smt_profile_geometry_remains_diagnostic_until_runtime_is_bound(self):
+        cpus = tuple(topology.Cpu(logical, core // 48, core, core // 48,
+                                  (core, core + 96))
+                     for core in range(96) for logical in (core, core + 96))
+        host = topology.Topology(cpus, tuple(cpu.id for cpu in cpus), (0, 1),
+                                 {"0": [10, 20], "1": [20, 10]}, "fixture")
+        slot16 = {"cpus": [v for core in range(8) for v in (core, core + 96)],
+                  "memory_nodes": [0], "workers": 16, "smt": True}
+        layout16 = {"id": "test-p16", "workers": 16}
+        with self.assertRaisesRegex(ValueError, "diagnostic only"):
+            runtime.validate_slot(host, slot16, layout16)
+        observed = runtime.validate_slot(host, slot16, layout16, allow_functional=True)
+        self.assertEqual((observed["physical_cores"], observed["logical_cpus"]), (8, 16))
+        self.assertEqual(observed["memory_nodes"], [0])
+        self.assertFalse(observed["qualified"])
+
+        slot192 = {"cpus": list(host.allowed_cpus), "memory_nodes": [0, 1],
+                   "workers": 192, "smt": True}
+        layout192 = {"id": "test-p192", "workers": 192}
+        result = runtime.validate_slot(host, slot192, layout192, allow_functional=True)
+        self.assertEqual((result["physical_cores"], result["logical_cpus"]), (96, 192))
+        self.assertFalse(result["qualified"])
+
+        # Same counts and physical cores are not enough if the observed
+        # sibling declaration is inconsistent with the selected pair.
+        broken = list(cpus)
+        broken[0] = topology.Cpu(0, 0, 0, 0, (0,))
+        bad_host = topology.Topology(tuple(broken), host.allowed_cpus, host.allowed_nodes,
+                                     host.distances, host.kernel)
+        with self.assertRaisesRegex(ValueError, "symmetric observed sibling"):
+            runtime.validate_slot(bad_host, slot16, layout16, allow_functional=True)
+
+        mixed = {**slot16, "cpus": [v for core in (*range(4), *range(48, 52))
+                                     for v in (core, core + 96)], "memory_nodes": [0, 1]}
+        with self.assertRaisesRegex(ValueError, "one actual NUMA node"):
+            runtime.validate_slot(host, mixed, layout16, allow_functional=True)
+
+        extra = topology.Cpu(999, 2, 999, 2, (999,))
+        wider = topology.Topology((*host.cpus, extra), (*host.allowed_cpus, 999),
+                                  (0, 1, 2), host.distances, host.kernel)
+        with self.assertRaisesRegex(ValueError, "entire allowed CPU envelope"):
+            runtime.validate_slot(wider, slot192, layout192, allow_functional=True)
+
+    def test_new_smt_profiles_reject_before_peer_process_launch(self):
+        with tempfile.TemporaryDirectory(prefix="rove-peer-smt-reject-") as directory:
+            reference = Path(directory).resolve() / "reference.json"
+            out = Path(directory).resolve() / "out"
+            for profile, workers in (("test-p16", 16), ("test-p192", 192)):
+                with self.subTest(profile=profile):
+                    layout = {"id": profile, "workers": workers}
+                    ref = {"format": "rove4k-peer-reference-v1", "complete": True,
+                           "engines_executed": 0, "peer": "ice4", "resources": layout,
+                           "build": {"path": "unused", "sha256": "unused"}, "source_inputs": []}
+                    admitted = {"peer": "ice4", "layout": layout}
+                    with patch.object(runtime.sys, "platform", "linux"), \
+                            patch.dict(runtime.os.environ, {"LD_PRELOAD": "", "LD_AUDIT": "", "LD_LIBRARY_PATH": ""}), \
+                            patch.object(runtime, "read_record", return_value=(ref, "digest")), \
+                            patch.object(runtime, "_verify_frozen"), \
+                            patch.object(runtime, "validate_build", return_value=admitted), \
+                            patch.object(runtime, "construct_owned") as launch:
+                        with self.assertRaisesRegex(ValueError, "explicit functional-only opt-in"):
+                            runtime.qualify_peer(reference, out, {}, allow_functional=False)
+                        launch.assert_not_called()
+                        self.assertFalse(out.exists())
+
+    def test_large_peer_budget_requires_actual_memory_and_inherited_limits(self):
+        layout = {"id": "test-p16", "workers": 16, "tt_bytes": 16 << 30}
+        cpus = list(range(16))
+        required = (17 << 30)
+        available = {"effective_available_bytes": required}
+        parents = {"address_space": [-1, -1], "cpu": [-1, -1]}
+        result = runtime.peer_runtime_budget(layout, cpus=cpus, wall_seconds=180,
+                                             availability=available, parent_limits=parents)
+        self.assertEqual(result["required_available_bytes"], required)
+        self.assertEqual(result["address_space_bytes"], (16 << 30) + (768 << 20))
+        self.assertEqual(result["cpu_seconds"], [2240, 2272])
+        with self.assertRaisesRegex(ValueError, "finite resource profile"):
+            runtime.peer_runtime_budget({**layout, "tt_bytes": (16 << 30) + 1}, cpus=cpus,
+                wall_seconds=180, availability=available, parent_limits=parents)
+        exact = {"address_space": [result["address_space_bytes"]] * 2,
+                 "cpu": [result["cpu_seconds"][1]] * 2}
+        self.assertEqual(runtime.peer_runtime_budget(layout, cpus=cpus, wall_seconds=180,
+            availability=available, parent_limits=exact)["cpu_seconds"], [2240, 2272])
+        with self.assertRaisesRegex(ValueError, "insufficient actual"):
+            runtime.peer_runtime_budget(layout, cpus=cpus, wall_seconds=180,
+                availability={"effective_available_bytes": required - 1}, parent_limits=parents)
+        for field, index in (("cpu", 0), ("cpu", 1), ("address_space", 0), ("address_space", 1)):
+            changed = {name: list(pair) for name, pair in exact.items()}
+            changed[field][index] -= 1
+            with self.subTest(field=field, index=index), self.assertRaisesRegex(ValueError, "inherited"):
+                runtime.peer_runtime_budget(layout, cpus=cpus, wall_seconds=180,
+                                            availability=available, parent_limits=changed)
+        for bad_cpus in (cpus[:-1], [0] * 16, cpus[:-1] + [True]):
+            with self.subTest(cpus=bad_cpus), self.assertRaisesRegex(ValueError, "logical CPU envelope"):
+                runtime.peer_runtime_budget(layout, cpus=bad_cpus, wall_seconds=180,
+                                            availability=available, parent_limits=parents)
+        big = {"id": "test-p192", "workers": 192, "tt_bytes": 128 << 30}
+        observed = runtime.peer_runtime_budget(big, cpus=list(range(192)), wall_seconds=180,
+            availability={"effective_available_bytes": (128 << 30) + (3328 << 20)}, parent_limits=parents)
+        self.assertEqual(observed["required_available_bytes"], (128 << 30) + (3328 << 20))
+        self.assertEqual(observed["cpu_seconds"], [26880, 27264])
+
+    def test_child_rechecks_inherited_limits_without_raising_them(self):
+        resource = SimpleNamespace(RLIM_INFINITY=-1, getrlimit=Mock(return_value=(400, 500)),
+                                   setrlimit=Mock())
+        self.assertEqual(runtime.checked_child_limit(resource, 7, 200, 300), [400, 500])
+        resource.setrlimit.assert_called_once_with(7, (200, 300))
+        for inherited in ((299, 500), (400, 299)):
+            resource.getrlimit.return_value = inherited
+            resource.setrlimit.reset_mock()
+            with self.assertRaisesRegex(ValueError, "inherited child limit"):
+                runtime.checked_child_limit(resource, 7, 200, 300)
+            resource.setrlimit.assert_not_called()
+
+    def test_peer_availability_observes_all_cgroup_ancestors(self):
+        with tempfile.TemporaryDirectory(prefix="rove-peer-available-") as directory:
+            root = Path(directory)
+            proc, cgroup = root / "proc", root / "cgroup"
+            (proc / "self").mkdir(parents=True)
+            (proc / "meminfo").write_text("MemAvailable: 2000 kB\n")
+            (proc / "self" / "cgroup").write_text("0::/a/b\n")
+            (cgroup / "a" / "b").mkdir(parents=True)
+            for relative, maximum, current in (("a", "1500000", "300000"),
+                                                ("a/b", "1000000", "300000")):
+                (cgroup / relative / "memory.max").write_text(maximum)
+                (cgroup / relative / "memory.current").write_text(current)
+            result = runtime.effective_available_bytes(proc, cgroup)
+            self.assertEqual(result["host_available_bytes"], 2000 * 1024)
+            self.assertEqual(result["effective_available_bytes"], 700000)
+            (proc / "self" / "cgroup").write_text("0::/\n")
+            with self.assertRaisesRegex(ValueError, "root-only cgroup namespace"):
+                runtime.effective_available_bytes(proc, cgroup)
+            (cgroup / "memory.max").write_text("max")
+            (cgroup / "memory.current").write_text("0")
+            with self.assertRaisesRegex(ValueError, "root-only cgroup namespace"):
+                runtime.effective_available_bytes(proc, cgroup)
+            (cgroup / "memory.max").unlink()
+            (cgroup / "memory.current").unlink()
+            (proc / "self" / "cgroup").write_text("0::/a/b\n")
+            (cgroup / "a" / "memory.max").unlink()
+            with self.assertRaisesRegex(ValueError, "ancestor memory limit or usage"):
+                runtime.effective_available_bytes(proc, cgroup)
+            (cgroup / "a" / "memory.max").write_text("1500000")
+            (cgroup / "a" / "memory.current").write_text("bad")
+            with self.assertRaisesRegex(ValueError, "invalid current cgroup"):
+                runtime.effective_available_bytes(proc, cgroup)
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux resource limits")
+    def test_peer_budget_refresh_fails_when_available_memory_falls(self):
+        layout = {"id": "test-p16", "workers": 16, "tt_bytes": 16 << 30}
+        enough = {"effective_available_bytes": 17 << 30}
+        reduced = {"effective_available_bytes": (17 << 30) - 1}
+        with patch.object(runtime, "effective_available_bytes", side_effect=[enough, reduced]) as available, \
+                patch("resource.getrlimit", return_value=(-1, -1)) as limits:
+            first = runtime.observed_peer_runtime_budget(layout, cpus=list(range(16)), wall_seconds=180)
+            self.assertEqual(first["required_available_bytes"], 17 << 30)
+            with self.assertRaisesRegex(ValueError, "insufficient actual"):
+                runtime.observed_peer_runtime_budget(layout, cpus=list(range(16)), wall_seconds=180)
+        self.assertEqual(available.call_count, 2)
+        self.assertEqual(limits.call_count, 4)
+
+    def test_worker_and_tt_numa_evidence_are_identity_bound_and_scoped(self):
+        with tempfile.TemporaryDirectory(prefix="rove-peer-evidence-") as directory:
+            proc = Path(directory)
+            task = proc / "123" / "task" / "7"
+            task.mkdir(parents=True)
+            fields = ["0"] * 20
+            fields[0], fields[11], fields[12], fields[19] = "S", "12", "3", "80"
+            (task / "stat").write_text("7 (worker name) " + " ".join(fields))
+            with patch.object(runtime.os, "sched_getaffinity", return_value={10, 11}):
+                worker = runtime._worker_evidence(123, 7, proc=proc)
+            self.assertEqual(worker, {"tid": 7, "start_ticks": 80, "cpus": [10, 11],
+                                      "cpu_ticks_first": 15, "cpu_ticks_last": 15})
+
+            (proc / "123" / "numa_maps").write_text(
+                "100 default anon=8 N0=3 N1=5 kernelpagesize_kB=4\n"
+                "900 default anon=1 N0=1 kernelpagesize_kB=4\n")
+            owner = {"pid": 123, "pgid": 123, "session": 123, "start_ticks": 10}
+            mapping = {"pointer": 0x110, "mappings": [{"start": 0x100, "end": 0x200}]}
+            with patch.object(runtime, "process_identity", return_value=owner), \
+                    patch.object(runtime, "runtime_tt", return_value=mapping):
+                result = runtime._tt_numa_after_search(123, None, "tt", 64, owner, 0x110, proc=proc)
+            self.assertEqual(result["observed_page_nodes"], [0, 1])
+            self.assertTrue(result["all_mapping_starts_observed"])
+            self.assertEqual(result["tt_overlapping_vmas"][0]["node_pages"], {0: 3, 1: 5})
+            self.assertIn("may include non-TT pages", result["scope"])
+            with patch.object(runtime, "process_identity", return_value={**owner, "start_ticks": 11}):
+                with self.assertRaisesRegex(ValueError, "owner changed"):
+                    runtime._tt_numa_after_search(123, None, "tt", 64, owner, 0x110, proc=proc)
 
     def test_official_native_and_missing_producer_cannot_reach_execution(self):
         with tempfile.TemporaryDirectory(prefix="rove-peer-reject-") as directory:

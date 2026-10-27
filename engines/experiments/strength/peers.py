@@ -71,7 +71,10 @@ SOURCE_BLOBS = {
 }
 
 MiB = 1 << 20
-RESOURCE_PROFILES = {"test-p4": (4, 24), "test-p28": (28, 26)}
+RESOURCE_PROFILES = {"test-p4": (4, 24), "test-p28": (28, 26),
+                     "test-p16": (16, 31), "test-p192": (192, 34)}
+RESOURCE_CAPS = {"test-p4": 128 << 20, "test-p28": 512 << 20,
+                 "test-p16": 16 << 30, "test-p192": 192 << 30}
 CODEC_SEARCHES = {
     "compact": (16, 64, 128, 273),
     "extended": (16, 24, 32, 40, 48, 56, 64, 72, 80, 96, 112, 128, 160, 192, 224, 273),
@@ -264,7 +267,9 @@ def resource_layout(profile):
     try:
         workers, bits = RESOURCE_PROFILES[profile]
     except KeyError as error:
-        raise ValueError("peer score profiles are test-p4 or test-p28") from error
+        raise ValueError("peer score profiles are test-p4, test-p28, test-p16 or test-p192") from error
+    if profile not in RESOURCE_CAPS or 8 << bits > RESOURCE_CAPS[profile]:
+        raise ValueError("peer TT extent exceeds the selected TEST profile cap")
     return {"id": profile, "purpose": "test", "workers": workers, "entry_bytes": 8,
             "tt_bits": bits, "tt_entries": 1 << bits, "tt_bytes": 8 << bits,
             "tt_shift": 64 - bits}

@@ -6,6 +6,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 sys.dont_write_bytecode = True
 SPEC = importlib.util.spec_from_file_location("strength_peer_test_subject", Path(__file__).with_name("peers.py"))
@@ -17,15 +18,51 @@ SPEC.loader.exec_module(PEERS)
 class PeerInputs(unittest.TestCase):
     def test_resource_shift_and_bytes_match_actual_indexing(self):
         # c4ke indexes hash >> TT_SHIFT. The high hash must fit every table.
-        for profile, workers, bits, cap in (("test-p4", 4, 24, 128 << 20),
-                                             ("test-p28", 28, 26, 512 << 20)):
+        for profile, workers, bits, extent, cap in (("test-p4", 4, 24, 128 << 20, 128 << 20),
+                ("test-p28", 28, 26, 512 << 20, 512 << 20),
+                ("test-p16", 16, 31, 16 << 30, 16 << 30),
+                ("test-p192", 192, 34, 128 << 30, 192 << 30)):
             layout = PEERS.resource_layout(profile)
             self.assertEqual(layout["workers"], workers)
             self.assertEqual(layout["tt_bits"], bits)
-            self.assertEqual(layout["tt_bytes"], cap)
+            self.assertEqual(layout["tt_bytes"], extent)
+            self.assertLessEqual(layout["tt_bytes"], cap)
             self.assertEqual(((1 << 64) - 1) >> layout["tt_shift"], layout["tt_entries"] - 1)
-        with self.assertRaisesRegex(ValueError, "test-p4 or test-p28"):
+        with self.assertRaisesRegex(ValueError, "peer score profiles"):
             PEERS.resource_layout("tcec-provisional")
+
+    def test_new_profiles_make_only_resource_edits_and_roundtrip(self):
+        # Synthetic minifier fragments test transformation structure only;
+        # the production verify_blob boundary remains independently required.
+        source = {
+            "ice4": (b'prefix \'thread marker\' "THREADS" if tcec => "256"\n'
+                     b'"DEFAULT_TT_BITS" if tcec => "35"\nprotected algorithm suffix'),
+            "c4ke": (b'prefix\nif (is_tcec && name == "THREADS") {\n            value = "256";\n        }\n'
+                     b'if (is_tcec && name == "TT_BITS") {\n            value = "35";\n        }\n'
+                     b'if (is_tcec && name == "TT_SHIFT") {\n            value = "29";\n        }\nprotected algorithm suffix'),
+        }
+        for profile, workers, bits, shift in (("test-p16", 16, 31, 33), ("test-p192", 192, 34, 30)):
+            for name, original in source.items():
+                with self.subTest(profile=profile, peer=name), patch.object(PEERS, "verify_blob") as verified:
+                    changed, proof = PEERS.resource_patch(name, original, profile)
+                    verified.assert_called_once_with(name, PEERS.PEERS[name].resource_path, original)
+                    self.assertEqual(PEERS.restore_resources(changed, proof), original)
+                    self.assertEqual(proof["resources"], PEERS.resource_layout(profile))
+                    self.assertEqual(proof["profile"], profile)
+                    self.assertEqual({edit["role"] for edit in proof["edits"]},
+                                     {"workers", "tt_bits"} if name == "ice4" else {"workers", "tt_bits", "tt_shift"})
+                    for value in (workers, bits):
+                        self.assertIn(('"' + str(value) + '"').encode(), changed)
+                    if name == "c4ke":
+                        self.assertIn(('"' + str(shift) + '"').encode(), changed)
+                    self.assertTrue(changed.endswith(b"protected algorithm suffix"))
+                    with self.assertRaisesRegex(ValueError, "differs from its proof"):
+                        PEERS.restore_resources(changed + b"!", proof)
+
+    def test_profile_cap_fails_closed_if_resource_constants_drift(self):
+        with patch.dict(PEERS.RESOURCE_PROFILES, {"test-p16": (16, 32)}):
+            with self.assertRaisesRegex(ValueError, "TT extent exceeds"):
+                PEERS.resource_layout("test-p16")
 
     def test_official_wrong_bytes_do_not_create_artifact(self):
         requested = []

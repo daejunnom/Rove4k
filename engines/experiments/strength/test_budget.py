@@ -121,6 +121,14 @@ class SharedBudgetTests(unittest.TestCase):
         return budget.apply('budget.v2.instance_bound', {'launch_token': token,
             'instance_id': instance}, at)
 
+    def test_prior_receipt_replay_does_not_double_count_opening_balance(self):
+        state = SharedCampaignBudget('c', prior_ancillary_usd='25', prior_receipts=(('old-storage', '3'),))
+        self.assertEqual(state.totals(1000)[1], Decimal('25'))
+        state = state.apply('budget.v2.ancillary_charge', {'receipt_id': 'old-storage', 'usd': '3'}, 1000)
+        self.assertEqual(state.totals(1000)[1], Decimal('25'))
+        with self.assertRaisesRegex(ValueError, 'receipt identity changed'):
+            state.apply('budget.v2.ancillary_charge', {'receipt_id': 'old-storage', 'usd': '4'}, 1001)
+
     def test_two_regions_sum_prices_no_twelve_hour_cutoff(self):
         state = SharedCampaignBudget('c')
         state = self.launch(state, 'token-one', 'ap-southeast-2', 'i-first', rate='3')

@@ -1,6 +1,7 @@
+from dataclasses import replace
 import unittest
 
-from topology import Cpu, Topology, parse_list, plan_slots
+from topology import Cpu, Topology, parse_list, plan_p192_slot, plan_slots
 
 
 def guest(nodes=2, per_node=48):
@@ -78,6 +79,48 @@ class TopologyTests(unittest.TestCase):
         self.assertEqual(len(slots), 10)
         self.assertTrue(all(missing not in slot.cpus for slot in slots))
         self.assertTrue(all(topology.cpus[0].physical not in slot.physical_cores for slot in slots))
+
+    def test_p192_full_slot_preserves_uneven_nodes_and_all_smt_siblings(self):
+        original = guest(1, 96)
+        # Deliberately uneven: 72 cores in node 0, 24 in node 1.
+        rows = tuple(replace(cpu, node=1 if cpu.core >= 72 else 0) for cpu in original.cpus)
+        topology = Topology(rows, original.allowed_cpus, (0, 1), original.distances, original.kernel)
+        slot = plan_p192_slot(topology, policy="interleave")
+        self.assertEqual(slot.id, "slot-000")
+        self.assertEqual(slot.cpus, tuple(sorted(topology.allowed_cpus)))
+        self.assertEqual(set(slot.physical_cores), {cpu.physical for cpu in rows})
+        self.assertEqual(len(slot.physical_cores), 96)
+        self.assertEqual(slot.memory_nodes, (0, 1))
+        self.assertEqual((slot.workers, slot.smt, slot.policy), (192, True, "interleave"))
+        self.assertEqual(sum(cpu.node == 0 for cpu in rows), 144)
+        self.assertEqual(sum(cpu.node == 1 for cpu in rows), 48)
+
+    def test_p192_requires_full_allowed_sibling_and_node_envelope(self):
+        original = guest()
+        missing = original.allowed_cpus[0]
+        restricted = replace(original, allowed_cpus=tuple(cpu for cpu in original.allowed_cpus if cpu != missing))
+        with self.assertRaisesRegex(ValueError, "192 distinct"):
+            plan_p192_slot(restricted)
+        duplicate = replace(original, allowed_cpus=(original.allowed_cpus[0],) + original.allowed_cpus[:-1])
+        with self.assertRaisesRegex(ValueError, "192 distinct"):
+            plan_p192_slot(duplicate)
+        without_node = replace(original, allowed_nodes=(0,))
+        with self.assertRaisesRegex(ValueError, "outside its allowed envelope"):
+            plan_p192_slot(without_node)
+        with self.assertRaisesRegex(ValueError, "memory policy"):
+            plan_p192_slot(original, policy="unreviewed")
+
+    def test_p192_rejects_inconsistent_reported_siblings_or_nodes(self):
+        original = guest()
+        first, other = original.cpus[0], original.cpus[2]
+        inconsistent = replace(first, siblings=(first.id, other.id))
+        rows = (inconsistent,) + original.cpus[1:]
+        with self.assertRaisesRegex(ValueError, "mutually observed"):
+            plan_p192_slot(replace(original, cpus=rows))
+        misplaced = replace(original.cpus[1], node=1)
+        rows = (first, misplaced) + original.cpus[2:]
+        with self.assertRaisesRegex(ValueError, "mutually observed"):
+            plan_p192_slot(replace(original, cpus=rows))
 
     def test_single_node_is_real_single_node_not_fake_numa(self):
         topology = guest(1, 96)

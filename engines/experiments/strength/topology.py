@@ -110,6 +110,36 @@ class Slot:
         return asdict(self)
 
 
+def plan_p192_slot(topology, *, policy="inherit"):
+    """Plan one full 192-vCPU SMT slot from the observed allowed topology.
+
+    No cores are reserved for a controller: any controller must share this
+    slot and account for its interference separately. A slot is a requested
+    arrangement, not evidence that affinity or memory policy was applied.
+    """
+    if policy not in ("inherit", "default", "interleave"):
+        raise ValueError("invalid P192 memory policy")
+    allowed = set(topology.allowed_cpus)
+    if len(topology.allowed_cpus) != 192 or len(allowed) != 192:
+        raise ValueError("P192 requires exactly 192 distinct allowed logical CPUs")
+    allowed_nodes = set(topology.allowed_nodes)
+    selected = [cpu for cpu in topology.cpus if cpu.id in allowed]
+    if len(selected) != 192 or any(cpu.node not in allowed_nodes for cpu in selected):
+        raise ValueError("P192 CPU or NUMA node is outside its allowed envelope")
+    by_core = defaultdict(list)
+    for cpu in selected:
+        by_core[cpu.physical].append(cpu)
+    if len(by_core) != 96:
+        raise ValueError("P192 requires 96 distinct physical cores")
+    for siblings in by_core.values():
+        ids = {cpu.id for cpu in siblings}
+        if (len(siblings) != 2 or len({cpu.node for cpu in siblings}) != 1 or
+                any(len(cpu.siblings) != 2 or set(cpu.siblings) != ids for cpu in siblings)):
+            raise ValueError("P192 requires two mutually observed SMT siblings per core")
+    return Slot("slot-000", tuple(sorted(allowed)), tuple(sorted(by_core)),
+                tuple(sorted({cpu.node for cpu in selected})), 192, True, policy)
+
+
 def plan_slots(topology, physical, workers, *, reserve_physical=8, max_slots=None, policy="inherit"):
     if physical not in (4, 8, 28, 96) or workers not in (physical, physical * 2):
         raise ValueError("unsupported explicit physical/worker profile")

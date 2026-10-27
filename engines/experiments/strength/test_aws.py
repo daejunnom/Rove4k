@@ -518,6 +518,93 @@ class AWSTests(unittest.TestCase):
                 evidence.publish(path, 'other-campaign/event.json')
 
 
+class ConditionalPutTransportTests(unittest.TestCase):
+    def test_conditional_put_preserves_opaque_etag_and_returns_raw_receipt(self):
+        client = AWSCLI('ap-southeast-2')
+        receipt = {'ETag': '"next-etag"', 'VersionId': 'v-next', 'ChecksumSHA256': 'service-value'}
+        fingerprint = 'ab' * 32
+        with patch.object(client, '_execute', return_value=receipt) as invoke:
+            actual = client.put_file_if_match('rove-bucket', 'campaign/head.json',
+                Path('/tmp/payload.json'), fingerprint, '"opaque-etag-2"', expected_owner='123456789012')
+        self.assertIs(actual, receipt)
+        invoke.assert_called_once_with('s3api', 'put-object', [
+            '--bucket', 'rove-bucket', '--key', 'campaign/head.json', '--body', str(Path('/tmp/payload.json')),
+            '--metadata', 'sha256=' + fingerprint,
+            '--checksum-sha256', base64.b64encode(bytes.fromhex(fingerprint)).decode('ascii'),
+            '--expected-bucket-owner', '123456789012', '--if-match', '"opaque-etag-2"'])
+
+    def test_conditional_put_rejects_noncanonical_hash_and_unsafe_if_match(self):
+        client = AWSCLI('ap-southeast-2')
+        for bad_hash in ('', 'A' * 64, 'g' * 64, '0' * 63, None, True):
+            with self.subTest(hash=bad_hash), patch.object(client, '_execute') as invoke:
+                with self.assertRaisesRegex(ValueError, 'SHA-256'):
+                    client.put_file_if_match('bucket', 'campaign/head', '/tmp/file', bad_hash, '"valid"', expected_owner='123456789012')
+                invoke.assert_not_called()
+        for bad_tag in ('', '*', '""', 'W/"weak"', 'unquoted', '"one","two"', '"a\nb"', None, True):
+            with self.subTest(etag=bad_tag), patch.object(client, '_execute') as invoke:
+                with self.assertRaisesRegex(ValueError, 'ETag'):
+                    client.put_file_if_match('bucket', 'campaign/head', '/tmp/file', 'a' * 64, bad_tag, expected_owner='123456789012')
+                invoke.assert_not_called()
+        for bad_owner in (None, '', '12345678901', 'a' * 12, 123456789012, True):
+            with self.subTest(owner=bad_owner), patch.object(client, '_execute') as invoke:
+                with self.assertRaisesRegex(ValueError, 'bucket owner'):
+                    client.put_file_if_match('bucket', 'campaign/head', '/tmp/file', 'a' * 64, '"valid"', expected_owner=bad_owner)
+                invoke.assert_not_called()
+
+    def test_conflict_and_ambiguous_timeout_are_propagated_without_retry(self):
+        client = AWSCLI('ap-southeast-2')
+        for code in ('PreconditionFailed', 'ConditionalRequestConflict', 'ObservationTimeout'):
+            failure = AwsError(code, 's3api.put-object')
+            with self.subTest(code=code), patch.object(client, '_execute', side_effect=failure) as invoke:
+                with self.assertRaises(AwsError) as caught:
+                    client.put_file_if_match('bucket', 'campaign/head', '/tmp/file', 'a' * 64, '"observed"', expected_owner='123456789012')
+                self.assertIs(caught.exception, failure)
+                self.assertEqual(invoke.call_count, 1)
+
+    def test_actual_cli_transport_preserves_conditions_and_disables_retries(self):
+        client = AWSCLI('ap-southeast-2')
+        response = {'ETag': '"next"', 'VersionId': 'v-next'}
+        completed = SimpleNamespace(returncode=0, stdout=json.dumps(response).encode(), stderr=b'')
+        with patch.object(client, 'command_prefix', return_value=['aws-fixture']), \
+                patch('subprocess.run', return_value=completed) as invoke:
+            self.assertEqual(client.put_file_if_match('bucket', 'campaign/head', '/tmp/body', 'a' * 64, '"old"', expected_owner='123456789012'), response)
+        self.assertEqual(invoke.call_count, 1)
+        argv, options = invoke.call_args.args[0], invoke.call_args.kwargs
+        self.assertEqual(argv[:6], ['aws-fixture', '--region', 'ap-southeast-2', '--no-paginate', 's3api', 'put-object'])
+        self.assertEqual(argv[argv.index('--if-match') + 1], '"old"')
+        self.assertEqual(argv[argv.index('--expected-bucket-owner') + 1], '123456789012')
+        self.assertNotIn('--if-none-match', argv)
+        self.assertEqual(options['env']['AWS_MAX_ATTEMPTS'], '1')
+        self.assertEqual(options['timeout'], 30)
+        failures = [
+            (SimpleNamespace(returncode=1, stdout=b'', stderr=b'An error occurred (PreconditionFailed)'), 'PreconditionFailed'),
+            (SimpleNamespace(returncode=1, stdout=b'', stderr=b'An error occurred (ConditionalRequestConflict)'), 'ConditionalRequestConflict'),
+            (subprocess.TimeoutExpired('aws-fixture', 30), 'ObservationTimeout'),
+        ]
+        for failure, code in failures:
+            kwargs = {'side_effect': failure} if isinstance(failure, Exception) else {'return_value': failure}
+            with self.subTest(code=code), patch.object(client, 'command_prefix', return_value=['aws-fixture']), \
+                    patch('subprocess.run', **kwargs) as invoke, self.assertRaises(AwsError) as caught:
+                client.put_file_if_match('bucket', 'campaign/head', '/tmp/body', 'a' * 64, '"old"', expected_owner='123456789012')
+            self.assertEqual(caught.exception.code, code)
+            self.assertEqual(invoke.call_count, 1)
+
+    def test_conditional_get_preserves_old_call_and_adds_explicit_owner(self):
+        client = AWSCLI('ap-southeast-2')
+        with patch.object(client, '_execute', return_value={}) as invoke:
+            client.get_file('bucket', 'campaign/head', '/tmp/file', '"observed"')
+            self.assertEqual(invoke.call_args.args[2], ['--bucket', 'bucket', '--key', 'campaign/head',
+                '--checksum-mode', 'ENABLED', '--if-match', '"observed"', '/tmp/file'])
+            client.get_file('bucket', 'campaign/head', '/tmp/file', '"observed"', expected_owner='123456789012')
+            self.assertEqual(invoke.call_args.args[2], ['--bucket', 'bucket', '--key', 'campaign/head',
+                '--checksum-mode', 'ENABLED', '--if-match', '"observed"',
+                '--expected-bucket-owner', '123456789012', '/tmp/file'])
+        with patch.object(client, '_execute') as invoke:
+            with self.assertRaisesRegex(ValueError, 'bucket owner'):
+                client.get_file('bucket', 'campaign/head', '/tmp/file', '"observed"', expected_owner='bad')
+            invoke.assert_not_called()
+
+
 class AdvancedReadinessTests(unittest.TestCase):
     def configured_plan(self):
         return advanced_plan()

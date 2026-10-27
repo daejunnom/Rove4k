@@ -91,6 +91,117 @@ class _Child:
     completion_notified: bool = False
 
 
+def _terminal_gate_class(observation):
+    """Classify the gate only; no chess result or score is inferred."""
+    if observation.get("gate_cancelled") is True:
+        uncertain_auth = (observation.get("gate_authorized") is True or
+                          observation.get("gate_authorization_unknown") is True)
+        return "cancelled", "cancelled_unreconciled" if uncertain_auth else "cancelled_before_go"
+    if (observation.get("gate_transport") == "uncertain" or
+            observation.get("gate_transport_observation_error") or
+            observation.get("gate_release_event_error")):
+        return "delivery_uncertain", "delivery_unresolved"
+    return "completed", "completed"
+
+
+def _release_individually(children, snapshot, authorize_go, observe_transport, emit, *, deadline=None):
+    """Try budget-owner authorization immediately before each private gate write.
+
+    The callbacks must be supplied by a durable, serialized owner. This helper
+    cannot prove cross-host atomicity or that a successful socket write was read
+    by the runner: an actual runner/engine GO requires separate evidence.
+    A denial or callback/transport fault prevents later GO writes. Already sent
+    or possibly sent games are not signalled here and must be physically settled.
+    """
+    def cancel(child):
+        child.observation.setdefault("gate_cancel_started_monotonic", time.monotonic())
+        if child.control is None:
+            return
+        try:
+            child.control.sendall(b"ABORT\n")
+        except OSError as error:
+            child.observation["gate_cancel_error"] = repr(error)
+            try:
+                child.control.shutdown(socket.SHUT_WR)
+            except OSError:
+                pass
+
+    draining = False
+    for child in children:
+        obs = child.observation
+        obs.update(gate_authorized=False, gate_authorization_unknown=False,
+                   gate_transport="not_attempted", gate_cancelled=False)
+        if not draining and deadline is not None and time.monotonic() >= deadline:
+            obs["gate_denied_reason"] = "wave deadline expired before authorization"
+            draining = True
+        if not draining:
+            try:
+                decision = authorize_go(child.job, snapshot(child))
+                allowed = decision is True
+                if decision is not True and decision is not False:
+                    # A malformed reply cannot prove whether the durable owner
+                    # recorded an authorization before returning it.
+                    obs["gate_authorization_unknown"] = True
+                    obs["gate_authorization_error"] = "non-boolean authorization response"
+            except Exception as error:
+                # The owner might have committed before its response failed.
+                obs["gate_authorization_unknown"] = True
+                obs["gate_authorization_error"] = repr(error)
+                allowed = False
+            if allowed:
+                obs["gate_authorized"] = True
+                if deadline is not None and time.monotonic() >= deadline:
+                    obs["gate_transport_error"] = "wave deadline expired after authorization"
+                    obs["gate_cancelled"] = True
+                    draining = True
+                    cancel(child)
+                elif child.control is None:
+                    obs["gate_transport"] = "not_attempted"
+                    obs["gate_transport_error"] = "runner gate closed before GO"
+                    cancel(child)
+                    draining = True
+                else:
+                    # A failed sendall can have written a prefix or all bytes.
+                    # Closing only the write side makes an incomplete gate see
+                    # EOF; a runner that received complete GO may still run.
+                    obs["gate_transport"] = "uncertain"
+                    obs["gate_send_started_monotonic"] = time.monotonic()
+                    try:
+                        child.control.sendall(b"GO\n")
+                    except OSError as error:
+                        obs["gate_transport_error"] = repr(error)
+                        draining = True
+                        try:
+                            child.control.shutdown(socket.SHUT_WR)
+                        except OSError:
+                            pass
+                    else:
+                        obs.update(gate_transport="sent", gate_released=True,
+                                   released_monotonic=time.monotonic(), status="running")
+                    try:
+                        # Only transport state is reported, never actual GO receipt.
+                        observe_transport(child.job, snapshot(child))
+                    except Exception as error:
+                        obs["gate_transport_observation_error"] = repr(error)
+                        draining = True
+                    if obs["gate_transport"] == "sent":
+                        try:
+                            emit("released", child)
+                        except WaveAbort as error:
+                            obs["gate_release_event_error"] = str(error)
+                            draining = True
+                # Authorized games remain unsettled even if no GO was sent.
+                if obs["gate_transport"] == "not_attempted":
+                    obs["gate_cancelled"] = True
+                continue
+            obs.setdefault("gate_denied_reason", "release authorization denied")
+            draining = True
+        obs["gate_cancelled"] = True
+        obs.setdefault("gate_denied_reason", "earlier release denied or uncertain")
+        cancel(child)
+    return draining
+
+
 def _proc_identity(pid: int) -> dict | None:
     try:
         raw = Path(f"/proc/{pid}/stat").read_text()
@@ -176,11 +287,16 @@ class WaveExecutor:
 
     def run_wave(self, jobs: list[WaveJob], wall_seconds: float,
                  release_callback: Callable[[], bool] | None = None,
-                 on_event: Callable[[str, WaveJob, dict], None] | None = None) -> list[dict]:
+                 on_event: Callable[[str, WaveJob, dict], None] | None = None,
+                 *, authorize_go: Callable[[WaveJob, dict], bool] | None = None,
+                 observe_transport: Callable[[WaveJob, dict], None] | None = None) -> list[dict]:
         if sys.platform != "linux":
             raise RuntimeError("the wave executor requires Linux /proc and Unix sockets")
         if not jobs or not 0 < wall_seconds <= 12 * 3600:
             raise ValueError("nonempty jobs and a bounded positive wave wall time required")
+        if (authorize_go is None) != (observe_transport is None) or (authorize_go is not None and
+                (not callable(authorize_go) or not callable(observe_transport))):
+            raise ValueError("per-game authorization and transport observer must be supplied together")
         if len({job.identity for job in jobs}) != len(jobs) or len({job.out.resolve() for job in jobs}) != len(jobs):
             raise ValueError("job identities and attempt directories must be distinct")
         for job in jobs:
@@ -254,9 +370,20 @@ class WaveExecutor:
                 if any(channel.error for channel in child.channels):
                     continue
                 capture_logs(child)
-                child.observation.update(returncode=code, remaining_processes=[], status="completed",
+                name, gate_status = _terminal_gate_class(child.observation)
+                child.observation.update(returncode=code, remaining_processes=[],
+                                         status=gate_status,
                                          completed_monotonic=time.monotonic())
-                event("completed", child)
+                try:
+                    event(name, child)
+                except WaveAbort as error:
+                    if authorize_go is None:
+                        raise
+                    # An audit/ledger failure is not evidence that another
+                    # already-started game has failed. Quarantine receipts and
+                    # retain natural ownership until all running games settle.
+                    child.observation["completion_event_error"] = str(error)
+                    return
                 child.completion_notified = True
 
         def ticks():
@@ -264,7 +391,46 @@ class WaveExecutor:
             for child in children:
                 if child.process is not None and now - child.last_tick >= .75:
                     child.last_tick = now
-                    event("tick", child)
+                    try:
+                        event("tick", child)
+                    except WaveAbort as error:
+                        if authorize_go is None or not released:
+                            raise
+                        child.observation["tick_event_error"] = str(error)
+
+        def cleanup_cancelled():
+            """Only gates proven not to have attempted GO may be timed out."""
+            now = time.monotonic()
+            unresolved = []
+            for child in children:
+                obs = child.observation
+                if not obs.get("gate_cancelled") or obs.get("gate_transport") != "not_attempted":
+                    continue
+                since = obs.get("gate_cancel_started_monotonic")
+                if since is None or child.process is None or not _owned_members(child):
+                    continue
+                elapsed = now - since
+                for delay, sig, key in ((2, signal.SIGTERM, "cancel_term_attempted"),
+                                        (3, signal.SIGKILL, "cancel_kill_attempted")):
+                    if elapsed >= delay and not obs.get(key):
+                        obs[key] = True
+                        try:
+                            if _signal(child, sig):
+                                obs["cleanup_forced"] = True
+                        except (OSError, ValueError) as error:
+                            obs["cancel_signal_error"] = repr(error)
+                if elapsed >= 5 and _owned_members(child):
+                    obs["cancel_owner_unresolved"] = True
+                    unresolved.append(child)
+            if unresolved:
+                # Never use the global abort path while any sent/uncertain game
+                # still has a live owner. Unknown cancelled owners are returned
+                # only after unrelated started games have physically settled.
+                running_games = [child for child in children
+                                 if child.observation.get("gate_transport") in ("sent", "uncertain")
+                                 and _owned_members(child)]
+                if not running_games:
+                    raise WaveAbort("cancelled pre-GO owner remains unresolved")
 
         def unregister(fileobj):
             try:
@@ -471,23 +637,39 @@ class WaveExecutor:
                 raise WaveAbort("controller denied wave release")
             if time.monotonic() >= wall_deadline:
                 raise WaveAbort("wave wall deadline expired before release")
-            for child in children:
-                if child.control is None:
-                    raise WaveAbort("runner gate closed before GO")
-                child.control.sendall(b"GO\n")
-                child.observation["gate_released"] = True
-                child.observation["released_monotonic"] = time.monotonic()
-                child.observation["status"] = "running"
-            released = True
-            for child in children:
-                event("released", child)
+            if authorize_go is not None:
+                _release_individually(children, snapshot, authorize_go, observe_transport, event,
+                                      deadline=wall_deadline)
+                # A denied or transport-uncertain gate is not a global abort:
+                # let every already sent/possibly sent original owner settle.
+                released = True
+                # The old pre-GO admission deadline is never a deadline for a
+                # game that may already have received GO. Actual output, owner,
+                # controller and child failures are still checked below.
+                sent_at = [child.observation["gate_send_started_monotonic"] for child in children
+                           if "gate_send_started_monotonic" in child.observation]
+                run_deadline = None if sent_at else max(wall_deadline, time.monotonic() + 2)
+            else:
+                for child in children:
+                    if child.control is None:
+                        raise WaveAbort("runner gate closed before GO")
+                    child.control.sendall(b"GO\n")
+                    child.observation["gate_released"] = True
+                    child.observation["released_monotonic"] = time.monotonic()
+                    child.observation["status"] = "running"
+                released = True
+                run_deadline = wall_deadline
+                for child in children:
+                    event("released", child)
             while True:
-                if time.monotonic() >= wall_deadline:
+                if run_deadline is not None and time.monotonic() >= run_deadline:
                     raise WaveAbort("wave wall deadline expired")
-                pump(min(self.poll_seconds, wall_deadline - time.monotonic()))
+                pump(self.poll_seconds if run_deadline is None else min(self.poll_seconds, run_deadline - time.monotonic()))
                 notify_completed()
                 inspect_failures()
                 ticks()
+                if authorize_go is not None:
+                    cleanup_cancelled()
                 if all(child.process.poll() is not None for child in children):
                     break
         except BaseException as error:
@@ -564,7 +746,7 @@ class WaveExecutor:
                 if wave_error is not None:
                     observation["wave_error_context"] = wave_error
                 if child.completion_notified:
-                    observation["status"] = "completed"
+                    _, observation["status"] = _terminal_gate_class(observation)
                 elif wave_error is not None or observation.get("local_error"):
                     observation.update(wave_aborted=True, gate_error=wave_error or observation["local_error"], status="aborted")
                 else:

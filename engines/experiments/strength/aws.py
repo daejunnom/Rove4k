@@ -130,9 +130,34 @@ class AWSCLI:
             '--body', str(path), '--metadata', 'sha256=' + sha256,
             '--checksum-sha256', checksum, '--if-none-match', '*'])
 
-    def get_file(self, bucket, key, path, etag):
-        return self._execute('s3api', 'get-object', ['--bucket', bucket, '--key', key,
-            '--checksum-mode', 'ENABLED', '--if-match', etag, str(path)])
+    def put_file_if_match(self, bucket, key, path, sha256, etag, *, expected_owner):
+        """Attempt one conditional replacement against an observed strong ETag.
+
+        The return is the unmodified service response. In particular, transport
+        timeout is uncertain, and conflicts are not retried or acknowledged as
+        successful. Callers own durable reconciliation and VersionId checks.
+        """
+        if not isinstance(sha256, str) or not re.fullmatch(r'[a-f0-9]{64}', sha256):
+            raise ValueError('a lowercase SHA-256 digest is required')
+        # S3 ETags are opaque: preserve the observed entity tag verbatim rather
+        # than assuming MD5, while rejecting wildcards, weak tags and newlines.
+        if not isinstance(etag, str) or not re.fullmatch(r'"[\x21\x23-\x7e]{1,256}"', etag):
+            raise ValueError('one observed quoted strong ETag is required')
+        if not isinstance(expected_owner, str) or not re.fullmatch(r'[0-9]{12}', expected_owner):
+            raise ValueError('expected bucket owner must be an AWS account ID')
+        checksum = base64.b64encode(bytes.fromhex(sha256)).decode('ascii')
+        return self._execute('s3api', 'put-object', ['--bucket', bucket, '--key', key,
+            '--body', str(path), '--metadata', 'sha256=' + sha256,
+            '--checksum-sha256', checksum, '--expected-bucket-owner', expected_owner, '--if-match', etag])
+
+    def get_file(self, bucket, key, path, etag, *, expected_owner=None):
+        if expected_owner is not None and (not isinstance(expected_owner, str)
+                                            or not re.fullmatch(r'[0-9]{12}', expected_owner)):
+            raise ValueError('expected bucket owner must be an AWS account ID')
+        arguments = ['--bucket', bucket, '--key', key, '--checksum-mode', 'ENABLED', '--if-match', etag]
+        if expected_owner is not None:
+            arguments.extend(['--expected-bucket-owner', expected_owner])
+        return self._execute('s3api', 'get-object', [*arguments, str(path)])
 
     def _execute(self, service, operation, arguments):
         if not all(re.fullmatch(r'[a-z][a-z0-9-]*', value) for value in (service, operation)):

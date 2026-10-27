@@ -12,7 +12,7 @@ import tempfile
 import threading
 import time
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import budget
 import collect
@@ -116,6 +116,78 @@ class ProtocolTests(unittest.TestCase):
         self.assertIsNone(trace.consume("[Engine] [x] < 1> <stderr> fixture-A <--- position startpos"))
         self.assertTrue(trace.first_go)
 
+    def test_optional_ponder_traffic_is_recorded_without_claiming_it_was_disabled(self):
+        trace = run.TraceState([], "fixture-A", "fixture-B")
+        observed = trace.consume(protocol("fixture-B", "<---", "go ponder wtime 100 btime 100").strip())
+        self.assertEqual(observed["kind"], "ponder_go_sent")
+        self.assertIsNone(observed["actual_off_turn_search"])
+        self.assertEqual(fastchess.ponder_uci_evidence(trace.ponder_sent["fixture-B"])["go_ponder_received"], 1)
+        self.assertTrue(trace.first_go)
+
+    def test_ponder_speculation_never_overwrites_confirmed_candidate(self):
+        trace = run.TraceState([], "fixture-A", "fixture-B")
+        trace.consume(protocol("fixture-A", "<---", "position startpos").strip())
+        trace.consume(protocol("fixture-A", "<---", "go wtime 1803000 btime 1803000 winc 3000 binc 3000").strip())
+        trace.consume(protocol("fixture-A", "--->", "bestmove e2e4 ponder e7e5").strip())
+        speculative = trace.consume(protocol("fixture-A", "<---", "position startpos moves e2e4 e7e5").strip())
+        self.assertFalse(speculative["confirmed"])
+        self.assertEqual(trace.moves, [])
+        trace.consume(protocol("fixture-A", "<---", "go ponder wtime 1803000 btime 1803000").strip())
+        trace.consume(protocol("fixture-B", "<---", "position startpos moves e2e4").strip())
+        trace.consume(protocol("fixture-B", "<---", "go wtime 1805000 btime 1803000 winc 3000 binc 3000").strip())
+        diagnostic = trace.consume(protocol("fixture-A", "--->", "bestmove g1f3").strip())
+        self.assertEqual(diagnostic["kind"], "ponder_bestmove_observed")
+        self.assertFalse(diagnostic["confirmed"])
+        trace.consume(protocol("fixture-B", "--->", "bestmove e7e5").strip())
+        confirmed = trace.consume(protocol("fixture-A", "<---", "position startpos moves e2e4 e7e5").strip())
+        self.assertEqual(confirmed["moves"], ["e2e4", "e7e5"])
+
+    def test_ponder_position_after_opponent_go_preserves_actual_history(self):
+        trace = run.TraceState([], "fixture-A", "fixture-B")
+        trace.consume(protocol("fixture-A", "<---", "position startpos").strip())
+        trace.consume(protocol("fixture-A", "<---", "go wtime 1803000 btime 1803000 winc 3000 binc 3000").strip())
+        trace.consume(protocol("fixture-A", "--->", "bestmove e2e4 ponder e7e5").strip())
+        trace.consume(protocol("fixture-B", "<---", "position startpos moves e2e4").strip())
+        trace.consume(protocol("fixture-B", "<---", "go wtime 1805000 btime 1803000 winc 3000 binc 3000").strip())
+        diagnostic = trace.consume(protocol("fixture-A", "<---", "position startpos moves e2e4 e7e5").strip())
+        self.assertEqual(diagnostic["kind"], "ponder_position_sent")
+        self.assertEqual(trace.moves, ["e2e4"])
+        trace.consume(protocol("fixture-A", "<---", "go ponder wtime 1805000 btime 1803000").strip())
+        trace.consume(protocol("fixture-A", "--->", "bestmove g1f3").strip())
+        trace.consume(protocol("fixture-B", "--->", "bestmove e7e5").strip())
+        confirmed = trace.consume(protocol("fixture-A", "<---", "position startpos moves e2e4 e7e5").strip())
+        self.assertEqual(confirmed["moves"], ["e2e4", "e7e5"])
+
+    def test_ponderhit_binds_actual_reply_and_marks_clock_gap(self):
+        trace = run.TraceState([], "fixture-A", "fixture-B")
+        trace.consume(protocol("fixture-A", "<---", "position startpos").strip())
+        trace.consume(protocol("fixture-A", "<---", "go wtime 1803000 btime 1803000 winc 3000 binc 3000").strip())
+        trace.consume(protocol("fixture-A", "--->", "bestmove e2e4 ponder e7e5").strip())
+        trace.consume(protocol("fixture-B", "<---", "position startpos moves e2e4").strip())
+        trace.consume(protocol("fixture-B", "<---", "go wtime 1805000 btime 1803000 winc 3000 binc 3000").strip())
+        trace.consume(protocol("fixture-A", "<---", "position startpos moves e2e4 e7e5").strip())
+        trace.consume(protocol("fixture-A", "<---", "go ponder wtime 1805000 btime 1803000").strip())
+        trace.consume(protocol("fixture-B", "--->", "bestmove e7e5").strip())
+        hit = trace.consume(protocol("fixture-A", "<---", "ponderhit").strip())
+        self.assertEqual(hit["moves"], ["e2e4", "e7e5"])
+        self.assertFalse(trace.clock_tracking_complete)
+        trace.consume(protocol("fixture-A", "--->", "bestmove g1f3").strip())
+        confirmed = trace.consume(protocol("fixture-B", "<---", "position startpos moves e2e4 e7e5 g1f3").strip())
+        self.assertEqual(confirmed["moves"], ["e2e4", "e7e5", "g1f3"])
+
+    def test_ponderhit_different_actual_reply_is_rejected(self):
+        trace = run.TraceState([], "fixture-A", "fixture-B")
+        trace.consume(protocol("fixture-A", "<---", "position startpos").strip())
+        trace.consume(protocol("fixture-A", "<---", "go wtime 1803000 btime 1803000 winc 3000 binc 3000").strip())
+        trace.consume(protocol("fixture-A", "--->", "bestmove e2e4 ponder e7e5").strip())
+        trace.consume(protocol("fixture-B", "<---", "position startpos moves e2e4").strip())
+        trace.consume(protocol("fixture-B", "<---", "go wtime 1805000 btime 1803000 winc 3000 binc 3000").strip())
+        trace.consume(protocol("fixture-A", "<---", "position startpos moves e2e4 e7e5").strip())
+        trace.consume(protocol("fixture-A", "<---", "go ponder wtime 1805000 btime 1803000").strip())
+        trace.consume(protocol("fixture-B", "--->", "bestmove c7c5").strip())
+        with self.assertRaisesRegex(ValueError, "confirmed predicted reply"):
+            trace.consume(protocol("fixture-A", "<---", "ponderhit").strip())
+
     def test_clock_before_position_and_wrong_initial_clock_rejected(self):
         trace = run.TraceState([], "fixture-A", "fixture-B")
         with self.assertRaises(ValueError):
@@ -152,9 +224,15 @@ class ProtocolTests(unittest.TestCase):
     def test_pgn_and_actual_trace_must_agree_with_independent_oracle(self):
         with tempfile.TemporaryDirectory() as folder:
             pgn, raw, spec = self.make_mate(Path(folder))
+            raw.write_text(protocol("fixture-A", "--->", "option name Ponder type check default true") +
+                           protocol("fixture-A", "<---", "setoption name Ponder value false") + raw.read_text())
             result = run.parse_result(pgn, raw, spec)
             self.assertEqual((result["result"], result["plies"]), ("0-1", 4))
             self.assertEqual(result["raw_sha256"], sha(raw.read_bytes()))
+            self.assertEqual(result["ponder_uci"]["fixture-A"]["setoption_ponder_false_received"], 1)
+            self.assertTrue(result["ponder_uci"]["fixture-A"]["option_advertised_in_trace"])
+            self.assertFalse(result["ponder_uci"]["fixture-B"]["option_advertised_in_trace"])
+            self.assertIsNone(result["ponder_uci"]["fixture-B"]["actual_off_turn_search"])
             raw.write_text(raw.read_text().replace("bestmove d8h4", "bestmove d8e7"))
             with self.assertRaises(ValueError):
                 run.parse_result(pgn, raw, spec)
@@ -291,6 +369,22 @@ class CollectionTests(unittest.TestCase):
             collect.select_high({**summary, "selection_ready": False}, {}, high)
         with self.assertRaises(ValueError):
             collect.select_high(summary, {}, high + [high[0]])
+
+    def test_p16_broad_selection_keeps_profile_specific_selection_label(self):
+        summary = {"profile": "test-p16", "selection_ready": True,
+                   "standings": [{"player": "A16", "points": 2, "tied_head_to_head": 0, "sonneborn_berger": 0},
+                                 {"player": "B16", "points": 1, "tied_head_to_head": 0, "sonneborn_berger": 0}]}
+        selected = collect.select_high(summary, {"A16": "A", "B16": "B"},
+                                       [{"id": "A192", "family": "A"}, {"id": "B192", "family": "B"}])
+        self.assertEqual(selected["players"], ["A192", "B192"])
+        self.assertIn("P16", selected["selection"])
+        self.assertIn("P192", selected["selection"])
+        with self.assertRaises(ValueError):
+            collect.select_high({**summary, "profile": "test-p192"}, {"A16": "A", "B16": "B"}, [])
+        with self.assertRaisesRegex(ValueError, "D is outside"):
+            collect.select_high(summary, {"A16": "D", "B16": "B"}, [])
+        with self.assertRaisesRegex(ValueError, "D is outside"):
+            collect.select_high(summary, {"A16": "A", "B16": "B"}, [{"id": "D192", "family": "D"}])
 
     def test_drawn_broad_uses_family_ids_even_when_artifact_ids_sort_backwards(self):
         families = {"z-A": "A", "m-B": "B", "a-C": "C"}
@@ -519,6 +613,318 @@ class PlanAndControllerTests(unittest.TestCase):
         plan = run.freeze_plan("fixture", "test-p4", reg, bank, bank_sha, binary, build,
                                root / "bundle", snapshot=snapshot)
         return plan, snapshot
+
+    def test_p16_p192_frozen_placement_has_the_requested_controller_contract(self):
+        with tempfile.TemporaryDirectory() as folder:
+            *_, snapshot = self.inputs(Path(folder))
+            p16, reserved = run.league_placement(snapshot, "test-p16")
+            p192, shared = run.league_placement(snapshot, "test-p192")
+        self.assertEqual(len(p16), 11)
+        self.assertTrue(all(slot.workers == 16 and slot.smt and slot.policy == "default" and len(slot.memory_nodes) == 1 for slot in p16))
+        self.assertEqual(len({cpu for slot in p16 for cpu in slot.cpus}), 176)
+        self.assertTrue(set(reserved).isdisjoint(cpu for slot in p16 for cpu in slot.cpus))
+        self.assertEqual(len(reserved), 16)
+        self.assertEqual(len(p192), 1)
+        self.assertEqual(p192[0].workers, 192)
+        self.assertEqual(p192[0].policy, "default")
+        self.assertEqual(set(shared), set(snapshot.allowed_cpus))
+        self.assertEqual(set(shared), set(p192[0].cpus))
+
+    def test_p16_p192_cgroup_creation_uses_aligned_pair_and_aggregate_budget(self):
+        with tempfile.TemporaryDirectory() as folder:
+            *_, snapshot = self.inputs(Path(folder))
+        class Artifact:
+            def __init__(self, identity, tt):
+                self.name, self.tt = identity, tt
+            def identity(self):
+                return {"id": self.name, "sha256": ("a" if self.name == "A" else "b") * 64,
+                        "tt_bytes": self.tt}
+        class Manager:
+            def __init__(self):
+                self.calls = []
+            def create(self, slot, memory_bytes):
+                self.calls.append((slot.id, memory_bytes))
+                return {"id": slot.id, "memory_max": memory_bytes}
+        evidence = {"host_available_bytes": 600 << 30, "node_available_bytes": {0: 256 << 30, 1: 256 << 30},
+                    "per_game_overhead_bytes": (2 << 30) + 1, "overhead_evidence_sha256": "c" * 64,
+                    "controller_reserve_bytes": 2 << 30, "page_bytes": 4096}
+        for profile, sizes, expected_count in (("test-p16", (12 << 30, 16 << 30), 11),
+                                               ("test-p192", (192 << 30, 128 << 30), 1)):
+            with self.subTest(profile=profile):
+                slots, _ = run.league_placement(snapshot, profile)
+                players = [Artifact("A", sizes[0]), Artifact("B", sizes[1])]
+                manager = Manager()
+                groups, proof = run.create_league_cgroups(manager, slots, players, profile, memory_preflight=evidence)
+                expected = sum(sizes) + (2 << 30) + 4096
+                self.assertEqual(len(groups), expected_count)
+                self.assertEqual(manager.calls, [(slot.id, expected) for slot in slots])
+                self.assertFalse(proof["runtime_admission_complete"])
+                manager = Manager()
+                with self.assertRaises(ValueError):
+                    run.create_league_cgroups(manager, slots, players, profile,
+                        memory_preflight={**evidence, "host_available_bytes": 1 << 30})
+                self.assertEqual(manager.calls, [])
+                with self.assertRaisesRegex(ValueError, "explicit observed memory"):
+                    run.create_league_cgroups(manager, slots, players, profile)
+                self.assertEqual(manager.calls, [])
+        manager = Manager()
+        with self.assertRaisesRegex(ValueError, "unknown TEST profile"):
+            run.create_league_cgroups(manager, slots, players, "tcec-provisional")
+        self.assertEqual(manager.calls, [])
+
+    def test_capacity_snapshot_is_bound_before_cgroup_calculation(self):
+        with tempfile.TemporaryDirectory() as folder:
+            *_, snapshot = self.inputs(Path(folder))
+        slots, _ = run.league_placement(snapshot, "test-p16")
+        overhead = {"per_game_overhead_bytes": 2 << 30, "overhead_evidence_sha256": "c" * 64,
+                    "controller_reserve_bytes": 2 << 30}
+        records = [slot.to_record() for slot in slots]
+        # Synthetic source fixture; False here tests validation, not a claim
+        # about actual operating-system observation or score admission.
+        capacity = {"format": "rove4k-memory-capacity-observation-v1", "slot_sha256": ledger.digest(records),
+                    "test_inputs": False, "runtime_admission_complete": False, "host_available_bytes": 600 << 30,
+                    "node_available_bytes": {0: 256 << 30, 1: 256 << 30}, "page_bytes": 4096}
+        observe = Mock(return_value=capacity)
+        actual, preflight = run.capture_league_preflight(slots, Path("/fixture/cgroup"), overhead, observe)
+        self.assertEqual(actual, capacity)
+        self.assertEqual(preflight["node_available_bytes"], capacity["node_available_bytes"])
+        observe.assert_called_once_with(records, Path("/fixture/cgroup"))
+        class Artifact:
+            def __init__(self, name):
+                self.name = name
+            def identity(self):
+                return {"id": self.name, "sha256": ("a" if self.name == "A" else "b") * 64,
+                        "tt_bytes": 12 << 30}
+        class Manager:
+            def __init__(self):
+                self.calls = []
+            def create(self, slot, memory_bytes):
+                self.calls.append((slot.id, memory_bytes))
+                return {"id": slot.id, "memory_max": memory_bytes}
+        manager = Manager()
+        groups, proof = run.create_league_cgroups(manager, slots, [Artifact("A"), Artifact("B")],
+                                                  "test-p16", memory_preflight=preflight)
+        self.assertEqual(len(groups), 11)
+        self.assertEqual(manager.calls, [(slot.id, 26 << 30) for slot in slots])
+        self.assertFalse(proof["runtime_admission_complete"])
+        for mutation in ({"slot_sha256": "a" * 64}, {"test_inputs": True}, {"runtime_admission_complete": True}):
+            with self.subTest(mutation=mutation), self.assertRaises(ValueError):
+                run.capture_league_preflight(slots, Path("/fixture/cgroup"), overhead,
+                                             Mock(return_value={**capacity, **mutation}))
+        def mutate_slots(rows, path):
+            rows[0]["memory_nodes"] = (999,)
+            return {**capacity, "slot_sha256": ledger.digest(rows)}
+        with self.assertRaisesRegex(ValueError, "frozen-slot preflight"):
+            run.capture_league_preflight(slots, Path("/fixture/cgroup"), overhead, mutate_slots)
+        with self.assertRaisesRegex(ValueError, "overhead evidence"):
+            run.capture_league_preflight(slots, Path("/fixture/cgroup"), None, observe)
+
+    def test_broad_and_high_profiles_cannot_be_crossed(self):
+        for profile in ("test-p4", "test-p16"):
+            self.assertTrue(run.stage_profile_allowed("broad", profile))
+            self.assertFalse(run.stage_profile_allowed("high", profile))
+        for profile in ("test-p28", "test-p192"):
+            self.assertTrue(run.stage_profile_allowed("high", profile))
+            self.assertFalse(run.stage_profile_allowed("broad", profile))
+        self.assertEqual(run.BROAD_FOR_HIGH["test-p28"], "test-p4")
+        self.assertEqual(run.BROAD_FOR_HIGH["test-p192"], "test-p16")
+        self.assertFalse(run.stage_profile_allowed("other", "test-p16"))
+        self.assertFalse(run.stage_profile_allowed("broad", "tcec-provisional"))
+
+    def test_p16_never_silently_reduces_eleven_game_capacity(self):
+        with tempfile.TemporaryDirectory() as folder:
+            *_, snapshot = self.inputs(Path(folder))
+        missing = snapshot.cpus[0].siblings[1]
+        restricted = topology.Topology(snapshot.cpus, tuple(cpu for cpu in snapshot.allowed_cpus if cpu != missing),
+                                       snapshot.allowed_nodes, snapshot.distances, snapshot.kernel)
+        with self.assertRaisesRegex(ValueError, "eleven complete node-local slots"):
+            run.league_placement(restricted, "test-p16")
+        with self.assertRaises(ValueError):
+            run.league_placement(restricted, "test-p192")
+
+    def test_p16_rejects_bad_smt_observations_before_freezing(self):
+        with tempfile.TemporaryDirectory() as folder:
+            *_, snapshot = self.inputs(Path(folder))
+        changed = list(snapshot.cpus)
+        # CPU 0 is reserved in this synthetic layout; corrupt the first sibling
+        # in a scored slot so the topology still meets simple self-membership.
+        slots = run.league_placement(snapshot, "test-p16")[0]
+        chosen = slots[0].cpus[0]
+        row = next(cpu for cpu in changed if cpu.id == chosen)
+        changed[changed.index(row)] = topology.Cpu(row.id, row.socket, row.core, row.node, (row.id,))
+        broken = topology.Topology(tuple(changed), snapshot.allowed_cpus, snapshot.allowed_nodes,
+                                   snapshot.distances, snapshot.kernel)
+        with self.assertRaisesRegex(ValueError, "mutually observed SMT siblings"):
+            run.league_placement(broken, "test-p16")
+
+    def test_p16_p192_scored_execution_is_held_before_host_or_cloud_access(self):
+        for profile in ("test-p16", "test-p192"):
+            controller = object.__new__(run.StageController)
+            controller.plan = {"profile": profile}
+            with self.subTest(profile=profile), patch.object(topology.Topology, "snapshot", side_effect=AssertionError("host access")):
+                with self.assertRaisesRegex(ValueError, "awaits shared-budget"):
+                    controller.execute(Path("/not-used"))
+
+    def test_cli_p16_p192_rejects_before_aws_or_journal_access(self):
+        for profile in ("test-p16", "test-p192"):
+            argv = ["run.py", "run", "--plan", "/fixture/plan.json", "--aws-plan", "/fixture/aws.json",
+                    "--journal", "/fixture/journal.jsonl", "--out", "/fixture/out", "--cgroup-root", "/fixture/cg"]
+            with self.subTest(profile=profile), patch.object(sys, "argv", argv), \
+                    patch.object(run, "load_plan", return_value=({"content": {"profile": profile}}, [])), \
+                    patch.object(run, "json_input", side_effect=AssertionError("AWS config read")), \
+                    patch.object(ledger, "Journal", side_effect=AssertionError("journal opened")):
+                with self.assertRaisesRegex(ValueError, "awaits shared-budget"):
+                    run.main()
+
+    def test_preexec_placement_requires_actual_masks_policy_and_original_group(self):
+        with tempfile.TemporaryDirectory() as folder:
+            *_, snapshot = self.inputs(Path(folder))
+        slot = run.league_placement(snapshot, "test-p16")[0][0]
+        group = {"path": "/fixture/slot-000", "device": 1, "inode": 2,
+                 "cpus": list(slot.cpus), "memory_nodes": list(slot.memory_nodes), "memory_max": 30 << 30}
+        receipt = {"pid": 123, "stage": "pre-exec runner; final engine observation is separate",
+                   "requested_cpus": list(slot.cpus), "effective_cpus": list(slot.cpus),
+                   "requested_nodes": list(slot.memory_nodes), "effective_allowed_nodes": list(slot.memory_nodes),
+                   "cgroup": group, "requested_policy": "default", "fallback": None,
+                   "observed_policy": {"available": True, "request_applied": True, "mode": 0, "nodes": []}}
+        result = run.verify_preexec_placement(receipt, pid=123, slot=slot, cgroup=group)
+        self.assertEqual(result["tt_page_placement"], "pending")
+        mutations = [{"pid": 124}, {"effective_cpus": []}, {"effective_allowed_nodes": []},
+                     {"cgroup": {**group, "inode": 3}}, {"fallback": "retained inherited policy"},
+                     {"observed_policy": {"available": False, "request_applied": True}},
+                     {"observed_policy": {"available": True, "request_applied": False, "mode": 0}}]
+        for mutation in mutations:
+            with self.subTest(mutation=mutation), self.assertRaises(ValueError):
+                run.verify_preexec_placement({**receipt, **mutation}, pid=123, slot=slot, cgroup=group)
+        with self.assertRaisesRegex(ValueError, "cgroup identity"):
+            run.verify_preexec_placement({**receipt, "cgroup": None}, pid=123, slot=slot, cgroup=None)
+
+    def test_ready_event_consumes_actual_preexec_receipt_before_engine_observation(self):
+        with tempfile.TemporaryDirectory() as folder:
+            *_, snapshot = self.inputs(Path(folder))
+        slot = run.league_placement(snapshot, "test-p16")[0][0]
+        group = {"path": "/fixture/slot-000", "device": 1, "inode": 2,
+                 "cpus": list(slot.cpus), "memory_nodes": list(slot.memory_nodes), "memory_max": 30 << 30}
+        receipt = {"pid": 123, "stage": "pre-exec runner; final engine observation is separate",
+                   "requested_cpus": list(slot.cpus), "effective_cpus": list(slot.cpus),
+                   "requested_nodes": list(slot.memory_nodes), "effective_allowed_nodes": list(slot.memory_nodes),
+                   "cgroup": group, "requested_policy": "default", "fallback": None,
+                   "observed_policy": {"available": True, "request_applied": True, "mode": 0, "nodes": []}}
+        controller = object.__new__(run.StageController)
+        controller.plan = {"profile": "test-p16"}
+        controller.slots = {slot.id: slot}
+        controller.players = {name: type("Player", (), {"native_sha256": "a" * 64})() for name in ("A", "B")}
+        controller.job_specs = {"job": {"pair": "pair", "game": "game", "attempt": 0,
+            "identity": {"slot": slot.id, "white": "A", "black": "B"},
+            "placement_record": Path("/fixture/preexec.json"), "placement_cgroup": group}}
+        controller.ready = {}
+        controller.append = Mock()
+        controller.acknowledge_results = Mock()
+        controller.replicate = Mock()
+        job = type("Job", (), {"identity": "job"})()
+        observed = {"pid": 123, "start_ticks": 10}
+        with patch.object(run, "json_input", return_value=(receipt, "b" * 64)), \
+                patch.object(run.placement, "observe_game_engines", return_value={"engines": []}) as engines:
+            controller.event("ready", job, observed)
+        self.assertEqual([call.args[0] for call in controller.append.call_args_list],
+                         ["game.placement_preexec", "game.ready"])
+        self.assertEqual(controller.ready["job"]["preexec_placement"]["receipt_sha256"], "b" * 64)
+        engines.assert_called_once()
+        controller.append.reset_mock()
+        with patch.object(run, "json_input", return_value=({**receipt, "fallback": "failed"}, "c" * 64)), \
+                patch.object(run.placement, "observe_game_engines") as engines:
+            with self.assertRaisesRegex(ValueError, "policy was not applied"):
+                controller.event("ready", job, observed)
+        controller.append.assert_not_called()
+        engines.assert_not_called()
+
+    def test_cancelled_gate_records_physical_settlement_without_inventing_authorization(self):
+        controller = object.__new__(run.StageController)
+        state = type("State", (), {"result": None, "interrupted": None})()
+        controller.results = type("Results", (), {"games": {("game", 0): state}})()
+        controller.job_specs = {"job": {"pair": "pair", "game": "game", "attempt": 0}}
+        controller.instance_id = "i-fixture"
+        controller.uncertain_releases = {}
+        controller.unsettled = {}
+        controller.append = Mock()
+        controller.acknowledge_results = Mock()
+        controller.replicate = Mock()
+        job = type("Job", (), {"identity": "job"})()
+        settled = {"pid": 123, "returncode": 1, "readers_done": True, "remaining_processes": [],
+                   "gate_cancelled": True, "gate_transport": "not_attempted", "gate_authorized": False,
+                   "gate_authorization_unknown": False, "status": "cancelled_before_go"}
+        controller.event("cancelled", job, settled)
+        self.assertEqual([call.args[0] for call in controller.append.call_args_list],
+                         ["game.process_completed", "game.interrupted"])
+        self.assertEqual(controller.append.call_args_list[-1].args[1]["reason"], "budget_drain")
+        controller.append.reset_mock()
+        unresolved = {**settled, "gate_authorization_unknown": True, "status": "cancelled_unreconciled"}
+        controller.event("cancelled", job, unresolved)
+        self.assertEqual([call.args[0] for call in controller.append.call_args_list],
+                         ["game.process_completed", "campaign.release_unreconciled"])
+        self.assertIn("job", controller.uncertain_releases)
+        with self.assertRaisesRegex(ValueError, "durable owner recovery"):
+            run.assert_no_unreconciled_releases([{"event": "campaign.release_unreconciled"}])
+
+        for unresolved_transport in ({"gate_transport": "uncertain"},
+                                     {"gate_transport": "sent", "gate_transport_observation_error": "lost"},
+                                     {"gate_transport": "not_attempted", "gate_authorized": True}):
+            controller.append.reset_mock()
+            controller.uncertain_releases = {}
+            observed = {**settled, **unresolved_transport, "status": "completed", "gate_cancelled": False}
+            controller.event("completed", job, observed)
+            self.assertEqual([call.args[0] for call in controller.append.call_args_list],
+                             ["game.process_completed", "campaign.release_unreconciled"])
+            self.assertIn("job", controller.uncertain_releases)
+
+    def test_completed_game_with_ponderhit_clock_gap_is_preserved_unscored(self):
+        controller = object.__new__(run.StageController)
+        controller.plan = {"campaign": "fixture", "profile": "test-p16"}
+        controller.out = Path("/fixture/out")
+        state = type("State", (), {"result": None, "interrupted": None})()
+        controller.results = type("Results", (), {"games": {("game", 0): state}})()
+        controller.job_specs = {"job": {"pair": "pair", "game": "game", "attempt": 0, "identity": {}}}
+        controller.instance_id = "i-fixture"
+        controller.uncertain_releases = {}
+        controller.append = Mock()
+        controller.observe_raw = Mock()
+        controller.queue_result = Mock()
+        controller.acknowledge_results = Mock()
+        controller.replicate = Mock()
+        job = type("Job", (), {"identity": "job", "out": Path("/fixture/out/game")})()
+        observed = {"pid": 123, "returncode": 0, "readers_done": True, "remaining_processes": [],
+                    "gate_released": True, "cleanup_forced": False}
+        parsed = {"pgn_sha256": "a" * 64, "raw_sha256": "b" * 64,
+                  "result": "1-0", "clock_tracking_complete": False}
+        with patch.object(run, "parse_result", return_value=parsed):
+            controller.event("completed", job, observed)
+        events = [call.args[0] for call in controller.append.call_args_list]
+        self.assertEqual(events, ["game.process_completed", "campaign.game_evidence_unresolved"])
+        self.assertEqual(controller.uncertain_releases["job"]["result"]["result"], "1-0")
+        controller.queue_result.assert_not_called()
+        with self.assertRaisesRegex(ValueError, "durable owner recovery"):
+            run.assert_no_unreconciled_releases([{"event": "campaign.game_evidence_unresolved"}])
+
+    def test_final_wave_observation_detects_uncertainty_even_without_event_callback(self):
+        for row in ({"gate_transport": "uncertain"}, {"gate_authorization_unknown": True},
+                    {"gate_transport": "sent", "gate_transport_observation_error": "lost"},
+                    {"gate_transport": "sent", "gate_release_event_error": "lost"},
+                    {"gate_transport": "not_attempted", "gate_authorized": True}):
+            with self.subTest(row=row):
+                self.assertTrue(run.release_unresolved(row))
+        self.assertFalse(run.release_unresolved({"gate_transport": "sent", "gate_authorized": True}))
+        self.assertFalse(run.release_unresolved({"gate_transport": "not_attempted", "gate_authorized": False}))
+
+    def test_unavailable_ponder_setting_does_not_block_local_league_score(self):
+        data = {"white": "A", "black": "B", "clock_tracking_complete": True, "ponder_uci": {
+            "A": {"tcec_ponder_compliance": None}, "B": {"tcec_ponder_compliance": None}}}
+        self.assertIsNone(run.score_evidence_unresolved(data, "test-p4"))
+        for profile in ("test-p16", "test-p192"):
+            self.assertIsNone(run.score_evidence_unresolved(data, profile))
+            self.assertEqual(run.score_evidence_unresolved({**data, "clock_tracking_complete": False}, profile),
+                             "clock_continuity_unverified")
+            proved = {**data, "ponder_uci": {name: {"tcec_ponder_compliance": True} for name in ("A", "B")}}
+            self.assertIsNone(run.score_evidence_unresolved(proved, profile))
 
     def test_frozen_bundle_is_portable_and_exact_bytes_are_rechecked(self):
         with tempfile.TemporaryDirectory() as folder:

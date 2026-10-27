@@ -320,11 +320,43 @@ class SharedCampaignBudget:
     settlement. It has no instance-hour or game wall-clock deadline.
     """
     campaign: str
+    prior_compute_usd: Decimal = Decimal(0)
+    prior_ancillary_usd: Decimal = Decimal(0)
+    prior_game_ids: frozenset[str] = frozenset()
+    prior_pair_ids: frozenset[str] = frozenset()
+    prior_launch_tokens: frozenset[str] = frozenset()
+    prior_instance_ids: frozenset[str] = frozenset()
+    prior_receipts: tuple[tuple[str, Decimal], ...] = ()
     instances: tuple[SharedInstance, ...] = ()
     games: tuple[SharedGame, ...] = ()
     ancillary_receipts: tuple[tuple[str, Decimal], ...] = ()
     draining: bool = False
     last_at: float = 0.0
+
+    def __post_init__(self):
+        object.__setattr__(self, 'prior_compute_usd', decimal(self.prior_compute_usd))
+        object.__setattr__(self, 'prior_ancillary_usd', decimal(self.prior_ancillary_usd))
+        if (not isinstance(self.prior_game_ids, frozenset) or not isinstance(self.prior_pair_ids, frozenset)
+                or not isinstance(self.prior_launch_tokens, frozenset) or not isinstance(self.prior_instance_ids, frozenset)
+                or not isinstance(self.prior_receipts, tuple)
+                or len(self.prior_pair_ids) > 128
+                or any(not isinstance(value, str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]{0,95}', value)
+                       for value in self.prior_game_ids | self.prior_pair_ids)):
+            raise ValueError('invalid previously observed game or pair identities')
+        if (any(not isinstance(value, str) or not 8 <= len(value) <= 64 for value in self.prior_launch_tokens)
+                or any(not isinstance(value, str) or not value.startswith('i-') for value in self.prior_instance_ids)):
+            raise ValueError('invalid previously observed instance ownership')
+        receipt_ids = set()
+        normalized_receipts = []
+        for receipt in self.prior_receipts:
+            if (not isinstance(receipt, tuple) or len(receipt) != 2 or not isinstance(receipt[0], str)
+                    or not receipt[0] or receipt[0] in receipt_ids):
+                raise ValueError('invalid previously observed ancillary receipt')
+            receipt_ids.add(receipt[0])
+            normalized_receipts.append((receipt[0], decimal(receipt[1])))
+        if sum((amount for _, amount in normalized_receipts), Decimal(0)) > self.prior_ancillary_usd:
+            raise ValueError('prior receipts exceed the trusted ancillary balance')
+        object.__setattr__(self, 'prior_receipts', tuple(normalized_receipts))
 
     @property
     def active_instances(self):
@@ -344,8 +376,8 @@ class SharedCampaignBudget:
         now = timestamp(now)
         if now < self.last_at:
             raise ValueError('budget observation precedes ledger time')
-        compute = sum((row.charge.cost(now) for row in self.instances), Decimal(0))
-        ancillary = sum((amount for _, amount in self.ancillary_receipts), Decimal(0))
+        compute = self.prior_compute_usd + sum((row.charge.cost(now) for row in self.instances), Decimal(0))
+        ancillary = self.prior_ancillary_usd + sum((amount for _, amount in self.ancillary_receipts), Decimal(0))
         return compute, compute + max(Decimal('20'), ancillary)
 
     def can_admit_game(self, now, *, game_id, pair_id, launch_token):
@@ -353,9 +385,9 @@ class SharedCampaignBudget:
         _, total = self.totals(now)
         if not all(isinstance(value, str) and value for value in (game_id, pair_id, launch_token)):
             return False
-        if self.draining or total >= Decimal('120') or any(row.game_id == game_id for row in self.games):
+        if self.draining or total >= Decimal('120') or game_id in self.prior_game_ids or any(row.game_id == game_id for row in self.games):
             return False
-        pairs = {row.pair_id for row in self.games}
+        pairs = {row.pair_id for row in self.games} | self.prior_pair_ids
         if pair_id not in pairs and len(pairs) >= 128:
             return False
         matching = [row.charge for row in self.active_instances if row.charge.launch_token == launch_token and not row.closing]
@@ -383,6 +415,8 @@ class SharedCampaignBudget:
                 raise ValueError('invalid scoped launch or price ceiling')
             if state.draining:
                 raise ValueError('campaign is draining; no launch may be retried')
+            if token in self.prior_launch_tokens:
+                raise ValueError('previously closed launch token cannot be reused')
             matches = [row for row in self.instances if row.charge.launch_token == token]
             if matches:
                 if matches[0].region != region or matches[0].charge.hourly_usd != rate:
@@ -402,7 +436,7 @@ class SharedCampaignBudget:
                 identity = data['instance_id']
                 if not isinstance(identity, str) or not identity.startswith('i-') or not charge.active or row.closing:
                     raise ValueError('invalid instance binding')
-                if charge.instance_id not in (None, identity) or any(other.charge.instance_id == identity and other.charge.launch_token != charge.launch_token for other in self.instances):
+                if identity in self.prior_instance_ids or charge.instance_id not in (None, identity) or any(other.charge.instance_id == identity and other.charge.launch_token != charge.launch_token for other in self.instances):
                     raise ValueError('instance identity is already bound or changed')
                 charge = replace(charge, instance_id=identity)
             elif event == 'budget.v2.launch_absent':
@@ -493,7 +527,7 @@ class SharedCampaignBudget:
             receipt, amount = data['receipt_id'], decimal(data['usd'])
             if not isinstance(receipt, str) or not receipt:
                 raise ValueError('receipt identity required')
-            previous = dict(self.ancillary_receipts)
+            previous = dict(self.prior_receipts + self.ancillary_receipts)
             if receipt in previous and previous[receipt] != amount:
                 raise ValueError('receipt identity changed its charge')
             if receipt not in previous:

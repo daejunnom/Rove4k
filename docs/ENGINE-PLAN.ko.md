@@ -81,6 +81,13 @@ B 두 control은 4096 B를 초과하므로 참가 자격이 없다. 기존 B 축
 같은 head의 [castle 비용 CI](https://github.com/daejunnom/Rove4k/actions/runs/40520433628)는
 A/C/E W256에서 각각 +3/+7/+7 B로 손해여서 해당 후보를 선택하지 않는다.
 
+후속 `17e6d05c42ef6706d7cea6192043bf6fcde09101`의
+[실제 비교 CI](https://github.com/daejunnom/Rove4k/actions/runs/40522741567)는
+B의 `tcec-final-lf` 후보에서 P16 4086 B(-117), P192 4097 B(-109)를 기록했다.
+P192는 1 B 초과이고 P16은 10 B 여유다. 두 파일의 소스·규칙 재승인은 통과했으나
+원 엔진·TT 실행, 실제 NUMA, 점수 리그와 유지 선택은 아직 확인하지 않았다.
+실제 중간 source 핀을 사용해 추가 atomic-assignment 및 include 축약을 따로 검증한다.
+
 남은 작업은 공통 제출 규칙·자원·소스 소유권을 고정한 다음 병렬로 진행한다.
 
 1. **B/F 압축**: 기존 payload를 보존하는 작은 헤더는 P4/P28/W256에서 B 18 B,

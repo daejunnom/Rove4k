@@ -7,6 +7,7 @@ import sys
 import select
 import signal
 import tempfile
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
@@ -14,6 +15,327 @@ import placement
 
 
 class PlacementTests(unittest.TestCase):
+    def test_live_cgroup_observation_requires_original_identity_and_limits(self):
+        # Fake attributes exercise the parser and receipt binding only; they do
+        # not establish real cgroup, ancestor or memory-page observations.
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp).resolve() / "slot-000"
+            path.mkdir()
+            cpu_path, node_path, memory_path = (path / "cpuset.cpus.effective",
+                                                path / "cpuset.mems.effective", path / "memory.max")
+            cpu_path.write_text("2-3\n")
+            node_path.write_text("1\n")
+            memory_path.write_text("4096\n")
+            stat = path.stat()
+            receipt = {"path": str(path), "device": stat.st_dev, "inode": stat.st_ino,
+                       "cpus": [2, 3], "memory_nodes": [1], "memory_max": 4096}
+            result = placement.verify_cgroup_live(receipt)
+            self.assertEqual({key: result[key] for key in receipt}, receipt)
+            self.assertIn("not ancestor capacity", result["scope"])
+            self.assertIn("observed_at_utc", result)
+
+            for label, attribute, value in (
+                    ("changed-cpu", cpu_path, "2\n"), ("changed-node", node_path, "0-1\n"),
+                    ("changed-memory", memory_path, "8192\n"), ("unlimited", memory_path, "max\n"),
+                    ("malformed", memory_path, "invalid\n"), ("missing", memory_path, None)):
+                cpu_path.write_text("2-3\n")
+                node_path.write_text("1\n")
+                memory_path.write_text("4096\n")
+                if value is None:
+                    attribute.unlink()
+                else:
+                    attribute.write_text(value)
+                with self.subTest(label=label), self.assertRaises((ValueError, OSError)):
+                    placement.verify_cgroup_live(receipt)
+
+            memory_path.write_text("4096\n")
+            for label, altered in (
+                    ("replaced-inode", {**receipt, "inode": receipt["inode"] + 1}),
+                    ("spoofed-device", {**receipt, "device": receipt["device"] + 1}),
+                    ("spoofed-cpu", {**receipt, "cpus": [2]}),
+                    ("spoofed-node", {**receipt, "memory_nodes": [0]}),
+                    ("spoofed-memory", {**receipt, "memory_max": 8192}),
+                    ("duplicate-cpu", {**receipt, "cpus": [2, 2, 3]}),
+                    ("boolean-node", {**receipt, "memory_nodes": [True]}),
+                    ("boolean-memory", {**receipt, "memory_max": True}),
+                    ("missing-memory", {key: value for key, value in receipt.items() if key != "memory_max"})):
+                with self.subTest(label=label), self.assertRaises(ValueError):
+                    placement.verify_cgroup_live(altered)
+
+    def test_cgroup_create_checks_actual_memory_max_readback(self):
+        # Regular temporary files stand in for cgroupfs attributes: this tests
+        # readback handling, not a kernel cgroup or actual memory admission.
+        with tempfile.TemporaryDirectory() as tmp:
+            manager = object.__new__(placement.CgroupSlots)
+            manager.parent = Path(tmp).resolve()
+            manager.created = []
+            memory = 26 << 30
+            original_read = Path.read_text
+
+            def read_attributes(path, *args, **kwargs):
+                if path.name == "cpuset.cpus.effective":
+                    return original_read(path.parent / "cpuset.cpus", *args, **kwargs)
+                if path.name == "cpuset.mems.effective":
+                    return original_read(path.parent / "cpuset.mems", *args, **kwargs)
+                return original_read(path, *args, **kwargs)
+
+            slot = SimpleNamespace(id="slot-000", cpus=(2, 3), memory_nodes=(1,))
+            with patch.object(Path, "read_text", autospec=True, side_effect=read_attributes):
+                result = manager.create(slot, memory_bytes=memory)
+            self.assertEqual(result["memory_max"], memory)
+            self.assertEqual(result["cpus"], [2, 3])
+            self.assertEqual(result["memory_nodes"], [1])
+
+            for index, override in enumerate(("max", str(memory + 4096), "invalid"), 1):
+                def changed_read(path, *args, **kwargs):
+                    if path.name == "memory.max":
+                        return override
+                    return read_attributes(path, *args, **kwargs)
+                slot = SimpleNamespace(id=f"slot-{index:03}", cpus=(2, 3), memory_nodes=(1,))
+                with self.subTest(readback=override), patch.object(Path, "read_text", autospec=True,
+                                                                  side_effect=changed_read):
+                    with self.assertRaisesRegex(ValueError, "memory.max readback differs"):
+                        manager.create(slot, memory_bytes=memory)
+                self.assertEqual(manager.created[-1][0], manager.parent / slot.id)
+
+            def missing_read(path, *args, **kwargs):
+                if path.name == "memory.max":
+                    raise OSError("kernel readback unavailable")
+                return read_attributes(path, *args, **kwargs)
+            slot = SimpleNamespace(id="slot-004", cpus=(2, 3), memory_nodes=(1,))
+            with patch.object(Path, "read_text", autospec=True, side_effect=missing_read):
+                with self.assertRaisesRegex(OSError, "readback unavailable"):
+                    manager.create(slot, memory_bytes=memory)
+            self.assertEqual(manager.created[-1][0], manager.parent / slot.id)
+
+    @unittest.skipUnless(hasattr(os, "sched_getaffinity"), "Linux execution port")
+    def test_preexec_rechecks_owned_memory_max_before_entering_cgroup(self):
+        # Fake files and affinity stand in for cgroupfs and scheduler operations.
+        # No assertion here proves actual kernel cgroup behavior.
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp).resolve() / "slot-000"
+            path.mkdir()
+            (path / "cpuset.cpus.effective").write_text("2-3\n")
+            (path / "cpuset.mems.effective").write_text("1\n")
+            (path / "cgroup.procs").write_text("untouched\n")
+            memory_path = path / "memory.max"
+            memory_path.write_text("4096\n")
+            stat = path.stat()
+            original = {"path": str(path), "device": stat.st_dev, "inode": stat.st_ino,
+                        "cpus": [2, 3], "memory_nodes": [1], "memory_max": 4096}
+            slot = {"cpus": [2, 3], "memory_nodes": [1], "policy": "inherit"}
+            with patch.object(placement.os, "sched_getaffinity", return_value={2, 3}), \
+                    patch.object(placement.os, "sched_setaffinity") as set_affinity, \
+                    patch.object(placement, "allowed_nodes", return_value={1}), \
+                    patch.object(placement, "memory_policy", return_value={"available": False}):
+                result = placement.apply_slot(slot, cgroup=original)
+                self.assertEqual(result["cgroup"]["memory_max"], 4096)
+                self.assertEqual((path / "cgroup.procs").read_text(), str(os.getpid()))
+                set_affinity.assert_called_once()
+
+            for label, receipt, readback in (
+                    ("changed", original, "8192\n"), ("unlimited", original, "max\n"),
+                    ("invalid", original, "garbage\n"),
+                    ("spoofed-receipt", {**original, "memory_max": 8192}, "4096\n"),
+                    ("missing-receipt", {key: value for key, value in original.items() if key != "memory_max"}, "4096\n"),
+                    ("boolean-receipt", {**original, "memory_max": True}, "4096\n"),
+                    ("zero-receipt", {**original, "memory_max": 0}, "0\n"),
+                    ("missing-file", original, None)):
+                (path / "cgroup.procs").write_text("untouched\n")
+                if readback is None:
+                    memory_path.unlink(missing_ok=True)
+                else:
+                    memory_path.write_text(readback)
+                with self.subTest(label=label), \
+                        patch.object(placement.os, "sched_getaffinity", return_value={2, 3}), \
+                        patch.object(placement.os, "sched_setaffinity") as set_affinity, \
+                        patch.object(placement, "allowed_nodes", return_value={1}), \
+                        patch.object(placement, "memory_policy", return_value={"available": False}):
+                    with self.assertRaises((ValueError, OSError)):
+                        placement.apply_slot(slot, cgroup=receipt)
+                    set_affinity.assert_not_called()
+                self.assertEqual((path / "cgroup.procs").read_text(), "untouched\n")
+
+            # Even a valid receipt cannot authorize a different slot mask.
+            memory_path.write_text("4096\n")
+            (path / "cgroup.procs").write_text("untouched\n")
+            with patch.object(placement.os, "sched_getaffinity", return_value={2, 3}), \
+                    patch.object(placement.os, "sched_setaffinity") as set_affinity, \
+                    patch.object(placement, "allowed_nodes", return_value={1}), \
+                    patch.object(placement, "memory_policy", return_value={"available": False}):
+                with self.assertRaisesRegex(ValueError, "effective masks changed"):
+                    placement.apply_slot({**slot, "cpus": [2]}, cgroup=original)
+                set_affinity.assert_not_called()
+            self.assertEqual((path / "cgroup.procs").read_text(), "untouched\n")
+
+    def test_slot_memory_budget_uses_both_actual_tt_extents_and_overhead(self):
+        gib = 1 << 30
+        p16 = placement.slot_memory_budget((12 * gib, 12 * gib), overhead_bytes=2 * gib,
+                                           available_bytes=700 * gib, page_bytes=4096, node_available_bytes=80 * gib)
+        self.assertEqual(p16["tt_bytes"], [12 * gib, 12 * gib])
+        self.assertEqual(p16["memory_max"], 26 * gib)
+        self.assertEqual(p16["supplied_node_available_bytes"], 80 * gib)
+        self.assertTrue(p16["node_bound_provided"])
+        self.assertIn("not a concurrent admission", p16["capacity_scope"])
+
+        p192 = placement.slot_memory_budget((192 * gib, 192 * gib), overhead_bytes=2 * gib,
+                                            available_bytes=700 * gib, page_bytes=4096)
+        self.assertEqual(p192["memory_max"], 386 * gib)
+        self.assertIsNone(p192["supplied_node_available_bytes"])
+        self.assertFalse(p192["node_bound_provided"])
+        self.assertIn("node capacity not checked", p192["capacity_scope"])
+
+    def test_slot_memory_budget_rejects_unbounded_invalid_or_overflow_inputs(self):
+        good = {"overhead_bytes": 4, "available_bytes": 100, "page_bytes": 2}
+        for extents in ((), (1,), (1, 2, 3), (0, 1), (True, 1), (-1, 1), ("1", 1), None):
+            with self.subTest(extents=extents), self.assertRaisesRegex(ValueError, "two positive"):
+                placement.slot_memory_budget(extents, **good)
+        for name, value in (("overhead_bytes", 0), ("overhead_bytes", True),
+                            ("available_bytes", None), ("available_bytes", -1),
+                            ("node_available_bytes", False), ("node_available_bytes", 0)):
+            with self.subTest(name=name, value=value), self.assertRaises(ValueError):
+                placement.slot_memory_budget((1, 2), **{**good, name: value})
+        with self.assertRaisesRegex(ValueError, "supported range"):
+            placement.slot_memory_budget(((1 << 63) - 1, 1), overhead_bytes=1,
+                                         available_bytes=(1 << 63) - 1, page_bytes=4096)
+
+    def test_slot_memory_budget_rejects_actual_host_or_node_shortfall(self):
+        with self.assertRaisesRegex(ValueError, "host availability"):
+            placement.slot_memory_budget((40, 40), overhead_bytes=10, available_bytes=89, page_bytes=2)
+        with self.assertRaisesRegex(ValueError, "node availability"):
+            placement.slot_memory_budget((40, 40), overhead_bytes=10, available_bytes=100, page_bytes=2,
+                                         node_available_bytes=89)
+        equal = placement.slot_memory_budget((40, 40), overhead_bytes=10, available_bytes=90, page_bytes=2,
+                                             node_available_bytes=90)
+        self.assertEqual(equal["memory_max"], 90)
+
+    def test_slot_memory_budget_rounds_before_host_and_node_checks(self):
+        result = placement.slot_memory_budget((40, 40), overhead_bytes=10, available_bytes=96,
+                                              node_available_bytes=96, page_bytes=16)
+        self.assertEqual(result["unrounded_memory_bytes"], 90)
+        self.assertEqual(result["memory_max"], 96)
+        self.assertEqual(result["page_rounding_bytes"], 6)
+        self.assertEqual(result["page_bytes"], 16)
+        with self.assertRaisesRegex(ValueError, "host availability"):
+            placement.slot_memory_budget((40, 40), overhead_bytes=10, available_bytes=95, page_bytes=16)
+        with self.assertRaisesRegex(ValueError, "node availability"):
+            placement.slot_memory_budget((40, 40), overhead_bytes=10, available_bytes=96,
+                                         node_available_bytes=95, page_bytes=16)
+        for page in (None, 0, -1, True, 3, "4096", 1 << 63):
+            with self.subTest(page=page), self.assertRaisesRegex(ValueError, "power-of-two kernel page"):
+                placement.slot_memory_budget((1, 1), overhead_bytes=1, available_bytes=100, page_bytes=page)
+        with self.assertRaisesRegex(ValueError, "page-aligned memory extent"):
+            placement.slot_memory_budget(((1 << 63) - 4, 1), overhead_bytes=1,
+                                         available_bytes=(1 << 63) - 1, page_bytes=4096)
+
+    def test_league_memory_admission_p16_uses_worst_distinct_pair_per_slot(self):
+        gib = 1 << 30
+        players = [{"id": name, "sha256": digit * 64, "tt_bytes": amount * gib}
+                   for name, digit, amount in (("a", "a", 12), ("b", "b", 8), ("c", "c", 16))]
+        slots = [{"id": f"slot-{index:03}", "memory_nodes": [0 if index < 6 else 1]}
+                 for index in range(11)]
+        result = placement.league_memory_admission(players, slots, profile="test-p16",
+            host_available_bytes=700 * gib, node_available_bytes={0: 200 * gib, 1: 180 * gib},
+            per_game_overhead_bytes=2 * gib, overhead_evidence_sha256="a" * 64,
+            controller_reserve_bytes=4 * gib, page_bytes=4096)
+        self.assertEqual([row["id"] for row in result["worst_two_artifacts"]], ["c", "a"])
+        self.assertTrue(all(row["memory_max"] == 30 * gib for row in result["slots"]))
+        self.assertEqual(result["required_bytes"], 334 * gib)
+        self.assertEqual(result["node_check"]["required_bytes"], {0: 180 * gib, 1: 150 * gib})
+        self.assertFalse(result["node_check"]["controller_distribution_verified"])
+        self.assertFalse(result["runtime_admission_complete"])
+        self.assertIn("no provenance, freshness, reservation", result["capacity_scope"])
+
+    def test_league_memory_admission_fails_closed_for_p16_aggregate_bounds(self):
+        players = [{"id": "a", "sha256": "a" * 64, "tt_bytes": 12},
+                   {"id": "b", "sha256": "b" * 64, "tt_bytes": 12}]
+        slots = [{"id": f"slot-{index:03}", "memory_nodes": [0]} for index in range(11)]
+        args = {"profile": "test-p16", "host_available_bytes": 500,
+                "node_available_bytes": {0: 286}, "per_game_overhead_bytes": 2,
+                "overhead_evidence_sha256": "c" * 64, "controller_reserve_bytes": 4, "page_bytes": 2}
+        equal = placement.league_memory_admission(players, slots, **args)
+        self.assertEqual(equal["required_bytes"], 290)
+        for change, message in (({"host_available_bytes": 289}, "host availability"),
+                                ({"node_available_bytes": {0: 285}}, "node availability"),
+                                ({"node_available_bytes": {1: 500}}, "node bound is missing"),
+                                ({"per_game_overhead_bytes": True}, "positive per-game"),
+                                ({"controller_reserve_bytes": 0}, "controller reserve"),
+                                ({"overhead_evidence_sha256": "unknown"}, "overhead evidence")):
+            with self.subTest(change=change), self.assertRaisesRegex(ValueError, message):
+                placement.league_memory_admission(players, slots, **{**args, **change})
+        with self.assertRaisesRegex(ValueError, "eleven slots"):
+            placement.league_memory_admission(players, slots[:-1], **args)
+        duplicate = [*slots[:-1], slots[0]]
+        with self.assertRaisesRegex(ValueError, "distinct slot identity"):
+            placement.league_memory_admission(players, duplicate, **args)
+        with self.assertRaisesRegex(ValueError, "distinct named artifact"):
+            placement.league_memory_admission([players[0], players[0]], slots, **args)
+        with self.assertRaisesRegex(ValueError, "exactly one NUMA"):
+            placement.league_memory_admission(players, [{**slots[0], "memory_nodes": [0, 1]}, *slots[1:]],
+                                              **{**args, "node_available_bytes": {0: 500, 1: 500}})
+
+    def test_league_memory_admission_p192_uses_only_allowed_node_aggregate(self):
+        gib = 1 << 30
+        players = [{"id": "a", "sha256": "a" * 64, "tt_bytes": 192 * gib},
+                   {"id": "b", "sha256": "b" * 64, "tt_bytes": 192 * gib}]
+        slot = [{"id": "slot-000", "memory_nodes": [0, 1, 2]}]
+        args = {"profile": "test-p192", "host_available_bytes": 700 * gib,
+                "node_available_bytes": {0: 130 * gib, 1: 130 * gib, 2: 130 * gib, 3: 500 * gib},
+                "per_game_overhead_bytes": 2 * gib, "overhead_evidence_sha256": "c" * 64,
+                "controller_reserve_bytes": 4 * gib, "page_bytes": 4096}
+        result = placement.league_memory_admission(players, slot, **args)
+        self.assertEqual(result["required_bytes"], 390 * gib)
+        self.assertEqual(result["node_check"]["supplied_aggregate_bytes"], 390 * gib)
+        self.assertFalse(result["node_check"]["per_node_distribution_verified"])
+        self.assertFalse(result["runtime_admission_complete"])
+        with self.assertRaisesRegex(ValueError, "aggregate node availability"):
+            placement.league_memory_admission(players, slot, **{**args,
+                "node_available_bytes": {0: 130 * gib, 1: 130 * gib, 2: 129 * gib, 3: 500 * gib}})
+        with self.assertRaisesRegex(ValueError, "node bound is missing"):
+            placement.league_memory_admission(players, slot, **{**args,
+                "node_available_bytes": {0: 200 * gib, 1: 200 * gib}})
+
+    def test_league_memory_admission_rejects_integer_overflow_and_invalid_nodes(self):
+        players = [{"id": "a", "sha256": "a" * 64, "tt_bytes": 1},
+                   {"id": "b", "sha256": "b" * 64, "tt_bytes": 1}]
+        slots = [{"id": "slot-000", "memory_nodes": [0]}]
+        args = {"profile": "test-p192", "host_available_bytes": (1 << 63) - 1,
+                "node_available_bytes": {0: (1 << 63) - 1}, "per_game_overhead_bytes": 1,
+                "overhead_evidence_sha256": "c" * 64, "controller_reserve_bytes": 1, "page_bytes": 2}
+        with self.assertRaisesRegex(ValueError, "single-slot memory extent"):
+            placement.league_memory_admission([{**players[0], "tt_bytes": (1 << 63) - 1}, players[1]], slots, **args)
+        with self.assertRaisesRegex(ValueError, "concurrent memory extent"):
+            placement.league_memory_admission(players, slots, **{**args, "controller_reserve_bytes": (1 << 63) - 1})
+        with self.assertRaisesRegex(ValueError, "numeric NUMA node"):
+            placement.league_memory_admission(players, slots, **{**args, "node_available_bytes": {True: 50}})
+        with self.assertRaisesRegex(ValueError, "distinct slot identity"):
+            placement.league_memory_admission(players, [{"id": "slot-000", "memory_nodes": [0, 0]}], **args)
+
+    def test_league_memory_admission_aligns_every_slot_before_summing(self):
+        players = [{"id": "a", "sha256": "a" * 64, "tt_bytes": 1},
+                   {"id": "b", "sha256": "b" * 64, "tt_bytes": 1}]
+        slots = [{"id": f"slot-{index:03}", "memory_nodes": [0]} for index in range(11)]
+        args = {"profile": "test-p16", "host_available_bytes": 180,
+                "node_available_bytes": {0: 176}, "per_game_overhead_bytes": 1,
+                "overhead_evidence_sha256": "c" * 64, "controller_reserve_bytes": 4, "page_bytes": 16}
+        result = placement.league_memory_admission(players, slots, **args)
+        self.assertEqual(result["unrounded_per_slot_bytes"], 3)
+        self.assertEqual(result["per_slot_page_rounding_bytes"], 13)
+        self.assertEqual(result["required_bytes"], 180)
+        self.assertTrue(all(row["memory_max"] == 16 for row in result["slots"]))
+        with self.assertRaisesRegex(ValueError, "host availability"):
+            placement.league_memory_admission(players, slots, **{**args, "host_available_bytes": 179})
+        with self.assertRaisesRegex(ValueError, "node availability"):
+            placement.league_memory_admission(players, slots, **{**args, "node_available_bytes": {0: 175}})
+        for page in (False, 0, 6, -2):
+            with self.subTest(page=page), self.assertRaisesRegex(ValueError, "power-of-two kernel page"):
+                placement.league_memory_admission(players, slots, **{**args, "page_bytes": page})
+        with self.assertRaisesRegex(ValueError, "page-aligned memory extent"):
+            placement.league_memory_admission([{**players[0], "tt_bytes": (1 << 63) - 4}, players[1]],
+                [{"id": "slot-000", "memory_nodes": [0]}], **{**args, "profile": "test-p192",
+                "host_available_bytes": (1 << 63) - 1, "node_available_bytes": {0: (1 << 63) - 1},
+                "page_bytes": 4096})
+
     @unittest.skipUnless(hasattr(os, "sched_getaffinity"), "actual Linux /proc port")
     def test_actual_two_image_observation_and_wrong_binding_rejection(self):
         command = """import subprocess,sys

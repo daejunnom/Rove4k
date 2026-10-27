@@ -40,6 +40,7 @@ class Adapter(unittest.TestCase):
         self.assertIn("-noswap", argv)
         self.assertIn("restart=on", argv)
         self.assertIn("timemargin=0", argv)
+        self.assertIn("option.Ponder=false", argv[argv.index("-each") + 1:argv.index("-openings")])
         self.assertIn("start=2", argv)
         self.assertLess(argv.index("name=white"), argv.index("name=black"))
         self.assertIn("args='argument with spaces'", argv)
@@ -48,6 +49,22 @@ class Adapter(unittest.TestCase):
         reverse = fastchess.single_game_argv(Path("/tmp/fc"), black, white,
             opening_pgn=Path("/tmp/book.pgn"), opening_start=2, out=Path("/tmp/reverse"))
         self.assertLess(reverse.index("name=black"), reverse.index("name=white"))
+
+    def test_ponder_command_evidence_preserves_unknown_behavior(self):
+        observed = fastchess.ponder_uci_evidence([
+            "uci", "setoption name Ponder value false", "go wtime 3000 btime 3000",
+            "go ponder wtime 2000 btime 3000"])
+        self.assertEqual(observed["setoption_ponder_false_received"], 1)
+        self.assertEqual(observed["go_ponder_received"], 1)
+        self.assertIsNone(observed["actual_off_turn_search"])
+        self.assertIsNone(observed["tcec_ponder_compliance"])
+        unavailable = fastchess.ponder_uci_evidence(["uci", "go wtime 100 btime 100"])
+        self.assertEqual(unavailable["setoption_ponder_false_received"], 0)
+        self.assertEqual(unavailable["go_ponder_received"], 0)
+        self.assertIsNone(unavailable["actual_off_turn_search"])
+        for invalid in (("uci\nquit",), (None,), "uci"):
+            with self.subTest(invalid=invalid), self.assertRaises(ValueError):
+                fastchess.ponder_uci_evidence(invalid)
 
     def test_bad_invocation_rejects(self):
         with self.assertRaises(ValueError):
@@ -108,6 +125,8 @@ for raw in sys.stdin:
                 print('info string still initializing', flush=True)
                 print('initializing', file=sys.stderr, flush=True)
                 time.sleep(.005)
+        if mode == 'ponder-option':
+            print('option name Ponder type check default true', flush=True)
         print('uciok', flush=True)
     elif line == 'isready':
         print('readyok', flush=True)
@@ -180,7 +199,8 @@ def actual_check(build_receipt: Path, out: Path) -> dict:
         directory = out / case
         directory.mkdir()
         ta, tb = directory / "a.jsonl", directory / "b.jsonl"
-        a = fastchess.EngineCommand("mock-a", (sys.executable, str(mock), str(ta), "noise" if case == "noise" else "normal"))
+        a = fastchess.EngineCommand("mock-a", (sys.executable, str(mock), str(ta),
+            "noise" if case == "noise" else "ponder-option"))
         b = fastchess.EngineCommand("mock-b", (sys.executable, str(mock), str(tb), "normal"))
         white, black = (b, a) if case == "reverse" else (a, b)
         argv = fastchess.single_game_argv(binary, white, black, opening_pgn=book,
@@ -197,6 +217,7 @@ def actual_check(build_receipt: Path, out: Path) -> dict:
         started, forced, ready = time.monotonic(), False, None
         process = None
         failure = None
+        ponder_evidence = None
         try:
             with command_log.open("wb") as output:
                 process = subprocess.Popen(argv, cwd=directory, env=environment, stdout=output,
@@ -231,6 +252,14 @@ def actual_check(build_receipt: Path, out: Path) -> dict:
                                if row.get("line", "").startswith("go")]
                 if len(goes) != 2 or not first_white or "wtime 1803000 btime 1803000" not in first_white[0]:
                     raise AssertionError("gate altered first game clocks: " + repr(goes))
+                ponder_evidence = {name: fastchess.ponder_uci_evidence(
+                    [row["line"] for row in _rows(trace) if row.get("event") == "input"])
+                    for name, trace in (("mock-a", ta), ("mock-b", tb))}
+                if (ponder_evidence["mock-a"]["setoption_ponder_false_received"] != 1 or
+                        ponder_evidence["mock-b"]["setoption_ponder_false_received"] != 0 or
+                        any(row["go_ponder_received"] for row in ponder_evidence.values())):
+                    raise AssertionError("advertised/unsupported Ponder command behavior differed: "
+                                         + repr(ponder_evidence))
             elif case == "noise":
                 if code == 0 or "Engine didn't respond to uciok after startup" not in stdout:
                     raise AssertionError("chatter extended the absolute startup deadline")
@@ -280,6 +309,8 @@ def actual_check(build_receipt: Path, out: Path) -> dict:
                     "runner_log_sha256": fastchess.sha(command_log.read_bytes()), "failure": failure}
             if case == "noise" and failure is None:
                 item["startup_wait_seconds"] = phase
+            if ponder_evidence is not None:
+                item["ponder_command_evidence"] = ponder_evidence
             report["cases"].append(item)
             save()
         if failure or forced or not absent:

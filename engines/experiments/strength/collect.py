@@ -111,12 +111,15 @@ def collect(rows, campaign, *, expected_pairs=None, profile=None, player_familie
 
 def select_high(summary, broad_families, high_players):
     """Choose up to two distinct eligible Rove families from completed broad."""
-    if summary.get("profile") != "test-p4" or summary.get("selection_ready") is not True:
+    if summary.get("profile") not in ("test-p4", "test-p16") or summary.get("selection_ready") is not True:
         raise ValueError("an incomplete broad stage cannot determine its top two")
     if type(broad_families) is not dict:
         raise ValueError("high selection requires the admitted broad family mapping")
+    if summary["profile"] == "test-p16" and ("D" in broad_families.values() or
+            any(row.get("family") == "D" for row in high_players)):
+        raise ValueError("D is outside the P16/P192 cohort")
     if len({row["family"] for row in high_players}) != len(high_players):
-        raise ValueError("P28 selection requires one qualified artifact per family")
+        raise ValueError("high selection requires one qualified artifact per family")
     ordered = order_standings(summary["standings"], broad_families)
     rove = [broad_families[row["player"]] for row in ordered if broad_families[row["player"]] in tuple("ABCDEF")]
     if len(rove) != len(set(rove)):
@@ -131,9 +134,11 @@ def select_high(summary, broad_families, high_players):
             if len(families) == 2:
                 break
     selected += sorted(row["id"] for row in high_players if row["family"] in ("ice4", "c4ke"))
+    broad = "P4" if summary["profile"] == "test-p4" else "P16"
+    high = "P28" if broad == "P4" else "P192"
     return {"players": selected, "rove_families": sorted(families),
             "partial": len(families) < 2 or sum(row["family"] in ("ice4", "c4ke") for row in high_players) < 2,
-            "selection": "complete P4 pair points, tied head-to-head, Sonneborn-Berger, fixed family ID; among P28-qualified families"}
+            "selection": f"complete {broad} pair points, tied head-to-head, Sonneborn-Berger, fixed family ID; among {high}-qualified families"}
 
 
 def write_summary(summary, out):
@@ -169,7 +174,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--journal", type=Path, required=True)
     parser.add_argument("--campaign", required=True)
-    parser.add_argument("--profile", choices=("test-p4", "test-p28"))
+    parser.add_argument("--profile", choices=("test-p4", "test-p28", "test-p16", "test-p192"))
     parser.add_argument("--plan", type=Path)
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()

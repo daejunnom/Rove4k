@@ -64,6 +64,161 @@ def memory_policy(policy=None, nodes=()):
             "mode": mode.value, "nodes": observed}
 
 
+def _align_memory_extent(extent, page_bytes):
+    """Round up an extent to the caller-observed kernel page size."""
+    maximum = (1 << 63) - 1
+    if type(page_bytes) is not int or not 0 < page_bytes <= (1 << 62) or page_bytes & (page_bytes - 1):
+        raise ValueError("a positive power-of-two kernel page size is required")
+    rounded = ((extent + page_bytes - 1) // page_bytes) * page_bytes
+    if rounded > maximum:
+        raise ValueError("page-aligned memory extent exceeds the supported range")
+    return rounded
+
+
+def slot_memory_budget(tt_bytes, *, overhead_bytes, available_bytes, page_bytes, node_available_bytes=None):
+    """Size one game's cgroup from both artifact TT extents and observed bounds.
+
+    The caller must supply actual, already-admitted artifact extents, an
+    explicit operational allowance, and a current host availability reading.
+    A node availability reading is optional for a multi-node slot; when absent,
+    this result does not assert node capacity. This comparison is per game,
+    not an admission for several concurrent slots or a reservation of memory.
+    """
+    maximum = (1 << 63) - 1
+    if (not isinstance(tt_bytes, (list, tuple)) or len(tt_bytes) != 2 or
+            any(type(value) is not int or not 0 < value <= maximum for value in tt_bytes)):
+        raise ValueError("two positive actual artifact TT byte extents are required")
+    if type(overhead_bytes) is not int or not 0 < overhead_bytes <= maximum:
+        raise ValueError("an explicit positive operational overhead in bytes is required")
+    if type(available_bytes) is not int or not 0 < available_bytes <= maximum:
+        raise ValueError("a positive observed host available-byte bound is required")
+    if node_available_bytes is not None and (
+            type(node_available_bytes) is not int or not 0 < node_available_bytes <= maximum):
+        raise ValueError("an observed node available-byte bound must be positive")
+    raw_memory = sum(tt_bytes) + overhead_bytes
+    if raw_memory > maximum:
+        raise ValueError("single-game cgroup memory extent exceeds the supported range")
+    memory_max = _align_memory_extent(raw_memory, page_bytes)
+    if memory_max > available_bytes:
+        raise ValueError("single-game memory extent exceeds observed host availability")
+    if node_available_bytes is not None and memory_max > node_available_bytes:
+        raise ValueError("single-game memory extent exceeds observed node availability")
+    return {"tt_bytes": list(tt_bytes), "overhead_bytes": overhead_bytes,
+            "unrounded_memory_bytes": raw_memory, "page_bytes": page_bytes,
+            "page_rounding_bytes": memory_max - raw_memory,
+            "memory_max": memory_max, "supplied_available_bytes": available_bytes,
+            "supplied_node_available_bytes": node_available_bytes,
+            "node_bound_provided": node_available_bytes is not None,
+            "capacity_scope": ("one slot; caller-supplied bounds only; "
+                               + ("node bound provided" if node_available_bytes is not None
+                                  else "node capacity not checked")
+                               + "; not a concurrent admission or reservation")}
+
+
+def league_memory_admission(artifacts, slots, *, profile, host_available_bytes, node_available_bytes,
+                            per_game_overhead_bytes, overhead_evidence_sha256, controller_reserve_bytes,
+                            page_bytes):
+    """Compare one cohort's conservative simultaneous memory demand to supplied bounds.
+
+    Caller supplies verified artifact identities, the exact candidate slots,
+    current effective host/node bounds and a separately authenticated overhead
+    receipt. The digest is a binding label, not receipt authentication. This
+    pure arithmetic check neither reserves resources nor verifies provenance,
+    freshness, runtime TT residency or actual per-node page distribution.
+    """
+    maximum = (1 << 63) - 1
+
+    def positive(value, message):
+        if type(value) is not int or not 0 < value <= maximum:
+            raise ValueError(message)
+        return value
+
+    if profile not in ("test-p16", "test-p192"):
+        raise ValueError("named P16 or P192 profile required")
+    if not isinstance(artifacts, (tuple, list)) or not 2 <= len(artifacts) <= 256:
+        raise ValueError("at least two bounded artifact identities are required")
+    if not isinstance(overhead_evidence_sha256, str) or not re.fullmatch(r"[0-9a-f]{64}", overhead_evidence_sha256):
+        raise ValueError("a bound overhead evidence SHA-256 is required")
+    overhead = positive(per_game_overhead_bytes, "a positive per-game operational overhead is required")
+    reserve = positive(controller_reserve_bytes, "a positive controller reserve is required")
+    available = positive(host_available_bytes, "a positive supplied host available-byte bound is required")
+    players = []
+    seen_players = set()
+    for artifact in artifacts:
+        if not isinstance(artifact, dict):
+            raise ValueError("artifact identity record required")
+        name, digest = artifact.get("id"), artifact.get("sha256")
+        if (not isinstance(name, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,95}", name)
+                or name in seen_players or not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest)):
+            raise ValueError("distinct named artifact identities with SHA-256 are required")
+        tt = positive(artifact.get("tt_bytes"), "actual artifact TT extent must be positive")
+        seen_players.add(name)
+        players.append({"id": name, "sha256": digest, "tt_bytes": tt})
+    players.sort(key=lambda row: (-row["tt_bytes"], row["id"]))
+    worst = players[:2]
+    raw_per_slot = sum(row["tt_bytes"] for row in worst) + overhead
+    if raw_per_slot > maximum:
+        raise ValueError("single-slot memory extent exceeds the supported range")
+    per_slot = _align_memory_extent(raw_per_slot, page_bytes)
+    expected_count = 11 if profile == "test-p16" else 1
+    if not isinstance(slots, (tuple, list)) or len(slots) != expected_count:
+        raise ValueError("P16 requires eleven slots and P192 requires one slot")
+    if not isinstance(node_available_bytes, dict) or not node_available_bytes:
+        raise ValueError("per-node supplied available-byte bounds are required")
+    node_bounds = {}
+    for node, value in node_available_bytes.items():
+        if type(node) is not int or node < 0:
+            raise ValueError("a nonnegative numeric NUMA node id is required")
+        node_bounds[node] = positive(value, "a positive node available-byte bound is required")
+    records, seen_slots, p16_nodes = [], set(), Counter()
+    for slot in slots:
+        if not isinstance(slot, dict):
+            raise ValueError("actual slot identity record required")
+        name, nodes = slot.get("id"), slot.get("memory_nodes")
+        if (not isinstance(name, str) or not re.fullmatch(r"slot-\d{3}", name) or name in seen_slots
+                or not isinstance(nodes, (tuple, list)) or not nodes
+                or any(type(node) is not int or node < 0 for node in nodes)
+                or len(nodes) != len(set(nodes))):
+            raise ValueError("distinct slot identity and NUMA node list required")
+        if profile == "test-p16" and len(nodes) != 1:
+            raise ValueError("P16 slots must each use exactly one NUMA node")
+        if any(node not in node_bounds for node in nodes):
+            raise ValueError("supplied node bound is missing for an actual slot")
+        seen_slots.add(name)
+        if profile == "test-p16":
+            p16_nodes[nodes[0]] += per_slot
+        records.append({"id": name, "memory_nodes": sorted(nodes), "memory_max": per_slot})
+    required = per_slot * len(records) + reserve
+    if required > maximum:
+        raise ValueError("concurrent memory extent exceeds the supported range")
+    if required > available:
+        raise ValueError("concurrent memory extent exceeds supplied host availability")
+    if profile == "test-p16":
+        for node, amount in p16_nodes.items():
+            if amount > node_bounds[node]:
+                raise ValueError("P16 slot aggregate exceeds supplied NUMA node availability")
+        node_check = {"kind": "per-node-game-sums", "required_bytes": dict(sorted(p16_nodes.items())),
+                      "controller_distribution_verified": False}
+    else:
+        allowed_nodes = records[0]["memory_nodes"]
+        aggregate = sum(node_bounds[node] for node in allowed_nodes)
+        if aggregate > maximum:
+            raise ValueError("supplied node aggregate exceeds the supported range")
+        if required > aggregate:
+            raise ValueError("P192 game plus controller exceeds supplied aggregate node availability")
+        node_check = {"kind": "aggregate-only", "allowed_nodes": allowed_nodes,
+                      "supplied_aggregate_bytes": aggregate,
+                      "per_node_distribution_verified": False}
+    return {"profile": profile, "worst_two_artifacts": worst, "per_game_overhead_bytes": overhead,
+            "overhead_evidence_sha256": overhead_evidence_sha256,
+            "unrounded_per_slot_bytes": raw_per_slot, "page_bytes": page_bytes,
+            "per_slot_page_rounding_bytes": per_slot - raw_per_slot, "slots": records,
+            "controller_reserve_bytes": reserve, "required_bytes": required,
+            "supplied_host_available_bytes": available, "supplied_node_available_bytes": dict(sorted(node_bounds.items())),
+            "node_check": node_check, "runtime_admission_complete": False,
+            "capacity_scope": "caller-supplied bounds and digest only; no provenance, freshness, reservation or TT page claim"}
+
+
 class CgroupSlots:
     """Create only beneath an explicitly delegated controller-owned root."""
     def __init__(self, root, campaign):
@@ -103,9 +258,14 @@ class CgroupSlots:
         mems = parse_list((path / "cpuset.mems.effective").read_text())
         if cpus != set(slot.cpus) or mems != set(slot.memory_nodes):
             raise ValueError("kernel cgroup effective masks differ from the slot")
+        # The cgroup file is kernel-owned, so do not report the value we sent
+        # as an observed limit. Reject max, malformed or changed readback.
+        memory_text = (path / "memory.max").read_text().strip()
+        if not re.fullmatch(r"[0-9]+", memory_text) or int(memory_text) != memory_bytes:
+            raise ValueError("kernel cgroup memory.max readback differs from the requested limit")
         stat = path.stat()
         return {"path": str(path), "device": stat.st_dev, "inode": stat.st_ino,
-                "cpus": sorted(cpus), "memory_nodes": sorted(mems), "memory_max": memory_bytes}
+                "cpus": sorted(cpus), "memory_nodes": sorted(mems), "memory_max": int(memory_text)}
 
     def parent_record(self):
         path, device, inode = self.created[0]
@@ -173,6 +333,50 @@ def cleanup_owned_groups(records, *, root):
     return outcomes
 
 
+def verify_cgroup_live(cgroup):
+    """Re-read one owned cgroup's recorded limits at this observation instant.
+
+    The caller must authenticate the original receipt. This does not reserve
+    resources, check ancestor memory limits or prove live TT page placement;
+    another actor could change the group after the observation.
+    """
+    if not isinstance(cgroup, dict) or not isinstance(cgroup.get("path"), str):
+        raise ValueError("an original cgroup identity receipt is required")
+    path = Path(cgroup["path"])
+    device, inode, memory_max = cgroup.get("device"), cgroup.get("inode"), cgroup.get("memory_max")
+    if (not path.is_absolute() or type(device) is not int or device < 0 or
+            type(inode) is not int or inode <= 0 or type(memory_max) is not int or
+            not 0 < memory_max < (1 << 63)):
+        raise ValueError("invalid original cgroup identity or memory.max receipt")
+
+    def expected_set(key):
+        values = cgroup.get(key)
+        if (not isinstance(values, (list, tuple)) or not values or
+                any(type(value) is not int or value < 0 for value in values) or
+                len(set(values)) != len(values)):
+            raise ValueError("invalid original cgroup " + key + " receipt")
+        return set(values)
+
+    expected_cpus, expected_nodes = expected_set("cpus"), expected_set("memory_nodes")
+    before = path.stat()
+    if path.is_symlink() or (before.st_dev, before.st_ino) != (device, inode):
+        raise ValueError("owned cgroup identity changed")
+    actual_cpus = parse_list((path / "cpuset.cpus.effective").read_text())
+    actual_nodes = parse_list((path / "cpuset.mems.effective").read_text())
+    if actual_cpus != expected_cpus or actual_nodes != expected_nodes:
+        raise ValueError("owned cgroup effective masks differ from their original receipt")
+    memory_text = (path / "memory.max").read_text().strip()
+    if not re.fullmatch(r"[0-9]+", memory_text) or int(memory_text) != memory_max:
+        raise ValueError("owned cgroup memory.max differs from its original receipt")
+    after = path.stat()
+    if path.is_symlink() or (after.st_dev, after.st_ino) != (device, inode):
+        raise ValueError("owned cgroup identity changed during observation")
+    return {"path": str(path), "device": device, "inode": inode, "cpus": sorted(actual_cpus),
+            "memory_nodes": sorted(actual_nodes), "memory_max": int(memory_text),
+            "observed_at_utc": datetime.now(timezone.utc).isoformat(),
+            "scope": "owned cgroup snapshot; not ancestor capacity, TT placement, reservation or future stability"}
+
+
 def apply_slot(slot, *, cgroup=None, saved_ancestor_cpus=None):
     if not hasattr(os, "sched_setaffinity"):
         raise RuntimeError("slot execution requires Linux affinity")
@@ -193,12 +397,10 @@ def apply_slot(slot, *, cgroup=None, saved_ancestor_cpus=None):
         raise ValueError("slot would widen inherited CPU or allowed-node masks")
     inherited_policy = memory_policy()
     if cgroup:
-        path = Path(cgroup["path"])
-        stat = path.stat()
-        if (stat.st_dev, stat.st_ino) != (cgroup["device"], cgroup["inode"]) or path.is_symlink():
-            raise ValueError("owned cgroup identity changed")
-        if parse_list((path / "cpuset.cpus.effective").read_text()) != cpus or parse_list((path / "cpuset.mems.effective").read_text()) != nodes:
+        observed_cgroup = verify_cgroup_live(cgroup)
+        if set(observed_cgroup["cpus"]) != cpus or set(observed_cgroup["memory_nodes"]) != nodes:
             raise ValueError("owned cgroup effective masks changed")
+        path = Path(observed_cgroup["path"])
         (path / "cgroup.procs").write_text(str(os.getpid()))
     os.sched_setaffinity(0, cpus)
     effective_cpus = set(os.sched_getaffinity(0))

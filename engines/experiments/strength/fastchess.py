@@ -415,12 +415,38 @@ def single_game_argv(binary: Path, white: EngineCommand, black: EngineCommand, *
         argv += ["-engine", "name=" + engine.identity, "cmd=" + shlex.quote(engine.argv[0])]
         if len(engine.argv) > 1:
             argv += ["args=" + shlex.join(engine.argv[1:])]
-    argv += ["-each", "tc=30:00+3", "timemargin=0", "restart=on", "-openings",
+    # Fastchess applies advertised UCI options after uciok; an unknown or
+    # invalid Ponder option produces a warning and does not stop the game.
+    # This request alone cannot prove what the engine does off turn.
+    argv += ["-each", "tc=30:00+3", "timemargin=0", "restart=on", "option.Ponder=false", "-openings",
              "file=" + str(opening_pgn), "format=pgn", "order=sequential", "start=" + str(opening_start),
              "-log", "file=" + str(out / "raw.log"), "level=trace", "engine=true", "realtime=true",
              "compress=false", "append=false", "-pgnout", "file=" + str(out / "game.pgn"),
              "notation=uci", "timeleft=true", "latency=true", "nodes=true", "min=false", "append=false"]
     return argv
+
+
+def ponder_uci_evidence(received_lines):
+    """Describe engine-received commands, without asserting engine behavior.
+
+    The caller owns provenance/completeness of the input trace. A sent option
+    has no UCI acknowledgement and no observed go-ponder command alone cannot
+    establish whether a running engine searches between turns.
+    """
+    if not isinstance(received_lines, (tuple, list)) or any(
+            not isinstance(line, str) or any(char in line for char in "\x00\r\n")
+            for line in received_lines):
+        raise ValueError("a sequence of individual received UCI lines is required")
+    commands = [line.casefold().split() for line in received_lines]
+    set_false = sum(tokens == ["setoption", "name", "ponder", "value", "false"]
+                    for tokens in commands)
+    ponder_go = sum(bool(tokens) and tokens[0] == "go" and "ponder" in tokens[1:]
+                    for tokens in commands)
+    return {"setoption_ponder_false_received": set_false,
+            "go_ponder_received": ponder_go,
+            "actual_off_turn_search": None,
+            "tcec_ponder_compliance": None,
+            "scope": "caller-supplied engine input trace; no engine-behavior or complete-trace claim"}
 
 
 def main():

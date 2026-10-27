@@ -32,6 +32,159 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 ID = ledger.valid_id
 SHA = re.compile(r"^[a-f0-9]{64}$")
+TEST_PROFILES = ("test-p4", "test-p28", "test-p16", "test-p192")
+BROAD_FOR_HIGH = {"test-p28": "test-p4", "test-p192": "test-p16"}
+
+
+def league_placement(snapshot, profile):
+    """Derive TEST slots and controller mask; live placement is separate evidence."""
+    if profile == "test-p192":
+        slot = topology.plan_p192_slot(snapshot, policy="default")
+        # The whole instance is shared; no independent controller core exists.
+        return (slot,), list(slot.cpus)
+    if profile == "test-p16":
+        slots = topology.plan_slots(snapshot, 8, 16, reserve_physical=8, max_slots=11, policy="default")
+        if len(slots) != 11:
+            raise ValueError("P16 requires eleven complete node-local slots")
+        by_id = {cpu.id: cpu for cpu in snapshot.cpus}
+        for slot in slots:
+            for key in slot.physical_cores:
+                members = {cpu for cpu in slot.cpus if by_id[cpu].physical == key}
+                if len(members) != 2 or any(set(by_id[cpu].siblings) != members for cpu in members):
+                    raise ValueError("P16 requires complete mutually observed SMT siblings")
+    elif profile in ("test-p4", "test-p28"):
+        physical = 4 if profile == "test-p4" else 28
+        slots = topology.plan_slots(snapshot, physical, physical, reserve_physical=8)
+    else:
+        raise ValueError("unknown TEST profile")
+    used = {key for slot in slots for key in slot.physical_cores}
+    unused = sorted({cpu.physical for cpu in snapshot.cpus if cpu.id in snapshot.allowed_cpus} - used)
+    if profile == "test-p16":
+        by_core = {}
+        for cpu in snapshot.cpus:
+            if cpu.id in snapshot.allowed_cpus and cpu.node in snapshot.allowed_nodes:
+                by_core.setdefault(cpu.physical, []).append(cpu)
+        def complete(key):
+            rows = by_core.get(key, ())
+            members = {cpu.id for cpu in rows}
+            return (len(rows) == 2 and len({cpu.node for cpu in rows}) == 1 and
+                    all(set(cpu.siblings) == members for cpu in rows))
+        unused = [key for key in unused if complete(key)]
+    controller_cores = set(unused[:8])
+    if len(controller_cores) != 8:
+        raise ValueError("eight whole physical controller cores were not reserved")
+    controller_cpus = sorted(cpu.id for cpu in snapshot.cpus
+                             if cpu.id in snapshot.allowed_cpus and cpu.physical in controller_cores)
+    return slots, controller_cpus
+
+
+def stage_profile_allowed(stage, profile):
+    if profile not in TEST_PROFILES:
+        return False
+    if stage == "broad":
+        return profile in BROAD_FOR_HIGH.values()
+    if stage == "high":
+        return profile in BROAD_FOR_HIGH
+    return stage in ("update1", "update2")
+
+
+def assert_no_unreconciled_releases(rows):
+    # Reconciliation needs the durable global owner and is not yet implemented.
+    # A locally settled process alone cannot prove no authorization committed.
+    if any(row.get("event") in ("campaign.release_unreconciled", "campaign.game_evidence_unresolved") for row in rows):
+        raise ValueError("unreconciled release or game evidence requires durable owner recovery before resume")
+
+
+def release_unresolved(observation):
+    """A local child result cannot resolve a possibly committed release."""
+    return bool(observation.get("gate_transport") == "uncertain" or
+                observation.get("gate_authorization_unknown") is True or
+                observation.get("gate_transport_observation_error") or
+                observation.get("gate_release_event_error") or
+                observation.get("gate_authorized") is True and observation.get("gate_transport") != "sent")
+
+
+def score_evidence_unresolved(data, profile):
+    if data.get("clock_tracking_complete") is not True:
+        return "clock_continuity_unverified"
+    # Unsupported or unobserved Ponder is recorded independently. The user
+    # explicitly allows the local league to continue if it cannot be set.
+    return None
+
+
+def create_league_cgroups(manager, slots, players, profile, *, memory_preflight=None):
+    """Create the owned groups using bounded profile-specific memory extents.
+
+    The P16/P192 scored entrypoint remains closed: these supplied preflight
+    fields are not themselves trusted host, overhead or concurrency evidence.
+    Provenance, freshness, ancestor limits, a durable global owner and actual
+    runtime admission must be verified before that gate can ever be opened.
+    """
+    if profile in ("test-p4", "test-p28"):
+        return {slot.id: manager.create(slot) for slot in slots}, None
+    if profile not in ("test-p16", "test-p192"):
+        raise ValueError("unknown TEST profile cannot create a league cgroup")
+    if type(memory_preflight) is not dict:
+        raise ValueError("P16/P192 require explicit observed memory and overhead preflight")
+    required = ("host_available_bytes", "node_available_bytes", "per_game_overhead_bytes",
+                "overhead_evidence_sha256", "controller_reserve_bytes", "page_bytes")
+    if set(memory_preflight) != set(required):
+        raise ValueError("P16/P192 memory preflight fields differ from the explicit contract")
+    admission = placement.league_memory_admission(
+        [artifact.identity() for artifact in players], [slot.to_record() for slot in slots],
+        profile=profile, **memory_preflight)
+    if admission.get("runtime_admission_complete") is not False:
+        raise ValueError("arithmetic memory preflight must not assert runtime admission")
+    by_id = {row["id"]: row["memory_max"] for row in admission["slots"]}
+    if set(by_id) != {slot.id for slot in slots}:
+        raise ValueError("calculated memory limits do not bind every owned slot")
+    groups = {slot.id: manager.create(slot, memory_bytes=by_id[slot.id]) for slot in slots}
+    return groups, admission
+
+
+def capture_league_preflight(slots, cgroup_root, overhead, observe):
+    """Bind one live capacity snapshot to frozen slots; no runtime admission."""
+    names = {"per_game_overhead_bytes", "overhead_evidence_sha256", "controller_reserve_bytes"}
+    if type(overhead) is not dict or set(overhead) != names:
+        raise ValueError("actual cohort-bound overhead evidence owner is unavailable")
+    slot_records = [slot.to_record() for slot in slots]
+    expected_slots = ledger.digest(slot_records)
+    capacity = observe(slot_records, cgroup_root)
+    if (type(capacity) is not dict or capacity.get("format") != "rove4k-memory-capacity-observation-v1" or
+            ledger.digest(slot_records) != expected_slots or capacity.get("slot_sha256") != expected_slots or
+            capacity.get("test_inputs") is not False or
+            capacity.get("runtime_admission_complete") is not False):
+        raise ValueError("capacity observation is not the actual frozen-slot preflight")
+    return capacity, {**overhead, "host_available_bytes": capacity["host_available_bytes"],
+                      "node_available_bytes": capacity["node_available_bytes"], "page_bytes": capacity["page_bytes"]}
+
+
+def verify_preexec_placement(receipt, *, pid, slot, cgroup):
+    """Check the child's own pre-exec receipt; final engine identity is separate."""
+    if (type(receipt) is not dict or type(pid) is not int or pid <= 0 or
+            receipt.get("pid") != pid or receipt.get("stage") != "pre-exec runner; final engine observation is separate"):
+        raise ValueError("pre-exec placement receipt does not identify the actual runner")
+    cpus, nodes = list(slot.cpus), list(slot.memory_nodes)
+    if (type(cgroup) is not dict or not isinstance(cgroup.get("path"), str) or
+            not Path(cgroup["path"]).is_absolute() or type(cgroup.get("device")) is not int or
+            cgroup["device"] < 0 or type(cgroup.get("inode")) is not int or cgroup["inode"] <= 0 or
+            type(cgroup.get("memory_max")) is not int or cgroup["memory_max"] <= 0 or
+            cgroup.get("cpus") != cpus or cgroup.get("memory_nodes") != nodes):
+        raise ValueError("owned pre-exec cgroup identity and resource masks are required")
+    if (receipt.get("requested_cpus") != cpus or receipt.get("effective_cpus") != cpus or
+            receipt.get("requested_nodes") != nodes or receipt.get("effective_allowed_nodes") != nodes or
+            receipt.get("cgroup") != cgroup):
+        raise ValueError("pre-exec CPU, memory-node or cgroup evidence differs from the frozen slot")
+    policy = receipt.get("observed_policy")
+    if (slot.policy != "default" or receipt.get("requested_policy") != "default" or
+            receipt.get("fallback") is not None or type(policy) is not dict or
+            policy.get("available") is not True or policy.get("request_applied") is not True or
+            policy.get("mode") != 0):
+        raise ValueError("explicit default task memory policy was not applied and observed")
+    return {"scope": "pre-exec runner; cgroup and task policy; TT pages unverified",
+            "runner_pid": pid, "cpus": cpus, "memory_nodes": nodes,
+            "requested_policy": "default", "observed_policy": policy,
+            "cgroup": cgroup, "tt_page_placement": "pending"}
 
 
 def protected_input(path):
@@ -112,6 +265,8 @@ def qualified_players(value, profile, *, base=None):
             artifact = registry.Artifact.from_record(raw)
             if artifact.profile != profile:
                 continue
+            if profile in ("test-p16", "test-p192") and artifact.family == "D":
+                raise ValueError("D is outside the P16/P192 cohort")
             if artifact.id in seen:
                 raise ValueError("duplicate player identity")
             admitted = registry.admit_to_test_league(artifact, proof, row["receipt_sha256"])
@@ -156,7 +311,7 @@ def freeze_plan(campaign, profile, registry_path, bank_path, bank_sha256, runner
                 runner_receipt, out, *, stage="broad", snapshot=None, selected_ids=None, repeats=1,
                 broad_plan=None, broad_journal=None):
     ID(campaign)
-    if profile not in ("test-p4", "test-p28") or stage not in ("broad", "high", "update1", "update2"):
+    if profile not in TEST_PROFILES or stage not in ("broad", "high", "update1", "update2"):
         raise ValueError("score plans accept only named TEST profiles/stages")
     if type(repeats) is not int or repeats not in (1, 2):
         raise ValueError("one DRR, or explicitly two update opening pairs, required")
@@ -165,18 +320,21 @@ def freeze_plan(campaign, profile, registry_path, bank_path, bank_sha256, runner
     source, source_sha = json_input(registry_path)
     players, rejected = qualified_players(source, profile)
     selection = None
-    if stage == "broad" and profile != "test-p4" or stage == "high" and profile != "test-p28":
-        raise ValueError("broad/high stages use P4/P28 respectively")
+    if not stage_profile_allowed(stage, profile):
+        raise ValueError("broad/high stages use P4/P28 or P16/P192 respectively")
     if stage == "high":
         if broad_plan is None or broad_journal is None or selected_ids is not None:
             raise ValueError("high selection derives from the completed frozen broad stage")
         broad, broad_players = load_plan(broad_plan)
         if broad["content"]["campaign"] != campaign or broad["content"]["stage"] != "broad":
             raise ValueError("broad selection belongs to another campaign/stage")
+        broad_profile = BROAD_FOR_HIGH[profile]
+        if broad["content"]["profile"] != broad_profile:
+            raise ValueError("high profile requires its matching broad TEST profile")
         broad_rows = ledger.read_journal(broad_journal, campaign)
         broad_families = {row["artifact"].id: row["artifact"].family for row in broad_players}
         summary = collect.collect(broad_rows, campaign,
-            expected_pairs=[row["id"] for row in broad["content"]["pairs"]], profile="test-p4",
+            expected_pairs=[row["id"] for row in broad["content"]["pairs"]], profile=broad_profile,
             player_families=broad_families)
         selection = collect.select_high(summary, broad_families,
             [{"id": row["artifact"].id, "family": row["artifact"].family} for row in players])
@@ -204,14 +362,7 @@ def freeze_plan(campaign, profile, registry_path, bank_path, bank_sha256, runner
     runner = runner_identity(runner_binary, runner_receipt)
     bank, bank_sha, openings, pgnpath = validate_bank(bank_path, bank_sha256, stage)
     snapshot = snapshot or topology.Topology.snapshot()
-    physical, workers = (4, 4) if profile == "test-p4" else (28, 28)
-    slots = topology.plan_slots(snapshot, physical, workers, reserve_physical=8)
-    used = {key for slot in slots for key in slot.physical_cores}
-    unused = sorted({cpu.physical for cpu in snapshot.cpus} - used)
-    controller_cores = set(unused[:8])
-    if len(controller_cores) != 8:
-        raise ValueError("eight whole physical controller cores were not reserved")
-    controller_cpus = sorted(cpu.id for cpu in snapshot.cpus if cpu.physical in controller_cores)
+    slots, controller_cpus = league_placement(snapshot, profile)
     pairs = []
     for repeat in range(repeats):
         for a, b in itertools.combinations(players, 2):
@@ -269,7 +420,7 @@ def load_plan(path):
     if value.get("format") != "rove4k-campaign-plan-v1" or ledger.digest(value.get("content")) != value.get("sha256"):
         raise ValueError("frozen plan content identity changed")
     body = value["content"]
-    if body["profile"] not in ("test-p4", "test-p28") or not body["pairs"]:
+    if not stage_profile_allowed(body["stage"], body["profile"]) or not body["pairs"]:
         raise ValueError("nonempty TEST pair plan required")
     ID(body["campaign"])
     players, rejected = qualified_players(body["registry"], body["profile"], base=Path(path).parent)
@@ -295,14 +446,12 @@ def load_plan(path):
         if type(index) is not int or index < 1 or pair["opening"] != bank["stages"][body["stage"]][index - 1]:
             raise ValueError("pair does not use its frozen source-bank opening")
     saved = topology.Topology.from_record(body["topology"])
-    physical = 4 if body["profile"] == "test-p4" else 28
-    expected_slots = [json.loads(json.dumps(slot.to_record())) for slot in topology.plan_slots(saved, physical, physical, reserve_physical=8)]
+    planned_slots, controller_cpus = league_placement(saved, body["profile"])
+    expected_slots = [json.loads(json.dumps(slot.to_record())) for slot in planned_slots]
     if body["slots"] != expected_slots or body["clock"] != {"tc": "30:00+3", "initial_ms": 1803000, "increment_ms": 3000, "ponder": False}:
         raise ValueError("frozen placement/clock differs from the reviewed TEST contract")
-    used = {tuple(key) for slot in expected_slots for key in slot["physical_cores"]}
-    controller_cores = set(sorted({cpu.physical for cpu in saved.cpus} - used)[:8])
-    if len(controller_cores) != 8 or body["controller_cpus"] != sorted(cpu.id for cpu in saved.cpus if cpu.physical in controller_cores):
-        raise ValueError("whole-core controller reserve changed")
+    if body["controller_cpus"] != controller_cpus:
+        raise ValueError("controller placement contract changed")
     return value, players
 
 
@@ -330,12 +479,51 @@ class TraceState:
         self.candidate = None
         self.position_seen = False
         self.searching_player = None
+        self.ponder_sent = {white: [], black: []}
+        self.ponder_advertised = {white: False, black: False}
+        self.pondering_players = set()
+        self.ponder_positions = {}
+        self.clock_tracking_complete = True
 
     def consume(self, line):
         match = TRACE.fullmatch(line)
         if match is None or match["player"] not in (self.white, self.black):
             return None
         command, sent = match["command"], match["direction"] == "<---"
+        tokens = command.casefold().split()
+        if not sent and tokens[:3] == ["option", "name", "ponder"]:
+            self.ponder_advertised[match["player"]] = True
+        if sent and tokens == ["ponderhit"]:
+            player = match["player"]
+            speculative = self.ponder_positions.get(player)
+            if (player not in self.pondering_players or self.candidate is None or not self.candidate["legal"] or
+                    speculative != self.moves + [self.candidate["move"]]):
+                raise ValueError("ponderhit lacks its confirmed predicted reply")
+            self.board = self.board.play(self.candidate["move"])
+            self.moves.append(self.candidate["move"])
+            if player != (self.white if self.board.turn else self.black):
+                raise ValueError("ponderhit is not the confirmed side to move")
+            self.candidate = None
+            self.searching_player = player
+            self.pondering_players.remove(player)
+            self.ponder_positions.pop(player, None)
+            # UCI ponderhit carries no new clock values; do not infer them.
+            self.clock = None
+            self.clock_tracking_complete = False
+            return {"kind": "ponderhit_confirmed", "player": player, "raw_time": match["time"],
+                    "moves": list(self.moves), "clock_continuity_verified": False}
+        if sent and (tokens[:3] == ["setoption", "name", "ponder"] or
+                     tokens[:1] == ["go"] and "ponder" in tokens[1:]):
+            recorded = self.ponder_sent[match["player"]]
+            if len(recorded) >= 2048:
+                raise ValueError("excessive ponder control traffic")
+            recorded.append(command)
+            if tokens[:1] == ["go"]:
+                self.pondering_players.add(match["player"])
+                # Record actual protocol traffic without treating an optional
+                # ponder GO as the scored side-to-move clock command.
+                return {"kind": "ponder_go_sent", "player": match["player"],
+                        "raw_time": match["time"], "actual_off_turn_search": None}
         if sent and command.startswith("position startpos"):
             tokens = command.split()
             if tokens[:2] != ["position", "startpos"] or len(tokens) > 2 and tokens[2] != "moves":
@@ -344,6 +532,30 @@ class TraceState:
             if moves[:len(self.opening)] != list(self.opening) or moves[:len(self.moves)] != self.moves:
                 raise ValueError("runner opening/history changed or retracted")
             added = moves[len(self.moves):]
+            if (self.position_seen and self.candidate is not None and self.candidate["legal"] and
+                    match["player"] == self.searching_player):
+                # A pondering engine may receive its own just-selected move
+                # plus a predicted reply. Replay the speculation independently
+                # and never merge it into the scored confirmed history.
+                if len(added) != 2 or added[0] != self.candidate["move"]:
+                    raise ValueError("speculative position does not extend the actual candidate")
+                speculative = self.board
+                for move in added:
+                    speculative = speculative.play(move)
+                if match["player"] != (self.white if speculative.turn else self.black):
+                    raise ValueError("speculative position is not the pondering side")
+                self.ponder_positions[match["player"]] = list(moves)
+                return {"kind": "ponder_position_sent", "player": match["player"],
+                        "raw_time": match["time"], "moves": moves, "confirmed": False}
+            if (self.position_seen and self.candidate is None and self.searching_player is not None and
+                    match["player"] != self.searching_player and
+                    self.searching_player == (self.white if self.board.turn else self.black) and len(added) == 1):
+                speculative = self.board.play(added[0])
+                if match["player"] != (self.white if speculative.turn else self.black):
+                    raise ValueError("speculative reply is not the pondering side")
+                self.ponder_positions[match["player"]] = list(moves)
+                return {"kind": "ponder_position_sent", "player": match["player"],
+                        "raw_time": match["time"], "moves": moves, "confirmed": False}
             if not self.position_seen:
                 if moves != list(self.opening):
                     raise ValueError("first position differs from the whole frozen opening")
@@ -389,6 +601,11 @@ class TraceState:
         if not sent and command.startswith("bestmove "):
             tokens = command.split()
             move = tokens[1] if len(tokens) > 1 else ""
+            if match["player"] in self.pondering_players:
+                self.pondering_players.remove(match["player"])
+                self.ponder_positions.pop(match["player"], None)
+                return {"kind": "ponder_bestmove_observed", "move": move,
+                        "player": match["player"], "raw_time": match["time"], "confirmed": False}
             legal = False
             try:
                 self.board.play(move)
@@ -456,11 +673,15 @@ def parse_result(path, raw_path, spec):
     final = trace.moves + ([trace.candidate["move"]] if trace.candidate and trace.candidate["legal"] else [])
     if moves != trace.moves and moves != final:
         raise ValueError("PGN history differs from actual runner-confirmed UCI history")
+    ponder = {player: {**fastchess.ponder_uci_evidence(trace.ponder_sent[player]),
+                       "option_advertised_in_trace": trace.ponder_advertised[player]}
+              for player in (spec["white"], spec["black"])}
     return {"result": result, "reason": reason, "moves": moves, "plies": len(moves),
             "pgn_sha256": registry.file_sha(path), "raw_sha256": registry.file_sha(raw_path),
             "white": spec["white"], "black": spec["black"], "opening_id": spec["opening_id"],
             "opening_sha256": spec["opening_sha256"], "bank_id": spec["bank_id"],
-            "profile": spec["profile"], "artifact_sha256": spec["artifact_sha256"]}
+            "profile": spec["profile"], "artifact_sha256": spec["artifact_sha256"], "ponder_uci": ponder,
+            "clock_tracking_complete": trace.clock_tracking_complete}
 
 
 def proc_identity(pid):
@@ -568,6 +789,10 @@ class StageController:
         self.slots = {}
         self.ready = {}
         self.unsettled = {}
+        self.uncertain_releases = {}
+        # Filled only by a future authenticated live-memory evidence owner.
+        # The arithmetic helper alone cannot open P16/P192 execution.
+        self.memory_preflight = None
 
     def record_unsettled(self, job, observation):
         if job.identity in self.unsettled:
@@ -578,6 +803,13 @@ class StageController:
                 "observation": observation}
         self.append("campaign.unsettled_owner", data)
         self.unsettled[job.identity] = data
+
+    def quarantine_release(self, job, observation, keys):
+        data = {"launch_id": job.identity, "instance_id": self.instance_id,
+                "observation": observation,
+                "scope": "physical settlement does not reconcile possibly committed or transported GO"}
+        self.append("campaign.release_unreconciled", data, **keys)
+        self.uncertain_releases[job.identity] = data
 
     def append(self, event, data=None, *, pair=None, game=None, attempt=None):
         timestamp = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
@@ -696,6 +928,13 @@ class StageController:
         elif event in ("ready", "released"):
             if event == "ready":
                 slot = self.slots[spec["identity"]["slot"]]
+                if self.plan["profile"] in ("test-p16", "test-p192"):
+                    receipt, receipt_sha = json_input(spec["placement_record"])
+                    proof = verify_preexec_placement(receipt, pid=observation["pid"], slot=slot,
+                                                    cgroup=spec["placement_cgroup"])
+                    proof["receipt_sha256"] = receipt_sha
+                    self.append("game.placement_preexec", proof, **keys)
+                    observation = {**observation, "preexec_placement": proof}
                 observation = {**observation, "engines": placement.observe_game_engines(
                     observation["pid"], [self.players[name].native_sha256 for name in
                     (spec["identity"]["white"], spec["identity"]["black"])], slot.cpus,
@@ -704,7 +943,27 @@ class StageController:
             self.append("game." + event, observation, **keys)
         elif event == "tick":
             self.observe_raw(job)
-        elif event in ("completed", "aborted"):
+        elif event == "cancelled":
+            state = self.results.games.get((spec["game"], spec["attempt"]))
+            if state is None:
+                raise ValueError("cancelled runner has no original game owner")
+            status = observation.get("status")
+            if (status not in ("cancelled_before_go", "cancelled_unreconciled") or
+                    observation.get("gate_cancelled") is not True or
+                    observation.get("gate_transport") != "not_attempted"):
+                raise ValueError("cancelled runner lacks a bounded gate outcome")
+            if not physically_settled(observation):
+                self.record_unsettled(job, observation)
+            else:
+                self.append("game.process_completed", observation, **keys)
+            if status == "cancelled_unreconciled":
+                self.quarantine_release(job, observation, keys)
+            elif (observation.get("gate_authorized") is not False or
+                  observation.get("gate_authorization_unknown") is not False):
+                raise ValueError("before-GO cancellation still has unresolved authorization")
+            elif physically_settled(observation) and state.result is None and state.interrupted is None:
+                self.append("game.interrupted", {"reason": "budget_drain", "runner_observation": observation}, **keys)
+        elif event in ("completed", "aborted", "delivery_uncertain"):
             # The WaveExecutor only reports completed after group and readers
             # are physically settled. Earlier completed colours survive a later abort.
             state = self.results.games.get((spec["game"], spec["attempt"]))
@@ -714,6 +973,13 @@ class StageController:
                     self.record_unsettled(job, observation)
                 return
             self.append("game.process_completed", observation, **keys)
+            if release_unresolved(observation):
+                if not physically_settled(observation):
+                    self.record_unsettled(job, observation)
+                self.quarantine_release(job, observation, keys)
+                return
+            if event == "delivery_uncertain":
+                raise ValueError("delivery uncertainty event lacks an uncertain transport observation")
             self.observe_raw(job)
             if (event == "completed" and observation.get("gate_released") is True and
                     observation.get("returncode") == 0 and observation.get("cleanup_forced") is False and
@@ -727,8 +993,18 @@ class StageController:
                     data["pgn_object_key"] = f"{prefix}/pgn-{data['pgn_sha256']}.pgn"
                     data["raw_object_key"] = f"{prefix}/raw-{data['raw_sha256']}.log"
                     data["evidence_directory"] = str(job.out.relative_to(self.out))
-                    self.append("game.result", data, **keys)
-                    self.queue_result(spec["game"], spec["attempt"], data)
+                    unresolved_reason = score_evidence_unresolved(data, self.plan["profile"])
+                    if unresolved_reason:
+                        # The game completed; retain its result and raw evidence
+                        # but do not turn an unverified clock into a score.
+                        pending = {"launch_id": job.identity, "instance_id": self.instance_id,
+                                   "result": data, "reason": unresolved_reason,
+                                   "scope": "completed game, unscored until independent evidence reconciliation"}
+                        self.append("campaign.game_evidence_unresolved", pending, **keys)
+                        self.uncertain_releases[job.identity] = pending
+                    else:
+                        self.append("game.result", data, **keys)
+                        self.queue_result(spec["game"], spec["attempt"], data)
             elif state.result is None and state.interrupted is None:
                 reason = "budget_termination" if time.time() >= self.budget.deadline(time.time()) else "protocol_harness_error"
                 self.append("game.interrupted", {"reason": reason, "runner_observation": observation}, **keys)
@@ -752,7 +1028,10 @@ class StageController:
         return jobs
 
     def execute(self, cgroup_root, *, resume=False):
+        if self.plan["profile"] in ("test-p16", "test-p192"):
+            raise ValueError("P16/P192 execution awaits shared-budget, watchdog and live resource admission")
         assert_stage_binding(self.envelope, self.journal.rows)
+        assert_no_unreconciled_releases(self.journal.rows)
         current = topology.Topology.snapshot()
         saved = topology.Topology.from_record(self.plan["topology"])
         if current.to_record() != saved.to_record():
@@ -803,13 +1082,28 @@ class StageController:
             namespace = self.plan["campaign"][:40] + "-" + self.plan["stage"] + "-" + ledger.digest({"plan": self.envelope["sha256"], "execution": execution, "launch": launch})[:12]
             self.append("campaign.cgroup_intent", {"root": str(cgroup_root), "namespace": namespace})
             manager = placement.CgroupSlots(cgroup_root, namespace)
-            slots, groups = [], {}
+            slots = []
             for row in self.plan["slots"]:
                 slot = topology.Slot(**{**row, "cpus": tuple(row["cpus"]),
                                        "physical_cores": tuple(tuple(key) for key in row["physical_cores"]),
                                        "memory_nodes": tuple(row["memory_nodes"])})
-                groups[slot.id] = manager.create(slot)
                 slots.append(slot)
+            preflight = None
+            if self.plan["profile"] in ("test-p16", "test-p192"):
+                # No scored execution is permitted by the outer guard until a
+                # real overhead evidence owner and the global GO fence exist.
+                try:
+                    from . import memory_observation
+                except ImportError:
+                    import memory_observation
+                capacity, preflight = capture_league_preflight(slots, cgroup_root, self.memory_preflight,
+                                                              memory_observation.observe_capacity)
+                self.append("campaign.memory_capacity_observed", capacity)
+            groups, memory_admission = create_league_cgroups(
+                manager, slots, list(self.players.values()), self.plan["profile"],
+                memory_preflight=preflight)
+            if memory_admission is not None:
+                self.append("campaign.memory_preflight", memory_admission)
             self.slots = {slot.id: slot for slot in slots}
             self.append("campaign.cgroups", {"root": str(cgroup_root), "namespace": namespace, "groups": groups,
                                              "parent": manager.parent_record(), "instance_id": self.instance_id,
@@ -887,7 +1181,9 @@ class StageController:
                                  "artifacts": [white, black], "opening": pair["opening"]["id"], "launch_id": launch}
                     job = WaveJob(job_id, tuple(argv), {"TZ": "UTC", "LANG": "C.UTF-8"}, start_job, job_out)
                     jobs.append(job)
-                    self.job_specs[job_id] = {"pair": pair["id"], "game": game, "attempt": attempt, "identity": identity}
+                    self.job_specs[job_id] = {"pair": pair["id"], "game": game, "attempt": attempt, "identity": identity,
+                                              "placement_record": self.out / f"placement-observed-{job_id}.json",
+                                              "placement_cgroup": groups[slot.id]}
                     self.tail[job_id] = {"offset": 0, "partial": "", "trace": TraceState(pair["opening"]["moves"], white, black)}
                     self.append("campaign.launch_allocated", {"game": game, "attempt": attempt, "launch_id": job_id,
                                 "directory": str(job_out.relative_to(self.out)), "plan_sha256": self.envelope["sha256"],
@@ -899,6 +1195,11 @@ class StageController:
                     for job in jobs:
                         observed = self.ready[job.identity]
                         spec = self.job_specs[job.identity]["identity"]
+                        if self.plan["profile"] in ("test-p16", "test-p192"):
+                            group = self.job_specs[job.identity]["placement_cgroup"]
+                            live_group = placement.verify_cgroup_live(group)
+                            self.append("game.cgroup_pre_go", live_group, pair=self.job_specs[job.identity]["pair"],
+                                        game=self.job_specs[job.identity]["game"], attempt=self.job_specs[job.identity]["attempt"])
                         fresh = placement.observe_game_engines(observed["pid"],
                             [self.players[name].native_sha256 for name in (spec["white"], spec["black"])],
                             self.slots[spec["slot"]].cpus, expected_start_ticks=observed["start_ticks"])
@@ -924,12 +1225,22 @@ class StageController:
                 # returned live/unknown ownership before any fallible trace
                 # parsing can prevent this final admission check.
                 for observation in observations:
+                    identity = observation.get("identity", observation.get("id"))
+                    if release_unresolved(observation):
+                        if identity not in self.uncertain_releases:
+                            job = next(job for job in jobs if job.identity == identity)
+                            spec = self.job_specs[identity]
+                            keys = {name: spec[name] for name in ("pair", "game", "attempt")}
+                            self.quarantine_release(job, observation, keys)
                     if not physically_settled(observation):
-                        job = next(job for job in jobs if job.identity == observation.get("identity", observation.get("id")))
+                        job = next(job for job in jobs if job.identity == identity)
                         self.record_unsettled(job, observation)
                 if self.unsettled:
                     self.replicate(force=True)
                     raise RuntimeError("a launch owner is not physically settled; no subsequent wave may initialize")
+                if self.uncertain_releases:
+                    self.replicate(force=True)
+                    raise RuntimeError("release or game evidence is unreconciled; no subsequent wave may initialize")
                 for job in jobs:
                     while (job.out / "raw.log").exists() and (job.out / "raw.log").stat().st_size > self.tail[job.identity]["offset"]:
                         self.observe_raw(job)
@@ -1088,7 +1399,7 @@ def main():
     actions = parser.add_subparsers(dest="action", required=True)
     freeze = actions.add_parser("plan", help="freeze an actual qualified partial or complete TEST cohort")
     freeze.add_argument("--campaign", required=True)
-    freeze.add_argument("--profile", choices=("test-p4", "test-p28"), required=True)
+    freeze.add_argument("--profile", choices=TEST_PROFILES, required=True)
     freeze.add_argument("--stage", choices=("broad", "high", "update1", "update2"), default="broad")
     freeze.add_argument("--registry", type=Path, required=True)
     freeze.add_argument("--bank", type=Path, required=True)
@@ -1129,6 +1440,10 @@ def main():
                   "cohort": [row["artifact"].identity() for row in players], "scope": content["scope"],
                   "engine_execution_performed": False, "aws_calls_performed": False}
     else:
+        if args.action == "run":
+            envelope, _ = load_plan(args.plan)
+            if envelope["content"]["profile"] in ("test-p16", "test-p192"):
+                raise ValueError("P16/P192 execution awaits shared-budget, watchdog and live resource admission")
         try:
             from . import aws
         except ImportError:

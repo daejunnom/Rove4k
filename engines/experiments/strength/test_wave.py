@@ -32,6 +32,283 @@ wave = module("checked_rove_wave", HERE / "wave.py")
 
 
 class Contracts(unittest.TestCase):
+    def test_terminal_gate_class_never_promotes_uncertain_delivery(self):
+        self.assertEqual(wave._terminal_gate_class({}), ("completed", "completed"))
+        self.assertEqual(wave._terminal_gate_class({"gate_transport": "sent"}), ("completed", "completed"))
+        self.assertEqual(wave._terminal_gate_class({"gate_transport": "uncertain"}),
+                         ("delivery_uncertain", "delivery_unresolved"))
+        for key in ("gate_transport_observation_error", "gate_release_event_error"):
+            self.assertEqual(wave._terminal_gate_class({"gate_transport": "sent", key: "failed"}),
+                             ("delivery_uncertain", "delivery_unresolved"))
+        self.assertEqual(wave._terminal_gate_class({"gate_cancelled": True}), ("cancelled", "cancelled_before_go"))
+        self.assertEqual(wave._terminal_gate_class({"gate_cancelled": True, "gate_authorized": True}),
+                         ("cancelled", "cancelled_unreconciled"))
+        self.assertEqual(wave._terminal_gate_class({"gate_cancelled": True, "gate_authorization_unknown": True}),
+                         ("cancelled", "cancelled_unreconciled"))
+
+    @staticmethod
+    def release_children(*, fail_index=None):
+        timeline = []
+
+        class Gate:
+            def __init__(self, index):
+                self.index = index
+            def sendall(self, data):
+                timeline.append(("send", self.index, data))
+                if self.index == fail_index and data == b"GO\n":
+                    raise OSError("partial transport fixture")
+            def shutdown(self, how):
+                timeline.append(("shutdown", self.index, how))
+
+        children = []
+        for index in range(3):
+            job = wave.WaveJob(f"game-{index}", ("/tmp/engine",), {},
+                               {"game": f"game-{index}"}, Path(f"/tmp/engine-{index}"))
+            obs = {"gate_released": False, "status": "ready"}
+            children.append(wave._Child(job, dict(job.start_job), obs, control=Gate(index)))
+        return children, timeline
+
+    def test_per_game_denial_drains_only_unsent_gates(self):
+        children, timeline = self.release_children()
+        def authorize(job, observation):
+            timeline.append(("authorize", job.identity))
+            return job.identity != "game-1"
+        def observe(job, observation):
+            timeline.append(("observe", job.identity, observation["gate_transport"]))
+        def emit(name, child):
+            timeline.append(("event", child.job.identity, name))
+        drained = wave._release_individually(children, lambda child: dict(child.observation), authorize, observe, emit)
+        self.assertTrue(drained)
+        self.assertEqual(timeline, [("authorize", "game-0"), ("send", 0, b"GO\n"),
+            ("observe", "game-0", "sent"), ("event", "game-0", "released"),
+            ("authorize", "game-1"), ("send", 1, b"ABORT\n"), ("send", 2, b"ABORT\n")])
+        self.assertTrue(children[0].observation["gate_released"])
+        self.assertTrue(children[1].observation["gate_cancelled"])
+        self.assertFalse(children[1].observation["gate_authorized"])
+        self.assertFalse(children[2].observation["gate_authorized"])
+
+    def test_per_game_partial_go_is_uncertain_and_does_not_kill_prior_game(self):
+        children, timeline = self.release_children(fail_index=1)
+        def observe(job, observation):
+            timeline.append(("observe", job.identity, observation["gate_transport"]))
+        wave._release_individually(children, lambda child: dict(child.observation), lambda job, obs: True,
+                                   observe, lambda name, child: None)
+        self.assertEqual(children[1].observation["gate_transport"], "uncertain")
+        self.assertTrue(children[1].observation["gate_authorized"])
+        self.assertFalse(children[1].observation["gate_released"])
+        self.assertIn(("observe", "game-1", "uncertain"), timeline)
+        self.assertIn(("send", 2, b"ABORT\n"), timeline)
+        self.assertNotIn(("send", 0, b"ABORT\n"), timeline)
+        self.assertNotIn(("send", 1, b"ABORT\n"), timeline)
+
+    def test_release_observer_failure_prevents_new_go_and_preserves_sent_game(self):
+        children, timeline = self.release_children()
+        def broken(job, observation):
+            raise RuntimeError("durable observation failed")
+        wave._release_individually(children, lambda child: dict(child.observation), lambda job, obs: True,
+                                   broken, lambda name, child: None)
+        self.assertTrue(children[0].observation["gate_released"])
+        self.assertIn("durable observation failed", children[0].observation["gate_transport_observation_error"])
+        self.assertNotIn(("send", 0, b"ABORT\n"), timeline)
+        self.assertIn(("send", 1, b"ABORT\n"), timeline)
+        self.assertIn(("send", 2, b"ABORT\n"), timeline)
+
+    def test_lost_authorization_response_is_not_a_known_pre_authorization_cancel(self):
+        children, timeline = self.release_children()
+        def broken(job, observation):
+            raise RuntimeError("authorization response lost")
+        wave._release_individually(children, lambda child: dict(child.observation), broken,
+                                   lambda job, obs: None, lambda name, child: None)
+        self.assertTrue(children[0].observation["gate_authorization_unknown"])
+        self.assertTrue(children[0].observation["gate_cancelled"])
+        self.assertEqual(children[0].observation["gate_transport"], "not_attempted")
+        self.assertNotIn(("send", 0, b"GO\n"), timeline)
+
+    def test_non_boolean_authorization_response_is_uncertain(self):
+        for response in (None, 1, "yes"):
+            children, timeline = self.release_children()
+            with self.subTest(response=response):
+                wave._release_individually(children, lambda child: dict(child.observation),
+                    lambda job, obs: response, lambda job, obs: None, lambda name, child: None)
+                self.assertTrue(children[0].observation["gate_authorization_unknown"])
+                self.assertTrue(children[0].observation["gate_cancelled"])
+                self.assertNotIn(("send", 0, b"GO\n"), timeline)
+
+    def test_elapsed_deadline_after_authorization_never_sends_stale_go(self):
+        children, timeline = self.release_children()
+        with patch.object(wave.time, "monotonic", side_effect=[99.0, 100.0] + [100.0] * 10):
+            wave._release_individually(children, lambda child: dict(child.observation),
+                                       lambda job, obs: True, lambda job, obs: None,
+                                       lambda name, child: None, deadline=100.0)
+        self.assertTrue(children[0].observation["gate_authorized"])
+        self.assertTrue(children[0].observation["gate_cancelled"])
+        self.assertEqual(children[0].observation["gate_transport"], "not_attempted")
+        self.assertIn("deadline expired after authorization", children[0].observation["gate_transport_error"])
+        self.assertEqual([row for row in timeline if row[0] == "send"],
+                         [("send", 0, b"ABORT\n"), ("send", 1, b"ABORT\n"), ("send", 2, b"ABORT\n")])
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux process and socket ownership")
+    def test_real_gate_denial_keeps_already_sent_toy_running_until_natural_exit(self):
+        with tempfile.TemporaryDirectory(prefix="rove-wave-drain-") as folder:
+            root = Path(folder)
+            script = root / "toy.py"
+            script.write_text(TOY)
+            jobs = []
+            for index in range(3):
+                target = root / str(index)
+                argv = (sys.executable, str(script), "brief", str(target / "events.jsonl"))
+                jobs.append(wave.WaveJob(f"game-{index}", argv, {}, {"game": str(index)}, target))
+            seen = []
+            results = wave.WaveExecutor().run_wave(jobs, 5,
+                authorize_go=lambda job, obs: job.identity != "game-1",
+                observe_transport=lambda job, obs: seen.append((job.identity, obs["gate_transport"])))
+            self.assertEqual(seen, [("game-0", "sent")])
+            self.assertEqual(results[0]["status"], "completed")
+            self.assertEqual(results[0]["returncode"], 0)
+            self.assertFalse(results[0]["cleanup_forced"])
+            self.assertTrue(results[0]["gate_released"])
+            self.assertEqual([row["status"] for row in results[1:]], ["cancelled_before_go"] * 2)
+            self.assertTrue(all(row["gate_cancelled"] and not row["gate_released"] for row in results[1:]))
+            self.assertTrue(all(not row["remaining_processes"] and row["readers_done"] for row in results))
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux admission boundary")
+    def test_per_game_release_requires_both_authority_and_transport_ports(self):
+        with tempfile.TemporaryDirectory(prefix="rove-wave-ports-") as folder:
+            out = Path(folder) / "not-created"
+            job = wave.WaveJob("x", ("/does-not-exist",), {}, {"game": "x"}, out)
+            for options in ({"authorize_go": lambda job, obs: True},
+                            {"observe_transport": lambda job, obs: None}):
+                with self.subTest(options=options), self.assertRaisesRegex(ValueError, "supplied together"):
+                    wave.WaveExecutor().run_wave([job], 1, **options)
+                self.assertFalse(out.exists())
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux process and socket ownership")
+    def test_expired_admission_deadline_does_not_kill_earlier_sent_game(self):
+        with tempfile.TemporaryDirectory(prefix="rove-wave-deadline-") as folder:
+            root = Path(folder)
+            script = root / "toy.py"
+            script.write_text(TOY)
+            jobs = []
+            for index in range(2):
+                target = root / str(index)
+                argv = (sys.executable, str(script), "five", str(target / "events.jsonl"))
+                jobs.append(wave.WaveJob(f"game-{index}", argv, {}, {"game": str(index)}, target))
+            def authorize(job, observation):
+                if job.identity == "game-1":
+                    time.sleep(4.1)  # Expires only the pre-GO admission deadline.
+                return True
+            results = wave.WaveExecutor().run_wave(jobs, 4, authorize_go=authorize,
+                observe_transport=lambda job, obs: None)
+            self.assertEqual(results[0]["status"], "completed")
+            self.assertEqual(results[0]["returncode"], 0)
+            self.assertFalse(results[0]["cleanup_forced"])
+            self.assertEqual(results[1]["status"], "cancelled_unreconciled")
+            self.assertTrue(results[1]["gate_authorized"])
+            self.assertEqual(results[1]["gate_transport"], "not_attempted")
+            self.assertTrue(all(not row["remaining_processes"] and row["readers_done"] for row in results))
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux process and socket ownership")
+    def test_stuck_unstarted_gate_alone_is_cleaned_while_sent_game_finishes(self):
+        with tempfile.TemporaryDirectory(prefix="rove-wave-cancel-") as folder:
+            root = Path(folder)
+            script = root / "toy.py"
+            script.write_text(TOY)
+            jobs = []
+            for index, mode in enumerate(("three", "ignore_abort")):
+                target = root / str(index)
+                argv = (sys.executable, str(script), mode, str(target / "events.jsonl"))
+                jobs.append(wave.WaveJob(f"game-{index}", argv, {}, {"game": str(index)}, target))
+            results = wave.WaveExecutor().run_wave(jobs, 5,
+                authorize_go=lambda job, obs: job.identity == "game-0",
+                observe_transport=lambda job, obs: None)
+            self.assertEqual(results[0]["returncode"], 0)
+            self.assertFalse(results[0]["cleanup_forced"])
+            self.assertTrue(results[1]["gate_cancelled"])
+            self.assertEqual(results[1]["gate_transport"], "not_attempted")
+            self.assertTrue(results[1]["cleanup_forced"])
+            self.assertTrue(all(not row["remaining_processes"] and row["readers_done"] for row in results))
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux process and socket ownership")
+    def test_cancelled_receipt_failure_quarantines_but_does_not_kill_sent_game(self):
+        with tempfile.TemporaryDirectory(prefix="rove-wave-journal-") as folder:
+            root = Path(folder)
+            script = root / "toy.py"
+            script.write_text(TOY)
+            jobs = []
+            for index, mode in enumerate(("three", "brief")):
+                target = root / str(index)
+                argv = (sys.executable, str(script), mode, str(target / "events.jsonl"))
+                jobs.append(wave.WaveJob(f"game-{index}", argv, {}, {"game": str(index)}, target))
+            def event(name, job, observation):
+                if name == "cancelled":
+                    raise RuntimeError("fixture durable receipt failed")
+            results = wave.WaveExecutor().run_wave(jobs, 5, on_event=event,
+                authorize_go=lambda job, obs: job.identity == "game-0",
+                observe_transport=lambda job, obs: None)
+            self.assertEqual(results[0]["returncode"], 0)
+            self.assertFalse(results[0]["cleanup_forced"])
+            self.assertTrue(results[0].get("event_error"))
+            self.assertTrue(results[1]["gate_cancelled"])
+            self.assertTrue(all(not row["remaining_processes"] and row["readers_done"] for row in results))
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux process and socket ownership")
+    def test_partial_real_gate_delivery_stays_unresolved_after_original_owner_exit(self):
+        with tempfile.TemporaryDirectory(prefix="rove-wave-uncertain-") as folder:
+            root = Path(folder)
+            script = root / "toy.py"
+            script.write_text(TOY)
+            jobs = []
+            for index, mode in enumerate(("three", "brief")):
+                target = root / str(index)
+                argv = (sys.executable, str(script), mode, str(target / "events.jsonl"))
+                jobs.append(wave.WaveJob(f"game-{index}", argv, {}, {"game": str(index)}, target))
+            original = wave.socket.socket.sendall
+            sent_go = []
+            events = []
+            def partial(sock, data, *args):
+                if data == b"GO\n":
+                    sent_go.append(sock)
+                    if len(sent_go) == 2:
+                        original(sock, b"G")
+                        raise OSError("injected partial GO")
+                return original(sock, data, *args)
+            with patch.object(wave.socket.socket, "sendall", partial):
+                results = wave.WaveExecutor().run_wave(jobs, 5,
+                    authorize_go=lambda job, obs: True, observe_transport=lambda job, obs: None,
+                    on_event=lambda name, job, obs: events.append((name, job.identity)))
+            self.assertEqual(results[0]["returncode"], 0)
+            self.assertFalse(results[0]["cleanup_forced"])
+            self.assertEqual(results[1]["gate_transport"], "uncertain")
+            self.assertEqual(results[1]["status"], "delivery_unresolved")
+            self.assertIn(("delivery_uncertain", "game-1"), events)
+            self.assertNotIn(("completed", "game-1"), events)
+            self.assertTrue(all(not row["remaining_processes"] and row["readers_done"] for row in results))
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux process and socket ownership")
+    def test_failed_transport_receipt_never_promotes_naturally_finished_child(self):
+        with tempfile.TemporaryDirectory(prefix="rove-wave-receipt-") as folder:
+            root = Path(folder)
+            script = root / "toy.py"
+            script.write_text(TOY)
+            jobs = []
+            for index in range(2):
+                target = root / str(index)
+                argv = (sys.executable, str(script), "brief", str(target / "events.jsonl"))
+                jobs.append(wave.WaveJob(f"game-{index}", argv, {}, {"game": str(index)}, target))
+            events = []
+            def bad_receipt(job, observation):
+                raise RuntimeError("fixture transport receipt failed")
+            results = wave.WaveExecutor().run_wave(jobs, 5,
+                authorize_go=lambda job, obs: True, observe_transport=bad_receipt,
+                on_event=lambda name, job, obs: events.append((name, job.identity)))
+            self.assertEqual(results[0]["returncode"], 0)
+            self.assertFalse(results[0]["cleanup_forced"])
+            self.assertEqual(results[0]["gate_transport"], "sent")
+            self.assertEqual(results[0]["status"], "delivery_unresolved")
+            self.assertIn(("delivery_uncertain", "game-0"), events)
+            self.assertNotIn(("completed", "game-0"), events)
+            self.assertEqual(results[1]["status"], "cancelled_before_go")
+
     def test_ready_metadata_compares_json_types(self):
         self.assertFalse(wave._same_json({"slot": 1}, {"slot": True}))
         self.assertFalse(wave._same_json({"slot": 1}, {"slot": 1.0}))
@@ -117,9 +394,15 @@ while b'\n' not in data:
     chunk=control.recv(32)
     if not chunk: sys.exit(3)
     data+=chunk
-if data!=b'GO\n': note('abort'); sys.exit(2)
+if data!=b'GO\n':
+    note('abort')
+    if mode=='ignore_abort': time.sleep(30)
+    sys.exit(2)
 note('go')
 if mode=='long': time.sleep(10)
+if mode=='brief': time.sleep(.2)
+if mode=='three': time.sleep(3)
+if mode=='five': time.sleep(5)
 if mode=='flood':
     for _ in range(12): os.write(1,b'x'*65536)
 if mode=='local_exit': sys.exit(9)

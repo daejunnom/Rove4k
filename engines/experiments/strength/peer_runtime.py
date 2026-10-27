@@ -16,7 +16,7 @@ import importlib.util
 import json
 import lzma
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import re
 import shutil
 import signal
@@ -425,7 +425,7 @@ def runtime_tt(pid, elf, symbol, tt_bytes):
 
 def validate_slot(topology, slot, layout, *, allow_functional=False):
     cpus = slot.get("cpus")
-    require(isinstance(cpus, list) and cpus and len(cpus) == len(set(cpus)) and all(type(cpu) is int for cpu in cpus),
+    require(isinstance(cpus, (list, tuple)) and cpus and len(cpus) == len(set(cpus)) and all(type(cpu) is int for cpu in cpus),
             "explicit unique actual CPU IDs required")
     by_id = {cpu.id: cpu for cpu in topology.cpus}
     require(set(cpus) <= set(topology.allowed_cpus) and set(cpus) <= set(by_id), "slot is outside actual allowed topology")
@@ -434,16 +434,143 @@ def validate_slot(topology, slot, layout, *, allow_functional=False):
     nodes = {cpu.node for cpu in actual}
     require(set(slot.get("memory_nodes", [])) == nodes and nodes <= set(topology.allowed_nodes), "slot memory nodes differ from actual CPU nodes")
     require(slot.get("workers") == layout["workers"] and slot.get("policy", "inherit") in ("inherit", "default", "interleave"), "slot resource/policy mismatch")
-    qualified = len(cpus) == len(physical) == layout["workers"] and slot.get("smt") is False
-    require(qualified or allow_functional, "actual one-sibling physical TEST placement is unavailable; explicit functional scope required")
+    profile = layout.get("id")
+    if profile in ("test-p16", "test-p192"):
+        expected_cores, expected_workers = {"test-p16": (8, 16), "test-p192": (96, 192)}[profile]
+        require(layout["workers"] == expected_workers and len(cpus) == expected_workers
+                and len(physical) == expected_cores and slot.get("smt") is True,
+                "SMT TEST geometry does not match the named profile")
+        require(profile != "test-p16" or len(nodes) == 1,
+                "P16 requires one actual NUMA node")
+        require(profile != "test-p192" or set(cpus) == set(topology.allowed_cpus),
+                "P192 must cover the entire allowed CPU envelope")
+        # Require exactly the observed pair on each physical core, with a
+        # symmetric sysfs sibling declaration. Counts alone cannot establish
+        # that the same core's two hardware threads were selected.
+        for core in physical:
+            siblings = [cpu for cpu in actual if cpu.physical == core]
+            ids = {cpu.id for cpu in siblings}
+            require(len(siblings) == 2 and all(set(cpu.siblings) == ids for cpu in siblings),
+                    "SMT TEST slot requires complete symmetric observed sibling pairs")
+        # Geometry alone does not establish actual large-resource runtime,
+        # cgroup memory, task policy, or scored controller placement.
+        qualified = False
+        require(allow_functional, "SMT TEST geometry is diagnostic only until runtime and placement evidence is available")
+    else:
+        qualified = len(cpus) == len(physical) == layout["workers"] and slot.get("smt") is False
+        require(qualified or allow_functional, "actual one-sibling physical TEST placement is unavailable; explicit functional scope required")
     if "physical_cores" in slot:
         require({tuple(row) for row in slot["physical_cores"]} == physical, "declared physical cores differ from sysfs")
     return {"physical_cores": len(physical), "logical_cpus": len(cpus), "cpu_ids": sorted(cpus),
             "memory_nodes": sorted(nodes), "one_sibling_per_core": len(cpus) == len(physical), "qualified": qualified,
-            "scope": "physical TEST placement only; no W256 strength or scaling evidence"}
+            "scope": ("SMT geometry only; runtime and scored placement are not qualified"
+                      if profile in ("test-p16", "test-p192") else
+                      "physical TEST placement only; no W256 strength or scaling evidence")}
 
 
-def _write_launcher(path, whole, temporary, slot, placement_record, frozen_root, owner_record, release):
+def effective_available_bytes(proc=Path("/proc"), cgroup_root=Path("/sys/fs/cgroup")):
+    """Conservative current host/cgroup availability, not a reservation."""
+    rows = dict(line.split(":", 1) for line in (proc / "meminfo").read_text().splitlines() if ":" in line)
+    match = re.fullmatch(r"\s*(\d+)\s+kB\s*", rows.get("MemAvailable", ""))
+    require(match is not None, "host MemAvailable is unavailable or malformed")
+    host = int(match[1]) * 1024
+    require(host > 0, "host available memory must be positive")
+    limits, found = [], False
+    for line in (proc / "self/cgroup").read_text().splitlines():
+        fields = line.split(":", 2)
+        require(len(fields) == 3, "invalid cgroup membership")
+        if fields[0:2] == ["0", ""]:
+            base, names = cgroup_root, ("memory.max", "memory.current")
+        elif "memory" in fields[1].split(","):
+            base, names = cgroup_root / "memory", ("memory.limit_in_bytes", "memory.usage_in_bytes")
+        else:
+            continue
+        relative = PurePosixPath(fields[2].lstrip("/"))
+        require(".." not in relative.parts, "invalid effective cgroup path")
+        require(fields[0:2] != ["0", ""] or relative.parts,
+                "root-only cgroup namespace cannot prove effective ancestor memory limits")
+        directory, read_any = base.joinpath(*relative.parts), False
+        while True:
+            maximum, current = directory / names[0], directory / names[1]
+            maximum_exists, current_exists = maximum.is_file(), current.is_file()
+            # cgroup-v2 root has no memory.max/current. We can omit it only
+            # after observing at least one non-root level; a root-only view
+            # cannot prove whether a namespace hides a constrained ancestor.
+            if directory == base and fields[0:2] == ["0", ""] and not maximum_exists and not current_exists:
+                break
+            require(maximum_exists and current_exists,
+                    "effective cgroup ancestor memory limit or usage is unavailable")
+            if maximum_exists and current_exists:
+                read_any = True
+                maximum_value, current_value = maximum.read_text().strip(), current.read_text().strip()
+                require(current_value.isdecimal(), "invalid current cgroup memory usage")
+                require(maximum_value == "max" or maximum_value.isdecimal(), "invalid cgroup memory limit")
+                if maximum_value != "max":
+                    limits.append(max(0, int(maximum_value) - int(current_value)))
+            if directory == base:
+                break
+            directory = directory.parent
+        require(read_any, "effective cgroup memory limit is unavailable")
+        found = True
+    require(found, "effective cgroup memory controller is unavailable")
+    return {"host_available_bytes": host, "cgroup_remaining_bytes": limits,
+            "effective_available_bytes": min([host, *limits]),
+            "scope": "point-in-time visible cgroup ancestry; hidden namespace ancestors and memory reservation are not proven"}
+
+
+def peer_runtime_budget(layout, *, cpus, wall_seconds, availability, parent_limits):
+    """Build a bounded large-profile child budget without raising inherited limits."""
+    profile, workers, tt_bytes = layout.get("id"), layout.get("workers"), layout.get("tt_bytes")
+    require(profile in ("test-p16", "test-p192") and workers == {"test-p16": 16, "test-p192": 192}[profile],
+            "unsupported large peer runtime profile")
+    require(type(tt_bytes) is int and tt_bytes == {"test-p16": 16 << 30, "test-p192": 128 << 30}[profile],
+            "peer TT extent differs from its finite resource profile")
+    require(type(wall_seconds) is int and 60 <= wall_seconds <= 600, "bounded peer wall time required")
+    require(isinstance(cpus, (list, tuple)) and len(cpus) == workers and len(set(cpus)) == workers
+            and all(type(cpu) is int and cpu >= 0 for cpu in cpus), "exact actual logical CPU envelope required")
+    available = availability.get("effective_available_bytes")
+    require(type(available) is int and available >= 0, "observed effective available memory required")
+    other = max(768 << 20, workers * (16 << 20))
+    required, address_space = tt_bytes + other + (256 << 20), max(4 << 30, tt_bytes + other)
+    require(available >= required, "insufficient actual host/cgroup available memory for peer TT")
+    active_cpus = len(cpus)
+    cpu_soft = max(180, min(140, wall_seconds - 10) * active_cpus)
+    cpu_hard = cpu_soft + max(5, 2 * active_cpus)
+    for name, needed in (("address_space", address_space), ("cpu", cpu_hard)):
+        pair = parent_limits.get(name)
+        require(isinstance(pair, (tuple, list)) and len(pair) == 2 and
+                all(type(value) is int and (value == -1 or value >= needed) for value in pair),
+                "peer " + name + " budget exceeds inherited soft or hard limit")
+    return {"profile": profile, "workers": workers, "tt_bytes": tt_bytes,
+            "required_available_bytes": required, "other_peak_bytes": other,
+            "address_space_bytes": address_space, "cpu_seconds": [cpu_soft, cpu_hard],
+            "effective_cpus": active_cpus, "wall_seconds": wall_seconds,
+            "parent_limits": parent_limits, "availability": availability,
+            "scope": "single peer host/cgroup preflight; no reservation or scored game admission"}
+
+
+def observed_peer_runtime_budget(layout, *, cpus, wall_seconds):
+    """Refresh memory and inherited limits immediately before each owned launch."""
+    import resource
+    limits = {"address_space": list(resource.getrlimit(resource.RLIMIT_AS)),
+              "cpu": list(resource.getrlimit(resource.RLIMIT_CPU))}
+    return peer_runtime_budget(layout, cpus=cpus, wall_seconds=wall_seconds,
+                               availability=effective_available_bytes(), parent_limits=limits)
+
+
+def checked_child_limit(resource, kind, soft, hard):
+    """Read inherited limits again in the child, then only narrow them."""
+    require(type(soft) is int and type(hard) is int and 0 < soft <= hard,
+            "invalid child resource limit")
+    before = resource.getrlimit(kind)
+    require(len(before) == 2 and all(type(value) is int and
+            (value == resource.RLIM_INFINITY or value >= hard) for value in before),
+            "inherited child limit is below admitted budget")
+    resource.setrlimit(kind, (soft, hard))
+    return list(before)
+
+
+def _write_launcher(path, whole, temporary, slot, placement_record, frozen_root, owner_record, release, *, runtime_budget=None):
     source = "#!/usr/bin/python3 -I\n" + "\n".join((
         "import hashlib,json,os,resource,sys,time", "from pathlib import Path",
         "release=Path(" + repr(str(release)) + ")", "deadline=time.monotonic()+30",
@@ -459,9 +586,17 @@ def _write_launcher(path, whole, temporary, slot, placement_record, frozen_root,
         "import placement", "def cap(kind,ceiling):",
         " value=min([ceiling]+[v for v in resource.getrlimit(kind) if v!=resource.RLIM_INFINITY])",
         " resource.setrlimit(kind,(value,value))",
-        "cap(resource.RLIMIT_AS,4<<30)", "cap(resource.RLIMIT_CPU,180)", "cap(resource.RLIMIT_FSIZE,64<<20)",
+        ("pass" if runtime_budget is None else "import peer_runtime as budget_runtime"),
+        ("cap(resource.RLIMIT_AS,4<<30)" if runtime_budget is None else
+         "as_before=budget_runtime.checked_child_limit(resource,resource.RLIMIT_AS," + str(runtime_budget["address_space_bytes"]) + "," + str(runtime_budget["address_space_bytes"]) + ")"),
+        ("cap(resource.RLIMIT_CPU,180)" if runtime_budget is None else
+         "cpu_before=budget_runtime.checked_child_limit(resource,resource.RLIMIT_CPU," + str(runtime_budget["cpu_seconds"][0]) + "," + str(runtime_budget["cpu_seconds"][1]) + ")"),
+        "cap(resource.RLIMIT_FSIZE,64<<20)",
         "slot=json.loads(Path(" + repr(str(slot)) + ").read_text())",
-        "record=placement.apply_slot(slot)", "p=Path(" + repr(str(placement_record)) + ")",
+        "record=placement.apply_slot(slot)",
+        ("pass" if runtime_budget is None else
+         "record['runtime_limits']={'address_space':list(resource.getrlimit(resource.RLIMIT_AS)),'cpu':list(resource.getrlimit(resource.RLIMIT_CPU))};record['child_inherited_limits']={'address_space':as_before,'cpu':cpu_before}"),
+        "p=Path(" + repr(str(placement_record)) + ")",
         "with p.open('x') as stream:", " stream.write(json.dumps(record,sort_keys=True)+'\\n');stream.flush();os.fsync(stream.fileno())",
         "os.environ['TMPDIR']=" + repr(str(temporary)), "os.execv(" + repr(str(whole)) + ",[" + repr(str(whole)) + "])", "",
     ))
@@ -518,7 +653,21 @@ def checked_best(line, board):
     return move
 
 
-def _search(owned, scope, oracle, moves, label, *, workers=None, cpus=()):
+def _worker_evidence(pid, tid, *, proc=Path("/proc")):
+    """Bind a worker mask and CPU ticks to the same Linux task identity."""
+    stat = proc / str(pid) / "task" / str(tid) / "stat"
+    before = stat.read_text().rsplit(")", 1)[1].split()
+    affinity = sorted(os.sched_getaffinity(tid))
+    after = stat.read_text().rsplit(")", 1)[1].split()
+    require(len(before) > 19 and len(after) > 19 and before[19] == after[19],
+            "worker identity changed during affinity observation")
+    first, last = int(before[11]) + int(before[12]), int(after[11]) + int(after[12])
+    require(last >= first, "worker CPU ticks went backwards")
+    return {"tid": tid, "start_ticks": int(after[19]), "cpus": affinity,
+            "cpu_ticks_first": first, "cpu_ticks_last": last}
+
+
+def _search(owned, scope, oracle, moves, label, *, workers=None, cpus=(), capture_smt=False):
     board = _replay(oracle, moves)
     legal = {str(move) for move in board.legal_moves()}
     require(legal, "qualification fixture must have legal replies")
@@ -530,7 +679,7 @@ def _search(owned, scope, oracle, moves, label, *, workers=None, cpus=()):
     allowance = 35 if workers is not None else 5
     started = time.monotonic()
     deadline = started + owned.budget.left(allowance)
-    samples, positive, all_workers = [], set(), set()
+    samples, positive, all_workers, worker_observations = [], set(), set(), {}
     while len(_best_lines(owned)) == previous:
         require(time.monotonic() < deadline and not owned.exited(), "peer clocked search exceeded actual deadline")
         current = scope.task_snapshot(owned.process.pid)
@@ -544,6 +693,21 @@ def _search(owned, scope, oracle, moves, label, *, workers=None, cpus=()):
                 except ProcessLookupError:
                     continue
                 require(actual_cpus == set(cpus), "worker escaped inherited CPU slot")
+                if capture_smt:
+                    try:
+                        evidence = _worker_evidence(owned.process.pid, tid)
+                    except (FileNotFoundError, ProcessLookupError):
+                        continue
+                    require(evidence["cpus"] == sorted(cpus), "worker affinity changed during evidence capture")
+                    previous_evidence = worker_observations.get(tid)
+                    if previous_evidence is not None:
+                        require(previous_evidence["start_ticks"] == evidence["start_ticks"],
+                                "worker TID was reused during one search")
+                        require(evidence["cpu_ticks_first"] >= previous_evidence["cpu_ticks_last"],
+                                "worker CPU ticks regressed between observations")
+                        previous_evidence["cpu_ticks_last"] = evidence["cpu_ticks_last"]
+                    else:
+                        worker_observations[tid] = evidence
                 if row["cpu_ticks"] > before.get(tid, {}).get("cpu_ticks", 0):
                     positive.add(tid)
             if len(samples) < 256:
@@ -559,8 +723,13 @@ def _search(owned, scope, oracle, moves, label, *, workers=None, cpus=()):
     require(len(_best_lines(owned)) == previous + 1, "late duplicate bestmove after ready")
     if workers is not None:
         require(len(all_workers) == workers and len(positive) == workers, "not every declared worker used positive actual CPU")
-    return {"label": label, "moves": moves, "bestmove": move, "legal_reply_count": len(legal), "clock_ms": clock,
-            "worker_ids": sorted(all_workers), "positive_cpu_worker_ids": sorted(positive), "samples": samples}
+    result = {"label": label, "moves": moves, "bestmove": move, "legal_reply_count": len(legal), "clock_ms": clock,
+              "worker_ids": sorted(all_workers), "positive_cpu_worker_ids": sorted(positive), "samples": samples}
+    if capture_smt:
+        result["worker_affinity_evidence"] = [worker_observations[tid] for tid in sorted(worker_observations)]
+        result["worker_affinity_evidence_complete"] = set(worker_observations) == all_workers and all(
+            row["cpu_ticks_last"] > row["cpu_ticks_first"] for row in worker_observations.values())
+    return result
 
 
 def _observe_image(owned, scope, native, elf, symbol, layout, tmpdir, *, wait_cleanup=True):
@@ -577,6 +746,30 @@ def _observe_image(owned, scope, native, elf, symbol, layout, tmpdir, *, wait_cl
         require(not list(tmpdir.iterdir()), "peer left unexpected temporary files while alive")
     snapshot["tt"] = runtime_tt(owned.process.pid, elf, symbol, layout["tt_bytes"])
     return snapshot
+
+
+def _tt_numa_after_search(pid, elf, symbol, tt_bytes, expected_owner, original_pointer, *, proc=Path("/proc")):
+    """Observe VMAs overlapping TT after GO; these may also contain other data."""
+    require(process_identity(pid) == expected_owner, "engine owner changed before NUMA observation")
+    tt = runtime_tt(pid, elf, symbol, tt_bytes)
+    require(tt["pointer"] == original_pointer, "TT pointer changed before NUMA observation")
+    starts = {row["start"] for row in tt["mappings"]}
+    rows = []
+    for line in (proc / str(pid) / "numa_maps").read_text().splitlines():
+        fields = line.split()
+        if not fields or not re.fullmatch(r"[0-9a-fA-F]+", fields[0]):
+            continue
+        start = int(fields[0], 16)
+        if start in starts:
+            pages = {int(node): int(count) for node, count in re.findall(r"\bN(\d+)=(\d+)", line)}
+            rows.append({"mapping_start": start, "node_pages": pages, "raw": line})
+    require(process_identity(pid) == expected_owner, "engine owner changed during NUMA observation")
+    return {"owner": expected_owner, "tt_pointer": tt["pointer"], "tt_bytes": tt_bytes,
+            "tt_mappings": tt["mappings"], "tt_overlapping_vmas": rows,
+            "matching_vma_starts": sorted(row["mapping_start"] for row in rows),
+            "observed_page_nodes": sorted({node for row in rows for node in row["node_pages"]}),
+            "all_mapping_starts_observed": {row["mapping_start"] for row in rows} == starts,
+            "scope": "after GO, VMAs overlapping TT; may include non-TT pages; no remote-access or NUMA efficiency claim"}
 
 
 def _dependencies_live(pid, needed):
@@ -613,6 +806,9 @@ def qualify_peer(reference, out, slot, *, reference_sha=None, allow_functional=F
     _verify_frozen(reference_frozen, ref["source_inputs"])
     admitted = validate_build(ref["build"]["path"], ref["build"]["sha256"])
     require(admitted["peer"] == ref["peer"] and admitted["layout"] == ref["resources"], "reference resource identity differs")
+    large_profile = ref["resources"]["id"] in ("test-p16", "test-p192")
+    require(not large_profile or allow_functional,
+            "SMT TEST runtime requires explicit functional-only opt-in; scored placement remains unqualified")
     require(ref["native"]["path"] == str(reference.parent / "reference-1"), "native reference path is outside bound output")
     native = bound(ref["native"]["path"], ref["native"])
     require(ref["entry_size_compile_assertion"] is True and len(ref["native_attempts"]) == 3,
@@ -628,6 +824,9 @@ def qualify_peer(reference, out, slot, *, reference_sha=None, allow_functional=F
     topology_module = sibling("topology")
     topology = topology_module.Topology.snapshot()
     placement = validate_slot(topology, slot, ref["resources"], allow_functional=allow_functional)
+    runtime_budget = None
+    if large_profile:
+        runtime_budget = observed_peer_runtime_budget(ref["resources"], cpus=slot["cpus"], wall_seconds=wall_seconds)
     out = peers.external_new(out)
     out.mkdir(parents=True)
     runtime_inputs = _freeze(out)
@@ -646,11 +845,13 @@ def qualify_peer(reference, out, slot, *, reference_sha=None, allow_functional=F
               "artifact": artifact.identity(), "reference": {"path": str(reference), "sha256": ref_sha},
               "checks": {name: False for name in registry.CHECKS}, "observations": {}, "failures": [], "sessions": [],
               "source_inputs": runtime_inputs, "reference_source_inputs": ref["source_inputs"],
-              "topology": topology.to_record(), "placement": placement,
+              "topology": topology.to_record(), "placement": placement, "runtime_budget": runtime_budget,
               "execution_context": {"host_only_functional_validation": True, "scored_envelope": False,
                   "controller_reserve_validated": False,
                   "unused_physical_cores_in_allowed_topology": len({cpu.physical for cpu in topology.cpus}) - placement["physical_cores"]},
               "scope": "host-bound full TEST peer functional/resource qualification; no controller reserve, scored envelope, W256/256GiB, strength or scaling claim"}
+    if large_profile:
+        report["slot"] = slot
     report["checks"].update(reproduction=True, size=True)
     owned_helper = load("peer_owned_helper", frozen / "engines/compact/tiny-entry-d/verify.py")
     scope = load("peer_scope_helper", frozen / "engines/experiments/tcec-scope/verify.py")
@@ -661,6 +862,12 @@ def qualify_peer(reference, out, slot, *, reference_sha=None, allow_functional=F
     temporary = []
     try:
         for label in ("cold", "warm", "active-quit", "active-eof"):
+            session = {"label": label, "searches": []}
+            report["sessions"].append(session)
+            session_budget = (observed_peer_runtime_budget(ref["resources"], cpus=slot["cpus"], wall_seconds=wall_seconds)
+                              if large_profile else None)
+            if large_profile:
+                session["runtime_budget"] = session_budget
             directory = out / label
             directory.mkdir()
             tmpdir = Path("/tmp") / ("rove4k-peer-" + sha(str(out).encode())[:16] + "-" + label)
@@ -674,9 +881,8 @@ def qualify_peer(reference, out, slot, *, reference_sha=None, allow_functional=F
             launcher = directory / "launch"
             placement_record = directory / "placement.json"
             owner_record, release = directory / "owner.json", directory / "owner-release"
-            _write_launcher(launcher, whole, tmpdir, slot_path, placement_record, frozen, owner_record, release)
-            session = {"label": label, "searches": []}
-            report["sessions"].append(session)
+            _write_launcher(launcher, whole, tmpdir, slot_path, placement_record, frozen, owner_record, release,
+                            runtime_budget=session_budget)
             owned = None
             try:
                 started = time.monotonic()
@@ -701,6 +907,11 @@ def qualify_peer(reference, out, slot, *, reference_sha=None, allow_functional=F
                 require(session["startup_ms"] <= 60000, "aggregate complete startup exceeds 60 seconds")
                 preexec, _ = read_record(placement_record)
                 require(preexec["effective_cpus"] == sorted(slot["cpus"]), "pre-exec placement did not take effect")
+                if session_budget is not None:
+                    expected_limits = {"address_space": [session_budget["address_space_bytes"]] * 2,
+                                       "cpu": session_budget["cpu_seconds"]}
+                    require(preexec.get("runtime_limits") == expected_limits,
+                            "actual peer pre-exec limits differ from admitted resource budget")
                 if slot.get("policy", "inherit") != "inherit":
                     policy = preexec["observed_policy"]
                     require(preexec["fallback"] is None and policy.get("available") is True
@@ -716,7 +927,12 @@ def qualify_peer(reference, out, slot, *, reference_sha=None, allow_functional=F
                 if label == "cold":
                     owned.send(b"ucinewgame\n")
                     session["searches"].append(_search(owned, scope, oracle, [], "white-startpos",
-                        workers=artifact.workers, cpus=slot["cpus"]))
+                        workers=artifact.workers, cpus=slot["cpus"], capture_smt=large_profile))
+                    if large_profile:
+                        session["post_go_tt_numa"] = _tt_numa_after_search(
+                            owned.process.pid, elf, ref["tt_symbol"], ref["resources"]["tt_bytes"],
+                            {key: session["owner"][key] for key in ("pid", "pgid", "session", "start_ticks")},
+                            session["image"]["tt"]["pointer"])
                     session["searches"].append(_search(owned, scope, oracle, ["e2e4"], "black-startpos"))
                     for fixture, moves, _board in scope.promotion_fixtures(oracle):
                         session["searches"].append(_search(owned, scope, oracle, moves, fixture))
@@ -757,6 +973,8 @@ def qualify_peer(reference, out, slot, *, reference_sha=None, allow_functional=F
             nbrq_replay=True, promotion_generation_policy="queen-only", physical_cores=placement["physical_cores"],
             logical_cpus=placement["logical_cpus"], multi_node_validated=False,
             compiler=ref["compiler"], native_reference_host_scope="must regenerate and requalify for a different compiler/CPU host")
+        if large_profile:
+            report["shared_smt_evidence"] = registry.smt_runtime_evidence(report, artifact)
         require(any(row["finish"]["leader_exited_with_other_members"] for row in report["sessions"] if row["label"].startswith("active-")),
                 "actual delayed cleanup child settlement after leader exit was not observed")
         report["checks"].update({name: True for name in registry.CHECKS})
@@ -782,6 +1000,9 @@ def qualify_peer(reference, out, slot, *, reference_sha=None, allow_functional=F
             except (OSError, ValueError) as error:
                 report["failures"].append({"scope": "cleanup", "path": str(path), "message": str(error)})
                 report["checks"]["cleanup"] = False
+        if large_profile:
+            report["functional_runtime_complete"] = (not any(row.get("scope") != "placement" for row in report["failures"])
+                and all(value is True for name, value in report["checks"].items() if name not in ("placement", "resources")))
         report["complete"] = not report["failures"] and all(report["checks"].values())
         digest = peers.write_json(out / "qualification.json", report)
     admission = registry.admit_to_test_league(artifact, out / "qualification.json", digest) if report["complete"] else None
