@@ -34,6 +34,7 @@ jobs:
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_rules.py -k league -k new_test_profiles
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_b_league.py
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_b_league_spelling.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_league_b_selection.py
       - name: Check league runner, placement and service boundaries with owned fixtures
         env:
           AWS_EC2_METADATA_DISABLED: 'true'
@@ -112,12 +113,24 @@ jobs:
         # not execute the original engine or allocate either large TT.
         run: |
           set -o pipefail
+          if [ "$VARIANT" = league-atomic ]; then
+            python -I -B engines/experiments/tcec-next/league_b_selection.py \
+              --profile "$PROFILE" --emit-arguments > "$EVIDENCE_ROOT/selection-arguments.txt"
+            mapfile -t selected_arguments < "$EVIDENCE_ROOT/selection-arguments.txt"
+          else
+            selected_arguments=(--entry "$FAMILY" --profile "$PROFILE" --representation source-jit
+              --b-variant "$B_VARIANT" --phase-variant control --spelling-variant "$SPELLING_VARIANT"
+              --scan-variant control --ep-variant control --source-dependencies "$SOURCE_DEPENDENCIES")
+          fi
           timeout --signal=TERM --kill-after=30s 1200s \
             python -I -B engines/experiments/tcec-next/profile_build.py \
-              --entry "$FAMILY" --profile "$PROFILE" --representation source-jit \
-              --b-variant "$B_VARIANT" --phase-variant control --spelling-variant "$SPELLING_VARIANT" \
-              --scan-variant control --ep-variant control --source-dependencies "$SOURCE_DEPENDENCIES" \
+              "${selected_arguments[@]}" \
               --out "$EVIDENCE_ROOT/build" 2>&1 | tee "$EVIDENCE_ROOT/build.log"
+          if [ "$VARIANT" = league-atomic ]; then
+            python -I -B engines/experiments/tcec-next/league_b_selection.py \
+              --profile "$PROFILE" --check-manifest "$EVIDENCE_ROOT/build/build.json" \
+              > "$EVIDENCE_ROOT/selection.json"
+          fi
       - name: Independently compare the actual five artifact parts and source inverse
         run: |
           python -I -B - <<'PY'
@@ -316,6 +329,63 @@ jobs:
           path: ${{ env.EVIDENCE_ROOT }}
           include-hidden-files: true
           if-no-files-found: error
+          retention-days: 7
+
+  b-ubuntu22:
+    needs: generate
+    if: always() && needs.generate.result != 'cancelled' && needs.generate.result != 'skipped'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [test-p16, test-p192]
+    env:
+      PROFILE: ${{ matrix.profile }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: league-source-B-${{ matrix.profile }}-league-atomic-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/b-league-source-${{ matrix.profile }}
+      - name: Prepare independent system Python and the pinned rules oracle
+        shell: bash
+        run: |
+          export PATH=/usr/bin:/bin
+          for compiler_env_name in ${!LD_@}; do unset "$compiler_env_name"; done
+          unset CC CXX CPP AS AR LD GCC_EXEC_PREFIX COMPILER_PATH LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH OBJC_INCLUDE_PATH CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
+          /usr/bin/python3 -m venv "$RUNNER_TEMP/league-python-$PROFILE"
+          "$RUNNER_TEMP/league-python-$PROFILE/bin/python3" -m pip install --require-hashes -r engines/training/e19/requirements.txt
+      - name: Recompile and check the exact selected source on Ubuntu 22
+        shell: bash
+        run: |
+          set -o pipefail
+          export PATH=/usr/bin:/bin
+          for compiler_env_name in ${!LD_@}; do unset "$compiler_env_name"; done
+          unset CC CXX CPP AS AR LD GCC_EXEC_PREFIX COMPILER_PATH LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH OBJC_INCLUDE_PATH CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
+          P="$RUNNER_TEMP/league-python-$PROFILE/bin/python3"
+          SOURCE="$RUNNER_TEMP/b-league-source-$PROFILE/build"
+          OUT="$RUNNER_TEMP/b-league-ubuntu22-$PROFILE"
+          mkdir "$OUT"
+          "$P" -I -B engines/experiments/tcec-next/league_b_selection.py \
+            --profile "$PROFILE" --check-manifest "$SOURCE/build.json" | tee "$OUT/selection.json"
+          "$P" -I -B engines/experiments/tcec-next/profile_compiler.py \
+            --build "$SOURCE" --compiler /usr/bin/cc --ubuntu22-system --program-provenance \
+            --out "$OUT/compiler" 2>&1 | tee "$OUT/compiler.log"
+          "$P" -I -B engines/experiments/tcec-next/profile_rules.py \
+            --family B --profile "$PROFILE" --source "$SOURCE/main.c" \
+            --baseline "$SOURCE/control/main.c" --proof "$SOURCE/source-proof.json" \
+            --build "$SOURCE" --cc /usr/bin/cc --out "$OUT/rules" 2>&1 | tee "$OUT/rules.log"
+      - name: Preserve independent compiler and rules evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: league-b-ubuntu22-${{ matrix.profile }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/b-league-ubuntu22-${{ matrix.profile }}
+          if-no-files-found: ignore
           retention-days: 7
 
   compare-b:

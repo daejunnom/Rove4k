@@ -155,6 +155,36 @@ class SharedLedgerTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'opening checkpoint'):
             self.store.load(incomplete)
 
+    def test_admitted_ids_round_trip_as_checkpoint_history(self):
+        first = self.append_launch()
+        bound = self.store.append(trusted=first.anchor, request_id='unique-request-002',
+            event='budget.v2.instance_bound', data={'launch_token': 'first-token', 'instance_id': 'i-123'}, at=1001)
+        game_id, pair_id = 'A' + 'x' * 95, '9._-'
+        admitted = self.store.append(trusted=bound.anchor, request_id='unique-request-003',
+            event='budget.v2.game_admitted', data={'game_id': game_id, 'pair_id': pair_id,
+                'launch_token': 'first-token'}, at=1002)
+        saved_game = self.store.load(admitted.anchor).rows[-1]['data']
+        # Model a trusted checkpoint after settlement, preserving the exact
+        # admitted identifiers and a different active instance.
+        opening = self.client.doc['opening']
+        opening.update(as_of=1010, prior_game_ids=[saved_game['game_id']],
+            prior_pair_ids=[saved_game['pair_id']], prior_launch_tokens=['first-token'],
+            prior_instance_ids=['i-123'], prior_request_ids=['unique-request-001', 'unique-request-002', 'unique-request-003'])
+        opening['events'] = [
+            {'campaign': 'test-campaign', 'event': 'budget.v2.launch_requested', 'time_utc': 1008,
+             'data': {'launch_token': 'second-token', 'region': 'ap-southeast-2', 'max_hourly_usd': '8'}},
+            {'campaign': 'test-campaign', 'event': 'budget.v2.instance_bound', 'time_utc': 1009,
+             'data': {'launch_token': 'second-token', 'instance_id': 'i-456'}}]
+        self.client._publish(g.canonical(self.client.doc))
+        anchor = g.Anchor(-1, g.ZERO, self.store.authority, g.digest(opening))
+        self.assertEqual(self.store.load(anchor).opening['prior_game_ids'], [game_id])
+        with self.assertRaisesRegex(ValueError, 'admission denied'):
+            self.store.append(trusted=anchor, request_id='unique-request-004', event='budget.v2.game_admitted',
+                data={'game_id': game_id, 'pair_id': pair_id, 'launch_token': 'second-token'}, at=1011)
+        result = self.store.append(trusted=anchor, request_id='unique-request-005', event='budget.v2.game_admitted',
+            data={'game_id': 'next-game', 'pair_id': pair_id, 'launch_token': 'second-token'}, at=1011)
+        self.assertEqual(result.rows[-1]['data']['pair_id'], pair_id)
+
     def test_conflict_is_not_auto_retried_or_treated_as_success(self):
         self.client.conflict = True
         with self.assertRaises(g.LedgerConflict):

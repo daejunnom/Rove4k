@@ -11,6 +11,11 @@ import math
 import re
 
 
+def valid_game_pair_id(value):
+    """Use the same identifier contract for admission and checkpoint replay."""
+    return isinstance(value, str) and re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]{0,95}', value) is not None
+
+
 def decimal(value):
     if isinstance(value, bool):
         raise ValueError('boolean is not a monetary amount')
@@ -344,8 +349,7 @@ class SharedCampaignBudget:
                 or not isinstance(self.prior_launch_tokens, frozenset) or not isinstance(self.prior_instance_ids, frozenset)
                 or not isinstance(self.prior_receipts, tuple)
                 or len(self.prior_pair_ids) > 128
-                or any(not isinstance(value, str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]{0,95}', value)
-                       for value in self.prior_game_ids | self.prior_pair_ids)):
+                or any(not valid_game_pair_id(value) for value in self.prior_game_ids | self.prior_pair_ids)):
             raise ValueError('invalid previously observed game or pair identities')
         if (any(not isinstance(value, str) or not 8 <= len(value) <= 64 for value in self.prior_launch_tokens)
                 or any(not isinstance(value, str) or not value.startswith('i-') for value in self.prior_instance_ids)):
@@ -397,7 +401,8 @@ class SharedCampaignBudget:
     def can_admit_game(self, now, *, game_id, pair_id, launch_token):
         """Read-only predicate, not an atomic reservation or a GO authority."""
         _, total = self.totals(now)
-        if not all(isinstance(value, str) and value for value in (game_id, pair_id, launch_token)):
+        if (not valid_game_pair_id(game_id) or not valid_game_pair_id(pair_id)
+                or not isinstance(launch_token, str) or not launch_token):
             return False
         if self.draining or total >= Decimal('120') or game_id in self.prior_game_ids or any(row.game_id == game_id for row in self.games):
             return False

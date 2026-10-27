@@ -141,6 +141,24 @@ class SharedBudgetTests(unittest.TestCase):
             state.apply('budget.v2.launch_requested', {'launch_token': 'token-three',
                 'region': 'ap-southeast-1', 'max_hourly_usd': '4'}, 1001)
 
+    def test_game_and_pair_ids_share_checkpoint_validation(self):
+        state = self.launch(SharedCampaignBudget('c'), 'token-one', 'ap-southeast-2', 'i-first')
+        for value in ('', 'has space', '한글', '_prefix', 'a' * 97, 'a\n', None, 1):
+            for field in ('game_id', 'pair_id'):
+                data = {'game_id': 'game', 'pair_id': 'pair', 'launch_token': 'token-one'}
+                data[field] = value
+                with self.subTest(field=field, value=value):
+                    self.assertFalse(state.can_admit_game(1001, **data))
+                    with self.assertRaisesRegex(ValueError, 'admission denied'):
+                        state.apply('budget.v2.game_admitted', data, 1001)
+        game_id, pair_id = 'A' + 'x' * 95, '9._-'
+        admitted = state.apply('budget.v2.game_admitted', {'game_id': game_id,
+            'pair_id': pair_id, 'launch_token': 'token-one'}, 1001)
+        restored = SharedCampaignBudget('c', prior_game_ids=frozenset({admitted.games[0].game_id}),
+                                        prior_pair_ids=frozenset({admitted.games[0].pair_id}))
+        self.assertEqual(restored.prior_game_ids, frozenset({game_id}))
+        self.assertEqual(restored.prior_pair_ids, frozenset({pair_id}))
+
     def test_cap_denies_each_new_game_even_in_a_started_pair_and_drains_live_games(self):
         state = SharedCampaignBudget('c')
         state = self.launch(state, 'token-one', 'ap-southeast-2', 'i-first')
