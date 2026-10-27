@@ -84,9 +84,12 @@ def apply(files: dict[str, bytes], names: tuple[str, ...]) -> dict[str, bytes]:
             # no differently typed cast pointer aliases the scratch buffer.
             # Score construction is pure and completes before child search, so
             # reversing it cannot observe learner updates from descendants.
+            # Type-level maxima avoid UINT*_MAX's unsigned literal suffixes,
+            # which collide with the frozen legacy spelling U. The positive
+            # check rejects signed Move before equality's usual conversions.
             source = _once(source, "    Move moves[MOVES],bestmove=0;\n",
                 "    union{Move plain[MOVES];uint64_t ranked[MOVES];} order;\n"
-                "    _Static_assert(CHAR_BIT==8&&sizeof(Move)==4&&UINT_MAX==UINT32_MAX&&\n"
+                "    _Static_assert(CHAR_BIT==8&&sizeof(Move)==4&&(Move)-1>0&&(Move)-1==(uint32_t)-1&&\n"
                 "                   sizeof(int)==4&&INT_MIN==INT32_MIN&&INT_MAX==INT32_MAX,\"ranked32 fields\");\n"
                 "    Move bestmove=0;\n")
             source = _once(source, "    int scores[MOVES],count,legal=0,old=alpha,best=-MATE;",

@@ -188,6 +188,7 @@ class ActualSourceRendering(unittest.TestCase):
         core = cls.cost._core(cls.cost.ROOT)
         baseline = cls.cost.validate_inputs(inputs, core)
         modules = core.load_modules(cls.cost.ROOT, baseline)
+        cls.modules = modules
         files, _ = core.prepare_sources(modules, baseline)
         helper = cls.cost._bss(cls.cost.ROOT, inputs[cls.cost.BSS])
         cls.files, _ = cls.cost._apply_bss(helper, files, modules["source"], 23)
@@ -195,6 +196,32 @@ class ActualSourceRendering(unittest.TestCase):
         cls.storage = load("check_storage")
         cls.probe = load("probe_search_compact")
         cls.reference = load("structural_size").load_baseline()["board.c"]
+
+    def test_ranked_type_assertion_preserves_reserved_legacy_spellings(self):
+        # Captured hosted GCC13 CPP, round3 tool-170-preprocess-single-TU.stdout
+        # SHA256 bc745c443f00a2353c785d448ef209c7a51e50e7fe5e1fd33a37d95dd1973d54.
+        # Keep the real failing expansion; do not change/whitelist its lexer.
+        captured = b'''_Static_assert(8==8&&sizeof(Move)==4&&(0x7fffffff * 2U + 1U)==(4294967295U)&&
+                   sizeof(int)==4&&(-0x7fffffff - 1)==(-2147483647-1)&&0x7fffffff==(2147483647),"ranked32 fields");'''
+        lexical = self.modules["lexical"]
+        minifier = self.modules["minifier"]
+        reserved = set(self.modules["legacy"].LEGACY.values())
+        def collisions(data):
+            return reserved.intersection(lexical._ANY_WORD.findall(minifier.compact_source(data, "c").decode()))
+        self.assertEqual(collisions(captured), {"U"})
+        self.assertEqual(lexical._ANY_WORD.findall(captured.decode()).count("U"), 3)
+        source = search.apply(self.files, ("ranked64",))["search.c"]
+        start = source.index(b"_Static_assert(CHAR_BIT")
+        assertion = source[start:source.index(b";", start) + 1]
+        # Reuse only these observed scalar expansions, not a mock C compiler.
+        # The subsequent hosted run must still preprocess the full real TU.
+        observed = {"CHAR_BIT": "8", "UINT_MAX": "(0x7fffffff * 2U + 1U)",
+                    "UINT32_MAX": "(4294967295U)", "INT_MIN": "(-0x7fffffff - 1)",
+                    "INT32_MIN": "(-2147483647-1)", "INT_MAX": "0x7fffffff", "INT32_MAX": "(2147483647)"}
+        expanded = lexical._ANY_WORD.sub(lambda match: observed.get(match.group(), match.group()), assertion.decode())
+        self.assertFalse(collisions(expanded.encode()))
+        # Equality alone accepts signed -1 after conversion to uint32_t.
+        self.assertIn(b"(Move)-1>0&&(Move)-1==(uint32_t)-1", assertion)
 
     def test_all_selector_compositions_and_actual_observers_render_purely(self):
         original = dict(self.files)
