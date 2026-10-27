@@ -119,11 +119,12 @@ class S3SharedBudget:
                 or not isinstance(doc['events'], list) or canonical(doc) != raw):
             raise ValueError('ledger identity or canonical encoding differs')
         opening = doc['opening']
-        if (not isinstance(opening, dict) or set(opening) != {'prior_compute_usd', 'prior_ancillary_usd',
+        if (not isinstance(opening, dict) or set(opening) != {'prior_compute_usd', 'prior_ancillary_usd', 'prior_limit_confirmed',
                 'as_of', 'source_sha256', 'excludes_opening_events', 'complete_identities',
                 'prior_game_ids', 'prior_pair_ids', 'prior_request_ids', 'prior_launch_tokens',
                 'prior_instance_ids', 'prior_receipts', 'events'}
                 or not isinstance(opening['prior_compute_usd'], str) or not isinstance(opening['prior_ancillary_usd'], str)
+                or type(opening['prior_limit_confirmed']) is not bool
                 or not isinstance(opening['source_sha256'], str) or not HEX.fullmatch(opening['source_sha256'])
                 or opening['source_sha256'] == ZERO or opening['excludes_opening_events'] is not True
                 or opening['complete_identities'] is not True or not isinstance(opening['events'], list)
@@ -167,12 +168,12 @@ class S3SharedBudget:
             raise ValueError('opening prior ownership or receipt identity overlaps restored events')
         state = replace(state, last_at=opened_at, prior_compute_usd=decimal(opening['prior_compute_usd']),
                         prior_ancillary_usd=decimal(opening['prior_ancillary_usd']),
+                        confirmed_limit=state.confirmed_limit or opening['prior_limit_confirmed'],
                         prior_game_ids=frozenset(opening['prior_game_ids']),
                         prior_pair_ids=frozenset(opening['prior_pair_ids']),
                         prior_launch_tokens=frozenset(opening['prior_launch_tokens']),
                         prior_instance_ids=frozenset(opening['prior_instance_ids']),
                         prior_receipts=tuple(tuple(row) for row in opening['prior_receipts']))
-        state = replace(state, draining=state.draining or state.totals(opened_at)[1] >= decimal('120'))
         previous, requests = ZERO, set(opening['prior_request_ids'])
         for seq, row in enumerate(doc['events']):
             if (not isinstance(row, dict) or set(row) != {'campaign', 'seq', 'previous_sha256', 'event', 'data',

@@ -300,6 +300,7 @@ class SharedGame:
     pair_id: str
     launch_token: str
     release_authorized: bool = False
+    release_valid_until: float | None = None
     release_observed: bool = False
     settled: bool = False
 
@@ -315,9 +316,10 @@ class SharedCampaignBudget:
     of this policy and must not be used to claim V2 campaign readiness.
 
     The $20 ancillary reserve and $8 per-instance price ceiling remain from the
-    existing campaign. Once the conservative aggregate reaches $120, admission
-    closes permanently; in-flight games remain accounted until physical
-    settlement. It has no instance-hour or game wall-clock deadline.
+    existing campaign. An upper bound at $120 temporarily blocks new starts;
+    an independently confirmed actual charge at $120 closes admission until
+    additional funding is explicitly authorized. In-flight games remain
+    accounted until physical settlement. There is no instance-hour deadline.
     """
     campaign: str
     prior_compute_usd: Decimal = Decimal(0)
@@ -330,10 +332,12 @@ class SharedCampaignBudget:
     instances: tuple[SharedInstance, ...] = ()
     games: tuple[SharedGame, ...] = ()
     ancillary_receipts: tuple[tuple[str, Decimal], ...] = ()
-    draining: bool = False
+    confirmed_limit: bool = False
     last_at: float = 0.0
 
     def __post_init__(self):
+        if type(self.confirmed_limit) is not bool:
+            raise ValueError('confirmed limit must be a boolean')
         object.__setattr__(self, 'prior_compute_usd', decimal(self.prior_compute_usd))
         object.__setattr__(self, 'prior_ancillary_usd', decimal(self.prior_ancillary_usd))
         if (not isinstance(self.prior_game_ids, frozenset) or not isinstance(self.prior_pair_ids, frozenset)
@@ -366,6 +370,16 @@ class SharedCampaignBudget:
     def unsettled_games(self):
         return tuple(row for row in self.games if not row.settled)
 
+    @property
+    def draining(self):
+        """Whether admission is blocked as of the last ledger event.
+
+        The conservative estimate may later fall after a launch is proved
+        absent. Only a separately confirmed limit event is permanent. This
+        predicate is not evidence that an AWS invoice reached the limit.
+        """
+        return self.confirmed_limit or self.totals(self.last_at)[1] >= Decimal('120')
+
     def _find(self, token):
         matches = [i for i, row in enumerate(self.instances) if row.charge.launch_token == token]
         if len(matches) != 1:
@@ -393,6 +407,18 @@ class SharedCampaignBudget:
         matching = [row.charge for row in self.active_instances if row.charge.launch_token == launch_token and not row.closing]
         return len(matching) == 1 and matching[0].instance_id is not None
 
+    def release_window_fits(self, now, valid_until):
+        """Conservatively project the shared upper bound through a GO window.
+
+        This is arithmetic only, not a lease, trusted clock, or GO authority.
+        A serialized owner must separately validate the clock, expiry, any
+        concurrent charges, the gate transport and recovery before using it.
+        """
+        now, valid_until = timestamp(now), timestamp(valid_until)
+        if now < self.last_at or valid_until < now or valid_until - now > 60:
+            raise ValueError('invalid bounded release window')
+        return not self.confirmed_limit and self.totals(valid_until)[1] < Decimal('120')
+
     def may_terminate(self, token):
         """Do not free an owner while any admitted game may still be running."""
         self._find(token)
@@ -407,7 +433,7 @@ class SharedCampaignBudget:
         if not event.startswith('budget.v2.'):
             raise ValueError('legacy budget events need explicit migration and reconciliation')
         _, total = self.totals(at)
-        state = replace(self, last_at=at, draining=self.draining or total >= Decimal('120'))
+        state = replace(self, last_at=at)
         if event == 'budget.v2.launch_requested':
             token, region = data['launch_token'], data['region']
             rate = decimal(data['max_hourly_usd'])
@@ -484,7 +510,14 @@ class SharedCampaignBudget:
                 owner = self.instances[self._find(game.launch_token)]
                 if state.draining or owner.closing or not owner.charge.active or owner.charge.instance_id is None or game.release_authorized:
                     raise ValueError('game release denied: draining, inactive owner, or duplicate authorization')
-                game = replace(game, release_authorized=True)
+                valid_until = None
+                if 'valid_until_utc' in data:
+                    valid_until = timestamp(data['valid_until_utc'])
+                    if not state.release_window_fits(at, valid_until):
+                        raise ValueError('game release denied: upper bound crosses limit within release window')
+                # Old, unbounded prototype events remain readable, but must
+                # never be accepted as an actual transport authorization.
+                game = replace(game, release_authorized=True, release_valid_until=valid_until)
             else:
                 owner = self.instances[self._find(game.launch_token)].charge
                 evidence = data.get('evidence')
@@ -532,7 +565,20 @@ class SharedCampaignBudget:
                 raise ValueError('receipt identity changed its charge')
             if receipt not in previous:
                 state = replace(state, ancillary_receipts=self.ancillary_receipts + ((receipt, amount),))
-            return replace(state, draining=state.draining or state.totals(at)[1] >= Decimal('120'))
+            return state
+        if event == 'budget.v2.limit_confirmed':
+            evidence = data.get('evidence')
+            try:
+                actual = decimal(data.get('actual_usd'))
+            except (ArithmeticError, TypeError, ValueError) as error:
+                raise ValueError('confirmed limit requires actual charge and source evidence') from error
+            if (actual < Decimal('120') or not isinstance(evidence, dict)
+                    or not isinstance(evidence.get('observation_id'), str) or not evidence['observation_id']
+                    or not isinstance(evidence.get('source'), str) or not evidence['source']):
+                raise ValueError('confirmed limit requires actual charge and source evidence')
+            # Authenticity of the evidence and any budget increase are the
+            # responsibility of the independently fenced campaign owner.
+            return replace(state, confirmed_limit=True)
         if event == 'budget.v2.observe':
             return state
         raise ValueError('unknown shared budget event: ' + event)

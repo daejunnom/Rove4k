@@ -1,12 +1,16 @@
 """Own one initialization-isolated wave of patched Fastchess processes.
 
 This module does not qualify artifacts or score games. The campaign controller
-must do both. Before GO any failure aborts the whole unstarted wave. After GO,
-individual runner exits remain observations for the controller to adjudicate;
-budget, journal, output and global wall failures abort the whole wave.
+must do both. Before GO any failure aborts the whole unstarted wave. In the
+per-game authorization path, a denied or uncertain GO blocks later local GO
+writes while already sent or uncertain games retain their original owners.
+Other runtime failures can still abort the wave and require reconciliation.
 
 Callbacks execute on the controller thread and must not wait on network I/O.
 Each runner gets an independent session/process group and a private gate FD.
+The optional drain callback is only a best-effort local notification, not a
+durable or global fence. It must enqueue without blocking; an ordinary callback
+exception is recorded, while process-level interrupts retain abort semantics.
 """
 from __future__ import annotations
 
@@ -14,8 +18,10 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
+import re
 import selectors
 import signal
 import socket
@@ -27,6 +33,7 @@ from typing import Callable, Mapping
 sys.dont_write_bytecode = True
 REPO = Path(__file__).resolve().parents[3]
 CLOCK_MS = 1_803_000
+ATTEMPT_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]{15,127}")
 
 
 class WaveAbort(RuntimeError):
@@ -64,6 +71,37 @@ class WaveJob:
     @property
     def id(self):
         return self.identity
+
+
+@dataclass(frozen=True)
+class ReleaseFence:
+    """A caller-supplied local-clock GO window, not an authorization proof.
+
+    ``fence_id`` is a non-secret audit identity, never a bearer credential.
+    Monotonic times are meaningful only in the current host/boot clock domain.
+    A caller must independently authenticate, fence and translate any remote
+    coordinator decision; this type validates only its local representation.
+    The coordinator also owns globally unique attempt/fence IDs and replay
+    prevention. Matching this object's fields cannot establish either one.
+    """
+    game_id: str
+    fence_id: str
+    job_sha256: str
+    not_before_monotonic: float
+    expires_monotonic: float
+
+    def __post_init__(self):
+        if (not isinstance(self.game_id, str) or not self.game_id or
+                any(c in self.game_id for c in "\x00\r\n") or
+                not isinstance(self.fence_id, str) or not re.fullmatch(r"[A-Za-z0-9_.-]{1,96}", self.fence_id) or
+                not isinstance(self.job_sha256, str) or not re.fullmatch(r"[0-9a-f]{64}", self.job_sha256)):
+            raise ValueError("explicit game and non-secret fence identities required")
+        if any(type(value) not in (int, float) or not math.isfinite(value) for value in
+               (self.not_before_monotonic, self.expires_monotonic)):
+            raise ValueError("finite local monotonic fence bounds required")
+        if (self.not_before_monotonic < 0 or self.expires_monotonic <= self.not_before_monotonic
+                or self.expires_monotonic - self.not_before_monotonic > 60):
+            raise ValueError("fence window must be positive and at most 60 seconds")
 
 
 @dataclass
@@ -104,7 +142,8 @@ def _terminal_gate_class(observation):
     return "completed", "completed"
 
 
-def _release_individually(children, snapshot, authorize_go, observe_transport, emit, *, deadline=None):
+def _release_individually(children, snapshot, authorize_go, observe_transport, emit, *, deadline=None,
+                          notify_drain=None, release_fence=None):
     """Try budget-owner authorization immediately before each private gate write.
 
     The callbacks must be supplied by a durable, serialized owner. This helper
@@ -112,6 +151,9 @@ def _release_individually(children, snapshot, authorize_go, observe_transport, e
     by the runner: an actual runner/engine GO requires separate evidence.
     A denial or callback/transport fault prevents later GO writes. Already sent
     or possibly sent games are not signalled here and must be physically settled.
+    A release_fence window is checked locally immediately before attempting the
+    socket write. It cannot make that check atomic with delivery, establish a
+    trusted clock, or revoke other hosts' authorizations.
     """
     def cancel(child):
         child.observation.setdefault("gate_cancel_started_monotonic", time.monotonic())
@@ -127,13 +169,23 @@ def _release_individually(children, snapshot, authorize_go, observe_transport, e
                 pass
 
     draining = False
+
+    def begin_drain(child, reason):
+        nonlocal draining
+        if draining:
+            return
+        draining = True
+        child.observation["drain_reason"] = reason
+        if notify_drain is not None:
+            notify_drain(child, reason)
+
     for child in children:
         obs = child.observation
         obs.update(gate_authorized=False, gate_authorization_unknown=False,
                    gate_transport="not_attempted", gate_cancelled=False)
         if not draining and deadline is not None and time.monotonic() >= deadline:
             obs["gate_denied_reason"] = "wave deadline expired before authorization"
-            draining = True
+            begin_drain(child, "admission_deadline")
         if not draining:
             try:
                 decision = authorize_go(child.job, snapshot(child))
@@ -153,49 +205,94 @@ def _release_individually(children, snapshot, authorize_go, observe_transport, e
                 if deadline is not None and time.monotonic() >= deadline:
                     obs["gate_transport_error"] = "wave deadline expired after authorization"
                     obs["gate_cancelled"] = True
-                    draining = True
+                    begin_drain(child, "deadline_after_authorization")
                     cancel(child)
                 elif child.control is None:
                     obs["gate_transport"] = "not_attempted"
                     obs["gate_transport_error"] = "runner gate closed before GO"
                     cancel(child)
-                    draining = True
+                    begin_drain(child, "gate_unavailable")
                 else:
+                    fence = None
+                    if release_fence is not None:
+                        try:
+                            attempt_id = child.expected.get("attempt_id")
+                            if not isinstance(attempt_id, str) or not ATTEMPT_ID.fullmatch(attempt_id):
+                                raise ValueError("explicit non-secret unique attempt identity required")
+                            binding = json.dumps({"identity": child.job.identity, "start_job": child.expected},
+                                                 sort_keys=True, allow_nan=False, separators=(",", ":")).encode("utf-8")
+                            obs["gate_fence_binding_sha256"] = hashlib.sha256(binding).hexdigest()
+                            fence = release_fence(child.job, snapshot(child))
+                            if (type(fence) is not ReleaseFence or fence.game_id != child.job.identity or
+                                    fence.job_sha256 != obs["gate_fence_binding_sha256"]):
+                                raise ValueError("exact per-game release fence required")
+                            obs["gate_fence"] = {"game_id": fence.game_id, "fence_id": fence.fence_id, "job_sha256": fence.job_sha256,
+                                "not_before_monotonic": fence.not_before_monotonic,
+                                "expires_monotonic": fence.expires_monotonic}
+                        except Exception as error:
+                            obs["gate_fence_error"] = repr(error)
+                            obs["gate_cancelled"] = True
+                            begin_drain(child, "release_fence_unavailable")
+                            cancel(child)
+                            continue
+                    # Re-read after the fence callback: a valid authorization
+                    # may expire while that callback is running.
+                    send_started = time.monotonic()
+                    if deadline is not None and send_started >= deadline:
+                        obs["gate_transport_error"] = "wave deadline expired before GO attempt"
+                        obs["gate_cancelled"] = True
+                        begin_drain(child, "deadline_before_go")
+                        cancel(child)
+                        continue
+                    if fence is not None and not (fence.not_before_monotonic <= send_started < fence.expires_monotonic):
+                        obs["gate_fence_error"] = "fence is not valid at the local GO attempt"
+                        obs["gate_cancelled"] = True
+                        begin_drain(child, "release_fence_not_valid")
+                        cancel(child)
+                        continue
                     # A failed sendall can have written a prefix or all bytes.
                     # Closing only the write side makes an incomplete gate see
                     # EOF; a runner that received complete GO may still run.
                     obs["gate_transport"] = "uncertain"
-                    obs["gate_send_started_monotonic"] = time.monotonic()
+                    obs["gate_send_started_monotonic"] = send_started
                     try:
                         child.control.sendall(b"GO\n")
                     except OSError as error:
                         obs["gate_transport_error"] = repr(error)
-                        draining = True
+                        begin_drain(child, "go_transport_uncertain")
                         try:
                             child.control.shutdown(socket.SHUT_WR)
                         except OSError:
                             pass
                     else:
+                        finished = time.monotonic()
                         obs.update(gate_transport="sent", gate_released=True,
-                                   released_monotonic=time.monotonic(), status="running")
+                                   released_monotonic=finished, status="running")
+                        if fence is not None and (not math.isfinite(finished) or finished < send_started or finished >= fence.expires_monotonic
+                                or (deadline is not None and finished >= deadline)):
+                            # Bytes may have been delivered before or after the
+                            # window closed; never promote this to a valid GO.
+                            obs["gate_transport"] = "uncertain"
+                            obs["gate_fence_send_time_uncertain"] = True
+                            begin_drain(child, "release_fence_send_time_uncertain")
                     try:
                         # Only transport state is reported, never actual GO receipt.
                         observe_transport(child.job, snapshot(child))
                     except Exception as error:
                         obs["gate_transport_observation_error"] = repr(error)
-                        draining = True
+                        begin_drain(child, "transport_observation_failed")
                     if obs["gate_transport"] == "sent":
                         try:
                             emit("released", child)
                         except WaveAbort as error:
                             obs["gate_release_event_error"] = str(error)
-                            draining = True
+                            begin_drain(child, "release_event_failed")
                 # Authorized games remain unsettled even if no GO was sent.
                 if obs["gate_transport"] == "not_attempted":
                     obs["gate_cancelled"] = True
                 continue
             obs.setdefault("gate_denied_reason", "release authorization denied")
-            draining = True
+            begin_drain(child, "authorization_uncertain" if obs["gate_authorization_unknown"] else "authorization_denied")
         obs["gate_cancelled"] = True
         obs.setdefault("gate_denied_reason", "earlier release denied or uncertain")
         cancel(child)
@@ -289,7 +386,15 @@ class WaveExecutor:
                  release_callback: Callable[[], bool] | None = None,
                  on_event: Callable[[str, WaveJob, dict], None] | None = None,
                  *, authorize_go: Callable[[WaveJob, dict], bool] | None = None,
-                 observe_transport: Callable[[WaveJob, dict], None] | None = None) -> list[dict]:
+                 observe_transport: Callable[[WaveJob, dict], None] | None = None,
+                 on_drain: Callable[[str, WaveJob, dict], None] | None = None,
+                 release_fence: Callable[[WaveJob, dict], ReleaseFence] | None = None) -> list[dict]:
+        """Run a wave; ``on_drain`` is an unverified, nonblocking owner signal.
+
+        Supplying it neither seals other hosts' gates nor proves that its
+        notification was durably received. Callers remain responsible for
+        fencing admission and reconciling the physical owners and instances.
+        """
         if sys.platform != "linux":
             raise RuntimeError("the wave executor requires Linux /proc and Unix sockets")
         if not jobs or not 0 < wall_seconds <= 12 * 3600:
@@ -297,6 +402,15 @@ class WaveExecutor:
         if (authorize_go is None) != (observe_transport is None) or (authorize_go is not None and
                 (not callable(authorize_go) or not callable(observe_transport))):
             raise ValueError("per-game authorization and transport observer must be supplied together")
+        if on_drain is not None and (authorize_go is None or not callable(on_drain)):
+            raise ValueError("drain notification requires per-game authorization")
+        if release_fence is not None and (authorize_go is None or not callable(release_fence)):
+            raise ValueError("release fence requires per-game authorization")
+        if release_fence is not None:
+            attempts = [job.start_job.get("attempt_id") for job in jobs]
+            if (any(not isinstance(value, str) or not ATTEMPT_ID.fullmatch(value) for value in attempts)
+                    or len(set(attempts)) != len(attempts)):
+                raise ValueError("fenced jobs require distinct explicit attempt identities")
         if len({job.identity for job in jobs}) != len(jobs) or len({job.out.resolve() for job in jobs}) != len(jobs):
             raise ValueError("job identities and attempt directories must be distinct")
         for job in jobs:
@@ -328,6 +442,7 @@ class WaveExecutor:
         event_error = None
         released = False
         cleaning = False
+        drain_notified = False
 
         def snapshot(child):
             observed = dict(child.observation)
@@ -335,6 +450,24 @@ class WaveExecutor:
                 observed[channel.name + "_bytes"] = channel.stored
                 observed[channel.name + "_total_bytes"] = channel.total
             return observed
+
+        def notify_drain(child, reason):
+            """Signal the owner once; delivery is not a durable global fence."""
+            nonlocal drain_notified
+            if drain_notified:
+                return
+            drain_notified = True
+            child.observation["drain_reason"] = reason
+            if on_drain is None:
+                child.observation["drain_notification"] = "unconfigured"
+                return
+            try:
+                on_drain(reason, child.job, snapshot(child))
+            except Exception as error:
+                child.observation["drain_notification"] = "failed"
+                child.observation["drain_notification_error"] = repr(error)
+            else:
+                child.observation["drain_notification"] = "returned_unverified"
 
         def event(name, child):
             nonlocal event_error
@@ -383,6 +516,7 @@ class WaveExecutor:
                     # already-started game has failed. Quarantine receipts and
                     # retain natural ownership until all running games settle.
                     child.observation["completion_event_error"] = str(error)
+                    notify_drain(child, "completion_event_failed")
                     return
                 child.completion_notified = True
 
@@ -397,6 +531,7 @@ class WaveExecutor:
                         if authorize_go is None or not released:
                             raise
                         child.observation["tick_event_error"] = str(error)
+                        notify_drain(child, "tick_event_failed")
 
         def cleanup_cancelled():
             """Only gates proven not to have attempted GO may be timed out."""
@@ -639,7 +774,8 @@ class WaveExecutor:
                 raise WaveAbort("wave wall deadline expired before release")
             if authorize_go is not None:
                 _release_individually(children, snapshot, authorize_go, observe_transport, event,
-                                      deadline=wall_deadline)
+                                      deadline=wall_deadline, notify_drain=notify_drain,
+                                      release_fence=release_fence)
                 # A denied or transport-uncertain gate is not a global abort:
                 # let every already sent/possibly sent original owner settle.
                 released = True
@@ -673,6 +809,11 @@ class WaveExecutor:
                 if all(child.process.poll() is not None for child in children):
                     break
         except BaseException as error:
+            if authorize_go is not None:
+                # No host may infer that other owners stopped just because
+                # this wave failed. Notify the external coordinator to fence
+                # further starts; physical settlement remains separate.
+                notify_drain(children[0], "wave_failed")
             try:
                 completed_before_abort()
             except BaseException as completion_error:

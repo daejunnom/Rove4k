@@ -23,7 +23,7 @@ class FakeS3:
     def __init__(self):
         self.doc = {'format': 'rove4k-shared-budget-v1', 'campaign': 'test-campaign',
                     'account': '123456789012', 'home_region': self.region,
-                    'opening': {'prior_compute_usd': '0', 'prior_ancillary_usd': '0', 'as_of': 900,
+                    'opening': {'prior_compute_usd': '0', 'prior_ancillary_usd': '0', 'prior_limit_confirmed': False, 'as_of': 900,
                         'source_sha256': 'a' * 64, 'excludes_opening_events': True, 'complete_identities': True,
                         'prior_game_ids': [], 'prior_pair_ids': [], 'prior_request_ids': [],
                         'prior_launch_tokens': [], 'prior_instance_ids': [], 'prior_receipts': [], 'events': []},
@@ -111,6 +111,49 @@ class SharedLedgerTests(unittest.TestCase):
                 'instance_id': 'i-123'}, at=1001)
         self.assertEqual(second.anchor.seq, 1)
         self.assertEqual(self.store.load(result.anchor).anchor, second.anchor)
+
+    def test_temporary_upper_limit_can_recover_after_launch_absence(self):
+        first = self.append_launch()
+        observed = self.store.append(trusted=first.anchor, request_id='unique-request-002',
+            event='budget.v2.observe', data={}, at=46000)
+        absent = self.store.append(trusted=observed.anchor, request_id='unique-request-003',
+            event='budget.v2.launch_absent', at=46001, data={'launch_token': 'first-token',
+                'authoritative_absence': True, 'evidence': {'launch_token': 'first-token',
+                    'region': 'ap-southeast-2', 'state': 'absent', 'observation_id': 'absence-1'}})
+        reopened = self.store.append(trusted=absent.anchor, request_id='unique-request-004',
+            event='budget.v2.launch_requested', at=46002, data={'launch_token': 'second-token',
+                'region': 'ap-southeast-2', 'max_hourly_usd': '8'})
+        self.assertEqual(self.store.load(reopened.anchor).anchor, reopened.anchor)
+
+    def test_confirmed_limit_survives_ledger_replay(self):
+        first = self.append_launch()
+        confirmed = self.store.append(trusted=first.anchor, request_id='unique-request-002',
+            event='budget.v2.limit_confirmed', at=1001, data={'actual_usd': '120',
+                'evidence': {'source': 'billing', 'observation_id': 'bill-1'}})
+        absent = self.store.append(trusted=confirmed.anchor, request_id='unique-request-003',
+            event='budget.v2.launch_absent', at=1002, data={'launch_token': 'first-token',
+                'authoritative_absence': True, 'evidence': {'launch_token': 'first-token',
+                    'region': 'ap-southeast-2', 'state': 'absent', 'observation_id': 'absence-1'}})
+        with self.assertRaisesRegex(ValueError, 'draining'):
+            self.store.append(trusted=absent.anchor, request_id='unique-request-004',
+                event='budget.v2.launch_requested', at=1003, data={'launch_token': 'second-token',
+                    'region': 'ap-southeast-2', 'max_hourly_usd': '8'})
+
+    def test_opening_checkpoint_preserves_prior_confirmed_limit(self):
+        opening = self.client.doc['opening']
+        opening['prior_limit_confirmed'] = True
+        self.client._publish(g.canonical(self.client.doc))
+        anchor = g.Anchor(-1, g.ZERO, self.store.authority, g.digest(opening))
+        self.assertEqual(self.store.load(anchor).rows, ())
+        with self.assertRaisesRegex(ValueError, 'draining'):
+            self.store.append(trusted=anchor, request_id='unique-request-001',
+                event='budget.v2.launch_requested', at=1000, data={'launch_token': 'first-token',
+                    'region': 'ap-southeast-2', 'max_hourly_usd': '8'})
+        del opening['prior_limit_confirmed']
+        self.client._publish(g.canonical(self.client.doc))
+        incomplete = g.Anchor(-1, g.ZERO, self.store.authority, g.digest(opening))
+        with self.assertRaisesRegex(ValueError, 'opening checkpoint'):
+            self.store.load(incomplete)
 
     def test_conflict_is_not_auto_retried_or_treated_as_success(self):
         self.client.conflict = True

@@ -211,7 +211,7 @@ class SharedBudgetTests(unittest.TestCase):
             state.apply('budget.v2.game_settled', data, 1003)
         self.assertFalse(state.may_terminate('token-one'))
 
-    def test_uncertain_launch_counts_and_observed_threshold_stays_draining(self):
+    def test_uncertain_launch_blocks_until_authoritative_absence(self):
         state = SharedCampaignBudget('c').apply('budget.v2.launch_requested', {
             'launch_token': 'token-one', 'region': 'ap-southeast-2', 'max_hourly_usd': '8'}, 1000)
         self.assertGreater(state.totals(1000)[0], 0)
@@ -231,10 +231,57 @@ class SharedBudgetTests(unittest.TestCase):
             'authoritative_absence': True, 'evidence': {'launch_token': 'token-one', 'region': 'ap-southeast-2',
                 'state': 'absent', 'observation_id': 'ec2-reconciliation'}}, 46001)
         self.assertEqual(state.totals(46001)[0], 0)
+        self.assertFalse(state.draining)
+        state = state.apply('budget.v2.launch_requested', {'launch_token': 'token-two',
+            'region': 'ap-southeast-2', 'max_hourly_usd': '8'}, 46002)
+        self.assertEqual(len(state.active_instances), 1)
+
+    def test_confirmed_actual_limit_stays_closed_even_if_upper_bound_is_corrected(self):
+        state = SharedCampaignBudget('c').apply('budget.v2.launch_requested', {
+            'launch_token': 'token-one', 'region': 'ap-southeast-2', 'max_hourly_usd': '8'}, 1000)
+        with self.assertRaisesRegex(ValueError, 'confirmed limit'):
+            state.apply('budget.v2.limit_confirmed', {'actual_usd': '119.99',
+                'evidence': {'source': 'billing', 'observation_id': 'bill-1'}}, 1001)
+        state = state.apply('budget.v2.limit_confirmed', {'actual_usd': '120',
+            'evidence': {'source': 'billing', 'observation_id': 'bill-2'}}, 1001)
+        state = state.apply('budget.v2.launch_absent', {'launch_token': 'token-one',
+            'authoritative_absence': True, 'evidence': {'launch_token': 'token-one', 'region': 'ap-southeast-2',
+                'state': 'absent', 'observation_id': 'ec2-reconciliation'}}, 1002)
+        self.assertLess(state.totals(1002)[1], Decimal('120'))
         self.assertTrue(state.draining)
         with self.assertRaisesRegex(ValueError, 'draining'):
             state.apply('budget.v2.launch_requested', {'launch_token': 'token-two',
-                'region': 'ap-southeast-2', 'max_hourly_usd': '8'}, 46002)
+                'region': 'ap-southeast-2', 'max_hourly_usd': '8'}, 1003)
+
+    def test_confirmed_limit_keeps_started_games_until_physical_settlement(self):
+        state = self.launch(SharedCampaignBudget('c'), 'token-one', 'ap-southeast-2', 'i-first')
+        state = state.apply('budget.v2.game_admitted', {'game_id': 'g', 'pair_id': 'p', 'launch_token': 'token-one'}, 1001)
+        state = state.apply('budget.v2.game_release_authorized', {'game_id': 'g'}, 1002)
+        state = state.apply('budget.v2.limit_confirmed', {'actual_usd': '120.01',
+            'evidence': {'source': 'billing', 'observation_id': 'bill-1'}}, 1003)
+        self.assertTrue(state.draining)
+        self.assertFalse(state.can_admit_game(1003, game_id='g2', pair_id='p', launch_token='token-one'))
+        self.assertFalse(state.may_terminate('token-one'))
+        state = state.apply('budget.v2.game_settled', {'game_id': 'g', 'launch_token': 'token-one',
+            'physically_settled': True, 'evidence': {'game_id': 'g', 'instance_id': 'i-first',
+                'state': 'exited', 'observation_id': 'waitpid-1'}}, 1004)
+        self.assertTrue(state.may_terminate('token-one'))
+        self.assertTrue(state.draining)
+
+    def test_release_window_accounts_for_both_instances_without_sticky_draining(self):
+        state = self.launch(SharedCampaignBudget('c'), 'token-one', 'ap-southeast-2', 'i-first')
+        state = self.launch(state, 'token-two', 'ap-northeast-1', 'i-second')
+        state = state.apply('budget.v2.game_admitted', {'game_id': 'g', 'pair_id': 'p', 'launch_token': 'token-one'}, 1001)
+        self.assertTrue(state.release_window_fits(23499, 23499))
+        self.assertFalse(state.release_window_fits(23499, 23500))
+        with self.assertRaisesRegex(ValueError, 'crosses limit'):
+            state.apply('budget.v2.game_release_authorized', {'game_id': 'g', 'valid_until_utc': 23500}, 23499)
+        self.assertFalse(state.confirmed_limit)
+        with self.assertRaisesRegex(ValueError, 'bounded release window'):
+            state.release_window_fits(23499, 23560)
+        state = state.apply('budget.v2.game_release_authorized', {'game_id': 'g', 'valid_until_utc': 23499}, 23499)
+        self.assertFalse(state.may_terminate('token-one'))
+        self.assertEqual(state.games[0].release_valid_until, 23499)
 
     def test_regional_identity_deduplication_and_legacy_replay_fail_closed(self):
         state = SharedCampaignBudget('c')
