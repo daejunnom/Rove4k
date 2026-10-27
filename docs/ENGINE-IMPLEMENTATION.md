@@ -7,6 +7,17 @@ zero and the initial model weights remain unchanged; trained strength is not cla
 
 ## Current integration checkpoint, 2026-10-27
 
+The maintained C/E source-JIT selection now explicitly uses legal-maker EP.
+Public producer defaults and historical controls remain control. At source
+2d35f4d50d28e5c3b6b02529095d481024211974 all nine workflows pass, including
+engine40499907270 with26/26 and994 tests/40 suites. EP40499907162 passes four
+P4/P28 producers and four independent sealed Ubuntu22 consumers; W256
+40499907296 passes five controls and both C/E EP preparation/export paths.
+Actual P28 C3920/E3882 and W256 C3908/E3871 bytes match prior repeated costs.
+This validates the selected variants; the new maintained workflow selection
+still receives its own CI. ELF remains a separately pinned original-control
+source path. No W256 runtime, event, league or strength qualification is added.
+
 The latest user priority pauses new D compression. Preserve4737/4689 and all
 original evidence; the BSS cost job is explicitly suspended, without suspending
 the maintained D regression producer. Work now prioritizes A/B/C/E/full F source

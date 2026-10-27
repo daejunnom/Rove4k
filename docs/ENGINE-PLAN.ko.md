@@ -74,22 +74,22 @@ phase/B → E19(E만) → spelling → dependency cleanup이다. 역변환은 de
 입력·native·diagnostics를 새 체인에서 재검증한다. 공통화로 제거한 저장소 중복
 바이트와 제출 파일 절감량은 따로 보고한다.
 
-하위 생성기의 spelling·scan 기본값은 control로 유지한다. 유지 CI는 ACE에 compound,
-F에 compound-v2, A/C에 추가 square-successor, B에 best, D에 control을 명시하며 generation 영수증의 선택과 dependency 정책이 요청과
+하위 생성기의 spelling·scan·EP 기본값은 control로 유지한다. 유지 CI는 ACE에 compound,
+F에 compound-v2, A/C에 추가 square-successor, C/E에 legal-maker EP, B에 best, D에 control을 명시하며 generation 영수증의 선택과 dependency 정책이 요청과
 정확히 같아야 다음 단계로 넘어간다. Ubuntu22 소비자는 봉인된 소스를 사용하며
 선택을 다시 하거나 그 호스트에서 source factory를 재실행하지 않는다.
 
 PR #18 통합 뒤 resource/phase/E19/spelling/dependency를 모두 재생성한 현재
-full 후보와 후속 A/C 순회식의 전체 파일 비용은 다음과 같다. 각 셀을 두 번 재생성했으며, W256은
+full 후보와 후속 A/C 순회식·C/E EP·full F v2의 전체 파일 비용은 다음과 같다. 각 셀을 두 번 재생성했으며, W256은
 크기·타입·소스 계약 범위이고 실제 대용량 실행이나 대회 자원 확정은 아니다.
 
 | 계열 | TEST-P4 | TEST-P28 | TCEC 잠정 W256 |
 |---|---:|---:|---:|
 | A compound+scan | 3781 B | 3790 B | 3782 B |
 | B | 4071 B | 4081 B | 4072 B |
-| C compound+scan | 3915 B | 3926 B | 3915 B |
-| E | 3882 B | 3894 B | 3883 B |
-| F full | 3590 B | 3602 B | 3590 B |
+| C compound+scan+EP | 3907 B | 3920 B | 3908 B |
+| E compound+EP | 3870 B | 3882 B | 3871 B |
+| F full compound-v2 | 3587 B | 3602 B | 3589 B |
 
 compound는 기존 spelling 자리의 대안이며 best 뒤에 다시 적용하지 않는다.
 F의 실제 코드 변경은 별도 F-compound-clock-gcc13-v1 정책과 세 프로필의 새
@@ -709,17 +709,23 @@ source·memory admission에서 다시 판단한다. 다른 프로그램·cache·
 
 ~~~mermaid
 flowchart TD
-  DONE[완료: 7ce 여덟 CI / W256 source-JIT 준비5 / D4689 보존·정지] --> PREP[공통 준비: source·representation·규칙·소유자]
+  DONE[완료: 2d35 아홉 CI / C·E EP full·Ubuntu22·W256 준비 / D 정지] --> PREP[공통 준비: 고정 소스·representation·규칙·소유자]
   PREP --> ELF[ELF 생산·의존성·argv0 소유권·소비 경로]
   PREP --> MATE[완료·미채택: mate8개 비용 손실 / F 이미 적용]
-  PREP --> EP[C/E EP: 6 profile 비용·표적 PASS / P4 생산·22 PASS / P28·W256 인수]
+  PREP --> EP[C·E EP: 유지 선택 반영 / 새 유지 CI에서 재검증]
+  PREP --> HEADER[B·F: compiler-header 축약 / 실제 GCC13·11 CPP·native·whole 비교]
   PREP --> LEAGUEFIX[완전 동률의 고정 계열 ID 선발·실제 caller 연결]
   PREP --> W256[별도 W256 compile/package 준비 / 대형 TT 실행 없음]
   ELF --> SIZE{실제 ELF 전체4096B 이하}
+  ELF --> ELF22[원래 ELF의 sealed Ubuntu22 전달·설치 의존성·비점수 실행]
+  ELF --> PARSE[같은 디코더의 optimal64 토큰 선택 / 실제 whole 비용 비교]
   SIZE -->|초과| DEFER[계열별 deferred_size·재측정 조건 보존]
   SIZE --> ELFR[실제 복원·startup·전체 기능·R·소유권 / 초과는 비점수 관측]
   MATE --> COST[동일 기준 native·whole 반복 비교 / 의미·기능 gate]
   EP --> COST
+  HEADER --> COST
+  PARSE --> COST
+  ELF22 --> CI
   LEAGUEFIX --> CI[실제 caller·순수·source-bound CI]
   COST --> CI
   ELFR --> CI
@@ -826,3 +832,15 @@ C3907/3920/3908 B(P4/P28/W256), E3870/3882/3871 B다. P4 실제생산·mechanism
 봉인·독립 Ubuntu22도4 job 모두 통과했다. 감사한 새4문맥 source/native 행만 별도 EP
 정책에 추가하고 기존6개 native control은 그대로 둔다. 이제 P28 full·Ubuntu22 및
 W256 EP 내보내기를 실제검증한다. 그 전에는 기본 production 선택을 control로 유지한다.
+
+2d35f4d의9 workflow가 모두 성공했다. EP40499907162의 C/E P4/P28 producer4개와
+독립 Ubuntu22 소비자4개, W25640499907296의 기존 control5개·EP2개가 실제 통과했다.
+P28 전체는 C3920/E3882 B, W256 내보내기는 C3908/E3871 B로 앞선 비용과 일치한다.
+Engine40499907270도26/26이며 foundation은994검사/40 suite다. 이 근거로 유지 CI의
+C/E만 legal-maker를 명시 선택한다. 공개 생성기 기본값과 과거 control·비용 비교는
+보존하고 새 선택 CI 결과는 별도로 확인한다. ELF는 원래 control source의 별도 경로다.
+
+다음 병렬 창은 공통 준비0.1–0.2h → max(B/F header 비교0.5–1h,
+ELF Ubuntu22 소비자0.8–1.5h, 같은 ELF codec의 토큰 선택0.7–1.5h)+공유 runner 대기
+→ 최종 감사0.2–0.5h로 약1.1–2.2h+대기다. ELF가4096 B를 넘으면 출품 보류를 유지한다.
+이 창은 D 자동 재개, W256 실행, AWS 유료 캠페인이나 점수 리그의 완료 약속이 아니다.
