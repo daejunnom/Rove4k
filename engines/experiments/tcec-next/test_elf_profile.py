@@ -6,9 +6,11 @@ the ten literal FAMILY/PROFILE/artifact/{main.c,build.json} files. Only those
 named small source DATA files are read. Historical DATA never enters production.
 """
 import argparse
+from contextlib import redirect_stdout
 import copy
 from hashlib import sha256
 import importlib.util
+import io
 import json
 from pathlib import Path
 import struct
@@ -80,6 +82,7 @@ class PolicyTests(unittest.TestCase):
                 self.assertEqual(policy["entry_cleanup"], "none")
                 self.assertEqual(policy["representation"], "self-contained-elf")
                 self.assertEqual(policy["outer_commands"], 10)
+                self.assertEqual(policy["native_variant"], "baseline")
                 command = owner.factory_argv(family, Path("/external/owned"), profile)
                 self.assertEqual(command[command.index("--representation") + 1], "source-jit")
                 self.assertEqual(command[command.index("--source-dependencies") + 1], "unused-includes")
@@ -93,6 +96,8 @@ class PolicyTests(unittest.TestCase):
                 owner.plan(family, profile)
         with self.assertRaisesRegex(ValueError, "explicit --execute"):
             owner.produce("A", Path("/never-created"))
+        with self.assertRaisesRegex(ValueError, "explicit --execute"):
+            owner.produce("A", Path("/never-created"), native_variant="lean")
         with self.assertRaisesRegex(ValueError, "explicit --execute"):
             owner.runtime(Path("/never-read"), Path("/never-created"))
         with self.assertRaisesRegex(ValueError, "explicit --execute"):
@@ -142,6 +147,73 @@ class PolicyTests(unittest.TestCase):
         self.assertIsNone(owner.validate_target_abi_absence({"source_proofs": [resource]}, "A"))
         with self.assertRaises(ValueError):
             owner.validate_target_abi_absence(manifest, "A")
+
+
+class NativePolicyTests(unittest.TestCase):
+    CONTROL_COMPILERS = {
+        "A": ["cc", "-Os", "-x", "c", "-", "-o", "x", "-s"],
+        "B": ["cc", "-std=c11", "-Os", "-pthread", "-x", "c", "-", "-o", "x"],
+        "C": ["cc", "-Os", "-mavx2", "-x", "c", "-", "-o", "x", "-s"],
+        "E": ["cc", "-Os", "-x", "c", "-", "-o", "x", "-s"],
+        "F": ["cc", "-Os", "-pthread", "-x", "c", "-", "-o", "x", "-s"],
+    }
+    LEAN_FLAGS = ["-fno-asynchronous-unwind-tables", "-fno-unwind-tables", "-Wl,--build-id=none"]
+
+    def test_default_is_original_compiler_and_lean_is_exact_opt_in(self):
+        for family, control in self.CONTROL_COMPILERS.items():
+            for profile in owner.PROFILES:
+                with self.subTest(family=family, profile=profile):
+                    baseline = owner.plan(family, profile)
+                    self.assertEqual(baseline, owner.plan(family, profile, native_variant="baseline"))
+                    self.assertEqual(baseline["compiler"], control)
+                    self.assertEqual(baseline["control_compiler"], control)
+                    self.assertIsNot(baseline["compiler"], baseline["control_compiler"])
+                    lean = owner.plan(family, profile, native_variant="lean")
+                    self.assertEqual(lean["control_compiler"], control)
+                    at = control.index("-x")
+                    additions = [*self.LEAN_FLAGS, *(["-s"] if family == "B" else [])]
+                    self.assertEqual(lean["compiler"], [*control[:at], *additions, *control[at:]])
+                    self.assertEqual(lean["compiler"].count("-s"), 1)
+                    self.assertEqual({key: value for key, value in lean.items() if key not in ("native_variant", "compiler")},
+                                     {key: value for key, value in baseline.items() if key not in ("native_variant", "compiler")})
+
+    def test_factory_argv_never_receives_derived_native_options(self):
+        for family in owner.FAMILIES:
+            for profile in owner.PROFILES:
+                command = owner.factory_argv(family, Path("/external/unchanged-control"), profile)
+                self.assertEqual(command[command.index("--representation") + 1], "source-jit")
+                self.assertNotIn("--native-variant", command)
+                self.assertNotIn("--compile-cc", command)
+                for flag in [*self.LEAN_FLAGS, "-s"]:
+                    self.assertNotIn(flag, command)
+
+    def test_finite_variant_and_policy_mismatches_fail_before_source_capture(self):
+        for variant in (None, True, "unwindless", "strip", "lean -ffast-math"):
+            with self.assertRaisesRegex(ValueError, "finite baseline/lean"):
+                owner.plan("A", native_variant=variant)
+        manifest = dict(format=1, **{"class": owner.CLASS}, complete=True, reproducible=True,
+            source_closure_rechecked=True, family="A", profile="test-p4", native_variant="baseline",
+            policy=owner.plan("A"), actual={"source": "main.c", "native": "native/x", "program": "x"})
+        variants = []
+        changed = copy.deepcopy(manifest)
+        changed["native_variant"] = "lean"
+        variants.append(changed)
+        for field in ("compiler", "control_compiler"):
+            changed = copy.deepcopy(manifest)
+            changed["policy"][field].append("-ffast-math")
+            variants.append(changed)
+        for changed in variants:
+            with self.assertRaisesRegex(ValueError, "finite ELF build policy/layout"):
+                owner.admit_build(changed, Path("/never-read"))
+
+    def test_plan_CLI_is_read_only_and_produce_still_requires_execute(self):
+        for variant in owner.NATIVE_VARIANTS:
+            output = io.StringIO()
+            with redirect_stdout(output):
+                owner.main(["plan", "--entry", "B", "--native-variant", variant])
+            self.assertEqual(json.loads(output.getvalue()), owner.plan("B", native_variant=variant))
+            with self.assertRaisesRegex(ValueError, "explicit --execute"):
+                owner.main(["produce", "--entry", "B", "--native-variant", variant, "--out", "/never-created"])
 
 
 class PackedReaderTests(unittest.TestCase):

@@ -797,3 +797,10 @@ symbol metadata 축소를 각각 opt-in으로 구현·비교한다. 기본 선�
 다음 한정 창은 공통 준비0.1–0.2h → max(C/E EP0.7–1.5h, ELF metadata0.7–1.5h,
 W256 준비0.3–0.5h)+공유 runner 대기 → 감사0.2–0.5h로 약1–2.2h+대기다. 이는 ELF4KiB
 수렴·독립 Ubuntu22 ELF·대회 자원·AWS gate·리그 등 전체 잔여의 완료 약속이 아니다.
+
+W256 준비의15ab682/CI40476243172는 순수 정책 검사와 실제5계열 생성·재승인·내보내기를
+통과했다. Compile/package 준비 완료이며 W256 runtime/event/league 자격은 아니다.
+다음 opt-in 소스는 C/E EP maker 공유의4개 P4/P28 입력과 P4 비용2개, 내부 ELF lean
+정책의 P4 비용·기능5개를 구현한다. 앞선 기본 ELF10개와 기존 production 선택을 유지한다.
+Lean은 source-JIT control compiler를 변경하지 않고 파생 ELF의 unwind/build-id·B symbol
+metadata만 줄인다. 실제 크기·full 기능은 후속 CI에서 판정하며 새 개선으로 미리 채택하지 않는다.

@@ -79,6 +79,13 @@ jobs:
       matrix:
         entry: [A, B, C, E, F]
         profile: [test-p4, test-p28]
+        native_variant: [baseline]
+        include:
+          - {entry: A, profile: test-p4, native_variant: lean}
+          - {entry: B, profile: test-p4, native_variant: lean}
+          - {entry: C, profile: test-p4, native_variant: lean}
+          - {entry: E, profile: test-p4, native_variant: lean}
+          - {entry: F, profile: test-p4, native_variant: lean}
     env:
       PYTHONDONTWRITEBYTECODE: '1'
     steps:
@@ -91,7 +98,7 @@ jobs:
       - name: Install pinned development-only oracle dependencies
         run: python -m pip install --require-hashes -r engines/training/e19/requirements.txt
       - name: Configure this job's owned output
-        run: printf 'ELF_OUT=%s/rove4k-elf-%s-%s-%s\n' "$RUNNER_TEMP" '${{ matrix.entry }}' '${{ matrix.profile }}' '${{ github.run_attempt }}' >> "$GITHUB_ENV"
+        run: printf 'ELF_OUT=%s/rove4k-elf-%s-%s-%s-%s\n' "$RUNNER_TEMP" '${{ matrix.entry }}' '${{ matrix.profile }}' '${{ matrix.native_variant }}' '${{ github.run_attempt }}' >> "$GITHUB_ENV"
       - name: Produce two full ELF files and independently readmit the actual bytes
         run: |
           set -o pipefail
@@ -99,6 +106,7 @@ jobs:
           timeout --signal=TERM --kill-after=30s 600s \
             python -I -B engines/experiments/tcec-next/elf_profile.py produce \
             --entry '${{ matrix.entry }}' --profile '${{ matrix.profile }}' \
+            --native-variant '${{ matrix.native_variant }}' \
             --out "$ELF_OUT/build" --execute 2>&1 | tee "$ELF_OUT/produce.log"
           python -I -B engines/experiments/tcec-next/elf_profile.py admit --build "$ELF_OUT/build"
       - name: Compare actual final ELF-source move generation with the independent oracle
@@ -139,7 +147,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: experimental-elf-${{ matrix.entry }}-${{ matrix.profile }}-${{ github.sha }}-${{ github.run_attempt }}
+          name: experimental-elf-${{ matrix.entry }}-${{ matrix.profile }}-${{ matrix.native_variant }}-${{ github.sha }}-${{ github.run_attempt }}
           path: ${{ env.ELF_OUT }}
           if-no-files-found: error
           include-hidden-files: true

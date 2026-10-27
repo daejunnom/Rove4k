@@ -52,6 +52,8 @@ CLASS = "rove4k-full-profile-elf-v1"
 RULES_CLASS = "rove4k-full-profile-elf-rules-v1"
 FAMILIES = ("A", "B", "C", "E", "F")
 PROFILES = ("test-p4", "test-p28")
+NATIVE_VARIANTS = ("baseline", "lean")
+LEAN_FLAGS = ("-fno-asynchronous-unwind-tables", "-fno-unwind-tables", "-Wl,--build-id=none")
 BANNER = "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
 MAX_FILE = 16 << 20
 FSIZE = 8 << 20
@@ -99,15 +101,24 @@ def canonical(value):
     return json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False)
 
 
-def plan(family, profile_id="test-p4"):
+def plan(family, profile_id="test-p4", *, native_variant="baseline"):
     require(type(family) is str and family in FAMILIES and type(profile_id) is str
             and profile_id in PROFILES, "finite full ABCEF P4/P28 profile required")
-    compiler = ["cc", *(["-std=c11"] if family == "B" else []), "-Os",
+    require(type(native_variant) is str and native_variant in NATIVE_VARIANTS,
+            "finite baseline/lean native compiler variant required")
+    control_compiler = ["cc", *(["-std=c11"] if family == "B" else []), "-Os",
                 *(["-pthread"] if family in ("B", "F") else []),
                 *(["-mavx2"] if family == "C" else []), "-x", "c", "-", "-o", "x",
                 *([] if family == "B" else ["-s"])]
+    at = control_compiler.index("-x")
+    # The strict source-JIT parent keeps its original compiler. Only the opt-in
+    # derived native suppresses unwind/build-id metadata and adds B's missing
+    # strip flag. The full compiler ELF remains the pack/restore/runtime image.
+    extra = [*LEAN_FLAGS, *([] if "-s" in control_compiler else ["-s"])] if native_variant == "lean" else []
+    compiler = [*control_compiler[:at], *extra, *control_compiler[at:]]
     return dict(family=family, profile=profile_id, full=True, representation="self-contained-elf",
-        entry_cleanup="none", compiler=compiler, compiler_version=BANNER,
+        entry_cleanup="none", native_variant=native_variant, control_compiler=control_compiler,
+        compiler=compiler, compiler_version=BANNER,
         work_seconds=WORK_SECONDS, cleanup_seconds=CLEANUP_SECONDS,
         outer_commands=10,
         size_limit_bytes=4096, packing_filter="auto", loader_timeout_seconds=120,
@@ -221,7 +232,8 @@ def parent_artifacts(manifest, build, family, profile_id, m):
     policy = plan(family, profile_id)
     require(admitted.family == family and admitted.profile_id == profile_id and admitted.full is True
             and admitted.representation == "source-jit" and manifest["plan"]["entry_cleanup"] == "private-path"
-            and manifest["compiler"] == policy["compiler"] and manifest["compile_executor"] == policy["compiler"]
+            and manifest["compiler"] == policy["control_compiler"]
+            and manifest["compile_executor"] == policy["control_compiler"]
             and manifest["compile_executor_version"] == BANNER, "fresh strict parent context differs")
     control = json.loads(R.checked_artifact(build, "control/build.json", manifest["control"]["report"]))
     for record, kind in ((manifest, "rove4k-production-profile-v1"), (control, "tcec-full-C-v1")):
@@ -382,9 +394,9 @@ def _bounded_host(out, report, save, files, started):
     return owner, previous, host
 
 
-def produce(family, out, *, profile_id="test-p4", execute=False):
+def produce(family, out, *, profile_id="test-p4", native_variant="baseline", execute=False):
     require(execute is True, "explicit --execute required before output creation or factory execution")
-    policy = plan(family, profile_id)
+    policy = plan(family, profile_id, native_variant=native_variant)
     require(sys.platform == "linux" and platform.machine() == "x86_64" and os.sysconf("SC_PAGE_SIZE") == 4096,
             "Linux x86-64 with actual 4096-byte base pages required")
     started, files = time.monotonic(), capture()
@@ -394,7 +406,8 @@ def produce(family, out, *, profile_id="test-p4", execute=False):
     for name, data in files.items():
         write(out / "support", name, data)
     report = dict(format=1, **{"class": CLASS}, family=family, profile=profile_id, complete=False,
-        reproducible=False, policy=policy, commands=[], attempts=[], source_root=str(ROOT),
+        reproducible=False, native_variant=native_variant, control_compiler=policy["control_compiler"],
+        policy=policy, commands=[], attempts=[], source_root=str(ROOT),
         artifact_directory=str(out),
         support={name: pin(data) for name, data in files.items()}, outer_command_limit=policy["outer_commands"],
         engine_executed=False, TT_allocated=False, runtime_qualified=False, elf_qualified=False, selected=False,
@@ -575,7 +588,7 @@ def admit_build(manifest, build):
             and manifest.get("reproducible") is True and manifest.get("source_closure_rechecked") is True
             and "failure" not in manifest and "cleanup_failure" not in manifest, "complete fresh full-profile ELF build required")
     family, profile_id = manifest.get("family"), manifest.get("profile")
-    policy = plan(family, profile_id)
+    policy = plan(family, profile_id, native_variant=manifest.get("native_variant"))
     require(canonical(manifest.get("policy")) == canonical(policy) and manifest.get("actual") ==
             {"source": "main.c", "native": "native/x", "program": "x"}, "finite ELF build policy/layout differs")
     files, build = capture(), Path(build)
@@ -611,6 +624,7 @@ def admit_build(manifest, build):
     require(manifest.get("source_closure") == {"parent": parent_manifest["source_closure"], "derived_tools": list(SUPPORT)}
             and manifest.get("factory_profile_commands") == parent_manifest["commands"]
             and manifest.get("factory_control_commands") == parent_control["commands"]
+            and manifest.get("control_compiler") == policy["control_compiler"]
             and manifest.get("compiler") == policy["compiler"] and manifest.get("compile_executor_version") == BANNER
             and manifest.get("host_context", {}).get("load_page_bytes") == 4096
             and manifest.get("outer_command_limit") == policy["outer_commands"],
@@ -890,9 +904,14 @@ def qualify(build, runtime_path, *, rules_path=None):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="action", required=True)
+    planner = sub.add_parser("plan")
+    planner.add_argument("--entry", choices=FAMILIES, required=True)
+    planner.add_argument("--profile", choices=PROFILES, default="test-p4")
+    planner.add_argument("--native-variant", choices=NATIVE_VARIANTS, default="baseline")
     producer = sub.add_parser("produce")
     producer.add_argument("--entry", choices=FAMILIES, required=True)
     producer.add_argument("--profile", choices=PROFILES, default="test-p4")
+    producer.add_argument("--native-variant", choices=NATIVE_VARIANTS, default="baseline")
     producer.add_argument("--out", type=Path, required=True)
     producer.add_argument("--execute", action="store_true")
     reader = sub.add_parser("admit")
@@ -908,8 +927,12 @@ def main(argv=None):
     qualifier.add_argument("--rules", type=Path)
     qualifier.add_argument("--out", type=Path, required=True)
     args = parser.parse_args(argv)
+    if args.action == "plan":
+        print(json.dumps(plan(args.entry, args.profile, native_variant=args.native_variant), sort_keys=True))
+        return
     if args.action == "produce":
-        result = produce(args.entry, args.out, profile_id=args.profile, execute=args.execute)
+        result = produce(args.entry, args.out, profile_id=args.profile, native_variant=args.native_variant,
+                         execute=args.execute)
     elif args.action == "admit":
         manifest, admitted, _, _ = read_build(args.build)
         result = dict(class_name=CLASS, family=admitted.family, profile=admitted.profile_id,

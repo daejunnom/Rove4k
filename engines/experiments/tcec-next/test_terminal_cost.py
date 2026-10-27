@@ -150,12 +150,38 @@ class TerminalCostBoundaries(unittest.TestCase):
             self.assertEqual(dependencies.restore_source(candidate, new_dependency), lifted)
             self.assertEqual(projection._inverse_edits(lifted, proof["lifted_edits"]), before)
             self.assertTrue(proof["exact_commuting_output"])
+            self.assertEqual(cost.lift_source_edits(before, final, candidate, {"edits": rows}, old_dependency,
+                projection=projection, dependencies=dependencies), (lifted, new_dependency, proof))
             if has_include:
                 crossing, crossing_rows, _ = projection._splice(final, [dict(input_begin=3, before="DTA", after="DTB",
                     role="deliberate-overlap", component="test")])
                 with self.assertRaisesRegex(ValueError, "crosses the removed include"):
                     cost.lift_mate_source(before, final, crossing, {"edits": crossing_rows}, old_dependency,
                                          projection=projection, dependencies=dependencies)
+
+    def test_ep_is_explicit_CE_only_and_reuses_the_actual_five_control_pins(self):
+        for family in ("C", "E"):
+            policy = cost.plan(family, experiment="ep")
+            mate = cost.plan(family, experiment="mate", variant="folded")
+            self.assertEqual(policy["cases"], ["control", "legal-maker"])
+            self.assertEqual(policy["outer_commands"], 16)
+            self.assertEqual(policy["control"], mate["control"])
+            self.assertEqual(policy["compiler"], mate["compiler"])
+            self.assertEqual(policy["compression"], mate["compression"])
+            self.assertFalse(policy["diagnostic_engine"])
+            self.assertNotIn("variant", policy)
+            self.assertEqual(cost.factory_argv(family, Path("/external/new"), experiment="ep"),
+                cost.factory_argv(family, Path("/external/new"), experiment="mate", variant="folded"))
+            command = policy["diagnostic_compiler"]
+            self.assertIn("-fsanitize=undefined", command)
+            self.assertIn("-fno-sanitize-recover=undefined", command)
+            self.assertEqual("-mavx2" in command, family == "C")
+        for family in ("A", "B", "D", "F", "F8", True):
+            with self.assertRaises(ValueError):
+                cost.plan(family, experiment="ep")
+        for variant in ("folded", "shared", "legal-maker", False):
+            with self.assertRaises(ValueError):
+                cost.plan("C", experiment="ep", variant=variant)
 
     def test_semantic_receipt_requires_the_actual_exhaustive_domain_and_types(self):
         valid = dict(complete=True, family="C", profile="test-p4", variant="shared", decode_cases=8388608,

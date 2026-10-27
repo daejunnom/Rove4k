@@ -93,8 +93,26 @@ strictly readmits it before and after copying exact whole/source/native artifact
 and records actual size decisions. It starts no W256 workers or TT and grants no
 runtime, event, league or strength qualification. Its strict admission can replay
 packaging; it does not start a new compiler or producer. A five-family hosted
-compile/package workflow and five pure policy tests are registered; actual fresh
-W256 execution of this endpoint is pending. ELF Ubuntu22 transfer remains open.
+compile/package workflow and five pure policy tests are registered. At source
+15ab6829ad7fa87e8b99e6cb93bcb795036552c6, workflow40476243172 passes its source
+contracts and all five actual W256 producer/admission/export jobs. This confirms
+preparation, not W256 runtime or event acceptance. ELF Ubuntu22 transfer and a
+submission-profile ELF preparation lane remain open.
+
+The next opt-in cohort compares C/E EP normalization through the existing legal
+maker, preserving move encoding, models, search, resource policy and TT publication.
+A/B/F already share that responsibility. Four C/E P4/P28 input contexts are fixed;
+the first cost lane uses P4, the existing final-source oracle and fatal UBSan.
+Its 105 start-derived cases do not claim arbitrary FEN or explicit EP discovered-
+check coverage. Targeted EP and full runtime evidence remain adoption gates.
+
+The ELF cohort also adds a named lean native policy: suppress inner unwind tables
+and build ID, and add missing stripping for B. The strict source-JIT control
+compiler and five control pins remain original. Derived type/native/pack inverse,
+dependencies and live restored-native identity use the complete new compiler ELF.
+Baseline remains the default; five P4 lean cases are added alongside ten baseline
+cases. Both new experiments have independent source review, with no measured
+saving or new production selection before the forthcoming hosted execution.
 
 ### Verified source, CI and offline transport
 

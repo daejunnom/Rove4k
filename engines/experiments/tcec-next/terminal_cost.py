@@ -5,9 +5,11 @@ The unchanged selected factory must pass its strict current verifier and all
 five literal control identities before this one source hypothesis is measured.
 Candidate native images are observations in a new COST class, never production
 admissions. The default A/E terminal experiment retains fourteen outer commands.
-The explicit A/B/C/E mate experiment adds one fatal-UBSan fragment compile/run,
-for sixteen commands. This diagnostic is not an engine. Nested factory commands
-remain separate. CPP identity is case-internal, not control-versus-candidate.
+The explicit A/B/C/E mate and C/E EP experiments add one fatal-UBSan diagnostic
+compile/run, for sixteen commands. The mate diagnostic executes integer fragments;
+EP uses the actual source's start/generate/make in the existing rules fixture.
+Neither calls the original entry or allocates a TT. Nested factory commands remain
+separate. CPP identity is case-internal, not control-versus-candidate.
 """
 from __future__ import annotations
 
@@ -32,6 +34,10 @@ SELF = PREFIX + "terminal_cost.py"
 HELPER = PREFIX + "terminal_queries.py"
 MATE_HELPER = PREFIX + "compact_mate.py"
 MATE_SEMANTICS = PREFIX + "test_compact_mate.py"
+EP_HELPER = PREFIX + "compact_ep.py"
+EP_TESTS = PREFIX + "test_compact_ep.py"
+RULES = PREFIX + "profile_rules.py"
+ORACLE = "engines/tests/chess_oracle.py"
 PROJECTION = PREFIX + "spelling_compound.py"
 BUILDER = PREFIX + "profile_build.py"
 VERIFIER = PREFIX + "profile_verify.py"
@@ -110,6 +116,15 @@ MATE_COMPILERS = {
     "B": ("cc", "-std=c11", "-Os", "-pthread", "-x", "c", "-", "-o", "x"),
     "C": ("cc", "-Os", "-mavx2", "-x", "c", "-", "-o", "x", "-s"),
 }
+EP_CLASS = "rove4k-CE-ep-cost-v1"
+EP_CASE = "legal-maker"
+EP_FIXED = {
+    PROJECTION: FIXED[PROJECTION],
+    EP_HELPER: (7042, "c74f494ede124feddccadbfb5ff9f328f459734ba9355dc1052649ca78205c56"),
+    EP_TESTS: (5696, "0806a637a579fa6530cc9ec122349fcc67b817548ec3753d7d185a1224b58559"),
+    RULES: (46921, "0719f373c2180d5fb0a79e5b7ceaaea13d6fe8fc889c7e3bb7a42c1d17f93f93"),
+    ORACLE: (10730, "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8"),
+}
 SEMANTIC_COMPILER = ("cc", "-std=c11", "-O2", "-fsanitize=undefined",
                      "-fno-sanitize-recover=undefined", "-x", "c", "-", "-o", "x")
 _EXECUTING_CODE = sys._getframe().f_code
@@ -133,17 +148,19 @@ def canonical(value):
 
 
 def plan(family, *, experiment="terminal", variant=None):
-    require(type(experiment) is str and experiment in ("terminal", "mate"), "finite source experiment required")
+    require(type(experiment) is str and experiment in ("terminal", "mate", "ep"), "finite source experiment required")
     terminal = experiment == "terminal"
-    require(type(family) is str and family in (CONTROL if terminal else MATE_CONTROL),
-            "finite A/E P4 family required" if terminal else "finite A/B/C/E P4 mate family required")
-    require(variant is None if terminal else type(variant) is str and variant in MATE_VARIANTS,
-            "terminal default or explicit folded/shared mate variant required")
+    mate = experiment == "mate"
+    families = CONTROL if terminal else MATE_CONTROL if mate else ("C", "E")
+    require(type(family) is str and family in families, "finite family for the named P4 source experiment required")
+    require(type(variant) is str and variant in MATE_VARIANTS if mate else variant is None,
+            "explicit folded/shared mate variant, or no variant for terminal/EP, required")
     compression = dict(format="lzma-alone", filter="LZMA1", preset=6 if family == "A" else 9,
         extreme=family != "A", lc=2, lp=0, pb=0, check="NONE", mf="BT2" if family == "A" else "BT4",
         dictionary_bytes=65536, nice_len=24 if family == "A" else 64 if family == "C" else 32)
     controls = CONTROL if terminal else MATE_CONTROL
-    result = dict(family=family, profile=PROFILE, cases=list(CASES) if terminal else ["control", variant],
+    result = dict(family=family, profile=PROFILE,
+        cases=list(CASES) if terminal else ["control", variant if mate else EP_CASE],
         outer_commands=OUTER_COMMANDS if terminal else MATE_OUTER_COMMANDS,
         work_seconds=600, cleanup_seconds=30,
         compiler=list(COMPILER if terminal else MATE_COMPILERS[family]), compiler_version=BANNER,
@@ -152,9 +169,14 @@ def plan(family, *, experiment="terminal", variant=None):
                  "header": expected(HEADER if terminal else MATE_HEADERS[family])})
     if terminal:
         result["candidate_source"] = expected(CANDIDATE[family])
-    else:
+    elif mate:
         result.update(experiment=experiment, variant=variant,
                       diagnostic_compiler=list(SEMANTIC_COMPILER), diagnostic_engine=False)
+    else:
+        result.update(experiment=experiment, diagnostic_engine=False,
+            diagnostic_compiler=["cc", "-std=c11", "-O1", "-pthread", "-g0",
+                *(["-mavx2"] if family == "C" else []), "-fsanitize=undefined",
+                "-fno-sanitize-recover=undefined", "-x", "c", "-", "-o", "x"])
     return result
 
 
@@ -197,20 +219,22 @@ def read_source(path):
 
 
 def capture(*, experiment="terminal"):
-    require(experiment in ("terminal", "mate"), "finite support capture required")
+    require(experiment in ("terminal", "mate", "ep"), "finite support capture required")
     names = SUPPORT if experiment == "terminal" else (
-        *[name for name in SUPPORT if name != HELPER], MATE_HELPER, MATE_SEMANTICS)
+        *[name for name in SUPPORT if name != HELPER],
+        *((MATE_HELPER, MATE_SEMANTICS) if experiment == "mate" else (EP_HELPER, EP_TESTS, RULES, ORACLE)))
     files = {name: read_source(ROOT / name) for name in names}
     require(compile(files[SELF], _EXECUTING_CODE.co_filename, "exec", dont_inherit=True) == _EXECUTING_CODE,
             "executing controller differs from captured source")
-    for name, value in (FIXED if experiment == "terminal" else MATE_FIXED).items():
+    fixed = FIXED if experiment == "terminal" else MATE_FIXED if experiment == "mate" else EP_FIXED
+    for name, value in fixed.items():
         require(pin(files[name]) == expected(value), "frozen terminal/projection owner differs: " + name)
     return files
 
 
 def merge_source_closure(factory_inputs, support, *, experiment="terminal"):
     """Preserve every admitted parent input and reject conflicting derived owners."""
-    require(type(experiment) is str and experiment in ("terminal", "mate"), "finite source closure required")
+    require(type(experiment) is str and experiment in ("terminal", "mate", "ep"), "finite source closure required")
     mandatory = (BUILDER, VERIFIER, OWNER, DEPENDENCIES, WRAPPER, UNLINK, PACKAGE, PRODUCTION)
     if experiment == "terminal":
         mandatory += (PROJECTION,)
@@ -296,7 +320,7 @@ def restored_payload(whole, header, source):
             and decoder.eof and not decoder.unused_data, "strict whole source inverse differs")
 
 
-def lift_mate_source(before, final, candidate, proof, old_dependency, *, projection, dependencies):
+def lift_source_edits(before, final, candidate, proof, old_dependency, *, projection, dependencies):
     """Commute exact final-source edits through the existing include cleanup.
 
     The old dependency proof supplies coordinates; no include offset is guessed.
@@ -318,13 +342,13 @@ def lift_mate_source(before, final, candidate, proof, old_dependency, *, project
                 and before[offset + len(removed):] == final[offset:],
                 "one exact unchanged include deletion required")
     require(projection._inverse_edits(candidate, proof["edits"]) == final,
-            "actual mate final-source inverse differs before lifting")
+            "actual final-source inverse differs before lifting")
     lifted = []
     for row in proof["edits"]:
         at, length = row["input_begin"], len(row["before"].encode("ascii"))
-        require(type(at) is int and length > 0, "typed nonempty mate edit required")
+        require(type(at) is int and length > 0, "typed nonempty source edit required")
         if spans:
-            require(at >= offset or at + length <= offset, "mate edit crosses the removed include")
+            require(at >= offset or at + length <= offset, "source edit crosses the removed include")
             at += len(removed) if at >= offset else 0
         lifted.append(dict(input_begin=at, before=row["before"], after=row["after"],
                            role=row["role"], component=row["component"]))
@@ -333,12 +357,18 @@ def lift_mate_source(before, final, candidate, proof, old_dependency, *, project
             "lifted complete pre-cleanup inverse differs")
     cleaned, dependency_proof = dependencies.transform_source(pre_candidate)
     require(cleaned == candidate and dependencies.restore_source(cleaned, dependency_proof) == pre_candidate,
-            "mate/include projections do not commute")
+            "source/include projections do not commute")
     return pre_candidate, dependency_proof, dict(
         original_before=pin(before), original_final=pin(final), candidate_before=pin(pre_candidate),
         candidate_final=pin(candidate), original_dependency=old_dependency,
         lifted_edits=rows, protected_gaps=gaps, lifted_full_inverse=True,
         canonical_cleanup_last=True, exact_commuting_output=True)
+
+
+def lift_mate_source(before, final, candidate, proof, old_dependency, *, projection, dependencies):
+    """Retain the original mate API while sharing the source-coordinate owner."""
+    return lift_source_edits(before, final, candidate, proof, old_dependency,
+                             projection=projection, dependencies=dependencies)
 
 
 def semantic_observation(data, *, family, variant):
@@ -358,6 +388,7 @@ def measure(family, out, *, execute=False, experiment="terminal", variant=None):
     require(execute is True, "explicit --execute required before source capture or output creation")
     policy = plan(family, experiment=experiment, variant=variant)
     terminal = experiment == "terminal"
+    mate = experiment == "mate"
     compiler, cases = policy["compiler"], policy["cases"]
     require(sys.platform == "linux" and platform.machine() == "x86_64", "Linux x86-64 required")
     import resource
@@ -372,11 +403,13 @@ def measure(family, out, *, execute=False, experiment="terminal", variant=None):
     out.mkdir(parents=True)
     for name, data in files.items():
         write(out / "support", name, data)
-    report = dict(format=1, **{"class": CLASS if terminal else MATE_CLASS}, complete=False, reproducible=False,
+    report = dict(format=1, **{"class": CLASS if terminal else MATE_CLASS if mate else EP_CLASS},
+        complete=False, reproducible=False,
         policy=policy, support={name: pin(data) for name, data in files.items()}, commands=[], attempts=[],
         engine_executed=False, TT_allocated=False, selected=False, runtime_qualified=False,
         scope=("fresh strict control and one source hypothesis; compile/package observations only" if terminal else
-               "fresh strict control, one mate hypothesis and actual-fragment UBSan diagnostic; no engine execution"),
+               "fresh strict control, one mate hypothesis and actual-fragment UBSan diagnostic; no engine execution" if mate else
+               "fresh strict control and one EP hypothesis; preliminary actual-source rules UBSan, not engine/TT or full rules acceptance"),
         host_context=dict(python=sys.version, uname=list(os.uname()),
                           cpu_affinity=sorted(os.sched_getaffinity(0))),
         limits={**applied, "work_seconds": 600, "cleanup_budget_seconds": 30,
@@ -384,7 +417,9 @@ def measure(family, out, *, execute=False, experiment="terminal", variant=None):
                 "fresh_profile_TERM_grace_seconds": 15, "other_TERM_grace_seconds": 3,
                 "combined_stdio_bytes": MAX_FILE}, outer_command_limit=policy["outer_commands"])
     if not terminal:
-        report.update(experiment=experiment, variant=variant, diagnostic_C_executed=False)
+        report.update(experiment=experiment, diagnostic_C_executed=False)
+        if mate:
+            report["variant"] = variant
 
     def save():
         (out / "result.json").write_text(json.dumps(report, indent=2, sort_keys=True, allow_nan=False) + "\n")
@@ -418,10 +453,10 @@ def measure(family, out, *, execute=False, experiment="terminal", variant=None):
             actual_parent_AS=resource.getrlimit(resource.RLIMIT_AS),
             actual_FSIZE=resource.getrlimit(resource.RLIMIT_FSIZE))
         R = load_bytes("terminal_cost_strict_R", VERIFIER, files[VERIFIER])
-        helper_path = HELPER if terminal else MATE_HELPER
+        helper_path = HELPER if terminal else MATE_HELPER if mate else EP_HELPER
         helper = load_bytes("terminal_cost_source_hypothesis", helper_path, files[helper_path])
         projection = load_bytes("terminal_cost_projection", PROJECTION, files[PROJECTION])
-        semantics = None if terminal else load_bytes("terminal_cost_mate_semantics", MATE_SEMANTICS, files[MATE_SEMANTICS])
+        semantics = load_bytes("terminal_cost_mate_semantics", MATE_SEMANTICS, files[MATE_SEMANTICS]) if mate else None
         if semantics is not None:
             require(read_source(Path(semantics.mate.__file__)) == files[MATE_HELPER]
                     and read_source(Path(semantics.projection.__file__)) == files[PROJECTION]
@@ -432,6 +467,12 @@ def measure(family, out, *, execute=False, experiment="terminal", variant=None):
                     and semantics.mate.INPUTS == helper.INPUTS and semantics.mate.CONTEXT == helper.CONTEXT
                     and semantics.mate.DOMAIN == helper.DOMAIN,
                     "diagnostic module's real helper inputs differ from captured support")
+        rules = oracle = None
+        if experiment == "ep":
+            rules = load_bytes("terminal_cost_EP_rules", RULES, files[RULES])
+            require(rules.ORACLE == ORACLE and rules.ORACLE_SHA == pin(files[ORACLE])["sha256"],
+                    "EP rules renderer's independent oracle owner differs")
+            oracle = load_bytes("terminal_cost_EP_oracle", ORACLE, files[ORACLE])
         baseline = out / "fresh-profile"
         run_command(host, owner, factory_argv(family, baseline, experiment=experiment, variant=variant),
                     cwd=out, kind="fresh-profile", factory=True)
@@ -496,7 +537,7 @@ def measure(family, out, *, execute=False, experiment="terminal", variant=None):
                 commuting = None
                 if case != "control":
                     arguments = dict(family=family, profile_id=PROFILE, projection=projection)
-                    if not terminal:
+                    if mate:
                         arguments["variant"] = variant
                     candidate, source_proof = helper.transform_source(source, **arguments)
                     require(helper.restore_source(candidate,
@@ -506,9 +547,9 @@ def measure(family, out, *, execute=False, experiment="terminal", variant=None):
                         require(pin(candidate) == policy["candidate_source"], "finite terminal source differs")
                         before = candidate
                     else:
-                        before, _, commuting = lift_mate_source(before, source, candidate, source_proof, old_dependency,
-                                                                projection=projection, dependencies=dependencies)
-                        if "semantics" not in report:
+                        before, _, commuting = lift_source_edits(before, source, candidate, source_proof, old_dependency,
+                                                                 projection=projection, dependencies=dependencies)
+                        if mate and "semantics" not in report:
                             fixture, fixture_proof = semantics.semantic_fixture(source, family=family,
                                 profile_id=PROFILE, variant=variant)
                             require(fixture_proof["source"] == pin(source)
@@ -532,6 +573,37 @@ def measure(family, out, *, execute=False, experiment="terminal", variant=None):
                                 output=pin(semantic_raw), observation=observation, engine_executed=False,
                                 TT_allocated=False, compiler=list(SEMANTIC_COMPILER),
                                 scope="actual source fragments, promoted signed16 values and ply0..127; not an engine"))
+                            save()
+                        elif experiment == "ep" and "semantics" not in report:
+                            rule_cases, coverage = rules.fixture_cases(oracle)
+                            require(len(rule_cases) == 105 and sum(len(row["legal"]) for row in rule_cases) == 2858,
+                                    "existing independent EP rules fixture domain differs")
+                            fixture = rules.render_fixture(candidate, family, rule_cases)
+                            diagnostic = out / "ep-rules-semantic"
+                            diagnostic.mkdir()
+                            write(diagnostic, "fixture.c", fixture)
+                            case_bytes = (json.dumps([{key: value for key, value in row.items() if key != "board"}
+                                                      for row in rule_cases], indent=2, sort_keys=True) + "\n").encode()
+                            write(diagnostic, "cases.json", case_bytes)
+                            run_command(host, owner, policy["diagnostic_compiler"], cwd=diagnostic,
+                                        kind="ep-rules-semantic-compile", data=fixture)
+                            semantic_raw = run_command(host, owner, [str(diagnostic / "x")], cwd=diagnostic,
+                                                       kind="ep-rules-semantic-execute")
+                            require(all(row["stderr"]["bytes"] == 0 for row in report["commands"][-2:]),
+                                    "fatal-UBSan actual-source EP rules diagnostic emitted stderr")
+                            observation = rules._compare_output(semantic_raw, rule_cases)
+                            require(observation["cases"] == 105 and observation["legal_moves_compared"] == 2858
+                                    and observation["legal_sets_equal"] is True,
+                                    "actual-source EP rules diagnostic comparison differs")
+                            write(diagnostic, "result.stdout", semantic_raw)
+                            report.update(diagnostic_C_executed=True, semantics=dict(
+                                mode="ubsan", source=pin(candidate), fixture=pin(fixture), cases=pin(case_bytes),
+                                oracle=dict(path=ORACLE, **pin(files[ORACLE])), renderer=dict(path=RULES, **pin(files[RULES])),
+                                coverage=coverage, native=pin(R.input_reader().read_regular(diagnostic / "x", limit=MAX_FILE)),
+                                output=pin(semantic_raw), observation=observation, engine_executed=False,
+                                original_entry_called=False, TT_allocated=False, compiler=policy["diagnostic_compiler"],
+                                preliminary_only=True, full_plain_and_UBSan_rules_required_before_adoption=True,
+                                scope="actual final candidate start/generate/make legal sets at standard-start-derived positions; not full rules or runtime acceptance"))
                             save()
                 final, dependency_proof = dependencies.transform_source(before)
                 require(dependencies.restore_source(final, dependency_proof) == before,
@@ -634,9 +706,9 @@ def measure(family, out, *, execute=False, experiment="terminal", variant=None):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--entry", choices=("A", "B", "C", "E"), required=True)
-    parser.add_argument("--experiment", choices=("terminal", "mate"), default="terminal")
+    parser.add_argument("--experiment", choices=("terminal", "mate", "ep"), default="terminal")
     parser.add_argument("--variant", choices=MATE_VARIANTS,
-                        help="explicit folded/shared mate hypothesis; invalid for the default terminal experiment")
+                        help="explicit folded/shared mate hypothesis; invalid for terminal and EP experiments")
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--execute", action="store_true", help="explicitly run this bounded compile/package comparison")
     args = parser.parse_args(argv)
@@ -645,9 +717,10 @@ def main(argv=None):
     report = measure(args.entry, args.out, execute=True, experiment=args.experiment, variant=args.variant)
     summary = {"class": report["class"], "complete": report["complete"],
                "family": args.entry, "delta": report["delta"]}
-    if args.experiment == "mate":
-        summary.update(experiment=args.experiment, variant=args.variant,
-                       diagnostic_C_executed=report["diagnostic_C_executed"])
+    if args.experiment != "terminal":
+        summary.update(experiment=args.experiment, diagnostic_C_executed=report["diagnostic_C_executed"])
+        if args.experiment == "mate":
+            summary["variant"] = args.variant
     print(json.dumps(summary, sort_keys=True))
 
 
