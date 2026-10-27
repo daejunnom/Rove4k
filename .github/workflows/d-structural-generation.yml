@@ -58,6 +58,9 @@ jobs:
           retention-days: 7
 
   bss-cost-only:
+    # User paused D compression on 2026-10-27. Keep the implementation and
+    # previous evidence; resume this experiment only after a new instruction.
+    if: ${{ false }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:

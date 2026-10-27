@@ -66,17 +66,20 @@ class MemoryS3Port:
         return data
 
 
-def game_spec(leg=0, opening=None):
+def game_spec(leg=0, opening=None, players=None):
     moves = ["f2f3", "e7e5"] if opening is None else opening
-    return {"leg": leg, "white": "fixture-A" if leg == 0 else "fixture-B",
-            "black": "fixture-B" if leg == 0 else "fixture-A", "profile": "test-p4",
+    first, second = ("fixture-A", "fixture-B") if players is None else players
+    identities = ({first: "a" * 64, second: "c" * 64} if players is None else
+                  {name: sha(name.encode()) for name in players})
+    return {"leg": leg, "white": first if leg == 0 else second,
+            "black": second if leg == 0 else first, "profile": "test-p4",
             "opening_id": "fixture-opening", "opening_moves": moves,
             "opening_sha256": ledger.digest(moves), "bank_id": "b" * 64,
-            "artifact_sha256": {"fixture-A": "a" * 64, "fixture-B": "c" * 64}}
+            "artifact_sha256": identities}
 
 
-def add_leg(journal, leg, *, acknowledged=True, pair="fixture-pair", result="1-0"):
-    spec = game_spec(leg)
+def add_leg(journal, leg, *, acknowledged=True, pair="fixture-pair", result="1-0", players=None):
+    spec = game_spec(leg, players=players)
     keys = {"pair": pair, "game": pair + f"-leg{leg}", "attempt": 0}
     journal.append("game.started", spec, **keys)
     data = {**{name: spec[name] for name in ("white", "black", "profile", "opening_id", "opening_sha256", "bank_id", "artifact_sha256")},
@@ -278,7 +281,9 @@ class CollectionTests(unittest.TestCase):
 
     def test_high_selection_uses_only_eligible_families_and_completed_p4(self):
         summary = {"profile": "test-p4", "selection_ready": True,
-                   "standings": [{"player": name} for name in ("A4", "B4", "C4")]}
+                   "standings": [{"player": name, "points": 3 - index,
+                                  "tied_head_to_head": 0, "sonneborn_berger": 0}
+                                 for index, name in enumerate(("A4", "B4", "C4"))]}
         high = [{"id": name + "28", "family": name} for name in ("B", "C", "ice4", "c4ke")]
         selected = collect.select_high(summary, {"A4": "A", "B4": "B", "C4": "C"}, high)
         self.assertEqual(selected["players"], ["B28", "C28", "c4ke28", "ice428"])
@@ -286,6 +291,67 @@ class CollectionTests(unittest.TestCase):
             collect.select_high({**summary, "selection_ready": False}, {}, high)
         with self.assertRaises(ValueError):
             collect.select_high(summary, {}, high + [high[0]])
+
+    def test_drawn_broad_uses_family_ids_even_when_artifact_ids_sort_backwards(self):
+        families = {"z-A": "A", "m-B": "B", "a-C": "C"}
+        pairs = (("z-A", "m-B"), ("z-A", "a-C"), ("m-B", "a-C"))
+        with tempfile.TemporaryDirectory() as folder:
+            with ledger.Journal(Path(folder) / "campaign.jsonl", "fixture") as journal:
+                for index, players in enumerate(pairs):
+                    for leg in (0, 1):
+                        add_leg(journal, leg, pair=f"tie-{index}", result="1/2-1/2", players=players)
+                arguments = dict(expected_pairs=[f"tie-{index}" for index in range(3)], profile="test-p4")
+                unbound = collect.collect(journal.rows, "fixture", **arguments)
+                bound = collect.collect(journal.rows, "fixture", **arguments, player_families=families)
+        self.assertTrue(bound["selection_ready"])
+        self.assertEqual({(row["points"], row["tied_head_to_head"], row["sonneborn_berger"])
+                          for row in bound["standings"]}, {(2, 2, 4)})
+        self.assertEqual([row["player"] for row in unbound["standings"]], ["a-C", "m-B", "z-A"])
+        self.assertEqual([row["player"] for row in bound["standings"]], ["z-A", "m-B", "a-C"])
+        high = [{"id": family + "28", "family": family} for family in ("C", "B", "A")]
+        high += [{"id": "a-ice4", "family": "ice4"}, {"id": "z-c4ke", "family": "c4ke"}]
+        selected = collect.select_high(unbound, families, high)
+        self.assertEqual(selected["players"], ["A28", "B28", "a-ice4", "z-c4ke"])
+
+    def test_high_selection_requires_unambiguous_family_binding_and_score_precedence(self):
+        rows = [{"player": name, "points": 1, "tied_head_to_head": 1, "sonneborn_berger": 1}
+                for name in ("z-A", "a-B")]
+        summary = {"profile": "test-p4", "selection_ready": True, "standings": rows}
+        high = [{"id": family + "28", "family": family} for family in ("A", "B")]
+        for families in (None, {}, {"z-A": "A"}, {"z-A": "A", "a-B": "A"},
+                         {"z-A": "A", "a-B": "unknown"}):
+            with self.assertRaises(ValueError):
+                collect.select_high(summary, families, high)
+        families = {"z-A": "A", "a-B": "B"}
+        for name in ("points", "tied_head_to_head", "sonneborn_berger"):
+            ranked = [dict(row) for row in rows]
+            ranked[1][name] = 2
+            selected = collect.select_high({**summary, "standings": ranked}, families, high)
+            self.assertEqual(selected["players"], ["B28", "A28"])
+
+    def test_collection_cli_binds_plan_families_and_preserves_unbound_reporting(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            journal_path = root / "campaign.jsonl"
+            with ledger.Journal(journal_path, "fixture") as journal:
+                for leg in (0, 1):
+                    add_leg(journal, leg, result="1/2-1/2")
+            content = {"campaign": "fixture", "profile": "test-p4", "pairs": [{"id": "fixture-pair"}],
+                       "registry": {"players": [{"artifact": {"id": "fixture-A", "family": "B"}},
+                                                 {"artifact": {"id": "fixture-B", "family": "A"}}]}}
+            plan = root / "plan.json"
+            plan.write_bytes(ledger.canonical({"format": "rove4k-campaign-plan-v1",
+                "content": content, "sha256": ledger.digest(content)}))
+            for bound in (False, True):
+                out = root / ("bound" if bound else "unbound")
+                argv = ["collect", "--journal", str(journal_path), "--campaign", "fixture", "--out", str(out)]
+                if bound:
+                    argv += ["--plan", str(plan)]
+                with patch.object(sys, "argv", argv), patch("sys.stdout"):
+                    collect.main()
+                summary = json.loads((out / "summary.json").read_bytes())
+                self.assertEqual(summary["standings"][0]["player"], "fixture-B" if bound else "fixture-A")
+                self.assertEqual(summary["selection_ready"], bound)
 
     def test_completed_result_waiting_for_ack_is_never_replayed(self):
         with tempfile.TemporaryDirectory() as folder:

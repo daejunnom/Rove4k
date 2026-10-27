@@ -174,10 +174,11 @@ def freeze_plan(campaign, profile, registry_path, bank_path, bank_sha256, runner
         if broad["content"]["campaign"] != campaign or broad["content"]["stage"] != "broad":
             raise ValueError("broad selection belongs to another campaign/stage")
         broad_rows = ledger.read_journal(broad_journal, campaign)
+        broad_families = {row["artifact"].id: row["artifact"].family for row in broad_players}
         summary = collect.collect(broad_rows, campaign,
-            expected_pairs=[row["id"] for row in broad["content"]["pairs"]], profile="test-p4")
-        selection = collect.select_high(summary,
-            {row["artifact"].id: row["artifact"].family for row in broad_players},
+            expected_pairs=[row["id"] for row in broad["content"]["pairs"]], profile="test-p4",
+            player_families=broad_families)
+        selection = collect.select_high(summary, broad_families,
             [{"id": row["artifact"].id, "family": row["artifact"].family} for row in players])
         selection.update(broad_plan_sha256=broad["sha256"],
                          broad_journal_last_sha256=broad_rows[-1]["sha256"],
@@ -966,7 +967,8 @@ class StageController:
                 cleanup.append({"component": "runner", "unsettled_launches": sorted(self.unsettled)})
             os.sched_setaffinity(0, original)
         summary = collect.collect(self.journal.rows, self.plan["campaign"],
-                                  expected_pairs=[row["id"] for row in self.plan["pairs"]], profile=self.plan["profile"])
+                                  expected_pairs=[row["id"] for row in self.plan["pairs"]], profile=self.plan["profile"],
+                                  player_families={name: artifact.family for name, artifact in self.players.items()})
         report = {"format": "rove4k-stage-run-v1", "plan_sha256": self.envelope["sha256"],
                   "complete": summary["campaign_stage_complete"] and failure is None and not cleanup,
                   "summary": summary, "failure": failure, "cleanup_errors": cleanup,

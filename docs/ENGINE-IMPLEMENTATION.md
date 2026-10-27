@@ -7,6 +7,23 @@ zero and the initial model weights remain unchanged; trained strength is not cla
 
 ## Current integration checkpoint, 2026-10-27
 
+The latest user priority pauses new D compression. Preserve4737/4689 and all
+original evidence; the BSS cost job is explicitly suspended, without suspending
+the maintained D regression producer. Work now prioritizes A/B/C/E/full F source
+improvements, completion of ELF producer/consumer paths and other implementation.
+The692 baseline has five successful workflows and26 engine jobs; local upper
+execution remains held without memory polling or automatic restart.
+
+The first new implementation corrects final league ties to fixed family IDs.
+One standings owner preserves points/head-to-head/Sonneborn-Berger precedence;
+high selection consumes the admitted family mapping, including actual freeze and
+controller callers. Independent source review and seven focused pure journal/CLI
+checks pass; full evaluator CI is separate. Another opt-in source helper shares
+the existing F mate normalization with A/B/C/E using folded/shared variants.
+Four pure tests and16 actual-source inverse/tamper checks pass, and16 semantic C
+sources are generated. These are not native, whole-cost or C-execution results.
+Neither candidate changes the selected engine artifacts at this checkpoint.
+
 ### Verified source, CI and offline transport
 
 The retained edb baseline isedb747e8282401ae27537e65cbf21bbfa58b491b.

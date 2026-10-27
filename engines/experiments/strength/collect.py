@@ -7,6 +7,7 @@ from collections import Counter, defaultdict
 import csv
 import html
 import json
+import math
 from pathlib import Path
 
 try:
@@ -15,7 +16,32 @@ except ImportError:
     from ledger import CampaignResults, read_journal, digest
 
 
-def collect(rows, campaign, *, expected_pairs=None, profile=None):
+def order_standings(standings, player_families=None):
+    """Bind statistical ties to family IDs; unbound ID order is reporting only."""
+    rows = list(standings)
+    if player_families is not None and type(player_families) is not dict:
+        raise ValueError("an artifact-to-family mapping is required")
+    seen = set()
+    for row in rows:
+        player = row.get("player")
+        if type(player) is not str or not player or player in seen:
+            raise ValueError("unique standing player identities are required")
+        seen.add(player)
+        if player_families is not None and player_families.get(player) not in (*"ABCDEF", "ice4", "c4ke"):
+            raise ValueError("standing has no declared active family")
+        if any(type(row.get(name)) not in (int, float) or not math.isfinite(row[name])
+               for name in ("points", "tied_head_to_head", "sonneborn_berger")):
+            raise ValueError("finite point and tie-break observations are required")
+
+    def key(row):
+        player = row["player"]
+        family = player if player_families is None else player_families[player]
+        return (-row["points"], -row["tied_head_to_head"], -row["sonneborn_berger"], family, player)
+
+    return sorted(rows, key=key)
+
+
+def collect(rows, campaign, *, expected_pairs=None, profile=None, player_families=None):
     results = CampaignResults.replay(campaign, rows)
     pairs = [pair for pair in results.pairs() if profile is None or pair["profile"] == profile]
     if expected_pairs is not None and len(expected_pairs) != len(set(expected_pairs)):
@@ -71,7 +97,7 @@ def collect(rows, campaign, *, expected_pairs=None, profile=None):
         h2h = sum(head[player, name] for name in tied if name != player)
         sb = sum(head[player, name] * other["points"] for name, other in table.items() if name != player)
         standings.append({"player": player, **score, "tied_head_to_head": h2h, "sonneborn_berger": sb})
-    standings.sort(key=lambda row: (-row["points"], -row["tied_head_to_head"], -row["sonneborn_berger"], row["player"]))
+    standings = order_standings(standings, player_families)
     complete = bool(expected) and complete_ids == expected
     return {"format": "rove4k-paired-summary-v1", "campaign": campaign, "profile": profile,
             "completed_pairs": pairs, "completed_pair_count": len(pairs),
@@ -87,11 +113,17 @@ def select_high(summary, broad_families, high_players):
     """Choose up to two distinct eligible Rove families from completed broad."""
     if summary.get("profile") != "test-p4" or summary.get("selection_ready") is not True:
         raise ValueError("an incomplete broad stage cannot determine its top two")
+    if type(broad_families) is not dict:
+        raise ValueError("high selection requires the admitted broad family mapping")
     if len({row["family"] for row in high_players}) != len(high_players):
         raise ValueError("P28 selection requires one qualified artifact per family")
+    ordered = order_standings(summary["standings"], broad_families)
+    rove = [broad_families[row["player"]] for row in ordered if broad_families[row["player"]] in tuple("ABCDEF")]
+    if len(rove) != len(set(rove)):
+        raise ValueError("broad selection requires one artifact per Rove family")
     eligible = {row["family"]: row["id"] for row in high_players if row["family"] in tuple("ABCDEF")}
     selected, families = [], set()
-    for standing in summary["standings"]:
+    for standing in ordered:
         family = broad_families[standing["player"]]
         if family in eligible and family not in families:
             selected.append(eligible[family])
@@ -101,7 +133,7 @@ def select_high(summary, broad_families, high_players):
     selected += sorted(row["id"] for row in high_players if row["family"] in ("ice4", "c4ke"))
     return {"players": selected, "rove_families": sorted(families),
             "partial": len(families) < 2 or sum(row["family"] in ("ice4", "c4ke") for row in high_players) < 2,
-            "selection": "complete P4 pair points, tied head-to-head, Sonneborn-Berger, stable ID; among P28-qualified families"}
+            "selection": "complete P4 pair points, tied head-to-head, Sonneborn-Berger, fixed family ID; among P28-qualified families"}
 
 
 def write_summary(summary, out):
@@ -141,7 +173,7 @@ def main():
     parser.add_argument("--plan", type=Path)
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
-    expected = None
+    expected = families = None
     if args.plan:
         value = json.loads(args.plan.read_text())
         if (value.get("format") != "rove4k-campaign-plan-v1" or
@@ -151,8 +183,14 @@ def main():
             parser.error("frozen plan identity/campaign/profile differs")
         args.profile = value["content"]["profile"]
         expected = [row["id"] for row in value["content"]["pairs"]]
+        families = {}
+        for row in value["content"]["registry"]["players"]:
+            artifact = row["artifact"]
+            if artifact["id"] in families:
+                parser.error("frozen plan contains duplicate player identities")
+            families[artifact["id"]] = artifact["family"]
     summary = collect(read_journal(args.journal, args.campaign), args.campaign,
-                      expected_pairs=expected, profile=args.profile)
+                      expected_pairs=expected, profile=args.profile, player_families=families)
     write_summary(summary, args.out)
     print(json.dumps({"completed_pairs": summary["completed_pair_count"], "stage_complete": summary["campaign_stage_complete"]}))
 

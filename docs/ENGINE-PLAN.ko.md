@@ -23,6 +23,7 @@
 | 학습 | 실제 corpus/model/trainer/export 준비 후 production optimizer step0·초기 weights SHA 불변에서 정지한다. |
 | AWS | 승인한 m6a Spot 평가·보존·비용 종료를 구현한다. 실제 launch는 구현·연결·자원·비용 사전 gate 후 수행한다. |
 | 예약 | Codex 예약·주기 작업 금지 유지. 비용 안전용 한시적 외부 종료 장치만 포함한다. |
+| 현재 우선순위 | 2026-10-27 사용자 지시에 따라 D의 새 압축은 잠시 정지한다. A/B/C/E/full F 구현·압축과 ELF 생산/소비 경로를 먼저 완성한다. D4737/BSS4689 및 실패·검증 자료는 보존하며 자동 재개하지 않는다. |
 
 일반 4K는 단일 파일 전체 4096B 이하, 시작 60초 이내, 자기 생성 임시파일
 정리, 허용 의존성, 4K 최소 UCI가 기준이다. stop/ucinewgame은 미지원이어도
@@ -708,37 +709,35 @@ source·memory admission에서 다시 판단한다. 다른 프로그램·cache·
 
 ~~~mermaid
 flowchart TD
-  DONE[완료: 9dd 비용·DATA 감사 / D4689 win·A/E loss] --> FIX[E28 fixture descriptor 소유권 수정·pure·review]
-  FIX --> RETAIN[동일28worker·TT·2GiB로 유지 CI]
-  RETAIN --> AUDIT[현재 source/CI 체크포인트 최종 감사]
-  DONE --> PREP[후속 공통 준비: source·representation·소유자]
-  PREP --> D[D raw callback 공유·persisted Structural 소비자]
-  PREP --> AE[A/B/C/E/F 다른 구조 후보·상호 적용성]
-  PREP --> BSS[D BSS variant geometry·kernel-zero·late-worker·첫GO]
-  D --> JOIN[core helper 변경 시 upper join 재검토 / 이전 seal 보존]
-  JOIN --> CI[새 exact source CI·binding 검증]
-  AE --> CI
-  BSS --> CI
-  CI --> NEXTAUDIT[후속 기능·산출물·consumer 최종 감사]
-  PREP -.-> HOLD[사용자 선택: local upper 보류 / 자동 polling 없음]
-  HOLD -.-> MEM[새 지시·source/memory admission]
-  MEM --> UPPER[D actual93명령+R]
-  UPPER --> SELECT[실제 프로필 기능 인수 후 생산 선택·필요 CI/seal]
-  NEXTAUDIT --> SELECT
+  DONE[완료: 692 다섯 CI·engine26/26·975/39 / D4689 비용 보존] --> PREP[공통 준비: source·representation·규칙·소유자]
+  PREP --> ELF[ELF 생산·의존성·argv0 소유권·소비 경로]
+  PREP --> MATE[A/B/C/E 공통 mate 정규화 두 형태 / F 이미 적용]
+  PREP --> LEAGUEFIX[완전 동률의 고정 계열 ID 선발·실제 caller 연결]
+  ELF --> SIZE{실제 ELF 전체4096B 이하}
+  SIZE -->|초과| DEFER[계열별 deferred_size·재측정 조건 보존]
+  SIZE -->|이하| ELFR[실제 복원·startup·전체 기능·R·소유권]
+  MATE --> COST[동일 기준 native·whole 반복 비교 / 의미·기능 gate]
+  LEAGUEFIX --> CI[실제 caller·순수·source-bound CI]
+  COST --> CI
+  ELFR --> CI
+  DEFER --> NEXTAUDIT[후속 기능·산출물·consumer 최종 감사]
+  CI --> NEXTAUDIT
+  PREP -.-> DHOLD[사용자 선택: D 새 압축 정지·local upper 보류]
+  DHOLD -.-> RESUME[새 사용자 지시 후 별도 재개 판단 / 자동 polling 없음]
+  NEXTAUDIT --> SELECT[실제 프로필 기능 인수 후 생산 선택·필요 CI/seal]
   SELECT --> GATE{fresh Advisor·비용·권한·AMI·capacity gate}
   GATE -->|충족| LIVE[기한 배포·S3 VersionId·실제 OIDC/종료 확인]
   LIVE --> NUMA[Spot 배치·NUMA·대용량 초기화]
   NUMA --> LEAGUE[full4KiB 적격 선수의 점수 TEST 리그]
-  NEXTAUDIT -.-> SIZE[D 구조적4KiB 수렴: 별도 미정]
 ~~~
 
 D/A/E 비용 controller·Ubuntu24 workflow의 구현·독립 검토·CI·DATA 감사를 완료했다.
 D pure15/AST35는 동일44개 source 핀·금지 호출0·정상 종료로 통과했고 A/E pure5/AST3도
 동일 핀·금지 호출0으로 통과했다. 기존 selected/P28 D는 유지하며 A/E 이번 조합은
 손실로 닫는다. BSS의48 B는 실제 비용 이득이며 kernel-zero·late-worker·NUMA·첫 검색
-지연의 근거가 아니다. 기존 parallel-init admission과 다른 초기화 계약을 구현한 뒤
-후속 기능 CI를 진행한다. 소비하는 core helper가 바뀌면 기존 upper의 current-source
-join을 재검토·갱신하고 이전 seal을 보존한다.
+지연의 근거가 아니다. D 압축 및 BSS 확대 분기는 현재 사용자 지시로 정지하며 해당
+후속 설계·기존 seal을 보존한다. 공통 ELF 연결에서 기존 D를 다룰 필요가 생겨도 새
+D 압축·recipe 탐색을 자동 재개하지 않는다. 다른 계열의 full 기능과 개별 정본을 유지한다.
 
 NUMA는 엔진 내부 설정 없이 운영자의 부모 task policy를 상속하는 조건부 경로를
 사용할 수 있다. ice4 v6.1/현재 HEAD와 c4ke v3.0/현재 HEAD의 실제 TCEC 입력·launcher는
@@ -749,15 +748,14 @@ thread에 상속한다. 실제 TCEC 실행 명령은 아직 확인하지 못했�
 근거와 고정 source 링크는 IMPLEMENTATION의 현재 NUMA 문단에 둔다. 외부 엔진 source는
 저장소에 복사하지 않는다.
 
-이번 비용 비교와 감사는 완료했다. 현재 E28 교정 체크포인트의 계획용 잔여는 공통
-pure·공유 준비0.1–0.2h → max(유지 CI·source 경계 검토0.1–0.3h) + GitHub runner
-대기Wci → 최종 감사0.1–0.3h로 약0.3–0.8h+Wci다. 이후 별도 consumer/BSS 기능
-연결의 소스·CI 창은 공통 준비0.1–0.2h → max(D consumer1–3h, BSS 기전1–3h,
-타 계열 구조 검토1–2h)+공유 runner/검토 대기 → 최종 감사0.5–1h로 약1.6–4.2h+
-공유 대기다. 분기 시간을 합산하지 않는다. 비용 job600s+30s와 generation240s+20s는
-단일 실행 상한이며 구현·인수 시간을 대신하지 않는다. D의 유지 기준641 B 및 미채택
-BSS 기준593 B의4KiB 수렴·local upper·프로필별 생산 전환·필요 seed·외부 AWS gate·
-리그는 이 유한 창의 완료 약속이 아니다.
+비용 비교·E28 교정 및692 전체5 CI는 완료했다. 새 우선순위의 첫 구현·실측 창은
+공통 준비0.2–0.5h → max(ELF 생산/소비·첫 비용1–3h, 공통 mate 두 형태1–2h,
+동률 계열 선발 교정0.5–1h)+공유 runner/검토 대기 → 최종 감사0.5–1h로 약1.7–4.5h+
+공유 대기다. ELF는 같은 파일 전체 크기·허용 라이브러리·외부 프로그램 미사용과
+private-path/direct-memfd의 서로 다른 cleanup 계약을 판정한다. 초과는 정책대로
+deferred_size이며 source-JIT 크기를 ELF 크기로 승계하지 않는다. 분기 시간을 합산하지
+않는다. 정지한 D의4KiB 수렴·local upper·프로필별 최종 생산 전환·필요 seed·외부
+AWS gate·리그와 전체 계획 완료는 이 첫 창의 완료 약속이 아니다.
 
 Oct27 KST 공식 Advisor 조건부 조회는304/Last-Modified2026-03-20이었다. 현재 공식
 frontend 경로 조사도 끝났으나 검증된 새 데이터 URL은 없었다. HTML200의 Oct20 날짜는
