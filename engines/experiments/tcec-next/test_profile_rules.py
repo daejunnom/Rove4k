@@ -38,6 +38,117 @@ class GeneratedRulesBoundaries(unittest.TestCase):
             rows.append(str(index) + (" " + " ".join(moves) if moves else ""))
         return ("\n".join(rows) + "\n").encode("ascii")
 
+    def test_league_candidate_chain_is_exact_and_independently_replayed(self):
+        baseline, projected, final = b"baseline", b"resource", b"candidate"
+        resource = {"schema": "test-resource", "entry_cleanup": "private-path"}
+        projection = SimpleNamespace(SCHEMA="test-resource",
+            transform_source=lambda *a, **kw: (projected, resource),
+            restore_source=lambda *a: baseline)
+        for profile_id in ("test-p16", "test-p192"):
+            profile = RULES.resolve_resource_profile(PRODUCTION, profile_id)
+            for variant, family in (("atomic-assignment", "A"), ("square-successor", "A"),
+                                    ("legal-maker", "C")):
+                with self.subTest(profile=profile_id, variant=variant):
+                    descriptor = RULES.LEAGUE_CANDIDATES[variant]
+                    proof = {"schema": descriptor["schema"], "variant": variant, "family": family,
+                             "profile_id": profile_id, "full_inverse": True}
+                    calls = []
+                    def forward(source, **kw):
+                        self.assertEqual(source, projected)
+                        self.assertEqual((kw["family"], kw["profile_id"]), (family, profile_id))
+                        calls.append("forward")
+                        return final, proof
+                    def restore(source, supplied, **kw):
+                        self.assertEqual((source, supplied), (final, proof))
+                        calls.append("inverse")
+                        return projected
+                    candidate = SimpleNamespace(SCHEMA=descriptor["schema"], transform_source=forward,
+                                                restore_source=restore)
+                    supports = {name: object() for name in descriptor["supports"]}
+                    stages = [resource, proof]
+                    with patch.object(RULES, "canonical_rules_profile", return_value=profile), \
+                         patch.object(RULES, "load", return_value=projection), \
+                         patch.object(RULES, "league_candidate_modules", return_value=(candidate, supports)), \
+                         patch.object(RULES, "_source_build_record", return_value={}) as source_record:
+                        self.assertEqual(RULES.admit_source(final, baseline, stages, family, profile,
+                                                           build=Path("/named")), stages)
+                        self.assertEqual(source_record.call_args.kwargs["post_league"],
+                                         {"path": descriptor["path"], "variant": variant})
+                        self.assertIn(descriptor["path"], source_record.call_args.kwargs["tools"])
+                        self.assertEqual(calls, ["forward", "inverse", "inverse"])
+                        bad = [resource, {**proof, "full_inverse": 1}]
+                        with self.assertRaisesRegex(ValueError, "candidate proof"):
+                            RULES.admit_source(final, baseline, bad, family, profile, build=Path("/named"))
+                        with self.assertRaisesRegex(ValueError, "uncombined"):
+                            RULES.admit_source(final, baseline, stages + [{"schema": "rove4k.profile-dependencies.v1"}],
+                                               family, profile, build=Path("/named"))
+
+    def test_league_candidate_frozen_helpers_and_support_are_pinned(self):
+        with tempfile.TemporaryDirectory(prefix="rove4k-rules-league-inputs-") as temporary:
+            build = Path(temporary)
+            for variant, candidate in RULES.LEAGUE_CANDIDATES.items():
+                inputs = {candidate["path"]: candidate["pin"]}
+                inputs.update({path: identity for path, identity in candidate["supports"].values()})
+                for path in inputs:
+                    target = build / "inputs" / path
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    target.write_bytes(RULES.normalized(RULES.ROOT / path))
+                loaded, supports = RULES.league_candidate_modules(build, variant)
+                self.assertEqual((loaded.SCHEMA, loaded.VARIANT), (candidate["schema"], variant))
+                self.assertEqual(set(supports), set(candidate["supports"]))
+                path = next(iter(inputs))
+                target = build / "inputs" / path
+                original = target.read_bytes()
+                target.write_bytes(original + b"\n")
+                with self.assertRaisesRegex(ValueError, "helper bytes differ"):
+                    RULES.league_candidate_modules(build, variant)
+                target.write_bytes(original)
+
+    def test_league_E_model_precedes_candidate_and_inverse_is_reversed(self):
+        baseline, resource_body, model_body, candidate_body = b"base", b"resource", b"Resource", b"candidate"
+        resource = {"schema": "test-resource", "entry_cleanup": "private-path"}
+        model_proof = {"stage": "canonical-e19-physical-binding", "source_model_id": "e19-admitted-source-baseline",
+                       "table_value_offset": 0, "before": "r", "after": "R"}
+        desc = RULES.LEAGUE_CANDIDATES["legal-maker"]
+        candidate_proof = {"schema": desc["schema"], "variant": "legal-maker", "family": "E",
+                           "profile_id": "test-p16", "full_inverse": True}
+        seen = []
+        def restore_resource(actual, proof):
+            self.assertEqual(actual, resource_body)
+            seen.append("resource")
+            return baseline
+        projection = SimpleNamespace(SCHEMA="test-resource", transform_source=lambda *a, **kw: (resource_body, resource),
+                                     restore_source=restore_resource)
+        def bind_model(actual, **kwargs):
+            self.assertEqual(actual, resource_body)
+            seen.append("model-forward")
+            return model_body, model_proof
+        model = SimpleNamespace(model_id="canonical", bind_physical_table=bind_model)
+        model_module = SimpleNamespace(Model=SimpleNamespace(load=lambda path: model,
+                                      from_physical_source=lambda actual, **kw: self.assertEqual(actual, resource_body)))
+        def project_candidate(actual, **kwargs):
+            self.assertEqual(actual, model_body)
+            seen.append("candidate-forward")
+            return candidate_body, candidate_proof
+        def restore_candidate(actual, proof, **kwargs):
+            self.assertEqual((actual, proof), (candidate_body, candidate_proof))
+            seen.append("candidate-inverse")
+            return model_body
+        helper = SimpleNamespace(SCHEMA=desc["schema"], transform_source=project_candidate,
+                                 restore_source=restore_candidate)
+        profile = RULES.resolve_resource_profile(PRODUCTION, "test-p16")
+        modules = {"production_rules_projection": projection, "production_rules_E19_model": model_module}
+        supports = {"ep": object(), "projection": object()}
+        stages = [resource, model_proof, candidate_proof]
+        with patch.object(RULES, "canonical_rules_profile", return_value=profile), \
+             patch.object(RULES, "load", side_effect=lambda name, path: modules[name]), \
+             patch.object(RULES, "league_candidate_modules", return_value=(helper, supports)), \
+             patch.object(RULES, "_source_build_record", return_value={}):
+            self.assertEqual(RULES.admit_source(candidate_body, baseline, stages, "E", profile, build=Path("/named")), stages)
+            self.assertEqual(seen, ["model-forward", "candidate-forward", "candidate-inverse", "candidate-inverse", "resource"])
+            with self.assertRaises(ValueError):
+                RULES.admit_source(candidate_body, baseline, [resource, candidate_proof, model_proof], "E", profile, build=Path("/named"))
+
     def test_B_league_atomic_proof_chain_is_ordered_and_tamper_checked(self):
         baseline, projected, b_body, atomic_body, final = b"baseline", b"resource", b"B", b"atomic", b"final"
         resource = {"schema": "test-resource", "entry_cleanup": "private-path"}

@@ -35,6 +35,11 @@ jobs:
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_b_league.py
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_b_league_spelling.py
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_league_b_selection.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_league_square.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_league_ep.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_acef_league_atomic.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_league_candidate_compare.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_league_selection.py
       - name: Check league runner, placement and service boundaries with owned fixtures
         env:
           AWS_EC2_METADATA_DISABLED: 'true'
@@ -76,6 +81,22 @@ jobs:
           - {family: B, profile: test-p192, b_variant: tcec-final-lf}
           - {family: B, profile: test-p16, b_variant: tcec-final-lf, variant: league-atomic, spelling: league-atomic, source_dependencies: unused-includes}
           - {family: B, profile: test-p192, b_variant: tcec-final-lf, variant: league-atomic, spelling: league-atomic, source_dependencies: unused-includes}
+          - {family: A, profile: test-p16, b_variant: control, variant: square-successor}
+          - {family: A, profile: test-p192, b_variant: control, variant: square-successor}
+          - {family: C, profile: test-p16, b_variant: control, variant: square-successor}
+          - {family: C, profile: test-p192, b_variant: control, variant: square-successor}
+          - {family: C, profile: test-p16, b_variant: control, variant: legal-maker}
+          - {family: C, profile: test-p192, b_variant: control, variant: legal-maker}
+          - {family: E, profile: test-p16, b_variant: control, variant: legal-maker}
+          - {family: E, profile: test-p192, b_variant: control, variant: legal-maker}
+          - {family: A, profile: test-p16, b_variant: control, variant: atomic-assignment}
+          - {family: A, profile: test-p192, b_variant: control, variant: atomic-assignment}
+          - {family: C, profile: test-p16, b_variant: control, variant: atomic-assignment}
+          - {family: C, profile: test-p192, b_variant: control, variant: atomic-assignment}
+          - {family: E, profile: test-p16, b_variant: control, variant: atomic-assignment}
+          - {family: E, profile: test-p192, b_variant: control, variant: atomic-assignment}
+          - {family: F, profile: test-p16, b_variant: control, variant: atomic-assignment}
+          - {family: F, profile: test-p192, b_variant: control, variant: atomic-assignment}
     env:
       PYTHONDONTWRITEBYTECODE: '1'
       FAMILY: ${{ matrix.family }}
@@ -121,6 +142,9 @@ jobs:
             selected_arguments=(--entry "$FAMILY" --profile "$PROFILE" --representation source-jit
               --b-variant "$B_VARIANT" --phase-variant control --spelling-variant "$SPELLING_VARIANT"
               --scan-variant control --ep-variant control --source-dependencies "$SOURCE_DEPENDENCIES")
+            case "$VARIANT" in
+              square-successor|legal-maker|atomic-assignment) selected_arguments+=(--league-variant "$VARIANT") ;;
+            esac
           fi
           timeout --signal=TERM --kill-after=30s 1200s \
             python -I -B engines/experiments/tcec-next/profile_build.py \
@@ -600,6 +624,92 @@ jobs:
           name: league-B-whole-comparison-${{ matrix.profile }}-${{ github.sha }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/b-whole-comparison.json
           if-no-files-found: error
+          retention-days: 7
+
+  league-candidates-ubuntu22:
+    # Compare each explicit candidate with the same-run control and compile
+    # the candidate independently. These checks do not execute a large engine.
+    needs: generate
+    if: always() && needs.generate.result != 'cancelled' && needs.generate.result != 'skipped'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - {family: A, profile: test-p16, variant: square-successor}
+          - {family: A, profile: test-p192, variant: square-successor}
+          - {family: C, profile: test-p16, variant: square-successor}
+          - {family: C, profile: test-p192, variant: square-successor}
+          - {family: C, profile: test-p16, variant: legal-maker}
+          - {family: C, profile: test-p192, variant: legal-maker}
+          - {family: E, profile: test-p16, variant: legal-maker}
+          - {family: E, profile: test-p192, variant: legal-maker}
+          - {family: A, profile: test-p16, variant: atomic-assignment}
+          - {family: A, profile: test-p192, variant: atomic-assignment}
+          - {family: C, profile: test-p16, variant: atomic-assignment}
+          - {family: C, profile: test-p192, variant: atomic-assignment}
+          - {family: E, profile: test-p16, variant: atomic-assignment}
+          - {family: E, profile: test-p192, variant: atomic-assignment}
+          - {family: F, profile: test-p16, variant: atomic-assignment}
+          - {family: F, profile: test-p192, variant: atomic-assignment}
+    env:
+      FAMILY: ${{ matrix.family }}
+      PROFILE: ${{ matrix.profile }}
+      VARIANT: ${{ matrix.variant }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: league-source-${{ matrix.family }}-${{ matrix.profile }}-control-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/league-parent
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: league-source-${{ matrix.family }}-${{ matrix.profile }}-${{ matrix.variant }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/league-candidate
+      - name: Prepare independent system Python and pinned rules oracle
+        run: |
+          export PATH=/usr/bin:/bin
+          for compiler_env_name in ${!LD_@}; do unset "$compiler_env_name"; done
+          unset CC CXX CPP AS AR LD GCC_EXEC_PREFIX COMPILER_PATH LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH OBJC_INCLUDE_PATH CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
+          /usr/bin/python3 -m venv "$RUNNER_TEMP/league-candidate-python"
+          "$RUNNER_TEMP/league-candidate-python/bin/python3" -m pip install --require-hashes -r engines/training/e19/requirements.txt
+      - name: Compare same-run source stages and full files
+        run: |
+          /usr/bin/python3 -I -B engines/experiments/tcec-next/league_candidate_compare.py \
+            --family "$FAMILY" --profile "$PROFILE" --variant "$VARIANT" \
+            --control "$RUNNER_TEMP/league-parent" --candidate "$RUNNER_TEMP/league-candidate" \
+            --out "$RUNNER_TEMP/league-candidate-comparison.json"
+      - name: Independently compile and check exact selected source
+        run: |
+          set -o pipefail
+          export PATH=/usr/bin:/bin
+          for compiler_env_name in ${!LD_@}; do unset "$compiler_env_name"; done
+          unset CC CXX CPP AS AR LD GCC_EXEC_PREFIX COMPILER_PATH LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH OBJC_INCLUDE_PATH CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
+          P="$RUNNER_TEMP/league-candidate-python/bin/python3"
+          SOURCE="$RUNNER_TEMP/league-candidate/build"
+          OUT="$RUNNER_TEMP/league-candidate-ubuntu22"
+          mkdir "$OUT"
+          "$P" -I -B engines/experiments/tcec-next/profile_compiler.py \
+            --build "$SOURCE" --compiler /usr/bin/cc --ubuntu22-system --program-provenance \
+            --out "$OUT/compiler" 2>&1 | tee "$OUT/compiler.log"
+          "$P" -I -B engines/experiments/tcec-next/profile_rules.py \
+            --family "$FAMILY" --profile "$PROFILE" --source "$SOURCE/main.c" \
+            --baseline "$SOURCE/control/main.c" --proof "$SOURCE/source-proof.json" \
+            --build "$SOURCE" --cc /usr/bin/cc --out "$OUT/rules" 2>&1 | tee "$OUT/rules.log"
+      - name: Preserve comparison and independent compile and rules evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: league-candidate-${{ matrix.family }}-${{ matrix.profile }}-${{ matrix.variant }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/league-candidate-comparison.json
+            ${{ runner.temp }}/league-candidate-ubuntu22
+          if-no-files-found: ignore
           retention-days: 7
 
   compare-b-atomic:

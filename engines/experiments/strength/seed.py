@@ -66,6 +66,20 @@ LEAGUE_DEPENDENCY_DECLARATIONS = {
     "engines/experiments/tcec-next/profile_rules.py": ("LEAGUE_OWNER", "engines/scripts/league_resource_profiles.py"),
     "engines/experiments/tcec-next/profile_build.py": ("LEAGUE_PROFILES", "engines/scripts/league_resource_profiles.py"),
 }
+# These are precise AST-value fingerprints of reviewed opt-in candidate
+# inventories. Some values contain symbol references, so literal_eval cannot
+# validate them. For legacy seeds only, exclude the five exact declarations;
+# identical paths occurring anywhere else in the owner remain dependencies.
+LEAGUE_EXPERIMENT_DECLARATIONS = {
+    "engines/experiments/tcec-next/profile_build.py": (
+        ("LEAGUE_EXPERIMENTS", "0f2451aff3e223bad232ac5440baff1d198339fc1f4b1cd1090543b172fb2572"),
+        ("LEAGUE_SUPPORT", "1cd9a170bceceae29d2062120715a84d06834fbb67e311d4c69e2687ab628a3b")),
+    "engines/experiments/tcec-next/profile_rules.py": (
+        ("LEAGUE_CANDIDATES", "5f74039c2235a9b9038114cfca3ca061a986d652f725f352fe81bfcb6e04937b"),),
+    "engines/experiments/tcec-next/profile_verify.py": (
+        ("LEAGUE_VARIANTS", "cf2c4780e155359dbdc6db8b97f1572f39c40146f6ebda9afe053e0cb8a3f10c"),
+        ("LEAGUE_EP_SUPPORT", "91d711b05ed2030ac4c49210c5de89c26abe54072ec8be25468bd46204c4acdd")),
+}
 LEAGUE_CAMPAIGN_CI = "engines/experiments/strength/campaign_ci.py"
 
 
@@ -90,6 +104,13 @@ def named_python_dependencies(raw, *, source_name, league_required=True):
                 and ast.literal_eval(declarations[0].value) == LEAGUE_DEPENDENCY_DECLARATIONS,
                 "seed owner inventory metadata differs")
         metadata_nodes = {id(node) for node in ast.walk(declarations[0].value)}
+        experiments = [node for node in tree.body if isinstance(node, ast.Assign)
+                       and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
+                       and node.targets[0].id == "LEAGUE_EXPERIMENT_DECLARATIONS"]
+        require(len(experiments) == 1
+                and ast.literal_eval(experiments[0].value) == LEAGUE_EXPERIMENT_DECLARATIONS,
+                "seed experiment inventory metadata differs")
+        metadata_nodes.update(id(node) for node in ast.walk(experiments[0].value))
         campaign = [node for node in tree.body if isinstance(node, ast.Assign)
                     and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
                     and node.targets[0].id == "LEAGUE_CAMPAIGN_CI"]
@@ -105,6 +126,16 @@ def named_python_dependencies(raw, *, source_name, league_required=True):
             require(len(declarations) == 1 and ast.literal_eval(declarations[0].value) == expected,
                     "league dependency declaration differs")
             metadata_nodes.update(id(node) for node in ast.walk(declarations[0].value))
+    if not league_required and source_name in LEAGUE_EXPERIMENT_DECLARATIONS:
+        for symbol, expected_hash in LEAGUE_EXPERIMENT_DECLARATIONS[source_name]:
+            declarations = [node for node in tree.body if isinstance(node, ast.Assign)
+                            and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
+                            and node.targets[0].id == symbol]
+            if declarations:
+                require(len(declarations) == 1 and hashlib.sha256(
+                    ast.dump(declarations[0].value).encode("utf-8")).hexdigest() == expected_hash,
+                    "league experiment dependency declaration differs")
+                metadata_nodes.update(id(node) for node in ast.walk(declarations[0].value))
     if not league_required and source_name == LEAGUE_CAMPAIGN_CI:
         # bind_materializer_source binds league paths only under this exact
         # feature condition. Match the complete statements, so an additional

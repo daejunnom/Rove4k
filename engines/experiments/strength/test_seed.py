@@ -1,5 +1,6 @@
 """Synthetic transport fixtures and fake S3; never engine or CI acceptance."""
 from dataclasses import replace
+import ast
 import base64
 import copy
 import hashlib
@@ -626,6 +627,92 @@ class SeedTests(unittest.TestCase):
         origin = {**self.fixture.config["source_origin"], "head_sha": head}
         with self.assertRaisesRegex(ValueError, "named production Python dependency omitted: .*league_resource_profiles.py"):
             seed.checkout_files(checkout, origin)
+
+    def test_league_experiment_inventories_are_exact_legacy_exceptions(self):
+        root = Path(seed.__file__).resolve().parents[3]
+        targets = tuple("engines/experiments/tcec-next/" + name for name in
+                        ("profile_acef_league_atomic.py", "profile_league_square.py", "league_ep.py"))
+        for owner, declarations in seed.LEAGUE_EXPERIMENT_DECLARATIONS.items():
+            raw = (root / owner).read_bytes()
+            text = raw.decode("utf-8")
+            tree = ast.parse(text)
+            names = {name for name, _ in declarations}
+            nodes = [node for node in tree.body if isinstance(node, ast.Assign)
+                     and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
+                     and node.targets[0].id in names]
+            self.assertEqual(len(nodes), len(names))
+            minimal = ("\n".join(ast.get_source_segment(text, node) for node in nodes) + "\n").encode()
+            with self.subTest(owner=owner):
+                # Exact metadata is lazy only for legacy; it becomes named
+                # source dependencies when the league source is selected.
+                legacy = seed.named_python_dependencies(minimal, source_name=owner, league_required=False)
+                league = seed.named_python_dependencies(minimal, source_name=owner, league_required=True)
+                for target in targets:
+                    self.assertNotIn(target, legacy)
+                    self.assertIn(target, league)
+                    self.assertIn(target, seed.named_python_dependencies(
+                        minimal + ("open(" + repr(target) + ")\n").encode(), source_name=owner, league_required=False))
+                damaged = minimal.replace(targets[0].encode(), b"engines/experiments/tcec-next/changed.py", 1)
+                with self.assertRaisesRegex(ValueError, "league experiment dependency declaration differs"):
+                    seed.named_python_dependencies(damaged, source_name=owner, league_required=False)
+
+    def test_experiment_inventory_fails_closed_on_actual_reference_and_league_missing_helper(self):
+        owner = "engines/experiments/tcec-next/profile_build.py"
+        source_path = Path(seed.__file__).resolve().parents[3] / owner
+        text = source_path.read_text(encoding="utf-8")
+        tree = ast.parse(text)
+        symbols = {name for name, _ in seed.LEAGUE_EXPERIMENT_DECLARATIONS[owner]}
+        nodes = [node for node in tree.body if isinstance(node, ast.Assign)
+                 and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
+                 and node.targets[0].id in symbols]
+        declarations = "\n".join(ast.get_source_segment(text, node) for node in nodes) + "\n"
+        path = self.fixture.repo / owner
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(declarations, encoding="utf-8")
+        league_names = ["engines/experiments/strength/" + name + ".py" for name in seed.LEAGUE_HOST_MODULES]
+        league_names += list(seed.LEAGUE_CORE_R)
+        for name in league_names:
+            target_path = self.fixture.repo / name
+            target_path.parent.mkdir(parents=True, exist_ok=True)
+            target_path.write_bytes(b"# synthetic league transport source\n")
+        git(self.fixture.repo, "add", "--", owner, *league_names)
+        git(self.fixture.repo, "-c", "user.name=Transport Fixture", "-c", "user.email=fixture@example.invalid",
+            "commit", "-qm", "synthetic lazy experiment declarations")
+
+        def checkout():
+            head = git(self.fixture.repo, "rev-parse", "HEAD").decode().strip()
+            return ({**self.fixture.config["checkout"], "commit": head},
+                    {**self.fixture.config["source_origin"], "head_sha": head})
+
+        selected, origin = checkout()
+        seed.checkout_files(selected, origin)
+        with self.assertRaisesRegex(ValueError, "named production Python dependency omitted"):
+            seed.checkout_files(selected, origin, league_required=True)
+
+        dependencies = set(seed.named_python_dependencies(declarations.encode(), source_name=owner,
+                                                          league_required=True))
+        for name in dependencies:
+            dependency = self.fixture.repo / name
+            dependency.parent.mkdir(parents=True, exist_ok=True)
+            dependency.write_bytes(b"# synthetic optional profile dependency\n")
+        git(self.fixture.repo, "add", "--", *sorted(dependencies))
+        git(self.fixture.repo, "-c", "user.name=Transport Fixture", "-c", "user.email=fixture@example.invalid",
+            "commit", "-qm", "complete synthetic league experiment closure")
+        selected, origin = checkout()
+        league = seed.checkout_files(selected, origin, league_required=True)
+        self.assertTrue(dependencies <= set(league))
+
+        # Legacy cannot bypass the actual same-file dependency using the
+        # otherwise-exempt inventory path.
+        missing = "engines/experiments/tcec-next/profile_acef_league_atomic.py"
+        path.write_text(declarations + "open(" + repr(missing) + ")\n", encoding="utf-8")
+        git(self.fixture.repo, "add", "--", owner)
+        git(self.fixture.repo, "-c", "user.name=Transport Fixture", "-c", "user.email=fixture@example.invalid",
+            "commit", "-qm", "actual reference outside inventory")
+        selected, origin = checkout()
+        selected = {**selected, "paths": [name for name in league if name != missing]}
+        with self.assertRaisesRegex(ValueError, "named production Python dependency omitted: .*profile_acef_league_atomic.py"):
+            seed.checkout_files(selected, origin)
 
     def test_p16_p192_source_seed_fixture_round_trips_without_admission(self):
         """Synthetic source/CI evidence only; no host, engine or AWS operation."""

@@ -689,6 +689,57 @@ class ProfileRuntimeAdmission(unittest.TestCase):
             with self.subTest(family=family, changed=changed), self.assertRaises(ValueError):
                 VERIFY.source_stages(family, selected, proofs, profile_id="test-p16", **{**options, **changed})
 
+    def test_independent_league_candidate_stage_is_finite_and_ordered(self):
+        resource = {"schema": "rove4k.c-resource-projection.v1"}
+        model = {"stage": "canonical-e19-physical-binding"}
+        for variant, (path, _, schema, families) in VERIFY.LEAGUE_VARIANTS.items():
+            declaration = {"path": path, "variant": variant}
+            for family in families:
+                stages = [resource, *([model] if family == "E" else []), {"schema": schema}]
+                for profile in ("test-p16", "test-p192"):
+                    options = dict(post_league=declaration, profile_id=profile,
+                                   representation="source-jit", entry_cleanup="private-path")
+                    with self.subTest(variant=variant, family=family, profile=profile):
+                        self.assertIsNone(VERIFY.source_stages(family, None, stages, **options))
+                        for changed in ({"profile_id": "test-p4"}, {"representation": "packed-native"},
+                                        {"entry_cleanup": "none"}, {"source_dependencies": {"path": "x"}},
+                                        {"post_league": {**declaration, "path": "wrong"}}):
+                            with self.assertRaises(ValueError):
+                                VERIFY.source_stages(family, None, stages, **{**options, **changed})
+                        with self.assertRaises(ValueError):
+                            VERIFY.source_stages(family, None, stages + [{"schema": schema}], **options)
+            for family in set("ABCEF") - set(families):
+                with self.assertRaises(ValueError):
+                    VERIFY.source_stages(family, None, [resource, {"schema": schema}],
+                        post_league=declaration, profile_id="test-p16",
+                        representation="source-jit", entry_cleanup="private-path")
+
+    def test_league_candidate_requires_exact_frozen_helper_and_support_roles(self):
+        from copy import deepcopy
+        for variant, (path, identity, schema, _) in VERIFY.LEAGUE_VARIANTS.items():
+            extras = ({VERIFY.SCAN: VERIFY.SCAN_PIN} if variant == "square-successor" else
+                      {VERIFY.LEAGUE_EP_SUPPORT: VERIFY.LEAGUE_EP_SUPPORT_PIN,
+                       VERIFY.COMPOUND: VERIFY.COMPOUND_PIN} if variant == "legal-maker" else {})
+            identities = {path: identity, **extras}
+            manifest = {"inputs": deepcopy(identities), "source_closure": {"inputs": [
+                {"path": name, "role": "tool", **pin} for name, pin in identities.items()]}}
+            with tempfile.TemporaryDirectory(prefix="rove4k-league-helper-") as temporary:
+                build = Path(temporary)
+                for name in identities:
+                    frozen = build / "inputs" / name
+                    frozen.parent.mkdir(parents=True, exist_ok=True)
+                    frozen.write_bytes((VERIFY.ROOT / name).read_bytes().replace(b"\r\n", b"\n"))
+                declaration = {"path": path, "variant": variant}
+                helper, binding = VERIFY.league_candidate_module(manifest, build, set(identities), declaration)
+                self.assertEqual(helper.SCHEMA, schema)
+                self.assertEqual(set(binding), {"ep", "projection"} if variant == "legal-maker" else set())
+                for name in identities:
+                    altered = deepcopy(manifest)
+                    row = next(row for row in altered["source_closure"]["inputs"] if row["path"] == name)
+                    row["role"] = "engine"
+                    with self.subTest(variant=variant, bad=name), self.assertRaises(ValueError):
+                        VERIFY.league_candidate_module(altered, build, set(identities), declaration)
+
     def test_final_spelling_is_undone_before_model_offsets_and_prior_stages(self):
         calls = []
         def restore(data, proof):

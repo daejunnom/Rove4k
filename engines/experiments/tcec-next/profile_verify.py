@@ -111,6 +111,20 @@ B_LEAGUE_SPELLING_SCHEMA = "rove4k.league-b-atomic.v1"
 B_LEAGUE_SPELLING_PIN = {"bytes": 3925, "sha256": "e7e81ba58dbf6210fbf132a5baba3811c987fcb86728949bca0e6e2140bff1e5"}
 B_LEAGUE_SPELLING_DECLARATION = {"path": B_LEAGUE_SPELLING, "selection": "league-atomic",
                                  "variant": "atomic-assignment"}
+# These are opt-in measured inputs; they do not grant runtime or league admission.
+LEAGUE_VARIANTS = {
+    "atomic-assignment": ("engines/experiments/tcec-next/profile_acef_league_atomic.py",
+        {"bytes": 4906, "sha256": "d551768ea423655cc5566430f5e185b8377321d03f9f3429fd8f18112eaaaddd"},
+        "rove4k.league-acef-atomic.v1", "ACEF"),
+    "square-successor": ("engines/experiments/tcec-next/profile_league_square.py",
+        {"bytes": 3790, "sha256": "8b832928e53bde3c007ed7e1bf8a35290bd8785f4233ea7246d9cb1392eed1b8"},
+        "rove4k.league-square-scan.v1", "AC"),
+    "legal-maker": ("engines/experiments/tcec-next/league_ep.py",
+        {"bytes": 4456, "sha256": "55d76f2740732672fd6abf9cc2650143525732eadf10a9a302cf652accfafc05"},
+        "rove4k.league-ep-source.v1", "CE"),
+}
+LEAGUE_EP_SUPPORT = "engines/experiments/tcec-next/compact_ep.py"
+LEAGUE_EP_SUPPORT_PIN = {"bytes": 7267, "sha256": "42963c889070f29da4dc05d08d5fc4749afb7aec36b0d00735ccc9d271215c6c"}
 TARGET_SUPPORT = ("engines/experiments/tcec-next/target_runtime.py",
                   "engines/experiments/tcec-next/profile_compiler.py")
 
@@ -414,7 +428,7 @@ def revalidate_target(reference):
             reference.revalidate(verify=sys.modules[__name__], expected_ci=helper.CIContext.from_environment())
 
 
-def source_stages(family, post, proofs, *, post_spelling=None, post_scan=None, post_ep=None, source_dependencies=None,
+def source_stages(family, post, proofs, *, post_spelling=None, post_scan=None, post_ep=None, post_league=None, source_dependencies=None,
                   representation=None, entry_cleanup=None, profile_id=None):
     """Declare the complete finite stage grammar before loading a helper."""
     require(family in ("A", "B", "C", "E", "F") and isinstance(proofs, list)
@@ -439,6 +453,19 @@ def source_stages(family, post, proofs, *, post_spelling=None, post_scan=None, p
             expected.append("rove4k.portable-phase-source.v1")
     if family == "E":
         expected.append("canonical-e19-physical-binding")
+    if post_league is not None:
+        require(type(post_league) is dict and set(post_league) == {"path", "variant"},
+                "named league candidate declaration required")
+        variant = post_league["variant"]
+        require(type(variant) is str and variant in LEAGUE_VARIANTS,
+                "unknown league candidate variant")
+        relative, _, schema, families = LEAGUE_VARIANTS[variant]
+        require(post_league == {"path": relative, "variant": variant} and family in families
+                and profile_id in LEAGUE_PROFILE_IDS and representation == "source-jit"
+                and entry_cleanup == "private-path" and post is None and post_spelling is None
+                and post_scan is None and post_ep is None and source_dependencies is None,
+                "league candidate requires its standalone named league source profile")
+        expected.append(schema)
     if post_spelling is not None:
         best = {"path": SPELLING, "selection": "best", "variant": BEST_SPELLING[family]}
         compound = family in "ACEF" and post_spelling == COMPOUND_DECLARATION
@@ -532,6 +559,41 @@ def b_league_spelling_module(manifest, build, production_paths):
     return _reviewed_spelling_module(manifest, build, production_paths, B_LEAGUE_SPELLING,
                                     B_LEAGUE_SPELLING_PIN, B_LEAGUE_SPELLING_SCHEMA,
                                     "profile_runtime_reviewed_b_league_spelling")
+
+
+def league_candidate_module(manifest, build, production_paths, declaration):
+    """Load exact frozen candidate and support bytes under their production roles."""
+    path, expected, schema, _ = LEAGUE_VARIANTS[declaration["variant"]]
+    rows = [row for row in manifest["source_closure"]["inputs"] if row.get("path") == path]
+    require(path in production_paths and len(rows) == 1 and rows[0].get("role") == "tool"
+            and {k: rows[0].get(k) for k in expected} == expected and manifest["inputs"].get(path) == expected,
+            "league candidate tool role or identity differs")
+    data = checked_artifact(build, "inputs/" + path, expected)
+    require(source_bytes(path, expected) == data, "current and frozen league candidate differ")
+    # The square owner imports its sibling scan module by __file__, so bind its
+    # location to the frozen tree after checking both frozen and live bytes.
+    frozen = Path(build) / "inputs" / path
+    spec = importlib.util.spec_from_file_location("profile_runtime_league_candidate", frozen)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    exec(compile(data, str(frozen), "exec", dont_inherit=True), module.__dict__)
+    require(module.SCHEMA == schema and module.VARIANT == declaration["variant"],
+            "league candidate schema or variant differs")
+    supports = {}
+    if declaration["variant"] == "square-successor":
+        _reviewed_spelling_module(manifest, build, production_paths, SCAN, SCAN_PIN,
+                                  SCAN_SCHEMA, "profile_runtime_league_scan_support")
+    elif declaration["variant"] == "legal-maker":
+        supports["ep"] = _reviewed_spelling_module(manifest, build, production_paths,
+            LEAGUE_EP_SUPPORT, LEAGUE_EP_SUPPORT_PIN, "rove4k.compact-ep-source.v1",
+            "profile_runtime_league_ep_support")
+        supports["projection"] = _reviewed_spelling_module(manifest, build, production_paths,
+            COMPOUND, COMPOUND_PIN, COMPOUND_SCHEMA, "profile_runtime_league_ep_projection")
+        require(module.SUPPORT == {
+            name: {"path": relative, **identity} for name, relative, identity in (
+                ("ep", LEAGUE_EP_SUPPORT, LEAGUE_EP_SUPPORT_PIN),
+                ("projection", COMPOUND, COMPOUND_PIN))}, "league EP support declaration differs")
+    return module, supports
 
 
 def b_league_spelling_stage(helper, before, supplied, profile_id, variant):
@@ -727,7 +789,12 @@ def inverse_source_stages(source, inverses):
                     and binding["spelling"].SCHEMA == SPELLING_SCHEMA)
             ep_binding = (isinstance(binding, dict) and set(binding) == {"ep", "projection", "dependencies", "edits"}
                           and module is not None and module.SCHEMA == EP_SCHEMA and proof.get("schema") == EP_SCHEMA)
-            require(compound_binding or ep_binding, "source inverse requires its explicit authenticated helper binding")
+            league_ep_binding = (isinstance(binding, dict) and set(binding) == {"ep", "projection"}
+                                 and module is not None and module.SCHEMA == "rove4k.league-ep-source.v1"
+                                 and proof.get("schema") == module.SCHEMA
+                                 and binding["ep"].SCHEMA == "rove4k.compact-ep-source.v1"
+                                 and binding["projection"].SCHEMA == COMPOUND_SCHEMA)
+            require(compound_binding or ep_binding or league_ep_binding, "source inverse requires its explicit authenticated helper binding")
         if module is None:
             offset, before, after = proof["table_value_offset"], proof["before"].encode(), proof["after"].encode()
             require(restored[offset:offset + len(after)] == after, "E19 inverse span differs")
@@ -892,9 +959,10 @@ def admit_c_build(manifest, build):
     post_spelling = manifest.get("post_spelling")
     post_scan = manifest.get("post_scan")
     post_ep = manifest.get("post_ep")
+    post_league = manifest.get("post_league")
     dependency_declaration = manifest.get("source_dependencies")
     post_kind = source_stages(family, post, manifest["source_proofs"], post_spelling=post_spelling,
-        post_scan=post_scan, post_ep=post_ep, source_dependencies=dependency_declaration,
+        post_scan=post_scan, post_ep=post_ep, post_league=post_league, source_dependencies=dependency_declaration,
         representation=representation, entry_cleanup=plan["entry_cleanup"], profile_id=profile.id)
     next_stage = 1
     if post is not None:
@@ -937,6 +1005,20 @@ def admit_c_build(manifest, build):
         require(model_proof == manifest["source_proofs"][next_stage],
                 "actual final E19 consumer differs")
         inverses.append((None, model_proof, before_model))
+        next_stage += 1
+    if post_league is not None:
+        helper, binding = league_candidate_module(manifest, build, production_paths, post_league)
+        before_league = produced
+        options = dict(family=family, profile_id=profile.id, **binding)
+        if post_league["variant"] == "atomic-assignment":
+            options["variant"] = post_league["variant"]
+        produced, league_proof = helper.transform_source(produced, **options)
+        supplied = manifest["source_proofs"][next_stage]
+        require(_json_equal(league_proof, supplied)
+                and helper.restore_source(produced, supplied, **binding) == before_league,
+                "league source proof or complete inverse differs")
+        inverses.append((helper, supplied, before_league, binding) if binding
+                        else (helper, supplied, before_league))
         next_stage += 1
     if post_spelling is not None:
         if post_spelling in (COMPOUND_DECLARATION, F_COMPOUND_DECLARATION):
@@ -1049,6 +1131,7 @@ def admit_c_build(manifest, build):
                           **({"post_spelling": post_spelling} if post_spelling is not None else {}),
                           **({"post_scan": post_scan} if post_scan is not None else {}),
                           **({"post_ep": post_ep} if post_ep is not None else {}),
+                          **({"post_league": post_league} if post_league is not None else {}),
                           **({"spelling_request": manifest["spelling_request"]}
                              if "spelling_request" in manifest else {}),
                           **({"compound_native_evidence": compound_evidence}

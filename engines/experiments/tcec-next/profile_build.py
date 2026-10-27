@@ -41,6 +41,18 @@ SPELLING = "engines/experiments/tcec-next/profile_spelling.py"
 B_LEAGUE_SPELLING = "engines/experiments/tcec-next/profile_b_league_spelling.py"
 B_LEAGUE_SPELLING_PIN = dict(bytes=3925, sha256="e7e81ba58dbf6210fbf132a5baba3811c987fcb86728949bca0e6e2140bff1e5")
 B_LEAGUE_DECLARATION = dict(path=B_LEAGUE_SPELLING, selection="league-atomic", variant="atomic-assignment")
+# Isolated, source-pinned P16/P192 experiments: none are production selection.
+LEAGUE_EXPERIMENTS = {
+    "atomic-assignment": {"path": "engines/experiments/tcec-next/profile_acef_league_atomic.py", "pin": {"bytes": 4906, "sha256": "d551768ea423655cc5566430f5e185b8377321d03f9f3429fd8f18112eaaaddd"}, "families": "ACEF"},
+    "square-successor": {"path": "engines/experiments/tcec-next/profile_league_square.py", "pin": {"bytes": 3790, "sha256": "8b832928e53bde3c007ed7e1bf8a35290bd8785f4233ea7246d9cb1392eed1b8"}, "families": "AC"},
+    "legal-maker": {"path": "engines/experiments/tcec-next/league_ep.py", "pin": {"bytes": 4456, "sha256": "55d76f2740732672fd6abf9cc2650143525732eadf10a9a302cf652accfafc05"}, "families": "CE"},
+}
+LEAGUE_SUPPORT = {
+    "square-successor": {"engines/experiments/tcec-next/profile_scan.py": {"bytes": 10623, "sha256": "98eb3139bcbd745f08fbab2d8a738b428d4e668de2604ac3fc715de8c58b879f"}},
+    "legal-maker": {
+        "engines/experiments/tcec-next/compact_ep.py": {"bytes": 7267, "sha256": "42963c889070f29da4dc05d08d5fc4749afb7aec36b0d00735ccc9d271215c6c"},
+        "engines/experiments/tcec-next/spelling_compound.py": {"bytes": 9472, "sha256": "4e2a1599ab5b6f294b1cb59a10a1ec6667b5a2e0c993c1ce48895cddb7e55fce"}},
+}
 COMPOUND = "engines/experiments/tcec-next/spelling_compound.py"
 SCAN = "engines/experiments/tcec-next/profile_scan.py"
 SCAN_DECLARATION = dict(path=SCAN, variant="square-successor")
@@ -206,6 +218,8 @@ def argument_parser():
                         default="source-jit")
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--compile-cc", help="final native/type-gate compiler only; runtime wrapper still uses admitted cc argv")
+    parser.add_argument("--league-variant", choices=("control", *LEAGUE_EXPERIMENTS), default="control",
+                        help="isolated reviewed P16/P192 source-only experiment")
     parser.add_argument("--b-variant", default="control",
                         help="explicit reviewed B post-profile projection; default preserves the control")
     parser.add_argument("--phase-variant", choices=("control", "phase-init"), default="control",
@@ -222,9 +236,26 @@ def argument_parser():
     return parser
 
 
+def league_selection(args):
+    if args.league_variant == "control":
+        return None
+    experiment = LEAGUE_EXPERIMENTS.get(args.league_variant)
+    if (experiment is None or args.profile not in LEAGUE_PROFILE_IDS or
+            args.entry not in experiment["families"] or args.representation != "source-jit" or
+            args.b_variant != "control" or args.phase_variant != "control" or
+            args.spelling_variant != "control" or args.scan_variant != "control" or
+            args.ep_variant != "control" or args.source_dependencies != "control"):
+        raise ValueError("league experiment requires its named profile/family and isolated control stages")
+    return dict(path=experiment["path"], variant=args.league_variant)
+
+
 def main():
     parser = argument_parser()
     args = parser.parse_args()
+    try:
+        post_league = league_selection(args)
+    except ValueError as error:
+        parser.error(str(error))
     if args.profile in LEAGUE_PROFILE_IDS:
         if args.representation != "source-jit":
             parser.error("league profiles currently admit only source-JIT bootstrap")
@@ -331,6 +362,9 @@ def main():
             names.add(LEAGUE_PROFILES)
         if args.entry == "E":
             names.update(("engines/model/e19.py", "engines/model/e19.json"))
+        if args.league_variant != "control":
+            names.add(LEAGUE_EXPERIMENTS[args.league_variant]["path"])
+            names.update(LEAGUE_SUPPORT.get(args.league_variant, {}))
         if args.b_variant != "control":
             names.add(B_PROFILE)
         if args.phase_variant != "control":
@@ -401,6 +435,20 @@ def main():
             if args.b_variant != "control" else dict(path=PHASE, variant=args.phase_variant)
             if args.phase_variant != "control" else None)
         report["post_spelling"] = post_spelling
+        league_helper, league_helpers = None, {}
+        if args.league_variant != "control":
+            named = LEAGUE_EXPERIMENTS[args.league_variant]
+            old.require(inputs[named["path"]] == named["pin"], "league helper identity differs")
+            for relative, expected in LEAGUE_SUPPORT.get(args.league_variant, {}).items():
+                old.require(inputs[relative] == expected, "league helper support identity differs")
+            league_helper = load("profile_frozen_league_candidate", own / named["path"])
+            if args.league_variant == "legal-maker":
+                ep_path, projection_path = LEAGUE_SUPPORT["legal-maker"]
+                old.require(Path(ep_path).name == "compact_ep.py" and projection_path == COMPOUND,
+                            "league EP support roles differ")
+                league_helpers = {"ep": load("league_candidate_ep", own / ep_path),
+                                  "projection": load("league_candidate_projection", own / projection_path)}
+            report["post_league"] = post_league
         if post_scan is not None:
             report["post_scan"] = post_scan
         ep_helpers = {}
@@ -476,6 +524,15 @@ def main():
                     bounds=model.bounds(), source_coefficient_sha256=source_model.coefficient_sha256(),
                     model_parameters_changed=model.coefficients != source_model.coefficients,
                     optimizer_executed_by_builder=False)
+            if league_helper is not None:
+                before_league = source
+                options = dict(family=args.entry, profile_id=profile.id, **league_helpers)
+                if args.league_variant == "atomic-assignment":
+                    options["variant"] = args.league_variant
+                source, league_proof = league_helper.transform_source(source, **options)
+                old.require(league_helper.restore_source(source, league_proof, **league_helpers) == before_league,
+                            "isolated league experiment inverse differs")
+                proofs.append(league_proof)
             if post_spelling is not None:
                 parent_source = source
                 if post_spelling == B_LEAGUE_DECLARATION:

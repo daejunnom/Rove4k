@@ -48,6 +48,29 @@ B_LEAGUE = "engines/experiments/tcec-next/profile_b_league_spelling.py"
 B_LEAGUE_SCHEMA = "rove4k.league-b-atomic.v1"
 B_LEAGUE_DECLARATION = {"path": B_LEAGUE, "selection": "league-atomic", "variant": "atomic-assignment"}
 B_LEAGUE_PIN = {"bytes": 3925, "sha256": "e7e81ba58dbf6210fbf132a5baba3811c987fcb86728949bca0e6e2140bff1e5"}
+LEAGUE_CANDIDATES = {
+    "atomic-assignment": {
+        "path": "engines/experiments/tcec-next/profile_acef_league_atomic.py",
+        "schema": "rove4k.league-acef-atomic.v1", "families": "ACEF",
+        "pin": {"bytes": 4906, "sha256": "d551768ea423655cc5566430f5e185b8377321d03f9f3429fd8f18112eaaaddd"},
+        "supports": {},
+    },
+    "square-successor": {
+        "path": "engines/experiments/tcec-next/profile_league_square.py",
+        "schema": "rove4k.league-square-scan.v1", "families": "AC",
+        "pin": {"bytes": 3790, "sha256": "8b832928e53bde3c007ed7e1bf8a35290bd8785f4233ea7246d9cb1392eed1b8"},
+        "supports": {"scan": (SCAN, SCAN_PIN)},
+    },
+    "legal-maker": {
+        "path": "engines/experiments/tcec-next/league_ep.py",
+        "schema": "rove4k.league-ep-source.v1", "families": "CE",
+        "pin": {"bytes": 4456, "sha256": "55d76f2740732672fd6abf9cc2650143525732eadf10a9a302cf652accfafc05"},
+        "supports": {
+            "ep": ("engines/experiments/tcec-next/compact_ep.py", {"bytes": 7267, "sha256": "42963c889070f29da4dc05d08d5fc4749afb7aec36b0d00735ccc9d271215c6c"}),
+            "projection": (COMPOUND, COMPOUND_PIN),
+        },
+    },
+}
 BEST_SPELLING = {"A": "clock-type", "B": "atomic-assignment", "C": "clock-type",
                  "E": "clock-type", "F": "atomic-assignment"}
 
@@ -192,7 +215,8 @@ def fixture_cases(oracle=None) -> tuple[list[dict], dict]:
 
 
 def _source_build_record(build, *, family, stages, post_profile, main_source,
-                         baseline_source, tools=(), post_spelling=None, post_scan=None, post_ep=None, source_dependencies=None):
+                         baseline_source, tools=(), post_spelling=None, post_scan=None, post_ep=None,
+                         post_league=None, source_dependencies=None):
     require(build is not None, "named post-profile/model source build root required")
     build = Path(build)
     record = json.loads(_evidence_bytes(build / "build.json", name="build.json"))
@@ -202,6 +226,7 @@ def _source_build_record(build, *, family, stages, post_profile, main_source,
             record.get("complete") is True and record.get("reproducible") is True and
             record.get("post_profile") == post_profile and record.get("post_spelling") == post_spelling and
             record.get("post_scan") == post_scan and record.get("post_ep") == post_ep and
+            record.get("post_league") == post_league and
             record.get("source_proofs") == stages and
             record.get("source_dependencies") == source_dependencies and
             _evidence_bytes(build / "main.c", name="main.c") == main_source and
@@ -238,7 +263,13 @@ def _source_build_record(build, *, family, stages, post_profile, main_source,
         if relative == B_LEAGUE:
             require(expected == B_LEAGUE_PIN and pin(normalized(ROOT / relative)) == B_LEAGUE_PIN,
                     "reviewed B league atomic helper identity differs")
-    if post_spelling is not None:
+        for candidate in LEAGUE_CANDIDATES.values():
+            expected_pins = {candidate["path"]: candidate["pin"]}
+            expected_pins.update({path: identity for path, identity in candidate["supports"].values()})
+            if relative in expected_pins:
+                require(expected == expected_pins[relative] and pin(normalized(ROOT / relative)) == expected,
+                        "reviewed league candidate helper identity differs: " + relative)
+    if post_spelling is not None or post_league is not None:
         plan = record.get("plan", {})
         require(plan.get("family") == family and plan.get("full") is True and
                 plan.get("representation") == "source-jit" and
@@ -313,6 +344,30 @@ def b_league_module(build):
     return module
 
 
+def league_candidate_modules(build, variant):
+    """Load pinned frozen candidate helpers and their exact support closure."""
+    require(variant in LEAGUE_CANDIDATES, "unknown league candidate")
+    candidate = LEAGUE_CANDIDATES[variant]
+    def authenticated(relative, expected, name):
+        path = Path(build) / "inputs" / relative
+        data = _evidence_bytes(path, name=Path(relative).name)
+        require(pin(data) == expected and normalized(ROOT / relative) == data,
+                "league candidate helper bytes differ: " + relative)
+        spec = importlib.util.spec_from_file_location(name, path)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[name] = module
+        exec(compile(data, str(path), "exec", dont_inherit=True), module.__dict__)
+        return module
+    # Verify supports before executing the candidate. Square's own dynamic
+    # lookup then resolves in the same frozen input directory.
+    supports = {name: authenticated(path, identity, "rules_league_support_" + name)
+                for name, (path, identity) in candidate["supports"].items()}
+    module = authenticated(candidate["path"], candidate["pin"], "rules_league_candidate")
+    require(module.SCHEMA == candidate["schema"] and module.VARIANT == variant,
+            "league candidate schema or variant differs")
+    return module, supports
+
+
 def ep_modules(build):
     def authenticated(relative, expected, schema, name):
         data = _evidence_bytes(Path(build) / "inputs" / relative, name=Path(relative).name)
@@ -360,6 +415,10 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
                         suffix[-1].get("schema") == "rove4k.profile-dependencies.v1" else None)
     if dependency_stage is not None:
         suffix = suffix[:-1]
+    league_stage = (suffix[-1] if suffix and suffix[-1].get("schema") in
+                    {row["schema"] for row in LEAGUE_CANDIDATES.values()} else None)
+    if league_stage is not None:
+        suffix = suffix[:-1]
     ep_stage = suffix[-1] if suffix and suffix[-1].get("schema") == EP_SCHEMA else None
     if ep_stage is not None:
         suffix = suffix[:-1]
@@ -385,7 +444,7 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
     else:
         require(not suffix or (len(suffix) == 1 and has_phase),
                 "explicit A/C/F proof chain must be resource-only or ordered resource/phase")
-    post_profile, post_spelling, post_scan, post_ep, source_dependencies, tools = None, None, None, None, None, []
+    post_profile, post_spelling, post_scan, post_ep, post_league, source_dependencies, tools = None, None, None, None, None, None, []
     if league_profile:
         tools.append(LEAGUE_OWNER)
     if has_b:
@@ -400,6 +459,20 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
         tools.append(relative)
     if model_stage:
         tools.extend(("engines/model/e19.py", "engines/model/e19.json"))
+    if league_stage is not None:
+        variant = league_stage.get("variant")
+        require(type(variant) is str and variant in LEAGUE_CANDIDATES,
+                "unknown league candidate variant")
+        candidate = LEAGUE_CANDIDATES[variant]
+        require(league_profile and family in candidate["families"] and
+                league_stage.get("schema") == candidate["schema"] and
+                league_stage.get("family") == family and league_stage.get("profile_id") == profile.id and
+                cleanup == "private-path" and not has_b and not has_phase and not has_spelling and
+                scan_stage is None and ep_stage is None and dependency_stage is None,
+                "league candidate requires its exact uncombined P16/P192 source projection")
+        post_league = {"path": candidate["path"], "variant": variant}
+        tools.append(candidate["path"])
+        tools.extend(path for path, _ in candidate["supports"].values())
     if has_spelling:
         if has_b_league:
             require(family == "B" and league_profile and has_b and cleanup == "private-path" and
@@ -442,18 +515,20 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
         relative = "engines/experiments/tcec-next/profile_dependencies.py"
         source_dependencies = {"path": relative, "variant": "unused-includes"}
         tools.append(relative)
-    if not suffix and not has_spelling and dependency_stage is None and build is not None:
+    if not suffix and not has_spelling and league_stage is None and dependency_stage is None and build is not None:
         control = json.loads(_evidence_bytes(Path(build) / "build.json", name="build.json"))
         validate_spelling_request(control)
         require(control.get("post_profile") is None and control.get("post_spelling") is None and
                 control.get("post_scan") is None and
                 control.get("post_ep") is None and
+                control.get("post_league") is None and
                 control.get("source_dependencies") is None and control.get("source_proofs") == stages,
                 family + " control build declares an unconsumed post-profile stage")
     if suffix or has_spelling or dependency_stage is not None or league_profile:
         source_record = _source_build_record(build, family=family, stages=stages, post_profile=post_profile,
             main_source=main_source, baseline_source=baseline_source, tools=tools,
-            post_spelling=post_spelling, post_scan=post_scan, post_ep=post_ep, source_dependencies=source_dependencies)
+            post_spelling=post_spelling, post_scan=post_scan, post_ep=post_ep, post_league=post_league,
+            source_dependencies=source_dependencies)
     replayed = [resource]
     inverses = [("resource", projection, resource, baseline_source)]
     if has_b:
@@ -493,6 +568,26 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
         require(not old_model_id or (projected == expected and proof["model_parameters_changed"] is False),
                 "old E source-model ID is limited to the byte-identical canonical control")
         inverses.append(("E full canonical model binding", None, proof, expected))
+        expected = projected
+        replayed.append(proof)
+    league_helpers = None
+    if league_stage is not None:
+        current, supports = league_candidate_modules(build, post_league["variant"])
+        options = {}
+        if post_league["variant"] == "atomic-assignment":
+            options["variant"] = post_league["variant"]
+        elif post_league["variant"] == "legal-maker":
+            options = {"ep": supports["ep"], "projection": supports["projection"]}
+            league_helpers = options
+        projected, proof = current.transform_source(expected, family=family, profile_id=profile.id, **options)
+        require(json.dumps(league_stage, sort_keys=True, allow_nan=False) ==
+                json.dumps(proof, sort_keys=True, allow_nan=False),
+                "full league candidate proof/protected gaps differ")
+        inverse_options = league_helpers or {}
+        require(current.restore_source(projected, league_stage, **inverse_options) == expected,
+                "full league candidate inverse differs")
+        inverses.append(("full league candidate", current, league_stage, expected, inverse_options)
+                        if inverse_options else ("full league candidate", current, league_stage, expected))
         expected = projected
         replayed.append(proof)
     if has_spelling:
@@ -582,7 +677,11 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
         ep_binding = (proof.get("schema") == EP_SCHEMA and keywords is ep_keywords
                       and set(keywords) == {"ep", "projection", "dependencies", "edits"}
                       and module is not None and module.SCHEMA == EP_SCHEMA)
-        require(len(inverse) == 4 or compound_binding or ep_binding, "unknown source inverse helper binding")
+        league_binding = (proof.get("schema") == LEAGUE_CANDIDATES["legal-maker"]["schema"] and
+                          keywords is league_helpers and set(keywords) == {"ep", "projection"} and
+                          module is not None and module.SCHEMA == proof.get("schema"))
+        require(len(inverse) == 4 or compound_binding or ep_binding or league_binding,
+                "unknown source inverse helper binding")
         if module is None:
             offset, before, after = proof["table_value_offset"], proof["before"].encode(), proof["after"].encode()
             require(restored[offset:offset + len(after)] == after, label + " inverse span differs")
