@@ -10,7 +10,7 @@ from pathlib import Path
 import sys
 from types import SimpleNamespace
 import unittest
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 
 HERE = Path(__file__).resolve().parent
@@ -57,6 +57,47 @@ def check_actual_source(source, *, family, profile_id):
 
 
 class CastleFixtureContracts(unittest.TestCase):
+    def test_real_legacy_duplicate_labels_preserve_positions_and_index_authority(self):
+        standard, legacy_coverage = rules.fixture_cases(oracle)
+        self.assertEqual(len(standard), 105)
+        self.assertLess(len({row["label"] for row in standard}), len(standard))
+        self.assertEqual(len({tuple(row["moves"]) for row in standard}), len(standard))
+        snapshot = [(row["label"], tuple(row["moves"]), tuple(row["legal"]), row["board"].fen())
+                    for row in standard]
+        supplied = SimpleNamespace(fixture_cases=Mock(return_value=(standard, legacy_coverage)))
+        combined, coverage = check.fixture_cases(oracle, rules=supplied)
+        self.assertEqual(coverage["standard_cases"], 105)
+        self.assertEqual([(row["label"], tuple(row["moves"]), tuple(row["legal"]), row["board"].fen())
+                          for row in combined[:105]], snapshot)
+        self.assertEqual([(row["label"], tuple(row["moves"]), tuple(row["legal"]), row["board"].fen())
+                          for row in standard], snapshot)
+        pair = next((left, right) for index, left in enumerate(standard)
+                    for right in standard[index+1:]
+                    if left["label"] == right["label"] and left["moves"] != right["moves"])
+        lines = [" ".join([str(index), *row["legal"]]) for index, row in enumerate(pair)]
+        raw = ("\n".join(lines) + "\n").encode("ascii")
+        self.assertEqual(rules._compare_output(raw, list(pair))["cases"], 2)
+        wrong_index = (lines[0] + "\n" + " ".join(["0", *pair[1]["legal"]]) + "\n").encode("ascii")
+        with self.assertRaisesRegex(ValueError, "row identity"):
+            rules._compare_output(wrong_index, list(pair))
+
+    def test_new_target_duplicates_and_collisions_with_legacy_labels_are_rejected(self):
+        standard, legacy_coverage = rules.fixture_cases(oracle)
+        supplied = SimpleNamespace(fixture_cases=Mock(return_value=(standard, legacy_coverage)))
+        original = check._target
+        for collision in ("target", "standard"):
+            def renamed(oracle_module, **options):
+                case = original(oracle_module, **options)
+                if options["tag"] == "rights-0":
+                    if collision == "target" and options["side"] < 0:
+                        case["label"] = "white-rights-0"
+                    if collision == "standard" and options["side"] > 0:
+                        case["label"] = standard[0]["label"]
+                return case
+            with self.subTest(collision=collision), patch.object(check, "_target", side_effect=renamed):
+                with self.assertRaisesRegex(ValueError, "targeted castle case labels"):
+                    check.fixture_cases(oracle, rules=supplied)
+
     def test_fixed_cases_keep_standard_paths_and_cover_discriminating_arms(self):
         cases, coverage = check.fixture_cases(oracle, rules=rules)
         standard, _ = rules.fixture_cases(oracle)

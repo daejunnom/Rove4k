@@ -98,12 +98,17 @@ def fixture_cases(oracle, *, rules):
             if tag == name + "-destination-attacked":
                 require(move in raw and move not in legal,
                         "destination-only attack must reach emission then fail actual maker legality")
-    labels = [row["label"] for row in (*standard, *targeted)]
-    require(len(labels) == len(set(labels)), "combined castle case labels must be distinct")
+    # Existing standard positions are identified by their path and stdout row
+    # index. Distinct promotion paths legitimately reuse diagnostic labels.
+    # Only this renderer's new target labels form a distinct namespace.
+    target_labels = [row["label"] for row in targeted]
+    require(len(target_labels) == len(set(target_labels))
+            and not set(target_labels).intersection(row["label"] for row in standard),
+            "targeted castle case labels must be distinct and separate from standard labels")
     coverage = dict(standard=standard_coverage, standard_cases=len(standard), targeted_cases=len(targeted),
         own_rights_masks={colour: sorted({row["own_rights"] for row in targeted
             if row["side"] == side}) for colour, side in (("white", 1), ("black", -1))},
-        targeted_labels=[row["label"] for row in targeted],
+        targeted_labels=target_labels,
         raw_castle_order="kingside-before-queenside", destination_attack_separate_from_transit=True,
         actual_attack_call_trace=False)
     return [*standard, *targeted], coverage
