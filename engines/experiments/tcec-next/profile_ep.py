@@ -36,9 +36,21 @@ IMAGES = {
     ("C", "test-p4"): dict(
         source=dict(bytes=8164, sha256="c13d4216301b6a60390e7c7998225e3ff5a98ad19b2c9c3140d7b2664a1599fc"),
         native=dict(bytes=18568, sha256="d211a13ec4e32f68d8cf2afd7d6aec34505cb5f8a8cab2a48fd1773d63aec7ca")),
+    ("C", "test-p28"): dict(
+        source=dict(bytes=8197, sha256="b587635942dc331fd79c09788e0ef32f00d6293a68a75ee6525ab1b76c98b297"),
+        native=dict(bytes=18568, sha256="2e4955879d5f6de9d63716f0095189282bf61c99f6db0c969e8532a8d3d200b6")),
+    ("C", "tcec-provisional"): dict(
+        source=dict(bytes=8166, sha256="c7b2ec5554f35af50f90b63f7c3c728c76d725d9de5a37aef96d95bbcb13b0f0"),
+        native=dict(bytes=18568, sha256="93228167f95a684161c3e766873066af4b0a248fcc2c4faf6dd700334454ac53")),
     ("E", "test-p4"): dict(
         source=dict(bytes=7778, sha256="fc08a94db7593439322910bdc6bc3be307a1a8c3e65f948842a15f1cf7b95335"),
         native=dict(bytes=18568, sha256="95703fc67c112e3a9d50d70c0d25c6ffd25fc88939311343cdc53d0e1daaddac")),
+    ("E", "test-p28"): dict(
+        source=dict(bytes=7811, sha256="aa09156e76702f42068cfdba85e0e07ffc2f7dc63607b113cba6f5c694f8bbfb"),
+        native=dict(bytes=18568, sha256="70a52840481b92f34ed52edf094251c8205bc5b2bea8492f28eac4e5d3b5eb78")),
+    ("E", "tcec-provisional"): dict(
+        source=dict(bytes=7780, sha256="d9da4822b16da457786b6517675015c7a91c110a6685ffb9444eea945bbcff58"),
+        native=dict(bytes=18568, sha256="ba29db7adf798b9a1b816da7791facfb32e61b8ec751bf4525a04292be225311")),
 }
 
 

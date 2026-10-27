@@ -40,7 +40,7 @@ SCAN_PIN = {"bytes": 10623, "sha256": "98eb3139bcbd745f08fbab2d8a738b428d4e668de
 EP = "engines/experiments/tcec-next/profile_ep.py"
 EP_SCHEMA = "rove4k.profile-ep-source.v1"
 EP_DECLARATION = {"path": EP, "variant": "legal-maker"}
-EP_PIN = {"bytes": 7472, "sha256": "ed21cbb0b894310184048281bf89c3574dca1369c2409d6eec8ee043e25214fb"}
+EP_PIN = {"bytes": 8476, "sha256": "d80d1421ff9c921fae899198094488a88dab88bd35009f4f36a44ca77588c44a"}
 BEST_SPELLING = {"A": "clock-type", "B": "atomic-assignment", "C": "clock-type",
                  "E": "clock-type", "F": "atomic-assignment"}
 

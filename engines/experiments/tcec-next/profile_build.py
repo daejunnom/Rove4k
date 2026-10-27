@@ -50,7 +50,7 @@ SCAN_IMAGES = {
 }
 DEPENDENCIES = "engines/experiments/tcec-next/profile_dependencies.py"
 EP = "engines/experiments/tcec-next/profile_ep.py"
-EP_PIN = dict(bytes=7472, sha256="ed21cbb0b894310184048281bf89c3574dca1369c2409d6eec8ee043e25214fb")
+EP_PIN = dict(bytes=8476, sha256="d80d1421ff9c921fae899198094488a88dab88bd35009f4f36a44ca77588c44a")
 BEST_SPELLING = {"A": "clock-type", "B": "atomic-assignment", "C": "clock-type",
                  "E": "clock-type", "F": "atomic-assignment"}
 COMPOUND_DECLARATION = dict(path=COMPOUND, selection="compound", variant="clock-atomic-launcher")

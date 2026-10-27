@@ -141,6 +141,29 @@ submission profiles before codec/native admission or available-RAM checks. Even
 a within-limit W256 file is prepared_unqualified; this endpoint never starts256
 workers or allocates its192GiB logical TT. Actual W256 ELF cost is pending CI.
 
+At56faedbca1ea65b8dc9ead412ec97438254f0b25 all nine workflows pass. Engine
+40494326412 passes26/26; foundation122155816988 records994 tests/40 suites and
+six intentional native faults returning2 with clean settlement. ELF40494326732
+passes27 jobs, including ten W256 prepare/readmission jobs, fifteen TEST full
+paths and the cancellation diagnostic. No W256 engine execution is introduced.
+
+EP cost40494326605 passes all six contexts and the targeted plain/fatal-UBSan
+observations, each with192 normalizer pairs and160 direct trials. The actual
+whole-file results are:
+
+| Family | P4 | P28 | W256 preparation |
+|---|---:|---:|---:|
+| C legal-maker | 3907 B (-8) | 3920 B (-6) | 3908 B (-7) |
+| E legal-maker | 3870 B (-12) | 3882 B (-12) | 3871 B (-12) |
+
+EP production40494326796 passes both P4 full pipelines and both sealed Ubuntu22
+consumers. The named-DATA audit binds all six physical source/native/header/
+payload/whole attempts and actual type/native, command/stream and targeted output
+pins. Four newly measured P28/W256 source/native rows now extend the separate EP
+policy; existing P4 rows, compiler context, controls and proof algorithms remain
+unchanged. P28 full pipelines/Ubuntu22 and opt-in W256 EP export are the next
+hosted gates. Baseline production selection remains control until these pass.
+
 ### Verified source, CI and offline transport
 
 The retained edb baseline isedb747e8282401ae27537e65cbf21bbfa58b491b.

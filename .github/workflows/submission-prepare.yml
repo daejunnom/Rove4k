@@ -36,6 +36,10 @@ jobs:
       max-parallel: 4
       matrix:
         entry: [A, B, C, E, F]
+        ep_variant: [control]
+        include:
+          - {entry: C, ep_variant: legal-maker}
+          - {entry: E, ep_variant: legal-maker}
     env:
       PYTHONDONTWRITEBYTECODE: '1'
     steps:
@@ -48,8 +52,9 @@ jobs:
       - name: Configure owned output and select the actual submission recipe
         env:
           ENTRY: ${{ matrix.entry }}
+          EP_VARIANT: ${{ matrix.ep_variant }}
         run: |
-          W256_OUT="$RUNNER_TEMP/rove4k-submission-${ENTRY}-${{ github.run_attempt }}"
+          W256_OUT="$RUNNER_TEMP/rove4k-submission-${ENTRY}-${EP_VARIANT}-${{ github.run_attempt }}"
           mkdir "$W256_OUT"
           printf 'W256_OUT=%s\n' "$W256_OUT" >> "$GITHUB_ENV"
           python -I -B - > "$W256_OUT/producer-arguments.txt" <<'PY'
@@ -60,7 +65,7 @@ jobs:
           helper = importlib.util.module_from_spec(spec)
           sys.modules[spec.name] = helper
           spec.loader.exec_module(helper)
-          print('\n'.join(helper.selected_arguments(os.environ['ENTRY'])))
+          print('\n'.join(helper.selected_arguments(os.environ['ENTRY'], ep_variant=os.environ['EP_VARIANT'])))
           PY
       - name: Compile and package twice using the existing selected W256 producer
         # profile_build owns compilation and packaging. It has no --execute
@@ -76,14 +81,14 @@ jobs:
         run: |
           set -o pipefail
           python -I -B engines/experiments/tcec-next/submission_prepare.py \
-            --entry '${{ matrix.entry }}' --build "$W256_OUT/build" \
+            --entry '${{ matrix.entry }}' --ep-variant '${{ matrix.ep_variant }}' --build "$W256_OUT/build" \
             --out "$W256_OUT/submission" --execute \
             2>&1 | tee "$W256_OUT/prepare.log"
       - name: Preserve prepared artifacts, compile evidence and original failures
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: experimental-W256-${{ matrix.entry }}-${{ github.sha }}-${{ github.run_attempt }}
+          name: experimental-W256-${{ matrix.entry }}-${{ matrix.ep_variant }}-${{ github.sha }}-${{ github.run_attempt }}
           path: ${{ env.W256_OUT }}
           if-no-files-found: error
           include-hidden-files: true

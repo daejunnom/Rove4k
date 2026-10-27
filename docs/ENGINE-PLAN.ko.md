@@ -712,7 +712,7 @@ flowchart TD
   DONE[완료: 7ce 여덟 CI / W256 source-JIT 준비5 / D4689 보존·정지] --> PREP[공통 준비: source·representation·규칙·소유자]
   PREP --> ELF[ELF 생산·의존성·argv0 소유권·소비 경로]
   PREP --> MATE[완료·미채택: mate8개 비용 손실 / F 이미 적용]
-  PREP --> EP[C/E EP 공유: 실제 P4 -8/-12 B / 6 profile·표적·production 인수]
+  PREP --> EP[C/E EP: 6 profile 비용·표적 PASS / P4 생산·22 PASS / P28·W256 인수]
   PREP --> LEAGUEFIX[완전 동률의 고정 계열 ID 선발·실제 caller 연결]
   PREP --> W256[별도 W256 compile/package 준비 / 대형 TT 실행 없음]
   ELF --> SIZE{실제 ELF 전체4096B 이하}
@@ -818,3 +818,11 @@ production 기본 선택을 유지하며 P28/W256 EP 생산은 미측정 정책�
 W256 ELF도15문맥/10개 baseline·lean compile/admit 전용으로 확장한다. TEST2문맥만
 실행할 수 있고 W256은 codec/native admission·RAM 조회 전에 실행 소비자에서 거절한다.
 이는192GiB TT 실행이나 ELF 대회 적격성이 아니며 실제 W256 ELF 크기는 다음 CI에서 확인한다.
+
+56faedb는9 workflow 모두 성공했고 engine26/26·foundation994/40·실제6fault 정상 정리를
+확인했다. ELF27 job은 TEST full15·W256 prepare/admit10·source·실제취소 진단을 포함한다.
+EP6개와 표적192 Board쌍/160 trial의 plain/fatal UBSan이 모두 통과했으며 실제whole은
+C3907/3920/3908 B(P4/P28/W256), E3870/3882/3871 B다. P4 실제생산·mechanism·rules·R·
+봉인·독립 Ubuntu22도4 job 모두 통과했다. 감사한 새4문맥 source/native 행만 별도 EP
+정책에 추가하고 기존6개 native control은 그대로 둔다. 이제 P28 full·Ubuntu22 및
+W256 EP 내보내기를 실제검증한다. 그 전에는 기본 production 선택을 control로 유지한다.

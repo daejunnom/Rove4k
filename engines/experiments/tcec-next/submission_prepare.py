@@ -45,25 +45,31 @@ def equal(left, right):
     return json.dumps(left, **options) == json.dumps(right, **options)
 
 
-def selection(family):
+def selection(family, *, ep_variant="control"):
     require(type(family) is str and family in tuple("ABCEF"), "one full non-D C family required")
-    return dict(b_variant="tcec-final-lf" if family == "B" else "control",
+    require(type(ep_variant) is str and ep_variant in ("control", "legal-maker")
+            and (ep_variant == "control" or family in ("C", "E")),
+            "explicit C/E legal-maker or control EP selection required")
+    result = dict(b_variant="tcec-final-lf" if family == "B" else "control",
                 phase_variant="control" if family == "B" else "phase-init",
                 spelling_variant="best" if family == "B" else "compound-v2" if family == "F" else "compound",
                 scan_variant="square-successor" if family in "AC" else "control",
                 source_dependencies="unused-includes")
+    if ep_variant != "control":
+        result["ep_variant"] = ep_variant
+    return result
 
 
-def selected_arguments(family):
+def selected_arguments(family, *, ep_variant="control"):
     """Existing producer arguments; the caller supplies its new external --out."""
     result = ["--entry", family, "--profile", PROFILE, "--representation", REPRESENTATION]
-    for name, value in selection(family).items():
+    for name, value in selection(family, ep_variant=ep_variant).items():
         result.extend(("--" + name.replace("_", "-"), value))
     return result
 
 
-def validate_selection(record, family, builder):
-    chosen = selection(family)
+def validate_selection(record, family, builder, *, ep_variant="control"):
+    chosen = selection(family, ep_variant=ep_variant)
     require(record.get("family") == record.get("entry") == family,
             "producer family differs from the explicit submission entry")
     resources = record.get("resources", {})
@@ -84,6 +90,10 @@ def validate_selection(record, family, builder):
             and equal(record.get("source_dependencies"), dict(path=builder.DEPENDENCIES, variant="unused-includes"))
             and record.get("spelling_request") is None,
             "submission must use the maintained explicit source stages and final include cleanup")
+    post_ep = dict(path=builder.EP, variant="legal-maker") if ep_variant != "control" else None
+    require(equal(record.get("post_ep"), post_ep)
+            and (ep_variant != "control" or "ep_native_policy" not in record),
+            "submission EP differs from the explicit selected recipe")
     require(equal(record.get("compiler"), record.get("compile_executor")),
             "submission preparation uses its original producer compiler")
 
@@ -134,9 +144,9 @@ def write_at(directory, name, data, *, executable=False):
         stream.write(data)
 
 
-def prepare_submission(build, out, *, family, execute=False):
+def prepare_submission(build, out, *, family, ep_variant="control", execute=False):
     require(execute is True, "submission preparation is inactive without --execute")
-    selection(family)
+    selection(family, ep_variant=ep_variant)
     require(sys.platform == "linux" and platform.machine() == "x86_64", "Linux x86-64 artifact consumer required")
     build, out = external_path(build, existing=True), external_path(out, existing=False)
     require(not out.is_relative_to(build) and not build.is_relative_to(out), "producer and output roots must be disjoint")
@@ -149,7 +159,7 @@ def prepare_submission(build, out, *, family, execute=False):
     manifest_raw = reader.read_regular(verify.artifact_file(build, "build.json"), limit=MAX_FILE)
     manifest = json.loads(manifest_raw)
     admitted = verify.admit_c_build(manifest, build)
-    validate_selection(manifest, family, builder)
+    validate_selection(manifest, family, builder, ep_variant=ep_variant)
     require(admitted.family == family and admitted.profile_id == PROFILE and admitted.full
             and admitted.representation == REPRESENTATION, "strict full submission admission differs")
     require(equal(manifest.get("host_cleanup"), dict(unsettled_commands=0, errors=[])),
@@ -167,7 +177,7 @@ def prepare_submission(build, out, *, family, execute=False):
         representation=REPRESENTATION, full=True, source_build=str(build), producer_manifest=pin(manifest_raw),
         resources=admitted.resources, source_closure=manifest["source_closure"], dependencies=dependencies,
         compiler=manifest["compiler"], wrapper_contract=admitted.wrapper_contract,
-        source_selection=selection(family), size=size_decisions(family, len(files["Rove4k-" + family]), contracts),
+        source_selection=selection(family, ep_variant=ep_variant), size=size_decisions(family, len(files["Rove4k-" + family]), contracts),
         consumer_sources={name: pin(data) for name, data in sources.items()}, files={},
         compile_package_only=True, runtime_qualified=False, general_candidate_ready=False,
         general_submission_ready=False, elf_qualified=False, event_target_confirmed=False,
@@ -209,13 +219,15 @@ def prepare_submission(build, out, *, family, execute=False):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--entry", choices=tuple("ABCEF"), required=True)
+    parser.add_argument("--ep-variant", choices=("control", "legal-maker"), default="control",
+                        help="optional C/E EP recipe; the default preserves the maintained source selection")
     parser.add_argument("--build", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--execute", action="store_true")
     args = parser.parse_args(argv)
     if not args.execute:
         parser.error("--execute is required before admission or output creation")
-    result = prepare_submission(args.build, args.out, family=args.entry, execute=True)
+    result = prepare_submission(args.build, args.out, family=args.entry, ep_variant=args.ep_variant, execute=True)
     print(json.dumps(dict(prepared=result["prepared"], family=args.entry, profile=PROFILE, size=result["size"],
                           runtime_qualified=False, event_target_confirmed=False)))
     return 0
