@@ -122,6 +122,24 @@ LEAGUE_VARIANTS = {
     "legal-maker": ("engines/experiments/tcec-next/league_ep.py",
         {"bytes": 4456, "sha256": "55d76f2740732672fd6abf9cc2650143525732eadf10a9a302cf652accfafc05"},
         "rove4k.league-ep-source.v1", "CE"),
+    "square-atomic": ("engines/experiments/tcec-next/profile_league_compound.py",
+        {"bytes": 9520, "sha256": "4a64512d3d6da772a072232c1e303da5aef609b0e606e9508893606f7e413704"},
+        "rove4k.league-combined-source.v1", "AC"),
+    "square-ep": ("engines/experiments/tcec-next/profile_league_compound.py",
+        {"bytes": 9520, "sha256": "4a64512d3d6da772a072232c1e303da5aef609b0e606e9508893606f7e413704"},
+        "rove4k.league-combined-source.v1", "C"),
+    "ep-atomic": ("engines/experiments/tcec-next/profile_league_compound.py",
+        {"bytes": 9520, "sha256": "4a64512d3d6da772a072232c1e303da5aef609b0e606e9508893606f7e413704"},
+        "rove4k.league-combined-source.v1", "CE"),
+    "square-ep-atomic": ("engines/experiments/tcec-next/profile_league_compound.py",
+        {"bytes": 9520, "sha256": "4a64512d3d6da772a072232c1e303da5aef609b0e606e9508893606f7e413704"},
+        "rove4k.league-combined-source.v1", "C"),
+}
+LEAGUE_COMBINATIONS = {
+    "square-atomic": (("square", "square-successor"), ("atomic", "atomic-assignment")),
+    "square-ep": (("square", "square-successor"), ("ep", "legal-maker")),
+    "ep-atomic": (("ep", "legal-maker"), ("atomic", "atomic-assignment")),
+    "square-ep-atomic": (("square", "square-successor"), ("ep", "legal-maker"), ("atomic", "atomic-assignment")),
 }
 LEAGUE_EP_SUPPORT = "engines/experiments/tcec-next/compact_ep.py"
 LEAGUE_EP_SUPPORT_PIN = {"bytes": 7267, "sha256": "42963c889070f29da4dc05d08d5fc4749afb7aec36b0d00735ccc9d271215c6c"}
@@ -577,8 +595,15 @@ def league_candidate_module(manifest, build, production_paths, declaration):
     module = importlib.util.module_from_spec(spec)
     sys.modules[spec.name] = module
     exec(compile(data, str(frozen), "exec", dont_inherit=True), module.__dict__)
-    require(module.SCHEMA == schema and module.VARIANT == declaration["variant"],
-            "league candidate schema or variant differs")
+    variant = declaration["variant"]
+    require(module.SCHEMA == schema, "league candidate schema differs")
+    if variant in LEAGUE_COMBINATIONS:
+        require(module.VARIANTS == {key: tuple(name for name, _ in pairs)
+                                    for key, pairs in LEAGUE_COMBINATIONS.items()}
+                and module.FAMILIES == {key: LEAGUE_VARIANTS[key][3] for key in LEAGUE_COMBINATIONS},
+                "league combined variants or family domains differ")
+    else:
+        require(module.VARIANT == variant, "league candidate variant differs")
     supports = {}
     if declaration["variant"] == "square-successor":
         _reviewed_spelling_module(manifest, build, production_paths, SCAN, SCAN_PIN,
@@ -593,6 +618,22 @@ def league_candidate_module(manifest, build, production_paths, declaration):
             name: {"path": relative, **identity} for name, relative, identity in (
                 ("ep", LEAGUE_EP_SUPPORT, LEAGUE_EP_SUPPORT_PIN),
                 ("projection", COMPOUND, COMPOUND_PIN))}, "league EP support declaration differs")
+    elif variant in LEAGUE_COMBINATIONS:
+        # Each component is independently authenticated and loaded from the
+        # frozen tree. In particular, square then reads its frozen scan helper.
+        helpers = {}
+        for role, component_variant in LEAGUE_COMBINATIONS[variant]:
+            component_path = LEAGUE_VARIANTS[component_variant][0]
+            component, binding = league_candidate_module(manifest, build, production_paths,
+                {"path": component_path, "variant": component_variant})
+            helpers[role] = component
+            if role == "ep":
+                require(set(binding) == {"ep", "projection"}, "league combined EP roles differ")
+                helpers["ep_owner"] = binding["ep"]
+                helpers["projection"] = binding["projection"]
+            else:
+                require(not binding, "unexpected league combined component support")
+        supports["helpers"] = helpers
     return module, supports
 
 
@@ -794,7 +835,14 @@ def inverse_source_stages(source, inverses):
                                  and proof.get("schema") == module.SCHEMA
                                  and binding["ep"].SCHEMA == "rove4k.compact-ep-source.v1"
                                  and binding["projection"].SCHEMA == COMPOUND_SCHEMA)
-            require(compound_binding or ep_binding or league_ep_binding, "source inverse requires its explicit authenticated helper binding")
+            league_combined_binding = (isinstance(binding, dict) and set(binding) == {"helpers"}
+                                       and module is not None and module.SCHEMA == "rove4k.league-combined-source.v1"
+                                       and proof.get("schema") == module.SCHEMA
+                                       and type(proof.get("variant")) is str
+                                       and proof.get("variant") in LEAGUE_COMBINATIONS
+                                       and type(binding["helpers"]) is dict)
+            require(compound_binding or ep_binding or league_ep_binding or league_combined_binding,
+                    "source inverse requires its explicit authenticated helper binding")
         if module is None:
             offset, before, after = proof["table_value_offset"], proof["before"].encode(), proof["after"].encode()
             require(restored[offset:offset + len(after)] == after, "E19 inverse span differs")
@@ -1010,7 +1058,7 @@ def admit_c_build(manifest, build):
         helper, binding = league_candidate_module(manifest, build, production_paths, post_league)
         before_league = produced
         options = dict(family=family, profile_id=profile.id, **binding)
-        if post_league["variant"] == "atomic-assignment":
+        if post_league["variant"] == "atomic-assignment" or post_league["variant"] in LEAGUE_COMBINATIONS:
             options["variant"] = post_league["variant"]
         produced, league_proof = helper.transform_source(produced, **options)
         supplied = manifest["source_proofs"][next_stage]

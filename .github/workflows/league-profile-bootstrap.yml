@@ -40,6 +40,8 @@ jobs:
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_acef_league_atomic.py
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_league_candidate_compare.py
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_league_selection.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_league_compound.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_league_compound_compare.py
       - name: Check league runner, placement and service boundaries with owned fixtures
         env:
           AWS_EC2_METADATA_DISABLED: 'true'
@@ -97,6 +99,18 @@ jobs:
           - {family: E, profile: test-p192, b_variant: control, variant: atomic-assignment}
           - {family: F, profile: test-p16, b_variant: control, variant: atomic-assignment}
           - {family: F, profile: test-p192, b_variant: control, variant: atomic-assignment}
+          - {family: A, profile: test-p16, b_variant: control, variant: square-atomic}
+          - {family: A, profile: test-p192, b_variant: control, variant: square-atomic}
+          - {family: C, profile: test-p16, b_variant: control, variant: square-atomic}
+          - {family: C, profile: test-p192, b_variant: control, variant: square-atomic}
+          - {family: C, profile: test-p16, b_variant: control, variant: square-ep}
+          - {family: C, profile: test-p192, b_variant: control, variant: square-ep}
+          - {family: C, profile: test-p16, b_variant: control, variant: ep-atomic}
+          - {family: C, profile: test-p192, b_variant: control, variant: ep-atomic}
+          - {family: C, profile: test-p16, b_variant: control, variant: square-ep-atomic}
+          - {family: C, profile: test-p192, b_variant: control, variant: square-ep-atomic}
+          - {family: E, profile: test-p16, b_variant: control, variant: ep-atomic}
+          - {family: E, profile: test-p192, b_variant: control, variant: ep-atomic}
     env:
       PYTHONDONTWRITEBYTECODE: '1'
       FAMILY: ${{ matrix.family }}
@@ -143,7 +157,7 @@ jobs:
               --b-variant "$B_VARIANT" --phase-variant control --spelling-variant "$SPELLING_VARIANT"
               --scan-variant control --ep-variant control --source-dependencies "$SOURCE_DEPENDENCIES")
             case "$VARIANT" in
-              square-successor|legal-maker|atomic-assignment) selected_arguments+=(--league-variant "$VARIANT") ;;
+              square-successor|legal-maker|atomic-assignment|square-atomic|square-ep|ep-atomic|square-ep-atomic) selected_arguments+=(--league-variant "$VARIANT") ;;
             esac
           fi
           timeout --signal=TERM --kill-after=30s 1200s \
@@ -709,6 +723,128 @@ jobs:
           path: |
             ${{ runner.temp }}/league-candidate-comparison.json
             ${{ runner.temp }}/league-candidate-ubuntu22
+          if-no-files-found: ignore
+          retention-days: 7
+
+  league-combinations-ubuntu22:
+    # Compare control, every constituent, and all pair predecessors for the
+    # triple on one host; separately recompile and probe each combined source.
+    needs: generate
+    if: always() && needs.generate.result != 'cancelled' && needs.generate.result != 'skipped'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - {family: A, profile: test-p16, variant: square-atomic}
+          - {family: A, profile: test-p192, variant: square-atomic}
+          - {family: C, profile: test-p16, variant: square-atomic}
+          - {family: C, profile: test-p192, variant: square-atomic}
+          - {family: C, profile: test-p16, variant: square-ep}
+          - {family: C, profile: test-p192, variant: square-ep}
+          - {family: C, profile: test-p16, variant: ep-atomic}
+          - {family: C, profile: test-p192, variant: ep-atomic}
+          - {family: C, profile: test-p16, variant: square-ep-atomic}
+          - {family: C, profile: test-p192, variant: square-ep-atomic}
+          - {family: E, profile: test-p16, variant: ep-atomic}
+          - {family: E, profile: test-p192, variant: ep-atomic}
+    env:
+      FAMILY: ${{ matrix.family }}
+      PROFILE: ${{ matrix.profile }}
+      VARIANT: ${{ matrix.variant }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: league-source-${{ matrix.family }}-${{ matrix.profile }}-control-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/league-parent
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: league-source-${{ matrix.family }}-${{ matrix.profile }}-${{ matrix.variant }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/league-combination
+      - if: startsWith(matrix.variant, 'square-')
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: league-source-${{ matrix.family }}-${{ matrix.profile }}-square-successor-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/single-square
+      - if: contains(matrix.variant, 'ep')
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: league-source-${{ matrix.family }}-${{ matrix.profile }}-legal-maker-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/single-ep
+      - if: endsWith(matrix.variant, '-atomic')
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: league-source-${{ matrix.family }}-${{ matrix.profile }}-atomic-assignment-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/single-atomic
+      - if: matrix.variant == 'square-ep-atomic'
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: league-source-${{ matrix.family }}-${{ matrix.profile }}-square-atomic-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/pair-square-atomic
+      - if: matrix.variant == 'square-ep-atomic'
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: league-source-${{ matrix.family }}-${{ matrix.profile }}-square-ep-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/pair-square-ep
+      - if: matrix.variant == 'square-ep-atomic'
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: league-source-${{ matrix.family }}-${{ matrix.profile }}-ep-atomic-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/pair-ep-atomic
+      - name: Prepare independent system Python and pinned rules oracle
+        run: |
+          export PATH=/usr/bin:/bin
+          for compiler_env_name in ${!LD_@}; do unset "$compiler_env_name"; done
+          unset CC CXX CPP AS AR LD GCC_EXEC_PREFIX COMPILER_PATH LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH OBJC_INCLUDE_PATH CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
+          /usr/bin/python3 -m venv "$RUNNER_TEMP/league-combination-python"
+          "$RUNNER_TEMP/league-combination-python/bin/python3" -m pip install --require-hashes -r engines/training/e19/requirements.txt
+      - name: Compare same-run control, constituents and full files
+        run: |
+          set -o pipefail
+          singles=()
+          case "$VARIANT" in square-*) singles+=(--single square-successor "$RUNNER_TEMP/single-square");; esac
+          case "$VARIANT" in *ep*) singles+=(--single legal-maker "$RUNNER_TEMP/single-ep");; esac
+          case "$VARIANT" in *-atomic) singles+=(--single atomic-assignment "$RUNNER_TEMP/single-atomic");; esac
+          if [ "$VARIANT" = square-ep-atomic ]; then
+            singles+=(--pair square-atomic "$RUNNER_TEMP/pair-square-atomic"
+                      --pair square-ep "$RUNNER_TEMP/pair-square-ep"
+                      --pair ep-atomic "$RUNNER_TEMP/pair-ep-atomic")
+          fi
+          /usr/bin/python3 -I -B engines/experiments/tcec-next/league_compound_compare.py \
+            --family "$FAMILY" --profile "$PROFILE" --variant "$VARIANT" \
+            --control "$RUNNER_TEMP/league-parent" --candidate "$RUNNER_TEMP/league-combination" \
+            "${singles[@]}" --out "$RUNNER_TEMP/league-combination-comparison.json"
+      - name: Independently compile and check exact selected source
+        run: |
+          set -o pipefail
+          export PATH=/usr/bin:/bin
+          for compiler_env_name in ${!LD_@}; do unset "$compiler_env_name"; done
+          unset CC CXX CPP AS AR LD GCC_EXEC_PREFIX COMPILER_PATH LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH OBJC_INCLUDE_PATH CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
+          P="$RUNNER_TEMP/league-combination-python/bin/python3"
+          SOURCE="$RUNNER_TEMP/league-combination/build"
+          OUT="$RUNNER_TEMP/league-combination-ubuntu22"
+          mkdir "$OUT"
+          "$P" -I -B engines/experiments/tcec-next/profile_compiler.py \
+            --build "$SOURCE" --compiler /usr/bin/cc --ubuntu22-system --program-provenance \
+            --out "$OUT/compiler" 2>&1 | tee "$OUT/compiler.log"
+          "$P" -I -B engines/experiments/tcec-next/profile_rules.py \
+            --family "$FAMILY" --profile "$PROFILE" --source "$SOURCE/main.c" \
+            --baseline "$SOURCE/control/main.c" --proof "$SOURCE/source-proof.json" \
+            --build "$SOURCE" --cc /usr/bin/cc --out "$OUT/rules" 2>&1 | tee "$OUT/rules.log"
+      - name: Preserve comparison and independent compiler and rules evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: league-combination-${{ matrix.family }}-${{ matrix.profile }}-${{ matrix.variant }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/league-combination-comparison.json
+            ${{ runner.temp }}/league-combination-ubuntu22
           if-no-files-found: ignore
           retention-days: 7
 

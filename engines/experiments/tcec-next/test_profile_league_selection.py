@@ -20,7 +20,9 @@ class LeagueSelection(unittest.TestCase):
 
     def test_reviewed_families_profiles_and_exact_declarations(self):
         for variant, families in (("atomic-assignment", "ACEF"),
-                                  ("square-successor", "AC"), ("legal-maker", "CE")):
+                                  ("square-successor", "AC"), ("legal-maker", "CE"),
+                                  ("square-atomic", "AC"), ("square-ep", "C"),
+                                  ("ep-atomic", "CE"), ("square-ep-atomic", "C")):
             for family in families:
                 for profile in ("test-p16", "test-p192"):
                     with self.subTest(variant=variant, family=family, profile=profile):
@@ -29,7 +31,9 @@ class LeagueSelection(unittest.TestCase):
         self.assertIsNone(builder.league_selection(self.args("A", "test-p16", "control")))
 
     def test_other_families_profiles_and_combinations_are_rejected(self):
-        cases = (("square-successor", "EF"), ("legal-maker", "AF"), ("atomic-assignment", "B"))
+        cases = (("square-successor", "EF"), ("legal-maker", "AF"), ("atomic-assignment", "B"),
+                 ("square-atomic", "EF"), ("square-ep", "AEF"), ("ep-atomic", "AF"),
+                 ("square-ep-atomic", "AEF"))
         for variant, families in cases:
             for family in families:
                 with self.subTest(variant=variant, family=family), self.assertRaises(ValueError):

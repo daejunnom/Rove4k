@@ -72,12 +72,12 @@ LEAGUE_DEPENDENCY_DECLARATIONS = {
 # identical paths occurring anywhere else in the owner remain dependencies.
 LEAGUE_EXPERIMENT_DECLARATIONS = {
     "engines/experiments/tcec-next/profile_build.py": (
-        ("LEAGUE_EXPERIMENTS", "0f2451aff3e223bad232ac5440baff1d198339fc1f4b1cd1090543b172fb2572"),
+        ("LEAGUE_EXPERIMENTS", "960fcf7bdb7322badfd4d011b92b87a2d15c47012bd8a4a748797121d314bf41"),
         ("LEAGUE_SUPPORT", "1cd9a170bceceae29d2062120715a84d06834fbb67e311d4c69e2687ab628a3b")),
     "engines/experiments/tcec-next/profile_rules.py": (
-        ("LEAGUE_CANDIDATES", "5f74039c2235a9b9038114cfca3ca061a986d652f725f352fe81bfcb6e04937b"),),
+        ("LEAGUE_CANDIDATES", "ca3e65ce314eae6d8e76869bbf49aff748121777980286526c4707c2078667fc"),),
     "engines/experiments/tcec-next/profile_verify.py": (
-        ("LEAGUE_VARIANTS", "cf2c4780e155359dbdc6db8b97f1572f39c40146f6ebda9afe053e0cb8a3f10c"),
+        ("LEAGUE_VARIANTS", "49def85c55f44339b3aa8e6cec621003bf259ca20403d28c3e0fd7e5c2e1ac66"),
         ("LEAGUE_EP_SUPPORT", "91d711b05ed2030ac4c49210c5de89c26abe54072ec8be25468bd46204c4acdd")),
 }
 LEAGUE_CAMPAIGN_CI = "engines/experiments/strength/campaign_ci.py"

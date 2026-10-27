@@ -70,7 +70,33 @@ LEAGUE_CANDIDATES = {
             "projection": (COMPOUND, COMPOUND_PIN),
         },
     },
+    "square-atomic": {
+        "path": "engines/experiments/tcec-next/profile_league_compound.py",
+        "schema": "rove4k.league-combined-source.v1", "families": "AC",
+        "pin": {"bytes": 9520, "sha256": "4a64512d3d6da772a072232c1e303da5aef609b0e606e9508893606f7e413704"},
+        "supports": {},
+    },
 }
+LEAGUE_COMBINED_SCHEMA = "rove4k.league-combined-source.v1"
+LEAGUE_COMBINED_PATH = LEAGUE_CANDIDATES["square-atomic"]["path"]
+LEAGUE_COMBINED_PIN = LEAGUE_CANDIDATES["square-atomic"]["pin"]
+for _variant, _families, _components in (
+        ("square-atomic", "AC", ("square", "atomic")),
+        ("square-ep", "C", ("square", "ep")),
+        ("ep-atomic", "CE", ("ep", "atomic")),
+        ("square-ep-atomic", "C", ("square", "ep", "atomic"))):
+    _supports = {}
+    for _component in _components:
+        _single = LEAGUE_CANDIDATES[{"square": "square-successor", "atomic": "atomic-assignment", "ep": "legal-maker"}[_component]]
+        _supports[_component] = (_single["path"], _single["pin"])
+        if _component == "square":
+            _supports["scan"] = _single["supports"]["scan"]
+        elif _component == "ep":
+            _supports["ep_owner"] = _single["supports"]["ep"]
+            _supports["projection"] = _single["supports"]["projection"]
+    LEAGUE_CANDIDATES[_variant] = {"path": LEAGUE_COMBINED_PATH, "schema": LEAGUE_COMBINED_SCHEMA,
+                                   "families": _families, "pin": LEAGUE_COMBINED_PIN,
+                                   "components": _components, "supports": _supports}
 BEST_SPELLING = {"A": "clock-type", "B": "atomic-assignment", "C": "clock-type",
                  "E": "clock-type", "F": "atomic-assignment"}
 
@@ -363,7 +389,11 @@ def league_candidate_modules(build, variant):
     supports = {name: authenticated(path, identity, "rules_league_support_" + name)
                 for name, (path, identity) in candidate["supports"].items()}
     module = authenticated(candidate["path"], candidate["pin"], "rules_league_candidate")
-    require(module.SCHEMA == candidate["schema"] and module.VARIANT == variant,
+    is_combined = candidate["schema"] == LEAGUE_COMBINED_SCHEMA
+    require(module.SCHEMA == candidate["schema"] and
+            ((is_combined and variant in module.VARIANTS and module.FAMILIES[variant] == candidate["families"]
+              and module.VARIANTS[variant] == candidate["components"])
+             or (not is_combined and module.VARIANT == variant)),
             "league candidate schema or variant differs")
     return module, supports
 
@@ -574,7 +604,10 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
     if league_stage is not None:
         current, supports = league_candidate_modules(build, post_league["variant"])
         options = {}
-        if post_league["variant"] == "atomic-assignment":
+        if current.SCHEMA == LEAGUE_COMBINED_SCHEMA:
+            league_helpers = {name: module for name, module in supports.items() if name != "scan"}
+            options = {"variant": post_league["variant"], "helpers": league_helpers}
+        elif post_league["variant"] == "atomic-assignment":
             options["variant"] = post_league["variant"]
         elif post_league["variant"] == "legal-maker":
             options = {"ep": supports["ep"], "projection": supports["projection"]}
@@ -583,7 +616,8 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
         require(json.dumps(league_stage, sort_keys=True, allow_nan=False) ==
                 json.dumps(proof, sort_keys=True, allow_nan=False),
                 "full league candidate proof/protected gaps differ")
-        inverse_options = league_helpers or {}
+        inverse_options = ({"helpers": league_helpers} if current.SCHEMA == LEAGUE_COMBINED_SCHEMA
+                           else league_helpers or {})
         require(current.restore_source(projected, league_stage, **inverse_options) == expected,
                 "full league candidate inverse differs")
         inverses.append(("full league candidate", current, league_stage, expected, inverse_options)
@@ -680,7 +714,10 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
         league_binding = (proof.get("schema") == LEAGUE_CANDIDATES["legal-maker"]["schema"] and
                           keywords is league_helpers and set(keywords) == {"ep", "projection"} and
                           module is not None and module.SCHEMA == proof.get("schema"))
-        require(len(inverse) == 4 or compound_binding or ep_binding or league_binding,
+        combined_binding = (proof.get("schema") == LEAGUE_COMBINED_SCHEMA and
+                            set(keywords) == {"helpers"} and keywords["helpers"] is league_helpers and
+                            module is not None and module.SCHEMA == LEAGUE_COMBINED_SCHEMA)
+        require(len(inverse) == 4 or compound_binding or ep_binding or league_binding or combined_binding,
                 "unknown source inverse helper binding")
         if module is None:
             offset, before, after = proof["table_value_offset"], proof["before"].encode(), proof["after"].encode()

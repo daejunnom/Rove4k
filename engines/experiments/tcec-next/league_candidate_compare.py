@@ -52,12 +52,17 @@ def checked_pair(control, candidate, *, family, profile, variant):
         whole = (root / "build/x").read_bytes()
         require(audit.get("parts", {}).get("x") == pin(whole)
                 and audit.get("actual_whole_bytes") == len(whole), "actual whole file differs from audit")
-        require(read_json(root / "admission.json").get("strict_source_admission") is True,
-                "strict source admission missing")
+        admission = read_json(root / "admission.json")
+        require(admission.get("strict_source_admission") is True and
+                (admission.get("family"), admission.get("profile"), admission.get("variant")) ==
+                (family, profile, "control" if i == 0 else variant), "strict source admission identity differs")
         rules = read_json(root / "rules/probe/rules.json")
         commands = read_json(root / "rules/commands.json")
         rows = commands.get("commands", [])
-        require(rules.get("complete") is True and commands.get("complete") is True
+        source = (root / "build/main.c").read_bytes()
+        require(rules.get("complete") is True and rules.get("family") == family
+                and rules.get("profile", {}).get("id") == profile and rules.get("source") == pin(source)
+                and commands.get("complete") is True
                 and commands.get("host_cleanup") == {"unsettled_commands": 0, "errors": []}
                 and [row.get("kind") for row in rows] == ["rules-compile-plain", "rules-execute-plain",
                     "rules-compile-ubsan", "rules-execute-ubsan"]

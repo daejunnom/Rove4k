@@ -15,6 +15,7 @@ import hashlib
 import importlib.util
 import itertools
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -93,6 +94,113 @@ def assert_no_unreconciled_releases(rows):
     # A locally settled process alone cannot prove no authorization committed.
     if any(row.get("event") in ("campaign.release_unreconciled", "campaign.game_evidence_unresolved") for row in rows):
         raise ValueError("unreconciled release or game evidence requires durable owner recovery before resume")
+    # A controller may die after persisting a GO2 send but before persisting
+    # its receipt (and hence before it can write an explicit quarantine row).
+    # Do not infer reception from process exit or from the socket write alone.
+    pending, seen = {}, set()
+    for row in rows:
+        event, data = row.get("event"), row.get("data", {})
+        if event == "game.released" and (not isinstance(data, dict) or
+                type(data.get("gate_receipt_required", False)) is not bool):
+            raise ValueError("invalid GO2 release requires durable owner recovery before resume")
+        if event == "game.released" and data.get("gate_receipt_required") is True:
+            binding = go2_local_binding(data)
+            if any(row.get(name) != binding[name] for name in ("pair", "game", "attempt")):
+                raise ValueError("GO2 release game identity differs")
+            key = (row.get("game"), row.get("attempt"), binding["launch_id"])
+            if key in seen:
+                raise ValueError("duplicate GO2 release requires durable owner recovery before resume")
+            seen.add(key)
+            pending[key] = binding
+        elif event == "game.gate_received":
+            if not isinstance(data, dict) or not isinstance(data.get("observation"), dict):
+                raise ValueError("invalid GO2 receipt requires durable owner recovery before resume")
+            binding = go2_local_binding(data["observation"], received=True)
+            key = (row.get("game"), row.get("attempt"), binding["launch_id"])
+            if (any(row.get(name) != binding[name] for name in ("pair", "game", "attempt")) or
+                    key not in pending or pending[key] != binding or
+                    data.get("launch_id") != binding["launch_id"] or
+                    data.get("instance_id") != binding["instance_id"] or
+                    data.get("boot_id") != binding["boot_id"]):
+                raise ValueError("unmatched GO2 receipt requires durable owner recovery before resume")
+            del pending[key]
+    if pending:
+        raise ValueError("unconfirmed GO2 receipt requires durable owner recovery before resume")
+
+
+def go2_local_binding(observation, *, received=False):
+    """Validate Wave's local match record; this is not remote authentication.
+
+    The Wave parser compares the runner's JSON against the expected receipt,
+    but does not retain its raw bytes. This binds that local match to the
+    original job, process, fence and host boot without claiming UCI GO.
+    """
+    if not isinstance(observation, dict):
+        raise ValueError("GO2 observation is not an object")
+    launch = observation.get("identity")
+    ready = observation.get("ready")
+    job = ready.get("job") if isinstance(ready, dict) else None
+    fence = observation.get("gate_fence")
+    receipt = observation.get("gate_receipt_expected")
+    if (not isinstance(launch, str) or not launch or not isinstance(job, dict) or
+            not isinstance(fence, dict) or not isinstance(receipt, dict) or
+            set(ready) != {"event", "job", "white_clock_ms", "black_clock_ms"} or
+            ready.get("event") != "READY" or
+            type(ready.get("white_clock_ms")) is not int or ready["white_clock_ms"] != 1803000 or
+            type(ready.get("black_clock_ms")) is not int or ready["black_clock_ms"] != 1803000 or
+            any(not isinstance(job.get(name), str) or not job[name] for name in ("pair", "game")) or
+            type(job.get("attempt")) is not int or job["attempt"] < 0 or
+            set(fence) != {"game_id", "fence_id", "job_sha256", "not_before_monotonic", "expires_monotonic"} or
+            set(receipt) != {"event", "attempt_id", "fence_id", "job_sha256", "nonce"} or
+            receipt.get("event") != "GO2_ACCEPTED" or
+            not isinstance(receipt.get("attempt_id"), str) or not receipt["attempt_id"] or
+            receipt["attempt_id"] != job.get("attempt_id") or
+            not isinstance(receipt.get("fence_id"), str) or not receipt["fence_id"] or
+            receipt["fence_id"] != fence.get("fence_id") or fence.get("game_id") != launch or
+            not isinstance(receipt.get("nonce"), str) or not SHA.fullmatch(receipt["nonce"]) or
+            not isinstance(receipt.get("job_sha256"), str) or not SHA.fullmatch(receipt["job_sha256"]) or
+            receipt["job_sha256"] != fence.get("job_sha256") or
+            receipt["job_sha256"] != observation.get("gate_fence_binding_sha256") or
+            observation.get("gate_receipt_required") is not True or
+            observation.get("gate_transport") != "sent" or observation.get("gate_authorized") is not True or
+            observation.get("gate_authorization_unknown") is True or
+            observation.get("gate_transport_observation_error") or
+            observation.get("gate_release_event_error") or
+            observation.get("gate_fence_send_time_uncertain") or
+            type(observation.get("pid")) is not int or observation["pid"] <= 0 or
+            type(observation.get("start_ticks")) is not int or observation["start_ticks"] < 0 or
+            not isinstance(observation.get("instance_id"), str) or not observation["instance_id"] or
+            not isinstance(observation.get("boot_id"), str) or not observation["boot_id"]):
+        raise ValueError("GO2 local receipt binding differs")
+    encoded = json.dumps({"identity": launch, "start_job": job}, sort_keys=True,
+                         allow_nan=False, separators=(",", ":")).encode("utf-8")
+    if hashlib.sha256(encoded).hexdigest() != receipt["job_sha256"]:
+        raise ValueError("GO2 job binding differs")
+    times = [fence.get("not_before_monotonic"), fence.get("expires_monotonic"),
+             observation.get("gate_send_started_monotonic"), observation.get("released_monotonic"),
+             observation.get("gate_receipt_deadline")]
+    if (any(type(value) not in (int, float) or not math.isfinite(value) for value in times) or
+            not 0 <= times[0] < times[1] or times[1] - times[0] > 60 or
+            not times[0] <= times[2] <= times[3] < times[1] or
+            not times[2] < times[4] <= times[1]):
+        raise ValueError("GO2 local fence or send interval differs")
+    if observation.get("gate_receipt_event_error"):
+        raise ValueError("GO2 local receipt record failed")
+    if not received and observation.get("gate_receipt") != "pending":
+        raise ValueError("GO2 release did not precede its local receipt")
+    if received and observation.get("gate_receipt") != "matched":
+        raise ValueError("GO2 local receipt is not confirmed")
+    if received:
+        received_at = observation.get("gate_receipt_monotonic")
+        if (type(received_at) not in (int, float) or not math.isfinite(received_at) or
+                not times[3] <= received_at < times[4]):
+            raise ValueError("GO2 local receipt is outside its window")
+    return {"launch_id": launch, "instance_id": observation["instance_id"],
+            "boot_id": observation["boot_id"], "pid": observation["pid"],
+            "start_ticks": observation["start_ticks"], "pair": job["pair"],
+            "game": job["game"], "attempt": job["attempt"], "ready": ready,
+            "fence": fence, "receipt": receipt, "send_started": times[2],
+            "sent_at": times[3], "receipt_deadline": times[4]}
 
 
 def release_unresolved(observation):
@@ -101,6 +209,10 @@ def release_unresolved(observation):
                 observation.get("gate_authorization_unknown") is True or
                 observation.get("gate_transport_observation_error") or
                 observation.get("gate_release_event_error") or
+                observation.get("gate_receipt_event_error") or
+                (observation.get("gate_receipt_required", False) is not False and
+                 (observation.get("gate_receipt_required") is not True or
+                  observation.get("gate_receipt") != "matched")) or
                 observation.get("gate_authorized") is True and observation.get("gate_transport") != "sent")
 
 
@@ -940,7 +1052,38 @@ class StageController:
                     (spec["identity"]["white"], spec["identity"]["black"])], slot.cpus,
                     expected_start_ticks=observation["start_ticks"])}
                 self.ready[job.identity] = observation
+            elif observation.get("gate_receipt_required") is True:
+                observation = {**observation, "instance_id": self.instance_id,
+                               "boot_id": Path("/proc/sys/kernel/random/boot_id").read_text().strip()}
+                binding = go2_local_binding(observation)
+                if (binding["launch_id"] != job.identity or observation["ready"]["job"] != job.start_job or
+                        any(binding[name] != spec[name] for name in ("pair", "game", "attempt"))):
+                    raise ValueError("GO2 release changed the runner job")
             self.append("game." + event, observation, **keys)
+        elif event == "gate_received":
+            # This records Wave's local receipt match, not authentication of
+            # the coordinator or evidence of the engine's UCI go command.
+            observation = {**observation, "instance_id": self.instance_id,
+                           "boot_id": Path("/proc/sys/kernel/random/boot_id").read_text().strip()}
+            binding = go2_local_binding(observation, received=True)
+            ready = self.ready.get(job.identity)
+            if (binding["launch_id"] != job.identity or observation["ready"]["job"] != job.start_job or
+                    any(binding[name] != spec[name] for name in ("pair", "game", "attempt")) or
+                    not isinstance(ready, dict) or
+                    any(ready.get(name) != observation.get(name) for name in ("pid", "start_ticks"))):
+                raise ValueError("GO2 receipt changed its READY process or job")
+            prior = [row for row in self.journal.rows if row.get("event") == "game.released"
+                     and row.get("game") == spec["game"] and row.get("attempt") == spec["attempt"]
+                     and row.get("data", {}).get("identity") == job.identity]
+            received = [row for row in self.journal.rows if row.get("event") == "game.gate_received"
+                        and row.get("game") == spec["game"] and row.get("attempt") == spec["attempt"]
+                        and row.get("data", {}).get("launch_id") == job.identity]
+            if len(prior) != 1 or received or go2_local_binding(prior[0]["data"]) != binding:
+                raise ValueError("GO2 receipt does not match one durable release")
+            self.append("game.gate_received", {"launch_id": job.identity,
+                        "instance_id": binding["instance_id"], "boot_id": binding["boot_id"],
+                        "observation": observation,
+                        "scope": "local runner receipt match; not coordinator authentication or engine UCI go"}, **keys)
         elif event == "tick":
             self.observe_raw(job)
         elif event == "cancelled":

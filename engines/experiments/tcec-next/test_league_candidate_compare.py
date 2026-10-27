@@ -46,8 +46,10 @@ class CompareContract(unittest.TestCase):
             put(root / "artifact-audit.json", {"family": "A", "profile": "test-p16",
                 "variant": "control" if not index else "square-successor", "parts": {"x": module.pin(whole)},
                 "actual_whole_bytes": len(whole)})
-            put(root / "admission.json", {"strict_source_admission": True})
-            put(root / "rules/probe/rules.json", {"complete": True})
+            put(root / "admission.json", {"strict_source_admission": True, "family": "A", "profile": "test-p16",
+                                         "variant": "control" if not index else "square-successor"})
+            put(root / "rules/probe/rules.json", {"complete": True, "family": "A", "profile": {"id": "test-p16"},
+                                                   "source": module.pin(parent if index == 0 else candidate)})
             put(root / "rules/commands.json", {"complete": True, "commands": rows,
                 "host_cleanup": {"unsettled_commands": 0, "errors": []}})
 
@@ -57,16 +59,28 @@ class CompareContract(unittest.TestCase):
     def test_actual_pair_and_source_identity(self):
         self.assertEqual(self.check()[2], [b"exact parent source", b"exact candidate source"])
         (self.roots[1] / "build/main.c").write_bytes(b"tampered")
-        with self.assertRaisesRegex(ValueError, "stage"):
+        with self.assertRaisesRegex(ValueError, "rules"):
             self.check()
 
     def test_partial_rules_and_tool_mismatch_are_rejected(self):
         put(self.roots[1] / "rules/probe/rules.json", {"complete": False})
         with self.assertRaisesRegex(ValueError, "rules"):
             self.check()
-        put(self.roots[1] / "rules/probe/rules.json", {"complete": True})
+        put(self.roots[1] / "rules/probe/rules.json", {"complete": True, "family": "A", "profile": {"id": "test-p16"},
+            "source": module.pin(b"exact candidate source")})
         put(self.roots[1] / "linker-sha256.txt", b"different linker")
         with self.assertRaisesRegex(ValueError, "identity"):
+            self.check()
+
+    def test_admission_and_rules_are_bound_to_actual_identity(self):
+        target = self.roots[1] / "admission.json"
+        put(target, {"strict_source_admission": True, "family": "C", "profile": "test-p16", "variant": "square-successor"})
+        with self.assertRaisesRegex(ValueError, "admission"):
+            self.check()
+        put(target, {"strict_source_admission": True, "family": "A", "profile": "test-p16", "variant": "square-successor"})
+        target = self.roots[1] / "rules/probe/rules.json"
+        put(target, {"complete": True, "family": "A", "profile": {"id": "test-p192"}, "source": module.pin(b"exact candidate source")})
+        with self.assertRaisesRegex(ValueError, "rules"):
             self.check()
 
 

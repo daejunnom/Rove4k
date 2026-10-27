@@ -22,6 +22,7 @@ import ledger
 import registry
 import run
 import topology
+import wave
 
 
 def sha(data):
@@ -868,11 +869,16 @@ class PlanAndControllerTests(unittest.TestCase):
 
         for unresolved_transport in ({"gate_transport": "uncertain"},
                                      {"gate_transport": "sent", "gate_transport_observation_error": "lost"},
+                                     {"gate_transport": "sent", "gate_authorized": True,
+                                      "gate_receipt_required": True, "gate_receipt": "unresolved"},
+                                     {"gate_transport": "sent", "gate_authorized": True,
+                                      "gate_receipt_required": True, "gate_receipt": "matched",
+                                      "gate_receipt_event_error": "lost"},
                                      {"gate_transport": "not_attempted", "gate_authorized": True}):
             controller.append.reset_mock()
             controller.uncertain_releases = {}
             observed = {**settled, **unresolved_transport, "status": "completed", "gate_cancelled": False}
-            controller.event("completed", job, observed)
+            controller.event("delivery_uncertain", job, observed)
             self.assertEqual([call.args[0] for call in controller.append.call_args_list],
                              ["game.process_completed", "campaign.release_unreconciled"])
             self.assertIn("job", controller.uncertain_releases)
@@ -909,11 +915,159 @@ class PlanAndControllerTests(unittest.TestCase):
         for row in ({"gate_transport": "uncertain"}, {"gate_authorization_unknown": True},
                     {"gate_transport": "sent", "gate_transport_observation_error": "lost"},
                     {"gate_transport": "sent", "gate_release_event_error": "lost"},
+                    {"gate_transport": "sent", "gate_receipt_required": True},
+                    {"gate_transport": "sent", "gate_receipt_required": True, "gate_receipt": "pending"},
+                    {"gate_transport": "sent", "gate_receipt_required": True, "gate_receipt": "unresolved"},
+                    {"gate_transport": "sent", "gate_receipt_required": True, "gate_receipt": "matched",
+                     "gate_receipt_event_error": "journal failed"},
+                    {"gate_transport": "sent", "gate_receipt_required": "invalid", "gate_receipt": "matched"},
                     {"gate_transport": "not_attempted", "gate_authorized": True}):
             with self.subTest(row=row):
                 self.assertTrue(run.release_unresolved(row))
         self.assertFalse(run.release_unresolved({"gate_transport": "sent", "gate_authorized": True}))
+        self.assertFalse(run.release_unresolved({"gate_transport": "sent", "gate_authorized": True,
+                                                 "gate_receipt_required": True, "gate_receipt": "matched"}))
         self.assertFalse(run.release_unresolved({"gate_transport": "not_attempted", "gate_authorized": False}))
+
+    def test_go2_receipt_is_bound_and_replayed_before_resume(self):
+        start_job = {"attempt_id": "attempt-00000001", "pair": "pair", "game": "game", "attempt": 0}
+        job = type("Job", (), {"identity": "launch-1", "start_job": start_job})()
+        encoded = json.dumps({"identity": job.identity, "start_job": start_job},
+                             sort_keys=True, allow_nan=False, separators=(",", ":")).encode()
+        job_sha = hashlib.sha256(encoded).hexdigest()
+        expected = {"event": "GO2_ACCEPTED", "attempt_id": start_job["attempt_id"],
+                    "fence_id": "fence-1", "job_sha256": job_sha, "nonce": "a" * 64}
+        observation = {"identity": job.identity, "pid": 123, "start_ticks": 7,
+                       "ready": {"event": "READY", "job": start_job,
+                                 "white_clock_ms": 1803000, "black_clock_ms": 1803000},
+                       "gate_authorized": True, "gate_transport": "sent",
+                       "gate_receipt_required": True, "gate_receipt": "pending",
+                       "gate_send_started_monotonic": 10.0, "released_monotonic": 10.1,
+                       "gate_receipt_deadline": 15.0,
+                       "gate_receipt_expected": expected, "gate_fence_binding_sha256": job_sha,
+                       "gate_fence": {"game_id": job.identity, "fence_id": "fence-1", "job_sha256": job_sha,
+                                      "not_before_monotonic": 9.0, "expires_monotonic": 20.0}}
+        identity = {"leg": 0, "white": "A", "black": "B", "opening_id": "open",
+                    "profile": "test-p16", "artifact_sha256": {"A": "a" * 64, "B": "b" * 64},
+                    "opening_sha256": "c" * 64, "bank_id": "d" * 64}
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder).resolve() / "events.jsonl"
+            with ledger.Journal(path, "fixture") as journal:
+                controller = object.__new__(run.StageController)
+                controller.plan = {"campaign": "fixture"}
+                controller.instance_id = "i-fixture"
+                controller.journal = journal
+                controller.results = ledger.CampaignResults("fixture")
+                controller.budget = budget.CampaignBudget("fixture")
+                controller.job_specs = {job.identity: {"pair": "pair", "game": "game", "attempt": 0}}
+                controller.ready = {job.identity: {"pid": 123, "start_ticks": 7}}
+                controller.acknowledge_results = Mock()
+                controller.replicate = Mock()
+                controller.append("game.started", identity, pair="pair", game="game", attempt=0)
+                with patch.object(run.Path, "read_text", return_value="boot-1"):
+                    controller.event("released", job, observation)
+                    with self.assertRaisesRegex(ValueError, "unconfirmed GO2 receipt"):
+                        run.assert_no_unreconciled_releases(journal.rows)
+                    controller.event("gate_received", job, {**observation, "gate_receipt": "matched",
+                                                            "gate_receipt_monotonic": 10.2})
+                run.assert_no_unreconciled_releases(journal.rows)
+                self.assertIn(("game", 0), ledger.CampaignResults.replay("fixture", journal.rows).games)
+                receipt = journal.rows[-1]
+                self.assertEqual(receipt["event"], "game.gate_received")
+                self.assertEqual((receipt["data"]["launch_id"], receipt["data"]["instance_id"],
+                                  receipt["data"]["boot_id"]), ("launch-1", "i-fixture", "boot-1"))
+                self.assertIn("not coordinator authentication", receipt["data"]["scope"])
+
+                for change in (lambda row: row.update(attempt=1),
+                               lambda row: row.update(pair="other"),
+                               lambda row: row["data"].update(boot_id="other"),
+                               lambda row: row["data"]["observation"]["gate_receipt_expected"].update(nonce="b" * 64),
+                               lambda row: row["data"]["observation"]["ready"].update(white_clock_ms=1800000),
+                               lambda row: row["data"]["observation"]["gate_fence"].update(expires_monotonic=21.0),
+                               lambda row: row["data"]["observation"].update(gate_receipt_monotonic=15.0),
+                               lambda row: row["data"]["observation"].update(gate_receipt="unresolved")):
+                    mutated = json.loads(json.dumps(journal.rows))
+                    change(mutated[-1])
+                    with self.subTest(change=change), self.assertRaises(ValueError):
+                        run.assert_no_unreconciled_releases(mutated)
+                with self.assertRaisesRegex(ValueError, "unmatched GO2 receipt"):
+                    run.assert_no_unreconciled_releases([receipt])
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux process and socket ownership")
+    def test_wave_go2_receipt_journal_with_real_toy_runner(self):
+        # This runner exercises the actual local Wave callback path, not an
+        # engine search, authenticated coordinator or score qualification.
+        toy = r'''import json, os, socket, sys, time
+s = socket.socket(fileno=int(os.environ['ROVE_START_FD']))
+j = json.loads(os.environ['ROVE_START_JOB'])
+s.sendall((json.dumps({'event':'READY','job':j,'white_clock_ms':1803000,'black_clock_ms':1803000})+'\n').encode())
+data = b''
+while b'\n' not in data:
+    part = s.recv(1024)
+    if not part: sys.exit(3)
+    data += part
+kind, attempt, fence, digest, nonce = data.decode().strip().split(' ')
+assert kind == 'GO2' and attempt == j['attempt_id']
+if sys.argv[1] == 'wrong': nonce = '0' * 64
+s.sendall((json.dumps({'event':'GO2_ACCEPTED','attempt_id':attempt,'fence_id':fence,'job_sha256':digest,'nonce':nonce})+'\n').encode())
+time.sleep(.1)
+'''
+        for mode in ("ok", "wrong"):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory(prefix="rove-go2-ledger-") as folder:
+                root = Path(folder).resolve()
+                script = root / "toy.py"
+                script.write_text(toy)
+                start_job = {"pair": "pair", "game": "game", "attempt": 0, "attempt_id": "attempt-00000001"}
+                job = wave.WaveJob("launch-1", (sys.executable, str(script), mode), {}, start_job, root / "out")
+                identity = {"leg": 0, "white": "A", "black": "B", "opening_id": "open", "slot": "slot-0",
+                            "profile": "test-p4", "artifact_sha256": {"A": "a" * 64, "B": "b" * 64},
+                            "opening_sha256": "c" * 64, "bank_id": "d" * 64}
+
+                class Mailbox:
+                    def request(self, job, observation):
+                        binding = json.dumps({"identity": job.identity, "start_job": job.start_job},
+                                             sort_keys=True, allow_nan=False, separators=(",", ":")).encode()
+                        now = time.monotonic()
+                        self.value = wave.AsyncGateDecision(job.identity, True, wave.ReleaseFence(
+                            job.identity, "fence-1", hashlib.sha256(binding).hexdigest(), now, now + 3))
+                    def poll(self):
+                        value, self.value = self.value, None
+                        return [value] if value else []
+
+                with ledger.Journal(root / "events.jsonl", "fixture") as journal:
+                    controller = object.__new__(run.StageController)
+                    controller.plan = {"campaign": "fixture", "profile": "test-p4"}
+                    controller.out, controller.instance_id, controller.journal = root, "i-fixture", journal
+                    controller.results = ledger.CampaignResults("fixture")
+                    controller.budget = budget.CampaignBudget("fixture")
+                    controller.job_specs = {job.identity: {"pair": "pair", "game": "game", "attempt": 0,
+                                                           "identity": identity}}
+                    controller.slots = {"slot-0": type("Slot", (), {"cpus": [0]})()}
+                    controller.players = {name: type("Player", (), {"native_sha256": "a" * 64})()
+                                          for name in ("A", "B")}
+                    controller.ready, controller.unsettled, controller.uncertain_releases = {}, {}, {}
+                    controller.observe_raw = Mock()
+                    controller.acknowledge_results = Mock()
+                    controller.replicate = Mock()
+                    controller.queue_result = Mock()
+                    with patch.object(run.placement, "observe_game_engines", return_value={"engines": []}):
+                        result = wave.WaveExecutor().run_wave([job], 5, async_authorizer=Mailbox(),
+                            observe_transport=lambda job, obs: None, on_event=controller.event)[0]
+                    events = [row["event"] for row in journal.rows]
+                    self.assertEqual(result["returncode"], 0)
+                    self.assertFalse(result["cleanup_forced"])
+                    self.assertIn("game.released", events)
+                    if mode == "ok":
+                        self.assertEqual(result["gate_receipt"], "matched")
+                        self.assertIn("game.gate_received", events)
+                        self.assertLess(events.index("game.released"), events.index("game.gate_received"))
+                        run.assert_no_unreconciled_releases(journal.rows)
+                    else:
+                        self.assertEqual(result["gate_receipt"], "unresolved")
+                        self.assertNotIn("game.gate_received", events)
+                        self.assertIn("campaign.release_unreconciled", events)
+                        with self.assertRaisesRegex(ValueError, "durable owner recovery"):
+                            run.assert_no_unreconciled_releases(journal.rows)
 
     def test_unavailable_ponder_setting_does_not_block_local_league_score(self):
         data = {"white": "A", "black": "B", "clock_tracking_complete": True, "ponder_uci": {

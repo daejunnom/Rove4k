@@ -46,6 +46,16 @@ LEAGUE_EXPERIMENTS = {
     "atomic-assignment": {"path": "engines/experiments/tcec-next/profile_acef_league_atomic.py", "pin": {"bytes": 4906, "sha256": "d551768ea423655cc5566430f5e185b8377321d03f9f3429fd8f18112eaaaddd"}, "families": "ACEF"},
     "square-successor": {"path": "engines/experiments/tcec-next/profile_league_square.py", "pin": {"bytes": 3790, "sha256": "8b832928e53bde3c007ed7e1bf8a35290bd8785f4233ea7246d9cb1392eed1b8"}, "families": "AC"},
     "legal-maker": {"path": "engines/experiments/tcec-next/league_ep.py", "pin": {"bytes": 4456, "sha256": "55d76f2740732672fd6abf9cc2650143525732eadf10a9a302cf652accfafc05"}, "families": "CE"},
+    "square-atomic": {"path": "engines/experiments/tcec-next/profile_league_compound.py", "pin": {"bytes": 9520, "sha256": "4a64512d3d6da772a072232c1e303da5aef609b0e606e9508893606f7e413704"}, "families": "AC"},
+    "square-ep": {"path": "engines/experiments/tcec-next/profile_league_compound.py", "pin": {"bytes": 9520, "sha256": "4a64512d3d6da772a072232c1e303da5aef609b0e606e9508893606f7e413704"}, "families": "C"},
+    "ep-atomic": {"path": "engines/experiments/tcec-next/profile_league_compound.py", "pin": {"bytes": 9520, "sha256": "4a64512d3d6da772a072232c1e303da5aef609b0e606e9508893606f7e413704"}, "families": "CE"},
+    "square-ep-atomic": {"path": "engines/experiments/tcec-next/profile_league_compound.py", "pin": {"bytes": 9520, "sha256": "4a64512d3d6da772a072232c1e303da5aef609b0e606e9508893606f7e413704"}, "families": "C"},
+}
+LEAGUE_COMBINATIONS = {
+    "square-atomic": ("square-successor", "atomic-assignment"),
+    "square-ep": ("square-successor", "legal-maker"),
+    "ep-atomic": ("legal-maker", "atomic-assignment"),
+    "square-ep-atomic": ("square-successor", "legal-maker", "atomic-assignment"),
 }
 LEAGUE_SUPPORT = {
     "square-successor": {"engines/experiments/tcec-next/profile_scan.py": {"bytes": 10623, "sha256": "98eb3139bcbd745f08fbab2d8a738b428d4e668de2604ac3fc715de8c58b879f"}},
@@ -365,6 +375,9 @@ def main():
         if args.league_variant != "control":
             names.add(LEAGUE_EXPERIMENTS[args.league_variant]["path"])
             names.update(LEAGUE_SUPPORT.get(args.league_variant, {}))
+            for component in LEAGUE_COMBINATIONS.get(args.league_variant, ()):
+                names.add(LEAGUE_EXPERIMENTS[component]["path"])
+                names.update(LEAGUE_SUPPORT.get(component, {}))
         if args.b_variant != "control":
             names.add(B_PROFILE)
         if args.phase_variant != "control":
@@ -438,16 +451,29 @@ def main():
         league_helper, league_helpers = None, {}
         if args.league_variant != "control":
             named = LEAGUE_EXPERIMENTS[args.league_variant]
-            old.require(inputs[named["path"]] == named["pin"], "league helper identity differs")
-            for relative, expected in LEAGUE_SUPPORT.get(args.league_variant, {}).items():
-                old.require(inputs[relative] == expected, "league helper support identity differs")
+            components = LEAGUE_COMBINATIONS.get(args.league_variant, ())
+            for variant in (args.league_variant, *components):
+                item = LEAGUE_EXPERIMENTS[variant]
+                old.require(inputs[item["path"]] == item["pin"], "league helper identity differs")
+                for relative, expected in LEAGUE_SUPPORT.get(variant, {}).items():
+                    old.require(inputs[relative] == expected, "league helper support identity differs")
             league_helper = load("profile_frozen_league_candidate", own / named["path"])
-            if args.league_variant == "legal-maker":
+            ep_support = {}
+            if args.league_variant == "legal-maker" or "legal-maker" in components:
                 ep_path, projection_path = LEAGUE_SUPPORT["legal-maker"]
                 old.require(Path(ep_path).name == "compact_ep.py" and projection_path == COMPOUND,
                             "league EP support roles differ")
-                league_helpers = {"ep": load("league_candidate_ep", own / ep_path),
-                                  "projection": load("league_candidate_projection", own / projection_path)}
+                ep_support = {"ep": load("league_candidate_ep", own / ep_path),
+                              "projection": load("league_candidate_projection", own / projection_path)}
+            if components:
+                roles = {"square-successor": "square", "atomic-assignment": "atomic", "legal-maker": "ep"}
+                league_helpers = {roles[variant]: load("profile_frozen_league_" + roles[variant],
+                                                       own / LEAGUE_EXPERIMENTS[variant]["path"])
+                                  for variant in components}
+                if ep_support:
+                    league_helpers.update(ep_owner=ep_support["ep"], projection=ep_support["projection"])
+            else:
+                league_helpers = ep_support
             report["post_league"] = post_league
         if post_scan is not None:
             report["post_scan"] = post_scan
@@ -526,11 +552,18 @@ def main():
                     optimizer_executed_by_builder=False)
             if league_helper is not None:
                 before_league = source
-                options = dict(family=args.entry, profile_id=profile.id, **league_helpers)
-                if args.league_variant == "atomic-assignment":
-                    options["variant"] = args.league_variant
+                combined = args.league_variant in LEAGUE_COMBINATIONS
+                options = dict(family=args.entry, profile_id=profile.id)
+                if combined:
+                    options.update(variant=args.league_variant, helpers=league_helpers)
+                    inverse_options = {"helpers": league_helpers}
+                else:
+                    options.update(league_helpers)
+                    if args.league_variant == "atomic-assignment":
+                        options["variant"] = args.league_variant
+                    inverse_options = league_helpers
                 source, league_proof = league_helper.transform_source(source, **options)
-                old.require(league_helper.restore_source(source, league_proof, **league_helpers) == before_league,
+                old.require(league_helper.restore_source(source, league_proof, **inverse_options) == before_league,
                             "isolated league experiment inverse differs")
                 proofs.append(league_proof)
             if post_spelling is not None:

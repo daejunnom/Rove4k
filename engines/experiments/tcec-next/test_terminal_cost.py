@@ -23,6 +23,21 @@ def receipt(kind):
 
 
 class TerminalCostBoundaries(unittest.TestCase):
+    def test_ep_and_castle_capture_current_rules_owner_and_reject_changes(self):
+        real_read_source = cost.read_source
+        for experiment in ("ep", "castle"):
+            with self.subTest(experiment=experiment):
+                captured = cost.capture(experiment=experiment)
+                self.assertEqual(cost.pin(captured[cost.RULES]), cost.expected(cost.EP_FIXED[cost.RULES]))
+
+                def changed_rules(path):
+                    data = real_read_source(path)
+                    return data + b"\n# changed rules owner\n" if path == cost.ROOT / cost.RULES else data
+
+                with patch.object(cost, "read_source", side_effect=changed_rules):
+                    with self.assertRaisesRegex(ValueError, "frozen terminal/projection owner differs: .*profile_rules.py"):
+                        cost.capture(experiment=experiment)
+
     def test_inactive_measure_and_cli_never_capture_or_create_output(self):
         with patch.object(cost, "capture", side_effect=AssertionError("source capture forbidden")) as capture:
             with self.assertRaises(ValueError):

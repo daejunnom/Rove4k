@@ -791,6 +791,15 @@ class ProfileRuntimeAdmission(unittest.TestCase):
             extras = ({VERIFY.SCAN: VERIFY.SCAN_PIN} if variant == "square-successor" else
                       {VERIFY.LEAGUE_EP_SUPPORT: VERIFY.LEAGUE_EP_SUPPORT_PIN,
                        VERIFY.COMPOUND: VERIFY.COMPOUND_PIN} if variant == "legal-maker" else {})
+            if variant in VERIFY.LEAGUE_COMBINATIONS:
+                for role, component in VERIFY.LEAGUE_COMBINATIONS[variant]:
+                    component_path, component_pin, _, _ = VERIFY.LEAGUE_VARIANTS[component]
+                    extras[component_path] = component_pin
+                    if role == "square":
+                        extras[VERIFY.SCAN] = VERIFY.SCAN_PIN
+                    if role == "ep":
+                        extras.update({VERIFY.LEAGUE_EP_SUPPORT: VERIFY.LEAGUE_EP_SUPPORT_PIN,
+                                       VERIFY.COMPOUND: VERIFY.COMPOUND_PIN})
             identities = {path: identity, **extras}
             manifest = {"inputs": deepcopy(identities), "source_closure": {"inputs": [
                 {"path": name, "role": "tool", **pin} for name, pin in identities.items()]}}
@@ -803,13 +812,25 @@ class ProfileRuntimeAdmission(unittest.TestCase):
                 declaration = {"path": path, "variant": variant}
                 helper, binding = VERIFY.league_candidate_module(manifest, build, set(identities), declaration)
                 self.assertEqual(helper.SCHEMA, schema)
-                self.assertEqual(set(binding), {"ep", "projection"} if variant == "legal-maker" else set())
+                expected = ({"ep", "projection"} if variant == "legal-maker" else
+                            {"helpers"} if variant in VERIFY.LEAGUE_COMBINATIONS else set())
+                self.assertEqual(set(binding), expected)
+                if variant in VERIFY.LEAGUE_COMBINATIONS:
+                    component_roles = {role for role, _ in VERIFY.LEAGUE_COMBINATIONS[variant]}
+                    self.assertEqual(set(binding["helpers"]), component_roles |
+                                     ({"ep_owner", "projection"} if "ep" in component_roles else set()))
                 for name in identities:
                     altered = deepcopy(manifest)
                     row = next(row for row in altered["source_closure"]["inputs"] if row["path"] == name)
                     row["role"] = "engine"
                     with self.subTest(variant=variant, bad=name), self.assertRaises(ValueError):
                         VERIFY.league_candidate_module(altered, build, set(identities), declaration)
+
+    def test_combined_inverse_rejects_unhashable_variant(self):
+        module = types.SimpleNamespace(SCHEMA="rove4k.league-combined-source.v1")
+        proof = {"schema": module.SCHEMA, "variant": []}
+        with self.assertRaises(ValueError):
+            VERIFY.inverse_source_stages(b"candidate", [(module, proof, b"source", {"helpers": {}})])
 
     def test_final_spelling_is_undone_before_model_offsets_and_prior_stages(self):
         calls = []

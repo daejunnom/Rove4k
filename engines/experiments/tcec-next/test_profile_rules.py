@@ -47,7 +47,9 @@ class GeneratedRulesBoundaries(unittest.TestCase):
         for profile_id in ("test-p16", "test-p192"):
             profile = RULES.resolve_resource_profile(PRODUCTION, profile_id)
             for variant, family in (("atomic-assignment", "A"), ("square-successor", "A"),
-                                    ("legal-maker", "C")):
+                                    ("legal-maker", "C"), ("square-atomic", "A"),
+                                    ("square-ep", "C"), ("ep-atomic", "C"),
+                                    ("square-ep-atomic", "C")):
                 with self.subTest(profile=profile_id, variant=variant):
                     descriptor = RULES.LEAGUE_CANDIDATES[variant]
                     proof = {"schema": descriptor["schema"], "variant": variant, "family": family,
@@ -94,7 +96,12 @@ class GeneratedRulesBoundaries(unittest.TestCase):
                     target.parent.mkdir(parents=True, exist_ok=True)
                     target.write_bytes(RULES.normalized(RULES.ROOT / path))
                 loaded, supports = RULES.league_candidate_modules(build, variant)
-                self.assertEqual((loaded.SCHEMA, loaded.VARIANT), (candidate["schema"], variant))
+                self.assertEqual(loaded.SCHEMA, candidate["schema"])
+                if candidate["schema"] == RULES.LEAGUE_COMBINED_SCHEMA:
+                    self.assertIn(variant, loaded.VARIANTS)
+                    self.assertEqual(loaded.FAMILIES[variant], candidate["families"])
+                else:
+                    self.assertEqual(loaded.VARIANT, variant)
                 self.assertEqual(set(supports), set(candidate["supports"]))
                 path = next(iter(inputs))
                 target = build / "inputs" / path
@@ -148,6 +155,18 @@ class GeneratedRulesBoundaries(unittest.TestCase):
             self.assertEqual(seen, ["model-forward", "candidate-forward", "candidate-inverse", "candidate-inverse", "resource"])
             with self.assertRaises(ValueError):
                 RULES.admit_source(candidate_body, baseline, [resource, candidate_proof, model_proof], "E", profile, build=Path("/named"))
+        seen.clear()
+        candidate_proof = {"schema": RULES.LEAGUE_COMBINED_SCHEMA, "variant": "ep-atomic", "family": "E",
+                           "profile_id": "test-p16", "full_inverse": True}
+        helper.SCHEMA = RULES.LEAGUE_COMBINED_SCHEMA
+        supports = {name: object() for name in ("ep", "atomic", "ep_owner", "projection")}
+        stages = [resource, model_proof, candidate_proof]
+        with patch.object(RULES, "canonical_rules_profile", return_value=profile), \
+             patch.object(RULES, "load", side_effect=lambda name, path: modules[name]), \
+             patch.object(RULES, "league_candidate_modules", return_value=(helper, supports)), \
+             patch.object(RULES, "_source_build_record", return_value={}):
+            self.assertEqual(RULES.admit_source(candidate_body, baseline, stages, "E", profile, build=Path("/named")), stages)
+            self.assertEqual(seen, ["model-forward", "candidate-forward", "candidate-inverse", "candidate-inverse", "resource"])
 
     def test_B_league_atomic_proof_chain_is_ordered_and_tamper_checked(self):
         baseline, projected, b_body, atomic_body, final = b"baseline", b"resource", b"B", b"atomic", b"final"

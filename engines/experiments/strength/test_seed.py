@@ -631,7 +631,8 @@ class SeedTests(unittest.TestCase):
     def test_league_experiment_inventories_are_exact_legacy_exceptions(self):
         root = Path(seed.__file__).resolve().parents[3]
         targets = tuple("engines/experiments/tcec-next/" + name for name in
-                        ("profile_acef_league_atomic.py", "profile_league_square.py", "league_ep.py"))
+                        ("profile_acef_league_atomic.py", "profile_league_square.py", "league_ep.py",
+                         "profile_league_compound.py"))
         for owner, declarations in seed.LEAGUE_EXPERIMENT_DECLARATIONS.items():
             raw = (root / owner).read_bytes()
             text = raw.decode("utf-8")
@@ -691,6 +692,7 @@ class SeedTests(unittest.TestCase):
 
         dependencies = set(seed.named_python_dependencies(declarations.encode(), source_name=owner,
                                                           league_required=True))
+        self.assertIn("engines/experiments/tcec-next/profile_league_compound.py", dependencies)
         for name in dependencies:
             dependency = self.fixture.repo / name
             dependency.parent.mkdir(parents=True, exist_ok=True)
@@ -701,6 +703,13 @@ class SeedTests(unittest.TestCase):
         selected, origin = checkout()
         league = seed.checkout_files(selected, origin, league_required=True)
         self.assertTrue(dependencies <= set(league))
+
+        compound = "engines/experiments/tcec-next/profile_league_compound.py"
+        incomplete = {**selected, "paths": [name for name in league if name != compound]}
+        with self.assertRaisesRegex(ValueError, "named production Python dependency omitted: .*profile_league_compound.py"):
+            seed.checkout_files(incomplete, origin, league_required=True)
+        # Its reviewed inventory alone is not a requirement for older seeds.
+        seed.checkout_files(incomplete, origin, league_required=False)
 
         # Legacy cannot bypass the actual same-file dependency using the
         # otherwise-exempt inventory path.
@@ -713,6 +722,19 @@ class SeedTests(unittest.TestCase):
         selected = {**selected, "paths": [name for name in league if name != missing]}
         with self.assertRaisesRegex(ValueError, "named production Python dependency omitted: .*profile_acef_league_atomic.py"):
             seed.checkout_files(selected, origin)
+
+    def test_compound_owner_files_are_lazy_only_within_exact_reviewed_declarations(self):
+        root = Path(seed.__file__).resolve().parents[3]
+        target = "engines/experiments/tcec-next/profile_league_compound.py"
+        for owner in ("engines/experiments/tcec-next/profile_build.py",
+                      "engines/experiments/tcec-next/profile_rules.py",
+                      "engines/experiments/tcec-next/profile_verify.py"):
+            raw = (root / owner).read_bytes()
+            with self.subTest(owner=owner):
+                self.assertNotIn(target, seed.named_python_dependencies(raw, source_name=owner, league_required=False))
+                self.assertIn(target, seed.named_python_dependencies(raw, source_name=owner, league_required=True))
+                self.assertIn(target, seed.named_python_dependencies(raw + ("\nopen(" + repr(target) + ")\n").encode(),
+                                                                    source_name=owner, league_required=False))
 
     def test_p16_p192_source_seed_fixture_round_trips_without_admission(self):
         """Synthetic source/CI evidence only; no host, engine or AWS operation."""
