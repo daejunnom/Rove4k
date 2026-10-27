@@ -992,24 +992,28 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
             result = ci.bind_materializer_source(origin, head)
             self.assertEqual(result["source_commit"], head)
 
-    def test_prior_single_league_module_declaration_remains_bindable(self):
-        with tempfile.TemporaryDirectory(prefix="rove-ci-prior-league-materializer-") as directory:
-            origin = Path(directory) / "original-git"
-            self.make_materializer_origin(origin)
-            path = origin / "engines/experiments/strength/seed.py"
-            raw = path.read_text(encoding="utf-8")
-            node = next(node for node in ast.parse(raw).body if isinstance(node, ast.Assign)
-                        and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
-                        and node.targets[0].id == "LEAGUE_HOST_MODULES")
-            lines = raw.splitlines(keepends=True)
-            lines[node.lineno - 1:node.end_lineno] = ['LEAGUE_HOST_MODULES = ("memory_observation",)\n']
-            path.write_text("".join(lines), encoding="utf-8")
-            self.git(origin, "add", "--", "engines/experiments/strength/seed.py")
-            self.git(origin, "commit", "--quiet", "--no-gpg-sign", "-m", "prior league closure")
-            head = self.git(origin, "rev-parse", "HEAD").decode().strip()
-            result = ci.bind_materializer_source(origin, head, out=Path(directory) / "materializer")
-            self.assertEqual(result["source_commit"], head)
-            self.assertNotIn("engines/experiments/strength/peak_supervisor.py", result["members"])
+    def test_prior_league_module_declarations_remain_bindable(self):
+        old_declarations = (("memory_observation",),
+            ("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity",
+             "peak_probe_session", "peak_ready_probe", "peak_receipt", "peak_supervisor"))
+        for old_modules in old_declarations:
+            with self.subTest(old_modules=old_modules), tempfile.TemporaryDirectory(prefix="rove-ci-prior-league-materializer-") as directory:
+                origin = Path(directory) / "original-git"
+                self.make_materializer_origin(origin)
+                path = origin / "engines/experiments/strength/seed.py"
+                raw = path.read_text(encoding="utf-8")
+                node = next(node for node in ast.parse(raw).body if isinstance(node, ast.Assign)
+                            and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
+                            and node.targets[0].id == "LEAGUE_HOST_MODULES")
+                lines = raw.splitlines(keepends=True)
+                lines[node.lineno - 1:node.end_lineno] = ["LEAGUE_HOST_MODULES = " + repr(old_modules) + "\n"]
+                path.write_text("".join(lines), encoding="utf-8")
+                self.git(origin, "add", "--", "engines/experiments/strength/seed.py")
+                self.git(origin, "commit", "--quiet", "--no-gpg-sign", "-m", "prior league closure")
+                head = self.git(origin, "rev-parse", "HEAD").decode().strip()
+                result = ci.bind_materializer_source(origin, head, out=Path(directory) / "materializer")
+                self.assertEqual(result["source_commit"], head)
+                self.assertNotIn("engines/experiments/strength/rove_vma_observer.py", result["members"])
 
     def test_missing_league_blob_is_rejected_before_materializer_import(self):
         for name in ("engines/experiments/strength/memory_observation.py",
@@ -1021,6 +1025,9 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                      "engines/experiments/strength/peak_ready_probe.py",
                      "engines/experiments/strength/peak_receipt.py",
                      "engines/experiments/strength/peak_supervisor.py",
+                     "engines/experiments/strength/rove_runtime_observation.py",
+                     "engines/experiments/strength/rove_worker_observer.py",
+                     "engines/experiments/strength/rove_vma_observer.py",
                      "engines/scripts/league_resource_profiles.py"):
             with self.subTest(name=name), tempfile.TemporaryDirectory(prefix="rove-ci-league-missing-") as directory:
                 root = Path(directory)

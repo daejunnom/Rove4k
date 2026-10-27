@@ -89,6 +89,9 @@ LEAGUE_HOST_SOURCE_FILES = ("engines/experiments/strength/memory_observation.py"
                             "engines/experiments/strength/peak_ready_probe.py",
                             "engines/experiments/strength/peak_receipt.py",
                             "engines/experiments/strength/peak_supervisor.py",
+                            "engines/experiments/strength/rove_runtime_observation.py",
+                            "engines/experiments/strength/rove_worker_observer.py",
+                            "engines/experiments/strength/rove_vma_observer.py",
                             "engines/scripts/league_resource_profiles.py")
 LEAGUE_PROFILES = ("test-p16", "test-p192")
 

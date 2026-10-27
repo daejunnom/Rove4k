@@ -1709,7 +1709,21 @@ def _profile_session(scope):
     return ProfileSession
 
 
+def require_runtime_launch_allowed(admitted):
+    """Keep large shared profiles out of the legacy owned-runtime launcher.
+
+    Its availability snapshot and per-process rlimits neither reserve the
+    cohort's memory nor prove the complete cgroup ancestry or ownership.
+    Source admission, compilation, rule checks, and revalidation of existing
+    receipts remain available; a separate verified owner must supply a new
+    execution path before either shared profile can actually be started.
+    """
+    require(admitted.profile_id not in ("test-p16", "test-p192"),
+            "P16/P192 runtime launch requires a verified cohort resource owner")
+
+
 def run_runtime(admitted, build, out, limits, *, target_reference=None):
+    require_runtime_launch_allowed(admitted)
     global _CONSTRUCTING, _DEFERRED
     scope, owner, oracle = support_modules()
     own_path = "engines/experiments/tcec-next/profile_verify.py"
@@ -2178,6 +2192,10 @@ def main():
     else:
         require(args.candidate is None, "C source-profile has one explicit selected artifact")
         admitted = admit_c_build(manifest, build)
+    # Existing receipts may still be revalidated. A new launch must be
+    # rejected before optional target-runtime checks can start subprocesses.
+    if args.runtime is None:
+        require_runtime_launch_allowed(admitted)
     reference = None
     if all(target_inputs):
         helper = target_module()

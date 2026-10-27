@@ -83,6 +83,77 @@ def compound_gate_fixture(build, family="A", profile="test-p4", *, v2=False):
 
 
 class ProfileRuntimeAdmission(unittest.TestCase):
+    def test_shared_profiles_cannot_enter_legacy_runtime_launcher(self):
+        from dataclasses import replace
+        for profile in ("test-p16", "test-p192"):
+            with self.subTest(profile=profile), \
+                    patch.object(VERIFY, "support_modules", side_effect=AssertionError("support loaded")), \
+                    self.assertRaisesRegex(ValueError, "verified cohort resource owner"):
+                VERIFY.run_runtime(replace(admitted(), profile_id=profile), Path("unused"), Path("unused"), {})
+
+        # Legacy runtime launch reaches its pre-existing path; the guard is
+        # specific to the new shared profiles, not a change to P4/P28/W256.
+        for profile in ("test-p4", "test-p28", "tcec-provisional"):
+            with self.subTest(profile=profile), \
+                    patch.object(VERIFY, "support_modules", side_effect=LookupError("legacy reached")), \
+                    self.assertRaisesRegex(LookupError, "legacy reached"):
+                VERIFY.run_runtime(replace(admitted(), profile_id=profile), Path("unused"), Path("unused"), {})
+
+    def test_shared_cli_guard_precedes_resource_target_and_process_work(self):
+        from dataclasses import replace
+        with tempfile.TemporaryDirectory(prefix="rove4k-shared-runtime-guard-") as temporary:
+            base = Path(temporary).resolve()
+            build = base / "source"
+            build.mkdir()
+            (build / "build.json").write_text("{}")
+            for profile in ("test-p16", "test-p192"):
+                out = base / ("out-" + profile)
+                args = ["profile_verify.py", "--build", str(build), "--out", str(out),
+                        "--target-compiler-receipt", str(base / "compiler.json"),
+                        "--source-bundle", str(base / "bundle.zip"),
+                        "--source-seal", str(base / "seal.json")]
+                selected = replace(admitted(), profile_id=profile)
+                with self.subTest(profile=profile), \
+                        patch.object(VERIFY.sys, "argv", args), \
+                        patch.object(VERIFY.sys, "platform", "linux"), \
+                        patch.object(VERIFY, "resource", object()), \
+                        patch.object(VERIFY, "admit_c_build", return_value=selected), \
+                        patch.object(VERIFY, "target_module", side_effect=AssertionError("target subprocess")), \
+                        patch.object(VERIFY, "effective_available_bytes", side_effect=AssertionError("memory scan")), \
+                        patch.object(VERIFY, "execution_limits", side_effect=AssertionError("limits")), \
+                        patch.object(VERIFY, "run_runtime", side_effect=AssertionError("launch")), \
+                        self.assertRaisesRegex(ValueError, "verified cohort resource owner"):
+                    VERIFY.main()
+                self.assertFalse(out.exists())
+
+    def test_shared_cli_still_allows_read_only_receipt_revalidation(self):
+        from contextlib import redirect_stdout
+        from dataclasses import replace
+        from io import StringIO
+        with tempfile.TemporaryDirectory(prefix="rove4k-shared-runtime-read-") as temporary:
+            base = Path(temporary).resolve()
+            build = base / "source"
+            build.mkdir()
+            (build / "build.json").write_text("{}")
+            for profile in ("test-p16", "test-p192"):
+                out = base / ("out-" + profile)
+                runtime = base / "runtime.json"
+                args = ["profile_verify.py", "--build", str(build), "--out", str(out),
+                        "--runtime", str(runtime)]
+                selected = replace(admitted(), profile_id=profile)
+                qualification = {"complete": False, "functional_runtime_complete": True, "failures": []}
+                with self.subTest(profile=profile), \
+                        patch.object(VERIFY.sys, "argv", args), \
+                        patch.object(VERIFY.sys, "platform", "linux"), \
+                        patch.object(VERIFY, "resource", object()), \
+                        patch.object(VERIFY, "admit_c_build", return_value=selected), \
+                        patch.object(VERIFY, "qualification_record", return_value=qualification) as revalidate, \
+                        patch.object(VERIFY, "run_runtime", side_effect=AssertionError("launch")), \
+                        redirect_stdout(StringIO()):
+                    VERIFY.main()
+                revalidate.assert_called_once()
+                self.assertEqual(json.loads((out / "qualification.json").read_text()), qualification)
+
     def test_anonymous_cleanup_requires_typed_self_contained_elf_contract(self):
         from dataclasses import replace
         marker = VERIFY.AnonymousMemfdContract()

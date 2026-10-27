@@ -568,7 +568,7 @@ class SeedTests(unittest.TestCase):
         legacy = seed.checkout_files(checkout, origin)
         league_names = tuple("engines/experiments/strength/" + name + ".py" for name in
             ("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe", "peak_receipt",
-             "peak_supervisor")) + ("engines/scripts/league_resource_profiles.py",)
+             "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer")) + ("engines/scripts/league_resource_profiles.py",)
         self.assertTrue(all(name not in legacy for name in league_names))
         with self.assertRaisesRegex(ValueError, "omitted the host/R production code closure"):
             seed.checkout_files(checkout, origin, league_required=True)

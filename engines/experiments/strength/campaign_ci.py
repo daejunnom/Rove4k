@@ -369,7 +369,9 @@ def bind_materializer_source(origin, expected_head, *, out=None):
         # original materializer closure and validation behavior.
         require(values["LEAGUE_HOST_MODULES"] in (("memory_observation",),
                 ("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
-                 "peak_receipt", "peak_supervisor"))
+                 "peak_receipt", "peak_supervisor"),
+                ("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
+                 "peak_receipt", "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer"))
                 and values["LEAGUE_CORE_R"] == ("engines/scripts/league_resource_profiles.py",),
                 "committed league materializer source closure differs")
         names += tuple("engines/experiments/strength/" + name + ".py" for name in values["LEAGUE_HOST_MODULES"])

@@ -52,14 +52,14 @@ CORE_R = ("engines/experiments/tcec-next/profile_verify.py", "engines/experiment
 # These files are needed only by the new league profiles. Keep the legacy
 # P4/P28 source closure unchanged; neither declaration authorizes a league run.
 LEAGUE_HOST_MODULES = ("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
-                       "peak_receipt", "peak_supervisor")
+                       "peak_receipt", "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer")
 LEAGUE_CORE_R = ("engines/scripts/league_resource_profiles.py",)
 LEAGUE_PROFILES = ("test-p16", "test-p192")
 # Exact declarations whose values are used only by league profile branches.
 # This is scanner metadata, not a blanket exemption for the owning file.
 LEAGUE_DEPENDENCY_DECLARATIONS = {
     "engines/experiments/strength/seed.py": ("LEAGUE_CORE_R", ("engines/scripts/league_resource_profiles.py",)),
-    "engines/experiments/strength/cloud_runtime.py": ("LEAGUE_HOST_SOURCE_FILES", ("engines/experiments/strength/memory_observation.py", "engines/experiments/strength/overhead.py", "engines/experiments/strength/league_probe.py", "engines/experiments/strength/diagnostic_candidates.py", "engines/experiments/strength/peak_capacity.py", "engines/experiments/strength/peak_probe_session.py", "engines/experiments/strength/peak_ready_probe.py", "engines/experiments/strength/peak_receipt.py", "engines/experiments/strength/peak_supervisor.py", "engines/scripts/league_resource_profiles.py")),
+    "engines/experiments/strength/cloud_runtime.py": ("LEAGUE_HOST_SOURCE_FILES", ("engines/experiments/strength/memory_observation.py", "engines/experiments/strength/overhead.py", "engines/experiments/strength/league_probe.py", "engines/experiments/strength/diagnostic_candidates.py", "engines/experiments/strength/peak_capacity.py", "engines/experiments/strength/peak_probe_session.py", "engines/experiments/strength/peak_ready_probe.py", "engines/experiments/strength/peak_receipt.py", "engines/experiments/strength/peak_supervisor.py", "engines/experiments/strength/rove_runtime_observation.py", "engines/experiments/strength/rove_worker_observer.py", "engines/experiments/strength/rove_vma_observer.py", "engines/scripts/league_resource_profiles.py")),
     "engines/experiments/strength/registry.py": ("LEAGUE_PROFILE_OWNER", "engines/scripts/league_resource_profiles.py"),
     "engines/experiments/strength/peer_runtime.py": ("LEAGUE_SOURCE_FILES", ("engines/scripts/league_resource_profiles.py",)),
     "engines/experiments/tcec-next/profile_verify.py": ("LEAGUE_PROFILE_OWNER", "engines/scripts/league_resource_profiles.py"),
@@ -143,6 +143,13 @@ def named_python_dependencies(raw, *, source_name, league_required=True):
         test = ast.dump(ast.parse("league <= set(values)", mode="eval").body)
         templates = (
             'require(values["LEAGUE_HOST_MODULES"] == ("memory_observation",) and '
+            'values["LEAGUE_CORE_R"] == ("engines/scripts/league_resource_profiles.py",), '
+            '"committed league materializer source closure differs")',
+            'require(values["LEAGUE_HOST_MODULES"] in (("memory_observation",), '
+            '("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe", '
+            '"peak_receipt", "peak_supervisor"), '
+            '("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe", '
+            '"peak_receipt", "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer")) and '
             'values["LEAGUE_CORE_R"] == ("engines/scripts/league_resource_profiles.py",), '
             '"committed league materializer source closure differs")',
             'names += ("engines/experiments/strength/memory_observation.py", '
