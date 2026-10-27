@@ -59,6 +59,16 @@ def ep_occupancy(files: dict[str, bytes]) -> dict[str, bytes]:
     return result
 
 
+def ep_occupancy_shared(files: dict[str, bytes]) -> dict[str, bytes]:
+    # GCC13 inlined the occupancy trial into make, adding 78 text bytes in the
+    # first measured cohort. Keep its temporary indices and restore state in
+    # one separate owner; the failed inline candidate remains reproducible.
+    result = ep_occupancy(files)
+    result["board.c"] = _replace(result["board.c"], b"static void ep(Board *p){",
+        b"static __attribute__((noinline,noclone)) void ep(Board *p){")
+    return result
+
+
 _START = b'''void start(Board *p){
     static const int8_t back[8]={4,2,3,5,6,3,2,4};
     *p=(Board){0};p->s=1;p->c=15;p->e=-1;
@@ -86,6 +96,17 @@ def start_image(files: dict[str, bytes]) -> dict[str, bytes]:
     """
     result = dict(files)
     result["board.c"] = _replace(result["board.c"], _START, _START_IMAGE)
+    return result
+
+
+def start_image_shared(files: dict[str, bytes]) -> dict[str, bytes]:
+    # The first image assignment lost the shared 115-byte start function:
+    # GCC13 split/inlined it twice and grew main by 202 bytes. An explicit
+    # whole-image copy plus one non-cloned call owner prevents that duplication.
+    result = start_image(files)
+    data = _replace(result["board.c"], b"void start(Board *p){",
+        b"__attribute__((noinline,noclone)) void start(Board *p){")
+    result["board.c"] = _replace(data, b"    *p=initial;", b"    memcpy(p,&initial,sizeof *p);")
     return result
 
 
@@ -178,7 +199,10 @@ def pawn_ray(files: dict[str, bytes]) -> dict[str, bytes]:
 
 
 VARIANTS = {"ep-occupancy": ep_occupancy, "start-image": start_image,
-            "pawn-ray": pawn_ray}
+            "pawn-ray": pawn_ray, "ep-occupancy-shared": ep_occupancy_shared,
+            "start-image-shared": start_image_shared}
+_EXCLUSIVE = (frozenset(("ep-occupancy", "ep-occupancy-shared")),
+              frozenset(("start-image", "start-image-shared")))
 
 
 def apply(files: dict[str, bytes], options: tuple[str, ...] | list[str]) -> dict[str, bytes]:
@@ -190,6 +214,8 @@ def apply(files: dict[str, bytes], options: tuple[str, ...] | list[str]) -> dict
     if (type(options) not in (tuple, list) or not all(type(name) is str for name in options)
             or len(options) != len(set(options)) or not set(options) <= VARIANTS.keys()):
         raise ValueError("explicit nonrepeated board size options required")
+    if any(len(set(options) & group) > 1 for group in _EXCLUSIVE):
+        raise ValueError("board size alternatives change the same owner")
     result = dict(files)
     for name in options:
         result = VARIANTS[name](result)

@@ -3,9 +3,13 @@ name: Experimental D structural alternatives
 on:
   pull_request:
     paths:
-      - 'engines/experiments/tiny-d-submission/structural_next*.py'
-      - 'engines/experiments/tiny-d-submission/*_size_next.py'
-      - 'engines/experiments/tiny-d-submission/move_input_size.py'
+      - 'engines/experiments/tiny-d-submission/**'
+      - 'engines/compact/tiny-entry-d/**'
+      - 'engines/experiments/tcec-scope/**'
+      - 'engines/experiments/tcec-next/profile_rules.py'
+      - 'engines/common/board.c'
+      - 'engines/common/move.c'
+      - 'engines/scripts/**'
       - '.github/workflows/d-structural-next.yml'
 
 permissions:
@@ -18,7 +22,7 @@ concurrency:
 jobs:
   compare:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 40
     env:
       PYTHONDONTWRITEBYTECODE: '1'
     steps:
@@ -45,7 +49,7 @@ jobs:
             --portfolio '${{ runner.temp }}/rove4k-D-next-${{ github.run_attempt }}' \
             --out '${{ runner.temp }}/rove4k-D-next-checks-${{ github.run_attempt }}' --execute \
             2>&1 | tee '${{ runner.temp }}/rove4k-D-next-checks-${{ github.run_attempt }}.log'
-      - name: Observe the actual packed P4 baseline and minimum measured candidate
+      - name: Retune the same finite CRC64 codec portfolio for baseline and minimum
         run: |
           set -o pipefail
           python -I -B - '${{ runner.temp }}/rove4k-D-next-${{ github.run_attempt }}' <<'PY'
@@ -55,10 +59,29 @@ jobs:
           if not report['complete']:
               raise SystemExit('Cost portfolio did not complete')
           for name in dict.fromkeys(('baseline', report['minimum_measured'])):
-              subprocess.run(['timeout', '--signal=INT', '--kill-after=15s', '130s',
+              subprocess.run(['timeout', '--signal=INT', '--kill-after=10s', '80s',
                   sys.executable, '-I', '-B',
-                  'engines/experiments/tiny-d-submission/structural_runtime_check.py',
-                  '--case', str(root / name), '--out', str(root / (name + '-runtime'))], check=True)
+                  'engines/experiments/tiny-d-submission/structural_codec.py',
+                  '--case', str(root / name), '--out', str(root / (name + '-codec'))], check=True)
+          PY
+      - name: Observe actual fixed and retuned packed P4 baseline and minimum
+        run: |
+          set -o pipefail
+          python -I -B - '${{ runner.temp }}/rove4k-D-next-${{ github.run_attempt }}' <<'PY'
+          import json, pathlib, subprocess, sys
+          root = pathlib.Path(sys.argv[1])
+          report = json.loads((root / 'portfolio.json').read_text())
+          if not report['complete']:
+              raise SystemExit('Cost portfolio did not complete')
+          for name in dict.fromkeys(('baseline', report['minimum_measured'])):
+              for suffix in ('runtime', 'runtime-retuned'):
+                  args = ['timeout', '--signal=INT', '--kill-after=15s', '130s',
+                      sys.executable, '-I', '-B',
+                      'engines/experiments/tiny-d-submission/structural_runtime_check.py',
+                      '--case', str(root / name), '--out', str(root / (name + '-' + suffix))]
+                  if suffix == 'runtime-retuned':
+                      args += ['--codec-report', str(root / (name + '-codec') / 'result.json')]
+                  subprocess.run(args, check=True)
           PY
       - name: Preserve successful, failed and unselected candidate evidence
         if: always()

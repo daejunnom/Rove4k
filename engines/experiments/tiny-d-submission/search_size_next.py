@@ -11,7 +11,7 @@ from pathlib import Path
 import re
 
 FILES = frozenset(("tiny.h", "board.c", "search.c", "runtime.c", "start.S", "image.ld"))
-OPTIONS = ("tt_bytes", "pvs_stages", "repetition_prefix", "board_path")
+OPTIONS = ("tt_bytes", "pvs_stages", "repetition_prefix", "board_path", "board_keys", "tt_owner")
 
 
 def _once(data: bytes, before: bytes | str, after: bytes | str) -> bytes:
@@ -30,6 +30,8 @@ def _names(names):
     names = tuple(names)
     if len(set(names)) != len(names) or any(name not in OPTIONS for name in names):
         raise ValueError("unique known search size selectors required")
+    if "board_keys" in names and ("board_path" not in names or "repetition_prefix" in names):
+        raise ValueError("board_keys requires board_path and excludes repetition_prefix")
     return names
 
 
@@ -51,7 +53,12 @@ def apply(files: dict[str, bytes], names: tuple[str, ...]) -> dict[str, bytes]:
     if set(files) != FILES or any(type(data) is not bytes or b"\r" in data for data in files.values()):
         raise ValueError("complete normalized six-file D cohort required")
     result = dict(files)
-    for name in names:
+    # The dependency is explicit in the requested set; do not silently add it.
+    # Apply its consumer last so either tuple order denotes the same candidate.
+    ordered = tuple(name for name in names if name != "board_keys")
+    if "board_keys" in names:
+        ordered += ("board_keys",)
+    for name in ordered:
         source, header = result["search.c"], result["tiny.h"]
         if name == "tt_bytes":
             # All stored moves fit 17 bits; the zeroed gaps are implicit. The
@@ -63,6 +70,12 @@ def apply(files: dict[str, bytes], names: tuple[str, ...]) -> dict[str, bytes]:
             source = _once(source,
                 "data=bestmove|((uint64_t)(uint16_t)score<<17)|((uint64_t)(depth>0?depth:0)<<33)|((uint64_t)bound<<41);",
                 "data=bestmove|((uint64_t)(uint16_t)score<<32)|((uint64_t)(depth>0?depth:0)<<48)|((uint64_t)bound<<56);")
+        elif name == "tt_owner":
+            # Keep one actual full-key/CAS owner. noinline alone still permits
+            # specialized clones; retain the exact body and read/write API.
+            # Function-call/register costs are an explicit performance trade.
+            source = _once(source, "static uint64_t probe(",
+                           "static __attribute__((noinline,noclone)) uint64_t probe(")
         elif name == "pvs_stages":
             before = b'''        int narrow=legal>1&&depth>0,reduce=0;
         if(narrow){
@@ -135,6 +148,16 @@ def apply(files: dict[str, bytes], names: tuple[str, ...]) -> dict[str, bytes]:
             source = _once(source, "search(w,p,depth,-MATE,MATE,0,6);", "search(w,depth,-MATE,MATE,0,6);")
             source = _once(source, "void think(Worker *w,const Board *p){\n",
                            "void think(Worker *w,const Board *p){\n    prepare_board(w,p);\n")
+        elif name == "board_keys":
+            # Full logical index game_length is the first child after root,
+            # which belongs to boards[1], not boards[0]. A live descendant's
+            # ancestors remain immutable; future/sibling slots are never read.
+            # Zero is a normal hash value, never an unused-slot sentinel.
+            header = _once(header, "uint64_t nodes,keys[PLY];", "uint64_t nodes;")
+            source = _once(source,
+                "repetitions+=(i<game_length?game_keys[i]:w->keys[i-game_length])==p->h;",
+                "repetitions+=(i<game_length?game_keys[i]:w->boards[i-game_length+1].h)==p->h;")
+            source = _once(source, "        w->keys[ply]=q->h;\n", b"")
         result["search.c"], result["tiny.h"] = source, header
     return result
 
@@ -158,6 +181,8 @@ def render_probe(files, source_tool, storage_fixture, probe, *, reference_board,
     probe.require((b"const Board *p=w->boards+ply;" in source) == board_path and
                   (b"int stage=legal>1&&depth>0;" in source) == stages and
                   (b"static void prepare_path(Worker *w){" in source) == prefix and
+                  (b"w->boards[i-game_length+1].h" in source) == ("board_keys" in names) and
+                  (b"static __attribute__((noinline,noclone)) uint64_t probe(" in source) == ("tt_owner" in names) and
                   (b"bound=data>>56" in source) == ("tt_bytes" in names),
                   "observer selector contract differs from actual source")
     narrow = b"        int stage=legal>1&&depth>0;" if stages else b"        int narrow=legal>1&&depth>0,reduce=0;"
@@ -227,6 +252,10 @@ def render_probe(files, source_tool, storage_fixture, probe, *, reference_board,
         edit(b"uint64_t key=i<game_length?game_keys[i]:w->keys[i-game_length];",
              b"uint64_t key=i<game_length-w->root_keys?game_keys[i]:w->keys[i-game_length+w->root_keys];",
              "canonical-logical-prefix-and-actual-path-storage")
+    if "board_keys" in names:
+        edit(b"uint64_t key=i<game_length?game_keys[i]:w->keys[i-game_length];",
+             b"uint64_t key=i<game_length?game_keys[i]:w->boards[i-game_length+1].h;",
+             "actual-Board-owned-suffix-and-full-root-prefix")
     if "tt_bytes" in names:
         # This is a bijection on the admitted move/score/depth/bound payload.
         # Reject nonzero gap bits instead of silently discarding an error.

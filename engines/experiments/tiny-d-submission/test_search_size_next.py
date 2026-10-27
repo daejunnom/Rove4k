@@ -87,6 +87,31 @@ class RepresentationProofs(unittest.TestCase):
             for bound in range(4):
                 check(131071, 65535, depth, bound)
 
+    def test_board_owned_hashes_preserve_root_suffix_indices_and_zero_values(self):
+        # boards[0] is root, while the separate keys[0] used to be its child.
+        # Repeated values include hash zero, so truthiness cannot replace equality.
+        for root_length in (1, 2, 3, 99, 100, 101, 4096):
+            game = [index % 4 for index in range(root_length)]
+            for ply in (0, 1, 2, 3, 4, 63, 126, 127):
+                suffix = [(root_length + index) % 4 for index in range(ply)]
+                boards = [game[-1], *suffix]
+                for half in (0, 1, 2, 3, 98, 99, 100, 101, 4095):
+                    length = root_length + ply
+                    indices = range(length - 3, max(0, length - 1 - half) - 1, -2)
+                    old = [game[index] if index < root_length else suffix[index - root_length]
+                           for index in indices]
+                    owned = [game[index] if index < root_length else boards[index - root_length + 1]
+                             for index in indices]
+                    self.assertEqual(owned, old)
+                    if half == 0:
+                        self.assertEqual(owned, [])
+                    for current_hash in (boards[ply], 0):
+                        old_repetitions = sum(value == current_hash for value in old)
+                        new_repetitions = sum(value == current_hash for value in owned)
+                        self.assertEqual(new_repetitions, old_repetitions)
+                        self.assertEqual(half >= 100 or new_repetitions >= 2,
+                                         half >= 100 or old_repetitions >= 2)
+
 
 class ActualSourceRendering(unittest.TestCase):
     @classmethod
@@ -111,6 +136,10 @@ class ActualSourceRendering(unittest.TestCase):
              mock.patch.object(lzma, "decompress", side_effect=AssertionError("codec forbidden")):
             for length in range(len(search.OPTIONS) + 1):
                 for names in itertools.combinations(search.OPTIONS, length):
+                    if "board_keys" in names and ("board_path" not in names or "repetition_prefix" in names):
+                        with self.assertRaisesRegex(ValueError, "requires board_path"):
+                            search.apply(self.files, names)
+                        continue
                     for ordered in (names, names[::-1]):
                         files = search.apply(self.files, ordered)
                         generated, driver, proof = search.render_probe(
@@ -127,9 +156,10 @@ class ActualSourceRendering(unittest.TestCase):
             with self.assertRaises(ValueError):
                 search.apply(self.files, names)
         for name in search.OPTIONS:
-            changed = search.apply(self.files, (name,))
+            names = ("board_path", name) if name == "board_keys" else (name,)
+            changed = search.apply(self.files, names)
             with self.assertRaises(ValueError):
-                search.apply(changed, (name,))
+                search.apply(changed, names)
         files = search.apply(self.files, ("tt_bytes",))
         with self.assertRaisesRegex(ValueError, "selector contract"):
             search.render_probe(files, self.source, self.storage, self.probe,

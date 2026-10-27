@@ -76,6 +76,29 @@ def project(files, selected, changes):
     return result
 
 
+def context_selection(context, selector, available):
+    """Compose explicit dependencies and replace incompatible representations.
+
+    A failed singleton can still improve the current source context. This
+    source search compares complete candidates; it never adds byte deltas.
+    """
+    if selector not in available or not set(context) <= available.keys():
+        raise ValueError("known context selector required")
+    selected = set(context)
+    for alternatives in (("runtime/numeric-scan", "runtime/numeric-skip"),
+                         ("board/ep-occupancy", "board/ep-occupancy-shared"),
+                         ("board/start-image", "board/start-image-shared")):
+        if selector in alternatives:
+            selected.difference_update(alternatives)
+    if selector == "search/board_keys":
+        selected.discard("search/repetition_prefix")
+        selected.add("search/board_path")
+    elif selector == "search/repetition_prefix":
+        selected.discard("search/board_keys")
+    selected.add(selector)
+    return tuple(name for name in available if name in selected)
+
+
 def _save(out, report):
     (out / "portfolio.json").write_text(json.dumps(report, indent=2) + "\n")
 
@@ -140,7 +163,17 @@ def run(out, snapshot, current_root, inputs, requested):
         report["strict_control"] = fixed["record"]
         save()
 
+        measured = {}
+
         def measure(name, selectors=(), optimize="s"):
+            selectors = tuple(name for name in available if name in selectors)
+            identity = (selectors, optimize)
+            if identity in measured:
+                report.setdefault("identical_source_reuse", []).append({"requested_name": name,
+                    "measured_name": measured[identity]["name"], "selectors": list(selectors),
+                    "optimization": optimize, "scope": "same source, flags, tools and fixed recipe in this owner"})
+                save()
+                return measured[identity]
             files = project(bss, selectors, changes)
             repeated = project(dict(bss), selectors, changes)
             if files != repeated:
@@ -158,8 +191,22 @@ def run(out, snapshot, current_root, inputs, requested):
                    "command_begin": begin, "command_end": len(report["commands"]),
                    "semantic_status": "not-yet-observed", "selected": False}
             report["cases"].append(row)
+            measured[identity] = row
             save()
             return row
+
+        def attempt(name, selectors, optimize="s"):
+            begin = len(report["commands"])
+            try:
+                return measure(name, selectors, optimize)
+            except (TimeoutError, MemoryError):
+                raise
+            except Exception as error:
+                report["candidate_failures"].append({"name": name, "selectors": list(selectors),
+                    "optimization": optimize, "type": type(error).__name__, "message": str(error),
+                    "command_begin": begin, "command_end": len(report["commands"])})
+                save()
+                return None
 
         base = measure("baseline")
         if ({key: base["generation"]["native_rebuilds"][0][key] for key in ("bytes", "sha256")} != core.expected(BSS_NATIVE)
@@ -168,26 +215,30 @@ def run(out, snapshot, current_root, inputs, requested):
         winners = []
         for selector in selected:
             name = selector.replace("/", "-")
-            try:
-                row = measure(name, (selector,))
-                if row["package"]["bytes"] < base["package"]["bytes"]:
-                    winners.append(selector)
-            except (TimeoutError, MemoryError):
-                raise
-            except Exception as error:
-                report["candidate_failures"].append({"name": name, "selectors": [selector],
-                    "type": type(error).__name__, "message": str(error)})
-                save()
+            row = attempt(name, context_selection((), selector, available))
+            if row is not None and row["package"]["bytes"] < base["package"]["bytes"]:
+                winners.append((selector, row["package"]["bytes"]))
         if winners:
-            for name, optimize in (("combined", "s"), ("combined-Oz", "z")):
-                try:
-                    measure(name, tuple(winners), optimize)
-                except (TimeoutError, MemoryError):
-                    raise
-                except Exception as error:
-                    report["candidate_failures"].append({"name": name, "selectors": winners,
-                        "optimization": optimize, "type": type(error).__name__, "message": str(error)})
-                    save()
+            combined = ()
+            # Better singleton choices replace conflicting alternatives last.
+            for selector, _ in sorted(winners, key=lambda item: -item[1]):
+                combined = context_selection(combined, selector, available)
+            attempt("combined", combined)
+        context = min(report["cases"], key=lambda row: row["package"]["bytes"])
+        report["context_search"] = {"round_limit": 2, "order": list(selected), "improvements": []}
+        for round_index in range(2):
+            changed = False
+            for index, selector in enumerate(selected):
+                trial = context_selection(context["selectors"], selector, available)
+                row = attempt(f"context-{round_index}-{index}", trial)
+                if row is not None and row["package"]["bytes"] < context["package"]["bytes"]:
+                    report["context_search"]["improvements"].append({"before": context["name"],
+                        "after": row["name"], "before_bytes": context["package"]["bytes"],
+                        "after_bytes": row["package"]["bytes"]})
+                    context, changed = row, True
+            if not changed:
+                break
+        attempt("best-source-Oz", tuple(context["selectors"]), "z")
         report["minimum_measured"] = min(report["cases"], key=lambda row: row["package"]["bytes"])["name"]
         if any(owner._normalized(Path(current_root) / path) != data for path, data in inputs.items()):
             raise ValueError("source inputs changed during experiment")

@@ -10,7 +10,8 @@ from __future__ import annotations
 import re
 
 
-VARIANTS = ("static-stacks", "static-input", "numeric-scan", "command-table")
+VARIANTS = ("static-stacks", "static-input", "numeric-scan", "command-table",
+            "numeric-skip", "narrow-clock")
 
 
 def _replace(text: str, before: str, after: str, role: str) -> str:
@@ -88,6 +89,45 @@ def _numeric_scan(runtime: str) -> str:
     return _replace(runtime, before, NUMERIC, "numeric token owner")
 
 
+NUMERIC_SKIP = r'''static uint64_t amount(char **cursor){
+    char *s=*cursor;
+    while(*s&&(unsigned char)*s<=32)s++;
+    if(*s&&(unsigned)(*s-'0')>9)return 0;
+    uint64_t n=0;
+    while(*s&&(unsigned char)*s>32){
+        unsigned digit=(unsigned)(*s++-'0');
+        if(digit>9||n>(uint64_t)LLONG_MAX/10||
+           (n==(uint64_t)LLONG_MAX/10&&digit>LLONG_MAX%10)){
+            scan(cursor);return 0;
+        }
+        n=n*10+digit;
+    }
+    if(*s)*s++=0;
+    *cursor=s;return n;
+}
+'''
+
+
+def _numeric_skip(runtime: str) -> str:
+    # Valid input is consumed once. On malformed/overflowing numeric input,
+    # the unchanged scanner owns complete token consumption and delimiter
+    # mutation. The original cursor is still intact at this cold-path call.
+    # No sticky invalidity state or later arithmetic is needed on that path.
+    before = _section(runtime, "static uint64_t number(Span token){\n",
+        "static Move resolve_move(", "numeric token owner")
+    return _replace(runtime, before, NUMERIC_SKIP, "numeric token owner")
+
+
+def _narrow_clock(runtime: str) -> str:
+    # Linux clock_gettime returns normalized tv_nsec in 0..999999999. Only
+    # that field's division narrows; seconds stay uint64_t, CLOCK_MONOTONIC,
+    # the syscall, millisecond rounding and failure behavior stay unchanged.
+    return _replace(runtime,
+        "uint64_t now(void){long t[2];if(Dsc2(228,(long)(1),(long)(t)))abort();return (uint64_t)t[0]*1000+(uint64_t)t[1]/1000000;}\n",
+        "uint64_t now(void){long t[2];if(Dsc2(228,(long)(1),(long)(t)))abort();return (uint64_t)t[0]*1000+(uint32_t)t[1]/1000000;}\n",
+        "normalized nanosecond division")
+
+
 COMMANDS = r'''enum {
     D_POSITION=1,D_GO,D_UCI,D_READY,D_QUIT,D_STARTPOS,D_MOVES,
     D_WTIME,D_WINC,D_BTIME,D_BINC
@@ -147,7 +187,8 @@ def _command_table(runtime: str) -> str:
 
 
 _TRANSFORMS = dict(zip(VARIANTS,
-    (_static_stacks, _static_input, _numeric_scan, _command_table)))
+    (_static_stacks, _static_input, _numeric_scan, _command_table,
+     _numeric_skip, _narrow_clock)))
 
 
 def transform(runtime: str, variants: tuple[str, ...]) -> str:
@@ -156,6 +197,8 @@ def transform(runtime: str, variants: tuple[str, ...]) -> str:
         raise TypeError("runtime text and tuple of candidate names required")
     if len(set(variants)) != len(variants) or any(v not in _TRANSFORMS for v in variants):
         raise ValueError("unknown or repeated runtime size candidate")
+    if {"numeric-scan", "numeric-skip"} <= set(variants):
+        raise ValueError("numeric-scan and numeric-skip are alternative numeric owners")
     if variants and "#error NUL-token structural candidate requires DEV=0\n" not in runtime:
         raise ValueError("runtime size candidates require the existing DEV=0 NUL-token frontend")
     result = runtime
@@ -167,12 +210,14 @@ def transform(runtime: str, variants: tuple[str, ...]) -> str:
 def parser_probe(runtime: str) -> str:
     """Render a small C differential probe; this function executes no process.
 
-    The two parser implementations are extracted from the actual generated C,
+    The three parser implementations are extracted from the actual generated C,
     including the original token mutation and missing-value lookahead.  A caller
     may compile/run this on its authorized host with ASan/UBSan.  It allocates no
     engine, worker or transposition table and has a finite deterministic corpus.
     """
     changed = transform(runtime, ("numeric-scan", "command-table"))
+    skipped = transform(runtime, ("numeric-skip",))
+    narrowed = transform(runtime, ("narrow-clock",))
 
     def names(source: str, prefix: str) -> str:
         for name in ("scan", "word", "number", "amount", "command_kind"):
@@ -191,6 +236,14 @@ def parser_probe(runtime: str) -> str:
                 names(text.replace("position.s", "side"), prefix) +
                 "    return (Clock){clock,inc,present};\n}\n")
 
+    def milliseconds(source: str, prefix: str) -> str:
+        now = _section(source, "uint64_t now(void){", "static void output_counted(", "probe timestamp")
+        expressions = re.findall(r"return ([^;]+);", now)
+        if len(expressions) != 1:
+            raise ValueError("one actual timestamp conversion expression required")
+        return ("static uint64_t " + prefix + "milliseconds(long seconds,long nanoseconds){\n"
+                "    long t[2]={seconds,nanoseconds};return " + expressions[0] + ";\n}\n")
+
     return (r'''#include <stdint.h>
 #include <limits.h>
 #include <stdio.h>
@@ -198,8 +251,9 @@ def parser_probe(runtime: str) -> str:
 #include <string.h>
 #define DEV 0
 typedef struct {uint64_t clock,inc;int present;} Clock;
-''' + tokens(runtime, "before_") + tokens(changed, "after_") +
-            clock(runtime, "before_") + clock(changed, "after_") + r'''
+''' + tokens(runtime, "before_") + tokens(changed, "after_") + tokens(skipped, "skip_") +
+            clock(runtime, "before_") + clock(changed, "after_") + clock(skipped, "skip_") +
+            milliseconds(runtime, "before_") + milliseconds(narrowed, "after_") + r'''
 static unsigned cases;
 static void fail(const char *role,const char *s){
     fprintf(stderr,"runtime parser difference: %s, case %u, input ",role,cases);
@@ -207,11 +261,12 @@ static void fail(const char *role,const char *s){
     fputc('\n',stderr);exit(1);
 }
 static void numeric_case(const char *s){
-    char before[32768],after[32768];size_t n=strlen(s)+1;
+    char before[32768],after[32768],skip[32768];size_t n=strlen(s)+1;
     if(n>sizeof before)exit(2);
-    memcpy(before,s,n);memcpy(after,s,n);char *a=before,*b=after;
-    uint64_t x=before_amount(&a),y=after_amount(&b);cases++;
-    if(x!=y||a-before!=b-after||memcmp(before,after,n))fail("number/cursor/delimiter",s);
+    memcpy(before,s,n);memcpy(after,s,n);memcpy(skip,s,n);char *a=before,*b=after,*c=skip;
+    uint64_t x=before_amount(&a),y=after_amount(&b),z=skip_amount(&c);cases++;
+    if(x!=y||x!=z||a-before!=b-after||a-before!=c-skip||memcmp(before,after,n)||memcmp(before,skip,n))
+        fail("number/cursor/delimiter",s);
 }
 static void keyword_case(const char *s){
     int expected=0;
@@ -229,13 +284,21 @@ static void keyword_case(const char *s){
     cases++;if(after_command_kind((char *)s)!=expected)fail("exact keyword",s);
 }
 static void clock_case(const char *s){
-    char before[32768],after[32768];size_t n=strlen(s)+1;
+    char before[32768],after[32768],skip[32768];size_t n=strlen(s)+1;
     if(n>sizeof before)exit(2);
     for(int side=-1;side<=1;side+=2){
-        memcpy(before,s,n);memcpy(after,s,n);
-        Clock a=before_clock(before,side),b=after_clock(after,side);cases++;
-        if(a.clock!=b.clock||a.inc!=b.inc||a.present!=b.present||memcmp(before,after,n))
+        memcpy(before,s,n);memcpy(after,s,n);memcpy(skip,s,n);
+        Clock a=before_clock(before,side),b=after_clock(after,side),c=skip_clock(skip,side);cases++;
+        if(a.clock!=b.clock||a.inc!=b.inc||a.present!=b.present||memcmp(before,after,n)||
+           a.clock!=c.clock||a.inc!=c.inc||a.present!=c.present||memcmp(before,skip,n))
             fail("clock state/token consumption",s);
+    }
+}
+static void timestamp_case(long seconds,long nanoseconds){
+    if(nanoseconds<0||nanoseconds>=1000000000)exit(2);
+    cases++;
+    if(before_milliseconds(seconds,nanoseconds)!=after_milliseconds(seconds,nanoseconds)){
+        fprintf(stderr,"timestamp conversion difference: %ld.%09ld\n",seconds,nanoseconds);exit(1);
     }
 }
 static uint32_t rng=0xc031f17u;
@@ -283,6 +346,18 @@ int main(void){
     }
     memset(s,'9',sizeof s-1);s[sizeof s-1]=0;numeric_case(s);clock_case(s);
     memset(s,'0',sizeof s-1);s[sizeof s-1]=0;numeric_case(s);clock_case(s);
-    printf("runtime-parser differential cases=%u\n",cases);return 0;
+    const long seconds[]={0,1,86400,LONG_MAX/1000,LONG_MAX/1000+1,LONG_MAX};
+    for(unsigned i=0;i<sizeof seconds/sizeof *seconds;i++){
+        for(long millisecond=0;millisecond<1000;millisecond++){
+            timestamp_case(seconds[i],millisecond*1000000);
+            timestamp_case(seconds[i],millisecond*1000000+999999);
+            if(millisecond)timestamp_case(seconds[i],millisecond*1000000-1);
+        }
+    }
+    for(unsigned i=0;i<20000;i++){
+        long seconds=(long)((((uint64_t)random_value()<<32)|random_value())&(uint64_t)LONG_MAX);
+        timestamp_case(seconds,(long)(random_value()%1000000000u));
+    }
+    printf("runtime-parser differential cases=%u numeric-variants=2 normalized-clock=1\n",cases);return 0;
 }
 ''')
