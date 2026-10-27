@@ -388,6 +388,99 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
+  control-ubuntu22:
+    # Download the actual control producer output from this exact run; a
+    # successful compiler fixture is not engine, TT, NUMA or game admission.
+    needs: generate
+    if: always() && needs.generate.result != 'cancelled' && needs.generate.result != 'skipped'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        family: [A, C, E, F]
+        profile: [test-p16, test-p192]
+    env:
+      FAMILY: ${{ matrix.family }}
+      PROFILE: ${{ matrix.profile }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: league-source-${{ matrix.family }}-${{ matrix.profile }}-control-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/control-league-source-${{ matrix.family }}-${{ matrix.profile }}
+      - name: Prepare independent system Python and the pinned rules oracle
+        shell: bash
+        run: |
+          export PATH=/usr/bin:/bin
+          for compiler_env_name in ${!LD_@}; do unset "$compiler_env_name"; done
+          unset CC CXX CPP AS AR LD GCC_EXEC_PREFIX COMPILER_PATH LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH OBJC_INCLUDE_PATH CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
+          /usr/bin/python3 -m venv "$RUNNER_TEMP/league-python-$FAMILY-$PROFILE"
+          "$RUNNER_TEMP/league-python-$FAMILY-$PROFILE/bin/python3" -m pip install --require-hashes -r engines/training/e19/requirements.txt
+      - name: Verify the named completed control artifact
+        shell: bash
+        run: |
+          /usr/bin/python3 -I -B - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          root = Path(os.environ['RUNNER_TEMP']) / ('control-league-source-' + os.environ['FAMILY'] + '-' + os.environ['PROFILE'])
+          manifest = json.loads((root / 'build/build.json').read_text())
+          audit = json.loads((root / 'artifact-audit.json').read_text())
+          whole = (root / 'build/x').read_bytes()
+          identity = (os.environ['FAMILY'], os.environ['PROFILE'])
+          if (manifest.get('family'), manifest.get('resources', {}).get('id')) != identity:
+              raise ValueError('producer family or resource profile differs from matrix')
+          if manifest.get('complete') is not True or manifest.get('reproducible') is not True:
+              raise ValueError('partial or unreproduced producer output cannot be used')
+          if any(manifest.get(name) is not None for name in ('post_profile', 'post_spelling', 'post_scan', 'post_ep', 'source_dependencies')):
+              raise ValueError('expected the unmodified control recipe')
+          if (audit.get('family'), audit.get('profile'), audit.get('variant')) != (*identity, 'control'):
+              raise ValueError('artifact audit identity or selected variant differs')
+          actual = {'bytes': len(whole), 'sha256': hashlib.sha256(whole).hexdigest()}
+          if (audit.get('parts', {}).get('x') != actual
+                  or audit.get('actual_whole_bytes') != len(whole)
+                  or audit.get('whole_at_most_4096') is not (len(whole) <= 4096)):
+              raise ValueError('artifact audit does not match actual whole file')
+          if len(whole) > 4096:
+              raise ValueError('control candidate exceeds the 4096-byte limit')
+          print(json.dumps({'family': identity[0], 'profile': identity[1], 'whole': actual,
+                            'candidate_only': True, 'runtime_qualified': False,
+                            'physical_placement_qualified': False, 'playing_strength_qualified': False}, sort_keys=True))
+          PY
+      - name: Recompile and check the exact control source on Ubuntu 22
+        shell: bash
+        run: |
+          set -o pipefail
+          export PATH=/usr/bin:/bin
+          for compiler_env_name in ${!LD_@}; do unset "$compiler_env_name"; done
+          unset CC CXX CPP AS AR LD GCC_EXEC_PREFIX COMPILER_PATH LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH OBJC_INCLUDE_PATH CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
+          P="$RUNNER_TEMP/league-python-$FAMILY-$PROFILE/bin/python3"
+          SOURCE="$RUNNER_TEMP/control-league-source-$FAMILY-$PROFILE/build"
+          OUT="$RUNNER_TEMP/control-league-ubuntu22-$FAMILY-$PROFILE"
+          mkdir "$OUT"
+          "$P" -I -B engines/experiments/tcec-next/profile_compiler.py \
+            --build "$SOURCE" --compiler /usr/bin/cc --ubuntu22-system --program-provenance \
+            --out "$OUT/compiler" 2>&1 | tee "$OUT/compiler.log"
+          "$P" -I -B engines/experiments/tcec-next/profile_rules.py \
+            --family "$FAMILY" --profile "$PROFILE" --source "$SOURCE/main.c" \
+            --baseline "$SOURCE/control/main.c" --proof "$SOURCE/source-proof.json" \
+            --build "$SOURCE" --cc /usr/bin/cc --out "$OUT/rules" 2>&1 | tee "$OUT/rules.log"
+      - name: Preserve independent compiler and rules evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: league-control-ubuntu22-${{ matrix.family }}-${{ matrix.profile }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/control-league-ubuntu22-${{ matrix.family }}-${{ matrix.profile }}
+          if-no-files-found: ignore
+          retention-days: 7
+
   compare-b:
     needs: generate
     if: always() && needs.generate.result != 'cancelled' && needs.generate.result != 'skipped'

@@ -32,7 +32,25 @@ def module(name, path):
 wave = module("checked_rove_wave", HERE / "wave.py")
 
 
+def fastchess_fixture_mode(case, index):
+    """Only the explicitly named startup-failure case injects a failure."""
+    if case not in ("two_ready", "one_startup_failure", "async_go2") or index not in (0, 1):
+        raise ValueError("unknown actual-runner fixture case or slot")
+    if index == 0:
+        return "normal"
+    return {"two_ready": "delay", "one_startup_failure": "startup_exit", "async_go2": "normal"}[case]
+
+
 class Contracts(unittest.TestCase):
+    def test_actual_runner_fixture_failure_is_not_injected_into_async_go2(self):
+        expected = {"two_ready": ("normal", "delay"), "one_startup_failure": ("normal", "startup_exit"),
+                    "async_go2": ("normal", "normal")}
+        for case, modes in expected.items():
+            with self.subTest(case=case):
+                self.assertEqual(tuple(fastchess_fixture_mode(case, index) for index in (0, 1)), modes)
+        with self.assertRaises(ValueError):
+            fastchess_fixture_mode("unknown", 0)
+
     def test_terminal_gate_class_never_promotes_uncertain_delivery(self):
         self.assertEqual(wave._terminal_gate_class({}), ("completed", "completed"))
         self.assertEqual(wave._terminal_gate_class({"gate_transport": "sent"}), ("completed", "completed"))
@@ -966,7 +984,7 @@ def fastchess_checks(build: Path, out: Path) -> dict:
         for index in range(2):
             directory = base / str(index)
             directory.mkdir()
-            mode = "normal" if index == 0 else "delay" if case == "two_ready" else "startup_exit"
+            mode = fastchess_fixture_mode(case, index)
             white = fc.EngineCommand("mock-white", (sys.executable, str(mock), str(directory / "white.jsonl"), mode))
             black = fc.EngineCommand("mock-black", (sys.executable, str(mock), str(directory / "black.jsonl"), "normal"))
             argv = tuple(fc.single_game_argv(binary, white, black, opening_pgn=book, opening_start=1, out=directory))

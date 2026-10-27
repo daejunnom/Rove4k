@@ -11,10 +11,18 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from . import global_budget as g
-from .ledger import Journal
-from .shared_coordinator import CoordinatorBlocked, SharedBudgetJournal
-from .test_global_budget import FakeS3
+try:
+    from . import global_budget as g
+    from . import shared_coordinator as coordinator
+    from .ledger import Journal
+    from .shared_coordinator import CoordinatorBlocked, SharedBudgetJournal
+    from .test_global_budget import FakeS3
+except ImportError:
+    import global_budget as g
+    import shared_coordinator as coordinator
+    from ledger import Journal
+    from shared_coordinator import CoordinatorBlocked, SharedBudgetJournal
+    from test_global_budget import FakeS3
 
 
 @unittest.skipUnless(sys.platform == 'linux', 'POSIX journal lock and Linux /proc are required')
@@ -152,7 +160,7 @@ class Integration(unittest.TestCase):
                 directories.append(os.readlink(f'/proc/self/fd/{descriptor}'))
             return original(descriptor)
         try:
-            with patch('engines.experiments.strength.shared_coordinator.os.fsync', side_effect=observe):
+            with patch.object(coordinator.os, 'fsync', side_effect=observe):
                 SharedBudgetJournal(self.store, journal, self.root)
             self.assertIn(str(path.parent), directories)
             self.assertIn(str(path.parent.parent), directories)
@@ -167,7 +175,7 @@ class Integration(unittest.TestCase):
                 raise OSError('directory fsync failed')
             return original(descriptor)
         try:
-            with patch('engines.experiments.strength.shared_coordinator.os.fsync', side_effect=fault):
+            with patch.object(coordinator.os, 'fsync', side_effect=fault):
                 with self.assertRaisesRegex(OSError, 'directory fsync failed'):
                     SharedBudgetJournal(self.store, journal, self.root)
             self.assertEqual(self.client.seq, 1)
