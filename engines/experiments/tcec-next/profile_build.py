@@ -209,7 +209,11 @@ def main():
     if args.profile in LEAGUE_PROFILE_IDS:
         if args.representation != "source-jit":
             parser.error("league profiles currently admit only source-JIT bootstrap")
-        if (args.b_variant != "control" or args.phase_variant != "control" or
+        # This is an opt-in measurement of the exact full B projection; the
+        # source helper itself admits only each CI-observed resource input.
+        # It is not the maintained production selection or runtime admission.
+        valid_b = args.b_variant == "control" or (args.entry == "B" and args.b_variant == "tcec-final-lf")
+        if (not valid_b or args.phase_variant != "control" or
                 args.spelling_variant != "control" or args.scan_variant != "control" or
                 args.ep_variant != "control"):
             parser.error("league profile source optimizations require their own audited profile pins")

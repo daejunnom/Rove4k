@@ -23,7 +23,7 @@ SELF = 'engines/experiments/tcec-next/check_profile_b.py'
 VERIFIER = 'engines/experiments/tcec-next/profile_verify.py'
 PHASE_CHECK = 'engines/experiments/tcec-next/check_profile_phase.py'
 RUNTIME = 'engines/compact/tiny-entry-d/verify.py'
-B_HELPER_PIN = '23eb1f4e9d036c0e8c229cced86a3f49b99981e98b4c6f80c05883b4cdb12a30'
+B_HELPER_PIN = 'caea501f93ffd341031bc4bbea5018cdbc5149ba03a8ea9acef26c015dc87ad5'
 PHASE_CHECK_PIN = 'a0c0c0ff25dd2b935f281789e7842b2bf199f3167f80df27ac1ff3550c8f4c37'
 
 

@@ -13,11 +13,16 @@ SCHEMA = 'rove4k.profile-b-source.v1'
 INPUTS = {
     ('test-p4', 'private-path'): (8664, 'fb3b8cb59408f0cfce604518b4df27f4f83216363bcd670e2575aa1826fb2ffe'),
     ('test-p4', 'none'): (8639, '6dddd3c112b5f71f2fcf7ace3a665ac6091eabcd5714db42ae5a1faf0b095d69'),
+    ('test-p16', 'private-path'): (8665, '87093b6f8b13dc028d7fdaddee92064f3186c12a0e0faafba4c033985c445dfa'),
     ('test-p28', 'private-path'): (8665, 'e5b8c918408ac72031d5ada96840f4b6c073006a22f99562862d7a7d43f907e3'),
     ('test-p28', 'none'): (8640, 'f3cd589937a6ed2fe104180b911bbe82ba0e844dacf43092bd5c6f564d01e398'),
+    ('test-p192', 'private-path'): (8666, 'e8d486dd31c999baaadb6c302ceb4f9ebf80f7a88c69e29d6f0c32670dfecabd'),
     ('tcec-provisional', 'private-path'): (8666, 'fff746dfa5da7c0f0307be1f3ad4d3e53104a6fb45ec7097e8695559f015b0b5'),
     ('tcec-provisional', 'none'): (8641, '5f764a24878828ced0d5929c1d6c2c44e6d347a432e616ef12b0e07b64afcaf2'),
 }
+# P28 and P192 divide page units unequally; preserve original page-owned
+# boundaries, not a mathematically distinct per-entry floor division.
+PAGE_FLOOR_PROFILES = frozenset(('test-p28', 'test-p192'))
 VARIANTS = {
     'gain': (),
     'init': ('init',),
@@ -131,15 +136,15 @@ def transform_source(source, *, profile_id, entry_cleanup='private-path', varian
                 'for(;rv_i<rv_e;rv_i++){qq[rv_i].h=qq[rv_i].v=0;'
                 'atomic_flag_clear_explicit(&qq[rv_i].a,memory_order_relaxed);}l 0;}')
     if 'init' in flags:
-        # W4/W256 divide the complete-page units. W28 keeps the original floor
-        # partition exactly, including unequal page-owned ranges.
-        ranges = ('i=RVN*n/RVW,e=RVN*(n+1)/RVW' if profile_id != 'test-p28' else
+        # W4/W16/W256 divide the complete-page units. W28/W192 keep the
+        # original floor partition exactly, including unequal page-owned ranges.
+        ranges = ('i=RVN*n/RVW,e=RVN*(n+1)/RVW' if profile_id not in PAGE_FLOOR_PROFILES else
                   'i=RVN/RVU*n/RVW*RVU,e=RVN/RVU*(n+1)/RVW*RVU')
         init_body = ('size_t n=((zd*)p)->i,' + ranges +
                      ';for(;i<e;i++){qq[i].h=qq[i].v=0;'
                      'atomic_flag_clear_explicit(&qq[i].a,memory_order_relaxed);}')
         edit('same page-owned TT initialization', init_old, 'J void*B(void*p){'+init_body+'l 0;}')
-        if profile_id != 'test-p28':
+        if profile_id not in PAGE_FLOOR_PROFILES:
             edit('unused unit constant', '#define RVU 512\n', '')
     launch = ('for(I n=0;n<RVW;n++){qr[n].i=n;qr[n].d=0;'
               'if(pthread_create(qb+n,0,s,qr+n))exit(2);}')
@@ -202,8 +207,8 @@ def transform_source(source, *, profile_id, entry_cleanup='private-path', varian
         edit('optional ponderhit has no position argument',
              'else if(!strncmp(p,"pos",3)){U();R();}', 'else if(*p==\'p\')R();')
     if 'bound' in flags:
-        start = 'RVN*n/RVW' if profile_id != 'test-p28' else 'RVN/RVU*n/RVW*RVU'
-        end = 'RVN*(n+1)/RVW' if profile_id != 'test-p28' else 'RVN/RVU*(n+1)/RVW*RVU'
+        start = 'RVN*n/RVW' if profile_id not in PAGE_FLOOR_PROFILES else 'RVN/RVU*n/RVW*RVU'
+        end = 'RVN*(n+1)/RVW' if profile_id not in PAGE_FLOOR_PROFILES else 'RVN/RVU*(n+1)/RVW*RVU'
         edit('pure invariant end bound', 'i='+start+',e='+end+';for(;i<e;i++)',
              'i='+start+';for(;i<'+end+';i++)')
     if 'mmap' in flags or 'mmap-abi' in flags:

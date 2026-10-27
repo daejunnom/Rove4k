@@ -17,7 +17,7 @@ concurrency:
 jobs:
   source-contracts:
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -32,6 +32,24 @@ jobs:
           set -o pipefail
           python -B -m unittest discover -s engines/scripts -p test_league_resource_profiles.py
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_rules.py -k league -k new_test_profiles
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_b_league.py
+      - name: Check league runner, placement and service boundaries with owned fixtures
+        env:
+          AWS_EC2_METADATA_DISABLED: 'true'
+          AWS_SHARED_CREDENTIALS_FILE: /dev/null
+          AWS_CONFIG_FILE: /dev/null
+        run: |
+          set -o pipefail
+          python -B -m unittest discover -s engines/experiments/strength -p 'test_*.py' \
+            2>&1 | tee "$RUNNER_TEMP/rove4k-league-strength-contracts.log"
+      - name: Preserve runner-contract test output
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: league-strength-contracts-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/rove4k-league-strength-contracts.log
+          if-no-files-found: ignore
+          retention-days: 7
 
   generate:
     needs: source-contracts
@@ -41,12 +59,24 @@ jobs:
       fail-fast: false
       max-parallel: 4
       matrix:
-        family: [A, B, C, E, F]
-        profile: [test-p16, test-p192]
+        include:
+          - {family: A, profile: test-p16, b_variant: control}
+          - {family: A, profile: test-p192, b_variant: control}
+          - {family: B, profile: test-p16, b_variant: control}
+          - {family: B, profile: test-p192, b_variant: control}
+          - {family: C, profile: test-p16, b_variant: control}
+          - {family: C, profile: test-p192, b_variant: control}
+          - {family: E, profile: test-p16, b_variant: control}
+          - {family: E, profile: test-p192, b_variant: control}
+          - {family: F, profile: test-p16, b_variant: control}
+          - {family: F, profile: test-p192, b_variant: control}
+          - {family: B, profile: test-p16, b_variant: tcec-final-lf}
+          - {family: B, profile: test-p192, b_variant: tcec-final-lf}
     env:
       PYTHONDONTWRITEBYTECODE: '1'
       FAMILY: ${{ matrix.family }}
       PROFILE: ${{ matrix.profile }}
+      B_VARIANT: ${{ matrix.b_variant }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -56,17 +86,22 @@ jobs:
           python-version: '3.12'
       - name: Record actual host and tool identities
         run: |
-          EVIDENCE_ROOT="$RUNNER_TEMP/rove4k-league-${FAMILY}-${PROFILE}-${{ github.run_attempt }}"
+          EVIDENCE_ROOT="$RUNNER_TEMP/rove4k-league-${FAMILY}-${PROFILE}-${B_VARIANT}-${{ github.run_attempt }}"
           mkdir "$EVIDENCE_ROOT"
           printf 'EVIDENCE_ROOT=%s\n' "$EVIDENCE_ROOT" >> "$GITHUB_ENV"
           { uname -a; python --version; command -v cc; cc --version; } > "$EVIDENCE_ROOT/toolchain.txt" 2>&1
+          compiler_executable="$(command -v cc)"
+          linker_name="$(cc -print-prog-name=ld)"
+          linker_executable="$(command -v "$linker_name")"
+          sha256sum "$compiler_executable" | cut -d ' ' -f1 > "$EVIDENCE_ROOT/compiler-sha256.txt"
+          sha256sum "$linker_executable" | cut -d ' ' -f1 > "$EVIDENCE_ROOT/linker-sha256.txt"
       - name: Install pinned development-only rules oracle
         run: |
           set -o pipefail
           python -m pip install --require-hashes -r engines/training/e19/requirements.txt \
             2>&1 | tee "$EVIDENCE_ROOT/oracle-install.log"
-      - name: Generate and package the full control twice
-        # This is a fresh source-JIT control candidate. The producer performs
+      - name: Generate and package the full selected candidate twice
+        # Each is a fresh source-JIT candidate. The producer performs
         # compilation, strict payload inverse and two byte comparisons; it does
         # not execute the original engine or allocate either large TT.
         run: |
@@ -74,7 +109,7 @@ jobs:
           timeout --signal=TERM --kill-after=30s 1200s \
             python -I -B engines/experiments/tcec-next/profile_build.py \
               --entry "$FAMILY" --profile "$PROFILE" --representation source-jit \
-              --b-variant control --phase-variant control --spelling-variant control \
+              --b-variant "$B_VARIANT" --phase-variant control --spelling-variant control \
               --scan-variant control --ep-variant control --source-dependencies control \
               --out "$EVIDENCE_ROOT/build" 2>&1 | tee "$EVIDENCE_ROOT/build.log"
       - name: Independently compare the actual five artifact parts and source inverse
@@ -112,6 +147,7 @@ jobs:
           if whole != header + payload or len(whole) != manifest['expected_contract']['whole_bytes']:
               raise ValueError('whole artifact size or composition differs')
           result = {'family': os.environ['FAMILY'], 'profile': os.environ['PROFILE'],
+                    'b_variant': os.environ['B_VARIANT'],
                     'parts': evidence, 'actual_whole_bytes': len(whole),
                     'whole_at_most_4096': len(whole) <= 4096,
                     'original_engine_executed': False, 'runtime_qualified': False,
@@ -155,6 +191,52 @@ jobs:
           print(json.dumps({'family': os.environ['FAMILY'], 'profile': os.environ['PROFILE'],
                             'projection': proof['output'], 'source_qualified': False}, sort_keys=True))
           PY
+      - name: Verify the exact B selected projection and complete inverse
+        if: matrix.b_variant == 'tcec-final-lf'
+        run: |
+          python -I -B - <<'PY'
+          import importlib.util
+          import json
+          import os
+          import sys
+          from pathlib import Path
+
+          root = Path(os.environ['EVIDENCE_ROOT'])
+          build = root / 'build'
+          path = build / 'inputs/engines/experiments/tcec-next/profile_b.py'
+          spec = importlib.util.spec_from_file_location('league_ci_frozen_b_projection', path)
+          module = importlib.util.module_from_spec(spec)
+          sys.modules[spec.name] = module
+          spec.loader.exec_module(module)
+          parent = (root / 'resource-projection.c').read_bytes()
+          candidate, proof = module.transform_source(parent, profile_id=os.environ['PROFILE'],
+              entry_cleanup='private-path', variant=os.environ['B_VARIANT'])
+          manifest = json.loads((build / 'build.json').read_text())
+          if (manifest['source_proofs'][1] != proof or candidate != (build / 'main.c').read_bytes()
+                  or module.restore_source(candidate, proof) != parent):
+              raise ValueError('B source stage or its complete inverse differs')
+          live_helper = Path('engines/experiments/tcec-next/profile_b.py').resolve()
+          if live_helper.read_bytes() != path.read_bytes():
+              raise ValueError('actual-source B test helper differs from frozen producer')
+          test_path = Path('engines/experiments/tcec-next/test_profile_b_league.py').resolve()
+          test_spec = importlib.util.spec_from_file_location('league_ci_actual_b_test', test_path)
+          test_module = importlib.util.module_from_spec(test_spec)
+          sys.modules[test_spec.name] = test_module
+          test_spec.loader.exec_module(test_module)
+          tested, tested_proof = test_module.check_actual_source(parent, profile_id=os.environ['PROFILE'])
+          if tested != candidate or tested_proof != proof:
+              raise ValueError('actual-source B arithmetic test binds a different projection')
+          try:
+              test_module.check_actual_source(parent + b'\n', profile_id=os.environ['PROFILE'])
+          except ValueError:
+              pass
+          else:
+              raise ValueError('mutated actual B resource projection was accepted')
+          (root / 'b-projection-proof.json').write_text(json.dumps(proof, indent=2) + '\n')
+          print(json.dumps({'family': os.environ['FAMILY'], 'profile': os.environ['PROFILE'],
+                            'b_variant': os.environ['B_VARIANT'], 'stage_inverse': True,
+                            'runtime_qualified': False}, sort_keys=True))
+          PY
       - name: Run actual source-bound rules fixtures without the engine or TT
         run: |
           set -o pipefail
@@ -185,6 +267,7 @@ jobs:
           if (admitted.family, admitted.profile_id) != (os.environ['FAMILY'], os.environ['PROFILE']):
               raise ValueError('strict admission returned a different profile')
           result = {'family': admitted.family, 'profile': admitted.profile_id,
+                    'b_variant': os.environ['B_VARIANT'],
                     'strict_source_admission': True, 'engine_executed': False,
                     'runtime_qualified': False, 'physical_placement_qualified': False,
                     'playing_strength_qualified': False}
@@ -195,8 +278,102 @@ jobs:
         if: always() && env.EVIDENCE_ROOT != ''
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: league-source-${{ matrix.family }}-${{ matrix.profile }}-${{ github.sha }}-${{ github.run_attempt }}
+          name: league-source-${{ matrix.family }}-${{ matrix.profile }}-${{ matrix.b_variant }}-${{ github.sha }}-${{ github.run_attempt }}
           path: ${{ env.EVIDENCE_ROOT }}
           include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+
+  compare-b:
+    needs: generate
+    if: always() && needs.generate.result != 'cancelled' && needs.generate.result != 'skipped'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [test-p16, test-p192]
+    env:
+      PROFILE: ${{ matrix.profile }}
+    steps:
+      - name: Download the actual control result for the same commit and attempt
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: league-source-B-${{ matrix.profile }}-control-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/b-control
+      - name: Download the actual selected B result for the same commit and attempt
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: league-source-B-${{ matrix.profile }}-tcec-final-lf-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/b-tcec-final-lf
+      - name: Compare actual parents, cc and ld identities and complete files
+        run: |
+          python -I -B - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          root = Path(os.environ['RUNNER_TEMP'])
+          control, selected = root / 'b-control', root / 'b-tcec-final-lf'
+          records = [json.loads((item / 'build/build.json').read_text()) for item in (control, selected)]
+          audits = [json.loads((item / 'artifact-audit.json').read_text()) for item in (control, selected)]
+          if any(record['family'] != 'B' or record['resources']['id'] != os.environ['PROFILE']
+                 or record['complete'] is not True or record['reproducible'] is not True for record in records):
+              raise ValueError('B cost input family, profile or producer completion differs')
+          if [audit['b_variant'] for audit in audits] != ['control', 'tcec-final-lf']:
+              raise ValueError('B control and selected artifacts are not the requested pair')
+          if records[0].get('post_profile') is not None or records[1].get('post_profile') != {
+                  'path': 'engines/experiments/tcec-next/profile_b.py', 'variant': 'tcec-final-lf'}:
+              raise ValueError('B producer did not record the requested source stages')
+          for key in ('compiler', 'compile_executor', 'compile_executor_version', 'compression'):
+              if records[0][key] != records[1][key]:
+                  raise ValueError('B cost compiler or compression differs: ' + key)
+          for path in ('resource-projection.c', 'build/control/main.c', 'build/header.sh',
+                       'compiler-sha256.txt', 'linker-sha256.txt'):
+              if (control / path).read_bytes() != (selected / path).read_bytes():
+                  raise ValueError('B cost parent or wrapper differs: ' + path)
+          files = [(item / 'build/x').read_bytes() for item in (control, selected)]
+          def actual(data):
+              return {'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+          if any(audit['parts']['x'] != actual(data) for audit, data in zip(audits, files)):
+              raise ValueError('B cost actual file does not match the producer audit')
+          def scope(item):
+              rules = item / 'rules/probe/rules.json'
+              commands = item / 'rules/commands.json'
+              admission = item / 'admission.json'
+              complete = False
+              if rules.is_file() and commands.is_file():
+                  probe = json.loads(rules.read_text())
+                  receipt = json.loads(commands.read_text())
+                  rows = receipt.get('commands', [])
+                  expected = ['rules-compile-plain', 'rules-execute-plain',
+                              'rules-compile-ubsan', 'rules-execute-ubsan']
+                  complete = (probe.get('complete') is True and receipt.get('complete') is True
+                      and receipt.get('host_cleanup') == {'unsettled_commands': 0, 'errors': []}
+                      and [row.get('kind') for row in rows] == expected
+                      and all(row.get('returncode') == 0 and row.get('terminal') is True
+                          and row.get('reaped') is True and row.get('owned_group_absent') is True
+                          and row.get('forced_cleanup') is False for row in rows))
+              return {'rules_complete': complete,
+                      'strict_source_admission': admission.is_file() and
+                          json.loads(admission.read_text()).get('strict_source_admission') is True}
+          report = {'profile': os.environ['PROFILE'], 'family': 'B',
+                    'control': actual(files[0]), 'tcec_final_lf': actual(files[1]),
+                    'selected_minus_control_bytes': len(files[1]) - len(files[0]),
+                    'candidate_at_most_4096': len(files[1]) <= 4096,
+                    'control_validation': scope(control), 'candidate_validation': scope(selected),
+                    'tool_identity_scope': 'cc and ld binaries, compiler version and arguments; not the full toolchain or system image',
+                    'production_selected': False, 'runtime_qualified': False,
+                    'physical_placement_qualified': False, 'playing_strength_qualified': False}
+          out = root / 'b-whole-comparison.json'
+          out.write_text(json.dumps(report, indent=2) + '\n')
+          print(json.dumps(report, sort_keys=True))
+          PY
+      - name: Preserve the B whole-file comparison
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: league-B-whole-comparison-${{ matrix.profile }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/b-whole-comparison.json
           if-no-files-found: error
           retention-days: 7

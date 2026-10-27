@@ -60,6 +60,27 @@ capacity와 전체 대국 수는 아직 확인되지 않았다. 새 근거에 �
 | E | 3870 B | 3882 B | 3871 B |
 | full F | 3587 B | 3602 B | 3589 B |
 
+`415a22326d25d8c449a6434f101cbc3d8690508f`의 별도 P16/P192 control은
+[CI 40520433230](https://github.com/daejunnom/Rove4k/actions/runs/40520433230)에서
+10개 조합 모두 2회 생성·5개 산출물 비교·source inverse·규칙·엄격 소스
+재승인을 통과했다. 원 엔진·TT·물리 배치·대국은 실행하지 않았다.
+같은 head의 유지 엔진 CI는 비D 22개 작업과 verifier 58검사·strength 419검사를
+통과했으며, 공유 예산 reducer 단위 검사는 실제 cloud 원장·GO 연결의 증거가 아니다.
+
+| 계열 | P16 control | P192 control |
+|---|---:|---:|
+| A | 3834 B | 3835 B |
+| B | 4203 B | 4206 B |
+| C | 3982 B | 3983 B |
+| E | 3926 B | 3928 B |
+| full F | 3646 B | 3645 B |
+
+B 두 control은 4096 B를 초과하므로 참가 자격이 없다. 기존 B 축약을 새
+프로필에 옮길 때 실제 source/native·전체 크기·규칙·runtime을 각각 검증한다.
+다른 계열의 크기 통과 역시 192 vCPU 실제 실행이나 리그 적격성을 뜻하지 않는다.
+같은 head의 [castle 비용 CI](https://github.com/daejunnom/Rove4k/actions/runs/40520433628)는
+A/C/E W256에서 각각 +3/+7/+7 B로 손해여서 해당 후보를 선택하지 않는다.
+
 남은 작업은 공통 제출 규칙·자원·소스 소유권을 고정한 다음 병렬로 진행한다.
 
 1. **B/F 압축**: 기존 payload를 보존하는 작은 헤더는 P4/P28/W256에서 B 18 B,
