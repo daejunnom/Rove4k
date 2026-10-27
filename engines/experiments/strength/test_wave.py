@@ -6,6 +6,7 @@ produce league scores, or supply training examples.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import importlib.util
 import json
 import os
@@ -151,6 +152,20 @@ class Contracts(unittest.TestCase):
                 deadline=101, release_fence=fencing)
         self.assertEqual(children[0].observation["drain_reason"], "deadline_before_go")
         self.assertNotIn(("send", 0, b"GO\n"), timeline)
+
+    def test_wire_preparation_cannot_send_after_fence_expiry(self):
+        children, timeline = self.release_children()
+        now = [100.0]
+        def delayed_wire(child, fence):
+            now[0] = 101.0
+            return b"GO2 fixture\n"
+        with patch.object(wave.time, "monotonic", side_effect=lambda: now[0]):
+            wave._release_individually(children, lambda child: dict(child.observation),
+                lambda job, obs: True, lambda job, obs: None, lambda name, child: None,
+                release_fence=self.fence, wire_go=delayed_wire)
+        self.assertEqual(children[0].observation["gate_transport"], "not_attempted")
+        self.assertEqual(children[0].observation["drain_reason"], "release_fence_not_valid")
+        self.assertFalse(any(row[0] == "send" and row[-1] == b"GO2 fixture\n" for row in timeline))
 
     def test_send_crossing_fence_expiry_is_uncertain_and_never_retried(self):
         children, timeline = self.release_children()
@@ -589,6 +604,177 @@ class Contracts(unittest.TestCase):
             self.assertFalse((out / "absent-target").exists())
 
 
+class AsyncContracts(unittest.TestCase):
+    @unittest.skipUnless(sys.platform == "linux", "Linux process and socket ownership")
+    def test_unanswered_authorization_times_out_without_killing_started_game(self):
+        with tempfile.TemporaryDirectory(prefix="rove-async-timeout-") as folder:
+            root = Path(folder)
+            script = root / "toy.py"
+            script.write_text(ASYNC_TOY)
+            jobs = [wave.WaveJob(f"game-{i}", (sys.executable, str(script), "ok"), {},
+                    {"attempt_id": f"attempt-{i:08d}"}, root / str(i)) for i in range(2)]
+            class Mailbox:
+                def __init__(self): self.values = []
+                def request(self, job, observation):
+                    if job.identity == "game-0":
+                        binding = json.dumps({"identity": job.identity, "start_job": job.start_job},
+                                             sort_keys=True, allow_nan=False, separators=(",", ":")).encode()
+                        now = time.monotonic()
+                        self.values.append(wave.AsyncGateDecision(job.identity, True, wave.ReleaseFence(
+                            job.identity, "fence-0", hashlib.sha256(binding).hexdigest(), now, now + 3)))
+                def poll(self):
+                    values, self.values = self.values, []
+                    return values
+            events = []
+            results = wave.WaveExecutor().run_wave(jobs, 3, async_authorizer=Mailbox(),
+                observe_transport=lambda job, obs: None,
+                on_event=lambda event, job, obs: events.append((event, job.identity)))
+            self.assertIn(("completed", "game-0"), events)
+            self.assertEqual(results[0]["returncode"], 0)
+            self.assertFalse(results[0]["cleanup_forced"])
+            self.assertEqual(results[1]["status"], "cancelled_unreconciled")
+            self.assertTrue(results[1]["gate_authorization_unknown"])
+            self.assertEqual(results[1]["gate_transport"], "not_attempted")
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux process and socket ownership")
+    def test_parent_protocol_environment_cannot_change_legacy_gate(self):
+        with tempfile.TemporaryDirectory(prefix="rove-legacy-protocol-") as folder:
+            root = Path(folder)
+            script = root / "toy.py"
+            script.write_text(TOY.replace("note('spawn')", "print(os.environ.get('ROVE_START_PROTOCOL','unset'),flush=True); note('spawn')"))
+            out = root / "out"
+            job = wave.WaveJob("game", (sys.executable, str(script), "brief", str(out / "events.jsonl")),
+                               {"ROVE_START_PROTOCOL": "2"}, {"attempt_id": "legacy"}, out)
+            with patch.dict(os.environ, {"ROVE_START_PROTOCOL": "2"}):
+                result = wave.WaveExecutor().run_wave([job], 5)[0]
+            self.assertEqual(result["returncode"], 0)
+            self.assertEqual((out / "runner.stdout.log").read_text().splitlines()[0], "unset")
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux process and socket ownership")
+    def test_delayed_authorization_keeps_observing_completed_sibling(self):
+        with tempfile.TemporaryDirectory(prefix="rove-async-wave-") as folder:
+            root = Path(folder)
+            script = root / "toy.py"
+            script.write_text(ASYNC_TOY)
+            jobs = [wave.WaveJob(f"game-{i}", (sys.executable, str(script), "ok"), {},
+                    {"attempt_id": f"attempt-{i:08d}"}, root / str(i)) for i in range(2)]
+            events = []
+
+            class Mailbox:
+                def __init__(self):
+                    self.requested = {}
+                    self.sent = set()
+                def request(self, job, observation):
+                    self.requested[job.identity] = job
+                def poll(self):
+                    if "game-0" not in self.sent:
+                        job = self.requested["game-0"]
+                        binding = json.dumps({"identity": job.identity, "start_job": job.start_job},
+                                             sort_keys=True, allow_nan=False, separators=(",", ":")).encode()
+                        now = time.monotonic()
+                        self.sent.add(job.identity)
+                        return [wave.AsyncGateDecision(job.identity, True, wave.ReleaseFence(
+                            job.identity, "fence-0", hashlib.sha256(binding).hexdigest(), now, now + 3))]
+                    if "game-1" not in self.sent and ("completed", "game-0") in events:
+                        self.sent.add("game-1")
+                        return [wave.AsyncGateDecision("game-1", False)]
+                    return []
+
+            observed = []
+            results = wave.WaveExecutor().run_wave(jobs, 5, async_authorizer=Mailbox(),
+                observe_transport=lambda job, obs: observed.append((job.identity, obs["gate_transport"])),
+                on_event=lambda event, job, obs: events.append((event, job.identity)))
+            self.assertIn(("gate_received", "game-0"), events)
+            self.assertIn(("completed", "game-0"), events)
+            self.assertIn(("cancelled", "game-1"), events)
+            self.assertEqual(results[0]["gate_receipt"], "matched")
+            self.assertEqual(results[0]["returncode"], 0)
+            self.assertFalse(results[0]["cleanup_forced"])
+            self.assertEqual(results[1]["status"], "cancelled_before_go")
+            self.assertEqual(observed, [("game-0", "sent")])
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux process and socket ownership")
+    def test_wrong_receipt_stays_unresolved_and_does_not_kill_runner(self):
+        for mode in ("wrong", "duplicate", "missing", "fragment"):
+          with self.subTest(mode=mode), tempfile.TemporaryDirectory(prefix="rove-async-bad-receipt-") as folder:
+            root = Path(folder)
+            script = root / "toy.py"
+            script.write_text(ASYNC_TOY)
+            job = wave.WaveJob("game-0", (sys.executable, str(script), mode), {},
+                               {"attempt_id": "attempt-00000000"}, root / "out")
+            class Mailbox:
+                def request(self, job, observation):
+                    binding = json.dumps({"identity": job.identity, "start_job": job.start_job},
+                                         sort_keys=True, allow_nan=False, separators=(",", ":")).encode()
+                    now = time.monotonic()
+                    self.value = wave.AsyncGateDecision(job.identity, True, wave.ReleaseFence(
+                        job.identity, "fence-0", hashlib.sha256(binding).hexdigest(), now, now + 3))
+                def poll(self):
+                    value, self.value = self.value, None
+                    return [value] if value else []
+            result = wave.WaveExecutor().run_wave([job], 5, async_authorizer=Mailbox(),
+                                                  observe_transport=lambda job, obs: None)[0]
+            self.assertEqual(result["gate_receipt"], "matched" if mode == "fragment" else "unresolved")
+            self.assertEqual(result["status"], "completed" if mode == "fragment" else "delivery_unresolved")
+            self.assertEqual(result["returncode"], 0)
+            self.assertFalse(result["cleanup_forced"])
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux process and socket ownership")
+    def test_duplicate_fence_drains_unsent_but_preserves_started(self):
+        with tempfile.TemporaryDirectory(prefix="rove-async-duplicate-fence-") as folder:
+            root = Path(folder)
+            script = root / "toy.py"
+            script.write_text(ASYNC_TOY)
+            jobs = [wave.WaveJob(f"game-{i}", (sys.executable, str(script), "ok"), {},
+                    {"attempt_id": f"attempt-{i:08d}"}, root / str(i)) for i in range(2)]
+            class Mailbox:
+                def __init__(self): self.values = []
+                def request(self, job, observation):
+                    binding = json.dumps({"identity": job.identity, "start_job": job.start_job},
+                                         sort_keys=True, allow_nan=False, separators=(",", ":")).encode()
+                    now = time.monotonic()
+                    self.values.append(wave.AsyncGateDecision(job.identity, True, wave.ReleaseFence(
+                        job.identity, "shared-fence", hashlib.sha256(binding).hexdigest(), now, now + 3)))
+                def poll(self):
+                    values, self.values = self.values, []
+                    return values
+            results = wave.WaveExecutor().run_wave(jobs, 5, async_authorizer=Mailbox(),
+                                                   observe_transport=lambda job, obs: None)
+            self.assertEqual(results[0]["gate_receipt"], "matched")
+            self.assertEqual(results[0]["returncode"], 0)
+            self.assertFalse(results[0]["cleanup_forced"])
+            self.assertEqual(results[1]["status"], "cancelled_unreconciled")
+            self.assertEqual(results[1]["gate_transport"], "not_attempted")
+            self.assertEqual(results[1]["drain_reason"], "duplicate_release_fence")
+
+
+ASYNC_TOY = r'''import json, os, socket, sys, time
+sock=socket.socket(fileno=int(os.environ['ROVE_START_FD']))
+job=json.loads(os.environ['ROVE_START_JOB'])
+assert os.environ.get('ROVE_START_PROTOCOL') == '2'
+sock.sendall((json.dumps({'event':'READY','job':job,'white_clock_ms':1803000,'black_clock_ms':1803000})+'\n').encode())
+data=b''
+while b'\n' not in data:
+    more=sock.recv(1024)
+    if not more: sys.exit(3)
+    data+=more
+if data==b'ABORT\n': sys.exit(2)
+kind,attempt,fence,sha,nonce=data.decode().strip().split(' ')
+assert kind=='GO2' and attempt==job['attempt_id']
+if sys.argv[1]=='wrong': nonce='0'*64
+ack={'event':'GO2_ACCEPTED','attempt_id':attempt,'fence_id':fence,'job_sha256':sha,'nonce':nonce}
+encoded=(json.dumps(ack)+'\n').encode()
+if sys.argv[1]=='fragment':
+    sock.sendall(encoded[:20]); time.sleep(.05); sock.sendall(encoded[20:])
+elif sys.argv[1]!='missing': sock.sendall(encoded)
+if sys.argv[1]=='duplicate':
+    time.sleep(.05)
+    sock.sendall(encoded)
+if sys.argv[1]=='missing': sock.close()
+time.sleep(.2)
+'''
+
+
 TOY = r'''import json, os, socket, sys, time
 from pathlib import Path
 mode, trace = sys.argv[1:3]
@@ -773,7 +959,7 @@ def fastchess_checks(build: Path, out: Path) -> dict:
     book.write_text('[Event "Fixture only"]\n[Result "*"]\n\n1. f3 e5 *\n')
     report = {"complete": False, "scope": "actual patched Fastchess waves with protocol mocks only",
               "binary_sha256": record["binary_sha256"], "cases": []}
-    for case in ("two_ready", "one_startup_failure"):
+    for case in ("two_ready", "one_startup_failure", "async_go2"):
         base = out / case
         base.mkdir()
         jobs = []
@@ -786,17 +972,38 @@ def fastchess_checks(build: Path, out: Path) -> dict:
             argv = tuple(fc.single_game_argv(binary, white, black, opening_pgn=book, opening_start=1, out=directory))
             metadata = {"wave_id": case, "game_id": f"game-{index}", "attempt_id": f"{case}-{index}-1",
                         "slot_id": str(index), "opening_id": "fixture-foolsmate"}
+            if case == "async_go2":
+                metadata["attempt_id"] = f"attempt-{index:08d}-async-go2"
             jobs.append(wave.WaveJob(metadata["attempt_id"], argv, {}, metadata, directory))
         events = []
+        options = {}
+        if case == "async_go2":
+            class Mailbox:
+                def __init__(self): self.values = []
+                def request(self, job, observation):
+                    binding = json.dumps({"identity": job.identity, "start_job": job.start_job},
+                                         sort_keys=True, allow_nan=False, separators=(",", ":")).encode()
+                    now = time.monotonic()
+                    self.values.append(wave.AsyncGateDecision(job.identity, True, wave.ReleaseFence(
+                        job.identity, "fence-" + job.identity, hashlib.sha256(binding).hexdigest(), now, now + 30)))
+                def poll(self):
+                    values, self.values = self.values, []
+                    return values
+            options.update(async_authorizer=Mailbox(), observe_transport=lambda job, obs: None)
         results = wave.WaveExecutor().run_wave(jobs, 15,
-            on_event=lambda event, job, obs: events.append({"event": event, "identity": job.identity, "time": time.monotonic()}))
+            on_event=lambda event, job, obs: events.append({"event": event, "identity": job.identity, "time": time.monotonic()}),
+            **options)
         if any(result["remaining_processes"] or not result["readers_done"] for result in results):
             raise AssertionError("actual wave did not physically settle")
-        if case == "two_ready":
+        if case in ("two_ready", "async_go2"):
             if any(result["wave_aborted"] or result["returncode"] != 0 for result in results):
                 raise AssertionError("actual ready wave failed: " + repr(results))
             if max(result["ready_monotonic"] for result in results) > min(result["released_monotonic"] for result in results):
                 raise AssertionError("a real runner started before the delayed peer was ready")
+            if case == "async_go2" and (any(result.get("gate_receipt") != "matched" or
+                    result.get("gate_transport") != "sent" for result in results) or
+                    sum(event["event"] == "gate_received" for event in events) != 2):
+                raise AssertionError("actual runner did not produce both GO2 local receipts")
             for job in jobs:
                 pgn = (job.out / "game.pgn").read_text()
                 if '[Result "0-1"]' not in pgn:

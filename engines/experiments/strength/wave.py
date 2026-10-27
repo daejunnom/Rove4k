@@ -22,6 +22,7 @@ import math
 import os
 from pathlib import Path
 import re
+import secrets
 import selectors
 import signal
 import socket
@@ -104,6 +105,20 @@ class ReleaseFence:
             raise ValueError("fence window must be positive and at most 60 seconds")
 
 
+@dataclass(frozen=True)
+class AsyncGateDecision:
+    """One nonblocking owner response; it is not proof of global authority."""
+    identity: str
+    allowed: bool
+    fence: ReleaseFence | None = None
+
+    def __post_init__(self):
+        if (not isinstance(self.identity, str) or not self.identity or type(self.allowed) is not bool
+                or (self.allowed and type(self.fence) is not ReleaseFence)
+                or (not self.allowed and self.fence is not None)):
+            raise ValueError("an allowed decision requires its exact fence; denial must not have one")
+
+
 @dataclass
 class _Channel:
     name: str
@@ -135,7 +150,8 @@ def _terminal_gate_class(observation):
         uncertain_auth = (observation.get("gate_authorized") is True or
                           observation.get("gate_authorization_unknown") is True)
         return "cancelled", "cancelled_unreconciled" if uncertain_auth else "cancelled_before_go"
-    if (observation.get("gate_transport") == "uncertain" or
+    if (observation.get("gate_receipt_required") and observation.get("gate_receipt") != "matched" or
+            observation.get("gate_transport") == "uncertain" or
             observation.get("gate_transport_observation_error") or
             observation.get("gate_release_event_error")):
         return "delivery_uncertain", "delivery_unresolved"
@@ -143,7 +159,7 @@ def _terminal_gate_class(observation):
 
 
 def _release_individually(children, snapshot, authorize_go, observe_transport, emit, *, deadline=None,
-                          notify_drain=None, release_fence=None):
+                          notify_drain=None, release_fence=None, wire_go=None):
     """Try budget-owner authorization immediately before each private gate write.
 
     The callbacks must be supplied by a durable, serialized owner. This helper
@@ -253,10 +269,37 @@ def _release_individually(children, snapshot, authorize_go, observe_transport, e
                     # A failed sendall can have written a prefix or all bytes.
                     # Closing only the write side makes an incomplete gate see
                     # EOF; a runner that received complete GO may still run.
+                    command = b"GO\n"
+                    if wire_go is not None:
+                        try:
+                            command = wire_go(child, fence)
+                            if not isinstance(command, bytes) or not command.endswith(b"\n") or len(command) > 512:
+                                raise ValueError("invalid bounded GO command")
+                        except Exception as error:
+                            obs["gate_wire_error"] = repr(error)
+                            obs["gate_cancelled"] = True
+                            begin_drain(child, "invalid_gate_command")
+                            cancel(child)
+                            continue
+                    # Command construction, including entropy acquisition, may
+                    # itself take time. Recheck immediately before the write.
+                    send_started = time.monotonic()
+                    if deadline is not None and send_started >= deadline:
+                        obs["gate_transport_error"] = "wave deadline expired while preparing GO"
+                        obs["gate_cancelled"] = True
+                        begin_drain(child, "deadline_before_go")
+                        cancel(child)
+                        continue
+                    if fence is not None and not (fence.not_before_monotonic <= send_started < fence.expires_monotonic):
+                        obs["gate_fence_error"] = "fence expired while preparing GO"
+                        obs["gate_cancelled"] = True
+                        begin_drain(child, "release_fence_not_valid")
+                        cancel(child)
+                        continue
                     obs["gate_transport"] = "uncertain"
                     obs["gate_send_started_monotonic"] = send_started
                     try:
-                        child.control.sendall(b"GO\n")
+                        child.control.sendall(command)
                     except OSError as error:
                         obs["gate_transport_error"] = repr(error)
                         begin_drain(child, "go_transport_uncertain")
@@ -388,7 +431,8 @@ class WaveExecutor:
                  *, authorize_go: Callable[[WaveJob, dict], bool] | None = None,
                  observe_transport: Callable[[WaveJob, dict], None] | None = None,
                  on_drain: Callable[[str, WaveJob, dict], None] | None = None,
-                 release_fence: Callable[[WaveJob, dict], ReleaseFence] | None = None) -> list[dict]:
+                 release_fence: Callable[[WaveJob, dict], ReleaseFence] | None = None,
+                 async_authorizer=None) -> list[dict]:
         """Run a wave; ``on_drain`` is an unverified, nonblocking owner signal.
 
         Supplying it neither seals other hosts' gates nor proves that its
@@ -399,14 +443,19 @@ class WaveExecutor:
             raise RuntimeError("the wave executor requires Linux /proc and Unix sockets")
         if not jobs or not 0 < wall_seconds <= 12 * 3600:
             raise ValueError("nonempty jobs and a bounded positive wave wall time required")
-        if (authorize_go is None) != (observe_transport is None) or (authorize_go is not None and
-                (not callable(authorize_go) or not callable(observe_transport))):
+        asynchronous = async_authorizer is not None
+        if asynchronous and (authorize_go is not None or release_callback is not None or release_fence is not None
+                or not callable(getattr(async_authorizer, "request", None))
+                or not callable(getattr(async_authorizer, "poll", None)) or not callable(observe_transport)):
+            raise ValueError("async authorization needs nonblocking request, poll and transport callbacks only")
+        if not asynchronous and ((authorize_go is None) != (observe_transport is None) or (authorize_go is not None and
+                (not callable(authorize_go) or not callable(observe_transport)))):
             raise ValueError("per-game authorization and transport observer must be supplied together")
-        if on_drain is not None and (authorize_go is None or not callable(on_drain)):
+        if on_drain is not None and ((authorize_go is None and not asynchronous) or not callable(on_drain)):
             raise ValueError("drain notification requires per-game authorization")
         if release_fence is not None and (authorize_go is None or not callable(release_fence)):
             raise ValueError("release fence requires per-game authorization")
-        if release_fence is not None:
+        if release_fence is not None or asynchronous:
             attempts = [job.start_job.get("attempt_id") for job in jobs]
             if (any(not isinstance(value, str) or not ATTEMPT_ID.fullmatch(value) for value in attempts)
                     or len(set(attempts)) != len(attempts)):
@@ -443,6 +492,8 @@ class WaveExecutor:
         released = False
         cleaning = False
         drain_notified = False
+        async_draining = False
+        async_seen_fences = set()
 
         def snapshot(child):
             observed = dict(child.observation)
@@ -468,6 +519,106 @@ class WaveExecutor:
                 child.observation["drain_notification_error"] = repr(error)
             else:
                 child.observation["drain_notification"] = "returned_unverified"
+
+        def begin_async_drain(child, reason):
+            """Stop only unsent gates; preserve every possible GO owner."""
+            nonlocal async_draining
+            if async_draining:
+                return
+            async_draining = True
+            notify_drain(child, reason)
+            for pending in children:
+                obs = pending.observation
+                if obs.get("gate_transport") in ("sent", "uncertain") or obs.get("gate_cancelled"):
+                    continue
+                if obs.get("gate_authorization_requested") and not obs.get("gate_authorization_resolved"):
+                    obs["gate_authorization_unknown"] = True
+                obs.update(gate_cancelled=True, gate_transport="not_attempted",
+                           gate_cancel_started_monotonic=time.monotonic())
+                if pending.control is not None:
+                    try:
+                        pending.control.sendall(b"ABORT\n")
+                    except OSError as error:
+                        obs["gate_cancel_error"] = repr(error)
+                        try:
+                            pending.control.shutdown(socket.SHUT_WR)
+                        except OSError:
+                            pass
+
+        def go2_wire(child, fence):
+            if fence is None:
+                raise ValueError("GO2 requires an explicit fence")
+            attempt = child.expected["attempt_id"]
+            nonce = secrets.token_hex(32)
+            expected = {"event": "GO2_ACCEPTED", "attempt_id": attempt, "fence_id": fence.fence_id,
+                        "job_sha256": fence.job_sha256, "nonce": nonce}
+            child.observation.update(gate_receipt_required=True, gate_receipt="pending",
+                                     gate_receipt_expected=expected,
+                                     gate_receipt_deadline=min(fence.expires_monotonic, time.monotonic() + 5))
+            return f"GO2 {attempt} {fence.fence_id} {fence.job_sha256} {nonce}\n".encode("ascii")
+
+        def async_tick():
+            """Poll only a local nonblocking mailbox; never perform remote I/O here."""
+            for item in children:
+                obs = item.observation
+                if obs.get("gate_receipt") == "pending" and time.monotonic() >= obs["gate_receipt_deadline"]:
+                    obs["gate_receipt"] = "unresolved"
+                    begin_async_drain(item, "gate_receipt_timeout")
+                if item.process is not None and item.process.poll() is not None and item.control is not None:
+                    obs.setdefault("gate_eof_deadline", time.monotonic() + 5)
+                    if time.monotonic() >= obs["gate_eof_deadline"]:
+                        obs["gate_receipt"] = "unresolved"
+                        begin_async_drain(item, "gate_control_eof_timeout")
+                        unregister(item.control)
+                        item.control.close()
+                        item.control = None
+            if async_draining:
+                return
+            for item in children:
+                obs = item.observation
+                if (item.process is not None and item.process.poll() is not None
+                        and obs.get("gate_transport") == "not_attempted" and not obs.get("gate_cancelled")):
+                    begin_async_drain(item, "pending_runner_exit")
+                    return
+            if time.monotonic() >= wall_deadline:
+                pending = next((item for item in children if not item.observation.get("gate_authorization_resolved")
+                                and not item.observation.get("gate_cancelled")), None)
+                if pending is not None:
+                    begin_async_drain(pending, "async_authorization_deadline")
+                    return
+            try:
+                decisions = async_authorizer.poll()
+                if not isinstance(decisions, (list, tuple)) or len(decisions) > len(children):
+                    raise ValueError("bounded decision batch required")
+            except Exception as error:
+                children[0].observation["gate_authorizer_poll_error"] = repr(error)
+                begin_async_drain(children[0], "async_authorizer_failed")
+                return
+            for decision in decisions:
+                matches = [item for item in children if item.job.identity == getattr(decision, "identity", None)]
+                if (type(decision) is not AsyncGateDecision or len(matches) != 1
+                        or not matches[0].observation.get("gate_authorization_requested")
+                        or matches[0].observation.get("gate_authorization_resolved")):
+                    begin_async_drain(children[0], "invalid_or_duplicate_decision")
+                    return
+                item = matches[0]
+                item.observation.update(gate_authorization_resolved=True, gate_authorization_unknown=False)
+                if not decision.allowed:
+                    item.observation["gate_denied_reason"] = "release authorization denied"
+                    begin_async_drain(item, "authorization_denied")
+                    return
+                if decision.fence.fence_id in async_seen_fences:
+                    item.observation["gate_authorized"] = True
+                    item.observation["gate_fence_error"] = "duplicate fence identity within wave"
+                    begin_async_drain(item, "duplicate_release_fence")
+                    return
+                async_seen_fences.add(decision.fence.fence_id)
+                drained = _release_individually([item], snapshot, lambda job, obs: True, observe_transport, event,
+                    deadline=wall_deadline, notify_drain=notify_drain,
+                    release_fence=lambda job, obs: decision.fence, wire_go=go2_wire)
+                if drained:
+                    begin_async_drain(item, item.observation.get("drain_reason", "gate_release_failed"))
+                    return
 
         def event(name, child):
             nonlocal event_error
@@ -497,6 +648,8 @@ class WaveExecutor:
             for child in children:
                 if child.completion_notified or child.process is None:
                     continue
+                if asynchronous and (child.observation.get("gate_receipt") == "pending" or child.control is not None):
+                    continue
                 code = child.process.poll()
                 if code is None or not all(channel.eof for channel in child.channels) or _owned_members(child):
                     continue
@@ -510,13 +663,15 @@ class WaveExecutor:
                 try:
                     event(name, child)
                 except WaveAbort as error:
-                    if authorize_go is None:
+                    if authorize_go is None and not asynchronous:
                         raise
                     # An audit/ledger failure is not evidence that another
                     # already-started game has failed. Quarantine receipts and
                     # retain natural ownership until all running games settle.
                     child.observation["completion_event_error"] = str(error)
                     notify_drain(child, "completion_event_failed")
+                    if asynchronous:
+                        begin_async_drain(child, "completion_event_failed")
                     return
                 child.completion_notified = True
 
@@ -528,10 +683,12 @@ class WaveExecutor:
                     try:
                         event("tick", child)
                     except WaveAbort as error:
-                        if authorize_go is None or not released:
+                        if (authorize_go is None and not asynchronous) or not released:
                             raise
                         child.observation["tick_event_error"] = str(error)
                         notify_drain(child, "tick_event_failed")
+                        if asynchronous:
+                            begin_async_drain(child, "tick_event_failed")
 
         def cleanup_cancelled():
             """Only gates proven not to have attempted GO may be timed out."""
@@ -649,13 +806,50 @@ class WaveExecutor:
                         child.control.close()
                         child.control = None
                         child.observation["control_closed_monotonic"] = time.monotonic()
+                        if asynchronous and child.observation.get("gate_receipt_required") and child.observation.get("gate_receipt") != "matched":
+                            child.observation["gate_receipt"] = "unresolved"
+                            begin_async_drain(child, "gate_receipt_missing")
+                        elif asynchronous and released and child.observation.get("gate_transport") not in ("sent", "uncertain") and not child.observation.get("gate_cancelled"):
+                            begin_async_drain(child, "pending_gate_closed")
                         if not released and not cleaning:
                             raise WaveAbort("runner control EOF before READY: " + child.job.identity)
                         continue
                     if cleaning:
                         continue
                     if child.observation["ready_monotonic"] is not None:
-                        raise WaveAbort("unexpected repeated control message: " + child.job.identity)
+                        if not asynchronous or not child.observation.get("gate_receipt_required") or child.observation.get("gate_receipt") != "pending":
+                            if asynchronous:
+                                child.observation["gate_receipt"] = "unresolved"
+                                begin_async_drain(child, "unexpected_gate_message")
+                                continue
+                            raise WaveAbort("unexpected repeated control message: " + child.job.identity)
+                        child.gate_bytes += data
+                        if len(child.gate_bytes) > 4096:
+                            child.observation["gate_receipt"] = "unresolved"
+                            begin_async_drain(child, "excessive_gate_receipt")
+                            continue
+                        if b"\n" not in child.gate_bytes:
+                            continue
+                        line, extra = child.gate_bytes.split(b"\n", 1)
+                        child.gate_bytes = b""
+                        try:
+                            receipt = json.loads(line, parse_constant=lambda value: (_ for _ in ()).throw(ValueError(value)))
+                        except (ValueError, UnicodeDecodeError):
+                            receipt = None
+                        if (extra or not _same_json(receipt, child.observation["gate_receipt_expected"])
+                                or time.monotonic() >= child.observation["gate_receipt_deadline"]):
+                            child.observation["gate_receipt"] = "unresolved"
+                            begin_async_drain(child, "gate_receipt_mismatch_or_expired")
+                        else:
+                            child.observation["gate_receipt"] = "matched"
+                            child.observation["gate_receipt_monotonic"] = time.monotonic()
+                            try:
+                                event("gate_received", child)
+                            except WaveAbort as error:
+                                child.observation["gate_receipt_event_error"] = str(error)
+                                child.observation["gate_receipt"] = "unresolved"
+                                begin_async_drain(child, "gate_receipt_event_failed")
+                        continue
                     child.gate_bytes += data
                     if len(child.gate_bytes) > 16384:
                         raise WaveAbort("excessive READY message: " + child.job.identity)
@@ -674,6 +868,7 @@ class WaveExecutor:
                         raise WaveAbort("READY identity or clock mismatch: " + child.job.identity)
                     child.observation["ready"] = ready
                     child.observation["ready_monotonic"] = time.monotonic()
+                    child.gate_bytes = b""
                     child.observation["status"] = "ready"
                     event("ready", child)
 
@@ -735,8 +930,13 @@ class WaveExecutor:
                 parent.setblocking(False)
                 environment = dict(os.environ)
                 environment.update(child.job.env)
+                # The executor owns the protocol selection. A parent shell or
+                # caller environment must never silently change legacy GO.
+                environment.pop("ROVE_START_PROTOCOL", None)
                 environment.update(ROVE_START_FD=str(passed.fileno()),
                     ROVE_START_JOB=json.dumps(child.expected, allow_nan=False, separators=(",", ":")))
+                if asynchronous:
+                    environment["ROVE_START_PROTOCOL"] = "2"
                 try:
                     child.process = subprocess.Popen(list(child.job.argv), cwd=child.job.out,
                         env=environment, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
@@ -772,7 +972,25 @@ class WaveExecutor:
                 raise WaveAbort("controller denied wave release")
             if time.monotonic() >= wall_deadline:
                 raise WaveAbort("wave wall deadline expired before release")
-            if authorize_go is not None:
+            if asynchronous:
+                # request and poll must touch only a local nonblocking mailbox;
+                # the serialized owner performs network/durable work elsewhere.
+                released = True
+                for child in children:
+                    child.observation.update(gate_authorized=False, gate_authorization_unknown=False,
+                                             gate_authorization_requested=False, gate_authorization_resolved=False,
+                                             gate_transport="not_attempted", gate_cancelled=False)
+                for child in children:
+                    if async_draining:
+                        break
+                    child.observation["gate_authorization_requested"] = True
+                    try:
+                        async_authorizer.request(child.job, snapshot(child))
+                    except Exception as error:
+                        child.observation["gate_authorization_request_error"] = repr(error)
+                        begin_async_drain(child, "async_authorization_request_failed")
+                run_deadline = None
+            elif authorize_go is not None:
                 _release_individually(children, snapshot, authorize_go, observe_transport, event,
                                       deadline=wall_deadline, notify_drain=notify_drain,
                                       release_fence=release_fence)
@@ -801,15 +1019,19 @@ class WaveExecutor:
                 if run_deadline is not None and time.monotonic() >= run_deadline:
                     raise WaveAbort("wave wall deadline expired")
                 pump(self.poll_seconds if run_deadline is None else min(self.poll_seconds, run_deadline - time.monotonic()))
+                if asynchronous:
+                    async_tick()
                 notify_completed()
                 inspect_failures()
                 ticks()
-                if authorize_go is not None:
+                if authorize_go is not None or asynchronous:
                     cleanup_cancelled()
-                if all(child.process.poll() is not None for child in children):
+                if (all(child.process.poll() is not None for child in children) and
+                        (not asynchronous or all(child.observation.get("gate_receipt") != "pending" and child.control is None
+                                                 for child in children))):
                     break
         except BaseException as error:
-            if authorize_go is not None:
+            if authorize_go is not None or asynchronous:
                 # No host may infer that other owners stopped just because
                 # this wave failed. Notify the external coordinator to fence
                 # further starts; physical settlement remains separate.

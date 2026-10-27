@@ -81,6 +81,14 @@ HOST_SOURCE_FILES = tuple("engines/experiments/strength/" + name + ".py" for nam
 # P16/P192 dependencies are additive. Existing P4/P28 seed manifests do not
 # need to contain modules which their execution path never imports.
 LEAGUE_HOST_SOURCE_FILES = ("engines/experiments/strength/memory_observation.py",
+                            "engines/experiments/strength/overhead.py",
+                            "engines/experiments/strength/league_probe.py",
+                            "engines/experiments/strength/diagnostic_candidates.py",
+                            "engines/experiments/strength/peak_capacity.py",
+                            "engines/experiments/strength/peak_probe_session.py",
+                            "engines/experiments/strength/peak_ready_probe.py",
+                            "engines/experiments/strength/peak_receipt.py",
+                            "engines/experiments/strength/peak_supervisor.py",
                             "engines/scripts/league_resource_profiles.py")
 LEAGUE_PROFILES = ("test-p16", "test-p192")
 
@@ -236,7 +244,8 @@ def seed_expansion_limit(value):
             require(isinstance(row, dict) and isinstance(row.get("family"), str)
                     and isinstance(row.get("profile"), str)
                     and row["family"] in (tuple("ABCDEF") if kind == "rove" else ("ice4", "c4ke"))
-                    and row["profile"] in ("test-p4", "test-p28"),
+                    and row["profile"] in ("test-p4", "test-p28", "test-p16", "test-p192")
+                    and not (kind == "rove" and row["family"] == "D" and row["profile"] in LEAGUE_PROFILES),
                     "source seed admits only named full TEST inputs")
             identity = row["family"], row["profile"]
             require(identity not in selected, "duplicate seed family/profile")
@@ -1126,6 +1135,9 @@ def validate_controller_inputs(*, plan, seed, manifest, manifest_sha256, permit,
     independently records and checks the actual toolchain before any engine.
     """
     manifest = validate_seed_manifest(manifest)
+    require(all(row["profile"] in ("test-p4", "test-p28")
+                for kind in ("rove", "peers") for row in manifest[kind]),
+            "legacy campaign cannot launch a P16/P192 seed; league host execution is not implemented")
     require(not manifest.get("rove") or original_layout_plan(manifest),
             "Rove source seed has no original-layout restoration plan")
     validate_host_source(manifest)

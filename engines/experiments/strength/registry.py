@@ -11,7 +11,10 @@ import re
 import sys
 
 ROOT = Path(__file__).resolve().parents[3]
-_spec = importlib.util.spec_from_file_location("rove_production", ROOT / "engines/scripts/production.py")
+# A frozen registry must resolve its production contract from that same source
+# root rather than a same-named module loaded earlier from another checkout.
+_production_name = "rove_production_" + hashlib.sha256(str(ROOT).encode()).hexdigest()[:16]
+_spec = importlib.util.spec_from_file_location(_production_name, ROOT / "engines/scripts/production.py")
 production = sys.modules.get(_spec.name)
 if production is None:
     production = importlib.util.module_from_spec(_spec)
@@ -21,6 +24,17 @@ if production is None:
 SHA = re.compile(r"^[0-9a-f]{64}$")
 ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,95}$")
 CHECKS = ("reproduction", "size", "startup", "dependencies", "cleanup", "protocol", "legal_moves", "resources", "lifecycle", "placement")
+LEAGUE_PROFILE_OWNER = "engines/scripts/league_resource_profiles.py"
+
+
+def resource_profile(profile_id):
+    """Resolve league profiles lazily so historical source seeds stay closed."""
+    if profile_id not in ("test-p16", "test-p192"):
+        return production.resource_profile(profile_id)
+    spec = importlib.util.spec_from_file_location("rove_league_profiles", ROOT / LEAGUE_PROFILE_OWNER)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.resource_profile(production, profile_id)
 
 
 def file_sha(path):
@@ -47,7 +61,7 @@ def smt_runtime_evidence(report, artifact):
     result = {"profile": artifact.profile, "host_runtime_evidence_complete": False,
               "tt_overlapping_vma_pages_observed": False, "tt_only_pages_proven": False,
               "scored_game_placement_confirmed": False,
-              "scope": "single peer and actual recorded CPU/policy observations; no scored game or TT-only NUMA claim"}
+              "scope": "single engine and recorded CPU/policy observations; no scored game or TT-only NUMA claim"}
 
     def require(condition, message):
         if not condition:
@@ -131,7 +145,7 @@ def smt_runtime_evidence(report, artifact):
                     and budget["tt_bytes"] == artifact.tt_bytes
                     and budget["availability"]["effective_available_bytes"] >= budget["required_available_bytes"],
                     "actual resource preflight differs")
-            expected_tt = {"test-p16": 16 << 30, "test-p192": 128 << 30}[artifact.profile]
+            expected_tt = resource_profile(artifact.profile).layout(artifact.entry_bytes).bytes
             other = max(768 << 20, expected_workers * (16 << 20))
             require(artifact.tt_bytes == expected_tt and budget["other_peak_bytes"] == other
                     and budget["required_available_bytes"] == expected_tt + other + (256 << 20)
@@ -245,7 +259,7 @@ class Artifact:
         identifier(self.id)
         if self.family not in (*"ABCDEF", "ice4", "c4ke"):
             raise ValueError("unknown active engine family")
-        profile = production.resource_profile(self.profile)
+        profile = resource_profile(self.profile)
         if self.purpose != profile.purpose or self.workers != profile.workers:
             raise ValueError("artifact purpose/worker count differs from resource profile")
         if type(self.entry_bytes) is not int or self.entry_bytes <= 0:

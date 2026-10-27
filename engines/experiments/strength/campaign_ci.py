@@ -367,11 +367,13 @@ def bind_materializer_source(origin, expected_head, *, out=None):
         # source dependencies before even its seed materializer is imported.
         # Older source revisions without either declaration retain their
         # original materializer closure and validation behavior.
-        require(values["LEAGUE_HOST_MODULES"] == ("memory_observation",)
+        require(values["LEAGUE_HOST_MODULES"] in (("memory_observation",),
+                ("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
+                 "peak_receipt", "peak_supervisor"))
                 and values["LEAGUE_CORE_R"] == ("engines/scripts/league_resource_profiles.py",),
                 "committed league materializer source closure differs")
-        names += ("engines/experiments/strength/memory_observation.py",
-                  "engines/scripts/league_resource_profiles.py")
+        names += tuple("engines/experiments/strength/" + name + ".py" for name in values["LEAGUE_HOST_MODULES"])
+        names += values["LEAGUE_CORE_R"]
     require(len(set(names)) == len(names), "duplicate committed materializer source member")
     records = git(origin, "ls-tree", "-r", "-z", expected_head, "--", *sorted(names)).split(b"\0")
     tracked = {}

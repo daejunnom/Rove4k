@@ -170,20 +170,36 @@ def _mount_record(text, mount):
 
 def observe_capacity(slots, cgroup_root, *, proc_root=Path("/proc"),
                      node_root=Path("/sys/devices/system/node"), cgroup_mount=Path("/sys/fs/cgroup"),
-                     page_size_for_test=None, cpu_affinity_for_test=None):
+                     page_size_for_test=None, cpu_affinity_for_test=None, extra_nodes=(),
+                     mask_scope="observer-and-delegated"):
     """Capture actual visible host, controller, delegated root and NUMA bounds.
 
     Injected roots/page size support fixtures only; they do not create trusted
     live evidence. A controller cannot infer invisible host ancestors from a
     cgroup namespace. The caller must separately bind provenance, freshness,
     ownership, overhead and the scored-execution authority.
+
+    The default requires slot masks in both the observer and delegated root.
+    ``delegated-only`` supports a separate observer in a smaller sibling:
+    it observes the target masks, without granting permission to enter them or
+    proving their ownership, topology, or future stability. Observer masks
+    remain recorded and rechecked in both modes.
     """
     started = time.monotonic_ns()
+    if mask_scope not in ("observer-and-delegated", "delegated-only"):
+        raise ValueError("unknown observer/delegated mask scope")
     proc_root, node_root, mount, delegated = map(_root, (proc_root, node_root, cgroup_mount, cgroup_root))
     if not delegated.is_relative_to(mount) or delegated == mount:
         raise ValueError("delegated root must be a strict visible cgroup descendant")
     if not isinstance(slots, (list, tuple)) or not 1 <= len(slots) <= 11:
         raise ValueError("one through eleven observed slot records required")
+    if (not isinstance(extra_nodes, (list, tuple, set)) or len(extra_nodes) > 4096 or
+            any(type(node) is not int or not 0 <= node <= 1_000_000 for node in extra_nodes) or
+            len(extra_nodes) != len(set(extra_nodes))):
+        raise ValueError("distinct bounded extra memory-node identities required")
+    # Snapshot caller input before the kernel reads; extras describe nodes a
+    # target controller may use, not a change to the frozen slot digest.
+    extra_nodes = frozenset(extra_nodes)
     rows, ids, nodes, selected_cpus = [], set(), set(), set()
     for slot in slots:
         row = slot.to_record() if hasattr(slot, "to_record") else slot
@@ -243,8 +259,10 @@ def observe_capacity(slots, cgroup_root, *, proc_root=Path("/proc"),
                 any(type(cpu) is not int or cpu < 0 for cpu in cpu_affinity_for_test)):
             raise ValueError("invalid fixture controller CPU affinity")
         controller_cpus = set(cpu_affinity_for_test)
-    if (not selected_cpus <= delegated_cpus or not selected_cpus <= controller_cpus or
-            not nodes <= delegated_nodes or not nodes <= status_nodes):
+    observed_nodes = nodes | extra_nodes
+    if (not selected_cpus <= delegated_cpus or not observed_nodes <= delegated_nodes or
+            mask_scope == "observer-and-delegated" and
+            (not selected_cpus <= controller_cpus or not nodes <= status_nodes)):
         raise ValueError("slots exceed actual controller or delegated effective masks")
     membership = []
     for line in membership_text.splitlines():
@@ -260,7 +278,7 @@ def observe_capacity(slots, cgroup_root, *, proc_root=Path("/proc"),
     controller_rows, controller_finite = _cgroup_ancestors(controller, mount)
     delegated_rows, delegated_finite = _cgroup_ancestors(delegated, mount)
     node_available = {}
-    for node in sorted(nodes):
+    for node in sorted(observed_nodes):
         directory = node_root / f"node{node}"
         if directory.is_symlink() or not directory.is_dir() or not directory.resolve().is_relative_to(node_root):
             raise ValueError("node directory is unavailable or unsafe")
@@ -286,6 +304,8 @@ def observe_capacity(slots, cgroup_root, *, proc_root=Path("/proc"),
             "completed_monotonic_ns": time.monotonic_ns(), "mount": mount_record,
             "controller_membership": membership[0],
             "controller_cpu_affinity": sorted(controller_cpus), "controller_allowed_nodes": sorted(status_nodes),
+            "mask_scope": mask_scope,
+            "extra_nodes": sorted(extra_nodes),
             "delegated_effective_cpus": sorted(delegated_cpus), "delegated_effective_nodes": sorted(delegated_nodes),
             "controller_identity": {"device": controller_stat.st_dev, "inode": controller_stat.st_ino},
             "delegated_identity": {"device": delegated_stat.st_dev, "inode": delegated_stat.st_ino},

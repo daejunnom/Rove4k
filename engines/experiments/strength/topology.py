@@ -92,6 +92,82 @@ class Topology:
                             tuple(sorted(parse_list((root / "thread_siblings_list").read_text())))))
         return cls(tuple(rows), tuple(sorted(allowed)), tuple(sorted(mems)), distances, os.uname().release)
 
+    @classmethod
+    def snapshot_target(cls, path, *, device, inode, sysroot=Path("/sys")):
+        """Read a target cgroup's effective topology, independent of our affinity.
+
+        The caller supplies the originally owned cgroup identity. Kernel masks,
+        online CPUs and that directory identity are rechecked after sampling.
+        This does not authenticate the caller or source, prove hidden ancestor
+        visibility, prevent external writers, or reserve CPUs or memory.
+        A non-default sysroot is solely a fixture and not runtime evidence.
+        """
+        if os.name != "posix" or not all(hasattr(os, key) for key in ("O_DIRECTORY", "O_NOFOLLOW")):
+            raise RuntimeError("target topology requires Linux no-follow cgroup access")
+        path = Path(path)
+        if (not path.is_absolute() or ".." in path.parts or type(device) is not int or device < 0 or
+                type(inode) is not int or inode <= 0 or
+                any(item.is_symlink() for item in (path, *path.parents)) or
+                path.resolve(strict=True) != path):
+            raise ValueError("original target cgroup identity must be a real absolute non-symlink path")
+        fd = os.open(path, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | getattr(os, "O_CLOEXEC", 0))
+        try:
+            def identity():
+                stat = os.fstat(fd)
+                return stat.st_dev, stat.st_ino
+
+            def mask(name):
+                file_fd = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | getattr(os, "O_CLOEXEC", 0), dir_fd=fd)
+                with os.fdopen(file_fd, "rb") as stream:
+                    value = stream.read(65537)
+                if len(value) > 65536:
+                    raise ValueError("target effective mask is too large")
+                try:
+                    result = parse_list(value.decode("ascii"))
+                except UnicodeDecodeError as error:
+                    raise ValueError("target effective mask is not ASCII") from error
+                if not result or max(result) > 1_000_000:
+                    raise ValueError("target effective mask is empty or out of range")
+                return result
+
+            if identity() != (device, inode):
+                raise ValueError("original target cgroup identity changed")
+            online_path = Path(sysroot) / "devices/system/cpu/online"
+            online = parse_list(online_path.read_text())
+            allowed, mems = mask("cpuset.cpus.effective"), mask("cpuset.mems.effective")
+            if not allowed <= online:
+                raise ValueError("target effective CPUs exceed kernel online CPUs")
+            nodes, distances, observed_nodes = {}, {}, set()
+            for node_path in sorted((Path(sysroot) / "devices/system/node").glob("node[0-9]*")):
+                node = int(node_path.name[4:])
+                observed_nodes.add(node)
+                if (node_path / "cpulist").exists():
+                    for cpu in parse_list((node_path / "cpulist").read_text()):
+                        if cpu in nodes and nodes[cpu] != node:
+                            raise ValueError("CPU is present in multiple NUMA node lists")
+                        nodes[cpu] = node
+                if (node_path / "distance").exists():
+                    distances[str(node)] = [int(value) for value in (node_path / "distance").read_text().split()]
+            if not mems <= observed_nodes:
+                raise ValueError("target effective memory nodes are not present in sysfs")
+            rows = []
+            for cpu in sorted(allowed):
+                root = Path(sysroot) / f"devices/system/cpu/cpu{cpu}/topology"
+                if cpu not in nodes:
+                    raise ValueError("CPU has no observed NUMA node: " + str(cpu))
+                rows.append(Cpu(cpu, int((root / "physical_package_id").read_text()),
+                                int((root / "core_id").read_text()), nodes[cpu],
+                                tuple(sorted(parse_list((root / "thread_siblings_list").read_text())))))
+            after = path.stat(follow_symlinks=False)
+            if (identity() != (device, inode) or (after.st_dev, after.st_ino) != (device, inode) or
+                    any(item.is_symlink() for item in (path, *path.parents)) or
+                    allowed != mask("cpuset.cpus.effective") or mems != mask("cpuset.mems.effective") or
+                    online != parse_list(online_path.read_text())):
+                raise ValueError("target cgroup identity, effective masks or online CPUs changed during observation")
+            return cls(tuple(rows), tuple(sorted(allowed)), tuple(sorted(mems)), distances, os.uname().release)
+        finally:
+            os.close(fd)
+
     def to_record(self):
         return asdict(self)
 

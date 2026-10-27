@@ -45,9 +45,9 @@ class Fixture:
             directory = self.root / ("slot-%03d" % number)
             self.group(directory, cpus, nodes)
             self.games.append({"slot": directory.name, "path": directory, "cpus": cpus, "nodes": nodes,
-                               "artifacts": [{"id": "A", "source_sha256": "a" * 64,
+                               "artifacts": [{"id": "A", "whole_sha256": "a" * 64,
                                               "native_sha256": sha(ENGINE1), "tt_bytes": 12 << 30},
-                                             {"id": "B", "source_sha256": "b" * 64,
+                                             {"id": "B", "whole_sha256": "b" * 64,
                                               "native_sha256": sha(ENGINE2), "tt_bytes": 16 << 30}]})
         self.control = self.root / "controller"
         control_cpus = tuple(range(176, 192)) if self.workers == 16 else tuple(range(192))
@@ -146,6 +146,13 @@ class CohortPeakObservationTests(unittest.TestCase):
                        "now_monotonic_ns": result["finished_ns"] + 100, "max_age_ns": 1000}
             self.assertFalse(overhead.inspect_report(result, **inspect)["authenticated"])
             self.assertFalse(overhead.inspect_report(result, **inspect)["runtime_admission"])
+            self.assertEqual(result["format"], "rove4k-cohort-peak-observation-v2")
+            old = dict(result, format="rove4k-cohort-peak-observation-v1")
+            del old["observation_sha256"]
+            raw = json.dumps(old, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode("ascii")
+            old["observation_sha256"] = hashlib.sha256(raw).hexdigest()
+            with self.assertRaisesRegex(ValueError, "context differs"):
+                overhead.inspect_report(old, **inspect)
             tampered = dict(result, cgroup_root="/other")
             with self.assertRaisesRegex(ValueError, "digest differs"):
                 overhead.inspect_report(tampered, **inspect)

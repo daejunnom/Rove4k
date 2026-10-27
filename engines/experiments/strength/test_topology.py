@@ -1,5 +1,9 @@
 from dataclasses import replace
+import os
+from pathlib import Path
+import tempfile
 import unittest
+from unittest.mock import patch
 
 from topology import Cpu, Topology, parse_list, plan_p192_slot, plan_slots
 
@@ -139,6 +143,114 @@ class TopologyTests(unittest.TestCase):
         for value in ("2-1", "0;1", "-1", "0,,2"):
             with self.assertRaises(ValueError):
                 parse_list(value)
+
+
+@unittest.skipUnless(os.name == "posix" and hasattr(os, "O_NOFOLLOW"), "Linux target cgroup fixture")
+class TargetTopologyTests(unittest.TestCase):
+    def setUp(self):
+        self.folder = tempfile.TemporaryDirectory()
+        self.addCleanup(self.folder.cleanup)
+        root = Path(self.folder.name).resolve()
+        self.root, self.sysroot = root, root / "sys"
+        self.target = root / "delegated" / "games"
+        self.target.mkdir(parents=True)
+        (self.target / "cpuset.cpus.effective").write_text("0-3\n")
+        (self.target / "cpuset.mems.effective").write_text("0-1\n")
+        cpu_root = self.sysroot / "devices/system/cpu"
+        cpu_root.mkdir(parents=True)
+        (cpu_root / "online").write_text("0-3\n")
+        for cpu in range(4):
+            directory = cpu_root / f"cpu{cpu}/topology"
+            directory.mkdir(parents=True)
+            (directory / "physical_package_id").write_text(f"{cpu // 2}\n")
+            (directory / "core_id").write_text("0\n")
+            (directory / "thread_siblings_list").write_text("0-1\n" if cpu < 2 else "2-3\n")
+        for node in (0, 1):
+            directory = self.sysroot / f"devices/system/node/node{node}"
+            directory.mkdir(parents=True)
+            (directory / "cpulist").write_text("0-1\n" if node == 0 else "2-3\n")
+            (directory / "distance").write_text("10 20\n" if node == 0 else "20 10\n")
+        stat = self.target.stat()
+        self.device, self.inode = stat.st_dev, stat.st_ino
+
+    def snapshot(self, path=None, *, device=None, inode=None):
+        return Topology.snapshot_target(path or self.target,
+                device=self.device if device is None else device,
+                inode=self.inode if inode is None else inode, sysroot=self.sysroot)
+
+    def test_target_masks_ignore_observer_affinity(self):
+        with patch.object(os, "sched_getaffinity", return_value={0}):
+            result = self.snapshot()
+        self.assertEqual(result.allowed_cpus, (0, 1, 2, 3))
+        self.assertEqual(result.allowed_nodes, (0, 1))
+        self.assertEqual([cpu.node for cpu in result.cpus], [0, 0, 1, 1])
+        self.assertEqual(result.cpus[2].siblings, (2, 3))
+
+    def test_original_cgroup_identity_and_no_symlink_paths_are_required(self):
+        with self.assertRaisesRegex(ValueError, "identity changed"):
+            self.snapshot(inode=self.inode + 1)
+        link = self.root / "link"
+        link.symlink_to(self.target, target_is_directory=True)
+        with self.assertRaisesRegex(ValueError, "non-symlink"):
+            self.snapshot(link)
+        with self.assertRaisesRegex(ValueError, "non-symlink"):
+            self.snapshot(self.root / "delegated" / ".." / "delegated" / "games")
+
+    def test_empty_offline_and_unknown_masks_fail(self):
+        cpu_file, node_file = (self.target / name for name in
+                               ("cpuset.cpus.effective", "cpuset.mems.effective"))
+        for value in ("", "0-4", "0;1"):
+            with self.subTest(cpus=value):
+                cpu_file.write_text(value)
+                with self.assertRaises(ValueError):
+                    self.snapshot()
+        cpu_file.write_text("0-3")
+        for value in ("", "0-2", "0;1"):
+            with self.subTest(nodes=value):
+                node_file.write_text(value)
+                with self.assertRaises(ValueError):
+                    self.snapshot()
+
+    def test_rejects_effective_mask_change_during_snapshot(self):
+        original = Path.read_text
+        def changing(path, *args, **kwargs):
+            value = original(path, *args, **kwargs)
+            if str(path).endswith("node0/cpulist"):
+                (self.target / "cpuset.cpus.effective").write_text("0-1")
+            return value
+        with patch.object(Path, "read_text", changing):
+            with self.assertRaisesRegex(ValueError, "changed during observation"):
+                self.snapshot()
+
+    def test_rejects_online_cpu_change_during_snapshot(self):
+        original = Path.read_text
+        def changing(path, *args, **kwargs):
+            value = original(path, *args, **kwargs)
+            if str(path).endswith("node0/cpulist"):
+                (self.sysroot / "devices/system/cpu/online").write_text("0-1")
+            return value
+        with patch.object(Path, "read_text", changing):
+            with self.assertRaisesRegex(ValueError, "changed during observation"):
+                self.snapshot()
+
+    def test_rejects_replacement_of_target_path_during_snapshot(self):
+        original = Path.read_text
+        def replacing(path, *args, **kwargs):
+            value = original(path, *args, **kwargs)
+            if str(path).endswith("node0/cpulist"):
+                self.target.rename(self.target.parent / "old-target")
+                self.target.mkdir()
+                (self.target / "cpuset.cpus.effective").write_text("0-3")
+                (self.target / "cpuset.mems.effective").write_text("0-1")
+            return value
+        with patch.object(Path, "read_text", replacing):
+            with self.assertRaisesRegex(ValueError, "changed during observation"):
+                self.snapshot()
+
+    def test_duplicate_numa_membership_is_rejected(self):
+        (self.sysroot / "devices/system/node/node1/cpulist").write_text("1-3")
+        with self.assertRaisesRegex(ValueError, "multiple NUMA"):
+            self.snapshot()
 
 
 if __name__ == "__main__":

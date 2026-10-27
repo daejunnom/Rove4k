@@ -51,14 +51,17 @@ CORE_R = ("engines/experiments/tcec-next/profile_verify.py", "engines/experiment
           "engines/common/move.c", "engines/common/protocol.c", "engines/common/search.c")
 # These files are needed only by the new league profiles. Keep the legacy
 # P4/P28 source closure unchanged; neither declaration authorizes a league run.
-LEAGUE_HOST_MODULES = ("memory_observation",)
+LEAGUE_HOST_MODULES = ("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
+                       "peak_receipt", "peak_supervisor")
 LEAGUE_CORE_R = ("engines/scripts/league_resource_profiles.py",)
 LEAGUE_PROFILES = ("test-p16", "test-p192")
 # Exact declarations whose values are used only by league profile branches.
 # This is scanner metadata, not a blanket exemption for the owning file.
 LEAGUE_DEPENDENCY_DECLARATIONS = {
     "engines/experiments/strength/seed.py": ("LEAGUE_CORE_R", ("engines/scripts/league_resource_profiles.py",)),
-    "engines/experiments/strength/cloud_runtime.py": ("LEAGUE_HOST_SOURCE_FILES", ("engines/experiments/strength/memory_observation.py", "engines/scripts/league_resource_profiles.py")),
+    "engines/experiments/strength/cloud_runtime.py": ("LEAGUE_HOST_SOURCE_FILES", ("engines/experiments/strength/memory_observation.py", "engines/experiments/strength/overhead.py", "engines/experiments/strength/league_probe.py", "engines/experiments/strength/diagnostic_candidates.py", "engines/experiments/strength/peak_capacity.py", "engines/experiments/strength/peak_probe_session.py", "engines/experiments/strength/peak_ready_probe.py", "engines/experiments/strength/peak_receipt.py", "engines/experiments/strength/peak_supervisor.py", "engines/scripts/league_resource_profiles.py")),
+    "engines/experiments/strength/registry.py": ("LEAGUE_PROFILE_OWNER", "engines/scripts/league_resource_profiles.py"),
+    "engines/experiments/strength/peer_runtime.py": ("LEAGUE_SOURCE_FILES", ("engines/scripts/league_resource_profiles.py",)),
     "engines/experiments/tcec-next/profile_verify.py": ("LEAGUE_PROFILE_OWNER", "engines/scripts/league_resource_profiles.py"),
     "engines/experiments/tcec-next/profile_rules.py": ("LEAGUE_OWNER", "engines/scripts/league_resource_profiles.py"),
     "engines/experiments/tcec-next/profile_build.py": ("LEAGUE_PROFILES", "engines/scripts/league_resource_profiles.py"),
@@ -113,6 +116,11 @@ def named_python_dependencies(raw, *, source_name, league_required=True):
             '"committed league materializer source closure differs")',
             'names += ("engines/experiments/strength/memory_observation.py", '
             '"engines/scripts/league_resource_profiles.py")',
+            'require(values["LEAGUE_HOST_MODULES"] in (("memory_observation",), '
+            '("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe", '
+            '"peak_receipt", "peak_supervisor")) and '
+            'values["LEAGUE_CORE_R"] == ("engines/scripts/league_resource_profiles.py",), '
+            '"committed league materializer source closure differs")',
         )
         expected = {ast.dump(ast.parse(value).body[0]) for value in templates}
         for function in tree.body:

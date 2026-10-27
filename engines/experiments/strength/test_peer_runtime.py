@@ -52,6 +52,39 @@ def elf_fixture(*, symbol_size=8, dependency=b"libc.so.6", symbol_name=b"table")
 
 
 class PeerRuntimeTests(unittest.TestCase):
+    def test_frozen_source_closure_lazily_binds_league_profile_owner(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp).resolve()
+            legacy = base / "legacy"
+            league = base / "league"
+            old_pins = runtime._freeze(legacy)
+            new_pins = runtime._freeze(league, league_required=True)
+            owner = runtime.LEAGUE_SOURCE_FILES[0]
+            self.assertNotIn(owner, old_pins)
+            self.assertIn(owner, new_pins)
+            runtime._verify_frozen(legacy / "source-closure", old_pins)
+            runtime._verify_frozen(league / "source-closure", new_pins, league_required=True)
+            frozen_registry = runtime.sibling("registry", league / "source-closure")
+            self.assertEqual(Path(frozen_registry.production.__file__),
+                             league / "source-closure" / "engines/scripts/production.py")
+            whole = base / "fixture"
+            whole.write_bytes(b"synthetic input")
+            legacy_registry = runtime.sibling("registry", legacy / "source-closure")
+            self.assertEqual(Path(legacy_registry.production.__file__),
+                             legacy / "source-closure" / "engines/scripts/production.py")
+            legacy_artifact = legacy_registry.Artifact("ice4-p4", "ice4", whole, "test", "test-p4", 4,
+                128 << 20, 8, "source-jit", True, runtime.sha(whole.read_bytes()), whole.stat().st_size, "b" * 64)
+            legacy_artifact.verify_bytes()
+            artifact = frozen_registry.Artifact("ice4-p16", "ice4", whole, "test", "test-p16", 16,
+                16 << 30, 8, "source-jit", True, runtime.sha(whole.read_bytes()), whole.stat().st_size, "b" * 64)
+            artifact.verify_bytes()
+            with self.assertRaisesRegex(ValueError, "source closure"):
+                runtime._verify_frozen(legacy / "source-closure", old_pins, league_required=True)
+            copied = league / "source-closure" / owner
+            copied.write_bytes(copied.read_bytes() + b"\n# altered\n")
+            with self.assertRaisesRegex(ValueError, "bound input bytes changed"):
+                runtime._verify_frozen(league / "source-closure", new_pins, league_required=True)
+
     def test_elf_reads_actual_object_and_dependencies(self):
         elf = runtime.Elf64(elf_fixture())
         self.assertEqual(elf.pointer_symbol("table"), 0x200)
@@ -202,11 +235,15 @@ class PeerRuntimeTests(unittest.TestCase):
                     with patch.object(runtime.sys, "platform", "linux"), \
                             patch.dict(runtime.os.environ, {"LD_PRELOAD": "", "LD_AUDIT": "", "LD_LIBRARY_PATH": ""}), \
                             patch.object(runtime, "read_record", return_value=(ref, "digest")), \
-                            patch.object(runtime, "_verify_frozen"), \
-                            patch.object(runtime, "validate_build", return_value=admitted), \
+                            patch.object(runtime, "_verify_frozen") as verify, \
+                            patch.object(runtime, "validate_build", return_value=admitted) as build, \
                             patch.object(runtime, "construct_owned") as launch:
                         with self.assertRaisesRegex(ValueError, "explicit functional-only opt-in"):
                             runtime.qualify_peer(reference, out, {}, allow_functional=False)
+                        with self.assertRaisesRegex(ValueError, "controlled cgroup ancestry and memory reservation"):
+                            runtime.qualify_peer(reference, out, {}, allow_functional=True)
+                        verify.assert_not_called()
+                        build.assert_not_called()
                         launch.assert_not_called()
                         self.assertFalse(out.exists())
 

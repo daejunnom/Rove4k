@@ -1033,6 +1033,7 @@ class AuthorityTests(unittest.TestCase):
 class DeploymentBindingTests(unittest.TestCase):
     def test_new_league_host_source_is_required_and_pinned_only_for_new_profiles(self):
         manifest, _ = seed_fixture()
+        self.assertTrue(all(not Path(name).name.startswith("test_") for name in cloud.LEAGUE_HOST_SOURCE_FILES))
         for name in cloud.HOST_SOURCE_FILES:
             raw = (cloud.ROOT / name).read_bytes().replace(b"\r\n", b"\n")
             manifest["members"]["source/" + name] = {**cloud.pin(raw), "mode": 0o600}
@@ -1062,12 +1063,19 @@ class DeploymentBindingTests(unittest.TestCase):
                     with self.assertRaisesRegex(ValueError, "differs from reviewed controller"):
                         cloud.validate_host_source(changed)
 
-    def test_new_league_seed_cohort_stays_rejected_by_current_host_gate(self):
+    def test_new_league_seed_transport_is_bounded_and_excludes_d(self):
         for profile in ("test-p16", "test-p192"):
-            manifest, _ = seed_fixture()
-            manifest["rove"][0]["profile"] = profile
-            with self.subTest(profile=profile), self.assertRaisesRegex(ValueError, "named full TEST inputs"):
-                cloud.seed_expansion_limit(manifest)
+            for family in "ABCEF":
+                manifest, _ = seed_fixture()
+                manifest["rove"][0].update(family=family, profile=profile)
+                with self.subTest(profile=profile, family=family):
+                    self.assertEqual(cloud.seed_expansion_limit(manifest), cloud.MAX_SEED)
+                    cloud.validate_seed_manifest(manifest)
+            for peer in ("ice4", "c4ke"):
+                self.assertEqual(cloud.seed_expansion_limit({"rove": [], "peers": [{"family": peer, "profile": profile}]}),
+                                 cloud.MAX_SEED)
+            with self.assertRaisesRegex(ValueError, "named full TEST inputs"):
+                cloud.seed_expansion_limit({"rove": [{"family": "D", "profile": profile}], "peers": []})
 
     def fixture(self, advanced=False):
         try:
@@ -1136,6 +1144,14 @@ class DeploymentBindingTests(unittest.TestCase):
         self.assertIn(("lambda", "get-function-configuration"), operations)
         self.assertIn(("ec2", "describe-images"), operations)
         self.assertNotIn(("ec2", "run-instances"), operations)
+
+    def test_legacy_controller_rejects_league_transport_before_aws_calls(self):
+        for profile in ("test-p16", "test-p192"):
+            values = self.fixture()
+            values[1]["rove"][0]["profile"] = profile
+            with self.subTest(profile=profile), self.assertRaisesRegex(ValueError, "legacy campaign cannot launch"):
+                self.validate(values)
+            self.assertEqual(values[-1].calls, [])
 
     def test_configured_advanced_context_binds_the_actual_selected_template(self):
         values = self.fixture(advanced=True)

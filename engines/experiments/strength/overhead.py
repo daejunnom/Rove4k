@@ -131,7 +131,7 @@ class CohortPeakObserver:
 
     ``games`` contains exact slot id, cgroup directory, effective cpu/node
     masks and two already-admitted artifact identities.  Artifact fields are
-    ``id``, ``source_sha256``, ``native_sha256`` and ``tt_bytes``.  The caller
+    ``id``, ``whole_sha256``, ``native_sha256`` and ``tt_bytes``.  The caller
     must establish their provenance separately; this observer compares only the
     actual live native image with the supplied native digest.
 
@@ -175,10 +175,10 @@ class CohortPeakObserver:
                 raise ValueError("two engine artifacts required")
             frozen = []
             for artifact in artifacts:
-                if (not isinstance(artifact, dict) or set(artifact) != {"id", "source_sha256", "native_sha256", "tt_bytes"}
+                if (not isinstance(artifact, dict) or set(artifact) != {"id", "whole_sha256", "native_sha256", "tt_bytes"}
                         or not isinstance(artifact["id"], str) or not _ID.fullmatch(artifact["id"])):
                     raise ValueError("exact named engine artifact identity required")
-                frozen.append({"id": artifact["id"], "source_sha256": _digest(artifact["source_sha256"]),
+                frozen.append({"id": artifact["id"], "whole_sha256": _digest(artifact["whole_sha256"]),
                                "native_sha256": _digest(artifact["native_sha256"]),
                                "tt_bytes": _positive(artifact["tt_bytes"], "TT extent")})
                 if frozen[-1]["tt_bytes"] > (16 << 30 if self.workers == 16 else 192 << 30):
@@ -430,7 +430,7 @@ class CohortPeakObserver:
             raise ValueError("peak and headroom exceed bounded integer range")
         plans = [{"slot": g["slot"], "cgroup_path": str(g["path"]), "cpus": list(g["cpus"]), "nodes": list(g["nodes"]),
                   "artifacts": g["artifacts"]} for g in self.games]
-        report = {"format": "rove4k-cohort-peak-observation-v1", "profile": self.profile,
+        report = {"format": "rove4k-cohort-peak-observation-v2", "profile": self.profile,
                   "boot_id": self.boot_id, "started_utc": self.started_utc,
                   "started_ns": self.started_ns, "finished_ns": time.monotonic_ns(),
                   "observer_source_sha256": self.observer_source_sha256, "runner_sha256": self.runner_sha256,
@@ -489,7 +489,7 @@ def inspect_report(report, *, profile, plan, boot_id, cgroup_root, controller_cg
     if hashlib.sha256(raw).hexdigest() != supplied:
         raise ValueError("observation report digest differs")
     if (profile not in ("test-p16", "test-p192") or report.get("profile") != profile
-            or report.get("format") != "rove4k-cohort-peak-observation-v1"
+            or report.get("format") != "rove4k-cohort-peak-observation-v2"
             or not isinstance(plan, list) or report.get("plan") != plan
             or not isinstance(boot_id, str) or report.get("boot_id") != boot_id
             or not isinstance(cgroup_root, str) or report.get("cgroup_root") != cgroup_root

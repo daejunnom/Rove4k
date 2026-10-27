@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/app/src/core/rove_start_gate.hpp
-@@ -0,0 +1,127 @@
+@@ -0,0 +1,191 @@
 +#pragma once
 +
 +#include <atomic>
@@ -24,6 +24,7 @@
 +inline int control_fd = -1;
 +inline nlohmann::json job;
 +inline std::atomic<bool> gate_used{false};
++inline bool go2_required = false;
 +
 +inline bool fail(const char* why) {
 +    std::fprintf(stderr, "ROVE_START_GATE_ABORT: %s\n", why);
@@ -36,7 +37,8 @@
 +inline bool prepare() {
 +    const char* raw = std::getenv("ROVE_START_FD");
 +    const char* metadata = std::getenv("ROVE_START_JOB");
-+    if (!raw) return metadata ? fail("job without control FD") : true;
++    const char* protocol = std::getenv("ROVE_START_PROTOCOL");
++    if (!raw) return (metadata || protocol) ? fail("job or protocol without control FD") : true;
 +#ifdef _WIN64
 +    return fail("the league start gate requires POSIX");
 +#else
@@ -46,6 +48,10 @@
 +    if (errno || !end || *end || end == raw || fd < 3 || fd > std::numeric_limits<int>::max())
 +        return fail("invalid control FD");
 +    control_fd = static_cast<int>(fd);
++    if (protocol) {
++        if (std::string(protocol) != "2") return fail("unknown start protocol");
++        go2_required = true;
++    }
 +    const int flags = fcntl(control_fd, F_GETFD);
 +    if (flags < 0 || fcntl(control_fd, F_SETFD, flags | FD_CLOEXEC) < 0)
 +        return fail("cannot protect control FD");
@@ -77,6 +83,64 @@
 +    return static_cast<int>(left > std::numeric_limits<int>::max() ?
 +                            std::numeric_limits<int>::max() : left);
 +}
++
++inline bool send_until(const std::string& message, std::chrono::steady_clock::time_point deadline) {
++    size_t sent = 0;
++    while (sent < message.size()) {
++        if (!poll_left(deadline)) return false;
++        const auto count = send(control_fd, message.data() + sent, message.size() - sent,
++                                MSG_NOSIGNAL | MSG_DONTWAIT);
++        if (count > 0) { sent += static_cast<size_t>(count); continue; }
++        if (count < 0 && errno == EINTR) continue;
++        if (count < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
++            pollfd fd{control_fd, POLLOUT, 0};
++            const int left = poll_left(deadline);
++            if (left && poll(&fd, 1, left) > 0 && !(fd.revents & (POLLERR | POLLHUP | POLLNVAL))) continue;
++        }
++        return false;
++    }
++    // The last send can itself cross the deadline. The peer may nevertheless
++    // have received bytes and must reconcile an expired or missing receipt.
++    return poll_left(deadline) != 0;
++}
++
++// A GO2 receipt confirms only that this local runner validated the command.
++// It neither authenticates the sender nor proves the engine began searching.
++inline bool accept_go2(const std::string& command, std::chrono::steady_clock::time_point deadline) {
++    if (command.compare(0, 4, "GO2 ") || command.back() != '\n') return fail("invalid controller command");
++    std::string fields[4];
++    size_t start = 4;
++    for (int i = 0; i < 4; ++i) {
++        const auto end = command.find(i == 3 ? '\n' : ' ', start);
++        if (end == std::string::npos || end == start || (i == 3 && end != command.size() - 1))
++            return fail("invalid GO2 fields");
++        fields[i] = command.substr(start, end - start);
++        start = end + 1;
++    }
++    auto identifier = [](const std::string& value, size_t min, size_t max, bool first_alnum) {
++        if (value.size() < min || value.size() > max) return false;
++        for (size_t i = 0; i < value.size(); ++i) {
++            const char c = value[i];
++            const bool alnum = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9');
++            if (!alnum && ((first_alnum && i == 0) || (c != '_' && c != '.' && c != '-'))) return false;
++        }
++        return true;
++    };
++    auto digest = [](const std::string& value) {
++        if (value.size() != 64) return false;
++        for (const char c : value) if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f'))) return false;
++        return true;
++    };
++    if (!identifier(fields[0], 16, 128, true) || !identifier(fields[1], 1, 96, false) ||
++        !digest(fields[2]) || !digest(fields[3]) || !job.contains("attempt_id") ||
++        !job["attempt_id"].is_string() || job["attempt_id"].get<std::string>() != fields[0])
++        return fail("invalid GO2 binding");
++    const auto ack = nlohmann::json{{"event", "GO2_ACCEPTED"}, {"attempt_id", fields[0]},
++        {"fence_id", fields[1]}, {"job_sha256", fields[2]}, {"nonce", fields[3]}}.dump() + "\n";
++    // A failed or partial reply aborts the gate. A full reply can still be
++    // lost before the controller reads it, so that side must reconcile EOF.
++    return send_until(ack, deadline) ? true : fail("GO2 receipt delivery failed or timed out");
++}
 +#endif
 +
 +inline bool await_start(int64_t white_clock, int64_t black_clock) {
@@ -88,19 +152,7 @@
 +    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(180);
 +    const std::string message = nlohmann::json{{"event", "READY"}, {"job", job},
 +        {"white_clock_ms", white_clock}, {"black_clock_ms", black_clock}}.dump() + "\n";
-+    size_t sent = 0;
-+    while (sent < message.size()) {
-+        const auto count = send(control_fd, message.data() + sent, message.size() - sent,
-+                                MSG_NOSIGNAL | MSG_DONTWAIT);
-+        if (count > 0) { sent += static_cast<size_t>(count); continue; }
-+        if (count < 0 && errno == EINTR) continue;
-+        if (count < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
-+            pollfd fd{control_fd, POLLOUT, 0};
-+            const int left = poll_left(deadline);
-+            if (left && poll(&fd, 1, left) > 0 && !(fd.revents & (POLLERR | POLLHUP))) continue;
-+        }
-+        return fail("READY delivery failed or timed out");
-+    }
++    if (!send_until(message, deadline)) return fail("READY delivery failed or timed out");
 +    std::string command;
 +    while (true) {
 +        const int left = poll_left(deadline);
@@ -116,9 +168,21 @@
 +            if (count <= 0) return fail("controller disconnected");
 +            for (ssize_t i = 0; i < count; ++i) {
 +                command += buffer[i];
-+                if (command.size() > 16) return fail("invalid controller command");
++                if (command.size() > 384) return fail("invalid controller command");
 +                if (buffer[i] == '\n') {
-+                    if (command == "GO\n") return true;
++                    if (command == "GO\n" && !go2_required) return true;
++                    if (go2_required && command.compare(0, 4, "GO2 ") == 0) {
++                        if (i + 1 != count) return fail("extra GO2 command bytes");
++                        // Reject already queued trailing bytes too; this does
++                        // not assert that a peer cannot write more later.
++                        char trailing;
++                        ssize_t extra;
++                        do { extra = recv(control_fd, &trailing, 1, MSG_PEEK | MSG_DONTWAIT); }
++                        while (extra < 0 && errno == EINTR);
++                        if (extra > 0 || (extra < 0 && errno != EAGAIN && errno != EWOULDBLOCK))
++                            return fail("extra GO2 command bytes");
++                        return accept_go2(command, deadline);
++                    }
 +                    return fail(command == "ABORT\n" ? "controller aborted wave" : "invalid controller command");
 +                }
 +            }

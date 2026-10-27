@@ -38,6 +38,7 @@ SOURCE_FILES = (
     "engines/experiments/tcec-scope/verify.py",
     "engines/tests/chess_oracle.py",
 )
+LEAGUE_SOURCE_FILES = ("engines/scripts/league_resource_profiles.py",)
 HELPER_PINS = {
     "engines/compact/tiny-entry-d/verify.py": "18faa69aed5cb5dd85a054ef2e6830463f3d819f5f635d74d55550a877c81eae",
     "engines/tests/chess_oracle.py": "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8",
@@ -149,9 +150,9 @@ def process_identity(pid):
     return {"pid": pid, "pgid": int(fields[2]), "session": int(fields[3]), "start_ticks": int(fields[19])}
 
 
-def _freeze(out):
+def _freeze(out, *, league_required=False):
     pins = {}
-    for relative in SOURCE_FILES:
+    for relative in SOURCE_FILES + (LEAGUE_SOURCE_FILES if league_required else ()):
         data = (ROOT / relative).read_bytes().replace(b"\r\n", b"\n")
         require(relative not in HELPER_PINS or sha(data) == HELPER_PINS[relative], "owned helper changed: " + relative)
         destination = out / "source-closure" / relative
@@ -161,8 +162,9 @@ def _freeze(out):
     return pins
 
 
-def _verify_frozen(directory, pins):
-    require(set(pins) == set(SOURCE_FILES), "qualification source closure is incomplete")
+def _verify_frozen(directory, pins, *, league_required=False):
+    expected = SOURCE_FILES + (LEAGUE_SOURCE_FILES if league_required else ())
+    require(set(pins) == set(expected), "qualification source closure is incomplete")
     for relative, pin in pins.items():
         bound(directory / relative, pin)
         require(relative not in HELPER_PINS or pin["sha256"] == HELPER_PINS[relative], "qualification helper pin differs")
@@ -339,7 +341,7 @@ def prepare_reference(build, out, *, manifest_sha=None, cpu=5, timeout=600):
               "worker_source": admitted["worker_source"],
               "input_observations": admitted["input_observations"], "commands": [], "engines_executed": 0}
     try:
-        record["source_inputs"] = _freeze(out)
+        record["source_inputs"] = _freeze(out, league_required=admitted["layout"]["id"] in ("test-p16", "test-p192"))
         (out / "main.cpp").write_bytes(admitted["source"])
         record["source"] = {"bytes": len(admitted["source"]), "sha256": sha(admitted["source"])}
         compiler = compile_argv(admitted["peer"], out / "unused")[0]
@@ -803,12 +805,18 @@ def qualify_peer(reference, out, slot, *, reference_sha=None, allow_functional=F
     require(ref.get("format") == "rove4k-peer-reference-v1" and ref.get("complete") is True and ref.get("engines_executed") == 0,
             "completed engine-free reference preparation required")
     reference_frozen = Path(reference).parent / "source-closure"
-    _verify_frozen(reference_frozen, ref["source_inputs"])
-    admitted = validate_build(ref["build"]["path"], ref["build"]["sha256"])
-    require(admitted["peer"] == ref["peer"] and admitted["layout"] == ref["resources"], "reference resource identity differs")
     large_profile = ref["resources"]["id"] in ("test-p16", "test-p192")
     require(not large_profile or allow_functional,
             "SMT TEST runtime requires explicit functional-only opt-in; scored placement remains unqualified")
+    # Point-in-time visible cgroup headroom is neither a memory reservation nor
+    # proof that a namespace has not hidden constrained ancestors. Until the
+    # owned supervisor can supply those guarantees, even functional opt-in may
+    # not launch a P16/P192 peer through this independent legacy path.
+    require(not large_profile,
+            "SMT peer launch awaits controlled cgroup ancestry and memory reservation")
+    _verify_frozen(reference_frozen, ref["source_inputs"], league_required=large_profile)
+    admitted = validate_build(ref["build"]["path"], ref["build"]["sha256"])
+    require(admitted["peer"] == ref["peer"] and admitted["layout"] == ref["resources"], "reference resource identity differs")
     require(ref["native"]["path"] == str(reference.parent / "reference-1"), "native reference path is outside bound output")
     native = bound(ref["native"]["path"], ref["native"])
     require(ref["entry_size_compile_assertion"] is True and len(ref["native_attempts"]) == 3,
@@ -829,7 +837,7 @@ def qualify_peer(reference, out, slot, *, reference_sha=None, allow_functional=F
         runtime_budget = observed_peer_runtime_budget(ref["resources"], cpus=slot["cpus"], wall_seconds=wall_seconds)
     out = peers.external_new(out)
     out.mkdir(parents=True)
-    runtime_inputs = _freeze(out)
+    runtime_inputs = _freeze(out, league_required=large_profile)
     frozen = out / "source-closure"
     registry = sibling("registry", frozen)
     record = admitted["record"]

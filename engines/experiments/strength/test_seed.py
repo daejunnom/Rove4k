@@ -563,10 +563,11 @@ class SeedTests(unittest.TestCase):
 
     def test_new_league_closure_is_explicit_while_legacy_source_is_unchanged(self):
         checkout, origin = self.fixture.config["checkout"], self.fixture.config["source_origin"]
-        # The old source fixture deliberately contains neither league file.
+        # The old source fixture deliberately contains no league files.
         legacy = seed.checkout_files(checkout, origin)
-        league_names = ("engines/experiments/strength/memory_observation.py",
-                        "engines/scripts/league_resource_profiles.py")
+        league_names = tuple("engines/experiments/strength/" + name + ".py" for name in
+            ("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe", "peak_receipt",
+             "peak_supervisor")) + ("engines/scripts/league_resource_profiles.py",)
         self.assertTrue(all(name not in legacy for name in league_names))
         with self.assertRaisesRegex(ValueError, "omitted the host/R production code closure"):
             seed.checkout_files(checkout, origin, league_required=True)
@@ -604,6 +605,15 @@ class SeedTests(unittest.TestCase):
         self.assertIn(target, seed.named_python_dependencies(campaign + ("\nopen(" + repr(target) + ")\n").encode(),
                                                              source_name=owner, league_required=False))
 
+        for source_name in ("engines/experiments/strength/registry.py", "engines/experiments/strength/peer_runtime.py"):
+            symbol, value = seed.LEAGUE_DEPENDENCY_DECLARATIONS[source_name]
+            declaration = (symbol + " = " + repr(value) + "\n").encode()
+            with self.subTest(source=source_name):
+                self.assertNotIn(target, seed.named_python_dependencies(declaration, source_name=source_name, league_required=False))
+                self.assertIn(target, seed.named_python_dependencies(declaration + ("open(" + repr(target) + ")\n").encode(),
+                    source_name=source_name, league_required=False))
+                self.assertIn(target, seed.named_python_dependencies(declaration, source_name=source_name, league_required=True))
+
         source_name = "engines/experiments/strength/cloud_runtime.py"
         source = self.fixture.repo / source_name
         declaration = "LEAGUE_HOST_SOURCE_FILES = " + repr(seed.LEAGUE_DEPENDENCY_DECLARATIONS[source_name][1]) + "\n"
@@ -616,6 +626,40 @@ class SeedTests(unittest.TestCase):
         origin = {**self.fixture.config["source_origin"], "head_sha": head}
         with self.assertRaisesRegex(ValueError, "named production Python dependency omitted: .*league_resource_profiles.py"):
             seed.checkout_files(checkout, origin)
+
+    def test_p16_p192_source_seed_fixture_round_trips_without_admission(self):
+        """Synthetic source/CI evidence only; no host, engine or AWS operation."""
+        names = ["engines/experiments/strength/" + name + ".py" for name in seed.LEAGUE_HOST_MODULES]
+        names += list(seed.LEAGUE_CORE_R)
+        for name in names:
+            path = self.fixture.repo / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(b"# synthetic league transport source\n")
+        git(self.fixture.repo, "add", "--", *names)
+        git(self.fixture.repo, "-c", "user.name=Transport Fixture", "-c", "user.email=fixture@example.invalid",
+            "commit", "-qm", "add league transport closure")
+        head = git(self.fixture.repo, "rev-parse", "HEAD").decode().strip()
+        self.fixture.config["checkout"]["commit"] = head
+        self.fixture.config["source_origin"]["head_sha"] = head
+        metadata = json.loads(Path(self.fixture.inputs["metadata/A-artifact.json"]["path"]).read_bytes())
+        metadata["workflow_run"]["head_sha"] = head
+        self.fixture.rewrite("metadata/A-artifact.json", metadata)
+        seal = json.loads(Path(self.fixture.inputs["origin/A/source-seal.json"]["path"]).read_bytes())
+        seal["ci_context"]["head_sha"] = head
+        for profile in ("test-p16", "test-p192"):
+            with self.subTest(profile=profile):
+                self.fixture.config["rove"][0]["profile"] = profile
+                seal["profiles"][0]["profile"] = profile
+                self.fixture.rewrite("origin/A/source-seal.json", seal)
+                out = self.root / ("synthetic-" + profile)
+                self.fixture.prepare(out)
+                manifest = json.loads((out / "seed.json").read_bytes())
+                self.assertEqual(manifest["rove"][0]["profile"], profile)
+                self.assertTrue(all("source/" + name in manifest["members"] for name in names))
+                self.assertFalse(any(key in manifest for key in ("qualified", "complete", "scoring")))
+                with zipfile.ZipFile(out / "seed.zip") as archive:
+                    self.assertTrue(all(archive.read("source/" + name) == b"# synthetic league transport source\n"
+                                        for name in names))
 
     def joint_fixture(self):
         """Twelve distinct synthetic sealed rows; never source/runtime admission."""

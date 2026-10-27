@@ -5,9 +5,7 @@ from pathlib import Path
 import tempfile
 from types import SimpleNamespace
 import unittest
-from unittest.mock import patch
-
-from registry import Artifact, CHECKS, admit_to_test_league, production, smt_runtime_evidence
+from registry import Artifact, CHECKS, admit_to_test_league, smt_runtime_evidence
 from topology import Cpu, Topology
 
 
@@ -74,26 +72,28 @@ class RegistryTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             directory = Path(tmp).resolve()
             original, baseline = self.fixture(directory)
-            for profile_id, workers, physical in (("test-p16", 16, 8), ("test-p192", 192, 96)):
-                with self.subTest(profile=profile_id):
-                    fake_profile = SimpleNamespace(purpose="test", workers=workers,
-                        layout=lambda entry: SimpleNamespace(bytes=96 << 20))
-                    with patch.object(production, "resource_profile", return_value=fake_profile):
-                        artifact = Artifact(**{**original.__dict__, "id": profile_id,
-                                               "profile": profile_id, "workers": workers})
-                    report = {**baseline, "artifact": artifact.identity(),
-                              "observations": {**baseline["observations"], "workers": workers,
-                                               "positive_cpu_workers": workers,
-                                               "physical_cores": physical, "logical_cpus": workers}}
-                    path, digest = self.write_receipt(directory, report)
-                    with self.assertRaisesRegex(ValueError, "SMT TEST runtime and placement"):
-                        admit_to_test_league(artifact, path, digest)
+            for profile_id, workers, physical, rove_tt, peer_tt in (
+                    ("test-p16", 16, 8, 12 << 30, 16 << 30),
+                    ("test-p192", 192, 96, 192 << 30, 128 << 30)):
+                for family, entry, tt in (("A", 24, rove_tt), ("ice4", 8, peer_tt)):
+                    with self.subTest(profile=profile_id, family=family):
+                        artifact = Artifact(**{**original.__dict__, "id": profile_id + "-" + family,
+                                               "profile": profile_id, "family": family, "workers": workers,
+                                               "entry_bytes": entry, "tt_bytes": tt})
+                        artifact.verify_bytes()
+                        report = {**baseline, "artifact": artifact.identity(),
+                                  "observations": {**baseline["observations"], "workers": workers,
+                                                   "positive_cpu_workers": workers, "tt_bytes": tt,
+                                                   "physical_cores": physical, "logical_cpus": workers}}
+                        path, digest = self.write_receipt(directory, report)
+                        with self.assertRaisesRegex(ValueError, "SMT TEST runtime and placement"):
+                            admit_to_test_league(artifact, path, digest)
 
     def test_smt_runtime_evidence_does_not_promote_tt_or_score(self):
         cpus = [value for core in range(8) for value in (core, core + 8)]
         topology = Topology(tuple(Cpu(cpu, 0, cpu % 8, 0, (cpu % 8, cpu % 8 + 8)) for cpu in cpus),
                             tuple(cpus), (0,), {"0": [10]}, "fixture").to_record()
-        artifact = SimpleNamespace(profile="test-p16", workers=16, tt_bytes=16 << 30,
+        artifact = SimpleNamespace(profile="test-p16", workers=16, tt_bytes=16 << 30, entry_bytes=8,
                                    sha256="a" * 64, native_sha256="b" * 64)
         sessions = []
         for index, label in enumerate(("cold", "warm", "active-quit", "active-eof")):
@@ -146,6 +146,28 @@ class RegistryTests(unittest.TestCase):
         self.assertTrue(observed["tt_overlapping_vma_pages_observed"])
         self.assertFalse(observed["tt_only_pages_proven"])
         self.assertFalse(observed["scored_game_placement_confirmed"])
+        # Synthetic peer-schema observations exercise the Rove resource layout
+        # separately; the current Rove runtime driver does not emit this schema.
+        rove = SimpleNamespace(profile="test-p16", workers=16, tt_bytes=12 << 30,
+                               entry_bytes=24, sha256="c" * 64, native_sha256="d" * 64)
+        rove_report = deepcopy(report)
+        other = 768 << 20
+        for session in rove_report["sessions"]:
+            session["owner"].update(whole_sha256=rove.sha256, runtime_native_sha256=rove.native_sha256)
+            session["image"]["native_sha256"] = rove.native_sha256
+            session["image"]["tt"].update(tt_bytes=rove.tt_bytes)
+            session["image"]["tt"]["mappings"][0]["end"] = 0x110 + rove.tt_bytes
+            budget = session["runtime_budget"]
+            budget.update(tt_bytes=rove.tt_bytes, address_space_bytes=rove.tt_bytes + other,
+                          required_available_bytes=rove.tt_bytes + other + (256 << 20))
+            session["preexec_placement"]["runtime_limits"]["address_space"] = [rove.tt_bytes + other] * 2
+        numa = rove_report["sessions"][0]["post_go_tt_numa"]
+        numa["tt_bytes"] = rove.tt_bytes
+        numa["tt_mappings"][0]["end"] = 0x110 + rove.tt_bytes
+        self.assertTrue(smt_runtime_evidence(rove_report, rove)["host_runtime_evidence_complete"])
+        self.assertFalse(smt_runtime_evidence(rove_report, rove)["scored_game_placement_confirmed"])
+        rove_report["sessions"][0]["owner"]["runtime_native_sha256"] = artifact.native_sha256
+        self.assertFalse(smt_runtime_evidence(rove_report, rove)["host_runtime_evidence_complete"])
         saved = json.loads(json.dumps(report))
         self.assertEqual(smt_runtime_evidence(saved, artifact), observed)
         local = deepcopy(report)

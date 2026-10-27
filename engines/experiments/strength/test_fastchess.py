@@ -30,6 +30,27 @@ spec.loader.exec_module(fastchess)
 
 
 class Adapter(unittest.TestCase):
+    def test_go2_receipt_is_framed_and_not_a_search_claim(self):
+        left, right = socket.socketpair()
+        try:
+            message = {"event": "GO2_ACCEPTED", "attempt_id": "fixture-attempt-0001",
+                       "fence_id": "fence-1", "job_sha256": "a" * 64, "nonce": "b" * 64}
+            wire = json.dumps(message).encode() + b"\n"
+            right.sendall(wire[:13])
+            right.sendall(wire[13:])
+            self.assertEqual(_wait_go2_receipt(left), message)
+        finally:
+            left.close()
+            right.close()
+
+        left, right = socket.socketpair()
+        try:
+            right.close()
+            with self.assertRaisesRegex(RuntimeError, "gate closed"):
+                _wait_go2_receipt(left)
+        finally:
+            left.close()
+
     def test_one_game_colour_and_restart_contract(self):
         white = fastchess.EngineCommand("white", ("/tmp/white", "argument with spaces"))
         black = fastchess.EngineCommand("black", ("/tmp/black",))
@@ -170,6 +191,23 @@ def _wait_ready(sock, process, timeout=10):
     raise TimeoutError("READY wait exceeded")
 
 
+def _wait_go2_receipt(sock, timeout=10):
+    """Read one local acceptance receipt, never infer an engine GO from it."""
+    sock.settimeout(timeout)
+    data = b""
+    while b"\n" not in data:
+        chunk = sock.recv(4096)
+        if not chunk:
+            raise RuntimeError("gate closed before GO2 receipt")
+        data += chunk
+        if len(data) > 16384:
+            raise RuntimeError("excessive GO2 receipt")
+    line, extra = data.split(b"\n", 1)
+    if extra:
+        raise RuntimeError("unexpected additional receipt data")
+    return json.loads(line)
+
+
 def actual_check(build_receipt: Path, out: Path) -> dict:
     if sys.platform != "linux":
         raise RuntimeError("actual runner verification requires Linux")
@@ -195,7 +233,10 @@ def actual_check(build_receipt: Path, out: Path) -> dict:
         (out / "runtime.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     save()
     for case, response in (("normal", b"GO\n"), ("reverse", b"GO\n"),
-                           ("abort", b"ABORT\n"), ("disconnect", None), ("noise", b"GO\n")):
+                           ("abort", b"ABORT\n"), ("disconnect", None), ("noise", b"GO\n"),
+                           ("go2", b""), ("go2-wrong-attempt", b""), ("go2-bad-digest", b""),
+                           ("go2-legacy-go", b"GO\n"), ("go2-abort", b"ABORT\n"),
+                           ("go2-long-attempt", b""), ("go2-too-long-attempt", b"")):
         directory = out / case
         directory.mkdir()
         ta, tb = directory / "a.jsonl", directory / "b.jsonl"
@@ -209,10 +250,20 @@ def actual_check(build_receipt: Path, out: Path) -> dict:
             argv[argv.index("-startup-ms") + 1] = "100"
         parent, child = socket.socketpair()
         metadata = {"campaign_id": "fixture", "pair_id": "fixture-pair", "game_id": case,
-                    "attempt_id": case + "-1", "slot_id": "fixture-slot", "wave_id": "fixture-wave",
+                    "attempt_id": "fixture-attempt-0001", "slot_id": "fixture-slot", "wave_id": "fixture-wave",
                     "white": white.identity, "black": black.identity, "opening_id": "fixture-foolsmate"}
+        if case in ("go2-long-attempt", "go2-too-long-attempt"):
+            metadata["attempt_id"] = "x" * (128 if case == "go2-long-attempt" else 129)
+        if case in ("go2", "go2-wrong-attempt", "go2-bad-digest", "go2-long-attempt", "go2-too-long-attempt"):
+            attempt = "fixture-attempt-0002" if case == "go2-wrong-attempt" else metadata["attempt_id"]
+            digest = "A" * 64 if case == "go2-bad-digest" else "a" * 64
+            response = f"GO2 {attempt} fence-1 {digest} {'b' * 64}\n".encode("ascii")
         environment = dict(os.environ, ROVE_START_FD=str(child.fileno()),
                            ROVE_START_JOB=json.dumps(metadata, separators=(",", ":")))
+        if case.startswith("go2"):
+            environment["ROVE_START_PROTOCOL"] = "2"
+        else:
+            environment.pop("ROVE_START_PROTOCOL", None)
         command_log = directory / "runner.log"
         started, forced, ready = time.monotonic(), False, None
         process = None
@@ -234,7 +285,18 @@ def actual_check(build_receipt: Path, out: Path) -> dict:
                     if response is None:
                         parent.close()
                     else:
-                        parent.sendall(response)
+                        # Deliberate split exercises stream framing, not TCP packet boundaries.
+                        if case.startswith("go2"):
+                            parent.sendall(response[:7])
+                            parent.sendall(response[7:])
+                        else:
+                            parent.sendall(response)
+                        if case in ("go2", "go2-long-attempt"):
+                            receipt = _wait_go2_receipt(parent)
+                            if receipt != {"event": "GO2_ACCEPTED", "attempt_id": metadata["attempt_id"],
+                                           "fence_id": "fence-1", "job_sha256": "a" * 64,
+                                           "nonce": "b" * 64}:
+                                raise AssertionError("GO2 local receipt differs: " + repr(receipt))
                 code = process.wait(timeout=15)
             rows = _rows(ta) + _rows(tb)
             if any(row.get("control_socket_inherited") for row in rows):
@@ -242,7 +304,7 @@ def actual_check(build_receipt: Path, out: Path) -> dict:
             pg = directory / "game.pgn"
             pgn = pg.read_text(encoding="utf-8") if pg.exists() else ""
             stdout = command_log.read_text(encoding="utf-8")
-            if case in ("normal", "reverse"):
+            if case in ("normal", "reverse", "go2", "go2-long-attempt"):
                 if code or f'[White "{white.identity}"]' not in pgn or f'[Black "{black.identity}"]' not in pgn:
                     raise AssertionError("normal/reversed game or player colour failed: " + stdout[-2500:])
                 if '[Result "0-1"]' not in pgn:

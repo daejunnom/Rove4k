@@ -65,6 +65,30 @@ class CapacityObservationTests(unittest.TestCase):
             separators=(",", ":"), ensure_ascii=False, allow_nan=False).encode()).hexdigest())
         self.assertLessEqual(result["started_monotonic_ns"], result["completed_monotonic_ns"])
 
+    def test_extra_controller_node_is_measured_without_changing_frozen_slots(self):
+        (self.nodes / "node2").mkdir()
+        self.write(self.nodes / "node2/meminfo", "Node 2 MemFree: 65536 kB\n")
+        self.write(self.delegated / "cpuset.mems.effective", "0-2\n")
+        original = self.observe()
+        result = self.observe(extra_nodes=[2])
+        self.assertEqual(result["node_available_bytes"], {0: 128 << 20, 1: 256 << 20, 2: 64 << 20})
+        self.assertEqual(result["extra_nodes"], [2])
+        self.assertEqual(result["controller_allowed_nodes"], [0, 1])
+        self.assertEqual(result["delegated_effective_nodes"], [0, 1, 2])
+        self.assertEqual(result["slot_sha256"], original["slot_sha256"])
+        self.assertEqual(result["slots"], original["slots"])
+        self.assertFalse(result["runtime_admission_complete"])
+
+    def test_extra_controller_nodes_must_be_distinct_bounded_and_delegated(self):
+        for extra in (None, "0", [True], [-1], [1000001], [0, 0], [[]]):
+            with self.subTest(extra=extra), self.assertRaisesRegex(ValueError, "extra memory-node"):
+                self.observe(extra_nodes=extra)
+        with self.assertRaisesRegex(ValueError, "effective masks"):
+            self.observe(extra_nodes=[2])
+        self.write(self.delegated / "cpuset.mems.effective", "0-2\n")
+        with self.assertRaisesRegex(ValueError, "node directory"):
+            self.observe(extra_nodes=[2])
+
     def test_unlimited_ancestor_is_not_a_numeric_capacity(self):
         self.write(self.delegated / "memory.max", "max\n")
         result = self.observe()
@@ -144,6 +168,49 @@ class CapacityObservationTests(unittest.TestCase):
         self.write(self.proc / "self/status", "Mems_allowed_list: 0\n")
         with self.assertRaisesRegex(ValueError, "effective masks"):
             self.observe()
+
+    def test_delegated_only_scope_observes_target_with_smaller_sibling_observer(self):
+        self.write(self.proc / "self/status", "Mems_allowed_list: 0\n")
+        # The default remains strict for existing callers.
+        with self.assertRaisesRegex(ValueError, "effective masks"):
+            self.observe(cpu_affinity_for_test={0})
+        result = self.observe(cpu_affinity_for_test={0}, mask_scope="delegated-only")
+        self.assertEqual(result["mask_scope"], "delegated-only")
+        self.assertEqual(result["controller_cpu_affinity"], [0])
+        self.assertEqual(result["controller_allowed_nodes"], [0])
+        self.assertEqual(result["delegated_effective_cpus"], [0, 1, 2, 3])
+        self.assertEqual(result["delegated_effective_nodes"], [0, 1])
+        self.assertEqual(result["node_available_bytes"], {0: 128 << 20, 1: 256 << 20})
+        self.assertFalse(result["runtime_admission_complete"])
+
+        # Target cpuset restrictions still cannot be bypassed by the mode.
+        self.write(self.delegated / "cpuset.cpus.effective", "0-2\n")
+        with self.assertRaisesRegex(ValueError, "effective masks"):
+            self.observe(cpu_affinity_for_test={0}, mask_scope="delegated-only")
+        self.write(self.delegated / "cpuset.cpus.effective", "0-3\n")
+        self.write(self.delegated / "cpuset.mems.effective", "0\n")
+        with self.assertRaisesRegex(ValueError, "effective masks"):
+            self.observe(cpu_affinity_for_test={0}, mask_scope="delegated-only")
+
+    def test_mask_scope_must_be_explicit_and_known(self):
+        for scope in (None, True, "target", "", []):
+            with self.subTest(scope=scope), self.assertRaisesRegex(ValueError, "mask scope"):
+                self.observe(mask_scope=scope)
+
+    def test_delegated_only_scope_still_checks_observer_mask_stability(self):
+        original, calls = observation._file, 0
+        status = self.proc / "self/status"
+        def changing(path, **kwargs):
+            nonlocal calls
+            value = original(path, **kwargs)
+            if Path(path) == status:
+                calls += 1
+                if calls == 2:
+                    return "Mems_allowed_list: 0\n"
+            return value
+        with patch.object(observation, "_file", side_effect=changing):
+            with self.assertRaisesRegex(ValueError, "changed during"):
+                self.observe(cpu_affinity_for_test={0}, mask_scope="delegated-only")
 
     def test_cgroup_mount_device_mismatch_is_rejected(self):
         self.write(self.proc / "self/mountinfo", f"12 1 999999:999999 / {self.mount} rw - cgroup2 cgroup rw\n")
