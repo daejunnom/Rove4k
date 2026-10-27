@@ -10,7 +10,7 @@ try:
     from .aws import ADVISOR_URL, INSTANCE_TYPE, STANDARD_SPOT_QUOTA, iso
     from .league_aws_launch import LeagueLaunchSpec, advisor_recheck_data, inspect_environment, intent_data, request_preview, review_recorded_intent
     from .league_aws_recovery import RecoveryIntent
-    from .ledger import Journal
+    from .ledger import Journal, digest
     from .shared_coordinator import SharedBudgetJournal
     from .test_global_budget import FakeS3
     from .test_league_controller import ACCOUNT, REGION, make_plan
@@ -19,7 +19,7 @@ except ImportError:
     from aws import ADVISOR_URL, INSTANCE_TYPE, STANDARD_SPOT_QUOTA, iso
     from league_aws_launch import LeagueLaunchSpec, advisor_recheck_data, inspect_environment, intent_data, request_preview, review_recorded_intent
     from league_aws_recovery import RecoveryIntent
-    from ledger import Journal
+    from ledger import Journal, digest
     from shared_coordinator import SharedBudgetJournal
     from test_global_budget import FakeS3
     from test_league_controller import ACCOUNT, REGION, make_plan
@@ -104,7 +104,11 @@ class RequestTests(unittest.TestCase):
         self.assertNotIn('InstanceInitiatedShutdownBehavior', request)
         self.assertNotIn('ValidUntil', request['InstanceMarketOptions']['SpotOptions'])
         for resource in request['TagSpecifications']:
-            self.assertEqual({tag['Key'] for tag in resource['Tags']}, {'RoveLeagueCampaign', 'RoveLeagueOwner'})
+            tags = {tag['Key']: tag['Value'] for tag in resource['Tags']}
+            self.assertEqual(len(tags), len(resource['Tags']))
+            self.assertEqual(set(tags), {'RoveLeagueCampaign', 'RoveLeagueOwner', 'RoveLeagueLaunchDigest'})
+            self.assertEqual(tags['RoveLeagueLaunchDigest'],
+                'sha256:55b4b48f529c3d2daa027cbffa6cfb6a03690424550f22109e39917406c8243b')
         self.assertEqual({row['ResourceType'] for row in request['TagSpecifications']},
                          {'instance', 'volume', 'network-interface', 'spot-instances-request'})
         self.assertEqual(request['NetworkInterfaces'][0]['SubnetId'], self.identity.subnet_id)
@@ -113,6 +117,9 @@ class RequestTests(unittest.TestCase):
         second = replace(self.identity, launch_token='other-token')
         request = request_preview(self.plan, replace(self.spec, identity=second))
         self.assertEqual(request['ClientToken'], 'other-token')
+        for resource in request['TagSpecifications']:
+            self.assertIn({'Key': 'RoveLeagueLaunchDigest', 'Value':
+                'sha256:6c67163bbed989f232b31acc4f04df54b31285bfc01bd022c735b71e041a4754'}, resource['Tags'])
         with self.assertRaises(ValueError):
             request_preview(self.plan, replace(self.spec, identity=replace(second, region='ap-northeast-1')))
 
@@ -242,6 +249,23 @@ class LedgerIntentTests(RequestTests):
             data={'launch_token': 'first-token', 'instance_id': 'i-12345678'}, at=NOW)
         with self.assertRaisesRegex(ValueError, 'bound'):
             self.review()
+
+    def test_legacy_untagged_intent_is_not_reinterpreted_as_tagged_request(self):
+        # The token is not a new request when only its tags changed: EC2
+        # idempotency and journal request identity must retain the old bytes.
+        legacy_request = request_preview(self.plan, self.spec)
+        for resource in legacy_request['TagSpecifications']:
+            resource['Tags'] = [tag for tag in resource['Tags']
+                                if tag['Key'] != 'RoveLeagueLaunchDigest']
+        tagged = intent_data(self.plan, self.spec, self.advisor, NOW)
+        old = {**tagged, 'request_sha256': digest(legacy_request)}
+        self.assertNotEqual(old['request_sha256'], tagged['request_sha256'])
+        self.record('legacy-untagged-request-01', old)
+        before = self.owner.anchor
+        with self.assertRaisesRegex(ValueError, 'durable'):
+            self.review()
+        self.assertEqual(before, self.owner.anchor)
+        self.assertFalse(any(service == 'ec2' and op == 'run-instances' for service, op in self.client.calls))
 
     def test_aggregate_budget_ceiling_and_uncertain_owner_block(self):
         data = intent_data(self.plan, self.spec, self.advisor, NOW)

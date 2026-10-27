@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 from decimal import Decimal
+import hashlib
 import re
 
 try:
@@ -72,12 +73,17 @@ def request_preview(plan, spec):
     The AMI must eventually supply an independently reviewed host owner; no
     credentials, legacy shutdown script, timeout, or hidden schedule is added.
     Spot interruption can still kill a game and is a separate infrastructure
-    failure, not a normal budget drain.
+    failure, not a normal budget drain. The launch-token digest is a correlation
+    label only: it neither authenticates the request nor hides a guessable token.
+    Adding this label changes the canonical request hash; an earlier recorded
+    intent cannot authorize or be reinterpreted as this request.
     """
     _bind(plan, spec)
     identity = spec.identity
     tags = [{'Key': 'RoveLeagueCampaign', 'Value': plan.campaign},
-            {'Key': 'RoveLeagueOwner', 'Value': identity.owner_tag}]
+            {'Key': 'RoveLeagueOwner', 'Value': identity.owner_tag},
+            {'Key': 'RoveLeagueLaunchDigest',
+             'Value': 'sha256:' + hashlib.sha256(identity.launch_token.encode('utf-8')).hexdigest()}]
     return {'ImageId': identity.image_id, 'InstanceType': INSTANCE_TYPE,
             'MinCount': 1, 'MaxCount': 1, 'ClientToken': identity.launch_token,
             'IamInstanceProfile': {'Arn': plan.profile_arn},
